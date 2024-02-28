@@ -25,7 +25,7 @@ export const AccountAlias = ({
   return (
     <Input
       data-testid={dataTestId}
-      label="Account Name"
+      label="Keys Name"
       value={value}
       onChange={(e) => onChange(e.target.value)}
       onBlur={() => verifyKeysName()}

@@ -1,10 +1,11 @@
 import {
   ActionButton,
-  Heading,
   SeedPhraseInstructions,
   Stack,
 } from "@namada/components";
-import { GoAlert } from "react-icons/go";
+import clsx from "clsx";
+import { useEffect, useState } from "react";
+import { GoAlertFill } from "react-icons/go";
 
 type SeedPhraseWarningProps = {
   onComplete: () => void;
@@ -13,34 +14,38 @@ type SeedPhraseWarningProps = {
 export const SeedPhraseWarning = ({
   onComplete,
 }: SeedPhraseWarningProps): JSX.Element => {
+  const [countdown, setCountdown] = useState(5);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (countdown > 0) {
+        setCountdown((countdown) => countdown - 1);
+      }
+    }, 1000);
+  }, [countdown]);
+
   return (
     <>
-      <hgroup className="text-center text-white mb-6 -mt-2">
-        <Heading className="uppercase text-3xl" level="h1">
-          New Seed Phrase
-        </Heading>
-      </hgroup>
-      <Stack gap={3}>
-        <aside className="flex items-center bg-black rounded-md justify-center p-14 w-full">
-          <div className="flex justify-center w-32 mx-auto text-yellow text-[75px]">
-            <GoAlert />
+      <Stack className="mb-6" gap={7}>
+        <aside className="flex items-center bg-black rounded-md justify-center py-10 w-full">
+          <div className="flex justify-center mx-auto text-yellow text-[125px] leading-[1]">
+            <GoAlertFill />
           </div>
         </aside>
-        <Stack gap={8}>
-          <div className="text-sm">
-            <SeedPhraseInstructions />
-          </div>
-          <footer>
-            <ActionButton
-              data-testid="setup-show-phrase-button"
-              size="lg"
-              onClick={onComplete}
-            >
-              I understood, show my phrase
-            </ActionButton>
-          </footer>
-        </Stack>
+        <div className="text-sm">
+          <SeedPhraseInstructions />
+        </div>
       </Stack>
+      <footer>
+        <ActionButton
+          data-testid="setup-show-phrase-button"
+          size="lg"
+          className={clsx({ "pointer-events-none opacity-50": countdown > 0 })}
+          onClick={onComplete}
+        >
+          I understood, show my phrase {countdown > 0 && `[ ${countdown} ]`}
+        </ActionButton>
+      </footer>
     </>
   );
 };

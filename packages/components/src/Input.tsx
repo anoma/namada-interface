@@ -49,7 +49,7 @@ const inputClassList = tv({
       primary: { field: "border-yellow" },
       secondary: { field: "border-cyan" },
       neutral: {
-        field: "border-neutral-500 focus:border-yellow active:border-yellow",
+        field: "border-transparent focus:border-yellow active:border-yellow",
       },
     },
   },
@@ -77,6 +77,7 @@ type InputProps = {
   variant?: InputVariants;
   rows?: number;
   "data-testid"?: string;
+  valueToDisplay?: string;
 } & React.ComponentPropsWithoutRef<"input">;
 
 export const Input = ({
@@ -90,6 +91,7 @@ export const Input = ({
   children,
   rows = 3,
   className,
+  valueToDisplay,
   "data-testid": dataTestId,
   ...props
 }: InputProps): JSX.Element => {
@@ -148,6 +150,10 @@ export const Input = ({
   matchMapFn(variant.toString(), iconMap);
   matchMapFn(variant.toString(), inputElementMap);
   inputElement["className"] = classes.field();
+
+  if (inputElement.hasOwnProperty("readOnly")) {
+    inputElement["value"] = valueToDisplay || props.value || "";
+  }
 
   const htmlTag = variant === "Textarea" ? "textarea" : "input";
   const elementChildren = variant === "Textarea" ? props.value : null;

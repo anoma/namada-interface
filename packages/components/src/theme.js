@@ -2,6 +2,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        success: "#15DD89",
+        intermediate: "#F48708",
+        fail: "#DD1539",
+        white: "#fff",
+        black: "#141414",
+        gray: "#292929",
+        rblack: "#000000",
+
         yellow: {
           DEFAULT: "#FFFF00",
           50: "#FFFFB8",
@@ -13,7 +21,7 @@ module.exports = {
           600: "#C7C700",
           700: "#8F8F00",
           800: "#575700",
-          900: "#333300",
+          900: "#3E3E25",
           950: "#1F1F00",
         },
         cyan: {
@@ -51,7 +59,7 @@ module.exports = {
         none: "0",
         sm: "5px",
         md: "10px",
-        lg: "18px",
+        lg: "15px",
         full: "100%",
         mainContainer: "24px",
         textField: "8px",
@@ -59,8 +67,9 @@ module.exports = {
       },
 
       fontSize: {
-        xs: "0.8rem",
-        sm: "0.9rem",
+        xxs: "0.625rem",
+        xs: "0.75rem",
+        sm: "0.875rem",
         base: "1rem",
         md: "1rem",
         lg: "1.125rem",

@@ -1,5 +1,5 @@
 import { ActionButton, Alert, Loading, Stack } from "@namada/components";
-import { AccountAlias, PageHeader, Password } from "Setup/Common";
+import { AccountAlias, Password } from "Setup/Common";
 import routes from "Setup/routes";
 import { AddLedgerAccountMsg } from "background/keyring";
 import { CreatePasswordMsg } from "background/vault";
@@ -87,16 +87,18 @@ export const LedgerImport = ({
         variant="full"
         visible={loading}
       />
-      <Stack gap={12}>
-        <PageHeader title="Import your Keys from Ledger HW" />
-        {error && <Alert type="error">{error}</Alert>}
-        <Stack as="form" gap={6} onSubmit={onSubmit}>
+      <Stack as="form" onSubmit={onSubmit} gap={5} className="h-[440px]">
+        <Stack className="flex-1 justify-center" gap={6}>
           <AccountAlias value={keysName} onChange={setKeysName} />
           {passwordRequired && <Password onValidPassword={setPassword} />}
-          <ActionButton disabled={(passwordRequired && !password) || !keysName}>
-            Next
-          </ActionButton>
+          {error && <Alert type="error">{error}</Alert>}
         </Stack>
+        <ActionButton
+          size="lg"
+          disabled={(passwordRequired && !password) || !keysName}
+        >
+          Next
+        </ActionButton>
       </Stack>
     </>
   );

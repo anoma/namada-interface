@@ -8,12 +8,12 @@ const dropdownMenu = tv({
     base: "relative w-6",
     icon: "flex w-full text-[30px] items-center cursor-pointer [&_circle]:fill-current",
     list: clsx(
-      "bg-neutral-800 rounded-md border border-neutral-700 pb-7 overflow-hidden",
+      "bg-neutral-800 rounded-md pb-7 overflow-hidden",
       "absolute -right-2 w-58 z-20"
     ),
     item: clsx(
       "border-b border-yellow-700 text-neutral-300 cursor-pointer font-medium",
-      "text-base py-2.5 px-6 select-none"
+      "text-[18px] py-2.5 px-6 select-none"
     ),
     overlay: clsx(
       "fixed left-0 top-0 bg-black/10 w-full h-full z-10 cursor-pointer"

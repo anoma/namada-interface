@@ -49,6 +49,7 @@ export const Login = ({ onLogin }: LoginProps): JSX.Element => {
   return (
     <Stack
       as="form"
+      className="py-6"
       gap={GapPatterns.TitleContent}
       onSubmit={handleSubmit}
       full
@@ -57,8 +58,7 @@ export const Login = ({ onLogin }: LoginProps): JSX.Element => {
         <Image
           styleOverrides={{
             flex: 1,
-            width: "100%",
-            maxWidth: "60%",
+            width: "220px",
             margin: "0 auto",
           }}
           imageName="LogoMinimal"
@@ -66,7 +66,7 @@ export const Login = ({ onLogin }: LoginProps): JSX.Element => {
       </div>
       <Stack gap={2} full>
         <Heading className="text-lg text-center text-white">
-          Enter your password to unlock
+          Enter your password
         </Heading>
         <Input
           autoFocus={true}

@@ -1,23 +1,32 @@
+import clsx from "clsx";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ActionButton, Heading, Image, Stack } from "@namada/components";
+import {
+  ActionButton,
+  Heading,
+  Image,
+  LinkButton,
+  Stack,
+} from "@namada/components";
 import routes from "./routes";
 
 export const Start: React.FC = () => {
   const navigate = useNavigate();
   return (
-    <>
-      <div className="max-w-[244px] mt-7 mx-auto mb-15">
+    <div className="pt-10">
+      <div className="max-w-[230px] mx-auto mb-9">
         <Image imageName="LogoMinimal" />
       </div>
       <Heading
-        className="text-white text-center uppercase text-lg font-medium mb-8"
+        className={clsx(
+          "text-yellow text-center uppercase text-xl font-medium mb-9 tracking-[0.015em]"
+        )}
         level="h1"
       >
         Your Keys to Multichain Privacy
       </Heading>
-      <Stack as="div" direction="vertical" gap={4}>
+      <Stack as="div" direction="vertical" gap={2}>
         <ActionButton
           size="lg"
           data-testid="setup-create-keys-button"
@@ -27,18 +36,21 @@ export const Start: React.FC = () => {
         </ActionButton>
         <ActionButton
           size="lg"
+          outlined
           data-testid="setup-import-keys-button"
           onClick={() => navigate(routes.accountImportSeed())}
         >
           Import existing keys
         </ActionButton>
-        <ActionButton
-          size="lg"
+        <LinkButton
+          className="py-3"
+          color="white"
+          hoverColor="primary"
           onClick={() => navigate(routes.ledgerConnect())}
         >
-          Connect to Ledger Hardware Wallet
-        </ActionButton>
+          Connect Hardware Wallet
+        </LinkButton>
       </Stack>
-    </>
+    </div>
   );
 };

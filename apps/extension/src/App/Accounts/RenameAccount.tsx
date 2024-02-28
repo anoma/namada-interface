@@ -55,7 +55,11 @@ export const RenameAccount = (): JSX.Element => {
     >
       <PageHeader title="Rename Key" />
       {account && (
-        <Stack full gap={GapPatterns.FormFields}>
+        <Stack
+          className="flex-1 justify-center"
+          full
+          gap={GapPatterns.FormFields}
+        >
           <Input readOnly label="Current name" value={account.alias} />
           <Input
             autoFocus
@@ -67,7 +71,7 @@ export const RenameAccount = (): JSX.Element => {
           />
         </Stack>
       )}
-      {account && <ActionButton size="lg">Rename</ActionButton>}
+      {account && <ActionButton size="md">Rename</ActionButton>}
     </Stack>
   );
 };

@@ -15,14 +15,11 @@ import { CreatePasswordMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { useNavigate } from "react-router-dom";
 import { Ports } from "router";
-import { PageHeader } from "./PageHeader";
 
 type Props = {
   alias: string;
   accountSecret?: AccountSecret;
   scanAccounts: boolean;
-  pageTitle: string;
-  pageSubtitle: string;
   password?: string;
   passwordRequired: boolean | undefined;
 };
@@ -34,15 +31,8 @@ enum Status {
 }
 
 export const Completion: React.FC<Props> = (props) => {
-  const {
-    alias,
-    accountSecret,
-    password,
-    scanAccounts,
-    pageTitle,
-    pageSubtitle,
-    passwordRequired,
-  } = props;
+  const { alias, accountSecret, password, scanAccounts, passwordRequired } =
+    props;
 
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
   const [statusInfo, setStatusInfo] = useState<string>("");
@@ -148,13 +138,16 @@ export const Completion: React.FC<Props> = (props) => {
       )}
       {mnemonicStatus === Status.Completed && (
         <>
-          <PageHeader title={pageTitle} subtitle={pageSubtitle} />
+          <p className="text-white text-center text-base w-full -mt-3 mb-8">
+            Here are the accounts generated from your keys
+          </p>
           <ViewKeys
             publicKeyAddress={publicKeyAddress}
             transparentAccountAddress={transparentAccountAddress}
             shieldedAccountAddress={shieldedAccountAddress}
             footer={
               <ActionButton
+                size="lg"
                 data-testid="setup-close-page-btn"
                 onClick={closeCurrentTab}
               >

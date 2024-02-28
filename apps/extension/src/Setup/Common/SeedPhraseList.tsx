@@ -20,9 +20,9 @@ export const SeedPhraseList = ({
 }: SeedPhraseListProps): JSX.Element => {
   const list = (
     <ol
-      className={clsx("grid gap-2 min-h-[240px]")}
+      className={clsx("grid gap-x-1.5 gap-y-2 w-full")}
       data-testid="setup-seed-phrase-list"
-      style={{ gridTemplateColumns: `repeat(${columns}, 148px)` }}
+      style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
     >
       {words.map((word, idx) => (
         <SeedPhraseListItem

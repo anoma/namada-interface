@@ -3,17 +3,16 @@ import React, { useCallback, useState } from "react";
 import {
   ActionButton,
   Alert,
-  Icon,
   Input,
   LinkButton,
   RadioGroup,
   Stack,
-  Text,
 } from "@namada/components";
 import { assertNever } from "@namada/utils";
-import { PageHeader, SeedPhraseList } from "Setup/Common";
+import { SeedPhraseList } from "Setup/Common";
 import { AccountSecret, ValidateMnemonicMsg } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
+import { GoX } from "react-icons/go";
 import { Ports } from "router";
 import { filterPrivateKeyPrefix, validatePrivateKey } from "utils";
 
@@ -161,27 +160,26 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
 
   return (
     <>
-      <PageHeader title="Import Account" />
       <Stack
         as="ul"
         gap={1}
-        className="text-base list-disc mb-12 px-6 text-white font-medium"
+        className="text-sm list-disc mb-5 px-6 text-white font-medium"
       >
         <li>
-          Enter your seed phrase in the right order without capitalization,
+          Enter your seed phrase in the right order without capitalisation,
           punctuation symbols or spaces.
         </li>
         <li>Or copy and paste your entire phrase. </li>
       </Stack>
       <Stack
         as="form"
-        gap={6}
+        gap={3}
         onSubmit={(e) => {
           e.preventDefault();
           onSubmit();
         }}
       >
-        <Stack direction="vertical" gap={6}>
+        <Stack direction="vertical" gap={2.5}>
           {mnemonicError && <Alert type={"error"}>{mnemonicError}</Alert>}
           <RadioGroup
             id="mnemonicLength"
@@ -236,20 +234,18 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
           {showPassphrase && (
             <div className="relative">
               <div onClick={onShowPassphraseChange}>
-                <Icon
-                  size="sm"
-                  className="absolute top-4 right-4 text-white cursor-pointer"
-                  name="X"
-                />
+                <i className="block text-lg absolute top-5 right-4 text-white cursor-pointer">
+                  <GoX />
+                </i>
               </div>
-              <Alert type={"warning"} title={"Please note"}>
-                <Stack gap={2}>
-                  <Text className="text-white leading-6">
-                    This import option is <b>only</b> for users who have created
-                    a Namada account using the CLI with a{" "}
-                    <b>BIP39 passphrase</b>. Do not input your Namada extension
-                    password.
-                  </Text>
+              <Alert type={"warning"} title={"Please note"} className="mb-3">
+                <Stack gap={6}>
+                  <p className="text-[13px] leading-[1.25] text-white">
+                    This import option is only users who have created a Namada
+                    account using the Namada protocol CLI v.0.17.0 or older, and
+                    used a BIP39 passphrase. Do not input your Namada extension
+                    password
+                  </p>
                   <Input
                     data-testid="setup-import-keys-passphrase-input"
                     label="Enter your passphrase"
@@ -272,10 +268,11 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
             </LinkButton>
           )}
           <ActionButton
+            size="lg"
             data-testid="setup-import-keys-import-button"
             disabled={isSubmitButtonDisabled}
           >
-            Import
+            Next
           </ActionButton>
         </Stack>
       </Stack>

@@ -5,19 +5,23 @@ const container = tv({
   slots: {
     base: "flex items-center bg-black justify-center py-7 min-h-[100svh]",
     wrapper: clsx(
-      "bg-neutral-800 rounded-md relative flex basis-[min-content] flex-col grow-0 max-w-full",
-      "overflow-hidden transition-all duration-100 ease-out min-w-[540px]"
+      "bg-neutral-800 rounded-lg relative flex flex-col grow-0 max-w-full",
+      "px-10 overflow-hidden transition-all duration-100 ease-out"
     ),
-    header: "border-b-2 border-black relative py-5 relative",
-    body: "pt-6 px-7 pb-8 flex-1 animate-fade-in sm:px-8 sm:py-8",
+    header: "relative pt-5",
+    body: "flex-1 animate-fade-in",
   },
   variants: {
     size: {
       popup: {
         base: "items-stretch py-0 w-full",
-        wrapper: "rounded-none min-h-[320px] min-w-full",
+        header: "absolute top-0 w-full left-0 h-17",
+        wrapper:
+          "rounded-none min-h-[320px] min-w-full basis-[min-content] px-5",
       },
-      base: {},
+      base: {
+        wrapper: "w-[540px] min-h-[600px] pb-10",
+      },
     },
   },
 });

@@ -4,11 +4,11 @@ import {
   ActionButton,
   Alert,
   GapPatterns,
-  Heading,
   Input,
   Stack,
 } from "@namada/components";
 import { isUrlValid } from "@namada/utils";
+import { PageHeader } from "App/Common";
 import { UpdateChainMsg } from "background/chains";
 import { useRequester } from "hooks/useRequester";
 import { GetChainMsg } from "provider";
@@ -95,10 +95,8 @@ export const Network = (): JSX.Element => {
       onSubmit={handleSubmit}
       full
     >
-      <Heading className="uppercase text-2xl text-center text-white">
-        Network
-      </Heading>
-      <Stack full gap={GapPatterns.FormFields}>
+      <PageHeader title="Network" />
+      <Stack className="justify-center" full gap={GapPatterns.FormFields}>
         <Input
           label="Chain ID"
           variant="Text"
@@ -120,7 +118,7 @@ export const Network = (): JSX.Element => {
         )}
       </Stack>
       <ActionButton
-        size="lg"
+        size="md"
         disabled={shouldDisableSubmit}
         onSubmit={handleSubmit}
       >

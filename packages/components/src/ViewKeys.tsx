@@ -1,5 +1,6 @@
 import { ActionButton, GapPatterns, Input, Stack } from "@namada/components";
 
+import { shortenAddress } from "@namada/utils";
 import clsx from "clsx";
 
 type ViewKeysProps = {
@@ -18,12 +19,17 @@ export const ViewKeys = ({
   footer,
 }: ViewKeysProps): JSX.Element => {
   return (
-    <Stack as="section" gap={GapPatterns.TitleContent}>
+    <Stack
+      className="flex-1 justify-center"
+      as="section"
+      gap={GapPatterns.TitleContent}
+    >
       <Stack gap={GapPatterns.FormFields}>
         {transparentAccountAddress && (
           <Input
             label="Your Transparent Address"
             variant="ReadOnlyCopy"
+            valueToDisplay={shortenAddress(transparentAccountAddress, 16)}
             value={transparentAccountAddress}
             theme={"primary"}
           />
@@ -32,6 +38,7 @@ export const ViewKeys = ({
           <Input
             label="Public Key"
             variant="ReadOnlyCopy"
+            valueToDisplay={shortenAddress(publicKeyAddress, 16)}
             value={publicKeyAddress}
             theme={"primary"}
           />
@@ -41,6 +48,7 @@ export const ViewKeys = ({
             label="Your Shielded Address"
             variant="ReadOnlyCopy"
             readOnly={true}
+            valueToDisplay={shortenAddress(shieldedAccountAddress, 16)}
             value={shieldedAccountAddress}
             theme={"secondary"}
           />

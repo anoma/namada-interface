@@ -18,7 +18,8 @@ import { usePasswordInitialized } from "hooks/usePasswordInitialized";
 import { SeedPhrase, SeedPhraseConfirmation } from "./AccountCreation";
 import { SeedPhraseWarning } from "./AccountCreation/SeedPhraseWarning";
 import { Completion, ContainerHeader } from "./Common";
-import { SeedPhraseImport, SeedPhraseSetup } from "./ImportAccount";
+import CreateKeyForm from "./Common/CreateKeyForm";
+import { SeedPhraseImport } from "./ImportAccount";
 import { LedgerConfirmation, LedgerConnect, LedgerImport } from "./Ledger";
 import { Start } from "./Start";
 import routes from "./routes";
@@ -62,17 +63,27 @@ export const Setup: React.FC = () => {
     useState<AccountSecret>();
   const [currentStep, setCurrentStep] = useState(0);
   const [totalSteps, setTotalSteps] = useState(0);
+  const [currentPageTitle, setCurrentPageTitle] = useState("");
 
   const seedPhrase =
     accountSecret?.t === "Mnemonic" ? accountSecret.seedPhrase : undefined;
 
-  const goToStep = (step: number) => () => setCurrentStep(step);
+  const setCurrentPage = (pageTitle: string, step: number) => () => {
+    setCurrentStep(step);
+    setCurrentPageTitle(pageTitle);
+  };
 
   return (
     <Container
       size="base"
       header={
-        <ContainerHeader currentStep={currentStep} totalSteps={totalSteps} />
+        totalSteps > 0 && (
+          <ContainerHeader
+            pageTitle={currentPageTitle}
+            currentStep={currentStep}
+            totalSteps={totalSteps}
+          />
+        )
       }
     >
       <AnimatePresence>
@@ -91,15 +102,16 @@ export const Setup: React.FC = () => {
             {/* Create New Keys */}
             <Route
               element={
-                <Wrapper onLoad={() => setTotalSteps(4)}>
+                <Wrapper onLoad={() => setTotalSteps(5)}>
                   <Outlet />
                 </Wrapper>
               }
             >
+              {/* Create New Keys > New Seed Phrase Instructions + Button timeout */}
               <Route
                 path={routes.accountCreationWarning()}
                 element={
-                  <Wrapper onLoad={goToStep(1)}>
+                  <Wrapper onLoad={setCurrentPage("New Seed Phrase", 1)}>
                     <SeedPhraseWarning
                       onComplete={() => {
                         navigate(routes.accountCreationSeed());
@@ -108,12 +120,13 @@ export const Setup: React.FC = () => {
                   </Wrapper>
                 }
               />
+
+              {/* Create New Keys > List of words */}
               <Route
                 path={routes.accountCreationSeed()}
                 element={
-                  <Wrapper onLoad={goToStep(2)}>
+                  <Wrapper onLoad={setCurrentPage("New Seed Phrase", 2)}>
                     <SeedPhrase
-                      accountCreationDetails={accountCreationDetails}
                       defaultSeedPhrase={seedPhrase}
                       onConfirm={(seedPhrase: string[]) => {
                         setAccountSecret({
@@ -121,23 +134,47 @@ export const Setup: React.FC = () => {
                           seedPhrase,
                           passphrase: "",
                         });
-                        navigate(routes.accountCreationConfirm());
+                        navigate(routes.accountCreationConfirmKey());
                       }}
                     />
                   </Wrapper>
                 }
               />
+
+              {/* Create New Keys > Verify your seed phrase */}
               <Route
-                path={routes.accountCreationConfirm()}
+                path={routes.accountCreationConfirmKey()}
                 element={
-                  <Wrapper onLoad={goToStep(3)}>
+                  <Wrapper
+                    onLoad={setCurrentPage("Verify your seed phrase", 3)}
+                  >
                     <SeedPhraseConfirmation
                       accountCreationDetails={accountCreationDetails}
                       seedPhrase={seedPhrase || []}
                       passwordRequired={!passwordInitialized}
+                      onConfirm={() => {
+                        if (!seedPhrase?.length) {
+                          navigate(routes.accountCreationWarning());
+                          return;
+                        }
+                        navigate(routes.accountCreateKey());
+                      }}
+                    />
+                  </Wrapper>
+                }
+              />
+
+              {/* Create New Keys > Create account or key name */}
+              <Route
+                path={routes.accountCreateKey()}
+                element={
+                  <Wrapper onLoad={setCurrentPage("Create Your Account", 4)}>
+                    <CreateKeyForm
+                      passwordRequired={!passwordInitialized}
+                      accountCreationDetails={accountCreationDetails}
                       onConfirm={(accountCreationDetails: AccountDetails) => {
                         if (!seedPhrase?.length) {
-                          navigate(routes.accountCreationConfirm());
+                          navigate(routes.accountCreationWarning());
                           return;
                         }
                         setAccountCreationDetails(accountCreationDetails);
@@ -153,14 +190,14 @@ export const Setup: React.FC = () => {
                   </Wrapper>
                 }
               />
+
+              {/* Create New Keys > Confirmation  */}
               <Route
                 path={routes.accountCreationComplete()}
                 element={
-                  <Wrapper onLoad={goToStep(4)}>
+                  <Wrapper onLoad={setCurrentPage("Namada Keys Created", 5)}>
                     <Completion
                       passwordRequired={!passwordInitialized}
-                      pageTitle="Namada Keys Created"
-                      pageSubtitle="Here are the accounts generated from your keys"
                       alias={accountCreationDetails.alias || ""}
                       accountSecret={selectedAccountSecret}
                       password={accountCreationDetails.password || ""}
@@ -179,27 +216,30 @@ export const Setup: React.FC = () => {
                 </Wrapper>
               }
             >
+              {/* Import Existing Keys > Write / Paste seed phrase */}
               <Route
                 path={routes.accountImportSeed()}
                 element={
-                  <Wrapper onLoad={goToStep(1)}>
+                  <Wrapper onLoad={setCurrentPage("Import Existing Keys", 1)}>
                     <SeedPhraseImport
                       onConfirm={(accountSecret: AccountSecret) => {
                         setAccountSecret(accountSecret);
-                        navigate(routes.accountImportPassword());
+                        navigate(routes.accountImportCreate());
                       }}
                     />
                   </Wrapper>
                 }
               />
+
+              {/* Import Existing Keys > Setup keys name and/or password  */}
               <Route
-                path={routes.accountImportPassword()}
+                path={routes.accountImportCreate()}
                 element={
-                  <Wrapper onLoad={goToStep(2)}>
-                    <SeedPhraseSetup
+                  <Wrapper
+                    onLoad={setCurrentPage("Set Up Your Imported Keys", 2)}
+                  >
+                    <CreateKeyForm
                       passwordRequired={!passwordInitialized}
-                      accountCreationDetails={accountCreationDetails}
-                      accountSecret={accountSecret}
                       onConfirm={(accountCreationDetails: AccountDetails) => {
                         if (!accountSecret) {
                           navigate(routes.accountImportSeed());
@@ -213,14 +253,14 @@ export const Setup: React.FC = () => {
                   </Wrapper>
                 }
               />
+
+              {/* Import Existing Keys > Success screen */}
               <Route
                 path={routes.accountImportComplete()}
                 element={
-                  <Wrapper onLoad={goToStep(3)}>
+                  <Wrapper onLoad={setCurrentPage("Namada Keys Imported", 3)}>
                     <Completion
                       passwordRequired={!passwordInitialized}
-                      pageTitle="Namada Keys Imported"
-                      pageSubtitle="Here are the accounts generated from your keys"
                       alias={accountCreationDetails.alias || ""}
                       accountSecret={selectedAccountSecret}
                       password={accountCreationDetails.password || ""}
@@ -242,7 +282,9 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.ledgerConnect()}
                 element={
-                  <Wrapper onLoad={() => setCurrentStep(1)}>
+                  <Wrapper
+                    onLoad={setCurrentPage("Connect Your Ledger Hardware", 1)}
+                  >
                     <LedgerConnect />
                   </Wrapper>
                 }
@@ -250,7 +292,12 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.ledgerImport()}
                 element={
-                  <Wrapper onLoad={() => setCurrentStep(2)}>
+                  <Wrapper
+                    onLoad={setCurrentPage(
+                      "Import Your Keys From Ledger Hardware",
+                      2
+                    )}
+                  >
                     <LedgerImport passwordRequired={!passwordInitialized} />
                   </Wrapper>
                 }
@@ -258,7 +305,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.ledgerComplete()}
                 element={
-                  <Wrapper onLoad={() => setCurrentStep(3)}>
+                  <Wrapper onLoad={setCurrentPage("Namada Keys Imported", 3)}>
                     <LedgerConfirmation />
                   </Wrapper>
                 }

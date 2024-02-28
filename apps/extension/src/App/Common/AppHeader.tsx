@@ -1,4 +1,3 @@
-import { Image } from "@namada/components";
 import clsx from "clsx";
 import { useVaultContext } from "context";
 import { useState } from "react";
@@ -28,39 +27,30 @@ export const AppHeader = ({
 
   return (
     <>
-      <header>
-        {returnButton && (
-          <i
-            className={clsx(iconsClassList, "left-7")}
-            onClick={() => navigate(-1)}
-          >
-            <GoArrowLeft />
-          </i>
-        )}
+      {returnButton && (
+        <i
+          className={clsx(iconsClassList, "left-7")}
+          onClick={() => navigate(-1)}
+        >
+          <GoArrowLeft />
+        </i>
+      )}
 
-        {lockButton && (
-          <span
-            className={clsx(iconsClassList, "left-7")}
-            onClick={() => lock()}
-          >
-            <GoUnlock />
-          </span>
-        )}
+      {lockButton && (
+        <span className={clsx(iconsClassList, "left-7")} onClick={() => lock()}>
+          <GoUnlock />
+        </span>
+      )}
 
-        <div className="max-w-[168px] mx-auto">
-          <Image imageName="Logo" />
-        </div>
-
-        {settingsButton && (
-          <i
-            className={clsx(iconsClassList, "right-7")}
-            onClick={() => setOpen(true)}
-          >
-            <GoGear />
-          </i>
-        )}
-        <AppHeaderNavigation onClose={() => setOpen(false)} open={open} />
-      </header>
+      {settingsButton && (
+        <i
+          className={clsx(iconsClassList, "right-7")}
+          onClick={() => setOpen(true)}
+        >
+          <GoGear />
+        </i>
+      )}
+      <AppHeaderNavigation onClose={() => setOpen(false)} open={open} />
     </>
   );
 };

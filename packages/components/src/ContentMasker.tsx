@@ -8,7 +8,7 @@ const contentMasker = tv({
     blurred:
       "flex blur-sm transition-all duration-500 ease-out hover:blur-none",
     icon: clsx(
-      "flex h-[45%] w-full justify-center left-1/2 max-w-[88px] w-full text-yellow",
+      "flex aspect-square w-full justify-center left-1/2 max-w-[100px] w-full text-yellow",
       "pointer-events-none absolute top-1/2 -translate-y-1/2 -translate-x-1/2",
       "transition-opacity duration-100 ease-out",
       "[&_svg]:!w-full [&_svg]:!h-full group-hover:opacity-0"

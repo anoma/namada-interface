@@ -1,4 +1,5 @@
 import { ExtensionKVStore } from "@namada/storage";
+import clsx from "clsx";
 import { useCallback, useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 
@@ -9,8 +10,8 @@ import {
   ApprovedOriginsStore,
   RevokeConnectionMsg,
 } from "background/approvals";
-import clsx from "clsx";
 import { useRequester } from "hooks/useRequester";
+import { GoX } from "react-icons/go";
 import { KVPrefix, Ports } from "router";
 
 const approvedOriginsStore = new ExtensionKVStore<ApprovedOriginsStore>(
@@ -43,37 +44,35 @@ export const ConnectedSites: React.FC = ({}) => {
     fetchConnectedSites();
   };
 
+  const hasConnectedSites = connectedSites && connectedSites.length > 0;
   return (
     <Stack gap={6}>
       <PageHeader title="Connected Sites" />
-      {connectedSites && connectedSites.length === 0 && (
+      {!hasConnectedSites && (
         <Alert type="info">No connected sites found.</Alert>
       )}
 
-      <ul className="mb-2">
-        {connectedSites &&
-          connectedSites.map((site, i) => (
-            <li key={i} className="my-1 flex">
-              <div
-                className={clsx(
-                  "flex w-[90%] bg-black text-xs text-neutral-200 border border-black",
-                  "rounded-sm p-2"
-                )}
-              >
-                {site}
-              </div>
-              <div
-                className={clsx(
-                  "flex w-[10%] bg-black text-xs text-neutral-200 border border-black",
-                  'rounded-sm p-2 cursor-pointer text-center before:content("x")',
-                  "before:translate-x-1/2 before:translate-y-1/2",
-                  "hover:text-black hover:bg-white"
-                )}
+      {hasConnectedSites && (
+        <Stack gap={4}>
+          {connectedSites.map((site, i) => (
+            <li
+              key={`connected-site-${i}`}
+              className={clsx(
+                "bg-black rounded-md flex justify-between items-center text-white",
+                "items-center text-base py-4 px-6"
+              )}
+            >
+              <span>{site}</span>
+              <span
+                className="p-2 cursor-pointer hover:text-yellow -mr-2"
                 onClick={() => handleRevokeConnection(site)}
-              />
+              >
+                <GoX />
+              </span>
             </li>
           ))}
-      </ul>
+        </Stack>
+      )}
     </Stack>
   );
 };

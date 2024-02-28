@@ -6,7 +6,7 @@ const progressIndicator = tv({
   slots: {
     container: "mx-auto flex justify-center",
     listItem: clsx(
-      "bg-neutral-900 rounded-full overflow-hidden relative w-[14px] h-[14px]",
+      "bg-neutral-900 rounded-full overflow-hidden relative w-[10px] h-[10px]",
       "before:absolute before:h-full before:w-full before:left-0 before:top-0",
       "before:bg-yellow before:transition-all before:duration-100 before:ease-out",
       "[&[aria-current='true']]:before:translate-x-0"

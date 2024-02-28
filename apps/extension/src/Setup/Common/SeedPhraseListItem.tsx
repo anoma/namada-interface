@@ -17,19 +17,24 @@ export const SeedPhraseListItem = ({
   return (
     <li
       className={clsx(
-        "relative bg-black rounded-sm text-neutral-500 text-base font-light",
-        "list-inside list-decimal px-2.5 py-4"
+        "relative bg-black rounded-sm text-neutral-500 text-sm font-light",
+        "px-1 py-3 h-[48px]"
       )}
     >
       {onChange ? (
         <span
           className={clsx(
-            "absolute left-0 -top-2 w-full h-full",
-            "[&_input]:bg-transparent [&_input]:pt-4 [&_input]:pb-4 [&_input]:pl-10"
+            "flex items-center absolute left-0 top-0 w-full h-full",
+            "[&_input]:bg-transparent [&_input]:border-0",
+            "[&_input]:pt-4 [&_input]:pb-3 [&_input]:pl-7"
           )}
         >
+          <i className="absolute left-2 not-italic pointer-events-none">
+            {idx + 1}
+          </i>
           <Input
             label=""
+            className="-mt-2"
             variant="PasswordOnBlur"
             hideIcon={true}
             onChange={(e) => onChange(idx, e.target.value)}
@@ -40,10 +45,10 @@ export const SeedPhraseListItem = ({
       ) : (
         <span
           className={clsx(
-            "absolute text-white font-bold left-12 top-[1em] select-none"
+            "absolute text-white font-light left-2.5 top-[1em] select-none"
           )}
         >
-          {word}
+          {idx + 1} <span className="font-bold">{word}</span>
         </span>
       )}
     </li>

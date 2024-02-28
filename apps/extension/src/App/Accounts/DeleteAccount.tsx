@@ -5,6 +5,7 @@ import {
   Alert,
   GapPatterns,
   Input,
+  LinkButton,
   Loading,
   Stack,
 } from "@namada/components";
@@ -84,21 +85,30 @@ export const DeleteAccount = (): JSX.Element => {
 
   return (
     <>
+      <PageHeader title="Delete Keys" />
       <Stack
         as="form"
         onSubmit={handleSubmit}
         gap={GapPatterns.TitleContent}
         full
       >
-        <Stack gap={GapPatterns.TitleContent} full>
+        <Stack className="flex-1 justify-center" gap={4} full>
           <Stack as="header" gap={4}>
-            <PageHeader title="Delete Keys" />
             <Alert type="warning" title="Alert!">
-              Make sure that you&apos;ve backed up your seed phrase and private
-              key.
+              <p className="mb-4">
+                Make sure that you&apos;ve backed up your seed phrase and
+                private key.
+              </p>
+              <LinkButton
+                color="primary"
+                className="font-bold mt-4 text-sm underline"
+                href={routes.viewAccountMnemonic(accountId)}
+              >
+                Back Up My Wallet
+              </LinkButton>
             </Alert>
           </Stack>
-          <p className="text-white leading-5 text-base font-medium">
+          <p className="text-white leading-5 text-sm px-2 font-medium mb-10">
             After deletion, you will be required to import your seed phrase to
             restore your access to it
           </p>
@@ -111,7 +121,7 @@ export const DeleteAccount = (): JSX.Element => {
             error={errorMessage}
           />
         </Stack>
-        <ActionButton size="lg" disabled={shouldDisableSubmit}>
+        <ActionButton size="md" disabled={shouldDisableSubmit}>
           Delete Account
         </ActionButton>
       </Stack>

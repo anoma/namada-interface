@@ -71,7 +71,7 @@ export const ViewMnemonic = (): JSX.Element => {
 
       {!passwordChecked && (
         <>
-          <Stack full gap={GapPatterns.FormFields}>
+          <Stack className="mt-12" full gap={GapPatterns.FormFields}>
             <Alert type="info">
               Please provide your password in order to view your seed phrase
             </Alert>
@@ -85,26 +85,28 @@ export const ViewMnemonic = (): JSX.Element => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </Stack>
-          <ActionButton disabled={!password}>Proceed</ActionButton>
+          <ActionButton type="submit" size="md" disabled={!password}>
+            Proceed
+          </ActionButton>
         </>
       )}
 
       {passwordChecked && (
         <>
-          <Stack full gap={1}>
+          <Stack className="flex-1 justify-center" full gap={1}>
             <div className="text-sm -mt-1.5">
               <SeedPhraseInstructions />
             </div>
             <Input
               variant="Textarea"
-              theme="secondary"
               readOnly={true}
               value={mnemonic}
               sensitive
+              className="[&_textarea]:rounded-lg [&_textarea]:py-8 [&_textarea]:px-6"
               rows={mnemonic.split(" ").length === 24 ? 5 : 3}
             />
           </Stack>
-          <ActionButton size="sm" onClick={() => navigate(-1)}>
+          <ActionButton size="md" onClick={() => navigate(-1)}>
             Back
           </ActionButton>
         </>

@@ -18,7 +18,7 @@ type Story = StoryObj<typeof Container>;
 
 export const NormalContainer: Story = {
   args: {
-    header: <h2 className="text-white px-8">Default Header</h2>,
+    header: <h2 className="text-white">Default Header</h2>,
     size: "base",
     children: (
       <p className="text-yellow">
