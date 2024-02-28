@@ -7612,6 +7612,7 @@ __metadata:
     file-loader: "npm:^6.2.0"
     framer-motion: "npm:6.2.4"
     jest: "npm:^29.0.1"
+    jest-create-mock-instance: "npm:^2.0.0"
     jest-environment-jsdom: "npm:^29.3.1"
     js-sha256: "npm:^0.10.1"
     leb128: "npm:^0.0.5"
@@ -20715,6 +20716,13 @@ __metadata:
     ts-node:
       optional: true
   checksum: bab23c2eda1fff06e0d104b00d6adfb1d1aabb7128441899c9bff2247bd26710b050a5364281ce8d52b46b499153bf7e3ee88b19831a8f3451f1477a0246a0f1
+  languageName: node
+  linkType: hard
+
+"jest-create-mock-instance@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "jest-create-mock-instance@npm:2.0.0"
+  checksum: 418b06d0cbd2e02ad090d0be4e0d67c7c304997f9a819deeb65e75e538f48416ace5fbae440866c70d71ced3ea54930898526931b31903ba803e3ae25f0e7d87
   languageName: node
   linkType: hard
 

@@ -53,7 +53,7 @@ export class ApprovalsService {
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService,
     protected readonly vaultService: VaultService
-  ) { }
+  ) {}
 
   async approveSignature(
     signer: string,
@@ -69,9 +69,9 @@ export class ApprovalsService {
     const url = paramsToUrl(baseUrl, {
       msgId,
     });
-    const approvalWindow = await this._launchApprovalWindow(url);
-    const popupTabId = approvalWindow.tabs?.[0]?.id;
+    const popupTabId = await this.getPopupTabId(url);
 
+    // TODO: can tabId be 0?
     if (!popupTabId) {
       throw new Error("no popup tab ID");
     }
@@ -100,6 +100,7 @@ export class ApprovalsService {
     if (!data) {
       throw new Error(`Signing data for ${msgId} not found!`);
     }
+    //TODO: Shouldn't we _clearPendingSignature when throwing?
 
     try {
       const signature = await this.keyRingService.signArbitrary(signer, data);
@@ -420,5 +421,12 @@ export class ApprovalsService {
       height: 510,
       type: "popup",
     });
+  };
+
+  private getPopupTabId = async (url: string): Promise<number | undefined> => {
+    const window = await this._launchApprovalWindow(url);
+    const popupTabId = window.tabs?.[0]?.id;
+
+    return popupTabId;
   };
 }
