@@ -66,10 +66,10 @@ export const useIntegration = (
 export const useIntegrationConnection = <TSuccess, TFail>(
   chainKey: ChainKey
 ): [
-    InstanceType<Integration>,
-    boolean,
-    ExtensionConnection<TSuccess, TFail>,
-  ] => {
+  InstanceType<Integration>,
+  boolean,
+  ExtensionConnection<TSuccess, TFail>,
+] => {
   const integration = useIntegration(chainKey);
   const [isConnectingToExtension, setIsConnectingToExtension] = useState(false);
 
@@ -77,8 +77,8 @@ export const useIntegrationConnection = <TSuccess, TFail>(
     async (onSuccess, onFail) => {
       setIsConnectingToExtension(true);
       try {
-        if (integration?.detect()) {
-          await integration?.connect();
+        if (integration.detect()) {
+          await integration.connect();
           await onSuccess();
         }
       } catch (e) {
