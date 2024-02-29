@@ -74,23 +74,27 @@ export const KeyStore = t.exact(
 );
 export type KeyStoreType = t.TypeOf<typeof KeyStore>;
 
-const Vault = t.type({
-  //TODO: any for time being
-  password: t.any,
-  data: t.record(
-    t.string,
-    t.array(
-      t.intersection([
-        t.type({
-          public: KeyStore,
-        }),
-        t.partial({
-          sensitive: Sensitive,
-        }),
-      ])
-    )
-  ),
-});
+const Vault = t.intersection([
+  t.type({
+    data: t.record(
+      t.string,
+      t.array(
+        t.intersection([
+          t.type({
+            public: KeyStore,
+          }),
+          t.partial({
+            sensitive: Sensitive,
+          }),
+        ])
+      )
+    ),
+  }),
+  t.partial({
+    password: Sensitive,
+  }),
+]);
+
 type VaultType = t.TypeOf<typeof Vault>;
 
 export type VaultTypes = KeyStoreType;
