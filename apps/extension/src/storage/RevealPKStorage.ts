@@ -9,10 +9,8 @@ type RevealPKSchemas = typeof PKs;
 
 type SchemasTypes = t.TypeOf<typeof PKs>;
 
-const keys = ["revealed-pk-store"];
-type RevealPKKeys = (typeof keys)[number];
-
-const schemasMap = new Map<RevealPKSchemas, string>([
+type RevealPKKeys = "revealed-pk-store";
+const schemasMap = new Map<RevealPKSchemas, RevealPKKeys>([
   [PKs, "revealed-pk-store"],
 ]);
 

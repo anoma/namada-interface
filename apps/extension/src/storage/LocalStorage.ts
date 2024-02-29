@@ -76,13 +76,11 @@ type LocalStorageSchemas =
   | typeof NamadaExtensionRouterId
   | typeof Tabs;
 
-const keys = [
-  "chains",
-  "namadaExtensionApprovedOrigins",
-  "namadaExtensionRouterId",
-  "tabs",
-] as const;
-export type LocalStorageKeys = (typeof keys)[number];
+export type LocalStorageKeys =
+  | "chains"
+  | "namadaExtensionApprovedOrigins"
+  | "namadaExtensionRouterId"
+  | "tabs";
 
 const schemasMap = new Map<LocalStorageSchemas, LocalStorageKeys>([
   [Chain, "chains"],
@@ -128,12 +126,6 @@ export class LocalStorage extends ExtStorage {
     return decodedData.right;
   }
 
-  async setApprovedOrigins(
-    origins: NamadaExtensionApprovedOriginsType
-  ): Promise<void> {
-    await this.setRaw(this.getKey(NamadaExtensionApprovedOrigins), origins);
-  }
-
   async addApprovedOrigin(originToAdd: string): Promise<void> {
     const data = (await this.getApprovedOrigins()) || [];
     this.setApprovedOrigins([...data, originToAdd]);
@@ -175,6 +167,12 @@ export class LocalStorage extends ExtStorage {
 
   async setTabs(tabs: TabsType): Promise<void> {
     await this.setRaw(this.getKey(Tabs), tabs);
+  }
+
+  private async setApprovedOrigins(
+    origins: NamadaExtensionApprovedOriginsType
+  ): Promise<void> {
+    await this.setRaw(this.getKey(NamadaExtensionApprovedOrigins), origins);
   }
 
   private getKey<S extends LocalStorageSchemas>(schema: S): LocalStorageKeys {

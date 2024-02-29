@@ -97,8 +97,7 @@ export type VaultTypes = KeyStoreType;
 
 export type VaultSchemas = typeof KeyStore;
 
-const keys = ["key-store"] as const;
-export type VaultKeys = (typeof keys)[number];
+export type VaultKeys = "key-store";
 
 export const schemasMap = new Map<VaultSchemas, VaultKeys>([
   [KeyStore, "key-store"],
