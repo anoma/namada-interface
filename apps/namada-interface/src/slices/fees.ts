@@ -21,6 +21,10 @@ const minimumGasPriceAtom = (() => {
       const query = new Query(rpc);
 
       const promise = (async () => {
+        if (!nativeToken) {
+          throw new Error("Native token is undefined");
+        }
+
         const result = (await query.query_gas_costs()) as [string, string][];
         const nativeTokenCost = result.find(([token]) => token === nativeToken);
 
@@ -42,27 +46,45 @@ const minimumGasPriceAtom = (() => {
   );
 })();
 
-const isRevealPkNeededAtom = atom(async (get) => {
-  const accounts = await get(accountsAtom);
-  const transparentAccounts = accounts.filter((account) => !account.isShielded);
+const isRevealPkNeededAtom = (() => {
+  type RevealPkNeededMap = { [address: string]: boolean };
 
-  const { rpc } = get(chainAtom);
-  const query = new Query(rpc);
+  const base = atom(new Promise<RevealPkNeededMap>(() => {}));
 
-  const map: Record<string, string | null> = {};
-  await Promise.all(
-    transparentAccounts.map(async ({ address }) => {
-      const publicKey = await query.query_public_key(address);
-      map[address] = publicKey;
-    })
+  return atom(
+    async (get) => {
+      const map = await get(base);
+
+      return (address: string): boolean => {
+        if (!(address in map)) {
+          throw new Error("address not found in public key map");
+        }
+        return map[address];
+      };
+    },
+    (get, set) =>
+      set(
+        base,
+        (async (): Promise<RevealPkNeededMap> => {
+          const accounts = await get(accountsAtom);
+          const transparentAccounts = accounts.filter(
+            (account) => !account.isShielded
+          );
+
+          const { rpc } = get(chainAtom);
+          const query = new Query(rpc);
+
+          const entries = await Promise.all(
+            transparentAccounts.map(async ({ address }) => {
+              const publicKey = await query.query_public_key(address);
+              return [address, !publicKey];
+            })
+          );
+
+          return Object.fromEntries(entries);
+        })()
+      )
   );
-
-  return (address: string): boolean => {
-    if (!(address in map)) {
-      throw new Error("address not found in public key map");
-    }
-    return map[address] === null;
-  };
-});
+})();
 
 export { isRevealPkNeededAtom, minimumGasPriceAtom };

@@ -10,6 +10,7 @@ import {
   MetamaskAccountChangedHandler,
   MetamaskBridgeTransferCompletedHandler,
   NamadaAccountChangedHandler,
+  NamadaConnectionRevokedHandler,
   NamadaNetworkChangedHandler,
   NamadaProposalsUpdatedHandler,
   NamadaTxCompletedHandler,
@@ -19,8 +20,10 @@ import {
 } from "./handlers";
 
 import { useSetAtom } from "jotai";
-import { accountsAtom } from "slices/accounts";
+import { accountsAtom, balancesAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
+import { isRevealPkNeededAtom } from "slices/fees";
+import { namadaExtensionConnectedAtom } from "slices/settings";
 
 export const ExtensionEventsContext = createContext({});
 
@@ -32,6 +35,9 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
 
   const refreshAccounts = useSetAtom(accountsAtom);
   const refreshChain = useSetAtom(chainAtom);
+  const refreshBalances = useSetAtom(balancesAtom);
+  const refreshPublicKeys = useSetAtom(isRevealPkNeededAtom);
+  const setNamadaExtensionConnected = useSetAtom(namadaExtensionConnectedAtom);
 
   // Instantiate handlers:
   const namadaAccountChangedHandler = NamadaAccountChangedHandler(
@@ -45,10 +51,20 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     refreshChain
   );
   const namadaTxStartedHandler = NamadaTxStartedHandler(dispatch);
-  const namadaTxCompletedHandler = NamadaTxCompletedHandler(dispatch);
-  const namadaUpdatedBalancesHandler = NamadaUpdatedBalancesHandler(dispatch);
+  const namadaTxCompletedHandler = NamadaTxCompletedHandler(
+    dispatch,
+    refreshPublicKeys
+  );
+  const namadaUpdatedBalancesHandler = NamadaUpdatedBalancesHandler(
+    dispatch,
+    refreshBalances
+  );
   const namadaUpdatedStakingHandler = NamadaUpdatedStakingHandler(dispatch);
   const namadaProposalsUpdatedHandler = NamadaProposalsUpdatedHandler(dispatch);
+  const namadaConnectionRevokedHandler = NamadaConnectionRevokedHandler(
+    namadaIntegration as Namada,
+    setNamadaExtensionConnected
+  );
 
   // Keplr handlers
   const keplrAccountChangedHandler = KeplrAccountChangedHandler(
@@ -73,6 +89,10 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   useEventListenerOnce(Events.TxStarted, namadaTxStartedHandler);
   useEventListenerOnce(Events.TxCompleted, namadaTxCompletedHandler);
   useEventListenerOnce(Events.ProposalsUpdated, namadaProposalsUpdatedHandler);
+  useEventListenerOnce(
+    Events.ConnectionRevoked,
+    namadaConnectionRevokedHandler
+  );
   useEventListenerOnce(KeplrEvents.AccountChanged, keplrAccountChangedHandler);
   useEventListenerOnce(
     MetamaskEvents.AccountChanged,

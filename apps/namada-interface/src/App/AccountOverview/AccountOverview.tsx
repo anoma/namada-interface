@@ -7,10 +7,17 @@ import {
   useIntegrationConnection,
   useUntilIntegrationAttached,
 } from "@namada/integrations";
-import { Account, Chain, ExtensionKey, Extensions, TokenType, Tokens } from "@namada/types";
+import {
+  Account,
+  Chain,
+  ExtensionKey,
+  Extensions,
+  TokenType,
+  Tokens,
+} from "@namada/types";
 import { TopLevelRoute } from "App/types";
 import { AccountsState, addAccounts, fetchBalances } from "slices/accounts";
-import { setIsConnected } from "slices/settings";
+import { namadaExtensionConnectedAtom, setIsConnected } from "slices/settings";
 import { useAppDispatch, useAppSelector } from "store";
 import {
   AccountOverviewContainer,
@@ -25,9 +32,9 @@ import {
 } from "./AccountOverview.components";
 import { DerivedAccounts } from "./DerivedAccounts";
 
-import { useAtomValue, useSetAtom } from "jotai";
-import { accountsAtom, balancesAtom } from "slices/accounts";
 import BigNumber from "bignumber.js";
+import { useAtomValue, useSetAtom } from "jotai";
+import { balancesAtom } from "slices/accounts";
 
 //TODO: move to utils when we have one
 const isEmptyObject = (object: Record<string, unknown>): boolean => {
@@ -35,6 +42,8 @@ const isEmptyObject = (object: Record<string, unknown>): boolean => {
 };
 
 export const AccountOverview = (): JSX.Element => {
+  const setNamadaExtensionConnected = useSetAtom(namadaExtensionConnectedAtom);
+
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const chain = useAppSelector<Chain>((state) => state.chain.config);
@@ -45,9 +54,6 @@ export const AccountOverview = (): JSX.Element => {
     keplr: false,
     metamask: false,
   });
-
-  const refreshAccounts = useSetAtom(accountsAtom);
-  const refreshBalances = useSetAtom(balancesAtom);
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
 
@@ -65,16 +71,14 @@ export const AccountOverview = (): JSX.Element => {
 
   const balances = useAtomValue(balancesAtom);
   const totalNativeBalance = Object.values(balances).reduce((acc, balance) => {
-    return acc.plus(balance[chain.currency.symbol as TokenType] || BigNumber(0));
+    return acc.plus(
+      balance[chain.currency.symbol as TokenType] || BigNumber(0)
+    );
   }, BigNumber(0));
 
   const handleConnectExtension = async (): Promise<void> => {
     withConnection(
       async () => {
-        // jotai
-        refreshAccounts();
-        refreshBalances();
-
         const accounts = await integration?.accounts();
         if (accounts) {
           dispatch(addAccounts(accounts as Account[]));
@@ -86,12 +90,16 @@ export const AccountOverview = (): JSX.Element => {
           ...isExtensionConnected,
           [chain.extension.id]: true,
         });
+
+        setNamadaExtensionConnected(true);
       },
       async () => {
         setIsExtensionConnected({
           ...isExtensionConnected,
           [chain.extension.id]: false,
         });
+
+        setNamadaExtensionConnected(false);
       }
     );
   };
@@ -108,8 +116,12 @@ export const AccountOverview = (): JSX.Element => {
           <TotalContainer>
             {!isEmptyObject(derived[chain.id]) && (
               <TotalAmount>
-                <TotalAmountFiat>{Tokens[chain.currency.symbol as TokenType].symbol}</TotalAmountFiat>
-                <TotalAmountValue>{totalNativeBalance.toString()}</TotalAmountValue>
+                <TotalAmountFiat>
+                  {Tokens[chain.currency.symbol as TokenType].symbol}
+                </TotalAmountFiat>
+                <TotalAmountValue>
+                  {totalNativeBalance.toString()}
+                </TotalAmountValue>
               </TotalAmount>
             )}
           </TotalContainer>

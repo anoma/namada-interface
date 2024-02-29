@@ -1,6 +1,8 @@
 import { ChainKey } from "@namada/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+import { atom } from "jotai";
+
 const SETTINGS_ACTIONS_BASE = "settings";
 
 export type SettingsState = {
@@ -28,3 +30,11 @@ const { actions, reducer } = settingsSlice;
 export const { setIsConnected } = actions;
 
 export default reducer;
+
+////////////////////////////////////////////////////////////////////////////////
+// JOTAI
+////////////////////////////////////////////////////////////////////////////////
+
+const namadaExtensionConnectedAtom = atom(false);
+
+export { namadaExtensionConnectedAtom };

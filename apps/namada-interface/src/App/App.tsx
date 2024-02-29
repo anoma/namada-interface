@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { AnimatePresence } from "framer-motion";
 import { createBrowserHistory } from "history";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { PersistGate } from "redux-persist/integration/react";
 import { ThemeProvider } from "styled-components";
@@ -23,13 +23,7 @@ import { Outlet } from "react-router-dom";
 import { addAccounts, fetchBalances } from "slices/accounts";
 import { setChain } from "slices/chain";
 import { SettingsState } from "slices/settings";
-import {
-  persistor,
-  reduxStoreAtom,
-  store,
-  useAppDispatch,
-  useAppSelector,
-} from "store";
+import { persistor, store, useAppDispatch, useAppSelector } from "store";
 import {
   AppContainer,
   AppLoader,
@@ -41,9 +35,14 @@ import {
 } from "./App.components";
 import { TopNavigation } from "./TopNavigation";
 
-import { accountsAtom, balancesAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
-import { minimumGasPriceAtom } from "slices/fees";
+
+import {
+  useOnAccountsChanged,
+  useOnChainChanged,
+  useOnNamadaExtensionAttached,
+  useOnNamadaExtensionConnected,
+} from "./fetchEffects";
 
 export const history = createBrowserHistory({ window });
 
@@ -65,11 +64,12 @@ export const AnimatedTransition = (props: {
   );
 };
 
-// TODO: can be moved to slices/notifications once redux is removed
-// Defining it there currently causes a unit test error related to redux-persist
-const toastsAtom = atom((get) => get(reduxStoreAtom).notifications.toasts);
-
 function App(): JSX.Element {
+  useOnNamadaExtensionAttached();
+  useOnNamadaExtensionConnected();
+  useOnAccountsChanged();
+  useOnChainChanged();
+
   const dispatch = useAppDispatch();
   const initialColorMode = loadColorMode();
   const [colorMode, setColorMode] = useState<ColorMode>(initialColorMode);
@@ -79,10 +79,7 @@ function App(): JSX.Element {
     setColorMode((currentMode) => (currentMode === "dark" ? "light" : "dark"));
   };
 
-  const [chain, refreshChain] = useAtom(chainAtom);
-  const refreshAccounts = useSetAtom(accountsAtom);
-  const refreshBalances = useSetAtom(balancesAtom);
-  const refreshMinimumGasPrice = useSetAtom(minimumGasPriceAtom);
+  const chain = useAtomValue(chainAtom);
 
   const { connectedChains } = useAppSelector<SettingsState>(
     (state) => state.settings
@@ -96,12 +93,9 @@ function App(): JSX.Element {
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
 
+  // TODO: remove this effect once redux has been replaced by jotai
   useEffect(() => {
     const fetchAccounts = async (): Promise<void> => {
-      // jotai
-      refreshAccounts();
-      refreshBalances();
-
       const accounts = await integration?.accounts();
       if (accounts) {
         dispatch(addAccounts(accounts as Account[]));
@@ -113,16 +107,13 @@ function App(): JSX.Element {
       connectedChains.includes(chain.id)
     ) {
       fetchAccounts();
-      refreshMinimumGasPrice();
     }
   }, [chain]);
 
+  // TODO: remove this effect once redux has been replaced by jotai
   useEffect(() => {
     (async () => {
       if (currentExtensionAttachStatus === "attached") {
-        // jotai
-        refreshChain();
-
         const chain = await integration.getChain();
         if (chain) {
           dispatch(setChain(chain));
@@ -130,12 +121,6 @@ function App(): JSX.Element {
       }
     })();
   }, [currentExtensionAttachStatus]);
-
-  const toasts = useAtomValue(toastsAtom);
-  useEffect(() => {
-    // TODO: this could be more conservative about how often it fetches balances
-    refreshBalances();
-  }, [toasts]);
 
   return (
     <ThemeProvider theme={theme}>

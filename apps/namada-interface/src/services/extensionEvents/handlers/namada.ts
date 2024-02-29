@@ -46,8 +46,9 @@ export const NamadaProposalsUpdatedHandler =
   };
 
 export const NamadaUpdatedBalancesHandler =
-  (dispatch: Dispatch<unknown>) => async () => {
+  (dispatch: Dispatch<unknown>, refreshBalances: () => void) => async () => {
     dispatch(fetchBalances());
+    refreshBalances();
   };
 
 export const NamadaUpdatedStakingHandler =
@@ -67,7 +68,8 @@ export const NamadaTxStartedHandler =
   };
 
 export const NamadaTxCompletedHandler =
-  (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
+  (dispatch: Dispatch<unknown>, refreshPublicKeys: () => void) =>
+  async (event: CustomEventInit) => {
     const { msgId, txType, success, payload } = event.detail;
     if (!success) {
       console.warn(`${txType} failed:`, payload);
@@ -80,4 +82,15 @@ export const NamadaTxCompletedHandler =
         error: payload || "",
       })
     );
+    refreshPublicKeys();
+  };
+
+export const NamadaConnectionRevokedHandler =
+  (
+    integration: Namada,
+    setNamadaExtensionConnected: (connected: boolean) => void
+  ) =>
+  async () => {
+    const connected = !!(await integration.isConnected());
+    setNamadaExtensionConnected(connected);
   };
