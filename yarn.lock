@@ -7611,6 +7611,7 @@ __metadata:
     fake-indexeddb: "npm:^4.0.1"
     file-loader: "npm:^6.2.0"
     framer-motion: "npm:6.2.4"
+    io-ts: "npm:^2.2.21"
     jest: "npm:^29.0.1"
     jest-create-mock-instance: "npm:^2.0.0"
     jest-environment-jsdom: "npm:^29.3.1"
@@ -19314,6 +19315,15 @@ __metadata:
   version: 3.0.1
   resolution: "invert-kv@npm:3.0.1"
   checksum: a3d90951a635e35dea9c9a5fd749e981e9c54e8a362ad80b2253dad03b9257314b7c4e4d250d61bcd79698ccd5f4c6b0c750cd991bb5ce16352bf830e77ea64b
+  languageName: node
+  linkType: hard
+
+"io-ts@npm:^2.2.21":
+  version: 2.2.21
+  resolution: "io-ts@npm:2.2.21"
+  peerDependencies:
+    fp-ts: ^2.5.0
+  checksum: 4e59e2135c26ced17f9c357c554486e716ac4c75d9bf69164702f66d41400e165786b0d653263bcd2afb4dee947bff4eb7869899ec810050ef067307764f6c32
   languageName: node
   linkType: hard
 
