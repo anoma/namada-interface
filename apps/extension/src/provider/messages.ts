@@ -21,6 +21,7 @@ enum Route {
 }
 
 enum MessageType {
+  IsConnectionApproved = "is-connection-approved",
   ApproveConnectInterface = "approve-connect-interface",
   QueryAccounts = "query-accounts",
   QueryDefaultAccount = "query-default-account",
@@ -42,6 +43,27 @@ enum MessageType {
 /**
  * Messages routed from providers to Chains service
  */
+export class IsConnectionApprovedMsg extends Message<boolean> {
+  public static type(): MessageType {
+    return MessageType.IsConnectionApproved;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return Route.Approvals;
+  }
+
+  type(): string {
+    return IsConnectionApprovedMsg.type();
+  }
+}
 
 export class ApproveConnectInterfaceMsg extends Message<void> {
   public static type(): MessageType {
@@ -74,7 +96,7 @@ export class GetChainMsg extends Message<Chain> {
     super();
   }
 
-  validate(): void { }
+  validate(): void {}
 
   route(): string {
     return Route.Chains;

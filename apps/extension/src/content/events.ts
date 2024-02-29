@@ -201,6 +201,26 @@ export class VaultLockedEventMsg extends Message<void> {
   }
 }
 
+export class ConnectionRevokedEventMsg extends Message<void> {
+  public static type(): Events {
+    return Events.ConnectionRevoked;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {}
+
+  route(): string {
+    return Routes.InteractionForeground;
+  }
+
+  type(): string {
+    return ConnectionRevokedEventMsg.type();
+  }
+}
+
 export function initEvents(router: Router): void {
   router.registerMessage(AccountChangedEventMsg);
   router.registerMessage(NetworkChangedEventMsg);
@@ -210,6 +230,7 @@ export function initEvents(router: Router): void {
   router.registerMessage(TxStartedEvent);
   router.registerMessage(TxCompletedEvent);
   router.registerMessage(VaultLockedEventMsg);
+  router.registerMessage(ConnectionRevokedEventMsg);
 
   router.addHandler(Routes.InteractionForeground, (_, msg) => {
     const clonedMsg =
@@ -247,6 +268,9 @@ export function initEvents(router: Router): void {
         break;
       case VaultLockedEventMsg:
         window.dispatchEvent(new CustomEvent(Events.ExtensionLocked));
+        break;
+      case ConnectionRevokedEventMsg:
+        window.dispatchEvent(new CustomEvent(Events.ConnectionRevoked));
         break;
       default:
         throw new Error("Unknown msg type");

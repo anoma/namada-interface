@@ -3,6 +3,7 @@ import { KVStore } from "@namada/storage";
 import { TabStore, syncTabs } from "background/keyring";
 import {
   AccountChangedEventMsg,
+  ConnectionRevokedEventMsg,
   NetworkChangedEventMsg,
   ProposalsUpdatedEventMsg,
   TxCompletedEvent,
@@ -57,6 +58,10 @@ export class ExtensionBroadcaster {
 
   async lockExtension(): Promise<void> {
     await this.sendMsgToTabs(new VaultLockedEventMsg());
+  }
+
+  async revokeConnection(): Promise<void> {
+    await this.sendMsgToTabs(new ConnectionRevokedEventMsg());
   }
 
   /**

@@ -22,8 +22,8 @@ import {
 import { assertNever, paramsToUrl } from "@namada/utils";
 import { KeyRingService, TabStore } from "background/keyring";
 import { LedgerService } from "background/ledger";
-
 import { VaultService } from "background/vault";
+import { ExtensionBroadcaster } from "extension";
 import { ApprovedOriginsStore, TxStore } from "./types";
 import {
   APPROVED_ORIGINS_KEY,
@@ -52,7 +52,8 @@ export class ApprovalsService {
     protected readonly approvedOriginsStore: KVStore<ApprovedOriginsStore>,
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService,
-    protected readonly vaultService: VaultService
+    protected readonly vaultService: VaultService,
+    protected readonly broadcaster: ExtensionBroadcaster
   ) {}
 
   async approveSignature(
@@ -344,6 +345,13 @@ export class ApprovalsService {
     return await this._clearPendingTx(msgId);
   }
 
+  async isConnectionApproved(interfaceOrigin: string): Promise<boolean> {
+    const approvedOrigins =
+      (await this.approvedOriginsStore.get(APPROVED_ORIGINS_KEY)) || [];
+
+    return approvedOrigins.includes(interfaceOrigin);
+  }
+
   async approveConnection(
     interfaceTabId: number,
     interfaceOrigin: string
@@ -357,10 +365,9 @@ export class ApprovalsService {
       interfaceOrigin,
     });
 
-    const approvedOrigins =
-      (await this.approvedOriginsStore.get(APPROVED_ORIGINS_KEY)) || [];
+    const alreadyApproved = await this.isConnectionApproved(interfaceOrigin);
 
-    if (!approvedOrigins.includes(interfaceOrigin)) {
+    if (!alreadyApproved) {
       const approvalWindow = await this._launchApprovalWindow(url);
       const popupTabId = approvalWindow.tabs?.[0]?.id;
 
@@ -376,6 +383,9 @@ export class ApprovalsService {
         this.resolverMap[popupTabId] = { resolve, reject };
       });
     }
+
+    // A resolved promise is implicitly returned here if the origin had
+    // previously been approved.
   }
 
   async approveConnectionResponse(
@@ -403,7 +413,8 @@ export class ApprovalsService {
   }
 
   async revokeConnection(originToRevoke: string): Promise<void> {
-    return removeApprovedOrigin(this.approvedOriginsStore, originToRevoke);
+    await removeApprovedOrigin(this.approvedOriginsStore, originToRevoke);
+    await this.broadcaster.revokeConnection();
   }
 
   private async _clearPendingTx(msgId: string): Promise<void> {

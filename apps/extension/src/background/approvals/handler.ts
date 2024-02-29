@@ -2,6 +2,7 @@ import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
   ApproveTxMsg,
+  IsConnectionApprovedMsg,
 } from "provider";
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
@@ -25,6 +26,11 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleSubmitApprovedTxMsg(service)(
           env,
           msg as SubmitApprovedTxMsg
+        );
+      case IsConnectionApprovedMsg:
+        return handleIsConnectionApprovedMsg(service)(
+          env,
+          msg as IsConnectionApprovedMsg
         );
       case ApproveConnectInterfaceMsg:
         return handleApproveConnectInterfaceMsg(service)(
@@ -84,6 +90,14 @@ const handleSubmitApprovedTxMsg: (
 ) => InternalHandler<SubmitApprovedTxMsg> = (service) => {
   return async (_, { msgId }) => {
     return await service.submitTx(msgId);
+  };
+};
+
+const handleIsConnectionApprovedMsg: (
+  service: ApprovalsService
+) => InternalHandler<IsConnectionApprovedMsg> = (service) => {
+  return async (_, { origin }) => {
+    return await service.isConnectionApproved(origin);
   };
 };
 

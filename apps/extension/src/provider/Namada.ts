@@ -18,6 +18,7 @@ import {
   FetchAndStoreMaspParamsMsg,
   GetChainMsg,
   HasMaspParamsMsg,
+  IsConnectionApprovedMsg,
   QueryAccountsMsg,
   QueryBalancesMsg,
   QueryDefaultAccountMsg,
@@ -28,12 +29,23 @@ export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) { }
+  ) {}
 
   public async connect(): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new ApproveConnectInterfaceMsg()
+    );
+  }
+
+  public async isConnected(): Promise<boolean> {
+    if (!this.requester) {
+      throw new Error("no requester");
+    }
+
+    return await this.requester.sendMessage(
+      Ports.Background,
+      new IsConnectionApprovedMsg()
     );
   }
 

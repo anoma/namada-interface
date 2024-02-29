@@ -113,7 +113,8 @@ const init = new Promise<void>(async (resolve) => {
     approvedOriginsStore,
     keyRingService,
     ledgerService,
-    vaultService
+    vaultService,
+    broadcaster
   );
 
   // Initialize messages and handlers

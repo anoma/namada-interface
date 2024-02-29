@@ -16,6 +16,7 @@ import { KeyRingService, TabStore } from "background/keyring";
 import { LedgerService } from "background/ledger";
 import { VaultService } from "background/vault";
 import BigNumber from "bignumber.js";
+import { ExtensionBroadcaster } from "extension";
 import createMockInstance from "jest-create-mock-instance";
 import { KVStoreMock } from "test/init";
 import { ApprovalsService } from "./service";
@@ -55,6 +56,8 @@ describe.only("approvals service", () => {
     const vaultService: jest.Mocked<VaultService> = createMockInstance(
       VaultService as any
     );
+    const broadcaster: jest.Mocked<ExtensionBroadcaster> =
+      createMockInstance(ExtensionBroadcaster);
 
     service = new ApprovalsService(
       txStore,
@@ -63,7 +66,8 @@ describe.only("approvals service", () => {
       approvedOriginsStore,
       keyRingService,
       ledgerService,
-      vaultService
+      vaultService,
+      broadcaster
     );
   });
 

@@ -10,6 +10,7 @@ export enum Events {
   UpdatedStaking = "namada-updated-staking",
   ProposalsUpdated = "namada-proposals-updated",
   ExtensionLocked = "namada-extension-locked",
+  ConnectionRevoked = "namada-connection-revoked",
 }
 
 // Keplr extension events

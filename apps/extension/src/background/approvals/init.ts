@@ -2,6 +2,7 @@ import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
   ApproveTxMsg,
+  IsConnectionApprovedMsg,
 } from "provider";
 import { Router } from "router";
 import {
@@ -24,6 +25,7 @@ export function init(router: Router, service: ApprovalsService): void {
   router.registerMessage(ApproveSignArbitraryMsg);
   router.registerMessage(RejectSignatureMsg);
   router.registerMessage(SubmitApprovedSignatureMsg);
+  router.registerMessage(IsConnectionApprovedMsg);
   router.registerMessage(ApproveConnectInterfaceMsg);
   router.registerMessage(ConnectInterfaceResponseMsg);
   router.registerMessage(RevokeConnectionMsg);
