@@ -11,21 +11,23 @@ import reportWebVitals from "./reportWebVitals";
 import "@namada/components/src/base.css";
 import "./tailwind.css";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <IntegrationsProvider>
-      <Provider store={store}>
-        <ExtensionEventsProvider>
-          <RouterProvider router={getRouter()} />
-        </ExtensionEventsProvider>
-      </Provider>
-    </IntegrationsProvider>
-  </React.StrictMode>,
-  document.getElementById("root")
-);
+// TODO: we could show the loading screen while initShared is pending
+initShared().then(() => {
+  ReactDOM.render(
+    <React.StrictMode>
+      <IntegrationsProvider>
+        <Provider store={store}>
+          <ExtensionEventsProvider>
+            <RouterProvider router={getRouter()} />
+          </ExtensionEventsProvider>
+        </Provider>
+      </IntegrationsProvider>
+    </React.StrictMode>,
+    document.getElementById("root")
+  );
+});
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
-initShared();
