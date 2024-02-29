@@ -191,8 +191,7 @@ const balancesAtom = (() => {
         currency: { address: nativeToken },
       } = get(chainAtom);
 
-      // TODO: should we be throwing away old balances here?
-      const balances = get(base);
+      set(base, {});
 
       accounts.forEach(async (account) => {
         const result = await namada.queryBalances(account.address, [
@@ -202,11 +201,7 @@ const balancesAtom = (() => {
           (acc, curr) => ({ ...acc, [curr.token]: new BigNumber(curr.amount) }),
           {} as Balance
         );
-        balances[account.address] = balance;
-        set(
-          base,
-          { ...balances } // object clone ensures jotai realises object has changed
-        );
+        set(base, { ...get(base), [account.address]: balance });
       });
     }
   );
