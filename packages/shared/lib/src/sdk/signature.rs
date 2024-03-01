@@ -1,7 +1,7 @@
 use namada::core::borsh::{BorshDeserialize, BorshSerialize};
 use namada::{
+    key::common::{PublicKey, Signature},
     tx::{CompressedSignature, Section, Signer, Tx},
-    types::key::common::{PublicKey, Signature},
 };
 use std::collections::BTreeMap;
 use wasm_bindgen::JsError;

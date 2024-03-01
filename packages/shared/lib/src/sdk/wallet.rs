@@ -1,9 +1,10 @@
+use std::str::FromStr;
+
 use namada::{
+    masp::ExtendedSpendingKey,
     sdk::wallet::{alias::Alias, Wallet, WalletIo, WalletStorage},
-    types::masp::ExtendedSpendingKey,
 };
 use rand::rngs::OsRng;
-use std::str::FromStr;
 
 #[derive(Clone)]
 pub struct BrowserWalletUtils {}
