@@ -176,7 +176,7 @@ export class ApprovalsService {
     } = specificDetails;
     const amount = new BigNumber(amountBN.toString());
 
-    const { publicKey = "", token: nativeToken } = txDetails;
+    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
 
     return {
       source,
@@ -199,7 +199,7 @@ export class ApprovalsService {
     } = specificDetails;
     const amount = new BigNumber(amountBN.toString());
 
-    const { publicKey = "", token: nativeToken } = txDetails;
+    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
 
     return {
       source,
@@ -221,7 +221,7 @@ export class ApprovalsService {
       amount,
     } = specificDetails;
 
-    const { publicKey = "", token: nativeToken } = txDetails;
+    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
 
     return {
       source,
@@ -243,7 +243,7 @@ export class ApprovalsService {
     } = specificDetails;
     const amount = new BigNumber(amountBN.toString());
 
-    const { publicKey = "" } = txDetails;
+    const { publicKey } = ApprovalsService.getTxDetails(txDetails);
 
     return {
       source,
@@ -260,7 +260,7 @@ export class ApprovalsService {
     const { source, amount: amountBN } = specificDetails;
     const amount = new BigNumber(amountBN.toString());
 
-    const { publicKey = "", token: nativeToken } = txDetails;
+    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
 
     return {
       source,
@@ -275,7 +275,7 @@ export class ApprovalsService {
 
     const { source, validator } = specificDetails;
 
-    const { publicKey = "", token: nativeToken } = txDetails;
+    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
 
     return {
       source,
@@ -293,7 +293,7 @@ export class ApprovalsService {
 
     const { signer } = specificDetails;
 
-    const { publicKey = "", token: nativeToken } = txDetails;
+    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
 
     //TODO: check this
     return {
@@ -364,8 +364,7 @@ export class ApprovalsService {
     const alreadyApproved = await this.isConnectionApproved(interfaceOrigin);
 
     if (!alreadyApproved) {
-      const approvalWindow = await this._launchApprovalWindow(url);
-      const popupTabId = approvalWindow.tabs?.[0]?.id;
+      const popupTabId = await this.getPopupTabId(url);
 
       if (!popupTabId) {
         throw new Error("no popup tab ID");
@@ -432,8 +431,16 @@ export class ApprovalsService {
 
   private getPopupTabId = async (url: string): Promise<number | undefined> => {
     const window = await this._launchApprovalWindow(url);
-    const popupTabId = window.tabs?.[0]?.id;
+    const firstTab = window.tabs?.[0];
+    const popupTabId = firstTab?.id;
 
     return popupTabId;
+  };
+
+  private static getTxDetails = (
+    txDetails: TxMsgValue
+  ): { publicKey: string; nativeToken: string } => {
+    const { publicKey = "", token: nativeToken } = txDetails;
+    return { publicKey, nativeToken };
   };
 }
