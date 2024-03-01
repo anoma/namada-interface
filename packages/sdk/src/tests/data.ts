@@ -21,9 +21,11 @@ export const ACCOUNT_2 = {
 
 export const SHIELDED_ACCOUNT = {
   paymentAddress:
-    "znam1qz7te22s3790wf53q7v6tcm5tc79xq5dx2h93us5e8pqeadqn63c6rwx2wq4mgdrjnsgxxgkh45wp",
-  xsk: "",
-  viewingKey: "",
+    "znam1qzs8yweqduxya5tlzh858wgsv8d2j4uu2zvha8hgxzt6lzvs4lu2syaxar4eefey42txpkqd6skd5",
+  spendingKey:
+    "zsknam1q9slcrk9qqqqqqps3w3yfgaxsw0t0jkzwm5ghlexqdzhz8vulz9cw03daakult7a7m7ud3ld77ax69r6p9h46qet69yp6sa4p4yjwwemg5twrd09usgqk8284zyq9fxsv3u8v2nz737r770xd0ehahwrcpdnzplaecdj95cdzh8tmp8w72yjcg2t47tzcwnkkhn852ru0z4kt87hdxlt9lulzgkchcqes2fuac87l2h0gczfyef7n7uvq3n43pc3thwgrf543cwgjwcyzjrej",
+  viewingKey:
+    "zvknam1q9slcrk9qqqqqqps3w3yfgaxsw0t0jkzwm5ghlexqdzhz8vulz9cw03daakult7a7cjwxdh77a36rcs28lvs7emvl9dhcpz2jg57hvjwrau2g9ssstswuyrxq9tpajhe8uxluhakgevlzqcsg2ccleq5qfqtaqz72kvkxek6zh8tmp8w72yjcg2t47tzcwnkkhn852ru0z4kt87hdxlt9lulzgkchcqes2fuac87l2h0gczfyef7n7uvq3n43pc3thwgrf543cwgjwckhrt6j",
 };
 
 export const SIG_VALID = {

@@ -131,7 +131,10 @@ export class Keys {
    * @param {Bip44Path} [path={account: 0, change: 0, index: 0}] - Bip44 path object
    * @returns {ShieldedKeys}
    */
-  deriveShielded(seed: Uint8Array, path: Bip44Path): ShieldedKeys {
+  deriveShielded(
+    seed: Uint8Array,
+    path: Bip44Path = DEFAULT_PATH
+  ): ShieldedKeys {
     const { index } = path;
     const zip32 = ShieldedHDWallet.from_seed(seed);
     const account = zip32.derive_to_serialized_keys(index);

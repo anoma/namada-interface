@@ -7,8 +7,8 @@ import { Tx } from "tx";
 import { initSdk } from "./initSdk";
 
 describe("Sdk", () => {
-  it("should initialize Sdk with all sub-components", async () => {
-    const { tx, keys, mnemonic, rpc, masp, signing } = await initSdk();
+  it("should initialize Sdk with all sub-components", () => {
+    const { tx, keys, mnemonic, rpc, masp, signing } = initSdk();
     expect(tx).toBeInstanceOf(Tx);
     expect(keys).toBeInstanceOf(Keys);
     expect(mnemonic).toBeInstanceOf(Mnemonic);

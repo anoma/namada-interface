@@ -23,6 +23,11 @@
 ## Functions
 
 <dl>
+<dt><a href="#initAsync">initAsync(url, [token])</a> ⇒ <code><a href="#Sdk">Sdk</a></code></dt>
+<dd><p>Returns an initialized Sdk class asynchronously. This is required to use
+this library in web applications.</p></dd>
+<dt><a href="#initSync">initSync(url, nativeToken)</a> ⇒ <code><a href="#Sdk">Sdk</a></code></dt>
+<dd><p>Initialize SDK for Node JS environments</p></dd>
 <dt><a href="#initLedgerUSBTransport">initLedgerUSBTransport()</a> ⇒ <code>Transport</code></dt>
 <dd><p>Initialize USB transport</p></dd>
 </dl>
@@ -238,12 +243,3 @@ for failure if invalid, otherwise return nothing</p>
 <p>API for interacting with Namada SDK</p>
 
 **Kind**: global class  
-
-* [Sdk](#Sdk)
-    * [new Sdk(sdk, query, cryptoMemory, url, nativeToken)](#new_Sdk_new)
-    * _instance_
-        * [.rpc](#Sdk+rpc) ⇒ <code>Rpc</code>
-        * [.tx](#Sdk+tx) ⇒ <code>Tx</code>
-        * [.mnemonic](#Sdk+mnemonic) ⇒ [<code>Mnemonic</code>](#Mnemonic)
-        * [.keys](#Sdk+keys) ⇒ <code>Keys</code>
-        * [.signing](#Sdk+signing) ⇒ [<code>Signi
