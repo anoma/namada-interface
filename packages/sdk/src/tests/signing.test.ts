@@ -6,8 +6,8 @@ import {
 import { initSdk } from "./initSdk";
 
 describe("Signing", () => {
-  it("should generate a signature", async () => {
-    const { signing } = await initSdk();
+  it("should generate a signature", () => {
+    const { signing } = initSdk();
     const result = signing.signArbitrary(
       account1.privateKey,
       JSON.stringify({ test: "test" })
@@ -18,8 +18,8 @@ describe("Signing", () => {
     expect(signature).toBe(validSignature.signature);
   });
 
-  it("should validate a signature", async () => {
-    const { signing } = await initSdk();
+  it("should validate a signature", () => {
+    const { signing } = initSdk();
 
     const result = signing.verifyArbitrary(
       account1.publicKey,
@@ -30,8 +30,8 @@ describe("Signing", () => {
     expect(result).toBe(null);
   });
 
-  it("should throw error when validating an invalid signature", async () => {
-    const { signing } = await initSdk();
+  it("should throw error when validating an invalid signature", () => {
+    const { signing } = initSdk();
 
     const verify = (): void =>
       signing.verifyArbitrary(

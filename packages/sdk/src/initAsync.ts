@@ -5,13 +5,17 @@ import { init as initShared } from "@namada/shared/src/init";
 import { Sdk } from "sdk";
 
 /**
- * Returns an initialized Sdk class
+ * Returns an initialized Sdk class asynchronously. This is required to use
+ * this library in web applications.
  * @async
  * @param {string} url - RPC url for use with SDK
  * @param {string} [token] - Native token of the target chain, if not provided, an attempt to query it will be made
  * @return {Sdk} Instance of initialized Sdk class
  */
-export async function init(url: string, token?: string): Promise<Sdk> {
+export default async function initAsync(
+  url: string,
+  token?: string
+): Promise<Sdk> {
   // Load and initialize shared wasm
   const sharedWasm = await fetch("shared.namada.wasm").then((wasm) =>
     wasm.arrayBuffer()

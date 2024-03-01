@@ -14,6 +14,8 @@ describe("Tx", () => {
   afterAll(() => server.stop());
   beforeEach(() => server.reset());
 
+  // TODO: This isn't working. buildTransfer expects a response when it checks whether
+  // source & target exist. This may apply to other transactions as well.
   it.skip("should build a transfer tx", async () => {
     // Mock response for RPC queries that validate that
     // source and target exist on chain
@@ -24,7 +26,7 @@ describe("Tx", () => {
         ctx.body = true;
       });
 
-    const { tx } = await initSdk();
+    const { tx } = initSdk();
 
     const txProps = {
       chainId,
@@ -48,6 +50,6 @@ describe("Tx", () => {
     const txBytes = encodedTx.toBytes();
     // TODO: Better test here, this is just a placeholder
     expect(txBytes.length).toEqual(1000);
-    expect(addressExistsRoute).toHaveBeenCalledTimes(1);
+    expect(addressExistsRoute).toHaveBeenCalledTimes(2);
   });
 });
