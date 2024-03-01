@@ -142,7 +142,6 @@ export class KeyRing {
       type: AccountType.Ledger,
     };
 
-    //TODO: add encryption to "add" function?
     const sensitive = await this.vaultService.encryptSensitiveData({
       text: "",
       passphrase: "",

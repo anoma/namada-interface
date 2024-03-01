@@ -30,7 +30,7 @@ import { VaultService, init as initVault } from "./vault";
 const localStorage = new LocalStorage(
   new ExtensionKVStore(KVPrefix.LocalStorage, browser.storage.local)
 );
-const revealedPKStorege = new RevealedPKStorage(
+const revealedPKStorage = new RevealedPKStorage(
   new ExtensionKVStore(KVPrefix.RevealedPK, browser.storage.local)
 );
 
@@ -92,7 +92,7 @@ const init = new Promise<void>(async (resolve) => {
     sdkService,
     vaultStorage,
     txStore,
-    revealedPKStorege,
+    revealedPKStorage,
     requester,
     broadcaster
   );
