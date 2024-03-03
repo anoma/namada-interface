@@ -26,7 +26,7 @@ export const SeedPhraseWarning = ({
 
   return (
     <>
-      <Stack className="mb-6" gap={7}>
+      <Stack className="mb-5" gap={5}>
         <aside className="flex items-center bg-black rounded-md justify-center py-10 w-full">
           <div className="flex justify-center mx-auto text-yellow text-[125px] leading-[1]">
             <GoAlertFill />
