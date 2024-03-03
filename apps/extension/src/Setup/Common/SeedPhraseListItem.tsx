@@ -34,7 +34,7 @@ export const SeedPhraseListItem = ({
           </i>
           <Input
             label=""
-            className="-mt-2"
+            className="-mt-2 ml-1"
             variant="PasswordOnBlur"
             hideIcon={true}
             onChange={(e) => onChange(idx, e.target.value)}
@@ -48,7 +48,7 @@ export const SeedPhraseListItem = ({
             "absolute text-white font-light left-2.5 top-[1em] select-none"
           )}
         >
-          {idx + 1} <span className="font-bold">{word}</span>
+          {idx + 1} <span className="font-bold ml-1">{word}</span>
         </span>
       )}
     </li>
