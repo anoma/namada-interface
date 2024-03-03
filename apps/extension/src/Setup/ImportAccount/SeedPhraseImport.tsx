@@ -14,7 +14,7 @@ import { AccountSecret, ValidateMnemonicMsg } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
 import { GoX } from "react-icons/go";
 import { Ports } from "router";
-import { filterPrivateKeyPrefix, validatePrivateKey } from "utils";
+import { fillArray, filterPrivateKeyPrefix, validatePrivateKey } from "utils";
 
 type Props = {
   onConfirm: (accountSecret: AccountSecret) => void;
@@ -212,7 +212,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
             <SeedPhraseList
               sensitive={false}
               columns={mnemonicType === MnemonicTypes.TwentyFourWords ? 4 : 3}
-              words={mnemonics.slice(0, mnemonicType)}
+              words={fillArray(mnemonics.slice(0, mnemonicType), mnemonicType)}
               onChange={onInputChange}
               onPaste={onPaste}
             />

@@ -21,6 +21,10 @@ export const openSetupTab = (): void => {
   });
 };
 
+export const fillArray = (arr: string[], length: number): string[] => {
+  return arr.concat(Array(length - arr.length).fill("")).slice(0, length);
+};
+
 /**
  * Construct unique uuid (v5), passing in an arbitrary number of arguments.
  * This could be a unique parameter of the object receiving the id,
