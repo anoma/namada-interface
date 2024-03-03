@@ -24,7 +24,7 @@ export const LedgerConfirmation = (): JSX.Element => {
         transparentAccountAddress={account.address}
       />
       <ActionButton size="lg" onClick={closeCurrentTab}>
-        Close this page
+        Finish Setup
       </ActionButton>
     </Stack>
   );

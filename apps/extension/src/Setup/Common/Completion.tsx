@@ -151,7 +151,7 @@ export const Completion: React.FC<Props> = (props) => {
                 data-testid="setup-close-page-btn"
                 onClick={closeCurrentTab}
               >
-                Close this page
+                Finish Setup
               </ActionButton>
             }
           />
