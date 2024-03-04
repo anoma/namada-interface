@@ -20,14 +20,9 @@ export class VaultService {
     protected sessionStore: KVStore<SessionPassword>,
     protected readonly cryptoMemory: WebAssembly.Memory,
     protected readonly broadcaster?: ExtensionBroadcaster
-  ) {
-    this.initialize();
-    this.migrate();
-  }
+  ) {}
 
-  private migrate(): void {}
-
-  private async initialize(): Promise<void> {
+  public async initialize(): Promise<void> {
     const storage = await this.vaultStorage.get();
     if (!storage) {
       await this.vaultStorage.reset();
@@ -84,10 +79,10 @@ export class VaultService {
 
   protected async setPassword(password: string | undefined): Promise<void> {
     if (!password) {
-      this.sessionStore.set("password", "");
+      await this.sessionStore.set("password", "");
       return;
     }
-    this.sessionStore.set("password", await this.hashPassword(password));
+    await this.sessionStore.set("password", await this.hashPassword(password));
   }
 
   protected async getPassword(): Promise<string> {

@@ -32,7 +32,7 @@ jest.mock("webextension-polyfill", () => ({
   },
 }));
 
-describe.only("approvals service", () => {
+describe("approvals service", () => {
   let service: ApprovalsService;
   let keyRingService: jest.Mocked<KeyRingService>;
   let dataStore: KVStoreMock<string>;

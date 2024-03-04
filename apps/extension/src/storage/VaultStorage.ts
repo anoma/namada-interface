@@ -200,7 +200,7 @@ export class VaultStorage extends ExtStorage {
     const currentData = storage.data[key] || [];
     currentData.push(data);
     storage.data[key] = currentData;
-    this.set(storage);
+    await this.set(storage);
   }
 
   public async update<S extends VaultSchemas>(
@@ -230,7 +230,7 @@ export class VaultStorage extends ExtStorage {
       return props[prop] !== value;
     });
 
-    this.setSpecific(schema, newStore);
+    await this.setSpecific(schema, newStore);
 
     return newStore;
   }
@@ -260,7 +260,7 @@ export class VaultStorage extends ExtStorage {
     const data = storage?.data[key];
 
     if (!data) {
-      throw new Error("TODO");
+      throw new Error("Could not find data on Vault");
     }
 
     return data;
@@ -276,7 +276,7 @@ export class VaultStorage extends ExtStorage {
     }
     const key = this.getKey(schema);
     storage.data[key] = data;
-    this.set(storage);
+    await this.set(storage);
   }
 
   private async findIndexOrFail<S extends VaultSchemas>(

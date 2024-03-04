@@ -31,7 +31,7 @@ class UnknownMsg extends Message<unknown> {
   }
 }
 
-describe.only("approvals handler", () => {
+describe("approvals handler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });

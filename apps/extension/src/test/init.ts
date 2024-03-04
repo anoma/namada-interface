@@ -94,6 +94,7 @@ export const init = async (): Promise<{
     sessionStore,
     cryptoMemory
   );
+  await vaultService.initialize();
   const chainsService = new ChainsService(localStorage, broadcaster);
   const sdkService = new SdkService(chainsService);
 

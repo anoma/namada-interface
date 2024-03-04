@@ -39,6 +39,7 @@ describe("Testing untouched Vault Service", () => {
       KVPrefix.SessionStorage
     );
     service = new VaultService(storage, sessionStore, cryptoMemory);
+    await service.initialize();
     await service.createPassword(password);
   });
 
