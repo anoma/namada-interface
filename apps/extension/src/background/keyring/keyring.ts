@@ -53,7 +53,7 @@ import {
 
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
-import { KeyStore, VaultStorage } from "storage";
+import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
 import { generateId } from "utils";
 
 // Generated UUID namespace for uuid v5
@@ -851,20 +851,37 @@ export class KeyRing {
     }
   }
 
+  private async findAllChildAccounts(
+    accountId: string
+  ): Promise<{ public: KeyStoreType; sensitive?: SensitiveType }[]> {
+    return (
+      (await this.vaultStorage.findAll(KeyStore, "parentId", accountId)) || []
+    );
+  }
+
   async renameAccount(
-    accountId: string,
+    topLevelAccountId: string,
     alias: string
   ): Promise<DerivedAccount> {
-    return await this.vaultStorage.update(KeyStore, "id", accountId, {
-      alias,
-    });
+    const renameFn = (accountId: string): Promise<DerivedAccount> =>
+      this.vaultStorage.update(KeyStore, "id", accountId, {
+        alias,
+      });
+
+    const topLevelAccount = await renameFn(topLevelAccountId);
+
+    const childAccounts = await this.findAllChildAccounts(topLevelAccountId);
+    await Promise.all(
+      childAccounts.map(async (account) => renameFn(account.public.id))
+    );
+
+    return topLevelAccount;
   }
 
   async deleteAccount(
     accountId: string
   ): Promise<Result<null, DeleteAccountError>> {
-    const derivedAccounts =
-      (await this.vaultStorage.findAll(KeyStore, "parentId", accountId)) || [];
+    const derivedAccounts = await this.findAllChildAccounts(accountId);
 
     const accountIds = [
       accountId,
