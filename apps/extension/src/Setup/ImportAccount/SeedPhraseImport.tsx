@@ -263,6 +263,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
               data-testid="setup-import-keys-use-passphrase-button"
               className="text-xs !text-neutral-400"
               onClick={onShowPassphraseChange}
+              type="button" // makes enter key ignore this and submit form
             >
               Import with BIP39 Passphrase
             </LinkButton>
@@ -271,6 +272,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
             size="lg"
             data-testid="setup-import-keys-import-button"
             disabled={isSubmitButtonDisabled}
+            type="submit"
           >
             Next
           </ActionButton>
