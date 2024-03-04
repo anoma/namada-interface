@@ -7,6 +7,9 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { GoAlertFill } from "react-icons/go";
 
+const { NODE_ENV } = process.env;
+const TIMEOUT = NODE_ENV === "development" ? 50 : 1000;
+
 type SeedPhraseWarningProps = {
   onComplete: () => void;
 };
@@ -21,7 +24,7 @@ export const SeedPhraseWarning = ({
       if (countdown > 0) {
         setCountdown((countdown) => countdown - 1);
       }
-    }, 1000);
+    }, TIMEOUT);
   }, [countdown]);
 
   return (
