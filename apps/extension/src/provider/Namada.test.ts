@@ -2,14 +2,11 @@
 
 import { Namada } from "@namada/types";
 
-import {
-  KEYSTORE_KEY,
-  PARENT_ACCOUNT_ID_KEY,
-  UtilityStore,
-} from "background/keyring";
-import { VAULT_KEY, VaultService, VaultStore } from "background/vault";
+import { PARENT_ACCOUNT_ID_KEY, UtilityStore } from "background/keyring";
+import { VaultService } from "background/vault";
 import * as utils from "extension/utils";
-import { DBType, KVStoreMock, init } from "test/init";
+import { VaultStorage } from "storage";
+import { KVStoreMock, init } from "test/init";
 import { ACTIVE_ACCOUNT, keyStore, password } from "./data.mock";
 
 // Needed for now as utils import webextension-polyfill directly
@@ -17,13 +14,13 @@ jest.mock("webextension-polyfill", () => ({}));
 
 describe("Namada", () => {
   let namada: Namada;
-  let iDBStore: KVStoreMock<DBType>;
+  let vaultStorage: VaultStorage;
   let utilityStore: KVStoreMock<UtilityStore>;
   let vaultService: VaultService;
 
   beforeAll(async () => {
     jest.spyOn(utils, "getNamadaRouterId").mockResolvedValue(1);
-    ({ namada, iDBStore, utilityStore, vaultService } = await init());
+    ({ namada, vaultStorage, utilityStore, vaultService } = await init());
 
     jest
       .spyOn(VaultService.prototype, "checkPassword")
@@ -37,14 +34,14 @@ describe("Namada", () => {
   });
 
   it("should return all accounts", async () => {
-    const store: VaultStore = {
+    const store = {
       password: undefined,
       data: {
-        [KEYSTORE_KEY]: keyStore,
+        "key-store": keyStore,
       },
     };
 
-    iDBStore.set(VAULT_KEY, store);
+    vaultStorage.set(store);
     utilityStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT);
     const storedKeyStore = keyStore.map((store) => store.public);
     const storedAccounts = await namada.accounts();

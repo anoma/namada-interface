@@ -18,6 +18,7 @@ import {
   getNamadaRouterId,
 } from "extension";
 import { KVPrefix, Ports } from "router";
+import { LocalStorage, RevealedPKStorage, VaultStorage } from "storage";
 import { ApprovalsService, init as initApprovals } from "./approvals";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, UtilityStore, init as initKeyRing } from "./keyring";
@@ -25,30 +26,20 @@ import { LedgerService, init as initLedger } from "./ledger";
 import { SdkService } from "./sdk/service";
 import { VaultService, init as initVault } from "./vault";
 
-const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
-const sessionStore = new SessionKVStore(KVPrefix.SessionStorage);
+// Extension storages
+const localStorage = new LocalStorage(
+  new ExtensionKVStore(KVPrefix.LocalStorage, browser.storage.local)
+);
+const revealedPKStorage = new RevealedPKStorage(
+  new ExtensionKVStore(KVPrefix.RevealedPK, browser.storage.local)
+);
+
+//IDB storages
+const vaultStorage = new VaultStorage(new IndexedDBKVStore(KVPrefix.IndexedDB));
 const utilityStore = new IndexedDBKVStore<UtilityStore>(KVPrefix.Utility);
-// TODO: For now we will be running two stores side by side
-const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
-  get: browser.storage.local.get,
-  set: browser.storage.local.set,
-});
-const connectedTabsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
-  get: browser.storage.local.get,
-  set: browser.storage.local.set,
-});
-const approvedOriginsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
-  get: browser.storage.local.get,
-  set: browser.storage.local.set,
-});
-const chainStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
-  get: browser.storage.local.get,
-  set: browser.storage.local.set,
-});
-const revealedPKStore = new ExtensionKVStore(KVPrefix.RevealedPK, {
-  get: browser.storage.local.get,
-  set: browser.storage.local.set,
-});
+
+// Memory/transient storages
+const sessionStore = new SessionKVStore(KVPrefix.SessionStorage);
 const txStore = new MemoryKVStore(KVPrefix.Memory);
 const dataStore = new MemoryKVStore(KVPrefix.Memory);
 
@@ -56,7 +47,7 @@ const messenger = new ExtensionMessenger();
 const router = new ExtensionRouter(
   ContentScriptEnv.produceEnv,
   messenger,
-  extensionStore
+  localStorage
 );
 
 router.addGuard(ExtensionGuards.checkOriginIsValid);
@@ -73,25 +64,26 @@ const init = new Promise<void>(async (resolve) => {
   );
   await initShared(sharedWasm);
 
-  const routerId = await getNamadaRouterId(extensionStore);
+  const routerId = await getNamadaRouterId(localStorage);
   const requester = new ExtensionRequester(messenger, routerId);
-  const broadcaster = new ExtensionBroadcaster(connectedTabsStore, requester);
+  const broadcaster = new ExtensionBroadcaster(localStorage, requester);
 
   const vaultService = new VaultService(
-    store,
+    vaultStorage,
     sessionStore,
     cryptoMemory,
     broadcaster
   );
-  const chainsService = new ChainsService(chainStore, broadcaster);
+  await vaultService.initialize();
+  const chainsService = new ChainsService(localStorage, broadcaster);
   const sdkService = new SdkService(chainsService);
   const keyRingService = new KeyRingService(
     vaultService,
     sdkService,
     chainsService,
     utilityStore,
-    connectedTabsStore,
-    extensionStore,
+    localStorage,
+    vaultStorage,
     cryptoMemory,
     requester,
     broadcaster
@@ -99,18 +91,16 @@ const init = new Promise<void>(async (resolve) => {
   const ledgerService = new LedgerService(
     keyRingService,
     sdkService,
-    store,
-    connectedTabsStore,
+    vaultStorage,
     txStore,
-    revealedPKStore,
+    revealedPKStorage,
     requester,
     broadcaster
   );
   const approvalsService = new ApprovalsService(
     txStore,
     dataStore,
-    connectedTabsStore,
-    approvedOriginsStore,
+    localStorage,
     keyRingService,
     ledgerService,
     vaultService,

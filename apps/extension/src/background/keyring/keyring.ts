@@ -53,6 +53,7 @@ import {
 
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
+import { KeyStore, VaultStorage } from "storage";
 import { generateId } from "utils";
 
 // Generated UUID namespace for uuid v5
@@ -77,9 +78,9 @@ export class KeyRing {
 
   constructor(
     protected readonly vaultService: VaultService,
+    protected readonly vaultStorage: VaultStorage,
     protected readonly sdkService: SdkService,
     protected readonly utilityStore: KVStore<UtilityStore>,
-    protected readonly extensionStore: KVStore<number>,
     protected readonly cryptoMemory: WebAssembly.Memory
   ) {}
 
@@ -140,19 +141,23 @@ export class KeyRing {
       path: bip44Path,
       type: AccountType.Ledger,
     };
-    await this.vaultService.add<AccountStore, SensitiveAccountStoreData>(
-      KEYSTORE_KEY,
-      accountStore,
-      { text: "", passphrase: "" }
-    );
+
+    const sensitive = await this.vaultService.encryptSensitiveData({
+      text: "",
+      passphrase: "",
+    });
+    await this.vaultStorage.add(KeyStore, {
+      public: accountStore,
+      sensitive,
+    });
 
     await this.setActiveAccount(id, AccountType.Ledger);
     return accountStore;
   }
 
   public async revealMnemonic(accountId: string): Promise<string> {
-    const account = await this.vaultService.findOneOrFail<AccountStore>(
-      KEYSTORE_KEY,
+    const account = await this.vaultStorage.findOneOrFail(
+      KeyStore,
       "id",
       accountId
     );
@@ -162,7 +167,9 @@ export class KeyRing {
     }
 
     const sensitiveData =
-      await this.vaultService.reveal<SensitiveAccountStoreData>(account);
+      await this.vaultService.reveal<SensitiveAccountStoreData>(
+        account.sensitive
+      );
 
     if (!sensitiveData) {
       return "";
@@ -255,11 +262,13 @@ export class KeyRing {
       type: accountType,
     };
     const sensitiveData: SensitiveAccountStoreData = { text, passphrase };
-    await this.vaultService.add<AccountStore, SensitiveAccountStoreData>(
-      KEYSTORE_KEY,
-      accountStore,
-      sensitiveData
-    );
+    const sensitive =
+      await this.vaultService.encryptSensitiveData(sensitiveData);
+
+    await this.vaultStorage.add(KeyStore, {
+      public: accountStore,
+      sensitive,
+    });
     await this.setActiveAccount(id, AccountType.Mnemonic);
     return accountStore;
   }
@@ -439,8 +448,8 @@ export class KeyRing {
       throw "No active account has been found";
     }
 
-    const storedMnemonic = await this.vaultService.findOneOrFail<AccountStore>(
-      KEYSTORE_KEY,
+    const storedMnemonic = await this.vaultStorage.findOneOrFail(
+      KeyStore,
       "id",
       activeAccount.id
     );
@@ -449,7 +458,7 @@ export class KeyRing {
     try {
       const sensitiveData =
         await this.vaultService.reveal<SensitiveAccountStoreData>(
-          storedMnemonic
+          storedMnemonic.sensitive
         );
 
       if (!sensitiveData) {
@@ -491,11 +500,14 @@ export class KeyRing {
       type,
       owner,
     };
-    this.vaultService.add<AccountStore, SensitiveAccountStoreData>(
-      KEYSTORE_KEY,
-      { ...account, owner },
-      { text, passphrase: "" }
-    );
+    const sensitive = await this.vaultService.encryptSensitiveData({
+      text,
+      passphrase: "",
+    });
+    this.vaultStorage.add(KeyStore, {
+      public: { ...account, owner },
+      sensitive,
+    });
     return account;
   }
 
@@ -538,8 +550,7 @@ export class KeyRing {
   }
 
   public async queryAllAccounts(): Promise<DerivedAccount[]> {
-    const accounts =
-      await this.vaultService.findAll<AccountStore>(KEYSTORE_KEY);
+    const accounts = await this.vaultStorage.findAll(KeyStore);
     return accounts.map((entry) => entry.public as AccountStore);
   }
 
@@ -547,18 +558,14 @@ export class KeyRing {
    * Query accounts from storage (active parent account + associated derived child accounts)
    */
   public async queryAccountById(accountId: string): Promise<DerivedAccount[]> {
-    const parentAccount = await this.vaultService.findOne<AccountStore>(
-      KEYSTORE_KEY,
+    const parentAccount = await this.vaultStorage.findOne(
+      KeyStore,
       "id",
       accountId
     );
 
     const derivedAccounts =
-      (await this.vaultService.findAll<AccountStore>(
-        KEYSTORE_KEY,
-        "parentId",
-        accountId
-      )) || [];
+      (await this.vaultStorage.findAll(KeyStore, "parentId", accountId)) || [];
 
     if (parentAccount) {
       const accounts = [parentAccount, ...derivedAccounts];
@@ -578,15 +585,15 @@ export class KeyRing {
   public async queryAccountByPublicKey(
     publicKey: string
   ): Promise<DerivedAccount[]> {
-    const parentAccount = await this.vaultService.findOne<AccountStore>(
-      KEYSTORE_KEY,
+    const parentAccount = await this.vaultStorage.findOne(
+      KeyStore,
       "publicKey",
       publicKey
     );
 
     const derivedAccounts =
-      (await this.vaultService.findAll<AccountStore>(
-        KEYSTORE_KEY,
+      (await this.vaultStorage.findAll(
+        KeyStore,
         "parentId",
         parentAccount?.public.id
       )) || [];
@@ -604,8 +611,8 @@ export class KeyRing {
    */
   public async queryParentAccounts(): Promise<DerivedAccount[]> {
     const accounts =
-      (await this.vaultService.findAll<AccountStore>(
-        KEYSTORE_KEY,
+      (await this.vaultStorage.findAll(
+        KeyStore,
         "type",
         AccountType.Mnemonic
       )) || [];
@@ -616,8 +623,8 @@ export class KeyRing {
    * For provided address, return associated private key
    */
   private async getSigningKey(address: string): Promise<string> {
-    const account = await this.vaultService.findOne<AccountStore>(
-      KEYSTORE_KEY,
+    const account = await this.vaultStorage.findOne(
+      KeyStore,
       "address",
       address
     );
@@ -636,7 +643,9 @@ export class KeyRing {
     const bip44Path = makeBip44PathArray(coinType, path);
 
     const sensitiveProps =
-      await this.vaultService.reveal<SensitiveAccountStoreData>(account);
+      await this.vaultService.reveal<SensitiveAccountStoreData>(
+        account.sensitive
+      );
     if (!sensitiveProps) {
       throw new Error(`Signing key for ${address} not found!`);
     }
@@ -768,13 +777,15 @@ export class KeyRing {
     // We need to get the source address to find either the private key or spending key
     const { source } = deserialize(Buffer.from(transferMsg), TransferMsgValue);
 
-    const account = await this.vaultService.findOneOrFail<AccountStore>(
-      KEYSTORE_KEY,
+    const account = await this.vaultStorage.findOneOrFail(
+      KeyStore,
       "address",
       source
     );
     const sensitiveProps =
-      await this.vaultService.reveal<SensitiveAccountStoreData>(account);
+      await this.vaultService.reveal<SensitiveAccountStoreData>(
+        account.sensitive
+      );
 
     if (!sensitiveProps) {
       throw new Error("Error decrypting AccountStore data");
@@ -844,25 +855,16 @@ export class KeyRing {
     accountId: string,
     alias: string
   ): Promise<DerivedAccount> {
-    return await this.vaultService.update<DerivedAccount>(
-      KEYSTORE_KEY,
-      "id",
-      accountId,
-      {
-        alias,
-      }
-    );
+    return await this.vaultStorage.update(KeyStore, "id", accountId, {
+      alias,
+    });
   }
 
   async deleteAccount(
     accountId: string
   ): Promise<Result<null, DeleteAccountError>> {
     const derivedAccounts =
-      (await this.vaultService.findAll<AccountStore>(
-        KEYSTORE_KEY,
-        "parentId",
-        accountId
-      )) || [];
+      (await this.vaultStorage.findAll(KeyStore, "parentId", accountId)) || [];
 
     const accountIds = [
       accountId,
@@ -870,8 +872,7 @@ export class KeyRing {
     ];
 
     for (const id of accountIds) {
-      id &&
-        (await this.vaultService.remove<AccountStore>(KEYSTORE_KEY, "id", id));
+      id && (await this.vaultStorage.remove(KeyStore, "id", id));
     }
 
     return Result.ok(null);

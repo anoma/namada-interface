@@ -1,14 +1,14 @@
 import { chains } from "@namada/chains";
 import { Query } from "@namada/shared";
-import { KVStore } from "@namada/storage";
 import { Chain } from "@namada/types";
 import { ExtensionBroadcaster } from "extension";
+import { LocalStorage } from "storage";
 
 export const CHAINS_KEY = "chains";
 
 export class ChainsService {
   constructor(
-    protected readonly chainsStore: KVStore<Chain>,
+    protected readonly localStorage: LocalStorage,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
     this._initChain();
@@ -25,13 +25,13 @@ export class ChainsService {
       console.warn(`Chain is unreachable: ${e}`);
     }
 
-    await this.chainsStore.set(CHAINS_KEY, chain);
+    await this.localStorage.setChain(chain);
     return chain;
   }
 
   private async _initChain(): Promise<void> {
     // Initialize default chain in storage
-    const chain = (await this.chainsStore.get(CHAINS_KEY)) || chains.namada;
+    const chain = (await this.localStorage.getChain()) || chains.namada;
     // Default chain config does not have a token address, so we query:
     if (!chain.currency.address) {
       this._queryNativeToken(chain);
@@ -39,7 +39,7 @@ export class ChainsService {
   }
 
   async getChain(): Promise<Chain> {
-    let chain = (await this.chainsStore.get(CHAINS_KEY)) || chains.namada;
+    let chain = (await this.localStorage.getChain()) || chains.namada;
     // If a previous query for native token failed, attempt again:
     if (!chain.currency.address) {
       chain = await this._queryNativeToken(chain);
@@ -58,7 +58,7 @@ export class ChainsService {
       chainId,
       rpc: url,
     };
-    await this.chainsStore.set(CHAINS_KEY, await this._queryNativeToken(chain));
+    await this.localStorage.setChain(await this._queryNativeToken(chain));
     this.broadcaster.updateNetwork();
   }
 }

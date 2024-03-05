@@ -1,41 +1,39 @@
-import browser from "webextension-polyfill";
-import { Namada, Proxy } from "provider";
+import { ExtensionKVStore } from "@namada/storage";
 import {
-  ExtensionRouter,
-  ExtensionRequester,
   ContentScriptEnv,
   ContentScriptGuards,
   ExtensionMessenger,
+  ExtensionRequester,
+  ExtensionRouter,
   getNamadaRouterId,
 } from "extension";
+import { Namada, Proxy } from "provider";
 import { KVPrefix, Ports } from "router/types";
+import { LocalStorage } from "storage";
+import browser from "webextension-polyfill";
 import { initEvents } from "./events";
-import { ExtensionKVStore } from "@namada/storage";
 
-const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
-  get: browser.storage.local.get,
-  set: browser.storage.local.set,
-});
+const localStorage = new LocalStorage(
+  new ExtensionKVStore(KVPrefix.LocalStorage, {
+    get: browser.storage.local.get,
+    set: browser.storage.local.set,
+  })
+);
 const messenger = new ExtensionMessenger();
 
 const router = new ExtensionRouter(
   ContentScriptEnv.produceEnv,
   messenger,
-  extensionStore
+  localStorage
 );
-
-const approvedOriginsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
-  get: browser.storage.local.get,
-  set: browser.storage.local.set,
-});
 
 const init = new Promise<void>(async (resolve) => {
   // Start proxying messages from Namada to InjectedNamada
-  const routerId = await getNamadaRouterId(extensionStore);
+  const routerId = await getNamadaRouterId(localStorage);
   const packageVersion = process.env.npm_package_version || "";
   Proxy.start(
     new Namada(packageVersion, new ExtensionRequester(messenger, routerId)),
-    approvedOriginsStore
+    localStorage
   );
   resolve();
 });

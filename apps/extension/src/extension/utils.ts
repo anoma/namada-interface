@@ -1,17 +1,16 @@
-import browser from "webextension-polyfill";
-import { KVStore } from "@namada/storage";
 import { Env, MessageSender } from "router/types";
+import { LocalStorage } from "storage";
+import browser from "webextension-polyfill";
 
-const ROUTER_ID_KEY = "namadaExtensionRouterId";
 const NO_TAB_ID = -2;
 
 export const getNamadaRouterId = async (
-  store: KVStore<number>
+  store: LocalStorage
 ): Promise<number> => {
-  const storedId = await store.get(ROUTER_ID_KEY);
+  const storedId = await store.getRouterId();
   if (!storedId) {
     const id = Math.floor(Math.random() * 1000000);
-    await store.set(ROUTER_ID_KEY, id);
+    await store.setRouterId(id);
 
     return id;
   }

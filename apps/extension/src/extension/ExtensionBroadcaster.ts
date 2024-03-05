@@ -1,5 +1,4 @@
 import { TxType } from "@namada/shared";
-import { KVStore } from "@namada/storage";
 import { TabStore, syncTabs } from "background/keyring";
 import {
   AccountChangedEventMsg,
@@ -14,10 +13,11 @@ import {
 } from "content/events";
 import { ExtensionRequester } from "extension";
 import { Message, Ports } from "router";
+import { LocalStorage } from "storage";
 
 export class ExtensionBroadcaster {
   constructor(
-    protected readonly connectedTabsStore: KVStore<TabStore[]>,
+    protected readonly localStorage: LocalStorage,
     protected readonly requester: ExtensionRequester
   ) {}
 
@@ -68,7 +68,7 @@ export class ExtensionBroadcaster {
    * Query all existing tabs, and send provided message to each
    */
   async sendMsgToTabs(msg: Message<unknown>): Promise<void> {
-    const tabs = await syncTabs(this.connectedTabsStore, this.requester);
+    const tabs = await syncTabs(this.localStorage, this.requester);
 
     try {
       tabs?.forEach(({ tabId }: TabStore) => {

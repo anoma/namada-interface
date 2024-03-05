@@ -1,4 +1,3 @@
-import { getNamadaRouterId } from "./utils";
 import {
   EnvProducer,
   MessageSender,
@@ -6,14 +5,15 @@ import {
   RoutedMessage,
   Router,
 } from "router";
-import { KVStore } from "@namada/storage";
+import { LocalStorage } from "storage";
 import { Messenger } from "./ExtensionMessenger";
+import { getNamadaRouterId } from "./utils";
 
 export class ExtensionRouter extends Router {
   constructor(
     envProducer: EnvProducer,
     private readonly messenger: Messenger,
-    private readonly store: KVStore<number>
+    private readonly store: LocalStorage
   ) {
     super(envProducer);
   }

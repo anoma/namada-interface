@@ -12,15 +12,16 @@ import {
   TokenInfo,
   TransferMsgValue,
 } from "@namada/types";
-import { KeyRingService, TabStore } from "background/keyring";
+import { KeyRingService } from "background/keyring";
 import { LedgerService } from "background/ledger";
 import { VaultService } from "background/vault";
 import BigNumber from "bignumber.js";
 import { ExtensionBroadcaster } from "extension";
 import createMockInstance from "jest-create-mock-instance";
+import { LocalStorage } from "storage";
 import { KVStoreMock } from "test/init";
 import { ApprovalsService } from "./service";
-import { ApprovedOriginsStore, TxStore } from "./types";
+import { TxStore } from "./types";
 
 jest.mock("webextension-polyfill", () => ({
   runtime: {
@@ -31,7 +32,7 @@ jest.mock("webextension-polyfill", () => ({
   },
 }));
 
-describe.only("approvals service", () => {
+describe("approvals service", () => {
   let service: ApprovalsService;
   let keyRingService: jest.Mocked<KeyRingService>;
   let dataStore: KVStoreMock<string>;
@@ -45,10 +46,6 @@ describe.only("approvals service", () => {
     jest.clearAllMocks();
     txStore = new KVStoreMock<TxStore>("TxStore");
     dataStore = new KVStoreMock<string>("DataStore");
-    const connectedTabsStore = new KVStoreMock<TabStore[]>("TabStore");
-    const approvedOriginsStore = new KVStoreMock<ApprovedOriginsStore>(
-      "ApprovedOriginsStore"
-    );
     keyRingService = createMockInstance(KeyRingService as any);
     const ledgerService: jest.Mocked<LedgerService> = createMockInstance(
       LedgerService as any
@@ -58,12 +55,12 @@ describe.only("approvals service", () => {
     );
     const broadcaster: jest.Mocked<ExtensionBroadcaster> =
       createMockInstance(ExtensionBroadcaster);
+    const localStorage = new LocalStorage(new KVStoreMock("LocalStorage"));
 
     service = new ApprovalsService(
       txStore,
       dataStore,
-      connectedTabsStore,
-      approvedOriginsStore,
+      localStorage,
       keyRingService,
       ledgerService,
       vaultService,

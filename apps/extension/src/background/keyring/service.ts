@@ -26,7 +26,8 @@ import {
   ExtensionRequester,
   getNamadaRouterId,
 } from "extension";
-import { KeyRing, KEYSTORE_KEY } from "./keyring";
+import { KeyStore, LocalStorage, VaultStorage } from "storage";
+import { KeyRing } from "./keyring";
 import {
   AccountSecret,
   AccountStore,
@@ -35,14 +36,13 @@ import {
   MnemonicValidationResponse,
   ParentAccount,
   SigningKey,
-  TabStore,
   UtilityStore,
 } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 export class KeyRingService {
@@ -53,26 +53,26 @@ export class KeyRingService {
     protected readonly sdkService: SdkService,
     protected readonly chainsService: ChainsService,
     protected readonly utilityStore: KVStore<UtilityStore>,
-    protected readonly connectedTabsStore: KVStore<TabStore[]>,
-    protected readonly extensionStore: KVStore<number>,
+    protected readonly localStorage: LocalStorage,
+    protected readonly vaultStorage: VaultStorage,
     protected readonly cryptoMemory: WebAssembly.Memory,
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
     this._keyRing = new KeyRing(
       vaultService,
+      vaultStorage,
       sdkService,
       utilityStore,
-      extensionStore,
       cryptoMemory
     );
   }
 
   // Track connected tabs by ID
   async connect(senderTabId: number): Promise<void> {
-    const tabs = await syncTabs(this.connectedTabsStore, this.requester);
+    const tabs = await syncTabs(this.localStorage, this.requester);
 
-    return await updateTabStorage(senderTabId, tabs, this.connectedTabsStore);
+    return await updateTabStorage(senderTabId, tabs, this.localStorage);
   }
 
   async generateMnemonic(size?: PhraseSize): Promise<string[]> {
@@ -160,8 +160,8 @@ export class KeyRingService {
   async findParentByPublicKey(
     publicKey: string
   ): Promise<DerivedAccount | null> {
-    const accounts = await this.vaultService.findAll<DerivedAccount>(
-      KEYSTORE_KEY,
+    const accounts = await this.vaultStorage.findAll(
+      KeyStore,
       "publicKey",
       publicKey
     );
@@ -170,8 +170,8 @@ export class KeyRingService {
   }
 
   async findByAddress(address: string): Promise<DerivedAccount | null> {
-    const account = await this.vaultService.findOne<DerivedAccount>(
-      KEYSTORE_KEY,
+    const account = await this.vaultStorage.findOne(
+      KeyStore,
       "address",
       address
     );
@@ -265,7 +265,7 @@ export class KeyRingService {
     signingKey: SigningKey
   ): Promise<void> {
     const offscreenDocumentPath = "offscreen.html";
-    const routerId = await getNamadaRouterId(this.extensionStore);
+    const routerId = await getNamadaRouterId(this.localStorage);
     const rpc = await this.sdkService.getRpc();
     const {
       currency: { address: nativeToken = tokenAddress },
@@ -456,8 +456,8 @@ export class KeyRingService {
     owner: string,
     tokens: string[]
   ): Promise<{ token: string; amount: string }[]> {
-    const account = await this.vaultService.findOneOrFail<AccountStore>(
-      KEYSTORE_KEY,
+    const account = await this.vaultStorage.findOneOrFail(
+      KeyStore,
       "address",
       owner
     );

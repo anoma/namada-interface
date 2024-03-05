@@ -1,29 +1,45 @@
+import { AccountType } from "@namada/types";
+import { Result } from "@namada/utils";
 import { KVPrefix } from "router";
+import { KeyStore, KeyStoreType, VaultStorage } from "storage";
 import { KVStoreMock } from "test/init";
 import { VaultService } from "../service";
-import { SessionPassword, VaultStore } from "../types";
-import { Result } from "@namada/utils";
+import { SessionPassword } from "../types";
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const cryptoMemory = require("@namada/crypto").__wasm.memory;
 jest.mock("webextension-polyfill", () => ({}));
 
-type VaultPublicValue = { foo: string };
-type VaultPublicObj = { id: string; value: string };
+type VaultPublicObj = { id: string; alias: string };
 type VaultSensitiveValue = { bar: string };
+
+const getKeyStore = (id: string, alias: string): KeyStoreType => ({
+  id,
+  alias,
+  address: "address",
+  owner: "owner",
+  path: {
+    account: 0,
+    change: 0,
+    index: 0,
+  },
+  type: AccountType.Mnemonic,
+});
 
 describe("Testing untouched Vault Service", () => {
   let service: VaultService;
-  const keyString = "key";
+  let storage: VaultStorage;
+  const keyString = "key-store";
   const password = "123foo";
   const secretText = "secret";
 
   beforeEach(async () => {
-    const iDBStore = new KVStoreMock<VaultStore>(KVPrefix.IndexedDB);
+    storage = new VaultStorage(new KVStoreMock(KVPrefix.IndexedDB));
     const sessionStore = new KVStoreMock<SessionPassword>(
       KVPrefix.SessionStorage
     );
-    service = new VaultService(iDBStore, sessionStore, cryptoMemory);
+    service = new VaultService(storage, sessionStore, cryptoMemory);
+    await service.initialize();
     await service.createPassword(password);
   });
 
@@ -43,42 +59,48 @@ describe("Testing untouched Vault Service", () => {
   });
 
   it("Should encrypt and decrypt message correctly", async () => {
-    const publicData = "public data";
     const sensitiveData = secretText;
+    const publicData = getKeyStore("id", "alias");
+    const sensitive = await service.encryptSensitiveData<VaultSensitiveValue>(
+      {
+        bar: sensitiveData,
+      },
+      password
+    );
 
     await service.assertIsUnlocked();
-    await service.add<VaultPublicValue, VaultSensitiveValue>(
-      keyString,
-      {
-        foo: publicData,
-      },
-      { bar: sensitiveData }
+    await storage.add(KeyStore, {
+      public: publicData,
+      sensitive,
+    });
+
+    const vaultData = await storage.findOneOrFail(
+      KeyStore,
+      "alias",
+      publicData.alias
     );
 
-    const vaultData = await service.findOneOrFail<VaultPublicValue>(
-      keyString,
-      "foo",
-      publicData
+    const output = await service.reveal<VaultSensitiveValue>(
+      vaultData.sensitive
     );
-
-    const output = await service.reveal<VaultSensitiveValue>(vaultData);
     expect(output?.bar).toEqual(sensitiveData);
   });
 
   const addFakeData = async (): Promise<VaultPublicObj[]> => {
     const sensitiveData = { bar: secretText };
     const data = [
-      { id: "key0", value: "value0" },
-      { id: "key1", value: "value1" },
-      { id: "key2", value: "value2" },
-    ];
+      { id: "key0", alias: "value0" },
+      { id: "key1", alias: "value1" },
+      { id: "key2", alias: "value2" },
+    ].map((obj) => getKeyStore(obj.id, obj.alias));
+
+    const sensitive = await service.encryptSensitiveData<VaultSensitiveValue>(
+      sensitiveData,
+      password
+    );
 
     for (const obj of data) {
-      await service.add<VaultPublicObj, VaultSensitiveValue>(
-        keyString,
-        obj,
-        sensitiveData
-      );
+      await storage.add(KeyStore, { public: obj, sensitive });
     }
 
     return data;
@@ -89,27 +111,27 @@ describe("Testing untouched Vault Service", () => {
     const data = await addFakeData();
 
     expect(await service.getLength(keyString)).toBe(data.length);
-    expect(await service.findOne(keyString, "id", "key0")).toHaveProperty(
-      "public.value",
+    expect(await storage.findOne(KeyStore, "id", "key0")).toHaveProperty(
+      "public.alias",
       "value0"
     );
-    expect(await service.findOne(keyString, "id", "key1")).toHaveProperty(
-      "public.value",
+    expect(await storage.findOne(KeyStore, "id", "key1")).toHaveProperty(
+      "public.alias",
       "value1"
     );
-    expect(await service.findOneOrFail(keyString, "id", "key0")).toHaveProperty(
-      "public.value",
+    expect(await storage.findOneOrFail(KeyStore, "id", "key0")).toHaveProperty(
+      "public.alias",
       "value0"
     );
 
-    expect(await service.findOne(keyString, "id", "ops")).toBeNull();
-    expect(await service.findAll(keyString)).toHaveLength(3);
+    expect(await storage.findOne(KeyStore, "id", "ops")).toBeNull();
+    expect(await storage.findAll(KeyStore)).toHaveLength(3);
 
-    const query1 = await service.findAll(keyString, "id", "key1");
+    const query1 = await storage.findAll(KeyStore, "id", "key1");
     expect(query1).toHaveLength(1);
-    expect(query1[0]).toHaveProperty("public.value", "value1");
+    expect(query1[0]).toHaveProperty("public.alias", "value1");
 
-    const query2 = await service.findAllOrFail(keyString, "id", "key1");
+    const query2 = await storage.findAllOrFail(KeyStore, "id", "key1");
     expect(query2).toHaveLength(1);
   });
 
@@ -123,14 +145,13 @@ describe("Testing untouched Vault Service", () => {
 
     await service.lock();
     expect(await service.unlock(newPassword)).toBeTruthy();
-    const data = await service.findAll(keyString);
+    const data = await storage.findAll(KeyStore);
     expect(data).toHaveLength(3);
 
     for (const obj of data) {
-      expect(await service.reveal<VaultSensitiveValue>(obj)).toHaveProperty(
-        "bar",
-        secretText
-      );
+      expect(
+        await service.reveal<VaultSensitiveValue>(obj.sensitive)
+      ).toHaveProperty("bar", secretText);
     }
   });
 });

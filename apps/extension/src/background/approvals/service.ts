@@ -20,16 +20,13 @@ import {
 } from "@namada/types";
 
 import { assertNever, paramsToUrl } from "@namada/utils";
-import { KeyRingService, TabStore } from "background/keyring";
+import { KeyRingService } from "background/keyring";
 import { LedgerService } from "background/ledger";
+
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
-import { ApprovedOriginsStore, TxStore } from "./types";
-import {
-  APPROVED_ORIGINS_KEY,
-  addApprovedOrigin,
-  removeApprovedOrigin,
-} from "./utils";
+import { LocalStorage } from "storage";
+import { TxStore } from "./types";
 
 type GetParams = (
   specificMsg: Uint8Array,
@@ -48,8 +45,7 @@ export class ApprovalsService {
   constructor(
     protected readonly txStore: KVStore<TxStore>,
     protected readonly dataStore: KVStore<string>,
-    protected readonly connectedTabsStore: KVStore<TabStore[]>,
-    protected readonly approvedOriginsStore: KVStore<ApprovedOriginsStore>,
+    protected readonly localStorage: LocalStorage,
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService,
     protected readonly vaultService: VaultService,
@@ -347,7 +343,7 @@ export class ApprovalsService {
 
   async isConnectionApproved(interfaceOrigin: string): Promise<boolean> {
     const approvedOrigins =
-      (await this.approvedOriginsStore.get(APPROVED_ORIGINS_KEY)) || [];
+      (await this.localStorage.getApprovedOrigins()) || [];
 
     return approvedOrigins.includes(interfaceOrigin);
   }
@@ -402,7 +398,7 @@ export class ApprovalsService {
     if (allowConnection) {
       try {
         await this.keyRingService.connect(interfaceTabId);
-        await addApprovedOrigin(this.approvedOriginsStore, interfaceOrigin);
+        await this.localStorage.addApprovedOrigin(interfaceOrigin);
       } catch (e) {
         resolvers.reject(e);
       }
@@ -413,7 +409,7 @@ export class ApprovalsService {
   }
 
   async revokeConnection(originToRevoke: string): Promise<void> {
-    await removeApprovedOrigin(this.approvedOriginsStore, originToRevoke);
+    await this.localStorage.removeApprovedOrigin(originToRevoke);
     await this.broadcaster.revokeConnection();
   }
 

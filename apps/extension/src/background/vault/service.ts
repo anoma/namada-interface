@@ -1,55 +1,41 @@
 import { KVStore } from "@namada/storage";
-import { Crypto } from "./crypto";
-import {
-  CryptoRecord,
-  PrimitiveType,
-  ResetPasswordError,
-  SessionPassword,
-  Vault,
-  VaultStore,
-  VaultStoreData,
-} from "./types";
 import { Result } from "@namada/utils";
 import { ExtensionBroadcaster } from "extension";
 import { sha256 } from "js-sha256";
+import { VaultKeys as Keys, VaultStorage } from "storage";
+import { Crypto } from "./crypto";
+import {
+  CryptoRecord,
+  ResetPasswordError,
+  SessionPassword,
+  VaultStoreData,
+} from "./types";
 
 export const VAULT_KEY = "vault";
 const crypto = new Crypto();
 
 export class VaultService {
   public constructor(
-    protected vaultStore: KVStore<VaultStore>,
+    protected vaultStorage: VaultStorage,
     protected sessionStore: KVStore<SessionPassword>,
     protected readonly cryptoMemory: WebAssembly.Memory,
     protected readonly broadcaster?: ExtensionBroadcaster
-  ) {
-    this.initialize();
-    this.migrate();
-  }
+  ) {}
 
-  private migrate(): void {}
-
-  private async initialize(): Promise<void> {
-    const vault = await this.vaultStore.get(VAULT_KEY);
-    if (!vault) {
-      this.reset();
+  public async initialize(): Promise<void> {
+    const storage = await this.vaultStorage.get();
+    if (!storage) {
+      await this.vaultStorage.reset();
     }
   }
 
-  private async reset(): Promise<void> {
-    await this.vaultStore.set(VAULT_KEY, {
-      password: undefined,
-      data: {},
-    });
-  }
-
   public async passwordInitialized(): Promise<boolean> {
-    const store = await this.getStoreData();
+    const store = await this.vaultStorage.get();
     return !!(store && store.password);
   }
 
-  public async getLength(key: string): Promise<number> {
-    const store = await this.getStoreOrFail();
+  public async getLength(key: Keys): Promise<number> {
+    const store = await this.vaultStorage.getOrFail();
     return Object.keys(store.data[key] || {}).length;
   }
 
@@ -60,7 +46,7 @@ export class VaultService {
   }
 
   public async logout(): Promise<void> {
-    await this.reset();
+    await this.vaultStorage.reset();
     await this.setPassword(undefined);
   }
 
@@ -93,10 +79,10 @@ export class VaultService {
 
   protected async setPassword(password: string | undefined): Promise<void> {
     if (!password) {
-      this.sessionStore.set("password", "");
+      await this.sessionStore.set("password", "");
       return;
     }
-    this.sessionStore.set("password", await this.hashPassword(password));
+    await this.sessionStore.set("password", await this.hashPassword(password));
   }
 
   protected async getPassword(): Promise<string> {
@@ -110,7 +96,7 @@ export class VaultService {
   }
 
   public async checkPassword(password: string): Promise<boolean> {
-    const store = await this.getStoreOrFail();
+    const store = await this.vaultStorage.getOrFail();
     if (!store.password) {
       throw new Error("Password not initialized");
     }
@@ -129,158 +115,15 @@ export class VaultService {
     return false;
   }
 
-  public async getStoreData(): Promise<VaultStore | undefined> {
-    return await this.vaultStore.get(VAULT_KEY);
-  }
-
-  public async getStoreOrFail(): Promise<VaultStore> {
-    const storedData = await this.getStoreData();
-    if (!storedData) {
-      throw new Error("Vault store data has not been initialized");
-    }
-    return storedData;
-  }
-
-  public async add<P, T>(
-    key: string,
-    publicData: P,
-    sensitiveData?: T
-  ): Promise<Vault<P>> {
-    await this.assertIsUnlocked();
-    const entry = await this.createVaultEntry<P, T>(publicData, sensitiveData);
-    const storedData = await this.getStoreOrFail();
-
-    if (!Array.isArray(storedData.data[key])) {
-      storedData.data[key] = [];
-    }
-
-    storedData.data[key].push(entry);
-    this.vaultStore.set(VAULT_KEY, storedData);
-    return entry;
-  }
-
-  protected async findIndexOrFail<P>(
-    key: string,
-    prop: keyof P,
-    value: string
-  ): Promise<number> {
-    const storedData = await this.getStoreOrFail();
-    if (!storedData.data.hasOwnProperty(key)) {
-      throw new Error("Database key is not valid. Value provided: " + key);
-    }
-
-    const output = storedData.data[key].findIndex((entry) => {
-      const props = entry.public as P;
-      if (!prop) return false;
-      return props[prop] === value;
-    });
-
-    if (output === -1) {
-      throw new Error("Vault entry has not been found");
-    }
-
-    return output;
-  }
-
-  protected async find<P>(
-    key: string,
-    prop?: keyof P,
-    value?: PrimitiveType
-  ): Promise<Vault<P>[]> {
-    const storedData = await this.getStoreOrFail();
-    if (!storedData.data.hasOwnProperty(key)) {
-      return [];
-    }
-
-    return storedData.data[key].filter((entry) => {
-      const props = entry.public as P;
-      if (!prop) return true;
-      return props[prop] === value;
-    }) as Vault<P>[];
-  }
-
-  public async findOne<P>(
-    key: string,
-    prop?: keyof P,
-    value?: PrimitiveType
-  ): Promise<Vault<P> | null> {
-    const result = await this.find<P>(key, prop, value);
-    return result.length > 0 ? result[0] : null;
-  }
-
-  public async findAll<P>(
-    key: string,
-    prop?: keyof P,
-    value?: PrimitiveType
-  ): Promise<Vault<P>[]> {
-    return await this.find<P>(key, prop, value);
-  }
-
-  public async findAllOrFail<P>(
-    key: string,
-    prop?: keyof P,
-    value?: PrimitiveType
-  ): Promise<Vault<P>[]> {
-    const result = await this.findAll<P>(key, prop, value);
-    if (result.length === 0) {
-      throw new Error("No results have been found on Vault");
-    }
-    return result;
-  }
-
-  public async findOneOrFail<P>(
-    key: string,
-    prop?: keyof P,
-    value?: PrimitiveType
-  ): Promise<Vault<P>> {
-    const result = await this.find<P>(key, prop, value);
-    if (result.length === 0) {
-      throw new Error("No results have been found on Vault");
-    }
-    return result[0];
-  }
-
-  public async update<P>(
-    key: string,
-    prop: string,
-    value: string,
-    newProps: Partial<P>
-  ): Promise<P> {
-    const accountIdx = await this.findIndexOrFail(key, prop, value);
-    const storedData = await this.getStoreOrFail();
-    const vault = storedData.data[key][accountIdx] as Vault<P>;
-    vault.public = { ...vault.public, ...newProps };
-    await this.vaultStore.set(VAULT_KEY, storedData);
-    return vault.public;
-  }
-
-  public async remove<P>(
-    key: string,
-    prop: keyof P,
-    value: PrimitiveType
-  ): Promise<Vault<P>[]> {
-    const storedData = await this.getStoreOrFail();
-    if (!storedData.data.hasOwnProperty(key)) {
-      return [];
-    }
-
-    const newStore = storedData.data[key].filter((entry) => {
-      const props = entry.public as P;
-      return props[prop] !== value;
-    }) as Vault<P>[];
-
-    storedData.data[key] = newStore;
-    await this.vaultStore.set(VAULT_KEY, storedData);
-    return newStore;
-  }
-
   public async createPassword(password: string): Promise<void> {
     if (await this.passwordInitialized()) {
       throw new Error("Password already set");
     }
-    await this.vaultStore.set(VAULT_KEY, {
+    const store = await this.vaultStorage.getOrFail();
+
+    await this.vaultStorage.set({
       password: await this.getEncryptedPassword(password),
-      data: {},
+      data: store.data,
     });
 
     const isUnlocked = await this.unlock(password);
@@ -291,17 +134,17 @@ export class VaultService {
     }
   }
 
-  public async reveal<S>(entry: Vault): Promise<S | undefined> {
+  public async reveal<T>(sensitive?: CryptoRecord): Promise<T | undefined> {
     await this.assertIsUnlocked();
-    if (!entry.sensitive) return;
+    if (!sensitive) return;
 
     try {
-      const decryptedJson = await crypto.decrypt(
-        entry.sensitive,
+      const decryptedJson = crypto.decrypt(
+        sensitive,
         await this.getPassword(),
         this.cryptoMemory
       );
-      return JSON.parse(decryptedJson) as S;
+      return JSON.parse(decryptedJson) as T;
     } catch (error) {
       console.error(error);
       throw new Error("An error occurred decrypting the Vault");
@@ -317,27 +160,31 @@ export class VaultService {
       return Result.err(ResetPasswordError.BadPassword);
     }
 
-    const storedData = await this.getStoreOrFail();
+    const storedData = await this.vaultStorage.getOrFail();
     try {
       const newStore: VaultStoreData = {};
-      for (const key in storedData.data) {
+      const data = storedData.data;
+      for (const key of Object.keys(data) as Array<keyof typeof data>) {
         newStore[key] = [];
         for (const vault of storedData.data[key]) {
-          const sensitiveInfo = await this.reveal(vault);
-          newStore[key].push(
-            await this.createVaultEntry(
-              vault.public,
-              sensitiveInfo,
-              newPassword
-            )
+          const sensitiveInfo = await this.reveal(vault.sensitive);
+          const newSensitive = await this.encryptSensitiveData(
+            sensitiveInfo,
+            newPassword
           );
+          newStore[key].push({
+            public: vault.public,
+            sensitive: newSensitive,
+          });
         }
       }
 
-      await this.vaultStore.set(VAULT_KEY, {
+      const validated = this.vaultStorage.validate({
         password: await this.getEncryptedPassword(newPassword),
-        data: { ...newStore },
+        data: newStore,
       });
+
+      await this.vaultStorage.set(validated);
       await this.setPassword(newPassword);
       return Result.ok(null);
     } catch (error) {
@@ -345,22 +192,14 @@ export class VaultService {
     }
   }
 
-  protected async createVaultEntry<P, T>(
-    publicData: P,
-    sensitiveData?: T,
+  public async encryptSensitiveData<T>(
+    sensitiveData: T,
     password?: string
-  ): Promise<Vault<P>> {
-    let encryptedData;
-    if (sensitiveData) {
-      encryptedData = crypto.encrypt(
-        JSON.stringify(sensitiveData),
-        password ? await this.hashPassword(password) : await this.getPassword()
-      );
-    }
-    return {
-      public: { ...publicData },
-      sensitive: { ...encryptedData } as CryptoRecord,
-    };
+  ): Promise<CryptoRecord> {
+    const pwd = password
+      ? await this.hashPassword(password)
+      : await this.getPassword();
+    return crypto.encrypt(JSON.stringify(sensitiveData), pwd);
   }
 
   protected async getEncryptedPassword(
