@@ -87,7 +87,7 @@ export const SeedPhraseConfirmation = (
           "mx-auto max-w-[90%] text-center font-medium"
         )}
       >
-        fill out the words according to their numbers
+        Fill out the words according to their numbers
       </p>
       <Stack
         className="flex-1 justify-between h-[415px]"
