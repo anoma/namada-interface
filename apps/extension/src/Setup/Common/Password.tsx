@@ -95,7 +95,12 @@ export const Password = ({
           verifyPasswordMatch(event.target.value);
         }}
         onBlur={() => {
-          verifyPasswordMatch(password);
+          verifyPasswordMatch(passwordMatch);
+        }}
+        onFocus={() => {
+          if (passwordMatch) {
+            verifyPasswordMatch(passwordMatch);
+          }
         }}
       />
     </>

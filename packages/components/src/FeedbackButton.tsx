@@ -51,7 +51,7 @@ export const FeedbackButton = ({
       <button
         onClick={onPerformClick}
         className={clsx(
-          "text-white font-medium underline text-xs",
+          "text-white font-medium underline text-xs hover:text-yellow",
           props.className
         )}
       >
