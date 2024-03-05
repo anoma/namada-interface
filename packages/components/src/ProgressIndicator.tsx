@@ -8,17 +8,20 @@ const progressIndicator = tv({
     listItem: clsx(
       "bg-neutral-900 rounded-full overflow-hidden relative w-[10px] h-[10px]",
       "before:absolute before:h-full before:w-full before:left-0 before:top-0",
-      "before:bg-yellow before:transition-all before:duration-100 before:ease-out",
+      "before:transition-transform before:duration-100 before:ease-out",
       "[&[aria-current='true']]:before:translate-x-0"
     ),
   },
   variants: {
     active: {
       true: {
-        listItem: "before:translate-x-0",
+        listItem: "before:translate-x-0 before:bg-yellow",
       },
       false: {
-        listItem: "before:-translate-x-full",
+        listItem: clsx(
+          "before:-translate-x-full",
+          "before:[transition:transform_100ms_ease-out,background-color_0ms_100ms]"
+        ),
       },
     },
   },
