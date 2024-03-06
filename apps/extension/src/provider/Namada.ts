@@ -22,6 +22,7 @@ import {
   QueryAccountsMsg,
   QueryBalancesMsg,
   QueryDefaultAccountMsg,
+  ShieldedSyncMsg,
   VerifyArbitraryMsg,
 } from "./messages";
 
@@ -122,6 +123,14 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryBalancesMsg(owner, tokens)
+    );
+  }
+
+  public async shieldedSync(props: { addresses: string[] }): Promise<void> {
+    const { addresses } = props;
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new ShieldedSyncMsg(addresses)
     );
   }
 

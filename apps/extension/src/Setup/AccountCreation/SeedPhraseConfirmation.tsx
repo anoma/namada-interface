@@ -100,7 +100,7 @@ export const SeedPhraseConfirmation = (
           className="[&_label]:!text-sm justify-center flex-1"
         >
           <Input
-            data-testd="setup-seed-phrase-verification-1-input"
+            data-testid="setup-seed-phrase-verification-1-input"
             label={`Word #${index1ToConfirm + 1}`}
             value={verificationInput1 || ""}
             error={index1Error}

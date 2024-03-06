@@ -27,6 +27,7 @@ enum MessageType {
   QueryDefaultAccount = "query-default-account",
   ApproveTx = "approve-tx",
   QueryBalances = "query-balances",
+  ShieldedSync = "shielded-sync",
   SubmitIbcTransfer = "submit-ibc-transfer",
   SubmitLedgerTransfer = "submit-ledger-transfer",
   EncodeRevealPublicKey = "encode-reveal-public-key",
@@ -164,6 +165,28 @@ export class QueryBalancesMsg extends Message<
 
   type(): string {
     return QueryBalancesMsg.type();
+  }
+}
+
+export class ShieldedSyncMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.ShieldedSync;
+  }
+
+  constructor(public readonly addresses: string[]) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["addresses"]);
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return ShieldedSyncMsg.type();
   }
 }
 

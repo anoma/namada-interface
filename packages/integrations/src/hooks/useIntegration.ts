@@ -11,7 +11,7 @@ import { useUntil } from "@namada/hooks";
 import { Keplr, Metamask, Namada } from "@namada/integrations";
 import { Chain, ChainKey, ExtensionKey } from "@namada/types";
 
-type Integration = typeof Namada | typeof Keplr | typeof Metamask;
+export type Integration = typeof Namada | typeof Keplr | typeof Metamask;
 type ChainId = string;
 type IntegrationsMap = Record<ExtensionKey, Integration>;
 export type Integrations = Record<ChainId, InstanceType<Integration>>;

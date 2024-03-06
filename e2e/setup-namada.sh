@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-VERSION="v0.31.6"
+VERSION="v0.31.8"
 CURRENT_VERSION=""
 NAMADA_DIR=".namada"
 NAMADA_BASE_DIR=".namada/basedir"

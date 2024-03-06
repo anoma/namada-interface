@@ -31,7 +31,7 @@ declare global {
 
 class Metamask implements Integration<Account, unknown> {
   private _ethereum: MetaMaskInpageProvider | undefined;
-  constructor(public readonly chain: Chain) { }
+  constructor(public readonly chain: Chain) {}
 
   private init(): void {
     const provider = window.ethereum;
@@ -150,6 +150,9 @@ class Metamask implements Integration<Account, unknown> {
       // { token: "TESTERC20", amount: String(testErc20Balance) || "0" },
     ];
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async sync(_addresses: string[]): Promise<void> {}
 }
 
 export default Metamask;

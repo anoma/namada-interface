@@ -8,6 +8,7 @@ type Props = {
   children: React.ReactNode;
   successMessage: string;
   errorMessage: string;
+  "data-testid"?: string;
   onAction: () => void;
 } & React.ComponentPropsWithoutRef<"button">;
 
@@ -16,6 +17,7 @@ export const FeedbackButton = ({
   successMessage,
   errorMessage,
   onAction,
+  "data-testid": dataTestid,
   ...props
 }: Props): JSX.Element => {
   const [displaySuccess, setDisplaySuccess] = useState(false);
@@ -49,6 +51,7 @@ export const FeedbackButton = ({
   return (
     <div className="relative">
       <button
+        data-testid={dataTestid}
         onClick={onPerformClick}
         className={clsx(
           "text-white font-medium underline text-xs hover:text-yellow",

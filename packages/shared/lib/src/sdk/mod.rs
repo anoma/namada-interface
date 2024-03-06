@@ -12,7 +12,8 @@ use namada::core::borsh::{self, BorshDeserialize};
 use namada::hash::Hash;
 use namada::key::{common, ed25519, SigScheme};
 use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
-use namada::sdk::masp::ShieldedContext;
+use namada::masp::TransferSource;
+use namada::sdk::masp::{DefaultLogger, ShieldedContext};
 use namada::sdk::rpc::query_epoch;
 use namada::sdk::signing::{find_key_by_pk, SigningTxData};
 use namada::sdk::tx::{
@@ -271,7 +272,34 @@ impl Sdk {
         xsk: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let mut args = tx::transfer_tx_args(transfer_msg, tx_msg, xsk)?;
+        let mut args = tx::transfer_tx_args(transfer_msg, tx_msg, xsk.clone())?;
+
+        // TODO: this might not be needed. I will test it out in future
+        match args.source {
+            TransferSource::Address(_) => {}
+            TransferSource::ExtendedSpendingKey(xsk) => {
+                self.namada
+                    .shielded_mut()
+                    .await
+                    .fetch(
+                        self.namada.client(),
+                        &DefaultLogger::new(&WebIo),
+                        None,
+                        1,
+                        &[xsk.into()],
+                        &[],
+                    )
+                    .await?;
+            }
+        }
+
+        // It's temporary solution to add xsk to wallet as xvk is queried when unshielding
+        // This will change in namada in the future
+        match xsk {
+            Some(xsk) => self.add_spending_key(&xsk, &"temp").await,
+            None => {}
+        }
+
         let (tx, signing_data, _) = build_transfer(&self.namada, &mut args).await?;
 
         Ok(BuiltTx { tx, signing_data })
