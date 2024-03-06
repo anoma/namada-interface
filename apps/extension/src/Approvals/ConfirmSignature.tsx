@@ -36,10 +36,10 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
       throw new Error("Not all required arguments were provided!");
     }
 
+    const address = shortenAddress(signer, 24);
+
     setStatus(Status.Pending);
-    setStatusInfo(
-      `Decrypting keys and signing with ${shortenAddress(signer, 24)}`
-    );
+    setStatusInfo(`Decrypting keys for ${address}`);
 
     try {
       const isAuthenticated = await requester.sendMessage(
@@ -51,6 +51,7 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
         throw new Error("Invalid password!");
       }
 
+      setStatusInfo(`Signing keys with ${address}`);
       await requester
         .sendMessage(
           Ports.Background,
