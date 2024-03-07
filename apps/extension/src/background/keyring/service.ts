@@ -95,7 +95,7 @@ export class KeyRingService {
       accountSecret,
       alias
     );
-    this.broadcaster.updateAccounts();
+    await this.broadcaster.updateAccounts();
     return results;
   }
 
@@ -128,7 +128,7 @@ export class KeyRingService {
 
   async scanAccounts(): Promise<void> {
     await this._keyRing.scanAddresses();
-    this.broadcaster.updateAccounts();
+    await this.broadcaster.updateAccounts();
   }
 
   async deriveAccount(
@@ -137,7 +137,7 @@ export class KeyRingService {
     alias: string
   ): Promise<DerivedAccount> {
     const account = await this._keyRing.deriveAccount(path, type, alias);
-    this.broadcaster.updateAccounts();
+    await this.broadcaster.updateAccounts();
     return account;
   }
 
@@ -186,12 +186,12 @@ export class KeyRingService {
     await this.broadcaster.startTx(msgId, TxType.Bond);
     try {
       await this._keyRing.submitBond(fromBase64(bondMsg), fromBase64(txMsg));
-      this.broadcaster.completeTx(msgId, TxType.Bond, true);
-      this.broadcaster.updateStaking();
-      this.broadcaster.updateBalance();
+      await this.broadcaster.completeTx(msgId, TxType.Bond, true);
+      await this.broadcaster.updateStaking();
+      await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      this.broadcaster.completeTx(msgId, TxType.Bond, false, `${e}`);
+      await this.broadcaster.completeTx(msgId, TxType.Bond, false, `${e}`);
       throw new Error(`Unable to submit bond tx! ${e}`);
     }
   }
@@ -207,12 +207,12 @@ export class KeyRingService {
         fromBase64(unbondMsg),
         fromBase64(txMsg)
       );
-      this.broadcaster.completeTx(msgId, TxType.Unbond, true);
-      this.broadcaster.updateStaking();
-      this.broadcaster.updateBalance();
+      await this.broadcaster.completeTx(msgId, TxType.Unbond, true);
+      await this.broadcaster.updateStaking();
+      await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      this.broadcaster.completeTx(msgId, TxType.Unbond, false, `${e}`);
+      await this.broadcaster.completeTx(msgId, TxType.Unbond, false, `${e}`);
       throw new Error(`Unable to submit unbond tx! ${e}`);
     }
   }
@@ -228,12 +228,12 @@ export class KeyRingService {
         fromBase64(withdrawMsg),
         fromBase64(txMsg)
       );
-      this.broadcaster.completeTx(msgId, TxType.Withdraw, true);
-      this.broadcaster.updateStaking();
-      this.broadcaster.updateBalance();
+      await this.broadcaster.completeTx(msgId, TxType.Withdraw, true);
+      await this.broadcaster.updateStaking();
+      await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      this.broadcaster.completeTx(msgId, TxType.Withdraw, false, `${e}`);
+      await this.broadcaster.completeTx(msgId, TxType.Withdraw, false, `${e}`);
       throw new Error(`Unable to submit withdraw tx! ${e}`);
     }
   }
@@ -249,11 +249,16 @@ export class KeyRingService {
         fromBase64(voteProposalMsg),
         fromBase64(txMsg)
       );
-      this.broadcaster.completeTx(msgId, TxType.VoteProposal, true);
-      this.broadcaster.updateProposals();
+      await this.broadcaster.completeTx(msgId, TxType.VoteProposal, true);
+      await this.broadcaster.updateProposals();
     } catch (e) {
       console.warn(e);
-      this.broadcaster.completeTx(msgId, TxType.VoteProposal, false, `${e}`);
+      await this.broadcaster.completeTx(
+        msgId,
+        TxType.VoteProposal,
+        false,
+        `${e}`
+      );
       throw new Error(`Unable to submit vote proposal tx! ${e}`);
     }
   }
@@ -332,9 +337,9 @@ export class KeyRingService {
     const submit = async (signingKey: SigningKey): Promise<void> => {
       const { TARGET } = process.env;
       if (TARGET === "chrome") {
-        this.submitTransferChrome(transferMsg, txMsg, msgId, signingKey);
+        await this.submitTransferChrome(transferMsg, txMsg, msgId, signingKey);
       } else if (TARGET === "firefox") {
-        this.submitTransferFirefox(transferMsg, txMsg, msgId, signingKey);
+        await this.submitTransferFirefox(transferMsg, txMsg, msgId, signingKey);
       } else {
         console.warn(
           "Submitting transfers is not supported with your browser."
@@ -349,7 +354,7 @@ export class KeyRingService {
         fromBase64(transferMsg),
         submit.bind(this)
       );
-      this.broadcaster.updateBalance();
+      await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
       throw new Error(`Unable to submit the transfer! ${e}`);
@@ -368,11 +373,16 @@ export class KeyRingService {
         fromBase64(ibcTransferMsg),
         fromBase64(txMsg)
       );
-      this.broadcaster.completeTx(msgId, TxType.IBCTransfer, true);
-      this.broadcaster.updateBalance();
+      await this.broadcaster.completeTx(msgId, TxType.IBCTransfer, true);
+      await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      this.broadcaster.completeTx(msgId, TxType.IBCTransfer, false, `${e}`);
+      await this.broadcaster.completeTx(
+        msgId,
+        TxType.IBCTransfer,
+        false,
+        `${e}`
+      );
       throw new Error(`Unable to encode IBC transfer! ${e}`);
     }
   }
@@ -389,11 +399,11 @@ export class KeyRingService {
         fromBase64(ethBridgeTransferMsg),
         fromBase64(txMsg)
       );
-      this.broadcaster.completeTx(msgId, TxType.EthBridgeTransfer, true);
-      this.broadcaster.updateBalance();
+      await this.broadcaster.completeTx(msgId, TxType.EthBridgeTransfer, true);
+      await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      this.broadcaster.completeTx(
+      await this.broadcaster.completeTx(
         msgId,
         TxType.EthBridgeTransfer,
         false,
@@ -405,7 +415,7 @@ export class KeyRingService {
 
   async setActiveAccount(id: string, type: ParentAccount): Promise<void> {
     await this._keyRing.setActiveAccount(id, type);
-    this.broadcaster.updateAccounts();
+    await this.broadcaster.updateAccounts();
   }
 
   async getActiveAccount(): Promise<ActiveAccountStore | undefined> {
@@ -418,7 +428,7 @@ export class KeyRingService {
     payload?: string
   ): Promise<void> {
     await this.broadcaster.completeTx(msgId, TxType.Transfer, success, payload);
-    this.broadcaster.updateBalance();
+    await this.broadcaster.updateBalance();
   }
 
   closeOffscreenDocument(): Promise<void> {

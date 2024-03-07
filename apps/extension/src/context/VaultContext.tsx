@@ -1,6 +1,7 @@
 import { useEventListener } from "@namada/hooks";
 import { Events } from "@namada/types";
 import { Result } from "@namada/utils";
+import routes from "App/routes";
 import {
   CheckIsLockedMsg,
   CheckPasswordInitializedMsg,
@@ -13,9 +14,8 @@ import {
 } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Ports } from "router";
 import { useNavigate } from "react-router-dom";
-import routes from "App/routes";
+import { Ports } from "router";
 
 // Add types here
 type VaultContextType = {
@@ -45,9 +45,8 @@ const createVaultContext = (): VaultContextType => {
   };
 };
 
-export const VaultContext = createContext<VaultContextType>(
-  createVaultContext()
-);
+export const VaultContext =
+  createContext<VaultContextType>(createVaultContext());
 
 type VaultContextWrapperProps = {
   children: React.ReactNode;
@@ -125,8 +124,8 @@ export const VaultContextWrapper = ({
   });
 
   useEffect(() => {
-    hasPasswordInitialized();
-    queryIsLocked();
+    void hasPasswordInitialized();
+    void queryIsLocked();
   }, []);
 
   return (

@@ -174,9 +174,9 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
       <Stack
         as="form"
         gap={3}
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          onSubmit();
+          await onSubmit();
         }}
       >
         <Stack direction="vertical" gap={2.5}>

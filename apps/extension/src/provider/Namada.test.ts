@@ -26,11 +26,11 @@ describe("Namada", () => {
       .spyOn(VaultService.prototype, "checkPassword")
       .mockReturnValue(Promise.resolve(true));
 
-    vaultService.unlock(password);
+    await vaultService.unlock(password);
   });
 
-  afterAll(() => {
-    vaultService.lock();
+  afterAll(async () => {
+    await vaultService.lock();
   });
 
   it("should return all accounts", async () => {
@@ -41,8 +41,8 @@ describe("Namada", () => {
       },
     };
 
-    vaultStorage.set(store);
-    utilityStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT);
+    await vaultStorage.set(store);
+    await utilityStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT);
     const storedKeyStore = keyStore.map((store) => store.public);
     const storedAccounts = await namada.accounts();
     console.log(storedAccounts);

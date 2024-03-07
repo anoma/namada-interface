@@ -72,7 +72,8 @@ export class ExtensionBroadcaster {
 
     try {
       tabs?.forEach(({ tabId }: TabStore) => {
-        this.requester.sendMessageToTab(tabId, Ports.WebBrowser, msg);
+        // We do not care about the result or the order of sendMessageToTab
+        void this.requester.sendMessageToTab(tabId, Ports.WebBrowser, msg);
       });
     } catch (e) {
       console.warn(e);

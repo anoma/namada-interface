@@ -17,8 +17,8 @@ export const Setup: React.FC = () => {
       <ActionButton
         data-testid="setup-init-button"
         size="lg"
-        onClick={() => {
-          browser.tabs.create({
+        onClick={async () => {
+          await browser.tabs.create({
             url: browser.runtime.getURL("setup.html"),
           });
         }}

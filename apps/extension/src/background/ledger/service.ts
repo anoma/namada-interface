@@ -127,15 +127,15 @@ export class LedgerService {
       await this.txStore.set(msgId, null);
 
       // Broadcast update events
-      this.broadcaster.completeTx(msgId, txType, true);
-      this.broadcaster.updateBalance();
+      await this.broadcaster.completeTx(msgId, txType, true);
+      await this.broadcaster.updateBalance();
 
       if ([TxType.Bond, TxType.Unbond, TxType.Withdraw].includes(txType)) {
-        this.broadcaster.updateStaking();
+        await this.broadcaster.updateStaking();
       }
     } catch (e) {
       console.warn(e);
-      this.broadcaster.completeTx(msgId, txType, false, `${e}`);
+      await this.broadcaster.completeTx(msgId, txType, false, `${e}`);
     }
   }
 
@@ -193,6 +193,6 @@ export class LedgerService {
   }
 
   async storeRevealedPK(publicKey: string): Promise<void> {
-    this.revealedPKStorage.addRevealedPK(publicKey);
+    await this.revealedPKStorage.addRevealedPK(publicKey);
   }
 }

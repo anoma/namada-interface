@@ -30,7 +30,8 @@ export const ConnectedSites: React.FC = ({}) => {
       .getApprovedOrigins()
       .then((origins) =>
         setConnectedSites((origins as ApprovedOriginsStore) || [])
-      );
+      )
+      .catch(console.error);
   }, [setConnectedSites]);
 
   useEffect(fetchConnectedSites);

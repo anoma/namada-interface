@@ -128,12 +128,14 @@ export class LocalStorage extends ExtStorage {
 
   async addApprovedOrigin(originToAdd: string): Promise<void> {
     const data = (await this.getApprovedOrigins()) || [];
-    this.setApprovedOrigins([...data, originToAdd]);
+    await this.setApprovedOrigins([...data, originToAdd]);
   }
 
   async removeApprovedOrigin(originToRemove: string): Promise<void> {
     const data = (await this.getApprovedOrigins()) || [];
-    this.setApprovedOrigins(data.filter((origin) => origin !== originToRemove));
+    await this.setApprovedOrigins(
+      data.filter((origin) => origin !== originToRemove)
+    );
   }
 
   async getRouterId(): Promise<NamadaExtensionRouterIdType | undefined> {

@@ -504,7 +504,7 @@ export class KeyRing {
       text,
       passphrase: "",
     });
-    this.vaultStorage.add(KeyStore, {
+    await this.vaultStorage.add(KeyStore, {
       public: { ...account, owner },
       sensitive,
     });

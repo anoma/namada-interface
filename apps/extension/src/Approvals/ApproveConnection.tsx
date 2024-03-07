@@ -22,7 +22,7 @@ export const ApproveConnection: React.FC = () => {
           allowConnection
         )
       );
-      closeCurrentTab();
+      await closeCurrentTab();
     }
   };
 

@@ -162,7 +162,7 @@ export class ApprovalsService {
       accountType: type,
     });
 
-    this._launchApprovalWindow(url);
+    await this._launchApprovalWindow(url);
   }
 
   static getParamsTransfer: GetParams = (specificMsg, txDetails) => {
