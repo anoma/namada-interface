@@ -68,7 +68,7 @@ export class ApprovalsService {
     });
 
     const popupTabId = await this.getPopupTabId(url);
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       this.resolverMap[popupTabId] = { resolve, reject };
     });
   }
@@ -145,7 +145,7 @@ export class ApprovalsService {
     });
 
     const popupTabId = await this.getPopupTabId(url);
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
         this.resolverMap[popupTabId] = { resolve, reject };
     });
   }
