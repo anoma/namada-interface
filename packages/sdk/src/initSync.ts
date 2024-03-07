@@ -6,9 +6,9 @@ const cryptoMemory = require("@namada/crypto").__wasm.memory;
 
 /**
  * Initialize SDK for Node JS environments
- * @param {string} url
- * @param {string} nativeToken
- * @returns {Sdk}
+ * @param {string} url - URL of the node
+ * @param {string} nativeToken - Address of the native token
+ * @returns {Sdk} SDK instance
  */
 export default function initSync(url: string, nativeToken: string): Sdk {
   const sdk = new SdkWasm(url, nativeToken);

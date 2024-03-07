@@ -25,10 +25,10 @@ export class Sdk {
     protected readonly cryptoMemory: WebAssembly.Memory,
     public readonly url: string,
     public readonly nativeToken: string
-  ) { }
+  ) {}
   /**
    * Return initialized Rpc class
-   * @return {Rpc} Namada RPC client
+   * @returns {Rpc} Namada RPC client
    */
   getRpc(): Rpc {
     return new Rpc(this.sdk, this.query);
@@ -36,7 +36,7 @@ export class Sdk {
 
   /**
    * Return initialized Tx class
-   * @return {Tx} Tx-related functionality
+   * @returns {Tx} Tx-related functionality
    */
   getTx(): Tx {
     return new Tx(this.sdk);
@@ -44,7 +44,7 @@ export class Sdk {
 
   /**
    * Return initialized Mnemonic class
-   * @return {Mnemonic}
+   * @returns {Mnemonic} mnemonic-related functionality
    */
   getMnemonic(): Mnemonic {
     return new Mnemonic(this.cryptoMemory);
@@ -52,7 +52,7 @@ export class Sdk {
 
   /**
    * Return initialized Keys class
-   * @return {Keys}
+   * @returns {Keys} key-related functionality
    */
   getKeys(): Keys {
     return new Keys(this.cryptoMemory);
@@ -60,7 +60,7 @@ export class Sdk {
 
   /**
    * Return initialized Signing class
-   * @return {Signing} Non-Tx signing functionality
+   * @returns {Signing} Non-Tx signing functionality
    */
   getSigning(): Signing {
     return new Signing(this.sdk);
@@ -68,7 +68,7 @@ export class Sdk {
 
   /**
    * Return initialized Masp class
-   * @return {Masp} Masp utilities for handling params
+   * @returns {Masp} Masp utilities for handling params
    */
   getMasp(): Masp {
     return new Masp(this.sdk);
@@ -78,7 +78,7 @@ export class Sdk {
    * Intialize Ledger class for use with NamadaApp
    * @async
    * @param {Transport} [transport] - Will default to USB transport if not specified
-   * @return {Ledger} Class for interacting with NamadaApp for Ledger Hardware Wallets
+   * @returns {Ledger} Class for interacting with NamadaApp for Ledger Hardware Wallets
    */
   async initLedger(transport?: Transport): Promise<Ledger> {
     return await Ledger.init(transport);
@@ -86,7 +86,7 @@ export class Sdk {
 
   /**
    * Define rpc getter to use with destructuring assignment
-   * @return {Rpc}
+   * @returns {Rpc} rpc client
    */
   get rpc(): Rpc {
     return this.getRpc();
@@ -94,7 +94,7 @@ export class Sdk {
 
   /**
    * Define tx getter to use with destructuring assignment
-   * @return {Tx}
+   * @returns {Tx} tx-related functionality
    */
   get tx(): Tx {
     return this.getTx();
@@ -102,7 +102,7 @@ export class Sdk {
 
   /**
    * Define mnemonic getter to use with destructuring assignment
-   * @return {Mnemonic}
+   * @returns {Mnemonic} mnemonic-related functionality
    */
   get mnemonic(): Mnemonic {
     return this.getMnemonic();
@@ -110,7 +110,7 @@ export class Sdk {
 
   /**
    * Define keys getter to use with destructuring assignment
-   * @return {Keys}
+   * @returns {Keys} key-related functionality
    */
   get keys(): Keys {
     return this.getKeys();
@@ -118,7 +118,7 @@ export class Sdk {
 
   /**
    * Define signing getter to use with destructuring assignment
-   * @return {Signing}
+   * @returns {Signing} Non-Tx signing functionality
    */
   get signing(): Signing {
     return this.getSigning();
@@ -126,7 +126,7 @@ export class Sdk {
 
   /**
    * Define signing getter to use with destructuring assignment
-   * @return {Signing}
+   * @returns {Masp} Masp utilities for handling params
    */
   get masp(): Masp {
     return this.getMasp();

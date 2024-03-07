@@ -10,7 +10,7 @@ import { Sdk } from "sdk";
  * @async
  * @param {string} url - RPC url for use with SDK
  * @param {string} [token] - Native token of the target chain, if not provided, an attempt to query it will be made
- * @return {Sdk} Instance of initialized Sdk class
+ * @returns {Sdk} Instance of initialized Sdk class
  */
 export default async function initAsync(
   url: string,

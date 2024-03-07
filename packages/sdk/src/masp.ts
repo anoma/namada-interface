@@ -12,7 +12,7 @@ export class Masp {
   /**
    * Check if SDK has MASP parameters loaded
    * @async
-   * @returns {boolean}
+   * @returns {Promise<boolean>} True if MASP parameters are loaded
    */
   async hasMaspParams(): Promise<boolean> {
     return await SdkWasm.has_masp_params();
@@ -39,8 +39,9 @@ export class Masp {
   /**
    * Add spending key to SDK wallet
    * @async
-   * @param {string} xsk
-   * @param {string} alias
+   * @param {string} xsk - extended spending key
+   * @param {string} alias - alias for the key
+   * @returns {Promise<void>}
    */
   async addSpendingKey(xsk: string, alias: string): Promise<void> {
     return await this.sdk.add_spending_key(xsk, alias);

@@ -9,6 +9,9 @@ export * from "./ledger";
 export const Sdk = {
   /**
    * Initialize Sdk for web applications
+   * @param {string} url - node url
+   * @param {string} token - native token address
+   * @returns {Promise<SDK>} - Sdk instance
    */
   init: (url: string, token?: string): Promise<SDK> => {
     return initAsync(url, token);
