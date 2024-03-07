@@ -1,5 +1,11 @@
 module.exports = {
   theme: {
+    backgroundSize: {
+      "100-200": "100% 220%",
+    },
+    backgroundPosition: {
+      bottom: "0% 99%", // flickering on firefox
+    },
     extend: {
       colors: {
         success: "#15DD89",
