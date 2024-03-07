@@ -57,8 +57,8 @@ export class ApprovalsService {
     data: string
   ): Promise<SignatureResponse> {
     const msgId = uuid();
-
     await this.dataStore.set(msgId, data);
+
     const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
     )}#/approve-signature/${signer}`;
@@ -66,18 +66,9 @@ export class ApprovalsService {
     const url = paramsToUrl(baseUrl, {
       msgId,
     });
+
     const popupTabId = await this.getPopupTabId(url);
-
-    // TODO: can tabId be 0?
-    if (!popupTabId) {
-      throw new Error("no popup tab ID");
-    }
-
-    if (popupTabId in this.resolverMap) {
-      throw new Error(`tab ID ${popupTabId} already exists in promise map`);
-    }
-
-    return await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.resolverMap[popupTabId] = { resolve, reject };
     });
   }
@@ -87,12 +78,8 @@ export class ApprovalsService {
     msgId: string,
     signer: string
   ): Promise<void> {
+    const resolvers = this.getResolvers(popupTabId);
     const data = await this.dataStore.get(msgId);
-    const resolvers = this.resolverMap[popupTabId];
-
-    if (!resolvers) {
-      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
-    }
 
     if (!data) {
       throw new Error(`Signing data for ${msgId} not found!`);
@@ -110,12 +97,7 @@ export class ApprovalsService {
   }
 
   async rejectSignature(popupTabId: number, msgId: string): Promise<void> {
-    const resolvers = this.resolverMap[popupTabId];
-
-    if (!resolvers) {
-      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
-    }
-
+    const resolvers = this.getResolvers(popupTabId);
     await this._clearPendingSignature(msgId);
     resolvers.reject();
   }
@@ -162,7 +144,58 @@ export class ApprovalsService {
       accountType: type,
     });
 
-    this._launchApprovalWindow(url);
+    const popupTabId = await this.getPopupTabId(url);
+    return new Promise((resolve, reject) => {
+        this.resolverMap[popupTabId] = { resolve, reject };
+    });
+  }
+
+  // Authenticate keyring and submit approved transaction from storage
+  async submitTx(popupTabId: number, msgId: string): Promise<void> {
+    const resolvers = this.getResolvers(popupTabId);
+    
+    // Fetch pending transfer tx
+    const data = await this.txStore.get(msgId);
+
+    if (!data) {
+      throw new Error("Pending tx not found!");
+    }
+    //TODO: Shouldn't we _clearPendingTx when throwing?
+
+    const { txType, specificMsg, txMsg } = data;
+
+    const submitFn =
+    txType === TxType.Bond
+      ? this.keyRingService.submitBond
+      : txType === TxType.Unbond
+        ? this.keyRingService.submitUnbond
+        : txType === TxType.Transfer
+          ? this.keyRingService.submitTransfer
+          : txType === TxType.IBCTransfer
+            ? this.keyRingService.submitIbcTransfer
+            : txType === TxType.EthBridgeTransfer
+              ? this.keyRingService.submitEthBridgeTransfer
+              : txType === TxType.Withdraw
+                ? this.keyRingService.submitWithdraw
+                : txType === TxType.VoteProposal
+                  ? this.keyRingService.submitVoteProposal
+                  : assertNever(txType);
+
+    try {
+      await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
+      resolvers.resolve();
+    } catch (e) {
+      resolvers.reject(e);
+    }
+
+    await this._clearPendingTx(msgId);
+  }
+
+  // Remove pending transaction from storage
+  async rejectTx(popupTabId: number, msgId: string): Promise<void> {
+    const resolvers = this.getResolvers(popupTabId);
+    await this._clearPendingTx(msgId);
+    resolvers.reject();
   }
 
   static getParamsTransfer: GetParams = (specificMsg, txDetails) => {
@@ -303,44 +336,6 @@ export class ApprovalsService {
     };
   };
 
-  // Remove pending transaction from storage
-  async rejectTx(msgId: string): Promise<void> {
-    await this._clearPendingTx(msgId);
-  }
-
-  // Authenticate keyring and submit approved transaction from storage
-  async submitTx(msgId: string): Promise<void> {
-    // Fetch pending transfer tx
-    const tx = await this.txStore.get(msgId);
-
-    if (!tx) {
-      throw new Error("Pending tx not found!");
-    }
-
-    const { txType, specificMsg, txMsg } = tx;
-
-    const submitFn =
-      txType === TxType.Bond
-        ? this.keyRingService.submitBond
-        : txType === TxType.Unbond
-          ? this.keyRingService.submitUnbond
-          : txType === TxType.Transfer
-            ? this.keyRingService.submitTransfer
-            : txType === TxType.IBCTransfer
-              ? this.keyRingService.submitIbcTransfer
-              : txType === TxType.EthBridgeTransfer
-                ? this.keyRingService.submitEthBridgeTransfer
-                : txType === TxType.Withdraw
-                  ? this.keyRingService.submitWithdraw
-                  : txType === TxType.VoteProposal
-                    ? this.keyRingService.submitVoteProposal
-                    : assertNever(txType);
-
-    await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
-
-    return await this._clearPendingTx(msgId);
-  }
-
   async isConnectionApproved(interfaceOrigin: string): Promise<boolean> {
     const approvedOrigins =
       (await this.localStorage.getApprovedOrigins()) || [];
@@ -430,10 +425,29 @@ export class ApprovalsService {
     });
   };
 
-  private getPopupTabId = async (url: string): Promise<number | undefined> => {
+  private getResolvers = (popupTabId: number) => {
+    const resolvers = this.resolverMap[popupTabId];
+
+    if (!resolvers) {
+      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
+    }
+
+    return resolvers;
+  }
+
+  private getPopupTabId = async (url: string): Promise<number> => {
     const window = await this._launchApprovalWindow(url);
     const popupTabId = window.tabs?.[0]?.id;
 
+    // TODO: can tabId be 0?
+    if (!popupTabId) {
+      throw new Error("no popup tab ID");
+    }
+
+    if (popupTabId in this.resolverMap) {
+      throw new Error(`tab ID ${popupTabId} already exists in promise map`);
+    }
+
     return popupTabId;
-  };
+  }
 }

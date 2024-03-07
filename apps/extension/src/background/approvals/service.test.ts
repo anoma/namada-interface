@@ -480,10 +480,12 @@ describe("approvals service", () => {
 
   describe("rejectTx", () => {
     it("should clear pending tx", async () => {
+      const tabId = 1;
+      
       jest.spyOn(service as any, "_clearPendingTx");
-      await service.rejectTx("msgId");
+      await service.rejectTx(tabId, "msgId");
 
-      expect((service as any)._clearPendingTx).toHaveBeenCalledWith("msgId");
+      expect((service as any)._clearPendingTx).toHaveBeenCalledWith(tabId, "msgId");
     });
   });
 });
