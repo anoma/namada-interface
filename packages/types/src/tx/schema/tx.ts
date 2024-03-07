@@ -17,8 +17,8 @@ export class TxMsgValue {
   @field({ type: "string" })
   chainId!: string;
 
-  @field({ type: option("string") })
-  publicKey?: string;
+  @field({ type: "string" })
+  publicKey!: string;
 
   @field({ type: option("bool") })
   disposableSigningKey?: boolean;
