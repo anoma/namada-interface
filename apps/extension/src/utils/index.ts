@@ -6,12 +6,25 @@ import { Result } from "@namada/utils";
 import { ISignature } from "@zondax/ledger-namada";
 
 /**
+ * This variable makes sure that pending tx/signature requests get rejected
+ * when set to true. See the use effect in src/approvals/Approvals.tsx.
+ * This gets set to false if the tab gets closed programmatically (i.e. when
+ * a transaction gets submitted).
+ */
+export let performUnloadCleanup = true;
+
+/**
  * Query the current extension tab and close it
  */
 export const closeCurrentTab = async (): Promise<void> => {
   const tab = await browser.tabs.getCurrent();
   if (tab.id) {
-    browser.tabs.remove(tab.id);
+    try {
+      performUnloadCleanup = false;
+      await browser.tabs.remove(tab.id);
+    } finally {
+      performUnloadCleanup = true;
+    }
   }
 };
 

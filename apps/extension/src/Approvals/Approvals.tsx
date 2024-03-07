@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { Container } from "@namada/components";
@@ -12,6 +12,10 @@ import { ApproveTx } from "./ApproveTx/ApproveTx";
 import { ConfirmLedgerTx } from "./ApproveTx/ConfirmLedgerTx";
 import { ConfirmTx } from "./ApproveTx/ConfirmTx";
 import { ConfirmSignature } from "./ConfirmSignature";
+import { RejectSignatureMsg, RejectTxMsg } from "background/approvals";
+import { Ports } from "router";
+import { useRequester } from "hooks/useRequester";
+import { performUnloadCleanup } from "utils";
 
 export enum Status {
   Completed,
@@ -36,6 +40,30 @@ export type SignatureDetails = {
 export const Approvals: React.FC = () => {
   const [details, setDetails] = useState<ApprovalDetails>();
   const [signatureDetails, setSignatureDetails] = useState<SignatureDetails>();
+  const requester = useRequester();
+
+  // Logic for canceling transactions/signatures when closing the window using the close-button.
+  // Perhaps not the cleanest place to have this logic, neither is the shared variable (performUnloadCleanup).
+  // TODO: extract this logic, perhaps by creating a separate context.
+  useEffect(() => {
+    const onUnload = async () => {
+      if(performUnloadCleanup) {
+        if(signatureDetails) {
+          await requester.sendMessage(Ports.Background, new RejectSignatureMsg(signatureDetails.msgId));
+        }
+        
+        if(details) {
+          await requester.sendMessage(Ports.Background, new RejectTxMsg(details.msgId));
+        }
+      }
+    }
+
+    window.addEventListener('beforeunload', onUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', onUnload);
+    }
+  }, [performUnloadCleanup, signatureDetails, details])
 
   return (
     <Container
