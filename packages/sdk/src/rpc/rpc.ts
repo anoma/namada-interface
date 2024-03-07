@@ -31,7 +31,7 @@ export class Rpc {
   constructor(
     protected readonly sdk: SdkWasm,
     protected readonly query: QueryWasm
-  ) { }
+  ) {}
 
   /**
    * Query balances from chain
@@ -57,7 +57,7 @@ export class Rpc {
    * Query public key
    * Return string of public key if it has been revealed on chain, otherwise, return null
    * @async
-   * @param {string} address
+   * @param {string} address - Address to query
    * @returns {string|null} String of public key if found
    */
   async queryPublicKey(address: string): Promise<string | undefined> {
@@ -77,7 +77,7 @@ export class Rpc {
   /**
    * Query Proposals
    * @async
-   * @returns {Proposal[]}
+   * @returns {Proposal[]} List of the proposals
    */
   async queryProposals(): Promise<Proposal[]> {
     const serializedProposals = await this.query.query_proposals();
@@ -89,7 +89,8 @@ export class Rpc {
    * Query total delegations
    * @async
    * @param {string[]} owners - Array of owner addresses
-   * @param {bigint} [epoch]
+   * @param {bigint} [epoch] - delegations at epoch
+   * @returns {Promise<DelegationTotals>} Promise resolving to total delegations
    */
   async queryTotalDelegations(
     owners: string[],
@@ -101,7 +102,8 @@ export class Rpc {
   /**
    * Query delegators votes
    * @async
-   * @param {bigint} proposalId
+   * @param {bigint} proposalId - ID of the proposal
+   * @returns {Promise<DelegatorsVotes>} Promise resolving to delegators votes
    */
   async queryDelegatorsVotes(proposalId: bigint): Promise<DelegatorsVotes> {
     return await this.query.delegators_votes(proposalId);
@@ -111,7 +113,7 @@ export class Rpc {
    * Query staking totals by owner addresses
    * @async
    * @param {string[]} owners - Array of owner addresses
-   * @returns {StakingTotals[]}
+   * @returns {Promise<StakingTotals[]>} Promise resolving to staking totals
    */
   async queryStakingTotals(owners: string[]): Promise<StakingTotals[]> {
     const stakingAmounts = await this.query.query_my_validators(owners);
@@ -138,7 +140,7 @@ export class Rpc {
    * Query bond and unbond details by owner addresses
    * @async
    * @param {string[]} owners - Array of owner addresses
-   * @returns {StakingPositions}
+   * @returns {Promise<StakingPositions>} Promise resolving to staking positions
    */
   async queryStakingPositions(owners: string[]): Promise<StakingPositions> {
     const [bonds, unbonds] = await this.query.query_staking_positions(owners);
@@ -172,7 +174,7 @@ export class Rpc {
   /**
    * Query total bonds by owner address
    * @param {string} owner - Owner address
-   * @returns {number}
+   * @returns {Promise<number>} Total bonds amount
    */
   async queryTotalBonds(owner: string): Promise<number> {
     return await this.query.query_total_bonds(owner);
@@ -182,7 +184,7 @@ export class Rpc {
    * Query pending transactions in the signed bridge pool
    * @async
    * @param {string[]} owners - Array of owner addresses
-   * @returns {TransferToEthereum[]}
+   * @returns {Promise<TransferToEthereum[]>} Promise resolving to pending ethereum transfers
    */
   async querySignedBridgePool(owners: string[]): Promise<TransferToEthereum[]> {
     return await this.query.query_signed_bridge_pool(owners);
@@ -190,7 +192,8 @@ export class Rpc {
 
   /**
    * Query gas costs
-   * @returns {GasCosts[]}
+   * @async
+   * @returns {Promise<GasCosts>} [[tokenAddress, gasCost]]
    */
   async queryGasCosts(): Promise<GasCosts> {
     return await this.query.query_gas_costs();

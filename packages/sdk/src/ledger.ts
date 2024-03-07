@@ -24,7 +24,7 @@ export type LedgerStatus = {
 /**
  * Initialize USB transport
  * @async
- * @returns {Transport}
+ * @returns {Transport} Transport object
  */
 export const initLedgerUSBTransport = async (): Promise<Transport> => {
   return await TransportUSB.create();
@@ -33,7 +33,7 @@ export const initLedgerUSBTransport = async (): Promise<Transport> => {
 /**
  * Initialize HID transport
  * @async
- * @returns {Transport}
+ * @returns {Transport} Transport object
  */
 export const initLedgerHIDTransport = async (): Promise<Transport> => {
   return await TransportHID.create();
@@ -52,13 +52,13 @@ export class Ledger {
   /**
    * @param {NamadaApp} namadaApp - Inititalized NamadaApp class from Zondax package
    */
-  constructor(public readonly namadaApp: NamadaApp) { }
+  constructor(public readonly namadaApp: NamadaApp) {}
 
   /**
    * Initialize and return Ledger class instance with initialized Transport
    * @async
    * @param {Transport} [transport] Ledger transport
-   * @returns {Ledger}
+   * @returns {Ledger} Ledger class instance
    */
   static async init(transport?: Transport): Promise<Ledger> {
     const initializedTransport = transport ?? (await initLedgerUSBTransport());
@@ -76,7 +76,7 @@ export class Ledger {
    * Return status and version info of initialized NamadaApp.
    * Throw exception if app is not initialized.
    * @async
-   * @returns {LedgerStatus}
+   * @returns {LedgerStatus} Version and info of NamadaApp
    */
   public async status(): Promise<LedgerStatus> {
     if (!this.namadaApp) {
@@ -96,7 +96,7 @@ export class Ledger {
    * Throw exception if app is not initialized.
    * @async
    * @param {string} [path] Bip44 path for deriving key
-   * @returns {AddressAndPublicKey}
+   * @returns {AddressAndPublicKey} Address and public key
    */
   public async getAddressAndPublicKey(
     path: string = DEFAULT_LEDGER_BIP44_PATH
@@ -121,7 +121,7 @@ export class Ledger {
    * Throw exception if app is not initialized.
    * @async
    * @param {string} [path] Bip44 path for deriving key
-   * @returns {AddressAndPublicKey}
+   * @returns {AddressAndPublicKey} Address and public key
    */
   public async showAddressAndPublicKey(
     path: string = DEFAULT_LEDGER_BIP44_PATH
@@ -151,7 +151,7 @@ export class Ledger {
    * @async
    * @param {Uint8Array} tx - tx data blob to sign
    * @param {string} [path] Bip44 path for signing account
-   * @returns {ResponseSign}
+   * @returns {ResponseSign} Response signature
    */
   public async sign(
     tx: Uint8Array,
@@ -169,7 +169,7 @@ export class Ledger {
    * Query status to determine if device has thrown an error.
    * Throw exception if app is not initialized.
    * @async
-   * @returns {string}
+   * @returns {string} Error message if error is found
    */
   public async queryErrors(): Promise<string> {
     const {

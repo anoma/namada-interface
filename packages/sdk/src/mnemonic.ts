@@ -18,8 +18,8 @@ export class Mnemonic {
   /**
    * Generate a new 12 or 24 word mnemonic
    * @async
-   * @param {PhraseSize} [size=12] Mnemonic length
-   * @returns {string[]} array of words
+   * @param {PhraseSize} [size] Mnemonic length
+   * @returns {Promise<string[]>} Promise that resolves to array of words
    */
   async generate(size: PhraseSize = PhraseSize.N12): Promise<string[]> {
     const mnemonic = new MnemonicWasm(size);
@@ -35,9 +35,9 @@ export class Mnemonic {
 
   /**
    * Convert mnemonic to seed bytes
-   * @param {string} phrase
+   * @param {string} phrase - Mnemonic phrase
    * @param {string} [passphrase] Bip39 passphrase
-   * @returns {Uint8Array}
+   * @returns {Uint8Array} Seed bytes
    */
   toSeed(phrase: string, passphrase?: string): Uint8Array {
     const mnemonic = MnemonicWasm.from_phrase(phrase);
@@ -54,8 +54,8 @@ export class Mnemonic {
   /**
    * Validate a mnemonic string, raise an exception providing reason
    * for failure if invalid, otherwise return nothing
-   * @param {string} phrase
-   * @return {void}
+   * @param {string} phrase - Mnemonic phrase
+   * @returns {void}
    */
   validateMnemonic(phrase: string): void {
     try {
