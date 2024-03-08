@@ -14,6 +14,8 @@ const config: Config.InitialOptions = {
   moduleNameMapper: pathsToModuleNameMapper(rootCompilerOptions.paths, {
     prefix: "<rootDir>/src",
   }),
+  setupFilesAfterEnv: ["./setupTests.ts"],
+  testEnvironment: "jsdom",
 };
 
 export default config;

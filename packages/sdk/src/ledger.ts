@@ -52,7 +52,7 @@ export class Ledger {
   /**
    * @param {NamadaApp} namadaApp - Inititalized NamadaApp class from Zondax package
    */
-  constructor(public readonly namadaApp: NamadaApp) {}
+  private constructor(public readonly namadaApp: NamadaApp) {}
 
   /**
    * Initialize and return Ledger class instance with initialized Transport
@@ -79,9 +79,6 @@ export class Ledger {
    * @returns {LedgerStatus} Version and info of NamadaApp
    */
   public async status(): Promise<LedgerStatus> {
-    if (!this.namadaApp) {
-      throw new Error("NamadaApp is not initialized!");
-    }
     const version = await this.namadaApp.getVersion();
     const info = await this.namadaApp.getAppInfo();
 
@@ -101,10 +98,6 @@ export class Ledger {
   public async getAddressAndPublicKey(
     path: string = DEFAULT_LEDGER_BIP44_PATH
   ): Promise<AddressAndPublicKey> {
-    if (!this.namadaApp) {
-      throw new Error("NamadaApp is not initialized!");
-    }
-
     const { address, publicKey } =
       await this.namadaApp.getAddressAndPubKey(path);
 
@@ -126,10 +119,6 @@ export class Ledger {
   public async showAddressAndPublicKey(
     path: string = DEFAULT_LEDGER_BIP44_PATH
   ): Promise<AddressAndPublicKey> {
-    if (!this.namadaApp) {
-      throw new Error("NamadaApp is not initialized!");
-    }
-
     try {
       const { address, publicKey } =
         await this.namadaApp.showAddressAndPubKey(path);
@@ -141,7 +130,7 @@ export class Ledger {
         publicKey: toHex(publicKey),
       };
     } catch (e) {
-      throw new Error("Connect Ledger rejected by user");
+      throw new Error(`Connect Ledger rejected by user: ${e}`);
     }
   }
 
@@ -157,9 +146,6 @@ export class Ledger {
     tx: Uint8Array,
     path: string = DEFAULT_LEDGER_BIP44_PATH
   ): Promise<ResponseSign> {
-    if (!this.namadaApp) {
-      throw new Error("NamadaApp is not initialized!");
-    }
     const buffer = Buffer.from(tx);
 
     return await this.namadaApp.sign(path, buffer);
@@ -189,10 +175,6 @@ export class Ledger {
    * @returns {void}
    */
   public async closeTransport(): Promise<void> {
-    if (!this.namadaApp) {
-      throw new Error("NamadaApp is not initialized!");
-    }
-
     return await this.namadaApp.transport.close();
   }
 }

@@ -18,6 +18,7 @@
     "wasm:build:node": "./scripts/build-node.sh",
     "build:docs": "npx jsdoc2md --files ./src/*.ts --configure ./jsdoc2md.json > ./docs/api.md",
     "test": "./scripts/build-node.sh && yarn jest",
+    "test:cov": "./scripts/build-node.sh && yarn jest --coverage",
     "test:watch": "./scripts/build-node.sh && yarn jest --watchAll=true",
     "test:ci": "jest"
   },
