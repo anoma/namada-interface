@@ -43,7 +43,7 @@ export const Approvals: React.FC = () => {
   const requester = useRequester();
 
   // Logic for canceling transactions/signatures when closing the window using the close-button.
-  // Perhaps not the cleanest place to have this logic, neither is the shared variable (performUnloadCleanup).
+  // Not really the cleanest place to put this, neither is the use of a shared variable (performUnloadCleanup).
   // TODO: extract this logic, perhaps by creating a separate context.
   useEffect(() => {
     const onUnload = async () => {
