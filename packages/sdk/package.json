@@ -8,6 +8,7 @@
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
   "scripts": {
+    "example": "ts-node -r tsconfig-paths/register ./examples/simple.ts",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0",
@@ -61,7 +62,7 @@
     "release-it": "^17.0.1",
     "rimraf": "^5.0.5",
     "ts-jest": "^29.0.1",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.2"
   },
   "files": [
     "dist/**/*.{js,ts,wasm}"
