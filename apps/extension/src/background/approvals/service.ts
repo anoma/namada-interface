@@ -98,6 +98,7 @@ export class ApprovalsService {
   }
 
   async rejectSignature(popupTabId: number, msgId: string): Promise<void> {
+    this.isResolver(popupTabId);
     await this._clearPendingSignature(msgId);
     this.reject(popupTabId);
   }
@@ -193,6 +194,7 @@ export class ApprovalsService {
 
   // Remove pending transaction from storage
   async rejectTx(popupTabId: number, msgId: string): Promise<void> {
+    this.isResolver(popupTabId);
     await this._clearPendingTx(msgId);
     this.reject(popupTabId);
   }
