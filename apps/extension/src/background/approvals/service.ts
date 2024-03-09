@@ -67,7 +67,11 @@ export class ApprovalsService {
       msgId,
     });
     
-    return this.createResolver<SignatureResponse>(url);
+    // Create a popup window
+    const popupTabId = await this.createPopup(url);
+
+    // Attach a resolver to the window
+    return this.attachResolver<SignatureResponse>(popupTabId);
   }
 
   async submitSignature(
@@ -75,7 +79,7 @@ export class ApprovalsService {
     msgId: string,
     signer: string
   ): Promise<void> {
-    this.resolverExists(popupTabId);
+    this.isResolver(popupTabId);
 
     const data = await this.dataStore.get(msgId);
     if (!data) {
@@ -140,12 +144,16 @@ export class ApprovalsService {
       accountType: type,
     });
 
-    return this.createResolver<void>(url);
+    // Create a popup window
+    const popupTabId = await this.createPopup(url);
+
+    // Attach a resolver to the window
+    return this.attachResolver<void>(popupTabId);
   }
 
   // Authenticate keyring and submit approved transaction from storage
   async submitTx(popupTabId: number, msgId: string): Promise<void> {
-    this.resolverExists(popupTabId);
+    this.isResolver(popupTabId);
 
     // Fetch pending transfer tx
     const data = await this.txStore.get(msgId);
@@ -350,7 +358,11 @@ export class ApprovalsService {
     const alreadyApproved = await this.isConnectionApproved(interfaceOrigin);
 
     if (!alreadyApproved) {
-      return this.createResolver<void>(url);
+      // Create a popup window
+      const popupTabId = await this.createPopup(url);
+
+      // Attach a resolver to the window
+      return this.attachResolver<void>(popupTabId);
     }
 
     // A resolved promise is implicitly returned here if the origin had
@@ -363,7 +375,7 @@ export class ApprovalsService {
     allowConnection: boolean,
     popupTabId: number
   ): Promise<void> {
-    this.resolverExists(popupTabId);
+    this.isResolver(popupTabId);
 
     if (allowConnection) {
       try {
@@ -391,17 +403,14 @@ export class ApprovalsService {
     return await this.dataStore.set(msgId, null);
   }
 
-  private _launchApprovalWindow = (url: string): Promise<Windows.Window> => {
-    return browser.windows.create({
+  private createPopup = async (url: string): Promise<number> => {
+    const window = await browser.windows.create({
       url,
       width: 396,
       height: 510,
       type: "popup",
     });
-  };
 
-  private getPopupTabId = async (url: string): Promise<number> => {
-    const window = await this._launchApprovalWindow(url);
     const popupTabId = window.tabs?.[0]?.id;
 
     // TODO: can tabId be 0?
@@ -416,7 +425,13 @@ export class ApprovalsService {
     return popupTabId;
   }
 
-  private resolverExists(popupTabId: number) {
+  private async attachResolver<T>(popupTabId: number): Promise<T> {
+    return new Promise((resolve, reject) => {
+      this.resolverMap[popupTabId] = { resolve, reject };
+    });
+  }
+
+  private isResolver(popupTabId: number) {
     const resolvers = this.resolverMap[popupTabId];
 
     if (!resolvers) {
@@ -424,14 +439,6 @@ export class ApprovalsService {
     }
 
     return !!resolvers;
-  }
-
-  private async createResolver<T>(url: string): Promise<T> {
-    const popupTabId = await this.getPopupTabId(url);
-
-    return new Promise((resolve, reject) => {
-      this.resolverMap[popupTabId] = { resolve, reject };
-    });
   }
 
   private resolve(popupTabId: number, result?: unknown) {
