@@ -1,4 +1,5 @@
 import { type MetaMaskInpageProvider } from "@metamask/providers";
+import BigNumber from "bignumber.js";
 import { ethers } from "ethers";
 
 import {
@@ -6,7 +7,7 @@ import {
   AccountType,
   Chain,
   MetamaskEvents,
-  TokenBalance,
+  TokenBalances,
 } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { erc20Abi, ethereumBridgeAbi } from "./abi";
@@ -127,7 +128,7 @@ class Metamask implements Integration<Account, unknown> {
     window.dispatchEvent(new Event(MetamaskEvents.BridgeTransferCompleted));
   }
 
-  public async queryBalances(owner: string): Promise<TokenBalance[]> {
+  public async queryBalances(owner: string): Promise<TokenBalances> {
     if (!window.ethereum) {
       throw Error("Etherum provider not found");
     }
@@ -145,10 +146,10 @@ class Metamask implements Integration<Account, unknown> {
     // );
     // const testErc20Balance: bigint = await erc.balanceOf(signer.address);
 
-    return [
-      { token: "ETH", amount: String(ethBalance) || "0" },
-      // { token: "TESTERC20", amount: String(testErc20Balance) || "0" },
-    ];
+    const amount = new BigNumber(String(ethBalance));
+    return {
+      ETH: amount.isNaN() ? new BigNumber(0) : amount,
+    };
   }
 
   public async sync(): Promise<void> {}

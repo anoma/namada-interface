@@ -4,7 +4,12 @@ import { atom } from "jotai";
 
 import { chains } from "@namada/chains";
 import { getIntegration, Namada } from "@namada/integrations";
-import { Account as AccountDetails, ChainKey, TokenType } from "@namada/types";
+import {
+  Account as AccountDetails,
+  ChainKey,
+  TokenBalances,
+  TokenType,
+} from "@namada/types";
 
 import { chainAtom } from "slices/chain";
 import { RootState } from "store";
@@ -53,6 +58,8 @@ export const fetchBalances = createAsyncThunk<void, void, { state: RootState }>(
   }
 );
 
+// TODO: fetchBalance is broken for integrations other than Namada. This
+// function should be removed and new code should use the jotai atoms instead.
 export const fetchBalance = createAsyncThunk<
   {
     chainKey: ChainKey;
@@ -68,14 +75,13 @@ export const fetchBalance = createAsyncThunk<
     const {
       currency: { address: nativeToken },
     } = thunkApi.getState().chain.config;
+    if (chainKey !== "namada") {
+      throw new Error("not namada");
+    }
     const integration = getIntegration(chainKey);
-    const results = await integration.queryBalances(address, [
+    const balance = await integration.queryBalances(address, [
       nativeToken || tokenAddress,
     ]);
-    const balance = results.reduce(
-      (acc, curr) => ({ ...acc, [curr.token]: new BigNumber(curr.amount) }),
-      {} as Balance
-    );
 
     return { chainKey, address, balance };
   }
@@ -179,7 +185,7 @@ const accountsAtom = (() => {
 })();
 
 const balancesAtom = (() => {
-  const base = atom<Record<Address, Balance>>({});
+  const base = atom<{ [address: Address]: TokenBalances }>({});
 
   return atom(
     (get) => get(base),
@@ -225,16 +231,10 @@ const queryBalance = (
   namada: Namada,
   accounts: AccountDetails[],
   token: string,
-): Promise<readonly [string, Balance]>[] => {
-  return accounts.map(async (account) => {
-    const result = await namada.queryBalances(account.address, [token]);
-    return [
-      account.address,
-      result.reduce(
-        (acc, curr) => ({ ...acc, [curr.token]: new BigNumber(curr.amount) }),
-        {} as Balance,
-      ),
-    ] as const;
+): Promise<[string, TokenBalances]>[] => {
+  return accounts.map(async (account): Promise<[string, TokenBalances]> => {
+    const balances = await namada.queryBalances(account.address, [token]);
+    return [account.address, balances];
   });
 };
 

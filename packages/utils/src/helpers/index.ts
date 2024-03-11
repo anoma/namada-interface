@@ -249,7 +249,7 @@ export const formatPercentage = (bigNumber: BigNumber): string =>
 export const mapUndefined = <A, B>(
   f: (a: A) => B,
   a: A | undefined
-): B | undefined => (a === undefined ? undefined : f(a));
+): B | undefined => (typeof a === "undefined" ? undefined : f(a));
 
 export const showMaybeNam = (maybeNam: BigNumber | undefined): string =>
   mapUndefined((nam) => `${Tokens.NAM.symbol} ${nam.toString()}`, maybeNam) ??

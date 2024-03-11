@@ -17,11 +17,9 @@ import {
   Account,
   AccountType,
   Chain,
-  CosmosMinDenom,
   CosmosTokenType,
-  TokenBalance,
-  TokenType,
-  minDenomByToken,
+  CosmosTokens,
+  TokenBalances,
   tokenByMinDenom,
 } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
@@ -38,7 +36,7 @@ export const defaultSigningClientOptions: SigningStargateClientOptions = {
   broadcastTimeoutMs: 8_000,
 };
 
-class Keplr implements Integration<Account, OfflineSigner> {
+class Keplr implements Integration<Account, OfflineSigner, CosmosTokenType> {
   private _keplr: IKeplr | undefined;
   private _offlineSigner: OfflineSigner | undefined;
   /**
@@ -156,7 +154,8 @@ class Keplr implements Integration<Account, OfflineSigner> {
       } = props.ibcProps;
       const { feeAmount } = props.txProps;
 
-      const minDenom = minDenomByToken(token as CosmosTokenType);
+      // TODO: shouldn't need to cast here
+      const minDenom = CosmosTokens[token as CosmosTokenType].minDenom;
       const client = await SigningStargateClient.connectWithSigner(
         this.chain.rpc,
         this.signer(),
@@ -200,26 +199,37 @@ class Keplr implements Integration<Account, OfflineSigner> {
     return Promise.reject("Invalid bridge props!");
   }
 
-  public async queryBalances(owner: string): Promise<TokenBalance[]> {
+  public async queryBalances(
+    owner: string
+  ): Promise<TokenBalances<CosmosTokenType>> {
     const client = await StargateClient.connect(this.chain.rpc);
-    const balances = (await client.getAllBalances(owner)) || [];
+    const queryResult = (await client.getAllBalances(owner)) || [];
+
+    const balances: TokenBalances<CosmosTokenType> = {};
 
     // TODO: Remove filter once we can handle IBC tokens properly
-    return balances
+    queryResult
       .filter((balance) => balance.denom === "uatom")
-      .map((coin: Coin) => {
-        const token = tokenByMinDenom(
-          coin.denom as CosmosMinDenom
-        ) as TokenType;
-        const amount = new BigNumber(coin.amount);
-        return {
-          token,
-          amount: (coin.denom === "uatom"
-            ? amount.dividedBy(1_000_000)
-            : amount
-          ).toString(),
-        };
+      .forEach((coin: Coin) => {
+        const token = tokenByMinDenom(coin.denom);
+        if (typeof token === "undefined") {
+          return; // ignore unknown tokens
+        }
+
+        const amountInMinDenom = new BigNumber(coin.amount);
+        if (amountInMinDenom.isNaN()) {
+          throw new Error("invalid amount string received");
+        }
+        const decimals = CosmosTokens[token].decimals;
+        const amount = amountInMinDenom.dividedBy(10 ** decimals);
+
+        if (token in balances) {
+          throw new Error("duplicate entries in balances");
+        }
+        balances[token] = amount;
       });
+
+    return balances;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

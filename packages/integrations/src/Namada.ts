@@ -4,9 +4,10 @@ import {
   Chain,
   Namada as INamada,
   Signer,
-  TokenBalance,
+  TokenBalances,
   WindowWithNamada,
 } from "@namada/types";
+import { mapUndefined } from "@namada/utils";
 import BigNumber from "bignumber.js";
 
 import { BridgeProps, Integration } from "./types/Integration";
@@ -84,13 +85,13 @@ export default class Namada implements Integration<Account, Signer> {
   public async queryBalances(
     owner: string,
     tokens: string[] = []
-  ): Promise<TokenBalance[]> {
+  ): Promise<TokenBalances> {
     const balances = (await this._namada?.balances({ owner, tokens })) || [];
 
-    return balances.map((balance) => ({
-      token: "NAM",
-      amount: balance.amount.toString() || new BigNumber(0).toString(),
-    }));
+    // TODO: fix this
+    return {
+      NAM: mapUndefined((amount) => new BigNumber(amount), balances[0].amount),
+    };
   }
 
   public async sync(): Promise<void> {
