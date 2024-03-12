@@ -29,7 +29,7 @@ export const RequesterProvider: React.FC = ({ children }) => {
       const requester = new ExtensionRequester(messenger, routerId);
       setRequester(requester);
     };
-    getRequester();
+    void getRequester();
   }, []);
 
   return (

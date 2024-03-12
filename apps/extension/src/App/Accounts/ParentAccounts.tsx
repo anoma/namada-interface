@@ -22,8 +22,8 @@ export const ParentAccounts = (): JSX.Element => {
   const { activeAccountId, parentAccounts, changeActiveAccountId } =
     useContext(AccountContext);
 
-  const goToSetupPage = (): void => {
-    openSetupTab();
+  const goToSetupPage = async (): Promise<void> => {
+    await openSetupTab();
   };
 
   const goToViewAccount = (account: DerivedAccount): void => {

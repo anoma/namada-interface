@@ -81,7 +81,7 @@ export const AppContent = (): JSX.Element => {
   };
 
   useEffect(() => {
-    fetchMaspParams();
+    void fetchMaspParams();
   }, []);
 
   // Provide a redirect in the case of transaction/connection approvals
@@ -96,7 +96,7 @@ export const AppContent = (): JSX.Element => {
       !passwordInitialized &&
       accountLoadingStatus === LoadingStatus.Completed
     ) {
-      openSetupTab();
+      void openSetupTab();
       return;
     }
 
@@ -106,7 +106,7 @@ export const AppContent = (): JSX.Element => {
   }, [accounts, passwordInitialized, accountLoadingStatus]);
 
   useEffect(() => {
-    (async () => {
+    void (async () => {
       const isDurable = await requester.sendMessage(
         Ports.Background,
         new CheckDurabilityMsg()

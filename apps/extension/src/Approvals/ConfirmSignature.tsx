@@ -70,13 +70,13 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
 
   useEffect(() => {
     if (status === Status.Completed) {
-      closeCurrentTab();
+      void closeCurrentTab();
     }
   }, [status]);
 
-  const onSubmit = (e: React.FormEvent): void => {
+  const onSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    handleApproveSignature();
+    await handleApproveSignature();
   };
 
   return (

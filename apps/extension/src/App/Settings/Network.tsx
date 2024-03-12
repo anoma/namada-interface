@@ -33,7 +33,7 @@ export const Network = (): JSX.Element => {
   const shouldDisableSubmit = status === Status.Pending || !chainId || !url;
 
   useEffect(() => {
-    (async () => {
+    void (async () => {
       try {
         const chain = await requester.sendMessage(
           Ports.Background,

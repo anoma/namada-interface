@@ -35,7 +35,7 @@ export const SeedPhrase: React.FC<Props> = (props) => {
       );
       setSeedPhrase(words);
     };
-    setPhrase();
+    void setPhrase();
   }, [mnemonicLength]);
 
   return (

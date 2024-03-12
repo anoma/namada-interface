@@ -51,7 +51,7 @@ export const LedgerConnect: React.FC = () => {
 
   const connectNamadaApp = async (): Promise<void> => {
     if (ledger) {
-      queryLedger(ledger);
+      await queryLedger(ledger);
     }
   };
 

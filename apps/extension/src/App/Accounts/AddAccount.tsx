@@ -153,7 +153,7 @@ const AddAccount: React.FC<Props> = ({
 
   useEffect(() => {
     if (parentAccountType === AccountType.Mnemonic) {
-      authorize(
+      void authorize(
         TopLevelRoute.AddAccount,
         `A password for "${parentAccount.alias}" is required to add an account!`,
         unlockKeyRing
@@ -316,9 +316,9 @@ const AddAccount: React.FC<Props> = ({
         <>
           <div
             className="mb-2 [&_input]:w-[92%]"
-            onKeyDown={(e) => {
+            onKeyDown={async (e) => {
               if (e.key === "Enter" && isFormValid) {
-                handleAccountAdd();
+                await handleAccountAdd();
               }
             }}
           >

@@ -23,13 +23,13 @@ export const init = (
     if (msgName === INIT_MSG) {
       w.postMessage(data);
     } else if (msgName === TRANSFER_SUCCESSFUL_MSG) {
-      transferCompletedHandler(data.msgId, true, payload).then(() =>
-        w.terminate()
-      );
+      transferCompletedHandler(data.msgId, true, payload)
+        .then(() => w.terminate())
+        .catch((e) => console.error(e));
     } else if (msgName === TRANSFER_FAILED_MSG) {
-      transferCompletedHandler(data.msgId, false, payload).then(() =>
-        w.terminate()
-      );
+      transferCompletedHandler(data.msgId, false, payload)
+        .then(() => w.terminate())
+        .catch((e) => console.error(e));
     } else if (msgName === WEB_WORKER_ERROR_MSG) {
       sendResponse?.({ error: payload });
     } else {

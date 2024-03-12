@@ -46,7 +46,7 @@ export const useSystemLock = (): SystemLockHookOutput => {
   });
 
   useEffect(() => {
-    queryIsLocked();
+    void queryIsLocked();
   }, []);
 
   return {

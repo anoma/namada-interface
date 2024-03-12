@@ -1,4 +1,3 @@
-import { createContext, useContext, useEffect, useState } from "react";
 import { DerivedAccount } from "@namada/types";
 import { LoadingStatus } from "App/types";
 import {
@@ -11,6 +10,7 @@ import {
 } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
 import { QueryAccountsMsg } from "provider";
+import { createContext, useContext, useEffect, useState } from "react";
 import { Ports } from "router";
 import { useVaultContext } from "./VaultContext";
 
@@ -142,12 +142,12 @@ export const AccountContextWrapper = ({
     return account;
   };
 
-  const changeActiveAccountId = (
+  const changeActiveAccountId = async (
     accountId: string,
     accountType: ParentAccount
-  ): void => {
+  ): Promise<void> => {
     setActiveAccountId(accountId);
-    requester.sendMessage(
+    await requester.sendMessage(
       Ports.Background,
       new SetActiveAccountMsg(accountId, accountType)
     );
@@ -167,8 +167,8 @@ export const AccountContextWrapper = ({
 
   useEffect(() => {
     if (!isLocked) {
-      fetchAll();
-      fetchActiveAccountId();
+      void fetchAll();
+      void fetchActiveAccountId();
     }
   }, [isLocked]);
 

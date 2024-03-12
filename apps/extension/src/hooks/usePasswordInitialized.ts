@@ -1,7 +1,7 @@
-import { Ports } from "router";
-import { useRequester } from "./useRequester";
 import { CheckPasswordInitializedMsg } from "background/vault";
 import { useEffect, useState } from "react";
+import { Ports } from "router";
+import { useRequester } from "./useRequester";
 
 export const usePasswordInitialized = (): boolean | undefined => {
   const requester = useRequester();
@@ -21,7 +21,7 @@ export const usePasswordInitialized = (): boolean | undefined => {
         throw err;
       }
     };
-    load();
+    void load();
   }, [requester]);
 
   return passwordInitialized;

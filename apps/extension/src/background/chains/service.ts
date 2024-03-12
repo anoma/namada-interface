@@ -11,7 +11,8 @@ export class ChainsService {
     protected readonly localStorage: LocalStorage,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
-    this._initChain();
+    //TODO: maybe we should call init after constructor
+    void this._initChain();
   }
 
   private async _queryNativeToken(chain: Chain): Promise<Chain> {
@@ -34,7 +35,7 @@ export class ChainsService {
     const chain = (await this.localStorage.getChain()) || chains.namada;
     // Default chain config does not have a token address, so we query:
     if (!chain.currency.address) {
-      this._queryNativeToken(chain);
+      await this._queryNativeToken(chain);
     }
   }
 
@@ -59,6 +60,6 @@ export class ChainsService {
       rpc: url,
     };
     await this.localStorage.setChain(await this._queryNativeToken(chain));
-    this.broadcaster.updateNetwork();
+    await this.broadcaster.updateNetwork();
   }
 }
