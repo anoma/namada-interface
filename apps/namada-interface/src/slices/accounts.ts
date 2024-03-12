@@ -211,18 +211,12 @@ const balancesAtom = (() => {
         set(base, { ...get(base), [address]: balance });
       });
 
-
-      // Before querying the shielded balances we need to sync the shielded context
-      const shieldedAddresses = accounts
-        .filter((account) => account.isShielded)
-        .map((account) => account.address);
-      await namada.sync(shieldedAddresses);
+      await namada.sync();
 
       const shieldedBalances = await Promise.all(queryBalance(namada, shieldedAccounts, token));
       shieldedBalances.forEach(([address, balance ]) => {
         set(base, { ...get(base), [address]: balance });
       });
-
     }
   );
 })();

@@ -223,7 +223,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async sync(_addresses: string[]): Promise<void> {}
+  public async sync(): Promise<void> {}
 }
 
 export default Keplr;

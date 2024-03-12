@@ -126,11 +126,10 @@ export class Namada implements INamada {
     );
   }
 
-  public async shieldedSync(props: { addresses: string[] }): Promise<void> {
-    const { addresses } = props;
+  public async shieldedSync(): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ShieldedSyncMsg(addresses)
+      new ShieldedSyncMsg()
     );
   }
 

@@ -452,16 +452,10 @@ export class KeyRingService {
     return Sdk.has_masp_params();
   }
 
-  async shieldedSync(addresses: string[]): Promise<void> {
-    const vks = [];
-    for await (const address of addresses) {
-      const account = await this.vaultStorage.findOneOrFail(
-        KeyStore,
-        "address",
-        address
-      );
-      vks.push(account.public.owner);
-    }
+  async shieldedSync(): Promise<void> {
+    const vks = (await this.vaultStorage.findAll(KeyStore))
+      .filter((a) => a.public.type === AccountType.ShieldedKeys)
+      .map((a) => a.public.owner);
 
     const query = await this.sdkService.getQuery();
     await query.shielded_sync(vks);

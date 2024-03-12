@@ -93,7 +93,7 @@ export default class Namada implements Integration<Account, Signer> {
     }));
   }
 
-  public async sync(addresses: string[]): Promise<void> {
-    await this._namada?.shieldedSync({ addresses });
+  public async sync(): Promise<void> {
+    await this._namada?.shieldedSync();
   }
 }

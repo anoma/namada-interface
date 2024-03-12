@@ -173,13 +173,11 @@ export class ShieldedSyncMsg extends Message<void> {
     return MessageType.ShieldedSync;
   }
 
-  constructor(public readonly addresses: string[]) {
+  constructor() {
     super();
   }
 
-  validate(): void {
-    validateProps(this, ["addresses"]);
-  }
+  validate(): void {}
 
   route(): string {
     return Route.KeyRing;

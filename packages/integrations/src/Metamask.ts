@@ -151,8 +151,7 @@ class Metamask implements Integration<Account, unknown> {
     ];
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async sync(_addresses: string[]): Promise<void> {}
+  public async sync(): Promise<void> {}
 }
 
 export default Metamask;
