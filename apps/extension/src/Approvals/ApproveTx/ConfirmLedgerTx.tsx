@@ -35,7 +35,7 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
 
   useEffect(() => {
     if (status === Status.Completed) {
-      closeCurrentTab();
+      void closeCurrentTab();
     }
   }, [status]);
 
@@ -235,7 +235,7 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
           await storePublicKey(publicKey);
         }
       }
-      submitTx(ledger);
+      await submitTx(ledger);
     } catch (e) {
       await ledger.closeTransport();
       setError(`${e}`);

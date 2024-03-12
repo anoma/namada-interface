@@ -82,7 +82,7 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
 
   useEffect(() => {
     if (status === Status.Completed) {
-      closeCurrentTab();
+      void closeCurrentTab();
     }
   }, [status]);
 

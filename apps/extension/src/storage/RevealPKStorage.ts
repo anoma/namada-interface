@@ -39,7 +39,7 @@ export class RevealedPKStorage extends ExtStorage {
     if (!data.includes(publicKey)) {
       data.push(publicKey);
     }
-    this.setRevealedPKs(data);
+    await this.setRevealedPKs(data);
   }
 
   private getKey<S extends RevealPKSchemas>(schema: S): RevealPKKeys {

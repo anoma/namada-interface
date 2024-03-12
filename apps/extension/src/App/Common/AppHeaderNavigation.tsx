@@ -28,8 +28,8 @@ export const AppHeaderNavigation = ({
     onClose();
   };
 
-  const onLock = (): void => {
-    lock();
+  const onLock = async (): Promise<void> => {
+    await lock();
     onClose();
   };
 

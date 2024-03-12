@@ -10,12 +10,13 @@ import { OFFSCREEN_TARGET, SUBMIT_TRANSFER_MSG_TYPE } from "./utils";
 
 const SW_TTL = 20000;
 
-(async function init() {
+void (async function init() {
   let ww_count = 0;
   chrome.runtime.onMessage.addListener(handleMessages);
 
   const pingSw = setInterval(() => {
-    chrome.runtime.sendMessage({ keepAlive: true });
+    // We do not have to "await" as this is fire and forget
+    void chrome.runtime.sendMessage({ keepAlive: true });
   }, SW_TTL);
 
   // Return value of true indicates response will be asynchronously
@@ -52,7 +53,8 @@ const SW_TTL = 20000;
       // closing the offscreen document and stopping the
       // service worker ping.
       if (ww_count === 0) {
-        requester.sendMessage<CloseOffscreenDocumentMsg>(
+        // We do not have to wait for the response
+        void requester.sendMessage<CloseOffscreenDocumentMsg>(
           Ports.Background,
           new CloseOffscreenDocumentMsg()
         );

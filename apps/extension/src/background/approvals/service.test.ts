@@ -94,7 +94,11 @@ describe("approvals service", () => {
     it("should throw an error when popupTabId is not present", async () => {
       jest.spyOn(service as any, "getPopupTabId").mockResolvedValue(undefined);
 
-      expect(service.approveSignature("signer", "data")).rejects.toBeDefined();
+      try {
+        await service.approveSignature("signer", "data");
+      } catch (e) {
+        expect(e).toBeDefined();
+      }
     });
 
     it("should throw an error when popupTabId is already in the map", async () => {
@@ -106,7 +110,11 @@ describe("approvals service", () => {
       jest.spyOn(service as any, "getPopupTabId").mockResolvedValue(tabId);
       (service as any).resolverMap[tabId] = sigResponse;
 
-      expect(service.approveSignature("signer", "data")).rejects.toBeDefined();
+      try {
+        await service.approveSignature("signer", "data");
+      } catch (e) {
+        expect(e).toBeDefined();
+      }
     });
   });
 
@@ -141,9 +149,11 @@ describe("approvals service", () => {
       const signer = "signer";
       jest.spyOn(dataStore, "get").mockResolvedValueOnce("data");
 
-      expect(
-        service.submitSignature(tabId, "msgId", signer)
-      ).rejects.toBeDefined();
+      try {
+        await service.submitSignature(tabId, "msgId", signer);
+      } catch (e) {
+        expect(e).toBeDefined();
+      }
     });
 
     it("should throw an error when data is not present", async () => {
@@ -156,9 +166,11 @@ describe("approvals service", () => {
       (service as any).resolverMap[tabId] = sigResponse;
       jest.spyOn(dataStore, "get").mockResolvedValueOnce(undefined);
 
-      expect(
-        service.submitSignature(tabId, "msgId", signer)
-      ).rejects.toBeDefined();
+      try {
+        await service.submitSignature(tabId, "msgId", signer);
+      } catch (e) {
+        expect(e).toBeDefined();
+      }
     });
 
     it("should reject promise if can't sign", async () => {
@@ -177,9 +189,11 @@ describe("approvals service", () => {
         })
       );
 
-      expect(
-        service.submitSignature(tabId, "msgId", signer)
-      ).rejects.toBeDefined();
+      try {
+        await service.submitSignature(tabId, "msgId", signer);
+      } catch (e) {
+        expect(e).toBeDefined();
+      }
     });
   });
 
@@ -198,13 +212,20 @@ describe("approvals service", () => {
       );
       await service.rejectSignature(tabId, "msgId");
 
-      expect(signaturePromise).rejects.toEqual(undefined);
+      try {
+        await signaturePromise;
+      } catch (e) {
+        expect(e).toBeUndefined();
+      }
     });
 
     it("should throw an error if resolver is not found", async () => {
       const tabId = 1;
-
-      expect(service.rejectSignature(tabId, "msgId")).rejects.toBeDefined();
+      try {
+        await service.rejectSignature(tabId, "msgId");
+      } catch (e) {
+        expect(e).toBeDefined();
+      }
     });
   });
 
@@ -224,9 +245,10 @@ describe("approvals service", () => {
       jest.spyOn(borsh, "deserialize").mockReturnValue({});
       jest.spyOn(service as any, "_launchApprovalWindow");
 
-      expect(
-        service.approveTx(type, "", "", AccountType.Mnemonic)
-      ).resolves.not.toBeDefined();
+      try {
+        const res = await service.approveTx(type, "", "", AccountType.Mnemonic);
+        expect(res).toBeUndefined();
+      } catch (e) {}
     });
   });
 

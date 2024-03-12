@@ -28,8 +28,8 @@ export const closeCurrentTab = async (): Promise<void> => {
   }
 };
 
-export const openSetupTab = (): void => {
-  browser.tabs.create({
+export const openSetupTab = async (): Promise<void> => {
+  await browser.tabs.create({
     url: browser.runtime.getURL("setup.html"),
   });
 };

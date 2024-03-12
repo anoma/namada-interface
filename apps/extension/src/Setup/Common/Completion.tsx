@@ -48,7 +48,7 @@ export const Completion: React.FC<Props> = (props) => {
   const closeCurrentTab = async (): Promise<void> => {
     const tab = await browser.tabs.getCurrent();
     if (tab.id) {
-      browser.tabs.remove(tab.id);
+      await browser.tabs.remove(tab.id);
     }
   };
 
@@ -121,7 +121,8 @@ export const Completion: React.FC<Props> = (props) => {
         setMnemonicStatus(Status.Failed);
       }
     };
-    saveMnemonic();
+
+    void saveMnemonic();
   }, []);
 
   return (
