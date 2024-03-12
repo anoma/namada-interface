@@ -330,9 +330,6 @@ export class Tx {
     const { tx, txMsg } = encodedTx;
     const signedTx = await this.sdk.sign_tx(tx, txMsg, signingKey);
 
-    // Free up resources allocated by EncodedTx
-    encodedTx.free();
-
     return new SignedTx(txMsg, signedTx);
   }
 

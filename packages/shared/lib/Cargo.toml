@@ -68,6 +68,8 @@ wasm-opt = false
 
 [package.metadata.wasm-pack.profile.dev.wasm-bindgen]
 omit-default-module-path = true
+# We set it to false as it checks if return type from setTimout is a number which is not true in the nodejs environment
+debug-js-glue = false 
 
 [package.metadata.wasm-pack.profile.release.wasm-bindgen]
 omit-default-module-path = true

@@ -47,6 +47,4 @@ pub fn set_panic_hook() {
 }
 
 #[cfg(not(feature = "dev"))]
-pub fn set_panic_hook() {
-    web_sys::console::log_1(&"Do not set panic hook".into());
-}
+pub fn set_panic_hook() {}

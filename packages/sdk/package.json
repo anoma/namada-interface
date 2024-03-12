@@ -8,6 +8,7 @@
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
   "scripts": {
+    "example": "ts-node -r tsconfig-paths/register ./examples/index.ts",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0",
