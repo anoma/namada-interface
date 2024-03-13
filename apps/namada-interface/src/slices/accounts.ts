@@ -3,7 +3,7 @@ import BigNumber from "bignumber.js";
 import { atom } from "jotai";
 
 import { chains } from "@namada/chains";
-import { getIntegration } from "@namada/integrations";
+import { getIntegration, Integration } from "@namada/integrations";
 import { Account as AccountDetails, ChainKey, TokenType } from "@namada/types";
 
 import { chainAtom } from "slices/chain";
@@ -193,18 +193,49 @@ const balancesAtom = (() => {
 
       set(base, {});
 
-      accounts.forEach(async (account) => {
-        const result = await namada.queryBalances(account.address, [
-          nativeToken || tokenAddress,
-        ]);
-        const balance = result.reduce(
-          (acc, curr) => ({ ...acc, [curr.token]: new BigNumber(curr.amount) }),
-          {} as Balance
-        );
-        set(base, { ...get(base), [account.address]: balance });
+      // Split accounts into transparent and shielded
+      const [transparentAccounts, shieldedAccounts] = accounts.reduce((acc, curr) => {
+        if (curr.isShielded) {
+          acc[1].push(curr)
+        } else {
+          acc[0].push(curr)
+        }
+        return acc;
+      }, [[], []] as [AccountDetails[], AccountDetails[]]);
+
+      const token = nativeToken || tokenAddress;
+
+      // We query the balances for the transparent accounts first as it's faster
+      const transparentBalances = await Promise.all(queryBalance(namada, transparentAccounts, token));
+      transparentBalances.forEach(([address, balance ]) => {
+        set(base, { ...get(base), [address]: balance });
+      });
+
+      await namada.sync();
+
+      const shieldedBalances = await Promise.all(queryBalance(namada, shieldedAccounts, token));
+      shieldedBalances.forEach(([address, balance ]) => {
+        set(base, { ...get(base), [address]: balance });
       });
     }
   );
 })();
+
+const queryBalance = (
+  int: InstanceType<Integration>,
+  accounts: AccountDetails[],
+  token: string,
+): Promise<readonly [string, Balance]>[] => {
+  return accounts.map(async (account) => {
+    const result = await int.queryBalances(account.address, [token]);
+    return [
+      account.address,
+      result.reduce(
+        (acc, curr) => ({ ...acc, [curr.token]: new BigNumber(curr.amount) }),
+        {} as Balance,
+      ),
+    ] as const;
+  });
+};
 
 export { accountsAtom, balancesAtom };

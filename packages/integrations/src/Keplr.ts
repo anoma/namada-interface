@@ -46,7 +46,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
    * override keplr instance for testing
    * @param chain
    */
-  constructor(public readonly chain: Chain) { }
+  constructor(public readonly chain: Chain) {}
 
   private init(): void {
     if (!this._keplr) {
@@ -221,6 +221,9 @@ class Keplr implements Integration<Account, OfflineSigner> {
         };
       });
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async sync(): Promise<void> {}
 }
 
 export default Keplr;

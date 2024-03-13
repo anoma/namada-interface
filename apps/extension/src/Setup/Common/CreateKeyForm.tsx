@@ -42,7 +42,7 @@ export default function CreateKeyForm({
     >
       <Stack gap={12} className="justify-center flex-1">
         <AccountAlias
-          data-testid="setup-seedphrase-alias-input"
+          data-testid="setup-seed-phrase-alias-input"
           value={accountName}
           onChange={setAccountName}
         />

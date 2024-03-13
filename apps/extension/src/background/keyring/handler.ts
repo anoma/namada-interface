@@ -5,6 +5,7 @@ import {
   QueryAccountsMsg,
   QueryBalancesMsg,
   QueryDefaultAccountMsg,
+  ShieldedSyncMsg,
   VerifyArbitraryMsg,
 } from "provider/messages";
 import { Env, Handler, InternalHandler, Message } from "router";
@@ -60,6 +61,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
       case QueryBalancesMsg:
         return handleQueryBalancesMsg(service)(env, msg as QueryBalancesMsg);
+      case ShieldedSyncMsg:
+        return handleShieldedSyncMsg(service)(env, msg as ShieldedSyncMsg);
       case SetActiveAccountMsg:
         return handleSetActiveAccountMsg(service)(
           env,
@@ -227,6 +230,14 @@ const handleQueryBalancesMsg: (
 ) => InternalHandler<QueryBalancesMsg> = (service) => {
   return async (_, { owner, tokens }) => {
     return await service.queryBalances(owner, tokens);
+  };
+};
+
+const handleShieldedSyncMsg: (
+  service: KeyRingService
+) => InternalHandler<ShieldedSyncMsg> = (service) => {
+  return async () => {
+    return await service.shieldedSync();
   };
 };
 

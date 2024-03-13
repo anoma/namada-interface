@@ -41,7 +41,7 @@ export const SeedPhraseWarning = ({
       </Stack>
       <footer>
         <ActionButton
-          data-testid="setup-show-phrase-button"
+          data-testid={countdown === 0 && "setup-show-phrase-button"}
           size="lg"
           className={clsx({ "pointer-events-none opacity-50": countdown > 0 })}
           onClick={onComplete}

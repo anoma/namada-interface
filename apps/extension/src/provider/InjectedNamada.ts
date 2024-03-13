@@ -60,6 +60,10 @@ export class InjectedNamada implements INamada {
     >("balances", props);
   }
 
+  public async shieldedSync(): Promise<void> {
+    return await InjectedProxy.requestMethod<void, void>("shieldedSync");
+  }
+
   public async getChain(): Promise<Chain | undefined> {
     return await InjectedProxy.requestMethod<void, Chain>("getChain");
   }

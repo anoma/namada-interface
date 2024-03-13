@@ -12,6 +12,7 @@ use namada::masp::ExtendedViewingKey;
 use namada::proof_of_stake::Epoch;
 use namada::sdk::masp::{DefaultLogger, ShieldedContext};
 use namada::sdk::masp_primitives::asset_type::AssetType;
+use namada::sdk::masp_primitives::sapling::ViewingKey;
 use namada::sdk::masp_primitives::transaction::components::ValueSum;
 use namada::sdk::masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::sdk::rpc::{
@@ -253,6 +254,43 @@ impl Query {
         Ok(result)
     }
 
+    pub async fn shielded_sync(&self, owners: Box<[JsValue]>) -> Result<(), JsError> {
+        let owners: Vec<ViewingKey> = owners
+            .into_iter()
+            .filter_map(|owner| owner.as_string())
+            .map(|o| {
+                ExtendedFullViewingKey::from(ExtendedViewingKey::from_str(&o).unwrap())
+                    .fvk
+                    .vk
+            })
+            .collect();
+
+        let mut shielded: ShieldedContext<masp::WebShieldedUtils> = ShieldedContext::default();
+
+        let _ = shielded.load().await?;
+        let _ = shielded
+            .precompute_asset_types(
+                &self.client,
+                vec![&Address::from_str("tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e").unwrap()],
+            )
+            .await?;
+
+        let _ = shielded.save().await?;
+
+        shielded
+            .fetch(
+                &self.client,
+                &DefaultLogger::new(&WebIo),
+                None,
+                1,
+                &[],
+                &owners,
+            )
+            .await?;
+
+        Ok(())
+    }
+
     /// Queries shielded balance for a given extended viewing key
     ///
     /// # Arguments
@@ -266,28 +304,7 @@ impl Query {
 
         // We are recreating shielded context to avoid multiple mutable borrows
         let mut shielded: ShieldedContext<masp::WebShieldedUtils> = ShieldedContext::default();
-
-        let _ = shielded.load().await;
-        // TODO: pass supported asset types
-        let _ = shielded
-            .precompute_asset_types(
-                &self.client,
-                vec![&Address::from_str("tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e").unwrap()],
-            )
-            .await;
-
-        let _ = shielded.save().await;
-
-        shielded
-            .fetch(
-                &self.client,
-                &DefaultLogger::new(&WebIo),
-                None,
-                1,
-                &[],
-                &[viewing_key],
-            )
-            .await?;
+        shielded.load().await?;
 
         let epoch = query_epoch(&self.client).await?;
         let balance = shielded

@@ -92,4 +92,8 @@ export default class Namada implements Integration<Account, Signer> {
       amount: balance.amount.toString() || new BigNumber(0).toString(),
     }));
   }
+
+  public async sync(): Promise<void> {
+    await this._namada?.shieldedSync();
+  }
 }

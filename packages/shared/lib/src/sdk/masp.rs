@@ -147,9 +147,15 @@ impl ShieldedUtils for WebShieldedUtils {
             .map_err(Self::to_io_err)?;
         let stored_ctx_bytes = to_bytes(stored_ctx);
 
+        let context: ShieldedContext<U> = if stored_ctx_bytes.is_empty() {
+            ShieldedContext::default()
+        } else {
+            ShieldedContext::deserialize(&mut &stored_ctx_bytes[..])?
+        };
+
         *ctx = ShieldedContext {
             utils: ctx.utils.clone(),
-            ..ShieldedContext::deserialize(&mut &stored_ctx_bytes[..])?
+            ..context
         };
 
         Ok(())

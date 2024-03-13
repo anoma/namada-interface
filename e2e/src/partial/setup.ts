@@ -50,20 +50,24 @@ export const importAccount = async (
   await page.waitForNavigation();
 
   // Fill alias and pwd
-  await (
-    await page.$("[data-testid='setup-import-keys-alias-input']")
-  )?.type(alias0);
+  const aliasInput = await page.$(
+    "[data-testid='setup-seed-phrase-alias-input'] input"
+  );
+  await aliasInput?.type(alias0);
 
   const pwdInputs = await page.$$(
-    "[data-testid='setup-import-keys-pwd-input']"
+    "[data-testid='setup-seed-phrase-pwd-input'] input"
   );
+
   for await (const input of pwdInputs) {
     await input.type(pwd);
   }
 
   // Click on next button
   (
-    await page.waitForSelector("[data-testid='setup-import-keys-next-button']")
+    await page.waitForSelector(
+      "[data-testid='setup-seed-phrase-verification-next-btn']"
+    )
   )?.click();
   await page.waitForNavigation();
 
@@ -92,7 +96,9 @@ export const createAccount = async (
 
   // Click on show phrase
   (
-    await page.waitForSelector("[data-testid='setup-show-phrase-button']")
+    await page.waitForSelector("[data-testid='setup-show-phrase-button']", {
+      timeout: 5500,
+    })
   )?.click();
 
   await page.waitForNavigation();
@@ -107,7 +113,7 @@ export const createAccount = async (
 
   const words = await page.$$eval(
     "[data-testid='setup-seed-phrase-list'] li",
-    (els) => els.map((el) => el.textContent as string)
+    (els) => els.map((el) => (el.textContent as string).replace(/\d+\s/, ""))
   );
 
   expect(await page.evaluate(() => navigator.clipboard.readText())).toEqual(
@@ -123,11 +129,11 @@ export const createAccount = async (
   await page.waitForNavigation();
 
   // Verify mnemonic
-  const input1 = await page.$(
+  const input1 = await page.waitForSelector(
     "[data-testid='setup-seed-phrase-verification-1-input']"
   );
 
-  const input2 = await page.$(
+  const input2 = await page.waitForSelector(
     "[data-testid='setup-seed-phrase-verification-2-input']"
   );
 
@@ -144,14 +150,21 @@ export const createAccount = async (
   await (await input1?.$("input"))?.type(words[Number(word1Number) - 1]);
   await (await input2?.$("input"))?.type(words[Number(word2Number) - 1]);
 
+  (
+    await page.waitForSelector(
+      "[data-testid='setup-seed-phrase-verification-next-btn']"
+    )
+  )?.click();
+  await page.waitForNavigation();
+
   // Fill alias and pwd
   const aliasInput = await page.$(
-    "[data-testid='setup-seed-phrase-alias-input']"
+    "[data-testid='setup-seed-phrase-alias-input'] input"
   );
   await aliasInput?.type(alias0);
 
   const pwdInputs = await page.$$(
-    "[data-testid='setup-seed-phrase-pwd-input']"
+    "[data-testid='setup-seed-phrase-pwd-input'] input"
   );
 
   for await (const input of pwdInputs) {
@@ -163,7 +176,6 @@ export const createAccount = async (
       "[data-testid='setup-seed-phrase-verification-next-btn']"
     )
   )?.click();
-
   await page.waitForNavigation();
 
   const closePageBtn = await page.waitForSelector(

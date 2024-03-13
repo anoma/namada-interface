@@ -24,4 +24,5 @@ export interface Integration<T, S> {
     type: AccountType
   ) => Promise<void>;
   queryBalances: (owner: string, tokens?: string[]) => Promise<TokenBalance[]>;
+  sync: (owners: string[]) => Promise<void>;
 }

@@ -32,6 +32,7 @@ export interface Namada {
   balances(
     props: BalancesProps
   ): Promise<{ token: string; amount: string }[] | undefined>;
+  shieldedSync(): Promise<void>;
   connect(chainId?: string): Promise<void>;
   isConnected(): Promise<boolean | undefined>;
   defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
