@@ -6,6 +6,7 @@
     "./nodejs": "./dist/index.cjs",
     "./web": "./dist/index.js"
   },
+  "types": "./dist/index.d.ts",
   "repository": "https://github.com/anoma/namada-interface/",
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
@@ -14,8 +15,8 @@
     "build:web": "yarn wasm:build:dev && webpack-cli --config webpack.web.js",
     "build:node": "yarn wasm:build:node:dev && webpack-cli --config webpack.node.js",
     "build": "yarn prebuild && yarn build:web && yarn build:node && yarn bundle-dts",
-    "bundle-dts:www": "dts-bundle-generator --no-check --project tsconfig.webpack.json -o dist/index.d.ts dist/dts/sdk/src/indexWeb.d.ts",
-    "bundle-dts": "yarn bundle-dts:www && rimraf dist/dts",
+    "bundle-dts:web": "dts-bundle-generator --no-check --project tsconfig.webpack.json -o dist/index.d.ts dist/dts/sdk/src/indexWeb.d.ts",
+    "bundle-dts": "yarn bundle-dts:web && rimraf dist/dts",
     "example": "ts-node -r tsconfig-paths/register ./examples/index.ts",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
