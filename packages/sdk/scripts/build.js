@@ -10,7 +10,9 @@ const taskShared = `wasm:build${isNode ? ":node" : ""}${
   !isRelease ? ":dev" : ""
 }${isMulticore ? ":multicore" : ""}`;
 
-const taskCrypto = `wasm:build${!isRelease ? ":dev" : ""}`;
+const taskCrypto = `wasm:build${isNode ? ":node" : ""}${
+  !isRelease ? ":dev" : ""
+}`;
 
 spawnSync("yarn", ["workspace", "@namada/crypto", "run", taskCrypto], {
   stdio: "inherit",

@@ -42,6 +42,8 @@ export default async function initAsync(
       // Raise exception if query is required but native token cannot be determined
       throw new Error(`Unable to Query native token! ${e}`);
     }
+  } else {
+    nativeToken = token;
   }
 
   // Instantiate SdkWasm

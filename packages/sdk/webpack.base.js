@@ -2,27 +2,14 @@ const path = require("path");
 
 const TerserPlugin = require("terser-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const CopyPlugin = require("copy-webpack-plugin");
-
-const copyPatterns = [
-  {
-    from: "../../packages/shared/src/shared/shared_bg.wasm",
-    to: "shared_bg.wasm",
-  },
-  {
-    from: "../../packages/crypto/src/crypto/crypto_bg.wasm",
-    to: "crypto_bg.wasm",
-  },
-];
 
 module.exports = {
-  target: "node",
-  mode: "development",
-  entry: "./src/index.ts",
+  mode: "production",
   output: {
     path: path.resolve("dist"),
-    filename: "index.js",
-    libraryTarget: "commonjs2",
+    library: {
+      type: "commonjs2",
+    },
   },
   module: {
     rules: [
@@ -45,9 +32,9 @@ module.exports = {
       }),
     ],
   },
-  plugins: [new CopyPlugin({ patterns: copyPatterns })],
-  // optimization: {
-  //   minimize: true,
-  //   minimizer: [new TerserPlugin()],
-  // },
+  plugins: [],
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+  },
 };
