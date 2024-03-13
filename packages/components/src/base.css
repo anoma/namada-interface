@@ -53,4 +53,9 @@ code {
   .unset {
     all: unset;
   }
+  .hover-fill {
+    transition-property: color, background-position;
+    transition-duration: 0.1s, 0.5s;
+    transition-timing-function: linear, var(--ease-out-circ);
+  }
 }

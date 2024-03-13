@@ -2,31 +2,21 @@ import clsx from "clsx";
 import { createElement } from "react";
 import { tv, type VariantProps } from "tailwind-variants";
 
-const colors = {
-  primary: "yellow",
-  secondary: "cyan",
-  black: "black",
-} as const;
-
-type HoverColor = {
-  hoverColor?: keyof typeof colors;
-};
-
 const actionButton = tv({
   base: clsx(
     `group flex items-center cursor-pointer min-h-[2em] overflow-hidden text-black text-center relative`,
-    `[transition:color_0.1s,background_0.5s] ease-out-circ w-full select-none justify-center font-medium`,
+    `hover-fill w-full select-none justify-center font-medium`,
     `active:top-px`
   ),
 
   variants: {
     color: {
       primary:
-        "bg-100-200 bg-gradient-to-b from-50% to-50% from-yellow to-black hover:bg-bottom hover:text-yellow",
+        "bg-100-200 bg-gradient-to-b from-50% to-50% from-yellow to-black hover:bg-0-99 hover:text-yellow",
       secondary:
-        "bg-100-200 bg-no-repeat bg-gradient-to-b from-50% to-50% from-cyan to-black hover:bg-bottom hover:text-cyan",
+        "bg-100-200 bg-no-repeat bg-gradient-to-b from-50% to-50% from-cyan to-black hover:bg-0-99 hover:text-cyan",
       black:
-        "bg-100-200 bg-no-repeat bg-gradient-to-b from-50% to-50% from-black to-yellow hover:bg-bottom text-yellow hover:text-black",
+        "bg-100-200 bg-no-repeat bg-gradient-to-b from-50% to-50% from-black to-yellow hover:bg-0-99 text-yellow hover:text-black",
     },
 
     size: {
@@ -44,7 +34,7 @@ const actionButton = tv({
     },
 
     outlined: {
-      true: "bg-none bg-transparent border border-current",
+      true: "bg-100-200 bg-gradient-to-b from-50% to-50% from-transparent to-black hover:bg-0-99 hover:text-yellow border border-current",
     },
 
     disabled: {
@@ -53,6 +43,11 @@ const actionButton = tv({
         "bg-neutral-500 text-neutral-100 cursor-auto opacity-25",
         "hover:text-neutral-100 active:top-0"
       ),
+    },
+    hoverColor: {
+      primary: "to-yellow",
+      secondary: "to-cyan",
+      black: "to-black",
     },
   },
 
@@ -91,7 +86,6 @@ export type ActionButtonProps<HtmlTag extends keyof React.ReactHTML> = {
   as?: HtmlTag;
   icon?: React.ReactNode;
 } & React.ComponentPropsWithoutRef<HtmlTag> &
-  HoverColor &
   ActionButtonBaseProps;
 
 export const ActionButton = ({
@@ -106,23 +100,17 @@ export const ActionButton = ({
   hoverColor,
   ...props
 }: ActionButtonProps<keyof React.ReactHTML>): JSX.Element => {
-  // depending on the props, we can conditionally apply a class
-  const hoverColorClass =
-    !disabled && !outlined && hoverColor
-      ? `bg-100-200 bg-gradient-to-b from-50% to-50% from-${
-          colors[color || "primary"]
-        } to-${colors[hoverColor]}`
-      : "";
   return createElement(
     props.as || "button",
     {
       className: actionButton({
-        class: [className, hoverColorClass],
+        class: [className],
         color,
         size,
         borderRadius,
         outlined,
         disabled,
+        hoverColor,
       }),
       disabled,
       ...props,
