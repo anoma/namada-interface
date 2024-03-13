@@ -19,7 +19,7 @@ module.exports = {
   entry: "./src/indexWeb.ts",
   output: {
     ...base.output,
-    filename: "indexWeb.js",
+    filename: "index.js",
   },
   plugins: [...base.plugins, new CopyPlugin({ patterns: copyPatterns })],
 };

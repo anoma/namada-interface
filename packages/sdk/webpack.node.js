@@ -19,7 +19,7 @@ module.exports = {
   entry: "./src/indexNode.ts",
   output: {
     ...base.output,
-    filename: "indexNode.js",
+    filename: "index.cjs",
   },
   plugins: [...base.plugins, new CopyPlugin({ patterns: copyPatterns })],
 };

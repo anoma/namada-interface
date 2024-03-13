@@ -3,8 +3,8 @@
   "version": "0.2.4",
   "description": "Namada SDK package",
   "exports": {
-    "./nodejs": "./dist/indexNode.js",
-    "./web": "./dist/indexWeb.js"
+    "./nodejs": "./dist/index.cjs",
+    "./web": "./dist/index.js"
   },
   "repository": "https://github.com/anoma/namada-interface/",
   "author": "Heliax Dev <info@heliax.dev>",
@@ -14,9 +14,8 @@
     "build:web": "yarn wasm:build:dev && webpack-cli --config webpack.web.js",
     "build:node": "yarn wasm:build:node:dev && webpack-cli --config webpack.node.js",
     "build": "yarn prebuild && yarn build:web && yarn build:node && yarn bundle-dts",
-    "bundle-dts:web": "dts-bundle-generator --no-check --project tsconfig.webpack.json -o dist/indexWeb.d.ts dist/dts/sdk/src/indexWeb.d.ts",
-    "bundle-dts:node": "dts-bundle-generator --no-check --project tsconfig.webpack.json -o dist/indexNode.d.ts dist/dts/sdk/src/indexNode.d.ts",
-    "bundle-dts": "yarn bundle-dts:web && yarn bundle-dts:node && rimraf dist/dts",
+    "bundle-dts:www": "dts-bundle-generator --no-check --project tsconfig.webpack.json -o dist/index.d.ts dist/dts/sdk/src/indexWeb.d.ts",
+    "bundle-dts": "yarn bundle-dts:www && rimraf dist/dts",
     "example": "ts-node -r tsconfig-paths/register ./examples/index.ts",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
@@ -33,6 +32,9 @@
     "test:cov": "./scripts/build-node.sh && yarn jest --coverage",
     "test:watch": "./scripts/build-node.sh && yarn jest --watchAll=true",
     "test:ci": "jest"
+  },
+  "scriptsComments": {
+    "bundle-dts": "TODO: We bundle dts based on indexWeb.d.ts, but it should have the same api as indexNode.d.ts"
   },
   "dependencies": {
     "@cosmjs/encoding": "^0.29.0",
