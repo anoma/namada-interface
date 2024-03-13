@@ -27,7 +27,7 @@ export type ExtensionInfo = {
 };
 
 // Define constant with extension properties
-export const Extensions: Record<ExtensionKey, ExtensionInfo> = {
+export const Extensions = {
   namada: {
     alias: "Namada",
     id: "namada",
@@ -44,7 +44,7 @@ export const Extensions: Record<ExtensionKey, ExtensionInfo> = {
     id: "metamask",
     url: "https://metamask.io/",
   },
-};
+} satisfies Record<ExtensionKey, ExtensionInfo>;
 
 export type Chain = {
   id: ChainKey;

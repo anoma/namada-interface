@@ -3,7 +3,7 @@ import BigNumber from "bignumber.js";
 import { atom } from "jotai";
 
 import { chains } from "@namada/chains";
-import { getIntegration, Integration } from "@namada/integrations";
+import { getIntegration, Namada } from "@namada/integrations";
 import { Account as AccountDetails, ChainKey, TokenType } from "@namada/types";
 
 import { chainAtom } from "slices/chain";
@@ -222,12 +222,12 @@ const balancesAtom = (() => {
 })();
 
 const queryBalance = (
-  int: InstanceType<Integration>,
+  namada: Namada,
   accounts: AccountDetails[],
   token: string,
 ): Promise<readonly [string, Balance]>[] => {
   return accounts.map(async (account) => {
-    const result = await int.queryBalances(account.address, [token]);
+    const result = await namada.queryBalances(account.address, [token]);
     return [
       account.address,
       result.reduce(

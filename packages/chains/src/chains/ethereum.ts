@@ -12,7 +12,7 @@ const {
   NAMADA_INTERFACE_ETH_URL: rpc = DEFAULT_RPC,
 } = process.env;
 
-const ethereum: Chain = {
+const ethereum = {
   id: "ethereum",
   alias,
   bech32Prefix: "eth",
@@ -28,6 +28,6 @@ const ethereum: Chain = {
     gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 },
   },
   extension: Extensions["metamask"],
-};
+} satisfies Chain;
 
 export default ethereum;

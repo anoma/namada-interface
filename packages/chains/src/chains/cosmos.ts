@@ -12,7 +12,7 @@ const {
   NAMADA_INTERFACE_COSMOS_URL: rpc = DEFAULT_RPC,
 } = process.env;
 
-const cosmos: Chain = {
+const cosmos = {
   id: "cosmos",
   alias,
   bech32Prefix: "cosmos",
@@ -31,6 +31,6 @@ const cosmos: Chain = {
   ibc: {
     portId: "transfer",
   },
-};
+} satisfies Chain;
 
 export default cosmos;

@@ -3,10 +3,10 @@ import cosmos from "./chains/cosmos";
 import ethereum from "./chains/ethereum";
 import namada from "./chains/namada";
 
-export const chains: Record<ChainKey, Chain> = {
+export const chains = {
   cosmos,
   namada,
   ethereum,
-};
+} satisfies Record<ChainKey, Chain>;
 
 export * from "./types";

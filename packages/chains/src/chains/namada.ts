@@ -14,7 +14,7 @@ const {
   NAMADA_INTERFACE_NAMADA_BECH32_PREFIX: bech32Prefix = DEFAULT_BECH32_PREFIX,
 } = process.env;
 
-const namada: Chain = {
+const namada = {
   id: "namada",
   alias,
   bech32Prefix,
@@ -34,6 +34,6 @@ const namada: Chain = {
   ibc: {
     portId: "transfer",
   },
-};
+} satisfies Chain;
 
 export default namada;

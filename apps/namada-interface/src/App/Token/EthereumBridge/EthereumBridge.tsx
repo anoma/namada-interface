@@ -1,10 +1,5 @@
-import {
-  ActionButton,
-  Input,
-  Option,
-  Select,
-} from "@namada/components";
 import { chains } from "@namada/chains";
+import { ActionButton, Input, Option, Select } from "@namada/components";
 import { Chain, TokenType, Tokens } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { useState } from "react";
@@ -15,12 +10,12 @@ import {
   InputContainer,
 } from "../TokenSend/TokenSendForm.components";
 
+import { getIntegration } from "@namada/integrations";
 import {
   FeeSection,
   FormContainer,
   GeneralSection,
 } from "./EthereumBridge.components";
-import { getIntegration } from "@namada/integrations";
 
 const SUPPORTED_TOKENS = ["TESTERC20", "NUTTESTERC20"];
 type FormFields = "recipient" | "amount" | "feeAmount";
@@ -37,8 +32,9 @@ const toTokenData = (
       .filter(filterFn)
       .map(([tokenType, amount]) => ({
         value: `${address}|${tokenType}|${amount}`,
-        label: `${alias !== "Namada" ? alias + " - " : ""}${Tokens[tokenType as TokenType].coin
-          } (${amount} ${tokenType})`,
+        label: `${alias !== "Namada" ? alias + " - " : ""}${
+          Tokens[tokenType as TokenType].coin
+        } (${amount} ${tokenType})`,
       }));
   });
 };
@@ -100,6 +96,8 @@ export const EthereumBridge = (): JSX.Element => {
     );
   };
 
+  // TODO: This appears that it shouldn't be hardcoded since later code checks
+  // whether extensionKey is namada or metamask.
   const extensionKey = chains.namada.extension.id;
 
   // Validate form
@@ -107,8 +105,7 @@ export const EthereumBridge = (): JSX.Element => {
   const amountValid =
     amount.isLessThan(tokenBalance) && amount.isGreaterThan(0);
   const feeAmountValid =
-    (feeAmount.isLessThan(feeTokenBalance) && feeAmount.isGreaterThan(0)) ||
-    extensionKey === "metamask";
+    feeAmount.isLessThan(feeTokenBalance) && feeAmount.isGreaterThan(0);
   const isValid = recipientValid && amountValid && feeAmountValid;
 
   return (
@@ -135,9 +132,9 @@ export const EthereumBridge = (): JSX.Element => {
                 setDirtyFields((prev) => new Set(prev).add("recipient"));
               }}
               error={
-                recipientValid || !dirtyFields.has("recipient")
-                  ? ""
-                  : "Invalid recipient"
+                recipientValid || !dirtyFields.has("recipient") ?
+                  ""
+                : "Invalid recipient"
               }
             />
           </InputContainer>
@@ -153,9 +150,9 @@ export const EthereumBridge = (): JSX.Element => {
                 setDirtyFields((prev) => new Set(prev).add("amount"));
               }}
               error={
-                amountValid || !dirtyFields.has("amount")
-                  ? ""
-                  : "Insufficient balance"
+                amountValid || !dirtyFields.has("amount") ?
+                  ""
+                : "Insufficient balance"
               }
             />
           </InputContainer>
@@ -185,9 +182,9 @@ export const EthereumBridge = (): JSX.Element => {
                   setDirtyFields((prev) => new Set(prev).add("feeAmount"));
                 }}
                 error={
-                  feeAmountValid || !dirtyFields.has("feeAmount")
-                    ? ""
-                    : "Insufficient balance"
+                  feeAmountValid || !dirtyFields.has("feeAmount") ?
+                    ""
+                  : "Insufficient balance"
                 }
               />
             </InputContainer>
@@ -195,10 +192,7 @@ export const EthereumBridge = (): JSX.Element => {
         )}
 
         <ButtonsContainer>
-          <ActionButton
-            onClick={handleSubmit}
-            disabled={!isValid}
-          >
+          <ActionButton onClick={handleSubmit} disabled={!isValid}>
             Submit
           </ActionButton>
         </ButtonsContainer>

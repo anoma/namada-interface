@@ -11,36 +11,32 @@ import { useUntil } from "@namada/hooks";
 import { Keplr, Metamask, Namada } from "@namada/integrations";
 import { Chain, ChainKey, ExtensionKey } from "@namada/types";
 
-export type Integration = typeof Namada | typeof Keplr | typeof Metamask;
-type ChainId = string;
-type IntegrationsMap = Record<ExtensionKey, Integration>;
-export type Integrations = Record<ChainId, InstanceType<Integration>>;
 type ExtensionConnection<T, U> = (
   onSuccess: () => T,
   onFail?: () => U
 ) => Promise<void>;
 
-const extensionMap: IntegrationsMap = {
-  namada: Namada,
-  keplr: Keplr,
-  metamask: Metamask,
+type IntegrationFromExtensionKey<K extends ExtensionKey> =
+  K extends "namada" ? Namada
+  : K extends "keplr" ? Keplr
+  : K extends "metamask" ? Metamask
+  : never;
+
+type IntegrationFromChainKey<K extends ChainKey> = IntegrationFromExtensionKey<
+  (typeof chains)[K]["extension"]["id"]
+>;
+
+type Integrations = {
+  [K in ChainKey]: IntegrationFromChainKey<K>;
 };
 
-export const integrations = Object.entries(chains).reduce(
-  (acc, [chainKey, chain]) => {
-    const extensionId = chain.extension.id;
+export const integrations: Integrations = {
+  namada: new Namada(chains.namada),
+  cosmos: new Keplr(chains.cosmos),
+  ethereum: new Metamask(chains.ethereum),
+};
 
-    if (Object.keys(extensionMap).includes(extensionId)) {
-      const Ext = extensionMap[extensionId];
-      acc[chainKey] = new Ext(chain);
-    }
-
-    return acc;
-  },
-  {} as Integrations
-);
-
-export const IntegrationsContext = createContext<Integrations>({});
+export const IntegrationsContext = createContext<Integrations>(integrations);
 
 /**
  * Hook for accessing integration by ChainIndex.
@@ -48,9 +44,9 @@ export const IntegrationsContext = createContext<Integrations>({});
  * @param {ChainIndex} chainKey - Index of chain integration
  * @returns {InstanceType<Integration>} Integration API
  */
-export const useIntegration = (
-  chainKey: ChainKey
-): InstanceType<Integration> => {
+export const useIntegration = <K extends ChainKey>(
+  chainKey: K
+): IntegrationFromChainKey<K> => {
   return useContext(IntegrationsContext)[chainKey];
 };
 
@@ -63,10 +59,10 @@ export const useIntegration = (
  * @returns {[InstanceType<Integration>, boolean, ExtensionConnection<TSuccess, TFail>]}
  * Tuple of integration, connection status and connection function.
  */
-export const useIntegrationConnection = <TSuccess, TFail>(
-  chainKey: ChainKey
+export const useIntegrationConnection = <TSuccess, TFail, K extends ChainKey>(
+  chainKey: K
 ): [
-  InstanceType<Integration>,
+  IntegrationFromChainKey<K>,
   boolean,
   ExtensionConnection<TSuccess, TFail>,
 ] => {
@@ -151,8 +147,8 @@ export const getIntegrations = (): Integrations => {
  * @param {Chainkey} chainKey - Key of the chain
  * @returns {InstanceType<Integration>} Integration API
  */
-export const getIntegration = (
-  chainKey: ChainKey
-): InstanceType<Integration> => {
+export const getIntegration = <K extends ChainKey>(
+  chainKey: K
+): IntegrationFromChainKey<K> => {
   return integrations[chainKey];
 };

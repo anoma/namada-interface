@@ -32,7 +32,7 @@ export class ChainsService {
 
   private async _initChain(): Promise<void> {
     // Initialize default chain in storage
-    const chain = (await this.localStorage.getChain()) || chains.namada;
+    const chain: Chain = (await this.localStorage.getChain()) || chains.namada;
     // Default chain config does not have a token address, so we query:
     if (!chain.currency.address) {
       await this._queryNativeToken(chain);
@@ -40,7 +40,7 @@ export class ChainsService {
   }
 
   async getChain(): Promise<Chain> {
-    let chain = (await this.localStorage.getChain()) || chains.namada;
+    let chain: Chain = (await this.localStorage.getChain()) || chains.namada;
     // If a previous query for native token failed, attempt again:
     if (!chain.currency.address) {
       chain = await this._queryNativeToken(chain);

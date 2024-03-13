@@ -33,7 +33,7 @@ export default reducer;
 ////////////////////////////////////////////////////////////////////////////////
 
 const chainAtom = (() => {
-  const base = atom(chains.namada);
+  const base = atom<Chain>(chains.namada);
 
   return atom(
     (get) => get(base),
