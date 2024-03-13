@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/index.ts"],
+  "exclude": [
+    "**/*.test.ts",
+    "node_modules"
+  ],
+   "compilerOptions": {
+    "declaration": true,
+    "outDir": "dist/dts"
+  }
+}

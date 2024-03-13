@@ -70,9 +70,9 @@ export class Keys {
   ): TransparentKeys {
     const mnemonic = MnemonicWasm.from_phrase(phrase);
     const passphrasePtr =
-      typeof passphrase === "string"
-        ? new StringPointer(passphrase)
-        : undefined;
+      typeof passphrase === "string" ?
+        new StringPointer(passphrase)
+      : undefined;
     const seedPtr = mnemonic.to_seed(passphrasePtr);
     const hdWallet = new HDWallet(seedPtr);
     const bip44Path = makeBip44PathArray(chains.namada.bip44.coinType, path);

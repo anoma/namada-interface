@@ -10,8 +10,7 @@ import {
   ResponseSign,
   ResponseVersion,
 } from "@zondax/ledger-namada";
-
-import { makeBip44Path } from "@namada/utils";
+import { makeBip44Path } from "./utils";
 
 const { coinType } = chains.namada.bip44;
 
