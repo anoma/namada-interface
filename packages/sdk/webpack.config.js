@@ -17,7 +17,7 @@ const copyPatterns = [
 
 module.exports = {
   target: "node",
-  mode: "production",
+  mode: "development",
   entry: "./src/index.ts",
   output: {
     path: path.resolve("dist"),
@@ -46,8 +46,8 @@ module.exports = {
     ],
   },
   plugins: [new CopyPlugin({ patterns: copyPatterns })],
-  optimization: {
-    minimize: true,
-    minimizer: [new TerserPlugin()],
-  },
+  // optimization: {
+  //   minimize: true,
+  //   minimizer: [new TerserPlugin()],
+  // },
 };

@@ -5,9 +5,10 @@ const strippedArgs = new Set(args.map((arg) => arg.replace("--", "")));
 
 const isRelease = strippedArgs.has("release");
 const isMulticore = strippedArgs.has("multicore");
-const taskShared = `wasm:build${!isRelease ? ":dev" : ""}${
-  isMulticore ? ":multicore" : ""
-}`;
+const isNode = strippedArgs.has("node");
+const taskShared = `wasm:build${isNode ? ":node" : ""}${
+  !isRelease ? ":dev" : ""
+}${isMulticore ? ":multicore" : ""}`;
 
 const taskCrypto = `wasm:build${!isRelease ? ":dev" : ""}`;
 

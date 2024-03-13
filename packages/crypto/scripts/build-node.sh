@@ -7,12 +7,12 @@ profile=""
 
 if [ "$1" = "" ]
 then
-    echo "Building \"crypto\" for web in dev mode."
+    echo "Building \"crypto\" for nodejs in dev mode."
     profile="--dev"
     path="debug"
 elif [ "$1" = "--release" ]
 then
-    echo "Building \"crypto\" for web in release mode."
+    echo "Building \"crypto\" for nodejs in release mode."
     profile="--release"
     path="release"
 else
@@ -22,4 +22,4 @@ fi
 
 rm -rf dist && mkdir dist && mkdir dist/crypto
 
-wasm-pack build $SCRIPT_DIR/../lib $profile --target web --out-dir $SCRIPT_DIR/../src/crypto
+wasm-pack build $SCRIPT_DIR/../lib $profile --target nodejs --out-dir $SCRIPT_DIR/../src/crypto

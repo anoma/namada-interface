@@ -55,9 +55,9 @@
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0",
-    "test": "yarn wasm:build:node && yarn jest",
-    "test:watch": "yarn wasm:build:node && yarn jest --watchAll=true",
-    "test:coverage": "yarn wasm:build:node && yarn test --coverage",
+    "test": "yarn wasm:build:test && yarn jest",
+    "test:watch": "yarn wasm:build:test && yarn jest --watchAll=true",
+    "test:coverage": "yarn wasm:build:test && yarn test --coverage",
     "test:ci": "jest",
     "e2e-test": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test",
     "e2e-test:headed": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test --project=chromium --headed",
@@ -66,7 +66,7 @@
     "wasm:build:multicore": "node ./scripts/build.js --release --multicore",
     "wasm:build:dev": "node ./scripts/build.js",
     "wasm:build:dev:multicore": "node ./scripts/build.js --multicore",
-    "wasm:build:node": "./scripts/build-node.sh"
+    "wasm:build:test": "./scripts/build-test.sh"
   },
   "browserslist": {
     "production": [

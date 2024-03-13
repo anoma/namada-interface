@@ -13,6 +13,8 @@ crate-type = ["cdylib", "rlib"]
 [features]
 dev = []
 multicore = ["wasm-bindgen-rayon", "namada/multicore"]
+nodejs = []
+web = []
 
 [dependencies]
 async-trait = {version = "0.1.51"}
