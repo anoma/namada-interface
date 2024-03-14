@@ -113,7 +113,6 @@
     "local-cors-proxy": "^1.1.0",
     "postcss": "^8.4.32",
     "postcss-loader": "^7.3.3",
-    "prettier": "^2.5.1",
     "redux-mock-store": "^1.5.4",
     "style-loader": "^3.3.1",
     "tailwindcss": "^3.4.0",
