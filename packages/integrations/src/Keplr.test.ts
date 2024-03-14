@@ -4,11 +4,7 @@ import { mock } from "jest-mock-extended";
 import { Keplr as IKeplr, Key } from "@keplr-wallet/types";
 import { AccountType, Chain } from "@namada/types";
 
-import {
-  AccountData,
-  OfflineDirectSigner,
-  OfflineSigner,
-} from "@cosmjs/proto-signing";
+import { OfflineDirectSigner, OfflineSigner } from "@cosmjs/proto-signing";
 import Keplr from "./Keplr";
 
 /**
@@ -113,29 +109,27 @@ describe("Keplr class", () => {
 
   test("'accounts' should return mapped accounts from the extension if extension is initialized", async () => {
     (keplr as any)._keplr = mockKeplrExtension;
-    const aliases = ["a1", "a2", "a3"];
-    const keplrAccounts = aliases.map<AccountData>((address) => ({
-      address,
-      algo: "secp256k1",
-      pubkey: new Uint8Array(),
-    }));
-    const offlineSigner = mock<OfflineSigner & OfflineDirectSigner>();
-    jest.spyOn(keplr, "signer").mockReturnValue(offlineSigner as any);
-    jest.spyOn(offlineSigner, "getAccounts").mockResolvedValue(keplrAccounts);
+    const key = mock<Key>();
+    const keplrAccount = {
+      ...key,
+      name: "alias",
+    };
+    const getKeySpy = jest
+      .spyOn(mockKeplrExtension, "getKey")
+      .mockResolvedValue(keplrAccount);
 
     const accounts = await keplr.accounts();
-    expect(keplr.signer).toBeCalled();
-    expect(offlineSigner.getAccounts).toBeCalled();
-    expect(accounts).toEqual(
-      aliases.map((a) => ({
-        alias: `${a}...${a}`,
+    expect(getKeySpy).toHaveBeenCalled();
+    expect(accounts).toEqual([
+      {
+        alias: "alias",
         chainId: mockChain.chainId,
-        address: a,
+        address: keplrAccount.bech32Address,
         type: AccountType.PrivateKey,
         isShielded: false,
         chainKey: mockChain.id,
-      }))
-    );
+      },
+    ]);
   });
 
   test("'accounts' should return reject the promise if extension is not initialized", async () => {

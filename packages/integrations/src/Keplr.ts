@@ -1,5 +1,5 @@
 import { Coin } from "@cosmjs/launchpad";
-import { AccountData, coin, coins } from "@cosmjs/proto-signing";
+import { coin, coins } from "@cosmjs/proto-signing";
 import {
   QueryClient,
   SigningStargateClient,
@@ -25,7 +25,6 @@ import {
   TokenBalances,
   tokenByMinDenom,
 } from "@namada/types";
-import { shortenAddress } from "@namada/utils";
 import { BridgeProps, Integration } from "./types/Integration";
 
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
@@ -124,19 +123,35 @@ class Keplr implements Integration<Account, OfflineSigner, CosmosTokenType> {
    */
   public async accounts(): Promise<readonly Account[] | undefined> {
     if (this._keplr) {
-      const client = this.signer();
-      const accounts = await client?.getAccounts();
+      // TODO: get accounts for multiple chains
+      const chainIds = [this.chain.chainId];
 
-      return accounts?.map(
-        (account: AccountData): Account => ({
-          alias: shortenAddress(account.address, 16),
-          chainId: this.chain.chainId,
-          address: account.address,
-          type: AccountType.PrivateKey,
-          isShielded: false,
-          chainKey: this.chain.id,
+      const keysSettled = await Promise.allSettled(
+        chainIds.map(async (chainId) => {
+          const key = await this._keplr!.getKey(chainId);
+          return { chainId, key };
         })
       );
+      // getKey rejects Promise for unknown chains, so filter rejected promises
+      const accounts = keysSettled.reduce<{ chainId: string; key: Key }[]>(
+        (acc, current) => {
+          if (current.status === "fulfilled") {
+            return [...acc, current.value];
+          } else {
+            return acc;
+          }
+        },
+        []
+      );
+
+      return accounts.map(({ chainId, key }) => ({
+        alias: key.name,
+        chainId: chainId,
+        address: key.bech32Address,
+        type: AccountType.PrivateKey,
+        isShielded: false,
+        chainKey: this.chain.id,
+      }));
     }
     return Promise.reject(KEPLR_NOT_FOUND);
   }
