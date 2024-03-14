@@ -8152,7 +8152,6 @@ __metadata:
     path: "npm:^0.12.7"
     postcss: "npm:^8.4.32"
     postcss-loader: "npm:^7.3.3"
-    prettier: "npm:^2.5.1"
     react: "npm:^17.0.2"
     react-dom: "npm:^17.0.2"
     react-modal: "npm:^3.15.1"
@@ -28822,15 +28821,6 @@ __metadata:
     "@volar/vue-typescript":
       optional: true
   checksum: c20afa9b379106839a273d53c83fef70920e8ae86939d4890a06c63da19440de411568793e716bafcdd96e5ba8e34233f2944ea53ecd6ac18ba1ec0fa05bb58b
-  languageName: node
-  linkType: hard
-
-"prettier@npm:^2.5.1":
-  version: 2.6.0
-  resolution: "prettier@npm:2.6.0"
-  bin:
-    prettier: bin-prettier.js
-  checksum: aa29412e52be673e1e63ceb17eb6bbbec5a2d6fd126f66c31a935a2d35463f8ba28bc54b20cb1e89712cb3928ef60d27f53174e99a5222fbd414ba654929d693
   languageName: node
   linkType: hard
 

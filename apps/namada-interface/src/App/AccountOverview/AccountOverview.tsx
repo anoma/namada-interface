@@ -1,29 +1,13 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { chains } from "@namada/chains";
 import { ActionButton, Heading, Stack } from "@namada/components";
-import {
-  useIntegrationConnection,
-  useUntilIntegrationAttached,
-} from "@namada/integrations";
-import {
-  Account,
-  Chain,
-  ExtensionKey,
-  Extensions,
-  TokenType,
-  Tokens,
-} from "@namada/types";
+import { useUntilIntegrationAttached } from "@namada/integrations";
+import { Chain, TokenType, Tokens } from "@namada/types";
 import { TopLevelRoute } from "App/types";
-import { AccountsState, addAccounts, fetchBalances } from "slices/accounts";
-import { namadaExtensionConnectedAtom, setIsConnected } from "slices/settings";
-import { useAppDispatch, useAppSelector } from "store";
+import { AccountsState } from "slices/accounts";
+import { useAppSelector } from "store";
 import {
-  AccountOverviewContainer,
-  AccountOverviewContent,
   HeadingContainer,
-  NoAccountsContainer,
   TotalAmount,
   TotalAmountFiat,
   TotalAmountValue,
@@ -32,8 +16,9 @@ import {
 } from "./AccountOverview.components";
 import { DerivedAccounts } from "./DerivedAccounts";
 
+import { Intro } from "App/Common/Intro/Intro";
 import BigNumber from "bignumber.js";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { balancesAtom } from "slices/accounts";
 
 //TODO: move to utils when we have one
@@ -42,32 +27,14 @@ const isEmptyObject = (object: Record<string, unknown>): boolean => {
 };
 
 export const AccountOverview = (): JSX.Element => {
-  const setNamadaExtensionConnected = useSetAtom(namadaExtensionConnectedAtom);
-
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const chain = useAppSelector<Chain>((state) => state.chain.config);
-  const [isExtensionConnected, setIsExtensionConnected] = useState<
-    Record<ExtensionKey, boolean>
-  >({
-    namada: false,
-    keplr: false,
-    metamask: false,
-  });
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-
-  const [integration, isConnectingToExtension, withConnection] =
-    useIntegrationConnection(chains.namada.id);
-  const extensionAlias = Extensions[chain.extension.id].alias;
 
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
-
-  const handleDownloadExtension = (url: string): void => {
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
 
   const balances = useAtomValue(balancesAtom);
   const totalNativeBalance = Object.values(balances).reduce((acc, balance) => {
@@ -76,45 +43,21 @@ export const AccountOverview = (): JSX.Element => {
     );
   }, BigNumber(0));
 
-  const handleConnectExtension = async (): Promise<void> => {
-    withConnection(
-      async () => {
-        const accounts = await integration?.accounts();
-        if (accounts) {
-          dispatch(addAccounts(accounts as Account[]));
-          dispatch(fetchBalances());
-          dispatch(setIsConnected(chain.id));
-        }
-
-        setIsExtensionConnected({
-          ...isExtensionConnected,
-          [chain.extension.id]: true,
-        });
-
-        setNamadaExtensionConnected(true);
-      },
-      async () => {
-        setIsExtensionConnected({
-          ...isExtensionConnected,
-          [chain.extension.id]: false,
-        });
-
-        setNamadaExtensionConnected(false);
-      }
-    );
-  };
+  const hasExtensionInstalled =
+    currentExtensionAttachStatus === "attached" ||
+    currentExtensionAttachStatus === "pending";
 
   return (
-    <AccountOverviewContainer>
-      <AccountOverviewContent>
-        <HeadingContainer>
-          <div>
-            <TotalHeading>
-              <Heading level="h2">Wallet</Heading>
-            </TotalHeading>
-          </div>
-          <TotalContainer>
-            {!isEmptyObject(derived[chain.id]) && (
+    <>
+      {!isEmptyObject(derived[chain.id]) && (
+        <>
+          <HeadingContainer>
+            <div>
+              <TotalHeading>
+                <Heading level="h2">Wallet</Heading>
+              </TotalHeading>
+            </div>
+            <TotalContainer>
               <TotalAmount>
                 <TotalAmountFiat>
                   {Tokens[chain.currency.symbol as TokenType].symbol}
@@ -123,11 +66,8 @@ export const AccountOverview = (): JSX.Element => {
                   {totalNativeBalance.toString()}
                 </TotalAmountValue>
               </TotalAmount>
-            )}
-          </TotalContainer>
-        </HeadingContainer>
-
-        {!isEmptyObject(derived[chain.id]) ? (
+            </TotalContainer>
+          </HeadingContainer>
           <Stack direction="horizontal" gap={8}>
             <ActionButton onClick={() => navigate(TopLevelRoute.TokenSend)}>
               Send
@@ -136,35 +76,14 @@ export const AccountOverview = (): JSX.Element => {
               Receive
             </ActionButton>
           </Stack>
-        ) : (
-          <div />
-        )}
-        {isEmptyObject(derived[chain.id]) && (
-          <NoAccountsContainer>
-            {!isExtensionConnected[chain.extension.id] && (
-              <ActionButton
-                onClick={
-                  currentExtensionAttachStatus === "attached"
-                    ? handleConnectExtension
-                    : handleDownloadExtension.bind(null, chain.extension.url)
-                }
-                style={
-                  currentExtensionAttachStatus === "pending" ||
-                  isConnectingToExtension
-                    ? { color: "transparent" }
-                    : {}
-                }
-              >
-                {currentExtensionAttachStatus === "attached" ||
-                currentExtensionAttachStatus === "pending"
-                  ? `Connect to ${extensionAlias} Extension`
-                  : "Click to download the extension"}
-              </ActionButton>
-            )}
-          </NoAccountsContainer>
-        )}
-        <DerivedAccounts />
-      </AccountOverviewContent>
-    </AccountOverviewContainer>
+          <DerivedAccounts />
+        </>
+      )}
+      {isEmptyObject(derived[chain.id]) && (
+        <div className="w-[380px] mx-auto flex items-center">
+          <Intro chain={chain} hasExtensionInstalled={hasExtensionInstalled} />
+        </div>
+      )}
+    </>
   );
 };
