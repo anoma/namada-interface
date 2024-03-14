@@ -1,42 +1,25 @@
-/* eslint-disable max-len */
-import { AnimatePresence } from "framer-motion";
-import { createBrowserHistory } from "history";
-import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
-import { PersistGate } from "redux-persist/integration/react";
-import { ThemeProvider } from "styled-components";
-
-import {
-  ColorMode,
-  getTheme,
-  loadColorMode,
-  storeColorMode,
-} from "@namada/utils";
-
 import {
   useIntegration,
   useUntilIntegrationAttached,
 } from "@namada/integrations";
 import { Account } from "@namada/types";
-import { Toasts } from "App/Toast";
+import { getTheme, loadColorMode } from "@namada/utils";
+import { Container } from "App/Common/Container";
+import { Toasts } from "App/Common/Toast";
+import { TopNavigation } from "App/Common/TopNavigation";
+import { AnimatePresence } from "framer-motion";
+import { createBrowserHistory } from "history";
+import { useExtensionConnect } from "hooks/useExtensionConnect";
+import { useAtomValue } from "jotai";
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
+import { PersistGate } from "redux-persist/integration/react";
 import { addAccounts, fetchBalances } from "slices/accounts";
-import { setChain } from "slices/chain";
+import { chainAtom, setChain } from "slices/chain";
 import { SettingsState } from "slices/settings";
-import { persistor, store, useAppDispatch, useAppSelector } from "store";
-import {
-  AppContainer,
-  AppLoader,
-  BottomSection,
-  ContentContainer,
-  GlobalStyles,
-  MotionContainer,
-  TopSection,
-} from "./App.components";
-import { TopNavigation } from "./TopNavigation";
-
-import { chainAtom } from "slices/chain";
-
+import { persistor, useAppDispatch, useAppSelector } from "store";
+import { ThemeProvider } from "styled-components";
+import { AppLoader, MotionContainer } from "./App.components";
 import {
   useOnAccountsChanged,
   useOnChainChanged,
@@ -72,23 +55,15 @@ function App(): JSX.Element {
 
   const dispatch = useAppDispatch();
   const initialColorMode = loadColorMode();
-  const [colorMode, setColorMode] = useState<ColorMode>(initialColorMode);
-  const theme = getTheme(colorMode);
-
-  const toggleColorMode = (): void => {
-    setColorMode((currentMode) => (currentMode === "dark" ? "light" : "dark"));
-  };
-
+  const theme = getTheme(initialColorMode);
   const chain = useAtomValue(chainAtom);
-
   const { connectedChains } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
 
+  const { connectionStatus, connect } = useExtensionConnect(chain);
+
   const integration = useIntegration(chain.id);
-
-  useEffect(() => storeColorMode(colorMode), [colorMode]);
-
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
@@ -102,6 +77,7 @@ function App(): JSX.Element {
         dispatch(fetchBalances());
       }
     };
+
     if (
       currentExtensionAttachStatus === "attached" &&
       connectedChains.includes(chain.id)
@@ -122,32 +98,30 @@ function App(): JSX.Element {
     })();
   }, [currentExtensionAttachStatus]);
 
+  const extensionReady =
+    currentExtensionAttachStatus === "attached" ||
+    currentExtensionAttachStatus === "detached";
+
+  const extensionLoading = currentExtensionAttachStatus === "pending";
+
   return (
     <ThemeProvider theme={theme}>
       <PersistGate loading={null} persistor={persistor}>
         <Toasts />
-        <GlobalStyles colorMode={colorMode} />
-        {(currentExtensionAttachStatus === "attached" ||
-          currentExtensionAttachStatus === "detached") && (
-          <AppContainer data-testid="AppContainer">
-            <TopSection>
-              <TopNavigation
-                colorMode={colorMode}
-                toggleColorMode={toggleColorMode}
-                setColorMode={setColorMode}
-                store={store}
-              />
-            </TopSection>
-            <BottomSection>
-              <AnimatePresence exitBeforeEnter>
-                <ContentContainer>
-                  <Outlet />
-                </ContentContainer>
-              </AnimatePresence>
-            </BottomSection>
-          </AppContainer>
+        {extensionReady && (
+          <Container
+            data-testid="AppContainer"
+            sidebar={<></>}
+            header={
+              <TopNavigation chain={chain} isExtensionConnected={false} />
+            }
+          >
+            <AnimatePresence exitBeforeEnter>
+              <Outlet />
+            </AnimatePresence>
+          </Container>
         )}
-        {currentExtensionAttachStatus === "pending" && <AppLoader />}
+        {extensionLoading && <AppLoader />}
       </PersistGate>
     </ThemeProvider>
   );
