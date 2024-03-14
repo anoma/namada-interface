@@ -1,5 +1,5 @@
-import styled, { css, FlattenSimpleInterpolation } from "styled-components";
 import { ColorMode, DesignConfiguration } from "@namada/utils";
+import styled, { FlattenSimpleInterpolation, css } from "styled-components";
 
 enum ComponentColor {
   Logo,
@@ -24,6 +24,7 @@ const getColor = (
 };
 
 export const TopNavigationContainer = styled.div`
+  background-color: red !important;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -97,7 +98,9 @@ export const RightSection = styled(Section)`
 const isSelected = (colorInHex: string): FlattenSimpleInterpolation => {
   return css`
     color: ${colorInHex};
-    transition: font-weight 0.1s ease-out, stroke-width 0.1s ease-out;
+    transition:
+      font-weight 0.1s ease-out,
+      stroke-width 0.1s ease-out;
     font-weight: 700;
     & path {
       stroke-width: 2;
