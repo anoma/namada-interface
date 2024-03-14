@@ -4,26 +4,17 @@ import { combineReducers } from "redux";
 import { createTransform, persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import thunk from "redux-thunk";
-import {
-  accountsReducer,
-  chainReducer,
-  channelsReducer,
-  notificationsReducer,
-  proposalsReducers,
-  settingsReducer,
-  stakingAndGovernanceReducers,
-} from "slices";
+import { chainReducer, channelsReducer, settingsReducer } from "slices";
 import { SettingsState } from "slices/settings";
 
 import { atomWithStore } from "jotai-redux";
 
 const { NAMADA_INTERFACE_LOCAL, NODE_ENV } = process.env;
 const POSTFIX =
-  NODE_ENV === "development"
-    ? NAMADA_INTERFACE_LOCAL
-      ? "-local"
-      : "-dev"
-    : "";
+  NODE_ENV === "development" ?
+    NAMADA_INTERFACE_LOCAL ? "-local"
+    : "-dev"
+  : "";
 
 const ChainIdTransform = createTransform(
   (inboundState: SettingsState) => {
@@ -36,13 +27,9 @@ const ChainIdTransform = createTransform(
 );
 
 const reducers = combineReducers({
-  accounts: accountsReducer || {},
   chain: chainReducer,
   channels: channelsReducer,
   settings: settingsReducer,
-  notifications: notificationsReducer,
-  stakingAndGovernance: stakingAndGovernanceReducers,
-  proposals: proposalsReducers,
 });
 
 const persistConfig = {

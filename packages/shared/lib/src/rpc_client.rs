@@ -14,7 +14,7 @@ use namada::tendermint_rpc::{
     error::Error as TendermintRpcError, Response as RpcResponse, SimpleRequest,
 };
 
-#[wasm_bindgen(module = "/src/rpc_client.js")]
+#[wasm_bindgen(module = "/src/rpc_client.ts")]
 extern "C" {
     #[wasm_bindgen(catch, js_name = "wasmFetch")]
     async fn wasmFetch(url: JsValue, method: JsValue, body: JsValue) -> Result<JsValue, JsValue>;

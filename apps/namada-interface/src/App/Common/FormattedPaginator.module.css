@@ -1,0 +1,47 @@
+.paginator {
+  @apply flex justify-center uppercase items-center py-2 select-none text-xs;
+
+  :global .disabled {
+    @apply pointer-events-none opacity-50;
+  }
+
+  :global li {
+  }
+
+  :global .previous {
+    @apply mr-1.5;
+  }
+
+  :global .next {
+    @apply ml-1.5;
+  }
+
+  :global .next a,
+  :global .previous a {
+    @apply w-6 h-6 rounded-full flex items-center justify-center bg-neutral-800;
+  }
+
+  :global li:not(.next, .previous) {
+    @apply bg-neutral-800 flex;
+
+    :global a {
+      @apply px-1.5 h-6 flex items-center justify-center;
+    }
+  }
+
+  :global a:hover {
+    @apply hover:text-cyan;
+  }
+
+  :global li:nth-child(2) {
+    @apply rounded-s-lg pl-2;
+  }
+
+  :global li:nth-last-child(2) {
+    @apply rounded-e-lg pr-2;
+  }
+
+  :global .selected {
+    @apply text-yellow;
+  }
+}

@@ -14,10 +14,12 @@ const actionButton = tv({
       primary: "bg-yellow hover:text-yellow",
       secondary: "bg-cyan hover:text-cyan",
       black: "bg-black text-yellow hover:text-black",
+      white: "bg-white text-black hover:text-white",
+      magenta: "bg-pink text-white",
     },
 
     size: {
-      xs: "px-4 py-1.5 text-sm",
+      xs: "px-4 py-1.5 text-sm leading-none",
       sm: "px-6 py-2.5 text-sm",
       md: "px-8 py-3 text-base",
       lg: "px-8 py-[0.825em] text-lg",
@@ -25,13 +27,16 @@ const actionButton = tv({
     },
 
     borderRadius: {
-      sm: "rounded-sm",
-      md: "rounded-md",
-      lg: "rounded-lg",
+      sm: "rounded-sm before:rounded-sm",
+      md: "rounded-md before:rounded-md",
+      lg: "rounded-lg before:rounded-lg",
     },
 
     outlined: {
-      true: "bg-transparent border border-current",
+      true: clsx(
+        "bg-transparent before:border before:border-current before:absolute",
+        "before:left-0 before:top-0 before:w-full before:h-full before:z-[1000]"
+      ),
     },
 
     disabled: {
@@ -48,17 +53,21 @@ const actionButton = tv({
       color: "primary",
       class: "text-yellow",
     },
-
     {
       outlined: true,
       color: "secondary",
       class: "text-cyan",
     },
-
+    { outlined: true, color: "magenta", class: "text-pink bg-pink-800" },
     {
       outlined: true,
       color: "black",
       class: "text-black",
+    },
+    {
+      outlined: true,
+      color: "white",
+      class: "text-white",
     },
   ],
 
@@ -81,6 +90,8 @@ const actionButtonHover = tv({
       primary: "bg-yellow",
       secondary: "bg-cyan",
       black: "bg-black",
+      white: "bg-white",
+      magenta: "bg-pink-900",
     },
     disabled: {
       true: "group-hover:translate-y-[calc(100%+2px)]",

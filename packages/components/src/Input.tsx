@@ -10,7 +10,7 @@ const inputClassList = tv({
   slots: {
     field: clsx(
       "bg-black border rounded-sm text-white text-base font-medium leading-[1.25]",
-      "py-5 px-4 w-full transition-all duration-150 ease-out focus:outline-0 active:outline-0",
+      "py-5 px-4 w-full transition-all duration-150 ease-out focus:outline-0 active:outline-0 focus:outline-0",
       "placeholder:text-neutral-700 placeholder:transition-opacity placeholder:duration-150 placeholder:ease-out",
       "hover:placeholder:opacity-70 focus:placeholder:opacity-0 select:bg-neutral-600",
       "[&[readonly]]:select-none [&[readonly]]:pointer-events-none"
@@ -18,7 +18,7 @@ const inputClassList = tv({
     label: "text-white text-sm font-medium [&_p]:pb-1",
     labelText: "pl-1.5",
     error: "text-red-500 hidden text-xs font-normal pl-1.5",
-    inputWrapper: "flex mt-2 mb-1 relative",
+    inputWrapper: "flex relative",
     icon: clsx(
       "flex items-center cursor-pointer h-full absolute right-4 top-0 text-2xl",
       "text-yellow [&_path]:stroke-yellow [&_rect]:stroke-yellow"
@@ -29,7 +29,13 @@ const inputClassList = tv({
     hasError: {
       true: {
         field: "focus:!border-red-500",
+        inputWrapper: "mb-1",
         error: "block",
+      },
+    },
+    hasLabel: {
+      true: {
+        inputWrapper: "mt-2",
       },
     },
     hasIcon: {
@@ -66,7 +72,7 @@ type InputVariants =
   | "Textarea"
   | "ReadOnlyCopy";
 
-type InputProps = {
+export type InputProps = {
   label?: string | React.ReactNode;
   error?: string | React.ReactNode;
   sensitive?: boolean;
@@ -108,7 +114,9 @@ export const Input = ({
           aria-labelledby={passwordShown ? "Hide password" : "Display password"}
           onClick={() => setPasswordShown(!passwordShown)}
         >
-          {passwordShown ? <GoEye /> : <GoEyeClosed />}
+          {passwordShown ?
+            <GoEye />
+          : <GoEyeClosed />}
         </span>
       );
     },
@@ -142,6 +150,7 @@ export const Input = ({
   const classes = inputClassList({
     hasError: !!error,
     hasHint: !!hint,
+    hasLabel: !!label,
     hasIcon: iconMap.hasOwnProperty(variant),
     isSensitive: sensitive,
     theme: theme || "neutral",
@@ -166,11 +175,9 @@ export const Input = ({
     >
       {label && <span className={classes.labelText()}>{label}</span>}
       <div className={classes.inputWrapper()}>
-        {sensitive ? (
+        {sensitive ?
           <ContentMasker color={theme}>{element}</ContentMasker>
-        ) : (
-          element
-        )}
+        : element}
         {!hideIcon && icon}
         {children}
       </div>

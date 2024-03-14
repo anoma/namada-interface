@@ -3,7 +3,8 @@ use namada::address::Address;
 use namada::core::borsh::BorshSerialize;
 use namada::eth_bridge_pool::TransferToEthereum;
 use namada::governance::storage::keys as governance_storage;
-use namada::governance::utils::{compute_proposal_result, ProposalVotes, TallyVote, VotePower};
+use namada::governance::utils::{compute_proposal_result, ProposalVotes,
+                                TallyVote, VotePower, TallyType, TallyResult};
 use namada::governance::{ProposalType, ProposalVote};
 use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
 use namada::ledger::parameters::storage;
@@ -18,7 +19,7 @@ use namada::sdk::masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::sdk::rpc::{
     format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
     query_epoch, query_native_token, query_proposal_by_id, query_proposal_votes,
-    query_storage_value,
+    query_storage_value, is_steward
 };
 use namada::token;
 use namada::uint::I256;
@@ -51,10 +52,10 @@ impl Query {
     /// # Errors
     ///
     /// Returns an error if the RPC call fails
-    pub async fn query_epoch(&self) -> Result<JsValue, JsError> {
+    pub async fn query_epoch(&self) -> Result<u64, JsError> {
         let epoch = RPC.shell().epoch(&self.client).await?;
 
-        to_js_result(epoch)
+        Ok(epoch.0)
     }
 
     /// Gets all active validator addresses
@@ -391,77 +392,279 @@ impl Query {
         to_js_result(result)
     }
 
-    /// Returns a list of all proposals
-    pub async fn query_proposals(&self) -> Result<Uint8Array, JsError> {
-        let last_proposal_id_key = governance_storage::get_counter_key();
-        let last_proposal_id =
-            query_storage_value::<HttpClient, u64>(&self.client, &last_proposal_id_key)
+    pub async fn query_total_staked_tokens(
+        &self,
+        epoch: u64
+    ) -> Result<JsValue, JsError> {
+        let total_staked_tokens =
+            get_total_staked_tokens(&self.client, Epoch(epoch))
+                .await?;
+
+        to_js_result(total_staked_tokens)
+    }
+
+    pub async fn query_proposal_counter(&self) -> Result<JsValue, JsError> {
+        let proposal_counter_key = governance_storage::get_counter_key();
+        let proposal_counter =
+            query_storage_value::<HttpClient, u64>(&self.client, &proposal_counter_key)
                 .await
                 .unwrap();
 
-        let from_id = if last_proposal_id > 10 {
-            last_proposal_id - 10
-        } else {
-            0
+        to_js_result(proposal_counter)
+    }
+
+    pub async fn query_proposal_by_id(&self, id: u64) -> Result<Uint8Array, JsError> {
+        let proposal = query_proposal_by_id(&self.client, id)
+            .await
+            .unwrap()
+            .expect("Proposal should be written to storage.");
+
+        let content = serde_json::to_string(&proposal.content)?;
+
+        let is_steward = is_steward(&self.client, &proposal.author).await;
+        let tally_type = proposal.get_tally_type(is_steward);
+        let tally_type_string = match tally_type {
+            TallyType::TwoThirds => "two-thirds",
+            TallyType::OneHalfOverOneThird => "one-half-over-one-third",
+            TallyType::LessOneHalfOverOneThirdNay => "less-one-half-over-one-third-nay"
         };
 
-        let mut proposals: Vec<ProposalInfo> = vec![];
-        let epoch = RPC.shell().epoch(&self.client).await?;
+        let (proposal_type, data) = match proposal.r#type {
+            ProposalType::Default(maybe_hash) => {
+                let hash = maybe_hash.map(|hash| hash.to_string());
+                ("default", hash)
+            },
+            ProposalType::PGFSteward(data) => {
+                let data_string = serde_json::to_string(&data)?;
+                ("pgf_steward", Some(data_string))
+            },
+            ProposalType::PGFPayment(data) => {
+                let data_string = serde_json::to_string(&data)?;
+                ("pgf_payment", Some(data_string))
+            }
+        };
 
-        for id in from_id..last_proposal_id {
-            let proposal = query_proposal_by_id(&self.client, id)
-                .await
-                .unwrap()
-                .expect("Proposal should be written to storage.");
-            let votes = compute_proposal_votes(&self.client, id, proposal.voting_end_epoch).await;
-            let total_voting_power =
-                get_total_staked_tokens(&self.client, proposal.voting_end_epoch)
-                    .await
-                    .unwrap();
-            //TODO: for now we assume that interface does not support steward accounts
-            let tally_type = proposal.get_tally_type(false);
-
-            let proposal_type = match proposal.r#type {
-                ProposalType::PGFSteward(_) => "pgf_steward",
-                ProposalType::PGFPayment(_) => "pgf_payment",
-                ProposalType::Default(_) => "default",
-            };
-            let status =
-                if proposal.voting_start_epoch <= epoch && proposal.voting_end_epoch >= epoch {
-                    "ongoing"
-                } else if proposal.voting_end_epoch < epoch {
-                    "finished"
-                } else {
-                    "upcoming"
-                };
-
-            let content = serde_json::to_string(&proposal.content)?;
-
-            let proposal_result = compute_proposal_result(votes, total_voting_power, tally_type);
-
-            let proposal_info = ProposalInfo {
-                id: proposal.id.to_string(),
-                proposal_type: proposal_type.to_string(),
-                author: proposal.author.to_string(),
-                start_epoch: proposal.voting_start_epoch.0,
-                end_epoch: proposal.voting_end_epoch.0,
-                grace_epoch: proposal.grace_epoch.0,
-                content,
-                status: status.to_string(),
-                result: proposal_result.result.to_string(),
-                total_voting_power: proposal_result.total_voting_power.to_string_native(),
-                total_yay_power: proposal_result.total_yay_power.to_string_native(),
-                total_nay_power: proposal_result.total_nay_power.to_string_native(),
-            };
-
-            proposals.push(proposal_info);
-        }
+        let proposal_info = ProposalInfo {
+            id: proposal.id,
+            author: proposal.author.to_string(),
+            start_epoch: proposal.voting_start_epoch.0,
+            end_epoch: proposal.voting_end_epoch.0,
+            grace_epoch: proposal.grace_epoch.0,
+            content,
+            tally_type: String::from(tally_type_string),
+            proposal_type: String::from(proposal_type),
+            data
+        };
 
         let mut writer = vec![];
-        BorshSerialize::serialize(&proposals, &mut writer)?;
+        BorshSerialize::serialize(&proposal_info, &mut writer)?;
 
         Ok(Uint8Array::from(writer.as_slice()))
     }
+
+    pub async fn query_proposal_votes(
+        &self,
+        proposal_id: u64,
+        epoch: u64
+    ) -> Result<JsValue, JsError> {
+
+        let votes = compute_proposal_votes(&self.client, proposal_id, Epoch(epoch)).await;
+
+        //let result = query_proposal_votes(&self.client, id).await?;
+
+        //let votes: Vec<(Address, String, bool)> = result
+        //    .into_iter()
+        //    .map(|vote| {
+        //        let data = match vote.data {
+        //            ProposalVote::Yay => "yay",
+        //            ProposalVote::Nay => "nay",
+        //            ProposalVote::Abstain => "abstain"
+        //        };
+        //        let is_validator = vote.is_validator();
+        //        (
+        //            vote.delegator,
+        //            String::from(data),
+        //            is_validator
+        //        )
+        //    })
+        //    .collect();
+
+        let validator_votes: Vec<(Address, String, token::Amount)> = Vec::from_iter(
+            votes.validators_vote.iter().map(|(address, vote)| {
+                let vote = match vote {
+                    TallyVote::OnChain(ProposalVote::Yay) => "yay",
+                    TallyVote::OnChain(ProposalVote::Nay) => "nay",
+                    TallyVote::OnChain(ProposalVote::Abstain) => "abstain",
+                    TallyVote::Offline(_) => panic!("received offline tally")
+                };
+
+                let voting_power = votes.validator_voting_power.get(address)
+                    .expect("validator has voting power entry")
+                    .clone();
+
+                (address.clone(), String::from(vote), voting_power)
+            })
+        );
+
+        //let validator_voting_power: Vec<(Address, token::Amount)> =
+        //    votes.validator_voting_power.into_iter().collect();
+
+        let delegator_votes: Vec<(Address, String, Vec<(Address, token::Amount)>)> =
+            Vec::from_iter(
+                votes.delegators_vote.iter().map(|(address, vote)| {
+                    let vote = match vote {
+                        TallyVote::OnChain(ProposalVote::Yay) => "yay",
+                        TallyVote::OnChain(ProposalVote::Nay) => "nay",
+                        TallyVote::OnChain(ProposalVote::Abstain) => "abstain",
+                        TallyVote::Offline(_) => panic!("received offline tally")
+                    };
+
+                    let voting_power = votes.delegator_voting_power.get(address)
+                        .expect("delegator has voting power entry")
+                        .clone()
+                        .into_iter()
+                        .collect();
+
+                    (address.clone(), String::from(vote), voting_power)
+                })
+            );
+
+        //let validator_voting_power: Vec<(Address, Amount)> = Vec::from_iter(
+        //    votes.validator_voting_power.iter().map(|(address, voting_power)| {
+        //        let vote = match vote {
+        //            TallyVote::OnChain(ProposalVote::Yay) => "yay",
+        //            TallyVote::OnChain(ProposalVote::Nay) => "nay",
+        //            TallyVote::OnChain(ProposalVote::Abstain) => "abstain",
+        //            TallyVote::Offline(_) => panic!("received offline tally")
+        //        };
+        //        (address.clone(), String::from(vote))
+        //    })
+        //);
+
+        to_js_result((
+            validator_votes,
+            delegator_votes
+        ))
+    }
+
+    pub async fn query_proposal_result(
+        &self,
+        proposal_id: u64,
+        epoch: u64
+    ) -> Result<JsValue, JsError> {
+        let epoch = Epoch(epoch);
+
+        let votes = compute_proposal_votes(&self.client, proposal_id, epoch).await;
+
+        let total_voting_power =
+            get_total_staked_tokens(&self.client, epoch).await?;
+
+        let proposal = query_proposal_by_id(&self.client, proposal_id)
+            .await
+            .unwrap()
+            .expect("Proposal should be written to storage.");
+        let is_steward = is_steward(&self.client, &proposal.author).await;
+        let tally_type = proposal.get_tally_type(is_steward);
+
+        let proposal_result =
+            compute_proposal_result(votes, total_voting_power, tally_type);
+
+        let passed = match proposal_result.result {
+            TallyResult::Passed => true,
+            TallyResult::Rejected => false,
+        };
+
+        to_js_result((
+            passed,
+            proposal_result.total_yay_power,
+            proposal_result.total_nay_power,
+            proposal_result.total_abstain_power,
+            proposal_result.total_voting_power,
+        ))
+    }
+
+    pub async fn query_proposal_code(&self, proposal_id: u64) -> Result<JsValue, JsError> {
+        let proposal_code_key =
+            governance_storage::get_proposal_code_key(proposal_id);
+        let code = query_storage_value::<HttpClient, Option<Vec<u8>>>(
+            &self.client,
+            &proposal_code_key
+        ).await?;
+
+        to_js_result(code)
+    }
+
+    ///// Returns a list of all proposals
+    //pub async fn query_proposals(&self) -> Result<Uint8Array, JsError> {
+    //    let last_proposal_id_key = governance_storage::get_counter_key();
+    //    let last_proposal_id =
+    //        query_storage_value::<HttpClient, u64>(&self.client, &last_proposal_id_key)
+    //            .await
+    //            .unwrap();
+
+    //    let from_id = if last_proposal_id > 10 {
+    //        last_proposal_id - 10
+    //    } else {
+    //        0
+    //    };
+
+    //    let mut proposals: Vec<ProposalInfo> = vec![];
+    //    let epoch = RPC.shell().epoch(&self.client).await?;
+
+    //    for id in from_id..last_proposal_id {
+    //        let proposal = query_proposal_by_id(&self.client, id)
+    //            .await
+    //            .unwrap()
+    //            .expect("Proposal should be written to storage.");
+    //        let votes = compute_proposal_votes(&self.client, id, proposal.voting_end_epoch).await;
+    //        let total_voting_power =
+    //            get_total_staked_tokens(&self.client, proposal.voting_end_epoch)
+    //                .await
+    //                .unwrap();
+    //        //TODO: for now we assume that interface does not support steward accounts
+    //        let tally_type = proposal.get_tally_type(false);
+
+    //        let proposal_type = match proposal.r#type {
+    //            ProposalType::PGFSteward(_) => "pgf_steward",
+    //            ProposalType::PGFPayment(_) => "pgf_payment",
+    //            ProposalType::Default(_) => "default",
+    //        };
+    //        let status =
+    //            if proposal.voting_start_epoch <= epoch && proposal.voting_end_epoch >= epoch {
+    //                "ongoing"
+    //            } else if proposal.voting_end_epoch < epoch {
+    //                "finished"
+    //            } else {
+    //                "upcoming"
+    //            };
+
+    //        let content = serde_json::to_string(&proposal.content)?;
+
+    //        let proposal_result = compute_proposal_result(votes, total_voting_power, tally_type);
+
+    //        let proposal_info = ProposalInfo {
+    //            id: proposal.id.to_string(),
+    //            proposal_type: proposal_type.to_string(),
+    //            author: proposal.author.to_string(),
+    //            start_epoch: proposal.voting_start_epoch.0,
+    //            end_epoch: proposal.voting_end_epoch.0,
+    //            grace_epoch: proposal.grace_epoch.0,
+    //            content,
+    //            status: status.to_string(),
+    //            result: proposal_result.result.to_string(),
+    //            total_voting_power: proposal_result.total_voting_power.to_string_native(),
+    //            total_yay_power: proposal_result.total_yay_power.to_string_native(),
+    //            total_nay_power: proposal_result.total_nay_power.to_string_native(),
+    //        };
+
+    //        proposals.push(proposal_info);
+    //    }
+
+    //    let mut writer = vec![];
+    //    BorshSerialize::serialize(&proposals, &mut writer)?;
+
+    //    Ok(Uint8Array::from(writer.as_slice()))
+    //}
 
     /// Returns a list of all delegations for given addresses and epoch
     ///

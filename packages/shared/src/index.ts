@@ -1,5 +1,3 @@
-import { deserialize } from "@dao-xyz/borsh";
-
 import { Proposal, Proposals } from "./borsh-schemas";
 import { Query as RustQuery } from "./shared/shared";
 export * from "./shared/shared";
@@ -43,7 +41,7 @@ const promiseWithTimeout =
 
 //Fallbacks for rust panics
 export class Query extends RustQuery {
-  private _query_proposals = super.query_proposals.bind(this);
+  //private _query_proposals = super.query_proposals.bind(this);
   query_balance = super.query_balance.bind(this);
   query_epoch = promiseWithTimeout(super.query_epoch.bind(this));
   query_all_validator_addresses = promiseWithTimeout(
@@ -54,12 +52,12 @@ export class Query extends RustQuery {
   );
   query_total_bonds = promiseWithTimeout(super.query_total_bonds.bind(this));
   delegators_votes = promiseWithTimeout(super.delegators_votes.bind(this));
-  queryProposals = async (): Promise<Proposal[]> => {
-    const fn = this._query_proposals;
-    const serializedProposals = await fn();
-    const { proposals } = deserialize(serializedProposals, Proposals);
-    return proposals;
-  };
+  //queryProposals = async (): Promise<Proposal[]> => {
+  //  const fn = this._query_proposals;
+  //  const serializedProposals = await fn();
+  //  const { proposals } = deserialize(serializedProposals, Proposals);
+  //  return proposals;
+  //};
   get_total_delegations = promiseWithTimeout(
     super.get_total_delegations.bind(this)
   );

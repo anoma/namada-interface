@@ -1,4 +1,4 @@
-import { BinaryReader, BinaryWriter, field, vec } from "@dao-xyz/borsh";
+import { BinaryReader, BinaryWriter, field, option, vec } from "@dao-xyz/borsh";
 import BigNumber from "bignumber.js";
 
 export const BigNumberSerializer = {
@@ -12,11 +12,11 @@ export const BigNumberSerializer = {
 };
 
 export class Proposal {
-  @field({ type: "string" })
-  id!: string;
+  @field({ type: "u64" })
+  id!: bigint;
 
   @field({ type: "string" })
-  proposalType!: "pgf_steward" | "pgf_payment" | "default";
+  content!: string;
 
   @field({ type: "string" })
   author!: string;
@@ -31,22 +31,13 @@ export class Proposal {
   graceEpoch!: bigint;
 
   @field({ type: "string" })
-  contentJSON!: string;
+  tallyType!: string;
 
   @field({ type: "string" })
-  status!: "ongoing" | "finished" | "upcoming";
+  proposalType!: string;
 
-  @field({ type: "string" })
-  result!: "passed" | "rejected";
-
-  @field({ type: BigNumberSerializer })
-  totalVotingPower!: BigNumber;
-
-  @field({ type: BigNumberSerializer })
-  totalYayPower!: BigNumber;
-
-  @field({ type: BigNumberSerializer })
-  totalNayPower!: BigNumber;
+  @field({ type: option("string") })
+  data?: string;
 
   constructor(data: Proposal) {
     Object.assign(this, data);

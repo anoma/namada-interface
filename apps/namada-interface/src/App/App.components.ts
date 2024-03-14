@@ -1,5 +1,5 @@
-import styled, { createGlobalStyle } from "styled-components";
 import { motion } from "framer-motion";
+import styled, { createGlobalStyle } from "styled-components";
 
 import { ColorMode, DesignConfiguration } from "@namada/utils";
 

@@ -4,16 +4,18 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 
+import { Router } from "@remix-run/router";
 import { AccountOverview } from "./AccountOverview";
 import App, { AnimatedTransition } from "./App";
-import { Settings, SettingsWalletSettings } from "./Settings";
 import { Bridge } from "./Bridge";
-import { StakingAndGovernance } from "./StakingAndGovernance";
-import { TopLevelRoute } from "./types";
-import { TokenSend } from "./Token/TokenSend";
+import { Governance } from "./Governance";
+import GovernanceRoutes from "./Governance/routes";
+import { Settings, SettingsWalletSettings } from "./Settings";
+import { Staking } from "./Staking";
+import StakingRoutes from "./Staking/routes";
 import { TokenReceive } from "./Token/TokenReceive";
-import { Router } from "@remix-run/router";
-import { Proposals } from "./Proposals";
+import { TokenSend } from "./Token/TokenSend";
+import { TopLevelRoute } from "./types";
 
 export const getRouter = (): Router => {
   return createBrowserRouter(
@@ -62,18 +64,18 @@ export const getRouter = (): Router => {
           }
         />
         <Route
-          path={`${TopLevelRoute.StakingAndGovernance}/*`}
+          path={`${StakingRoutes.index()}/*`}
           element={
-            <AnimatedTransition elementKey={TopLevelRoute.StakingAndGovernance}>
-              <StakingAndGovernance />
+            <AnimatedTransition elementKey={StakingRoutes.index()}>
+              <Staking />
             </AnimatedTransition>
           }
         />
         <Route
-          path={`${TopLevelRoute.Proposals}`}
+          path={`${GovernanceRoutes.index()}/*`}
           element={
-            <AnimatedTransition elementKey={TopLevelRoute.Proposals}>
-              <Proposals />
+            <AnimatedTransition elementKey={GovernanceRoutes.index()}>
+              <Governance />
             </AnimatedTransition>
           }
         />

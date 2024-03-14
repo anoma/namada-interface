@@ -1,5 +1,4 @@
 import { useAtomValue, useSetAtom } from "jotai";
-import { loadable } from "jotai/utils";
 
 import { useEffectSkipFirstRender } from "@namada/hooks";
 import {
@@ -9,18 +8,16 @@ import {
 } from "@namada/integrations";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 
-import { accountsAtom, balancesAtom } from "slices/accounts";
+import { refreshAccountsAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
 import { isRevealPkNeededAtom, minimumGasPriceAtom } from "slices/fees";
 
 export const useOnChainChanged = (): void => {
   const chain = useAtomValue(chainAtom);
-
-  const refreshMinimumGasPrice = useSetAtom(minimumGasPriceAtom);
+  useAtomValue(minimumGasPriceAtom);
   const refreshPublicKeys = useSetAtom(isRevealPkNeededAtom);
 
   useEffectSkipFirstRender(() => {
-    refreshMinimumGasPrice();
     refreshPublicKeys();
   }, [chain]);
 };
@@ -45,7 +42,7 @@ export const useOnNamadaExtensionConnected = (): void => {
   const connected = useAtomValue(namadaExtensionConnectedAtom);
 
   const refreshChain = useSetAtom(chainAtom);
-  const refreshAccounts = useSetAtom(accountsAtom);
+  const refreshAccounts = useSetAtom(refreshAccountsAtom);
 
   useEffectSkipFirstRender(() => {
     if (connected) {
@@ -53,18 +50,4 @@ export const useOnNamadaExtensionConnected = (): void => {
       refreshAccounts();
     }
   }, [connected]);
-};
-
-export const useOnAccountsChanged = (): void => {
-  const accountsLoadable = useAtomValue(loadable(accountsAtom));
-
-  const refreshBalances = useSetAtom(balancesAtom);
-  const refreshPublicKeys = useSetAtom(isRevealPkNeededAtom);
-
-  useEffectSkipFirstRender(() => {
-    if (accountsLoadable.state === "hasData") {
-      refreshBalances();
-      refreshPublicKeys();
-    }
-  }, [accountsLoadable]);
 };

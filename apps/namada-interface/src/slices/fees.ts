@@ -1,52 +1,39 @@
 import { Query } from "@namada/shared";
 import BigNumber from "bignumber.js";
+import { invariant } from "framer-motion";
 import { atom } from "jotai";
-
+import { atomWithQuery } from "jotai-tanstack-query";
 import { accountsAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
 
 // TODO: remove harcoding of gas limit
 export const GAS_LIMIT = new BigNumber(20_000);
 
-const minimumGasPriceAtom = (() => {
-  const base = atom(new Promise<BigNumber>(() => {}));
+export const minimumGasPriceAtom = atomWithQuery<BigNumber>((get) => {
+  const chain = get(chainAtom);
+  return {
+    queryKey: ["minimum-gas-price-" + chain.chainId],
+    queryFn: async () => {
+      const nativeToken = chain.currency.address;
+      const query = new Query(chain.rpc);
+      invariant(!!nativeToken, "Native token is undefined");
 
-  return atom(
-    (get) => get(base),
-    async (get, set) => {
-      const {
-        rpc,
-        currency: { address: nativeToken },
-      } = get(chainAtom);
-      const query = new Query(rpc);
+      const result = (await query.query_gas_costs()) as [string, string][];
+      const nativeTokenCost = result.find(([token]) => token === nativeToken);
+      invariant(!!nativeTokenCost, "Error querying minimum gas price");
 
-      const promise = (async () => {
-        if (!nativeToken) {
-          throw new Error("Native token is undefined");
-        }
+      const asBigNumber = new BigNumber(nativeTokenCost![1]);
+      invariant(
+        !asBigNumber.isNaN(),
+        "Error converting minimum gas price to BigNumber"
+      );
 
-        const result = (await query.query_gas_costs()) as [string, string][];
-        const nativeTokenCost = result.find(([token]) => token === nativeToken);
+      return asBigNumber;
+    },
+  };
+});
 
-        if (!nativeTokenCost) {
-          throw new Error("Error querying minimum gas price");
-        }
-
-        const asBigNumber = new BigNumber(nativeTokenCost[1]);
-
-        if (asBigNumber.isNaN()) {
-          throw new Error("Error converting minimum gas price to BigNumber");
-        }
-
-        return asBigNumber;
-      })();
-
-      set(base, promise);
-    }
-  );
-})();
-
-const isRevealPkNeededAtom = (() => {
+export const isRevealPkNeededAtom = (() => {
   type RevealPkNeededMap = { [address: string]: boolean };
 
   const base = atom(new Promise<RevealPkNeededMap>(() => {}));
@@ -86,5 +73,3 @@ const isRevealPkNeededAtom = (() => {
       )
   );
 })();
-
-export { isRevealPkNeededAtom, minimumGasPriceAtom };

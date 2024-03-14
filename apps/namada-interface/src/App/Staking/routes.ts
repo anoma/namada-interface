@@ -1,0 +1,42 @@
+type RouteOutput = {
+  url: string;
+  toString: () => string;
+};
+
+export const routeOutput = (route: string): RouteOutput => ({
+  url: `${index()}${route}`,
+  toString: () => route,
+});
+
+export const index = (): string => `/staking`;
+
+export const overview = (): RouteOutput => routeOutput(`/`);
+
+export const manage = (): RouteOutput => routeOutput("/manage");
+
+export const incrementBonding = (): RouteOutput =>
+  routeOutput("/bonding/increment");
+
+export const redelegateBonding = (): RouteOutput =>
+  routeOutput("/bonding/redelegate");
+
+export const validatorDetails = (id: string | number): RouteOutput =>
+  routeOutput(`/validator-details/${id}`);
+
+export const validatorDetailsOwner = (
+  validatorId: string | number,
+  ownerId: string | number
+): RouteOutput => routeOutput(`${validatorDetails(validatorId)}/${ownerId}`);
+
+export const unstake = (): RouteOutput => routeOutput("/bonding/unstake");
+
+export default {
+  index,
+  manage,
+  overview,
+  validatorDetails,
+  validatorDetailsOwner,
+  incrementBonding,
+  redelegateBonding,
+  unstake,
+};

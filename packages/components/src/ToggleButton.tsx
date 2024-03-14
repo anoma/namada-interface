@@ -1,37 +1,68 @@
 import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
+import { tv } from "tailwind-variants";
 
 type Props = {
   checked: boolean;
   onChange: () => void;
   label: string;
+  containerProps?: React.ComponentPropsWithoutRef<"label">;
 };
+
+const toggleButtonClassList = tv({
+  slots: {
+    container: clsx(
+      "group flex gap-6 items-center cursor-pointer text-sm relative",
+      "[&>span]:relative active:[&>span]:top-px"
+    ),
+    checkbox: clsx("invisible absolute pointer-events-none"),
+    toggleContainer: clsx(
+      "relative rounded-3xl bg-rblack p-1 h-5 w-10 cursor-pointer",
+      "transition-all duration-100 ease-out-quad",
+      "[&~span]:top-px"
+    ),
+    toggleIndicator: clsx(
+      "absolute left-0.5 top-0.5 h-[calc(100%-4px)] bg-yellow",
+      "aspect-square rounded-full transition-all duration-200 ease-out-quad"
+    ),
+  },
+  variants: {
+    checked: {
+      true: {
+        toggleIndicator: "translate-x-5",
+      },
+    },
+  },
+});
 
 export const ToggleButton = ({
   checked,
   onChange,
   label,
+  containerProps = {},
 }: Props): JSX.Element => {
+  const { container, checkbox, toggleContainer, toggleIndicator } =
+    toggleButtonClassList({ checked });
+
+  const { className: containerClassName, ...containerPropsRest } =
+    containerProps;
+
   return (
-    <div
-      className={clsx(
-        "group relative rounded-3xl p-1 h-5 w-10 cursor-pointer",
-        "transition-all duration-150 ease-out-quad",
-        { "bg-yellow": checked, "bg-neutral-950": !checked }
-      )}
-      data-role="button"
-      aria-label={label}
-      role="switch"
-      onClick={onChange}
+    <label
+      className={twMerge(container(), containerClassName)}
+      {...containerPropsRest}
     >
-      <i
-        className={clsx(
-          "absolute left-1.5 top-0.5  h-[calc(100%-4px)]",
-          "aspect-square rounded-full transition-all duration-300 ease-out-quad",
-          "group-hover:bg-v-hover",
-          { "translate-x-full": checked },
-          { "bg-neutral-950": checked, "bg-neutral-800": !checked }
-        )}
+      <span>{label}</span>
+      <input
+        aria-label={label}
+        type="checkbox"
+        className={checkbox()}
+        onChange={onChange}
+        checked={checked}
       />
-    </div>
+      <div className={clsx(toggleContainer())} data-role="button">
+        <i className={toggleIndicator()} />
+      </div>
+    </label>
   );
 };

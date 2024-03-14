@@ -1,17 +1,38 @@
-import clsx from "clsx";
+import React from "react";
+import { twMerge } from "tailwind-merge";
 
-type PanelProps = {
+type PanelProps<T extends keyof JSX.IntrinsicElements> = {
   children: React.ReactNode;
-};
+  as?: T;
+  hierarchy?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+  title?: React.ReactNode;
+} & React.ComponentPropsWithoutRef<T>;
 
-export const Panel = ({ children }: PanelProps): JSX.Element => {
-  return (
-    <div
-      className={clsx(
-        "relative text-white rounded-lg bg-gray w-[540px] min-h-[640px]"
-      )}
-    >
+export const Panel = <T extends keyof JSX.IntrinsicElements = "div">({
+  children,
+  as,
+  hierarchy = "h3",
+  title,
+  className,
+  ...props
+}: PanelProps<T>): JSX.Element => {
+  return React.createElement(
+    as || "div",
+    {
+      className: twMerge(
+        "rounded-sm bg-rblack px-4 py-5 text-white font-medium",
+        className
+      ),
+      ...props,
+    },
+    <>
+      {title &&
+        React.createElement(
+          hierarchy,
+          { className: "relative z-20 mb-8" },
+          title
+        )}
       {children}
-    </div>
+    </>
   );
 };
