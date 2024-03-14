@@ -5187,7 +5187,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cosmjs/tendermint-rpc@npm:^0.29.5":
+"@cosmjs/tendermint-rpc@npm:^0.29.5, @cosmjs/tendermint-rpc@npm:~0.29.5":
   version: 0.29.5
   resolution: "@cosmjs/tendermint-rpc@npm:0.29.5"
   dependencies:
@@ -8088,6 +8088,7 @@ __metadata:
     "@cosmjs/launchpad": "npm:^0.27.1"
     "@cosmjs/proto-signing": "npm:^0.27.1"
     "@cosmjs/stargate": "npm:^0.29.5"
+    "@cosmjs/tendermint-rpc": "npm:~0.29.5"
     "@keplr-wallet/types": "npm:^0.10.19"
     "@metamask/providers": "npm:^10.2.1"
     "@namada/config": "workspace:^"

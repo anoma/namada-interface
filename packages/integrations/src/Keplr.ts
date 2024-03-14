@@ -1,10 +1,13 @@
 import { Coin } from "@cosmjs/launchpad";
 import { AccountData, coin, coins } from "@cosmjs/proto-signing";
 import {
+  QueryClient,
   SigningStargateClient,
   SigningStargateClientOptions,
   StargateClient,
+  setupIbcExtension,
 } from "@cosmjs/stargate";
+import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import {
   Keplr as IKeplr,
   Window as KeplrWindow,
@@ -207,11 +210,14 @@ class Keplr implements Integration<Account, OfflineSigner, CosmosTokenType> {
 
     const balances: TokenBalances<CosmosTokenType> = {};
 
-    // TODO: Remove filter once we can handle IBC tokens properly
-    queryResult
-      .filter((balance) => balance.denom === "uatom")
-      .forEach((coin: Coin) => {
-        const token = tokenByMinDenom(coin.denom);
+    await Promise.all(
+      queryResult.map(async (coin: Coin) => {
+        let denom = coin.denom;
+        if (denom.startsWith("ibc/")) {
+          denom = await this.ibcAddressToDenom(denom);
+        }
+
+        const token = tokenByMinDenom(denom);
         if (typeof token === "undefined") {
           return; // ignore unknown tokens
         }
@@ -227,13 +233,30 @@ class Keplr implements Integration<Account, OfflineSigner, CosmosTokenType> {
           throw new Error("duplicate entries in balances");
         }
         balances[token] = amount;
-      });
+      })
+    );
 
     return balances;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sync(): Promise<void> {}
+
+  private async ibcAddressToDenom(address: string): Promise<string> {
+    const tmClient = await Tendermint34Client.connect(this.chain.rpc);
+    const queryClient = new QueryClient(tmClient);
+    const ibcExtension = setupIbcExtension(queryClient);
+
+    const ibcHash = address.replace("ibc/", "");
+    const { denomTrace } = await ibcExtension.ibc.transfer.denomTrace(ibcHash);
+    const baseDenom = denomTrace?.baseDenom;
+
+    if (typeof baseDenom === "undefined") {
+      throw new Error("couldn't get denom from ibc address");
+    }
+
+    return baseDenom;
+  }
 }
 
 export default Keplr;
