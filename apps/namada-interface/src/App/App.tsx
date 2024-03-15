@@ -20,6 +20,7 @@ import { SettingsState } from "slices/settings";
 import { persistor, useAppDispatch, useAppSelector } from "store";
 import { ThemeProvider } from "styled-components";
 import { AppLoader, MotionContainer } from "./App.components";
+import { Sidebar } from "./Common/Sidebar";
 import {
   useOnAccountsChanged,
   useOnChainChanged,
@@ -111,7 +112,7 @@ function App(): JSX.Element {
         {extensionReady && (
           <Container
             data-testid="AppContainer"
-            sidebar={<></>}
+            sidebar={<Sidebar />}
             header={
               <TopNavigation chain={chain} isExtensionConnected={false} />
             }
