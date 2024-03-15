@@ -6,6 +6,8 @@ import {
   readVecU8Pointer,
 } from "@namada/crypto";
 
+export { PhraseSize } from "@namada/crypto";
+
 /**
  * Class for accessing mnemonic functionality from wasm
  */
@@ -57,12 +59,15 @@ export class Mnemonic {
    * @param {string} phrase - Mnemonic phrase
    * @returns {void}
    */
-  validateMnemonic(phrase: string): void {
+  validateMnemonic(phrase: string): { isValid: boolean; error?: string } {
+    const isValid = MnemonicWasm.validate(phrase);
     try {
       MnemonicWasm.from_phrase(phrase);
+
+      return { isValid };
     } catch (e) {
       // Throw exception in order to provide reason to client
-      throw new Error(`${e}`);
+      return { isValid, error: `${e}` };
     }
   }
 }

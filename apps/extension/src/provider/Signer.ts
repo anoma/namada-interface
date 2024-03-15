@@ -1,6 +1,6 @@
 import { toBase64 } from "@cosmjs/encoding";
 import { chains } from "@namada/chains";
-import { SupportedTx, TxType } from "@namada/shared";
+import { SupportedTx, TxType } from "@namada/sdk/web";
 import {
   Account,
   AccountType,

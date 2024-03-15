@@ -1,8 +1,4 @@
-import { fromBase64 } from "@cosmjs/encoding";
-import { deserialize, serialize } from "@dao-xyz/borsh";
-import { Sdk } from "@namada/shared";
-import { initMulticore as initShared } from "@namada/shared/src/init";
-import { TxMsgValue } from "@namada/types";
+import { initAsync } from "@namada/sdk/web";
 import {
   INIT_MSG,
   SubmitTransferMessageData,
@@ -12,11 +8,6 @@ import {
 } from "./types";
 
 (async function init() {
-  const sharedWasm = await fetch("shared.namada.wasm").then((wasm) =>
-    wasm.arrayBuffer()
-  );
-  await initShared(sharedWasm);
-
   addEventListener(
     "message",
     async ({ data }: { data: SubmitTransferMessageData }) => {
@@ -26,28 +17,32 @@ import {
           rpc,
           nativeToken,
         } = data;
-        let txMsg = fromBase64(data.txMsg);
+        const { txMsg } = data;
+        console.log(
+          "submit-transfer-web-worker.ts: txMsg",
+          txMsg,
+          data.transferMsg
+        );
 
-        const sdk = new Sdk(rpc, nativeToken);
-        await sdk.load_masp_params();
+        //TODO: CHeck if it is fine to uinit every time
+        const sdk = await initAsync(rpc, nativeToken);
+        await sdk.masp.loadMaspParams();
         // For transparent transactions we have to reveal the public key.
         if (privateKey) {
-          await sdk.reveal_pk(privateKey, txMsg);
+          await sdk.tx.revealPk(privateKey, txMsg);
           // For transfers from masp source we unshield to pay the fee.
           // Because of that we have to pass spending key.
         } else if (xsk) {
-          const deserializedTxMsg = deserialize(Buffer.from(txMsg), TxMsgValue);
-          deserializedTxMsg.feeUnshield = xsk;
-          txMsg = serialize(deserializedTxMsg);
+          txMsg.feeUnshield = xsk;
         }
 
-        const builtTx = await sdk.build_transfer(
-          fromBase64(data.transferMsg),
+        const builtTx = await sdk.tx.buildTransfer(
           txMsg,
+          data.transferMsg,
           xsk
         );
-        const txBytes = await sdk.sign_tx(builtTx, txMsg, privateKey);
-        const innerTxHash: string = await sdk.process_tx(txBytes, txMsg);
+        const signedTx = await sdk.tx.signTx(builtTx, privateKey);
+        const innerTxHash = await sdk.rpc.broadcastTx(signedTx);
 
         postMessage({
           msgName: TRANSFER_SUCCESSFUL_MSG,

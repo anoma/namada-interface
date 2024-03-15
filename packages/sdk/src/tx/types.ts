@@ -48,3 +48,6 @@ export class SignedTx {
     public readonly tx: Uint8Array
   ) {}
 }
+
+export { TxType, TxTypeLabel } from "@namada/shared";
+export type { SupportedTx } from "@namada/shared";

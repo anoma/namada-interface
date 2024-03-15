@@ -11,6 +11,7 @@ import {
   ExtendedSpendingKey,
   ExtendedViewingKey,
   PaymentAddress,
+  public_key_to_bech32,
 } from "@namada/shared";
 import { Bip44Path } from "@namada/types";
 import { makeBip44PathArray, makeSaplingPathArray } from "@namada/utils";
@@ -131,7 +132,7 @@ export class Keys {
    * @param {Bip44Path} [path] - Bip44 path object
    * @returns {ShieldedKeys} Shielded keys and address
    */
-  deriveShielded(
+  deriveShieldedFromSeed(
     seed: Uint8Array,
     path: Bip44Path = DEFAULT_PATH
   ): ShieldedKeys {
@@ -164,3 +165,8 @@ export class Keys {
     };
   }
 }
+
+//TODO: think where to put this function
+export const publicKeyToBech32 = (publicKey: Uint8Array): string => {
+  return public_key_to_bech32(publicKey);
+};

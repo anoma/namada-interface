@@ -211,4 +211,8 @@ export class Rpc {
     const { txMsg, tx } = signedTx;
     await this.sdk.process_tx(tx, txMsg);
   }
+
+  async shieldedSync(vks: string[]): Promise<void> {
+    await this.query.shielded_sync(vks);
+  }
 }

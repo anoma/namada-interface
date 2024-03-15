@@ -8,8 +8,17 @@ export type {
   Bonds,
   DelegationTotals,
   DelegatorsVotes,
+  Rpc,
   StakingPositions,
   StakingTotals,
   Unbonds,
 } from "./rpc";
-export { EncodedTx, SignedTx } from "./tx";
+
+export { EncodedTx, SignedTx, TxType, TxTypeLabel } from "./tx";
+export type { SupportedTx } from "./tx";
+
+export { Sdk } from "./sdk";
+
+export { publicKeyToBech32 } from "./keys";
+
+export { PhraseSize } from "./mnemonic";

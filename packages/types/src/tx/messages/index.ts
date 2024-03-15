@@ -22,4 +22,14 @@ export class Message<T extends Schema> implements IMessage<T> {
       throw new Error(`Unable to deserialize message: ${e}`);
     }
   }
+  public static dec<T extends Schema>(
+    buffer: Uint8Array,
+    parser: Constructor<T>
+  ): T {
+    try {
+      return deserialize(Buffer.from(buffer), parser);
+    } catch (e) {
+      throw new Error(`Unable to deserialize message: ${e}`);
+    }
+  }
 }

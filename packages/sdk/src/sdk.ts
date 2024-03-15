@@ -22,7 +22,7 @@ export class Sdk {
   constructor(
     protected readonly sdk: SdkWasm,
     protected readonly query: QueryWasm,
-    protected readonly cryptoMemory: WebAssembly.Memory,
+    public readonly cryptoMemory: WebAssembly.Memory,
     public readonly url: string,
     public readonly nativeToken: string
   ) {}

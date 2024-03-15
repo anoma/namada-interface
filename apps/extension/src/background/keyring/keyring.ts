@@ -1,24 +1,5 @@
 import { deserialize } from "@dao-xyz/borsh";
 
-import { chains } from "@namada/chains";
-import {
-  HDWallet,
-  Mnemonic,
-  PhraseSize,
-  ShieldedHDWallet,
-  StringPointer,
-  VecU8Pointer,
-  readStringPointer,
-  readVecStringPointer,
-  readVecU8Pointer,
-} from "@namada/crypto";
-
-import {
-  Address,
-  ExtendedSpendingKey,
-  ExtendedViewingKey,
-  PaymentAddress,
-} from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import {
   AccountType,
@@ -29,17 +10,12 @@ import {
   IbcTransferMsgValue,
   SignatureResponse,
   TransferMsgValue,
+  TxMsgValue,
   UnbondMsgValue,
   VoteProposalMsgValue,
   WithdrawMsgValue,
 } from "@namada/types";
-import {
-  Result,
-  assertNever,
-  makeBip44PathArray,
-  makeSaplingPathArray,
-  truncateInMiddle,
-} from "@namada/utils";
+import { Result, assertNever, truncateInMiddle } from "@namada/utils";
 
 import {
   AccountSecret,
@@ -53,6 +29,7 @@ import {
   UtilityStore,
 } from "./types";
 
+import { PhraseSize } from "@namada/sdk/web";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
@@ -82,8 +59,7 @@ export class KeyRing {
     protected readonly vaultService: VaultService,
     protected readonly vaultStorage: VaultStorage,
     protected readonly sdkService: SdkService,
-    protected readonly utilityStore: KVStore<UtilityStore>,
-    protected readonly cryptoMemory: WebAssembly.Memory
+    protected readonly utilityStore: KVStore<UtilityStore>
   ) {}
 
   public get status(): KeyRingStatus {
@@ -102,27 +78,18 @@ export class KeyRing {
   }
 
   public validateMnemonic(phrase: string): MnemonicValidationResponse {
-    const isValid = Mnemonic.validate(phrase);
+    const mnemonic = this.sdkService.getSdk().getMnemonic();
+    const isValid = mnemonic.validateMnemonic(phrase);
 
-    try {
-      Mnemonic.from_phrase(phrase);
-    } catch (e) {
-      return { isValid, error: `${e}` };
-    }
-
-    return { isValid };
+    return isValid;
   }
 
   // Return new mnemonic to client for validation
   public async generateMnemonic(
     size: PhraseSize = PhraseSize.N12
   ): Promise<string[]> {
-    const mnemonic = new Mnemonic(size);
-    const vecStringPointer = mnemonic.to_words();
-    const words = readVecStringPointer(vecStringPointer, this.cryptoMemory);
-
-    mnemonic.free();
-    vecStringPointer.free();
+    const mnemonic = this.sdkService.getSdk().getMnemonic();
+    const words = mnemonic.generate(size);
 
     return words;
   }
@@ -188,6 +155,7 @@ export class KeyRing {
     await this.vaultService.assertIsUnlocked();
 
     const path = { account: 0, change: 0, index: 0 };
+    const keys = this.sdkService.getSdk().getKeys();
 
     const { sk, text, passphrase, accountType } = ((): {
       sk: string;
@@ -198,23 +166,14 @@ export class KeyRing {
       switch (accountSecret.t) {
         case "Mnemonic":
           const phrase = accountSecret.seedPhrase.join(" ");
-          const mnemonic = Mnemonic.from_phrase(phrase);
-          const passphrase = new StringPointer(accountSecret.passphrase);
-          const seed = mnemonic.to_seed(passphrase);
-          const { coinType } = chains.namada.bip44;
-          const bip44Path = makeBip44PathArray(coinType, path);
-          const hdWallet = new HDWallet(seed);
-          const key = hdWallet.derive(new Uint32Array(bip44Path));
-          const privateKeyStringPtr = key.to_hex();
-          const sk = readStringPointer(privateKeyStringPtr, this.cryptoMemory);
-
-          mnemonic.free();
-          hdWallet.free();
-          key.free();
-          privateKeyStringPtr.free();
+          const transparentKeys = keys.deriveFromMnemonic(
+            phrase,
+            path,
+            accountSecret.passphrase
+          );
 
           return {
-            sk,
+            sk: transparentKeys.privateKey,
             text: phrase,
             passphrase: accountSecret.passphrase,
             accountType: AccountType.Mnemonic,
@@ -235,9 +194,7 @@ export class KeyRing {
       }
     })();
 
-    const addr = new Address(sk);
-    const address = addr.implicit();
-    const publicKey = addr.public();
+    const { address, publicKey } = keys.getAddress(sk);
 
     // Check whether keys already exist for this account
     const account = await this.queryAccountByAddress(address);
@@ -276,17 +233,12 @@ export class KeyRing {
   }
 
   public deriveTransparentAccount(
-    seed: VecU8Pointer,
+    seed: Uint8Array,
     path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
-    const { coinType } = chains.namada.bip44;
-    const derivationPath = makeBip44PathArray(coinType, path);
-    const hdWallet = new HDWallet(seed);
-    const key = hdWallet.derive(new Uint32Array(derivationPath));
-    const privateKey = key.to_hex();
-    const text = readStringPointer(privateKey, this.cryptoMemory);
-    const address = new Address(text).implicit();
+    const keysNs = this.sdkService.getSdk().getKeys();
+    const { address, privateKey } = keysNs.deriveFromSeed(seed, path);
 
     const { account, change, index } = path;
     const id = generateId(
@@ -298,42 +250,26 @@ export class KeyRing {
       index
     );
 
-    hdWallet.free();
-    key.free();
-    privateKey.free();
-
     return {
       address,
       owner: address,
       id,
-      text,
+      text: privateKey,
     };
   }
 
   public deriveShieldedAccount(
-    seedPtr: VecU8Pointer,
+    seed: Uint8Array,
     path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
     const { index } = path;
     const id = generateId(UUID_NAMESPACE, "shielded-account", parentId, index);
-    const derivationPath = makeSaplingPathArray(877, path.account);
-    const seed = readVecU8Pointer(seedPtr, this.cryptoMemory);
-
-    const zip32 = new ShieldedHDWallet(seed);
-    const keys = zip32.derive(derivationPath);
-
-    // Deserialize and encode keys and address
-    const extendedSpendingKey = new ExtendedSpendingKey(keys.xsk());
-    const extendedViewingKey = new ExtendedViewingKey(keys.xfvk());
-    const address = new PaymentAddress(keys.payment_address()).encode();
-    const spendingKey = extendedSpendingKey.encode();
-    const viewingKey = extendedViewingKey.encode();
-
-    zip32.free();
-    keys.free();
-    extendedViewingKey.free();
-    extendedSpendingKey.free();
+    const keysNs = this.sdkService.getSdk().getKeys();
+    const { address, viewingKey, spendingKey } = keysNs.deriveShieldedFromSeed(
+      seed,
+      path
+    );
 
     return {
       address,
@@ -440,7 +376,7 @@ export class KeyRing {
 
   private async getParentSeed(): Promise<{
     parentId: string;
-    seed: VecU8Pointer;
+    seed: Uint8Array;
   }> {
     const activeAccount = await this.getActiveAccount();
 
@@ -469,13 +405,9 @@ export class KeyRing {
 
       const { text, passphrase } = sensitiveData;
 
-      const mnemonic = Mnemonic.from_phrase(text);
-      const passphrasePtr = passphrase
-        ? new StringPointer(passphrase)
-        : undefined;
+      const mnemonicSdk = this.sdkService.getSdk().getMnemonic();
+      const seed = mnemonicSdk.toSeed(text, passphrase);
 
-      const seed = mnemonic.to_seed(passphrasePtr);
-      mnemonic.free();
       return { parentId, seed };
     } catch (e) {
       console.error(e);
@@ -523,10 +455,9 @@ export class KeyRing {
     }
 
     const deriveFn = (
-      type === AccountType.PrivateKey
-        ? this.deriveTransparentAccount
-        : this.deriveShieldedAccount
-    ).bind(this);
+      type === AccountType.PrivateKey ?
+        this.deriveTransparentAccount
+      : this.deriveShieldedAccount).bind(this);
 
     const { seed, parentId } = await this.getParentSeed();
     const info = deriveFn(seed, path, parentId);
@@ -639,8 +570,6 @@ export class KeyRing {
       throw new Error(`Account for ${address} not found!`);
     }
     const { path } = accountStore;
-    const { coinType } = chains.namada.bip44;
-    const bip44Path = makeBip44PathArray(coinType, path);
 
     const sensitiveProps =
       await this.vaultService.reveal<SensitiveAccountStoreData>(
@@ -656,38 +585,30 @@ export class KeyRing {
     if (account.public.type === AccountType.PrivateKey) {
       privateKey = secret;
     } else {
-      const mnemonic = Mnemonic.from_phrase(secret);
-      const passphrasePtr =
-        typeof passphrase === "string"
-          ? new StringPointer(passphrase)
-          : undefined;
+      const sdk = this.sdkService.getSdk();
+      const mnemonic = sdk.getMnemonic();
+      const seed = mnemonic.toSeed(secret, passphrase);
 
-      const seed = mnemonic.to_seed(passphrasePtr);
-      const hdWallet = new HDWallet(seed);
-      const key = hdWallet.derive(new Uint32Array(bip44Path));
-      const privateKeyStringPtr = key.to_hex();
-      privateKey = readStringPointer(privateKeyStringPtr, this.cryptoMemory);
-
-      mnemonic.free();
-      hdWallet.free();
-      key.free();
-      privateKeyStringPtr.free();
+      const keys = this.sdkService.getSdk().getKeys();
+      privateKey = keys.deriveFromSeed(seed, path).privateKey;
     }
 
     return privateKey;
   }
 
-  async submitBond(bondMsg: Uint8Array, txMsg: Uint8Array): Promise<string> {
+  async submitBond(bondMsg: BondMsgValue, txMsg: TxMsgValue): Promise<string> {
     await this.vaultService.assertIsUnlocked();
     try {
-      const { source } = deserialize(Buffer.from(bondMsg), BondMsgValue);
+      const { source } = bondMsg;
       const signingKey = await this.getSigningKey(source);
-      const sdk = await this.sdkService.getSdk();
-      await sdk.reveal_pk(signingKey, txMsg);
+      const sdk = this.sdkService.getSdk();
+      const sdkTx = sdk.tx;
 
-      const builtTx = await sdk.build_bond(bondMsg, txMsg);
-      const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
-      const innerTxHash: string = await sdk.process_tx(txBytes, txMsg);
+      await sdkTx.revealPk(signingKey, txMsg);
+
+      const builtTx = await sdkTx.buildBond(txMsg, bondMsg);
+      const signedTx = await sdkTx.signTx(builtTx, signingKey);
+      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
 
       return innerTxHash;
     } catch (e) {
@@ -704,20 +625,20 @@ export class KeyRing {
   }
 
   async submitUnbond(
-    unbondMsg: Uint8Array,
-    txMsg: Uint8Array
+    unbondMsg: UnbondMsgValue,
+    txMsg: TxMsgValue
   ): Promise<string> {
     await this.vaultService.assertIsUnlocked();
-    const sdk = await this.sdkService.getSdk();
+    const sdk = this.sdkService.getSdk();
     try {
-      const { source } = deserialize(Buffer.from(unbondMsg), UnbondMsgValue);
+      const { source } = unbondMsg;
       const signingKey = await this.getSigningKey(source);
 
-      await sdk.reveal_pk(signingKey, txMsg);
+      await sdk.tx.revealPk(signingKey, txMsg);
 
-      const builtTx = await sdk.build_unbond(unbondMsg, txMsg);
-      const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
-      const innerTxHash: string = await sdk.process_tx(txBytes, txMsg);
+      const builtTx = await sdk.tx.buildUnbond(txMsg, unbondMsg);
+      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
+      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
 
       return innerTxHash;
     } catch (e) {
@@ -726,23 +647,20 @@ export class KeyRing {
   }
 
   async submitWithdraw(
-    withdrawMsg: Uint8Array,
-    txMsg: Uint8Array
+    withdrawMsg: WithdrawMsgValue,
+    txMsg: TxMsgValue
   ): Promise<string> {
     await this.vaultService.assertIsUnlocked();
-    const sdk = await this.sdkService.getSdk();
+    const sdk = this.sdkService.getSdk();
     try {
-      const { source } = deserialize(
-        Buffer.from(withdrawMsg),
-        WithdrawMsgValue
-      );
+      const { source } = withdrawMsg;
       const signingKey = await this.getSigningKey(source);
 
-      await sdk.reveal_pk(signingKey, txMsg);
+      await sdk.tx.revealPk(signingKey, txMsg);
 
-      const builtTx = await sdk.build_withdraw(withdrawMsg, txMsg);
-      const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
-      const innerTxHash: string = await sdk.process_tx(txBytes, txMsg);
+      const builtTx = await sdk.tx.buildWithdraw(txMsg, withdrawMsg);
+      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
+      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
 
       return innerTxHash;
     } catch (e) {
@@ -751,24 +669,21 @@ export class KeyRing {
   }
 
   async submitVoteProposal(
-    voteProposalMsg: Uint8Array,
-    txMsg: Uint8Array
+    voteProposalMsg: VoteProposalMsgValue,
+    txMsg: TxMsgValue
   ): Promise<string> {
     await this.vaultService.assertIsUnlocked();
-    const sdk = await this.sdkService.getSdk();
+    const sdk = this.sdkService.getSdk();
     try {
-      const { signer } = deserialize(
-        Buffer.from(voteProposalMsg),
-        VoteProposalMsgValue
-      );
+      const { signer } = voteProposalMsg;
       const signingKey = await this.getSigningKey(signer);
 
-      await sdk.reveal_pk(signingKey, txMsg);
+      await sdk.tx.revealPk(signingKey, txMsg);
 
-      const builtTx = await sdk.build_vote_proposal(voteProposalMsg, txMsg);
-
-      const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
-      const innerTxHash: string = await sdk.process_tx(txBytes, txMsg);
+      const builtTx = await sdk.tx.buildVoteProposal(txMsg, voteProposalMsg);
+      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
+      await sdk.rpc.broadcastTx(signedTx);
+      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
 
       return innerTxHash;
     } catch (e) {
@@ -811,23 +726,20 @@ export class KeyRing {
   }
 
   async submitIbcTransfer(
-    ibcTransferMsg: Uint8Array,
-    txMsg: Uint8Array
+    ibcTransferMsg: IbcTransferMsgValue,
+    txMsg: TxMsgValue
   ): Promise<string> {
     await this.vaultService.assertIsUnlocked();
-    const sdk = await this.sdkService.getSdk();
+    const sdk = this.sdkService.getSdk();
     try {
-      const { source } = deserialize(
-        Buffer.from(ibcTransferMsg),
-        IbcTransferMsgValue
-      );
+      const { source } = ibcTransferMsg;
       const signingKey = await this.getSigningKey(source);
 
-      await sdk.reveal_pk(signingKey, txMsg);
+      await sdk.tx.revealPk(signingKey, txMsg);
 
-      const builtTx = await sdk.build_ibc_transfer(ibcTransferMsg, txMsg);
-      const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
-      const innerTxHash: string = await sdk.process_tx(txBytes, txMsg);
+      const builtTx = await sdk.tx.buildIbcTransfer(txMsg, ibcTransferMsg);
+      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
+      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
 
       return innerTxHash;
     } catch (e) {
@@ -836,26 +748,23 @@ export class KeyRing {
   }
 
   async submitEthBridgeTransfer(
-    ethBridgeTransferMsg: Uint8Array,
-    txMsg: Uint8Array
+    ethBridgeTransferMsg: EthBridgeTransferMsgValue,
+    txMsg: TxMsgValue
   ): Promise<string> {
     await this.vaultService.assertIsUnlocked();
-    const sdk = await this.sdkService.getSdk();
+    const sdk = this.sdkService.getSdk();
     try {
-      const { sender } = deserialize(
-        Buffer.from(ethBridgeTransferMsg),
-        EthBridgeTransferMsgValue
-      );
+      const { sender } = ethBridgeTransferMsg;
       const signingKey = await this.getSigningKey(sender);
 
-      await sdk.reveal_pk(signingKey, txMsg);
+      await sdk.tx.revealPk(signingKey, txMsg);
 
-      const builtTx = await sdk.build_eth_bridge_transfer(
-        ethBridgeTransferMsg,
-        txMsg
+      const builtTx = await sdk.tx.buildEthBridgeTransfer(
+        txMsg,
+        ethBridgeTransferMsg
       );
-      const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
-      const innerTxHash: string = await sdk.process_tx(txBytes, txMsg);
+      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
+      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
 
       return innerTxHash;
     } catch (e) {
@@ -911,10 +820,10 @@ export class KeyRing {
     owner: string,
     tokens: string[]
   ): Promise<{ token: string; amount: string }[]> {
-    const query = await this.sdkService.getQuery();
+    const query = this.sdkService.getQuery();
 
     try {
-      return (await query.query_balance(owner, tokens)).map(
+      return (await query.queryBalance(owner, tokens)).map(
         ([token, amount]: [string, string]) => {
           return {
             token,
@@ -929,8 +838,8 @@ export class KeyRing {
   }
 
   async queryPublicKey(address: string): Promise<string | undefined> {
-    const query = await this.sdkService.getQuery();
-    return await query.query_public_key(address);
+    const query = this.sdkService.getQuery();
+    return await query.queryPublicKey(address);
   }
 
   async signArbitrary(
@@ -940,8 +849,8 @@ export class KeyRing {
     await this.vaultService.assertIsUnlocked();
 
     const key = await this.getSigningKey(signer);
-    const sdk = await this.sdkService.getSdk();
-    const [hash, signature] = sdk.sign_arbitrary(key, data);
+    const sdk = this.sdkService.getSdk();
+    const [hash, signature] = sdk.signing.signArbitrary(key, data);
 
     return { hash, signature };
   }

@@ -29,7 +29,10 @@
       "@namada/types/*": ["../../../packages/types/src/*"],
 
       "@namada/utils": ["../../../packages/utils/src"],
-      "@namada/utils/*": ["../../../packages/utils/src/*"]
+      "@namada/utils/*": ["../../../packages/utils/src/*"],
+
+      "@namada/sdk/web": ["../../../packages/sdk/src/indexWeb.ts"],
+      "@namada/sdk/node": ["../../../packages/sdk/src/indexNode.ts"],
     }
   }
 }
