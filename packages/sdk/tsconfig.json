@@ -10,8 +10,6 @@
     "isolatedModules": true,
     // "dom" is needed for  WebAssembly typings
     "lib": ["esnext", "dom"],
-    "module": "esnext",
-    "moduleResolution": "node",
     "noEmit": false,
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
@@ -22,10 +20,5 @@
   },
   "include": ["src/**/*.ts", "examples/**/*.ts"],
   "exclude": ["node_modules"],
-  "typeRoots": ["./node_modules/@types"],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "commonjs"
-    }
-  },
+  "typeRoots": ["./node_modules/@types"]
 }

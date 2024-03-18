@@ -12,6 +12,12 @@ import { ACTIVE_ACCOUNT, keyStore, password } from "./data.mock";
 // Needed for now as utils import webextension-polyfill directly
 jest.mock("webextension-polyfill", () => ({}));
 
+jest.mock("@namada/sdk/web-init", () => ({
+  init: jest.fn().mockImplementation(() => ({
+    cryptoMemory: jest.requireActual("@namada/sdk/node-init").initSync(),
+  })),
+}));
+
 describe("Namada", () => {
   let namada: Namada;
   let vaultStorage: VaultStorage;

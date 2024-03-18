@@ -42,6 +42,12 @@ jest.mock("@namada/utils", () => {
   };
 });
 
+jest.mock("@namada/sdk/web-init", () => ({
+  init: jest.fn().mockImplementation(() => ({
+    cryptoMemory: jest.requireActual("@namada/sdk/node-init").initSync(),
+  })),
+}));
+
 describe("approvals service", () => {
   let service: ApprovalsService;
   let keyRingService: jest.Mocked<KeyRingService>;

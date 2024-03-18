@@ -1,14 +1,44 @@
-/* !!!Make sure that indexNode.ts and indexWeb.ts always have the same API !!! */
-
-import { Sdk } from "@namada/shared";
+import { Query as QueryWasm, Sdk as SdkWasm } from "@namada/shared";
 import { webcrypto } from "node:crypto";
+import { Sdk } from "./sdk";
 export * from "./index";
-
-export { default as initSync } from "./initSync";
-
-export const initAsync = async (): Promise<Sdk> => {
-  throw new Error("initAsync is not supported in Node.js");
-};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (globalThis as any).crypto = webcrypto;
+
+/**
+ * Get the SDK instance
+ * @async
+ * @param {WebAssembly.Memory} cryptoMemory - WebAssembly.Memory of crypto package
+ * @param {string} url - URL of the node
+ * @param {string} [token] - Native token of the chain
+ * @throws {Error} - Unable to Query native token
+ * @returns {Promise<Sdk>} - Sdk instance
+ */
+export async function getSdk(
+  cryptoMemory: WebAssembly.Memory,
+  url: string,
+  token?: string
+): Promise<Sdk> {
+  // Instantiate QueryWasm
+  const query = new QueryWasm(url);
+
+  let nativeToken: string = "";
+
+  // Token not provided, make an attempt to query it
+  if (!token) {
+    try {
+      const result = await query.query_native_token();
+      nativeToken = result;
+    } catch (e) {
+      // Raise exception if query is required but native token cannot be determined
+      throw new Error(`Unable to Query native token! ${e}`);
+    }
+  } else {
+    nativeToken = token;
+  }
+
+  // Instantiate SdkWasm
+  const sdk = new SdkWasm(url, nativeToken);
+  return new Sdk(sdk, query, cryptoMemory, url, nativeToken);
+}

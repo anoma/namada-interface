@@ -3,39 +3,54 @@
   "version": "0.2.4",
   "description": "Namada SDK package",
   "exports": {
-    "./nodejs": "./dist/index.cjs",
-    "./web": "./dist/index.js"
+    "./web": {
+      "import": "./dist/web/sdk/src/indexWeb.js",
+      "types": "./dist/web/sdk/src/indexWeb.d.ts"
+    },
+    "./web-init": {
+      "import": "./dist/web/sdk/src/initWeb.js",
+      "types": "./dist/web/sdk/src/initWeb.d.ts"
+    },
+    "./node": {
+      "require": "./dist/node/sdk/src/indexNode.js",
+      "types": "./dist/node/sdk/src/indexNode.d.ts"
+    },
+    "./node-init": {
+      "require": "./dist/node/sdk/src/initNode.js",
+      "types": "./dist/node/sdk/src/initNode.d.ts"
+    }
   },
-  "types": "./dist/index.d.ts",
   "repository": "https://github.com/anoma/namada-interface/",
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
+  "scriptsComments": {
+    "bundle-dts": "TODO: We bundle dts based on indexWeb.d.ts, but it should have the same api as indexNode.d.ts",
+    "wasm:node:cp": "We need to copy wasm to the shared in dist folder, so it can be imported correctly in node"
+  },
   "scripts": {
     "prebuild": "rimraf ./dist",
-    "build:web": "yarn wasm:build:dev && webpack-cli --config webpack.web.js",
-    "build:node": "yarn wasm:build:node:dev && webpack-cli --config webpack.node.js",
-    "build": "yarn prebuild && yarn build:web && yarn build:node && yarn bundle-dts",
-    "bundle-dts:web": "dts-bundle-generator --no-check --project tsconfig.webpack.json -o dist/index.d.ts dist/dts/sdk/src/indexWeb.d.ts",
-    "bundle-dts": "yarn bundle-dts:web && rimraf dist/dts",
+    "wasm:node:cp": "cp -r ../shared/src/shared/*.wasm ./dist/node/shared/src/shared && cp -r ../crypto/src/crypto/*.wasm ./dist/node/crypto/src/crypto",
+    "wasm:web:cp": "cp -r ../shared/src/shared/*.wasm ./dist && cp -r ../crypto/src/crypto/*.wasm ./dist",
+    "wasm:web:rename": "mv ./dist/shared_bg.wasm ./dist/shared.namada.wasm && mv ./dist/crypto_bg.wasm ./dist/crypto.namada.wasm",
+    "build:web": "yarn wasm:build:dev && tspc -p tsconfig.web.json && yarn wasm:web:cp && yarn wasm:web:rename",
+    "build:node": "yarn wasm:build:node:dev && tspc -p tsconfig.node.json && yarn wasm:node:cp",
+    "build": "yarn prebuild && yarn build:web && yarn build:node",
     "example": "ts-node -r tsconfig-paths/register ./examples/index.ts",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0",
-    "wasm:build": "node ./scripts/build.js --release",
-    "wasm:build:multicore": "node ./scripts/build.js --release --multicore",
-    "wasm:build:dev": "node ./scripts/build.js",
-    "wasm:build:dev:multicore": "node ./scripts/build.js --multicore",
-    "wasm:build:node": "node ./scripts/build.js --node --release",
-    "wasm:build:node:dev": "node ./scripts/build.js --node",
-    "wasm:build:node:dev:multicore": "node ./scripts/build.js --node --multicore",
+    "wasm:build": "node ./scripts/build.cjs --release",
+    "wasm:build:multicore": "node ./scripts/build.cjs --release --multicore",
+    "wasm:build:dev": "node ./scripts/build.cjs",
+    "wasm:build:dev:multicore": "node ./scripts/build.cjs --multicore",
+    "wasm:build:node": "node ./scripts/build.cjs --node --release",
+    "wasm:build:node:dev": "node ./scripts/build.cjs --node",
+    "wasm:build:node:dev:multicore": "node ./scripts/build.cjs --node --multicore",
     "build:docs": "npx jsdoc2md --files ./src/**/*.ts --configure ./jsdoc2md.json > ./docs/api.md",
     "test": "./scripts/build-node.sh && yarn jest",
     "test:cov": "./scripts/build-node.sh && yarn jest --coverage",
     "test:watch": "./scripts/build-node.sh && yarn jest --watchAll=true",
     "test:ci": "jest"
-  },
-  "scriptsComments": {
-    "bundle-dts": "TODO: We bundle dts based on indexWeb.d.ts, but it should have the same api as indexNode.d.ts"
   },
   "dependencies": {
     "@cosmjs/encoding": "^0.29.0",
@@ -45,6 +60,8 @@
     "@ledgerhq/hw-transport-webusb": "^6.28.0",
     "@zondax/ledger-namada": "^0.0.4",
     "bignumber.js": "^9.1.1",
+    "buffer": "^6.0.3",
+    "slip44": "^3.0.18",
     "typescript": "^5.1.3"
   },
   "devDependencies": {
@@ -57,6 +74,7 @@
     "@release-it/conventional-changelog": "^8.0.1",
     "@types/jest": "^29.0.3",
     "@types/node": "^20.11.4",
+    "@zerollup/ts-transform-paths": "^1.7.18",
     "babel-jest": "^29.0.3",
     "dts-bundle-generator": "^9.3.1",
     "eslint": "^8.49.0",
@@ -73,6 +91,8 @@
     "ts-jest": "^29.0.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
+    "ts-patch": "^3.1.2",
+    "typescript-transform-paths": "^3.4.7",
     "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4"
   },

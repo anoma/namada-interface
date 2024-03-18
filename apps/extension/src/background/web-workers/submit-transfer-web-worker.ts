@@ -1,4 +1,5 @@
-import { initAsync } from "@namada/sdk/web";
+import { getSdk } from "@namada/sdk/web";
+import sdkInit from "@namada/sdk/web-init";
 import {
   INIT_MSG,
   SubmitTransferMessageData,
@@ -8,6 +9,7 @@ import {
 } from "./types";
 
 (async function init() {
+  const { cryptoMemory } = await sdkInit();
   addEventListener(
     "message",
     async ({ data }: { data: SubmitTransferMessageData }) => {
@@ -18,14 +20,8 @@ import {
           nativeToken,
         } = data;
         const { txMsg } = data;
-        console.log(
-          "submit-transfer-web-worker.ts: txMsg",
-          txMsg,
-          data.transferMsg
-        );
 
-        //TODO: CHeck if it is fine to uinit every time
-        const sdk = await initAsync(rpc, nativeToken);
+        const sdk = await getSdk(cryptoMemory, rpc, nativeToken);
         await sdk.masp.loadMaspParams();
         // For transparent transactions we have to reveal the public key.
         if (privateKey) {

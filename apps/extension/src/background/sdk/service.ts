@@ -1,5 +1,6 @@
 import { chains } from "@namada/chains";
-import { Rpc, Sdk, initAsync } from "@namada/sdk/web";
+import { Rpc, Sdk, getSdk } from "@namada/sdk/web";
+import init from "@namada/sdk/web-init";
 import { LocalStorage } from "storage";
 
 const {
@@ -14,7 +15,8 @@ export class SdkService {
   static async init(localStorage: LocalStorage): Promise<SdkService> {
     const chain = (await localStorage.getChain()) || chains.namada;
     const token = chain.currency.address || tokenAddress;
-    const sdk = await initAsync(chain.rpc, token);
+    const { cryptoMemory } = await init();
+    const sdk = await getSdk(cryptoMemory, chain.rpc, token);
 
     return new SdkService(sdk);
   }

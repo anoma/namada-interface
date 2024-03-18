@@ -16,9 +16,6 @@
       "@namada/integrations": ["../../../packages/integrations/src"],
       "@namada/integrations/*": ["../../../packages/integrations/src/*"],
 
-      "@namada/sdk": ["../../../packages/sdk/src"],
-      "@namada/sdk/*": ["../../../packages/sdk/src/*"],
-
       "@namada/shared": ["../../../packages/shared/src"],
       "@namada/shared/*": ["../../../packages/shared/src/*"],
 
@@ -32,7 +29,10 @@
       "@namada/utils/*": ["../../../packages/utils/src/*"],
 
       "@namada/sdk/web": ["../../../packages/sdk/src/indexWeb.ts"],
+      "@namada/sdk/web-init": ["../../../packages/sdk/src/initWeb.ts"],
+
       "@namada/sdk/node": ["../../../packages/sdk/src/indexNode.ts"],
+      "@namada/sdk/node-init": ["../../../packages/sdk/src/initNode.ts"]
     }
   }
 }

@@ -5,6 +5,12 @@ import { KeyStore, VaultStorage } from "./VaultStorage";
 
 jest.mock("webextension-polyfill", () => ({}));
 
+jest.mock("@namada/sdk/web-init", () => ({
+  init: jest.fn().mockImplementation(() => ({
+    cryptoMemory: jest.requireActual("@namada/sdk/node-init").initSync(),
+  })),
+}));
+
 describe("VaultStorage", () => {
   let vaultStorage: VaultStorage;
 

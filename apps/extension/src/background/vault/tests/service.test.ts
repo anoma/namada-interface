@@ -10,6 +10,12 @@ import { SessionPassword } from "../types";
 const cryptoMemory = require("@namada/crypto").__wasm.memory;
 jest.mock("webextension-polyfill", () => ({}));
 
+jest.mock("@namada/sdk/web-init", () => ({
+  init: jest.fn().mockImplementation(() => ({
+    cryptoMemory: jest.requireActual("@namada/sdk/node-init").initSync(),
+  })),
+}));
+
 type VaultPublicObj = { id: string; alias: string };
 type VaultSensitiveValue = { bar: string };
 
