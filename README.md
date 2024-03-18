@@ -6,6 +6,8 @@
 
 See our `specs` for more detailed documentation in [/specs](https://github.com/anoma/namada-interface/blob/main/specs)
 
+If you would like to contribute, please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+
 - [Installation](#installation)
   - [Ubuntu Linux](#ubuntu)
   - [macOS](#macos)
