@@ -6,11 +6,7 @@ import { GoStack } from "react-icons/go";
 import { IoSwapHorizontal } from "react-icons/io5";
 import { SidebarMenuItem } from "../SidebarMenuItem/SidebarMenuItem";
 
-type Props = {
-  a?: boolean;
-};
-
-export const Sidebar = (props: Props): JSX.Element => {
+export const Sidebar = (): JSX.Element => {
   return (
     <div className="h-full flex flex-col justify-between flex-1 pt-6 pb-8 px-6">
       <ul className="flex flex-col gap-4">
