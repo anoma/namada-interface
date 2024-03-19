@@ -1,4 +1,4 @@
-import { Heading, Panel, Stack } from "@namada/components";
+import { Heading, Stack } from "@namada/components";
 import {
   GoArrowLeft,
   GoCheckCircle,
@@ -10,6 +10,7 @@ import {
   GoUnlock,
 } from "react-icons/go";
 import { Color } from "./Color";
+import { Panel } from "./Panel";
 import { Section } from "./Section";
 
 export const CheatSheet = (): JSX.Element => {
