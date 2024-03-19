@@ -47,9 +47,9 @@
     "wasm:build:node:dev": "node ./scripts/build.cjs --node",
     "wasm:build:node:dev:multicore": "node ./scripts/build.cjs --node --multicore",
     "build:docs": "npx jsdoc2md --files ./src/**/*.ts --configure ./jsdoc2md.json > ./docs/api.md",
-    "test": "./scripts/build-node.sh && yarn jest",
-    "test:cov": "./scripts/build-node.sh && yarn jest --coverage",
-    "test:watch": "./scripts/build-node.sh && yarn jest --watchAll=true",
+    "test": "yarn wasm:build:node:dev && yarn jest",
+    "test:cov": "yarn wasm:build:node:dev && yarn jest --coverage",
+    "test:watch": "yarn wasm:build:node:dev && yarn jest --watchAll=true",
     "test:ci": "jest"
   },
   "dependencies": {
@@ -90,8 +90,8 @@
     "rimraf": "^5.0.5",
     "ts-jest": "^29.0.1",
     "ts-node": "^10.9.1",
-    "tsconfig-paths": "^4.2.0",
     "ts-patch": "^3.1.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript-transform-paths": "^3.4.7",
     "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4"
