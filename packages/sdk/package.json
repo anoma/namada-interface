@@ -28,12 +28,16 @@
     "wasm:node:cp": "We need to copy wasm to the shared in dist folder, so it can be imported correctly in node"
   },
   "scripts": {
+    "prepublish": "yarn workspaces focus @namada/sdk && yarn build",
+    "release": "yarn prepublish && release-it --verbose --ci",
+    "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
+    "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish --ci",
     "prebuild": "rimraf ./dist",
     "wasm:node:cp": "cp -r ../shared/src/shared/*.wasm ./dist/node/shared/src/shared && cp -r ../crypto/src/crypto/*.wasm ./dist/node/crypto/src/crypto",
     "wasm:web:cp": "cp -r ../shared/src/shared/*.wasm ./dist && cp -r ../crypto/src/crypto/*.wasm ./dist",
     "wasm:web:rename": "mv ./dist/shared_bg.wasm ./dist/shared.namada.wasm && mv ./dist/crypto_bg.wasm ./dist/crypto.namada.wasm",
-    "build:web": "yarn wasm:build:dev && tspc -p tsconfig.web.json && yarn wasm:web:cp && yarn wasm:web:rename",
-    "build:node": "yarn wasm:build:node:dev && tspc -p tsconfig.node.json && yarn wasm:node:cp",
+    "build:web": "yarn wasm:build && tspc -p tsconfig.web.json && yarn wasm:web:cp && yarn wasm:web:rename",
+    "build:node": "yarn wasm:build:node && tspc -p tsconfig.node.json && yarn wasm:node:cp",
     "build": "yarn prebuild && yarn build:web && yarn build:node",
     "example": "ts-node -r tsconfig-paths/register ./examples/index.ts",
     "lint": "eslint src --ext .ts,.tsx",
