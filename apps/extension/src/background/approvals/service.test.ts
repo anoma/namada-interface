@@ -42,11 +42,11 @@ jest.mock("@namada/utils", () => {
   };
 });
 
-jest.mock("@namada/sdk/web-init", () => ({
-  init: jest.fn().mockImplementation(() => ({
-    cryptoMemory: jest.requireActual("@namada/sdk/node-init").initSync(),
-  })),
-}));
+jest.mock(
+  "@namada/sdk/web-init",
+  () => () =>
+    Promise.resolve(jest.requireActual("@namada/sdk/node-init").default())
+);
 
 describe("approvals service", () => {
   let service: ApprovalsService;
