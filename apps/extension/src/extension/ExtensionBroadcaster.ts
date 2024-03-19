@@ -1,5 +1,4 @@
 import { TxType } from "@namada/shared";
-import { TabStore, syncTabs } from "background/keyring";
 import {
   AccountChangedEventMsg,
   ConnectionRevokedEventMsg,
@@ -68,10 +67,10 @@ export class ExtensionBroadcaster {
    * Query all existing tabs, and send provided message to each
    */
   async sendMsgToTabs(msg: Message<unknown>): Promise<void> {
-    const tabs = await syncTabs(this.localStorage, this.requester);
+    const tabIds = await this.requester.queryBrowserTabIds();
 
     try {
-      tabs?.forEach(({ tabId }: TabStore) => {
+      tabIds.forEach((tabId: number) => {
         // We do not care about the result or the order of sendMessageToTab
         void this.requester.sendMessageToTab(tabId, Ports.WebBrowser, msg);
       });

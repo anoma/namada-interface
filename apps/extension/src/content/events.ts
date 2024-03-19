@@ -1,6 +1,6 @@
-import { Events } from "@namada/types";
-
 import { TxType } from "@namada/shared";
+import { Events } from "@namada/types";
+import { LocalStorage } from "storage";
 import { Message, Router, Routes } from "../router";
 
 // Used by Firefox to copy the object from the content script scope to the
@@ -221,7 +221,7 @@ export class ConnectionRevokedEventMsg extends Message<void> {
   }
 }
 
-export function initEvents(router: Router): void {
+export function initEvents(router: Router, localStorage: LocalStorage): void {
   router.registerMessage(AccountChangedEventMsg);
   router.registerMessage(NetworkChangedEventMsg);
   router.registerMessage(UpdatedBalancesEventMsg);
@@ -232,11 +232,18 @@ export function initEvents(router: Router): void {
   router.registerMessage(VaultLockedEventMsg);
   router.registerMessage(ConnectionRevokedEventMsg);
 
-  router.addHandler(Routes.InteractionForeground, (_, msg) => {
+  router.addHandler(Routes.InteractionForeground, async (_, msg) => {
     const clonedMsg =
       typeof cloneInto !== "undefined"
         ? cloneInto(msg, document.defaultView)
         : msg;
+
+    if (msg.constructor !== ConnectionRevokedEventMsg) {
+      const approvedOrigins = (await localStorage.getApprovedOrigins()) || [];
+      if (!approvedOrigins.includes(origin)) {
+        return;
+      }
+    }
 
     switch (msg.constructor) {
       case AccountChangedEventMsg:

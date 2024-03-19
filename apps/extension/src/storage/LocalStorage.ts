@@ -61,20 +61,15 @@ type NamadaExtensionApprovedOriginsType = t.TypeOf<
 const NamadaExtensionRouterId = t.number;
 type NamadaExtensionRouterIdType = t.TypeOf<typeof NamadaExtensionRouterId>;
 
-const Tabs = t.array(t.type({ tabId: t.number, timestamp: t.number }));
-type TabsType = t.TypeOf<typeof Tabs>;
-
 type LocalStorageTypes =
   | ChainType
   | NamadaExtensionApprovedOriginsType
-  | NamadaExtensionRouterIdType
-  | TabsType;
+  | NamadaExtensionRouterIdType;
 
 type LocalStorageSchemas =
   | typeof Chain
   | typeof NamadaExtensionApprovedOrigins
-  | typeof NamadaExtensionRouterId
-  | typeof Tabs;
+  | typeof NamadaExtensionRouterId;
 
 export type LocalStorageKeys =
   | "chains"
@@ -86,7 +81,6 @@ const schemasMap = new Map<LocalStorageSchemas, LocalStorageKeys>([
   [Chain, "chains"],
   [NamadaExtensionApprovedOrigins, "namadaExtensionApprovedOrigins"],
   [NamadaExtensionRouterId, "namadaExtensionRouterId"],
-  [Tabs, "tabs"],
 ]);
 
 export class LocalStorage extends ExtStorage {
@@ -153,22 +147,6 @@ export class LocalStorage extends ExtStorage {
 
   async setRouterId(id: NamadaExtensionRouterIdType): Promise<void> {
     await this.setRaw(this.getKey(NamadaExtensionRouterId), id);
-  }
-
-  async getTabs(): Promise<TabsType | undefined> {
-    const data = await this.getRaw(this.getKey(Tabs));
-    const Schema = t.union([Tabs, t.undefined]);
-    const decodedData = Schema.decode(data);
-
-    if (E.isLeft(decodedData)) {
-      throw new Error("Tabs are not valid");
-    }
-
-    return decodedData.right;
-  }
-
-  async setTabs(tabs: TabsType): Promise<void> {
-    await this.setRaw(this.getKey(Tabs), tabs);
   }
 
   private async setApprovedOrigins(

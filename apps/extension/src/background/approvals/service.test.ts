@@ -692,7 +692,6 @@ describe("approvals service", () => {
           reject: jest.fn(),
         },
       };
-      jest.spyOn(keyRingService, "connect").mockResolvedValue();
       jest.spyOn(localStorage, "addApprovedOrigin").mockResolvedValue();
 
       await service.approveConnectionResponse(
@@ -703,7 +702,6 @@ describe("approvals service", () => {
       );
 
       expect(service["resolverMap"][popupTabId].resolve).toHaveBeenCalled();
-      expect(keyRingService.connect).toHaveBeenCalledWith(interfaceTabId);
       expect(localStorage.addApprovedOrigin).toHaveBeenCalledWith(
         interfaceOrigin
       );
@@ -739,28 +737,6 @@ describe("approvals service", () => {
         interfaceTabId,
         interfaceOrigin,
         false,
-        popupTabId
-      );
-
-      expect(service["resolverMap"][popupTabId].reject).toHaveBeenCalled();
-    });
-
-    it("should reject the key ring can't connect", async () => {
-      const interfaceTabId = 999;
-      const interfaceOrigin = "origin";
-      const popupTabId = 1;
-      service["resolverMap"] = {
-        [popupTabId]: {
-          resolve: jest.fn(),
-          reject: jest.fn(),
-        },
-      };
-      jest.spyOn(keyRingService, "connect").mockRejectedValue("Can't connect");
-
-      await service.approveConnectionResponse(
-        interfaceTabId,
-        interfaceOrigin,
-        true,
         popupTabId
       );
 

@@ -38,7 +38,6 @@ import {
   SigningKey,
   UtilityStore,
 } from "./types";
-import { syncTabs, updateTabStorage } from "./utils";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
@@ -66,13 +65,6 @@ export class KeyRingService {
       utilityStore,
       cryptoMemory
     );
-  }
-
-  // Track connected tabs by ID
-  async connect(senderTabId: number): Promise<void> {
-    const tabs = await syncTabs(this.localStorage, this.requester);
-
-    return await updateTabStorage(senderTabId, tabs, this.localStorage);
   }
 
   async generateMnemonic(size?: PhraseSize): Promise<string[]> {

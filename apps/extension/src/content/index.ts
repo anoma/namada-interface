@@ -41,7 +41,7 @@ const init = new Promise<void>(async (resolve) => {
 router.listen(Ports.WebBrowser, init);
 router.addGuard(ContentScriptGuards.checkMessageIsInternal);
 
-initEvents(router);
+initEvents(router, localStorage);
 
 // Insert a script element to load injection script
 const container = document.head || document.documentElement;

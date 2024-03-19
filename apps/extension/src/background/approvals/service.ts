@@ -393,7 +393,6 @@ export class ApprovalsService {
 
     if (allowConnection) {
       try {
-        await this.keyRingService.connect(interfaceTabId);
         await this.localStorage.addApprovedOrigin(interfaceOrigin);
       } catch (e) {
         resolvers.reject(e);
