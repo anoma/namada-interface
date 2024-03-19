@@ -3,10 +3,9 @@ import { deserialize } from "@dao-xyz/borsh";
 import { ResponseSign } from "@zondax/ledger-namada";
 
 import { chains } from "@namada/chains";
-import { TxType } from "@namada/sdk/web";
+import { TxType, makeBip44Path } from "@namada/sdk/web";
 import { KVStore } from "@namada/storage";
 import { AccountType, TxMsgValue } from "@namada/types";
-import { makeBip44Path } from "@namada/utils";
 import { TxStore } from "background/approvals";
 import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";

@@ -1,6 +1,7 @@
 import { Query as QueryWasm, Sdk as SdkWasm } from "@namada/shared";
 import { Sdk } from "./index";
 export * from "./index";
+export * from "./utils";
 
 /**
  * Get the SDK instance

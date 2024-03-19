@@ -14,7 +14,7 @@ import {
   public_key_to_bech32,
 } from "@namada/shared";
 import { Bip44Path } from "@namada/types";
-import { makeBip44PathArray, makeSaplingPathArray } from "@namada/utils";
+import { makeBip44PathArray, makeSaplingPathArray } from "../utils";
 import { Address, ShieldedKeys, TransparentKeys } from "./types";
 
 const DEFAULT_PATH: Bip44Path = {

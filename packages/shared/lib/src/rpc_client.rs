@@ -135,6 +135,7 @@ impl Client for HttpClient {
     {
         let request_body = request.into_json();
 
+        // TODO: Use reqwest instead of fetch
         // let res = reqwest::Client::new()
         //     .post(&self.url[..])
         //     .body(request_body)

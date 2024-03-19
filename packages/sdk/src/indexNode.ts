@@ -2,6 +2,7 @@ import { Query as QueryWasm, Sdk as SdkWasm } from "@namada/shared";
 import { webcrypto } from "node:crypto";
 import { Sdk } from "./sdk";
 export * from "./index";
+export * from "./utils";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (globalThis as any).crypto = webcrypto;
