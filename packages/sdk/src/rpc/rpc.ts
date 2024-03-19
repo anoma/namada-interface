@@ -143,7 +143,9 @@ export class Rpc {
    * @returns {Promise<StakingPositions>} Promise resolving to staking positions
    */
   async queryStakingPositions(owners: string[]): Promise<StakingPositions> {
-    const [bonds, unbonds] = await this.query.query_staking_positions(owners);
+    const [bonds, unbonds]: [BondsResponse[], UnbondsResponse[]] =
+      await this.query.query_staking_positions(owners);
+
     return {
       bonds: bonds.map(
         ([owner, validator, amount, startEpoch]: BondsResponse) => ({

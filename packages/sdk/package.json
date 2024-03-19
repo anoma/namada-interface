@@ -17,7 +17,7 @@
     "wasm:build:dev": "node ./scripts/build.js",
     "wasm:build:dev:multicore": "node ./scripts/build.js --multicore",
     "wasm:build:node": "./scripts/build-node.sh",
-    "build:docs": "npx jsdoc2md --files ./src/*.ts --configure ./jsdoc2md.json > ./docs/api.md",
+    "build:docs": "npx jsdoc2md --files ./src/**/*.ts --configure ./jsdoc2md.json > ./docs/api.md",
     "test": "./scripts/build-node.sh && yarn jest",
     "test:cov": "./scripts/build-node.sh && yarn jest --coverage",
     "test:watch": "./scripts/build-node.sh && yarn jest --watchAll=true",
@@ -36,7 +36,6 @@
     "@namada/utils": "0.2.1",
     "@zondax/ledger-namada": "^0.0.4",
     "bignumber.js": "^9.1.1",
-    "bn.js": "^5.2.0",
     "typescript": "^5.1.3"
   },
   "devDependencies": {
@@ -47,7 +46,6 @@
     "@babel/preset-env": "^7.23.9",
     "@babel/preset-typescript": "^7.23.3",
     "@release-it/conventional-changelog": "^8.0.1",
-    "@types/bn.js": "^5.1.1",
     "@types/jest": "^29.0.3",
     "@types/node": "^20.11.4",
     "babel-jest": "^29.0.3",
@@ -63,7 +61,8 @@
     "release-it": "^17.0.1",
     "rimraf": "^5.0.5",
     "ts-jest": "^29.0.1",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0"
   },
   "files": [
     "dist/**/*.{js,ts,wasm}"

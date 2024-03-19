@@ -3,7 +3,6 @@ import initSync from "../src/initSync";
 /**
  *
  * @param nodeUrl
- * @param nativeToken
  * @param owner
  * @param nativeToken
  * @param token

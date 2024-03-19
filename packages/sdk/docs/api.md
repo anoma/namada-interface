@@ -1,16 +1,26 @@
 ## Classes
 
 <dl>
+<dt><a href="#Keys">Keys</a></dt>
+<dd></dd>
 <dt><a href="#Ledger">Ledger</a></dt>
 <dd><p>Functionality for interacting with NamadaApp for Ledger Hardware Wallets</p></dd>
 <dt><a href="#Masp">Masp</a></dt>
 <dd><p>Class representing utilities related to MASP</p></dd>
 <dt><a href="#Mnemonic">Mnemonic</a></dt>
 <dd><p>Class for accessing mnemonic functionality from wasm</p></dd>
+<dt><a href="#Rpc">Rpc</a></dt>
+<dd><p>API for executing RPC requests with Namada</p></dd>
 <dt><a href="#Sdk">Sdk</a></dt>
 <dd><p>API for interacting with Namada SDK</p></dd>
 <dt><a href="#Signing">Signing</a></dt>
 <dd><p>Non-Tx signing functions</p></dd>
+<dt><a href="#Tx">Tx</a></dt>
+<dd><p>SDK functionality related to transactions</p></dd>
+<dt><a href="#EncodedTx">EncodedTx</a></dt>
+<dd><p>Wrap results of tx building along with TxMsg</p></dd>
+<dt><a href="#SignedTx">SignedTx</a></dt>
+<dd></dd>
 </dl>
 
 ## Members
@@ -18,6 +28,8 @@
 <dl>
 <dt><a href="#initLedgerUSBTransport">initLedgerUSBTransport</a> ⇒ <code>Transport</code></dt>
 <dd><p>Initialize HID transport</p></dd>
+<dt><a href="#EncodedTx">EncodedTx</a></dt>
+<dd><p>Wrap results of tx signing to simplify passing between Sdk functions</p></dd>
 </dl>
 
 ## Functions
@@ -31,6 +43,91 @@ this library in web applications.</p></dd>
 <dt><a href="#initLedgerUSBTransport">initLedgerUSBTransport()</a> ⇒ <code>Transport</code></dt>
 <dd><p>Initialize USB transport</p></dd>
 </dl>
+
+<a name="Keys"></a>
+
+## Keys
+**Kind**: global class  
+
+* [Keys](#Keys)
+    * [new Keys(cryptoMemory)](#new_Keys_new)
+    * [.getAddress(privateKey)](#Keys+getAddress) ⇒
+    * [.fromPrivateKey(privateKey)](#Keys+fromPrivateKey) ⇒
+    * [.deriveFromMnemonic(phrase, [path], [passphrase])](#Keys+deriveFromMnemonic) ⇒
+    * [.deriveFromSeed(seed, [path])](#Keys+deriveFromSeed) ⇒
+    * [.deriveShielded(seed, [path])](#Keys+deriveShielded) ⇒
+
+<a name="new_Keys_new"></a>
+
+### new Keys(cryptoMemory)
+
+| Param | Description |
+| --- | --- |
+| cryptoMemory | <p>Memory accessor for crypto lib</p> |
+
+<a name="Keys+getAddress"></a>
+
+### keys.getAddress(privateKey) ⇒
+<p>Get address and public key from private key</p>
+
+**Kind**: instance method of [<code>Keys</code>](#Keys)  
+**Returns**: <p>Address and public key</p>  
+
+| Param | Description |
+| --- | --- |
+| privateKey | <p>Private key</p> |
+
+<a name="Keys+fromPrivateKey"></a>
+
+### keys.fromPrivateKey(privateKey) ⇒
+<p>Get transparent keys and address from private key</p>
+
+**Kind**: instance method of [<code>Keys</code>](#Keys)  
+**Returns**: <p>Keys and address</p>  
+
+| Param | Description |
+| --- | --- |
+| privateKey | <p>Private key</p> |
+
+<a name="Keys+deriveFromMnemonic"></a>
+
+### keys.deriveFromMnemonic(phrase, [path], [passphrase]) ⇒
+<p>Derive transparent keys and address from a mnemonic and path</p>
+
+**Kind**: instance method of [<code>Keys</code>](#Keys)  
+**Returns**: <p>Keys and address</p>  
+
+| Param | Description |
+| --- | --- |
+| phrase | <p>Mnemonic phrase</p> |
+| [path] | <p>Bip44 path object</p> |
+| [passphrase] | <p>Bip39 passphrase</p> |
+
+<a name="Keys+deriveFromSeed"></a>
+
+### keys.deriveFromSeed(seed, [path]) ⇒
+<p>Derive transparent keys and address from a seed and path</p>
+
+**Kind**: instance method of [<code>Keys</code>](#Keys)  
+**Returns**: <p>Keys and address</p>  
+
+| Param | Description |
+| --- | --- |
+| seed | <p>Seed</p> |
+| [path] | <p>Bip44 path object</p> |
+
+<a name="Keys+deriveShielded"></a>
+
+### keys.deriveShielded(seed, [path]) ⇒
+<p>Derive shielded keys and address from a seed and path</p>
+
+**Kind**: instance method of [<code>Keys</code>](#Keys)  
+**Returns**: <p>Shielded keys and address</p>  
+
+| Param | Description |
+| --- | --- |
+| seed | <p>Seed</p> |
+| [path] | <p>Bip44 path object</p> |
 
 <a name="Ledger"></a>
 
@@ -245,6 +342,176 @@ for failure if invalid, otherwise return nothing</p>
 | --- | --- | --- |
 | phrase | <code>string</code> | <p>Mnemonic phrase</p> |
 
+<a name="Rpc"></a>
+
+## Rpc
+<p>API for executing RPC requests with Namada</p>
+
+**Kind**: global class  
+
+* [Rpc](#Rpc)
+    * [new Rpc(sdk, query)](#new_Rpc_new)
+    * [.queryBalance(owner, tokens)](#Rpc+queryBalance) ⇒ <code>Balance</code>
+    * [.queryNativeToken()](#Rpc+queryNativeToken) ⇒ <code>string</code>
+    * [.queryPublicKey(address)](#Rpc+queryPublicKey) ⇒ <code>string</code> \| <code>null</code>
+    * [.queryAllValidators()](#Rpc+queryAllValidators) ⇒ <code>Array.&lt;string&gt;</code>
+    * [.queryProposals()](#Rpc+queryProposals) ⇒ <code>Array.&lt;Proposal&gt;</code>
+    * [.queryTotalDelegations(owners, [epoch])](#Rpc+queryTotalDelegations) ⇒ <code>Promise.&lt;DelegationTotals&gt;</code>
+    * [.queryDelegatorsVotes(proposalId)](#Rpc+queryDelegatorsVotes) ⇒ <code>Promise.&lt;DelegatorsVotes&gt;</code>
+    * [.queryStakingTotals(owners)](#Rpc+queryStakingTotals) ⇒ <code>Promise.&lt;Array.&lt;StakingTotals&gt;&gt;</code>
+    * [.queryStakingPositions(owners)](#Rpc+queryStakingPositions) ⇒ <code>Promise.&lt;StakingPositions&gt;</code>
+    * [.queryTotalBonds(owner)](#Rpc+queryTotalBonds) ⇒ <code>Promise.&lt;number&gt;</code>
+    * [.querySignedBridgePool(owners)](#Rpc+querySignedBridgePool) ⇒ <code>Promise.&lt;Array.&lt;TransferToEthereum&gt;&gt;</code>
+    * [.queryGasCosts()](#Rpc+queryGasCosts) ⇒ <code>Promise.&lt;GasCosts&gt;</code>
+    * [.broadcastTx(signedTx)](#Rpc+broadcastTx) ⇒ <code>void</code>
+
+<a name="new_Rpc_new"></a>
+
+### new Rpc(sdk, query)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| sdk | <code>SdkWasm</code> | <p>Instance of Sdk struct from wasm lib</p> |
+| query | <code>QueryWasm</code> | <p>Instance of Query struct from wasm lib</p> |
+
+<a name="Rpc+queryBalance"></a>
+
+### rpc.queryBalance(owner, tokens) ⇒ <code>Balance</code>
+<p>Query balances from chain</p>
+
+**Kind**: instance method of [<code>Rpc</code>](#Rpc)  
+**Returns**: <code>Balance</code> - <p>[[tokenAddress, amount]]</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| owner | <code>string</code> | <p>Owner address</p> |
+| tokens | <code>Array.&lt;string&gt;</code> | <p>Array of token addresses</p> |
+
+<a name="Rpc+queryNativeToken"></a>
+
+### rpc.queryNativeToken() ⇒ <code>string</code>
+<p>Query native token from chain</p>
+
+**Kind**: instance method of [<code>Rpc</code>](#Rpc)  
+**Returns**: <code>string</code> - <p>Address of native token</p>  
+<a name="Rpc+queryPublicKey"></a>
+
+### rpc.queryPublicKey(address) ⇒ <code>string</code> \| <code>null</code>
+<p>Query public key
+Return string of public key if it has been revealed on chain, otherwise, return null</p>
+
+**Kind**: instance method of [<code>Rpc</code>](#Rpc)  
+**Returns**: <code>string</code> \| <code>null</code> - <p>String of public key if found</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| address | <code>string</code> | <p>Address to query</p> |
+
+<a name="Rpc+queryAllValidators"></a>
+
+### rpc.queryAllValidators() ⇒ <code>Array.&lt;string&gt;</code>
+<p>Query all validator addresses</p>
+
+**Kind**: instance method of [<code>Rpc</code>](#Rpc)  
+**Returns**: <code>Array.&lt;string&gt;</code> - <p>Array of all validator addresses</p>  
+<a name="Rpc+queryProposals"></a>
+
+### rpc.queryProposals() ⇒ <code>Array.&lt;Proposal&gt;</code>
+<p>Query Proposals</p>
+
+**Kind**: instance method of [<code>Rpc</code>](#Rpc)  
+**Returns**: <code>Array.&lt;Proposal&gt;</code> - <p>List of the proposals</p>  
+<a name="Rpc+queryTotalDelegations"></a>
+
+### rpc.queryTotalDelegations(owners, [epoch]) ⇒ <code>Promise.&lt;DelegationTotals&gt;</code>
+<p>Query total delegations</p>
+
+**Kind**: instance method of [<code>Rpc</code>](#Rpc)  
+**Returns**: <code>Promise.&lt;DelegationTotals&gt;</code> - <p>Promise resolving to total delegations</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| owners | <code>Array.&lt;string&gt;</code> | <p>Array of owner addresses</p> |
+| [epoch] | <code>bigint</code> | <p>delegations at epoch</p> |
+
+<a name="Rpc+queryDelegatorsVotes"></a>
+
+### rpc.queryDelegatorsVotes(proposalId) ⇒ <code>Promise.&lt;DelegatorsVotes&gt;</code>
+<p>Query delegators votes</p>
+
+**Kind**: instance method of [<code>Rpc</code>](#Rpc)  
+**Returns**: <code>Promise.&lt;DelegatorsVotes&gt;</code> - <p>Promise resolving to delegators votes</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| proposalId | <code>bigint</code> | <p>ID of the proposal</p> |
+
+<a name="Rpc+queryStakingTotals"></a>
+
+### rpc.queryStakingTotals(owners) ⇒ <code>Promise.&lt;Array.&lt;StakingTotals&gt;&gt;</code>
+<p>Query staking totals by owner addresses</p>
+
+**Kind**: instance method of [<code>Rpc</code>](#Rpc)  
+**Returns**: <code>Promise.&lt;Array.&lt;StakingTotals&gt;&gt;</code> - <p>Promise resolving to staking totals</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| owners | <code>Array.&lt;string&gt;</code> | <p>Array of owner addresses</p> |
+
+<a name="Rpc+queryStakingPositions"></a>
+
+### rpc.queryStakingPositions(owners) ⇒ <code>Promise.&lt;StakingPositions&gt;</code>
+<p>Query bond and unbond details by owner addresses</p>
+
+**Kind**: instance method of [<code>Rpc</code>](#Rpc)  
+**Returns**: <code>Promise.&lt;StakingPositions&gt;</code> - <p>Promise resolving to staking positions</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| owners | <code>Array.&lt;string&gt;</code> | <p>Array of owner addresses</p> |
+
+<a name="Rpc+queryTotalBonds"></a>
+
+### rpc.queryTotalBonds(owner) ⇒ <code>Promise.&lt;number&gt;</code>
+<p>Query total bonds by owner address</p>
+
+**Kind**: instance method of [<code>Rpc</code>](#Rpc)  
+**Returns**: <code>Promise.&lt;number&gt;</code> - <p>Total bonds amount</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| owner | <code>string</code> | <p>Owner address</p> |
+
+<a name="Rpc+querySignedBridgePool"></a>
+
+### rpc.querySignedBridgePool(owners) ⇒ <code>Promise.&lt;Array.&lt;TransferToEthereum&gt;&gt;</code>
+<p>Query pending transactions in the signed bridge pool</p>
+
+**Kind**: instance method of [<code>Rpc</code>](#Rpc)  
+**Returns**: <code>Promise.&lt;Array.&lt;TransferToEthereum&gt;&gt;</code> - <p>Promise resolving to pending ethereum transfers</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| owners | <code>Array.&lt;string&gt;</code> | <p>Array of owner addresses</p> |
+
+<a name="Rpc+queryGasCosts"></a>
+
+### rpc.queryGasCosts() ⇒ <code>Promise.&lt;GasCosts&gt;</code>
+<p>Query gas costs</p>
+
+**Kind**: instance method of [<code>Rpc</code>](#Rpc)  
+**Returns**: <code>Promise.&lt;GasCosts&gt;</code> - <p>[[tokenAddress, gasCost]]</p>  
+<a name="Rpc+broadcastTx"></a>
+
+### rpc.broadcastTx(signedTx) ⇒ <code>void</code>
+<p>Broadcast a Tx to the ledger</p>
+
+**Kind**: instance method of [<code>Rpc</code>](#Rpc)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| signedTx | [<code>SignedTx</code>](#SignedTx) | <p>Transaction with signature</p> |
+
 <a name="Sdk"></a>
 
 ## Sdk
@@ -255,16 +522,16 @@ for failure if invalid, otherwise return nothing</p>
 * [Sdk](#Sdk)
     * [new Sdk(sdk, query, cryptoMemory, url, nativeToken)](#new_Sdk_new)
     * _instance_
-        * [.rpc](#Sdk+rpc) ⇒ <code>Rpc</code>
-        * [.tx](#Sdk+tx) ⇒ <code>Tx</code>
+        * [.rpc](#Sdk+rpc) ⇒ [<code>Rpc</code>](#Rpc)
+        * [.tx](#Sdk+tx) ⇒ [<code>Tx</code>](#Tx)
         * [.mnemonic](#Sdk+mnemonic) ⇒ [<code>Mnemonic</code>](#Mnemonic)
-        * [.keys](#Sdk+keys) ⇒ <code>Keys</code>
+        * [.keys](#Sdk+keys) ⇒ [<code>Keys</code>](#Keys)
         * [.signing](#Sdk+signing) ⇒ [<code>Signing</code>](#Signing)
         * [.masp](#Sdk+masp) ⇒ [<code>Masp</code>](#Masp)
-        * [.getRpc()](#Sdk+getRpc) ⇒ <code>Rpc</code>
-        * [.getTx()](#Sdk+getTx) ⇒ <code>Tx</code>
+        * [.getRpc()](#Sdk+getRpc) ⇒ [<code>Rpc</code>](#Rpc)
+        * [.getTx()](#Sdk+getTx) ⇒ [<code>Tx</code>](#Tx)
         * [.getMnemonic()](#Sdk+getMnemonic) ⇒ [<code>Mnemonic</code>](#Mnemonic)
-        * [.getKeys()](#Sdk+getKeys) ⇒ <code>Keys</code>
+        * [.getKeys()](#Sdk+getKeys) ⇒ [<code>Keys</code>](#Keys)
         * [.getSigning()](#Sdk+getSigning) ⇒ [<code>Signing</code>](#Signing)
         * [.getMasp()](#Sdk+getMasp) ⇒ [<code>Masp</code>](#Masp)
         * [.initLedger([transport])](#Sdk+initLedger) ⇒ [<code>Ledger</code>](#Ledger)
@@ -285,18 +552,18 @@ for failure if invalid, otherwise return nothing</p>
 
 <a name="Sdk+rpc"></a>
 
-### sdk.rpc ⇒ <code>Rpc</code>
+### sdk.rpc ⇒ [<code>Rpc</code>](#Rpc)
 <p>Define rpc getter to use with destructuring assignment</p>
 
 **Kind**: instance property of [<code>Sdk</code>](#Sdk)  
-**Returns**: <code>Rpc</code> - <p>rpc client</p>  
+**Returns**: [<code>Rpc</code>](#Rpc) - <p>rpc client</p>  
 <a name="Sdk+tx"></a>
 
-### sdk.tx ⇒ <code>Tx</code>
+### sdk.tx ⇒ [<code>Tx</code>](#Tx)
 <p>Define tx getter to use with destructuring assignment</p>
 
 **Kind**: instance property of [<code>Sdk</code>](#Sdk)  
-**Returns**: <code>Tx</code> - <p>tx-related functionality</p>  
+**Returns**: [<code>Tx</code>](#Tx) - <p>tx-related functionality</p>  
 <a name="Sdk+mnemonic"></a>
 
 ### sdk.mnemonic ⇒ [<code>Mnemonic</code>](#Mnemonic)
@@ -306,11 +573,11 @@ for failure if invalid, otherwise return nothing</p>
 **Returns**: [<code>Mnemonic</code>](#Mnemonic) - <p>mnemonic-related functionality</p>  
 <a name="Sdk+keys"></a>
 
-### sdk.keys ⇒ <code>Keys</code>
+### sdk.keys ⇒ [<code>Keys</code>](#Keys)
 <p>Define keys getter to use with destructuring assignment</p>
 
 **Kind**: instance property of [<code>Sdk</code>](#Sdk)  
-**Returns**: <code>Keys</code> - <p>key-related functionality</p>  
+**Returns**: [<code>Keys</code>](#Keys) - <p>key-related functionality</p>  
 <a name="Sdk+signing"></a>
 
 ### sdk.signing ⇒ [<code>Signing</code>](#Signing)
@@ -327,18 +594,18 @@ for failure if invalid, otherwise return nothing</p>
 **Returns**: [<code>Masp</code>](#Masp) - <p>Masp utilities for handling params</p>  
 <a name="Sdk+getRpc"></a>
 
-### sdk.getRpc() ⇒ <code>Rpc</code>
+### sdk.getRpc() ⇒ [<code>Rpc</code>](#Rpc)
 <p>Return initialized Rpc class</p>
 
 **Kind**: instance method of [<code>Sdk</code>](#Sdk)  
-**Returns**: <code>Rpc</code> - <p>Namada RPC client</p>  
+**Returns**: [<code>Rpc</code>](#Rpc) - <p>Namada RPC client</p>  
 <a name="Sdk+getTx"></a>
 
-### sdk.getTx() ⇒ <code>Tx</code>
+### sdk.getTx() ⇒ [<code>Tx</code>](#Tx)
 <p>Return initialized Tx class</p>
 
 **Kind**: instance method of [<code>Sdk</code>](#Sdk)  
-**Returns**: <code>Tx</code> - <p>Tx-related functionality</p>  
+**Returns**: [<code>Tx</code>](#Tx) - <p>Tx-related functionality</p>  
 <a name="Sdk+getMnemonic"></a>
 
 ### sdk.getMnemonic() ⇒ [<code>Mnemonic</code>](#Mnemonic)
@@ -348,11 +615,11 @@ for failure if invalid, otherwise return nothing</p>
 **Returns**: [<code>Mnemonic</code>](#Mnemonic) - <p>mnemonic-related functionality</p>  
 <a name="Sdk+getKeys"></a>
 
-### sdk.getKeys() ⇒ <code>Keys</code>
+### sdk.getKeys() ⇒ [<code>Keys</code>](#Keys)
 <p>Return initialized Keys class</p>
 
 **Kind**: instance method of [<code>Sdk</code>](#Sdk)  
-**Returns**: <code>Keys</code> - <p>key-related functionality</p>  
+**Returns**: [<code>Keys</code>](#Keys) - <p>key-related functionality</p>  
 <a name="Sdk+getSigning"></a>
 
 ### sdk.getSigning() ⇒ [<code>Signing</code>](#Signing)
@@ -431,6 +698,281 @@ for failure if invalid, otherwise return nothing</p>
 | hash | <code>string</code> | <p>signed hash</p> |
 | signature | <code>signature</code> | <p>Hex-encoded signature</p> |
 
+<a name="Tx"></a>
+
+## Tx
+<p>SDK functionality related to transactions</p>
+
+**Kind**: global class  
+
+* [Tx](#Tx)
+    * [new Tx(sdk)](#new_Tx_new)
+    * [.buildTxFromSerializedArgs(txType, encodedSpecificTx, encodedTx, gasPayer)](#Tx+buildTxFromSerializedArgs) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+    * [.buildTx(txType, txProps, props, [gasPayer])](#Tx+buildTx) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+    * [.buildTransfer(txProps, transferProps, [gasPayer])](#Tx+buildTransfer) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+    * [.buildRevealPk(txProps, publicKey)](#Tx+buildRevealPk) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+    * [.buildBond(txProps, bondProps, [gasPayer])](#Tx+buildBond) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+    * [.buildUnbond(txProps, unbondProps, [gasPayer])](#Tx+buildUnbond) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+    * [.buildWithdraw(txProps, withdrawProps, [gasPayer])](#Tx+buildWithdraw) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+    * [.buildIbcTransfer(txProps, ibcTransferProps, [gasPayer])](#Tx+buildIbcTransfer) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+    * [.buildEthBridgeTransfer(txProps, ethBridgeTransferProps, [gasPayer])](#Tx+buildEthBridgeTransfer) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+    * [.buildVoteProposal(txProps, voteProposalProps, [gasPayer])](#Tx+buildVoteProposal) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+    * [.signTx(encodedTx, [signingKey])](#Tx+signTx) ⇒ [<code>Promise.&lt;SignedTx&gt;</code>](#SignedTx)
+    * [.revealPk(signingKey, txProps)](#Tx+revealPk) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.appendSignature(txBytes, ledgerSignatureResponse)](#Tx+appendSignature) ⇒ <code>Uint8Array</code>
+    * [.encodeTxArgs(txProps)](#Tx+encodeTxArgs) ⇒ <code>Uint8Array</code>
+
+<a name="new_Tx_new"></a>
+
+### new Tx(sdk)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| sdk | <code>SdkWasm</code> | <p>Instance of Sdk struct from wasm lib</p> |
+
+<a name="Tx+buildTxFromSerializedArgs"></a>
+
+### tx.buildTxFromSerializedArgs(txType, encodedSpecificTx, encodedTx, gasPayer) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+<p>Build a transaction</p>
+
+**Kind**: instance method of [<code>Tx</code>](#Tx)  
+**Returns**: [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx) - <p>promise that resolves to an EncodedTx</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txType | <code>TxType</code> | <p>type of the transaction</p> |
+| encodedSpecificTx | <code>Uint8Array</code> | <p>encoded specific transaction</p> |
+| encodedTx | <code>Uint8Array</code> | <p>encoded transaction</p> |
+| gasPayer | <code>string</code> | <p>address of the gas payer</p> |
+
+<a name="Tx+buildTx"></a>
+
+### tx.buildTx(txType, txProps, props, [gasPayer]) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+<p>Wrapper method to handle all supported Tx</p>
+
+**Kind**: instance method of [<code>Tx</code>](#Tx)  
+**Returns**: [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx) - <p>promise that resolves to an EncodedTx</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txType | <code>TxType</code> | <p>type of the transaction</p> |
+| txProps | <code>TxProps</code> | <p>transaction properties</p> |
+| props | <code>unknown</code> | <p>Props specific to type of Tx</p> |
+| [gasPayer] | <code>string</code> | <p>optional gas payer, defaults to source or sender</p> |
+
+<a name="Tx+buildTransfer"></a>
+
+### tx.buildTransfer(txProps, transferProps, [gasPayer]) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+<p>Build Transfer Tx</p>
+
+**Kind**: instance method of [<code>Tx</code>](#Tx)  
+**Returns**: [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx) - <p>promise that resolves to an EncodedTx</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txProps | <code>TxProps</code> | <p>properties of the transaction</p> |
+| transferProps | <code>TransferProps</code> | <p>properties of the transfer</p> |
+| [gasPayer] | <code>string</code> | <p>optional gas payer, if not provided, defaults to transferProps.source</p> |
+
+<a name="Tx+buildRevealPk"></a>
+
+### tx.buildRevealPk(txProps, publicKey) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+<p>Build RevealPK Tx</p>
+
+**Kind**: instance method of [<code>Tx</code>](#Tx)  
+**Returns**: [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx) - <p>promise that resolves to an EncodedTx</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txProps | <code>TxProps</code> | <p>properties of the transaction</p> |
+| publicKey | <code>string</code> | <p>public key to reveal</p> |
+
+<a name="Tx+buildBond"></a>
+
+### tx.buildBond(txProps, bondProps, [gasPayer]) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+<p>Build Bond Tx</p>
+
+**Kind**: instance method of [<code>Tx</code>](#Tx)  
+**Returns**: [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx) - <p>promise that resolves to an EncodedTx</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txProps | <code>TxProps</code> | <p>properties of the transaction</p> |
+| bondProps | <code>BondProps</code> | <p>properties of the bond tx</p> |
+| [gasPayer] | <code>string</code> | <p>optional gas payer, if not provided, defaults to bondProps.source</p> |
+
+<a name="Tx+buildUnbond"></a>
+
+### tx.buildUnbond(txProps, unbondProps, [gasPayer]) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+<p>Build Unbond Tx</p>
+
+**Kind**: instance method of [<code>Tx</code>](#Tx)  
+**Returns**: [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx) - <p>promise that resolves to an EncodedTx</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txProps | <code>TxProps</code> | <p>properties of the transaction</p> |
+| unbondProps | <code>UnbondProps</code> | <p>properties of the unbond tx</p> |
+| [gasPayer] | <code>string</code> | <p>optional gas payer, if not provided, defaults to unbondProps.source</p> |
+
+<a name="Tx+buildWithdraw"></a>
+
+### tx.buildWithdraw(txProps, withdrawProps, [gasPayer]) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+<p>Build Withdraw Tx</p>
+
+**Kind**: instance method of [<code>Tx</code>](#Tx)  
+**Returns**: [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx) - <p>promise that resolves to an EncodedTx</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txProps | <code>TxProps</code> | <p>properties of the transaction</p> |
+| withdrawProps | <code>WithdrawProps</code> | <p>properties of the withdraw tx</p> |
+| [gasPayer] | <code>string</code> | <p>optional gas payer, if not provided, defaults to withdrawProps.source</p> |
+
+<a name="Tx+buildIbcTransfer"></a>
+
+### tx.buildIbcTransfer(txProps, ibcTransferProps, [gasPayer]) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+<p>Build Ibc Transfer Tx</p>
+
+**Kind**: instance method of [<code>Tx</code>](#Tx)  
+**Returns**: [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx) - <p>promise that resolves to an EncodedTx</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txProps | <code>TxProps</code> | <p>properties of the transaction</p> |
+| ibcTransferProps | <code>IbcTransferProps</code> | <p>properties of the ibc transfer tx</p> |
+| [gasPayer] | <code>string</code> | <p>optional gas payer, if not provided, defaults to ibcTransferProps.source</p> |
+
+<a name="Tx+buildEthBridgeTransfer"></a>
+
+### tx.buildEthBridgeTransfer(txProps, ethBridgeTransferProps, [gasPayer]) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+<p>Build Ethereum Bridge Transfer Tx</p>
+
+**Kind**: instance method of [<code>Tx</code>](#Tx)  
+**Returns**: [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx) - <p>promise that resolves to an EncodedTx</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txProps | <code>TxProps</code> | <p>properties of the transaction</p> |
+| ethBridgeTransferProps | <code>EthBridgeTransferProps</code> | <p>properties of the eth bridge transfer tx</p> |
+| [gasPayer] | <code>string</code> | <p>optional gas payer, if not provided, defaults to ethBridgeTransferProps.sender</p> |
+
+<a name="Tx+buildVoteProposal"></a>
+
+### tx.buildVoteProposal(txProps, voteProposalProps, [gasPayer]) ⇒ [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx)
+<p>Built Vote Proposal Tx</p>
+
+**Kind**: instance method of [<code>Tx</code>](#Tx)  
+**Returns**: [<code>Promise.&lt;EncodedTx&gt;</code>](#EncodedTx) - <p>promise that resolves to an EncodedTx</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txProps | <code>TxProps</code> | <p>properties of the transaction</p> |
+| voteProposalProps | <code>VoteProposalProps</code> | <p>properties of the vote proposal tx</p> |
+| [gasPayer] | <code>string</code> | <p>optional gas payer, if not provided, defaults to voteProposalProps.signer</p> |
+
+<a name="Tx+signTx"></a>
+
+### tx.signTx(encodedTx, [signingKey]) ⇒ [<code>Promise.&lt;SignedTx&gt;</code>](#SignedTx)
+<p>Sign transaction</p>
+
+**Kind**: instance method of [<code>Tx</code>](#Tx)  
+**Returns**: [<code>Promise.&lt;SignedTx&gt;</code>](#SignedTx) - <p>promise that resolves to a SignedTx</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| encodedTx | [<code>EncodedTx</code>](#EncodedTx) | <p>encoded transaction</p> |
+| [signingKey] | <code>string</code> | <p>optional in the case of shielded tx</p> |
+
+<a name="Tx+revealPk"></a>
+
+### tx.revealPk(signingKey, txProps) ⇒ <code>Promise.&lt;void&gt;</code>
+<p>Reveal Public Key using serialized Tx</p>
+
+**Kind**: instance method of [<code>Tx</code>](#Tx)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| signingKey | <code>string</code> | <p>signing key</p> |
+| txProps | <code>TxProps</code> | <p>properties of the transaction</p> |
+
+<a name="Tx+appendSignature"></a>
+
+### tx.appendSignature(txBytes, ledgerSignatureResponse) ⇒ <code>Uint8Array</code>
+<p>Append signature for transactions signed by Ledger Hardware Wallet</p>
+
+**Kind**: instance method of [<code>Tx</code>](#Tx)  
+**Returns**: <code>Uint8Array</code> - <ul>
+<li>Serialized Tx bytes with signature appended</li>
+</ul>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txBytes | <code>Uint8Array</code> | <p>Serialized transaction</p> |
+| ledgerSignatureResponse | <code>ResponseSign</code> | <p>Serialized signature as returned from Ledger</p> |
+
+<a name="Tx+encodeTxArgs"></a>
+
+### tx.encodeTxArgs(txProps) ⇒ <code>Uint8Array</code>
+<p>Helper to encode Tx args given TxProps</p>
+
+**Kind**: instance method of [<code>Tx</code>](#Tx)  
+**Returns**: <code>Uint8Array</code> - <p>Serialized TxMsgValue</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txProps | <code>TxProps</code> | <p>properties of the transaction</p> |
+
+<a name="EncodedTx"></a>
+
+## EncodedTx
+<p>Wrap results of tx building along with TxMsg</p>
+
+**Kind**: global class  
+
+* [EncodedTx](#EncodedTx)
+    * [new EncodedTx(txMsg, tx)](#new_EncodedTx_new)
+    * [.toBytes()](#EncodedTx+toBytes) ⇒ <code>Uint8Array</code>
+    * [.free()](#EncodedTx+free)
+
+<a name="new_EncodedTx_new"></a>
+
+### new EncodedTx(txMsg, tx)
+<p>Create an EncodedTx class</p>
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txMsg | <code>Uint8Array</code> | <p>Borsh-serialized transaction</p> |
+| tx | <code>BuiltTx</code> | <p>Specific tx struct instance</p> |
+
+<a name="EncodedTx+toBytes"></a>
+
+### encodedTx.toBytes() ⇒ <code>Uint8Array</code>
+<p>Return serialized tx bytes for external signing. This will clear
+the BuiltTx struct instance from wasm memory, then return the bytes.</p>
+
+**Kind**: instance method of [<code>EncodedTx</code>](#EncodedTx)  
+**Returns**: <code>Uint8Array</code> - <p>Serialized tx bytes</p>  
+<a name="EncodedTx+free"></a>
+
+### encodedTx.free()
+<p>Clear tx bytes resource</p>
+
+**Kind**: instance method of [<code>EncodedTx</code>](#EncodedTx)  
+<a name="SignedTx"></a>
+
+## SignedTx
+**Kind**: global class  
+<a name="new_SignedTx_new"></a>
+
+### new SignedTx(txMsg, tx)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txMsg | <code>Uint8Array</code> | <p>Serialized tx msg bytes</p> |
+| tx | <code>Uint8Array</code> | <p>Serialized tx bytes</p> |
+
 <a name="initLedgerUSBTransport"></a>
 
 ## initLedgerUSBTransport ⇒ <code>Transport</code>
@@ -438,6 +980,43 @@ for failure if invalid, otherwise return nothing</p>
 
 **Kind**: global variable  
 **Returns**: <code>Transport</code> - <p>Transport object</p>  
+<a name="EncodedTx"></a>
+
+## EncodedTx
+<p>Wrap results of tx signing to simplify passing between Sdk functions</p>
+
+**Kind**: global variable  
+
+* [EncodedTx](#EncodedTx)
+    * [new EncodedTx(txMsg, tx)](#new_EncodedTx_new)
+    * [.toBytes()](#EncodedTx+toBytes) ⇒ <code>Uint8Array</code>
+    * [.free()](#EncodedTx+free)
+
+<a name="new_EncodedTx_new"></a>
+
+### new EncodedTx(txMsg, tx)
+<p>Create an EncodedTx class</p>
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txMsg | <code>Uint8Array</code> | <p>Borsh-serialized transaction</p> |
+| tx | <code>BuiltTx</code> | <p>Specific tx struct instance</p> |
+
+<a name="EncodedTx+toBytes"></a>
+
+### encodedTx.toBytes() ⇒ <code>Uint8Array</code>
+<p>Return serialized tx bytes for external signing. This will clear
+the BuiltTx struct instance from wasm memory, then return the bytes.</p>
+
+**Kind**: instance method of [<code>EncodedTx</code>](#EncodedTx)  
+**Returns**: <code>Uint8Array</code> - <p>Serialized tx bytes</p>  
+<a name="EncodedTx+free"></a>
+
+### encodedTx.free()
+<p>Clear tx bytes resource</p>
+
+**Kind**: instance method of [<code>EncodedTx</code>](#EncodedTx)  
 <a name="initAsync"></a>
 
 ## initAsync(url, [token]) ⇒ [<code>Sdk</code>](#Sdk)

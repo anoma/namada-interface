@@ -40,8 +40,8 @@ export type Unbonds = {
 };
 
 export type StakingPositions = {
-  bonds: Bonds;
-  unbonds: Unbonds;
+  bonds: Bonds[];
+  unbonds: Unbonds[];
 };
 
 /**
@@ -58,12 +58,12 @@ export type DelegatorsVotes = Record<string, boolean>;
 
 /**
  * GasCosts
- * [[tokenAddress, gasCost]]
+ * [tokenAddress, gasCost][]
  */
-export type GasCosts = [[string, string]];
+export type GasCosts = [string, string][];
 
 /**
  * Balance
- * [[tokenAddress, amount]]
+ * [tokenAddress, amount][]
  */
-export type Balance = [[string, string]];
+export type Balance = [string, string][];
