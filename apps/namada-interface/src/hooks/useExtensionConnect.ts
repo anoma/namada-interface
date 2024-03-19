@@ -32,13 +32,16 @@ export const useExtensionConnect = (chain: Chain): UseConnectOutput => {
     useIntegrationConnection(chain.id);
 
   useEffect(() => {
-    if (
-      isConnectingToExtension &&
-      connectionStatus !== ConnectStatus.CONNECTED
-    ) {
+    if (isConnectingToExtension) {
       setConnectionStatus(ConnectStatus.CONNECTING);
     }
   }, [isConnectingToExtension]);
+
+  useEffect(() => {
+    if (extensionConnected) {
+      setConnectionStatus(ConnectStatus.CONNECTED);
+    }
+  }, [extensionConnected]);
 
   const handleConnectExtension = async (): Promise<void> => {
     if (extensionConnected) return;
