@@ -80,16 +80,16 @@ const handleApproveTxMsg: (
 const handleRejectTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<RejectTxMsg> = (service) => {
-  return async (_, { msgId }) => {
-    return await service.rejectTx(msgId);
+  return async ({ senderTabId: popupTabId }, { msgId }) => {
+    return await service.rejectTx(popupTabId, msgId);
   };
 };
 
 const handleSubmitApprovedTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<SubmitApprovedTxMsg> = (service) => {
-  return async (_, { msgId }) => {
-    return await service.submitTx(msgId);
+    return async ({ senderTabId: popupTabId }, { msgId }) => {
+    return await service.submitTx(popupTabId, msgId);
   };
 };
 
