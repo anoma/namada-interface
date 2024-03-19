@@ -20,7 +20,6 @@
     "typescript": "^5.1.3"
   },
   "devDependencies": {
-    "@namada/config": "workspace:^",
     "@types/firefox-webext-browser": "^94.0.1",
     "@types/jest": "^29.0.0",
     "eslint": "^8.49.0",

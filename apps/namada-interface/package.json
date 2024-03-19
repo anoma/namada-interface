@@ -7,10 +7,6 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "@namada/components": "0.2.1",
-    "@namada/hooks": "0.2.1",
-    "@namada/integrations": "0.2.1",
-    "@namada/utils": "0.2.1",
     "@reduxjs/toolkit": "^1.8.0",
     "@types/react-paginate": "^7.1.2",
     "bignumber.js": "^9.1.1",
@@ -81,7 +77,6 @@
     ]
   },
   "devDependencies": {
-    "@namada/config": "workspace:^",
     "@playwright/test": "^1.24.1",
     "@svgr/webpack": "^6.5.1",
     "@testing-library/jest-dom": "^5.16.2",

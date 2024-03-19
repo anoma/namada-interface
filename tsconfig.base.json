@@ -7,6 +7,9 @@
       "@namada/components": ["../../../packages/components/src"],
       "@namada/components/*": ["../../../packages/components/src/*"],
 
+      "@namada/config": ["../../../packages/config/src"],
+      "@namada/config/*": ["../../../packages/config/src/*"],
+
       "@namada/crypto": ["../../../packages/crypto/src"],
       "@namada/crypto/*": ["../../../packages/crypto/src/*"],
 
