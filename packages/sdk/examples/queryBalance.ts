@@ -1,4 +1,5 @@
-import initSync from "../src/initSync";
+import { getSdk } from "indexNode";
+import initSync from "../src/initNode";
 
 /**
  *
@@ -14,7 +15,8 @@ export const queryBalance = async (
   token: string
 ): Promise<void> => {
   try {
-    const sdk = initSync(nodeUrl, nativeToken);
+    const { cryptoMemory } = initSync();
+    const sdk = await getSdk(cryptoMemory, nodeUrl, nativeToken);
     const [[t, a]] = await sdk.rpc.queryBalance(owner, [token]);
     console.log(`Balance for ${owner} - Token: ${t} - Amount: ${a}`);
   } catch (error) {

@@ -1,6 +1,7 @@
 import BigNumber from "bignumber.js";
 
-import initSync from "initSync";
+import { getSdk } from "indexNode";
+import initSync from "../src/initNode";
 
 export const submitTransfer = async (
   nodeUrl: string,
@@ -35,7 +36,8 @@ export const submitTransfer = async (
   };
 
   try {
-    const sdk = initSync(nodeUrl, nativeToken);
+    const { cryptoMemory } = initSync();
+    const sdk = await getSdk(cryptoMemory, nodeUrl, nativeToken);
 
     console.log("Revealing public key...");
     await sdk.tx.revealPk(signingKey, txMsgValue);
