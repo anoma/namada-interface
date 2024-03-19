@@ -177,8 +177,11 @@ export class KeyRingService {
   ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Bond);
     try {
-      await this._keyRing.submitBond(fromBase64(bondMsg), fromBase64(txMsg));
-      await this.broadcaster.completeTx(msgId, TxType.Bond, true);
+      const innerTxHash = await this._keyRing.submitBond(
+        fromBase64(bondMsg),
+        fromBase64(txMsg)
+      );
+      await this.broadcaster.completeTx(msgId, TxType.Bond, true, innerTxHash);
       await this.broadcaster.updateStaking();
       await this.broadcaster.updateBalance();
     } catch (e) {
@@ -195,11 +198,16 @@ export class KeyRingService {
   ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Unbond);
     try {
-      await this._keyRing.submitUnbond(
+      const innerTxHash = await this._keyRing.submitUnbond(
         fromBase64(unbondMsg),
         fromBase64(txMsg)
       );
-      await this.broadcaster.completeTx(msgId, TxType.Unbond, true);
+      await this.broadcaster.completeTx(
+        msgId,
+        TxType.Unbond,
+        true,
+        innerTxHash
+      );
       await this.broadcaster.updateStaking();
       await this.broadcaster.updateBalance();
     } catch (e) {
@@ -216,11 +224,16 @@ export class KeyRingService {
   ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Withdraw);
     try {
-      await this._keyRing.submitWithdraw(
+      const innerTxHash = await this._keyRing.submitWithdraw(
         fromBase64(withdrawMsg),
         fromBase64(txMsg)
       );
-      await this.broadcaster.completeTx(msgId, TxType.Withdraw, true);
+      await this.broadcaster.completeTx(
+        msgId,
+        TxType.Withdraw,
+        true,
+        innerTxHash
+      );
       await this.broadcaster.updateStaking();
       await this.broadcaster.updateBalance();
     } catch (e) {
@@ -237,11 +250,16 @@ export class KeyRingService {
   ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.VoteProposal);
     try {
-      await this._keyRing.submitVoteProposal(
+      const innerTxHash = await this._keyRing.submitVoteProposal(
         fromBase64(voteProposalMsg),
         fromBase64(txMsg)
       );
-      await this.broadcaster.completeTx(msgId, TxType.VoteProposal, true);
+      await this.broadcaster.completeTx(
+        msgId,
+        TxType.VoteProposal,
+        true,
+        innerTxHash
+      );
       await this.broadcaster.updateProposals();
     } catch (e) {
       console.warn(e);
@@ -361,11 +379,16 @@ export class KeyRingService {
     await this.broadcaster.startTx(msgId, TxType.IBCTransfer);
 
     try {
-      await this._keyRing.submitIbcTransfer(
+      const innerTxHash = await this._keyRing.submitIbcTransfer(
         fromBase64(ibcTransferMsg),
         fromBase64(txMsg)
       );
-      await this.broadcaster.completeTx(msgId, TxType.IBCTransfer, true);
+      await this.broadcaster.completeTx(
+        msgId,
+        TxType.IBCTransfer,
+        true,
+        innerTxHash
+      );
       await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
@@ -387,11 +410,16 @@ export class KeyRingService {
     await this.broadcaster.startTx(msgId, TxType.EthBridgeTransfer);
 
     try {
-      await this._keyRing.submitEthBridgeTransfer(
+      const innerTxHash = await this._keyRing.submitEthBridgeTransfer(
         fromBase64(ethBridgeTransferMsg),
         fromBase64(txMsg)
       );
-      await this.broadcaster.completeTx(msgId, TxType.EthBridgeTransfer, true);
+      await this.broadcaster.completeTx(
+        msgId,
+        TxType.EthBridgeTransfer,
+        true,
+        innerTxHash
+      );
       await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);

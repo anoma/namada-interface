@@ -47,9 +47,12 @@ import {
           xsk
         );
         const txBytes = await sdk.sign_tx(builtTx, txMsg, privateKey);
-        await sdk.process_tx(txBytes, txMsg);
+        const innerTxHash: string = await sdk.process_tx(txBytes, txMsg);
 
-        postMessage({ msgName: TRANSFER_SUCCESSFUL_MSG });
+        postMessage({
+          msgName: TRANSFER_SUCCESSFUL_MSG,
+          payload: innerTxHash,
+        });
       } catch (error) {
         console.error(error);
         postMessage({

@@ -677,7 +677,7 @@ export class KeyRing {
     return privateKey;
   }
 
-  async submitBond(bondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
+  async submitBond(bondMsg: Uint8Array, txMsg: Uint8Array): Promise<string> {
     await this.vaultService.assertIsUnlocked();
     try {
       const { source } = deserialize(Buffer.from(bondMsg), BondMsgValue);
@@ -687,7 +687,9 @@ export class KeyRing {
 
       const builtTx = await sdk.build_bond(bondMsg, txMsg);
       const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
-      await sdk.process_tx(txBytes, txMsg);
+      const innerTxHash: string = await sdk.process_tx(txBytes, txMsg);
+
+      return innerTxHash;
     } catch (e) {
       throw new Error(`Could not submit bond tx: ${e}`);
     }
@@ -701,7 +703,10 @@ export class KeyRing {
     );
   }
 
-  async submitUnbond(unbondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
+  async submitUnbond(
+    unbondMsg: Uint8Array,
+    txMsg: Uint8Array
+  ): Promise<string> {
     await this.vaultService.assertIsUnlocked();
     const sdk = await this.sdkService.getSdk();
     try {
@@ -712,7 +717,9 @@ export class KeyRing {
 
       const builtTx = await sdk.build_unbond(unbondMsg, txMsg);
       const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
-      await sdk.process_tx(txBytes, txMsg);
+      const innerTxHash: string = await sdk.process_tx(txBytes, txMsg);
+
+      return innerTxHash;
     } catch (e) {
       throw new Error(`Could not submit unbond tx: ${e}`);
     }
@@ -721,7 +728,7 @@ export class KeyRing {
   async submitWithdraw(
     withdrawMsg: Uint8Array,
     txMsg: Uint8Array
-  ): Promise<void> {
+  ): Promise<string> {
     await this.vaultService.assertIsUnlocked();
     const sdk = await this.sdkService.getSdk();
     try {
@@ -735,7 +742,9 @@ export class KeyRing {
 
       const builtTx = await sdk.build_withdraw(withdrawMsg, txMsg);
       const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
-      await sdk.process_tx(txBytes, txMsg);
+      const innerTxHash: string = await sdk.process_tx(txBytes, txMsg);
+
+      return innerTxHash;
     } catch (e) {
       throw new Error(`Could not submit withdraw tx: ${e}`);
     }
@@ -744,7 +753,7 @@ export class KeyRing {
   async submitVoteProposal(
     voteProposalMsg: Uint8Array,
     txMsg: Uint8Array
-  ): Promise<void> {
+  ): Promise<string> {
     await this.vaultService.assertIsUnlocked();
     const sdk = await this.sdkService.getSdk();
     try {
@@ -759,7 +768,9 @@ export class KeyRing {
       const builtTx = await sdk.build_vote_proposal(voteProposalMsg, txMsg);
 
       const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
-      await sdk.process_tx(txBytes, txMsg);
+      const innerTxHash: string = await sdk.process_tx(txBytes, txMsg);
+
+      return innerTxHash;
     } catch (e) {
       throw new Error(`Could not submit vote proposal tx: ${e}`);
     }
@@ -802,7 +813,7 @@ export class KeyRing {
   async submitIbcTransfer(
     ibcTransferMsg: Uint8Array,
     txMsg: Uint8Array
-  ): Promise<void> {
+  ): Promise<string> {
     await this.vaultService.assertIsUnlocked();
     const sdk = await this.sdkService.getSdk();
     try {
@@ -816,7 +827,9 @@ export class KeyRing {
 
       const builtTx = await sdk.build_ibc_transfer(ibcTransferMsg, txMsg);
       const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
-      await sdk.process_tx(txBytes, txMsg);
+      const innerTxHash: string = await sdk.process_tx(txBytes, txMsg);
+
+      return innerTxHash;
     } catch (e) {
       throw new Error(`Could not submit ibc transfer tx: ${e}`);
     }
@@ -825,7 +838,7 @@ export class KeyRing {
   async submitEthBridgeTransfer(
     ethBridgeTransferMsg: Uint8Array,
     txMsg: Uint8Array
-  ): Promise<void> {
+  ): Promise<string> {
     await this.vaultService.assertIsUnlocked();
     const sdk = await this.sdkService.getSdk();
     try {
@@ -842,7 +855,9 @@ export class KeyRing {
         txMsg
       );
       const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
-      await sdk.process_tx(txBytes, txMsg);
+      const innerTxHash: string = await sdk.process_tx(txBytes, txMsg);
+
+      return innerTxHash;
     } catch (e) {
       throw new Error(`Could not submit submit_eth_bridge_transfer tx: ${e}`);
     }

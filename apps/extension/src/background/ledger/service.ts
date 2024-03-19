@@ -121,13 +121,16 @@ export class LedgerService {
     const sdk = await this.sdkService.getSdk();
     try {
       const signedTxBytes = await sdk.append_signature(fromBase64(bytes), sig);
-      await sdk.process_tx(signedTxBytes, fromBase64(txMsg));
+      const innerTxHash: string = await sdk.process_tx(
+        signedTxBytes,
+        fromBase64(txMsg)
+      );
 
       // Clear pending tx if successful
       await this.txStore.set(msgId, null);
 
       // Broadcast update events
-      await this.broadcaster.completeTx(msgId, txType, true);
+      await this.broadcaster.completeTx(msgId, txType, true, innerTxHash);
       await this.broadcaster.updateBalance();
 
       if ([TxType.Bond, TxType.Unbond, TxType.Withdraw].includes(txType)) {
