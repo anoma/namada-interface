@@ -8,7 +8,8 @@
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
   "scripts": {
-    "prepublish": "yarn wasm:build && tsc --build",
+    "prepublish": "yarn && yarn build",
+    "build": "yarn wasm:build && tsc --build",
     "release": "yarn prepublish && release-it --verbose --ci",
     "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
     "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish --ci",

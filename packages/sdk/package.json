@@ -24,6 +24,7 @@
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
   "scriptsComments": {
+    "prepublish": "We make focused install to make sure that we specified all required dependencies",
     "bundle-dts": "TODO: We bundle dts based on indexWeb.d.ts, but it should have the same api as indexNode.d.ts",
     "wasm:node:cp": "We need to copy wasm to the shared in dist folder, so it can be imported correctly in node"
   },

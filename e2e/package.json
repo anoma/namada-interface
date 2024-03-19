@@ -1,5 +1,5 @@
 {
-  "name": "@anoma/e2e",
+  "name": "@namada/e2e",
   "version": "0.1.0",
   "description": "e2e tests for apps",
   "main": "src/index.ts",

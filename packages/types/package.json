@@ -8,9 +8,11 @@
   "author": "Heliax AG <hello@heliax.dev>",
   "license": "MIT",
   "scripts": {
-    "release": "release-it --verbose --ci",
-    "release:dry-run": "release-it --verbose --dry-run --ci",
-    "release:no-npm": "release-it --verbose --no-npm.publish",
+    "prepublish": "yarn && yarn build",
+    "build": "rimraf ./dist && tsc --build",
+    "release": "yarn prepublish && release-it --verbose --ci",
+    "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
+    "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish",
     "lint": "eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0"

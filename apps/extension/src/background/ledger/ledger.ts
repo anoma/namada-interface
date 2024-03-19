@@ -3,6 +3,7 @@ import Transport from "@ledgerhq/hw-transport";
 import TransportHID from "@ledgerhq/hw-transport-webhid";
 import TransportUSB from "@ledgerhq/hw-transport-webusb";
 import { chains } from "@namada/chains";
+import { makeBip44Path } from "@namada/sdk/web";
 import {
   LedgerError,
   NamadaApp,
@@ -10,8 +11,6 @@ import {
   ResponseSign,
   ResponseVersion,
 } from "@zondax/ledger-namada";
-
-import { makeBip44Path } from "@namada/utils";
 
 const { coinType } = chains.namada.bip44;
 

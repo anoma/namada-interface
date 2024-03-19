@@ -9,7 +9,8 @@
   "license": "MIT",
   "scripts": {
     "bump": "yarn workspace namada run bump --target packages/hooks",
-    "prepublish": "rimraf ./dist && tsc --build",
+    "prepublish": "yarn && yarn build",
+    "build": "rimraf ./dist && tsc --build",
     "release": "yarn prepublish && release-it --verbose --ci",
     "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
     "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish",
