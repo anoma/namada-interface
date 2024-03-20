@@ -2,9 +2,9 @@ import { Bip44Path } from "@namada/types";
 
 /**
  * Return a properly formatted BIP-044 path array
- * @param {number} coinType - SLIP-044 Coin designation
- * @param {Bip44Path} path - path object
- * @returns {string} BIP-044 path array
+ * @param coinType - SLIP-044 Coin designation
+ * @param path - path object
+ * @returns BIP-044 path array
  */
 export const makeBip44PathArray = (
   coinType: number,
@@ -16,9 +16,9 @@ export const makeBip44PathArray = (
 
 /**
  * Return a properly formatted BIP-044 path
- * @param {number} coinType - SLIP-044 Coin designation
- * @param {Bip44Path} bip44Path - path object
- * @returns {string} BIP-044 path
+ * @param coinType - SLIP-044 Coin designation
+ * @param bip44Path - path object
+ * @returns BIP-044 path
  */
 export const makeBip44Path = (
   coinType: number,

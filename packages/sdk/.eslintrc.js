@@ -2,7 +2,7 @@ module.exports = {
   plugins: ["jsdoc"],
   extends: [
     require.resolve("@namada/config/eslint/react.js"),
-    "plugin:jsdoc/recommended",
+    "plugin:jsdoc/recommended-typescript",
   ],
   parserOptions: {
     ecmaVersion: 12,

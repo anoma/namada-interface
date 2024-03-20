@@ -5,7 +5,7 @@ const cryptoMemory = (crypto as any).__wasm.memory;
 
 /**
  * Initialize the SDK memory
- * @returns {{ cryptoMemory: WebAssembly.Memory }} - The SDK crypto memory
+ * @returns - The SDK crypto memory
  */
 export default function init(): { cryptoMemory: WebAssembly.Memory } {
   return { cryptoMemory };

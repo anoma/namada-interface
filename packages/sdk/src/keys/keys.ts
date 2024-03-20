@@ -25,14 +25,14 @@ const DEFAULT_PATH: Bip44Path = {
 
 export class Keys {
   /**
-   * @param {WebAssembly.Memory} cryptoMemory - Memory accessor for crypto lib
+   * @param cryptoMemory - Memory accessor for crypto lib
    */
   constructor(protected readonly cryptoMemory: WebAssembly.Memory) {}
 
   /**
    * Get address and public key from private key
-   * @param {string} privateKey - Private key
-   * @returns {Address} Address and public key
+   * @param privateKey - Private key
+   * @returns Address and public key
    */
   getAddress(privateKey: string): Address {
     const addr = new AddressWasm(privateKey);
@@ -47,8 +47,8 @@ export class Keys {
 
   /**
    * Get transparent keys and address from private key
-   * @param {string} privateKey - Private key
-   * @returns {TransparentKeys} Keys and address
+   * @param privateKey - Private key
+   * @returns Keys and address
    */
   fromPrivateKey(privateKey: string): TransparentKeys {
     return {
@@ -59,10 +59,10 @@ export class Keys {
 
   /**
    * Derive transparent keys and address from a mnemonic and path
-   * @param {string} phrase - Mnemonic phrase
-   * @param {Bip44Path} [path] - Bip44 path object
-   * @param {string} [passphrase] - Bip39 passphrase
-   * @returns {TransparentKeys} Keys and address
+   * @param phrase - Mnemonic phrase
+   * @param [path] - Bip44 path object
+   * @param [passphrase] - Bip39 passphrase
+   * @returns Keys and address
    */
   deriveFromMnemonic(
     phrase: string,
@@ -98,9 +98,9 @@ export class Keys {
 
   /**
    * Derive transparent keys and address from a seed and path
-   * @param {Uint8Array} seed - Seed
-   * @param {Bip44Path} [path] - Bip44 path object
-   * @returns {TransparentKeys} Keys and address
+   * @param seed - Seed
+   * @param [path] - Bip44 path object
+   * @returns Keys and address
    */
   deriveFromSeed(
     seed: Uint8Array,
@@ -128,9 +128,9 @@ export class Keys {
 
   /**
    * Derive shielded keys and address from a seed and path
-   * @param {Uint8Array} seed - Seed
-   * @param {Bip44Path} [path] - Bip44 path object
-   * @returns {ShieldedKeys} Shielded keys and address
+   * @param seed - Seed
+   * @param [path] - Bip44 path object
+   * @returns Shielded keys and address
    */
   deriveShieldedFromSeed(
     seed: Uint8Array,

@@ -6,11 +6,11 @@ export * from "./utils";
 /**
  * Get the SDK instance
  * @async
- * @param {WebAssembly.Memory} cryptoMemory - WebAssembly.Memory of crypto package
- * @param {string} url - URL of the node
- * @param {string} [token] - Native token of the chain
+ * @param cryptoMemory - WebAssembly.Memory of crypto package
+ * @param url - URL of the node
+ * @param [token] - Native token of the chain
  * @throws {Error} - Unable to Query native token
- * @returns {Promise<Sdk>} - Sdk instance
+ * @returns - Sdk instance
  */
 export async function getSdk(
   cryptoMemory: WebAssembly.Memory,

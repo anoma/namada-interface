@@ -10,6 +10,8 @@
     "isolatedModules": true,
     // "dom" is needed for  WebAssembly typings
     "lib": ["esnext", "dom"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "noEmit": false,
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,

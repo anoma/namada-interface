@@ -5,9 +5,9 @@ import { init as initShared } from "../../shared/src/init";
 /**
  * Initialize the SDK memory
  * @async
- * @returns {Promise<{
- cryptoMemory: WebAssembly.Memory;
-}>} - The SDK crypto memory
+ * @returns
+ 
+ - The SDK crypto memory
  */
 export default async function init(): Promise<{
   cryptoMemory: WebAssembly.Memory;
