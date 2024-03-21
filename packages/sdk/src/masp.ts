@@ -29,11 +29,12 @@ export class Masp {
 
   /**
    * Load stored MASP params
+   * @param pathOrDbName - Path to stored MASP params(nodejs) or name of the database(browser)
    * @async
    * @returns void
    */
-  async loadMaspParams(): Promise<void> {
-    return await this.sdk.load_masp_params();
+  async loadMaspParams(pathOrDbName: string): Promise<void> {
+    return await this.sdk.load_masp_params(pathOrDbName);
   }
 
   /**

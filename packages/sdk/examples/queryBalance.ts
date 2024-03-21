@@ -17,6 +17,8 @@ export const queryBalance = async (
   try {
     const { cryptoMemory } = initSync();
     const sdk = await getSdk(cryptoMemory, nodeUrl, nativeToken);
+    await sdk.masp.loadMaspParams();
+    //TODO: remove this line
     const [[t, a]] = await sdk.rpc.queryBalance(owner, [token]);
     console.log(`Balance for ${owner} - Token: ${t} - Amount: ${a}`);
   } catch (error) {

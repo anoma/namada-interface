@@ -11,6 +11,7 @@ license = "MIT"
 crate-type = ["cdylib", "rlib"]
 
 [features]
+default = ["nodejs"]
 dev = []
 multicore = ["wasm-bindgen-rayon", "namada/multicore"]
 nodejs = []
