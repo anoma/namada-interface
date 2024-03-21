@@ -6,6 +6,7 @@ import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
   ApproveTxMsg,
+  IsConnectionApprovedMsg,
 } from "provider";
 import { Message } from "router";
 import { getHandler } from "./handler";
@@ -63,6 +64,10 @@ describe("approvals handler", () => {
     const submitApprovedTxMsg = new SubmitApprovedTxMsg(TxType.Bond, "msgId");
     handler(env, submitApprovedTxMsg);
     expect(service.submitTx).toBeCalled();
+
+    const isConnectionApprovedMsg = new IsConnectionApprovedMsg();
+    handler(env, isConnectionApprovedMsg);
+    expect(service.isConnectionApproved).toBeCalled();
 
     const approveConnectInterfaceMsg = new ApproveConnectInterfaceMsg();
     handler(env, approveConnectInterfaceMsg);

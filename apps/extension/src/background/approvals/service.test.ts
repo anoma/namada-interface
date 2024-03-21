@@ -12,6 +12,7 @@ import {
   TokenInfo,
   TransferMsgValue,
 } from "@namada/types";
+import { paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
 import { LedgerService } from "background/ledger";
 import { VaultService } from "background/vault";
@@ -20,6 +21,7 @@ import { ExtensionBroadcaster } from "extension";
 import createMockInstance from "jest-create-mock-instance";
 import { LocalStorage } from "storage";
 import { KVStoreMock } from "test/init";
+import * as webextensionPolyfill from "webextension-polyfill";
 import { ApprovalsService } from "./service";
 import { TxStore } from "./types";
 
@@ -28,15 +30,24 @@ jest.mock("webextension-polyfill", () => ({
     getURL: () => "url",
   },
   windows: {
-    create: jest.fn(),
+    create: jest.fn().mockResolvedValue({ tabs: [{ id: 1 }] }),
   },
 }));
+
+jest.mock("@namada/utils", () => {
+  return {
+    ...jest.requireActual("@namada/utils"),
+    paramsToUrl: jest.fn(),
+    __esModule: true,
+  };
+});
 
 describe("approvals service", () => {
   let service: ApprovalsService;
   let keyRingService: jest.Mocked<KeyRingService>;
   let dataStore: KVStoreMock<string>;
   let txStore: KVStoreMock<TxStore>;
+  let localStorage: LocalStorage;
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -55,7 +66,7 @@ describe("approvals service", () => {
     );
     const broadcaster: jest.Mocked<ExtensionBroadcaster> =
       createMockInstance(ExtensionBroadcaster);
-    const localStorage = new LocalStorage(new KVStoreMock("LocalStorage"));
+    localStorage = new LocalStorage(new KVStoreMock("LocalStorage"));
 
     service = new ApprovalsService(
       txStore,
@@ -76,7 +87,6 @@ describe("approvals service", () => {
         signature: "sig",
       };
 
-      jest.spyOn(service as any, "getPopupTabId").mockResolvedValue(tabId);
       const signaturePromise = service.approveSignature("signer", "data");
 
       await new Promise((resolve) =>
@@ -92,13 +102,13 @@ describe("approvals service", () => {
     });
 
     it("should throw an error when popupTabId is not present", async () => {
-      jest.spyOn(service as any, "getPopupTabId").mockResolvedValue(undefined);
+      (webextensionPolyfill.windows.create as any).mockResolvedValue({
+        tabs: [],
+      });
 
-      try {
-        await service.approveSignature("signer", "data");
-      } catch (e) {
-        expect(e).toBeDefined();
-      }
+      await expect(
+        service.approveSignature("signer", "data")
+      ).rejects.toBeDefined();
     });
 
     it("should throw an error when popupTabId is already in the map", async () => {
@@ -107,14 +117,14 @@ describe("approvals service", () => {
         hash: "hash",
         signature: "sig",
       };
-      jest.spyOn(service as any, "getPopupTabId").mockResolvedValue(tabId);
+      (webextensionPolyfill.windows.create as any).mockResolvedValue({
+        tabs: [{ id: tabId }],
+      });
       (service as any).resolverMap[tabId] = sigResponse;
 
-      try {
-        await service.approveSignature("signer", "data");
-      } catch (e) {
-        expect(e).toBeDefined();
-      }
+      await expect(
+        service.approveSignature("signer", "data")
+      ).rejects.toBeDefined();
     });
   });
 
@@ -126,7 +136,9 @@ describe("approvals service", () => {
         signature: "sig",
       };
 
-      jest.spyOn(service as any, "getPopupTabId").mockResolvedValue(tabId);
+      (webextensionPolyfill.windows.create as any).mockResolvedValue({
+        tabs: [{ id: tabId }],
+      });
       jest.spyOn(dataStore, "get").mockResolvedValueOnce("data");
       jest
         .spyOn(keyRingService, "signArbitrary")
@@ -149,11 +161,9 @@ describe("approvals service", () => {
       const signer = "signer";
       jest.spyOn(dataStore, "get").mockResolvedValueOnce("data");
 
-      try {
-        await service.submitSignature(tabId, "msgId", signer);
-      } catch (e) {
-        expect(e).toBeDefined();
-      }
+      await expect(
+        service.submitSignature(tabId, "msgId", signer)
+      ).rejects.toBeDefined();
     });
 
     it("should throw an error when data is not present", async () => {
@@ -166,21 +176,24 @@ describe("approvals service", () => {
       (service as any).resolverMap[tabId] = sigResponse;
       jest.spyOn(dataStore, "get").mockResolvedValueOnce(undefined);
 
-      try {
-        await service.submitSignature(tabId, "msgId", signer);
-      } catch (e) {
-        expect(e).toBeDefined();
-      }
+      await expect(
+        service.submitSignature(tabId, "msgId", signer)
+      ).rejects.toBeDefined();
     });
 
     it("should reject promise if can't sign", async () => {
       const tabId = 1;
+      const error = "Can't sign";
 
-      jest.spyOn(service as any, "getPopupTabId").mockResolvedValue(tabId);
+      service["resolverMap"] = {
+        [tabId]: { resolve: jest.fn(), reject: jest.fn() },
+      };
+      (webextensionPolyfill.windows.create as any).mockResolvedValue({
+        tabs: [{ id: tabId }],
+      });
       jest.spyOn(dataStore, "get").mockResolvedValueOnce("data");
-      jest
-        .spyOn(keyRingService, "signArbitrary")
-        .mockRejectedValue("Can't sign");
+      jest.spyOn(keyRingService, "signArbitrary").mockRejectedValue(error);
+
       const signer = "signer";
 
       await new Promise((resolve) =>
@@ -189,21 +202,23 @@ describe("approvals service", () => {
         })
       );
 
-      try {
-        await service.submitSignature(tabId, "msgId", signer);
-      } catch (e) {
-        expect(e).toBeDefined();
-      }
+      await expect(
+        service.submitSignature(tabId, "msgId", signer)
+      ).resolves.toBeUndefined();
+
+      expect(service["resolverMap"][tabId].reject).toHaveBeenCalled();
     });
   });
 
   describe("submitSignature", () => {
     it("should reject resolver", async () => {
       const tabId = 1;
-
-      jest.spyOn(service as any, "getPopupTabId").mockResolvedValue(tabId);
       const signer = "signer";
       const signaturePromise = service.approveSignature(signer, "data");
+
+      (webextensionPolyfill.windows.create as any).mockResolvedValue({
+        tabs: [{ id: tabId }],
+      });
 
       await new Promise((resolve) =>
         setTimeout(() => {
@@ -212,20 +227,14 @@ describe("approvals service", () => {
       );
       await service.rejectSignature(tabId, "msgId");
 
-      try {
-        await signaturePromise;
-      } catch (e) {
-        expect(e).toBeUndefined();
-      }
+      await expect(signaturePromise).rejects.toBeUndefined();
     });
 
     it("should throw an error if resolver is not found", async () => {
       const tabId = 1;
-      try {
-        await service.rejectSignature(tabId, "msgId");
-      } catch (e) {
-        expect(e).toBeDefined();
-      }
+      await expect(
+        service.rejectSignature(tabId, "msgId")
+      ).rejects.toBeDefined();
     });
   });
 
@@ -240,7 +249,7 @@ describe("approvals service", () => {
   ] as const;
 
   describe("approveTx", () => {
-    it.each(txTypes)("should launch tx", async (type, paramsFn) => {
+    it.each(txTypes)("%i txType fn: %s", async (type, paramsFn) => {
       jest.spyOn(ApprovalsService, paramsFn).mockImplementation(() => ({}));
       jest.spyOn(borsh, "deserialize").mockReturnValue({});
       jest.spyOn(service as any, "_launchApprovalWindow");
@@ -249,6 +258,15 @@ describe("approvals service", () => {
         const res = await service.approveTx(type, "", "", AccountType.Mnemonic);
         expect(res).toBeUndefined();
       } catch (e) {}
+    });
+
+    it("should throw an error if txType is not found", async () => {
+      const type: any = 999;
+      jest.spyOn(borsh, "deserialize").mockReturnValue({});
+
+      await expect(
+        service.approveTx(type, "", "", AccountType.Mnemonic)
+      ).rejects.toBeDefined();
     });
   });
 
@@ -506,6 +524,350 @@ describe("approvals service", () => {
       await service.rejectTx("msgId");
 
       expect((service as any)._clearPendingTx).toHaveBeenCalledWith("msgId");
+    });
+  });
+
+  const submitTxTypes = [
+    [TxType.Bond, "submitBond"],
+    [TxType.Unbond, "submitUnbond"],
+    [TxType.Withdraw, "submitWithdraw"],
+    [TxType.Transfer, "submitTransfer"],
+    [TxType.IBCTransfer, "submitIbcTransfer"],
+    [TxType.EthBridgeTransfer, "submitEthBridgeTransfer"],
+    [TxType.VoteProposal, "submitVoteProposal"],
+  ] as const;
+
+  describe("submitTx", () => {
+    it.each(submitTxTypes)("%i txType fn: %s", async (txType, paramsFn) => {
+      const msgId = "msgId";
+      const txMsg = "txMsg";
+      const specificMsg = "specificMsg";
+
+      jest.spyOn(service["txStore"], "get").mockImplementation(() => {
+        return Promise.resolve({
+          txType,
+          txMsg,
+          specificMsg,
+        });
+      });
+
+      jest.spyOn(keyRingService, paramsFn).mockResolvedValue();
+      jest.spyOn(service as any, "_clearPendingTx");
+
+      await service.submitTx(msgId);
+      expect(service["_clearPendingTx"]).toHaveBeenCalledWith(msgId);
+      expect(keyRingService[paramsFn]).toHaveBeenCalledWith(
+        specificMsg,
+        txMsg,
+        msgId
+      );
+    });
+
+    it("should throw an error if txType is not found", async () => {
+      const msgId = "msgId";
+      const txMsg = "txMsg";
+      const specificMsg = "specificMsg";
+      const txType: any = 999;
+
+      jest.spyOn(service["txStore"], "get").mockImplementation(() => {
+        return Promise.resolve({
+          txType,
+          txMsg,
+          specificMsg,
+        });
+      });
+
+      await expect(service.submitTx(msgId)).rejects.toBeDefined();
+    });
+
+    it("should throw an error if tx is not found", async () => {
+      jest.spyOn(service["txStore"], "get").mockImplementation(() => {
+        return Promise.resolve(undefined);
+      });
+
+      await expect(service.submitTx("msgId")).rejects.toBeDefined();
+    });
+  });
+
+  describe("approveConnection", () => {
+    it("should approve connection if it's not already approved", async () => {
+      const url = "url-with-params";
+      const interfaceTabId = 999;
+      const interfaceOrigin = "origin";
+      const tabId = 1;
+
+      (paramsToUrl as any).mockImplementation(() => url);
+      jest.spyOn(service, "isConnectionApproved").mockResolvedValue(false);
+      jest.spyOn(service as any, "_launchApprovalWindow").mockResolvedValue({
+        tabs: [{ id: tabId }],
+      });
+      service["resolverMap"] = {};
+
+      const promise = service.approveConnection(
+        interfaceTabId,
+        interfaceOrigin
+      );
+      await new Promise<void>((r) =>
+        setTimeout(() => {
+          r();
+        })
+      );
+      service["resolverMap"][tabId]?.resolve(true);
+
+      expect(paramsToUrl).toHaveBeenCalledWith("url#/approve-connection", {
+        interfaceTabId: interfaceTabId.toString(),
+        interfaceOrigin,
+      });
+      expect(service.isConnectionApproved).toHaveBeenCalledWith(
+        interfaceOrigin
+      );
+      expect(service["_launchApprovalWindow"]).toHaveBeenCalledWith(url);
+      await expect(promise).resolves.toBeDefined();
+    });
+
+    it("should not approve connection if it was already approved", async () => {
+      const url = "url-with-params";
+      const interfaceTabId = 999;
+      const interfaceOrigin = "origin";
+      (paramsToUrl as any).mockImplementation(() => url);
+      jest.spyOn(service, "isConnectionApproved").mockResolvedValue(true);
+
+      await expect(
+        service.approveConnection(interfaceTabId, interfaceOrigin)
+      ).resolves.toBeUndefined();
+    });
+
+    it("should throw an error when popupTabId is not found", async () => {
+      const url = "url-with-params";
+      const interfaceTabId = 999;
+      const interfaceOrigin = "origin";
+
+      (paramsToUrl as any).mockImplementation(() => url);
+      jest.spyOn(service, "isConnectionApproved").mockResolvedValue(false);
+      jest.spyOn(service as any, "_launchApprovalWindow").mockResolvedValue({
+        tabs: [],
+      });
+
+      await expect(
+        service.approveConnection(interfaceTabId, interfaceOrigin)
+      ).rejects.toBeDefined();
+    });
+
+    it("should throw an error when popupTabId is found in resolverMap", async () => {
+      const url = "url-with-params";
+      const interfaceTabId = 999;
+      const interfaceOrigin = "origin";
+      const approvedOrigins = ["other-origin"];
+      const tabId = 1;
+
+      service["resolverMap"] = {
+        [tabId]: {
+          resolve: jest.fn(),
+          reject: jest.fn(),
+        },
+      };
+
+      (paramsToUrl as any).mockImplementation(() => url);
+      jest
+        .spyOn(localStorage, "getApprovedOrigins")
+        .mockResolvedValue(approvedOrigins);
+      jest.spyOn(service as any, "_launchApprovalWindow").mockResolvedValue({
+        tabs: [{ id: tabId }],
+      });
+
+      await expect(
+        service.approveConnection(interfaceTabId, interfaceOrigin)
+      ).rejects.toBeDefined();
+    });
+  });
+
+  describe("approveConnectionResponse", () => {
+    it("should approve connection response", async () => {
+      const interfaceTabId = 999;
+      const interfaceOrigin = "origin";
+      const popupTabId = 1;
+      service["resolverMap"] = {
+        [popupTabId]: {
+          resolve: jest.fn(),
+          reject: jest.fn(),
+        },
+      };
+      jest.spyOn(keyRingService, "connect").mockResolvedValue();
+      jest.spyOn(localStorage, "addApprovedOrigin").mockResolvedValue();
+
+      await service.approveConnectionResponse(
+        interfaceTabId,
+        interfaceOrigin,
+        true,
+        popupTabId
+      );
+
+      expect(service["resolverMap"][popupTabId].resolve).toHaveBeenCalled();
+      expect(keyRingService.connect).toHaveBeenCalledWith(interfaceTabId);
+      expect(localStorage.addApprovedOrigin).toHaveBeenCalledWith(
+        interfaceOrigin
+      );
+    });
+
+    it("should throw an error if resolvers are not found", async () => {
+      const interfaceTabId = 999;
+      const interfaceOrigin = "origin";
+      const popupTabId = 1;
+
+      await expect(
+        service.approveConnectionResponse(
+          interfaceTabId,
+          interfaceOrigin,
+          true,
+          popupTabId
+        )
+      ).rejects.toBeDefined();
+    });
+
+    it("should reject the connection if allowConnection is set to false", async () => {
+      const interfaceTabId = 999;
+      const interfaceOrigin = "origin";
+      const popupTabId = 1;
+      service["resolverMap"] = {
+        [popupTabId]: {
+          resolve: jest.fn(),
+          reject: jest.fn(),
+        },
+      };
+
+      await service.approveConnectionResponse(
+        interfaceTabId,
+        interfaceOrigin,
+        false,
+        popupTabId
+      );
+
+      expect(service["resolverMap"][popupTabId].reject).toHaveBeenCalled();
+    });
+
+    it("should reject the key ring can't connect", async () => {
+      const interfaceTabId = 999;
+      const interfaceOrigin = "origin";
+      const popupTabId = 1;
+      service["resolverMap"] = {
+        [popupTabId]: {
+          resolve: jest.fn(),
+          reject: jest.fn(),
+        },
+      };
+      jest.spyOn(keyRingService, "connect").mockRejectedValue("Can't connect");
+
+      await service.approveConnectionResponse(
+        interfaceTabId,
+        interfaceOrigin,
+        true,
+        popupTabId
+      );
+
+      expect(service["resolverMap"][popupTabId].reject).toHaveBeenCalled();
+    });
+  });
+
+  describe("revokeConnection", () => {
+    it("should reject connection response", async () => {
+      const originToRevoke = "origin";
+
+      jest.spyOn(localStorage, "removeApprovedOrigin").mockResolvedValue();
+      await service.revokeConnection(originToRevoke);
+
+      expect(localStorage.removeApprovedOrigin).toHaveBeenCalledWith(
+        originToRevoke
+      );
+    });
+  });
+
+  describe("getPopupTabId", () => {
+    it("should return tab id", async () => {
+      (webextensionPolyfill.windows.create as any).mockResolvedValue({
+        tabs: [{ id: 1 }],
+      });
+
+      await expect((service as any).getPopupTabId("url")).resolves.toBe(1);
+    });
+
+    it("should return undefined if tabs are undefined", async () => {
+      (webextensionPolyfill.windows.create as any).mockResolvedValue({});
+
+      await expect(
+        (service as any).getPopupTabId("url")
+      ).resolves.toBeUndefined();
+    });
+
+    it("should return undefined if tabs are empty", async () => {
+      (webextensionPolyfill.windows.create as any).mockResolvedValue({
+        tabs: [],
+      });
+
+      await expect(
+        (service as any).getPopupTabId("url")
+      ).resolves.toBeUndefined();
+    });
+  });
+
+  describe("getTxDetails", () => {
+    it("should return tx details", () => {
+      const txMsgValue = {
+        token: "token",
+        feeAmount: BigNumber(0.5),
+        gasLimit: BigNumber(0.5),
+        chainId: "chainId",
+        publicKey: "publicKey",
+      };
+
+      const { publicKey, nativeToken } = (ApprovalsService as any).getTxDetails(
+        txMsgValue
+      );
+
+      expect(publicKey).toEqual(txMsgValue.publicKey);
+      expect(nativeToken).toEqual(txMsgValue.token);
+    });
+
+    it("should return tx details with empty publicKey when missing", () => {
+      const txMsgValue = {
+        token: "token",
+        feeAmount: BigNumber(0.5),
+        gasLimit: BigNumber(0.5),
+        chainId: "chainId",
+      };
+
+      const { publicKey, nativeToken } = (ApprovalsService as any).getTxDetails(
+        txMsgValue
+      );
+
+      expect(publicKey).toEqual("");
+      expect(nativeToken).toEqual(txMsgValue.token);
+    });
+  });
+
+  describe("isConnectionApproved", () => {
+    it("should return true if origin is approved", async () => {
+      const origin = "origin";
+      jest
+        .spyOn(localStorage, "getApprovedOrigins")
+        .mockResolvedValue([origin]);
+
+      await expect(service.isConnectionApproved(origin)).resolves.toBe(true);
+    });
+
+    it("should return false if origin is not approved", async () => {
+      const origin = "origin";
+      jest.spyOn(localStorage, "getApprovedOrigins").mockResolvedValue([]);
+
+      await expect(service.isConnectionApproved(origin)).resolves.toBe(false);
+    });
+
+    it("should return false if there are no origins in store", async () => {
+      const origin = "origin";
+      jest
+        .spyOn(localStorage, "getApprovedOrigins")
+        .mockResolvedValue(undefined);
+
+      await expect(service.isConnectionApproved(origin)).resolves.toBe(false);
     });
   });
 });
