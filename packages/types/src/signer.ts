@@ -1,13 +1,13 @@
 import { Account, AccountType } from "./account";
 import {
-  BridgeTransferProps,
+  BondProps,
+  EthBridgeTransferProps,
   IbcTransferProps,
-  SubmitBondProps,
-  SubmitUnbondProps,
-  SubmitVoteProposalProps,
-  SubmitWithdrawProps,
   TransferProps,
   TxProps,
+  UnbondProps,
+  VoteProposalProps,
+  WithdrawProps,
 } from "./tx";
 
 export type SignatureResponse = {
@@ -24,17 +24,17 @@ export interface Signer {
   ) => Promise<SignatureResponse | undefined>;
   verify: (publicKey: string, hash: string, signature: string) => Promise<void>;
   submitBond(
-    args: SubmitBondProps,
+    args: BondProps,
     txArgs: TxProps,
     type: AccountType
   ): Promise<void>;
   submitUnbond(
-    args: SubmitUnbondProps,
+    args: UnbondProps,
     txArgs: TxProps,
     type: AccountType
   ): Promise<void>;
   submitWithdraw(
-    args: SubmitWithdrawProps,
+    args: WithdrawProps,
     txArgs: TxProps,
     type: AccountType
   ): Promise<void>;
@@ -49,12 +49,12 @@ export interface Signer {
     type: AccountType
   ): Promise<void>;
   submitVoteProposal(
-    args: SubmitVoteProposalProps,
+    args: VoteProposalProps,
     txArgs: TxProps,
     type: AccountType
   ): Promise<void>;
   submitEthBridgeTransfer(
-    args: BridgeTransferProps,
+    args: EthBridgeTransferProps,
     txArgs: TxProps,
     type: AccountType
   ): Promise<void>;

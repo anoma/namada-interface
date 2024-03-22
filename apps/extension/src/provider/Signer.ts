@@ -4,8 +4,10 @@ import { SupportedTx, TxType } from "@namada/shared";
 import {
   Account,
   AccountType,
-  BridgeTransferProps,
+  BondMsgValue,
+  BondProps,
   EthBridgeTransferMsgValue,
+  EthBridgeTransferProps,
   Signer as ISigner,
   IbcTransferMsgValue,
   IbcTransferProps,
@@ -13,18 +15,16 @@ import {
   Namada,
   Schema,
   SignatureResponse,
-  SubmitBondMsgValue,
-  SubmitBondProps,
-  SubmitUnbondMsgValue,
-  SubmitUnbondProps,
-  SubmitVoteProposalMsgValue,
-  SubmitVoteProposalProps,
-  SubmitWithdrawMsgValue,
-  SubmitWithdrawProps,
   TransferMsgValue,
   TransferProps,
   TxMsgValue,
   TxProps,
+  UnbondMsgValue,
+  UnbondProps,
+  VoteProposalMsgValue,
+  VoteProposalProps,
+  WithdrawMsgValue,
+  WithdrawProps,
 } from "@namada/types";
 
 export class Signer implements ISigner {
@@ -104,58 +104,46 @@ export class Signer implements ISigner {
    * Submit bond transaction
    */
   public async submitBond(
-    args: SubmitBondProps,
+    args: BondProps,
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
-    return this.submitTx(TxType.Bond, SubmitBondMsgValue, args, txArgs, type);
+    return this.submitTx(TxType.Bond, BondMsgValue, args, txArgs, type);
   }
 
   /**
    * Submit unbond transaction
    */
   public async submitUnbond(
-    args: SubmitUnbondProps,
+    args: UnbondProps,
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
-    return this.submitTx(
-      TxType.Unbond,
-      SubmitUnbondMsgValue,
-      args,
-      txArgs,
-      type
-    );
+    return this.submitTx(TxType.Unbond, UnbondMsgValue, args, txArgs, type);
   }
 
   /**
    * Submit withdraw transaction
    */
   public async submitWithdraw(
-    args: SubmitWithdrawProps,
+    args: WithdrawProps,
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
-    return this.submitTx(
-      TxType.Withdraw,
-      SubmitWithdrawMsgValue,
-      args,
-      txArgs,
-      type
-    );
+    return this.submitTx(TxType.Withdraw, WithdrawMsgValue, args, txArgs, type);
   }
 
   /**
    * Submit vote proposal transaction
    */
   public async submitVoteProposal(
-    args: SubmitVoteProposalProps,
+    args: VoteProposalProps,
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
     return this.submitTx(
       TxType.VoteProposal,
-      SubmitVoteProposalMsgValue,
+      VoteProposalMsgValue,
       args,
       txArgs,
       type
@@ -194,7 +182,7 @@ export class Signer implements ISigner {
    * Submit an eth bridge transfer
    */
   public async submitEthBridgeTransfer(
-    args: BridgeTransferProps,
+    args: EthBridgeTransferProps,
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {

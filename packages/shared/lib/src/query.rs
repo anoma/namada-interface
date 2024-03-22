@@ -90,7 +90,8 @@ impl Query {
     }
 
     /// Gets all delegations for every provided address.
-    /// Returns a tuple of (owner_address, validator_address, total_bonds)
+    /// Returns a tuple of:
+    /// (owner_address, validator_address, total_bonds, total_unbonds, withdrawable)
     ///
     /// # Arguments
     ///

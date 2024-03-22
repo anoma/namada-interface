@@ -3,14 +3,14 @@ import * as borsh from "@dao-xyz/borsh";
 import { TxType } from "@namada/shared";
 import {
   AccountType,
+  BondMsgValue,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
-  SubmitBondMsgValue,
-  SubmitUnbondMsgValue,
-  SubmitVoteProposalMsgValue,
-  SubmitWithdrawMsgValue,
   TokenInfo,
   TransferMsgValue,
+  UnbondMsgValue,
+  VoteProposalMsgValue,
+  WithdrawMsgValue,
 } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
@@ -320,7 +320,7 @@ describe("approvals service", () => {
       const transferMsgValue = new IbcTransferMsgValue({
         source: "source",
         receiver: "target",
-        token: token,
+        token: token.address,
         amount: BigNumber(100),
         portId: "portId",
         channelId: "channelId",
@@ -392,7 +392,7 @@ describe("approvals service", () => {
 
   describe("getParamsBond", () => {
     it("should return bond params", () => {
-      const bondMsgValue = new SubmitBondMsgValue({
+      const bondMsgValue = new BondMsgValue({
         source: "source",
         validator: "validator",
         amount: BigNumber(100),
@@ -426,7 +426,7 @@ describe("approvals service", () => {
 
   describe("getParamsUnbond", () => {
     it("should return unbond params", () => {
-      const unbondMsgValue = new SubmitUnbondMsgValue({
+      const unbondMsgValue = new UnbondMsgValue({
         source: "source",
         validator: "validator",
         amount: BigNumber(100),
@@ -458,7 +458,7 @@ describe("approvals service", () => {
 
   describe("getParamsWithdraw", () => {
     it("should return withdraw params", () => {
-      const withdrawMsgValue = new SubmitWithdrawMsgValue({
+      const withdrawMsgValue = new WithdrawMsgValue({
         source: "source",
         validator: "validator",
       });
@@ -489,7 +489,7 @@ describe("approvals service", () => {
 
   describe("getParamsVoteProposal", () => {
     it("should return vote proposal params", () => {
-      const voteProposalMsgValue = new SubmitVoteProposalMsgValue({
+      const voteProposalMsgValue = new VoteProposalMsgValue({
         signer: "singer",
         proposalId: BigInt(0),
         vote: "yay",

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import BigNumber from "bignumber.js";
 import { field, option } from "@dao-xyz/borsh";
+import BigNumber from "bignumber.js";
+import { EthBridgeTransferProps } from "../types";
 import { BigNumberSerializer } from "./utils";
-import { BridgeTransferProps } from "../types";
 
 export class EthBridgeTransferMsgValue {
   @field({ type: "bool" })
@@ -29,7 +29,7 @@ export class EthBridgeTransferMsgValue {
   @field({ type: "string" })
   feeToken!: string;
 
-  constructor(data: BridgeTransferProps) {
+  constructor(data: EthBridgeTransferProps) {
     Object.assign(this, data);
   }
 }
