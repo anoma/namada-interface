@@ -283,6 +283,7 @@ impl Query {
                 &self.client,
                 &DefaultLogger::new(&WebIo),
                 None,
+                None,
                 1,
                 &[],
                 &owners,

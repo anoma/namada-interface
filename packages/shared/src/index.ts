@@ -27,26 +27,24 @@ const promiseWithTimeout =
     fn: (...args: U) => Promise<T>,
     opts?: TimeoutOpts
   ) =>
-    (...args: U): Promise<T> => {
-      const { timeout, error } = { ...DEFAULT_OPTS, ...opts };
+  (...args: U): Promise<T> => {
+    const { timeout, error } = { ...DEFAULT_OPTS, ...opts };
 
-      return new Promise(async (resolve, reject) => {
-        const t = setTimeout(() => {
-          reject(error(timeout));
-        }, timeout);
+    return new Promise(async (resolve, reject) => {
+      const t = setTimeout(() => {
+        reject(error(timeout));
+      }, timeout);
 
-        const res = await fn(...args);
-        clearTimeout(t);
-        resolve(res);
-      });
-    };
+      const res = await fn(...args);
+      clearTimeout(t);
+      resolve(res);
+    });
+  };
 
 //Fallbacks for rust panics
 export class Query extends RustQuery {
   private _query_proposals = super.query_proposals.bind(this);
-  query_balance = promiseWithTimeout(super.query_balance.bind(this), {
-    timeout: 600000,
-  });
+  query_balance = super.query_balance.bind(this);
   query_epoch = promiseWithTimeout(super.query_epoch.bind(this));
   query_all_validator_addresses = promiseWithTimeout(
     super.query_all_validator_addresses.bind(this)
