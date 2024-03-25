@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-VERSION="v0.31.8"
+VERSION="v0.32.0"
 CURRENT_VERSION=""
 NAMADA_DIR=".namada"
 NAMADA_BASE_DIR=".namada/basedir"
@@ -28,9 +28,6 @@ if [ "$CURRENT_VERSION" != "$VERSION" ]; then
     tar -xzf ${FILENAME} --directory $NAMADA_DIR --strip-components 1
     rm -rf ${FILENAME}
 
-    # Download wasm checksums
-    curl --location --remote-header-name --remote-name https://raw.githubusercontent.com/anoma/namada/${VERSION}/wasm/checksums.json
-    mv checksums.json "${NAMADA_DIR}/checksums.json"
 
     #  Download masp params
     curl --location --remote-header-name --remote-name https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/masp-output.params 
@@ -38,20 +35,12 @@ if [ "$CURRENT_VERSION" != "$VERSION" ]; then
     curl --location --remote-header-name --remote-name https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/masp-spend.params
     mv masp-*.params "${NAMADA_DIR}"
 
-    # Download wasms
-    CHECKSUMS="${NAMADA_DIR}/checksums.json"
-    WASM=""
-    ARTIFACTS_URL="https://artifacts.heliax.click/namada-wasm"
-
+    rm -rf "${NAMADA_DIR}/checksums.json"
     rm -rf "${NAMADA_DIR}/wasm"
     mkdir "${NAMADA_DIR}/wasm"
 
-    while read -r line; 
-    do
-        WASM=$(echo "$line" | sed -E "s/\".+\":[[:space:]]\"//g" | sed -E "s/\".*//g");
-        curl "${ARTIFACTS_URL}/${WASM}" --output "${NAMADA_DIR}/wasm/${WASM}"
-
-    done < "$CHECKSUMS"
+    cp -r wasm/*.wasm "${NAMADA_DIR}/wasm"
+    cp -r wasm/checksums.json "${NAMADA_DIR}/checksums.json"
 
     # Save version
     echo "${VERSION}" > "${NAMADA_DIR}/.version"
