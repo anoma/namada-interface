@@ -47,13 +47,12 @@ pub struct ShieldedHDWallet {
 #[wasm_bindgen]
 impl ShieldedHDWallet {
     #[wasm_bindgen(constructor)]
-    pub fn new(seed_ptr: VecU8Pointer) -> Result<ShieldedHDWallet, String> {
-        let seed: [u8; 64] = match seed_ptr.vec.clone().try_into() {
-            Ok(seed) => seed,
-            Err(err) => return Err(format!("{}: {:?}", HDWalletError::InvalidSeed, err)),
-        };
+    pub fn new(seed: JsValue) -> Result<ShieldedHDWallet, String> {
+        let seed = js_sys::Uint8Array::from(seed).to_vec();
 
-        Ok(ShieldedHDWallet { seed })
+        Ok(ShieldedHDWallet {
+            seed: seed.try_into().map_err(|_| "Invalid seed length")?,
+        })
     }
 
     pub fn derive(
@@ -95,22 +94,24 @@ mod tests {
     #[test]
     #[should_panic]
     fn invalid_seed_should_panic() {
-        let _zip32 = ShieldedHDWallet::new(VecU8Pointer::new(vec![0, 1, 2, 3, 4])).unwrap();
+        let seed = JsValue::from(js_sys::Uint8Array::new_with_length(60));
+
+        let _zip32 = ShieldedHDWallet::new(seed);
     }
 
     #[test]
     fn can_instantiate_from_seed() {
-        let seed: &[u8] = &[0; 64];
-        let shielded_wallet = ShieldedHDWallet::new(VecU8Pointer::new(Vec::from(seed)));
+        let seed = JsValue::from(js_sys::Uint8Array::new_with_length(64));
+        let shielded_wallet = ShieldedHDWallet::new(seed);
 
         assert!(shielded_wallet.is_ok());
     }
 
     #[test]
     fn can_derive_child_to_serialized() {
-        let seed: &[u8] = &[0; 64];
-        let shielded_wallet = ShieldedHDWallet::new(VecU8Pointer::new(Vec::from(seed)))
-            .expect("Instantiating ShieldedHDWallet should not fail");
+        let seed = JsValue::from(js_sys::Uint8Array::new_with_length(64));
+        let shielded_wallet =
+            ShieldedHDWallet::new(seed).expect("Instantiating ShieldedHDWallet should not fail");
 
         let DerivationResult {
             ref payment_address,

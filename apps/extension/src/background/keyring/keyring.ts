@@ -10,6 +10,7 @@ import {
   VecU8Pointer,
   readStringPointer,
   readVecStringPointer,
+  readVecU8Pointer,
 } from "@namada/crypto";
 
 import {
@@ -310,13 +311,15 @@ export class KeyRing {
   }
 
   public deriveShieldedAccount(
-    seed: VecU8Pointer,
+    seedPtr: VecU8Pointer,
     path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
     const { index } = path;
     const id = generateId(UUID_NAMESPACE, "shielded-account", parentId, index);
     const derivationPath = makeSaplingPathArray(877, path.account);
+    const seed = readVecU8Pointer(seedPtr, this.cryptoMemory);
+
     const zip32 = new ShieldedHDWallet(seed);
     const keys = zip32.derive(derivationPath);
 
