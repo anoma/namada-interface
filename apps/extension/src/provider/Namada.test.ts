@@ -45,7 +45,6 @@ describe("Namada", () => {
     await utilityStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT);
     const storedKeyStore = keyStore.map((store) => store.public);
     const storedAccounts = await namada.accounts();
-    console.log(storedAccounts);
     expect(storedAccounts).toEqual(storedKeyStore);
   });
 });

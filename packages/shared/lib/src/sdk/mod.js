@@ -1,6 +1,7 @@
-export const PREFIX = "Namada::SDK";
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+const PREFIX = "Namada::SDK";
 
-export async function hasMaspParams() {
+async function hasMaspParams() {
   return (
     (await has("masp-spend.params")) &&
     (await has("masp-output.params")) &&
@@ -8,7 +9,7 @@ export async function hasMaspParams() {
   );
 }
 
-export async function fetchAndStoreMaspParams() {
+async function fetchAndStoreMaspParams() {
   return Promise.all([
     fetchAndStore("masp-spend.params"),
     fetchAndStore("masp-output.params"),
@@ -16,7 +17,7 @@ export async function fetchAndStoreMaspParams() {
   ]);
 }
 
-export async function getMaspParams() {
+async function getMaspParams() {
   return Promise.all([
     get("masp-spend.params"),
     get("masp-output.params"),
@@ -59,7 +60,7 @@ function getDB() {
   });
 }
 
-export async function get(key) {
+async function get(key) {
   const tx = (await getDB()).transaction(PREFIX, "readonly");
   const store = tx.objectStore(PREFIX);
 
@@ -98,7 +99,7 @@ async function has(key) {
   });
 }
 
-export async function set(key, data) {
+async function set(key, data) {
   const tx = (await getDB()).transaction(PREFIX, "readwrite");
   const store = tx.objectStore(PREFIX);
 
@@ -117,3 +118,12 @@ export async function set(key, data) {
     };
   });
 }
+
+module.exports = {
+  PREFIX,
+  has,
+  set,
+  hasMaspParams,
+  fetchAndStoreMaspParams,
+  getMaspParams,
+};

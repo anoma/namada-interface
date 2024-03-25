@@ -62,8 +62,9 @@ impl Address {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use wasm_bindgen_test::*;
 
-    #[test]
+    #[wasm_bindgen_test]
     fn can_generate_implicit_address() {
         let secret =
             String::from("1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93");
@@ -74,7 +75,7 @@ mod tests {
         assert_eq!(implicit.len(), address::ADDRESS_LEN);
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn can_return_correct_public_key() {
         let secret =
             String::from("1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93");
@@ -88,7 +89,7 @@ mod tests {
         assert_eq!(public.len(), 66);
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn can_return_correct_public_key_hash() {
         let secret =
             String::from("1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93");

@@ -18,7 +18,7 @@
     "test": "yarn wasm:build:node && yarn jest",
     "test:watch": "yarn wasm:build:node && yarn test --watch",
     "test:ci": "jest",
-    "test-wasm:ci": "cd ./lib && cargo test"
+    "test-wasm:ci": "cd ./lib && wasm-pack test --node"
   },
   "dependencies": {
     "typescript": "^5.1.3"

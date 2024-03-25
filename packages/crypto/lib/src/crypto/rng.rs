@@ -1,5 +1,5 @@
+use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
-use serde::{Serialize, Deserialize};
 
 #[wasm_bindgen]
 #[derive(Serialize, Deserialize)]
@@ -23,8 +23,7 @@ impl Rng {
         };
 
         let mut buf = [0u8; 32];
-        getrandom::getrandom(&mut buf)
-            .map_err(|err| err.to_string())?;
+        getrandom::getrandom(&mut buf).map_err(|err| err.to_string())?;
 
         let buf = Vec::from(buf);
 
@@ -35,21 +34,22 @@ impl Rng {
 #[cfg(test)]
 mod test {
     use super::*;
+    use wasm_bindgen_test::*;
 
-    #[test]
+    #[wasm_bindgen_test]
     fn can_generate_bytes() {
-        let bytes = Rng::generate_bytes(Some(ByteSize::N12))
-            .expect("Generating 12 bytes should not fail");
+        let bytes =
+            Rng::generate_bytes(Some(ByteSize::N12)).expect("Generating 12 bytes should not fail");
 
         assert_eq!(bytes.len(), 12);
 
-        let bytes = Rng::generate_bytes(Some(ByteSize::N24))
-            .expect("Generating 24 bytes should not fail");
+        let bytes =
+            Rng::generate_bytes(Some(ByteSize::N24)).expect("Generating 24 bytes should not fail");
 
         assert_eq!(bytes.len(), 24);
 
-        let bytes = Rng::generate_bytes(Some(ByteSize::N32))
-            .expect("Generating 32 bytes should not fail");
+        let bytes =
+            Rng::generate_bytes(Some(ByteSize::N32)).expect("Generating 32 bytes should not fail");
 
         assert_eq!(bytes.len(), 32);
     }

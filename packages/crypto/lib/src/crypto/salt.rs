@@ -10,12 +10,9 @@ pub struct Salt {
 impl Salt {
     #[wasm_bindgen(constructor)]
     pub fn new(salt: String) -> Result<Salt, String> {
-        let salt = SaltString::new(&salt)
-            .map_err(|err| err.to_string())?;
+        let salt = SaltString::new(&salt).map_err(|err| err.to_string())?;
 
-        Ok(Salt {
-            salt,
-        })
+        Ok(Salt { salt })
     }
 
     pub fn generate() -> Self {
@@ -26,8 +23,7 @@ impl Salt {
 
     pub fn to_bytes(&self) -> Result<Vec<u8>, String> {
         let salt_string = &self.salt.to_string();
-        let salt = argon2::password_hash::Salt::new(salt_string)
-            .map_err(|err| err.to_string())?;
+        let salt = argon2::password_hash::Salt::new(salt_string).map_err(|err| err.to_string())?;
         let bytes: &[u8] = salt.as_bytes();
         Ok(Vec::from(bytes))
     }
@@ -40,22 +36,25 @@ impl Salt {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use wasm_bindgen_test::*;
 
-    #[test]
+    #[wasm_bindgen_test]
     fn can_generate_salt_from_string() {
         let salt_string = String::from("41oVKhMIBZ+oF4efwq7e0A");
-        let salt = Salt::new(salt_string.clone())
-            .expect("Creating instance of Salt should not fail!");
+        let salt =
+            Salt::new(salt_string.clone()).expect("Creating instance of Salt should not fail!");
 
         assert_eq!(salt_string, salt.as_string());
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn can_generate_salt_bytes_from_string() {
         let salt = String::from("41oVKhMIBZ+oF4efwq7e0A");
         let salt = Salt::new(salt).expect("Creating salt from string should not fail");
-        let expected_bytes = vec![52, 49, 111, 86, 75, 104, 77, 73, 66, 90, 43,
-                                  111, 70, 52, 101, 102, 119, 113, 55, 101, 48, 65];
+        let expected_bytes = vec![
+            52, 49, 111, 86, 75, 104, 77, 73, 66, 90, 43, 111, 70, 52, 101, 102, 119, 113, 55, 101,
+            48, 65,
+        ];
         let bytes = salt.to_bytes().expect("Returning to bytes should not fail");
         assert_eq!(bytes, expected_bytes);
     }

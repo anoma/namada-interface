@@ -2,7 +2,6 @@
 //! Imports from masp_primitives::zip32, instead of zcash_primitives::zip32, as
 //! the value for constant ZIP32_SAPLING_MASTER_PERSONALIZATION is different!
 //! Otherwise, these implementations should be equivalent.
-use crate::crypto::{bip32::HDWalletError, pointer_types::VecU8Pointer};
 use borsh::BorshDeserialize;
 use borsh_ext::BorshSerializeExt;
 use masp_primitives::{
@@ -88,18 +87,20 @@ impl ShieldedHDWallet {
 mod tests {
     use super::*;
     use masp_primitives::sapling::PaymentAddress;
+    use wasm_bindgen_test::*;
 
     const KEY_SIZE: usize = 96;
 
-    #[test]
-    #[should_panic]
+    #[wasm_bindgen_test]
     fn invalid_seed_should_panic() {
         let seed = JsValue::from(js_sys::Uint8Array::new_with_length(60));
 
-        let _zip32 = ShieldedHDWallet::new(seed);
+        let res = ShieldedHDWallet::new(seed);
+
+        assert!(res.is_err());
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn can_instantiate_from_seed() {
         let seed = JsValue::from(js_sys::Uint8Array::new_with_length(64));
         let shielded_wallet = ShieldedHDWallet::new(seed);
@@ -107,7 +108,7 @@ mod tests {
         assert!(shielded_wallet.is_ok());
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn can_derive_child_to_serialized() {
         let seed = JsValue::from(js_sys::Uint8Array::new_with_length(64));
         let shielded_wallet =
