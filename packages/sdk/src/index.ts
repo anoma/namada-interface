@@ -2,6 +2,8 @@
 export * from "./ledger";
 
 // Export types
+export { Argon2Config } from "./crypto";
+export type { EncryptionParams } from "./crypto";
 export type { Address, ShieldedKeys, TransparentKeys } from "./keys";
 export type {
   Balance,

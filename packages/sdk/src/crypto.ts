@@ -36,7 +36,7 @@ export type EncryptionParams = {
  * Class Crypto handles AES encryption tasks
  */
 export class Crypto {
-  constructor(protected readonly cryptoMemory: WebAssembly.Memory) {}
+  constructor(protected readonly cryptoMemory: WebAssembly.Memory) { }
 
   /**
    * Encrypt string using AES and Argon2
@@ -63,10 +63,8 @@ export class Crypto {
       iv,
       params: { m_cost, t_cost, p_cost },
     } = params;
-
     const argon2Params = new Argon2Params(m_cost, t_cost, p_cost);
     const newKey = new Argon2(password, salt, argon2Params).key();
-
     const aes = new AES(newKey, iv);
     const vecU8Pointer = aes.decrypt(cipherText);
     const decrypted = readVecU8Pointer(vecU8Pointer, this.cryptoMemory);
@@ -98,6 +96,7 @@ export class Crypto {
     argon2.free();
 
     const iv = Rng.generate_bytes(ByteSize.N12);
+
     return { params, key, salt, iv };
   }
 }
