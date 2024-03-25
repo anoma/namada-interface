@@ -29,6 +29,9 @@ use namada::tx::Tx;
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
+#[cfg(feature = "web")]
+use crate::utils::to_bytes;
+
 #[wasm_bindgen]
 #[derive(Copy, Clone, Debug)]
 pub enum TxType {
@@ -99,8 +102,8 @@ impl Sdk {
     }
 
     #[cfg(feature = "web")]
-    pub async fn load_masp_params(&mut self, _dbName: JsValue) -> Result<(), JsValue> {
-        // _dbName is not used in the web version for a time being
+    pub async fn load_masp_params(&mut self, _db_name: JsValue) -> Result<(), JsValue> {
+        // _dn_name is not used in the web version for a time being
         let params = get_masp_params().await?;
         let params_iter = js_sys::try_iter(&params)?.ok_or_else(|| "Can't iterate over JsValue")?;
         let mut params_bytes = params_iter.map(|p| to_bytes(p.unwrap()));

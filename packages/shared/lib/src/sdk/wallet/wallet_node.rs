@@ -9,7 +9,6 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 use crate::utils::to_bytes;
 
-/// For a non-interactive filesystem based wallet
 #[derive(Debug, BorshSerialize, BorshDeserialize, Clone)]
 #[borsh(crate = "namada::core::borsh")]
 pub struct NodeWalletUtils {

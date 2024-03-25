@@ -13,10 +13,16 @@ export class SdkService {
   private constructor(private readonly sdk: Sdk) {}
 
   static async init(localStorage: LocalStorage): Promise<SdkService> {
-    const chain = (await localStorage.getChain()) || chains.namada;
-    const token = chain.currency.address || tokenAddress;
+    const chain = await localStorage.getChain();
+    const rpc = chain?.rpc || chains.namada.rpc;
+    const token = chain?.currency.address || tokenAddress;
     const { cryptoMemory } = await sdkInit();
-    const sdk = await getSdk(cryptoMemory, chain.rpc, token);
+    const sdk = await getSdk(
+      cryptoMemory,
+      rpc,
+      "TODO: not used db name",
+      token
+    );
 
     return new SdkService(sdk);
   }

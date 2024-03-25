@@ -12,6 +12,7 @@ export * from "./utils";
  * @async
  * @param cryptoMemory - WebAssembly.Memory of crypto package
  * @param url - URL of the node
+ * @param storagePath - Path to store wallet files
  * @param [token] - Native token of the chain
  * @throws {Error} - Unable to Query native token
  * @returns - Sdk instance
@@ -19,6 +20,7 @@ export * from "./utils";
 export async function getSdk(
   cryptoMemory: WebAssembly.Memory,
   url: string,
+  storagePath: string,
   token?: string
 ): Promise<Sdk> {
   // Instantiate QueryWasm
@@ -40,6 +42,6 @@ export async function getSdk(
   }
 
   // Instantiate SdkWasm
-  const sdk = new SdkWasm(url, nativeToken);
+  const sdk = new SdkWasm(url, nativeToken, storagePath);
   return new Sdk(sdk, query, cryptoMemory, url, nativeToken);
 }

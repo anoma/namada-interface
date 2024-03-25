@@ -21,7 +21,7 @@
     "wasm:build:node:multicore": "node ./scripts/build.js --target nodejs --release --multicore",
     "wasm:build:node:dev": "node ./scripts/build.js --target nodejs",
     "wasm:build:node:dev:multicore": "node ./scripts/build.js --target node --multicore",
-    "test-wasm:ci": "cd ./lib && wasm-pack test --node"
+    "test-wasm:ci": "cd ./lib && wasm-pack test --node -- --features dev,web --profile dev"
   },
   "dependencies": {
     "@dao-xyz/borsh": "^5.1.5",

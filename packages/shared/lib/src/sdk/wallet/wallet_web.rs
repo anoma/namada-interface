@@ -1,21 +1,21 @@
-use std::str::FromStr;
-
-use namada::{
-    masp::ExtendedSpendingKey,
-    sdk::wallet::{alias::Alias, Wallet, WalletIo, WalletStorage},
+use namada::sdk::{
+    borsh::{BorshDeserialize, BorshSerialize},
+    wallet::{Wallet, WalletIo, WalletStorage},
 };
 use rand::rngs::OsRng;
 
-#[derive(Clone)]
+#[derive(Debug, BorshSerialize, BorshDeserialize, Clone)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct BrowserWalletUtils {
     #[borsh(skip)]
-    name: String,
+    _name: String,
 }
 
 impl BrowserWalletUtils {
-
-    pub fn new_utils(db_name: &str) -> Self {
-        Self { name }
+    pub fn new_utils(name: &str) -> Self {
+        Self {
+            _name: name.to_string(),
+        }
     }
 }
 

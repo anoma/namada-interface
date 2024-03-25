@@ -207,9 +207,9 @@ export class Rpc {
    * @param signedTx - Transaction with signature
    * @returns void
    */
-  async broadcastTx(signedTx: SignedTx): Promise<void> {
+  async broadcastTx(signedTx: SignedTx): Promise<string> {
     const { txMsg, tx } = signedTx;
-    await this.sdk.process_tx(tx, txMsg);
+    return await this.sdk.process_tx(tx, txMsg);
   }
 
   async shieldedSync(vks: string[]): Promise<void> {

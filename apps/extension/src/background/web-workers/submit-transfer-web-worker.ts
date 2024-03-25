@@ -22,7 +22,7 @@ import {
         const { txMsg } = data;
 
         const sdk = await getSdk(cryptoMemory, rpc, nativeToken);
-        await sdk.masp.loadMaspParams();
+        await sdk.masp.loadMaspParams("TODO: not used for time being");
         // For transparent transactions we have to reveal the public key.
         if (privateKey) {
           await sdk.tx.revealPk(privateKey, txMsg);
