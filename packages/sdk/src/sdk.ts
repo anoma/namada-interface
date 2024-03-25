@@ -1,5 +1,6 @@
 import Transport from "@ledgerhq/hw-transport";
 import { Query as QueryWasm, Sdk as SdkWasm } from "@namada/shared";
+import { Crypto } from "./crypto";
 import { Keys } from "./keys";
 import { Ledger } from "./ledger";
 import { Masp } from "./masp";
@@ -75,6 +76,14 @@ export class Sdk {
   }
 
   /**
+   * Return initialized Crypto class
+   * @returns {Crypto} Utilities for encrypting and decrypting data
+   */
+  getCrypto(): Crypto {
+    return new Crypto(this.cryptoMemory);
+  }
+
+  /**
    * Intialize Ledger class for use with NamadaApp
    * @async
    * @param {Transport} [transport] - Will default to USB transport if not specified
@@ -130,5 +139,13 @@ export class Sdk {
    */
   get masp(): Masp {
     return this.getMasp();
+  }
+
+  /**
+   * Define crypto getter to use with destructuring assignment
+   * @returns {Crypto} Utilities for encrypting and decrypting data
+   */
+  get crypto(): Crypto {
+    return this.getCrypto();
   }
 }
