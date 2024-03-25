@@ -279,6 +279,7 @@ impl Sdk {
                         self.namada.client(),
                         &DefaultLogger::new(&WebIo),
                         None,
+                        None,
                         1,
                         &[xsk.into()],
                         &[],
