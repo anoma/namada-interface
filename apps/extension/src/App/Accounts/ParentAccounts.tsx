@@ -50,7 +50,7 @@ export const ParentAccounts = (): JSX.Element => {
           <p className="text-white font-medium text-xs">Set default keys</p>
           <div className="w-24">
             <ActionButton borderRadius="md" size="xs" onClick={goToSetupPage}>
-              Add keys
+              Add Keys
             </ActionButton>
           </div>
         </nav>
