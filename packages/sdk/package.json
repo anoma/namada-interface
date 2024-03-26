@@ -25,7 +25,6 @@
   "license": "MIT",
   "scriptsComments": {
     "prepublish": "We make focused install to make sure that we specified all required dependencies",
-    "bundle-dts": "TODO: We bundle dts based on indexWeb.d.ts, but it should have the same api as indexNode.d.ts",
     "wasm:node:cp": "We need to copy wasm to the shared in dist folder, so it can be imported correctly in node"
   },
   "scripts": {
@@ -79,9 +78,7 @@
     "@release-it/conventional-changelog": "^8.0.1",
     "@types/jest": "^29.0.3",
     "@types/node": "^20.11.4",
-    "@zerollup/ts-transform-paths": "^1.7.18",
     "babel-jest": "^29.0.3",
-    "dts-bundle-generator": "^9.3.1",
     "eslint": "^8.49.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-import-resolver-typescript": "^3.5.0",

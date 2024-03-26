@@ -8190,12 +8190,10 @@ __metadata:
     "@release-it/conventional-changelog": "npm:^8.0.1"
     "@types/jest": "npm:^29.0.3"
     "@types/node": "npm:^20.11.4"
-    "@zerollup/ts-transform-paths": "npm:^1.7.18"
     "@zondax/ledger-namada": "npm:^0.0.4"
     babel-jest: "npm:^29.0.3"
     bignumber.js: "npm:^9.1.1"
     buffer: "npm:^6.0.3"
-    dts-bundle-generator: "npm:^9.3.1"
     eslint: "npm:^8.49.0"
     eslint-config-prettier: "npm:^8.8.0"
     eslint-import-resolver-typescript: "npm:^3.5.0"
@@ -11365,28 +11363,6 @@ __metadata:
   version: 4.2.2
   resolution: "@xtuc/long@npm:4.2.2"
   checksum: 8582cbc69c79ad2d31568c412129bf23d2b1210a1dfb60c82d5a1df93334da4ee51f3057051658569e2c196d8dc33bc05ae6b974a711d0d16e801e1d0647ccd1
-  languageName: node
-  linkType: hard
-
-"@zerollup/ts-helpers@npm:^1.7.18":
-  version: 1.7.18
-  resolution: "@zerollup/ts-helpers@npm:1.7.18"
-  dependencies:
-    resolve: "npm:^1.12.0"
-  peerDependencies:
-    typescript: ">=3.7.2"
-  checksum: 9ed283a2c96704df1261111178ba6eaa6e8b9ca21b62475b503de535022747d69fe80d1442eb4cd430197b13833cc94845bedf534697d3b3adb5df7dbe7b3fef
-  languageName: node
-  linkType: hard
-
-"@zerollup/ts-transform-paths@npm:^1.7.18":
-  version: 1.7.18
-  resolution: "@zerollup/ts-transform-paths@npm:1.7.18"
-  dependencies:
-    "@zerollup/ts-helpers": "npm:^1.7.18"
-  peerDependencies:
-    typescript: ">=3.7.2"
-  checksum: d8a4ebd2855f90c11d86e940795e44917261dab5e2d144de1fe34dc2c976d26c69c8e98e96ef8b1261eb57bd5e03ecc6cb5987df635d38bcce293b08191dc879
   languageName: node
   linkType: hard
 
@@ -16419,18 +16395,6 @@ __metadata:
     nan: "npm:^2.14.0"
     node-gyp: "npm:latest"
   checksum: 33bfc18462dd59ae1de094c64b7b093d2f7f67dec48f138df3a7507c09aaed2a964a245e7bdf2bde7d1a6cc467b11d7396e0fb13a6b882642d42a44cc08c61da
-  languageName: node
-  linkType: hard
-
-"dts-bundle-generator@npm:^9.3.1":
-  version: 9.3.1
-  resolution: "dts-bundle-generator@npm:9.3.1"
-  dependencies:
-    typescript: "npm:>=5.0.2"
-    yargs: "npm:^17.6.0"
-  bin:
-    dts-bundle-generator: dist/bin/dts-bundle-generator.js
-  checksum: ea7cfd61c5fe88e15678c39b158ac60f25ce8a53334eee79fe0a39241151f230d46fc09ba52be221757466fc812372d02d049ccd24973bd10a34a9c5e55ee994
   languageName: node
   linkType: hard
 
@@ -30630,7 +30594,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"resolve@npm:^1.1.6, resolve@npm:^1.1.7, resolve@npm:^1.12.0, resolve@npm:^1.22.2":
+"resolve@npm:^1.1.6, resolve@npm:^1.1.7, resolve@npm:^1.22.2":
   version: 1.22.8
   resolution: "resolve@npm:1.22.8"
   dependencies:
@@ -30705,7 +30669,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"resolve@patch:resolve@npm%3A^1.1.6#optional!builtin<compat/resolve>, resolve@patch:resolve@npm%3A^1.1.7#optional!builtin<compat/resolve>, resolve@patch:resolve@npm%3A^1.12.0#optional!builtin<compat/resolve>, resolve@patch:resolve@npm%3A^1.22.2#optional!builtin<compat/resolve>":
+"resolve@patch:resolve@npm%3A^1.1.6#optional!builtin<compat/resolve>, resolve@patch:resolve@npm%3A^1.1.7#optional!builtin<compat/resolve>, resolve@patch:resolve@npm%3A^1.22.2#optional!builtin<compat/resolve>":
   version: 1.22.8
   resolution: "resolve@patch:resolve@npm%3A1.22.8#optional!builtin<compat/resolve>::version=1.22.8&hash=c3c19d"
   dependencies:
@@ -34020,16 +33984,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:>=5.0.2":
-  version: 5.4.3
-  resolution: "typescript@npm:5.4.3"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 22443a8760c3668e256c0b34b6b45c359ef6cecc10c42558806177a7d500ab1a7d7aac1f976d712e26989ddf6731d2fbdd3212b7c73290a45127c1c43ba2005a
-  languageName: node
-  linkType: hard
-
 "typescript@npm:^5.1.3":
   version: 5.1.3
   resolution: "typescript@npm:5.1.3"
@@ -34037,16 +33991,6 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 1faba8d5ffd4717864ddce767613c5ab77c1c8510c1ce21dc9b112a4c662357b9338dc0a6121615266d3a44ebec699f115ef2dabf18d9d7341ea1675692b9b24
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@npm%3A>=5.0.2#optional!builtin<compat/typescript>":
-  version: 5.4.3
-  resolution: "typescript@patch:typescript@npm%3A5.4.3#optional!builtin<compat/typescript>::version=5.4.3&hash=e012d7"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 1b50712759f1e4bf4bf6fe7e662235358b716972dec8aa9ca117dee531dbd7b417f5fe28f74d347b4447eec09a200c0372fe9cf1aad2e15a2bcf4a1a99db0820
   languageName: node
   linkType: hard
 
@@ -36131,7 +36075,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yargs@npm:17.7.2, yargs@npm:^17.6.0":
+"yargs@npm:17.7.2":
   version: 17.7.2
   resolution: "yargs@npm:17.7.2"
   dependencies:

@@ -3,7 +3,6 @@ import { Schema } from "../schema";
 
 export interface IMessage<T extends Schema> {
   encode(value: T): Uint8Array;
-  decode(buffer: Uint8Array, parser: Constructor<T>): T;
 }
 
 export class Message<T extends Schema> implements IMessage<T> {
@@ -15,14 +14,7 @@ export class Message<T extends Schema> implements IMessage<T> {
     }
   }
 
-  public decode(buffer: Uint8Array, parser: Constructor<T>): T {
-    try {
-      return deserialize(Buffer.from(buffer), parser);
-    } catch (e) {
-      throw new Error(`Unable to deserialize message: ${e}`);
-    }
-  }
-  public static dec<T extends Schema>(
+  public static decode<T extends Schema>(
     buffer: Uint8Array,
     parser: Constructor<T>
   ): T {

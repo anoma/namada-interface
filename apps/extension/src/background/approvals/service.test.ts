@@ -42,6 +42,7 @@ jest.mock("@namada/utils", () => {
   };
 });
 
+// Because we run tests in node environment, we need to mock web-init as node-init
 jest.mock(
   "@namada/sdk/web-init",
   () => () =>

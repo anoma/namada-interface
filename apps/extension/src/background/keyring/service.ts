@@ -184,8 +184,8 @@ export class KeyRingService {
   ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Bond);
     try {
-      const txMsgValue = Message.dec(fromBase64(txMsg), TxMsgValue);
-      const bondMsgValue = Message.dec(fromBase64(bondMsg), BondMsgValue);
+      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+      const bondMsgValue = Message.decode(fromBase64(bondMsg), BondMsgValue);
 
       const innerTxHash = await this._keyRing.submitBond(
         bondMsgValue,
@@ -208,8 +208,11 @@ export class KeyRingService {
   ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Unbond);
     try {
-      const txMsgValue = Message.dec(fromBase64(txMsg), TxMsgValue);
-      const unbondMsgValue = Message.dec(fromBase64(unbondMsg), UnbondMsgValue);
+      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+      const unbondMsgValue = Message.decode(
+        fromBase64(unbondMsg),
+        UnbondMsgValue
+      );
 
       const innerTxHash = await this._keyRing.submitUnbond(
         unbondMsgValue,
@@ -237,8 +240,8 @@ export class KeyRingService {
   ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Withdraw);
     try {
-      const txMsgValue = Message.dec(fromBase64(txMsg), TxMsgValue);
-      const withdrawMsgValue = Message.dec(
+      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+      const withdrawMsgValue = Message.decode(
         fromBase64(withdrawMsg),
         WithdrawMsgValue
       );
@@ -269,8 +272,8 @@ export class KeyRingService {
   ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.VoteProposal);
     try {
-      const txMsgValue = Message.dec(fromBase64(txMsg), TxMsgValue);
-      const voteProposalMsgValue = Message.dec(
+      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+      const voteProposalMsgValue = Message.decode(
         fromBase64(voteProposalMsg),
         VoteProposalMsgValue
       );
@@ -314,8 +317,8 @@ export class KeyRingService {
       await createOffscreenWithTxWorker(offscreenDocumentPath);
     }
 
-    const txMsgValue = Message.dec(fromBase64(txMsg), TxMsgValue);
-    const transferMsgValue = Message.dec(
+    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+    const transferMsgValue = Message.decode(
       fromBase64(transferMsg),
       TransferMsgValue
     );
@@ -351,8 +354,8 @@ export class KeyRingService {
     const {
       currency: { address: nativeToken = tokenAddress },
     } = await this.chainsService.getChain();
-    const txMsgValue = Message.dec(fromBase64(txMsg), TxMsgValue);
-    const transferMsgValue = Message.dec(
+    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+    const transferMsgValue = Message.decode(
       fromBase64(transferMsg),
       TransferMsgValue
     );
@@ -418,8 +421,8 @@ export class KeyRingService {
     txMsg: string,
     msgId: string
   ): Promise<void> {
-    const txMsgValue = Message.dec(fromBase64(txMsg), TxMsgValue);
-    const ibcTransferMsgValue = Message.dec(
+    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+    const ibcTransferMsgValue = Message.decode(
       fromBase64(ibcTransferMsg),
       IbcTransferMsgValue
     );
@@ -455,8 +458,8 @@ export class KeyRingService {
     txMsg: string,
     msgId: string
   ): Promise<void> {
-    const txMsgValue = Message.dec(fromBase64(txMsg), TxMsgValue);
-    const ethBridgeTransferMsgValue = Message.dec(
+    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+    const ethBridgeTransferMsgValue = Message.decode(
       fromBase64(ethBridgeTransferMsg),
       EthBridgeTransferMsgValue
     );

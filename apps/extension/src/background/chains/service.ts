@@ -18,7 +18,7 @@ export class ChainsService {
 
   private async _queryNativeToken(chain: Chain): Promise<Chain> {
     try {
-      const nativeToken = await this.sdkService.getQuery().queryNativeToken();
+      const nativeToken = await this.sdkService.getSdk().rpc.queryNativeToken();
 
       if (nativeToken) {
         chain.currency.address = nativeToken;

@@ -7,20 +7,17 @@ Namada SDK package
 ## Development
 
 ```bash
-# Build wasm for web for single core, release mode
-yarn wasm:build
+# Build wasm for single core, release mode
+yarn wasm:build[:node]
 
-# Build wasm for web for multicore, release mode
-yarn wasm:build:multicore
+# Build wasm for multicore, release mode
+yarn wasm:build[:node]:multicore
 
 # Build wasm with debugging for single core
-yarn wasm:build:dev
+yarn wasm:build[:node]:dev
 
 # Build wasm with debugging for multicore
-yarn wasm:build:dev:multicore
-
-# Build wasm for NodeJS
-yarn wasm:build:node
+yarn wasm:build[:node]:dev:multicore
 ```
 
 ## Usage

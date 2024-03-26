@@ -820,7 +820,7 @@ export class KeyRing {
     owner: string,
     tokens: string[]
   ): Promise<{ token: string; amount: string }[]> {
-    const query = this.sdkService.getQuery();
+    const query = this.sdkService.getSdk().rpc;
 
     try {
       return (await query.queryBalance(owner, tokens)).map(
@@ -838,7 +838,7 @@ export class KeyRing {
   }
 
   async queryPublicKey(address: string): Promise<string | undefined> {
-    const query = this.sdkService.getQuery();
+    const query = this.sdkService.getSdk().rpc;
     return await query.queryPublicKey(address);
   }
 

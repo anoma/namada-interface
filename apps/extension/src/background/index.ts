@@ -57,7 +57,6 @@ const init = new Promise<void>(async (resolve) => {
   const broadcaster = new ExtensionBroadcaster(localStorage, requester);
   const sdkService = await SdkService.init(localStorage);
 
-  //TODO: Probably worth moving crypto logic to the Sdk?
   const { cryptoMemory } = sdkService.getSdk();
 
   const vaultService = new VaultService(
