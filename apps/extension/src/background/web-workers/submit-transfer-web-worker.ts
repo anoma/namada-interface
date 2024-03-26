@@ -1,5 +1,5 @@
 import { getSdk } from "@namada/sdk/web";
-import sdkInit from "@namada/sdk/web-init";
+import { initMulticore } from "@namada/sdk/web-init";
 import {
   INIT_MSG,
   SubmitTransferMessageData,
@@ -9,7 +9,7 @@ import {
 } from "./types";
 
 (async function init() {
-  const { cryptoMemory } = await sdkInit();
+  const { cryptoMemory } = await initMulticore();
   addEventListener(
     "message",
     async ({ data }: { data: SubmitTransferMessageData }) => {
