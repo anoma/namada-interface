@@ -284,6 +284,7 @@ pub struct SubmitIbcTransferMsg {
     channel_id: String,
     timeout_height: Option<u64>,
     timeout_sec_offset: Option<u64>,
+    memo: Option<String>,
 }
 
 /// Maps serialized tx_msg into IbcTransferTx args.
@@ -310,6 +311,7 @@ pub fn ibc_transfer_tx_args(
         channel_id,
         timeout_height,
         timeout_sec_offset,
+        memo,
     } = ibc_transfer_msg;
 
     let source_address = Address::from_str(&source)?;
@@ -323,7 +325,7 @@ pub fn ibc_transfer_tx_args(
 
     let args = args::TxIbcTransfer {
         tx,
-        memo: None,
+        memo,
         source,
         receiver,
         token,

@@ -60,6 +60,7 @@ export const submitIbcTransfer = async (
     portId,
     channelId,
     nativeToken,
+    memo,
   } = ibcArgs;
   const integration = getIntegration(chainKey);
 
@@ -72,6 +73,7 @@ export const submitIbcTransfer = async (
         amount,
         portId,
         channelId,
+        memo,
       },
       txProps: {
         token: nativeToken || tokenAddress,
