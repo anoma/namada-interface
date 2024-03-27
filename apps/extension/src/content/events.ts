@@ -1,3 +1,4 @@
+import { NamadaEvent } from "@namada/sdk/events";
 import { TxType } from "@namada/shared";
 import { Events } from "@namada/types";
 import { LocalStorage } from "storage";
@@ -134,8 +135,9 @@ export class TxCompletedEvent extends Message<void> {
   constructor(
     public readonly msgId: string,
     public readonly txType: TxType,
-    public readonly success?: boolean,
-    public readonly payload?: string
+    public readonly success: boolean,
+    public readonly txHash?: string,
+    public readonly error?: { code: "REJECTED" | "UNKNOWN"; message?: string }
   ) {
     super();
   }
@@ -234,9 +236,9 @@ export function initEvents(router: Router, localStorage: LocalStorage): void {
 
   router.addHandler(Routes.InteractionForeground, async (_, msg) => {
     const clonedMsg =
-      typeof cloneInto !== "undefined"
-        ? cloneInto(msg, document.defaultView)
-        : msg;
+      typeof cloneInto !== "undefined" ?
+        cloneInto(msg, document.defaultView)
+      : msg;
 
     if (msg.constructor !== ConnectionRevokedEventMsg) {
       const approvedOrigins = (await localStorage.getApprovedOrigins()) || [];
@@ -247,40 +249,58 @@ export function initEvents(router: Router, localStorage: LocalStorage): void {
 
     switch (msg.constructor) {
       case AccountChangedEventMsg:
-        window.dispatchEvent(
-          new CustomEvent(Events.AccountChanged, { detail: clonedMsg })
-        );
+        dispatchNamadaEvent(new NamadaEvent(Events.AccountChanged));
         break;
       case NetworkChangedEventMsg:
-        window.dispatchEvent(new CustomEvent(Events.NetworkChanged));
+        dispatchNamadaEvent(new NamadaEvent(Events.NetworkChanged));
         break;
       case TxStartedEvent:
-        window.dispatchEvent(
-          new CustomEvent(Events.TxStarted, { detail: clonedMsg })
+        const txStartedEvent = clonedMsg as TxStartedEvent;
+        dispatchNamadaEvent(
+          new NamadaEvent(Events.TxStarted, {
+            detail: {
+              msgId: txStartedEvent.msgId,
+              txType: txStartedEvent.txType,
+            },
+          })
         );
         break;
       case TxCompletedEvent:
-        window.dispatchEvent(
-          new CustomEvent(Events.TxCompleted, { detail: clonedMsg })
+        const txCompletedEvent = clonedMsg as TxCompletedEvent;
+        dispatchNamadaEvent(
+          new NamadaEvent(Events.TxCompleted, {
+            detail: {
+              msgId: txCompletedEvent.msgId,
+              txType: txCompletedEvent.txType,
+              success: txCompletedEvent.success,
+              txHash: txCompletedEvent.txHash,
+              error: txCompletedEvent.error,
+            },
+          })
         );
         break;
       case UpdatedBalancesEventMsg:
-        window.dispatchEvent(new CustomEvent(Events.UpdatedBalances));
+        dispatchNamadaEvent(new NamadaEvent(Events.UpdatedBalances));
         break;
       case UpdatedStakingEventMsg:
-        window.dispatchEvent(new CustomEvent(Events.UpdatedStaking));
+        dispatchNamadaEvent(new NamadaEvent(Events.UpdatedStaking));
         break;
       case ProposalsUpdatedEventMsg:
-        window.dispatchEvent(new CustomEvent(Events.ProposalsUpdated));
+        dispatchNamadaEvent(new NamadaEvent(Events.ProposalsUpdated));
         break;
       case VaultLockedEventMsg:
-        window.dispatchEvent(new CustomEvent(Events.ExtensionLocked));
+        dispatchNamadaEvent(new NamadaEvent(Events.ExtensionLocked));
         break;
       case ConnectionRevokedEventMsg:
-        window.dispatchEvent(new CustomEvent(Events.ConnectionRevoked));
+        dispatchNamadaEvent(new NamadaEvent(Events.ConnectionRevoked));
         break;
       default:
         throw new Error("Unknown msg type");
     }
   });
 }
+
+// Wrapper around window.dispatchEvent for better type safety.
+const dispatchNamadaEvent = <E extends Events>(
+  event: NamadaEvent<E>
+): boolean => window.dispatchEvent(event);

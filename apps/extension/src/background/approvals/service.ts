@@ -136,21 +136,15 @@ export class ApprovalsService {
     const specificMsgBuffer = Buffer.from(fromBase64(specificMsg));
 
     const getParams =
-      txType === TxType.Bond
-        ? ApprovalsService.getParamsBond
-        : txType === TxType.Unbond
-          ? ApprovalsService.getParamsUnbond
-          : txType === TxType.Withdraw
-            ? ApprovalsService.getParamsWithdraw
-            : txType === TxType.Transfer
-              ? ApprovalsService.getParamsTransfer
-              : txType === TxType.IBCTransfer
-                ? ApprovalsService.getParamsIbcTransfer
-                : txType === TxType.EthBridgeTransfer
-                  ? ApprovalsService.getParamsEthBridgeTransfer
-                  : txType === TxType.VoteProposal
-                    ? ApprovalsService.getParamsVoteProposal
-                    : assertNever(txType);
+      txType === TxType.Bond ? ApprovalsService.getParamsBond
+      : txType === TxType.Unbond ? ApprovalsService.getParamsUnbond
+      : txType === TxType.Withdraw ? ApprovalsService.getParamsWithdraw
+      : txType === TxType.Transfer ? ApprovalsService.getParamsTransfer
+      : txType === TxType.IBCTransfer ? ApprovalsService.getParamsIbcTransfer
+      : txType === TxType.EthBridgeTransfer ?
+        ApprovalsService.getParamsEthBridgeTransfer
+      : txType === TxType.VoteProposal ? ApprovalsService.getParamsVoteProposal
+      : assertNever(txType);
 
     const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
@@ -302,6 +296,18 @@ export class ApprovalsService {
 
   // Remove pending transaction from storage
   async rejectTx(msgId: string): Promise<void> {
+    // Fetch pending transfer tx
+    const tx = await this.txStore.get(msgId);
+
+    if (!tx) {
+      throw new Error("Pending tx not found!");
+    }
+
+    const { txType } = tx;
+
+    await this.broadcaster.completeTx(msgId, txType, false, {
+      error: { code: "REJECTED" },
+    });
     await this._clearPendingTx(msgId);
   }
 
@@ -317,21 +323,15 @@ export class ApprovalsService {
     const { txType, specificMsg, txMsg } = tx;
 
     const submitFn =
-      txType === TxType.Bond
-        ? this.keyRingService.submitBond
-        : txType === TxType.Unbond
-          ? this.keyRingService.submitUnbond
-          : txType === TxType.Transfer
-            ? this.keyRingService.submitTransfer
-            : txType === TxType.IBCTransfer
-              ? this.keyRingService.submitIbcTransfer
-              : txType === TxType.EthBridgeTransfer
-                ? this.keyRingService.submitEthBridgeTransfer
-                : txType === TxType.Withdraw
-                  ? this.keyRingService.submitWithdraw
-                  : txType === TxType.VoteProposal
-                    ? this.keyRingService.submitVoteProposal
-                    : assertNever(txType);
+      txType === TxType.Bond ? this.keyRingService.submitBond
+      : txType === TxType.Unbond ? this.keyRingService.submitUnbond
+      : txType === TxType.Transfer ? this.keyRingService.submitTransfer
+      : txType === TxType.IBCTransfer ? this.keyRingService.submitIbcTransfer
+      : txType === TxType.EthBridgeTransfer ?
+        this.keyRingService.submitEthBridgeTransfer
+      : txType === TxType.Withdraw ? this.keyRingService.submitWithdraw
+      : txType === TxType.VoteProposal ? this.keyRingService.submitVoteProposal
+      : assertNever(txType);
 
     await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
 
