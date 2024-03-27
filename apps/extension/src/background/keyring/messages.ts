@@ -2,15 +2,15 @@ import { PhraseSize } from "@namada/crypto";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Result } from "@namada/utils";
 import { Message } from "router";
+import { validatePrivateKey, validateProps } from "utils";
 import { ROUTE } from "./constants";
 import {
+  AccountSecret,
   AccountStore,
   DeleteAccountError,
-  ParentAccount,
-  AccountSecret,
   MnemonicValidationResponse,
+  ParentAccount,
 } from "./types";
-import { validatePrivateKey } from "utils";
 
 enum MessageType {
   QueryPublicKey = "query-public-key",
@@ -405,15 +405,13 @@ export class TransferCompletedEvent extends Message<void> {
   constructor(
     public readonly success: boolean,
     public readonly msgId: string,
-    public readonly payload?: string
+    public readonly payload: string
   ) {
     super();
   }
 
   validate(): void {
-    if (this.success === undefined) {
-      throw new Error("Success is undefined");
-    }
+    validateProps(this, ["success", "msgId", "payload"]);
   }
 
   route(): string {

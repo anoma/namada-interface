@@ -2,7 +2,7 @@ import { init as initCrypto } from "@namada/crypto/src/init";
 import { Query as QueryWasm, Sdk as SdkWasm } from "@namada/shared";
 import { init as initShared } from "@namada/shared/src/init";
 
-import { Sdk } from "sdk";
+import { Sdk } from "./sdk";
 
 /**
  * Returns an initialized Sdk class asynchronously. This is required to use
