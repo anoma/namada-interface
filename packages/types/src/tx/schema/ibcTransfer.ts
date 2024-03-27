@@ -29,6 +29,9 @@ export class IbcTransferMsgValue {
   @field({ type: option("u64") })
   timeoutSecOffset?: bigint;
 
+  @field({ type: option("string") })
+  memo?: string;
+
   constructor(data: IbcTransferProps) {
     Object.assign(this, data);
   }
