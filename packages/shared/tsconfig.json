@@ -19,6 +19,7 @@
     "types": ["node", "jest"],
     "declaration": true
   },
-  "include": ["./src"],
+  //TODO: remove .eslintrc after fixing lintstaged
+  "include": ["src", "lib", ".eslintrc.js"],
   "typeRoots": ["./node_modules/@types", "./src/types"]
 }

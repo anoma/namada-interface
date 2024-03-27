@@ -17,7 +17,7 @@
     "wasm:build:dev": "node ./scripts/build.js",
     "wasm:build:dev:multicore": "node ./scripts/build.js --multicore",
     "wasm:build:node": "./scripts/build-test.sh",
-    "test-wasm:ci": "cd ./lib && cargo test"
+    "test-wasm:ci": "cd ./lib && wasm-pack test --node"
   },
   "dependencies": {
     "@dao-xyz/borsh": "^5.1.5",

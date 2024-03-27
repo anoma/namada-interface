@@ -23,6 +23,7 @@ const memory = require("../crypto/crypto").__wasm.memory;
 const KEY_LENGTH = 32;
 const SEED_LENGTH = 64;
 const SHIELDED_CHILD_KEY_LENGTH = 169;
+//odor panic bar rotate answer settle champion act excite family arrow season
 const MNEMONIC_WORDS = [
   "odor",
   "panic",
@@ -113,8 +114,8 @@ describe("ShieldedHDWallet", () => {
     const seed = m.to_seed();
     const b = new ShieldedHDWallet(seed);
 
-    const account1 = b.derive_to_serialized_keys(1);
-    const account2 = b.derive_to_serialized_keys(2);
+    const account1 = b.derive(new Uint32Array([32, 877, 0]));
+    const account2 = b.derive(new Uint32Array([32, 877, 1]));
 
     expect(account1.xsk().length).toBe(SHIELDED_CHILD_KEY_LENGTH);
     expect(account1.xfvk().length).toBe(SHIELDED_CHILD_KEY_LENGTH);

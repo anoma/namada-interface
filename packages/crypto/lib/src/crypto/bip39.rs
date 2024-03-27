@@ -84,7 +84,7 @@ mod tests {
     use super::*;
     use wasm_bindgen_test::*;
 
-    #[test]
+    #[wasm_bindgen_test]
     fn can_generate_mnemonic_from_size() {
         let mnemonic = Mnemonic::new(PhraseSize::N12);
         let phrase = mnemonic.phrase();
@@ -99,7 +99,7 @@ mod tests {
         assert_eq!(words.iter().len(), 24);
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn can_generate_seed_from_phrase() {
         let phrase = "caught pig embody hip goose like become worry face oval manual flame \
                       pizza steel viable proud eternal speed chapter sunny boat because view bullet";
@@ -111,11 +111,12 @@ mod tests {
         assert_eq!(seed.vec.len(), 64);
     }
 
-    #[test]
-    #[should_panic]
+    #[wasm_bindgen_test]
     fn invalid_phrase_should_panic() {
         let bad_phrase = "caught pig embody hip goose like become";
-        let _ = Mnemonic::from_phrase(bad_phrase.into()).expect("This should fail");
+        let res = Mnemonic::from_phrase(bad_phrase.into());
+
+        assert!(res.is_err());
     }
 
     #[wasm_bindgen_test]

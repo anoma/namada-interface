@@ -13,7 +13,7 @@ import {
   PaymentAddress,
 } from "@namada/shared";
 import { Bip44Path } from "@namada/types";
-import { makeBip44PathArray } from "@namada/utils";
+import { makeBip44PathArray, makeSaplingPathArray } from "@namada/utils";
 import { Address, ShieldedKeys, TransparentKeys } from "./types";
 
 const DEFAULT_PATH: Bip44Path = {
@@ -135,9 +135,9 @@ export class Keys {
     seed: Uint8Array,
     path: Bip44Path = DEFAULT_PATH
   ): ShieldedKeys {
-    const { index } = path;
-    const zip32 = ShieldedHDWallet.from_seed(seed);
-    const account = zip32.derive_to_serialized_keys(index);
+    const zip32 = new ShieldedHDWallet(seed);
+    const derivationPath = makeSaplingPathArray(877, path.account);
+    const account = zip32.derive(derivationPath);
 
     // Retrieve serialized types from wasm
     const xsk = account.xsk();

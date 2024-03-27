@@ -27,7 +27,6 @@ import {
   address0,
   address1,
   ethAddress0,
-  passphrase0,
   passphrase1,
   shieldedAddress0,
   shieldedAddress1,
@@ -77,16 +76,15 @@ describe("Namada", () => {
   });
 
   describe("account", () => {
-    test("create account & derive addresses", async () => {
+    test("create account", async () => {
       await createAccount(browser, page);
     });
 
-    test("import account & derive addresses", async () => {
+    test("import account", async () => {
       await importAccount(browser, page);
     });
 
-    test("import accounts with passphrases", async () => {
-      await importAccount(browser, page, { passphrase: passphrase0 });
+    test("import account with passphrase", async () => {
       await importAccount(browser, page, { passphrase: passphrase1 });
 
       // Wait for close page button

@@ -86,8 +86,9 @@ impl HDWallet {
 mod tests {
     use super::*;
     use crate::crypto::bip39::Mnemonic;
+    use wasm_bindgen_test::*;
 
-    #[test]
+    #[wasm_bindgen_test]
     fn can_derive_keys_from_path() {
         let phrase = "caught pig embody hip goose like become worry face oval manual flame \
                       pizza steel viable proud eternal speed chapter sunny boat because view bullet";
@@ -108,15 +109,18 @@ mod tests {
         );
     }
 
-    #[test]
-    #[should_panic]
+    // TODO: we use test instead of wasm_bindgen_test because we want to catch the panic
+    #[wasm_bindgen_test]
     fn invalid_seed_should_panic() {
-        let _bip44 = HDWallet::new(VecU8Pointer::new(vec![0, 1, 2, 3, 4])).unwrap();
+        let res = HDWallet::new(VecU8Pointer::new(vec![0, 1, 2, 3, 4]));
+
+        assert!(res.is_err());
     }
 
-    #[test]
-    #[should_panic]
+    #[wasm_bindgen_test]
     fn invalid_key_should_panic() {
-        let _key = Key::new(vec![0, 1, 2, 3, 4]).unwrap();
+        let res = Key::new(vec![0, 1, 2, 3, 4]);
+
+        assert!(res.is_err());
     }
 }

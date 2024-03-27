@@ -103,7 +103,9 @@ impl PaymentAddress {
 mod tests {
     use super::*;
 
-    #[test]
+    use wasm_bindgen_test::*;
+
+    #[wasm_bindgen_test]
     fn can_deserialize_an_extended_spending_key() {
         // BorshSerialize'd slice, generated from @namada/crypto - zip32
         let encoded_xsk: &[u8] = &[
@@ -133,7 +135,7 @@ mod tests {
         assert_eq!(key, expected_key);
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn can_deserialize_an_extended_viewing_key() {
         // BorshSerialize'd slice, generated from @namada/crypto - zip32
         let encoded_xfvk: &[u8] = &[
@@ -162,7 +164,7 @@ mod tests {
         assert_eq!(key, expected_key);
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn can_deserialize_a_payment_address() {
         // BorshSerialize'd slice, generated from @namada/crypto - zip32
         let encoded_payment_address: &[u8] = &[
@@ -186,7 +188,7 @@ mod tests {
         assert_eq!(hash, expected_hash);
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn can_pin_a_payment_address() {
         let encoded_payment_address: &[u8] = &[
             100, 199, 34, 96, 93, 67, 18, 95, 86, 139, 123, 213, 141, 228, 147, 169, 218, 247, 75,
