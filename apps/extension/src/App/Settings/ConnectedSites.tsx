@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { useCallback, useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 
-import { Alert, Stack } from "@namada/components";
+import { ActionButton, Alert, Stack } from "@namada/components";
 import { PageHeader } from "App/Common";
 import {
   ApprovedOriginsStore,
@@ -21,6 +21,24 @@ const localStorage = new LocalStorage(
   })
 );
 
+const DisconnectAllButton: React.FC<{
+  connectedSites: string[];
+  revokeConnection: (...sites: string[]) => Promise<void>;
+}> = ({ connectedSites, revokeConnection }) => {
+  const handleRevokeAllConnections = async (): Promise<void> =>
+    await revokeConnection(...connectedSites);
+
+  return (
+    <ActionButton
+      borderRadius="md"
+      size="xs"
+      onClick={handleRevokeAllConnections}
+    >
+      Disconnect All
+    </ActionButton>
+  );
+};
+
 export const ConnectedSites: React.FC = ({}) => {
   const [connectedSites, setConnectedSites] = useState<ApprovedOriginsStore>();
   const requester = useRequester();
@@ -28,19 +46,19 @@ export const ConnectedSites: React.FC = ({}) => {
   const fetchConnectedSites = useCallback(() => {
     localStorage
       .getApprovedOrigins()
-      .then((origins) =>
-        setConnectedSites((origins as ApprovedOriginsStore) || [])
-      )
+      .then((origins) => setConnectedSites(origins || []))
       .catch(console.error);
   }, [setConnectedSites]);
 
   useEffect(fetchConnectedSites);
 
-  const handleRevokeConnection = async (site: string): Promise<void> => {
-    await requester.sendMessage(
-      Ports.Background,
-      new RevokeConnectionMsg(site)
-    );
+  const handleRevokeConnection = async (...sites: string[]): Promise<void> => {
+    for (const site of sites) {
+      await requester.sendMessage(
+        Ports.Background,
+        new RevokeConnectionMsg(site)
+      );
+    }
     fetchConnectedSites();
   };
 
@@ -54,6 +72,14 @@ export const ConnectedSites: React.FC = ({}) => {
 
       {hasConnectedSites && (
         <Stack gap={4}>
+          <div>
+            <div className="w-36 float-right">
+              <DisconnectAllButton
+                connectedSites={connectedSites}
+                revokeConnection={handleRevokeConnection}
+              />
+            </div>
+          </div>
           {connectedSites.map((site, i) => (
             <li
               key={`connected-site-${i}`}
