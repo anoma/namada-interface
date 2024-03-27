@@ -47,6 +47,12 @@ sudo apt-get install -y libssl-dev
 # Install protoc
 sudo apt-get install -y protobuf-compiler
 
+# Install curl
+sudo apt-get install -y curl
+
+# Install npm
+sudo apt-get install -y npm
+
 # Install wasm-pack
 curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
