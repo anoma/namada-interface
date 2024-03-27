@@ -529,6 +529,18 @@ describe("approvals service", () => {
 
   describe("rejectTx", () => {
     it("should clear pending tx", async () => {
+      const txType = TxType.Transfer;
+      const txMsg = "txMsg";
+      const specificMsg = "specificMsg";
+
+      jest.spyOn(service["txStore"], "get").mockImplementation(() => {
+        return Promise.resolve({
+          txType,
+          txMsg,
+          specificMsg,
+        });
+      });
+
       jest.spyOn(service as any, "_clearPendingTx");
       await service.rejectTx("msgId");
 
