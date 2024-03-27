@@ -47,4 +47,26 @@ export class Masp {
   async addSpendingKey(xsk: string, alias: string): Promise<void> {
     return await this.sdk.add_spending_key(xsk, alias);
   }
+
+  /**
+   * Add viewing key to SDK wallet
+   * @async
+   * @param xvk - extended viewing key
+   * @param alias - alias for the key
+   * @returns void
+   */
+  async addViewingKey(xvk: string, alias: string): Promise<void> {
+    return await this.sdk.add_viewing_key(xvk, alias);
+  }
+
+  /**
+   * Add payment address to SDK wallet
+   * @async
+   * @param xvk - Extended viewing key
+   * @param alias - Alias for the key
+   * @returns void
+   */
+  async add_default_payment_address(xvk: string, alias: string): Promise<void> {
+    return await this.sdk.add_default_payment_address(xvk, alias);
+  }
 }

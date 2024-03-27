@@ -23,7 +23,7 @@ impl WalletIo for BrowserWalletUtils {
     type Rng = OsRng;
 }
 
-//TODO: check if we need to impl those
+//TODO: We can't implement it until namada changes trait to be async
 impl WalletStorage for BrowserWalletUtils {
     fn save<U>(&self, _wallet: &Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
         todo!()

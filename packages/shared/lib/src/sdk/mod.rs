@@ -131,9 +131,48 @@ impl Sdk {
         Ok(())
     }
 
-    pub async fn add_spending_key(&mut self, xsk: &str, alias: &str) {
+    pub async fn add_spending_key(&mut self, xsk: String, alias: String) {
         let mut wallet = self.namada.wallet_mut().await;
         wallet::add_spending_key(&mut wallet, xsk, alias)
+    }
+
+    pub async fn add_viewing_key(&mut self, xvk: String, alias: String) {
+        let mut wallet = self.namada.wallet_mut().await;
+        wallet::add_viewing_key(&mut wallet, xvk, alias)
+    }
+
+    pub async fn add_payment_address(&mut self, pa: String, alias: String) {
+        let mut wallet = self.namada.wallet_mut().await;
+        wallet::add_payment_address(&mut wallet, pa, alias)
+    }
+
+    pub async fn add_default_payment_address(&mut self, xvk: String, alias: String) {
+        let mut wallet = self.namada.wallet_mut().await;
+        wallet::add_default_payment_address(&mut wallet, xvk, alias)
+    }
+
+    pub async fn add_keypair(
+        &mut self,
+        secret_key: String,
+        alias: String,
+        password: Option<String>,
+    ) {
+        let mut wallet = self.namada.wallet_mut().await;
+        wallet::add_keypair(&mut wallet, secret_key, alias, password)
+    }
+
+    pub async fn save_wallet(&mut self) -> Result<(), JsValue> {
+        let wallet = self.namada.wallet_mut().await;
+        wallet.save().map_err(JsError::from)?;
+
+        Ok(())
+    }
+
+    pub async fn load_wallet(&mut self) -> Result<(), JsValue> {
+        let mut wallet = self.namada.wallet_mut().await;
+        wallet.load().map_err(JsError::from)?;
+
+        Ok(())
     }
 
     pub async fn sign_tx(
@@ -300,7 +339,8 @@ impl Sdk {
 
                 // It's temporary solution to add xsk to wallet as xvk is queried when unshielding
                 // This will change in namada in the future
-                self.add_spending_key(&xsk.to_string(), "temp").await;
+                self.add_spending_key(xsk.to_string(), "temp".to_string())
+                    .await;
             }
         }
 
