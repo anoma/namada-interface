@@ -39,7 +39,6 @@
     "build:web": "yarn wasm:build && tspc -p tsconfig.web.json && yarn wasm:web:cp && yarn wasm:web:rename",
     "build:node": "yarn wasm:build:node && tspc -p tsconfig.node.json && yarn wasm:node:cp",
     "build": "yarn prebuild && yarn build:web && yarn build:node",
-    "example": "ts-node -r tsconfig-paths/register ./examples/index.ts",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
     "lint:ci": "yarn lint --max-warnings 0",
