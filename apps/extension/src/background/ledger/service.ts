@@ -121,7 +121,9 @@ export class LedgerService {
       await this.txStore.set(msgId, null);
 
       // Broadcast update events
-      await this.broadcaster.completeTx(msgId, txType, true, innerTxHash);
+      await this.broadcaster.completeTx(msgId, txType, true, {
+        txHash: innerTxHash,
+      });
       await this.broadcaster.updateBalance();
 
       if ([TxType.Bond, TxType.Unbond, TxType.Withdraw].includes(txType)) {
@@ -129,7 +131,9 @@ export class LedgerService {
       }
     } catch (e) {
       console.warn(e);
-      await this.broadcaster.completeTx(msgId, txType, false, `${e}`);
+      await this.broadcaster.completeTx(msgId, txType, false, {
+        error: { code: "UNKNOWN", message: `${e}` },
+      });
     }
   }
 

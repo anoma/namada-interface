@@ -1,6 +1,8 @@
 // Make Ledger available for direct-import as it is not dependent on Sdk initialization
 export * from "./ledger";
 
+export * from "./events";
+
 // Export types
 export { Argon2Config, KdfType } from "./crypto";
 export type {

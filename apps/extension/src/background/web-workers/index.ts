@@ -12,7 +12,7 @@ export const init = (
   transferCompletedHandler: (
     msgId: string,
     success: boolean,
-    payload?: string
+    payload: string
   ) => Promise<void>,
   sendResponse?: (response?: unknown) => void
 ): void => {

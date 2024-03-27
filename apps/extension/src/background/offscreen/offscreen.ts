@@ -38,7 +38,7 @@ void (async function init() {
     const transferCompletedHandler = async (
       msgId: string,
       success: boolean,
-      payload?: string
+      payload: string
     ): Promise<void> => {
       // We are sending the message to the background script
       await requester.sendMessage(

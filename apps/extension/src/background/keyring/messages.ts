@@ -2,7 +2,7 @@ import { PhraseSize } from "@namada/sdk/web";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Result } from "@namada/utils";
 import { Message } from "router";
-import { validatePrivateKey } from "utils";
+import { validatePrivateKey, validateProps } from "utils";
 import { ROUTE } from "./constants";
 import {
   AccountSecret,
@@ -405,15 +405,13 @@ export class TransferCompletedEvent extends Message<void> {
   constructor(
     public readonly success: boolean,
     public readonly msgId: string,
-    public readonly payload?: string
+    public readonly payload: string
   ) {
     super();
   }
 
   validate(): void {
-    if (this.success === undefined) {
-      throw new Error("Success is undefined");
-    }
+    validateProps(this, ["success", "msgId", "payload"]);
   }
 
   route(): string {

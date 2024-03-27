@@ -27,4 +27,4 @@ export type MsgName =
   | typeof TRANSFER_SUCCESSFUL_MSG
   | typeof WEB_WORKER_ERROR_MSG;
 
-export type Msg = { msgName: MsgName; payload?: string };
+export type Msg = { msgName: MsgName; payload: string };

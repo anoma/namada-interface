@@ -190,12 +190,16 @@ export class KeyRingService {
         bondMsgValue,
         txMsgValue
       );
-      await this.broadcaster.completeTx(msgId, TxType.Bond, true, innerTxHash);
+      await this.broadcaster.completeTx(msgId, TxType.Bond, true, {
+        txHash: innerTxHash,
+      });
       await this.broadcaster.updateStaking();
       await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      await this.broadcaster.completeTx(msgId, TxType.Bond, false, `${e}`);
+      await this.broadcaster.completeTx(msgId, TxType.Bond, false, {
+        error: { code: "UNKNOWN", message: `${e}` },
+      });
       throw new Error(`Unable to submit bond tx! ${e}`);
     }
   }
@@ -217,17 +221,19 @@ export class KeyRingService {
         unbondMsgValue,
         txMsgValue
       );
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.Unbond,
-        true,
-        innerTxHash
-      );
+      await this.broadcaster.completeTx(msgId, TxType.Unbond, true, {
+        txHash: innerTxHash,
+      });
       await this.broadcaster.updateStaking();
       await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      await this.broadcaster.completeTx(msgId, TxType.Unbond, false, `${e}`);
+      await this.broadcaster.completeTx(msgId, TxType.Unbond, false, {
+        error: {
+          code: "UNKNOWN",
+          message: `${e}`,
+        },
+      });
       throw new Error(`Unable to submit unbond tx! ${e}`);
     }
   }
@@ -249,17 +255,16 @@ export class KeyRingService {
         withdrawMsgValue,
         txMsgValue
       );
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.Withdraw,
-        true,
-        innerTxHash
-      );
+      await this.broadcaster.completeTx(msgId, TxType.Withdraw, true, {
+        txHash: innerTxHash,
+      });
       await this.broadcaster.updateStaking();
       await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      await this.broadcaster.completeTx(msgId, TxType.Withdraw, false, `${e}`);
+      await this.broadcaster.completeTx(msgId, TxType.Withdraw, false, {
+        error: { code: "UNKNOWN", message: `${e}` },
+      });
       throw new Error(`Unable to submit withdraw tx! ${e}`);
     }
   }
@@ -280,21 +285,15 @@ export class KeyRingService {
         voteProposalMsgValue,
         txMsgValue
       );
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.VoteProposal,
-        true,
-        innerTxHash
-      );
+      await this.broadcaster.completeTx(msgId, TxType.VoteProposal, true, {
+        txHash: innerTxHash,
+      });
       await this.broadcaster.updateProposals();
     } catch (e) {
       console.warn(e);
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.VoteProposal,
-        false,
-        `${e}`
-      );
+      await this.broadcaster.completeTx(msgId, TxType.VoteProposal, false, {
+        error: { code: "UNKNOWN", message: `${e}` },
+      });
       throw new Error(`Unable to submit vote proposal tx! ${e}`);
     }
   }
@@ -433,21 +432,15 @@ export class KeyRingService {
         ibcTransferMsgValue,
         txMsgValue
       );
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.IBCTransfer,
-        true,
-        innerTxHash
-      );
+      await this.broadcaster.completeTx(msgId, TxType.IBCTransfer, true, {
+        txHash: innerTxHash,
+      });
       await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.IBCTransfer,
-        false,
-        `${e}`
-      );
+      await this.broadcaster.completeTx(msgId, TxType.IBCTransfer, false, {
+        error: { code: "UNKNOWN", message: `${e}` },
+      });
       throw new Error(`Unable to encode IBC transfer! ${e}`);
     }
   }
@@ -469,12 +462,9 @@ export class KeyRingService {
         ethBridgeTransferMsgValue,
         txMsgValue
       );
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.EthBridgeTransfer,
-        true,
-        innerTxHash
-      );
+      await this.broadcaster.completeTx(msgId, TxType.EthBridgeTransfer, true, {
+        txHash: innerTxHash,
+      });
       await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
@@ -482,7 +472,7 @@ export class KeyRingService {
         msgId,
         TxType.EthBridgeTransfer,
         false,
-        `${e}`
+        { error: { code: "UNKNOWN", message: `${e}` } }
       );
       throw new Error(`Unable to encode Eth Bridge transfer! ${e}`);
     }
@@ -500,9 +490,13 @@ export class KeyRingService {
   async handleTransferCompleted(
     msgId: string,
     success: boolean,
-    payload?: string
+    payload: string
   ): Promise<void> {
-    await this.broadcaster.completeTx(msgId, TxType.Transfer, success, payload);
+    const options =
+      success ?
+        { txHash: payload }
+      : ({ error: { code: "UNKNOWN", message: payload } } as const);
+    await this.broadcaster.completeTx(msgId, TxType.Transfer, success, options);
     await this.broadcaster.updateBalance();
   }
 

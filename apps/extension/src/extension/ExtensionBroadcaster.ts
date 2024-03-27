@@ -28,10 +28,19 @@ export class ExtensionBroadcaster {
     msgId: string,
     txType: TxType,
     success: boolean,
-    payload?: string
+    options?: {
+      txHash?: string;
+      error?: { code: "REJECTED" | "UNKNOWN"; message?: string };
+    }
   ): Promise<void> {
     await this.sendMsgToTabs(
-      new TxCompletedEvent(msgId, txType, success, payload)
+      new TxCompletedEvent(
+        msgId,
+        txType,
+        success,
+        options?.txHash,
+        options?.error
+      )
     );
   }
 
