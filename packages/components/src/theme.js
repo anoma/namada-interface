@@ -1,5 +1,11 @@
 module.exports = {
   theme: {
+    backgroundSize: {
+      "100-200": "100% 203%", // 203% to not leave previous color trace on top when transitioning
+    },
+    backgroundPosition: {
+      "0-99": "0% 99%", // with 100% flickering on firefox: on the bottom shows different color for a moment
+    },
     extend: {
       colors: {
         success: "#15DD89",
