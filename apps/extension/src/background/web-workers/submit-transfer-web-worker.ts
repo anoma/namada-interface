@@ -19,7 +19,7 @@ import {
           rpc,
           nativeToken,
         } = data;
-        const { txMsg } = data;
+        const { txMsg, transferMsg } = data;
 
         const sdk = await getSdk(cryptoMemory, rpc, nativeToken);
         await sdk.masp.loadMaspParams("TODO: not used for time being");
@@ -30,13 +30,10 @@ import {
           // Because of that we have to pass spending key.
         } else if (xsk) {
           txMsg.feeUnshield = xsk;
+          transferMsg.source = xsk;
         }
 
-        const builtTx = await sdk.tx.buildTransfer(
-          txMsg,
-          data.transferMsg,
-          xsk
-        );
+        const builtTx = await sdk.tx.buildTransfer(txMsg, data.transferMsg);
         const signedTx = await sdk.tx.signTx(builtTx, privateKey);
         const innerTxHash = await sdk.rpc.broadcastTx(signedTx);
 

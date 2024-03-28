@@ -1,7 +1,7 @@
 const { parseArgs } = require("node:util");
 const { spawnSync, execSync } = require("child_process");
 
-const tagets = ["web", "nodejs"];
+const targets = ["web", "nodejs"];
 
 const argsOptions = {
   target: {
@@ -28,7 +28,7 @@ const {
 
 const mode = release ? "release" : "development";
 const multicoreLabel = multicore ? "on" : "off";
-const target = tagets.includes(maybeTarget) ? maybeTarget : "web";
+const target = targets.includes(maybeTarget) ? maybeTarget : "web";
 
 execSync("rm -rf dist");
 

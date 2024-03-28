@@ -219,7 +219,7 @@ impl Sdk {
                     .await?
             }
             TxType::Transfer => {
-                self.build_transfer(specific_msg, tx_msg, None, Some(gas_payer))
+                self.build_transfer(specific_msg, tx_msg, Some(gas_payer))
                     .await?
             }
             TxType::IBCTransfer => {
@@ -276,10 +276,9 @@ impl Sdk {
         &mut self,
         transfer_msg: &[u8],
         tx_msg: &[u8],
-        xsk: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let mut args = tx::transfer_tx_args(transfer_msg, tx_msg, xsk.clone())?;
+        let mut args = tx::transfer_tx_args(transfer_msg, tx_msg)?;
 
         // TODO: this might not be needed. I will test it out in future
         match args.source {
@@ -298,14 +297,11 @@ impl Sdk {
                         &[],
                     )
                     .await?;
-            }
-        }
 
-        // It's temporary solution to add xsk to wallet as xvk is queried when unshielding
-        // This will change in namada in the future
-        match xsk {
-            Some(xsk) => self.add_spending_key(&xsk, &"temp").await,
-            None => {}
+                // It's temporary solution to add xsk to wallet as xvk is queried when unshielding
+                // This will change in namada in the future
+                self.add_spending_key(&xsk.to_string(), "temp").await;
+            }
         }
 
         let (tx, signing_data, _) = build_transfer(&self.namada, &mut args).await?;

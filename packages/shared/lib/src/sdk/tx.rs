@@ -218,11 +218,7 @@ pub struct SubmitTransferMsg {
 ///
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
-pub fn transfer_tx_args(
-    transfer_msg: &[u8],
-    tx_msg: &[u8],
-    xsk: Option<String>,
-) -> Result<args::TxTransfer, JsError> {
+pub fn transfer_tx_args(transfer_msg: &[u8], tx_msg: &[u8]) -> Result<args::TxTransfer, JsError> {
     let transfer_msg = SubmitTransferMsg::try_from_slice(transfer_msg)?;
     let SubmitTransferMsg {
         source,
@@ -234,9 +230,7 @@ pub fn transfer_tx_args(
 
     let source = match Address::from_str(&source) {
         Ok(v) => Ok(TransferSource::Address(v)),
-        Err(e1) => match ExtendedSpendingKey::from_str(
-            &xsk.expect("Extended spending key to be present, if address type is shielded."),
-        ) {
+        Err(e1) => match ExtendedSpendingKey::from_str(&source) {
             Ok(v) => Ok(TransferSource::ExtendedSpendingKey(v)),
             Err(e2) => Err(JsError::new(&format!(
                 "Can't compute the transfer source. {}, {}",
