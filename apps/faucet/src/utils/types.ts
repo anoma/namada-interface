@@ -10,6 +10,18 @@ export type SettingsResponse = {
   tokens_alias_to_address: Record<string, string>;
 };
 
+export type ChainsResponse = {
+  chains: ChainData[]
+}
+
+export type ChainData = {
+  chain_id: string;
+  valid_from: string;
+  valid_until: string;
+  network_type: string;
+  namada_version: string;
+}
+
 export type TransferDetails = {
   target: string;
   token: string;
