@@ -26,7 +26,7 @@ const copyPatterns = [
   },
   {
     from: "./public/_redirects",
-    to: "./_redirects",
+    to: "./",
   },
 ];
 
@@ -159,7 +159,7 @@ module.exports = {
     hints: "warning",
     maxAssetSize: 200000,
     maxEntrypointSize: 400000,
-    assetFilter: function (assetFilename) {
+    assetFilter: function(assetFilename) {
       assetFilename.endsWith(".wasm");
     },
   },

@@ -54,7 +54,7 @@ jobs:
         id: set-environment-variables
         run: |
           COMMIT_HASH=$(git rev-parse --short $SHA)
-          BASE_VERSION=$(node -e 'console.log(require("./package.json").version)')
+          BASE_VERSION=$(node -e 'console.log(require("./apps/extension/package.json").version)')
           echo "VERSION=v$BASE_VERSION-$COMMIT_HASH" >> "$GITHUB_OUTPUT"
         env:
           SHA: ${{ github.sha }}
