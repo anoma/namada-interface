@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 import { chains } from "@namada/chains";
 import { ActionButton, Input, Toggle } from "@namada/components";
+import { makeBip44Path } from "@namada/sdk/web";
 import { AccountType, DerivedAccount } from "@namada/types";
-import { makeBip44Path } from "@namada/utils";
 
 import { TopLevelRoute } from "App/types";
 import { AddLedgerAccountMsg, DeriveAccountMsg } from "background/keyring";

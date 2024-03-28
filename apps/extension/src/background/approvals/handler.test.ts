@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TxType } from "@namada/shared";
+import { TxType } from "@namada/sdk/web";
 import { AccountType } from "@namada/types";
 import createMockInstance from "jest-create-mock-instance";
 import {

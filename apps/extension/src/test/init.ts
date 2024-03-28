@@ -95,8 +95,12 @@ export const init = async (): Promise<{
     cryptoMemory
   );
   await vaultService.initialize();
-  const chainsService = new ChainsService(localStorage, broadcaster);
-  const sdkService = new SdkService(chainsService);
+  const sdkService = await SdkService.init(localStorage);
+  const chainsService = new ChainsService(
+    sdkService,
+    localStorage,
+    broadcaster
+  );
 
   const keyRingService = new KeyRingService(
     vaultService,
@@ -105,7 +109,6 @@ export const init = async (): Promise<{
     utilityStore,
     localStorage,
     vaultStorage,
-    cryptoMemory,
     requester,
     broadcaster
   );

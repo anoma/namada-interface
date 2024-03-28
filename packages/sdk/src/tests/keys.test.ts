@@ -21,7 +21,8 @@ describe("Keys", () => {
     const { keys, mnemonic } = initSdk();
     const seed = mnemonic.toSeed(mnemonic1);
 
-    const { address, viewingKey, spendingKey } = keys.deriveShielded(seed);
+    const { address, viewingKey, spendingKey } =
+      keys.deriveShieldedFromSeed(seed);
 
     expect(address).toBe(shieldedAccount.paymentAddress);
     expect(viewingKey).toBe(shieldedAccount.viewingKey);

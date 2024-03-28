@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as borsh from "@dao-xyz/borsh";
-import { TxType } from "@namada/shared";
+import { TxType } from "@namada/sdk/web";
 import {
   AccountType,
   BondMsgValue,
@@ -41,6 +41,13 @@ jest.mock("@namada/utils", () => {
     __esModule: true,
   };
 });
+
+// Because we run tests in node environment, we need to mock web-init as node-init
+jest.mock(
+  "@namada/sdk/web-init",
+  () => () =>
+    Promise.resolve(jest.requireActual("@namada/sdk/node-init").default())
+);
 
 describe("approvals service", () => {
   let service: ApprovalsService;

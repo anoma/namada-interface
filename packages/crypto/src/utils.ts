@@ -1,4 +1,4 @@
-import { VecU8Pointer, VecStringPointer, StringPointer } from ".";
+import { StringPointer, VecStringPointer, VecU8Pointer } from ".";
 
 const decoder = new TextDecoder("utf-8", { ignoreBOM: true, fatal: true });
 
@@ -25,4 +25,4 @@ const readVecStringPointer = (
   );
 };
 
-export { readVecU8Pointer, readStringPointer, readVecStringPointer };
+export { readStringPointer, readVecStringPointer, readVecU8Pointer };

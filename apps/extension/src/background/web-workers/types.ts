@@ -1,3 +1,4 @@
+import { TransferMsgValue, TxMsgValue } from "@namada/types";
 import { SigningKey } from "background/keyring";
 
 export type SubmitTransferMessage = {
@@ -8,8 +9,8 @@ export type SubmitTransferMessage = {
 };
 
 export type SubmitTransferMessageData = {
-  transferMsg: string;
-  txMsg: string;
+  transferMsg: TransferMsgValue;
+  txMsg: TxMsgValue;
   msgId: string;
   signingKey: SigningKey;
   rpc: string;

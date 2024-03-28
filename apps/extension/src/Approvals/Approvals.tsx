@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { Container } from "@namada/components";
-import { TxType } from "@namada/shared";
+import { TxType } from "@namada/sdk/web";
 
 import { AppHeader } from "App/Common/AppHeader";
 import { TopLevelRoute } from "Approvals/types";

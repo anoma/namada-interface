@@ -4,7 +4,7 @@ import BigNumber from "bignumber.js";
 import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
 
-import { SupportedTx, TxType } from "@namada/shared";
+import { SupportedTx, TxType } from "@namada/sdk/web";
 import { KVStore } from "@namada/storage";
 import {
   AccountType,

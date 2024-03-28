@@ -25,8 +25,8 @@ import {
  */
 export class Rpc {
   /**
-   * @param {SdkWasm} sdk - Instance of Sdk struct from wasm lib
-   * @param {QueryWasm} query - Instance of Query struct from wasm lib
+   * @param sdk - Instance of Sdk struct from wasm lib
+   * @param query - Instance of Query struct from wasm lib
    */
   constructor(
     protected readonly sdk: SdkWasm,
@@ -36,9 +36,9 @@ export class Rpc {
   /**
    * Query balances from chain
    * @async
-   * @param {string} owner - Owner address
-   * @param {string[]} tokens - Array of token addresses
-   * @returns {Balance} [[tokenAddress, amount]]
+   * @param owner - Owner address
+   * @param tokens - Array of token addresses
+   * @returns [[tokenAddress, amount]]
    */
   async queryBalance(owner: string, tokens: string[]): Promise<Balance> {
     return await this.query.query_balance(owner, tokens);
@@ -47,7 +47,7 @@ export class Rpc {
   /**
    * Query native token from chain
    * @async
-   * @returns {string} Address of native token
+   * @returns Address of native token
    */
   async queryNativeToken(): Promise<string> {
     return await this.query.query_native_token();
@@ -57,8 +57,8 @@ export class Rpc {
    * Query public key
    * Return string of public key if it has been revealed on chain, otherwise, return null
    * @async
-   * @param {string} address - Address to query
-   * @returns {string|null} String of public key if found
+   * @param address - Address to query
+   * @returns String of public key if found
    */
   async queryPublicKey(address: string): Promise<string | undefined> {
     const pk = await this.query.query_public_key(address);
@@ -68,7 +68,7 @@ export class Rpc {
   /**
    * Query all validator addresses
    * @async
-   * @returns {string[]} Array of all validator addresses
+   * @returns Array of all validator addresses
    */
   async queryAllValidators(): Promise<string[]> {
     return await this.query.query_all_validator_addresses();
@@ -77,7 +77,7 @@ export class Rpc {
   /**
    * Query Proposals
    * @async
-   * @returns {Proposal[]} List of the proposals
+   * @returns List of the proposals
    */
   async queryProposals(): Promise<Proposal[]> {
     const serializedProposals = await this.query.query_proposals();
@@ -88,9 +88,9 @@ export class Rpc {
   /**
    * Query total delegations
    * @async
-   * @param {string[]} owners - Array of owner addresses
-   * @param {bigint} [epoch] - delegations at epoch
-   * @returns {Promise<DelegationTotals>} Promise resolving to total delegations
+   * @param owners - Array of owner addresses
+   * @param [epoch] - delegations at epoch
+   * @returns Promise resolving to total delegations
    */
   async queryTotalDelegations(
     owners: string[],
@@ -102,8 +102,8 @@ export class Rpc {
   /**
    * Query delegators votes
    * @async
-   * @param {bigint} proposalId - ID of the proposal
-   * @returns {Promise<DelegatorsVotes>} Promise resolving to delegators votes
+   * @param proposalId - ID of the proposal
+   * @returns Promise resolving to delegators votes
    */
   async queryDelegatorsVotes(proposalId: bigint): Promise<DelegatorsVotes> {
     return await this.query.delegators_votes(proposalId);
@@ -112,8 +112,8 @@ export class Rpc {
   /**
    * Query staking totals by owner addresses
    * @async
-   * @param {string[]} owners - Array of owner addresses
-   * @returns {Promise<StakingTotals[]>} Promise resolving to staking totals
+   * @param owners - Array of owner addresses
+   * @returns Promise resolving to staking totals
    */
   async queryStakingTotals(owners: string[]): Promise<StakingTotals[]> {
     const stakingAmounts = await this.query.query_my_validators(owners);
@@ -139,8 +139,8 @@ export class Rpc {
   /**
    * Query bond and unbond details by owner addresses
    * @async
-   * @param {string[]} owners - Array of owner addresses
-   * @returns {Promise<StakingPositions>} Promise resolving to staking positions
+   * @param owners - Array of owner addresses
+   * @returns Promise resolving to staking positions
    */
   async queryStakingPositions(owners: string[]): Promise<StakingPositions> {
     const [bonds, unbonds]: [BondsResponse[], UnbondsResponse[]] =
@@ -175,8 +175,8 @@ export class Rpc {
 
   /**
    * Query total bonds by owner address
-   * @param {string} owner - Owner address
-   * @returns {Promise<number>} Total bonds amount
+   * @param owner - Owner address
+   * @returns Total bonds amount
    */
   async queryTotalBonds(owner: string): Promise<number> {
     return await this.query.query_total_bonds(owner);
@@ -185,8 +185,8 @@ export class Rpc {
   /**
    * Query pending transactions in the signed bridge pool
    * @async
-   * @param {string[]} owners - Array of owner addresses
-   * @returns {Promise<TransferToEthereum[]>} Promise resolving to pending ethereum transfers
+   * @param owners - Array of owner addresses
+   * @returns Promise resolving to pending ethereum transfers
    */
   async querySignedBridgePool(owners: string[]): Promise<TransferToEthereum[]> {
     return await this.query.query_signed_bridge_pool(owners);
@@ -195,7 +195,7 @@ export class Rpc {
   /**
    * Query gas costs
    * @async
-   * @returns {Promise<GasCosts>} [[tokenAddress, gasCost]]
+   * @returns [[tokenAddress, gasCost]]
    */
   async queryGasCosts(): Promise<GasCosts> {
     return await this.query.query_gas_costs();
@@ -204,11 +204,15 @@ export class Rpc {
   /**
    * Broadcast a Tx to the ledger
    * @async
-   * @param {SignedTx} signedTx - Transaction with signature
-   * @returns {void}
+   * @param signedTx - Transaction with signature
+   * @returns void
    */
-  async broadcastTx(signedTx: SignedTx): Promise<void> {
+  async broadcastTx(signedTx: SignedTx): Promise<string> {
     const { txMsg, tx } = signedTx;
-    await this.sdk.process_tx(tx, txMsg);
+    return await this.sdk.process_tx(tx, txMsg);
+  }
+
+  async shieldedSync(vks: string[]): Promise<void> {
+    await this.query.shielded_sync(vks);
   }
 }

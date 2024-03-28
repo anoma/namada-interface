@@ -87,10 +87,14 @@ export default class Namada implements Integration<Account, Signer> {
     tokens: string[] = []
   ): Promise<TokenBalances> {
     const balances = (await this._namada?.balances({ owner, tokens })) || [];
+    console.log(balances);
 
     // TODO: fix this
     return {
-      NAM: mapUndefined((amount) => new BigNumber(amount), balances[0].amount),
+      NAM: mapUndefined(
+        (amount) => new BigNumber(amount),
+        balances[0]?.amount || "0"
+      ),
     };
   }
 

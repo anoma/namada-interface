@@ -1,4 +1,4 @@
-import { TxType } from "@namada/shared";
+import { TxType } from "@namada/sdk/web";
 import { Events } from "@namada/types";
 import { LocalStorage } from "storage";
 import { Message, Router, Routes } from "../router";
@@ -234,9 +234,9 @@ export function initEvents(router: Router, localStorage: LocalStorage): void {
 
   router.addHandler(Routes.InteractionForeground, async (_, msg) => {
     const clonedMsg =
-      typeof cloneInto !== "undefined"
-        ? cloneInto(msg, document.defaultView)
-        : msg;
+      typeof cloneInto !== "undefined" ?
+        cloneInto(msg, document.defaultView)
+      : msg;
 
     if (msg.constructor !== ConnectionRevokedEventMsg) {
       const approvedOrigins = (await localStorage.getApprovedOrigins()) || [];

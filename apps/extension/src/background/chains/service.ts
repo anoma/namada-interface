@@ -1,6 +1,6 @@
 import { chains } from "@namada/chains";
-import { Query } from "@namada/shared";
 import { Chain } from "@namada/types";
+import { SdkService } from "background/sdk";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
 
@@ -8,6 +8,7 @@ export const CHAINS_KEY = "chains";
 
 export class ChainsService {
   constructor(
+    protected readonly sdkService: SdkService,
     protected readonly localStorage: LocalStorage,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
@@ -16,9 +17,9 @@ export class ChainsService {
   }
 
   private async _queryNativeToken(chain: Chain): Promise<Chain> {
-    const query = new Query(chain.rpc);
     try {
-      const nativeToken = await query.query_native_token();
+      const nativeToken = await this.sdkService.getSdk().rpc.queryNativeToken();
+
       if (nativeToken) {
         chain.currency.address = nativeToken;
       }

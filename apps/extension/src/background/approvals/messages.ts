@@ -1,4 +1,4 @@
-import { SupportedTx } from "@namada/shared";
+import { SupportedTx } from "@namada/sdk/web";
 import { Message } from "router";
 import { ROUTE } from "./constants";
 

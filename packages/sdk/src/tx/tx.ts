@@ -27,18 +27,18 @@ import { EncodedTx, SignedTx } from "./types";
  */
 export class Tx {
   /**
-   * @param {SdkWasm} sdk - Instance of Sdk struct from wasm lib
+   * @param sdk - Instance of Sdk struct from wasm lib
    */
   constructor(protected readonly sdk: SdkWasm) {}
 
   /**
    * Build a transaction
    * @async
-   * @param {TxType} txType - type of the transaction
-   * @param {Uint8Array} encodedSpecificTx - encoded specific transaction
-   * @param {Uint8Array} encodedTx - encoded transaction
-   * @param {string} gasPayer - address of the gas payer
-   * @returns {Promise<EncodedTx>} promise that resolves to an EncodedTx
+   * @param txType - type of the transaction
+   * @param encodedSpecificTx - encoded specific transaction
+   * @param encodedTx - encoded transaction
+   * @param gasPayer - address of the gas payer
+   * @returns promise that resolves to an EncodedTx
    */
   async buildTxFromSerializedArgs(
     txType: TxType,
@@ -59,11 +59,11 @@ export class Tx {
   /**
    * Wrapper method to handle all supported Tx
    * @async
-   * @param {TxType} txType - type of the transaction
-   * @param {TxProps} txProps - transaction properties
-   * @param {unknown} props - Props specific to type of Tx
-   * @param {string} [gasPayer] - optional gas payer, defaults to source or sender
-   * @returns {Promise<EncodedTx>} promise that resolves to an EncodedTx
+   * @param txType - type of the transaction
+   * @param txProps - transaction properties
+   * @param props - Props specific to type of Tx
+   * @param [gasPayer] - optional gas payer, defaults to source or sender
+   * @returns promise that resolves to an EncodedTx
    */
   async buildTx(
     txType: TxType,
@@ -120,10 +120,10 @@ export class Tx {
   /**
    * Build Transfer Tx
    * @async
-   * @param {TxProps} txProps - properties of the transaction
-   * @param {TransferProps} transferProps -  properties of the transfer
-   * @param {string} [gasPayer] - optional gas payer, if not provided, defaults to transferProps.source
-   * @returns {Promise<EncodedTx>} promise that resolves to an EncodedTx
+   * @param txProps - properties of the transaction
+   * @param transferProps -  properties of the transfer
+   * @param [gasPayer] - optional gas payer, if not provided, defaults to transferProps.source
+   * @returns promise that resolves to an EncodedTx
    */
   async buildTransfer(
     txProps: TxProps,
@@ -148,9 +148,9 @@ export class Tx {
   /**
    * Build RevealPK Tx
    * @async
-   * @param {TxProps} txProps - properties of the transaction
-   * @param {string} publicKey - public key to reveal
-   * @returns {Promise<EncodedTx>} promise that resolves to an EncodedTx
+   * @param txProps - properties of the transaction
+   * @param publicKey - public key to reveal
+   * @returns promise that resolves to an EncodedTx
    */
   async buildRevealPk(txProps: TxProps, publicKey: string): Promise<EncodedTx> {
     const encodedTx = this.encodeTxArgs(txProps);
@@ -166,10 +166,10 @@ export class Tx {
   /**
    * Build Bond Tx
    * @async
-   * @param {TxProps} txProps - properties of the transaction
-   * @param {BondProps} bondProps -  properties of the bond tx
-   * @param {string} [gasPayer] - optional gas payer, if not provided, defaults to bondProps.source
-   * @returns {Promise<EncodedTx>} promise that resolves to an EncodedTx
+   * @param txProps - properties of the transaction
+   * @param bondProps -  properties of the bond tx
+   * @param [gasPayer] - optional gas payer, if not provided, defaults to bondProps.source
+   * @returns promise that resolves to an EncodedTx
    */
   async buildBond(
     txProps: TxProps,
@@ -191,10 +191,10 @@ export class Tx {
   /**
    * Build Unbond Tx
    * @async
-   * @param {TxProps} txProps - properties of the transaction
-   * @param {UnbondProps} unbondProps - properties of the unbond tx
-   * @param {string} [gasPayer] - optional gas payer, if not provided, defaults to unbondProps.source
-   * @returns {Promise<EncodedTx>} promise that resolves to an EncodedTx
+   * @param txProps - properties of the transaction
+   * @param unbondProps - properties of the unbond tx
+   * @param [gasPayer] - optional gas payer, if not provided, defaults to unbondProps.source
+   * @returns promise that resolves to an EncodedTx
    */
   async buildUnbond(
     txProps: TxProps,
@@ -216,10 +216,10 @@ export class Tx {
   /**
    * Build Withdraw Tx
    * @async
-   * @param {TxProps} txProps - properties of the transaction
-   * @param {WithdrawProps} withdrawProps - properties of the withdraw tx
-   * @param {string} [gasPayer] - optional gas payer, if not provided, defaults to withdrawProps.source
-   * @returns {Promise<EncodedTx>} promise that resolves to an EncodedTx
+   * @param txProps - properties of the transaction
+   * @param withdrawProps - properties of the withdraw tx
+   * @param [gasPayer] - optional gas payer, if not provided, defaults to withdrawProps.source
+   * @returns promise that resolves to an EncodedTx
    */
   async buildWithdraw(
     txProps: TxProps,
@@ -241,10 +241,10 @@ export class Tx {
   /**
    * Build Ibc Transfer Tx
    * @async
-   * @param {TxProps} txProps - properties of the transaction
-   * @param {IbcTransferProps} ibcTransferProps - properties of the ibc transfer tx
-   * @param {string} [gasPayer] - optional gas payer, if not provided, defaults to ibcTransferProps.source
-   * @returns {Promise<EncodedTx>} promise that resolves to an EncodedTx
+   * @param txProps - properties of the transaction
+   * @param ibcTransferProps - properties of the ibc transfer tx
+   * @param [gasPayer] - optional gas payer, if not provided, defaults to ibcTransferProps.source
+   * @returns promise that resolves to an EncodedTx
    */
   async buildIbcTransfer(
     txProps: TxProps,
@@ -268,10 +268,10 @@ export class Tx {
   /**
    * Build Ethereum Bridge Transfer Tx
    * @async
-   * @param {TxProps} txProps - properties of the transaction
-   * @param {EthBridgeTransferProps} ethBridgeTransferProps - properties of the eth bridge transfer tx
-   * @param {string} [gasPayer] - optional gas payer, if not provided, defaults to ethBridgeTransferProps.sender
-   * @returns {Promise<EncodedTx>} promise that resolves to an EncodedTx
+   * @param txProps - properties of the transaction
+   * @param ethBridgeTransferProps - properties of the eth bridge transfer tx
+   * @param [gasPayer] - optional gas payer, if not provided, defaults to ethBridgeTransferProps.sender
+   * @returns promise that resolves to an EncodedTx
    */
   async buildEthBridgeTransfer(
     txProps: TxProps,
@@ -295,10 +295,10 @@ export class Tx {
   /**
    * Built Vote Proposal Tx
    * @async
-   * @param {TxProps} txProps - properties of the transaction
-   * @param {VoteProposalProps} voteProposalProps - properties of the vote proposal tx
-   * @param {string} [gasPayer] - optional gas payer, if not provided, defaults to voteProposalProps.signer
-   * @returns {Promise<EncodedTx>} promise that resolves to an EncodedTx
+   * @param txProps - properties of the transaction
+   * @param voteProposalProps - properties of the vote proposal tx
+   * @param [gasPayer] - optional gas payer, if not provided, defaults to voteProposalProps.signer
+   * @returns promise that resolves to an EncodedTx
    */
   async buildVoteProposal(
     txProps: TxProps,
@@ -322,9 +322,9 @@ export class Tx {
   /**
    * Sign transaction
    * @async
-   * @param {EncodedTx} encodedTx - encoded transaction
-   * @param {string} [signingKey] - optional in the case of shielded tx
-   * @returns {Promise<SignedTx>} promise that resolves to a SignedTx
+   * @param encodedTx - encoded transaction
+   * @param [signingKey] - optional in the case of shielded tx
+   * @returns promise that resolves to a SignedTx
    */
   async signTx(encodedTx: EncodedTx, signingKey?: string): Promise<SignedTx> {
     const { tx, txMsg } = encodedTx;
@@ -336,9 +336,9 @@ export class Tx {
   /**
    * Reveal Public Key using serialized Tx
    * @async
-   * @param {string} signingKey - signing key
-   * @param {TxProps} txProps - properties of the transaction
-   * @returns {Promise<void>}
+   * @param signingKey - signing key
+   * @param txProps - properties of the transaction
+   * @returns void
    */
   async revealPk(signingKey: string, txProps: TxProps): Promise<void> {
     const encodedTx = this.encodeTxArgs(txProps);
@@ -347,9 +347,9 @@ export class Tx {
 
   /**
    * Append signature for transactions signed by Ledger Hardware Wallet
-   * @param {Uint8Array} txBytes - Serialized transaction
-   * @param {ResponseSign} ledgerSignatureResponse - Serialized signature as returned from Ledger
-   * @returns {Uint8Array} - Serialized Tx bytes with signature appended
+   * @param txBytes - Serialized transaction
+   * @param ledgerSignatureResponse - Serialized signature as returned from Ledger
+   * @returns - Serialized Tx bytes with signature appended
    */
   appendSignature(
     txBytes: Uint8Array,
@@ -389,8 +389,8 @@ export class Tx {
 
   /**
    * Helper to encode Tx args given TxProps
-   * @param {TxProps} txProps - properties of the transaction
-   * @returns {Uint8Array} Serialized TxMsgValue
+   * @param txProps - properties of the transaction
+   * @returns Serialized TxMsgValue
    */
   encodeTxArgs(txProps: TxProps): Uint8Array {
     const txMsgValue = new TxMsgValue(txProps);

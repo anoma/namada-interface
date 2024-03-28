@@ -1,13 +1,22 @@
 import { fromBase64, fromHex } from "@cosmjs/encoding";
 
 import { PhraseSize } from "@namada/crypto";
-import { public_key_to_bech32, Sdk, TxType } from "@namada/shared";
+import { publicKeyToBech32, TxType } from "@namada/sdk/web";
 import { IndexedDBKVStore, KVStore } from "@namada/storage";
 import {
   AccountType,
   Bip44Path,
+  BondMsgValue,
   DerivedAccount,
+  EthBridgeTransferMsgValue,
+  IbcTransferMsgValue,
+  Message,
   SignatureResponse,
+  TransferMsgValue,
+  TxMsgValue,
+  UnbondMsgValue,
+  VoteProposalMsgValue,
+  WithdrawMsgValue,
 } from "@namada/types";
 import { Result, truncateInMiddle } from "@namada/utils";
 
@@ -54,7 +63,6 @@ export class KeyRingService {
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly localStorage: LocalStorage,
     protected readonly vaultStorage: VaultStorage,
-    protected readonly cryptoMemory: WebAssembly.Memory,
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
@@ -62,8 +70,7 @@ export class KeyRingService {
       vaultService,
       vaultStorage,
       sdkService,
-      utilityStore,
-      cryptoMemory
+      utilityStore
     );
   }
 
@@ -98,7 +105,7 @@ export class KeyRingService {
     bip44Path: Bip44Path
   ): Promise<AccountStore | false> {
     const publicKeyBytes = fromHex(publicKey);
-    const bech32PublicKey = public_key_to_bech32(publicKeyBytes);
+    const bech32PublicKey = publicKeyToBech32(publicKeyBytes);
 
     const account = await this._keyRing.queryAccountByAddress(address);
     if (account) {
@@ -177,9 +184,12 @@ export class KeyRingService {
   ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Bond);
     try {
+      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+      const bondMsgValue = Message.decode(fromBase64(bondMsg), BondMsgValue);
+
       const innerTxHash = await this._keyRing.submitBond(
-        fromBase64(bondMsg),
-        fromBase64(txMsg)
+        bondMsgValue,
+        txMsgValue
       );
       await this.broadcaster.completeTx(msgId, TxType.Bond, true, innerTxHash);
       await this.broadcaster.updateStaking();
@@ -198,9 +208,15 @@ export class KeyRingService {
   ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Unbond);
     try {
-      const innerTxHash = await this._keyRing.submitUnbond(
+      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+      const unbondMsgValue = Message.decode(
         fromBase64(unbondMsg),
-        fromBase64(txMsg)
+        UnbondMsgValue
+      );
+
+      const innerTxHash = await this._keyRing.submitUnbond(
+        unbondMsgValue,
+        txMsgValue
       );
       await this.broadcaster.completeTx(
         msgId,
@@ -224,9 +240,15 @@ export class KeyRingService {
   ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Withdraw);
     try {
-      const innerTxHash = await this._keyRing.submitWithdraw(
+      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+      const withdrawMsgValue = Message.decode(
         fromBase64(withdrawMsg),
-        fromBase64(txMsg)
+        WithdrawMsgValue
+      );
+
+      const innerTxHash = await this._keyRing.submitWithdraw(
+        withdrawMsgValue,
+        txMsgValue
       );
       await this.broadcaster.completeTx(
         msgId,
@@ -250,9 +272,14 @@ export class KeyRingService {
   ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.VoteProposal);
     try {
-      const innerTxHash = await this._keyRing.submitVoteProposal(
+      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+      const voteProposalMsgValue = Message.decode(
         fromBase64(voteProposalMsg),
-        fromBase64(txMsg)
+        VoteProposalMsgValue
+      );
+      const innerTxHash = await this._keyRing.submitVoteProposal(
+        voteProposalMsgValue,
+        txMsgValue
       );
       await this.broadcaster.completeTx(
         msgId,
@@ -281,7 +308,7 @@ export class KeyRingService {
   ): Promise<void> {
     const offscreenDocumentPath = "offscreen.html";
     const routerId = await getNamadaRouterId(this.localStorage);
-    const rpc = await this.sdkService.getRpc();
+    const { url: rpc } = this.sdkService.getSdk();
     const {
       currency: { address: nativeToken = tokenAddress },
     } = await this.chainsService.getChain();
@@ -290,11 +317,24 @@ export class KeyRingService {
       await createOffscreenWithTxWorker(offscreenDocumentPath);
     }
 
+    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+    const transferMsgValue = Message.decode(
+      fromBase64(transferMsg),
+      TransferMsgValue
+    );
+
     const result = await chrome.runtime.sendMessage({
       type: SUBMIT_TRANSFER_MSG_TYPE,
       target: OFFSCREEN_TARGET,
       routerId,
-      data: { transferMsg, txMsg, msgId, signingKey, rpc, nativeToken },
+      data: {
+        transferMsg: transferMsgValue,
+        txMsg: txMsgValue,
+        msgId,
+        signingKey,
+        rpc,
+        nativeToken,
+      },
     });
 
     if (result?.error) {
@@ -310,15 +350,20 @@ export class KeyRingService {
     msgId: string,
     signingKey: SigningKey
   ): Promise<void> {
-    const rpc = await this.sdkService.getRpc();
+    const { url: rpc } = this.sdkService.getSdk();
     const {
       currency: { address: nativeToken = tokenAddress },
     } = await this.chainsService.getChain();
+    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+    const transferMsgValue = Message.decode(
+      fromBase64(transferMsg),
+      TransferMsgValue
+    );
 
     initSubmitTransferWebWorker(
       {
-        transferMsg,
-        txMsg,
+        transferMsg: transferMsgValue,
+        txMsg: txMsgValue,
         msgId,
         signingKey,
         rpc,
@@ -376,12 +421,18 @@ export class KeyRingService {
     txMsg: string,
     msgId: string
   ): Promise<void> {
+    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+    const ibcTransferMsgValue = Message.decode(
+      fromBase64(ibcTransferMsg),
+      IbcTransferMsgValue
+    );
+
     await this.broadcaster.startTx(msgId, TxType.IBCTransfer);
 
     try {
       const innerTxHash = await this._keyRing.submitIbcTransfer(
-        fromBase64(ibcTransferMsg),
-        fromBase64(txMsg)
+        ibcTransferMsgValue,
+        txMsgValue
       );
       await this.broadcaster.completeTx(
         msgId,
@@ -407,12 +458,17 @@ export class KeyRingService {
     txMsg: string,
     msgId: string
   ): Promise<void> {
+    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+    const ethBridgeTransferMsgValue = Message.decode(
+      fromBase64(ethBridgeTransferMsg),
+      EthBridgeTransferMsgValue
+    );
     await this.broadcaster.startTx(msgId, TxType.EthBridgeTransfer);
 
     try {
       const innerTxHash = await this._keyRing.submitEthBridgeTransfer(
-        fromBase64(ethBridgeTransferMsg),
-        fromBase64(txMsg)
+        ethBridgeTransferMsgValue,
+        txMsgValue
       );
       await this.broadcaster.completeTx(
         msgId,
@@ -423,12 +479,6 @@ export class KeyRingService {
       await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.EthBridgeTransfer,
-        false,
-        `${e}`
-      );
       throw new Error(`Unable to encode Eth Bridge transfer! ${e}`);
     }
   }
@@ -475,11 +525,11 @@ export class KeyRingService {
   }
 
   async fetchAndStoreMaspParams(): Promise<void> {
-    await Sdk.fetch_and_store_masp_params();
+    await this.sdkService.getSdk().masp.fetchAndStoreMaspParams();
   }
 
   async hasMaspParams(): Promise<boolean> {
-    return Sdk.has_masp_params();
+    return await this.sdkService.getSdk().masp.hasMaspParams();
   }
 
   async shieldedSync(): Promise<void> {
@@ -487,8 +537,7 @@ export class KeyRingService {
       .filter((a) => a.public.type === AccountType.ShieldedKeys)
       .map((a) => a.public.owner);
 
-    const query = await this.sdkService.getQuery();
-    await query.shielded_sync(vks);
+    await this.sdkService.getSdk().rpc.shieldedSync(vks);
   }
 
   async queryBalances(
@@ -523,8 +572,8 @@ export class KeyRingService {
     hash: string,
     signature: string
   ): Promise<void> {
-    const sdk = await this.sdkService.getSdk();
+    const sdk = this.sdkService.getSdk();
 
-    return sdk.verify_arbitrary(publicKey, hash, signature);
+    return sdk.signing.verifyArbitrary(publicKey, hash, signature);
   }
 }

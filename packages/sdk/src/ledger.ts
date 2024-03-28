@@ -10,8 +10,7 @@ import {
   ResponseSign,
   ResponseVersion,
 } from "@zondax/ledger-namada";
-
-import { makeBip44Path } from "@namada/utils";
+import { makeBip44Path } from "./utils";
 
 const { coinType } = chains.namada.bip44;
 
@@ -24,7 +23,7 @@ export type LedgerStatus = {
 /**
  * Initialize USB transport
  * @async
- * @returns {Transport} Transport object
+ * @returns Transport object
  */
 export const initLedgerUSBTransport = async (): Promise<Transport> => {
   return await TransportUSB.create();
@@ -33,7 +32,7 @@ export const initLedgerUSBTransport = async (): Promise<Transport> => {
 /**
  * Initialize HID transport
  * @async
- * @returns {Transport} Transport object
+ * @returns Transport object
  */
 export const initLedgerHIDTransport = async (): Promise<Transport> => {
   return await TransportHID.create();
@@ -50,15 +49,15 @@ export const DEFAULT_LEDGER_BIP44_PATH = makeBip44Path(coinType, {
  */
 export class Ledger {
   /**
-   * @param {NamadaApp} namadaApp - Inititalized NamadaApp class from Zondax package
+   * @param namadaApp - Inititalized NamadaApp class from Zondax package
    */
   private constructor(public readonly namadaApp: NamadaApp) {}
 
   /**
    * Initialize and return Ledger class instance with initialized Transport
    * @async
-   * @param {Transport} [transport] Ledger transport
-   * @returns {Ledger} Ledger class instance
+   * @param [transport] Ledger transport
+   * @returns Ledger class instance
    */
   static async init(transport?: Transport): Promise<Ledger> {
     const initializedTransport = transport ?? (await initLedgerUSBTransport());
@@ -76,7 +75,7 @@ export class Ledger {
    * Return status and version info of initialized NamadaApp.
    * Throw exception if app is not initialized.
    * @async
-   * @returns {LedgerStatus} Version and info of NamadaApp
+   * @returns Version and info of NamadaApp
    */
   public async status(): Promise<LedgerStatus> {
     const version = await this.namadaApp.getVersion();
@@ -92,8 +91,8 @@ export class Ledger {
    * Get address and public key associated with optional path, otherwise, use default path
    * Throw exception if app is not initialized.
    * @async
-   * @param {string} [path] Bip44 path for deriving key
-   * @returns {AddressAndPublicKey} Address and public key
+   * @param [path] Bip44 path for deriving key
+   * @returns Address and public key
    */
   public async getAddressAndPublicKey(
     path: string = DEFAULT_LEDGER_BIP44_PATH
@@ -113,8 +112,8 @@ export class Ledger {
    * Prompt user to get address and public key associated with optional path, otherwise, use default path.
    * Throw exception if app is not initialized.
    * @async
-   * @param {string} [path] Bip44 path for deriving key
-   * @returns {AddressAndPublicKey} Address and public key
+   * @param [path] Bip44 path for deriving key
+   * @returns Address and public key
    */
   public async showAddressAndPublicKey(
     path: string = DEFAULT_LEDGER_BIP44_PATH
@@ -138,9 +137,9 @@ export class Ledger {
    * Sign tx bytes with the key associated with the provided (or default) path.
    * Throw exception if app is not initialized.
    * @async
-   * @param {Uint8Array} tx - tx data blob to sign
-   * @param {string} [path] Bip44 path for signing account
-   * @returns {ResponseSign} Response signature
+   * @param tx - tx data blob to sign
+   * @param [path] Bip44 path for signing account
+   * @returns Response signature
    */
   public async sign(
     tx: Uint8Array,
@@ -155,7 +154,7 @@ export class Ledger {
    * Query status to determine if device has thrown an error.
    * Throw exception if app is not initialized.
    * @async
-   * @returns {string} Error message if error is found
+   * @returns Error message if error is found
    */
   public async queryErrors(): Promise<string> {
     const {
@@ -172,7 +171,7 @@ export class Ledger {
    * Close the initialized transport, which may be needed if Ledger needs to be reinitialized due to error state
    * Throw exception if app is not initialized.
    * @async
-   * @returns {void}
+   * @returns void
    */
   public async closeTransport(): Promise<void> {
     return await this.namadaApp.transport.close();

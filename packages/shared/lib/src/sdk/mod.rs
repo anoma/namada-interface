@@ -1,11 +1,13 @@
+pub mod io;
+pub mod masp;
+mod signature;
+mod tx;
+mod wallet;
+
 use self::io::WebIo;
-use self::wallet::BrowserWalletUtils;
 use crate::rpc_client::HttpClient;
+use crate::utils::set_panic_hook;
 use crate::utils::to_js_result;
-use crate::{
-    sdk::masp::WebShieldedUtils,
-    utils::{set_panic_hook, to_bytes},
-};
 use js_sys::Uint8Array;
 use namada::address::Address;
 use namada::core::borsh::{self, BorshDeserialize};
@@ -27,11 +29,8 @@ use namada::tx::Tx;
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
-pub mod io;
-pub mod masp;
-mod signature;
-mod tx;
-mod wallet;
+#[cfg(feature = "web")]
+use crate::utils::to_bytes;
 
 #[wasm_bindgen]
 #[derive(Copy, Clone, Debug)]
@@ -62,7 +61,7 @@ impl BuiltTx {
 /// Represents the Sdk public API.
 #[wasm_bindgen]
 pub struct Sdk {
-    namada: NamadaImpl<HttpClient, BrowserWalletUtils, WebShieldedUtils, WebIo>,
+    namada: NamadaImpl<HttpClient, wallet::JSWalletUtils, masp::JSShieldedUtils, WebIo>,
 }
 
 #[wasm_bindgen]
@@ -70,12 +69,14 @@ pub struct Sdk {
 /// For more details, navigate to the corresponding modules.
 impl Sdk {
     #[wasm_bindgen(constructor)]
-    pub fn new(url: String, native_token: String) -> Self {
+    pub fn new(url: String, native_token: String, path_or_db_name: String) -> Self {
         set_panic_hook();
         let client: HttpClient = HttpClient::new(url);
-        let wallet: Wallet<wallet::BrowserWalletUtils> =
-            Wallet::new(BrowserWalletUtils {}, Store::default());
-        let shielded_ctx: ShieldedContext<masp::WebShieldedUtils> = ShieldedContext::default();
+        let wallet: Wallet<wallet::JSWalletUtils> = Wallet::new(
+            wallet::JSWalletUtils::new_utils(&path_or_db_name),
+            Store::default(),
+        );
+        let shielded_ctx: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
 
         let namada = NamadaImpl::native_new(
             client,
@@ -100,7 +101,9 @@ impl Sdk {
         Ok(())
     }
 
-    pub async fn load_masp_params(&mut self) -> Result<(), JsValue> {
+    #[cfg(feature = "web")]
+    pub async fn load_masp_params(&mut self, _db_name: JsValue) -> Result<(), JsValue> {
+        // _dn_name is not used in the web version for a time being
         let params = get_masp_params().await?;
         let params_iter = js_sys::try_iter(&params)?.ok_or_else(|| "Can't iterate over JsValue")?;
         let mut params_bytes = params_iter.map(|p| to_bytes(p.unwrap()));
@@ -113,7 +116,17 @@ impl Sdk {
         assert_eq!(params_bytes.next(), None);
 
         let mut shielded = self.namada.shielded_mut().await;
-        *shielded = WebShieldedUtils::new(spend, output, convert).await?;
+        *shielded = masp::JSShieldedUtils::new(spend, output, convert).await?;
+
+        Ok(())
+    }
+
+    #[cfg(feature = "nodejs")]
+    pub async fn load_masp_params(&mut self, context_dir: JsValue) -> Result<(), JsValue> {
+        let context_dir = context_dir.as_string().unwrap();
+
+        let mut shielded = self.namada.shielded_mut().await;
+        *shielded = masp::JSShieldedUtils::new(&context_dir).await;
 
         Ok(())
     }
@@ -206,7 +219,7 @@ impl Sdk {
                     .await?
             }
             TxType::Transfer => {
-                self.build_transfer(specific_msg, tx_msg, None, Some(gas_payer))
+                self.build_transfer(specific_msg, tx_msg, Some(gas_payer))
                     .await?
             }
             TxType::IBCTransfer => {
@@ -263,10 +276,9 @@ impl Sdk {
         &mut self,
         transfer_msg: &[u8],
         tx_msg: &[u8],
-        xsk: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let mut args = tx::transfer_tx_args(transfer_msg, tx_msg, xsk.clone())?;
+        let mut args = tx::transfer_tx_args(transfer_msg, tx_msg)?;
 
         // TODO: this might not be needed. I will test it out in future
         match args.source {
@@ -285,14 +297,11 @@ impl Sdk {
                         &[],
                     )
                     .await?;
-            }
-        }
 
-        // It's temporary solution to add xsk to wallet as xvk is queried when unshielding
-        // This will change in namada in the future
-        match xsk {
-            Some(xsk) => self.add_spending_key(&xsk, &"temp").await,
-            None => {}
+                // It's temporary solution to add xsk to wallet as xvk is queried when unshielding
+                // This will change in namada in the future
+                self.add_spending_key(&xsk.to_string(), "temp").await;
+            }
         }
 
         let (tx, signing_data, _) = build_transfer(&self.namada, &mut args).await?;
