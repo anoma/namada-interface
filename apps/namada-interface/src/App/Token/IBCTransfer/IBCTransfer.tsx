@@ -362,9 +362,11 @@ const IBCTransfer = (): JSX.Element => {
       );
     }, [sourceChain]);
 
-  const handleDownloadExtension = (url: string): void => {
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
+const handleDownloadExtension = (): void => {
+  const url = "https://chromewebstore.google.com/detail/namada-extension/hnebcbhjpeejiclgbohcijljcnjdofek";
+  window.open(url, "_blank", "noopener,noreferrer");
+};
+
 
   const isAmountValid = (amount: BigNumber, balance: BigNumber): boolean =>
     amount.isLessThan(
