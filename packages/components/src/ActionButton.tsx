@@ -14,6 +14,7 @@ const actionButton = tv({
       primary: "bg-yellow hover:text-yellow",
       secondary: "bg-cyan hover:text-cyan",
       black: "bg-black text-yellow hover:text-black",
+      white: "bg-white text-black hover:text-white",
     },
 
     size: {
@@ -81,6 +82,7 @@ const actionButtonHover = tv({
       primary: "bg-yellow",
       secondary: "bg-cyan",
       black: "bg-black",
+      white: "bg-white",
     },
     disabled: {
       true: "group-hover:translate-y-[calc(100%+2px)]",
