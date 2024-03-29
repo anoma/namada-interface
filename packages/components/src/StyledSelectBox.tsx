@@ -69,7 +69,6 @@ export const StyledSelectBox = ({
         <div
           className={twMerge(
             "group inline-flex items-center relative font-medium cursor-pointer pl-2 pr-3",
-            "transition-all duration-150",
             clsx({
               "opacity-50": open,
             }),
