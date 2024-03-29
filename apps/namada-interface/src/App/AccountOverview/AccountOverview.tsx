@@ -65,9 +65,10 @@ export const AccountOverview = (): JSX.Element => {
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
 
-  const handleDownloadExtension = (url: string): void => {
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
+const handleDownloadExtension = (): void => {
+  const url = "https://chromewebstore.google.com/detail/namada-extension/hnebcbhjpeejiclgbohcijljcnjdofek";
+  window.open(url, "_blank", "noopener,noreferrer");
+};
 
   const balances = useAtomValue(balancesAtom);
   const totalNativeBalance = Object.values(balances).reduce((acc, balance) => {
