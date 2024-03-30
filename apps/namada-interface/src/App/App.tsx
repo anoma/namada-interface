@@ -9,7 +9,6 @@ import { Toasts } from "App/Common/Toast";
 import { TopNavigation } from "App/Common/TopNavigation";
 import { AnimatePresence } from "framer-motion";
 import { createBrowserHistory } from "history";
-import { useExtensionConnect } from "hooks/useExtensionConnect";
 import { useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
@@ -62,8 +61,6 @@ function App(): JSX.Element {
     (state) => state.settings
   );
 
-  const { connectionStatus, connect } = useExtensionConnect(chain);
-
   const integration = useIntegration(chain.id);
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
@@ -113,9 +110,7 @@ function App(): JSX.Element {
           <Container
             data-testid="AppContainer"
             sidebar={<Sidebar />}
-            header={
-              <TopNavigation chain={chain} isExtensionConnected={false} />
-            }
+            header={<TopNavigation chain={chain} />}
           >
             <AnimatePresence exitBeforeEnter>
               <Outlet />
