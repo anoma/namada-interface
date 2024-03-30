@@ -7889,6 +7889,7 @@ __metadata:
     "@types/react": "npm:^17.0.39"
     "@types/styled-components": "npm:^5.1.26"
     autoprefixer: "npm:^10.4.16"
+    bignumber.js: "npm:^9.1.2"
     clsx: "npm:^2.0.0"
     eslint: "npm:^8.49.0"
     eslint-config-prettier: "npm:^8.8.0"
@@ -7897,6 +7898,7 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^4.6.0"
     react: "npm:^17.0.2"
     react-icons: "npm:^4.12.0"
+    react-minimal-pie-chart: "npm:^8.4.0"
     styled-components: "npm:^5.3.5"
     tailwind-merge: "npm:^2.1.0"
     tailwind-variants: "npm:^0.1.18"
@@ -10453,6 +10455,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/svg-path-parser@npm:^1.1.3":
+  version: 1.1.6
+  resolution: "@types/svg-path-parser@npm:1.1.6"
+  checksum: 128ea1028229d5bfc88f2a821df1dd5ac032501ca9d3f771ddeea8566750d4dd43576c3d6389b45b50d87bcaf58f6bcf327830233e46cf1b069d1b4c54a56160
+  languageName: node
+  linkType: hard
+
 "@types/tapable@npm:^1":
   version: 1.0.8
   resolution: "@types/tapable@npm:1.0.8"
@@ -12917,6 +12926,13 @@ __metadata:
   version: 9.1.1
   resolution: "bignumber.js@npm:9.1.1"
   checksum: 950312b15d038ae06028c8a6901fb4efd57fa889ada8c887cebd856e79f2fc9667641bebfb2e2ea4cc694e663fd55c1fe6e62a7e8fe40bbdebdf92269537b802
+  languageName: node
+  linkType: hard
+
+"bignumber.js@npm:^9.1.2":
+  version: 9.1.2
+  resolution: "bignumber.js@npm:9.1.2"
+  checksum: e17786545433f3110b868725c449fa9625366a6e675cd70eb39b60938d6adbd0158cb4b3ad4f306ce817165d37e63f4aa3098ba4110db1d9a3b9f66abfbaf10d
   languageName: node
   linkType: hard
 
@@ -29542,6 +29558,18 @@ __metadata:
   version: 3.0.4
   resolution: "react-lifecycles-compat@npm:3.0.4"
   checksum: 1d0df3c85af79df720524780f00c064d53a9dd1899d785eddb7264b378026979acbddb58a4b7e06e7d0d12aa1494fd5754562ee55d32907b15601068dae82c27
+  languageName: node
+  linkType: hard
+
+"react-minimal-pie-chart@npm:^8.4.0":
+  version: 8.4.0
+  resolution: "react-minimal-pie-chart@npm:8.4.0"
+  dependencies:
+    "@types/svg-path-parser": "npm:^1.1.3"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18
+    react-dom: ^16.8.0 || ^17.0.0 || ^18
+  checksum: 022167b557911b88785e5770170979041cca87c445fa167935b0a3d56e5cca26240d357bfb3f574e6acf726be2312ad8763ab374ddc7cae01ba00ca22ced2a98
   languageName: node
   linkType: hard
 
