@@ -55,7 +55,8 @@ export const useOnNamadaExtensionConnected = (): void => {
   }, [connected]);
 };
 
-export const useOnAccountsChanged = (): void => {
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export const useOnAccountsChanged = () => {
   const accountsLoadable = useAtomValue(loadable(accountsAtom));
 
   const refreshBalances = useSetAtom(balancesAtom);
@@ -67,4 +68,5 @@ export const useOnAccountsChanged = (): void => {
       refreshPublicKeys();
     }
   }, [accountsLoadable]);
+  return { refreshBalances };
 };

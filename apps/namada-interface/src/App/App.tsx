@@ -20,7 +20,11 @@ import {
 import { Account } from "@namada/types";
 import { Toasts } from "App/Toast";
 import { Outlet } from "react-router-dom";
-import { addAccounts, fetchBalances } from "slices/accounts";
+import {
+  addAccounts,
+  fetchBalances,
+  fetchTransparentBalances,
+} from "slices/accounts";
 import { setChain } from "slices/chain";
 import { SettingsState } from "slices/settings";
 import { persistor, store, useAppDispatch, useAppSelector } from "store";
@@ -37,6 +41,7 @@ import { TopNavigation } from "./TopNavigation";
 
 import { chainAtom } from "slices/chain";
 
+import useCatchEventBlock from "hooks/useCatchEventBlock";
 import {
   useOnAccountsChanged,
   useOnChainChanged,
@@ -67,7 +72,7 @@ export const AnimatedTransition = (props: {
 function App(): JSX.Element {
   useOnNamadaExtensionAttached();
   useOnNamadaExtensionConnected();
-  useOnAccountsChanged();
+  const { refreshBalances } = useOnAccountsChanged();
   useOnChainChanged();
 
   const dispatch = useAppDispatch();
@@ -88,6 +93,16 @@ function App(): JSX.Element {
   const integration = useIntegration(chain.id);
 
   useEffect(() => storeColorMode(colorMode), [colorMode]);
+
+  const updateNewBlock = (): void => {
+    dispatch(fetchTransparentBalances());
+  };
+
+  useCatchEventBlock({
+    rpcAddress: chain.rpc,
+    triggerCallback: updateNewBlock,
+    refreshBalancesAtom: refreshBalances,
+  });
 
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
