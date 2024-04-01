@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@namada/utils": "0.2.1",
-    "bignumber.js": "^9.1.2",
+    "bignumber.js": "^9.1.1",
     "clsx": "^2.0.0",
     "react": "^17.0.2",
     "react-icons": "^4.12.0",
