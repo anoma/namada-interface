@@ -1,8 +1,10 @@
 import { useAtomValue } from "jotai";
 import { loadable } from "jotai/utils";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { TransferType } from "App/Token/types";
+import { TopLevelRoute } from "App/types";
 import { Account, AccountsState } from "slices/accounts";
 import { isRevealPkNeededAtom, minimumGasPriceAtom } from "slices/fees";
 import { useAppSelector } from "store";
@@ -10,6 +12,7 @@ import { useAppSelector } from "store";
 import { chains } from "@namada/chains";
 import {
   Heading,
+  Icon,
   NavigationContainer,
   Option,
   Select,
@@ -18,6 +21,8 @@ import {
 } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
 import { TokenType, Tokens } from "@namada/types";
+import { ButtonsContainer } from "../TokenReceive/TokenReceive.components";
+import { BackButton } from "../TokenSend/TokenSendForm.components";
 import TokenSendForm from "./TokenSendForm";
 
 import { TokenSendContainer, TokenSendContent } from "./TokenSend.components";
@@ -53,28 +58,32 @@ const accountsWithBalanceIntoSelectData = (
   accountsWithBalance: Account[]
 ): Option<string>[] =>
   accountsWithBalance.flatMap(({ details, balance }) =>
-    Object.entries(balance)
-      .map(([tokenType, amount]) => ({
-        value: `${details.address}|${tokenType}`,
-        label: `${details.alias} ${amount} (${
-          Tokens[tokenType as TokenType].symbol
-        })`,
-      }))
+    Object.entries(balance).map(([tokenType, amount]) => ({
+      value: `${details.address}|${tokenType}`,
+      label: `${details.alias} ${amount} (${
+        Tokens[tokenType as TokenType].symbol
+      })`,
+    }))
   );
 
 const TokenSend = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { target } = useSanitizedParams<Params>();
+  const navigate = useNavigate();
 
   const accounts = Object.values(derived[chains.namada.id]);
 
-  const shieldedAccountsWithBalance = accounts.filter(
-    ({ details }) => details.isShielded
-  ).filter(({ balance }) => Object.values(balance).some((amount) => amount.isGreaterThan(0)));
+  const shieldedAccountsWithBalance = accounts
+    .filter(({ details }) => details.isShielded)
+    .filter(({ balance }) =>
+      Object.values(balance).some((amount) => amount.isGreaterThan(0))
+    );
 
-  const transparentAccountsWithBalance = accounts.filter(
-    ({ details }) => !details.isShielded
-  ).filter(({ balance }) => Object.values(balance).some((amount) => amount.isGreaterThan(0)));
+  const transparentAccountsWithBalance = accounts
+    .filter(({ details }) => !details.isShielded)
+    .filter(({ balance }) =>
+      Object.values(balance).some((amount) => amount.isGreaterThan(0))
+    );
 
   const shieldedTokenData = accountsWithBalanceIntoSelectData(
     shieldedAccountsWithBalance
@@ -148,7 +157,7 @@ const TokenSend = (): JSX.Element => {
 
       {activeTab === "Shielded" && (
         <TokenSendContent>
-          {shieldedTokenData.length > 0 && loadablesReady ? (
+          {shieldedTokenData.length > 0 && loadablesReady ?
             <>
               <Select
                 data={shieldedTokenData}
@@ -168,15 +177,13 @@ const TokenSend = (): JSX.Element => {
                 />
               )}
             </>
-          ) : (
-            <p>You have no shielded token balances.</p>
-          )}
+          : <p>You have no shielded token balances.</p>}
         </TokenSendContent>
       )}
 
       {activeTab === "Transparent" && (
         <TokenSendContent>
-          {transparentTokenData.length > 0 && loadablesReady ? (
+          {transparentTokenData.length > 0 && loadablesReady ?
             <>
               <Select
                 data={transparentTokenData}
@@ -198,11 +205,14 @@ const TokenSend = (): JSX.Element => {
                 />
               )}
             </>
-          ) : (
-            <p>You have no transparent token balances.</p>
-          )}
+          : <p>You have no transparent token balances.</p>}
         </TokenSendContent>
       )}
+      <ButtonsContainer>
+        <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
+          <Icon name="ChevronLeft" />
+        </BackButton>
+      </ButtonsContainer>
     </TokenSendContainer>
   );
 };

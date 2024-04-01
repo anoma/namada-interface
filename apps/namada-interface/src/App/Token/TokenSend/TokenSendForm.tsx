@@ -3,18 +3,16 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { chains } from "@namada/chains";
-import { ActionButton, AmountInput, Icon, Input } from "@namada/components";
+import { ActionButton, AmountInput, Input } from "@namada/components";
 import { getIntegration } from "@namada/integrations";
 import { Chain, Signer, TokenType, Tokens } from "@namada/types";
 
-import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
 import { GAS_LIMIT } from "slices/fees";
 import { useAppSelector } from "store";
 import { TransferType, TxTransferArgs } from "../types";
 import { parseTarget } from "./TokenSend";
 import {
-  BackButton,
   ButtonsContainer,
   InputContainer,
   TokenSendFormContainer,
@@ -156,9 +154,8 @@ const TokenSendForm = ({
 
   const isRevealPkNeeded = !isShieldedSource && isRevealPkNeededFn(address);
 
-  const totalGasFee = isRevealPkNeeded
-    ? singleTransferFee.multipliedBy(2)
-    : singleTransferFee;
+  const totalGasFee =
+    isRevealPkNeeded ? singleTransferFee.multipliedBy(2) : singleTransferFee;
 
   const availableBalance = balance[tokenType]?.minus(totalGasFee);
 
@@ -169,14 +166,13 @@ const TokenSendForm = ({
     isTargetValid
   );
 
-  const accountSourceTargetDescription = isFormInvalid ? (
-    ""
-  ) : (
-    <AccountSourceTargetDescription
-      isShieldedSource={!!isShieldedSource}
-      isShieldedTarget={isShieldedTarget}
-    />
-  );
+  const accountSourceTargetDescription =
+    isFormInvalid ? "" : (
+      <AccountSourceTargetDescription
+        isShieldedSource={!!isShieldedSource}
+        isShieldedTarget={isShieldedTarget}
+      />
+    );
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
@@ -249,9 +245,9 @@ const TokenSendForm = ({
     if (!availableBalance) {
       return "Invalid";
     }
-    return transferAmount.isLessThanOrEqualTo(availableBalance)
-      ? undefined
-      : "Invalid amount!";
+    return transferAmount.isLessThanOrEqualTo(availableBalance) ? undefined : (
+        "Invalid amount!"
+      );
   };
 
   return (
@@ -299,9 +295,9 @@ const TokenSendForm = ({
       </TokenSendFormContainer>
 
       <ButtonsContainer>
-        <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
+        {/* <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
           <Icon name="ChevronLeft" />
-        </BackButton>
+        </BackButton> */}
         <ActionButton disabled={isFormInvalid} onClick={handleOnSendClick}>
           Continue
         </ActionButton>
