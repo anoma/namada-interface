@@ -57,8 +57,7 @@ function useCatchEventBlock({
 
   useEffect(() => {
     if (tmClient) {
-      // Callback is function want to trigger when having new block
-      // const triggerCallback = () => dispatch(fetchTransparentBalances());
+      // triggerCallback is function want to trigger when having new block
       const subscription = subscribeNewBlock(tmClient, triggerCallback);
       setSubscription(subscription);
     }
