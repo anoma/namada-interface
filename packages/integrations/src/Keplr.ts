@@ -26,6 +26,7 @@ import {
   tokenByMinDenom,
 } from "@namada/types";
 import { BridgeProps, Integration } from "./types/Integration";
+import { amountToMicro } from "@namada/utils";
 
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
 
@@ -171,6 +172,7 @@ class Keplr implements Integration<Account, OfflineSigner, CosmosTokenType> {
         channelId,
       } = props.ibcProps;
       const { feeAmount } = props.txProps;
+      const uatom_amount = amountToMicro(amount)
 
       // TODO: shouldn't need to cast here
       const minDenom = CosmosTokens[token as CosmosTokenType].minDenom;
@@ -189,7 +191,7 @@ class Keplr implements Integration<Account, OfflineSigner, CosmosTokenType> {
         .sendIbcTokens(
           source,
           receiver,
-          coin(amount.toString(), minDenom),
+          coin(uatom_amount.toString(), minDenom),
           portId,
           channelId,
           // TODO: Should we enable timeout height versus timestamp?

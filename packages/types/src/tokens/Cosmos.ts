@@ -25,7 +25,7 @@ export const CosmosTokens: Record<
 > = {
   ATOM: {
     ...getSlip44Info("ATOM"),
-    address: "",
+    address: "ATOM",
     coinGeckoId: "cosmos",
     minDenom: "uatom",
     decimals: 6,
