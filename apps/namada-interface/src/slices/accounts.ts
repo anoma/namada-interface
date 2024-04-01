@@ -42,6 +42,7 @@ const INITIAL_STATE = {
 
 enum AccountsThunkActions {
   FetchBalances = "fetchBalances",
+  FetchTransparentBalances = "fetchTransparentBalances",
   FetchBalance = "fetchBalance",
 }
 
@@ -56,6 +57,27 @@ export const fetchBalances = createAsyncThunk<void, void, { state: RootState }>(
     );
 
     accounts.forEach((account) => thunkApi.dispatch(fetchBalance(account)));
+  }
+);
+
+export const fetchTransparentBalances = createAsyncThunk<
+  void,
+  void,
+  { state: RootState }
+>(
+  `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchTransparentBalances}`,
+  async (_, thunkApi) => {
+    const { id } = chains.namada;
+
+    const accounts: Account[] = Object.values(
+      thunkApi.getState().accounts.derived[id]
+    );
+
+    accounts.forEach((account) => {
+      if (account.details.type === "mnemonic") {
+        thunkApi.dispatch(fetchBalance(account));
+      }
+    });
   }
 );
 

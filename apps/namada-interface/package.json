@@ -7,6 +7,8 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "@cosmjs/socket": "^0.32.3",
+    "@cosmjs/tendermint-rpc": "^0.32.3",
     "@namada/components": "0.2.1",
     "@namada/hooks": "0.2.1",
     "@namada/integrations": "0.2.1",
@@ -38,7 +40,8 @@
     "stream": "^0.0.2",
     "styled-components": "^5.3.3",
     "typescript": "^5.1.3",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xstream": "^11.14.0"
   },
   "scripts": {
     "bump": "yarn workspace namada run bump --target apps/namada-interface",
