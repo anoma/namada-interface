@@ -1,14 +1,9 @@
-import { useNavigate } from "react-router-dom";
-
 import { useUntilIntegrationAttached } from "@namada/integrations";
-import { Chain, TokenType } from "@namada/types";
+import { Chain } from "@namada/types";
 import { AccountsState } from "slices/accounts";
 import { useAppSelector } from "store";
 
 import { Intro } from "App/Common/Intro/Intro";
-import BigNumber from "bignumber.js";
-import { useAtomValue } from "jotai";
-import { balancesAtom } from "slices/accounts";
 
 //TODO: move to utils when we have one
 const isEmptyObject = (object: Record<string, unknown>): boolean => {
@@ -16,7 +11,7 @@ const isEmptyObject = (object: Record<string, unknown>): boolean => {
 };
 
 export const AccountOverview = (): JSX.Element => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const chain = useAppSelector<Chain>((state) => state.chain.config);
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
@@ -25,12 +20,12 @@ export const AccountOverview = (): JSX.Element => {
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
 
-  const balances = useAtomValue(balancesAtom);
-  const totalNativeBalance = Object.values(balances).reduce((acc, balance) => {
-    return acc.plus(
-      balance[chain.currency.symbol as TokenType] || BigNumber(0)
-    );
-  }, BigNumber(0));
+  // const balances = useAtomValue(balancesAtom);
+  // const totalNativeBalance = Object.values(balances).reduce((acc, balance) => {
+  //   return acc.plus(
+  //     balance[chain.currency.symbol as TokenType] || BigNumber(0)
+  //   );
+  // }, BigNumber(0));
 
   const hasExtensionInstalled =
     currentExtensionAttachStatus === "attached" ||
