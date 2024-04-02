@@ -60,6 +60,8 @@ export class ChainsService {
       chainId,
       rpc: url,
     };
+
+    this.sdkService.syncChain(chain);
     await this.localStorage.setChain(await this._queryNativeToken(chain));
     await this.broadcaster.updateNetwork();
   }

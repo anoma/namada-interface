@@ -6,6 +6,10 @@ type Signature = [string, string];
  * Non-Tx signing functions
  */
 export class Signing {
+  /**
+   * Signing constructor
+   * @param sdk - Instance of Sdk struct from wasm lib
+   */
   constructor(protected readonly sdk: SdkWasm) {}
 
   /**

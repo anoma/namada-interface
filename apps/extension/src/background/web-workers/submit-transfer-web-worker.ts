@@ -21,7 +21,7 @@ import {
         } = data;
         const { txMsg, transferMsg } = data;
 
-        const sdk = await getSdk(cryptoMemory, rpc, nativeToken);
+        const sdk = getSdk(cryptoMemory, rpc, "NOT USED DB NAME", nativeToken);
         await sdk.masp.loadMaspParams("TODO: not used for time being");
         // For transparent transactions we have to reveal the public key.
         if (privateKey) {

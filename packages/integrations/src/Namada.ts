@@ -87,7 +87,6 @@ export default class Namada implements Integration<Account, Signer> {
     tokens: string[] = []
   ): Promise<TokenBalances> {
     const balances = (await this._namada?.balances({ owner, tokens })) || [];
-    console.log(balances);
 
     // TODO: fix this
     return {

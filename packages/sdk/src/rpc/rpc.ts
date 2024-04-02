@@ -212,6 +212,12 @@ export class Rpc {
     return await this.sdk.process_tx(tx, txMsg);
   }
 
+  /**
+   * Sync the shielded context
+   * @async
+   * @param vks - Array of viewing keys
+   * @returns
+   */
   async shieldedSync(vks: string[]): Promise<void> {
     await this.query.shielded_sync(vks);
   }

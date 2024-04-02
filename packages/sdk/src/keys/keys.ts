@@ -23,6 +23,9 @@ const DEFAULT_PATH: Bip44Path = {
   index: 0,
 };
 
+/**
+ * Namespace for key related functions
+ */
 export class Keys {
   /**
    * @param cryptoMemory - Memory accessor for crypto lib

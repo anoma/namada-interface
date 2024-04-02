@@ -4,6 +4,20 @@ module.exports = {
     require.resolve("@namada/config/eslint/react.js"),
     "plugin:jsdoc/recommended-typescript",
   ],
+  rules: {
+    "jsdoc/require-jsdoc": [
+      "warn",
+      {
+        contexts: [
+          "ClassDeclaration",
+          "ClassProperty",
+          "FunctionDeclaration",
+          "MethodDefinition",
+        ],
+      },
+    ],
+    "jsdoc/require-returns-description": 0,
+  },
   parserOptions: {
     ecmaVersion: 12,
     sourceType: "module",
@@ -13,7 +27,7 @@ module.exports = {
     {
       files: ["*.ts", "*.tsx"],
       rules: {
-        "@typescript-eslint/no-floating-promises": ["warn"],
+        "@typescript-eslint/no-floating-promises": "warn",
       },
     },
   ],

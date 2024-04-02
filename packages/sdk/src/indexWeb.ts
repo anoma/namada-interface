@@ -13,31 +13,26 @@ export * from "./utils";
  * @throws {Error} - Unable to Query native token
  * @returns - Sdk instance
  */
-export async function getSdk(
+export function getSdk(
   cryptoMemory: WebAssembly.Memory,
   url: string,
   dbName: string,
-  token?: string
-): Promise<Sdk> {
+  token: string
+): Sdk {
   // Instantiate QueryWasm
   const query = new QueryWasm(url);
 
-  let nativeToken: string = "";
-
-  // Token not provided, make an attempt to query it
-  if (!token) {
-    try {
-      const result = await query.query_native_token();
-      nativeToken = result;
-    } catch (e) {
-      // Raise exception if query is required but native token cannot be determined
-      throw new Error(`Unable to Query native token! ${e}`);
-    }
-  } else {
-    nativeToken = token;
-  }
-
   // Instantiate SdkWasm
-  const sdk = new SdkWasm(url, nativeToken, dbName);
-  return new Sdk(sdk, query, cryptoMemory, url, nativeToken);
+  const sdk = new SdkWasm(url, token, dbName);
+  return new Sdk(sdk, query, cryptoMemory, url, token);
+}
+
+/**
+ * Query native token from the node
+ * @async
+ * @param rpc - URL of the node
+ * @returns
+ */
+export async function getNativeToken(rpc: string): Promise<string> {
+  return await new QueryWasm(rpc).query_native_token();
 }

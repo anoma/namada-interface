@@ -479,6 +479,12 @@ export class KeyRingService {
       await this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
+      await this.broadcaster.completeTx(
+        msgId,
+        TxType.EthBridgeTransfer,
+        false,
+        `${e}`
+      );
       throw new Error(`Unable to encode Eth Bridge transfer! ${e}`);
     }
   }
