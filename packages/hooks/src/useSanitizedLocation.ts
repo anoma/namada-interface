@@ -1,5 +1,5 @@
-import { useLocation, Location } from "react-router-dom";
-import { sanitize } from "dompurify";
+import { sanitize } from "isomorphic-dompurify";
+import { Location, useLocation } from "react-router-dom";
 
 export const useSanitizedLocation = (): Location => {
   const location = useLocation();
@@ -7,6 +7,6 @@ export const useSanitizedLocation = (): Location => {
     ...location,
     pathname: sanitize(location.pathname),
     search: sanitize(location.search),
-    hash: sanitize(location.hash)
+    hash: sanitize(location.hash),
   };
 };
