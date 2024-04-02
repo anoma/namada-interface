@@ -3,6 +3,7 @@ import {
   Chain,
   DerivedAccount,
   Namada as INamada,
+  ShieldedSyncProps,
   SignArbitraryProps,
   SignatureResponse,
   TxMsgProps,
@@ -22,6 +23,7 @@ import {
   QueryAccountsMsg,
   QueryBalancesMsg,
   QueryDefaultAccountMsg,
+  QueryLastBlocksMsg,
   ShieldedSyncMsg,
   VerifyArbitraryMsg,
 } from "./messages";
@@ -126,10 +128,20 @@ export class Namada implements INamada {
     );
   }
 
-  public async shieldedSync(): Promise<void> {
+  public async shieldedSync({
+    startHeight,
+    lastHeight,
+  }: ShieldedSyncProps): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ShieldedSyncMsg()
+      new ShieldedSyncMsg(startHeight, lastHeight)
+    );
+  }
+
+  public async queryLastBlock(): Promise<number | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new QueryLastBlocksMsg()
     );
   }
 

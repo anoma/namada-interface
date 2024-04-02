@@ -39,6 +39,7 @@ enum MessageType {
   CheckDurability = "check-durability",
   ApproveSignArbitrary = "approve-sign-arbitrary",
   VerifyArbitrary = "verify-arbitrary",
+  QueryLastBlock = "query-last-block",
 }
 
 /**
@@ -173,7 +174,10 @@ export class ShieldedSyncMsg extends Message<void> {
     return MessageType.ShieldedSync;
   }
 
-  constructor() {
+  constructor(
+    public readonly startHeight?: number,
+    public readonly lastHeight?: number
+  ) {
     super();
   }
 
@@ -185,6 +189,26 @@ export class ShieldedSyncMsg extends Message<void> {
 
   type(): string {
     return ShieldedSyncMsg.type();
+  }
+}
+
+export class QueryLastBlocksMsg extends Message<number | undefined> {
+  public static type(): MessageType {
+    return MessageType.QueryLastBlock;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {}
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return QueryLastBlocksMsg.type();
   }
 }
 

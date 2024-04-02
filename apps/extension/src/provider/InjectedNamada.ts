@@ -4,6 +4,7 @@ import {
   DerivedAccount,
   Namada as INamada,
   Signer as ISigner,
+  ShieldedSyncProps,
   SignArbitraryProps,
   SignatureResponse,
   TxMsgProps,
@@ -60,8 +61,17 @@ export class InjectedNamada implements INamada {
     >("balances", props);
   }
 
-  public async shieldedSync(): Promise<void> {
-    return await InjectedProxy.requestMethod<void, void>("shieldedSync");
+  public async shieldedSync(props: ShieldedSyncProps): Promise<void> {
+    return await InjectedProxy.requestMethod<ShieldedSyncProps, void>(
+      "shieldedSync",
+      props
+    );
+  }
+
+  public async queryLastBlock(): Promise<number | undefined> {
+    return await InjectedProxy.requestMethod<void, number | undefined>(
+      "queryLastBlock"
+    );
   }
 
   public async getChain(): Promise<Chain | undefined> {

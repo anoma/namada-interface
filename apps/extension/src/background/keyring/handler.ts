@@ -5,6 +5,7 @@ import {
   QueryAccountsMsg,
   QueryBalancesMsg,
   QueryDefaultAccountMsg,
+  QueryLastBlocksMsg,
   ShieldedSyncMsg,
   VerifyArbitraryMsg,
 } from "provider/messages";
@@ -63,6 +64,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleQueryBalancesMsg(service)(env, msg as QueryBalancesMsg);
       case ShieldedSyncMsg:
         return handleShieldedSyncMsg(service)(env, msg as ShieldedSyncMsg);
+      case QueryLastBlocksMsg:
+        return handleRequestLastBlock(service)(env, msg as QueryLastBlocksMsg);
       case SetActiveAccountMsg:
         return handleSetActiveAccountMsg(service)(
           env,
@@ -209,9 +212,9 @@ const handleQueryAccountsMsg: (
     const { query } = msg;
 
     const output =
-      query && query.accountId
-        ? await service.queryAccountById(query.accountId)
-        : await service.queryAccounts();
+      query && query.accountId ?
+        await service.queryAccountById(query.accountId)
+      : await service.queryAccounts();
 
     return output;
   };
@@ -236,8 +239,16 @@ const handleQueryBalancesMsg: (
 const handleShieldedSyncMsg: (
   service: KeyRingService
 ) => InternalHandler<ShieldedSyncMsg> = (service) => {
+  return async (_, { startHeight, lastHeight }) => {
+    return await service.shieldedSync(startHeight, lastHeight);
+  };
+};
+
+const handleRequestLastBlock: (
+  service: KeyRingService
+) => InternalHandler<QueryLastBlocksMsg> = (service) => {
   return async () => {
-    return await service.shieldedSync();
+    return await service.queryLastBlock();
   };
 };
 

@@ -907,6 +907,16 @@ export class KeyRing {
     return Result.ok(null);
   }
 
+  async queryLastBlock() {
+    try {
+      const query = await this.sdkService.getQuery();
+      const bigInitLastBlock = await query.query_last_block();
+      return Number(bigInitLastBlock);
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
   async queryBalances(
     owner: string,
     tokens: string[]

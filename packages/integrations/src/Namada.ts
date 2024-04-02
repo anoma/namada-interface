@@ -90,11 +90,15 @@ export default class Namada implements Integration<Account, Signer> {
 
     // TODO: fix this
     return {
-      NAM: mapUndefined((amount) => new BigNumber(amount), balances[0].amount),
+      NAM: mapUndefined((amount) => new BigNumber(amount), balances[0]?.amount),
     };
   }
 
-  public async sync(): Promise<void> {
-    await this._namada?.shieldedSync();
+  public async sync(startHeight?: number, lastHeight?: number): Promise<void> {
+    await this._namada?.shieldedSync({ startHeight, lastHeight });
+  }
+
+  public async queryLastBlock(): Promise<number | undefined> {
+    return await this._namada?.queryLastBlock();
   }
 }

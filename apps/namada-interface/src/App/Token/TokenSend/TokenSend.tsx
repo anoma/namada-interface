@@ -70,11 +70,11 @@ const TokenSend = (): JSX.Element => {
 
   const shieldedAccountsWithBalance = accounts.filter(
     ({ details }) => details.isShielded
-  ).filter(({ balance }) => Object.values(balance).some((amount) => amount.isGreaterThan(0)));
+  ).filter(({ balance }) => Object.values(balance).some((amount) => amount?.isGreaterThan(0)));
 
   const transparentAccountsWithBalance = accounts.filter(
     ({ details }) => !details.isShielded
-  ).filter(({ balance }) => Object.values(balance).some((amount) => amount.isGreaterThan(0)));
+  ).filter(({ balance }) => Object.values(balance).some((amount) => amount?.isGreaterThan(0)));
 
   const shieldedTokenData = accountsWithBalanceIntoSelectData(
     shieldedAccountsWithBalance
