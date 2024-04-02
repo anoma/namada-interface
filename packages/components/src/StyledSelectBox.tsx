@@ -2,19 +2,19 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
-type SelectBoxOption = {
+export type SelectBoxOption = {
   id: string;
   value: React.ReactNode;
   ariaLabel: string;
 };
 
-type SelectBoxProps = {
+export type SelectBoxProps = {
   id: string;
   value: string;
   displayArrow?: boolean;
-  listContainerClassList?: string;
-  containerClassList?: string;
-  listItemClassList?: string;
+  listContainerProps?: React.ComponentPropsWithoutRef<"ul">;
+  containerProps?: React.ComponentPropsWithoutRef<"div">;
+  listItemProps?: React.ComponentPropsWithoutRef<"li">;
   defaultValue: React.ReactNode;
   options: SelectBoxOption[];
 } & React.ComponentPropsWithRef<"input">;
@@ -24,9 +24,9 @@ export const StyledSelectBox = ({
   options,
   value,
   onChange,
-  listItemClassList,
-  containerClassList,
-  listContainerClassList,
+  containerProps = {},
+  listItemProps = {},
+  listContainerProps = {},
   displayArrow = true,
   defaultValue,
   ...props
@@ -41,7 +41,25 @@ export const StyledSelectBox = ({
     }
   }, []);
 
+  useEffect(() => {
+    const close = (): void => setOpen(false);
+    if (open) {
+      document.documentElement.addEventListener("click", close);
+    }
+    return () => {
+      document.documentElement.removeEventListener("click", close);
+    };
+  }, [open]);
+
   const getElementId = (optionId: string): string => `radio-${id}-${optionId}`;
+
+  const { className: containerClassList, ...otherContainerProps } =
+    containerProps;
+
+  const { className: listContainerClassList, ...otherListContainerProps } =
+    listContainerProps;
+
+  const { className: listItemClassList, ...otherListItemProps } = listItemProps;
 
   return (
     <div className="relative">
@@ -68,7 +86,8 @@ export const StyledSelectBox = ({
       <div>
         <div
           className={twMerge(
-            "group inline-flex items-center relative font-medium cursor-pointer pl-2 pr-3",
+            "group inline-flex items-center relative select-none",
+            "font-medium cursor-pointer pl-2 pr-3",
             clsx({
               "opacity-50": open,
             }),
@@ -77,6 +96,7 @@ export const StyledSelectBox = ({
           role="button"
           aria-label="Open Navigation"
           onClick={() => setOpen(!open)}
+          {...otherContainerProps}
         >
           {selected ? selected.value : defaultValue}
           {displayArrow && (
@@ -91,19 +111,30 @@ export const StyledSelectBox = ({
         </div>
         <ul
           className={twMerge(
-            "hidden flex-col hidden py-2 px-2 cursor-pointer",
+            "hidden absolute top-[2.5em] left-1/2 -translate-x-1/2 flex-col hidden",
+            "rounded-sm pt-2 pb-3 px-5 cursor-pointer bg-rblack",
             clsx({ flex: open }),
             listContainerClassList
           )}
+          {...otherListContainerProps}
         >
-          {options.map((option) => (
+          {options.map((option, idx) => (
             <li
-              className="cursor-pointer py-2 border-b border-rblack group"
+              key={`selectbox-item-${id}-${option.id}`}
+              className={twMerge(
+                clsx("group/item cursor-pointer py-2", {
+                  "border-b border-current": idx < options.length - 1,
+                }),
+                listItemClassList
+              )}
               onClick={() => setOpen(false)}
-              key={`radio-view-${option.id}-${value}`}
+              {...otherListItemProps}
             >
               <label
-                className={twMerge("flex cursor-pointer", listItemClassList)}
+                className={twMerge(
+                  "grid grid-cols-[30px_max-content] cursor-pointer",
+                  "group-hover/item:text-cyan transition-color duration-150"
+                )}
                 htmlFor={getElementId(option.id)}
               >
                 {option.value}
