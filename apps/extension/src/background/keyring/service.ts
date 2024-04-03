@@ -301,8 +301,8 @@ export class KeyRingService {
   }
 
   private async submitTransferChrome(
-    transferMsg: string,
-    txMsg: string,
+    transferMsg: TransferMsgValue,
+    txMsg: TxMsgValue,
     msgId: string,
     signingKey: SigningKey
   ): Promise<void> {
@@ -317,19 +317,13 @@ export class KeyRingService {
       await createOffscreenWithTxWorker(offscreenDocumentPath);
     }
 
-    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
-    const transferMsgValue = Message.decode(
-      fromBase64(transferMsg),
-      TransferMsgValue
-    );
-
     const result = await chrome.runtime.sendMessage({
       type: SUBMIT_TRANSFER_MSG_TYPE,
       target: OFFSCREEN_TARGET,
       routerId,
       data: {
-        transferMsg: transferMsgValue,
-        txMsg: txMsgValue,
+        transferMsg,
+        txMsg,
         msgId,
         signingKey,
         rpc,
@@ -345,8 +339,8 @@ export class KeyRingService {
   }
 
   private async submitTransferFirefox(
-    transferMsg: string,
-    txMsg: string,
+    transferMsg: TransferMsgValue,
+    txMsg: TxMsgValue,
     msgId: string,
     signingKey: SigningKey
   ): Promise<void> {
@@ -354,16 +348,11 @@ export class KeyRingService {
     const {
       currency: { address: nativeToken = tokenAddress },
     } = await this.chainsService.getChain();
-    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
-    const transferMsgValue = Message.decode(
-      fromBase64(transferMsg),
-      TransferMsgValue
-    );
 
     initSubmitTransferWebWorker(
       {
-        transferMsg: transferMsgValue,
-        txMsg: txMsgValue,
+        transferMsg,
+        txMsg,
         msgId,
         signingKey,
         rpc,
@@ -388,13 +377,32 @@ export class KeyRingService {
     txMsg: string,
     msgId: string
   ): Promise<void> {
+    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+    const transferMsgValue = Message.decode(
+      fromBase64(transferMsg),
+      TransferMsgValue
+    );
+
     // Passing submit handler simplifies worker code when using Firefox
-    const submit = async (signingKey: SigningKey): Promise<void> => {
+    const submit = async (
+      signingKey: SigningKey,
+      transferMsgValue: TransferMsgValue
+    ): Promise<void> => {
       const { TARGET } = process.env;
       if (TARGET === "chrome") {
-        await this.submitTransferChrome(transferMsg, txMsg, msgId, signingKey);
+        await this.submitTransferChrome(
+          transferMsgValue,
+          txMsgValue,
+          msgId,
+          signingKey
+        );
       } else if (TARGET === "firefox") {
-        await this.submitTransferFirefox(transferMsg, txMsg, msgId, signingKey);
+        await this.submitTransferFirefox(
+          transferMsgValue,
+          txMsgValue,
+          msgId,
+          signingKey
+        );
       } else {
         console.warn(
           "Submitting transfers is not supported with your browser."
@@ -406,7 +414,8 @@ export class KeyRingService {
 
     try {
       await this._keyRing.submitTransfer(
-        fromBase64(transferMsg),
+        txMsgValue,
+        transferMsgValue,
         submit.bind(this)
       );
       await this.broadcaster.updateBalance();

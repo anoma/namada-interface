@@ -308,8 +308,16 @@ pub fn ibc_transfer_tx_args(
         memo,
     } = ibc_transfer_msg;
 
-    let source_address = Address::from_str(&source)?;
-    let source = TransferSource::Address(source_address);
+    let source = match Address::from_str(&source) {
+        Ok(v) => Ok(TransferSource::Address(v)),
+        Err(e1) => match ExtendedSpendingKey::from_str(&source) {
+            Ok(v) => Ok(TransferSource::ExtendedSpendingKey(v)),
+            Err(e2) => Err(JsError::new(&format!(
+                "Can't compute the transfer source. {}, {}",
+                e1, e2
+            ))),
+        },
+    }?;
     let token = Address::from_str(&token)?;
     let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
     let amount = InputAmount::Unvalidated(denom_amount);

@@ -61,7 +61,10 @@ export type MnemonicValidationResponse = {
   error?: string;
 };
 
-export type SigningKey = {
-  privateKey?: string;
-  xsk?: string;
+type SigningKeyMasp = { value: undefined; type: AccountType.ShieldedKeys };
+type SigningKeyRest = {
+  value: string;
+  type: Exclude<AccountType, AccountType.ShieldedKeys>;
 };
+
+export type SigningKey = SigningKeyRest | SigningKeyMasp;

@@ -1,5 +1,3 @@
-import { deserialize } from "@dao-xyz/borsh";
-
 import { KVStore } from "@namada/storage";
 import {
   AccountType,
@@ -550,10 +548,9 @@ export class KeyRing {
     return accounts.map((account) => account.public as AccountStore);
   }
 
-  /**
-   * For provided address, return associated private key
-   */
-  private async getSigningKey(address: string): Promise<string> {
+  private async getStoredAccount(
+    address: string
+  ): Promise<{ public: KeyStoreType; sensitive?: SensitiveType }> {
     const account = await this.vaultStorage.findOne(
       KeyStore,
       "address",
@@ -562,6 +559,37 @@ export class KeyRing {
     if (!account) {
       throw new Error(`Account for ${address} not found!`);
     }
+
+    return account;
+  }
+
+  private async getSource(address: string): Promise<string> {
+    const account = await this.getStoredAccount(address);
+
+    // For shielded address the source is the extended spending key
+    if (account.public.type === AccountType.ShieldedKeys) {
+      const sensitiveProps =
+        await this.vaultService.reveal<SensitiveAccountStoreData>(
+          account.sensitive
+        );
+      if (!sensitiveProps) {
+        throw new Error(`Signing key for ${address} not found!`);
+      }
+      const { spendingKey } = JSON.parse(sensitiveProps.text);
+
+      return spendingKey;
+      //For everything else, the source is the address itself
+    } else {
+      return account.public.address;
+    }
+  }
+
+  /**
+   * For provided address, return associated private key
+   */
+  private async getSigningKey(address: string): Promise<SigningKey> {
+    const account = await this.getStoredAccount(address);
+
     const accountStore = (await this.queryAllAccounts()).find(
       (account) => account.address === address
     );
@@ -580,27 +608,36 @@ export class KeyRing {
     }
     const { text: secret, passphrase } = sensitiveProps;
 
-    let privateKey: string;
-
+    let signingKey: SigningKey;
     if (account.public.type === AccountType.PrivateKey) {
-      privateKey = secret;
+      signingKey = { value: secret, type: AccountType.PrivateKey };
+    } else if (account.public.type === AccountType.ShieldedKeys) {
+      signingKey = { value: undefined, type: AccountType.ShieldedKeys };
     } else {
       const sdk = this.sdkService.getSdk();
       const mnemonic = sdk.getMnemonic();
       const seed = mnemonic.toSeed(secret, passphrase);
 
       const keys = this.sdkService.getSdk().getKeys();
-      privateKey = keys.deriveFromSeed(seed, path).privateKey;
+      const privateKey = keys.deriveFromSeed(seed, path).privateKey;
+
+      signingKey = { value: privateKey, type: AccountType.PrivateKey };
     }
 
-    return privateKey;
+    return signingKey;
   }
 
   async submitBond(bondMsg: BondMsgValue, txMsg: TxMsgValue): Promise<string> {
     await this.vaultService.assertIsUnlocked();
     try {
       const { source } = bondMsg;
-      const signingKey = await this.getSigningKey(source);
+      const { value: signingKey, type: skType } =
+        await this.getSigningKey(source);
+
+      if (skType === AccountType.ShieldedKeys) {
+        throw new Error("Shielded keys are not supported for bonding");
+      }
+
       const sdk = this.sdkService.getSdk();
       const sdkTx = sdk.tx;
 
@@ -632,7 +669,12 @@ export class KeyRing {
     const sdk = this.sdkService.getSdk();
     try {
       const { source } = unbondMsg;
-      const signingKey = await this.getSigningKey(source);
+      const { value: signingKey, type: skType } =
+        await this.getSigningKey(source);
+
+      if (skType === AccountType.ShieldedKeys) {
+        throw new Error("Shielded keys are not supported for bonding");
+      }
 
       await sdk.tx.revealPk(signingKey, txMsg);
 
@@ -654,7 +696,12 @@ export class KeyRing {
     const sdk = this.sdkService.getSdk();
     try {
       const { source } = withdrawMsg;
-      const signingKey = await this.getSigningKey(source);
+      const { value: signingKey, type: skType } =
+        await this.getSigningKey(source);
+
+      if (skType === AccountType.ShieldedKeys) {
+        throw new Error("Shielded keys are not supported for bonding");
+      }
 
       await sdk.tx.revealPk(signingKey, txMsg);
 
@@ -678,10 +725,14 @@ export class KeyRing {
       const { signer } = voteProposalMsg;
       const signingKey = await this.getSigningKey(signer);
 
-      await sdk.tx.revealPk(signingKey, txMsg);
+      if (signingKey.type === AccountType.ShieldedKeys) {
+        throw new Error("Shielded keys are not supported for bonding");
+      }
+
+      await sdk.tx.revealPk(signingKey.value, txMsg);
 
       const builtTx = await sdk.tx.buildVoteProposal(txMsg, voteProposalMsg);
-      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
+      const signedTx = await sdk.tx.signTx(builtTx, signingKey.value);
       await sdk.rpc.broadcastTx(signedTx);
       const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
 
@@ -692,37 +743,29 @@ export class KeyRing {
   }
 
   async submitTransfer(
-    transferMsg: Uint8Array,
-    submit: (signingKey: SigningKey) => Promise<void>
+    txMsg: TxMsgValue,
+    transferMsg: TransferMsgValue,
+    submit: (
+      signingKey: SigningKey,
+      transferMsg: TransferMsgValue
+    ) => Promise<void>
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
+    const { source: sourceAddress } = transferMsg;
 
-    // We need to get the source address to find either the private key or spending key
-    const { source } = deserialize(Buffer.from(transferMsg), TransferMsgValue);
+    const source = await this.getSource(sourceAddress);
+    console.log("source", source);
+    // We change sourceAddress to real source
+    transferMsg.source = source;
 
-    const account = await this.vaultStorage.findOneOrFail(
-      KeyStore,
-      "address",
-      source
-    );
-    const sensitiveProps =
-      await this.vaultService.reveal<SensitiveAccountStoreData>(
-        account.sensitive
-      );
+    const signingKey = await this.getSigningKey(sourceAddress);
 
-    if (!sensitiveProps) {
-      throw new Error("Error decrypting AccountStore data");
+    if (signingKey.type === AccountType.ShieldedKeys) {
+      // We set feeUnshield to transfer source(xsk) for shielded source addresses
+      txMsg.feeUnshield = source;
     }
 
-    if (account.public.type === AccountType.ShieldedKeys) {
-      const xsk = JSON.parse(sensitiveProps.text).spendingKey;
-
-      await submit({
-        xsk,
-      });
-    } else {
-      await submit({ privateKey: await this.getSigningKey(source) });
-    }
+    await submit(signingKey, transferMsg);
   }
 
   async submitIbcTransfer(
@@ -732,13 +775,26 @@ export class KeyRing {
     await this.vaultService.assertIsUnlocked();
     const sdk = this.sdkService.getSdk();
     try {
-      const { source } = ibcTransferMsg;
-      const signingKey = await this.getSigningKey(source);
+      const { source: sourceAddress } = ibcTransferMsg;
+      const source = await this.getSource(sourceAddress);
 
-      await sdk.tx.revealPk(signingKey, txMsg);
+      await sdk.masp.loadMaspParams("");
+
+      // We change sourceAddress to real source
+      ibcTransferMsg.source = source;
+
+      const signingKey = await this.getSigningKey(sourceAddress);
+
+      if (signingKey.type === AccountType.ShieldedKeys) {
+        // We set feeUnshield to transfer source(xsk) for shielded source addresses
+        txMsg.feeUnshield = source;
+        txMsg.disposableSigningKey = true;
+      } else {
+        await sdk.tx.revealPk(signingKey.value, txMsg);
+      }
 
       const builtTx = await sdk.tx.buildIbcTransfer(txMsg, ibcTransferMsg);
-      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
+      const signedTx = await sdk.tx.signTx(builtTx, signingKey.value);
       const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
 
       return innerTxHash;
@@ -757,13 +813,19 @@ export class KeyRing {
       const { sender } = ethBridgeTransferMsg;
       const signingKey = await this.getSigningKey(sender);
 
-      await sdk.tx.revealPk(signingKey, txMsg);
+      if (signingKey.type === AccountType.ShieldedKeys) {
+        throw new Error(
+          "Shielded keys are not supported for eth bridge transfer"
+        );
+      }
+
+      await sdk.tx.revealPk(signingKey.value, txMsg);
 
       const builtTx = await sdk.tx.buildEthBridgeTransfer(
         txMsg,
         ethBridgeTransferMsg
       );
-      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
+      const signedTx = await sdk.tx.signTx(builtTx, signingKey.value);
       const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
 
       return innerTxHash;
@@ -843,14 +905,21 @@ export class KeyRing {
   }
 
   async signArbitrary(
-    signer: string,
+    address: string,
     data: string
   ): Promise<SignatureResponse> {
     await this.vaultService.assertIsUnlocked();
 
-    const key = await this.getSigningKey(signer);
+    const signingKey = await this.getSigningKey(address);
+
+    if (signingKey.type === AccountType.ShieldedKeys) {
+      throw new Error(
+        "Shielded keys are not supported for eth bridge transfer"
+      );
+    }
+
     const sdk = this.sdkService.getSdk();
-    const [hash, signature] = sdk.signing.signArbitrary(key, data);
+    const [hash, signature] = sdk.signing.signArbitrary(signingKey.value, data);
 
     return { hash, signature };
   }
