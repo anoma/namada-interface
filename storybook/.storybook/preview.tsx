@@ -1,4 +1,5 @@
 import type { Preview } from "@storybook/react";
+import { themes } from "@storybook/theming";
 import { StoryWrapper } from "../src/StoryWrapper";
 
 import "../src/styles/tailwind-output.css";
@@ -15,6 +16,9 @@ const preview: Preview = {
   ],
   parameters: {
     actions: { argTypesRegex: "^on[A-Z].*" },
+    docs: {
+      theme: themes.dark,
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,
