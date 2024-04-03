@@ -87,7 +87,7 @@ export const StyledSelectBox = ({
         <div
           className={twMerge(
             "group inline-flex items-center relative select-none",
-            "font-medium cursor-pointer pl-2 pr-3",
+            "font-medium cursor-pointer pr-4 active:top-px",
             clsx({
               "opacity-50": open,
             }),
@@ -122,7 +122,7 @@ export const StyledSelectBox = ({
             <li
               key={`selectbox-item-${id}-${option.id}`}
               className={twMerge(
-                clsx("group/item cursor-pointer py-2", {
+                clsx("group/item", {
                   "border-b border-current": idx < options.length - 1,
                 }),
                 listItemClassList
@@ -132,7 +132,7 @@ export const StyledSelectBox = ({
             >
               <label
                 className={twMerge(
-                  "grid grid-cols-[30px_max-content] cursor-pointer",
+                  "grid grid-cols-[30px_max-content] cursor-pointer py-2",
                   "group-hover/item:text-cyan transition-color duration-150"
                 )}
                 htmlFor={getElementId(option.id)}
