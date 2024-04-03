@@ -18,8 +18,9 @@ const settingsSlice = createSlice({
   initialState,
   reducers: {
     setIsConnected: (state, action: PayloadAction<ChainKey>) => {
-      state.connectedChains = state.connectedChains.includes(action.payload)
-        ? state.connectedChains
+      state.connectedChains =
+        state.connectedChains.includes(action.payload) ?
+          state.connectedChains
         : [...state.connectedChains, action.payload];
     },
   },
@@ -36,5 +37,7 @@ export default reducer;
 ////////////////////////////////////////////////////////////////////////////////
 
 const namadaExtensionConnectedAtom = atom(false);
+const selectedCurrencyAtom = atom("USD");
+const hideBalancesAtom = atom(false);
 
-export { namadaExtensionConnectedAtom };
+export { hideBalancesAtom, namadaExtensionConnectedAtom, selectedCurrencyAtom };
