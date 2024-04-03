@@ -1,8 +1,12 @@
-import { ActionButton } from "@namada/components";
+import { ToggleButton } from "@namada/components";
 import { Chain } from "@namada/types";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
 import clsx from "clsx";
+import { Currencies } from "currencies";
 import { ConnectStatus, useExtensionConnect } from "hooks/useExtensionConnect";
+import { useAtom } from "jotai";
+import { hideBalancesAtom, selectedCurrencyAtom } from "slices/settings";
+import { CurrencySelector } from "../CurrencySelector";
 
 type Props = {
   chain: Chain;
@@ -10,6 +14,10 @@ type Props = {
 
 export const TopNavigation = ({ chain }: Props): JSX.Element => {
   const { connectionStatus } = useExtensionConnect(chain);
+  const [selectedCurrency, setSelectedCurrency] = useAtom(selectedCurrencyAtom);
+  const [hideBalances, setHideBalances] = useAtom(hideBalancesAtom);
+
+  const separator = <span className="h-8 w-px bg-rblack" />;
 
   return (
     <>
@@ -20,33 +28,20 @@ export const TopNavigation = ({ chain }: Props): JSX.Element => {
       )}
 
       {connectionStatus === ConnectStatus.CONNECTED && (
-        <>
-          <div className="grid grid-cols-[140px_140px_140px] items-center gap-4">
-            <ActionButton
-              hoverColor="black"
-              color="white"
-              size="xs"
-              borderRadius="sm"
-            >
-              Send
-            </ActionButton>
-            <ActionButton
-              hoverColor="primary"
-              color="black"
-              size="xs"
-              borderRadius="sm"
-            >
-              Receive
-            </ActionButton>
-            <ActionButton
-              hoverColor="black"
-              color="secondary"
-              size="xs"
-              borderRadius="sm"
-            >
-              Shield
-            </ActionButton>
-          </div>
+        <div className="flex items-center gap-5">
+          <ToggleButton
+            label="Hide Balances"
+            checked={hideBalances}
+            onChange={() => setHideBalances(!hideBalances)}
+            containerProps={{ className: "text-white" }}
+          />
+          {separator}
+          <CurrencySelector
+            currencies={Currencies}
+            value={selectedCurrency}
+            onChange={setSelectedCurrency}
+          />
+          {separator}
           <div>
             <span
               className={clsx(
@@ -57,7 +52,7 @@ export const TopNavigation = ({ chain }: Props): JSX.Element => {
               <span>Namada Wallet 01</span>
             </span>
           </div>
-        </>
+        </div>
       )}
     </>
   );
