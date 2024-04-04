@@ -62,6 +62,7 @@ const init = new Promise<void>(async (resolve) => {
   const vaultService = new VaultService(
     vaultStorage,
     sessionStore,
+    sdkService,
     cryptoMemory,
     broadcaster
   );

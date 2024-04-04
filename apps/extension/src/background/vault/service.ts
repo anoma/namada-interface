@@ -1,5 +1,6 @@
 import { KVStore } from "@namada/storage";
 import { Result } from "@namada/utils";
+import { SdkService } from "background/sdk";
 import { ExtensionBroadcaster } from "extension";
 import { sha256 } from "js-sha256";
 import { VaultKeys as Keys, VaultStorage } from "storage";
@@ -18,9 +19,10 @@ export class VaultService {
   public constructor(
     protected vaultStorage: VaultStorage,
     protected sessionStore: KVStore<SessionPassword>,
+    protected readonly sdkService: SdkService,
     protected readonly cryptoMemory: WebAssembly.Memory,
     protected readonly broadcaster?: ExtensionBroadcaster
-  ) {}
+  ) { }
 
   public async initialize(): Promise<void> {
     const storage = await this.vaultStorage.get();
@@ -97,16 +99,17 @@ export class VaultService {
 
   public async checkPassword(password: string): Promise<boolean> {
     const store = await this.vaultStorage.getOrFail();
+    const { crypto } = this.sdkService.getSdk();
     if (!store.password) {
       throw new Error("Password not initialized");
     }
 
+    const params = crypto.makeEncryptionParams(
+      await this.hashPassword(password)
+    );
+
     try {
-      crypto.decrypt(
-        store.password,
-        await this.hashPassword(password),
-        this.cryptoMemory
-      );
+      crypto.decrypt(store.password.cipher.text, params, password);
       return true;
     } catch (error) {
       console.warn(error);
@@ -196,9 +199,8 @@ export class VaultService {
     sensitiveData: T,
     password?: string
   ): Promise<CryptoRecord> {
-    const pwd = password
-      ? await this.hashPassword(password)
-      : await this.getPassword();
+    const pwd =
+      password ? await this.hashPassword(password) : await this.getPassword();
     return crypto.encrypt(JSON.stringify(sensitiveData), pwd);
   }
 

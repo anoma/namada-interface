@@ -77,7 +77,7 @@ export class Sdk {
 
   /**
    * Return initialized Crypto class
-   * @returns {Crypto} Utilities for encrypting and decrypting data
+   * @returns Utilities for encrypting and decrypting data
    */
   getCrypto(): Crypto {
     return new Crypto(this.cryptoMemory);
@@ -143,7 +143,7 @@ export class Sdk {
 
   /**
    * Define crypto getter to use with destructuring assignment
-   * @returns {Crypto} Utilities for encrypting and decrypting data
+   * @returns Utilities for encrypting and decrypting data
    */
   get crypto(): Crypto {
     return this.getCrypto();

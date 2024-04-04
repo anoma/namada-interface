@@ -5,54 +5,51 @@ import {
   ByteSize,
   Rng,
   Salt,
-  VecU8Pointer,
   readVecU8Pointer,
 } from "@namada/crypto";
-
-export const Argon2Config = {
-  // Number of memory blocks in kibibytes
-  // Max: 268_435_455
-  // Min: 8
-  // https://www.rfc-editor.org/rfc/rfc9106.html#name-recommendations
-  m_cost: 65536, // 65536 KiB equals 64MiB
-  // Number of iterations (time)
-  // Max: 4_294_967_29
-  // Min: 1
-  t_cost: 3,
-  // Number of threads (degree of parallelism)
-  // Max: 16_777_215
-  // Min: 1
-  p_cost: 1,
-};
-
-export type EncryptionParams = {
-  params: Argon2Params;
-  key: VecU8Pointer;
-  salt: string;
-  iv: Uint8Array;
-};
+import { Argon2Config } from "index";
+import { CryptoRecord, EncryptionParams, KdfType } from "./types";
 
 /**
  * Class Crypto handles AES encryption tasks
  */
 export class Crypto {
-  constructor(protected readonly cryptoMemory: WebAssembly.Memory) { }
+  /**
+   * @param cryptoMemory - WebAssembly Memory for crypto
+   */
+  constructor(protected readonly cryptoMemory: WebAssembly.Memory) {}
 
   /**
    * Encrypt string using AES and Argon2
-   * @param {EncryptionParams} params - Encryption parameters
-   * @param {string} plainText - data to be encrypted
-   * @returns {Uint8Array} encrypted byte array
+   * @param params - Encryption params
+   * @param  plainText - data to be encrypted
+   * @returns crypto record
    */
-  encrypt(params: EncryptionParams, plainText: string): Uint8Array {
-    const { key, iv } = params;
+  encrypt(params: EncryptionParams, plainText: string): CryptoRecord {
+    const { key, iv, params: argon2Params } = params;
     const aes = new AES(key, iv);
     const cipherText = aes.encrypt(plainText);
     aes.free();
 
-    return cipherText;
+    return {
+      kdf: {
+        type: KdfType.Argon2,
+        params: argon2Params,
+      },
+      cipher: {
+        type: "aes-256-gcm",
+        iv,
+        text: cipherText,
+      },
+    };
   }
 
+  /**
+   * @param cipherText - Uint8Array of encrypted bytes
+   * @param params - parameters for encryption
+   * @param password - password
+   * @returns decrypted text
+   */
   public decrypt(
     cipherText: Uint8Array,
     params: EncryptionParams,
@@ -79,16 +76,20 @@ export class Crypto {
   /**
    * Construct encryption parameters such as password hash,
    * initialization vector, and salt from provided password
-   * @param {string} password - required for generating password hash
-   * @returns {EncryptionParams} -
+   * @param password - required for generating password hash
+   * @param argonParams - optionally specify Argon2 params, otherwise use default
+   * @returns encryption parameters
    */
-  public makeEncryptionParams(password: string): EncryptionParams {
+  public makeEncryptionParams(
+    password: string,
+    argonParams?: typeof Argon2Config
+  ): EncryptionParams {
     const saltInstance = Salt.generate();
 
     const salt = saltInstance.as_string();
     saltInstance.free();
 
-    const { m_cost, t_cost, p_cost } = Argon2Config;
+    const { m_cost, t_cost, p_cost } = argonParams || Argon2Config;
     const argon2Params = new Argon2Params(m_cost, t_cost, p_cost);
     const argon2 = new Argon2(password, salt, argon2Params);
     const params = argon2.params();

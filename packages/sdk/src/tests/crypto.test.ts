@@ -14,6 +14,7 @@ describe("Crypto", () => {
     expect(iv.length).toEqual(IV_LENGTH);
     expect(key.length).toEqual(KEY_LENGTH);
     expect(salt.length).toEqual(SALT_LENGTH);
+    // Verify default values are used when no overrides were provided
     expect(params.m_cost).toStrictEqual(Argon2Config.m_cost);
     expect(params.p_cost).toStrictEqual(Argon2Config.p_cost);
     expect(params.t_cost).toStrictEqual(Argon2Config.t_cost);
@@ -22,8 +23,9 @@ describe("Crypto", () => {
   it("should encrypt and decrypt data successfully", () => {
     const { crypto } = initSdk();
     const params = crypto.makeEncryptionParams(PASSWORD);
+    const { key, iv } = params;
     const plainText = "This is sensitive data";
-    const cipherText = crypto.encrypt(params, plainText);
+    const cipherText = crypto.encrypt(key, iv, plainText);
     const decryptedData = crypto.decrypt(cipherText, params, PASSWORD);
 
     expect(decryptedData).toBe(plainText);
