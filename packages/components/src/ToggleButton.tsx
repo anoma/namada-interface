@@ -5,7 +5,6 @@ type Props = {
   checked: boolean;
   onChange: () => void;
   label: string;
-  theme?: "yellow" | "black";
 };
 
 const toggleButtonClassList = tv({
