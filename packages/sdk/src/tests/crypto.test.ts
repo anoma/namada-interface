@@ -23,10 +23,13 @@ describe("Crypto", () => {
   it("should encrypt and decrypt data successfully", () => {
     const { crypto } = initSdk();
     const params = crypto.makeEncryptionParams(PASSWORD);
-    const { key, iv } = params;
     const plainText = "This is sensitive data";
-    const cipherText = crypto.encrypt(key, iv, plainText);
-    const decryptedData = crypto.decrypt(cipherText, params, PASSWORD);
+    const cryptoRecord = crypto.encrypt(params, plainText);
+    const decryptedData = crypto.decrypt(
+      cryptoRecord.cipher.text,
+      params,
+      PASSWORD
+    );
 
     expect(decryptedData).toBe(plainText);
   });

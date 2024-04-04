@@ -7,8 +7,7 @@ import {
   Salt,
   readVecU8Pointer,
 } from "@namada/crypto";
-import { Argon2Config } from "index";
-import { CryptoRecord, EncryptionParams, KdfType } from "./types";
+import { Argon2Config, CryptoRecord, EncryptionParams, KdfType } from "./types";
 
 /**
  * Class Crypto handles AES encryption tasks

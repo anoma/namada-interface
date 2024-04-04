@@ -1,4 +1,4 @@
-import { Argon2Params, VecU8Pointer } from "../../../crypto/src";
+import { Argon2Params, VecU8Pointer } from "@namada/crypto";
 
 export const Argon2Config = {
   // Number of memory blocks in kibibytes
