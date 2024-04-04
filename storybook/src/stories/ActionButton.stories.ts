@@ -10,11 +10,11 @@ const meta: Meta<typeof ActionButton> = {
       control: { type: "select" },
     },
     color: {
-      options: ["primary", "secondary", "black"],
+      options: ["primary", "secondary", "black", "white"],
       control: { type: "select" },
     },
     hoverColor: {
-      options: ["primary", "secondary", "black"],
+      options: ["primary", "secondary", "black", "white"],
       control: { type: "select" },
     },
     borderRadius: {
