@@ -54,7 +54,10 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
     } else {
       switch (validation.error.t) {
         case "WrongLength":
-          return `Private key must be ${validation.error.length} characters long`;
+          return (
+            `Private key must be ${validation.error.length} characters long. ` +
+            `You provided a key of length ${key.length}.`
+          );
         case "BadCharacter":
           return "Private key may only contain characters 0-9, a-f";
         default:
