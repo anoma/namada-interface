@@ -45,8 +45,6 @@
     "release": "release-it --verbose --ci",
     "release:dry-run": "release-it --verbose --dry-run --ci",
     "release:no-npm": "release-it --verbose --no-npm.publish --ci",
-    "watch": "webpack-cli --watch",
-    "start": "webpack-dev-server",
     "start:proxy": "node ./scripts/startProxies.js",
     "dev": "vite",
     "dev:local": "NODE_ENV=development NAMADA_INTERFACE_LOCAL=\"true\" yarn dev",
