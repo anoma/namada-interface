@@ -47,27 +47,28 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
     Array.from(mnemonicsRange)
   );
 
-  const privateKeyError = (() => {
-    const validation = validatePrivateKey(filterPrivateKeyPrefix(privateKey));
+  const validatePkAndFormatErrorMessage = (key: string): string => {
+    const validation = validatePrivateKey(filterPrivateKeyPrefix(key));
     if (validation.ok) {
       return "";
     } else {
       switch (validation.error.t) {
-        case "TooLong":
-          return `Private key must be no more than
-             ${validation.error.maxLength} characters long`;
+        case "WrongLength":
+          return `Private key must be ${validation.error.length} characters long`;
         case "BadCharacter":
           return "Private key may only contain characters 0-9, a-f";
         default:
           return assertNever(validation.error);
       }
     }
-  })();
+  };
+
+  const privateKeyError = validatePkAndFormatErrorMessage(privateKey);
 
   const isSubmitButtonDisabled =
-    mnemonicType === MnemonicTypes.PrivateKey
-      ? privateKey === "" || privateKeyError !== ""
-      : mnemonics.slice(0, mnemonicType).some((mnemonic) => !mnemonic);
+    mnemonicType === MnemonicTypes.PrivateKey ?
+      privateKey === "" || privateKeyError !== ""
+    : mnemonics.slice(0, mnemonicType).some((mnemonic) => !mnemonic);
 
   const onPaste = useCallback(
     (index: number, e: React.ClipboardEvent<HTMLInputElement>) => {
