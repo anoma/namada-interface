@@ -119,11 +119,16 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
 
   const onSubmit = useCallback(async () => {
     if (mnemonicType === MnemonicTypes.PrivateKey) {
-      // TODO: validate here
-      onConfirm({
-        t: "PrivateKey",
-        privateKey: filterPrivateKeyPrefix(privateKey),
-      });
+      const privateKeyError = validatePkAndFormatErrorMessage(privateKey);
+      if (privateKeyError) {
+        setMnemonicError(privateKeyError);
+      } else {
+        setMnemonicError(undefined);
+        onConfirm({
+          t: "PrivateKey",
+          privateKey: filterPrivateKeyPrefix(privateKey),
+        });
+      }
     } else {
       const actualMnemonics = mnemonics.slice(0, mnemonicType);
       const phrase = actualMnemonics.join(" ");
