@@ -8,7 +8,8 @@
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
   "scripts": {
-    "prepublish": "npx rimraf ./dist && tsc --build",
+    "prepublish": "yarn && yarn build",
+    "build": "npx rimraf ./dist && tsc --build",
     "release": "yarn prepublish && release-it --verbose --ci",
     "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
     "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish --ci",
@@ -26,7 +27,6 @@
     "styled-components": "^5.3.5"
   },
   "devDependencies": {
-    "@namada/config": "workspace:^",
     "@types/bs58": "^4.0.1",
     "@types/crypto-js": "^4.1.1",
     "@types/jest": "^28.1.8",

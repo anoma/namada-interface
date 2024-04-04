@@ -6,8 +6,8 @@ import { BuiltTx } from "@namada/shared";
 export class EncodedTx {
   /**
    * Create an EncodedTx class
-   * @param {Uint8Array} txMsg - Borsh-serialized transaction
-   * @param {BuiltTx} tx - Specific tx struct instance
+   * @param txMsg - Borsh-serialized transaction
+   * @param tx - Specific tx struct instance
    */
   constructor(
     public readonly txMsg: Uint8Array,
@@ -17,7 +17,7 @@ export class EncodedTx {
   /**
    * Return serialized tx bytes for external signing. This will clear
    * the BuiltTx struct instance from wasm memory, then return the bytes.
-   * @returns {Uint8Array} Serialized tx bytes
+   * @returns Serialized tx bytes
    */
   toBytes(): Uint8Array {
     const bytes = new Uint8Array(this.tx.tx_bytes());
@@ -38,8 +38,8 @@ export class EncodedTx {
  */
 export class SignedTx {
   /**
-   * @param {Uint8Array} txMsg - Serialized tx msg bytes
-   * @param {Uint8Array} tx - Serialized tx bytes
+   * @param txMsg - Serialized tx msg bytes
+   * @param tx - Serialized tx bytes
    */
   constructor(
     // Serialized TxMsg
@@ -48,3 +48,6 @@ export class SignedTx {
     public readonly tx: Uint8Array
   ) {}
 }
+
+export { TxType, TxTypeLabel } from "@namada/shared";
+export type { SupportedTx } from "@namada/shared";

@@ -1,34 +1,56 @@
-import { Query, Sdk } from "@namada/shared";
-import { ChainsService } from "background/chains";
+import { chains } from "@namada/chains";
+import { Sdk, getNativeToken, getSdk } from "@namada/sdk/web";
+import sdkInit from "@namada/sdk/web-init";
+import { Chain } from "@namada/types";
+import { LocalStorage } from "storage";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+    defaultTokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 export class SdkService {
-  constructor(protected readonly chainsService: ChainsService) { }
+  private constructor(
+    private rpc: string,
+    private readonly token: string,
+    private readonly cryptoMemory: WebAssembly.Memory
+  ) {}
 
-  public async getRpc(): Promise<string> {
-    // Pull chain config from store, as the RPC value may have changed:
-    const chain = await this.chainsService.getChain();
+  static async init(localStorage: LocalStorage): Promise<SdkService> {
+    // Get stored chain
+    const chain = await localStorage.getChain();
+    // If chain is not stored, use default chain information
+    const rpc = chain?.rpc || chains.namada.rpc;
 
-    if (!chain) {
-      throw new Error("No chain found!");
+    const { cryptoMemory } = await sdkInit();
+
+    let tokenAddress = chain?.currency.address;
+
+    if (!tokenAddress) {
+      try {
+        tokenAddress = await getNativeToken(rpc);
+      } catch (error) {
+        console.warn(
+          "Unable to query native token. Falling back to the default.",
+          error
+        );
+        tokenAddress = defaultTokenAddress;
+      }
     }
-    const { rpc } = chain;
-    return rpc;
+
+    return new SdkService(rpc, defaultTokenAddress, cryptoMemory);
   }
 
-  async getSdk(): Promise<Sdk> {
-    const rpc = await this.getRpc();
-    const chain = await this.chainsService.getChain();
-
-    return new Sdk(rpc, chain.currency.address || tokenAddress);
+  /**
+   * Sync the chain information after a network update
+   *
+   * @param {Chain} chain - Chain information
+   */
+  syncChain(chain: Chain): void {
+    this.rpc = chain.rpc;
   }
 
-  async getQuery(): Promise<Query> {
-    const rpc = await this.getRpc();
-    return new Query(rpc);
+  getSdk(): Sdk {
+    return getSdk(this.cryptoMemory, this.rpc, "NOT USED DB NAME", this.token);
   }
 }

@@ -1,4 +1,4 @@
-import { SupportedTx } from "@namada/shared";
+import type { SupportedTx } from "@namada/sdk/web";
 import {
   AccountType,
   Chain,

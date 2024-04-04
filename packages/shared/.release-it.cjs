@@ -1,11 +1,5 @@
 const baseConfig = require("../../.release-it.base.cjs");
 
-const config = {
-  ...baseConfig,
-  npm: {
-    ...baseConfig.npm,
-    publish: true,
-  },
-};
+const config = baseConfig;
 
 module.exports = config;

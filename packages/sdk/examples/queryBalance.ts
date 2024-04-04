@@ -1,11 +1,12 @@
-import initSync from "../src/initSync";
+import { getSdk } from "indexNode";
+import initSync from "../src/initNode";
 
 /**
  *
- * @param nodeUrl
- * @param owner
- * @param nativeToken
- * @param token
+ * @param nodeUrl - URL of the node
+ * @param nativeToken - Native token of the chain
+ * @param owner - Address of the owner
+ * @param token - Token to query balance
  */
 export const queryBalance = async (
   nodeUrl: string,
@@ -14,7 +15,8 @@ export const queryBalance = async (
   token: string
 ): Promise<void> => {
   try {
-    const sdk = initSync(nodeUrl, nativeToken);
+    const { cryptoMemory } = initSync();
+    const sdk = await getSdk(cryptoMemory, nodeUrl, nativeToken);
     const [[t, a]] = await sdk.rpc.queryBalance(owner, [token]);
     console.log(`Balance for ${owner} - Token: ${t} - Amount: ${a}`);
   } catch (error) {

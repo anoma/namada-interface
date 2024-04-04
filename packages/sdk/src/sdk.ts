@@ -13,22 +13,22 @@ import { Tx } from "./tx";
  */
 export class Sdk {
   /**
-   * @param {SdkWasm} sdk - Instance of Sdk struct from wasm lib
-   * @param {QueryWasm} query - Instance of Query struct from wasm lib
-   * @param {WebAssembly.Memory} cryptoMemory - Memory accessor for crypto lib
-   * @param {string} url - RPC url
-   * @param {string} nativeToken - Address of chain's native token
+   * @param sdk - Instance of Sdk struct from wasm lib
+   * @param query - Instance of Query struct from wasm lib
+   * @param cryptoMemory - Memory accessor for crypto lib
+   * @param url - RPC url
+   * @param nativeToken - Address of chain's native token
    */
   constructor(
     protected readonly sdk: SdkWasm,
     protected readonly query: QueryWasm,
-    protected readonly cryptoMemory: WebAssembly.Memory,
+    public readonly cryptoMemory: WebAssembly.Memory,
     public readonly url: string,
     public readonly nativeToken: string
   ) {}
   /**
    * Return initialized Rpc class
-   * @returns {Rpc} Namada RPC client
+   * @returns Namada RPC client
    */
   getRpc(): Rpc {
     return new Rpc(this.sdk, this.query);
@@ -36,7 +36,7 @@ export class Sdk {
 
   /**
    * Return initialized Tx class
-   * @returns {Tx} Tx-related functionality
+   * @returns Tx-related functionality
    */
   getTx(): Tx {
     return new Tx(this.sdk);
@@ -44,7 +44,7 @@ export class Sdk {
 
   /**
    * Return initialized Mnemonic class
-   * @returns {Mnemonic} mnemonic-related functionality
+   * @returns mnemonic-related functionality
    */
   getMnemonic(): Mnemonic {
     return new Mnemonic(this.cryptoMemory);
@@ -52,7 +52,7 @@ export class Sdk {
 
   /**
    * Return initialized Keys class
-   * @returns {Keys} key-related functionality
+   * @returns key-related functionality
    */
   getKeys(): Keys {
     return new Keys(this.cryptoMemory);
@@ -60,7 +60,7 @@ export class Sdk {
 
   /**
    * Return initialized Signing class
-   * @returns {Signing} Non-Tx signing functionality
+   * @returns Non-Tx signing functionality
    */
   getSigning(): Signing {
     return new Signing(this.sdk);
@@ -68,7 +68,7 @@ export class Sdk {
 
   /**
    * Return initialized Masp class
-   * @returns {Masp} Masp utilities for handling params
+   * @returns Masp utilities for handling params
    */
   getMasp(): Masp {
     return new Masp(this.sdk);
@@ -77,8 +77,8 @@ export class Sdk {
   /**
    * Intialize Ledger class for use with NamadaApp
    * @async
-   * @param {Transport} [transport] - Will default to USB transport if not specified
-   * @returns {Ledger} Class for interacting with NamadaApp for Ledger Hardware Wallets
+   * @param [transport] - Will default to USB transport if not specified
+   * @returns Class for interacting with NamadaApp for Ledger Hardware Wallets
    */
   async initLedger(transport?: Transport): Promise<Ledger> {
     return await Ledger.init(transport);
@@ -86,7 +86,7 @@ export class Sdk {
 
   /**
    * Define rpc getter to use with destructuring assignment
-   * @returns {Rpc} rpc client
+   * @returns rpc client
    */
   get rpc(): Rpc {
     return this.getRpc();
@@ -94,7 +94,7 @@ export class Sdk {
 
   /**
    * Define tx getter to use with destructuring assignment
-   * @returns {Tx} tx-related functionality
+   * @returns tx-related functionality
    */
   get tx(): Tx {
     return this.getTx();
@@ -102,7 +102,7 @@ export class Sdk {
 
   /**
    * Define mnemonic getter to use with destructuring assignment
-   * @returns {Mnemonic} mnemonic-related functionality
+   * @returns mnemonic-related functionality
    */
   get mnemonic(): Mnemonic {
     return this.getMnemonic();
@@ -110,7 +110,7 @@ export class Sdk {
 
   /**
    * Define keys getter to use with destructuring assignment
-   * @returns {Keys} key-related functionality
+   * @returns key-related functionality
    */
   get keys(): Keys {
     return this.getKeys();
@@ -118,7 +118,7 @@ export class Sdk {
 
   /**
    * Define signing getter to use with destructuring assignment
-   * @returns {Signing} Non-Tx signing functionality
+   * @returns Non-Tx signing functionality
    */
   get signing(): Signing {
     return this.getSigning();
@@ -126,7 +126,7 @@ export class Sdk {
 
   /**
    * Define signing getter to use with destructuring assignment
-   * @returns {Masp} Masp utilities for handling params
+   * @returns Masp utilities for handling params
    */
   get masp(): Masp {
     return this.getMasp();

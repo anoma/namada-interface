@@ -1,3 +1,7 @@
 {
-  "*.{js,jsx,ts,tsx}": ["prettier --write", "eslint --fix"]
+  "*.{js,jsx,ts,tsx,json}": ["prettier --write"],
+  "./apps/**/src/*.{js,jsx,ts,tsx}": ["eslint --fix --max-warnings=0"],
+  "./packages/**/src/*.{js,jsx,ts,tsx}": ["eslint --fix --max-warnings=0"],
+  "./storybook/src/*.{js,jsx,ts,tsx}": ["eslint --fix --max-warnings=0"],
+  "./e2e/src/*.{js,jsx,ts,tsx}": ["eslint --fix --max-warnings=0"]
 }

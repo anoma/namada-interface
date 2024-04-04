@@ -1,7 +1,13 @@
 const { parseArgs } = require("node:util");
 const { spawnSync, execSync } = require("child_process");
 
+const targets = ["web", "nodejs"];
+
 const argsOptions = {
+  target: {
+    type: "string",
+    short: "t",
+  },
   multicore: {
     type: "boolean",
     short: "m",
@@ -11,21 +17,26 @@ const argsOptions = {
     short: "r",
   },
 };
-const { multicore, release } = parseArgs({
+const {
+  multicore,
+  release,
+  target: maybeTarget,
+} = parseArgs({
   args: process.argv.slice(2),
   options: argsOptions,
 }).values;
 
 const mode = release ? "release" : "development";
 const multicoreLabel = multicore ? "on" : "off";
+const target = targets.includes(maybeTarget) ? maybeTarget : "web";
 
 execSync("rm -rf dist");
 
 console.log(
-  `Building \"shared\" in ${mode} mode. Multicore is ${multicoreLabel}.`
+  `Building \"shared\" in ${mode} mode for ${target} target. Multicore is ${multicoreLabel}.`
 );
 
-const features = [];
+const features = [target];
 let profile = "--release";
 
 if (multicore) {
@@ -46,11 +57,11 @@ const { status } = spawnSync(
     `${__dirname}/../lib`,
     profile,
     `--target`,
-    `web`,
+    target,
     `--out-dir`,
     outDir,
     `--`,
-    features.length > 0 ? ["--features", features.join(",")].flat() : [],
+    ["--features", features.join(",")].flat(),
     multicore ? [`-Z`, `build-std=panic_abort,std`] : [],
   ].flat(),
   {
