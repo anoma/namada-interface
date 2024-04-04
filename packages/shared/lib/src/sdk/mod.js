@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 const PREFIX = "Namada::SDK";
 
-async function hasMaspParams() {
+export async function hasMaspParams() {
   return (
     (await has("masp-spend.params")) &&
     (await has("masp-output.params")) &&
@@ -9,7 +9,7 @@ async function hasMaspParams() {
   );
 }
 
-async function fetchAndStoreMaspParams() {
+export async function fetchAndStoreMaspParams() {
   return Promise.all([
     fetchAndStore("masp-spend.params"),
     fetchAndStore("masp-output.params"),
@@ -17,7 +17,7 @@ async function fetchAndStoreMaspParams() {
   ]);
 }
 
-async function getMaspParams() {
+export async function getMaspParams() {
   return Promise.all([
     get("masp-spend.params"),
     get("masp-output.params"),
@@ -25,12 +25,12 @@ async function getMaspParams() {
   ]);
 }
 
-async function fetchAndStore(params) {
+export async function fetchAndStore(params) {
   const data = await fetchParams(params);
   await set(params, data);
 }
 
-async function fetchParams(params) {
+export async function fetchParams(params) {
   const path =
     process.env.NAMADA_INTERFACE_MASP_PARAMS_PATH ||
     "https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/";
@@ -60,7 +60,7 @@ function getDB() {
   });
 }
 
-async function get(key) {
+export async function get(key) {
   const tx = (await getDB()).transaction(PREFIX, "readonly");
   const store = tx.objectStore(PREFIX);
 
@@ -81,7 +81,7 @@ async function get(key) {
   });
 }
 
-async function has(key) {
+export async function has(key) {
   const tx = (await getDB()).transaction(PREFIX, "readonly");
   const store = tx.objectStore(PREFIX);
 
@@ -99,7 +99,7 @@ async function has(key) {
   });
 }
 
-async function set(key, data) {
+export async function set(key, data) {
   const tx = (await getDB()).transaction(PREFIX, "readwrite");
   const store = tx.objectStore(PREFIX);
 
@@ -118,12 +118,3 @@ async function set(key, data) {
     };
   });
 }
-
-module.exports = {
-  PREFIX,
-  has,
-  set,
-  hasMaspParams,
-  fetchAndStoreMaspParams,
-  getMaspParams,
-};
