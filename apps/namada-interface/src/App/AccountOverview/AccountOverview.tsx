@@ -11,7 +11,6 @@ const isEmptyObject = (object: Record<string, unknown>): boolean => {
 };
 
 export const AccountOverview = (): JSX.Element => {
-  // const navigate = useNavigate();
   const chain = useAppSelector<Chain>((state) => state.chain.config);
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
@@ -20,49 +19,12 @@ export const AccountOverview = (): JSX.Element => {
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
 
-  // const balances = useAtomValue(balancesAtom);
-  // const totalNativeBalance = Object.values(balances).reduce((acc, balance) => {
-  //   return acc.plus(
-  //     balance[chain.currency.symbol as TokenType] || BigNumber(0)
-  //   );
-  // }, BigNumber(0));
-
   const hasExtensionInstalled =
     currentExtensionAttachStatus === "attached" ||
     currentExtensionAttachStatus === "pending";
 
   return (
     <>
-      {!isEmptyObject(derived[chain.id]) && (
-        <>
-          {/* <HeadingContainer> */}
-          {/*   <div> */}
-          {/*     <TotalHeading> */}
-          {/*       <Heading level="h2">Wallet</Heading> */}
-          {/*     </TotalHeading> */}
-          {/*   </div> */}
-          {/*   <TotalContainer> */}
-          {/*     <TotalAmount> */}
-          {/*       <TotalAmountFiat> */}
-          {/*         {Tokens[chain.currency.symbol as TokenType].symbol} */}
-          {/*       </TotalAmountFiat> */}
-          {/*       <TotalAmountValue> */}
-          {/*         {totalNativeBalance.toString()} */}
-          {/*       </TotalAmountValue> */}
-          {/*     </TotalAmount> */}
-          {/*   </TotalContainer> */}
-          {/* </HeadingContainer> */}
-          {/* <Stack direction="horizontal" gap={8}> */}
-          {/*   <ActionButton onClick={() => navigate(TopLevelRoute.TokenSend)}> */}
-          {/*     Send */}
-          {/*   </ActionButton> */}
-          {/*   <ActionButton onClick={() => navigate(TopLevelRoute.TokenReceive)}> */}
-          {/*     Receive */}
-          {/*   </ActionButton> */}
-          {/* </Stack> */}
-          {/* <DerivedAccounts /> */}
-        </>
-      )}
       {isEmptyObject(derived[chain.id]) && (
         <div className="w-[420px] mx-auto flex items-center">
           <Intro chain={chain} hasExtensionInstalled={hasExtensionInstalled} />
