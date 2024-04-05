@@ -4,7 +4,6 @@ import { SdkService } from "background/sdk";
 import { ExtensionBroadcaster } from "extension";
 import { sha256 } from "js-sha256";
 import { VaultKeys as Keys, VaultStorage } from "storage";
-import { Crypto } from "./crypto";
 import {
   CryptoRecord,
   ResetPasswordError,
@@ -13,7 +12,6 @@ import {
 } from "./types";
 
 export const VAULT_KEY = "vault";
-const crypto = new Crypto();
 
 export class VaultService {
   public constructor(
@@ -22,7 +20,7 @@ export class VaultService {
     protected readonly sdkService: SdkService,
     protected readonly cryptoMemory: WebAssembly.Memory,
     protected readonly broadcaster?: ExtensionBroadcaster
-  ) { }
+  ) {}
 
   public async initialize(): Promise<void> {
     const storage = await this.vaultStorage.get();
@@ -103,12 +101,10 @@ export class VaultService {
       throw new Error("Password not initialized");
     }
 
+    const { crypto } = this.sdkService.getSdk();
+
     try {
-      crypto.decrypt(
-        store.password,
-        await this.hashPassword(password),
-        this.cryptoMemory
-      );
+      crypto.decrypt(store.password, await this.hashPassword(password));
 
       return true;
     } catch (error) {
@@ -141,12 +137,10 @@ export class VaultService {
     await this.assertIsUnlocked();
     if (!sensitive) return;
 
+    const { crypto } = this.sdkService.getSdk();
+
     try {
-      const decryptedJson = crypto.decrypt(
-        sensitive,
-        await this.getPassword(),
-        this.cryptoMemory
-      );
+      const decryptedJson = crypto.decrypt(sensitive, await this.getPassword());
       return JSON.parse(decryptedJson) as T;
     } catch (error) {
       console.error(error);
@@ -199,6 +193,7 @@ export class VaultService {
     sensitiveData: T,
     password?: string
   ): Promise<CryptoRecord> {
+    const { crypto } = this.sdkService.getSdk();
     const pwd =
       password ? await this.hashPassword(password) : await this.getPassword();
     return crypto.encrypt(JSON.stringify(sensitiveData), pwd);
@@ -207,7 +202,8 @@ export class VaultService {
   protected async getEncryptedPassword(
     password: string
   ): Promise<CryptoRecord> {
+    const { crypto } = this.sdkService.getSdk();
     const hashedPassword = await this.hashPassword(password);
-    return crypto.encryptAuthKey(hashedPassword, hashedPassword);
+    return crypto.encrypt(hashedPassword, hashedPassword);
   }
 }
