@@ -2,15 +2,18 @@ import { copyToClipboard } from "@namada/utils";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { GoCheckCircle, GoCopy } from "react-icons/go";
+import { twMerge } from "tailwind-merge";
 
 type CopyToClipboardControlIcon = {
   value: string;
   className?: string;
+  children?: React.ReactNode;
 };
 
 export const CopyToClipboardControl = ({
   value,
   className,
+  children,
 }: CopyToClipboardControlIcon): JSX.Element => {
   const [copied, setCopied] = useState(false);
 
@@ -31,12 +34,16 @@ export const CopyToClipboardControl = ({
 
   return (
     <div
-      className={className}
+      className={twMerge(
+        "relative flex items-center gap-2 active:top-px",
+        className
+      )}
       role="button"
       aria-labelledby="Copy to clipboard"
       onClick={onClick}
     >
-      {copied ? (
+      {children}
+      {copied ?
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -44,9 +51,7 @@ export const CopyToClipboardControl = ({
         >
           <GoCheckCircle />
         </motion.div>
-      ) : (
-        <GoCopy />
-      )}
+      : <GoCopy />}
     </div>
   );
 };
