@@ -37,7 +37,7 @@ export const submitTransfer = async (
 
   try {
     const { cryptoMemory } = initSync();
-    const sdk = await getSdk(cryptoMemory, nodeUrl, nativeToken);
+    const sdk = getSdk(cryptoMemory, nodeUrl, "storage path", nativeToken);
 
     console.log("Revealing public key...");
     await sdk.tx.revealPk(signingKey, txMsgValue);

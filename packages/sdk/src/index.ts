@@ -2,7 +2,7 @@
 export * from "./ledger";
 
 // Export types
-export { Argon2Config } from "./crypto";
+export { Argon2Config, Crypto } from "./crypto";
 export type {
   Argon2Params,
   CryptoRecord,
@@ -28,4 +28,7 @@ export { Sdk } from "./sdk";
 
 export { publicKeyToBech32 } from "./keys";
 
-export { PhraseSize } from "./mnemonic";
+export { Masp } from "./masp";
+export { Mnemonic, PhraseSize } from "./mnemonic";
+export { Signing } from "./signing";
+export { Tx } from "./tx";

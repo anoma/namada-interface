@@ -1,3 +1,5 @@
+import { CryptoRecord, KdfType } from "../crypto";
+
 export const RPC_URL = "http://localhost:27657";
 export const NATIVE_TOKEN = "tnam1qxvg64psvhwumv3mwrrjfcz0h3t3274hwggyzcee";
 export const CHAIN_ID = "localnet.a905b497170d585eb67fd";
@@ -42,4 +44,27 @@ export const SIG_INVALID = {
   hash: "3e80b3778b3b03766e7be993131c0af2ad05630c5d96fb7fa132d05b77331234",
   signature:
     "0042da84d595df74f83e55e8688055055bed0ec9bd6aee0d27f8464a12d598453bf65f980af1cbf444c81374ec903eef05ee43b5f7f69aea698c7d19d7929e8108",
+};
+
+export const CRYPTO_RECORD: CryptoRecord = {
+  cipher: {
+    type: "aes-256-gcm",
+    iv: new Uint8Array([
+      212, 166, 231, 90, 131, 247, 196, 207, 66, 71, 201, 168,
+    ]),
+    text: new Uint8Array([
+      213, 100, 25, 62, 43, 192, 91, 100, 221, 131, 57, 212, 134, 120, 145, 164,
+      22, 83, 154, 4, 239, 216, 234, 151, 221, 18, 200, 109, 147, 239, 20, 42,
+      129, 253, 82, 158, 151, 235,
+    ]),
+  },
+  kdf: {
+    type: KdfType.Argon2,
+    params: {
+      m_cost: 65536,
+      t_cost: 3,
+      p_cost: 1,
+      salt: "xwPSE+/sF+hIR4nE+Zl7MQ",
+    },
+  },
 };

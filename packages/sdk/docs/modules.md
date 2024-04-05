@@ -6,25 +6,34 @@
 
 ### Enumerations
 
+- [KdfType](enums/KdfType.md)
 - [PhraseSize](enums/PhraseSize.md)
 - [TxType](enums/TxType.md)
 
 ### Classes
 
+- [Crypto](classes/Crypto.md)
 - [EncodedTx](classes/EncodedTx.md)
 - [Ledger](classes/Ledger.md)
+- [Masp](classes/Masp.md)
+- [Mnemonic](classes/Mnemonic.md)
 - [Rpc](classes/Rpc.md)
 - [Sdk](classes/Sdk.md)
 - [SignedTx](classes/SignedTx.md)
+- [Signing](classes/Signing.md)
+- [Tx](classes/Tx.md)
 
 ### Type Aliases
 
 - [Address](modules.md#address)
 - [AddressAndPublicKey](modules.md#addressandpublickey)
+- [Argon2Params](modules.md#argon2params)
 - [Balance](modules.md#balance)
 - [Bonds](modules.md#bonds)
+- [CryptoRecord](modules.md#cryptorecord)
 - [DelegationTotals](modules.md#delegationtotals)
 - [DelegatorsVotes](modules.md#delegatorsvotes)
+- [EncryptionParams](modules.md#encryptionparams)
 - [LedgerStatus](modules.md#ledgerstatus)
 - [ShieldedKeys](modules.md#shieldedkeys)
 - [StakingPositions](modules.md#stakingpositions)
@@ -35,6 +44,7 @@
 
 ### Variables
 
+- [Argon2Config](modules.md#argon2config)
 - [DEFAULT\_LEDGER\_BIP44\_PATH](modules.md#default_ledger_bip44_path)
 - [TxTypeLabel](modules.md#txtypelabel)
 
@@ -61,7 +71,7 @@ Address and public key type
 
 #### Defined in
 
-[sdk/src/keys/types.ts:4](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/keys/types.ts#L4)
+[sdk/src/keys/types.ts:4](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/keys/types.ts#L4)
 
 ___
 
@@ -78,7 +88,17 @@ ___
 
 #### Defined in
 
-[sdk/src/ledger.ts:17](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/ledger.ts#L17)
+[sdk/src/ledger.ts:17](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/ledger.ts#L17)
+
+___
+
+### Argon2Params
+
+Ƭ **Argon2Params**: `KdfParams` & \{ `m_cost`: `number` ; `p_cost`: `number` ; `salt`: `string` ; `t_cost`: `number`  }
+
+#### Defined in
+
+[sdk/src/crypto/types.ts:23](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/crypto/types.ts#L23)
 
 ___
 
@@ -91,7 +111,7 @@ Balance
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:69](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/rpc/types.ts#L69)
+[sdk/src/rpc/types.ts:69](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/rpc/types.ts#L69)
 
 ___
 
@@ -110,7 +130,35 @@ ___
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:27](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/rpc/types.ts#L27)
+[sdk/src/rpc/types.ts:27](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/rpc/types.ts#L27)
+
+___
+
+### CryptoRecord
+
+Ƭ **CryptoRecord**\<`T`\>: `Object`
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | [`Argon2Params`](modules.md#argon2params) |
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `cipher` | \{ `iv`: `Uint8Array` ; `text`: `Uint8Array` ; `type`: ``"aes-256-gcm"``  } |
+| `cipher.iv` | `Uint8Array` |
+| `cipher.text` | `Uint8Array` |
+| `cipher.type` | ``"aes-256-gcm"`` |
+| `kdf` | \{ `params`: `T` ; `type`: [`KdfType`](enums/KdfType.md)  } |
+| `kdf.params` | `T` |
+| `kdf.type` | [`KdfType`](enums/KdfType.md) |
+
+#### Defined in
+
+[sdk/src/crypto/types.ts:42](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/crypto/types.ts#L42)
 
 ___
 
@@ -123,7 +171,7 @@ Record<address, totalDelegations>
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:51](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/rpc/types.ts#L51)
+[sdk/src/rpc/types.ts:51](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/rpc/types.ts#L51)
 
 ___
 
@@ -136,7 +184,26 @@ Record<address, boolean>
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:57](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/rpc/types.ts#L57)
+[sdk/src/rpc/types.ts:57](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/rpc/types.ts#L57)
+
+___
+
+### EncryptionParams
+
+Ƭ **EncryptionParams**: `Object`
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `iv` | `Uint8Array` |
+| `key` | `VecU8Pointer` |
+| `params` | `Argon2ParamsWasm` |
+| `salt` | `string` |
+
+#### Defined in
+
+[sdk/src/crypto/types.ts:30](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/crypto/types.ts#L30)
 
 ___
 
@@ -153,7 +220,7 @@ ___
 
 #### Defined in
 
-[sdk/src/ledger.ts:18](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/ledger.ts#L18)
+[sdk/src/ledger.ts:18](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/ledger.ts#L18)
 
 ___
 
@@ -173,7 +240,7 @@ Shielded keys and address
 
 #### Defined in
 
-[sdk/src/keys/types.ts:19](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/keys/types.ts#L19)
+[sdk/src/keys/types.ts:19](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/keys/types.ts#L19)
 
 ___
 
@@ -190,7 +257,7 @@ ___
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:42](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/rpc/types.ts#L42)
+[sdk/src/rpc/types.ts:42](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/rpc/types.ts#L42)
 
 ___
 
@@ -210,7 +277,7 @@ ___
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:19](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/rpc/types.ts#L19)
+[sdk/src/rpc/types.ts:19](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/rpc/types.ts#L19)
 
 ___
 
@@ -220,7 +287,7 @@ ___
 
 #### Defined in
 
-[shared/src/types.ts:3](https://github.com/anoma/namada-interface/blob/7542445f/packages/shared/src/types.ts#L3)
+[shared/src/types.ts:3](https://github.com/anoma/namada-interface/blob/30129006/packages/shared/src/types.ts#L3)
 
 ___
 
@@ -232,7 +299,7 @@ Public and private keypair with address
 
 #### Defined in
 
-[sdk/src/keys/types.ts:12](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/keys/types.ts#L12)
+[sdk/src/keys/types.ts:12](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/keys/types.ts#L12)
 
 ___
 
@@ -252,9 +319,27 @@ ___
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:34](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/rpc/types.ts#L34)
+[sdk/src/rpc/types.ts:34](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/rpc/types.ts#L34)
 
 ## Variables
+
+### Argon2Config
+
+• `Const` **Argon2Config**: `Object`
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `m_cost` | `number` |
+| `p_cost` | `number` |
+| `t_cost` | `number` |
+
+#### Defined in
+
+[sdk/src/crypto/types.ts:3](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/crypto/types.ts#L3)
+
+___
 
 ### DEFAULT\_LEDGER\_BIP44\_PATH
 
@@ -262,7 +347,7 @@ ___
 
 #### Defined in
 
-[sdk/src/ledger.ts:41](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/ledger.ts#L41)
+[sdk/src/ledger.ts:41](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/ledger.ts#L41)
 
 ___
 
@@ -272,7 +357,7 @@ ___
 
 #### Defined in
 
-[shared/src/types.ts:24](https://github.com/anoma/namada-interface/blob/7542445f/packages/shared/src/types.ts#L24)
+[shared/src/types.ts:24](https://github.com/anoma/namada-interface/blob/30129006/packages/shared/src/types.ts#L24)
 
 ## Functions
 
@@ -292,7 +377,7 @@ Transport object
 
 #### Defined in
 
-[sdk/src/ledger.ts:37](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/ledger.ts#L37)
+[sdk/src/ledger.ts:37](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/ledger.ts#L37)
 
 ___
 
@@ -312,7 +397,7 @@ Transport object
 
 #### Defined in
 
-[sdk/src/ledger.ts:28](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/ledger.ts#L28)
+[sdk/src/ledger.ts:28](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/ledger.ts#L28)
 
 ___
 
@@ -332,4 +417,4 @@ ___
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:170](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/keys/keys.ts#L170)
+[sdk/src/keys/keys.ts:173](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/keys/keys.ts#L173)
