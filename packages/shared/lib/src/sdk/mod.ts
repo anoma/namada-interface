@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 const PREFIX = "Namada::SDK";
 
-export async function hasMaspParams() {
+export async function hasMaspParams(): Promise<boolean> {
   return (
     (await has("masp-spend.params")) &&
     (await has("masp-output.params")) &&
@@ -9,7 +8,7 @@ export async function hasMaspParams() {
   );
 }
 
-export async function fetchAndStoreMaspParams() {
+export async function fetchAndStoreMaspParams(): Promise<[void, void, void]> {
   return Promise.all([
     fetchAndStore("masp-spend.params"),
     fetchAndStore("masp-output.params"),
@@ -17,7 +16,7 @@ export async function fetchAndStoreMaspParams() {
   ]);
 }
 
-export async function getMaspParams() {
+export async function getMaspParams(): Promise<[unknown, unknown, unknown]> {
   return Promise.all([
     get("masp-spend.params"),
     get("masp-output.params"),
@@ -25,12 +24,12 @@ export async function getMaspParams() {
   ]);
 }
 
-export async function fetchAndStore(params) {
+export async function fetchAndStore(params: string): Promise<void> {
   const data = await fetchParams(params);
   await set(params, data);
 }
 
-export async function fetchParams(params) {
+export async function fetchParams(params: string): Promise<Uint8Array> {
   const path =
     process.env.NAMADA_INTERFACE_MASP_PARAMS_PATH ||
     "https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/";
@@ -40,7 +39,7 @@ export async function fetchParams(params) {
     .then((ab) => new Uint8Array(ab));
 }
 
-function getDB() {
+function getDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(PREFIX);
     request.onerror = (event) => {
@@ -49,7 +48,8 @@ function getDB() {
     };
 
     request.onupgradeneeded = (event) => {
-      const db = event.target.result;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = (event.target as any).result;
 
       db.createObjectStore(PREFIX, { keyPath: "key" });
     };
@@ -60,7 +60,7 @@ function getDB() {
   });
 }
 
-export async function get(key) {
+export async function get(key: string): Promise<unknown> {
   const tx = (await getDB()).transaction(PREFIX, "readonly");
   const store = tx.objectStore(PREFIX);
 
@@ -81,7 +81,7 @@ export async function get(key) {
   });
 }
 
-export async function has(key) {
+export async function has(key: string): Promise<boolean> {
   const tx = (await getDB()).transaction(PREFIX, "readonly");
   const store = tx.objectStore(PREFIX);
 
@@ -93,13 +93,14 @@ export async function has(key) {
       reject(event.target);
     };
     request.onsuccess = (e) => {
-      const cursor = e.target.result;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const cursor = (e.target as any).result;
       resolve(!!cursor);
     };
   });
 }
 
-export async function set(key, data) {
+export async function set(key: string, data: unknown): Promise<void> {
   const tx = (await getDB()).transaction(PREFIX, "readwrite");
   const store = tx.objectStore(PREFIX);
 

@@ -1,2 +1,3 @@
 src/shared
+lib/**/*.js
 dist
