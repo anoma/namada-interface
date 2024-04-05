@@ -8,6 +8,7 @@ export * from "./Checkbox";
 export * from "./Container";
 export * from "./ContentMasker";
 export * from "./CopyToClipboardControl";
+export * from "./Currency";
 export * from "./DropdownMenu";
 export * from "./FeedbackButton";
 export * from "./Heading";
