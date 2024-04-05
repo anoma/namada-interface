@@ -1,4 +1,4 @@
-import { Argon2Params, VecU8Pointer } from "@namada/crypto";
+import { Argon2Params as Argon2ParamsWasm, VecU8Pointer } from "@namada/crypto";
 
 export const Argon2Config = {
   // Number of memory blocks in kibibytes
@@ -16,8 +16,19 @@ export const Argon2Config = {
   p_cost: 1,
 };
 
+type KdfParams = {
+  salt: string;
+};
+
+export type Argon2Params = KdfParams & {
+  m_cost: number;
+  t_cost: number;
+  p_cost: number;
+  salt: string;
+};
+
 export type EncryptionParams = {
-  params: Argon2Params;
+  params: Argon2ParamsWasm;
   key: VecU8Pointer;
   salt: string;
   iv: Uint8Array;
