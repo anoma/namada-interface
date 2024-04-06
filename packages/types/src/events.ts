@@ -16,6 +16,7 @@ export enum Events {
 // Keplr extension events
 export enum KeplrEvents {
   AccountChanged = "keplr_keystorechange",
+  BridgeTransferCompleted = "readystatechange",
 }
 
 // Metamask extension window.ethereum events

@@ -7,6 +7,7 @@ import { Events, KeplrEvents, MetamaskEvents } from "@namada/types";
 import { useAppDispatch } from "store";
 import {
   KeplrAccountChangedHandler,
+  KeplrBridgeTransferCompletedHandler,
   MetamaskAccountChangedHandler,
   MetamaskBridgeTransferCompletedHandler,
   NamadaAccountChangedHandler,
@@ -72,6 +73,9 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     keplrIntegration as Keplr
   );
 
+  const keplrBridgeTransferCompletedHandler =
+    KeplrBridgeTransferCompletedHandler(dispatch);
+
   // Metamask handlers
   const metamaskAccountChangedHandler = MetamaskAccountChangedHandler(
     dispatch,
@@ -115,6 +119,10 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     metamaskBridgeTransferCompletedHandler
   );
 
+  useEventListenerOnce(
+    KeplrEvents.BridgeTransferCompleted,
+    keplrBridgeTransferCompletedHandler
+  );
   return (
     <ExtensionEventsContext.Provider value={{}}>
       {props.children}

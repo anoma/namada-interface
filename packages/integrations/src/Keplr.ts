@@ -24,6 +24,7 @@ import {
   CosmosTokens,
   TokenBalances,
   tokenByMinDenom,
+  KeplrEvents
 } from "@namada/types";
 import { BridgeProps, Integration } from "./types/Integration";
 
@@ -210,7 +211,7 @@ class Keplr implements Integration<Account, OfflineSigner, CosmosTokenType> {
           `Transaction failed with code ${response.code}! Message: ${response.rawLog}`
         );
       }
-
+      window.dispatchEvent(new Event(KeplrEvents.BridgeTransferCompleted));
       return;
     }
 
