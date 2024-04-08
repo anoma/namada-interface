@@ -185,7 +185,6 @@ const accountsAtom = (() => {
   );
 })();
 
-
 const balancesAtom = (() => {
   const base = atom<{ [address: Address]: TokenBalances }>({});
 
