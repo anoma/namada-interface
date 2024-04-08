@@ -2,7 +2,7 @@
 
 ## How to run
 
-1. In the root of the sdk package run: `yarn wasm:build:node`
+1. In the root of the sdk package run: `yarn build` - this might take a while as we build wasms(web and node) in production mode
 2. Run example :)
 
 ## Example commands

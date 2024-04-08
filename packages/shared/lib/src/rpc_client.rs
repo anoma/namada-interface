@@ -134,6 +134,7 @@ impl Client for HttpClient {
         R: SimpleRequest,
     {
         let request_body = request.into_json();
+
         let response = self
             .fetch(&self.url[..], "POST", &request_body)
             .await

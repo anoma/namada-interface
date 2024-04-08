@@ -1,4 +1,4 @@
-import { TxType } from "@namada/shared";
+import { TxType } from "@namada/sdk/web";
 import {
   AccountChangedEventMsg,
   ConnectionRevokedEventMsg,

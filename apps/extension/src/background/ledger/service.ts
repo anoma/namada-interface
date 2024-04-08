@@ -3,16 +3,14 @@ import { deserialize } from "@dao-xyz/borsh";
 import { ResponseSign } from "@zondax/ledger-namada";
 
 import { chains } from "@namada/chains";
-import { TxType } from "@namada/shared";
+import { TxType, makeBip44Path } from "@namada/sdk/web";
 import { KVStore } from "@namada/storage";
 import { AccountType, TxMsgValue } from "@namada/types";
-import { makeBip44Path } from "@namada/utils";
 import { TxStore } from "background/approvals";
 import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
 import { ExtensionBroadcaster, ExtensionRequester } from "extension";
 import { RevealedPKStorage, VaultStorage } from "storage";
-import { encodeSignature } from "utils";
 
 export const LEDGERSTORE_KEY = "ledger-store";
 
@@ -55,8 +53,8 @@ export class LedgerService {
         throw new Error(`Returned Account is not a Ledger`);
       }
 
-      const sdk = await this.sdkService.getSdk();
-      const builtTx = await sdk.build_tx(
+      const sdk = this.sdkService.getSdk();
+      const builtTx = await sdk.tx.buildTxFromSerializedArgs(
         TxType.RevealPK,
         new Uint8Array(), // TODO: this is a dummy value. Is there a cleaner way?
         fromBase64(txMsg),
@@ -64,7 +62,7 @@ export class LedgerService {
       );
       const path = makeBip44Path(coinType, account.path);
 
-      return { bytes: builtTx.tx_bytes(), path };
+      return { bytes: builtTx.toBytes(), path };
     } catch (e) {
       console.warn(e);
       throw new Error(`${e}`);
@@ -76,19 +74,17 @@ export class LedgerService {
     bytes: string,
     signatures: ResponseSign
   ): Promise<void> {
-    const { signature } = signatures;
-
-    if (!signature) {
-      throw new Error("Signature not provided");
-    }
-
     try {
-      // Serialize signatures
-      const sig = encodeSignature(signature);
-
-      const sdk = await this.sdkService.getSdk();
-      const signedTxBytes = await sdk.append_signature(fromBase64(bytes), sig);
-      await sdk.process_tx(signedTxBytes, fromBase64(txMsg));
+      const sdk = this.sdkService.getSdk();
+      const signedTxBytes = sdk.tx.appendSignature(
+        fromBase64(bytes),
+        signatures
+      );
+      const signedTx = {
+        txMsg: fromBase64(txMsg),
+        tx: signedTxBytes,
+      };
+      await sdk.rpc.broadcastTx(signedTx);
     } catch (e) {
       console.warn(e);
     }
@@ -108,23 +104,18 @@ export class LedgerService {
 
     const { txMsg } = storeResult;
 
-    const { signature } = signatures;
-
-    if (!signature) {
-      throw new Error("Signature not provided!");
-    }
-
-    // Serialize signatures
-    const sig = encodeSignature(signature);
-
     await this.broadcaster.startTx(msgId, txType);
-    const sdk = await this.sdkService.getSdk();
+    const sdk = this.sdkService.getSdk();
     try {
-      const signedTxBytes = await sdk.append_signature(fromBase64(bytes), sig);
-      const innerTxHash: string = await sdk.process_tx(
-        signedTxBytes,
-        fromBase64(txMsg)
+      const signedTxBytes = sdk.tx.appendSignature(
+        fromBase64(bytes),
+        signatures
       );
+      const signedTx = {
+        txMsg: fromBase64(txMsg),
+        tx: signedTxBytes,
+      };
+      const innerTxHash = await sdk.rpc.broadcastTx(signedTx);
 
       // Clear pending tx if successful
       await this.txStore.set(msgId, null);
@@ -174,8 +165,8 @@ export class LedgerService {
         throw new Error(`Ledger account not found for ${address}`);
       }
 
-      const sdk = await this.sdkService.getSdk();
-      const builtTx = await sdk.build_tx(
+      const sdk = this.sdkService.getSdk();
+      const builtTx = await sdk.tx.buildTxFromSerializedArgs(
         txType,
         fromBase64(specificMsg),
         fromBase64(txMsg),
@@ -183,7 +174,7 @@ export class LedgerService {
       );
       const path = makeBip44Path(coinType, account.path);
 
-      return { bytes: builtTx.tx_bytes(), path };
+      return { bytes: builtTx.toBytes(), path };
     } catch (e) {
       console.warn(e);
       throw new Error(`${e}`);

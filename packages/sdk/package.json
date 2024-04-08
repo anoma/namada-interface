@@ -2,25 +2,58 @@
   "name": "@namada/sdk",
   "version": "0.2.4",
   "description": "Namada SDK package",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "exports": {
+    "./web": {
+      "import": "./dist/web/sdk/src/indexWeb.js",
+      "types": "./dist/web/sdk/src/indexWeb.d.ts"
+    },
+    "./web-init": {
+      "import": "./dist/web/sdk/src/initWeb.js",
+      "types": "./dist/web/sdk/src/initWeb.d.ts"
+    },
+    "./node": {
+      "require": "./dist/node/sdk/src/indexNode.js",
+      "types": "./dist/node/sdk/src/indexNode.d.ts"
+    },
+    "./node-init": {
+      "require": "./dist/node/sdk/src/initNode.js",
+      "types": "./dist/node/sdk/src/initNode.d.ts"
+    }
+  },
   "repository": "https://github.com/anoma/namada-interface/",
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
+  "scriptsComments": {
+    "prepublish": "We make focused install to make sure that we specified all required dependencies",
+    "wasm:node:cp": "We need to copy wasm to the shared in dist folder, so it can be imported correctly in node"
+  },
   "scripts": {
+    "prepublish": "yarn workspaces focus @namada/sdk && yarn build",
+    "release": "yarn prepublish && release-it --verbose --ci",
+    "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
+    "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish --ci",
+    "prebuild": "rimraf ./dist",
+    "wasm:node:cp": "cp -r ../shared/src/shared/*.wasm ./dist/node/shared/src/shared && cp -r ../crypto/src/crypto/*.wasm ./dist/node/crypto/src/crypto",
+    "wasm:web:cp": "cp -r ../shared/src/shared/*.wasm ./dist && cp -r ../crypto/src/crypto/*.wasm ./dist",
+    "wasm:web:rename": "mv ./dist/shared_bg.wasm ./dist/shared.namada.wasm && mv ./dist/crypto_bg.wasm ./dist/crypto.namada.wasm",
+    "build:web": "yarn wasm:build && tspc -p tsconfig.web.json && yarn wasm:web:cp && yarn wasm:web:rename",
+    "build:node": "yarn wasm:build:node && tspc -p tsconfig.node.json && yarn wasm:node:cp",
+    "build": "yarn prebuild && yarn build:web && yarn build:node",
     "example": "ts-node -r tsconfig-paths/register ./examples/index.ts",
     "lint": "eslint src --ext .ts,.tsx",
-    "lint:fix": "yarn lint -- --fix",
+    "lint:fix": "yarn lint --fix",
     "lint:ci": "yarn lint --max-warnings 0",
-    "wasm:build": "node ./scripts/build.js --release",
-    "wasm:build:multicore": "node ./scripts/build.js --release --multicore",
-    "wasm:build:dev": "node ./scripts/build.js",
-    "wasm:build:dev:multicore": "node ./scripts/build.js --multicore",
-    "wasm:build:node": "./scripts/build-node.sh",
-    "build:docs": "npx jsdoc2md --files ./src/**/*.ts --configure ./jsdoc2md.json > ./docs/api.md",
-    "test": "./scripts/build-node.sh && yarn jest",
-    "test:cov": "./scripts/build-node.sh && yarn jest --coverage",
-    "test:watch": "./scripts/build-node.sh && yarn jest --watchAll=true",
+    "wasm:build": "node ./scripts/build.cjs --release",
+    "wasm:build:multicore": "node ./scripts/build.cjs --release --multicore",
+    "wasm:build:dev": "node ./scripts/build.cjs",
+    "wasm:build:dev:multicore": "node ./scripts/build.cjs --multicore",
+    "wasm:build:node": "node ./scripts/build.cjs --node --release",
+    "wasm:build:node:dev": "node ./scripts/build.cjs --node",
+    "wasm:build:node:dev:multicore": "node ./scripts/build.cjs --node --multicore",
+    "build:docs": "typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts",
+    "test": "yarn wasm:build:node:dev && yarn jest",
+    "test:cov": "yarn wasm:build:node:dev && yarn jest --coverage",
+    "test:watch": "yarn wasm:build:node:dev && yarn jest --watchAll=true",
     "test:ci": "jest"
   },
   "dependencies": {
@@ -29,13 +62,10 @@
     "@ledgerhq/hw-transport": "^6.30.0",
     "@ledgerhq/hw-transport-webhid": "^6.28.0",
     "@ledgerhq/hw-transport-webusb": "^6.28.0",
-    "@namada/chains": "0.2.1",
-    "@namada/crypto": "0.2.1",
-    "@namada/shared": "0.2.1",
-    "@namada/types": "0.2.1",
-    "@namada/utils": "0.2.1",
     "@zondax/ledger-namada": "^0.0.4",
     "bignumber.js": "^9.1.1",
+    "buffer": "^6.0.3",
+    "slip44": "^3.0.18",
     "typescript": "^5.1.3"
   },
   "devDependencies": {
@@ -62,7 +92,13 @@
     "rimraf": "^5.0.5",
     "ts-jest": "^29.0.1",
     "ts-node": "^10.9.1",
-    "tsconfig-paths": "^4.2.0"
+    "ts-patch": "^3.1.2",
+    "tsconfig-paths": "^4.2.0",
+    "typedoc": "^0.25.12",
+    "typedoc-plugin-markdown": "^3.17.1",
+    "typescript-transform-paths": "^3.4.7",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4"
   },
   "files": [
     "dist/**/*.{js,ts,wasm}"

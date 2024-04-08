@@ -8,7 +8,8 @@
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
   "scripts": {
-    "prepublish": "npx rimraf ./dist && tsc --build",
+    "prepublish": "yarn && yarn build",
+    "build": "npx rimraf ./dist && tsc --build",
     "release": "yarn prepublish && release-it --verbose --ci",
     "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
     "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish --ci",
@@ -20,7 +21,6 @@
     "typescript": "^5.1.3"
   },
   "devDependencies": {
-    "@namada/config": "workspace:^",
     "@types/firefox-webext-browser": "^94.0.1",
     "@types/jest": "^29.0.0",
     "eslint": "^8.49.0",

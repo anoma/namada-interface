@@ -11,7 +11,7 @@
     // "dom" is needed for  WebAssembly typings
     "lib": ["esnext", "dom"],
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noEmit": false,
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
@@ -27,5 +27,5 @@
     "compilerOptions": {
       "module": "commonjs"
     }
-  },
+  }
 }

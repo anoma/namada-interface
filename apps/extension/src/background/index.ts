@@ -1,5 +1,3 @@
-import { init as initCrypto } from "@namada/crypto/src/init";
-import { init as initShared } from "@namada/shared/src/init";
 import {
   ExtensionKVStore,
   IndexedDBKVStore,
@@ -54,19 +52,12 @@ router.addGuard(ExtensionGuards.checkOriginIsValid);
 router.addGuard(ExtensionGuards.checkMessageIsInternal);
 
 const init = new Promise<void>(async (resolve) => {
-  const cryptoWasm = await fetch("crypto.namada.wasm").then((wasm) =>
-    wasm.arrayBuffer()
-  );
-  const { memory: cryptoMemory } = await initCrypto(cryptoWasm);
-
-  const sharedWasm = await fetch("shared.namada.wasm").then((wasm) =>
-    wasm.arrayBuffer()
-  );
-  await initShared(sharedWasm);
-
   const routerId = await getNamadaRouterId(localStorage);
   const requester = new ExtensionRequester(messenger, routerId);
   const broadcaster = new ExtensionBroadcaster(localStorage, requester);
+  const sdkService = await SdkService.init(localStorage);
+
+  const { cryptoMemory } = sdkService.getSdk();
 
   const vaultService = new VaultService(
     vaultStorage,
@@ -75,8 +66,11 @@ const init = new Promise<void>(async (resolve) => {
     broadcaster
   );
   await vaultService.initialize();
-  const chainsService = new ChainsService(localStorage, broadcaster);
-  const sdkService = new SdkService(chainsService);
+  const chainsService = new ChainsService(
+    sdkService,
+    localStorage,
+    broadcaster
+  );
   const keyRingService = new KeyRingService(
     vaultService,
     sdkService,
@@ -84,7 +78,6 @@ const init = new Promise<void>(async (resolve) => {
     utilityStore,
     localStorage,
     vaultStorage,
-    cryptoMemory,
     requester,
     broadcaster
   );

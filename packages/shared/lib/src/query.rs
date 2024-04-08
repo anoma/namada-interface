@@ -279,7 +279,7 @@ impl Query {
             })
             .collect();
 
-        let mut shielded: ShieldedContext<masp::WebShieldedUtils> = ShieldedContext::default();
+        let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
 
         let _ = shielded.load().await?;
         let _ = shielded
@@ -328,7 +328,7 @@ impl Query {
         let viewing_key = ExtendedFullViewingKey::from(xvk).fvk.vk;
 
         // We are recreating shielded context to avoid multiple mutable borrows
-        let mut shielded: ShieldedContext<masp::WebShieldedUtils> = ShieldedContext::default();
+        let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
         shielded.load().await?;
 
         let epoch = query_epoch(&self.client).await?;

@@ -8,7 +8,8 @@
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
   "scripts": {
-    "prepublish": "yarn wasm:build && tsc --build",
+    "prepublish": "yarn && yarn build",
+    "build": "yarn wasm:build && tsc --build",
     "release": "yarn prepublish && release-it --verbose --ci",
     "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
     "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish --ci",
@@ -16,8 +17,11 @@
     "wasm:build:multicore": "node ./scripts/build.js --release --multicore",
     "wasm:build:dev": "node ./scripts/build.js",
     "wasm:build:dev:multicore": "node ./scripts/build.js --multicore",
-    "wasm:build:node": "./scripts/build-test.sh",
-    "test-wasm:ci": "cd ./lib && wasm-pack test --node"
+    "wasm:build:node": "node ./scripts/build.js --target nodejs --release",
+    "wasm:build:node:multicore": "node ./scripts/build.js --target nodejs --release --multicore",
+    "wasm:build:node:dev": "node ./scripts/build.js --target nodejs",
+    "wasm:build:node:dev:multicore": "node ./scripts/build.js --target node --multicore",
+    "test-wasm:ci": "cd ./lib && wasm-pack test --node -- --features dev,web --profile dev"
   },
   "dependencies": {
     "@dao-xyz/borsh": "^5.1.5",
