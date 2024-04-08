@@ -29,7 +29,8 @@ type RadioGroupProps = {
   id: string;
   value: string;
   groupLabel: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
+  disabled?: boolean;
 };
 
 export const RadioGroup = ({
@@ -38,6 +39,7 @@ export const RadioGroup = ({
   value,
   groupLabel,
   onChange,
+  disabled,
 }: RadioGroupProps): JSX.Element => {
   const [activeIndicatorPosition, setActiveIndicatorPosition] = useState("0px");
   const [activeIndicatorWidth, setActiveIndicatorWidth] = useState("0px");
@@ -65,7 +67,7 @@ export const RadioGroup = ({
 
   const _onChange = (radioButton: HTMLInputElement, value: string): void => {
     updateIndicatorPosition(radioButton);
-    onChange(value);
+    onChange?.(value);
   };
 
   return (
@@ -86,13 +88,14 @@ export const RadioGroup = ({
                 value={option.value.toString()}
                 checked={value ? option.value === value : idx === 0}
                 ref={(ref) =>
-                  option.value === value || (!value && idx === 0)
-                    ? (initialSelectedRadio.current = ref)
-                    : null
+                  option.value === value || (!value && idx === 0) ?
+                    (initialSelectedRadio.current = ref)
+                  : null
                 }
                 onChange={(e) =>
                   _onChange(e.currentTarget, option.value.toString())
                 }
+                disabled={disabled}
               />
               <span className={text()}>{option.text}</span>
             </label>

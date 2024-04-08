@@ -24,6 +24,7 @@ export * from "./Panel";
 export * from "./PieChart";
 export * from "./ProgressIndicator";
 export * from "./RadioGroup";
+export * from "./Ring";
 export * from "./SeedPhraseInstructions";
 export * from "./Select";
 export * from "./Stack";

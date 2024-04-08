@@ -13,7 +13,7 @@ export const App: React.FC = () => {
 
   const displayReturnButton = (): boolean => {
     const setupRoute = routes.setup();
-    const indexRoute = routes.viewAccountList();
+    const indexRoute = routes.viewBalance();
     return Boolean(
       !isLocked &&
         isLocked !== undefined &&
@@ -30,15 +30,19 @@ export const App: React.FC = () => {
       size="popup"
       header={
         <AppHeader
-          settingsButton={!isLocked && passwordInitialized}
-          lockButton={
+          settingsButton={
+            !isLocked && passwordInitialized && !displayReturnButton()
+          }
+          accountsButton={
             !isLocked && passwordInitialized && !displayReturnButton()
           }
           returnButton={displayReturnButton()}
         />
       }
     >
-      {shouldLock ? <Login onLogin={unlock} /> : <AppContent />}
+      {shouldLock ?
+        <Login onLogin={unlock} />
+      : <AppContent />}
     </Container>
   );
 };

@@ -17,6 +17,7 @@ import {
   DeleteAccount,
   RenameAccount,
   ViewAccount,
+  ViewBalance,
   ViewMnemonic,
 } from "./Accounts";
 import { ParentAccounts } from "./Accounts/ParentAccounts";
@@ -77,7 +78,7 @@ export const AppContent = (): JSX.Element => {
   };
 
   const getStartPage = (accounts: DerivedAccount[]): string => {
-    return accounts.length === 0 ? routes.setup() : routes.viewAccountList();
+    return accounts.length === 0 ? routes.setup() : routes.viewBalance();
   };
 
   useEffect(() => {
@@ -154,6 +155,7 @@ export const AppContent = (): JSX.Element => {
               path={routes.viewAccountList()}
               element={<ParentAccounts />}
             />
+            <Route path={routes.viewBalance()} element={<ViewBalance />} />
           </>
         )}
       </Routes>

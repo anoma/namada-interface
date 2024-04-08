@@ -8,8 +8,9 @@ import {
   RevealAccountMnemonicMsg,
   SetActiveAccountMsg,
 } from "background/keyring";
+import BigNumber from "bignumber.js";
 import { useRequester } from "hooks/useRequester";
-import { QueryAccountsMsg } from "provider";
+import { GetChainMsg, QueryAccountsMsg, QueryBalancesMsg } from "provider";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Ports } from "router";
 import { useVaultContext } from "./VaultContext";
@@ -24,6 +25,7 @@ type AccountContextType = {
   activeAccountId: string | undefined;
   error: string;
   status: LoadingStatus | undefined;
+  transparentBalance: BigNumber | undefined;
   rename: (
     accountId: string,
     alias: string
@@ -44,6 +46,7 @@ const createAccountContext = (): AccountContextType => ({
   parentAccounts: [],
   getById: (_accountId: string) => undefined,
   activeAccountId: undefined,
+  transparentBalance: undefined,
   revealMnemonic: async (_accountId: string) => "",
   error: "",
   status: undefined,
@@ -69,6 +72,7 @@ export const AccountContextWrapper = ({
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [parentAccounts, setParentAccounts] = useState<DerivedAccount[]>([]);
   const [activeAccountId, setActiveAccountId] = useState<string | undefined>();
+  const [transparentBalance, setTransparentBalance] = useState<BigNumber>();
   const [status, setStatus] = useState<LoadingStatus | undefined>();
   const [error, setError] = useState("");
 
@@ -97,6 +101,33 @@ export const AccountContextWrapper = ({
       new GetActiveAccountMsg()
     );
     parent && setActiveAccountId(parent.id);
+  };
+
+  const fetchTransparentBalance = async (): Promise<void> => {
+    if (typeof activeAccountId === "undefined") {
+      return;
+    }
+
+    const account = getById(activeAccountId);
+
+    const {
+      currency: { address: nativeToken },
+    } = await requester.sendMessage(Ports.Background, new GetChainMsg());
+
+    if (typeof account !== "undefined" && typeof nativeToken !== "undefined") {
+      const result = await requester.sendMessage(
+        Ports.Background,
+        new QueryBalancesMsg(account.address, [nativeToken])
+      );
+
+      const balance = result[0]?.amount;
+
+      if (typeof balance === "undefined") {
+        throw new Error("transparent balance was not found");
+      }
+
+      setTransparentBalance(new BigNumber(balance));
+    }
   };
 
   const remove = async (accountId: string): Promise<void> => {
@@ -176,6 +207,10 @@ export const AccountContextWrapper = ({
     setParentAccounts(accounts.filter((account) => !account.parentId));
   }, [accounts]);
 
+  useEffect(() => {
+    void fetchTransparentBalance();
+  }, [activeAccountId]);
+
   return (
     <AccountContext.Provider
       value={{
@@ -183,6 +218,7 @@ export const AccountContextWrapper = ({
         parentAccounts,
         activeAccountId,
         status,
+        transparentBalance,
         error,
         remove,
         fetchAll,

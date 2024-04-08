@@ -15,4 +15,5 @@ export default {
     `/accounts/delete/${accountId}`,
   renameAccount: (accountId: string = ":accountId") =>
     `/accounts/rename/${accountId}`,
+  viewBalance: () => `/balance`,
 };

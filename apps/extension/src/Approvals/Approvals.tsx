@@ -38,16 +38,7 @@ export const Approvals: React.FC = () => {
   const [signatureDetails, setSignatureDetails] = useState<SignatureDetails>();
 
   return (
-    <Container
-      size="popup"
-      header={
-        <AppHeader
-          lockButton={false}
-          returnButton={false}
-          settingsButton={false}
-        />
-      }
-    >
+    <Container size="popup" header={<AppHeader />}>
       <Routes>
         <Route
           path={`${TopLevelRoute.ApproveTx}/:type`}
