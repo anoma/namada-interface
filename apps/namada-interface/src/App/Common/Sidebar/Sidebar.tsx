@@ -1,3 +1,5 @@
+import { MASPIcon } from "App/Icons/MASPIcon";
+import { SwapIcon } from "App/Icons/SwapIcon";
 import { TopLevelRoute } from "App/types";
 import { AiFillHome } from "react-icons/ai";
 import { BsDiscord, BsTwitterX } from "react-icons/bs";
@@ -29,9 +31,25 @@ export const Sidebar = (): JSX.Element => {
           </SidebarMenuItem>
         </li>
         <li>
-          <SidebarMenuItem url={TopLevelRoute.Bridge}>
+          <SidebarMenuItem>
             <IoSwapHorizontal />
             IBC Bridge
+          </SidebarMenuItem>
+        </li>
+        <li>
+          <SidebarMenuItem>
+            <i className="w-4">
+              <MASPIcon />
+            </i>
+            MASP
+          </SidebarMenuItem>
+        </li>
+        <li>
+          <SidebarMenuItem>
+            <i className="w-4">
+              <SwapIcon />
+            </i>
+            Swap
           </SidebarMenuItem>
         </li>
       </ul>
