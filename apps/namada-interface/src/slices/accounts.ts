@@ -224,7 +224,6 @@ const balancesAtom = (() => {
         set(base, { ...get(base), [address]: balance });
       });
 
-      const lastHeight = await namada.queryLastBlock();
       await namada.sync();
 
       const shieldedBalances = await Promise.all(

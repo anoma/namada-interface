@@ -22,7 +22,6 @@ import {
   QueryAccountsMsg,
   QueryBalancesMsg,
   QueryDefaultAccountMsg,
-  QueryLastBlocksMsg,
   ShieldedSyncMsg,
   VerifyArbitraryMsg,
 } from "./messages";
@@ -131,13 +130,6 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new ShieldedSyncMsg()
-    );
-  }
-
-  public async queryLastBlock(): Promise<number | undefined> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new QueryLastBlocksMsg()
     );
   }
 

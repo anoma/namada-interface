@@ -64,12 +64,6 @@ export class InjectedNamada implements INamada {
     return await InjectedProxy.requestMethod<void, void>("shieldedSync");
   }
 
-  public async queryLastBlock(): Promise<number | undefined> {
-    return await InjectedProxy.requestMethod<void, number | undefined>(
-      "queryLastBlock"
-    );
-  }
-
   public async getChain(): Promise<Chain | undefined> {
     return await InjectedProxy.requestMethod<void, Chain>("getChain");
   }

@@ -5,7 +5,6 @@ import {
   QueryAccountsMsg,
   QueryBalancesMsg,
   QueryDefaultAccountMsg,
-  QueryLastBlocksMsg,
   ShieldedSyncMsg,
   VerifyArbitraryMsg,
 } from "provider/messages";
@@ -41,7 +40,6 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(QueryDefaultAccountMsg);
   router.registerMessage(QueryBalancesMsg);
   router.registerMessage(ShieldedSyncMsg);
-  router.registerMessage(QueryLastBlocksMsg);
   router.registerMessage(QueryParentAccountsMsg);
   router.registerMessage(SaveAccountSecretMsg);
   router.registerMessage(ScanAccountsMsg);

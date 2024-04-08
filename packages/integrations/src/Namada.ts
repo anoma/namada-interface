@@ -100,8 +100,4 @@ export default class Namada implements Integration<Account, Signer> {
   public async sync(): Promise<void> {
     await this._namada?.shieldedSync();
   }
-
-  public async queryLastBlock(): Promise<number | undefined> {
-    return await this._namada?.queryLastBlock();
-  }
 }
