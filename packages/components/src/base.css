@@ -45,12 +45,10 @@ code {
   --ease-in-out-circ: cubic-bezier(0, 0.55, 0.45, 1);
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.text-balance {
+  text-wrap: balance;
+}
 
-  .unset {
-    all: unset;
-  }
+.unset {
+  all: unset;
 }
