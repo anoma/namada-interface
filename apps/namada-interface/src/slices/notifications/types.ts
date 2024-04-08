@@ -56,6 +56,7 @@ export type Toast = {
   message: string;
   type: ToastType;
   timeout: Timeout;
+  innerTxHash?: string;
 };
 
 export type NotificationsState = {

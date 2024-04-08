@@ -14,10 +14,23 @@ import {
   CloseToastButton,
   Container,
   Content,
+  LinkExplorer,
   Message,
   Title,
   Wrapper,
 } from "./toast.components";
+
+const convertToHiddenString = (
+  str: string,
+  visibleLength: number = 16
+): string => {
+  if (str.length <= visibleLength) {
+    return str;
+  }
+  const head = str.slice(0, visibleLength / 2);
+  const tail = str.slice(-visibleLength / 2);
+  return `${head}...${tail}`;
+};
 
 export const Toasts = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -69,6 +82,10 @@ export const Toast = ({
       }, timeout.value);
   }, [timeout.kind]);
 
+  // Input the original URL explorer here. Currently, it's a explorer url from SE contest
+  const baseExplorerUrl = "https://namada.valopers.com/transactions/";
+  const successMessage =
+    "Hash: " + convertToHiddenString(toast.innerTxHash ?? "");
   return (
     <Wrapper
       className={toast.type}
@@ -79,7 +96,16 @@ export const Toast = ({
     >
       <Content>
         <Title title={toast.title}>{toast.title}</Title>
-        <Message title={toast.message}>{toast.message}</Message>
+        {toast.type === "success" ? (
+          <LinkExplorer
+            target="_blank"
+            href={baseExplorerUrl + toast.innerTxHash}
+          >
+            {successMessage}
+          </LinkExplorer>
+        ) : (
+          <Message title={toast.message}>{toast.message}</Message>
+        )}
       </Content>
       <CloseToastButton onClick={() => onClose(id)}>
         <Icon name="ChevronRight" />

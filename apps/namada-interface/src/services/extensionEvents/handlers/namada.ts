@@ -79,7 +79,8 @@ export const NamadaTxCompletedHandler =
         id: msgId,
         txTypeLabel: TxTypeLabel[txType as TxType],
         success,
-        error: payload || "",
+        error: !success ? payload : "",
+        innerTxHash: success ? payload : undefined,
       })
     );
     refreshPublicKeys();

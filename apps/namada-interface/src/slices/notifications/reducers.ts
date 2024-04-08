@@ -64,9 +64,10 @@ export const reducers = {
       txTypeLabel: TxLabel;
       success: boolean;
       error: string;
+      innerTxHash: string;
     }>
   ) {
-    const { error, id, success, txTypeLabel } = action.payload;
+    const { error, id, success, txTypeLabel, innerTxHash } = action.payload;
     state.toasts = {
       ...state.toasts,
       [id]: {
@@ -74,6 +75,7 @@ export const reducers = {
         message: success ? "Transaction completed!" : error,
         type: success ? "success" : "error",
         timeout: ToastTimeout.Default(),
+        innerTxHash,
       },
     };
   },

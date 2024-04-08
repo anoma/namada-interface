@@ -77,6 +77,13 @@ export const Message = styled.div`
   text-overflow: ellipsis;
 `;
 
+export const LinkExplorer = styled.a`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: underline;
+`;
+
 export const CloseToastButton = styled.div`
   cursor: pointer;
   display: flex;
