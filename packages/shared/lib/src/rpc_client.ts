@@ -3,12 +3,10 @@
  * Small wrapper for fetch to make it easier to pass props
  * Called wasmFetch to avoid naming conflict
  */
-async function wasmFetch(url, method, body) {
+export async function wasmFetch(url: string, method: string, body: string) {
   const res = await fetch(url, {
     method,
     body,
   });
   return res;
 }
-
-module.exports = { wasmFetch };
