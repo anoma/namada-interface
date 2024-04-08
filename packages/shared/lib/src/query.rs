@@ -267,7 +267,6 @@ impl Query {
         &self,
         owners: Box<[JsValue]>,
         start_height: Option<u64>,
-        last_height: Option<u64>,
     ) -> Result<(), JsError> {
         let owners: Vec<ViewingKey> = owners
             .into_iter()
@@ -291,22 +290,12 @@ impl Query {
 
         let _ = shielded.save().await?;
 
-        let start_query_height = match start_height {
-            Some(x) => Some(BlockHeight(x)),
-            None => None
-        };
-
-        let last_query_height = match last_height {
-            Some(x) => Some(BlockHeight(x)),
-            None => None
-        };
-
         shielded
             .fetch(
                 &self.client,
                 &DefaultLogger::new(&WebIo),
-                start_query_height,
-                last_query_height,
+                start_height.map(BlockHeight),
+                None,
                 1,
                 &[],
                 &owners,

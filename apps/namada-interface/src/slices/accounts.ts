@@ -185,7 +185,6 @@ const accountsAtom = (() => {
   );
 })();
 
-const LATEST_SYNCED_HEIGHT_STORAGE = "latest-synced-height"
 
 const balancesAtom = (() => {
   const base = atom<{ [address: Address]: TokenBalances }>({});
@@ -226,12 +225,7 @@ const balancesAtom = (() => {
       });
 
       const lastHeight = await namada.queryLastBlock();
-      const startHeightStorage = Number(localStorage.getItem(LATEST_SYNCED_HEIGHT_STORAGE));
-      const startHeight = startHeightStorage ? startHeightStorage : undefined;
-      await namada.sync(startHeight,lastHeight);
-      if(lastHeight){
-        localStorage.setItem(LATEST_SYNCED_HEIGHT_STORAGE, lastHeight.toString())
-      }
+      await namada.sync();
 
       const shieldedBalances = await Promise.all(
         queryBalance(namada, shieldedAccounts, token)

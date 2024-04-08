@@ -17,6 +17,15 @@ export const getNamadaRouterId = async (
   return storedId;
 };
 
+export const initNamadaLatestSyncBlock = async (
+  store: LocalStorage
+): Promise<void> => {
+  const latestBlock = await store.getLatestSyncBlock();
+  if (!latestBlock) {
+    await store.setLatestSyncBlock({ lastestSyncBlock: 0 });
+  }
+};
+
 // Determine if content-scripts can be executed in this environment
 export class ContentScriptEnv {
   static readonly produceEnv = (sender: MessageSender): Env => {

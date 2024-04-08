@@ -3,7 +3,6 @@ import {
   Chain,
   DerivedAccount,
   Namada as INamada,
-  ShieldedSyncProps,
   SignArbitraryProps,
   SignatureResponse,
   TxMsgProps,
@@ -128,13 +127,10 @@ export class Namada implements INamada {
     );
   }
 
-  public async shieldedSync({
-    startHeight,
-    lastHeight,
-  }: ShieldedSyncProps): Promise<void> {
+  public async shieldedSync(): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ShieldedSyncMsg(startHeight, lastHeight)
+      new ShieldedSyncMsg()
     );
   }
 

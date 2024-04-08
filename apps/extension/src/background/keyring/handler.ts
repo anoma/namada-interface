@@ -239,8 +239,8 @@ const handleQueryBalancesMsg: (
 const handleShieldedSyncMsg: (
   service: KeyRingService
 ) => InternalHandler<ShieldedSyncMsg> = (service) => {
-  return async (_, { startHeight, lastHeight }) => {
-    return await service.shieldedSync(startHeight, lastHeight);
+  return async (_, {}) => {
+    return await service.shieldedSync();
   };
 };
 

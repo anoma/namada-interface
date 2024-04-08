@@ -538,19 +538,27 @@ export class KeyRingService {
     return await this.sdkService.getSdk().masp.hasMaspParams();
   }
 
-  async shieldedSync(startHeight?: number, lastHeight?: number): Promise<void> {
+  async queryLastBlock(): Promise<number | undefined> {
+    return await this._keyRing.queryLastBlock();
+  }
+
+  async shieldedSync(): Promise<void> {
     const vks = (await this.vaultStorage.findAll(KeyStore))
       .filter((a) => a.public.type === AccountType.ShieldedKeys)
       .map((a) => a.public.owner);
-    const start_height = startHeight ? BigInt(startHeight) : undefined;
-    const last_height = lastHeight ? BigInt(lastHeight) : undefined;
-    await this.sdkService
-      .getSdk()
-      .rpc.shieldedSync(vks, start_height, last_height);
-  }
 
-  async queryLastBlock(): Promise<number | undefined> {
-    return await this._keyRing.queryLastBlock();
+    const startHeight = (await this.localStorage.getLatestSyncBlock())
+      ?.lastestSyncBlock;
+    const lastHeight = await this.queryLastBlock();
+
+    if (startHeight !== undefined && lastHeight) {
+      await this.localStorage.setLatestSyncBlock({
+        lastestSyncBlock: lastHeight,
+      });
+    }
+
+    const start_height = startHeight ? BigInt(startHeight) : undefined;
+    await this.sdkService.getSdk().rpc.shieldedSync(vks, start_height);
   }
 
   async queryBalances(

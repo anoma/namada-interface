@@ -174,10 +174,7 @@ export class ShieldedSyncMsg extends Message<void> {
     return MessageType.ShieldedSync;
   }
 
-  constructor(
-    public readonly startHeight?: number,
-    public readonly lastHeight?: number
-  ) {
+  constructor() {
     super();
   }
 

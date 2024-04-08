@@ -22,11 +22,6 @@ export type VerifyArbitraryProps = {
   signature: string;
 };
 
-export type ShieldedSyncProps = {
-  startHeight?: number;
-  lastHeight?: number;
-};
-
 export type BalancesProps = {
   owner: string;
   tokens: string[];
@@ -37,7 +32,7 @@ export interface Namada {
   balances(
     props: BalancesProps
   ): Promise<{ token: string; amount: string }[] | undefined>;
-  shieldedSync(props: ShieldedSyncProps): Promise<void>;
+  shieldedSync(): Promise<void>;
   queryLastBlock(): Promise<number | undefined>;
   connect(chainId?: string): Promise<void>;
   isConnected(): Promise<boolean | undefined>;

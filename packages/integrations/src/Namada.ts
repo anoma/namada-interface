@@ -97,8 +97,8 @@ export default class Namada implements Integration<Account, Signer> {
     };
   }
 
-  public async sync(startHeight?: number, lastHeight?: number): Promise<void> {
-    await this._namada?.shieldedSync({ startHeight, lastHeight });
+  public async sync(): Promise<void> {
+    await this._namada?.shieldedSync();
   }
 
   public async queryLastBlock(): Promise<number | undefined> {

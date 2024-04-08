@@ -818,9 +818,8 @@ export class KeyRing {
 
   async queryLastBlock() {
     try {
-      const query = await this.sdkService.getQuery();
-      const bigInitLastBlock = await query.query_last_block();
-      return Number(bigInitLastBlock);
+      const query = this.sdkService.getSdk().rpc;
+      return await query.queryLastBlock();
     } catch (e) {
       console.warn(e);
     }

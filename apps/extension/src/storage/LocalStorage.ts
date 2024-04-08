@@ -61,26 +61,35 @@ type NamadaExtensionApprovedOriginsType = t.TypeOf<
 const NamadaExtensionRouterId = t.number;
 type NamadaExtensionRouterIdType = t.TypeOf<typeof NamadaExtensionRouterId>;
 
+const NamadaExtensionLatestSyncBlock = t.type({ lastestSyncBlock: t.number });
+type NamadaExtensionLatestBlockType = t.TypeOf<
+  typeof NamadaExtensionLatestSyncBlock
+>;
+
 type LocalStorageTypes =
   | ChainType
   | NamadaExtensionApprovedOriginsType
-  | NamadaExtensionRouterIdType;
+  | NamadaExtensionRouterIdType
+  | NamadaExtensionLatestBlockType;
 
 type LocalStorageSchemas =
   | typeof Chain
   | typeof NamadaExtensionApprovedOrigins
-  | typeof NamadaExtensionRouterId;
+  | typeof NamadaExtensionRouterId
+  | typeof NamadaExtensionLatestSyncBlock;
 
 export type LocalStorageKeys =
   | "chains"
   | "namadaExtensionApprovedOrigins"
   | "namadaExtensionRouterId"
+  | "namadaExtensionLatestSyncBlock"
   | "tabs";
 
 const schemasMap = new Map<LocalStorageSchemas, LocalStorageKeys>([
   [Chain, "chains"],
   [NamadaExtensionApprovedOrigins, "namadaExtensionApprovedOrigins"],
   [NamadaExtensionRouterId, "namadaExtensionRouterId"],
+  [NamadaExtensionLatestSyncBlock, "namadaExtensionLatestSyncBlock"],
 ]);
 
 export class LocalStorage extends ExtStorage {
@@ -129,6 +138,30 @@ export class LocalStorage extends ExtStorage {
     const data = (await this.getApprovedOrigins()) || [];
     await this.setApprovedOrigins(
       data.filter((origin) => origin !== originToRemove)
+    );
+  }
+
+  async getLatestSyncBlock(): Promise<
+    NamadaExtensionLatestBlockType | undefined
+  > {
+    const data = await this.getRaw(this.getKey(NamadaExtensionLatestSyncBlock));
+
+    const Schema = t.union([NamadaExtensionLatestSyncBlock, t.undefined]);
+    const decodedData = Schema.decode(data);
+
+    if (E.isLeft(decodedData)) {
+      throw new Error("Latest block is not valid");
+    }
+
+    return decodedData.right;
+  }
+
+  async setLatestSyncBlock(
+    namadaExtensionLatestSyncBlock: NamadaExtensionLatestBlockType
+  ): Promise<void> {
+    await this.setRaw(
+      this.getKey(NamadaExtensionLatestSyncBlock),
+      namadaExtensionLatestSyncBlock
     );
   }
 

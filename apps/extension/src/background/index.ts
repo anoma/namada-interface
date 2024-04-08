@@ -14,6 +14,7 @@ import {
   ExtensionRequester,
   ExtensionRouter,
   getNamadaRouterId,
+  initNamadaLatestSyncBlock,
 } from "extension";
 import { KVPrefix, Ports } from "router";
 import { LocalStorage, RevealedPKStorage, VaultStorage } from "storage";
@@ -56,6 +57,7 @@ const init = new Promise<void>(async (resolve) => {
   const requester = new ExtensionRequester(messenger, routerId);
   const broadcaster = new ExtensionBroadcaster(localStorage, requester);
   const sdkService = await SdkService.init(localStorage);
+  await initNamadaLatestSyncBlock(localStorage);
 
   const { cryptoMemory } = sdkService.getSdk();
 

@@ -218,11 +218,16 @@ export class Rpc {
    * @param vks - Array of viewing keys
    * @returns
    */
-  async shieldedSync(
-    vks: string[],
-    start_height?: bigint,
-    last_height?: bigint
-  ): Promise<void> {
-    await this.query.shielded_sync(vks, start_height, last_height);
+  async shieldedSync(vks: string[], start_height?: bigint): Promise<void> {
+    await this.query.shielded_sync(vks, start_height);
+  }
+
+  /**
+   * Get the latest block
+   * @async
+   * @returns latest block
+   */
+  async queryLastBlock(): Promise<number> {
+    return Number(await this.query.query_last_block());
   }
 }
