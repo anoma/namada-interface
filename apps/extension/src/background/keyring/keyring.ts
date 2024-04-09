@@ -816,12 +816,13 @@ export class KeyRing {
     return Result.ok(null);
   }
 
-  async queryLastBlock() {
+  async queryLastBlock(): Promise<number> {
     try {
       const query = this.sdkService.getSdk().rpc;
       return await query.queryLastBlock();
     } catch (e) {
       console.warn(e);
+      return NaN;
     }
   }
 

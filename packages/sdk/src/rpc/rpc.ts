@@ -216,6 +216,7 @@ export class Rpc {
    * Sync the shielded context
    * @async
    * @param vks - Array of viewing keys
+   * @param start_height - Bigint epoch height to start syncing from
    * @returns
    */
   async shieldedSync(vks: string[], start_height?: bigint): Promise<void> {

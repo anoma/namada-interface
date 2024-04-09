@@ -538,7 +538,7 @@ export class KeyRingService {
     return await this.sdkService.getSdk().masp.hasMaspParams();
   }
 
-  async queryLastBlock(): Promise<number | undefined> {
+  async queryLastBlock(): Promise<number> {
     return await this._keyRing.queryLastBlock();
   }
 
@@ -550,15 +550,14 @@ export class KeyRingService {
     const startHeight = (await this.localStorage.getLatestSyncBlock())
       ?.lastestSyncBlock;
     const lastHeight = await this.queryLastBlock();
+    const start_height = startHeight ? BigInt(startHeight) : undefined;
+    await this.sdkService.getSdk().rpc.shieldedSync(vks, start_height);
 
     if (startHeight !== undefined && lastHeight) {
       await this.localStorage.setLatestSyncBlock({
         lastestSyncBlock: lastHeight,
       });
     }
-
-    const start_height = startHeight ? BigInt(startHeight) : undefined;
-    await this.sdkService.getSdk().rpc.shieldedSync(vks, start_height);
   }
 
   async queryBalances(
