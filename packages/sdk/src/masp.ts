@@ -66,7 +66,7 @@ export class Masp {
    * @param alias - Alias for the key
    * @returns void
    */
-  async add_default_payment_address(xvk: string, alias: string): Promise<void> {
+  async addDefaultPaymentAddress(xvk: string, alias: string): Promise<void> {
     return await this.sdk.add_default_payment_address(xvk, alias);
   }
 }

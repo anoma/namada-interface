@@ -5,7 +5,7 @@ Namada SDK package
 ## Note
 
 SDK will change frequently and changes may not be backward compatible. Sorry for that!
-NodeJS support is "experimental", in the sense that it is not used by us in any of our projects(yet).
+NodeJS support is "experimental", in the sense that it is not used by us in any of our projects (yet).
 If you are missing some of the features, please open an [issue](https://github.com/anoma/namada-interface/issues).
 
 ## Development
