@@ -20,6 +20,6 @@ yarn wasm:build[:node]:dev:multicore
 
 ## Usage
 
-See [examples](../examples)
+See [examples](./examples)
 
-For more information, read the [Specs](./docs/specs.md) or the [API](./docs/api.md) documentation.
+For more information, read the [documentation](./docs).

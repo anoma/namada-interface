@@ -28,14 +28,10 @@ import { SdkService } from "background/sdk";
 import { Namada } from "provider";
 import { LocalStorage, RevealedPKStorage, VaultStorage } from "storage";
 
-// __wasm is not exported in crypto.d.ts so need to use require instead of import
-/* eslint-disable @typescript-eslint/no-var-requires */
-const cryptoMemory = require("@namada/crypto").__wasm.memory;
-
 export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
 
-  constructor(readonly _prefix: string) { }
+  constructor(readonly _prefix: string) {}
 
   get<U extends T>(key: string): Promise<U | undefined> {
     return new Promise((resolve) => {
@@ -91,12 +87,7 @@ export const init = async (): Promise<{
 
   const sdkService = await SdkService.init(localStorage);
 
-  const vaultService = new VaultService(
-    vaultStorage,
-    sessionStore,
-    sdkService,
-    cryptoMemory
-  );
+  const vaultService = new VaultService(vaultStorage, sessionStore, sdkService);
   await vaultService.initialize();
 
   const chainsService = new ChainsService(

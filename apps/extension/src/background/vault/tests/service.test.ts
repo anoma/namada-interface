@@ -7,8 +7,6 @@ import { KVStoreMock } from "test/init";
 import { VaultService } from "../service";
 import { SessionPassword } from "../types";
 
-/* eslint-disable @typescript-eslint/no-var-requires */
-const cryptoMemory = require("@namada/crypto").__wasm.memory;
 jest.mock("webextension-polyfill", () => ({}));
 
 // Because we run tests in node environment, we need to mock web-init as node-init
@@ -51,7 +49,7 @@ describe("Testing untouched Vault Service", () => {
       new KVStoreMock(KVPrefix.LocalStorage)
     );
     const sdkService = await SdkService.init(localStorage);
-    service = new VaultService(storage, sessionStore, sdkService, cryptoMemory);
+    service = new VaultService(storage, sessionStore, sdkService);
     await service.initialize();
     await service.createPassword(password);
   });

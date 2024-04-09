@@ -1,6 +1,6 @@
+import { CryptoRecord } from "@namada/sdk/web";
 import { StoredRecord } from "@namada/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
-import { CryptoRecord } from "background/vault";
 
 export interface AccountStore extends StoredRecord {
   alias: string;

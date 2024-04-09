@@ -41,7 +41,7 @@ Create an EncodedTx class
 
 #### Defined in
 
-[sdk/src/tx/types.ts:12](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/tx/types.ts#L12)
+[sdk/src/tx/types.ts:12](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/tx/types.ts#L12)
 
 ## Properties
 
@@ -53,7 +53,7 @@ Specific tx struct instance
 
 #### Defined in
 
-[sdk/src/tx/types.ts:14](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/tx/types.ts#L14)
+[sdk/src/tx/types.ts:14](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/tx/types.ts#L14)
 
 ___
 
@@ -65,7 +65,7 @@ Borsh-serialized transaction
 
 #### Defined in
 
-[sdk/src/tx/types.ts:13](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/tx/types.ts#L13)
+[sdk/src/tx/types.ts:13](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/tx/types.ts#L13)
 
 ## Methods
 
@@ -81,7 +81,7 @@ Clear tx bytes resource
 
 #### Defined in
 
-[sdk/src/tx/types.ts:31](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/tx/types.ts#L31)
+[sdk/src/tx/types.ts:31](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/tx/types.ts#L31)
 
 ___
 
@@ -100,4 +100,4 @@ Serialized tx bytes
 
 #### Defined in
 
-[sdk/src/tx/types.ts:22](https://github.com/anoma/namada-interface/blob/30129006/packages/sdk/src/tx/types.ts#L22)
+[sdk/src/tx/types.ts:22](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/tx/types.ts#L22)

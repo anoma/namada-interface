@@ -1,15 +1,11 @@
+import { CryptoRecord } from "@namada/sdk/web";
 import { KVStore } from "@namada/storage";
 import { Result } from "@namada/utils";
 import { SdkService } from "background/sdk";
 import { ExtensionBroadcaster } from "extension";
 import { sha256 } from "js-sha256";
 import { VaultKeys as Keys, VaultStorage } from "storage";
-import {
-  CryptoRecord,
-  ResetPasswordError,
-  SessionPassword,
-  VaultStoreData,
-} from "./types";
+import { ResetPasswordError, SessionPassword, VaultStoreData } from "./types";
 
 export const VAULT_KEY = "vault";
 
@@ -18,7 +14,6 @@ export class VaultService {
     protected vaultStorage: VaultStorage,
     protected sessionStore: KVStore<SessionPassword>,
     protected readonly sdkService: SdkService,
-    protected readonly cryptoMemory: WebAssembly.Memory,
     protected readonly broadcaster?: ExtensionBroadcaster
   ) {}
 

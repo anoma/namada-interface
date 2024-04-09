@@ -20,6 +20,7 @@ export class Crypto {
   constructor(protected readonly cryptoMemory: WebAssembly.Memory) {}
 
   /**
+   * Provide object for storing encrypted data
    * @param cipherText - encrypted bytes
    * @param params - Argon2 parameters
    * @param iv - array of IV bytes
@@ -64,33 +65,12 @@ export class Crypto {
   }
 
   /**
-   * @param cryptoRecord - CryptoRecord value
-   * @param password - password
-   * @returns decrypted text
-   */
-  public decrypt(cryptoRecord: CryptoRecord, password: string): string {
-    const { cipher, kdf } = cryptoRecord;
-    const { m_cost, p_cost, t_cost, salt } = kdf.params;
-    const argon2Params = new Argon2ParamsWasm(m_cost, t_cost, p_cost);
-    const newKey = new Argon2(password, salt, argon2Params).key();
-    const aes = new AES(newKey, cipher.iv);
-    const vecU8Pointer = aes.decrypt(cipher.text);
-    const decrypted = readVecU8Pointer(vecU8Pointer, this.cryptoMemory);
-    const plainText = new TextDecoder().decode(decrypted);
-
-    aes.free();
-    vecU8Pointer.free();
-
-    return plainText;
-  }
-
-  /**
    * Construct encryption parameters such as password hash,
    * initialization vector, and salt from provided password
    * @param password - required for generating password hash
    * @returns encryption parameters
    */
-  public makeEncryptionParams(password: string): EncryptionParams {
+  private makeEncryptionParams(password: string): EncryptionParams {
     const saltInstance = Salt.generate();
 
     const salt = saltInstance.as_string();
@@ -125,5 +105,26 @@ export class Crypto {
     aes.free();
 
     return cipherText;
+  }
+
+  /**
+   * @param cryptoRecord - CryptoRecord value
+   * @param password - password
+   * @returns decrypted text
+   */
+  public decrypt(cryptoRecord: CryptoRecord, password: string): string {
+    const { cipher, kdf } = cryptoRecord;
+    const { m_cost, p_cost, t_cost, salt } = kdf.params;
+    const argon2Params = new Argon2ParamsWasm(m_cost, t_cost, p_cost);
+    const newKey = new Argon2(password, salt, argon2Params).key();
+    const aes = new AES(newKey, cipher.iv);
+    const vecU8Pointer = aes.decrypt(cipher.text);
+    const decrypted = readVecU8Pointer(vecU8Pointer, this.cryptoMemory);
+    const plainText = new TextDecoder().decode(decrypted);
+
+    aes.free();
+    vecU8Pointer.free();
+
+    return plainText;
   }
 }

@@ -57,13 +57,10 @@ const init = new Promise<void>(async (resolve) => {
   const broadcaster = new ExtensionBroadcaster(localStorage, requester);
   const sdkService = await SdkService.init(localStorage);
 
-  const { cryptoMemory } = sdkService.getSdk();
-
   const vaultService = new VaultService(
     vaultStorage,
     sessionStore,
     sdkService,
-    cryptoMemory,
     broadcaster
   );
   await vaultService.initialize();

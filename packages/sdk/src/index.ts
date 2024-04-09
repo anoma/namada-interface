@@ -2,12 +2,12 @@
 export * from "./ledger";
 
 // Export types
-export { Argon2Config, Crypto } from "./crypto";
+export { Argon2Config, KdfType } from "./crypto";
 export type {
   Argon2Params,
+  Crypto,
   CryptoRecord,
   EncryptionParams,
-  KdfType,
 } from "./crypto";
 export type { Address, ShieldedKeys, TransparentKeys } from "./keys";
 export type {
@@ -21,14 +21,15 @@ export type {
   Unbonds,
 } from "./rpc";
 
-export { EncodedTx, SignedTx, TxType, TxTypeLabel } from "./tx";
-export type { SupportedTx } from "./tx";
+export { TxType, TxTypeLabel } from "./tx";
+export type { EncodedTx, SignedTx, SupportedTx } from "./tx";
 
 export { Sdk } from "./sdk";
 
 export { publicKeyToBech32 } from "./keys";
 
-export { Masp } from "./masp";
-export { Mnemonic, PhraseSize } from "./mnemonic";
-export { Signing } from "./signing";
-export { Tx } from "./tx";
+export type { Masp } from "./masp";
+export { PhraseSize } from "./mnemonic";
+export type { Mnemonic } from "./mnemonic";
+export type { Signing } from "./signing";
+export type { Tx } from "./tx";
