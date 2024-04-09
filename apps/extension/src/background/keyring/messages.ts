@@ -1,16 +1,16 @@
-import { PhraseSize } from "@namada/crypto";
+import { PhraseSize } from "@namada/sdk/web";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Result } from "@namada/utils";
 import { Message } from "router";
+import { validatePrivateKey } from "utils";
 import { ROUTE } from "./constants";
 import {
+  AccountSecret,
   AccountStore,
   DeleteAccountError,
-  ParentAccount,
-  AccountSecret,
   MnemonicValidationResponse,
+  ParentAccount,
 } from "./types";
-import { validatePrivateKey } from "utils";
 
 enum MessageType {
   QueryPublicKey = "query-public-key",

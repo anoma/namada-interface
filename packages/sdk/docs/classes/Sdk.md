@@ -20,6 +20,7 @@ API for interacting with Namada SDK
 
 ### Accessors
 
+- [crypto](Sdk.md#crypto)
 - [keys](Sdk.md#keys)
 - [masp](Sdk.md#masp)
 - [mnemonic](Sdk.md#mnemonic)
@@ -29,6 +30,7 @@ API for interacting with Namada SDK
 
 ### Methods
 
+- [getCrypto](Sdk.md#getcrypto)
 - [getKeys](Sdk.md#getkeys)
 - [getMasp](Sdk.md#getmasp)
 - [getMnemonic](Sdk.md#getmnemonic)
@@ -59,7 +61,7 @@ API for interacting with Namada SDK
 
 #### Defined in
 
-[sdk/src/sdk.ts:22](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L22)
+[sdk/src/sdk.ts:23](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L23)
 
 ## Properties
 
@@ -71,7 +73,7 @@ Memory accessor for crypto lib
 
 #### Defined in
 
-[sdk/src/sdk.ts:25](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L25)
+[sdk/src/sdk.ts:26](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L26)
 
 ___
 
@@ -83,7 +85,7 @@ Address of chain's native token
 
 #### Defined in
 
-[sdk/src/sdk.ts:27](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L27)
+[sdk/src/sdk.ts:28](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L28)
 
 ___
 
@@ -95,7 +97,7 @@ Instance of Query struct from wasm lib
 
 #### Defined in
 
-[sdk/src/sdk.ts:24](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L24)
+[sdk/src/sdk.ts:25](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L25)
 
 ___
 
@@ -107,7 +109,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/sdk.ts:23](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L23)
+[sdk/src/sdk.ts:24](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L24)
 
 ___
 
@@ -119,9 +121,27 @@ RPC url
 
 #### Defined in
 
-[sdk/src/sdk.ts:26](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L26)
+[sdk/src/sdk.ts:27](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L27)
 
 ## Accessors
+
+### crypto
+
+• `get` **crypto**(): [`Crypto`](Crypto.md)
+
+Define crypto getter to use with destructuring assignment
+
+#### Returns
+
+[`Crypto`](Crypto.md)
+
+Utilities for encrypting and decrypting data
+
+#### Defined in
+
+[sdk/src/sdk.ts:148](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L148)
+
+___
 
 ### keys
 
@@ -137,43 +157,43 @@ key-related functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:115](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L115)
+[sdk/src/sdk.ts:124](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L124)
 
 ___
 
 ### masp
 
-• `get` **masp**(): `Masp`
+• `get` **masp**(): [`Masp`](Masp.md)
 
 Define signing getter to use with destructuring assignment
 
 #### Returns
 
-`Masp`
+[`Masp`](Masp.md)
 
 Masp utilities for handling params
 
 #### Defined in
 
-[sdk/src/sdk.ts:131](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L131)
+[sdk/src/sdk.ts:140](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L140)
 
 ___
 
 ### mnemonic
 
-• `get` **mnemonic**(): `Mnemonic`
+• `get` **mnemonic**(): [`Mnemonic`](Mnemonic.md)
 
 Define mnemonic getter to use with destructuring assignment
 
 #### Returns
 
-`Mnemonic`
+[`Mnemonic`](Mnemonic.md)
 
 mnemonic-related functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:107](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L107)
+[sdk/src/sdk.ts:116](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L116)
 
 ___
 
@@ -191,45 +211,63 @@ rpc client
 
 #### Defined in
 
-[sdk/src/sdk.ts:91](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L91)
+[sdk/src/sdk.ts:100](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L100)
 
 ___
 
 ### signing
 
-• `get` **signing**(): `Signing`
+• `get` **signing**(): [`Signing`](Signing.md)
 
 Define signing getter to use with destructuring assignment
 
 #### Returns
 
-`Signing`
+[`Signing`](Signing.md)
 
 Non-Tx signing functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:123](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L123)
+[sdk/src/sdk.ts:132](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L132)
 
 ___
 
 ### tx
 
-• `get` **tx**(): `Tx`
+• `get` **tx**(): [`Tx`](Tx.md)
 
 Define tx getter to use with destructuring assignment
 
 #### Returns
 
-`Tx`
+[`Tx`](Tx.md)
 
 tx-related functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:99](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L99)
+[sdk/src/sdk.ts:108](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L108)
 
 ## Methods
+
+### getCrypto
+
+▸ **getCrypto**(): [`Crypto`](Crypto.md)
+
+Return initialized Crypto class
+
+#### Returns
+
+[`Crypto`](Crypto.md)
+
+Utilities for encrypting and decrypting data
+
+#### Defined in
+
+[sdk/src/sdk.ts:82](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L82)
+
+___
 
 ### getKeys
 
@@ -245,43 +283,43 @@ key-related functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:57](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L57)
+[sdk/src/sdk.ts:58](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L58)
 
 ___
 
 ### getMasp
 
-▸ **getMasp**(): `Masp`
+▸ **getMasp**(): [`Masp`](Masp.md)
 
 Return initialized Masp class
 
 #### Returns
 
-`Masp`
+[`Masp`](Masp.md)
 
 Masp utilities for handling params
 
 #### Defined in
 
-[sdk/src/sdk.ts:73](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L73)
+[sdk/src/sdk.ts:74](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L74)
 
 ___
 
 ### getMnemonic
 
-▸ **getMnemonic**(): `Mnemonic`
+▸ **getMnemonic**(): [`Mnemonic`](Mnemonic.md)
 
 Return initialized Mnemonic class
 
 #### Returns
 
-`Mnemonic`
+[`Mnemonic`](Mnemonic.md)
 
 mnemonic-related functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:49](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L49)
+[sdk/src/sdk.ts:50](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L50)
 
 ___
 
@@ -299,43 +337,43 @@ Namada RPC client
 
 #### Defined in
 
-[sdk/src/sdk.ts:33](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L33)
+[sdk/src/sdk.ts:34](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L34)
 
 ___
 
 ### getSigning
 
-▸ **getSigning**(): `Signing`
+▸ **getSigning**(): [`Signing`](Signing.md)
 
 Return initialized Signing class
 
 #### Returns
 
-`Signing`
+[`Signing`](Signing.md)
 
 Non-Tx signing functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:65](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L65)
+[sdk/src/sdk.ts:66](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L66)
 
 ___
 
 ### getTx
 
-▸ **getTx**(): `Tx`
+▸ **getTx**(): [`Tx`](Tx.md)
 
 Return initialized Tx class
 
 #### Returns
 
-`Tx`
+[`Tx`](Tx.md)
 
 Tx-related functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:41](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L41)
+[sdk/src/sdk.ts:42](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L42)
 
 ___
 
@@ -361,4 +399,4 @@ Class for interacting with NamadaApp for Ledger Hardware Wallets
 
 #### Defined in
 
-[sdk/src/sdk.ts:83](https://github.com/anoma/namada-interface/blob/7542445f/packages/sdk/src/sdk.ts#L83)
+[sdk/src/sdk.ts:92](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/sdk.ts#L92)
