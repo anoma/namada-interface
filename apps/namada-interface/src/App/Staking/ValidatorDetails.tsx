@@ -21,12 +21,7 @@ import {
 } from "slices/StakingAndGovernance";
 import { GAS_LIMIT } from "slices/fees";
 import { RootState, useAppDispatch, useAppSelector } from "store";
-import { ModalState } from "../Staking";
-import {
-  MyStakingContainer,
-  StakeButtonContainer,
-  ValidatorDetailsContainer,
-} from "./ValidatorDetails.components";
+import { ModalState } from "./Staking";
 
 const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
   {
@@ -177,13 +172,13 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
     );
 
   return (
-    <ValidatorDetailsContainer>
+    <div>
       <Table
         title="Validator Details"
         tableConfigurations={validatorDetailsConfigurations}
         data={validatorDetailsData}
       />
-      <StakeButtonContainer>
+      <div>
         <ActionButton
           onClick={() => {
             setModalState(ModalState.NewBonding);
@@ -192,9 +187,9 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
         >
           Stake
         </ActionButton>
-      </StakeButtonContainer>
+      </div>
 
-      <MyStakingContainer>
+      <div>
         <Table
           title={`My Staking with ${truncateInMiddle(
             validator?.name || "",
@@ -206,8 +201,8 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
             ({ stakedAmount }) => Number(stakedAmount) !== 0
           )}
         />
-      </MyStakingContainer>
+      </div>
       <Outlet />
-    </ValidatorDetailsContainer>
+    </div>
   );
 };

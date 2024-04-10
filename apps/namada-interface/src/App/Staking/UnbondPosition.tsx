@@ -15,7 +15,6 @@ import {
   StakingPosition,
 } from "slices/StakingAndGovernance";
 import { GAS_LIMIT } from "slices/fees";
-import { UnstakePositionContainer } from "./UnbondPosition.components";
 
 // keys for the table that we want to act upon in table configuration
 const AMOUNT_TO_UNBOND_KEY = "Amount to unbond";
@@ -35,7 +34,7 @@ const unbondingDetailsConfigurations: TableConfigurations<
     const styleForRemainsBondedRow =
       rowData.key === REMAINS_BONDED_KEY ? { fontWeight: "bold" } : {};
     const valueOrInput =
-      rowData.key === AMOUNT_TO_UNBOND_KEY ? (
+      rowData.key === AMOUNT_TO_UNBOND_KEY ?
         <td>
           <Input
             onChange={(event) => {
@@ -43,9 +42,7 @@ const unbondingDetailsConfigurations: TableConfigurations<
             }}
           />
         </td>
-      ) : (
-        <td style={styleForRemainsBondedRow}>{rowData.value}</td>
-      );
+      : <td style={styleForRemainsBondedRow}>{rowData.value}</td>;
 
     return (
       <>
@@ -126,8 +123,9 @@ export const UnbondPosition = (props: Props): JSX.Element => {
     isEntryIncorrect || amountToBondOrUnbond === "";
 
   // we convey this with an object that can be used
-  const remainsBondedToDisplay = isEntryIncorrect
-    ? `The unbonding amount can be more than 0 and at most ${stakedAmount}`
+  const remainsBondedToDisplay =
+    isEntryIncorrect ?
+      `The unbonding amount can be more than 0 and at most ${stakedAmount}`
     : `${remainsBonded}`;
 
   // data for the summary table
@@ -156,7 +154,7 @@ export const UnbondPosition = (props: Props): JSX.Element => {
   ];
 
   return (
-    <UnstakePositionContainer>
+    <div>
       {/* summary table */}
       <Table
         title="Summary"
@@ -187,6 +185,6 @@ export const UnbondPosition = (props: Props): JSX.Element => {
         Confirm
       </ActionButton>
       <ActionButton onClick={cancelUnbonding}>Cancel</ActionButton>
-    </UnstakePositionContainer>
+    </div>
   );
 };
