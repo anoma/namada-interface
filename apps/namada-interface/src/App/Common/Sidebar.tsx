@@ -1,3 +1,4 @@
+import { SidebarMenuItem } from "App/Common/SidebarMenuItem";
 import { MASPIcon } from "App/Icons/MASPIcon";
 import { SwapIcon } from "App/Icons/SwapIcon";
 import StakingRoutes from "App/Staking/routes";
@@ -7,7 +8,6 @@ import { BsDiscord, BsTwitterX } from "react-icons/bs";
 import { FaVoteYea } from "react-icons/fa";
 import { GoStack } from "react-icons/go";
 import { IoSwapHorizontal } from "react-icons/io5";
-import { SidebarMenuItem } from "../SidebarMenuItem/SidebarMenuItem";
 
 export const Sidebar = (): JSX.Element => {
   return (

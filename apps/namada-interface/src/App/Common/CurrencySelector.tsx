@@ -1,11 +1,11 @@
 import { StyledSelectBox } from "@namada/components";
+import { CurrencyInfoListItem } from "@namada/utils";
 import clsx from "clsx";
-import { Currency } from "currencies";
 
 type CurrencySelectorProps = {
   value: string;
   onChange: (value: string) => void;
-  currencies: Currency[];
+  currencies: CurrencyInfoListItem[];
 };
 
 export const CurrencySelector = ({
@@ -33,13 +33,13 @@ export const CurrencySelector = ({
         defaultValue={value}
         onChange={(e) => onChange(e.target.value)}
         options={currencies.map((currency) => ({
-          id: currency.currency,
+          id: currency.id,
           value: (
             <>
-              {getCurrencySymbol(currency.symbol)} {currency.label}
+              {getCurrencySymbol(currency.sign)} {currency.plural}
             </>
           ),
-          ariaLabel: currency.label,
+          ariaLabel: currency.plural,
         }))}
       />
     </div>
