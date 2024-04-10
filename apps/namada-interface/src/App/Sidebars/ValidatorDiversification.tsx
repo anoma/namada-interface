@@ -7,7 +7,7 @@ export const ValidatorDiversification = (): JSX.Element => {
   return (
     <div
       className={clsx(
-        "flex flex-col items-center text-[18px] py-8 px-4 text-center text-yellow",
+        "flex flex-col items-center text-[18px] py-8 px-2 text-center text-yellow",
         "gap-7 leading-tight"
       )}
     >

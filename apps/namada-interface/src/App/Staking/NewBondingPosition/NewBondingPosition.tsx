@@ -20,7 +20,7 @@ import { BondingAddressSelect } from "./NewBondingPosition.components";
 const REMAINS_BONDED_KEY = "Remains bonded";
 
 type Props = {
-  accounts: Account[];
+  accounts: readonly Account[];
   currentBondingPositions: StakingPosition[];
   // called when the user confirms bonding
   confirmBonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
@@ -66,8 +66,9 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
   const singleTransferFee = gasPrice.multipliedBy(gasLimit);
 
   // gas fee for bonding tx and reveal PK tx (if needed)
-  const bondingGasFee = isRevealPkNeeded(currentAddress)
-    ? singleTransferFee.multipliedBy(2)
+  const bondingGasFee =
+    isRevealPkNeeded(currentAddress) ?
+      singleTransferFee.multipliedBy(2)
     : singleTransferFee;
 
   // gas fee for bonding tx and reveal PK tx (if needed) plus expected unbond and
@@ -110,9 +111,9 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
 
   // we convey this with an object that can be used
   const remainsBondedToDisplay =
-    typeof amountToBond === "undefined"
-      ? ""
-      : stakedAmount.plus(amountToBond).toString();
+    typeof amountToBond === "undefined" ? "" : (
+      stakedAmount.plus(amountToBond).toString()
+    );
 
   // data for the table
   const bondingSummary = [
