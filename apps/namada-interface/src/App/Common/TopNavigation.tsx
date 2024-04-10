@@ -1,13 +1,13 @@
 import { ToggleButton } from "@namada/components";
 import { Chain } from "@namada/types";
+import { FiatCurrencyList } from "@namada/utils";
+import { ActiveAccount } from "App/Common/ActiveAccount";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
-import { Currencies } from "currencies";
+import { CurrencySelector } from "App/Common/CurrencySelector";
 import { ConnectStatus, useExtensionConnect } from "hooks/useExtensionConnect";
 import { useAtom } from "jotai";
 import { Suspense } from "react";
 import { hideBalancesAtom, selectedCurrencyAtom } from "slices/settings";
-import { ActiveAccount } from "../ActiveAccount/ActiveAccount";
-import { CurrencySelector } from "../CurrencySelector";
 
 type Props = {
   chain: Chain;
@@ -37,7 +37,7 @@ export const TopNavigation = ({ chain }: Props): JSX.Element => {
           />
           {separator}
           <CurrencySelector
-            currencies={Currencies}
+            currencies={FiatCurrencyList}
             value={selectedCurrency}
             onChange={setSelectedCurrency}
           />

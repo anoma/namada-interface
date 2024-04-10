@@ -1,11 +1,10 @@
 import { Panel } from "@namada/components";
-import ConnectBanner from "App/Common/ConnectBanner/ConnectBanner";
+import { ConnectBanner } from "App/Common/ConnectBanner";
 import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification";
 import { useAtomValue } from "jotai";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import { AllValidatorsTable } from "./AllValidatorsTable";
-import { MyValidatorsTable } from "./MyValidatorsTable";
-import { StakingBalancesList } from "./StakingBalancesList";
+import { StakingSummary } from "./StakingSummary";
 
 // callbacks in this type are specific to a certain row type
 export type ValidatorsCallbacks = {
@@ -34,10 +33,10 @@ export const StakingOverview = (props: Props): JSX.Element => {
         )}
         {isConnected && (
           <>
-            <StakingBalancesList />
-            <MyValidatorsTable
-              navigateToValidatorDetails={navigateToValidatorDetails}
-            />
+            <StakingSummary />
+            {/* <MyValidatorsTable */}
+            {/*   navigateToValidatorDetails={navigateToValidatorDetails} */}
+            {/* /> */}
           </>
         )}
         <Panel title="All Validators">

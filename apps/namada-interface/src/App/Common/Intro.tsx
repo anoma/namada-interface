@@ -1,6 +1,6 @@
 import { ActionButton, Image } from "@namada/components";
 import { Chain } from "@namada/types";
-import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton/ConnectExtensionButton";
+import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
 import clsx from "clsx";
 
 type IntroProps = {
