@@ -1,1 +1,0 @@
-export { AllValidatorsTable } from "./AllValidatorsTable";

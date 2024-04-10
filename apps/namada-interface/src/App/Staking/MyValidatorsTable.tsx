@@ -1,11 +1,11 @@
-import { Table, TableLink, TableConfigurations } from "@namada/components";
+import { Table, TableConfigurations, TableLink } from "@namada/components";
+import { showMaybeNam, truncateInMiddle } from "@namada/utils";
 import {
   MyValidators,
   StakingAndGovernanceState,
 } from "slices/StakingAndGovernance";
-import { showMaybeNam, truncateInMiddle } from "@namada/utils";
 import { useAppSelector } from "store";
-import { ValidatorsCallbacks } from "../StakingOverview";
+import { ValidatorsCallbacks } from "./StakingOverview";
 
 const MyValidatorsRowRenderer = (
   myValidatorRow: MyValidators,

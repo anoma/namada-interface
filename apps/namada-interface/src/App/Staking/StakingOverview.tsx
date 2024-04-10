@@ -3,7 +3,7 @@ import ConnectBanner from "App/Common/ConnectBanner/ConnectBanner";
 import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification";
 import { useAtomValue } from "jotai";
 import { namadaExtensionConnectedAtom } from "slices/settings";
-import { AllValidatorsTable } from "./AllValidatorsTable/AllValidatorsTable";
+import { AllValidatorsTable } from "./AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
 import { StakingBalancesList } from "./StakingBalancesList";
 
