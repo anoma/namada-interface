@@ -31,12 +31,37 @@ const INITIAL_STATE = {
     namada: {},
     cosmos: {},
     ethereum: {},
+    osmosis: {}
   },
 };
 
 enum AccountsThunkActions {
   FetchBalances = "fetchBalances",
   FetchBalance = "fetchBalance",
+}
+
+function convertAddresses(accounts: AccountDetails[]): AccountDetails[] {
+  if (accounts?.length < 2) return [];
+  const mnemonicMap: Record<string, AccountDetails> = {};
+
+  // Populate the map with mnemonic accounts
+  accounts.forEach((obj) => {
+    if (obj.type === "mnemonic") {
+      mnemonicMap[obj.alias] = obj;
+    }
+  });
+
+  accounts.forEach((obj) => {
+    if (obj.type === "shielded-keys") {
+      const mnemonic = mnemonicMap[obj.alias];
+      if (mnemonic) {
+        obj.publicKey = mnemonic.publicKey;
+        obj.transparentAddress = mnemonic.address;
+      }
+    }
+  });
+
+  return accounts;
 }
 
 const initialState: AccountsState = INITIAL_STATE;
@@ -86,14 +111,17 @@ const accountsSlice = createSlice({
   initialState,
   reducers: {
     addAccounts: (state, action: PayloadAction<readonly AccountDetails[]>) => {
-      const accounts = action.payload;
+      const rawAccounts = action.payload;
 
-      const id = accounts[0]?.chainKey || chains.namada.id;
+      const id = rawAccounts[0]?.chainKey || chains.namada.id;
 
       // Remove old accounts under this chain config id if present:
       if (state.derived[id]) {
         state.derived[id] = {};
       }
+      const cloneAccounts = JSON.parse(JSON.stringify(rawAccounts))
+
+     const accounts = convertAddresses(cloneAccounts)
 
       accounts.forEach((account) => {
         const {
@@ -104,6 +132,7 @@ const accountsSlice = createSlice({
           type,
           publicKey,
           chainKey,
+          transparentAddress,
         } = account;
         const currencySymbol = chains.namada.currency.symbol;
         if (!state.derived[id]) {
@@ -119,6 +148,7 @@ const accountsSlice = createSlice({
             publicKey,
             isShielded,
             chainKey,
+            transparentAddress
           },
           balance: {
             [currencySymbol]: new BigNumber(0),

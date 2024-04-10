@@ -6,4 +6,5 @@ export type TxStore = {
   txType: SupportedTx;
   txMsg: string;
   specificMsg: string;
+  transparentAddress?: string;
 };

@@ -7,4 +7,5 @@ export const ProxyMappings: Record<ChainKey, string> = {
   namada: getProxyURL(8010),
   cosmos: getProxyURL(8011),
   ethereum: getProxyURL(8012),
+  osmosis: getProxyURL(8013),
 };

@@ -26,7 +26,7 @@ export class ChainsService {
       console.warn(`Chain is unreachable: ${e}`);
     }
 
-    await this.localStorage.setChain(chain);
+    await this.localStorage.setChain(chain as any);
     return chain;
   }
 
@@ -59,7 +59,7 @@ export class ChainsService {
       chainId,
       rpc: url,
     };
-    await this.localStorage.setChain(await this._queryNativeToken(chain));
+    await this.localStorage.setChain(await this._queryNativeToken(chain) as any);
     await this.broadcaster.updateNetwork();
   }
 }

@@ -27,6 +27,7 @@ export const mockAppState: RootState = {
       },
       cosmos: {},
       ethereum: {},
+      osmosis: {},
     },
   },
   chain: { config: chains.namada },

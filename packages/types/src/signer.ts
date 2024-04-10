@@ -41,12 +41,14 @@ export interface Signer {
   submitTransfer(
     args: TransferProps,
     txArgs: TxProps,
-    type: AccountType
+    type: AccountType,
+    transparentAddress?: string
   ): Promise<void>;
   submitIbcTransfer(
     args: IbcTransferProps,
     txArgs: TxProps,
-    type: AccountType
+    type: AccountType,
+    transparentAddress?: string
   ): Promise<void>;
   submitVoteProposal(
     args: SubmitVoteProposalProps,

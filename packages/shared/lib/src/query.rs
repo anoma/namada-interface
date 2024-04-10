@@ -8,11 +8,12 @@ use namada::governance::{ProposalType, ProposalVote};
 use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
 use namada::ledger::parameters::storage;
 use namada::ledger::queries::RPC;
+use namada::sdk::masp_primitives::sapling::ViewingKey;
+use namada::storage::BlockHeight;
 use namada::masp::ExtendedViewingKey;
 use namada::proof_of_stake::Epoch;
 use namada::sdk::masp::{DefaultLogger, ShieldedContext};
 use namada::sdk::masp_primitives::asset_type::AssetType;
-use namada::sdk::masp_primitives::sapling::ViewingKey;
 use namada::sdk::masp_primitives::transaction::components::ValueSum;
 use namada::sdk::masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::sdk::rpc::{
@@ -25,11 +26,11 @@ use namada::uint::I256;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
-
 use crate::rpc_client::HttpClient;
 use crate::sdk::{io::WebIo, masp};
 use crate::types::query::ProposalInfo;
 use crate::utils::{set_panic_hook, to_js_result};
+use serde_json;
 
 #[wasm_bindgen]
 /// Represents an API for querying the ledger
@@ -244,13 +245,11 @@ impl Query {
                 Address::from_str(address_str).unwrap()
             })
             .collect();
-
         let mut result = vec![];
         for token in tokens {
             let balances = get_token_balance(&self.client, &token, &owner).await?;
             result.push((token, balances));
         }
-
         Ok(result)
     }
 
@@ -296,7 +295,7 @@ impl Query {
     /// # Arguments
     ///
     /// * `xvk` - Extended viewing key
-    async fn query_shielded_balance(
+     async fn query_shielded_balance(
         &self,
         xvk: ExtendedViewingKey,
     ) -> Result<Vec<(Address, token::Amount)>, JsError> {
@@ -304,7 +303,36 @@ impl Query {
 
         // We are recreating shielded context to avoid multiple mutable borrows
         let mut shielded: ShieldedContext<masp::WebShieldedUtils> = ShieldedContext::default();
-        shielded.load().await?;
+
+        let _ = shielded.load().await;
+        // TODO: pass supported asset types
+        // let native_token = "tnam1q87wtaqqtlwkw927gaff34hgda36huk0kgry692a"; // nam of luminar
+        // "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e" nam of SE
+
+        let native_token = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e";
+        // let second_token = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e";
+        // , &Address::from_str(second_token).unwrap()
+        let _ = shielded
+            .precompute_asset_types(
+                &self.client,
+                vec![&Address::from_str(native_token).unwrap()],
+            )
+            .await;
+        let _ = shielded.save().await;
+        // let asset = shielded.asset_types;
+
+        shielded
+            .fetch(
+                &self.client,
+                &DefaultLogger::new(&WebIo),
+                None,
+                20,
+                &[],
+                &[viewing_key],
+                
+            )
+            .await?;
+        let _ = shielded.save().await;
 
         let epoch = query_epoch(&self.client).await?;
         let balance = shielded

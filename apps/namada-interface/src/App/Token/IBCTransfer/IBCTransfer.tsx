@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import BigNumber from "bignumber.js";
 
 import { chains } from "@namada/chains";
@@ -53,12 +53,13 @@ export const submitIbcTransfer = async (
   ibcArgs: TxIbcTransferArgs
 ): Promise<void> => {
   const {
-    account: { address, chainId, publicKey, type },
+    account: { address, publicKey, type,transparentAddress },
     token,
     target,
     amount,
     portId,
     channelId,
+    chainId,
     nativeToken,
   } = ibcArgs;
   const integration = getIntegration(chainKey);
@@ -81,7 +82,8 @@ export const submitIbcTransfer = async (
         chainId,
       },
     },
-    type
+    type,
+    transparentAddress
   );
 };
 
@@ -158,7 +160,7 @@ const IBCTransfer = (): JSX.Element => {
   }));
 
   const accounts = Object.values(derived[sourceChain.id]);
-  const sourceAccounts = accounts.filter(({ details }) => !details.isShielded);
+  const sourceAccounts = accounts.filter(({ details }) => details);
 
   const tokenData: Option<string>[] = sourceAccounts.flatMap(
     ({ details, balance }) => {
@@ -175,9 +177,11 @@ const IBCTransfer = (): JSX.Element => {
     }
   );
 
+  const firstTimeSet = useRef(false);
   useEffect(() => {
-    if (sourceAccounts.length > 0) {
+    if (sourceAccounts.length > 0 && !firstTimeSet.current) {
       setSourceAccount(sourceAccounts[0]);
+      firstTimeSet.current = true;
     }
   }, [sourceAccounts]);
 
@@ -267,22 +271,22 @@ const IBCTransfer = (): JSX.Element => {
   };
 
   const handleSubmit = (): void => {
-    setError(undefined)
+    setError(undefined);
     const tokens = sourceChain.id === "namada" ? Tokens : CosmosTokens;
     if (sourceAccount && token) {
       submitIbcTransfer(sourceChain.id, {
         account: sourceAccount.details,
         token: tokens[token as TokenType & CosmosTokenType],
         amount,
-        chainId: sourceChainId,
+        chainId: chain.chainId,
         target: recipient,
         channelId: selectedChannelId,
         portId,
         nativeToken: chain.currency.address || tokenAddress,
         memo,
       }).catch((e) => {
-        setError(`${e}`)
-      })
+        setError(`${e}`);
+      });
     }
   };
 

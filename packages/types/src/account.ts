@@ -36,4 +36,5 @@ export type Account = Pick<
   chainId: string;
   isShielded: boolean;
   chainKey: ChainKey;
+  transparentAddress?: string;
 };

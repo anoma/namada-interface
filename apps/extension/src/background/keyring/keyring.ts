@@ -51,6 +51,7 @@ import {
   UtilityStore,
 } from "./types";
 
+import { fromBase64 } from "@cosmjs/encoding";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { KeyStore, VaultStorage } from "storage";
@@ -768,14 +769,58 @@ export class KeyRing {
     }
   }
 
+  async submit(
+    transferMsg: string,
+    txMsg: string,
+    msgId: string,
+    signingKey: SigningKey
+  ) {
+    const sdk = await this.sdkService.getSdk();
+    const data = {
+      transferMsg,
+      txMsg,
+      msgId,
+      signingKey,
+    };
+    console.log("data", data);
+    try {
+      const {
+        signingKey: { privateKey, xsk },
+      } = data;
+      let txMsg = fromBase64(data.txMsg);
+      await sdk.load_masp_params();
+      let finalPrivate;
+
+      if (privateKey) {
+        await sdk.reveal_pk(privateKey, txMsg);
+        finalPrivate = privateKey;
+      }
+
+      const builtTx = await sdk.build_transfer(
+        fromBase64(data.transferMsg),
+        txMsg,
+        xsk
+      );
+      const txBytes = await sdk.sign_tx(builtTx, txMsg, finalPrivate);
+      return await sdk.process_tx(txBytes, txMsg);
+    } catch (error) {
+      console.error("error build", error);
+      return "";
+    }
+  }
+
   async submitTransfer(
-    transferMsg: Uint8Array,
-    submit: (signingKey: SigningKey) => Promise<void>
+    transferMsgBase64: Uint8Array,
+    transferMsg: string,
+    txMsg: string,
+    msgId: string,
+    transparentAddress?: string
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
-
-    // We need to get the source address to find either the private key or spending key
-    const { source } = deserialize(Buffer.from(transferMsg), TransferMsgValue);
+    const { source } = deserialize(
+      Buffer.from(transferMsgBase64),
+      TransferMsgValue
+    );
 
     const account = await this.vaultStorage.findOneOrFail(
       KeyStore,
@@ -786,25 +831,31 @@ export class KeyRing {
       await this.vaultService.reveal<SensitiveAccountStoreData>(
         account.sensitive
       );
-
+    console.log("sensitiveProps", sensitiveProps);
     if (!sensitiveProps) {
       throw new Error("Error decrypting AccountStore data");
     }
-
-    if (account.public.type === AccountType.ShieldedKeys) {
+    const isShielded = account.public.type === AccountType.ShieldedKeys;
+    if (isShielded && transparentAddress) {
       const xsk = JSON.parse(sensitiveProps.text).spendingKey;
+      const privateKey = await this.getSigningKey(transparentAddress);
 
-      await submit({
+      const key = {
         xsk,
-      });
+        privateKey,
+      };
+      await this.submit(transferMsg, txMsg, msgId, key);
     } else {
-      await submit({ privateKey: await this.getSigningKey(source) });
+      await this.submit(transferMsg, txMsg, msgId, {
+        privateKey: await this.getSigningKey(source),
+      });
     }
   }
 
   async submitIbcTransfer(
     ibcTransferMsg: Uint8Array,
-    txMsg: Uint8Array
+    txMsg: Uint8Array,
+    transparentAddress?: string
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
     const sdk = await this.sdkService.getSdk();
@@ -813,14 +864,43 @@ export class KeyRing {
         Buffer.from(ibcTransferMsg),
         IbcTransferMsgValue
       );
-      const signingKey = await this.getSigningKey(source);
+      console.log("source", source);
+      console.log("transparentAddress", transparentAddress);
+      const account = await this.vaultStorage.findOneOrFail(
+        KeyStore,
+        "address",
+        source
+      );
+      console.log("account", account);
+      let privateKey;
+      let xsk;
+      await sdk.load_masp_params();
+      const isShieldedTransaction =
+        account.public.type === AccountType.ShieldedKeys;
+      if (isShieldedTransaction && transparentAddress) {
+        const sensitiveProps =
+          await this.vaultService.reveal<SensitiveAccountStoreData>(
+            account.sensitive
+          );
+        console.log("sensitiveProps", sensitiveProps);
+        if (!sensitiveProps) {
+          throw new Error("Error decrypting AccountStore data");
+        }
 
-      await sdk.reveal_pk(signingKey, txMsg);
-
-      const builtTx = await sdk.build_ibc_transfer(ibcTransferMsg, txMsg);
-      const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
+        xsk = JSON.parse(sensitiveProps.text).spendingKey;
+        privateKey = await this.getSigningKey(transparentAddress);
+      } else {
+        privateKey = await this.getSigningKey(source);
+        await sdk.reveal_pk(privateKey, txMsg);
+      }
+      console.log("Before byte");
+      const builtTx = await sdk.build_ibc_transfer(ibcTransferMsg, txMsg, xsk);
+      console.log("builtTx", builtTx);
+      const txBytes = await sdk.sign_tx(builtTx, txMsg, privateKey);
+      console.log("txBytes", txBytes);
       await sdk.process_tx(txBytes, txMsg);
     } catch (e) {
+      console.log("submitIbcTransfer error", e);
       throw new Error(`Could not submit ibc transfer tx: ${e}`);
     }
   }

@@ -9,6 +9,7 @@ export type TxMsgProps = {
   specificMsg: string;
   txMsg: string;
   type: AccountType;
+  transparentAddress?: string;
 };
 
 export type SignArbitraryProps = {

@@ -299,6 +299,7 @@ pub struct SubmitIbcTransferMsg {
 pub fn ibc_transfer_tx_args(
     ibc_transfer_msg: &[u8],
     tx_msg: &[u8],
+    xsk: Option<String>,
 ) -> Result<args::TxIbcTransfer, JsError> {
     let ibc_transfer_msg = SubmitIbcTransferMsg::try_from_slice(ibc_transfer_msg)?;
     let SubmitIbcTransferMsg {
@@ -312,8 +313,19 @@ pub fn ibc_transfer_tx_args(
         timeout_sec_offset,
     } = ibc_transfer_msg;
 
-    let source_address = Address::from_str(&source)?;
-    let source = TransferSource::Address(source_address);
+    let source = match Address::from_str(&source) {
+        Ok(v) => Ok(TransferSource::Address(v)),
+        Err(e1) => match ExtendedSpendingKey::from_str(
+            &xsk.expect("Extended spending key to be present, if address type is shielded."),
+        ) {
+            Ok(v) => Ok(TransferSource::ExtendedSpendingKey(v)),
+            Err(e2) => Err(JsError::new(&format!(
+                "Can't compute the transfer source. {}, {}",
+                e1, e2
+            ))),
+        },
+    }?;
+
     let token = Address::from_str(&token)?;
     let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
     let amount = InputAmount::Unvalidated(denom_amount);
@@ -432,7 +444,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         .expect(format!("Fee amount has to be valid. Received {}", fee_amount).as_str());
     let fee_input_amount = InputAmount::Unvalidated(fee_amount);
 
-    let public_key = match public_key {
+    let public_key = match public_key.clone() {
         Some(v) => {
             let pk = PublicKey::from_str(&v)?;
             Some(pk)
@@ -441,7 +453,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
     };
 
     let disposable_signing_key = disposable_signing_key.unwrap_or(false);
-    let siginig_keys: Vec<PublicKey> = match public_key {
+    let signing_keys: Vec<PublicKey> = match public_key.clone() {
         Some(v) => vec![v.clone()],
         _ => vec![],
     };
@@ -455,7 +467,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
 
     // Ledger address is not used in the SDK.
     // We can leave it as whatever as long as it's valid url.
-    let ledger_address = tendermint_rpc::Url::from_str("http://notinuse:13337").unwrap();
+    let ledger_address = tendermint_rpc::Url::from_str("http://127.0.0.1:27657/").unwrap();
 
     let memo = memo.map(|v| v.as_bytes().to_vec());
 
@@ -478,7 +490,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         expiration: None,
         chain_id: Some(ChainId(String::from(chain_id))),
         signatures: vec![],
-        signing_keys: siginig_keys,
+        signing_keys,
         tx_reveal_code_path: PathBuf::from("tx_reveal_pk.wasm"),
         use_device: false,
         password: None,

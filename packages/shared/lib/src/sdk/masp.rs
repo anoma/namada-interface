@@ -3,8 +3,10 @@ use gloo_utils::format::JsValueSerdeExt;
 use namada::core::borsh::{BorshDeserialize, BorshSerialize};
 use namada::sdk::masp::{ContextSyncStatus, ShieldedContext, ShieldedUtils};
 use namada::sdk::masp_proofs::prover::LocalTxProver;
+use namada::tendermint::node::info;
 use rexie::{Error, ObjectStore, Rexie, TransactionMode};
 use wasm_bindgen::{JsError, JsValue};
+use crate::utils::to_js_result;
 
 use crate::utils::to_bytes;
 

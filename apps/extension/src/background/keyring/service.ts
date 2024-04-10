@@ -12,20 +12,9 @@ import {
 import { Result, truncateInMiddle } from "@namada/utils";
 
 import { ChainsService } from "background/chains";
-import {
-  createOffscreenWithTxWorker,
-  hasOffscreenDocument,
-  OFFSCREEN_TARGET,
-  SUBMIT_TRANSFER_MSG_TYPE,
-} from "background/offscreen";
 import { SdkService } from "background/sdk/service";
 import { VaultService } from "background/vault";
-import { init as initSubmitTransferWebWorker } from "background/web-workers";
-import {
-  ExtensionBroadcaster,
-  ExtensionRequester,
-  getNamadaRouterId,
-} from "extension";
+import { ExtensionBroadcaster, ExtensionRequester } from "extension";
 import { KeyStore, LocalStorage, VaultStorage } from "storage";
 import { KeyRing } from "./keyring";
 import {
@@ -35,7 +24,6 @@ import {
   DeleteAccountError,
   MnemonicValidationResponse,
   ParentAccount,
-  SigningKey,
   UtilityStore,
 } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
@@ -263,61 +251,6 @@ export class KeyRingService {
     }
   }
 
-  private async submitTransferChrome(
-    transferMsg: string,
-    txMsg: string,
-    msgId: string,
-    signingKey: SigningKey
-  ): Promise<void> {
-    const offscreenDocumentPath = "offscreen.html";
-    const routerId = await getNamadaRouterId(this.localStorage);
-    const rpc = await this.sdkService.getRpc();
-    const {
-      currency: { address: nativeToken = tokenAddress },
-    } = await this.chainsService.getChain();
-
-    if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
-      await createOffscreenWithTxWorker(offscreenDocumentPath);
-    }
-
-    const result = await chrome.runtime.sendMessage({
-      type: SUBMIT_TRANSFER_MSG_TYPE,
-      target: OFFSCREEN_TARGET,
-      routerId,
-      data: { transferMsg, txMsg, msgId, signingKey, rpc, nativeToken },
-    });
-
-    if (result?.error) {
-      const error = new Error(result.error?.message || "Error in web worker");
-      error.stack = result.error.stack;
-      throw error;
-    }
-  }
-
-  private async submitTransferFirefox(
-    transferMsg: string,
-    txMsg: string,
-    msgId: string,
-    signingKey: SigningKey
-  ): Promise<void> {
-    const rpc = await this.sdkService.getRpc();
-    const {
-      currency: { address: nativeToken = tokenAddress },
-    } = await this.chainsService.getChain();
-
-    initSubmitTransferWebWorker(
-      {
-        transferMsg,
-        txMsg,
-        msgId,
-        signingKey,
-        rpc,
-        nativeToken,
-      },
-      this.handleTransferCompleted.bind(this)
-    );
-  }
-
   /**
    * Submits a transfer transaction to the chain.
    * Handles both Shielded and Transparent transfers.
@@ -331,30 +264,21 @@ export class KeyRingService {
   async submitTransfer(
     transferMsg: string,
     txMsg: string,
-    msgId: string
+    msgId: string,
+    transparentAddress?: string
   ): Promise<void> {
-    // Passing submit handler simplifies worker code when using Firefox
-    const submit = async (signingKey: SigningKey): Promise<void> => {
-      const { TARGET } = process.env;
-      if (TARGET === "chrome") {
-        await this.submitTransferChrome(transferMsg, txMsg, msgId, signingKey);
-      } else if (TARGET === "firefox") {
-        await this.submitTransferFirefox(transferMsg, txMsg, msgId, signingKey);
-      } else {
-        console.warn(
-          "Submitting transfers is not supported with your browser."
-        );
-      }
-    };
-
     await this.broadcaster.startTx(msgId, TxType.Transfer);
 
     try {
       await this._keyRing.submitTransfer(
         fromBase64(transferMsg),
-        submit.bind(this)
+        transferMsg,
+        txMsg,
+        msgId,
+        transparentAddress
       );
-      await this.broadcaster.updateBalance();
+      this.broadcaster.completeTx(msgId, TxType.IBCTransfer, true);
+      this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
       throw new Error(`Unable to submit the transfer! ${e}`);
@@ -364,25 +288,22 @@ export class KeyRingService {
   async submitIbcTransfer(
     ibcTransferMsg: string,
     txMsg: string,
-    msgId: string
+    msgId: string,
+    transparentAddress?: string
   ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.IBCTransfer);
 
     try {
       await this._keyRing.submitIbcTransfer(
         fromBase64(ibcTransferMsg),
-        fromBase64(txMsg)
+        fromBase64(txMsg),
+        transparentAddress
       );
-      await this.broadcaster.completeTx(msgId, TxType.IBCTransfer, true);
-      await this.broadcaster.updateBalance();
+      this.broadcaster.completeTx(msgId, TxType.IBCTransfer, true);
+      this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.IBCTransfer,
-        false,
-        `${e}`
-      );
+      this.broadcaster.completeTx(msgId, TxType.IBCTransfer, false, `${e}`);
       throw new Error(`Unable to encode IBC transfer! ${e}`);
     }
   }
@@ -395,7 +316,7 @@ export class KeyRingService {
     await this.broadcaster.startTx(msgId, TxType.EthBridgeTransfer);
 
     try {
-      await this._keyRing.submitEthBridgeTransfer(
+      this._keyRing.submitEthBridgeTransfer(
         fromBase64(ethBridgeTransferMsg),
         fromBase64(txMsg)
       );

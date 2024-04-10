@@ -82,7 +82,8 @@ export class Signer implements ISigner {
     constructor: new (args: Args) => T,
     args: Args,
     txArgs: TxProps,
-    type: AccountType
+    type: AccountType,
+    transparentAddress?: string
   ): Promise<void> {
     const msgValue = new constructor(args);
     const msg = new Message<T>();
@@ -97,6 +98,7 @@ export class Signer implements ISigner {
       specificMsg: toBase64(encoded),
       txMsg: toBase64(txEncoded),
       type,
+      transparentAddress,
     });
   }
 
@@ -168,9 +170,17 @@ export class Signer implements ISigner {
   public async submitTransfer(
     args: TransferProps,
     txArgs: TxProps,
-    type: AccountType
+    type: AccountType,
+    transparentAddress?: string
   ): Promise<void> {
-    return this.submitTx(TxType.Transfer, TransferMsgValue, args, txArgs, type);
+    return this.submitTx(
+      TxType.Transfer,
+      TransferMsgValue,
+      args,
+      txArgs,
+      type,
+      transparentAddress
+    );
   }
 
   /**
@@ -179,14 +189,16 @@ export class Signer implements ISigner {
   public async submitIbcTransfer(
     args: IbcTransferProps,
     txArgs: TxProps,
-    type: AccountType
+    type: AccountType,
+    transparentAddress?: string
   ): Promise<void> {
-    return this.submitTx(
+    return await this.submitTx(
       TxType.IBCTransfer,
       IbcTransferMsgValue,
       args,
       txArgs,
-      type
+      type,
+      transparentAddress,
     );
   }
 

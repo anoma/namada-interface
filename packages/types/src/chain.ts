@@ -18,7 +18,7 @@ export enum BridgeType {
 export type ExtensionKey = "namada" | "keplr" | "metamask";
 
 // Define keys for supported chains
-export type ChainKey = "namada" | "cosmos" | "ethereum";
+export type ChainKey = "namada" | "cosmos" | "ethereum" | "osmosis";
 
 export type ExtensionInfo = {
   alias: string;

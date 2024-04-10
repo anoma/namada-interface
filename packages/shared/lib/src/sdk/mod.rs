@@ -6,6 +6,14 @@ use crate::{
     sdk::masp::WebShieldedUtils,
     utils::{set_panic_hook, to_bytes},
 };
+use namada::{
+    address,
+    key::{
+        self,
+        common::{PublicKey, SecretKey},
+        PublicKeyHash, RefTo,
+    },
+};
 use js_sys::Uint8Array;
 use namada::address::Address;
 use namada::core::borsh::{self, BorshDeserialize};
@@ -13,7 +21,7 @@ use namada::hash::Hash;
 use namada::key::{common, ed25519, SigScheme};
 use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada::masp::TransferSource;
-use namada::sdk::masp::{DefaultLogger, ShieldedContext};
+use namada::sdk::masp::{DefaultLogger,ShieldedContext};
 use namada::sdk::rpc::query_epoch;
 use namada::sdk::signing::{find_key_by_pk, SigningTxData};
 use namada::sdk::tx::{
@@ -213,7 +221,7 @@ impl Sdk {
                     .tx
             }
             TxType::IBCTransfer => {
-                self.build_ibc_transfer(specific_msg, tx_msg, Some(gas_payer))
+                self.build_ibc_transfer(specific_msg, tx_msg, None ,Some(gas_payer))
                     .await?
                     .tx
             }
@@ -274,7 +282,6 @@ impl Sdk {
     ) -> Result<BuiltTx, JsError> {
         let mut args = tx::transfer_tx_args(transfer_msg, tx_msg, xsk.clone())?;
 
-        // TODO: this might not be needed. I will test it out in future
         match args.source {
             TransferSource::Address(_) => {}
             TransferSource::ExtendedSpendingKey(xsk) => {
@@ -293,13 +300,10 @@ impl Sdk {
             }
         }
 
-        // It's temporary solution to add xsk to wallet as xvk is queried when unshielding
-        // This will change in namada in the future
         match xsk {
             Some(xsk) => self.add_spending_key(&xsk, &"temp").await,
             None => {}
         }
-
         let (tx, signing_data, _) = build_transfer(&self.namada, &mut args).await?;
 
         Ok(BuiltTx { tx, signing_data })
@@ -309,11 +313,28 @@ impl Sdk {
         &mut self,
         ibc_transfer_msg: &[u8],
         tx_msg: &[u8],
+        xsk: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::ibc_transfer_tx_args(ibc_transfer_msg, tx_msg)?;
+        let args = tx::ibc_transfer_tx_args(ibc_transfer_msg, tx_msg, xsk.clone())?;
+        match args.source {
+            TransferSource::Address(_) => {}
+            TransferSource::ExtendedSpendingKey(xsk) => {
+                self.namada
+                    .shielded_mut()
+                    .await
+                    .fetch(
+                        self.namada.client(),
+                        &DefaultLogger::new(&WebIo),
+                        None,
+                        1,
+                        &[xsk.into()],
+                        &[],
+                    )
+                    .await?;
+            }
+        };
         let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args).await?;
-
         Ok(BuiltTx { tx, signing_data })
     }
 
@@ -408,7 +429,7 @@ impl Sdk {
             let built_tx = self.build_reveal_pk(tx_msg, String::from("")).await?;
             // Conversion from JsValue so we can use self.sign_tx
             let tx_bytes =
-                Uint8Array::new(&self.sign_tx(built_tx, tx_msg, Some(signing_key)).await?).to_vec();
+                Uint8Array::new(&self.sign_tx(built_tx, tx_msg, Some(signing_key),None).await?).to_vec();
             self.process_tx(&tx_bytes, tx_msg).await?;
         }
 

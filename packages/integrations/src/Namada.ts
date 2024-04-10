@@ -61,14 +61,16 @@ export default class Namada implements Integration<Account, Signer> {
 
   public async submitBridgeTransfer(
     props: BridgeProps,
-    type: AccountType
+    type: AccountType,
+    transparentAddress?: string
   ): Promise<void> {
     const signer = this._namada?.getSigner();
     if (props.ibcProps) {
       return await signer?.submitIbcTransfer(
         props.ibcProps,
         props.txProps,
-        type
+        type,
+        transparentAddress
       );
     } else if (props.bridgeProps) {
       return await signer?.submitEthBridgeTransfer(

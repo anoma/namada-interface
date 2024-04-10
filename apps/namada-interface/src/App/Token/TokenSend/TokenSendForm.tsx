@@ -29,7 +29,7 @@ export const submitTransferTransaction = async (
   txTransferArgs: TxTransferArgs
 ): Promise<void> => {
   const {
-    account: { address, publicKey, type },
+    account: { address, publicKey, type,transparentAddress },
     amount,
     chainId,
     target,
@@ -62,13 +62,13 @@ export const submitTransferTransaction = async (
     feeAmount,
     gasLimit,
     chainId,
-    publicKey: publicKey,
+    publicKey,
     signer: undefined,
     disposableSigningKey,
     memo,
   };
 
-  await signer.submitTransfer(transferArgs, txArgs, type);
+  await signer.submitTransfer(transferArgs, txArgs, type,transparentAddress);
 };
 
 type Props = {
@@ -224,7 +224,7 @@ const TokenSendForm = ({
         gasLimit,
         disposableSigningKey: isShieldedSource,
         memo,
-        nativeToken: chain.currency.address || tokenAddress,
+        nativeToken: chain.currency.address || tokenAddress
       });
     }
   };

@@ -221,7 +221,8 @@ export class ApproveTxMsg extends Message<void> {
     public readonly txType: SupportedTx,
     public readonly txMsg: string,
     public readonly specificMsg: string,
-    public readonly accountType: AccountType
+    public readonly accountType: AccountType,
+    public readonly transparentAddress?: string
   ) {
     super();
   }

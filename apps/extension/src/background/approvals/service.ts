@@ -124,10 +124,16 @@ export class ApprovalsService {
     txType: SupportedTx,
     txMsg: string,
     specificMsg: string,
-    type: AccountType
+    type: AccountType,
+    transparentAddress?: string
   ): Promise<void> {
     const msgId = uuid();
-    await this.txStore.set(msgId, { txType, txMsg, specificMsg });
+    await this.txStore.set(msgId, {
+      txType,
+      txMsg,
+      specificMsg,
+      transparentAddress,
+    });
 
     // Decode tx details and launch approval screen
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
@@ -317,7 +323,7 @@ export class ApprovalsService {
       throw new Error("Pending tx not found!");
     }
 
-    const { txType, specificMsg, txMsg } = tx;
+    const { txType, specificMsg, txMsg, transparentAddress } = tx;
 
     const submitFn =
       txType === TxType.Bond
@@ -336,7 +342,13 @@ export class ApprovalsService {
                     ? this.keyRingService.submitVoteProposal
                     : assertNever(txType);
 
-    await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
+    await submitFn.call(
+      this.keyRingService,
+      specificMsg,
+      txMsg,
+      msgId,
+      transparentAddress
+    );
 
     return await this._clearPendingTx(msgId);
   }
