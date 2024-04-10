@@ -1,8 +1,9 @@
-import {
-  StakingOverviewContainer,
-  ValidatorsContainer,
-} from "./StakingOverview.components";
-import { AllValidatorsTable } from "./AllValidatorsTable";
+import { Panel } from "@namada/components";
+import ConnectBanner from "App/Common/ConnectBanner/ConnectBanner";
+import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification";
+import { useAtomValue } from "jotai";
+import { namadaExtensionConnectedAtom } from "slices/settings";
+import { AllValidatorsTable } from "./AllValidatorsTable/AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
 import { StakingBalancesList } from "./StakingBalancesList";
 
@@ -23,20 +24,31 @@ type Props = {
 // * user can also navigate to sibling view for validator details
 export const StakingOverview = (props: Props): JSX.Element => {
   const { navigateToValidatorDetails } = props;
+  const isConnected = useAtomValue(namadaExtensionConnectedAtom);
 
   return (
-    <StakingOverviewContainer>
-      <StakingBalancesList />
-
-      <ValidatorsContainer>
-        <MyValidatorsTable
-          navigateToValidatorDetails={navigateToValidatorDetails}
-        />
-
-        <AllValidatorsTable
-          navigateToValidatorDetails={navigateToValidatorDetails}
-        />
-      </ValidatorsContainer>
-    </StakingOverviewContainer>
+    <div className="grid grid-cols-[auto_240px] gap-2">
+      <div className="flex flex-col gap-1.5">
+        {!isConnected && (
+          <ConnectBanner text="To stake please connect your account" />
+        )}
+        {isConnected && (
+          <>
+            <StakingBalancesList />
+            <MyValidatorsTable
+              navigateToValidatorDetails={navigateToValidatorDetails}
+            />
+          </>
+        )}
+        <Panel title="All Validators">
+          <AllValidatorsTable />
+        </Panel>
+      </div>
+      <aside>
+        <Panel>
+          <ValidatorDiversification />
+        </Panel>
+      </aside>
+    </div>
   );
 };

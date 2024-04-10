@@ -14,7 +14,7 @@ export const Container = ({
   ...props
 }: ContainerProps): JSX.Element => {
   return (
-    <div className="max-w-[1400px] mx-auto" {...props}>
+    <div className="max-w-[1920px] px-6 mx-auto mb-6" {...props}>
       <header className="flex justify-between font-medium pt-4 pb-5 pl-6">
         <i
           className={clsx(
