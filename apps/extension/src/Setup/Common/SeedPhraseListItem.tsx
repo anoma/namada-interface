@@ -3,6 +3,7 @@ import clsx from "clsx";
 
 type SeedPhraseListItemProps = {
   idx: number;
+  invalidIdx?: number;
   word: string;
   onChange?: (index: number, value: string) => void;
   onPaste?: (idx: number, e: React.ClipboardEvent<HTMLInputElement>) => void;
@@ -10,10 +11,12 @@ type SeedPhraseListItemProps = {
 
 export const SeedPhraseListItem = ({
   idx,
+  invalidIdx,
   word,
   onChange,
   onPaste,
 }: SeedPhraseListItemProps): JSX.Element => {
+  const hasError = idx === invalidIdx;
   return (
     <li
       className={clsx(
@@ -21,7 +24,7 @@ export const SeedPhraseListItem = ({
         "px-1 py-3 h-[48px]"
       )}
     >
-      {onChange ? (
+      {onChange ?
         <span
           className={clsx(
             "flex items-center absolute left-0 top-0 w-full h-full",
@@ -35,21 +38,21 @@ export const SeedPhraseListItem = ({
           <Input
             label=""
             className="-mt-2 ml-1"
-            variant="PasswordOnBlur"
+            variant={hasError ? "Text" : "PasswordOnBlur"}
             hideIcon={true}
             onChange={(e) => onChange(idx, e.target.value)}
             onPaste={(e) => onPaste && onPaste(idx, e)}
             value={word}
+            error={hasError}
           />
         </span>
-      ) : (
-        <span
+        : <span
           className={clsx("absolute font-light left-2.5 top-[1em] select-none")}
         >
           <i className="not-italic">{idx + 1} </i>
           <span className="text-white font-bold ml-1">{word}</span>
         </span>
-      )}
+      }
     </li>
   );
 };

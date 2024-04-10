@@ -1259,8 +1259,7 @@ dependencies = [
 [[package]]
 name = "tiny-bip39"
 version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "62cc94d358b5a1e84a5cb9109f559aa3c4d634d2b1b4de3d0fa4adc7c78e2861"
+source = "git+https://github.com/anoma/tiny-bip39?branch=invalid-word-index#24df8522308416ce611371bfb33a9d897ea5c046"
 dependencies = [
  "anyhow",
  "hmac",
