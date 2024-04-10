@@ -32,13 +32,12 @@ const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
   {
     rowRenderer: (rowData: KeyValueData) => {
       // we have to figure if this is the row for validator homepage, hench an anchor
-      const linkOrText = /^https?:/.test(rowData.value) ? (
-        <a href={rowData.value} target="_blank" rel="noopener noreferrer">
-          {rowData.value}
-        </a>
-      ) : (
-        <span>{rowData.value}</span>
-      );
+      const linkOrText =
+        /^https?:/.test(rowData.value) ?
+          <a href={rowData.value} target="_blank" rel="noopener noreferrer">
+            {rowData.value}
+          </a>
+        : <span>{rowData.value}</span>;
 
       return (
         <>
@@ -73,7 +72,7 @@ const getMyStakingWithValidatorConfigurations = (
           <td>{stakingPosition.bonded ? "Bonded" : "Unbonded"}</td>
           <td>
             {showMaybeNam(stakingPosition.stakedAmount)}{" "}
-            {stakingPosition.bonded ? (
+            {stakingPosition.bonded ?
               <TableLink
                 onClick={() => {
                   setModalState(ModalState.Unbond);
@@ -85,8 +84,7 @@ const getMyStakingWithValidatorConfigurations = (
               >
                 unstake
               </TableLink>
-            ) : (
-              epoch &&
+            : epoch &&
               stakingPosition.withdrawableEpoch?.isLessThanOrEqualTo(epoch) && (
                 <TableLink
                   onClick={() =>
@@ -99,7 +97,7 @@ const getMyStakingWithValidatorConfigurations = (
                   withdraw
                 </TableLink>
               )
-            )}
+            }
           </td>
           <td>{stakingPosition.totalRewards}</td>
         </>

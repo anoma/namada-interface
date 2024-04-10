@@ -1,5 +1,6 @@
 import { MASPIcon } from "App/Icons/MASPIcon";
 import { SwapIcon } from "App/Icons/SwapIcon";
+import StakingRoutes from "App/Staking/routes";
 import { TopLevelRoute } from "App/types";
 import { AiFillHome } from "react-icons/ai";
 import { BsDiscord, BsTwitterX } from "react-icons/bs";
@@ -19,7 +20,7 @@ export const Sidebar = (): JSX.Element => {
           </SidebarMenuItem>
         </li>
         <li>
-          <SidebarMenuItem url={TopLevelRoute.StakingAndGovernance}>
+          <SidebarMenuItem url={StakingRoutes.index()}>
             <GoStack />
             Staking
           </SidebarMenuItem>

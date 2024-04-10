@@ -8,20 +8,25 @@ import { Modal } from "@namada/components";
 import { useSanitizedLocation } from "@namada/hooks";
 import { truncateInMiddle } from "@namada/utils";
 
-import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
-import { StakingAndGovernanceSubRoute, TopLevelRoute } from "App/types";
+import { StakingAndGovernanceSubRoute } from "App/types";
 import {
   ChangeInStakingPosition,
   StakingPosition,
-  Validator,
+  fetchValidatorDetails,
+  fetchValidators,
+  postNewBonding,
+  postNewUnbonding,
 } from "slices/StakingAndGovernance";
-import { Account } from "slices/accounts";
+import { AccountsState } from "slices/accounts";
 import { isRevealPkNeededAtom, minimumGasPriceAtom } from "slices/fees";
 import { NewBondingPosition } from "./NewBondingPosition";
-import { StakingContainer } from "./Staking.components";
 import { StakingOverview } from "./StakingOverview";
 import { UnbondPosition } from "./UnbondPosition";
 import { ValidatorDetails } from "./ValidatorDetails";
+
+import { Chain } from "@namada/types";
+import { RootState, useAppDispatch, useAppSelector } from "store";
+import StakingRoutes from "./routes";
 
 const initialTitle = "Staking";
 
@@ -62,18 +67,6 @@ const emptyStakingPosition = (validatorId: string): StakingPosition => ({
   validatorId: validatorId,
 });
 
-type Props = {
-  accounts: Account[];
-  validators: Validator[];
-  myStakingPositions: StakingPosition[];
-  selectedValidatorId: string | undefined;
-  // will be called at first load, parent decides what happens
-  onInitCallback: () => void;
-  fetchValidatorDetails: (validatorId: string) => void;
-  postNewBonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
-  postNewUnbonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
-};
-
 // in this view we can be in one of these states at any given time
 export enum ModalState {
   None,
@@ -95,27 +88,30 @@ export enum ModalOnRequestCloseType {
 //  * NewStakingStakingPosition - rendered in modal on top of other content
 //     this is for creating new staking positions
 //  * UnstakePositions - rendered in modal on top of other content, for unstaking
-export const Staking = (props: Props): JSX.Element => {
+export const Staking = (): JSX.Element => {
   const [breadcrumb, setBreadcrumb] = useState([initialTitle]);
   const [modalState, setModalState] = useState(ModalState.None);
   const location = useSanitizedLocation();
   const navigate = useNavigate();
-
-  const {
-    accounts,
-    onInitCallback,
-    fetchValidatorDetails,
-    postNewBonding,
-    postNewUnbonding,
-    validators,
-    myStakingPositions,
-    selectedValidatorId,
-  } = props;
-
+  const dispatch = useAppDispatch();
   const minimumGasPrice = useAtomValue(loadable(minimumGasPriceAtom));
   const isRevealPkNeeded = useAtomValue(loadable(isRevealPkNeededAtom));
   const loadablesReady =
     minimumGasPrice.state === "hasData" && isRevealPkNeeded.state === "hasData";
+  const chain = useAppSelector<Chain>((state: RootState) => state.chain.config);
+
+  const derivedAccounts = useAppSelector<AccountsState>(
+    (state: RootState) => state.accounts
+  ).derived[chain.id];
+
+  const accounts = Object.values(derivedAccounts);
+
+  const stakingAndGovernance = useAppSelector(
+    (state: RootState) => state.stakingAndGovernance
+  );
+
+  const { validators, selectedValidatorId, myStakingPositions } =
+    stakingAndGovernance;
 
   // these 2 are needed for validator details
   const stakingPositionsWithSelectedValidator = myStakingPositions.filter(
@@ -126,30 +122,21 @@ export const Staking = (props: Props): JSX.Element => {
     (validator) => validator.uuid === selectedValidatorId
   );
 
-  // this is just so we can se the title/breadcrumb
-  // in real case we do this cleanly in a callback that
-  // we define here
-  const isStakingRoot =
-    location.pathname ===
-    `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}`;
-
   const currentBondingPositions =
-    stakingPositionsWithSelectedValidator.length !== 0
-      ? stakingPositionsWithSelectedValidator
-      : [emptyStakingPosition(selectedValidatorId || "")];
+    stakingPositionsWithSelectedValidator.length !== 0 ?
+      stakingPositionsWithSelectedValidator
+    : [emptyStakingPosition(selectedValidatorId || "")];
 
   // from outside this view we just navigate here
   // this view decides what is the default view
   useEffect(() => {
-    if (isStakingRoot) {
-      navigate(
-        `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}${StakingAndGovernanceSubRoute.StakingOverview}`
-      );
+    if (location.pathname === StakingRoutes.index()) {
+      navigate(StakingRoutes.overview().url);
     }
-  });
+  }, [location.pathname]);
 
   useEffect(() => {
-    onInitCallback();
+    dispatch(fetchValidators());
   }, []);
 
   useEffect(() => {
@@ -162,16 +149,12 @@ export const Staking = (props: Props): JSX.Element => {
   }, [location.pathname, JSON.stringify(breadcrumb)]);
 
   const navigateToValidatorDetails = (validatorId: string): void => {
-    navigate(
-      `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}${StakingAndGovernanceSubRoute.ValidatorDetails}/${validatorId}`
-    );
-    fetchValidatorDetails(validatorId);
+    navigate(StakingRoutes.validatorDetails(validatorId));
+    dispatch(fetchValidatorDetails(validatorId));
   };
 
   const navigateToUnbonding = (validatorId: string, owner: string): void => {
-    navigate(
-      `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}${StakingAndGovernanceSubRoute.ValidatorDetails}/${validatorId}/${owner}`
-    );
+    navigate(StakingRoutes.validatorDetailsOwner(validatorId, owner));
   };
 
   // callbacks for the bonding and unbonding views
@@ -179,7 +162,7 @@ export const Staking = (props: Props): JSX.Element => {
     changeInStakingPosition: ChangeInStakingPosition
   ): void => {
     setModalState(ModalState.None);
-    postNewBonding(changeInStakingPosition);
+    dispatch(postNewBonding(changeInStakingPosition));
   };
 
   const cancelBonding = (): void => {
@@ -199,16 +182,7 @@ export const Staking = (props: Props): JSX.Element => {
   };
 
   return (
-    <StakingContainer>
-      <MainContainerNavigation
-        breadcrumbs={breadcrumb}
-        navigateBack={() => {
-          navigate(
-            `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}${StakingAndGovernanceSubRoute.StakingOverview}`
-          );
-          setBreadcrumb([initialTitle]);
-        }}
-      />
+    <main className="w-full">
       {/* modal for bonding */}
       <Modal
         isOpen={modalState === ModalState.NewBonding}
@@ -221,7 +195,7 @@ export const Staking = (props: Props): JSX.Element => {
           cancelBonding();
         }}
       >
-        {loadablesReady ? (
+        {loadablesReady ?
           <NewBondingPosition
             accounts={accounts}
             confirmBonding={confirmBonding}
@@ -230,14 +204,11 @@ export const Staking = (props: Props): JSX.Element => {
             minimumGasPrice={minimumGasPrice.data}
             isRevealPkNeeded={isRevealPkNeeded.data}
           />
-        ) : (
-          <p>Error fetching minimum gas price</p>
-        )}
+        : <p>Error fetching minimum gas price</p>}
       </Modal>
-
       <Routes>
         <Route
-          path={StakingAndGovernanceSubRoute.StakingOverview}
+          path={`${StakingRoutes.overview()}`}
           element={
             <StakingOverview
               navigateToValidatorDetails={navigateToValidatorDetails}
@@ -245,9 +216,9 @@ export const Staking = (props: Props): JSX.Element => {
           }
         />
         <Route
-          path={`${StakingAndGovernanceSubRoute.ValidatorDetails}/:validatorId`}
+          path={`${StakingRoutes.validatorDetails(":validatorId")}`}
           element={
-            minimumGasPrice.state === "hasData" ? (
+            minimumGasPrice.state === "hasData" ?
               <ValidatorDetails
                 validator={selectedValidator}
                 stakingPositionsWithSelectedValidator={
@@ -257,9 +228,7 @@ export const Staking = (props: Props): JSX.Element => {
                 setModalState={setModalState}
                 minimumGasPrice={minimumGasPrice.data}
               />
-            ) : (
-              <p>Error fetching minimum gas price</p>
-            )
+            : <p>Error fetching minimum gas price</p>
           }
         >
           <Route
@@ -270,21 +239,19 @@ export const Staking = (props: Props): JSX.Element => {
                 title="Unstake"
                 onBackdropClick={cancelUnbonding}
               >
-                {minimumGasPrice.state === "hasData" ? (
+                {minimumGasPrice.state === "hasData" ?
                   <UnbondPosition
                     confirmUnbonding={confirmUnbonding}
                     cancelUnbonding={cancelUnbonding}
                     currentBondingPositions={currentBondingPositions}
                     minimumGasPrice={minimumGasPrice.data}
                   />
-                ) : (
-                  <p>Error loading minimum gas price</p>
-                )}
+                : <p>Error loading minimum gas price</p>}
               </Modal>
             }
           />
         </Route>
       </Routes>
-    </StakingContainer>
+    </main>
   );
 };

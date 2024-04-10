@@ -10,7 +10,7 @@ const inputClassList = tv({
   slots: {
     field: clsx(
       "bg-black border rounded-sm text-white text-base font-medium leading-[1.25]",
-      "py-5 px-4 w-full transition-all duration-150 ease-out focus:outline-0 active:outline-0",
+      "py-5 px-4 w-full transition-all duration-150 ease-out focus:outline-0 active:outline-0 focus:outline-0",
       "placeholder:text-neutral-700 placeholder:transition-opacity placeholder:duration-150 placeholder:ease-out",
       "hover:placeholder:opacity-70 focus:placeholder:opacity-0 select:bg-neutral-600",
       "[&[readonly]]:select-none [&[readonly]]:pointer-events-none"
@@ -108,7 +108,9 @@ export const Input = ({
           aria-labelledby={passwordShown ? "Hide password" : "Display password"}
           onClick={() => setPasswordShown(!passwordShown)}
         >
-          {passwordShown ? <GoEye /> : <GoEyeClosed />}
+          {passwordShown ?
+            <GoEye />
+          : <GoEyeClosed />}
         </span>
       );
     },
@@ -166,11 +168,9 @@ export const Input = ({
     >
       {label && <span className={classes.labelText()}>{label}</span>}
       <div className={classes.inputWrapper()}>
-        {sensitive ? (
+        {sensitive ?
           <ContentMasker color={theme}>{element}</ContentMasker>
-        ) : (
-          element
-        )}
+        : element}
         {!hideIcon && icon}
         {children}
       </div>
