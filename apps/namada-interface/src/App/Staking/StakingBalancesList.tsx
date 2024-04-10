@@ -3,11 +3,6 @@ import { Tokens } from "@namada/types";
 import { mapUndefined, showMaybeNam } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import { RootState, useAppSelector } from "store";
-import {
-  StakingBalances,
-  StakingBalancesLabel,
-  StakingBalancesValue,
-} from "./StakingBalancesList.components";
 
 type Totals = {
   totalBonded: BigNumber;
@@ -61,26 +56,20 @@ export const StakingBalancesList: React.FC = () => {
   const availableForBonding = useAppSelector(selectTotalNamBalance);
 
   return (
-    <StakingBalances>
-      <StakingBalancesLabel>Available for bonding</StakingBalancesLabel>
-      <StakingBalancesValue>
+    <div>
+      <div>Available for bonding</div>
+      <div>
         {Tokens.NAM.symbol} {availableForBonding.toString()}
-      </StakingBalancesValue>
+      </div>
 
-      <StakingBalancesLabel>Total Bonded</StakingBalancesLabel>
-      <StakingBalancesValue>
-        {showTotalIfDefined(totals, "totalBonded")}
-      </StakingBalancesValue>
+      <div>Total Bonded</div>
+      <div>{showTotalIfDefined(totals, "totalBonded")}</div>
 
-      <StakingBalancesLabel>Total Unbonded</StakingBalancesLabel>
-      <StakingBalancesValue>
-        {showTotalIfDefined(totals, "totalUnbonded")}
-      </StakingBalancesValue>
+      <div>Total Unbonded</div>
+      <div>{showTotalIfDefined(totals, "totalUnbonded")}</div>
 
-      <StakingBalancesLabel>Total Withdrawable</StakingBalancesLabel>
-      <StakingBalancesValue>
-        {showTotalIfDefined(totals, "totalWithdrawable")}
-      </StakingBalancesValue>
-    </StakingBalances>
+      <div>Total Withdrawable</div>
+      <div>{showTotalIfDefined(totals, "totalWithdrawable")}</div>
+    </div>
   );
 };

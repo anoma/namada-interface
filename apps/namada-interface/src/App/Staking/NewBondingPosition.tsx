@@ -15,7 +15,6 @@ import {
 } from "slices/StakingAndGovernance";
 import { Account } from "slices/accounts";
 import { GAS_LIMIT } from "slices/fees";
-import { BondingAddressSelect } from "./NewBondingPosition.components";
 
 const REMAINS_BONDED_KEY = "Remains bonded";
 
@@ -153,12 +152,12 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
     <div style={{ width: "100%", margin: "0 20px" }}>
       {/* input field */}
       <Stack gap={2} direction="vertical">
-        <BondingAddressSelect
-          data={selectOptions}
-          value={currentAddress}
-          label="Account"
-          onChange={handleAddressChange}
-        />
+        {/* <BondingAddressSelect */}
+        {/*   data={selectOptions} */}
+        {/*   value={currentAddress} */}
+        {/*   label="Account" */}
+        {/*   onChange={handleAddressChange} */}
+        {/* /> */}
 
         <AmountInput
           label="Amount"
