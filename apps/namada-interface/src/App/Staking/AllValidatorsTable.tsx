@@ -1,6 +1,6 @@
 import { StyledTable } from "@namada/components";
 import { formatPercentage, shortenAddress } from "@namada/utils";
-import FormattedPaginator from "App/Common/FormattedPaginator/FormattedPaginator";
+import FormattedPaginator from "App/Common/FormattedPaginator";
 import { ValidatorSearch } from "App/Staking/ValidatorSearch";
 import BigNumber from "bignumber.js";
 import { useAtomValue, useSetAtom } from "jotai";

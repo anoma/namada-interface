@@ -5,7 +5,7 @@ import { AccountsState } from "slices/accounts";
 import { useAppSelector } from "store";
 
 import { ActionButton, Currency, Heading, Stack } from "@namada/components";
-import { Intro } from "App/Common/Intro/Intro";
+import { Intro } from "App/Common/Intro";
 import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
 
 //TODO: move to utils when we have one

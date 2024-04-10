@@ -1,13 +1,13 @@
 import { Panel } from "@namada/components";
+import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
 import { useAtomValue } from "jotai";
 import { chainAtom } from "slices/chain";
-import { ConnectExtensionButton } from "../ConnectExtensionButton";
 
 type ConnectBannerProps = {
   text: string;
 };
 
-const ConnectBanner = ({ text }: ConnectBannerProps): JSX.Element => {
+export const ConnectBanner = ({ text }: ConnectBannerProps): JSX.Element => {
   const chain = useAtomValue(chainAtom);
   return (
     <Panel className="border border-yellow py-3">
@@ -18,5 +18,3 @@ const ConnectBanner = ({ text }: ConnectBannerProps): JSX.Element => {
     </Panel>
   );
 };
-
-export default ConnectBanner;
