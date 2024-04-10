@@ -42,11 +42,13 @@ export const StyledTable = ({
           )}
           {...otherHeadProps}
         >
-          {headers.map((h, index) => (
-            <th key={`table-th-${id}-${index}`} className="px-6 py-2">
-              {h}
-            </th>
-          ))}
+          <tr>
+            {headers.map((h, index) => (
+              <th key={`table-th-${id}-${index}`} className="px-6 py-2">
+                {h}
+              </th>
+            ))}
+          </tr>
         </thead>
         <tbody className="text-white text-base font-medium">
           {rows.map((row, index) => {
@@ -55,9 +57,9 @@ export const StyledTable = ({
               <tr
                 key={`table-tr-${index}`}
                 className={twMerge(
-                  clsx({
+                  clsx("group/row", {
                     "bg-neutral-900": index % 2 === 0,
-                    "bg-rblack": index % 2,
+                    "bg-black": index % 2,
                   }),
                   rowsClassName
                 )}

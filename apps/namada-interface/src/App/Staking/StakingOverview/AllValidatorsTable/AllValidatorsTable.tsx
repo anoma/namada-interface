@@ -1,248 +1,137 @@
+import { StyledTable } from "@namada/components";
+import { formatPercentage, shortenAddress } from "@namada/utils";
+import FormattedPaginator from "App/Common/FormattedPaginator/FormattedPaginator";
+import { ValidatorSearch } from "App/Staking/ValidatorSearch/ValidatorSearch";
 import BigNumber from "bignumber.js";
-import { useCallback, useEffect, useState } from "react";
-
+import { useAtomValue, useSetAtom } from "jotai";
+import debounce from "lodash.debounce";
+import { useEffect, useRef, useState } from "react";
+import { GoGlobe } from "react-icons/go";
 import {
-  Input,
-  Table,
-  TableConfigurations,
-  TableLink,
-} from "@namada/components";
-import { useDebounce } from "@namada/hooks";
-import { assertNever, formatPercentage, truncateInMiddle } from "@namada/utils";
-
-import {
-  StakingAndGovernanceState,
   Validator,
-} from "slices/StakingAndGovernance";
-import { fetchTotalBonds } from "slices/StakingAndGovernance/actions";
-import { useAppDispatch, useAppSelector } from "store";
-import { ValidatorsCallbacks } from "../StakingOverview";
-import {
-  AllValidatorsSearchBar,
-  AllValidatorsSubheadingContainer,
-  Paginator,
-} from "./AllValidatorsTable.components";
+  fetchAllValidatorsAtom,
+  validatorsAtom,
+} from "slices/validators";
 
-const ITEMS_PER_PAGE = 25;
-
-// AllValidators table row renderer and configuration
-// it contains callbacks defined in AllValidatorsCallbacks
-const AllValidatorsRowRenderer = (
-  validator: Validator,
-  callbacks?: ValidatorsCallbacks
-): JSX.Element => {
-  return (
-    <>
-      <td>
-        <TableLink
-          onClick={() => {
-            callbacks && callbacks.onClickValidator(validator.name);
-          }}
-        >
-          {truncateInMiddle(validator.name, 10, 16)}
-        </TableLink>
-      </td>
-      <td>{validator.votingPower?.toString() ?? ""}</td>
-      <td>{formatPercentage(validator.commission)}</td>
-    </>
-  );
+type AllValidatorsProps = {
+  resultsPerPage?: number;
+  initialPage?: number;
 };
 
-const getAllValidatorsConfiguration = (
-  navigateToValidatorDetails: (validatorId: string) => void,
-  onColumnClick: (column: AllValidatorsColumn) => void,
-  sort: Sort
-): TableConfigurations<Validator, ValidatorsCallbacks> => {
-  const getLabelWithTriangle = (column: AllValidatorsColumn): string => {
-    let triangle = "";
-    if (sort.column === column) {
-      if (sort.ascending) {
-        triangle = " \u25b5"; // white up-pointing small triangle
-      } else {
-        triangle = " \u25bf"; // white down-pointing small triangle
-      }
-    }
-
-    return `${column}${triangle}`;
+const filterValidators =
+  (search: string) =>
+  (validator: Validator): boolean => {
+    const preparedSearch = search.toLowerCase().trim();
+    return (
+      validator.address.toLowerCase().indexOf(preparedSearch) > -1 ||
+      validator.alias.toLowerCase().indexOf(preparedSearch) > -1
+    );
   };
 
-  return {
-    rowRenderer: AllValidatorsRowRenderer,
-    callbacks: {
-      onClickValidator: navigateToValidatorDetails,
-    },
-    columns: [
-      {
-        uuid: "1",
-        columnLabel: getLabelWithTriangle(AllValidatorsColumn.Validator),
-        width: "45%",
-        onClick: () => onColumnClick(AllValidatorsColumn.Validator),
-      },
-      {
-        uuid: "2",
-        columnLabel: getLabelWithTriangle(AllValidatorsColumn.VotingPower),
-        width: "25%",
-        onClick: () => onColumnClick(AllValidatorsColumn.VotingPower),
-      },
-      {
-        uuid: "3",
-        columnLabel: getLabelWithTriangle(AllValidatorsColumn.Commission),
-        width: "30%",
-        onClick: () => onColumnClick(AllValidatorsColumn.Commission),
-      },
+export const AllValidatorsTable = ({
+  resultsPerPage = 20,
+  initialPage = 0,
+}: AllValidatorsProps): JSX.Element => {
+  const fetchValidators = useSetAtom(fetchAllValidatorsAtom);
+  const validators = useAtomValue(validatorsAtom);
+  const [page, setPage] = useState(initialPage);
+  const [filter, setFilter] = useState("");
+  const debouncedSearch = useRef(
+    debounce((value: string) => setFilter(value), 300)
+  );
+
+  useEffect(() => {
+    fetchValidators();
+  }, []);
+
+  useEffect(() => {
+    setPage(0);
+  }, [filter]);
+
+  if (validators.length === 0) return <></>;
+
+  const filteredValidators = validators.filter(filterValidators(filter));
+  const paginatedValidators = filteredValidators.slice(
+    page * resultsPerPage,
+    page * resultsPerPage + resultsPerPage
+  );
+
+  const pageCount = Math.ceil(filteredValidators.length / resultsPerPage);
+  const headers = [
+    "",
+    "Validator",
+    "Address",
+    <div key={`all-validators-voting-power`} className="text-right">
+      Voting Power
+    </div>,
+    <div key={`all-validators-comission`} className="text-right">
+      Comission
+    </div>,
+    "",
+  ];
+
+  const rows = paginatedValidators.map((validator) => ({
+    className: "[&_td:first-child]:pr-0",
+    cells: [
+      // Thumbnail:
+      <img
+        key={`validator-image-${validator.uuid}`}
+        src={validator.imageUrl}
+        className="rounded-full aspect-square max-w-12"
+      />,
+      // Alias:
+      validator.alias,
+      // Address:
+      shortenAddress(validator.address, 8, 8),
+      // Voting Power:
+      <div
+        className="flex flex-col text-right"
+        key={`validator-voting-power-${validator.uuid}`}
+      >
+        {validator.votingPowerInNAM && (
+          <span>{validator.votingPowerInNAM?.toString()} NAM</span>
+        )}
+        <span className="text-neutral-600 text-sm">
+          {formatPercentage(BigNumber(validator.votingPowerPercentage || 0))}
+        </span>
+      </div>,
+      // Comission:
+      <div key={`comission-${validator.uuid}`} className="text-right">
+        {formatPercentage(BigNumber(validator.commission))}
+      </div>,
+      // Url:
+      <a
+        key={`icon-globe-${validator.uuid}`}
+        href={validator.homepageUrl}
+        target="_blank"
+        className="hover:text-yellow"
+        rel="nofollow noreferrer"
+      >
+        <GoGlobe />
+      </a>,
     ],
-  };
-};
-
-const sortValidators = (sort: Sort, validators: Validator[]): Validator[] => {
-  const direction = sort.ascending ? 1 : -1;
-
-  const ascendingSortFn: (a: Validator, b: Validator) => number =
-    sort.column === AllValidatorsColumn.Validator
-      ? (a, b) => a.name.localeCompare(b.name)
-      : sort.column === AllValidatorsColumn.VotingPower
-        ? (a, b) =>
-            !a.votingPower || !b.votingPower
-              ? 0
-              : a.votingPower.isLessThan(b.votingPower)
-                ? -1
-                : 1
-        : sort.column === AllValidatorsColumn.Commission
-          ? (a, b) => (a.commission.isLessThan(b.commission) ? -1 : 1)
-          : assertNever(sort.column);
-
-  const cloned = validators.slice();
-  cloned.sort((a, b) => direction * ascendingSortFn(a, b));
-
-  return cloned;
-};
-
-const filterValidators = (
-  search: string,
-  validators: Validator[]
-): Validator[] =>
-  search
-    ? validators.filter((v) =>
-        v.name.toLowerCase().includes(search.toLowerCase())
-      )
-    : validators;
-
-enum AllValidatorsColumn {
-  Validator = "Validator",
-  VotingPower = "Voting power",
-  Commission = "Commission",
-}
-
-type Sort = {
-  column: AllValidatorsColumn;
-  ascending: boolean;
-};
-
-export const AllValidatorsTable: React.FC<{
-  navigateToValidatorDetails: (validatorId: string) => void;
-}> = ({ navigateToValidatorDetails }) => {
-  const dispatch = useAppDispatch();
-  const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search);
-
-  const [sort, setSort] = useState<Sort>({
-    column: AllValidatorsColumn.Validator,
-    ascending: true,
-  });
-  const [itemOffset, setItemOffset] = useState(0);
-  const [forcePage, setForcePage] = useState<number>();
-
-  const { validators, validatorAssets } =
-    useAppSelector<StakingAndGovernanceState>(
-      (state) => state.stakingAndGovernance
-    );
-  const [filteredValidators, setFilteredValidators] = useState<Validator[]>([]);
-  const [currentValidators, setCurrentValidators] = useState<Validator[]>([]);
-  const endOffset = itemOffset + ITEMS_PER_PAGE;
-  const pageCount = Math.ceil(filteredValidators.length / ITEMS_PER_PAGE);
-
-  useEffect(() => {
-    setFilteredValidators(filterValidators(debouncedSearch, validators));
-    if (search) {
-      // Show first page of results if search is entered
-      setItemOffset(0);
-      // Set to first page of paginator
-      setForcePage(0);
-    } else {
-      setForcePage(undefined);
-    }
-  }, [debouncedSearch, validators, validatorAssets]);
-
-  useEffect(() => {
-    const sortedValidators = sortValidators(
-      sort,
-      filteredValidators.slice(itemOffset, endOffset)
-    );
-
-    setCurrentValidators(sortedValidators);
-    sortedValidators.forEach((validator) => {
-      const { name: address } = validator;
-      if (!validatorAssets[address]) {
-        dispatch(fetchTotalBonds(address));
-      }
-    });
-  }, [filteredValidators, itemOffset, debouncedSearch]);
-
-  const handleColumnClick = useCallback(
-    (column: AllValidatorsColumn): void =>
-      setSort({
-        column,
-        ascending: sort.column === column ? !sort.ascending : true,
-      }),
-    [sort]
-  );
-
-  const allValidatorsConfiguration = getAllValidatorsConfiguration(
-    navigateToValidatorDetails,
-    handleColumnClick,
-    sort
-  );
-
-  const handlePageClick = ({ selected }: { selected: number }): void => {
-    const newOffset = (selected * ITEMS_PER_PAGE) % validators.length;
-    setItemOffset(newOffset);
-  };
-
-  const allValidators = currentValidators.map((validator) => ({
-    ...validator,
-    votingPower:
-      validatorAssets[validator.name]?.votingPower || new BigNumber(0),
-    commission: validatorAssets[validator.name]?.commission || new BigNumber(0),
   }));
 
   return (
-    <Table
-      title="All Validators"
-      subheadingSlot={
-        <AllValidatorsSubheadingContainer>
-          <AllValidatorsSearchBar>
-            <Input
-              label={""}
-              placeholder="Search validators"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </AllValidatorsSearchBar>
-          <Paginator
-            breakLabel="..."
-            nextLabel="next >"
-            onPageChange={handlePageClick}
-            pageRangeDisplayed={5}
-            pageCount={pageCount}
-            previousLabel="< previous"
-            renderOnZeroPageCount={null}
-            activeLinkClassName={"active-paginate-link"}
-            forcePage={forcePage}
-          />
-        </AllValidatorsSubheadingContainer>
-      }
-      data={allValidators}
-      tableConfigurations={allValidatorsConfiguration}
-    />
+    <>
+      <ValidatorSearch
+        onChange={(value: string) => debouncedSearch.current(value)}
+      />
+      <StyledTable
+        tableProps={{ className: "w-full" }}
+        id="all-validators"
+        headers={headers}
+        rows={rows}
+      />
+      <div className="mt-8 mb-4">
+        <FormattedPaginator
+          pageRangeDisplayed={3}
+          pageCount={pageCount}
+          onPageChange={({ selected }) => {
+            setPage(selected);
+          }}
+        />
+      </div>
+    </>
   );
 };
