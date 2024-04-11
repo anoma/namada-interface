@@ -3,7 +3,7 @@ import BigNumber from "bignumber.js";
 import { atom } from "jotai";
 
 import { getSdk } from "@heliax/namada-sdk/web";
-import init from "@heliax/namada-sdk/web-init"
+import init from "@heliax/namada-sdk/web-init";
 import { chains } from "@namada/chains";
 import { getIntegration } from "@namada/integrations";
 import {
@@ -20,7 +20,7 @@ import { RootState } from "store";
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
   tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
-  NAMADA_INTERFACE_NAMADA_URL: rpcUrl = "http://localhost:27657"
+  NAMADA_INTERFACE_NAMADA_URL: rpcUrl = "http://localhost:27657",
 } = process.env;
 
 type Address = string;
@@ -83,24 +83,24 @@ export const fetchBalance = createAsyncThunk<
       throw new Error("not namada");
     }
     const { cryptoMemory } = await init();
-    const { rpc } = getSdk(cryptoMemory, rpcUrl, "", tokenAddress)
+    const { rpc } = getSdk(cryptoMemory, rpcUrl, "", tokenAddress);
 
-    const tokens = [
-      nativeToken || tokenAddress,
-    ]
+    const tokens = [nativeToken || tokenAddress];
 
-    const balances = (await rpc.queryBalance(address, tokens)).map(([token, amount]) => {
-      return {
-        token,
-        amount
+    const balances = (await rpc.queryBalance(address, tokens)).map(
+      ([token, amount]) => {
+        return {
+          token,
+          amount,
+        };
       }
-    })
+    );
 
     return {
       chainKey,
       address,
-      balance: { NAM: BigNumber(balances[0].amount) }
-    }
+      balance: { NAM: BigNumber(balances[0].amount) },
+    };
   }
 );
 
@@ -180,96 +180,99 @@ export default reducer;
 ////////////////////////////////////////////////////////////////////////////////
 // JOTAI
 ////////////////////////////////////////////////////////////////////////////////
+export const accountsAtom = atom<readonly AccountDetails[]>([]);
 
-const accountsAtom = (() => {
-  const base = atom(new Promise<readonly AccountDetails[]>(() => { }));
+export const transparentAccountsAtom = atom<readonly AccountDetails[]>((get) =>
+  get(accountsAtom).filter((account) => !account.isShielded)
+);
 
-  return atom(
-    (get) => get(base),
-    async (_get, set) => {
-      const accounts = (async () => {
-        const namada = getIntegration("namada");
-        const result = await namada.accounts();
-        if (typeof result === "undefined") {
-          throw new Error("accounts was undefined!");
-        }
-        return result;
-      })();
+export const shieldedAccountsAtom = atom<readonly AccountDetails[]>((get) =>
+  get(accountsAtom).filter((account) => account.isShielded)
+);
 
-      set(base, accounts);
+export const refreshAccountsAtom = atom(null, (_get, set) =>
+  set(accountsAtom, [])
+);
+
+export const fetchAccountsAtom = atom(
+  (get) => get(accountsAtom),
+  async (_get, set) => {
+    const namada = getIntegration("namada");
+    const result = await namada.accounts();
+    if (typeof result === "undefined") {
+      throw new Error("accounts was undefined!");
     }
+    set(accountsAtom, result);
+  }
+);
+
+export const balancesAtom = atom<Record<Address, Balance>>({});
+export const totalNamBalanceAtom = atom<BigNumber>((get) => {
+  const balances = get(balancesAtom);
+  return Object.values(balances).reduce(
+    (prev, current) => prev.plus(current["NAM"] || 0),
+    new BigNumber(0)
   );
-})();
+});
 
-const balancesAtom = (() => {
-  const base = atom<{ [address: Address]: TokenBalances }>({});
+export const refreshBalancesAtom = atom(null, (_get, set) => {
+  set(balancesAtom, {});
+});
 
-  return atom(
-    (get) => get(base),
-    async (get, set) => {
-      const accounts = await get(accountsAtom);
+export const fetchBalancesAtom = atom(null, async (get, set) => {
+  const namada = getIntegration("namada");
+  const {
+    currency: { address: nativeToken },
+  } = get(chainAtom);
 
-      const {
-        currency: { address: nativeToken },
-      } = get(chainAtom);
+  const shieldedAccounts = get(shieldedAccountsAtom);
+  const transparentAccounts = get(transparentAccountsAtom);
+  const token = nativeToken || tokenAddress;
 
-      set(base, {});
-
-      // Split accounts into transparent and shielded
-      const [transparentAccounts, shieldedAccounts] = accounts.reduce(
-        (acc, curr) => {
-          if (curr.isShielded) {
-            acc[1].push(curr);
-          } else {
-            acc[0].push(curr);
-          }
-          return acc;
-        },
-        [[], []] as [AccountDetails[], AccountDetails[]]
-      );
-
-      const token = nativeToken || tokenAddress;
-
-      // We query the balances for the transparent accounts first as it's faster
-      const transparentBalances = await Promise.all(
-        queryBalance(transparentAccounts, token)
-      );
-      transparentBalances.forEach(([address, balance]) => {
-        set(base, { ...get(base), [address]: balance });
-      });
-
-      const shieldedBalances = await Promise.all(
-        queryBalance(shieldedAccounts, token)
-      );
-      shieldedBalances.forEach(([address, balance]) => {
-        set(base, { ...get(base), [address]: balance });
-      });
-    }
+  // We query the balances for the transparent accounts first as it's faster
+  const transparentBalances = await Promise.all(
+    queryBalance(namada, transparentAccounts, token)
   );
-})();
+
+  let balances = {};
+  transparentBalances.forEach(([address, balance]) => {
+    balances = { ...balances, [address]: balance };
+  });
+
+  // await namada.sync();
+  const shieldedBalances = await Promise.all(
+    queryBalance(namada, shieldedAccounts, token)
+  );
+
+  shieldedBalances.forEach(([address, balance]) => {
+    balances = { ...balances, [address]: balance };
+  });
+
+  set(balancesAtom, balances);
+});
 
 const queryBalance = (
-  accounts: AccountDetails[],
+  namada: Namada,
+  accounts: readonly AccountDetails[],
   token: string
 ): Promise<[string, TokenBalances]>[] => {
   return accounts.map(async (account): Promise<[string, TokenBalances]> => {
     const { cryptoMemory } = await init();
-    const { rpc } = getSdk(cryptoMemory, rpcUrl, "", tokenAddress)
+    const { rpc } = getSdk(cryptoMemory, rpcUrl, "", tokenAddress);
 
-    const tokens = [
-      token,
-    ]
+    const tokens = [token];
 
-    const balances = (await rpc.queryBalance(account.address, tokens)).map(([token, amount]) => {
-      return {
-        token,
-        amount
+    const balances = (await rpc.queryBalance(account.address, tokens)).map(
+      ([token, amount]) => {
+        return {
+          token,
+          amount,
+        };
       }
-    })
+    );
 
     // TODO: This is for testing
     return [account.address, { NAM: BigNumber(balances[0].amount) }];
-
   });
 };
 
@@ -325,4 +328,4 @@ const keplrBalancesAtom = (() => {
   );
 })();
 
-export { accountsAtom, balancesAtom, keplrAccountsAtom, keplrBalancesAtom };
+export { keplrAccountsAtom, keplrBalancesAtom };
