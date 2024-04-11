@@ -18,7 +18,7 @@ const actionButton = tv({
     },
 
     size: {
-      xs: "px-4 py-1.5 text-sm",
+      xs: "px-4 py-1.5 text-sm leading-none",
       sm: "px-6 py-2.5 text-sm",
       md: "px-8 py-3 text-base",
       lg: "px-8 py-[0.825em] text-lg",
