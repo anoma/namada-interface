@@ -1,6 +1,7 @@
 export * from "./account";
 export * from "./chain";
 export * from "./events";
+export * from "./fiat";
 export * from "./namada";
 export * from "./signer";
 export * from "./tokens";

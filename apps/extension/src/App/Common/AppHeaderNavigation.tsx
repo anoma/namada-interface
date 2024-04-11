@@ -78,6 +78,12 @@ export const AppHeaderNavigation = ({
             >
               Network
             </li>
+            <li
+              className={listItemClassList}
+              onClick={() => goTo(routes.currency)}
+            >
+              Currency
+            </li>
             <li className={listItemClassList} onClick={onLock}>
               Lock Wallet
             </li>

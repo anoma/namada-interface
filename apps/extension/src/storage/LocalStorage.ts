@@ -61,26 +61,34 @@ type NamadaExtensionApprovedOriginsType = t.TypeOf<
 const NamadaExtensionRouterId = t.number;
 type NamadaExtensionRouterIdType = t.TypeOf<typeof NamadaExtensionRouterId>;
 
+const NamadaExtensionFiatCurrency = t.string;
+type NamadaExtensionFiatCurrencyType = t.TypeOf<
+  typeof NamadaExtensionFiatCurrency
+>;
+
 type LocalStorageTypes =
   | ChainType
   | NamadaExtensionApprovedOriginsType
-  | NamadaExtensionRouterIdType;
+  | NamadaExtensionRouterIdType
+  | NamadaExtensionFiatCurrencyType;
 
 type LocalStorageSchemas =
   | typeof Chain
   | typeof NamadaExtensionApprovedOrigins
-  | typeof NamadaExtensionRouterId;
+  | typeof NamadaExtensionRouterId
+  | typeof NamadaExtensionFiatCurrency;
 
 export type LocalStorageKeys =
   | "chains"
   | "namadaExtensionApprovedOrigins"
   | "namadaExtensionRouterId"
-  | "tabs";
+  | "namadaExtensionFiatCurrency";
 
 const schemasMap = new Map<LocalStorageSchemas, LocalStorageKeys>([
   [Chain, "chains"],
   [NamadaExtensionApprovedOrigins, "namadaExtensionApprovedOrigins"],
   [NamadaExtensionRouterId, "namadaExtensionRouterId"],
+  [NamadaExtensionFiatCurrency, "namadaExtensionFiatCurrency"],
 ]);
 
 export class LocalStorage extends ExtStorage {
@@ -162,5 +170,26 @@ export class LocalStorage extends ExtStorage {
     }
 
     return key;
+  }
+
+  async getFiatCurrency(): Promise<
+    NamadaExtensionFiatCurrencyType | undefined
+  > {
+    const data = await this.getRaw(this.getKey(NamadaExtensionFiatCurrency));
+
+    const Schema = t.union([NamadaExtensionFiatCurrency, t.undefined]);
+    const decodedData = Schema.decode(data);
+
+    if (E.isLeft(decodedData)) {
+      throw new Error("Fiat currency is not valid");
+    }
+
+    return decodedData.right;
+  }
+
+  async setFiatCurrency(
+    fiatCurrency: NamadaExtensionFiatCurrencyType
+  ): Promise<void> {
+    await this.setRaw(this.getKey(NamadaExtensionFiatCurrency), fiatCurrency);
   }
 }

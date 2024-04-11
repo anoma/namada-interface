@@ -20,7 +20,7 @@ import {
   ViewMnemonic,
 } from "./Accounts";
 import { ParentAccounts } from "./Accounts/ParentAccounts";
-import { ChangePassword, ConnectedSites, Network } from "./Settings";
+import { ChangePassword, ConnectedSites, Currency, Network } from "./Settings";
 import { Setup } from "./Setup";
 import routes from "./routes";
 import { LoadingStatus } from "./types";
@@ -140,6 +140,7 @@ export const AppContent = (): JSX.Element => {
           }
         />
         <Route path={routes.network()} element={<Network />} />
+        <Route path={routes.currency()} element={<Currency />} />
         {/* Routes that depend on a parent account existing in storage */}
         {accounts.length > 0 && (
           <>
