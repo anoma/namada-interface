@@ -1,23 +1,24 @@
+import { CurrencyType } from "@namada/utils";
 import { atom } from "jotai";
+import { selectedCurrencyAtom } from "./settings";
 
-type TokenId = string;
-type FiatExchangeRate = Record<string, number>;
-type ExchangeRates = Record<TokenId, FiatExchangeRate>;
+type SupportedCurrencies = "nam";
 
-export const exchangeRateAtom = (() => {
-  const base = atom<ExchangeRates>({});
+export type ExchangeRateTable = Record<
+  SupportedCurrencies,
+  Record<CurrencyType, number>
+>;
 
-  // TODO: Retrieve actual data
-  return atom(
-    (get) => get(base),
-    async (_get, set) => {
-      set(base, {
-        NAM: {
-          USD: 0,
-          EUR: 0,
-          YPN: 0,
-        },
-      });
-    }
-  );
-})();
+export const exchangeRateAtom = atom<ExchangeRateTable>({
+  nam: {
+    usd: 0,
+    eur: 0,
+    jpy: 0,
+  },
+});
+
+export const selectedCurrencyRateAtom = atom((get) => {
+  const exchangeRates = get(exchangeRateAtom);
+  const activeCurrency = get(selectedCurrencyAtom);
+  return exchangeRates["nam"][activeCurrency];
+});

@@ -1,4 +1,5 @@
 import { ChainKey } from "@namada/types";
+import { CurrencyType } from "@namada/utils";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { atom } from "jotai";
@@ -37,7 +38,7 @@ export default reducer;
 ////////////////////////////////////////////////////////////////////////////////
 
 const namadaExtensionConnectedAtom = atom(false);
-const selectedCurrencyAtom = atom("USD");
+const selectedCurrencyAtom = atom<CurrencyType>("usd");
 const hideBalancesAtom = atom(false);
 
 export { hideBalancesAtom, namadaExtensionConnectedAtom, selectedCurrencyAtom };

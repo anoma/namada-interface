@@ -1,11 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
+import BigNumber from "bignumber.js";
 import {
+  fetchEpoch,
+  fetchMyStakingPositions,
+  fetchMyValidators,
+  fetchTotalBonds,
   fetchValidatorDetails,
   fetchValidators,
-  fetchTotalBonds,
-  fetchMyValidators,
-  fetchMyStakingPositions,
-  fetchEpoch,
   postNewBonding,
   postNewUnbonding,
 } from "./actions";
@@ -14,7 +15,6 @@ import {
   StakingAndGovernanceState,
   StakingOrUnstakingState,
 } from "./types";
-import BigNumber from "bignumber.js";
 
 const initialState: StakingAndGovernanceState = {
   validators: [],

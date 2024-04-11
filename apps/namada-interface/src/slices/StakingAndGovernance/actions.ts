@@ -47,8 +47,8 @@ const toMyValidators = (
   const index = acc.findIndex((myValidator) => myValidator.uuid === validator);
   const v = acc[index];
   const sliceFn =
-    index == -1
-      ? (arr: MyValidators[]) => arr
+    index == -1 ?
+      (arr: MyValidators[]) => arr
       : (arr: MyValidators[], idx: number) => [
         ...arr.slice(0, idx),
         ...arr.slice(idx + 1),
@@ -254,12 +254,16 @@ export const postNewBonding = createAsyncThunk<
   const account = derived[id][source];
   const { type, publicKey } = account.details;
 
-  console.log("TODO: Sign & Submit bond", [{
-    source,
-    validator,
-    amount: new BigNumber(amount),
-    nativeToken: nativeToken || tokenAddress,
-  }],
+  await signer.submitBond(
+    // TODO: Interface should allow multiple Bond Tx
+    [
+      {
+        source,
+        validator,
+        amount: new BigNumber(amount),
+        nativeToken: nativeToken || tokenAddress,
+      },
+    ],
     {
       token: nativeToken || tokenAddress,
       feeAmount: gasPrice,
@@ -302,13 +306,17 @@ export const postNewUnbonding = createAsyncThunk<
     details: { type, publicKey },
   } = derived[id][source];
 
-  console.log("TODO: Sign and submit Unbond", {
-    tx: [{
-      source,
-      validator,
-      amount: new BigNumber(amount),
-    }],
-    wrapperTx: {
+
+  await signer.submitUnbond(
+    // TODO: Interface should allow multiple Unbond Tx
+    [
+      {
+        source,
+        validator,
+        amount: new BigNumber(amount),
+      },
+    ],
+    {
       token: nativeToken || tokenAddress,
       feeAmount: gasPrice,
       gasLimit,
@@ -318,7 +326,7 @@ export const postNewUnbonding = createAsyncThunk<
     },
     type
   }
-  );
+);
 })
 
 export const postNewWithdraw = createAsyncThunk<
@@ -344,12 +352,14 @@ export const postNewWithdraw = createAsyncThunk<
       details: { type, publicKey },
     } = derived[id][owner];
 
-    // TODO: Interface should allow multiple Withdraw Tx
-    console.log("TODO: Sign & submit Withdraw",
-      [{
-        source: owner,
-        validator: validatorId,
-      }],
+    await signer.submitWithdraw(
+      // TODO: Interface should allow multiple Withdraw Tx
+      [
+        {
+          source: owner,
+          validator: validatorId,
+        },
+      ],
       {
         token: nativeToken || tokenAddress,
         feeAmount: gasPrice,
