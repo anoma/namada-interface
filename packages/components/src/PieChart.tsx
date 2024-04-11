@@ -1,20 +1,20 @@
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 
-type PieChartData = {
+export type PieChartData = {
   value: number | BigNumber;
   color: string;
 };
 
 type PieChartProps = {
   id: string;
-  children?: React.ReactNode;
   data: PieChartData[];
+  children?: React.ReactNode;
   radius?: number;
   strokeWidth?: number;
   segmentMargin?: number;
-  onMouseEnter: (data: PieChartData) => void;
-  onMouseLeave: () => void;
+  onMouseEnter?: (data: PieChartData) => void;
+  onMouseLeave?: () => void;
 } & React.ComponentPropsWithRef<"svg">;
 
 export const PieChart = ({
@@ -65,7 +65,7 @@ export const PieChart = ({
     });
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <svg
         viewBox={`0 0 ${radius * 2} ${radius * 2}`}
         width="100%"
