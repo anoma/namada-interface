@@ -1,34 +1,38 @@
 import React from "react";
 import { twMerge } from "tailwind-merge";
 
-type PanelProps = {
+type PanelProps<T extends keyof JSX.IntrinsicElements> = {
   children: React.ReactNode;
+  as?: T;
   hierarchy?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   title?: React.ReactNode;
-} & React.ComponentPropsWithoutRef<"div">;
+} & React.ComponentPropsWithoutRef<T>;
 
-export const Panel = ({
+export const Panel = <T extends keyof JSX.IntrinsicElements = "div">({
   children,
+  as,
   hierarchy = "h3",
   title,
   className,
   ...props
-}: PanelProps): JSX.Element => {
-  return (
-    <div
-      className={twMerge(
+}: PanelProps<T>): JSX.Element => {
+  return React.createElement(
+    as || "div",
+    {
+      className: twMerge(
         "rounded-sm bg-black px-4 py-5 text-white font-medium",
         className
-      )}
-      {...props}
-    >
+      ),
+      ...props,
+    },
+    <>
       {title &&
         React.createElement(
           hierarchy,
           { className: "relative z-20 mb-8" },
           title
         )}
-      <div>{children}</div>
-    </div>
+      {children}
+    </>
   );
 };
