@@ -20,7 +20,7 @@ import {
 } from "./handlers";
 
 import { useSetAtom } from "jotai";
-import { accountsAtom, balancesAtom } from "slices/accounts";
+import { refreshAccountsAtom, refreshBalancesAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
 import { isRevealPkNeededAtom } from "slices/fees";
 import { namadaExtensionConnectedAtom } from "slices/settings";
@@ -33,9 +33,9 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const keplrIntegration = useIntegration("cosmos");
   const metamaskIntegration = useIntegration("ethereum");
 
-  const refreshAccounts = useSetAtom(accountsAtom);
+  const refreshAccounts = useSetAtom(refreshAccountsAtom);
   const refreshChain = useSetAtom(chainAtom);
-  const refreshBalances = useSetAtom(balancesAtom);
+  const refreshBalances = useSetAtom(refreshBalancesAtom);
   const refreshPublicKeys = useSetAtom(isRevealPkNeededAtom);
   const setNamadaExtensionConnected = useSetAtom(namadaExtensionConnectedAtom);
 

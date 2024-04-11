@@ -2,18 +2,17 @@ import {
   useIntegration,
   useUntilIntegrationAttached,
 } from "@namada/integrations";
-import { Account } from "@namada/types";
 import { getTheme, loadColorMode } from "@namada/utils";
 import { Container } from "App/Common/Container";
 import { Toasts } from "App/Common/Toast";
 import { TopNavigation } from "App/Common/TopNavigation";
 import { AnimatePresence } from "framer-motion";
 import { createBrowserHistory } from "history";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
-import { addAccounts, fetchBalances } from "slices/accounts";
+import { fetchAccountsAtom } from "slices/accounts";
 import { chainAtom, setChain } from "slices/chain";
 import { SettingsState } from "slices/settings";
 import { persistor, useAppDispatch, useAppSelector } from "store";
@@ -57,6 +56,7 @@ function App(): JSX.Element {
   const initialColorMode = loadColorMode();
   const theme = getTheme(initialColorMode);
   const chain = useAtomValue(chainAtom);
+  const fetchAccounts = useSetAtom(fetchAccountsAtom);
   const { connectedChains } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
@@ -68,13 +68,13 @@ function App(): JSX.Element {
 
   // TODO: remove this effect once redux has been replaced by jotai
   useEffect(() => {
-    const fetchAccounts = async (): Promise<void> => {
-      const accounts = await integration?.accounts();
-      if (accounts) {
-        dispatch(addAccounts(accounts as Account[]));
-        dispatch(fetchBalances());
-      }
-    };
+    // const fetchAccounts = async (): Promise<void> => {
+    //   const accounts = await integration?.accounts();
+    //   if (accounts) {
+    //     dispatch(addAccounts(accounts as Account[]));
+    //     dispatch(fetchBalances());
+    //   }
+    // };
 
     if (
       currentExtensionAttachStatus === "attached" &&

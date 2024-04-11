@@ -9,7 +9,11 @@ import {
 } from "@namada/integrations";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 
-import { accountsAtom, balancesAtom } from "slices/accounts";
+import {
+  accountsAtom,
+  refreshAccountsAtom,
+  refreshBalancesAtom,
+} from "slices/accounts";
 import { chainAtom } from "slices/chain";
 import { isRevealPkNeededAtom, minimumGasPriceAtom } from "slices/fees";
 
@@ -45,7 +49,7 @@ export const useOnNamadaExtensionConnected = (): void => {
   const connected = useAtomValue(namadaExtensionConnectedAtom);
 
   const refreshChain = useSetAtom(chainAtom);
-  const refreshAccounts = useSetAtom(accountsAtom);
+  const refreshAccounts = useSetAtom(refreshAccountsAtom);
 
   useEffectSkipFirstRender(() => {
     if (connected) {
@@ -58,7 +62,7 @@ export const useOnNamadaExtensionConnected = (): void => {
 export const useOnAccountsChanged = (): void => {
   const accountsLoadable = useAtomValue(loadable(accountsAtom));
 
-  const refreshBalances = useSetAtom(balancesAtom);
+  const refreshBalances = useSetAtom(refreshBalancesAtom);
   const refreshPublicKeys = useSetAtom(isRevealPkNeededAtom);
 
   useEffectSkipFirstRender(() => {
