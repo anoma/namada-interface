@@ -26,12 +26,23 @@ import { LedgerService } from "background/ledger";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
-import { TxStore } from "./types";
+import { PendingTxDetails, TxStore } from "./types";
 
 type GetParams = (
   specificMsg: Uint8Array,
   txDetails: TxMsgValue
 ) => Record<string, string>;
+
+const getParamsMethod = (txType: SupportedTx): GetParams =>
+  txType === TxType.Bond ? ApprovalsService.getParamsBond
+  : txType === TxType.Unbond ? ApprovalsService.getParamsUnbond
+  : txType === TxType.Withdraw ? ApprovalsService.getParamsWithdraw
+  : txType === TxType.Transfer ? ApprovalsService.getParamsTransfer
+  : txType === TxType.IBCTransfer ? ApprovalsService.getParamsIbcTransfer
+  : txType === TxType.EthBridgeTransfer ?
+    ApprovalsService.getParamsEthBridgeTransfer
+  : txType === TxType.VoteProposal ? ApprovalsService.getParamsVoteProposal
+  : assertNever(txType);
 
 export class ApprovalsService {
   // holds promises which can be resolved with a message from a pop-up window
@@ -51,6 +62,24 @@ export class ApprovalsService {
     protected readonly vaultService: VaultService,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {}
+
+  async queryPendingTx(msgId: string): Promise<PendingTxDetails[]> {
+    // TODO: Update storage to support array of Tx
+    const tx = await this.txStore.get(msgId);
+
+    if (!tx) {
+      throw new Error("Pending tx not found!");
+    }
+
+    // Array of Tx should be mapped to their details here:
+    const { txType, specificMsg, txMsg } = tx;
+    const specificMsgBuffer = Buffer.from(fromBase64(specificMsg));
+    const txMsgBuffer = Buffer.from(fromBase64(txMsg));
+    const txDetails = deserialize(txMsgBuffer, TxMsgValue);
+    const details = getParamsMethod(txType)(specificMsgBuffer, txDetails);
+
+    return [details];
+  }
 
   async approveSignature(
     signer: string,
@@ -132,26 +161,14 @@ export class ApprovalsService {
     // Decode tx details and launch approval screen
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
     const txDetails = deserialize(txMsgBuffer, TxMsgValue);
-
     const specificMsgBuffer = Buffer.from(fromBase64(specificMsg));
-
-    const getParams =
-      txType === TxType.Bond ? ApprovalsService.getParamsBond
-      : txType === TxType.Unbond ? ApprovalsService.getParamsUnbond
-      : txType === TxType.Withdraw ? ApprovalsService.getParamsWithdraw
-      : txType === TxType.Transfer ? ApprovalsService.getParamsTransfer
-      : txType === TxType.IBCTransfer ? ApprovalsService.getParamsIbcTransfer
-      : txType === TxType.EthBridgeTransfer ?
-        ApprovalsService.getParamsEthBridgeTransfer
-      : txType === TxType.VoteProposal ? ApprovalsService.getParamsVoteProposal
-      : assertNever(txType);
 
     const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
     )}#/approve-tx/${txType}`;
 
     const url = paramsToUrl(baseUrl, {
-      ...getParams(specificMsgBuffer, txDetails),
+      ...getParamsMethod(txType)(specificMsgBuffer, txDetails),
       msgId,
       accountType: type,
     });

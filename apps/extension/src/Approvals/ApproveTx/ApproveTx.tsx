@@ -8,7 +8,12 @@ import { AccountType, Tokens } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { ApprovalDetails } from "Approvals/Approvals";
 import { TopLevelRoute } from "Approvals/types";
-import { RejectTxMsg } from "background/approvals";
+import {
+  PendingTxDetails,
+  QueryPendingTxMsg,
+  RejectTxMsg,
+} from "background/approvals";
+import { ExtensionRequester } from "extension";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
@@ -18,6 +23,16 @@ type Props = {
   setDetails: (details: ApprovalDetails) => void;
 };
 
+const fetchPendingTxDetails = async (
+  requester: ExtensionRequester,
+  msgId: string
+): Promise<PendingTxDetails[] | void> => {
+  return await requester.sendMessage(
+    Ports.Background,
+    new QueryPendingTxMsg(msgId)
+  );
+};
+
 export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
   const navigate = useNavigate();
   const requester = useRequester();
@@ -25,6 +40,7 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
   const params = useSanitizedParams();
   const txType = parseInt(params?.type || "0");
 
+  // TODO: replace query with fetchPendingTxDetails
   const query = useQuery();
   const {
     accountType,
@@ -53,6 +69,14 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
         nativeToken,
       });
     }
+    // Testing
+    fetchPendingTxDetails(requester, msgId)
+      .then((details) => {
+        console.info("details:", { msgId, details });
+      })
+      .catch((e) => {
+        console.error(`Could not fetch pending Tx with msgId = ${msgId}: ${e}`);
+      });
   }, [source, publicKey, txType, target, msgId]);
 
   const handleApproveClick = useCallback((): void => {

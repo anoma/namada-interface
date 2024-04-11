@@ -7,3 +7,6 @@ export type TxStore = {
   txMsg: string;
   specificMsg: string;
 };
+
+// TODO: Add specific types here!
+export type PendingTxDetails = Record<string, string>;
