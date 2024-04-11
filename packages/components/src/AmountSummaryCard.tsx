@@ -29,7 +29,7 @@ export const AmountSummaryCard = ({
       className: twMerge(
         clsx(
           "flex flex-col gap-8 justify-between rounded-sm",
-          "bg-rblack pt-5 pb-6 px-6"
+          "pt-5 pb-6 px-6"
         ),
         className
       ),
