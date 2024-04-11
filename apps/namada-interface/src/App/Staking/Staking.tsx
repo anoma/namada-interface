@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { loadable } from "jotai/utils";
 import { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
@@ -13,7 +13,6 @@ import {
   ChangeInStakingPosition,
   StakingPosition,
   fetchValidatorDetails,
-  fetchValidators,
   postNewBonding,
   postNewUnbonding,
 } from "slices/StakingAndGovernance";
@@ -25,6 +24,7 @@ import { UnbondPosition } from "./UnbondPosition";
 import { ValidatorDetails } from "./ValidatorDetails";
 
 import { Chain } from "@namada/types";
+import { fetchMyValidatorsAtom } from "slices/validators";
 import { RootState, useAppDispatch, useAppSelector } from "store";
 import StakingRoutes from "./routes";
 
@@ -89,13 +89,14 @@ export enum ModalOnRequestCloseType {
 //     this is for creating new staking positions
 //  * UnstakePositions - rendered in modal on top of other content, for unstaking
 export const Staking = (): JSX.Element => {
-  const [breadcrumb, setBreadcrumb] = useState([initialTitle]);
   const [modalState, setModalState] = useState(ModalState.None);
   const location = useSanitizedLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const minimumGasPrice = useAtomValue(loadable(minimumGasPriceAtom));
   const isRevealPkNeeded = useAtomValue(loadable(isRevealPkNeededAtom));
+  const fetchMyValidators = useSetAtom(fetchMyValidatorsAtom);
+
   const loadablesReady =
     minimumGasPrice.state === "hasData" && isRevealPkNeeded.state === "hasData";
   const chain = useAppSelector<Chain>((state: RootState) => state.chain.config);
@@ -134,19 +135,6 @@ export const Staking = (): JSX.Element => {
       navigate(StakingRoutes.overview().url);
     }
   }, [location.pathname]);
-
-  useEffect(() => {
-    dispatch(fetchValidators());
-  }, []);
-
-  useEffect(() => {
-    const newBreadcrumb = breadcrumbsFromPath(location.pathname);
-    const validatorName = validatorNameFromUrl(location.pathname);
-    if (validatorName) {
-      // triggers fetching of further details
-      setBreadcrumb(newBreadcrumb);
-    }
-  }, [location.pathname, JSON.stringify(breadcrumb)]);
 
   const navigateToValidatorDetails = (validatorId: string): void => {
     navigate(StakingRoutes.validatorDetails(validatorId));
@@ -209,11 +197,7 @@ export const Staking = (): JSX.Element => {
       <Routes>
         <Route
           path={`${StakingRoutes.overview()}`}
-          element={
-            <StakingOverview
-              navigateToValidatorDetails={navigateToValidatorDetails}
-            />
-          }
+          element={<StakingOverview />}
         />
         <Route
           path={`${StakingRoutes.validatorDetails(":validatorId")}`}
