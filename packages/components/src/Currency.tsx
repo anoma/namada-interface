@@ -1,11 +1,5 @@
+import { KnownCurrencies } from "@namada/utils";
 import BigNumber from "bignumber.js";
-
-export const KnownCurrencies = {
-  usd: { sign: "$", singular: "dollar", plural: "dollars", fraction: "cents" },
-  eur: { sign: "€", singular: "euro", plural: "euros", fraction: "cents" },
-  nam: { sign: "NAM", singular: "nam", plural: "nams", fraction: "cents" },
-  jpy: { sign: "¥", singular: "yen", plural: "yens", fraction: "cents" },
-};
 
 type Props = {
   amount: number | BigNumber;
