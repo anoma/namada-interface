@@ -31,6 +31,7 @@ const multicoreLabel = multicore ? "on" : "off";
 const target = targets.includes(maybeTarget) ? maybeTarget : "web";
 
 execSync("rm -rf dist");
+execSync("rm -rf src/shared");
 
 console.log(
   `Building \"shared\" in ${mode} mode for ${target} target. Multicore is ${multicoreLabel}.`

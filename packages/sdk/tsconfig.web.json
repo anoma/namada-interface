@@ -1,12 +1,18 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src/indexWeb.ts", "src/initWeb.ts", "../shared/src/shared/**/*", "../crypto/src/crypto/**/*"],
+  "include": [
+    "src/indexWeb.ts",
+    "src/initWeb.ts",
+    "../shared/src/shared/**/*",
+    "../crypto/src/crypto/**/*"
+  ],
   "exclude": [
     "**/*.test.ts",
     "node_modules",
-    "scripts"
+    "scripts",
+    "../shared/src/shared/**/*.node.*"
   ],
-   "compilerOptions": {
+  "compilerOptions": {
     "declaration": true,
     "outDir": "dist/web",
     "module": "esnext",
@@ -18,5 +24,5 @@
       // Transform paths in output .d.ts files (Include this line if you output declarations files)
       { "transform": "typescript-transform-paths", "afterDeclarations": true }
     ]
-   }
+  }
 }
