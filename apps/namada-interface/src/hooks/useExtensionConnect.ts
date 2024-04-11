@@ -1,8 +1,8 @@
 import { useIntegrationConnection } from "@namada/integrations";
 import { Account, Chain } from "@namada/types";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { addAccounts, fetchBalances } from "slices/accounts";
+import { addAccounts, fetchBalancesAtom } from "slices/accounts";
 import { namadaExtensionConnectedAtom, setIsConnected } from "slices/settings";
 import { useAppDispatch } from "store";
 
@@ -20,6 +20,8 @@ type UseConnectOutput = {
 
 export const useExtensionConnect = (chain: Chain): UseConnectOutput => {
   const dispatch = useAppDispatch();
+  const fetchAccountBalances = useSetAtom(fetchBalancesAtom);
+
   const [extensionConnected, setExtensionConnected] = useAtom(
     namadaExtensionConnectedAtom
   );
@@ -51,7 +53,7 @@ export const useExtensionConnect = (chain: Chain): UseConnectOutput => {
         const accounts = await integration?.accounts();
         if (accounts) {
           dispatch(addAccounts(accounts as Account[]));
-          dispatch(fetchBalances());
+          fetchAccountBalances();
           dispatch(setIsConnected(chain.id));
         }
         setConnectionStatus(ConnectStatus.CONNECTED);

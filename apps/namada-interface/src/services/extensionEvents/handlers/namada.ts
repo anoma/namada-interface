@@ -13,7 +13,7 @@ export const NamadaAccountChangedHandler =
   (
     dispatch: Dispatch<unknown>,
     integration: Namada,
-    refreshAccounts: () => Promise<void>
+    refreshAccounts: () => void
   ) =>
   async () => {
     refreshAccounts();

@@ -1,12 +1,13 @@
+import { ActionButton, Currency, Heading, Stack } from "@namada/components";
 import { useUntilIntegrationAttached } from "@namada/integrations";
 import { Chain } from "@namada/types";
-import clsx from "clsx";
-import { AccountsState } from "slices/accounts";
-import { useAppSelector } from "store";
-
-import { ActionButton, Currency, Heading, Stack } from "@namada/components";
 import { Intro } from "App/Common/Intro";
 import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
+import StakingRoutes from "App/Staking/routes";
+import clsx from "clsx";
+import { useNavigate } from "react-router-dom";
+import { AccountsState } from "slices/accounts";
+import { useAppSelector } from "store";
 
 //TODO: move to utils when we have one
 const isEmptyObject = (object: Record<string, unknown>): boolean => {
@@ -14,6 +15,7 @@ const isEmptyObject = (object: Record<string, unknown>): boolean => {
 };
 
 export const AccountOverview = (): JSX.Element => {
+  const navigate = useNavigate();
   const chain = useAppSelector<Chain>((state) => state.chain.config);
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
@@ -72,6 +74,7 @@ export const AccountOverview = (): JSX.Element => {
               </Heading>
               <Stack gap={3} direction="horizontal">
                 <ActionButton
+                  onClick={() => navigate(StakingRoutes.overview().url)}
                   size="sm"
                   color="primary"
                   className="uppercase"
