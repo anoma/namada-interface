@@ -1,10 +1,16 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src/indexNode.ts", "src/initNode.ts", "../shared/src/shared/**/*", "../crypto/src/crypto/**/*"],
+  "include": [
+    "src/indexNode.ts",
+    "src/initNode.ts",
+    "../shared/src/shared/**/*",
+    "../crypto/src/crypto/**/*"
+  ],
   "exclude": [
     "**/*.test.ts",
     "node_modules",
-    "scripts"
+    "scripts",
+    "../shared/src/shared/**/*.web.*"
   ],
   "compilerOptions": {
     "declaration": true,

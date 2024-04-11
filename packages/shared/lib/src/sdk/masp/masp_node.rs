@@ -149,7 +149,7 @@ fn file_exists(path: PathBuf) -> bool {
         .unwrap()
 }
 
-#[wasm_bindgen(module = "/src/sdk/masp/masp_node.js")]
+#[wasm_bindgen(module = "/src/sdk/masp/masp.node.js")]
 extern "C" {
     #[wasm_bindgen(catch, js_name = "writeFileSync")]
     fn write_file_sync(path: JsValue, content: JsValue) -> Result<JsValue, JsValue>;
