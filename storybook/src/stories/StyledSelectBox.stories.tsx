@@ -23,7 +23,7 @@ export const Default: Story = {
       {
         id: "usd",
         value: <>{getCurrencySymbol("$")} USD</>,
-        ariaLabel: "USD Dollar",
+        ariaLabel: "US Dollar",
       },
       {
         id: "eur",
