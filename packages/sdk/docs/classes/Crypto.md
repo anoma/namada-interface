@@ -1,4 +1,4 @@
-[@namada/sdk](../README.md) / [Exports](../modules.md) / Crypto
+[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / Crypto
 
 # Class: Crypto
 

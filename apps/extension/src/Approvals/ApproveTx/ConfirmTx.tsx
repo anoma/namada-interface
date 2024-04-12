@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { SupportedTx, TxType, TxTypeLabel } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Input, Stack } from "@namada/components";
-import { SupportedTx, TxType, TxTypeLabel } from "@namada/sdk/web";
 import { shortenAddress } from "@namada/utils";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import { SubmitApprovedTxMsg } from "background/approvals";

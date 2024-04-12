@@ -31,11 +31,11 @@
       "@namada/utils": ["../../../packages/utils/src"],
       "@namada/utils/*": ["../../../packages/utils/src/*"],
 
-      "@namada/sdk/web": ["../../../packages/sdk/src/indexWeb.ts"],
-      "@namada/sdk/web-init": ["../../../packages/sdk/src/initWeb.ts"],
+      "@heliax/namada-sdk/web": ["../../../packages/sdk/src/indexWeb.ts"],
+      "@heliax/namada-sdk/web-init": ["../../../packages/sdk/src/initWeb.ts"],
 
-      "@namada/sdk/node": ["../../../packages/sdk/src/indexNode.ts"],
-      "@namada/sdk/node-init": ["../../../packages/sdk/src/initNode.ts"]
+      "@heliax/namada-sdk/node": ["../../../packages/sdk/src/indexNode.ts"],
+      "@heliax/namada-sdk/node-init": ["../../../packages/sdk/src/initNode.ts"]
     }
   }
 }

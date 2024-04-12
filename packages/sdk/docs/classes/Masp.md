@@ -1,4 +1,4 @@
-[@namada/sdk](../README.md) / [Exports](../modules.md) / Masp
+[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / Masp
 
 # Class: Masp
 

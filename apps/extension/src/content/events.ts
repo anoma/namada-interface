@@ -1,4 +1,4 @@
-import { TxType } from "@namada/sdk/web";
+import { TxType } from "@heliax/namada-sdk/web";
 import { Events } from "@namada/types";
 import { LocalStorage } from "storage";
 import { Message, Router, Routes } from "../router";

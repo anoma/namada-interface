@@ -1,4 +1,4 @@
-[@namada/sdk](../README.md) / [Exports](../modules.md) / KdfType
+[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / KdfType
 
 # Enumeration: KdfType
 

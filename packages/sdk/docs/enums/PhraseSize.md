@@ -1,4 +1,4 @@
-[@namada/sdk](../README.md) / [Exports](../modules.md) / PhraseSize
+[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / PhraseSize
 
 # Enumeration: PhraseSize
 

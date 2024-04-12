@@ -1,4 +1,4 @@
-import { SupportedTx } from "@namada/sdk/web";
+import { SupportedTx } from "@heliax/namada-sdk/web";
 
 export type ApprovedOriginsStore = string[];
 

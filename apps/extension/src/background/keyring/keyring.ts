@@ -1,6 +1,6 @@
 import { deserialize } from "@dao-xyz/borsh";
 
-import { PhraseSize } from "@namada/sdk/web";
+import { PhraseSize } from "@heliax/namada-sdk/web";
 import { KVStore } from "@namada/storage";
 import {
   AccountType,
@@ -457,7 +457,7 @@ export class KeyRing {
     const deriveFn = (
       type === AccountType.PrivateKey ?
         this.deriveTransparentAccount
-        : this.deriveShieldedAccount).bind(this);
+      : this.deriveShieldedAccount).bind(this);
 
     const { seed, parentId } = await this.getParentSeed();
     const info = deriveFn(seed, path, parentId);

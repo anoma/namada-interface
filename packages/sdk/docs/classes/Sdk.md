@@ -1,4 +1,4 @@
-[@namada/sdk](../README.md) / [Exports](../modules.md) / Sdk
+[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / Sdk
 
 # Class: Sdk
 

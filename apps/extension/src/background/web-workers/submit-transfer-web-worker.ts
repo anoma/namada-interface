@@ -1,5 +1,5 @@
-import { getSdk } from "@namada/sdk/web";
-import { initMulticore } from "@namada/sdk/web-init";
+import { getSdk } from "@heliax/namada-sdk/web";
+import { initMulticore } from "@heliax/namada-sdk/web-init";
 import {
   INIT_MSG,
   SubmitTransferMessageData,

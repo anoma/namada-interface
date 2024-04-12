@@ -1,4 +1,4 @@
-[@namada/sdk](../README.md) / [Exports](../modules.md) / Signing
+[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / Signing
 
 # Class: Signing
 
