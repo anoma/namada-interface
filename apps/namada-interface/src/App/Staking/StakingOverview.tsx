@@ -5,8 +5,9 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { fetchBalancesAtom, transparentAccountsAtom } from "slices/accounts";
 import { namadaExtensionConnectedAtom } from "slices/settings";
-import { fetchMyValidatorsAtom } from "slices/validators";
+import { fetchMyValidatorsAtom, myValidatorsAtom } from "slices/validators";
 import { AllValidatorsTable } from "./AllValidatorsTable";
+import { MyValidatorsTable } from "./MyValidatorsTable";
 import { StakingSummary } from "./StakingSummary";
 
 // callbacks in this type are specific to a certain row type
@@ -25,6 +26,7 @@ export const StakingOverview = (): JSX.Element => {
   const accounts = useAtomValue(transparentAccountsAtom);
   const fetchBalances = useSetAtom(fetchBalancesAtom);
   const fetchMyValidators = useSetAtom(fetchMyValidatorsAtom);
+  const myValidators = useAtomValue(myValidatorsAtom);
 
   useEffect(() => {
     if (isConnected && accounts.length > 0) {
@@ -39,13 +41,11 @@ export const StakingOverview = (): JSX.Element => {
         {!isConnected && (
           <ConnectBanner text="To stake please connect your account" />
         )}
-        {isConnected && (
-          <>
-            <StakingSummary />
-            {/* <MyValidatorsTable */}
-            {/*   navigateToValidatorDetails={navigateToValidatorDetails} */}
-            {/* /> */}
-          </>
+        {isConnected && <StakingSummary />}
+        {isConnected && myValidators.length > 0 && (
+          <Panel title="My Validators">
+            <MyValidatorsTable />
+          </Panel>
         )}
         <Panel title="All Validators">
           <AllValidatorsTable />

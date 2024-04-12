@@ -59,7 +59,7 @@ export const myValidatorsAtom = atom<MyValidators[]>([]);
 // TODO this or fetchMyStakingPositions is likely redundant based on
 // real data model stored in the chain, adjust when implementing the real data
 export const fetchMyValidatorsAtom = atom(
-  (get) => get(myValidatorsAtom),
+  null,
   async (get, set, accounts: readonly Account[] = []) => {
     const { rpc } = get(chainAtom);
     const addresses = accounts.map((account) => account.address);
