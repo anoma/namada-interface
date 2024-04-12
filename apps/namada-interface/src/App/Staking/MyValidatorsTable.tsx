@@ -1,76 +1,65 @@
-import { Table, TableConfigurations, TableLink } from "@namada/components";
-import { showMaybeNam, truncateInMiddle } from "@namada/utils";
-import {
-  MyValidators,
-  StakingAndGovernanceState,
-} from "slices/StakingAndGovernance";
-import { useAppSelector } from "store";
-import { ValidatorsCallbacks } from "./StakingOverview";
+import { Currency, StyledTable } from "@namada/components";
+import { formatPercentage, shortenAddress } from "@namada/utils";
+import BigNumber from "bignumber.js";
+import { useAtomValue } from "jotai";
+import { myValidatorsAtom } from "slices/validators";
 
-const MyValidatorsRowRenderer = (
-  myValidatorRow: MyValidators,
-  callbacks?: ValidatorsCallbacks
-): JSX.Element => {
-  return (
-    <>
-      <td>
-        <TableLink
-          onClick={() => {
-            // this function is defined at <Staking />
-            // there it triggers a navigation. It then calls a callback
-            // that was passed to it by its' parent <StakingAndGovernance />
-            // in that callback function that is defined in <StakingAndGovernance />
-            // an action is dispatched to fetch validator data and make in available
-            callbacks &&
-              callbacks.onClickValidator(myValidatorRow.validator.name);
-          }}
+export const MyValidatorsTable = (): JSX.Element => {
+  const myValidators = useAtomValue(myValidatorsAtom);
+  const head = [
+    "My Validators",
+    "Address",
+    <div key="my-validators-vp" className="text-right">
+      Voting Power
+    </div>,
+    <div key="my-validators-staked-amount" className="text-right">
+      Staked Amount
+    </div>,
+    <div key="my-validators-comission" className="text-right">
+      Comission
+    </div>,
+  ];
+
+  const rows = myValidators.map((myValidator) => {
+    const validator = myValidator.validator;
+    return {
+      className: "",
+      cells: [
+        // TODO: Update thumbnail
+        validator.alias,
+        shortenAddress(validator.address, 8, 8),
+        <div
+          className="flex flex-col text-right"
+          key={`validator-voting-power-${validator.uuid}`}
         >
-          {truncateInMiddle(myValidatorRow.validator.name, 10, 12)}
-        </TableLink>
-      </td>
-      <td>{myValidatorRow.stakingStatus}</td>
-      <td>{showMaybeNam(myValidatorRow.stakedAmount)}</td>
-      <td>{showMaybeNam(myValidatorRow.unbondedAmount)}</td>
-      <td>{showMaybeNam(myValidatorRow.withdrawableAmount)}</td>
-    </>
-  );
-};
-
-const getMyValidatorsConfiguration = (
-  navigateToValidatorDetails: (validatorId: string) => void
-): TableConfigurations<MyValidators, ValidatorsCallbacks> => {
-  return {
-    rowRenderer: MyValidatorsRowRenderer,
-    columns: [
-      { uuid: "1", columnLabel: "Validator", width: "30%" },
-      { uuid: "2", columnLabel: "Status", width: "20%" },
-      { uuid: "3", columnLabel: "Staked Amount", width: "30%" },
-      { uuid: "4", columnLabel: "Unbonded Amount", width: "30%" },
-      { uuid: "5", columnLabel: "Withdrawable Amount", width: "30%" },
-    ],
-    callbacks: {
-      onClickValidator: navigateToValidatorDetails,
-    },
-  };
-};
-
-export const MyValidatorsTable: React.FC<{
-  navigateToValidatorDetails: (validatorId: string) => void;
-}> = ({ navigateToValidatorDetails }) => {
-  const stakingAndGovernanceState = useAppSelector<StakingAndGovernanceState>(
-    (state) => state.stakingAndGovernance
-  );
-  const myValidators = stakingAndGovernanceState.myValidators ?? [];
-
-  const myValidatorsConfiguration = getMyValidatorsConfiguration(
-    navigateToValidatorDetails
-  );
+          {validator.votingPowerInNAM && (
+            <span>{validator.votingPowerInNAM?.toString()} NAM</span>
+          )}
+          <span className="text-neutral-600 text-sm">
+            {formatPercentage(BigNumber(validator.votingPowerPercentage || 0))}
+          </span>
+        </div>,
+        <div key={`currency-${validator.uuid}`} className="text-right">
+          <Currency
+            currency="nam"
+            amount={myValidator.stakedAmount || 0}
+            currencyPosition="right"
+            spaceAroundSign={true}
+          />
+        </div>,
+        <div key={`comission-${validator.uuid}`} className="text-right">
+          {formatPercentage(validator.commission)}
+        </div>,
+      ],
+    };
+  });
 
   return (
-    <Table
-      title="My Validators"
-      data={myValidators}
-      tableConfigurations={myValidatorsConfiguration}
+    <StyledTable
+      id="my-validators"
+      tableProps={{ className: "w-full" }}
+      headers={head}
+      rows={rows}
     />
   );
 };
