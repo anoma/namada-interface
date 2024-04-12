@@ -6,6 +6,7 @@ import {
   AccountType,
   Bip44Path,
   BondMsgValue,
+  ClaimRewardsMsgValue,
   DerivedAccount,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
@@ -49,7 +50,7 @@ import {
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 export class KeyRingService {
@@ -261,6 +262,44 @@ export class KeyRingService {
       console.warn(e);
       await this.broadcaster.completeTx(msgId, TxType.Withdraw, false, `${e}`);
       throw new Error(`Unable to submit withdraw tx! ${e}`);
+    }
+  }
+
+  async submitClaimRewards(
+    claimRewardsMsg: string,
+    txMsg: string,
+    msgId: string
+  ): Promise<void> {
+    await this.broadcaster.startTx(msgId, TxType.ClaimRewards);
+    try {
+      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+      const claimRewardsMsgValue = Message.decode(
+        fromBase64(claimRewardsMsg),
+        ClaimRewardsMsgValue
+      );
+
+      const innerTxHash = await this._keyRing.submitClaimRewards(
+        claimRewardsMsgValue,
+        txMsgValue
+      );
+      await this.broadcaster.completeTx(
+        msgId,
+        TxType.ClaimRewards,
+        true,
+        innerTxHash
+      );
+      // TODO: not sure if it is correct to broadcast staking update
+      await this.broadcaster.updateStaking();
+      await this.broadcaster.updateBalance();
+    } catch (e) {
+      console.warn(e);
+      await this.broadcaster.completeTx(
+        msgId,
+        TxType.ClaimRewards,
+        false,
+        `${e}`
+      );
+      throw new Error(`Unable to submit claim rewards tx! ${e}`);
     }
   }
 

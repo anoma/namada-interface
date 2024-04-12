@@ -6,6 +6,7 @@ import {
   Sdk as SdkWasm,
   TransferToEthereum,
 } from "@namada/shared";
+import BigNumber from "bignumber.js";
 
 import { SignedTx } from "../tx/types";
 import {
@@ -180,6 +181,38 @@ export class Rpc {
    */
   async queryTotalBonds(owner: string): Promise<number> {
     return await this.query.query_total_bonds(owner);
+  }
+
+  /**
+   * Query available staking rewards for a given owner and validators
+   * @param owner - Owner address
+   * @param validators - List of validator addresses
+   * @returns [validator, reward amount][]
+   */
+  async queryRewards(
+    owner: string,
+    validators: string[]
+  ): Promise<{ [validator: string]: BigNumber }> {
+    const result: [string, string][] = await this.query.query_rewards(
+      owner,
+      validators
+    );
+
+    return result.reduce<{ [validator: string]: BigNumber }>(
+      (acc, [validator, amount]) => {
+        const amountAsBigNumber = new BigNumber(amount);
+        if (amountAsBigNumber.isNaN()) {
+          throw new Error("invalid amount string");
+        }
+
+        if (validator in acc) {
+          throw new Error("duplicate entries in rewards result");
+        }
+
+        return { ...acc, [validator]: amountAsBigNumber };
+      },
+      {}
+    );
   }
 
   /**

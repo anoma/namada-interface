@@ -228,6 +228,35 @@ impl Query {
         to_js_result((bonds, unbonds))
     }
 
+    pub async fn query_rewards(
+        &self,
+        owner: &str,
+        validators: Box<[JsValue]>
+    ) -> Result<JsValue, JsError> {
+        let owner_address = Address::from_str(owner)?;
+
+        let validator_addresses: Vec<Address> = validators
+            .into_iter()
+            .filter_map(|address| address.as_string())
+            .filter_map(|address| Address::from_str(&address).ok())
+            .collect();
+
+        let mut result: Vec<(Address, String)> = vec![];
+
+        for validator in validator_addresses.into_iter() {
+            let reward = RPC
+                .vp()
+                .pos()
+                .rewards(&self.client, &validator, &Some(owner_address.clone()))
+                .await?
+                .to_string_native();
+
+            result.push((validator, reward));
+        }
+
+        to_js_result(result)
+    }
+
     /// Queries transparent balance for a given address
     ///
     /// # Arguments

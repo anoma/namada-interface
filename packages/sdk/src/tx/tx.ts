@@ -2,6 +2,8 @@ import { Sdk as SdkWasm, TxType } from "@namada/shared";
 import {
   BondMsgValue,
   BondProps,
+  ClaimRewardsMsgValue,
+  ClaimRewardsProps,
   EthBridgeTransferMsgValue,
   EthBridgeTransferProps,
   IbcTransferMsgValue,
@@ -80,6 +82,12 @@ export class Tx {
         return await this.buildWithdraw(
           txProps,
           props as WithdrawProps,
+          gasPayer
+        );
+      case TxType.ClaimRewards:
+        return await this.buildClaimRewards(
+          txProps,
+          props as ClaimRewardsProps,
           gasPayer
         );
       case TxType.RevealPK:
@@ -235,6 +243,33 @@ export class Tx {
       encodedWithdraw,
       encodedTx,
       gasPayer || withdrawProps.source
+    );
+  }
+
+  /**
+   * Build Claim Rewards Tx
+   * @async
+   * @param txProps - properties of the transaction
+   * @param claimRewardsProps - properties of the claim rewards tx
+   * @param [gasPayer] - optional gas payer, if not provided, defaults to claimRewardsProps.source
+   * @returns promise that resolves to an EncodedTx
+   */
+  async buildClaimRewards(
+    txProps: TxProps,
+    claimRewardsProps: ClaimRewardsProps,
+    gasPayer?: string
+  ): Promise<EncodedTx> {
+    const bondMsg = new Message<ClaimRewardsProps>();
+    const encodedTx = this.encodeTxArgs(txProps);
+    const encodedClaimRewards = bondMsg.encode(
+      new ClaimRewardsMsgValue(claimRewardsProps)
+    );
+
+    return this.buildTxFromSerializedArgs(
+      TxType.ClaimRewards,
+      encodedClaimRewards,
+      encodedTx,
+      gasPayer || claimRewardsProps.source
     );
   }
 

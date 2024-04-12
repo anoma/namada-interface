@@ -4,6 +4,7 @@ import { TxType } from "@namada/sdk/web";
 import {
   AccountType,
   BondMsgValue,
+  ClaimRewardsMsgValue,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
   TokenInfo,
@@ -496,6 +497,37 @@ describe("approvals service", () => {
     });
   });
 
+  describe("getParamsClaimRewards", () => {
+    it("should return claim rewards params", () => {
+      const claimRewardsMsgValue = new ClaimRewardsMsgValue({
+        source: "source",
+        validator: "validator",
+      });
+
+      const txMsgValue = {
+        token: "token",
+        feeAmount: BigNumber(0.5),
+        gasLimit: BigNumber(0.5),
+        chainId: "chainId",
+        publicKey: "publicKey",
+      };
+
+      jest.spyOn(borsh, "deserialize").mockReturnValue(claimRewardsMsgValue);
+
+      const params = ApprovalsService.getParamsClaimRewards(
+        new Uint8Array([]),
+        txMsgValue
+      );
+
+      expect(params).toEqual({
+        source: claimRewardsMsgValue.source,
+        validator: claimRewardsMsgValue.validator,
+        publicKey: txMsgValue.publicKey,
+        nativeToken: txMsgValue.token,
+      });
+    });
+  });
+
   describe("getParamsVoteProposal", () => {
     it("should return vote proposal params", () => {
       const voteProposalMsgValue = new VoteProposalMsgValue({
@@ -544,6 +576,7 @@ describe("approvals service", () => {
     [TxType.IBCTransfer, "submitIbcTransfer"],
     [TxType.EthBridgeTransfer, "submitEthBridgeTransfer"],
     [TxType.VoteProposal, "submitVoteProposal"],
+    [TxType.ClaimRewards, "submitClaimRewards"],
   ] as const;
 
   describe("submitTx", () => {

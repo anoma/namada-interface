@@ -1,4 +1,5 @@
 export * from "./bond";
+export * from "./claimRewards";
 export * from "./ethBridgeTransfer";
 export * from "./ibcTransfer";
 export * from "./signature";
@@ -10,6 +11,7 @@ export * from "./voteProposal";
 export * from "./withdraw";
 
 import { BondMsgValue } from "./bond";
+import { ClaimRewardsMsgValue } from "./claimRewards";
 import { EthBridgeTransferMsgValue } from "./ethBridgeTransfer";
 import { IbcTransferMsgValue } from "./ibcTransfer";
 import { SignatureMsgValue } from "./signature";
@@ -27,5 +29,6 @@ export type Schema =
   | UnbondMsgValue
   | VoteProposalMsgValue
   | WithdrawMsgValue
+  | ClaimRewardsMsgValue
   | TransferMsgValue
   | TxMsgValue;

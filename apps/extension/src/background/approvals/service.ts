@@ -9,6 +9,7 @@ import { KVStore } from "@namada/storage";
 import {
   AccountType,
   BondMsgValue,
+  ClaimRewardsMsgValue,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
   SignatureResponse,
@@ -136,21 +137,16 @@ export class ApprovalsService {
     const specificMsgBuffer = Buffer.from(fromBase64(specificMsg));
 
     const getParams =
-      txType === TxType.Bond
-        ? ApprovalsService.getParamsBond
-        : txType === TxType.Unbond
-          ? ApprovalsService.getParamsUnbond
-          : txType === TxType.Withdraw
-            ? ApprovalsService.getParamsWithdraw
-            : txType === TxType.Transfer
-              ? ApprovalsService.getParamsTransfer
-              : txType === TxType.IBCTransfer
-                ? ApprovalsService.getParamsIbcTransfer
-                : txType === TxType.EthBridgeTransfer
-                  ? ApprovalsService.getParamsEthBridgeTransfer
-                  : txType === TxType.VoteProposal
-                    ? ApprovalsService.getParamsVoteProposal
-                    : assertNever(txType);
+      txType === TxType.Bond ? ApprovalsService.getParamsBond
+      : txType === TxType.Unbond ? ApprovalsService.getParamsUnbond
+      : txType === TxType.Withdraw ? ApprovalsService.getParamsWithdraw
+      : txType === TxType.Transfer ? ApprovalsService.getParamsTransfer
+      : txType === TxType.IBCTransfer ? ApprovalsService.getParamsIbcTransfer
+      : txType === TxType.EthBridgeTransfer ?
+        ApprovalsService.getParamsEthBridgeTransfer
+      : txType === TxType.VoteProposal ? ApprovalsService.getParamsVoteProposal
+      : txType === TxType.ClaimRewards ? ApprovalsService.getParamsClaimRewards
+      : assertNever(txType);
 
     const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
@@ -285,6 +281,21 @@ export class ApprovalsService {
     };
   };
 
+  static getParamsClaimRewards: GetParams = (specificMsg, txDetails) => {
+    const specificDetails = deserialize(specificMsg, ClaimRewardsMsgValue);
+
+    const { source, validator } = specificDetails;
+
+    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
+
+    return {
+      source,
+      validator,
+      publicKey,
+      nativeToken,
+    };
+  };
+
   static getParamsVoteProposal: GetParams = (specificMsg, txDetails) => {
     const specificDetails = deserialize(specificMsg, VoteProposalMsgValue);
 
@@ -317,21 +328,16 @@ export class ApprovalsService {
     const { txType, specificMsg, txMsg } = tx;
 
     const submitFn =
-      txType === TxType.Bond
-        ? this.keyRingService.submitBond
-        : txType === TxType.Unbond
-          ? this.keyRingService.submitUnbond
-          : txType === TxType.Transfer
-            ? this.keyRingService.submitTransfer
-            : txType === TxType.IBCTransfer
-              ? this.keyRingService.submitIbcTransfer
-              : txType === TxType.EthBridgeTransfer
-                ? this.keyRingService.submitEthBridgeTransfer
-                : txType === TxType.Withdraw
-                  ? this.keyRingService.submitWithdraw
-                  : txType === TxType.VoteProposal
-                    ? this.keyRingService.submitVoteProposal
-                    : assertNever(txType);
+      txType === TxType.Bond ? this.keyRingService.submitBond
+      : txType === TxType.Unbond ? this.keyRingService.submitUnbond
+      : txType === TxType.Transfer ? this.keyRingService.submitTransfer
+      : txType === TxType.IBCTransfer ? this.keyRingService.submitIbcTransfer
+      : txType === TxType.EthBridgeTransfer ?
+        this.keyRingService.submitEthBridgeTransfer
+      : txType === TxType.Withdraw ? this.keyRingService.submitWithdraw
+      : txType === TxType.VoteProposal ? this.keyRingService.submitVoteProposal
+      : txType === TxType.ClaimRewards ? this.keyRingService.submitClaimRewards
+      : assertNever(txType);
 
     await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
 

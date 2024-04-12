@@ -6,6 +6,7 @@ import {
   AccountType,
   Bip44Path,
   BondMsgValue,
+  ClaimRewardsMsgValue,
   DerivedAccount,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
@@ -457,7 +458,7 @@ export class KeyRing {
     const deriveFn = (
       type === AccountType.PrivateKey ?
         this.deriveTransparentAccount
-        : this.deriveShieldedAccount).bind(this);
+      : this.deriveShieldedAccount).bind(this);
 
     const { seed, parentId } = await this.getParentSeed();
     const info = deriveFn(seed, path, parentId);
@@ -665,6 +666,28 @@ export class KeyRing {
       return innerTxHash;
     } catch (e) {
       throw new Error(`Could not submit withdraw tx: ${e}`);
+    }
+  }
+
+  async submitClaimRewards(
+    claimRewardsMsg: ClaimRewardsMsgValue,
+    txMsg: TxMsgValue
+  ): Promise<string> {
+    await this.vaultService.assertIsUnlocked();
+    const sdk = this.sdkService.getSdk();
+    try {
+      const { source } = claimRewardsMsg;
+      const signingKey = await this.getSigningKey(source);
+
+      await sdk.tx.revealPk(signingKey, txMsg);
+
+      const builtTx = await sdk.tx.buildClaimRewards(txMsg, claimRewardsMsg);
+      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
+      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
+
+      return innerTxHash;
+    } catch (e) {
+      throw new Error(`Could not submit claim rewards tx: ${e}`);
     }
   }
 

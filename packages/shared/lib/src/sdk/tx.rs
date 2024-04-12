@@ -155,6 +155,42 @@ pub fn withdraw_tx_args(withdraw_msg: &[u8], tx_msg: &[u8]) -> Result<args::With
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
+pub struct SubmitClaimRewardsMsg {
+    source: String,
+    validator: String,
+}
+
+/// Maps serialized tx_msg into ClaimRewardsTx args.
+///
+/// # Arguments
+///
+/// * `tx_msg` - Borsh serialized tx_msg.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
+pub fn claim_rewards_tx_args(claim_rewards_msg: &[u8], tx_msg: &[u8]) -> Result<args::ClaimRewards, JsError> {
+    let claim_rewards_msg = SubmitClaimRewardsMsg::try_from_slice(claim_rewards_msg)?;
+
+    let SubmitClaimRewardsMsg { source, validator } = claim_rewards_msg;
+
+    let source = Address::from_str(&source)?;
+    let validator = Address::from_str(&validator)?;
+    let tx = tx_msg_into_args(tx_msg)?;
+
+    let args = args::ClaimRewards {
+        tx,
+        validator,
+        source: Some(source),
+        tx_code_path: PathBuf::from("tx_claim_rewards.wasm"),
+    };
+
+    Ok(args)
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct SubmitVoteProposalMsg {
     signer: String,
     proposal_id: u64,

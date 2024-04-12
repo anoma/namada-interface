@@ -6,6 +6,8 @@ import {
   AccountType,
   BondMsgValue,
   BondProps,
+  ClaimRewardsMsgValue,
+  ClaimRewardsProps,
   EthBridgeTransferMsgValue,
   EthBridgeTransferProps,
   Signer as ISigner,
@@ -131,6 +133,23 @@ export class Signer implements ISigner {
     type: AccountType
   ): Promise<void> {
     return this.submitTx(TxType.Withdraw, WithdrawMsgValue, args, txArgs, type);
+  }
+
+  /**
+   * Submit claim rewards transaction
+   */
+  public async submitClaimRewards(
+    args: ClaimRewardsProps,
+    txArgs: TxProps,
+    type: AccountType
+  ): Promise<void> {
+    return this.submitTx(
+      TxType.ClaimRewards,
+      ClaimRewardsMsgValue,
+      args,
+      txArgs,
+      type
+    );
   }
 
   /**
