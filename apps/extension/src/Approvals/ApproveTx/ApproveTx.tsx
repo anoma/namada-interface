@@ -14,13 +14,13 @@ import {
   RejectTxMsg,
 } from "background/approvals";
 import { ExtensionRequester } from "extension";
-import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 
 type Props = {
   setDetails: (details: ApprovalDetails) => void;
+  details?: ApprovalDetails;
 };
 
 const fetchPendingTxDetails = async (
@@ -33,46 +33,53 @@ const fetchPendingTxDetails = async (
   );
 };
 
-export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
+export const ApproveTx: React.FC<Props> = ({ details, setDetails }) => {
   const navigate = useNavigate();
   const requester = useRequester();
+  const { amount, source, target, publicKey, tokenAddress, validator } =
+    details || {};
 
+  // Parse URL params
   const params = useSanitizedParams();
   const txType = parseInt(params?.type || "0");
-
-  // TODO: replace query with fetchPendingTxDetails
-  const query = useQuery();
-  const {
-    accountType,
-    msgId,
-    amount,
-    source,
-    target,
-    validator,
-    tokenAddress,
-    publicKey,
-    nativeToken,
-  } = query.getAll();
+  const accountType =
+    (params?.accountType as AccountType) || AccountType.PrivateKey;
+  const msgId = params?.msgId || "0";
 
   const tokenType =
     Object.values(Tokens).find((token) => token.address === tokenAddress)
       ?.symbol || "NAM";
 
   useEffect(() => {
-    if (source && txType && msgId) {
-      setDetails({
-        source,
-        txType,
-        msgId,
-        publicKey,
-        target,
-        nativeToken,
-      });
-    }
-    // Testing
     fetchPendingTxDetails(requester, msgId)
       .then((details) => {
-        console.info("details:", { msgId, details });
+        if (!details) {
+          throw new Error(
+            `Failed to fetch Tx details - no transactions exists for ${msgId}`
+          );
+        }
+        // TODO: Handle array of approval details
+        const {
+          amount,
+          source,
+          publicKey,
+          target,
+          nativeToken,
+          tokenAddress,
+          validator,
+        } = details[0];
+
+        setDetails({
+          amount,
+          source,
+          txType,
+          msgId,
+          publicKey,
+          target,
+          nativeToken,
+          tokenAddress,
+          validator,
+        });
       })
       .catch((e) => {
         console.error(`Could not fetch pending Tx with msgId = ${msgId}: ${e}`);

@@ -431,6 +431,7 @@ describe("approvals service", () => {
         amount: bondMsgValue.amount.toString(),
         publicKey: txMsgValue.publicKey,
         nativeToken: bondMsgValue.nativeToken,
+        validator: bondMsgValue.validator,
       });
     });
   });
@@ -461,6 +462,7 @@ describe("approvals service", () => {
       expect(params).toEqual({
         source: unbondMsgValue.source,
         amount: unbondMsgValue.amount.toString(),
+        validator: unbondMsgValue.validator,
         publicKey: txMsgValue.publicKey,
         nativeToken: txMsgValue.token,
       });

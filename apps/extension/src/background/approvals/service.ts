@@ -35,14 +35,14 @@ type GetParams = (
 
 const getParamsMethod = (txType: SupportedTx): GetParams =>
   txType === TxType.Bond ? ApprovalsService.getParamsBond
-  : txType === TxType.Unbond ? ApprovalsService.getParamsUnbond
-  : txType === TxType.Withdraw ? ApprovalsService.getParamsWithdraw
-  : txType === TxType.Transfer ? ApprovalsService.getParamsTransfer
-  : txType === TxType.IBCTransfer ? ApprovalsService.getParamsIbcTransfer
-  : txType === TxType.EthBridgeTransfer ?
-    ApprovalsService.getParamsEthBridgeTransfer
-  : txType === TxType.VoteProposal ? ApprovalsService.getParamsVoteProposal
-  : assertNever(txType);
+    : txType === TxType.Unbond ? ApprovalsService.getParamsUnbond
+      : txType === TxType.Withdraw ? ApprovalsService.getParamsWithdraw
+        : txType === TxType.Transfer ? ApprovalsService.getParamsTransfer
+          : txType === TxType.IBCTransfer ? ApprovalsService.getParamsIbcTransfer
+            : txType === TxType.EthBridgeTransfer ?
+              ApprovalsService.getParamsEthBridgeTransfer
+              : txType === TxType.VoteProposal ? ApprovalsService.getParamsVoteProposal
+                : assertNever(txType);
 
 export class ApprovalsService {
   // holds promises which can be resolved with a message from a pop-up window
@@ -61,7 +61,7 @@ export class ApprovalsService {
     protected readonly ledgerService: LedgerService,
     protected readonly vaultService: VaultService,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) {}
+  ) { }
 
   async queryPendingTx(msgId: string): Promise<PendingTxDetails[]> {
     // TODO: Update storage to support array of Tx
@@ -165,7 +165,7 @@ export class ApprovalsService {
 
     const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
-    )}#/approve-tx/${txType}`;
+    )}#/approve-tx/${msgId}/${txType}/${type}`;
 
     const url = paramsToUrl(baseUrl, {
       ...getParamsMethod(txType)(specificMsgBuffer, txDetails),
@@ -251,6 +251,7 @@ export class ApprovalsService {
       source,
       nativeToken: tokenAddress,
       amount: amountBN,
+      validator,
     } = specificDetails;
     const amount = new BigNumber(amountBN.toString());
 
@@ -262,13 +263,14 @@ export class ApprovalsService {
       amount: amount.toString(),
       publicKey,
       nativeToken: tokenAddress,
+      validator,
     };
   };
 
   static getParamsUnbond: GetParams = (specificMsg, txDetails) => {
     const specificDetails = deserialize(specificMsg, UnbondMsgValue);
 
-    const { source, amount: amountBN } = specificDetails;
+    const { source, amount: amountBN, validator } = specificDetails;
     const amount = new BigNumber(amountBN.toString());
 
     const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
@@ -278,6 +280,7 @@ export class ApprovalsService {
       amount: amount.toString(),
       publicKey,
       nativeToken,
+      validator,
     };
   };
 
@@ -329,14 +332,14 @@ export class ApprovalsService {
 
     const submitFn =
       txType === TxType.Bond ? this.keyRingService.submitBond
-      : txType === TxType.Unbond ? this.keyRingService.submitUnbond
-      : txType === TxType.Transfer ? this.keyRingService.submitTransfer
-      : txType === TxType.IBCTransfer ? this.keyRingService.submitIbcTransfer
-      : txType === TxType.EthBridgeTransfer ?
-        this.keyRingService.submitEthBridgeTransfer
-      : txType === TxType.Withdraw ? this.keyRingService.submitWithdraw
-      : txType === TxType.VoteProposal ? this.keyRingService.submitVoteProposal
-      : assertNever(txType);
+        : txType === TxType.Unbond ? this.keyRingService.submitUnbond
+          : txType === TxType.Transfer ? this.keyRingService.submitTransfer
+            : txType === TxType.IBCTransfer ? this.keyRingService.submitIbcTransfer
+              : txType === TxType.EthBridgeTransfer ?
+                this.keyRingService.submitEthBridgeTransfer
+                : txType === TxType.Withdraw ? this.keyRingService.submitWithdraw
+                  : txType === TxType.VoteProposal ? this.keyRingService.submitVoteProposal
+                    : assertNever(txType);
 
     await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
 

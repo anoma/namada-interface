@@ -80,7 +80,7 @@ export class QueryPendingTxMsg extends Message<PendingTxDetails[]> {
   }
 
   type(): string {
-    return RejectTxMsg.type();
+    return QueryPendingTxMsg.type();
   }
 }
 

@@ -19,6 +19,7 @@ export enum Status {
   Failed,
 }
 
+// TODO: Handle array of ApprovalDetails
 export type ApprovalDetails = {
   source: string;
   msgId: string;
@@ -26,6 +27,9 @@ export type ApprovalDetails = {
   publicKey?: string;
   target?: string;
   nativeToken?: string;
+  tokenAddress?: string;
+  amount?: string;
+  validator?: string;
 };
 
 export type SignatureDetails = {
@@ -50,8 +54,8 @@ export const Approvals: React.FC = () => {
     >
       <Routes>
         <Route
-          path={`${TopLevelRoute.ApproveTx}/:type`}
-          element={<ApproveTx setDetails={setDetails} />}
+          path={`${TopLevelRoute.ApproveTx}/:msgId/:type/:accountType`}
+          element={<ApproveTx setDetails={setDetails} details={details} />}
         />
         <Route
           path={TopLevelRoute.ConfirmTx}
