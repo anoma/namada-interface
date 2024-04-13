@@ -24,6 +24,7 @@ export const StakingSummary = (): JSX.Element => {
     if (totalStakedBalance.totalBonded.eq(0)) {
       return [{ value: 1, color: "#2f2f2f" }];
     }
+
     return [
       { value: totalStakedBalance.totalBonded, color: "#ffff00" },
       { value: totalStakedBalance.totalUnbonded, color: "#ffffff" },

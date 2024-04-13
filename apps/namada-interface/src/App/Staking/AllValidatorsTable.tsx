@@ -3,15 +3,11 @@ import { formatPercentage, shortenAddress } from "@namada/utils";
 import FormattedPaginator from "App/Common/FormattedPaginator";
 import { ValidatorSearch } from "App/Staking/ValidatorSearch";
 import BigNumber from "bignumber.js";
-import { useAtomValue, useSetAtom } from "jotai";
 import debounce from "lodash.debounce";
 import { useEffect, useRef, useState } from "react";
 import { GoGlobe } from "react-icons/go";
-import {
-  Validator,
-  fetchAllValidatorsAtom,
-  validatorsAtom,
-} from "slices/validators";
+import { Validator, fetchAllValidatorsAtom } from "slices/validators";
+import { useLoadable } from "store/hooks";
 
 type AllValidatorsProps = {
   resultsPerPage?: number;
@@ -32,8 +28,7 @@ export const AllValidatorsTable = ({
   resultsPerPage = 20,
   initialPage = 0,
 }: AllValidatorsProps): JSX.Element => {
-  const fetchValidators = useSetAtom(fetchAllValidatorsAtom);
-  const validators = useAtomValue(validatorsAtom);
+  const validators = useLoadable(fetchAllValidatorsAtom);
   const [page, setPage] = useState(initialPage);
   const [filter, setFilter] = useState("");
   const debouncedSearch = useRef(
@@ -41,16 +36,14 @@ export const AllValidatorsTable = ({
   );
 
   useEffect(() => {
-    fetchValidators();
-  }, []);
-
-  useEffect(() => {
     setPage(0);
   }, [filter]);
 
-  if (validators.length === 0) return <></>;
+  // TODO:
+  if (validators.state === "loading") return <>Loading...</>;
+  if (validators.state === "hasError") return <>Error!</>;
 
-  const filteredValidators = validators.filter(filterValidators(filter));
+  const filteredValidators = validators.data.filter(filterValidators(filter));
   const paginatedValidators = filteredValidators.slice(
     page * resultsPerPage,
     page * resultsPerPage + resultsPerPage

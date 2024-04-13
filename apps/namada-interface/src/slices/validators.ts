@@ -37,36 +37,38 @@ const toValidator = (address: string): Validator => ({
   imageUrl: "https://placekitten.com/200/200",
 });
 
-export const validatorsAtom = atom<Validator[]>([]);
+const allValidatorsAtomBase = atom<Validator[]>([]);
+
+export const allValidatorsAtom = atom<Validator[]>((get) =>
+  get(allValidatorsAtomBase)
+);
+
 export const fetchAllValidatorsAtom = atom(
-  (get) => get(validatorsAtom),
+  (get) => get(allValidatorsAtomBase),
   async (get, set) => {
     const { rpc } = get(chainAtom);
     const query = new Query(rpc);
     const queryResult =
       (await query.query_all_validator_addresses()) as string[];
-    set(validatorsAtom, queryResult.map(toValidator));
+    set(allValidatorsAtomBase, queryResult.map(toValidator));
   }
 );
 
-export const myValidatorsAtom = atom<MyValidators[]>([]);
+const myValidatorsAtomBase = atom<MyValidators[]>([]);
 
-//
-// fetches staking data and appends the validators to it
-// this needs the validators, so they are being passed in
-// vs. getting them from the state
-//
-// TODO this or fetchMyStakingPositions is likely redundant based on
-// real data model stored in the chain, adjust when implementing the real data
+export const myValidatorsAtom = atom<MyValidators[]>((get) =>
+  get(myValidatorsAtomBase)
+);
+
 export const fetchMyValidatorsAtom = atom(
-  null,
+  (get) => get(myValidatorsAtomBase),
   async (get, set, accounts: readonly Account[] = []) => {
     const { rpc } = get(chainAtom);
     const addresses = accounts.map((account) => account.address);
     const query = new Query(rpc);
     const myValidatorsRes = await query.query_my_validators(addresses);
     const myValidators = myValidatorsRes.reduce(toMyValidators, []);
-    set(myValidatorsAtom, myValidators);
+    set(myValidatorsAtomBase, myValidators);
   }
 );
 
