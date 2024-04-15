@@ -15,7 +15,7 @@
     "dompurify": "^3.0.2",
     "ethers": "^6.7.1",
     "fp-ts": "^2.16.1",
-    "framer-motion": "^6.2.8",
+    "framer-motion": "^11.0.28",
     "jotai": "^2.6.3",
     "jotai-redux": "^0.2.1",
     "lodash.debounce": "^4.0.8",

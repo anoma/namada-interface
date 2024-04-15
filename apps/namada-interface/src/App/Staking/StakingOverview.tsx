@@ -1,6 +1,7 @@
 import { Panel } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification";
+import { YourStakingDistribution } from "App/Sidebars/YourStakingDistribution";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { fetchBalancesAtom, transparentAccountsAtom } from "slices/accounts";
@@ -27,6 +28,7 @@ export const StakingOverview = (): JSX.Element => {
   const fetchBalances = useSetAtom(fetchBalancesAtom);
   const fetchMyValidators = useSetAtom(fetchMyValidatorsAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
+  const hasStaking = isConnected && myValidators.length > 0;
 
   useEffect(() => {
     if (isConnected && accounts.length > 0) {
@@ -42,7 +44,7 @@ export const StakingOverview = (): JSX.Element => {
           <ConnectBanner text="To stake please connect your account" />
         )}
         {isConnected && <StakingSummary />}
-        {isConnected && myValidators.length > 0 && (
+        {hasStaking && (
           <Panel title="My Validators">
             <MyValidatorsTable />
           </Panel>
@@ -51,7 +53,19 @@ export const StakingOverview = (): JSX.Element => {
           <AllValidatorsTable />
         </Panel>
       </div>
-      <aside>
+      <aside className="flex flex-col gap-2">
+        <Panel>
+          {hasStaking && (
+            <YourStakingDistribution
+              myValidators={myValidators
+                .concat(myValidators)
+                .concat(myValidators)
+                .concat(myValidators)
+                .concat(myValidators)
+                .concat(myValidators)}
+            />
+          )}
+        </Panel>
         <Panel>
           <ValidatorDiversification />
         </Panel>
