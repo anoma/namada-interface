@@ -48,7 +48,7 @@ export const StakingSummary = (): JSX.Element => {
               spaceAroundSign={true}
               currencyPosition="right"
               currency="nam"
-              className="text-2xl"
+              className="text-xl"
               currencySignClassName="text-xs ml-1"
             />
             <Currency
