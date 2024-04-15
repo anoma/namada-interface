@@ -22,13 +22,10 @@ export const StakingSummary = (): JSX.Element => {
   const availableBalance = useAtomValue(totalNamBalanceAtom);
 
   const getPiechartData = (): Array<PieChartData> => {
-    if (totalStakedBalance.totalBonded.eq(0)) {
-      return [{ value: 1, color: "#2f2f2f" }];
-    }
-
     return [
       { value: totalStakedBalance.totalBonded, color: "#ffff00" },
-      { value: totalStakedBalance.totalUnbonded, color: "#ffffff" },
+      { value: totalStakedBalance.totalUnbonded, color: "#DD1599" },
+      { value: availableBalance, color: "#ffffff" },
     ];
   };
 
@@ -50,7 +47,7 @@ export const StakingSummary = (): JSX.Element => {
               currencyPosition="right"
               currency="nam"
               className="text-xl"
-              currencySignClassName="block mb-3 text-xs ml-1"
+              currencySignClassName="block mb-1 text-xs ml-1"
             />
             <Currency
               amount={totalStakedBalance.totalBonded.multipliedBy(
