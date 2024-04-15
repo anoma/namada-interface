@@ -6,16 +6,16 @@ export type PieChartData = {
   color: string;
 };
 
-type PieChartProps = {
+type PieChartProps = React.ComponentPropsWithRef<"svg"> & {
   id: string;
   data: PieChartData[];
   children?: React.ReactNode;
   radius?: number;
   strokeWidth?: number;
   segmentMargin?: number;
-  onMouseEnter?: (data: PieChartData) => void;
+  onMouseEnter?: (data: PieChartData, index: number) => void;
   onMouseLeave?: () => void;
-} & React.ComponentPropsWithRef<"svg">;
+};
 
 export const PieChart = ({
   id,
@@ -41,7 +41,6 @@ export const PieChart = ({
   );
 
   let offset = 0;
-
   const renderData = (): React.ReactNode =>
     filteredData.map((dataItem, index) => {
       const segmentLength = length * percentages[index] - margin;
@@ -56,7 +55,9 @@ export const PieChart = ({
           strokeDasharray={`${segmentLength} ${length}`}
           r={radius - strokeWidth}
           stroke={dataItem.color}
-          onMouseEnter={onMouseEnter ? () => onMouseEnter(dataItem) : undefined}
+          onMouseEnter={
+            onMouseEnter ? () => onMouseEnter(dataItem, index) : undefined
+          }
           onMouseLeave={onMouseLeave ? () => onMouseLeave() : undefined}
         />
       );
@@ -76,7 +77,8 @@ export const PieChart = ({
       </svg>
       <div
         className={clsx(
-          "absolute top-0 left-0 text-center w-full h-full flex items-center justify-center"
+          "absolute top-0 left-0 text-center w-full h-full",
+          "flex items-center justify-center pointer-events-none"
         )}
       >
         {children}

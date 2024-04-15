@@ -18,7 +18,7 @@ export type Validator = Unique & {
   imageUrl?: string;
 };
 
-export type MyValidators = Unique & {
+export type MyValidator = Unique & {
   stakingStatus: string;
   stakedAmount?: BigNumber;
   unbondedAmount?: BigNumber;
@@ -54,9 +54,9 @@ export const fetchAllValidatorsAtom = atom(
   }
 );
 
-const myValidatorsAtomBase = atom<MyValidators[]>([]);
+const myValidatorsAtomBase = atom<MyValidator[]>([]);
 
-export const myValidatorsAtom = atom<MyValidators[]>((get) =>
+export const myValidatorsAtom = atom<MyValidator[]>((get) =>
   get(myValidatorsAtomBase)
 );
 
@@ -73,7 +73,7 @@ export const fetchMyValidatorsAtom = atom(
 );
 
 const toMyValidators = (
-  acc: MyValidators[],
+  acc: MyValidator[],
   [_, validator, stake, unbonded, withdrawable]: [
     string,
     string,
@@ -81,13 +81,13 @@ const toMyValidators = (
     string,
     string,
   ]
-): MyValidators[] => {
+): MyValidator[] => {
   const index = acc.findIndex((myValidator) => myValidator.uuid === validator);
   const v = acc[index];
   const sliceFn =
     index == -1 ?
-      (arr: MyValidators[]) => arr
-    : (arr: MyValidators[], idx: number) => [
+      (arr: MyValidator[]) => arr
+    : (arr: MyValidator[], idx: number) => [
         ...arr.slice(0, idx),
         ...arr.slice(idx + 1),
       ];

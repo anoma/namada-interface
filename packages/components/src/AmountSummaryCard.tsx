@@ -29,7 +29,7 @@ export const AmountSummaryCard = ({
       className: twMerge(
         clsx(
           "flex flex-col gap-8 justify-between rounded-sm",
-          "pt-5 pb-6 px-6"
+          "pt-5 pb-6 px-4"
         ),
         className
       ),
@@ -50,7 +50,7 @@ export const AmountSummaryCard = ({
       </header>
       <div className="text-center mb-6">
         {mainAmount && (
-          <strong className="block text-3xl text-white font-medium">
+          <strong className="block text-[22px] text-white font-medium">
             {mainAmount}
           </strong>
         )}
