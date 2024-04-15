@@ -1,4 +1,4 @@
-[@namada/sdk](../README.md) / [Exports](../modules.md) / SignedTx
+[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / SignedTx
 
 # Class: SignedTx
 

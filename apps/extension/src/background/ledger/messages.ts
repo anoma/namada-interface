@@ -1,4 +1,4 @@
-import { TxType } from "@namada/sdk/web";
+import { TxType } from "@heliax/namada-sdk/web";
 import { ResponseSign } from "@zondax/ledger-namada";
 import { Message } from "router";
 import { ROUTE } from "./constants";

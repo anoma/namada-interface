@@ -1,6 +1,6 @@
 import { fromBase64, fromHex } from "@cosmjs/encoding";
 
-import { PhraseSize, publicKeyToBech32, TxType } from "@namada/sdk/web";
+import { PhraseSize, publicKeyToBech32, TxType } from "@heliax/namada-sdk/web";
 import { IndexedDBKVStore, KVStore } from "@namada/storage";
 import {
   AccountType,
@@ -49,7 +49,7 @@ import {
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 export class KeyRingService {

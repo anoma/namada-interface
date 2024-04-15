@@ -1,9 +1,9 @@
 import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { TxType, TxTypeLabel } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Stack } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
-import { TxType, TxTypeLabel } from "@namada/sdk/web";
 import { AccountType, Tokens } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { ApprovalDetails } from "Approvals/Approvals";

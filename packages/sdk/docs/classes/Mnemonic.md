@@ -1,4 +1,4 @@
-[@namada/sdk](../README.md) / [Exports](../modules.md) / Mnemonic
+[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / Mnemonic
 
 # Class: Mnemonic
 

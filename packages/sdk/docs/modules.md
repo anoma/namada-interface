@@ -1,6 +1,6 @@
-[@namada/sdk](README.md) / Exports
+[@heliax/namada-sdk](README.md) / Exports
 
-# @namada/sdk
+# @heliax/namada-sdk
 
 ## Table of contents
 

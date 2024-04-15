@@ -1,4 +1,4 @@
-@namada/sdk / [Exports](modules.md)
+@heliax/namada-sdk / [Exports](modules.md)
 
 # sdk
 

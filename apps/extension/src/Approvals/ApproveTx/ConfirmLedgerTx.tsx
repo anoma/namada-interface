@@ -2,8 +2,8 @@ import { toBase64 } from "@cosmjs/encoding";
 import BigNumber from "bignumber.js";
 import { useCallback, useEffect, useState } from "react";
 
+import { TxType, TxTypeLabel } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Stack } from "@namada/components";
-import { TxType, TxTypeLabel } from "@namada/sdk/web";
 import { Message, TxMsgValue, TxProps } from "@namada/types";
 import { LedgerError } from "@zondax/ledger-namada";
 import { ApprovalDetails, Status } from "Approvals/Approvals";

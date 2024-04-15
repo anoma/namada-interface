@@ -1,4 +1,4 @@
-import type { SupportedTx } from "@namada/sdk/web";
+import type { SupportedTx } from "@heliax/namada-sdk/web";
 import {
   AccountType,
   Chain,

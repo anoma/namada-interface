@@ -1,4 +1,4 @@
-[@namada/sdk](../README.md) / [Exports](../modules.md) / EncodedTx
+[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / EncodedTx
 
 # Class: EncodedTx
 

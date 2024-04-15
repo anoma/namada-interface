@@ -1,4 +1,4 @@
-[@namada/sdk](../README.md) / [Exports](../modules.md) / Ledger
+[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / Ledger
 
 # Class: Ledger
 

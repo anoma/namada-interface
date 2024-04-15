@@ -1,4 +1,4 @@
-[@namada/sdk](../README.md) / [Exports](../modules.md) / Tx
+[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / Tx
 
 # Class: Tx
 
