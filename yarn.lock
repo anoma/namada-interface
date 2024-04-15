@@ -8457,14 +8457,15 @@ __metadata:
     path: "npm:^0.12.7"
     postcss: "npm:^8.4.32"
     postcss-loader: "npm:^7.3.3"
-    react: "npm:^17.0.2"
-    react-dom: "npm:^17.0.2"
+    react: "npm:^18.0.0"
+    react-dom: "npm:^18.0.0"
+    react-icons: "npm:^5.1.0"
     react-modal: "npm:^3.15.1"
     react-paginate: "npm:^8.2.0"
     react-qr-reader: "npm:2.1.2"
     react-redux: "npm:^7.2.6"
     react-router-dom: "npm:^6.0.0"
-    react-scripts: "npm:5.0.0"
+    react-scripts: "npm:5.0.1"
     redux-mock-store: "npm:^1.5.4"
     redux-persist: "npm:^6.0.0"
     redux-persist-transform-encrypt: "npm:^3.0.1"
@@ -17540,9 +17541,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-react-app@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "eslint-config-react-app@npm:7.0.0"
+"eslint-config-react-app@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "eslint-config-react-app@npm:7.0.1"
   dependencies:
     "@babel/core": "npm:^7.16.0"
     "@babel/eslint-parser": "npm:^7.16.3"
@@ -17560,7 +17561,7 @@ __metadata:
     eslint-plugin-testing-library: "npm:^5.0.1"
   peerDependencies:
     eslint: ^8.0.0
-  checksum: 0b343633673c1fbb8d11ea7dcc303e9753249bf0edfb3154daad407376e0a75da3176cff724b5f2beca24542a06762a58aa51dbf6a3c3f56b2959f3a13ff4dc4
+  checksum: be290ec0cd5a2c0bb0b85cb1645e8734769cae77f101cd453631d77a60fa4894ee8b5b1e080ee8c21e01af0d0fc22367a2882931a549691b5ab801abb985cbba
   languageName: node
   linkType: hard
 
@@ -30197,9 +30198,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dev-utils@npm:^12.0.0":
-  version: 12.0.0
-  resolution: "react-dev-utils@npm:12.0.0"
+"react-dev-utils@npm:^12.0.1":
+  version: 12.0.1
+  resolution: "react-dev-utils@npm:12.0.1"
   dependencies:
     "@babel/code-frame": "npm:^7.16.0"
     address: "npm:^1.1.2"
@@ -30220,12 +30221,12 @@ __metadata:
     open: "npm:^8.4.0"
     pkg-up: "npm:^3.1.0"
     prompts: "npm:^2.4.2"
-    react-error-overlay: "npm:^6.0.10"
+    react-error-overlay: "npm:^6.0.11"
     recursive-readdir: "npm:^2.2.2"
     shell-quote: "npm:^1.7.3"
     strip-ansi: "npm:^6.0.1"
     text-table: "npm:^0.2.0"
-  checksum: 0eb8e1a959a96cd0bba112d9baeaeedfd66b9e25ee93ee3d7eb0902407fbb666ccf3bc6a3604b0e7aad3a3f2e3f9f8fbfc8717753a8f8dc18d0090895a8c440c
+  checksum: 94bc4ee5014290ca47a025e53ab2205c5dc0299670724d46a0b1bacbdd48904827b5ae410842d0a3a92481509097ae032e4a9dc7ca70db437c726eaba6411e82
   languageName: node
   linkType: hard
 
@@ -30242,10 +30243,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-error-overlay@npm:^6.0.10":
-  version: 6.0.10
-  resolution: "react-error-overlay@npm:6.0.10"
-  checksum: 123dc3a6d079a190f94bb4138b5b970e9f592a614f411afd8045a9eab6107d1c750da3a756b19f012b53cd318bc2287cbe6a7ba683ba1d904821d9f7e5135472
+"react-dom@npm:^18.0.0":
+  version: 18.3.0
+  resolution: "react-dom@npm:18.3.0"
+  dependencies:
+    loose-envify: "npm:^1.1.0"
+    scheduler: "npm:^0.23.1"
+  peerDependencies:
+    react: ^18.3.0
+  checksum: 5072767a5d67e242579e5ed46094bf5665385fcfc50584e818273ba668f768348bfd9101841fa3986635635b1238a7a5b2d28b73b134ebbe58a415311afd60d4
+  languageName: node
+  linkType: hard
+
+"react-error-overlay@npm:^6.0.11":
+  version: 6.0.11
+  resolution: "react-error-overlay@npm:6.0.11"
+  checksum: 8fc93942976e0c704274aec87dbc8e21f62a2cc78d1c93f9bcfff9f7494b00c60f7a2f0bd48d832bcd3190627c0255a1df907373f61f820371373a65ec4b2d64
   languageName: node
   linkType: hard
 
@@ -30255,6 +30268,15 @@ __metadata:
   peerDependencies:
     react: "*"
   checksum: 2170f43031ee7365539f72d4075cbe6c7fbf9a66d6cf4494aa9393b194272da0564f5b19d1b24dbfc567c0ac89f5fe5b8974d92dd83f61e252388dde6a226fb8
+  languageName: node
+  linkType: hard
+
+"react-icons@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "react-icons@npm:5.1.0"
+  peerDependencies:
+    react: "*"
+  checksum: f01648bbf37854510a568c1ac4aeb1c23f734f2ff3a9e94d624bc039ff6291d83ea83281a1380e8105b3f1819bb359a6f34326a5cefbfbced1024b4b81493e01
   languageName: node
   linkType: hard
 
@@ -30385,9 +30407,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-scripts@npm:5.0.0":
-  version: 5.0.0
-  resolution: "react-scripts@npm:5.0.0"
+"react-scripts@npm:5.0.1":
+  version: 5.0.1
+  resolution: "react-scripts@npm:5.0.1"
   dependencies:
     "@babel/core": "npm:^7.16.0"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.3"
@@ -30405,7 +30427,7 @@ __metadata:
     dotenv: "npm:^10.0.0"
     dotenv-expand: "npm:^5.1.0"
     eslint: "npm:^8.3.0"
-    eslint-config-react-app: "npm:^7.0.0"
+    eslint-config-react-app: "npm:^7.0.1"
     eslint-webpack-plugin: "npm:^3.1.1"
     file-loader: "npm:^6.2.0"
     fs-extra: "npm:^10.0.0"
@@ -30423,7 +30445,7 @@ __metadata:
     postcss-preset-env: "npm:^7.0.1"
     prompts: "npm:^2.4.2"
     react-app-polyfill: "npm:^3.0.0"
-    react-dev-utils: "npm:^12.0.0"
+    react-dev-utils: "npm:^12.0.1"
     react-refresh: "npm:^0.11.0"
     resolve: "npm:^1.20.0"
     resolve-url-loader: "npm:^4.0.0"
@@ -30448,7 +30470,7 @@ __metadata:
       optional: true
   bin:
     react-scripts: bin/react-scripts.js
-  checksum: 7fb82563704d38f28c6a8ccf3ed67e5bbbae6e56703ea261285fd4520af6ef7606c2351e062c0b86c638c2bb3acf2b2cca8ba1b659b9cde0ffa4dc13f3f41c75
+  checksum: 1776e7139261019eb4a2adece8fb997913040c6b4e9170902ffed95c3ff311ded623189bb1582ecddb3a5a15d6afd871fb68dbed72080d50f635e31c4ff5fff5
   languageName: node
   linkType: hard
 
@@ -30459,6 +30481,15 @@ __metadata:
     loose-envify: "npm:^1.1.0"
     object-assign: "npm:^4.1.1"
   checksum: 07ae8959acf1596f0550685102fd6097d461a54a4fd46a50f88a0cd7daaa97fdd6415de1dcb4bfe0da6aa43221a6746ce380410fa848acc60f8ac41f6649c148
+  languageName: node
+  linkType: hard
+
+"react@npm:^18.0.0":
+  version: 18.3.0
+  resolution: "react@npm:18.3.0"
+  dependencies:
+    loose-envify: "npm:^1.1.0"
+  checksum: ad87bbfdb0c5466148c657da18b0d5458e835389fc591d59840f0e6ec797a004073a01c8cdbff1767a8774c7219054a56f74dacd67bdbb849f1314e427999268
   languageName: node
   linkType: hard
 
@@ -31699,6 +31730,15 @@ __metadata:
     loose-envify: "npm:^1.1.0"
     object-assign: "npm:^4.1.1"
   checksum: b0982e4b0f34f4ffa4f2f486161c0fd9ce9b88680b045dccbf250eb1aa4fd27413570645455187a83535e2370f5c667a251045547765408492bd883cbe95fcdb
+  languageName: node
+  linkType: hard
+
+"scheduler@npm:^0.23.1":
+  version: 0.23.1
+  resolution: "scheduler@npm:0.23.1"
+  dependencies:
+    loose-envify: "npm:^1.1.0"
+  checksum: cfda827a445fb57192e05275040eccc7c5e2749b98f15559520c7f6539d89d75633bb8b6c1cedf56ca0546630b72d0958bf00b63e2b8f9296e87d0d9d2d50e35
   languageName: node
   linkType: hard
 
