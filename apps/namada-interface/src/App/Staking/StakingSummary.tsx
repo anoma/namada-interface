@@ -9,6 +9,7 @@ import {
   PieChartData,
 } from "@namada/components";
 import { useAtomValue } from "jotai";
+import { GoStack } from "react-icons/go";
 import { totalNamBalanceAtom } from "slices/accounts";
 import { selectedCurrencyRateAtom } from "slices/exchangeRates";
 import { selectedCurrencyAtom } from "slices/settings";
@@ -49,7 +50,7 @@ export const StakingSummary = (): JSX.Element => {
               currencyPosition="right"
               currency="nam"
               className="text-xl"
-              currencySignClassName="text-xs ml-1"
+              currencySignClassName="block mb-3 text-xs ml-1"
             />
             <Currency
               amount={totalStakedBalance.totalBonded.multipliedBy(
@@ -72,6 +73,7 @@ export const StakingSummary = (): JSX.Element => {
               currency="nam"
               spaceAroundSign={true}
               currencyPosition="right"
+              currencySignClassName="block mb-3 mt-0.5 text-lg"
             />
           }
           alternativeAmount={
@@ -94,10 +96,14 @@ export const StakingSummary = (): JSX.Element => {
           }
         />
       </Panel>
-      <Panel as="li">
+      <Panel as="li" className="opacity-60 pointer-events-none select-none">
         <AmountSummaryCard
-          logoElement={<Image imageName="LogoMinimal" />}
-          title="Unclaimed Staking rewards"
+          logoElement={
+            <i className="text-4xl">
+              <GoStack />
+            </i>
+          }
+          title="Staking Rewards will be enabled in phase 2"
           mainAmount="0 NAM"
           alternativeAmount="$0"
           callToAction={
@@ -105,7 +111,8 @@ export const StakingSummary = (): JSX.Element => {
               className="px-8"
               borderRadius="sm"
               size="xs"
-              color="primary"
+              color="white"
+              disabled
             >
               Claim
             </ActionButton>
