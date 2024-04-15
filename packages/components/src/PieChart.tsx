@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export type PieChartData = {
   value: number | BigNumber;
@@ -13,6 +14,7 @@ type PieChartProps = React.ComponentPropsWithRef<"svg"> & {
   radius?: number;
   strokeWidth?: number;
   segmentMargin?: number;
+  contentProps?: React.ComponentPropsWithoutRef<"div">;
   onMouseEnter?: (data: PieChartData, index: number) => void;
   onMouseLeave?: () => void;
 };
@@ -24,6 +26,7 @@ export const PieChart = ({
   strokeWidth = 10,
   radius = 50,
   segmentMargin = 2.5,
+  contentProps = {},
   onMouseEnter,
   onMouseLeave,
   ...svgProps
@@ -31,6 +34,8 @@ export const PieChart = ({
   const length = 2 * Math.PI * (radius - strokeWidth);
   const filteredData = data.filter((el) => new BigNumber(el.value).gt(0));
   const margin = filteredData.length > 1 ? segmentMargin : 0;
+  const { className: contentPropsClassName, ...contentPropsRest } =
+    contentProps;
 
   const total = filteredData.reduce((acc, entry) => {
     return acc.plus(entry.value);
@@ -76,10 +81,14 @@ export const PieChart = ({
         {renderData()}
       </svg>
       <div
-        className={clsx(
-          "absolute top-0 left-0 text-center w-full h-full",
-          "flex items-center justify-center pointer-events-none"
+        className={twMerge(
+          clsx(
+            "absolute top-0 left-0 text-center w-full h-full",
+            "flex items-center justify-center pointer-events-none"
+          ),
+          contentPropsClassName
         )}
+        {...contentPropsRest}
       >
         {children}
       </div>
