@@ -26,7 +26,7 @@ import {
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 const toValidator = (address: string): Validator => ({
@@ -53,9 +53,9 @@ const toMyValidators = (
     index == -1
       ? (arr: MyValidators[]) => arr
       : (arr: MyValidators[], idx: number) => [
-          ...arr.slice(0, idx),
-          ...arr.slice(idx + 1),
-        ];
+        ...arr.slice(0, idx),
+        ...arr.slice(idx + 1),
+      ];
 
   const stakedAmount = new BigNumber(stake).plus(
     new BigNumber(v?.stakedAmount || 0)
@@ -260,12 +260,12 @@ export const postNewBonding = createAsyncThunk<
   const { type, publicKey } = account.details;
 
   await signer.submitBond(
-    {
+    [{
       source,
       validator,
       amount: new BigNumber(amount),
       nativeToken: nativeToken || tokenAddress,
-    },
+    }],
     {
       token: nativeToken || tokenAddress,
       feeAmount: gasPrice,
@@ -310,11 +310,11 @@ export const postNewUnbonding = createAsyncThunk<
   } = derived[id][source];
 
   await signer.submitUnbond(
-    {
+    [{
       source,
       validator,
       amount: new BigNumber(amount),
-    },
+    }],
     {
       token: nativeToken || tokenAddress,
       feeAmount: gasPrice,
@@ -353,10 +353,10 @@ export const postNewWithdraw = createAsyncThunk<
     } = derived[id][owner];
 
     await signer.submitWithdraw(
-      {
+      [{
         source: owner,
         validator: validatorId,
-      },
+      }],
       {
         token: nativeToken || tokenAddress,
         feeAmount: gasPrice,

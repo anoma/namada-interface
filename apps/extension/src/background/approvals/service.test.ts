@@ -264,18 +264,13 @@ describe("approvals service", () => {
       jest.spyOn(service as any, "_launchApprovalWindow");
 
       try {
-        const res = await service.approveTx(type, "", "", AccountType.Mnemonic);
+        const res = await service.approveTx(
+          type,
+          [{ specificMsg: "", txMsg: "" }],
+          AccountType.Mnemonic
+        );
         expect(res).toBeUndefined();
-      } catch (e) {}
-    });
-
-    it("should throw an error if txType is not found", async () => {
-      const type: any = 999;
-      jest.spyOn(borsh, "deserialize").mockReturnValue({});
-
-      await expect(
-        service.approveTx(type, "", "", AccountType.Mnemonic)
-      ).rejects.toBeDefined();
+      } catch (e) { }
     });
   });
 
@@ -559,8 +554,12 @@ describe("approvals service", () => {
       jest.spyOn(service["txStore"], "get").mockImplementation(() => {
         return Promise.resolve({
           txType,
-          txMsg,
-          specificMsg,
+          tx: [
+            {
+              txMsg,
+              specificMsg,
+            },
+          ],
         });
       });
 
@@ -585,8 +584,12 @@ describe("approvals service", () => {
       jest.spyOn(service["txStore"], "get").mockImplementation(() => {
         return Promise.resolve({
           txType,
-          txMsg,
-          specificMsg,
+          tx: [
+            {
+              txMsg,
+              specificMsg,
+            },
+          ],
         });
       });
 

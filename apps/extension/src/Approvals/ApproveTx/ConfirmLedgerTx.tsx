@@ -135,11 +135,13 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
       throw new Error("msgId was not provided!");
     }
 
-    const { bytes, path } = await requester
-      .sendMessage(Ports.Background, new GetTxBytesMsg(txType, msgId, source))
-      .catch((e) => {
-        throw new Error(`Requester error: ${e}`);
-      });
+    const { bytes, path } = (
+      await requester
+        .sendMessage(Ports.Background, new GetTxBytesMsg(txType, msgId, source))
+        .catch((e) => {
+          throw new Error(`Requester error: ${e}`);
+        })
+    )[0];
 
     setStatusInfo(`Review and approve ${txLabel} transaction on your Ledger`);
 

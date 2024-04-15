@@ -5,6 +5,7 @@ import {
   DerivedAccount,
   SignatureResponse,
 } from "@namada/types";
+import { PendingTx } from "background/approvals";
 import { Message } from "router";
 import { validateProps } from "utils";
 
@@ -97,7 +98,7 @@ export class GetChainMsg extends Message<Chain> {
     super();
   }
 
-  validate(): void {}
+  validate(): void { }
 
   route(): string {
     return Route.Chains;
@@ -177,7 +178,7 @@ export class ShieldedSyncMsg extends Message<void> {
     super();
   }
 
-  validate(): void {}
+  validate(): void { }
 
   route(): string {
     return Route.KeyRing;
@@ -219,15 +220,14 @@ export class ApproveTxMsg extends Message<void> {
 
   constructor(
     public readonly txType: SupportedTx,
-    public readonly txMsg: string,
-    public readonly specificMsg: string,
+    public readonly tx: PendingTx[],
     public readonly accountType: AccountType
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["txType", "txMsg", "specificMsg", "accountType"]);
+    validateProps(this, ["txType", "tx", "accountType"]);
   }
 
   route(): string {

@@ -26,7 +26,7 @@ import { LedgerService } from "background/ledger";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
-import { PendingTxDetails, TxStore } from "./types";
+import { PendingTx, PendingTxDetails, TxStore } from "./types";
 
 type GetParams = (
   specificMsg: Uint8Array,
@@ -64,21 +64,22 @@ export class ApprovalsService {
   ) { }
 
   async queryPendingTx(msgId: string): Promise<PendingTxDetails[]> {
-    // TODO: Update storage to support array of Tx
-    const tx = await this.txStore.get(msgId);
+    const storedTx = await this.txStore.get(msgId);
 
-    if (!tx) {
+    if (!storedTx) {
       throw new Error("Pending tx not found!");
     }
 
-    // Array of Tx should be mapped to their details here:
-    const { txType, specificMsg, txMsg } = tx;
-    const specificMsgBuffer = Buffer.from(fromBase64(specificMsg));
-    const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-    const txDetails = deserialize(txMsgBuffer, TxMsgValue);
-    const details = getParamsMethod(txType)(specificMsgBuffer, txDetails);
+    const { txType } = storedTx;
 
-    return [details];
+    return storedTx.tx.map((pendingTx: PendingTx) => {
+      const { specificMsg, txMsg } = pendingTx;
+      const specificMsgBuffer = Buffer.from(fromBase64(specificMsg));
+      const txMsgBuffer = Buffer.from(fromBase64(txMsg));
+      const txDetails = deserialize(txMsgBuffer, TxMsgValue);
+      const details = getParamsMethod(txType)(specificMsgBuffer, txDetails);
+      return details;
+    });
   }
 
   async approveSignature(
@@ -151,27 +152,15 @@ export class ApprovalsService {
 
   async approveTx(
     txType: SupportedTx,
-    txMsg: string,
-    specificMsg: string,
+    tx: PendingTx[],
     type: AccountType
   ): Promise<void> {
     const msgId = uuid();
-    await this.txStore.set(msgId, { txType, txMsg, specificMsg });
+    await this.txStore.set(msgId, { txType, tx });
 
-    // Decode tx details and launch approval screen
-    const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-    const txDetails = deserialize(txMsgBuffer, TxMsgValue);
-    const specificMsgBuffer = Buffer.from(fromBase64(specificMsg));
-
-    const baseUrl = `${browser.runtime.getURL(
+    const url = `${browser.runtime.getURL(
       "approvals.html"
     )}#/approve-tx/${msgId}/${txType}/${type}`;
-
-    const url = paramsToUrl(baseUrl, {
-      ...getParamsMethod(txType)(specificMsgBuffer, txDetails),
-      msgId,
-      accountType: type,
-    });
 
     await this._launchApprovalWindow(url);
   }
@@ -322,26 +311,33 @@ export class ApprovalsService {
   // Authenticate keyring and submit approved transaction from storage
   async submitTx(msgId: string): Promise<void> {
     // Fetch pending transfer tx
-    const tx = await this.txStore.get(msgId);
+    const storedTx = await this.txStore.get(msgId);
 
-    if (!tx) {
+    if (!storedTx) {
       throw new Error("Pending tx not found!");
     }
 
-    const { txType, specificMsg, txMsg } = tx;
+    const { txType } = storedTx;
 
-    const submitFn =
-      txType === TxType.Bond ? this.keyRingService.submitBond
-        : txType === TxType.Unbond ? this.keyRingService.submitUnbond
-          : txType === TxType.Transfer ? this.keyRingService.submitTransfer
-            : txType === TxType.IBCTransfer ? this.keyRingService.submitIbcTransfer
-              : txType === TxType.EthBridgeTransfer ?
-                this.keyRingService.submitEthBridgeTransfer
-                : txType === TxType.Withdraw ? this.keyRingService.submitWithdraw
-                  : txType === TxType.VoteProposal ? this.keyRingService.submitVoteProposal
-                    : assertNever(txType);
+    await Promise.all(
+      storedTx.tx.map(async (pendingTx: PendingTx) => {
+        const { specificMsg, txMsg } = pendingTx;
+        const submitFn =
+          txType === TxType.Bond ? this.keyRingService.submitBond
+            : txType === TxType.Unbond ? this.keyRingService.submitUnbond
+              : txType === TxType.Transfer ? this.keyRingService.submitTransfer
+                : txType === TxType.IBCTransfer ?
+                  this.keyRingService.submitIbcTransfer
+                  : txType === TxType.EthBridgeTransfer ?
+                    this.keyRingService.submitEthBridgeTransfer
+                    : txType === TxType.Withdraw ? this.keyRingService.submitWithdraw
+                      : txType === TxType.VoteProposal ?
+                        this.keyRingService.submitVoteProposal
+                        : assertNever(txType);
 
-    await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
+        await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
+      })
+    );
 
     return await this._clearPendingTx(msgId);
   }

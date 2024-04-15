@@ -86,11 +86,13 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
       const proposal = maybeProposal.value;
 
       await signer.submitVoteProposal(
-        {
-          signer: maybeActiveDelegator.value,
-          vote: voteStr,
-          proposalId: BigInt(proposal.id),
-        },
+        [
+          {
+            signer: maybeActiveDelegator.value,
+            vote: voteStr,
+            proposalId: BigInt(proposal.id),
+          },
+        ],
         {
           token: Tokens.NAM.address || "",
           feeAmount: new BigNumber(0),

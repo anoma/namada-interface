@@ -6,8 +6,10 @@ export type TxMsgProps = {
   //TODO: figure out if we can make it better
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   txType: any;
-  specificMsg: string;
-  txMsg: string;
+  tx: {
+    specificMsg: string;
+    txMsg: string;
+  }[];
   type: AccountType;
 };
 

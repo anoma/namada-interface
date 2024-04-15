@@ -30,7 +30,7 @@ export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) {}
+  ) { }
 
   public async connect(): Promise<void> {
     return await this.requester?.sendMessage(
@@ -136,7 +136,7 @@ export class Namada implements INamada {
   public async submitTx(props: TxMsgProps): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveTxMsg(props.txType, props.specificMsg, props.txMsg, props.type)
+      new ApproveTxMsg(props.txType, props.tx, props.type)
     );
   }
 

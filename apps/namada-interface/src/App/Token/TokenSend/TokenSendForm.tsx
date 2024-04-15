@@ -22,7 +22,7 @@ import {
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 export const submitTransferTransaction = async (
@@ -68,7 +68,7 @@ export const submitTransferTransaction = async (
     memo,
   };
 
-  await signer.submitTransfer(transferArgs, txArgs, type);
+  await signer.submitTransfer([transferArgs], txArgs, type);
 };
 
 type Props = {

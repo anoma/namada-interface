@@ -1,13 +1,13 @@
-import { Handler, Env, Message, InternalHandler } from "router";
-import { LedgerService } from "./service";
+import { Env, Handler, InternalHandler, Message } from "router";
 import {
-  GetTxBytesMsg,
-  SubmitSignedRevealPKMsg,
   GetRevealPKBytesMsg,
-  SubmitSignedTxMsg,
+  GetTxBytesMsg,
   QueryStoredPK,
   StoreRevealedPK,
+  SubmitSignedRevealPKMsg,
+  SubmitSignedTxMsg,
 } from "./messages";
+import { LedgerService } from "./service";
 
 export const getHandler: (service: LedgerService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {
@@ -15,7 +15,10 @@ export const getHandler: (service: LedgerService) => Handler = (service) => {
       case GetTxBytesMsg:
         return handleGetTxBytesMsg(service)(env, msg as GetTxBytesMsg);
       case GetRevealPKBytesMsg:
-        return handleGetRevealPKBytesMsg(service)(env, msg as GetTxBytesMsg);
+        return handleGetRevealPKBytesMsg(service)(
+          env,
+          msg as GetRevealPKBytesMsg
+        );
       case SubmitSignedRevealPKMsg:
         return handleSubmitSignedRevealPKMsg(service)(
           env,
