@@ -31,7 +31,8 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
-  const { source, msgId, publicKey, txType, nativeToken } = details || {};
+  const { msgId, txType } = details || {};
+  const { source, publicKey, nativeToken } = details?.tx[0] || {};
 
   useEffect(() => {
     if (status === Status.Completed) {

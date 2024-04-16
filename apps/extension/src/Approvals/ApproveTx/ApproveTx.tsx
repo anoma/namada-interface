@@ -36,19 +36,12 @@ const fetchPendingTxDetails = async (
 export const ApproveTx: React.FC<Props> = ({ details, setDetails }) => {
   const navigate = useNavigate();
   const requester = useRequester();
-  const { amount, source, target, publicKey, tokenAddress, validator } =
-    details || {};
-
   // Parse URL params
   const params = useSanitizedParams();
   const txType = parseInt(params?.type || "0");
   const accountType =
     (params?.accountType as AccountType) || AccountType.PrivateKey;
   const msgId = params?.msgId || "0";
-
-  const tokenType =
-    Object.values(Tokens).find((token) => token.address === tokenAddress)
-      ?.symbol || "NAM";
 
   useEffect(() => {
     fetchPendingTxDetails(requester, msgId)
@@ -59,32 +52,16 @@ export const ApproveTx: React.FC<Props> = ({ details, setDetails }) => {
           );
         }
         // TODO: Handle array of approval details
-        const {
-          amount,
-          source,
-          publicKey,
-          target,
-          nativeToken,
-          tokenAddress,
-          validator,
-        } = details[0];
-
         setDetails({
-          amount,
-          source,
           txType,
           msgId,
-          publicKey,
-          target,
-          nativeToken,
-          tokenAddress,
-          validator,
+          tx: details,
         });
       })
       .catch((e) => {
         console.error(`Could not fetch pending Tx with msgId = ${msgId}: ${e}`);
       });
-  }, [source, publicKey, txType, target, msgId]);
+  }, [txType, msgId]);
 
   const handleApproveClick = useCallback((): void => {
     if (accountType === AccountType.Ledger) {
@@ -114,25 +91,45 @@ export const ApproveTx: React.FC<Props> = ({ details, setDetails }) => {
         <strong>{TxTypeLabel[txType as TxType]}</strong> transaction?
       </Alert>
       <Stack gap={2}>
-        {source && (
-          <p className="text-xs">
-            Source: <strong>{shortenAddress(source)}</strong>
-          </p>
-        )}
-        {target && (
-          <p className="text-xs">
-            Target:
-            <strong>{shortenAddress(target)}</strong>
-          </p>
-        )}
-        {amount && (
-          <p className="text-xs">
-            Amount: {amount} {tokenType}
-          </p>
-        )}
-        {validator && (
-          <p className="text-xs">Validator: {shortenAddress(validator)}</p>
-        )}
+        {details?.tx.map((txDetails, i) => {
+          const { amount, source, target, publicKey, tokenAddress, validator } =
+            txDetails || {};
+          const tokenType =
+            Object.values(Tokens).find(
+              (token) => token.address === tokenAddress
+            )?.symbol || "NAM";
+
+          return (
+            <div key={i}>
+              {source && (
+                <p className="text-xs">
+                  Source: <strong>{shortenAddress(source)}</strong>
+                </p>
+              )}
+              {target && (
+                <p className="text-xs">
+                  Target:
+                  <strong>{shortenAddress(target)}</strong>
+                </p>
+              )}
+              {amount && (
+                <p className="text-xs">
+                  Amount: {amount} {tokenType}
+                </p>
+              )}
+              {publicKey && (
+                <p className="text-xs">
+                  Public key: {shortenAddress(publicKey)}
+                </p>
+              )}
+              {validator && (
+                <p className="text-xs">
+                  Validator: {shortenAddress(validator)}
+                </p>
+              )}
+            </div>
+          );
+        })}
       </Stack>
       <Stack gap={3} direction="horizontal">
         <ActionButton onClick={handleApproveClick}>Approve</ActionButton>

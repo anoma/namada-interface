@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { SupportedTx, TxType, TxTypeLabel } from "@heliax/namada-sdk/web";
+import { SupportedTx, TxTypeLabel } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Input, Stack } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
@@ -17,7 +17,8 @@ type Props = {
 };
 
 export const ConfirmTx: React.FC<Props> = ({ details }) => {
-  const { source, msgId, txType } = details || {};
+  const { msgId, txType } = details || {};
+  const { source } = details?.tx[0] || {};
 
   const navigate = useNavigate();
   const requester = useRequester();
@@ -27,10 +28,12 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
   const [statusInfo, setStatusInfo] = useState("");
 
   const handleApproveTx = useCallback(async (): Promise<void> => {
+    if (!txType) {
+      // TODO: What would be a better handling of this? txType should be defined
+      throw new Error("txType should be defined");
+    }
     setStatus(Status.Pending);
-    setStatusInfo(
-      `Decrypting keys and submitting ${TxTypeLabel[txType as TxType]}...`
-    );
+    setStatusInfo(`Decrypting keys and submitting ${TxTypeLabel[txType]}...`);
 
     try {
       if (!msgId) {

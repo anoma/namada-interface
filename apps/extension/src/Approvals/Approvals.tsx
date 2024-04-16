@@ -6,6 +6,7 @@ import { Container } from "@namada/components";
 
 import { AppHeader } from "App/Common/AppHeader";
 import { TopLevelRoute } from "Approvals/types";
+import { PendingTxDetails } from "background/approvals";
 import { ApproveConnection } from "./ApproveConnection";
 import { ApproveSignature } from "./ApproveSignature";
 import { ApproveTx } from "./ApproveTx/ApproveTx";
@@ -21,15 +22,9 @@ export enum Status {
 
 // TODO: Handle array of ApprovalDetails
 export type ApprovalDetails = {
-  source: string;
   msgId: string;
   txType: TxType;
-  publicKey?: string;
-  target?: string;
-  nativeToken?: string;
-  tokenAddress?: string;
-  amount?: string;
-  validator?: string;
+  tx: PendingTxDetails[];
 };
 
 export type SignatureDetails = {
