@@ -1,4 +1,9 @@
-import { Heading, Modal, Panel, ProgressIndicator } from "@namada/components";
+import {
+  ActionButton,
+  Heading,
+  Modal,
+  ProgressIndicator,
+} from "@namada/components";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +11,7 @@ import { totalNamBalanceAtom } from "slices/accounts";
 import { selectedCurrencyRateAtom } from "slices/exchangeRates";
 import { selectedCurrencyAtom } from "slices/settings";
 import { BondingAmountOverview } from "./BondingAmountOverview";
+import { BondingValidatorsTable } from "./BondingValidatorsTable";
 import StakingRoutes from "./routes";
 
 export const Bonding = (): JSX.Element => {
@@ -45,7 +51,10 @@ export const Bonding = (): JSX.Element => {
             amountInFiat={totalNam.multipliedBy(selectedCurrencyRate)}
           />
         </div>
-        <Panel className="rounded-md">Validator table goes here o/</Panel>
+        <BondingValidatorsTable />
+        <ActionButton size="sm" borderRadius="sm" className="w-1/4 mx-auto">
+          Stake
+        </ActionButton>
       </ModalContainer>
     </Modal>
   );
