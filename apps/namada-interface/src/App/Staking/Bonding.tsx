@@ -65,7 +65,11 @@ export const Bonding = (): JSX.Element => {
         {validators.state === "hasData" && (
           <BondingValidatorsTable validators={validators.data} />
         )}
-        <ActionButton size="sm" borderRadius="sm" className="w-1/4 mx-auto">
+        <ActionButton
+          size="sm"
+          borderRadius="sm"
+          className="mt-2 w-1/4 mx-auto"
+        >
           Stake
         </ActionButton>
       </ModalContainer>
