@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { Ledger, makeBip44Path } from "@heliax/namada-sdk/web";
 import { chains } from "@namada/chains";
-import { ActionButton, Input, Toggle } from "@namada/components";
+import { ActionButton, Input, ToggleButton } from "@namada/components";
 import { AccountType, DerivedAccount } from "@namada/types";
 
 import { TopLevelRoute } from "App/types";
@@ -371,9 +371,9 @@ const AddAccount: React.FC<Props> = ({
             {parentAccountType !== AccountType.Ledger && (
               <div className="my-3">
                 <div className="flex justify-end items-center pt-1 w-full">
-                  <span>Transparent&nbsp;</span>
-                  <Toggle
-                    onClick={() => setIsTransparent(!isTransparent)}
+                  <ToggleButton
+                    label="Transparent"
+                    onChange={() => setIsTransparent(!isTransparent)}
                     checked={isTransparent}
                   />
                   <span>&nbsp;Shielded</span>
