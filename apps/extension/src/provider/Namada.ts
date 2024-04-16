@@ -30,7 +30,7 @@ export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) { }
+  ) {}
 
   public async connect(): Promise<void> {
     return await this.requester?.sendMessage(

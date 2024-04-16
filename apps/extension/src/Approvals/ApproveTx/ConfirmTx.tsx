@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 import { SupportedTx, TxTypeLabel } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Input, Stack } from "@namada/components";
-import { shortenAddress } from "@namada/utils";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import { SubmitApprovedTxMsg } from "background/approvals";
 import { UnlockVaultMsg } from "background/vault";
@@ -18,7 +17,6 @@ type Props = {
 
 export const ConfirmTx: React.FC<Props> = ({ details }) => {
   const { msgId, txType } = details || {};
-  const { source } = details?.tx[0] || {};
 
   const navigate = useNavigate();
   const requester = useRequester();
@@ -99,12 +97,9 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
           Try again
         </Alert>
       )}
-      {status !== (Status.Pending || Status.Completed) && source && (
+      {status !== (Status.Pending || Status.Completed) && (
         <>
-          <Alert type="warning">
-            Decrypt keys for{" "}
-            <strong className="text-xs">{shortenAddress(source)}</strong>
-          </Alert>
+          <Alert type="warning">Verify your password to continue</Alert>
           <Input
             variant="Password"
             label={"Password"}

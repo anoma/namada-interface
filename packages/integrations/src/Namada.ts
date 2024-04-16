@@ -67,13 +67,13 @@ export default class Namada implements Integration<Account, Signer> {
     const signer = this._namada?.getSigner();
     if (props.ibcProps) {
       return await signer?.submitIbcTransfer(
-        [props.ibcProps],
+        props.ibcProps,
         props.txProps,
         type
       );
     } else if (props.bridgeProps) {
       return await signer?.submitEthBridgeTransfer(
-        [props.bridgeProps],
+        props.bridgeProps,
         props.txProps,
         type
       );

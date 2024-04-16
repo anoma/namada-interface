@@ -260,6 +260,7 @@ export const postNewBonding = createAsyncThunk<
   const { type, publicKey } = account.details;
 
   await signer.submitBond(
+    // TODO: Interface should allow multiple Bond Tx
     [{
       source,
       validator,
@@ -310,6 +311,7 @@ export const postNewUnbonding = createAsyncThunk<
   } = derived[id][source];
 
   await signer.submitUnbond(
+    // TODO: Interface should allow multiple Unbond Tx
     [{
       source,
       validator,
@@ -353,6 +355,7 @@ export const postNewWithdraw = createAsyncThunk<
     } = derived[id][owner];
 
     await signer.submitWithdraw(
+      // TODO: Interface should allow multiple Withdraw Tx
       [{
         source: owner,
         validator: validatorId,

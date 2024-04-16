@@ -270,7 +270,7 @@ describe("approvals service", () => {
           AccountType.Mnemonic
         );
         expect(res).toBeUndefined();
-      } catch (e) { }
+      } catch (e) {}
     });
   });
 

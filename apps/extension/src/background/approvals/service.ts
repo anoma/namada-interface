@@ -61,7 +61,7 @@ export class ApprovalsService {
     protected readonly ledgerService: LedgerService,
     protected readonly vaultService: VaultService,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) { }
+  ) {}
 
   async queryPendingTx(msgId: string): Promise<PendingTxDetails[]> {
     const storedTx = await this.txStore.get(msgId);

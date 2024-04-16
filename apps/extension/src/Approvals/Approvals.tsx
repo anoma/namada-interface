@@ -20,7 +20,6 @@ export enum Status {
   Failed,
 }
 
-// TODO: Handle array of ApprovalDetails
 export type ApprovalDetails = {
   msgId: string;
   txType: TxType;

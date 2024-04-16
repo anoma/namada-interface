@@ -98,7 +98,7 @@ export class GetChainMsg extends Message<Chain> {
     super();
   }
 
-  validate(): void { }
+  validate(): void {}
 
   route(): string {
     return Route.Chains;
@@ -178,7 +178,7 @@ export class ShieldedSyncMsg extends Message<void> {
     super();
   }
 
-  validate(): void { }
+  validate(): void {}
 
   route(): string {
     return Route.KeyRing;
