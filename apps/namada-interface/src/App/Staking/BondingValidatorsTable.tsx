@@ -1,4 +1,4 @@
-import { AmountInput, Checkbox, Panel, StyledTable } from "@namada/components";
+import { AmountInput, Checkbox, StyledTable } from "@namada/components";
 import { Tokens } from "@namada/types";
 import { formatPercentage } from "@namada/utils";
 import BigNumber from "bignumber.js";
@@ -123,7 +123,10 @@ export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
           key={`bonding-validators-amount-${validator.uuid}`}
           className={clsx(
             "amountInput [&_input]:text-sm [&_input]:border-neutral-600 [&_input]:py-2.5",
-            "[&_input]:rounded-sm"
+            "[&_input]:rounded-sm",
+            {
+              "[&_input]:border-yellow": isSelected,
+            }
           )}
           value={newAmountsToStake[validator.address]}
           placeholder="Select to enter stake"
@@ -160,7 +163,7 @@ export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
   });
 
   return (
-    <Panel className="w-full rounded-md">
+    <div>
       <StyledTable
         containerClassName="max-h-[50vh]" // TODO: this seems wrong
         tableProps={{ className: "w-full" }}
@@ -169,6 +172,6 @@ export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
         headers={headers}
         rows={rows}
       />
-    </Panel>
+    </div>
   );
 };

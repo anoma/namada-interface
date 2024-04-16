@@ -2,10 +2,12 @@ import {
   ActionButton,
   Heading,
   Modal,
+  Panel,
   ProgressIndicator,
 } from "@namada/components";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { useAtomValue } from "jotai";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { totalNamBalanceAtom } from "slices/accounts";
 import { selectedCurrencyRateAtom } from "slices/exchangeRates";
@@ -18,6 +20,7 @@ import {
 import { useLoadable } from "store/hooks";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { BondingValidatorsTable } from "./BondingValidatorsTable";
+import { ValidatorSearch, filterValidators } from "./ValidatorSearch";
 import StakingRoutes from "./routes";
 
 export const Bonding = (): JSX.Element => {
@@ -27,6 +30,7 @@ export const Bonding = (): JSX.Element => {
   const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
   const validators = useLoadable(fetchAllValidatorsAtom);
   const totalStakedValue = useAtomValue(getStakingTotalAtom);
+  const [filter, setFilter] = useState<string>("");
   useLoadable(fetchMyValidatorsAtom);
 
   const header = (
@@ -62,8 +66,14 @@ export const Bonding = (): JSX.Element => {
             )}
           />
         </div>
+
         {validators.state === "hasData" && (
-          <BondingValidatorsTable validators={validators.data} />
+          <Panel className="w-full rounded-md">
+            <ValidatorSearch onChange={(value: string) => setFilter(value)} />
+            <BondingValidatorsTable
+              validators={validators.data.filter(filterValidators(filter))}
+            />
+          </Panel>
         )}
         <ActionButton
           size="sm"
