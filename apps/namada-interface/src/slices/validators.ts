@@ -46,6 +46,8 @@ export const allValidatorsAtom = atom<Validator[]>((get) =>
 export const fetchAllValidatorsAtom = atom(
   (get) => get(allValidatorsAtomBase),
   async (get, set) => {
+    const validators = get(allValidatorsAtomBase);
+    if (validators.length > 0) return;
     const { rpc } = get(chainAtom);
     const query = new Query(rpc);
     const queryResult =
