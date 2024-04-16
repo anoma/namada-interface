@@ -56,14 +56,7 @@ export const StakingOverview = (): JSX.Element => {
       <aside className="flex flex-col gap-2">
         <Panel>
           {hasStaking && (
-            <YourStakingDistribution
-              myValidators={myValidators
-                .concat(myValidators)
-                .concat(myValidators)
-                .concat(myValidators)
-                .concat(myValidators)
-                .concat(myValidators)}
-            />
+            <YourStakingDistribution myValidators={myValidators} />
           )}
         </Panel>
         <Panel>
