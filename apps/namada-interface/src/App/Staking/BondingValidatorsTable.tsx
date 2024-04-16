@@ -5,34 +5,20 @@ import { GoInfo } from "react-icons/go";
 import { AmountInput, Checkbox, Panel, StyledTable } from "@namada/components";
 import { Tokens } from "@namada/types";
 import { formatPercentage } from "@namada/utils";
+import { Validator } from "slices/validators";
 
-export const BondingValidatorsTable: React.FC = ({}) => {
-  // TODO: get validators from props
-  const validators = [
-    {
-      alias: "Validator",
-      address: "",
-      homepageUrl: "",
-      votingPowerInNAM: BigNumber(7_000_000),
-      votingPowerInPercentage: BigNumber(0.06),
-      commission: BigNumber(0.02),
-      imageUrl: "url",
-      uuid: "",
-    },
-  ];
+type BondingValidatorsTableProps = {
+  validators: Validator[];
+};
 
-  // TODO: probably shouldn't use the first two empty headers here
+export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
+  validators,
+}) => {
   const headers = [
-    "Validator",
-    "",
-    "",
+    { children: "Validator", colSpan: 3 },
     "Amount to stake",
-    <div className="text-right" key={`validator-voting-power-header`}>
-      Voting Power
-    </div>,
-    <div className="text-right" key={`validator-commission-header`}>
-      Commission
-    </div>,
+    { children: "Voting Power", className: "text-right" },
+    { children: "Comission", className: "text-right" },
     "",
   ];
 
@@ -92,6 +78,7 @@ export const BondingValidatorsTable: React.FC = ({}) => {
       <StyledTable
         containerClassName="max-h-[50vh]" // TODO: this seems wrong
         tableProps={{ className: "w-full" }}
+        headProps={{ className: "text-white" }}
         id="bonding-validators"
         headers={headers}
         rows={rows}
