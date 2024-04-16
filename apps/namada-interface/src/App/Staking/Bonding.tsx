@@ -10,6 +10,12 @@ import { useNavigate } from "react-router-dom";
 import { totalNamBalanceAtom } from "slices/accounts";
 import { selectedCurrencyRateAtom } from "slices/exchangeRates";
 import { selectedCurrencyAtom } from "slices/settings";
+import { getStakingTotalAtom } from "slices/staking";
+import {
+  fetchAllValidatorsAtom,
+  fetchMyValidatorsAtom,
+} from "slices/validators";
+import { useLoadable } from "store/hooks";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { BondingValidatorsTable } from "./BondingValidatorsTable";
 import StakingRoutes from "./routes";
@@ -19,6 +25,9 @@ export const Bonding = (): JSX.Element => {
   const totalNam = useAtomValue(totalNamBalanceAtom);
   const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
   const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
+  const validators = useLoadable(fetchAllValidatorsAtom);
+  const totalStakedValue = useAtomValue(getStakingTotalAtom);
+  useLoadable(fetchMyValidatorsAtom);
 
   const header = (
     <>
@@ -47,11 +56,15 @@ export const Bonding = (): JSX.Element => {
           <BondingAmountOverview
             title="Current Staked Amount"
             selectedFiatCurrency={selectedFiatCurrency}
-            amountInNam={totalNam}
-            amountInFiat={totalNam.multipliedBy(selectedCurrencyRate)}
+            amountInNam={totalStakedValue.totalBonded}
+            amountInFiat={totalStakedValue.totalBonded.multipliedBy(
+              selectedCurrencyRate
+            )}
           />
         </div>
-        <BondingValidatorsTable />
+        {validators.state === "hasData" && (
+          <BondingValidatorsTable validators={validators.data} />
+        )}
         <ActionButton size="sm" borderRadius="sm" className="w-1/4 mx-auto">
           Stake
         </ActionButton>
