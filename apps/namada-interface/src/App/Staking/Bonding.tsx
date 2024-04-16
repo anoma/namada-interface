@@ -68,7 +68,7 @@ export const Bonding = (): JSX.Element => {
         </div>
 
         {validators.state === "hasData" && (
-          <Panel className="w-full rounded-md">
+          <Panel className="w-full rounded-md flex-1">
             <ValidatorSearch onChange={(value: string) => setFilter(value)} />
             <BondingValidatorsTable
               validators={validators.data.filter(filterValidators(filter))}
