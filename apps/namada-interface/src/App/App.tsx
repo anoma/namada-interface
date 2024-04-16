@@ -112,7 +112,7 @@ function App(): JSX.Element {
             sidebar={<Sidebar />}
             header={<TopNavigation chain={chain} />}
           >
-            <AnimatePresence exitBeforeEnter>
+            <AnimatePresence mode="wait">
               <Outlet />
             </AnimatePresence>
           </Container>

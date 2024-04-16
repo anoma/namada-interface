@@ -48,7 +48,7 @@ export const PieChart = ({
   let offset = 0;
   const renderData = (): React.ReactNode =>
     filteredData.map((dataItem, index) => {
-      const segmentLength = length * percentages[index] - margin;
+      const segmentLength = Math.abs(length * percentages[index] - margin);
       const path = (
         <circle
           fill="none"
