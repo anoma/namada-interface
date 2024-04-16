@@ -172,7 +172,7 @@ export const Staking = (): JSX.Element => {
           path={`${StakingRoutes.overview()}`}
           element={<StakingOverview />}
         />
-        <Route path={`${StakingRoutes.bond()}`} element={<Bonding />} />
+        <Route path={`${StakingRoutes.manage()}`} element={<Bonding />} />
       </Routes>
     </main>
   );

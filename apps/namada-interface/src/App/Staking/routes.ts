@@ -12,7 +12,7 @@ export const index = (): string => `/staking`;
 
 export const overview = (): RouteOutput => routeOutput(`/overview`);
 
-export const bond = (): RouteOutput => routeOutput("/bond");
+export const manage = (): RouteOutput => routeOutput("/manage");
 
 export const validatorDetails = (id: string | number): RouteOutput =>
   routeOutput(`/validator-details/${id}`);
@@ -24,7 +24,7 @@ export const validatorDetailsOwner = (
 
 export default {
   index,
-  bond,
+  manage,
   overview,
   validatorDetails,
   validatorDetailsOwner,
