@@ -4,9 +4,7 @@ import { loadable } from "jotai/utils";
 import { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 
-import { Modal } from "@namada/components";
 import { useSanitizedLocation } from "@namada/hooks";
-import { truncateInMiddle } from "@namada/utils";
 
 import { StakingAndGovernanceSubRoute } from "App/types";
 import {
@@ -18,14 +16,12 @@ import {
 } from "slices/StakingAndGovernance";
 import { AccountsState } from "slices/accounts";
 import { isRevealPkNeededAtom, minimumGasPriceAtom } from "slices/fees";
-import { NewBondingPosition } from "./NewBondingPosition";
 import { StakingOverview } from "./StakingOverview";
-import { UnbondPosition } from "./UnbondPosition";
-import { ValidatorDetails } from "./ValidatorDetails";
 
 import { Chain } from "@namada/types";
 import { fetchMyValidatorsAtom } from "slices/validators";
 import { RootState, useAppDispatch, useAppSelector } from "store";
+import { Bonding } from "./Bonding";
 import StakingRoutes from "./routes";
 
 const initialTitle = "Staking";
@@ -171,70 +167,12 @@ export const Staking = (): JSX.Element => {
 
   return (
     <main className="w-full">
-      {/* modal for bonding */}
-      <Modal
-        isOpen={modalState === ModalState.NewBonding}
-        title={`Stake with ${truncateInMiddle(
-          selectedValidator?.name || "",
-          5,
-          5
-        )}`}
-        onBackdropClick={() => {
-          cancelBonding();
-        }}
-      >
-        {loadablesReady ?
-          <NewBondingPosition
-            accounts={accounts}
-            confirmBonding={confirmBonding}
-            cancelBonding={cancelBonding}
-            currentBondingPositions={currentBondingPositions}
-            minimumGasPrice={minimumGasPrice.data}
-            isRevealPkNeeded={isRevealPkNeeded.data}
-          />
-        : <p>Error fetching minimum gas price</p>}
-      </Modal>
       <Routes>
         <Route
           path={`${StakingRoutes.overview()}`}
           element={<StakingOverview />}
         />
-        <Route
-          path={`${StakingRoutes.validatorDetails(":validatorId")}`}
-          element={
-            minimumGasPrice.state === "hasData" ?
-              <ValidatorDetails
-                validator={selectedValidator}
-                stakingPositionsWithSelectedValidator={
-                  stakingPositionsWithSelectedValidator
-                }
-                navigateToUnbonding={navigateToUnbonding}
-                setModalState={setModalState}
-                minimumGasPrice={minimumGasPrice.data}
-              />
-            : <p>Error fetching minimum gas price</p>
-          }
-        >
-          <Route
-            path=":owner"
-            element={
-              <Modal
-                isOpen={modalState === ModalState.Unbond}
-                title="Unstake"
-                onBackdropClick={cancelUnbonding}
-              >
-                {minimumGasPrice.state === "hasData" ?
-                  <UnbondPosition
-                    confirmUnbonding={confirmUnbonding}
-                    cancelUnbonding={cancelUnbonding}
-                    currentBondingPositions={currentBondingPositions}
-                    minimumGasPrice={minimumGasPrice.data}
-                  />
-                : <p>Error loading minimum gas price</p>}
-              </Modal>
-            }
-          />
-        </Route>
+        <Route path={`${StakingRoutes.bond()}`} element={<Bonding />} />
       </Routes>
     </main>
   );

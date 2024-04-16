@@ -10,12 +10,15 @@ import {
 } from "@namada/components";
 import { useAtomValue } from "jotai";
 import { GoStack } from "react-icons/go";
+import { useNavigate } from "react-router-dom";
 import { totalNamBalanceAtom } from "slices/accounts";
 import { selectedCurrencyRateAtom } from "slices/exchangeRates";
 import { selectedCurrencyAtom } from "slices/settings";
 import { getStakingTotalAtom } from "slices/staking";
+import StakingRoutes from "./routes";
 
 export const StakingSummary = (): JSX.Element => {
+  const navigate = useNavigate();
   const totalStakedBalance = useAtomValue(getStakingTotalAtom);
   const selectedCurrency = useAtomValue(selectedCurrencyAtom);
   const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
@@ -23,9 +26,9 @@ export const StakingSummary = (): JSX.Element => {
 
   const getPiechartData = (): Array<PieChartData> => {
     return [
+      { value: availableBalance, color: "#ffffff" },
       { value: totalStakedBalance.totalBonded, color: "#ffff00" },
       { value: totalStakedBalance.totalUnbonded, color: "#DD1599" },
-      { value: availableBalance, color: "#ffffff" },
     ];
   };
 
@@ -87,6 +90,7 @@ export const StakingSummary = (): JSX.Element => {
               borderRadius="sm"
               size="xs"
               color="primary"
+              onClick={() => navigate(StakingRoutes.bond().url)}
             >
               Stake
             </ActionButton>

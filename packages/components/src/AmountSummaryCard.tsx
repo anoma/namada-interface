@@ -41,7 +41,7 @@ export const AmountSummaryCard = ({
           <div
             className={clsx(
               "text-white text-sm text-center font-medium",
-              "leading-4 max-w-[140px] mx-auto"
+              "leading-4 max-w-[150px] mx-auto"
             )}
           >
             {title}
