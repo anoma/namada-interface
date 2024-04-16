@@ -1,28 +1,17 @@
 import { StyledTable } from "@namada/components";
 import { formatPercentage, shortenAddress } from "@namada/utils";
 import FormattedPaginator from "App/Common/FormattedPaginator";
-import { ValidatorSearch } from "App/Staking/ValidatorSearch";
+import { ValidatorSearch, filterValidators } from "App/Staking/ValidatorSearch";
 import BigNumber from "bignumber.js";
-import debounce from "lodash.debounce";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { GoGlobe } from "react-icons/go";
-import { Validator, fetchAllValidatorsAtom } from "slices/validators";
+import { fetchAllValidatorsAtom } from "slices/validators";
 import { useLoadable } from "store/hooks";
 
 type AllValidatorsProps = {
   resultsPerPage?: number;
   initialPage?: number;
 };
-
-const filterValidators =
-  (search: string) =>
-  (validator: Validator): boolean => {
-    const preparedSearch = search.toLowerCase().trim();
-    return (
-      validator.address.toLowerCase().indexOf(preparedSearch) > -1 ||
-      validator.alias.toLowerCase().indexOf(preparedSearch) > -1
-    );
-  };
 
 export const AllValidatorsTable = ({
   resultsPerPage = 20,
@@ -31,9 +20,6 @@ export const AllValidatorsTable = ({
   const validators = useLoadable(fetchAllValidatorsAtom);
   const [page, setPage] = useState(initialPage);
   const [filter, setFilter] = useState("");
-  const debouncedSearch = useRef(
-    debounce((value: string) => setFilter(value), 300)
-  );
 
   useEffect(() => {
     setPage(0);
@@ -107,9 +93,9 @@ export const AllValidatorsTable = ({
 
   return (
     <>
-      <ValidatorSearch
-        onChange={(value: string) => debouncedSearch.current(value)}
-      />
+      <div className="max-w-[200px]">
+        <ValidatorSearch onChange={(value: string) => setFilter(value)} />
+      </div>
       <StyledTable
         tableProps={{ className: "w-full" }}
         id="all-validators"
