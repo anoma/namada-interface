@@ -8,7 +8,8 @@ import { Router } from "@remix-run/router";
 import { AccountOverview } from "./AccountOverview";
 import App, { AnimatedTransition } from "./App";
 import { Bridge } from "./Bridge";
-import { Proposals } from "./Proposals";
+import { Governance } from "./Governance";
+import GovernanceRoutes from "./Governance/routes";
 import { Settings, SettingsWalletSettings } from "./Settings";
 import { Staking } from "./Staking";
 import StakingRoutes from "./Staking/routes";
@@ -71,10 +72,10 @@ export const getRouter = (): Router => {
           }
         />
         <Route
-          path={`${TopLevelRoute.Proposals}`}
+          path={`${GovernanceRoutes.index()}/*`}
           element={
-            <AnimatedTransition elementKey={TopLevelRoute.Proposals}>
-              <Proposals />
+            <AnimatedTransition elementKey={GovernanceRoutes.index()}>
+              <Governance />
             </AnimatedTransition>
           }
         />
