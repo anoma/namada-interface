@@ -1259,7 +1259,7 @@ dependencies = [
 [[package]]
 name = "tiny-bip39"
 version = "1.0.0"
-source = "git+https://github.com/anoma/tiny-bip39?branch=invalid-word-index#24df8522308416ce611371bfb33a9d897ea5c046"
+source = "git+https://github.com/anoma/tiny-bip39?rev=743d537349c8deab14409ce726b868dcde90fd8e#743d537349c8deab14409ce726b868dcde90fd8e"
 dependencies = [
  "anyhow",
  "hmac",
