@@ -133,12 +133,12 @@ export const Staking = (): JSX.Element => {
   }, [location.pathname]);
 
   const navigateToValidatorDetails = (validatorId: string): void => {
-    navigate(StakingRoutes.validatorDetails(validatorId));
+    navigate(StakingRoutes.validatorDetails(validatorId).url);
     dispatch(fetchValidatorDetails(validatorId));
   };
 
   const navigateToUnbonding = (validatorId: string, owner: string): void => {
-    navigate(StakingRoutes.validatorDetailsOwner(validatorId, owner));
+    navigate(StakingRoutes.validatorDetailsOwner(validatorId, owner).url);
   };
 
   // callbacks for the bonding and unbonding views
