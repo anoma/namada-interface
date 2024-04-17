@@ -1,12 +1,12 @@
-import { StyledTable } from "@namada/components";
+import { TableRow } from "@namada/components";
 import { formatPercentage, shortenAddress } from "@namada/utils";
-import FormattedPaginator from "App/Common/FormattedPaginator";
-import { ValidatorSearch, filterValidators } from "App/Staking/ValidatorSearch";
+import { ValidatorSearch } from "App/Staking/ValidatorSearch";
 import BigNumber from "bignumber.js";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { GoGlobe } from "react-icons/go";
-import { fetchAllValidatorsAtom } from "slices/validators";
+import { Validator, fetchAllValidatorsAtom } from "slices/validators";
 import { useLoadable } from "store/hooks";
+import ValidatorsTable from "./ValidatorsTable";
 
 type AllValidatorsProps = {
   resultsPerPage?: number;
@@ -18,24 +18,12 @@ export const AllValidatorsTable = ({
   initialPage = 0,
 }: AllValidatorsProps): JSX.Element => {
   const validators = useLoadable(fetchAllValidatorsAtom);
-  const [page, setPage] = useState(initialPage);
   const [filter, setFilter] = useState("");
-
-  useEffect(() => {
-    setPage(0);
-  }, [filter]);
 
   // TODO:
   if (validators.state === "loading") return <>Loading...</>;
   if (validators.state === "hasError") return <>Error!</>;
 
-  const filteredValidators = validators.data.filter(filterValidators(filter));
-  const paginatedValidators = filteredValidators.slice(
-    page * resultsPerPage,
-    page * resultsPerPage + resultsPerPage
-  );
-
-  const pageCount = Math.ceil(filteredValidators.length / resultsPerPage);
   const headers = [
     "",
     "Validator",
@@ -49,7 +37,7 @@ export const AllValidatorsTable = ({
     "",
   ];
 
-  const rows = paginatedValidators.map((validator) => ({
+  const renderRows = (validator: Validator): TableRow => ({
     className: "[&_td:first-child]:pr-0",
     cells: [
       // Thumbnail:
@@ -89,28 +77,22 @@ export const AllValidatorsTable = ({
         <GoGlobe />
       </a>,
     ],
-  }));
+  });
 
   return (
     <>
       <div className="max-w-[200px]">
         <ValidatorSearch onChange={(value: string) => setFilter(value)} />
       </div>
-      <StyledTable
-        tableProps={{ className: "w-full" }}
+      <ValidatorsTable
         id="all-validators"
+        validatorList={validators.data}
         headers={headers}
-        rows={rows}
+        initialPage={initialPage}
+        resultsPerPage={resultsPerPage}
+        filter={filter}
+        renderRows={renderRows}
       />
-      <div className="mt-8 mb-4">
-        <FormattedPaginator
-          pageRangeDisplayed={3}
-          pageCount={pageCount}
-          onPageChange={({ selected }) => {
-            setPage(selected);
-          }}
-        />
-      </div>
     </>
   );
 };

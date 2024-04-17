@@ -20,7 +20,7 @@ import {
 import { useLoadable } from "store/hooks";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { BondingValidatorsTable } from "./BondingValidatorsTable";
-import { ValidatorSearch, filterValidators } from "./ValidatorSearch";
+import { ValidatorSearch } from "./ValidatorSearch";
 import StakingRoutes from "./routes";
 
 export const Bonding = (): JSX.Element => {
@@ -31,6 +31,7 @@ export const Bonding = (): JSX.Element => {
   const validators = useLoadable(fetchAllValidatorsAtom);
   const totalStakedValue = useAtomValue(getStakingTotalAtom);
   const [filter, setFilter] = useState<string>("");
+
   useLoadable(fetchMyValidatorsAtom);
 
   const header = (
@@ -46,9 +47,11 @@ export const Bonding = (): JSX.Element => {
     </>
   );
 
+  const onClose = (): void => navigate(StakingRoutes.overview().url);
+
   return (
-    <Modal onClose={() => navigate(StakingRoutes.overview().url)}>
-      <ModalContainer header={header}>
+    <Modal onClose={onClose}>
+      <ModalContainer header={header} onClose={onClose}>
         <div className="flex gap-2">
           <BondingAmountOverview
             title="Available NAM to Stake"
@@ -67,14 +70,17 @@ export const Bonding = (): JSX.Element => {
           />
         </div>
 
-        {validators.state === "hasData" && (
-          <Panel className="w-full rounded-md flex-1">
+        <Panel className="w-full rounded-md flex-1">
+          <div className="w-[70%]">
             <ValidatorSearch onChange={(value: string) => setFilter(value)} />
+          </div>
+          {validators.state === "hasData" && (
             <BondingValidatorsTable
-              validators={validators.data.filter(filterValidators(filter))}
+              validators={validators.data}
+              filter={filter}
             />
-          </Panel>
-        )}
+          )}
+        </Panel>
         <ActionButton
           size="sm"
           borderRadius="sm"
