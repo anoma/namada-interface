@@ -1,89 +1,45 @@
-import { AmountInput, Checkbox, Stack, TableRow } from "@namada/components";
-import { Tokens } from "@namada/types";
+import { Checkbox, Stack, TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 import BigNumber from "bignumber.js";
-import clsx from "clsx";
-import { useState } from "react";
 import { GoInfo } from "react-icons/go";
 import { Validator } from "slices/validators";
+import { ValidatorAmountControl } from "./ValidatorAmountControl";
 import ValidatorsTable from "./ValidatorsTable";
+
+type ValidatorAddress = string;
 
 type BondingValidatorsTableProps = {
   validators: Validator[];
   filter: string;
+  selectedValidators: Record<ValidatorAddress, boolean>;
+  newStakedAmountsByValidator: Record<ValidatorAddress, BigNumber>;
+  stakedAmountsByValidator: Record<ValidatorAddress, BigNumber>;
+  onRemoveValidator: (validator: Validator) => void;
+  onAddValidator: (validator: Validator) => void;
+  onChangeAmount: (validator: Validator, amount: BigNumber) => void;
 };
 
-type ValidatorAddress = string;
-
 export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
+  onChangeAmount,
+  onAddValidator,
+  onRemoveValidator,
   validators,
+  selectedValidators,
   filter,
+  newStakedAmountsByValidator,
+  stakedAmountsByValidator,
 }) => {
-  const [selectedValidators, setSelectedValidators] = useState<
-    Record<ValidatorAddress, Validator>
-  >({});
-
-  const [stakedAmounts, setStakedAmounts] = useState<
-    Record<ValidatorAddress, BigNumber>
-  >({});
-
-  const [newAmountsToStake, setNewAmountsToStake] = useState<
-    Record<ValidatorAddress, BigNumber>
-  >({});
-
-  const addValidator = (validator: Validator): void => {
-    setSelectedValidators((validators) => ({
-      ...validators,
-      [validator.address]: validator,
-    }));
-  };
-
-  const removeValidator = (validator: Validator): void => {
-    setSelectedValidators((validators) => {
-      const { [validator.address]: _, ...rest } = validators;
-      return rest;
-    });
-
-    setNewAmountsToStake((amounts) => {
-      const { [validator.address]: _, ...rest } = amounts;
-      return rest;
-    });
-  };
-
-  const toggleValidator = (validator: Validator): void => {
-    if (selectedValidators.hasOwnProperty(validator.address)) {
-      removeValidator(validator);
-    } else {
-      addValidator(validator);
-    }
-  };
-
-  const handleAmountChange = (
-    validator: Validator,
-    value?: BigNumber
-  ): void => {
-    if (!value) {
-      removeValidator(validator);
-      return;
-    }
-
-    addValidator(validator);
-    setNewAmountsToStake((amounts) => ({
-      ...amounts,
-      [validator.address]: value,
-    }));
-  };
-
   const handleCheckboxClick = (
     e: React.ChangeEvent<HTMLInputElement>,
     validator: Validator
   ): void => {
-    toggleValidator(validator);
-
     if (e.target.checked) {
-      // We can save some memory this way instead of using thousands of refs
-      const el = document.getElementById(getAmountInputId(validator.address));
-      if (el) el.focus();
+      onAddValidator(validator);
+      if (stakedAmountsByValidator[validator.address]) {
+        onChangeAmount(validator, stakedAmountsByValidator[validator.address]);
+      }
+    } else {
+      onRemoveValidator(validator);
     }
   };
 
@@ -99,7 +55,7 @@ export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
   ];
 
   const renderRows = (validator: Validator): TableRow => {
-    const isSelected = selectedValidators.hasOwnProperty(validator.address);
+    const isSelected = selectedValidators[validator.address];
     return {
       cells: [
         // Checkbox
@@ -125,23 +81,16 @@ export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
           {validator.alias}
         </Stack>,
 
-        // Alias
-        // Amount to stake
-        <AmountInput
-          id={getAmountInputId(validator.address)}
+        <ValidatorAmountControl
           key={`bonding-validators-amount-${validator.uuid}`}
-          className={clsx(
-            "amountInput [&_input]:text-sm [&_input]:border-neutral-600 [&_input]:py-2.5",
-            "[&_input]:rounded-sm",
-            {
-              "[&_input]:border-yellow": isSelected,
-            }
-          )}
-          value={newAmountsToStake[validator.address]}
-          placeholder="Select to enter stake"
-          maxDecimalPlaces={Tokens.NAM.decimals}
-          onChange={(e) => handleAmountChange(validator, e.target.value)}
-          onFocus={() => addValidator(validator)}
+          inputId={getAmountInputId(validator.address)}
+          validator={validator}
+          isSelected={isSelected}
+          stakedAmount={stakedAmountsByValidator[validator.address]}
+          newStakedAmount={newStakedAmountsByValidator[validator.address]}
+          onAmountChange={onChangeAmount}
+          onRemoveValidator={onRemoveValidator}
+          onAddValidator={onAddValidator}
         />,
 
         // Voting power
