@@ -5,7 +5,7 @@ import { Result } from "@namada/utils";
 
 import { Input } from "./Input";
 
-type BigNumberElement = Omit<HTMLInputElement, "value"> & {
+export type BigNumberElement = Omit<HTMLInputElement, "value"> & {
   value?: BigNumber;
 };
 
@@ -69,9 +69,9 @@ export const AmountInput: React.FC<Props> = ({
   const [validationError, setValidationError] = useState<string>();
 
   const valueChanged =
-    value === undefined || lastKnownValue === undefined
-      ? value !== lastKnownValue
-      : !value.isEqualTo(lastKnownValue);
+    value === undefined || lastKnownValue === undefined ?
+      value !== lastKnownValue
+    : !value.isEqualTo(lastKnownValue);
 
   if (valueChanged) {
     setLastKnownValue(value);
@@ -98,9 +98,9 @@ export const AmountInput: React.FC<Props> = ({
     const asBigNumber = validateResult.ok ? validateResult.value : undefined;
 
     const error =
-      validateResult.ok || stringValue === ""
-        ? ""
-        : errorMessages[validateResult.error];
+      validateResult.ok || stringValue === "" ?
+        ""
+      : errorMessages[validateResult.error];
     setValidationError(error);
 
     setLastKnownValue(asBigNumber);
