@@ -3,6 +3,8 @@ import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 import { RootState } from "store";
 
+export type ProposalStatus = "upcoming" | "ongoing" | "passed" | "rejected";
+
 export type Proposal = {
   id: string;
   proposalType: "pgf_steward" | "pgf_payment" | "default";
