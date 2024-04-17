@@ -7,7 +7,10 @@ export type PieChartData = {
   color: string;
 };
 
-type PieChartProps = React.ComponentPropsWithRef<"svg"> & {
+type PieChartProps = Omit<
+  React.ComponentPropsWithRef<"svg">,
+  "onMouseEnter"
+> & {
   id: string;
   data: PieChartData[];
   children?: React.ReactNode;

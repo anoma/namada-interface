@@ -1,5 +1,5 @@
 import { ActionButton } from "@namada/components";
-import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
+//import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
 import { useState } from "react";
 import { PublicGoodsFundingContainer } from "./PublicGoodsFunding.components";
 
@@ -10,10 +10,12 @@ export const PublicGoodsFunding = (): JSX.Element => {
 
   return (
     <PublicGoodsFundingContainer>
+      {/*
       <MainContainerNavigation
         breadcrumbs={breadcrumb}
         navigateBack={() => setBreadcrumb([initialTitle])}
       />
+       */}
       {breadcrumb.length === 1 && (
         <ActionButton
           onClick={() => {
