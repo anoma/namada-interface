@@ -2,11 +2,11 @@ import clsx from "clsx";
 import { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 
-type TableRow = {
+export type TableRow = {
   cells: ReactNode[];
 } & React.ComponentPropsWithoutRef<"tr">;
 
-type TableHeader = {
+export type TableHeader = {
   children: ReactNode;
   sortable?: boolean;
 } & React.ComponentPropsWithoutRef<"th">;
@@ -70,7 +70,7 @@ export const StyledTable = ({
   return (
     <div className={twMerge("max-w-full overflow-x-auto", containerClassName)}>
       <table
-        style={{ minWidth: (headClassName?.length || 0) * 100 + "px" }}
+        style={{ minWidth: (headers?.length || 0) * 100 + "px" }}
         className={twMerge("border-spacing-4", tableClassName)}
         {...otherTableProps}
       >

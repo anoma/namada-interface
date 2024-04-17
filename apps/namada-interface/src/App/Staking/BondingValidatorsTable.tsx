@@ -1,4 +1,4 @@
-import { AmountInput, Checkbox, StyledTable } from "@namada/components";
+import { AmountInput, Checkbox, Stack, TableRow } from "@namada/components";
 import { Tokens } from "@namada/types";
 import { formatPercentage } from "@namada/utils";
 import BigNumber from "bignumber.js";
@@ -6,15 +6,18 @@ import clsx from "clsx";
 import { useState } from "react";
 import { GoInfo } from "react-icons/go";
 import { Validator } from "slices/validators";
+import ValidatorsTable from "./ValidatorsTable";
 
 type BondingValidatorsTableProps = {
   validators: Validator[];
+  filter: string;
 };
 
 type ValidatorAddress = string;
 
 export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
   validators,
+  filter,
 }) => {
   const [selectedValidators, setSelectedValidators] = useState<
     Record<ValidatorAddress, Validator>
@@ -78,7 +81,7 @@ export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
     toggleValidator(validator);
 
     if (e.target.checked) {
-      // We have too many elements to use refs
+      // We can save some memory this way instead of using thousands of refs
       const el = document.getElementById(getAmountInputId(validator.address));
       if (el) el.focus();
     }
@@ -88,14 +91,14 @@ export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
     `amount-input-${address}`;
 
   const headers = [
-    { children: "Validator", colSpan: 3 },
+    { children: "Validator", colSpan: 2 },
     "Amount to stake",
     { children: "Voting Power", className: "text-right" },
     { children: "Comission", className: "text-right" },
     "",
   ];
 
-  const rows = validators.map((validator) => {
+  const renderRows = (validator: Validator): TableRow => {
     const isSelected = selectedValidators.hasOwnProperty(validator.address);
     return {
       cells: [
@@ -108,15 +111,21 @@ export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
           checked={isSelected}
         />,
 
-        // Icon
-        <img
-          src={validator.imageUrl}
-          key={`bonding-validators-icon-${validator.uuid}`}
-        />,
+        // Icon + Alias
+        <Stack
+          key={`bonding-validators-alias-${validator.uuid}`}
+          direction="horizontal"
+          className="items-center"
+          gap={6}
+        >
+          <img
+            src={validator.imageUrl}
+            className="rounded-full aspect-square max-w-12"
+          />
+          {validator.alias}
+        </Stack>,
 
         // Alias
-        validator.alias,
-
         // Amount to stake
         <AmountInput
           id={getAmountInputId(validator.address)}
@@ -160,18 +169,15 @@ export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
         <GoInfo key={`bonding-validators-info-icon-${validator.uuid}`} />,
       ],
     };
-  });
+  };
 
   return (
-    <div>
-      <StyledTable
-        containerClassName="max-h-[50vh]" // TODO: this seems wrong
-        tableProps={{ className: "w-full" }}
-        headProps={{ className: "text-white" }}
-        id="bonding-validators"
-        headers={headers}
-        rows={rows}
-      />
-    </div>
+    <ValidatorsTable
+      id="bonding-validators"
+      headers={headers}
+      validatorList={validators}
+      renderRows={renderRows}
+      filter={filter}
+    />
   );
 };
