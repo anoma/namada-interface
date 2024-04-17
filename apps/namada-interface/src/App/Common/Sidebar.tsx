@@ -1,4 +1,5 @@
 import { SidebarMenuItem } from "App/Common/SidebarMenuItem";
+import GovernanceRoutes from "App/Governance/routes";
 import { MASPIcon } from "App/Icons/MASPIcon";
 import { SwapIcon } from "App/Icons/SwapIcon";
 import StakingRoutes from "App/Staking/routes";
@@ -26,7 +27,7 @@ export const Sidebar = (): JSX.Element => {
           </SidebarMenuItem>
         </li>
         <li>
-          <SidebarMenuItem url={TopLevelRoute.Proposals}>
+          <SidebarMenuItem url={GovernanceRoutes.index()}>
             <FaVoteYea />
             Governance
           </SidebarMenuItem>
