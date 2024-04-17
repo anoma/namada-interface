@@ -3,7 +3,7 @@ import clsx from "clsx";
 
 type SeedPhraseListItemProps = {
   idx: number;
-  invalidIdx?: number;
+  invalidWordIndex?: number;
   word: string;
   onChange?: (index: number, value: string) => void;
   onPaste?: (idx: number, e: React.ClipboardEvent<HTMLInputElement>) => void;
@@ -11,12 +11,12 @@ type SeedPhraseListItemProps = {
 
 export const SeedPhraseListItem = ({
   idx,
-  invalidIdx,
+  invalidWordIndex,
   word,
   onChange,
   onPaste,
 }: SeedPhraseListItemProps): JSX.Element => {
-  const hasError = idx === invalidIdx;
+  const hasError = idx === invalidWordIndex;
   return (
     <li
       className={clsx(
@@ -46,7 +46,7 @@ export const SeedPhraseListItem = ({
             error={hasError}
           />
         </span>
-        : <span
+      : <span
           className={clsx("absolute font-light left-2.5 top-[1em] select-none")}
         >
           <i className="not-italic">{idx + 1} </i>
