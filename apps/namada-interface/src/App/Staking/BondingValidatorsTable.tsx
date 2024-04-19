@@ -47,8 +47,17 @@ export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
     `amount-input-${address}`;
 
   const headers = [
-    { children: "Validator", colSpan: 2 },
-    "Amount to stake",
+    { children: "Validator" },
+    {
+      children: (
+        <div className="flex justify-between items-baseline">
+          <span>Amount to stake</span>
+          {Object.keys(selectedValidators).length > 0 && (
+            <span className="text-neutral-500 text-xs">Existing Stake</span>
+          )}
+        </div>
+      ),
+    },
     { children: "Voting Power", className: "text-right" },
     { children: "Comission", className: "text-right" },
     "",
@@ -57,28 +66,28 @@ export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
   const renderRows = (validator: Validator): TableRow => {
     const isSelected = selectedValidators[validator.address];
     return {
+      className: "[&_td:nth-child(2)]:w-[35%] [&_td]:py-4",
       cells: [
-        // Checkbox
-        <Checkbox
-          key={`bonding-validators-checkbox-${validator.uuid}`}
-          className="border-neutral-400"
-          checkedClassName="border-yellow"
-          onChange={(e) => handleCheckboxClick(e, validator)}
-          checked={isSelected}
-        />,
-
-        // Icon + Alias
         <Stack
           key={`bonding-validators-alias-${validator.uuid}`}
           direction="horizontal"
           className="items-center"
-          gap={6}
+          gap={8}
         >
-          <img
-            src={validator.imageUrl}
-            className="rounded-full aspect-square max-w-12"
+          <Checkbox
+            key={`bonding-validators-checkbox-${validator.uuid}`}
+            className="border-neutral-400"
+            checkedClassName="border-yellow"
+            onChange={(e) => handleCheckboxClick(e, validator)}
+            checked={isSelected}
           />
-          {validator.alias}
+          <Stack direction="horizontal" gap={4} className="items-center">
+            <img
+              src={validator.imageUrl}
+              className="rounded-full aspect-square max-w-12"
+            />
+            {validator.alias}
+          </Stack>
         </Stack>,
 
         <ValidatorAmountControl

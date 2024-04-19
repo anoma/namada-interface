@@ -17,7 +17,7 @@ export const ModalContainer = ({
       <header className="flex w-full justify-center items-center relative mb-3 text-xl text-medium">
         {header}
         <i
-          className="cursor-pointer text-white absolute -right-1.5 text-3xl p-1.5 "
+          className="cursor-pointer text-white absolute -right-1.5 text-3xl p-1.5 hover:text-yellow"
           onClick={onClose}
         >
           <IoClose />
