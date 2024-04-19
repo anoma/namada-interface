@@ -34,7 +34,7 @@ const toValidator = (address: string): Validator => ({
   votingPowerInNAM: BigNumber("70000000"),
   votingPowerPercentage: 0.06,
   commission: new BigNumber(0), // TODO: implement commission
-  imageUrl: "https://placekitten.com/200/200",
+  imageUrl: "https://loremflickr.com/200/200",
 });
 
 const allValidatorsAtomBase = atom<Validator[]>([]);
