@@ -10,7 +10,7 @@ import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { totalNamBalanceAtom } from "slices/accounts";
+import { totalNamBalanceAtom, transparentAccountsAtom } from "slices/accounts";
 import { selectedCurrencyRateAtom } from "slices/exchangeRates";
 import { selectedCurrencyAtom } from "slices/settings";
 import { getStakingTotalAtom } from "slices/staking";
@@ -31,11 +31,12 @@ export const Bonding = (): JSX.Element => {
   const [filter, setFilter] = useState<string>("");
   const navigate = useNavigate();
   const totalNam = useAtomValue(totalNamBalanceAtom);
+  const accounts = useAtomValue(transparentAccountsAtom);
   const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
   const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
   const validators = useLoadable(fetchAllValidatorsAtom);
-  const totalStakedValue = useAtomValue(getStakingTotalAtom);
-  const myValidators = useLoadable(fetchMyValidatorsAtom);
+  const totalStakedBalance = useAtomValue(getStakingTotalAtom);
+  const myValidators = useLoadable(fetchMyValidatorsAtom, accounts);
 
   const [selectedValidators, setSelectedValidators] = useState<
     Record<ValidatorAddress, boolean>
@@ -48,6 +49,29 @@ export const Bonding = (): JSX.Element => {
   const [newAmountsToStake, setNewAmountsToStake] = useState<
     Record<ValidatorAddress, BigNumber>
   >({});
+
+  const newAmountsToStakeTotal = Object.keys(newAmountsToStake).reduce(
+    (acc, current) => {
+      const stakedAmount = stakedAmounts[current] ?? new BigNumber(0);
+      return acc.plus(
+        BigNumber.max(newAmountsToStake[current].minus(stakedAmount), 0)
+      );
+    },
+    new BigNumber(0)
+  );
+
+  const availableAmountToDelegate = BigNumber.max(
+    0,
+    Object.keys(newAmountsToStake).reduce((acc, currentKey) => {
+      const stakedAmount = stakedAmounts[currentKey] ?? new BigNumber(0);
+      return acc.plus(stakedAmount.minus(newAmountsToStake[currentKey]));
+    }, new BigNumber(0))
+  );
+
+  const totalNamAfterStaking =
+    availableAmountToDelegate.gt(0) ? totalNam : (
+      BigNumber.max(totalNam.minus(newAmountsToStakeTotal), 0)
+    );
 
   useEffect(() => {
     if (myValidators.state !== "hasData") return;
@@ -92,7 +116,7 @@ export const Bonding = (): JSX.Element => {
     }));
   };
 
-  const onClose = (): void => navigate(StakingRoutes.overview().url);
+  const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
 
   const header = (
     <>
@@ -108,24 +132,22 @@ export const Bonding = (): JSX.Element => {
   );
 
   return (
-    <Modal onClose={onClose}>
-      <ModalContainer header={header} onClose={onClose}>
+    <Modal onClose={onCloseModal}>
+      <ModalContainer header={header} onClose={onCloseModal}>
         <div className="flex gap-2">
           <BondingAmountOverview
             title="Available NAM to Stake"
             selectedFiatCurrency={selectedFiatCurrency}
             fiatExchangeRate={selectedCurrencyRate}
             amountInNam={totalNam}
-            amountInFiat={totalNam.multipliedBy(selectedCurrencyRate)}
+            updatedAmountInNam={totalNamAfterStaking}
+            amountToDelegate={availableAmountToDelegate}
           />
           <BondingAmountOverview
             title="Current Staked Amount"
             selectedFiatCurrency={selectedFiatCurrency}
             fiatExchangeRate={selectedCurrencyRate}
-            amountInNam={totalStakedValue.totalBonded}
-            amountInFiat={totalStakedValue.totalBonded.multipliedBy(
-              selectedCurrencyRate
-            )}
+            amountInNam={totalStakedBalance.totalBonded}
           />
         </div>
         <Panel className="w-full rounded-md flex-1">

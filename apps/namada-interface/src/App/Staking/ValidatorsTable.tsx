@@ -56,7 +56,14 @@ const ValidatorsTable = ({
         id={id}
         headers={headers}
         rows={paginatedValidators.map(renderRows)}
-        tableProps={{ className: twMerge("w-full", tableClassName) }}
+        tableProps={{
+          className: twMerge(
+            "w-full [&_td]:px-2 [&_th]:px-2 [&_td:first-child]:pl-4",
+            "[&_td:last-child]:pr-4 [&_th:first-child]:pl-4 [&_th:last-child]:pr-4",
+            "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md",
+            tableClassName
+          ),
+        }}
         headProps={{ className: "text-white" }}
       />
       <div className="mt-8 mb-4">
