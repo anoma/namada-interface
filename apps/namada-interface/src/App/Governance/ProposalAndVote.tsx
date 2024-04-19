@@ -1,5 +1,6 @@
 import { Panel } from "@namada/components";
 
+import { ProposalDescription } from "./ProposalDescription";
 import { ProposalHeader } from "./ProposalHeader";
 import { ProposalStatus } from "./ProposalStatus";
 import { VoteBreakdown } from "./VoteBreakdown";
@@ -12,7 +13,9 @@ export const ProposalAndVote: React.FC = () => {
         <Panel>
           <ProposalHeader />
         </Panel>
-        <Panel title="Description">Ok</Panel>
+        <Panel title="Description">
+          <ProposalDescription />
+        </Panel>
         <Panel>
           <VoteInfoCards />
         </Panel>
