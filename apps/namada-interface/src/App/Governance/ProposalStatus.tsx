@@ -5,15 +5,7 @@ import { useState } from "react";
 import { PieChart, PieChartData, Stack } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 
-const voteTypes = ["yes", "no", "veto", "abstain"];
-type VoteType = (typeof voteTypes)[number];
-
-const colors: Record<VoteType, string> = {
-  yes: "#15DD89",
-  no: "#DD1599",
-  veto: "#FF8A00",
-  abstain: "#686868",
-};
+import { VoteType, colors, voteTypes } from "./types";
 
 const StatusListItem: React.FC<{
   color: string;
