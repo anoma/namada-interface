@@ -47,27 +47,35 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
     Array.from(mnemonicsRange)
   );
 
-  const privateKeyError = (() => {
-    const validation = validatePrivateKey(filterPrivateKeyPrefix(privateKey));
+  const validatePk = (key: string): { isValid: boolean; msg: string } => {
+    const validation = validatePrivateKey(filterPrivateKeyPrefix(key));
     if (validation.ok) {
-      return "";
+      return { isValid: true, msg: "" };
     } else {
+      let msg = "";
       switch (validation.error.t) {
-        case "TooLong":
-          return `Private key must be no more than
-             ${validation.error.maxLength} characters long`;
+        case "WrongLength":
+          msg =
+            `Private key must be ${validation.error.length} characters long. ` +
+            `You provided a key of length ${key.length}.`;
+          break;
         case "BadCharacter":
-          return "Private key may only contain characters 0-9, a-f";
+          msg = "Private key may only contain characters 0-9, a-f";
+          break;
         default:
-          return assertNever(validation.error);
+          msg = assertNever(validation.error);
+          break;
       }
+      return { isValid: false, msg: msg };
     }
-  })();
+  };
+
+  const pkValidationResult = validatePk(privateKey);
 
   const isSubmitButtonDisabled =
-    mnemonicType === MnemonicTypes.PrivateKey
-      ? privateKey === "" || privateKeyError !== ""
-      : mnemonics.slice(0, mnemonicType).some((mnemonic) => !mnemonic);
+    mnemonicType === MnemonicTypes.PrivateKey ?
+      privateKey === "" || !pkValidationResult.isValid
+    : mnemonics.slice(0, mnemonicType).some((mnemonic) => !mnemonic);
 
   const onPaste = useCallback(
     (index: number, e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -118,11 +126,16 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
 
   const onSubmit = useCallback(async () => {
     if (mnemonicType === MnemonicTypes.PrivateKey) {
-      // TODO: validate here
-      onConfirm({
-        t: "PrivateKey",
-        privateKey: filterPrivateKeyPrefix(privateKey),
-      });
+      const pkValidationResult = validatePk(privateKey);
+      if (!pkValidationResult.isValid) {
+        setMnemonicError(pkValidationResult.msg);
+      } else {
+        setMnemonicError(undefined);
+        onConfirm({
+          t: "PrivateKey",
+          privateKey: filterPrivateKeyPrefix(privateKey),
+        });
+      }
     } else {
       const actualMnemonics = mnemonics.slice(0, mnemonicType);
       const phrase = actualMnemonics.join(" ");
@@ -226,7 +239,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
               value={privateKey}
               placeholder="Enter your private key"
               onChange={(e) => setPrivateKey(e.target.value)}
-              error={privateKeyError}
+              error={pkValidationResult.msg}
             />
           )}
         </Stack>
