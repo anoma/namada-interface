@@ -169,6 +169,7 @@ class Keplr implements Integration<Account, OfflineSigner, CosmosTokenType> {
         amount,
         portId = "transfer",
         channelId,
+        memo
       } = props.ibcProps;
       const { feeAmount } = props.txProps;
 
@@ -200,7 +201,7 @@ class Keplr implements Integration<Account, OfflineSigner, CosmosTokenType> {
           undefined, // timeout height
           Math.floor(Date.now() / 1000) + 60, // timeout timestamp
           fee,
-          `${this.chain.alias} (${this.chain.chainId})->Namada`
+          memo
         )
         .catch((e) => Promise.reject(e));
 
