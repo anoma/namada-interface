@@ -3,20 +3,21 @@ import { ConnectBanner } from "App/Common/ConnectBanner";
 import { useAtomValue } from "jotai";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import { AllProposalsTable } from "./AllProposalsTable";
+import { LiveGovernanceProposals } from "./LiveGovernanceProposals";
 import { ProposalsSummary } from "./ProposalsSummary";
 
-const GovernanceTitle = ({
-  title,
-  subtitle,
-}: {
-  title: string;
-  subtitle: string;
-}): JSX.Element => (
-  <>
-    {title}
-    <span className="text-sm text-gray">{subtitle}</span>
-  </>
-);
+//const GovernanceTitle = ({
+//  title,
+//  subtitle,
+//}: {
+//  title: string;
+//  subtitle: string;
+//}): JSX.Element => (
+//  <>
+//    {title}
+//    <span className="text-sm text-gray">{subtitle}</span>
+//  </>
+//);
 
 export const GovernanceOverview: React.FC = () => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
@@ -27,7 +28,9 @@ export const GovernanceOverview: React.FC = () => {
         {!isConnected && (
           <ConnectBanner text="To vote please connect your account" />
         )}
-        <Panel title="Live Governance Proposals">OK</Panel>
+        <Panel title="Live Governance Proposals">
+          <LiveGovernanceProposals />
+        </Panel>
         <Panel title="Upcoming Proposals">OK</Panel>
         <Panel title="All Proposals">
           <AllProposalsTable />

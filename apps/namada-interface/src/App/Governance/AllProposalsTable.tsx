@@ -1,45 +1,14 @@
 import { GoCheckCircleFill, GoInfo } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
-import { twMerge } from "tailwind-merge";
 
-import { StyledTable, TableRow } from "@namada/components";
-import { assertNever } from "@namada/utils";
-import { Proposal, ProposalStatus } from "slices/proposals";
+import { InsetLabel, StyledTable, TableRow } from "@namada/components";
+import { Proposal } from "slices/proposals";
+import { StatusLabel } from "./ProposalLabels";
 import GovernanceRoutes from "./routes";
 
 const key = (name: string, proposal?: Proposal): string => {
   const idPart = typeof proposal === "undefined" ? "" : `-${proposal.id}`;
   return `all-proposals-${name}${idPart}`;
-};
-
-const Label: React.FC<React.ComponentProps<"div">> = ({
-  children,
-  className,
-  ...rest
-}) => (
-  <div
-    className={twMerge(
-      "uppercase rounded-2xl border-2 text-center px-2 py-0.5",
-      className
-    )}
-    {...rest}
-  >
-    {children}
-  </div>
-);
-
-const StatusLabel: React.FC<{
-  status: ProposalStatus;
-}> = ({ status }) => {
-  // TODO: colors don't work
-  const [text, color] =
-    status === "upcoming" ? ["Upcoming", "white"]
-    : status === "ongoing" ? ["Ongoing", "white"]
-    : status === "passed" ? ["Passed", "success"]
-    : status === "rejected" ? ["Rejected", "fail"]
-    : assertNever(status);
-
-  return <Label className={`text-{color} ml-auto`}>{text}</Label>;
 };
 
 export const AllProposalsTable: React.FC = () => {
@@ -59,7 +28,7 @@ export const AllProposalsTable: React.FC = () => {
     "",
   ];
 
-  const renderRow = (proposal: Proposal): TableRow => ({
+  const renderRow = (proposal: Proposal, index: number): TableRow => ({
     cells: [
       // ID
       `#${proposal.id}`,
@@ -68,15 +37,19 @@ export const AllProposalsTable: React.FC = () => {
       "Allocate 1% of supply",
 
       // Type
-      <div
+      <InsetLabel
         key={key("type", proposal)}
-        className="bg-black rounded-lg w-fit px-4 py-2 text-neutral-450"
+        color={index % 2 === 0 ? "dark" : "light"}
       >
         Community pool spend
-      </div>,
+      </InsetLabel>,
 
       // Status
-      <StatusLabel key={key("status", proposal)} status="passed" />,
+      <StatusLabel
+        key={key("status", proposal)}
+        status="passed"
+        className="ml-auto"
+      />,
 
       // TODO: what is this?
       <GoCheckCircleFill key={key("check", proposal)} className="text-cyan" />,
@@ -99,7 +72,14 @@ export const AllProposalsTable: React.FC = () => {
       tableProps={{ className: "w-full" }}
       id="all-proposals-table"
       headers={headers}
-      rows={([{ id: "862" }] as Proposal[]).map(renderRow)}
+      rows={(
+        [
+          { id: "862" },
+          { id: "369" },
+          { id: "123" },
+          { id: "444" },
+        ] as Proposal[]
+      ).map(renderRow)}
     />
   );
 };
