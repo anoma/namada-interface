@@ -35,14 +35,14 @@ type GetParams = (
 
 const getParamsMethod = (txType: SupportedTx): GetParams =>
   txType === TxType.Bond ? ApprovalsService.getParamsBond
-    : txType === TxType.Unbond ? ApprovalsService.getParamsUnbond
-      : txType === TxType.Withdraw ? ApprovalsService.getParamsWithdraw
-        : txType === TxType.Transfer ? ApprovalsService.getParamsTransfer
-          : txType === TxType.IBCTransfer ? ApprovalsService.getParamsIbcTransfer
-            : txType === TxType.EthBridgeTransfer ?
-              ApprovalsService.getParamsEthBridgeTransfer
-              : txType === TxType.VoteProposal ? ApprovalsService.getParamsVoteProposal
-                : assertNever(txType);
+  : txType === TxType.Unbond ? ApprovalsService.getParamsUnbond
+  : txType === TxType.Withdraw ? ApprovalsService.getParamsWithdraw
+  : txType === TxType.Transfer ? ApprovalsService.getParamsTransfer
+  : txType === TxType.IBCTransfer ? ApprovalsService.getParamsIbcTransfer
+  : txType === TxType.EthBridgeTransfer ?
+    ApprovalsService.getParamsEthBridgeTransfer
+  : txType === TxType.VoteProposal ? ApprovalsService.getParamsVoteProposal
+  : assertNever(txType);
 
 export class ApprovalsService {
   // holds promises which can be resolved with a message from a pop-up window
@@ -324,16 +324,16 @@ export class ApprovalsService {
         const { specificMsg, txMsg } = pendingTx;
         const submitFn =
           txType === TxType.Bond ? this.keyRingService.submitBond
-            : txType === TxType.Unbond ? this.keyRingService.submitUnbond
-              : txType === TxType.Transfer ? this.keyRingService.submitTransfer
-                : txType === TxType.IBCTransfer ?
-                  this.keyRingService.submitIbcTransfer
-                  : txType === TxType.EthBridgeTransfer ?
-                    this.keyRingService.submitEthBridgeTransfer
-                    : txType === TxType.Withdraw ? this.keyRingService.submitWithdraw
-                      : txType === TxType.VoteProposal ?
-                        this.keyRingService.submitVoteProposal
-                        : assertNever(txType);
+          : txType === TxType.Unbond ? this.keyRingService.submitUnbond
+          : txType === TxType.Transfer ? this.keyRingService.submitTransfer
+          : txType === TxType.IBCTransfer ?
+            this.keyRingService.submitIbcTransfer
+          : txType === TxType.EthBridgeTransfer ?
+            this.keyRingService.submitEthBridgeTransfer
+          : txType === TxType.Withdraw ? this.keyRingService.submitWithdraw
+          : txType === TxType.VoteProposal ?
+            this.keyRingService.submitVoteProposal
+          : assertNever(txType);
 
         await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
       })
