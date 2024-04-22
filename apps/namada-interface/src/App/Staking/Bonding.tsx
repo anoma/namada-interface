@@ -1,10 +1,4 @@
-import {
-  ActionButton,
-  Heading,
-  Modal,
-  Panel,
-  ProgressIndicator,
-} from "@namada/components";
+import { ActionButton, Heading, Modal, Panel } from "@namada/components";
 import { ModalContainer } from "App/Common/ModalContainer";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
@@ -117,19 +111,7 @@ export const Bonding = (): JSX.Element => {
   };
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
-
-  const header = (
-    <>
-      <div className="left-0 absolute">
-        <ProgressIndicator
-          keyName="bonding-steps"
-          totalSteps={2}
-          currentStep={1}
-        />
-      </div>
-      <Heading>Select Validators to delegate your NAM</Heading>
-    </>
-  );
+  const header = <Heading>Select Validators to delegate your NAM</Heading>;
 
   return (
     <Modal onClose={onCloseModal}>

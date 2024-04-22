@@ -84,7 +84,7 @@ export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
           <Stack direction="horizontal" gap={4} className="items-center">
             <img
               src={validator.imageUrl}
-              className="rounded-full aspect-square max-w-12"
+              className="rounded-full aspect-square max-w-6"
             />
             {validator.alias}
           </Stack>

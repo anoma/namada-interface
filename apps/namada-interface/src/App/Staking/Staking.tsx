@@ -22,6 +22,8 @@ import { Chain } from "@namada/types";
 import { fetchMyValidatorsAtom } from "slices/validators";
 import { RootState, useAppDispatch, useAppSelector } from "store";
 import { Bonding } from "./Bonding";
+import IncrementBonding from "./IncrementBonding";
+import Unstake from "./Unstake";
 import StakingRoutes from "./routes";
 
 const initialTitle = "Staking";
@@ -172,6 +174,13 @@ export const Staking = (): JSX.Element => {
           path={`${StakingRoutes.overview()}`}
           element={<StakingOverview />}
         />
+        <Route
+          path={`${StakingRoutes.incrementBonding()}`}
+          element={<IncrementBonding />}
+        />
+        <Route path={`${StakingRoutes.unstake()}`} element={<Unstake />} />
+        {/* The following route is an experiment and should be removed by the end of */}
+        {/* the UX iteration */}
         <Route path={`${StakingRoutes.manage()}`} element={<Bonding />} />
       </Routes>
     </main>

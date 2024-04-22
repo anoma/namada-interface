@@ -66,7 +66,7 @@ type InputVariants =
   | "Textarea"
   | "ReadOnlyCopy";
 
-type InputProps = {
+export type InputProps = {
   label?: string | React.ReactNode;
   error?: string | React.ReactNode;
   sensitive?: boolean;
