@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { SupportedTx, TxType, TxTypeLabel } from "@heliax/namada-sdk/web";
+import { SupportedTx, TxTypeLabel } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Input, Stack } from "@namada/components";
-import { shortenAddress } from "@namada/utils";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import { SubmitApprovedTxMsg } from "background/approvals";
 import { UnlockVaultMsg } from "background/vault";
@@ -17,7 +16,7 @@ type Props = {
 };
 
 export const ConfirmTx: React.FC<Props> = ({ details }) => {
-  const { source, msgId, txType } = details || {};
+  const { msgId, txType } = details || {};
 
   const navigate = useNavigate();
   const requester = useRequester();
@@ -27,10 +26,12 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
   const [statusInfo, setStatusInfo] = useState("");
 
   const handleApproveTx = useCallback(async (): Promise<void> => {
+    if (!txType) {
+      // TODO: What would be a better handling of this? txType should be defined
+      throw new Error("txType should be defined");
+    }
     setStatus(Status.Pending);
-    setStatusInfo(
-      `Decrypting keys and submitting ${TxTypeLabel[txType as TxType]}...`
-    );
+    setStatusInfo(`Decrypting keys and submitting ${TxTypeLabel[txType]}...`);
 
     try {
       if (!msgId) {
@@ -96,12 +97,9 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
           Try again
         </Alert>
       )}
-      {status !== (Status.Pending || Status.Completed) && source && (
+      {status !== (Status.Pending || Status.Completed) && (
         <>
-          <Alert type="warning">
-            Decrypt keys for{" "}
-            <strong className="text-xs">{shortenAddress(source)}</strong>
-          </Alert>
+          <Alert type="warning">Verify your password to continue</Alert>
           <Input
             variant="Password"
             label={"Password"}

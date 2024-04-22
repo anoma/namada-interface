@@ -3,10 +3,12 @@ import { Message } from "router";
 import { ROUTE } from "./constants";
 
 import { validateProps } from "utils";
+import { PendingTxDetails } from "./types";
 
 export enum MessageType {
-  SubmitApprovedTx = "submit-approved-tx",
   RejectTx = "reject-tx",
+  SubmitApprovedTx = "submit-approved-tx",
+  QueryPendingTx = "query-pending-tx",
   SubmitApprovedSignature = "submit-approved-signature",
   RejectSignature = "reject-signature",
   ConnectInterfaceResponse = "connect-interface-response",
@@ -23,10 +25,7 @@ export class RejectTxMsg extends Message<void> {
   }
 
   validate(): void {
-    if (!this.msgId) {
-      throw new Error("msgId must not be empty!");
-    }
-    return;
+    validateProps(this, ["msgId"]);
   }
 
   route(): string {
@@ -63,9 +62,9 @@ export class SubmitApprovedTxMsg extends Message<void> {
   }
 }
 
-export class RejectSignatureMsg extends Message<void> {
+export class QueryPendingTxMsg extends Message<PendingTxDetails[]> {
   public static type(): MessageType {
-    return MessageType.RejectSignature;
+    return MessageType.QueryPendingTx;
   }
 
   constructor(public readonly msgId: string) {
@@ -73,10 +72,7 @@ export class RejectSignatureMsg extends Message<void> {
   }
 
   validate(): void {
-    if (!this.msgId) {
-      throw new Error("msgId must not be empty!");
-    }
-    return;
+    validateProps(this, ["msgId"]);
   }
 
   route(): string {
@@ -84,7 +80,7 @@ export class RejectSignatureMsg extends Message<void> {
   }
 
   type(): string {
-    return RejectSignatureMsg.type();
+    return QueryPendingTxMsg.type();
   }
 }
 
@@ -113,6 +109,29 @@ export class SubmitApprovedSignatureMsg extends Message<void> {
   }
 }
 
+export class RejectSignatureMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.RejectSignature;
+  }
+
+  constructor(public readonly msgId: string) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["msgId"]);
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return RejectSignatureMsg.type();
+  }
+}
+
 export class ConnectInterfaceResponseMsg extends Message<void> {
   public static type(): MessageType {
     return MessageType.ConnectInterfaceResponse;
@@ -127,17 +146,11 @@ export class ConnectInterfaceResponseMsg extends Message<void> {
   }
 
   validate(): void {
-    if (typeof this.interfaceTabId === "undefined") {
-      throw new Error("interfaceTabId not set");
-    }
-
-    if (!this.interfaceOrigin) {
-      throw new Error("interfaceOrigin not set");
-    }
-
-    if (typeof this.allowConnection === "undefined") {
-      throw new Error("allowConnection not set");
-    }
+    validateProps(this, [
+      "interfaceTabId",
+      "interfaceOrigin",
+      "allowConnection",
+    ]);
   }
 
   route(): string {
@@ -159,9 +172,7 @@ export class RevokeConnectionMsg extends Message<void> {
   }
 
   validate(): void {
-    if (typeof this.originToRevoke === "undefined") {
-      throw new Error("originToRevoke not set");
-    }
+    validateProps(this, ["originToRevoke"]);
   }
 
   route(): string {

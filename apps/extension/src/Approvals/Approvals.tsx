@@ -6,6 +6,7 @@ import { Container } from "@namada/components";
 
 import { AppHeader } from "App/Common/AppHeader";
 import { TopLevelRoute } from "Approvals/types";
+import { PendingTxDetails } from "background/approvals";
 import { ApproveConnection } from "./ApproveConnection";
 import { ApproveSignature } from "./ApproveSignature";
 import { ApproveTx } from "./ApproveTx/ApproveTx";
@@ -20,12 +21,9 @@ export enum Status {
 }
 
 export type ApprovalDetails = {
-  source: string;
   msgId: string;
   txType: TxType;
-  publicKey?: string;
-  target?: string;
-  nativeToken?: string;
+  tx: PendingTxDetails[];
 };
 
 export type SignatureDetails = {
@@ -50,8 +48,8 @@ export const Approvals: React.FC = () => {
     >
       <Routes>
         <Route
-          path={`${TopLevelRoute.ApproveTx}/:type`}
-          element={<ApproveTx setDetails={setDetails} />}
+          path={`${TopLevelRoute.ApproveTx}/:msgId/:type/:accountType`}
+          element={<ApproveTx setDetails={setDetails} details={details} />}
         />
         <Route
           path={TopLevelRoute.ConfirmTx}

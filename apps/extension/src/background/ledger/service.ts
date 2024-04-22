@@ -6,7 +6,7 @@ import { TxType, makeBip44Path } from "@heliax/namada-sdk/web";
 import { chains } from "@namada/chains";
 import { KVStore } from "@namada/storage";
 import { AccountType, TxMsgValue } from "@namada/types";
-import { TxStore } from "background/approvals";
+import { PendingTx, TxStore } from "background/approvals";
 import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
 import { ExtensionBroadcaster, ExtensionRequester } from "extension";
@@ -23,7 +23,7 @@ export class LedgerService {
     protected readonly revealedPKStorage: RevealedPKStorage,
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) {}
+  ) { }
 
   async getRevealPKBytes(
     txMsg: string
@@ -96,89 +96,94 @@ export class LedgerService {
     bytes: string,
     signatures: ResponseSign
   ): Promise<void> {
-    const storeResult = await this.txStore.get(msgId);
+    const storedTx = await this.txStore.get(msgId);
 
-    if (!storeResult) {
+    if (!storedTx) {
       throw new Error(`Transaction ${msgId} not found!`);
     }
 
-    const { txMsg } = storeResult;
+    storedTx.tx.forEach(async (pendingTx: PendingTx) => {
+      const { txMsg } = pendingTx;
 
-    await this.broadcaster.startTx(msgId, txType);
-    const sdk = this.sdkService.getSdk();
-    try {
-      const signedTxBytes = sdk.tx.appendSignature(
-        fromBase64(bytes),
-        signatures
-      );
-      const signedTx = {
-        txMsg: fromBase64(txMsg),
-        tx: signedTxBytes,
-      };
-      const innerTxHash = await sdk.rpc.broadcastTx(signedTx);
+      await this.broadcaster.startTx(msgId, txType);
+      const sdk = this.sdkService.getSdk();
+      try {
+        const signedTxBytes = sdk.tx.appendSignature(
+          fromBase64(bytes),
+          signatures
+        );
+        const signedTx = {
+          txMsg: fromBase64(txMsg),
+          tx: signedTxBytes,
+        };
+        const innerTxHash = await sdk.rpc.broadcastTx(signedTx);
 
-      // Clear pending tx if successful
-      await this.txStore.set(msgId, null);
+        // Clear pending tx if successful
+        await this.txStore.set(msgId, null);
 
-      // Broadcast update events
-      await this.broadcaster.completeTx(msgId, txType, true, innerTxHash);
-      await this.broadcaster.updateBalance();
+        // Broadcast update events
+        await this.broadcaster.completeTx(msgId, txType, true, innerTxHash);
+        await this.broadcaster.updateBalance();
 
-      if ([TxType.Bond, TxType.Unbond, TxType.Withdraw].includes(txType)) {
-        await this.broadcaster.updateStaking();
+        if ([TxType.Bond, TxType.Unbond, TxType.Withdraw].includes(txType)) {
+          await this.broadcaster.updateStaking();
+        }
+      } catch (e) {
+        console.warn(e);
+        await this.broadcaster.completeTx(msgId, txType, false, `${e}`);
       }
-    } catch (e) {
-      console.warn(e);
-      await this.broadcaster.completeTx(msgId, txType, false, `${e}`);
-    }
+    });
   }
 
   async getTxBytes(
     txType: TxType,
     msgId: string,
     address: string
-  ): Promise<{ bytes: Uint8Array; path: string }> {
-    const storeResult = await this.txStore.get(msgId);
+  ): Promise<{ bytes: Uint8Array; path: string }[]> {
+    const storedTx = await this.txStore.get(msgId);
 
-    if (!storeResult) {
+    if (!storedTx) {
       console.warn(`txMsg not found for msgId: ${msgId}`);
       throw new Error(`Transfer Transaction ${msgId} not found!`);
     }
 
-    const { txMsg, specificMsg } = storeResult;
-
     const { coinType } = chains.namada.bip44;
 
-    try {
-      // Query account from Ledger storage to determine path for signer
-      const account = await this.keyringService.findByAddress(address);
+    return Promise.all(
+      storedTx.tx.map(async (pendingTx: PendingTx) => {
+        const { txMsg, specificMsg } = pendingTx;
+        try {
+          // Query account from Ledger storage to determine path for signer
+          const account = await this.keyringService.findByAddress(address);
 
-      if (!account) {
-        throw new Error(`Ledger account not found for ${address}`);
-      }
+          if (!account) {
+            throw new Error(`Ledger account not found for ${address}`);
+          }
 
-      if (!account.publicKey) {
-        throw new Error(`Ledger account missing public key for ${address}`);
-      }
+          if (!account.publicKey) {
+            throw new Error(`Ledger account missing public key for ${address}`);
+          }
 
-      if (account.type !== AccountType.Ledger) {
-        throw new Error(`Ledger account not found for ${address}`);
-      }
+          if (account.type !== AccountType.Ledger) {
+            throw new Error(`Ledger account not found for ${address}`);
+          }
 
-      const sdk = this.sdkService.getSdk();
-      const builtTx = await sdk.tx.buildTxFromSerializedArgs(
-        txType,
-        fromBase64(specificMsg),
-        fromBase64(txMsg),
-        account.publicKey
-      );
-      const path = makeBip44Path(coinType, account.path);
+          const sdk = this.sdkService.getSdk();
+          const builtTx = await sdk.tx.buildTxFromSerializedArgs(
+            txType,
+            fromBase64(specificMsg),
+            fromBase64(txMsg),
+            account.publicKey
+          );
+          const path = makeBip44Path(coinType, account.path);
 
-      return { bytes: builtTx.toBytes(), path };
-    } catch (e) {
-      console.warn(e);
-      throw new Error(`${e}`);
-    }
+          return { bytes: builtTx.toBytes(), path };
+        } catch (e) {
+          console.warn(e);
+          throw new Error(`${e}`);
+        }
+      })
+    );
   }
 
   async queryStoredRevealedPK(publicKey: string): Promise<boolean> {

@@ -12,10 +12,12 @@ enum MessageType {
   StoreRevealedPK = "store-revealed-pk",
 }
 
-export class GetTxBytesMsg extends Message<{
-  bytes: Uint8Array;
-  path: string;
-}> {
+export class GetTxBytesMsg extends Message<
+  {
+    bytes: Uint8Array;
+    path: string;
+  }[]
+> {
   public static type(): MessageType {
     return MessageType.GetTxBytes;
   }

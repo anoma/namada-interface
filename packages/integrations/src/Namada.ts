@@ -15,7 +15,7 @@ import { BridgeProps, Integration } from "./types/Integration";
 export default class Namada implements Integration<Account, Signer> {
   private _namada: WindowWithNamada["namada"] | undefined;
 
-  constructor(public readonly chain: Chain) {}
+  constructor(public readonly chain: Chain) { }
 
   public get instance(): INamada | undefined {
     return this._namada;

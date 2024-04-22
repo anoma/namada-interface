@@ -50,8 +50,12 @@ describe("approvals handler", () => {
 
     const approveTxMsg = new ApproveTxMsg(
       TxType.Bond,
-      "txMsg",
-      "specificMsg",
+      [
+        {
+          txMsg: "txMsg",
+          specificMsg: "specificMsg",
+        },
+      ],
       AccountType.Mnemonic
     );
     handler(env, approveTxMsg);

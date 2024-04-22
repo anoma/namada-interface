@@ -31,7 +31,8 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
-  const { source, msgId, publicKey, txType, nativeToken } = details || {};
+  const { msgId, txType } = details || {};
+  const { source, publicKey, nativeToken } = details?.tx[0] || {};
 
   useEffect(() => {
     if (status === Status.Completed) {
@@ -135,11 +136,13 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
       throw new Error("msgId was not provided!");
     }
 
-    const { bytes, path } = await requester
-      .sendMessage(Ports.Background, new GetTxBytesMsg(txType, msgId, source))
-      .catch((e) => {
-        throw new Error(`Requester error: ${e}`);
-      });
+    const { bytes, path } = (
+      await requester
+        .sendMessage(Ports.Background, new GetTxBytesMsg(txType, msgId, source))
+        .catch((e) => {
+          throw new Error(`Requester error: ${e}`);
+        })
+    )[0];
 
     setStatusInfo(`Review and approve ${txLabel} transaction on your Ledger`);
 

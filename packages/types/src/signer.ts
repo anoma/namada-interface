@@ -24,37 +24,37 @@ export interface Signer {
   ) => Promise<SignatureResponse | undefined>;
   verify: (publicKey: string, hash: string, signature: string) => Promise<void>;
   submitBond(
-    args: BondProps,
+    args: BondProps | BondProps[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void>;
   submitUnbond(
-    args: UnbondProps,
+    args: UnbondProps | UnbondProps[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void>;
   submitWithdraw(
-    args: WithdrawProps,
+    args: WithdrawProps | WithdrawProps[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void>;
   submitTransfer(
-    args: TransferProps,
+    args: TransferProps | TransferProps[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void>;
   submitIbcTransfer(
-    args: IbcTransferProps,
+    args: IbcTransferProps | IbcTransferProps[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void>;
   submitVoteProposal(
-    args: VoteProposalProps,
+    args: VoteProposalProps | VoteProposalProps[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void>;
   submitEthBridgeTransfer(
-    args: EthBridgeTransferProps,
+    args: EthBridgeTransferProps | EthBridgeTransferProps[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void>;

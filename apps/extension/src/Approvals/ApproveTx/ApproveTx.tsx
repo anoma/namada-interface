@@ -8,52 +8,60 @@ import { AccountType, Tokens } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { ApprovalDetails } from "Approvals/Approvals";
 import { TopLevelRoute } from "Approvals/types";
-import { RejectTxMsg } from "background/approvals";
-import { useQuery } from "hooks";
+import {
+  PendingTxDetails,
+  QueryPendingTxMsg,
+  RejectTxMsg,
+} from "background/approvals";
+import { ExtensionRequester } from "extension";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 
 type Props = {
   setDetails: (details: ApprovalDetails) => void;
+  details?: ApprovalDetails;
 };
 
-export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
+const fetchPendingTxDetails = async (
+  requester: ExtensionRequester,
+  msgId: string
+): Promise<PendingTxDetails[] | void> => {
+  return await requester.sendMessage(
+    Ports.Background,
+    new QueryPendingTxMsg(msgId)
+  );
+};
+
+export const ApproveTx: React.FC<Props> = ({ details, setDetails }) => {
   const navigate = useNavigate();
   const requester = useRequester();
-
+  // Parse URL params
   const params = useSanitizedParams();
   const txType = parseInt(params?.type || "0");
-
-  const query = useQuery();
-  const {
-    accountType,
-    msgId,
-    amount,
-    source,
-    target,
-    validator,
-    tokenAddress,
-    publicKey,
-    nativeToken,
-  } = query.getAll();
-
-  const tokenType =
-    Object.values(Tokens).find((token) => token.address === tokenAddress)
-      ?.symbol || "NAM";
+  const accountType =
+    (params?.accountType as AccountType) || AccountType.PrivateKey;
+  const msgId = params?.msgId || "0";
 
   useEffect(() => {
-    if (source && txType && msgId) {
-      setDetails({
-        source,
-        txType,
-        msgId,
-        publicKey,
-        target,
-        nativeToken,
+    fetchPendingTxDetails(requester, msgId)
+      .then((details) => {
+        if (!details) {
+          throw new Error(
+            `Failed to fetch Tx details - no transactions exists for ${msgId}`
+          );
+        }
+        // TODO: Handle array of approval details
+        setDetails({
+          txType,
+          msgId,
+          tx: details,
+        });
+      })
+      .catch((e) => {
+        console.error(`Could not fetch pending Tx with msgId = ${msgId}: ${e}`);
       });
-    }
-  }, [source, publicKey, txType, target, msgId]);
+  }, [txType, msgId]);
 
   const handleApproveClick = useCallback((): void => {
     if (accountType === AccountType.Ledger) {
@@ -83,25 +91,45 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
         <strong>{TxTypeLabel[txType as TxType]}</strong> transaction?
       </Alert>
       <Stack gap={2}>
-        {source && (
-          <p className="text-xs">
-            Source: <strong>{shortenAddress(source)}</strong>
-          </p>
-        )}
-        {target && (
-          <p className="text-xs">
-            Target:
-            <strong>{shortenAddress(target)}</strong>
-          </p>
-        )}
-        {amount && (
-          <p className="text-xs">
-            Amount: {amount} {tokenType}
-          </p>
-        )}
-        {validator && (
-          <p className="text-xs">Validator: {shortenAddress(validator)}</p>
-        )}
+        {details?.tx.map((txDetails, i) => {
+          const { amount, source, target, publicKey, tokenAddress, validator } =
+            txDetails || {};
+          const tokenType =
+            Object.values(Tokens).find(
+              (token) => token.address === tokenAddress
+            )?.symbol || "NAM";
+
+          return (
+            <div key={i}>
+              {source && (
+                <p className="text-xs">
+                  Source: <strong>{shortenAddress(source)}</strong>
+                </p>
+              )}
+              {target && (
+                <p className="text-xs">
+                  Target:
+                  <strong>{shortenAddress(target)}</strong>
+                </p>
+              )}
+              {amount && (
+                <p className="text-xs">
+                  Amount: {amount} {tokenType}
+                </p>
+              )}
+              {publicKey && (
+                <p className="text-xs">
+                  Public key: {shortenAddress(publicKey)}
+                </p>
+              )}
+              {validator && (
+                <p className="text-xs">
+                  Validator: {shortenAddress(validator)}
+                </p>
+              )}
+            </div>
+          );
+        })}
       </Stack>
       <Stack gap={3} direction="horizontal">
         <ActionButton onClick={handleApproveClick}>Approve</ActionButton>

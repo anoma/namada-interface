@@ -80,22 +80,28 @@ export class Signer implements ISigner {
   private async submitTx<T extends Schema, Args>(
     txType: SupportedTx,
     constructor: new (args: Args) => T,
-    args: Args,
+    args: Args | Args[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
-    const msgValue = new constructor(args);
-    const msg = new Message<T>();
-    const encoded = msg.encode(msgValue);
+    const tx = (args instanceof Array ? args : [args]).map((arg) => {
+      const msgValue = new constructor(arg);
+      const msg = new Message<T>();
+      const encoded = msg.encode(msgValue);
 
-    const txMsgValue = new TxMsgValue(txArgs);
-    const txMsg = new Message<TxMsgValue>();
-    const txEncoded = txMsg.encode(txMsgValue);
+      const txMsgValue = new TxMsgValue(txArgs);
+      const txMsg = new Message<TxMsgValue>();
+      const txEncoded = txMsg.encode(txMsgValue);
+
+      return {
+        specificMsg: toBase64(encoded),
+        txMsg: toBase64(txEncoded),
+      };
+    });
 
     return await this._namada.submitTx({
       txType,
-      specificMsg: toBase64(encoded),
-      txMsg: toBase64(txEncoded),
+      tx,
       type,
     });
   }
@@ -104,7 +110,7 @@ export class Signer implements ISigner {
    * Submit bond transaction
    */
   public async submitBond(
-    args: BondProps,
+    args: BondProps | BondProps[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
@@ -115,7 +121,7 @@ export class Signer implements ISigner {
    * Submit unbond transaction
    */
   public async submitUnbond(
-    args: UnbondProps,
+    args: UnbondProps | UnbondProps[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
@@ -126,7 +132,7 @@ export class Signer implements ISigner {
    * Submit withdraw transaction
    */
   public async submitWithdraw(
-    args: WithdrawProps,
+    args: WithdrawProps | WithdrawProps[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
@@ -137,7 +143,7 @@ export class Signer implements ISigner {
    * Submit vote proposal transaction
    */
   public async submitVoteProposal(
-    args: VoteProposalProps,
+    args: VoteProposalProps | VoteProposalProps[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
@@ -154,7 +160,7 @@ export class Signer implements ISigner {
    * Submit a transfer
    */
   public async submitTransfer(
-    args: TransferProps,
+    args: TransferProps | TransferProps[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
@@ -165,7 +171,7 @@ export class Signer implements ISigner {
    * Submit an ibc transfer
    */
   public async submitIbcTransfer(
-    args: IbcTransferProps,
+    args: IbcTransferProps | IbcTransferProps[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
@@ -182,7 +188,7 @@ export class Signer implements ISigner {
    * Submit an eth bridge transfer
    */
   public async submitEthBridgeTransfer(
-    args: EthBridgeTransferProps,
+    args: EthBridgeTransferProps | EthBridgeTransferProps[],
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
