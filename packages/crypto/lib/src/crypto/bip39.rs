@@ -43,6 +43,9 @@ impl Mnemonic {
     }
 
     pub fn from_phrase(mut phrase: String) -> Result<Mnemonic, String> {
+        // First validate phrase, provide error to client if this fails
+        M::validate(&phrase, Language::English).map_err(|e| format!("{}", e))?;
+
         let mnemonic = M::from_phrase(&phrase, Language::English)
             .map_err(|e| format!("{}: {:?}", Bip39Error::InvalidPhrase, e))?;
 

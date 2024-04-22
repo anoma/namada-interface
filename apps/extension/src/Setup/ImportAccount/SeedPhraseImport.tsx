@@ -33,6 +33,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   const requester = useRequester();
   const [privateKey, setPrivateKey] = useState("");
   const [passphrase, setPassphrase] = useState("");
+  const [invalidWordIndex, setInvalidWordIndex] = useState<number>();
   const [showPassphrase, setShowPassphrase] = useState(false);
   const [mnemonicType, setMnemonicType] = useState<MnemonicTypes>(
     MnemonicTypes.TwelveWords
@@ -65,8 +66,8 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   })();
 
   const isSubmitButtonDisabled =
-    mnemonicType === MnemonicTypes.PrivateKey
-      ? privateKey === "" || privateKeyError !== ""
+    mnemonicType === MnemonicTypes.PrivateKey ?
+      privateKey === "" || privateKeyError !== ""
       : mnemonics.slice(0, mnemonicType).some((mnemonic) => !mnemonic);
 
   const onPaste = useCallback(
@@ -135,7 +136,20 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
         setMnemonicError(undefined);
         onConfirm({ t: "Mnemonic", seedPhrase: actualMnemonics, passphrase });
       } else {
-        setMnemonicError(error);
+        const isInvalidWord = /^invalid word in phrase with index \d+$/.test(
+          `${error}`
+        );
+        if (isInvalidWord) {
+          // get index from error
+          const matches = error?.match(/\d+$/);
+          const invalidWordIndex = matches ? parseInt(matches[0]) : undefined;
+          setInvalidWordIndex(invalidWordIndex);
+          typeof invalidWordIndex === "number" ?
+            setMnemonicError(`Word #${invalidWordIndex + 1} is invalid!`)
+            : setMnemonicError(error);
+        } else {
+          setMnemonicError(error);
+        }
       }
     }
   }, [mnemonics, mnemonicType, privateKey, passphrase, showPassphrase]);
@@ -210,6 +224,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
 
           {mnemonicType !== MnemonicTypes.PrivateKey && (
             <SeedPhraseList
+              invalidWordIndex={invalidWordIndex}
               sensitive={false}
               columns={mnemonicType === MnemonicTypes.TwentyFourWords ? 4 : 3}
               words={fillArray(mnemonics.slice(0, mnemonicType), mnemonicType)}
