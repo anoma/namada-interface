@@ -14,6 +14,12 @@ export const overview = (): RouteOutput => routeOutput(`/overview`);
 
 export const manage = (): RouteOutput => routeOutput("/manage");
 
+export const incrementBonding = (): RouteOutput =>
+  routeOutput("/bonding/increment");
+
+export const redelegateBonding = (): RouteOutput =>
+  routeOutput("/bonding/redelegate");
+
 export const validatorDetails = (id: string | number): RouteOutput =>
   routeOutput(`/validator-details/${id}`);
 
@@ -22,10 +28,15 @@ export const validatorDetailsOwner = (
   ownerId: string | number
 ): RouteOutput => routeOutput(`${validatorDetails(validatorId)}/${ownerId}`);
 
+export const unstake = (): RouteOutput => routeOutput("/bonding/unstake");
+
 export default {
   index,
   manage,
   overview,
   validatorDetails,
   validatorDetailsOwner,
+  incrementBonding,
+  redelegateBonding,
+  unstake,
 };

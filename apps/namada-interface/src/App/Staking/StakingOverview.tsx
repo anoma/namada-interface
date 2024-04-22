@@ -39,13 +39,13 @@ export const StakingOverview = (): JSX.Element => {
 
   return (
     <div className="grid grid-cols-[auto_270px] gap-2">
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         {!isConnected && (
           <ConnectBanner text="To stake please connect your account" />
         )}
         {isConnected && <StakingSummary />}
         {hasStaking && (
-          <Panel title="My Validators">
+          <Panel title="My Validators" className="relative">
             <MyValidatorsTable />
           </Panel>
         )}

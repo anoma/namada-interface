@@ -1,18 +1,15 @@
 import BigNumber from "bignumber.js";
-import { ChangeEventHandler, ComponentProps, useState } from "react";
+import { ChangeEventHandler, useState } from "react";
 
 import { Result } from "@namada/utils";
 
-import { Input } from "./Input";
+import { Input, InputProps } from "./Input";
 
 export type BigNumberElement = Omit<HTMLInputElement, "value"> & {
   value?: BigNumber;
 };
 
-type Props = Omit<
-  ComponentProps<typeof Input>,
-  "value" | "onChange" | "min" | "max"
-> & {
+type Props = Omit<InputProps, "value" | "onChange" | "min" | "max"> & {
   value?: BigNumber;
   onChange?: ChangeEventHandler<BigNumberElement>;
   maxDecimalPlaces?: number;

@@ -90,7 +90,7 @@ export const StakingSummary = (): JSX.Element => {
               borderRadius="sm"
               size="xs"
               color="primary"
-              onClick={() => navigate(StakingRoutes.manage().url)}
+              onClick={() => navigate(StakingRoutes.incrementBonding().url)}
             >
               Stake
             </ActionButton>

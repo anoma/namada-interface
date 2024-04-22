@@ -44,7 +44,7 @@ export const AllValidatorsTable = ({
       <img
         key={`validator-image-${validator.uuid}`}
         src={validator.imageUrl}
-        className="rounded-full aspect-square max-w-12"
+        className="rounded-full aspect-square max-w-8"
       />,
       // Alias:
       validator.alias,

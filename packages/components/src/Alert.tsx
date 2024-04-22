@@ -10,6 +10,7 @@ const alert = tv({
     type: {
       success: "",
       error: { base: "text-red-500" },
+      removal: { base: "bg-pink-800 text-pink" },
       warning: { base: "bg-yellow-900 text-yellow" },
       info: {
         base: "bg-neutral-900 text-white border-0",
@@ -42,7 +43,7 @@ export const Alert = ({
       aria-labelledby={title}
     >
       {title && <strong className={alertClass.title()}>{title}</strong>}
-      <div className="text-sm leading-[1.15em]">{children}</div>
+      <div className="leading-[1.15em]">{children}</div>
     </div>
   );
 };

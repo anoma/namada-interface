@@ -69,6 +69,7 @@ export const fetchMyValidatorsAtom = atom(
     const addresses = accounts.map((account) => account.address);
     const query = new Query(rpc);
     const myValidatorsRes = await query.query_my_validators(addresses);
+    console.log(myValidatorsRes);
     const myValidators = myValidatorsRes.reduce(toMyValidators, []);
     set(myValidatorsAtomBase, myValidators);
   }
