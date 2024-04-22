@@ -42,12 +42,10 @@ const ValidatorsTable = ({
   }, [filter]);
 
   const filteredValidators = validatorList.filter(filterValidators(filter));
-
   const paginatedValidators = filteredValidators.slice(
     page * resultsPerPage,
     page * resultsPerPage + resultsPerPage
   );
-
   const pageCount = Math.ceil(filteredValidators.length / resultsPerPage);
 
   return (
@@ -58,13 +56,13 @@ const ValidatorsTable = ({
         rows={paginatedValidators.map(renderRows)}
         tableProps={{
           className: twMerge(
-            "w-full [&_td]:px-2 [&_th]:px-2 [&_td:first-child]:pl-4",
+            "w-full [&_td]:px-1 [&_th]:px-1 [&_td:first-child]:pl-4 [&_td]:h-[60px]",
             "[&_td:last-child]:pr-4 [&_th:first-child]:pl-4 [&_th:last-child]:pr-4",
             "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md",
             tableClassName
           ),
         }}
-        headProps={{ className: "text-white" }}
+        headProps={{ className: "text-neutral-500" }}
       />
       <div className="mt-8 mb-4">
         <FormattedPaginator

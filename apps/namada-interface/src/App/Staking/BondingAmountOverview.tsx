@@ -12,6 +12,7 @@ type BondingAmountOverviewProps = {
   selectedFiatCurrency: CurrencyType;
   additionalText?: React.ReactNode;
   extraContent?: React.ReactNode;
+  updatedValueClassList?: string;
 };
 
 export const BondingAmountOverview = ({
@@ -23,6 +24,7 @@ export const BondingAmountOverview = ({
   additionalText,
   extraContent,
   amountToDelegate,
+  updatedValueClassList = "",
 }: BondingAmountOverviewProps): JSX.Element => {
   const amountInFiat = new BigNumber(amountInNam).multipliedBy(
     fiatExchangeRate
@@ -33,27 +35,28 @@ export const BondingAmountOverview = ({
   ).multipliedBy(fiatExchangeRate);
 
   const hasUpdatedValue =
-    !new BigNumber(updatedAmountInNam).eq(0) &&
-    !new BigNumber(updatedAmountInNam).eq(amountInNam);
+    updatedAmountInNam && !new BigNumber(updatedAmountInNam).eq(amountInNam);
+
   const namToDisplay = hasUpdatedValue ? updatedAmountInNam : amountInNam;
   const fiatToDisplay = hasUpdatedValue ? updatedAmountInFiat : amountInFiat;
-  console.log(hasUpdatedValue, namToDisplay, amountInNam);
 
   return (
-    <Panel className="w-full rounded-md">
+    <Panel className="relative w-full rounded-md">
       <Stack gap={2} className="leading-none">
         <h3 className="text-sm">{title}</h3>
         <div className="flex items-center">
           <Currency
-            className={clsx("text-4xl", {
-              "text-yellow": hasUpdatedValue,
+            className={clsx("text-2xl", {
+              [updatedValueClassList]: hasUpdatedValue,
             })}
             currency="nam"
             amount={namToDisplay}
-            currencySignClassName="hidden"
+            spaceAroundSign={true}
+            currencyPosition="right"
+            currencySignClassName="text-lg"
           />
           {amountToDelegate && amountToDelegate.gt(0) && (
-            <span className="text-success text-lg font-light mt-1.5 ml-3">
+            <span className="text-success text-md font-light mt-1.5 ml-3">
               (+
               <Currency
                 currency="nam"
@@ -65,7 +68,7 @@ export const BondingAmountOverview = ({
           )}
         </div>
         <Currency
-          className="text-xl text-neutral-400"
+          className="text-base text-neutral-400"
           amount={fiatToDisplay}
           currency={selectedFiatCurrency}
         />

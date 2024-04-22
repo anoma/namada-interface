@@ -15,6 +15,7 @@ const actionButton = tv({
       secondary: "bg-cyan hover:text-cyan",
       black: "bg-black text-yellow hover:text-black",
       white: "bg-white text-black hover:text-white",
+      magenta: "bg-pink text-white",
     },
 
     size: {
@@ -49,17 +50,21 @@ const actionButton = tv({
       color: "primary",
       class: "text-yellow",
     },
-
     {
       outlined: true,
       color: "secondary",
       class: "text-cyan",
     },
-
+    { outlined: true, color: "magenta", class: "text-pink bg-pink-800" },
     {
       outlined: true,
       color: "black",
       class: "text-black",
+    },
+    {
+      outlined: true,
+      color: "white",
+      class: "text-white",
     },
   ],
 
@@ -83,6 +88,7 @@ const actionButtonHover = tv({
       secondary: "bg-cyan",
       black: "bg-black",
       white: "bg-white",
+      magenta: "bg-pink-900",
     },
     disabled: {
       true: "group-hover:translate-y-[calc(100%+2px)]",
