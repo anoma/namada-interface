@@ -2,13 +2,14 @@ import { AmountInput, Currency, TableRow } from "@namada/components";
 import { CurrencyType, formatPercentage } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { MyValidator, Validator } from "slices/validators";
+import { Validator } from "slices/validators";
 import { twMerge } from "tailwind-merge";
 import ValidatorName from "./ValidatorName";
 import ValidatorsTable from "./ValidatorsTable";
 
-type UnstakeBondingTableProps = {
-  myValidators: MyValidator[];
+type IncrementBondingTableProps = {
+  filter: string;
+  validators: Validator[];
   selectedFiatCurrency: CurrencyType;
   selectedCurrencyExchangeRate: number;
   updatedAmountByAddress: Record<string, BigNumber>;
@@ -16,23 +17,24 @@ type UnstakeBondingTableProps = {
   onChangeValidatorAmount: (validator: Validator, amount: BigNumber) => void;
 };
 
-export const UnstakeBondingTable = ({
-  myValidators,
+export const ReDelegateTable = ({
+  filter = "",
+  validators,
   updatedAmountByAddress,
   stakedAmountByAddress,
   onChangeValidatorAmount,
-}: UnstakeBondingTableProps): JSX.Element => {
+}: IncrementBondingTableProps): JSX.Element => {
   const headers = [
     { children: "Validator", sortable: true },
-    "Amount to Unstake",
-    <div key={`unstake-new-total`} className="text-right">
-      <span className="block">Stake</span>
-      <small className="text-xs text-neutral-500 block">New total Stake</small>
+    "New staked amount",
+    <div key={`increment-bonding-th-current-stake`} className="text-right">
+      Stake
+      <div className="text-xs text-neutral-500">Stake difference</div>
     </div>,
-    <div key={`unstake-voting-power`} className="text-right">
+    <div key={`increment-bonding-th-voting-power`} className="text-right">
       Voting Power
     </div>,
-    <div key={`unstake-commission`} className="text-right">
+    <div key={`increment-bonding-th-comission`} className="text-right">
       Commission
     </div>,
   ];
@@ -40,20 +42,19 @@ export const UnstakeBondingTable = ({
   const renderRows = (validator: Validator): TableRow => {
     const stakedAmount =
       stakedAmountByAddress[validator.address] ?? new BigNumber(0);
-
-    const amountToUnstake =
+    const updatedAmounts =
       updatedAmountByAddress[validator.address] ?? new BigNumber(0);
-
-    const hasNewAmounts = amountToUnstake.gt(0);
+    const hasStakedAmount = stakedAmount.gt(0);
+    const hasNewAmounts = updatedAmounts.gt(0);
 
     return {
       className: "",
       cells: [
         // Validator Alias + Avatar
         <ValidatorName
-          key={`validator-name-${validator.address}`}
+          key={`increment-bonding-alias-${validator.address}`}
           validator={validator}
-          hasStake={true}
+          hasStake={hasStakedAmount}
         />,
 
         // Amount Text input
@@ -62,45 +63,56 @@ export const UnstakeBondingTable = ({
           className="relative"
         >
           <AmountInput
-            placeholder="Select to increase stake"
-            value={amountToUnstake.eq(0) ? undefined : amountToUnstake}
-            onChange={(e) =>
-              onChangeValidatorAmount(
-                validator,
-                e.target.value || new BigNumber(0)
-              )
-            }
+            placeholder="Select to enter stake"
+            value={updatedAmounts.gt(0) ? updatedAmounts : stakedAmount}
             className={twMerge(
               clsx(
                 "[&_input]:border-neutral-500 [&_input]:py-2.5 [&>div]:my-0",
                 {
-                  "[&_input]:!border-pink [&_input]:text-pink": hasNewAmounts,
+                  "[&_input]:border-yellow [&_input]:bg-yellow-950":
+                    hasNewAmounts,
                 }
               )
             )}
+            onChange={(e) =>
+              onChangeValidatorAmount(
+                validator,
+                e.target.value ?? new BigNumber(0)
+              )
+            }
           />
+          {hasNewAmounts && (
+            <span className="absolute h-full flex items-center right-2 top-0 text-neutral-500 text-sm">
+              NAM
+            </span>
+          )}
         </div>,
 
+        // Current Stake / New Stake
         <div
-          key={`increment-bonding-new-totals-${validator.address}`}
+          key={`increment-bonding-current-stake`}
           className="text-right leading-tight"
         >
-          <span className="block text-white">
+          <span className="block">
             <Currency
-              amount={stakedAmount}
+              currency="nam"
+              amount={stakedAmount ?? 0}
               currencyPosition="right"
               spaceAroundSign={true}
-              currency="nam"
             />
           </span>
           {hasNewAmounts && (
-            <span className="text-yellow text-sm">
-              =
+            <span
+              className={clsx("text-neutral-500 text-sm", {
+                "text-intermediate": updatedAmounts.lt(stakedAmount),
+              })}
+            >
+              {updatedAmounts.lt(stakedAmount) && "-"}
               <Currency
-                amount={stakedAmount.minus(amountToUnstake)}
+                currency="nam"
+                amount={stakedAmount.minus(updatedAmounts).abs()}
                 currencyPosition="right"
                 spaceAroundSign={true}
-                currency="nam"
               />
             </span>
           )}
@@ -135,10 +147,10 @@ export const UnstakeBondingTable = ({
       <ValidatorsTable
         id="increment-bonding-table"
         tableClassName="mt-2"
-        validatorList={myValidators.map((mv) => mv.validator)}
+        validatorList={validators}
         headers={headers}
         renderRows={renderRows}
-        filter=""
+        filter={filter}
       />
     </div>
   );
