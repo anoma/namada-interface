@@ -36,7 +36,7 @@ export const MyValidatorsTable = (): JSX.Element => {
     </div>,
   ];
 
-  const renderRows = (validator: Validator): TableRow => {
+  const renderRow = (validator: Validator): TableRow => {
     const stakedAmount = myValidatorsObj[validator.address].stakedAmount;
     return {
       className: "",
@@ -122,7 +122,7 @@ export const MyValidatorsTable = (): JSX.Element => {
         tableClassName="mt-2"
         validatorList={myValidators.map((v) => v.validator)}
         headers={head}
-        renderRows={renderRows}
+        renderRow={renderRow}
         filter=""
       />
     </>

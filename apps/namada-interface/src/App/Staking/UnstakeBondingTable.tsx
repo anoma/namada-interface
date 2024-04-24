@@ -37,7 +37,7 @@ export const UnstakeBondingTable = ({
     </div>,
   ];
 
-  const renderRows = (validator: Validator): TableRow => {
+  const renderRow = (validator: Validator): TableRow => {
     const stakedAmount =
       stakedAmountByAddress[validator.address] ?? new BigNumber(0);
 
@@ -137,7 +137,7 @@ export const UnstakeBondingTable = ({
         tableClassName="mt-2"
         validatorList={myValidators.map((mv) => mv.validator)}
         headers={headers}
-        renderRows={renderRows}
+        renderRow={renderRow}
         filter=""
       />
     </div>

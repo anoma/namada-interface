@@ -9,7 +9,7 @@ type ValidatorsTableProps = {
   headers: (TableHeader | React.ReactNode)[];
   filter: string;
   validatorList: Validator[];
-  renderRows: (validator: Validator) => TableRow;
+  renderRow: (validator: Validator) => TableRow;
   resultsPerPage?: number;
   initialPage?: number;
   tableClassName?: string;
@@ -29,7 +29,7 @@ const ValidatorsTable = ({
   id,
   headers,
   filter,
-  renderRows,
+  renderRow,
   validatorList,
   resultsPerPage = 20,
   initialPage = 0,
@@ -53,7 +53,7 @@ const ValidatorsTable = ({
       <StyledTable
         id={id}
         headers={headers}
-        rows={paginatedValidators.map(renderRows)}
+        rows={paginatedValidators.map(renderRow)}
         tableProps={{
           className: twMerge(
             "w-full [&_td]:px-1 [&_th]:px-1 [&_td:first-child]:pl-4 [&_td]:h-[60px]",
