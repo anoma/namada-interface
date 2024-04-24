@@ -27,7 +27,15 @@ export const IncrementBondingTable = ({
   const headers = [
     { children: "Validator", sortable: true },
     "Amount to Stake",
-    { children: "Stake", className: "text-right" },
+    {
+      children: (
+        <div className="leading-tight">
+          Stake{" "}
+          <small className="block text-xs text-neutral-500">New Stake</small>
+        </div>
+      ),
+      className: "text-right",
+    },
     { children: "Voting Power", className: "text-right" },
     { children: "Commission", className: "text-right" },
   ];
@@ -99,10 +107,10 @@ export const IncrementBondingTable = ({
                     "text-yellow": hasNewAmounts,
                   })}
                 >
-                  {amountToStake.gt(0) && "+"}
+                  {amountToStake.gt(0) && "="}
                   <Currency
                     currency="nam"
-                    amount={amountToStake}
+                    amount={amountToStake.plus(stakedAmount)}
                     currencyPosition="right"
                     spaceAroundSign={true}
                   />
