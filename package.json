@@ -37,5 +37,10 @@
     "stream-browserify": "^3.0.0",
     "wsrun": "^5.2.4"
   },
-  "packageManager": "yarn@4.0.2"
+  "packageManager": "yarn@4.0.2",
+  "dependencies": {
+    "@tanstack/query-core": "^5.32.0",
+    "jotai-tanstack-query": "^0.8.5",
+    "wonka": "^6.3.4"
+  }
 }

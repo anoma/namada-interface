@@ -11,6 +11,7 @@ type AmountSummaryCardProps = {
   extra?: React.ReactNode;
   callToAction: React.ReactNode;
   className?: string;
+  isLoading?: boolean;
 };
 
 export const AmountSummaryCard = ({
@@ -22,6 +23,7 @@ export const AmountSummaryCard = ({
   extra,
   callToAction,
   className = "",
+  isLoading = false,
 }: AmountSummaryCardProps): JSX.Element => {
   return createElement(
     as,
@@ -48,19 +50,21 @@ export const AmountSummaryCard = ({
           </div>
         )}
       </header>
-      <div className="text-center mb-6">
-        {mainAmount && (
-          <strong className="block text-[22px] text-white font-medium">
-            {mainAmount}
-          </strong>
-        )}
-        {alternativeAmount && (
-          <span className="block text-base text-neutral-500 font-medium">
-            {alternativeAmount}
-          </span>
-        )}
-        {extra}
-      </div>
+      {!isLoading && (
+        <div className="text-center mb-6">
+          {mainAmount && (
+            <strong className="block text-[22px] text-white font-medium">
+              {mainAmount}
+            </strong>
+          )}
+          {alternativeAmount && (
+            <span className="block text-base text-neutral-500 font-medium">
+              {alternativeAmount}
+            </span>
+          )}
+          {extra}
+        </div>
+      )}
       <footer className="flex flex-col items-center mx-auto">
         {callToAction}
       </footer>

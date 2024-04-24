@@ -34,6 +34,8 @@ export * from "./Select";
 export * from "./Stack";
 export * from "./StyledSelectBox";
 export * from "./StyledTable";
+export * from "./StyledTableHead";
+export * from "./StyledTableRow";
 export * from "./Table";
 export * from "./TabsGroup";
 export * from "./Text";

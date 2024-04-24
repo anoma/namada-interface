@@ -10,10 +10,9 @@ import { selectedCurrencyAtom } from "slices/settings";
 import { getStakingTotalAtom } from "slices/staking";
 import {
   Validator,
-  fetchAllValidatorsAtom,
-  fetchMyValidatorsAtom,
+  allValidatorsAtom,
+  myValidatorsAtom,
 } from "slices/validators";
-import { useLoadable } from "store/hooks";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { BondingValidatorsTable } from "./BondingValidatorsTable";
 import { ValidatorSearch } from "./ValidatorSearch";
@@ -28,9 +27,9 @@ export const Bonding = (): JSX.Element => {
   const accounts = useAtomValue(transparentAccountsAtom);
   const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
   const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
-  const validators = useLoadable(fetchAllValidatorsAtom);
+  const validators = useAtomValue(allValidatorsAtom);
   const totalStakedBalance = useAtomValue(getStakingTotalAtom);
-  const myValidators = useLoadable(fetchMyValidatorsAtom, accounts);
+  const myValidators = useAtomValue(myValidatorsAtom(accounts));
 
   const [selectedValidators, setSelectedValidators] = useState<
     Record<ValidatorAddress, boolean>
@@ -68,7 +67,7 @@ export const Bonding = (): JSX.Element => {
     );
 
   useEffect(() => {
-    if (myValidators.state !== "hasData") return;
+    if (!myValidators.isSuccess) return;
     const stakedAmounts: Record<ValidatorAddress, BigNumber> = {};
     const selectedValidators: Record<ValidatorAddress, boolean> = {};
     for (const myValidator of myValidators.data) {
@@ -78,7 +77,7 @@ export const Bonding = (): JSX.Element => {
     }
     setStakedAmounts(stakedAmounts);
     setSelectedValidators(selectedValidators);
-  }, [myValidators.state]);
+  }, [myValidators]);
 
   const onChangeValidatorsAmount = (
     validator: Validator,
@@ -136,7 +135,7 @@ export const Bonding = (): JSX.Element => {
           <div className="w-[70%]">
             <ValidatorSearch onChange={(value: string) => setFilter(value)} />
           </div>
-          {validators.state === "hasData" && (
+          {validators.data && (
             <BondingValidatorsTable
               filter={filter}
               validators={validators.data}
