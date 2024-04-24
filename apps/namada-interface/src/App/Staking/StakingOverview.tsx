@@ -53,11 +53,11 @@ export const StakingOverview = (): JSX.Element => {
         </Panel>
       </div>
       <aside className="flex flex-col gap-2">
-        <Panel>
-          {hasStaking && (
+        {hasStaking && (
+          <Panel>
             <YourStakingDistribution myValidators={myValidators.data} />
-          )}
-        </Panel>
+          </Panel>
+        )}
         <Panel>
           <ValidatorDiversification />
         </Panel>

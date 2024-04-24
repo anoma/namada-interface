@@ -1,5 +1,6 @@
 import { ActionButton, Alert, Modal, Panel, Stack } from "@namada/components";
 import { ModalContainer } from "App/Common/ModalContainer";
+import { TableRowLoading } from "App/Common/TableRowLoading";
 import BigNumber from "bignumber.js";
 import { useStakeModule } from "hooks/useStakeModule";
 import { useAtomValue } from "jotai";
@@ -94,7 +95,8 @@ const Unstake = (): JSX.Element => {
               Unbond All
             </ActionButton>
           )}
-          {validators.data && (
+          {validators.isLoading && <TableRowLoading count={2} />}
+          {validators.isSuccess && (
             <UnstakeBondingTable
               myValidators={validators.data}
               onChangeValidatorAmount={onChangeValidatorAmount}
