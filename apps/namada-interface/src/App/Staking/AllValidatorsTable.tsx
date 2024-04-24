@@ -2,10 +2,10 @@ import { TableRow } from "@namada/components";
 import { formatPercentage, shortenAddress } from "@namada/utils";
 import { ValidatorSearch } from "App/Staking/ValidatorSearch";
 import BigNumber from "bignumber.js";
+import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { GoGlobe } from "react-icons/go";
-import { Validator, fetchAllValidatorsAtom } from "slices/validators";
-import { useLoadable } from "store/hooks";
+import { Validator, allValidatorsAtom } from "slices/validators";
 import ValidatorsTable from "./ValidatorsTable";
 
 type AllValidatorsProps = {
@@ -17,12 +17,10 @@ export const AllValidatorsTable = ({
   resultsPerPage = 20,
   initialPage = 0,
 }: AllValidatorsProps): JSX.Element => {
-  const validators = useLoadable(fetchAllValidatorsAtom);
+  const validators = useAtomValue(allValidatorsAtom);
   const [filter, setFilter] = useState("");
 
-  // TODO:
-  if (validators.state === "loading") return <>Loading...</>;
-  if (validators.state === "hasError") return <>Error!</>;
+  if (validators.isError) return <>Error!</>;
 
   const headers = [
     "",
@@ -84,15 +82,17 @@ export const AllValidatorsTable = ({
       <div className="max-w-[200px]">
         <ValidatorSearch onChange={(value: string) => setFilter(value)} />
       </div>
-      <ValidatorsTable
-        id="all-validators"
-        validatorList={validators.data}
-        headers={headers}
-        initialPage={initialPage}
-        resultsPerPage={resultsPerPage}
-        filter={filter}
-        renderRow={renderRow}
-      />
+      {validators.data && (
+        <ValidatorsTable
+          id="all-validators"
+          validatorList={validators.data}
+          headers={headers}
+          initialPage={initialPage}
+          resultsPerPage={resultsPerPage}
+          filter={filter}
+          renderRow={renderRow}
+        />
+      )}
     </>
   );
 };

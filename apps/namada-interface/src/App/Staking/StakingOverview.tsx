@@ -6,7 +6,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { fetchBalancesAtom, transparentAccountsAtom } from "slices/accounts";
 import { namadaExtensionConnectedAtom } from "slices/settings";
-import { fetchMyValidatorsAtom, myValidatorsAtom } from "slices/validators";
+import { myValidatorsAtom } from "slices/validators";
 import { AllValidatorsTable } from "./AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
 import { StakingSummary } from "./StakingSummary";
@@ -26,13 +26,12 @@ export const StakingOverview = (): JSX.Element => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const accounts = useAtomValue(transparentAccountsAtom);
   const fetchBalances = useSetAtom(fetchBalancesAtom);
-  const fetchMyValidators = useSetAtom(fetchMyValidatorsAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
-  const hasStaking = isConnected && myValidators.length > 0;
+  const hasStaking = isConnected && myValidators.data?.length > 0;
 
   useEffect(() => {
     if (isConnected && accounts.length > 0) {
-      fetchMyValidators(accounts);
+      myValidators.refetch();
       fetchBalances();
     }
   }, [isConnected, accounts]);
@@ -56,7 +55,7 @@ export const StakingOverview = (): JSX.Element => {
       <aside className="flex flex-col gap-2">
         <Panel>
           {hasStaking && (
-            <YourStakingDistribution myValidators={myValidators} />
+            <YourStakingDistribution myValidators={myValidators.data} />
           )}
         </Panel>
         <Panel>

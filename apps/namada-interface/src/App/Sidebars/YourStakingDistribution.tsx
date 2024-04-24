@@ -15,6 +15,8 @@ export const YourStakingDistribution = ({
     MyValidator | undefined
   >();
 
+  console.log("AAAA", myValidators);
+
   const totalAmount = myValidators.reduce(
     (previous, current) => previous.plus(current.stakedAmount || 0),
     new BigNumber(0)

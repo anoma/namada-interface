@@ -7,8 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { totalNamBalanceAtom, transparentAccountsAtom } from "slices/accounts";
 import { selectedCurrencyRateAtom } from "slices/exchangeRates";
 import { selectedCurrencyAtom } from "slices/settings";
-import { fetchAllValidatorsAtom } from "slices/validators";
-import { useLoadable } from "store/hooks";
+import { allValidatorsAtom } from "slices/validators";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { IncrementBondingTable } from "./IncrementBondingTable";
 import { ValidatorSearch } from "./ValidatorSearch";
@@ -19,7 +18,7 @@ const IncrementBonding = (): JSX.Element => {
   const navigate = useNavigate();
   const totalNam = useAtomValue(totalNamBalanceAtom);
   const accounts = useAtomValue(transparentAccountsAtom);
-  const validators = useLoadable(fetchAllValidatorsAtom);
+  const validators = useAtomValue(allValidatorsAtom);
   const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
   const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
 
@@ -79,7 +78,7 @@ const IncrementBonding = (): JSX.Element => {
           <div className="w-[70%]">
             <ValidatorSearch onChange={(value: string) => setFilter(value)} />
           </div>
-          {validators.state === "hasData" && (
+          {validators.data && (
             <IncrementBondingTable
               filter={filter}
               validators={validators.data}

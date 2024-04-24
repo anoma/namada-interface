@@ -7,8 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { transparentAccountsAtom } from "slices/accounts";
 import { selectedCurrencyRateAtom } from "slices/exchangeRates";
 import { selectedCurrencyAtom } from "slices/settings";
-import { fetchAllValidatorsAtom } from "slices/validators";
-import { useLoadable } from "store/hooks";
+import { allValidatorsAtom } from "slices/validators";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { ReDelegateTable } from "./ReDelegateTable";
 import { ValidatorSearch } from "./ValidatorSearch";
@@ -18,7 +17,7 @@ const ReDelegate = (): JSX.Element => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<string>("");
   const accounts = useAtomValue(transparentAccountsAtom);
-  const validators = useLoadable(fetchAllValidatorsAtom);
+  const validators = useAtomValue(allValidatorsAtom);
   const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
   const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
   const {
@@ -78,7 +77,7 @@ const ReDelegate = (): JSX.Element => {
           <div className="w-[70%]">
             <ValidatorSearch onChange={(value: string) => setFilter(value)} />
           </div>
-          {validators.state === "hasData" && (
+          {validators.data && (
             <ReDelegateTable
               filter={filter}
               validators={validators.data}
