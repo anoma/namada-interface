@@ -37,7 +37,7 @@ export const AllValidatorsTable = ({
     "",
   ];
 
-  const renderRows = (validator: Validator): TableRow => ({
+  const renderRow = (validator: Validator): TableRow => ({
     className: "[&_td:first-child]:pr-0",
     cells: [
       // Thumbnail:
@@ -91,7 +91,7 @@ export const AllValidatorsTable = ({
         initialPage={initialPage}
         resultsPerPage={resultsPerPage}
         filter={filter}
-        renderRows={renderRows}
+        renderRow={renderRow}
       />
     </>
   );

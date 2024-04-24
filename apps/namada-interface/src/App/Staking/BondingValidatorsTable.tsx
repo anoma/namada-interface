@@ -63,7 +63,7 @@ export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
     "",
   ];
 
-  const renderRows = (validator: Validator): TableRow => {
+  const renderRow = (validator: Validator): TableRow => {
     const isSelected = selectedValidators[validator.address];
     return {
       className: "[&_td:nth-child(2)]:w-[35%] [&_td]:py-4",
@@ -134,7 +134,7 @@ export const BondingValidatorsTable: React.FC<BondingValidatorsTableProps> = ({
       id="bonding-validators"
       headers={headers}
       validatorList={validators}
-      renderRows={renderRows}
+      renderRow={renderRow}
       filter={filter}
     />
   );

@@ -27,19 +27,22 @@ export const ReDelegateTable = ({
   const headers = [
     { children: "Validator", sortable: true },
     "New staked amount",
-    <div key={`increment-bonding-th-current-stake`} className="text-right">
-      Stake
-      <div className="text-xs text-neutral-500">Stake difference</div>
-    </div>,
-    <div key={`increment-bonding-th-voting-power`} className="text-right">
-      Voting Power
-    </div>,
-    <div key={`increment-bonding-th-comission`} className="text-right">
-      Commission
-    </div>,
+    {
+      children: (
+        <div className="leading-tight">
+          Stake{" "}
+          <small className="block text-xs text-neutral-500">
+            Stake difference
+          </small>
+        </div>
+      ),
+      className: "text-right",
+    },
+    { children: "Voting Power", className: "text-right" },
+    { children: "Comission", className: "text-right" },
   ];
 
-  const renderRows = (validator: Validator): TableRow => {
+  const renderRow = (validator: Validator): TableRow => {
     const stakedAmount =
       stakedAmountByAddress[validator.address] ?? new BigNumber(0);
     const updatedAmounts =
@@ -149,7 +152,7 @@ export const ReDelegateTable = ({
         tableClassName="mt-2"
         validatorList={validators}
         headers={headers}
-        renderRows={renderRows}
+        renderRow={renderRow}
         filter={filter}
       />
     </div>
