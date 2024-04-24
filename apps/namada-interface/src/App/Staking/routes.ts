@@ -10,7 +10,7 @@ export const routeOutput = (route: string): RouteOutput => ({
 
 export const index = (): string => `/staking`;
 
-export const overview = (): RouteOutput => routeOutput(`/overview`);
+export const overview = (): RouteOutput => routeOutput(`/`);
 
 export const manage = (): RouteOutput => routeOutput("/manage");
 
