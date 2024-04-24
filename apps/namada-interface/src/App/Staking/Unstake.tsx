@@ -7,8 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { transparentAccountsAtom } from "slices/accounts";
 import { selectedCurrencyRateAtom } from "slices/exchangeRates";
 import { selectedCurrencyAtom } from "slices/settings";
-import { fetchMyValidatorsAtom } from "slices/validators";
-import { useLoadable } from "store/hooks";
+import { MyValidator, myValidatorsAtom } from "slices/validators";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { UnstakeBondingTable } from "./UnstakeBondingTable";
 import StakingRoutes from "./routes";
@@ -16,7 +15,7 @@ import StakingRoutes from "./routes";
 const Unstake = (): JSX.Element => {
   const navigate = useNavigate();
   const accounts = useAtomValue(transparentAccountsAtom);
-  const validators = useLoadable(fetchMyValidatorsAtom);
+  const validators = useAtomValue(myValidatorsAtom);
   const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
   const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
   const {
@@ -30,8 +29,8 @@ const Unstake = (): JSX.Element => {
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
 
   const onUnbondAll = (): void => {
-    if (validators.state !== "hasData") return;
-    validators.data.forEach((myValidator) =>
+    if (!validators.isSuccess) return;
+    validators.data.forEach((myValidator: MyValidator) =>
       onChangeValidatorAmount(
         myValidator.validator,
         myValidator.stakedAmount || new BigNumber(0)
@@ -84,7 +83,7 @@ const Unstake = (): JSX.Element => {
           </Panel>
         </div>
         <Panel className="w-full rounded-md flex-1">
-          {validators.state === "hasData" && (
+          {validators.data && (
             <ActionButton
               className="inline-flex w-auto leading-none px-4 py-3 mb-4"
               color="magenta"
@@ -95,7 +94,7 @@ const Unstake = (): JSX.Element => {
               Unbond All
             </ActionButton>
           )}
-          {validators.state === "hasData" && (
+          {validators.data && (
             <UnstakeBondingTable
               myValidators={validators.data}
               onChangeValidatorAmount={onChangeValidatorAmount}

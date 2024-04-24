@@ -1,7 +1,7 @@
 import { Query } from "@namada/shared";
-import { Account } from "@namada/types";
 import BigNumber from "bignumber.js";
-import { atom } from "jotai";
+import { atomWithQuery } from "jotai-tanstack-query";
+import { transparentAccountsAtom } from "./accounts";
 import { chainAtom } from "./chain";
 
 type Unique = {
@@ -37,46 +37,36 @@ const toValidator = (address: string): Validator => ({
   imageUrl: "https://loremflickr.com/200/200",
 });
 
-const allValidatorsAtomBase = atom<Validator[]>([]);
-
-export const allValidatorsAtom = atom<Validator[]>((get) =>
-  get(allValidatorsAtomBase)
-);
-
-export const fetchAllValidatorsAtom = atom(
-  (get) => get(allValidatorsAtomBase),
-  async (get, set) => {
-    const validators = get(allValidatorsAtomBase);
-    if (validators.length > 0) return;
+export const allValidatorsAtom = atomWithQuery((get) => ({
+  queryKey: ["all-validators"],
+  queryFn: async () => {
     const { rpc } = get(chainAtom);
     const query = new Query(rpc);
     const queryResult =
       (await query.query_all_validator_addresses()) as string[];
-    set(allValidatorsAtomBase, queryResult.map(toValidator));
-  }
-);
+    return queryResult.map(toValidator);
+  },
+}));
 
-const myValidatorsAtomBase = atom<MyValidator[]>([]);
-
-export const myValidatorsAtom = atom<MyValidator[]>((get) =>
-  get(myValidatorsAtomBase)
-);
-
-export const fetchMyValidatorsAtom = atom(
-  (get) => get(myValidatorsAtomBase),
-  async (get, set, accounts: readonly Account[] = []) => {
-    const { rpc } = get(chainAtom);
-    const addresses = accounts.map((account) => account.address);
-    const query = new Query(rpc);
-    const myValidatorsRes = await query.query_my_validators(addresses);
-    console.log(myValidatorsRes);
-    const myValidators = myValidatorsRes.reduce(toMyValidators, []);
-    set(myValidatorsAtomBase, myValidators);
-  }
-);
+// eslint-disable-next-line
+export const myValidatorsAtom = atomWithQuery((get) => {
+  const accounts = get(transparentAccountsAtom);
+  const ids = accounts.map((account) => account.address).join("-");
+  return {
+    queryKey: ["my-validators-" + ids],
+    queryFn: async () => {
+      const { rpc } = get(chainAtom);
+      const addresses = accounts.map((account) => account.address);
+      const query = new Query(rpc);
+      const myValidatorsRes = await query.query_my_validators(addresses);
+      return myValidatorsRes.reduce(toMyValidators, []);
+    },
+  };
+});
 
 const toMyValidators = (
   acc: MyValidator[],
+  // TODO: omg
   [_, validator, stake, unbonded, withdrawable]: [
     string,
     string,

@@ -14,12 +14,15 @@ export const MyValidatorsTable = (): JSX.Element => {
   const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
   const selectedFiatCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
-  const myValidatorsObj: Record<string, MyValidator> = myValidators.reduce(
-    (acc, current) => {
-      return { ...acc, [current.validator.address]: current };
-    },
-    {}
-  );
+  const myValidatorsObj: Record<string, MyValidator> =
+    myValidators.isSuccess ?
+      myValidators.data.reduce(
+        (acc: Record<string, MyValidator>, current: MyValidator) => {
+          return { ...acc, [current.validator.address]: current };
+        },
+        {}
+      )
+    : {};
 
   const head = [
     "",
@@ -120,7 +123,11 @@ export const MyValidatorsTable = (): JSX.Element => {
       <ValidatorsTable
         id="my-validators"
         tableClassName="mt-2"
-        validatorList={myValidators.map((v) => v.validator)}
+        validatorList={
+          myValidators.isSuccess ?
+            myValidators.data.map((v: MyValidator) => v.validator)
+          : []
+        }
         headers={head}
         renderRow={renderRow}
         filter=""

@@ -9820,6 +9820,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-core@npm:^5.32.0":
+  version: 5.32.0
+  resolution: "@tanstack/query-core@npm:5.32.0"
+  checksum: 58e7b053579a23dba36189a1fd87261819b31b344648f693fd613c722260066e11ad8c82dc07f5e5af2e276bde1b9f6a1dd6da3bf93cdd3583d128a2b373fce0
+  languageName: node
+  linkType: hard
+
 "@testing-library/dom@npm:^8.0.0":
   version: 8.11.3
   resolution: "@testing-library/dom@npm:8.11.3"
@@ -24734,6 +24741,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jotai-tanstack-query@npm:^0.8.5":
+  version: 0.8.5
+  resolution: "jotai-tanstack-query@npm:0.8.5"
+  peerDependencies:
+    "@tanstack/query-core": "*"
+    jotai: ">=2.0.0"
+    wonka: ^6.3.4
+  checksum: 761a9ed4b98b7c7899b11ffd94d29e1f3d8844b15f8c4175743e30a3ab99bd1ab672983c6b8b490c51fa166688c8f8575e9a9bf7b69be78c1a6dbc1907f1934a
+  languageName: node
+  linkType: hard
+
 "jotai@npm:^2.6.3":
   version: 2.6.4
   resolution: "jotai@npm:2.6.4"
@@ -26687,11 +26705,13 @@ __metadata:
   resolution: "namada@workspace:."
   dependencies:
     "@release-it/conventional-changelog": "npm:^8.0.1"
+    "@tanstack/query-core": "npm:^5.32.0"
     "@typescript-eslint/eslint-plugin": "npm:^6.13.0"
     "@typescript-eslint/parser": "npm:^6.13.0"
     eslint: "npm:^8.49.0"
     git-commit-msg-linter: "npm:^5.0.4"
     husky: "npm:^8.0.3"
+    jotai-tanstack-query: "npm:^0.8.5"
     jsdoc-to-markdown: "npm:^8.0.1"
     lint-staged: "npm:^15.2.0"
     prettier: "npm:^3.1.0"
@@ -26699,6 +26719,7 @@ __metadata:
     release-it: "npm:^17.0.1"
     rimraf: "npm:^5.0.5"
     stream-browserify: "npm:^3.0.0"
+    wonka: "npm:^6.3.4"
     wsrun: "npm:^5.2.4"
   languageName: unknown
   linkType: soft
@@ -36284,6 +36305,13 @@ __metadata:
   version: 0.0.12
   resolution: "winreg@npm:0.0.12"
   checksum: 148b6aca1c3e88badd0d2b77ee0a71f1033e22e1cfcb41b71a5bba9e97cb3e7b6a2ec6b00cf0397959a13d65577d9173932588b3cd57b3f2e774b77ad14394ba
+  languageName: node
+  linkType: hard
+
+"wonka@npm:^6.3.4":
+  version: 6.3.4
+  resolution: "wonka@npm:6.3.4"
+  checksum: 77329eea673da07717476e1b8f1a22f1e1a4f261bb9a58fa446c03d3da13dbd5b254664f8aded5928d953f33ee5b399a17a4f70336e8b236e478209c0e78cda4
   languageName: node
   linkType: hard
 

@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { atom } from "jotai";
-import { myValidatorsAtom } from "./validators";
+import { MyValidator, myValidatorsAtom } from "./validators";
 
 type StakingTotals = {
   totalBonded: BigNumber;
@@ -8,29 +8,50 @@ type StakingTotals = {
   totalWithdrawable: BigNumber;
 };
 
-export const myStakingPositionAtom = atom([]);
+type StakingTotalsState =
+  | {
+      isSuccess: boolean;
+      isLoading: boolean;
+      data: StakingTotals;
+    }
+  | { isSuccess: false; data: undefined };
 
-export const getStakingTotalAtom = atom<StakingTotals>((get) => {
+export const getStakingTotalAtom = atom<StakingTotalsState>((get) => {
   const myValidators = get(myValidatorsAtom);
 
-  const totalBonded = myValidators.reduce(
-    (acc, validator) => acc.plus(validator.stakedAmount ?? 0),
+  if (!myValidators.isSuccess) {
+    return {
+      data: undefined,
+      isLoading: true,
+      isSuccess: myValidators.isSuccess,
+    };
+  }
+
+  const totalBonded = myValidators.data.reduce(
+    (acc: BigNumber, validator: MyValidator) =>
+      acc.plus(validator.stakedAmount ?? 0),
     new BigNumber(0)
   );
 
-  const totalUnbonded = myValidators.reduce(
-    (acc, validator) => acc.plus(validator.unbondedAmount ?? 0),
+  const totalUnbonded = myValidators.data.reduce(
+    (acc: BigNumber, validator: MyValidator) =>
+      acc.plus(validator.unbondedAmount ?? 0),
     new BigNumber(0)
   );
 
-  const totalWithdrawable = myValidators.reduce(
-    (acc, validator) => acc.plus(validator.withdrawableAmount ?? 0),
+  const totalWithdrawable = myValidators.data.reduce(
+    (acc: BigNumber, validator: MyValidator) =>
+      acc.plus(validator.withdrawableAmount ?? 0),
     new BigNumber(0)
   );
 
   return {
-    totalBonded,
-    totalUnbonded,
-    totalWithdrawable,
+    isLoading: false,
+    isSuccess: myValidators.isSuccess,
+    data: {
+      totalBonded,
+      totalUnbonded,
+      totalWithdrawable,
+    },
   };
 });

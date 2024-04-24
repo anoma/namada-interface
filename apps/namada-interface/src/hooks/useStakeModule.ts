@@ -3,8 +3,7 @@ import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { totalNamBalanceAtom } from "slices/accounts";
-import { Validator, fetchMyValidatorsAtom } from "slices/validators";
-import { useLoadable } from "store/hooks";
+import { Validator, myValidatorsAtom } from "slices/validators";
 
 type ValidatorAddress = string;
 
@@ -15,7 +14,7 @@ type UseStakeModuleProps = {
 //eslint-disable-next-line
 export const useStakeModule = ({ accounts }: UseStakeModuleProps) => {
   const totalNam = useAtomValue(totalNamBalanceAtom);
-  const myValidators = useLoadable(fetchMyValidatorsAtom, accounts);
+  const myValidators = useAtomValue(myValidatorsAtom);
 
   const [stakedAmountByAddress, setStakedAmountsByAddress] = useState<
     Record<ValidatorAddress, BigNumber>
@@ -54,7 +53,7 @@ export const useStakeModule = ({ accounts }: UseStakeModuleProps) => {
   };
 
   useEffect(() => {
-    if (myValidators.state !== "hasData" || accounts.length === 0) return;
+    if (myValidators.isSuccess || accounts.length === 0) return;
 
     const stakedAmounts: Record<ValidatorAddress, BigNumber> = {};
     for (const myValidator of myValidators.data) {
@@ -62,7 +61,7 @@ export const useStakeModule = ({ accounts }: UseStakeModuleProps) => {
         myValidator.stakedAmount || new BigNumber(0);
     }
     setStakedAmountsByAddress(stakedAmounts);
-  }, [myValidators.state, accounts]);
+  }, [myValidators, accounts]);
 
   return {
     totalUpdatedAmount,
