@@ -1,5 +1,6 @@
 import { TableRow } from "@namada/components";
 import { formatPercentage, shortenAddress } from "@namada/utils";
+import { TableRowLoading } from "App/Common/TableRowLoading";
 import { ValidatorSearch } from "App/Staking/ValidatorSearch";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
@@ -76,6 +77,10 @@ export const AllValidatorsTable = ({
       </a>,
     ],
   });
+
+  if (validators.isLoading) {
+    return <TableRowLoading count={2} />;
+  }
 
   return (
     <>

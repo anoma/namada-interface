@@ -1,5 +1,6 @@
 import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { ModalContainer } from "App/Common/ModalContainer";
+import { TableRowLoading } from "App/Common/TableRowLoading";
 import { useStakeModule } from "hooks/useStakeModule";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
@@ -78,7 +79,8 @@ const IncrementBonding = (): JSX.Element => {
           <div className="w-[70%]">
             <ValidatorSearch onChange={(value: string) => setFilter(value)} />
           </div>
-          {validators.data && (
+          {validators.isLoading && <TableRowLoading count={2} />}
+          {validators.isSuccess && (
             <IncrementBondingTable
               filter={filter}
               validators={validators.data}
