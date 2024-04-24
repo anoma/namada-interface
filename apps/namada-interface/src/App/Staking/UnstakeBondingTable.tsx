@@ -94,7 +94,7 @@ export const UnstakeBondingTable = ({
             />
           </span>
           {hasNewAmounts && (
-            <span className="text-yellow text-sm">
+            <span className="text-orange text-sm">
               =
               <Currency
                 amount={stakedAmount.minus(amountToUnstake)}

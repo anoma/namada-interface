@@ -4,6 +4,7 @@ module.exports = {
       colors: {
         success: "#15DD89",
         intermediate: "#F48708",
+        orange: "#FF8A00",
         fail: "#DD1539",
         white: "#fff",
         black: "#141414",
