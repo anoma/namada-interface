@@ -27,19 +27,12 @@ export const IncrementBondingTable = ({
   const headers = [
     { children: "Validator", sortable: true },
     "Amount to Stake",
-    <div key={`increment-bonding-th-current-stake`} className="text-right">
-      Stake
-      <div className="text-xs text-neutral-500">New Total Stake</div>
-    </div>,
-    <div key={`increment-bonding-th-voting-power`} className="text-right">
-      Voting Power
-    </div>,
-    <div key={`increment-bonding-th-comission`} className="text-right">
-      Commission
-    </div>,
+    { children: "Stake", className: "text-right" },
+    { children: "Voting Power", className: "text-right" },
+    { children: "Commission", className: "text-right" },
   ];
 
-  const renderRows = (validator: Validator): TableRow => {
+  const renderRow = (validator: Validator): TableRow => {
     const stakedAmount =
       stakedAmountByAddress[validator.address] ?? new BigNumber(0);
     const amountToStake =
@@ -47,7 +40,7 @@ export const IncrementBondingTable = ({
     const hasStakedAmount = stakedAmount.gt(0);
     const hasNewAmounts = amountToStake.gt(0);
 
-    return {
+    const newRow = {
       className: "",
       cells: [
         // Validator Alias + Avatar
@@ -86,34 +79,38 @@ export const IncrementBondingTable = ({
         </div>,
 
         // Current Stake / New Stake
-        <div
-          key={`increment-bonding-current-stake`}
-          className="text-right leading-tight"
-        >
-          <span className="block">
-            <Currency
-              currency="nam"
-              amount={stakedAmount ?? 0}
-              currencyPosition="right"
-              spaceAroundSign={true}
-            />
-          </span>
-          {hasNewAmounts && (
-            <span
-              className={clsx("text-neutral-500 text-sm", {
-                "text-yellow": hasNewAmounts,
-              })}
+        {
+          render: () => (
+            <div
+              key={`increment-bonding-current-stake`}
+              className="text-right leading-tight"
             >
-              {amountToStake.gt(0) && "+"}
-              <Currency
-                currency="nam"
-                amount={amountToStake}
-                currencyPosition="right"
-                spaceAroundSign={true}
-              />
-            </span>
-          )}
-        </div>,
+              <span className="block">
+                <Currency
+                  currency="nam"
+                  amount={stakedAmount ?? 0}
+                  currencyPosition="right"
+                  spaceAroundSign={true}
+                />
+              </span>
+              {hasNewAmounts && (
+                <span
+                  className={clsx("text-neutral-500 text-sm", {
+                    "text-yellow": hasNewAmounts,
+                  })}
+                >
+                  {amountToStake.gt(0) && "+"}
+                  <Currency
+                    currency="nam"
+                    amount={amountToStake}
+                    currencyPosition="right"
+                    spaceAroundSign={true}
+                  />
+                </span>
+              )}
+            </div>
+          ),
+        },
 
         // Voting Power
         <div
@@ -137,6 +134,8 @@ export const IncrementBondingTable = ({
         </div>,
       ],
     };
+
+    return newRow;
   };
 
   return (
@@ -146,7 +145,7 @@ export const IncrementBondingTable = ({
         tableClassName="mt-2"
         validatorList={validators}
         headers={headers}
-        renderRows={renderRows}
+        renderRow={renderRow}
         filter={filter}
       />
     </div>
