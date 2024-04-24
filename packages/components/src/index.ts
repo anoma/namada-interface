@@ -31,6 +31,7 @@ export * from "./RoundedLabel";
 export * from "./SeedPhraseInstructions";
 export * from "./SegmentedBar";
 export * from "./Select";
+export * from "./SkeletonLoading";
 export * from "./Stack";
 export * from "./StyledSelectBox";
 export * from "./StyledTable";

@@ -1,3 +1,5 @@
+import { SkeletonLoading } from "SkeletonLoading";
+import { Stack } from "Stack";
 import clsx from "clsx";
 import { createElement } from "react";
 import { twMerge } from "tailwind-merge";
@@ -31,7 +33,7 @@ export const AmountSummaryCard = ({
       className: twMerge(
         clsx(
           "flex flex-col gap-8 justify-between rounded-sm",
-          "pt-5 pb-6 px-4"
+          "pt-5 pb-6 px-4 h-full"
         ),
         className
       ),
@@ -50,8 +52,16 @@ export const AmountSummaryCard = ({
           </div>
         )}
       </header>
+
+      {isLoading && (
+        <Stack gap={2.5} className="h-[76px] items-center">
+          <SkeletonLoading height="26px" width="100px" />
+          <SkeletonLoading height="16px" width="50px" />
+        </Stack>
+      )}
+
       {!isLoading && (
-        <div className="text-center mb-6">
+        <div className="text-center flex-1">
           {mainAmount && (
             <strong className="block text-[22px] text-white font-medium">
               {mainAmount}
@@ -65,6 +75,7 @@ export const AmountSummaryCard = ({
           {extra}
         </div>
       )}
+
       <footer className="flex flex-col items-center mx-auto">
         {callToAction}
       </footer>

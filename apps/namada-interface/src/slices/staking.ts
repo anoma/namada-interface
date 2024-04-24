@@ -14,7 +14,7 @@ type StakingTotalsState =
       isLoading: boolean;
       data: StakingTotals;
     }
-  | { isSuccess: false; data: undefined };
+  | { isSuccess: false; isLoading: true; data: undefined };
 
 export const getStakingTotalAtom = atom<StakingTotalsState>((get) => {
   const myValidators = get(myValidatorsAtom);

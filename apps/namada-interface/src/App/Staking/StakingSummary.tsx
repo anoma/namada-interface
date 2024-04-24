@@ -7,6 +7,7 @@ import {
   Panel,
   PieChart,
   PieChartData,
+  SkeletonLoading,
 } from "@namada/components";
 import { useAtomValue } from "jotai";
 import { GoStack } from "react-icons/go";
@@ -40,6 +41,13 @@ export const StakingSummary = (): JSX.Element => {
   return (
     <ul className="grid grid-cols-[1.25fr_1fr_1fr] gap-2">
       <Panel as="li" className="flex items-center">
+        {totalStakedBalance.isLoading && (
+          <SkeletonLoading
+            height="auto"
+            width="80%"
+            className="rounded-full aspect-square mx-auto border-neutral-800 border-[22px] bg-transparent"
+          />
+        )}
         {totalStakedBalance.isSuccess && (
           <PieChart
             id="total-staked-balance"
@@ -72,6 +80,7 @@ export const StakingSummary = (): JSX.Element => {
         <AmountSummaryCard
           logoElement={<Image imageName="LogoMinimal" />}
           title="Available NAM to Stake"
+          isLoading={totalStakedBalance.isLoading}
           mainAmount={
             <Currency
               amount={availableBalance}
@@ -79,7 +88,7 @@ export const StakingSummary = (): JSX.Element => {
               currency="nam"
               spaceAroundSign={true}
               currencyPosition="right"
-              currencySignClassName="block mb-3 mt-0.5 text-lg"
+              currencySignClassName="block mb-3 mt-0.5 text-sm"
             />
           }
           alternativeAmount={
