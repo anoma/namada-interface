@@ -63,10 +63,9 @@ export const Staking = (): JSX.Element => {
   return (
     <main className="w-full">
       <Routes>
-        <Route
-          path={`${StakingRoutes.overview()}`}
-          element={<StakingOverview />}
-        />
+        <Route path="/*" element={<StakingOverview />} />
+      </Routes>
+      <Routes>
         <Route
           path={`${StakingRoutes.incrementBonding()}`}
           element={<IncrementBonding />}
