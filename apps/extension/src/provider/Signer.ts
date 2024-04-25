@@ -1,31 +1,20 @@
-import { toBase64 } from "@cosmjs/encoding";
 import { SupportedTx, TxType } from "@heliax/namada-sdk/web";
 import { chains } from "@namada/chains";
 import {
   Account,
   AccountType,
-  BondMsgValue,
   BondProps,
-  EthBridgeTransferMsgValue,
   EthBridgeTransferProps,
   Signer as ISigner,
-  IbcTransferMsgValue,
   IbcTransferProps,
-  Message,
   Namada,
-  RedelegateMsgValue,
   RedelegateProps,
-  Schema,
   SignatureResponse,
-  TransferMsgValue,
+  SupportedTxProps,
   TransferProps,
-  TxMsgValue,
   TxProps,
-  UnbondMsgValue,
   UnbondProps,
-  VoteProposalMsgValue,
   VoteProposalProps,
-  WithdrawMsgValue,
   WithdrawProps,
 } from "@namada/types";
 
@@ -79,31 +68,17 @@ export class Signer implements ISigner {
     return await this._namada.verify({ publicKey, hash, signature });
   }
 
-  private async submitTx<T extends Schema, Args>(
+  private async submitTx(
     txType: SupportedTx,
-    constructor: new (args: Args) => T,
-    args: Args | Args[],
-    txArgs: TxProps,
+    txProps: SupportedTxProps | SupportedTxProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void> {
-    const tx = (args instanceof Array ? args : [args]).map((arg) => {
-      const msgValue = new constructor(arg);
-      const msg = new Message<T>();
-      const encoded = msg.encode(msgValue);
-
-      const txMsgValue = new TxMsgValue(txArgs);
-      const txMsg = new Message<TxMsgValue>();
-      const txEncoded = txMsg.encode(txMsgValue);
-
-      return {
-        specificMsg: toBase64(encoded),
-        txMsg: toBase64(txEncoded),
-      };
-    });
-
+    const tx = txProps instanceof Array ? txProps : [txProps];
     return await this._namada.submitTx({
       txType,
-      tx,
+      wrapperTxProps,
+      txProps: tx,
       type,
     });
   }
@@ -112,48 +87,47 @@ export class Signer implements ISigner {
    * Submit bond transaction
    */
   public async submitBond(
-    args: BondProps | BondProps[],
-    txArgs: TxProps,
+    txProps: BondProps | BondProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void> {
-    return this.submitTx(TxType.Bond, BondMsgValue, args, txArgs, type);
+    return this.submitTx(TxType.Bond, txProps, wrapperTxProps, type);
   }
 
   /**
    * Submit unbond transaction
    */
   public async submitUnbond(
-    args: UnbondProps | UnbondProps[],
-    txArgs: TxProps,
+    txProps: UnbondProps | UnbondProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void> {
-    return this.submitTx(TxType.Unbond, UnbondMsgValue, args, txArgs, type);
+    return this.submitTx(TxType.Unbond, txProps, wrapperTxProps, type);
   }
 
   /**
    * Submit withdraw transaction
    */
   public async submitWithdraw(
-    args: WithdrawProps | WithdrawProps[],
-    txArgs: TxProps,
+    txProps: WithdrawProps | WithdrawProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void> {
-    return this.submitTx(TxType.Withdraw, WithdrawMsgValue, args, txArgs, type);
+    return this.submitTx(TxType.Withdraw, txProps, wrapperTxProps, type);
   }
 
   /**
    * Submit redelegate transaction
    */
   public async submitRedelegate(
-    args: RedelegateProps | RedelegateProps[],
-    txArgs: TxProps,
+    txProps: RedelegateProps | RedelegateProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void> {
     return this.submitTx(
       TxType.Redelegate,
-      RedelegateMsgValue,
-      args,
-      txArgs,
+      txProps,
+      wrapperTxProps,
       type
     );
   }
@@ -162,60 +136,47 @@ export class Signer implements ISigner {
    * Submit vote proposal transaction
    */
   public async submitVoteProposal(
-    args: VoteProposalProps | VoteProposalProps[],
-    txArgs: TxProps,
+    txProps: VoteProposalProps | VoteProposalProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void> {
-    return this.submitTx(
-      TxType.VoteProposal,
-      VoteProposalMsgValue,
-      args,
-      txArgs,
-      type
-    );
+    return this.submitTx(TxType.VoteProposal, txProps, wrapperTxProps, type);
   }
 
   /**
    * Submit a transfer
    */
   public async submitTransfer(
-    args: TransferProps | TransferProps[],
-    txArgs: TxProps,
+    txProps: TransferProps | TransferProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void> {
-    return this.submitTx(TxType.Transfer, TransferMsgValue, args, txArgs, type);
+    return this.submitTx(TxType.Transfer, txProps, wrapperTxProps, type);
   }
 
   /**
    * Submit an ibc transfer
    */
   public async submitIbcTransfer(
-    args: IbcTransferProps | IbcTransferProps[],
-    txArgs: TxProps,
+    txProps: IbcTransferProps | IbcTransferProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void> {
-    return this.submitTx(
-      TxType.IBCTransfer,
-      IbcTransferMsgValue,
-      args,
-      txArgs,
-      type
-    );
+    return this.submitTx(TxType.IBCTransfer, txProps, wrapperTxProps, type);
   }
 
   /**
    * Submit an eth bridge transfer
    */
   public async submitEthBridgeTransfer(
-    args: EthBridgeTransferProps | EthBridgeTransferProps[],
-    txArgs: TxProps,
+    txProps: EthBridgeTransferProps | EthBridgeTransferProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void> {
     return this.submitTx(
       TxType.EthBridgeTransfer,
-      EthBridgeTransferMsgValue,
-      args,
-      txArgs,
+      txProps,
+      wrapperTxProps,
       type
     );
   }

@@ -24,38 +24,38 @@ export interface Signer {
   ) => Promise<SignatureResponse | undefined>;
   verify: (publicKey: string, hash: string, signature: string) => Promise<void>;
   submitBond(
-    args: BondProps | BondProps[],
-    txArgs: TxProps,
+    txProps: BondProps | BondProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void>;
   submitUnbond(
-    args: UnbondProps | UnbondProps[],
-    txArgs: TxProps,
+    txProps: UnbondProps | UnbondProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void>;
   submitWithdraw(
-    args: WithdrawProps | WithdrawProps[],
-    txArgs: TxProps,
+    txProps: WithdrawProps | WithdrawProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void>;
   submitTransfer(
-    args: TransferProps | TransferProps[],
-    txArgs: TxProps,
+    txProps: TransferProps | TransferProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void>;
   submitIbcTransfer(
-    args: IbcTransferProps | IbcTransferProps[],
-    txArgs: TxProps,
+    txProps: IbcTransferProps | IbcTransferProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void>;
   submitVoteProposal(
-    args: VoteProposalProps | VoteProposalProps[],
-    txArgs: TxProps,
+    txProps: VoteProposalProps | VoteProposalProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void>;
   submitEthBridgeTransfer(
-    args: EthBridgeTransferProps | EthBridgeTransferProps[],
-    txArgs: TxProps,
+    txProps: EthBridgeTransferProps | EthBridgeTransferProps[],
+    wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void>;
 }

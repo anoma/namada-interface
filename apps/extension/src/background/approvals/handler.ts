@@ -75,8 +75,8 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
 const handleApproveTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveTxMsg> = (service) => {
-  return async (_, { txType, tx, accountType }) => {
-    return await service.approveTx(txType, tx, accountType);
+  return async (_, { props }) => {
+    return await service.approveTx(props);
   };
 };
 

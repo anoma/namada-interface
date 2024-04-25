@@ -1,16 +1,20 @@
 import { SupportedTx } from "@heliax/namada-sdk/web";
+import { SupportedTxProps, TxMsgProps } from "@namada/types";
 
 export type ApprovedOriginsStore = string[];
 
-export type PendingTx = {
-  txMsg: string;
-  specificMsg: string;
-};
-
-export type TxStore = {
+export type PendingTx = SupportedTxProps;
+export type TxStore = TxMsgProps & {
+  // Override "any" from @namada/types
   txType: SupportedTx;
-  tx: PendingTx[];
 };
 
-// TODO: Add specific types here!
-export type PendingTxDetails = Record<string, string>;
+// TODO: Remove this! We should return all details to approvals for the "data" inspection feature
+export type PendingTxDetails = {
+  amount: string;
+  tokenAddress: string;
+  source?: string;
+  target?: string;
+  publicKey?: string;
+  validator?: string;
+};

@@ -1,11 +1,9 @@
-import type { SupportedTx } from "@heliax/namada-sdk/web";
 import {
-  AccountType,
   Chain,
   DerivedAccount,
   SignatureResponse,
+  TxMsgProps,
 } from "@namada/types";
-import { PendingTx } from "background/approvals";
 import { Message } from "router";
 import { validateProps } from "utils";
 
@@ -218,16 +216,12 @@ export class ApproveTxMsg extends Message<void> {
     return MessageType.ApproveTx;
   }
 
-  constructor(
-    public readonly txType: SupportedTx,
-    public readonly tx: PendingTx[],
-    public readonly accountType: AccountType
-  ) {
+  constructor(public readonly props: TxMsgProps) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["txType", "tx", "accountType"]);
+    validateProps(this, ["props"]);
   }
 
   route(): string {

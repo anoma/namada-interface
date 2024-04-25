@@ -2,8 +2,8 @@ import { SupportedTx } from "@heliax/namada-sdk/web";
 import { Message } from "router";
 import { ROUTE } from "./constants";
 
+import { TxMsgProps } from "@namada/types";
 import { validateProps } from "utils";
-import { PendingTxDetails } from "./types";
 
 export enum MessageType {
   RejectTx = "reject-tx",
@@ -62,7 +62,7 @@ export class SubmitApprovedTxMsg extends Message<void> {
   }
 }
 
-export class QueryPendingTxMsg extends Message<PendingTxDetails[]> {
+export class QueryPendingTxMsg extends Message<TxMsgProps> {
   public static type(): MessageType {
     return MessageType.QueryPendingTx;
   }

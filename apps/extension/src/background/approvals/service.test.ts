@@ -8,6 +8,7 @@ import {
   IbcTransferMsgValue,
   TokenInfo,
   TransferMsgValue,
+  TransferProps,
   UnbondMsgValue,
   VoteProposalMsgValue,
   WithdrawMsgValue,
@@ -24,6 +25,24 @@ import { KVStoreMock } from "test/init";
 import * as webextensionPolyfill from "webextension-polyfill";
 import { ApprovalsService } from "./service";
 import { TxStore } from "./types";
+
+const fakeTransfer = {
+  txType: TxType.Transfer,
+  wrapperTxProps: {
+    chainId: "",
+    token: "",
+    feeAmount: BigNumber(0),
+    gasLimit: BigNumber(1000),
+  },
+  txProps: [
+    {
+      source: "",
+      target: "",
+      amount: BigNumber(0),
+    } as TransferProps,
+  ],
+  type: AccountType.Mnemonic,
+};
 
 jest.mock("webextension-polyfill", () => ({
   runtime: {
@@ -258,19 +277,15 @@ describe("approvals service", () => {
   ] as const;
 
   describe("approveTx", () => {
-    it.each(txTypes)("%i txType fn: %s", async (type, paramsFn) => {
+    it.each(txTypes)("%i txType fn: %s", async (_type, paramsFn) => {
       jest.spyOn(ApprovalsService, paramsFn).mockImplementation(() => ({}));
       jest.spyOn(borsh, "deserialize").mockReturnValue({});
       jest.spyOn(service as any, "_launchApprovalWindow");
 
       try {
-        const res = await service.approveTx(
-          type,
-          [{ specificMsg: "", txMsg: "" }],
-          AccountType.Mnemonic
-        );
+        const res = await service.approveTx(fakeTransfer);
         expect(res).toBeUndefined();
-      } catch (e) {}
+      } catch (e) { }
     });
   });
 
@@ -552,15 +567,7 @@ describe("approvals service", () => {
       const specificMsg = "specificMsg";
 
       jest.spyOn(service["txStore"], "get").mockImplementation(() => {
-        return Promise.resolve({
-          txType,
-          tx: [
-            {
-              txMsg,
-              specificMsg,
-            },
-          ],
-        });
+        return Promise.resolve({ ...fakeTransfer, txType } as TxStore);
       });
 
       jest.spyOn(keyRingService, paramsFn).mockResolvedValue();
@@ -577,20 +584,10 @@ describe("approvals service", () => {
 
     it("should throw an error if txType is not found", async () => {
       const msgId = "msgId";
-      const txMsg = "txMsg";
-      const specificMsg = "specificMsg";
       const txType: any = 999;
 
       jest.spyOn(service["txStore"], "get").mockImplementation(() => {
-        return Promise.resolve({
-          txType,
-          tx: [
-            {
-              txMsg,
-              specificMsg,
-            },
-          ],
-        });
+        return Promise.resolve({ ...fakeTransfer, txType });
       });
 
       await expect(service.submitTx(msgId)).rejects.toBeDefined();

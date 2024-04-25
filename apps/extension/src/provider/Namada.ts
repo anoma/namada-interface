@@ -136,7 +136,7 @@ export class Namada implements INamada {
   public async submitTx(props: TxMsgProps): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveTxMsg(props.txType, props.tx, props.type)
+      new ApproveTxMsg(props)
     );
   }
 

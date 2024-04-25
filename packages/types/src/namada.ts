@@ -1,15 +1,32 @@
 import { AccountType, DerivedAccount } from "./account";
 import { Chain } from "./chain";
 import { SignatureResponse, Signer } from "./signer";
+import {
+  BondProps,
+  EthBridgeTransferProps,
+  IbcTransferProps,
+  TransferProps,
+  TxProps,
+  UnbondProps,
+  VoteProposalProps,
+  WithdrawProps,
+} from "./tx";
+
+export type SupportedTxProps =
+  | TransferProps
+  | BondProps
+  | UnbondProps
+  | WithdrawProps
+  | EthBridgeTransferProps
+  | IbcTransferProps
+  | VoteProposalProps;
 
 export type TxMsgProps = {
   //TODO: figure out if we can make it better
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   txType: any;
-  tx: {
-    specificMsg: string;
-    txMsg: string;
-  }[];
+  wrapperTxProps: TxProps;
+  txProps: SupportedTxProps[];
   type: AccountType;
 };
 

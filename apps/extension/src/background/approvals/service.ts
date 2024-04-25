@@ -1,4 +1,3 @@
-import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize } from "@dao-xyz/borsh";
 import BigNumber from "bignumber.js";
 import { v4 as uuid } from "uuid";
@@ -7,44 +6,43 @@ import browser, { Windows } from "webextension-polyfill";
 import { SupportedTx, TxType } from "@heliax/namada-sdk/web";
 import { KVStore } from "@namada/storage";
 import {
-  AccountType,
   BondMsgValue,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
   RedelegateMsgValue,
   SignatureResponse,
   TransferMsgValue,
+  TxMsgProps,
   TxMsgValue,
   UnbondMsgValue,
   VoteProposalMsgValue,
   WithdrawMsgValue,
 } from "@namada/types";
-
 import { assertNever, paramsToUrl } from "@namada/utils";
+
 import { KeyRingService } from "background/keyring";
 import { LedgerService } from "background/ledger";
-
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
-import { PendingTx, PendingTxDetails, TxStore } from "./types";
+import { PendingTx, TxStore } from "./types";
 
 type GetParams = (
   specificMsg: Uint8Array,
   txDetails: TxMsgValue
 ) => Record<string, string>;
 
-const getParamsMethod = (txType: SupportedTx): GetParams =>
-  txType === TxType.Bond ? ApprovalsService.getParamsBond
-  : txType === TxType.Unbond ? ApprovalsService.getParamsUnbond
-  : txType === TxType.Withdraw ? ApprovalsService.getParamsWithdraw
-  : txType === TxType.Transfer ? ApprovalsService.getParamsTransfer
-  : txType === TxType.IBCTransfer ? ApprovalsService.getParamsIbcTransfer
-  : txType === TxType.EthBridgeTransfer ?
-    ApprovalsService.getParamsEthBridgeTransfer
-  : txType === TxType.VoteProposal ? ApprovalsService.getParamsVoteProposal
-  : txType === TxType.Redelegate ? ApprovalsService.getParamsRedelegate
-  : assertNever(txType);
+
+// const getParamsMethod = (txType: SupportedTx): GetParams =>
+//   txType === TxType.Bond ? ApprovalsService.getParamsBond
+//   : txType === TxType.Unbond ? ApprovalsService.getParamsUnbond
+//   : txType === TxType.Withdraw ? ApprovalsService.getParamsWithdraw
+//   : txType === TxType.Transfer ? ApprovalsService.getParamsTransfer
+//   : txType === TxType.IBCTransfer ? ApprovalsService.getParamsIbcTransfer
+//   : txType === TxType.EthBridgeTransfer ?
+//     ApprovalsService.getParamsEthBridgeTransfer
+//   : txType === TxType.VoteProposal ? ApprovalsService.getParamsVoteProposal
+//   : assertNever(txType);
 
 export class ApprovalsService {
   // holds promises which can be resolved with a message from a pop-up window
@@ -65,23 +63,14 @@ export class ApprovalsService {
     protected readonly broadcaster: ExtensionBroadcaster
   ) {}
 
-  async queryPendingTx(msgId: string): Promise<PendingTxDetails[]> {
+  async queryPendingTx(msgId: string): Promise<TxMsgProps> {
     const storedTx = await this.txStore.get(msgId);
 
     if (!storedTx) {
       throw new Error("Pending tx not found!");
     }
 
-    const { txType } = storedTx;
-
-    return storedTx.tx.map((pendingTx: PendingTx) => {
-      const { specificMsg, txMsg } = pendingTx;
-      const specificMsgBuffer = Buffer.from(fromBase64(specificMsg));
-      const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-      const txDetails = deserialize(txMsgBuffer, TxMsgValue);
-      const details = getParamsMethod(txType)(specificMsgBuffer, txDetails);
-      return details;
-    });
+    return storedTx;
   }
 
   async approveSignature(
@@ -152,13 +141,15 @@ export class ApprovalsService {
     resolvers.reject();
   }
 
-  async approveTx(
-    txType: SupportedTx,
-    tx: PendingTx[],
-    type: AccountType
-  ): Promise<void> {
+  async approveTx(props: TxMsgProps): Promise<void> {
     const msgId = uuid();
-    await this.txStore.set(msgId, { txType, tx });
+    const { txType, type } = props;
+    await this.txStore.set(msgId, {
+      ...props,
+      // Coerce into more explicit type for now:
+      txType: txType as SupportedTx,
+      txProps: props.txProps as PendingTx[],
+    });
 
     const url = `${browser.runtime.getURL(
       "approvals.html"
@@ -338,8 +329,8 @@ export class ApprovalsService {
     const { txType } = storedTx;
 
     await Promise.all(
-      storedTx.tx.map(async (pendingTx: PendingTx) => {
-        const { specificMsg, txMsg } = pendingTx;
+      // TODO: Using pendingTx to serialize transactions:
+      storedTx.txProps.map(async (_pendingTx: PendingTx) => {
         const submitFn =
           txType === TxType.Bond ? this.keyRingService.submitBond
           : txType === TxType.Unbond ? this.keyRingService.submitUnbond
@@ -353,6 +344,10 @@ export class ApprovalsService {
             this.keyRingService.submitVoteProposal
           : txType === TxType.Redelegate ? this.keyRingService.submitRedelegate
           : assertNever(txType);
+
+        // TODO: Encode message based on type!
+        const specificMsg = "";
+        const txMsg = "";
 
         await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
       })
