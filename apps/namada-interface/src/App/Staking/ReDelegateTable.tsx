@@ -67,7 +67,6 @@ export const ReDelegateTable = ({
         >
           <AmountInput
             placeholder="Select to enter stake"
-            value={updatedAmounts.gt(0) ? updatedAmounts : stakedAmount}
             className={twMerge(
               clsx(
                 "[&_input]:border-neutral-500 [&_input]:py-2.5 [&>div]:my-0",
@@ -107,10 +106,11 @@ export const ReDelegateTable = ({
           {hasNewAmounts && (
             <span
               className={clsx("text-neutral-500 text-sm", {
-                "text-intermediate": updatedAmounts.lt(stakedAmount),
+                "text-orange": updatedAmounts.lt(stakedAmount),
+                "text-success": updatedAmounts.gt(stakedAmount),
               })}
             >
-              {updatedAmounts.lt(stakedAmount) && "-"}
+              {updatedAmounts.lt(stakedAmount) ? "-" : "+"}
               <Currency
                 currency="nam"
                 amount={stakedAmount.minus(updatedAmounts).abs()}
