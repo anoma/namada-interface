@@ -66,13 +66,10 @@ export const IncrementBondingTable = ({
           <AmountInput
             placeholder="Select to increase stake"
             className={twMerge(
-              clsx(
-                "[&_input]:border-neutral-500 [&_input]:py-2.5 [&>div]:my-0",
-                {
-                  "[&_input]:border-yellow [&_input]:bg-yellow-950":
-                    hasNewAmounts,
-                }
-              )
+              clsx("[&_input]:border-neutral-500 [&_input]:py-2 [&>div]:my-0", {
+                "[&_input]:border-yellow [&_input]:bg-yellow-950":
+                  hasNewAmounts,
+              })
             )}
             onChange={(e) =>
               onChangeValidatorAmount(

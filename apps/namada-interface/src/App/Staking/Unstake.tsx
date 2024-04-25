@@ -39,6 +39,13 @@ const Unstake = (): JSX.Element => {
     );
   };
 
+  const getValidationMessage = (): string => {
+    if (totalStakedAmount.lt(totalUpdatedAmount)) return "Invalid amount";
+    return "";
+  };
+
+  const validationMessage = getValidationMessage();
+
   return (
     <Modal onClose={onCloseModal}>
       <ModalContainer header="Select amount to unstake" onClose={onCloseModal}>
@@ -112,8 +119,9 @@ const Unstake = (): JSX.Element => {
           color="white"
           borderRadius="sm"
           className="mt-2 w-1/4 mx-auto"
+          disabled={!!validationMessage}
         >
-          Unstake
+          {validationMessage || "Unstake"}
         </ActionButton>
       </ModalContainer>
     </Modal>

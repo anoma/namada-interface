@@ -34,6 +34,13 @@ const IncrementBonding = (): JSX.Element => {
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
 
+  const getValidationMessage = (): string => {
+    if (totalNam.lt(totalUpdatedAmount)) return "Invalid amount";
+    return "";
+  };
+
+  const errorMessage = getValidationMessage();
+
   return (
     <Modal onClose={onCloseModal}>
       <ModalContainer
@@ -76,7 +83,7 @@ const IncrementBonding = (): JSX.Element => {
           />
         </div>
         <Panel className="w-full rounded-md flex-1">
-          <div className="w-[70%]">
+          <div className="w-[30%]">
             <ValidatorSearch onChange={(value: string) => setFilter(value)} />
           </div>
           {validators.isLoading && <TableRowLoading count={2} />}
@@ -96,8 +103,9 @@ const IncrementBonding = (): JSX.Element => {
           size="sm"
           borderRadius="sm"
           className="mt-2 w-1/4 mx-auto"
+          disabled={!!errorMessage}
         >
-          Stake
+          {errorMessage || "Stake"}
         </ActionButton>
       </ModalContainer>
     </Modal>
