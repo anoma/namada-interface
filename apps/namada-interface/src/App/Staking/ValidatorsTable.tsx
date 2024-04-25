@@ -56,7 +56,7 @@ const ValidatorsTable = ({
         rows={paginatedValidators.map(renderRow)}
         tableProps={{
           className: twMerge(
-            "w-full [&_td]:px-1 [&_th]:px-1 [&_td:first-child]:pl-4 [&_td]:h-[60px]",
+            "w-full [&_td]:px-1 [&_th]:px-1 [&_td:first-child]:pl-4 [&_td]:h-[64px]",
             "[&_td:last-child]:pr-4 [&_th:first-child]:pl-4 [&_th:last-child]:pr-4",
             "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md",
             tableClassName

@@ -1,5 +1,6 @@
 import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { ModalContainer } from "App/Common/ModalContainer";
+import BigNumber from "bignumber.js";
 import { useStakeModule } from "hooks/useStakeModule";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
@@ -29,6 +30,19 @@ const ReDelegate = (): JSX.Element => {
   } = useStakeModule({ accounts });
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
+  const redelegateTotal = totalStakedAmount.minus(totalUpdatedAmount);
+  const redelegateDisplayedAmount =
+    totalUpdatedAmount.gt(0) ?
+      BigNumber.max(0, redelegateTotal)
+    : new BigNumber(0);
+
+  const getValidationMessage = (): string => {
+    if (redelegateTotal.lt(0)) return "Invalid amount";
+    if (redelegateTotal.gt(0)) return "Invalid distribution";
+    return "";
+  };
+
+  const validationMessage = getValidationMessage();
 
   return (
     <Modal onClose={onCloseModal}>
@@ -42,8 +56,8 @@ const ReDelegate = (): JSX.Element => {
             selectedFiatCurrency={selectedFiatCurrency}
             fiatExchangeRate={selectedCurrencyRate}
             amountInNam={0}
-            updatedAmountInNam={totalUpdatedAmount}
-            updatedValueClassList="text-pink"
+            updatedAmountInNam={redelegateDisplayedAmount}
+            updatedValueClassList="text-yellow"
             extraContent={
               <>
                 <Alert
@@ -94,8 +108,9 @@ const ReDelegate = (): JSX.Element => {
           color="white"
           borderRadius="sm"
           className="mt-2 w-1/4 mx-auto"
+          disabled={!!validationMessage}
         >
-          Unstake
+          {validationMessage || "Re-Delegate"}
         </ActionButton>
       </ModalContainer>
     </Modal>
