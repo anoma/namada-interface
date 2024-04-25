@@ -33,7 +33,7 @@ export const StyledTableRow = ({
         className={twMerge(
           clsx("group/row", {
             "bg-neutral-900": index % 2 === 0,
-            "bg-black": index % 2,
+            "bg-rblack": index % 2,
           }),
           rowsClassName
         )}
@@ -41,7 +41,7 @@ export const StyledTableRow = ({
       >
         {cells.map((cell, cellId) => (
           <td
-            className="h-[78px] px-6 align-middle"
+            className="min-h-[78px] px-6 align-middle"
             key={`table-td-${id}-${index}-${cellId}`}
           >
             {checkIsCustomTableCell(cell) ? cell.render() : cell}
