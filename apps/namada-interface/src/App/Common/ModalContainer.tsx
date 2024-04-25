@@ -1,5 +1,4 @@
 import { Stack } from "@namada/components";
-import { useEffect } from "react";
 import { IoClose } from "react-icons/io5";
 
 type ModalContainerProps = {
@@ -13,19 +12,6 @@ export const ModalContainer = ({
   onClose,
   children,
 }: ModalContainerProps): JSX.Element => {
-  useEffect(() => {
-    const onKeyPress = (event: KeyboardEvent): void => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", onKeyPress);
-    return () => {
-      document.removeEventListener("keydown", onKeyPress);
-    };
-  }, []);
-
   return (
     <div className="flex flex-col w-[75vw] h-[85svh] overflow-auto px-6 py-6 bg-neutral-800 text-white rounded-md">
       <header className="flex w-full justify-center items-center relative mb-3 text-xl text-medium">

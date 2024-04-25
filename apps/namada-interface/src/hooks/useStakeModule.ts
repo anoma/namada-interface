@@ -53,7 +53,7 @@ export const useStakeModule = ({ accounts }: UseStakeModuleProps) => {
   };
 
   useEffect(() => {
-    if (myValidators.isSuccess || accounts.length === 0) return;
+    if (!myValidators.isSuccess || accounts.length === 0) return;
 
     const stakedAmounts: Record<ValidatorAddress, BigNumber> = {};
     for (const myValidator of myValidators.data) {
