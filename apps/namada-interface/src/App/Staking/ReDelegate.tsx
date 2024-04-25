@@ -1,4 +1,5 @@
 import { ActionButton, Alert, Modal, Panel } from "@namada/components";
+import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import BigNumber from "bignumber.js";
 import { useStakeModule } from "hooks/useStakeModule";
@@ -47,7 +48,16 @@ const ReDelegate = (): JSX.Element => {
   return (
     <Modal onClose={onCloseModal}>
       <ModalContainer
-        header="Select amount to re-delegate"
+        header={
+          <span className="flex items-center gap-4">
+            Select amount to re-delegate
+            <Info>
+              You can edit the amounts between validators. You can&apos;t
+              increase or reduce the total staked amount, so pay attention to
+              the correct distribution.
+            </Info>
+          </span>
+        }
         onClose={onCloseModal}
       >
         <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
