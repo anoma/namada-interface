@@ -1,4 +1,5 @@
 import { ActionButton, Alert, Modal, Panel, Stack } from "@namada/components";
+import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import BigNumber from "bignumber.js";
@@ -48,7 +49,19 @@ const Unstake = (): JSX.Element => {
 
   return (
     <Modal onClose={onCloseModal}>
-      <ModalContainer header="Select amount to unstake" onClose={onCloseModal}>
+      <ModalContainer
+        header={
+          <span className="flex items-center gap-4">
+            Select amount to unstake
+            <Info>
+              To unstake, type the amount of NAM you wish to remove from a
+              validator. Please pay attention to the unbonding period, it might
+              take a few days before the amount to be available.
+            </Info>
+          </span>
+        }
+        onClose={onCloseModal}
+      >
         <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
           <BondingAmountOverview
             title="Amount of NAM to Unstake"
