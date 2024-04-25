@@ -1,4 +1,5 @@
 import { ActionButton, Alert, Modal, Panel } from "@namada/components";
+import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { useStakeModule } from "hooks/useStakeModule";
@@ -44,7 +45,16 @@ const IncrementBonding = (): JSX.Element => {
   return (
     <Modal onClose={onCloseModal}>
       <ModalContainer
-        header="Select Validators to delegate your NAM"
+        header={
+          <span className="flex items-center gap-3">
+            Select Validators to delegate your NAM{" "}
+            <Info>
+              Enter staking values across multiple validators. The total amount
+              should be less than the total NAM available in your account.
+              Please leave a small amount for transaction fees.
+            </Info>
+          </span>
+        }
         onClose={onCloseModal}
       >
         <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
