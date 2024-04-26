@@ -5,7 +5,8 @@ import { useState } from "react";
 import { PieChart, PieChartData, Stack } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 
-import { VoteType, colors, voteTypes } from "./types";
+import { VoteType, Votes, voteTypes } from "slices/proposals";
+import { colors } from "./types";
 
 const StatusListItem: React.FC<{
   color: string;
@@ -33,14 +34,9 @@ const StatusListItem: React.FC<{
   );
 };
 
-export const ProposalStatus: React.FC = () => {
-  const votes: Record<VoteType, BigNumber> = {
-    yes: BigNumber(1674.765),
-    no: BigNumber(378.345),
-    veto: BigNumber(200.213),
-    abstain: BigNumber(1600.765),
-  };
-
+export const ProposalStatus: React.FC<{
+  votes: Votes;
+}> = ({ votes }) => {
   const [hoveredVoteType, setHoveredVoteType] = useState<
     VoteType | undefined
   >();
@@ -95,7 +91,7 @@ export const ProposalStatus: React.FC = () => {
 
       <div>
         <h3 className="text-[#A3A3A3] text-xs">Turnout / Quorum</h3>
-        <p className="text-xl">7.3% / 40.0%</p>
+        <p className="text-xl">7.3% / 40.0% TODO</p>
       </div>
     </Stack>
   );

@@ -13,8 +13,8 @@ export const index = (): string => `/governance`;
 
 export const overview = (): RouteOutput => routeOutput(`/overview`);
 
-export const proposal = (id: string | number): RouteOutput =>
-  routeOutput(`/proposal/${id}`);
+export const proposal = (proposalId: string = ":proposalId"): RouteOutput =>
+  routeOutput(`/proposal/${proposalId}`);
 
 export default {
   index,

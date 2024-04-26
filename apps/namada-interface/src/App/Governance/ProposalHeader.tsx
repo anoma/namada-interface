@@ -1,18 +1,15 @@
-import {
-  ActionButton,
-  InsetLabel,
-  SegmentedBar,
-  Stack,
-} from "@namada/components";
+import { ActionButton, SegmentedBar, Stack } from "@namada/components";
 import clsx from "clsx";
-import { Proposal } from "slices/proposals";
+import { ProposalStatus, _Proposal } from "slices/proposals";
 
-import { StatusLabel, VotedLabel } from "./ProposalLabels";
+import { StatusLabel, TypeLabel, VotedLabel } from "./ProposalLabels";
 
-export const ProposalHeader: React.FC = () => {
-  const proposal: Proposal = {
-    id: "882",
-  } as Proposal;
+export const ProposalHeader: React.FC<{
+  proposal: _Proposal;
+  voted: boolean;
+  status: ProposalStatus;
+}> = ({ proposal, voted }) => {
+  const voteButtonDisabled = voted || status !== "ongoing";
 
   return (
     <div className="grid grid-cols-[1fr_auto] grow-rows-[auto_auto_auto_auto] gap-y-4">
@@ -27,19 +24,18 @@ export const ProposalHeader: React.FC = () => {
           Governance / Proposal #{proposal.id}
         </div>
 
-        <InsetLabel>Community pool spend</InsetLabel>
+        <TypeLabel proposalType={proposal.proposalType} />
 
         <div className="text-xl">
-          #{proposal.id} Allocate 1% of supply to re-designing the end user
-          interface
+          #{proposal.id} {proposal.content.title}
         </div>
       </div>
 
       <b className="bg-[#151515] col-start-1 col-end-2 row-start-2 row-end-3 h-[2px] w-full" />
 
       <div className="col-start-1 col-end-2 row-start-3 row-end-4 flex gap-2">
-        <StatusLabel status="ongoing" className="w-56" />
-        <VotedLabel />
+        <StatusLabel status={"ongoing"} className="w-56" />
+        {voted && <VotedLabel />}
       </div>
 
       <div
@@ -63,7 +59,12 @@ export const ProposalHeader: React.FC = () => {
         <div className="text-right">Date 2</div>
 
         <div className="row-[1_/_span_3] col-start-3 self-center justify-self-center">
-          <ActionButton className="w-32 ml-8" size="sm" borderRadius="sm">
+          <ActionButton
+            className="w-32 ml-8"
+            size="sm"
+            borderRadius="sm"
+            disabled={voteButtonDisabled}
+          >
             Vote
           </ActionButton>
         </div>

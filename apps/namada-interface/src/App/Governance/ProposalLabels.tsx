@@ -1,8 +1,8 @@
 import { GoCheckCircleFill } from "react-icons/go";
 
-import { RoundedLabel } from "@namada/components";
+import { InsetLabel, RoundedLabel } from "@namada/components";
 import { assertNever } from "@namada/utils";
-import { ProposalStatus } from "slices/proposals";
+import { ProposalStatus, ProposalType } from "slices/proposals";
 
 export const StatusLabel: React.FC<
   {
@@ -29,3 +29,17 @@ export const VotedLabel: React.FC = () => (
     <GoCheckCircleFill />
   </RoundedLabel>
 );
+
+export const TypeLabel: React.FC<
+  {
+    proposalType: ProposalType;
+  } & React.ComponentProps<typeof InsetLabel>
+> = ({ proposalType, ...rest }) => {
+  const text =
+    proposalType === "pgf_steward" ? "Steward proposal"
+    : proposalType === "pgf_payment" ? "PGF proposal"
+    : proposalType === "default" ? "Default"
+    : assertNever(proposalType);
+
+  return <InsetLabel {...rest}>{text}</InsetLabel>;
+};
