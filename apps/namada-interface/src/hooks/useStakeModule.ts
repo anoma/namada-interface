@@ -4,8 +4,8 @@ import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { totalNamBalanceAtom } from "slices/accounts";
 import { Validator, myValidatorsAtom } from "slices/validators";
-
-type ValidatorAddress = string;
+import { ChangeInStakingPosition } from "types/staking";
+import { ValidatorAddress } from "types/validators";
 
 type UseStakeModuleProps = {
   accounts: readonly Account[];
@@ -52,6 +52,13 @@ export const useStakeModule = ({ accounts }: UseStakeModuleProps) => {
     }));
   };
 
+  const parseUpdatedAmounts = (): ChangeInStakingPosition[] => {
+    return Object.keys(updatedAmountByAddress).map((validatorAddress) => ({
+      validatorId: validatorAddress,
+      amount: updatedAmountByAddress[validatorAddress],
+    }));
+  };
+
   useEffect(() => {
     if (!myValidators.isSuccess || accounts.length === 0) return;
 
@@ -68,6 +75,7 @@ export const useStakeModule = ({ accounts }: UseStakeModuleProps) => {
     totalNamAfterStaking,
     totalStakedAmount,
     totalAmountToDelegate,
+    parseUpdatedAmounts,
     myValidators,
     stakedAmountByAddress,
     updatedAmountByAddress,

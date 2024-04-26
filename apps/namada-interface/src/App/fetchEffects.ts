@@ -19,12 +19,10 @@ import { isRevealPkNeededAtom, minimumGasPriceAtom } from "slices/fees";
 
 export const useOnChainChanged = (): void => {
   const chain = useAtomValue(chainAtom);
-
-  const refreshMinimumGasPrice = useSetAtom(minimumGasPriceAtom);
+  useAtomValue(minimumGasPriceAtom);
   const refreshPublicKeys = useSetAtom(isRevealPkNeededAtom);
 
   useEffectSkipFirstRender(() => {
-    refreshMinimumGasPrice();
     refreshPublicKeys();
   }, [chain]);
 };

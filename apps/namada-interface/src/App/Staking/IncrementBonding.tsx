@@ -2,14 +2,17 @@ import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { TableRowLoading } from "App/Common/TableRowLoading";
+import { invariant } from "framer-motion";
 import { useStakeModule } from "hooks/useStakeModule";
 import { useAtomValue } from "jotai";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { totalNamBalanceAtom, transparentAccountsAtom } from "slices/accounts";
 import { selectedCurrencyRateAtom } from "slices/exchangeRates";
+import { GAS_LIMIT, minimumGasPriceAtom } from "slices/fees";
 import { selectedCurrencyAtom } from "slices/settings";
-import { allValidatorsAtom } from "slices/validators";
+import { performBondAtom } from "slices/staking";
+import { allValidatorsAtom, myValidatorsAtom } from "slices/validators";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { IncrementBondingTable } from "./IncrementBondingTable";
 import { ValidatorSearch } from "./ValidatorSearch";
@@ -21,8 +24,15 @@ const IncrementBonding = (): JSX.Element => {
   const totalNam = useAtomValue(totalNamBalanceAtom);
   const accounts = useAtomValue(transparentAccountsAtom);
   const validators = useAtomValue(allValidatorsAtom);
+  const myValidators = useAtomValue(myValidatorsAtom);
   const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
   const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
+  const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
+  const {
+    mutate: performBond,
+    isPending: isPerformingBond,
+    isSuccess,
+  } = useAtomValue(performBondAtom);
 
   const {
     totalUpdatedAmount,
@@ -31,9 +41,34 @@ const IncrementBonding = (): JSX.Element => {
     stakedAmountByAddress,
     updatedAmountByAddress,
     onChangeValidatorAmount,
+    parseUpdatedAmounts,
   } = useStakeModule({ accounts });
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
+
+  useEffect(() => {
+    if (isSuccess) {
+      myValidators.refetch();
+      onCloseModal();
+    }
+  }, [isSuccess]);
+
+  const onSubmit = (e: React.FormEvent): void => {
+    e.preventDefault();
+    invariant(
+      accounts.length > 0,
+      "Extension is not connected or you don't have an account"
+    );
+    invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
+    performBond({
+      changes: parseUpdatedAmounts(),
+      account: accounts[0],
+      gasConfig: {
+        gasPrice: minimumGasPrice.data!,
+        gasLimit: GAS_LIMIT,
+      },
+    });
+  };
 
   const getValidationMessage = (): string => {
     if (totalNam.lt(totalUpdatedAmount)) return "Invalid amount";
@@ -92,31 +127,34 @@ const IncrementBonding = (): JSX.Element => {
             amountInNam={0}
           />
         </div>
-        <Panel className="w-full rounded-md flex-1">
-          <div className="w-[30%]">
-            <ValidatorSearch onChange={(value: string) => setFilter(value)} />
-          </div>
-          {validators.isLoading && <TableRowLoading count={2} />}
-          {validators.isSuccess && (
-            <IncrementBondingTable
-              filter={filter}
-              validators={validators.data}
-              onChangeValidatorAmount={onChangeValidatorAmount}
-              selectedCurrencyExchangeRate={selectedCurrencyRate}
-              selectedFiatCurrency={selectedFiatCurrency}
-              updatedAmountByAddress={updatedAmountByAddress}
-              stakedAmountByAddress={stakedAmountByAddress}
-            />
-          )}
-        </Panel>
-        <ActionButton
-          size="sm"
-          borderRadius="sm"
-          className="mt-2 w-1/4 mx-auto"
-          disabled={!!errorMessage}
-        >
-          {errorMessage || "Stake"}
-        </ActionButton>
+        <form onSubmit={onSubmit}>
+          <Panel className="w-full rounded-md flex-1">
+            <div className="w-[30%]">
+              <ValidatorSearch onChange={(value: string) => setFilter(value)} />
+            </div>
+            {validators.isLoading && <TableRowLoading count={2} />}
+            {validators.isSuccess && (
+              <IncrementBondingTable
+                filter={filter}
+                validators={validators.data}
+                onChangeValidatorAmount={onChangeValidatorAmount}
+                selectedCurrencyExchangeRate={selectedCurrencyRate}
+                selectedFiatCurrency={selectedFiatCurrency}
+                updatedAmountByAddress={updatedAmountByAddress}
+                stakedAmountByAddress={stakedAmountByAddress}
+              />
+            )}
+          </Panel>
+          <ActionButton
+            type="submit"
+            size="sm"
+            borderRadius="sm"
+            className="mt-2 w-1/4 mx-auto"
+            disabled={!!errorMessage || isPerformingBond}
+          >
+            {isPerformingBond ? "Processing..." : errorMessage || "Stake"}
+          </ActionButton>
+        </form>
       </ModalContainer>
     </Modal>
   );
