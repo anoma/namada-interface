@@ -18,8 +18,9 @@ use namada::sdk::masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::sdk::rpc::{
     format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
     query_epoch, query_native_token, query_proposal_by_id, query_proposal_votes,
-    query_storage_value,
+    query_storage_value, query_block
 };
+use namada::storage::BlockHeight;
 use namada::token;
 use namada::uint::I256;
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -255,7 +256,18 @@ impl Query {
         Ok(result)
     }
 
-    pub async fn shielded_sync(&self, owners: Box<[JsValue]>) -> Result<(), JsError> {
+    pub async fn query_last_block(&self) -> u64 {
+        let last_block_height_opt = query_block(&self.client).await.unwrap();
+        let last_block_height =
+            last_block_height_opt.map_or_else(BlockHeight::first, |block| block.height);
+        last_block_height.0
+    }
+
+    pub async fn shielded_sync(
+        &self,
+        owners: Box<[JsValue]>,
+        start_height: Option<u64>,
+    ) -> Result<(), JsError> {
         let owners: Vec<ViewingKey> = owners
             .into_iter()
             .filter_map(|owner| owner.as_string())
@@ -282,7 +294,7 @@ impl Query {
             .fetch(
                 &self.client,
                 &DefaultLogger::new(&WebIo),
-                None,
+                start_height.map(BlockHeight),
                 None,
                 1,
                 &[],

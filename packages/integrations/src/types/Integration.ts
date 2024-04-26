@@ -28,5 +28,5 @@ export interface Integration<T, S, U extends string = TokenType> {
     owner: string,
     tokens?: string[]
   ) => Promise<TokenBalances<U>>;
-  sync: (owners: string[]) => Promise<void>;
+  sync: () => Promise<void>;
 }

@@ -142,7 +142,7 @@ const DerivedAccounts = (): JSX.Element => {
                           // Show native token first
                           return tokenType === chain.currency.token ? 1 : -1;
                         })
-                        .filter(([_, amount]) => amount.isGreaterThan(0))
+                        .filter(([_, amount]) => amount?.isGreaterThan(0))
                         .map(([token, amount]) => {
                           return (
                             <TokenBalance key={`${address}-${token}`}>
