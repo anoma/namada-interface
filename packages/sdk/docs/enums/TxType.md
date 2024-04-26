@@ -9,6 +9,7 @@
 - [Bond](TxType.md#bond)
 - [EthBridgeTransfer](TxType.md#ethbridgetransfer)
 - [IBCTransfer](TxType.md#ibctransfer)
+- [Redelegate](TxType.md#redelegate)
 - [RevealPK](TxType.md#revealpk)
 - [Transfer](TxType.md#transfer)
 - [Unbond](TxType.md#unbond)
@@ -44,6 +45,16 @@ ___
 #### Defined in
 
 shared/src/shared/shared.d.ts:21
+
+___
+
+### Redelegate
+
+• **Redelegate** = ``9``
+
+#### Defined in
+
+shared/src/shared/shared.d.ts:25
 
 ___
 

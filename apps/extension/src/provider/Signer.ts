@@ -13,6 +13,8 @@ import {
   IbcTransferProps,
   Message,
   Namada,
+  RedelegateMsgValue,
+  RedelegateProps,
   Schema,
   SignatureResponse,
   TransferMsgValue,
@@ -137,6 +139,23 @@ export class Signer implements ISigner {
     type: AccountType
   ): Promise<void> {
     return this.submitTx(TxType.Withdraw, WithdrawMsgValue, args, txArgs, type);
+  }
+
+  /**
+   * Submit redelegate transaction
+   */
+  public async submitRedelegate(
+    args: RedelegateProps | RedelegateProps[],
+    txArgs: TxProps,
+    type: AccountType
+  ): Promise<void> {
+    return this.submitTx(
+      TxType.Redelegate,
+      RedelegateMsgValue,
+      args,
+      txArgs,
+      type
+    );
   }
 
   /**
