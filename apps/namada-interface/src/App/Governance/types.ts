@@ -1,5 +1,4 @@
-export const voteTypes = ["yes", "no", "veto", "abstain"];
-export type VoteType = (typeof voteTypes)[number];
+import { VoteType } from "slices/proposals";
 
 export const colors: Record<VoteType, string> = {
   yes: "#15DD89",

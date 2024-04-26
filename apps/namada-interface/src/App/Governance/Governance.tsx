@@ -25,7 +25,7 @@ export const Governance: React.FC = () => {
           element={<GovernanceOverview />}
         />
         <Route
-          path={`${GovernanceRoutes.proposal("862")}`}
+          path={`${GovernanceRoutes.proposal()}`}
           element={<ProposalAndVote />}
         />
       </Routes>
