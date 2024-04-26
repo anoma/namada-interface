@@ -9,20 +9,16 @@ import {
   KeplrAccountChangedHandler,
   MetamaskAccountChangedHandler,
   MetamaskBridgeTransferCompletedHandler,
-  NamadaAccountChangedHandler,
   NamadaConnectionRevokedHandler,
-  NamadaNetworkChangedHandler,
   NamadaProposalsUpdatedHandler,
-  NamadaTxCompletedHandler,
-  NamadaUpdatedBalancesHandler,
-  NamadaUpdatedStakingHandler,
 } from "./handlers";
 
-import { useSetAtom } from "jotai";
-import { accountsAtom, balancesAtom } from "slices/accounts";
+import { useAtomValue, useSetAtom } from "jotai";
+import { fetchAccountsAtom, fetchBalancesAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
 import { isRevealPkNeededAtom } from "slices/fees";
 import { namadaExtensionConnectedAtom } from "slices/settings";
+import { myValidatorsAtom } from "slices/validators";
 
 export const ExtensionEventsContext = createContext({});
 
@@ -31,33 +27,15 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const namadaIntegration = useIntegration("namada");
   const keplrIntegration = useIntegration("cosmos");
   const metamaskIntegration = useIntegration("ethereum");
-
-  const refreshAccounts = useSetAtom(accountsAtom);
+  const fetchAccounts = useSetAtom(fetchAccountsAtom);
+  const fetchBalances = useSetAtom(fetchBalancesAtom);
+  const myValidators = useAtomValue(myValidatorsAtom);
   const refreshChain = useSetAtom(chainAtom);
-  const refreshBalances = useSetAtom(balancesAtom);
   const refreshPublicKeys = useSetAtom(isRevealPkNeededAtom);
   const setNamadaExtensionConnected = useSetAtom(namadaExtensionConnectedAtom);
 
   // Instantiate handlers:
-  const namadaAccountChangedHandler = NamadaAccountChangedHandler(
-    dispatch,
-    namadaIntegration as Namada,
-    refreshAccounts
-  );
-  const namadaNetworkChangedHandler = NamadaNetworkChangedHandler(
-    dispatch,
-    namadaIntegration as Namada,
-    refreshChain
-  );
-  const namadaTxCompletedHandler = NamadaTxCompletedHandler(
-    dispatch,
-    refreshPublicKeys
-  );
-  const namadaUpdatedBalancesHandler = NamadaUpdatedBalancesHandler(
-    dispatch,
-    refreshBalances
-  );
-  const namadaUpdatedStakingHandler = NamadaUpdatedStakingHandler(dispatch);
+
   const namadaProposalsUpdatedHandler = NamadaProposalsUpdatedHandler(dispatch);
   const namadaConnectionRevokedHandler = NamadaConnectionRevokedHandler(
     namadaIntegration as Namada,
@@ -80,11 +58,28 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     MetamaskBridgeTransferCompletedHandler(dispatch);
 
   // Register handlers:
-  useEventListenerOnce(Events.AccountChanged, namadaAccountChangedHandler);
-  useEventListenerOnce(Events.NetworkChanged, namadaNetworkChangedHandler);
-  useEventListenerOnce(Events.UpdatedBalances, namadaUpdatedBalancesHandler);
-  useEventListenerOnce(Events.UpdatedStaking, namadaUpdatedStakingHandler);
-  useEventListenerOnce(Events.TxCompleted, namadaTxCompletedHandler);
+  useEventListenerOnce(Events.AccountChanged, async () => {
+    await fetchAccounts();
+    fetchBalances();
+  });
+
+  useEventListenerOnce(Events.TxCompleted, () => {
+    refreshPublicKeys();
+    fetchBalances();
+  });
+
+  useEventListenerOnce(Events.UpdatedBalances, () => {
+    fetchBalances();
+  });
+
+  useEventListenerOnce(Events.UpdatedStaking, () => {
+    myValidators.refetch();
+  });
+
+  useEventListenerOnce(Events.NetworkChanged, () => {
+    refreshChain();
+  });
+
   useEventListenerOnce(Events.ProposalsUpdated, namadaProposalsUpdatedHandler);
   useEventListenerOnce(
     Events.ConnectionRevoked,
