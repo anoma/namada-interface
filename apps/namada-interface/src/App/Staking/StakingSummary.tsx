@@ -41,7 +41,7 @@ export const StakingSummary = (): JSX.Element => {
   return (
     <ul className="grid grid-cols-[1.25fr_1fr_1fr] gap-2">
       <Panel as="li" className="flex items-center">
-        {totalStakedBalance.isLoading && (
+        {totalStakedBalance.isPending && (
           <SkeletonLoading
             height="auto"
             width="80%"
@@ -80,7 +80,7 @@ export const StakingSummary = (): JSX.Element => {
         <AmountSummaryCard
           logoElement={<Image imageName="LogoMinimal" />}
           title="Available NAM to Stake"
-          isLoading={totalStakedBalance.isLoading}
+          isLoading={totalStakedBalance.isPending}
           mainAmount={
             <Currency
               amount={availableBalance}

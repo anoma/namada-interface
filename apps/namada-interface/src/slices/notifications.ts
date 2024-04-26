@@ -17,7 +17,12 @@ export const toastNotificationsAtom = atom<ToastNotificationEntry[]>((get) =>
 
 export const dispatchToastNotificationAtom = atom(
   null,
-  (get, set, data: ToastNotification, options: ToastNotificationOptions) => {
+  (
+    get,
+    set,
+    data: ToastNotification,
+    options: ToastNotificationOptions = {}
+  ) => {
     const notifications = get(toastNotificationsBaseAtom);
     set(toastNotificationsBaseAtom, [...notifications, { data, options }]);
   }

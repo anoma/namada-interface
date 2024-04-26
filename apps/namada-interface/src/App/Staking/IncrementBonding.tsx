@@ -4,12 +4,13 @@ import { ModalContainer } from "App/Common/ModalContainer";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { invariant } from "framer-motion";
 import { useStakeModule } from "hooks/useStakeModule";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { totalNamBalanceAtom, transparentAccountsAtom } from "slices/accounts";
 import { selectedCurrencyRateAtom } from "slices/exchangeRates";
 import { GAS_LIMIT, minimumGasPriceAtom } from "slices/fees";
+import { dispatchToastNotificationAtom } from "slices/notifications";
 import { selectedCurrencyAtom } from "slices/settings";
 import { performBondAtom } from "slices/staking";
 import { allValidatorsAtom, myValidatorsAtom } from "slices/validators";
@@ -27,6 +28,7 @@ const IncrementBonding = (): JSX.Element => {
   const myValidators = useAtomValue(myValidatorsAtom);
   const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
   const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
+  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
   const {
     mutate: performBond,
@@ -48,6 +50,12 @@ const IncrementBonding = (): JSX.Element => {
 
   useEffect(() => {
     if (isSuccess) {
+      dispatchNotification({
+        id: "new-bond",
+        title: "Staking transaction in progress",
+        description: "",
+        type: "pending",
+      });
       myValidators.refetch();
       onCloseModal();
     }
