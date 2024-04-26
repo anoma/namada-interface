@@ -1,8 +1,8 @@
-import { SkeletonLoading } from "SkeletonLoading";
-import { Stack } from "Stack";
 import clsx from "clsx";
 import { createElement } from "react";
 import { twMerge } from "tailwind-merge";
+import { SkeletonLoading } from "./SkeletonLoading";
+import { Stack } from "./Stack";
 
 type AmountSummaryCardProps = {
   as?: keyof JSX.IntrinsicElements;
