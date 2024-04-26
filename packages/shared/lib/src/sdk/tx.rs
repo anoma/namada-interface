@@ -41,6 +41,7 @@ pub struct SubmitBondMsg {
 ///
 /// # Arguments
 ///
+/// * `bond_msg` - Borsh serialized bond_msg.
 /// * `tx_msg` - Borsh serialized tx_msg.
 ///
 /// # Errors
@@ -85,6 +86,7 @@ pub struct SubmitUnbondMsg {
 ///
 /// # Arguments
 ///
+/// * `unbond_msg` - Borsh serialized unbond_msg.
 /// * `tx_msg` - Borsh serialized tx_msg.
 ///
 /// # Errors
@@ -128,6 +130,7 @@ pub struct SubmitWithdrawMsg {
 ///
 /// # Arguments
 ///
+/// * `withdraw_msg` - Borsh serialized withdraw_msg.
 /// * `tx_msg` - Borsh serialized tx_msg.
 ///
 /// # Errors
@@ -155,6 +158,57 @@ pub fn withdraw_tx_args(withdraw_msg: &[u8], tx_msg: &[u8]) -> Result<args::With
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
+pub struct SubmitRedelegateMsg {
+    owner: String,
+    source_validator: String,
+    destination_validator: String,
+    amount: String,
+}
+
+/// Maps serialized tx_msg into RedelgationTx args.
+///
+/// # Arguments
+///
+/// * `redelegate_msg` - Borsh serialized redelegation_msg.
+/// * `tx_msg` - Borsh serialized tx_msg.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
+pub fn redelegate_tx_args(
+    redelegate_msg: &[u8],
+    tx_msg: &[u8],
+) -> Result<args::Redelegate, JsError> {
+    let redelegate_msg = SubmitRedelegateMsg::try_from_slice(redelegate_msg)?;
+
+    let SubmitRedelegateMsg {
+        owner,
+        source_validator,
+        destination_validator,
+        amount,
+    } = redelegate_msg;
+
+    let owner = Address::from_str(&owner)?;
+    let src_validator = Address::from_str(&source_validator)?;
+    let dest_validator = Address::from_str(&destination_validator)?;
+    let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
+    let tx = tx_msg_into_args(tx_msg)?;
+
+    let args = args::Redelegate {
+        tx,
+        src_validator,
+        dest_validator,
+        amount,
+        owner,
+        tx_code_path: PathBuf::from("tx_redelegate.wasm"),
+    };
+
+    Ok(args)
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct SubmitVoteProposalMsg {
     signer: String,
     proposal_id: u64,
@@ -165,6 +219,7 @@ pub struct SubmitVoteProposalMsg {
 ///
 /// # Arguments
 ///
+/// * `vote_proposal_msg` - Borsh serialized vote_proposal_msg.
 /// * `tx_msg` - Borsh serialized tx_msg.
 ///
 /// # Errors
@@ -212,6 +267,7 @@ pub struct SubmitTransferMsg {
 ///
 /// # Arguments
 ///
+/// * `transfer_msg` - Borsh serialized transfer_msg.
 /// * `tx_msg` - Borsh serialized tx_msg.
 ///
 /// # Errors
@@ -285,6 +341,7 @@ pub struct SubmitIbcTransferMsg {
 ///
 /// # Arguments
 ///
+/// * `ibc_transfer_msg` - Borsh serialized ibc_transfer_msg.
 /// * `tx_msg` - Borsh serialized tx_msg.
 ///
 /// # Errors

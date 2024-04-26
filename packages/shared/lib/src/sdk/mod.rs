@@ -18,6 +18,7 @@ use namada::masp::TransferSource;
 use namada::sdk::masp::{DefaultLogger, ShieldedContext};
 use namada::sdk::rpc::query_epoch;
 use namada::sdk::signing::{find_key_by_pk, SigningTxData};
+use namada::sdk::tx::build_redelegation;
 use namada::sdk::tx::{
     build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond,
     build_vote_proposal, build_withdraw, is_reveal_pk_needed, process_tx,
@@ -43,6 +44,7 @@ pub enum TxType {
     EthBridgeTransfer = 6,
     RevealPK = 7,
     VoteProposal = 8,
+    Redelegate = 9,
 }
 
 #[wasm_bindgen]
@@ -274,6 +276,10 @@ impl Sdk {
                 self.build_vote_proposal(specific_msg, tx_msg, Some(gas_payer))
                     .await?
             }
+            TxType::Redelegate => {
+                self.build_redelegate(specific_msg, tx_msg, Some(gas_payer))
+                    .await?
+            }
         };
 
         Ok(tx)
@@ -421,6 +427,18 @@ impl Sdk {
     ) -> Result<BuiltTx, JsError> {
         let args = tx::withdraw_tx_args(withdraw_msg, tx_msg)?;
         let (tx, signing_data) = build_withdraw(&self.namada, &args).await?;
+
+        Ok(BuiltTx { tx, signing_data })
+    }
+
+    pub async fn build_redelegate(
+        &mut self,
+        redelegate_msg: &[u8],
+        tx_msg: &[u8],
+        _gas_payer: Option<String>,
+    ) -> Result<BuiltTx, JsError> {
+        let args = tx::redelegate_tx_args(redelegate_msg, tx_msg)?;
+        let (tx, signing_data) = build_redelegation(&self.namada, &args).await?;
 
         Ok(BuiltTx { tx, signing_data })
     }

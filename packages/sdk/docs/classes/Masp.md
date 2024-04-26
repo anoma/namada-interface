@@ -16,7 +16,9 @@ Class representing utilities related to MASP
 
 ### Methods
 
+- [addDefaultPaymentAddress](Masp.md#adddefaultpaymentaddress)
 - [addSpendingKey](Masp.md#addspendingkey)
+- [addViewingKey](Masp.md#addviewingkey)
 - [fetchAndStoreMaspParams](Masp.md#fetchandstoremaspparams)
 - [hasMaspParams](Masp.md#hasmaspparams)
 - [loadMaspParams](Masp.md#loadmaspparams)
@@ -39,7 +41,7 @@ Class representing utilities related to MASP
 
 #### Defined in
 
-[sdk/src/masp.ts:10](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/masp.ts#L10)
+[sdk/src/masp.ts:10](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/masp.ts#L10)
 
 ## Properties
 
@@ -51,9 +53,36 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/masp.ts:10](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/masp.ts#L10)
+[sdk/src/masp.ts:10](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/masp.ts#L10)
 
 ## Methods
+
+### addDefaultPaymentAddress
+
+▸ **addDefaultPaymentAddress**(`xvk`, `alias`): `Promise`\<`void`\>
+
+Add payment address to SDK wallet
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `xvk` | `string` | Extended viewing key |
+| `alias` | `string` | Alias for the key |
+
+#### Returns
+
+`Promise`\<`void`\>
+
+void
+
+**`Async`**
+
+#### Defined in
+
+[sdk/src/masp.ts:69](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/masp.ts#L69)
+
+___
 
 ### addSpendingKey
 
@@ -78,7 +107,34 @@ void
 
 #### Defined in
 
-[sdk/src/masp.ts:47](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/masp.ts#L47)
+[sdk/src/masp.ts:47](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/masp.ts#L47)
+
+___
+
+### addViewingKey
+
+▸ **addViewingKey**(`xvk`, `alias`): `Promise`\<`void`\>
+
+Add viewing key to SDK wallet
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `xvk` | `string` | extended viewing key |
+| `alias` | `string` | alias for the key |
+
+#### Returns
+
+`Promise`\<`void`\>
+
+void
+
+**`Async`**
+
+#### Defined in
+
+[sdk/src/masp.ts:58](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/masp.ts#L58)
 
 ___
 
@@ -98,7 +154,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp.ts:26](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/masp.ts#L26)
+[sdk/src/masp.ts:26](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/masp.ts#L26)
 
 ___
 
@@ -118,7 +174,7 @@ True if MASP parameters are loaded
 
 #### Defined in
 
-[sdk/src/masp.ts:17](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/masp.ts#L17)
+[sdk/src/masp.ts:17](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/masp.ts#L17)
 
 ___
 
@@ -144,4 +200,4 @@ void
 
 #### Defined in
 
-[sdk/src/masp.ts:36](https://github.com/anoma/namada-interface/blob/9ed51c8a/packages/sdk/src/masp.ts#L36)
+[sdk/src/masp.ts:36](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/masp.ts#L36)

@@ -19,7 +19,8 @@ export type TxLabel =
   | "Add to Eth Bridge Pool"
   | "Withdraw"
   | "RevealPK"
-  | "Vote Proposal";
+  | "Vote Proposal"
+  | "Redelegate";
 
 export const TxTypeLabel: Record<TxType, TxLabel> = {
   [TxType.Bond]: "Bond",
@@ -30,6 +31,7 @@ export const TxTypeLabel: Record<TxType, TxLabel> = {
   [TxType.EthBridgeTransfer]: "Add to Eth Bridge Pool",
   [TxType.RevealPK]: "RevealPK",
   [TxType.VoteProposal]: "Vote Proposal",
+  [TxType.Redelegate]: "Redelegate",
 };
 
 type TransferToEthereumKind = "Erc20" | "Nut";

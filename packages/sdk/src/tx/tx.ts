@@ -7,6 +7,8 @@ import {
   IbcTransferMsgValue,
   IbcTransferProps,
   Message,
+  RedelegateMsgValue,
+  RedelegateProps,
   SignatureMsgValue,
   TransferMsgValue,
   TransferProps,
@@ -80,6 +82,12 @@ export class Tx {
         return await this.buildWithdraw(
           txProps,
           props as WithdrawProps,
+          gasPayer
+        );
+      case TxType.Redelegate:
+        return await this.buildRedelegate(
+          txProps,
+          props as RedelegateProps,
           gasPayer
         );
       case TxType.RevealPK:
@@ -235,6 +243,33 @@ export class Tx {
       encodedWithdraw,
       encodedTx,
       gasPayer || withdrawProps.source
+    );
+  }
+
+  /**
+   * Build Redelegate Tx
+   * @async
+   * @param txProps - properties of the transaction
+   * @param redelegateProps -  properties of the redelegate tx
+   * @param [gasPayer] - optional gas payer, if not provided, defaults to redelegateProps.owner
+   * @returns promise that resolves to an EncodedTx
+   */
+  async buildRedelegate(
+    txProps: TxProps,
+    redelegateProps: RedelegateProps,
+    gasPayer?: string
+  ): Promise<EncodedTx> {
+    const redelegateMsg = new Message<RedelegateMsgValue>();
+    const encodedTx = this.encodeTxArgs(txProps);
+    const encodedRedelegate = redelegateMsg.encode(
+      new RedelegateMsgValue(redelegateProps)
+    );
+
+    return await this.buildTxFromSerializedArgs(
+      TxType.Redelegate,
+      encodedRedelegate,
+      encodedTx,
+      gasPayer || redelegateProps.owner
     );
   }
 
