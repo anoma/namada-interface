@@ -10,6 +10,7 @@ import {
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
   Message,
+  RedelegateMsgValue,
   SignatureResponse,
   TransferMsgValue,
   TxMsgValue,
@@ -261,6 +262,43 @@ export class KeyRingService {
       console.warn(e);
       await this.broadcaster.completeTx(msgId, TxType.Withdraw, false, `${e}`);
       throw new Error(`Unable to submit withdraw tx! ${e}`);
+    }
+  }
+
+  async submitRedelegate(
+    redelegateMsg: string,
+    txMsg: string,
+    msgId: string
+  ): Promise<void> {
+    await this.broadcaster.startTx(msgId, TxType.Redelegate);
+    try {
+      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
+      const redelegateMsgValue = Message.decode(
+        fromBase64(redelegateMsg),
+        RedelegateMsgValue
+      );
+
+      const innerTxHash = await this._keyRing.submitRedelegate(
+        redelegateMsgValue,
+        txMsgValue
+      );
+      await this.broadcaster.completeTx(
+        msgId,
+        TxType.Redelegate,
+        true,
+        innerTxHash
+      );
+      await this.broadcaster.updateStaking();
+      await this.broadcaster.updateBalance();
+    } catch (e) {
+      console.warn(e);
+      await this.broadcaster.completeTx(
+        msgId,
+        TxType.Redelegate,
+        false,
+        `${e}`
+      );
+      throw new Error(`Unable to submit redelegate tx! ${e}`);
     }
   }
 

@@ -92,8 +92,17 @@ export const ApproveTx: React.FC<Props> = ({ details, setDetails }) => {
       </Alert>
       <Stack gap={2}>
         {details?.tx.map((txDetails, i) => {
-          const { amount, source, target, publicKey, tokenAddress, validator } =
-            txDetails || {};
+          const {
+            amount,
+            source,
+            target,
+            publicKey,
+            tokenAddress,
+            validator,
+            sourceValidator,
+            destinationValidator,
+          } = txDetails || {};
+
           const tokenType =
             Object.values(Tokens).find(
               (token) => token.address === tokenAddress
@@ -125,6 +134,16 @@ export const ApproveTx: React.FC<Props> = ({ details, setDetails }) => {
               {validator && (
                 <p className="text-xs">
                   Validator: {shortenAddress(validator)}
+                </p>
+              )}
+              {sourceValidator && (
+                <p className="text-xs">
+                  Source Validator: {shortenAddress(sourceValidator)}
+                </p>
+              )}
+              {destinationValidator && (
+                <p className="text-xs">
+                  Destination Validator: {shortenAddress(destinationValidator)}
                 </p>
               )}
             </div>

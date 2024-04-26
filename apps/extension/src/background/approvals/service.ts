@@ -11,6 +11,7 @@ import {
   BondMsgValue,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
+  RedelegateMsgValue,
   SignatureResponse,
   TransferMsgValue,
   TxMsgValue,
@@ -42,6 +43,7 @@ const getParamsMethod = (txType: SupportedTx): GetParams =>
   : txType === TxType.EthBridgeTransfer ?
     ApprovalsService.getParamsEthBridgeTransfer
   : txType === TxType.VoteProposal ? ApprovalsService.getParamsVoteProposal
+  : txType === TxType.Redelegate ? ApprovalsService.getParamsRedelegate
   : assertNever(txType);
 
 export class ApprovalsService {
@@ -303,6 +305,22 @@ export class ApprovalsService {
     };
   };
 
+  static getParamsRedelegate: GetParams = (specificMsg, txDetails) => {
+    const specificDetails = deserialize(specificMsg, RedelegateMsgValue);
+
+    const { owner, sourceValidator, destinationValidator } = specificDetails;
+
+    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
+
+    return {
+      source: owner,
+      sourceValidator,
+      destinationValidator,
+      publicKey,
+      nativeToken,
+    };
+  };
+
   // Remove pending transaction from storage
   async rejectTx(msgId: string): Promise<void> {
     await this._clearPendingTx(msgId);
@@ -333,6 +351,7 @@ export class ApprovalsService {
           : txType === TxType.Withdraw ? this.keyRingService.submitWithdraw
           : txType === TxType.VoteProposal ?
             this.keyRingService.submitVoteProposal
+          : txType === TxType.Redelegate ? this.keyRingService.submitRedelegate
           : assertNever(txType);
 
         await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);

@@ -9,6 +9,7 @@ export type SupportedTx = Extract<
   | TxType.EthBridgeTransfer
   | TxType.Withdraw
   | TxType.VoteProposal
+  | TxType.Redelegate
 >;
 
 export type TxLabel =

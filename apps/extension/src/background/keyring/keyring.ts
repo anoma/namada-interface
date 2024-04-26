@@ -9,6 +9,7 @@ import {
   DerivedAccount,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
+  RedelegateMsgValue,
   SignatureResponse,
   TransferMsgValue,
   TxMsgValue,
@@ -665,6 +666,28 @@ export class KeyRing {
       return innerTxHash;
     } catch (e) {
       throw new Error(`Could not submit withdraw tx: ${e}`);
+    }
+  }
+
+  async submitRedelegate(
+    redelegateMsg: RedelegateMsgValue,
+    txMsg: TxMsgValue
+  ): Promise<string> {
+    await this.vaultService.assertIsUnlocked();
+    const sdk = this.sdkService.getSdk();
+    try {
+      const { owner } = redelegateMsg;
+      const signingKey = await this.getSigningKey(owner);
+
+      await sdk.tx.revealPk(signingKey, txMsg);
+
+      const builtTx = await sdk.tx.buildRedelegate(txMsg, redelegateMsg);
+      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
+      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
+
+      return innerTxHash;
+    } catch (e) {
+      throw new Error(`Could not submit redelegate tx: ${e}`);
     }
   }
 
