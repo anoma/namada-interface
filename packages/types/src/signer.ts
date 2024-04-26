@@ -3,6 +3,7 @@ import {
   BondProps,
   EthBridgeTransferProps,
   IbcTransferProps,
+  RedelegateProps,
   TransferProps,
   TxProps,
   UnbondProps,
@@ -35,6 +36,11 @@ export interface Signer {
   ): Promise<void>;
   submitWithdraw(
     txProps: WithdrawProps | WithdrawProps[],
+    wrapperTxProps: TxProps,
+    type: AccountType
+  ): Promise<void>;
+  submitRedelegate(
+    txProps: RedelegateProps | RedelegateProps[],
     wrapperTxProps: TxProps,
     type: AccountType
   ): Promise<void>;
