@@ -8,7 +8,6 @@ import {
   accountsReducer,
   chainReducer,
   channelsReducer,
-  notificationsReducer,
   proposalsReducers,
   settingsReducer,
   stakingAndGovernanceReducers,
@@ -19,11 +18,10 @@ import { atomWithStore } from "jotai-redux";
 
 const { NAMADA_INTERFACE_LOCAL, NODE_ENV } = process.env;
 const POSTFIX =
-  NODE_ENV === "development"
-    ? NAMADA_INTERFACE_LOCAL
-      ? "-local"
-      : "-dev"
-    : "";
+  NODE_ENV === "development" ?
+    NAMADA_INTERFACE_LOCAL ? "-local"
+    : "-dev"
+  : "";
 
 const ChainIdTransform = createTransform(
   (inboundState: SettingsState) => {
@@ -40,7 +38,6 @@ const reducers = combineReducers({
   chain: chainReducer,
   channels: channelsReducer,
   settings: settingsReducer,
-  notifications: notificationsReducer,
   stakingAndGovernance: stakingAndGovernanceReducers,
   proposals: proposalsReducers,
 });

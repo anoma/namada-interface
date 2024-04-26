@@ -68,14 +68,6 @@ function App(): JSX.Element {
 
   // TODO: remove this effect once redux has been replaced by jotai
   useEffect(() => {
-    // const fetchAccounts = async (): Promise<void> => {
-    //   const accounts = await integration?.accounts();
-    //   if (accounts) {
-    //     dispatch(addAccounts(accounts as Account[]));
-    //     dispatch(fetchBalances());
-    //   }
-    // };
-
     if (
       currentExtensionAttachStatus === "attached" &&
       connectedChains.includes(chain.id)

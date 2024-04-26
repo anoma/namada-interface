@@ -53,7 +53,7 @@ export const myValidatorsAtom = atomWithQuery((get) => {
   const accounts = get(transparentAccountsAtom);
   const ids = accounts.map((account) => account.address).join("-");
   return {
-    queryKey: ["my-validators-" + ids],
+    queryKey: ["my-validators", ids],
     queryFn: async () => {
       const { rpc } = get(chainAtom);
       const addresses = accounts.map((account) => account.address);

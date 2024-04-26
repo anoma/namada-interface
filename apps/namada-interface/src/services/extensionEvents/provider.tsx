@@ -14,13 +14,12 @@ import {
   NamadaNetworkChangedHandler,
   NamadaProposalsUpdatedHandler,
   NamadaTxCompletedHandler,
-  NamadaTxStartedHandler,
   NamadaUpdatedBalancesHandler,
   NamadaUpdatedStakingHandler,
 } from "./handlers";
 
 import { useSetAtom } from "jotai";
-import { refreshAccountsAtom, refreshBalancesAtom } from "slices/accounts";
+import { accountsAtom, balancesAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
 import { isRevealPkNeededAtom } from "slices/fees";
 import { namadaExtensionConnectedAtom } from "slices/settings";
@@ -33,9 +32,9 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const keplrIntegration = useIntegration("cosmos");
   const metamaskIntegration = useIntegration("ethereum");
 
-  const refreshAccounts = useSetAtom(refreshAccountsAtom);
+  const refreshAccounts = useSetAtom(accountsAtom);
   const refreshChain = useSetAtom(chainAtom);
-  const refreshBalances = useSetAtom(refreshBalancesAtom);
+  const refreshBalances = useSetAtom(balancesAtom);
   const refreshPublicKeys = useSetAtom(isRevealPkNeededAtom);
   const setNamadaExtensionConnected = useSetAtom(namadaExtensionConnectedAtom);
 
@@ -50,7 +49,6 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     namadaIntegration as Namada,
     refreshChain
   );
-  const namadaTxStartedHandler = NamadaTxStartedHandler(dispatch);
   const namadaTxCompletedHandler = NamadaTxCompletedHandler(
     dispatch,
     refreshPublicKeys
@@ -86,7 +84,6 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   useEventListenerOnce(Events.NetworkChanged, namadaNetworkChangedHandler);
   useEventListenerOnce(Events.UpdatedBalances, namadaUpdatedBalancesHandler);
   useEventListenerOnce(Events.UpdatedStaking, namadaUpdatedStakingHandler);
-  useEventListenerOnce(Events.TxStarted, namadaTxStartedHandler);
   useEventListenerOnce(Events.TxCompleted, namadaTxCompletedHandler);
   useEventListenerOnce(Events.ProposalsUpdated, namadaProposalsUpdatedHandler);
   useEventListenerOnce(

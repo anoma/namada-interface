@@ -152,12 +152,12 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
     <div style={{ width: "100%", margin: "0 20px" }}>
       {/* input field */}
       <Stack gap={2} direction="vertical">
-        {/* <BondingAddressSelect */}
-        {/*   data={selectOptions} */}
-        {/*   value={currentAddress} */}
-        {/*   label="Account" */}
-        {/*   onChange={handleAddressChange} */}
-        {/* /> */}
+        <BondingAddressSelect
+          data={selectOptions}
+          value={currentAddress}
+          label="Account"
+          onChange={handleAddressChange}
+        />
 
         <AmountInput
           label="Amount"
