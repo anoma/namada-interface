@@ -19,7 +19,9 @@ export type CustomTableCell = {
 const checkIsCustomTableCell = (
   tableCellEl: CustomTableCell | ReactNode
 ): tableCellEl is CustomTableCell =>
-  tableCellEl !== undefined && !!(tableCellEl as CustomTableCell).render;
+  tableCellEl !== undefined &&
+  tableCellEl !== null &&
+  !!(tableCellEl as CustomTableCell).render;
 
 export const StyledTableRow = ({
   id,
