@@ -209,8 +209,17 @@ export function paramsToUrl(
   return url;
 }
 
-export const formatPercentage = (bigNumber: BigNumber): string =>
-  bigNumber.multipliedBy(100).toString() + "%";
+export const formatPercentage = (
+  bigNumber: BigNumber,
+  decimalPlaces?: number
+): string => {
+  const percentage = bigNumber.multipliedBy(100);
+  const rounded =
+    typeof decimalPlaces === "undefined" ? percentage : (
+      percentage.decimalPlaces(decimalPlaces)
+    );
+  return rounded.toString() + "%";
+};
 
 /**
  * Applies a function to a value that is possibly undefined.
