@@ -1,7 +1,8 @@
 import BigNumber from "bignumber.js";
 
 import { ProgressBar, Stack } from "@namada/components";
-import { VoteType, colors, voteTypes } from "./types";
+import { VoteType, voteTypes } from "slices/proposals";
+import { colors } from "./types";
 
 const VoteTypeBreakdown: React.FC<{
   voteType: VoteType;

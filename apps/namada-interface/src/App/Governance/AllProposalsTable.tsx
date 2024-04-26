@@ -1,17 +1,36 @@
+import { useAtomValue } from "jotai";
 import { GoCheckCircleFill, GoInfo } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 
-import { InsetLabel, StyledTable, TableRow } from "@namada/components";
-import { Proposal } from "slices/proposals";
-import { StatusLabel } from "./ProposalLabels";
+import { StyledTable, TableRow } from "@namada/components";
+import {
+  ProposalWithVotingInfo,
+  _Proposal,
+  proposalStatuses,
+  proposalsGroupedByStatusAtom,
+  votedProposalsAtom,
+} from "slices/proposals";
+import { StatusLabel, TypeLabel } from "./ProposalLabels";
 import GovernanceRoutes from "./routes";
 
-const key = (name: string, proposal?: Proposal): string => {
+const key = (name: string, proposal?: _Proposal): string => {
   const idPart = typeof proposal === "undefined" ? "" : `-${proposal.id}`;
   return `all-proposals-${name}${idPart}`;
 };
 
 export const AllProposalsTable: React.FC = () => {
+  const groupedProposals = useAtomValue(proposalsGroupedByStatusAtom);
+  const votedProposals = useAtomValue(votedProposalsAtom);
+
+  const proposalList: ProposalWithVotingInfo[] = proposalStatuses.flatMap(
+    (status) =>
+      groupedProposals[status].map((proposal) => ({
+        ...proposal,
+        status,
+        voted: votedProposals.includes(proposal.id),
+      }))
+  );
+
   const navigate = useNavigate();
 
   const headers = [
@@ -28,35 +47,39 @@ export const AllProposalsTable: React.FC = () => {
     "",
   ];
 
-  const renderRow = (proposal: Proposal, index: number): TableRow => ({
+  const renderRow = (
+    proposal: ProposalWithVotingInfo,
+    index: number
+  ): TableRow => ({
     cells: [
       // ID
       `#${proposal.id}`,
 
       // Title
-      "Allocate 1% of supply",
+      proposal.content.title,
 
       // Type
-      <InsetLabel
+      <TypeLabel
         key={key("type", proposal)}
         color={index % 2 === 0 ? "dark" : "light"}
-      >
-        Community pool spend
-      </InsetLabel>,
+        proposalType={proposal.proposalType}
+      />,
 
       // Status
       <StatusLabel
         key={key("status", proposal)}
-        status="passed"
+        status={proposal.status}
         className="ml-auto"
       />,
 
-      // TODO: what is this?
-      <GoCheckCircleFill key={key("check", proposal)} className="text-cyan" />,
+      // Voted
+      proposal.voted ?
+        <GoCheckCircleFill key={key("check", proposal)} className="text-cyan" />
+      : null,
 
       // Voting end on
       <div key={key("voting-end", proposal)} className="text-right">
-        Something something
+        Epoch {proposal.endEpoch.toString()}
       </div>,
 
       // Info
@@ -72,14 +95,7 @@ export const AllProposalsTable: React.FC = () => {
       tableProps={{ className: "w-full" }}
       id="all-proposals-table"
       headers={headers}
-      rows={(
-        [
-          { id: "862" },
-          { id: "369" },
-          { id: "123" },
-          { id: "444" },
-        ] as Proposal[]
-      ).map(renderRow)}
+      rows={proposalList.map(renderRow)}
     />
   );
 };

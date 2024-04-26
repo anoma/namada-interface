@@ -1,8 +1,14 @@
 import { Stack } from "@namada/components";
+import { useAtomValue } from "jotai";
+
+import {
+  proposalIdsAtom,
+  proposalsGroupedByStatusAtom,
+} from "slices/proposals";
 
 const SummaryCard: React.FC<{
   title: string;
-  content: string;
+  content: React.ReactNode;
 }> = ({ title, content }) => (
   <div className="rounded bg-[#1b1b1b] p-4">
     <div className="text-sm">{title}</div>
@@ -11,12 +17,20 @@ const SummaryCard: React.FC<{
 );
 
 export const ProposalsSummary: React.FC = () => {
+  const proposalIds = useAtomValue(proposalIdsAtom);
+  const groupedProposals = useAtomValue(proposalsGroupedByStatusAtom);
+
+  const total = proposalIds.length;
+  const ongoing = groupedProposals.ongoing.length;
+  const passed = groupedProposals.passed.length;
+  const rejected = groupedProposals.rejected.length;
+
   return (
     <Stack gap={4}>
-      <SummaryCard title="Total Proposals" content="153" />
-      <SummaryCard title="Proposals in Voting Period" content="153" />
-      <SummaryCard title="Passed" content="153" />
-      <SummaryCard title="Rejected" content="153" />
+      <SummaryCard title="Total Proposals" content={total} />
+      <SummaryCard title="Proposals in Voting Period" content={ongoing} />
+      <SummaryCard title="Passed" content={passed} />
+      <SummaryCard title="Rejected" content={rejected} />
     </Stack>
   );
 };
