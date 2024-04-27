@@ -84,10 +84,10 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
         )}
       </span>
       <div className="relative">
-        <strong className="block text-sm mb-0.5">
+        <strong className="block text-sm mb-1">
           {notification.data.title}
         </strong>
-        <p className="text-xs">{notification.data.description}</p>
+        <p className="leading-tight text-xs">{notification.data.description}</p>
       </div>
       <i
         onClick={() => onClose(notification.data)}
