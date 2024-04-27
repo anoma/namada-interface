@@ -1,7 +1,7 @@
 import { KnownCurrencies } from "@namada/utils";
 import BigNumber from "bignumber.js";
 
-type Props = {
+export type CurrencyProps = {
   amount: number | BigNumber;
   currency: keyof typeof KnownCurrencies;
   separator?: "." | "," | "";
@@ -23,7 +23,7 @@ export const Currency = ({
   baseAmountClassName = "",
   fractionClassName = "",
   ...containerRest
-}: Props): JSX.Element => {
+}: CurrencyProps): JSX.Element => {
   const currencyObj = KnownCurrencies[currency];
   const amountParts = BigNumber(amount).toString().split(".");
   const baseAmount = amountParts[0] || "0";

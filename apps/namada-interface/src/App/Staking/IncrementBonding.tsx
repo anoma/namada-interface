@@ -1,6 +1,7 @@
 import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
+import NamCurrency from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { invariant } from "framer-motion";
 import { useStakeModule } from "hooks/useStakeModule";
@@ -48,19 +49,6 @@ const IncrementBonding = (): JSX.Element => {
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
 
-  useEffect(() => {
-    if (isSuccess) {
-      dispatchNotification({
-        id: "new-bond",
-        title: "Staking transaction in progress",
-        description: "",
-        type: "pending",
-      });
-      myValidators.refetch();
-      onCloseModal();
-    }
-  }, [isSuccess]);
-
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
     invariant(
@@ -78,12 +66,32 @@ const IncrementBonding = (): JSX.Element => {
     });
   };
 
-  const getValidationMessage = (): string => {
-    if (totalNam.lt(totalUpdatedAmount)) return "Invalid amount";
-    return "";
+  const dispatchPendingNotification = (): void => {
+    dispatchNotification({
+      id: "staking-new",
+      title: "Staking transaction in progress",
+      description: (
+        <>
+          The staking transaction of <NamCurrency amount={totalUpdatedAmount} />{" "}
+          is being processed
+        </>
+      ),
+      type: "pending",
+    });
   };
 
-  const errorMessage = getValidationMessage();
+  useEffect(() => {
+    if (isSuccess) {
+      dispatchPendingNotification();
+      myValidators.refetch();
+      onCloseModal();
+    }
+  }, [isSuccess]);
+
+  const errorMessage = ((): string => {
+    if (totalNam.lt(totalUpdatedAmount)) return "Invalid amount";
+    return "";
+  })();
 
   return (
     <Modal onClose={onCloseModal}>
