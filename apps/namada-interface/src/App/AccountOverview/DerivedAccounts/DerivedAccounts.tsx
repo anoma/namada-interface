@@ -69,7 +69,6 @@ const DerivedAccounts = (): JSX.Element => {
     accountsLoadable.state === "hasData" ? accountsLoadable.data : [];
 
   const balances = useAtomValue(balancesAtom);
-
   const themeContext = useContext(ThemeContext);
   const [activeAccountAddress, setActiveAccountAddress] = useState("");
 
@@ -79,8 +78,8 @@ const DerivedAccounts = (): JSX.Element => {
   const { colorMode } = themeContext.themeConfigurations;
 
   const getAssetIconByTheme = (symbol: TokenType): string => {
-    return colorMode === "dark"
-      ? assetIconByToken[symbol].dark
+    return colorMode === "dark" ?
+        assetIconByToken[symbol].dark
       : assetIconByToken[symbol].light;
   };
 
@@ -106,8 +105,12 @@ const DerivedAccounts = (): JSX.Element => {
           .sort(({ isShielded }) => (isShielded ? -1 : 1))
           .map((account) => {
             const { alias, address, isShielded } = account;
-            const balance = balances[address];
-            const nativeBalance = typeof balance === "undefined" ? "-" : (balance[symbol]?.toString() || "0");
+            const balance =
+              balances.isSuccess ? balances.data[address] : undefined;
+            const nativeBalance =
+              typeof balance === "undefined" ? "-" : (
+                balance[symbol]?.toString() || "0"
+              );
 
             return (
               <DerivedAccountItem key={address}>
@@ -117,16 +120,14 @@ const DerivedAccounts = (): JSX.Element => {
                   <DerivedAccountInfo>
                     <DerivedAccountAlias>{alias}</DerivedAccountAlias>
                     <DerivedAccountType>
-                      {isShielded ? (
+                      {isShielded ?
                         <ShieldedLabel>Shielded</ShieldedLabel>
-                      ) : (
-                        <TransparentLabel>Transparent</TransparentLabel>
-                      )}
+                      : <TransparentLabel>Transparent</TransparentLabel>}
                     </DerivedAccountType>
                   </DerivedAccountInfo>
                   <div className="flex items-center">
                     <span className="text-white">
-                      {Tokens[symbol].symbol} {nativeBalance} 
+                      {Tokens[symbol].symbol} {nativeBalance}
                     </span>
                   </div>
                 </DerivedAccountContainer>

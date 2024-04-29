@@ -1,20 +1,21 @@
 import { createContext } from "react";
 
 import { useEventListenerOnce } from "@namada/hooks";
-import { Keplr, Metamask, Namada, useIntegration } from "@namada/integrations";
+import { Namada, useIntegration } from "@namada/integrations";
 import { Events, KeplrEvents, MetamaskEvents } from "@namada/types";
 
 import { useAppDispatch } from "store";
 import {
-  KeplrAccountChangedHandler,
-  MetamaskAccountChangedHandler,
-  MetamaskBridgeTransferCompletedHandler,
   NamadaConnectionRevokedHandler,
   NamadaProposalsUpdatedHandler,
 } from "./handlers";
 
 import { useAtomValue, useSetAtom } from "jotai";
-import { fetchAccountsAtom, fetchBalancesAtom } from "slices/accounts";
+import {
+  addAccountsAtom,
+  balancesAtom,
+  fetchAccountsAtom,
+} from "slices/accounts";
 import { chainAtom } from "slices/chain";
 import { isRevealPkNeededAtom } from "slices/fees";
 import { namadaExtensionConnectedAtom } from "slices/settings";
@@ -28,8 +29,9 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const keplrIntegration = useIntegration("cosmos");
   const metamaskIntegration = useIntegration("ethereum");
   const fetchAccounts = useSetAtom(fetchAccountsAtom);
-  const fetchBalances = useSetAtom(fetchBalancesAtom);
+  const balances = useAtomValue(balancesAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
+  const addAccounts = useSetAtom(addAccountsAtom);
   const refreshChain = useSetAtom(chainAtom);
   const refreshPublicKeys = useSetAtom(isRevealPkNeededAtom);
   const setNamadaExtensionConnected = useSetAtom(namadaExtensionConnectedAtom);
@@ -42,34 +44,19 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     setNamadaExtensionConnected
   );
 
-  // Keplr handlers
-  const keplrAccountChangedHandler = KeplrAccountChangedHandler(
-    dispatch,
-    keplrIntegration as Keplr
-  );
-
-  // Metamask handlers
-  const metamaskAccountChangedHandler = MetamaskAccountChangedHandler(
-    dispatch,
-    metamaskIntegration as Metamask
-  );
-
-  const metamaskBridgeTransferCompletedHandler =
-    MetamaskBridgeTransferCompletedHandler(dispatch);
-
   // Register handlers:
   useEventListenerOnce(Events.AccountChanged, async () => {
     await fetchAccounts();
-    fetchBalances();
+    balances.refetch();
   });
 
   useEventListenerOnce(Events.TxCompleted, () => {
     refreshPublicKeys();
-    fetchBalances();
+    balances.refetch();
   });
 
   useEventListenerOnce(Events.UpdatedBalances, () => {
-    fetchBalances();
+    balances.refetch();
   });
 
   useEventListenerOnce(Events.UpdatedStaking, () => {
@@ -85,10 +72,24 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     Events.ConnectionRevoked,
     namadaConnectionRevokedHandler
   );
-  useEventListenerOnce(KeplrEvents.AccountChanged, keplrAccountChangedHandler);
+
+  useEventListenerOnce(KeplrEvents.AccountChanged, async () => {
+    const accounts = await keplrIntegration.accounts();
+    if (accounts) {
+      addAccounts(accounts);
+      balances.refetch();
+    }
+  });
+
   useEventListenerOnce(
     MetamaskEvents.AccountChanged,
-    metamaskAccountChangedHandler,
+    async () => {
+      const accounts = await metamaskIntegration.accounts();
+      if (accounts) {
+        addAccounts(accounts);
+        balances.refetch();
+      }
+    },
     false,
     (event, handler) => {
       if (window.ethereum) {
@@ -102,10 +103,10 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
       }
     }
   );
-  useEventListenerOnce(
-    MetamaskEvents.BridgeTransferCompleted,
-    metamaskBridgeTransferCompletedHandler
-  );
+
+  useEventListenerOnce(MetamaskEvents.BridgeTransferCompleted, async () => {
+    balances.refetch();
+  });
 
   return (
     <ExtensionEventsContext.Provider value={{}}>
