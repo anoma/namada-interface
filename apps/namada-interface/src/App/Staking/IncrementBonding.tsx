@@ -107,42 +107,42 @@ const IncrementBonding = (): JSX.Element => {
         }
         onClose={onCloseModal}
       >
-        <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
-          <BondingAmountOverview
-            title="Available to Stake"
-            selectedFiatCurrency={selectedFiatCurrency}
-            fiatExchangeRate={selectedCurrencyRate}
-            amountInNam={totalNamBalance.data ?? 0}
-            updatedAmountInNam={totalNamAfterStaking}
-            extraContent={
-              <>
-                {totalNamAfterStaking.lt(2) && (
-                  <Alert
-                    type="warning"
-                    className="absolute py-3 right-2 top-4 max-w-[50%] text-xs rounded-sm"
-                  >
-                    We recommend leaving a small amount of NAM to cover fees
-                  </Alert>
-                )}
-              </>
-            }
-          />
-          <BondingAmountOverview
-            title="Current Stake"
-            selectedFiatCurrency={selectedFiatCurrency}
-            fiatExchangeRate={selectedCurrencyRate}
-            amountInNam={totalStakedAmount}
-          />
-          <BondingAmountOverview
-            title="Increased Stake"
-            selectedFiatCurrency={selectedFiatCurrency}
-            fiatExchangeRate={selectedCurrencyRate}
-            updatedAmountInNam={totalUpdatedAmount}
-            updatedValueClassList="text-yellow"
-            amountInNam={0}
-          />
-        </div>
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} className="flex flex-col flex-1 gap-2 h-full">
+          <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
+            <BondingAmountOverview
+              title="Available to Stake"
+              selectedFiatCurrency={selectedFiatCurrency}
+              fiatExchangeRate={selectedCurrencyRate}
+              amountInNam={totalNamBalance.data ?? 0}
+              updatedAmountInNam={totalNamAfterStaking}
+              extraContent={
+                <>
+                  {totalNamAfterStaking.lt(2) && (
+                    <Alert
+                      type="warning"
+                      className="absolute py-3 right-2 top-4 max-w-[50%] text-xs rounded-sm"
+                    >
+                      We recommend leaving a small amount of NAM to cover fees
+                    </Alert>
+                  )}
+                </>
+              }
+            />
+            <BondingAmountOverview
+              title="Current Stake"
+              selectedFiatCurrency={selectedFiatCurrency}
+              fiatExchangeRate={selectedCurrencyRate}
+              amountInNam={totalStakedAmount}
+            />
+            <BondingAmountOverview
+              title="Increased Stake"
+              selectedFiatCurrency={selectedFiatCurrency}
+              fiatExchangeRate={selectedCurrencyRate}
+              updatedAmountInNam={totalUpdatedAmount}
+              updatedValueClassList="text-yellow"
+              amountInNam={0}
+            />
+          </div>
           <Panel className="w-full rounded-md flex-1">
             <div className="w-[30%]">
               <ValidatorSearch onChange={(value: string) => setFilter(value)} />
