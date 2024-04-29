@@ -159,6 +159,7 @@ const Unstake = (): JSX.Element => {
           <Panel className="w-full rounded-md flex-1">
             {validators.data && (
               <ActionButton
+                type="button"
                 className="inline-flex w-auto leading-none px-4 py-3 mb-4"
                 color="magenta"
                 borderRadius="sm"
@@ -185,7 +186,11 @@ const Unstake = (): JSX.Element => {
             color="white"
             borderRadius="sm"
             className="mt-2 w-1/4 mx-auto"
-            disabled={!!validationMessage || isPerformingUnbond}
+            disabled={
+              !!validationMessage ||
+              isPerformingUnbond ||
+              totalUpdatedAmount.eq(0)
+            }
           >
             {isPerformingUnbond ?
               "Processing..."
