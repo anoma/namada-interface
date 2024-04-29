@@ -3,6 +3,7 @@ import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import BigNumber from "bignumber.js";
 import { useStakeModule } from "hooks/useStakeModule";
+import useValidatorFilter from "hooks/useValidatorFilter";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -12,12 +13,13 @@ import { selectedCurrencyAtom } from "slices/settings";
 import { allValidatorsAtom } from "slices/validators";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { ReDelegateTable } from "./ReDelegateTable";
-import { ValidatorSearch } from "./ValidatorSearch";
+import { ValidatorFilterNav } from "./ValidatorFilterNav";
 import StakingRoutes from "./routes";
 
 const ReDelegate = (): JSX.Element => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<string>("");
+  const [onlyMyValidators, setOnlyMyValidators] = useState(false);
   const accounts = useAtomValue(transparentAccountsAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
@@ -29,6 +31,13 @@ const ReDelegate = (): JSX.Element => {
     totalUpdatedAmount,
     onChangeValidatorAmount,
   } = useStakeModule({ accounts });
+
+  const filteredValidators = useValidatorFilter({
+    validators: validators.isSuccess ? validators.data : [],
+    myValidatorsAddresses: Object.keys(stakedAmountByAddress),
+    searchTerm: filter,
+    onlyMyValidators,
+  });
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
   const redelegateTotal = totalStakedAmount.minus(totalUpdatedAmount);
@@ -98,13 +107,14 @@ const ReDelegate = (): JSX.Element => {
           </Panel>
         </div>
         <Panel className="w-full rounded-md flex-1">
-          <div className="w-[70%]">
-            <ValidatorSearch onChange={(value: string) => setFilter(value)} />
-          </div>
+          <ValidatorFilterNav
+            onChangeSearch={(value: string) => setFilter(value)}
+            onlyMyValidators={onlyMyValidators}
+            onFilterByMyValidators={setOnlyMyValidators}
+          />
           {validators.data && (
             <ReDelegateTable
-              filter={filter}
-              validators={validators.data}
+              validators={filteredValidators}
               updatedAmountByAddress={updatedAmountByAddress}
               stakedAmountByAddress={stakedAmountByAddress}
               onChangeValidatorAmount={onChangeValidatorAmount}
@@ -118,7 +128,7 @@ const ReDelegate = (): JSX.Element => {
           color="white"
           borderRadius="sm"
           className="mt-2 w-1/4 mx-auto"
-          disabled={!!validationMessage}
+          disabled={!!validationMessage || !redelegateTotal.eq(0)}
         >
           {validationMessage || "Re-Delegate"}
         </ActionButton>

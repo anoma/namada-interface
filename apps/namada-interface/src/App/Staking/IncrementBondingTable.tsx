@@ -8,7 +8,6 @@ import ValidatorName from "./ValidatorName";
 import ValidatorsTable from "./ValidatorsTable";
 
 type IncrementBondingTableProps = {
-  filter: string;
   validators: Validator[];
   selectedFiatCurrency: CurrencyType;
   selectedCurrencyExchangeRate: number;
@@ -18,7 +17,6 @@ type IncrementBondingTableProps = {
 };
 
 export const IncrementBondingTable = ({
-  filter = "",
   validators,
   updatedAmountByAddress,
   stakedAmountByAddress,
@@ -78,7 +76,12 @@ export const IncrementBondingTable = ({
               )
             }
           />
-          <span className="absolute h-full flex items-center right-2 top-0 text-neutral-500 text-sm">
+          <span
+            className={clsx(
+              "absolute flex items-center right-2 top-[0.6em]",
+              "text-neutral-500 text-sm"
+            )}
+          >
             NAM
           </span>
         </div>,
@@ -151,7 +154,6 @@ export const IncrementBondingTable = ({
         validatorList={validators}
         headers={headers}
         renderRow={renderRow}
-        filter={filter}
       />
     </div>
   );

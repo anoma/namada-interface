@@ -3,6 +3,7 @@ import { formatPercentage, shortenAddress } from "@namada/utils";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { ValidatorSearch } from "App/Staking/ValidatorSearch";
 import BigNumber from "bignumber.js";
+import useValidatorFilter from "hooks/useValidatorFilter";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { GoGlobe } from "react-icons/go";
@@ -20,6 +21,12 @@ export const AllValidatorsTable = ({
 }: AllValidatorsProps): JSX.Element => {
   const validators = useAtomValue(allValidatorsAtom);
   const [filter, setFilter] = useState("");
+  const filteredValidators = useValidatorFilter({
+    validators: validators.isSuccess ? validators.data : [],
+    myValidatorsAddresses: [],
+    searchTerm: filter,
+    onlyMyValidators: false,
+  });
 
   if (validators.isError) return <>Error!</>;
 
@@ -84,17 +91,16 @@ export const AllValidatorsTable = ({
 
   return (
     <>
-      <div className="max-w-[200px]">
+      <div className="max-w-[50%] mb-3">
         <ValidatorSearch onChange={(value: string) => setFilter(value)} />
       </div>
       {validators.data && (
         <ValidatorsTable
           id="all-validators"
-          validatorList={validators.data}
+          validatorList={filteredValidators}
           headers={headers}
           initialPage={initialPage}
           resultsPerPage={resultsPerPage}
-          filter={filter}
           renderRow={renderRow}
         />
       )}
