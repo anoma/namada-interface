@@ -18,7 +18,7 @@ const inputClassList = tv({
     label: "text-white text-sm font-medium [&_p]:pb-1",
     labelText: "pl-1.5",
     error: "text-red-500 hidden text-xs font-normal pl-1.5",
-    inputWrapper: "flex mt-2 mb-1 relative",
+    inputWrapper: "flex relative",
     icon: clsx(
       "flex items-center cursor-pointer h-full absolute right-4 top-0 text-2xl",
       "text-yellow [&_path]:stroke-yellow [&_rect]:stroke-yellow"
@@ -29,7 +29,13 @@ const inputClassList = tv({
     hasError: {
       true: {
         field: "focus:!border-red-500",
+        inputWrapper: "mb-1",
         error: "block",
+      },
+    },
+    hasLabel: {
+      true: {
+        inputWrapper: "mt-2",
       },
     },
     hasIcon: {
@@ -144,6 +150,7 @@ export const Input = ({
   const classes = inputClassList({
     hasError: !!error,
     hasHint: !!hint,
+    hasLabel: !!label,
     hasIcon: iconMap.hasOwnProperty(variant),
     isSensitive: sensitive,
     theme: theme || "neutral",
