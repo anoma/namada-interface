@@ -8,7 +8,6 @@ import ValidatorName from "./ValidatorName";
 import ValidatorsTable from "./ValidatorsTable";
 
 type IncrementBondingTableProps = {
-  filter: string;
   validators: Validator[];
   selectedFiatCurrency: CurrencyType;
   selectedCurrencyExchangeRate: number;
@@ -18,7 +17,6 @@ type IncrementBondingTableProps = {
 };
 
 export const ReDelegateTable = ({
-  filter = "",
   validators,
   updatedAmountByAddress,
   stakedAmountByAddress,
@@ -153,7 +151,6 @@ export const ReDelegateTable = ({
         validatorList={validators}
         headers={headers}
         renderRow={renderRow}
-        filter={filter}
       />
     </div>
   );

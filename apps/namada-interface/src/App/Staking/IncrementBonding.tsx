@@ -4,6 +4,7 @@ import { ModalContainer } from "App/Common/ModalContainer";
 import NamCurrency from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { useStakeModule } from "hooks/useStakeModule";
+import useValidatorFilter from "hooks/useValidatorFilter";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
@@ -17,11 +18,12 @@ import { performBondAtom } from "slices/staking";
 import { allValidatorsAtom } from "slices/validators";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { IncrementBondingTable } from "./IncrementBondingTable";
-import { ValidatorSearch } from "./ValidatorSearch";
+import { ValidatorFilterNav } from "./ValidatorFilterNav";
 import StakingRoutes from "./routes";
 
 const IncrementBonding = (): JSX.Element => {
   const [filter, setFilter] = useState<string>("");
+  const [onlyMyValidators, setOnlyMyValidators] = useState(false);
   const navigate = useNavigate();
   const totalNamBalance = useAtomValue(totalNamBalanceAtom);
   const accounts = useAtomValue(transparentAccountsAtom);
@@ -45,6 +47,13 @@ const IncrementBonding = (): JSX.Element => {
     onChangeValidatorAmount,
     parseUpdatedAmounts,
   } = useStakeModule({ accounts });
+
+  const filteredValidators = useValidatorFilter({
+    validators: validators.isSuccess ? validators.data : [],
+    myValidatorsAddresses: Object.keys(stakedAmountByAddress),
+    searchTerm: filter,
+    onlyMyValidators,
+  });
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
 
@@ -144,14 +153,15 @@ const IncrementBonding = (): JSX.Element => {
             />
           </div>
           <Panel className="w-full rounded-md flex-1">
-            <div className="w-[30%]">
-              <ValidatorSearch onChange={(value: string) => setFilter(value)} />
-            </div>
+            <ValidatorFilterNav
+              onChangeSearch={(value: string) => setFilter(value)}
+              onlyMyValidators={onlyMyValidators}
+              onFilterByMyValidators={setOnlyMyValidators}
+            />
             {validators.isLoading && <TableRowLoading count={2} />}
             {validators.isSuccess && (
               <IncrementBondingTable
-                filter={filter}
-                validators={validators.data}
+                validators={filteredValidators}
                 onChangeValidatorAmount={onChangeValidatorAmount}
                 selectedCurrencyExchangeRate={selectedCurrencyRate}
                 selectedFiatCurrency={selectedFiatCurrency}
@@ -165,7 +175,9 @@ const IncrementBonding = (): JSX.Element => {
             size="sm"
             borderRadius="sm"
             className="mt-2 w-1/4 mx-auto"
-            disabled={!!errorMessage || isPerformingBond}
+            disabled={
+              !!errorMessage || isPerformingBond || totalUpdatedAmount.eq(0)
+            }
           >
             {isPerformingBond ? "Processing..." : errorMessage || "Stake"}
           </ActionButton>

@@ -15,10 +15,10 @@ export const ValidatorSearch = ({
   );
 
   return (
-    <div className="w-full text-neutral-500/50 flex mb-5 relative">
+    <div className="w-full text-neutral-500/50 flex relative">
       <i
         className={clsx(
-          "absolute text-sm left-3 top-5 z-20 pointer-events-none",
+          "absolute text-sm flex items-center left-3 top-0 h-full z-20 pointer-events-none",
           { "opacity-0": !displaySearchIcon }
         )}
       >
@@ -29,7 +29,7 @@ export const ValidatorSearch = ({
         placeholder="Search Validator"
         onChange={(e) => debouncedSearch.current(e.target.value)}
         className={clsx(
-          "w-full [&_input]:text-sm [&_input]:text-neutral-400 [&_input]:border-neutral-400 [&_input]:py-2.5",
+          "w-full [&_input]:text-sm [&_input]:text-neutral-400 [&_input]:border-neutral-400 [&_input]:py-[11px]",
           "[&_input]:pl-4 [&_input]:rounded-sm [&_input]:placeholder:text-center",
           "[&_input]:placeholder:text-neutral-400/50 [&_input]:placeholder:text-left [&_input]:placeholder:pl-6"
         )}

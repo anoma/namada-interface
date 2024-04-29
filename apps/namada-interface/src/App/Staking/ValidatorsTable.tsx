@@ -7,7 +7,6 @@ import { twMerge } from "tailwind-merge";
 type ValidatorsTableProps = {
   id: string;
   headers: (TableHeader | React.ReactNode)[];
-  filter: string;
   validatorList: Validator[];
   renderRow: (validator: Validator) => TableRow;
   resultsPerPage?: number;
@@ -15,20 +14,9 @@ type ValidatorsTableProps = {
   tableClassName?: string;
 };
 
-const filterValidators =
-  (search: string) =>
-  (validator: Validator): boolean => {
-    const preparedSearch = search.toLowerCase().trim();
-    return (
-      validator.address.toLowerCase().indexOf(preparedSearch) > -1 ||
-      validator.alias.toLowerCase().indexOf(preparedSearch) > -1
-    );
-  };
-
 const ValidatorsTable = ({
   id,
   headers,
-  filter,
   renderRow,
   validatorList,
   resultsPerPage = 20,
@@ -39,14 +27,13 @@ const ValidatorsTable = ({
 
   useEffect(() => {
     setPage(0);
-  }, [filter]);
+  }, [validatorList]);
 
-  const filteredValidators = validatorList.filter(filterValidators(filter));
-  const paginatedValidators = filteredValidators.slice(
+  const paginatedValidators = validatorList.slice(
     page * resultsPerPage,
     page * resultsPerPage + resultsPerPage
   );
-  const pageCount = Math.ceil(filteredValidators.length / resultsPerPage);
+  const pageCount = Math.ceil(validatorList.length / resultsPerPage);
 
   return (
     <>
