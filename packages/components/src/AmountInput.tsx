@@ -99,8 +99,8 @@ export const AmountInput: React.FC<Props> = ({
         ""
       : errorMessages[validateResult.error];
     setValidationError(error);
-
     setLastKnownValue(asBigNumber);
+    event.currentTarget.setCustomValidity(error);
     onChange?.({
       ...event,
       target: { ...event.target, value: asBigNumber },
