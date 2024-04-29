@@ -20,7 +20,6 @@ import { ThemeProvider } from "styled-components";
 import { AppLoader, MotionContainer } from "./App.components";
 import { Sidebar } from "./Common/Sidebar";
 import {
-  useOnAccountsChanged,
   useOnChainChanged,
   useOnNamadaExtensionAttached,
   useOnNamadaExtensionConnected,
@@ -49,7 +48,6 @@ export const AnimatedTransition = (props: {
 function App(): JSX.Element {
   useOnNamadaExtensionAttached();
   useOnNamadaExtensionConnected();
-  useOnAccountsChanged();
   useOnChainChanged();
 
   const dispatch = useAppDispatch();

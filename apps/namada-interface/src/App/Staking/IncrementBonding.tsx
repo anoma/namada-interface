@@ -23,7 +23,7 @@ import StakingRoutes from "./routes";
 const IncrementBonding = (): JSX.Element => {
   const [filter, setFilter] = useState<string>("");
   const navigate = useNavigate();
-  const totalNam = useAtomValue(totalNamBalanceAtom);
+  const totalNamBalance = useAtomValue(totalNamBalanceAtom);
   const accounts = useAtomValue(transparentAccountsAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
@@ -89,7 +89,8 @@ const IncrementBonding = (): JSX.Element => {
   }, [isSuccess]);
 
   const errorMessage = ((): string => {
-    if (totalNam.lt(totalUpdatedAmount)) return "Invalid amount";
+    if (totalNamBalance.isPending) return "Loading...";
+    if (totalNamBalance.data!.lt(totalUpdatedAmount)) return "Invalid amount";
     return "";
   })();
 
@@ -113,7 +114,7 @@ const IncrementBonding = (): JSX.Element => {
             title="Available to Stake"
             selectedFiatCurrency={selectedFiatCurrency}
             fiatExchangeRate={selectedCurrencyRate}
-            amountInNam={totalNam}
+            amountInNam={totalNamBalance.data ?? 0}
             updatedAmountInNam={totalNamAfterStaking}
             extraContent={
               <>

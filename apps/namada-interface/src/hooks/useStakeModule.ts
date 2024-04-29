@@ -13,7 +13,7 @@ type UseStakeModuleProps = {
 
 //eslint-disable-next-line
 export const useStakeModule = ({ accounts }: UseStakeModuleProps) => {
-  const totalNam = useAtomValue(totalNamBalanceAtom);
+  const totalNam = useAtomValue(totalNamBalanceAtom).data || BigNumber(0);
   const myValidators = useAtomValue(myValidatorsAtom);
 
   const [stakedAmountByAddress, setStakedAmountsByAddress] = useState<
