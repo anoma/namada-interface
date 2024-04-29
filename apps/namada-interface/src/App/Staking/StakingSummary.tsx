@@ -26,12 +26,12 @@ export const StakingSummary = (): JSX.Element => {
   const availableBalance = useAtomValue(totalNamBalanceAtom);
 
   const getPiechartData = (): Array<PieChartData> => {
-    if (!totalStakedBalance.isSuccess) {
+    if (!totalStakedBalance.isSuccess || !availableBalance.isSuccess) {
       return [];
     }
 
     return [
-      { value: availableBalance, color: "#ffffff" },
+      { value: availableBalance.data, color: "#ffffff" },
       { value: totalStakedBalance.data.totalBonded, color: "#ffff00" },
       { value: totalStakedBalance.data.totalUnbonded, color: "#DD1599" },
     ];
@@ -80,10 +80,10 @@ export const StakingSummary = (): JSX.Element => {
         <AmountSummaryCard
           logoElement={<Image imageName="LogoMinimal" />}
           title="Available NAM to Stake"
-          isLoading={totalStakedBalance.isPending}
+          isLoading={totalStakedBalance.isPending || availableBalance.isPending}
           mainAmount={
             <Currency
-              amount={availableBalance}
+              amount={availableBalance.data ?? 0}
               className="block leading-none"
               currency="nam"
               spaceAroundSign={true}

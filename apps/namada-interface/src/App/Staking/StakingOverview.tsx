@@ -6,7 +6,7 @@ import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification"
 import { YourStakingDistribution } from "App/Sidebars/YourStakingDistribution";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
-import { fetchBalancesAtom, transparentAccountsAtom } from "slices/accounts";
+import { balancesAtom, transparentAccountsAtom } from "slices/accounts";
 import {
   dispatchToastNotificationAtom,
   filterToastNotificationsAtom,
@@ -31,11 +31,11 @@ export type ValidatorsCallbacks = {
 export const StakingOverview = (): JSX.Element => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const accounts = useAtomValue(transparentAccountsAtom);
-  const fetchBalances = useSetAtom(fetchBalancesAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
   const hasStaking = isConnected && myValidators.data?.length > 0;
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const dismissNotifications = useSetAtom(filterToastNotificationsAtom);
+  useAtomValue(balancesAtom);
 
   useEventListener(Events.UpdatedStaking, () => {
     //TODO: Find a way to dismiss notifications by their id
@@ -58,7 +58,6 @@ export const StakingOverview = (): JSX.Element => {
   useEffect(() => {
     if (isConnected && accounts.length > 0) {
       myValidators.refetch();
-      fetchBalances();
     }
   }, [isConnected, accounts]);
 

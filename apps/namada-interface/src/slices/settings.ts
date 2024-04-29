@@ -37,8 +37,16 @@ export default reducer;
 // JOTAI
 ////////////////////////////////////////////////////////////////////////////////
 
-const namadaExtensionConnectedAtom = atom(false);
-const selectedCurrencyAtom = atom<CurrencyType>("usd");
-const hideBalancesAtom = atom(false);
-
-export { hideBalancesAtom, namadaExtensionConnectedAtom, selectedCurrencyAtom };
+export const namadaExtensionConnectedAtom = atom(false);
+export const selectedCurrencyAtom = atom<CurrencyType>("usd");
+export const hideBalancesAtom = atom(false);
+export const connectedChainsAtom = atom<ChainKey[]>([]);
+export const addConnectedChainAtom = atom(null, (get, set, chain: ChainKey) => {
+  const connectedChains = get(connectedChainsAtom);
+  set(
+    connectedChainsAtom,
+    connectedChains.includes(chain) ? connectedChains : (
+      [...connectedChains, chain]
+    )
+  );
+});

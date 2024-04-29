@@ -1,9 +1,3 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import BigNumber from "bignumber.js";
-import { atom } from "jotai";
-
-import { getSdk } from "@heliax/namada-sdk/web";
-import init from "@heliax/namada-sdk/web-init";
 import { chains } from "@namada/chains";
 import { getIntegration } from "@namada/integrations";
 import {
@@ -13,8 +7,12 @@ import {
   TokenBalances,
   TokenType,
 } from "@namada/types";
-
+import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import BigNumber from "bignumber.js";
+import { atom } from "jotai";
+import { atomWithQuery } from "jotai-tanstack-query";
 import { chainAtom } from "slices/chain";
+
 import { RootState } from "store";
 
 const {
@@ -49,18 +47,6 @@ enum AccountsThunkActions {
 }
 
 const initialState: AccountsState = INITIAL_STATE;
-
-export const fetchBalances = createAsyncThunk<void, void, { state: RootState }>(
-  `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalances}`,
-  async (_, thunkApi) => {
-    const { id } = chains.namada;
-    const accounts: Account[] = Object.values(
-      thunkApi.getState().accounts.derived[id]
-    );
-
-    accounts.forEach((account) => thunkApi.dispatch(fetchBalance(account)));
-  }
-);
 
 // TODO: fetchBalance is broken for integrations other than Namada. This
 // function should be removed and new code should use the jotai atoms instead.
@@ -182,6 +168,13 @@ export default reducer;
 ////////////////////////////////////////////////////////////////////////////////
 export const accountsAtom = atom<readonly AccountDetails[]>([]);
 
+export const addAccountsAtom = atom(
+  null,
+  (_get, set, accounts: readonly AccountDetails[]) => {
+    set(accountsAtom, accounts);
+  }
+);
+
 export const transparentAccountsAtom = atom<readonly AccountDetails[]>((get) =>
   get(accountsAtom).filter((account) => !account.isShielded)
 );
@@ -206,49 +199,55 @@ export const fetchAccountsAtom = atom(
   }
 );
 
-export const balancesAtom = atom<Record<Address, Balance>>({});
-export const totalNamBalanceAtom = atom<BigNumber>((get) => {
+export const totalNamBalanceAtom = atomWithQuery<BigNumber>((get) => {
   const balances = get(balancesAtom);
-  return Object.values(balances).reduce(
-    (prev, current) => prev.plus(current["NAM"] || 0),
-    new BigNumber(0)
-  );
+  return {
+    enabled: balances.isSuccess,
+    queryKey: ["totalNamBalance", balances.dataUpdatedAt],
+    queryFn: () => {
+      return Object.values(balances.data!).reduce(
+        (prev, current) => prev.plus(current["NAM"] || 0),
+        new BigNumber(0)
+      );
+    },
+  };
 });
 
-export const refreshBalancesAtom = atom(null, (_get, set) => {
-  set(balancesAtom, {});
-});
-
-export const fetchBalancesAtom = atom(null, async (get, set) => {
+export const balancesAtom = atomWithQuery<Record<Address, Balance>>((get) => {
   const namada = getIntegration("namada");
   const {
     currency: { address: nativeToken },
   } = get(chainAtom);
-
+  const token = nativeToken || tokenAddress;
   const shieldedAccounts = get(shieldedAccountsAtom);
   const transparentAccounts = get(transparentAccountsAtom);
-  const token = nativeToken || tokenAddress;
 
-  // We query the balances for the transparent accounts first as it's faster
-  const transparentBalances = await Promise.all(
-    queryBalance(namada, transparentAccounts, token)
-  );
+  return {
+    enabled: !!token && transparentAccounts.length > 0,
+    queryKey: ["balances", nativeToken],
+    queryFn: async () => {
+      // We query the balances for the transparent accounts first as it's faster
+      const transparentBalances = await Promise.all(
+        queryBalance(namada, transparentAccounts, token)
+      );
 
-  let balances = {};
-  transparentBalances.forEach(([address, balance]) => {
-    balances = { ...balances, [address]: balance };
-  });
+      let balances = {};
+      transparentBalances.forEach(([address, balance]) => {
+        balances = { ...balances, [address]: balance };
+      });
 
-  // await namada.sync();
-  const shieldedBalances = await Promise.all(
-    queryBalance(namada, shieldedAccounts, token)
-  );
+      // await namada.sync();
+      const shieldedBalances = await Promise.all(
+        queryBalance(namada, shieldedAccounts, token)
+      );
 
-  shieldedBalances.forEach(([address, balance]) => {
-    balances = { ...balances, [address]: balance };
-  });
+      shieldedBalances.forEach(([address, balance]) => {
+        balances = { ...balances, [address]: balance };
+      });
 
-  set(balancesAtom, balances);
+      return balances;
+    },
+  };
 });
 
 const queryBalance = (

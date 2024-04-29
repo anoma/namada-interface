@@ -5,8 +5,9 @@ import { Intro } from "App/Common/Intro";
 import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
 import StakingRoutes from "App/Staking/routes";
 import clsx from "clsx";
+import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
-import { AccountsState } from "slices/accounts";
+import { accountsAtom } from "slices/accounts";
 import { useAppSelector } from "store";
 
 //TODO: move to utils when we have one
@@ -18,7 +19,7 @@ export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
   const chain = useAppSelector<Chain>((state) => state.chain.config);
 
-  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const accounts = useAtomValue(accountsAtom);
 
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
@@ -28,7 +29,7 @@ export const AccountOverview = (): JSX.Element => {
     currentExtensionAttachStatus === "attached" ||
     currentExtensionAttachStatus === "pending";
 
-  const isConnected = !isEmptyObject(derived[chain.id]);
+  const isConnected = accounts.length > 0;
 
   return (
     <Stack gap={4} direction="horizontal" className="w-full">

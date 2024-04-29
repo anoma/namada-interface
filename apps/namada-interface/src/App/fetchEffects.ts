@@ -1,5 +1,4 @@
 import { useAtomValue, useSetAtom } from "jotai";
-import { loadable } from "jotai/utils";
 
 import { useEffectSkipFirstRender } from "@namada/hooks";
 import {
@@ -9,11 +8,7 @@ import {
 } from "@namada/integrations";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 
-import {
-  accountsAtom,
-  refreshAccountsAtom,
-  refreshBalancesAtom,
-} from "slices/accounts";
+import { refreshAccountsAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
 import { isRevealPkNeededAtom, minimumGasPriceAtom } from "slices/fees";
 
@@ -55,18 +50,4 @@ export const useOnNamadaExtensionConnected = (): void => {
       refreshAccounts();
     }
   }, [connected]);
-};
-
-export const useOnAccountsChanged = (): void => {
-  const accountsLoadable = useAtomValue(loadable(accountsAtom));
-
-  const refreshBalances = useSetAtom(refreshBalancesAtom);
-  const refreshPublicKeys = useSetAtom(isRevealPkNeededAtom);
-
-  useEffectSkipFirstRender(() => {
-    if (accountsLoadable.state === "hasData") {
-      refreshBalances();
-      refreshPublicKeys();
-    }
-  }, [accountsLoadable]);
 };

@@ -5,7 +5,6 @@ import { createTransform, persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import thunk from "redux-thunk";
 import {
-  accountsReducer,
   chainReducer,
   channelsReducer,
   proposalsReducers,
@@ -34,7 +33,6 @@ const ChainIdTransform = createTransform(
 );
 
 const reducers = combineReducers({
-  accounts: accountsReducer || {},
   chain: chainReducer,
   channels: channelsReducer,
   settings: settingsReducer,
