@@ -7,7 +7,8 @@ import StakingRoutes from "App/Staking/routes";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
-import { accountsAtom } from "slices/accounts";
+import { accountsAtom, totalNamBalanceAtom } from "slices/accounts";
+import { selectedCurrencyRateAtom } from "slices/exchangeRates";
 import { useAppSelector } from "store";
 
 //TODO: move to utils when we have one
@@ -20,6 +21,8 @@ export const AccountOverview = (): JSX.Element => {
   const chain = useAppSelector<Chain>((state) => state.chain.config);
 
   const accounts = useAtomValue(accountsAtom);
+  const totalBalance = useAtomValue(totalNamBalanceAtom);
+  const exchangeRate = useAtomValue(selectedCurrencyRateAtom);
 
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
@@ -42,7 +45,7 @@ export const AccountOverview = (): JSX.Element => {
             />
           </div>
         )}
-        {isConnected && (
+        {isConnected && totalBalance.isSuccess && (
           <Stack gap={5} className="my-auto min-w-[365px] mx-auto">
             <div
               className={clsx(
@@ -54,7 +57,7 @@ export const AccountOverview = (): JSX.Element => {
                 NAM Balance
               </Heading>
               <Currency
-                amount={354.45}
+                amount={totalBalance.data}
                 currency="nam"
                 currencyPosition="right"
                 className="text-5xl text-white font-medium"
@@ -62,7 +65,7 @@ export const AccountOverview = (): JSX.Element => {
               />
               <Currency
                 className="text-xl font-medium"
-                amount={21.34}
+                amount={totalBalance.data.multipliedBy(exchangeRate)}
                 currency="usd"
               />
             </div>

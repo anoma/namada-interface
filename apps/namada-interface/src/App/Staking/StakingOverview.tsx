@@ -1,16 +1,10 @@
 import { Panel } from "@namada/components";
-import { useEventListener } from "@namada/hooks";
-import { Events } from "@namada/types";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification";
 import { YourStakingDistribution } from "App/Sidebars/YourStakingDistribution";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { balancesAtom, transparentAccountsAtom } from "slices/accounts";
-import {
-  dispatchToastNotificationAtom,
-  filterToastNotificationsAtom,
-} from "slices/notifications";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import { myValidatorsAtom } from "slices/validators";
 import { AllValidatorsTable } from "./AllValidatorsTable";
@@ -33,27 +27,7 @@ export const StakingOverview = (): JSX.Element => {
   const accounts = useAtomValue(transparentAccountsAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
   const hasStaking = isConnected && myValidators.data?.length > 0;
-  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
-  const dismissNotifications = useSetAtom(filterToastNotificationsAtom);
   useAtomValue(balancesAtom);
-
-  useEventListener(Events.UpdatedStaking, () => {
-    //TODO: Find a way to dismiss notifications by their id
-    dismissNotifications(
-      ({ data }) =>
-        !(data.type === "pending" && data.id.indexOf("staking") >= 0)
-    );
-
-    dispatchNotification(
-      {
-        id: "staking-success",
-        type: "success",
-        title: "Transaction processed successfully!",
-        description: "",
-      },
-      { timeout: 5000 }
-    );
-  });
 
   useEffect(() => {
     if (isConnected && accounts.length > 0) {
