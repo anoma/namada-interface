@@ -1,16 +1,8 @@
-import { createContext } from "react";
-
 import { useEventListenerOnce } from "@namada/hooks";
 import { Namada, useIntegration } from "@namada/integrations";
 import { Events, KeplrEvents, MetamaskEvents } from "@namada/types";
-
-import { useAppDispatch } from "store";
-import {
-  NamadaConnectionRevokedHandler,
-  NamadaProposalsUpdatedHandler,
-} from "./handlers";
-
 import { useAtomValue, useSetAtom } from "jotai";
+import { createContext } from "react";
 import {
   addAccountsAtom,
   balancesAtom,
@@ -18,8 +10,17 @@ import {
 } from "slices/accounts";
 import { chainAtom } from "slices/chain";
 import { isRevealPkNeededAtom } from "slices/fees";
+import {
+  dispatchToastNotificationAtom,
+  filterToastNotificationsAtom,
+} from "slices/notifications";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import { myValidatorsAtom } from "slices/validators";
+import { useAppDispatch } from "store";
+import {
+  NamadaConnectionRevokedHandler,
+  NamadaProposalsUpdatedHandler,
+} from "./handlers";
 
 export const ExtensionEventsContext = createContext({});
 
@@ -35,9 +36,10 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const refreshChain = useSetAtom(chainAtom);
   const refreshPublicKeys = useSetAtom(isRevealPkNeededAtom);
   const setNamadaExtensionConnected = useSetAtom(namadaExtensionConnectedAtom);
+  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
+  const dismissNotifications = useSetAtom(filterToastNotificationsAtom);
 
   // Instantiate handlers:
-
   const namadaProposalsUpdatedHandler = NamadaProposalsUpdatedHandler(dispatch);
   const namadaConnectionRevokedHandler = NamadaConnectionRevokedHandler(
     namadaIntegration as Namada,
@@ -61,6 +63,23 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
 
   useEventListenerOnce(Events.UpdatedStaking, () => {
     myValidators.refetch();
+
+    //TODO: Find a way to dismiss notifications by their id
+    dismissNotifications(
+      ({ data }) =>
+        !(data.type === "pending" && data.id.indexOf("staking") >= 0)
+    );
+
+    dispatchNotification(
+      {
+        id: "staking-success",
+        type: "success",
+        title: "Transaction processed successfully!",
+        description:
+          "Your staking transaction has been processed and your balance has been updated",
+      },
+      { timeout: 5000 }
+    );
   });
 
   useEventListenerOnce(Events.NetworkChanged, () => {
