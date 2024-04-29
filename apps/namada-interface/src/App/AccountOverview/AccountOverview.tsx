@@ -1,4 +1,10 @@
-import { ActionButton, Currency, Heading, Stack } from "@namada/components";
+import {
+  ActionButton,
+  Currency,
+  Heading,
+  SkeletonLoading,
+  Stack,
+} from "@namada/components";
 import { useUntilIntegrationAttached } from "@namada/integrations";
 import { Chain } from "@namada/types";
 import { Intro } from "App/Common/Intro";
@@ -10,11 +16,6 @@ import { useNavigate } from "react-router-dom";
 import { accountsAtom, totalNamBalanceAtom } from "slices/accounts";
 import { selectedCurrencyRateAtom } from "slices/exchangeRates";
 import { useAppSelector } from "store";
-
-//TODO: move to utils when we have one
-const isEmptyObject = (object: Record<string, unknown>): boolean => {
-  return object ? Object.keys(object).length === 0 : true;
-};
 
 export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
@@ -45,30 +46,40 @@ export const AccountOverview = (): JSX.Element => {
             />
           </div>
         )}
-        {isConnected && totalBalance.isSuccess && (
+
+        {isConnected && (
           <Stack gap={5} className="my-auto min-w-[365px] mx-auto">
-            <div
-              className={clsx(
-                "relative flex flex-col leading-tight w-full aspect-square rounded-full border-[27px] border-yellow",
-                "items-center justify-center text-center text-neutral-400"
-              )}
-            >
-              <Heading level="h3" className="text-xl neutral-600">
-                NAM Balance
-              </Heading>
-              <Currency
-                amount={totalBalance.data}
-                currency="nam"
-                currencyPosition="right"
-                className="text-5xl text-white font-medium"
-                currencySignClassName="text-xl ml-2"
+            {totalBalance.isSuccess && (
+              <div
+                className={clsx(
+                  "relative flex flex-col leading-tight w-full aspect-square rounded-full border-[27px] border-yellow",
+                  "items-center justify-center text-center text-neutral-400"
+                )}
+              >
+                <Heading level="h3" className="text-xl neutral-600">
+                  NAM Balance
+                </Heading>
+                <Currency
+                  amount={totalBalance.data}
+                  currency="nam"
+                  currencyPosition="right"
+                  className="text-5xl text-white font-medium"
+                  currencySignClassName="text-xl ml-2"
+                />
+                <Currency
+                  className="text-xl font-medium"
+                  amount={totalBalance.data.multipliedBy(exchangeRate)}
+                  currency="usd"
+                />
+              </div>
+            )}
+            {totalBalance.isPending && (
+              <SkeletonLoading
+                width="100%"
+                height="auto"
+                className="aspect-square mx-auto rounded-full bg-transparent border-[27px] border-neutral-800"
               />
-              <Currency
-                className="text-xl font-medium"
-                amount={totalBalance.data.multipliedBy(exchangeRate)}
-                currency="usd"
-              />
-            </div>
+            )}
             <footer className="text-center">
               <Heading
                 level="h3"
