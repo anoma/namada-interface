@@ -1,14 +1,20 @@
 import { ActionButton, Alert, Modal, Panel, Stack } from "@namada/components";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
+import NamCurrency from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import BigNumber from "bignumber.js";
 import { useStakeModule } from "hooks/useStakeModule";
-import { useAtomValue } from "jotai";
+import invariant from "invariant";
+import { useAtomValue, useSetAtom } from "jotai";
+import { FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { transparentAccountsAtom } from "slices/accounts";
 import { selectedCurrencyRateAtom } from "slices/exchangeRates";
+import { GAS_LIMIT, minimumGasPriceAtom } from "slices/fees";
+import { dispatchToastNotificationAtom } from "slices/notifications";
 import { selectedCurrencyAtom } from "slices/settings";
+import { performUnbondAtom } from "slices/staking";
 import { MyValidator, myValidatorsAtom } from "slices/validators";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { UnstakeBondingTable } from "./UnstakeBondingTable";
@@ -20,7 +26,16 @@ const Unstake = (): JSX.Element => {
   const validators = useAtomValue(myValidatorsAtom);
   const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
   const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
+  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
+  const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
   const {
+    mutate: performUnbond,
+    isPending: isPerformingUnbond,
+    isSuccess,
+  } = useAtomValue(performUnbondAtom);
+
+  const {
+    parseUpdatedAmounts,
     totalStakedAmount,
     stakedAmountByAddress,
     updatedAmountByAddress,
@@ -40,12 +55,49 @@ const Unstake = (): JSX.Element => {
     );
   };
 
-  const getValidationMessage = (): string => {
-    if (totalStakedAmount.lt(totalUpdatedAmount)) return "Invalid amount";
-    return "";
+  const onSubmit = (e: FormEvent): void => {
+    e.preventDefault();
+    invariant(
+      accounts.length > 0,
+      "Extension is not connected or you don't have an account"
+    );
+    invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
+    performUnbond({
+      changes: parseUpdatedAmounts(),
+      account: accounts[0],
+      gasConfig: {
+        gasPrice: minimumGasPrice.data!,
+        gasLimit: GAS_LIMIT,
+      },
+    });
   };
 
-  const validationMessage = getValidationMessage();
+  const dispatchPendingNotification = (): void => {
+    dispatchNotification({
+      id: "unstaking",
+      title: "Unstake transaction in progress",
+      description: (
+        <>
+          You&apos;ve unstaked&nbsp;
+          <NamCurrency amount={totalUpdatedAmount} /> and the transaction is
+          being processed
+        </>
+      ),
+      type: "pending",
+    });
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      dispatchPendingNotification();
+      onCloseModal();
+    }
+  }, [isSuccess]);
+
+  const validationMessage = ((): string => {
+    if (totalStakedAmount.lt(totalUpdatedAmount)) return "Invalid amount";
+    return "";
+  })();
 
   return (
     <Modal onClose={onCloseModal}>
@@ -62,80 +114,84 @@ const Unstake = (): JSX.Element => {
         }
         onClose={onCloseModal}
       >
-        <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
-          <BondingAmountOverview
-            title="Amount of NAM to Unstake"
-            selectedFiatCurrency={selectedFiatCurrency}
-            fiatExchangeRate={selectedCurrencyRate}
-            amountInNam={0}
-            updatedAmountInNam={totalUpdatedAmount}
-            updatedValueClassList="text-pink"
-            extraContent={
-              <>
-                <Alert
-                  type="removal"
-                  className="absolute py-3 right-3 top-4 max-w-[50%] text-xs rounded-sm"
-                >
-                  <ul className="list-disc pl-4">
-                    <li className="mb-1">
-                      You will not receive staking rewards
-                    </li>
-                    <li>It will take 21 days for the amount to be liquid</li>
-                  </ul>
-                </Alert>
-              </>
-            }
-          />
-          <BondingAmountOverview
-            title="Current Stake"
-            selectedFiatCurrency={selectedFiatCurrency}
-            fiatExchangeRate={selectedCurrencyRate}
-            amountInNam={totalStakedAmount}
-          />
-          <Panel>
-            <Stack gap={2} className="leading-none">
-              <h3 className="text-sm">Unbonding period</h3>
-              <div className="text-xl">21 Days</div>
-              <p className="text-xs">
-                Once this period has elapsed, you may access your assets in the
-                main dashboard
-              </p>
-            </Stack>
-          </Panel>
-        </div>
-        <Panel className="w-full rounded-md flex-1">
-          {validators.data && (
-            <ActionButton
-              className="inline-flex w-auto leading-none px-4 py-3 mb-4"
-              color="magenta"
-              borderRadius="sm"
-              outlined
-              onClick={onUnbondAll}
-            >
-              Unbond All
-            </ActionButton>
-          )}
-          {validators.isLoading && <TableRowLoading count={2} />}
-          {validators.isSuccess && (
-            <UnstakeBondingTable
-              myValidators={validators.data}
-              onChangeValidatorAmount={onChangeValidatorAmount}
-              selectedCurrencyExchangeRate={selectedCurrencyRate}
+        <form className="flex flex-col gap-2" onSubmit={onSubmit}>
+          <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
+            <BondingAmountOverview
+              title="Amount of NAM to Unstake"
               selectedFiatCurrency={selectedFiatCurrency}
-              updatedAmountByAddress={updatedAmountByAddress}
-              stakedAmountByAddress={stakedAmountByAddress}
+              fiatExchangeRate={selectedCurrencyRate}
+              amountInNam={0}
+              updatedAmountInNam={totalUpdatedAmount}
+              updatedValueClassList="text-pink"
+              extraContent={
+                <>
+                  <Alert
+                    type="removal"
+                    className="absolute py-3 right-3 top-4 max-w-[50%] text-xs rounded-sm"
+                  >
+                    <ul className="list-disc pl-4">
+                      <li className="mb-1">
+                        You will not receive staking rewards
+                      </li>
+                      <li>It will take 21 days for the amount to be liquid</li>
+                    </ul>
+                  </Alert>
+                </>
+              }
             />
-          )}
-        </Panel>
-        <ActionButton
-          size="sm"
-          color="white"
-          borderRadius="sm"
-          className="mt-2 w-1/4 mx-auto"
-          disabled={!!validationMessage}
-        >
-          {validationMessage || "Unstake"}
-        </ActionButton>
+            <BondingAmountOverview
+              title="Current Stake"
+              selectedFiatCurrency={selectedFiatCurrency}
+              fiatExchangeRate={selectedCurrencyRate}
+              amountInNam={totalStakedAmount}
+            />
+            <Panel className="rounded-md">
+              <Stack gap={2} className="leading-none">
+                <h3 className="text-sm">Unbonding period</h3>
+                <div className="text-xl">21 Days</div>
+                <p className="text-xs">
+                  Once this period has elapsed, you may access your assets in
+                  the main dashboard
+                </p>
+              </Stack>
+            </Panel>
+          </div>
+          <Panel className="w-full rounded-md flex-1">
+            {validators.data && (
+              <ActionButton
+                className="inline-flex w-auto leading-none px-4 py-3 mb-4"
+                color="magenta"
+                borderRadius="sm"
+                outlined
+                onClick={onUnbondAll}
+              >
+                Unbond All
+              </ActionButton>
+            )}
+            {validators.isLoading && <TableRowLoading count={2} />}
+            {validators.isSuccess && (
+              <UnstakeBondingTable
+                myValidators={validators.data}
+                onChangeValidatorAmount={onChangeValidatorAmount}
+                selectedCurrencyExchangeRate={selectedCurrencyRate}
+                selectedFiatCurrency={selectedFiatCurrency}
+                updatedAmountByAddress={updatedAmountByAddress}
+                stakedAmountByAddress={stakedAmountByAddress}
+              />
+            )}
+          </Panel>
+          <ActionButton
+            size="sm"
+            color="white"
+            borderRadius="sm"
+            className="mt-2 w-1/4 mx-auto"
+            disabled={!!validationMessage || isPerformingUnbond}
+          >
+            {isPerformingUnbond ?
+              "Processing..."
+            : validationMessage || "Unstake"}
+          </ActionButton>
+        </form>
       </ModalContainer>
     </Modal>
   );

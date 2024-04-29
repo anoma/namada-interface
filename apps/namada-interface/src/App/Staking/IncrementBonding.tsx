@@ -3,8 +3,8 @@ import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import NamCurrency from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
-import { invariant } from "framer-motion";
 import { useStakeModule } from "hooks/useStakeModule";
+import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +14,7 @@ import { GAS_LIMIT, minimumGasPriceAtom } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
 import { selectedCurrencyAtom } from "slices/settings";
 import { performBondAtom } from "slices/staking";
-import { allValidatorsAtom, myValidatorsAtom } from "slices/validators";
+import { allValidatorsAtom } from "slices/validators";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { IncrementBondingTable } from "./IncrementBondingTable";
 import { ValidatorSearch } from "./ValidatorSearch";
@@ -26,7 +26,6 @@ const IncrementBonding = (): JSX.Element => {
   const totalNamBalance = useAtomValue(totalNamBalanceAtom);
   const accounts = useAtomValue(transparentAccountsAtom);
   const validators = useAtomValue(allValidatorsAtom);
-  const myValidators = useAtomValue(myValidatorsAtom);
   const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
   const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
@@ -83,7 +82,6 @@ const IncrementBonding = (): JSX.Element => {
   useEffect(() => {
     if (isSuccess) {
       dispatchPendingNotification();
-      myValidators.refetch();
       onCloseModal();
     }
   }, [isSuccess]);
