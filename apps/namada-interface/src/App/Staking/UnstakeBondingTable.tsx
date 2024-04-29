@@ -1,5 +1,6 @@
-import { AmountInput, Currency, TableRow } from "@namada/components";
-import { CurrencyType, formatPercentage } from "@namada/utils";
+import { AmountInput, TableRow } from "@namada/components";
+import { formatPercentage } from "@namada/utils";
+import NamCurrency from "App/Common/NamCurrency";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { MyValidator, Validator } from "slices/validators";
@@ -9,8 +10,6 @@ import ValidatorsTable from "./ValidatorsTable";
 
 type UnstakeBondingTableProps = {
   myValidators: MyValidator[];
-  selectedFiatCurrency: CurrencyType;
-  selectedCurrencyExchangeRate: number;
   updatedAmountByAddress: Record<string, BigNumber>;
   stakedAmountByAddress: Record<string, BigNumber>;
   onChangeValidatorAmount: (validator: Validator, amount: BigNumber) => void;
@@ -86,22 +85,12 @@ export const UnstakeBondingTable = ({
           className="text-right leading-tight"
         >
           <span className="block text-white">
-            <Currency
-              amount={stakedAmount}
-              currencyPosition="right"
-              spaceAroundSign={true}
-              currency="nam"
-            />
+            <NamCurrency amount={stakedAmount} />
           </span>
           {hasNewAmounts && (
             <span className="text-orange text-sm">
               =
-              <Currency
-                amount={stakedAmount.minus(amountToUnstake)}
-                currencyPosition="right"
-                spaceAroundSign={true}
-                currency="nam"
-              />
+              <NamCurrency amount={stakedAmount.minus(amountToUnstake)} />
             </span>
           )}
         </div>,
@@ -138,7 +127,6 @@ export const UnstakeBondingTable = ({
         validatorList={myValidators.map((mv) => mv.validator)}
         headers={headers}
         renderRow={renderRow}
-        filter=""
       />
     </div>
   );

@@ -1,30 +1,27 @@
 import {
   ActionButton,
-  Currency,
   Heading,
   SkeletonLoading,
   Stack,
 } from "@namada/components";
 import { useUntilIntegrationAttached } from "@namada/integrations";
 import { Chain } from "@namada/types";
+import FiatCurrency from "App/Common/FiatCurrency";
 import { Intro } from "App/Common/Intro";
+import NamCurrency from "App/Common/NamCurrency";
 import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
 import StakingRoutes from "App/Staking/routes";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
 import { accountsAtom, totalNamBalanceAtom } from "slices/accounts";
-import { selectedCurrencyRateAtom } from "slices/exchangeRates";
 import { useAppSelector } from "store";
 
 export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
   const chain = useAppSelector<Chain>((state) => state.chain.config);
-
   const accounts = useAtomValue(accountsAtom);
   const totalBalance = useAtomValue(totalNamBalanceAtom);
-  const exchangeRate = useAtomValue(selectedCurrencyRateAtom);
-
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
@@ -59,17 +56,14 @@ export const AccountOverview = (): JSX.Element => {
                 <Heading level="h3" className="text-xl neutral-600">
                   NAM Balance
                 </Heading>
-                <Currency
+                <NamCurrency
                   amount={totalBalance.data}
-                  currency="nam"
-                  currencyPosition="right"
                   className="text-5xl text-white font-medium"
                   currencySignClassName="text-xl ml-2"
                 />
-                <Currency
+                <FiatCurrency
+                  amountInNam={totalBalance.data}
                   className="text-xl font-medium"
-                  amount={totalBalance.data.multipliedBy(exchangeRate)}
-                  currency="usd"
                 />
               </div>
             )}

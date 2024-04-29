@@ -8,8 +8,6 @@ import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { transparentAccountsAtom } from "slices/accounts";
-import { selectedCurrencyRateAtom } from "slices/exchangeRates";
-import { selectedCurrencyAtom } from "slices/settings";
 import { allValidatorsAtom } from "slices/validators";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { ReDelegateTable } from "./ReDelegateTable";
@@ -22,8 +20,6 @@ const ReDelegate = (): JSX.Element => {
   const [onlyMyValidators, setOnlyMyValidators] = useState(false);
   const accounts = useAtomValue(transparentAccountsAtom);
   const validators = useAtomValue(allValidatorsAtom);
-  const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
-  const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
   const {
     totalStakedAmount,
     stakedAmountByAddress,
@@ -72,8 +68,6 @@ const ReDelegate = (): JSX.Element => {
         <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
           <BondingAmountOverview
             title="Available to re-delegate"
-            selectedFiatCurrency={selectedFiatCurrency}
-            fiatExchangeRate={selectedCurrencyRate}
             amountInNam={0}
             updatedAmountInNam={redelegateDisplayedAmount}
             updatedValueClassList="text-yellow"
@@ -90,8 +84,6 @@ const ReDelegate = (): JSX.Element => {
           />
           <BondingAmountOverview
             title="Current Stake"
-            selectedFiatCurrency={selectedFiatCurrency}
-            fiatExchangeRate={selectedCurrencyRate}
             amountInNam={totalStakedAmount}
           />
           <Panel className="flex items-center h-full justify-center">
@@ -118,8 +110,6 @@ const ReDelegate = (): JSX.Element => {
               updatedAmountByAddress={updatedAmountByAddress}
               stakedAmountByAddress={stakedAmountByAddress}
               onChangeValidatorAmount={onChangeValidatorAmount}
-              selectedFiatCurrency={selectedFiatCurrency}
-              selectedCurrencyExchangeRate={selectedCurrencyRate}
             />
           )}
         </Panel>

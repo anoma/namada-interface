@@ -10,10 +10,8 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { transparentAccountsAtom } from "slices/accounts";
-import { selectedCurrencyRateAtom } from "slices/exchangeRates";
 import { GAS_LIMIT, minimumGasPriceAtom } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
-import { selectedCurrencyAtom } from "slices/settings";
 import { performUnbondAtom } from "slices/staking";
 import { MyValidator, myValidatorsAtom } from "slices/validators";
 import { BondingAmountOverview } from "./BondingAmountOverview";
@@ -24,8 +22,6 @@ const Unstake = (): JSX.Element => {
   const navigate = useNavigate();
   const accounts = useAtomValue(transparentAccountsAtom);
   const validators = useAtomValue(myValidatorsAtom);
-  const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
-  const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
   const {
@@ -118,8 +114,6 @@ const Unstake = (): JSX.Element => {
           <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
             <BondingAmountOverview
               title="Amount of NAM to Unstake"
-              selectedFiatCurrency={selectedFiatCurrency}
-              fiatExchangeRate={selectedCurrencyRate}
               amountInNam={0}
               updatedAmountInNam={totalUpdatedAmount}
               updatedValueClassList="text-pink"
@@ -141,8 +135,6 @@ const Unstake = (): JSX.Element => {
             />
             <BondingAmountOverview
               title="Current Stake"
-              selectedFiatCurrency={selectedFiatCurrency}
-              fiatExchangeRate={selectedCurrencyRate}
               amountInNam={totalStakedAmount}
             />
             <Panel className="rounded-md">
@@ -174,8 +166,6 @@ const Unstake = (): JSX.Element => {
               <UnstakeBondingTable
                 myValidators={validators.data}
                 onChangeValidatorAmount={onChangeValidatorAmount}
-                selectedCurrencyExchangeRate={selectedCurrencyRate}
-                selectedFiatCurrency={selectedFiatCurrency}
                 updatedAmountByAddress={updatedAmountByAddress}
                 stakedAmountByAddress={stakedAmountByAddress}
               />

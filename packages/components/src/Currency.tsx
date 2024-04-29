@@ -3,6 +3,7 @@ import BigNumber from "bignumber.js";
 
 export type CurrencyProps = {
   amount: number | BigNumber;
+  hideBalances?: boolean;
   currency: keyof typeof KnownCurrencies;
   separator?: "." | "," | "";
   spaceAroundSign?: boolean;
@@ -15,6 +16,7 @@ export type CurrencyProps = {
 export const Currency = ({
   amount,
   currency,
+  hideBalances = false,
   currencyPosition = "left",
   separator = ".",
   className = "",
@@ -26,8 +28,9 @@ export const Currency = ({
 }: CurrencyProps): JSX.Element => {
   const currencyObj = KnownCurrencies[currency];
   const amountParts = BigNumber(amount).toString().split(".");
-  const baseAmount = amountParts[0] || "0";
-  const fraction = amountParts.length > 1 ? amountParts[1] : "";
+  const baseAmount = hideBalances ? "✳✳✳✳" : amountParts[0] || "0";
+  const fraction =
+    amountParts.length > 1 && !hideBalances ? amountParts[1] : "";
 
   const currencyHtml = (
     <span className={currencySignClassName}>
