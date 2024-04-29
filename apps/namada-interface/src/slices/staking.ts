@@ -97,12 +97,11 @@ export const performBondAtom = atomWithMutation((get) => {
       const chain = get(chainAtom);
       const integration = getIntegration(chain.id);
       const signer = integration.signer() as Signer;
-      const query = await signer.submitBond(
+      return await signer.submitBond(
         getStakingChangesParams(account, changes, chain),
         getTxProps(account, gasConfig, chain),
         account.type
       );
-      return query;
     },
   };
 });
