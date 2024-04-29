@@ -1,18 +1,16 @@
-import { ActionButton, Currency, TableRow } from "@namada/components";
+import { ActionButton, TableRow } from "@namada/components";
 import { formatPercentage, shortenAddress } from "@namada/utils";
+import FiatCurrency from "App/Common/FiatCurrency";
+import NamCurrency from "App/Common/NamCurrency";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
-import { selectedCurrencyRateAtom } from "slices/exchangeRates";
-import { selectedCurrencyAtom } from "slices/settings";
 import { MyValidator, Validator, myValidatorsAtom } from "slices/validators";
 import ValidatorsTable from "./ValidatorsTable";
 import StakingRoutes from "./routes";
 
 export const MyValidatorsTable = (): JSX.Element => {
   const navigate = useNavigate();
-  const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
-  const selectedFiatCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
   const myValidatorsObj: Record<string, MyValidator> =
     myValidators.isSuccess ?
@@ -66,15 +64,9 @@ export const MyValidatorsTable = (): JSX.Element => {
           key={`currency-${validator.uuid}`}
           className="text-right leading-tight"
         >
-          <Currency
-            currency="nam"
-            amount={stakedAmount || 0}
-            currencyPosition="right"
-            spaceAroundSign={true}
-          />
-          <Currency
-            currency={selectedFiatCurrency}
-            amount={stakedAmount?.multipliedBy(selectedFiatCurrencyRate) || 0}
+          <NamCurrency amount={stakedAmount || new BigNumber(0)} />
+          <FiatCurrency
+            amountInNam={stakedAmount || new BigNumber(0)}
             className="block text-sm text-neutral-600"
           />
         </div>,
@@ -130,7 +122,6 @@ export const MyValidatorsTable = (): JSX.Element => {
         }
         headers={head}
         renderRow={renderRow}
-        filter=""
       />
     </>
   );

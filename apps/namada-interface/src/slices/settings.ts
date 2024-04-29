@@ -3,6 +3,7 @@ import { CurrencyType } from "@namada/utils";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { atom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
 const SETTINGS_ACTIONS_BASE = "settings";
 
@@ -39,7 +40,10 @@ export default reducer;
 
 export const namadaExtensionConnectedAtom = atom(false);
 export const selectedCurrencyAtom = atom<CurrencyType>("usd");
-export const hideBalancesAtom = atom(false);
+export const hideBalancesAtom = atomWithStorage(
+  "namadillo:hideBalances",
+  false
+);
 export const connectedChainsAtom = atom<ChainKey[]>([]);
 export const addConnectedChainAtom = atom(null, (get, set, chain: ChainKey) => {
   const connectedChains = get(connectedChainsAtom);
