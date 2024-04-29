@@ -1,5 +1,6 @@
-import { AmountInput, Currency, TableRow } from "@namada/components";
-import { CurrencyType, formatPercentage } from "@namada/utils";
+import { AmountInput, TableRow } from "@namada/components";
+import { formatPercentage } from "@namada/utils";
+import NamCurrency from "App/Common/NamCurrency";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { Validator } from "slices/validators";
@@ -9,8 +10,6 @@ import ValidatorsTable from "./ValidatorsTable";
 
 type IncrementBondingTableProps = {
   validators: Validator[];
-  selectedFiatCurrency: CurrencyType;
-  selectedCurrencyExchangeRate: number;
   updatedAmountByAddress: Record<string, BigNumber>;
   stakedAmountByAddress: Record<string, BigNumber>;
   onChangeValidatorAmount: (validator: Validator, amount: BigNumber) => void;
@@ -94,12 +93,7 @@ export const IncrementBondingTable = ({
               className="text-right leading-tight"
             >
               <span className="block">
-                <Currency
-                  currency="nam"
-                  amount={stakedAmount ?? 0}
-                  currencyPosition="right"
-                  spaceAroundSign={true}
-                />
+                <NamCurrency amount={stakedAmount ?? 0} />
               </span>
               {hasNewAmounts && (
                 <span
@@ -108,12 +102,7 @@ export const IncrementBondingTable = ({
                   })}
                 >
                   {amountToStake.gt(0) && "="}
-                  <Currency
-                    currency="nam"
-                    amount={amountToStake.plus(stakedAmount)}
-                    currencyPosition="right"
-                    spaceAroundSign={true}
-                  />
+                  <NamCurrency amount={amountToStake.plus(stakedAmount)} />
                 </span>
               )}
             </div>

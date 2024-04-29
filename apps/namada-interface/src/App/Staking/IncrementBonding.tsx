@@ -10,10 +10,8 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { totalNamBalanceAtom, transparentAccountsAtom } from "slices/accounts";
-import { selectedCurrencyRateAtom } from "slices/exchangeRates";
 import { GAS_LIMIT, minimumGasPriceAtom } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
-import { selectedCurrencyAtom } from "slices/settings";
 import { performBondAtom } from "slices/staking";
 import { allValidatorsAtom } from "slices/validators";
 import { BondingAmountOverview } from "./BondingAmountOverview";
@@ -28,8 +26,6 @@ const IncrementBonding = (): JSX.Element => {
   const totalNamBalance = useAtomValue(totalNamBalanceAtom);
   const accounts = useAtomValue(transparentAccountsAtom);
   const validators = useAtomValue(allValidatorsAtom);
-  const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
-  const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
   const {
@@ -120,8 +116,6 @@ const IncrementBonding = (): JSX.Element => {
           <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
             <BondingAmountOverview
               title="Available to Stake"
-              selectedFiatCurrency={selectedFiatCurrency}
-              fiatExchangeRate={selectedCurrencyRate}
               amountInNam={totalNamBalance.data ?? 0}
               updatedAmountInNam={totalNamAfterStaking}
               extraContent={
@@ -139,14 +133,10 @@ const IncrementBonding = (): JSX.Element => {
             />
             <BondingAmountOverview
               title="Current Stake"
-              selectedFiatCurrency={selectedFiatCurrency}
-              fiatExchangeRate={selectedCurrencyRate}
               amountInNam={totalStakedAmount}
             />
             <BondingAmountOverview
               title="Increased Stake"
-              selectedFiatCurrency={selectedFiatCurrency}
-              fiatExchangeRate={selectedCurrencyRate}
               updatedAmountInNam={totalUpdatedAmount}
               updatedValueClassList="text-yellow"
               amountInNam={0}
@@ -163,8 +153,6 @@ const IncrementBonding = (): JSX.Element => {
               <IncrementBondingTable
                 validators={filteredValidators}
                 onChangeValidatorAmount={onChangeValidatorAmount}
-                selectedCurrencyExchangeRate={selectedCurrencyRate}
-                selectedFiatCurrency={selectedFiatCurrency}
                 updatedAmountByAddress={updatedAmountByAddress}
                 stakedAmountByAddress={stakedAmountByAddress}
               />
