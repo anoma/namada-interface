@@ -27,13 +27,16 @@ const actionButton = tv({
     },
 
     borderRadius: {
-      sm: "rounded-sm",
-      md: "rounded-md",
-      lg: "rounded-lg",
+      sm: "rounded-sm before:rounded-sm",
+      md: "rounded-md before:rounded-md",
+      lg: "rounded-lg before:rounded-lg",
     },
 
     outlined: {
-      true: "bg-transparent border border-current",
+      true: clsx(
+        "bg-transparent before:border before:border-current before:absolute",
+        "before:left-0 before:top-0 before:w-full before:h-full before:z-[1000]"
+      ),
     },
 
     disabled: {
