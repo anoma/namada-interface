@@ -62,7 +62,7 @@ export const StyledSelectBox = ({
   const { className: listItemClassList, ...otherListItemProps } = listItemProps;
 
   return (
-    <div className="relative">
+    <div className="relative" onClick={(e) => e.stopPropagation()}>
       <fieldset
         role="radiogroup"
         className="absolute pointer-events-none invisible"
@@ -112,7 +112,7 @@ export const StyledSelectBox = ({
         <ul
           className={twMerge(
             "hidden absolute top-[2.5em] left-1/2 -translate-x-1/2 flex-col hidden",
-            "rounded-sm pt-2 pb-3 px-5 cursor-pointer bg-rblack",
+            "rounded-sm pt-2 pb-3 px-5 cursor-pointer bg-rblack z-[9999]",
             clsx({ flex: open }),
             listContainerClassList
           )}
