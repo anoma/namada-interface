@@ -2,7 +2,7 @@ import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize } from "@dao-xyz/borsh";
 import { ResponseSign } from "@zondax/ledger-namada";
 
-import { TxType, makeBip44Path } from "@heliax/namada-sdk/web";
+import { TxType, TxTypeLabel, makeBip44Path } from "@heliax/namada-sdk/web";
 import { chains } from "@namada/chains";
 import { KVStore } from "@namada/storage";
 import { AccountType, TxMsgValue } from "@namada/types";
@@ -23,7 +23,7 @@ export class LedgerService {
     protected readonly revealedPKStorage: RevealedPKStorage,
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) { }
+  ) {}
 
   async getRevealPKBytes(
     txMsg: string
@@ -97,23 +97,28 @@ export class LedgerService {
     signatures: ResponseSign
   ): Promise<void> {
     const storedTx = await this.txStore.get(msgId);
+    const { tx } = this.sdkService.getSdk();
 
     if (!storedTx) {
       throw new Error(`Transaction ${msgId} not found!`);
     }
 
-    storedTx.tx.forEach(async (pendingTx: PendingTx) => {
-      const { txMsg } = pendingTx;
-
-      await this.broadcaster.startTx(msgId, txType);
+    storedTx.txProps.forEach(async (pendingTx: PendingTx) => {
+      const { txMsg } = await tx.buildTx(
+        txType,
+        storedTx.wrapperTxProps,
+        pendingTx
+      );
       const sdk = this.sdkService.getSdk();
+      await this.broadcaster.startTx(msgId, txType);
+
       try {
         const signedTxBytes = sdk.tx.appendSignature(
           fromBase64(bytes),
           signatures
         );
         const signedTx = {
-          txMsg: fromBase64(txMsg),
+          txMsg,
           tx: signedTxBytes,
         };
         const innerTxHash = await sdk.rpc.broadcastTx(signedTx);
@@ -144,14 +149,19 @@ export class LedgerService {
 
     if (!storedTx) {
       console.warn(`txMsg not found for msgId: ${msgId}`);
-      throw new Error(`Transfer Transaction ${msgId} not found!`);
+      throw new Error(`${TxTypeLabel[txType]} Transaction ${msgId} not found!`);
     }
 
     const { coinType } = chains.namada.bip44;
 
     return Promise.all(
-      storedTx.tx.map(async (pendingTx: PendingTx) => {
-        const { txMsg, specificMsg } = pendingTx;
+      storedTx.txProps.map(async (pendingTx: PendingTx) => {
+        const { tx } = this.sdkService.getSdk();
+        const { txMsg, tx: specificMsg } = await tx.buildTx(
+          txType,
+          storedTx.wrapperTxProps,
+          pendingTx
+        );
         try {
           // Query account from Ledger storage to determine path for signer
           const account = await this.keyringService.findByAddress(address);
@@ -171,8 +181,8 @@ export class LedgerService {
           const sdk = this.sdkService.getSdk();
           const builtTx = await sdk.tx.buildTxFromSerializedArgs(
             txType,
-            fromBase64(specificMsg),
-            fromBase64(txMsg),
+            specificMsg.tx_bytes(),
+            txMsg,
             account.publicKey
           );
           const path = makeBip44Path(coinType, account.path);

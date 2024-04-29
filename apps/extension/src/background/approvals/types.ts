@@ -17,4 +17,5 @@ export type PendingTxDetails = {
   target?: string;
   publicKey?: string;
   validator?: string;
+  nativeToken?: string;
 };

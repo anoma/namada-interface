@@ -4,15 +4,18 @@ import { useNavigate } from "react-router-dom";
 import { TxType, TxTypeLabel } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Stack } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
-import { AccountType, Tokens } from "@namada/types";
+import {
+  AccountType,
+  BondProps,
+  RedelegateProps,
+  Tokens,
+  TransferProps,
+  TxMsgProps,
+} from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { ApprovalDetails } from "Approvals/Approvals";
 import { TopLevelRoute } from "Approvals/types";
-import {
-  PendingTxDetails,
-  QueryPendingTxMsg,
-  RejectTxMsg,
-} from "background/approvals";
+import { QueryPendingTxMsg, RejectTxMsg } from "background/approvals";
 import { ExtensionRequester } from "extension";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
@@ -26,7 +29,7 @@ type Props = {
 const fetchPendingTxDetails = async (
   requester: ExtensionRequester,
   msgId: string
-): Promise<PendingTxDetails[] | void> => {
+): Promise<TxMsgProps> => {
   return await requester.sendMessage(
     Ports.Background,
     new QueryPendingTxMsg(msgId)
@@ -91,17 +94,19 @@ export const ApproveTx: React.FC<Props> = ({ details, setDetails }) => {
         <strong>{TxTypeLabel[txType as TxType]}</strong> transaction?
       </Alert>
       <Stack gap={2}>
-        {details?.tx.map((txDetails, i) => {
+        {details?.tx.txProps.map((txDetails, i) => {
+          // Destructure possible details to display
+          // TODO: This should be improved!
           const {
             amount,
             source,
             target,
-            publicKey,
-            tokenAddress,
-            validator,
-            sourceValidator,
-            destinationValidator,
-          } = txDetails || {};
+            token: tokenAddress,
+          } = (txDetails as TransferProps) || {};
+          const { publicKey } = details.tx.wrapperTxProps;
+          const { validator } = (txDetails as BondProps) || {};
+          const { sourceValidator, destinationValidator } =
+            (txDetails as RedelegateProps) || {};
 
           const tokenType =
             Object.values(Tokens).find(

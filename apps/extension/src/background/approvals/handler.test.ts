@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TxType } from "@heliax/namada-sdk/web";
-import { AccountType } from "@namada/types";
+import { AccountType, TransferProps } from "@namada/types";
+import BigNumber from "bignumber.js";
 import createMockInstance from "jest-create-mock-instance";
 import {
   ApproveConnectInterfaceMsg,
@@ -48,16 +49,23 @@ describe("approvals handler", () => {
       requestInteraction: () => {},
     };
 
-    const approveTxMsg = new ApproveTxMsg(
-      TxType.Bond,
-      [
+    const approveTxMsg = new ApproveTxMsg({
+      txType: TxType.Transfer,
+      wrapperTxProps: {
+        chainId: "",
+        token: "",
+        feeAmount: BigNumber(0),
+        gasLimit: BigNumber(1000),
+      },
+      txProps: [
         {
-          txMsg: "txMsg",
-          specificMsg: "specificMsg",
-        },
+          source: "",
+          target: "",
+          amount: BigNumber(0),
+        } as TransferProps,
       ],
-      AccountType.Mnemonic
-    );
+      type: AccountType.Mnemonic,
+    });
     handler(env, approveTxMsg);
     expect(service.approveTx).toBeCalled();
 

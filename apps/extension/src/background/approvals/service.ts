@@ -32,7 +32,6 @@ type GetParams = (
   txDetails: TxMsgValue
 ) => Record<string, string>;
 
-
 // const getParamsMethod = (txType: SupportedTx): GetParams =>
 //   txType === TxType.Bond ? ApprovalsService.getParamsBond
 //   : txType === TxType.Unbond ? ApprovalsService.getParamsUnbond
@@ -343,11 +342,12 @@ export class ApprovalsService {
           : txType === TxType.VoteProposal ?
             this.keyRingService.submitVoteProposal
           : txType === TxType.Redelegate ? this.keyRingService.submitRedelegate
-          : assertNever(txType);
+            // TODO: Why is txType "any" here?
+          : assertNever(txType as never);
 
         // TODO: Encode message based on type!
-        const specificMsg = "";
-        const txMsg = "";
+        const specificMsg = "specificMsg";
+        const txMsg = "txMsg";
 
         await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
       })

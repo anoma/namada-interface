@@ -5,6 +5,7 @@ import {
   BondProps,
   EthBridgeTransferProps,
   IbcTransferProps,
+  RedelegateProps,
   TransferProps,
   TxProps,
   UnbondProps,
@@ -19,7 +20,8 @@ export type SupportedTxProps =
   | WithdrawProps
   | EthBridgeTransferProps
   | IbcTransferProps
-  | VoteProposalProps;
+  | VoteProposalProps
+  | RedelegateProps;
 
 export type TxMsgProps = {
   //TODO: figure out if we can make it better

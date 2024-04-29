@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { TxType, TxTypeLabel } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Stack } from "@namada/components";
-import { Message, TxMsgValue, TxProps } from "@namada/types";
+import { Message, TransferProps, TxMsgValue, TxProps } from "@namada/types";
 import { LedgerError } from "@zondax/ledger-namada";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import { QueryPublicKeyMsg } from "background/keyring";
@@ -32,7 +32,9 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
   const { msgId, txType } = details || {};
-  const { source, publicKey, nativeToken } = details?.tx[0] || {};
+  const props = (details?.tx.txProps[0] as TransferProps) || {};
+  const source = props.source || "";
+  const { token: nativeToken, publicKey } = details?.tx.wrapperTxProps || {};
 
   useEffect(() => {
     if (status === Status.Completed) {

@@ -4,9 +4,9 @@ import { Route, Routes } from "react-router-dom";
 import { TxType } from "@heliax/namada-sdk/web";
 import { Container } from "@namada/components";
 
+import { TxMsgProps } from "@namada/types";
 import { AppHeader } from "App/Common/AppHeader";
 import { TopLevelRoute } from "Approvals/types";
-import { PendingTxDetails } from "background/approvals";
 import { ApproveConnection } from "./ApproveConnection";
 import { ApproveSignature } from "./ApproveSignature";
 import { ApproveTx } from "./ApproveTx/ApproveTx";
@@ -23,7 +23,7 @@ export enum Status {
 export type ApprovalDetails = {
   msgId: string;
   txType: TxType;
-  tx: PendingTxDetails[];
+  tx: TxMsgProps;
 };
 
 export type SignatureDetails = {

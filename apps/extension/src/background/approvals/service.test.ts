@@ -285,7 +285,7 @@ describe("approvals service", () => {
       try {
         const res = await service.approveTx(fakeTransfer);
         expect(res).toBeUndefined();
-      } catch (e) { }
+      } catch (e) {}
     });
   });
 
