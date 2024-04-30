@@ -27,10 +27,15 @@ export const StakingSummary = (): JSX.Element => {
       return [];
     }
 
+    const totalStaked = totalStakedBalance.data;
+    if (totalStaked.totalUnbonded.eq(0) && totalStaked.totalBonded.eq(0)) {
+      return [{ value: 1, color: "#2F2F2F" }];
+    }
+
     return [
       { value: availableBalance.data, color: "#ffffff" },
-      { value: totalStakedBalance.data.totalBonded, color: "#ffff00" },
-      { value: totalStakedBalance.data.totalUnbonded, color: "#DD1599" },
+      { value: totalStaked.totalBonded, color: "#ffff00" },
+      { value: totalStaked.totalUnbonded, color: "#DD1599" },
     ];
   };
 
@@ -52,11 +57,13 @@ export const StakingSummary = (): JSX.Element => {
             data={getPiechartData()}
             strokeWidth={7}
           >
-            <div className="flex flex-col leading-tight">
-              <Heading level="h3">Total Staked Balance</Heading>
+            <div className="flex flex-col gap-1 leading-tight">
+              <Heading className="text-sm text-neutral-500" level="h3">
+                Total Staked Balance
+              </Heading>
               <NamCurrency
                 amount={totalStakedBalance.data.totalBonded}
-                className="text-xl"
+                className="text-2xl"
                 currencySignClassName="block mb-1 text-xs ml-1"
               />
               <FiatCurrency
