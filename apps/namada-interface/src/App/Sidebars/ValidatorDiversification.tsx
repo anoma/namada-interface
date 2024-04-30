@@ -11,7 +11,7 @@ export const ValidatorDiversification = (): JSX.Element => {
         "gap-7 leading-tight"
       )}
     >
-      <img src={stakingInfo} className="max-w-42 mx-auto" />
+      <img src={stakingInfo} className="w-full max-w-42 mx-auto" />
       <p>When staking consider diversifying Across multiple validators.</p>
       <ActionButton
         className="max-w-44"
