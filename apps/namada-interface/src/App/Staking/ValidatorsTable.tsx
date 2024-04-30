@@ -76,6 +76,14 @@ const ValidatorsTable = ({
     }
   };
 
+  if (rows.length === 0) {
+    return (
+      <div className="flex items-center justify-center text-sm py-4 text-neutral-200">
+        No results were found
+      </div>
+    );
+  }
+
   return (
     <div
       ref={containerRef}
