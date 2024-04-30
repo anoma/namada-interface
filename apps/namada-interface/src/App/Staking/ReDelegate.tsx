@@ -1,6 +1,7 @@
 import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
+import { TableRowLoading } from "App/Common/TableRowLoading";
 import BigNumber from "bignumber.js";
 import { useStakeModule } from "hooks/useStakeModule";
 import useValidatorFilter from "hooks/useValidatorFilter";
@@ -65,63 +66,70 @@ const ReDelegate = (): JSX.Element => {
         }
         onClose={onCloseModal}
       >
-        <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
-          <BondingAmountOverview
-            title="Available to re-delegate"
-            amountInNam={0}
-            updatedAmountInNam={redelegateDisplayedAmount}
-            updatedValueClassList="text-yellow"
-            extraContent={
-              <>
-                <Alert
-                  type="warning"
-                  className="absolute py-3 right-3 top-4 max-w-[50%] text-xs rounded-sm"
-                >
-                  To proceed all re-delegated value must be assigned
-                </Alert>
-              </>
-            }
-          />
-          <BondingAmountOverview
-            title="Current Stake"
-            amountInNam={totalStakedAmount}
-          />
-          <Panel className="flex items-center h-full justify-center">
-            <ActionButton
-              className="w-32 mx-auto"
-              color="white"
-              size="sm"
-              borderRadius="sm"
-              onClick={() => navigate(StakingRoutes.unstake().url)}
-            >
-              Unstake
-            </ActionButton>
-          </Panel>
-        </div>
-        <Panel className="w-full rounded-md flex-1 relative">
-          <ValidatorFilterNav
-            onChangeSearch={(value: string) => setFilter(value)}
-            onlyMyValidators={onlyMyValidators}
-            onFilterByMyValidators={setOnlyMyValidators}
-          />
-          {validators.data && (
-            <ReDelegateTable
-              validators={filteredValidators}
-              updatedAmountByAddress={updatedAmountByAddress}
-              stakedAmountByAddress={stakedAmountByAddress}
-              onChangeValidatorAmount={onChangeValidatorAmount}
+        <form className="grid grid-rows-[max-content_auto_max-content] gap-2 h-full">
+          <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
+            <BondingAmountOverview
+              title="Available to re-delegate"
+              amountInNam={0}
+              updatedAmountInNam={redelegateDisplayedAmount}
+              updatedValueClassList="text-yellow"
+              extraContent={
+                <>
+                  <Alert
+                    type="warning"
+                    className="absolute py-3 right-3 top-4 max-w-[50%] text-xs rounded-sm"
+                  >
+                    To proceed all re-delegated value must be assigned
+                  </Alert>
+                </>
+              }
             />
-          )}
-        </Panel>
-        <ActionButton
-          size="sm"
-          color="white"
-          borderRadius="sm"
-          className="mt-2 w-1/4 mx-auto"
-          disabled={!!validationMessage || !redelegateTotal.eq(0)}
-        >
-          {validationMessage || "Re-Delegate"}
-        </ActionButton>
+            <BondingAmountOverview
+              title="Current Stake"
+              amountInNam={totalStakedAmount}
+            />
+            <Panel className="flex items-center h-full justify-center">
+              <ActionButton
+                className="w-32 mx-auto"
+                color="white"
+                size="sm"
+                borderRadius="sm"
+                onClick={() => navigate(StakingRoutes.unstake().url)}
+              >
+                Unstake
+              </ActionButton>
+            </Panel>
+          </div>
+          <Panel className="grid grid-rows-[max-content_auto_max-content] overflow-hidden w-full rounded-md relative">
+            <ValidatorFilterNav
+              onChangeSearch={(value: string) => setFilter(value)}
+              onlyMyValidators={onlyMyValidators}
+              onFilterByMyValidators={setOnlyMyValidators}
+            />
+            {validators.isLoading && (
+              <div className="mt-3">
+                <TableRowLoading count={2} />
+              </div>
+            )}
+            {validators.isSuccess && (
+              <ReDelegateTable
+                validators={filteredValidators}
+                updatedAmountByAddress={updatedAmountByAddress}
+                stakedAmountByAddress={stakedAmountByAddress}
+                onChangeValidatorAmount={onChangeValidatorAmount}
+              />
+            )}
+          </Panel>
+          <ActionButton
+            size="sm"
+            color="white"
+            borderRadius="sm"
+            className="mt-2 w-1/4 mx-auto"
+            disabled={!!validationMessage || !redelegateTotal.eq(0)}
+          >
+            {validationMessage || "Re-Delegate"}
+          </ActionButton>
+        </form>
       </ModalContainer>
     </Modal>
   );

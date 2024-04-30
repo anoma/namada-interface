@@ -47,7 +47,7 @@ export const StakingOverview = (): JSX.Element => {
             <MyValidatorsTable />
           </Panel>
         )}
-        <Panel className="relative" title="All Validators">
+        <Panel className="relative pb-6" title="All Validators">
           <AllValidatorsTable />
         </Panel>
       </div>

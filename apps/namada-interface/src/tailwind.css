@@ -4,4 +4,21 @@
 
 body {
   @apply bg-gray;
+  @apply pb-1;
+}
+
+.dark-scrollbar {
+  @apply pr-2;
+}
+
+.dark-scrollbar::-webkit-scrollbar {
+  @apply w-1;
+}
+
+.dark-scrollbar::-webkit-scrollbar-track {
+  @apply bg-black;
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-neutral-300/90 rounded-md transition-colors duration-300 ease-out;
 }

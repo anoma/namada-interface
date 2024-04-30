@@ -8,6 +8,7 @@
   "private": true,
   "dependencies": {
     "@reduxjs/toolkit": "^1.8.0",
+    "@types/invariant": "^2.2.37",
     "@types/react-paginate": "^7.1.2",
     "bignumber.js": "^9.1.1",
     "buffer": "^6.0.3",
