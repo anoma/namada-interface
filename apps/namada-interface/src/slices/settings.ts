@@ -39,7 +39,10 @@ export default reducer;
 ////////////////////////////////////////////////////////////////////////////////
 
 export const namadaExtensionConnectedAtom = atom(false);
-export const selectedCurrencyAtom = atom<CurrencyType>("usd");
+export const selectedCurrencyAtom = atomWithStorage<CurrencyType>(
+  "namadillo:fiat",
+  "usd"
+);
 export const hideBalancesAtom = atomWithStorage(
   "namadillo:hideBalances",
   false
