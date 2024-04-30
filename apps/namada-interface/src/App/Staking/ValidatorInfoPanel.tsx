@@ -51,7 +51,7 @@ export const ValidatorInfoPanel = ({
             href={validator.homepageUrl}
             target="_blank"
             rel="nofollow noreferrer"
-            className="flex items-center text-xs gap-1"
+            className="flex items-center text-xs gap-1 hover:text-cyan"
           >
             Web <GoGlobe />
           </a>

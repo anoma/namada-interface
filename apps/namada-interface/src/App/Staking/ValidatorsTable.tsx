@@ -1,7 +1,7 @@
 import { StyledTable, TableHeader, TableRow } from "@namada/components";
 import { FormattedPaginator } from "App/Common/FormattedPaginator";
 import clsx from "clsx";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GoInfo } from "react-icons/go";
 import { Validator } from "slices/validators";
 import { twMerge } from "tailwind-merge";
@@ -26,6 +26,7 @@ const ValidatorsTable = ({
   initialPage = 0,
   tableClassName,
 }: ValidatorsTableProps): JSX.Element => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(initialPage);
   const [selectedValidator, setSelectedValidator] = useState<
     Validator | undefined
@@ -49,7 +50,6 @@ const ValidatorsTable = ({
   );
 
   const pageCount = Math.ceil(validatorList.length / resultsPerPage);
-
   const rows = paginatedValidators.map((validator) => {
     const row = renderRow(validator);
     row.cells.push(
@@ -69,13 +69,25 @@ const ValidatorsTable = ({
     return row;
   });
 
+  const scrollTop = (): void => {
+    const container = containerRef.current!.querySelector(".table-container");
+    if (container) {
+      container.scrollTo({ top: 0, left: 0 });
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1">
+    <div
+      ref={containerRef}
+      className={clsx(
+        "grid grid-rows-[auto_max-content] flex-1 overflow-hidden w-full gap-2"
+      )}
+    >
       <StyledTable
         id={id}
         headers={headers.concat("")}
         rows={rows}
-        containerClassName="flex-1"
+        containerClassName="table-container flex-1 dark-scrollbar"
         tableProps={{
           className: twMerge(
             "w-full flex-1 [&_td]:px-1 [&_th]:px-1 [&_td:first-child]:pl-4 [&_td]:h-[64px]",
@@ -91,6 +103,7 @@ const ValidatorsTable = ({
         pageCount={pageCount}
         onPageChange={({ selected }) => {
           setPage(selected);
+          scrollTop();
         }}
       />
       {selectedValidator && (
