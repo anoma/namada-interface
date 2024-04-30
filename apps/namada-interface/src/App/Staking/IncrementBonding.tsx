@@ -112,7 +112,10 @@ const IncrementBonding = (): JSX.Element => {
         }
         onClose={onCloseModal}
       >
-        <form onSubmit={onSubmit} className="flex flex-col flex-1 gap-2 h-full">
+        <form
+          onSubmit={onSubmit}
+          className="grid grid-rows-[max-content_auto_max-content] gap-2 h-full"
+        >
           <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
             <BondingAmountOverview
               title="Available to Stake"
@@ -142,13 +145,17 @@ const IncrementBonding = (): JSX.Element => {
               amountInNam={0}
             />
           </div>
-          <Panel className="w-full relative rounded-md flex-1 flex flex-col">
+          <Panel className="grid grid-rows-[max-content_auto] w-full relative overflow-hidden">
             <ValidatorFilterNav
               onChangeSearch={(value: string) => setFilter(value)}
               onlyMyValidators={onlyMyValidators}
               onFilterByMyValidators={setOnlyMyValidators}
             />
-            {validators.isLoading && <TableRowLoading count={2} />}
+            {validators.isLoading && (
+              <div className="mt-3">
+                <TableRowLoading count={2} />
+              </div>
+            )}
             {validators.isSuccess && (
               <IncrementBondingTable
                 validators={filteredValidators}

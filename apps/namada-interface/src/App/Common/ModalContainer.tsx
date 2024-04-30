@@ -1,4 +1,3 @@
-import { Stack } from "@namada/components";
 import { IoClose } from "react-icons/io5";
 
 type ModalContainerProps = {
@@ -13,7 +12,7 @@ export const ModalContainer = ({
   children,
 }: ModalContainerProps): JSX.Element => {
   return (
-    <div className="flex flex-col w-[75vw] h-[85svh] overflow-auto px-6 py-6 bg-neutral-800 text-white rounded-md">
+    <div className="flex flex-col lg:w-[90vw] 2xl:w-[75vw] h-[90svh] overflow-auto px-6 py-6 bg-neutral-800 text-white rounded-md">
       <header className="flex w-full justify-center items-center relative mb-3 text-xl text-medium">
         {header}
         <i
@@ -23,9 +22,7 @@ export const ModalContainer = ({
           <IoClose />
         </i>
       </header>
-      <Stack gap={2} className="flex-1">
-        {children}
-      </Stack>
+      <div className="flex-1 overflow-hidden">{children}</div>
     </div>
   );
 };

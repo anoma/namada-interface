@@ -83,14 +83,16 @@ export const AllValidatorsTable = ({
         <ValidatorSearch onChange={(value: string) => setFilter(value)} />
       </div>
       {validators.data && (
-        <ValidatorsTable
-          id="all-validators"
-          validatorList={filteredValidators}
-          headers={headers}
-          initialPage={initialPage}
-          resultsPerPage={resultsPerPage}
-          renderRow={renderRow}
-        />
+        <div className="flex flex-col h-[450px] overflow-hidden">
+          <ValidatorsTable
+            id="all-validators"
+            validatorList={filteredValidators}
+            headers={headers}
+            initialPage={initialPage}
+            resultsPerPage={resultsPerPage}
+            renderRow={renderRow}
+          />
+        </div>
       )}
     </div>
   );
