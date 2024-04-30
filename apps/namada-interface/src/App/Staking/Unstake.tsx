@@ -148,7 +148,7 @@ const Unstake = (): JSX.Element => {
               </Stack>
             </Panel>
           </div>
-          <Panel className="w-full rounded-md flex-1">
+          <Panel className="relative w-full rounded-md flex-1">
             {validators.data && (
               <ActionButton
                 type="button"

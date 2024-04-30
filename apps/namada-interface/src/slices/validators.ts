@@ -11,7 +11,10 @@ type Unique = {
 export type Validator = Unique & {
   alias: string;
   address: string;
+  description?: string;
   homepageUrl: string;
+  expectedApr: number;
+  unbondingPeriod: string;
   votingPowerInNAM?: BigNumber;
   votingPowerPercentage?: number;
   commission: BigNumber;
@@ -26,11 +29,15 @@ export type MyValidator = Unique & {
   validator: Validator;
 };
 
+// TODO: Change this after the indexer is created
 const toValidator = (address: string): Validator => ({
   uuid: address,
   alias: "<Validator Name>",
+  description: "Lorem ipsum dolor sit amet",
   address,
   homepageUrl: "http://namada.net",
+  expectedApr: 0.1127,
+  unbondingPeriod: "21 days",
   votingPowerInNAM: BigNumber("70000000"),
   votingPowerPercentage: 0.06,
   commission: new BigNumber(0), // TODO: implement commission
