@@ -142,7 +142,7 @@ const IncrementBonding = (): JSX.Element => {
               amountInNam={0}
             />
           </div>
-          <Panel className="w-full rounded-md flex-1">
+          <Panel className="w-full relative rounded-md flex-1 flex flex-col">
             <ValidatorFilterNav
               onChangeSearch={(value: string) => setFilter(value)}
               onlyMyValidators={onlyMyValidators}

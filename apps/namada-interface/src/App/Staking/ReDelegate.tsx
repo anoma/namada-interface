@@ -98,7 +98,7 @@ const ReDelegate = (): JSX.Element => {
             </ActionButton>
           </Panel>
         </div>
-        <Panel className="w-full rounded-md flex-1">
+        <Panel className="w-full rounded-md flex-1 relative">
           <ValidatorFilterNav
             onChangeSearch={(value: string) => setFilter(value)}
             onlyMyValidators={onlyMyValidators}
