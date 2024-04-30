@@ -36,7 +36,7 @@ export const StakingOverview = (): JSX.Element => {
   }, [isConnected, accounts]);
 
   return (
-    <div className="grid grid-cols-[auto_270px] gap-2">
+    <div className="grid grid-cols-[auto_20%] gap-2">
       <div className="flex flex-col gap-2">
         {!isConnected && (
           <ConnectBanner text="To stake please connect your account" />
