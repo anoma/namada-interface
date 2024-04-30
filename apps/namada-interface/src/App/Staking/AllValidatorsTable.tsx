@@ -6,7 +6,6 @@ import BigNumber from "bignumber.js";
 import useValidatorFilter from "hooks/useValidatorFilter";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
-import { GoGlobe } from "react-icons/go";
 import { Validator, allValidatorsAtom } from "slices/validators";
 import ValidatorsTable from "./ValidatorsTable";
 
@@ -40,7 +39,6 @@ export const AllValidatorsTable = ({
     <div key={`all-validators-comission`} className="text-right">
       Comission
     </div>,
-    "",
   ];
 
   const renderRow = (validator: Validator): TableRow => ({
@@ -72,16 +70,6 @@ export const AllValidatorsTable = ({
       <div key={`comission-${validator.uuid}`} className="text-right">
         {formatPercentage(BigNumber(validator.commission))}
       </div>,
-      // Url:
-      <a
-        key={`icon-globe-${validator.uuid}`}
-        href={validator.homepageUrl}
-        target="_blank"
-        className="hover:text-yellow"
-        rel="nofollow noreferrer"
-      >
-        <GoGlobe />
-      </a>,
     ],
   });
 
@@ -90,7 +78,7 @@ export const AllValidatorsTable = ({
   }
 
   return (
-    <>
+    <div className="min-h-[450px] flex flex-col">
       <div className="max-w-[50%] mb-3">
         <ValidatorSearch onChange={(value: string) => setFilter(value)} />
       </div>
@@ -104,6 +92,6 @@ export const AllValidatorsTable = ({
           renderRow={renderRow}
         />
       )}
-    </>
+    </div>
   );
 };

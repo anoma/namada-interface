@@ -14,7 +14,7 @@ export const ValidatorFilterNav = ({
   onlyMyValidators,
 }: Props): JSX.Element => {
   return (
-    <Stack direction="horizontal" gap={2} className="w-[50%] items-center mb-2">
+    <Stack direction="horizontal" gap={2} className="w-[60%] items-center mb-2">
       <ValidatorSearch onChange={(value: string) => onChangeSearch(value)} />
       <MyValidatorsFilter
         value={onlyMyValidators ? "my-validators" : "all"}

@@ -5,11 +5,13 @@ import { Validator } from "slices/validators";
 
 type ValidatorNameProps = {
   validator: Validator;
+  showAddress?: boolean;
   hasStake?: boolean;
 };
 
 export const ValidatorName = ({
   validator,
+  showAddress = true,
   hasStake,
 }: ValidatorNameProps): JSX.Element => {
   return (
@@ -33,9 +35,11 @@ export const ValidatorName = ({
       </aside>
       <span className="leading-tight">
         {validator.alias}
-        <small className="block text-xs text-neutral-500">
-          {shortenAddress(validator.address, 6, 12)}
-        </small>
+        {showAddress && (
+          <small className="block text-xs text-neutral-500">
+            {shortenAddress(validator.address, 6, 12)}
+          </small>
+        )}
       </span>
     </div>
   );
