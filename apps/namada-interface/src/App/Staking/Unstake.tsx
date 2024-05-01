@@ -110,7 +110,10 @@ const Unstake = (): JSX.Element => {
         }
         onClose={onCloseModal}
       >
-        <form className="flex flex-col flex-1 gap-2" onSubmit={onSubmit}>
+        <form
+          className="grid grid-rows-[max-content_auto_max-content] h-full gap-2"
+          onSubmit={onSubmit}
+        >
           <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
             <BondingAmountOverview
               title="Amount of NAM to Unstake"
