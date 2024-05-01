@@ -1,11 +1,10 @@
 import {
-  BalancesProps,
   Chain,
   DerivedAccount,
   Namada as INamada,
   SignArbitraryProps,
-  SignatureResponse,
-  TxMsgProps,
+  SignArbitraryResponse,
+  SignProps,
   VerifyArbitraryProps,
 } from "@namada/types";
 import { MessageRequester, Ports } from "router";
@@ -13,14 +12,12 @@ import { MessageRequester, Ports } from "router";
 import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
-  ApproveTxMsg,
   CheckDurabilityMsg,
   FetchAndStoreMaspParamsMsg,
   GetChainMsg,
   HasMaspParamsMsg,
   IsConnectionApprovedMsg,
   QueryAccountsMsg,
-  QueryBalancesMsg,
   QueryDefaultAccountMsg,
   ShieldedSyncMsg,
   VerifyArbitraryMsg,
@@ -70,9 +67,15 @@ export class Namada implements INamada {
     );
   }
 
-  public async sign(
+  public async sign(props: SignProps): Promise<Uint8Array> {
+    const { signer, tx } = props;
+    console.log("TODO: Implement message for signing Tx", { signer, tx });
+    return new Uint8Array([]);
+  }
+
+  public async signArbitrary(
     props: SignArbitraryProps
-  ): Promise<SignatureResponse | undefined> {
+  ): Promise<SignArbitraryResponse | undefined> {
     const { signer, data } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
@@ -116,27 +119,10 @@ export class Namada implements INamada {
     );
   }
 
-  public async balances(
-    props: BalancesProps
-  ): Promise<{ token: string; amount: string }[] | undefined> {
-    const { owner, tokens } = props;
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new QueryBalancesMsg(owner, tokens)
-    );
-  }
-
   public async shieldedSync(): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new ShieldedSyncMsg()
-    );
-  }
-
-  public async submitTx(props: TxMsgProps): Promise<void> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new ApproveTxMsg(props.txType, props.tx, props.type)
     );
   }
 

@@ -17,7 +17,7 @@ import { RootState } from "store";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 type Address = string;
@@ -79,12 +79,15 @@ export const fetchBalance = createAsyncThunk<
     if (chainKey !== "namada") {
       throw new Error("not namada");
     }
-    const integration = getIntegration(chainKey);
-    const balance = await integration.queryBalances(address, [
-      nativeToken || tokenAddress,
-    ]);
 
-    return { chainKey, address, balance };
+    console.log("TODO: Fetch balances", {
+      address, tokens: [
+        nativeToken || tokenAddress,
+      ]
+    })
+
+    // Return zero balance for now
+    return { chainKey: "namada", address, balance: { NAM: BigNumber(0) } };
   }
 );
 
@@ -166,7 +169,7 @@ export default reducer;
 ////////////////////////////////////////////////////////////////////////////////
 
 const accountsAtom = (() => {
-  const base = atom(new Promise<readonly AccountDetails[]>(() => {}));
+  const base = atom(new Promise<readonly AccountDetails[]>(() => { }));
 
   return atom(
     (get) => get(base),
@@ -236,18 +239,17 @@ const balancesAtom = (() => {
 })();
 
 const queryBalance = (
-  namada: Namada,
+  _namada: Namada,
   accounts: AccountDetails[],
-  token: string
+  _token: string
 ): Promise<[string, TokenBalances]>[] => {
   return accounts.map(async (account): Promise<[string, TokenBalances]> => {
-    const balances = await namada.queryBalances(account.address, [token]);
-    return [account.address, balances];
+    return [account.address, { NAM: BigNumber(0) }];
   });
 };
 
 const keplrAccountsAtom = (() => {
-  const base = atom(new Promise<readonly AccountDetails[]>(() => {}));
+  const base = atom(new Promise<readonly AccountDetails[]>(() => { }));
 
   return atom(
     (get) => get(base),
@@ -269,7 +271,7 @@ const keplrAccountsAtom = (() => {
 })();
 
 const keplrBalancesAtom = (() => {
-  const base = atom(new Promise<TokenBalances<CosmosTokenType>>(() => {}));
+  const base = atom(new Promise<TokenBalances<CosmosTokenType>>(() => { }));
 
   return atom(
     (get) => get(base),

@@ -12,7 +12,7 @@ import {
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
   RedelegateMsgValue,
-  SignatureResponse,
+  SignArbitraryResponse,
   TransferMsgValue,
   TxMsgValue,
   UnbondMsgValue,
@@ -87,7 +87,7 @@ export class ApprovalsService {
   async approveSignature(
     signer: string,
     data: string
-  ): Promise<SignatureResponse> {
+  ): Promise<SignArbitraryResponse> {
     const msgId = uuid();
 
     await this.dataStore.set(msgId, data);

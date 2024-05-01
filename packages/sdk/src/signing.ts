@@ -1,4 +1,4 @@
-import { Sdk as SdkWasm } from "@namada/shared";
+import { BuiltTx, Sdk as SdkWasm } from "@namada/shared";
 
 type Signature = [string, string];
 
@@ -11,6 +11,16 @@ export class Signing {
    * @param sdk - Instance of Sdk struct from wasm lib
    */
   constructor(protected readonly sdk: SdkWasm) {}
+
+  /**
+   * Sign Namada transaction
+   * @param signingKey - private key
+   * @param builtTx - Tx and signing data to sign
+   * @returns signed tx bytes - TODO: Fix this type!
+   */
+  sign(signingKey: string, builtTx: BuiltTx): unknown {
+    return this.sdk.sign_tx(builtTx, signingKey);
+  }
 
   /**
    * Sign arbitrary data

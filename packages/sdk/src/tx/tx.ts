@@ -363,7 +363,7 @@ export class Tx {
    */
   async signTx(encodedTx: EncodedTx, signingKey?: string): Promise<SignedTx> {
     const { tx, txMsg } = encodedTx;
-    const signedTx = await this.sdk.sign_tx(tx, txMsg, signingKey);
+    const signedTx = await this.sdk.sign_tx(tx, signingKey);
 
     return new SignedTx(txMsg, signedTx);
   }

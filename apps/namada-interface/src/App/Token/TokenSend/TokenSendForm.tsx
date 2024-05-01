@@ -4,8 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { chains } from "@namada/chains";
 import { ActionButton, AmountInput, Icon, Input } from "@namada/components";
-import { getIntegration } from "@namada/integrations";
-import { Chain, Signer, TokenType, Tokens } from "@namada/types";
+import { Chain, TokenType, Tokens } from "@namada/types";
 
 import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
@@ -22,7 +21,7 @@ import {
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 export const submitTransferTransaction = async (
@@ -45,8 +44,6 @@ export const submitTransferTransaction = async (
     return;
   }
 
-  const integration = getIntegration(chains.namada.id);
-  const signer = integration.signer() as Signer;
 
   const transferArgs = {
     source: address,
@@ -68,7 +65,7 @@ export const submitTransferTransaction = async (
     memo,
   };
 
-  await signer.submitTransfer(transferArgs, txArgs, type);
+  console.log("TODO: Sign & submit transfer", { txProps: transferArgs, wrapperTxProps: txArgs, type })
 };
 
 type Props = {
@@ -235,8 +232,8 @@ const TokenSendForm = ({
 
   // if the transfer target is not TransferType.Shielded we perform the validation logic
   const isAmountValid = (
-    address: string,
-    token: TokenType,
+    _address: string,
+    _token: TokenType,
     transferAmount: BigNumber,
     targetAddress: string | undefined
   ): string | undefined => {

@@ -17,7 +17,7 @@ use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada::masp::TransferSource;
 use namada::sdk::masp::{DefaultLogger, ShieldedContext};
 use namada::sdk::rpc::query_epoch;
-use namada::sdk::signing::{find_key_by_pk, SigningTxData};
+use namada::sdk::signing::SigningTxData;
 use namada::sdk::tx::build_redelegation;
 use namada::sdk::tx::{
     build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond,
@@ -181,14 +181,62 @@ impl Sdk {
         Ok(())
     }
 
+    // pub async fn sign_tx(
+    //     &mut self,
+    //     built_tx: BuiltTx,
+    //     tx_msg: &[u8],
+    //     private_key: Option<String>,
+    // ) -> Result<JsValue, JsError> {
+    //     let args = tx::tx_args_from_slice(tx_msg)?;
+    //
+    //     let BuiltTx {
+    //         mut tx,
+    //         signing_data,
+    //     } = built_tx;
+    //
+    //     let signing_keys = match private_key.clone() {
+    //         Some(private_key) => vec![common::SecretKey::Ed25519(ed25519::SecretKey::from_str(
+    //             &private_key,
+    //         )?)],
+    //         // If no private key is provided, we assume masp source and return empty vec
+    //         None => vec![],
+    //     };
+    //
+    //     if let Some(account_public_keys_map) = signing_data.account_public_keys_map.clone() {
+    //         // We only sign the raw header for transfers from transparent source
+    //         if !signing_keys.is_empty() {
+    //             // Sign the raw header
+    //             tx.sign_raw(
+    //                 signing_keys.clone(),
+    //                 account_public_keys_map,
+    //                 signing_data.owner.clone(),
+    //             );
+    //         }
+    //     }
+    //
+    //     let key = {
+    //         let mut wallet = self.namada.wallet_mut().await;
+    //         find_key_by_pk(&mut *wallet, &args, &signing_data.fee_payer)
+    //     };
+    //
+    //     // The key is either passed private key for transparent sources or the disposable signing
+    //     // key for shielded sources
+    //     let key = match key {
+    //         Ok(k) => k,
+    //         Err(_) => signing_keys[0].clone(),
+    //     };
+    //
+    //     // Sign the fee header
+    //     tx.sign_wrapper(key);
+    //
+    //     to_js_result(borsh::to_vec(&tx)?)
+    // }
+
     pub async fn sign_tx(
         &mut self,
         built_tx: BuiltTx,
-        tx_msg: &[u8],
         private_key: Option<String>,
     ) -> Result<JsValue, JsError> {
-        let args = tx::tx_args_from_slice(tx_msg)?;
-
         let BuiltTx {
             mut tx,
             signing_data,
@@ -214,24 +262,15 @@ impl Sdk {
             }
         }
 
-        let key = {
-            let mut wallet = self.namada.wallet_mut().await;
-            find_key_by_pk(&mut *wallet, &args, &signing_data.fee_payer)
-        };
-
         // The key is either passed private key for transparent sources or the disposable signing
         // key for shielded sources
-        let key = match key {
-            Ok(k) => k,
-            Err(_) => signing_keys[0].clone(),
-        };
+        let key = signing_keys[0].clone();
 
         // Sign the fee header
         tx.sign_wrapper(key);
 
         to_js_result(borsh::to_vec(&tx)?)
     }
-
     pub async fn process_tx(&mut self, tx_bytes: &[u8], tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
 
@@ -474,7 +513,7 @@ impl Sdk {
             let built_tx = self.build_reveal_pk(tx_msg, String::from("")).await?;
             // Conversion from JsValue so we can use self.sign_tx
             let tx_bytes =
-                Uint8Array::new(&self.sign_tx(built_tx, tx_msg, Some(signing_key)).await?).to_vec();
+                Uint8Array::new(&self.sign_tx(built_tx, Some(signing_key)).await?).to_vec();
             self.process_tx(&tx_bytes, tx_msg).await?;
         }
 

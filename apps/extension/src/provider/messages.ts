@@ -3,7 +3,7 @@ import {
   AccountType,
   Chain,
   DerivedAccount,
-  SignatureResponse,
+  SignArbitraryResponse,
 } from "@namada/types";
 import { PendingTx } from "background/approvals";
 import { Message } from "router";
@@ -290,7 +290,7 @@ export class CheckDurabilityMsg extends Message<boolean> {
   }
 }
 
-export class ApproveSignArbitraryMsg extends Message<SignatureResponse> {
+export class ApproveSignArbitraryMsg extends Message<SignArbitraryResponse> {
   public static type(): MessageType {
     return MessageType.ApproveSignArbitrary;
   }
