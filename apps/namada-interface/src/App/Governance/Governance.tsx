@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { GovernanceOverview } from "./GovernanceOverview";
 import { ProposalAndVote } from "./ProposalAndVote";
+import { SubmitVote } from "./SubmitVote";
 import GovernanceRoutes from "./routes";
 
 export const Governance: React.FC = () => {
@@ -27,6 +28,10 @@ export const Governance: React.FC = () => {
         <Route
           path={`${GovernanceRoutes.proposal()}`}
           element={<ProposalAndVote />}
+        />
+        <Route
+          path={`${GovernanceRoutes.submitVote()}`}
+          element={<SubmitVote />}
         />
       </Routes>
     </main>

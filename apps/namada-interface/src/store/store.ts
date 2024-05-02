@@ -7,7 +7,6 @@ import thunk from "redux-thunk";
 import {
   chainReducer,
   channelsReducer,
-  proposalsReducers,
   settingsReducer,
   stakingAndGovernanceReducers,
 } from "slices";
@@ -37,7 +36,6 @@ const reducers = combineReducers({
   channels: channelsReducer,
   settings: settingsReducer,
   stakingAndGovernance: stakingAndGovernanceReducers,
-  proposals: proposalsReducers,
 });
 
 const persistConfig = {

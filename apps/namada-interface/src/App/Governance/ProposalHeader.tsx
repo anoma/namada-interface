@@ -1,15 +1,27 @@
-import { ActionButton, SegmentedBar, Stack } from "@namada/components";
+import { ActionButton, ProgressBar, Stack } from "@namada/components";
+import { formatEpoch } from "@namada/utils";
 import clsx from "clsx";
-import { ProposalStatus, _Proposal } from "slices/proposals";
+import { useAtomValue } from "jotai";
 
+import { Proposal, ProposalStatus, currentEpochAtom } from "slices/proposals";
 import { StatusLabel, TypeLabel, VotedLabel } from "./ProposalLabels";
 
 export const ProposalHeader: React.FC<{
-  proposal: _Proposal;
+  proposal: Proposal;
   voted: boolean;
   status: ProposalStatus;
-}> = ({ proposal, voted }) => {
-  const voteButtonDisabled = voted || status !== "ongoing";
+}> = ({ proposal, voted, status }) => {
+  const voteButtonDisabled = voted || status.status !== "ongoing";
+
+  const { startEpoch, endEpoch } = proposal;
+  const currentEpoch = useAtomValue(currentEpochAtom);
+
+  if (!currentEpoch.isSuccess) {
+    return <h1>OH NO</h1>;
+  }
+
+  const totalEpochs = endEpoch.minus(startEpoch);
+  const relativeCurrentEpoch = currentEpoch.data.minus(startEpoch);
 
   return (
     <div className="grid grid-cols-[1fr_auto] grow-rows-[auto_auto_auto_auto] gap-y-4">
@@ -34,7 +46,7 @@ export const ProposalHeader: React.FC<{
       <b className="bg-[#151515] col-start-1 col-end-2 row-start-2 row-end-3 h-[2px] w-full" />
 
       <div className="col-start-1 col-end-2 row-start-3 row-end-4 flex gap-2">
-        <StatusLabel status={"ongoing"} className="w-56" />
+        <StatusLabel status={{ status: "ongoing" }} className="w-56" />
         {voted && <VotedLabel />}
       </div>
 
@@ -45,18 +57,16 @@ export const ProposalHeader: React.FC<{
         )}
       >
         <div className="font-bold">Progress</div>
-        <div className="text-right">Hours</div>
+        <div className="text-right">Hours TODO</div>
 
         <div className="col-span-2">
-          <SegmentedBar
-            data={[
-              { value: 70, color: "#11DFDF" },
-              { value: 30, color: "#3A3A3A" },
-            ]}
+          <ProgressBar
+            value={{ value: relativeCurrentEpoch, color: "#11DFDF" }}
+            total={{ value: totalEpochs, color: "#3A3A3A" }}
           />
         </div>
-        <div className="col-start-1">Date 1</div>
-        <div className="text-right">Date 2</div>
+        <div className="col-start-1">{formatEpoch(startEpoch)}</div>
+        <div className="text-right">{formatEpoch(endEpoch)}</div>
 
         <div className="row-[1_/_span_3] col-start-3 self-center justify-self-center">
           <ActionButton

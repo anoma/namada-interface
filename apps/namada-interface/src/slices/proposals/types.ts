@@ -10,6 +10,13 @@ export type Proposal = {
   proposalType: ProposalType;
 };
 
+export type ProposalWithExtraInfo = {
+  proposal: Proposal;
+  voted: boolean;
+  status: ProposalStatus;
+  votes: Votes;
+};
+
 export type Pending = { status: "pending" };
 export type Ongoing = { status: "ongoing" };
 export type Finished = { status: "finished"; passed: boolean };
