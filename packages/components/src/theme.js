@@ -10,6 +10,7 @@ module.exports = {
         black: "#141414",
         gray: "#292929",
         rblack: "#000000",
+        upcoming: "#7DA0A8",
 
         yellow: {
           DEFAULT: "#FFFF00",

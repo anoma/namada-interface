@@ -10,9 +10,12 @@ const InfoCard: React.FC<
     content: string;
   } & React.ComponentProps<"div">
 > = ({ title, content, className, ...rest }) => (
-  <div className={twMerge("bg-[#1B1B1B] rounded-sm p-2", className)} {...rest}>
-    <div className="text-sm text-[#8A8A8A]">{title}</div>
-    <div className="text-base">{content}</div>
+  <div
+    className={twMerge("bg-[#1B1B1B] rounded-sm px-3 py-2", className)}
+    {...rest}
+  >
+    <div className="text-xs text-[#8A8A8A]">{title}</div>
+    <div className="text-sm">{content}</div>
   </div>
 );
 
