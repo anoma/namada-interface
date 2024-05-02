@@ -1,11 +1,8 @@
 import { Namada } from "@namada/integrations";
 import { Dispatch } from "react";
-import { fetchProposals } from "slices/proposals";
 
 export const NamadaProposalsUpdatedHandler =
-  (dispatch: Dispatch<unknown>) => async () => {
-    dispatch(fetchProposals());
-  };
+  (dispatch: Dispatch<unknown>) => async () => {};
 
 export const NamadaTxCompletedHandler =
   (_dispatch: Dispatch<unknown>, refreshPublicKeys: () => void) =>

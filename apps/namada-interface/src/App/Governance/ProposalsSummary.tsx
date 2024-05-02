@@ -1,10 +1,9 @@
 import { Stack } from "@namada/components";
-import { useAtomValue } from "jotai";
 
-import {
-  proposalIdsAtom,
-  proposalsGroupedByStatusAtom,
-} from "slices/proposals";
+//import {
+//  proposalIdsAtom,
+//  proposalsGroupedByStatusAtom,
+//} from "slices/proposals";
 
 const SummaryCard: React.FC<{
   title: string;
@@ -17,13 +16,18 @@ const SummaryCard: React.FC<{
 );
 
 export const ProposalsSummary: React.FC = () => {
-  const proposalIds = useAtomValue(proposalIdsAtom);
-  const groupedProposals = useAtomValue(proposalsGroupedByStatusAtom);
+  //const proposalIds = useAtomValue(proposalIdsAtom);
+  //const groupedProposals = useAtomValue(proposalsGroupedByStatusAtom);
 
-  const total = proposalIds.length;
-  const ongoing = groupedProposals.ongoing.length;
-  const passed = groupedProposals.passed.length;
-  const rejected = groupedProposals.rejected.length;
+  //const total = proposalIds.length;
+  //const ongoing = groupedProposals.ongoing.length;
+  //const passed = groupedProposals.passed.length;
+  //const rejected = groupedProposals.rejected.length;
+
+  const total = "TODO";
+  const ongoing = "TODO";
+  const passed = "TODO";
+  const rejected = "TODO";
 
   return (
     <Stack gap={4}>

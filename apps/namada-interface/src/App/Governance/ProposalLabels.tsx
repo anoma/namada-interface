@@ -10,10 +10,12 @@ export const StatusLabel: React.FC<
   } & React.ComponentProps<typeof RoundedLabel>
 > = ({ status, style, ...rest }) => {
   const [text, color] =
-    status === "upcoming" ? ["Upcoming", "#7DA0A8"]
-    : status === "ongoing" ? ["Ongoing", "#FF8A00"]
-    : status === "passed" ? ["Passed", "#15DD89"]
-    : status === "rejected" ? ["Rejected", "#DD1539"]
+    status.status === "pending" ? ["Upcoming", "#7DA0A8"]
+    : status.status === "ongoing" ? ["Ongoing", "#FF8A00"]
+    : status.status === "finished" ?
+      status.passed ?
+        ["Passed", "#15DD89"]
+      : ["Rejected", "#DD1539"]
     : assertNever(status);
 
   return (

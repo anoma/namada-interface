@@ -3,35 +3,19 @@ import { GoCheckCircleFill, GoInfo } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 
 import { StyledTable, TableRow } from "@namada/components";
-import {
-  ProposalWithVotingInfo,
-  _Proposal,
-  proposalStatuses,
-  proposalsGroupedByStatusAtom,
-  votedProposalsAtom,
-} from "slices/proposals";
+import { Proposal, allProposalsAtom } from "slices/proposals";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
 import GovernanceRoutes from "./routes";
 
-const key = (name: string, proposal?: _Proposal): string => {
+const key = (name: string, proposal?: Proposal): string => {
   const idPart = typeof proposal === "undefined" ? "" : `-${proposal.id}`;
   return `all-proposals-${name}${idPart}`;
 };
 
 export const AllProposalsTable: React.FC = () => {
-  const groupedProposals = useAtomValue(proposalsGroupedByStatusAtom);
-  const votedProposals = useAtomValue(votedProposalsAtom);
-
-  const proposalList: ProposalWithVotingInfo[] = proposalStatuses.flatMap(
-    (status) =>
-      groupedProposals[status].map((proposal) => ({
-        ...proposal,
-        status,
-        voted: votedProposals.includes(proposal.id),
-      }))
-  );
-
   const navigate = useNavigate();
+
+  const allProposals = useAtomValue(allProposalsAtom);
 
   const headers = [
     "ID",
@@ -47,10 +31,7 @@ export const AllProposalsTable: React.FC = () => {
     "",
   ];
 
-  const renderRow = (
-    proposal: ProposalWithVotingInfo,
-    index: number
-  ): TableRow => ({
+  const renderRow = (proposal: Proposal, index: number): TableRow => ({
     cells: [
       // ID
       `#${proposal.id}`,
@@ -68,14 +49,12 @@ export const AllProposalsTable: React.FC = () => {
       // Status
       <StatusLabel
         key={key("status", proposal)}
-        status={proposal.status}
+        status={{ status: "ongoing" }}
         className="ml-auto"
       />,
 
       // Voted
-      proposal.voted ?
-        <GoCheckCircleFill key={key("check", proposal)} className="text-cyan" />
-      : null,
+      <GoCheckCircleFill key={key("check", proposal)} className="text-cyan" />,
 
       // Voting end on
       <div key={key("voting-end", proposal)} className="text-right">
@@ -90,12 +69,16 @@ export const AllProposalsTable: React.FC = () => {
     ],
   });
 
+  if (!allProposals.isSuccess) {
+    return <h1>OH NO</h1>;
+  }
+
   return (
     <StyledTable
       tableProps={{ className: "w-full" }}
       id="all-proposals-table"
       headers={headers}
-      rows={proposalList.map(renderRow)}
+      rows={allProposals.data.map(renderRow)}
     />
   );
 };

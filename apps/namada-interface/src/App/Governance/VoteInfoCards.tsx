@@ -1,5 +1,9 @@
 import { twMerge } from "tailwind-merge";
 
+import { Proposal } from "slices/proposals/types";
+
+import { formatEpoch } from "@namada/utils";
+
 const InfoCard: React.FC<
   {
     title: string;
@@ -12,18 +16,23 @@ const InfoCard: React.FC<
   </div>
 );
 
-export const VoteInfoCards: React.FC = () => {
+export const VoteInfoCards: React.FC<{
+  proposal: Proposal;
+}> = ({ proposal }) => {
   return (
     <div className="grid grid-cols-3 gap-2 m-4">
-      <InfoCard title="Voting Start" content="Dec 16th 2023, 19:21" />
-      <InfoCard title="Voting End" content="Dec 16th 2023, 19:21" />
-      <InfoCard title="Submit Time" content="Dec 16th 2023, 19:21" />
-      <InfoCard title="Deposit End" content="Dec 16th 2023, 19:21" />
-      <InfoCard title="Initial Deposit" content="250.000000 NAM" />
-      <InfoCard title="Initial Deposit" content="250.000000 NAM" />
+      <InfoCard
+        title="Voting Start"
+        content={formatEpoch(proposal.startEpoch)}
+      />
+      <InfoCard title="Voting End" content={formatEpoch(proposal.endEpoch)} />
+      <InfoCard title="Submit Time" content="TODO" />
+      <InfoCard title="Deposit End" content="TODO" />
+      <InfoCard title="Initial Deposit" content="TODO" />
+      <InfoCard title="Initial Deposit" content="TODO" />
       <InfoCard
         title="Proposer"
-        content="tknam13jfi53tgjefji3rh45hgehhgfhjejrhgfj45gej45gj"
+        content={proposal.author}
         className="col-span-full"
       />
     </div>
