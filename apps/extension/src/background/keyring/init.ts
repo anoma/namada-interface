@@ -23,7 +23,6 @@ import {
   RenameAccountMsg,
   RevealAccountMnemonicMsg,
   SaveAccountSecretMsg,
-  ScanAccountsMsg,
   SetActiveAccountMsg,
   TransferCompletedEvent,
   ValidateMnemonicMsg,
@@ -42,7 +41,6 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(ShieldedSyncMsg);
   router.registerMessage(QueryParentAccountsMsg);
   router.registerMessage(SaveAccountSecretMsg);
-  router.registerMessage(ScanAccountsMsg);
   router.registerMessage(SetActiveAccountMsg);
   router.registerMessage(TransferCompletedEvent);
   router.registerMessage(DeleteAccountMsg);

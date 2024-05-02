@@ -16,20 +16,16 @@ import {
   getNamadaRouterId,
 } from "extension";
 import { KVPrefix, Ports } from "router";
-import { LocalStorage, RevealedPKStorage, VaultStorage } from "storage";
+import { LocalStorage, VaultStorage } from "storage";
 import { ApprovalsService, init as initApprovals } from "./approvals";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, UtilityStore, init as initKeyRing } from "./keyring";
-import { LedgerService, init as initLedger } from "./ledger";
 import { SdkService } from "./sdk/service";
 import { VaultService, init as initVault } from "./vault";
 
 // Extension storages
 const localStorage = new LocalStorage(
   new ExtensionKVStore(KVPrefix.LocalStorage, browser.storage.local)
-);
-const revealedPKStorage = new RevealedPKStorage(
-  new ExtensionKVStore(KVPrefix.RevealedPK, browser.storage.local)
 );
 
 //IDB storages
@@ -79,21 +75,11 @@ const init = new Promise<void>(async (resolve) => {
     requester,
     broadcaster
   );
-  const ledgerService = new LedgerService(
-    keyRingService,
-    sdkService,
-    vaultStorage,
-    txStore,
-    revealedPKStorage,
-    requester,
-    broadcaster
-  );
   const approvalsService = new ApprovalsService(
     txStore,
     dataStore,
     localStorage,
     keyRingService,
-    ledgerService,
     vaultService,
     broadcaster
   );
@@ -102,7 +88,6 @@ const init = new Promise<void>(async (resolve) => {
   initApprovals(router, approvalsService);
   initChains(router, chainsService);
   initKeyRing(router, keyRingService);
-  initLedger(router, ledgerService);
   initVault(router, vaultService);
   resolve();
 });

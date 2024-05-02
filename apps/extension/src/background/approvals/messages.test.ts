@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TxType } from "@heliax/namada-sdk/web";
 import { ROUTE } from "./constants";
 import {
   ConnectInterfaceResponseMsg,
@@ -8,7 +7,6 @@ import {
   RejectTxMsg,
   RevokeConnectionMsg,
   SubmitApprovedSignatureMsg,
-  SubmitApprovedTxMsg,
 } from "./messages";
 
 jest.mock("webextension-polyfill", () => ({}));
@@ -27,26 +25,6 @@ describe("approvals messages", () => {
     (msg as any).msgId = undefined;
 
     expect(() => msg.validate()).toThrow();
-  });
-
-  test("valid SubmitApprovedTxMsg", () => {
-    const msg = new SubmitApprovedTxMsg(TxType.Bond, "msgId");
-
-    expect(msg.type()).toBe(MessageType.SubmitApprovedTx);
-    expect(msg.route()).toBe(ROUTE);
-    expect(msg.validate()).toBeUndefined();
-  });
-
-  test("invalid SubmitApprovedTxMsg", () => {
-    const msg = new SubmitApprovedTxMsg(TxType.Bond, "msgId");
-    (msg as any).msgId = undefined;
-
-    expect(() => msg.validate()).toThrow();
-
-    const msg2 = new SubmitApprovedTxMsg(TxType.Bond, "msgId");
-    (msg2 as any).txType = undefined;
-
-    expect(() => msg2.validate()).toThrow();
   });
 
   test("valid RejectSignatureMsg", () => {

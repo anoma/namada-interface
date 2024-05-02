@@ -12,7 +12,6 @@ import {
   RejectTxMsg,
   RevokeConnectionMsg,
   SubmitApprovedSignatureMsg,
-  SubmitApprovedTxMsg,
 } from "./messages";
 import { ApprovalsService } from "./service";
 
@@ -23,11 +22,6 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleApproveTxMsg(service)(env, msg as ApproveTxMsg);
       case RejectTxMsg:
         return handleRejectTxMsg(service)(env, msg as RejectTxMsg);
-      case SubmitApprovedTxMsg:
-        return handleSubmitApprovedTxMsg(service)(
-          env,
-          msg as SubmitApprovedTxMsg
-        );
       case QueryPendingTxMsg:
         return handleQueryPendingTxMsg(service)(env, msg as QueryPendingTxMsg);
       case IsConnectionApprovedMsg:
@@ -85,14 +79,6 @@ const handleRejectTxMsg: (
 ) => InternalHandler<RejectTxMsg> = (service) => {
   return async (_, { msgId }) => {
     return await service.rejectTx(msgId);
-  };
-};
-
-const handleSubmitApprovedTxMsg: (
-  service: ApprovalsService
-) => InternalHandler<SubmitApprovedTxMsg> = (service) => {
-  return async (_, { msgId }) => {
-    return await service.submitTx(msgId);
   };
 };
 

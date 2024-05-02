@@ -201,7 +201,6 @@ export const Setup: React.FC = () => {
                       alias={accountCreationDetails.alias || ""}
                       accountSecret={selectedAccountSecret}
                       password={accountCreationDetails.password || ""}
-                      scanAccounts={false}
                     />
                   </Wrapper>
                 }
@@ -264,7 +263,6 @@ export const Setup: React.FC = () => {
                       alias={accountCreationDetails.alias || ""}
                       accountSecret={selectedAccountSecret}
                       password={accountCreationDetails.password || ""}
-                      scanAccounts={false}
                     />
                   </Wrapper>
                 }

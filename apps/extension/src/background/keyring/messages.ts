@@ -21,7 +21,6 @@ enum MessageType {
   GetActiveAccount = "get-active-account",
   QueryParentAccounts = "query-parent-accounts",
   SaveAccountSecret = "save-account-secret",
-  ScanAccounts = "scan-accounts",
   SetActiveAccount = "set-active-account",
   TransferCompletedEvent = "transfer-completed-event",
   DeleteAccount = "delete-account",
@@ -234,26 +233,6 @@ export class AddLedgerAccountMsg extends Message<AccountStore | false> {
 
   type(): string {
     return AddLedgerAccountMsg.type();
-  }
-}
-export class ScanAccountsMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.ScanAccounts;
-  }
-
-  constructor() {
-    super();
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  validate(): void {}
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return ScanAccountsMsg.type();
   }
 }
 

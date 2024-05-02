@@ -21,7 +21,6 @@ import {
   RenameAccountMsg,
   RevealAccountMnemonicMsg,
   SaveAccountSecretMsg,
-  ScanAccountsMsg,
   SetActiveAccountMsg,
   TransferCompletedEvent,
   ValidateMnemonicMsg,
@@ -53,8 +52,6 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as SaveAccountSecretMsg
         );
-      case ScanAccountsMsg:
-        return handleScanAccountsMsg(service)(env, msg as ScanAccountsMsg);
       case DeriveAccountMsg:
         return handleDeriveAccountMsg(service)(env, msg as DeriveAccountMsg);
       case QueryAccountsMsg:
@@ -185,14 +182,6 @@ const handleRenameAccountMsg: (
   };
 };
 
-const handleScanAccountsMsg: (
-  service: KeyRingService
-) => InternalHandler<ScanAccountsMsg> = (service) => {
-  return async () => {
-    await service.scanAccounts();
-  };
-};
-
 const handleDeriveAccountMsg: (
   service: KeyRingService
 ) => InternalHandler<DeriveAccountMsg> = (service) => {
@@ -209,9 +198,9 @@ const handleQueryAccountsMsg: (
     const { query } = msg;
 
     const output =
-      query && query.accountId
-        ? await service.queryAccountById(query.accountId)
-        : await service.queryAccounts();
+      query && query.accountId ?
+        await service.queryAccountById(query.accountId)
+      : await service.queryAccounts();
 
     return output;
   };

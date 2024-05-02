@@ -22,7 +22,6 @@ import {
 
 import { assertNever, paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
-import { LedgerService } from "background/ledger";
 
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
@@ -60,7 +59,6 @@ export class ApprovalsService {
     protected readonly dataStore: KVStore<string>,
     protected readonly localStorage: LocalStorage,
     protected readonly keyRingService: KeyRingService,
-    protected readonly ledgerService: LedgerService,
     protected readonly vaultService: VaultService,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {}
@@ -324,41 +322,6 @@ export class ApprovalsService {
   // Remove pending transaction from storage
   async rejectTx(msgId: string): Promise<void> {
     await this._clearPendingTx(msgId);
-  }
-
-  // Authenticate keyring and submit approved transaction from storage
-  async submitTx(msgId: string): Promise<void> {
-    // Fetch pending transfer tx
-    const storedTx = await this.txStore.get(msgId);
-
-    if (!storedTx) {
-      throw new Error("Pending tx not found!");
-    }
-
-    const { txType } = storedTx;
-
-    await Promise.all(
-      storedTx.tx.map(async (pendingTx: PendingTx) => {
-        const { specificMsg, txMsg } = pendingTx;
-        const submitFn =
-          txType === TxType.Bond ? this.keyRingService.submitBond
-          : txType === TxType.Unbond ? this.keyRingService.submitUnbond
-          : txType === TxType.Transfer ? this.keyRingService.submitTransfer
-          : txType === TxType.IBCTransfer ?
-            this.keyRingService.submitIbcTransfer
-          : txType === TxType.EthBridgeTransfer ?
-            this.keyRingService.submitEthBridgeTransfer
-          : txType === TxType.Withdraw ? this.keyRingService.submitWithdraw
-          : txType === TxType.VoteProposal ?
-            this.keyRingService.submitVoteProposal
-          : txType === TxType.Redelegate ? this.keyRingService.submitRedelegate
-          : assertNever(txType);
-
-        await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
-      })
-    );
-
-    return await this._clearPendingTx(msgId);
   }
 
   async isConnectionApproved(interfaceOrigin: string): Promise<boolean> {

@@ -12,7 +12,6 @@ import {
   RejectTxMsg,
   RevokeConnectionMsg,
   SubmitApprovedSignatureMsg,
-  SubmitApprovedTxMsg,
 } from "./messages";
 
 import { ROUTE } from "./constants";
@@ -23,7 +22,6 @@ export function init(router: Router, service: ApprovalsService): void {
   router.registerMessage(ApproveTxMsg);
   router.registerMessage(RejectTxMsg);
   router.registerMessage(QueryPendingTxMsg);
-  router.registerMessage(SubmitApprovedTxMsg);
   router.registerMessage(ApproveSignArbitraryMsg);
   router.registerMessage(RejectSignatureMsg);
   router.registerMessage(SubmitApprovedSignatureMsg);

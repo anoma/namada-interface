@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { SupportedTx, TxTypeLabel } from "@heliax/namada-sdk/web";
+import { TxTypeLabel } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Input, Stack } from "@namada/components";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
-import { SubmitApprovedTxMsg } from "background/approvals";
 import { UnlockVaultMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
@@ -65,14 +64,8 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
         }
       }
 
-      requester
-        .sendMessage(
-          Ports.Background,
-          new SubmitApprovedTxMsg(txType as SupportedTx, msgId)
-        )
-        .catch((e) => {
-          throw new Error(e);
-        });
+      // TODO: Return signed Tx!
+
       setStatus(Status.Completed);
     } catch (e) {
       console.info(e);

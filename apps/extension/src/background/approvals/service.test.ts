@@ -14,7 +14,6 @@ import {
 } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
-import { LedgerService } from "background/ledger";
 import { VaultService } from "background/vault";
 import BigNumber from "bignumber.js";
 import { ExtensionBroadcaster } from "extension";
@@ -67,9 +66,6 @@ describe("approvals service", () => {
     txStore = new KVStoreMock<TxStore>("TxStore");
     dataStore = new KVStoreMock<string>("DataStore");
     keyRingService = createMockInstance(KeyRingService as any);
-    const ledgerService: jest.Mocked<LedgerService> = createMockInstance(
-      LedgerService as any
-    );
     const vaultService: jest.Mocked<VaultService> = createMockInstance(
       VaultService as any
     );
@@ -82,7 +78,6 @@ describe("approvals service", () => {
       dataStore,
       localStorage,
       keyRingService,
-      ledgerService,
       vaultService,
       broadcaster
     );
@@ -532,76 +527,6 @@ describe("approvals service", () => {
       await service.rejectTx("msgId");
 
       expect((service as any)._clearPendingTx).toHaveBeenCalledWith("msgId");
-    });
-  });
-
-  const submitTxTypes = [
-    [TxType.Bond, "submitBond"],
-    [TxType.Unbond, "submitUnbond"],
-    [TxType.Withdraw, "submitWithdraw"],
-    [TxType.Transfer, "submitTransfer"],
-    [TxType.IBCTransfer, "submitIbcTransfer"],
-    [TxType.EthBridgeTransfer, "submitEthBridgeTransfer"],
-    [TxType.VoteProposal, "submitVoteProposal"],
-  ] as const;
-
-  describe("submitTx", () => {
-    it.each(submitTxTypes)("%i txType fn: %s", async (txType, paramsFn) => {
-      const msgId = "msgId";
-      const txMsg = "txMsg";
-      const specificMsg = "specificMsg";
-
-      jest.spyOn(service["txStore"], "get").mockImplementation(() => {
-        return Promise.resolve({
-          txType,
-          tx: [
-            {
-              txMsg,
-              specificMsg,
-            },
-          ],
-        });
-      });
-
-      jest.spyOn(keyRingService, paramsFn).mockResolvedValue();
-      jest.spyOn(service as any, "_clearPendingTx");
-
-      await service.submitTx(msgId);
-      expect(service["_clearPendingTx"]).toHaveBeenCalledWith(msgId);
-      expect(keyRingService[paramsFn]).toHaveBeenCalledWith(
-        specificMsg,
-        txMsg,
-        msgId
-      );
-    });
-
-    it("should throw an error if txType is not found", async () => {
-      const msgId = "msgId";
-      const txMsg = "txMsg";
-      const specificMsg = "specificMsg";
-      const txType: any = 999;
-
-      jest.spyOn(service["txStore"], "get").mockImplementation(() => {
-        return Promise.resolve({
-          txType,
-          tx: [
-            {
-              txMsg,
-              specificMsg,
-            },
-          ],
-        });
-      });
-
-      await expect(service.submitTx(msgId)).rejects.toBeDefined();
-    });
-
-    it("should throw an error if tx is not found", async () => {
-      jest.spyOn(service["txStore"], "get").mockImplementation(() => {
-        return Promise.resolve(undefined);
-      });
-
-      await expect(service.submitTx("msgId")).rejects.toBeDefined();
     });
   });
 

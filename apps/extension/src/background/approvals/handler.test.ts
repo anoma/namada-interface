@@ -16,7 +16,6 @@ import {
   RejectTxMsg,
   RevokeConnectionMsg,
   SubmitApprovedSignatureMsg,
-  SubmitApprovedTxMsg,
 } from "./messages";
 import { ApprovalsService } from "./service";
 
@@ -64,10 +63,6 @@ describe("approvals handler", () => {
     const rejectTxMsg = new RejectTxMsg("msgId");
     handler(env, rejectTxMsg);
     expect(service.rejectTx).toBeCalled();
-
-    const submitApprovedTxMsg = new SubmitApprovedTxMsg(TxType.Bond, "msgId");
-    handler(env, submitApprovedTxMsg);
-    expect(service.submitTx).toBeCalled();
 
     const isConnectionApprovedMsg = new IsConnectionApprovedMsg();
     handler(env, isConnectionApprovedMsg);

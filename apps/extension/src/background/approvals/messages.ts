@@ -1,4 +1,3 @@
-import { SupportedTx } from "@heliax/namada-sdk/web";
 import { Message } from "router";
 import { ROUTE } from "./constants";
 
@@ -7,7 +6,6 @@ import { PendingTxDetails } from "./types";
 
 export enum MessageType {
   RejectTx = "reject-tx",
-  SubmitApprovedTx = "submit-approved-tx",
   QueryPendingTx = "query-pending-tx",
   SubmitApprovedSignature = "submit-approved-signature",
   RejectSignature = "reject-signature",
@@ -34,31 +32,6 @@ export class RejectTxMsg extends Message<void> {
 
   type(): string {
     return RejectTxMsg.type();
-  }
-}
-
-export class SubmitApprovedTxMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.SubmitApprovedTx;
-  }
-
-  constructor(
-    public readonly txType: SupportedTx,
-    public readonly msgId: string
-  ) {
-    super();
-  }
-
-  validate(): void {
-    validateProps(this, ["txType", "msgId"]);
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return SubmitApprovedTxMsg.type();
   }
 }
 
