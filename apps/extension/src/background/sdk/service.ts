@@ -1,4 +1,4 @@
-import { Sdk, getNativeToken, getSdk } from "@heliax/namada-sdk/web";
+import { Sdk, getSdk } from "@heliax/namada-sdk/web";
 import sdkInit from "@heliax/namada-sdk/web-init";
 import { chains } from "@namada/chains";
 import { Chain } from "@namada/types";
@@ -23,20 +23,6 @@ export class SdkService {
     const rpc = chain?.rpc || chains.namada.rpc;
 
     const { cryptoMemory } = await sdkInit();
-
-    let tokenAddress = chain?.currency.address;
-
-    if (!tokenAddress) {
-      try {
-        tokenAddress = await getNativeToken(rpc);
-      } catch (error) {
-        console.warn(
-          "Unable to query native token. Falling back to the default.",
-          error
-        );
-        tokenAddress = defaultTokenAddress;
-      }
-    }
 
     return new SdkService(rpc, defaultTokenAddress, cryptoMemory);
   }
