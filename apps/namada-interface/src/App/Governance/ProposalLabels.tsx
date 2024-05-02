@@ -1,36 +1,49 @@
-import { GoCheckCircleFill } from "react-icons/go";
-
 import { InsetLabel, RoundedLabel } from "@namada/components";
 import { assertNever } from "@namada/utils";
+import { GoCheckCircleFill } from "react-icons/go";
 import { ProposalStatus, ProposalType } from "slices/proposals";
+import { twMerge } from "tailwind-merge";
 
 export const StatusLabel: React.FC<
   {
     status: ProposalStatus;
   } & React.ComponentProps<typeof RoundedLabel>
-> = ({ status, style, ...rest }) => {
-  const [text, color] =
-    status.status === "pending" ? ["Upcoming", "#7DA0A8"]
-    : status.status === "ongoing" ? ["Ongoing", "#FF8A00"]
+> = ({ status, className, ...rest }) => {
+  const [text, statusClassName] =
+    status.status === "pending" ? ["Upcoming", "text-upcoming"]
+    : status.status === "ongoing" ? ["Ongoing", "text-intermediate"]
     : status.status === "finished" ?
       status.passed ?
-        ["Passed", "#15DD89"]
-      : ["Rejected", "#DD1539"]
+        ["Passed", "text-success"]
+      : ["Rejected", "text-fail"]
     : assertNever(status);
 
   return (
-    <RoundedLabel style={{ ...style, color }} {...rest}>
+    <RoundedLabel className={twMerge(className, statusClassName)} {...rest}>
       {text}
     </RoundedLabel>
   );
 };
 
-export const VotedLabel: React.FC = () => (
-  <RoundedLabel className="text-cyan flex items-center w-28">
-    <div className="grow">Voted</div>
-    <GoCheckCircleFill />
-  </RoundedLabel>
-);
+export const VotedLabel: React.FC<React.ComponentProps<"div">> = ({
+  className,
+  ...props
+}) => {
+  return (
+    <RoundedLabel
+      {...props}
+      className={twMerge(
+        "flex gap-1 text-cyan py-1 px-2 items-center",
+        className
+      )}
+    >
+      <div className="grow">Voted</div>
+      <i className="inline-flex text-lg">
+        <GoCheckCircleFill />
+      </i>
+    </RoundedLabel>
+  );
+};
 
 export const TypeLabel: React.FC<
   {
@@ -43,5 +56,9 @@ export const TypeLabel: React.FC<
     : proposalType === "default" ? "Default"
     : assertNever(proposalType);
 
-  return <InsetLabel {...rest}>{text}</InsetLabel>;
+  return (
+    <InsetLabel className="text-xs leading-[1.65em]" {...rest}>
+      {text}
+    </InsetLabel>
+  );
 };

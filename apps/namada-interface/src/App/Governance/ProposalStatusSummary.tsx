@@ -1,10 +1,12 @@
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { motion } from "framer-motion";
 import { useState } from "react";
 
 import { PieChart, PieChartData, Stack } from "@namada/components";
 import { assertNever, formatPercentage } from "@namada/utils";
 
+import { AnimatePresence } from "framer-motion";
 import {
   Proposal,
   ProposalType,
@@ -35,7 +37,11 @@ const StatusListItem: React.FC<{
 }> = ({ color, leftContent, rightContent, rightSubContent, selected }) => {
   return (
     <li
-      className={clsx("rounded-sm border-2 p-2 flex justify-between")}
+      className={clsx(
+        "rounded-sm leading-tight p-2 flex justify-between",
+        "border-transparent border-2",
+        "transition-all ease-out-quad duration-100"
+      )}
       style={{
         color,
         borderColor: selected ? color : "#1B1B1B",
@@ -43,10 +49,10 @@ const StatusListItem: React.FC<{
           selected ? `rgb(from ${color} r g b / 0.1)` : "#1B1B1B",
       }}
     >
-      <div className="uppercase">{leftContent}</div>
+      <div className="uppercase text-sm">{leftContent}</div>
       <div className="text-right">
-        <div>{rightContent}</div>
-        <div className="text-xs">{rightSubContent}</div>
+        <div className="text-sm">{rightContent}</div>
+        <div className="text-xxs">{rightSubContent}</div>
       </div>
     </li>
   );
@@ -87,14 +93,23 @@ export const ProposalStatusSummary: React.FC<{
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        {typeof hoveredVoteType !== "undefined" && (
-          <div style={{ color: colors[hoveredVoteType] }}>
-            <div className="uppercase">{hoveredVoteType}</div>
-            <div className="text-3xl">
-              {percentageString(votes[hoveredVoteType])}
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {typeof hoveredVoteType !== "undefined" && (
+            <motion.article
+              className="leading-tight"
+              style={{ color: colors[hoveredVoteType] }}
+              transition={{ duration: 0.1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <div className="uppercase text-sm">{hoveredVoteType}</div>
+              <div className="text-3xl">
+                {percentageString(votes[hoveredVoteType])}
+              </div>
+            </motion.article>
+          )}
+        </AnimatePresence>
       </PieChart>
 
       <Stack as="ul" gap={1}>

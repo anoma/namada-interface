@@ -30,7 +30,7 @@ export const SegmentedBar: React.FC<
   const last = data[data.length - 1];
 
   return (
-    <div className={twMerge("w-full h-[10px] flex", className)} {...rest}>
+    <div className={twMerge("w-full h-[6px] flex", className)} {...rest}>
       {init.map(({ value, color }, index) => (
         <div
           key={index}

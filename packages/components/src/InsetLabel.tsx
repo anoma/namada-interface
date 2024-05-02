@@ -2,10 +2,10 @@ import { twMerge } from "tailwind-merge";
 import { tv, type VariantProps } from "tailwind-variants";
 
 const insetLabel = tv({
-  base: "rounded-sm w-fit px-4 py-2 text-neutral-450",
+  base: "rounded-sm w-fit px-4 py-1 text-neutral-450",
   variants: {
     color: {
-      dark: "bg-black",
+      dark: "bg-rblack",
       light: "bg-[#1B1B1B]",
     },
   },

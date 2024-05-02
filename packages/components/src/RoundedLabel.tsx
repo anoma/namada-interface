@@ -7,7 +7,7 @@ export const RoundedLabel: React.FC<React.ComponentProps<"div">> = ({
 }) => (
   <div
     className={twMerge(
-      "uppercase rounded-2xl border-2 text-center px-2 py-0.5",
+      "uppercase rounded-2xl border text-center px-2 py-1",
       className
     )}
     {...rest}

@@ -21,8 +21,9 @@ const VoteTypeBreakdown: React.FC<{
 
   return (
     <div>
-      <span className="uppercase">
-        {voteType} {percentageString}
+      <span className="uppercase flex gap-1 items-baseline">
+        <strong className="text-xs">{voteType} </strong>
+        <span className="text-xxs text-neutral-600">{percentageString}</span>
       </span>
       <ProgressBar
         value={{ value: votes, color: colors[voteType] }}
@@ -56,26 +57,29 @@ export const VoteBreakdownHalf: React.FC<{
   );
 
   return (
-    <Stack gap={2}>
-      <h3 className="text-[#8A8A8A]">{title}</h3>
-      <p className="text-3xl">{subtitle}</p>
+    <Stack gap={2} className="pb-8">
+      <header>
+        <h3 className="text-neutral-500 text-xs">{title}</h3>
+        <p className="text-2xl">{subtitle}</p>
+      </header>
+      <Stack gap={5}>
+        {voteTypes.map((voteType, index) => (
+          <VoteTypeBreakdown
+            voteType={voteType}
+            votes={votes[voteType]}
+            percentage={votesAsPercentage[voteType]}
+            totalVotingPower={totalVotingPower}
+            key={index}
+          />
+        ))}
 
-      {voteTypes.map((voteType, index) => (
         <VoteTypeBreakdown
-          voteType={voteType}
-          votes={votes[voteType]}
-          percentage={votesAsPercentage[voteType]}
+          voteType="not voted"
+          votes={notVotedCount}
           totalVotingPower={totalVotingPower}
-          key={index}
+          percentage={notVotedAsPercentage}
         />
-      ))}
-
-      <VoteTypeBreakdown
-        voteType="not voted"
-        votes={notVotedCount}
-        totalVotingPower={totalVotingPower}
-        percentage={notVotedAsPercentage}
-      />
+      </Stack>
     </Stack>
   );
 };
@@ -85,7 +89,7 @@ export const VoteBreakdown: React.FC<{
   totalVotingPower: BigNumber;
 }> = ({ votes, totalVotingPower }) => {
   return (
-    <div className="grid grid-cols-[1fr_2px_1fr] gap-x-4">
+    <div className="grid grid-cols-[1fr_2px_1fr] gap-x-8">
       <VoteBreakdownHalf
         title="Voted Validators"
         subtitle="TODO"
@@ -93,7 +97,7 @@ export const VoteBreakdown: React.FC<{
         totalVotingPower={totalVotingPower}
       />
 
-      <b className="bg-[#151515]" />
+      <hr className="border-0 border-r h-full border-neutral-800" />
 
       <VoteBreakdownHalf
         title="Voted Accounts"
