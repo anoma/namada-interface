@@ -4,12 +4,7 @@ import { combineReducers } from "redux";
 import { createTransform, persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import thunk from "redux-thunk";
-import {
-  chainReducer,
-  channelsReducer,
-  settingsReducer,
-  stakingAndGovernanceReducers,
-} from "slices";
+import { chainReducer, channelsReducer, settingsReducer } from "slices";
 import { SettingsState } from "slices/settings";
 
 import { atomWithStore } from "jotai-redux";
@@ -35,7 +30,6 @@ const reducers = combineReducers({
   chain: chainReducer,
   channels: channelsReducer,
   settings: settingsReducer,
-  stakingAndGovernance: stakingAndGovernanceReducers,
 });
 
 const persistConfig = {
