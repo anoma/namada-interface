@@ -2,59 +2,103 @@ import BigNumber from "bignumber.js";
 
 import { Proposal, ProposalStatus, Votes } from "./types";
 
-export const fetchProposals = (): Proposal[] => [
+export const fetchCurrentEpoch = async (): Promise<BigNumber> => BigNumber(10);
+
+export const fetchProposalCounter = async (): Promise<number> =>
+  TEST_PROPOSALS.length;
+
+export const fetchProposalById = async (id: number): Promise<Proposal> => {
+  const proposal = TEST_PROPOSALS[id];
+  if (typeof proposal === "undefined") {
+    throw new Error("no proposal!");
+  }
+  return proposal;
+};
+
+export const fetchProposalVotes = async (id: number): Promise<Votes> => ({
+  yes: BigNumber(1000.22),
+  no: BigNumber(325.111),
+  abstain: BigNumber(133.00002),
+});
+
+export const fetchProposalStatus = async (
+  id: number,
+  currentEpoch: BigNumber
+): Promise<ProposalStatus> => {
+  const { startEpoch, endEpoch } = await fetchProposalById(id);
+
+  if (startEpoch.isGreaterThan(currentEpoch)) {
+    return { status: "pending" };
+  } else if (endEpoch.isGreaterThan(currentEpoch)) {
+    return { status: "ongoing" };
+  } else {
+    return { status: "finished", passed: id % 2 === 0 };
+  }
+};
+
+export const fetchProposalVoted = async (
+  id: number,
+  address: string
+): Promise<boolean> => id % 2 === 0;
+
+const TEST_PROPOSALS: Proposal[] = [
   {
-    id: "862",
+    id: "0",
     content: {
       title: "Some proposal",
     },
-    startEpoch: BigInt(4),
-    endEpoch: BigInt(12),
-    graceEpoch: BigInt(0),
+    startEpoch: BigNumber(4),
+    endEpoch: BigNumber(12),
+    graceEpoch: BigNumber(0),
     proposalType: "default",
+    author: "tknam13jfi53tgjefji3rh45hgehhgfhjejrhgfj45gej45gj",
+  },
+  {
+    id: "1",
+    content: {
+      title: "Another proposal",
+    },
+    startEpoch: BigNumber(10),
+    endEpoch: BigNumber(14),
+    graceEpoch: BigNumber(0),
+    proposalType: "pgf_payment",
+    author: "tknam13jfi53tgjefji3rh45hgehhgfhjejrhgfj45gej45gj",
   },
   {
     id: "2",
     content: {
-      title: "Another proposal",
+      title: "Propose something else",
     },
-    startEpoch: BigInt(10),
-    endEpoch: BigInt(14),
-    graceEpoch: BigInt(0),
-    proposalType: "pgf_payment",
+    startEpoch: BigNumber(14),
+    endEpoch: BigNumber(16),
+    graceEpoch: BigNumber(0),
+    proposalType: "pgf_steward",
+    author: "tknam13jfi53tgjefji3rh45hgehhgfhjejrhgfj45gej45gj",
   },
   {
     id: "3",
     content: {
-      title: "Propose something else",
+      title: "Propose another thing",
     },
-    startEpoch: BigInt(14),
-    endEpoch: BigInt(16),
-    graceEpoch: BigInt(0),
-    proposalType: "pgf_steward",
+    startEpoch: BigNumber(3),
+    endEpoch: BigNumber(5),
+    graceEpoch: BigNumber(0),
+    proposalType: "pgf_payment",
+    author: "tknam13jfi53tgjefji3rh45hgehhgfhjejrhgfj45gej45gj",
   },
   {
     id: "4",
     content: {
-      title: "Propose another thing",
+      title: "Propose more things",
     },
-    startEpoch: BigInt(3),
-    endEpoch: BigInt(5),
-    graceEpoch: BigInt(0),
+    startEpoch: BigNumber(3),
+    endEpoch: BigNumber(7),
+    graceEpoch: BigNumber(0),
     proposalType: "pgf_payment",
+    author: "tknam13jfi53tgjefji3rh45hgehhgfhjejrhgfj45gej45gj",
   },
   {
     id: "5",
-    content: {
-      title: "Propose more things",
-    },
-    startEpoch: BigInt(3),
-    endEpoch: BigInt(7),
-    graceEpoch: BigInt(0),
-    proposalType: "pgf_payment",
-  },
-  {
-    id: "999",
     content: {
       title: "Stewie for Steward 2024",
       authors: "stewie@heliax.dev",
@@ -68,37 +112,10 @@ export const fetchProposals = (): Proposal[] => [
       details:
         "As a genius baby, I possess an unmatched level of intelligence and a visionary mindset. I will utilize these qualities to solve the most complex problems, and direct public goods funding towards weapons of mass destruction ... i mean open source software for weapons of mass destruction",
     },
-    startEpoch: BigInt(3),
-    endEpoch: BigInt(7),
-    graceEpoch: BigInt(0),
+    startEpoch: BigNumber(4),
+    endEpoch: BigNumber(14),
+    graceEpoch: BigNumber(0),
     proposalType: "pgf_payment",
+    author: "tnam13jfi53tgjefji3rheeeeeeeeeeeeeeeeeeeeeeeeeee",
   },
 ];
-
-export const fetchCurrentEpoch = (): bigint => BigInt(10);
-
-export const proposalStatus = (
-  proposal: Proposal,
-  votes: Votes,
-  currentEpoch: bigint
-): ProposalStatus => {
-  const { startEpoch, endEpoch } = proposal;
-
-  if (startEpoch > currentEpoch) {
-    return "upcoming";
-  } else if (endEpoch > currentEpoch) {
-    return "ongoing";
-  } else {
-    // TODO: fake data
-    return Number(proposal.id) % 2 === 0 ? "passed" : "rejected";
-  }
-};
-
-export const fetchVotes = (id: string): Votes => ({
-  yes: BigNumber(1000.22),
-  no: BigNumber(325.111),
-  veto: BigNumber(44.22),
-  abstain: BigNumber(133.00002),
-});
-
-export const fetchVoted = (id: string): boolean => Number(id) % 2 === 0;
