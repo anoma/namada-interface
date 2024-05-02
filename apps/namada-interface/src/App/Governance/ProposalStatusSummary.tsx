@@ -3,10 +3,28 @@ import clsx from "clsx";
 import { useState } from "react";
 
 import { PieChart, PieChartData, Stack } from "@namada/components";
-import { formatPercentage } from "@namada/utils";
+import { assertNever, formatPercentage } from "@namada/utils";
 
-import { VoteType, Votes, voteTypes } from "slices/proposals";
+import {
+  Proposal,
+  ProposalType,
+  VoteType,
+  Votes,
+  voteTypes,
+} from "slices/proposals/types";
 import { colors } from "./types";
+
+// TODO: is this a good enough way to represent rational numbers?
+const defaultQuorum = BigNumber(2).dividedBy(3);
+const stewardQuorum = BigNumber(1).dividedBy(3);
+// TODO: handle steward propooser
+const pgfQuorum = BigNumber(1).dividedBy(3);
+
+const getQuorum = (proposalType: ProposalType): BigNumber =>
+  proposalType === "default" ? defaultQuorum
+  : proposalType === "pgf_steward" ? stewardQuorum
+  : proposalType === "pgf_payment" ? pgfQuorum
+  : assertNever(proposalType);
 
 const StatusListItem: React.FC<{
   color: string;
@@ -34,9 +52,10 @@ const StatusListItem: React.FC<{
   );
 };
 
-export const ProposalStatus: React.FC<{
+export const ProposalStatusSummary: React.FC<{
+  proposal: Proposal;
   votes: Votes;
-}> = ({ votes }) => {
+}> = ({ proposal, votes }) => {
   const [hoveredVoteType, setHoveredVoteType] = useState<
     VoteType | undefined
   >();
@@ -56,6 +75,8 @@ export const ProposalStatus: React.FC<{
   };
 
   const handleMouseLeave = (): void => setHoveredVoteType(undefined);
+
+  const quorum = getQuorum(proposal.proposalType);
 
   return (
     <Stack gap={4}>
@@ -91,7 +112,7 @@ export const ProposalStatus: React.FC<{
 
       <div>
         <h3 className="text-[#A3A3A3] text-xs">Turnout / Quorum</h3>
-        <p className="text-xl">7.3% / 40.0% TODO</p>
+        <p className="text-xl">TODO / {formatPercentage(quorum, 2)}</p>
       </div>
     </Stack>
   );

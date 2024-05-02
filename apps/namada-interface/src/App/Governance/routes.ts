@@ -16,8 +16,12 @@ export const overview = (): RouteOutput => routeOutput(`/overview`);
 export const proposal = (proposalId: string = ":proposalId"): RouteOutput =>
   routeOutput(`/proposal/${proposalId}`);
 
+export const submitVote = (proposalId: string = ":proposalId"): RouteOutput =>
+  routeOutput(`/submit-vote/${proposalId}`);
+
 export default {
   index,
   overview,
   proposal,
+  submitVote,
 };

@@ -1,6 +1,11 @@
 import BigNumber from "bignumber.js";
 
-import { Proposal, ProposalStatus, Votes } from "./types";
+import {
+  Proposal,
+  ProposalStatus,
+  ProposalWithExtraInfo,
+  Votes,
+} from "./types";
 
 export const fetchCurrentEpoch = async (): Promise<BigNumber> => BigNumber(10);
 
@@ -14,6 +19,37 @@ export const fetchProposalById = async (id: number): Promise<Proposal> => {
   }
   return proposal;
 };
+
+export const fetchProposalByIdWithExtraInfo = async (
+  id: number,
+  address: string,
+  currentEpoch: BigNumber
+): Promise<ProposalWithExtraInfo> => {
+  const proposal = await fetchProposalById(id);
+  const voted = await fetchProposalVoted(id, address);
+  const status = await fetchProposalStatus(id, currentEpoch);
+  const votes = await fetchProposalVotes(id);
+
+  return { proposal, voted, status, votes };
+};
+
+export const fetchAllProposals = async (
+  proposalCounter: number
+): Promise<Proposal[]> =>
+  Promise.all(
+    Array.from({ length: proposalCounter }, (_, id) => fetchProposalById(id))
+  );
+
+export const fetchAllProposalsWithExtraInfo = async (
+  proposalCounter: number,
+  address: string,
+  currentEpoch: BigNumber
+): Promise<ProposalWithExtraInfo[]> =>
+  Promise.all(
+    Array.from({ length: proposalCounter }, (_, id) =>
+      fetchProposalByIdWithExtraInfo(id, address, currentEpoch)
+    )
+  );
 
 export const fetchProposalVotes = async (id: number): Promise<Votes> => ({
   yes: BigNumber(1000.22),
