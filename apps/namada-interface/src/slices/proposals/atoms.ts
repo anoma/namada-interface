@@ -1,67 +1,56 @@
-import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
 
 import {
-  fetchProposals,
-  fetchVoted,
-  fetchVotes,
-  proposalStatus,
+  fetchCurrentEpoch,
+  fetchProposalById,
+  fetchProposalCounter,
+  fetchProposalStatus,
+  fetchProposalVoted,
+  fetchProposalVotes,
 } from "./functions";
-import * as SimplifiedQueryResult from "./simplifiedQueryResult";
 
-export const proposalsAtom = SimplifiedQueryResult.makeAtom(
+export const currentEpochAtom = atomWithQuery(() => ({
+  queryKey: ["current-epoch"],
+  queryFn: fetchCurrentEpoch,
+}));
+
+export const proposalCounterAtom = atomWithQuery(() => ({
+  queryKey: ["proposal-counter"],
+  queryFn: fetchProposalCounter,
+}));
+
+export const proposalFamily = atomFamily((id: number) =>
   atomWithQuery(() => ({
-    queryKey: ["proposals"],
-    queryFn: fetchProposals,
+    queryKey: ["proposal", id],
+    queryFn: () => fetchProposalById(id),
   }))
 );
 
-export const proposalFamily = atomFamily((id: string) =>
-  atom((get) =>
-    SimplifiedQueryResult.map(
-      (proposals) => proposals.find((p) => p.id === id),
-      get(proposalsAtom)
-    )
-  )
+export const proposalVotesFamily = atomFamily((id: number) =>
+  atomWithQuery(() => ({
+    queryKey: ["proposal-votes", id],
+    queryFn: () => fetchProposalVotes(id),
+  }))
 );
 
-export const votesFamily = atomFamily((id: string) =>
-  SimplifiedQueryResult.makeAtom(
-    atomWithQuery(() => ({
-      queryKey: ["votes", id],
-      queryFn: () => fetchVotes(id),
-    }))
-  )
-);
-
-export const votedFamily = atomFamily((id: string) =>
-  SimplifiedQueryResult.makeAtom(
-    atomWithQuery(() => ({
-      queryKey: ["voted", id],
-      queryFn: () => fetchVoted(id),
-    }))
-  )
-);
-
-export const currentEpochAtom = atom(BigInt(10));
-
-export const statusFamily = atomFamily((id: string) =>
-  atom((get) => {
-    const proposalQuery = get(proposalFamily(id));
-    const votesQuery = get(votesFamily(id));
+export const proposalStatusFamily = atomFamily((id: number) =>
+  atomWithQuery((get) => {
     const currentEpoch = get(currentEpochAtom);
+    return {
+      enabled: currentEpoch.isSuccess,
+      queryKey: ["proposal-status", id, currentEpoch.data],
+      queryFn: () => fetchProposalStatus(id, currentEpoch.data!),
+    };
+  })
+);
 
-    return SimplifiedQueryResult.then(proposalQuery, (proposal) =>
-      SimplifiedQueryResult.then(votesQuery, (votes) => {
-        if (typeof votes === "undefined" || typeof proposal === "undefined") {
-          throw new Error("votes or proposal was undefined");
-        }
-
-        return SimplifiedQueryResult.resolve(
-          proposalStatus(proposal, votes, currentEpoch)
-        );
-      })
-    );
+export const proposalVotedFamily = atomFamily((id: number) =>
+  atomWithQuery((get) => {
+    const address = "tnam1qz4sdx5jlh909j44uz46pf29ty0ztftfzc98s8dx";
+    return {
+      queryKey: ["proposal-voted", id, address],
+      queryFn: () => fetchProposalVoted(id, address),
+    };
   })
 );
