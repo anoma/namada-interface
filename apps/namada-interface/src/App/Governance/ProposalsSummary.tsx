@@ -9,10 +9,10 @@ const SummaryCard: React.FC<{
   title: string;
   content: React.ReactNode;
 }> = ({ title, content }) => (
-  <div className="rounded bg-[#1b1b1b] p-4">
-    <div className="text-sm">{title}</div>
-    <div className="text-xl">{content}</div>
-  </div>
+  <Stack gap={2} className="rounded bg-[#1b1b1b] p-4">
+    <div className="text-xs">{title}</div>
+    <div className="text-2xl">{content}</div>
+  </Stack>
 );
 
 export const ProposalsSummary: React.FC = () => {

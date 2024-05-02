@@ -19,7 +19,7 @@ export const ProposalDescription: React.FC<{
   });
 
   return (
-    <Stack className="text-sm px-8" gap={4}>
+    <Stack className="text-sm px-8 -mt-3" gap={4}>
       <section>{abstract}</section>
 
       {expanded &&
