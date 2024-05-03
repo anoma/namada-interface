@@ -3,8 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import { Ledger, TxType, TxTypeLabel } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Stack } from "@namada/components";
 import { LedgerError } from "@zondax/ledger-namada";
-import { ApprovalDetails, Status } from "Approvals/Approvals";
 
+import { ApprovalDetails, Status } from "Approvals/Approvals";
 import { closeCurrentTab } from "utils";
 
 type Props = {

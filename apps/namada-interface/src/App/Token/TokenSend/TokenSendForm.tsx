@@ -2,6 +2,8 @@ import BigNumber from "bignumber.js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { TxType, getSdk } from "@heliax/namada-sdk/web";
+import init from "@heliax/namada-sdk/web-init"
 import { chains } from "@namada/chains";
 import { ActionButton, AmountInput, Icon, Input } from "@namada/components";
 import { Chain, TokenType, Tokens } from "@namada/types";
@@ -18,14 +20,16 @@ import {
   InputContainer,
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
+import { Namada } from "@namada/integrations";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
   tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+  NAMADA_INTERFACE_NAMADA_URL: rpcUrl = "http://localhost:27657",
 } = process.env;
 
 export const submitTransferTransaction = async (
-  txTransferArgs: TxTransferArgs
+  txTransferArgs: TxTransferArgs,
 ): Promise<void> => {
   const {
     account: { address, publicKey, type },
@@ -44,8 +48,7 @@ export const submitTransferTransaction = async (
     return;
   }
 
-
-  const transferArgs = {
+  const transferProps = {
     source: address,
     target,
     token: nativeToken, // TODO: Update to support other tokens again!
@@ -53,7 +56,7 @@ export const submitTransferTransaction = async (
     nativeToken,
   };
 
-  const txArgs = {
+  const wrapperTxProps = {
     token: nativeToken, // TODO: Update to support other tokens again!
     nativeToken,
     feeAmount,
@@ -64,8 +67,31 @@ export const submitTransferTransaction = async (
     disposableSigningKey,
     memo,
   };
+  console.log("Submitting Transfer Tx", { type, transferProps, wrapperTxProps })
 
-  console.log("TODO: Sign & submit transfer", { txProps: transferArgs, wrapperTxProps: txArgs, type })
+  // Init SDK
+  const { cryptoMemory } = await init()
+  const { tx, rpc } = getSdk(cryptoMemory, rpcUrl, "", "");
+
+  // Build
+  const builtTx = await tx.buildTx(TxType.Transfer, wrapperTxProps, transferProps,);
+  console.log("Built transfer:", builtTx);
+
+  const namada = new Namada({
+    ...chains.namada,
+    rpc: rpcUrl,
+  })
+  const signingClient = namada.signer();
+  if (!signingClient) {
+    throw new Error("Why can this be undefined?")
+  }
+
+  // Submit to extension for signing:
+  const signedTx = await signingClient.sign(transferProps.source, builtTx)
+  console.log("Signed Tx Bytes: ", signedTx);
+
+  const response = await rpc.broadcastTx({ txMsg: builtTx.txMsg, tx: signedTx });
+  console.log("Broadcast Tx results: ", response)
 };
 
 type Props = {

@@ -2,6 +2,8 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 import { atom } from "jotai";
 
+import { getSdk } from "@heliax/namada-sdk/web";
+import init from "@heliax/namada-sdk/web-init"
 import { chains } from "@namada/chains";
 import { getIntegration, Namada } from "@namada/integrations";
 import {
@@ -18,6 +20,7 @@ import { RootState } from "store";
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
   tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+  NAMADA_INTERFACE_NAMADA_URL: rpcUrl = "http://localhost:27657"
 } = process.env;
 
 type Address = string;
@@ -79,15 +82,29 @@ export const fetchBalance = createAsyncThunk<
     if (chainKey !== "namada") {
       throw new Error("not namada");
     }
+    const { cryptoMemory } = await init();
+    const { rpc } = getSdk(cryptoMemory, rpcUrl, "", "")
 
-    console.log("TODO: Fetch balances", {
-      address, tokens: [
-        nativeToken || tokenAddress,
-      ]
+    const tokens = [
+      nativeToken || tokenAddress,
+    ]
+    console.log("Querying balances for", { address, tokens })
+
+    const balances = (await rpc.queryBalance(address, tokens)).map(([token, amount]) => {
+      return {
+        token,
+        amount
+      }
     })
 
-    // Return zero balance for now
-    return { chainKey: "namada", address, balance: { NAM: BigNumber(0) } };
+    console.log("RECEIVED BALANCES!", { address, balances })
+
+    // TODO: Fix this
+    return {
+      chainKey,
+      address,
+      balance: { NAM: BigNumber(balances[0].amount || 1000) }
+    }
   }
 );
 
@@ -222,6 +239,7 @@ const balancesAtom = (() => {
       const transparentBalances = await Promise.all(
         queryBalance(namada, transparentAccounts, token)
       );
+      console.log({ transparentBalances })
       transparentBalances.forEach(([address, balance]) => {
         set(base, { ...get(base), [address]: balance });
       });

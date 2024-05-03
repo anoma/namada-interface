@@ -279,6 +279,8 @@ impl Sdk {
 
         to_js_result(borsh::to_vec(&tx)?)
     }
+
+    // Broadcast Tx
     pub async fn process_tx(&mut self, tx_bytes: &[u8], tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
 
