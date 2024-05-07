@@ -208,8 +208,8 @@ export class Rpc {
    * @returns void
    */
   async broadcastTx(signedTx: SignedTx): Promise<string> {
-    const { txMsg, tx } = signedTx;
-    return await this.sdk.process_tx(tx, txMsg);
+    const { wrapperTxMsg, tx } = signedTx;
+    return await this.sdk.process_tx(tx, wrapperTxMsg);
   }
 
   /**

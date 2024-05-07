@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { field, option } from "@dao-xyz/borsh";
 import BigNumber from "bignumber.js";
-import { TxProps } from "../types";
+import { WrapperTxProps } from "../types";
 import { BigNumberSerializer } from "./utils";
 
-export class TxMsgValue {
+export class WrapperTxMsgValue {
   @field({ type: "string" })
   token!: string;
 
@@ -29,7 +29,7 @@ export class TxMsgValue {
   @field({ type: option("string") })
   memo?: string;
 
-  constructor(data: TxProps) {
+  constructor(data: WrapperTxProps) {
     Object.assign(this, data);
   }
 }

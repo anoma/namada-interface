@@ -5,13 +5,13 @@ import {
   RedelegateMsgValue,
   SignatureMsgValue,
   TransferMsgValue,
-  TxMsgValue,
   UnbondMsgValue,
   VoteProposalMsgValue,
   WithdrawMsgValue,
+  WrapperTxMsgValue,
 } from "./schema";
 
-export type TxProps = TxMsgValue;
+export type WrapperTxProps = WrapperTxMsgValue;
 export type BondProps = BondMsgValue;
 export type UnbondProps = UnbondMsgValue;
 export type WithdrawProps = WithdrawMsgValue;

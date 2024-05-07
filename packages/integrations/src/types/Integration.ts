@@ -2,13 +2,13 @@ import {
   Chain,
   EthBridgeTransferProps,
   IbcTransferProps,
-  TxProps,
+  WrapperTxProps,
 } from "@namada/types";
 
 export type BridgeProps = {
   ibcProps?: IbcTransferProps;
   bridgeProps?: EthBridgeTransferProps;
-  txProps: TxProps;
+  txProps: WrapperTxProps;
 };
 
 export interface Integration<T, S> {

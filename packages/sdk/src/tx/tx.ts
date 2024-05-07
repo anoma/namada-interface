@@ -12,15 +12,14 @@ import {
   SignatureMsgValue,
   TransferMsgValue,
   TransferProps,
-  TxMsgValue,
   UnbondMsgValue,
   UnbondProps,
   VoteProposalMsgValue,
   VoteProposalProps,
   WithdrawMsgValue,
   WithdrawProps,
-  // TODO: Update schema to export as WrapperTxProps
-  TxProps as WrapperTxProps,
+  WrapperTxMsgValue,
+  WrapperTxProps,
 } from "@namada/types";
 import { ResponseSign } from "@zondax/ledger-namada";
 import { EncodedTx } from "./types";
@@ -438,11 +437,11 @@ export class Tx {
   /**
    * Helper to encode Tx args given TxProps
    * @param wrapperTxProps - properties of the transaction
-   * @returns Serialized TxMsgValue
+   * @returns Serialized WrapperTxMsgValue
    */
   encodeTxArgs(wrapperTxProps: WrapperTxProps): Uint8Array {
-    const txMsgValue = new TxMsgValue(wrapperTxProps);
-    const msg = new Message<TxMsgValue>();
+    const txMsgValue = new WrapperTxMsgValue(wrapperTxProps);
+    const msg = new Message<WrapperTxMsgValue>();
     return msg.encode(txMsgValue);
   }
 }

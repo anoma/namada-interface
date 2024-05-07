@@ -46,12 +46,12 @@ export class EncodedTx {
  */
 export class SignedTx {
   /**
-   * @param txMsg - Serialized tx msg bytes
+   * @param wrapperTxMsg - Serialized wrapper tx msg bytes
    * @param tx - Serialized tx bytes
    */
   constructor(
-    // Serialized TxMsg
-    public readonly txMsg: Uint8Array,
+    // Serialized WrapperTxMsg
+    public readonly wrapperTxMsg: Uint8Array,
     // Built Tx
     public readonly tx: Uint8Array
   ) {}

@@ -16,6 +16,7 @@ Non-Tx signing functions
 
 ### Methods
 
+- [sign](Signing.md#sign)
 - [signArbitrary](Signing.md#signarbitrary)
 - [verifyArbitrary](Signing.md#verifyarbitrary)
 
@@ -39,7 +40,7 @@ Signing constructor
 
 #### Defined in
 
-[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/signing.ts#L13)
+[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/180f70bc/packages/sdk/src/signing.ts#L13)
 
 ## Properties
 
@@ -51,9 +52,34 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/signing.ts#L13)
+[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/180f70bc/packages/sdk/src/signing.ts#L13)
 
 ## Methods
+
+### sign
+
+▸ **sign**(`signingKey`, `builtTx`): `unknown`
+
+Sign Namada transaction
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `signingKey` | `string` | private key |
+| `builtTx` | `BuiltTx` | Tx and signing data to sign |
+
+#### Returns
+
+`unknown`
+
+signed tx bytes - TODO: Fix this type!
+
+#### Defined in
+
+[sdk/src/signing.ts:21](https://github.com/anoma/namada-interface/blob/180f70bc/packages/sdk/src/signing.ts#L21)
+
+___
 
 ### signArbitrary
 
@@ -76,7 +102,7 @@ hash and signature
 
 #### Defined in
 
-[sdk/src/signing.ts:21](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/signing.ts#L21)
+[sdk/src/signing.ts:31](https://github.com/anoma/namada-interface/blob/180f70bc/packages/sdk/src/signing.ts#L31)
 
 ___
 
@@ -102,4 +128,4 @@ void
 
 #### Defined in
 
-[sdk/src/signing.ts:32](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/signing.ts#L32)
+[sdk/src/signing.ts:42](https://github.com/anoma/namada-interface/blob/180f70bc/packages/sdk/src/signing.ts#L42)

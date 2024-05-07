@@ -90,7 +90,7 @@ export const submitTransferTransaction = async (
   const signedTx = await signingClient.sign(transferProps.source, builtTx)
   console.log("Signed Tx Bytes: ", signedTx);
 
-  const response = await rpc.broadcastTx({ txMsg: builtTx.txMsg, tx: signedTx });
+  const response = await rpc.broadcastTx({ wrapperTxMsg: builtTx.txMsg, tx: signedTx });
   console.log("Broadcast Tx results: ", response)
 };
 

@@ -17,7 +17,7 @@ use wasm_bindgen::JsError;
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
-pub struct TxMsg {
+pub struct WrapperTxMsg {
     token: String,
     fee_amount: String,
     gas_limit: String,
@@ -467,8 +467,8 @@ pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
 ///
 /// Returns JsError if token address is invalid.
 fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
-    let tx_msg = TxMsg::try_from_slice(tx_msg)?;
-    let TxMsg {
+    let tx_msg = WrapperTxMsg::try_from_slice(tx_msg)?;
+    let WrapperTxMsg {
         token,
         fee_amount,
         gas_limit,
