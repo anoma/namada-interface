@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge";
 import { formatPercentage } from "@namada/utils";
 
 export type SegmentedBarData = {
-  value: number | BigNumber;
+  value: number | BigNumber | bigint;
   color: string;
 };
 
@@ -17,13 +17,13 @@ export const SegmentedBar: React.FC<
     return null;
   }
 
-  const percentage = (value: number | BigNumber): string => {
+  const percentage = (value: number | BigNumber | bigint): string => {
     const total = data.reduce(
-      (acc, curr) => acc.plus(curr.value),
+      (acc, curr) => acc.plus(BigNumber(curr.value.toString())),
       BigNumber(0)
     );
 
-    return formatPercentage(BigNumber(value).dividedBy(total), 2);
+    return formatPercentage(BigNumber(value.toString()).dividedBy(total), 2);
   };
 
   const init = data.slice(0, -1);

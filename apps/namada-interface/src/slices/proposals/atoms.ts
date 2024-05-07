@@ -1,31 +1,58 @@
-import { atomWithQuery } from "jotai-tanstack-query";
+import { deserialize } from "@dao-xyz/borsh";
+import { Proposal as ProposalSchema, Query } from "@namada/shared";
+import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
 
+import { Proposal, VoteType } from "@namada/types";
+import { transparentAccountsAtom } from "slices/accounts";
+import { chainAtom } from "slices/chain";
 import {
   fetchAllProposals,
   fetchAllProposalsWithExtraInfo,
-  fetchCurrentEpoch,
-  fetchProposalById,
-  fetchProposalCounter,
   fetchProposalStatus,
   fetchProposalVoted,
   fetchProposalVotes,
+  performVote,
 } from "./functions";
 
-export const currentEpochAtom = atomWithQuery(() => ({
+export const currentEpochAtom = atomWithQuery((get) => ({
   queryKey: ["current-epoch"],
-  queryFn: fetchCurrentEpoch,
+  queryFn: async () => {
+    const { rpc } = get(chainAtom);
+    const query = new Query(rpc);
+    return await query.query_epoch();
+  },
+  //  refetchInterval: 1000
 }));
 
-export const proposalCounterAtom = atomWithQuery(() => ({
+export const proposalCounterAtom = atomWithQuery((get) => ({
   queryKey: ["proposal-counter"],
-  queryFn: fetchProposalCounter,
+  queryFn: async () => {
+    const { rpc } = get(chainAtom);
+    const query = new Query(rpc);
+    const proposalCounter = (await query.query_proposal_counter()) as string;
+    return Number(proposalCounter);
+  },
+  //  refetchInterval: 1000
 }));
 
 export const proposalFamily = atomFamily((id: number) =>
-  atomWithQuery(() => ({
+  atomWithQuery((get) => ({
     queryKey: ["proposal", id],
-    queryFn: () => fetchProposalById(id),
+    queryFn: async (): Promise<Proposal> => {
+      const { rpc } = get(chainAtom);
+      const query = new Query(rpc);
+      const proposalUint8Array = await query.query_proposal_by_id(BigInt(id));
+      const deserialized = deserialize(proposalUint8Array, ProposalSchema);
+
+      const content = JSON.parse(deserialized.content);
+
+      return {
+        ...deserialized,
+        content,
+        proposalType: { type: "default" },
+      };
+    },
   }))
 );
 
@@ -41,7 +68,7 @@ export const proposalStatusFamily = atomFamily((id: number) =>
     const currentEpoch = get(currentEpochAtom);
     return {
       enabled: currentEpoch.isSuccess,
-      queryKey: ["proposal-status", id, currentEpoch.data],
+      queryKey: ["proposal-status", id, currentEpoch.data?.toString()],
       queryFn: () => fetchProposalStatus(id, currentEpoch.data!),
     };
   })
@@ -76,7 +103,7 @@ export const allProposalsWithExtraInfoAtom = atomWithQuery((get) => {
     queryKey: [
       "all-proposals-with-voted-and-status",
       proposalCounter.data,
-      currentEpoch.data,
+      currentEpoch.data?.toString(),
     ],
     queryFn: () =>
       fetchAllProposalsWithExtraInfo(
@@ -84,5 +111,25 @@ export const allProposalsWithExtraInfoAtom = atomWithQuery((get) => {
         address,
         currentEpoch.data!
       ),
+  };
+});
+
+type PerformVoteArgs = {
+  proposalId: number;
+  vote: VoteType;
+};
+export const performVoteAtom = atomWithMutation((get) => {
+  return {
+    mutationKey: ["voting"],
+    mutationFn: async ({ proposalId, vote }: PerformVoteArgs) => {
+      const chain = get(chainAtom);
+      const [account] = get(transparentAccountsAtom);
+
+      if (typeof account === "undefined") {
+        throw new Error("no account");
+      }
+
+      performVote(proposalId, vote, account, chain);
+    },
   };
 });

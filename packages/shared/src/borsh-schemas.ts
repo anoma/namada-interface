@@ -12,11 +12,11 @@ export const BigNumberSerializer = {
 };
 
 export class Proposal {
-  @field({ type: "string" })
-  id!: string;
+  @field({ type: "u64" })
+  id!: bigint;
 
   @field({ type: "string" })
-  proposalType!: "pgf_steward" | "pgf_payment" | "default";
+  content!: string;
 
   @field({ type: "string" })
   author!: string;
@@ -29,24 +29,6 @@ export class Proposal {
 
   @field({ type: "u64" })
   graceEpoch!: bigint;
-
-  @field({ type: "string" })
-  contentJSON!: string;
-
-  @field({ type: "string" })
-  status!: "ongoing" | "finished" | "upcoming";
-
-  @field({ type: "string" })
-  result!: "passed" | "rejected";
-
-  @field({ type: BigNumberSerializer })
-  totalVotingPower!: BigNumber;
-
-  @field({ type: BigNumberSerializer })
-  totalYayPower!: BigNumber;
-
-  @field({ type: BigNumberSerializer })
-  totalNayPower!: BigNumber;
 
   constructor(data: Proposal) {
     Object.assign(this, data);
