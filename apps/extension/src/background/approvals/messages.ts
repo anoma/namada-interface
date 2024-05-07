@@ -2,11 +2,9 @@ import { Message } from "router";
 import { ROUTE } from "./constants";
 
 import { validateProps } from "utils";
-import { PendingTxDetails } from "./types";
 
 export enum MessageType {
   RejectTx = "reject-tx",
-  QueryPendingTx = "query-pending-tx",
   SubmitApprovedSignature = "submit-approved-signature",
   RejectSignature = "reject-signature",
   ConnectInterfaceResponse = "connect-interface-response",
@@ -32,28 +30,6 @@ export class RejectTxMsg extends Message<void> {
 
   type(): string {
     return RejectTxMsg.type();
-  }
-}
-
-export class QueryPendingTxMsg extends Message<PendingTxDetails[]> {
-  public static type(): MessageType {
-    return MessageType.QueryPendingTx;
-  }
-
-  constructor(public readonly msgId: string) {
-    super();
-  }
-
-  validate(): void {
-    validateProps(this, ["msgId"]);
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return QueryPendingTxMsg.type();
   }
 }
 

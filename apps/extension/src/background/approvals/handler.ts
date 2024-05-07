@@ -7,7 +7,6 @@ import {
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
   ConnectInterfaceResponseMsg,
-  QueryPendingTxMsg,
   RejectSignatureMsg,
   RejectTxMsg,
   RevokeConnectionMsg,
@@ -22,8 +21,6 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleApproveTxMsg(service)(env, msg as ApproveTxMsg);
       case RejectTxMsg:
         return handleRejectTxMsg(service)(env, msg as RejectTxMsg);
-      case QueryPendingTxMsg:
-        return handleQueryPendingTxMsg(service)(env, msg as QueryPendingTxMsg);
       case IsConnectionApprovedMsg:
         return handleIsConnectionApprovedMsg(service)(
           env,
@@ -79,14 +76,6 @@ const handleRejectTxMsg: (
 ) => InternalHandler<RejectTxMsg> = (service) => {
   return async (_, { msgId }) => {
     return await service.rejectTx(msgId);
-  };
-};
-
-const handleQueryPendingTxMsg: (
-  service: ApprovalsService
-) => InternalHandler<QueryPendingTxMsg> = (service) => {
-  return async (_, { msgId }) => {
-    return await service.queryPendingTx(msgId);
   };
 };
 

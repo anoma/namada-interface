@@ -30,7 +30,7 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
       throw new Error("txType should be defined");
     }
     setStatus(Status.Pending);
-    setStatusInfo(`Decrypting keys and submitting ${TxTypeLabel[txType]}...`);
+    setStatusInfo(`Decrypting keys and signing ${TxTypeLabel[txType]}...`);
 
     try {
       if (!msgId) {
@@ -65,6 +65,8 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
       }
 
       // TODO: Return signed Tx!
+
+      // await requester.sendMessage(Ports.Background, new SignTxMsg())
 
       setStatus(Status.Completed);
     } catch (e) {

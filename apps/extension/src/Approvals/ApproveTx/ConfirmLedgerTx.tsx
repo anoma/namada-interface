@@ -16,7 +16,6 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
   const { msgId, txType } = details || {};
-  const { source, publicKey } = details?.tx[0] || {};
 
   useEffect(() => {
     if (status === Status.Completed) {
@@ -35,9 +34,6 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
     // Construct tx bytes from SDK
     if (!txType) {
       throw new Error("txType was not provided!");
-    }
-    if (!source) {
-      throw new Error("source was not provided!");
     }
     if (!msgId) {
       throw new Error("msgId was not provided!");
@@ -86,24 +82,15 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
     setStatus(Status.Pending);
 
     try {
-      if (!source) {
-        throw new Error("Source was not provided and is required!");
-      }
-
-      // If the source is the faucet address, this is a testnet faucet transfer, and
-      // we do not need to reveal the public key, as it is an Established Address
-      if (!publicKey) {
-        throw new Error("Public key was not provided and is required!");
-      }
-
-      // TODO: Bytes and Path will now be provided by interface, which is now responsible for building Tx!
+      // TODO: Bytes and Path will now be provided by interface when submitted for approval,
+      // which is now responsible for building Tx!
       await signLedgerTx(ledger, new Uint8Array([]), "");
     } catch (e) {
       await ledger.closeTransport();
       setError(`${e}`);
       setStatus(Status.Failed);
     }
-  }, [source, publicKey]);
+  }, []);
 
   return (
     <Stack gap={12}>

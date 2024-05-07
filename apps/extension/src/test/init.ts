@@ -18,10 +18,10 @@ import { SessionPassword, VaultService } from "background/vault";
 
 import {
   ApprovalsService,
-  TxStore,
   init as initApprovals,
 } from "../background/approvals";
 
+import { BuiltTx } from "@namada/shared";
 import { ChainsService } from "background/chains";
 import { SdkService } from "background/sdk";
 import { Namada } from "provider";
@@ -30,7 +30,7 @@ import { LocalStorage, VaultStorage } from "storage";
 export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
 
-  constructor(readonly _prefix: string) {}
+  constructor(readonly _prefix: string) { }
 
   get<U extends T>(key: string): Promise<U | undefined> {
     return new Promise((resolve) => {
@@ -65,7 +65,7 @@ export const init = async (): Promise<{
   const vaultStorage = new VaultStorage(new KVStoreMock(KVPrefix.IndexedDB));
   const namadaRouterId = await getNamadaRouterId(localStorage);
   const requester = new ExtensionRequester(messenger, namadaRouterId);
-  const txStore = new KVStoreMock<TxStore>(KVPrefix.LocalStorage);
+  const txStore = new KVStoreMock<BuiltTx>(KVPrefix.LocalStorage);
   const dataStore = new KVStoreMock<string>(KVPrefix.LocalStorage);
   const broadcaster = new ExtensionBroadcaster(localStorage, requester);
 

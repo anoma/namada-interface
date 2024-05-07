@@ -7,7 +7,6 @@ import {
 import { Router } from "router";
 import {
   ConnectInterfaceResponseMsg,
-  QueryPendingTxMsg,
   RejectSignatureMsg,
   RejectTxMsg,
   RevokeConnectionMsg,
@@ -21,7 +20,6 @@ import { ApprovalsService } from "./service";
 export function init(router: Router, service: ApprovalsService): void {
   router.registerMessage(ApproveTxMsg);
   router.registerMessage(RejectTxMsg);
-  router.registerMessage(QueryPendingTxMsg);
   router.registerMessage(ApproveSignArbitraryMsg);
   router.registerMessage(RejectSignatureMsg);
   router.registerMessage(SubmitApprovedSignatureMsg);

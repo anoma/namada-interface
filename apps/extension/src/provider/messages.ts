@@ -1,11 +1,11 @@
 import type { SupportedTx } from "@heliax/namada-sdk/web";
+import { BuiltTx } from "@namada/shared";
 import {
   AccountType,
   Chain,
   DerivedAccount,
   SignArbitraryResponse,
 } from "@namada/types";
-import { PendingTx } from "background/approvals";
 import { Message } from "router";
 import { validateProps } from "utils";
 
@@ -220,7 +220,7 @@ export class ApproveTxMsg extends Message<void> {
 
   constructor(
     public readonly txType: SupportedTx,
-    public readonly tx: PendingTx[],
+    public readonly tx: BuiltTx,
     public readonly accountType: AccountType
   ) {
     super();

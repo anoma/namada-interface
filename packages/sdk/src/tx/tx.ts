@@ -1,4 +1,4 @@
-import { Sdk as SdkWasm, TxType } from "@namada/shared";
+import { BuiltTx, Sdk as SdkWasm, TxType } from "@namada/shared";
 import {
   BondMsgValue,
   BondProps,
@@ -13,16 +13,17 @@ import {
   TransferMsgValue,
   TransferProps,
   TxMsgValue,
-  TxProps,
   UnbondMsgValue,
   UnbondProps,
   VoteProposalMsgValue,
   VoteProposalProps,
   WithdrawMsgValue,
   WithdrawProps,
+  // TODO: Update schema to export as WrapperTxProps
+  TxProps as WrapperTxProps,
 } from "@namada/types";
 import { ResponseSign } from "@zondax/ledger-namada";
-import { EncodedTx, SignedTx } from "./types";
+import { EncodedTx } from "./types";
 
 /**
  * SDK functionality related to transactions
@@ -62,61 +63,69 @@ export class Tx {
    * Wrapper method to handle all supported Tx
    * @async
    * @param txType - type of the transaction
-   * @param txProps - transaction properties
+   * @param wrapperTxProps - transaction properties
    * @param props - Props specific to type of Tx
    * @param [gasPayer] - optional gas payer, defaults to source or sender
    * @returns promise that resolves to an EncodedTx
    */
   async buildTx(
     txType: TxType,
-    txProps: TxProps,
+    wrapperTxProps: WrapperTxProps,
     props: unknown,
     gasPayer?: string
   ): Promise<EncodedTx> {
     switch (txType) {
       case TxType.Bond:
-        return await this.buildBond(txProps, props as BondProps, gasPayer);
+        return await this.buildBond(
+          wrapperTxProps,
+          props as BondProps,
+          gasPayer
+        );
       case TxType.Unbond:
-        return await this.buildUnbond(txProps, props as UnbondProps, gasPayer);
+        return await this.buildUnbond(
+          wrapperTxProps,
+          props as UnbondProps,
+          gasPayer
+        );
       case TxType.Withdraw:
         return await this.buildWithdraw(
-          txProps,
+          wrapperTxProps,
           props as WithdrawProps,
           gasPayer
         );
       case TxType.Redelegate:
         return await this.buildRedelegate(
-          txProps,
+          wrapperTxProps,
           props as RedelegateProps,
           gasPayer
         );
       case TxType.RevealPK:
-        const { publicKey } = txProps;
+        const { publicKey } = wrapperTxProps;
         if (!publicKey) {
           throw new Error("For RevealPK you must provide a public key!");
         }
-        return await this.buildRevealPk(txProps, publicKey);
+        return await this.buildRevealPk(wrapperTxProps, publicKey);
       case TxType.Transfer:
         return await this.buildTransfer(
-          txProps,
+          wrapperTxProps,
           props as TransferProps,
           gasPayer
         );
       case TxType.IBCTransfer:
         return await this.buildIbcTransfer(
-          txProps,
+          wrapperTxProps,
           props as IbcTransferProps,
           gasPayer
         );
       case TxType.VoteProposal:
         return await this.buildVoteProposal(
-          txProps,
+          wrapperTxProps,
           props as VoteProposalProps,
           gasPayer
         );
       case TxType.EthBridgeTransfer:
         return await this.buildEthBridgeTransfer(
-          txProps,
+          wrapperTxProps,
           props as EthBridgeTransferProps,
           gasPayer
         );
@@ -128,19 +137,19 @@ export class Tx {
   /**
    * Build Transfer Tx
    * @async
-   * @param txProps - properties of the transaction
+   * @param wrapperTxProps - properties of the transaction
    * @param transferProps -  properties of the transfer
    * @param [gasPayer] - optional gas payer, if not provided, defaults to transferProps.source
    * @returns promise that resolves to an EncodedTx
    */
   async buildTransfer(
-    txProps: TxProps,
+    wrapperTxProps: WrapperTxProps,
     transferProps: TransferProps,
     gasPayer?: string
   ): Promise<EncodedTx> {
     const transferMsg = new Message<TransferMsgValue>();
 
-    const encodedTx = this.encodeTxArgs(txProps);
+    const encodedTx = this.encodeTxArgs(wrapperTxProps);
     const encodedTransfer = transferMsg.encode(
       new TransferMsgValue(transferProps)
     );
@@ -156,12 +165,15 @@ export class Tx {
   /**
    * Build RevealPK Tx
    * @async
-   * @param txProps - properties of the transaction
+   * @param wrapperTxProps - properties of the transaction
    * @param publicKey - public key to reveal
    * @returns promise that resolves to an EncodedTx
    */
-  async buildRevealPk(txProps: TxProps, publicKey: string): Promise<EncodedTx> {
-    const encodedTx = this.encodeTxArgs(txProps);
+  async buildRevealPk(
+    wrapperTxProps: WrapperTxProps,
+    publicKey: string
+  ): Promise<EncodedTx> {
+    const encodedTx = this.encodeTxArgs(wrapperTxProps);
 
     return await this.buildTxFromSerializedArgs(
       TxType.RevealPK,
@@ -174,18 +186,18 @@ export class Tx {
   /**
    * Build Bond Tx
    * @async
-   * @param txProps - properties of the transaction
+   * @param wrapperTxProps - properties of the transaction
    * @param bondProps -  properties of the bond tx
    * @param [gasPayer] - optional gas payer, if not provided, defaults to bondProps.source
    * @returns promise that resolves to an EncodedTx
    */
   async buildBond(
-    txProps: TxProps,
+    wrapperTxProps: WrapperTxProps,
     bondProps: BondProps,
     gasPayer?: string
   ): Promise<EncodedTx> {
     const bondMsg = new Message<BondMsgValue>();
-    const encodedTx = this.encodeTxArgs(txProps);
+    const encodedTx = this.encodeTxArgs(wrapperTxProps);
     const encodedBond = bondMsg.encode(new BondMsgValue(bondProps));
 
     return await this.buildTxFromSerializedArgs(
@@ -199,18 +211,18 @@ export class Tx {
   /**
    * Build Unbond Tx
    * @async
-   * @param txProps - properties of the transaction
+   * @param wrapperTxProps - properties of the transaction
    * @param unbondProps - properties of the unbond tx
    * @param [gasPayer] - optional gas payer, if not provided, defaults to unbondProps.source
    * @returns promise that resolves to an EncodedTx
    */
   async buildUnbond(
-    txProps: TxProps,
+    wrapperTxProps: WrapperTxProps,
     unbondProps: UnbondProps,
     gasPayer?: string
   ): Promise<EncodedTx> {
     const bondMsg = new Message<UnbondMsgValue>();
-    const encodedTx = this.encodeTxArgs(txProps);
+    const encodedTx = this.encodeTxArgs(wrapperTxProps);
     const encodedUnbond = bondMsg.encode(new UnbondMsgValue(unbondProps));
 
     return await this.buildTxFromSerializedArgs(
@@ -224,18 +236,18 @@ export class Tx {
   /**
    * Build Withdraw Tx
    * @async
-   * @param txProps - properties of the transaction
+   * @param wrapperTxProps - properties of the transaction
    * @param withdrawProps - properties of the withdraw tx
    * @param [gasPayer] - optional gas payer, if not provided, defaults to withdrawProps.source
    * @returns promise that resolves to an EncodedTx
    */
   async buildWithdraw(
-    txProps: TxProps,
+    wrapperTxProps: WrapperTxProps,
     withdrawProps: WithdrawProps,
     gasPayer?: string
   ): Promise<EncodedTx> {
     const bondMsg = new Message<WithdrawProps>();
-    const encodedTx = this.encodeTxArgs(txProps);
+    const encodedTx = this.encodeTxArgs(wrapperTxProps);
     const encodedWithdraw = bondMsg.encode(new WithdrawMsgValue(withdrawProps));
 
     return this.buildTxFromSerializedArgs(
@@ -249,18 +261,18 @@ export class Tx {
   /**
    * Build Redelegate Tx
    * @async
-   * @param txProps - properties of the transaction
+   * @param wrapperTxProps - properties of the transaction
    * @param redelegateProps -  properties of the redelegate tx
    * @param [gasPayer] - optional gas payer, if not provided, defaults to redelegateProps.owner
    * @returns promise that resolves to an EncodedTx
    */
   async buildRedelegate(
-    txProps: TxProps,
+    wrapperTxProps: WrapperTxProps,
     redelegateProps: RedelegateProps,
     gasPayer?: string
   ): Promise<EncodedTx> {
     const redelegateMsg = new Message<RedelegateMsgValue>();
-    const encodedTx = this.encodeTxArgs(txProps);
+    const encodedTx = this.encodeTxArgs(wrapperTxProps);
     const encodedRedelegate = redelegateMsg.encode(
       new RedelegateMsgValue(redelegateProps)
     );
@@ -276,18 +288,18 @@ export class Tx {
   /**
    * Build Ibc Transfer Tx
    * @async
-   * @param txProps - properties of the transaction
+   * @param wrapperTxProps - properties of the transaction
    * @param ibcTransferProps - properties of the ibc transfer tx
    * @param [gasPayer] - optional gas payer, if not provided, defaults to ibcTransferProps.source
    * @returns promise that resolves to an EncodedTx
    */
   async buildIbcTransfer(
-    txProps: TxProps,
+    wrapperTxProps: WrapperTxProps,
     ibcTransferProps: IbcTransferProps,
     gasPayer?: string
   ): Promise<EncodedTx> {
     const ibcTransferMsg = new Message<IbcTransferProps>();
-    const encodedTx = this.encodeTxArgs(txProps);
+    const encodedTx = this.encodeTxArgs(wrapperTxProps);
     const encodedIbcTransfer = ibcTransferMsg.encode(
       new IbcTransferMsgValue(ibcTransferProps)
     );
@@ -303,18 +315,18 @@ export class Tx {
   /**
    * Build Ethereum Bridge Transfer Tx
    * @async
-   * @param txProps - properties of the transaction
+   * @param wrapperTxProps - properties of the transaction
    * @param ethBridgeTransferProps - properties of the eth bridge transfer tx
    * @param [gasPayer] - optional gas payer, if not provided, defaults to ethBridgeTransferProps.sender
    * @returns promise that resolves to an EncodedTx
    */
   async buildEthBridgeTransfer(
-    txProps: TxProps,
+    wrapperTxProps: WrapperTxProps,
     ethBridgeTransferProps: EthBridgeTransferProps,
     gasPayer?: string
   ): Promise<EncodedTx> {
     const ethBridgeTransferMsg = new Message<EthBridgeTransferProps>();
-    const encodedTx = this.encodeTxArgs(txProps);
+    const encodedTx = this.encodeTxArgs(wrapperTxProps);
     const encodedEthBridgeTransfer = ethBridgeTransferMsg.encode(
       new EthBridgeTransferMsgValue(ethBridgeTransferProps)
     );
@@ -330,18 +342,18 @@ export class Tx {
   /**
    * Built Vote Proposal Tx
    * @async
-   * @param txProps - properties of the transaction
+   * @param wrapperTxProps - properties of the transaction
    * @param voteProposalProps - properties of the vote proposal tx
    * @param [gasPayer] - optional gas payer, if not provided, defaults to voteProposalProps.signer
    * @returns promise that resolves to an EncodedTx
    */
   async buildVoteProposal(
-    txProps: TxProps,
+    wrapperTxProps: WrapperTxProps,
     voteProposalProps: VoteProposalProps,
     gasPayer?: string
   ): Promise<EncodedTx> {
     const voteProposalMsg = new Message<VoteProposalProps>();
-    const encodedTx = this.encodeTxArgs(txProps);
+    const encodedTx = this.encodeTxArgs(wrapperTxProps);
     const encodedVoteProposal = voteProposalMsg.encode(
       new VoteProposalMsgValue(voteProposalProps)
     );
@@ -357,26 +369,27 @@ export class Tx {
   /**
    * Sign transaction
    * @async
-   * @param encodedTx - encoded transaction
+   * @param builtTx - encoded transaction
    * @param [signingKey] - optional in the case of shielded tx
    * @returns promise that resolves to a SignedTx
    */
-  async signTx(encodedTx: EncodedTx, signingKey?: string): Promise<SignedTx> {
-    const { tx, txMsg } = encodedTx;
-    const signedTx = await this.sdk.sign_tx(tx, signingKey);
-
-    return new SignedTx(txMsg, signedTx);
+  async signTx(builtTx: BuiltTx, signingKey?: string): Promise<Uint8Array> {
+    const signedTx = await this.sdk.sign_tx(builtTx, signingKey);
+    return signedTx;
   }
 
   /**
    * Reveal Public Key using serialized Tx
    * @async
    * @param signingKey - signing key
-   * @param txProps - properties of the transaction
+   * @param wrapperTxProps - properties of the transaction
    * @returns void
    */
-  async revealPk(signingKey: string, txProps: TxProps): Promise<void> {
-    const encodedTx = this.encodeTxArgs(txProps);
+  async revealPk(
+    signingKey: string,
+    wrapperTxProps: WrapperTxProps
+  ): Promise<void> {
+    const encodedTx = this.encodeTxArgs(wrapperTxProps);
     return await this.sdk.reveal_pk(signingKey, encodedTx);
   }
 
@@ -424,11 +437,11 @@ export class Tx {
 
   /**
    * Helper to encode Tx args given TxProps
-   * @param txProps - properties of the transaction
+   * @param wrapperTxProps - properties of the transaction
    * @returns Serialized TxMsgValue
    */
-  encodeTxArgs(txProps: TxProps): Uint8Array {
-    const txMsgValue = new TxMsgValue(txProps);
+  encodeTxArgs(wrapperTxProps: WrapperTxProps): Uint8Array {
+    const txMsgValue = new TxMsgValue(wrapperTxProps);
     const msg = new Message<TxMsgValue>();
     return msg.encode(txMsgValue);
   }

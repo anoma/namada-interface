@@ -19,6 +19,7 @@ import {
   UtilityStore,
 } from "./types";
 
+import { BuiltTx } from "@namada/shared";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
@@ -566,6 +567,13 @@ export class KeyRing {
   async queryPublicKey(address: string): Promise<string | undefined> {
     const query = this.sdkService.getSdk().rpc;
     return await query.queryPublicKey(address);
+  }
+
+  async sign(signer: string, builtTx: BuiltTx): Promise<Uint8Array> {
+    await this.vaultService.assertIsUnlocked();
+    const key = await this.getSigningKey(signer);
+    const { tx } = this.sdkService.getSdk();
+    return tx.signTx(builtTx, key);
   }
 
   async signArbitrary(
