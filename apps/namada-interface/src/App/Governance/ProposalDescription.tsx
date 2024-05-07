@@ -1,7 +1,7 @@
 import { Stack } from "@namada/components";
 import { useState } from "react";
 
-import { Proposal } from "slices/proposals/types";
+import { Proposal } from "@namada/types";
 
 export const ProposalDescription: React.FC<{
   proposal: Proposal;

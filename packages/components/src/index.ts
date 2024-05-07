@@ -40,6 +40,7 @@ export * from "./StyledTableRow";
 export * from "./Table";
 export * from "./TabsGroup";
 export * from "./Text";
+export * from "./TickedRadioList";
 export * from "./ToggleButton";
 export * from "./Tooltip";
 export * from "./ViewKeys";

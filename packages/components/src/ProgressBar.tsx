@@ -12,7 +12,10 @@ export const ProgressBar: React.FC<
     value,
     {
       ...total,
-      value: BigNumber.max(0, BigNumber(total.value).minus(value.value)),
+      value: BigNumber.max(
+        0,
+        BigNumber(total.value.toString()).minus(value.value.toString())
+      ),
     },
   ];
 

@@ -1,6 +1,6 @@
 import { twMerge } from "tailwind-merge";
 
-import { Proposal } from "slices/proposals/types";
+import { Proposal } from "@namada/types";
 
 import { formatEpoch } from "@namada/utils";
 

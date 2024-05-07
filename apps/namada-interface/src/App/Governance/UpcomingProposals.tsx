@@ -1,5 +1,4 @@
-import { ActionButton, SegmentedBar, Stack } from "@namada/components";
-import { GoInfo } from "react-icons/go";
+import { SegmentedBar, Stack } from "@namada/components";
 import GovernanceRoutes from "./routes";
 
 import {
@@ -7,12 +6,10 @@ import {
   ProposalStatus,
   ProposalWithExtraInfo,
   Votes,
-  voteTypes,
 } from "@namada/types";
 import clsx from "clsx";
 import { useNavigate } from "react-router-dom";
-import { StatusLabel, TypeLabel, VotedLabel } from "./ProposalLabels";
-import { colors } from "./types";
+import { StatusLabel, TypeLabel } from "./ProposalLabels";
 
 const ProposalListItem: React.FC<{
   proposal: Proposal;
@@ -22,10 +19,12 @@ const ProposalListItem: React.FC<{
 }> = ({ proposal, voted, votes }) => {
   const navigate = useNavigate();
 
-  const barData = voteTypes.map((voteType) => ({
-    value: votes[voteType],
-    color: colors[voteType],
-  }));
+  const barData = [
+    {
+      value: 100,
+      color: "#757575",
+    },
+  ];
 
   const onVote = (e: React.MouseEvent): void => {
     e.stopPropagation();
@@ -45,38 +44,13 @@ const ProposalListItem: React.FC<{
       <div className="flex items-center justify-between gap-4">
         <StatusLabel
           className="text-[10px] min-w-38"
-          status={{ status: "ongoing" }}
+          status={{ status: "pending" }}
         />
-        <div className="text-xs text-neutral-400">
-          Voting End on epoch {proposal.endEpoch.toString()}
-        </div>
       </div>
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-[6ch]">#{proposal.id.toString()}</div>
         <div className="flex-1">{proposal.content.title}</div>
         <TypeLabel proposalType={proposal.proposalType} color="dark" />
-        <div>
-          {voted ?
-            <VotedLabel className="text-[10px]" />
-          : <ActionButton
-              className="uppercase py-1.5"
-              size="xs"
-              color="white"
-              borderRadius="sm"
-              onClick={onVote}
-            >
-              Vote
-            </ActionButton>
-          }
-        </div>
-        <i
-          className={clsx(
-            "flex justify-center w-10 text-md text-center",
-            "group-hover/proposal:text-cyan"
-          )}
-        >
-          <GoInfo />
-        </i>
       </div>
 
       <SegmentedBar data={barData} />
@@ -84,16 +58,16 @@ const ProposalListItem: React.FC<{
   );
 };
 
-export const LiveGovernanceProposals: React.FC<{
+export const UpcomingProposals: React.FC<{
   allProposals: ProposalWithExtraInfo[];
 }> = ({ allProposals }) => {
-  const liveProposals = allProposals.filter(
-    (proposal) => proposal.status.status === "ongoing"
+  const upcomingProposals = allProposals.filter(
+    (proposal) => proposal.status.status === "pending"
   );
 
   return (
     <Stack gap={4} as="ul">
-      {liveProposals.map(({ proposal, status, voted, votes }, index) => (
+      {upcomingProposals.map(({ proposal, status, voted, votes }, index) => (
         <ProposalListItem
           proposal={proposal}
           status={status}

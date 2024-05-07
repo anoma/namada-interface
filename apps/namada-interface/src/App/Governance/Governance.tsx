@@ -4,6 +4,7 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import { GovernanceOverview } from "./GovernanceOverview";
 import { ProposalAndVote } from "./ProposalAndVote";
 import { SubmitVote } from "./SubmitVote";
+import { ViewJson } from "./ViewJson";
 import GovernanceRoutes from "./routes";
 
 export const Governance: React.FC = () => {
@@ -33,6 +34,7 @@ export const Governance: React.FC = () => {
           path={`${GovernanceRoutes.submitVote()}`}
           element={<SubmitVote />}
         />
+        <Route path={`${GovernanceRoutes.viewJson()}`} element={<ViewJson />} />
       </Routes>
     </main>
   );

@@ -51,9 +51,9 @@ export const TypeLabel: React.FC<
   } & React.ComponentProps<typeof InsetLabel>
 > = ({ proposalType, ...rest }) => {
   const text =
-    proposalType === "pgf_steward" ? "Steward proposal"
-    : proposalType === "pgf_payment" ? "PGF proposal"
-    : proposalType === "default" ? "Default"
+    proposalType.type === "pgf_steward" ? "Steward proposal"
+    : proposalType.type === "pgf_payment" ? "PGF proposal"
+    : proposalType.type === "default" ? "Default"
     : assertNever(proposalType);
 
   return (
