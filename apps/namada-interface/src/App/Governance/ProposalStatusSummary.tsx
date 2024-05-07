@@ -6,14 +6,14 @@ import { useState } from "react";
 import { PieChart, PieChartData, Stack } from "@namada/components";
 import { assertNever, formatPercentage } from "@namada/utils";
 
-import { AnimatePresence } from "framer-motion";
 import {
   Proposal,
   ProposalType,
   VoteType,
   Votes,
   voteTypes,
-} from "slices/proposals/types";
+} from "@namada/types";
+import { AnimatePresence } from "framer-motion";
 import { colors } from "./types";
 
 // TODO: is this a good enough way to represent rational numbers?
@@ -23,9 +23,9 @@ const stewardQuorum = BigNumber(1).dividedBy(3);
 const pgfQuorum = BigNumber(1).dividedBy(3);
 
 const getQuorum = (proposalType: ProposalType): BigNumber =>
-  proposalType === "default" ? defaultQuorum
-  : proposalType === "pgf_steward" ? stewardQuorum
-  : proposalType === "pgf_payment" ? pgfQuorum
+  proposalType.type === "default" ? defaultQuorum
+  : proposalType.type === "pgf_steward" ? stewardQuorum
+  : proposalType.type === "pgf_payment" ? pgfQuorum
   : assertNever(proposalType);
 
 const StatusListItem: React.FC<{

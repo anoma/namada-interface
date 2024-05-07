@@ -1,4 +1,5 @@
 import { Stack } from "@namada/components";
+import { ProposalWithExtraInfo } from "@namada/types";
 
 //import {
 //  proposalIdsAtom,
@@ -15,19 +16,22 @@ const SummaryCard: React.FC<{
   </Stack>
 );
 
-export const ProposalsSummary: React.FC = () => {
+export const ProposalsSummary: React.FC<{
+  allProposals: ProposalWithExtraInfo[];
+}> = ({ allProposals }) => {
   //const proposalIds = useAtomValue(proposalIdsAtom);
   //const groupedProposals = useAtomValue(proposalsGroupedByStatusAtom);
 
-  //const total = proposalIds.length;
-  //const ongoing = groupedProposals.ongoing.length;
-  //const passed = groupedProposals.passed.length;
-  //const rejected = groupedProposals.rejected.length;
-
-  const total = "TODO";
-  const ongoing = "TODO";
-  const passed = "TODO";
-  const rejected = "TODO";
+  const total = allProposals.length;
+  const ongoing = allProposals.filter(
+    ({ status }) => status.status === "ongoing"
+  ).length;
+  const passed = allProposals.filter(
+    ({ status }) => status.status === "finished" && status.passed
+  ).length;
+  const rejected = allProposals.filter(
+    ({ status }) => status.status === "finished" && !status.passed
+  ).length;
 
   return (
     <Stack gap={4}>

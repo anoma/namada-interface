@@ -1,10 +1,9 @@
-import { useAtomValue } from "jotai";
 import { GoCheckCircleFill, GoInfo } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 
 import { StyledTable, TableRow } from "@namada/components";
+import { Proposal, ProposalWithExtraInfo } from "@namada/types";
 import clsx from "clsx";
-import { Proposal, allProposalsAtom } from "slices/proposals";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
 import GovernanceRoutes from "./routes";
 
@@ -13,9 +12,10 @@ const key = (name: string, proposal?: Proposal): string => {
   return `all-proposals-${name}${idPart}`;
 };
 
-export const AllProposalsTable: React.FC = () => {
+export const AllProposalsTable: React.FC<{
+  allProposals: ProposalWithExtraInfo[];
+}> = ({ allProposals }) => {
   const navigate = useNavigate();
-  const allProposals = useAtomValue(allProposalsAtom);
 
   const headers = [
     "ID",
@@ -27,7 +27,10 @@ export const AllProposalsTable: React.FC = () => {
     "",
   ];
 
-  const renderRow = (proposal: Proposal, index: number): TableRow => ({
+  const renderRow = (
+    { proposal, status, voted }: ProposalWithExtraInfo,
+    index: number
+  ): TableRow => ({
     className: clsx(
       "group/proposals cursor-pointer text-xs [&_td]:py-4",
       "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md"
@@ -38,7 +41,7 @@ export const AllProposalsTable: React.FC = () => {
     cells: [
       // ID
       <div key={key("id", proposal)} className="pl-3 flex">
-        #{proposal.id}
+        #{proposal.id.toString()}
       </div>,
 
       // Title
@@ -54,15 +57,17 @@ export const AllProposalsTable: React.FC = () => {
       // Status
       <StatusLabel
         key={key("status", proposal)}
-        status={{ status: "ongoing" }}
+        status={status}
         className="ml-auto"
       />,
 
       // Voted
-      <GoCheckCircleFill
-        key={key("check", proposal)}
-        className="text-cyan text-lg"
-      />,
+      voted && (
+        <GoCheckCircleFill
+          key={key("check", proposal)}
+          className="text-cyan text-lg"
+        />
+      ),
 
       // Voting end on
       <div key={key("voting-end", proposal)} className="text-right">
@@ -79,11 +84,6 @@ export const AllProposalsTable: React.FC = () => {
     ],
   });
 
-  // TODO: format error message
-  if (!allProposals.isSuccess) {
-    return <h1>OH NO</h1>;
-  }
-
   return (
     <StyledTable
       tableProps={{ className: "w-full text-xs [&_td]:px-2 [&_th]:px-2" }}
@@ -91,7 +91,7 @@ export const AllProposalsTable: React.FC = () => {
       className=""
       id="all-proposals-table"
       headers={headers}
-      rows={allProposals.data.map(renderRow)}
+      rows={allProposals.map(renderRow)}
     />
   );
 };

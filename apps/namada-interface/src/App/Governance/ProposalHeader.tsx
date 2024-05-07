@@ -3,10 +3,11 @@ import { formatEpoch } from "@namada/utils";
 import { useAtomValue } from "jotai";
 import GovernanceRoutes from "./routes";
 
+import { Proposal, ProposalStatus } from "@namada/types";
 import { SiWebassembly } from "react-icons/si";
 import { VscJson } from "react-icons/vsc";
-import { Link } from "react-router-dom";
-import { Proposal, ProposalStatus, currentEpochAtom } from "slices/proposals";
+import { Link, useNavigate } from "react-router-dom";
+import { currentEpochAtom, proposalCounterAtom } from "slices/proposals";
 import { StatusLabel, TypeLabel, VotedLabel } from "./ProposalLabels";
 
 export const ProposalHeader: React.FC<{
@@ -14,22 +15,32 @@ export const ProposalHeader: React.FC<{
   voted: boolean;
   status: ProposalStatus;
 }> = ({ proposal, voted, status }) => {
+  const navigate = useNavigate();
+
   const voteButtonDisabled = voted || status.status !== "ongoing";
 
   const { startEpoch, endEpoch } = proposal;
   const currentEpoch = useAtomValue(currentEpochAtom);
 
-  if (!currentEpoch.isSuccess) {
-    return <h1>OH NO</h1>;
+  const counter = useAtomValue(proposalCounterAtom);
+  if (!counter.isSuccess) {
+    return null;
   }
 
-  const totalEpochs = endEpoch.minus(startEpoch);
-  const relativeCurrentEpoch = currentEpoch.data.minus(startEpoch);
+  if (!currentEpoch.isSuccess) {
+    return null;
+  }
+
+  const totalEpochs = endEpoch - startEpoch;
+  const relativeCurrentEpoch = currentEpoch.data - startEpoch;
 
   return (
     <>
       <div className="flex mb-5">
         <div className="w-full">
+          <div>
+            {currentEpoch.data.toString()} {counter.data}
+          </div>
           <div className="text-xxs text-neutral-500 mb-5">
             <Link
               className="transition-colors hover:text-white"
@@ -59,6 +70,7 @@ export const ProposalHeader: React.FC<{
             size="xs"
             outlined
             borderRadius="sm"
+            onClick={() => navigate(GovernanceRoutes.viewJson(proposal.id).url)}
           >
             <span className="flex text-xs justify-between gap-2">
               <VscJson />
@@ -71,6 +83,12 @@ export const ProposalHeader: React.FC<{
             size="xs"
             outlined
             borderRadius="sm"
+            disabled={
+              !(
+                proposal.proposalType.type === "default" &&
+                proposal.proposalType.data
+              )
+            }
           >
             <span className="flex text-xs items-center justify-between gap-2">
               <SiWebassembly />
@@ -81,10 +99,7 @@ export const ProposalHeader: React.FC<{
       </div>
       <hr className="border-neutral-900 w-full mb-4" />
       <div className="flex gap-2 mb-4">
-        <StatusLabel
-          status={{ status: "ongoing" }}
-          className="text-xs min-w-42"
-        />
+        <StatusLabel status={status} className="text-xs min-w-42" />
         {voted && <VotedLabel className="text-xs min-w-22" />}
       </div>
       <div className="flex gap-10 bg-neutral-900 mb-10 px-5 py-3 -mx-3 rounded-md">
@@ -107,6 +122,9 @@ export const ProposalHeader: React.FC<{
             className="py-2"
             color="white"
             disabled={voteButtonDisabled}
+            onClick={() =>
+              navigate(GovernanceRoutes.submitVote(proposal.id).url)
+            }
           >
             Vote
           </ActionButton>
