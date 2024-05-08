@@ -10,9 +10,12 @@ import ValidatorsTable from "./ValidatorsTable";
 
 type IncrementBondingTableProps = {
   validators: Validator[];
-  updatedAmountByAddress: Record<string, BigNumber>;
+  updatedAmountByAddress: Record<string, BigNumber | undefined>;
   stakedAmountByAddress: Record<string, BigNumber>;
-  onChangeValidatorAmount: (validator: Validator, amount: BigNumber) => void;
+  onChangeValidatorAmount: (
+    validator: Validator,
+    amount: BigNumber | undefined
+  ) => void;
 };
 
 export const ReDelegateTable = ({
@@ -42,10 +45,9 @@ export const ReDelegateTable = ({
   const renderRow = (validator: Validator): TableRow => {
     const stakedAmount =
       stakedAmountByAddress[validator.address] ?? new BigNumber(0);
-    const updatedAmounts =
-      updatedAmountByAddress[validator.address] ?? new BigNumber(0);
-    const hasStakedAmount = stakedAmount.gt(0);
-    const hasNewAmounts = updatedAmounts.gt(0);
+    const updatedAmounts = updatedAmountByAddress[validator.address];
+    const hasStakedAmount = stakedAmount ? stakedAmount.gt(0) : false;
+    const hasNewAmounts = updatedAmounts ? updatedAmounts.gte(0) : false;
 
     return {
       className: "",
@@ -63,6 +65,8 @@ export const ReDelegateTable = ({
           className="relative"
         >
           <AmountInput
+            value={updatedAmountByAddress[validator.address]}
+            onChange={(e) => onChangeValidatorAmount(validator, e.target.value)}
             placeholder="Select to enter stake"
             className={twMerge(
               clsx(
@@ -73,12 +77,6 @@ export const ReDelegateTable = ({
                 }
               )
             )}
-            onChange={(e) =>
-              onChangeValidatorAmount(
-                validator,
-                e.target.value ?? new BigNumber(0)
-              )
-            }
           />
           {hasNewAmounts && (
             <span className="absolute h-full flex items-center right-2 top-0 text-neutral-500 text-sm">
@@ -98,12 +96,14 @@ export const ReDelegateTable = ({
           {hasNewAmounts && (
             <span
               className={clsx("text-neutral-500 text-sm", {
-                "text-orange": updatedAmounts.lt(stakedAmount),
-                "text-success": updatedAmounts.gt(stakedAmount),
+                "text-orange": updatedAmounts?.lt(stakedAmount),
+                "text-success": updatedAmounts?.gt(stakedAmount),
               })}
             >
-              {updatedAmounts.lt(stakedAmount) ? "-" : "+"}
-              <NamCurrency amount={stakedAmount.minus(updatedAmounts).abs()} />
+              {updatedAmounts?.lt(stakedAmount) ? "-" : "+"}
+              <NamCurrency
+                amount={stakedAmount.minus(updatedAmounts || 0).abs()}
+              />
             </span>
           )}
         </div>,
