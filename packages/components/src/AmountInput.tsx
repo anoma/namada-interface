@@ -86,7 +86,7 @@ export const AmountInput: React.FC<Props> = ({
     const stringValue = event.target.value;
     setInputString(stringValue);
 
-    if (!stringValue) {
+    if (stringValue === undefined || stringValue === "") {
       onChange?.({
         ...event,
         target: { ...event.target, value: undefined },
