@@ -83,10 +83,10 @@ export const AccountOverview = (): JSX.Element => {
               </Heading>
               <Stack gap={3} direction="horizontal">
                 <ActionButton
+                  className="border-yellow border uppercase"
                   onClick={() => navigate(StakingRoutes.overview().url)}
                   size="sm"
                   color="primary"
-                  className="uppercase"
                   borderRadius="sm"
                 >
                   Stake
@@ -95,8 +95,9 @@ export const AccountOverview = (): JSX.Element => {
                   size="sm"
                   color="primary"
                   outlined
-                  className="uppercase"
+                  className="uppercase hover:text-rblack before:border before:border-yellow"
                   borderRadius="sm"
+                  hoverColor="primary"
                 >
                   Governance
                 </ActionButton>
