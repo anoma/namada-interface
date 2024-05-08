@@ -35,7 +35,7 @@ export const Sidebar = (): JSX.Element => {
         <li>
           <SidebarMenuItem>
             <IoSwapHorizontal />
-            IBC Bridge
+            Transfer
           </SidebarMenuItem>
         </li>
         <li>
