@@ -18,8 +18,12 @@ export const ConnectExtensionButton = ({ chain }: Props): JSX.Element => {
     currentExtensionAttachStatus === "attached" ||
     currentExtensionAttachStatus === "pending";
 
-  const handleDownloadExtension = (url: string): void => {
-    window.open(url, "_blank", "noopener,noreferrer");
+  const handleDownloadExtension = (): void => {
+    window.open(
+      "https://namada.net/extension",
+      "_blank",
+      "noopener,noreferrer"
+    );
   };
 
   return (
@@ -38,7 +42,7 @@ export const ConnectExtensionButton = ({ chain }: Props): JSX.Element => {
 
       {!hasExtensionInstalled && (
         <ActionButton
-          onClick={() => handleDownloadExtension(chain.extension.url)}
+          onClick={() => handleDownloadExtension()}
           color="primary"
           size="sm"
           borderRadius="sm"
