@@ -1,7 +1,7 @@
 import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
-  ApproveTxMsg,
+  ApproveSignTxMsg,
   IsConnectionApprovedMsg,
 } from "provider";
 import { Router } from "router";
@@ -10,7 +10,7 @@ import {
   RejectSignatureMsg,
   RejectTxMsg,
   RevokeConnectionMsg,
-  SubmitApprovedSignatureMsg,
+  SubmitApprovedSignArbitraryMsg,
 } from "./messages";
 
 import { ROUTE } from "./constants";
@@ -18,11 +18,11 @@ import { getHandler } from "./handler";
 import { ApprovalsService } from "./service";
 
 export function init(router: Router, service: ApprovalsService): void {
-  router.registerMessage(ApproveTxMsg);
+  router.registerMessage(ApproveSignTxMsg);
   router.registerMessage(RejectTxMsg);
   router.registerMessage(ApproveSignArbitraryMsg);
   router.registerMessage(RejectSignatureMsg);
-  router.registerMessage(SubmitApprovedSignatureMsg);
+  router.registerMessage(SubmitApprovedSignArbitraryMsg);
   router.registerMessage(IsConnectionApprovedMsg);
   router.registerMessage(ApproveConnectInterfaceMsg);
   router.registerMessage(ConnectInterfaceResponseMsg);

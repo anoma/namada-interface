@@ -77,7 +77,7 @@ describe("approvals service", () => {
         signature: "sig",
       };
 
-      const signaturePromise = service.approveSignature("signer", "data");
+      const signaturePromise = service.approveSignArbitrary("signer", "data");
 
       await new Promise((resolve) =>
         setTimeout(() => {
@@ -97,7 +97,7 @@ describe("approvals service", () => {
       });
 
       await expect(
-        service.approveSignature("signer", "data")
+        service.approveSignArbitrary("signer", "data")
       ).rejects.toBeDefined();
     });
 
@@ -113,7 +113,7 @@ describe("approvals service", () => {
       (service as any).resolverMap[tabId] = sigResponse;
 
       await expect(
-        service.approveSignature("signer", "data")
+        service.approveSignArbitrary("signer", "data")
       ).rejects.toBeDefined();
     });
   });
@@ -134,14 +134,14 @@ describe("approvals service", () => {
         .spyOn(keyRingService, "signArbitrary")
         .mockResolvedValue(sigResponse);
       const signer = "signer";
-      const signaturePromise = service.approveSignature(signer, "data");
+      const signaturePromise = service.approveSignArbitrary(signer, "data");
 
       await new Promise((resolve) =>
         setTimeout(() => {
           resolve(true);
         })
       );
-      await service.submitSignature(tabId, "msgId", signer);
+      await service.submitSignArbitrary(tabId, "msgId", signer);
 
       expect(await signaturePromise).toEqual(sigResponse);
     });
@@ -152,7 +152,7 @@ describe("approvals service", () => {
       jest.spyOn(dataStore, "get").mockResolvedValueOnce("data");
 
       await expect(
-        service.submitSignature(tabId, "msgId", signer)
+        service.submitSignArbitrary(tabId, "msgId", signer)
       ).rejects.toBeDefined();
     });
 
@@ -167,7 +167,7 @@ describe("approvals service", () => {
       jest.spyOn(dataStore, "get").mockResolvedValueOnce(undefined);
 
       await expect(
-        service.submitSignature(tabId, "msgId", signer)
+        service.submitSignArbitrary(tabId, "msgId", signer)
       ).rejects.toBeDefined();
     });
 
@@ -193,7 +193,7 @@ describe("approvals service", () => {
       );
 
       await expect(
-        service.submitSignature(tabId, "msgId", signer)
+        service.submitSignArbitrary(tabId, "msgId", signer)
       ).resolves.toBeUndefined();
 
       expect(service["resolverMap"][tabId].reject).toHaveBeenCalled();
@@ -204,7 +204,7 @@ describe("approvals service", () => {
     it("should reject resolver", async () => {
       const tabId = 1;
       const signer = "signer";
-      const signaturePromise = service.approveSignature(signer, "data");
+      const signaturePromise = service.approveSignArbitrary(signer, "data");
 
       (webextensionPolyfill.windows.create as any).mockResolvedValue({
         tabs: [{ id: tabId }],

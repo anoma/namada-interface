@@ -1,4 +1,3 @@
-import type { SupportedTx } from "@heliax/namada-sdk/web";
 import { BuiltTx } from "@namada/shared";
 import {
   AccountType,
@@ -26,7 +25,7 @@ enum MessageType {
   ApproveConnectInterface = "approve-connect-interface",
   QueryAccounts = "query-accounts",
   QueryDefaultAccount = "query-default-account",
-  ApproveTx = "approve-tx",
+  ApproveSignTx = "approve-sign-tx",
   QueryBalances = "query-balances",
   ShieldedSync = "shielded-sync",
   SubmitIbcTransfer = "submit-ibc-transfer",
@@ -98,7 +97,7 @@ export class GetChainMsg extends Message<Chain> {
     super();
   }
 
-  validate(): void {}
+  validate(): void { }
 
   route(): string {
     return Route.Chains;
@@ -178,7 +177,7 @@ export class ShieldedSyncMsg extends Message<void> {
     super();
   }
 
-  validate(): void {}
+  validate(): void { }
 
   route(): string {
     return Route.KeyRing;
@@ -213,21 +212,21 @@ export class QueryDefaultAccountMsg extends Message<
   }
 }
 
-export class ApproveTxMsg extends Message<void> {
+export class ApproveSignTxMsg extends Message<Uint8Array> {
   public static type(): MessageType {
-    return MessageType.ApproveTx;
+    return MessageType.ApproveSignTx;
   }
 
   constructor(
-    public readonly txType: SupportedTx,
-    public readonly tx: BuiltTx,
-    public readonly accountType: AccountType
+    public readonly accountType: AccountType,
+    public readonly signer: string,
+    public readonly tx: BuiltTx
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["txType", "tx", "accountType"]);
+    validateProps(this, ["accountType", "signer", "tx"]);
   }
 
   route(): string {
@@ -235,7 +234,7 @@ export class ApproveTxMsg extends Message<void> {
   }
 
   type(): string {
-    return ApproveTxMsg.type();
+    return ApproveSignTxMsg.type();
   }
 }
 

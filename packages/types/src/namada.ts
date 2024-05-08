@@ -19,8 +19,8 @@ export type SignArbitraryProps = {
 };
 
 export type SignProps = {
+  accountType: AccountType;
   signer: string;
-  // TODO: Fix type here
   tx: unknown;
 };
 export type VerifyArbitraryProps = {
@@ -40,7 +40,7 @@ export interface Namada {
   connect(chainId?: string): Promise<void>;
   isConnected(): Promise<boolean | undefined>;
   defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
-  sign(props: SignProps): Promise<Uint8Array>;
+  sign(props: SignProps): Promise<Uint8Array | undefined>;
   signArbitrary(
     props: SignArbitraryProps
   ): Promise<SignArbitraryResponse | undefined>;

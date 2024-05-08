@@ -1,7 +1,7 @@
 import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
-  ApproveTxMsg,
+  ApproveSignTxMsg,
   IsConnectionApprovedMsg,
 } from "provider";
 import { Env, Handler, InternalHandler, Message } from "router";
@@ -10,15 +10,13 @@ import {
   RejectSignatureMsg,
   RejectTxMsg,
   RevokeConnectionMsg,
-  SubmitApprovedSignatureMsg,
+  SubmitApprovedSignArbitraryMsg,
 } from "./messages";
 import { ApprovalsService } from "./service";
 
 export const getHandler: (service: ApprovalsService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {
     switch (msg.constructor) {
-      case ApproveTxMsg:
-        return handleApproveTxMsg(service)(env, msg as ApproveTxMsg);
       case RejectTxMsg:
         return handleRejectTxMsg(service)(env, msg as RejectTxMsg);
       case IsConnectionApprovedMsg:
@@ -41,6 +39,8 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
           env,
           msg as RevokeConnectionMsg
         );
+      case ApproveSignTxMsg:
+        return handleApproveSignTxMsg(service)(env, msg as ApproveSignTxMsg);
       case ApproveSignArbitraryMsg:
         return handleApproveSignArbitraryMsg(service)(
           env,
@@ -51,23 +51,15 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
           env,
           msg as RejectSignatureMsg
         );
-      case SubmitApprovedSignatureMsg:
+      case SubmitApprovedSignArbitraryMsg:
         return handleSubmitApprovedSignatureMsg(service)(
           env,
-          msg as SubmitApprovedSignatureMsg
+          msg as SubmitApprovedSignArbitraryMsg
         );
 
       default:
         throw new Error("Unknown msg type");
     }
-  };
-};
-
-const handleApproveTxMsg: (
-  service: ApprovalsService
-) => InternalHandler<ApproveTxMsg> = (service) => {
-  return async (_, { txType, tx, accountType }) => {
-    return await service.approveTx(txType, tx, accountType);
   };
 };
 
@@ -119,11 +111,19 @@ const handleRevokeConnectionMsg: (
   };
 };
 
+const handleApproveSignTxMsg: (
+  service: ApprovalsService
+) => InternalHandler<ApproveSignTxMsg> = (service) => {
+  return async (_, { accountType, signer, tx }) => {
+    return await service.approveSignTx(accountType, signer, tx);
+  };
+};
+
 const handleApproveSignArbitraryMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveSignArbitraryMsg> = (service) => {
   return async (_, { signer, data }) => {
-    return await service.approveSignature(signer, data);
+    return await service.approveSignArbitrary(signer, data);
   };
 };
 
@@ -137,8 +137,8 @@ const handleRejectSignatureMsg: (
 
 const handleSubmitApprovedSignatureMsg: (
   service: ApprovalsService
-) => InternalHandler<SubmitApprovedSignatureMsg> = (service) => {
+) => InternalHandler<SubmitApprovedSignArbitraryMsg> = (service) => {
   return async ({ senderTabId: popupTabId }, { msgId, signer }) => {
-    return await service.submitSignature(popupTabId, msgId, signer);
+    return await service.submitSignArbitrary(popupTabId, msgId, signer);
   };
 };

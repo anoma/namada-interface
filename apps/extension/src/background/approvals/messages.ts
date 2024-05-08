@@ -5,7 +5,7 @@ import { validateProps } from "utils";
 
 export enum MessageType {
   RejectTx = "reject-tx",
-  SubmitApprovedSignature = "submit-approved-signature",
+  SubmitApprovedSignArbitrary = "submit-approved-sign-arbitrary",
   RejectSignature = "reject-signature",
   ConnectInterfaceResponse = "connect-interface-response",
   RevokeConnection = "revoke-connection",
@@ -33,9 +33,9 @@ export class RejectTxMsg extends Message<void> {
   }
 }
 
-export class SubmitApprovedSignatureMsg extends Message<void> {
+export class SubmitApprovedSignArbitraryMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.SubmitApprovedSignature;
+    return MessageType.SubmitApprovedSignArbitrary;
   }
 
   constructor(
@@ -54,7 +54,7 @@ export class SubmitApprovedSignatureMsg extends Message<void> {
   }
 
   type(): string {
-    return SubmitApprovedSignatureMsg.type();
+    return SubmitApprovedSignArbitraryMsg.type();
   }
 }
 

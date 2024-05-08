@@ -6,7 +6,7 @@ import {
   RejectSignatureMsg,
   RejectTxMsg,
   RevokeConnectionMsg,
-  SubmitApprovedSignatureMsg,
+  SubmitApprovedSignArbitraryMsg,
 } from "./messages";
 
 jest.mock("webextension-polyfill", () => ({}));
@@ -43,20 +43,20 @@ describe("approvals messages", () => {
   });
 
   test("valid SubmitApprovedSignatureMsg", () => {
-    const msg = new SubmitApprovedSignatureMsg("msgId", "signer");
+    const msg = new SubmitApprovedSignArbitraryMsg("msgId", "signer");
 
-    expect(msg.type()).toBe(MessageType.SubmitApprovedSignature);
+    expect(msg.type()).toBe(MessageType.SubmitApprovedSignArbitrary);
     expect(msg.route()).toBe(ROUTE);
     expect(msg.validate()).toBeUndefined();
   });
 
   test("invalid SubmitApprovedSignatureMsg", () => {
-    const msg = new SubmitApprovedSignatureMsg("msgId", "signer");
+    const msg = new SubmitApprovedSignArbitraryMsg("msgId", "signer");
     (msg as any).msgId = undefined;
 
     expect(() => msg.validate()).toThrow();
 
-    const msg2 = new SubmitApprovedSignatureMsg("msgId", "signer");
+    const msg2 = new SubmitApprovedSignArbitraryMsg("msgId", "signer");
     (msg2 as any).signer = undefined;
 
     expect(() => msg2.validate()).toThrow();

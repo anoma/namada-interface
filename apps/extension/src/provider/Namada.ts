@@ -9,9 +9,11 @@ import {
 } from "@namada/types";
 import { MessageRequester, Ports } from "router";
 
+import { BuiltTx } from "@namada/shared";
 import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
+  ApproveSignTxMsg,
   CheckDurabilityMsg,
   FetchAndStoreMaspParamsMsg,
   GetChainMsg,
@@ -27,7 +29,7 @@ export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) {}
+  ) { }
 
   public async connect(): Promise<void> {
     return await this.requester?.sendMessage(
@@ -67,10 +69,12 @@ export class Namada implements INamada {
     );
   }
 
-  public async sign(props: SignProps): Promise<Uint8Array> {
-    const { signer, tx } = props;
-    console.log("TODO: Implement message for signing Tx", { signer, tx });
-    return new Uint8Array([]);
+  public async sign(props: SignProps): Promise<Uint8Array | undefined> {
+    const { accountType, signer, tx } = props;
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new ApproveSignTxMsg(accountType, signer, tx as BuiltTx)
+    );
   }
 
   public async signArbitrary(

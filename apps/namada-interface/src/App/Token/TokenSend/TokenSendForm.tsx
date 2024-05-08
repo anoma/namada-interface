@@ -87,8 +87,13 @@ export const submitTransferTransaction = async (
   }
 
   // Submit to extension for signing:
-  const signedTx = await signingClient.sign(transferProps.source, builtTx)
+  const signedTx = await signingClient.sign(type, transferProps.source, builtTx)
   console.log("Signed Tx Bytes: ", signedTx);
+
+  if (!signedTx) {
+    // Signature failed:
+    return;
+  }
 
   const response = await rpc.broadcastTx({ wrapperTxMsg: builtTx.txMsg, tx: signedTx });
   console.log("Broadcast Tx results: ", response)

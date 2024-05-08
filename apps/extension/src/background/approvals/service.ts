@@ -1,7 +1,6 @@
 import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
 
-import { SupportedTx } from "@heliax/namada-sdk/web";
 import { KVStore } from "@namada/storage";
 import { AccountType, SignArbitraryResponse } from "@namada/types";
 
@@ -29,9 +28,9 @@ export class ApprovalsService {
     protected readonly keyRingService: KeyRingService,
     protected readonly vaultService: VaultService,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) {}
+  ) { }
 
-  async approveSignature(
+  async approveSignArbitrary(
     signer: string,
     data: string
   ): Promise<SignArbitraryResponse> {
@@ -61,7 +60,8 @@ export class ApprovalsService {
     });
   }
 
-  async submitApprovedTx(
+  // TODO: Hook up to handler & SubmitSignTxMsg
+  async submitSignTx(
     popupTabId: number,
     msgId: string,
     signer: string
@@ -87,7 +87,7 @@ export class ApprovalsService {
     await this._clearPendingSignature(msgId);
   }
 
-  async submitSignature(
+  async submitSignArbitrary(
     popupTabId: number,
     msgId: string,
     signer: string
@@ -125,19 +125,21 @@ export class ApprovalsService {
     resolvers.reject();
   }
 
-  async approveTx(
-    txType: SupportedTx,
-    tx: BuiltTx,
-    type: AccountType
-  ): Promise<void> {
+  async approveSignTx(
+    type: AccountType,
+    signer: string,
+    tx: BuiltTx
+  ): Promise<Uint8Array> {
     const msgId = uuid();
     await this.txStore.set(msgId, tx);
 
     const url = `${browser.runtime.getURL(
       "approvals.html"
-    )}#/approve-tx/${msgId}/${txType}/${type}`;
+    )}#/approve-tx/${msgId}/${type}/${signer}`;
 
     await this._launchApprovalWindow(url);
+    // TODO: Handle this like signArbitrary
+    return new Uint8Array([]);
   }
 
   // Remove pending transaction from storage

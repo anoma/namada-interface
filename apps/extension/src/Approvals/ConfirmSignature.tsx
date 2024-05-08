@@ -11,7 +11,7 @@ import {
 import { shortenAddress } from "@namada/utils";
 import { PageHeader } from "App/Common";
 import { SignatureDetails, Status } from "Approvals/Approvals";
-import { SubmitApprovedSignatureMsg } from "background/approvals";
+import { SubmitApprovedSignArbitraryMsg } from "background/approvals";
 import { UnlockVaultMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
@@ -55,7 +55,7 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
       await requester
         .sendMessage(
           Ports.Background,
-          new SubmitApprovedSignatureMsg(msgId, signer)
+          new SubmitApprovedSignArbitraryMsg(msgId, signer)
         )
         .catch((e) => {
           throw new Error(e);

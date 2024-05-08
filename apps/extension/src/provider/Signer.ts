@@ -42,8 +42,12 @@ export class Signer implements ISigner {
     }
   }
 
-  public async sign(signer: string, tx: unknown): Promise<Uint8Array> {
-    return await this._namada.sign({ signer, tx });
+  public async sign(
+    accountType: AccountType,
+    signer: string,
+    tx: unknown
+  ): Promise<Uint8Array | undefined> {
+    return await this._namada.sign({ accountType, signer, tx });
   }
 
   public async signArbitrary(
