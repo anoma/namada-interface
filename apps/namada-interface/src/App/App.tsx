@@ -14,8 +14,8 @@ import { Outlet } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
 import { fetchAccountsAtom } from "slices/accounts";
 import { chainAtom, setChain } from "slices/chain";
-import { SettingsState } from "slices/settings";
-import { persistor, useAppDispatch, useAppSelector } from "store";
+import { connectedChainsAtom } from "slices/settings";
+import { persistor, useAppDispatch } from "store";
 import { ThemeProvider } from "styled-components";
 import { AppLoader, MotionContainer } from "./App.components";
 import { Sidebar } from "./Common/Sidebar";
@@ -55,10 +55,8 @@ function App(): JSX.Element {
   const theme = getTheme(initialColorMode);
   const chain = useAtomValue(chainAtom);
   const fetchAccounts = useSetAtom(fetchAccountsAtom);
-  const { connectedChains } = useAppSelector<SettingsState>(
-    (state) => state.settings
-  );
-
+  const connectedChains = useAtomValue(connectedChainsAtom);
+  console.log(">>>", connectedChains);
   const integration = useIntegration(chain.id);
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
