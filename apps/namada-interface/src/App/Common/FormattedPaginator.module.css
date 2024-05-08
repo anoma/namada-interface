@@ -1,5 +1,5 @@
 .paginator {
-  @apply flex justify-center uppercase items-center py-2 select-none;
+  @apply flex justify-center uppercase items-center py-2 select-none text-xs;
 
   :global .disabled {
     @apply pointer-events-none opacity-50;
@@ -18,11 +18,15 @@
 
   :global .next a,
   :global .previous a {
-    @apply w-8 h-8 rounded-full flex items-center justify-center bg-neutral-800;
+    @apply w-6 h-6 rounded-full flex items-center justify-center bg-neutral-800;
   }
 
   :global li:not(.next, .previous) {
-    @apply h-8 flex items-center justify-center px-2.5 bg-neutral-800;
+    @apply bg-neutral-800 flex;
+
+    :global a {
+      @apply px-1.5 h-6 flex items-center justify-center;
+    }
   }
 
   :global a:hover {
@@ -30,11 +34,11 @@
   }
 
   :global li:nth-child(2) {
-    @apply rounded-s-lg pl-4;
+    @apply rounded-s-lg pl-2;
   }
 
   :global li:nth-last-child(2) {
-    @apply rounded-e-lg pr-4;
+    @apply rounded-e-lg pr-2;
   }
 
   :global .selected {
