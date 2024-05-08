@@ -6,7 +6,6 @@ import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
 import { CurrencySelector } from "App/Common/CurrencySelector";
 import { ConnectStatus, useExtensionConnect } from "hooks/useExtensionConnect";
 import { useAtom } from "jotai";
-import { Suspense } from "react";
 import { hideBalancesAtom, selectedCurrencyAtom } from "slices/settings";
 
 type Props = {
@@ -42,9 +41,7 @@ export const TopNavigation = ({ chain }: Props): JSX.Element => {
             onChange={setSelectedCurrency}
           />
           {separator}
-          <Suspense fallback={null}>
-            <ActiveAccount />
-          </Suspense>
+          <ActiveAccount />
         </div>
       )}
     </>
