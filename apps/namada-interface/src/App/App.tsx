@@ -56,7 +56,6 @@ function App(): JSX.Element {
   const chain = useAtomValue(chainAtom);
   const fetchAccounts = useSetAtom(fetchAccountsAtom);
   const connectedChains = useAtomValue(connectedChainsAtom);
-  console.log(">>>", connectedChains);
   const integration = useIntegration(chain.id);
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
