@@ -8,7 +8,9 @@ import {
   proposalStatusFamily,
   proposalVotedFamily,
   proposalVotesFamily,
+  totalStakedTokensForProposalFamily,
 } from "slices/proposals";
+import { allValidatorsAtom } from "slices/validators";
 import { atomsAreFetching, atomsAreLoaded } from "store/utils";
 import { ProposalDescription } from "./ProposalDescription";
 import { ProposalHeader } from "./ProposalHeader";
@@ -18,11 +20,18 @@ import { VoteInfoCards } from "./VoteInfoCards";
 
 export const ProposalAndVote: React.FC = () => {
   const { proposalId: proposalIdString = "" } = useSanitizedParams();
-  const proposalId = Number.parseInt(proposalIdString);
+
+  // TODO: handle NaN case
+  const proposalId = BigInt(Number.parseInt(proposalIdString));
+
   const proposal = useAtomValue(proposalFamily(proposalId));
   const votes = useAtomValue(proposalVotesFamily(proposalId));
   const voted = useAtomValue(proposalVotedFamily(proposalId));
   const status = useAtomValue(proposalStatusFamily(proposalId));
+  const totalStakedTokens = useAtomValue(
+    totalStakedTokensForProposalFamily(proposalId)
+  );
+  const allValidators = useAtomValue(allValidatorsAtom);
 
   // TODO: I think we're going to have a problem with this for ongoing proposals
   // because Namada seems to use the voting power in the end epoch to determine
@@ -54,10 +63,16 @@ export const ProposalAndVote: React.FC = () => {
           {proposal.isSuccess && <VoteInfoCards proposal={proposal.data} />}
         </Panel>
         <Panel className="px-10">
-          {atomsAreLoaded(proposal, votes) && (
+          {atomsAreLoaded(
+            proposal,
+            votes,
+            totalStakedTokens,
+            allValidators
+          ) && (
             <VoteBreakdown
               votes={votes.data!}
-              totalVotingPower={totalVotingPower}
+              totalVotingPower={totalStakedTokens.data!}
+              validatorCount={allValidators.data!.length}
             />
           )}
         </Panel>
@@ -67,7 +82,12 @@ export const ProposalAndVote: React.FC = () => {
           {atomsAreLoaded(proposal, votes) && (
             <ProposalStatusSummary
               proposal={proposal.data!}
-              votes={votes.data!}
+              //votes={votes.data!}
+              votes={{
+                yay: BigNumber(200),
+                nay: BigNumber(100),
+                abstain: BigNumber(50),
+              }}
             />
           )}
         </Panel>

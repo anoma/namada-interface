@@ -1,9 +1,8 @@
 import { Panel } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
-import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
-import { proposalFamily } from "slices/proposals";
+import { allProposalsWithExtraInfoAtom } from "slices/proposals";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import { AllProposalsTable } from "./AllProposalsTable";
 import { LiveGovernanceProposals } from "./LiveGovernanceProposals";
@@ -28,31 +27,14 @@ export const GovernanceOverview: React.FC = () => {
 
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
 
-  //const allProposalsQueryResult =
-  //  useAtomValue(allProposalsWithExtraInfoAtom);
+  const allProposals = useAtomValue(allProposalsWithExtraInfoAtom);
 
-  const allProposalsQueryResult = useAtomValue(proposalFamily(0));
-
-  if (!allProposalsQueryResult.isSuccess) {
+  if (!allProposals.isSuccess) {
     // TODO: what to do here? navigating immediately doesn't work with isSuccess
     //navigate(TopLevelRoute.Wallet);
-    console.log(allProposalsQueryResult.error);
+    console.log(allProposals.error);
     return null;
   }
-
-  //const allProposals = allProposalsQueryResult.data;
-  const allProposals = [
-    {
-      proposal: allProposalsQueryResult.data,
-      status: { status: "pending" } as const,
-      votes: {
-        yes: BigNumber(0),
-        no: BigNumber(0),
-        abstain: BigNumber(0),
-      },
-      voted: true,
-    },
-  ];
 
   return (
     <div className="grid grid-cols-[auto_270px] gap-2">
@@ -61,18 +43,18 @@ export const GovernanceOverview: React.FC = () => {
           <ConnectBanner text="To vote please connect your account" />
         )}
         <Panel title="Live Governance Proposals">
-          <LiveGovernanceProposals allProposals={allProposals} />
+          <LiveGovernanceProposals allProposals={allProposals.data} />
         </Panel>
         <Panel title="Upcoming Proposals">
-          <UpcomingProposals allProposals={allProposals} />
+          <UpcomingProposals allProposals={allProposals.data} />
         </Panel>
         <Panel title="All Proposals">
-          <AllProposalsTable allProposals={allProposals} />
+          <AllProposalsTable allProposals={allProposals.data} />
         </Panel>
       </div>
       <aside className="flex flex-col gap-2">
         <Panel>
-          <ProposalsSummary allProposals={allProposals} />
+          <ProposalsSummary allProposals={allProposals.data} />
         </Panel>
       </aside>
     </div>

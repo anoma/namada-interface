@@ -10,13 +10,9 @@ import {
   Stack,
   TickedRadioList,
 } from "@namada/components";
+import { VoteType, isVoteType, voteTypes } from "@namada/types";
 import { ModalContainer } from "App/Common/ModalContainer";
-import {
-  VoteType,
-  performVoteAtom,
-  proposalFamily,
-  voteTypes,
-} from "slices/proposals";
+import { performVoteAtom, proposalFamily } from "slices/proposals";
 import GovernanceRoutes from "./routes";
 
 export const SubmitVote: React.FC = () => {
@@ -31,7 +27,8 @@ export const SubmitVote: React.FC = () => {
   const [selectedVoteType, setSelectedVoteType] = useState<VoteType>();
 
   const { proposalId: proposalIdString = "" } = useSanitizedParams();
-  const proposalId = Number.parseInt(proposalIdString);
+  // TODO: validate we got a number
+  const proposalId = BigInt(Number.parseInt(proposalIdString));
   const proposalQueryResult = useAtomValue(proposalFamily(proposalId));
 
   if (Number.isNaN(proposalId) || !proposalQueryResult.isSuccess) {
@@ -58,6 +55,13 @@ export const SubmitVote: React.FC = () => {
     });
   };
 
+  const handleSelectVoteType = (voteType: string) => {
+    if (!isVoteType(voteType)) {
+      throw new Error(`unexpected vote type, got ${voteType}`);
+    }
+    setSelectedVoteType(voteType);
+  };
+
   useEffect(() => {
     if (isSuccess) {
       //dispatchPendingNotification();
@@ -81,7 +85,7 @@ export const SubmitVote: React.FC = () => {
               }))}
               id="vote-type-radio"
               value={selectedVoteType}
-              onChange={setSelectedVoteType}
+              onChange={handleSelectVoteType}
             />
 
             {voteTypes.map((voteType, i) => (
