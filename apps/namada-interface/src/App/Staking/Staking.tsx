@@ -18,7 +18,7 @@ import StakingRoutes from "./routes";
 //  * UnstakePositions - rendered in modal on top of other content, for unstaking
 export const Staking = (): JSX.Element => {
   useAtomValue(minimumGasPriceAtom);
-  const isRevealPkNeeded = useAtomValue(loadable(isRevealPkNeededAtom));
+  useAtomValue(loadable(isRevealPkNeededAtom));
 
   return (
     <main className="w-full">

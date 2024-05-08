@@ -133,14 +133,12 @@ export const ReDelegateTable = ({
   };
 
   return (
-    <div>
-      <ValidatorsTable
-        id="increment-bonding-table"
-        tableClassName="mt-2"
-        validatorList={validators}
-        headers={headers}
-        renderRow={renderRow}
-      />
-    </div>
+    <ValidatorsTable
+      id="increment-bonding-table"
+      tableClassName="mt-2"
+      validatorList={validators}
+      headers={headers}
+      renderRow={renderRow}
+    />
   );
 };
