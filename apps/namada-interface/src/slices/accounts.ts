@@ -11,7 +11,6 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { chainAtom } from "slices/chain";
 
 import { RootState } from "store";
 
@@ -215,16 +214,13 @@ export const totalNamBalanceAtom = atomWithQuery<BigNumber>((get) => {
 
 export const balancesAtom = atomWithQuery<Record<Address, Balance>>((get) => {
   const namada = getIntegration("namada");
-  const {
-    currency: { address: nativeToken },
-  } = get(chainAtom);
-  const token = nativeToken || tokenAddress;
+  const token = tokenAddress;
   const shieldedAccounts = get(shieldedAccountsAtom);
   const transparentAccounts = get(transparentAccountsAtom);
 
   return {
     enabled: !!token && transparentAccounts.length > 0,
-    queryKey: ["balances", nativeToken],
+    queryKey: ["balances", token],
     queryFn: async () => {
       // We query the balances for the transparent accounts first as it's faster
       const transparentBalances = await Promise.all(

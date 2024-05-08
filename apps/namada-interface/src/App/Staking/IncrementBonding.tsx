@@ -123,7 +123,7 @@ const IncrementBonding = (): JSX.Element => {
               updatedAmountInNam={totalNamAfterStaking}
               extraContent={
                 <>
-                  {totalNamAfterStaking.lt(2) && (
+                  {totalNamAfterStaking.lt(GAS_LIMIT.multipliedBy(2)) && (
                     <Alert
                       type="warning"
                       className="absolute py-3 right-2 top-4 max-w-[50%] text-xs rounded-sm"

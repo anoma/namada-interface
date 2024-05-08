@@ -5,10 +5,15 @@ import { TableRowLoading } from "App/Common/TableRowLoading";
 import BigNumber from "bignumber.js";
 import { useStakeModule } from "hooks/useStakeModule";
 import useValidatorFilter from "hooks/useValidatorFilter";
-import { useAtomValue } from "jotai";
-import { useState } from "react";
+import invariant from "invariant";
+import { useAtomValue, useSetAtom } from "jotai";
+import { redelegateAmounts } from "lib/staking";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { transparentAccountsAtom } from "slices/accounts";
+import { GAS_LIMIT, minimumGasPriceAtom } from "slices/fees";
+import { dispatchToastNotificationAtom } from "slices/notifications";
+import { performReDelegationAtom } from "slices/staking";
 import { allValidatorsAtom } from "slices/validators";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { ReDelegateTable } from "./ReDelegateTable";
@@ -20,6 +25,8 @@ const ReDelegate = (): JSX.Element => {
   const [filter, setFilter] = useState<string>("");
   const [onlyMyValidators, setOnlyMyValidators] = useState(false);
   const accounts = useAtomValue(transparentAccountsAtom);
+  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
+  const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const {
     totalStakedAmount,
@@ -36,7 +43,14 @@ const ReDelegate = (): JSX.Element => {
     onlyMyValidators,
   });
 
+  const {
+    mutate: performRedelegation,
+    isPending: isPerformingRedelegation,
+    isSuccess,
+  } = useAtomValue(performReDelegationAtom);
+
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
+
   const redelegateTotal = totalStakedAmount.minus(totalUpdatedAmount);
   const redelegateDisplayedAmount =
     totalUpdatedAmount.gt(0) ?
@@ -49,7 +63,44 @@ const ReDelegate = (): JSX.Element => {
     return "";
   };
 
+  const dispatchPendingNotification = (): void => {
+    dispatchNotification({
+      id: "staking-redelegate",
+      title: "Staking re-delegation in progress",
+      description: <>The re-delegation transaction is being processed</>,
+      type: "pending",
+    });
+  };
+
   const validationMessage = getValidationMessage();
+
+  const onSubmit = (e: React.FormEvent): void => {
+    e.preventDefault();
+    invariant(
+      accounts.length > 0,
+      `Extension is connected but you don't have an account`
+    );
+    invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
+    const redelegationChanges = redelegateAmounts(
+      stakedAmountByAddress,
+      updatedAmountByAddress
+    );
+    performRedelegation({
+      changes: redelegationChanges,
+      gasConfig: {
+        gasPrice: minimumGasPrice.data!,
+        gasLimit: GAS_LIMIT,
+      },
+      account: accounts[0],
+    });
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      dispatchPendingNotification();
+      onCloseModal();
+    }
+  }, [isSuccess]);
 
   return (
     <Modal onClose={onCloseModal}>
@@ -66,7 +117,10 @@ const ReDelegate = (): JSX.Element => {
         }
         onClose={onCloseModal}
       >
-        <form className="grid grid-rows-[max-content_auto_max-content] gap-2 h-full">
+        <form
+          onSubmit={onSubmit}
+          className="grid grid-rows-[max-content_auto_max-content] gap-2 h-full"
+        >
           <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
             <BondingAmountOverview
               title="Available to re-delegate"
@@ -100,7 +154,7 @@ const ReDelegate = (): JSX.Element => {
               </ActionButton>
             </Panel>
           </div>
-          <Panel className="grid grid-rows-[max-content_auto_max-content] overflow-hidden w-full rounded-md relative">
+          <Panel className="grid grid-rows-[max-content_auto] overflow-hidden w-full rounded-md relative">
             <ValidatorFilterNav
               onChangeSearch={(value: string) => setFilter(value)}
               onlyMyValidators={onlyMyValidators}
@@ -125,7 +179,11 @@ const ReDelegate = (): JSX.Element => {
             color="white"
             borderRadius="sm"
             className="mt-2 w-1/4 mx-auto"
-            disabled={!!validationMessage || !redelegateTotal.eq(0)}
+            disabled={
+              !!validationMessage ||
+              !redelegateTotal.eq(0) ||
+              isPerformingRedelegation
+            }
           >
             {validationMessage || "Re-Delegate"}
           </ActionButton>

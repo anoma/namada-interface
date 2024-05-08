@@ -1,10 +1,17 @@
 import { getIntegration } from "@namada/integrations";
-import { Account, BondProps, Chain, Signer, TxMsgValue } from "@namada/types";
+import {
+  Account,
+  BondProps,
+  Chain,
+  RedelegateProps,
+  Signer,
+  TxMsgValue,
+} from "@namada/types";
 import BigNumber from "bignumber.js";
 import { invariant } from "framer-motion";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { GasConfig } from "types/fees";
-import { ChangeInStakingPosition } from "types/staking";
+import { ChangeInStakingPosition, RedelegateChange } from "types/staking";
 import { chainAtom } from "./chain";
 import { MyValidator, myValidatorsAtom } from "./validators";
 
@@ -17,6 +24,12 @@ type StakingTotals = {
 type ChangeInStakingProps = {
   account: Account;
   changes: ChangeInStakingPosition[];
+  gasConfig: GasConfig;
+};
+
+type RedelegateChangesProps = {
+  account: Account;
+  changes: RedelegateChange[];
   gasConfig: GasConfig;
 };
 
@@ -61,6 +74,16 @@ const getStakingChangesParams = (
     validator: change.validatorId,
     amount: change.amount,
     nativeToken: address!,
+  }));
+};
+
+const getRedelegateChangeParams = (
+  account: Account,
+  changes: RedelegateChange[]
+): RedelegateProps[] => {
+  return changes.map((change: RedelegateChange) => ({
+    owner: account.address,
+    ...change,
   }));
 };
 
@@ -126,9 +149,9 @@ export const performUnbondAtom = atomWithMutation((get) => {
   };
 });
 
-export const performUnstakeAtom = atomWithMutation((get) => {
+export const performWithdrawAtom = atomWithMutation((get) => {
   return {
-    mutationKey: ["unstake"],
+    mutationKey: ["withdraw"],
     mutationFn: async ({
       changes,
       gasConfig,
@@ -139,6 +162,26 @@ export const performUnstakeAtom = atomWithMutation((get) => {
       const signer = integration.signer() as Signer;
       await signer.submitWithdraw(
         getStakingChangesParams(account, changes, chain),
+        getTxProps(account, gasConfig, chain),
+        account.type
+      );
+    },
+  };
+});
+
+export const performReDelegationAtom = atomWithMutation((get) => {
+  return {
+    mutationKey: ["redelegate"],
+    mutationFn: async ({
+      changes,
+      gasConfig,
+      account,
+    }: RedelegateChangesProps) => {
+      const chain = get(chainAtom);
+      const integration = getIntegration(chain.id);
+      const signer = integration.signer() as Signer;
+      await signer.submitRedelegate(
+        getRedelegateChangeParams(account, changes),
         getTxProps(account, gasConfig, chain),
         account.type
       );
