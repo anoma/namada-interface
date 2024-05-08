@@ -391,6 +391,17 @@ impl Query {
         to_js_result(result)
     }
 
+    pub async fn query_total_staked_tokens(
+        &self,
+        epoch: u64
+    ) -> Result<JsValue, JsError> {
+        let total_staked_tokens =
+            get_total_staked_tokens(&self.client, Epoch(epoch))
+                .await?;
+
+        to_js_result(total_staked_tokens)
+    }
+
     pub async fn query_proposal_counter(&self) -> Result<JsValue, JsError> {
         let proposal_counter_key = governance_storage::get_counter_key();
         let proposal_counter =
@@ -422,6 +433,91 @@ impl Query {
         BorshSerialize::serialize(&proposal_info, &mut writer)?;
 
         Ok(Uint8Array::from(writer.as_slice()))
+    }
+
+    pub async fn query_proposal_votes(
+        &self,
+        proposal_id: u64,
+        epoch: u64
+    ) -> Result<JsValue, JsError> {
+
+        let votes = compute_proposal_votes(&self.client, proposal_id, Epoch(epoch)).await;
+
+        //let result = query_proposal_votes(&self.client, id).await?;
+
+        //let votes: Vec<(Address, String, bool)> = result
+        //    .into_iter()
+        //    .map(|vote| {
+        //        let data = match vote.data {
+        //            ProposalVote::Yay => "yay",
+        //            ProposalVote::Nay => "nay",
+        //            ProposalVote::Abstain => "abstain"
+        //        };
+        //        let is_validator = vote.is_validator();
+        //        (
+        //            vote.delegator,
+        //            String::from(data),
+        //            is_validator
+        //        )
+        //    })
+        //    .collect();
+
+        let validator_votes: Vec<(Address, String, token::Amount)> = Vec::from_iter(
+            votes.validators_vote.iter().map(|(address, vote)| {
+                let vote = match vote {
+                    TallyVote::OnChain(ProposalVote::Yay) => "yay",
+                    TallyVote::OnChain(ProposalVote::Nay) => "nay",
+                    TallyVote::OnChain(ProposalVote::Abstain) => "abstain",
+                    TallyVote::Offline(_) => panic!("received offline tally")
+                };
+
+                let voting_power = votes.validator_voting_power.get(address)
+                    .expect("validator has voting power entry")
+                    .clone();
+
+                (address.clone(), String::from(vote), voting_power)
+            })
+        );
+
+        //let validator_voting_power: Vec<(Address, token::Amount)> =
+        //    votes.validator_voting_power.into_iter().collect();
+
+        let delegator_votes: Vec<(Address, String, Vec<(Address, token::Amount)>)> =
+            Vec::from_iter(
+                votes.delegators_vote.iter().map(|(address, vote)| {
+                    let vote = match vote {
+                        TallyVote::OnChain(ProposalVote::Yay) => "yay",
+                        TallyVote::OnChain(ProposalVote::Nay) => "nay",
+                        TallyVote::OnChain(ProposalVote::Abstain) => "abstain",
+                        TallyVote::Offline(_) => panic!("received offline tally")
+                    };
+
+                    let voting_power = votes.delegator_voting_power.get(address)
+                        .expect("delegator has voting power entry")
+                        .clone()
+                        .into_iter()
+                        .collect();
+
+                    (address.clone(), String::from(vote), voting_power)
+                })
+            );
+
+        //let validator_voting_power: Vec<(Address, Amount)> = Vec::from_iter(
+        //    votes.validator_voting_power.iter().map(|(address, voting_power)| {
+        //        let vote = match vote {
+        //            TallyVote::OnChain(ProposalVote::Yay) => "yay",
+        //            TallyVote::OnChain(ProposalVote::Nay) => "nay",
+        //            TallyVote::OnChain(ProposalVote::Abstain) => "abstain",
+        //            TallyVote::Offline(_) => panic!("received offline tally")
+        //        };
+        //        (address.clone(), String::from(vote))
+        //    })
+        //);
+
+        to_js_result((
+            validator_votes,
+            delegator_votes
+        ))
     }
 
     ///// Returns a list of all proposals

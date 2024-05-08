@@ -1,88 +1,191 @@
+import { deserialize } from "@dao-xyz/borsh";
 import { getIntegration } from "@namada/integrations";
-import { Account, Chain } from "@namada/types";
+import { Proposal as ProposalSchema, Query } from "@namada/shared";
+import {
+  Account,
+  Chain,
+  DelegatorVote,
+  ValidatorVote,
+  Vote,
+  isVoteType,
+} from "@namada/types";
 import BigNumber from "bignumber.js";
 
 import {
   Proposal,
   ProposalStatus,
   ProposalWithExtraInfo,
-  Votes,
   VoteType,
 } from "@namada/types";
 
-export const fetchCurrentEpoch = async (): Promise<BigNumber> => BigNumber(10);
-
-export const fetchProposalCounter = async (): Promise<number> =>
-  TEST_PROPOSALS.length;
-//sdk.then(({ rpc }) => rpc.queryProposalCounter());
-
-export const fetchProposalById = async (id: number): Promise<Proposal> => {
-  const proposal = TEST_PROPOSALS[id];
-  if (typeof proposal === "undefined") {
-    throw new Error("no proposal!");
-  }
-  return proposal;
+export const fetchCurrentEpoch = async (chain: Chain): Promise<bigint> => {
+  const { rpc } = chain;
+  const query = new Query(rpc);
+  return await query.query_epoch();
 };
 
-export const fetchProposalByIdWithExtraInfo = async (
-  id: number,
-  address: string,
+export const fetchProposalCounter = async (chain: Chain): Promise<bigint> => {
+  const { rpc } = chain;
+  const query = new Query(rpc);
+  const proposalCounter: string = await query.query_proposal_counter();
+  return BigInt(proposalCounter);
+};
+
+export const fetchProposalById = async (
+  chain: Chain,
+  id: bigint
+): Promise<Proposal> => {
+  const { rpc } = chain;
+  const query = new Query(rpc);
+  const proposalUint8Array = await query.query_proposal_by_id(BigInt(id));
+  const deserialized = deserialize(proposalUint8Array, ProposalSchema);
+
+  const content = JSON.parse(deserialized.content);
+
+  return {
+    ...deserialized,
+    content,
+    proposalType: { type: "default" },
+  };
+};
+
+export const fetchAllProposals = async (chain: Chain): Promise<Proposal[]> => {
+  const proposalCounter = await fetchProposalCounter(chain);
+
+  const proposals: Promise<Proposal>[] = [];
+  for (let id = BigInt(0); id < proposalCounter; id++) {
+    proposals.push(fetchProposalById(chain, id));
+  }
+
+  return await Promise.all(proposals);
+};
+
+const fetchProposalByIdWithExtraInfo = async (
+  chain: Chain,
+  id: bigint,
+  account: Account,
   currentEpoch: bigint
 ): Promise<ProposalWithExtraInfo> => {
-  const proposal = await fetchProposalById(id);
-  const voted = await fetchProposalVoted(id, address);
-  const status = await fetchProposalStatus(id, currentEpoch);
-  const votes = await fetchProposalVotes(id);
+  const proposal = await fetchProposalById(chain, id);
+  const voted = await fetchProposalVoted(chain, id, account);
+  const status = await fetchProposalStatus(chain, id);
+  const votes = await fetchProposalVotes(chain, id);
 
   return { proposal, voted, status, votes };
 };
 
-export const fetchAllProposals = async (
-  proposalCounter: number
-): Promise<Proposal[]> =>
-  Promise.all(
-    Array.from({ length: proposalCounter }, (_, id) => fetchProposalById(id))
-  );
-
 export const fetchAllProposalsWithExtraInfo = async (
-  proposalCounter: number,
-  address: string,
-  currentEpoch: bigint
-): Promise<ProposalWithExtraInfo[]> =>
-  Promise.all(
-    Array.from({ length: proposalCounter }, (_, id) =>
-      fetchProposalByIdWithExtraInfo(id, address, currentEpoch)
-    )
+  chain: Chain,
+  account: Account
+): Promise<ProposalWithExtraInfo[]> => {
+  const proposalCounter = await fetchProposalCounter(chain);
+  const currentEpoch = await fetchCurrentEpoch(chain);
+
+  const proposals: Promise<ProposalWithExtraInfo>[] = [];
+  for (let id = BigInt(0); id < proposalCounter; id++) {
+    proposals.push(
+      fetchProposalByIdWithExtraInfo(chain, id, account, currentEpoch)
+    );
+  }
+
+  return await Promise.all(proposals);
+};
+
+// TODO: this function is way too big
+export const fetchProposalVotes = async (
+  chain: Chain,
+  id: bigint
+): Promise<Vote[]> => {
+  const { endEpoch } = await fetchProposalById(chain, id);
+  const currentEpoch = await fetchCurrentEpoch(chain);
+
+  const epoch = endEpoch < currentEpoch ? endEpoch : currentEpoch;
+
+  const { rpc } = chain;
+  const query = new Query(rpc);
+  const [validatorVotesResult, delegatorVotesResult]: [
+    [string, string, string][], // validator votes [address, vote, voting power]
+    [string, string, [string, string][]][], // delegator votes [address, vote]
+  ] = await query.query_proposal_votes(id, epoch);
+
+  const validatorVotes: ValidatorVote[] = validatorVotesResult.map(
+    ([address, voteType, votingPower]) => {
+      if (!isVoteType(voteType)) {
+        throw new Error(`unknown vote type, got ${voteType}`);
+      }
+
+      const votingPowerAsBigNumber = BigNumber(votingPower);
+
+      if (votingPowerAsBigNumber.isNaN()) {
+        throw new Error("unable to parse voting power as big number");
+      }
+
+      return {
+        address,
+        voteType,
+        isValidator: true,
+        votingPower: votingPowerAsBigNumber,
+      };
+    }
   );
 
-export const fetchProposalVotes = async (id: number): Promise<Votes> => ({
-  yes: BigNumber(1000.22),
-  no: BigNumber(325.111),
-  abstain: BigNumber(133.00002),
-});
+  const delegatorVotes: DelegatorVote[] = delegatorVotesResult.map(
+    ([address, voteType, votingPower]) => {
+      if (!isVoteType(voteType)) {
+        throw new Error(`unknown vote type, got ${voteType}`);
+      }
+
+      const votingPowerAsBigNumber: [string, BigNumber][] = votingPower.map(
+        ([validatorAddress, amount]) => {
+          const amountAsBigNumber = BigNumber(amount);
+          if (amountAsBigNumber.isNaN()) {
+            throw new Error("unable to parse amount as big number");
+          }
+
+          return [validatorAddress, amountAsBigNumber];
+        }
+      );
+
+      return {
+        address,
+        voteType,
+        isValidator: false,
+        votingPower: votingPowerAsBigNumber,
+      } as const;
+    }
+  );
+
+  return [...validatorVotes, ...delegatorVotes];
+};
 
 export const fetchProposalStatus = async (
-  id: number,
-  currentEpoch: bigint
+  chain: Chain,
+  id: bigint
 ): Promise<ProposalStatus> => {
-  const { startEpoch, endEpoch } = await fetchProposalById(id);
+  const currentEpoch = await fetchCurrentEpoch(chain);
+  const { startEpoch, endEpoch } = await fetchProposalById(chain, id);
 
   if (startEpoch > currentEpoch) {
     return { status: "pending" };
   } else if (endEpoch > currentEpoch) {
     return { status: "ongoing" };
   } else {
-    return { status: "finished", passed: id % 2 === 0 };
+    // TODO: check if passed
+    return { status: "finished", passed: id % BigInt(2) === BigInt(0) };
   }
 };
 
 export const fetchProposalVoted = async (
-  id: number,
-  address: string
-): Promise<boolean> => id % 2 === 0;
+  chain: Chain,
+  id: bigint,
+  account: Account
+): Promise<boolean> => {
+  const votes = await fetchProposalVotes(chain, id);
+  return votes.some((vote) => vote.address === account.address);
+};
 
 export const performVote = async (
-  proposalId: number,
+  proposalId: bigint,
   vote: VoteType,
   account: Account,
   chain: Chain
@@ -106,7 +209,7 @@ export const performVote = async (
   return await signer.submitVoteProposal(
     {
       signer: account.address,
-      proposalId: BigInt(proposalId),
+      proposalId,
       vote,
     },
     {

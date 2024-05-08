@@ -7,7 +7,7 @@ import { Proposal, ProposalStatus } from "@namada/types";
 import { SiWebassembly } from "react-icons/si";
 import { VscJson } from "react-icons/vsc";
 import { Link, useNavigate } from "react-router-dom";
-import { currentEpochAtom, proposalCounterAtom } from "slices/proposals";
+import { currentEpochAtom } from "slices/proposals";
 import { StatusLabel, TypeLabel, VotedLabel } from "./ProposalLabels";
 
 export const ProposalHeader: React.FC<{
@@ -22,11 +22,6 @@ export const ProposalHeader: React.FC<{
   const { startEpoch, endEpoch } = proposal;
   const currentEpoch = useAtomValue(currentEpochAtom);
 
-  const counter = useAtomValue(proposalCounterAtom);
-  if (!counter.isSuccess) {
-    return null;
-  }
-
   if (!currentEpoch.isSuccess) {
     return null;
   }
@@ -38,9 +33,6 @@ export const ProposalHeader: React.FC<{
     <>
       <div className="flex mb-5">
         <div className="w-full">
-          <div>
-            {currentEpoch.data.toString()} {counter.data}
-          </div>
           <div className="text-xxs text-neutral-500 mb-5">
             <Link
               className="transition-colors hover:text-white"
@@ -53,13 +45,13 @@ export const ProposalHeader: React.FC<{
               className="transition-colors hover:text-white"
               to={GovernanceRoutes.proposal(proposal.id).url}
             >
-              Proposal #{proposal.id}
+              Proposal #{proposal.id.toString()}
             </Link>
           </div>
           <Stack gap={2.5}>
             <TypeLabel proposalType={proposal.proposalType} />
             <div className="text-xl">
-              #{proposal.id} {proposal.content.title}
+              #{proposal.id.toString()} {proposal.content.title}
             </div>
           </Stack>
         </div>
@@ -121,7 +113,7 @@ export const ProposalHeader: React.FC<{
             borderRadius="sm"
             className="py-2"
             color="white"
-            disabled={voteButtonDisabled}
+            //disabled={voteButtonDisabled}
             onClick={() =>
               navigate(GovernanceRoutes.submitVote(proposal.id).url)
             }

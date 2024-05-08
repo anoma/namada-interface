@@ -1,12 +1,18 @@
 import BigNumber from "bignumber.js";
 
 import { ProgressBar, Stack } from "@namada/components";
+import {
+  Vote,
+  VoteType,
+  isDelegatorVote,
+  isValidatorVote,
+  voteTypes,
+} from "@namada/types";
 import { formatPercentage } from "@namada/utils";
-import { VoteType, Votes, voteTypes } from "slices/proposals/types";
 
-const colors: Record<VoteType, string> = {
-  yes: "#15DD89",
-  no: "#DD1599",
+const colors: Record<VoteType | "not voted", string> = {
+  yay: "#15DD89",
+  nay: "#DD1599",
   abstain: "#FF8A00",
   "not voted": "#686868",
 };
@@ -18,12 +24,14 @@ const VoteTypeBreakdown: React.FC<{
   totalVotingPower: BigNumber;
 }> = ({ voteType, votes, percentage, totalVotingPower }) => {
   const percentageString = formatPercentage(percentage, 2);
+  const namString = votes.toString() + " NAM";
 
   return (
     <div>
       <span className="uppercase flex gap-1 items-baseline">
         <strong className="text-xs">{voteType} </strong>
         <span className="text-xxs text-neutral-600">{percentageString}</span>
+        <span className="text-xxs text-neutral-600">{namString}</span>
       </span>
       <ProgressBar
         value={{ value: votes, color: colors[voteType] }}
@@ -40,17 +48,15 @@ export const VoteBreakdownHalf: React.FC<{
   votes: Record<VoteType, BigNumber>;
   totalVotingPower: BigNumber;
 }> = ({ title, subtitle, votes, totalVotingPower }) => {
-  const notVotedCount = totalVotingPower.minus(
+  const notVotedAmount = totalVotingPower.minus(
     BigNumber.sum(...Object.values(votes))
   );
 
-  const votesAsPercentage: Record<VoteType, BigNumber> = voteTypes.reduce(
-    (acc, curr) => ({
-      ...acc,
-      [curr]: votes[curr].dividedBy(totalVotingPower),
-    }),
-    {}
-  );
+  const votesAsPercentage: Record<VoteType, BigNumber> = {
+    yay: votes.yay.dividedBy(totalVotingPower),
+    nay: votes.nay.dividedBy(totalVotingPower),
+    abstain: votes.abstain.dividedBy(totalVotingPower),
+  };
 
   const notVotedAsPercentage = BigNumber(1).minus(
     BigNumber.sum(...Object.values(votesAsPercentage))
@@ -75,7 +81,7 @@ export const VoteBreakdownHalf: React.FC<{
 
         <VoteTypeBreakdown
           voteType="not voted"
-          votes={notVotedCount}
+          votes={notVotedAmount}
           totalVotingPower={totalVotingPower}
           percentage={notVotedAsPercentage}
         />
@@ -85,15 +91,45 @@ export const VoteBreakdownHalf: React.FC<{
 };
 
 export const VoteBreakdown: React.FC<{
-  votes: Votes;
+  votes: Vote[];
   totalVotingPower: BigNumber;
-}> = ({ votes, totalVotingPower }) => {
+  validatorCount: number;
+}> = ({ votes, totalVotingPower, validatorCount }) => {
+  const votedCount = votes.length;
+
+  const validatorVotes = votes.filter(isValidatorVote);
+  const votedValidatorCount = validatorVotes.length;
+
+  const validatorVotesSummary = validatorVotes.reduce(
+    (acc, { voteType, votingPower }) => ({
+      ...acc,
+      [voteType]: acc[voteType].plus(votingPower),
+    }),
+    { yay: BigNumber(0), nay: BigNumber(0), abstain: BigNumber(0) }
+  );
+
+  const delegatorVotes = votes.filter(isDelegatorVote);
+  const delegatorVotesSummary = delegatorVotes.reduce(
+    (acc, { voteType, votingPower }) => {
+      const votingPowerSummed = votingPower.reduce(
+        (acc, [_, amount]) => acc.plus(amount),
+        BigNumber(0)
+      );
+
+      return {
+        ...acc,
+        [voteType]: acc[voteType].plus(votingPowerSummed),
+      };
+    },
+    { yay: BigNumber(0), nay: BigNumber(0), abstain: BigNumber(0) }
+  );
+
   return (
     <div className="grid grid-cols-[1fr_2px_1fr] gap-x-8">
       <VoteBreakdownHalf
         title="Voted Validators"
-        subtitle="TODO"
-        votes={votes}
+        subtitle={`${votedValidatorCount} / ${validatorCount}`}
+        votes={validatorVotesSummary}
         totalVotingPower={totalVotingPower}
       />
 
@@ -101,8 +137,8 @@ export const VoteBreakdown: React.FC<{
 
       <VoteBreakdownHalf
         title="Voted Accounts"
-        subtitle="TODO"
-        votes={votes}
+        subtitle={`${votedCount}`}
+        votes={delegatorVotesSummary}
         totalVotingPower={totalVotingPower}
       />
     </div>
