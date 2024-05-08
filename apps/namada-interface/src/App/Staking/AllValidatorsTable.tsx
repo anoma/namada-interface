@@ -18,7 +18,7 @@ type AllValidatorsProps = {
 };
 
 export const AllValidatorsTable = ({
-  resultsPerPage = 20,
+  resultsPerPage = 100,
   initialPage = 0,
 }: AllValidatorsProps): JSX.Element => {
   const validators = useAtomValue(allValidatorsAtom);
@@ -98,7 +98,7 @@ export const AllValidatorsTable = ({
         )}
       </div>
       {validators.data && (
-        <div className="flex flex-col h-[450px] overflow-hidden">
+        <div className="flex flex-col h-[490px] overflow-hidden">
           <ValidatorsTable
             id="all-validators"
             validatorList={filteredValidators}
