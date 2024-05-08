@@ -2,12 +2,15 @@ import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { TableRowLoading } from "App/Common/TableRowLoading";
-import BigNumber from "bignumber.js";
 import { useStakeModule } from "hooks/useStakeModule";
-import useValidatorFilter from "hooks/useValidatorFilter";
+import { useValidatorFilter } from "hooks/useValidatorFilter";
+import { useValidatorSorting } from "hooks/useValidatorSorting";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
-import { redelegateAmounts } from "lib/staking";
+import {
+  getPendingToDistributeAmount,
+  getRedelegateChanges,
+} from "lib/staking";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { transparentAccountsAtom } from "slices/accounts";
@@ -32,7 +35,6 @@ const ReDelegate = (): JSX.Element => {
     totalStakedAmount,
     stakedAmountByAddress,
     updatedAmountByAddress,
-    totalUpdatedAmount,
     onChangeValidatorAmount,
   } = useStakeModule({ accounts });
 
@@ -43,6 +45,12 @@ const ReDelegate = (): JSX.Element => {
     onlyMyValidators,
   });
 
+  const sortedValidators = useValidatorSorting({
+    validators: filteredValidators,
+    stakedAmountByAddress,
+    updatedAmountByAddress,
+  });
+
   const {
     mutate: performRedelegation,
     isPending: isPerformingRedelegation,
@@ -50,16 +58,13 @@ const ReDelegate = (): JSX.Element => {
   } = useAtomValue(performReDelegationAtom);
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
-
-  const redelegateTotal = totalStakedAmount.minus(totalUpdatedAmount);
-  const redelegateDisplayedAmount =
-    totalUpdatedAmount.gt(0) ?
-      BigNumber.max(0, redelegateTotal)
-    : new BigNumber(0);
+  const pendingToDistribute = getPendingToDistributeAmount(
+    stakedAmountByAddress,
+    updatedAmountByAddress
+  );
 
   const getValidationMessage = (): string => {
-    if (redelegateTotal.lt(0)) return "Invalid amount";
-    if (redelegateTotal.gt(0)) return "Invalid distribution";
+    if (!pendingToDistribute.eq(0)) return "Invalid distribution";
     return "";
   };
 
@@ -81,7 +86,7 @@ const ReDelegate = (): JSX.Element => {
       `Extension is connected but you don't have an account`
     );
     invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
-    const redelegationChanges = redelegateAmounts(
+    const redelegationChanges = getRedelegateChanges(
       stakedAmountByAddress,
       updatedAmountByAddress
     );
@@ -125,7 +130,7 @@ const ReDelegate = (): JSX.Element => {
             <BondingAmountOverview
               title="Available to re-delegate"
               amountInNam={0}
-              updatedAmountInNam={redelegateDisplayedAmount}
+              updatedAmountInNam={pendingToDistribute}
               updatedValueClassList="text-yellow"
               extraContent={
                 <>
@@ -167,7 +172,7 @@ const ReDelegate = (): JSX.Element => {
             )}
             {validators.isSuccess && (
               <ReDelegateTable
-                validators={filteredValidators}
+                validators={sortedValidators}
                 updatedAmountByAddress={updatedAmountByAddress}
                 stakedAmountByAddress={stakedAmountByAddress}
                 onChangeValidatorAmount={onChangeValidatorAmount}
@@ -181,7 +186,7 @@ const ReDelegate = (): JSX.Element => {
             className="mt-2 w-1/4 mx-auto"
             disabled={
               !!validationMessage ||
-              !redelegateTotal.eq(0) ||
+              !pendingToDistribute.eq(0) ||
               isPerformingRedelegation
             }
           >

@@ -4,7 +4,8 @@ import { ModalContainer } from "App/Common/ModalContainer";
 import NamCurrency from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { useStakeModule } from "hooks/useStakeModule";
-import useValidatorFilter from "hooks/useValidatorFilter";
+import { useValidatorFilter } from "hooks/useValidatorFilter";
+import { useValidatorSorting } from "hooks/useValidatorSorting";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
@@ -49,6 +50,12 @@ const IncrementBonding = (): JSX.Element => {
     myValidatorsAddresses: Object.keys(stakedAmountByAddress),
     searchTerm: filter,
     onlyMyValidators,
+  });
+
+  const sortedValidators = useValidatorSorting({
+    validators: filteredValidators,
+    stakedAmountByAddress,
+    updatedAmountByAddress,
   });
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
@@ -158,7 +165,7 @@ const IncrementBonding = (): JSX.Element => {
             )}
             {validators.isSuccess && (
               <IncrementBondingTable
-                validators={filteredValidators}
+                validators={sortedValidators}
                 onChangeValidatorAmount={onChangeValidatorAmount}
                 updatedAmountByAddress={updatedAmountByAddress}
                 stakedAmountByAddress={stakedAmountByAddress}

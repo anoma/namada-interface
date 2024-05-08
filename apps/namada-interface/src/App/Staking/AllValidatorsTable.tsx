@@ -3,10 +3,11 @@ import { formatPercentage, shortenAddress } from "@namada/utils";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { ValidatorSearch } from "App/Staking/ValidatorSearch";
 import BigNumber from "bignumber.js";
-import useValidatorFilter from "hooks/useValidatorFilter";
+import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { namadaExtensionConnectedAtom } from "slices/settings";
 import { Validator, allValidatorsAtom } from "slices/validators";
 import ValidatorsTable from "./ValidatorsTable";
 import StakingRoutes from "./routes";
@@ -21,6 +22,7 @@ export const AllValidatorsTable = ({
   initialPage = 0,
 }: AllValidatorsProps): JSX.Element => {
   const validators = useAtomValue(allValidatorsAtom);
+  const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const navigate = useNavigate();
   const [filter, setFilter] = useState("");
   const filteredValidators = useValidatorFilter({
@@ -84,14 +86,16 @@ export const AllValidatorsTable = ({
     <div className="min-h-[450px] flex flex-col">
       <div className="grid grid-cols-[40%_max-content] justify-between mb-5">
         <ValidatorSearch onChange={(value: string) => setFilter(value)} />
-        <ActionButton
-          size="sm"
-          color="primary"
-          borderRadius="sm"
-          onClick={() => navigate(StakingRoutes.incrementBonding().url)}
-        >
-          Stake
-        </ActionButton>
+        {isConnected && (
+          <ActionButton
+            size="sm"
+            color="primary"
+            borderRadius="sm"
+            onClick={() => navigate(StakingRoutes.incrementBonding().url)}
+          >
+            Stake
+          </ActionButton>
+        )}
       </div>
       {validators.data && (
         <div className="flex flex-col h-[450px] overflow-hidden">
