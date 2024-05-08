@@ -45,6 +45,7 @@ export const useExtensionConnect = (chain: Chain): UseConnectOutput => {
   useEffect(() => {
     if (extensionConnected) {
       setConnectionStatus(ConnectStatus.CONNECTED);
+      addConnectedChain(chain.id);
     }
   }, [extensionConnected]);
 
