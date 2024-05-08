@@ -379,29 +379,29 @@ impl Sdk {
         let mut args = tx::transfer_tx_args(transfer_msg, tx_msg)?;
 
         // TODO: this might not be needed. I will test it out in future
-        match args.source {
-            TransferSource::Address(_) => {}
-            TransferSource::ExtendedSpendingKey(xsk) => {
-                self.namada
-                    .shielded_mut()
-                    .await
-                    .fetch(
-                        self.namada.client(),
-                        &DefaultLogger::new(&WebIo),
-                        None,
-                        None,
-                        1,
-                        &[xsk.into()],
-                        &[],
-                    )
-                    .await?;
-
-                // It's temporary solution to add xsk to wallet as xvk is queried when unshielding
-                // This will change in namada in the future
-                self.add_spending_key(xsk.to_string(), "temp".to_string())
-                    .await;
-            }
-        }
+        // match args.source {
+        //     TransferSource::Address(_) => {}
+        //     TransferSource::ExtendedSpendingKey(xsk) => {
+        //         self.namada
+        //             .shielded_mut()
+        //             .await
+        //             .fetch(
+        //                 self.namada.client(),
+        //                 &DefaultLogger::new(&WebIo),
+        //                 None,
+        //                 None,
+        //                 1,
+        //                 &[xsk.into()],
+        //                 &[],
+        //             )
+        //             .await?;
+        //
+        //         // It's temporary solution to add xsk to wallet as xvk is queried when unshielding
+        //         // This will change in namada in the future
+        //         self.add_spending_key(xsk.to_string(), "temp".to_string())
+        //             .await;
+        //     }
+        // }
 
         // TODO: chain_id should either be required, or an Option in BuiltTx
         let chain_id = match &args.tx.chain_id {

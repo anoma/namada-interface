@@ -5,7 +5,7 @@ import { atom } from "jotai";
 import { getSdk } from "@heliax/namada-sdk/web";
 import init from "@heliax/namada-sdk/web-init"
 import { chains } from "@namada/chains";
-import { getIntegration, Namada } from "@namada/integrations";
+import { getIntegration } from "@namada/integrations";
 import {
   Account as AccountDetails,
   ChainKey,
@@ -83,12 +83,11 @@ export const fetchBalance = createAsyncThunk<
       throw new Error("not namada");
     }
     const { cryptoMemory } = await init();
-    const { rpc } = getSdk(cryptoMemory, rpcUrl, "", "")
+    const { rpc } = getSdk(cryptoMemory, rpcUrl, "", tokenAddress)
 
     const tokens = [
       nativeToken || tokenAddress,
     ]
-    console.log("Querying balances for", { address, tokens })
 
     const balances = (await rpc.queryBalance(address, tokens)).map(([token, amount]) => {
       return {
@@ -97,13 +96,10 @@ export const fetchBalance = createAsyncThunk<
       }
     })
 
-    console.log("RECEIVED BALANCES!", { address, balances })
-
-    // TODO: Fix this
     return {
       chainKey,
       address,
-      balance: { NAM: BigNumber(balances[0].amount || 1000) }
+      balance: { NAM: BigNumber(balances[0].amount) }
     }
   }
 );
@@ -237,9 +233,8 @@ const balancesAtom = (() => {
 
       // We query the balances for the transparent accounts first as it's faster
       const transparentBalances = await Promise.all(
-        queryBalance(namada, transparentAccounts, token)
+        queryBalance(transparentAccounts, token)
       );
-      console.log({ transparentBalances })
       transparentBalances.forEach(([address, balance]) => {
         set(base, { ...get(base), [address]: balance });
       });
@@ -247,7 +242,7 @@ const balancesAtom = (() => {
       await namada.sync();
 
       const shieldedBalances = await Promise.all(
-        queryBalance(namada, shieldedAccounts, token)
+        queryBalance(shieldedAccounts, token)
       );
       shieldedBalances.forEach(([address, balance]) => {
         set(base, { ...get(base), [address]: balance });
@@ -257,12 +252,27 @@ const balancesAtom = (() => {
 })();
 
 const queryBalance = (
-  _namada: Namada,
   accounts: AccountDetails[],
-  _token: string
+  token: string
 ): Promise<[string, TokenBalances]>[] => {
   return accounts.map(async (account): Promise<[string, TokenBalances]> => {
-    return [account.address, { NAM: BigNumber(0) }];
+    const { cryptoMemory } = await init();
+    const { rpc } = getSdk(cryptoMemory, rpcUrl, "", tokenAddress)
+
+    const tokens = [
+      token,
+    ]
+
+    const balances = (await rpc.queryBalance(account.address, tokens)).map(([token, amount]) => {
+      return {
+        token,
+        amount
+      }
+    })
+
+    // TODO: This is for testing
+    return [account.address, { NAM: BigNumber(balances[0].amount) }];
+
   });
 };
 
