@@ -20,7 +20,7 @@ export const ValidatorName = ({
         <img
           key={`validator-image-${validator.uuid}`}
           src={validator.imageUrl}
-          className="w-[2em] rounded-full aspect-square max-w-8"
+          className="rounded-full aspect-square w-8"
         />
         {hasStake && (
           <i
