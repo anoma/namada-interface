@@ -35,6 +35,28 @@ export const getIncrementedAmounts = (
   return incrementedAmounts;
 };
 
+export const getPendingToDistributeAmount = (
+  stakedAmounts: Record<string, BigNumber>,
+  updatedAmounts: Record<string, BigNumber>
+): BigNumber => {
+  const incrementedAmounts = Object.values(
+    getIncrementedAmounts(stakedAmounts, updatedAmounts)
+  );
+  const decreasedAmounts = Object.values(
+    getReducedAmounts(stakedAmounts, updatedAmounts)
+  );
+
+  const incrementedTotal =
+    incrementedAmounts.length ?
+      BigNumber.sum(...incrementedAmounts)
+    : BigNumber(0);
+
+  const decreasedTotal =
+    decreasedAmounts.length ? BigNumber.sum(...decreasedAmounts) : BigNumber(0);
+
+  return decreasedTotal.minus(incrementedTotal);
+};
+
 export const buildRedelegateChange = (
   sourceValidator: string,
   destinationValidator: string,
@@ -98,7 +120,7 @@ export const getAmountDistribution = (
   return redelegateChanges;
 };
 
-export const redelegateAmounts = (
+export const getRedelegateChanges = (
   stakedAmounts: Record<string, BigNumber>,
   updatedAmounts: Record<string, BigNumber>
 ): RedelegateChange[] => {

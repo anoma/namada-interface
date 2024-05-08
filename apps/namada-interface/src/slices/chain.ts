@@ -40,7 +40,6 @@ const chainAtom = (() => {
     async (_get, set) => {
       const namada = getIntegration("namada");
       const chain = await namada.getChain();
-      console.log(">>>", chain);
       if (typeof chain === "undefined") {
         throw new Error("chain was undefined!");
       }
