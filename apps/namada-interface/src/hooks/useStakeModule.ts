@@ -44,12 +44,23 @@ export const useStakeModule = ({ accounts }: UseStakeModuleProps) => {
 
   const onChangeValidatorAmount = (
     validator: Validator,
-    amount: BigNumber
+    amount: BigNumber | undefined
   ): void => {
-    setUpdatedAmountByAddress((obj) => ({
-      ...obj,
-      [validator.address]: amount,
-    }));
+    setUpdatedAmountByAddress((obj: Record<ValidatorAddress, BigNumber>) => {
+      const newObj = {
+        ...obj,
+      };
+
+      if (!amount) {
+        if (newObj.hasOwnProperty(validator.address)) {
+          delete newObj[validator.address];
+        }
+      } else {
+        newObj[validator.address] = amount;
+      }
+
+      return newObj;
+    });
   };
 
   const parseUpdatedAmounts = (): ChangeInStakingPosition[] => {

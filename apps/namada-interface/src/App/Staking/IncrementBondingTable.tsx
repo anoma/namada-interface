@@ -12,7 +12,7 @@ type IncrementBondingTableProps = {
   validators: Validator[];
   updatedAmountByAddress: Record<string, BigNumber>;
   stakedAmountByAddress: Record<string, BigNumber>;
-  onChangeValidatorAmount: (validator: Validator, amount: BigNumber) => void;
+  onChangeValidatorAmount: (validator: Validator, amount?: BigNumber) => void;
 };
 
 export const IncrementBondingTable = ({
@@ -68,12 +68,8 @@ export const IncrementBondingTable = ({
                   hasNewAmounts,
               })
             )}
-            onChange={(e) =>
-              onChangeValidatorAmount(
-                validator,
-                e.target.value ?? new BigNumber(0)
-              )
-            }
+            value={updatedAmountByAddress[validator.address]}
+            onChange={(e) => onChangeValidatorAmount(validator, e.target.value)}
           />
           <span
             className={clsx(
@@ -90,7 +86,7 @@ export const IncrementBondingTable = ({
           render: () => (
             <div
               key={`increment-bonding-current-stake`}
-              className="text-right leading-tight"
+              className="text-right leading-tight min-w-[12ch]"
             >
               <span className="block">
                 <NamCurrency amount={stakedAmount ?? 0} />
@@ -138,7 +134,7 @@ export const IncrementBondingTable = ({
   return (
     <ValidatorsTable
       id="increment-bonding-table"
-      tableClassName="mt-2"
+      tableClassName="flex-1 overflow-auto mt-2"
       validatorList={validators}
       headers={headers}
       renderRow={renderRow}

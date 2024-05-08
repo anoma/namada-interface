@@ -6,11 +6,11 @@ import { Result } from "@namada/utils";
 import { Input, InputProps } from "./Input";
 
 export type BigNumberElement = Omit<HTMLInputElement, "value"> & {
-  value?: BigNumber;
+  value?: BigNumber | undefined;
 };
 
 type Props = Omit<InputProps, "value" | "onChange" | "min" | "max"> & {
-  value?: BigNumber;
+  value?: BigNumber | undefined;
   onChange?: ChangeEventHandler<BigNumberElement>;
   maxDecimalPlaces?: number;
   min?: string | number | BigNumber;
@@ -61,7 +61,7 @@ export const AmountInput: React.FC<Props> = ({
   error,
   ...rest
 }) => {
-  const [inputString, setInputString] = useState<string>();
+  const [inputString, setInputString] = useState<string | undefined>();
   const [lastKnownValue, setLastKnownValue] = useState<BigNumber>();
   const [validationError, setValidationError] = useState<string>();
 
@@ -84,8 +84,16 @@ export const AmountInput: React.FC<Props> = ({
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     const stringValue = event.target.value;
-
     setInputString(stringValue);
+
+    if (!stringValue) {
+      onChange?.({
+        ...event,
+        target: { ...event.target, value: undefined },
+        currentTarget: { ...event.currentTarget, value: undefined },
+      });
+      return;
+    }
 
     const validateResult = validate(stringValue, {
       min,
