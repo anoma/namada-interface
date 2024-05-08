@@ -1,4 +1,3 @@
-import { Image } from "@namada/components";
 import clsx from "clsx";
 
 type ContainerProps = {
@@ -15,14 +14,14 @@ export const Container = ({
 }: ContainerProps): JSX.Element => {
   return (
     <div className="max-w-[1920px] px-6 mx-auto mb-6" {...props}>
-      <header className="flex justify-between font-medium pt-4 pb-5 pl-6">
+      <header className="flex justify-between font-medium pt-4 pb-5 pl-4">
         <i
           className={clsx(
-            "flex items-center gap-4 text-yellow text-lg not-italic uppercase"
+            "flex items-center gap-4 text-yellow text-xl not-italic uppercase"
           )}
         >
-          <Image styleOverrides={{ width: "45px" }} imageName="LogoMinimal" />
-          Dashboard
+          <i className="w-[42px] aspect-square inline-flex rounded-full border-[5px] border-yellow" />
+          Namadillo
         </i>
         {header}
       </header>
