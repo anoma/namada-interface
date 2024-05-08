@@ -1,4 +1,5 @@
 import { ActionButton, SegmentedBar, Stack } from "@namada/components";
+import BigNumber from "bignumber.js";
 import { GoInfo } from "react-icons/go";
 import GovernanceRoutes from "./routes";
 
@@ -91,6 +92,12 @@ export const LiveGovernanceProposals: React.FC<{
     (proposal) => proposal.status.status === "ongoing"
   );
 
+  const voteSummary = {
+    yay: BigNumber(0),
+    nay: BigNumber(0),
+    abstain: BigNumber(0),
+  };
+
   return (
     <Stack gap={4} as="ul">
       {liveProposals.map(({ proposal, status, voted, votes }, index) => (
@@ -98,7 +105,7 @@ export const LiveGovernanceProposals: React.FC<{
           proposal={proposal}
           status={status}
           voted={voted}
-          votes={votes}
+          votes={voteSummary}
           key={index}
         />
       ))}

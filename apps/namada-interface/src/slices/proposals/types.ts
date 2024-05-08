@@ -28,7 +28,7 @@ export type PgfSteward = { type: "pgf_steward" };
 export type PgfPayment = { type: "pgf_payment" };
 export type ProposalType = Default | PgfSteward | PgfPayment;
 
-export const voteTypes = ["yes", "no", "abstain"];
-export type VoteType = (typeof voteTypes)[number];
+const voteTypes = ["yes", "no", "abstain"] as const;
+type VoteType = (typeof voteTypes)[number];
 
 export type Votes = Record<VoteType, BigNumber>;

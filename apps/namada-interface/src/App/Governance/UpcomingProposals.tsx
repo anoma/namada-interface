@@ -1,4 +1,5 @@
 import { SegmentedBar, Stack } from "@namada/components";
+import BigNumber from "bignumber.js";
 import GovernanceRoutes from "./routes";
 
 import {
@@ -65,6 +66,12 @@ export const UpcomingProposals: React.FC<{
     (proposal) => proposal.status.status === "pending"
   );
 
+  const voteSummary = {
+    yay: BigNumber(0),
+    nay: BigNumber(0),
+    abstain: BigNumber(0),
+  };
+
   return (
     <Stack gap={4} as="ul">
       {upcomingProposals.map(({ proposal, status, voted, votes }, index) => (
@@ -72,7 +79,7 @@ export const UpcomingProposals: React.FC<{
           proposal={proposal}
           status={status}
           voted={voted}
-          votes={votes}
+          votes={voteSummary}
           key={index}
         />
       ))}
