@@ -29,10 +29,10 @@ export const VoteInfoCards: React.FC<{
         content={formatEpoch(proposal.startEpoch)}
       />
       <InfoCard title="Voting End" content={formatEpoch(proposal.endEpoch)} />
-      <InfoCard title="Submit Time" content="TODO" />
-      <InfoCard title="Deposit End" content="TODO" />
-      <InfoCard title="Initial Deposit" content="TODO" />
-      <InfoCard title="Initial Deposit" content="TODO" />
+      <InfoCard
+        title="Grace Epoch"
+        content={formatEpoch(proposal.graceEpoch)}
+      />
       <InfoCard
         title="Proposer"
         content={proposal.author}
