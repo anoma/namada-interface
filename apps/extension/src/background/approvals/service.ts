@@ -28,7 +28,35 @@ export class ApprovalsService {
     protected readonly keyRingService: KeyRingService,
     protected readonly vaultService: VaultService,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) { }
+  ) {}
+
+  async approveSignTx(
+    accountType: AccountType,
+    signer: string,
+    tx: BuiltTx
+  ): Promise<Uint8Array> {
+    const msgId = uuid();
+    await this.txStore.set(msgId, tx);
+
+    const url = `${browser.runtime.getURL(
+      "approvals.html"
+    )}#/approve-tx/${msgId}/${accountType}/${signer}`;
+
+    const popupTabId = await this.getPopupTabId(url);
+    await this._launchApprovalWindow(url);
+
+    if (!popupTabId) {
+      throw new Error("no popup tab ID");
+    }
+
+    if (popupTabId in this.resolverMap) {
+      throw new Error(`tab ID ${popupTabId} already exists in promise map`);
+    }
+
+    return await new Promise((resolve, reject) => {
+      this.resolverMap[popupTabId] = { resolve, reject };
+    });
+  }
 
   async approveSignArbitrary(
     signer: string,
@@ -60,7 +88,6 @@ export class ApprovalsService {
     });
   }
 
-  // TODO: Hook up to handler & SubmitSignTxMsg
   async submitSignTx(
     popupTabId: number,
     msgId: string,
@@ -125,25 +152,8 @@ export class ApprovalsService {
     resolvers.reject();
   }
 
-  async approveSignTx(
-    type: AccountType,
-    signer: string,
-    tx: BuiltTx
-  ): Promise<Uint8Array> {
-    const msgId = uuid();
-    await this.txStore.set(msgId, tx);
-
-    const url = `${browser.runtime.getURL(
-      "approvals.html"
-    )}#/approve-tx/${msgId}/${type}/${signer}`;
-
-    await this._launchApprovalWindow(url);
-    // TODO: Handle this like signArbitrary
-    return new Uint8Array([]);
-  }
-
   // Remove pending transaction from storage
-  async rejectTx(msgId: string): Promise<void> {
+  async rejectSignTx(msgId: string): Promise<void> {
     await this._clearPendingTx(msgId);
   }
 

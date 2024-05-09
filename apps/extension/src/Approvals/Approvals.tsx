@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 
+import { TxType } from "@heliax/namada-sdk/web";
 import { Container } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
 import { AccountType } from "@namada/types";
-import { TxType } from "@heliax/namada-sdk/web";
 
 import { AppHeader } from "App/Common/AppHeader";
 import { TopLevelRoute } from "Approvals/types";
 import { ApproveConnection } from "./ApproveConnection";
-import { ApproveSignature } from "./ApproveSignature";
-import { ApproveTx } from "./ApproveTx/ApproveTx";
-import { ConfirmLedgerTx } from "./ApproveTx/ConfirmLedgerTx";
-import { ConfirmTx } from "./ApproveTx/ConfirmTx";
-import { ConfirmSignature } from "./ConfirmSignature";
+import { ApproveSignArbitrary } from "./ApproveSignArbitrary";
+import {
+  ApproveSignTx,
+  ConfirmSignLedgerTx,
+  ConfirmSignTx,
+} from "./ApproveSignTx";
+import { ConfirmSignature } from "./ConfirmSignArbitrary";
 
 export enum Status {
   Completed,
@@ -68,29 +70,29 @@ export const Approvals: React.FC = () => {
     >
       <Routes>
         <Route
-          path={`${TopLevelRoute.ApproveTx}/:msgId/:type/:accountType`}
-          element={<ApproveTx details={details} />}
+          path={`${TopLevelRoute.ApproveSignTx}/:msgId/:accountType/:signer`}
+          element={<ApproveSignTx details={details} />}
         />
         <Route
-          path={TopLevelRoute.ConfirmTx}
-          element={<ConfirmTx details={details} />}
+          path={TopLevelRoute.ConfirmSignTx}
+          element={<ConfirmSignTx details={details} />}
         />
         <Route
           path={TopLevelRoute.ConfirmLedgerTx}
-          element={<ConfirmLedgerTx details={details} />}
+          element={<ConfirmSignLedgerTx details={details} />}
         />
         <Route
           path={TopLevelRoute.ApproveConnection}
           element={<ApproveConnection />}
         />
         <Route
-          path={`${TopLevelRoute.ApproveSignature}/:signer`}
+          path={`${TopLevelRoute.ApproveSignArbitrary}/:signer`}
           element={
-            <ApproveSignature setSignatureDetails={setSignatureDetails} />
+            <ApproveSignArbitrary setSignatureDetails={setSignatureDetails} />
           }
         />
         <Route
-          path={TopLevelRoute.ConfirmSignature}
+          path={TopLevelRoute.ConfirmSignArbitrary}
           element={<ConfirmSignature details={signatureDetails} />}
         />
       </Routes>

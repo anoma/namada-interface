@@ -7,7 +7,7 @@ import { shortenAddress } from "@namada/utils";
 import { PageHeader } from "App/Common";
 import { SignatureDetails } from "Approvals/Approvals";
 import { TopLevelRoute } from "Approvals/types";
-import { RejectSignatureMsg } from "background/approvals";
+import { RejectSignArbitraryMsg } from "background/approvals";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
@@ -17,7 +17,9 @@ type Props = {
   setSignatureDetails: (details: SignatureDetails) => void;
 };
 
-export const ApproveSignature: React.FC<Props> = ({ setSignatureDetails }) => {
+export const ApproveSignArbitrary: React.FC<Props> = ({
+  setSignatureDetails,
+}) => {
   const navigate = useNavigate();
   const params = useSanitizedParams();
   const requester = useRequester();
@@ -28,7 +30,7 @@ export const ApproveSignature: React.FC<Props> = ({ setSignatureDetails }) => {
   const handleApproveClick = useCallback((): void => {
     if (signer) {
       setSignatureDetails({ msgId, signer });
-      navigate(TopLevelRoute.ConfirmSignature);
+      navigate(TopLevelRoute.ConfirmSignArbitrary);
     }
   }, [signer]);
 
@@ -37,7 +39,7 @@ export const ApproveSignature: React.FC<Props> = ({ setSignatureDetails }) => {
       if (msgId) {
         await requester.sendMessage(
           Ports.Background,
-          new RejectSignatureMsg(msgId)
+          new RejectSignArbitraryMsg(msgId)
         );
         // Close tab
         return await closeCurrentTab();
@@ -50,7 +52,7 @@ export const ApproveSignature: React.FC<Props> = ({ setSignatureDetails }) => {
 
   return (
     <Stack full gap={GapPatterns.TitleContent} className="text-white pt-4 pb-8">
-      <PageHeader title="Approve Signature Request" />
+      <PageHeader title="Approve Sign Arbitrary Request" />
 
       {signer && (
         <Alert type="warning">

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { TxTypeLabel } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Input, Stack } from "@namada/components";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
+import { SubmitApprovedSignTxMsg } from "background/approvals";
 import { UnlockVaultMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
@@ -14,8 +14,8 @@ type Props = {
   details?: ApprovalDetails;
 };
 
-export const ConfirmTx: React.FC<Props> = ({ details }) => {
-  const { msgId, txType } = details || {};
+export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
+  const { msgId, signer } = details || {};
 
   const navigate = useNavigate();
   const requester = useRequester();
@@ -25,16 +25,15 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
   const [statusInfo, setStatusInfo] = useState("");
 
   const handleApproveTx = useCallback(async (): Promise<void> => {
-    if (!txType) {
-      // TODO: What would be a better handling of this? txType should be defined
-      throw new Error("txType should be defined");
-    }
     setStatus(Status.Pending);
-    setStatusInfo(`Decrypting keys and signing ${TxTypeLabel[txType]}...`);
+    setStatusInfo(`Decrypting keys and signing transaction...`);
 
     try {
       if (!msgId) {
         throw new Error("msgId was not provided!");
+      }
+      if (!signer) {
+        throw new Error("signer not provided!");
       }
 
       const isAuthenticated = await requester.sendMessage(
@@ -64,9 +63,10 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
         }
       }
 
-      // TODO: Return signed Tx!
-
-      // await requester.sendMessage(Ports.Background, new SignTxMsg())
+      await requester.sendMessage(
+        Ports.Background,
+        new SubmitApprovedSignTxMsg(msgId, signer)
+      );
 
       setStatus(Status.Completed);
     } catch (e) {

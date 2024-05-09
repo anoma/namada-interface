@@ -6,14 +6,14 @@ export enum TopLevelRoute {
   // Connection approval
   ApproveConnection = "/approve-connection",
 
-  // Transaction approval
-  ApproveTx = "/approve-tx",
-  ConfirmTx = "/confirm-tx",
+  // Sign Tx approval
+  ApproveSignTx = "/approve-sign-tx",
+  ConfirmSignTx = "/confirm-sign-tx",
   ConfirmLedgerTx = "/confirm-ledger-tx",
 
-  // Signing approval
-  ApproveSignature = "/approve-signature",
-  ConfirmSignature = "/confirm-signature",
+  // Sign arbitrary approval
+  ApproveSignArbitrary = "/approve-sign-arbitrary",
+  ConfirmSignArbitrary = "/confirm-sign-arbitrary",
 }
 
 export type ApproveMsg = new (

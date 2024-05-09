@@ -3,8 +3,8 @@ import { ROUTE } from "./constants";
 import {
   ConnectInterfaceResponseMsg,
   MessageType,
-  RejectSignatureMsg,
-  RejectTxMsg,
+  RejectSignArbitraryMsg,
+  RejectSignTxMsg,
   RevokeConnectionMsg,
   SubmitApprovedSignArbitraryMsg,
 } from "./messages";
@@ -12,31 +12,31 @@ import {
 jest.mock("webextension-polyfill", () => ({}));
 
 describe("approvals messages", () => {
-  test("valid RejectTxMsg", () => {
-    const msg = new RejectTxMsg("msgId");
+  test("valid RejectSignTxMsg", () => {
+    const msg = new RejectSignTxMsg("msgId");
 
-    expect(msg.type()).toBe(MessageType.RejectTx);
+    expect(msg.type()).toBe(MessageType.RejectSignTx);
     expect(msg.route()).toBe(ROUTE);
     expect(msg.validate()).toBeUndefined();
   });
 
-  test("invalid RejectTxMsg", () => {
-    const msg = new RejectTxMsg("msgId");
+  test("invalid RejectSignTxMsg", () => {
+    const msg = new RejectSignTxMsg("msgId");
     (msg as any).msgId = undefined;
 
     expect(() => msg.validate()).toThrow();
   });
 
-  test("valid RejectSignatureMsg", () => {
-    const msg = new RejectSignatureMsg("msgId");
+  test("valid RejectSignArbitraryMsg", () => {
+    const msg = new RejectSignArbitraryMsg("msgId");
 
-    expect(msg.type()).toBe(MessageType.RejectSignature);
+    expect(msg.type()).toBe(MessageType.RejectSignArbitrary);
     expect(msg.route()).toBe(ROUTE);
     expect(msg.validate()).toBeUndefined();
   });
 
-  test("invalid RejectSignatureMsg", () => {
-    const msg = new RejectSignatureMsg("msgId");
+  test("invalid RejectSignArbitraryMsg", () => {
+    const msg = new RejectSignArbitraryMsg("msgId");
     (msg as any).msgId = undefined;
 
     expect(() => msg.validate()).toThrow();
@@ -50,7 +50,7 @@ describe("approvals messages", () => {
     expect(msg.validate()).toBeUndefined();
   });
 
-  test("invalid SubmitApprovedSignatureMsg", () => {
+  test("invalid SubmitApprovedSignArbitraryMsg", () => {
     const msg = new SubmitApprovedSignArbitraryMsg("msgId", "signer");
     (msg as any).msgId = undefined;
 

@@ -11,7 +11,7 @@ type Props = {
   details?: ApprovalDetails;
 };
 
-export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
+export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");

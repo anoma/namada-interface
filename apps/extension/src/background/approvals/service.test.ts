@@ -243,10 +243,10 @@ describe("approvals service", () => {
   //   });
   // });
 
-  describe("rejectTx", () => {
+  describe("rejectSignTx", () => {
     it("should clear pending tx", async () => {
       jest.spyOn(service as any, "_clearPendingTx");
-      await service.rejectTx("msgId");
+      await service.rejectSignTx("msgId");
 
       expect((service as any)._clearPendingTx).toHaveBeenCalledWith("msgId");
     });

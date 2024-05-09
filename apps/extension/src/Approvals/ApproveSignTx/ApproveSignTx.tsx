@@ -1,13 +1,12 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { TxType, TxTypeLabel } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Stack } from "@namada/components";
 import { AccountType } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { ApprovalDetails } from "Approvals/Approvals";
 import { TopLevelRoute } from "Approvals/types";
-import { RejectTxMsg } from "background/approvals";
+import { RejectSignTxMsg } from "background/approvals";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
@@ -16,23 +15,26 @@ type Props = {
   details?: ApprovalDetails;
 };
 
-export const ApproveTx: React.FC<Props> = ({ details }) => {
+export const ApproveSignTx: React.FC<Props> = ({ details }) => {
   const navigate = useNavigate();
   const requester = useRequester();
 
-  const { accountType, msgId, signer, txType } = details || {};
+  const { accountType, msgId, signer } = details || {};
 
   const handleApproveClick = useCallback((): void => {
     if (accountType === AccountType.Ledger) {
       return navigate(`${TopLevelRoute.ConfirmLedgerTx}`);
     }
-    navigate(TopLevelRoute.ConfirmTx);
+    navigate(TopLevelRoute.ConfirmSignTx);
   }, [accountType]);
 
   const handleReject = useCallback(async (): Promise<void> => {
     try {
       if (msgId) {
-        await requester.sendMessage(Ports.Background, new RejectTxMsg(msgId));
+        await requester.sendMessage(
+          Ports.Background,
+          new RejectSignTxMsg(msgId)
+        );
         // Close tab
         return await closeCurrentTab();
       }
@@ -46,8 +48,8 @@ export const ApproveTx: React.FC<Props> = ({ details }) => {
   return (
     <Stack className="text-white" gap={4}>
       <Alert type="warning">
-        Approve this {accountType === AccountType.Ledger ? "Ledger " : ""}
-        <strong>{TxTypeLabel[txType as TxType]}</strong> transaction?
+        Sign this {accountType === AccountType.Ledger ? "Ledger " : ""}
+        transaction?
       </Alert>
       <Stack gap={2}>
         <div>

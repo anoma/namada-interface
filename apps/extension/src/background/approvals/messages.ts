@@ -4,16 +4,42 @@ import { ROUTE } from "./constants";
 import { validateProps } from "utils";
 
 export enum MessageType {
-  RejectTx = "reject-tx",
+  RejectSignTx = "reject-sign-tx",
+  SubmitApprovedSignTx = "submit-approved-sign-tx",
   SubmitApprovedSignArbitrary = "submit-approved-sign-arbitrary",
-  RejectSignature = "reject-signature",
+  RejectSignArbitrary = "reject-sign-arbitrary",
   ConnectInterfaceResponse = "connect-interface-response",
   RevokeConnection = "revoke-connection",
 }
 
-export class RejectTxMsg extends Message<void> {
+export class SubmitApprovedSignTxMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.RejectTx;
+    return MessageType.SubmitApprovedSignTx;
+  }
+
+  constructor(
+    public readonly msgId: string,
+    public readonly signer: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["msgId", "signer"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SubmitApprovedSignTxMsg.type();
+  }
+}
+
+export class RejectSignTxMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.RejectSignTx;
   }
 
   constructor(public readonly msgId: string) {
@@ -29,7 +55,7 @@ export class RejectTxMsg extends Message<void> {
   }
 
   type(): string {
-    return RejectTxMsg.type();
+    return RejectSignTxMsg.type();
   }
 }
 
@@ -58,9 +84,9 @@ export class SubmitApprovedSignArbitraryMsg extends Message<void> {
   }
 }
 
-export class RejectSignatureMsg extends Message<void> {
+export class RejectSignArbitraryMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.RejectSignature;
+    return MessageType.RejectSignArbitrary;
   }
 
   constructor(public readonly msgId: string) {
@@ -77,7 +103,7 @@ export class RejectSignatureMsg extends Message<void> {
   }
 
   type(): string {
-    return RejectSignatureMsg.type();
+    return RejectSignArbitraryMsg.type();
   }
 }
 

@@ -9,8 +9,8 @@ import { Message } from "router";
 import { getHandler } from "./handler";
 import {
   ConnectInterfaceResponseMsg,
-  RejectSignatureMsg,
-  RejectTxMsg,
+  RejectSignArbitraryMsg,
+  RejectSignTxMsg,
   RevokeConnectionMsg,
   SubmitApprovedSignArbitraryMsg,
 } from "./messages";
@@ -19,7 +19,7 @@ import { ApprovalsService } from "./service";
 jest.mock("webextension-polyfill", () => ({}));
 
 class UnknownMsg extends Message<unknown> {
-  validate(): void { }
+  validate(): void {}
   route(): string {
     return "unknown";
   }
@@ -41,7 +41,7 @@ describe("approvals handler", () => {
     const env = {
       isInternalMsg: true,
       senderTabId: 1,
-      requestInteraction: () => { },
+      requestInteraction: () => {},
     };
 
     // const approveTxMsg = new ApproveTxMsg(
@@ -53,9 +53,9 @@ describe("approvals handler", () => {
     // handler(env, approveTxMsg);
     // expect(service.approveTx).toBeCalled();
 
-    const rejectTxMsg = new RejectTxMsg("msgId");
+    const rejectTxMsg = new RejectSignTxMsg("msgId");
     handler(env, rejectTxMsg);
-    expect(service.rejectTx).toBeCalled();
+    expect(service.rejectSignTx).toBeCalled();
 
     const isConnectionApprovedMsg = new IsConnectionApprovedMsg();
     handler(env, isConnectionApprovedMsg);
@@ -81,15 +81,15 @@ describe("approvals handler", () => {
     handler(env, approveSignArbitraryMsg);
     expect(service.approveSignArbitrary).toBeCalled();
 
-    const rejectSignatureMsg = new RejectSignatureMsg("");
-    handler(env, rejectSignatureMsg);
+    const rejectSignArbitraryMsg = new RejectSignArbitraryMsg("");
+    handler(env, rejectSignArbitraryMsg);
     expect(service.rejectSignature).toBeCalled();
 
-    const submitApprovedSignatureMsg = new SubmitApprovedSignArbitraryMsg(
+    const submitApprovedSignArbitrartyMsg = new SubmitApprovedSignArbitraryMsg(
       "",
       ""
     );
-    handler(env, submitApprovedSignatureMsg);
+    handler(env, submitApprovedSignArbitrartyMsg);
     expect(service.submitSignArbitrary).toBeCalled();
 
     const unknownMsg = new UnknownMsg();
