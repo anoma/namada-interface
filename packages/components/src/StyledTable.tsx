@@ -34,7 +34,12 @@ export const StyledTable = ({
   );
 
   return (
-    <div className={twMerge("max-w-full overflow-x-auto", containerClassName)}>
+    <div
+      className={twMerge(
+        "overscroll-contain max-w-full overflow-x-auto",
+        containerClassName
+      )}
+    >
       <table
         style={{ minWidth: (headers?.length || 0) * 100 + "px" }}
         className={twMerge("border-spacing-4", tableClassName)}
