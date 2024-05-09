@@ -136,6 +136,7 @@ export const IncrementBondingTable = ({
       id="increment-bonding-table"
       tableClassName="flex-1 overflow-auto mt-2"
       validatorList={validators}
+      updatedAmountByAddress={updatedAmountByAddress}
       headers={headers}
       renderRow={renderRow}
     />

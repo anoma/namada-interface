@@ -137,6 +137,7 @@ export const ReDelegateTable = ({
       id="increment-bonding-table"
       tableClassName="mt-2"
       validatorList={validators}
+      updatedAmountByAddress={updatedAmountByAddress}
       headers={headers}
       renderRow={renderRow}
     />
