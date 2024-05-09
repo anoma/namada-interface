@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Route, Routes } from "react-router-dom";
 
-import { TxType } from "@heliax/namada-sdk/web";
 import { Container } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
 import { AccountType } from "@namada/types";
@@ -25,7 +24,6 @@ export enum Status {
 
 export type ApprovalDetails = {
   signer: string;
-  txType: TxType;
   accountType: AccountType;
   msgId: string;
 };
@@ -39,23 +37,7 @@ export const Approvals: React.FC = () => {
   const [details, setDetails] = useState<ApprovalDetails>();
   const [signatureDetails, setSignatureDetails] = useState<SignatureDetails>();
   const params = useSanitizedParams();
-  const txType = parseInt(params?.type || "0");
-  const accountType =
-    (params?.accountType as AccountType) || AccountType.PrivateKey;
-  const msgId = params?.msgId || "0";
-  const signer = params?.signer;
-
-  // TODO: Define all dependencies
-  useEffect(() => {
-    if (signer) {
-      setDetails({
-        txType,
-        accountType,
-        msgId,
-        signer,
-      });
-    }
-  }, [signer]);
+  console.log("PARAMS", params);
 
   return (
     <Container
@@ -71,7 +53,7 @@ export const Approvals: React.FC = () => {
       <Routes>
         <Route
           path={`${TopLevelRoute.ApproveSignTx}/:msgId/:accountType/:signer`}
-          element={<ApproveSignTx details={details} />}
+          element={<ApproveSignTx setDetails={setDetails} />}
         />
         <Route
           path={TopLevelRoute.ConfirmSignTx}

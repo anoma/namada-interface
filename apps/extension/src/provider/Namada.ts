@@ -1,3 +1,4 @@
+import { EncodedTx } from "@heliax/namada-sdk/web";
 import {
   Chain,
   DerivedAccount,
@@ -9,7 +10,6 @@ import {
 } from "@namada/types";
 import { MessageRequester, Ports } from "router";
 
-import { BuiltTx } from "@namada/shared";
 import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
@@ -73,7 +73,7 @@ export class Namada implements INamada {
     const { accountType, signer, tx } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveSignTxMsg(accountType, signer, tx as BuiltTx)
+      new ApproveSignTxMsg(accountType, signer, tx as EncodedTx)
     );
   }
 

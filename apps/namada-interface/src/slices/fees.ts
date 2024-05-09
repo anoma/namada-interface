@@ -16,7 +16,10 @@ const minimumGasPriceAtom = (() => {
     async (get, set) => {
       const {
         rpc,
-        currency: { address: nativeToken },
+        currency: {
+          address:
+            nativeToken = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+        },
       } = get(chainAtom);
       const query = new Query(rpc);
 

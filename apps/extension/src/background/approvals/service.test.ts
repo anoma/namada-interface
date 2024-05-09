@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BuiltTx } from "@namada/shared";
+import { EncodedTx } from "@heliax/namada-sdk/web";
 import { paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
 import { VaultService } from "background/vault";
@@ -40,7 +40,7 @@ describe("approvals service", () => {
   let service: ApprovalsService;
   let keyRingService: jest.Mocked<KeyRingService>;
   let dataStore: KVStoreMock<string>;
-  let txStore: KVStoreMock<BuiltTx>;
+  let txStore: KVStoreMock<EncodedTx>;
   let localStorage: LocalStorage;
 
   afterEach(() => {
@@ -49,7 +49,7 @@ describe("approvals service", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    txStore = new KVStoreMock<BuiltTx>("BuiltTx");
+    txStore = new KVStoreMock<EncodedTx>("EncodedTx");
     dataStore = new KVStoreMock<string>("DataStore");
     keyRingService = createMockInstance(KeyRingService as any);
     const vaultService: jest.Mocked<VaultService> = createMockInstance(

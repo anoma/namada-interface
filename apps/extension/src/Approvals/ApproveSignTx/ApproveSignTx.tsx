@@ -1,7 +1,8 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { ActionButton, Alert, Stack } from "@namada/components";
+import { useSanitizedParams } from "@namada/hooks";
 import { AccountType } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { ApprovalDetails } from "Approvals/Approvals";
@@ -12,14 +13,27 @@ import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 
 type Props = {
-  details?: ApprovalDetails;
+  setDetails: (details: ApprovalDetails) => void;
 };
 
-export const ApproveSignTx: React.FC<Props> = ({ details }) => {
+export const ApproveSignTx: React.FC<Props> = ({ setDetails }) => {
   const navigate = useNavigate();
   const requester = useRequester();
+  const params = useSanitizedParams();
+  const accountType =
+    (params?.accountType as AccountType) || AccountType.PrivateKey;
+  const msgId = params?.msgId || "0";
+  const signer = params?.signer;
 
-  const { accountType, msgId, signer } = details || {};
+  useEffect(() => {
+    if (signer && msgId) {
+      setDetails({
+        msgId,
+        signer,
+        accountType,
+      });
+    }
+  }, []);
 
   const handleApproveClick = useCallback((): void => {
     if (accountType === AccountType.Ledger) {

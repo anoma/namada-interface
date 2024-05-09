@@ -2,8 +2,7 @@ import BigNumber from "bignumber.js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { TxType, getSdk } from "@heliax/namada-sdk/web";
-import init from "@heliax/namada-sdk/web-init"
+import { Rpc, Tx, TxType } from "@heliax/namada-sdk/web";
 import { chains } from "@namada/chains";
 import { ActionButton, AmountInput, Icon, Input } from "@namada/components";
 import { Chain, TokenType, Tokens } from "@namada/types";
@@ -20,16 +19,16 @@ import {
   InputContainer,
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
-import { Namada } from "@namada/integrations";
+import { Namada, useIntegration } from "@namada/integrations";
+import { useSdk } from "hooks/useSdk";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
   tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
-  NAMADA_INTERFACE_NAMADA_URL: rpcUrl = "http://localhost:27657",
 } = process.env;
 
 export const submitTransferTransaction = async (
-  txTransferArgs: TxTransferArgs,
+  txTransferArgs: TxTransferArgs, tx: Tx, rpc: Rpc, namada: Namada
 ): Promise<void> => {
   const {
     account: { address, publicKey, type },
@@ -67,36 +66,34 @@ export const submitTransferTransaction = async (
     disposableSigningKey,
     memo,
   };
-  console.log("Submitting Transfer Tx", { type, transferProps, wrapperTxProps })
+  console.log("Building Transfer Tx", { type, transferProps, wrapperTxProps, tx, rpc, namada })
 
-  // Init SDK
-  const { cryptoMemory } = await init()
-  const { tx, rpc } = getSdk(cryptoMemory, rpcUrl, "", "");
+  try {
+    // Build
+    const encodedTx = await tx.buildTx(TxType.Transfer, wrapperTxProps, transferProps);
+    console.log("Built transfer:", encodedTx);
 
-  // Build
-  const builtTx = await tx.buildTx(TxType.Transfer, wrapperTxProps, transferProps,);
-  console.log("Built transfer:", builtTx);
+    const signingClient = namada.signer();
 
-  const namada = new Namada({
-    ...chains.namada,
-    rpc: rpcUrl,
-  })
-  const signingClient = namada.signer();
-  if (!signingClient) {
-    throw new Error("Why can this be undefined?")
+    if (!signingClient) {
+      throw new Error("Signing client failed to initialize")
+    }
+
+    // Submit to extension for signing:
+    const signedTx = await signingClient.sign(type, transferProps.source, encodedTx)
+    console.log("Signed Tx Bytes: ", signedTx);
+
+    if (!signedTx) {
+      // Signature failed:
+      console.error("Failed to sign Tx", { builtTx: encodedTx })
+      throw new Error("Signing failed")
+    }
+
+    const response = await rpc.broadcastTx({ wrapperTxMsg: encodedTx.txMsg, tx: signedTx });
+    console.log("Broadcast Tx results: ", response)
+  } catch (e) {
+    throw new Error(`Failed to sign and submit transaction: ${e}`)
   }
-
-  // Submit to extension for signing:
-  const signedTx = await signingClient.sign(type, transferProps.source, builtTx)
-  console.log("Signed Tx Bytes: ", signedTx);
-
-  if (!signedTx) {
-    // Signature failed:
-    return;
-  }
-
-  const response = await rpc.broadcastTx({ wrapperTxMsg: builtTx.txMsg, tx: signedTx });
-  console.log("Broadcast Tx results: ", response)
 };
 
 type Props = {
@@ -160,6 +157,9 @@ const TokenSendForm = ({
   isRevealPkNeededFn,
 }: Props): JSX.Element => {
   const navigate = useNavigate();
+  const sdk = useSdk();
+  const namada = useIntegration("namada")
+  const { tx, rpc } = sdk
   const chain = useAppSelector<Chain>((state) => state.chain.config);
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState<BigNumber | undefined>(new BigNumber(0));
@@ -253,7 +253,7 @@ const TokenSendForm = ({
         disposableSigningKey: isShieldedSource,
         memo,
         nativeToken: chain.currency.address || tokenAddress,
-      });
+      }, tx, rpc, namada);
     }
   };
 

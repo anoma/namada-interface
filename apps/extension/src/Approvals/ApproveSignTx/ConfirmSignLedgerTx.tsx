@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { Ledger, TxType, TxTypeLabel } from "@heliax/namada-sdk/web";
+import { Ledger } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Stack } from "@namada/components";
 import { LedgerError } from "@zondax/ledger-namada";
 
@@ -15,7 +15,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
-  const { msgId, txType } = details || {};
+  const { msgId } = details || {};
 
   useEffect(() => {
     if (status === Status.Completed) {
@@ -29,17 +29,11 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
     path: string
   ): Promise<void> => {
     // Open ledger transport
-    const txLabel = TxTypeLabel[txType as TxType];
-
-    // Construct tx bytes from SDK
-    if (!txType) {
-      throw new Error("txType was not provided!");
-    }
     if (!msgId) {
       throw new Error("msgId was not provided!");
     }
 
-    setStatusInfo(`Review and approve ${txLabel} transaction on your Ledger`);
+    setStatusInfo(`Review and approve transaction on your Ledger`);
 
     try {
       // Sign with Ledger

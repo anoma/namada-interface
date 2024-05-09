@@ -1,4 +1,4 @@
-import { BuiltTx } from "@namada/shared";
+import { EncodedTx } from "@heliax/namada-sdk/web";
 import {
   AccountType,
   Chain,
@@ -97,7 +97,7 @@ export class GetChainMsg extends Message<Chain> {
     super();
   }
 
-  validate(): void { }
+  validate(): void {}
 
   route(): string {
     return Route.Chains;
@@ -177,7 +177,7 @@ export class ShieldedSyncMsg extends Message<void> {
     super();
   }
 
-  validate(): void { }
+  validate(): void {}
 
   route(): string {
     return Route.KeyRing;
@@ -220,7 +220,7 @@ export class ApproveSignTxMsg extends Message<Uint8Array> {
   constructor(
     public readonly accountType: AccountType,
     public readonly signer: string,
-    public readonly tx: BuiltTx
+    public readonly tx: EncodedTx
   ) {
     super();
   }

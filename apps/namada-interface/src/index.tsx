@@ -1,4 +1,5 @@
 import { init as initShared } from "@namada/shared/src/init-inline";
+import { SdkProvider } from "hooks/useSdk";
 import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
@@ -16,11 +17,13 @@ initShared().then(() => {
   ReactDOM.render(
     <React.StrictMode>
       <IntegrationsProvider>
-        <Provider store={store}>
-          <ExtensionEventsProvider>
-            <RouterProvider router={getRouter()} />
-          </ExtensionEventsProvider>
-        </Provider>
+        <SdkProvider>
+          <Provider store={store}>
+            <ExtensionEventsProvider>
+              <RouterProvider router={getRouter()} />
+            </ExtensionEventsProvider>
+          </Provider>
+        </SdkProvider>
       </IntegrationsProvider>
     </React.StrictMode>,
     document.getElementById("root")
