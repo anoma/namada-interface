@@ -1,4 +1,4 @@
-import { EncodedTx } from "@heliax/namada-sdk/web";
+import { toBase64 } from "@cosmjs/encoding";
 import {
   Chain,
   DerivedAccount,
@@ -73,7 +73,7 @@ export class Namada implements INamada {
     const { accountType, signer, tx } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveSignTxMsg(accountType, signer, tx as EncodedTx)
+      new ApproveSignTxMsg(accountType, signer, toBase64(tx))
     );
   }
 

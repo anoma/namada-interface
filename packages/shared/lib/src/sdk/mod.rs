@@ -236,14 +236,17 @@ impl Sdk {
 
     pub async fn sign_tx(
         &mut self,
-        built_tx: BuiltTx,
+        // built_tx: BuiltTx,
+        tx_bytes: Vec<u8>,
+        chain_id: String,
         private_key: Option<String>,
     ) -> Result<JsValue, JsError> {
-        let BuiltTx {
-            mut tx,
-            signing_data,
-            chain_id,
-        } = built_tx;
+        // let BuiltTx {
+        //     mut tx,
+        //     signing_data,
+        //     chain_id,
+        // } = built_tx;
+        let mut tx: Tx = borsh::from_slice(&tx_bytes)?;
 
         console_log(&format!(
             "TODO: Implement validation of chain_id: {}",
@@ -258,17 +261,17 @@ impl Sdk {
             None => vec![],
         };
 
-        if let Some(account_public_keys_map) = signing_data.account_public_keys_map.clone() {
-            // We only sign the raw header for transfers from transparent source
-            if !signing_keys.is_empty() {
-                // Sign the raw header
-                tx.sign_raw(
-                    signing_keys.clone(),
-                    account_public_keys_map,
-                    signing_data.owner.clone(),
-                );
-            }
-        }
+        // if let Some(account_public_keys_map) = signing_data.account_public_keys_map.clone() {
+        //     // We only sign the raw header for transfers from transparent source
+        //     if !signing_keys.is_empty() {
+        //         // Sign the raw header
+        //         tx.sign_raw(
+        //             signing_keys.clone(),
+        //             account_public_keys_map,
+        //             signing_data.owner.clone(),
+        //         );
+        //     }
+        // }
 
         // The key is either passed private key for transparent sources or the disposable signing
         // key for shielded sources
@@ -605,8 +608,12 @@ impl Sdk {
         if is_reveal_pk_needed(self.namada.client(), &address, false).await? {
             let built_tx = self.build_reveal_pk(tx_msg, String::from("")).await?;
             // Conversion from JsValue so we can use self.sign_tx
-            let tx_bytes =
-                Uint8Array::new(&self.sign_tx(built_tx, Some(signing_key)).await?).to_vec();
+            let tx_bytes = Uint8Array::new(
+                &self
+                    .sign_tx(built_tx.tx_bytes()?, built_tx.chain_id(), Some(signing_key))
+                    .await?,
+            )
+            .to_vec();
             self.process_tx(&tx_bytes, tx_msg).await?;
         }
 

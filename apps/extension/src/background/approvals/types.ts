@@ -4,8 +4,9 @@ import { BuiltTx } from "@namada/shared";
 export type ApprovedOriginsStore = string[];
 
 export type PendingTx = {
-  txMsg: string;
-  specificMsg: string;
+  txBytes: Uint8Array;
+  chainId: string;
+  signer: string;
 };
 
 export type TxStore = {

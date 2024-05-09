@@ -18,10 +18,10 @@ import { SessionPassword, VaultService } from "background/vault";
 
 import {
   ApprovalsService,
+  PendingTx,
   init as initApprovals,
 } from "../background/approvals";
 
-import { EncodedTx } from "@heliax/namada-sdk/web";
 import { ChainsService } from "background/chains";
 import { SdkService } from "background/sdk";
 import { Namada } from "provider";
@@ -65,7 +65,7 @@ export const init = async (): Promise<{
   const vaultStorage = new VaultStorage(new KVStoreMock(KVPrefix.IndexedDB));
   const namadaRouterId = await getNamadaRouterId(localStorage);
   const requester = new ExtensionRequester(messenger, namadaRouterId);
-  const txStore = new KVStoreMock<EncodedTx>(KVPrefix.LocalStorage);
+  const txStore = new KVStoreMock<PendingTx>(KVPrefix.LocalStorage);
   const dataStore = new KVStoreMock<string>(KVPrefix.LocalStorage);
   const broadcaster = new ExtensionBroadcaster(localStorage, requester);
 

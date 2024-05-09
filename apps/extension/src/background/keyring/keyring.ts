@@ -19,7 +19,6 @@ import {
   UtilityStore,
 } from "./types";
 
-import { BuiltTx } from "@namada/shared";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
@@ -50,7 +49,7 @@ export class KeyRing {
     protected readonly vaultStorage: VaultStorage,
     protected readonly sdkService: SdkService,
     protected readonly utilityStore: KVStore<UtilityStore>
-  ) {}
+  ) { }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -352,7 +351,7 @@ export class KeyRing {
     const deriveFn = (
       type === AccountType.PrivateKey ?
         this.deriveTransparentAccount
-      : this.deriveShieldedAccount).bind(this);
+        : this.deriveShieldedAccount).bind(this);
 
     const { seed, parentId } = await this.getParentSeed();
     const info = deriveFn(seed, path, parentId);
@@ -569,11 +568,15 @@ export class KeyRing {
     return await query.queryPublicKey(address);
   }
 
-  async sign(signer: string, builtTx: BuiltTx): Promise<Uint8Array> {
+  async sign(
+    txBytes: Uint8Array,
+    chainId: string,
+    signer: string
+  ): Promise<Uint8Array> {
     await this.vaultService.assertIsUnlocked();
     const key = await this.getSigningKey(signer);
-    const { tx } = this.sdkService.getSdk();
-    return tx.signTx(builtTx, key);
+    const { signing } = this.sdkService.getSdk();
+    return signing.sign(txBytes, chainId, key);
   }
 
   async signArbitrary(

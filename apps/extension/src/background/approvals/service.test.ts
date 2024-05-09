@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { EncodedTx } from "@heliax/namada-sdk/web";
 import { paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
 import { VaultService } from "background/vault";
@@ -9,6 +8,7 @@ import { LocalStorage } from "storage";
 import { KVStoreMock } from "test/init";
 import * as webextensionPolyfill from "webextension-polyfill";
 import { ApprovalsService } from "./service";
+import { PendingTx } from "./types";
 
 jest.mock("webextension-polyfill", () => ({
   runtime: {
@@ -40,7 +40,7 @@ describe("approvals service", () => {
   let service: ApprovalsService;
   let keyRingService: jest.Mocked<KeyRingService>;
   let dataStore: KVStoreMock<string>;
-  let txStore: KVStoreMock<EncodedTx>;
+  let txStore: KVStoreMock<PendingTx>;
   let localStorage: LocalStorage;
 
   afterEach(() => {
@@ -49,7 +49,7 @@ describe("approvals service", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    txStore = new KVStoreMock<EncodedTx>("EncodedTx");
+    txStore = new KVStoreMock<PendingTx>("PendingTx");
     dataStore = new KVStoreMock<string>("DataStore");
     keyRingService = createMockInstance(KeyRingService as any);
     const vaultService: jest.Mocked<VaultService> = createMockInstance(

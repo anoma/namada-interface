@@ -1,16 +1,17 @@
 import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
 
-import { EncodedTx } from "@heliax/namada-sdk/web";
 import { KVStore } from "@namada/storage";
 import { AccountType, SignArbitraryResponse } from "@namada/types";
 
 import { paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
 
+import { fromBase64 } from "@cosmjs/encoding";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
+import { PendingTx } from "./types";
 
 export class ApprovalsService {
   // holds promises which can be resolved with a message from a pop-up window
@@ -22,21 +23,24 @@ export class ApprovalsService {
   > = {};
 
   constructor(
-    protected readonly txStore: KVStore<EncodedTx>,
+    protected readonly txStore: KVStore<PendingTx>,
     protected readonly dataStore: KVStore<string>,
     protected readonly localStorage: LocalStorage,
     protected readonly keyRingService: KeyRingService,
     protected readonly vaultService: VaultService,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) {}
+  ) { }
 
   async approveSignTx(
     accountType: AccountType,
     signer: string,
-    tx: EncodedTx
+    tx: string
   ): Promise<Uint8Array> {
     const msgId = uuid();
-    await this.txStore.set(msgId, tx);
+
+    const txBytes = fromBase64(tx);
+    const chainId = "";
+    await this.txStore.set(msgId, { txBytes, chainId, signer });
 
     console.log("MSG ID", msgId);
     const url = `${browser.runtime.getURL(
@@ -95,20 +99,22 @@ export class ApprovalsService {
     msgId: string,
     signer: string
   ): Promise<void> {
-    const encodedTx = await this.txStore.get(msgId);
-    console.log("encodedTx", encodedTx);
+    const pendingTx = await this.txStore.get(msgId);
+    console.log("encodedTx", pendingTx);
     const resolvers = this.resolverMap[popupTabId];
 
     if (!resolvers) {
       throw new Error(`no resolvers found for tab ID ${popupTabId}`);
     }
 
-    if (!encodedTx) {
+    if (!pendingTx) {
       throw new Error(`Signing data for ${msgId} not found!`);
     }
 
+    const { txBytes } = pendingTx;
+
     try {
-      const signature = await this.keyRingService.sign(signer, encodedTx.tx);
+      const signature = await this.keyRingService.sign(txBytes, "", signer);
       resolvers.resolve(signature);
     } catch (e) {
       resolvers.reject(e);

@@ -1,7 +1,6 @@
 import BigNumber from "bignumber.js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { Rpc, Tx, TxType } from "@heliax/namada-sdk/web";
 import { chains } from "@namada/chains";
 import { ActionButton, AmountInput, Icon, Input } from "@namada/components";
@@ -80,7 +79,7 @@ export const submitTransferTransaction = async (
     }
 
     // Submit to extension for signing:
-    const signedTx = await signingClient.sign(type, transferProps.source, encodedTx)
+    const signedTx = await signingClient.sign(type, transferProps.source, encodedTx.tx.tx_bytes())
     console.log("Signed Tx Bytes: ", signedTx);
 
     if (!signedTx) {

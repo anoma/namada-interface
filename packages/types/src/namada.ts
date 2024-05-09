@@ -21,8 +21,9 @@ export type SignArbitraryProps = {
 export type SignProps = {
   accountType: AccountType;
   signer: string;
-  tx: unknown;
+  tx: Uint8Array;
 };
+
 export type VerifyArbitraryProps = {
   publicKey: string;
   hash: string;

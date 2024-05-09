@@ -1,4 +1,4 @@
-import { BuiltTx, Sdk as SdkWasm } from "@namada/shared";
+import { Sdk as SdkWasm } from "@namada/shared";
 
 type Signature = [string, string];
 
@@ -14,12 +14,17 @@ export class Signing {
 
   /**
    * Sign Namada transaction
+   * @param txBytes - Tx bytes for signing
+   * @param chainId - chainId
    * @param signingKey - private key
-   * @param builtTx - Tx and signing data to sign
-   * @returns signed tx bytes - TODO: Fix this type!
+   * @returns signed tx bytes - Promise resolving to Uint8Array
    */
-  sign(signingKey: string, builtTx: BuiltTx): unknown {
-    return this.sdk.sign_tx(builtTx, signingKey);
+  async sign(
+    txBytes: Uint8Array,
+    chainId: string,
+    signingKey: string
+  ): Promise<Uint8Array> {
+    return await this.sdk.sign_tx(txBytes, chainId, signingKey);
   }
 
   /**

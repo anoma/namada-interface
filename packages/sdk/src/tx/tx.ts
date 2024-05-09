@@ -1,4 +1,4 @@
-import { BuiltTx, Sdk as SdkWasm, TxType } from "@namada/shared";
+import { Sdk as SdkWasm, TxType } from "@namada/shared";
 import {
   BondMsgValue,
   BondProps,
@@ -363,18 +363,6 @@ export class Tx {
       encodedTx,
       gasPayer || voteProposalProps.signer
     );
-  }
-
-  /**
-   * Sign transaction
-   * @async
-   * @param builtTx - encoded transaction
-   * @param [signingKey] - optional in the case of shielded tx
-   * @returns promise that resolves to a SignedTx
-   */
-  async signTx(builtTx: BuiltTx, signingKey?: string): Promise<Uint8Array> {
-    const signedTx = await this.sdk.sign_tx(builtTx, signingKey);
-    return signedTx;
   }
 
   /**
