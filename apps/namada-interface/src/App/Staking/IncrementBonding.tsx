@@ -29,6 +29,7 @@ const IncrementBonding = (): JSX.Element => {
   const validators = useAtomValue(allValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
+  const [seed, setSeed] = useState(Math.random());
   const {
     mutate: performBond,
     isPending: isPerformingBond,
@@ -56,6 +57,7 @@ const IncrementBonding = (): JSX.Element => {
     validators: filteredValidators,
     stakedAmountByAddress,
     updatedAmountByAddress,
+    seed,
   });
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
@@ -157,6 +159,7 @@ const IncrementBonding = (): JSX.Element => {
               onChangeSearch={(value: string) => setFilter(value)}
               onlyMyValidators={onlyMyValidators}
               onFilterByMyValidators={setOnlyMyValidators}
+              onRandomize={() => setSeed(Math.random())}
             />
             {validators.isLoading && (
               <div className="mt-3">
