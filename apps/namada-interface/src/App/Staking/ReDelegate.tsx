@@ -27,6 +27,7 @@ const ReDelegate = (): JSX.Element => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<string>("");
   const [onlyMyValidators, setOnlyMyValidators] = useState(false);
+  const [seed, setSeed] = useState(Math.random());
   const accounts = useAtomValue(transparentAccountsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
@@ -49,6 +50,7 @@ const ReDelegate = (): JSX.Element => {
     validators: filteredValidators,
     stakedAmountByAddress,
     updatedAmountByAddress,
+    seed,
   });
 
   const {
@@ -164,6 +166,7 @@ const ReDelegate = (): JSX.Element => {
               onChangeSearch={(value: string) => setFilter(value)}
               onlyMyValidators={onlyMyValidators}
               onFilterByMyValidators={setOnlyMyValidators}
+              onRandomize={() => setSeed(Math.random())}
             />
             {validators.isLoading && (
               <div className="mt-3">

@@ -4,12 +4,14 @@ import { Validator } from "slices/validators";
 
 type useValidatorSortingProps = {
   validators: Validator[];
+  seed: number;
   stakedAmountByAddress: Record<string, BigNumber>;
   updatedAmountByAddress: Record<string, BigNumber>;
 };
 
 export const useValidatorSorting = ({
   validators,
+  seed,
   stakedAmountByAddress,
   updatedAmountByAddress,
 }: useValidatorSortingProps): Validator[] => {
@@ -33,5 +35,5 @@ export const useValidatorSorting = ({
         return validator1.sort - validator2.sort;
       })
       .map(({ value }) => value);
-  }, [validators, stakedAmountByAddress]);
+  }, [validators, stakedAmountByAddress, seed]);
 };
