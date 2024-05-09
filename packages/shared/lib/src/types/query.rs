@@ -9,4 +9,6 @@ pub struct ProposalInfo {
     pub start_epoch: u64,
     pub end_epoch: u64,
     pub grace_epoch: u64,
+    pub tally_type: String,
+    pub proposal_type: String,
 }

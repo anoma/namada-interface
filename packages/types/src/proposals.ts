@@ -8,6 +8,7 @@ export type Proposal = {
   endEpoch: bigint;
   graceEpoch: bigint;
   proposalType: ProposalType;
+  tallyType: TallyType;
 };
 
 export type ProposalWithExtraInfo = {
@@ -17,9 +18,25 @@ export type ProposalWithExtraInfo = {
   votes: Vote[];
 };
 
-export type Pending = { status: "pending" };
-export type Ongoing = { status: "ongoing" };
-export type Finished = { status: "finished"; passed: boolean };
+type ProposalStatusCommonProperties = {
+  [VT in VoteType]: BigNumber;
+} & {
+  totalVotingPower: BigNumber;
+};
+
+export type Pending = {
+  status: "pending";
+} & ProposalStatusCommonProperties;
+
+export type Ongoing = {
+  status: "ongoing";
+} & ProposalStatusCommonProperties;
+
+export type Finished = {
+  status: "finished";
+  passed: boolean;
+} & ProposalStatusCommonProperties;
+
 export type ProposalStatus = Pending | Ongoing | Finished;
 
 export type Default = { type: "default"; data?: null };
@@ -57,3 +74,14 @@ export const isDelegatorVote = (vote: Vote): vote is DelegatorVote =>
   !vote.isValidator;
 
 export type Vote = DelegatorVote | ValidatorVote;
+
+export const tallyTypes = [
+  "two-thirds",
+  "one-half-over-one-third",
+  "less-one-half-over-one-third-nay",
+] as const;
+
+export type TallyType = (typeof tallyTypes)[number];
+
+export const isTallyType = (tallyType: string): tallyType is TallyType =>
+  tallyTypes.includes(tallyType as TallyType);
