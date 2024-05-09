@@ -7,6 +7,7 @@ import {
   DelegatorVote,
   ValidatorVote,
   Vote,
+  isTallyType,
   isVoteType,
 } from "@namada/types";
 import BigNumber from "bignumber.js";
@@ -37,15 +38,34 @@ export const fetchProposalById = async (
 ): Promise<Proposal> => {
   const { rpc } = chain;
   const query = new Query(rpc);
-  const proposalUint8Array = await query.query_proposal_by_id(BigInt(id));
+  const proposalUint8Array = await query.query_proposal_by_id(id);
   const deserialized = deserialize(proposalUint8Array, ProposalSchema);
 
   const content = JSON.parse(deserialized.content);
 
+  const tallyType = deserialized.tallyType;
+
+  if (!isTallyType(tallyType)) {
+    throw new Error(`unknown tally type, got ${tallyType}`);
+  }
+
+  const proposalType =
+    deserialized.proposalType === "default" ? ({ type: "default" } as const)
+    : deserialized.proposalType === "pgf_steward" ?
+      ({ type: "pgf_steward" } as const)
+    : deserialized.proposalType === "pgf_payment" ?
+      ({ type: "pgf_payment" } as const)
+    : undefined;
+
+  if (typeof proposalType === "undefined") {
+    throw new Error(`unknown proposal type, got ${proposalType}`);
+  }
+
   return {
     ...deserialized,
     content,
-    proposalType: { type: "default" },
+    proposalType,
+    tallyType,
   };
 };
 
@@ -165,14 +185,51 @@ export const fetchProposalStatus = async (
   const currentEpoch = await fetchCurrentEpoch(chain);
   const { startEpoch, endEpoch } = await fetchProposalById(chain, id);
 
-  if (startEpoch > currentEpoch) {
-    return { status: "pending" };
-  } else if (endEpoch > currentEpoch) {
-    return { status: "ongoing" };
-  } else {
-    // TODO: check if passed
-    return { status: "finished", passed: id % BigInt(2) === BigInt(0) };
+  const epoch = endEpoch < currentEpoch ? endEpoch : currentEpoch;
+
+  const { rpc } = chain;
+  const query = new Query(rpc);
+
+  const [passed, yayPower, nayPower, abstainPower, totalVotingPower]: [
+    boolean,
+    string,
+    string,
+    string,
+    string,
+  ] = await query.query_proposal_result(id, epoch);
+
+  const yayPowerAsBigNumber = BigNumber(yayPower);
+  if (yayPowerAsBigNumber.isNaN()) {
+    throw new Error("couldn't parse yay power as BigNumber");
   }
+
+  const nayPowerAsBigNumber = BigNumber(nayPower);
+  if (nayPowerAsBigNumber.isNaN()) {
+    throw new Error("couldn't parse nay power as BigNumber");
+  }
+
+  const abstainPowerAsBigNumber = BigNumber(abstainPower);
+  if (abstainPowerAsBigNumber.isNaN()) {
+    throw new Error("couldn't parse abstain power as BigNumber");
+  }
+
+  const totalVotingPowerAsBigNumber = BigNumber(totalVotingPower);
+  if (totalVotingPowerAsBigNumber.isNaN()) {
+    throw new Error("couldn't parse total voting power as BigNumber");
+  }
+
+  const status =
+    startEpoch > currentEpoch ? ({ status: "pending" } as const)
+    : endEpoch > currentEpoch ? ({ status: "ongoing" } as const)
+    : ({ status: "finished", passed } as const);
+
+  return {
+    ...status,
+    yay: yayPowerAsBigNumber,
+    nay: nayPowerAsBigNumber,
+    abstain: abstainPowerAsBigNumber,
+    totalVotingPower: totalVotingPowerAsBigNumber,
+  };
 };
 
 export const fetchProposalVoted = async (
@@ -182,6 +239,15 @@ export const fetchProposalVoted = async (
 ): Promise<boolean> => {
   const votes = await fetchProposalVotes(chain, id);
   return votes.some((vote) => vote.address === account.address);
+};
+
+export const fetchProposalCode = async (
+  chain: Chain,
+  id: bigint
+): Promise<Uint8Array> => {
+  const { rpc } = chain;
+  const query = new Query(rpc);
+  return await query.query_proposal_code(id);
 };
 
 export const performVote = async (
@@ -223,87 +289,3 @@ export const performVote = async (
     account.type
   );
 };
-
-const TEST_PROPOSALS: Proposal[] = [
-  //{
-  //  id: "0",
-  //  content: {
-  //    title: "Some proposal",
-  //  },
-  //  startEpoch: BigNumber(4),
-  //  endEpoch: BigNumber(12),
-  //  graceEpoch: BigNumber(0),
-  //  proposalType: {
-  //    type: "default",
-  //  },
-  //  author: "tknam13jfi53tgjefji3rh45hgehhgfhjejrhgfj45gej45gj",
-  //},
-  //{
-  //  id: "1",
-  //  content: {
-  //    title: "Another proposal",
-  //  },
-  //  startEpoch: BigNumber(10),
-  //  endEpoch: BigNumber(14),
-  //  graceEpoch: BigNumber(0),
-  //  proposalType: { type: "pgf_payment" },
-  //  author: "tknam13jfi53tgjefji3rh45hgehhgfhjejrhgfj45gej45gj",
-  //},
-  //{
-  //  id: "2",
-  //  content: {
-  //    title: "Propose something else",
-  //  },
-  //  startEpoch: BigNumber(14),
-  //  endEpoch: BigNumber(16),
-  //  graceEpoch: BigNumber(0),
-  //  proposalType: { type: "pgf_steward" },
-  //  author: "tknam13jfi53tgjefji3rh45hgehhgfhjejrhgfj45gej45gj",
-  //},
-  //{
-  //  id: "3",
-  //  content: {
-  //    title: "Propose another thing",
-  //  },
-  //  startEpoch: BigNumber(3),
-  //  endEpoch: BigNumber(5),
-  //  graceEpoch: BigNumber(0),
-  //  proposalType: { type: "pgf_payment" },
-  //  author: "tknam13jfi53tgjefji3rh45hgehhgfhjejrhgfj45gej45gj",
-  //},
-  //{
-  //  id: "4",
-  //  content: {
-  //    title: "Propose more things",
-  //  },
-  //  startEpoch: BigNumber(3),
-  //  endEpoch: BigNumber(7),
-  //  graceEpoch: BigNumber(0),
-  //  proposalType: { type: "pgf_payment" },
-  //  author: "tknam13jfi53tgjefji3rh45hgehhgfhjejrhgfj45gej45gj",
-  //},
-  //{
-  //  id: "5",
-  //  content: {
-  //    title: "Stewie for Steward 2024",
-  //    authors: "stewie@heliax.dev",
-  //    "discussions-to": "forum.namada.net/t/stewies-manifesto/1",
-  //    created: "2024-01-01T00:00:01Z",
-  //    license: "MIT",
-  //    abstract:
-  //      "Stewie is running for steward, with a focus on technical research. The technical research I will be focused on will definitely not be for weapons of mass destruction. There is some possibility however that I may be focusing somewhat on open source software for weapons of mass destruction.",
-  //    motivation:
-  //      "Nobody knows technical research better than me. Trust me. I know it. I have the best technical research. I will be the best steward. Last night, Namada called me and said, Stewie, thank you. I will make public goods funding great again",
-  //    details:
-  //      "As a genius baby, I possess an unmatched level of intelligence and a visionary mindset. I will utilize these qualities to solve the most complex problems, and direct public goods funding towards weapons of mass destruction ... i mean open source software for weapons of mass destruction",
-  //  },
-  //  startEpoch: BigNumber(4),
-  //  endEpoch: BigNumber(14),
-  //  graceEpoch: BigNumber(0),
-  //  proposalType: {
-  //    type: "default",
-  //    data: [1,2,3]
-  //  },
-  //  author: "tnam13jfi53tgjefji3rheeeeeeeeeeeeeeeeeeeeeeeeeee",
-  //},
-];

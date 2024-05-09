@@ -3,7 +3,8 @@ use namada::address::Address;
 use namada::core::borsh::BorshSerialize;
 use namada::eth_bridge_pool::TransferToEthereum;
 use namada::governance::storage::keys as governance_storage;
-use namada::governance::utils::{compute_proposal_result, ProposalVotes, TallyVote, VotePower};
+use namada::governance::utils::{compute_proposal_result, ProposalVotes,
+                                TallyVote, VotePower, TallyType, TallyResult};
 use namada::governance::{ProposalType, ProposalVote};
 use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
 use namada::ledger::parameters::storage;
@@ -18,7 +19,7 @@ use namada::sdk::masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::sdk::rpc::{
     format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
     query_epoch, query_native_token, query_proposal_by_id, query_proposal_votes,
-    query_storage_value,
+    query_storage_value, is_steward
 };
 use namada::token;
 use namada::uint::I256;
@@ -420,6 +421,20 @@ impl Query {
 
         let content = serde_json::to_string(&proposal.content)?;
 
+        let is_steward = is_steward(&self.client, &proposal.author).await;
+        let tally_type = proposal.get_tally_type(is_steward);
+        let tally_type_string = match tally_type {
+            TallyType::TwoThirds => "two-thirds",
+            TallyType::OneHalfOverOneThird => "one-half-over-one-third",
+            TallyType::LessOneHalfOverOneThirdNay => "less-one-half-over-one-third-nay"
+        };
+
+        let proposal_type = match proposal.r#type {
+            ProposalType::Default(_) => "default",
+            ProposalType::PGFSteward(_) => "pgf_steward",
+            ProposalType::PGFPayment(_) => "pgf_payment",
+        };
+
         let proposal_info = ProposalInfo {
             id: proposal.id,
             author: proposal.author.to_string(),
@@ -427,6 +442,8 @@ impl Query {
             end_epoch: proposal.voting_end_epoch.0,
             grace_epoch: proposal.grace_epoch.0,
             content,
+            tally_type: String::from(tally_type_string),
+            proposal_type: String::from(proposal_type)
         };
 
         let mut writer = vec![];
@@ -518,6 +535,53 @@ impl Query {
             validator_votes,
             delegator_votes
         ))
+    }
+
+    pub async fn query_proposal_result(
+        &self,
+        proposal_id: u64,
+        epoch: u64
+    ) -> Result<JsValue, JsError> {
+        let epoch = Epoch(epoch);
+
+        let votes = compute_proposal_votes(&self.client, proposal_id, epoch).await;
+
+        let total_voting_power =
+            get_total_staked_tokens(&self.client, epoch).await?;
+
+        let proposal = query_proposal_by_id(&self.client, proposal_id)
+            .await
+            .unwrap()
+            .expect("Proposal should be written to storage.");
+        let is_steward = is_steward(&self.client, &proposal.author).await;
+        let tally_type = proposal.get_tally_type(is_steward);
+
+        let proposal_result =
+            compute_proposal_result(votes, total_voting_power, tally_type);
+
+        let passed = match proposal_result.result {
+            TallyResult::Passed => true,
+            TallyResult::Rejected => false,
+        };
+
+        to_js_result((
+            passed,
+            proposal_result.total_yay_power,
+            proposal_result.total_nay_power,
+            proposal_result.total_abstain_power,
+            proposal_result.total_voting_power,
+        ))
+    }
+
+    pub async fn query_proposal_code(&self, proposal_id: u64) -> Result<JsValue, JsError> {
+        let proposal_code_key =
+            governance_storage::get_proposal_code_key(proposal_id);
+        let code = query_storage_value::<HttpClient, Option<Vec<u8>>>(
+            &self.client,
+            &proposal_code_key
+        ).await?;
+
+        to_js_result(code)
     }
 
     ///// Returns a list of all proposals

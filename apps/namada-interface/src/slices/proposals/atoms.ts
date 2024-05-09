@@ -11,6 +11,7 @@ import {
   fetchAllProposalsWithExtraInfo,
   fetchCurrentEpoch,
   fetchProposalById,
+  fetchProposalCode,
   fetchProposalCounter,
   fetchProposalStatus,
   fetchProposalVoted,
@@ -114,6 +115,13 @@ export const allProposalsWithExtraInfoAtom = atomWithQuery((get) => ({
     return await fetchAllProposalsWithExtraInfo(get(chainAtom), account);
   },
 }));
+
+export const proposalCodeFamily = atomFamily((id: bigint) =>
+  atomWithQuery((get) => ({
+    queryKey: ["proposal-code", id.toString()],
+    queryFn: () => fetchProposalCode(get(chainAtom), id),
+  }))
+);
 
 type PerformVoteArgs = {
   proposalId: bigint;

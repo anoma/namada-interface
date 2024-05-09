@@ -24,6 +24,12 @@ export const SubmitVote: React.FC = () => {
     isSuccess,
   } = useAtomValue(performVoteAtom);
 
+  useEffect(() => {
+    if (isSuccess) {
+      onCloseModal();
+    }
+  }, [isSuccess]);
+
   const [selectedVoteType, setSelectedVoteType] = useState<VoteType>();
 
   const { proposalId: proposalIdString = "" } = useSanitizedParams();
@@ -38,9 +44,7 @@ export const SubmitVote: React.FC = () => {
 
   const proposal = proposalQueryResult.data;
 
-  const onCloseModal = (): void =>
-    //navigate(GovernanceRoutes.proposal(proposal.id).url);
-    navigate(-1);
+  const onCloseModal = (): void => navigate(-1);
 
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
@@ -61,13 +65,6 @@ export const SubmitVote: React.FC = () => {
     }
     setSelectedVoteType(voteType);
   };
-
-  useEffect(() => {
-    if (isSuccess) {
-      //dispatchPendingNotification();
-      onCloseModal();
-    }
-  }, [isSuccess]);
 
   return (
     <Modal onClose={onCloseModal}>

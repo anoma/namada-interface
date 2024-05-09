@@ -35,7 +35,13 @@ export const PieChart = ({
   ...svgProps
 }: PieChartProps): JSX.Element => {
   const length = 2 * Math.PI * (radius - strokeWidth);
-  const filteredData = data.filter((el) => new BigNumber(el.value).gt(0));
+  const indexedData = data.map((dataItem, index) => ({
+    ...dataItem,
+    originalIndex: index, // needed to preserve index when some values are 0
+  }));
+  const filteredData = indexedData.filter((el) =>
+    new BigNumber(el.value).gt(0)
+  );
   const margin = filteredData.length > 1 ? segmentMargin : 0;
   const { className: contentPropsClassName, ...contentPropsRest } =
     contentProps;
@@ -64,7 +70,9 @@ export const PieChart = ({
           r={radius - strokeWidth}
           stroke={dataItem.color}
           onMouseEnter={
-            onMouseEnter ? () => onMouseEnter(dataItem, index) : undefined
+            onMouseEnter ?
+              () => onMouseEnter(dataItem, dataItem.originalIndex)
+            : undefined
           }
           onMouseLeave={onMouseLeave ? () => onMouseLeave() : undefined}
         />

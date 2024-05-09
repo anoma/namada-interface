@@ -4,29 +4,24 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 
 import { PieChart, PieChartData, Stack } from "@namada/components";
-import { assertNever, formatPercentage } from "@namada/utils";
+import { formatPercentage } from "@namada/utils";
 
 import {
   Proposal,
-  ProposalType,
+  ProposalStatus,
+  TallyType,
   VoteType,
-  Votes,
   voteTypes,
 } from "@namada/types";
 import { AnimatePresence } from "framer-motion";
 import { colors } from "./types";
 
 // TODO: is this a good enough way to represent rational numbers?
-const defaultQuorum = BigNumber(2).dividedBy(3);
-const stewardQuorum = BigNumber(1).dividedBy(3);
-// TODO: handle steward propooser
-const pgfQuorum = BigNumber(1).dividedBy(3);
-
-const getQuorum = (proposalType: ProposalType): BigNumber =>
-  proposalType.type === "default" ? defaultQuorum
-  : proposalType.type === "pgf_steward" ? stewardQuorum
-  : proposalType.type === "pgf_payment" ? pgfQuorum
-  : assertNever(proposalType);
+const quorumMap: Record<TallyType, BigNumber> = {
+  "two-thirds": BigNumber(2).dividedBy(3),
+  "one-half-over-one-third": BigNumber(1).dividedBy(3),
+  "less-one-half-over-one-third-nay": BigNumber(1).dividedBy(3),
+};
 
 const StatusListItem: React.FC<{
   color: string;
@@ -60,29 +55,48 @@ const StatusListItem: React.FC<{
 
 export const ProposalStatusSummary: React.FC<{
   proposal: Proposal;
-  votes: Votes;
-}> = ({ proposal, votes }) => {
+  status: ProposalStatus;
+}> = ({ proposal, status }) => {
   const [hoveredVoteType, setHoveredVoteType] = useState<
     VoteType | undefined
   >();
 
+  const yayNayAbstainSummedPower = BigNumber.sum(
+    status.yay,
+    status.nay,
+    status.abstain
+  );
+
+  const zeroVotes = yayNayAbstainSummedPower.isEqualTo(0);
+
+  const votedProportion = yayNayAbstainSummedPower.dividedBy(
+    status.totalVotingPower
+  );
+
+  const quorum = quorumMap[proposal.tallyType];
+
   const percentageString = (value: BigNumber): string => {
-    const totalVotes = BigNumber.sum(...Object.values(votes));
-    return formatPercentage(value.dividedBy(totalVotes), 2);
+    const voteProportion =
+      zeroVotes ? BigNumber(0) : value.dividedBy(yayNayAbstainSummedPower);
+
+    return formatPercentage(voteProportion, 2);
   };
 
-  const data: PieChartData[] = voteTypes.map((voteType) => ({
-    value: votes[voteType],
-    color: colors[voteType],
-  }));
+  const data: PieChartData[] =
+    zeroVotes ?
+      [{ value: 1, color: "#ffffff" }]
+    : voteTypes.map((voteType) => ({
+        value: status[voteType],
+        color: colors[voteType],
+      }));
 
   const handleMouseEnter = (_data: PieChartData, index: number): void => {
-    setHoveredVoteType(voteTypes[index]);
+    if (!zeroVotes) {
+      setHoveredVoteType(voteTypes[index]);
+    }
   };
 
   const handleMouseLeave = (): void => setHoveredVoteType(undefined);
-
-  const quorum = getQuorum(proposal.proposalType);
 
   return (
     <Stack gap={4}>
@@ -105,7 +119,7 @@ export const ProposalStatusSummary: React.FC<{
             >
               <div className="uppercase text-sm">{hoveredVoteType}</div>
               <div className="text-3xl">
-                {percentageString(votes[hoveredVoteType])}
+                {percentageString(status[hoveredVoteType])}
               </div>
             </motion.article>
           )}
@@ -118,8 +132,8 @@ export const ProposalStatusSummary: React.FC<{
             key={i}
             color={colors[voteType]}
             leftContent={voteType}
-            rightContent={percentageString(votes[voteType])}
-            rightSubContent={votes[voteType].toString() + " NAM"}
+            rightContent={percentageString(status[voteType])}
+            rightSubContent={status[voteType].toString() + " NAM"}
             selected={hoveredVoteType === voteType}
           />
         ))}
@@ -127,7 +141,9 @@ export const ProposalStatusSummary: React.FC<{
 
       <div>
         <h3 className="text-[#A3A3A3] text-xs">Turnout / Quorum</h3>
-        <p className="text-xl">TODO / {formatPercentage(quorum, 2)}</p>
+        <p className="text-xl">
+          {formatPercentage(votedProportion, 2)} / {formatPercentage(quorum, 2)}
+        </p>
       </div>
     </Stack>
   );

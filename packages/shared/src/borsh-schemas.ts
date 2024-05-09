@@ -30,6 +30,12 @@ export class Proposal {
   @field({ type: "u64" })
   graceEpoch!: bigint;
 
+  @field({ type: "string" })
+  tallyType!: string;
+
+  @field({ type: "string" })
+  proposalType!: string;
+
   constructor(data: Proposal) {
     Object.assign(this, data);
   }
