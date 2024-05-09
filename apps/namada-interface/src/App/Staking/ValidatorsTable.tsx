@@ -116,7 +116,7 @@ const ValidatorsTable = ({
         id={id}
         headers={headers.concat("")}
         rows={rows}
-        containerClassName="table-container flex-1 dark-scrollbar"
+        containerClassName="table-container flex-1 dark-scrollbar overscroll-contain"
         tableProps={{
           className: twMerge(
             "w-full flex-1 [&_td]:px-1 [&_th]:px-1 [&_td:first-child]:pl-4 [&_td]:h-[64px]",
