@@ -48,7 +48,12 @@ const IncrementBonding = (): JSX.Element => {
 
   const filteredValidators = useValidatorFilter({
     validators: validators.isSuccess ? validators.data : [],
-    myValidatorsAddresses: Object.keys(stakedAmountByAddress),
+    myValidatorsAddresses: Array.from(
+      new Set([
+        ...Object.keys(stakedAmountByAddress),
+        ...Object.keys(updatedAmountByAddress),
+      ])
+    ),
     searchTerm: filter,
     onlyMyValidators,
   });
