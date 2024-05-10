@@ -8,7 +8,7 @@ export const ProposalDescription: React.FC<{
 }> = ({ proposal }) => {
   const [expanded, setExpanded] = useState(false);
 
-  const { title, abstract, ...details } = proposal.content;
+  const { abstract, ...details } = proposal.content;
 
   const formattedDetails = Object.entries(details).map(([key, value]) => {
     const spacedKey = key.replaceAll("-", " ");
