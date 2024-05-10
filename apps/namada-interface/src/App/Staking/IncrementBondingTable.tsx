@@ -13,6 +13,7 @@ type IncrementBondingTableProps = {
   updatedAmountByAddress: Record<string, BigNumber>;
   stakedAmountByAddress: Record<string, BigNumber>;
   onChangeValidatorAmount: (validator: Validator, amount?: BigNumber) => void;
+  resultsPerPage?: number;
 };
 
 export const IncrementBondingTable = ({
@@ -20,6 +21,7 @@ export const IncrementBondingTable = ({
   updatedAmountByAddress,
   stakedAmountByAddress,
   onChangeValidatorAmount,
+  resultsPerPage = 100,
 }: IncrementBondingTableProps): JSX.Element => {
   const headers = [
     { children: "Validator", sortable: true },
@@ -139,6 +141,7 @@ export const IncrementBondingTable = ({
       updatedAmountByAddress={updatedAmountByAddress}
       headers={headers}
       renderRow={renderRow}
+      resultsPerPage={resultsPerPage}
     />
   );
 };
