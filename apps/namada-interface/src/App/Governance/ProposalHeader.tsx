@@ -38,7 +38,7 @@ export const ProposalHeader: React.FC<{
               className="transition-colors hover:text-white"
               to={GovernanceRoutes.index()}
             >
-              Governance {currentEpoch.data.toString()}
+              Governance
             </Link>{" "}
             /&nbsp;
             <Link

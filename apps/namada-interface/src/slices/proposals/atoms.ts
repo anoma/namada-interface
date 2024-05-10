@@ -1,5 +1,3 @@
-import { Query } from "@namada/shared";
-import BigNumber from "bignumber.js";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
 
@@ -23,42 +21,6 @@ export const currentEpochAtom = atomWithQuery((get) => ({
   queryKey: ["current-epoch"],
   queryFn: () => fetchCurrentEpoch(get(chainAtom)),
 }));
-
-// TODO: move to ./functions.ts
-export const totalStakedTokensForProposalFamily = atomFamily(
-  (proposalId: bigint) =>
-    atomWithQuery((get) => {
-      const proposal = get(proposalFamily(proposalId));
-      const currentEpoch = get(currentEpochAtom);
-
-      return {
-        enabled: proposal.isSuccess && currentEpoch.isSuccess,
-        queryKey: [
-          "total-staked-tokens-for-proposal",
-          proposalId.toString(),
-          currentEpoch.data?.toString(),
-        ],
-        queryFn: async () => {
-          const epoch =
-            currentEpoch.data! > proposal.data!.endEpoch ?
-              proposal.data!.endEpoch
-            : currentEpoch.data!;
-
-          const { rpc } = get(chainAtom);
-          const query = new Query(rpc);
-          const totalStakedTokens: string =
-            await query.query_total_staked_tokens(epoch);
-
-          const asBigNumber = BigNumber(totalStakedTokens);
-          if (asBigNumber.isNaN()) {
-            throw new Error("unable to parse total staked tokens to BigNumber");
-          }
-
-          return asBigNumber;
-        },
-      };
-    })
-);
 
 export const proposalCounterAtom = atomWithQuery((get) => ({
   queryKey: ["proposal-counter"],
