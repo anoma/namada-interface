@@ -28,14 +28,14 @@ const PgfStewardInfoCards: React.FC<{
         title="Add"
         className="col-span-3"
         content={addRemove.add.map((address) => (
-          <span>{address}</span>
+          <span key={`info-card-add-${address}`}>{address}</span>
         ))}
       />
       <InfoCard
         title="Remove"
         className="col-span-3"
         content={addRemove.remove.map((address) => (
-          <span>{address}</span>
+          <span key={`info-card-remove-${address}`}>{address}</span>
         ))}
       />
     </>
@@ -52,7 +52,7 @@ const PgfPaymentInfoCards: React.FC<{
         className="col-span-full"
         content={pgfActions.continuous.add.map(
           ({ internal: { amount, target } }) => (
-            <span>
+            <span key={`info-card-continuous-add-${target}`}>
               {target} {amount.toString()} NAM
             </span>
           )
@@ -63,7 +63,7 @@ const PgfPaymentInfoCards: React.FC<{
         className="col-span-full"
         content={pgfActions.continuous.remove.map(
           ({ internal: { amount, target } }) => (
-            <span>
+            <span key={`info-card-continuous-remove-${target}`}>
               {target} {amount.toString()} NAM
             </span>
           )
@@ -73,7 +73,7 @@ const PgfPaymentInfoCards: React.FC<{
         title="Retro"
         className="col-span-full"
         content={pgfActions.retro.map(({ internal: { amount, target } }) => (
-          <span>
+          <span key={`info-card-retro-${target}`}>
             {target} {amount.toString()} NAM
           </span>
         ))}

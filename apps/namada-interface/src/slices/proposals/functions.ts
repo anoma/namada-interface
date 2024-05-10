@@ -218,8 +218,7 @@ export const fetchAllProposals = async (chain: Chain): Promise<Proposal[]> => {
 const fetchProposalByIdWithExtraInfo = async (
   chain: Chain,
   id: bigint,
-  account: Account,
-  currentEpoch: bigint
+  account: Account
 ): Promise<ProposalWithExtraInfo> => {
   const proposal = await fetchProposalById(chain, id);
   const voted = await fetchProposalVoted(chain, id, account);

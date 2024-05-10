@@ -17,12 +17,7 @@ import GovernanceRoutes from "./routes";
 
 export const SubmitVote: React.FC = () => {
   const navigate = useNavigate();
-
-  const {
-    mutate: performVote,
-    isPending: isPerformingVote,
-    isSuccess,
-  } = useAtomValue(performVoteAtom);
+  const { mutate: performVote, isSuccess } = useAtomValue(performVoteAtom);
 
   useEffect(() => {
     if (isSuccess) {
@@ -59,7 +54,7 @@ export const SubmitVote: React.FC = () => {
     });
   };
 
-  const handleSelectVoteType = (voteType: string) => {
+  const handleSelectVoteType = (voteType: string): void => {
     if (!isVoteType(voteType)) {
       throw new Error(`unexpected vote type, got ${voteType}`);
     }

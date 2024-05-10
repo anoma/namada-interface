@@ -100,7 +100,7 @@ export const LiveGovernanceProposals: React.FC<{
 
   return (
     <Stack gap={4} as="ul">
-      {liveProposals.map(({ proposal, status, voted, votes }, index) => (
+      {liveProposals.map(({ proposal, status, voted }, index) => (
         <ProposalListItem
           proposal={proposal}
           status={status}

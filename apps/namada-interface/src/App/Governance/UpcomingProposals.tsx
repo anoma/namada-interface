@@ -17,7 +17,7 @@ const ProposalListItem: React.FC<{
   status: ProposalStatus;
   voted: boolean;
   votes: Votes;
-}> = ({ proposal, voted, votes }) => {
+}> = ({ proposal }) => {
   const navigate = useNavigate();
 
   const barData = [
@@ -26,11 +26,6 @@ const ProposalListItem: React.FC<{
       color: "#757575",
     },
   ];
-
-  const onVote = (e: React.MouseEvent): void => {
-    e.stopPropagation();
-    navigate(GovernanceRoutes.submitVote(proposal.id).url);
-  };
 
   return (
     <Stack
@@ -74,7 +69,7 @@ export const UpcomingProposals: React.FC<{
 
   return (
     <Stack gap={4} as="ul">
-      {upcomingProposals.map(({ proposal, status, voted, votes }, index) => (
+      {upcomingProposals.map(({ proposal, status, voted }, index) => (
         <ProposalListItem
           proposal={proposal}
           status={status}
