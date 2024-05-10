@@ -14,7 +14,7 @@ export const MyValidatorsFilter = ({
 }: MyValidatorsFilterProps): JSX.Element => {
   const selectedClassList = "[&_i]:!bg-white !text-black";
   return (
-    <Stack className="w-full" gap={1.5} direction="horizontal" as="ul">
+    <Stack gap={1.5} direction="horizontal" as="ul">
       <li>
         <ActionButton
           type="button"

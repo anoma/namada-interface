@@ -167,12 +167,17 @@ const ReDelegate = (): JSX.Element => {
             </Panel>
           </div>
           <Panel className="grid grid-rows-[max-content_auto] overflow-hidden w-full rounded-md relative">
-            <ValidatorFilterNav
-              onChangeSearch={(value: string) => setFilter(value)}
-              onlyMyValidators={onlyMyValidators}
-              onFilterByMyValidators={setOnlyMyValidators}
-              onRandomize={() => setSeed(Math.random())}
-            />
+            {validators.isSuccess && (
+              <ValidatorFilterNav
+                validators={validators.data}
+                updatedAmountByAddress={updatedAmountByAddress}
+                stakedAmountByAddress={stakedAmountByAddress}
+                onChangeSearch={(value: string) => setFilter(value)}
+                onlyMyValidators={onlyMyValidators}
+                onFilterByMyValidators={setOnlyMyValidators}
+                onRandomize={() => setSeed(Math.random())}
+              />
+            )}
             {validators.isLoading && (
               <div className="mt-3">
                 <TableRowLoading count={2} />

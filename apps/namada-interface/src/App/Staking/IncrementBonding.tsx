@@ -29,6 +29,7 @@ const IncrementBonding = (): JSX.Element => {
   const validators = useAtomValue(allValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
+  const resultsPerPage = 100;
   const [seed, setSeed] = useState(Math.random());
   const {
     mutate: performBond,
@@ -160,12 +161,17 @@ const IncrementBonding = (): JSX.Element => {
             />
           </div>
           <Panel className="grid grid-rows-[max-content_auto] w-full relative overflow-hidden">
-            <ValidatorFilterNav
-              onChangeSearch={(value: string) => setFilter(value)}
-              onlyMyValidators={onlyMyValidators}
-              onFilterByMyValidators={setOnlyMyValidators}
-              onRandomize={() => setSeed(Math.random())}
-            />
+            {validators.isSuccess && (
+              <ValidatorFilterNav
+                validators={validators.data}
+                updatedAmountByAddress={updatedAmountByAddress}
+                stakedAmountByAddress={stakedAmountByAddress}
+                onChangeSearch={(value: string) => setFilter(value)}
+                onlyMyValidators={onlyMyValidators}
+                onFilterByMyValidators={setOnlyMyValidators}
+                onRandomize={() => setSeed(Math.random())}
+              />
+            )}
             {validators.isLoading && (
               <div className="mt-3">
                 <TableRowLoading count={2} />
@@ -173,6 +179,7 @@ const IncrementBonding = (): JSX.Element => {
             )}
             {validators.isSuccess && (
               <IncrementBondingTable
+                resultsPerPage={resultsPerPage}
                 validators={sortedValidators}
                 onChangeValidatorAmount={onChangeValidatorAmount}
                 updatedAmountByAddress={updatedAmountByAddress}
