@@ -1,7 +1,6 @@
 import { Panel, SkeletonLoading } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { useAtomValue } from "jotai";
-import { useNavigate } from "react-router-dom";
 import { allProposalsWithExtraInfoAtom } from "slices/proposals";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import { atomsAreFetching, atomsAreLoaded } from "store/utils";
@@ -11,10 +10,7 @@ import { ProposalsSummary } from "./ProposalsSummary";
 import { UpcomingProposals } from "./UpcomingProposals";
 
 export const GovernanceOverview: React.FC = () => {
-  const navigate = useNavigate();
-
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
-
   const allProposals = useAtomValue(allProposalsWithExtraInfoAtom);
 
   return (
