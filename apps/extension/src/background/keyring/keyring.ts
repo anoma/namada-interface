@@ -49,7 +49,7 @@ export class KeyRing {
     protected readonly vaultStorage: VaultStorage,
     protected readonly sdkService: SdkService,
     protected readonly utilityStore: KVStore<UtilityStore>
-  ) { }
+  ) {}
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -351,7 +351,7 @@ export class KeyRing {
     const deriveFn = (
       type === AccountType.PrivateKey ?
         this.deriveTransparentAccount
-        : this.deriveShieldedAccount).bind(this);
+      : this.deriveShieldedAccount).bind(this);
 
     const { seed, parentId } = await this.getParentSeed();
     const info = deriveFn(seed, path, parentId);
@@ -570,13 +570,14 @@ export class KeyRing {
 
   async sign(
     txBytes: Uint8Array,
+    signingDataBytes: Uint8Array,
     chainId: string,
     signer: string
   ): Promise<Uint8Array> {
     await this.vaultService.assertIsUnlocked();
     const key = await this.getSigningKey(signer);
     const { signing } = this.sdkService.getSdk();
-    return signing.sign(txBytes, chainId, key);
+    return signing.sign(txBytes, signingDataBytes, chainId, key);
   }
 
   async signArbitrary(

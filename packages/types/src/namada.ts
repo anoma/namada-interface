@@ -22,6 +22,7 @@ export type SignProps = {
   accountType: AccountType;
   signer: string;
   tx: Uint8Array;
+  signingData: Uint8Array;
 };
 
 export type VerifyArbitraryProps = {

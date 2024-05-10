@@ -1,18 +1,18 @@
 import { SupportedTx } from "@heliax/namada-sdk/web";
-import { BuiltTx } from "@namada/shared";
 
 export type ApprovedOriginsStore = string[];
 
 export type PendingTx = {
   txBytes: Uint8Array;
+  signingDataBytes: Uint8Array;
   chainId: string;
   signer: string;
+  // TODO: Handle signingData returned from build functions
+  signingData?: Uint8Array;
 };
 
+// TODO: Re-enable TxStore to support multiple Tx
 export type TxStore = {
   txType: SupportedTx;
-  tx: BuiltTx[];
+  tx: PendingTx[];
 };
-
-// TODO: Add specific types here!
-export type PendingTxDetails = Record<string, string>;

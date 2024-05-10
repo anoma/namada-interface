@@ -224,10 +224,11 @@ export class KeyRingService {
 
   async sign(
     txBytes: Uint8Array,
+    signingDataBytes: Uint8Array,
     chainId: string,
     signer: string
   ): Promise<Uint8Array> {
-    return await this._keyRing.sign(txBytes, chainId, signer);
+    return await this._keyRing.sign(txBytes, signingDataBytes, chainId, signer);
   }
 
   async signArbitrary(

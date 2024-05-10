@@ -96,7 +96,7 @@ export class GetChainMsg extends Message<Chain> {
     super();
   }
 
-  validate(): void { }
+  validate(): void {}
 
   route(): string {
     return Route.Chains;
@@ -176,7 +176,7 @@ export class ShieldedSyncMsg extends Message<void> {
     super();
   }
 
-  validate(): void { }
+  validate(): void {}
 
   route(): string {
     return Route.KeyRing;
@@ -219,13 +219,19 @@ export class ApproveSignTxMsg extends Message<Uint8Array> {
   constructor(
     public readonly accountType: AccountType,
     public readonly signer: string,
-    public readonly txBytes: string
+    public readonly txBytes: string,
+    public readonly signingDataBytes: string
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["accountType", "signer", "txBytes"]);
+    validateProps(this, [
+      "accountType",
+      "signer",
+      "txBytes",
+      "signingDataBytes",
+    ]);
   }
 
   route(): string {

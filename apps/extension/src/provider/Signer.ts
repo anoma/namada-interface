@@ -8,7 +8,7 @@ import {
 } from "@namada/types";
 
 export class Signer implements ISigner {
-  constructor(private readonly _namada: Namada) { }
+  constructor(private readonly _namada: Namada) {}
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts())?.map(
@@ -45,9 +45,10 @@ export class Signer implements ISigner {
   public async sign(
     accountType: AccountType,
     signer: string,
-    tx: Uint8Array
+    tx: Uint8Array,
+    signingData: Uint8Array
   ): Promise<Uint8Array | undefined> {
-    return await this._namada.sign({ accountType, signer, tx });
+    return await this._namada.sign({ accountType, signer, tx, signingData });
   }
 
   public async signArbitrary(

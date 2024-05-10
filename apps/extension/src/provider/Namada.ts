@@ -29,7 +29,7 @@ export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) { }
+  ) {}
 
   public async connect(): Promise<void> {
     return await this.requester?.sendMessage(
@@ -70,10 +70,15 @@ export class Namada implements INamada {
   }
 
   public async sign(props: SignProps): Promise<Uint8Array | undefined> {
-    const { accountType, signer, tx } = props;
+    const { accountType, signer, tx, signingData } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveSignTxMsg(accountType, signer, toBase64(tx))
+      new ApproveSignTxMsg(
+        accountType,
+        signer,
+        toBase64(tx),
+        toBase64(signingData)
+      )
     );
   }
 

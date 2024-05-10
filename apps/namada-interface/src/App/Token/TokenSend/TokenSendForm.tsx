@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Rpc, Tx, TxType } from "@heliax/namada-sdk/web";
 import { chains } from "@namada/chains";
 import { ActionButton, AmountInput, Icon, Input } from "@namada/components";
-import { Chain, TokenType, Tokens, WrapperTxProps } from "@namada/types";
+import { AccountType, Chain, TokenType, Tokens, WrapperTxProps } from "@namada/types";
 
 import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
@@ -53,33 +53,36 @@ export const submitTransferTransaction = async (
       throw new Error("Signing client failed to initialize")
     }
 
-    if (!address) {
-      throw new Error("Source address is required for transfer!")
-    }
-
-    // Check if RevealPK is needed
-    if (!publicKey) {
-      throw new Error("Public key is required!");
-    }
-    const pk = await rpc.queryPublicKey(address);
-
-    if (!pk) {
-      const revealTxProps: WrapperTxProps = {
-        token: nativeToken,
-        gasLimit: BigNumber(1),
-        feeAmount: BigNumber(1),
-        chainId,
-        publicKey,
-      };
-      console.log("Revealing public key with: ", { revealTxProps })
-      const revealPkTx = await tx.buildRevealPk(revealTxProps, address);
-      const signedRevealPkTx = await signingClient.sign(type, address, revealPkTx.tx.tx_bytes())
-      if (!signedRevealPkTx) {
-        throw new Error("Signing failed for required RevealPK Tx")
+    if (type === AccountType.Ledger) {
+      // Check if RevealPK is needed
+      if (!publicKey) {
+        throw new Error("Public key is required for Ledger Tx!");
       }
-      const revealPkResponse = await rpc.broadcastTx({ wrapperTxMsg: revealPkTx.txMsg, tx: signedRevealPkTx })
-      console.log("revealPkResponse", revealPkResponse)
 
+      const pk = await rpc.queryPublicKey(address);
+
+      if (!pk) {
+        const revealTxProps: WrapperTxProps = {
+          token: nativeToken,
+          gasLimit: BigNumber(1),
+          feeAmount: BigNumber(1),
+          chainId,
+          publicKey,
+        };
+        console.log("Revealing public key with: ", { revealTxProps })
+        const revealPkTx = await tx.buildRevealPk(revealTxProps, address);
+        const signedRevealPkTx = await signingClient.sign(
+          type,
+          address,
+          revealPkTx.tx.tx_bytes(),
+          revealPkTx.tx.signing_data_bytes(),
+        );
+        if (!signedRevealPkTx) {
+          throw new Error("Signing failed for required RevealPK Tx")
+        }
+        const revealPkResponse = await rpc.broadcastTx({ wrapperTxMsg: revealPkTx.txMsg, tx: signedRevealPkTx })
+        console.log("revealPkResponse", revealPkResponse)
+      }
     }
 
     // Build
@@ -107,9 +110,13 @@ export const submitTransferTransaction = async (
     const encodedTx = await tx.buildTx(TxType.Transfer, wrapperTxProps, transferProps);
     console.log("Built transfer:", encodedTx);
 
-
     // Submit to extension for signing:
-    const signedTx = await signingClient.sign(type, transferProps.source, encodedTx.tx.tx_bytes())
+    const signedTx = await signingClient.sign(
+      type,
+      transferProps.source,
+      encodedTx.tx.tx_bytes(),
+      encodedTx.tx.signing_data_bytes(),
+    );
     console.log("Signed Tx Bytes: ", signedTx);
 
     if (!signedTx) {

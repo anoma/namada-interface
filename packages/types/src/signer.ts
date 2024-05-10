@@ -11,7 +11,8 @@ export interface Signer {
   sign: (
     accountType: AccountType,
     signer: string,
-    tx: Uint8Array
+    tx: Uint8Array,
+    signingData: Uint8Array
   ) => Promise<Uint8Array | undefined>;
   signArbitrary: (
     signer: string,

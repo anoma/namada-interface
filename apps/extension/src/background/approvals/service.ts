@@ -34,13 +34,21 @@ export class ApprovalsService {
   async approveSignTx(
     accountType: AccountType,
     signer: string,
-    tx: string
+    // TODO: Pass serialized BuiltTxMsgValue instead of these:
+    tx: string,
+    signingData: string
   ): Promise<Uint8Array> {
     const msgId = uuid();
 
     const txBytes = fromBase64(tx);
+    const signingDataBytes = fromBase64(signingData);
     const chainId = "";
-    await this.txStore.set(msgId, { txBytes, chainId, signer });
+    await this.txStore.set(msgId, {
+      txBytes,
+      signingDataBytes,
+      chainId,
+      signer,
+    });
 
     console.log("MSG ID", msgId);
     const url = `${browser.runtime.getURL(
@@ -111,10 +119,15 @@ export class ApprovalsService {
       throw new Error(`Signing data for ${msgId} not found!`);
     }
 
-    const { txBytes } = pendingTx;
+    const { chainId, txBytes, signingDataBytes } = pendingTx;
 
     try {
-      const signature = await this.keyRingService.sign(txBytes, "", signer);
+      const signature = await this.keyRingService.sign(
+        txBytes,
+        signingDataBytes,
+        chainId,
+        signer
+      );
       resolvers.resolve(signature);
     } catch (e) {
       resolvers.reject(e);
