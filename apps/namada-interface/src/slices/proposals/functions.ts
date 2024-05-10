@@ -6,6 +6,7 @@ import {
   AddRemove,
   Chain,
   DelegatorVote,
+  PgfActions,
   ProposalType,
   ValidatorVote,
   Vote,
@@ -42,6 +43,7 @@ export const fetchProposalCounter = async (chain: Chain): Promise<bigint> => {
   return BigInt(proposalCounter);
 };
 
+// TODO: this function is way too big
 const decodeProposalType = (
   typeString: string,
   data: string | undefined
@@ -59,13 +61,13 @@ const decodeProposalType = (
         t.union([t.type({ Add: t.string }), t.type({ Remove: t.string })])
       );
 
-      const decodedData = addRemoveSchema.decode(JSON.parse(data));
+      const addRemoveDecoded = addRemoveSchema.decode(JSON.parse(data));
 
-      if (E.isLeft(decodedData)) {
+      if (E.isLeft(addRemoveDecoded)) {
         throw new Error("pgf_steward data is not valid");
       }
 
-      const addRemove = decodedData.right.reduce<AddRemove>(
+      const addRemove = addRemoveDecoded.right.reduce<AddRemove>(
         (acc, curr) => {
           if ("Add" in curr) {
             return { ...acc, add: [...acc.add, curr.Add] };
@@ -79,7 +81,93 @@ const decodeProposalType = (
       return { type: "pgf_steward", data: addRemove };
 
     case "pgf_payment":
-      return { type: "default" };
+      if (typeof data === "undefined") {
+        throw new Error("data was undefined for pgf_payment proposal");
+      }
+
+      // TODO: add IBC target
+      const pgfTargetSchema = t.type({
+        Internal: t.type({
+          target: t.string,
+          amount: t.string,
+        }),
+      });
+
+      const pgfActionsSchema = t.array(
+        t.union([
+          t.type({
+            Continuous: t.union([
+              t.type({ Add: pgfTargetSchema }),
+              t.type({ Remove: pgfTargetSchema }),
+            ]),
+          }),
+          t.type({
+            Retro: pgfTargetSchema,
+          }),
+        ])
+      );
+
+      const pgfActionsDecoded = pgfActionsSchema.decode(JSON.parse(data));
+
+      if (E.isLeft(pgfActionsDecoded)) {
+        throw new Error("pgf_payment data is not valid");
+      }
+
+      const pgfActions = pgfActionsDecoded.right.reduce<PgfActions>(
+        (acc, curr) => {
+          if ("Continuous" in curr) {
+            const continuous = curr.Continuous;
+            const [
+              {
+                Internal: { target, amount },
+              },
+              key,
+            ] =
+              "Add" in continuous ?
+                [continuous["Add"], "add" as const]
+              : [continuous["Remove"], "remove" as const];
+
+            const amountAsBigNumber = BigNumber(amount);
+
+            if (amountAsBigNumber.isNaN()) {
+              throw new Error(
+                `couldn't parse amount to BigNumber, got ${amount}`
+              );
+            }
+
+            return {
+              ...acc,
+              continuous: {
+                ...acc.continuous,
+                [key]: [
+                  ...acc.continuous[key],
+                  { internal: { target, amount: amountAsBigNumber } },
+                ],
+              },
+            };
+          } else {
+            const { target, amount } = curr.Retro.Internal;
+            const amountAsBigNumber = BigNumber(amount);
+
+            if (amountAsBigNumber.isNaN()) {
+              throw new Error(
+                `couldn't parse amount to BigNumber, got ${amount}`
+              );
+            }
+
+            return {
+              ...acc,
+              retro: [
+                ...acc.retro,
+                { internal: { amount: amountAsBigNumber, target } },
+              ],
+            };
+          }
+        },
+        { continuous: { add: [], remove: [] }, retro: [] }
+      );
+
+      return { type: "pgf_payment", data: pgfActions };
 
     default:
       throw new Error(`unknown proposal type string, got ${typeString}`);
@@ -103,16 +191,10 @@ export const fetchProposalById = async (
     throw new Error(`unknown tally type, got ${tallyType}`);
   }
 
-  let proposalType;
-  try {
-    proposalType = decodeProposalType(
-      deserialized.proposalType,
-      deserialized.data
-    );
-  } catch (e) {
-    console.log(e);
-    throw e;
-  }
+  const proposalType = decodeProposalType(
+    deserialized.proposalType,
+    deserialized.data
+  );
 
   return {
     ...deserialized,

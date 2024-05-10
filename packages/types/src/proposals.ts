@@ -44,9 +44,25 @@ export type AddRemove = {
   remove: string[];
 };
 
+// TODO: add IBC target
+type PgfTarget = {
+  internal: {
+    amount: BigNumber;
+    target: string;
+  };
+};
+
+export type PgfActions = {
+  continuous: {
+    add: PgfTarget[];
+    remove: PgfTarget[];
+  };
+  retro: PgfTarget[];
+};
+
 export type Default = { type: "default"; data?: string };
 export type PgfSteward = { type: "pgf_steward"; data: AddRemove };
-export type PgfPayment = { type: "pgf_payment" };
+export type PgfPayment = { type: "pgf_payment"; data: PgfActions };
 export type ProposalType = Default | PgfSteward | PgfPayment;
 
 export const voteTypes = ["yay", "nay", "abstain"] as const;
