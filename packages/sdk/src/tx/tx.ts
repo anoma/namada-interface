@@ -165,12 +165,12 @@ export class Tx {
    * Build RevealPK Tx
    * @async
    * @param wrapperTxProps - properties of the transaction
-   * @param publicKey - public key to reveal
+   * @param gasPayer - address for gas payer
    * @returns promise that resolves to an EncodedTx
    */
   async buildRevealPk(
     wrapperTxProps: WrapperTxProps,
-    publicKey: string
+    gasPayer: string
   ): Promise<EncodedTx> {
     const encodedTx = this.encodeTxArgs(wrapperTxProps);
 
@@ -178,7 +178,7 @@ export class Tx {
       TxType.RevealPK,
       new Uint8Array(),
       encodedTx,
-      publicKey
+      gasPayer
     );
   }
 
@@ -249,7 +249,7 @@ export class Tx {
     const encodedTx = this.encodeTxArgs(wrapperTxProps);
     const encodedWithdraw = bondMsg.encode(new WithdrawMsgValue(withdrawProps));
 
-    return this.buildTxFromSerializedArgs(
+    return await this.buildTxFromSerializedArgs(
       TxType.Withdraw,
       encodedWithdraw,
       encodedTx,
@@ -303,7 +303,7 @@ export class Tx {
       new IbcTransferMsgValue(ibcTransferProps)
     );
 
-    return this.buildTxFromSerializedArgs(
+    return await this.buildTxFromSerializedArgs(
       TxType.IBCTransfer,
       encodedIbcTransfer,
       encodedTx,
@@ -330,7 +330,7 @@ export class Tx {
       new EthBridgeTransferMsgValue(ethBridgeTransferProps)
     );
 
-    return this.buildTxFromSerializedArgs(
+    return await this.buildTxFromSerializedArgs(
       TxType.EthBridgeTransfer,
       encodedEthBridgeTransfer,
       encodedTx,
@@ -357,7 +357,7 @@ export class Tx {
       new VoteProposalMsgValue(voteProposalProps)
     );
 
-    return this.buildTxFromSerializedArgs(
+    return await this.buildTxFromSerializedArgs(
       TxType.VoteProposal,
       encodedVoteProposal,
       encodedTx,

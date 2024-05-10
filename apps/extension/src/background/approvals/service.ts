@@ -29,7 +29,7 @@ export class ApprovalsService {
     protected readonly keyRingService: KeyRingService,
     protected readonly vaultService: VaultService,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) { }
+  ) {}
 
   async approveSignTx(
     accountType: AccountType,
