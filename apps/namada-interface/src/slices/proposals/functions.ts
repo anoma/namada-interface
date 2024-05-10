@@ -3,14 +3,18 @@ import { getIntegration } from "@namada/integrations";
 import { Proposal as ProposalSchema, Query } from "@namada/shared";
 import {
   Account,
+  AddRemove,
   Chain,
   DelegatorVote,
+  ProposalType,
   ValidatorVote,
   Vote,
   isTallyType,
   isVoteType,
 } from "@namada/types";
 import BigNumber from "bignumber.js";
+import * as E from "fp-ts/Either";
+import * as t from "io-ts";
 
 import {
   Proposal,
@@ -19,6 +23,8 @@ import {
   VoteType,
 } from "@namada/types";
 
+const { NAMADA_INTERFACE_NO_INDEXER } = process.env;
+
 export const fetchCurrentEpoch = async (chain: Chain): Promise<bigint> => {
   const { rpc } = chain;
   const query = new Query(rpc);
@@ -26,10 +32,58 @@ export const fetchCurrentEpoch = async (chain: Chain): Promise<bigint> => {
 };
 
 export const fetchProposalCounter = async (chain: Chain): Promise<bigint> => {
+  if (NAMADA_INTERFACE_NO_INDEXER) {
+    return BigInt(10);
+  }
+
   const { rpc } = chain;
   const query = new Query(rpc);
   const proposalCounter: string = await query.query_proposal_counter();
   return BigInt(proposalCounter);
+};
+
+const decodeProposalType = (
+  typeString: string,
+  data: string | undefined
+): ProposalType => {
+  switch (typeString) {
+    case "default":
+      return { type: "default", data };
+
+    case "pgf_steward":
+      if (typeof data === "undefined") {
+        throw new Error("data was undefined for pgf_steward proposal");
+      }
+
+      const addRemoveSchema = t.array(
+        t.union([t.type({ Add: t.string }), t.type({ Remove: t.string })])
+      );
+
+      const decodedData = addRemoveSchema.decode(JSON.parse(data));
+
+      if (E.isLeft(decodedData)) {
+        throw new Error("pgf_steward data is not valid");
+      }
+
+      const addRemove = decodedData.right.reduce<AddRemove>(
+        (acc, curr) => {
+          if ("Add" in curr) {
+            return { ...acc, add: [...acc.add, curr.Add] };
+          } else {
+            return { ...acc, remove: [...acc.add, curr.Remove] };
+          }
+        },
+        { add: [], remove: [] }
+      );
+
+      return { type: "pgf_steward", data: addRemove };
+
+    case "pgf_payment":
+      return { type: "default" };
+
+    default:
+      throw new Error(`unknown proposal type string, got ${typeString}`);
+  }
 };
 
 export const fetchProposalById = async (
@@ -49,16 +103,15 @@ export const fetchProposalById = async (
     throw new Error(`unknown tally type, got ${tallyType}`);
   }
 
-  const proposalType =
-    deserialized.proposalType === "default" ? ({ type: "default" } as const)
-    : deserialized.proposalType === "pgf_steward" ?
-      ({ type: "pgf_steward" } as const)
-    : deserialized.proposalType === "pgf_payment" ?
-      ({ type: "pgf_payment" } as const)
-    : undefined;
-
-  if (typeof proposalType === "undefined") {
-    throw new Error(`unknown proposal type, got ${proposalType}`);
+  let proposalType;
+  try {
+    proposalType = decodeProposalType(
+      deserialized.proposalType,
+      deserialized.data
+    );
+  } catch (e) {
+    console.log(e);
+    throw e;
   }
 
   return {
@@ -116,6 +169,10 @@ export const fetchProposalVotes = async (
   chain: Chain,
   id: bigint
 ): Promise<Vote[]> => {
+  if (NAMADA_INTERFACE_NO_INDEXER) {
+    return [];
+  }
+
   const { endEpoch } = await fetchProposalById(chain, id);
   const currentEpoch = await fetchCurrentEpoch(chain);
 
@@ -182,6 +239,25 @@ export const fetchProposalStatus = async (
   chain: Chain,
   id: bigint
 ): Promise<ProposalStatus> => {
+  if (NAMADA_INTERFACE_NO_INDEXER) {
+    const status = (
+      [
+        { status: "pending" },
+        { status: "ongoing" },
+        { status: "finished", passed: true },
+        { status: "finished", passed: false },
+      ] as const
+    )[Number(id % BigInt(4))];
+
+    return {
+      ...status,
+      yay: BigNumber(0),
+      nay: BigNumber(0),
+      abstain: BigNumber(0),
+      totalVotingPower: BigNumber(1000),
+    };
+  }
+
   const currentEpoch = await fetchCurrentEpoch(chain);
   const { startEpoch, endEpoch } = await fetchProposalById(chain, id);
 

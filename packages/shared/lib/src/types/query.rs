@@ -11,4 +11,5 @@ pub struct ProposalInfo {
     pub grace_epoch: u64,
     pub tally_type: String,
     pub proposal_type: String,
+    pub data: Option<String>
 }
