@@ -438,7 +438,10 @@ impl Query {
                 let data_string = serde_json::to_string(&data)?;
                 ("pgf_steward", Some(data_string))
             },
-            ProposalType::PGFPayment(data) => ("pgf_payment", None),
+            ProposalType::PGFPayment(data) => {
+                let data_string = serde_json::to_string(&data)?;
+                ("pgf_payment", Some(data_string))
+            }
         };
 
         let proposal_info = ProposalInfo {

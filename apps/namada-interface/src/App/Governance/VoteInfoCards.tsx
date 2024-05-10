@@ -1,6 +1,6 @@
 import { twMerge } from "tailwind-merge";
 
-import { AddRemove, Proposal } from "@namada/types";
+import { AddRemove, PgfActions, Proposal } from "@namada/types";
 
 import { formatEpoch } from "@namada/utils";
 
@@ -42,6 +42,46 @@ const PgfStewardInfoCards: React.FC<{
   );
 };
 
+const PgfPaymentInfoCards: React.FC<{
+  pgfActions: PgfActions;
+}> = ({ pgfActions }) => {
+  return (
+    <>
+      <InfoCard
+        title="Continuous Add"
+        className="col-span-full"
+        content={pgfActions.continuous.add.map(
+          ({ internal: { amount, target } }) => (
+            <span>
+              {target} {amount.toString()} NAM
+            </span>
+          )
+        )}
+      />
+      <InfoCard
+        title="Continuous Remove"
+        className="col-span-full"
+        content={pgfActions.continuous.remove.map(
+          ({ internal: { amount, target } }) => (
+            <span>
+              {target} {amount.toString()} NAM
+            </span>
+          )
+        )}
+      />
+      <InfoCard
+        title="Retro"
+        className="col-span-full"
+        content={pgfActions.retro.map(({ internal: { amount, target } }) => (
+          <span>
+            {target} {amount.toString()} NAM
+          </span>
+        ))}
+      />
+    </>
+  );
+};
+
 export const VoteInfoCards: React.FC<{
   proposal: Proposal;
 }> = ({ proposal }) => {
@@ -69,6 +109,9 @@ export const VoteInfoCards: React.FC<{
       />
       {proposal.proposalType.type === "pgf_steward" && (
         <PgfStewardInfoCards addRemove={proposal.proposalType.data} />
+      )}
+      {proposal.proposalType.type === "pgf_payment" && (
+        <PgfPaymentInfoCards pgfActions={proposal.proposalType.data} />
       )}
     </div>
   );
