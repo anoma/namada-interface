@@ -39,8 +39,13 @@ export type Finished = {
 
 export type ProposalStatus = Pending | Ongoing | Finished;
 
-export type Default = { type: "default"; data?: null };
-export type PgfSteward = { type: "pgf_steward" };
+export type AddRemove = {
+  add: string[];
+  remove: string[];
+};
+
+export type Default = { type: "default"; data?: string };
+export type PgfSteward = { type: "pgf_steward"; data: AddRemove };
 export type PgfPayment = { type: "pgf_payment" };
 export type ProposalType = Default | PgfSteward | PgfPayment;
 

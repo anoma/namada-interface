@@ -1,4 +1,4 @@
-import { BinaryReader, BinaryWriter, field, vec } from "@dao-xyz/borsh";
+import { BinaryReader, BinaryWriter, field, option, vec } from "@dao-xyz/borsh";
 import BigNumber from "bignumber.js";
 
 export const BigNumberSerializer = {
@@ -35,6 +35,9 @@ export class Proposal {
 
   @field({ type: "string" })
   proposalType!: string;
+
+  @field({ type: option("string") })
+  data?: string;
 
   constructor(data: Proposal) {
     Object.assign(this, data);

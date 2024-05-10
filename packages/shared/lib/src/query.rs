@@ -429,10 +429,16 @@ impl Query {
             TallyType::LessOneHalfOverOneThirdNay => "less-one-half-over-one-third-nay"
         };
 
-        let proposal_type = match proposal.r#type {
-            ProposalType::Default(_) => "default",
-            ProposalType::PGFSteward(_) => "pgf_steward",
-            ProposalType::PGFPayment(_) => "pgf_payment",
+        let (proposal_type, data) = match proposal.r#type {
+            ProposalType::Default(maybe_hash) => {
+                let hash = maybe_hash.map(|hash| hash.to_string());
+                ("default", hash)
+            },
+            ProposalType::PGFSteward(data) => {
+                let data_string = serde_json::to_string(&data)?;
+                ("pgf_steward", Some(data_string))
+            },
+            ProposalType::PGFPayment(data) => ("pgf_payment", None),
         };
 
         let proposal_info = ProposalInfo {
@@ -443,7 +449,8 @@ impl Query {
             grace_epoch: proposal.grace_epoch.0,
             content,
             tally_type: String::from(tally_type_string),
-            proposal_type: String::from(proposal_type)
+            proposal_type: String::from(proposal_type),
+            data
         };
 
         let mut writer = vec![];
