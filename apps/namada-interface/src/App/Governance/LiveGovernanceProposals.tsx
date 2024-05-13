@@ -20,7 +20,7 @@ const ProposalListItem: React.FC<{
   status: ProposalStatus;
   voted: boolean;
   votes: Votes;
-}> = ({ proposal, voted, votes }) => {
+}> = ({ proposal, status, voted, votes }) => {
   const navigate = useNavigate();
 
   const barData = voteTypes.map((voteType) => ({
@@ -44,10 +44,7 @@ const ProposalListItem: React.FC<{
       )}
     >
       <div className="flex items-center justify-between gap-4">
-        <StatusLabel
-          className="text-[10px] min-w-38"
-          status={{ status: "ongoing" }}
-        />
+        <StatusLabel className="text-[10px] min-w-38" status={status} />
         <div className="text-xs text-neutral-400">
           Voting End on epoch {proposal.endEpoch.toString()}
         </div>
