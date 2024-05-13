@@ -15,9 +15,9 @@ use namada::core::borsh::{self, BorshDeserialize};
 use namada::hash::Hash;
 use namada::key::{common, ed25519, SigScheme};
 use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
-use namada::masp::TransferSource;
-use namada::sdk::masp::{DefaultLogger, ShieldedContext};
+use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::query_epoch;
+use namada::sdk::signing::SigningTxData;
 use namada::sdk::tx::build_redelegation;
 use namada::sdk::tx::{
     build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond,
@@ -49,8 +49,8 @@ pub enum TxType {
 
 #[wasm_bindgen]
 pub struct BuiltTx {
-    tx: Vec<u8>,
-    signing_data: Vec<u8>,
+    tx: Tx,
+    signing_data: SigningTxData,
     chain_id: String,
 }
 
@@ -65,7 +65,8 @@ impl BuiltTx {
     }
 
     pub fn signing_data_bytes(&self) -> Result<Vec<u8>, JsError> {
-        Ok(borsh::to_vec(&self.signing_data)?)
+        let signing_data = tx::SigningData::from_signing_tx_data(self.signing_data.clone())?;
+        Ok(signing_data.to_bytes()?)
     }
 }
 
@@ -416,10 +417,6 @@ impl Sdk {
 
         let (tx, signing_data, _) = build_transfer(&self.namada, &mut args).await?;
 
-        let tx = borsh::to_vec(&tx)?;
-        let signing_data = tx::SigningData::from_signing_tx_data(signing_data)?;
-        let signing_data = borsh::to_vec(&signing_data)?;
-
         Ok(BuiltTx {
             tx,
             signing_data,
@@ -440,9 +437,6 @@ impl Sdk {
             None => String::from(""), // This is invalid
         };
         let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args).await?;
-        let tx = borsh::to_vec(&tx)?;
-        let signing_data = tx::SigningData::from_signing_tx_data(signing_data)?;
-        let signing_data = borsh::to_vec(&signing_data)?;
 
         Ok(BuiltTx {
             tx,
@@ -464,9 +458,6 @@ impl Sdk {
             None => String::from(""), // This is invalid
         };
         let (tx, signing_data) = build_bridge_pool_tx(&self.namada, args.clone()).await?;
-        let tx = borsh::to_vec(&tx)?;
-        let signing_data = tx::SigningData::from_signing_tx_data(signing_data)?;
-        let signing_data = borsh::to_vec(&signing_data)?;
 
         Ok(BuiltTx {
             tx,
@@ -491,9 +482,6 @@ impl Sdk {
         let (tx, signing_data) = build_vote_proposal(&self.namada, &args, epoch)
             .await
             .map_err(JsError::from)?;
-        let tx = borsh::to_vec(&tx)?;
-        let signing_data = tx::SigningData::from_signing_tx_data(signing_data)?;
-        let signing_data = borsh::to_vec(&signing_data)?;
 
         Ok(BuiltTx {
             tx,
@@ -515,9 +503,6 @@ impl Sdk {
             None => String::from(""), // This is invalid
         };
         let (tx, signing_data) = build_bond(&self.namada, &args).await?;
-        let tx = borsh::to_vec(&tx)?;
-        let signing_data = tx::SigningData::from_signing_tx_data(signing_data)?;
-        let signing_data = borsh::to_vec(&signing_data)?;
 
         Ok(BuiltTx {
             tx,
@@ -540,9 +525,6 @@ impl Sdk {
         };
 
         let (tx, signing_data, _) = build_unbond(&self.namada, &args).await?;
-        let tx = borsh::to_vec(&tx)?;
-        let signing_data = tx::SigningData::from_signing_tx_data(signing_data)?;
-        let signing_data = borsh::to_vec(&signing_data)?;
 
         Ok(BuiltTx {
             tx,
@@ -564,9 +546,6 @@ impl Sdk {
             None => String::from(""), // This is invalid
         };
         let (tx, signing_data) = build_withdraw(&self.namada, &args).await?;
-        let tx = borsh::to_vec(&tx)?;
-        let signing_data = tx::SigningData::from_signing_tx_data(signing_data)?;
-        let signing_data = borsh::to_vec(&signing_data)?;
 
         Ok(BuiltTx {
             tx,
@@ -588,9 +567,6 @@ impl Sdk {
             None => String::from(""), // This is invalid
         };
         let (tx, signing_data) = build_redelegation(&self.namada, &args).await?;
-        let tx = borsh::to_vec(&tx)?;
-        let signing_data = tx::SigningData::from_signing_tx_data(signing_data)?;
-        let signing_data = borsh::to_vec(&signing_data)?;
 
         Ok(BuiltTx {
             tx,
@@ -612,9 +588,6 @@ impl Sdk {
             None => String::from(""), // This is invalid
         };
         let (tx, signing_data) = build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
-        let tx = borsh::to_vec(&tx)?;
-        let signing_data = tx::SigningData::from_signing_tx_data(signing_data)?;
-        let signing_data = borsh::to_vec(&signing_data)?;
 
         Ok(BuiltTx {
             tx,

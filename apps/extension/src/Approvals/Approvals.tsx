@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { Container } from "@namada/components";
-import { useSanitizedParams } from "@namada/hooks";
 import { AccountType } from "@namada/types";
 
 import { AppHeader } from "App/Common/AppHeader";
@@ -36,8 +35,6 @@ export type SignatureDetails = {
 export const Approvals: React.FC = () => {
   const [details, setDetails] = useState<ApprovalDetails>();
   const [signatureDetails, setSignatureDetails] = useState<SignatureDetails>();
-  const params = useSanitizedParams();
-  console.log("PARAMS", params);
 
   return (
     <Container

@@ -1,5 +1,4 @@
 export * from "./bond";
-export * from "./builtTx";
 export * from "./ethBridgeTransfer";
 export * from "./ibcTransfer";
 export * from "./redelegate";
@@ -12,7 +11,6 @@ export * from "./withdraw";
 export * from "./wrapperTx";
 
 import { BondMsgValue } from "./bond";
-import { BuiltTxMsgValue } from "./builtTx";
 import { EthBridgeTransferMsgValue } from "./ethBridgeTransfer";
 import { IbcTransferMsgValue } from "./ibcTransfer";
 import { RedelegateMsgValue } from "./redelegate";
@@ -28,7 +26,6 @@ export type Schema =
   | IbcTransferMsgValue
   | SignatureMsgValue
   | BondMsgValue
-  | BuiltTxMsgValue
   | UnbondMsgValue
   | VoteProposalMsgValue
   | WithdrawMsgValue

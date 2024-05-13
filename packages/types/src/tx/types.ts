@@ -1,6 +1,5 @@
 import {
   BondMsgValue,
-  BuiltTxMsgValue,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
   RedelegateMsgValue,
@@ -14,7 +13,6 @@ import {
 
 export type WrapperTxProps = WrapperTxMsgValue;
 export type BondProps = BondMsgValue;
-export type BuiltTxProps = BuiltTxMsgValue;
 export type UnbondProps = UnbondMsgValue;
 export type WithdrawProps = WithdrawMsgValue;
 export type RedelegateProps = RedelegateMsgValue;
