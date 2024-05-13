@@ -141,7 +141,7 @@ const ValidatorsTable = ({
         }}
       />
     );
-  }, [page]);
+  }, [page, validatorList]);
 
   if (rows.length === 0) {
     return (
