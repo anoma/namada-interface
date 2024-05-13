@@ -72,6 +72,7 @@ export const IncrementBondingTable = ({
             )}
             value={updatedAmountByAddress[validator.address]}
             onChange={(e) => onChangeValidatorAmount(validator, e.target.value)}
+            data-validator-input={validator.address}
           />
           <span
             className={clsx(

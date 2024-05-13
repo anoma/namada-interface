@@ -24,6 +24,18 @@ export const ValidatorFilterNav = ({
   onRandomize,
   onlyMyValidators,
 }: Props): JSX.Element => {
+  // this is super ugly :(
+  const focusOnValidator = (validator: Validator): void => {
+    setTimeout(() => {
+      const input = document.querySelector(
+        `[data-validator-input="${validator.address}"]`
+      );
+      if (input) {
+        (input as HTMLInputElement).focus();
+      }
+    }, 100);
+  };
+
   return (
     <Stack direction="horizontal" gap={2} className="w-full items-center mb-2">
       <div className="w-[300px]">
@@ -37,6 +49,10 @@ export const ValidatorFilterNav = ({
       />
       <QuickAccessList
         validators={validators}
+        onClick={(validator: Validator) => {
+          onFilterByMyValidators(true);
+          focusOnValidator(validator);
+        }}
         updatedAmountByAddress={updatedAmountByAddress}
         stakedAmountByAddress={stakedAmountByAddress}
       />
