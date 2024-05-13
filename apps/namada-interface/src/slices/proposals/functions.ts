@@ -233,13 +233,10 @@ export const fetchAllProposalsWithExtraInfo = async (
   account: Account
 ): Promise<ProposalWithExtraInfo[]> => {
   const proposalCounter = await fetchProposalCounter(chain);
-  const currentEpoch = await fetchCurrentEpoch(chain);
 
   const proposals: Promise<ProposalWithExtraInfo>[] = [];
   for (let id = BigInt(0); id < proposalCounter; id++) {
-    proposals.push(
-      fetchProposalByIdWithExtraInfo(chain, id, account, currentEpoch)
-    );
+    proposals.push(fetchProposalByIdWithExtraInfo(chain, id, account));
   }
 
   return await Promise.all(proposals);

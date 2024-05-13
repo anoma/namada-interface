@@ -40,7 +40,7 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const dismissNotifications = useSetAtom(filterToastNotificationsAtom);
 
   // Instantiate handlers:
-  const namadaProposalsUpdatedHandler = NamadaProposalsUpdatedHandler(dispatch);
+  const namadaProposalsUpdatedHandler = NamadaProposalsUpdatedHandler();
   const namadaConnectionRevokedHandler = NamadaConnectionRevokedHandler(
     namadaIntegration as Namada,
     setNamadaExtensionConnected

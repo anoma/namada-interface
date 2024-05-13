@@ -1,7 +1,7 @@
 import { InsetLabel, RoundedLabel } from "@namada/components";
+import { ProposalStatus, ProposalType } from "@namada/types";
 import { assertNever } from "@namada/utils";
 import { GoCheckCircleFill } from "react-icons/go";
-import { ProposalStatus, ProposalType } from "slices/proposals";
 import { twMerge } from "tailwind-merge";
 
 export const StatusLabel: React.FC<
