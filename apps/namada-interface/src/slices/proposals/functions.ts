@@ -70,12 +70,17 @@ const decodeProposalType = (
       const addRemove = addRemoveDecoded.right.reduce<AddRemove>(
         (acc, curr) => {
           if ("Add" in curr) {
-            return { ...acc, add: [...acc.add, curr.Add] };
+            if ("add" in acc) {
+              throw new Error(
+                "found multiple add addresses in PgfSteward proposal"
+              );
+            }
+            return { ...acc, add: curr.Add };
           } else {
-            return { ...acc, remove: [...acc.add, curr.Remove] };
+            return { ...acc, remove: [...acc.remove, curr.Remove] };
           }
         },
-        { add: [], remove: [] }
+        { remove: [] }
       );
 
       return { type: "pgf_steward", data: addRemove };
