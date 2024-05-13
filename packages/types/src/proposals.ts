@@ -40,12 +40,12 @@ export type Finished = {
 export type ProposalStatus = Pending | Ongoing | Finished;
 
 export type AddRemove = {
-  add: string[];
+  add?: string;
   remove: string[];
 };
 
 // TODO: add IBC target
-type PgfTarget = {
+export type PgfTarget = {
   internal: {
     amount: BigNumber;
     target: string;
