@@ -10,6 +10,7 @@ import {
 } from "@namada/types";
 import { Result, truncateInMiddle } from "@namada/utils";
 
+import { BuiltTx } from "@namada/shared";
 import { ChainsService } from "background/chains";
 import { SdkService } from "background/sdk/service";
 import { VaultService } from "background/vault";
@@ -222,12 +223,8 @@ export class KeyRingService {
     return await IndexedDBKVStore.durabilityCheck();
   }
 
-  async sign(
-    txBytes: Uint8Array,
-    signingDataBytes: Uint8Array,
-    signer: string
-  ): Promise<Uint8Array> {
-    return await this._keyRing.sign(txBytes, signingDataBytes, signer);
+  async sign(builtTx: BuiltTx, signer: string): Promise<Uint8Array> {
+    return await this._keyRing.sign(builtTx, signer);
   }
 
   async signArbitrary(

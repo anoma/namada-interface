@@ -40,7 +40,7 @@ Signing constructor
 
 #### Defined in
 
-[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/bde0563f/packages/sdk/src/signing.ts#L13)
+[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/c737840d/packages/sdk/src/signing.ts#L13)
 
 ## Properties
 
@@ -52,13 +52,13 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/bde0563f/packages/sdk/src/signing.ts#L13)
+[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/c737840d/packages/sdk/src/signing.ts#L13)
 
 ## Methods
 
 ### sign
 
-▸ **sign**(`txBytes`, `signingDataBytes`, `signingKey`): `Promise`\<`Uint8Array`\>
+▸ **sign**(`builtTx`, `signingKey`): `Promise`\<`Uint8Array`\>
 
 Sign Namada transaction
 
@@ -66,8 +66,7 @@ Sign Namada transaction
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `txBytes` | `Uint8Array` | Tx bytes for signing |
-| `signingDataBytes` | `Uint8Array` | SigningTxData bytes for signing |
+| `builtTx` | `BuiltTx` | BuiltTx instance |
 | `signingKey` | `string` | private key |
 
 #### Returns
@@ -78,7 +77,7 @@ signed tx bytes - Promise resolving to Uint8Array
 
 #### Defined in
 
-[sdk/src/signing.ts:22](https://github.com/anoma/namada-interface/blob/bde0563f/packages/sdk/src/signing.ts#L22)
+[sdk/src/signing.ts:21](https://github.com/anoma/namada-interface/blob/c737840d/packages/sdk/src/signing.ts#L21)
 
 ___
 
@@ -103,7 +102,7 @@ hash and signature
 
 #### Defined in
 
-[sdk/src/signing.ts:36](https://github.com/anoma/namada-interface/blob/bde0563f/packages/sdk/src/signing.ts#L36)
+[sdk/src/signing.ts:31](https://github.com/anoma/namada-interface/blob/c737840d/packages/sdk/src/signing.ts#L31)
 
 ___
 
@@ -129,4 +128,4 @@ void
 
 #### Defined in
 
-[sdk/src/signing.ts:47](https://github.com/anoma/namada-interface/blob/bde0563f/packages/sdk/src/signing.ts#L47)
+[sdk/src/signing.ts:42](https://github.com/anoma/namada-interface/blob/c737840d/packages/sdk/src/signing.ts#L42)

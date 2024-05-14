@@ -27,7 +27,6 @@ export const Network = (): JSX.Element => {
   const [status, setStatus] = useState<Status>(Status.Unsubmitted);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // TODO: Validate URL and sanitize inputs!
   const shouldDisableSubmit = status === Status.Pending || !chainId;
 
   useEffect(() => {
@@ -41,7 +40,8 @@ export const Network = (): JSX.Element => {
           throw new Error("Chain not found!");
         }
         const { chainId } = chain;
-        setChainId(chainId);
+        const santizedChainId = sanitize(chainId);
+        setChainId(santizedChainId);
       } catch (e) {
         setErrorMessage(`${e}`);
       }

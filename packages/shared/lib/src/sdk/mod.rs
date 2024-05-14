@@ -66,6 +66,18 @@ impl BuiltTx {
         let signing_data = tx::SigningData::from_signing_tx_data(self.signing_data.clone())?;
         Ok(signing_data.to_bytes()?)
     }
+
+    // Return instance from serialized values
+    pub fn from_stored_tx(
+        tx_bytes: Vec<u8>,
+        signing_data_bytes: Vec<u8>,
+    ) -> Result<BuiltTx, JsError> {
+        let tx: Tx = borsh::from_slice(&tx_bytes)?;
+        let signing_data: tx::SigningData = borsh::from_slice(&signing_data_bytes)?;
+        let signing_data: SigningTxData = signing_data.to_signing_tx_data()?;
+
+        Ok(BuiltTx { tx, signing_data })
+    }
 }
 
 /// Represents the Sdk public API.
@@ -187,10 +199,11 @@ impl Sdk {
 
     pub async fn sign_tx(
         &mut self,
-        tx_bytes: Vec<u8>,
-        signing_data_bytes: Vec<u8>,
+        built_tx: BuiltTx,
         private_key: Option<String>,
     ) -> Result<JsValue, JsError> {
+        let signing_data_bytes = built_tx.signing_data_bytes()?;
+        let tx_bytes = built_tx.tx_bytes()?;
         let signing_data: tx::SigningData = borsh::from_slice(&signing_data_bytes)?;
         let signing_data = signing_data.to_signing_tx_data()?;
 
@@ -467,16 +480,8 @@ impl Sdk {
         if is_reveal_pk_needed(self.namada.client(), &address, false).await? {
             let built_tx = self.build_reveal_pk(tx_msg, String::from("")).await?;
             // Conversion from JsValue so we can use self.sign_tx
-            let tx_bytes = Uint8Array::new(
-                &self
-                    .sign_tx(
-                        built_tx.tx_bytes()?,
-                        built_tx.signing_data_bytes()?,
-                        Some(signing_key),
-                    )
-                    .await?,
-            )
-            .to_vec();
+            let tx_bytes =
+                Uint8Array::new(&self.sign_tx(built_tx, Some(signing_key)).await?).to_vec();
             self.process_tx(&tx_bytes, tx_msg).await?;
         }
 

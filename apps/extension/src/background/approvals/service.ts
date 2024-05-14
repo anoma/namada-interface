@@ -8,6 +8,7 @@ import { paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
 
 import { fromBase64 } from "@cosmjs/encoding";
+import { BuiltTx } from "@namada/shared";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
@@ -120,13 +121,10 @@ export class ApprovalsService {
     }
 
     const { txBytes, signingDataBytes } = pendingTx;
+    const builtTx = BuiltTx.from_stored_tx(txBytes, signingDataBytes);
 
     try {
-      const signature = await this.keyRingService.sign(
-        txBytes,
-        signingDataBytes,
-        signer
-      );
+      const signature = await this.keyRingService.sign(builtTx, signer);
       resolvers.resolve(signature);
     } catch (e) {
       resolvers.reject(e);
