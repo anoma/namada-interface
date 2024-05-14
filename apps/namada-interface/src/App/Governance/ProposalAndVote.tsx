@@ -11,6 +11,7 @@ import { atomsAreFetching, atomsAreLoaded } from "store/utils";
 import { ProposalDescription } from "./ProposalDescription";
 import { ProposalHeader } from "./ProposalHeader";
 import { ProposalStatusSummary } from "./ProposalStatusSummary";
+import { VoteHelpText } from "./VoteHelpText";
 import { VoteInfoCards } from "./VoteInfoCards";
 
 export const ProposalAndVote: React.FC = () => {
@@ -55,6 +56,9 @@ export const ProposalAndVote: React.FC = () => {
           {atomsAreLoaded(proposal) && (
             <VoteInfoCards proposal={proposal.data!} />
           )}
+        </Panel>
+        <Panel className="py-6">
+          <VoteHelpText />
         </Panel>
       </div>
       <aside className="flex flex-col gap-2">
