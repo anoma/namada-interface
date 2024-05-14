@@ -3,7 +3,7 @@ import { ConnectBanner } from "App/Common/ConnectBanner";
 import { useAtomValue } from "jotai";
 import { allProposalsWithExtraInfoAtom } from "slices/proposals";
 import { namadaExtensionConnectedAtom } from "slices/settings";
-import { atomsAreFetching, atomsAreLoaded } from "store/utils";
+import { atomsAreLoaded, atomsArePending } from "store/utils";
 import { AllProposalsTable } from "./AllProposalsTable";
 import { LiveGovernanceProposals } from "./LiveGovernanceProposals";
 import { ProposalsSummary } from "./ProposalsSummary";
@@ -20,7 +20,7 @@ export const GovernanceOverview: React.FC = () => {
           <ConnectBanner text="To vote please connect your account" />
         )}
         <Panel title="Live Governance Proposals">
-          {atomsAreFetching(allProposals) && (
+          {atomsArePending(allProposals) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
           {atomsAreLoaded(allProposals) && (
@@ -28,7 +28,7 @@ export const GovernanceOverview: React.FC = () => {
           )}
         </Panel>
         <Panel title="Upcoming Proposals">
-          {atomsAreFetching(allProposals) && (
+          {atomsArePending(allProposals) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
           {atomsAreLoaded(allProposals) && (
@@ -36,7 +36,7 @@ export const GovernanceOverview: React.FC = () => {
           )}
         </Panel>
         <Panel title="All Proposals">
-          {atomsAreFetching(allProposals) && (
+          {atomsArePending(allProposals) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
           {atomsAreLoaded(allProposals) && (
@@ -46,7 +46,7 @@ export const GovernanceOverview: React.FC = () => {
       </div>
       <aside className="flex flex-col gap-2">
         <Panel>
-          {atomsAreFetching(allProposals) && (
+          {atomsArePending(allProposals) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
           {atomsAreLoaded(allProposals) && (

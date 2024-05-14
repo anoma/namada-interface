@@ -7,7 +7,7 @@ import {
   proposalStatusFamily,
   proposalVotedFamily,
 } from "slices/proposals";
-import { atomsAreFetching, atomsAreLoaded } from "store/utils";
+import { atomsAreLoaded, atomsArePending } from "store/utils";
 import { ProposalDescription } from "./ProposalDescription";
 import { ProposalHeader } from "./ProposalHeader";
 import { ProposalStatusSummary } from "./ProposalStatusSummary";
@@ -27,7 +27,7 @@ export const ProposalAndVote: React.FC = () => {
     <div className="grid grid-cols-[auto_270px] gap-2">
       <div className="flex flex-col gap-1.5">
         <Panel className="px-10">
-          {atomsAreFetching(proposal, voted, status) && (
+          {atomsArePending(proposal, voted, status) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
           {atomsAreLoaded(proposal, voted, status) && (
@@ -39,7 +39,7 @@ export const ProposalAndVote: React.FC = () => {
           )}
         </Panel>
         <Panel title="Description">
-          {atomsAreFetching(proposal) && (
+          {atomsArePending(proposal) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
           {atomsAreLoaded(proposal) && (
@@ -47,7 +47,7 @@ export const ProposalAndVote: React.FC = () => {
           )}
         </Panel>
         <Panel className="py-6">
-          {atomsAreFetching(proposal) && (
+          {atomsArePending(proposal) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
           {atomsAreLoaded(proposal) && (
@@ -57,7 +57,7 @@ export const ProposalAndVote: React.FC = () => {
       </div>
       <aside className="flex flex-col gap-2">
         <Panel title="Proposal Status">
-          {atomsAreFetching(proposal, status) && (
+          {atomsArePending(proposal, status) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
           {atomsAreLoaded(proposal, status) && (
