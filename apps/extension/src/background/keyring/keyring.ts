@@ -571,13 +571,12 @@ export class KeyRing {
   async sign(
     txBytes: Uint8Array,
     signingDataBytes: Uint8Array,
-    chainId: string,
     signer: string
   ): Promise<Uint8Array> {
     await this.vaultService.assertIsUnlocked();
     const key = await this.getSigningKey(signer);
     const { signing } = this.sdkService.getSdk();
-    return signing.sign(txBytes, signingDataBytes, chainId, key);
+    return signing.sign(txBytes, signingDataBytes, key);
   }
 
   async signArbitrary(

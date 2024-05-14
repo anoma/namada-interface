@@ -7,7 +7,6 @@ import {
   Input,
   Stack,
 } from "@namada/components";
-import { isUrlValid } from "@namada/utils";
 import { PageHeader } from "App/Common";
 import { UpdateChainMsg } from "background/chains";
 import { useRequester } from "hooks/useRequester";
@@ -25,12 +24,11 @@ enum Status {
 export const Network = (): JSX.Element => {
   const requester = useRequester();
   const [chainId, setChainId] = useState("");
-  const [url, setUrl] = useState("");
   const [status, setStatus] = useState<Status>(Status.Unsubmitted);
   const [errorMessage, setErrorMessage] = useState("");
 
   // TODO: Validate URL and sanitize inputs!
-  const shouldDisableSubmit = status === Status.Pending || !chainId || !url;
+  const shouldDisableSubmit = status === Status.Pending || !chainId;
 
   useEffect(() => {
     void (async () => {
@@ -42,8 +40,7 @@ export const Network = (): JSX.Element => {
         if (!chain) {
           throw new Error("Chain not found!");
         }
-        const { chainId, rpc } = chain;
-        setUrl(rpc);
+        const { chainId } = chain;
         setChainId(chainId);
       } catch (e) {
         setErrorMessage(`${e}`);
@@ -57,7 +54,6 @@ export const Network = (): JSX.Element => {
       setStatus(Status.Pending);
       setErrorMessage("");
       const sanitizedChainId = sanitize(chainId);
-      const sanitizedUrl = sanitize(url);
 
       // Validate sanitized chain ID
       if (!sanitizedChainId) {
@@ -66,18 +62,10 @@ export const Network = (): JSX.Element => {
         return;
       }
 
-      // Validate sanitized URL
-      const isValidUrl = isUrlValid(sanitizedUrl);
-      if (!isValidUrl) {
-        setErrorMessage("Invalid URL!");
-        setStatus(Status.Failed);
-        return;
-      }
-
       try {
         await requester.sendMessage(
           Ports.Background,
-          new UpdateChainMsg(sanitizedChainId, sanitizedUrl)
+          new UpdateChainMsg(sanitizedChainId)
         );
         setStatus(Status.Complete);
       } catch (err) {
@@ -85,7 +73,7 @@ export const Network = (): JSX.Element => {
         setErrorMessage(`${err}`);
       }
     },
-    [chainId, url]
+    [chainId]
   );
 
   return (
@@ -104,13 +92,6 @@ export const Network = (): JSX.Element => {
           value={chainId}
           onChange={(e) => setChainId(e.target.value)}
           error={chainId.length === 0 ? "Chain ID required!" : ""}
-        />
-        <Input
-          label="URL"
-          variant="Text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          error={url.length === 0 ? "URL is required!" : ""}
         />
         {errorMessage && <Alert type="error">{errorMessage}</Alert>}
         {status === Status.Complete && (

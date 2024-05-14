@@ -40,7 +40,7 @@ Signing constructor
 
 #### Defined in
 
-[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/180f70bc/packages/sdk/src/signing.ts#L13)
+[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/bde0563f/packages/sdk/src/signing.ts#L13)
 
 ## Properties
 
@@ -52,13 +52,13 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/180f70bc/packages/sdk/src/signing.ts#L13)
+[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/bde0563f/packages/sdk/src/signing.ts#L13)
 
 ## Methods
 
 ### sign
 
-▸ **sign**(`signingKey`, `builtTx`): `unknown`
+▸ **sign**(`txBytes`, `signingDataBytes`, `signingKey`): `Promise`\<`Uint8Array`\>
 
 Sign Namada transaction
 
@@ -66,18 +66,19 @@ Sign Namada transaction
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
+| `txBytes` | `Uint8Array` | Tx bytes for signing |
+| `signingDataBytes` | `Uint8Array` | SigningTxData bytes for signing |
 | `signingKey` | `string` | private key |
-| `builtTx` | `BuiltTx` | Tx and signing data to sign |
 
 #### Returns
 
-`unknown`
+`Promise`\<`Uint8Array`\>
 
-signed tx bytes - TODO: Fix this type!
+signed tx bytes - Promise resolving to Uint8Array
 
 #### Defined in
 
-[sdk/src/signing.ts:21](https://github.com/anoma/namada-interface/blob/180f70bc/packages/sdk/src/signing.ts#L21)
+[sdk/src/signing.ts:22](https://github.com/anoma/namada-interface/blob/bde0563f/packages/sdk/src/signing.ts#L22)
 
 ___
 
@@ -102,7 +103,7 @@ hash and signature
 
 #### Defined in
 
-[sdk/src/signing.ts:31](https://github.com/anoma/namada-interface/blob/180f70bc/packages/sdk/src/signing.ts#L31)
+[sdk/src/signing.ts:36](https://github.com/anoma/namada-interface/blob/bde0563f/packages/sdk/src/signing.ts#L36)
 
 ___
 
@@ -128,4 +129,4 @@ void
 
 #### Defined in
 
-[sdk/src/signing.ts:42](https://github.com/anoma/namada-interface/blob/180f70bc/packages/sdk/src/signing.ts#L42)
+[sdk/src/signing.ts:47](https://github.com/anoma/namada-interface/blob/bde0563f/packages/sdk/src/signing.ts#L47)

@@ -119,13 +119,12 @@ export class ApprovalsService {
       throw new Error(`Signing data for ${msgId} not found!`);
     }
 
-    const { chainId, txBytes, signingDataBytes } = pendingTx;
+    const { txBytes, signingDataBytes } = pendingTx;
 
     try {
       const signature = await this.keyRingService.sign(
         txBytes,
         signingDataBytes,
-        chainId,
         signer
       );
       resolvers.resolve(signature);

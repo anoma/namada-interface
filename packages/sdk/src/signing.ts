@@ -10,28 +10,21 @@ export class Signing {
    * Signing constructor
    * @param sdk - Instance of Sdk struct from wasm lib
    */
-  constructor(protected readonly sdk: SdkWasm) { }
+  constructor(protected readonly sdk: SdkWasm) {}
 
   /**
    * Sign Namada transaction
    * @param txBytes - Tx bytes for signing
    * @param signingDataBytes - SigningTxData bytes for signing
-   * @param chainId - chainId
    * @param signingKey - private key
    * @returns signed tx bytes - Promise resolving to Uint8Array
    */
   async sign(
     txBytes: Uint8Array,
     signingDataBytes: Uint8Array,
-    chainId: string,
     signingKey: string
   ): Promise<Uint8Array> {
-    return await this.sdk.sign_tx(
-      txBytes,
-      signingDataBytes,
-      chainId,
-      signingKey
-    );
+    return await this.sdk.sign_tx(txBytes, signingDataBytes, signingKey);
   }
 
   /**

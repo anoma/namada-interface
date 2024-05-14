@@ -10,19 +10,13 @@ export class UpdateChainMsg extends Message<void> {
     return MessageType.UpdateChain;
   }
 
-  constructor(
-    public readonly chainId: string,
-    public readonly url: string
-  ) {
+  constructor(public readonly chainId: string) {
     super();
   }
 
   validate(): void {
     if (!this.chainId) {
       throw new Error("Chain ID not provided!");
-    }
-    if (!this.url) {
-      throw new Error("URL not provided!");
     }
   }
 

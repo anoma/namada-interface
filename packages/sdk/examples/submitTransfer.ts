@@ -49,7 +49,11 @@ export const submitTransfer = async (
     );
 
     console.log("Signing transaction...");
-    const signedTx = await sdk.tx.signTx(encodedTx.tx, signingKey);
+    const signedTx = await sdk.signing.sign(
+      encodedTx.tx.tx_bytes(),
+      encodedTx.tx.signing_data_bytes(),
+      signingKey
+    );
 
     console.log("Broadcasting transaction...");
     await sdk.rpc.broadcastTx({

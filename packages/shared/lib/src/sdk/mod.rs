@@ -6,7 +6,6 @@ mod wallet;
 
 use self::io::WebIo;
 use crate::rpc_client::HttpClient;
-use crate::utils::console_log;
 use crate::utils::set_panic_hook;
 use crate::utils::to_js_result;
 use js_sys::Uint8Array;
@@ -51,7 +50,6 @@ pub enum TxType {
 pub struct BuiltTx {
     tx: Tx,
     signing_data: SigningTxData,
-    chain_id: String,
 }
 
 #[wasm_bindgen]
@@ -187,73 +185,16 @@ impl Sdk {
         Ok(())
     }
 
-    // pub async fn sign_tx(
-    //     &mut self,
-    //     built_tx: BuiltTx,
-    //     tx_msg: &[u8],
-    //     private_key: Option<String>,
-    // ) -> Result<JsValue, JsError> {
-    //     let args = tx::tx_args_from_slice(tx_msg)?;
-    //
-    //     let BuiltTx {
-    //         mut tx,
-    //         signing_data,
-    //     } = built_tx;
-    //
-    //     let signing_keys = match private_key.clone() {
-    //         Some(private_key) => vec![common::SecretKey::Ed25519(ed25519::SecretKey::from_str(
-    //             &private_key,
-    //         )?)],
-    //         // If no private key is provided, we assume masp source and return empty vec
-    //         None => vec![],
-    //     };
-    //
-    //     if let Some(account_public_keys_map) = signing_data.account_public_keys_map.clone() {
-    //         // We only sign the raw header for transfers from transparent source
-    //         if !signing_keys.is_empty() {
-    //             // Sign the raw header
-    //             tx.sign_raw(
-    //                 signing_keys.clone(),
-    //                 account_public_keys_map,
-    //                 signing_data.owner.clone(),
-    //             );
-    //         }
-    //     }
-    //
-    //     let key = {
-    //         let mut wallet = self.namada.wallet_mut().await;
-    //         find_key_by_pk(&mut *wallet, &args, &signing_data.fee_payer)
-    //     };
-    //
-    //     // The key is either passed private key for transparent sources or the disposable signing
-    //     // key for shielded sources
-    //     let key = match key {
-    //         Ok(k) => k,
-    //         Err(_) => signing_keys[0].clone(),
-    //     };
-    //
-    //     // Sign the fee header
-    //     tx.sign_wrapper(key);
-    //
-    //     to_js_result(borsh::to_vec(&tx)?)
-    // }
-
     pub async fn sign_tx(
         &mut self,
         tx_bytes: Vec<u8>,
         signing_data_bytes: Vec<u8>,
-        chain_id: String,
         private_key: Option<String>,
     ) -> Result<JsValue, JsError> {
         let signing_data: tx::SigningData = borsh::from_slice(&signing_data_bytes)?;
         let signing_data = signing_data.to_signing_tx_data()?;
 
         let mut tx: Tx = borsh::from_slice(&tx_bytes)?;
-
-        console_log(&format!(
-            "TODO: Implement validation of chain_id: {}",
-            chain_id,
-        ));
 
         let signing_keys = match private_key.clone() {
             Some(private_key) => vec![common::SecretKey::Ed25519(ed25519::SecretKey::from_str(
@@ -407,21 +348,9 @@ impl Sdk {
         //             .await;
         //     }
         // }
-
-        // TODO: chain_id should either be required, or an Option in BuiltTx
-        let chain_id = match &args.tx.chain_id {
-            Some(id) => id.to_string(),
-            // We may need to ensure that args.tx.chain_id is always present!
-            None => String::from(""), // This is invalid
-        };
-
         let (tx, signing_data, _) = build_transfer(&self.namada, &mut args).await?;
 
-        Ok(BuiltTx {
-            tx,
-            signing_data,
-            chain_id,
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     pub async fn build_ibc_transfer(
@@ -431,18 +360,9 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::ibc_transfer_tx_args(ibc_transfer_msg, tx_msg)?;
-        let chain_id = match &args.tx.chain_id {
-            Some(id) => id.to_string(),
-            // We may need to ensure that args.tx.chain_id is always present!
-            None => String::from(""), // This is invalid
-        };
         let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args).await?;
 
-        Ok(BuiltTx {
-            tx,
-            chain_id,
-            signing_data,
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     pub async fn build_eth_bridge_transfer(
@@ -452,18 +372,9 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, tx_msg)?;
-        let chain_id = match &args.tx.chain_id {
-            Some(id) => id.to_string(),
-            // We may need to ensure that args.tx.chain_id is always present!
-            None => String::from(""), // This is invalid
-        };
         let (tx, signing_data) = build_bridge_pool_tx(&self.namada, args.clone()).await?;
 
-        Ok(BuiltTx {
-            tx,
-            chain_id,
-            signing_data,
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     pub async fn build_vote_proposal(
@@ -474,20 +385,11 @@ impl Sdk {
     ) -> Result<BuiltTx, JsError> {
         let args = tx::vote_proposal_tx_args(vote_proposal_msg, tx_msg)?;
         let epoch = query_epoch(self.namada.client()).await?;
-        let chain_id = match &args.tx.chain_id {
-            Some(id) => id.to_string(),
-            // We may need to ensure that args.tx.chain_id is always present!
-            None => String::from(""), // This is invalid
-        };
         let (tx, signing_data) = build_vote_proposal(&self.namada, &args, epoch)
             .await
             .map_err(JsError::from)?;
 
-        Ok(BuiltTx {
-            tx,
-            chain_id,
-            signing_data,
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     pub async fn build_bond(
@@ -497,18 +399,9 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::bond_tx_args(bond_msg, tx_msg)?;
-        let chain_id = match &args.tx.chain_id {
-            Some(id) => id.to_string(),
-            // We may need to ensure that args.tx.chain_id is always present!
-            None => String::from(""), // This is invalid
-        };
         let (tx, signing_data) = build_bond(&self.namada, &args).await?;
 
-        Ok(BuiltTx {
-            tx,
-            chain_id,
-            signing_data,
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     pub async fn build_unbond(
@@ -518,19 +411,9 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::unbond_tx_args(unbond_msg, tx_msg)?;
-        let chain_id = match &args.tx.chain_id {
-            Some(id) => id.to_string(),
-            // We may need to ensure that args.tx.chain_id is always present!
-            None => String::from(""), // This is invalid
-        };
-
         let (tx, signing_data, _) = build_unbond(&self.namada, &args).await?;
 
-        Ok(BuiltTx {
-            tx,
-            chain_id,
-            signing_data,
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     pub async fn build_withdraw(
@@ -540,18 +423,9 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::withdraw_tx_args(withdraw_msg, tx_msg)?;
-        let chain_id = match &args.tx.chain_id {
-            Some(id) => id.to_string(),
-            // We may need to ensure that args.tx.chain_id is always present!
-            None => String::from(""), // This is invalid
-        };
         let (tx, signing_data) = build_withdraw(&self.namada, &args).await?;
 
-        Ok(BuiltTx {
-            tx,
-            chain_id,
-            signing_data,
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     pub async fn build_redelegate(
@@ -561,18 +435,9 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::redelegate_tx_args(redelegate_msg, tx_msg)?;
-        let chain_id = match &args.tx.chain_id {
-            Some(id) => id.to_string(),
-            // We may need to ensure that args.tx.chain_id is always present!
-            None => String::from(""), // This is invalid
-        };
         let (tx, signing_data) = build_redelegation(&self.namada, &args).await?;
 
-        Ok(BuiltTx {
-            tx,
-            chain_id,
-            signing_data,
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     pub async fn build_reveal_pk(
@@ -582,18 +447,10 @@ impl Sdk {
     ) -> Result<BuiltTx, JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
         let public_key = args.signing_keys[0].clone();
-        let chain_id = match &args.chain_id {
-            Some(id) => id.to_string(),
-            // We may need to ensure that args.tx.chain_id is always present!
-            None => String::from(""), // This is invalid
-        };
+
         let (tx, signing_data) = build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
 
-        Ok(BuiltTx {
-            tx,
-            chain_id,
-            signing_data,
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     // Helper function to reveal public key
@@ -615,7 +472,6 @@ impl Sdk {
                     .sign_tx(
                         built_tx.tx_bytes()?,
                         built_tx.signing_data_bytes()?,
-                        built_tx.chain_id(),
                         Some(signing_key),
                     )
                     .await?,

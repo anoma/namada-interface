@@ -17,7 +17,7 @@ export class ChainsService {
     return (await this.localStorage.getChain()) || chains.namada;
   }
 
-  async updateChain(chainId: string, url: string): Promise<void> {
+  async updateChain(chainId: string): Promise<void> {
     let chain = await this.getChain();
     if (!chain) {
       throw new Error("No chain found!");
@@ -26,7 +26,6 @@ export class ChainsService {
     chain = {
       ...chain,
       chainId,
-      rpc: url,
     };
 
     this.sdkService.syncChain(chain);

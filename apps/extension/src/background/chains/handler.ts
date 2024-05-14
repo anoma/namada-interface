@@ -27,7 +27,7 @@ const handleGetChainMsg: (
 const handleUpdateChainMsg: (
   service: ChainsService
 ) => InternalHandler<UpdateChainMsg> = (service) => {
-  return async (_, { chainId, url }) => {
-    return await service.updateChain(chainId, url);
+  return async (_, { chainId }) => {
+    return await service.updateChain(chainId);
   };
 };
