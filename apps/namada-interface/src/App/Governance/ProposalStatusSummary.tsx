@@ -69,9 +69,10 @@ export const ProposalStatusSummary: React.FC<{
 
   const zeroVotes = yayNayAbstainSummedPower.isEqualTo(0);
 
-  const votedProportion = yayNayAbstainSummedPower.dividedBy(
-    status.totalVotingPower
-  );
+  const votedProportion =
+    status.totalVotingPower.isEqualTo(0) ?
+      BigNumber(0)
+    : yayNayAbstainSummedPower.dividedBy(status.totalVotingPower);
 
   const quorum = quorumMap[proposal.tallyType];
 
