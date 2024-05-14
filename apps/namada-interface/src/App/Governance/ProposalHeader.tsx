@@ -94,7 +94,7 @@ export const ProposalHeader: React.FC<{
         <StatusLabel status={status} className="text-xs min-w-42" />
         {voted && <VotedLabel className="text-xs min-w-22" />}
       </div>
-      <div className="flex gap-10 bg-neutral-900 mb-10 px-5 py-3 -mx-3 rounded-md">
+      <div className="flex gap-10 bg-neutral-900 mb-9 px-5 py-3 -mx-3 rounded-md">
         <div className="w-full grid grid-cols-2 text-xs">
           <span>Progress</span>
           <div className="col-span-2 mt-3 mb-2">

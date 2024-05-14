@@ -26,17 +26,19 @@ export const ProposalAndVote: React.FC = () => {
   return (
     <div className="grid grid-cols-[auto_270px] gap-2">
       <div className="flex flex-col gap-1.5">
-        <Panel className="px-10">
+        <Panel className="px-3">
           {atomsAreFetching(proposal, voted, status) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
-          {atomsAreLoaded(proposal, voted, status) && (
-            <ProposalHeader
-              proposal={proposal.data!}
-              voted={voted.data!}
-              status={status.data!}
-            />
-          )}
+          <div className="px-12">
+            {atomsAreLoaded(proposal, voted, status) && (
+              <ProposalHeader
+                proposal={proposal.data!}
+                voted={voted.data!}
+                status={status.data!}
+              />
+            )}
+          </div>
         </Panel>
         <Panel title="Description">
           {atomsAreFetching(proposal) && (
@@ -46,7 +48,7 @@ export const ProposalAndVote: React.FC = () => {
             <ProposalDescription proposal={proposal.data!} />
           )}
         </Panel>
-        <Panel className="py-6">
+        <Panel className="py-6 px-7">
           {atomsAreFetching(proposal) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
