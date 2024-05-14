@@ -93,7 +93,7 @@ export const SubmitVote: React.FC = () => {
         {proposalQueryResult.isSuccess && proposal && (
           <Stack gap={5} full as="form" onSubmit={onSubmit}>
             <div>
-              #{proposal.id} {proposal.content.title}
+              #{proposal.id.toString()} {proposal.content.title}
             </div>
             <Stack gap={2}>
               <TickedRadioList<VoteType>
