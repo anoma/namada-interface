@@ -3,12 +3,17 @@ import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
 
 import { Modal } from "@namada/components";
+import { copyToClipboard } from "@namada/utils";
 import { ModalContainer } from "App/Common/ModalContainer";
+import clsx from "clsx";
+import { useState } from "react";
+import { GoCheck, GoCopy } from "react-icons/go";
 import { proposalFamily } from "slices/proposals";
 import GovernanceRoutes from "./routes";
 
 export const ViewJson: React.FC = () => {
   const navigate = useNavigate();
+  const [copied, setCopied] = useState(false);
 
   const { proposalId: proposalIdString = "" } = useSanitizedParams();
   // TODO: validate we got a number
@@ -38,10 +43,32 @@ export const ViewJson: React.FC = () => {
   const onCloseModal = (): void =>
     navigate(GovernanceRoutes.proposal(proposal.id).url);
 
+  const onCopy = (): void => {
+    if (!copied) {
+      setCopied(true);
+      copyToClipboard(proposalJson);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
     <Modal onClose={onCloseModal}>
       <ModalContainer header={null} onClose={onCloseModal}>
-        <pre className="overflow-x-scroll">{proposalJson}</pre>
+        <i
+          className={clsx(
+            "border border-current rounded-sm p-1 absolute",
+            "text-lg top-6 right-17 text-white transition-colors",
+            { "hover:text-yellow cursor-pointer": !copied }
+          )}
+          onClick={onCopy}
+        >
+          {copied ?
+            <GoCheck />
+          : <GoCopy />}
+        </i>
+        <div className="px-8 pt-4">
+          <pre className="overflow-x-auto dark-scrollbar">{proposalJson}</pre>
+        </div>
       </ModalContainer>
     </Modal>
   );
