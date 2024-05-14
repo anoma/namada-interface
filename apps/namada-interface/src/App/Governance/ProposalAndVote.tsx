@@ -2,6 +2,7 @@ import { Panel, SkeletonLoading } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
 import { useAtomValue } from "jotai";
 
+import { ProposalDiscord } from "App/Sidebars/ProposalDiscord";
 import {
   proposalFamily,
   proposalStatusFamily,
@@ -73,6 +74,7 @@ export const ProposalAndVote: React.FC = () => {
             />
           )}
         </Panel>
+        <ProposalDiscord />
       </aside>
     </div>
   );
