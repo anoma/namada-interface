@@ -33,7 +33,7 @@ const StatusListItem: React.FC<{
   return (
     <li
       className={clsx(
-        "rounded-sm leading-tight p-2 flex justify-between",
+        "rounded-sm leading-tight py-1 px-3 flex justify-between",
         "border-transparent border-2",
         "transition-all ease-out-quad duration-100"
       )}
@@ -84,7 +84,7 @@ export const ProposalStatusSummary: React.FC<{
 
   const data: PieChartData[] =
     zeroVotes ?
-      [{ value: 1, color: "#ffffff" }]
+      [{ value: 1, color: "#2F2F2F" }]
     : voteTypes.map((voteType) => ({
         value: status[voteType],
         color: colors[voteType],

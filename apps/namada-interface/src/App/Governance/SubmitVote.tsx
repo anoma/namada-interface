@@ -1,17 +1,18 @@
-import { useSanitizedParams } from "@namada/hooks";
-import invariant from "invariant";
-import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
 import {
   ActionButton,
   Modal,
+  SkeletonLoading,
   Stack,
   TickedRadioList,
 } from "@namada/components";
+import { useSanitizedParams } from "@namada/hooks";
 import { VoteType, isVoteType, voteTypes } from "@namada/types";
-import { ModalContainer } from "App/Common/ModalContainer";
+import clsx from "clsx";
+import invariant from "invariant";
+import { useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
+import { IoClose } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 import { performVoteAtom, proposalFamily } from "slices/proposals";
 import GovernanceRoutes from "./routes";
 
@@ -32,12 +33,13 @@ export const SubmitVote: React.FC = () => {
   const proposalId = BigInt(Number.parseInt(proposalIdString));
   const proposalQueryResult = useAtomValue(proposalFamily(proposalId));
 
-  if (Number.isNaN(proposalId) || !proposalQueryResult.isSuccess) {
+  if (Number.isNaN(proposalId)) {
     navigate(GovernanceRoutes.overview().url);
     return null;
   }
 
-  const proposal = proposalQueryResult.data;
+  const proposal =
+    proposalQueryResult.isSuccess ? proposalQueryResult.data : null;
 
   const onCloseModal = (): void => navigate(-1);
 
@@ -63,36 +65,61 @@ export const SubmitVote: React.FC = () => {
 
   return (
     <Modal onClose={onCloseModal}>
-      <ModalContainer header="Vote" onClose={onCloseModal}>
-        <Stack gap={2} full as="form" onSubmit={onSubmit}>
-          <div>
-            #{proposal.id} {proposal.content.title}
-          </div>
-
-          <Stack gap={2}>
-            <TickedRadioList<VoteType>
-              options={voteTypes.map((voteType) => ({
-                text: voteType.charAt(0).toUpperCase() + voteType.slice(1),
-                value: voteType,
-              }))}
-              id="vote-type-radio"
-              value={selectedVoteType}
-              onChange={handleSelectVoteType}
+      <div className="relative py-9 px-8 bg-neutral-800 min-w-[540px] rounded-md text-white">
+        <i
+          className={clsx(
+            "cursor-pointer text-white absolute right-8 top-8 text-3xl",
+            "hover:text-yellow transition-colors"
+          )}
+          onClick={onCloseModal}
+        >
+          <IoClose />
+        </i>
+        <h1 className="text-xl font-medium mb-4">Vote</h1>
+        {proposalQueryResult.isLoading && (
+          <Stack gap={4}>
+            <SkeletonLoading
+              className="bg-neutral-700"
+              width="100%"
+              height="30px"
             />
-
-            {voteTypes.map((voteType, i) => (
-              <div key={i}>{}</div>
-            ))}
+            <SkeletonLoading
+              className="bg-neutral-700"
+              width="100%"
+              height="200px"
+            />
           </Stack>
+        )}
+        {proposalQueryResult.isSuccess && proposal && (
+          <Stack gap={5} full as="form" onSubmit={onSubmit}>
+            <div>
+              #{proposal.id} {proposal.content.title}
+            </div>
+            <Stack gap={2}>
+              <TickedRadioList<VoteType>
+                options={voteTypes.map((voteType) => ({
+                  text: voteType.charAt(0).toUpperCase() + voteType.slice(1),
+                  value: voteType,
+                }))}
+                id="vote-type-radio"
+                value={selectedVoteType}
+                onChange={handleSelectVoteType}
+              />
 
-          <ActionButton
-            type="submit"
-            disabled={typeof selectedVoteType === "undefined"}
-          >
-            Confirm
-          </ActionButton>
-        </Stack>
-      </ModalContainer>
+              {voteTypes.map((voteType, i) => (
+                <div key={i}>{}</div>
+              ))}
+            </Stack>
+            <ActionButton
+              type="submit"
+              borderRadius="sm"
+              disabled={typeof selectedVoteType === "undefined"}
+            >
+              Confirm
+            </ActionButton>
+          </Stack>
+        )}
+      </div>
     </Modal>
   );
 };
