@@ -10,6 +10,8 @@ import { FaVoteYea } from "react-icons/fa";
 import { GoStack } from "react-icons/go";
 import { IoSwapHorizontal } from "react-icons/io5";
 
+import { DISCORD_URL, TWITTER_URL } from "config/links";
+
 export const Sidebar = (): JSX.Element => {
   return (
     <div className="h-full flex flex-col justify-between flex-1 pt-6 pb-8 px-6">
@@ -70,12 +72,12 @@ export const Sidebar = (): JSX.Element => {
         </ul>
         <ul className="flex items-center gap-4 text-yellow text-2xl transition-colors duration-300 ease-out-quad">
           <li>
-            <a href="https://twitter.com/namada" className="hover:text-cyan">
+            <a href={TWITTER_URL} className="hover:text-cyan">
               <BsTwitterX />
             </a>
           </li>
           <li>
-            <a href="https://twitter.com/namada" className="hover:text-cyan">
+            <a href={DISCORD_URL} className="hover:text-cyan">
               <BsDiscord />
             </a>
           </li>
