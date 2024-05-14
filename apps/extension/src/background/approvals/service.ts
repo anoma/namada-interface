@@ -33,7 +33,6 @@ export class ApprovalsService {
   ) {}
 
   async approveSignTx(
-    accountType: AccountType,
     signer: string,
     // TODO: Pass serialized BuiltTxMsgValue instead of these:
     tx: string,
@@ -43,22 +42,17 @@ export class ApprovalsService {
 
     const txBytes = fromBase64(tx);
     const signingDataBytes = fromBase64(signingData);
-    const chainId = "";
     await this.txStore.set(msgId, {
       txBytes,
       signingDataBytes,
-      chainId,
       signer,
     });
 
-    console.log("MSG ID", msgId);
     const url = `${browser.runtime.getURL(
       "approvals.html"
-    )}#/approve-sign-tx/${msgId}/${accountType}/${signer}`;
-    console.log("url", url);
+    )}#/approve-sign-tx/${msgId}/${AccountType.PrivateKey}/${signer}`;
 
     const popupTabId = await this.getPopupTabId(url);
-    console.log("popupTabId", popupTabId);
 
     if (!popupTabId) {
       throw new Error("no popup tab ID");

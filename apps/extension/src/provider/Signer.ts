@@ -1,4 +1,5 @@
 import { chains } from "@namada/chains";
+import { BuiltTx } from "@namada/shared";
 import {
   Account,
   AccountType,
@@ -43,12 +44,16 @@ export class Signer implements ISigner {
   }
 
   public async sign(
-    accountType: AccountType,
     signer: string,
-    tx: Uint8Array,
-    signingData: Uint8Array
+    builtTx: unknown
   ): Promise<Uint8Array | undefined> {
-    return await this._namada.sign({ accountType, signer, tx, signingData });
+    const tx = (builtTx as BuiltTx).tx_bytes();
+    const signingData = (builtTx as BuiltTx).signing_data_bytes();
+    return await this._namada.sign({
+      signer,
+      tx,
+      signingData,
+    });
   }
 
   public async signArbitrary(

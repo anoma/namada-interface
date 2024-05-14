@@ -66,10 +66,8 @@ export const submitTransferTransaction = async (
       console.log("Revealing public key with: ", { revealTxProps })
       const revealPkTx = await tx.buildRevealPk(revealTxProps, address);
       const signedRevealPkTx = await signingClient.sign(
-        type,
         address,
-        revealPkTx.tx.tx_bytes(),
-        revealPkTx.tx.signing_data_bytes(),
+        revealPkTx.tx,
       );
       if (!signedRevealPkTx) {
         throw new Error("Signing failed for required RevealPK Tx")
@@ -105,10 +103,8 @@ export const submitTransferTransaction = async (
 
     // Submit to extension for signing:
     const signedTx = await signingClient.sign(
-      type,
       transferProps.source,
-      encodedTx.tx.tx_bytes(),
-      encodedTx.tx.signing_data_bytes(),
+      encodedTx.tx,
     );
     console.log("Signed Tx Bytes: ", signedTx);
 

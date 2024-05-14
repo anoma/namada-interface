@@ -1,9 +1,4 @@
-import {
-  AccountType,
-  Chain,
-  DerivedAccount,
-  SignArbitraryResponse,
-} from "@namada/types";
+import { Chain, DerivedAccount, SignArbitraryResponse } from "@namada/types";
 import { Message } from "router";
 import { validateProps } from "utils";
 
@@ -217,7 +212,6 @@ export class ApproveSignTxMsg extends Message<Uint8Array> {
   }
 
   constructor(
-    public readonly accountType: AccountType,
     public readonly signer: string,
     public readonly txBytes: string,
     public readonly signingDataBytes: string
@@ -226,12 +220,7 @@ export class ApproveSignTxMsg extends Message<Uint8Array> {
   }
 
   validate(): void {
-    validateProps(this, [
-      "accountType",
-      "signer",
-      "txBytes",
-      "signingDataBytes",
-    ]);
+    validateProps(this, ["signer", "txBytes", "signingDataBytes"]);
   }
 
   route(): string {

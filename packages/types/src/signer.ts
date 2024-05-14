@@ -1,4 +1,4 @@
-import { Account, AccountType } from "./account";
+import { Account } from "./account";
 
 export type SignArbitraryResponse = {
   hash: string;
@@ -8,12 +8,7 @@ export type SignArbitraryResponse = {
 export interface Signer {
   accounts: (chainId?: string) => Promise<Account[] | undefined>;
   defaultAccount: (chainId?: string) => Promise<Account | undefined>;
-  sign: (
-    accountType: AccountType,
-    signer: string,
-    tx: Uint8Array,
-    signingData: Uint8Array
-  ) => Promise<Uint8Array | undefined>;
+  sign: (signer: string, tx: unknown) => Promise<Uint8Array | undefined>;
   signArbitrary: (
     signer: string,
     data: string

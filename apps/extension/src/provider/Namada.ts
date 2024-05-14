@@ -70,15 +70,10 @@ export class Namada implements INamada {
   }
 
   public async sign(props: SignProps): Promise<Uint8Array | undefined> {
-    const { accountType, signer, tx, signingData } = props;
+    const { signer, tx, signingData } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveSignTxMsg(
-        accountType,
-        signer,
-        toBase64(tx),
-        toBase64(signingData)
-      )
+      new ApproveSignTxMsg(signer, toBase64(tx), toBase64(signingData))
     );
   }
 
