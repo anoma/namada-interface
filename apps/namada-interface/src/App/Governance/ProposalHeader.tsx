@@ -10,6 +10,39 @@ import { Link, useNavigate } from "react-router-dom";
 import { currentEpochAtom } from "slices/proposals";
 import { StatusLabel, TypeLabel, VotedLabel } from "./ProposalLabels";
 
+const WasmButton: React.FC<{
+  wasmCode?: Uint8Array;
+  proposalId: bigint;
+}> = ({ wasmCode, proposalId }) => {
+  const href =
+    typeof wasmCode === "undefined" ? undefined : (
+      URL.createObjectURL(
+        new Blob([wasmCode], { type: "application/octet-stream" })
+      )
+    );
+
+  const filename = `proposal-${proposalId.toString()}.wasm`;
+
+  return (
+    <ActionButton
+      className="px-3 py-2"
+      color="white"
+      size="xs"
+      outlined
+      borderRadius="sm"
+      disabled={typeof wasmCode === "undefined"}
+      as="a"
+      download={filename}
+      href={href}
+    >
+      <span className="flex text-xs items-center justify-between gap-2">
+        <SiWebassembly />
+        WASM
+      </span>
+    </ActionButton>
+  );
+};
+
 export const ProposalHeader: React.FC<{
   proposal: Proposal;
   voted: boolean;
@@ -28,6 +61,9 @@ export const ProposalHeader: React.FC<{
 
   const totalEpochs = endEpoch - startEpoch;
   const relativeCurrentEpoch = currentEpoch.data - startEpoch;
+
+  const { type, data } = proposal.proposalType;
+  const wasmCode = type === "default" ? data : undefined;
 
   return (
     <>
@@ -69,24 +105,7 @@ export const ProposalHeader: React.FC<{
               JSON
             </span>
           </ActionButton>
-          <ActionButton
-            className="px-3 py-2"
-            color="white"
-            size="xs"
-            outlined
-            borderRadius="sm"
-            disabled={
-              !(
-                proposal.proposalType.type === "default" &&
-                proposal.proposalType.data
-              )
-            }
-          >
-            <span className="flex text-xs items-center justify-between gap-2">
-              <SiWebassembly />
-              WASM
-            </span>
-          </ActionButton>
+          <WasmButton wasmCode={wasmCode} proposalId={proposal.id} />
         </Stack>
       </div>
       <hr className="border-neutral-900 w-full mb-4" />
