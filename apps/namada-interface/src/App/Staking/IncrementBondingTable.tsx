@@ -100,7 +100,6 @@ export const IncrementBondingTable = ({
                     "text-yellow": hasNewAmounts,
                   })}
                 >
-                  {amountToStake.gt(0) && "="}
                   <NamCurrency amount={amountToStake.plus(stakedAmount)} />
                 </span>
               )}
