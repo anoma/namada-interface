@@ -52,6 +52,7 @@ export const AllProposalsTable: React.FC<{
         key={key("type", proposal)}
         color={index % 2 === 0 ? "dark" : "light"}
         proposalType={proposal.proposalType}
+        className="w-full text-center"
       />,
 
       // Status
