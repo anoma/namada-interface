@@ -585,15 +585,15 @@ impl Query {
         ))
     }
 
-    pub async fn query_proposal_code(&self, proposal_id: u64) -> Result<JsValue, JsError> {
+    pub async fn query_proposal_code(&self, proposal_id: u64) -> Result<Uint8Array, JsError> {
         let proposal_code_key =
             governance_storage::get_proposal_code_key(proposal_id);
-        let code = query_storage_value::<HttpClient, Option<Vec<u8>>>(
+        let code = query_storage_value::<HttpClient, Vec<u8>>(
             &self.client,
             &proposal_code_key
         ).await?;
 
-        to_js_result(code)
+        Ok(Uint8Array::from(code.as_slice()))
     }
 
     ///// Returns a list of all proposals

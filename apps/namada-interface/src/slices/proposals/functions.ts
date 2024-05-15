@@ -44,13 +44,20 @@ export const fetchProposalCounter = async (chain: Chain): Promise<bigint> => {
 };
 
 // TODO: this function is way too big
-const decodeProposalType = (
+const decodeProposalType = async (
   typeString: string,
-  data: string | undefined
-): ProposalType => {
+  data: string | undefined,
+  chain: Chain,
+  proposalId: bigint
+): Promise<ProposalType> => {
   switch (typeString) {
     case "default":
-      return { type: "default", data };
+      const wasmCode =
+        typeof data === "undefined" ? undefined : (
+          await fetchProposalCode(chain, proposalId)
+        );
+
+      return { type: "default", data: wasmCode };
 
     case "pgf_steward":
       if (typeof data === "undefined") {
@@ -196,9 +203,11 @@ export const fetchProposalById = async (
     throw new Error(`unknown tally type, got ${tallyType}`);
   }
 
-  const proposalType = decodeProposalType(
+  const proposalType = await decodeProposalType(
     deserialized.proposalType,
-    deserialized.data
+    deserialized.data,
+    chain,
+    id
   );
 
   return {
