@@ -53,7 +53,6 @@ const ReDelegate = (): JSX.Element => {
 
   const sortedValidators = useValidatorSorting({
     validators: filteredValidators,
-    stakedAmountByAddress,
     updatedAmountByAddress,
     seed,
   });
