@@ -12,7 +12,7 @@ import { GoCheck, GoCopy } from "react-icons/go";
 import { proposalFamily } from "slices/proposals";
 import GovernanceRoutes from "./routes";
 
-type DefaultData = undefined; // TODO: support displaying WASM bytes
+type DefaultData = Uint8Array | undefined;
 
 type PgfStewardData = {
   add?: string;
@@ -41,7 +41,7 @@ type ProposalJson = {
     author: string;
     voting_start_epoch: bigint;
     voting_end_epoch: bigint;
-    grace_epoch: bigint;
+    activation_epoch: bigint;
   };
   data: DataJson;
 };
@@ -56,7 +56,7 @@ const formatPgfTarget = (value: PgfTarget): PgfTargetJson => ({
 const formatData = (proposal: Proposal): DataJson => {
   switch (proposal.proposalType.type) {
     case "default":
-      return undefined;
+      return proposal.proposalType.data;
 
     case "pgf_steward":
       const addRemove = proposal.proposalType.data;
@@ -85,6 +85,50 @@ const formatData = (proposal: Proposal): DataJson => {
   }
 };
 
+const getProposalJsonString = (proposal: Proposal): string => {
+  const proposalJson: ProposalJson = {
+    proposal: {
+      id: proposal.id,
+      content: proposal.content,
+      author: proposal.author,
+      voting_start_epoch: proposal.startEpoch,
+      voting_end_epoch: proposal.endEpoch,
+      activation_epoch: proposal.graceEpoch,
+    },
+    data: formatData(proposal),
+  };
+
+  const stringified = JSON.stringify(
+    proposalJson,
+    (_, value) => {
+      // TODO: This is not technically safe to cast BigInt to Number, but in
+      // practice is probably fine. Still, we should consider replacing this
+      // code.
+      if (typeof value === "bigint") {
+        return Number(value);
+      }
+
+      // Stop JSON.stringify from spacing out WASM data.
+      // This adds double quotes we need to go back and remove later.
+      if (value instanceof Object.getPrototypeOf(Uint8Array)) {
+        return JSON.stringify(Array.from(value));
+      }
+
+      return value;
+    },
+    2
+  );
+
+  const { type, data } = proposal.proposalType;
+
+  if (type === "default" && typeof data !== "undefined") {
+    // remove double quotes around WASM data
+    return stringified.replace(/("data": )"(\[.*\])"(\n}$)/, "$1$2$3");
+  } else {
+    return stringified;
+  }
+};
+
 export const ViewJson: React.FC = () => {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
@@ -101,25 +145,7 @@ export const ViewJson: React.FC = () => {
 
   const proposal = proposalQueryResult.data;
 
-  const proposalJson: ProposalJson = {
-    proposal: {
-      id: proposal.id,
-      content: proposal.content,
-      author: proposal.author,
-      voting_start_epoch: proposal.startEpoch,
-      voting_end_epoch: proposal.endEpoch,
-      grace_epoch: proposal.graceEpoch,
-    },
-    data: formatData(proposal),
-  };
-
-  const stringified = JSON.stringify(
-    proposalJson,
-    // TODO: This is not technically safe to cast BigInt to Number, but in
-    // practice is probably fine. Still, we should consider replacing this code.
-    (_, value) => (typeof value === "bigint" ? Number(value) : value),
-    2
-  );
+  const jsonString = getProposalJsonString(proposal);
 
   const onCloseModal = (): void =>
     navigate(GovernanceRoutes.proposal(proposal.id).url);
@@ -127,7 +153,7 @@ export const ViewJson: React.FC = () => {
   const onCopy = (): void => {
     if (!copied) {
       setCopied(true);
-      copyToClipboard(stringified);
+      copyToClipboard(jsonString);
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -148,7 +174,7 @@ export const ViewJson: React.FC = () => {
           : <GoCopy />}
         </i>
         <div className="px-8 pt-4">
-          <pre className="overflow-x-auto dark-scrollbar">{stringified}</pre>
+          <pre className="overflow-x-auto dark-scrollbar">{jsonString}</pre>
         </div>
       </ModalContainer>
     </Modal>
