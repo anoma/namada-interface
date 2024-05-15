@@ -51,18 +51,23 @@ export const AllValidatorsTable = ({
     cells: [
       // Thumbnail:
       <img
-        key={`validator-image-${validator.uuid}`}
+        key={`validator-image-${validator.address}`}
         src={validator.imageUrl}
         className="w-8 rounded-full aspect-square"
       />,
       // Alias:
-      validator.alias,
+      <strong
+        key={`validator-alias-${validator.address}`}
+        className="font-medium"
+      >
+        {validator.alias}
+      </strong>,
       // Address:
       shortenAddress(validator.address, 8, 8),
       // Voting Power:
       <div
         className="flex flex-col text-right"
-        key={`validator-voting-power-${validator.uuid}`}
+        key={`validator-voting-power-${validator.address}`}
       >
         {validator.votingPowerInNAM && (
           <span>{validator.votingPowerInNAM?.toString()} NAM</span>
@@ -72,7 +77,7 @@ export const AllValidatorsTable = ({
         </span>
       </div>,
       // Comission:
-      <div key={`comission-${validator.uuid}`} className="text-right">
+      <div key={`comission-${validator.address}`} className="text-right">
         {formatPercentage(BigNumber(validator.commission))}
       </div>,
     ],
