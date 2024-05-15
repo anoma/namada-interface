@@ -1,7 +1,7 @@
 use namada::core::borsh::{BorshDeserialize, BorshSerialize};
 use namada::{
     key::common::{PublicKey, Signature},
-    tx::{CompressedSignature, Section, Signer, Tx},
+    tx::{CompressedAuthorization, Section, Signer, Tx},
 };
 use std::collections::BTreeMap;
 use wasm_bindgen::JsError;
@@ -38,11 +38,11 @@ pub fn construct_signature_section(
 ) -> Result<Section, JsError> {
     let signatures = BTreeMap::from([(0, Signature::try_from_slice(signature)?)]);
 
-    let compressed_signature = CompressedSignature {
+    let compressed_signature = CompressedAuthorization {
         targets: sec_indices.to_vec(),
         signer: Signer::PubKeys(vec![PublicKey::try_from_slice(pubkey)?]),
         signatures,
     };
 
-    Ok(Section::Signature(compressed_signature.expand(&tx)))
+    Ok(Section::Authorization(compressed_signature.expand(&tx)))
 }

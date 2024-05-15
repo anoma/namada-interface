@@ -11,7 +11,7 @@ use namada::{
     ethereum_events::EthAddress,
     key::common::PublicKey,
     masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
-    sdk::args::{self, InputAmount},
+    sdk::args::{self, InputAmount, TxExpiration},
     token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
 };
 use wasm_bindgen::JsError;
@@ -300,15 +300,13 @@ pub fn vote_proposal_tx_args(
         vote,
     } = vote_proposal_msg;
     let tx = tx_msg_into_args(tx_msg)?;
-    let voter = Address::from_str(&signer)?;
+    let voter_address = Address::from_str(&signer)?;
 
     let args = args::VoteProposal {
         tx,
-        proposal_id: Some(proposal_id),
-        is_offline: false,
+        proposal_id,
         vote,
-        voter,
-        proposal_data: None,
+        voter_address,
         tx_code_path: PathBuf::from("tx_vote_proposal.wasm"),
     };
 
@@ -448,6 +446,7 @@ pub fn ibc_transfer_tx_args(
         timeout_height,
         timeout_sec_offset,
         tx_code_path: PathBuf::from("tx_ibc.wasm"),
+        refund_target: None,
     };
 
     Ok(args)
@@ -590,7 +589,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         gas_limit: GasLimit::from_str(&gas_limit).expect("Gas limit to be valid"),
         wrapper_fee_payer: None,
         output_folder: None,
-        expiration: None,
+        expiration: TxExpiration::Default,
         chain_id: Some(ChainId(String::from(chain_id))),
         signatures: vec![],
         signing_keys,
