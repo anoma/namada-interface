@@ -23,7 +23,7 @@ export const ValidatorName = ({
         />
       </aside>
       <span className="leading-tight">
-        {validator.alias}
+        <strong className="font-medium">{validator.alias}</strong>
         {showAddress && (
           <small className="block text-xs text-neutral-500">
             {shortenAddress(validator.address, 6, 12)}
