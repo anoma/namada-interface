@@ -4,7 +4,7 @@ use namada::core::borsh::BorshSerialize;
 use namada::eth_bridge_pool::TransferToEthereum;
 use namada::governance::storage::keys as governance_storage;
 use namada::governance::utils::{compute_proposal_result, ProposalVotes,
-                                TallyVote, VotePower, TallyType, TallyResult};
+                                VotePower, TallyType, TallyResult};
 use namada::governance::{ProposalType, ProposalVote};
 use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
 use namada::ledger::parameters::storage;
@@ -23,8 +23,9 @@ use namada::sdk::rpc::{
 };
 use namada::token;
 use namada::uint::I256;
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap};
 use std::str::FromStr;
+use namada::core::collections::{HashSet, HashMap};
 use wasm_bindgen::prelude::*;
 
 use crate::rpc_client::HttpClient;
@@ -120,7 +121,7 @@ impl Query {
             let validators = RPC
                 .vp()
                 .pos()
-                .delegation_validators(&self.client, &address)
+                .delegation_validators(&self.client, &address, &None)
                 .await?;
 
             validators_per_address.insert(address, validators);
@@ -182,7 +183,7 @@ impl Query {
             let validators = RPC
                 .vp()
                 .pos()
-                .delegation_validators(&self.client, &address)
+                .delegation_validators(&self.client, &address, &None)
                 .await?;
 
             validators_per_address.insert(address, validators);
@@ -430,9 +431,11 @@ impl Query {
         };
 
         let (proposal_type, data) = match proposal.r#type {
-            ProposalType::Default(maybe_hash) => {
-                let hash = maybe_hash.map(|hash| hash.to_string());
-                ("default", hash)
+            ProposalType::Default => {
+                ("default", None)
+            },
+            ProposalType::DefaultWithWasm(hash) => {
+                ("default", Some(hash.to_string()))
             },
             ProposalType::PGFSteward(data) => {
                 let data_string = serde_json::to_string(&data)?;
@@ -449,7 +452,7 @@ impl Query {
             author: proposal.author.to_string(),
             start_epoch: proposal.voting_start_epoch.0,
             end_epoch: proposal.voting_end_epoch.0,
-            grace_epoch: proposal.grace_epoch.0,
+            grace_epoch: proposal.activation_epoch.0,
             content,
             tally_type: String::from(tally_type_string),
             proposal_type: String::from(proposal_type),
@@ -492,10 +495,9 @@ impl Query {
         let validator_votes: Vec<(Address, String, token::Amount)> = Vec::from_iter(
             votes.validators_vote.iter().map(|(address, vote)| {
                 let vote = match vote {
-                    TallyVote::OnChain(ProposalVote::Yay) => "yay",
-                    TallyVote::OnChain(ProposalVote::Nay) => "nay",
-                    TallyVote::OnChain(ProposalVote::Abstain) => "abstain",
-                    TallyVote::Offline(_) => panic!("received offline tally")
+                    ProposalVote::Yay => "yay",
+                    ProposalVote::Nay => "nay",
+                    ProposalVote::Abstain => "abstain",
                 };
 
                 let voting_power = votes.validator_voting_power.get(address)
@@ -513,10 +515,9 @@ impl Query {
             Vec::from_iter(
                 votes.delegators_vote.iter().map(|(address, vote)| {
                     let vote = match vote {
-                        TallyVote::OnChain(ProposalVote::Yay) => "yay",
-                        TallyVote::OnChain(ProposalVote::Nay) => "nay",
-                        TallyVote::OnChain(ProposalVote::Abstain) => "abstain",
-                        TallyVote::Offline(_) => panic!("received offline tally")
+                        ProposalVote::Yay => "yay",
+                        ProposalVote::Nay => "nay",
+                        ProposalVote::Abstain => "abstain",
                     };
 
                     let voting_power = votes.delegator_voting_power.get(address)
@@ -567,7 +568,8 @@ impl Query {
         let tally_type = proposal.get_tally_type(is_steward);
 
         let proposal_result =
-            compute_proposal_result(votes, total_voting_power, tally_type);
+            compute_proposal_result(votes, total_voting_power, tally_type)
+              .expect("could compute proposal result");
 
         let passed = match proposal_result.result {
             TallyResult::Passed => true,
@@ -755,13 +757,20 @@ pub async fn compute_proposal_votes(
     proposal_id: u64,
     epoch: Epoch,
 ) -> ProposalVotes {
-    let votes = query_proposal_votes(client, proposal_id).await.unwrap();
+    let votes = query_proposal_votes(client, proposal_id)
+        .await
+        .unwrap();
 
-    let mut validators_vote: HashMap<Address, TallyVote> = HashMap::default();
-    let mut validator_voting_power: HashMap<Address, VotePower> = HashMap::default();
-    let mut delegators_vote: HashMap<Address, TallyVote> = HashMap::default();
-    let mut delegator_voting_power: HashMap<Address, HashMap<Address, VotePower>> =
+    let mut validators_vote: HashMap<Address, ProposalVote> =
         HashMap::default();
+    let mut validator_voting_power: HashMap<Address, VotePower> =
+        HashMap::default();
+    let mut delegators_vote: HashMap<Address, ProposalVote> =
+        HashMap::default();
+    let mut delegator_voting_power: HashMap<
+        Address,
+        HashMap<Address, VotePower>,
+    > = HashMap::default();
 
     for vote in votes {
         if vote.is_validator() {
@@ -773,7 +782,7 @@ pub async fn compute_proposal_votes(
                 .expect("Validator stake should be present")
                 .unwrap_or_default();
 
-            validators_vote.insert(vote.validator.clone(), vote.data.into());
+            validators_vote.insert(vote.validator.clone(), vote.data);
             validator_voting_power.insert(vote.validator, validator_stake);
         } else {
             let delegator_stake = RPC
@@ -783,11 +792,11 @@ pub async fn compute_proposal_votes(
                 .await
                 .expect("Delegator stake should be present");
 
-            delegators_vote.insert(vote.delegator.clone(), vote.data.into());
-            delegator_voting_power
-                .entry(vote.delegator.clone())
-                .or_default()
-                .insert(vote.validator, delegator_stake);
+             delegators_vote.insert(vote.delegator.clone(), vote.data);
+             delegator_voting_power
+                 .entry(vote.delegator.clone())
+                 .or_default()
+                 .insert(vote.validator, delegator_stake);
         }
     }
 

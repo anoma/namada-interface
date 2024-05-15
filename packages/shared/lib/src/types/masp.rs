@@ -78,16 +78,6 @@ impl PaymentAddress {
         Ok(PaymentAddress(payment_address))
     }
 
-    /// Returns a pinned or non-pinned PaymentAddress
-    pub fn pinned(&self, pin: bool) -> PaymentAddress {
-        PaymentAddress(self.0.pinned(pin))
-    }
-
-    /// Determine whether this PaymentAddress is pinned
-    pub fn is_pinned(&self) -> bool {
-        self.0.is_pinned()
-    }
-
     /// Retrieve PaymentAddress hash
     pub fn hash(&self) -> String {
         self.0.hash()
