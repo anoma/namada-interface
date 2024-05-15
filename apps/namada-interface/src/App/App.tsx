@@ -18,7 +18,7 @@ import { connectedChainsAtom } from "slices/settings";
 import { persistor, useAppDispatch } from "store";
 import { ThemeProvider } from "styled-components";
 import { AppLoader, MotionContainer } from "./App.components";
-import { Sidebar } from "./Common/Sidebar";
+import { Navigation } from "./Common/Navigation";
 import {
   useOnChainChanged,
   useOnNamadaExtensionAttached,
@@ -96,7 +96,7 @@ function App(): JSX.Element {
         {extensionReady && (
           <Container
             data-testid="AppContainer"
-            sidebar={<Sidebar />}
+            navigation={<Navigation />}
             header={<TopNavigation chain={chain} />}
           >
             <AnimatePresence mode="wait">
