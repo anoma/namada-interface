@@ -61,7 +61,6 @@ const IncrementBonding = (): JSX.Element => {
 
   const sortedValidators = useValidatorSorting({
     validators: filteredValidators,
-    stakedAmountByAddress,
     updatedAmountByAddress,
     seed,
   });
