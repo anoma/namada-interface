@@ -112,8 +112,8 @@ const handleRevokeConnectionMsg: (
 const handleApproveSignTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveSignTxMsg> = (service) => {
-  return async (_, { signer, txBytes, signingDataBytes }) => {
-    return await service.approveSignTx(signer, txBytes, signingDataBytes);
+  return async (_, { accountType, signer, tx }) => {
+    return await service.approveSignTx(accountType, signer, tx);
   };
 };
 

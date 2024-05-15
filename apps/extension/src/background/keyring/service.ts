@@ -223,7 +223,7 @@ export class KeyRingService {
     return await IndexedDBKVStore.durabilityCheck();
   }
 
-  async sign(builtTx: BuiltTx, signer: string): Promise<Uint8Array> {
+  async sign(builtTx: BuiltTx[], signer: string): Promise<Uint8Array[]> {
     return await this._keyRing.sign(builtTx, signer);
   }
 

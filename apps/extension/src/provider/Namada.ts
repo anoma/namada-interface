@@ -1,5 +1,6 @@
 import { toBase64 } from "@cosmjs/encoding";
 import {
+  AccountType,
   Chain,
   DerivedAccount,
   Namada as INamada,
@@ -69,11 +70,27 @@ export class Namada implements INamada {
     );
   }
 
-  public async sign(props: SignProps): Promise<Uint8Array | undefined> {
-    const { signer, tx, signingData } = props;
+  public async sign(props: SignProps): Promise<Uint8Array[] | undefined> {
+    const { accountType, signer, tx } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveSignTxMsg(signer, toBase64(tx), toBase64(signingData))
+      new ApproveSignTxMsg(
+        accountType,
+        signer,
+        tx.map((t) => [toBase64(t.txData), toBase64(t.signingData)])
+      )
+    );
+  }
+
+  public async signLedger(props: SignProps): Promise<Uint8Array[] | undefined> {
+    const { signer, tx } = props;
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new ApproveSignTxMsg(
+        AccountType.Ledger,
+        signer,
+        tx.map((t) => [toBase64(t.txData), toBase64(t.signingData)])
+      )
     );
   }
 

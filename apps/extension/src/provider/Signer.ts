@@ -45,15 +45,30 @@ export class Signer implements ISigner {
 
   public async sign(
     signer: string,
-    builtTx: unknown
-  ): Promise<Uint8Array | undefined> {
-    const tx = (builtTx as BuiltTx).tx_bytes();
-    const signingData = (builtTx as BuiltTx).signing_data_bytes();
+    builtTx: unknown | unknown[],
+    accountType?: AccountType
+  ): Promise<Uint8Array[] | undefined> {
+    const unsignedTx: BuiltTx[] = (
+      builtTx instanceof Array ? builtTx : [builtTx]) as BuiltTx[];
     return await this._namada.sign({
+      accountType: accountType || AccountType.PrivateKey,
       signer,
-      tx,
-      signingData,
+      tx: unsignedTx.map((builtTx) => {
+        const txData = builtTx.tx_bytes();
+        const signingData = builtTx.signing_data_bytes();
+        return {
+          txData,
+          signingData,
+        };
+      }),
     });
+  }
+
+  public async signLedger(
+    signer: string,
+    builtTx: unknown | unknown[]
+  ): Promise<Uint8Array[] | undefined> {
+    return this.sign(signer, builtTx, AccountType.Ledger);
   }
 
   public async signArbitrary(

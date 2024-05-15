@@ -33,24 +33,26 @@ export class ApprovalsService {
   ) {}
 
   async approveSignTx(
+    accountType: AccountType,
     signer: string,
     // TODO: Pass serialized BuiltTxMsgValue instead of these:
-    tx: string,
-    signingData: string
-  ): Promise<Uint8Array> {
+    tx: string[][]
+  ): Promise<Uint8Array[]> {
     const msgId = uuid();
 
-    const txBytes = fromBase64(tx);
-    const signingDataBytes = fromBase64(signingData);
+    const pendingTx = tx.map(([txBytes, signingDataBytes]) => ({
+      txBytes: fromBase64(txBytes),
+      signingDataBytes: fromBase64(signingDataBytes),
+    }));
+
     await this.txStore.set(msgId, {
-      txBytes,
-      signingDataBytes,
+      tx: pendingTx,
       signer,
     });
 
     const url = `${browser.runtime.getURL(
       "approvals.html"
-    )}#/approve-sign-tx/${msgId}/${AccountType.PrivateKey}/${signer}`;
+    )}#/approve-sign-tx/${msgId}/${accountType}/${signer}`;
 
     const popupTabId = await this.getPopupTabId(url);
 
@@ -114,8 +116,9 @@ export class ApprovalsService {
       throw new Error(`Signing data for ${msgId} not found!`);
     }
 
-    const { txBytes, signingDataBytes } = pendingTx;
-    const builtTx = BuiltTx.from_stored_tx(txBytes, signingDataBytes);
+    const builtTx = pendingTx.tx.map(({ txBytes, signingDataBytes }) =>
+      BuiltTx.from_stored_tx(txBytes, signingDataBytes)
+    );
 
     try {
       const signature = await this.keyRingService.sign(builtTx, signer);

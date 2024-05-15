@@ -569,11 +569,13 @@ export class KeyRing {
     return await query.queryPublicKey(address);
   }
 
-  async sign(builtTx: BuiltTx, signer: string): Promise<Uint8Array> {
+  async sign(builtTx: BuiltTx[], signer: string): Promise<Uint8Array[]> {
     await this.vaultService.assertIsUnlocked();
     const key = await this.getSigningKey(signer);
     const { signing } = this.sdkService.getSdk();
-    return signing.sign(builtTx, key);
+    return await Promise.all(
+      builtTx.map(async (tx) => await signing.sign(tx, key))
+    );
   }
 
   async signArbitrary(

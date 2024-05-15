@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Rpc, Tx, TxType } from "@heliax/namada-sdk/web";
+import { EncodedTx, Rpc, Tx, TxType } from "@heliax/namada-sdk/web";
 import { chains } from "@namada/chains";
 import { ActionButton, AmountInput, Icon, Input } from "@namada/components";
 import { Chain, TokenType, Tokens, WrapperTxProps } from "@namada/types";
@@ -53,6 +53,9 @@ export const submitTransferTransaction = async (
       throw new Error("Signing client failed to initialize")
     }
 
+    const txArray: EncodedTx[] = [];
+
+    // Determine if RevealPK is needed:
     const pk = await rpc.queryPublicKey(address);
 
     if (!pk) {
@@ -65,28 +68,21 @@ export const submitTransferTransaction = async (
       };
       console.log("Revealing public key with: ", { revealTxProps })
       const revealPkTx = await tx.buildRevealPk(revealTxProps, address);
-      const signedRevealPkTx = await signingClient.sign(
-        address,
-        revealPkTx.tx,
-      );
-      if (!signedRevealPkTx) {
-        throw new Error("Signing failed for required RevealPK Tx")
-      }
-      const revealPkResponse = await rpc.broadcastTx({ wrapperTxMsg: revealPkTx.txMsg, tx: signedRevealPkTx })
-      console.log("revealPkResponse", revealPkResponse)
+      // Add to txArray to sign & broadcast below:
+      txArray.push(revealPkTx)
     }
 
     // Build
     const transferProps = {
       source: address,
       target,
-      token: nativeToken, // TODO: Update to support other tokens again!
+      token: nativeToken,
       amount,
       nativeToken,
     };
 
     const wrapperTxProps = {
-      token: nativeToken, // TODO: Update to support other tokens again!
+      token: nativeToken,
       nativeToken,
       feeAmount,
       gasLimit,
@@ -97,25 +93,28 @@ export const submitTransferTransaction = async (
       memo,
     };
     console.log("Building Transfer Tx", { type, transferProps, wrapperTxProps, tx, rpc, namada })
-
-    const encodedTx = await tx.buildTx(TxType.Transfer, wrapperTxProps, transferProps);
-    console.log("Built transfer:", encodedTx);
+    const transferTx = await tx.buildTx(TxType.Transfer, wrapperTxProps, transferProps);
+    console.log("Built transfer: ", transferTx)
+    // Add transfer to txArray
+    txArray.push(transferTx)
 
     // Submit to extension for signing:
-    const signedTx = await signingClient.sign(
+    const signedTxArray = await signingClient.sign(
       transferProps.source,
-      encodedTx.tx,
+      txArray.map((encodedTx) => encodedTx.tx),
     );
-    console.log("Signed Tx Bytes: ", signedTx);
+    console.log("Signed Tx Bytes Array: ", signedTxArray);
 
-    if (!signedTx) {
+    if (!signedTxArray) {
       // Signature failed:
-      console.error("Failed to sign Tx", { builtTx: encodedTx })
+      console.error("Failed to sign Tx", txArray)
       throw new Error("Signing failed")
     }
-
-    const response = await rpc.broadcastTx({ wrapperTxMsg: encodedTx.txMsg, tx: signedTx });
-    console.log("Broadcast Tx results: ", response)
+    // Broadcast Tx in order:
+    txArray.forEach(async ({ txMsg }, i) => {
+      const response = await rpc.broadcastTx({ wrapperTxMsg: txMsg, tx: signedTxArray[i] });
+      console.log(`Broadcast Tx results for Tx ${i + 1}: `, response)
+    })
   } catch (e) {
     throw new Error(`Failed to sign and submit transaction: ${e}`)
   }
