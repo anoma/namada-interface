@@ -41,7 +41,7 @@ export const StakingSummary = (): JSX.Element => {
 
   // TODO: implement total staking rewards
   return (
-    <ul className="grid grid-cols-[1.25fr_1fr_1fr] gap-2">
+    <ul className="flex flex-col sm:grid sm:grid-cols-[1.25fr_1fr_1fr] gap-2">
       <Panel as="li" className="flex items-center">
         {totalStakedBalance.isPending && (
           <SkeletonLoading
@@ -53,7 +53,7 @@ export const StakingSummary = (): JSX.Element => {
         {totalStakedBalance.isSuccess && (
           <PieChart
             id="total-staked-balance"
-            className="max-w-[85%] mx-auto"
+            className="xl:max-w-[85%] mx-auto"
             data={getPiechartData()}
             strokeWidth={7}
           >
