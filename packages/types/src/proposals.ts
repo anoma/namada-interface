@@ -60,7 +60,7 @@ export type PgfActions = {
   retro: PgfTarget[];
 };
 
-export type Default = { type: "default"; data?: string };
+export type Default = { type: "default"; data?: Uint8Array };
 export type PgfSteward = { type: "pgf_steward"; data: AddRemove };
 export type PgfPayment = { type: "pgf_payment"; data: PgfActions };
 export type ProposalType = Default | PgfSteward | PgfPayment;
