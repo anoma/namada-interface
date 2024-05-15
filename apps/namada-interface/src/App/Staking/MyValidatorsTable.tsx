@@ -43,15 +43,20 @@ export const MyValidatorsTable = (): JSX.Element => {
       className: "",
       cells: [
         <img
-          key={`validator-image-${validator.uuid}`}
+          key={`validator-image-${validator.address}`}
           src={validator.imageUrl}
           className="rounded-full aspect-square max-w-8"
         />,
-        validator.alias,
+        <strong
+          className="font-medium"
+          key={`my-validator-alias-${validator.address}`}
+        >
+          {validator.alias}
+        </strong>,
         shortenAddress(validator.address, 8, 6),
         <div
           className="flex flex-col text-right leading-tight"
-          key={`validator-voting-power-${validator.uuid}`}
+          key={`my-validator-voting-power-${validator.address}`}
         >
           {validator.votingPowerInNAM && (
             <span>{validator.votingPowerInNAM?.toString()} NAM</span>
@@ -61,7 +66,7 @@ export const MyValidatorsTable = (): JSX.Element => {
           </span>
         </div>,
         <div
-          key={`currency-${validator.uuid}`}
+          key={`my-validator-currency-${validator.address}`}
           className="text-right leading-tight"
         >
           <NamCurrency amount={stakedAmount || new BigNumber(0)} />
@@ -71,7 +76,7 @@ export const MyValidatorsTable = (): JSX.Element => {
           />
         </div>,
         <div
-          key={`comission-${validator.uuid}`}
+          key={`comission-${validator.address}`}
           className="text-right leading-tight"
         >
           {formatPercentage(validator.commission)}
