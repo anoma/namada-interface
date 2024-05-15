@@ -1,5 +1,6 @@
 import { Panel } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
+import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification";
 import { YourStakingDistribution } from "App/Sidebars/YourStakingDistribution";
 import { useAtomValue } from "jotai";
@@ -36,7 +37,7 @@ export const StakingOverview = (): JSX.Element => {
   }, [isConnected, accounts]);
 
   return (
-    <div className="grid grid-cols-[auto_20%] gap-2">
+    <PageWithSidebar>
       <div className="flex flex-col gap-2">
         {!isConnected && (
           <ConnectBanner text="To stake please connect your account" />
@@ -61,6 +62,6 @@ export const StakingOverview = (): JSX.Element => {
           <ValidatorDiversification />
         </Panel>
       </aside>
-    </div>
+    </PageWithSidebar>
   );
 };
