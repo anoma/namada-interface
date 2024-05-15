@@ -10,6 +10,7 @@ import FiatCurrency from "App/Common/FiatCurrency";
 import { Intro } from "App/Common/Intro";
 import NamCurrency from "App/Common/NamCurrency";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
+import GovernanceRoutes from "App/Governance/routes";
 import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
 import StakingRoutes from "App/Staking/routes";
 import clsx from "clsx";
@@ -94,6 +95,7 @@ export const AccountOverview = (): JSX.Element => {
                 </ActionButton>
                 <ActionButton
                   size="sm"
+                  onClick={() => navigate(GovernanceRoutes.index())}
                   color="primary"
                   outlined
                   className="uppercase hover:text-rblack before:border before:border-yellow"
