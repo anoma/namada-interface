@@ -50,7 +50,7 @@ export const YourStakingDistribution = ({
   }));
 
   return (
-    <article>
+    <article className="@sm:grid @sm:grid-cols-[270px_auto] @sm:gap-8">
       <PieChart
         id="your-staking-distribution"
         data={data}
@@ -87,7 +87,7 @@ export const YourStakingDistribution = ({
           </AnimatePresence>
         </div>
       </PieChart>
-      <ul className="flex flex-col gap-2 mt-4">
+      <ul className="flex flex-col gap-2 mt-4 @sm:mt-2">
         {myValidators.map((myValidator) => (
           <li key={`staking-distribution-${myValidator.uuid}`}>
             <div className="grid grid-cols-[auto_max-content] text-sm justify-between">

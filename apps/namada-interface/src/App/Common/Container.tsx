@@ -46,7 +46,7 @@ export const Container = ({
           onClick={(e) => e.stopPropagation()}
           className={clsx(
             "transition-transform duration-500 ease-out-expo",
-            "pt-10 bg-black rounded-sm fixed top-0 z-50 w-[240px]",
+            "pt-10 bg-black rounded-sm fixed top-0 z-[9999] w-[240px]",
             "h-screen right-0 xl:transition-none xl:pt-0 xl:w-auto xl:relative",
             { "translate-x-full xl:translate-x-0": !displayNavigation }
           )}

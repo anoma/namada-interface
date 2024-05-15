@@ -9833,6 +9833,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tailwindcss/container-queries@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@tailwindcss/container-queries@npm:0.1.1"
+  peerDependencies:
+    tailwindcss: ">=3.2.0"
+  checksum: 336546ddcc60280723f2a92e311cac0acb8b05624c6519675d4b11ae13ed01dba5e622705a9be69cd66ca2c8019032551176546e6920d9634750165ac4c15d8e
+  languageName: node
+  linkType: hard
+
 "@tanstack/query-core@npm:^5.32.0":
   version: 5.32.0
   resolution: "@tanstack/query-core@npm:5.32.0"
@@ -26741,6 +26750,7 @@ __metadata:
   resolution: "namada@workspace:."
   dependencies:
     "@release-it/conventional-changelog": "npm:^8.0.1"
+    "@tailwindcss/container-queries": "npm:^0.1.1"
     "@tanstack/query-core": "npm:^5.32.0"
     "@typescript-eslint/eslint-plugin": "npm:^6.13.0"
     "@typescript-eslint/parser": "npm:^6.13.0"
