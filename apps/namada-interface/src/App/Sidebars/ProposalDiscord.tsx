@@ -4,14 +4,18 @@ import { BsDiscord } from "react-icons/bs";
 
 export const ProposalDiscord: React.FC = () => {
   return (
-    <Panel className="text-center text-black bg-[#E9E9E9] p-8">
-      <Stack gap={4}>
-        <BsDiscord className="m-auto text-8xl" />
-        <p className="text-xl">Join proposal discussions on discord</p>
+    <Panel className="text-center text-black bg-[#E9E9E9] px-8 pt-10 pb-14">
+      <Stack gap={6}>
+        <BsDiscord className="m-auto text-[90px] leading-none -mb-3" />
+        <p className="text-[18px] leading-tight">
+          Join proposal discussions on discord
+        </p>
         <ActionButton
           size="xs"
           borderRadius="sm"
           color="black"
+          className="text-white"
+          hoverColor="secondary"
           as="a"
           href={DISCORD_URL}
           target="_blank"
