@@ -25,9 +25,9 @@ export const Container = ({
         </i>
         {header}
       </header>
-      <div className="grid grid-cols-[17.5%_4.5fr] gap-2 min-h-[calc(100svh-100px)]">
+      <div className="grid grid-cols-[240px_auto] gap-2 min-h-[calc(100svh-100px)]">
         <aside className="bg-black rounded-sm">{sidebar}</aside>
-        <main>{children}</main>{" "}
+        <main>{children}</main>
       </div>
     </div>
   );

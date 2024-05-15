@@ -1,5 +1,6 @@
 import { Panel, SkeletonLoading } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
+import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { useAtomValue } from "jotai";
 import { allProposalsWithExtraInfoAtom } from "slices/proposals";
 import { namadaExtensionConnectedAtom } from "slices/settings";
@@ -14,7 +15,7 @@ export const GovernanceOverview: React.FC = () => {
   const allProposals = useAtomValue(allProposalsWithExtraInfoAtom);
 
   return (
-    <div className="grid grid-cols-[auto_270px] gap-2">
+    <PageWithSidebar>
       <div className="flex flex-col gap-1.5">
         {!isConnected && (
           <ConnectBanner text="To vote please connect your account" />
@@ -54,6 +55,6 @@ export const GovernanceOverview: React.FC = () => {
           )}
         </Panel>
       </aside>
-    </div>
+    </PageWithSidebar>
   );
 };

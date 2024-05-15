@@ -9,6 +9,7 @@ import { Chain } from "@namada/types";
 import FiatCurrency from "App/Common/FiatCurrency";
 import { Intro } from "App/Common/Intro";
 import NamCurrency from "App/Common/NamCurrency";
+import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
 import StakingRoutes from "App/Staking/routes";
 import clsx from "clsx";
@@ -33,7 +34,7 @@ export const AccountOverview = (): JSX.Element => {
   const isConnected = accounts.length > 0;
 
   return (
-    <Stack gap={4} direction="horizontal" className="w-full">
+    <PageWithSidebar>
       <div className="flex items-center bg-black rounded-sm w-full">
         {!isConnected && (
           <div className="w-[420px] mx-auto">
@@ -111,6 +112,6 @@ export const AccountOverview = (): JSX.Element => {
           <MainnetRoadmap />
         </aside>
       )}
-    </Stack>
+    </PageWithSidebar>
   );
 };
