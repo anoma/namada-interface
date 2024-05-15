@@ -77,7 +77,13 @@ export const StakingSummary = (): JSX.Element => {
       <Panel as="li" className="border border-yellow">
         <AmountSummaryCard
           logoElement={<Image imageName="LogoMinimal" />}
-          title="Available NAM to Stake"
+          title={
+            <>
+              Available NAM
+              <br />
+              to Stake
+            </>
+          }
           isLoading={totalStakedBalance.isPending || availableBalance.isPending}
           mainAmount={
             <NamCurrency
@@ -114,7 +120,13 @@ export const StakingSummary = (): JSX.Element => {
             </i>
           }
           title="Staking Rewards will be enabled in phase 2"
-          mainAmount="0 NAM"
+          mainAmount={
+            <NamCurrency
+              amount={0}
+              className="block leading-none"
+              currencySignClassName="block mb-3 mt-0.5 text-sm"
+            />
+          }
           alternativeAmount="$0"
           callToAction={
             <ActionButton
