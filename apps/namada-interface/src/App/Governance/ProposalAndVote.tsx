@@ -65,10 +65,11 @@ export const ProposalAndVote: React.FC = () => {
       <aside className="flex flex-col gap-2">
         <Panel className="@container" title="Proposal Status">
           {atomsAreFetching(proposal, status) && (
-            <SkeletonLoading height="150px" width="100%" />
+            <ProposalStatusSummary loading={true} />
           )}
           {atomsAreLoaded(proposal, status) && (
             <ProposalStatusSummary
+              loading={false}
               proposal={proposal.data!}
               status={status.data!}
             />
