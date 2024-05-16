@@ -3,7 +3,7 @@ import { useGasEstimate } from "hooks/useGasEstimate";
 import NamCurrency from "./NamCurrency";
 type TransactionFeesProps = {
   numberOfTransactions: number;
-  className: string;
+  className?: string;
 };
 
 export const TransactionFees = ({
