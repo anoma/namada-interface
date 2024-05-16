@@ -35,29 +35,37 @@ export const ApproveSignTx: React.FC<Props> = ({ setDetails }) => {
     }
   }, []);
 
-  const handleApproveClick = useCallback((): void => {
-    if (accountType === AccountType.Ledger) {
-      return navigate(`${TopLevelRoute.ConfirmLedgerTx}`);
-    }
-    navigate(TopLevelRoute.ConfirmSignTx);
-  }, [accountType]);
-
-  const handleReject = useCallback(async (): Promise<void> => {
-    try {
-      if (msgId) {
-        await requester.sendMessage(
-          Ports.Background,
-          new RejectSignTxMsg(msgId)
-        );
-        // Close tab
-        return await closeCurrentTab();
+  const handleApproveSubmit = useCallback(
+    (e: React.FormEvent): void => {
+      e.preventDefault();
+      if (accountType === AccountType.Ledger) {
+        return navigate(`${TopLevelRoute.ConfirmLedgerTx}`);
       }
-      throw new Error("msgId was not provided!");
-    } catch (e) {
-      console.warn(e);
-    }
-    return;
-  }, [msgId]);
+      navigate(TopLevelRoute.ConfirmSignTx);
+    },
+    [accountType]
+  );
+
+  const handleReject = useCallback(
+    async (e: React.FormEvent): Promise<void> => {
+      e.preventDefault();
+      try {
+        if (msgId) {
+          await requester.sendMessage(
+            Ports.Background,
+            new RejectSignTxMsg(msgId)
+          );
+          // Close tab
+          return await closeCurrentTab();
+        }
+        throw new Error("msgId was not provided!");
+      } catch (e) {
+        console.warn(e);
+      }
+      return;
+    },
+    [msgId]
+  );
 
   return (
     <Stack className="text-white" gap={4}>
@@ -65,7 +73,7 @@ export const ApproveSignTx: React.FC<Props> = ({ setDetails }) => {
         Sign this {accountType === AccountType.Ledger ? "Ledger " : ""}
         transaction?
       </Alert>
-      <Stack gap={2}>
+      <Stack gap={2} as="form" onSubmit={handleApproveSubmit}>
         <div>
           {signer && (
             <p className="text-xs">
@@ -73,10 +81,10 @@ export const ApproveSignTx: React.FC<Props> = ({ setDetails }) => {
             </p>
           )}
         </div>
-      </Stack>
-      <Stack gap={3} direction="horizontal">
-        <ActionButton onClick={handleApproveClick}>Approve</ActionButton>
-        <ActionButton onClick={handleReject}>Reject</ActionButton>
+        <Stack gap={3} direction="horizontal">
+          <ActionButton>Approve</ActionButton>
+          <ActionButton onClick={handleReject}>Reject</ActionButton>
+        </Stack>
       </Stack>
     </Stack>
   );

@@ -1,7 +1,6 @@
 import { Sdk, getSdk } from "@heliax/namada-sdk/web";
 import sdkInit from "@heliax/namada-sdk/web-init";
 import { chains } from "@namada/chains";
-import { Chain } from "@namada/types";
 import { LocalStorage } from "storage";
 
 const {
@@ -25,15 +24,6 @@ export class SdkService {
     const { cryptoMemory } = await sdkInit();
 
     return new SdkService(rpc, defaultTokenAddress, cryptoMemory);
-  }
-
-  /**
-   * Sync the chain information after a network update
-   *
-   * @param {Chain} chain - Chain information
-   */
-  syncChain(chain: Chain): void {
-    this.rpc = chain.rpc;
   }
 
   getSdk(): Sdk {

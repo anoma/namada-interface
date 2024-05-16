@@ -55,8 +55,4 @@ export default class Namada implements Integration<Account, Signer> {
   public signer(): Signer | undefined {
     return this._namada?.getSigner();
   }
-
-  public async sync(): Promise<void> {
-    await this._namada?.shieldedSync();
-  }
 }

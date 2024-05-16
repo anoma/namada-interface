@@ -543,32 +543,6 @@ export class KeyRing {
     return Result.ok(null);
   }
 
-  async queryBalances(
-    owner: string,
-    tokens: string[]
-  ): Promise<{ token: string; amount: string }[]> {
-    const query = this.sdkService.getSdk().rpc;
-
-    try {
-      return (await query.queryBalance(owner, tokens)).map(
-        ([token, amount]: [string, string]) => {
-          return {
-            token,
-            amount,
-          };
-        }
-      );
-    } catch (e) {
-      console.error(e);
-      return [];
-    }
-  }
-
-  async queryPublicKey(address: string): Promise<string | undefined> {
-    const query = this.sdkService.getSdk().rpc;
-    return await query.queryPublicKey(address);
-  }
-
   async sign(builtTx: BuiltTx[], signer: string): Promise<Uint8Array[]> {
     await this.vaultService.assertIsUnlocked();
     const key = await this.getSigningKey(signer);

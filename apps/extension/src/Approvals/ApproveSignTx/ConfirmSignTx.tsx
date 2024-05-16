@@ -6,7 +6,6 @@ import { ApprovalDetails, Status } from "Approvals/Approvals";
 import { SubmitApprovedSignTxMsg } from "background/approvals";
 import { UnlockVaultMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
-import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 
@@ -24,57 +23,43 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
 
-  const handleApproveTx = useCallback(async (): Promise<void> => {
-    setStatus(Status.Pending);
-    setStatusInfo(`Decrypting keys and signing transaction...`);
+  const handleApproveSignTx = useCallback(
+    async (e: React.FormEvent): Promise<void> => {
+      e.preventDefault();
+      setStatus(Status.Pending);
+      setStatusInfo(`Decrypting keys and signing transaction...`);
 
-    try {
-      if (!msgId) {
-        throw new Error("msgId was not provided!");
-      }
-      if (!signer) {
-        throw new Error("signer not provided!");
-      }
-
-      const isAuthenticated = await requester.sendMessage(
-        Ports.Background,
-        new UnlockVaultMsg(password)
-      );
-
-      if (!isAuthenticated) {
-        throw new Error("Invalid password!");
-      }
-
-      const hasMaspParams = await requester.sendMessage(
-        Ports.Background,
-        new HasMaspParamsMsg()
-      );
-
-      if (!hasMaspParams) {
-        setStatusInfo("Fetching MASP parameters...");
-        try {
-          await requester.sendMessage(
-            Ports.Background,
-            new FetchAndStoreMaspParamsMsg()
-          );
-        } catch (e) {
-          setError(`Fetching MASP parameters failed: ${e}`);
-          setStatus(Status.Failed);
+      try {
+        if (!msgId) {
+          throw new Error("msgId was not provided!");
         }
+        if (!signer) {
+          throw new Error("signer not provided!");
+        }
+
+        const isAuthenticated = await requester.sendMessage(
+          Ports.Background,
+          new UnlockVaultMsg(password)
+        );
+
+        if (!isAuthenticated) {
+          throw new Error("Invalid password!");
+        }
+
+        await requester.sendMessage(
+          Ports.Background,
+          new SubmitApprovedSignTxMsg(msgId, signer)
+        );
+
+        setStatus(Status.Completed);
+      } catch (e) {
+        console.info(e);
+        setError(`${e}`);
+        setStatus(Status.Failed);
       }
-
-      await requester.sendMessage(
-        Ports.Background,
-        new SubmitApprovedSignTxMsg(msgId, signer)
-      );
-
-      setStatus(Status.Completed);
-    } catch (e) {
-      console.info(e);
-      setError(`${e}`);
-      setStatus(Status.Failed);
-    }
-  }, [password]);
+    },
+    [password]
+  );
 
   useEffect(() => {
     if (status === Status.Completed) {
@@ -83,7 +68,7 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
   }, [status]);
 
   return (
-    <Stack gap={4}>
+    <Stack gap={4} as="form" onSubmit={handleApproveSignTx}>
       {status === Status.Pending && <Alert type="info">{statusInfo}</Alert>}
       {status === Status.Failed && (
         <Alert type="error">
@@ -101,9 +86,7 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
             onChange={(e) => setPassword(e.target.value)}
           />
           <Stack gap={3} direction="horizontal">
-            <ActionButton onClick={handleApproveTx} disabled={!password}>
-              Authenticate
-            </ActionButton>
+            <ActionButton disabled={!password}>Authenticate</ActionButton>
             <ActionButton onClick={() => navigate(-1)}>Back</ActionButton>
           </Stack>
         </>

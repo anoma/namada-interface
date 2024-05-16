@@ -27,14 +27,15 @@ export type ApprovalDetails = {
   msgId: string;
 };
 
-export type SignatureDetails = {
+export type SignArbitraryDetails = {
   msgId: string;
   signer: string;
 };
 
 export const Approvals: React.FC = () => {
   const [details, setDetails] = useState<ApprovalDetails>();
-  const [signatureDetails, setSignatureDetails] = useState<SignatureDetails>();
+  const [signArbitraryDetails, setSignArbitraryDetails] =
+    useState<SignArbitraryDetails>();
 
   return (
     <Container
@@ -67,12 +68,14 @@ export const Approvals: React.FC = () => {
         <Route
           path={`${TopLevelRoute.ApproveSignArbitrary}/:signer`}
           element={
-            <ApproveSignArbitrary setSignatureDetails={setSignatureDetails} />
+            <ApproveSignArbitrary
+              setSignArbitraryDetails={setSignArbitraryDetails}
+            />
           }
         />
         <Route
           path={TopLevelRoute.ConfirmSignArbitrary}
-          element={<ConfirmSignature details={signatureDetails} />}
+          element={<ConfirmSignature details={signArbitraryDetails} />}
         />
       </Routes>
     </Container>

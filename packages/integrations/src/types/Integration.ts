@@ -17,5 +17,4 @@ export interface Integration<T, S> {
   accounts: () => Promise<readonly T[] | undefined>;
   getChain?: () => Promise<Chain | undefined>;
   signer: () => S | undefined;
-  sync: (owners: string[]) => Promise<void>;
 }

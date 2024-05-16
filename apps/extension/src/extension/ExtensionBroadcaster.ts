@@ -1,13 +1,7 @@
-import { TxType } from "@heliax/namada-sdk/web";
 import {
   AccountChangedEventMsg,
   ConnectionRevokedEventMsg,
   NetworkChangedEventMsg,
-  ProposalsUpdatedEventMsg,
-  TxCompletedEvent,
-  TxStartedEvent,
-  UpdatedBalancesEventMsg,
-  UpdatedStakingEventMsg,
   VaultLockedEventMsg,
 } from "content/events";
 import { ExtensionRequester } from "extension";
@@ -20,39 +14,12 @@ export class ExtensionBroadcaster {
     protected readonly requester: ExtensionRequester
   ) {}
 
-  async startTx(msgId: string, txType: TxType): Promise<void> {
-    await this.sendMsgToTabs(new TxStartedEvent(msgId, txType));
-  }
-
-  async completeTx(
-    msgId: string,
-    txType: TxType,
-    success: boolean,
-    payload?: string
-  ): Promise<void> {
-    await this.sendMsgToTabs(
-      new TxCompletedEvent(msgId, txType, success, payload)
-    );
-  }
-
-  async updateBalance(): Promise<void> {
-    await this.sendMsgToTabs(new UpdatedBalancesEventMsg());
-  }
-
-  async updateStaking(): Promise<void> {
-    await this.sendMsgToTabs(new UpdatedStakingEventMsg());
-  }
-
   async updateAccounts(): Promise<void> {
     await this.sendMsgToTabs(new AccountChangedEventMsg());
   }
 
   async updateNetwork(): Promise<void> {
     await this.sendMsgToTabs(new NetworkChangedEventMsg());
-  }
-
-  async updateProposals(): Promise<void> {
-    await this.sendMsgToTabs(new ProposalsUpdatedEventMsg());
   }
 
   async lockExtension(): Promise<void> {

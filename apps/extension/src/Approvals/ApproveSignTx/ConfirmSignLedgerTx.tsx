@@ -51,43 +51,47 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
     }
   };
 
-  const handleSubmitTx = useCallback(async (): Promise<void> => {
-    const ledger = await Ledger.init().catch((e) => {
-      setError(`${e}`);
-      setStatus(Status.Failed);
-    });
+  const handleApproveLedgerSignTx = useCallback(
+    async (e: React.FormEvent): Promise<void> => {
+      e.preventDefault();
+      const ledger = await Ledger.init().catch((e) => {
+        setError(`${e}`);
+        setStatus(Status.Failed);
+      });
 
-    if (!ledger) {
-      return;
-    }
+      if (!ledger) {
+        return;
+      }
 
-    const {
-      version: { returnCode, errorMessage },
-    } = await ledger.status();
+      const {
+        version: { returnCode, errorMessage },
+      } = await ledger.status();
 
-    // Validate Ledger state first
-    if (returnCode !== LedgerError.NoErrors) {
-      await ledger.closeTransport();
-      setError(errorMessage);
-      return setStatus(Status.Failed);
-    }
+      // Validate Ledger state first
+      if (returnCode !== LedgerError.NoErrors) {
+        await ledger.closeTransport();
+        setError(errorMessage);
+        return setStatus(Status.Failed);
+      }
 
-    setStatusInfo("Preparing transaction...");
-    setStatus(Status.Pending);
+      setStatusInfo("Preparing transaction...");
+      setStatus(Status.Pending);
 
-    try {
-      // TODO: Bytes and Path will now be provided by interface when submitted for approval,
-      // which is now responsible for building Tx!
-      await signLedgerTx(ledger, new Uint8Array([]), "");
-    } catch (e) {
-      await ledger.closeTransport();
-      setError(`${e}`);
-      setStatus(Status.Failed);
-    }
-  }, []);
+      try {
+        // TODO: Bytes and Path will now be provided by interface when submitted for approval,
+        // which is now responsible for building Tx!
+        await signLedgerTx(ledger, new Uint8Array([]), "");
+      } catch (e) {
+        await ledger.closeTransport();
+        setError(`${e}`);
+        setStatus(Status.Failed);
+      }
+    },
+    []
+  );
 
   return (
-    <Stack gap={12}>
+    <Stack gap={12} as="form" onSubmit={handleApproveLedgerSignTx}>
       {status !== Status.Pending && status !== Status.Completed && (
         <Alert type="warning">
           Make sure your Ledger is unlocked, and click &quot;Submit&quot;
@@ -107,7 +111,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
             Make sure your Ledger is unlocked, and click &quot;Submit&quot;
           </p>
           <div className="flex">
-            <ActionButton onClick={handleSubmitTx}>Submit</ActionButton>
+            <ActionButton>Submit</ActionButton>
           </div>
         </>
       )}

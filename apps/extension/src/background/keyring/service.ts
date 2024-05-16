@@ -1,6 +1,6 @@
 import { fromHex } from "@cosmjs/encoding";
 
-import { PhraseSize, publicKeyToBech32, TxType } from "@heliax/namada-sdk/web";
+import { PhraseSize, publicKeyToBech32 } from "@heliax/namada-sdk/web";
 import { IndexedDBKVStore, KVStore } from "@namada/storage";
 import {
   AccountType,
@@ -155,25 +155,6 @@ export class KeyRingService {
     return await this._keyRing.getActiveAccount();
   }
 
-  async handleTransferCompleted(
-    msgId: string,
-    success: boolean,
-    payload?: string
-  ): Promise<void> {
-    await this.broadcaster.completeTx(msgId, TxType.Transfer, success, payload);
-    await this.broadcaster.updateBalance();
-  }
-
-  closeOffscreenDocument(): Promise<void> {
-    if (chrome) {
-      return chrome.offscreen.closeDocument();
-    } else {
-      return Promise.reject(
-        "Trying to close offscreen document for nor supported browser"
-      );
-    }
-  }
-
   async deleteAccount(
     accountId: string
   ): Promise<Result<null, DeleteAccountError>> {
@@ -185,38 +166,6 @@ export class KeyRingService {
     alias: string
   ): Promise<DerivedAccount> {
     return await this._keyRing.renameAccount(accountId, alias);
-  }
-
-  async fetchAndStoreMaspParams(): Promise<void> {
-    await this.sdkService.getSdk().masp.fetchAndStoreMaspParams();
-  }
-
-  async hasMaspParams(): Promise<boolean> {
-    return await this.sdkService.getSdk().masp.hasMaspParams();
-  }
-
-  async shieldedSync(): Promise<void> {
-    const vks = (await this.vaultStorage.findAll(KeyStore))
-      .filter((a) => a.public.type === AccountType.ShieldedKeys)
-      .map((a) => a.public.owner);
-
-    await this.sdkService.getSdk().rpc.shieldedSync(vks);
-  }
-
-  async queryBalances(
-    owner: string,
-    tokens: string[]
-  ): Promise<{ token: string; amount: string }[]> {
-    const account = await this.vaultStorage.findOneOrFail(
-      KeyStore,
-      "address",
-      owner
-    );
-    return this._keyRing.queryBalances(account.public.owner, tokens);
-  }
-
-  async queryPublicKey(address: string): Promise<string | undefined> {
-    return await this._keyRing.queryPublicKey(address);
   }
 
   async checkDurability(): Promise<boolean> {

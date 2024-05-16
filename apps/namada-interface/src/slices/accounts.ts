@@ -208,7 +208,6 @@ const balancesAtom = (() => {
     (get) => get(base),
     async (get, set) => {
       const accounts = await get(accountsAtom);
-      const namada = getIntegration("namada");
 
       const {
         currency: { address: nativeToken },
@@ -238,8 +237,6 @@ const balancesAtom = (() => {
       transparentBalances.forEach(([address, balance]) => {
         set(base, { ...get(base), [address]: balance });
       });
-
-      await namada.sync();
 
       const shieldedBalances = await Promise.all(
         queryBalance(shieldedAccounts, token)

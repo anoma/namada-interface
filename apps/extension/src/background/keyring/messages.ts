@@ -13,8 +13,6 @@ import {
 } from "./types";
 
 enum MessageType {
-  QueryPublicKey = "query-public-key",
-  CloseOffscreenDocument = "close-offscreen-document",
   DeriveAccount = "derive-account",
   DeriveShieldedAccount = "derive-shielded-account",
   GenerateMnemonic = "generate-mnemonic",
@@ -22,36 +20,11 @@ enum MessageType {
   QueryParentAccounts = "query-parent-accounts",
   SaveAccountSecret = "save-account-secret",
   SetActiveAccount = "set-active-account",
-  TransferCompletedEvent = "transfer-completed-event",
   DeleteAccount = "delete-account",
   ValidateMnemonic = "validate-mnemonic",
   AddLedgerAccount = "add-ledger-account",
   RevealAccountMnemonic = "reveal-account-mnemonic",
   RenameAccount = "rename-account",
-}
-
-export class QueryPublicKeyMsg extends Message<string | undefined> {
-  public static type(): MessageType {
-    return MessageType.QueryPublicKey;
-  }
-
-  constructor(public readonly address: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.address) {
-      throw new Error("address not set");
-    }
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return QueryPublicKeyMsg.type();
-  }
 }
 
 export class GenerateMnemonicMsg extends Message<string[]> {
@@ -351,56 +324,6 @@ export class QueryParentAccountsMsg extends Message<DerivedAccount[]> {
 
   type(): string {
     return QueryParentAccountsMsg.type();
-  }
-}
-
-export class CloseOffscreenDocumentMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.CloseOffscreenDocument;
-  }
-
-  constructor() {
-    super();
-  }
-
-  validate(): void {
-    return;
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return CloseOffscreenDocumentMsg.type();
-  }
-}
-
-export class TransferCompletedEvent extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.TransferCompletedEvent;
-  }
-
-  constructor(
-    public readonly success: boolean,
-    public readonly msgId: string,
-    public readonly payload?: string
-  ) {
-    super();
-  }
-
-  validate(): void {
-    if (this.success === undefined) {
-      throw new Error("Success is undefined");
-    }
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return TransferCompletedEvent.type();
   }
 }
 

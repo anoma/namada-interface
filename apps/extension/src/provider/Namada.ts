@@ -16,13 +16,10 @@ import {
   ApproveSignArbitraryMsg,
   ApproveSignTxMsg,
   CheckDurabilityMsg,
-  FetchAndStoreMaspParamsMsg,
   GetChainMsg,
-  HasMaspParamsMsg,
   IsConnectionApprovedMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
-  ShieldedSyncMsg,
   VerifyArbitraryMsg,
 } from "./messages";
 
@@ -112,13 +109,6 @@ export class Namada implements INamada {
     );
   }
 
-  public async fetchAndStoreMaspParams(): Promise<void> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new FetchAndStoreMaspParamsMsg()
-    );
-  }
-
   public async getChain(): Promise<Chain | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
@@ -126,24 +116,10 @@ export class Namada implements INamada {
     );
   }
 
-  public async hasMaspParams(): Promise<boolean | undefined> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new HasMaspParamsMsg()
-    );
-  }
-
   public async checkDurability(): Promise<boolean | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new CheckDurabilityMsg()
-    );
-  }
-
-  public async shieldedSync(): Promise<void> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new ShieldedSyncMsg()
     );
   }
 

@@ -25,15 +25,9 @@ enum MessageType {
   QueryAccounts = "query-accounts",
   QueryDefaultAccount = "query-default-account",
   ApproveSignTx = "approve-sign-tx",
-  QueryBalances = "query-balances",
-  ShieldedSync = "shielded-sync",
-  SubmitIbcTransfer = "submit-ibc-transfer",
-  SubmitLedgerTransfer = "submit-ledger-transfer",
   EncodeRevealPublicKey = "encode-reveal-public-key",
   GetChain = "get-chain",
   GetChains = "get-chains",
-  FetchAndStoreMaspParams = "fetch-and-store-masp-params",
-  HasMaspParams = "has-masp-params",
   ApproveEthBridgeTransfer = "approve-eth-bridge-transfer",
   CheckDurability = "check-durability",
   ApproveSignArbitrary = "approve-sign-arbitrary",
@@ -137,56 +131,6 @@ export class QueryAccountsMsg extends Message<DerivedAccount[]> {
   }
 }
 
-export class QueryBalancesMsg extends Message<
-  {
-    token: string;
-    amount: string;
-  }[]
-> {
-  public static type(): MessageType {
-    return MessageType.QueryBalances;
-  }
-
-  constructor(
-    public readonly owner: string,
-    public readonly tokens: string[]
-  ) {
-    super();
-  }
-
-  validate(): void {
-    validateProps(this, ["owner", "tokens"]);
-  }
-
-  route(): string {
-    return Route.KeyRing;
-  }
-
-  type(): string {
-    return QueryBalancesMsg.type();
-  }
-}
-
-export class ShieldedSyncMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.ShieldedSync;
-  }
-
-  constructor() {
-    super();
-  }
-
-  validate(): void {}
-
-  route(): string {
-    return Route.KeyRing;
-  }
-
-  type(): string {
-    return ShieldedSyncMsg.type();
-  }
-}
-
 export class QueryDefaultAccountMsg extends Message<
   DerivedAccount | undefined
 > {
@@ -234,40 +178,6 @@ export class ApproveSignTxMsg extends Message<Uint8Array[]> {
 
   type(): string {
     return ApproveSignTxMsg.type();
-  }
-}
-
-export class FetchAndStoreMaspParamsMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.FetchAndStoreMaspParams;
-  }
-  validate(): void {
-    return;
-  }
-
-  route(): string {
-    return Route.KeyRing;
-  }
-
-  type(): string {
-    return FetchAndStoreMaspParamsMsg.type();
-  }
-}
-
-export class HasMaspParamsMsg extends Message<boolean> {
-  public static type(): MessageType {
-    return MessageType.HasMaspParams;
-  }
-  validate(): void {
-    return;
-  }
-
-  route(): string {
-    return Route.KeyRing;
-  }
-
-  type(): string {
-    return HasMaspParamsMsg.type();
   }
 }
 

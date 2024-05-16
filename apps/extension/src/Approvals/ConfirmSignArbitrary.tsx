@@ -10,7 +10,7 @@ import {
 } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { PageHeader } from "App/Common";
-import { SignatureDetails, Status } from "Approvals/Approvals";
+import { SignArbitraryDetails, Status } from "Approvals/Approvals";
 import { SubmitApprovedSignArbitraryMsg } from "background/approvals";
 import { UnlockVaultMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
@@ -18,7 +18,7 @@ import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 
 type Props = {
-  details?: SignatureDetails;
+  details?: SignArbitraryDetails;
 };
 
 export const ConfirmSignature: React.FC<Props> = ({ details }) => {

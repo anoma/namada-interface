@@ -22,13 +22,12 @@ export class ChainsService {
     if (!chain) {
       throw new Error("No chain found!");
     }
-    // Update RPC & Chain ID
+    // Update chain ID
     chain = {
       ...chain,
       chainId,
     };
 
-    this.sdkService.syncChain(chain);
     await this.localStorage.setChain(chain);
     await this.broadcaster.updateNetwork();
   }

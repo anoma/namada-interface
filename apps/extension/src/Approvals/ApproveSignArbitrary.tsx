@@ -5,7 +5,7 @@ import { ActionButton, Alert, GapPatterns, Stack } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
 import { shortenAddress } from "@namada/utils";
 import { PageHeader } from "App/Common";
-import { SignatureDetails } from "Approvals/Approvals";
+import { SignArbitraryDetails } from "Approvals/Approvals";
 import { TopLevelRoute } from "Approvals/types";
 import { RejectSignArbitraryMsg } from "background/approvals";
 import { useQuery } from "hooks";
@@ -14,11 +14,11 @@ import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 
 type Props = {
-  setSignatureDetails: (details: SignatureDetails) => void;
+  setSignArbitraryDetails: (details: SignArbitraryDetails) => void;
 };
 
 export const ApproveSignArbitrary: React.FC<Props> = ({
-  setSignatureDetails,
+  setSignArbitraryDetails,
 }) => {
   const navigate = useNavigate();
   const params = useSanitizedParams();
@@ -29,7 +29,7 @@ export const ApproveSignArbitrary: React.FC<Props> = ({
 
   const handleApproveClick = useCallback((): void => {
     if (signer) {
-      setSignatureDetails({ msgId, signer });
+      setSignArbitraryDetails({ msgId, signer });
       navigate(TopLevelRoute.ConfirmSignArbitrary);
     }
   }, [signer]);

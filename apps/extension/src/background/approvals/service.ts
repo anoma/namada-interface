@@ -1,14 +1,13 @@
+import { fromBase64 } from "@cosmjs/encoding";
 import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
 
+import { BuiltTx } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import { AccountType, SignArbitraryResponse } from "@namada/types";
-
 import { paramsToUrl } from "@namada/utils";
-import { KeyRingService } from "background/keyring";
 
-import { fromBase64 } from "@cosmjs/encoding";
-import { BuiltTx } from "@namada/shared";
+import { KeyRingService } from "background/keyring";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";

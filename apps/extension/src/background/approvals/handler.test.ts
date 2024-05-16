@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { AccountType } from "@namada/types";
 import createMockInstance from "jest-create-mock-instance";
 import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
+  ApproveSignTxMsg,
   IsConnectionApprovedMsg,
 } from "provider";
 import { Message } from "router";
@@ -44,14 +46,13 @@ describe("approvals handler", () => {
       requestInteraction: () => {},
     };
 
-    // const approveTxMsg = new ApproveTxMsg(
-    //   TxType.Bond,
-    //   // TODO: Define builtTx
-    //   builtTx,
-    //   AccountType.Mnemonic
-    // );
-    // handler(env, approveTxMsg);
-    // expect(service.approveTx).toBeCalled();
+    const approveTxMsg = new ApproveSignTxMsg(
+      AccountType.PrivateKey,
+      "test",
+      []
+    );
+    handler(env, approveTxMsg);
+    expect(service.approveSignTx).toBeCalled();
 
     const rejectTxMsg = new RejectSignTxMsg("msgId");
     handler(env, rejectTxMsg);
