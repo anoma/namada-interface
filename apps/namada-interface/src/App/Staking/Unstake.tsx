@@ -3,6 +3,7 @@ import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import NamCurrency from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
+import { TransactionFees } from "App/Common/TransactionFees";
 import BigNumber from "bignumber.js";
 import { useStakeModule } from "hooks/useStakeModule";
 import invariant from "invariant";
@@ -174,21 +175,27 @@ const Unstake = (): JSX.Element => {
               />
             )}
           </Panel>
-          <ActionButton
-            size="sm"
-            color="white"
-            borderRadius="sm"
-            className="mt-2 w-1/4 mx-auto"
-            disabled={
-              !!validationMessage ||
-              isPerformingUnbond ||
-              totalUpdatedAmount.eq(0)
-            }
-          >
-            {isPerformingUnbond ?
-              "Processing..."
-            : validationMessage || "Unstake"}
-          </ActionButton>
+          <div className="relative">
+            <ActionButton
+              size="sm"
+              color="white"
+              borderRadius="sm"
+              className="mt-2 w-1/4 mx-auto"
+              disabled={
+                !!validationMessage ||
+                isPerformingUnbond ||
+                totalUpdatedAmount.eq(0)
+              }
+            >
+              {isPerformingUnbond ?
+                "Processing..."
+              : validationMessage || "Unstake"}
+            </ActionButton>
+            <TransactionFees
+              className="absolute right-4 top-1/2 -translate-y-1/2"
+              numberOfTransactions={Object.keys(updatedAmountByAddress).length}
+            />
+          </div>
         </form>
       </ModalContainer>
     </Modal>

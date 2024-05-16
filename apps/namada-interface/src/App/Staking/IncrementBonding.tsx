@@ -3,6 +3,7 @@ import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import NamCurrency from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
+import { TransactionFees } from "App/Common/TransactionFees";
 import { useStakeModule } from "hooks/useStakeModule";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useValidatorSorting } from "hooks/useValidatorSorting";
@@ -25,10 +26,10 @@ const IncrementBonding = (): JSX.Element => {
   const [onlyMyValidators, setOnlyMyValidators] = useState(false);
   const navigate = useNavigate();
   const totalNamBalance = useAtomValue(totalNamBalanceAtom);
+  const gasPrice = useAtomValue(minimumGasPriceAtom);
   const accounts = useAtomValue(transparentAccountsAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
-  const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
   const resultsPerPage = 100;
   const [seed, setSeed] = useState(Math.random());
   const {
@@ -73,12 +74,12 @@ const IncrementBonding = (): JSX.Element => {
       accounts.length > 0,
       "Extension is not connected or you don't have an account"
     );
-    invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
+    invariant(gasPrice.data, "Gas price loading is still pending");
     performBond({
       changes: parseUpdatedAmounts(),
       account: accounts[0],
       gasConfig: {
-        gasPrice: minimumGasPrice.data!,
+        gasPrice: gasPrice.data!,
         gasLimit: GAS_LIMIT,
       },
     });
@@ -186,17 +187,23 @@ const IncrementBonding = (): JSX.Element => {
               />
             )}
           </Panel>
-          <ActionButton
-            type="submit"
-            size="sm"
-            borderRadius="sm"
-            className="mt-2 w-1/4 mx-auto"
-            disabled={
-              !!errorMessage || isPerformingBond || totalUpdatedAmount.eq(0)
-            }
-          >
-            {isPerformingBond ? "Processing..." : errorMessage || "Stake"}
-          </ActionButton>
+          <div className="relative">
+            <ActionButton
+              type="submit"
+              size="sm"
+              borderRadius="sm"
+              className="mt-2 w-1/4 mx-auto"
+              disabled={
+                !!errorMessage || isPerformingBond || totalUpdatedAmount.eq(0)
+              }
+            >
+              {isPerformingBond ? "Processing..." : errorMessage || "Stake"}
+            </ActionButton>
+            <TransactionFees
+              className="absolute right-4 top-1/2 -translate-y-1/2"
+              numberOfTransactions={Object.keys(updatedAmountByAddress).length}
+            />
+          </div>
         </form>
       </ModalContainer>
     </Modal>

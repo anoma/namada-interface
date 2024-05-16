@@ -12,7 +12,7 @@ export const ModalContainer = ({
   children,
 }: ModalContainerProps): JSX.Element => {
   return (
-    <div className="relative flex flex-col lg:w-[90vw] 2xl:w-[75vw] h-[90svh] overflow-auto px-6 py-6 bg-neutral-800 text-white rounded-md">
+    <div className="relative flex flex-col w-[95vw] lg:w-[90vw] 2xl:w-[75vw] h-[90svh] overflow-auto px-6 py-6 bg-neutral-800 text-white rounded-md">
       <i
         className="cursor-pointer text-white absolute top-4 right-6 text-3xl p-1.5 hover:text-yellow z-50"
         onClick={onClose}
