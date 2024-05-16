@@ -1,14 +1,15 @@
 import { ActionButton, ProgressBar, Stack } from "@namada/components";
-import { formatEpoch } from "@namada/utils";
-import { useAtomValue } from "jotai";
-import GovernanceRoutes from "./routes";
-
 import { Proposal, ProposalStatus } from "@namada/types";
+import { formatEpoch } from "@namada/utils";
+import clsx from "clsx";
+import { useAtomValue } from "jotai";
+import { FaChevronLeft } from "react-icons/fa";
 import { SiWebassembly } from "react-icons/si";
 import { VscJson } from "react-icons/vsc";
 import { Link, useNavigate } from "react-router-dom";
 import { currentEpochAtom } from "slices/proposals";
 import { StatusLabel, TypeLabel, VotedLabel } from "./ProposalLabels";
+import GovernanceRoutes from "./routes";
 
 const WasmButton: React.FC<{
   wasmCode?: Uint8Array;
@@ -49,9 +50,7 @@ export const ProposalHeader: React.FC<{
   status: ProposalStatus;
 }> = ({ proposal, voted, status }) => {
   const navigate = useNavigate();
-
   const voteButtonDisabled = voted || status.status !== "ongoing";
-
   const { startEpoch, endEpoch } = proposal;
   const currentEpoch = useAtomValue(currentEpochAtom);
 
@@ -69,7 +68,7 @@ export const ProposalHeader: React.FC<{
     <>
       <div className="flex mb-5">
         <div className="w-full">
-          <div className="text-xxs text-neutral-500 mb-5">
+          <div className="text-xxs text-neutral-500">
             <Link
               className="transition-colors hover:text-white"
               to={GovernanceRoutes.index()}
@@ -84,6 +83,19 @@ export const ProposalHeader: React.FC<{
               Proposal #{proposal.id.toString()}
             </Link>
           </div>
+          <Link
+            to={GovernanceRoutes.index()}
+            className={clsx(
+              "inline-flex items-center text-xxs gap-1",
+              "text-neutral-200 bg-neutral-900 my-2 px-2 py-0.5 rounded-sm",
+              "hover:text-yellow"
+            )}
+          >
+            <i className="text-[0.8em]">
+              <FaChevronLeft />
+            </i>{" "}
+            Back
+          </Link>
           <Stack gap={2.5}>
             <TypeLabel proposalType={proposal.proposalType} />
             <div className="text-xl">
