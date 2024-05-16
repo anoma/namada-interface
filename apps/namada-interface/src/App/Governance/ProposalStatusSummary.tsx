@@ -100,7 +100,7 @@ export const ProposalStatusSummary: React.FC<{
   const handleMouseLeave = (): void => setHoveredVoteType(undefined);
 
   return (
-    <Stack gap={4}>
+    <Stack className="@sm:flex-row" gap={4}>
       <PieChart
         id="proposal-status-pie-chart"
         data={data}
@@ -127,24 +127,27 @@ export const ProposalStatusSummary: React.FC<{
         </AnimatePresence>
       </PieChart>
 
-      <Stack as="ul" gap={1}>
-        {voteTypes.map((voteType, i) => (
-          <StatusListItem
-            key={i}
-            color={colors[voteType]}
-            leftContent={voteType}
-            rightContent={percentageString(status[voteType])}
-            rightSubContent={status[voteType].toString() + " NAM"}
-            selected={hoveredVoteType === voteType}
-          />
-        ))}
-      </Stack>
+      <div className="contents w-full @sm:block">
+        <Stack as="ul" gap={1}>
+          {voteTypes.map((voteType, i) => (
+            <StatusListItem
+              key={i}
+              color={colors[voteType]}
+              leftContent={voteType}
+              rightContent={percentageString(status[voteType])}
+              rightSubContent={status[voteType].toString() + " NAM"}
+              selected={hoveredVoteType === voteType}
+            />
+          ))}
+        </Stack>
 
-      <div>
-        <h3 className="text-[#A3A3A3] text-xs">Turnout / Quorum</h3>
-        <p className="text-xl">
-          {formatPercentage(votedProportion, 2)} / {formatPercentage(quorum, 2)}
-        </p>
+        <div className="@sm:mt-6">
+          <h3 className="text-[#A3A3A3] text-xs">Turnout / Quorum</h3>
+          <p className="text-xl">
+            {formatPercentage(votedProportion, 2)} /{" "}
+            {formatPercentage(quorum, 2)}
+          </p>
+        </div>
       </div>
     </Stack>
   );
