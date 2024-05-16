@@ -1,5 +1,4 @@
 import { SegmentedBar, Stack } from "@namada/components";
-import BigNumber from "bignumber.js";
 import GovernanceRoutes from "./routes";
 
 import { Proposal, ProposalStatus, ProposalWithExtraInfo } from "@namada/types";
@@ -50,12 +49,6 @@ export const UpcomingProposals: React.FC<{
   const upcomingProposals = allProposals.filter(
     (proposal) => proposal.status.status === "pending"
   );
-
-  const voteSummary = {
-    yay: BigNumber(0),
-    nay: BigNumber(0),
-    abstain: BigNumber(0),
-  };
 
   return (
     <Stack gap={4} as="ul">
