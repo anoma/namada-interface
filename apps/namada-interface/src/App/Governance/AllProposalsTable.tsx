@@ -1,7 +1,7 @@
 import { GoCheckCircleFill, GoInfo } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 
-import { StyledTable, TableRow } from "@namada/components";
+import { Select, Stack, StyledTable, TableRow } from "@namada/components";
 import { Proposal, ProposalWithExtraInfo } from "@namada/types";
 import clsx from "clsx";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
@@ -86,13 +86,42 @@ export const AllProposalsTable: React.FC<{
   });
 
   return (
-    <StyledTable
-      tableProps={{ className: "w-full text-xs [&_td]:px-2 [&_th]:px-2" }}
-      headProps={{ className: "text-xs" }}
-      className=""
-      id="all-proposals-table"
-      headers={headers}
-      rows={allProposals.map(renderRow)}
-    />
+    <Stack gap={4}>
+      <div className="flex gap-2 items-end">
+        <Select
+          value="all"
+          label="Proposal Status"
+          data={[
+            { value: "all", label: "All" },
+            { value: "upcoming", label: "Upcoming" },
+            { value: "onoing", label: "Ongoing" },
+            { value: "passed", label: "Passed" },
+            { value: "rejected", label: "Rejected" },
+          ]}
+          name="proposal-status-select"
+        />
+
+        <Select
+          value="all"
+          label="Proposal Type"
+          data={[
+            { value: "all", label: "All" },
+            { value: "default", label: "Default" },
+            { value: "pgf_steward", label: "PGF Steward" },
+            { value: "pgf_payment", label: "PGF Payment" },
+          ]}
+          name="proposal-type-select"
+        />
+      </div>
+
+      <StyledTable
+        tableProps={{ className: "w-full text-xs [&_td]:px-2 [&_th]:px-2" }}
+        headProps={{ className: "text-xs" }}
+        className=""
+        id="all-proposals-table"
+        headers={headers}
+        rows={allProposals.map(renderRow)}
+      />
+    </Stack>
   );
 };
