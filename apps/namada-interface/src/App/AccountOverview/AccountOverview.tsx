@@ -36,7 +36,11 @@ export const AccountOverview = (): JSX.Element => {
 
   return (
     <PageWithSidebar>
-      <div className="flex items-center bg-black rounded-sm w-full">
+      <div
+        className={clsx("flex items-center bg-black rounded-sm w-full", {
+          "col-span-2": !isConnected,
+        })}
+      >
         {!isConnected && (
           <div className="w-[420px] mx-auto">
             <Intro
