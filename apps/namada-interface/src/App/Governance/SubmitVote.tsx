@@ -7,6 +7,7 @@ import {
 } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
 import { VoteType, isVoteType, voteTypes } from "@namada/types";
+import { TransactionFees } from "App/Common/TransactionFees";
 import clsx from "clsx";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -104,7 +105,7 @@ export const SubmitVote: React.FC = () => {
           </Stack>
         )}
         {proposalQueryResult.isSuccess && proposal && (
-          <Stack gap={5} full as="form" onSubmit={onSubmit}>
+          <Stack gap={4} full as="form" onSubmit={onSubmit}>
             <div>
               #{proposal.id.toString()} {proposal.content.title}
             </div>
@@ -123,6 +124,12 @@ export const SubmitVote: React.FC = () => {
                 <div key={i}>{}</div>
               ))}
             </Stack>
+            <footer>
+              <TransactionFees
+                className="flex justify-between"
+                numberOfTransactions={1}
+              />
+            </footer>
             <ActionButton
               type="submit"
               borderRadius="sm"
