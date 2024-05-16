@@ -2,6 +2,7 @@ import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { TableRowLoading } from "App/Common/TableRowLoading";
+import { TransactionFees } from "App/Common/TransactionFees";
 import { useStakeModule } from "hooks/useStakeModule";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useValidatorSorting } from "hooks/useValidatorSorting";
@@ -191,19 +192,25 @@ const ReDelegate = (): JSX.Element => {
               />
             )}
           </Panel>
-          <ActionButton
-            size="sm"
-            color="white"
-            borderRadius="sm"
-            className="mt-2 w-1/4 mx-auto"
-            disabled={
-              !!validationMessage ||
-              !pendingToDistribute.eq(0) ||
-              isPerformingRedelegation
-            }
-          >
-            {validationMessage || "Re-Delegate"}
-          </ActionButton>
+          <div className="relative">
+            <ActionButton
+              size="sm"
+              color="white"
+              borderRadius="sm"
+              className="mt-2 w-1/4 mx-auto"
+              disabled={
+                !!validationMessage ||
+                !pendingToDistribute.eq(0) ||
+                isPerformingRedelegation
+              }
+            >
+              {validationMessage || "Re-Delegate"}
+            </ActionButton>
+            <TransactionFees
+              className="absolute right-4 top-1/2 -translate-y-1/2"
+              numberOfTransactions={Object.keys(updatedAmountByAddress).length}
+            />
+          </div>
         </form>
       </ModalContainer>
     </Modal>
