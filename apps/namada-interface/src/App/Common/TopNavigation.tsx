@@ -32,7 +32,7 @@ export const TopNavigation = ({ chain }: Props): JSX.Element => {
             label="Hide Balances"
             checked={hideBalances}
             onChange={() => setHideBalances(!hideBalances)}
-            containerProps={{ className: "text-white" }}
+            containerProps={{ className: "hidden text-white md:flex" }}
           />
           {separator}
           <CurrencySelector
