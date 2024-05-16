@@ -16,16 +16,11 @@ import {
 } from "slices/notifications";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import { myValidatorsAtom } from "slices/validators";
-import { useAppDispatch } from "store";
-import {
-  NamadaConnectionRevokedHandler,
-  NamadaProposalsUpdatedHandler,
-} from "./handlers";
+import { NamadaConnectionRevokedHandler } from "./handlers";
 
 export const ExtensionEventsContext = createContext({});
 
 export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
-  const dispatch = useAppDispatch();
   const namadaIntegration = useIntegration("namada");
   const keplrIntegration = useIntegration("cosmos");
   const metamaskIntegration = useIntegration("ethereum");
@@ -40,7 +35,6 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const dismissNotifications = useSetAtom(filterToastNotificationsAtom);
 
   // Instantiate handlers:
-  const namadaProposalsUpdatedHandler = NamadaProposalsUpdatedHandler();
   const namadaConnectionRevokedHandler = NamadaConnectionRevokedHandler(
     namadaIntegration as Namada,
     setNamadaExtensionConnected
@@ -86,7 +80,23 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     refreshChain();
   });
 
-  useEventListenerOnce(Events.ProposalsUpdated, namadaProposalsUpdatedHandler);
+  useEventListenerOnce(Events.ProposalsUpdated, () => {
+    dismissNotifications(
+      ({ data }) =>
+        !(data.type === "pending" && data.id.indexOf("proposal-voted") >= 0)
+    );
+
+    dispatchNotification(
+      {
+        id: "proposal-success",
+        type: "success",
+        title: "Voting processed successfully!",
+        description: "Your vote has been successfully computed.",
+      },
+      { timeout: 5000 }
+    );
+  });
+
   useEventListenerOnce(
     Events.ConnectionRevoked,
     namadaConnectionRevokedHandler

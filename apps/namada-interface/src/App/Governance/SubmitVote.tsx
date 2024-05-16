@@ -9,19 +9,22 @@ import { useSanitizedParams } from "@namada/hooks";
 import { VoteType, isVoteType, voteTypes } from "@namada/types";
 import clsx from "clsx";
 import invariant from "invariant";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { dispatchToastNotificationAtom } from "slices/notifications";
 import { performVoteAtom, proposalFamily } from "slices/proposals";
 import GovernanceRoutes from "./routes";
 
 export const SubmitVote: React.FC = () => {
   const navigate = useNavigate();
   const { mutate: performVote, isSuccess } = useAtomValue(performVoteAtom);
+  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
 
   useEffect(() => {
     if (isSuccess) {
+      dispatchSuccessNotification();
       onCloseModal();
     }
   }, [isSuccess]);
@@ -42,6 +45,16 @@ export const SubmitVote: React.FC = () => {
     proposalQueryResult.isSuccess ? proposalQueryResult.data : null;
 
   const onCloseModal = (): void => navigate(-1);
+
+  const dispatchSuccessNotification = (): void => {
+    dispatchNotification({
+      id: "proposal-voted",
+      type: "pending",
+      title: "Governance transaction in progress",
+      description: `You've voted ${selectedVoteType} for the proposal
+          #${proposalId}. Your transaction is being procesed.`,
+    });
+  };
 
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
