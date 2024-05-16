@@ -1,6 +1,5 @@
 import clsx from "clsx";
 import React from "react";
-import { GoArrowDown } from "react-icons/go";
 import { tv } from "tailwind-variants";
 
 export type Option<T> = {
@@ -10,11 +9,11 @@ export type Option<T> = {
 
 const selectClassList = tv({
   slots: {
-    label: "text-sm font-medium text-neutral-300 w-full [&_p]:pb-1",
-    wrapper: "relative flex justify-end items-center w-full py-3 text-yellow",
+    label: "text-xs text-[#8A8A8A] pl-5 pb-1",
+    wrapper: "flex flex-col",
     select: clsx(
-      "unset w-full py-[0.875em] px-[1em] rounded-lg absolute left-0 bg-neutral-800",
-      "h-12 mt-2 pr-2 pl-4 cursor-pointer"
+      "bg-[#1B1B1B] text-sm text-[#656565] border-transparent",
+      "px-4 py-2 border-r-[12px] rounded-md"
     ),
   },
 });
@@ -24,8 +23,9 @@ type Props<T = string | number> = {
   label?: string | JSX.Element;
   data: Option<T>[];
   style?: React.CSSProperties;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void | Promise<void>;
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void | Promise<void>;
   className?: string;
+  name: string;
 };
 
 function Select<T>({
@@ -35,29 +35,28 @@ function Select<T>({
   style,
   onChange,
   className,
+  name,
 }: Props<T>): JSX.Element {
   const classList = selectClassList();
   return (
-    <label className={classList.label({ class: className })}>
-      {label}
-      <div className={classList.wrapper()}>
-        <select
-          className={classList.select()}
-          onChange={onChange}
-          value={`${value}`}
-          style={style}
-        >
-          {data.map((option: Option<T>) => (
-            <option key={`${option.value}`} value={`${option.value}`}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <i className="text-[20px] text-yellow">
-          <GoArrowDown />
-        </i>
-      </div>
-    </label>
+    <div className={classList.wrapper()}>
+      <label className={classList.label({ class: className })} htmlFor={name}>
+        {label}
+      </label>
+      <select
+        className={classList.select()}
+        onChange={(event) => onChange?.(event)}
+        value={`${value}`}
+        style={style}
+        name={name}
+      >
+        {data.map((option: Option<T>) => (
+          <option key={`${option.value}`} value={`${option.value}`}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }
 
