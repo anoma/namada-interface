@@ -26,7 +26,7 @@ export const ProposalAndVote: React.FC = () => {
   const status = useAtomValue(proposalStatusFamily(proposalId));
 
   return (
-    <div className="grid grid-cols-[auto_270px] gap-2">
+    <div className="flex flex-col md:grid md:grid-cols-[auto_270px] gap-2">
       <div className="flex flex-col gap-1.5">
         <Panel className="px-3">
           {atomsAreFetching(proposal, voted, status) && (
@@ -63,7 +63,7 @@ export const ProposalAndVote: React.FC = () => {
         </Panel>
       </div>
       <aside className="flex flex-col gap-2">
-        <Panel title="Proposal Status">
+        <Panel className="@container" title="Proposal Status">
           {atomsAreFetching(proposal, status) && (
             <SkeletonLoading height="150px" width="100%" />
           )}

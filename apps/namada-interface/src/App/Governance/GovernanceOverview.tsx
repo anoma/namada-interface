@@ -45,7 +45,7 @@ export const GovernanceOverview: React.FC = () => {
           )}
         </Panel>
       </div>
-      <aside className="flex flex-col gap-2">
+      <aside className="flex flex-col gap-2 mt-1.5 lg:mt-0">
         <Panel>
           {atomsAreFetching(allProposals) && (
             <SkeletonLoading height="150px" width="100%" />

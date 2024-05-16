@@ -16,8 +16,8 @@ export const CurrencySelector = ({
   const getCurrencySymbol = (symbol: string): React.ReactNode => (
     <span
       className={clsx(
-        "group-hover/item:bg-cyan mr-3 w-5 h-5 rounded-full bg-yellow text-black",
-        "flex justify-center items-center"
+        "group-hover/item:bg-cyan w-5 h-5 rounded-full bg-yellow text-black",
+        "flex justify-center items-center md:mr-3 "
       )}
     >
       {symbol}
@@ -31,12 +31,16 @@ export const CurrencySelector = ({
         value={value}
         displayArrow={true}
         defaultValue={value}
+        containerProps={{
+          className: "[&_.currency-name]:hidden md:[&_.currency-name]:inline",
+        }}
         onChange={(e) => onChange(e.target.value)}
         options={currencies.map((currency) => ({
           id: currency.id,
           value: (
             <>
-              {getCurrencySymbol(currency.sign)} {currency.plural}
+              {getCurrencySymbol(currency.sign)}{" "}
+              <span className="currency-name">{currency.plural}</span>
             </>
           ),
           ariaLabel: currency.plural,
