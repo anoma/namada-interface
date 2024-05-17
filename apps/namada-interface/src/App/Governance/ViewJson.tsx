@@ -111,7 +111,7 @@ const getProposalJsonString = (proposal: Proposal): string => {
       // Stop JSON.stringify from spacing out WASM data.
       // This adds double quotes we need to go back and remove later.
       if (value instanceof Object.getPrototypeOf(Uint8Array)) {
-        return JSON.stringify(Array.from(value));
+        return "[" + Array.from(value).join(", ") + "]";
       }
 
       return value;
@@ -174,8 +174,10 @@ export const ViewJson: React.FC = () => {
           : <GoCopy />}
         </i>
         <pre
-          className="overflow-x-auto dark-scrollbar whitespace-pre-wrap
-    px-8 pt-4 mt-8 h-[95%]"
+          className={clsx(
+            "overflow-x-auto dark-scrollbar whitespace-pre-wrap",
+            "px-8 pt-4 mt-8 h-[95%]"
+          )}
         >
           {jsonString}
         </pre>
