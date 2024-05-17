@@ -1,7 +1,7 @@
 import { ActionButton, TableRow } from "@namada/components";
 import { formatPercentage, shortenAddress } from "@namada/utils";
+import { Search } from "App/Common/Search";
 import { TableRowLoading } from "App/Common/TableRowLoading";
-import { ValidatorSearch } from "App/Staking/ValidatorSearch";
 import BigNumber from "bignumber.js";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useAtomValue } from "jotai";
@@ -90,7 +90,10 @@ export const AllValidatorsTable = ({
   return (
     <div className="min-h-[450px] flex flex-col">
       <div className="grid grid-cols-[40%_max-content] justify-between mb-5">
-        <ValidatorSearch onChange={(value: string) => setFilter(value)} />
+        <Search
+          onChange={(value: string) => setFilter(value)}
+          placeholder="Search Validator"
+        />
         {isConnected && (
           <ActionButton
             size="sm"
