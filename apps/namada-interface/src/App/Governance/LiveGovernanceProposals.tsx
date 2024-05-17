@@ -18,7 +18,7 @@ import { colors } from "./types";
 const ProposalListItem: React.FC<{
   proposal: Proposal;
   status: ProposalStatus;
-  voted: boolean;
+  voted?: boolean;
   votes: Votes;
 }> = ({ proposal, status, voted, votes }) => {
   const navigate = useNavigate();
@@ -53,20 +53,22 @@ const ProposalListItem: React.FC<{
         <div className="min-w-[6ch]">#{proposal.id.toString()}</div>
         <div className="flex-1">{proposal.content.title}</div>
         <TypeLabel proposalType={proposal.proposalType} color="dark" />
-        <div>
-          {voted ?
-            <VotedLabel className="text-[10px]" />
-          : <ActionButton
-              className="uppercase py-1.5"
-              size="xs"
-              color="white"
-              borderRadius="sm"
-              onClick={onVote}
-            >
-              Vote
-            </ActionButton>
-          }
-        </div>
+        {typeof voted !== "undefined" && (
+          <div>
+            {voted ?
+              <VotedLabel className="text-[10px]" />
+            : <ActionButton
+                className="uppercase py-1.5"
+                size="xs"
+                color="white"
+                borderRadius="sm"
+                onClick={onVote}
+              >
+                Vote
+              </ActionButton>
+            }
+          </div>
+        )}
         <i
           className={clsx(
             "flex justify-center w-10 text-md text-center",
@@ -82,10 +84,17 @@ const ProposalListItem: React.FC<{
   );
 };
 
-export const LiveGovernanceProposals: React.FC<{
+type LiveGovernanceProposalsProps = (
+  | { isExtensionConnected: true; votedProposalIds: bigint[] }
+  | { isExtensionConnected: false }
+) & {
   allProposals: ProposalWithExtraInfo[];
-}> = ({ allProposals }) => {
-  const liveProposals = allProposals.filter(
+};
+
+export const LiveGovernanceProposals: React.FC<LiveGovernanceProposalsProps> = (
+  props
+) => {
+  const liveProposals = props.allProposals.filter(
     (proposal) => proposal.status.status === "ongoing"
   );
 
@@ -97,15 +106,22 @@ export const LiveGovernanceProposals: React.FC<{
 
   return (
     <Stack gap={4} as="ul">
-      {liveProposals.map(({ proposal, status, voted }, index) => (
-        <ProposalListItem
-          proposal={proposal}
-          status={status}
-          voted={voted}
-          votes={voteSummary}
-          key={index}
-        />
-      ))}
+      {liveProposals.map(({ proposal, status }, index) => {
+        const voted =
+          props.isExtensionConnected ?
+            props.votedProposalIds.includes(proposal.id)
+          : undefined;
+
+        return (
+          <ProposalListItem
+            proposal={proposal}
+            status={status}
+            voted={voted}
+            votes={voteSummary}
+            key={index}
+          />
+        );
+      })}
     </Stack>
   );
 };

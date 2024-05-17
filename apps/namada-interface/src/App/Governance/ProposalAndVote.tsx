@@ -8,6 +8,7 @@ import {
   proposalStatusFamily,
   proposalVotedFamily,
 } from "slices/proposals";
+import { namadaExtensionConnectedAtom } from "slices/settings";
 import { atomsAreFetching, atomsAreLoaded } from "store/utils";
 import { ProposalDescription } from "./ProposalDescription";
 import { ProposalHeader } from "./ProposalHeader";
@@ -21,23 +22,37 @@ export const ProposalAndVote: React.FC = () => {
   // TODO: handle NaN case
   const proposalId = BigInt(Number.parseInt(proposalIdString));
 
+  const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const proposal = useAtomValue(proposalFamily(proposalId));
   const voted = useAtomValue(proposalVotedFamily(proposalId));
   const status = useAtomValue(proposalStatusFamily(proposalId));
+
+  // TODO: is there a better way than this to show that voted is dependent on
+  // isConnected?
+  const extensionAtoms = isConnected ? [voted] : [];
 
   return (
     <div className="flex flex-col md:grid md:grid-cols-[auto_270px] gap-2">
       <div className="flex flex-col gap-1.5">
         <Panel className="px-3">
-          {atomsAreFetching(proposal, voted, status) && (
+          {atomsAreFetching(proposal, status, ...extensionAtoms) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
           <div className="px-12">
-            {atomsAreLoaded(proposal, voted, status) && (
+            {isConnected &&
+              atomsAreLoaded(proposal, status, ...extensionAtoms) && (
+                <ProposalHeader
+                  proposal={proposal.data!}
+                  status={status.data!}
+                  isExtensionConnected={true}
+                  voted={voted.data!}
+                />
+              )}
+            {!isConnected && atomsAreLoaded(proposal, status) && (
               <ProposalHeader
                 proposal={proposal.data!}
-                voted={voted.data!}
                 status={status.data!}
+                isExtensionConnected={false}
               />
             )}
           </div>
