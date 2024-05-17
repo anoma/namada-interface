@@ -1,7 +1,12 @@
 import { GoCheckCircleFill, GoInfo } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 
-import { Select, Stack, StyledTable, TableRow } from "@namada/components";
+import {
+  Stack,
+  StyledSelectBox,
+  StyledTable,
+  TableRow,
+} from "@namada/components";
 import { Proposal, ProposalWithExtraInfo } from "@namada/types";
 import clsx from "clsx";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
@@ -94,29 +99,67 @@ export const AllProposalsTable: React.FC<AllProposalsTableProps> = (props) => {
   return (
     <Stack gap={4}>
       <div className="flex gap-2 items-end">
-        <Select
+        <TableSelect
           value="all"
-          label="Proposal Status"
-          data={[
-            { value: "all", label: "All" },
-            { value: "upcoming", label: "Upcoming" },
-            { value: "onoing", label: "Ongoing" },
-            { value: "passed", label: "Passed" },
-            { value: "rejected", label: "Rejected" },
+          defaultValue="all"
+          options={[
+            {
+              id: "all",
+              value: <TableSelectOption>All</TableSelectOption>,
+              ariaLabel: "",
+            },
+            {
+              id: "default",
+              value: <TableSelectOption>Default</TableSelectOption>,
+              ariaLabel: "",
+            },
+            {
+              id: "pgf_steward",
+              value: <TableSelectOption>Pgf Steward</TableSelectOption>,
+              ariaLabel: "",
+            },
+            {
+              id: "pgf_payment",
+              value: <TableSelectOption>PGF Payment</TableSelectOption>,
+              ariaLabel: "",
+            },
           ]}
-          name="proposal-status-select"
+          id="proposal-type-select"
+          label="Proposal Type"
         />
 
-        <Select
+        <TableSelect
           value="all"
-          label="Proposal Type"
-          data={[
-            { value: "all", label: "All" },
-            { value: "default", label: "Default" },
-            { value: "pgf_steward", label: "PGF Steward" },
-            { value: "pgf_payment", label: "PGF Payment" },
+          defaultValue="all"
+          options={[
+            {
+              id: "all",
+              value: <TableSelectOption>All</TableSelectOption>,
+              ariaLabel: "",
+            },
+            {
+              id: "upcoming",
+              value: <TableSelectOption>Upcoming</TableSelectOption>,
+              ariaLabel: "",
+            },
+            {
+              id: "ongoing",
+              value: <TableSelectOption>Ongoing</TableSelectOption>,
+              ariaLabel: "",
+            },
+            {
+              id: "passed",
+              value: <TableSelectOption>Passed</TableSelectOption>,
+              ariaLabel: "",
+            },
+            {
+              id: "rejected",
+              value: <TableSelectOption>Rejected</TableSelectOption>,
+              ariaLabel: "",
+            },
           ]}
-          name="proposal-type-select"
+          id="proposal-status-select"
+          label="Proposal Status"
         />
       </div>
 
@@ -131,3 +174,31 @@ export const AllProposalsTable: React.FC<AllProposalsTableProps> = (props) => {
     </Stack>
   );
 };
+
+const TableSelectOption: React.FC<{
+  children?: React.ReactNode;
+}> = ({ children }) => <span className="col-span-full">{children}</span>;
+
+const TableSelect: React.FC<
+  Omit<
+    React.ComponentProps<typeof StyledSelectBox>,
+    "containerProps" | "listItemProps"
+  > & { label: string }
+> = (props) => (
+  <div className="flex flex-col">
+    <div className="text-xs text-[#8A8A8A] pl-5 pb-1">{props.label}</div>
+
+    <StyledSelectBox
+      containerProps={{
+        className: clsx(
+          "bg-[#1B1B1B] text-sm text-[#656565] rounded-md w-48 px-5 py-2",
+          "border-r-[12px] border-transparent"
+        ),
+      }}
+      listItemProps={{
+        className: "w-32",
+      }}
+      {...props}
+    />
+  </div>
+);
