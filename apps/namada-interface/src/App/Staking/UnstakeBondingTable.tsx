@@ -120,14 +120,12 @@ export const UnstakeBondingTable = ({
   };
 
   return (
-    <div>
-      <ValidatorsTable
-        id="increment-bonding-table"
-        tableClassName="mt-2"
-        validatorList={myValidators.map((mv) => mv.validator)}
-        headers={headers}
-        renderRow={renderRow}
-      />
-    </div>
+    <ValidatorsTable
+      id="increment-bonding-table"
+      tableClassName="mt-2"
+      validatorList={myValidators.map((mv) => mv.validator)}
+      headers={headers}
+      renderRow={renderRow}
+    />
   );
 };

@@ -5,6 +5,7 @@ import NamCurrency from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { TransactionFees } from "App/Common/TransactionFees";
 import BigNumber from "bignumber.js";
+import clsx from "clsx";
 import { useStakeModule } from "hooks/useStakeModule";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -152,18 +153,24 @@ const Unstake = (): JSX.Element => {
               </Stack>
             </Panel>
           </div>
-          <Panel className="relative w-full rounded-md flex-1">
+          <Panel
+            className={clsx(
+              "grid grid-rows[max_content_max_content_auto] overflow-hidden relative w-full rounded-md flex-1"
+            )}
+          >
             {validators.data && (
-              <ActionButton
-                type="button"
-                className="inline-flex w-auto leading-none px-4 py-3 mb-4"
-                color="magenta"
-                borderRadius="sm"
-                outlined
-                onClick={onUnbondAll}
-              >
-                Unbond All
-              </ActionButton>
+              <div>
+                <ActionButton
+                  type="button"
+                  className="inline-flex w-auto leading-none px-4 py-3 mb-4"
+                  color="magenta"
+                  borderRadius="sm"
+                  outlined
+                  onClick={onUnbondAll}
+                >
+                  Unbond All
+                </ActionButton>
+              </div>
             )}
             {validators.isLoading && <TableRowLoading count={2} />}
             {validators.isSuccess && (
