@@ -58,6 +58,10 @@ impl BuiltTx {
     pub fn tx_bytes(&self) -> Result<Vec<u8>, JsError> {
         Ok(borsh::to_vec(&self.tx)?)
     }
+
+    pub fn tx_hash(&self) -> String {
+        self.tx.raw_header_hash().to_string()
+    }
 }
 
 /// Represents the Sdk public API.

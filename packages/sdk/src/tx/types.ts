@@ -26,6 +26,14 @@ export class EncodedTx {
   }
 
   /**
+   * Return the inner Tx hash of the built Tx
+   * @returns string of tx hash
+   */
+  hash(): string {
+    return this.tx.tx_hash();
+  }
+
+  /**
    * Clear tx bytes resource
    */
   free(): void {

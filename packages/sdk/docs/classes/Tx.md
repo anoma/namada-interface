@@ -50,7 +50,7 @@ SDK functionality related to transactions
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:34](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L34)
+[sdk/src/tx/tx.ts:34](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L34)
 
 ## Properties
 
@@ -62,7 +62,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:34](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L34)
+[sdk/src/tx/tx.ts:34](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L34)
 
 ## Methods
 
@@ -87,7 +87,7 @@ Append signature for transactions signed by Ledger Hardware Wallet
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:389](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L389)
+[sdk/src/tx/tx.ts:389](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L389)
 
 ___
 
@@ -115,7 +115,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:182](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L182)
+[sdk/src/tx/tx.ts:182](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L182)
 
 ___
 
@@ -143,7 +143,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:311](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L311)
+[sdk/src/tx/tx.ts:311](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L311)
 
 ___
 
@@ -171,7 +171,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:284](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L284)
+[sdk/src/tx/tx.ts:284](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L284)
 
 ___
 
@@ -199,7 +199,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:257](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L257)
+[sdk/src/tx/tx.ts:257](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L257)
 
 ___
 
@@ -226,7 +226,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:163](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L163)
+[sdk/src/tx/tx.ts:163](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L163)
 
 ___
 
@@ -254,7 +254,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:136](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L136)
+[sdk/src/tx/tx.ts:136](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L136)
 
 ___
 
@@ -283,7 +283,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:70](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L70)
+[sdk/src/tx/tx.ts:70](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L70)
 
 ___
 
@@ -312,7 +312,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:45](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L45)
+[sdk/src/tx/tx.ts:45](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L45)
 
 ___
 
@@ -340,7 +340,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:207](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L207)
+[sdk/src/tx/tx.ts:207](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L207)
 
 ___
 
@@ -368,7 +368,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:338](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L338)
+[sdk/src/tx/tx.ts:338](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L338)
 
 ___
 
@@ -396,7 +396,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:232](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L232)
+[sdk/src/tx/tx.ts:232](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L232)
 
 ___
 
@@ -420,7 +420,7 @@ Serialized TxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:430](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L430)
+[sdk/src/tx/tx.ts:430](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L430)
 
 ___
 
@@ -447,7 +447,7 @@ void
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:378](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L378)
+[sdk/src/tx/tx.ts:378](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L378)
 
 ___
 
@@ -474,4 +474,4 @@ promise that resolves to a SignedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:364](https://github.com/anoma/namada-interface/blob/b9bf6889/packages/sdk/src/tx/tx.ts#L364)
+[sdk/src/tx/tx.ts:364](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/tx.ts#L364)
