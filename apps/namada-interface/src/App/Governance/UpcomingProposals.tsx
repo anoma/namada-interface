@@ -15,7 +15,7 @@ const ProposalListItem: React.FC<{
   const barData = [
     {
       value: 100,
-      color: "#757575",
+      color: "#3A3A3A",
     },
   ];
 

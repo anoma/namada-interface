@@ -23,10 +23,17 @@ const ProposalListItem: React.FC<{
 }> = ({ proposal, status, voted, votes }) => {
   const navigate = useNavigate();
 
-  const barData = voteTypes.map((voteType) => ({
-    value: votes[voteType],
-    color: colors[voteType],
-  }));
+  const zeroVotes = BigNumber.sum(
+    ...voteTypes.map((voteType) => votes[voteType])
+  ).isEqualTo(0);
+
+  const barData =
+    zeroVotes ?
+      [{ value: 1, color: "#3A3A3A" }]
+    : voteTypes.map((voteType) => ({
+        value: votes[voteType],
+        color: colors[voteType],
+      }));
 
   const onVote = (e: React.MouseEvent): void => {
     e.stopPropagation();
