@@ -16,10 +16,15 @@ export class Signing {
    * Sign Namada transaction
    * @param builtTx - BuiltTx instance
    * @param signingKey - private key
+   * @param [chainId] - optional chain ID, will enforce validation if present
    * @returns signed tx bytes - Promise resolving to Uint8Array
    */
-  async sign(builtTx: BuiltTx, signingKey: string): Promise<Uint8Array> {
-    return await this.sdk.sign_tx(builtTx, signingKey);
+  async sign(
+    builtTx: BuiltTx,
+    signingKey: string,
+    chainId?: string
+  ): Promise<Uint8Array> {
+    return await this.sdk.sign_tx(builtTx, signingKey, chainId);
   }
 
   /**

@@ -201,6 +201,7 @@ impl Sdk {
         &mut self,
         built_tx: BuiltTx,
         private_key: Option<String>,
+        chain_id: Option<String>,
     ) -> Result<JsValue, JsError> {
         let signing_data_bytes = built_tx.signing_data_bytes()?;
         let tx_bytes = built_tx.tx_bytes()?;
@@ -208,6 +209,17 @@ impl Sdk {
         let signing_data = signing_data.to_signing_tx_data()?;
 
         let mut tx: Tx = borsh::from_slice(&tx_bytes)?;
+
+        // If chain_id is provided, validate this against value in Tx header
+        if let Some(c) = chain_id {
+            if c != tx.header.chain_id.to_string() {
+                return Err(JsError::new(&format!(
+                    "chain_id {} does not match Tx header chain_id {}",
+                    &c,
+                    tx.header.chain_id.as_str()
+                )));
+            }
+        }
 
         let signing_keys = match private_key.clone() {
             Some(private_key) => vec![common::SecretKey::Ed25519(ed25519::SecretKey::from_str(
@@ -467,7 +479,12 @@ impl Sdk {
     }
 
     // Helper function to reveal public key
-    pub async fn reveal_pk(&mut self, signing_key: String, tx_msg: &[u8]) -> Result<(), JsError> {
+    pub async fn reveal_pk(
+        &mut self,
+        signing_key: String,
+        tx_msg: &[u8],
+        chain_id: Option<String>,
+    ) -> Result<(), JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
         let pk = &args
             .signing_keys
@@ -481,7 +498,8 @@ impl Sdk {
             let built_tx = self.build_reveal_pk(tx_msg, String::from("")).await?;
             // Conversion from JsValue so we can use self.sign_tx
             let tx_bytes =
-                Uint8Array::new(&self.sign_tx(built_tx, Some(signing_key)).await?).to_vec();
+                Uint8Array::new(&self.sign_tx(built_tx, Some(signing_key), chain_id).await?)
+                    .to_vec();
             self.process_tx(&tx_bytes, tx_msg).await?;
         }
 

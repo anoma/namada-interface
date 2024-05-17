@@ -543,12 +543,16 @@ export class KeyRing {
     return Result.ok(null);
   }
 
-  async sign(builtTx: BuiltTx[], signer: string): Promise<Uint8Array[]> {
+  async sign(
+    builtTx: BuiltTx[],
+    signer: string,
+    chainId: string
+  ): Promise<Uint8Array[]> {
     await this.vaultService.assertIsUnlocked();
     const key = await this.getSigningKey(signer);
     const { signing } = this.sdkService.getSdk();
     return await Promise.all(
-      builtTx.map(async (tx) => await signing.sign(tx, key))
+      builtTx.map(async (tx) => await signing.sign(tx, key, chainId))
     );
   }
 

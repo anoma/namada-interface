@@ -370,14 +370,16 @@ export class Tx {
    * @async
    * @param signingKey - signing key
    * @param wrapperTxProps - properties of the transaction
+   * @param [chainId] - optional chain ID - will enforce validation if present
    * @returns void
    */
   async revealPk(
     signingKey: string,
-    wrapperTxProps: WrapperTxProps
+    wrapperTxProps: WrapperTxProps,
+    chainId?: string
   ): Promise<void> {
     const encodedTx = this.encodeTxArgs(wrapperTxProps);
-    return await this.sdk.reveal_pk(signingKey, encodedTx);
+    return await this.sdk.reveal_pk(signingKey, encodedTx, chainId);
   }
 
   /**

@@ -173,7 +173,8 @@ export class KeyRingService {
   }
 
   async sign(builtTx: BuiltTx[], signer: string): Promise<Uint8Array[]> {
-    return await this._keyRing.sign(builtTx, signer);
+    const { chainId } = await this.chainsService.getChain();
+    return await this._keyRing.sign(builtTx, signer, chainId);
   }
 
   async signArbitrary(
