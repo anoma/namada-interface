@@ -10,7 +10,6 @@ import {
   InputContainer,
 } from "../TokenSend/TokenSendForm.components";
 
-import { getIntegration } from "@namada/integrations";
 import {
   FeeSection,
   FormContainer,
@@ -32,16 +31,15 @@ const toTokenData = (
       .filter(filterFn)
       .map(([tokenType, amount]) => ({
         value: `${address}|${tokenType}|${amount}`,
-        label: `${alias !== "Namada" ? alias + " - " : ""}${
-          Tokens[tokenType as TokenType].coin
-        } (${amount} ${tokenType})`,
+        label: `${alias !== "Namada" ? alias + " - " : ""}${Tokens[tokenType as TokenType].coin
+          } (${amount} ${tokenType})`,
       }));
   });
 };
 
 export const EthereumBridge = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const { id, chainId } = useAppSelector<Chain>((state) => state.chain.config);
+  const { chainId } = useAppSelector<Chain>((state) => state.chain.config);
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
   const [feeAmount, setFeeAmount] = useState<BigNumber>(new BigNumber(0));
@@ -72,8 +70,7 @@ export const EthereumBridge = (): JSX.Element => {
       (account) => account?.details?.address === accountId
     ) as Account;
 
-    const integration = getIntegration(id);
-    await integration.submitBridgeTransfer(
+    console.log("TODO: Sign & submit EthereumBridge Transfer",
       {
         bridgeProps: {
           nut: Boolean(Tokens[tokenSymbol as TokenType]?.isNut),
@@ -134,7 +131,7 @@ export const EthereumBridge = (): JSX.Element => {
               error={
                 recipientValid || !dirtyFields.has("recipient") ?
                   ""
-                : "Invalid recipient"
+                  : "Invalid recipient"
               }
             />
           </InputContainer>
@@ -152,7 +149,7 @@ export const EthereumBridge = (): JSX.Element => {
               error={
                 amountValid || !dirtyFields.has("amount") ?
                   ""
-                : "Insufficient balance"
+                  : "Insufficient balance"
               }
             />
           </InputContainer>
@@ -184,7 +181,7 @@ export const EthereumBridge = (): JSX.Element => {
                 error={
                   feeAmountValid || !dirtyFields.has("feeAmount") ?
                     ""
-                  : "Insufficient balance"
+                    : "Insufficient balance"
                 }
               />
             </InputContainer>

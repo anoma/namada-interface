@@ -12,7 +12,6 @@ import {
   Stack,
 } from "@namada/components";
 import {
-  getIntegration,
   useIntegrationConnection,
   useUntilIntegrationAttached,
 } from "@namada/integrations";
@@ -20,7 +19,6 @@ import {
   Account as AccountType,
   BridgeType,
   Chain,
-  ChainKey,
   CosmosTokenType,
   CosmosTokens,
   ExtensionKey,
@@ -45,11 +43,10 @@ import {
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 export const submitIbcTransfer = async (
-  chainKey: ChainKey,
   ibcArgs: TxIbcTransferArgs
 ): Promise<void> => {
   const {
@@ -62,9 +59,8 @@ export const submitIbcTransfer = async (
     nativeToken,
     memo,
   } = ibcArgs;
-  const integration = getIntegration(chainKey);
 
-  return await integration.submitBridgeTransfer(
+  console.log("TODO: Sign and submit IBC Trasnfer",
     {
       ibcProps: {
         source: address,
@@ -148,7 +144,7 @@ const IBCTransfer = (): JSX.Element => {
       channelsByChain[sourceChain.id][destinationChain.id].length > 0
     ) ?
       channelsByChain[sourceChain.id][destinationChain.id][0]
-    : "";
+      : "";
   const [selectedChannelId, setSelectedChannelId] = useState(defaultChannelId);
   const [showAddChannelForm, setShowAddChannelForm] = useState(false);
   const [channelId, setChannelId] = useState<string>();
@@ -173,7 +169,7 @@ const IBCTransfer = (): JSX.Element => {
       channelsByChain[sourceChain.id][destinationChain.id]
     ) ?
       [...channelsByChain[sourceChain.id][destinationChain.id]].reverse()
-    : [];
+      : [];
 
   const selectChannelsData = channels.map((channel: string) => ({
     value: channel,
@@ -192,9 +188,8 @@ const IBCTransfer = (): JSX.Element => {
         .map(([tokenType, amount]) => {
           return {
             value: `${address}|${tokenType}`,
-            label: `${alias} (${
-              Tokens[tokenType as TokenType].symbol
-            }): ${amount}`,
+            label: `${alias} (${Tokens[tokenType as TokenType].symbol
+              }): ${amount}`,
           };
         });
     }
@@ -299,7 +294,7 @@ const IBCTransfer = (): JSX.Element => {
     setError(undefined);
     const tokens = sourceChain.id === "namada" ? Tokens : CosmosTokens;
     if (sourceAccount && token) {
-      submitIbcTransfer(sourceChain.id, {
+      submitIbcTransfer({
         account: sourceAccount.details,
         token: tokens[token as TokenType & CosmosTokenType],
         amount,
@@ -424,7 +419,7 @@ const IBCTransfer = (): JSX.Element => {
                 onClick={
                   currentExtensionAttachStatus === "attached" ?
                     handleConnectSourceExtension
-                  : handleDownloadExtension.bind(
+                    : handleDownloadExtension.bind(
                       null,
                       destinationChain.extension.url
                     )
@@ -432,17 +427,16 @@ const IBCTransfer = (): JSX.Element => {
                 style={
                   currentExtensionAttachStatus === "pending" ?
                     { color: "transparent" }
-                  : {}
+                    : {}
                 }
               >
                 {(
                   currentExtensionAttachStatus === "attached" ||
                   currentExtensionAttachStatus === "pending"
                 ) ?
-                  `Load accounts from ${
-                    Extensions[sourceChain.extension.id].alias
+                  `Load accounts from ${Extensions[sourceChain.extension.id].alias
                   } Extension`
-                : "Click to download the extension"}
+                  : "Click to download the extension"}
               </ActionButton>
             )}
 
@@ -455,9 +449,9 @@ const IBCTransfer = (): JSX.Element => {
                 onChange={handleTokenChange}
               />
             </InputContainer>
-          : sourceAccounts.length > 0 ?
-            <Alert type="warning">You have no token balances</Alert>
-          : null}
+            : sourceAccounts.length > 0 ?
+              <Alert type="warning">You have no token balances</Alert>
+              : null}
 
           <InputContainer>
             <Select<string>
@@ -526,7 +520,7 @@ const IBCTransfer = (): JSX.Element => {
                 onClick={
                   currentExtensionAttachStatus === "attached" ?
                     handleConnectDestinationExtension
-                  : handleDownloadExtension.bind(
+                    : handleDownloadExtension.bind(
                       null,
                       destinationChain.extension.url
                     )
@@ -534,17 +528,16 @@ const IBCTransfer = (): JSX.Element => {
                 style={
                   currentExtensionAttachStatus === "pending" ?
                     { color: "transparent" }
-                  : {}
+                    : {}
                 }
               >
                 {(
                   currentExtensionAttachStatus === "attached" ||
                   currentExtensionAttachStatus === "pending"
                 ) ?
-                  `Load accounts from ${
-                    Extensions[destinationChain.extension.id].alias
+                  `Load accounts from ${Extensions[destinationChain.extension.id].alias
                   } Extension`
-                : "Click to download the extension"}
+                  : "Click to download the extension"}
               </ActionButton>
             )}
 
@@ -579,7 +572,7 @@ const IBCTransfer = (): JSX.Element => {
               error={
                 isAmountValid(amount, currentBalance) || amount.isZero() ?
                   undefined
-                : "Invalid amount!"
+                  : "Invalid amount!"
               }
             />
           </InputContainer>

@@ -18,20 +18,19 @@ import { SessionPassword, VaultService } from "background/vault";
 
 import {
   ApprovalsService,
-  TxStore,
+  PendingTx,
   init as initApprovals,
 } from "../background/approvals";
 
 import { ChainsService } from "background/chains";
-import { LedgerService } from "background/ledger";
 import { SdkService } from "background/sdk";
 import { Namada } from "provider";
-import { LocalStorage, RevealedPKStorage, VaultStorage } from "storage";
+import { LocalStorage, VaultStorage } from "storage";
 
 export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
 
-  constructor(readonly _prefix: string) {}
+  constructor(readonly _prefix: string) { }
 
   get<U extends T>(key: string): Promise<U | undefined> {
     return new Promise((resolve) => {
@@ -63,13 +62,10 @@ export const init = async (): Promise<{
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
   const utilityStore = new KVStoreMock<UtilityStore>(KVPrefix.Utility);
   const localStorage = new LocalStorage(new KVStoreMock(KVPrefix.LocalStorage));
-  const revealedPKStore = new RevealedPKStorage(
-    new KVStoreMock(KVPrefix.RevealedPK)
-  );
   const vaultStorage = new VaultStorage(new KVStoreMock(KVPrefix.IndexedDB));
   const namadaRouterId = await getNamadaRouterId(localStorage);
   const requester = new ExtensionRequester(messenger, namadaRouterId);
-  const txStore = new KVStoreMock<TxStore>(KVPrefix.LocalStorage);
+  const txStore = new KVStoreMock<PendingTx>(KVPrefix.LocalStorage);
   const dataStore = new KVStoreMock<string>(KVPrefix.LocalStorage);
   const broadcaster = new ExtensionBroadcaster(localStorage, requester);
 
@@ -107,22 +103,11 @@ export const init = async (): Promise<{
     broadcaster
   );
 
-  const ledgerService = new LedgerService(
-    keyRingService,
-    sdkService,
-    vaultStorage,
-    txStore,
-    revealedPKStore,
-    requester,
-    broadcaster
-  );
-
   const approvalsService = new ApprovalsService(
     txStore,
     dataStore,
     localStorage,
     keyRingService,
-    ledgerService,
     vaultService,
     broadcaster
   );

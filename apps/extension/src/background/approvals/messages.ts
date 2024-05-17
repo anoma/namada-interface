@@ -1,92 +1,20 @@
-import { SupportedTx } from "@heliax/namada-sdk/web";
 import { Message } from "router";
 import { ROUTE } from "./constants";
 
 import { validateProps } from "utils";
-import { PendingTxDetails } from "./types";
 
 export enum MessageType {
-  RejectTx = "reject-tx",
-  SubmitApprovedTx = "submit-approved-tx",
-  QueryPendingTx = "query-pending-tx",
-  SubmitApprovedSignature = "submit-approved-signature",
-  RejectSignature = "reject-signature",
+  RejectSignTx = "reject-sign-tx",
+  SubmitApprovedSignTx = "submit-approved-sign-tx",
+  SubmitApprovedSignArbitrary = "submit-approved-sign-arbitrary",
+  RejectSignArbitrary = "reject-sign-arbitrary",
   ConnectInterfaceResponse = "connect-interface-response",
   RevokeConnection = "revoke-connection",
 }
 
-export class RejectTxMsg extends Message<void> {
+export class SubmitApprovedSignTxMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.RejectTx;
-  }
-
-  constructor(public readonly msgId: string) {
-    super();
-  }
-
-  validate(): void {
-    validateProps(this, ["msgId"]);
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return RejectTxMsg.type();
-  }
-}
-
-export class SubmitApprovedTxMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.SubmitApprovedTx;
-  }
-
-  constructor(
-    public readonly txType: SupportedTx,
-    public readonly msgId: string
-  ) {
-    super();
-  }
-
-  validate(): void {
-    validateProps(this, ["txType", "msgId"]);
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return SubmitApprovedTxMsg.type();
-  }
-}
-
-export class QueryPendingTxMsg extends Message<PendingTxDetails[]> {
-  public static type(): MessageType {
-    return MessageType.QueryPendingTx;
-  }
-
-  constructor(public readonly msgId: string) {
-    super();
-  }
-
-  validate(): void {
-    validateProps(this, ["msgId"]);
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return QueryPendingTxMsg.type();
-  }
-}
-
-export class SubmitApprovedSignatureMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.SubmitApprovedSignature;
+    return MessageType.SubmitApprovedSignTx;
   }
 
   constructor(
@@ -105,13 +33,60 @@ export class SubmitApprovedSignatureMsg extends Message<void> {
   }
 
   type(): string {
-    return SubmitApprovedSignatureMsg.type();
+    return SubmitApprovedSignTxMsg.type();
   }
 }
 
-export class RejectSignatureMsg extends Message<void> {
+export class RejectSignTxMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.RejectSignature;
+    return MessageType.RejectSignTx;
+  }
+
+  constructor(public readonly msgId: string) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["msgId"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return RejectSignTxMsg.type();
+  }
+}
+
+export class SubmitApprovedSignArbitraryMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.SubmitApprovedSignArbitrary;
+  }
+
+  constructor(
+    public readonly msgId: string,
+    public readonly signer: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["msgId", "signer"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SubmitApprovedSignArbitraryMsg.type();
+  }
+}
+
+export class RejectSignArbitraryMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.RejectSignArbitrary;
   }
 
   constructor(public readonly msgId: string) {
@@ -128,7 +103,7 @@ export class RejectSignatureMsg extends Message<void> {
   }
 
   type(): string {
-    return RejectSignatureMsg.type();
+    return RejectSignArbitraryMsg.type();
   }
 }
 

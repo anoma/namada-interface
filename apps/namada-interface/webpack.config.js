@@ -17,6 +17,15 @@ const createStyledComponentsTransformer =
 
 const copyPatterns = [
   {
+    from: "../../packages/shared/src/shared/shared_bg.wasm",
+    to: "./shared.namada.wasm",
+  },
+  {
+    from: "../../packages/crypto/src/crypto/crypto_bg.wasm",
+    to: "./crypto.namada.wasm",
+  },
+
+  {
     from: "./public/*.png",
     to: "./assets/[name].png",
   },

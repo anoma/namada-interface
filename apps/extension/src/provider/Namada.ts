@@ -1,11 +1,12 @@
+import { toBase64 } from "@cosmjs/encoding";
 import {
-  BalancesProps,
+  AccountType,
   Chain,
   DerivedAccount,
   Namada as INamada,
   SignArbitraryProps,
-  SignatureResponse,
-  TxMsgProps,
+  SignArbitraryResponse,
+  SignProps,
   VerifyArbitraryProps,
 } from "@namada/types";
 import { MessageRequester, Ports } from "router";
@@ -13,16 +14,12 @@ import { MessageRequester, Ports } from "router";
 import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
-  ApproveTxMsg,
+  ApproveSignTxMsg,
   CheckDurabilityMsg,
-  FetchAndStoreMaspParamsMsg,
   GetChainMsg,
-  HasMaspParamsMsg,
   IsConnectionApprovedMsg,
   QueryAccountsMsg,
-  QueryBalancesMsg,
   QueryDefaultAccountMsg,
-  ShieldedSyncMsg,
   VerifyArbitraryMsg,
 } from "./messages";
 
@@ -70,9 +67,33 @@ export class Namada implements INamada {
     );
   }
 
-  public async sign(
+  public async sign(props: SignProps): Promise<Uint8Array[] | undefined> {
+    const { accountType, signer, tx } = props;
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new ApproveSignTxMsg(
+        accountType,
+        signer,
+        tx.map((t) => [toBase64(t.txData), toBase64(t.signingData)])
+      )
+    );
+  }
+
+  public async signLedger(props: SignProps): Promise<Uint8Array[] | undefined> {
+    const { signer, tx } = props;
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new ApproveSignTxMsg(
+        AccountType.Ledger,
+        signer,
+        tx.map((t) => [toBase64(t.txData), toBase64(t.signingData)])
+      )
+    );
+  }
+
+  public async signArbitrary(
     props: SignArbitraryProps
-  ): Promise<SignatureResponse | undefined> {
+  ): Promise<SignArbitraryResponse | undefined> {
     const { signer, data } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
@@ -88,13 +109,6 @@ export class Namada implements INamada {
     );
   }
 
-  public async fetchAndStoreMaspParams(): Promise<void> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new FetchAndStoreMaspParamsMsg()
-    );
-  }
-
   public async getChain(): Promise<Chain | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
@@ -102,41 +116,10 @@ export class Namada implements INamada {
     );
   }
 
-  public async hasMaspParams(): Promise<boolean | undefined> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new HasMaspParamsMsg()
-    );
-  }
-
   public async checkDurability(): Promise<boolean | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new CheckDurabilityMsg()
-    );
-  }
-
-  public async balances(
-    props: BalancesProps
-  ): Promise<{ token: string; amount: string }[] | undefined> {
-    const { owner, tokens } = props;
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new QueryBalancesMsg(owner, tokens)
-    );
-  }
-
-  public async shieldedSync(): Promise<void> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new ShieldedSyncMsg()
-    );
-  }
-
-  public async submitTx(props: TxMsgProps): Promise<void> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new ApproveTxMsg(props.txType, props.tx, props.type)
     );
   }
 

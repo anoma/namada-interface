@@ -16,6 +16,7 @@ Non-Tx signing functions
 
 ### Methods
 
+- [sign](Signing.md#sign)
 - [signArbitrary](Signing.md#signarbitrary)
 - [verifyArbitrary](Signing.md#verifyarbitrary)
 
@@ -39,7 +40,7 @@ Signing constructor
 
 #### Defined in
 
-[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/signing.ts#L13)
+[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/2543347c/packages/sdk/src/signing.ts#L13)
 
 ## Properties
 
@@ -51,9 +52,35 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/signing.ts#L13)
+[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/2543347c/packages/sdk/src/signing.ts#L13)
 
 ## Methods
+
+### sign
+
+▸ **sign**(`builtTx`, `signingKey`, `chainId?`): `Promise`\<`Uint8Array`\>
+
+Sign Namada transaction
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `builtTx` | `BuiltTx` | BuiltTx instance |
+| `signingKey` | `string` | private key |
+| `chainId?` | `string` | optional chain ID, will enforce validation if present |
+
+#### Returns
+
+`Promise`\<`Uint8Array`\>
+
+signed tx bytes - Promise resolving to Uint8Array
+
+#### Defined in
+
+[sdk/src/signing.ts:22](https://github.com/anoma/namada-interface/blob/2543347c/packages/sdk/src/signing.ts#L22)
+
+___
 
 ### signArbitrary
 
@@ -76,7 +103,7 @@ hash and signature
 
 #### Defined in
 
-[sdk/src/signing.ts:21](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/signing.ts#L21)
+[sdk/src/signing.ts:36](https://github.com/anoma/namada-interface/blob/2543347c/packages/sdk/src/signing.ts#L36)
 
 ___
 
@@ -102,4 +129,4 @@ void
 
 #### Defined in
 
-[sdk/src/signing.ts:32](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/signing.ts#L32)
+[sdk/src/signing.ts:47](https://github.com/anoma/namada-interface/blob/2543347c/packages/sdk/src/signing.ts#L47)

@@ -1,50 +1,17 @@
 import { fromBase64 } from "@cosmjs/encoding";
-import { deserialize } from "@dao-xyz/borsh";
-import BigNumber from "bignumber.js";
 import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
 
-import { SupportedTx, TxType } from "@heliax/namada-sdk/web";
+import { BuiltTx } from "@namada/shared";
 import { KVStore } from "@namada/storage";
-import {
-  AccountType,
-  BondMsgValue,
-  EthBridgeTransferMsgValue,
-  IbcTransferMsgValue,
-  RedelegateMsgValue,
-  SignatureResponse,
-  TransferMsgValue,
-  TxMsgValue,
-  UnbondMsgValue,
-  VoteProposalMsgValue,
-  WithdrawMsgValue,
-} from "@namada/types";
+import { AccountType, SignArbitraryResponse } from "@namada/types";
+import { paramsToUrl } from "@namada/utils";
 
-import { assertNever, paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
-import { LedgerService } from "background/ledger";
-
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
-import { PendingTx, PendingTxDetails, TxStore } from "./types";
-
-type GetParams = (
-  specificMsg: Uint8Array,
-  txDetails: TxMsgValue
-) => Record<string, string>;
-
-const getParamsMethod = (txType: SupportedTx): GetParams =>
-  txType === TxType.Bond ? ApprovalsService.getParamsBond
-  : txType === TxType.Unbond ? ApprovalsService.getParamsUnbond
-  : txType === TxType.Withdraw ? ApprovalsService.getParamsWithdraw
-  : txType === TxType.Transfer ? ApprovalsService.getParamsTransfer
-  : txType === TxType.IBCTransfer ? ApprovalsService.getParamsIbcTransfer
-  : txType === TxType.EthBridgeTransfer ?
-    ApprovalsService.getParamsEthBridgeTransfer
-  : txType === TxType.VoteProposal ? ApprovalsService.getParamsVoteProposal
-  : txType === TxType.Redelegate ? ApprovalsService.getParamsRedelegate
-  : assertNever(txType);
+import { PendingTx } from "./types";
 
 export class ApprovalsService {
   // holds promises which can be resolved with a message from a pop-up window
@@ -56,44 +23,61 @@ export class ApprovalsService {
   > = {};
 
   constructor(
-    protected readonly txStore: KVStore<TxStore>,
+    protected readonly txStore: KVStore<PendingTx>,
     protected readonly dataStore: KVStore<string>,
     protected readonly localStorage: LocalStorage,
     protected readonly keyRingService: KeyRingService,
-    protected readonly ledgerService: LedgerService,
     protected readonly vaultService: VaultService,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {}
 
-  async queryPendingTx(msgId: string): Promise<PendingTxDetails[]> {
-    const storedTx = await this.txStore.get(msgId);
+  async approveSignTx(
+    accountType: AccountType,
+    signer: string,
+    // TODO: Pass serialized BuiltTxMsgValue instead of these:
+    tx: string[][]
+  ): Promise<Uint8Array[]> {
+    const msgId = uuid();
 
-    if (!storedTx) {
-      throw new Error("Pending tx not found!");
+    const pendingTx = tx.map(([txBytes, signingDataBytes]) => ({
+      txBytes: fromBase64(txBytes),
+      signingDataBytes: fromBase64(signingDataBytes),
+    }));
+
+    await this.txStore.set(msgId, {
+      tx: pendingTx,
+      signer,
+    });
+
+    const url = `${browser.runtime.getURL(
+      "approvals.html"
+    )}#/approve-sign-tx/${msgId}/${accountType}/${signer}`;
+
+    const popupTabId = await this.getPopupTabId(url);
+
+    if (!popupTabId) {
+      throw new Error("no popup tab ID");
     }
 
-    const { txType } = storedTx;
+    if (popupTabId in this.resolverMap) {
+      throw new Error(`tab ID ${popupTabId} already exists in promise map`);
+    }
 
-    return storedTx.tx.map((pendingTx: PendingTx) => {
-      const { specificMsg, txMsg } = pendingTx;
-      const specificMsgBuffer = Buffer.from(fromBase64(specificMsg));
-      const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-      const txDetails = deserialize(txMsgBuffer, TxMsgValue);
-      const details = getParamsMethod(txType)(specificMsgBuffer, txDetails);
-      return details;
+    return await new Promise((resolve, reject) => {
+      this.resolverMap[popupTabId] = { resolve, reject };
     });
   }
 
-  async approveSignature(
+  async approveSignArbitrary(
     signer: string,
     data: string
-  ): Promise<SignatureResponse> {
+  ): Promise<SignArbitraryResponse> {
     const msgId = uuid();
 
     await this.dataStore.set(msgId, data);
     const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
-    )}#/approve-signature/${signer}`;
+    )}#/approve-sign-arbitrary/${signer}`;
 
     const url = paramsToUrl(baseUrl, {
       msgId,
@@ -114,7 +98,38 @@ export class ApprovalsService {
     });
   }
 
-  async submitSignature(
+  async submitSignTx(
+    popupTabId: number,
+    msgId: string,
+    signer: string
+  ): Promise<void> {
+    const pendingTx = await this.txStore.get(msgId);
+    console.log("encodedTx", pendingTx);
+    const resolvers = this.resolverMap[popupTabId];
+
+    if (!resolvers) {
+      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
+    }
+
+    if (!pendingTx) {
+      throw new Error(`Signing data for ${msgId} not found!`);
+    }
+
+    const builtTx = pendingTx.tx.map(({ txBytes, signingDataBytes }) =>
+      BuiltTx.from_stored_tx(txBytes, signingDataBytes)
+    );
+
+    try {
+      const signature = await this.keyRingService.sign(builtTx, signer);
+      resolvers.resolve(signature);
+    } catch (e) {
+      resolvers.reject(e);
+    }
+
+    await this._clearPendingSignature(msgId);
+  }
+
+  async submitSignArbitrary(
     popupTabId: number,
     msgId: string,
     signer: string
@@ -152,213 +167,9 @@ export class ApprovalsService {
     resolvers.reject();
   }
 
-  async approveTx(
-    txType: SupportedTx,
-    tx: PendingTx[],
-    type: AccountType
-  ): Promise<void> {
-    const msgId = uuid();
-    await this.txStore.set(msgId, { txType, tx });
-
-    const url = `${browser.runtime.getURL(
-      "approvals.html"
-    )}#/approve-tx/${msgId}/${txType}/${type}`;
-
-    await this._launchApprovalWindow(url);
-  }
-
-  static getParamsTransfer: GetParams = (specificMsg, txDetails) => {
-    const specificDetails = deserialize(specificMsg, TransferMsgValue);
-
-    const {
-      source,
-      target,
-      token: tokenAddress,
-      amount: amountBN,
-    } = specificDetails;
-    const amount = new BigNumber(amountBN.toString());
-
-    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
-
-    return {
-      source,
-      target,
-      tokenAddress,
-      amount: amount.toString(),
-      publicKey,
-      nativeToken,
-    };
-  };
-
-  static getParamsIbcTransfer: GetParams = (specificMsg, txDetails) => {
-    const specificDetails = deserialize(specificMsg, IbcTransferMsgValue);
-
-    const {
-      source,
-      receiver: target,
-      token: tokenAddress,
-      amount: amountBN,
-    } = specificDetails;
-    const amount = new BigNumber(amountBN.toString());
-
-    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
-
-    return {
-      source,
-      target,
-      tokenAddress,
-      amount: amount.toString(),
-      publicKey,
-      nativeToken,
-    };
-  };
-
-  static getParamsEthBridgeTransfer: GetParams = (specificMsg, txDetails) => {
-    const specificDetails = deserialize(specificMsg, EthBridgeTransferMsgValue);
-
-    const {
-      asset: tokenAddress,
-      recipient: target,
-      sender: source,
-      amount,
-    } = specificDetails;
-
-    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
-
-    return {
-      source,
-      target,
-      tokenAddress,
-      amount: amount.toString(),
-      publicKey,
-      nativeToken,
-    };
-  };
-
-  static getParamsBond: GetParams = (specificMsg, txDetails) => {
-    const specificDetails = deserialize(specificMsg, BondMsgValue);
-
-    const {
-      source,
-      nativeToken: tokenAddress,
-      amount: amountBN,
-      validator,
-    } = specificDetails;
-    const amount = new BigNumber(amountBN.toString());
-
-    const { publicKey } = ApprovalsService.getTxDetails(txDetails);
-
-    return {
-      source,
-      tokenAddress,
-      amount: amount.toString(),
-      publicKey,
-      nativeToken: tokenAddress,
-      validator,
-    };
-  };
-
-  static getParamsUnbond: GetParams = (specificMsg, txDetails) => {
-    const specificDetails = deserialize(specificMsg, UnbondMsgValue);
-
-    const { source, amount: amountBN, validator } = specificDetails;
-    const amount = new BigNumber(amountBN.toString());
-
-    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
-
-    return {
-      source,
-      amount: amount.toString(),
-      publicKey,
-      nativeToken,
-      validator,
-    };
-  };
-
-  static getParamsWithdraw: GetParams = (specificMsg, txDetails) => {
-    const specificDetails = deserialize(specificMsg, WithdrawMsgValue);
-
-    const { source, validator } = specificDetails;
-
-    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
-
-    return {
-      source,
-      validator,
-      publicKey,
-      nativeToken,
-    };
-  };
-
-  static getParamsVoteProposal: GetParams = (specificMsg, txDetails) => {
-    const specificDetails = deserialize(specificMsg, VoteProposalMsgValue);
-
-    const { signer } = specificDetails;
-
-    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
-
-    //TODO: check this
-    return {
-      source: signer,
-      publicKey,
-      nativeToken,
-    };
-  };
-
-  static getParamsRedelegate: GetParams = (specificMsg, txDetails) => {
-    const specificDetails = deserialize(specificMsg, RedelegateMsgValue);
-
-    const { owner, sourceValidator, destinationValidator } = specificDetails;
-
-    const { publicKey, nativeToken } = ApprovalsService.getTxDetails(txDetails);
-
-    return {
-      source: owner,
-      sourceValidator,
-      destinationValidator,
-      publicKey,
-      nativeToken,
-    };
-  };
-
   // Remove pending transaction from storage
-  async rejectTx(msgId: string): Promise<void> {
+  async rejectSignTx(msgId: string): Promise<void> {
     await this._clearPendingTx(msgId);
-  }
-
-  // Authenticate keyring and submit approved transaction from storage
-  async submitTx(msgId: string): Promise<void> {
-    // Fetch pending transfer tx
-    const storedTx = await this.txStore.get(msgId);
-
-    if (!storedTx) {
-      throw new Error("Pending tx not found!");
-    }
-
-    const { txType } = storedTx;
-
-    await Promise.all(
-      storedTx.tx.map(async (pendingTx: PendingTx) => {
-        const { specificMsg, txMsg } = pendingTx;
-        const submitFn =
-          txType === TxType.Bond ? this.keyRingService.submitBond
-          : txType === TxType.Unbond ? this.keyRingService.submitUnbond
-          : txType === TxType.Transfer ? this.keyRingService.submitTransfer
-          : txType === TxType.IBCTransfer ?
-            this.keyRingService.submitIbcTransfer
-          : txType === TxType.EthBridgeTransfer ?
-            this.keyRingService.submitEthBridgeTransfer
-          : txType === TxType.Withdraw ? this.keyRingService.submitWithdraw
-          : txType === TxType.VoteProposal ?
-            this.keyRingService.submitVoteProposal
-          : txType === TxType.Redelegate ? this.keyRingService.submitRedelegate
-          : assertNever(txType);
-
-        await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
-      })
-    );
-
-    return await this._clearPendingTx(msgId);
   }
 
   async isConnectionApproved(interfaceOrigin: string): Promise<boolean> {
@@ -454,12 +265,5 @@ export class ApprovalsService {
     const popupTabId = firstTab?.id;
 
     return popupTabId;
-  };
-
-  private static getTxDetails = (
-    txDetails: TxMsgValue
-  ): { publicKey: string; nativeToken: string } => {
-    const { publicKey = "", token: nativeToken } = txDetails;
-    return { publicKey, nativeToken };
   };
 }

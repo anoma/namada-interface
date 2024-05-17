@@ -1,11 +1,10 @@
 import BigNumber from "bignumber.js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { EncodedTx, Rpc, Tx, TxType } from "@heliax/namada-sdk/web";
 import { chains } from "@namada/chains";
 import { ActionButton, AmountInput, Icon, Input } from "@namada/components";
-import { getIntegration } from "@namada/integrations";
-import { Chain, Signer, TokenType, Tokens } from "@namada/types";
+import { Chain, TokenType, Tokens, WrapperTxProps } from "@namada/types";
 
 import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
@@ -19,14 +18,16 @@ import {
   InputContainer,
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
+import { Namada, useIntegration } from "@namada/integrations";
+import { useSdk } from "hooks/useSdk";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 export const submitTransferTransaction = async (
-  txTransferArgs: TxTransferArgs
+  txTransferArgs: TxTransferArgs, tx: Tx, rpc: Rpc, namada: Namada
 ): Promise<void> => {
   const {
     account: { address, publicKey, type },
@@ -45,30 +46,78 @@ export const submitTransferTransaction = async (
     return;
   }
 
-  const integration = getIntegration(chains.namada.id);
-  const signer = integration.signer() as Signer;
+  try {
+    const signingClient = namada.signer();
 
-  const transferArgs = {
-    source: address,
-    target,
-    token: nativeToken, // TODO: Update to support other tokens again!
-    amount,
-    nativeToken,
-  };
+    if (!signingClient) {
+      throw new Error("Signing client failed to initialize")
+    }
 
-  const txArgs = {
-    token: nativeToken, // TODO: Update to support other tokens again!
-    nativeToken,
-    feeAmount,
-    gasLimit,
-    chainId,
-    publicKey: publicKey,
-    signer: undefined,
-    disposableSigningKey,
-    memo,
-  };
+    const txArray: EncodedTx[] = [];
 
-  await signer.submitTransfer(transferArgs, txArgs, type);
+    // Determine if RevealPK is needed:
+    const pk = await rpc.queryPublicKey(address);
+
+    if (!pk) {
+      const revealTxProps: WrapperTxProps = {
+        token: nativeToken,
+        gasLimit: BigNumber(100000),
+        feeAmount: BigNumber(1),
+        chainId,
+        publicKey,
+      };
+      console.log("Revealing public key with: ", { revealTxProps })
+      const revealPkTx = await tx.buildRevealPk(revealTxProps, address);
+      // Add to txArray to sign & broadcast below:
+      txArray.push(revealPkTx)
+    }
+
+    // Build
+    const transferProps = {
+      source: address,
+      target,
+      token: nativeToken,
+      amount,
+      nativeToken,
+    };
+
+    const wrapperTxProps = {
+      token: nativeToken,
+      nativeToken,
+      feeAmount,
+      gasLimit,
+      chainId,
+      publicKey: publicKey,
+      signer: undefined,
+      disposableSigningKey,
+      memo,
+    };
+    console.log("Building Transfer Tx", { type, transferProps, wrapperTxProps, tx, rpc, namada })
+    const transferTx = await tx.buildTx(TxType.Transfer, wrapperTxProps, transferProps);
+    console.log("Built transfer: ", transferTx)
+    // Add transfer to txArray
+    txArray.push(transferTx)
+
+    // Submit to extension for signing:
+    const signedTxArray = await signingClient.sign(
+      transferProps.source,
+      txArray.map((encodedTx) => encodedTx.tx),
+    );
+    console.log("Signed Tx Bytes Array: ", signedTxArray);
+
+    if (!signedTxArray) {
+      // Signature failed:
+      console.error("Failed to sign Tx", txArray)
+      throw new Error("Signing failed")
+    }
+    // Broadcast Tx in order:
+    txArray.forEach(async ({ txMsg }, i) => {
+      const response = await rpc.broadcastTx({ wrapperTxMsg: txMsg, tx: signedTxArray[i] });
+      console.log(`Broadcast Tx results for Tx ${i + 1}: `, response)
+    })
+  } catch (e) {
+    throw new Error(`Failed to sign and submit transaction: ${e}`)
+  }
 };
 
 type Props = {
@@ -132,6 +181,9 @@ const TokenSendForm = ({
   isRevealPkNeededFn,
 }: Props): JSX.Element => {
   const navigate = useNavigate();
+  const sdk = useSdk();
+  const namada = useIntegration("namada")
+  const { tx, rpc } = sdk
   const chain = useAppSelector<Chain>((state) => state.chain.config);
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState<BigNumber | undefined>(new BigNumber(0));
@@ -225,7 +277,7 @@ const TokenSendForm = ({
         disposableSigningKey: isShieldedSource,
         memo,
         nativeToken: chain.currency.address || tokenAddress,
-      });
+      }, tx, rpc, namada);
     }
   };
 
@@ -235,8 +287,8 @@ const TokenSendForm = ({
 
   // if the transfer target is not TransferType.Shielded we perform the validation logic
   const isAmountValid = (
-    address: string,
-    token: TokenType,
+    _address: string,
+    _token: TokenType,
     transferAmount: BigNumber,
     targetAddress: string | undefined
   ): string | undefined => {

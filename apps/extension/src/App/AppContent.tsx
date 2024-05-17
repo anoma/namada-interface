@@ -6,11 +6,7 @@ import { DerivedAccount } from "@namada/types";
 import { useAccountContext, useVaultContext } from "context";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
-import {
-  CheckDurabilityMsg,
-  FetchAndStoreMaspParamsMsg,
-  HasMaspParamsMsg,
-} from "provider/messages";
+import { CheckDurabilityMsg } from "provider/messages";
 import { Ports } from "router";
 import { openSetupTab } from "utils";
 import {
@@ -39,50 +35,10 @@ export const AppContent = (): JSX.Element => {
   const requester = useRequester();
 
   const [isDurable, setIsDurable] = useState<boolean | undefined>();
-  const [maspStatus, setMaspStatus] = useState<{
-    status: LoadingStatus;
-    info: string;
-  }>({ status: LoadingStatus.Completed, info: "" });
-
-  // Fetch Masp params if they don't exist
-  const fetchMaspParams = async (): Promise<void> => {
-    const hasMaspParams = await requester.sendMessage(
-      Ports.Background,
-      new HasMaspParamsMsg()
-    );
-
-    if (!hasMaspParams) {
-      setMaspStatus({
-        status: LoadingStatus.Pending,
-        info: "Fetching MASP parameters...",
-      });
-      try {
-        await requester.sendMessage(
-          Ports.Background,
-          new FetchAndStoreMaspParamsMsg()
-        );
-        setMaspStatus({
-          status: LoadingStatus.Completed,
-          info: "",
-        });
-      } catch (e) {
-        setMaspStatus({
-          status: LoadingStatus.Failed,
-          info: `Fetching MASP parameters failed: ${e}`,
-        });
-        //TODO: Notify user in a better way
-        console.error(e);
-      }
-    }
-  };
 
   const getStartPage = (accounts: DerivedAccount[]): string => {
     return accounts.length === 0 ? routes.setup() : routes.viewAccountList();
   };
-
-  useEffect(() => {
-    void fetchMaspParams();
-  }, []);
 
   // Provide a redirect in the case of transaction/connection approvals
   useEffect(() => {
@@ -119,12 +75,6 @@ export const AppContent = (): JSX.Element => {
     <Stack className="py-5" full gap={6}>
       {isDurable === false && (
         <Alert type="warning">{STORE_DURABILITY_INFO}</Alert>
-      )}
-
-      {maspStatus.status === LoadingStatus.Completed && maspStatus.info && (
-        <Alert title="MASP Status" type="warning">
-          {maspStatus.info}
-        </Alert>
       )}
 
       <Routes>

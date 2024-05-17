@@ -1,21 +1,10 @@
-import { deserialize } from "@dao-xyz/borsh";
-
 import { PhraseSize } from "@heliax/namada-sdk/web";
 import { KVStore } from "@namada/storage";
 import {
   AccountType,
   Bip44Path,
-  BondMsgValue,
   DerivedAccount,
-  EthBridgeTransferMsgValue,
-  IbcTransferMsgValue,
-  RedelegateMsgValue,
-  SignatureResponse,
-  TransferMsgValue,
-  TxMsgValue,
-  UnbondMsgValue,
-  VoteProposalMsgValue,
-  WithdrawMsgValue,
+  SignArbitraryResponse,
 } from "@namada/types";
 import { Result, assertNever, truncateInMiddle } from "@namada/utils";
 
@@ -27,10 +16,10 @@ import {
   KeyRingStatus,
   MnemonicValidationResponse,
   SensitiveAccountStoreData,
-  SigningKey,
   UtilityStore,
 } from "./types";
 
+import { BuiltTx } from "@namada/shared";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
@@ -280,101 +269,6 @@ export class KeyRing {
     };
   }
 
-  // private async *getAddressWithBalance(
-  //   seed: VecU8Pointer,
-  //   parentId: string,
-  //   type: AccountType
-  // ): AsyncGenerator<
-  //   {
-  //     path: Bip44Path;
-  //     info: DerivedAccountInfo;
-  //   },
-  //   void,
-  //   void
-  // > {
-  //   let index = 0;
-  //   let emptyBalanceCount = 0;
-  //   const deriveFn = (
-  //     type === AccountType.PrivateKey
-  //       ? this.deriveTransparentAccount
-  //       : this.deriveShieldedAccount
-  //   ).bind(this);
-  //
-  //   const get = async (
-  //     index: number
-  //   ): Promise<{
-  //     path: Bip44Path;
-  //     info: DerivedAccountInfo;
-  //     balances: [string, string][];
-  //   }> => {
-  //     // Cloning the seed, otherwise it gets zeroized in deriveTransparentAccount
-  //     const seedClone = seed.clone();
-  //     const path = { account: 0, change: 0, index };
-  //     const accountInfo = deriveFn(seedClone, path, parentId);
-  //     const balances: [string, string][] = await this.query.query_balance(
-  //       accountInfo.owner
-  //     );
-  //
-  //     return { path, info: accountInfo, balances };
-  //   };
-  //
-  //   while (index < 999999999 && emptyBalanceCount < 20) {
-  //     const { path, info, balances } = await get(index++);
-  //     const hasBalance = balances.some(([, value]) => {
-  //       return !new BigNumber(value).isZero();
-  //     });
-  //
-  //     if (hasBalance) {
-  //       emptyBalanceCount = 0;
-  //       yield { path, info };
-  //     } else {
-  //       emptyBalanceCount++;
-  //     }
-  //   }
-  // }
-
-  public async scanAddresses(): Promise<void> {
-    // if (!this._password) {
-    //   throw new Error("No password is set!");
-    // }
-    // const { seed, parentId } = await this.getParentSeed(this._password);
-    // for await (const value of this.getAddressWithBalance(
-    //   seed,
-    //   parentId,
-    //   AccountType.PrivateKey
-    // )) {
-    //   const alias = `Address - ${value.path.index}`;
-    //   const { info, path } = value;
-    //   await this.persistAccount(
-    //     this._password,
-    //     path,
-    //     parentId,
-    //     AccountType.PrivateKey,
-    //     alias,
-    //     info
-    //   );
-    //   await this.addSecretKey(info.text, this._password, alias, parentId);
-    // }
-    // for await (const value of this.getAddressWithBalance(
-    //   seed,
-    //   parentId,
-    //   AccountType.ShieldedKeys
-    // )) {
-    //   const alias = `Shielded Address - ${value.path.index}`;
-    //   const { info, path } = value;
-    //   await this.persistAccount(
-    //     this._password,
-    //     path,
-    //     parentId,
-    //     AccountType.ShieldedKeys,
-    //     alias,
-    //     info
-    //   );
-    //   await this.addSpendingKey(info.text, this._password, alias, parentId);
-    // }
-    // seed.free();
-  }
-
   private async getParentSeed(): Promise<{
     parentId: string;
     seed: Uint8Array;
@@ -597,202 +491,12 @@ export class KeyRing {
     return privateKey;
   }
 
-  async submitBond(bondMsg: BondMsgValue, txMsg: TxMsgValue): Promise<string> {
-    await this.vaultService.assertIsUnlocked();
-    try {
-      const { source } = bondMsg;
-      const signingKey = await this.getSigningKey(source);
-      const sdk = this.sdkService.getSdk();
-      const sdkTx = sdk.tx;
-
-      await sdkTx.revealPk(signingKey, txMsg);
-
-      const builtTx = await sdkTx.buildBond(txMsg, bondMsg);
-      const signedTx = await sdkTx.signTx(builtTx, signingKey);
-      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
-
-      return innerTxHash;
-    } catch (e) {
-      throw new Error(`Could not submit bond tx: ${e}`);
-    }
-  }
-
   public async queryAccountByAddress(
     address: string
   ): Promise<DerivedAccount | undefined> {
     return (await this.queryAllAccounts()).find(
       (account) => account.address === address
     );
-  }
-
-  async submitUnbond(
-    unbondMsg: UnbondMsgValue,
-    txMsg: TxMsgValue
-  ): Promise<string> {
-    await this.vaultService.assertIsUnlocked();
-    const sdk = this.sdkService.getSdk();
-    try {
-      const { source } = unbondMsg;
-      const signingKey = await this.getSigningKey(source);
-
-      await sdk.tx.revealPk(signingKey, txMsg);
-
-      const builtTx = await sdk.tx.buildUnbond(txMsg, unbondMsg);
-      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
-      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
-
-      return innerTxHash;
-    } catch (e) {
-      throw new Error(`Could not submit unbond tx: ${e}`);
-    }
-  }
-
-  async submitWithdraw(
-    withdrawMsg: WithdrawMsgValue,
-    txMsg: TxMsgValue
-  ): Promise<string> {
-    await this.vaultService.assertIsUnlocked();
-    const sdk = this.sdkService.getSdk();
-    try {
-      const { source } = withdrawMsg;
-      const signingKey = await this.getSigningKey(source);
-
-      await sdk.tx.revealPk(signingKey, txMsg);
-
-      const builtTx = await sdk.tx.buildWithdraw(txMsg, withdrawMsg);
-      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
-      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
-
-      return innerTxHash;
-    } catch (e) {
-      throw new Error(`Could not submit withdraw tx: ${e}`);
-    }
-  }
-
-  async submitRedelegate(
-    redelegateMsg: RedelegateMsgValue,
-    txMsg: TxMsgValue
-  ): Promise<string> {
-    await this.vaultService.assertIsUnlocked();
-    const sdk = this.sdkService.getSdk();
-    try {
-      const { owner } = redelegateMsg;
-      const signingKey = await this.getSigningKey(owner);
-
-      await sdk.tx.revealPk(signingKey, txMsg);
-
-      const builtTx = await sdk.tx.buildRedelegate(txMsg, redelegateMsg);
-      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
-      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
-
-      return innerTxHash;
-    } catch (e) {
-      throw new Error(`Could not submit redelegate tx: ${e}`);
-    }
-  }
-
-  async submitVoteProposal(
-    voteProposalMsg: VoteProposalMsgValue,
-    txMsg: TxMsgValue
-  ): Promise<string> {
-    await this.vaultService.assertIsUnlocked();
-    const sdk = this.sdkService.getSdk();
-    try {
-      const { signer } = voteProposalMsg;
-      const signingKey = await this.getSigningKey(signer);
-
-      await sdk.tx.revealPk(signingKey, txMsg);
-
-      const builtTx = await sdk.tx.buildVoteProposal(txMsg, voteProposalMsg);
-      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
-      await sdk.rpc.broadcastTx(signedTx);
-      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
-
-      return innerTxHash;
-    } catch (e) {
-      throw new Error(`Could not submit vote proposal tx: ${e}`);
-    }
-  }
-
-  async submitTransfer(
-    transferMsg: Uint8Array,
-    submit: (signingKey: SigningKey) => Promise<void>
-  ): Promise<void> {
-    await this.vaultService.assertIsUnlocked();
-
-    // We need to get the source address to find either the private key or spending key
-    const { source } = deserialize(Buffer.from(transferMsg), TransferMsgValue);
-
-    const account = await this.vaultStorage.findOneOrFail(
-      KeyStore,
-      "address",
-      source
-    );
-    const sensitiveProps =
-      await this.vaultService.reveal<SensitiveAccountStoreData>(
-        account.sensitive
-      );
-
-    if (!sensitiveProps) {
-      throw new Error("Error decrypting AccountStore data");
-    }
-
-    if (account.public.type === AccountType.ShieldedKeys) {
-      const xsk = JSON.parse(sensitiveProps.text).spendingKey;
-
-      await submit({
-        xsk,
-      });
-    } else {
-      await submit({ privateKey: await this.getSigningKey(source) });
-    }
-  }
-
-  async submitIbcTransfer(
-    ibcTransferMsg: IbcTransferMsgValue,
-    txMsg: TxMsgValue
-  ): Promise<string> {
-    await this.vaultService.assertIsUnlocked();
-    const sdk = this.sdkService.getSdk();
-    try {
-      const { source } = ibcTransferMsg;
-      const signingKey = await this.getSigningKey(source);
-
-      await sdk.tx.revealPk(signingKey, txMsg);
-
-      const builtTx = await sdk.tx.buildIbcTransfer(txMsg, ibcTransferMsg);
-      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
-      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
-
-      return innerTxHash;
-    } catch (e) {
-      throw new Error(`Could not submit ibc transfer tx: ${e}`);
-    }
-  }
-
-  async submitEthBridgeTransfer(
-    ethBridgeTransferMsg: EthBridgeTransferMsgValue,
-    txMsg: TxMsgValue
-  ): Promise<string> {
-    await this.vaultService.assertIsUnlocked();
-    const sdk = this.sdkService.getSdk();
-    try {
-      const { sender } = ethBridgeTransferMsg;
-      const signingKey = await this.getSigningKey(sender);
-
-      await sdk.tx.revealPk(signingKey, txMsg);
-
-      const builtTx = await sdk.tx.buildEthBridgeTransfer(
-        txMsg,
-        ethBridgeTransferMsg
-      );
-      const signedTx = await sdk.tx.signTx(builtTx, signingKey);
-      const innerTxHash: string = await sdk.rpc.broadcastTx(signedTx);
-
-      return innerTxHash;
-    } catch (e) {
-      throw new Error(`Could not submit submit_eth_bridge_transfer tx: ${e}`);
-    }
   }
 
   private async findAllChildAccounts(
@@ -839,36 +543,23 @@ export class KeyRing {
     return Result.ok(null);
   }
 
-  async queryBalances(
-    owner: string,
-    tokens: string[]
-  ): Promise<{ token: string; amount: string }[]> {
-    const query = this.sdkService.getSdk().rpc;
-
-    try {
-      return (await query.queryBalance(owner, tokens)).map(
-        ([token, amount]: [string, string]) => {
-          return {
-            token,
-            amount,
-          };
-        }
-      );
-    } catch (e) {
-      console.error(e);
-      return [];
-    }
-  }
-
-  async queryPublicKey(address: string): Promise<string | undefined> {
-    const query = this.sdkService.getSdk().rpc;
-    return await query.queryPublicKey(address);
+  async sign(
+    builtTx: BuiltTx[],
+    signer: string,
+    chainId: string
+  ): Promise<Uint8Array[]> {
+    await this.vaultService.assertIsUnlocked();
+    const key = await this.getSigningKey(signer);
+    const { signing } = this.sdkService.getSdk();
+    return await Promise.all(
+      builtTx.map(async (tx) => await signing.sign(tx, key, chainId))
+    );
   }
 
   async signArbitrary(
     signer: string,
     data: string
-  ): Promise<SignatureResponse> {
+  ): Promise<SignArbitraryResponse> {
     await this.vaultService.assertIsUnlocked();
 
     const key = await this.getSigningKey(signer);

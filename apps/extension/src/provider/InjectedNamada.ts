@@ -1,12 +1,11 @@
 import {
-  BalancesProps,
   Chain,
   DerivedAccount,
   Namada as INamada,
   Signer as ISigner,
   SignArbitraryProps,
-  SignatureResponse,
-  TxMsgProps,
+  SignArbitraryResponse,
+  SignProps,
   VerifyArbitraryProps,
 } from "@namada/types";
 import { InjectedProxy } from "./InjectedProxy";
@@ -35,13 +34,27 @@ export class InjectedNamada implements INamada {
     );
   }
 
-  public async sign(
+  public async sign(props: SignProps): Promise<Uint8Array[]> {
+    return await InjectedProxy.requestMethod<SignProps, Uint8Array[]>(
+      "sign",
+      props
+    );
+  }
+
+  public async signLedger(props: SignProps): Promise<Uint8Array[]> {
+    return await InjectedProxy.requestMethod<SignProps, Uint8Array[]>(
+      "signLedger",
+      props
+    );
+  }
+
+  public async signArbitrary(
     props: SignArbitraryProps
-  ): Promise<SignatureResponse | undefined> {
+  ): Promise<SignArbitraryResponse | undefined> {
     return await InjectedProxy.requestMethod<
       SignArbitraryProps,
-      SignatureResponse | undefined
-    >("sign", props);
+      SignArbitraryResponse | undefined
+    >("signArbitrary", props);
   }
 
   public async verify(props: VerifyArbitraryProps): Promise<void> {
@@ -51,32 +64,12 @@ export class InjectedNamada implements INamada {
     );
   }
 
-  public async balances(
-    props: BalancesProps
-  ): Promise<{ token: string; amount: string }[]> {
-    return await InjectedProxy.requestMethod<
-      BalancesProps,
-      { token: string; amount: string }[]
-    >("balances", props);
-  }
-
-  public async shieldedSync(): Promise<void> {
-    return await InjectedProxy.requestMethod<void, void>("shieldedSync");
-  }
-
   public async getChain(): Promise<Chain | undefined> {
     return await InjectedProxy.requestMethod<void, Chain>("getChain");
   }
 
   public getSigner(): ISigner | undefined {
     return new Signer(this);
-  }
-
-  public async submitTx(props: TxMsgProps): Promise<void> {
-    return await InjectedProxy.requestMethod<TxMsgProps, void>(
-      "submitTx",
-      props
-    );
   }
 
   public version(): string {

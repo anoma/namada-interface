@@ -1,29 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as borsh from "@dao-xyz/borsh";
-import { TxType } from "@heliax/namada-sdk/web";
-import {
-  AccountType,
-  BondMsgValue,
-  EthBridgeTransferMsgValue,
-  IbcTransferMsgValue,
-  TokenInfo,
-  TransferMsgValue,
-  UnbondMsgValue,
-  VoteProposalMsgValue,
-  WithdrawMsgValue,
-} from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
-import { LedgerService } from "background/ledger";
 import { VaultService } from "background/vault";
-import BigNumber from "bignumber.js";
 import { ExtensionBroadcaster } from "extension";
 import createMockInstance from "jest-create-mock-instance";
 import { LocalStorage } from "storage";
 import { KVStoreMock } from "test/init";
 import * as webextensionPolyfill from "webextension-polyfill";
 import { ApprovalsService } from "./service";
-import { TxStore } from "./types";
+import { PendingTx } from "./types";
 
 jest.mock("webextension-polyfill", () => ({
   runtime: {
@@ -55,7 +40,7 @@ describe("approvals service", () => {
   let service: ApprovalsService;
   let keyRingService: jest.Mocked<KeyRingService>;
   let dataStore: KVStoreMock<string>;
-  let txStore: KVStoreMock<TxStore>;
+  let txStore: KVStoreMock<PendingTx>;
   let localStorage: LocalStorage;
 
   afterEach(() => {
@@ -64,12 +49,9 @@ describe("approvals service", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    txStore = new KVStoreMock<TxStore>("TxStore");
+    txStore = new KVStoreMock<PendingTx>("PendingTx");
     dataStore = new KVStoreMock<string>("DataStore");
     keyRingService = createMockInstance(KeyRingService as any);
-    const ledgerService: jest.Mocked<LedgerService> = createMockInstance(
-      LedgerService as any
-    );
     const vaultService: jest.Mocked<VaultService> = createMockInstance(
       VaultService as any
     );
@@ -82,7 +64,6 @@ describe("approvals service", () => {
       dataStore,
       localStorage,
       keyRingService,
-      ledgerService,
       vaultService,
       broadcaster
     );
@@ -96,7 +77,7 @@ describe("approvals service", () => {
         signature: "sig",
       };
 
-      const signaturePromise = service.approveSignature("signer", "data");
+      const signaturePromise = service.approveSignArbitrary("signer", "data");
 
       await new Promise((resolve) =>
         setTimeout(() => {
@@ -116,7 +97,7 @@ describe("approvals service", () => {
       });
 
       await expect(
-        service.approveSignature("signer", "data")
+        service.approveSignArbitrary("signer", "data")
       ).rejects.toBeDefined();
     });
 
@@ -132,7 +113,7 @@ describe("approvals service", () => {
       (service as any).resolverMap[tabId] = sigResponse;
 
       await expect(
-        service.approveSignature("signer", "data")
+        service.approveSignArbitrary("signer", "data")
       ).rejects.toBeDefined();
     });
   });
@@ -153,14 +134,14 @@ describe("approvals service", () => {
         .spyOn(keyRingService, "signArbitrary")
         .mockResolvedValue(sigResponse);
       const signer = "signer";
-      const signaturePromise = service.approveSignature(signer, "data");
+      const signaturePromise = service.approveSignArbitrary(signer, "data");
 
       await new Promise((resolve) =>
         setTimeout(() => {
           resolve(true);
         })
       );
-      await service.submitSignature(tabId, "msgId", signer);
+      await service.submitSignArbitrary(tabId, "msgId", signer);
 
       expect(await signaturePromise).toEqual(sigResponse);
     });
@@ -171,7 +152,7 @@ describe("approvals service", () => {
       jest.spyOn(dataStore, "get").mockResolvedValueOnce("data");
 
       await expect(
-        service.submitSignature(tabId, "msgId", signer)
+        service.submitSignArbitrary(tabId, "msgId", signer)
       ).rejects.toBeDefined();
     });
 
@@ -186,7 +167,7 @@ describe("approvals service", () => {
       jest.spyOn(dataStore, "get").mockResolvedValueOnce(undefined);
 
       await expect(
-        service.submitSignature(tabId, "msgId", signer)
+        service.submitSignArbitrary(tabId, "msgId", signer)
       ).rejects.toBeDefined();
     });
 
@@ -212,7 +193,7 @@ describe("approvals service", () => {
       );
 
       await expect(
-        service.submitSignature(tabId, "msgId", signer)
+        service.submitSignArbitrary(tabId, "msgId", signer)
       ).resolves.toBeUndefined();
 
       expect(service["resolverMap"][tabId].reject).toHaveBeenCalled();
@@ -223,7 +204,7 @@ describe("approvals service", () => {
     it("should reject resolver", async () => {
       const tabId = 1;
       const signer = "signer";
-      const signaturePromise = service.approveSignature(signer, "data");
+      const signaturePromise = service.approveSignArbitrary(signer, "data");
 
       (webextensionPolyfill.windows.create as any).mockResolvedValue({
         tabs: [{ id: tabId }],
@@ -247,361 +228,27 @@ describe("approvals service", () => {
     });
   });
 
-  const txTypes = [
-    [TxType.Bond, "getParamsBond"],
-    [TxType.Unbond, "getParamsUnbond"],
-    [TxType.Withdraw, "getParamsWithdraw"],
-    [TxType.Transfer, "getParamsTransfer"],
-    [TxType.IBCTransfer, "getParamsIbcTransfer"],
-    [TxType.EthBridgeTransfer, "getParamsEthBridgeTransfer"],
-    [TxType.VoteProposal, "getParamsVoteProposal"],
-  ] as const;
+  // describe("approveTx", () => {
+  //   it.each(txTypes)("%i txType fn: %s", async (type, paramsFn) => {
+  //     jest.spyOn(service as any, "_launchApprovalWindow");
+  //
+  //     try {
+  //       const res = await service.approveTx(
+  //         type,
+  //         tx,
+  //         AccountType.Mnemonic
+  //       );
+  //       expect(res).toBeUndefined();
+  //     } catch (e) {}
+  //   });
+  // });
 
-  describe("approveTx", () => {
-    it.each(txTypes)("%i txType fn: %s", async (type, paramsFn) => {
-      jest.spyOn(ApprovalsService, paramsFn).mockImplementation(() => ({}));
-      jest.spyOn(borsh, "deserialize").mockReturnValue({});
-      jest.spyOn(service as any, "_launchApprovalWindow");
-
-      try {
-        const res = await service.approveTx(
-          type,
-          [{ specificMsg: "", txMsg: "" }],
-          AccountType.Mnemonic
-        );
-        expect(res).toBeUndefined();
-      } catch (e) {}
-    });
-  });
-
-  describe("getParamsTransfer", () => {
-    it("should return transfer params", () => {
-      const transferMsgValue = new TransferMsgValue({
-        source: "source",
-        target: "target",
-        token: "token",
-        amount: BigNumber(100),
-        nativeToken: "nativeToken",
-      });
-
-      const txMsgValue = {
-        token: "token",
-        feeAmount: BigNumber(0.5),
-        gasLimit: BigNumber(0.5),
-        chainId: "chainId",
-        publicKey: "publicKey",
-      };
-
-      jest.spyOn(borsh, "deserialize").mockReturnValue(transferMsgValue);
-
-      const params = ApprovalsService.getParamsTransfer(
-        new Uint8Array([]),
-        txMsgValue
-      );
-
-      expect(params).toEqual({
-        source: transferMsgValue.source,
-        target: transferMsgValue.target,
-        tokenAddress: transferMsgValue.token,
-        amount: transferMsgValue.amount.toString(),
-        publicKey: txMsgValue.publicKey,
-        nativeToken: transferMsgValue.token,
-      });
-    });
-  });
-
-  describe("getParamsIbcTransfer", () => {
-    it("should return transfer params", () => {
-      const token: TokenInfo = {
-        symbol: "symbol",
-        type: 0,
-        path: 0,
-        coin: "coin",
-        url: "url",
-        address: "address",
-        minDenom: "minDenom",
-        decimals: 0,
-      };
-
-      const transferMsgValue = new IbcTransferMsgValue({
-        source: "source",
-        receiver: "target",
-        token: token.address,
-        amount: BigNumber(100),
-        portId: "portId",
-        channelId: "channelId",
-      });
-
-      const txMsgValue = {
-        token: "token",
-        feeAmount: BigNumber(0.5),
-        gasLimit: BigNumber(0.5),
-        chainId: "chainId",
-        publicKey: "publicKey",
-      };
-
-      jest.spyOn(borsh, "deserialize").mockReturnValue(transferMsgValue);
-
-      const params = ApprovalsService.getParamsIbcTransfer(
-        new Uint8Array([]),
-        txMsgValue
-      );
-
-      expect(params).toEqual({
-        source: transferMsgValue.source,
-        target: transferMsgValue.receiver,
-        tokenAddress: transferMsgValue.token,
-        amount: transferMsgValue.amount.toString(),
-        publicKey: txMsgValue.publicKey,
-        nativeToken: txMsgValue.token,
-      });
-    });
-  });
-
-  describe("getParamsEthBridgeTransfer", () => {
-    it("should return transfer params", () => {
-      const transferMsgValue = new EthBridgeTransferMsgValue({
-        nut: false,
-        asset: "asset",
-        recipient: "recipient",
-        sender: "sender",
-        amount: BigNumber(100),
-        feeAmount: BigNumber(0.5),
-        feeToken: "feeToken",
-      });
-
-      const txMsgValue = {
-        token: "token",
-        feeAmount: BigNumber(0.5),
-        gasLimit: BigNumber(0.5),
-        chainId: "chainId",
-        publicKey: "publicKey",
-      };
-
-      jest.spyOn(borsh, "deserialize").mockReturnValue(transferMsgValue);
-
-      const params = ApprovalsService.getParamsEthBridgeTransfer(
-        new Uint8Array([]),
-        txMsgValue
-      );
-
-      expect(params).toEqual({
-        source: transferMsgValue.sender,
-        target: transferMsgValue.recipient,
-        tokenAddress: transferMsgValue.asset,
-        amount: transferMsgValue.amount.toString(),
-        publicKey: txMsgValue.publicKey,
-        nativeToken: txMsgValue.token,
-      });
-    });
-  });
-
-  describe("getParamsBond", () => {
-    it("should return bond params", () => {
-      const bondMsgValue = new BondMsgValue({
-        source: "source",
-        validator: "validator",
-        amount: BigNumber(100),
-        nativeToken: "nativeToken",
-      });
-
-      const txMsgValue = {
-        token: "token",
-        feeAmount: BigNumber(0.5),
-        gasLimit: BigNumber(0.5),
-        chainId: "chainId",
-        publicKey: "publicKey",
-      };
-
-      jest.spyOn(borsh, "deserialize").mockReturnValue(bondMsgValue);
-
-      const params = ApprovalsService.getParamsBond(
-        new Uint8Array([]),
-        txMsgValue
-      );
-
-      expect(params).toEqual({
-        source: bondMsgValue.source,
-        tokenAddress: bondMsgValue.nativeToken,
-        amount: bondMsgValue.amount.toString(),
-        publicKey: txMsgValue.publicKey,
-        nativeToken: bondMsgValue.nativeToken,
-        validator: bondMsgValue.validator,
-      });
-    });
-  });
-
-  describe("getParamsUnbond", () => {
-    it("should return unbond params", () => {
-      const unbondMsgValue = new UnbondMsgValue({
-        source: "source",
-        validator: "validator",
-        amount: BigNumber(100),
-      });
-
-      const txMsgValue = {
-        token: "token",
-        feeAmount: BigNumber(0.5),
-        gasLimit: BigNumber(0.5),
-        chainId: "chainId",
-        publicKey: "publicKey",
-      };
-
-      jest.spyOn(borsh, "deserialize").mockReturnValue(unbondMsgValue);
-
-      const params = ApprovalsService.getParamsUnbond(
-        new Uint8Array([]),
-        txMsgValue
-      );
-
-      expect(params).toEqual({
-        source: unbondMsgValue.source,
-        amount: unbondMsgValue.amount.toString(),
-        validator: unbondMsgValue.validator,
-        publicKey: txMsgValue.publicKey,
-        nativeToken: txMsgValue.token,
-      });
-    });
-  });
-
-  describe("getParamsWithdraw", () => {
-    it("should return withdraw params", () => {
-      const withdrawMsgValue = new WithdrawMsgValue({
-        source: "source",
-        validator: "validator",
-      });
-
-      const txMsgValue = {
-        token: "token",
-        feeAmount: BigNumber(0.5),
-        gasLimit: BigNumber(0.5),
-        chainId: "chainId",
-        publicKey: "publicKey",
-      };
-
-      jest.spyOn(borsh, "deserialize").mockReturnValue(withdrawMsgValue);
-
-      const params = ApprovalsService.getParamsWithdraw(
-        new Uint8Array([]),
-        txMsgValue
-      );
-
-      expect(params).toEqual({
-        source: withdrawMsgValue.source,
-        validator: withdrawMsgValue.validator,
-        publicKey: txMsgValue.publicKey,
-        nativeToken: txMsgValue.token,
-      });
-    });
-  });
-
-  describe("getParamsVoteProposal", () => {
-    it("should return vote proposal params", () => {
-      const voteProposalMsgValue = new VoteProposalMsgValue({
-        signer: "singer",
-        proposalId: BigInt(0),
-        vote: "yay",
-      });
-
-      const txMsgValue = {
-        token: "token",
-        feeAmount: BigNumber(0.5),
-        gasLimit: BigNumber(0.5),
-        chainId: "chainId",
-        publicKey: "publicKey",
-      };
-
-      jest.spyOn(borsh, "deserialize").mockReturnValue(voteProposalMsgValue);
-
-      const params = ApprovalsService.getParamsVoteProposal(
-        new Uint8Array([]),
-        txMsgValue
-      );
-
-      expect(params).toEqual({
-        source: voteProposalMsgValue.signer,
-        publicKey: txMsgValue.publicKey,
-        nativeToken: txMsgValue.token,
-      });
-    });
-  });
-
-  describe("rejectTx", () => {
+  describe("rejectSignTx", () => {
     it("should clear pending tx", async () => {
       jest.spyOn(service as any, "_clearPendingTx");
-      await service.rejectTx("msgId");
+      await service.rejectSignTx("msgId");
 
       expect((service as any)._clearPendingTx).toHaveBeenCalledWith("msgId");
-    });
-  });
-
-  const submitTxTypes = [
-    [TxType.Bond, "submitBond"],
-    [TxType.Unbond, "submitUnbond"],
-    [TxType.Withdraw, "submitWithdraw"],
-    [TxType.Transfer, "submitTransfer"],
-    [TxType.IBCTransfer, "submitIbcTransfer"],
-    [TxType.EthBridgeTransfer, "submitEthBridgeTransfer"],
-    [TxType.VoteProposal, "submitVoteProposal"],
-  ] as const;
-
-  describe("submitTx", () => {
-    it.each(submitTxTypes)("%i txType fn: %s", async (txType, paramsFn) => {
-      const msgId = "msgId";
-      const txMsg = "txMsg";
-      const specificMsg = "specificMsg";
-
-      jest.spyOn(service["txStore"], "get").mockImplementation(() => {
-        return Promise.resolve({
-          txType,
-          tx: [
-            {
-              txMsg,
-              specificMsg,
-            },
-          ],
-        });
-      });
-
-      jest.spyOn(keyRingService, paramsFn).mockResolvedValue();
-      jest.spyOn(service as any, "_clearPendingTx");
-
-      await service.submitTx(msgId);
-      expect(service["_clearPendingTx"]).toHaveBeenCalledWith(msgId);
-      expect(keyRingService[paramsFn]).toHaveBeenCalledWith(
-        specificMsg,
-        txMsg,
-        msgId
-      );
-    });
-
-    it("should throw an error if txType is not found", async () => {
-      const msgId = "msgId";
-      const txMsg = "txMsg";
-      const specificMsg = "specificMsg";
-      const txType: any = 999;
-
-      jest.spyOn(service["txStore"], "get").mockImplementation(() => {
-        return Promise.resolve({
-          txType,
-          tx: [
-            {
-              txMsg,
-              specificMsg,
-            },
-          ],
-        });
-      });
-
-      await expect(service.submitTx(msgId)).rejects.toBeDefined();
-    });
-
-    it("should throw an error if tx is not found", async () => {
-      jest.spyOn(service["txStore"], "get").mockImplementation(() => {
-        return Promise.resolve(undefined);
-      });
-
-      await expect(service.submitTx("msgId")).rejects.toBeDefined();
     });
   });
 
@@ -798,41 +445,6 @@ describe("approvals service", () => {
       await expect(
         (service as any).getPopupTabId("url")
       ).resolves.toBeUndefined();
-    });
-  });
-
-  describe("getTxDetails", () => {
-    it("should return tx details", () => {
-      const txMsgValue = {
-        token: "token",
-        feeAmount: BigNumber(0.5),
-        gasLimit: BigNumber(0.5),
-        chainId: "chainId",
-        publicKey: "publicKey",
-      };
-
-      const { publicKey, nativeToken } = (ApprovalsService as any).getTxDetails(
-        txMsgValue
-      );
-
-      expect(publicKey).toEqual(txMsgValue.publicKey);
-      expect(nativeToken).toEqual(txMsgValue.token);
-    });
-
-    it("should return tx details with empty publicKey when missing", () => {
-      const txMsgValue = {
-        token: "token",
-        feeAmount: BigNumber(0.5),
-        gasLimit: BigNumber(0.5),
-        chainId: "chainId",
-      };
-
-      const { publicKey, nativeToken } = (ApprovalsService as any).getTxDetails(
-        txMsgValue
-      );
-
-      expect(publicKey).toEqual("");
-      expect(nativeToken).toEqual(txMsgValue.token);
     });
   });
 

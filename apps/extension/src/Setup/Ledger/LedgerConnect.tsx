@@ -1,8 +1,8 @@
+import { Ledger as LedgerApp } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Image, Stack } from "@namada/components";
 import { LedgerError } from "@zondax/ledger-namada";
 import { LedgerStep } from "Setup/Common";
 import routes from "Setup/routes";
-import { Ledger as LedgerApp } from "background/ledger";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 

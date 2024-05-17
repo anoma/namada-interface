@@ -1,6 +1,6 @@
 import { AccountType, DerivedAccount } from "./account";
 import { Chain } from "./chain";
-import { SignatureResponse, Signer } from "./signer";
+import { SignArbitraryResponse, Signer } from "./signer";
 
 export type TxMsgProps = {
   //TODO: figure out if we can make it better
@@ -18,6 +18,15 @@ export type SignArbitraryProps = {
   data: string;
 };
 
+export type SignProps = {
+  accountType: AccountType;
+  signer: string;
+  tx: {
+    txData: Uint8Array;
+    signingData: Uint8Array;
+  }[];
+};
+
 export type VerifyArbitraryProps = {
   publicKey: string;
   hash: string;
@@ -31,16 +40,15 @@ export type BalancesProps = {
 
 export interface Namada {
   accounts(chainId?: string): Promise<DerivedAccount[] | undefined>;
-  balances(
-    props: BalancesProps
-  ): Promise<{ token: string; amount: string }[] | undefined>;
-  shieldedSync(): Promise<void>;
   connect(chainId?: string): Promise<void>;
   isConnected(): Promise<boolean | undefined>;
   defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
-  sign(props: SignArbitraryProps): Promise<SignatureResponse | undefined>;
+  sign(props: SignProps): Promise<Uint8Array[] | undefined>;
+  signLedger(props: SignProps): Promise<Uint8Array[] | undefined>;
+  signArbitrary(
+    props: SignArbitraryProps
+  ): Promise<SignArbitraryResponse | undefined>;
   verify(props: VerifyArbitraryProps): Promise<void>;
-  submitTx: (props: TxMsgProps) => Promise<void>;
   getChain: () => Promise<Chain | undefined>;
   version: () => string;
 }

@@ -1,7 +1,8 @@
 use std::{path::PathBuf, str::FromStr};
 
-use namada::core::borsh::{BorshDeserialize, BorshSerialize};
+use namada::core::borsh::{self, BorshDeserialize, BorshSerialize};
 use namada::core::ibc::core::host::types::identifiers::{ChannelId, PortId};
+use namada::sdk::signing::SigningTxData;
 use namada::tendermint_rpc;
 use namada::tx::data::GasLimit;
 use namada::{
@@ -17,7 +18,68 @@ use wasm_bindgen::JsError;
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
-pub struct TxMsg {
+pub struct SigningData {
+    owner: Option<String>,
+    public_keys: Vec<u8>,
+    threshold: u8,
+    account_public_keys_map: Option<Vec<u8>>,
+    fee_payer: String,
+}
+
+impl SigningData {
+    // Create serializable struct from Namada type
+    pub fn from_signing_tx_data(signing_tx_data: SigningTxData) -> Result<SigningData, JsError> {
+        let owner: Option<String> = match signing_tx_data.owner {
+            Some(addr) => Some(addr.to_string()),
+            None => None,
+        };
+        let public_keys = borsh::to_vec(&signing_tx_data.public_keys)?;
+        let fee_payer = signing_tx_data.fee_payer.to_string();
+        let account_public_keys_map = match signing_tx_data.account_public_keys_map {
+            Some(pk_map) => Some(borsh::to_vec(&pk_map)?),
+            None => None,
+        };
+
+        Ok(SigningData {
+            owner,
+            public_keys,
+            threshold: signing_tx_data.threshold,
+            account_public_keys_map,
+            fee_payer,
+        })
+    }
+
+    // Create Namada type from this struct
+    pub fn to_signing_tx_data(&self) -> Result<SigningTxData, JsError> {
+        let owner: Option<Address> = match &self.owner {
+            Some(addr) => Some(Address::from_str(&addr)?),
+            None => None,
+        };
+        let public_keys = borsh::from_slice(&self.public_keys)?;
+        let fee_payer = PublicKey::from_str(&self.fee_payer)?;
+        let threshold = self.threshold;
+        let account_public_keys_map = match &self.account_public_keys_map {
+            Some(pk_map) => Some(borsh::from_slice(&pk_map)?),
+            None => None,
+        };
+
+        Ok(SigningTxData {
+            owner,
+            public_keys,
+            fee_payer,
+            threshold,
+            account_public_keys_map,
+        })
+    }
+
+    pub fn to_bytes(&self) -> Result<Vec<u8>, JsError> {
+        Ok(borsh::to_vec(&self)?)
+    }
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
+pub struct WrapperTxMsg {
     token: String,
     fee_amount: String,
     gas_limit: String,
@@ -467,8 +529,8 @@ pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
 ///
 /// Returns JsError if token address is invalid.
 fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
-    let tx_msg = TxMsg::try_from_slice(tx_msg)?;
-    let TxMsg {
+    let tx_msg = WrapperTxMsg::try_from_slice(tx_msg)?;
+    let WrapperTxMsg {
         token,
         fee_amount,
         gas_limit,

@@ -1,84 +1,62 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TxType } from "@heliax/namada-sdk/web";
 import { ROUTE } from "./constants";
 import {
   ConnectInterfaceResponseMsg,
   MessageType,
-  RejectSignatureMsg,
-  RejectTxMsg,
+  RejectSignArbitraryMsg,
+  RejectSignTxMsg,
   RevokeConnectionMsg,
-  SubmitApprovedSignatureMsg,
-  SubmitApprovedTxMsg,
+  SubmitApprovedSignArbitraryMsg,
 } from "./messages";
 
 jest.mock("webextension-polyfill", () => ({}));
 
 describe("approvals messages", () => {
-  test("valid RejectTxMsg", () => {
-    const msg = new RejectTxMsg("msgId");
+  test("valid RejectSignTxMsg", () => {
+    const msg = new RejectSignTxMsg("msgId");
 
-    expect(msg.type()).toBe(MessageType.RejectTx);
+    expect(msg.type()).toBe(MessageType.RejectSignTx);
     expect(msg.route()).toBe(ROUTE);
     expect(msg.validate()).toBeUndefined();
   });
 
-  test("invalid RejectTxMsg", () => {
-    const msg = new RejectTxMsg("msgId");
+  test("invalid RejectSignTxMsg", () => {
+    const msg = new RejectSignTxMsg("msgId");
     (msg as any).msgId = undefined;
 
     expect(() => msg.validate()).toThrow();
   });
 
-  test("valid SubmitApprovedTxMsg", () => {
-    const msg = new SubmitApprovedTxMsg(TxType.Bond, "msgId");
+  test("valid RejectSignArbitraryMsg", () => {
+    const msg = new RejectSignArbitraryMsg("msgId");
 
-    expect(msg.type()).toBe(MessageType.SubmitApprovedTx);
+    expect(msg.type()).toBe(MessageType.RejectSignArbitrary);
     expect(msg.route()).toBe(ROUTE);
     expect(msg.validate()).toBeUndefined();
   });
 
-  test("invalid SubmitApprovedTxMsg", () => {
-    const msg = new SubmitApprovedTxMsg(TxType.Bond, "msgId");
-    (msg as any).msgId = undefined;
-
-    expect(() => msg.validate()).toThrow();
-
-    const msg2 = new SubmitApprovedTxMsg(TxType.Bond, "msgId");
-    (msg2 as any).txType = undefined;
-
-    expect(() => msg2.validate()).toThrow();
-  });
-
-  test("valid RejectSignatureMsg", () => {
-    const msg = new RejectSignatureMsg("msgId");
-
-    expect(msg.type()).toBe(MessageType.RejectSignature);
-    expect(msg.route()).toBe(ROUTE);
-    expect(msg.validate()).toBeUndefined();
-  });
-
-  test("invalid RejectSignatureMsg", () => {
-    const msg = new RejectSignatureMsg("msgId");
+  test("invalid RejectSignArbitraryMsg", () => {
+    const msg = new RejectSignArbitraryMsg("msgId");
     (msg as any).msgId = undefined;
 
     expect(() => msg.validate()).toThrow();
   });
 
   test("valid SubmitApprovedSignatureMsg", () => {
-    const msg = new SubmitApprovedSignatureMsg("msgId", "signer");
+    const msg = new SubmitApprovedSignArbitraryMsg("msgId", "signer");
 
-    expect(msg.type()).toBe(MessageType.SubmitApprovedSignature);
+    expect(msg.type()).toBe(MessageType.SubmitApprovedSignArbitrary);
     expect(msg.route()).toBe(ROUTE);
     expect(msg.validate()).toBeUndefined();
   });
 
-  test("invalid SubmitApprovedSignatureMsg", () => {
-    const msg = new SubmitApprovedSignatureMsg("msgId", "signer");
+  test("invalid SubmitApprovedSignArbitraryMsg", () => {
+    const msg = new SubmitApprovedSignArbitraryMsg("msgId", "signer");
     (msg as any).msgId = undefined;
 
     expect(() => msg.validate()).toThrow();
 
-    const msg2 = new SubmitApprovedSignatureMsg("msgId", "signer");
+    const msg2 = new SubmitApprovedSignArbitraryMsg("msgId", "signer");
     (msg2 as any).signer = undefined;
 
     expect(() => msg2.validate()).toThrow();

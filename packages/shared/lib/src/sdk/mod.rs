@@ -14,10 +14,9 @@ use namada::core::borsh::{self, BorshDeserialize};
 use namada::hash::Hash;
 use namada::key::{common, ed25519, SigScheme};
 use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
-use namada::masp::TransferSource;
-use namada::sdk::masp::{DefaultLogger, ShieldedContext};
+use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::query_epoch;
-use namada::sdk::signing::{find_key_by_pk, SigningTxData};
+use namada::sdk::signing::SigningTxData;
 use namada::sdk::tx::build_redelegation;
 use namada::sdk::tx::{
     build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond,
@@ -61,6 +60,23 @@ impl BuiltTx {
 
     pub fn tx_hash(&self) -> String {
         self.tx.raw_header_hash().to_string()
+    }
+
+    pub fn signing_data_bytes(&self) -> Result<Vec<u8>, JsError> {
+        let signing_data = tx::SigningData::from_signing_tx_data(self.signing_data.clone())?;
+        Ok(signing_data.to_bytes()?)
+    }
+
+    // Return instance from serialized values
+    pub fn from_stored_tx(
+        tx_bytes: Vec<u8>,
+        signing_data_bytes: Vec<u8>,
+    ) -> Result<BuiltTx, JsError> {
+        let tx: Tx = borsh::from_slice(&tx_bytes)?;
+        let signing_data: tx::SigningData = borsh::from_slice(&signing_data_bytes)?;
+        let signing_data: SigningTxData = signing_data.to_signing_tx_data()?;
+
+        Ok(BuiltTx { tx, signing_data })
     }
 }
 
@@ -184,15 +200,26 @@ impl Sdk {
     pub async fn sign_tx(
         &mut self,
         built_tx: BuiltTx,
-        tx_msg: &[u8],
         private_key: Option<String>,
+        chain_id: Option<String>,
     ) -> Result<JsValue, JsError> {
-        let args = tx::tx_args_from_slice(tx_msg)?;
+        let signing_data_bytes = built_tx.signing_data_bytes()?;
+        let tx_bytes = built_tx.tx_bytes()?;
+        let signing_data: tx::SigningData = borsh::from_slice(&signing_data_bytes)?;
+        let signing_data = signing_data.to_signing_tx_data()?;
 
-        let BuiltTx {
-            mut tx,
-            signing_data,
-        } = built_tx;
+        let mut tx: Tx = borsh::from_slice(&tx_bytes)?;
+
+        // If chain_id is provided, validate this against value in Tx header
+        if let Some(c) = chain_id {
+            if c != tx.header.chain_id.to_string() {
+                return Err(JsError::new(&format!(
+                    "chain_id {} does not match Tx header chain_id {}",
+                    &c,
+                    tx.header.chain_id.as_str()
+                )));
+            }
+        }
 
         let signing_keys = match private_key.clone() {
             Some(private_key) => vec![common::SecretKey::Ed25519(ed25519::SecretKey::from_str(
@@ -214,17 +241,9 @@ impl Sdk {
             }
         }
 
-        let key = {
-            let mut wallet = self.namada.wallet_mut().await;
-            find_key_by_pk(&mut *wallet, &args, &signing_data.fee_payer)
-        };
-
         // The key is either passed private key for transparent sources or the disposable signing
         // key for shielded sources
-        let key = match key {
-            Ok(k) => k,
-            Err(_) => signing_keys[0].clone(),
-        };
+        let key = signing_keys[0].clone();
 
         // Sign the fee header
         tx.sign_wrapper(key);
@@ -232,6 +251,7 @@ impl Sdk {
         to_js_result(borsh::to_vec(&tx)?)
     }
 
+    // Broadcast Tx
     pub async fn process_tx(&mut self, tx_bytes: &[u8], tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
 
@@ -330,30 +350,29 @@ impl Sdk {
         let mut args = tx::transfer_tx_args(transfer_msg, tx_msg)?;
 
         // TODO: this might not be needed. I will test it out in future
-        match args.source {
-            TransferSource::Address(_) => {}
-            TransferSource::ExtendedSpendingKey(xsk) => {
-                self.namada
-                    .shielded_mut()
-                    .await
-                    .fetch(
-                        self.namada.client(),
-                        &DefaultLogger::new(&WebIo),
-                        None,
-                        None,
-                        1,
-                        &[xsk.into()],
-                        &[],
-                    )
-                    .await?;
-
-                // It's temporary solution to add xsk to wallet as xvk is queried when unshielding
-                // This will change in namada in the future
-                self.add_spending_key(xsk.to_string(), "temp".to_string())
-                    .await;
-            }
-        }
-
+        // match args.source {
+        //     TransferSource::Address(_) => {}
+        //     TransferSource::ExtendedSpendingKey(xsk) => {
+        //         self.namada
+        //             .shielded_mut()
+        //             .await
+        //             .fetch(
+        //                 self.namada.client(),
+        //                 &DefaultLogger::new(&WebIo),
+        //                 None,
+        //                 None,
+        //                 1,
+        //                 &[xsk.into()],
+        //                 &[],
+        //             )
+        //             .await?;
+        //
+        //         // It's temporary solution to add xsk to wallet as xvk is queried when unshielding
+        //         // This will change in namada in the future
+        //         self.add_spending_key(xsk.to_string(), "temp".to_string())
+        //             .await;
+        //     }
+        // }
         let (tx, signing_data, _) = build_transfer(&self.namada, &mut args).await?;
 
         Ok(BuiltTx { tx, signing_data })
@@ -391,7 +410,6 @@ impl Sdk {
     ) -> Result<BuiltTx, JsError> {
         let args = tx::vote_proposal_tx_args(vote_proposal_msg, tx_msg)?;
         let epoch = query_epoch(self.namada.client()).await?;
-
         let (tx, signing_data) = build_vote_proposal(&self.namada, &args, epoch)
             .await
             .map_err(JsError::from)?;
@@ -454,13 +472,19 @@ impl Sdk {
     ) -> Result<BuiltTx, JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
         let public_key = args.signing_keys[0].clone();
+
         let (tx, signing_data) = build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
 
         Ok(BuiltTx { tx, signing_data })
     }
 
     // Helper function to reveal public key
-    pub async fn reveal_pk(&mut self, signing_key: String, tx_msg: &[u8]) -> Result<(), JsError> {
+    pub async fn reveal_pk(
+        &mut self,
+        signing_key: String,
+        tx_msg: &[u8],
+        chain_id: Option<String>,
+    ) -> Result<(), JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
         let pk = &args
             .signing_keys
@@ -474,7 +498,8 @@ impl Sdk {
             let built_tx = self.build_reveal_pk(tx_msg, String::from("")).await?;
             // Conversion from JsValue so we can use self.sign_tx
             let tx_bytes =
-                Uint8Array::new(&self.sign_tx(built_tx, tx_msg, Some(signing_key)).await?).to_vec();
+                Uint8Array::new(&self.sign_tx(built_tx, Some(signing_key), chain_id).await?)
+                    .to_vec();
             self.process_tx(&tx_bytes, tx_msg).await?;
         }
 

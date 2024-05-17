@@ -1,18 +1,17 @@
 import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
-  ApproveTxMsg,
+  ApproveSignTxMsg,
   IsConnectionApprovedMsg,
 } from "provider";
 import { Router } from "router";
 import {
   ConnectInterfaceResponseMsg,
-  QueryPendingTxMsg,
-  RejectSignatureMsg,
-  RejectTxMsg,
+  RejectSignArbitraryMsg,
+  RejectSignTxMsg,
   RevokeConnectionMsg,
-  SubmitApprovedSignatureMsg,
-  SubmitApprovedTxMsg,
+  SubmitApprovedSignArbitraryMsg,
+  SubmitApprovedSignTxMsg,
 } from "./messages";
 
 import { ROUTE } from "./constants";
@@ -20,13 +19,12 @@ import { getHandler } from "./handler";
 import { ApprovalsService } from "./service";
 
 export function init(router: Router, service: ApprovalsService): void {
-  router.registerMessage(ApproveTxMsg);
-  router.registerMessage(RejectTxMsg);
-  router.registerMessage(QueryPendingTxMsg);
-  router.registerMessage(SubmitApprovedTxMsg);
+  router.registerMessage(ApproveSignTxMsg);
   router.registerMessage(ApproveSignArbitraryMsg);
-  router.registerMessage(RejectSignatureMsg);
-  router.registerMessage(SubmitApprovedSignatureMsg);
+  router.registerMessage(RejectSignTxMsg);
+  router.registerMessage(RejectSignArbitraryMsg);
+  router.registerMessage(SubmitApprovedSignTxMsg);
+  router.registerMessage(SubmitApprovedSignArbitraryMsg);
   router.registerMessage(IsConnectionApprovedMsg);
   router.registerMessage(ApproveConnectInterfaceMsg);
   router.registerMessage(ConnectInterfaceResponseMsg);

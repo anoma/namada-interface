@@ -1,40 +1,20 @@
-import { fromBase64, fromHex } from "@cosmjs/encoding";
+import { fromHex } from "@cosmjs/encoding";
 
-import { PhraseSize, publicKeyToBech32, TxType } from "@heliax/namada-sdk/web";
+import { PhraseSize, publicKeyToBech32 } from "@heliax/namada-sdk/web";
 import { IndexedDBKVStore, KVStore } from "@namada/storage";
 import {
   AccountType,
   Bip44Path,
-  BondMsgValue,
   DerivedAccount,
-  EthBridgeTransferMsgValue,
-  IbcTransferMsgValue,
-  Message,
-  RedelegateMsgValue,
-  SignatureResponse,
-  TransferMsgValue,
-  TxMsgValue,
-  UnbondMsgValue,
-  VoteProposalMsgValue,
-  WithdrawMsgValue,
+  SignArbitraryResponse,
 } from "@namada/types";
 import { Result, truncateInMiddle } from "@namada/utils";
 
+import { BuiltTx } from "@namada/shared";
 import { ChainsService } from "background/chains";
-import {
-  createOffscreenWithTxWorker,
-  hasOffscreenDocument,
-  OFFSCREEN_TARGET,
-  SUBMIT_TRANSFER_MSG_TYPE,
-} from "background/offscreen";
 import { SdkService } from "background/sdk/service";
 import { VaultService } from "background/vault";
-import { init as initSubmitTransferWebWorker } from "background/web-workers";
-import {
-  ExtensionBroadcaster,
-  ExtensionRequester,
-  getNamadaRouterId,
-} from "extension";
+import { ExtensionBroadcaster, ExtensionRequester } from "extension";
 import { KeyStore, LocalStorage, VaultStorage } from "storage";
 import { KeyRing } from "./keyring";
 import {
@@ -44,14 +24,8 @@ import {
   DeleteAccountError,
   MnemonicValidationResponse,
   ParentAccount,
-  SigningKey,
   UtilityStore,
 } from "./types";
-
-const {
-  NAMADA_INTERFACE_NAMADA_TOKEN:
-    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
-} = process.env;
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -125,11 +99,6 @@ export class KeyRingService {
     return response;
   }
 
-  async scanAccounts(): Promise<void> {
-    await this._keyRing.scanAddresses();
-    await this.broadcaster.updateAccounts();
-  }
-
   async deriveAccount(
     path: Bip44Path,
     type: AccountType,
@@ -177,355 +146,6 @@ export class KeyRingService {
     return account?.public ?? null;
   }
 
-  async submitBond(
-    bondMsg: string,
-    txMsg: string,
-    msgId: string
-  ): Promise<void> {
-    await this.broadcaster.startTx(msgId, TxType.Bond);
-    try {
-      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
-      const bondMsgValue = Message.decode(fromBase64(bondMsg), BondMsgValue);
-
-      const innerTxHash = await this._keyRing.submitBond(
-        bondMsgValue,
-        txMsgValue
-      );
-      await this.broadcaster.completeTx(msgId, TxType.Bond, true, innerTxHash);
-      await this.broadcaster.updateStaking();
-      await this.broadcaster.updateBalance();
-    } catch (e) {
-      console.warn(e);
-      await this.broadcaster.completeTx(msgId, TxType.Bond, false, `${e}`);
-      throw new Error(`Unable to submit bond tx! ${e}`);
-    }
-  }
-
-  async submitUnbond(
-    unbondMsg: string,
-    txMsg: string,
-    msgId: string
-  ): Promise<void> {
-    await this.broadcaster.startTx(msgId, TxType.Unbond);
-    try {
-      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
-      const unbondMsgValue = Message.decode(
-        fromBase64(unbondMsg),
-        UnbondMsgValue
-      );
-
-      const innerTxHash = await this._keyRing.submitUnbond(
-        unbondMsgValue,
-        txMsgValue
-      );
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.Unbond,
-        true,
-        innerTxHash
-      );
-      await this.broadcaster.updateStaking();
-      await this.broadcaster.updateBalance();
-    } catch (e) {
-      console.warn(e);
-      await this.broadcaster.completeTx(msgId, TxType.Unbond, false, `${e}`);
-      throw new Error(`Unable to submit unbond tx! ${e}`);
-    }
-  }
-
-  async submitWithdraw(
-    withdrawMsg: string,
-    txMsg: string,
-    msgId: string
-  ): Promise<void> {
-    await this.broadcaster.startTx(msgId, TxType.Withdraw);
-    try {
-      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
-      const withdrawMsgValue = Message.decode(
-        fromBase64(withdrawMsg),
-        WithdrawMsgValue
-      );
-
-      const innerTxHash = await this._keyRing.submitWithdraw(
-        withdrawMsgValue,
-        txMsgValue
-      );
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.Withdraw,
-        true,
-        innerTxHash
-      );
-      await this.broadcaster.updateStaking();
-      await this.broadcaster.updateBalance();
-    } catch (e) {
-      console.warn(e);
-      await this.broadcaster.completeTx(msgId, TxType.Withdraw, false, `${e}`);
-      throw new Error(`Unable to submit withdraw tx! ${e}`);
-    }
-  }
-
-  async submitRedelegate(
-    redelegateMsg: string,
-    txMsg: string,
-    msgId: string
-  ): Promise<void> {
-    await this.broadcaster.startTx(msgId, TxType.Redelegate);
-    try {
-      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
-      const redelegateMsgValue = Message.decode(
-        fromBase64(redelegateMsg),
-        RedelegateMsgValue
-      );
-
-      const innerTxHash = await this._keyRing.submitRedelegate(
-        redelegateMsgValue,
-        txMsgValue
-      );
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.Redelegate,
-        true,
-        innerTxHash
-      );
-      await this.broadcaster.updateStaking();
-      await this.broadcaster.updateBalance();
-    } catch (e) {
-      console.warn(e);
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.Redelegate,
-        false,
-        `${e}`
-      );
-      throw new Error(`Unable to submit redelegate tx! ${e}`);
-    }
-  }
-
-  async submitVoteProposal(
-    voteProposalMsg: string,
-    txMsg: string,
-    msgId: string
-  ): Promise<void> {
-    await this.broadcaster.startTx(msgId, TxType.VoteProposal);
-    try {
-      const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
-      const voteProposalMsgValue = Message.decode(
-        fromBase64(voteProposalMsg),
-        VoteProposalMsgValue
-      );
-      const innerTxHash = await this._keyRing.submitVoteProposal(
-        voteProposalMsgValue,
-        txMsgValue
-      );
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.VoteProposal,
-        true,
-        innerTxHash
-      );
-      await this.broadcaster.updateProposals();
-    } catch (e) {
-      console.warn(e);
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.VoteProposal,
-        false,
-        `${e}`
-      );
-      throw new Error(`Unable to submit vote proposal tx! ${e}`);
-    }
-  }
-
-  private async submitTransferChrome(
-    transferMsg: string,
-    txMsg: string,
-    msgId: string,
-    signingKey: SigningKey
-  ): Promise<void> {
-    const offscreenDocumentPath = "offscreen.html";
-    const routerId = await getNamadaRouterId(this.localStorage);
-    const { url: rpc } = this.sdkService.getSdk();
-    const {
-      currency: { address: nativeToken = tokenAddress },
-    } = await this.chainsService.getChain();
-
-    if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
-      await createOffscreenWithTxWorker(offscreenDocumentPath);
-    }
-
-    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
-    const transferMsgValue = Message.decode(
-      fromBase64(transferMsg),
-      TransferMsgValue
-    );
-
-    const result = await chrome.runtime.sendMessage({
-      type: SUBMIT_TRANSFER_MSG_TYPE,
-      target: OFFSCREEN_TARGET,
-      routerId,
-      data: {
-        transferMsg: transferMsgValue,
-        txMsg: txMsgValue,
-        msgId,
-        signingKey,
-        rpc,
-        nativeToken,
-      },
-    });
-
-    if (result?.error) {
-      const error = new Error(result.error?.message || "Error in web worker");
-      error.stack = result.error.stack;
-      throw error;
-    }
-  }
-
-  private async submitTransferFirefox(
-    transferMsg: string,
-    txMsg: string,
-    msgId: string,
-    signingKey: SigningKey
-  ): Promise<void> {
-    const { url: rpc } = this.sdkService.getSdk();
-    const {
-      currency: { address: nativeToken = tokenAddress },
-    } = await this.chainsService.getChain();
-    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
-    const transferMsgValue = Message.decode(
-      fromBase64(transferMsg),
-      TransferMsgValue
-    );
-
-    initSubmitTransferWebWorker(
-      {
-        transferMsg: transferMsgValue,
-        txMsg: txMsgValue,
-        msgId,
-        signingKey,
-        rpc,
-        nativeToken,
-      },
-      this.handleTransferCompleted.bind(this)
-    );
-  }
-
-  /**
-   * Submits a transfer transaction to the chain.
-   * Handles both Shielded and Transparent transfers.
-   *
-   * @async
-   * @param {string} txMsg - borsh serialized transfer transaction
-   * @param {string} msgId - id of a tx if originating from approval process
-   * @throws {Error} - if unable to submit transfer
-   * @returns {Promise<void>} - resolves when transfer is successful (resolves for failed VPs)
-   */
-  async submitTransfer(
-    transferMsg: string,
-    txMsg: string,
-    msgId: string
-  ): Promise<void> {
-    // Passing submit handler simplifies worker code when using Firefox
-    const submit = async (signingKey: SigningKey): Promise<void> => {
-      const { TARGET } = process.env;
-      if (TARGET === "chrome") {
-        await this.submitTransferChrome(transferMsg, txMsg, msgId, signingKey);
-      } else if (TARGET === "firefox") {
-        await this.submitTransferFirefox(transferMsg, txMsg, msgId, signingKey);
-      } else {
-        console.warn(
-          "Submitting transfers is not supported with your browser."
-        );
-      }
-    };
-
-    await this.broadcaster.startTx(msgId, TxType.Transfer);
-
-    try {
-      await this._keyRing.submitTransfer(
-        fromBase64(transferMsg),
-        submit.bind(this)
-      );
-      await this.broadcaster.updateBalance();
-    } catch (e) {
-      console.warn(e);
-      throw new Error(`Unable to submit the transfer! ${e}`);
-    }
-  }
-
-  async submitIbcTransfer(
-    ibcTransferMsg: string,
-    txMsg: string,
-    msgId: string
-  ): Promise<void> {
-    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
-    const ibcTransferMsgValue = Message.decode(
-      fromBase64(ibcTransferMsg),
-      IbcTransferMsgValue
-    );
-
-    await this.broadcaster.startTx(msgId, TxType.IBCTransfer);
-
-    try {
-      const innerTxHash = await this._keyRing.submitIbcTransfer(
-        ibcTransferMsgValue,
-        txMsgValue
-      );
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.IBCTransfer,
-        true,
-        innerTxHash
-      );
-      await this.broadcaster.updateBalance();
-    } catch (e) {
-      console.warn(e);
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.IBCTransfer,
-        false,
-        `${e}`
-      );
-      throw new Error(`Unable to encode IBC transfer! ${e}`);
-    }
-  }
-
-  async submitEthBridgeTransfer(
-    ethBridgeTransferMsg: string,
-    txMsg: string,
-    msgId: string
-  ): Promise<void> {
-    const txMsgValue = Message.decode(fromBase64(txMsg), TxMsgValue);
-    const ethBridgeTransferMsgValue = Message.decode(
-      fromBase64(ethBridgeTransferMsg),
-      EthBridgeTransferMsgValue
-    );
-    await this.broadcaster.startTx(msgId, TxType.EthBridgeTransfer);
-
-    try {
-      const innerTxHash = await this._keyRing.submitEthBridgeTransfer(
-        ethBridgeTransferMsgValue,
-        txMsgValue
-      );
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.EthBridgeTransfer,
-        true,
-        innerTxHash
-      );
-      await this.broadcaster.updateBalance();
-    } catch (e) {
-      console.warn(e);
-      await this.broadcaster.completeTx(
-        msgId,
-        TxType.EthBridgeTransfer,
-        false,
-        `${e}`
-      );
-      throw new Error(`Unable to encode Eth Bridge transfer! ${e}`);
-    }
-  }
-
   async setActiveAccount(id: string, type: ParentAccount): Promise<void> {
     await this._keyRing.setActiveAccount(id, type);
     await this.broadcaster.updateAccounts();
@@ -533,25 +153,6 @@ export class KeyRingService {
 
   async getActiveAccount(): Promise<ActiveAccountStore | undefined> {
     return await this._keyRing.getActiveAccount();
-  }
-
-  async handleTransferCompleted(
-    msgId: string,
-    success: boolean,
-    payload?: string
-  ): Promise<void> {
-    await this.broadcaster.completeTx(msgId, TxType.Transfer, success, payload);
-    await this.broadcaster.updateBalance();
-  }
-
-  closeOffscreenDocument(): Promise<void> {
-    if (chrome) {
-      return chrome.offscreen.closeDocument();
-    } else {
-      return Promise.reject(
-        "Trying to close offscreen document for nor supported browser"
-      );
-    }
   }
 
   async deleteAccount(
@@ -567,46 +168,19 @@ export class KeyRingService {
     return await this._keyRing.renameAccount(accountId, alias);
   }
 
-  async fetchAndStoreMaspParams(): Promise<void> {
-    await this.sdkService.getSdk().masp.fetchAndStoreMaspParams();
-  }
-
-  async hasMaspParams(): Promise<boolean> {
-    return await this.sdkService.getSdk().masp.hasMaspParams();
-  }
-
-  async shieldedSync(): Promise<void> {
-    const vks = (await this.vaultStorage.findAll(KeyStore))
-      .filter((a) => a.public.type === AccountType.ShieldedKeys)
-      .map((a) => a.public.owner);
-
-    await this.sdkService.getSdk().rpc.shieldedSync(vks);
-  }
-
-  async queryBalances(
-    owner: string,
-    tokens: string[]
-  ): Promise<{ token: string; amount: string }[]> {
-    const account = await this.vaultStorage.findOneOrFail(
-      KeyStore,
-      "address",
-      owner
-    );
-    return this._keyRing.queryBalances(account.public.owner, tokens);
-  }
-
-  async queryPublicKey(address: string): Promise<string | undefined> {
-    return await this._keyRing.queryPublicKey(address);
-  }
-
   async checkDurability(): Promise<boolean> {
     return await IndexedDBKVStore.durabilityCheck();
+  }
+
+  async sign(builtTx: BuiltTx[], signer: string): Promise<Uint8Array[]> {
+    const { chainId } = await this.chainsService.getChain();
+    return await this._keyRing.sign(builtTx, signer, chainId);
   }
 
   async signArbitrary(
     signer: string,
     data: string
-  ): Promise<SignatureResponse | undefined> {
+  ): Promise<SignArbitraryResponse | undefined> {
     return await this._keyRing.signArbitrary(signer, data);
   }
 

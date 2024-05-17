@@ -9,7 +9,6 @@ import {
   AccountStore,
   DeriveAccountMsg,
   SaveAccountSecretMsg,
-  ScanAccountsMsg,
 } from "background/keyring";
 import { CreatePasswordMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
@@ -19,7 +18,6 @@ import { Ports } from "router";
 type Props = {
   alias: string;
   accountSecret?: AccountSecret;
-  scanAccounts: boolean;
   password?: string;
   passwordRequired: boolean | undefined;
 };
@@ -31,8 +29,7 @@ enum Status {
 }
 
 export const Completion: React.FC<Props> = (props) => {
-  const { alias, accountSecret, password, scanAccounts, passwordRequired } =
-    props;
+  const { alias, accountSecret, password, passwordRequired } = props;
 
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
   const [statusInfo, setStatusInfo] = useState<string>("");
@@ -74,11 +71,9 @@ export const Completion: React.FC<Props> = (props) => {
         }
 
         const prettyAccountSecret =
-          accountSecret.t === "Mnemonic"
-            ? "mnemonic"
-            : accountSecret.t === "PrivateKey"
-              ? "private key"
-              : assertNever(accountSecret);
+          accountSecret.t === "Mnemonic" ? "mnemonic"
+          : accountSecret.t === "PrivateKey" ? "private key"
+          : assertNever(accountSecret);
 
         setStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
         const account = (await requester.sendMessage<SaveAccountSecretMsg>(
@@ -106,13 +101,6 @@ export const Completion: React.FC<Props> = (props) => {
           setShieldedAccountAddress(shieldedAccount.address);
         }
 
-        if (scanAccounts) {
-          setStatusInfo("Scanning accounts.");
-          await requester.sendMessage<ScanAccountsMsg>(
-            Ports.Background,
-            new ScanAccountsMsg()
-          );
-        }
         setMnemonicStatus(Status.Completed);
         setStatusInfo("Done!");
       } catch (e) {

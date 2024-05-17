@@ -13,19 +13,19 @@ Wrap results of tx signing to simplify passing between Sdk functions
 ### Properties
 
 - [tx](SignedTx.md#tx)
-- [txMsg](SignedTx.md#txmsg)
+- [wrapperTxMsg](SignedTx.md#wrappertxmsg)
 
 ## Constructors
 
 ### constructor
 
-• **new SignedTx**(`txMsg`, `tx`): [`SignedTx`](SignedTx.md)
+• **new SignedTx**(`wrapperTxMsg`, `tx`): [`SignedTx`](SignedTx.md)
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `txMsg` | `Uint8Array` | Serialized tx msg bytes |
+| `wrapperTxMsg` | `Uint8Array` | Serialized wrapper tx msg bytes |
 | `tx` | `Uint8Array` | Serialized tx bytes |
 
 #### Returns
@@ -34,7 +34,7 @@ Wrap results of tx signing to simplify passing between Sdk functions
 
 #### Defined in
 
-[sdk/src/tx/types.ts:52](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/types.ts#L52)
+[sdk/src/tx/types.ts:52](https://github.com/anoma/namada-interface/blob/2543347c/packages/sdk/src/tx/types.ts#L52)
 
 ## Properties
 
@@ -46,16 +46,16 @@ Serialized tx bytes
 
 #### Defined in
 
-[sdk/src/tx/types.ts:56](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/types.ts#L56)
+[sdk/src/tx/types.ts:56](https://github.com/anoma/namada-interface/blob/2543347c/packages/sdk/src/tx/types.ts#L56)
 
 ___
 
-### txMsg
+### wrapperTxMsg
 
-• `Readonly` **txMsg**: `Uint8Array`
+• `Readonly` **wrapperTxMsg**: `Uint8Array`
 
-Serialized tx msg bytes
+Serialized wrapper tx msg bytes
 
 #### Defined in
 
-[sdk/src/tx/types.ts:54](https://github.com/anoma/namada-interface/blob/1ed4d128/packages/sdk/src/tx/types.ts#L54)
+[sdk/src/tx/types.ts:54](https://github.com/anoma/namada-interface/blob/2543347c/packages/sdk/src/tx/types.ts#L54)

@@ -2,8 +2,10 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 import { atom } from "jotai";
 
+import { getSdk } from "@heliax/namada-sdk/web";
+import init from "@heliax/namada-sdk/web-init"
 import { chains } from "@namada/chains";
-import { getIntegration, Namada } from "@namada/integrations";
+import { getIntegration } from "@namada/integrations";
 import {
   Account as AccountDetails,
   ChainKey,
@@ -17,7 +19,8 @@ import { RootState } from "store";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+  NAMADA_INTERFACE_NAMADA_URL: rpcUrl = "http://localhost:27657"
 } = process.env;
 
 type Address = string;
@@ -79,12 +82,25 @@ export const fetchBalance = createAsyncThunk<
     if (chainKey !== "namada") {
       throw new Error("not namada");
     }
-    const integration = getIntegration(chainKey);
-    const balance = await integration.queryBalances(address, [
-      nativeToken || tokenAddress,
-    ]);
+    const { cryptoMemory } = await init();
+    const { rpc } = getSdk(cryptoMemory, rpcUrl, "", tokenAddress)
 
-    return { chainKey, address, balance };
+    const tokens = [
+      nativeToken || tokenAddress,
+    ]
+
+    const balances = (await rpc.queryBalance(address, tokens)).map(([token, amount]) => {
+      return {
+        token,
+        amount
+      }
+    })
+
+    return {
+      chainKey,
+      address,
+      balance: { NAM: BigNumber(balances[0].amount) }
+    }
   }
 );
 
@@ -166,7 +182,7 @@ export default reducer;
 ////////////////////////////////////////////////////////////////////////////////
 
 const accountsAtom = (() => {
-  const base = atom(new Promise<readonly AccountDetails[]>(() => {}));
+  const base = atom(new Promise<readonly AccountDetails[]>(() => { }));
 
   return atom(
     (get) => get(base),
@@ -192,7 +208,6 @@ const balancesAtom = (() => {
     (get) => get(base),
     async (get, set) => {
       const accounts = await get(accountsAtom);
-      const namada = getIntegration("namada");
 
       const {
         currency: { address: nativeToken },
@@ -217,16 +232,14 @@ const balancesAtom = (() => {
 
       // We query the balances for the transparent accounts first as it's faster
       const transparentBalances = await Promise.all(
-        queryBalance(namada, transparentAccounts, token)
+        queryBalance(transparentAccounts, token)
       );
       transparentBalances.forEach(([address, balance]) => {
         set(base, { ...get(base), [address]: balance });
       });
 
-      await namada.sync();
-
       const shieldedBalances = await Promise.all(
-        queryBalance(namada, shieldedAccounts, token)
+        queryBalance(shieldedAccounts, token)
       );
       shieldedBalances.forEach(([address, balance]) => {
         set(base, { ...get(base), [address]: balance });
@@ -236,18 +249,32 @@ const balancesAtom = (() => {
 })();
 
 const queryBalance = (
-  namada: Namada,
   accounts: AccountDetails[],
   token: string
 ): Promise<[string, TokenBalances]>[] => {
   return accounts.map(async (account): Promise<[string, TokenBalances]> => {
-    const balances = await namada.queryBalances(account.address, [token]);
-    return [account.address, balances];
+    const { cryptoMemory } = await init();
+    const { rpc } = getSdk(cryptoMemory, rpcUrl, "", tokenAddress)
+
+    const tokens = [
+      token,
+    ]
+
+    const balances = (await rpc.queryBalance(account.address, tokens)).map(([token, amount]) => {
+      return {
+        token,
+        amount
+      }
+    })
+
+    // TODO: This is for testing
+    return [account.address, { NAM: BigNumber(balances[0].amount) }];
+
   });
 };
 
 const keplrAccountsAtom = (() => {
-  const base = atom(new Promise<readonly AccountDetails[]>(() => {}));
+  const base = atom(new Promise<readonly AccountDetails[]>(() => { }));
 
   return atom(
     (get) => get(base),
@@ -269,7 +296,7 @@ const keplrAccountsAtom = (() => {
 })();
 
 const keplrBalancesAtom = (() => {
-  const base = atom(new Promise<TokenBalances<CosmosTokenType>>(() => {}));
+  const base = atom(new Promise<TokenBalances<CosmosTokenType>>(() => { }));
 
   return atom(
     (get) => get(base),

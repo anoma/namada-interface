@@ -1,22 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TxType } from "@heliax/namada-sdk/web";
 import { AccountType } from "@namada/types";
 import createMockInstance from "jest-create-mock-instance";
 import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
-  ApproveTxMsg,
+  ApproveSignTxMsg,
   IsConnectionApprovedMsg,
 } from "provider";
 import { Message } from "router";
 import { getHandler } from "./handler";
 import {
   ConnectInterfaceResponseMsg,
-  RejectSignatureMsg,
-  RejectTxMsg,
+  RejectSignArbitraryMsg,
+  RejectSignTxMsg,
   RevokeConnectionMsg,
-  SubmitApprovedSignatureMsg,
-  SubmitApprovedTxMsg,
+  SubmitApprovedSignArbitraryMsg,
 } from "./messages";
 import { ApprovalsService } from "./service";
 
@@ -48,26 +46,17 @@ describe("approvals handler", () => {
       requestInteraction: () => {},
     };
 
-    const approveTxMsg = new ApproveTxMsg(
-      TxType.Bond,
-      [
-        {
-          txMsg: "txMsg",
-          specificMsg: "specificMsg",
-        },
-      ],
-      AccountType.Mnemonic
+    const approveTxMsg = new ApproveSignTxMsg(
+      AccountType.PrivateKey,
+      "test",
+      []
     );
     handler(env, approveTxMsg);
-    expect(service.approveTx).toBeCalled();
+    expect(service.approveSignTx).toBeCalled();
 
-    const rejectTxMsg = new RejectTxMsg("msgId");
+    const rejectTxMsg = new RejectSignTxMsg("msgId");
     handler(env, rejectTxMsg);
-    expect(service.rejectTx).toBeCalled();
-
-    const submitApprovedTxMsg = new SubmitApprovedTxMsg(TxType.Bond, "msgId");
-    handler(env, submitApprovedTxMsg);
-    expect(service.submitTx).toBeCalled();
+    expect(service.rejectSignTx).toBeCalled();
 
     const isConnectionApprovedMsg = new IsConnectionApprovedMsg();
     handler(env, isConnectionApprovedMsg);
@@ -91,15 +80,18 @@ describe("approvals handler", () => {
 
     const approveSignArbitraryMsg = new ApproveSignArbitraryMsg("", "");
     handler(env, approveSignArbitraryMsg);
-    expect(service.approveSignature).toBeCalled();
+    expect(service.approveSignArbitrary).toBeCalled();
 
-    const rejectSignatureMsg = new RejectSignatureMsg("");
-    handler(env, rejectSignatureMsg);
+    const rejectSignArbitraryMsg = new RejectSignArbitraryMsg("");
+    handler(env, rejectSignArbitraryMsg);
     expect(service.rejectSignature).toBeCalled();
 
-    const submitApprovedSignatureMsg = new SubmitApprovedSignatureMsg("", "");
-    handler(env, submitApprovedSignatureMsg);
-    expect(service.submitSignature).toBeCalled();
+    const submitApprovedSignArbitrartyMsg = new SubmitApprovedSignArbitraryMsg(
+      "",
+      ""
+    );
+    handler(env, submitApprovedSignArbitrartyMsg);
+    expect(service.submitSignArbitrary).toBeCalled();
 
     const unknownMsg = new UnknownMsg();
     expect(() => handler(env, unknownMsg)).toThrow();

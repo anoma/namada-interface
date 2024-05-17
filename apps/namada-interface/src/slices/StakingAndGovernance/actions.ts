@@ -1,10 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 
-import { chains } from "@namada/chains";
-import { getIntegration } from "@namada/integrations";
 import { Query } from "@namada/shared";
-import { Signer } from "@namada/types";
 
 import { Account } from "slices/accounts";
 import { RootState } from "store";
@@ -246,8 +243,6 @@ export const postNewBonding = createAsyncThunk<
     chainId,
     currency: { address: nativeToken },
   } = thunkApi.getState().chain.config;
-  const integration = getIntegration(chains.namada.id);
-  const signer = integration.signer() as Signer;
   const {
     owner: source,
     validatorId: validator,
@@ -259,14 +254,12 @@ export const postNewBonding = createAsyncThunk<
   const account = derived[id][source];
   const { type, publicKey } = account.details;
 
-  await signer.submitBond(
-    // TODO: Interface should allow multiple Bond Tx
-    [{
-      source,
-      validator,
-      amount: new BigNumber(amount),
-      nativeToken: nativeToken || tokenAddress,
-    }],
+  console.log("TODO: Sign & Submit bond", [{
+    source,
+    validator,
+    amount: new BigNumber(amount),
+    nativeToken: nativeToken || tokenAddress,
+  }],
     {
       token: nativeToken || tokenAddress,
       feeAmount: gasPrice,
@@ -276,7 +269,7 @@ export const postNewBonding = createAsyncThunk<
       memo,
     },
     type
-  );
+  )
 });
 
 // we post an unstake transaction
@@ -296,8 +289,6 @@ export const postNewUnbonding = createAsyncThunk<
     currency: { address: nativeToken },
   } = thunkApi.getState().chain.config;
 
-  const integration = getIntegration(id);
-  const signer = integration.signer() as Signer;
   const {
     owner: source,
     validatorId: validator,
@@ -306,18 +297,18 @@ export const postNewUnbonding = createAsyncThunk<
     gasPrice,
     gasLimit,
   } = change;
+
   const {
     details: { type, publicKey },
   } = derived[id][source];
 
-  await signer.submitUnbond(
-    // TODO: Interface should allow multiple Unbond Tx
-    [{
+  console.log("TODO: Sign and submit Unbond", {
+    tx: [{
       source,
       validator,
       amount: new BigNumber(amount),
     }],
-    {
+    wrapperTx: {
       token: nativeToken || tokenAddress,
       feeAmount: gasPrice,
       gasLimit,
@@ -326,8 +317,9 @@ export const postNewUnbonding = createAsyncThunk<
       memo,
     },
     type
+  }
   );
-});
+})
 
 export const postNewWithdraw = createAsyncThunk<
   void,
@@ -348,14 +340,12 @@ export const postNewWithdraw = createAsyncThunk<
       currency: { address: nativeToken },
     } = thunkApi.getState().chain.config;
 
-    const integration = getIntegration(id);
-    const signer = integration.signer() as Signer;
     const {
       details: { type, publicKey },
     } = derived[id][owner];
 
-    await signer.submitWithdraw(
-      // TODO: Interface should allow multiple Withdraw Tx
+    // TODO: Interface should allow multiple Withdraw Tx
+    console.log("TODO: Sign & submit Withdraw",
       [{
         source: owner,
         validator: validatorId,
@@ -370,4 +360,4 @@ export const postNewWithdraw = createAsyncThunk<
       type
     );
   }
-);
+)

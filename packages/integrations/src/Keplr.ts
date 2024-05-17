@@ -38,7 +38,7 @@ export const defaultSigningClientOptions: SigningStargateClientOptions = {
   broadcastTimeoutMs: 8_000,
 };
 
-class Keplr implements Integration<Account, OfflineSigner, CosmosTokenType> {
+class Keplr implements Integration<Account, OfflineSigner> {
   private _keplr: IKeplr | undefined;
   private _offlineSigner: OfflineSigner | undefined;
   /**

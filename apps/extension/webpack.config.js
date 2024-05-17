@@ -61,10 +61,6 @@ const copyPatterns = [
     from: "./src/public/images/*",
     to: "./assets/images/[name][ext]",
   },
-  {
-    from: "./src/background/offscreen/offscreen.html",
-    to: "./offscreen.html",
-  },
   // browser-polyfill expects a source-map
   {
     from: "../../node_modules/webextension-polyfill/dist/browser-polyfill.js.map",
@@ -90,9 +86,9 @@ const plugins = [
       GENERATED_MANIFEST,
       MANIFEST_BASE_VERSION_PATH,
       MANIFEST_PATH,
-      ...(NODE_ENV === "development" && TARGET === "firefox"
-        ? [MANIFEST_V2_DEV_ONLY_PATH]
-        : []),
+      ...(NODE_ENV === "development" && TARGET === "firefox" ?
+        [MANIFEST_V2_DEV_ONLY_PATH]
+      : []),
     ],
     output: {
       fileName: "./manifest.json",
@@ -139,9 +135,9 @@ module.exports = {
   mode: NODE_ENV,
   target: "webworker",
   devtool:
-    NODE_ENV === "development" && TARGET === "firefox"
-      ? "eval-source-map"
-      : false,
+    NODE_ENV === "development" && TARGET === "firefox" ?
+      "eval-source-map"
+    : false,
   entry: {
     content: "./src/content",
     background: "./src/background",
@@ -149,9 +145,6 @@ module.exports = {
     setup: "./src/Setup",
     approvals: "./src/Approvals",
     injected: "./src/content/injected.ts",
-    offscreen: "./src/background/offscreen/offscreen.ts",
-    ["submit-transfer-web-worker"]:
-      "./src/background/web-workers/submit-transfer-web-worker.ts",
   },
   output: {
     publicPath: "",
