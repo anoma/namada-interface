@@ -14,6 +14,7 @@ import {
   fetchProposalStatus,
   fetchProposalVoted,
   fetchProposalVotes,
+  fetchVotedProposalIds,
   performVote,
 } from "./functions";
 
@@ -66,15 +67,19 @@ export const allProposalsAtom = atomWithQuery((get) => ({
   queryFn: () => fetchAllProposals(get(chainAtom)),
 }));
 
-// TODO: what a horrible name
 export const allProposalsWithExtraInfoAtom = atomWithQuery((get) => ({
   queryKey: ["all-proposals-with-extra-info"],
+  queryFn: async () => fetchAllProposalsWithExtraInfo(get(chainAtom)),
+}));
+
+export const votedProposalIdsAtom = atomWithQuery((get) => ({
+  queryKey: ["voted-proposal-ids"],
   queryFn: async () => {
     const [account] = get(transparentAccountsAtom);
     if (typeof account === "undefined") {
       throw new Error("no account found");
     }
-    return await fetchAllProposalsWithExtraInfo(get(chainAtom), account);
+    return await fetchVotedProposalIds(get(chainAtom), account);
   },
 }));
 

@@ -12,9 +12,14 @@ const key = (name: string, proposal?: Proposal): string => {
   return `all-proposals-${name}${idPart}`;
 };
 
-export const AllProposalsTable: React.FC<{
+type AllProposalsTableProps = (
+  | { isExtensionConnected: true; votedProposalIds: bigint[] }
+  | { isExtensionConnected: false }
+) & {
   allProposals: ProposalWithExtraInfo[];
-}> = ({ allProposals }) => {
+};
+
+export const AllProposalsTable: React.FC<AllProposalsTableProps> = (props) => {
   const navigate = useNavigate();
 
   const headers = [
@@ -28,7 +33,7 @@ export const AllProposalsTable: React.FC<{
   ];
 
   const renderRow = (
-    { proposal, status, voted }: ProposalWithExtraInfo,
+    { proposal, status }: ProposalWithExtraInfo,
     index: number
   ): TableRow => ({
     className: clsx(
@@ -63,12 +68,13 @@ export const AllProposalsTable: React.FC<{
       />,
 
       // Voted
-      voted && (
-        <GoCheckCircleFill
-          key={key("check", proposal)}
-          className="text-cyan text-lg"
-        />
-      ),
+      props.isExtensionConnected &&
+        props.votedProposalIds.includes(proposal.id) && (
+          <GoCheckCircleFill
+            key={key("check", proposal)}
+            className="text-cyan text-lg"
+          />
+        ),
 
       // Voting end on
       <div key={key("voting-end", proposal)} className="text-right">
@@ -120,7 +126,7 @@ export const AllProposalsTable: React.FC<{
         className=""
         id="all-proposals-table"
         headers={headers}
-        rows={allProposals.map(renderRow)}
+        rows={props.allProposals.map(renderRow)}
       />
     </Stack>
   );
