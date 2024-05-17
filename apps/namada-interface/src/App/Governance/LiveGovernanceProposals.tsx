@@ -7,7 +7,6 @@ import {
   Proposal,
   ProposalStatus,
   ProposalWithExtraInfo,
-  Votes,
   voteTypes,
 } from "@namada/types";
 import clsx from "clsx";
@@ -19,19 +18,18 @@ const ProposalListItem: React.FC<{
   proposal: Proposal;
   status: ProposalStatus;
   voted?: boolean;
-  votes: Votes;
-}> = ({ proposal, status, voted, votes }) => {
+}> = ({ proposal, status, voted }) => {
   const navigate = useNavigate();
 
   const zeroVotes = BigNumber.sum(
-    ...voteTypes.map((voteType) => votes[voteType])
+    ...voteTypes.map((voteType) => status[voteType])
   ).isEqualTo(0);
 
   const barData =
     zeroVotes ?
       [{ value: 1, color: "#3A3A3A" }]
     : voteTypes.map((voteType) => ({
-        value: votes[voteType],
+        value: status[voteType],
         color: colors[voteType],
       }));
 
@@ -105,12 +103,6 @@ export const LiveGovernanceProposals: React.FC<LiveGovernanceProposalsProps> = (
     (proposal) => proposal.status.status === "ongoing"
   );
 
-  const voteSummary = {
-    yay: BigNumber(0),
-    nay: BigNumber(0),
-    abstain: BigNumber(0),
-  };
-
   return (
     <Stack gap={4} as="ul">
       {liveProposals.map(({ proposal, status }, index) => {
@@ -124,7 +116,6 @@ export const LiveGovernanceProposals: React.FC<LiveGovernanceProposalsProps> = (
             proposal={proposal}
             status={status}
             voted={voted}
-            votes={voteSummary}
             key={index}
           />
         );
