@@ -39,7 +39,7 @@ export const ReDelegateTable = ({
       className: "text-right",
     },
     { children: "Voting Power", className: "text-right" },
-    { children: "Comission", className: "text-right" },
+    { children: "Commission", className: "text-right" },
   ];
 
   const renderRow = (validator: Validator): TableRow => {
@@ -121,7 +121,7 @@ export const ReDelegateTable = ({
           </span>
         </div>,
 
-        // Comission
+        // Commission
         <div
           key={`comission-${validator.uuid}`}
           className="text-right leading-tight"
