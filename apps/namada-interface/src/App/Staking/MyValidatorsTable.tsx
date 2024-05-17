@@ -33,7 +33,7 @@ export const MyValidatorsTable = (): JSX.Element => {
       Staked Amount
     </div>,
     <div key="my-validators-comission" className="text-right">
-      Comission
+      Commission
     </div>,
   ];
 

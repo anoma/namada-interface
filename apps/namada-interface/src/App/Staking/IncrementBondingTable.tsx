@@ -120,7 +120,7 @@ export const IncrementBondingTable = ({
           </span>
         </div>,
 
-        // Comission
+        // Commission
         <div
           key={`comission-${validator.uuid}`}
           className="text-right leading-tight"
