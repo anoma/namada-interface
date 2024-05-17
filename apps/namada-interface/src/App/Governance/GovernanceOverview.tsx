@@ -2,7 +2,10 @@ import { Panel, SkeletonLoading } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { useAtomValue } from "jotai";
-import { allProposalsWithExtraInfoAtom } from "slices/proposals";
+import {
+  allProposalsWithExtraInfoAtom,
+  votedProposalIdsAtom,
+} from "slices/proposals";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import { atomsAreFetching, atomsAreLoaded } from "store/utils";
 import { AllProposalsTable } from "./AllProposalsTable";
@@ -13,6 +16,11 @@ import { UpcomingProposals } from "./UpcomingProposals";
 export const GovernanceOverview: React.FC = () => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const allProposals = useAtomValue(allProposalsWithExtraInfoAtom);
+  const votedProposalIds = useAtomValue(votedProposalIdsAtom);
+
+  // TODO: is there a better way than this to show that votedProposalIdsAtom
+  // is dependent on isConnected?
+  const extensionAtoms = isConnected ? [votedProposalIds] : [];
 
   return (
     <PageWithSidebar>
@@ -21,11 +29,21 @@ export const GovernanceOverview: React.FC = () => {
           <ConnectBanner text="To vote please connect your account" />
         )}
         <Panel title="Live Governance Proposals">
-          {atomsAreFetching(allProposals) && (
+          {atomsAreFetching(allProposals, ...extensionAtoms) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
-          {atomsAreLoaded(allProposals) && (
-            <LiveGovernanceProposals allProposals={allProposals.data!} />
+          {isConnected && atomsAreLoaded(allProposals, ...extensionAtoms) && (
+            <LiveGovernanceProposals
+              allProposals={allProposals.data!}
+              isExtensionConnected={true}
+              votedProposalIds={votedProposalIds.data!}
+            />
+          )}
+          {!isConnected && atomsAreLoaded(allProposals) && (
+            <LiveGovernanceProposals
+              allProposals={allProposals.data!}
+              isExtensionConnected={false}
+            />
           )}
         </Panel>
         <Panel title="Upcoming Proposals">
@@ -37,11 +55,21 @@ export const GovernanceOverview: React.FC = () => {
           )}
         </Panel>
         <Panel title="All Proposals">
-          {atomsAreFetching(allProposals) && (
+          {atomsAreFetching(allProposals, ...extensionAtoms) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
-          {atomsAreLoaded(allProposals) && (
-            <AllProposalsTable allProposals={allProposals.data!} />
+          {isConnected && atomsAreLoaded(allProposals, ...extensionAtoms) && (
+            <AllProposalsTable
+              allProposals={allProposals.data!}
+              isExtensionConnected={true}
+              votedProposalIds={votedProposalIds.data!}
+            />
+          )}
+          {!isConnected && atomsAreLoaded(allProposals) && (
+            <AllProposalsTable
+              allProposals={allProposals.data!}
+              isExtensionConnected={false}
+            />
           )}
         </Panel>
       </div>

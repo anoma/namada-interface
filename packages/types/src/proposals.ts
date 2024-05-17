@@ -13,7 +13,6 @@ export type Proposal = {
 
 export type ProposalWithExtraInfo = {
   proposal: Proposal;
-  voted: boolean;
   status: ProposalStatus;
   votes: Vote[];
 };

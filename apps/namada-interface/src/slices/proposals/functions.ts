@@ -231,26 +231,23 @@ export const fetchAllProposals = async (chain: Chain): Promise<Proposal[]> => {
 
 const fetchProposalByIdWithExtraInfo = async (
   chain: Chain,
-  id: bigint,
-  account: Account
+  id: bigint
 ): Promise<ProposalWithExtraInfo> => {
   const proposal = await fetchProposalById(chain, id);
-  const voted = await fetchProposalVoted(chain, id, account);
   const status = await fetchProposalStatus(chain, id);
   const votes = await fetchProposalVotes(chain, id);
 
-  return { proposal, voted, status, votes };
+  return { proposal, status, votes };
 };
 
 export const fetchAllProposalsWithExtraInfo = async (
-  chain: Chain,
-  account: Account
+  chain: Chain
 ): Promise<ProposalWithExtraInfo[]> => {
   const proposalCounter = await fetchProposalCounter(chain);
 
   const proposals: Promise<ProposalWithExtraInfo>[] = [];
   for (let id = BigInt(0); id < proposalCounter; id++) {
-    proposals.push(fetchProposalByIdWithExtraInfo(chain, id, account));
+    proposals.push(fetchProposalByIdWithExtraInfo(chain, id));
   }
 
   return await Promise.all(proposals);
@@ -407,6 +404,23 @@ export const fetchProposalVoted = async (
 ): Promise<boolean> => {
   const votes = await fetchProposalVotes(chain, id);
   return votes.some((vote) => vote.address === account.address);
+};
+
+export const fetchVotedProposalIds = async (
+  chain: Chain,
+  account: Account
+): Promise<bigint[]> => {
+  const proposalCounter = await fetchProposalCounter(chain);
+
+  const proposalIds: bigint[] = [];
+  for (let id = BigInt(0); id < proposalCounter; id++) {
+    const voted = await fetchProposalVoted(chain, id, account);
+    if (voted) {
+      proposalIds.push(id);
+    }
+  }
+
+  return proposalIds;
 };
 
 export const fetchProposalCode = async (

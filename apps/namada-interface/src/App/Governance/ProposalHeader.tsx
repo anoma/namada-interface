@@ -44,13 +44,20 @@ const WasmButton: React.FC<{
   );
 };
 
-export const ProposalHeader: React.FC<{
+type ProposalHeaderProps = (
+  | { isExtensionConnected: true; voted: boolean }
+  | { isExtensionConnected: false }
+) & {
   proposal: Proposal;
-  voted: boolean;
   status: ProposalStatus;
-}> = ({ proposal, voted, status }) => {
+};
+
+export const ProposalHeader: React.FC<ProposalHeaderProps> = (props) => {
+  const { proposal, status, isExtensionConnected } = props;
+
   const navigate = useNavigate();
-  const voteButtonDisabled = voted || status.status !== "ongoing";
+  const voteButtonDisabled =
+    !isExtensionConnected || props.voted || status.status !== "ongoing";
   const { startEpoch, endEpoch } = proposal;
   const currentEpoch = useAtomValue(currentEpochAtom);
 
@@ -123,7 +130,9 @@ export const ProposalHeader: React.FC<{
       <hr className="border-neutral-900 w-full mb-4" />
       <div className="flex gap-2 mb-4">
         <StatusLabel status={status} className="text-xs min-w-42" />
-        {voted && <VotedLabel className="text-xs min-w-22" />}
+        {isExtensionConnected && props.voted && (
+          <VotedLabel className="text-xs min-w-22" />
+        )}
       </div>
       <div className="flex gap-10 bg-neutral-900 mb-9 px-5 py-3 -mx-3 rounded-md">
         <div className="w-full grid grid-cols-2 text-xs">
@@ -137,20 +146,22 @@ export const ProposalHeader: React.FC<{
           <div className="col-start-1">{formatEpoch(startEpoch)}</div>
           <div className="text-right">{formatEpoch(endEpoch)}</div>
         </div>
-        <div className="w-32 flex items-center justify-center">
-          <ActionButton
-            size="sm"
-            borderRadius="sm"
-            className="py-2"
-            color="white"
-            disabled={voteButtonDisabled}
-            onClick={() =>
-              navigate(GovernanceRoutes.submitVote(proposal.id).url)
-            }
-          >
-            Vote
-          </ActionButton>
-        </div>
+        {isExtensionConnected && (
+          <div className="w-32 flex items-center justify-center">
+            <ActionButton
+              size="sm"
+              borderRadius="sm"
+              className="py-2"
+              color="white"
+              disabled={voteButtonDisabled}
+              onClick={() =>
+                navigate(GovernanceRoutes.submitVote(proposal.id).url)
+              }
+            >
+              Vote
+            </ActionButton>
+          </div>
+        )}
       </div>
     </>
   );
