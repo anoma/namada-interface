@@ -42,7 +42,7 @@ export const AllValidatorsTable = ({
       Voting Power
     </div>,
     <div key={`all-validators-comission`} className="text-right">
-      Comission
+      Commission
     </div>,
   ];
 
@@ -76,7 +76,7 @@ export const AllValidatorsTable = ({
           {formatPercentage(BigNumber(validator.votingPowerPercentage || 0))}
         </span>
       </div>,
-      // Comission:
+      // Commission:
       <div key={`comission-${validator.address}`} className="text-right">
         {formatPercentage(BigNumber(validator.commission))}
       </div>,

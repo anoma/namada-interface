@@ -28,14 +28,14 @@ export const KnownCurrencies: Record<string, CurrencyInfo> = {
   nam: {
     sign: "NAM",
     singular: "NAM",
-    plural: "NAMs",
+    plural: "NAM",
     fraction: "cents",
     fiat: false,
   },
   jpy: {
     sign: "¥",
     singular: "Yen",
-    plural: "Yens",
+    plural: "Yen",
     fraction: "cents",
     fiat: true,
   },
