@@ -172,13 +172,16 @@ export const AllProposalsTable: React.FC<AllProposalsTableProps> = (props) => {
         />
       </div>
 
-      <StyledTable
-        tableProps={{ className: "w-full text-xs [&_td]:px-2 [&_th]:px-2" }}
-        headProps={{ className: "text-xs" }}
-        id="all-proposals-table"
-        headers={headers}
-        rows={props.allProposals.map(renderRow)}
-      />
+      <div className="h-[490px] flex flex-col">
+        <StyledTable
+          tableProps={{ className: "w-full text-xs [&_td]:px-2 [&_th]:px-2" }}
+          headProps={{ className: "text-xs" }}
+          id="all-proposals-table"
+          headers={headers}
+          rows={props.allProposals.map(renderRow)}
+          containerClassName="dark-scrollbar"
+        />
+      </div>
     </Stack>
   );
 };
