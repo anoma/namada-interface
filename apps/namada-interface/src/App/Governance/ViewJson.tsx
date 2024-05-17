@@ -173,9 +173,12 @@ export const ViewJson: React.FC = () => {
             <GoCheck />
           : <GoCopy />}
         </i>
-        <div className="px-8 pt-4">
-          <pre className="overflow-x-auto dark-scrollbar">{jsonString}</pre>
-        </div>
+        <pre
+          className="overflow-x-auto dark-scrollbar whitespace-pre-wrap
+    px-8 pt-4 mt-8 h-[95%]"
+        >
+          {jsonString}
+        </pre>
       </ModalContainer>
     </Modal>
   );
