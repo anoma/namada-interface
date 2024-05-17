@@ -3,15 +3,23 @@ import clsx from "clsx";
 import debounce from "lodash.debounce";
 import { useRef, useState } from "react";
 import { FaSearch } from "react-icons/fa";
+import { twMerge } from "tailwind-merge";
 
-type ValidatorSearchProps = { onChange: (search: string) => void };
+type SearchProps = Omit<
+  React.ComponentProps<typeof Input>,
+  "onChange" | "onFocus" | "onBlur" | "type"
+> & {
+  onChange?: (search: string) => void;
+};
 
-export const ValidatorSearch = ({
+export const Search = ({
   onChange,
-}: ValidatorSearchProps): JSX.Element => {
+  className,
+  ...rest
+}: SearchProps): JSX.Element => {
   const [displaySearchIcon, setDisplaySearchIcon] = useState(true);
   const debouncedSearch = useRef(
-    debounce((value: string) => onChange(value), 300)
+    debounce((value: string) => onChange?.(value), 300)
   );
 
   return (
@@ -26,17 +34,18 @@ export const ValidatorSearch = ({
       </i>
       <Input
         type="search"
-        placeholder="Search Validator"
         onChange={(e) => debouncedSearch.current(e.target.value)}
-        className={clsx(
+        className={twMerge(
           "w-full [&_input]:text-sm [&_input]:text-neutral-400 [&_input]:border-neutral-400 [&_input]:py-[11px]",
           "[&_input]:pl-4 [&_input]:rounded-sm [&_input]:placeholder:text-center",
-          "[&_input]:placeholder:text-neutral-400/50 [&_input]:placeholder:text-left [&_input]:placeholder:pl-6"
+          "[&_input]:placeholder:text-neutral-400/50 [&_input]:placeholder:text-left [&_input]:placeholder:pl-6",
+          className
         )}
         onFocus={() => setDisplaySearchIcon(false)}
         onBlur={(e) =>
           e.target.value.length === 0 && setDisplaySearchIcon(true)
         }
+        {...rest}
       />
     </div>
   );

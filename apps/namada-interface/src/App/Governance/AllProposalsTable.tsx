@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@namada/components";
 import { Proposal, ProposalWithExtraInfo } from "@namada/types";
+import { Search } from "App/Common/Search";
 import clsx from "clsx";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
 import GovernanceRoutes from "./routes";
@@ -161,12 +162,19 @@ export const AllProposalsTable: React.FC<AllProposalsTableProps> = (props) => {
           id="proposal-status-select"
           label="Proposal Status"
         />
+
+        <Search
+          placeholder="Search by title or ID"
+          className={clsx(
+            "[&_input]:py-2 [&_input]:rounded-md [&_input]:border-[#5C5C5C]",
+            "w-64 [&_input]:leading-normal [&_input]:h-9"
+          )}
+        />
       </div>
 
       <StyledTable
         tableProps={{ className: "w-full text-xs [&_td]:px-2 [&_th]:px-2" }}
         headProps={{ className: "text-xs" }}
-        className=""
         id="all-proposals-table"
         headers={headers}
         rows={props.allProposals.map(renderRow)}
@@ -192,7 +200,7 @@ const TableSelect: React.FC<
       containerProps={{
         className: clsx(
           "bg-[#1B1B1B] text-sm text-[#656565] rounded-md w-48 px-5 py-2",
-          "border-r-[12px] border-transparent"
+          "border-r-[12px] border-transparent h-9"
         ),
       }}
       listItemProps={{
