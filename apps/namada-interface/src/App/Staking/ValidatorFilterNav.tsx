@@ -1,9 +1,9 @@
 import { ActionButton, Stack } from "@namada/components";
+import { Search } from "App/Common/Search";
 import BigNumber from "bignumber.js";
 import { Validator } from "slices/validators";
 import MyValidatorsFilter from "./MyValidatorsFilter";
 import { QuickAccessList } from "./QuickAccessList";
-import { ValidatorSearch } from "./ValidatorSearch";
 
 type Props = {
   validators: Validator[];
@@ -39,7 +39,10 @@ export const ValidatorFilterNav = ({
   return (
     <Stack direction="horizontal" gap={2} className="w-full items-center mb-2">
       <div className="w-[300px]">
-        <ValidatorSearch onChange={(value: string) => onChangeSearch(value)} />
+        <Search
+          onChange={(value: string) => onChangeSearch(value)}
+          placeholder="Search Validator"
+        />
       </div>
       <MyValidatorsFilter
         value={onlyMyValidators ? "my-validators" : "all"}
