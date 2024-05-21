@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import { Validator, allValidatorsAtom } from "slices/validators";
+import { useNotifyOnAtomError } from "store/utils";
 import ValidatorsTable from "./ValidatorsTable";
 import StakingRoutes from "./routes";
 
@@ -31,6 +32,8 @@ export const AllValidatorsTable = ({
     searchTerm: filter,
     onlyMyValidators: false,
   });
+
+  useNotifyOnAtomError([validators], [validators.isError]);
 
   if (validators.isError) return <>Error!</>;
 

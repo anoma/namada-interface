@@ -9,7 +9,11 @@ import {
   proposalVotedFamily,
 } from "slices/proposals";
 import { namadaExtensionConnectedAtom } from "slices/settings";
-import { atomsAreFetching, atomsAreLoaded } from "store/utils";
+import {
+  atomsAreFetching,
+  atomsAreLoaded,
+  useNotifyOnAtomError,
+} from "store/utils";
 import { ProposalDescription } from "./ProposalDescription";
 import { ProposalHeader } from "./ProposalHeader";
 import { ProposalStatusSummary } from "./ProposalStatusSummary";
@@ -30,6 +34,11 @@ export const ProposalAndVote: React.FC = () => {
   // TODO: is there a better way than this to show that voted is dependent on
   // isConnected?
   const extensionAtoms = isConnected ? [voted] : [];
+
+  useNotifyOnAtomError(
+    [proposal, status, ...extensionAtoms],
+    [proposal.isError, status.isError, voted.isError]
+  );
 
   return (
     <div className="flex flex-col md:grid md:grid-cols-[auto_270px] gap-2">

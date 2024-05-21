@@ -7,7 +7,11 @@ import {
   votedProposalIdsAtom,
 } from "slices/proposals";
 import { namadaExtensionConnectedAtom } from "slices/settings";
-import { atomsAreFetching, atomsAreLoaded } from "store/utils";
+import {
+  atomsAreFetching,
+  atomsAreLoaded,
+  useNotifyOnAtomError,
+} from "store/utils";
 import { AllProposalsTable } from "./AllProposalsTable";
 import { LiveGovernanceProposals } from "./LiveGovernanceProposals";
 import { ProposalsSummary } from "./ProposalsSummary";
@@ -21,6 +25,11 @@ export const GovernanceOverview: React.FC = () => {
   // TODO: is there a better way than this to show that votedProposalIdsAtom
   // is dependent on isConnected?
   const extensionAtoms = isConnected ? [votedProposalIds] : [];
+
+  useNotifyOnAtomError(
+    [allProposals, ...extensionAtoms],
+    [allProposals.isError, votedProposalIds.isError]
+  );
 
   return (
     <PageWithSidebar>
