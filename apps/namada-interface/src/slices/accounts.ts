@@ -233,13 +233,15 @@ export const balancesAtom = atomWithQuery<Record<Address, Balance>>((get) => {
       });
 
       // await namada.sync();
-      const shieldedBalances = await Promise.all(
-        queryBalance(shieldedAccounts, token)
-      );
-
-      shieldedBalances.forEach(([address, balance]) => {
-        balances = { ...balances, [address]: balance };
-      });
+      // TODO: enable the following code on phase 3
+      //
+      // const shieldedBalances = await Promise.all(
+      //   queryBalance(shieldedAccounts, token)
+      // );
+      //
+      // shieldedBalances.forEach(([address, balance]) => {
+      //   balances = { ...balances, [address]: balance };
+      // });
 
       return balances;
     },
