@@ -536,7 +536,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         chain_id,
         public_key,
         disposable_signing_key,
-        fee_unshield,
+        fee_unshield: _fee_unshield,
         memo,
     } = tx_msg;
 
@@ -560,12 +560,14 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         _ => vec![],
     };
 
-    let fee_unshield = match fee_unshield {
-        Some(v) => Some(TransferSource::ExtendedSpendingKey(
-            ExtendedSpendingKey::from_str(&v)?,
-        )),
-        _ => None,
-    };
+    // Support for fee_unshield was removed in 0.36.0 of namada
+    // Keeping this as a reminder
+    // let fee_unshield = match fee_unshield {
+    //     Some(v) => Some(TransferSource::ExtendedSpendingKey(
+    //         ExtendedSpendingKey::from_str(&v)?
+    //     )),
+    //     _ => None,
+    // };
 
     // Ledger address is not used in the SDK.
     // We can leave it as whatever as long as it's valid url.
@@ -585,7 +587,6 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         initialized_account_alias: None,
         fee_amount: Some(fee_input_amount),
         fee_token: token.clone(),
-        fee_unshield,
         gas_limit: GasLimit::from_str(&gas_limit).expect("Gas limit to be valid"),
         wrapper_fee_payer: None,
         output_folder: None,
