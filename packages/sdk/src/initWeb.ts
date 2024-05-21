@@ -1,6 +1,6 @@
-// We have to use relative improts here othewise ts-patch is getting confused and produces wrong paths after compialtion
-import { init as initCrypto } from "../../crypto/src/init";
-import { init as initShared } from "../../shared/src/init";
+// We have to use relative imports here othewise ts-patch is getting confused and produces wrong paths after compialtion
+import { init as initCrypto } from "../../crypto/src/init-inline";
+import { init as initShared } from "../../shared/src/init-inline";
 import { initThreadPool } from "../../shared/src/init-thread-pool";
 
 /**
@@ -14,17 +14,9 @@ export default async function init(): Promise<{
   cryptoMemory: WebAssembly.Memory;
 }> {
   // Load and initialize shared wasm
-  const sharedWasm = await fetch("shared.namada.wasm").then((wasm) =>
-    wasm.arrayBuffer()
-  );
-  await initShared(sharedWasm);
-
+  await initShared();
   // Load and initialize crypto wasm
-  const cryptoWasm = await fetch("crypto.namada.wasm").then((wasm) =>
-    wasm.arrayBuffer()
-  );
-  const { memory: cryptoMemory } = await initCrypto(cryptoWasm);
-
+  const { memory: cryptoMemory } = await initCrypto();
   return { cryptoMemory };
 }
 

@@ -9,24 +9,26 @@ export const SdkContext = createContext<Sdk | null>(null);
 export const SdkProvider: React.FC = ({ children }) => {
   const [sdk, setSdk] = useState<Sdk>();
 
+  const initialize = async (): Promise<void> => {
+    const { cryptoMemory } = await initSdk();
+    const sdk = getSdk(
+      cryptoMemory,
+      rpcUrl,
+      "",
+      "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e"
+    );
+    setSdk(sdk);
+  };
+
   useEffect(() => {
-    (async () => {
-      const { cryptoMemory } = await initSdk();
-      const sdk = getSdk(
-        cryptoMemory,
-        rpcUrl,
-        "",
-        "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e"
-      );
-      setSdk(sdk);
-    })();
+    initialize();
   }, []);
 
   return (
     <>
-      {sdk ? (
+      {sdk ?
         <SdkContext.Provider value={sdk}> {children} </SdkContext.Provider>
-      ) : null}
+      : null}
     </>
   );
 };
