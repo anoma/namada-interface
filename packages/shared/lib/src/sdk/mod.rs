@@ -532,7 +532,7 @@ impl Sdk {
     }
 }
 
-#[wasm_bindgen(module = "/src/sdk/mod.ts")]
+#[wasm_bindgen(module = "/src/sdk/mod.js")]
 extern "C" {
     #[wasm_bindgen(catch, js_name = "getMaspParams")]
     async fn get_masp_params() -> Result<JsValue, JsValue>;

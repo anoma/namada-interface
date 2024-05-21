@@ -23,7 +23,7 @@ export const ACCOUNT_2 = {
 
 export const SHIELDED_ACCOUNT = {
   paymentAddress:
-    "znam1qpwsnm860tukw9e95q7gh68lskv7pult902z00rdnj8lnxzs4ksrapu7n323qd87cvl6edcf5cxwd",
+    "znam1t5y7e7n6l9n3wfdq8j973lu9n8s086et6snmcmvu3lues59d5qlg085u25grflkr87ktwuhvd4y",
   spendingKey:
     "zsknam1qdjyja2zqqqqpqpxsekqx3tg8qz727cyqqhujj7c74xglmzk5lk0e2gej2s2e6c4vthhegtlxuulu4g4d3dqfc08fg0xunw4q22xdhac46t7empalaeq3czx7nfx456w7dqdm3tldwu83jjcc9dees3cefpkv23jnra5c3cwsy092ahrtpm7zv34sj8dy72zwpzwjja69pw6lacdd655j0zaxdjk6ej387njquecyqm2hzv3kps76wrv2y5xk634kkcc05tdrvwyhhq9p5gcy",
   viewingKey:
