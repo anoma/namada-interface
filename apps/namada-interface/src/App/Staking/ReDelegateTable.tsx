@@ -12,6 +12,7 @@ type IncrementBondingTableProps = {
   validators: Validator[];
   updatedAmountByAddress: Record<string, BigNumber | undefined>;
   stakedAmountByAddress: Record<string, BigNumber>;
+  renderInfoColumn: (validator: Validator) => React.ReactNode;
   onChangeValidatorAmount: (
     validator: Validator,
     amount: BigNumber | undefined
@@ -22,17 +23,18 @@ export const ReDelegateTable = ({
   validators,
   updatedAmountByAddress,
   stakedAmountByAddress,
+  renderInfoColumn,
   onChangeValidatorAmount,
 }: IncrementBondingTableProps): JSX.Element => {
   const headers = [
     { children: "Validator", sortable: true },
-    "New staked amount",
+    "Amount to Re-delegate",
     {
       children: (
         <div className="leading-tight">
           Stake{" "}
           <small className="block text-xs text-neutral-500">
-            Stake difference
+            New total stake
           </small>
         </div>
       ),
@@ -47,7 +49,7 @@ export const ReDelegateTable = ({
       stakedAmountByAddress[validator.address] ?? new BigNumber(0);
     const updatedAmounts = updatedAmountByAddress[validator.address];
     const hasStakedAmount = stakedAmount ? stakedAmount.gt(0) : false;
-    const hasNewAmounts = updatedAmounts ? updatedAmounts.gte(0) : false;
+    const hasNewAmounts = updatedAmounts ? updatedAmounts.gt(0) : false;
 
     return {
       className: "",
@@ -85,27 +87,14 @@ export const ReDelegateTable = ({
           )}
         </div>,
 
-        // Current Stake / New Stake
         <div
           key={`increment-bonding-current-stake`}
           className="text-right leading-tight"
         >
           <span className="block">
-            <NamCurrency amount={stakedAmount ?? 0} />
+            <NamCurrency amount={stakedAmount} />
           </span>
-          {hasNewAmounts && (
-            <span
-              className={clsx("text-neutral-500 text-sm", {
-                "text-orange": updatedAmounts?.lt(stakedAmount),
-                "text-success": updatedAmounts?.gt(stakedAmount),
-              })}
-            >
-              {updatedAmounts?.lt(stakedAmount) ? "-" : "+"}
-              <NamCurrency
-                amount={stakedAmount.minus(updatedAmounts || 0).abs()}
-              />
-            </span>
-          )}
+          {renderInfoColumn(validator)}
         </div>,
 
         // Voting Power

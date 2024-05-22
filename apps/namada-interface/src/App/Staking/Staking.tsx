@@ -3,7 +3,7 @@ import { loadable } from "jotai/utils";
 import { Route, Routes } from "react-router-dom";
 import { isRevealPkNeededAtom, minimumGasPriceAtom } from "slices/fees";
 import IncrementBonding from "./IncrementBonding";
-import ReDelegate from "./ReDelegate";
+import { ReDelegate } from "./ReDelegate";
 import { StakingOverview } from "./StakingOverview";
 import Unstake from "./Unstake";
 import StakingRoutes from "./routes";

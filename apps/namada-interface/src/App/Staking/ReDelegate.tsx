@@ -1,62 +1,41 @@
 import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
-import { TableRowLoading } from "App/Common/TableRowLoading";
-import { TransactionFees } from "App/Common/TransactionFees";
 import { useStakeModule } from "hooks/useStakeModule";
-import { useValidatorFilter } from "hooks/useValidatorFilter";
-import { useValidatorSorting } from "hooks/useValidatorSorting";
-import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
-import {
-  getPendingToDistributeAmount,
-  getRedelegateChanges,
-} from "lib/staking";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { transparentAccountsAtom } from "slices/accounts";
-import { GAS_LIMIT, minimumGasPriceAtom } from "slices/fees";
+import { minimumGasPriceAtom } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
 import { performReDelegationAtom } from "slices/staking";
 import { allValidatorsAtom } from "slices/validators";
 import { BondingAmountOverview } from "./BondingAmountOverview";
-import { ReDelegateTable } from "./ReDelegateTable";
-import { ValidatorFilterNav } from "./ValidatorFilterNav";
+import { ReDelegateAssignStake } from "./ReDelegateAssignStake";
+import { ReDelegateRemoveStake } from "./ReDelegateRemoveStake";
 import StakingRoutes from "./routes";
 
-const ReDelegate = (): JSX.Element => {
+export const ReDelegate = (): JSX.Element => {
+  const [step, setStep] = useState<"remove" | "assign">("remove");
+  const stepTitle = {
+    remove: "Step 1 - Remove NAM from current Validators",
+    assign: "Step 2 - Assign Re-delegating NAM",
+  };
+
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<string>("");
-  const [onlyMyValidators, setOnlyMyValidators] = useState(false);
-  const [seed, setSeed] = useState(Math.random());
-  const accounts = useAtomValue(transparentAccountsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
+
+  const accounts = useAtomValue(transparentAccountsAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const {
     totalStakedAmount,
+    totalUpdatedAmount: totalToRedelegate,
     stakedAmountByAddress,
     updatedAmountByAddress,
     onChangeValidatorAmount,
+    myValidators,
   } = useStakeModule({ accounts });
-
-  const filteredValidators = useValidatorFilter({
-    validators: validators.isSuccess ? validators.data : [],
-    myValidatorsAddresses: Array.from(
-      new Set([
-        ...Object.keys(stakedAmountByAddress),
-        ...Object.keys(updatedAmountByAddress),
-      ])
-    ),
-    searchTerm: filter,
-    onlyMyValidators,
-  });
-
-  const sortedValidators = useValidatorSorting({
-    validators: filteredValidators,
-    updatedAmountByAddress,
-    seed,
-  });
 
   const {
     mutate: performRedelegation,
@@ -64,14 +43,12 @@ const ReDelegate = (): JSX.Element => {
     isSuccess,
   } = useAtomValue(performReDelegationAtom);
 
+  useEffect(() => {}, [updatedAmountByAddress]);
+
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
-  const pendingToDistribute = getPendingToDistributeAmount(
-    stakedAmountByAddress,
-    updatedAmountByAddress
-  );
 
   const getValidationMessage = (): string => {
-    if (!pendingToDistribute.eq(0)) return "Invalid distribution";
+    // if (!pendingToDistribute.eq(0)) return "Invalid distribution";
     return "";
   };
 
@@ -87,24 +64,25 @@ const ReDelegate = (): JSX.Element => {
   const validationMessage = getValidationMessage();
 
   const onSubmit = (e: React.FormEvent): void => {
-    e.preventDefault();
-    invariant(
-      accounts.length > 0,
-      `Extension is connected but you don't have an account`
-    );
-    invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
-    const redelegationChanges = getRedelegateChanges(
-      stakedAmountByAddress,
-      updatedAmountByAddress
-    );
-    performRedelegation({
-      changes: redelegationChanges,
-      gasConfig: {
-        gasPrice: minimumGasPrice.data!,
-        gasLimit: GAS_LIMIT,
-      },
-      account: accounts[0],
-    });
+    // e.preventDefault();
+    // invariant(
+    //   accounts.length > 0,
+    //   `Extension is connected but you don't have an account`
+    // );
+    // invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
+    // const redelegationChanges = getRedelegateChanges(
+    //   stakedAmountByAddress,
+    //   updatedAmountByAddress
+    // );
+    //
+    // performRedelegation({
+    //   changes: redelegationChanges,
+    //   gasConfig: {
+    //     gasPrice: minimumGasPrice.data!,
+    //     gasLimit: GAS_LIMIT,
+    //   },
+    //   account: accounts[0],
+    // });
   };
 
   useEffect(() => {
@@ -119,7 +97,7 @@ const ReDelegate = (): JSX.Element => {
       <ModalContainer
         header={
           <span className="flex items-center gap-4">
-            Select amount to re-delegate
+            {stepTitle[step]}
             <Info>
               You can edit the amounts between validators. You can&apos;t
               increase or reduce the total staked amount, so pay attention to
@@ -137,7 +115,7 @@ const ReDelegate = (): JSX.Element => {
             <BondingAmountOverview
               title="Available to re-delegate"
               amountInNam={0}
-              updatedAmountInNam={pendingToDistribute}
+              updatedAmountInNam={totalToRedelegate}
               updatedValueClassList="text-yellow"
               extraContent={
                 <>
@@ -166,55 +144,27 @@ const ReDelegate = (): JSX.Element => {
               </ActionButton>
             </Panel>
           </div>
-          <Panel className="grid grid-rows-[max-content_auto] overflow-hidden w-full rounded-md relative">
-            {validators.isSuccess && (
-              <ValidatorFilterNav
-                validators={validators.data}
-                updatedAmountByAddress={updatedAmountByAddress}
-                stakedAmountByAddress={stakedAmountByAddress}
-                onChangeSearch={(value: string) => setFilter(value)}
-                onlyMyValidators={onlyMyValidators}
-                onFilterByMyValidators={setOnlyMyValidators}
-                onRandomize={() => setSeed(Math.random())}
-              />
-            )}
-            {validators.isLoading && (
-              <div className="mt-3">
-                <TableRowLoading count={2} />
-              </div>
-            )}
-            {validators.isSuccess && (
-              <ReDelegateTable
-                validators={sortedValidators}
-                updatedAmountByAddress={updatedAmountByAddress}
-                stakedAmountByAddress={stakedAmountByAddress}
-                onChangeValidatorAmount={onChangeValidatorAmount}
-              />
-            )}
-          </Panel>
-          <div className="relative">
-            <ActionButton
-              size="sm"
-              color="white"
-              borderRadius="sm"
-              className="mt-2 w-1/4 mx-auto"
-              disabled={
-                !!validationMessage ||
-                !pendingToDistribute.eq(0) ||
-                isPerformingRedelegation
-              }
-            >
-              {validationMessage || "Re-Delegate"}
-            </ActionButton>
-            <TransactionFees
-              className="absolute right-4 top-1/2 -translate-y-1/2"
-              numberOfTransactions={Object.keys(updatedAmountByAddress).length}
+
+          {step === "remove" && (
+            <ReDelegateRemoveStake
+              onChangeValidatorAmount={onChangeValidatorAmount}
+              updatedAmountByAddress={updatedAmountByAddress}
+              stakedAmountByAddress={stakedAmountByAddress}
+              onProceed={() => setStep("assign")}
             />
-          </div>
+          )}
+
+          {step === "assign" &&
+            validators.isSuccess &&
+            myValidators.isSuccess && (
+              <ReDelegateAssignStake
+                validators={validators.data}
+                amountRemovedByAddress={updatedAmountByAddress}
+                stakedAmountByAddress={stakedAmountByAddress}
+              />
+            )}
         </form>
       </ModalContainer>
     </Modal>
   );
 };
-
-export default ReDelegate;
