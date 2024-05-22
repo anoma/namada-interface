@@ -5,15 +5,21 @@ import {
   Chain,
   RedelegateProps,
   Signer,
-  TxMsgValue,
+  WrapperTxMsgValue,
 } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { invariant } from "framer-motion";
+import { getSdkInstance } from "hooks";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { GasConfig } from "types/fees";
 import { ChangeInStakingPosition, RedelegateChange } from "types/staking";
 import { chainAtom } from "./chain";
 import { MyValidator, myValidatorsAtom } from "./validators";
+
+const {
+  NAMADA_INTERFACE_NAMADA_TOKEN:
+    nativeToken = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+} = process.env;
 
 type StakingTotals = {
   totalBonded: BigNumber;
@@ -65,9 +71,10 @@ export const getStakingTotalAtom = atomWithQuery<StakingTotals>((get) => {
 const getStakingChangesParams = (
   account: Account,
   changes: ChangeInStakingPosition[],
-  chain: Chain
+  // TODO: Should we need to pass chain here?
+  _chain: Chain
 ): BondProps[] => {
-  const address = chain.currency.address;
+  const address = nativeToken;
   invariant(!!address, "Invalid currency address");
   return changes.map((change) => ({
     source: account.address,
@@ -91,8 +98,8 @@ const getTxProps = (
   account: Account,
   gasConfig: GasConfig,
   chain: Chain
-): TxMsgValue => {
-  const address = chain.currency.address;
+): WrapperTxMsgValue => {
+  const address = nativeToken;
   invariant(!!address, "Invalid currency address");
   invariant(
     !!account.publicKey,
@@ -119,11 +126,35 @@ export const performBondAtom = atomWithMutation((get) => {
     }: ChangeInStakingProps) => {
       const chain = get(chainAtom);
       const integration = getIntegration(chain.id);
-      const signer = integration.signer() as Signer;
-      return await signer.submitBond(
-        getStakingChangesParams(account, changes, chain),
-        getTxProps(account, gasConfig, chain),
-        account.type
+      const signingClient = integration.signer() as Signer;
+      const { tx, rpc } = await getSdkInstance();
+
+      const bondProps = getStakingChangesParams(account, changes, chain);
+      const wrapperTxProps = getTxProps(account, gasConfig, chain);
+
+      const encodedTxs = await Promise.all(
+        bondProps.map((props) => tx.buildBond(wrapperTxProps, props))
+      );
+      const signedTxs = await signingClient.sign(
+        bondProps[0].source,
+        encodedTxs.map(({ tx }) => tx)
+      );
+
+      if (!signedTxs) {
+        throw new Error("Signing failed");
+      }
+
+      // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
+      // transaction, and not wait for all to complete!
+      return await Promise.all(
+        signedTxs.map(async (signedTx, i) => {
+          const txMsg = encodedTxs[i].txMsg;
+          const response = await rpc.broadcastTx({
+            wrapperTxMsg: txMsg,
+            tx: signedTx,
+          });
+          return response;
+        })
       );
     },
   };
@@ -139,11 +170,35 @@ export const performUnbondAtom = atomWithMutation((get) => {
     }: ChangeInStakingProps) => {
       const chain = get(chainAtom);
       const integration = getIntegration(chain.id);
-      const signer = integration.signer() as Signer;
-      await signer.submitUnbond(
-        getStakingChangesParams(account, changes, chain),
-        getTxProps(account, gasConfig, chain),
-        account.type
+      const signingClient = integration.signer() as Signer;
+      const { tx, rpc } = await getSdkInstance();
+
+      const unbondProps = getStakingChangesParams(account, changes, chain);
+      const wrapperTxProps = getTxProps(account, gasConfig, chain);
+
+      const encodedTxs = await Promise.all(
+        unbondProps.map((props) => tx.buildUnbond(wrapperTxProps, props))
+      );
+      const signedTxs = await signingClient.sign(
+        unbondProps[0].source,
+        encodedTxs.map(({ tx }) => tx)
+      );
+
+      if (!signedTxs) {
+        throw new Error("Signing failed");
+      }
+
+      // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
+      // transaction, and not wait for all to complete!
+      return await Promise.all(
+        signedTxs.map(async (signedTx, i) => {
+          const txMsg = encodedTxs[i].txMsg;
+          const response = await rpc.broadcastTx({
+            wrapperTxMsg: txMsg,
+            tx: signedTx,
+          });
+          return response;
+        })
       );
     },
   };
@@ -159,11 +214,35 @@ export const performWithdrawAtom = atomWithMutation((get) => {
     }: ChangeInStakingProps) => {
       const chain = get(chainAtom);
       const integration = getIntegration(chain.id);
-      const signer = integration.signer() as Signer;
-      await signer.submitWithdraw(
-        getStakingChangesParams(account, changes, chain),
-        getTxProps(account, gasConfig, chain),
-        account.type
+      const signingClient = integration.signer() as Signer;
+      const { tx, rpc } = await getSdkInstance();
+
+      const withdrawProps = getStakingChangesParams(account, changes, chain);
+      const wrapperTxProps = getTxProps(account, gasConfig, chain);
+
+      const encodedTxs = await Promise.all(
+        withdrawProps.map((props) => tx.buildWithdraw(wrapperTxProps, props))
+      );
+      const signedTxs = await signingClient.sign(
+        withdrawProps[0].source,
+        encodedTxs.map(({ tx }) => tx)
+      );
+
+      if (!signedTxs) {
+        throw new Error("Signing failed");
+      }
+
+      // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
+      // transaction, and not wait for all to complete!
+      return await Promise.all(
+        signedTxs.map(async (signedTx, i) => {
+          const txMsg = encodedTxs[i].txMsg;
+          const response = await rpc.broadcastTx({
+            wrapperTxMsg: txMsg,
+            tx: signedTx,
+          });
+          return response;
+        })
       );
     },
   };
@@ -179,11 +258,35 @@ export const performReDelegationAtom = atomWithMutation((get) => {
     }: RedelegateChangesProps) => {
       const chain = get(chainAtom);
       const integration = getIntegration(chain.id);
-      const signer = integration.signer() as Signer;
-      await signer.submitRedelegate(
-        getRedelegateChangeParams(account, changes),
-        getTxProps(account, gasConfig, chain),
-        account.type
+      const signingClient = integration.signer() as Signer;
+      const { tx, rpc } = await getSdkInstance();
+
+      const withdrawProps = getRedelegateChangeParams(account, changes);
+      const wrapperTxProps = getTxProps(account, gasConfig, chain);
+
+      const encodedTxs = await Promise.all(
+        withdrawProps.map((props) => tx.buildRedelegate(wrapperTxProps, props))
+      );
+      const signedTxs = await signingClient.sign(
+        withdrawProps[0].owner,
+        encodedTxs.map(({ tx }) => tx)
+      );
+
+      if (!signedTxs) {
+        throw new Error("Signing failed");
+      }
+
+      // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
+      // transaction, and not wait for all to complete!
+      return await Promise.all(
+        signedTxs.map(async (signedTx, i) => {
+          const txMsg = encodedTxs[i].txMsg;
+          const response = await rpc.broadcastTx({
+            wrapperTxMsg: txMsg,
+            tx: signedTx,
+          });
+          return response;
+        })
       );
     },
   };

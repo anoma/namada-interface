@@ -33,6 +33,9 @@
 
       "@heliax/namada-sdk/web": ["../../../packages/sdk/src/indexWeb.ts"],
       "@heliax/namada-sdk/web-init": ["../../../packages/sdk/src/initWeb.ts"],
+      "@heliax/namada-sdk/inline-init": [
+        "../../../packages/sdk/src/initInline.ts"
+      ],
 
       "@heliax/namada-sdk/node": ["../../../packages/sdk/src/indexNode.ts"],
       "@heliax/namada-sdk/node-init": ["../../../packages/sdk/src/initNode.ts"]

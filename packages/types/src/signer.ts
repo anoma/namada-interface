@@ -1,15 +1,4 @@
 import { Account, AccountType } from "./account";
-import {
-  BondProps,
-  EthBridgeTransferProps,
-  IbcTransferProps,
-  RedelegateProps,
-  TransferProps,
-  TxProps,
-  UnbondProps,
-  VoteProposalProps,
-  WithdrawProps,
-} from "./tx";
 
 export type SignArbitraryResponse = {
   hash: string;
@@ -33,44 +22,4 @@ export interface Signer {
     data: string
   ) => Promise<SignArbitraryResponse | undefined>;
   verify: (publicKey: string, hash: string, signature: string) => Promise<void>;
-  submitBond(
-    args: BondProps | BondProps[],
-    txArgs: TxProps,
-    type: AccountType
-  ): Promise<void>;
-  submitUnbond(
-    args: UnbondProps | UnbondProps[],
-    txArgs: TxProps,
-    type: AccountType
-  ): Promise<void>;
-  submitWithdraw(
-    args: WithdrawProps | WithdrawProps[],
-    txArgs: TxProps,
-    type: AccountType
-  ): Promise<void>;
-  submitTransfer(
-    args: TransferProps | TransferProps[],
-    txArgs: TxProps,
-    type: AccountType
-  ): Promise<void>;
-  submitRedelegate(
-    args: RedelegateProps | RedelegateProps[],
-    txArgs: TxProps,
-    type: AccountType
-  ): Promise<void>;
-  submitIbcTransfer(
-    args: IbcTransferProps | IbcTransferProps[],
-    txArgs: TxProps,
-    type: AccountType
-  ): Promise<void>;
-  submitVoteProposal(
-    args: VoteProposalProps | VoteProposalProps[],
-    txArgs: TxProps,
-    type: AccountType
-  ): Promise<void>;
-  submitEthBridgeTransfer(
-    args: EthBridgeTransferProps | EthBridgeTransferProps[],
-    txArgs: TxProps,
-    type: AccountType
-  ): Promise<void>;
 }

@@ -1,5 +1,3 @@
-import { getSdk } from "@heliax/namada-sdk/web";
-import init from "@heliax/namada-sdk/web-init";
 import { chains } from "@namada/chains";
 import { getIntegration } from "@namada/integrations";
 import {
@@ -11,6 +9,7 @@ import {
 } from "@namada/types";
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
+import { getSdkInstance } from "hooks";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { RootState } from "store";
@@ -68,9 +67,7 @@ export const fetchBalance = createAsyncThunk<
     if (chainKey !== "namada") {
       throw new Error("not namada");
     }
-    const { cryptoMemory } = await init();
-    const { rpc } = getSdk(cryptoMemory, rpcUrl, "", tokenAddress);
-
+    const { rpc } = await getSdkInstance();
     const tokens = [nativeToken || tokenAddress];
 
     const balances = (await rpc.queryBalance(address, tokens)).map(
@@ -253,9 +250,7 @@ const queryBalance = (
   token: string
 ): Promise<[string, TokenBalances]>[] => {
   return accounts.map(async (account): Promise<[string, TokenBalances]> => {
-    const { cryptoMemory } = await init();
-    const { rpc } = getSdk(cryptoMemory, rpcUrl, "", tokenAddress);
-
+    const { rpc } = await getSdkInstance();
     const tokens = [token];
 
     const balances = (await rpc.queryBalance(account.address, tokens)).map(

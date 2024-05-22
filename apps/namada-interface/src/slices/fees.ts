@@ -1,6 +1,6 @@
-import { Query } from "@namada/shared";
 import BigNumber from "bignumber.js";
 import { invariant } from "framer-motion";
+import { getSdkInstance } from "hooks";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { accountsAtom } from "slices/accounts";
@@ -9,15 +9,20 @@ import { chainAtom } from "slices/chain";
 // TODO: remove harcoding of gas limit
 export const GAS_LIMIT = new BigNumber(20_000);
 
+const {
+  NAMADA_INTERFACE_NAMADA_TOKEN:
+    nativeToken = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+} = process.env;
+
 export const minimumGasPriceAtom = atomWithQuery<BigNumber>((get) => {
   const chain = get(chainAtom);
   return {
     queryKey: ["minimum-gas-price-" + chain.chainId],
     queryFn: async () => {
-      const nativeToken = chain.currency.address;
-      const query = new Query(chain.rpc);
+      const { rpc } = await getSdkInstance();
+      // TODO: Can nativeToken ever be undefined?
       invariant(!!nativeToken, "Native token is undefined");
-      const result = (await query.query_gas_costs()) as [string, string][];
+      const result = (await rpc.queryGasCosts()) as [string, string][];
       const nativeTokenCost = result.find(([token]) => token === nativeToken);
       invariant(!!nativeTokenCost, "Error querying minimum gas price");
       const asBigNumber = new BigNumber(nativeTokenCost![1]);
@@ -51,17 +56,15 @@ export const isRevealPkNeededAtom = (() => {
       set(
         base,
         (async (): Promise<RevealPkNeededMap> => {
-          const accounts = await get(accountsAtom);
+          const accounts = get(accountsAtom);
           const transparentAccounts = accounts.filter(
             (account) => !account.isShielded
           );
-
-          const { rpc } = get(chainAtom);
-          const query = new Query(rpc);
+          const { rpc } = await getSdkInstance();
 
           const entries = await Promise.all(
             transparentAccounts.map(async ({ address }) => {
-              const publicKey = await query.query_public_key(address);
+              const publicKey = await rpc.queryPublicKey(address);
               return [address, !publicKey];
             })
           );

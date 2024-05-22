@@ -23,6 +23,7 @@ import {
   ProposalWithExtraInfo,
   VoteType,
 } from "@namada/types";
+import { getSdkInstance } from "hooks";
 
 const { NAMADA_INTERFACE_NO_INDEXER } = process.env;
 
@@ -438,9 +439,9 @@ export const performVote = async (
   account: Account,
   chain: Chain
 ): Promise<void> => {
-  const signer = getIntegration("namada").signer();
+  const signingClient = getIntegration("namada").signer();
 
-  if (typeof signer === "undefined") {
+  if (typeof signingClient === "undefined") {
     throw new Error("no signer");
   }
 
@@ -453,21 +454,34 @@ export const performVote = async (
   if (typeof publicKey === "undefined") {
     throw new Error("no public key on account");
   }
+  const { tx, rpc } = await getSdkInstance();
+  const signer = account.address;
 
-  return await signer.submitVoteProposal(
-    {
-      signer: account.address,
-      proposalId,
-      vote,
-    },
-    {
-      token,
-      feeAmount: BigNumber(0),
-      gasLimit: BigNumber(20_000),
-      chainId: chain.chainId,
-      publicKey,
-      memo: "",
-    },
-    account.type
-  );
+  const proposalProps = {
+    signer,
+    proposalId,
+    vote,
+  };
+
+  const wrapperTxProps = {
+    token,
+    feeAmount: BigNumber(0),
+    gasLimit: BigNumber(20_000),
+    chainId: chain.chainId,
+    publicKey,
+    memo: "",
+  };
+
+  const encodedTx = await tx.buildVoteProposal(wrapperTxProps, proposalProps);
+  const signedTx = await signingClient.sign(signer, encodedTx);
+
+  if (!signedTx) {
+    throw new Error("Signing failed");
+  }
+
+  await rpc.broadcastTx({
+    wrapperTxMsg: encodedTx.txMsg,
+    tx: signedTx[0],
+  });
+  return;
 };
