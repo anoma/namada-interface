@@ -22,7 +22,7 @@ export const atomsAreError = (...args: AtomWithQueryResult[]): boolean => {
 export const useNotifyOnAtomError = (
   atoms: AtomWithQueryResult[],
   deps: React.DependencyList
-) => {
+): void => {
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const dismissNotification = useSetAtom(dismissToastNotificationAtom);
 
