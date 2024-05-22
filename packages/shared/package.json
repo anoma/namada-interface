@@ -18,11 +18,11 @@
     "wasm:build:multicore": "yarn wasm:ts:web && node ./scripts/build.js --release --multicore",
     "wasm:build:dev": "yarn wasm:ts:web && node ./scripts/build.js",
     "wasm:build:dev:multicore": "yarn wasm:ts:web && node ./scripts/build.js --multicore",
-    "wasm:build:node": "yarn wasm:ts:node && ./scripts/build-test.sh",
+    "wasm:build:node": "yarn wasm:ts:node && node ./scripts/build.js --target nodejs --release",
     "test-wasm:ci": "yarn wasm:ts:node && cd ./lib && wasm-pack test --node -- --features nodejs",
-    "wasm:build:node:multicore": "node ./scripts/build.js --target nodejs --release --multicore",
-    "wasm:build:node:dev": "node ./scripts/build.js --target nodejs",
-    "wasm:build:node:dev:multicore": "node ./scripts/build.js --target node --multicore"
+    "wasm:build:node:multicore": "yarn wasm:ts:node && node ./scripts/build.js --target nodejs --release --multicore",
+    "wasm:build:node:dev": "yarn wasm:ts:node && node ./scripts/build.js --target nodejs",
+    "wasm:build:node:dev:multicore": "yarn wasm:ts:node && node ./scripts/build.js --target node --multicore"
   },
   "dependencies": {
     "@dao-xyz/borsh": "^5.1.5",
