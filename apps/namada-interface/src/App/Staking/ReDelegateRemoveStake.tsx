@@ -15,14 +15,14 @@ type ReDelegateRemoveStakeProps = {
     validator: Validator,
     amount: BigNumber | undefined
   ) => void;
-  updatedAmountByAddress: Record<string, BigNumber>;
+  amountsRemovedByAddress: Record<string, BigNumber>;
   stakedAmountByAddress: Record<string, BigNumber>;
   onProceed: () => void;
 };
 
 export const ReDelegateRemoveStake = ({
   onChangeValidatorAmount,
-  updatedAmountByAddress,
+  amountsRemovedByAddress,
   stakedAmountByAddress,
   onProceed,
 }: ReDelegateRemoveStakeProps): JSX.Element => {
@@ -35,7 +35,7 @@ export const ReDelegateRemoveStake = ({
 
   const renderInfoColumn = (validator: Validator): JSX.Element => {
     const stakedAmount = stakedAmountByAddress[validator.address] ?? 0;
-    const updatedAmounts = updatedAmountByAddress[validator.address];
+    const updatedAmounts = amountsRemovedByAddress[validator.address];
     const hasNewAmounts = updatedAmounts ? updatedAmounts.gt(0) : false;
     return (
       <>
@@ -55,8 +55,7 @@ export const ReDelegateRemoveStake = ({
     );
   };
 
-  const onReDelegateAll = (e: React.MouseEvent): void => {
-    e.preventDefault();
+  const onReDelegateAll = (): void => {
     invariant(myValidators.isSuccess, "My Validators are not loaded");
     myValidators.data!.forEach((mv: MyValidator) => {
       onChangeValidatorAmount(
@@ -66,8 +65,7 @@ export const ReDelegateRemoveStake = ({
     });
   };
 
-  const onClear = (e: React.MouseEvent): void => {
-    e.preventDefault();
+  const onClear = (): void => {
     invariant(myValidators.isSuccess, "My validators are not loaded");
     myValidators.data!.forEach((mv: MyValidator) => {
       if (stakedAmountByAddress[mv.validator.address]) {
@@ -76,29 +74,29 @@ export const ReDelegateRemoveStake = ({
     });
   };
 
-  const zeroUpdatedAmounts =
-    Object.keys(updatedAmountByAddress).length > 0 ?
-      BigNumber.sum(...Object.values(updatedAmountByAddress)).eq(0)
+  const hasZeroUpdatedAmounts =
+    Object.keys(amountsRemovedByAddress).length > 0 ?
+      BigNumber.sum(...Object.values(amountsRemovedByAddress)).eq(0)
     : true;
 
-  const validUpdatedAmounts = useMemo(
+  const hasValidUpdatedAmounts = useMemo(
     () =>
-      Object.keys(updatedAmountByAddress).reduce(
+      Object.keys(amountsRemovedByAddress).reduce(
         (prev: boolean, address: string): boolean => {
           if (!prev) return false;
           return (
-            updatedAmountByAddress[address].lte(
+            amountsRemovedByAddress[address].lte(
               stakedAmountByAddress[address] ?? new BigNumber(0)
-            ) && updatedAmountByAddress[address].gte(0)
+            ) && amountsRemovedByAddress[address].gte(0)
           );
         },
         true
       ),
-    [updatedAmountByAddress]
+    [amountsRemovedByAddress]
   );
 
   const validationMessage =
-    !validUpdatedAmounts ? "Invalid amount distribution" : undefined;
+    !hasValidUpdatedAmounts ? "Invalid amount distribution" : undefined;
 
   return (
     <>
@@ -106,8 +104,8 @@ export const ReDelegateRemoveStake = ({
         {myValidators.isSuccess && (
           <div className="flex gap-2">
             <ActionButton
-              className="w-auto"
               type="button"
+              className="w-auto"
               outlined
               size="sm"
               borderRadius="sm"
@@ -117,8 +115,8 @@ export const ReDelegateRemoveStake = ({
               Re-delegate all
             </ActionButton>
             <ActionButton
-              className="w-auto"
               type="button"
+              className="w-auto"
               outlined
               size="sm"
               borderRadius="sm"
@@ -139,7 +137,7 @@ export const ReDelegateRemoveStake = ({
             <ReDelegateTable
               validators={validators}
               onChangeValidatorAmount={onChangeValidatorAmount}
-              updatedAmountByAddress={updatedAmountByAddress}
+              updatedAmountByAddress={amountsRemovedByAddress}
               stakedAmountByAddress={stakedAmountByAddress}
               renderInfoColumn={renderInfoColumn}
             />
@@ -147,16 +145,17 @@ export const ReDelegateRemoveStake = ({
       </Panel>
       <div className="relative">
         <ActionButton
+          type="button"
           size="sm"
           color="secondary"
           borderRadius="sm"
           className="mt-2 w-1/4 mx-auto"
-          disabled={zeroUpdatedAmounts || !validUpdatedAmounts}
+          disabled={hasZeroUpdatedAmounts || !hasValidUpdatedAmounts}
           onClick={onProceed}
         >
           {validationMessage ?? "Assign new Stake"}
         </ActionButton>
-      </div>{" "}
+      </div>
     </>
   );
 };

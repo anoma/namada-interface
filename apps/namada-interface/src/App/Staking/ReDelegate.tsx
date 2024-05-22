@@ -1,15 +1,21 @@
 import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
+import BigNumber from "bignumber.js";
+import clsx from "clsx";
+import { useGasEstimate } from "hooks/useGasEstimate";
 import { useStakeModule } from "hooks/useStakeModule";
+import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
+import { getAmountDistribution } from "lib/staking";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { transparentAccountsAtom } from "slices/accounts";
-import { minimumGasPriceAtom } from "slices/fees";
+import { GAS_LIMIT } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
 import { performReDelegationAtom } from "slices/staking";
-import { allValidatorsAtom } from "slices/validators";
+import { Validator, allValidatorsAtom } from "slices/validators";
+import { twMerge } from "tailwind-merge";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { ReDelegateAssignStake } from "./ReDelegateAssignStake";
 import { ReDelegateRemoveStake } from "./ReDelegateRemoveStake";
@@ -17,22 +23,20 @@ import StakingRoutes from "./routes";
 
 export const ReDelegate = (): JSX.Element => {
   const [step, setStep] = useState<"remove" | "assign">("remove");
-  const stepTitle = {
-    remove: "Step 1 - Remove NAM from current Validators",
-    assign: "Step 2 - Assign Re-delegating NAM",
-  };
+  const [amountsToAssignByAddress, setAmountToAssignByAddress] = useState<
+    Record<string, BigNumber>
+  >({});
 
+  const { gasPrice } = useGasEstimate();
   const navigate = useNavigate();
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
-  const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
-
   const accounts = useAtomValue(transparentAccountsAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const {
     totalStakedAmount,
     totalUpdatedAmount: totalToRedelegate,
     stakedAmountByAddress,
-    updatedAmountByAddress,
+    updatedAmountByAddress: amountsRemovedByAddress,
     onChangeValidatorAmount,
     myValidators,
   } = useStakeModule({ accounts });
@@ -43,13 +47,30 @@ export const ReDelegate = (): JSX.Element => {
     isSuccess,
   } = useAtomValue(performReDelegationAtom);
 
-  useEffect(() => {}, [updatedAmountByAddress]);
+  useEffect(() => {
+    if (isSuccess) {
+      dispatchPendingNotification();
+      onCloseModal();
+    }
+  }, [isSuccess]);
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
 
-  const getValidationMessage = (): string => {
-    // if (!pendingToDistribute.eq(0)) return "Invalid distribution";
-    return "";
+  const onAssignAmount = (
+    validator: Validator,
+    amount: BigNumber | undefined
+  ): void => {
+    setAmountToAssignByAddress((amounts) => {
+      if (amount === undefined) {
+        delete amounts[validator.address];
+        return { ...amounts };
+      }
+
+      return {
+        ...amounts,
+        [validator.address]: amount,
+      };
+    });
   };
 
   const dispatchPendingNotification = (): void => {
@@ -61,36 +82,39 @@ export const ReDelegate = (): JSX.Element => {
     });
   };
 
-  const validationMessage = getValidationMessage();
-
   const onSubmit = (e: React.FormEvent): void => {
-    // e.preventDefault();
-    // invariant(
-    //   accounts.length > 0,
-    //   `Extension is connected but you don't have an account`
-    // );
-    // invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
-    // const redelegationChanges = getRedelegateChanges(
-    //   stakedAmountByAddress,
-    //   updatedAmountByAddress
-    // );
-    //
-    // performRedelegation({
-    //   changes: redelegationChanges,
-    //   gasConfig: {
-    //     gasPrice: minimumGasPrice.data!,
-    //     gasLimit: GAS_LIMIT,
-    //   },
-    //   account: accounts[0],
-    // });
+    e.preventDefault();
+    invariant(
+      accounts.length > 0,
+      `Extension is connected but you don't have an account`
+    );
+    invariant(gasPrice, "Gas price loading is still pending");
+    const redelegationChanges = getAmountDistribution(
+      amountsRemovedByAddress,
+      amountsToAssignByAddress
+    );
+    performRedelegation({
+      changes: redelegationChanges,
+      gasConfig: {
+        gasPrice: gasPrice,
+        gasLimit: GAS_LIMIT,
+      },
+      // TODO: change this after retrieving selected account from extension
+      account: accounts[0],
+    });
   };
 
-  useEffect(() => {
-    if (isSuccess) {
-      dispatchPendingNotification();
-      onCloseModal();
-    }
-  }, [isSuccess]);
+  const totalAssignedAmounts = BigNumber.sum(
+    new BigNumber(0),
+    ...Object.values(amountsToAssignByAddress)
+  );
+
+  const stepTitle = {
+    remove: "Step 1 - Remove NAM from current Validators",
+    assign: "Step 2 - Assign Re-delegating NAM",
+  };
+
+  const totalUpdatedAmount = totalToRedelegate.minus(totalAssignedAmounts);
 
   return (
     <Modal onClose={onCloseModal}>
@@ -115,8 +139,12 @@ export const ReDelegate = (): JSX.Element => {
             <BondingAmountOverview
               title="Available to re-delegate"
               amountInNam={0}
-              updatedAmountInNam={totalToRedelegate}
-              updatedValueClassList="text-yellow"
+              updatedAmountInNam={totalUpdatedAmount}
+              updatedValueClassList={twMerge(
+                clsx("text-yellow", {
+                  "text-fail": totalUpdatedAmount.lt(0),
+                })
+              )}
               extraContent={
                 <>
                   <Alert
@@ -134,6 +162,7 @@ export const ReDelegate = (): JSX.Element => {
             />
             <Panel className="flex items-center h-full justify-center">
               <ActionButton
+                type="button"
                 className="w-32 mx-auto"
                 color="white"
                 size="sm"
@@ -148,7 +177,7 @@ export const ReDelegate = (): JSX.Element => {
           {step === "remove" && (
             <ReDelegateRemoveStake
               onChangeValidatorAmount={onChangeValidatorAmount}
-              updatedAmountByAddress={updatedAmountByAddress}
+              amountsRemovedByAddress={amountsRemovedByAddress}
               stakedAmountByAddress={stakedAmountByAddress}
               onProceed={() => setStep("assign")}
             />
@@ -159,8 +188,13 @@ export const ReDelegate = (): JSX.Element => {
             myValidators.isSuccess && (
               <ReDelegateAssignStake
                 validators={validators.data}
-                amountRemovedByAddress={updatedAmountByAddress}
+                amountsRemovedByAddress={amountsRemovedByAddress}
+                assignedAmountsByAddress={amountsToAssignByAddress}
                 stakedAmountByAddress={stakedAmountByAddress}
+                totalToRedelegate={totalToRedelegate}
+                totalAssignedAmounts={totalAssignedAmounts}
+                onChangeAssignedAmount={onAssignAmount}
+                isPerformingRedelegation={isPerformingRedelegation}
               />
             )}
         </form>

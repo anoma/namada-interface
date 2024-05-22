@@ -31,5 +31,5 @@ export const useValidatorFilter = ({
       }
       return keep;
     });
-  }, [validators, searchTerm, myValidatorsAddresses, onlyMyValidators]);
+  }, [validators, searchTerm, onlyMyValidators]);
 };

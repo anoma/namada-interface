@@ -68,9 +68,33 @@ export const getAmountDistribution = (
   increasedAmounts: Record<string, BigNumber>
 ): RedelegateChange[] => {
   const redelegateChanges: RedelegateChange[] = [];
+
+  // If two addresses are present in both objects, fix the assigned amounts
+  for (const address in reducedAmounts) {
+    if (increasedAmounts.hasOwnProperty(address)) {
+      const diff = reducedAmounts[address].minus(increasedAmounts[address]);
+      if (diff.eq(0)) {
+        delete reducedAmounts[address];
+        delete increasedAmounts[address];
+        continue;
+      }
+
+      if (diff.gt(0)) {
+        delete increasedAmounts[address];
+        reducedAmounts[address] = diff;
+        continue;
+      }
+
+      if (diff.lt(0)) {
+        delete reducedAmounts[address];
+        increasedAmounts[address] = diff.abs();
+      }
+    }
+  }
+
   const addressesToReduce = Object.keys(reducedAmounts).sort(
     (address1: string, address2: string) =>
-      reducedAmounts[address1].gt(reducedAmounts[address2]) ? 1 : -1
+      reducedAmounts[address1].gt(reducedAmounts[address2]) ? -1 : 1
   );
 
   const addressesToIncrement = Object.keys(increasedAmounts).sort(
@@ -118,16 +142,4 @@ export const getAmountDistribution = (
   }
 
   return redelegateChanges;
-};
-
-export const getRedelegateChanges = (
-  stakedAmounts: Record<string, BigNumber>,
-  updatedAmounts: Record<string, BigNumber>
-): RedelegateChange[] => {
-  const reducedAmounts = getReducedAmounts(stakedAmounts, updatedAmounts);
-  const incrementedAmounts = getIncrementedAmounts(
-    stakedAmounts,
-    updatedAmounts
-  );
-  return getAmountDistribution(reducedAmounts, incrementedAmounts);
 };
