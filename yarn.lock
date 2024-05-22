@@ -8496,7 +8496,6 @@ __metadata:
     typescript-plugin-styled-components: "npm:^2.0.0"
     vite: "npm:^5.2.11"
     vite-plugin-node-polyfills: "npm:^0.22.0"
-    vite-plugin-static-copy: "npm:^1.0.5"
     vite-tsconfig-paths: "npm:^4.3.2"
     web-vitals: "npm:^2.1.4"
     webpack-bundle-analyzer: "npm:^4.10.1"
@@ -19467,17 +19466,6 @@ __metadata:
     jsonfile: "npm:^6.0.1"
     universalify: "npm:^2.0.0"
   checksum: d8e0d70a7bfdb669619a5e91231fb91034f3ad6033910844571a39190b29708f652640db86d83ca5add8b013e5886a2fa81aba9754962ae2f5d730275ce426af
-  languageName: node
-  linkType: hard
-
-"fs-extra@npm:^11.1.0":
-  version: 11.2.0
-  resolution: "fs-extra@npm:11.2.0"
-  dependencies:
-    graceful-fs: "npm:^4.2.0"
-    jsonfile: "npm:^6.0.1"
-    universalify: "npm:^2.0.0"
-  checksum: d77a9a9efe60532d2e790e938c81a02c1b24904ef7a3efb3990b835514465ba720e99a6ea56fd5e2db53b4695319b644d76d5a0e9988a2beef80aa7b1da63398
   languageName: node
   linkType: hard
 
@@ -35684,20 +35672,6 @@ __metadata:
   peerDependencies:
     vite: ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0
   checksum: f8ddc452eb6fba280977d037f8a6406aa522e69590641ce72ce5bb31c3498856a9f63ab3671bc6a822dcd1ff9ba5cac02cacef4a0e170fd8500cdeeb38c81675
-  languageName: node
-  linkType: hard
-
-"vite-plugin-static-copy@npm:^1.0.5":
-  version: 1.0.5
-  resolution: "vite-plugin-static-copy@npm:1.0.5"
-  dependencies:
-    chokidar: "npm:^3.5.3"
-    fast-glob: "npm:^3.2.11"
-    fs-extra: "npm:^11.1.0"
-    picocolors: "npm:^1.0.0"
-  peerDependencies:
-    vite: ^5.0.0
-  checksum: b11c6a0bd31b8592af4099f75122b2073738659d1d06c6aeedd47d15b84758a57c17d56b6e79cefa3b7871c8f51980b423a9d524bbceb4b17363d4363e78a63b
   languageName: node
   linkType: hard
 
