@@ -215,7 +215,7 @@ export const totalNamBalanceAtom = atomWithQuery<BigNumber>((get) => {
 
 export const balancesAtom = atomWithQuery<Record<Address, Balance>>((get) => {
   const token = tokenAddress;
-  const shieldedAccounts = get(shieldedAccountsAtom);
+  //const shieldedAccounts = get(shieldedAccountsAtom);
   const transparentAccounts = get(transparentAccountsAtom);
 
   return {
