@@ -8,7 +8,6 @@ import {
   balancesAtom,
   fetchDefaultAccountAtom,
 } from "slices/accounts";
-import { chainAtom } from "slices/chain";
 import { isRevealPkNeededAtom } from "slices/fees";
 import {
   dispatchToastNotificationAtom,
@@ -28,7 +27,6 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const balances = useAtomValue(balancesAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
   const addAccounts = useSetAtom(addAccountsAtom);
-  const refreshChain = useSetAtom(chainAtom);
   const refreshPublicKeys = useSetAtom(isRevealPkNeededAtom);
   const setNamadaExtensionConnected = useSetAtom(namadaExtensionConnectedAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
@@ -74,10 +72,6 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
       },
       { timeout: 5000 }
     );
-  });
-
-  useEventListenerOnce(Events.NetworkChanged, () => {
-    refreshChain();
   });
 
   useEventListenerOnce(Events.ProposalsUpdated, () => {

@@ -5,7 +5,6 @@ import {
   Stack,
 } from "@namada/components";
 import { useUntilIntegrationAttached } from "@namada/integrations";
-import { Chain } from "@namada/types";
 import FiatCurrency from "App/Common/FiatCurrency";
 import { Intro } from "App/Common/Intro";
 import NamCurrency from "App/Common/NamCurrency";
@@ -17,11 +16,11 @@ import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
 import { defaultAccountAtom, totalNamBalanceAtom } from "slices/accounts";
-import { useAppSelector } from "store";
+import { chainAtom } from "slices/chain";
 
 export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
-  const chain = useAppSelector<Chain>((state) => state.chain.config);
+  const chain = useAtomValue(chainAtom);
   const account = useAtomValue(defaultAccountAtom);
   const totalBalance = useAtomValue(totalNamBalanceAtom);
   const extensionAttachStatus = useUntilIntegrationAttached(chain);

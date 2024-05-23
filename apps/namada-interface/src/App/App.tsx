@@ -1,7 +1,4 @@
-import {
-  useIntegration,
-  useUntilIntegrationAttached,
-} from "@namada/integrations";
+import { useUntilIntegrationAttached } from "@namada/integrations";
 import { getTheme, loadColorMode } from "@namada/utils";
 import { Container } from "App/Common/Container";
 import { Toasts } from "App/Common/Toast";
@@ -9,13 +6,12 @@ import { TopNavigation } from "App/Common/TopNavigation";
 import { AnimatePresence } from "framer-motion";
 import { createBrowserHistory } from "history";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
 import { fetchAccountsAtom, fetchDefaultAccountAtom } from "slices/accounts";
-import { chainAtom, setChain } from "slices/chain";
+import { chainAtom } from "slices/chain";
 import { connectedChainsAtom } from "slices/settings";
-import { persistor, useAppDispatch } from "store";
+import { persistor } from "store";
 import { ThemeProvider } from "styled-components";
 import { AppLoader, MotionContainer } from "./App.components";
 import { Navigation } from "./Common/Navigation";
@@ -50,40 +46,15 @@ function App(): JSX.Element {
   useOnNamadaExtensionConnected();
   useOnChainChanged();
 
-  const dispatch = useAppDispatch();
   const initialColorMode = loadColorMode();
   const theme = getTheme(initialColorMode);
   const chain = useAtomValue(chainAtom);
   const fetchDefaultAccount = useSetAtom(fetchDefaultAccountAtom);
   const fetchAccounts = useSetAtom(fetchAccountsAtom);
   const connectedChains = useAtomValue(connectedChainsAtom);
-  const integration = useIntegration(chain.id);
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
-
-  // TODO: remove this effect once redux has been replaced by jotai
-  useEffect(() => {
-    if (
-      currentExtensionAttachStatus === "attached" &&
-      connectedChains.includes(chain.id)
-    ) {
-      fetchDefaultAccount();
-      fetchAccounts();
-    }
-  }, [chain]);
-
-  // TODO: remove this effect once redux has been replaced by jotai
-  useEffect(() => {
-    (async () => {
-      if (currentExtensionAttachStatus === "attached") {
-        const chain = await integration.getChain();
-        if (chain) {
-          dispatch(setChain(chain));
-        }
-      }
-    })();
-  }, [currentExtensionAttachStatus]);
 
   const extensionReady =
     currentExtensionAttachStatus === "attached" ||

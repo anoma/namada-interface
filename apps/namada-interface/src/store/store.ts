@@ -4,7 +4,7 @@ import { combineReducers } from "redux";
 import { createTransform, persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import thunk from "redux-thunk";
-import { chainReducer, channelsReducer, settingsReducer } from "slices";
+import { channelsReducer, settingsReducer } from "slices";
 import { SettingsState } from "slices/settings";
 
 import { atomWithStore } from "jotai-redux";
@@ -27,7 +27,6 @@ const ChainIdTransform = createTransform(
 );
 
 const reducers = combineReducers({
-  chain: chainReducer,
   channels: channelsReducer,
   settings: settingsReducer,
 });
@@ -49,7 +48,6 @@ const store = configureStore({
 });
 const persistor = persistStore(store);
 export type RootState = ReturnType<typeof reducers>;
-
 export type AppStore = typeof store;
 export type AppState = ReturnType<AppStore["getState"]>;
 export type AppThunk<ReturnType = void> = ThunkAction<

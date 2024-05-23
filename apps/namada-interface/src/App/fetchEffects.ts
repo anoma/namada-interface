@@ -8,7 +8,8 @@ import {
 } from "@namada/integrations";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 
-import { refreshAccountsAtom } from "slices/accounts";
+import { useEffect } from "react";
+import { fetchAccountsAtom, fetchDefaultAccountAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
 import { isRevealPkNeededAtom, minimumGasPriceAtom } from "slices/fees";
 
@@ -40,14 +41,13 @@ export const useOnNamadaExtensionAttached = (): void => {
 
 export const useOnNamadaExtensionConnected = (): void => {
   const connected = useAtomValue(namadaExtensionConnectedAtom);
+  const fetchAccounts = useSetAtom(fetchAccountsAtom);
+  const fetchDefaultAccount = useSetAtom(fetchDefaultAccountAtom);
 
-  const refreshChain = useSetAtom(chainAtom);
-  const refreshAccounts = useSetAtom(refreshAccountsAtom);
-
-  useEffectSkipFirstRender(() => {
+  useEffect(() => {
     if (connected) {
-      refreshChain();
-      refreshAccounts();
+      fetchAccounts();
+      fetchDefaultAccount();
     }
   }, [connected]);
 };
