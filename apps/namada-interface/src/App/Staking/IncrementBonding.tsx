@@ -39,6 +39,7 @@ const IncrementBonding = (): JSX.Element => {
   } = useAtomValue(performBondAtom);
 
   const {
+    myValidators,
     totalUpdatedAmount,
     totalStakedAmount,
     totalNamAfterStaking,
@@ -172,12 +173,12 @@ const IncrementBonding = (): JSX.Element => {
                 onRandomize={() => setSeed(Math.random())}
               />
             )}
-            {validators.isLoading && (
+            {(validators.isLoading || myValidators.isLoading) && (
               <div className="mt-3">
                 <TableRowLoading count={2} />
               </div>
             )}
-            {validators.isSuccess && (
+            {validators.isSuccess && myValidators.isSuccess && (
               <IncrementBondingTable
                 resultsPerPage={resultsPerPage}
                 validators={sortedValidators}

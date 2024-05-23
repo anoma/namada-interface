@@ -85,27 +85,23 @@ export const IncrementBondingTable = ({
         </div>,
 
         // Current Stake / New Stake
-        {
-          render: () => (
-            <div
-              key={`increment-bonding-current-stake`}
-              className="text-right leading-tight min-w-[12ch]"
+        <div
+          key={`increment-bonding-current-stake`}
+          className="text-right leading-tight min-w-[12ch]"
+        >
+          <span className="block">
+            <NamCurrency amount={stakedAmount ?? 0} />
+          </span>
+          {hasNewAmounts && (
+            <span
+              className={clsx("text-neutral-500 text-sm", {
+                "text-yellow": hasNewAmounts,
+              })}
             >
-              <span className="block">
-                <NamCurrency amount={stakedAmount ?? 0} />
-              </span>
-              {hasNewAmounts && (
-                <span
-                  className={clsx("text-neutral-500 text-sm", {
-                    "text-yellow": hasNewAmounts,
-                  })}
-                >
-                  <NamCurrency amount={amountToStake.plus(stakedAmount)} />
-                </span>
-              )}
-            </div>
-          ),
-        },
+              <NamCurrency amount={amountToStake.plus(stakedAmount)} />
+            </span>
+          )}
+        </div>,
 
         // Voting Power
         <div

@@ -62,7 +62,7 @@ const ValidatorsTable = ({
   // Update all validators
   useEffect(() => {
     setRows(paginatedValidators.map(mapValidatorRow));
-  }, [page, validatorList]);
+  }, [renderRow, page, validatorList]);
 
   // Only updates the addresses contained in updatedAmountByAddress that have changed
   useEffect(() => {
@@ -128,7 +128,7 @@ const ValidatorsTable = ({
         headProps={{ className: "text-neutral-500" }}
       />
     );
-  }, [rows, tableClassName]);
+  }, [rows, updatedAmountByAddress, tableClassName]);
 
   const pagination = useMemo(() => {
     return (
