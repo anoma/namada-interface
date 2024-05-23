@@ -7,9 +7,13 @@ import {
   Chain,
   DelegatorVote,
   PgfActions,
+  Proposal,
+  ProposalStatus,
   ProposalType,
+  ProposalTypeString,
   ValidatorVote,
   Vote,
+  VoteType,
   isTallyType,
   isVoteType,
 } from "@namada/types";
@@ -17,12 +21,6 @@ import BigNumber from "bignumber.js";
 import * as E from "fp-ts/Either";
 import * as t from "io-ts";
 
-import {
-  Proposal,
-  ProposalStatus,
-  ProposalWithExtraInfo,
-  VoteType,
-} from "@namada/types";
 import { getSdkInstance } from "hooks";
 
 const { NAMADA_INTERFACE_NO_INDEXER } = process.env;
@@ -34,10 +32,6 @@ export const fetchCurrentEpoch = async (chain: Chain): Promise<bigint> => {
 };
 
 export const fetchProposalCounter = async (chain: Chain): Promise<bigint> => {
-  if (NAMADA_INTERFACE_NO_INDEXER) {
-    return BigInt(10);
-  }
-
   const { rpc } = chain;
   const query = new Query(rpc);
   const proposalCounter: string = await query.query_proposal_counter();
@@ -211,15 +205,22 @@ export const fetchProposalById = async (
     id
   );
 
+  const fetchedStatus = await fetchProposalStatus(chain, id);
+
   return {
     ...deserialized,
+    ...fetchedStatus,
     content,
     proposalType,
     tallyType,
   };
 };
 
-export const fetchAllProposals = async (chain: Chain): Promise<Proposal[]> => {
+export const fetchAllProposals = async (
+  chain: Chain,
+  status?: ProposalStatus,
+  type?: ProposalTypeString
+): Promise<Proposal[]> => {
   const proposalCounter = await fetchProposalCounter(chain);
 
   const proposals: Promise<Proposal>[] = [];
@@ -227,31 +228,19 @@ export const fetchAllProposals = async (chain: Chain): Promise<Proposal[]> => {
     proposals.push(fetchProposalById(chain, id));
   }
 
-  return await Promise.all(proposals);
-};
+  const resolvedProposals = await Promise.all(proposals);
 
-const fetchProposalByIdWithExtraInfo = async (
-  chain: Chain,
-  id: bigint
-): Promise<ProposalWithExtraInfo> => {
-  const proposal = await fetchProposalById(chain, id);
-  const status = await fetchProposalStatus(chain, id);
-  const votes = await fetchProposalVotes(chain, id);
+  const statusFiltered =
+    typeof status === "undefined" ? resolvedProposals : (
+      resolvedProposals.filter((p) => p.status === status)
+    );
 
-  return { proposal, status, votes };
-};
+  const typeFiltered =
+    typeof type === "undefined" ? statusFiltered : (
+      statusFiltered.filter((p) => p.proposalType.type === type)
+    );
 
-export const fetchAllProposalsWithExtraInfo = async (
-  chain: Chain
-): Promise<ProposalWithExtraInfo[]> => {
-  const proposalCounter = await fetchProposalCounter(chain);
-
-  const proposals: Promise<ProposalWithExtraInfo>[] = [];
-  for (let id = BigInt(0); id < proposalCounter; id++) {
-    proposals.push(fetchProposalByIdWithExtraInfo(chain, id));
-  }
-
-  return await Promise.all(proposals);
+  return Array(30).fill(typeFiltered).flat();
 };
 
 // TODO: this function is way too big
@@ -328,22 +317,24 @@ export const fetchProposalVotes = async (
 export const fetchProposalStatus = async (
   chain: Chain,
   id: bigint
-): Promise<ProposalStatus> => {
+): Promise<
+  {
+    [VT in VoteType]: BigNumber;
+  } & {
+    totalVotingPower: BigNumber;
+    status: ProposalStatus;
+  }
+> => {
   if (NAMADA_INTERFACE_NO_INDEXER) {
-    const status = (
-      [
-        { status: "pending" },
-        { status: "ongoing" },
-        { status: "finished", passed: true },
-        { status: "finished", passed: false },
-      ] as const
-    )[Number(id % BigInt(4))];
+    const status = (["pending", "ongoing", "passed", "rejected"] as const)[
+      Number(id % BigInt(4))
+    ];
 
     return {
-      ...status,
-      yay: BigNumber(0),
-      nay: BigNumber(0),
-      abstain: BigNumber(0),
+      status,
+      yay: BigNumber(300),
+      nay: BigNumber(250),
+      abstain: BigNumber(125),
       totalVotingPower: BigNumber(1000),
     };
   }
@@ -384,13 +375,14 @@ export const fetchProposalStatus = async (
     throw new Error("couldn't parse total voting power as BigNumber");
   }
 
-  const status =
-    startEpoch > currentEpoch ? ({ status: "pending" } as const)
-    : endEpoch > currentEpoch ? ({ status: "ongoing" } as const)
-    : ({ status: "finished", passed } as const);
+  const status: ProposalStatus =
+    startEpoch > currentEpoch ? "pending"
+    : endEpoch > currentEpoch ? "ongoing"
+    : passed ? "passed"
+    : "rejected";
 
   return {
-    ...status,
+    status,
     yay: yayPowerAsBigNumber,
     nay: nayPowerAsBigNumber,
     abstain: abstainPowerAsBigNumber,

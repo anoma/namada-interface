@@ -1,12 +1,11 @@
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
 
-import { VoteType } from "@namada/types";
+import { ProposalStatus, ProposalTypeString, VoteType } from "@namada/types";
 import { transparentAccountsAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
 import {
   fetchAllProposals,
-  fetchAllProposalsWithExtraInfo,
   fetchCurrentEpoch,
   fetchProposalById,
   fetchProposalCode,
@@ -67,10 +66,14 @@ export const allProposalsAtom = atomWithQuery((get) => ({
   queryFn: () => fetchAllProposals(get(chainAtom)),
 }));
 
-export const allProposalsWithExtraInfoAtom = atomWithQuery((get) => ({
-  queryKey: ["all-proposals-with-extra-info"],
-  queryFn: async () => fetchAllProposalsWithExtraInfo(get(chainAtom)),
-}));
+export const allProposalsFamily = atomFamily(
+  (options?: { status?: ProposalStatus; type?: ProposalTypeString }) =>
+    atomWithQuery((get) => ({
+      queryKey: ["all-proposals", options?.status, options?.type],
+      queryFn: () =>
+        fetchAllProposals(get(chainAtom), options?.status, options?.type),
+    }))
+);
 
 export const votedProposalIdsAtom = atomWithQuery((get) => ({
   queryKey: ["voted-proposal-ids"],

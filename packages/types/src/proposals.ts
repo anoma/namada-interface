@@ -1,5 +1,17 @@
 import BigNumber from "bignumber.js";
 
+export const proposalStatuses = [
+  "pending",
+  "ongoing",
+  "passed",
+  "rejected",
+] as const;
+
+export type ProposalStatus = (typeof proposalStatuses)[number];
+
+export const isProposalStatus = (str: string): str is ProposalStatus =>
+  proposalStatuses.includes(str as ProposalStatus);
+
 export type Proposal = {
   id: bigint;
   author: string;
@@ -9,12 +21,14 @@ export type Proposal = {
   graceEpoch: bigint;
   proposalType: ProposalType;
   tallyType: TallyType;
+  status: ProposalStatus;
+  totalVotingPower: BigNumber;
+} & {
+  [VT in VoteType]: BigNumber;
 };
 
 export type ProposalWithExtraInfo = {
   proposal: Proposal;
-  status: ProposalStatus;
-  votes: Vote[];
 };
 
 type ProposalStatusCommonProperties = {
@@ -35,8 +49,6 @@ export type Finished = {
   status: "finished";
   passed: boolean;
 } & ProposalStatusCommonProperties;
-
-export type ProposalStatus = Pending | Ongoing | Finished;
 
 export type AddRemove = {
   add?: string;
@@ -63,6 +75,8 @@ export type Default = { type: "default"; data?: Uint8Array };
 export type PgfSteward = { type: "pgf_steward"; data: AddRemove };
 export type PgfPayment = { type: "pgf_payment"; data: PgfActions };
 export type ProposalType = Default | PgfSteward | PgfPayment;
+
+export type ProposalTypeString = ProposalType["type"];
 
 export const voteTypes = ["yay", "nay", "abstain"] as const;
 export type VoteType = (typeof voteTypes)[number];

@@ -3,24 +3,23 @@ import { ProposalStatus, ProposalType } from "@namada/types";
 import { assertNever } from "@namada/utils";
 import { GoCheckCircleFill } from "react-icons/go";
 import { twMerge } from "tailwind-merge";
+import { showProposalStatus, showProposalTypeString } from "utils";
 
 export const StatusLabel: React.FC<
   {
     status: ProposalStatus;
   } & React.ComponentProps<typeof RoundedLabel>
 > = ({ status, className, ...rest }) => {
-  const [text, statusClassName] =
-    status.status === "pending" ? ["Upcoming", "text-upcoming"]
-    : status.status === "ongoing" ? ["Ongoing", "text-intermediate"]
-    : status.status === "finished" ?
-      status.passed ?
-        ["Passed", "text-success"]
-      : ["Rejected", "text-fail"]
+  const statusClassName =
+    status === "pending" ? "text-upcoming"
+    : status === "ongoing" ? "text-intermediate"
+    : status === "passed" ? "text-success"
+    : status === "rejected" ? "text-fail"
     : assertNever(status);
 
   return (
     <RoundedLabel className={twMerge(className, statusClassName)} {...rest}>
-      {text}
+      {showProposalStatus(status)}
     </RoundedLabel>
   );
 };
@@ -49,16 +48,8 @@ export const TypeLabel: React.FC<
   {
     proposalType: ProposalType;
   } & React.ComponentProps<typeof InsetLabel>
-> = ({ proposalType, ...rest }) => {
-  const text =
-    proposalType.type === "pgf_steward" ? "Steward proposal"
-    : proposalType.type === "pgf_payment" ? "PGF proposal"
-    : proposalType.type === "default" ? "Default"
-    : assertNever(proposalType);
-
-  return (
-    <InsetLabel className="text-xs leading-[1.65em]" {...rest}>
-      {text}
-    </InsetLabel>
-  );
-};
+> = ({ proposalType, ...rest }) => (
+  <InsetLabel className="text-xs leading-[1.65em]" {...rest}>
+    {showProposalTypeString(proposalType.type)}
+  </InsetLabel>
+);

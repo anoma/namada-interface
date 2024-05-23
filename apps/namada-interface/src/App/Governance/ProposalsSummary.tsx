@@ -1,10 +1,5 @@
 import { Stack } from "@namada/components";
-import { ProposalWithExtraInfo } from "@namada/types";
-
-//import {
-//  proposalIdsAtom,
-//  proposalsGroupedByStatusAtom,
-//} from "slices/proposals";
+import { Proposal } from "@namada/types";
 
 const SummaryCard: React.FC<{
   title: string;
@@ -17,20 +12,17 @@ const SummaryCard: React.FC<{
 );
 
 export const ProposalsSummary: React.FC<{
-  allProposals: ProposalWithExtraInfo[];
+  allProposals: Proposal[];
 }> = ({ allProposals }) => {
-  //const proposalIds = useAtomValue(proposalIdsAtom);
-  //const groupedProposals = useAtomValue(proposalsGroupedByStatusAtom);
-
   const total = allProposals.length;
   const ongoing = allProposals.filter(
-    ({ status }) => status.status === "ongoing"
+    ({ status }) => status === "ongoing"
   ).length;
   const passed = allProposals.filter(
-    ({ status }) => status.status === "finished" && status.passed
+    ({ status }) => status === "passed"
   ).length;
   const rejected = allProposals.filter(
-    ({ status }) => status.status === "finished" && !status.passed
+    ({ status }) => status === "rejected"
   ).length;
 
   return (

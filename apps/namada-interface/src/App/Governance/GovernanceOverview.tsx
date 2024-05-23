@@ -2,10 +2,7 @@ import { Panel, SkeletonLoading } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { useAtomValue } from "jotai";
-import {
-  allProposalsWithExtraInfoAtom,
-  votedProposalIdsAtom,
-} from "slices/proposals";
+import { allProposalsAtom, votedProposalIdsAtom } from "slices/proposals";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import {
   atomsAreFetching,
@@ -19,7 +16,7 @@ import { UpcomingProposals } from "./UpcomingProposals";
 
 export const GovernanceOverview: React.FC = () => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
-  const allProposals = useAtomValue(allProposalsWithExtraInfoAtom);
+  const allProposals = useAtomValue(allProposalsAtom);
   const votedProposalIds = useAtomValue(votedProposalIdsAtom);
 
   // TODO: is there a better way than this to show that votedProposalIdsAtom
@@ -67,19 +64,13 @@ export const GovernanceOverview: React.FC = () => {
           {atomsAreFetching(allProposals, ...extensionAtoms) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
-          {isConnected && atomsAreLoaded(allProposals, ...extensionAtoms) && (
+          {isConnected && atomsAreLoaded(...extensionAtoms) && (
             <AllProposalsTable
-              allProposals={allProposals.data!}
               isExtensionConnected={true}
               votedProposalIds={votedProposalIds.data!}
             />
           )}
-          {!isConnected && atomsAreLoaded(allProposals) && (
-            <AllProposalsTable
-              allProposals={allProposals.data!}
-              isExtensionConnected={false}
-            />
-          )}
+          {!isConnected && <AllProposalsTable isExtensionConnected={false} />}
         </Panel>
       </div>
       <aside className="flex flex-col gap-2 mt-1.5 lg:mt-0">

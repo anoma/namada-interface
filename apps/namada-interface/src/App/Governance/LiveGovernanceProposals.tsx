@@ -3,12 +3,7 @@ import BigNumber from "bignumber.js";
 import { GoInfo } from "react-icons/go";
 import GovernanceRoutes from "./routes";
 
-import {
-  Proposal,
-  ProposalStatus,
-  ProposalWithExtraInfo,
-  voteTypes,
-} from "@namada/types";
+import { Proposal, voteTypes } from "@namada/types";
 import clsx from "clsx";
 import { useNavigate } from "react-router-dom";
 import { StatusLabel, TypeLabel, VotedLabel } from "./ProposalLabels";
@@ -16,20 +11,21 @@ import { colors } from "./types";
 
 const ProposalListItem: React.FC<{
   proposal: Proposal;
-  status: ProposalStatus;
   voted?: boolean;
-}> = ({ proposal, status, voted }) => {
+}> = ({ proposal, voted }) => {
+  const { status } = proposal;
+
   const navigate = useNavigate();
 
   const zeroVotes = BigNumber.sum(
-    ...voteTypes.map((voteType) => status[voteType])
+    ...voteTypes.map((voteType) => proposal[voteType])
   ).isEqualTo(0);
 
   const barData =
     zeroVotes ?
       [{ value: 1, color: "#3A3A3A" }]
     : voteTypes.map((voteType) => ({
-        value: status[voteType],
+        value: proposal[voteType],
         color: colors[voteType],
       }));
 
@@ -93,33 +89,34 @@ type LiveGovernanceProposalsProps = (
   | { isExtensionConnected: true; votedProposalIds: bigint[] }
   | { isExtensionConnected: false }
 ) & {
-  allProposals: ProposalWithExtraInfo[];
+  allProposals: Proposal[];
 };
 
 export const LiveGovernanceProposals: React.FC<LiveGovernanceProposalsProps> = (
   props
 ) => {
   const liveProposals = props.allProposals.filter(
-    (proposal) => proposal.status.status === "ongoing"
+    (proposal) => proposal.status === "ongoing"
   );
 
   return (
-    <Stack gap={4} as="ul">
-      {liveProposals.map(({ proposal, status }, index) => {
-        const voted =
-          props.isExtensionConnected ?
-            props.votedProposalIds.includes(proposal.id)
-          : undefined;
+    <div className="max-h-[490px] flex flex-col">
+      <Stack
+        gap={4}
+        as="ul"
+        className="dark-scrollbar overscroll-contain overflow-x-auto"
+      >
+        {liveProposals.map((proposal, index) => {
+          const voted =
+            props.isExtensionConnected ?
+              props.votedProposalIds.includes(proposal.id)
+            : undefined;
 
-        return (
-          <ProposalListItem
-            proposal={proposal}
-            status={status}
-            voted={voted}
-            key={index}
-          />
-        );
-      })}
-    </Stack>
+          return (
+            <ProposalListItem proposal={proposal} voted={voted} key={index} />
+          );
+        })}
+      </Stack>
+    </div>
   );
 };

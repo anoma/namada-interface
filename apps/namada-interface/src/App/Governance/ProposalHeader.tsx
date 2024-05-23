@@ -1,5 +1,5 @@
 import { ActionButton, ProgressBar, Stack } from "@namada/components";
-import { Proposal, ProposalStatus } from "@namada/types";
+import { Proposal } from "@namada/types";
 import { formatEpoch } from "@namada/utils";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
@@ -49,15 +49,15 @@ type ProposalHeaderProps = (
   | { isExtensionConnected: false }
 ) & {
   proposal: Proposal;
-  status: ProposalStatus;
 };
 
 export const ProposalHeader: React.FC<ProposalHeaderProps> = (props) => {
-  const { proposal, status, isExtensionConnected } = props;
+  const { proposal, isExtensionConnected } = props;
+  const { status } = proposal;
 
   const navigate = useNavigate();
   const voteButtonDisabled =
-    !isExtensionConnected || props.voted || status.status !== "ongoing";
+    !isExtensionConnected || props.voted || status !== "ongoing";
   const { startEpoch, endEpoch } = proposal;
   const currentEpoch = useAtomValue(currentEpochAtom);
 

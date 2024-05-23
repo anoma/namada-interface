@@ -1,15 +1,14 @@
 import { SegmentedBar, Stack } from "@namada/components";
 import GovernanceRoutes from "./routes";
 
-import { Proposal, ProposalStatus, ProposalWithExtraInfo } from "@namada/types";
+import { Proposal } from "@namada/types";
 import clsx from "clsx";
 import { useNavigate } from "react-router-dom";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
 
 const ProposalListItem: React.FC<{
   proposal: Proposal;
-  status: ProposalStatus;
-}> = ({ proposal, status }) => {
+}> = ({ proposal }) => {
   const navigate = useNavigate();
 
   const barData = [
@@ -30,7 +29,10 @@ const ProposalListItem: React.FC<{
       )}
     >
       <div className="flex items-center justify-between gap-4">
-        <StatusLabel className="text-[10px] min-w-38" status={status} />
+        <StatusLabel
+          className="text-[10px] min-w-38"
+          status={proposal.status}
+        />
       </div>
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-[6ch]">#{proposal.id.toString()}</div>
@@ -44,17 +46,23 @@ const ProposalListItem: React.FC<{
 };
 
 export const UpcomingProposals: React.FC<{
-  allProposals: ProposalWithExtraInfo[];
+  allProposals: Proposal[];
 }> = ({ allProposals }) => {
   const upcomingProposals = allProposals.filter(
-    (proposal) => proposal.status.status === "pending"
+    (proposal) => proposal.status === "pending"
   );
 
   return (
-    <Stack gap={4} as="ul">
-      {upcomingProposals.map(({ proposal, status }, index) => (
-        <ProposalListItem proposal={proposal} status={status} key={index} />
-      ))}
-    </Stack>
+    <div className="max-h-[490px] flex flex-col">
+      <Stack
+        gap={4}
+        as="ul"
+        className="dark-scrollbar overscroll-contain overflow-x-auto"
+      >
+        {upcomingProposals.map((proposal, index) => (
+          <ProposalListItem proposal={proposal} key={index} />
+        ))}
+      </Stack>
+    </div>
   );
 };

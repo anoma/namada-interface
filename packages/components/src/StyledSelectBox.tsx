@@ -2,24 +2,24 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
-export type SelectBoxOption = {
-  id: string;
+export type SelectBoxOption<T extends string> = {
+  id: T;
   value: React.ReactNode;
   ariaLabel: string;
 };
 
-export type SelectBoxProps = {
+export type SelectBoxProps<T extends string> = {
   id: string;
-  value: string;
+  value: T;
   displayArrow?: boolean;
   listContainerProps?: React.ComponentPropsWithoutRef<"ul">;
   containerProps?: React.ComponentPropsWithoutRef<"div">;
   listItemProps?: React.ComponentPropsWithoutRef<"li">;
   defaultValue: React.ReactNode;
-  options: SelectBoxOption[];
+  options: SelectBoxOption<T>[];
 } & React.ComponentPropsWithRef<"input">;
 
-export const StyledSelectBox = ({
+export const StyledSelectBox = <T extends string = string>({
   id,
   options,
   value,
@@ -30,8 +30,8 @@ export const StyledSelectBox = ({
   displayArrow = true,
   defaultValue,
   ...props
-}: SelectBoxProps): JSX.Element => {
-  const [selected, setSelected] = useState<SelectBoxOption | null>(null);
+}: SelectBoxProps<T>): JSX.Element => {
+  const [selected, setSelected] = useState<SelectBoxOption<T> | null>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -67,7 +67,7 @@ export const StyledSelectBox = ({
         role="radiogroup"
         className="absolute pointer-events-none invisible"
       >
-        {options.map((option: SelectBoxOption) => (
+        {options.map((option: SelectBoxOption<T>) => (
           <input
             key={`radio-${id}-${option.id}`}
             id={getElementId(option.id)}

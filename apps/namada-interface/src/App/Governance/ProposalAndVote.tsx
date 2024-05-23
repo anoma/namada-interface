@@ -3,11 +3,7 @@ import { useSanitizedParams } from "@namada/hooks";
 import { useAtomValue } from "jotai";
 
 import { ProposalDiscord } from "App/Sidebars/ProposalDiscord";
-import {
-  proposalFamily,
-  proposalStatusFamily,
-  proposalVotedFamily,
-} from "slices/proposals";
+import { proposalFamily, proposalVotedFamily } from "slices/proposals";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import {
   atomsAreFetching,
@@ -29,38 +25,34 @@ export const ProposalAndVote: React.FC = () => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const proposal = useAtomValue(proposalFamily(proposalId));
   const voted = useAtomValue(proposalVotedFamily(proposalId));
-  const status = useAtomValue(proposalStatusFamily(proposalId));
 
   // TODO: is there a better way than this to show that voted is dependent on
   // isConnected?
   const extensionAtoms = isConnected ? [voted] : [];
 
   useNotifyOnAtomError(
-    [proposal, status, ...extensionAtoms],
-    [proposal.isError, status.isError, voted.isError]
+    [proposal, ...extensionAtoms],
+    [proposal.isError, voted.isError]
   );
 
   return (
     <div className="flex flex-col md:grid md:grid-cols-[auto_270px] gap-2">
       <div className="flex flex-col gap-1.5">
         <Panel className="px-3">
-          {atomsAreFetching(proposal, status, ...extensionAtoms) && (
+          {atomsAreFetching(proposal, ...extensionAtoms) && (
             <SkeletonLoading height="150px" width="100%" />
           )}
           <div className="px-12">
-            {isConnected &&
-              atomsAreLoaded(proposal, status, ...extensionAtoms) && (
-                <ProposalHeader
-                  proposal={proposal.data!}
-                  status={status.data!}
-                  isExtensionConnected={true}
-                  voted={voted.data!}
-                />
-              )}
-            {!isConnected && atomsAreLoaded(proposal, status) && (
+            {isConnected && atomsAreLoaded(proposal, ...extensionAtoms) && (
               <ProposalHeader
                 proposal={proposal.data!}
-                status={status.data!}
+                isExtensionConnected={true}
+                voted={voted.data!}
+              />
+            )}
+            {!isConnected && atomsAreLoaded(proposal) && (
+              <ProposalHeader
+                proposal={proposal.data!}
                 isExtensionConnected={false}
               />
             )}
@@ -88,15 +80,11 @@ export const ProposalAndVote: React.FC = () => {
       </div>
       <aside className="flex flex-col gap-2">
         <Panel className="@container" title="Proposal Status">
-          {atomsAreFetching(proposal, status) && (
+          {atomsAreFetching(proposal) && (
             <ProposalStatusSummary loading={true} />
           )}
-          {atomsAreLoaded(proposal, status) && (
-            <ProposalStatusSummary
-              loading={false}
-              proposal={proposal.data!}
-              status={status.data!}
-            />
+          {atomsAreLoaded(proposal) && (
+            <ProposalStatusSummary loading={false} proposal={proposal.data!} />
           )}
         </Panel>
         <ProposalDiscord />

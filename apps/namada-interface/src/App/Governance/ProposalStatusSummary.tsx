@@ -6,13 +6,7 @@ import { useState } from "react";
 import { PieChart, PieChartData, Stack } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 
-import {
-  Proposal,
-  ProposalStatus,
-  TallyType,
-  VoteType,
-  voteTypes,
-} from "@namada/types";
+import { Proposal, TallyType, VoteType, voteTypes } from "@namada/types";
 import { AnimatePresence } from "framer-motion";
 import { colors } from "./types";
 
@@ -113,7 +107,6 @@ type ProposalStatusSummaryProps =
   | {
       loading: false;
       proposal: Proposal;
-      status: ProposalStatus;
     }
   | { loading: true };
 
@@ -143,30 +136,27 @@ export const ProposalStatusSummary: React.FC<ProposalStatusSummaryProps> = (
       />
     );
   } else {
-    return <Loaded proposal={props.proposal} status={props.status} />;
+    return <Loaded proposal={props.proposal} />;
   }
 };
 
 const Loaded: React.FC<{
   proposal: Proposal;
-  status: ProposalStatus;
-}> = ({ proposal, status }) => {
+}> = ({ proposal }) => {
+  const { status, yay, nay, abstain, totalVotingPower } = proposal;
+
   const [hoveredVoteType, setHoveredVoteType] = useState<
     VoteType | undefined
   >();
 
-  const yayNayAbstainSummedPower = BigNumber.sum(
-    status.yay,
-    status.nay,
-    status.abstain
-  );
+  const yayNayAbstainSummedPower = BigNumber.sum(yay, nay, abstain);
 
   const zeroVotes = yayNayAbstainSummedPower.isEqualTo(0);
 
   const votedProportion =
-    status.totalVotingPower.isEqualTo(0) ?
+    totalVotingPower.isEqualTo(0) ?
       BigNumber(0)
-    : yayNayAbstainSummedPower.dividedBy(status.totalVotingPower);
+    : yayNayAbstainSummedPower.dividedBy(totalVotingPower);
 
   const quorum = quorumMap[proposal.tallyType];
 
@@ -180,7 +170,7 @@ const Loaded: React.FC<{
   const data: PieChartData[] | undefined =
     zeroVotes ? undefined : (
       voteTypes.map((voteType) => ({
-        value: status[voteType],
+        value: proposal[voteType],
         color: colors[voteType],
       }))
     );
@@ -206,7 +196,7 @@ const Loaded: React.FC<{
         >
           <div className="uppercase text-sm">{hoveredVoteType}</div>
           <div className="text-3xl">
-            {percentageString(status[hoveredVoteType])}
+            {percentageString(proposal[hoveredVoteType])}
           </div>
         </motion.article>
       )}
@@ -214,13 +204,13 @@ const Loaded: React.FC<{
   );
 
   const percentages = {
-    yay: percentageString(status.yay),
-    nay: percentageString(status.nay),
-    abstain: percentageString(status.abstain),
+    yay: percentageString(yay),
+    nay: percentageString(nay),
+    abstain: percentageString(abstain),
   };
 
   const amountString = (voteType: VoteType): string =>
-    status[voteType].toString() + " NAM";
+    proposal[voteType].toString() + " NAM";
 
   const amounts = {
     yay: amountString("yay"),
