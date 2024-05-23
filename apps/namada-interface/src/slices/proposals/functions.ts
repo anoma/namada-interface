@@ -1,6 +1,7 @@
 import { deserialize } from "@dao-xyz/borsh";
 import { getIntegration } from "@namada/integrations";
 import { Proposal as ProposalSchema, Query } from "@namada/shared";
+import { EncodedTx } from "@heliax/namada-sdk/web";
 import {
   Account,
   AddRemove,
@@ -22,6 +23,7 @@ import * as E from "fp-ts/Either";
 import * as t from "io-ts";
 
 import { getSdkInstance } from "hooks";
+
 
 const { NAMADA_INTERFACE_NO_INDEXER } = process.env;
 
@@ -464,16 +466,31 @@ export const performVote = async (
     memo: "",
   };
 
-  const encodedTx = await tx.buildVoteProposal(wrapperTxProps, proposalProps);
-  const signedTx = await signingClient.sign(signer, encodedTx);
+  const txArray: EncodedTx[] = [];
 
-  if (!signedTx) {
-    throw new Error("Signing failed");
+  // RevealPK if needed
+  const pk = await rpc.queryPublicKey(account.address);
+  if (!pk) {
+    const revealPkTx = await tx.buildRevealPk(wrapperTxProps, account.address);
+    // Add to txArray to sign & broadcast below:
+    txArray.push(revealPkTx);
   }
 
-  await rpc.broadcastTx({
-    wrapperTxMsg: encodedTx.txMsg,
-    tx: signedTx[0],
-  });
-  return;
+  const encodedTx = await tx.buildVoteProposal(wrapperTxProps, proposalProps);
+  txArray.push(encodedTx);
+
+  try {
+    const signedTx = await signingClient.sign(signer, txArray);
+    if (!signedTx) {
+      throw new Error("Signing failed");
+    }
+    txArray.forEach(async (tx, i) => {
+      await rpc.broadcastTx({
+        wrapperTxMsg: tx.txMsg,
+        tx: signedTx[i],
+      });
+    });
+  } catch (e) {
+    console.error(e);
+  }
 };

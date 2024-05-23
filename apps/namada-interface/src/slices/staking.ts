@@ -1,3 +1,4 @@
+import { EncodedTx } from "@heliax/namada-sdk/web";
 import { getIntegration } from "@namada/integrations";
 import {
   Account,
@@ -132,30 +133,46 @@ export const performBondAtom = atomWithMutation((get) => {
       const bondProps = getStakingChangesParams(account, changes, chain);
       const wrapperTxProps = getTxProps(account, gasConfig, chain);
 
+      const txArray: EncodedTx[] = [];
+      // Determine if RevealPK is needed:
+      const pk = await rpc.queryPublicKey(account.address);
+
+      if (!pk) {
+        const revealPkTx = await tx.buildRevealPk(
+          wrapperTxProps,
+          account.address
+        );
+        // Add to txArray to sign & broadcast below:
+        txArray.push(revealPkTx);
+      }
       const encodedTxs = await Promise.all(
         bondProps.map((props) => tx.buildBond(wrapperTxProps, props))
       );
-      const signedTxs = await signingClient.sign(
-        bondProps[0].source,
-        encodedTxs.map(({ tx }) => tx)
-      );
+      txArray.push(...encodedTxs);
 
-      if (!signedTxs) {
-        throw new Error("Signing failed");
+      try {
+        const signedTxs = await signingClient.sign(
+          bondProps[0].source,
+          encodedTxs.map(({ tx }) => tx)
+        );
+        if (!signedTxs) {
+          throw new Error("Signing failed");
+        }
+        // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
+        // transaction, and not wait for all to complete!
+        return await Promise.all(
+          signedTxs.map(async (signedTx, i) => {
+            const txMsg = txArray[i].txMsg;
+            const response = await rpc.broadcastTx({
+              wrapperTxMsg: txMsg,
+              tx: signedTx,
+            });
+            return response;
+          })
+        );
+      } catch (e) {
+        console.error(e);
       }
-
-      // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
-      // transaction, and not wait for all to complete!
-      return await Promise.all(
-        signedTxs.map(async (signedTx, i) => {
-          const txMsg = encodedTxs[i].txMsg;
-          const response = await rpc.broadcastTx({
-            wrapperTxMsg: txMsg,
-            tx: signedTx,
-          });
-          return response;
-        })
-      );
     },
   };
 });
@@ -176,30 +193,48 @@ export const performUnbondAtom = atomWithMutation((get) => {
       const unbondProps = getStakingChangesParams(account, changes, chain);
       const wrapperTxProps = getTxProps(account, gasConfig, chain);
 
+      const txArray: EncodedTx[] = [];
+      // Determine if RevealPK is needed:
+      const pk = await rpc.queryPublicKey(account.address);
+
+      if (!pk) {
+        const revealPkTx = await tx.buildRevealPk(
+          wrapperTxProps,
+          account.address
+        );
+        // Add to txArray to sign & broadcast below:
+        txArray.push(revealPkTx);
+      }
       const encodedTxs = await Promise.all(
         unbondProps.map((props) => tx.buildUnbond(wrapperTxProps, props))
       );
-      const signedTxs = await signingClient.sign(
-        unbondProps[0].source,
-        encodedTxs.map(({ tx }) => tx)
-      );
+      txArray.push(...encodedTxs);
 
-      if (!signedTxs) {
-        throw new Error("Signing failed");
+      try {
+        const signedTxs = await signingClient.sign(
+          unbondProps[0].source,
+          txArray.map(({ tx }) => tx)
+        );
+
+        if (!signedTxs) {
+          throw new Error("Signing failed");
+        }
+
+        // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
+        // transaction, and not wait for all to complete!
+        return await Promise.all(
+          signedTxs.map(async (signedTx, i) => {
+            const txMsg = txArray[i].txMsg;
+            const response = await rpc.broadcastTx({
+              wrapperTxMsg: txMsg,
+              tx: signedTx,
+            });
+            return response;
+          })
+        );
+      } catch (e) {
+        console.error(e);
       }
-
-      // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
-      // transaction, and not wait for all to complete!
-      return await Promise.all(
-        signedTxs.map(async (signedTx, i) => {
-          const txMsg = encodedTxs[i].txMsg;
-          const response = await rpc.broadcastTx({
-            wrapperTxMsg: txMsg,
-            tx: signedTx,
-          });
-          return response;
-        })
-      );
     },
   };
 });
@@ -220,30 +255,49 @@ export const performWithdrawAtom = atomWithMutation((get) => {
       const withdrawProps = getStakingChangesParams(account, changes, chain);
       const wrapperTxProps = getTxProps(account, gasConfig, chain);
 
+      const txArray: EncodedTx[] = [];
+      // Determine if RevealPK is needed:
+      const pk = await rpc.queryPublicKey(account.address);
+
+      if (!pk) {
+        const revealPkTx = await tx.buildRevealPk(
+          wrapperTxProps,
+          account.address
+        );
+        // Add to txArray to sign & broadcast below:
+        txArray.push(revealPkTx);
+      }
+
       const encodedTxs = await Promise.all(
         withdrawProps.map((props) => tx.buildWithdraw(wrapperTxProps, props))
       );
-      const signedTxs = await signingClient.sign(
-        withdrawProps[0].source,
-        encodedTxs.map(({ tx }) => tx)
-      );
+      txArray.push(...encodedTxs);
 
-      if (!signedTxs) {
-        throw new Error("Signing failed");
+      try {
+        const signedTxs = await signingClient.sign(
+          withdrawProps[0].source,
+          txArray.map(({ tx }) => tx)
+        );
+
+        if (!signedTxs) {
+          throw new Error("Signing failed");
+        }
+
+        // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
+        // transaction, and not wait for all to complete!
+        return await Promise.all(
+          signedTxs.map(async (signedTx, i) => {
+            const txMsg = txArray[i].txMsg;
+            const response = await rpc.broadcastTx({
+              wrapperTxMsg: txMsg,
+              tx: signedTx,
+            });
+            return response;
+          })
+        );
+      } catch (e) {
+        console.error(e);
       }
-
-      // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
-      // transaction, and not wait for all to complete!
-      return await Promise.all(
-        signedTxs.map(async (signedTx, i) => {
-          const txMsg = encodedTxs[i].txMsg;
-          const response = await rpc.broadcastTx({
-            wrapperTxMsg: txMsg,
-            tx: signedTx,
-          });
-          return response;
-        })
-      );
     },
   };
 });
@@ -263,31 +317,49 @@ export const performReDelegationAtom = atomWithMutation((get) => {
 
       const withdrawProps = getRedelegateChangeParams(account, changes);
       const wrapperTxProps = getTxProps(account, gasConfig, chain);
+      const txArray: EncodedTx[] = [];
+      // Determine if RevealPK is needed:
+      const pk = await rpc.queryPublicKey(account.address);
+
+      if (!pk) {
+        const revealPkTx = await tx.buildRevealPk(
+          wrapperTxProps,
+          account.address
+        );
+        // Add to txArray to sign & broadcast below:
+        txArray.push(revealPkTx);
+      }
 
       const encodedTxs = await Promise.all(
         withdrawProps.map((props) => tx.buildRedelegate(wrapperTxProps, props))
       );
-      const signedTxs = await signingClient.sign(
-        withdrawProps[0].owner,
-        encodedTxs.map(({ tx }) => tx)
-      );
+      txArray.push(...encodedTxs);
 
-      if (!signedTxs) {
-        throw new Error("Signing failed");
+      try {
+        const signedTxs = await signingClient.sign(
+          withdrawProps[0].owner,
+          txArray.map(({ tx }) => tx)
+        );
+
+        if (!signedTxs) {
+          throw new Error("Signing failed");
+        }
+
+        // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
+        // transaction, and not wait for all to complete!
+        return await Promise.all(
+          signedTxs.map(async (signedTx, i) => {
+            const txMsg = txArray[i].txMsg;
+            const response = await rpc.broadcastTx({
+              wrapperTxMsg: txMsg,
+              tx: signedTx,
+            });
+            return response;
+          })
+        );
+      } catch (e) {
+        console.error(e);
       }
-
-      // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
-      // transaction, and not wait for all to complete!
-      return await Promise.all(
-        signedTxs.map(async (signedTx, i) => {
-          const txMsg = encodedTxs[i].txMsg;
-          const response = await rpc.broadcastTx({
-            wrapperTxMsg: txMsg,
-            tx: signedTx,
-          });
-          return response;
-        })
-      );
     },
   };
 });
