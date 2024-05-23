@@ -5,12 +5,10 @@ import { Toasts } from "App/Common/Toast";
 import { TopNavigation } from "App/Common/TopNavigation";
 import { AnimatePresence } from "framer-motion";
 import { createBrowserHistory } from "history";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { Outlet } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
-import { fetchAccountsAtom, fetchDefaultAccountAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
-import { connectedChainsAtom } from "slices/settings";
 import { persistor } from "store";
 import { ThemeProvider } from "styled-components";
 import { AppLoader, MotionContainer } from "./App.components";
@@ -49,9 +47,6 @@ function App(): JSX.Element {
   const initialColorMode = loadColorMode();
   const theme = getTheme(initialColorMode);
   const chain = useAtomValue(chainAtom);
-  const fetchDefaultAccount = useSetAtom(fetchDefaultAccountAtom);
-  const fetchAccounts = useSetAtom(fetchAccountsAtom);
-  const connectedChains = useAtomValue(connectedChainsAtom);
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
