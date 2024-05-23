@@ -17,7 +17,6 @@ import { RootState } from "store";
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
     tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
-  NAMADA_INTERFACE_NAMADA_URL: rpcUrl = "http://localhost:27657",
 } = process.env;
 
 type Address = string;
