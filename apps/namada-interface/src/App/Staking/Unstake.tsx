@@ -155,7 +155,8 @@ const Unstake = (): JSX.Element => {
           </div>
           <Panel
             className={clsx(
-              "grid grid-rows[max_content_max_content_auto] overflow-hidden relative w-full rounded-md flex-1"
+              "grid grid-rows-[max-content_auto_max-content] overflow-hidden",
+              "relative w-full rounded-md flex-1"
             )}
           >
             {validators.data && (
