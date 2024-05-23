@@ -6,7 +6,7 @@ import { createContext } from "react";
 import {
   addAccountsAtom,
   balancesAtom,
-  fetchAccountsAtom,
+  fetchDefaultAccountAtom,
 } from "slices/accounts";
 import { chainAtom } from "slices/chain";
 import { isRevealPkNeededAtom } from "slices/fees";
@@ -24,7 +24,7 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const namadaIntegration = useIntegration("namada");
   const keplrIntegration = useIntegration("cosmos");
   const metamaskIntegration = useIntegration("ethereum");
-  const fetchAccounts = useSetAtom(fetchAccountsAtom);
+  const fetchDefaultAccount = useSetAtom(fetchDefaultAccountAtom);
   const balances = useAtomValue(balancesAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
   const addAccounts = useSetAtom(addAccountsAtom);
@@ -42,7 +42,7 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
 
   // Register handlers:
   useEventListenerOnce(Events.AccountChanged, async () => {
-    await fetchAccounts();
+    await fetchDefaultAccount();
     balances.refetch();
   });
 

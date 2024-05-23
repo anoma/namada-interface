@@ -195,6 +195,19 @@ export const fetchAccountsAtom = atom(
   }
 );
 
+export const defaultAccountAtom = atom<AccountDetails | undefined>(undefined);
+export const fetchDefaultAccountAtom = atom(
+  (get) => get(defaultAccountAtom),
+  async (_get, set) => {
+    const namada = getIntegration("namada");
+    const result = await namada.defaultAccount();
+    if (typeof result === "undefined") {
+      throw new Error("account was undefined!");
+    }
+    set(defaultAccountAtom, result);
+  }
+);
+
 export const totalNamBalanceAtom = atomWithQuery<BigNumber>((get) => {
   const balances = get(balancesAtom);
   return {

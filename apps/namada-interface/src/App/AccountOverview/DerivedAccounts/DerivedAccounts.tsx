@@ -69,6 +69,7 @@ const DerivedAccounts = (): JSX.Element => {
     accountsLoadable.state === "hasData" ? accountsLoadable.data : [];
 
   const balances = useAtomValue(balancesAtom);
+
   const themeContext = useContext(ThemeContext);
   const [activeAccountAddress, setActiveAccountAddress] = useState("");
 
@@ -105,8 +106,7 @@ const DerivedAccounts = (): JSX.Element => {
           .sort(({ isShielded }) => (isShielded ? -1 : 1))
           .map((account) => {
             const { alias, address, isShielded } = account;
-            const balance =
-              balances.isSuccess ? balances.data[address] : undefined;
+            const balance = balances[address];
             const nativeBalance =
               typeof balance === "undefined" ? "-" : (
                 balance[symbol]?.toString() || "0"

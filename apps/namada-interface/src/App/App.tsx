@@ -12,7 +12,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
-import { fetchAccountsAtom } from "slices/accounts";
+import { fetchAccountsAtom, fetchDefaultAccountAtom } from "slices/accounts";
 import { chainAtom, setChain } from "slices/chain";
 import { connectedChainsAtom } from "slices/settings";
 import { persistor, useAppDispatch } from "store";
@@ -54,6 +54,7 @@ function App(): JSX.Element {
   const initialColorMode = loadColorMode();
   const theme = getTheme(initialColorMode);
   const chain = useAtomValue(chainAtom);
+  const fetchDefaultAccount = useSetAtom(fetchDefaultAccountAtom);
   const fetchAccounts = useSetAtom(fetchAccountsAtom);
   const connectedChains = useAtomValue(connectedChainsAtom);
   const integration = useIntegration(chain.id);
@@ -67,6 +68,7 @@ function App(): JSX.Element {
       currentExtensionAttachStatus === "attached" &&
       connectedChains.includes(chain.id)
     ) {
+      fetchDefaultAccount();
       fetchAccounts();
     }
   }, [chain]);

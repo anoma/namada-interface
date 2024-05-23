@@ -10,7 +10,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { getAmountDistribution } from "lib/staking";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { transparentAccountsAtom } from "slices/accounts";
+import { defaultAccountAtom } from "slices/accounts";
 import { GAS_LIMIT } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
 import { performReDelegationAtom } from "slices/staking";
@@ -30,7 +30,7 @@ export const ReDelegate = (): JSX.Element => {
   const { gasPrice } = useGasEstimate();
   const navigate = useNavigate();
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
-  const accounts = useAtomValue(transparentAccountsAtom);
+  const account = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const {
     totalStakedAmount,
@@ -39,7 +39,7 @@ export const ReDelegate = (): JSX.Element => {
     updatedAmountByAddress: amountsRemovedByAddress,
     onChangeValidatorAmount,
     myValidators,
-  } = useStakeModule({ accounts });
+  } = useStakeModule({ account });
 
   const {
     mutate: performRedelegation,
@@ -84,10 +84,7 @@ export const ReDelegate = (): JSX.Element => {
 
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
-    invariant(
-      accounts.length > 0,
-      `Extension is connected but you don't have an account`
-    );
+    invariant(account, `Extension is connected but you don't have an account`);
     invariant(gasPrice, "Gas price loading is still pending");
     const redelegationChanges = getAmountDistribution(
       amountsRemovedByAddress,
@@ -99,8 +96,7 @@ export const ReDelegate = (): JSX.Element => {
         gasPrice: gasPrice,
         gasLimit: GAS_LIMIT,
       },
-      // TODO: change this after retrieving selected account from extension
-      account: accounts[0],
+      account,
     });
   };
 

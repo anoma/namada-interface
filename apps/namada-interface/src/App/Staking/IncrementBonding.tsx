@@ -11,7 +11,7 @@ import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { totalNamBalanceAtom, transparentAccountsAtom } from "slices/accounts";
+import { defaultAccountAtom, totalNamBalanceAtom } from "slices/accounts";
 import { GAS_LIMIT, minimumGasPriceAtom } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
 import { performBondAtom } from "slices/staking";
@@ -27,7 +27,7 @@ const IncrementBonding = (): JSX.Element => {
   const navigate = useNavigate();
   const totalNamBalance = useAtomValue(totalNamBalanceAtom);
   const gasPrice = useAtomValue(minimumGasPriceAtom);
-  const accounts = useAtomValue(transparentAccountsAtom);
+  const account = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const resultsPerPage = 100;
@@ -46,7 +46,7 @@ const IncrementBonding = (): JSX.Element => {
     updatedAmountByAddress,
     onChangeValidatorAmount,
     parseUpdatedAmounts,
-  } = useStakeModule({ accounts });
+  } = useStakeModule({ account });
 
   const filteredValidators = useValidatorFilter({
     validators: validators.isSuccess ? validators.data : [],
@@ -71,13 +71,13 @@ const IncrementBonding = (): JSX.Element => {
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
     invariant(
-      accounts.length > 0,
+      account,
       "Extension is not connected or you don't have an account"
     );
     invariant(gasPrice.data, "Gas price loading is still pending");
     performBond({
       changes: parseUpdatedAmounts(),
-      account: accounts[0],
+      account,
       gasConfig: {
         gasPrice: gasPrice.data!,
         gasLimit: GAS_LIMIT,

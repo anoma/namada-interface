@@ -16,13 +16,13 @@ import StakingRoutes from "App/Staking/routes";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
-import { accountsAtom, totalNamBalanceAtom } from "slices/accounts";
+import { defaultAccountAtom, totalNamBalanceAtom } from "slices/accounts";
 import { useAppSelector } from "store";
 
 export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
   const chain = useAppSelector<Chain>((state) => state.chain.config);
-  const accounts = useAtomValue(accountsAtom);
+  const account = useAtomValue(defaultAccountAtom);
   const totalBalance = useAtomValue(totalNamBalanceAtom);
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
@@ -32,7 +32,7 @@ export const AccountOverview = (): JSX.Element => {
     currentExtensionAttachStatus === "attached" ||
     currentExtensionAttachStatus === "pending";
 
-  const isConnected = accounts.length > 0;
+  const isConnected = account !== undefined;
 
   return (
     <PageWithSidebar>

@@ -8,11 +8,11 @@ import { ChangeInStakingPosition } from "types/staking";
 import { ValidatorAddress } from "types/validators";
 
 type UseStakeModuleProps = {
-  accounts: readonly Account[];
+  account: Account | undefined;
 };
 
 //eslint-disable-next-line
-export const useStakeModule = ({ accounts }: UseStakeModuleProps) => {
+export const useStakeModule = ({ account }: UseStakeModuleProps) => {
   const totalNam = useAtomValue(totalNamBalanceAtom).data || BigNumber(0);
   const myValidators = useAtomValue(myValidatorsAtom);
 
@@ -71,7 +71,7 @@ export const useStakeModule = ({ accounts }: UseStakeModuleProps) => {
   };
 
   useEffect(() => {
-    if (!myValidators.isSuccess || accounts.length === 0) return;
+    if (!myValidators.isSuccess || !account) return;
 
     const stakedAmounts: Record<ValidatorAddress, BigNumber> = {};
     for (const myValidator of myValidators.data) {
@@ -79,7 +79,7 @@ export const useStakeModule = ({ accounts }: UseStakeModuleProps) => {
         myValidator.stakedAmount || new BigNumber(0);
     }
     setStakedAmountsByAddress(stakedAmounts);
-  }, [myValidators, accounts]);
+  }, [myValidators, account]);
 
   return {
     totalUpdatedAmount,

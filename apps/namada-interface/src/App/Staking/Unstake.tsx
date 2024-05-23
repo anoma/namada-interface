@@ -11,7 +11,7 @@ import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
 import { FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { transparentAccountsAtom } from "slices/accounts";
+import { defaultAccountAtom } from "slices/accounts";
 import { GAS_LIMIT, minimumGasPriceAtom } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
 import { performUnbondAtom } from "slices/staking";
@@ -22,7 +22,7 @@ import StakingRoutes from "./routes";
 
 const Unstake = (): JSX.Element => {
   const navigate = useNavigate();
-  const accounts = useAtomValue(transparentAccountsAtom);
+  const account = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(myValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
@@ -39,7 +39,7 @@ const Unstake = (): JSX.Element => {
     updatedAmountByAddress,
     totalUpdatedAmount,
     onChangeValidatorAmount,
-  } = useStakeModule({ accounts });
+  } = useStakeModule({ account });
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
 
@@ -56,13 +56,13 @@ const Unstake = (): JSX.Element => {
   const onSubmit = (e: FormEvent): void => {
     e.preventDefault();
     invariant(
-      accounts.length > 0,
+      account,
       "Extension is not connected or you don't have an account"
     );
     invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
     performUnbond({
       changes: parseUpdatedAmounts(),
-      account: accounts[0],
+      account,
       gasConfig: {
         gasPrice: minimumGasPrice.data!,
         gasLimit: GAS_LIMIT,

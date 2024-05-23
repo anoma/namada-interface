@@ -1,12 +1,12 @@
 import { CopyToClipboardControl } from "@namada/components";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { accountsAtom } from "slices/accounts";
+import { defaultAccountAtom } from "slices/accounts";
 
 export const ActiveAccount = (): JSX.Element => {
-  const accounts = useAtomValue(accountsAtom);
+  const account = useAtomValue(defaultAccountAtom);
 
-  if (!accounts || !accounts.length) {
+  if (!account) {
     return <></>;
   }
 
@@ -21,9 +21,9 @@ export const ActiveAccount = (): JSX.Element => {
         <span className="flex items-center gap-2 ">
           <CopyToClipboardControl
             className="opacity-80 transition-opacity duration-150 hover:opacity-100"
-            value={accounts[0].publicKey || ""}
+            value={account.publicKey || ""}
           >
-            {accounts[0].alias}
+            {account.alias}
           </CopyToClipboardControl>
         </span>
       </span>
