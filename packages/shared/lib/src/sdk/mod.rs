@@ -494,7 +494,7 @@ impl Sdk {
             .expect("No public key provided");
         let address = Address::from(pk);
 
-        if is_reveal_pk_needed(self.namada.client(), &address, false).await? {
+        if is_reveal_pk_needed(self.namada.client(), &address).await? {
             let built_tx = self.build_reveal_pk(tx_msg, String::from("")).await?;
             // Conversion from JsValue so we can use self.sign_tx
             let tx_bytes =
