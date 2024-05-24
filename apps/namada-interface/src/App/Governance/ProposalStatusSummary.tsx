@@ -143,7 +143,7 @@ export const ProposalStatusSummary: React.FC<ProposalStatusSummaryProps> = (
 const Loaded: React.FC<{
   proposal: Proposal;
 }> = ({ proposal }) => {
-  const { status, yay, nay, abstain, totalVotingPower } = proposal;
+  const { yay, nay, abstain, totalVotingPower } = proposal;
 
   const [hoveredVoteType, setHoveredVoteType] = useState<
     VoteType | undefined

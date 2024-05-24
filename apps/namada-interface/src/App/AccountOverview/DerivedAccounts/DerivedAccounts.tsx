@@ -1,42 +1,42 @@
-import { TokenType } from "@namada/types";
-
-// Import PNG images assets
-import AssetBitcoin from "./assets/asset-bitcoin-btc.png";
-import AssetEthereumEther from "./assets/asset-ethereum-ether.png";
-import AssetNamadaNamDark from "./assets/asset-namada-nam-dark.png";
-import AssetNamadaNamLight from "./assets/asset-namada-nam-light.png";
-import AssetPolkadot from "./assets/asset-polkadot-dot.png";
-
-const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
-  ["NAM"]: {
-    light: AssetNamadaNamLight,
-    dark: AssetNamadaNamDark,
-  },
-  ["ETH"]: {
-    light: AssetEthereumEther,
-    dark: AssetEthereumEther,
-  },
-  ["BTC"]: {
-    light: AssetBitcoin,
-    dark: AssetBitcoin,
-  },
-  ["DOT"]: {
-    light: AssetPolkadot,
-    dark: AssetPolkadot,
-  },
-  ["SCH"]: {
-    light: AssetNamadaNamLight,
-    dark: AssetNamadaNamDark,
-  },
-  ["APF"]: {
-    light: AssetNamadaNamLight,
-    dark: AssetNamadaNamDark,
-  },
-  ["KAR"]: {
-    light: AssetNamadaNamLight,
-    dark: AssetNamadaNamDark,
-  },
-};
+//import { TokenType } from "@namada/types";
+//
+//// Import PNG images assets
+//import AssetBitcoin from "./assets/asset-bitcoin-btc.png";
+//import AssetEthereumEther from "./assets/asset-ethereum-ether.png";
+//import AssetNamadaNamDark from "./assets/asset-namada-nam-dark.png";
+//import AssetNamadaNamLight from "./assets/asset-namada-nam-light.png";
+//import AssetPolkadot from "./assets/asset-polkadot-dot.png";
+//
+//const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
+//  ["NAM"]: {
+//    light: AssetNamadaNamLight,
+//    dark: AssetNamadaNamDark,
+//  },
+//  ["ETH"]: {
+//    light: AssetEthereumEther,
+//    dark: AssetEthereumEther,
+//  },
+//  ["BTC"]: {
+//    light: AssetBitcoin,
+//    dark: AssetBitcoin,
+//  },
+//  ["DOT"]: {
+//    light: AssetPolkadot,
+//    dark: AssetPolkadot,
+//  },
+//  ["SCH"]: {
+//    light: AssetNamadaNamLight,
+//    dark: AssetNamadaNamDark,
+//  },
+//  ["APF"]: {
+//    light: AssetNamadaNamLight,
+//    dark: AssetNamadaNamDark,
+//  },
+//  ["KAR"]: {
+//    light: AssetNamadaNamLight,
+//    dark: AssetNamadaNamDark,
+//  },
+//};
 
 const DerivedAccounts = (): JSX.Element => {
   return <></>;

@@ -38,11 +38,6 @@ const INITIAL_STATE = {
   },
 };
 
-enum AccountsThunkActions {
-  FetchBalances = "fetchBalances",
-  FetchBalance = "fetchBalance",
-}
-
 const initialState: AccountsState = INITIAL_STATE;
 
 const accountsSlice = createSlice({
