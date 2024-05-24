@@ -1,8 +1,6 @@
-import { chains } from "@namada/chains";
 import { RootState } from "./store";
 
 export const mockAppState: RootState = {
-  chain: { config: chains.namada },
   channels: {
     channelsByChain: {
       "namada-test.1e670ba91369ec891fc": {

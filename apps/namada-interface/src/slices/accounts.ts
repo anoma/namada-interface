@@ -7,12 +7,11 @@ import {
   TokenBalances,
   TokenType,
 } from "@namada/types";
-import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 import { getSdkInstance } from "hooks";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { RootState } from "store";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
@@ -45,46 +44,6 @@ enum AccountsThunkActions {
 }
 
 const initialState: AccountsState = INITIAL_STATE;
-
-// TODO: fetchBalance is broken for integrations other than Namada. This
-// function should be removed and new code should use the jotai atoms instead.
-export const fetchBalance = createAsyncThunk<
-  {
-    chainKey: ChainKey;
-    address: string;
-    balance: Balance;
-  },
-  Account,
-  { state: RootState }
->(
-  `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalance}`,
-  async (account, thunkApi) => {
-    const { address, chainKey } = account.details;
-    const {
-      currency: { address: nativeToken },
-    } = thunkApi.getState().chain.config;
-    if (chainKey !== "namada") {
-      throw new Error("not namada");
-    }
-    const { rpc } = await getSdkInstance();
-    const tokens = [nativeToken || tokenAddress];
-
-    const balances = (await rpc.queryBalance(address, tokens)).map(
-      ([token, amount]) => {
-        return {
-          token,
-          amount,
-        };
-      }
-    );
-
-    return {
-      chainKey,
-      address,
-      balance: { NAM: BigNumber(balances[0].amount) },
-    };
-  }
-);
 
 const accountsSlice = createSlice({
   name: ACCOUNTS_ACTIONS_BASE,
@@ -131,26 +90,6 @@ const accountsSlice = createSlice({
         };
       });
     },
-  },
-  extraReducers: (builder) => {
-    builder.addCase(
-      fetchBalance.fulfilled,
-      (
-        state,
-        action: PayloadAction<{
-          chainKey: ChainKey;
-          address: string;
-          balance: Balance;
-        }>
-      ) => {
-        const { address, balance, chainKey } = action.payload;
-        if (state.derived[chainKey][address]?.balance) {
-          state.derived[chainKey][address].balance = balance;
-        } else {
-          delete state.derived[chainKey][address];
-        }
-      }
-    );
   },
 });
 
