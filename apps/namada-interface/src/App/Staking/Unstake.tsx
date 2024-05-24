@@ -1,4 +1,6 @@
 import { ActionButton, Alert, Modal, Panel, Stack } from "@namada/components";
+import { UnbondProps } from "@namada/types";
+import { shortenAddress } from "@namada/utils";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import NamCurrency from "App/Common/NamCurrency";
@@ -9,12 +11,14 @@ import clsx from "clsx";
 import { useStakeModule } from "hooks/useStakeModule";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
+import { TransactionPair, prepareTxs } from "lib/query";
 import { FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { defaultAccountAtom } from "slices/accounts";
 import { GAS_LIMIT, minimumGasPriceAtom } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
-import { performUnbondAtom } from "slices/staking";
+import { createUnbondTxAtom } from "slices/staking";
+import { dispatchTransactionsAtom } from "slices/transactions";
 import { MyValidator, myValidatorsAtom } from "slices/validators";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { UnstakeBondingTable } from "./UnstakeBondingTable";
@@ -25,12 +29,14 @@ const Unstake = (): JSX.Element => {
   const account = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(myValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
+  const dispatchTransactions = useSetAtom(dispatchTransactionsAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
   const {
-    mutate: performUnbond,
+    mutate: createUnbondTx,
     isPending: isPerformingUnbond,
+    data: unbondTransactionData,
     isSuccess,
-  } = useAtomValue(performUnbondAtom);
+  } = useAtomValue(createUnbondTxAtom);
 
   const {
     parseUpdatedAmounts,
@@ -60,7 +66,7 @@ const Unstake = (): JSX.Element => {
       "Extension is not connected or you don't have an account"
     );
     invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
-    performUnbond({
+    createUnbondTx({
       changes: parseUpdatedAmounts(),
       account,
       gasConfig: {
@@ -85,9 +91,31 @@ const Unstake = (): JSX.Element => {
     });
   };
 
+  const dispatchUnbondingTransactions = (
+    transactions: TransactionPair<UnbondProps>[]
+  ) => {
+    dispatchTransactions(
+      prepareTxs<UnbondProps>(transactions, (props: UnbondProps) => {
+        const validatorAddress = shortenAddress(props.validator, 12, 8);
+        return {
+          success: {
+            title: "Unstake transaction succeeded",
+            text: `You've removed ${props.amount} NAM from validator ${validatorAddress}`,
+          },
+          error: {
+            title: "Unstake transaction failed",
+            text: `Your request to unstake ${props.amount} NAM from ${validatorAddress} has failed.`,
+          },
+        };
+      })
+    );
+  };
+
   useEffect(() => {
     if (isSuccess) {
       dispatchPendingNotification();
+      unbondTransactionData &&
+        dispatchUnbondingTransactions(unbondTransactionData);
       onCloseModal();
     }
   }, [isSuccess]);

@@ -5,6 +5,7 @@ import { Toasts } from "App/Common/Toast";
 import { TopNavigation } from "App/Common/TopNavigation";
 import { AnimatePresence } from "framer-motion";
 import { createBrowserHistory } from "history";
+import { useTransactionService } from "hooks/useTransactionService";
 import { useAtomValue } from "jotai";
 import { Outlet } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
@@ -43,6 +44,7 @@ function App(): JSX.Element {
   useOnNamadaExtensionAttached();
   useOnNamadaExtensionConnected();
   useOnChainChanged();
+  useTransactionService();
 
   const initialColorMode = loadColorMode();
   const theme = getTheme(initialColorMode);

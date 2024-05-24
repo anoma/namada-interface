@@ -66,6 +66,7 @@ export const myValidatorsAtom = atomWithQuery((get) => {
       const addresses = accounts.map((account) => account.address);
       const query = new Query(rpc);
       const myValidatorsRes = await query.query_my_validators(addresses);
+      console.log({ myValidatorsRes });
       return myValidatorsRes.reduce(toMyValidators, []);
     },
   };

@@ -34,7 +34,7 @@ export const dispatchToastNotificationAtom = atom(
 
 export const dismissToastNotificationAtom = atom(
   null,
-  (get, set, data: ToastNotification) => {
+  (get, set, data: Pick<ToastNotification, "id">) => {
     const notifications = get(toastNotificationsBaseAtom);
     set(
       toastNotificationsBaseAtom,

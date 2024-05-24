@@ -1,17 +1,9 @@
-import { EncodedTx } from "@heliax/namada-sdk/web";
-import { getIntegration } from "@namada/integrations";
-import {
-  Account,
-  BondProps,
-  Chain,
-  RedelegateProps,
-  Signer,
-  WrapperTxMsgValue,
-} from "@namada/types";
+import { Account, BondProps, RedelegateProps } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { invariant } from "framer-motion";
 import { getSdkInstance } from "hooks";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
+import { TransactionPair, buildTxPair } from "lib/query";
 import { GasConfig } from "types/fees";
 import { ChangeInStakingPosition, RedelegateChange } from "types/staking";
 import { chainAtom } from "./chain";
@@ -71,9 +63,7 @@ export const getStakingTotalAtom = atomWithQuery<StakingTotals>((get) => {
 
 const getStakingChangesParams = (
   account: Account,
-  changes: ChangeInStakingPosition[],
-  // TODO: Should we need to pass chain here?
-  _chain: Chain
+  changes: ChangeInStakingPosition[]
 ): BondProps[] => {
   const address = nativeToken;
   invariant(!!address, "Invalid currency address");
@@ -95,151 +85,93 @@ const getRedelegateChangeParams = (
   }));
 };
 
-const getTxProps = (
-  account: Account,
-  gasConfig: GasConfig,
-  chain: Chain
-): WrapperTxMsgValue => {
-  const address = nativeToken;
-  invariant(!!address, "Invalid currency address");
-  invariant(
-    !!account.publicKey,
-    "Account doesn't contain a publicKey attached to it"
-  );
-
+export const createBondTxAtom = atomWithMutation((get) => {
   return {
-    token: address!,
-    feeAmount: gasConfig.gasPrice,
-    gasLimit: gasConfig.gasLimit,
-    chainId: chain.chainId,
-    publicKey: account.publicKey!,
-    memo: "",
-  };
-};
-
-export const performBondAtom = atomWithMutation((get) => {
-  return {
-    mutationKey: ["bonding"],
+    mutationKey: ["create-bonding-tx"],
     mutationFn: async ({
       changes,
       gasConfig,
       account,
-    }: ChangeInStakingProps) => {
-      const chain = get(chainAtom);
-      const integration = getIntegration(chain.id);
-      const signingClient = integration.signer() as Signer;
-      const { tx, rpc } = await getSdkInstance();
-
-      const bondProps = getStakingChangesParams(account, changes, chain);
-      const wrapperTxProps = getTxProps(account, gasConfig, chain);
-
-      const txArray: EncodedTx[] = [];
-      // Determine if RevealPK is needed:
-      const pk = await rpc.queryPublicKey(account.address);
-
-      if (!pk) {
-        const revealPkTx = await tx.buildRevealPk(
-          wrapperTxProps,
-          account.address
-        );
-        // Add to txArray to sign & broadcast below:
-        txArray.push(revealPkTx);
-      }
-      const encodedTxs = await Promise.all(
-        bondProps.map((props) => tx.buildBond(wrapperTxProps, props))
-      );
-      txArray.push(...encodedTxs);
-
+    }: ChangeInStakingProps): Promise<
+      TransactionPair<BondProps>[] | undefined
+    > => {
       try {
-        const signedTxs = await signingClient.sign(
-          bondProps[0].source,
-          encodedTxs.map(({ tx }) => tx)
+        const chain = get(chainAtom);
+        const { tx } = await getSdkInstance();
+        const bondProps = getStakingChangesParams(account, changes);
+        const transactionPairs = await buildTxPair(
+          account,
+          gasConfig,
+          chain,
+          bondProps,
+          tx.buildBond,
+          bondProps[0].source
         );
-        if (!signedTxs) {
-          throw new Error("Signing failed");
-        }
-        // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
-        // transaction, and not wait for all to complete!
-        return await Promise.all(
-          signedTxs.map(async (signedTx, i) => {
-            const txMsg = txArray[i].txMsg;
-            const response = await rpc.broadcastTx({
-              wrapperTxMsg: txMsg,
-              tx: signedTx,
-            });
-            return response;
-          })
-        );
-      } catch (e) {
-        console.error(e);
+        return transactionPairs;
+      } catch (err) {
+        console.error(err);
       }
     },
   };
 });
 
-export const performUnbondAtom = atomWithMutation((get) => {
+export const createUnbondTxAtom = atomWithMutation((get) => {
   return {
-    mutationKey: ["unbonding"],
+    mutationKey: ["creat-unbonding-tx"],
     mutationFn: async ({
       changes,
       gasConfig,
       account,
     }: ChangeInStakingProps) => {
-      const chain = get(chainAtom);
-      const integration = getIntegration(chain.id);
-      const signingClient = integration.signer() as Signer;
-      const { tx, rpc } = await getSdkInstance();
-
-      const unbondProps = getStakingChangesParams(account, changes, chain);
-      const wrapperTxProps = getTxProps(account, gasConfig, chain);
-
-      const txArray: EncodedTx[] = [];
-      // Determine if RevealPK is needed:
-      const pk = await rpc.queryPublicKey(account.address);
-
-      if (!pk) {
-        const revealPkTx = await tx.buildRevealPk(
-          wrapperTxProps,
-          account.address
-        );
-        // Add to txArray to sign & broadcast below:
-        txArray.push(revealPkTx);
-      }
-      const encodedTxs = await Promise.all(
-        unbondProps.map((props) => tx.buildUnbond(wrapperTxProps, props))
-      );
-      txArray.push(...encodedTxs);
-
       try {
-        const signedTxs = await signingClient.sign(
-          unbondProps[0].source,
-          txArray.map(({ tx }) => tx)
+        const chain = get(chainAtom);
+        const { tx } = await getSdkInstance();
+        const unbondProps = getStakingChangesParams(account, changes);
+        const transactionPairs = await buildTxPair(
+          account,
+          gasConfig,
+          chain,
+          unbondProps,
+          tx.buildUnbond,
+          unbondProps[0].source
         );
-
-        if (!signedTxs) {
-          throw new Error("Signing failed");
-        }
-
-        // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
-        // transaction, and not wait for all to complete!
-        return await Promise.all(
-          signedTxs.map(async (signedTx, i) => {
-            const txMsg = txArray[i].txMsg;
-            const response = await rpc.broadcastTx({
-              wrapperTxMsg: txMsg,
-              tx: signedTx,
-            });
-            return response;
-          })
-        );
-      } catch (e) {
-        console.error(e);
+        return transactionPairs;
+      } catch (err) {
+        console.error(err);
       }
     },
   };
 });
 
-export const performWithdrawAtom = atomWithMutation((get) => {
+export const createReDelegateTxAtom = atomWithMutation((get) => {
+  return {
+    mutationKey: ["create-redelegate-tx"],
+    mutationFn: async ({
+      changes,
+      gasConfig,
+      account,
+    }: RedelegateChangesProps) => {
+      try {
+        const chain = get(chainAtom);
+        const { tx } = await getSdkInstance();
+        const redelegateProps = getRedelegateChangeParams(account, changes);
+        const transactionPairs = await buildTxPair(
+          account,
+          gasConfig,
+          chain,
+          redelegateProps,
+          tx.buildRedelegate,
+          redelegateProps[0].owner
+        );
+        return transactionPairs;
+      } catch (err) {
+        console.error(err);
+      }
+    },
+  };
+});
+
+export const createWithdrawTxAtom = atomWithMutation((get) => {
   return {
     mutationKey: ["withdraw"],
     mutationFn: async ({
@@ -247,118 +179,21 @@ export const performWithdrawAtom = atomWithMutation((get) => {
       gasConfig,
       account,
     }: ChangeInStakingProps) => {
-      const chain = get(chainAtom);
-      const integration = getIntegration(chain.id);
-      const signingClient = integration.signer() as Signer;
-      const { tx, rpc } = await getSdkInstance();
-
-      const withdrawProps = getStakingChangesParams(account, changes, chain);
-      const wrapperTxProps = getTxProps(account, gasConfig, chain);
-
-      const txArray: EncodedTx[] = [];
-      // Determine if RevealPK is needed:
-      const pk = await rpc.queryPublicKey(account.address);
-
-      if (!pk) {
-        const revealPkTx = await tx.buildRevealPk(
-          wrapperTxProps,
-          account.address
-        );
-        // Add to txArray to sign & broadcast below:
-        txArray.push(revealPkTx);
-      }
-
-      const encodedTxs = await Promise.all(
-        withdrawProps.map((props) => tx.buildWithdraw(wrapperTxProps, props))
-      );
-      txArray.push(...encodedTxs);
-
       try {
-        const signedTxs = await signingClient.sign(
-          withdrawProps[0].source,
-          txArray.map(({ tx }) => tx)
+        const chain = get(chainAtom);
+        const { tx } = await getSdkInstance();
+        const withdrawProps = getStakingChangesParams(account, changes);
+        const transactionPairs = await buildTxPair(
+          account,
+          gasConfig,
+          chain,
+          withdrawProps,
+          tx.buildWithdraw,
+          withdrawProps[0].source
         );
-
-        if (!signedTxs) {
-          throw new Error("Signing failed");
-        }
-
-        // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
-        // transaction, and not wait for all to complete!
-        return await Promise.all(
-          signedTxs.map(async (signedTx, i) => {
-            const txMsg = txArray[i].txMsg;
-            const response = await rpc.broadcastTx({
-              wrapperTxMsg: txMsg,
-              tx: signedTx,
-            });
-            return response;
-          })
-        );
-      } catch (e) {
-        console.error(e);
-      }
-    },
-  };
-});
-
-export const performReDelegationAtom = atomWithMutation((get) => {
-  return {
-    mutationKey: ["redelegate"],
-    mutationFn: async ({
-      changes,
-      gasConfig,
-      account,
-    }: RedelegateChangesProps) => {
-      const chain = get(chainAtom);
-      const integration = getIntegration(chain.id);
-      const signingClient = integration.signer() as Signer;
-      const { tx, rpc } = await getSdkInstance();
-
-      const withdrawProps = getRedelegateChangeParams(account, changes);
-      const wrapperTxProps = getTxProps(account, gasConfig, chain);
-      const txArray: EncodedTx[] = [];
-      // Determine if RevealPK is needed:
-      const pk = await rpc.queryPublicKey(account.address);
-
-      if (!pk) {
-        const revealPkTx = await tx.buildRevealPk(
-          wrapperTxProps,
-          account.address
-        );
-        // Add to txArray to sign & broadcast below:
-        txArray.push(revealPkTx);
-      }
-
-      const encodedTxs = await Promise.all(
-        withdrawProps.map((props) => tx.buildRedelegate(wrapperTxProps, props))
-      );
-      txArray.push(...encodedTxs);
-
-      try {
-        const signedTxs = await signingClient.sign(
-          withdrawProps[0].owner,
-          txArray.map(({ tx }) => tx)
-        );
-
-        if (!signedTxs) {
-          throw new Error("Signing failed");
-        }
-
-        // TODO: NOTE: We probably want to dispatch success/fail notificatons for each
-        // transaction, and not wait for all to complete!
-        return await Promise.all(
-          signedTxs.map(async (signedTx, i) => {
-            const txMsg = txArray[i].txMsg;
-            const response = await rpc.broadcastTx({
-              wrapperTxMsg: txMsg,
-              tx: signedTx,
-            });
-            return response;
-          })
-        );
-      } catch (e) {
-        console.error(e);
+        return transactionPairs;
+      } catch (err) {
+        console.error(err);
       }
     },
   };
