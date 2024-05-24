@@ -489,7 +489,10 @@ export const performVote = async (
   txArray.push(encodedTx);
 
   try {
-    const signedTx = await signingClient.sign(signer, txArray);
+    const signedTx = await signingClient.sign(
+      signer,
+      txArray.map(({ tx }) => tx)
+    );
     if (!signedTx) {
       throw new Error("Signing failed");
     }
