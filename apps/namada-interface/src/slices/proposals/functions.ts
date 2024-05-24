@@ -210,7 +210,14 @@ export const fetchProposalById = async (
     id
   );
 
-  const fetchedStatus = await fetchProposalStatus(chain, id);
+  const { startEpoch, endEpoch } = deserialized;
+
+  const fetchedStatus = await fetchProposalStatus(
+    chain,
+    id,
+    startEpoch,
+    endEpoch
+  );
 
   return {
     ...deserialized,
@@ -331,7 +338,9 @@ export const fetchProposalVotes = async (
 
 export const fetchProposalStatus = async (
   chain: Chain,
-  id: bigint
+  id: bigint,
+  startEpoch: bigint,
+  endEpoch: bigint
 ): Promise<
   {
     [VT in VoteType]: BigNumber;
@@ -340,10 +349,16 @@ export const fetchProposalStatus = async (
     status: ProposalStatus;
   }
 > => {
+  const currentEpoch = await fetchCurrentEpoch(chain);
+
+  const epoch = endEpoch < currentEpoch ? endEpoch : currentEpoch;
+
   if (NAMADA_INTERFACE_NO_INDEXER) {
-    const status = (["pending", "ongoing", "passed", "rejected"] as const)[
-      Number(id % BigInt(4))
-    ];
+    const status: ProposalStatus =
+      startEpoch > currentEpoch ? "pending"
+      : endEpoch > currentEpoch ? "ongoing"
+      : id % BigInt(2) === BigInt(0) ? "passed"
+      : "rejected";
 
     return {
       status,
@@ -353,11 +368,6 @@ export const fetchProposalStatus = async (
       totalVotingPower: BigNumber(1000),
     };
   }
-
-  const currentEpoch = await fetchCurrentEpoch(chain);
-  const { startEpoch, endEpoch } = await fetchProposalById(chain, id);
-
-  const epoch = endEpoch < currentEpoch ? endEpoch : currentEpoch;
 
   const { rpc } = chain;
   const query = new Query(rpc);

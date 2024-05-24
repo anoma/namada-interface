@@ -10,7 +10,6 @@ import {
   fetchProposalById,
   fetchProposalCode,
   fetchProposalCounter,
-  fetchProposalStatus,
   fetchProposalVoted,
   fetchProposalVotes,
   fetchVotedProposalIds,
@@ -38,13 +37,6 @@ export const proposalVotesFamily = atomFamily((id: bigint) =>
   atomWithQuery((get) => ({
     queryKey: ["proposal-votes", id.toString()],
     queryFn: () => fetchProposalVotes(get(chainAtom), id),
-  }))
-);
-
-export const proposalStatusFamily = atomFamily((id: bigint) =>
-  atomWithQuery((get) => ({
-    queryKey: ["proposal-status", id.toString()],
-    queryFn: () => fetchProposalStatus(get(chainAtom), id),
   }))
 );
 
