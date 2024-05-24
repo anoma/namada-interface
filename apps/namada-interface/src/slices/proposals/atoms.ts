@@ -87,7 +87,9 @@ export const allProposalsFamily = atomFamily(
           options?.type,
           options?.search
         ),
-    }))
+    })),
+  (a, b) =>
+    a?.status === b?.status && a?.type === b?.type && a?.search === b?.search
 );
 
 export const votedProposalIdsAtom = atomWithQuery((get) => ({
