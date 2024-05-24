@@ -134,6 +134,7 @@ const isTypeFilter = (str: string): str is TypeFilter =>
 export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>("all");
   const [selectedType, setSelectedType] = useState<TypeFilter>("all");
+  const [search, setSearch] = useState<string | undefined>();
 
   const maybeStatus =
     isProposalStatus(selectedStatus) ? selectedStatus : undefined;
@@ -143,6 +144,7 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
     allProposalsFamily({
       status: maybeStatus,
       type: maybeType,
+      search,
     })
   );
 
@@ -217,6 +219,7 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
             "[&_input]:py-2 [&_input]:rounded-md [&_input]:border-[#5C5C5C]",
             "w-64 [&_input]:leading-normal [&_input]:h-9"
           )}
+          onChange={setSearch}
         />
       </div>
 

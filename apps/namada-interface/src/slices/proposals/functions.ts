@@ -1,7 +1,7 @@
 import { deserialize } from "@dao-xyz/borsh";
+import { EncodedTx } from "@heliax/namada-sdk/web";
 import { getIntegration } from "@namada/integrations";
 import { Proposal as ProposalSchema, Query } from "@namada/shared";
-import { EncodedTx } from "@heliax/namada-sdk/web";
 import {
   Account,
   AddRemove,
@@ -23,7 +23,6 @@ import * as E from "fp-ts/Either";
 import * as t from "io-ts";
 
 import { getSdkInstance } from "hooks";
-
 
 const { NAMADA_INTERFACE_NO_INDEXER } = process.env;
 
@@ -221,7 +220,8 @@ export const fetchProposalById = async (
 export const fetchAllProposals = async (
   chain: Chain,
   status?: ProposalStatus,
-  type?: ProposalTypeString
+  type?: ProposalTypeString,
+  search?: string
 ): Promise<Proposal[]> => {
   const proposalCounter = await fetchProposalCounter(chain);
 
@@ -242,7 +242,16 @@ export const fetchAllProposals = async (
       statusFiltered.filter((p) => p.proposalType.type === type)
     );
 
-  return Array(30).fill(typeFiltered).flat();
+  const searchFiltered =
+    typeof search === "undefined" ? typeFiltered : (
+      typeFiltered.filter(
+        (p) =>
+          p.content.title?.toLowerCase().includes(search.toLowerCase()) ||
+          p.id.toString().includes(search)
+      )
+    );
+
+  return Array(30).fill(searchFiltered).flat();
 };
 
 // TODO: this function is way too big

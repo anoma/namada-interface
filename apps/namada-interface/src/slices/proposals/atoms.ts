@@ -66,12 +66,27 @@ export const allProposalsAtom = atomWithQuery((get) => ({
   queryFn: () => fetchAllProposals(get(chainAtom)),
 }));
 
+// TODO: this is a bad way to filter/search
 export const allProposalsFamily = atomFamily(
-  (options?: { status?: ProposalStatus; type?: ProposalTypeString }) =>
+  (options?: {
+    status?: ProposalStatus;
+    type?: ProposalTypeString;
+    search?: string;
+  }) =>
     atomWithQuery((get) => ({
-      queryKey: ["all-proposals", options?.status, options?.type],
+      queryKey: [
+        "all-proposals",
+        options?.status,
+        options?.type,
+        options?.search,
+      ],
       queryFn: () =>
-        fetchAllProposals(get(chainAtom), options?.status, options?.type),
+        fetchAllProposals(
+          get(chainAtom),
+          options?.status,
+          options?.type,
+          options?.search
+        ),
     }))
 );
 
