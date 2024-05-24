@@ -124,7 +124,7 @@ impl Sdk {
     }
 
     #[cfg(feature = "web")]
-    pub async fn load_masp_params(&mut self, _db_name: JsValue) -> Result<(), JsValue> {
+    pub async fn load_masp_params(&self, _db_name: JsValue) -> Result<(), JsValue> {
         // _dn_name is not used in the web version for a time being
         let params = get_masp_params().await?;
         let params_iter = js_sys::try_iter(&params)?.ok_or_else(|| "Can't iterate over JsValue")?;
@@ -144,7 +144,7 @@ impl Sdk {
     }
 
     #[cfg(feature = "nodejs")]
-    pub async fn load_masp_params(&mut self, context_dir: JsValue) -> Result<(), JsValue> {
+    pub async fn load_masp_params(&self, context_dir: JsValue) -> Result<(), JsValue> {
         let context_dir = context_dir.as_string().unwrap();
 
         let mut shielded = self.namada.shielded_mut().await;
@@ -153,44 +153,39 @@ impl Sdk {
         Ok(())
     }
 
-    pub async fn add_spending_key(&mut self, xsk: String, alias: String) {
+    pub async fn add_spending_key(&self, xsk: String, alias: String) {
         let mut wallet = self.namada.wallet_mut().await;
         wallet::add_spending_key(&mut wallet, xsk, alias)
     }
 
-    pub async fn add_viewing_key(&mut self, xvk: String, alias: String) {
+    pub async fn add_viewing_key(&self, xvk: String, alias: String) {
         let mut wallet = self.namada.wallet_mut().await;
         wallet::add_viewing_key(&mut wallet, xvk, alias)
     }
 
-    pub async fn add_payment_address(&mut self, pa: String, alias: String) {
+    pub async fn add_payment_address(&self, pa: String, alias: String) {
         let mut wallet = self.namada.wallet_mut().await;
         wallet::add_payment_address(&mut wallet, pa, alias)
     }
 
-    pub async fn add_default_payment_address(&mut self, xvk: String, alias: String) {
+    pub async fn add_default_payment_address(&self, xvk: String, alias: String) {
         let mut wallet = self.namada.wallet_mut().await;
         wallet::add_default_payment_address(&mut wallet, xvk, alias)
     }
 
-    pub async fn add_keypair(
-        &mut self,
-        secret_key: String,
-        alias: String,
-        password: Option<String>,
-    ) {
+    pub async fn add_keypair(&self, secret_key: String, alias: String, password: Option<String>) {
         let mut wallet = self.namada.wallet_mut().await;
         wallet::add_keypair(&mut wallet, secret_key, alias, password)
     }
 
-    pub async fn save_wallet(&mut self) -> Result<(), JsValue> {
+    pub async fn save_wallet(&self) -> Result<(), JsValue> {
         let wallet = self.namada.wallet_mut().await;
         wallet.save().map_err(JsError::from)?;
 
         Ok(())
     }
 
-    pub async fn load_wallet(&mut self) -> Result<(), JsValue> {
+    pub async fn load_wallet(&self) -> Result<(), JsValue> {
         let mut wallet = self.namada.wallet_mut().await;
         wallet.load().map_err(JsError::from)?;
 
@@ -198,7 +193,7 @@ impl Sdk {
     }
 
     pub async fn sign_tx(
-        &mut self,
+        &self,
         built_tx: BuiltTx,
         private_key: Option<String>,
         chain_id: Option<String>,
@@ -252,7 +247,7 @@ impl Sdk {
     }
 
     // Broadcast Tx
-    pub async fn process_tx(&mut self, tx_bytes: &[u8], tx_msg: &[u8]) -> Result<JsValue, JsError> {
+    pub async fn process_tx(&self, tx_bytes: &[u8], tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
 
         let tx = Tx::try_from_slice(tx_bytes)?;
@@ -264,7 +259,7 @@ impl Sdk {
 
     /// Build transaction for specified type, return bytes to client
     pub async fn build_tx(
-        &mut self,
+        &self,
         tx_type: TxType,
         specific_msg: &[u8],
         tx_msg: &[u8],
@@ -342,7 +337,7 @@ impl Sdk {
     }
 
     pub async fn build_transfer(
-        &mut self,
+        &self,
         transfer_msg: &[u8],
         tx_msg: &[u8],
         _gas_payer: Option<String>,
@@ -379,7 +374,7 @@ impl Sdk {
     }
 
     pub async fn build_ibc_transfer(
-        &mut self,
+        &self,
         ibc_transfer_msg: &[u8],
         tx_msg: &[u8],
         _gas_payer: Option<String>,
@@ -391,7 +386,7 @@ impl Sdk {
     }
 
     pub async fn build_eth_bridge_transfer(
-        &mut self,
+        &self,
         eth_bridge_transfer_msg: &[u8],
         tx_msg: &[u8],
         _gas_payer: Option<String>,
@@ -403,7 +398,7 @@ impl Sdk {
     }
 
     pub async fn build_vote_proposal(
-        &mut self,
+        &self,
         vote_proposal_msg: &[u8],
         tx_msg: &[u8],
         _gas_payer: Option<String>,
@@ -418,7 +413,7 @@ impl Sdk {
     }
 
     pub async fn build_bond(
-        &mut self,
+        &self,
         bond_msg: &[u8],
         tx_msg: &[u8],
         _gas_payer: Option<String>,
@@ -430,7 +425,7 @@ impl Sdk {
     }
 
     pub async fn build_unbond(
-        &mut self,
+        &self,
         unbond_msg: &[u8],
         tx_msg: &[u8],
         _gas_payer: Option<String>,
@@ -442,7 +437,7 @@ impl Sdk {
     }
 
     pub async fn build_withdraw(
-        &mut self,
+        &self,
         withdraw_msg: &[u8],
         tx_msg: &[u8],
         _gas_payer: Option<String>,
@@ -454,7 +449,7 @@ impl Sdk {
     }
 
     pub async fn build_redelegate(
-        &mut self,
+        &self,
         redelegate_msg: &[u8],
         tx_msg: &[u8],
         _gas_payer: Option<String>,
@@ -466,7 +461,7 @@ impl Sdk {
     }
 
     pub async fn build_reveal_pk(
-        &mut self,
+        &self,
         tx_msg: &[u8],
         _gas_payer: String,
     ) -> Result<BuiltTx, JsError> {
@@ -480,7 +475,7 @@ impl Sdk {
 
     // Helper function to reveal public key
     pub async fn reveal_pk(
-        &mut self,
+        &self,
         signing_key: String,
         tx_msg: &[u8],
         chain_id: Option<String>,
