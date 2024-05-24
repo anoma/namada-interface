@@ -24,7 +24,11 @@ import * as t from "io-ts";
 
 import { getSdkInstance } from "hooks";
 
-const { NAMADA_INTERFACE_NO_INDEXER } = process.env;
+const {
+  NAMADA_INTERFACE_NAMADA_TOKEN:
+    nativeToken = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+  NAMADA_INTERFACE_NO_INDEXER,
+} = process.env;
 
 export const fetchCurrentEpoch = async (chain: Chain): Promise<bigint> => {
   const { rpc } = chain;
@@ -448,11 +452,6 @@ export const performVote = async (
     throw new Error("no signer");
   }
 
-  const token = chain.currency.address;
-  if (typeof token === "undefined") {
-    throw new Error("no chain currency address");
-  }
-
   const publicKey = account.publicKey;
   if (typeof publicKey === "undefined") {
     throw new Error("no public key on account");
@@ -467,7 +466,7 @@ export const performVote = async (
   };
 
   const wrapperTxProps = {
-    token,
+    token: nativeToken,
     feeAmount: BigNumber(0),
     gasLimit: BigNumber(20_000),
     chainId: chain.chainId,
