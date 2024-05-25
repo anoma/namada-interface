@@ -60,6 +60,7 @@ export const fetchAccountsAtom = atom(
 );
 
 export const defaultAccountAtom = atom<AccountDetails | undefined>(undefined);
+
 export const fetchDefaultAccountAtom = atom(
   (get) => get(defaultAccountAtom),
   async (_get, set) => {

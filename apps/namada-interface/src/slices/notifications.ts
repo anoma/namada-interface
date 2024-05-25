@@ -1,52 +1,38 @@
 import { atom } from "jotai";
-import { ToastNotification } from "types/notifications";
+import {
+  ToastNotification,
+  ToastNotificationEntryFilter,
+} from "types/notifications";
 
-type ToastNotificationOptions = {
-  timeout?: number;
-};
+const toastNotificationsBaseAtom = atom<ToastNotification[]>([]);
 
-type ToastNotificationEntryFilter = (
-  notification: ToastNotificationEntry
-) => boolean;
-
-export type ToastNotificationEntry = {
-  options: ToastNotificationOptions;
-  data: ToastNotification;
-};
-
-const toastNotificationsBaseAtom = atom<ToastNotificationEntry[]>([]);
-export const toastNotificationsAtom = atom<ToastNotificationEntry[]>((get) =>
+export const toastNotificationsAtom = atom<ToastNotification[]>((get) =>
   get(toastNotificationsBaseAtom)
 );
 
 export const dispatchToastNotificationAtom = atom(
   null,
-  (
-    get,
-    set,
-    data: ToastNotification,
-    options: ToastNotificationOptions = {}
-  ) => {
+  (get, set, data: ToastNotification) => {
     const notifications = get(toastNotificationsBaseAtom);
-    set(toastNotificationsBaseAtom, [...notifications, { data, options }]);
+    set(toastNotificationsBaseAtom, [...notifications, { ...data }]);
   }
 );
 
 export const dismissToastNotificationAtom = atom(
   null,
-  (get, set, data: Pick<ToastNotification, "id">) => {
+  (get, set, id: string) => {
     const notifications = get(toastNotificationsBaseAtom);
     set(
       toastNotificationsBaseAtom,
-      notifications.filter((n) => n.data.id !== data.id)
+      notifications.filter((n) => n.id !== id)
     );
   }
 );
 
 export const filterToastNotificationsAtom = atom(
   null,
-  (get, set, filter: ToastNotificationEntryFilter) => {
+  (get, set, filterFn: ToastNotificationEntryFilter) => {
     const notifications = get(toastNotificationsBaseAtom);
-    set(toastNotificationsBaseAtom, notifications.filter(filter));
+    set(toastNotificationsBaseAtom, notifications.filter(filterFn));
   }
 );

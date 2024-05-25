@@ -25,15 +25,13 @@ export const useTransactionService = () => {
     notification: TransactionNotification,
     type: "error" | "success"
   ) => {
-    dispatchNotification(
-      {
-        id,
-        type,
-        title: notification[type]?.title || "",
-        description: notification[type]?.text || "",
-      },
-      { timeout: 5000 }
-    );
+    dispatchNotification({
+      id,
+      type,
+      title: notification[type]?.title || "",
+      description: notification[type]?.text || "",
+      timeout: 5000,
+    });
   };
 
   const handleTransaction = async (transaction: PreparedTransaction) => {
@@ -43,9 +41,7 @@ export const useTransactionService = () => {
     try {
       await broadcastTx(transaction);
       // TODO: this is dismissing all notifications, we should dismiss by some criterea
-      filterNotifications(
-        (notification) => notification.data.type !== "pending"
-      );
+      filterNotifications((notification) => notification.type !== "pending");
     } catch (err) {
       notificationType = "error";
     }
