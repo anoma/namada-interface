@@ -1,10 +1,9 @@
 import { chains } from "@namada/chains";
 import { ActionButton, Input, Option, Select } from "@namada/components";
-import { Chain, TokenType, Tokens } from "@namada/types";
+import { TokenType, Tokens } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { useState } from "react";
-import { Account, AccountsState } from "slices/accounts";
-import { useAppSelector } from "store";
+import { Account } from "slices/accounts";
 import {
   ButtonsContainer,
   InputContainer,
@@ -31,22 +30,21 @@ const toTokenData = (
       .filter(filterFn)
       .map(([tokenType, amount]) => ({
         value: `${address}|${tokenType}|${amount}`,
-        label: `${alias !== "Namada" ? alias + " - " : ""}${Tokens[tokenType as TokenType].coin
-          } (${amount} ${tokenType})`,
+        label: `${alias !== "Namada" ? alias + " - " : ""}${
+          Tokens[tokenType as TokenType].coin
+        } (${amount} ${tokenType})`,
       }));
   });
 };
 
 export const EthereumBridge = (): JSX.Element => {
-  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const { chainId } = useAppSelector<Chain>((state) => state.chain.config);
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
   const [feeAmount, setFeeAmount] = useState<BigNumber>(new BigNumber(0));
 
-  const accounts = Object.values(derived[chains.namada.id]).filter(
-    ({ details }) => !details.isShielded
-  );
+  // const accounts = Object.values(derived[chains.namada.id]).filter(
+  //   ({ details }) => !details.isShielded
+  // );
 
   const transferableTokenData = toTokenData(accounts, ([tokenType]) =>
     SUPPORTED_TOKENS.includes(tokenType)
@@ -70,7 +68,8 @@ export const EthereumBridge = (): JSX.Element => {
       (account) => account?.details?.address === accountId
     ) as Account;
 
-    console.log("TODO: Sign & submit EthereumBridge Transfer",
+    console.log(
+      "TODO: Sign & submit EthereumBridge Transfer",
       {
         bridgeProps: {
           nut: Boolean(Tokens[tokenSymbol as TokenType]?.isNut),
@@ -131,7 +130,7 @@ export const EthereumBridge = (): JSX.Element => {
               error={
                 recipientValid || !dirtyFields.has("recipient") ?
                   ""
-                  : "Invalid recipient"
+                : "Invalid recipient"
               }
             />
           </InputContainer>
@@ -149,7 +148,7 @@ export const EthereumBridge = (): JSX.Element => {
               error={
                 amountValid || !dirtyFields.has("amount") ?
                   ""
-                  : "Insufficient balance"
+                : "Insufficient balance"
               }
             />
           </InputContainer>
@@ -181,7 +180,7 @@ export const EthereumBridge = (): JSX.Element => {
                 error={
                   feeAmountValid || !dirtyFields.has("feeAmount") ?
                     ""
-                    : "Insufficient balance"
+                  : "Insufficient balance"
                 }
               />
             </InputContainer>

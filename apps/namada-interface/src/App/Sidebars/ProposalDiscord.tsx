@@ -1,6 +1,6 @@
 import { ActionButton, Panel, Stack } from "@namada/components";
-import { DISCORD_URL } from "config/links";
 import { BsDiscord } from "react-icons/bs";
+import { DISCORD_URL } from "urls";
 
 export const ProposalDiscord: React.FC = () => {
   return (

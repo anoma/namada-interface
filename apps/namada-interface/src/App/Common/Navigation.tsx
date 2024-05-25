@@ -9,8 +9,7 @@ import { BsDiscord, BsTwitterX } from "react-icons/bs";
 import { FaVoteYea } from "react-icons/fa";
 import { GoStack } from "react-icons/go";
 import { IoSwapHorizontal } from "react-icons/io5";
-
-import { DISCORD_URL, TWITTER_URL } from "config/links";
+import { DISCORD_URL, TWITTER_URL } from "urls";
 
 export const Navigation = (): JSX.Element => {
   return (

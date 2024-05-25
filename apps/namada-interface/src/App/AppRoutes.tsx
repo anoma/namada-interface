@@ -1,20 +1,16 @@
+import { Router } from "@remix-run/router";
 import {
   Route,
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
-
-import { Router } from "@remix-run/router";
 import { AccountOverview } from "./AccountOverview";
-import App, { AnimatedTransition } from "./App";
-import { Bridge } from "./Bridge";
+import App from "./App";
+import { AnimatedTransition } from "./Common/AnimatedTransition";
 import { Governance } from "./Governance";
 import GovernanceRoutes from "./Governance/routes";
-import { Settings, SettingsWalletSettings } from "./Settings";
 import { Staking } from "./Staking";
 import StakingRoutes from "./Staking/routes";
-import { TokenReceive } from "./Token/TokenReceive";
-import { TokenSend } from "./Token/TokenSend";
 import { TopLevelRoute } from "./types";
 
 export const getRouter = (): Router => {
@@ -31,39 +27,6 @@ export const getRouter = (): Router => {
           }
         />
         <Route
-          path={TopLevelRoute.TokenSend}
-          element={
-            <AnimatedTransition elementKey={TopLevelRoute.TokenSend}>
-              <TokenSend />
-            </AnimatedTransition>
-          }
-        />
-        <Route
-          path={TopLevelRoute.TokenSendTarget}
-          element={
-            <AnimatedTransition elementKey={TopLevelRoute.TokenSendTarget}>
-              <TokenSend />
-            </AnimatedTransition>
-          }
-        />
-        <Route
-          path={TopLevelRoute.TokenReceive}
-          element={
-            <AnimatedTransition elementKey={TopLevelRoute.TokenReceive}>
-              <TokenReceive />
-            </AnimatedTransition>
-          }
-        />
-
-        <Route
-          path={TopLevelRoute.Bridge}
-          element={
-            <AnimatedTransition elementKey={TopLevelRoute.Bridge}>
-              <Bridge />
-            </AnimatedTransition>
-          }
-        />
-        <Route
           path={`${StakingRoutes.index()}/*`}
           element={
             <AnimatedTransition elementKey={StakingRoutes.index()}>
@@ -76,24 +39,6 @@ export const getRouter = (): Router => {
           element={
             <AnimatedTransition elementKey={GovernanceRoutes.index()}>
               <Governance />
-            </AnimatedTransition>
-          }
-        />
-        <Route
-          path={TopLevelRoute.Settings}
-          element={
-            <AnimatedTransition elementKey={TopLevelRoute.Settings}>
-              <Settings />
-            </AnimatedTransition>
-          }
-        />
-        <Route
-          path={TopLevelRoute.SettingsWalletSettings}
-          element={
-            <AnimatedTransition
-              elementKey={TopLevelRoute.SettingsWalletSettings}
-            >
-              <SettingsWalletSettings />
             </AnimatedTransition>
           }
         />

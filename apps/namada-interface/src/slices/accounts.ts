@@ -1,4 +1,3 @@
-import { chains } from "@namada/chains";
 import { getIntegration } from "@namada/integrations";
 import {
   Account as AccountDetails,
@@ -7,7 +6,6 @@ import {
   TokenBalances,
   TokenType,
 } from "@namada/types";
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 import { getSdkInstance } from "hooks";
 import { atom } from "jotai";
@@ -28,74 +26,6 @@ export type AccountsState = {
   derived: Record<ChainKey, Record<Address, Account>>;
 };
 
-const ACCOUNTS_ACTIONS_BASE = "accounts";
-
-const INITIAL_STATE = {
-  derived: {
-    namada: {},
-    cosmos: {},
-    ethereum: {},
-  },
-};
-
-const initialState: AccountsState = INITIAL_STATE;
-
-const accountsSlice = createSlice({
-  name: ACCOUNTS_ACTIONS_BASE,
-  initialState,
-  reducers: {
-    addAccounts: (state, action: PayloadAction<readonly AccountDetails[]>) => {
-      const accounts = action.payload;
-
-      const id = accounts[0]?.chainKey || chains.namada.id;
-
-      // Remove old accounts under this chain config id if present:
-      if (state.derived[id]) {
-        state.derived[id] = {};
-      }
-
-      accounts.forEach((account) => {
-        const {
-          address,
-          alias,
-          isShielded,
-          chainId,
-          type,
-          publicKey,
-          chainKey,
-        } = account;
-        const currencySymbol = chains.namada.currency.symbol;
-        if (!state.derived[id]) {
-          state.derived[id] = {};
-        }
-
-        state.derived[id][address] = {
-          details: {
-            address,
-            alias,
-            chainId,
-            type,
-            publicKey,
-            isShielded,
-            chainKey,
-          },
-          balance: {
-            [currencySymbol]: new BigNumber(0),
-          },
-        };
-      });
-    },
-  },
-});
-
-const { actions, reducer } = accountsSlice;
-
-export const { addAccounts } = actions;
-export default reducer;
-
-////////////////////////////////////////////////////////////////////////////////
-// JOTAI
-////////////////////////////////////////////////////////////////////////////////
 export const accountsAtom = atom<readonly AccountDetails[]>([]);
 
 export const addAccountsAtom = atom(

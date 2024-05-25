@@ -4683,15 +4683,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.15.4":
-  version: 7.17.8
-  resolution: "@babel/runtime@npm:7.17.8"
-  dependencies:
-    regenerator-runtime: "npm:^0.13.4"
-  checksum: e06384a648b9b8be6a20fd6185b3d96701cd70c2fd43cec71bda8755d16cd087a8e985a408d9d56a36d4cc07e36167745ce63457f33487199328e800a6c64d48
-  languageName: node
-  linkType: hard
-
 "@babel/runtime@npm:^7.23.5":
   version: 7.23.6
   resolution: "@babel/runtime@npm:7.23.6"
@@ -8421,7 +8412,6 @@ __metadata:
   resolution: "@namada/namada-interface@workspace:apps/namada-interface"
   dependencies:
     "@playwright/test": "npm:^1.24.1"
-    "@reduxjs/toolkit": "npm:^1.8.0"
     "@svgr/webpack": "npm:^6.5.1"
     "@testing-library/jest-dom": "npm:^5.16.2"
     "@testing-library/react": "npm:^12.1.3"
@@ -8436,7 +8426,6 @@ __metadata:
     "@types/react-modal": "npm:^3.13.1"
     "@types/react-paginate": "npm:^7.1.2"
     "@types/react-qr-reader": "npm:^2.1.4"
-    "@types/redux-mock-store": "npm:^1.0.3"
     "@types/styled-components": "npm:^5.1.22"
     "@vitejs/plugin-react": "npm:^4.2.1"
     autoprefixer: "npm:^10.4.16"
@@ -8463,7 +8452,6 @@ __metadata:
     jest: "npm:^29.4.1"
     jest-fetch-mock: "npm:^3.0.3"
     jotai: "npm:^2.6.3"
-    jotai-redux: "npm:^0.2.1"
     local-cors-proxy: "npm:^1.1.0"
     lodash.debounce: "npm:^4.0.8"
     next-qrcode: "npm:^2.0.0"
@@ -8476,13 +8464,8 @@ __metadata:
     react-modal: "npm:^3.15.1"
     react-paginate: "npm:^8.2.0"
     react-qr-reader: "npm:2.1.2"
-    react-redux: "npm:^7.2.6"
     react-router-dom: "npm:^6.0.0"
     react-scripts: "npm:5.0.1"
-    redux-mock-store: "npm:^1.5.4"
-    redux-persist: "npm:^6.0.0"
-    redux-persist-transform-encrypt: "npm:^3.0.1"
-    redux-thunk: "npm:^2.4.1"
     stream: "npm:^0.0.2"
     style-loader: "npm:^3.3.1"
     styled-components: "npm:^5.3.3"
@@ -9025,26 +9008,6 @@ __metadata:
   bin:
     browsers: lib/cjs/main-cli.js
   checksum: a987761bbe068301902a9771f5e302e8510e6f8f66bc89f73bdfab8aed22281327ff908c749a8205f16a57fd9efeee52fa306a810ff4f63a9c715b98ccf72ac0
-  languageName: node
-  linkType: hard
-
-"@reduxjs/toolkit@npm:^1.8.0":
-  version: 1.8.0
-  resolution: "@reduxjs/toolkit@npm:1.8.0"
-  dependencies:
-    immer: "npm:^9.0.7"
-    redux: "npm:^4.1.2"
-    redux-thunk: "npm:^2.4.1"
-    reselect: "npm:^4.1.5"
-  peerDependencies:
-    react: ^16.9.0 || ^17.0.0 || 18.0.0-beta
-    react-redux: ^7.2.1 || ^8.0.0-beta
-  peerDependenciesMeta:
-    react:
-      optional: true
-    react-redux:
-      optional: true
-  checksum: ad23c9cb9d9156c100732fa81b134126db2eeb1decc8f993b93e8c39f4696af90431d4abdc2d6cf7cf32da880c1a848caae87d088e9bc29f047d15805e37f311
   languageName: node
   linkType: hard
 
@@ -10290,7 +10253,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hoist-non-react-statics@npm:*, @types/hoist-non-react-statics@npm:^3.3.0":
+"@types/hoist-non-react-statics@npm:*":
   version: 3.3.1
   resolution: "@types/hoist-non-react-statics@npm:3.3.1"
   dependencies:
@@ -10761,18 +10724,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-redux@npm:^7.1.20":
-  version: 7.1.23
-  resolution: "@types/react-redux@npm:7.1.23"
-  dependencies:
-    "@types/hoist-non-react-statics": "npm:^3.3.0"
-    "@types/react": "npm:*"
-    hoist-non-react-statics: "npm:^3.3.0"
-    redux: "npm:^4.0.0"
-  checksum: db8919f92022fe067c8303aff1a4e0486be69b48cf547b60e41a9cb5c56da0c1e91eae6a34892bf5532e47e1bf58fe02ec995bdecebea3f8e79e52c1357958a1
-  languageName: node
-  linkType: hard
-
 "@types/react@npm:*, @types/react@npm:^17.0.39":
   version: 17.0.40
   resolution: "@types/react@npm:17.0.40"
@@ -10781,15 +10732,6 @@ __metadata:
     "@types/scheduler": "npm:*"
     csstype: "npm:^3.0.2"
   checksum: 8b32469271f4a7cf22e5cf615a60b8f04d9f9bcf54655a7a075d599204a36bcc28fff18ccfff8c2f498f6a80488c7d5b334ebd297d9d0d3483c2911b390a8464
-  languageName: node
-  linkType: hard
-
-"@types/redux-mock-store@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "@types/redux-mock-store@npm:1.0.3"
-  dependencies:
-    redux: "npm:^4.0.5"
-  checksum: 5027e4ecd654efc8b98418c41e9286c257db54206943ee2f541d751f6579e740b733597d58d1a79df133da0693f8c34772e6bed85c5ef6d9ae8636d342d7df88
   languageName: node
   linkType: hard
 
@@ -15631,13 +15573,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"crypto-js@npm:3.1.9-1":
-  version: 3.1.9-1
-  resolution: "crypto-js@npm:3.1.9-1"
-  checksum: f68af7121c35ae4f50030f3f33f9268a104b0ded727e31c7303bee72bde2e6131d27df72ae778a7565b93ac828ba30bd6b0c1c4acb5d5c5590001090ac2f818f
-  languageName: node
-  linkType: hard
-
 "crypto-js@npm:^4.1.1":
   version: 4.1.1
   resolution: "crypto-js@npm:4.1.1"
@@ -20465,7 +20400,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hoist-non-react-statics@npm:^3.0.0, hoist-non-react-statics@npm:^3.3.0, hoist-non-react-statics@npm:^3.3.2":
+"hoist-non-react-statics@npm:^3.0.0, hoist-non-react-statics@npm:^3.3.0":
   version: 3.3.2
   resolution: "hoist-non-react-statics@npm:3.3.2"
   dependencies:
@@ -24935,15 +24870,6 @@ __metadata:
   version: 4.13.1
   resolution: "jose@npm:4.13.1"
   checksum: b517a38ca06601aaadcdce0ab5231b0a5969bbb9f99f37f4120e608aafb34e1a941179893d4ecedd295d122f37dac74e08f73fc723c523d7a2530928f10d3a2d
-  languageName: node
-  linkType: hard
-
-"jotai-redux@npm:^0.2.1":
-  version: 0.2.1
-  resolution: "jotai-redux@npm:0.2.1"
-  peerDependencies:
-    jotai: ">=1.11.0"
-  checksum: 36c4696fa7c983b10f125e3851267c74b8a728cf766bfb8bcb16d75ed74068fc52b2a1f08ae280293b5a40556db80d7ac5e6472fbdc1adbff754137d1ccfb8fa
   languageName: node
   linkType: hard
 
@@ -30624,7 +30550,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^17.0.1, react-is@npm:^17.0.2":
+"react-is@npm:^17.0.1":
   version: 17.0.2
   resolution: "react-is@npm:17.0.2"
   checksum: 2bdb6b93fbb1820b024b496042cce405c57e2f85e777c9aabd55f9b26d145408f9f74f5934676ffdc46f3dcff656d78413a6e43968e7b3f92eea35b3052e9053
@@ -30682,27 +30608,6 @@ __metadata:
     react: ~16
     react-dom: ~16
   checksum: d3518a5520009d51a34e536058000b1a6f1d4ac8bc104888699ce4821ad08806e817e59c8d81449bbb82b987c130249ca639c95deb95116d2933c5f5f1522f40
-  languageName: node
-  linkType: hard
-
-"react-redux@npm:^7.2.6":
-  version: 7.2.6
-  resolution: "react-redux@npm:7.2.6"
-  dependencies:
-    "@babel/runtime": "npm:^7.15.4"
-    "@types/react-redux": "npm:^7.1.20"
-    hoist-non-react-statics: "npm:^3.3.2"
-    loose-envify: "npm:^1.4.0"
-    prop-types: "npm:^15.7.2"
-    react-is: "npm:^17.0.2"
-  peerDependencies:
-    react: ^16.8.3 || ^17
-  peerDependenciesMeta:
-    react-dom:
-      optional: true
-    react-native:
-      optional: true
-  checksum: f2329642ef6ea95ad9384de08529ded1f836a82098a19f4f09f6afef612d9d5785b4e8aef4f9c9292d3f93812b979f94cd9b8d3aa8747e0a4a10e2600771c3f5
   languageName: node
   linkType: hard
 
@@ -31043,64 +30948,6 @@ __metadata:
   dependencies:
     test-value: "npm:^2.0.0"
   checksum: 25832300e7ac3b44611d71b7ad3670c9a9454ace245773678099a7ee89e3d1f1549e049b3e63f097b0c68fa224af501b7a3964f057d362131277c23fcb743de9
-  languageName: node
-  linkType: hard
-
-"redux-mock-store@npm:^1.5.4":
-  version: 1.5.4
-  resolution: "redux-mock-store@npm:1.5.4"
-  dependencies:
-    lodash.isplainobject: "npm:^4.0.6"
-  checksum: 674fc7a68ffdb9a9ad50c9f987a2711387b1fc348a8ed3d07b7abd4d2560762347a9565cf9080e786d9f66012ff47f90bef244623c62136511d9b4f2411fb658
-  languageName: node
-  linkType: hard
-
-"redux-persist-transform-encrypt@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "redux-persist-transform-encrypt@npm:3.0.1"
-  dependencies:
-    crypto-js: "npm:3.1.9-1"
-    json-stringify-safe: "npm:^5.0.1"
-  peerDependencies:
-    redux: ">3.0.0"
-    redux-persist: ^6.x.x
-  checksum: a01e628123365b2450ab9a8133706c4b6da382ff56385ca06c09d0a9bc64fa158483878be536787838be26683e1f36c8ad3efa47dd24f321da5dffe7eb895a8b
-  languageName: node
-  linkType: hard
-
-"redux-persist@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "redux-persist@npm:6.0.0"
-  peerDependencies:
-    redux: ">4.0.0"
-  checksum: 8242d265ab8d28bbc95cf2dc2a05b869eb67aa309b1ed08163c926f3af56dd8eb1ea62118286083461b8ef2024d3b349fd264e5a62a70eb2e74d068c832d5bf2
-  languageName: node
-  linkType: hard
-
-"redux-thunk@npm:^2.4.1":
-  version: 2.4.1
-  resolution: "redux-thunk@npm:2.4.1"
-  peerDependencies:
-    redux: ^4
-  checksum: 1127090b488c6b368397ed885415553735433b2971bd7d7aee77da398bddcac1c6dbddb0ebef1761d9c2bd59e610877824fad432ade5a4f75132e5bb37387ee7
-  languageName: node
-  linkType: hard
-
-"redux@npm:^4.0.0, redux@npm:^4.1.2":
-  version: 4.1.2
-  resolution: "redux@npm:4.1.2"
-  dependencies:
-    "@babel/runtime": "npm:^7.9.2"
-  checksum: 3c6af9724bb39ead9d6a7e2bd422f898136d44e0ff3abe8ccafd6be8a6e219ae4f8bea0b154173e42da829979394944ec47a91eea961997eb95d31af60597ebe
-  languageName: node
-  linkType: hard
-
-"redux@npm:^4.0.5":
-  version: 4.2.0
-  resolution: "redux@npm:4.2.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.9.2"
-  checksum: 6b8b543499c9b8aa6afa01ef68950f4b2ea68d803381ac65797b1a5a7e39ba88ee3650c2a5a1dd500c78ad022de45cd5ed4a5f41fe7d51db8b07d12fbe84d146
   languageName: node
   linkType: hard
 
@@ -31462,13 +31309,6 @@ __metadata:
   dependencies:
     lodash: "npm:^4.17.21"
   checksum: ad138f987943aeda5f96cd1ccba9752c96352a729a7e3c3e2545568703f7fc9b978d9b46715803408ef178b0d61d36a4b1b506b367b7e78fe6d041fa5bfa5e06
-  languageName: node
-  linkType: hard
-
-"reselect@npm:^4.1.5":
-  version: 4.1.5
-  resolution: "reselect@npm:4.1.5"
-  checksum: 1737bc8ee7da3c07761ec84fd44281604144210ef35f7704e93170260303c2ba2f9afaa165a0421d8ef578a41c5204dedc18572f27df45cd65da6bd8d5716b12
   languageName: node
   linkType: hard
 

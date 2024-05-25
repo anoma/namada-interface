@@ -1,7 +1,6 @@
 import { ActionButton } from "@namada/components";
 //import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
 import { useState } from "react";
-import { PublicGoodsFundingContainer } from "./PublicGoodsFunding.components";
 
 const initialTitle = "Public Goods Funding";
 
@@ -9,7 +8,7 @@ export const PublicGoodsFunding = (): JSX.Element => {
   const [breadcrumb, setBreadcrumb] = useState([initialTitle]);
 
   return (
-    <PublicGoodsFundingContainer>
+    <>
       {/*
       <MainContainerNavigation
         breadcrumbs={breadcrumb}
@@ -25,6 +24,6 @@ export const PublicGoodsFunding = (): JSX.Element => {
           Navigate
         </ActionButton>
       )}
-    </PublicGoodsFundingContainer>
+    </>
   );
 };
