@@ -62,9 +62,6 @@ npm install -g yarn
 # within namada-interface/ base folder:
 yarn
 
-# Install web-ext
-yarn global add web-ext
-
 # Initialize Husky
 yarn prepare
 ```
@@ -101,9 +98,6 @@ npm install -g yarn
 
 # within namada-interface/ base folder:
 yarn
-
-# Install web-ext
-yarn global add web-ext
 
 # Initialize Husky
 yarn prepare
