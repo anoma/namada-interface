@@ -7,5 +7,5 @@ export type ToastNotification = {
 };
 
 export type ToastNotificationEntryFilter = (
-  notification: ToastNotificationEntry
+  notification: ToastNotification
 ) => boolean;

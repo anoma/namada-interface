@@ -35,7 +35,7 @@ export const useNotifyOnAtomError = (
 
   useEffect(() => {
     if (atomsAreError(...atoms)) {
-      dismissNotification(toast);
+      dismissNotification(toast.id);
       dispatchNotification(toast);
     }
   }, deps);

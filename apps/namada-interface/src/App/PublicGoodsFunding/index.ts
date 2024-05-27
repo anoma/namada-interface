@@ -1,1 +1,0 @@
-export { PublicGoodsFunding } from "./PublicGoodsFunding";
