@@ -61,9 +61,6 @@ export const GovernanceOverview: React.FC = () => {
           )}
         </Panel>
         <Panel title="All Proposals">
-          {atomsAreFetching(allProposals, ...extensionAtoms) && (
-            <SkeletonLoading height="150px" width="100%" />
-          )}
           {isConnected && atomsAreLoaded(...extensionAtoms) && (
             <AllProposalsTable
               isExtensionConnected={true}

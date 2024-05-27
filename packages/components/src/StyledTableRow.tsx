@@ -10,6 +10,7 @@ type StyledTableRowProps = {
 
 export type TableRow = {
   cells: (ReactNode | CustomTableCell)[];
+  key?: React.Key;
 } & React.ComponentPropsWithoutRef<"tr">;
 
 export type CustomTableCell = {
@@ -28,7 +29,7 @@ export const StyledTableRow = ({
   row,
   index,
 }: StyledTableRowProps): JSX.Element => {
-  const { cells, className: rowsClassName, ...props } = row;
+  const { cells, className: rowsClassName, key: _key, ...props } = row;
   const tableRows = useMemo(
     () => (
       <tr

@@ -12,19 +12,14 @@ import {
 import { Proposal, isProposalStatus, proposalStatuses } from "@namada/types";
 import { Search } from "App/Common/Search";
 import clsx from "clsx";
-import { allProposalsFamily } from "slices/proposals";
+import { allProposalsFamily, proposalFamily } from "slices/proposals";
 import { showProposalStatus, showProposalTypeString } from "utils";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
 import GovernanceRoutes from "./routes";
 
-const key = (name: string, proposal?: Proposal): string => {
-  const idPart = typeof proposal === "undefined" ? "" : `-${proposal.id}`;
-  return `all-proposals-${name}${idPart}`;
-};
-
 const Table: React.FC<
   {
-    proposals: Proposal[];
+    proposalIds: bigint[];
   } & ExtensionConnectedProps
 > = (props) => {
   const navigate = useNavigate();
@@ -39,58 +34,44 @@ const Table: React.FC<
     "",
   ];
 
-  const renderRow = (proposal: Proposal, index: number): TableRow => ({
+  const renderRow = (id: bigint, index: number): TableRow => ({
+    key: id.toString(),
     className: clsx(
       "group/proposals cursor-pointer text-xs [&_td]:py-4",
       "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md"
     ),
     onClick: () => {
-      navigate(GovernanceRoutes.proposal(proposal.id).url);
+      navigate(GovernanceRoutes.proposal(id).url);
     },
     cells: [
       // ID
-      <div key={key("id", proposal)} className="pl-3 flex">
-        #{proposal.id.toString()}
+      <div key="id" className="pl-3 flex">
+        #{id.toString()}
       </div>,
 
       // Title
-      proposal.content.title,
+      <Title key="title" id={id} />,
 
       // Type
-      <TypeLabel
-        key={key("type", proposal)}
-        color={index % 2 === 0 ? "dark" : "light"}
-        proposalType={proposal.proposalType}
-        className="w-full text-center"
-      />,
+      <Type key="type" id={id} index={index} />,
 
       // Status
-      <StatusLabel
-        key={key("status", proposal)}
-        status={proposal.status}
-        className="ml-auto"
-      />,
+      <Status key="status" id={id} />,
 
       // Voted
-      props.isExtensionConnected &&
-        props.votedProposalIds.includes(proposal.id) && (
-          <GoCheckCircleFill
-            key={key("check", proposal)}
-            className="text-cyan text-lg"
-          />
-        ),
+      props.isExtensionConnected && props.votedProposalIds.includes(id) && (
+        <GoCheckCircleFill key="voted" className="text-cyan text-lg" />
+      ),
 
       // Voting end on
-      <div key={key("voting-end", proposal)} className="text-right">
-        Epoch {proposal.endEpoch.toString()}
-      </div>,
+      <VotingEnd key="voting-end" id={id} />,
 
       // Info
       <i
-        key={key("info", proposal)}
+        key="info"
         className="flex justify-center w-6 text-lg group-hover/proposals:text-cyan"
       >
-        <GoInfo key={key("info", proposal)} />
+        <GoInfo />
       </i>,
     ],
   });
@@ -102,7 +83,7 @@ const Table: React.FC<
         headProps={{ className: "text-xs" }}
         id="all-proposals-table"
         headers={headers}
-        rows={props.proposals.map(renderRow)}
+        rows={props.proposalIds.map(renderRow)}
         containerClassName="dark-scrollbar"
       />
     </div>
@@ -140,6 +121,8 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
     isProposalStatus(selectedStatus) ? selectedStatus : undefined;
   const maybeType = selectedType === "all" ? undefined : selectedType;
 
+  // TODO: just query IDs, don't query full proposals.
+  // This should be better for loading table rows in parallel.
   const proposals = useAtomValue(
     allProposalsFamily({
       status: maybeStatus,
@@ -223,7 +206,10 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
         />
       </div>
 
-      <Table {...props} proposals={proposals.isSuccess ? proposals.data : []} />
+      <Table
+        {...props}
+        proposalIds={proposals.isSuccess ? proposals.data.map((p) => p.id) : []}
+      />
     </Stack>
   );
 };
@@ -257,3 +243,40 @@ const TableSelect = <T extends string>(
     />
   </div>
 );
+
+const useWithProposal = (
+  id: bigint,
+  render: (proposal: Proposal) => JSX.Element | null
+): JSX.Element | null => {
+  const proposal = useAtomValue(proposalFamily(id));
+
+  if (proposal.isPending || proposal.isError) {
+    return null;
+  } else {
+    return render(proposal.data);
+  }
+};
+
+type CellProps = { id: bigint };
+
+const Title: React.FC<CellProps> = ({ id }) =>
+  useWithProposal(id, (proposal) => <>{proposal.content.title}</>);
+
+const Type: React.FC<{ index: number } & CellProps> = ({ id, index }) =>
+  useWithProposal(id, (proposal) => (
+    <TypeLabel
+      color={index % 2 === 0 ? "dark" : "light"}
+      proposalType={proposal.proposalType}
+      className="w-full text-center"
+    />
+  ));
+
+const Status: React.FC<CellProps> = ({ id }) =>
+  useWithProposal(id, (proposal) => (
+    <StatusLabel status={proposal.status} className="ml-auto" />
+  ));
+
+const VotingEnd: React.FC<CellProps> = ({ id }) =>
+  useWithProposal(id, (proposal) => (
+    <div className="text-right">Epoch {proposal.endEpoch.toString()}</div>
+  ));

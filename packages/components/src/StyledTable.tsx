@@ -49,7 +49,7 @@ export const StyledTable = ({
         <tbody className="text-white text-base font-medium">
           {rows.map((row, index) => (
             <StyledTableRow
-              key={`table-tr-${id}-${index}`}
+              key={row.key ?? `table-tr-${id}-${index}`}
               id={id}
               index={index}
               row={row}
