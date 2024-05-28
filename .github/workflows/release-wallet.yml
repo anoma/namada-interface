@@ -83,7 +83,7 @@ jobs:
         run: sudo apt-get install -y protobuf-compiler
 
       - name: Build the interface
-        working-directory: ./apps/namada-interface
+        working-directory: ./apps/namadillo
         run: yarn build
         env:
           NAMADA_INTERFACE_NAMADA_ALIAS: ${{ inputs.NAMADA_INTERFACE_NAMADA_ALIAS }}
@@ -99,8 +99,8 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: namada-interface
-          path: ./apps/namada-interface/build
+          name: namadillo
+          path: ./apps/namadillo/dist
 
   build-extension-chrome:
     needs: setup
@@ -196,8 +196,8 @@ jobs:
       - name: Download interface build
         uses: actions/download-artifact@v3
         with:
-          name: namada-interface
-          path: ./namada-interface
+          name: namadillo
+          path: ./namadillo
 
       - name: Download Chrome extension build
         uses: actions/download-artifact@v3
@@ -220,7 +220,7 @@ jobs:
       - name: Deploy interface to Netlify
         uses: nwtgck/actions-netlify@v1.2.3
         with:
-          publish-dir: ./namada-interface
+          publish-dir: ./namadillo
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: "Deployed release ${{ needs.setup.outputs.VERSION }}"

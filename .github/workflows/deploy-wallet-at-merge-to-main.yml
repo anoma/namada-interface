@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - "apps/namada-interface/**"
+      - "apps/namadillo/**"
       - ".github/workflows/**"
 env:
   CI: false
@@ -32,7 +32,7 @@ jobs:
           version: "v0.10.3"
 
       - name: build the site
-        working-directory: ./apps/namada-interface
+        working-directory: ./apps/namadillo
         run: yarn build
         env:
           NAMADA_INTERFACE_NAMADA_ALIAS: "Namada Devnet"
@@ -43,7 +43,7 @@ jobs:
         if: false
         uses: nwtgck/actions-netlify@v1.2.3
         with:
-          publish-dir: "./apps/namada-interface/build"
+          publish-dir: "./apps/namadillo/dist"
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: "Merged PR ${{ github.event.number }} to main"

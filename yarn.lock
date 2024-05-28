@@ -4683,6 +4683,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.15.4":
+  version: 7.24.6
+  resolution: "@babel/runtime@npm:7.24.6"
+  dependencies:
+    regenerator-runtime: "npm:^0.14.0"
+  checksum: 224ad205de33ea28979baaec89eea4c4d4e9482000dd87d15b97859365511cdd4d06517712504024f5d33a5fb9412f9b91c96f1d923974adf9359e1575cde049
+  languageName: node
+  linkType: hard
+
 "@babel/runtime@npm:^7.23.5":
   version: 7.23.6
   resolution: "@babel/runtime@npm:7.23.6"
@@ -8155,6 +8164,71 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@motionone/animation@npm:^10.12.0":
+  version: 10.17.0
+  resolution: "@motionone/animation@npm:10.17.0"
+  dependencies:
+    "@motionone/easing": "npm:^10.17.0"
+    "@motionone/types": "npm:^10.17.0"
+    "@motionone/utils": "npm:^10.17.0"
+    tslib: "npm:^2.3.1"
+  checksum: 51873c9532ccb9f2b8475e871ba3eeebff2171bb2bd88e76bcf1fdb5bc1a7150f319c148063d17c16597038a8993c68033d918cc73a9fec40bb1f78ee8a52764
+  languageName: node
+  linkType: hard
+
+"@motionone/dom@npm:10.12.0":
+  version: 10.12.0
+  resolution: "@motionone/dom@npm:10.12.0"
+  dependencies:
+    "@motionone/animation": "npm:^10.12.0"
+    "@motionone/generators": "npm:^10.12.0"
+    "@motionone/types": "npm:^10.12.0"
+    "@motionone/utils": "npm:^10.12.0"
+    hey-listen: "npm:^1.0.8"
+    tslib: "npm:^2.3.1"
+  checksum: 1af6cd8d8518ebbd90d74f15443ad94d7d03bf9e7e1455a5cb6768a53ba8dac6906ca121e9c1f42b8d53a8ab7c19d14e4731c10231b5dc7102628f32659faea2
+  languageName: node
+  linkType: hard
+
+"@motionone/easing@npm:^10.17.0":
+  version: 10.17.0
+  resolution: "@motionone/easing@npm:10.17.0"
+  dependencies:
+    "@motionone/utils": "npm:^10.17.0"
+    tslib: "npm:^2.3.1"
+  checksum: 9e82cf970cb754c44bc8226fd660c4a546aa06bb6eabb0b8be3a1466fc07920da13195e76d09d81704d059411584ba66de3bfc0192acc585a6fe352bf3e3fe22
+  languageName: node
+  linkType: hard
+
+"@motionone/generators@npm:^10.12.0":
+  version: 10.17.0
+  resolution: "@motionone/generators@npm:10.17.0"
+  dependencies:
+    "@motionone/types": "npm:^10.17.0"
+    "@motionone/utils": "npm:^10.17.0"
+    tslib: "npm:^2.3.1"
+  checksum: b1a951d7c20474b34d31cb199907a3ee4ae5074ff2ab49e18e54a63f5eacba6662e179a76f9b64ed7eaac5922ae934eaeca567f2a48c5a1a3ebf59cc5a43fc9f
+  languageName: node
+  linkType: hard
+
+"@motionone/types@npm:^10.12.0, @motionone/types@npm:^10.17.0":
+  version: 10.17.0
+  resolution: "@motionone/types@npm:10.17.0"
+  checksum: 9c91d887b368c93e860c1ff4b245d60d33966ec5bd2525ce91c4e2904c223f79333013fe06140feeab23f27ad9e8546a151e8357c5dc5218c5b658486bac3f82
+  languageName: node
+  linkType: hard
+
+"@motionone/utils@npm:^10.12.0, @motionone/utils@npm:^10.17.0":
+  version: 10.17.0
+  resolution: "@motionone/utils@npm:10.17.0"
+  dependencies:
+    "@motionone/types": "npm:^10.17.0"
+    hey-listen: "npm:^1.0.8"
+    tslib: "npm:^2.3.1"
+  checksum: a90dc772245fa379d522d752dcbe80b02b1fcb17da6a3f3ebc725ac0e99b7847d39f1f4a29f10cbf5e8b6157766191ba03e96c75b0fa8378e3a1c4cc8cad728a
+  languageName: node
+  linkType: hard
+
 "@namada/chains@npm:0.2.1, @namada/chains@workspace:packages/chains":
   version: 0.0.0-use.local
   resolution: "@namada/chains@workspace:packages/chains"
@@ -8410,6 +8484,84 @@ __metadata:
 "@namada/namada-interface@workspace:apps/namada-interface":
   version: 0.0.0-use.local
   resolution: "@namada/namada-interface@workspace:apps/namada-interface"
+  dependencies:
+    "@playwright/test": "npm:^1.24.1"
+    "@reduxjs/toolkit": "npm:^1.8.0"
+    "@svgr/webpack": "npm:^6.5.1"
+    "@testing-library/jest-dom": "npm:^5.16.2"
+    "@testing-library/react": "npm:^12.1.3"
+    "@testing-library/user-event": "npm:^13.5.0"
+    "@types/dompurify": "npm:^3.0.2"
+    "@types/jest": "npm:^29.4.0"
+    "@types/node": "npm:^16.11.25"
+    "@types/react": "npm:^17.0.39"
+    "@types/react-dom": "npm:^17.0.11"
+    "@types/react-modal": "npm:^3.13.1"
+    "@types/react-paginate": "npm:^7.1.2"
+    "@types/react-qr-reader": "npm:^2.1.4"
+    "@types/redux-mock-store": "npm:^1.0.3"
+    "@types/styled-components": "npm:^5.1.22"
+    autoprefixer: "npm:^10.4.16"
+    babel-plugin-styled-components: "npm:^2.0.3"
+    bignumber.js: "npm:^9.1.1"
+    buffer: "npm:^6.0.3"
+    crypto-browserify: "npm:^3.12.0"
+    css-loader: "npm:^6.7.3"
+    dompurify: "npm:^3.0.2"
+    dotenv: "npm:^16.0.3"
+    eslint: "npm:^8.49.0"
+    eslint-config-prettier: "npm:^8.8.0"
+    eslint-import-resolver-typescript: "npm:^2.5.0"
+    eslint-plugin-import: "npm:^2.27.5"
+    eslint-plugin-react: "npm:^7.33.0"
+    eslint-plugin-react-hooks: "npm:^4.6.0"
+    ethers: "npm:^6.7.1"
+    fp-ts: "npm:^2.16.1"
+    framer-motion: "npm:^6.2.8"
+    history: "npm:^5.3.0"
+    html-webpack-plugin: "npm:^5.5.0"
+    jest: "npm:^29.4.1"
+    jest-fetch-mock: "npm:^3.0.3"
+    jotai: "npm:^2.6.3"
+    jotai-redux: "npm:^0.2.1"
+    local-cors-proxy: "npm:^1.1.0"
+    next-qrcode: "npm:^2.0.0"
+    path: "npm:^0.12.7"
+    postcss: "npm:^8.4.32"
+    postcss-loader: "npm:^7.3.3"
+    prettier: "npm:^2.5.1"
+    react: "npm:^17.0.2"
+    react-dom: "npm:^17.0.2"
+    react-modal: "npm:^3.15.1"
+    react-paginate: "npm:^8.2.0"
+    react-qr-reader: "npm:2.1.2"
+    react-redux: "npm:^7.2.6"
+    react-router-dom: "npm:^6.0.0"
+    react-scripts: "npm:5.0.0"
+    redux-mock-store: "npm:^1.5.4"
+    redux-persist: "npm:^6.0.0"
+    redux-persist-transform-encrypt: "npm:^3.0.1"
+    redux-thunk: "npm:^2.4.1"
+    stream: "npm:^0.0.2"
+    style-loader: "npm:^3.3.1"
+    styled-components: "npm:^5.3.3"
+    tailwindcss: "npm:^3.4.0"
+    ts-jest: "npm:^29.0.5"
+    ts-loader: "npm:^9.4.2"
+    ts-node: "npm:^10.9.1"
+    tsconfig-paths-webpack-plugin: "npm:^4.1.0"
+    typescript: "npm:^5.1.3"
+    typescript-plugin-styled-components: "npm:^2.0.0"
+    web-vitals: "npm:^2.1.4"
+    webpack-bundle-analyzer: "npm:^4.10.1"
+    webpack-cli: "npm:^5.0.1"
+    webpack-dev-server: "npm:^4.11.1"
+  languageName: unknown
+  linkType: soft
+
+"@namada/namadillo@workspace:apps/namadillo":
+  version: 0.0.0-use.local
+  resolution: "@namada/namadillo@workspace:apps/namadillo"
   dependencies:
     "@playwright/test": "npm:^1.24.1"
     "@svgr/webpack": "npm:^6.5.1"
@@ -9008,6 +9160,26 @@ __metadata:
   bin:
     browsers: lib/cjs/main-cli.js
   checksum: a987761bbe068301902a9771f5e302e8510e6f8f66bc89f73bdfab8aed22281327ff908c749a8205f16a57fd9efeee52fa306a810ff4f63a9c715b98ccf72ac0
+  languageName: node
+  linkType: hard
+
+"@reduxjs/toolkit@npm:^1.8.0":
+  version: 1.9.7
+  resolution: "@reduxjs/toolkit@npm:1.9.7"
+  dependencies:
+    immer: "npm:^9.0.21"
+    redux: "npm:^4.2.1"
+    redux-thunk: "npm:^2.4.2"
+    reselect: "npm:^4.1.8"
+  peerDependencies:
+    react: ^16.9.0 || ^17.0.0 || ^18
+    react-redux: ^7.2.1 || ^8.0.2
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-redux:
+      optional: true
+  checksum: fa0aa4b7c6973ac87ce0ac7e45faa02c73b66c4ee0bc950d178494539a42a1bb908d109297102458b7ea14d5e7dae356e7a7ce9a1b9849b0e8451e6dd70fca9c
   languageName: node
   linkType: hard
 
@@ -10263,6 +10435,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/hoist-non-react-statics@npm:^3.3.0":
+  version: 3.3.5
+  resolution: "@types/hoist-non-react-statics@npm:3.3.5"
+  dependencies:
+    "@types/react": "npm:*"
+    hoist-non-react-statics: "npm:^3.3.0"
+  checksum: 2a3b64bf3d9817d7830afa60ee314493c475fb09570a64e7737084cd482d2177ebdddf888ce837350bac51741278b077683facc9541f052d4bbe8487b4e3e618
+  languageName: node
+  linkType: hard
+
 "@types/html-minifier-terser@npm:^6.0.0":
   version: 6.1.0
   resolution: "@types/html-minifier-terser@npm:6.1.0"
@@ -10724,6 +10906,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-redux@npm:^7.1.20":
+  version: 7.1.33
+  resolution: "@types/react-redux@npm:7.1.33"
+  dependencies:
+    "@types/hoist-non-react-statics": "npm:^3.3.0"
+    "@types/react": "npm:*"
+    hoist-non-react-statics: "npm:^3.3.0"
+    redux: "npm:^4.0.0"
+  checksum: e17a2fea00c6ab5f22868e927b4da7b7cf8dc7c85102638fa0f87e12ae0ec13335d9b3bf75098b3316dd8d2a18c99fe08bed22daa989a13f3710c4530f7b979e
+  languageName: node
+  linkType: hard
+
 "@types/react@npm:*, @types/react@npm:^17.0.39":
   version: 17.0.40
   resolution: "@types/react@npm:17.0.40"
@@ -10732,6 +10926,15 @@ __metadata:
     "@types/scheduler": "npm:*"
     csstype: "npm:^3.0.2"
   checksum: 8b32469271f4a7cf22e5cf615a60b8f04d9f9bcf54655a7a075d599204a36bcc28fff18ccfff8c2f498f6a80488c7d5b334ebd297d9d0d3483c2911b390a8464
+  languageName: node
+  linkType: hard
+
+"@types/redux-mock-store@npm:^1.0.3":
+  version: 1.0.6
+  resolution: "@types/redux-mock-store@npm:1.0.6"
+  dependencies:
+    redux: "npm:^4.0.5"
+  checksum: 26f3b5091f131e0bcd150e3a621f21dc1ba059352729ee4d5154812042ea0cf8d1ae2880263367e55222130db14ec912bfda0b7ca184413f4989959fd5a2a70b
   languageName: node
   linkType: hard
 
@@ -15573,6 +15776,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"crypto-js@npm:3.1.9-1":
+  version: 3.1.9-1
+  resolution: "crypto-js@npm:3.1.9-1"
+  checksum: f68af7121c35ae4f50030f3f33f9268a104b0ded727e31c7303bee72bde2e6131d27df72ae778a7565b93ac828ba30bd6b0c1c4acb5d5c5590001090ac2f818f
+  languageName: node
+  linkType: hard
+
 "crypto-js@npm:^4.1.1":
   version: 4.1.1
   resolution: "crypto-js@npm:4.1.1"
@@ -17632,7 +17842,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-react-app@npm:^7.0.1":
+"eslint-config-react-app@npm:^7.0.0, eslint-config-react-app@npm:^7.0.1":
   version: 7.0.1
   resolution: "eslint-config-react-app@npm:7.0.1"
   dependencies:
@@ -19352,6 +19562,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"framer-motion@npm:^6.2.8":
+  version: 6.5.1
+  resolution: "framer-motion@npm:6.5.1"
+  dependencies:
+    "@emotion/is-prop-valid": "npm:^0.8.2"
+    "@motionone/dom": "npm:10.12.0"
+    framesync: "npm:6.0.1"
+    hey-listen: "npm:^1.0.8"
+    popmotion: "npm:11.0.3"
+    style-value-types: "npm:5.0.0"
+    tslib: "npm:^2.1.0"
+  peerDependencies:
+    react: ">=16.8 || ^17.0.0 || ^18.0.0"
+    react-dom: ">=16.8 || ^17.0.0 || ^18.0.0"
+  dependenciesMeta:
+    "@emotion/is-prop-valid":
+      optional: true
+  checksum: 69d64f7ac878eb5a0d90f1ccbaaee76f7731b276c4369fdce7d283fa92cca35ea05c42ad2da0c6c0ab4bb180b7fa4f511b6928bdb43818f6feaf245531d3df5a
+  languageName: node
+  linkType: hard
+
 "framesync@npm:6.0.1":
   version: 6.0.1
   resolution: "framesync@npm:6.0.1"
@@ -20400,7 +20631,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hoist-non-react-statics@npm:^3.0.0, hoist-non-react-statics@npm:^3.3.0":
+"hoist-non-react-statics@npm:^3.0.0, hoist-non-react-statics@npm:^3.3.0, hoist-non-react-statics@npm:^3.3.2":
   version: 3.3.2
   resolution: "hoist-non-react-statics@npm:3.3.2"
   dependencies:
@@ -20905,6 +21136,13 @@ __metadata:
   version: 3.0.6
   resolution: "immediate@npm:3.0.6"
   checksum: f8ba7ede69bee9260241ad078d2d535848745ff5f6995c7c7cb41cfdc9ccc213f66e10fa5afb881f90298b24a3f7344b637b592beb4f54e582770cdce3f1f039
+  languageName: node
+  linkType: hard
+
+"immer@npm:^9.0.21":
+  version: 9.0.21
+  resolution: "immer@npm:9.0.21"
+  checksum: 03ea3ed5d4d72e8bd428df4a38ad7e483ea8308e9a113d3b42e0ea2cc0cc38340eb0a6aca69592abbbf047c685dbda04e3d34bf2ff438ab57339ed0a34cc0a05
   languageName: node
   linkType: hard
 
@@ -24870,6 +25108,15 @@ __metadata:
   version: 4.13.1
   resolution: "jose@npm:4.13.1"
   checksum: b517a38ca06601aaadcdce0ab5231b0a5969bbb9f99f37f4120e608aafb34e1a941179893d4ecedd295d122f37dac74e08f73fc723c523d7a2530928f10d3a2d
+  languageName: node
+  linkType: hard
+
+"jotai-redux@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "jotai-redux@npm:0.2.1"
+  peerDependencies:
+    jotai: ">=1.11.0"
+  checksum: 36c4696fa7c983b10f125e3851267c74b8a728cf766bfb8bcb16d75ed74068fc52b2a1f08ae280293b5a40556db80d7ac5e6472fbdc1adbff754137d1ccfb8fa
   languageName: node
   linkType: hard
 
@@ -29750,6 +29997,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prettier@npm:^2.5.1":
+  version: 2.8.8
+  resolution: "prettier@npm:2.8.8"
+  bin:
+    prettier: bin-prettier.js
+  checksum: 463ea8f9a0946cd5b828d8cf27bd8b567345cf02f56562d5ecde198b91f47a76b7ac9eae0facd247ace70e927143af6135e8cf411986b8cb8478784a4d6d724a
+  languageName: node
+  linkType: hard
+
 "prettier@npm:^3.1.0":
   version: 3.1.0
   resolution: "prettier@npm:3.1.0"
@@ -30461,7 +30717,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dev-utils@npm:^12.0.1":
+"react-dev-utils@npm:^12.0.0, react-dev-utils@npm:^12.0.1":
   version: 12.0.1
   resolution: "react-dev-utils@npm:12.0.1"
   dependencies:
@@ -30550,7 +30806,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^17.0.1":
+"react-is@npm:^17.0.1, react-is@npm:^17.0.2":
   version: 17.0.2
   resolution: "react-is@npm:17.0.2"
   checksum: 2bdb6b93fbb1820b024b496042cce405c57e2f85e777c9aabd55f9b26d145408f9f74f5934676ffdc46f3dcff656d78413a6e43968e7b3f92eea35b3052e9053
@@ -30611,6 +30867,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-redux@npm:^7.2.6":
+  version: 7.2.9
+  resolution: "react-redux@npm:7.2.9"
+  dependencies:
+    "@babel/runtime": "npm:^7.15.4"
+    "@types/react-redux": "npm:^7.1.20"
+    hoist-non-react-statics: "npm:^3.3.2"
+    loose-envify: "npm:^1.4.0"
+    prop-types: "npm:^15.7.2"
+    react-is: "npm:^17.0.2"
+  peerDependencies:
+    react: ^16.8.3 || ^17 || ^18
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+    react-native:
+      optional: true
+  checksum: 904fac7f493942585ed7ebbd693b4f6b5c09c292366b4550e887ba1a2e83a92c55f0ddc35161d4ba87e3fadb6c681a59003f58df6335e5d2ddd72b06a557851d
+  languageName: node
+  linkType: hard
+
 "react-refresh@npm:^0.11.0":
   version: 0.11.0
   resolution: "react-refresh@npm:0.11.0"
@@ -30646,6 +30923,73 @@ __metadata:
   peerDependencies:
     react: ">=16.8"
   checksum: fc413951a5ce0abb0a343d6e49664d4d211f57a1494f12bf5ee46839cdb88d08770bcb734e648afb52ad428e2d6c137841479fb73b4cbaf1bcbc664b622b5ba4
+  languageName: node
+  linkType: hard
+
+"react-scripts@npm:5.0.0":
+  version: 5.0.0
+  resolution: "react-scripts@npm:5.0.0"
+  dependencies:
+    "@babel/core": "npm:^7.16.0"
+    "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.3"
+    "@svgr/webpack": "npm:^5.5.0"
+    babel-jest: "npm:^27.4.2"
+    babel-loader: "npm:^8.2.3"
+    babel-plugin-named-asset-import: "npm:^0.3.8"
+    babel-preset-react-app: "npm:^10.0.1"
+    bfj: "npm:^7.0.2"
+    browserslist: "npm:^4.18.1"
+    camelcase: "npm:^6.2.1"
+    case-sensitive-paths-webpack-plugin: "npm:^2.4.0"
+    css-loader: "npm:^6.5.1"
+    css-minimizer-webpack-plugin: "npm:^3.2.0"
+    dotenv: "npm:^10.0.0"
+    dotenv-expand: "npm:^5.1.0"
+    eslint: "npm:^8.3.0"
+    eslint-config-react-app: "npm:^7.0.0"
+    eslint-webpack-plugin: "npm:^3.1.1"
+    file-loader: "npm:^6.2.0"
+    fs-extra: "npm:^10.0.0"
+    fsevents: "npm:^2.3.2"
+    html-webpack-plugin: "npm:^5.5.0"
+    identity-obj-proxy: "npm:^3.0.0"
+    jest: "npm:^27.4.3"
+    jest-resolve: "npm:^27.4.2"
+    jest-watch-typeahead: "npm:^1.0.0"
+    mini-css-extract-plugin: "npm:^2.4.5"
+    postcss: "npm:^8.4.4"
+    postcss-flexbugs-fixes: "npm:^5.0.2"
+    postcss-loader: "npm:^6.2.1"
+    postcss-normalize: "npm:^10.0.1"
+    postcss-preset-env: "npm:^7.0.1"
+    prompts: "npm:^2.4.2"
+    react-app-polyfill: "npm:^3.0.0"
+    react-dev-utils: "npm:^12.0.0"
+    react-refresh: "npm:^0.11.0"
+    resolve: "npm:^1.20.0"
+    resolve-url-loader: "npm:^4.0.0"
+    sass-loader: "npm:^12.3.0"
+    semver: "npm:^7.3.5"
+    source-map-loader: "npm:^3.0.0"
+    style-loader: "npm:^3.3.1"
+    tailwindcss: "npm:^3.0.2"
+    terser-webpack-plugin: "npm:^5.2.5"
+    webpack: "npm:^5.64.4"
+    webpack-dev-server: "npm:^4.6.0"
+    webpack-manifest-plugin: "npm:^4.0.2"
+    workbox-webpack-plugin: "npm:^6.4.1"
+  peerDependencies:
+    react: ">= 16"
+    typescript: ^3.2.1 || ^4
+  dependenciesMeta:
+    fsevents:
+      optional: true
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  bin:
+    react-scripts: bin/react-scripts.js
+  checksum: 7fb82563704d38f28c6a8ccf3ed67e5bbbae6e56703ea261285fd4520af6ef7606c2351e062c0b86c638c2bb3acf2b2cca8ba1b659b9cde0ffa4dc13f3f41c75
   languageName: node
   linkType: hard
 
@@ -30948,6 +31292,55 @@ __metadata:
   dependencies:
     test-value: "npm:^2.0.0"
   checksum: 25832300e7ac3b44611d71b7ad3670c9a9454ace245773678099a7ee89e3d1f1549e049b3e63f097b0c68fa224af501b7a3964f057d362131277c23fcb743de9
+  languageName: node
+  linkType: hard
+
+"redux-mock-store@npm:^1.5.4":
+  version: 1.5.4
+  resolution: "redux-mock-store@npm:1.5.4"
+  dependencies:
+    lodash.isplainobject: "npm:^4.0.6"
+  checksum: 674fc7a68ffdb9a9ad50c9f987a2711387b1fc348a8ed3d07b7abd4d2560762347a9565cf9080e786d9f66012ff47f90bef244623c62136511d9b4f2411fb658
+  languageName: node
+  linkType: hard
+
+"redux-persist-transform-encrypt@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "redux-persist-transform-encrypt@npm:3.0.1"
+  dependencies:
+    crypto-js: "npm:3.1.9-1"
+    json-stringify-safe: "npm:^5.0.1"
+  peerDependencies:
+    redux: ">3.0.0"
+    redux-persist: ^6.x.x
+  checksum: a01e628123365b2450ab9a8133706c4b6da382ff56385ca06c09d0a9bc64fa158483878be536787838be26683e1f36c8ad3efa47dd24f321da5dffe7eb895a8b
+  languageName: node
+  linkType: hard
+
+"redux-persist@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "redux-persist@npm:6.0.0"
+  peerDependencies:
+    redux: ">4.0.0"
+  checksum: 8242d265ab8d28bbc95cf2dc2a05b869eb67aa309b1ed08163c926f3af56dd8eb1ea62118286083461b8ef2024d3b349fd264e5a62a70eb2e74d068c832d5bf2
+  languageName: node
+  linkType: hard
+
+"redux-thunk@npm:^2.4.1, redux-thunk@npm:^2.4.2":
+  version: 2.4.2
+  resolution: "redux-thunk@npm:2.4.2"
+  peerDependencies:
+    redux: ^4
+  checksum: e202d6ef7dfa7df08ed24cb221aa89d6c84dbaa7d65fe90dbd8e826d0c10d801f48388f9a7598a4fd970ecbc93d335014570a61ca7bc8bf569eab5de77b31a3c
+  languageName: node
+  linkType: hard
+
+"redux@npm:^4.0.0, redux@npm:^4.0.5, redux@npm:^4.2.1":
+  version: 4.2.1
+  resolution: "redux@npm:4.2.1"
+  dependencies:
+    "@babel/runtime": "npm:^7.9.2"
+  checksum: 136d98b3d5dbed1cd6279c8c18a6a74c416db98b8a432a46836bdd668475de6279a2d4fd9d1363f63904e00f0678a8a3e7fa532c897163340baf1e71bb42c742
   languageName: node
   linkType: hard
 
@@ -31309,6 +31702,13 @@ __metadata:
   dependencies:
     lodash: "npm:^4.17.21"
   checksum: ad138f987943aeda5f96cd1ccba9752c96352a729a7e3c3e2545568703f7fc9b978d9b46715803408ef178b0d61d36a4b1b506b367b7e78fe6d041fa5bfa5e06
+  languageName: node
+  linkType: hard
+
+"reselect@npm:^4.1.8":
+  version: 4.1.8
+  resolution: "reselect@npm:4.1.8"
+  checksum: 06a305a504affcbb67dd0561ddc8306b35796199c7e15b38934c80606938a021eadcf68cfd58e7bb5e17786601c37602a3362a4665c7bf0a96c1041ceee9d0b7
   languageName: node
   linkType: hard
 
@@ -34690,6 +35090,13 @@ __metadata:
   version: 2.3.1
   resolution: "tslib@npm:2.3.1"
   checksum: 4efd888895bdb3b987086b2b7793ad1013566f882b0eb7a328384e5ecc0d71cafb16bbeab3196200cbf7f01a73ccc25acc2f131d4ea6ee959be7436a8a306482
+  languageName: node
+  linkType: hard
+
+"tslib@npm:^2.3.1":
+  version: 2.6.2
+  resolution: "tslib@npm:2.6.2"
+  checksum: e03a8a4271152c8b26604ed45535954c0a45296e32445b4b87f8a5abdb2421f40b59b4ca437c4346af0f28179780d604094eb64546bee2019d903d01c6c19bdb
   languageName: node
   linkType: hard
 

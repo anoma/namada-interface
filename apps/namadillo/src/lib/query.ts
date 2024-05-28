@@ -67,12 +67,8 @@ const getTxProps = (
 /**
  * Builds an array of encoded transactions based on the provided query properties.
  * Each transaction is processed through the provided transaction function `txFn`.
- * @param {Account} account - The account initiating the transactions.
- * @param {GasConfig} gasConfig - Configuration for transaction fees and gas limits.
- * @param {Chain} chain - chain information.
  * @param {T[]} queryProps - An array of properties used to build transactions.
  * @param {(WrapperTxProps, T) => Promise<EncodedTx>} txFn - Function to build each transaction.
- * @return {Promise<EncodedTxData<T>[]>} A promise that resolves to an array of encoded transaction data.
  */
 export const buildTxArray = async <T>(
   account: Account,
@@ -110,13 +106,6 @@ export const buildTxArray = async <T>(
 
 /**
  * Asynchronously signs an array of encoded transactions using Namada extension.
- *
- * @param {Chain} chain - chain information
- * @param {EncodedTxData<T>[]} typedEncodedTxs - An array of objects containing encoded transactions to be signed.
- *   Each object in the array must include an `encodedTx` property that holds the transaction data.
- * @param {string} owner - owner account address
- * @returns {Promise<Uint8Array[]>} A promise that resolves to an array of signed transactions, represented
- *   as byte arrays.
  */
 export const signTxArray = async <T>(
   chain: Chain,
@@ -147,24 +136,7 @@ export const signTxArray = async <T>(
  * transaction and its corresponding encoded transaction data.
  *
  * Encoded transaction data includes the transaction itself along with additional metadata
- * that holds the initial values for its creation.
- *
- * This can be useful, for example, to differentiate between "reveal pk" (public key reveal)
- * transactions and other types of transactions based on the 'type' attribute, enabling correct
- * notification triggers as needed.
- *
- * @template T - The type parameter that describes the shape of the properties used to build each
- *    transaction.
- * @param {Account} account - The account from which the transactions are initiated.
- * @param {GasConfig} gasConfig - Configuration settings for gas, including the gas price and limit.
- * @param {Chain} chain - chain information
- * @param {T[]} queryProps - An array of properties, each of which will be used to construct individual
- *    transactions.
- * @param {(WrapperTxProps, T) => Promise<EncodedTx>} txFn - A function that takes transaction
- *    properties and a specific query property to construct an EncodedTx.
- * @param {string} owner - owner address
- * @returns {Promise<TransactionPair<T>[]>} A promise that resolves to an array of transaction pairs.
- *    Each pair includes a signed transaction and its encoded transaction data.
+ * that holds the initial values used for its creation.
  */
 export const buildTxPair = async <T>(
   account: Account,

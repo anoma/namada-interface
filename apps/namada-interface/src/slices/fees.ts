@@ -1,42 +1,55 @@
+import { Query } from "@namada/shared";
 import BigNumber from "bignumber.js";
-import { invariant } from "framer-motion";
-import { getSdkInstance } from "hooks";
 import { atom } from "jotai";
-import { atomWithQuery } from "jotai-tanstack-query";
+
 import { accountsAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
 
 // TODO: remove harcoding of gas limit
 export const GAS_LIMIT = new BigNumber(20_000);
 
-const {
-  NAMADA_INTERFACE_NAMADA_TOKEN:
-    nativeToken = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
-} = process.env;
+const minimumGasPriceAtom = (() => {
+  const base = atom(new Promise<BigNumber>(() => {}));
 
-export const minimumGasPriceAtom = atomWithQuery<BigNumber>((get) => {
-  const chain = get(chainAtom);
-  return {
-    queryKey: ["minimum-gas-price-" + chain.chainId],
-    queryFn: async () => {
-      const { rpc } = await getSdkInstance();
-      // TODO: Can nativeToken ever be undefined?
-      invariant(!!nativeToken, "Native token is undefined");
-      const result = (await rpc.queryGasCosts()) as [string, string][];
-      const nativeTokenCost = result.find(([token]) => token === nativeToken);
-      invariant(!!nativeTokenCost, "Error querying minimum gas price");
-      const asBigNumber = new BigNumber(nativeTokenCost![1]);
-      invariant(
-        !asBigNumber.isNaN(),
-        "Error converting minimum gas price to BigNumber"
-      );
+  return atom(
+    (get) => get(base),
+    async (get, set) => {
+      const {
+        rpc,
+        currency: {
+          address:
+            nativeToken = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+        },
+      } = get(chainAtom);
+      const query = new Query(rpc);
 
-      return asBigNumber;
-    },
-  };
-});
+      const promise = (async () => {
+        if (!nativeToken) {
+          throw new Error("Native token is undefined");
+        }
 
-export const isRevealPkNeededAtom = (() => {
+        const result = (await query.query_gas_costs()) as [string, string][];
+        const nativeTokenCost = result.find(([token]) => token === nativeToken);
+
+        if (!nativeTokenCost) {
+          throw new Error("Error querying minimum gas price");
+        }
+
+        const asBigNumber = new BigNumber(nativeTokenCost[1]);
+
+        if (asBigNumber.isNaN()) {
+          throw new Error("Error converting minimum gas price to BigNumber");
+        }
+
+        return asBigNumber;
+      })();
+
+      set(base, promise);
+    }
+  );
+})();
+
+const isRevealPkNeededAtom = (() => {
   type RevealPkNeededMap = { [address: string]: boolean };
 
   const base = atom(new Promise<RevealPkNeededMap>(() => {}));
@@ -56,15 +69,17 @@ export const isRevealPkNeededAtom = (() => {
       set(
         base,
         (async (): Promise<RevealPkNeededMap> => {
-          const accounts = get(accountsAtom);
+          const accounts = await get(accountsAtom);
           const transparentAccounts = accounts.filter(
             (account) => !account.isShielded
           );
-          const { rpc } = await getSdkInstance();
+
+          const { rpc } = get(chainAtom);
+          const query = new Query(rpc);
 
           const entries = await Promise.all(
             transparentAccounts.map(async ({ address }) => {
-              const publicKey = await rpc.queryPublicKey(address);
+              const publicKey = await query.query_public_key(address);
               return [address, !publicKey];
             })
           );
@@ -74,3 +89,5 @@ export const isRevealPkNeededAtom = (() => {
       )
   );
 })();
+
+export { isRevealPkNeededAtom, minimumGasPriceAtom };
