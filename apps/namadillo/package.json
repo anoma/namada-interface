@@ -50,7 +50,6 @@
     "test:ci": "jest",
     "e2e-test": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test",
     "e2e-test:headed": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test --project=chromium --headed",
-    "eject": "npx react-scripts eject",
     "wasm:build": "node ./scripts/build.js --release",
     "wasm:build:multicore": "node ./scripts/build.js --release --multicore",
     "wasm:build:dev": "node ./scripts/build.js",
