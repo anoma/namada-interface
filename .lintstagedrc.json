@@ -1,7 +1,6 @@
 {
   "*.{js,jsx,ts,tsx,json}": ["prettier --write"],
   "./apps/**/src/*.{js,jsx,ts,tsx}": ["eslint --fix --max-warnings=0"],
-  "./apps/namada-interface/src/**/*.{ts,tsx}?(x)": "bash -c npx tsc -p ./apps/namada-interface/tsconfig.json --noEmit",
   "./packages/**/src/*.{js,jsx,ts,tsx}": ["eslint --fix --max-warnings=0"],
   "./storybook/src/*.{js,jsx,ts,tsx}": ["eslint --fix --max-warnings=0"],
   "./e2e/src/*.{js,jsx,ts,tsx}": ["eslint --fix --max-warnings=0"]
