@@ -1,8 +1,14 @@
 import { Stack, ToggleButton } from "@namada/components";
+import { useAtom } from "jotai";
+import { signArbitraryEnabledAtom } from "slices/settings";
 import { SettingsPanelMenuItem } from "./SettingsPanelMenuItem";
 import SettingsRoutes from "./routes";
 
 export const SettingsMain = (): JSX.Element => {
+  const [signArbitraryEnabled, setSignArbitraryEnabled] = useAtom(
+    signArbitraryEnabledAtom
+  );
+
   return (
     <div className="flex flex-1 justify-between flex-col">
       <ul className="flex flex-col gap-2">
@@ -25,8 +31,10 @@ export const SettingsMain = (): JSX.Element => {
         </p>
         <ToggleButton
           label="Off (Recommended)"
-          checked={true}
-          onChange={() => {}}
+          color="white"
+          activeColor="yellow"
+          checked={signArbitraryEnabled}
+          onChange={() => setSignArbitraryEnabled(!signArbitraryEnabled)}
         />
       </Stack>
     </div>
