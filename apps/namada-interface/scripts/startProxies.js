@@ -4,10 +4,6 @@ require("dotenv").config();
 const {
   NAMADA_INTERFACE_NAMADA_ALIAS = "Namada",
   NAMADA_INTERFACE_NAMADA_URL,
-  NAMADA_INTERFACE_COSMOS_ALIAS = "Cosmos",
-  NAMADA_INTERFACE_COSMOS_URL,
-  NAMADA_INTERFACE_ETH_ALIAS = "Ethereum",
-  NAMADA_INTERFACE_ETH_URL,
 } = process.env;
 
 const proxyConfigs = [
@@ -15,16 +11,6 @@ const proxyConfigs = [
     alias: NAMADA_INTERFACE_NAMADA_ALIAS,
     url: NAMADA_INTERFACE_NAMADA_URL,
     proxyPort: 8010,
-  },
-  {
-    alias: NAMADA_INTERFACE_COSMOS_ALIAS,
-    url: NAMADA_INTERFACE_COSMOS_URL,
-    proxyPort: 8011,
-  },
-  {
-    alias: NAMADA_INTERFACE_ETH_ALIAS,
-    url: NAMADA_INTERFACE_ETH_URL,
-    proxyPort: 8012,
   },
 ];
 

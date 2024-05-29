@@ -51,16 +51,7 @@ The following is an example of configuring the interface and extension to connec
 NAMADA_INTERFACE_NAMADA_ALIAS=Namada Testnet
 NAMADA_INTERFACE_NAMADA_CHAIN_ID=public-testnet-14.5d79b6958580
 NAMADA_INTERFACE_NAMADA_URL=https://proxy.heliax.click/public-testnet-14.5d79b6958580/
-
-# COSMOS
-NAMADA_INTERFACE_COSMOS_ALIAS=Cosmos Testnet
-NAMADA_INTERFACE_COSMOS_CHAIN_ID=theta-testnet-001
-NAMADA_INTERFACE_COSMOS_URL=https://rpc.sentry-01.theta-testnet.polypore.xyz
-
-# ETH
-NAMADA_INTERFACE_ETH_ALIAS=Eth Testnet
-NAMADA_INTERFACE_ETH_CHAIN_ID=0x7A69
-NAMADA_INTERFACE_ETH_URL=https://rpc.ankr.com/eth_goerli
+NAMADA_INTERFACE_NAMADA_TOKEN=tnam1qxvg64psvhwumv3mwrrjfcz0h3t3274hwggyzcee
 ```
 
 For more details on setting up your local environment for integration between the interface and the extension, see the [README.md](../../README.md) at the root of this repo.
