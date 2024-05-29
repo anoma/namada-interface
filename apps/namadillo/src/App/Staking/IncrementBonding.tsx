@@ -109,7 +109,7 @@ const IncrementBonding = (): JSX.Element => {
 
   const dispatchBondingTransactions = (
     transactions: TransactionPair<BondProps>[]
-  ) => {
+  ): void => {
     dispatchTransactions(
       prepareTxs<BondProps>(transactions, (props: BondProps) => {
         const validatorAddress = shortenAddress(props.validator, 12, 8);

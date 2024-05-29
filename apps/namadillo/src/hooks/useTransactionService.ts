@@ -14,7 +14,7 @@ import {
   transactionsAtom,
 } from "slices/transactions";
 
-export const useTransactionService = () => {
+export const useTransactionService = (): void => {
   const transactions = useAtomValue(transactionsAtom);
   const clearTransactions = useSetAtom(clearTransactionQueueAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
@@ -24,7 +24,7 @@ export const useTransactionService = () => {
     id: string,
     notification: TransactionNotification,
     type: "error" | "success"
-  ) => {
+  ): void => {
     dispatchNotification({
       id,
       type,
@@ -34,7 +34,9 @@ export const useTransactionService = () => {
     });
   };
 
-  const handleTransaction = async (transaction: PreparedTransaction) => {
+  const handleTransaction = async (
+    transaction: PreparedTransaction
+  ): Promise<void> => {
     const transactionId = transaction.encodedTx.hash();
     let notificationType: "success" | "error" = "success";
 

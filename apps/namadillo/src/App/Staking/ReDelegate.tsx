@@ -91,7 +91,7 @@ export const ReDelegate = (): JSX.Element => {
 
   const dispatchReDelegateTransactions = (
     transactions: TransactionPair<RedelegateMsgValue>[]
-  ) => {
+  ): void => {
     dispatchTransactions(
       prepareTxs<RedelegateMsgValue>(
         transactions,

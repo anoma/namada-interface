@@ -93,7 +93,7 @@ const Unstake = (): JSX.Element => {
 
   const dispatchUnbondingTransactions = (
     transactions: TransactionPair<UnbondProps>[]
-  ) => {
+  ): void => {
     dispatchTransactions(
       prepareTxs<UnbondProps>(transactions, (props: UnbondProps) => {
         const validatorAddress = shortenAddress(props.validator, 12, 8);
