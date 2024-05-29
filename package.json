@@ -3,7 +3,9 @@
   "version": "0.2.4",
   "private": true,
   "workspaces": [
-    "apps/*",
+    "apps/namadillo",
+    "apps/extension",
+    "apps/faucet",
     "packages/*",
     "e2e"
   ],
