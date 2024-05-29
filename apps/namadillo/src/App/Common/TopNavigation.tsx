@@ -1,12 +1,12 @@
 import { ToggleButton } from "@namada/components";
 import { Chain } from "@namada/types";
-import { FiatCurrencyList } from "@namada/utils";
 import { ActiveAccount } from "App/Common/ActiveAccount";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
-import { CurrencySelector } from "App/Common/CurrencySelector";
 import { ConnectStatus, useExtensionConnect } from "hooks/useExtensionConnect";
 import { useAtom } from "jotai";
-import { hideBalancesAtom, selectedCurrencyAtom } from "slices/settings";
+import { IoSettingsOutline } from "react-icons/io5";
+import { Link } from "react-router-dom";
+import { hideBalancesAtom } from "slices/settings";
 
 type Props = {
   chain: Chain;
@@ -14,9 +14,7 @@ type Props = {
 
 export const TopNavigation = ({ chain }: Props): JSX.Element => {
   const { connectionStatus } = useExtensionConnect(chain);
-  const [selectedCurrency, setSelectedCurrency] = useAtom(selectedCurrencyAtom);
   const [hideBalances, setHideBalances] = useAtom(hideBalancesAtom);
-  const separator = <span className="h-8 w-px bg-rblack" />;
 
   return (
     <>
@@ -27,20 +25,16 @@ export const TopNavigation = ({ chain }: Props): JSX.Element => {
       )}
 
       {connectionStatus === ConnectStatus.CONNECTED && (
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-6">
           <ToggleButton
             label="Hide Balances"
             checked={hideBalances}
             onChange={() => setHideBalances(!hideBalances)}
             containerProps={{ className: "hidden text-white md:flex" }}
           />
-          {separator}
-          <CurrencySelector
-            currencies={FiatCurrencyList}
-            value={selectedCurrency}
-            onChange={setSelectedCurrency}
-          />
-          {separator}
+          <Link className="text-2xl text-yellow hover:text-cyan" to="/">
+            <IoSettingsOutline />
+          </Link>
           <ActiveAccount />
         </div>
       )}

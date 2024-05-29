@@ -1,15 +1,8 @@
-// TODO: don't duplicate this with Staking
-type RouteOutput = {
-  url: string;
-  toString: () => string;
-};
-
-export const routeOutput = (route: string): RouteOutput => ({
-  url: `${index()}${route}`,
-  toString: () => route,
-});
+import { createRouteOutput, RouteOutput } from "utils/routes";
 
 export const index = (): string => `/governance`;
+
+const routeOutput = createRouteOutput(index);
 
 export const overview = (): RouteOutput => routeOutput(`/overview`);
 

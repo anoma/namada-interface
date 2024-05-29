@@ -2,8 +2,6 @@ import { SidebarMenuItem } from "App/Common/SidebarMenuItem";
 import GovernanceRoutes from "App/Governance/routes";
 import { MASPIcon } from "App/Icons/MASPIcon";
 import { SwapIcon } from "App/Icons/SwapIcon";
-import StakingRoutes from "App/Staking/routes";
-import { TopLevelRoute } from "App/types";
 import { AiFillHome } from "react-icons/ai";
 import { BsDiscord, BsTwitterX } from "react-icons/bs";
 import { FaVoteYea } from "react-icons/fa";
@@ -11,12 +9,14 @@ import { GoStack } from "react-icons/go";
 import { IoSwapHorizontal } from "react-icons/io5";
 import { DISCORD_URL, TWITTER_URL } from "urls";
 
+import StakingRoutes from "App/Staking/routes";
+
 export const Navigation = (): JSX.Element => {
   return (
     <div className="h-full flex flex-col justify-between flex-1 pt-6 pb-8 px-6">
       <ul className="flex flex-col gap-4">
         <li>
-          <SidebarMenuItem url={TopLevelRoute.Wallet}>
+          <SidebarMenuItem url={"/"}>
             <AiFillHome />
             Overview
           </SidebarMenuItem>

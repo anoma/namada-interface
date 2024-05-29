@@ -2,7 +2,7 @@ import { ActionButton, Stack } from "@namada/components";
 import { Search } from "App/Common/Search";
 import BigNumber from "bignumber.js";
 import { Validator } from "slices/validators";
-import MyValidatorsFilter from "./MyValidatorsFilter";
+import { MyValidatorsFilter } from "./MyValidatorsFilter";
 import { QuickAccessList } from "./QuickAccessList";
 
 type Props = {

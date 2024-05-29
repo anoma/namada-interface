@@ -7,7 +7,7 @@ import { IoClose } from "react-icons/io5";
 import { chainAtom } from "slices/chain";
 import { Validator } from "slices/validators";
 import { twMerge } from "tailwind-merge";
-import ValidatorName from "./ValidatorName";
+import { ValidatorName } from "./ValidatorName";
 
 type ValidatorInfoPanel = {
   validator: Validator;

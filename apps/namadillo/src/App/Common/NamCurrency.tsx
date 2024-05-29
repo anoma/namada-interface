@@ -22,5 +22,3 @@ export const NamCurrency = ({
     />
   );
 };
-
-export default NamCurrency;

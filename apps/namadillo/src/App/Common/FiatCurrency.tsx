@@ -27,5 +27,3 @@ export const FiatCurrency = ({
     />
   );
 };
-
-export default FiatCurrency;

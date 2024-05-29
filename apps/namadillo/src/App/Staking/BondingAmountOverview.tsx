@@ -1,6 +1,6 @@
 import { Panel, Stack } from "@namada/components";
-import FiatCurrency from "App/Common/FiatCurrency";
-import NamCurrency from "App/Common/NamCurrency";
+import { FiatCurrency } from "App/Common/FiatCurrency";
+import { NamCurrency } from "App/Common/NamCurrency";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 

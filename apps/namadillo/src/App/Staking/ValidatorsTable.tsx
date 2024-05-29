@@ -19,7 +19,7 @@ type ValidatorsTableProps = {
   updatedAmountByAddress?: Record<string, BigNumber | undefined>;
 };
 
-const ValidatorsTable = ({
+export const ValidatorsTable = ({
   id,
   headers,
   renderRow,
@@ -170,5 +170,3 @@ const ValidatorsTable = ({
     </div>
   );
 };
-
-export default ValidatorsTable;

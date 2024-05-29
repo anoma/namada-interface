@@ -12,11 +12,6 @@ import { AllValidatorsTable } from "./AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
 import { StakingSummary } from "./StakingSummary";
 
-// callbacks in this type are specific to a certain row type
-export type ValidatorsCallbacks = {
-  onClickValidator: (validatorId: string) => void;
-};
-
 // This is the default view for the staking. it displays all the relevant
 // staking information of the user and allows unstake the active staking
 // positions directly from here.

@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { useGasEstimate } from "hooks/useGasEstimate";
-import NamCurrency from "./NamCurrency";
+import { NamCurrency } from "./NamCurrency";
 type TransactionFeesProps = {
   numberOfTransactions: number;
   className?: string;

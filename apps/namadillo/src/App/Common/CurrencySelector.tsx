@@ -49,5 +49,3 @@ export const CurrencySelector = ({
     </div>
   );
 };
-
-export default CurrencySelector;

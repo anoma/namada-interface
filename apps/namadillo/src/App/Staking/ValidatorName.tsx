@@ -33,5 +33,3 @@ export const ValidatorName = ({
     </div>
   );
 };
-
-export default ValidatorName;

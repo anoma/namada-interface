@@ -3,7 +3,7 @@ import { BondProps } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
-import NamCurrency from "App/Common/NamCurrency";
+import { NamCurrency } from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { TransactionFees } from "App/Common/TransactionFees";
 import { useStakeModule } from "hooks/useStakeModule";

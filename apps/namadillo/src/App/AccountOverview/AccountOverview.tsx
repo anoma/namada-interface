@@ -5,9 +5,9 @@ import {
   Stack,
 } from "@namada/components";
 import { useUntilIntegrationAttached } from "@namada/integrations";
-import FiatCurrency from "App/Common/FiatCurrency";
+import { FiatCurrency } from "App/Common/FiatCurrency";
 import { Intro } from "App/Common/Intro";
-import NamCurrency from "App/Common/NamCurrency";
+import { NamCurrency } from "App/Common/NamCurrency";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import GovernanceRoutes from "App/Governance/routes";
 import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";

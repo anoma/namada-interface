@@ -8,8 +8,8 @@ import {
   PieChartData,
   SkeletonLoading,
 } from "@namada/components";
-import FiatCurrency from "App/Common/FiatCurrency";
-import NamCurrency from "App/Common/NamCurrency";
+import { FiatCurrency } from "App/Common/FiatCurrency";
+import { NamCurrency } from "App/Common/NamCurrency";
 import { useAtomValue } from "jotai";
 import { GoStack } from "react-icons/go";
 import { useNavigate } from "react-router-dom";

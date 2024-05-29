@@ -44,5 +44,3 @@ export const MyValidatorsFilter = ({
     </Stack>
   );
 };
-
-export default MyValidatorsFilter;

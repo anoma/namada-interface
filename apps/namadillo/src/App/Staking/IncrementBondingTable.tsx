@@ -1,12 +1,12 @@
 import { AmountInput, TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
-import NamCurrency from "App/Common/NamCurrency";
+import { NamCurrency } from "App/Common/NamCurrency";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { Validator } from "slices/validators";
 import { twMerge } from "tailwind-merge";
-import ValidatorName from "./ValidatorName";
-import ValidatorsTable from "./ValidatorsTable";
+import { ValidatorName } from "./ValidatorName";
+import { ValidatorsTable } from "./ValidatorsTable";
 
 type IncrementBondingTableProps = {
   validators: Validator[];

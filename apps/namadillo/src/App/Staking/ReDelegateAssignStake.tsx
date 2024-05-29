@@ -1,5 +1,5 @@
 import { ActionButton, Panel } from "@namada/components";
-import NamCurrency from "App/Common/NamCurrency";
+import { NamCurrency } from "App/Common/NamCurrency";
 import { TransactionFees } from "App/Common/TransactionFees";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";

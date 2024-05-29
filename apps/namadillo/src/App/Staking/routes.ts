@@ -1,14 +1,8 @@
-type RouteOutput = {
-  url: string;
-  toString: () => string;
-};
-
-export const routeOutput = (route: string): RouteOutput => ({
-  url: `${index()}${route}`,
-  toString: () => route,
-});
+import { RouteOutput, createRouteOutput } from "utils/routes";
 
 export const index = (): string => `/staking`;
+
+const routeOutput = createRouteOutput(index);
 
 export const overview = (): RouteOutput => routeOutput(`/`);
 

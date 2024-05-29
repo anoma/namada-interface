@@ -1,12 +1,12 @@
 import { ActionButton, TableRow } from "@namada/components";
 import { formatPercentage, shortenAddress } from "@namada/utils";
-import FiatCurrency from "App/Common/FiatCurrency";
-import NamCurrency from "App/Common/NamCurrency";
+import { FiatCurrency } from "App/Common/FiatCurrency";
+import { NamCurrency } from "App/Common/NamCurrency";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
 import { MyValidator, Validator, myValidatorsAtom } from "slices/validators";
-import ValidatorsTable from "./ValidatorsTable";
+import { ValidatorsTable } from "./ValidatorsTable";
 import StakingRoutes from "./routes";
 
 export const MyValidatorsTable = (): JSX.Element => {

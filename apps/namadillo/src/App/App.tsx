@@ -15,7 +15,7 @@ import { Navigation } from "./Common/Navigation";
 
 export const history = createBrowserHistory({ window });
 
-function App(): JSX.Element {
+export function App(): JSX.Element {
   useOnNamadaExtensionAttached();
   useOnNamadaExtensionConnected();
   useOnChainChanged();
@@ -46,5 +46,3 @@ function App(): JSX.Element {
     </>
   );
 }
-
-export default App;

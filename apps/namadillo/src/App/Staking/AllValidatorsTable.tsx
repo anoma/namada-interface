@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import { Validator, allValidatorsAtom } from "slices/validators";
 import { useNotifyOnAtomError } from "store/utils";
-import ValidatorsTable from "./ValidatorsTable";
+import { ValidatorsTable } from "./ValidatorsTable";
 import StakingRoutes from "./routes";
 
 type AllValidatorsProps = {
