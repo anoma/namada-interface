@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import { GoCheck } from "react-icons/go";
+import { twMerge } from "tailwind-merge";
 import { tv, type VariantProps } from "tailwind-variants";
 
 const checkbox = tv({
@@ -28,11 +29,14 @@ const checkbox = tv({
   },
 });
 
-type CheckboxProps = React.ComponentPropsWithRef<"input"> &
+type CheckboxProps = {
+  checkedClassName?: string;
+} & React.ComponentPropsWithRef<"input"> &
   VariantProps<typeof checkbox>;
 
 export const Checkbox = ({
   className,
+  checkedClassName,
   ...props
 }: CheckboxProps): JSX.Element => {
   const checkboxClasses = checkbox({
@@ -40,7 +44,12 @@ export const Checkbox = ({
   });
 
   return (
-    <label className={checkboxClasses.label({ class: className })}>
+    <label
+      className={twMerge(
+        checkboxClasses.label({ class: className }),
+        props.checked && checkedClassName
+      )}
+    >
       <input
         className={checkboxClasses.checkbox()}
         type="checkbox"

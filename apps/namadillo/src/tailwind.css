@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gray;
+  @apply pb-1;
+}
+
+.dark-scrollbar {
+  @apply pr-2;
+}
+
+.dark-scrollbar::-webkit-scrollbar {
+  @apply w-1;
+}
+
+.dark-scrollbar::-webkit-scrollbar-track {
+  @apply bg-black;
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-neutral-300/90 rounded-md transition-colors duration-300 ease-out;
+}
+
+.app-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+
+  &::after {
+    content: "";
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    border: 4px solid transparent;
+    border-top-color: yellow;
+    border-radius: 50%;
+    animation: button-loading-spinner 1s ease infinite;
+
+    @keyframes button-loading-spinner {
+      from {
+        transform: rotate(0turn);
+      }
+
+      to {
+        transform: rotate(1turn);
+      }
+    }
+  }
+}

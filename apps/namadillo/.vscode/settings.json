@@ -1,0 +1,13 @@
+{
+    "workbench.colorCustomizations": {
+        "[monokai]": {
+            "symbolIcon.namespaceForeground": "#ff0000"
+        },
+        "activityBar.background": "#007d3b",
+        "activityBar.activeForeground": "1e5388",
+        "titleBar.activeBackground": "#007d3b",
+        "titleBar.activeForeground": "#fff",
+        "activityBar.foreground": "#fff",
+    },
+    "window.title": "anoma-cli"
+}

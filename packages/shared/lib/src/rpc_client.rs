@@ -119,6 +119,7 @@ impl Client for HttpClient {
                 data: response.value,
                 info: response.info,
                 proof: response.proof,
+                height: response.height.into(),
             }),
             Code::Err(code) => Err(RpcError::new(&format!("Error code {}", code))),
         }

@@ -1,19 +1,16 @@
 import BigNumber from "bignumber.js";
-import { ChangeEventHandler, ComponentProps, useState } from "react";
+import { ChangeEventHandler, useState } from "react";
 
 import { Result } from "@namada/utils";
 
-import { Input } from "./Input";
+import { Input, InputProps } from "./Input";
 
-type BigNumberElement = Omit<HTMLInputElement, "value"> & {
-  value?: BigNumber;
+export type BigNumberElement = Omit<HTMLInputElement, "value"> & {
+  value?: BigNumber | undefined;
 };
 
-type Props = Omit<
-  ComponentProps<typeof Input>,
-  "value" | "onChange" | "min" | "max"
-> & {
-  value?: BigNumber;
+type Props = Omit<InputProps, "value" | "onChange" | "min" | "max"> & {
+  value?: BigNumber | undefined;
   onChange?: ChangeEventHandler<BigNumberElement>;
   maxDecimalPlaces?: number;
   min?: string | number | BigNumber;
@@ -64,14 +61,14 @@ export const AmountInput: React.FC<Props> = ({
   error,
   ...rest
 }) => {
-  const [inputString, setInputString] = useState<string>();
+  const [inputString, setInputString] = useState<string | undefined>();
   const [lastKnownValue, setLastKnownValue] = useState<BigNumber>();
   const [validationError, setValidationError] = useState<string>();
 
   const valueChanged =
-    value === undefined || lastKnownValue === undefined
-      ? value !== lastKnownValue
-      : !value.isEqualTo(lastKnownValue);
+    value === undefined || lastKnownValue === undefined ?
+      value !== lastKnownValue
+    : !value.isEqualTo(lastKnownValue);
 
   if (valueChanged) {
     setLastKnownValue(value);
@@ -87,8 +84,16 @@ export const AmountInput: React.FC<Props> = ({
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     const stringValue = event.target.value;
-
     setInputString(stringValue);
+
+    if (stringValue === undefined || stringValue === "") {
+      onChange?.({
+        ...event,
+        target: { ...event.target, value: undefined },
+        currentTarget: { ...event.currentTarget, value: undefined },
+      });
+      return;
+    }
 
     const validateResult = validate(stringValue, {
       min,
@@ -98,12 +103,12 @@ export const AmountInput: React.FC<Props> = ({
     const asBigNumber = validateResult.ok ? validateResult.value : undefined;
 
     const error =
-      validateResult.ok || stringValue === ""
-        ? ""
-        : errorMessages[validateResult.error];
+      validateResult.ok || stringValue === "" ?
+        ""
+      : errorMessages[validateResult.error];
     setValidationError(error);
-
     setLastKnownValue(asBigNumber);
+    event.currentTarget.setCustomValidity(error);
     onChange?.({
       ...event,
       target: { ...event.target, value: asBigNumber },

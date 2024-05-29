@@ -2,7 +2,7 @@ name: Deploy wallet preview to netlify at PR and pushes to it
 on:
   pull_request:
     paths:
-      - "apps/namada-interface/**"
+      - "apps/namadillo/**"
       - "apps/extension/**"
       - "packages/**"
       - ".github/workflows/**"
@@ -134,7 +134,7 @@ jobs:
         run: rustup target add wasm32-unknown-unknown
 
       - name: build the site
-        working-directory: ./apps/namada-interface
+        working-directory: ./apps/namadillo
         run: yarn build
         env:
           NAMADA_INTERFACE_NAMADA_ALIAS: "Namada Devnet"
@@ -143,7 +143,7 @@ jobs:
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.2.3
         with:
-          publish-dir: "./apps/namada-interface/build"
+          publish-dir: "./apps/namadillo/dist"
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: "deploy ${{ github.event.number }} at creating a PR"
@@ -240,13 +240,12 @@ jobs:
           path: ./apps/extension/build/firefox/artifact/*
 
   E2E-tests:
-    needs:
-      [build-interface, build-extension-chrome]
+    needs: [build-interface, build-extension-chrome]
     timeout-minutes: 60
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./apps/namada-interface
+        working-directory: ./apps/namadillo
     steps:
       - uses: actions/checkout@v3
 

@@ -1,7 +1,4 @@
-import { deserialize } from "@dao-xyz/borsh";
 import {
-  Proposal,
-  Proposals,
   Query as QueryWasm,
   Sdk as SdkWasm,
   TransferToEthereum,
@@ -72,17 +69,6 @@ export class Rpc {
    */
   async queryAllValidators(): Promise<string[]> {
     return await this.query.query_all_validator_addresses();
-  }
-
-  /**
-   * Query Proposals
-   * @async
-   * @returns List of the proposals
-   */
-  async queryProposals(): Promise<Proposal[]> {
-    const serializedProposals = await this.query.query_proposals();
-    const { proposals } = deserialize(serializedProposals, Proposals);
-    return proposals;
   }
 
   /**

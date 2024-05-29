@@ -1,7 +1,7 @@
 {
   "name": "@namada/namada-interface",
   "version": "0.2.1",
-  "description": "Namada Browser Extension",
+  "description": "Namada Interface",
   "repository": "https://github.com/anoma/namada-interface/",
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
@@ -48,9 +48,6 @@
     "dev:local": "NODE_ENV=development NAMADA_INTERFACE_LOCAL=\"true\" yarn dev",
     "dev:proxy": "NAMADA_INTERFACE_PROXY=true && ./scripts/start-proxies.sh && yarn dev:local",
     "build": "NODE_ENV=production && yarn wasm:build && webpack-cli",
-    "lint": "eslint src --ext .ts,.tsx",
-    "lint:fix": "yarn lint -- --fix",
-    "lint:ci": "yarn lint --max-warnings 0",
     "test": "yarn wasm:build:test && yarn jest",
     "test:watch": "yarn wasm:build:test && yarn jest --watchAll=true",
     "test:coverage": "yarn wasm:build:test && yarn test --coverage",

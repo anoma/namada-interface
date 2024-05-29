@@ -11,6 +11,10 @@
       "import": "./dist/web/sdk/src/initWeb.js",
       "types": "./dist/web/sdk/src/initWeb.d.ts"
     },
+    "./inline-init": {
+      "import": "./dist/inline/sdk/src/initInline.js",
+      "types": "./dist/inline/sdk/src/initInline.d.ts"
+    },
     "./node": {
       "require": "./dist/node/sdk/src/indexNode.js",
       "types": "./dist/node/sdk/src/indexNode.d.ts"
