@@ -1,11 +1,18 @@
+import clsx from "clsx";
 import { useEffect } from "react";
+import { twMerge } from "tailwind-merge";
 
 type ModalProps = {
   children: JSX.Element;
   onClose: () => void;
-};
+} & React.ComponentPropsWithoutRef<"div">;
 
-export const Modal = ({ onClose, children }: ModalProps): JSX.Element => {
+export const Modal = ({
+  onClose,
+  children,
+  className = "",
+  ...props
+}: ModalProps): JSX.Element => {
   useEffect(() => {
     const onKeyPress = (event: KeyboardEvent): void => {
       if (event.key === "Escape") {
@@ -33,7 +40,15 @@ export const Modal = ({ onClose, children }: ModalProps): JSX.Element => {
         onClick={onClose}
         className="fixed top-0 left-0 w-full h-full cursor-pointer backdrop-blur-lg z-[1000] bg-rblack/50"
       />
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 z-[1001]">
+      <div
+        {...props}
+        className={twMerge(
+          clsx(
+            "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 z-[1001]",
+            className
+          )
+        )}
+      >
         {children}
       </div>
     </>
