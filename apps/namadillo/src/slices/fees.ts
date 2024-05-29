@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
-import { invariant } from "framer-motion";
 import { getSdkInstance } from "hooks";
+import invariant from "invariant";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { accountsAtom } from "slices/accounts";
