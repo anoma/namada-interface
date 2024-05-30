@@ -7,7 +7,7 @@ import { useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { balancesAtom, transparentAccountsAtom } from "slices/accounts";
 import { namadaExtensionConnectedAtom } from "slices/settings";
-import { myValidatorsAtom } from "slices/validators";
+import { myValidatorsAtom, stakedAmountByAddressAtom } from "slices/validators";
 import { AllValidatorsTable } from "./AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
 import { StakingSummary } from "./StakingSummary";
@@ -22,7 +22,10 @@ export const StakingOverview = (): JSX.Element => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const accounts = useAtomValue(transparentAccountsAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
-  const hasStaking = isConnected && myValidators.data?.length > 0;
+  const stakedByAddress = useAtomValue(stakedAmountByAddressAtom);
+  const hasStaking =
+    stakedByAddress.isSuccess && Object.keys(stakedByAddress.data).length > 0;
+
   useAtomValue(balancesAtom);
 
   useEffect(() => {
@@ -48,7 +51,7 @@ export const StakingOverview = (): JSX.Element => {
         </Panel>
       </div>
       <aside className="w-full mt-2 flex flex-col sm:flex-row lg:mt-0 lg:flex-col gap-2">
-        {hasStaking && (
+        {hasStaking && myValidators.isSuccess && (
           <Panel className="w-full @container">
             <YourStakingDistribution myValidators={myValidators.data} />
           </Panel>

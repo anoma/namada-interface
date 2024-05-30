@@ -38,19 +38,19 @@ export const getStakingTotalAtom = atomWithQuery<StakingTotals>((get) => {
     enabled: myValidators.isSuccess,
     queryKey: ["staking-totals", myValidators.dataUpdatedAt],
     queryFn: async () => {
-      const totalBonded = myValidators.data.reduce(
+      const totalBonded = myValidators.data!.reduce(
         (acc: BigNumber, validator: MyValidator) =>
           acc.plus(validator.stakedAmount ?? 0),
         new BigNumber(0)
       );
 
-      const totalUnbonded = myValidators.data.reduce(
+      const totalUnbonded = myValidators.data!.reduce(
         (acc: BigNumber, validator: MyValidator) =>
           acc.plus(validator.unbondedAmount ?? 0),
         new BigNumber(0)
       );
 
-      const totalWithdrawable = myValidators.data.reduce(
+      const totalWithdrawable = myValidators.data!.reduce(
         (acc: BigNumber, validator: MyValidator) =>
           acc.plus(validator.withdrawableAmount ?? 0),
         new BigNumber(0)
