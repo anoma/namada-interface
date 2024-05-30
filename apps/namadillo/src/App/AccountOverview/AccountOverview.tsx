@@ -32,13 +32,15 @@ export const AccountOverview = (): JSX.Element => {
     currentExtensionAttachStatus === "pending";
 
   const isConnected = account !== undefined;
+  const fullWidthClassName = clsx({ "col-span-2": !isConnected });
 
   return (
-    <PageWithSidebar>
+    <PageWithSidebar footerClassName={fullWidthClassName}>
       <div
-        className={clsx("flex items-center bg-black rounded-sm w-full", {
-          "col-span-2": !isConnected,
-        })}
+        className={clsx(
+          "flex items-center bg-rblack rounded-sm w-full",
+          fullWidthClassName
+        )}
       >
         {!isConnected && (
           <div className="w-[420px] mx-auto">

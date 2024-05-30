@@ -17,7 +17,7 @@ export const Container = ({
   const [displayNavigation, setDisplayNavigation] = useState(false);
 
   return (
-    <div className="max-w-[1920px] px-6 mx-auto mb-6" {...props}>
+    <div className="max-w-[1920px] px-6 mx-auto pb-2" {...props}>
       <header className="flex justify-between font-medium pt-4 pb-5 pl-4">
         <i
           className={clsx(
@@ -39,7 +39,7 @@ export const Container = ({
       </header>
       <div
         className={clsx(
-          "xl:grid xl:grid-cols-[220px_auto] xl:gap-2 xl:min-h-[calc(100svh-100px)]"
+          "xl:grid xl:grid-cols-[220px_auto] xl:gap-2 min-h-[calc(100svh-95px)]"
         )}
       >
         <aside
@@ -47,7 +47,7 @@ export const Container = ({
           className={clsx(
             "transition-transform duration-500 ease-out-expo",
             "pt-10 bg-black rounded-sm fixed top-0 z-[9999] w-[240px]",
-            "h-screen right-0 xl:z-0 xl:transition-none xl:pt-0 xl:w-auto xl:relative",
+            "h-[calc(100svh-95px)] right-0 xl:z-0 xl:transition-none xl:pt-0 xl:w-auto xl:relative",
             { "translate-x-full xl:translate-x-0": !displayNavigation }
           )}
         >
