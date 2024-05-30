@@ -27,7 +27,7 @@ const PgfStewardInfoCards: React.FC<{
       <InfoCard
         title="Add"
         className="col-span-3"
-        content={<span key={`info-card-add`}>{addRemove.add}</span>}
+        content={<span>{addRemove.add}</span>}
       />
       <InfoCard
         title="Remove"
