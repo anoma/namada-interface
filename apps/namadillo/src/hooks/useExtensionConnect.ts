@@ -3,10 +3,7 @@ import { Chain } from "@namada/types";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { addAccountsAtom, balancesAtom } from "slices/accounts";
-import {
-  addConnectedChainAtom,
-  namadaExtensionConnectedAtom,
-} from "slices/settings";
+import { namadaExtensionConnectedAtom } from "slices/settings";
 
 export enum ConnectStatus {
   IDLE,
@@ -22,7 +19,6 @@ type UseConnectOutput = {
 
 export const useExtensionConnect = (chain: Chain): UseConnectOutput => {
   const addAccounts = useSetAtom(addAccountsAtom);
-  const addConnectedChain = useSetAtom(addConnectedChainAtom);
   useAtomValue(balancesAtom);
 
   const [extensionConnected, setExtensionConnected] = useAtom(
@@ -45,7 +41,6 @@ export const useExtensionConnect = (chain: Chain): UseConnectOutput => {
   useEffect(() => {
     if (extensionConnected) {
       setConnectionStatus(ConnectStatus.CONNECTED);
-      addConnectedChain(chain.id);
     }
   }, [extensionConnected]);
 
@@ -57,7 +52,6 @@ export const useExtensionConnect = (chain: Chain): UseConnectOutput => {
         const accounts = await integration?.accounts();
         if (accounts) {
           addAccounts(accounts);
-          addConnectedChain(chain.id);
         }
         setConnectionStatus(ConnectStatus.CONNECTED);
         setExtensionConnected(true);

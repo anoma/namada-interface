@@ -1,4 +1,3 @@
-import { ChainKey } from "@namada/types";
 import { CurrencyType } from "@namada/utils";
 import { Getter, Setter, atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
@@ -55,14 +54,3 @@ export const signArbitraryEnabledAtom = atom(
   (get) => get(namadilloSettingsAtom).signArbitraryEnabled,
   changeSettings<boolean>("signArbitraryEnabled")
 );
-
-export const connectedChainsAtom = atom<ChainKey[]>([]);
-export const addConnectedChainAtom = atom(null, (get, set, chain: ChainKey) => {
-  const connectedChains = get(connectedChainsAtom);
-  set(
-    connectedChainsAtom,
-    connectedChains.includes(chain) ? connectedChains : (
-      [...connectedChains, chain]
-    )
-  );
-});

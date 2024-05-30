@@ -8,10 +8,8 @@ import {
   fetchAllProposals,
   fetchCurrentEpoch,
   fetchProposalById,
-  fetchProposalCode,
   fetchProposalCounter,
   fetchProposalVoted,
-  fetchProposalVotes,
   fetchVotedProposalIds,
   performVote,
 } from "./functions";
@@ -30,13 +28,6 @@ export const proposalFamily = atomFamily((id: bigint) =>
   atomWithQuery((get) => ({
     queryKey: ["proposal", id.toString()],
     queryFn: () => fetchProposalById(get(chainAtom), id),
-  }))
-);
-
-export const proposalVotesFamily = atomFamily((id: bigint) =>
-  atomWithQuery((get) => ({
-    queryKey: ["proposal-votes", id.toString()],
-    queryFn: () => fetchProposalVotes(get(chainAtom), id),
   }))
 );
 
@@ -94,13 +85,6 @@ export const votedProposalIdsAtom = atomWithQuery((get) => ({
     return await fetchVotedProposalIds(get(chainAtom), account);
   },
 }));
-
-export const proposalCodeFamily = atomFamily((id: bigint) =>
-  atomWithQuery((get) => ({
-    queryKey: ["proposal-code", id.toString()],
-    queryFn: () => fetchProposalCode(get(chainAtom), id),
-  }))
-);
 
 type PerformVoteArgs = {
   proposalId: bigint;
