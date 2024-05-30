@@ -40,12 +40,5 @@
     "vite-plugin-checker": "^0.6.4",
     "wsrun": "^5.2.4"
   },
-  "packageManager": "yarn@4.0.2",
-  "dependencies": {
-    "@tailwindcss/container-queries": "^0.1.1",
-    "@tanstack/query-core": "^5.32.0",
-    "invariant": "^2.2.4",
-    "jotai-tanstack-query": "^0.8.5",
-    "wonka": "^6.3.4"
-  }
+  "packageManager": "yarn@4.0.2"
 }
