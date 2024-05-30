@@ -9,7 +9,7 @@ type TooltipProps = {
 // Use group/tooltip class in the parent element that will trigger the Tooltip
 export const Tooltip = ({
   children,
-  className,
+  className = "",
   position = "top",
   ...props
 }: TooltipProps): JSX.Element => {
