@@ -15,6 +15,7 @@ export const showProposalStatus = (status: ProposalStatus): string => {
 export const showProposalTypeString = (type: ProposalTypeString): string => {
   const typeText: Record<ProposalTypeString, string> = {
     default: "Default",
+    default_with_wasm: "Default with Wasm",
     pgf_steward: "PGF Steward",
     pgf_payment: "PGF Payment",
   };

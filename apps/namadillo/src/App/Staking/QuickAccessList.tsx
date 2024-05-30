@@ -52,7 +52,7 @@ export const QuickAccessList = ({
               validator.address
             )}
             imageUrl={validator.imageUrl}
-            alt={validator.alias}
+            alt={validator.alias || validator.address}
           />
         </li>
       ))}

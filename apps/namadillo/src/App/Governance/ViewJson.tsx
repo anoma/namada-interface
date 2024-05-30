@@ -12,7 +12,7 @@ import { GoCheck, GoCopy } from "react-icons/go";
 import { proposalFamily } from "slices/proposals";
 import GovernanceRoutes from "./routes";
 
-type DefaultData = Uint8Array | undefined;
+type DefaultData = Uint8Array;
 
 type PgfStewardData = {
   add?: string;
@@ -32,7 +32,7 @@ type PgfPaymentData = {
   retro: PgfTargetJson[];
 };
 
-type DataJson = DefaultData | PgfStewardData | PgfPaymentData;
+type DataJson = DefaultData | PgfStewardData | PgfPaymentData | undefined;
 
 type ProposalJson = {
   proposal: {
@@ -56,6 +56,9 @@ const formatPgfTarget = (value: PgfTarget): PgfTargetJson => ({
 const formatData = (proposal: Proposal): DataJson => {
   switch (proposal.proposalType.type) {
     case "default":
+      return undefined;
+
+    case "default_with_wasm":
       return proposal.proposalType.data;
 
     case "pgf_steward":
@@ -93,7 +96,7 @@ const getProposalJsonString = (proposal: Proposal): string => {
       author: proposal.author,
       voting_start_epoch: proposal.startEpoch,
       voting_end_epoch: proposal.endEpoch,
-      activation_epoch: proposal.graceEpoch,
+      activation_epoch: proposal.activationEpoch,
     },
     data: formatData(proposal),
   };
@@ -119,9 +122,9 @@ const getProposalJsonString = (proposal: Proposal): string => {
     2
   );
 
-  const { type, data } = proposal.proposalType;
+  const { type } = proposal.proposalType;
 
-  if (type === "default" && typeof data !== "undefined") {
+  if (type === "default_with_wasm") {
     // remove double quotes around WASM data
     return stringified.replace(/("data": )"(\[.*\])"(\n}$)/, "$1$2$3");
   } else {

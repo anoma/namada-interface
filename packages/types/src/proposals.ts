@@ -18,7 +18,10 @@ export type Proposal = {
   content: { [key: string]: string | undefined };
   startEpoch: bigint;
   endEpoch: bigint;
-  graceEpoch: bigint;
+  activationEpoch: bigint;
+  startTime: number;
+  endTime: number;
+  currentTime: number;
   proposalType: ProposalType;
   tallyType: TallyType;
   status: ProposalStatus;
@@ -48,10 +51,11 @@ export type PgfActions = {
   retro: PgfTarget[];
 };
 
-export type Default = { type: "default"; data?: Uint8Array };
+export type Default = { type: "default" };
+export type DefaultWithWasm = { type: "default_with_wasm"; data: Uint8Array };
 export type PgfSteward = { type: "pgf_steward"; data: AddRemove };
 export type PgfPayment = { type: "pgf_payment"; data: PgfActions };
-export type ProposalType = Default | PgfSteward | PgfPayment;
+export type ProposalType = Default | DefaultWithWasm | PgfSteward | PgfPayment;
 
 export type ProposalTypeString = ProposalType["type"];
 

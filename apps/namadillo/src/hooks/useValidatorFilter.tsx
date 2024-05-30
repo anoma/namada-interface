@@ -13,7 +13,9 @@ const filterValidators = (validator: Validator, search: string): boolean => {
   const preparedSearch = search.toLowerCase().trim();
   return (
     validator.address.toLowerCase().indexOf(preparedSearch) > -1 ||
-    validator.alias.toLowerCase().indexOf(preparedSearch) > -1
+    (validator.alias || validator.address)
+      .toLowerCase()
+      .indexOf(preparedSearch) > -1
   );
 };
 

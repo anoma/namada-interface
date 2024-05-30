@@ -1,65 +1,58 @@
-import { deserialize } from "@dao-xyz/borsh";
 import { EncodedTx } from "@heliax/namada-sdk/web";
 import { getIntegration } from "@namada/integrations";
-import { Proposal as ProposalSchema, Query } from "@namada/shared";
+import { Query } from "@namada/shared";
 import {
   Account,
   AddRemove,
   Chain,
-  DelegatorVote,
   PgfActions,
   Proposal,
   ProposalStatus,
   ProposalType,
-  ProposalTypeString,
-  ValidatorVote,
+  TallyType,
   Vote,
   VoteType,
-  isTallyType,
-  isVoteType,
 } from "@namada/types";
 import BigNumber from "bignumber.js";
 import * as E from "fp-ts/Either";
 import * as t from "io-ts";
+import {
+  DefaultApi,
+  Proposal as IndexerProposal,
+  ProposalStatusEnum as IndexerProposalStatusEnum,
+  ProposalTallyTypeEnum as IndexerProposalTallyTypeEnum,
+  ProposalTypeEnum as IndexerProposalTypeEnum,
+  VotingPower as IndexerVotingPower,
+} from "namada-indexer-client";
 
+import { fromHex } from "@cosmjs/encoding";
 import { getSdkInstance } from "hooks";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
     nativeToken = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
-  NAMADA_INTERFACE_NO_INDEXER,
 } = process.env;
 
-export const fetchCurrentEpoch = async (chain: Chain): Promise<bigint> => {
-  const { rpc } = chain;
-  const query = new Query(rpc);
-  return await query.query_epoch();
-};
-
-export const fetchProposalCounter = async (chain: Chain): Promise<bigint> => {
-  const { rpc } = chain;
-  const query = new Query(rpc);
-  const proposalCounter: string = await query.query_proposal_counter();
-  return BigInt(proposalCounter);
-};
-
 // TODO: this function is way too big
-const decodeProposalType = async (
-  typeString: string,
-  data: string | undefined,
-  chain: Chain,
-  proposalId: bigint
-): Promise<ProposalType> => {
-  switch (typeString) {
+const decodeProposalType = (
+  indexerProposalType: IndexerProposalTypeEnum,
+  data: string | undefined
+): ProposalType => {
+  switch (indexerProposalType) {
     case "default":
-      const wasmCode =
-        typeof data === "undefined" ? undefined : (
-          await fetchProposalCode(chain, proposalId)
-        );
-
-      return { type: "default", data: wasmCode };
-
-    case "pgf_steward":
+      return {
+        type: "default",
+      };
+    case "defaultWithWasm":
+      if (typeof data === "undefined") {
+        throw new Error("data was undefined for default_with_wasm proposal");
+      }
+      const dataBytes = fromHex(data);
+      return {
+        type: "default_with_wasm",
+        data: dataBytes,
+      };
+    case "pgfSteward":
       if (typeof data === "undefined") {
         throw new Error("data was undefined for pgf_steward proposal");
       }
@@ -92,7 +85,7 @@ const decodeProposalType = async (
 
       return { type: "pgf_steward", data: addRemove };
 
-    case "pgf_payment":
+    case "pgfFunding":
       if (typeof data === "undefined") {
         throw new Error("data was undefined for pgf_payment proposal");
       }
@@ -180,267 +173,135 @@ const decodeProposalType = async (
       );
 
       return { type: "pgf_payment", data: pgfActions };
-
     default:
-      throw new Error(`unknown proposal type string, got ${typeString}`);
-  }
-};
-
-export const fetchProposalById = async (
-  chain: Chain,
-  id: bigint
-): Promise<Proposal> => {
-  const { rpc } = chain;
-  const query = new Query(rpc);
-  const proposalUint8Array = await query.query_proposal_by_id(id);
-  const deserialized = deserialize(proposalUint8Array, ProposalSchema);
-
-  const content = JSON.parse(deserialized.content);
-
-  const tallyType = deserialized.tallyType;
-
-  if (!isTallyType(tallyType)) {
-    throw new Error(`unknown tally type, got ${tallyType}`);
-  }
-
-  const proposalType = await decodeProposalType(
-    deserialized.proposalType,
-    deserialized.data,
-    chain,
-    id
-  );
-
-  const { startEpoch, endEpoch } = deserialized;
-
-  const fetchedStatus = await fetchProposalStatus(
-    chain,
-    id,
-    startEpoch,
-    endEpoch
-  );
-
-  return {
-    ...deserialized,
-    ...fetchedStatus,
-    content,
-    proposalType,
-    tallyType,
-  };
-};
-
-export const fetchAllProposals = async (
-  chain: Chain,
-  status?: ProposalStatus,
-  type?: ProposalTypeString,
-  search?: string
-): Promise<Proposal[]> => {
-  const proposalCounter = await fetchProposalCounter(chain);
-
-  const proposals: Promise<Proposal>[] = [];
-  for (let id = BigInt(0); id < proposalCounter; id++) {
-    proposals.push(fetchProposalById(chain, id));
-  }
-
-  const resolvedProposals = await Promise.all(proposals);
-
-  const statusFiltered =
-    typeof status === "undefined" ? resolvedProposals : (
-      resolvedProposals.filter((p) => p.status === status)
-    );
-
-  const typeFiltered =
-    typeof type === "undefined" ? statusFiltered : (
-      statusFiltered.filter((p) => p.proposalType.type === type)
-    );
-
-  const searchFiltered =
-    typeof search === "undefined" ? typeFiltered : (
-      typeFiltered.filter(
-        (p) =>
-          p.content.title?.toLowerCase().includes(search.toLowerCase()) ||
-          p.id.toString().includes(search)
-      )
-    );
-
-  return searchFiltered;
-};
-
-// TODO: this function is way too big
-export const fetchProposalVotes = async (
-  chain: Chain,
-  id: bigint
-): Promise<Vote[]> => {
-  if (NAMADA_INTERFACE_NO_INDEXER) {
-    return [];
-  }
-
-  const { endEpoch } = await fetchProposalById(chain, id);
-  const currentEpoch = await fetchCurrentEpoch(chain);
-
-  const epoch = endEpoch < currentEpoch ? endEpoch : currentEpoch;
-
-  const { rpc } = chain;
-  const query = new Query(rpc);
-  const [validatorVotesResult, delegatorVotesResult]: [
-    [string, string, string][], // validator votes [address, vote, voting power]
-    [string, string, [string, string][]][], // delegator votes [address, vote]
-  ] = await query.query_proposal_votes(id, epoch);
-
-  const validatorVotes: ValidatorVote[] = validatorVotesResult.map(
-    ([address, voteType, votingPower]) => {
-      if (!isVoteType(voteType)) {
-        throw new Error(`unknown vote type, got ${voteType}`);
-      }
-
-      const votingPowerAsBigNumber = BigNumber(votingPower);
-
-      if (votingPowerAsBigNumber.isNaN()) {
-        throw new Error("unable to parse voting power as big number");
-      }
-
-      return {
-        address,
-        voteType,
-        isValidator: true,
-        votingPower: votingPowerAsBigNumber,
-      };
-    }
-  );
-
-  const delegatorVotes: DelegatorVote[] = delegatorVotesResult.map(
-    ([address, voteType, votingPower]) => {
-      if (!isVoteType(voteType)) {
-        throw new Error(`unknown vote type, got ${voteType}`);
-      }
-
-      const votingPowerAsBigNumber: [string, BigNumber][] = votingPower.map(
-        ([validatorAddress, amount]) => {
-          const amountAsBigNumber = BigNumber(amount);
-          if (amountAsBigNumber.isNaN()) {
-            throw new Error("unable to parse amount as big number");
-          }
-
-          return [validatorAddress, amountAsBigNumber];
-        }
+      throw new Error(
+        `unknown proposal type string, got ${indexerProposalType}`
       );
-
-      return {
-        address,
-        voteType,
-        isValidator: false,
-        votingPower: votingPowerAsBigNumber,
-      } as const;
-    }
-  );
-
-  return [...validatorVotes, ...delegatorVotes];
+  }
 };
 
-export const fetchProposalStatus = async (
-  chain: Chain,
-  id: bigint,
-  startEpoch: bigint,
-  endEpoch: bigint
-): Promise<
-  {
-    [VT in VoteType]: BigNumber;
-  } & {
-    totalVotingPower: BigNumber;
-    status: ProposalStatus;
+const toTally = (tallyType: IndexerProposalTallyTypeEnum): TallyType => {
+  switch (tallyType) {
+    case "twoThirds":
+      return "two-thirds";
+    case "oneHalfOverOneThird":
+      return "one-half-over-one-third";
+    case "lessOneHalfOverOneThirdNay":
+      return "less-one-half-over-one-third-nay";
+    default:
+      throw new Error(`unknown tally type string, got ${tallyType}`);
   }
-> => {
-  const currentEpoch = await fetchCurrentEpoch(chain);
+};
 
-  const epoch = endEpoch < currentEpoch ? endEpoch : currentEpoch;
-
-  if (NAMADA_INTERFACE_NO_INDEXER) {
-    const status: ProposalStatus =
-      startEpoch > currentEpoch ? "pending"
-      : endEpoch > currentEpoch ? "ongoing"
-      : id % BigInt(2) === BigInt(0) ? "passed"
-      : "rejected";
-
-    return {
-      status,
-      yay: BigNumber(300),
-      nay: BigNumber(250),
-      abstain: BigNumber(125),
-      totalVotingPower: BigNumber(1000),
-    };
-  }
-
-  const { rpc } = chain;
-  const query = new Query(rpc);
-
-  const [passed, yayPower, nayPower, abstainPower, totalVotingPower]: [
-    boolean,
-    string,
-    string,
-    string,
-    string,
-  ] = await query.query_proposal_result(id, epoch);
-
-  const yayPowerAsBigNumber = BigNumber(yayPower);
-  if (yayPowerAsBigNumber.isNaN()) {
-    throw new Error("couldn't parse yay power as BigNumber");
-  }
-
-  const nayPowerAsBigNumber = BigNumber(nayPower);
-  if (nayPowerAsBigNumber.isNaN()) {
-    throw new Error("couldn't parse nay power as BigNumber");
-  }
-
-  const abstainPowerAsBigNumber = BigNumber(abstainPower);
-  if (abstainPowerAsBigNumber.isNaN()) {
-    throw new Error("couldn't parse abstain power as BigNumber");
-  }
-
-  const totalVotingPowerAsBigNumber = BigNumber(totalVotingPower);
-  if (totalVotingPowerAsBigNumber.isNaN()) {
-    throw new Error("couldn't parse total voting power as BigNumber");
-  }
-
-  const status: ProposalStatus =
-    startEpoch > currentEpoch ? "pending"
-    : endEpoch > currentEpoch ? "ongoing"
-    : passed ? "passed"
-    : "rejected";
-
+const toProposal = (
+  proposal: IndexerProposal,
+  votingPower: IndexerVotingPower
+): Proposal => {
   return {
-    status,
-    yay: yayPowerAsBigNumber,
-    nay: nayPowerAsBigNumber,
-    abstain: abstainPowerAsBigNumber,
-    totalVotingPower: totalVotingPowerAsBigNumber,
+    id: BigInt(proposal.id),
+    author: proposal.author,
+    //TODO: content might not be JSON
+    content: JSON.parse(proposal.content),
+    startEpoch: BigInt(proposal.startEpoch),
+    endEpoch: BigInt(proposal.endEpoch),
+    activationEpoch: BigInt(proposal.activationEpoch),
+    startTime: proposal.startTime,
+    endTime: proposal.endTime,
+    currentTime: proposal.currentTime,
+    proposalType: decodeProposalType(proposal.type, proposal.data),
+    tallyType: toTally(proposal.tallyType),
+    status: statusMap(proposal.status),
+    totalVotingPower: BigNumber(votingPower.totalVotingPower),
+    yay: BigNumber(proposal.yayVotes),
+    nay: BigNumber(proposal.nayVotes),
+    abstain: BigNumber(proposal.abstainVotes),
   };
+};
+
+export const fetchProposalById = async (id: bigint): Promise<Proposal> => {
+  const api = new DefaultApi();
+  const proposalPromise = api.apiV1GovProposalIdGet(Number(id));
+  const totalVotingPowerPromise = api.apiV1PosVotingPowerGet();
+  const [proposalResponse, votingPowerResponse] = await Promise.all([
+    proposalPromise,
+    totalVotingPowerPromise,
+  ]);
+
+  return toProposal(proposalResponse.data, votingPowerResponse.data);
+};
+
+// TODO: we can change backend or frontend to use the same enum
+const statusMap = (
+  indexerProposalStatus: IndexerProposalStatusEnum
+): ProposalStatus => {
+  switch (indexerProposalStatus) {
+    case IndexerProposalStatusEnum.Pending:
+      return "pending";
+    case IndexerProposalStatusEnum.Voting:
+      return "ongoing";
+    case IndexerProposalStatusEnum.Passed:
+      return "passed";
+    case IndexerProposalStatusEnum.Rejected:
+      return "rejected";
+  }
+};
+
+export const fetchAllProposals = async (): Promise<Proposal[]> => {
+  const api = new DefaultApi();
+
+  const proposalsPromise = api.apiV1GovProposalGet();
+  const totalVotingPowerPromise = api.apiV1PosVotingPowerGet();
+  const [proposalResponse, votingPowerResponse] = await Promise.all([
+    proposalsPromise,
+    totalVotingPowerPromise,
+  ]);
+
+  return proposalResponse.data.data.map((proposal) =>
+    toProposal(proposal, votingPowerResponse.data)
+  );
+};
+
+export const fetchProposalVotes = async (id: bigint): Promise<Vote[]> => {
+  const api = new DefaultApi();
+
+  const response = await api.apiV1GovProposalIdVotesGet(Number(id));
+
+  // TODO: This is only needed for votes breakdown, check if it's still relevant
+  const votingPower: [string, BigNumber][] = [
+    ["_", BigNumber(0)], // TODO: return voting power
+  ];
+
+  const votes: Vote[] = response.data.data.map((vote) => ({
+    address: vote.voterAddress,
+    voteType: vote.vote,
+    votingPower,
+    isValidator: false,
+  }));
+
+  return votes;
 };
 
 export const fetchProposalVoted = async (
-  chain: Chain,
   id: bigint,
   account: Account
 ): Promise<boolean> => {
-  const votes = await fetchProposalVotes(chain, id);
+  const votes = await fetchProposalVotes(id);
   return votes.some((vote) => vote.address === account.address);
 };
 
 export const fetchVotedProposalIds = async (
-  chain: Chain,
+  _chain: Chain,
   account: Account
 ): Promise<bigint[]> => {
-  const proposalCounter = await fetchProposalCounter(chain);
+  const api = new DefaultApi();
 
-  const proposalIds: bigint[] = [];
-  for (let id = BigInt(0); id < proposalCounter; id++) {
-    const voted = await fetchProposalVoted(chain, id, account);
-    if (voted) {
-      proposalIds.push(id);
-    }
-  }
+  const response = await api.apiV1GovVoterAddressVotesGet(account.address);
+  const proposalIds = response.data.map((vote) => BigInt(vote.proposalId));
 
   return proposalIds;
 };
 
+//TODO: do we return this already from the indexer?
 export const fetchProposalCode = async (
   chain: Chain,
   id: bigint

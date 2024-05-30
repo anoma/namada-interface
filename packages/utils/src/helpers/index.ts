@@ -72,6 +72,28 @@ export const stringFromTimestamp = (timestamp: number): string => {
 };
 
 /**
+ * Format a date-time string from a timestamp in seconds
+ */
+export const stringFromTimestampInSec = (timestamp: number): string => {
+  const datetime = DateTime.fromSeconds(timestamp).toLocal();
+  return datetime.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS);
+};
+
+/**
+ * Converts a timestamp in secods to a date-time string
+ *
+ * @param {number} seconds - timestamp in seconds
+ * @returns {string} time in format "DD Days: HH Hrs: MM Mins"
+ */
+export const timeFromSeconds = (seconds: number): string => {
+  const days = Math.floor(seconds / 86400); // 3600 * 24
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor(seconds / 60);
+
+  return `${days} Days: ${hours} Hrs: ${minutes} Mins`;
+};
+
+/**
  * Get URL params
  */
 export const getParams = (

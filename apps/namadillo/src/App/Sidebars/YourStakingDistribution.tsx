@@ -1,4 +1,5 @@
 import { PieChart, PieChartData } from "@namada/components";
+import { shortenAddress } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
@@ -14,6 +15,8 @@ export const YourStakingDistribution = ({
   const [displayedValidator, setDisplayedValidator] = useState<
     MyValidator | undefined
   >();
+
+  console.log(myValidators);
 
   const totalAmount = myValidators.reduce(
     (previous, current) => previous.plus(current.stakedAmount || 0),
@@ -91,7 +94,10 @@ export const YourStakingDistribution = ({
         {myValidators.map((myValidator) => (
           <li key={`staking-distribution-${myValidator.validator.address}`}>
             <div className="grid grid-cols-[auto_max-content] text-sm justify-between">
-              <span>{myValidator.validator.alias}</span>
+              <span>
+                {myValidator.validator.alias ||
+                  shortenAddress(myValidator.validator.address, 8, 6)}
+              </span>
               <span>{getFormattedPercentage(myValidator)}</span>
             </div>
           </li>
