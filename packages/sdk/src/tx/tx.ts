@@ -398,7 +398,7 @@ export class Tx {
     }
 
     const {
-      pubkey,
+      rawPubkey,
       raw_indices,
       raw_signature,
       wrapper_indices,
@@ -408,7 +408,7 @@ export class Tx {
     // Construct props from ledgerSignature
     /* eslint-disable */
     const props = {
-      pubkey: new Uint8Array((pubkey as any).data),
+      pubkey: new Uint8Array((rawPubkey as any).data),
       rawIndices: new Uint8Array((raw_indices as any).data),
       rawSignature: new Uint8Array((raw_signature as any).data),
       wrapperIndices: new Uint8Array((wrapper_indices as any).data),
