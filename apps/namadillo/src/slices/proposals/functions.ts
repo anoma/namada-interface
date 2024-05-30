@@ -262,7 +262,7 @@ export const fetchAllProposals = async (
       )
     );
 
-  return Array(30).fill(searchFiltered).flat();
+  return searchFiltered;
 };
 
 // TODO: this function is way too big
