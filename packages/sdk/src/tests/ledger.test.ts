@@ -137,7 +137,7 @@ describe("ledger", () => {
       const namadaApp = {
         getAddressAndPubKey: jest.fn().mockReturnValue({
           address: adrBuffer,
-          publicKey: keyBuffer,
+          pubkey: keyBuffer,
         }),
       };
       const path = "path";
@@ -147,7 +147,7 @@ describe("ledger", () => {
 
       expect(namadaApp.getAddressAndPubKey).toHaveBeenCalledWith(path);
       expect(address).toEqual("addr");
-      expect(publicKey).toEqual("6b6579");
+      expect(publicKey).toEqual("key");
     });
 
     it("should return the address and public key of the ledger", async () => {
@@ -156,7 +156,7 @@ describe("ledger", () => {
       const namadaApp = {
         getAddressAndPubKey: jest.fn().mockReturnValue({
           address: adrBuffer,
-          publicKey: keyBuffer,
+          pubkey: keyBuffer,
         }),
       };
 
@@ -176,7 +176,7 @@ describe("ledger", () => {
       const namadaApp = {
         showAddressAndPubKey: jest.fn().mockReturnValue({
           address: adrBuffer,
-          publicKey: keyBuffer,
+          pubkey: keyBuffer,
         }),
       };
       const path = "path";
@@ -186,7 +186,7 @@ describe("ledger", () => {
 
       expect(namadaApp.showAddressAndPubKey).toHaveBeenCalledWith(path);
       expect(address).toEqual("addr");
-      expect(publicKey).toEqual("6b6579");
+      expect(publicKey).toEqual("key");
     });
 
     it("should throw an error when the ledger can't show the address and public key", async () => {
