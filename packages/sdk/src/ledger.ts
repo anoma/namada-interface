@@ -1,4 +1,3 @@
-import { toHex } from "@cosmjs/encoding";
 import Transport from "@ledgerhq/hw-transport";
 import TransportHID from "@ledgerhq/hw-transport-webhid";
 import TransportUSB from "@ledgerhq/hw-transport-webusb";
@@ -97,14 +96,13 @@ export class Ledger {
   public async getAddressAndPublicKey(
     path: string = DEFAULT_LEDGER_BIP44_PATH
   ): Promise<AddressAndPublicKey> {
-    const { address, publicKey } =
-      await this.namadaApp.getAddressAndPubKey(path);
+    const { address, pubkey } = await this.namadaApp.getAddressAndPubKey(path);
 
     return {
       // Return address as bech32-encoded string
       address: address.toString(),
-      // Return public key as hex-encoded string
-      publicKey: toHex(publicKey),
+      // Return public key as bech32-encoded string
+      publicKey: pubkey.toString(),
     };
   }
 
@@ -119,14 +117,14 @@ export class Ledger {
     path: string = DEFAULT_LEDGER_BIP44_PATH
   ): Promise<AddressAndPublicKey> {
     try {
-      const { address, publicKey } =
+      const { address, pubkey } =
         await this.namadaApp.showAddressAndPubKey(path);
 
       return {
         // Return address as bech32-encoded string
         address: address.toString(),
-        // Return public key as hex-encoded string
-        publicKey: toHex(publicKey),
+        // Return public key as bech32-encoded string
+        publicKey: pubkey.toString(),
       };
     } catch (e) {
       throw new Error(`Connect Ledger rejected by user: ${e}`);
