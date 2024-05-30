@@ -2,7 +2,7 @@ import { twMerge } from "tailwind-merge";
 
 import { AddRemove, PgfActions, Proposal } from "@namada/types";
 
-import { formatEpoch } from "@namada/utils";
+import { showEpoch } from "utils";
 
 const InfoCard: React.FC<
   {
@@ -87,17 +87,17 @@ export const VoteInfoCards: React.FC<{
     <div className="grid grid-cols-6 gap-2 m-4">
       <InfoCard
         title="Voting Start"
-        content={formatEpoch(proposal.startEpoch)}
+        content={showEpoch(proposal.startEpoch)}
         className="col-span-2"
       />
       <InfoCard
         title="Voting End"
-        content={formatEpoch(proposal.endEpoch)}
+        content={showEpoch(proposal.endEpoch)}
         className="col-span-2"
       />
       <InfoCard
         title="Activation Epoch"
-        content={formatEpoch(proposal.graceEpoch)}
+        content={showEpoch(proposal.graceEpoch)}
         className="col-span-2"
       />
       <InfoCard

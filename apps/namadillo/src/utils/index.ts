@@ -20,3 +20,5 @@ export const showProposalTypeString = (type: ProposalTypeString): string => {
 
   return typeText[type];
 };
+
+export const showEpoch = (epoch: bigint): string => `Epoch ${epoch.toString()}`;

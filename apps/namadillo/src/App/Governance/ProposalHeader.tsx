@@ -1,6 +1,5 @@
 import { ActionButton, ProgressBar, Stack } from "@namada/components";
 import { Proposal } from "@namada/types";
-import { formatEpoch } from "@namada/utils";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { FaChevronLeft } from "react-icons/fa";
@@ -8,6 +7,7 @@ import { SiWebassembly } from "react-icons/si";
 import { VscJson } from "react-icons/vsc";
 import { Link, useNavigate } from "react-router-dom";
 import { currentEpochAtom } from "slices/proposals";
+import { showEpoch } from "utils";
 import { StatusLabel, TypeLabel, VotedLabel } from "./ProposalLabels";
 import GovernanceRoutes from "./routes";
 
@@ -143,8 +143,8 @@ export const ProposalHeader: React.FC<ProposalHeaderProps> = (props) => {
               total={{ value: totalEpochs, color: "#3A3A3A" }}
             />
           </div>
-          <div className="col-start-1">{formatEpoch(startEpoch)}</div>
-          <div className="text-right">{formatEpoch(endEpoch)}</div>
+          <div className="col-start-1">{showEpoch(startEpoch)}</div>
+          <div className="text-right">{showEpoch(endEpoch)}</div>
         </div>
         {isExtensionConnected && (
           <div className="w-32 flex items-center justify-center">

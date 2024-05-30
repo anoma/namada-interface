@@ -221,9 +221,6 @@ export const formatPercentage = (
   return rounded.toString() + "%";
 };
 
-export const formatEpoch = (epoch: bigint): string =>
-  `Epoch ${epoch.toString()}`;
-
 /**
  * Applies a function to a value that is possibly undefined.
  */
