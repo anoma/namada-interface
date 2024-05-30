@@ -106,14 +106,18 @@ export const LiveGovernanceProposals: React.FC<LiveGovernanceProposalsProps> = (
         as="ul"
         className="dark-scrollbar overscroll-contain overflow-x-auto"
       >
-        {liveProposals.map((proposal, index) => {
+        {liveProposals.map((proposal) => {
           const voted =
             props.isExtensionConnected ?
               props.votedProposalIds.includes(proposal.id)
             : undefined;
 
           return (
-            <ProposalListItem proposal={proposal} voted={voted} key={index} />
+            <ProposalListItem
+              proposal={proposal}
+              voted={voted}
+              key={proposal.id.toString()}
+            />
           );
         })}
       </Stack>

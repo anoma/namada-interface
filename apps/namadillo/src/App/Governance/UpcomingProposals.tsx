@@ -59,8 +59,8 @@ export const UpcomingProposals: React.FC<{
         as="ul"
         className="dark-scrollbar overscroll-contain overflow-x-auto"
       >
-        {upcomingProposals.map((proposal, index) => (
-          <ProposalListItem proposal={proposal} key={index} />
+        {upcomingProposals.map((proposal) => (
+          <ProposalListItem proposal={proposal} key={proposal.id.toString()} />
         ))}
       </Stack>
     </div>
