@@ -9,9 +9,9 @@ import "@namada/components/src/base.css";
 import "../global.css";
 import "../tailwind.css";
 
-export default ((): void => {
-  const container = document.getElementById("root");
-  const root = createRoot(container!);
+const container = document.getElementById("root");
+if (container) {
+  const root = createRoot(container);
   root.render(
     <React.StrictMode>
       <HashRouter>
@@ -25,4 +25,4 @@ export default ((): void => {
       </HashRouter>
     </React.StrictMode>
   );
-})();
+}
