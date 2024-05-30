@@ -14,9 +14,11 @@ export const SettingsPanel = (): JSX.Element => {
 
   const onClose = (): void => {
     if (location.state?.backgroundLocation) {
-      navigate((location.state.backgroundLocation as Location).pathname);
+      navigate((location.state.backgroundLocation as Location).pathname, {
+        replace: true,
+      });
     } else {
-      navigate("/");
+      navigate("/", { replace: true });
     }
   };
 
