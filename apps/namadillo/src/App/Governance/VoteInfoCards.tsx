@@ -96,7 +96,7 @@ export const VoteInfoCards: React.FC<{
         className="col-span-2"
       />
       <InfoCard
-        title="Grace Epoch"
+        title="Activation Epoch"
         content={formatEpoch(proposal.graceEpoch)}
         className="col-span-2"
       />
