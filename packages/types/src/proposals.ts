@@ -27,29 +27,6 @@ export type Proposal = {
   [VT in VoteType]: BigNumber;
 };
 
-export type ProposalWithExtraInfo = {
-  proposal: Proposal;
-};
-
-type ProposalStatusCommonProperties = {
-  [VT in VoteType]: BigNumber;
-} & {
-  totalVotingPower: BigNumber;
-};
-
-export type Pending = {
-  status: "pending";
-} & ProposalStatusCommonProperties;
-
-export type Ongoing = {
-  status: "ongoing";
-} & ProposalStatusCommonProperties;
-
-export type Finished = {
-  status: "finished";
-  passed: boolean;
-} & ProposalStatusCommonProperties;
-
 export type AddRemove = {
   add?: string;
   remove: string[];

@@ -6,11 +6,11 @@ import { Result } from "@namada/utils";
 import { Input, InputProps } from "./Input";
 
 export type BigNumberElement = Omit<HTMLInputElement, "value"> & {
-  value?: BigNumber | undefined;
+  value?: BigNumber;
 };
 
 type Props = Omit<InputProps, "value" | "onChange" | "min" | "max"> & {
-  value?: BigNumber | undefined;
+  value?: BigNumber;
   onChange?: ChangeEventHandler<BigNumberElement>;
   maxDecimalPlaces?: number;
   min?: string | number | BigNumber;

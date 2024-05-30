@@ -38,15 +38,4 @@ export const ProposalDescription: React.FC<{
       </a>
     </Stack>
   );
-
-  //  return (
-  //    <>
-  //      {Object.entries(content).map(([key, value]) => (
-  //        <section className="text-sm px-8" key={key}>
-  //          <h3>{key}</h3>
-  //          <p>{value}</p>
-  //        </section>
-  //      ))}
-  //    </>
-  //);
 };

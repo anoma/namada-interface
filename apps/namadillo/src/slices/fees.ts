@@ -22,7 +22,7 @@ export const minimumGasPriceAtom = atomWithQuery<BigNumber>((get) => {
       const { rpc } = await getSdkInstance();
       // TODO: Can nativeToken ever be undefined?
       invariant(!!nativeToken, "Native token is undefined");
-      const result = (await rpc.queryGasCosts()) as [string, string][];
+      const result = await rpc.queryGasCosts();
       const nativeTokenCost = result.find(([token]) => token === nativeToken);
       invariant(!!nativeTokenCost, "Error querying minimum gas price");
       const asBigNumber = new BigNumber(nativeTokenCost![1]);
