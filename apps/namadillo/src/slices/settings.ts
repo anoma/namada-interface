@@ -8,6 +8,7 @@ type SettingsStorage = {
   hideBalances: boolean;
   rpcUrl: string;
   chainId: string;
+  signArbitraryEnabled: boolean;
 };
 
 export const namadaExtensionConnectedAtom = atom(false);
@@ -19,6 +20,7 @@ export const namadilloSettingsAtom = atomWithStorage<SettingsStorage>(
     hideBalances: false,
     rpcUrl: process.env.NAMADA_INTERFACE_NAMADA_URL || "",
     chainId: process.env.NAMADA_INTERFACE_NAMADA_CHAIN_ID || "",
+    signArbitraryEnabled: false,
   }
 );
 
@@ -47,6 +49,11 @@ export const rpcUrlAtom = atom(
 export const chainIdAtom = atom(
   (get) => get(namadilloSettingsAtom).chainId,
   changeSettings<string>("chainId")
+);
+
+export const signArbitraryEnabledAtom = atom(
+  (get) => get(namadilloSettingsAtom).signArbitraryEnabled,
+  changeSettings<boolean>("signArbitraryEnabled")
 );
 
 export const connectedChainsAtom = atom<ChainKey[]>([]);

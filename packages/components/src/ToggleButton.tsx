@@ -1,13 +1,6 @@
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
-import { tv } from "tailwind-variants";
-
-type Props = {
-  checked: boolean;
-  onChange: () => void;
-  label: string;
-  containerProps?: React.ComponentPropsWithoutRef<"label">;
-};
+import { VariantProps, tv } from "tailwind-variants";
 
 const toggleButtonClassList = tv({
   slots: {
@@ -17,32 +10,63 @@ const toggleButtonClassList = tv({
     ),
     checkbox: clsx("invisible absolute pointer-events-none"),
     toggleContainer: clsx(
-      "relative rounded-3xl bg-rblack p-1 h-5 w-10 cursor-pointer",
+      "relative rounded-3xl p-1 h-5 w-10 cursor-pointer",
       "transition-all duration-100 ease-out-quad",
       "[&~span]:top-px"
     ),
     toggleIndicator: clsx(
-      "absolute left-0.5 top-0.5 h-[calc(100%-4px)] bg-yellow",
+      "absolute left-0.5 top-0.5 h-[calc(100%-4px)]",
       "aspect-square rounded-full transition-all duration-200 ease-out-quad"
     ),
   },
   variants: {
+    color: {
+      yellow: {
+        toggleContainer: "bg-rblack",
+        toggleIndicator: "bg-yellow",
+      },
+      white: {
+        toggleContainer: "bg-neutral-700",
+        toggleIndicator: "bg-white",
+      },
+    },
+    activeColor: {
+      yellow: {},
+    },
     checked: {
       true: {
         toggleIndicator: "translate-x-5",
       },
     },
   },
+  compoundVariants: [
+    {
+      checked: true,
+      activeColor: "yellow",
+      class: {
+        toggleIndicator: "bg-rblack",
+        toggleContainer: "bg-yellow",
+      },
+    },
+  ],
 });
+
+type ToggleButtonProps = {
+  onChange: () => void;
+  label: string;
+  containerProps?: React.ComponentPropsWithoutRef<"label">;
+} & VariantProps<typeof toggleButtonClassList>;
 
 export const ToggleButton = ({
   checked,
   onChange,
   label,
+  color = "yellow",
+  activeColor,
   containerProps = {},
-}: Props): JSX.Element => {
+}: ToggleButtonProps): JSX.Element => {
   const { container, checkbox, toggleContainer, toggleIndicator } =
-    toggleButtonClassList({ checked });
+    toggleButtonClassList({ checked, color, activeColor });
 
   const { className: containerClassName, ...containerPropsRest } =
     containerProps;
