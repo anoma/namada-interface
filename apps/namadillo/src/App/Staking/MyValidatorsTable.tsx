@@ -1,7 +1,8 @@
 import { ActionButton, TableRow } from "@namada/components";
-import { formatPercentage, shortenAddress } from "@namada/utils";
+import { formatPercentage } from "@namada/utils";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { NamCurrency } from "App/Common/NamCurrency";
+import { WalletAddress } from "App/Common/WalletAddress";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
@@ -53,7 +54,10 @@ export const MyValidatorsTable = (): JSX.Element => {
         >
           {validator.alias}
         </strong>,
-        shortenAddress(validator.address, 8, 6),
+        <WalletAddress
+          key={`address-${validator.address}`}
+          address={validator.address}
+        />,
         <div
           className="flex flex-col text-right leading-tight"
           key={`my-validator-voting-power-${validator.address}`}
