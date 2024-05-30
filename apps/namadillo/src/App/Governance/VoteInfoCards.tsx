@@ -1,3 +1,4 @@
+import { NamCurrency } from "App/Common/NamCurrency";
 import { twMerge } from "tailwind-merge";
 
 import { AddRemove, PgfActions, Proposal } from "@namada/types";
@@ -51,7 +52,8 @@ const PgfPaymentInfoCards: React.FC<{
         content={pgfActions.continuous.add.map(
           ({ internal: { amount, target } }) => (
             <span key={`info-card-continuous-add-${target}`}>
-              {target} {amount.toString()} NAM
+              {target}{" "}
+              <NamCurrency amount={amount} forceBalanceDisplay={true} />
             </span>
           )
         )}
@@ -62,7 +64,8 @@ const PgfPaymentInfoCards: React.FC<{
         content={pgfActions.continuous.remove.map(
           ({ internal: { amount, target } }) => (
             <span key={`info-card-continuous-remove-${target}`}>
-              {target} {amount.toString()} NAM
+              {target}{" "}
+              <NamCurrency amount={amount} forceBalanceDisplay={true} />
             </span>
           )
         )}
@@ -72,7 +75,7 @@ const PgfPaymentInfoCards: React.FC<{
         className="col-span-full"
         content={pgfActions.retro.map(({ internal: { amount, target } }) => (
           <span key={`info-card-retro-${target}`}>
-            {target} {amount.toString()} NAM
+            {target} <NamCurrency amount={amount} forceBalanceDisplay={true} />
           </span>
         ))}
       />
