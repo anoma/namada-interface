@@ -6242,7 +6242,7 @@ __metadata:
     "@release-it/conventional-changelog": "npm:^8.0.1"
     "@types/jest": "npm:^29.0.3"
     "@types/node": "npm:^20.11.4"
-    "@zondax/ledger-namada": "npm:^0.0.4"
+    "@zondax/ledger-namada": "npm:^0.0.6"
     babel-jest: "npm:^29.0.3"
     bignumber.js: "npm:^9.1.1"
     buffer: "npm:^6.0.3"
@@ -8052,10 +8052,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/devices@npm:^8.4.2":
+  version: 8.4.2
+  resolution: "@ledgerhq/devices@npm:8.4.2"
+  dependencies:
+    "@ledgerhq/errors": "npm:^6.18.0"
+    "@ledgerhq/logs": "npm:^6.12.0"
+    rxjs: "npm:^7.8.1"
+    semver: "npm:^7.3.5"
+  checksum: b7149c6302d23928fd2d3622d9018af10a56f6960732de0d72e881d19b75b0036f6248ca0845cfe9dfeda32ecb52c352423e79e109c7decf8437948fed7843cd
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/errors@npm:^6.16.1":
   version: 6.16.1
   resolution: "@ledgerhq/errors@npm:6.16.1"
   checksum: cabd4c2768be3f2eec9e15d83519b8eae113efb2d9f3dcd241e2ad01101f3a073dbf2eceae72073151db3bd36ab231d69b66b9aa4106c23ff5444185c66de849
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/errors@npm:^6.18.0":
+  version: 6.18.0
+  resolution: "@ledgerhq/errors@npm:6.18.0"
+  checksum: 0dad36bd049c1eb346b83d2b99c1dde0445c53ae3a2f73d4f9a7f5e278ef61d1e589cc0b30bb81dd3082ad9a751f7d82b662214088e19b09769bded45447fb54
   languageName: node
   linkType: hard
 
@@ -8095,15 +8114,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/hw-transport@npm:^6.30.3":
-  version: 6.30.3
-  resolution: "@ledgerhq/hw-transport@npm:6.30.3"
+"@ledgerhq/hw-transport@npm:^6.30.6":
+  version: 6.31.2
+  resolution: "@ledgerhq/hw-transport@npm:6.31.2"
   dependencies:
-    "@ledgerhq/devices": "npm:^8.2.0"
-    "@ledgerhq/errors": "npm:^6.16.1"
+    "@ledgerhq/devices": "npm:^8.4.2"
+    "@ledgerhq/errors": "npm:^6.18.0"
     "@ledgerhq/logs": "npm:^6.12.0"
     events: "npm:^3.3.0"
-  checksum: e50b9f99d6127b641d293d33b5141f55e59a8a14afb231e7d5c696e234a210ca94a6573a442548384ac4afa315b60b9c3ff7cff29f3df5e00f9cb59385801d70
+  checksum: 3fc61c2e844639b7ec73e5eaec2f34235a414ec802df2491ea3d32d854f5f53c592b35b874a9ce899a6087a74a5a750b20c91aae19aaa44eea2faa390edf593f
   languageName: node
   linkType: hard
 
@@ -8286,7 +8305,7 @@ __metadata:
     "@types/uuid": "npm:^8.3.4"
     "@types/webextension-polyfill": "npm:^0.10.6"
     "@types/zxcvbn": "npm:^4.4.1"
-    "@zondax/ledger-namada": "npm:^0.0.4"
+    "@zondax/ledger-namada": "npm:^0.0.6"
     bignumber.js: "npm:^9.1.1"
     buffer: "npm:^6.0.3"
     copy-webpack-plugin: "npm:^11.0.0"
@@ -11856,12 +11875,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zondax/ledger-namada@npm:^0.0.4":
-  version: 0.0.4
-  resolution: "@zondax/ledger-namada@npm:0.0.4"
+"@zondax/ledger-namada@npm:^0.0.6":
+  version: 0.0.6
+  resolution: "@zondax/ledger-namada@npm:0.0.6"
   dependencies:
-    "@ledgerhq/hw-transport": "npm:^6.30.3"
-  checksum: c0302c84ac82309af4844c147d94fbe2b3c4b84f37d0f50fe3dc8b2b3068bd672fbe46a053633a77cac08ca94d109867de303c9a8bda357284b0e429ded512e3
+    "@ledgerhq/hw-transport": "npm:^6.30.6"
+  checksum: 39aabba4be347e5329413be53de82e6519ff9b8e44473d6753cd096b733d075891528d12353108bf653071cbcd6804a9b826703753061428a7f93861607bce80
   languageName: node
   linkType: hard
 
