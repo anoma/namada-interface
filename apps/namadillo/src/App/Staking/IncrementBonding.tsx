@@ -228,12 +228,12 @@ const IncrementBonding = (): JSX.Element => {
             >
               {isPerformingBond ? "Processing..." : errorMessage || "Stake"}
             </ActionButton>
-            <TransactionFees
-              className="absolute right-4 top-1/2 -translate-y-1/2"
-              numberOfTransactions={Object.keys(updatedAmountByAddress).length}
-            />
           </div>
         </form>
+        <TransactionFees
+          className="absolute right-10 bottom-8"
+          numberOfTransactions={Object.keys(updatedAmountByAddress).length}
+        />
       </ModalContainer>
     </Modal>
   );

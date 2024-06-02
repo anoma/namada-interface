@@ -1,6 +1,7 @@
 import { CurrencyType } from "@namada/utils";
 import { Getter, Setter, atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+import { GasRangeOption } from "types/fees";
 
 type SettingsStorage = {
   fiat: CurrencyType;
@@ -8,6 +9,7 @@ type SettingsStorage = {
   rpcUrl: string;
   chainId: string;
   signArbitraryEnabled: boolean;
+  gasUsageOption: GasRangeOption;
 };
 
 export const namadaExtensionConnectedAtom = atom(false);
@@ -20,6 +22,7 @@ export const namadilloSettingsAtom = atomWithStorage<SettingsStorage>(
     rpcUrl: process.env.NAMADA_INTERFACE_NAMADA_URL || "",
     chainId: process.env.NAMADA_INTERFACE_NAMADA_CHAIN_ID || "",
     signArbitraryEnabled: false,
+    gasUsageOption: "average",
   }
 );
 
@@ -48,6 +51,11 @@ export const rpcUrlAtom = atom(
 export const chainIdAtom = atom(
   (get) => get(namadilloSettingsAtom).chainId,
   changeSettings<string>("chainId")
+);
+
+export const gasUsageOptionAtom = atom(
+  (get) => get(namadilloSettingsAtom).gasUsageOption,
+  changeSettings<GasRangeOption>("gasUsageOption")
 );
 
 export const signArbitraryEnabledAtom = atom(
