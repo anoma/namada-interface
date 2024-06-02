@@ -1,4 +1,4 @@
-import { shortenAddress } from "@namada/utils";
+import { WalletAddress } from "App/Common/WalletAddress";
 import { Validator } from "slices/validators";
 import { ValidatorThumb } from "./ValidatorThumb";
 
@@ -26,7 +26,12 @@ export const ValidatorName = ({
         <strong className="font-medium">{validator.alias}</strong>
         {showAddress && (
           <small className="block text-xs text-neutral-500">
-            {shortenAddress(validator.address, 6, 12)}
+            <WalletAddress
+              address={validator.address}
+              className="-left-4 translate-x-0"
+              prefixLength={6}
+              suffixLength={12}
+            />
           </small>
         )}
       </span>

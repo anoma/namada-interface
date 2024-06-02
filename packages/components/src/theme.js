@@ -127,9 +127,19 @@ module.exports = {
 
       animation: {
         "fade-in": "fadeIn var(--ease-out-expo) 1s",
+        "slide-down": "slideDown 0.5s var(--ease-out-expo) forwards",
+        "slide-up": "slideUp 0.5s var(--ease-out-expo) forwards",
       },
 
       keyframes: {
+        slideDown: {
+          "0%": { transform: "translateY(-100%)" },
+          "100%": { transform: "translateY(0)" },
+        },
+        slideUp: {
+          "0%": { transform: "translateY(100%)" },
+          "100%": { transform: "translateY(0)" },
+        },
         fadeIn: {
           from: {
             opacity: 0,

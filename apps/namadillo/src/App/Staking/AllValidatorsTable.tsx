@@ -1,7 +1,8 @@
 import { ActionButton, TableRow } from "@namada/components";
-import { formatPercentage, shortenAddress } from "@namada/utils";
+import { formatPercentage } from "@namada/utils";
 import { Search } from "App/Common/Search";
 import { TableRowLoading } from "App/Common/TableRowLoading";
+import { WalletAddress } from "App/Common/WalletAddress";
 import BigNumber from "bignumber.js";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useAtomValue } from "jotai";
@@ -66,7 +67,10 @@ export const AllValidatorsTable = ({
         {validator.alias}
       </strong>,
       // Address:
-      shortenAddress(validator.address, 8, 8),
+      <WalletAddress
+        key={`address-${validator.address}`}
+        address={validator.address}
+      />,
       // Voting Power:
       <div
         className="flex flex-col text-right"
