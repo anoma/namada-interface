@@ -4,6 +4,7 @@ import { Toasts } from "App/Common/Toast";
 import { TopNavigation } from "App/Common/TopNavigation";
 import { AnimatePresence } from "framer-motion";
 import { createBrowserHistory } from "history";
+import { useSmallScreen } from "hooks/useIsSmallScren";
 import { useOnChainChanged } from "hooks/useOnChainChanged";
 import { useOnNamadaExtensionAttached } from "hooks/useOnNamadaExtensionAttached";
 import { useOnNamadaExtensionConnected } from "hooks/useOnNamadaExtensionConnected";
@@ -12,6 +13,7 @@ import { useAtomValue } from "jotai";
 import { Outlet } from "react-router-dom";
 import { chainAtom } from "slices/chain";
 import { Navigation } from "./Common/Navigation";
+import { SmallScreenBlocking } from "./Common/SmallScreenBlocking";
 
 export const history = createBrowserHistory({ window });
 
@@ -21,6 +23,7 @@ export function App(): JSX.Element {
   useOnChainChanged();
   useTransactionService();
 
+  const isSmallScreen = useSmallScreen();
   const chain = useAtomValue(chainAtom);
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
@@ -28,6 +31,12 @@ export function App(): JSX.Element {
   const extensionReady =
     currentExtensionAttachStatus === "attached" ||
     currentExtensionAttachStatus === "detached";
+
+  if (isSmallScreen === undefined) return <></>;
+
+  if (isSmallScreen) {
+    return <SmallScreenBlocking />;
+  }
 
   return (
     <>
