@@ -7,7 +7,7 @@ module.exports = {
         orange: "#FF8A00",
         fail: "#DD1539",
         white: "#fff",
-        black: "#141414",
+        black: "#0B0B0B",
         gray: "#292929",
         rblack: "#000000",
         upcoming: "#7DA0A8",
