@@ -2,15 +2,23 @@ import { useEffectSkipFirstRender } from "@namada/hooks";
 import { BondProps, RedelegateProps, UnbondProps } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { useSetAtom } from "jotai";
-import { dispatchToastNotificationAtom } from "slices/notifications";
+import {
+  dispatchToastNotificationAtom,
+  filterToastNotificationsAtom,
+} from "slices/notifications";
 import { EventData, TransactionEvent } from "types/events";
 
 export const useTransactionNotifications = (): void => {
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
+  const filterNotifications = useSetAtom(filterToastNotificationsAtom);
 
   useEffectSkipFirstRender(() => {
     initEvents();
   }, []);
+
+  const clearPendingNotifications = (): void => {
+    filterNotifications((notification) => notification.type !== "pending");
+  };
 
   function addEvent<T>(
     handle: TransactionEvent,
@@ -22,6 +30,7 @@ export const useTransactionNotifications = (): void => {
   function initEvents(): void {
     addEvent("Bond.Error", (e: EventData<BondProps>): void => {
       const address = shortenAddress(e.detail.data.validator, 8, 8);
+      clearPendingNotifications();
       dispatchNotification({
         id: e.detail.transactionId,
         type: "error",
@@ -33,6 +42,7 @@ export const useTransactionNotifications = (): void => {
 
     addEvent("Bond.Success", (e: EventData<BondProps>): void => {
       const address = shortenAddress(e.detail.data.validator, 8, 8);
+      clearPendingNotifications();
       dispatchNotification({
         id: e.detail.transactionId,
         title: "Staking transaction succeeded",
@@ -44,6 +54,7 @@ export const useTransactionNotifications = (): void => {
 
     addEvent("Unbond.Success", (e: EventData<UnbondProps>): void => {
       const address = shortenAddress(e.detail.data.validator, 8, 8);
+      clearPendingNotifications();
       dispatchNotification({
         id: e.detail.transactionId,
         title: "Unstake transaction succeeded",
@@ -55,6 +66,7 @@ export const useTransactionNotifications = (): void => {
 
     addEvent("Unbond.Error", (e: EventData<UnbondProps>): void => {
       const address = shortenAddress(e.detail.data.validator, 8, 8);
+      clearPendingNotifications();
       dispatchNotification({
         id: e.detail.transactionId,
         title: "Unstake transaction failed",
@@ -67,6 +79,7 @@ export const useTransactionNotifications = (): void => {
     addEvent("ReDelegate.Error", (e: EventData<RedelegateProps>): void => {
       const sourceAddress = shortenAddress(e.detail.data.sourceValidator);
       const destAddress = shortenAddress(e.detail.data.destinationValidator);
+      clearPendingNotifications();
       dispatchNotification({
         id: e.detail.transactionId,
         title: "Re-delegate failed",
