@@ -1,6 +1,5 @@
 import { EncodedTx } from "@heliax/namada-sdk/web";
 import { getIntegration } from "@namada/integrations";
-import { Query } from "@namada/shared";
 import {
   Account,
   AddRemove,
@@ -301,16 +300,6 @@ export const fetchVotedProposalIds = async (
   return proposalIds;
 };
 
-//TODO: do we return this already from the indexer?
-export const fetchProposalCode = async (
-  chain: Chain,
-  id: bigint
-): Promise<Uint8Array> => {
-  const { rpc } = chain;
-  const query = new Query(rpc);
-  return await query.query_proposal_code(id);
-};
-
 export const performVote = async (
   proposalId: bigint,
   vote: VoteType,
@@ -327,7 +316,7 @@ export const performVote = async (
   if (typeof publicKey === "undefined") {
     throw new Error("no public key on account");
   }
-  const { tx, rpc } = await getSdkInstance();
+  const { tx } = await getSdkInstance();
   const signer = account.address;
 
   const proposalProps = {
@@ -348,8 +337,11 @@ export const performVote = async (
   const txArray: EncodedTx[] = [];
 
   // RevealPK if needed
-  const pk = await rpc.queryPublicKey(account.address);
-  if (!pk) {
+  const api = new DefaultApi();
+  const { publicKey } = (await api.apiV1RevealedPublicKeyAddressGet(address))
+    .data;
+
+  if (!publicKey) {
     const revealPkTx = await tx.buildRevealPk(wrapperTxProps, account.address);
     // Add to txArray to sign & broadcast below:
     txArray.push(revealPkTx);

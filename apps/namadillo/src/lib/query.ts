@@ -78,13 +78,16 @@ export const buildTxArray = async <T>(
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<EncodedTx>
 ): Promise<EncodedTxData<T>[]> => {
-  const { tx, rpc } = await getSdkInstance();
+  const { tx } = await getSdkInstance();
   const wrapperTxProps = getTxProps(account, gasConfig, chain);
   const txArray: EncodedTxData<T>[] = [];
 
   // Determine if RevealPK is needed:
-  const pk = await rpc.queryPublicKey(account.address);
-  if (!pk) {
+  const api = new DefaultApi();
+  const { publicKey } = (await api.apiV1RevealedPublicKeyAddressGet(address))
+    .data;
+
+  if (!publicKey) {
     const revealPkTx = await tx.buildRevealPk(wrapperTxProps, account.address);
     txArray.push({ type: revealPublicKeyType, encodedTx: revealPkTx });
   }
