@@ -52,6 +52,7 @@ describe("approvals handler", () => {
       "signer",
       ""
     );
+
     handler(env, approveTxMsg);
     expect(service.approveSignTx).toBeCalled();
 

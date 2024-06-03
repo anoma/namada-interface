@@ -2,17 +2,21 @@ import { Message } from "router";
 import { ROUTE } from "./constants";
 
 import { TxDetails } from "@namada/types";
+import { ResponseSign } from "@zondax/ledger-namada";
 import { validateProps } from "utils";
+import { PendingTx } from "./types";
 
 export enum MessageType {
   RejectSignTx = "reject-sign-tx",
   SubmitApprovedSignTx = "submit-approved-sign-tx",
   SubmitApprovedSignArbitrary = "submit-approved-sign-arbitrary",
+  SubmitApprovedSignLedgerTx = "submit-approved-sign-ledger-tx",
   RejectSignArbitrary = "reject-sign-arbitrary",
   ConnectInterfaceResponse = "connect-interface-response",
   RevokeConnection = "revoke-connection",
   QueryTxDetails = "query-tx-details",
   QuerySignArbitraryData = "query-sign-arbitrary-data",
+  QueryPendingTx = "query-pending-tx",
 }
 
 export class SubmitApprovedSignTxMsg extends Message<void> {
@@ -37,6 +41,31 @@ export class SubmitApprovedSignTxMsg extends Message<void> {
 
   type(): string {
     return SubmitApprovedSignTxMsg.type();
+  }
+}
+
+export class SubmitApprovedSignLedgerTxMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.SubmitApprovedSignLedgerTx;
+  }
+
+  constructor(
+    public readonly msgId: string,
+    public readonly responseSign: ResponseSign
+  ) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["msgId", "responseSign"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SubmitApprovedSignLedgerTxMsg.type();
   }
 }
 
@@ -181,6 +210,28 @@ export class QueryTxDetailsMsg extends Message<TxDetails> {
 
   type(): string {
     return QueryTxDetailsMsg.type();
+  }
+}
+
+export class QueryPendingTxMsg extends Message<PendingTx | undefined> {
+  public static type(): MessageType {
+    return MessageType.QueryPendingTx;
+  }
+
+  constructor(public readonly msgId: string) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["msgId"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return QueryPendingTxMsg.type();
   }
 }
 

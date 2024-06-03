@@ -1,21 +1,30 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { Ledger } from "@heliax/namada-sdk/web";
+import { Ledger, makeBip44Path } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Stack } from "@namada/components";
-import { LedgerError } from "@zondax/ledger-namada";
+import { LedgerError, ResponseSign } from "@zondax/ledger-namada";
 
+import { chains } from "@namada/chains";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
+import {
+  QueryPendingTxMsg,
+  SubmitApprovedSignLedgerTxMsg,
+} from "background/approvals";
+import { QueryAccountDetailsMsg } from "background/keyring";
+import { useRequester } from "hooks/useRequester";
+import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 
 type Props = {
-  details?: ApprovalDetails;
+  details: ApprovalDetails;
 };
 
 export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
+  const requester = useRequester();
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
-  const { msgId } = details || {};
+  const { msgId, signer } = details;
 
   useEffect(() => {
     if (status === Status.Completed) {
@@ -27,28 +36,18 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
     ledger: Ledger,
     bytes: Uint8Array,
     path: string
-  ): Promise<void> => {
+  ): Promise<ResponseSign> => {
     // Open ledger transport
-    if (!msgId) {
-      throw new Error("msgId was not provided!");
-    }
-
     setStatusInfo(`Review and approve transaction on your Ledger`);
 
-    try {
-      // Sign with Ledger
-      const signatures = await ledger.sign(bytes, path);
-      const { errorMessage, returnCode } = signatures;
+    // Sign with Ledger
+    const signatures = await ledger.sign(bytes, path);
+    const { errorMessage, returnCode } = signatures;
 
-      if (returnCode !== LedgerError.NoErrors) {
-        throw new Error(`Signing error encountered: ${errorMessage}`);
-      }
-      setStatus(Status.Completed);
-    } catch (e) {
-      await ledger.closeTransport();
-      setError(`${e}`);
-      setStatus(Status.Failed);
+    if (returnCode !== LedgerError.NoErrors) {
+      throw new Error(`Signing error encountered: ${errorMessage}`);
     }
+    return signatures;
   };
 
   const handleApproveLedgerSignTx = useCallback(
@@ -78,9 +77,38 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
       setStatus(Status.Pending);
 
       try {
-        // TODO: Bytes and Path will now be provided by interface when submitted for approval,
-        // which is now responsible for building Tx!
-        await signLedgerTx(ledger, new Uint8Array([]), "");
+        const accountDetails = await requester.sendMessage(
+          Ports.Background,
+          new QueryAccountDetailsMsg(signer)
+        );
+        if (!accountDetails) {
+          throw new Error(`Failed to query account details for ${signer}`);
+        }
+        const path = makeBip44Path(
+          chains.namada.bip44.coinType,
+          accountDetails.path
+        );
+        const pendingTx = await requester.sendMessage(
+          Ports.Background,
+          new QueryPendingTxMsg(msgId)
+        );
+        if (!pendingTx) {
+          throw new Error(`Tx for msgId ${msgId} not found!`);
+        }
+        // TODO: This Tx should be batched! For now, just iterate over all Tx
+        const signature = await signLedgerTx(
+          ledger,
+          pendingTx.tx.txBytes,
+          path
+        );
+
+        await requester.sendMessage(
+          Ports.Background,
+          new SubmitApprovedSignLedgerTxMsg(msgId, signature)
+        );
+
+        setStatus(Status.Completed);
+        // TODO: We need a SubmitApprovedLedgerTx msg that accepts these bytes
       } catch (e) {
         await ledger.closeTransport();
         setError(`${e}`);

@@ -13,6 +13,7 @@ import {
   RejectSignTxMsg,
   RevokeConnectionMsg,
   SubmitApprovedSignArbitraryMsg,
+  SubmitApprovedSignLedgerTxMsg,
   SubmitApprovedSignTxMsg,
 } from "./messages";
 import { ApprovalsService } from "./service";
@@ -70,6 +71,11 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleQuerySignArbitraryData(service)(
           env,
           msg as QuerySignArbitraryDataMsg
+        );
+      case SubmitApprovedSignLedgerTxMsg:
+        return handleSubmitApprovedSignLedgerTxMsg(service)(
+          env,
+          msg as SubmitApprovedSignLedgerTxMsg
         );
 
       default:
@@ -185,5 +191,13 @@ const handleQuerySignArbitraryData: (
 ) => InternalHandler<QuerySignArbitraryDataMsg> = (service) => {
   return async (_, { msgId }) => {
     return await service.querySignArbitraryDetails(msgId);
+  };
+};
+
+const handleSubmitApprovedSignLedgerTxMsg: (
+  service: ApprovalsService
+) => InternalHandler<SubmitApprovedSignLedgerTxMsg> = (service) => {
+  return async ({ senderTabId: popupTabId }, { msgId, responseSign }) => {
+    return await service.submitSignLedgerTx(popupTabId, msgId, responseSign);
   };
 };
