@@ -9,6 +9,7 @@ import {
 } from "@namada/types";
 import { getSdkInstance } from "hooks";
 import invariant from "invariant";
+import { TransactionEventsClasses } from "types/events";
 import { GasConfig } from "types/fees";
 
 const {
@@ -34,10 +35,10 @@ export type TransactionNotification = {
   error?: { title: string; text: string };
 };
 
-export type PreparedTransaction = {
+export type PreparedTransaction<T> = {
   encodedTx: EncodedTx;
   signedTx: Uint8Array;
-  notification?: TransactionNotification;
+  meta: T;
 };
 
 export const revealPublicKeyType = "revealPublicKey";
@@ -162,34 +163,37 @@ export const buildTxPair = async <T>(
   );
 };
 
-export const prepareTxs = <T>(
-  transactions: TransactionPair<T>[],
-  buildNotification?: (props: T) => TransactionNotification
-): PreparedTransaction[] => {
-  return transactions.map((pair: TransactionPair<T>): PreparedTransaction => {
-    if (pair.encodedTxData.type === revealPublicKeyType) {
-      return {
-        encodedTx: pair.encodedTxData.encodedTx,
-        signedTx: pair.signedTx,
-      };
-    }
-    return {
-      encodedTx: pair.encodedTxData.encodedTx,
-      signedTx: pair.signedTx,
-      notification:
-        buildNotification && pair.encodedTxData.meta?.props ?
-          buildNotification(pair.encodedTxData.meta.props)
-        : undefined,
-    };
-  });
-};
-
-export const broadcastTx = async (
-  transaction: PreparedTransaction
+export const broadcastTx = async <T>(
+  encoded: EncodedTx,
+  signedTx: Uint8Array,
+  data?: T,
+  eventType?: TransactionEventsClasses
 ): Promise<void> => {
   const { rpc } = await getSdkInstance();
-  await rpc.broadcastTx({
-    wrapperTxMsg: transaction.encodedTx.txMsg,
-    tx: transaction.signedTx,
-  });
+  const transactionId = encoded.hash();
+  eventType &&
+    window.dispatchEvent(
+      new CustomEvent(`${eventType}.Pending`, {
+        detail: { transactionId, data },
+      })
+    );
+  try {
+    await rpc.broadcastTx({
+      wrapperTxMsg: encoded.txMsg,
+      tx: signedTx,
+    });
+    eventType &&
+      window.dispatchEvent(
+        new CustomEvent(`${eventType}.Success`, {
+          detail: { transactionId, data },
+        })
+      );
+  } catch (error) {
+    eventType &&
+      window.dispatchEvent(
+        new CustomEvent(`${eventType}.Error`, {
+          detail: { transactionId, data, error },
+        })
+      );
+  }
 };

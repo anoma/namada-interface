@@ -7,7 +7,7 @@ import { createBrowserHistory } from "history";
 import { useOnChainChanged } from "hooks/useOnChainChanged";
 import { useOnNamadaExtensionAttached } from "hooks/useOnNamadaExtensionAttached";
 import { useOnNamadaExtensionConnected } from "hooks/useOnNamadaExtensionConnected";
-import { useTransactionService } from "hooks/useTransactionService";
+import { useTransactionNotifications } from "hooks/useTransactionNotifications";
 import { useAtomValue } from "jotai";
 import { Outlet } from "react-router-dom";
 import { chainAtom } from "slices/chain";
@@ -19,7 +19,7 @@ export function App(): JSX.Element {
   useOnNamadaExtensionAttached();
   useOnNamadaExtensionConnected();
   useOnChainChanged();
-  useTransactionService();
+  useTransactionNotifications();
 
   const chain = useAtomValue(chainAtom);
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
