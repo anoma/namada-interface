@@ -1,4 +1,9 @@
-import { ProposalStatus, ProposalTypeString, VoteType } from "@namada/types";
+import {
+  Proposal,
+  ProposalStatus,
+  ProposalTypeString,
+  VoteType,
+} from "@namada/types";
 import { useAtomValue } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
@@ -13,6 +18,8 @@ import {
   fetchVotedProposalIds,
   performVote,
 } from "./functions";
+
+import { queryClient } from "store";
 
 export const currentEpochAtom = atomWithQuery((get) => ({
   queryKey: ["current-epoch"],
@@ -29,6 +36,73 @@ export const proposalFamily = atomFamily((id: bigint) =>
     queryKey: ["proposal", id.toString()],
     queryFn: () => fetchProposalById(get(chainAtom), id),
   }))
+);
+
+export type StoredProposal = Pick<
+  Proposal,
+  | "id"
+  | "author"
+  | "content"
+  | "startEpoch"
+  | "endEpoch"
+  | "graceEpoch"
+  | "proposalType"
+  | "tallyType"
+> &
+  (
+    | { status?: undefined }
+    | Pick<Proposal, "status" | "yay" | "nay" | "abstain" | "totalVotingPower">
+  );
+
+export const proposalFamilyPersist = atomFamily((id: bigint) =>
+  atomWithQuery<StoredProposal>(
+    (get) => {
+      const proposal = get(proposalFamily(id));
+
+      return {
+        enabled: proposal.isSuccess,
+        queryKey: ["proposal-persist", id.toString()],
+        queryFn: async () => {
+          const {
+            id,
+            author,
+            content,
+            startEpoch,
+            endEpoch,
+            graceEpoch,
+            proposalType,
+            tallyType,
+            status,
+            yay,
+            nay,
+            abstain,
+            totalVotingPower,
+          } = proposal.data!;
+
+          // If proposal is finished, it is safe to store status and voting data
+          const finishedProposalProps =
+            status === "passed" || status === "rejected" ?
+              { status, yay, nay, abstain, totalVotingPower }
+            : {};
+
+          return {
+            id,
+            author,
+            content,
+            startEpoch,
+            endEpoch,
+            graceEpoch,
+            proposalType,
+            tallyType,
+            ...finishedProposalProps,
+          };
+        },
+        meta: { persist: true },
+      };
+    },
+    // TODO: It should be possible to avoid passing queryClient manually
+    () => queryClient
+  )
 );
 
 export const proposalVotedFamily = atomFamily((id: bigint) => {

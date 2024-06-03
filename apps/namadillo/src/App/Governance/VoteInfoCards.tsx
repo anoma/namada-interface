@@ -1,15 +1,18 @@
 import { NamCurrency } from "App/Common/NamCurrency";
 import { twMerge } from "tailwind-merge";
 
-import { AddRemove, PgfActions, Proposal } from "@namada/types";
+import { SkeletonLoading } from "@namada/components";
+import { AddRemove, PgfActions } from "@namada/types";
 
+import { useAtomValue } from "jotai";
+import { proposalFamilyPersist, StoredProposal } from "slices/proposals";
 import { showEpoch } from "utils";
 
 const InfoCard: React.FC<
   {
-    title: string;
+    title: React.ReactNode;
     content: React.ReactNode;
-  } & React.ComponentProps<"div">
+  } & Omit<React.ComponentProps<"div">, "title" | "content">
 > = ({ title, content, className, ...rest }) => (
   <div
     className={twMerge("bg-[#1B1B1B] rounded-sm px-3 py-2", className)}
@@ -84,10 +87,37 @@ const PgfPaymentInfoCards: React.FC<{
 };
 
 export const VoteInfoCards: React.FC<{
-  proposal: Proposal;
-}> = ({ proposal }) => {
+  proposalId: bigint;
+}> = ({ proposalId }) => {
+  const proposal = useAtomValue(proposalFamilyPersist(proposalId));
+
   return (
     <div className="grid grid-cols-6 gap-2 m-4">
+      {proposal.status === "pending" || proposal.status === "error" ?
+        <>
+          <LoadingCard className="col-span-2" />
+          <LoadingCard className="col-span-2" />
+          <LoadingCard className="col-span-2" />
+          <LoadingCard className="col-span-full" />
+        </>
+      : <Loaded proposal={proposal.data} />}
+    </div>
+  );
+};
+
+const LoadingCard: React.FC<{ className?: string }> = ({ className }) => (
+  <InfoCard
+    title={<SkeletonLoading height="20px" width="50%" />}
+    content={<SkeletonLoading height="20px" width="100%" />}
+    className={className}
+  />
+);
+
+const Loaded: React.FC<{
+  proposal: StoredProposal;
+}> = ({ proposal }) => {
+  return (
+    <>
       <InfoCard
         title="Voting Start"
         content={showEpoch(proposal.startEpoch)}
@@ -114,6 +144,6 @@ export const VoteInfoCards: React.FC<{
       {proposal.proposalType.type === "pgf_payment" && (
         <PgfPaymentInfoCards pgfActions={proposal.proposalType.data} />
       )}
-    </div>
+    </>
   );
 };

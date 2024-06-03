@@ -24,6 +24,9 @@ export const showProposalTypeString = (type: ProposalTypeString): string => {
 
 export const showEpoch = (epoch: bigint): string => `Epoch ${epoch.toString()}`;
 
+export const showProposalId = (proposalId: bigint): string =>
+  `#${proposalId.toString()}`;
+
 export const addTransactionEvent = <T>(
   handle: TransactionEvent,
   callback: (e: EventData<T>) => void

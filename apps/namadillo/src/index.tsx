@@ -3,6 +3,7 @@ import { SdkProvider } from "hooks/useSdk";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
+import { StoreProvider } from "store";
 import { getRouter } from "./App/AppRoutes";
 import reportWebVitals from "./reportWebVitals";
 import { ExtensionEventsProvider, IntegrationsProvider } from "./services";
@@ -17,13 +18,15 @@ if (container) {
   initShared().then(() => {
     root.render(
       <React.StrictMode>
-        <IntegrationsProvider>
-          <SdkProvider>
-            <ExtensionEventsProvider>
-              <RouterProvider router={getRouter()} />
-            </ExtensionEventsProvider>
-          </SdkProvider>
-        </IntegrationsProvider>
+        <StoreProvider>
+          <IntegrationsProvider>
+            <SdkProvider>
+              <ExtensionEventsProvider>
+                <RouterProvider router={getRouter()} />
+              </ExtensionEventsProvider>
+            </SdkProvider>
+          </IntegrationsProvider>
+        </StoreProvider>
       </React.StrictMode>
     );
   });

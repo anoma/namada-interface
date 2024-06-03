@@ -1,10 +1,28 @@
-import { Stack } from "@namada/components";
+import { SkeletonLoading, Stack } from "@namada/components";
+import { useAtomValue } from "jotai";
 import { useState } from "react";
 
-import { Proposal } from "@namada/types";
+import { proposalFamilyPersist, StoredProposal } from "slices/proposals";
 
 export const ProposalDescription: React.FC<{
-  proposal: Proposal;
+  proposalId: bigint;
+}> = ({ proposalId }) => {
+  const proposal = useAtomValue(proposalFamilyPersist(proposalId));
+
+  return (
+    <Stack className="text-sm px-8 -mt-3" gap={4}>
+      {proposal.status === "error" || proposal.status === "pending" ?
+        <>
+          <SkeletonLoading height="1em" width="100%" />
+          <SkeletonLoading height="1em" width="100%" />
+        </>
+      : <Loaded proposal={proposal.data} />}
+    </Stack>
+  );
+};
+
+export const Loaded: React.FC<{
+  proposal: StoredProposal;
 }> = ({ proposal }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -19,7 +37,7 @@ export const ProposalDescription: React.FC<{
   });
 
   return (
-    <Stack className="text-sm px-8 -mt-3" gap={4}>
+    <>
       <section>{abstract}</section>
 
       {expanded &&
@@ -36,6 +54,6 @@ export const ProposalDescription: React.FC<{
       >
         Show {expanded ? "Less" : "More"}
       </a>
-    </Stack>
+    </>
   );
 };

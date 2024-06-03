@@ -1,15 +1,11 @@
-import { Panel, SkeletonLoading } from "@namada/components";
+import { Panel } from "@namada/components";
 import { useAtomValue } from "jotai";
 
 import { ProposalDiscord } from "App/Sidebars/ProposalDiscord";
 import { useProposalIdParam } from "hooks";
 import { proposalFamily, proposalVotedFamily } from "slices/proposals";
 import { namadaExtensionConnectedAtom } from "slices/settings";
-import {
-  atomsAreFetching,
-  atomsAreLoaded,
-  useNotifyOnAtomError,
-} from "store/utils";
+import { useNotifyOnAtomError } from "store/utils";
 import { ProposalDescription } from "./ProposalDescription";
 import { ProposalHeader } from "./ProposalHeader";
 import { ProposalStatusSummary } from "./ProposalStatusSummary";
@@ -44,40 +40,15 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
     <div className="flex flex-col md:grid md:grid-cols-[auto_270px] gap-2">
       <div className="flex flex-col gap-1.5">
         <Panel className="px-3">
-          {atomsAreFetching(proposal, ...extensionAtoms) && (
-            <SkeletonLoading height="150px" width="100%" />
-          )}
           <div className="px-12">
-            {isConnected && atomsAreLoaded(proposal, ...extensionAtoms) && (
-              <ProposalHeader
-                proposal={proposal.data!}
-                isExtensionConnected={true}
-                voted={voted.data!}
-              />
-            )}
-            {!isConnected && atomsAreLoaded(proposal) && (
-              <ProposalHeader
-                proposal={proposal.data!}
-                isExtensionConnected={false}
-              />
-            )}
+            <ProposalHeader proposalId={proposalId} />
           </div>
         </Panel>
         <Panel title="Description">
-          {atomsAreFetching(proposal) && (
-            <SkeletonLoading height="150px" width="100%" />
-          )}
-          {atomsAreLoaded(proposal) && (
-            <ProposalDescription proposal={proposal.data!} />
-          )}
+          <ProposalDescription proposalId={proposalId} />
         </Panel>
         <Panel className="py-6 px-7">
-          {atomsAreFetching(proposal) && (
-            <SkeletonLoading height="150px" width="100%" />
-          )}
-          {atomsAreLoaded(proposal) && (
-            <VoteInfoCards proposal={proposal.data!} />
-          )}
+          <VoteInfoCards proposalId={proposalId} />
         </Panel>
         <Panel className="py-6">
           <VoteHelpText />
@@ -85,12 +56,7 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
       </div>
       <aside className="flex flex-col gap-2">
         <Panel className="@container" title="Proposal Status">
-          {atomsAreFetching(proposal) && (
-            <ProposalStatusSummary loading={true} />
-          )}
-          {atomsAreLoaded(proposal) && (
-            <ProposalStatusSummary loading={false} proposal={proposal.data!} />
-          )}
+          <ProposalStatusSummary proposalId={proposalId} />
         </Panel>
         <ProposalDiscord />
       </aside>

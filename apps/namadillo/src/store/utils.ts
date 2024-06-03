@@ -8,7 +8,7 @@ import {
 import { ToastNotification } from "types/notifications";
 
 export const atomsAreFetching = (...args: AtomWithQueryResult[]): boolean => {
-  return args.reduce((prev, current) => prev || current.isLoading, false);
+  return args.reduce((prev, current) => prev || current.isPending, false);
 };
 
 export const atomsAreLoaded = (...args: AtomWithQueryResult[]): boolean => {

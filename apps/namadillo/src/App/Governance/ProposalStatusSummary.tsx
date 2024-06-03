@@ -5,8 +5,10 @@ import { useState } from "react";
 
 import { PieChart, PieChartData, Stack } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
+import { useAtomValue } from "jotai";
+import { proposalFamily, proposalFamilyPersist } from "slices/proposals";
 
-import { Proposal, TallyType, VoteType, voteTypes } from "@namada/types";
+import { TallyType, VoteType, voteTypes } from "@namada/types";
 import { AnimatePresence } from "framer-motion";
 import { colors } from "./types";
 
@@ -103,17 +105,32 @@ const Layout: React.FC<{
   </Stack>
 );
 
-type ProposalStatusSummaryProps =
-  | {
-      loading: false;
-      proposal: Proposal;
-    }
-  | { loading: true };
+export const ProposalStatusSummary: React.FC<{
+  proposalId: bigint;
+}> = ({ proposalId }) => {
+  const proposal = useAtomValue(proposalFamily(proposalId));
+  const cachedProposal = useAtomValue(proposalFamilyPersist(proposalId));
 
-export const ProposalStatusSummary: React.FC<ProposalStatusSummaryProps> = (
-  props
-) => {
-  if (props.loading) {
+  const props: React.ComponentProps<typeof Loaded> | undefined = (() => {
+    if (proposal.status !== "error" && proposal.status !== "pending") {
+      return proposal.data;
+    }
+
+    if (
+      cachedProposal.status !== "error" &&
+      cachedProposal.status !== "pending"
+    ) {
+      const { data } = cachedProposal;
+
+      if (typeof data.status !== "undefined") {
+        return data;
+      }
+    }
+
+    return undefined;
+  })();
+
+  if (typeof props === "undefined") {
     return (
       <Layout
         percentages={{
@@ -136,14 +153,18 @@ export const ProposalStatusSummary: React.FC<ProposalStatusSummaryProps> = (
       />
     );
   } else {
-    return <Loaded proposal={props.proposal} />;
+    return <Loaded {...props} />;
   }
 };
 
 const Loaded: React.FC<{
-  proposal: Proposal;
-}> = ({ proposal }) => {
-  const { yay, nay, abstain, totalVotingPower } = proposal;
+  yay: BigNumber;
+  nay: BigNumber;
+  abstain: BigNumber;
+  totalVotingPower: BigNumber;
+  tallyType: TallyType;
+}> = (props) => {
+  const { yay, nay, abstain, totalVotingPower, tallyType } = props;
 
   const [hoveredVoteType, setHoveredVoteType] = useState<
     VoteType | undefined
@@ -158,7 +179,7 @@ const Loaded: React.FC<{
       BigNumber(0)
     : yayNayAbstainSummedPower.dividedBy(totalVotingPower);
 
-  const quorum = quorumMap[proposal.tallyType];
+  const quorum = quorumMap[tallyType];
 
   const percentageString = (value: BigNumber): string => {
     const voteProportion =
@@ -170,7 +191,7 @@ const Loaded: React.FC<{
   const data: PieChartData[] | undefined =
     zeroVotes ? undefined : (
       voteTypes.map((voteType) => ({
-        value: proposal[voteType],
+        value: props[voteType],
         color: colors[voteType],
       }))
     );
@@ -196,7 +217,7 @@ const Loaded: React.FC<{
         >
           <div className="uppercase text-sm">{hoveredVoteType}</div>
           <div className="text-3xl">
-            {percentageString(proposal[hoveredVoteType])}
+            {percentageString(props[hoveredVoteType])}
           </div>
         </motion.article>
       )}
@@ -210,7 +231,7 @@ const Loaded: React.FC<{
   };
 
   const amountString = (voteType: VoteType): string =>
-    proposal[voteType].toString() + " NAM";
+    props[voteType].toString() + " NAM";
 
   const amounts = {
     yay: amountString("yay"),
