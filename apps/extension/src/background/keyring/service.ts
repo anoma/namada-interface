@@ -9,6 +9,7 @@ import {
 import { Result, truncateInMiddle } from "@namada/utils";
 
 import { BuiltTx } from "@namada/shared";
+import { ResponseSign } from "@zondax/ledger-namada";
 import { ChainsService } from "background/chains";
 import { SdkService } from "background/sdk/service";
 import { VaultService } from "background/vault";
@@ -193,5 +194,13 @@ export class KeyRingService {
     address: string
   ): Promise<DerivedAccount | undefined> {
     return this._keyRing.queryAccountDetails(address);
+  }
+
+  async appendSignature(
+    txBytes: Uint8Array,
+    signature: ResponseSign
+  ): Promise<Uint8Array> {
+    const { tx } = this.sdkService.getSdk();
+    return tx.appendSignature(txBytes, signature);
   }
 }

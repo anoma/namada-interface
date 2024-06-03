@@ -11,6 +11,7 @@ import {
   DeriveAccountMsg,
   GenerateMnemonicMsg,
   GetActiveAccountMsg,
+  QueryAccountDetailsMsg,
   QueryParentAccountsMsg,
   RenameAccountMsg,
   RevealAccountMnemonicMsg,
@@ -83,6 +84,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         );
       case VerifyArbitraryMsg:
         return handleVerifyAbitraryMsg(service)(env, msg as VerifyArbitraryMsg);
+      case QueryAccountDetailsMsg:
+        return handleQueryAccountDetails(service)(
+          env,
+          msg as QueryAccountDetailsMsg
+        );
       default:
         throw new Error("Unknown msg type");
     }
@@ -221,5 +227,13 @@ const handleVerifyAbitraryMsg: (
 ) => InternalHandler<VerifyArbitraryMsg> = (service) => {
   return async (_, { publicKey, hash, signature }) => {
     return await service.verifyArbitrary(publicKey, hash, signature);
+  };
+};
+
+const handleQueryAccountDetails: (
+  service: KeyRingService
+) => InternalHandler<QueryAccountDetailsMsg> = (service) => {
+  return async (_, { address }) => {
+    return await service.queryAccountDetails(address);
   };
 };
