@@ -5,12 +5,17 @@ import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification"
 import { YourStakingDistribution } from "App/Sidebars/YourStakingDistribution";
 import { useAtomValue } from "jotai";
 import { useEffect } from "react";
-import { balancesAtom, transparentAccountsAtom } from "slices/accounts";
+import { transparentAccountsAtom } from "slices/accounts";
 import { namadaExtensionConnectedAtom } from "slices/settings";
-import { myValidatorsAtom, stakedAmountByAddressAtom } from "slices/validators";
+import {
+  myValidatorsAtom,
+  stakedAmountByAddressAtom,
+  unbondedAmountByAddressAtom,
+} from "slices/validators";
 import { AllValidatorsTable } from "./AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
 import { StakingSummary } from "./StakingSummary";
+import { UnbondingAmountsTable } from "./UnbondingAmountsTable";
 
 // This is the default view for the staking. it displays all the relevant
 // staking information of the user and allows unstake the active staking
@@ -22,11 +27,13 @@ export const StakingOverview = (): JSX.Element => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const accounts = useAtomValue(transparentAccountsAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
+  const unbondedAmounts = useAtomValue(unbondedAmountByAddressAtom);
   const stakedByAddress = useAtomValue(stakedAmountByAddressAtom);
+
   const hasStaking =
     stakedByAddress.isSuccess && Object.keys(stakedByAddress.data).length > 0;
-
-  useAtomValue(balancesAtom);
+  const hasUnbonded =
+    unbondedAmounts.isSuccess && Object.keys(unbondedAmounts.data).length > 0;
 
   useEffect(() => {
     if (isConnected && accounts.length > 0) {
@@ -44,6 +51,11 @@ export const StakingOverview = (): JSX.Element => {
         {hasStaking && (
           <Panel title="My Validators" className="relative">
             <MyValidatorsTable />
+          </Panel>
+        )}
+        {hasUnbonded && (
+          <Panel title="Unbonding" className="relative">
+            <UnbondingAmountsTable />
           </Panel>
         )}
         <Panel className="relative pb-6" title="All Validators">

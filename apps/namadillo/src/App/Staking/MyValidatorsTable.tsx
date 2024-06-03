@@ -7,6 +7,7 @@ import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
 import { MyValidator, Validator, myValidatorsAtom } from "slices/validators";
+import { ValidatorName } from "./ValidatorName";
 import { ValidatorsTable } from "./ValidatorsTable";
 import StakingRoutes from "./routes";
 
@@ -24,7 +25,6 @@ export const MyValidatorsTable = (): JSX.Element => {
     : {};
 
   const head = [
-    "",
     "My Validators",
     "Address",
     <div key="my-validators-vp" className="text-right">
@@ -43,10 +43,10 @@ export const MyValidatorsTable = (): JSX.Element => {
     return {
       className: "",
       cells: [
-        <img
-          key={`validator-image-${validator.address}`}
-          src={validator.imageUrl}
-          className="rounded-full aspect-square max-w-8"
+        <ValidatorName
+          key={`my-validator-${validator.address}`}
+          validator={validator}
+          showAddress={false}
         />,
         <strong
           className="font-medium"
