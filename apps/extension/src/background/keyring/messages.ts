@@ -1,6 +1,7 @@
 import { PhraseSize } from "@heliax/namada-sdk/web";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Result } from "@namada/utils";
+import { ResponseSign } from "@zondax/ledger-namada";
 import { Message } from "router";
 import { validatePrivateKey } from "utils";
 import { ROUTE } from "./constants";
@@ -25,6 +26,8 @@ enum MessageType {
   AddLedgerAccount = "add-ledger-account",
   RevealAccountMnemonic = "reveal-account-mnemonic",
   RenameAccount = "rename-account",
+  QueryAccountDetails = "query-account-details",
+  AppendLedgerSignature = "append-ledger-signature",
 }
 
 export class GenerateMnemonicMsg extends Message<string[]> {
@@ -348,5 +351,62 @@ export class DeleteAccountMsg extends Message<
 
   type(): string {
     return DeleteAccountMsg.type();
+  }
+}
+
+export class QueryAccountDetailsMsg extends Message<
+  DerivedAccount | undefined
+> {
+  public static type(): MessageType {
+    return MessageType.QueryAccountDetails;
+  }
+
+  constructor(public address: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.address) {
+      throw new Error("Account address is required!");
+    }
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return QueryAccountDetailsMsg.type();
+  }
+}
+
+export class AppendLedgerSignatureMsg extends Message<Uint8Array> {
+  public static type(): MessageType {
+    return MessageType.AppendLedgerSignature;
+  }
+
+  constructor(
+    public txBytes: Uint8Array,
+    public signature: ResponseSign
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txBytes) {
+      throw new Error("txBytes is required!");
+    }
+    if (!this.signature) {
+      throw new Error("signature is required!");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return AppendLedgerSignatureMsg.type();
   }
 }

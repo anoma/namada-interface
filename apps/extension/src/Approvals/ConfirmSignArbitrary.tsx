@@ -18,11 +18,11 @@ import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 
 type Props = {
-  details?: SignArbitraryDetails;
+  details: SignArbitraryDetails;
 };
 
 export const ConfirmSignature: React.FC<Props> = ({ details }) => {
-  const { msgId, signer } = details || {};
+  const { msgId, signer } = details;
 
   const navigate = useNavigate();
   const requester = useRequester();
@@ -32,10 +32,6 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
   const [statusInfo, setStatusInfo] = useState("");
 
   const handleApproveSignature = useCallback(async (): Promise<void> => {
-    if (!msgId || !signer) {
-      throw new Error("Not all required arguments were provided!");
-    }
-
     const address = shortenAddress(signer, 24);
 
     setStatus(Status.Pending);
