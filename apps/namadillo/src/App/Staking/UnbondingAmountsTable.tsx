@@ -1,4 +1,4 @@
-import { ActionButton, StyledTable, TableRow } from "@namada/components";
+import { StyledTable, TableRow } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { NamCurrency } from "App/Common/NamCurrency";
@@ -8,6 +8,7 @@ import { useMemo } from "react";
 import { myValidatorsAtom } from "slices/validators";
 import { twMerge } from "tailwind-merge";
 import { ValidatorName } from "./ValidatorName";
+import { WithdrawalButton } from "./WithdrawalButton";
 
 export const UnbondingAmountsTable = (): JSX.Element => {
   const myValidators = useAtomValue(myValidatorsAtom);
@@ -54,15 +55,7 @@ export const UnbondingAmountsTable = (): JSX.Element => {
               key={`withdraw-${validator.address}`}
               className="ml-4 relative z-0"
             >
-              <ActionButton
-                size="xs"
-                color="white"
-                outlined
-                borderRadius="sm"
-                disabled={!myValidator.withdrawableAmount?.eq(0)}
-              >
-                Withdraw
-              </ActionButton>
+              <WithdrawalButton myValidator={myValidator} />
             </div>,
           ],
         });
@@ -86,7 +79,7 @@ export const UnbondingAmountsTable = (): JSX.Element => {
           "[&_td:first-child]:before:absolute [&_td:first-child]:before:w-full [&_td:first-child]:before:h-full",
           "[&_td:first-child]:before:border [&_td:first-child]:before:border-pink",
           "[&_td:first-child]:before:left-0 [&_td:first-child]:before:top-0",
-          "[&_td:first-child]:before:rounded-sm"
+          "[&_td:first-child]:before:rounded-sm [&_td:first-child]:before:pointer-events-none"
         ),
       }}
       headProps={{ className: "text-neutral-500" }}
