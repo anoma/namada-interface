@@ -13,6 +13,7 @@ import {
   DeriveAccountMsg,
   GenerateMnemonicMsg,
   GetActiveAccountMsg,
+  QueryAccountDetailsMsg,
   QueryParentAccountsMsg,
   RenameAccountMsg,
   RevealAccountMnemonicMsg,
@@ -29,6 +30,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(QueryAccountsMsg);
   router.registerMessage(QueryDefaultAccountMsg);
   router.registerMessage(QueryParentAccountsMsg);
+  router.registerMessage(QueryAccountDetailsMsg);
   router.registerMessage(SaveAccountSecretMsg);
   router.registerMessage(SetActiveAccountMsg);
   router.registerMessage(DeleteAccountMsg);

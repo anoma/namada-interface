@@ -10,11 +10,11 @@ import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 
 type Props = {
-  details?: ApprovalDetails;
+  details: ApprovalDetails;
 };
 
 export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
-  const { msgId, signer } = details || {};
+  const { msgId, signer } = details;
 
   const navigate = useNavigate();
   const requester = useRequester();
@@ -30,13 +30,6 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
       setStatusInfo(`Decrypting keys and signing transaction...`);
 
       try {
-        if (!msgId) {
-          throw new Error("msgId was not provided!");
-        }
-        if (!signer) {
-          throw new Error("signer not provided!");
-        }
-
         const isAuthenticated = await requester.sendMessage(
           Ports.Background,
           new UnlockVaultMsg(password)

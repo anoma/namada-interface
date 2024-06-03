@@ -7,6 +7,7 @@ import { KVStore } from "@namada/storage";
 import { SignArbitraryResponse, TxDetails } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 
+import { ResponseSign } from "@zondax/ledger-namada";
 import { ChainsService } from "background/chains";
 import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
@@ -139,6 +140,35 @@ export class ApprovalsService {
     try {
       const signature = await this.keyRingService.sign(builtTx, signer);
       resolvers.resolve(signature);
+    } catch (e) {
+      resolvers.reject(e);
+    }
+
+    await this._clearPendingSignature(msgId);
+  }
+
+  async submitSignLedgerTx(
+    popupTabId: number,
+    msgId: string,
+    responseSign: ResponseSign
+  ): Promise<void> {
+    const pendingTx = await this.txStore.get(msgId);
+    const resolvers = this.resolverMap[popupTabId];
+
+    if (!resolvers) {
+      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
+    }
+
+    if (!pendingTx) {
+      throw new Error(`Signing data for ${msgId} not found!`);
+    }
+
+    try {
+      const signedBytes = await this.keyRingService.appendSignature(
+        pendingTx.tx.txBytes,
+        responseSign
+      );
+      resolvers.resolve(signedBytes);
     } catch (e) {
       resolvers.reject(e);
     }
