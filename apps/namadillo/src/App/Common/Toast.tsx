@@ -70,7 +70,7 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
           </i>
         )}
         {notification.type === "pending" && (
-          <i className="text-xl">
+          <i className="block text-xl animate-niceSpin">
             <FaRegHourglassHalf />
           </i>
         )}

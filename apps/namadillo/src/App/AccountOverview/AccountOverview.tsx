@@ -52,7 +52,7 @@ export const AccountOverview = (): JSX.Element => {
         )}
 
         {isConnected && (
-          <Stack gap={5} className="my-auto min-w-[365px] mx-auto">
+          <Stack gap={5} className="my-auto min-w-[365px] mx-auto py-12">
             {totalBalance.isSuccess && (
               <div
                 className={clsx(

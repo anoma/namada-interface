@@ -11,7 +11,12 @@ export const PageWithSidebar = ({
   footerClassName,
 }: PageWithSidebar): JSX.Element => {
   return (
-    <div className="w-full lg:grid lg:grid-cols-[auto_240px] gap-2 lg:grid-rows-[auto_max-content]">
+    <div
+      className={clsx(
+        "w-full flex flex-col gap-2 lg:grid lg:grid-cols-[auto_240px]",
+        "lg:grid-rows-[auto_max-content]"
+      )}
+    >
       {children}
       <Footer className={clsx(footerClassName)} />
     </div>

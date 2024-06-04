@@ -1,7 +1,7 @@
 import React from "react";
 import { twMerge } from "tailwind-merge";
 
-type PanelProps<T extends keyof JSX.IntrinsicElements> = {
+export type PanelProps<T extends keyof JSX.IntrinsicElements> = {
   children: React.ReactNode;
   as?: T;
   hierarchy?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
@@ -20,7 +20,7 @@ export const Panel = <T extends keyof JSX.IntrinsicElements = "div">({
     as || "div",
     {
       className: twMerge(
-        "rounded-sm bg-rblack px-4 py-5 text-white font-medium",
+        "rounded-sm bg-black px-4 py-5 text-white font-medium",
         className
       ),
       ...props,

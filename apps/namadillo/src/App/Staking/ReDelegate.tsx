@@ -164,7 +164,7 @@ export const ReDelegate = (): JSX.Element => {
         >
           <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
             <BondingAmountOverview
-              title="Available to re-delegate"
+              title="Total amount to re-delegate"
               amountInNam={0}
               updatedAmountInNam={totalUpdatedAmount}
               updatedValueClassList={twMerge(
@@ -173,14 +173,16 @@ export const ReDelegate = (): JSX.Element => {
                 })
               )}
               extraContent={
-                <>
-                  <Alert
-                    type="warning"
-                    className="absolute py-3 right-3 top-4 max-w-[50%] text-xs rounded-sm"
-                  >
-                    To proceed all re-delegated value must be assigned
-                  </Alert>
-                </>
+                step === "assign" && (
+                  <>
+                    <Alert
+                      type="warning"
+                      className="absolute py-3 right-3 top-4 max-w-[50%] text-xs rounded-sm"
+                    >
+                      To proceed, all re-delegated value must be assigned
+                    </Alert>
+                  </>
+                )
               }
             />
             <BondingAmountOverview

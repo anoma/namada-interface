@@ -18,7 +18,7 @@ export const SettingsPanelMenuItem = ({
         to={url}
         state={location.state}
         className={clsx(
-          "text-white text-lg bg-black py-8 px-6",
+          "text-white text-lg bg-neutral-900 py-8 px-6",
           "flex justify-between items-center rounded-sm",
           "transition-colors duration-150 ease-out-quad hover:text-yellow"
         )}

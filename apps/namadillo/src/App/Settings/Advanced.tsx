@@ -27,6 +27,7 @@ export const Advanced = (): JSX.Element => {
           type="text"
           value={rpc}
           label="RPC Url"
+          className="[&_input]:border-neutral-300"
           onChange={(e) => setRpc(e.currentTarget.value)}
           required
         />

@@ -20,7 +20,7 @@ export const CurrencySelectorEntry = ({
         className={twMerge(
           clsx(
             "w-full rounded-lg border-transparent border text-white",
-            "px-6 py-6 text-base uppercase text-left bg-black cursor-pointer",
+            "px-6 py-6 text-base uppercase text-left bg-neutral-900 cursor-pointer",
             {
               "border-yellow": selected,
             }
