@@ -2,7 +2,6 @@ import { getIntegration } from "@namada/integrations";
 import {
   Account as AccountDetails,
   ChainKey,
-  CosmosTokenType,
   TokenBalances,
   TokenType,
 } from "@namada/types";
@@ -143,57 +142,3 @@ const queryBalance = (
     return [account.address, { NAM: BigNumber(balances[0].amount) }];
   });
 };
-
-const keplrAccountsAtom = (() => {
-  const base = atom(new Promise<readonly AccountDetails[]>(() => {}));
-
-  return atom(
-    (get) => get(base),
-    (_get, set) =>
-      set(
-        base,
-        (async () => {
-          const keplr = getIntegration("cosmos");
-          const accounts = await keplr.accounts();
-
-          if (typeof accounts === "undefined") {
-            throw new Error("Keplr accounts was undefined");
-          }
-
-          return accounts;
-        })()
-      )
-  );
-})();
-
-const keplrBalancesAtom = (() => {
-  const base = atom(new Promise<TokenBalances<CosmosTokenType>>(() => {}));
-
-  return atom(
-    (get) => get(base),
-    (get, set) =>
-      set(
-        base,
-        (async () => {
-          const accounts = await get(keplrAccountsAtom);
-          const keplr = getIntegration("cosmos");
-          const supportedChainId = keplr.chain.chainId;
-
-          // TODO: support querying balances for multiple chains
-          const supportedAccount = accounts.find(
-            ({ chainId }) => chainId === supportedChainId
-          );
-
-          if (typeof supportedAccount === "undefined") {
-            throw new Error(
-              `no Keplr account for chain ID ${supportedChainId}`
-            );
-          }
-
-          return await keplr.queryBalances(supportedAccount.address);
-        })()
-      )
-  );
-})();
-
-export { keplrAccountsAtom, keplrBalancesAtom };
