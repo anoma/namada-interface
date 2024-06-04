@@ -2,6 +2,7 @@ import { Router } from "@remix-run/router";
 import {
   Route,
   Routes,
+  ScrollRestoration,
   createBrowserRouter,
   createRoutesFromElements,
   useLocation,
@@ -57,6 +58,7 @@ export const MainRoutes = (): JSX.Element => {
           element={<SettingsPanel />}
         />
       </Routes>
+      <ScrollRestoration />
     </>
   );
 };
