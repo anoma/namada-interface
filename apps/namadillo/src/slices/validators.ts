@@ -3,6 +3,7 @@ import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { transparentAccountsAtom } from "./accounts";
 import { chainAtom } from "./chain";
+import { shouldUpdateAmountAtom } from "./etc";
 
 type Unique = {
   uuid: string;
@@ -59,8 +60,11 @@ export const allValidatorsAtom = atomWithQuery((get) => ({
 export const myValidatorsAtom = atomWithQuery((get) => {
   const accounts = get(transparentAccountsAtom);
   const ids = accounts.map((account) => account.address).join("-");
+  // TODO: Refactor after this event subscription is enabled in the indexer
+  const enablePolling = get(shouldUpdateAmountAtom);
   return {
     queryKey: ["my-validators", ids],
+    refetchInterval: enablePolling ? 1000 : false,
     queryFn: async () => {
       const { rpc } = get(chainAtom);
       const addresses = accounts.map((account) => account.address);

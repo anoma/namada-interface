@@ -9,6 +9,7 @@ import BigNumber from "bignumber.js";
 import { getSdkInstance } from "hooks";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
+import { shouldUpdateAmountAtom } from "./etc";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
@@ -88,14 +89,15 @@ export const totalNamBalanceAtom = atomWithQuery<BigNumber>((get) => {
 
 export const balancesAtom = atomWithQuery<Record<Address, Balance>>((get) => {
   const token = tokenAddress;
-  //const shieldedAccounts = get(shieldedAccountsAtom);
   const transparentAccounts = get(transparentAccountsAtom);
+  const enablePolling = get(shouldUpdateAmountAtom);
 
   return {
     enabled: !!token && transparentAccounts.length > 0,
+    // TODO: subscribe to indexer events when it's done
+    refetchInterval: enablePolling ? 1000 : false,
     queryKey: ["balances", token],
     queryFn: async () => {
-      // We query the balances for the transparent accounts first as it's faster
       const transparentBalances = await Promise.all(
         queryBalance(transparentAccounts, token)
       );
@@ -104,17 +106,6 @@ export const balancesAtom = atomWithQuery<Record<Address, Balance>>((get) => {
       transparentBalances.forEach(([address, balance]) => {
         balances = { ...balances, [address]: balance };
       });
-
-      // await namada.sync();
-      // TODO: enable the following code on phase 3
-      //
-      // const shieldedBalances = await Promise.all(
-      //   queryBalance(shieldedAccounts, token)
-      // );
-      //
-      // shieldedBalances.forEach(([address, balance]) => {
-      //   balances = { ...balances, [address]: balance };
-      // });
 
       return balances;
     },
