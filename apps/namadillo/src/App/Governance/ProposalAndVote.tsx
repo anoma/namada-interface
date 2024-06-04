@@ -1,8 +1,8 @@
 import { Panel, SkeletonLoading } from "@namada/components";
-import { useSanitizedParams } from "@namada/hooks";
 import { useAtomValue } from "jotai";
 
 import { ProposalDiscord } from "App/Sidebars/ProposalDiscord";
+import { useProposalIdParam } from "hooks";
 import { proposalFamily, proposalVotedFamily } from "slices/proposals";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import {
@@ -17,11 +17,16 @@ import { VoteHelpText } from "./VoteHelpText";
 import { VoteInfoCards } from "./VoteInfoCards";
 
 export const ProposalAndVote: React.FC = () => {
-  const { proposalId: proposalIdString = "" } = useSanitizedParams();
+  const proposalId = useProposalIdParam();
 
-  // TODO: handle NaN case
-  const proposalId = BigInt(Number.parseInt(proposalIdString));
+  return proposalId === null ? null : (
+      <WithProposalId proposalId={proposalId} />
+    );
+};
 
+export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
+  proposalId,
+}) => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const proposal = useAtomValue(proposalFamily(proposalId));
   const voted = useAtomValue(proposalVotedFamily(proposalId));

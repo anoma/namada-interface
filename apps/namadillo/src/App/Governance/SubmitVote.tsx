@@ -5,10 +5,10 @@ import {
   Stack,
   TickedRadioList,
 } from "@namada/components";
-import { useSanitizedParams } from "@namada/hooks";
 import { VoteType, isVoteType, voteTypes } from "@namada/types";
 import { TransactionFees } from "App/Common/TransactionFees";
 import clsx from "clsx";
+import { useProposalIdParam } from "hooks";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
@@ -16,9 +16,18 @@ import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { dispatchToastNotificationAtom } from "slices/notifications";
 import { performVoteAtom, proposalFamily } from "slices/proposals";
-import GovernanceRoutes from "./routes";
 
 export const SubmitVote: React.FC = () => {
+  const proposalId = useProposalIdParam();
+
+  return proposalId === null ? null : (
+      <WithProposalId proposalId={proposalId} />
+    );
+};
+
+export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
+  proposalId,
+}) => {
   const navigate = useNavigate();
   const { mutate: performVote, isSuccess } = useAtomValue(performVoteAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
@@ -32,15 +41,7 @@ export const SubmitVote: React.FC = () => {
 
   const [selectedVoteType, setSelectedVoteType] = useState<VoteType>();
 
-  const { proposalId: proposalIdString = "" } = useSanitizedParams();
-  // TODO: validate we got a number
-  const proposalId = BigInt(Number.parseInt(proposalIdString));
   const proposalQueryResult = useAtomValue(proposalFamily(proposalId));
-
-  if (Number.isNaN(proposalId)) {
-    navigate(GovernanceRoutes.overview().url);
-    return null;
-  }
 
   const proposal =
     proposalQueryResult.isSuccess ? proposalQueryResult.data : null;

@@ -1,4 +1,3 @@
-import { useSanitizedParams } from "@namada/hooks";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
 
@@ -7,6 +6,7 @@ import { PgfTarget, Proposal } from "@namada/types";
 import { assertNever, copyToClipboard } from "@namada/utils";
 import { ModalContainer } from "App/Common/ModalContainer";
 import clsx from "clsx";
+import { useProposalIdParam } from "hooks";
 import { useState } from "react";
 import { GoCheck, GoCopy } from "react-icons/go";
 import { proposalFamily } from "slices/proposals";
@@ -131,24 +131,37 @@ const getProposalJsonString = (proposal: Proposal): string => {
 
 export const ViewJson: React.FC = () => {
   const navigate = useNavigate();
-  const [copied, setCopied] = useState(false);
 
-  const { proposalId: proposalIdString = "" } = useSanitizedParams();
-  // TODO: validate we got a number
-  const proposalId = BigInt(Number.parseInt(proposalIdString));
-  const proposalQueryResult = useAtomValue(proposalFamily(proposalId));
+  const proposalId = useProposalIdParam();
 
-  if (Number.isNaN(proposalId) || !proposalQueryResult.isSuccess) {
-    navigate(GovernanceRoutes.overview().url);
+  if (proposalId === null) {
     return null;
   }
 
-  const proposal = proposalQueryResult.data;
+  const onCloseModal = (): void =>
+    navigate(GovernanceRoutes.proposal(proposalId).url);
+
+  return (
+    <Modal onClose={onCloseModal}>
+      <ModalContainer header={null} onClose={onCloseModal}>
+        <WithProposalId proposalId={proposalId} />
+      </ModalContainer>
+    </Modal>
+  );
+};
+
+const WithProposalId: React.FC<{ proposalId: bigint }> = ({ proposalId }) => {
+  const proposal = useAtomValue(proposalFamily(proposalId));
+
+  return proposal.status === "pending" || proposal.status === "error" ?
+      null
+    : <Loaded proposal={proposal.data} />;
+};
+
+const Loaded: React.FC<{ proposal: Proposal }> = ({ proposal }) => {
+  const [copied, setCopied] = useState(false);
 
   const jsonString = getProposalJsonString(proposal);
-
-  const onCloseModal = (): void =>
-    navigate(GovernanceRoutes.proposal(proposal.id).url);
 
   const onCopy = (): void => {
     if (!copied) {
@@ -159,29 +172,27 @@ export const ViewJson: React.FC = () => {
   };
 
   return (
-    <Modal onClose={onCloseModal}>
-      <ModalContainer header={null} onClose={onCloseModal}>
-        <i
-          className={clsx(
-            "border border-current rounded-sm p-1 absolute",
-            "text-lg top-6 right-17 text-white transition-colors",
-            { "hover:text-yellow cursor-pointer": !copied }
-          )}
-          onClick={onCopy}
-        >
-          {copied ?
-            <GoCheck />
-          : <GoCopy />}
-        </i>
-        <pre
-          className={clsx(
-            "overflow-x-auto dark-scrollbar whitespace-pre-wrap",
-            "px-8 pt-4 mt-8 h-[95%]"
-          )}
-        >
-          {jsonString}
-        </pre>
-      </ModalContainer>
-    </Modal>
+    <>
+      <i
+        className={clsx(
+          "border border-current rounded-sm p-1 absolute",
+          "text-lg top-6 right-17 text-white transition-colors",
+          { "hover:text-yellow cursor-pointer": !copied }
+        )}
+        onClick={onCopy}
+      >
+        {copied ?
+          <GoCheck />
+        : <GoCopy />}
+      </i>
+      <pre
+        className={clsx(
+          "overflow-x-auto dark-scrollbar whitespace-pre-wrap",
+          "px-8 pt-4 mt-8 h-[95%]"
+        )}
+      >
+        {jsonString}
+      </pre>
+    </>
   );
 };
