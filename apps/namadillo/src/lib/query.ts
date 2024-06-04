@@ -126,12 +126,12 @@ export const signTxArray = async <T>(
     );
 
     if (!signedTxs) {
-      throw new Error("Signing failed");
+      throw new Error("Signing failed: No signed transactions returned");
     }
 
     return signedTxs;
   } catch (err) {
-    throw new Error("Signing failed");
+    throw new Error("Signing failed: " + err);
   }
 };
 
