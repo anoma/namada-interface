@@ -179,7 +179,7 @@ export const ReDelegate = (): JSX.Element => {
                       type="warning"
                       className="absolute py-3 right-3 top-4 max-w-[50%] text-xs rounded-sm"
                     >
-                      To proceed all re-delegated value must be assigned
+                      To proceed, all re-delegated value must be assigned
                     </Alert>
                   </>
                 )
