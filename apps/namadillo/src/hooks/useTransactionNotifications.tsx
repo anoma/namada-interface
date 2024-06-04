@@ -6,7 +6,8 @@ import {
   dispatchToastNotificationAtom,
   filterToastNotificationsAtom,
 } from "slices/notifications";
-import { EventData, TransactionEvent } from "types/events";
+import { EventData } from "types/events";
+import { addTransactionEvent } from "utils";
 
 export const useTransactionNotifications = (): void => {
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
@@ -20,15 +21,8 @@ export const useTransactionNotifications = (): void => {
     filterNotifications((notification) => notification.type !== "pending");
   };
 
-  function addEvent<T>(
-    handle: TransactionEvent,
-    callback: (e: EventData<T>) => void
-  ): void {
-    window.addEventListener(handle, callback as EventListener, false);
-  }
-
   function initEvents(): void {
-    addEvent("Bond.Error", (e: EventData<BondProps>): void => {
+    addTransactionEvent("Bond.Error", (e: EventData<BondProps>): void => {
       const address = shortenAddress(e.detail.data.validator, 8, 8);
       clearPendingNotifications();
       dispatchNotification({
@@ -40,7 +34,7 @@ export const useTransactionNotifications = (): void => {
       });
     });
 
-    addEvent("Bond.Success", (e: EventData<BondProps>): void => {
+    addTransactionEvent("Bond.Success", (e: EventData<BondProps>): void => {
       const address = shortenAddress(e.detail.data.validator, 8, 8);
       clearPendingNotifications();
       dispatchNotification({
@@ -52,7 +46,7 @@ export const useTransactionNotifications = (): void => {
       });
     });
 
-    addEvent("Unbond.Success", (e: EventData<UnbondProps>): void => {
+    addTransactionEvent("Unbond.Success", (e: EventData<UnbondProps>): void => {
       const address = shortenAddress(e.detail.data.validator, 8, 8);
       clearPendingNotifications();
       dispatchNotification({
@@ -64,7 +58,7 @@ export const useTransactionNotifications = (): void => {
       });
     });
 
-    addEvent("Unbond.Error", (e: EventData<UnbondProps>): void => {
+    addTransactionEvent("Unbond.Error", (e: EventData<UnbondProps>): void => {
       const address = shortenAddress(e.detail.data.validator, 8, 8);
       clearPendingNotifications();
       dispatchNotification({
@@ -76,33 +70,39 @@ export const useTransactionNotifications = (): void => {
       });
     });
 
-    addEvent("ReDelegate.Error", (e: EventData<RedelegateProps>): void => {
-      const sourceAddress = shortenAddress(e.detail.data.sourceValidator);
-      const destAddress = shortenAddress(e.detail.data.destinationValidator);
-      clearPendingNotifications();
-      dispatchNotification({
-        id: e.detail.transactionId,
-        title: "Re-delegate failed",
-        description:
-          `Your re-delegate transaction of ${e.detail.data.amount}` +
-          ` NAM from ${sourceAddress} to ${destAddress} has failed`,
-        type: "success",
-        timeout: 5000,
-      });
-    });
+    addTransactionEvent(
+      "ReDelegate.Error",
+      (e: EventData<RedelegateProps>): void => {
+        const sourceAddress = shortenAddress(e.detail.data.sourceValidator);
+        const destAddress = shortenAddress(e.detail.data.destinationValidator);
+        clearPendingNotifications();
+        dispatchNotification({
+          id: e.detail.transactionId,
+          title: "Re-delegate failed",
+          description:
+            `Your re-delegate transaction of ${e.detail.data.amount}` +
+            ` NAM from ${sourceAddress} to ${destAddress} has failed`,
+          type: "success",
+          timeout: 5000,
+        });
+      }
+    );
 
-    addEvent("ReDelegate.Success", (e: EventData<RedelegateProps>): void => {
-      const sourceAddress = shortenAddress(e.detail.data.sourceValidator);
-      const destAddress = shortenAddress(e.detail.data.destinationValidator);
-      dispatchNotification({
-        id: e.detail.transactionId,
-        title: "Re-delegate succeeded",
-        description:
-          `Your re-delegate transaction of ${e.detail.data.amount}` +
-          ` NAM from ${sourceAddress} to ${destAddress} has succeeded`,
-        type: "success",
-        timeout: 5000,
-      });
-    });
+    addTransactionEvent(
+      "ReDelegate.Success",
+      (e: EventData<RedelegateProps>): void => {
+        const sourceAddress = shortenAddress(e.detail.data.sourceValidator);
+        const destAddress = shortenAddress(e.detail.data.destinationValidator);
+        dispatchNotification({
+          id: e.detail.transactionId,
+          title: "Re-delegate succeeded",
+          description:
+            `Your re-delegate transaction of ${e.detail.data.amount}` +
+            ` NAM from ${sourceAddress} to ${destAddress} has succeeded`,
+          type: "success",
+          timeout: 5000,
+        });
+      }
+    );
   }
 };
