@@ -4,7 +4,7 @@ export const index = (): string => `/governance`;
 
 const routeOutput = createRouteOutput(index);
 
-export const overview = (): RouteOutput => routeOutput(`/overview`);
+export const overview = (): RouteOutput => routeOutput(`/`);
 
 export const proposal = (proposalId?: bigint): RouteOutput =>
   routeOutput(`/proposal/${proposalIdString(proposalId)}`);
