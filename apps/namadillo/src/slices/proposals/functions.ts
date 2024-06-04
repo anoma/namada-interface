@@ -1,3 +1,11 @@
+import {
+  DefaultApi,
+  Proposal as IndexerProposal,
+  ProposalStatusEnum as IndexerProposalStatusEnum,
+  ProposalTallyTypeEnum as IndexerProposalTallyTypeEnum,
+  ProposalTypeEnum as IndexerProposalTypeEnum,
+  VotingPower as IndexerVotingPower,
+} from "@anomaorg/namada-indexer-client";
 import { EncodedTx } from "@heliax/namada-sdk/web";
 import { getIntegration } from "@namada/integrations";
 import {
@@ -15,14 +23,6 @@ import {
 import BigNumber from "bignumber.js";
 import * as E from "fp-ts/Either";
 import * as t from "io-ts";
-import {
-  DefaultApi,
-  Proposal as IndexerProposal,
-  ProposalStatusEnum as IndexerProposalStatusEnum,
-  ProposalTallyTypeEnum as IndexerProposalTallyTypeEnum,
-  ProposalTypeEnum as IndexerProposalTypeEnum,
-  VotingPower as IndexerVotingPower,
-} from "namada-indexer-client";
 
 import { fromHex } from "@cosmjs/encoding";
 import { getSdkInstance } from "hooks";

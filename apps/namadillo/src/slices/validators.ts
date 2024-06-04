@@ -1,3 +1,9 @@
+import {
+  DefaultApi,
+  Bond as IndexerBond,
+  Validator as IndexerValidator,
+  VotingPower as IndexerVotingPower,
+} from "@anomaorg/namada-indexer-client";
 import BigNumber from "bignumber.js";
 import {
   AtomWithQueryResult,
@@ -5,13 +11,7 @@ import {
   atomWithQuery,
 } from "jotai-tanstack-query";
 import { defaultAccountAtom } from "slices/accounts";
-  DefaultApi,
-  Bond as IndexerBond,
-  Validator as IndexerValidator,
-  VotingPower as IndexerVotingPower,
-} from "namada-indexer-client";
 import { shouldUpdateBalanceAtom } from "./etc";
-import { rpcUrlAtom } from "./settings";
 
 type Unique = {
   uuid: string;
@@ -39,7 +39,7 @@ export type MyValidator = {
 };
 
 const toValidator = (
-indexerValidator: IndexerValidator,
+  indexerValidator: IndexerValidator,
   indexerVotingPower: IndexerVotingPower
 ): Validator => {
   return {
@@ -97,10 +97,7 @@ export const myValidatorsAtom = atomWithQuery((get) => {
         api.apiV1PosVotingPowerGet(),
       ]);
 
-      return toMyValidators(
-        bonds,
-        totalVotingPowerResponse.data
-      );
+      return toMyValidators(bonds, totalVotingPowerResponse.data);
     },
   };
 });
