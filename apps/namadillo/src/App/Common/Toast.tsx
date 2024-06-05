@@ -47,7 +47,8 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
   return (
     <motion.div
       className={clsx(
-        "relative w-[360px] rounded-md py-4 px-5 text-white grid grid-cols-[30px_auto] gap-5 z-[9999]",
+        "relative w-[360px] rounded-md py-4 px-5 text-white",
+        "grid grid-cols-[30px_auto] gap-5 z-[9999] leading-[1]",
         {
           "bg-success": notification.type === "success",
           "bg-fail": notification.type === "error",

@@ -1,4 +1,5 @@
 import { ProposalStatus, ProposalTypeString } from "@namada/types";
+import { EventData, TransactionEvent } from "types/events";
 
 export const showProposalStatus = (status: ProposalStatus): string => {
   const statusText: Record<ProposalStatus, string> = {
@@ -22,3 +23,10 @@ export const showProposalTypeString = (type: ProposalTypeString): string => {
 };
 
 export const showEpoch = (epoch: bigint): string => `Epoch ${epoch.toString()}`;
+
+export const addTransactionEvent = <T>(
+  handle: TransactionEvent,
+  callback: (e: EventData<T>) => void
+): void => {
+  window.addEventListener(handle, callback as EventListener, false);
+};

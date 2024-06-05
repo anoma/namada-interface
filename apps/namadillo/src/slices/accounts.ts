@@ -2,7 +2,6 @@ import { getIntegration } from "@namada/integrations";
 import {
   Account as AccountDetails,
   ChainKey,
-  CosmosTokenType,
   TokenBalances,
   TokenType,
 } from "@namada/types";
@@ -10,6 +9,7 @@ import BigNumber from "bignumber.js";
 import { getSdkInstance } from "hooks";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
+import { shouldUpdateBalanceAtom } from "./etc";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
@@ -89,14 +89,15 @@ export const totalNamBalanceAtom = atomWithQuery<BigNumber>((get) => {
 
 export const balancesAtom = atomWithQuery<Record<Address, Balance>>((get) => {
   const token = tokenAddress;
-  //const shieldedAccounts = get(shieldedAccountsAtom);
   const transparentAccounts = get(transparentAccountsAtom);
+  const enablePolling = get(shouldUpdateBalanceAtom);
 
   return {
     enabled: !!token && transparentAccounts.length > 0,
+    // TODO: subscribe to indexer events when it's done
+    refetchInterval: enablePolling ? 1000 : false,
     queryKey: ["balances", token],
     queryFn: async () => {
-      // We query the balances for the transparent accounts first as it's faster
       const transparentBalances = await Promise.all(
         queryBalance(transparentAccounts, token)
       );
@@ -105,17 +106,6 @@ export const balancesAtom = atomWithQuery<Record<Address, Balance>>((get) => {
       transparentBalances.forEach(([address, balance]) => {
         balances = { ...balances, [address]: balance };
       });
-
-      // await namada.sync();
-      // TODO: enable the following code on phase 3
-      //
-      // const shieldedBalances = await Promise.all(
-      //   queryBalance(shieldedAccounts, token)
-      // );
-      //
-      // shieldedBalances.forEach(([address, balance]) => {
-      //   balances = { ...balances, [address]: balance };
-      // });
 
       return balances;
     },
@@ -143,57 +133,3 @@ const queryBalance = (
     return [account.address, { NAM: BigNumber(balances[0].amount) }];
   });
 };
-
-const keplrAccountsAtom = (() => {
-  const base = atom(new Promise<readonly AccountDetails[]>(() => {}));
-
-  return atom(
-    (get) => get(base),
-    (_get, set) =>
-      set(
-        base,
-        (async () => {
-          const keplr = getIntegration("cosmos");
-          const accounts = await keplr.accounts();
-
-          if (typeof accounts === "undefined") {
-            throw new Error("Keplr accounts was undefined");
-          }
-
-          return accounts;
-        })()
-      )
-  );
-})();
-
-const keplrBalancesAtom = (() => {
-  const base = atom(new Promise<TokenBalances<CosmosTokenType>>(() => {}));
-
-  return atom(
-    (get) => get(base),
-    (get, set) =>
-      set(
-        base,
-        (async () => {
-          const accounts = await get(keplrAccountsAtom);
-          const keplr = getIntegration("cosmos");
-          const supportedChainId = keplr.chain.chainId;
-
-          // TODO: support querying balances for multiple chains
-          const supportedAccount = accounts.find(
-            ({ chainId }) => chainId === supportedChainId
-          );
-
-          if (typeof supportedAccount === "undefined") {
-            throw new Error(
-              `no Keplr account for chain ID ${supportedChainId}`
-            );
-          }
-
-          return await keplr.queryBalances(supportedAccount.address);
-        })()
-      )
-  );
-})();
-
-export { keplrAccountsAtom, keplrBalancesAtom };

@@ -1,6 +1,5 @@
 import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { RedelegateMsgValue } from "@namada/types";
-import { shortenAddress } from "@namada/utils";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import BigNumber from "bignumber.js";
@@ -9,7 +8,7 @@ import { useGasEstimate } from "hooks/useGasEstimate";
 import { useStakeModule } from "hooks/useStakeModule";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
-import { TransactionPair, prepareTxs } from "lib/query";
+import { TransactionPair, broadcastTx } from "lib/query";
 import { getAmountDistribution } from "lib/staking";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +16,6 @@ import { defaultAccountAtom } from "slices/accounts";
 import { GAS_LIMIT } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
 import { createReDelegateTxAtom } from "slices/staking";
-import { dispatchTransactionsAtom } from "slices/transactions";
 import { Validator, allValidatorsAtom } from "slices/validators";
 import { twMerge } from "tailwind-merge";
 import { BondingAmountOverview } from "./BondingAmountOverview";
@@ -34,7 +32,6 @@ export const ReDelegate = (): JSX.Element => {
   const { gasPrice } = useGasEstimate();
   const navigate = useNavigate();
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
-  const dispatchTransactions = useSetAtom(dispatchTransactionsAtom);
   const account = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const {
@@ -92,25 +89,14 @@ export const ReDelegate = (): JSX.Element => {
   const dispatchReDelegateTransactions = (
     transactions: TransactionPair<RedelegateMsgValue>[]
   ): void => {
-    dispatchTransactions(
-      prepareTxs<RedelegateMsgValue>(
-        transactions,
-        (props: RedelegateMsgValue) => {
-          const sourceAddress = shortenAddress(props.sourceValidator, 12, 8);
-          const destAddress = shortenAddress(props.destinationValidator, 12, 8);
-          return {
-            success: {
-              title: "Re-delegate succeeded",
-              text: `Your re-delegate transaction of ${props.amount} NAM from ${sourceAddress} to ${destAddress} has succeeded`,
-            },
-            error: {
-              title: "Staking transaction failed",
-              text: `Your staking transaction of ${props.amount} NAM from ${sourceAddress} to ${destAddress} has failed.`,
-            },
-          };
-        }
-      )
-    );
+    for (const tx of transactions) {
+      broadcastTx(
+        tx.encodedTxData.encodedTx,
+        tx.signedTx,
+        tx.encodedTxData.meta?.props,
+        "ReDelegate"
+      );
+    }
   };
 
   const onSubmit = (e: React.FormEvent): void => {

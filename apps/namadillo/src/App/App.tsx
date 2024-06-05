@@ -8,7 +8,8 @@ import { useSmallScreen } from "hooks/useIsSmallScren";
 import { useOnChainChanged } from "hooks/useOnChainChanged";
 import { useOnNamadaExtensionAttached } from "hooks/useOnNamadaExtensionAttached";
 import { useOnNamadaExtensionConnected } from "hooks/useOnNamadaExtensionConnected";
-import { useTransactionService } from "hooks/useTransactionService";
+import { useTransactionCallback } from "hooks/useTransactionCallbacks";
+import { useTransactionNotifications } from "hooks/useTransactionNotifications";
 import { useAtomValue } from "jotai";
 import { Outlet } from "react-router-dom";
 import { chainAtom } from "slices/chain";
@@ -21,7 +22,8 @@ export function App(): JSX.Element {
   useOnNamadaExtensionAttached();
   useOnNamadaExtensionConnected();
   useOnChainChanged();
-  useTransactionService();
+  useTransactionNotifications();
+  useTransactionCallback();
 
   const isSmallScreen = useSmallScreen();
   const chain = useAtomValue(chainAtom);
