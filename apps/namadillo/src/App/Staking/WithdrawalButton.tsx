@@ -55,7 +55,7 @@ export const WithdrawalButton = ({
     });
   }, []);
 
-  const dispatchWidthdrawalTransactions = async (
+  const dispatchWithdrawalTransactions = async (
     tx: TransactionPair<WithdrawMsgValue>
   ): Promise<void> => {
     broadcastTx(
@@ -89,7 +89,7 @@ export const WithdrawalButton = ({
     if (withdrawalTxs) {
       for (const tx of withdrawalTxs) {
         dispatchPendingNotification(tx);
-        dispatchWidthdrawalTransactions(tx);
+        dispatchWithdrawalTransactions(tx);
       }
     }
   }, [isSuccess]);
