@@ -1,4 +1,9 @@
-import { Account, BondProps, RedelegateProps } from "@namada/types";
+import {
+  Account,
+  BondProps,
+  RedelegateProps,
+  WithdrawProps,
+} from "@namada/types";
 import BigNumber from "bignumber.js";
 import { invariant } from "framer-motion";
 import { getSdkInstance } from "hooks";
@@ -38,19 +43,19 @@ export const getStakingTotalAtom = atomWithQuery<StakingTotals>((get) => {
     enabled: myValidators.isSuccess,
     queryKey: ["staking-totals", myValidators.dataUpdatedAt],
     queryFn: async () => {
-      const totalBonded = myValidators.data.reduce(
+      const totalBonded = myValidators.data!.reduce(
         (acc: BigNumber, validator: MyValidator) =>
           acc.plus(validator.stakedAmount ?? 0),
         new BigNumber(0)
       );
 
-      const totalUnbonded = myValidators.data.reduce(
+      const totalUnbonded = myValidators.data!.reduce(
         (acc: BigNumber, validator: MyValidator) =>
           acc.plus(validator.unbondedAmount ?? 0),
         new BigNumber(0)
       );
 
-      const totalWithdrawable = myValidators.data.reduce(
+      const totalWithdrawable = myValidators.data!.reduce(
         (acc: BigNumber, validator: MyValidator) =>
           acc.plus(validator.withdrawableAmount ?? 0),
         new BigNumber(0)
@@ -110,6 +115,7 @@ export const createBondTxAtom = atomWithMutation((get) => {
         return transactionPairs;
       } catch (err) {
         console.error(err);
+        throw err;
       }
     },
   };
@@ -138,6 +144,7 @@ export const createUnbondTxAtom = atomWithMutation((get) => {
         return transactionPairs;
       } catch (err) {
         console.error(err);
+        throw err;
       }
     },
   };
@@ -166,6 +173,7 @@ export const createReDelegateTxAtom = atomWithMutation((get) => {
         return transactionPairs;
       } catch (err) {
         console.error(err);
+        throw err;
       }
     },
   };
@@ -173,12 +181,14 @@ export const createReDelegateTxAtom = atomWithMutation((get) => {
 
 export const createWithdrawTxAtom = atomWithMutation((get) => {
   return {
-    mutationKey: ["withdraw"],
+    mutationKey: ["create-withdraw-tx"],
     mutationFn: async ({
       changes,
       gasConfig,
       account,
-    }: ChangeInStakingProps) => {
+    }: ChangeInStakingProps): Promise<
+      TransactionPair<WithdrawProps>[] | undefined
+    > => {
       try {
         const chain = get(chainAtom);
         const { tx } = await getSdkInstance();
@@ -194,6 +204,7 @@ export const createWithdrawTxAtom = atomWithMutation((get) => {
         return transactionPairs;
       } catch (err) {
         console.error(err);
+        throw err;
       }
     },
   };

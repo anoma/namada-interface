@@ -1,5 +1,10 @@
 import { useEffectSkipFirstRender } from "@namada/hooks";
-import { BondProps, RedelegateProps, UnbondProps } from "@namada/types";
+import {
+  BondProps,
+  RedelegateProps,
+  UnbondProps,
+  WithdrawProps,
+} from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { useSetAtom } from "jotai";
 import {
@@ -100,6 +105,38 @@ export const useTransactionNotifications = (): void => {
             `Your re-delegate transaction of ${e.detail.data.amount}` +
             ` NAM from ${sourceAddress} to ${destAddress} has succeeded`,
           type: "success",
+          timeout: 5000,
+        });
+      }
+    );
+
+    addTransactionEvent(
+      "Withdraw.Success",
+      (e: EventData<WithdrawProps>): void => {
+        const address = shortenAddress(e.detail.data.source, 8, 8);
+        clearPendingNotifications();
+        dispatchNotification({
+          id: e.detail.transactionId,
+          title: "Withdrawal Success",
+          description:
+            `Your withdrawal transaction ` + ` from ${address} has succeeded`,
+          type: "success",
+          timeout: 5000,
+        });
+      }
+    );
+
+    addTransactionEvent(
+      "Withdraw.Error",
+      (e: EventData<WithdrawProps>): void => {
+        const address = shortenAddress(e.detail.data.source, 8, 8);
+        clearPendingNotifications();
+        dispatchNotification({
+          id: e.detail.transactionId,
+          title: "Withdrawal Error",
+          description:
+            `Your withdrawal transaction ` + ` from ${address} has failed`,
+          type: "error",
           timeout: 5000,
         });
       }
