@@ -1,0 +1,54 @@
+import { Account as AccountDetails } from "@namada/types";
+import BigNumber from "bignumber.js";
+import { atomWithQuery } from "jotai-tanstack-query";
+import { shouldUpdateBalanceAtom } from "slices/etc";
+import {
+  fetchAccountBalance,
+  fetchAccounts,
+  fetchDefaultAccount,
+  filterTransparentAccount,
+} from "./services";
+
+const {
+  NAMADA_INTERFACE_NAMADA_TOKEN:
+    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+} = process.env;
+
+export const accountsAtom = atomWithQuery<readonly AccountDetails[]>(() => {
+  return {
+    queryKey: ["fetch-accounts"],
+    queryFn: fetchAccounts,
+  };
+});
+
+export const transparentAccountsAtom = atomWithQuery<readonly AccountDetails[]>(
+  (get) => {
+    const accounts = get(accountsAtom);
+    return {
+      queryKey: ["transparent-accounts", accounts],
+      enabled: accounts.isSuccess,
+      queryFn: () => filterTransparentAccount(accounts.data),
+    };
+  }
+);
+
+export const defaultAccountAtom = atomWithQuery<AccountDetails | undefined>(
+  () => {
+    return {
+      queryKey: ["default-account"],
+      queryFn: fetchDefaultAccount,
+    };
+  }
+);
+
+export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
+  const defaultAccount = get(defaultAccountAtom);
+  const enablePolling = get(shouldUpdateBalanceAtom);
+  return {
+    enabled: !!tokenAddress && defaultAccount.isSuccess,
+    // TODO: subscribe to indexer events when it's done
+    refetchInterval: enablePolling ? 1000 : false,
+    queryKey: ["balances", tokenAddress, defaultAccount],
+    queryFn: async () => fetchAccountBalance(defaultAccount.data, tokenAddress),
+  };
+});

@@ -24,7 +24,7 @@ import StakingRoutes from "./routes";
 
 const Unstake = (): JSX.Element => {
   const navigate = useNavigate();
-  const account = useAtomValue(defaultAccountAtom);
+  const { data: account } = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(myValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);

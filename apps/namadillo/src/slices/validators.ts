@@ -5,7 +5,7 @@ import {
   UndefinedInitialDataOptions,
   atomWithQuery,
 } from "jotai-tanstack-query";
-import { transparentAccountsAtom } from "./accounts";
+import { defaultAccountAtom } from "slices/accounts";
 import { chainAtom } from "./chain";
 import { shouldUpdateBalanceAtom } from "./etc";
 
@@ -62,18 +62,21 @@ export const allValidatorsAtom = atomWithQuery((get) => ({
 
 // eslint-disable-next-line
 export const myValidatorsAtom = atomWithQuery((get) => {
-  const accounts = get(transparentAccountsAtom);
-  const ids = accounts.map((account) => account.address).join("-");
+  const account = get(defaultAccountAtom);
+
   // TODO: Refactor after this event subscription is enabled in the indexer
   const enablePolling = get(shouldUpdateBalanceAtom);
+
   return {
-    queryKey: ["my-validators", ids],
+    queryKey: ["my-validators", account.data?.address],
+    enabled: account.isSuccess,
     refetchInterval: enablePolling ? 1000 : false,
     queryFn: async (): Promise<MyValidator[]> => {
       const { rpc } = get(chainAtom);
-      const addresses = accounts.map((account) => account.address);
       const query = new Query(rpc);
-      const myValidatorsRes = await query.query_my_validators(addresses);
+      const myValidatorsRes = await query.query_my_validators([
+        account.data?.address,
+      ]);
       return myValidatorsRes.map(toMyValidators);
     },
   };

@@ -4,9 +4,9 @@ import { useAtomValue } from "jotai";
 import { defaultAccountAtom } from "slices/accounts";
 
 export const ActiveAccount = (): JSX.Element => {
-  const account = useAtomValue(defaultAccountAtom);
+  const { data: account, isFetching } = useAtomValue(defaultAccountAtom);
 
-  if (!account) {
+  if (!account || isFetching) {
     return <></>;
   }
 

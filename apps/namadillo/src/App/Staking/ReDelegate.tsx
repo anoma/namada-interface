@@ -32,7 +32,7 @@ export const ReDelegate = (): JSX.Element => {
   const { gasPrice } = useGasEstimate();
   const navigate = useNavigate();
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
-  const account = useAtomValue(defaultAccountAtom);
+  const { data: account } = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const {
     totalStakedAmount,
@@ -41,7 +41,7 @@ export const ReDelegate = (): JSX.Element => {
     updatedAmountByAddress: amountsRemovedByAddress,
     onChangeValidatorAmount,
     myValidators,
-  } = useStakeModule({ account });
+  } = useStakeModule({ account: account });
 
   const {
     mutate: createRedelegateTx,

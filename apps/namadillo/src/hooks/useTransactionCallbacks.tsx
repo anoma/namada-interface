@@ -1,11 +1,11 @@
 import { useEffectSkipFirstRender } from "@namada/hooks";
 import { useAtomValue, useSetAtom } from "jotai";
-import { balancesAtom } from "slices/accounts";
+import { accountBalanceAtom } from "slices/accounts";
 import { shouldUpdateBalanceAtom } from "slices/etc";
 import { addTransactionEvent } from "utils";
 
 export const useTransactionCallback = (): void => {
-  const { refetch: refetchBalances } = useAtomValue(balancesAtom);
+  const { refetch: refetchBalances } = useAtomValue(accountBalanceAtom);
   const shouldUpdateBalance = useSetAtom(shouldUpdateBalanceAtom);
 
   useEffectSkipFirstRender(() => {

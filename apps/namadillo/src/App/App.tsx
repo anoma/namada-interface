@@ -7,7 +7,6 @@ import { createBrowserHistory } from "history";
 import { useSmallScreen } from "hooks/useIsSmallScren";
 import { useOnChainChanged } from "hooks/useOnChainChanged";
 import { useOnNamadaExtensionAttached } from "hooks/useOnNamadaExtensionAttached";
-import { useOnNamadaExtensionConnected } from "hooks/useOnNamadaExtensionConnected";
 import { useTransactionCallback } from "hooks/useTransactionCallbacks";
 import { useTransactionNotifications } from "hooks/useTransactionNotifications";
 import { useAtomValue } from "jotai";
@@ -20,7 +19,6 @@ export const history = createBrowserHistory({ window });
 
 export function App(): JSX.Element {
   useOnNamadaExtensionAttached();
-  useOnNamadaExtensionConnected();
   useOnChainChanged();
   useTransactionNotifications();
   useTransactionCallback();
