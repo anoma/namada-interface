@@ -28,7 +28,6 @@ export const WithdrawalButton = ({
     data: withdrawalTxs,
     isPending,
     isSuccess,
-    isIdle,
   } = useAtomValue(createWithdrawTxAtom);
 
   const onWithdraw = useCallback(async (myValidator: MyValidator) => {
@@ -111,7 +110,7 @@ export const WithdrawalButton = ({
     >
       {isSuccess && "Claimed"}
       {isPending && "Processing"}
-      {isIdle && "Withdraw"}
+      {!isSuccess && !isPending && "Withdraw"}
     </ActionButton>
   );
 };

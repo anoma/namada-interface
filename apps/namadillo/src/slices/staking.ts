@@ -115,6 +115,7 @@ export const createBondTxAtom = atomWithMutation((get) => {
         return transactionPairs;
       } catch (err) {
         console.error(err);
+        throw err;
       }
     },
   };
@@ -143,6 +144,7 @@ export const createUnbondTxAtom = atomWithMutation((get) => {
         return transactionPairs;
       } catch (err) {
         console.error(err);
+        throw err;
       }
     },
   };
@@ -171,6 +173,7 @@ export const createReDelegateTxAtom = atomWithMutation((get) => {
         return transactionPairs;
       } catch (err) {
         console.error(err);
+        throw err;
       }
     },
   };
@@ -201,6 +204,7 @@ export const createWithdrawTxAtom = atomWithMutation((get) => {
         return transactionPairs;
       } catch (err) {
         console.error(err);
+        throw err;
       }
     },
   };
