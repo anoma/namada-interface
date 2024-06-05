@@ -26,7 +26,7 @@ export type Validator = Unique & {
   imageUrl?: string;
 };
 
-export type MyValidator = Unique & {
+export type MyValidator = {
   stakingStatus: string;
   stakedAmount?: BigNumber;
   unbondedAmount?: BigNumber;
@@ -74,7 +74,7 @@ export const myValidatorsAtom = atomWithQuery((get) => {
       const addresses = accounts.map((account) => account.address);
       const query = new Query(rpc);
       const myValidatorsRes = await query.query_my_validators(addresses);
-      return myValidatorsRes.reduce(toMyValidators, []);
+      return myValidatorsRes.map(toMyValidators);
     },
   };
 });
@@ -122,7 +122,6 @@ const deriveFromMyValidatorsAtom = (
 };
 
 const toMyValidators = (
-  acc: MyValidator[],
   // TODO: omg
   [_, validator, stake, unbonded, withdrawable]: [
     string,
@@ -131,38 +130,12 @@ const toMyValidators = (
     string,
     string,
   ]
-): MyValidator[] => {
-  const index = acc.findIndex((myValidator) => myValidator.uuid === validator);
-  const v = acc[index];
-  const sliceFn =
-    index == -1 ?
-      (arr: MyValidator[]) => arr
-    : (arr: MyValidator[], idx: number) => [
-        ...arr.slice(0, idx),
-        ...arr.slice(idx + 1),
-      ];
-
-  const stakedAmount = new BigNumber(stake).plus(
-    new BigNumber(v?.stakedAmount || 0)
-  );
-
-  const unbondedAmount = new BigNumber(unbonded).plus(
-    new BigNumber(v?.unbondedAmount || 0)
-  );
-
-  const withdrawableAmount = new BigNumber(withdrawable).plus(
-    new BigNumber(v?.withdrawableAmount || 0)
-  );
-
-  return [
-    ...sliceFn(acc, index),
-    {
-      uuid: validator,
-      stakingStatus: "Bonded",
-      stakedAmount,
-      unbondedAmount,
-      withdrawableAmount,
-      validator: toValidator(validator),
-    },
-  ];
+): MyValidator => {
+  return {
+    stakingStatus: "Bonded",
+    stakedAmount: new BigNumber(stake),
+    unbondedAmount: new BigNumber(unbonded),
+    withdrawableAmount: new BigNumber(withdrawable),
+    validator: toValidator(validator),
+  };
 };

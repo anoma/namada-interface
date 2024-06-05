@@ -1,10 +1,15 @@
 import { ActionButton } from "@namada/components";
+import { WithdrawMsgValue } from "@namada/types";
+import { NamCurrency } from "App/Common/NamCurrency";
+import BigNumber from "bignumber.js";
 import { useGasEstimate } from "hooks/useGasEstimate";
 import invariant from "invariant";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
+import { TransactionPair, broadcastTx } from "lib/query";
 import { useCallback, useEffect } from "react";
 import { defaultAccountAtom } from "slices/accounts";
 import { GAS_LIMIT } from "slices/fees";
+import { dispatchToastNotificationAtom } from "slices/notifications";
 import { createWithdrawTxAtom } from "slices/staking";
 import { MyValidator } from "slices/validators";
 
@@ -16,10 +21,11 @@ export const WithdrawalButton = ({
   myValidator,
 }: WithdrawalButtonProps): JSX.Element => {
   const { gasPrice } = useGasEstimate();
+  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const account = useAtomValue(defaultAccountAtom);
   const {
     mutate: createWithdrawTx,
-    data: withdrawalTx,
+    data: withdrawalTxs,
     isPending,
     isSuccess,
     isIdle,
@@ -50,9 +56,42 @@ export const WithdrawalButton = ({
     });
   }, []);
 
+  const dispatchWidthdrawalTransactions = async (
+    tx: TransactionPair<WithdrawMsgValue>
+  ): Promise<void> => {
+    broadcastTx(
+      tx.encodedTxData.encodedTx,
+      tx.signedTx,
+      tx.encodedTxData.meta?.props,
+      "Withdraw"
+    );
+  };
+
+  const dispatchPendingNotification = (
+    transaction: TransactionPair<WithdrawMsgValue>
+  ): void => {
+    dispatchNotification({
+      id: transaction.encodedTxData.encodedTx.hash(),
+      title: "Withdrawal transaction in progress",
+      description: (
+        <>
+          The withdrawal of{" "}
+          <NamCurrency
+            amount={myValidator.withdrawableAmount || new BigNumber(0)}
+          />{" "}
+          is being processed
+        </>
+      ),
+      type: "pending",
+    });
+  };
+
   useEffect(() => {
-    if (withdrawalTx) {
-      // TODO: run the transaction
+    if (withdrawalTxs) {
+      for (const tx of withdrawalTxs) {
+        dispatchPendingNotification(tx);
+        dispatchWidthdrawalTransactions(tx);
+      }
     }
   }, [isSuccess]);
 
@@ -63,7 +102,7 @@ export const WithdrawalButton = ({
       outlined
       borderRadius="sm"
       disabled={
-        !myValidator.withdrawableAmount?.eq(0) ||
+        myValidator.withdrawableAmount?.eq(0) ||
         isPending ||
         isSuccess ||
         !gasPrice

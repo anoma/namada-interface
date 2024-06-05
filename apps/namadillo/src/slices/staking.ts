@@ -1,4 +1,9 @@
-import { Account, BondProps, RedelegateProps } from "@namada/types";
+import {
+  Account,
+  BondProps,
+  RedelegateProps,
+  WithdrawProps,
+} from "@namada/types";
 import BigNumber from "bignumber.js";
 import { invariant } from "framer-motion";
 import { getSdkInstance } from "hooks";
@@ -173,12 +178,14 @@ export const createReDelegateTxAtom = atomWithMutation((get) => {
 
 export const createWithdrawTxAtom = atomWithMutation((get) => {
   return {
-    mutationKey: ["withdraw"],
+    mutationKey: ["create-withdraw-tx"],
     mutationFn: async ({
       changes,
       gasConfig,
       account,
-    }: ChangeInStakingProps) => {
+    }: ChangeInStakingProps): Promise<
+      TransactionPair<WithdrawProps>[] | undefined
+    > => {
       try {
         const chain = get(chainAtom);
         const { tx } = await getSdkInstance();

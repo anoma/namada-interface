@@ -89,7 +89,7 @@ export const YourStakingDistribution = ({
       </PieChart>
       <ul className="flex flex-col gap-2 mt-4 @sm:mt-2">
         {myValidators.map((myValidator) => (
-          <li key={`staking-distribution-${myValidator.uuid}`}>
+          <li key={`staking-distribution-${myValidator.validator.address}`}>
             <div className="grid grid-cols-[auto_max-content] text-sm justify-between">
               <span>{myValidator.validator.alias}</span>
               <span>{getFormattedPercentage(myValidator)}</span>
