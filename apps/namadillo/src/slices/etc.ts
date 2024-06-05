@@ -24,7 +24,7 @@ const changeProps =
     set(controlRoutineAtom, { ...settings, [key]: value });
   };
 
-export const shouldUpdateAmountAtom = atom(
+export const shouldUpdateBalanceAtom = atom(
   (get) => get(controlRoutineAtom).shouldUpdateAmount,
   changeProps<boolean>("shouldUpdateAmount")
 );

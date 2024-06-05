@@ -9,7 +9,7 @@ import BigNumber from "bignumber.js";
 import { getSdkInstance } from "hooks";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { shouldUpdateAmountAtom } from "./etc";
+import { shouldUpdateBalanceAtom } from "./etc";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
@@ -90,7 +90,7 @@ export const totalNamBalanceAtom = atomWithQuery<BigNumber>((get) => {
 export const balancesAtom = atomWithQuery<Record<Address, Balance>>((get) => {
   const token = tokenAddress;
   const transparentAccounts = get(transparentAccountsAtom);
-  const enablePolling = get(shouldUpdateAmountAtom);
+  const enablePolling = get(shouldUpdateBalanceAtom);
 
   return {
     enabled: !!token && transparentAccounts.length > 0,
