@@ -6,19 +6,12 @@ import { getSdkInstance } from "hooks";
 export const fetchAccounts = async (): Promise<readonly Account[]> => {
   const namada = getIntegration("namada");
   const result = await namada.accounts();
-  if (typeof result === "undefined") {
-    throw new Error("Integration error: accounts object is undefined");
-  }
-  return result;
+  return result || [];
 };
 
 export const fetchDefaultAccount = async (): Promise<Account | undefined> => {
   const namada = getIntegration("namada");
-  const result = await namada.defaultAccount();
-  if (typeof result === "undefined") {
-    throw new Error("Integration error: account object is undefined");
-  }
-  return result;
+  return await namada.defaultAccount();
 };
 
 export const fetchAccountBalance = async (
@@ -39,7 +32,7 @@ export const fetchAccountBalance = async (
 };
 
 export const filterTransparentAccount = (
-  accounts: readonly Account[] | undefined
+  accounts: readonly Account[]
 ): readonly Account[] => {
   if (!accounts) return [];
   return accounts.filter((account: Account) => account.isShielded);

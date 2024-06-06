@@ -27,7 +27,7 @@ export const transparentAccountsAtom = atomWithQuery<readonly Account[]>(
     return {
       queryKey: ["transparent-accounts", accounts],
       enabled: accounts.isSuccess,
-      queryFn: () => filterTransparentAccount(accounts.data),
+      queryFn: () => filterTransparentAccount(accounts.data!),
     };
   }
 );
