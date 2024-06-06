@@ -5,13 +5,13 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
-import { myValidatorsAtom } from "slices/validators";
+import { myUnbondsAtom } from "slices/validators";
 import { twMerge } from "tailwind-merge";
 import { ValidatorName } from "./ValidatorName";
 import { WithdrawalButton } from "./WithdrawalButton";
 
 export const UnbondingAmountsTable = (): JSX.Element => {
-  const myValidators = useAtomValue(myValidatorsAtom);
+  const myUnbonds = useAtomValue(myUnbondsAtom);
   const headers = [
     "Validator",
     "Address",
@@ -20,10 +20,10 @@ export const UnbondingAmountsTable = (): JSX.Element => {
   ];
 
   const rows = useMemo(() => {
-    if (!myValidators.isSuccess) return [];
+    if (!myUnbonds.isSuccess) return [];
 
     const rowsList: TableRow[] = [];
-    for (const myValidator of myValidators.data) {
+    for (const myValidator of myUnbonds.data) {
       const { validator, unbondedAmount } = myValidator;
       if (myValidator.unbondedAmount?.gt(0)) {
         rowsList.push({
@@ -62,7 +62,7 @@ export const UnbondingAmountsTable = (): JSX.Element => {
       }
     }
     return rowsList;
-  }, [myValidators]);
+  }, [myUnbonds]);
 
   return (
     <StyledTable

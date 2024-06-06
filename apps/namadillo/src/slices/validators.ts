@@ -116,11 +116,42 @@ export const myValidatorsAtom = atomWithQuery((get) => {
   };
 });
 
+export const myUnbondsAtom = atomWithQuery<MyValidator[]>((get) => {
+  const chainParameters = get(chainParametersAtom);
+  const accounts = get(transparentAccountsAtom);
+  const ids = accounts.map((account) => account.address).join("-");
+  // TODO: Refactor after this event subscription is enabled in the indexer
+  const enablePolling = get(shouldUpdateBalanceAtom);
+  return {
+    refetchInterval: enablePolling ? 1000 : false,
+    queryKey: ["my-unbonds", ids, chainParameters.dataUpdatedAt],
+    queryFn: async () => {
+      const unbondingPeriod =
+        chainParameters.data?.unbondingPeriodInDays || BigInt(0);
+      const addresses = accounts.map((account) => account.address);
+      const api = new DefaultApi();
+      const unbondsPromises = Promise.all(
+        addresses.map((a) => api.apiV1PosUnbondAddressGet(a))
+      );
+      const [unbonds, totalVotingPowerResponse] = await Promise.all([
+        unbondsPromises,
+        api.apiV1PosVotingPowerGet(),
+      ]);
+
+      return toUnbondingValidators(
+        unbonds.flatMap((b) => b.data),
+        totalVotingPowerResponse.data,
+        unbondingPeriod
+      );
+    },
+  };
+});
+
 export const unbondedAmountByAddressAtom = atomWithQuery((get) =>
   deriveFromMyValidatorsAtom(
     "unbonded-amount",
     "unbondedAmount",
-    get(myValidatorsAtom)
+    get(myUnbondsAtom)
   )
 );
 
@@ -176,6 +207,29 @@ const toMyValidators = (
       stakingStatus: "bonded",
       stakedAmount: BigNumber(indexerBond.amount),
       unbondedAmount: BigNumber(0),
+      withdrawableAmount: BigNumber(0),
+      validator,
+    };
+  });
+};
+
+const toUnbondingValidators = (
+  indexerBonds: IndexerUnbond[],
+  totalVotingPower: IndexerVotingPower,
+  unbondingPeriod: bigint
+): MyValidator[] => {
+  return indexerBonds.map((indexerUnbond) => {
+    const validator = toValidator(
+      indexerUnbond.validator,
+      totalVotingPower,
+      unbondingPeriod
+    );
+
+    return {
+      uuid: String(indexerUnbond.validator.validatorId),
+      stakingStatus: "unbonded",
+      stakedAmount: BigNumber(0),
+      unbondedAmount: BigNumber(indexerUnbond.amount),
       withdrawableAmount: BigNumber(0),
       validator,
     };
