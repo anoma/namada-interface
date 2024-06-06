@@ -56,7 +56,7 @@ const toValidator = (
     votingPowerInNAM: BigNumber(indexerValidator.votingPower),
     votingPowerPercentage:
       Number(indexerValidator.votingPower) /
-      indexerVotingPower.totalVotingPower,
+      Number(indexerVotingPower.totalVotingPower),
     commission: BigNumber(indexerValidator.commission),
     imageUrl: indexerValidator.avatar,
   };

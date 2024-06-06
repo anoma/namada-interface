@@ -1,5 +1,4 @@
 import BigNumber from "bignumber.js";
-import { getSdkInstance } from "hooks";
 import invariant from "invariant";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { nativeTokenAtom } from "./settings";
@@ -12,11 +11,16 @@ export const minimumGasPriceAtom = atomWithQuery<BigNumber>((get) => {
   return {
     queryKey: ["minimum-gas-price", nativeToken],
     queryFn: async () => {
-      const { rpc } = await getSdkInstance();
-      const result = await rpc.queryGasCosts();
-      const nativeTokenCost = result.find(([token]) => token === nativeToken);
+      const api = new DefaultApi();
+      const gasTableResponse = await api.apiV1GasTableGet();
+
+      // TODO: Can nativeToken ever be undefined?
+      invariant(!!nativeToken, "Native token is undefined");
+      const nativeTokenCost = gasTableResponse.data.find(
+        ({ tokenAddress }) => tokenAddress === nativeToken
+      );
       invariant(!!nativeTokenCost, "Error querying minimum gas price");
-      const asBigNumber = new BigNumber(nativeTokenCost![1]);
+      const asBigNumber = new BigNumber(nativeTokenCost.amount);
       invariant(
         !asBigNumber.isNaN(),
         "Error converting minimum gas price to BigNumber"

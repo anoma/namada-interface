@@ -1,5 +1,5 @@
+import { DefaultApi } from "@anomaorg/namada-indexer-client";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { DefaultApi } from "namada-indexer-client";
 import { chainAtom } from "./chain";
 
 type ChainParameters = {
