@@ -17,6 +17,7 @@ use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::query_epoch;
 use namada::sdk::signing::SigningTxData;
+use namada::sdk::tx::build_batch;
 use namada::sdk::tx::build_redelegation;
 use namada::sdk::tx::{
     build_bond, build_ibc_transfer, build_reveal_pk, build_transparent_transfer, build_unbond,
@@ -255,6 +256,26 @@ impl Sdk {
         process_tx(&self.namada, &args, tx).await?;
 
         to_js_result(inner_tx_hash)
+    }
+
+    /// Build a batch Tx from built transactions and return the bytes
+    pub fn build_batch(built_txs: Vec<BuiltTx>) -> Result<JsValue, JsError> {
+        let mut txs: Vec<(Tx, SigningTxData)> = vec![];
+        let mut tx_hashes: Vec<String> = vec![];
+
+        // Iterate through provided BuiltTx and deserialize bytes to Tx
+        for built_tx in built_txs.into_iter() {
+            let tx_bytes = &built_tx.tx_bytes()?;
+            let tx: Tx = Tx::try_from_slice(tx_bytes)?;
+            tx_hashes.push(tx.raw_header_hash().to_string());
+            txs.push((tx, built_tx.signing_data));
+        }
+
+        let (batch_tx, _signing_data) = build_batch(txs)?;
+        let hash = batch_tx.raw_header_hash().to_string();
+
+        let tx = borsh::to_vec(&batch_tx)?;
+        to_js_result((hash, tx, tx_hashes))
     }
 
     /// Build transaction for specified type, return bytes to client

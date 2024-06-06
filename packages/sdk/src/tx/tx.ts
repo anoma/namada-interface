@@ -1,4 +1,4 @@
-import { Sdk as SdkWasm, TxType } from "@namada/shared";
+import { BuiltTx, Sdk as SdkWasm, TxType } from "@namada/shared";
 import {
   BondMsgValue,
   BondProps,
@@ -363,6 +363,15 @@ export class Tx {
       encodedTx,
       gasPayer || voteProposalProps.signer
     );
+  }
+
+  /**
+   * Build a batched transaction
+   * @param txs - array of BuiltTx types
+   * @returns a tuple of Tx hash, Uint8Array of bytes for broadcasting, and array of hashes of inner Txs
+   */
+  buildBatch(txs: BuiltTx[]): [string, Uint8Array, string[]] {
+    return SdkWasm.build_batch(txs);
   }
 
   /**
