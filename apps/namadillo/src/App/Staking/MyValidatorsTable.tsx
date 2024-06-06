@@ -48,12 +48,6 @@ export const MyValidatorsTable = (): JSX.Element => {
           validator={validator}
           showAddress={false}
         />,
-        <strong
-          className="font-medium"
-          key={`my-validator-alias-${validator.address}`}
-        >
-          {validator.alias}
-        </strong>,
         <WalletAddress
           key={`address-${validator.address}`}
           address={validator.address}
