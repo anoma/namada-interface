@@ -1,8 +1,8 @@
 import { useIntegrationConnection } from "@namada/integrations";
 import { Chain } from "@namada/types";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { addAccountsAtom, balancesAtom } from "slices/accounts";
+import { accountsAtom } from "slices/accounts";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 
 export enum ConnectStatus {
@@ -18,8 +18,11 @@ type UseConnectOutput = {
 };
 
 export const useExtensionConnect = (chain: Chain): UseConnectOutput => {
-  const addAccounts = useSetAtom(addAccountsAtom);
-  useAtomValue(balancesAtom);
+  const {
+    refetch: fetchAccounts,
+    isError: accountFetchError,
+    isSuccess: accountErrorSuccess,
+  } = useAtomValue(accountsAtom);
 
   const [extensionConnected, setExtensionConnected] = useAtom(
     namadaExtensionConnectedAtom
@@ -29,8 +32,7 @@ export const useExtensionConnect = (chain: Chain): UseConnectOutput => {
     extensionConnected ? ConnectStatus.CONNECTED : ConnectStatus.IDLE
   );
 
-  const [integration, isConnectingToExtension, withConnection] =
-    useIntegrationConnection(chain.id);
+  const [isConnectingToExtension] = useIntegrationConnection(chain.id);
 
   useEffect(() => {
     if (isConnectingToExtension) {
@@ -44,23 +46,19 @@ export const useExtensionConnect = (chain: Chain): UseConnectOutput => {
     }
   }, [extensionConnected]);
 
-  const handleConnectExtension = async (): Promise<void> => {
-    if (extensionConnected) return;
+  useEffect(() => {
+    setConnectionStatus(ConnectStatus.CONNECTED);
+    setExtensionConnected(true);
+  }, [accountErrorSuccess]);
 
-    withConnection(
-      async () => {
-        const accounts = await integration?.accounts();
-        if (accounts) {
-          addAccounts(accounts);
-        }
-        setConnectionStatus(ConnectStatus.CONNECTED);
-        setExtensionConnected(true);
-      },
-      async () => {
-        setConnectionStatus(ConnectStatus.ERROR);
-        setExtensionConnected(false);
-      }
-    );
+  useEffect(() => {
+    setConnectionStatus(ConnectStatus.ERROR);
+    setExtensionConnected(false);
+  }, [accountFetchError]);
+
+  const handleConnectExtension = async (): Promise<void> => {
+    if (!extensionConnected) return;
+    fetchAccounts();
   };
 
   return {

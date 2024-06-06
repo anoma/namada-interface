@@ -13,7 +13,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { TransactionPair, broadcastTx } from "lib/query";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { defaultAccountAtom, totalNamBalanceAtom } from "slices/accounts";
+import { accountBalanceAtom, defaultAccountAtom } from "slices/accounts";
 import { GAS_LIMIT, minimumGasPriceAtom } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
 import { createBondTxAtom } from "slices/staking";
@@ -27,9 +27,9 @@ const IncrementBonding = (): JSX.Element => {
   const [filter, setFilter] = useState<string>("");
   const [onlyMyValidators, setOnlyMyValidators] = useState(false);
   const navigate = useNavigate();
-  const totalNamBalance = useAtomValue(totalNamBalanceAtom);
+  const accountBalance = useAtomValue(accountBalanceAtom);
   const gasPrice = useAtomValue(minimumGasPriceAtom);
-  const account = useAtomValue(defaultAccountAtom);
+  const { data: account } = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const resultsPerPage = 100;
@@ -126,8 +126,9 @@ const IncrementBonding = (): JSX.Element => {
   }, [isSuccess]);
 
   const errorMessage = ((): string => {
-    if (totalNamBalance.isPending) return "Loading...";
-    if (totalNamBalance.data!.lt(totalUpdatedAmount)) return "Invalid amount";
+    if (accountBalance.isPending) return "Loading...";
+    if (accountBalance.data?.lt(totalUpdatedAmount))
+      return "Error: not enough balance";
     return "";
   })();
 
@@ -153,7 +154,7 @@ const IncrementBonding = (): JSX.Element => {
           <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
             <BondingAmountOverview
               title="Available to Stake"
-              amountInNam={totalNamBalance.data ?? 0}
+              amountInNam={accountBalance.data ?? 0}
               updatedAmountInNam={totalNamAfterStaking}
               extraContent={
                 <>

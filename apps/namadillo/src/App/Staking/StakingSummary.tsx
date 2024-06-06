@@ -13,17 +13,21 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { useAtomValue } from "jotai";
 import { GoStack } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
-import { totalNamBalanceAtom } from "slices/accounts";
+import { accountBalanceAtom } from "slices/accounts";
 import { getStakingTotalAtom } from "slices/staking";
 import StakingRoutes from "./routes";
 
 export const StakingSummary = (): JSX.Element => {
   const navigate = useNavigate();
   const totalStakedBalance = useAtomValue(getStakingTotalAtom);
-  const availableBalance = useAtomValue(totalNamBalanceAtom);
+  const {
+    data: balance,
+    isSuccess: isBalanceLoaded,
+    isLoading: isFetchingBalance,
+  } = useAtomValue(accountBalanceAtom);
 
   const getPiechartData = (): Array<PieChartData> => {
-    if (!totalStakedBalance.isSuccess || !availableBalance.isSuccess) {
+    if (!totalStakedBalance.isSuccess || !isBalanceLoaded) {
       return [];
     }
 
@@ -33,7 +37,7 @@ export const StakingSummary = (): JSX.Element => {
     }
 
     return [
-      { value: availableBalance.data, color: "#ffffff" },
+      { value: balance, color: "#ffffff" },
       { value: totalStaked.totalBonded, color: "#ffff00" },
       { value: totalStaked.totalUnbonded, color: "#DD1599" },
     ];
@@ -84,10 +88,10 @@ export const StakingSummary = (): JSX.Element => {
               to Stake
             </>
           }
-          isLoading={totalStakedBalance.isPending || availableBalance.isPending}
+          isLoading={totalStakedBalance.isPending || isFetchingBalance}
           mainAmount={
             <NamCurrency
-              amount={availableBalance.data ?? 0}
+              amount={balance ?? 0}
               className="block leading-none"
               currencySignClassName="block mb-3 mt-0.5 text-sm"
             />

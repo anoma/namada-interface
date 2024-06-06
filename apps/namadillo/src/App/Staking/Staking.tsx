@@ -1,7 +1,6 @@
 import { useAtomValue } from "jotai";
-import { loadable } from "jotai/utils";
 import { Route, Routes } from "react-router-dom";
-import { isRevealPkNeededAtom, minimumGasPriceAtom } from "slices/fees";
+import { minimumGasPriceAtom } from "slices/fees";
 import IncrementBonding from "./IncrementBonding";
 import { ReDelegate } from "./ReDelegate";
 import { StakingOverview } from "./StakingOverview";
@@ -18,7 +17,6 @@ import StakingRoutes from "./routes";
 //  * UnstakePositions - rendered in modal on top of other content, for unstaking
 export const Staking = (): JSX.Element => {
   useAtomValue(minimumGasPriceAtom);
-  useAtomValue(loadable(isRevealPkNeededAtom));
 
   return (
     <main className="w-full">

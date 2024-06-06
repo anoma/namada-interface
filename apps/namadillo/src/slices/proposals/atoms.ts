@@ -1,8 +1,8 @@
+import { ProposalStatus, ProposalTypeString, VoteType } from "@namada/types";
+import { useAtomValue } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
-
-import { ProposalStatus, ProposalTypeString, VoteType } from "@namada/types";
-import { transparentAccountsAtom } from "slices/accounts";
+import { defaultAccountAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
 import {
   fetchAllProposals,
@@ -31,18 +31,19 @@ export const proposalFamily = atomFamily((id: bigint) =>
   }))
 );
 
-export const proposalVotedFamily = atomFamily((id: bigint) =>
-  atomWithQuery((get) => ({
+export const proposalVotedFamily = atomFamily((id: bigint) => {
+  const account = useAtomValue(defaultAccountAtom);
+  return atomWithQuery((get) => ({
     queryKey: ["proposal-voted", id.toString()],
+    enabled: account.isSuccess,
     queryFn: async () => {
-      const [account] = get(transparentAccountsAtom);
-      if (typeof account === "undefined") {
+      if (typeof account.data === "undefined") {
         throw new Error("no account found");
       }
-      return await fetchProposalVoted(get(chainAtom), id, account);
+      return await fetchProposalVoted(get(chainAtom), id, account.data);
     },
-  }))
-);
+  }));
+});
 
 export const allProposalsAtom = atomWithQuery((get) => ({
   queryKey: ["all-proposals"],
@@ -75,33 +76,35 @@ export const allProposalsFamily = atomFamily(
     a?.status === b?.status && a?.type === b?.type && a?.search === b?.search
 );
 
-export const votedProposalIdsAtom = atomWithQuery((get) => ({
-  queryKey: ["voted-proposal-ids"],
-  queryFn: async () => {
-    const [account] = get(transparentAccountsAtom);
-    if (typeof account === "undefined") {
-      throw new Error("no account found");
-    }
-    return await fetchVotedProposalIds(get(chainAtom), account);
-  },
-}));
+export const votedProposalIdsAtom = atomWithQuery((get) => {
+  const account = get(defaultAccountAtom);
+  return {
+    queryKey: ["voted-proposal-ids"],
+    enabled: account.isSuccess,
+    queryFn: async () => {
+      if (typeof account.data === "undefined") {
+        throw new Error("no account found");
+      }
+      return await fetchVotedProposalIds(get(chainAtom), account.data);
+    },
+  };
+});
 
 type PerformVoteArgs = {
   proposalId: bigint;
   vote: VoteType;
 };
 export const performVoteAtom = atomWithMutation((get) => {
+  const account = get(defaultAccountAtom);
   return {
+    enabled: account.isSuccess,
     mutationKey: ["voting"],
     mutationFn: async ({ proposalId, vote }: PerformVoteArgs) => {
       const chain = get(chainAtom);
-      const [account] = get(transparentAccountsAtom);
-
-      if (typeof account === "undefined") {
+      if (typeof account.data === "undefined") {
         throw new Error("no account");
       }
-
-      performVote(proposalId, vote, account, chain);
+      performVote(proposalId, vote, account.data, chain);
     },
   };
 });

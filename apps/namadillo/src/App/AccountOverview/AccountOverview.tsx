@@ -15,17 +15,22 @@ import StakingRoutes from "App/Staking/routes";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
-import { defaultAccountAtom, totalNamBalanceAtom } from "slices/accounts";
+import { accountBalanceAtom, defaultAccountAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
 
 export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
   const chain = useAtomValue(chainAtom);
-  const account = useAtomValue(defaultAccountAtom);
-  const totalBalance = useAtomValue(totalNamBalanceAtom);
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
+
+  const { data: account } = useAtomValue(defaultAccountAtom);
+  const {
+    data: totalBalance,
+    isSuccess: balanceHasLoaded,
+    isLoading: balanceIsLoading,
+  } = useAtomValue(accountBalanceAtom);
 
   const hasExtensionInstalled =
     currentExtensionAttachStatus === "attached" ||
@@ -53,7 +58,7 @@ export const AccountOverview = (): JSX.Element => {
 
         {isConnected && (
           <Stack gap={5} className="my-auto min-w-[365px] mx-auto py-12">
-            {totalBalance.isSuccess && (
+            {balanceHasLoaded && totalBalance && (
               <div
                 className={clsx(
                   "relative flex flex-col leading-tight w-full aspect-square rounded-full border-[27px] border-yellow",
@@ -64,17 +69,17 @@ export const AccountOverview = (): JSX.Element => {
                   NAM Balance
                 </Heading>
                 <NamCurrency
-                  amount={totalBalance.data}
+                  amount={totalBalance}
                   className="text-5xl text-white font-medium"
                   currencySignClassName="text-xl ml-2"
                 />
                 <FiatCurrency
-                  amountInNam={totalBalance.data}
+                  amountInNam={totalBalance}
                   className="text-xl font-medium"
                 />
               </div>
             )}
-            {totalBalance.isPending && (
+            {balanceIsLoading && (
               <SkeletonLoading
                 width="100%"
                 height="auto"

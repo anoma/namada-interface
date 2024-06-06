@@ -22,7 +22,7 @@ export const WithdrawalButton = ({
 }: WithdrawalButtonProps): JSX.Element => {
   const { gasPrice } = useGasEstimate();
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
-  const account = useAtomValue(defaultAccountAtom);
+  const { data: account } = useAtomValue(defaultAccountAtom);
   const {
     mutate: createWithdrawTx,
     data: withdrawalTxs,

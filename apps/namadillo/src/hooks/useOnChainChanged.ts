@@ -1,13 +1,18 @@
 import { useEffectSkipFirstRender } from "@namada/hooks";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
+import { accountBalanceAtom, defaultAccountAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
-import { isRevealPkNeededAtom, minimumGasPriceAtom } from "slices/fees";
+import { minimumGasPriceAtom } from "slices/fees";
 
 export const useOnChainChanged = (): void => {
   const chain = useAtomValue(chainAtom);
-  useAtomValue(minimumGasPriceAtom);
-  const refreshPublicKeys = useSetAtom(isRevealPkNeededAtom);
+  const balances = useAtomValue(accountBalanceAtom);
+  const accounts = useAtomValue(defaultAccountAtom);
+  const gasPrice = useAtomValue(minimumGasPriceAtom);
+
   useEffectSkipFirstRender(() => {
-    refreshPublicKeys();
+    balances.refetch();
+    accounts.refetch();
+    gasPrice.refetch();
   }, [chain]);
 };

@@ -2,7 +2,7 @@ import { Account } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { totalNamBalanceAtom } from "slices/accounts";
+import { accountBalanceAtom } from "slices/accounts";
 import { Validator, myValidatorsAtom } from "slices/validators";
 import { ChangeInStakingPosition } from "types/staking";
 import { ValidatorAddress } from "types/validators";
@@ -13,7 +13,7 @@ type UseStakeModuleProps = {
 
 //eslint-disable-next-line
 export const useStakeModule = ({ account }: UseStakeModuleProps) => {
-  const totalNam = useAtomValue(totalNamBalanceAtom).data || BigNumber(0);
+  const totalNam = useAtomValue(accountBalanceAtom).data || BigNumber(0);
   const myValidators = useAtomValue(myValidatorsAtom);
 
   const [stakedAmountByAddress, setStakedAmountsByAddress] = useState<
