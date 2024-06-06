@@ -23,7 +23,7 @@ export const StakingSummary = (): JSX.Element => {
   const {
     data: balance,
     isSuccess: isBalanceLoaded,
-    isFetching: isFetchingBalance,
+    isLoading: isFetchingBalance,
   } = useAtomValue(accountBalanceAtom);
 
   const getPiechartData = (): Array<PieChartData> => {

@@ -29,7 +29,7 @@ export const AccountOverview = (): JSX.Element => {
   const {
     data: totalBalance,
     isSuccess: balanceHasLoaded,
-    isFetching: balanceIsLoading,
+    isLoading: balanceIsLoading,
   } = useAtomValue(accountBalanceAtom);
 
   const hasExtensionInstalled =
