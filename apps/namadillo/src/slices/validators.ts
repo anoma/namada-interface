@@ -11,6 +11,7 @@ import {
   atomWithQuery,
 } from "jotai-tanstack-query";
 import { defaultAccountAtom } from "slices/accounts";
+import { chainParametersAtom } from "./chainParameters";
 import { shouldUpdateBalanceAtom } from "./etc";
 
 type Unique = {
@@ -40,7 +41,8 @@ export type MyValidator = {
 
 const toValidator = (
   indexerValidator: IndexerValidator,
-  indexerVotingPower: IndexerVotingPower
+  indexerVotingPower: IndexerVotingPower,
+  unbondingPeriod: number
 ): Validator => {
   return {
     uuid: indexerValidator.address,
@@ -50,8 +52,7 @@ const toValidator = (
     homepageUrl: indexerValidator.website,
     // TODO: Return this from the indexer
     expectedApr: 0.1127,
-    // TODO: Return this from the indexer
-    unbondingPeriod: "21 days",
+    unbondingPeriod: `${unbondingPeriod} days`,
     // TODO: cleanup string/number/bignumber types
     votingPowerInNAM: BigNumber(indexerValidator.votingPower),
     votingPowerPercentage:
@@ -62,42 +63,55 @@ const toValidator = (
   };
 };
 
-export const allValidatorsAtom = atomWithQuery(() => ({
-  queryKey: ["all-validators"],
-  queryFn: async () => {
-    const api = new DefaultApi();
-    const [validatorsResponse, votingPowerResponse] = await Promise.all([
-      api.apiV1PosValidatorGet(),
-      api.apiV1PosVotingPowerGet(),
-    ]);
+export const allValidatorsAtom = atomWithQuery((get) => {
+  const chainParameters = get(chainParametersAtom);
+  return {
+    queryKey: ["all-validators", chainParameters.dataUpdatedAt],
+    enabled: !!chainParameters,
+    queryFn: async () => {
+      const parameters = chainParameters.data?.unbondingPeriodInDays || 0;
 
-    // TODO: rename one data to items?
-    const validators = validatorsResponse.data.data;
-    const votingPower = votingPowerResponse.data;
+      const api = new DefaultApi();
+      const [validatorsResponse, votingPowerResponse] = await Promise.all([
+        api.apiV1PosValidatorGet(),
+        api.apiV1PosVotingPowerGet(),
+      ]);
 
-    return validators.map((v) => toValidator(v, votingPower));
-  },
-}));
+      // TODO: rename one data to items?
+      const validators = validatorsResponse.data.data;
+      const votingPower = votingPowerResponse.data;
+
+      return validators.map((v) => toValidator(v, votingPower, parameters));
+    },
+  };
+});
 
 // eslint-disable-next-line
 export const myValidatorsAtom = atomWithQuery((get) => {
   const account = get(defaultAccountAtom);
+  const chainParameters = get(chainParametersAtom);
 
   // TODO: Refactor after this event subscription is enabled in the indexer
   const enablePolling = get(shouldUpdateBalanceAtom);
 
   return {
-    queryKey: ["my-validators", account.data?.address],
+    queryKey: ["my-validators", account.data?.address, chainParameters.dataUpdatedAt],
     enabled: account.isSuccess,
     refetchInterval: enablePolling ? 1000 : false,
     queryFn: async (): Promise<MyValidator[]> => {
+ const unbondingPeriod =
+        chainParameters.data?.unbondingPeriodInDays || BigInt(0);
       const api = new DefaultApi();
       const [bonds, totalVotingPowerResponse] = await Promise.all([
         api.apiV1PosBondAddressGet(account.data?.address),
         api.apiV1PosVotingPowerGet(),
       ]);
 
-      return toMyValidators(bonds, totalVotingPowerResponse.data);
+      return toMyValidators(
+        bonds,
+        totalVotingPowerResponse.data
+        unbondingPeriod
+      );
     },
   };
 });
@@ -147,12 +161,16 @@ const deriveFromMyValidatorsAtom = (
 
 const toMyValidators = (
   indexerBonds: IndexerBond[],
-  totalVotingPower: IndexerVotingPower
+  totalVotingPower: IndexerVotingPower,
+  unbondingPeriod: number
 ): MyValidator[] => {
   return indexerBonds.map((indexerBond) => {
-    const validator = toValidator(indexerBond.validator, totalVotingPower);
+    const validator = toValidator(
+      indexerBond.validator,
+      totalVotingPower,
+      unbondingPeriod
+    );
 
-    console.log(indexerBond);
     return {
       uuid: String(indexerBond.validator.validatorId),
       stakingStatus: "bonded",
