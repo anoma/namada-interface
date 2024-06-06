@@ -127,7 +127,8 @@ const IncrementBonding = (): JSX.Element => {
 
   const errorMessage = ((): string => {
     if (accountBalance.isPending) return "Loading...";
-    if (accountBalance.data?.lt(totalUpdatedAmount)) return "Invalid amount";
+    if (accountBalance.data?.lt(totalUpdatedAmount))
+      return "Error: not enough balance";
     return "";
   })();
 
