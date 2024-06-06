@@ -6,7 +6,6 @@ import {
   fetchAccountBalance,
   fetchAccounts,
   fetchDefaultAccount,
-  filterTransparentAccount,
 } from "./services";
 
 const {
@@ -20,17 +19,6 @@ export const accountsAtom = atomWithQuery<readonly Account[]>(() => {
     queryFn: fetchAccounts,
   };
 });
-
-export const transparentAccountsAtom = atomWithQuery<readonly Account[]>(
-  (get) => {
-    const accounts = get(accountsAtom);
-    return {
-      queryKey: ["transparent-accounts", accounts],
-      enabled: accounts.isSuccess,
-      queryFn: () => filterTransparentAccount(accounts.data!),
-    };
-  }
-);
 
 export const defaultAccountAtom = atomWithQuery<Account | undefined>(() => {
   return {

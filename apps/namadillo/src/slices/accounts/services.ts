@@ -30,10 +30,3 @@ export const fetchAccountBalance = async (
   });
   return new BigNumber(balances[0].amount || 0);
 };
-
-export const filterTransparentAccount = (
-  accounts: readonly Account[]
-): readonly Account[] => {
-  if (!accounts) return [];
-  return accounts.filter((account: Account) => account.isShielded);
-};
