@@ -41,7 +41,7 @@ export const ReDelegate = (): JSX.Element => {
     updatedAmountByAddress: amountsRemovedByAddress,
     onChangeValidatorAmount,
     myValidators,
-  } = useStakeModule({ account: account });
+  } = useStakeModule({ account });
 
   const {
     mutate: createRedelegateTx,
