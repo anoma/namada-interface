@@ -1,8 +1,8 @@
-import { StyledTable, TableHeader, TableRow } from "@namada/components";
-import { FormattedPaginator } from "App/Common/FormattedPaginator";
+import { TableHeader, TableRow } from "@namada/components";
+import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GoInfo } from "react-icons/go";
 import { Validator } from "slices/validators";
 import { twMerge } from "tailwind-merge";
@@ -27,29 +27,10 @@ export const ValidatorsTable = ({
   resultsPerPage = 100,
   initialPage = 0,
   tableClassName,
-  updatedAmountByAddress,
 }: ValidatorsTableProps): JSX.Element => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [page, setPage] = useState(initialPage);
-  const [rows, setRows] = useState<TableRow[]>([]);
   const [selectedValidator, setSelectedValidator] = useState<
     Validator | undefined
   >();
-
-  const updatesTracker = useRef<typeof updatedAmountByAddress>(
-    updatedAmountByAddress || {}
-  );
-
-  const paginatedValidators = validatorList.slice(
-    page * resultsPerPage,
-    page * resultsPerPage + resultsPerPage
-  );
-
-  const pageCount = Math.ceil(validatorList.length / resultsPerPage);
-
-  useEffect(() => {
-    setPage(0);
-  }, [validatorList]);
 
   useEffect(() => {
     const onCloseInfo = (): void => setSelectedValidator(undefined);
@@ -59,107 +40,46 @@ export const ValidatorsTable = ({
     };
   }, []);
 
-  // Update all validators
-  useEffect(() => {
-    setRows(paginatedValidators.map(mapValidatorRow));
-  }, [renderRow, page, validatorList]);
-
-  // Only updates the addresses contained in updatedAmountByAddress that have changed
-  useEffect(() => {
-    if (!updatedAmountByAddress) return;
-    setRows((rows) => {
-      const newRows = [...rows];
-      paginatedValidators.forEach((validator, idx) => {
-        const skipUpdate =
-          (!updatesTracker.current![validator.address] &&
-            !updatedAmountByAddress[validator.address]) ||
-          updatesTracker.current![validator.address] ===
-            updatedAmountByAddress[validator.address];
-
-        if (skipUpdate) return;
-        newRows[idx] = mapValidatorRow(validator);
-      });
-      updatesTracker.current = { ...updatedAmountByAddress };
-      return newRows;
-    });
-  }, [updatedAmountByAddress]);
-
-  const mapValidatorRow = (validator: Validator): TableRow => {
-    const row = renderRow(validator);
-    row.cells.push(
-      <i
-        onClick={(e) => {
-          e.stopPropagation();
-          setSelectedValidator(validator);
-        }}
-        className={clsx(
-          "cursor-pointer flex justify-end relative",
-          "hover:text-cyan active:top-px"
-        )}
-      >
-        <GoInfo />
-      </i>
-    );
-    return row;
-  };
-
-  const scrollTop = useCallback((): void => {
-    const container = containerRef.current!.querySelector(".table-container");
-    if (container) {
-      container.scrollTo({ top: 0, left: 0 });
-    }
-  }, []);
-
-  const styledTable = useMemo(() => {
-    return (
-      <StyledTable
-        id={id}
-        headers={headers.concat("")}
-        rows={rows}
-        containerClassName="table-container flex-1 dark-scrollbar overscroll-contain"
-        tableProps={{
-          className: twMerge(
-            "w-full flex-1 [&_td]:px-1 [&_th]:px-1 [&_td:first-child]:pl-4 [&_td]:h-[64px]",
-            "[&_td]:font-normal [&_td:last-child]:pr-4 [&_th:first-child]:pl-4 [&_th:last-child]:pr-4",
-            "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md",
-            tableClassName
-          ),
-        }}
-        headProps={{ className: "text-neutral-500" }}
-      />
-    );
-  }, [rows, updatedAmountByAddress, tableClassName]);
-
-  const pagination = useMemo(() => {
-    return (
-      <FormattedPaginator
-        pageRangeDisplayed={3}
-        pageCount={pageCount}
-        onPageChange={({ selected }) => {
-          setPage(selected);
-          scrollTop();
-        }}
-      />
-    );
-  }, [page, validatorList]);
-
-  if (rows.length === 0) {
-    return (
-      <div className="flex items-center justify-center text-sm py-4 text-neutral-200">
-        No results were found
-      </div>
-    );
-  }
+  const mapValidatorRow = useCallback(
+    (validator: Validator): TableRow => {
+      const row = renderRow(validator);
+      row.cells.push(
+        <i
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedValidator(validator);
+          }}
+          className={clsx(
+            "cursor-pointer flex justify-end relative",
+            "hover:text-cyan active:top-px"
+          )}
+        >
+          <GoInfo />
+        </i>
+      );
+      return row;
+    },
+    [renderRow, setSelectedValidator]
+  );
 
   return (
-    <div
-      ref={containerRef}
-      className={clsx(
-        "grid grid-rows-[auto_max-content] flex-1 overflow-hidden w-full gap-2"
-      )}
+    <TableWithPaginator
+      id={id}
+      headers={headers.concat("")}
+      renderRow={mapValidatorRow}
+      itemList={validatorList}
+      resultsPerPage={resultsPerPage}
+      initialPage={initialPage}
+      tableProps={{
+        className: twMerge(
+          "w-full flex-1 [&_td]:px-1 [&_th]:px-1 [&_td:first-child]:pl-4 [&_td]:h-[64px]",
+          "[&_td]:font-normal [&_td:last-child]:pr-4 [&_th:first-child]:pl-4 [&_th:last-child]:pr-4",
+          "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md",
+          tableClassName
+        ),
+      }}
+      headProps={{ className: "text-neutral-500" }}
     >
-      {styledTable}
-      {pagination}
       {selectedValidator && (
         <ValidatorInfoPanel
           className="h-full right-0 top-0"
@@ -167,6 +87,6 @@ export const ValidatorsTable = ({
           onClose={() => setSelectedValidator(undefined)}
         />
       )}
-    </div>
+    </TableWithPaginator>
   );
 };

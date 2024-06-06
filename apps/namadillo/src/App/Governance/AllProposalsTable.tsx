@@ -3,14 +3,10 @@ import { useState } from "react";
 import { GoCheckCircleFill, GoInfo } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 
-import {
-  Stack,
-  StyledSelectBox,
-  StyledTable,
-  TableRow,
-} from "@namada/components";
+import { Stack, StyledSelectBox, TableRow } from "@namada/components";
 import { Proposal, isProposalStatus, proposalStatuses } from "@namada/types";
 import { Search } from "App/Common/Search";
+import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import clsx from "clsx";
 import { allProposalsFamily, proposalFamily } from "slices/proposals";
 import { showProposalStatus, showProposalTypeString } from "utils";
@@ -77,16 +73,15 @@ const Table: React.FC<
   });
 
   return (
-    <div className="h-[490px] flex flex-col">
-      <StyledTable
-        tableProps={{ className: "w-full text-xs [&_td]:px-2 [&_th]:px-2" }}
-        headProps={{ className: "text-xs" }}
-        id="all-proposals-table"
-        headers={headers}
-        rows={props.proposalIds.map(renderRow)}
-        containerClassName="dark-scrollbar"
-      />
-    </div>
+    <TableWithPaginator
+      id="all-proposals-table"
+      headers={headers}
+      itemList={props.proposalIds}
+      renderRow={renderRow}
+      tableProps={{ className: "w-full text-xs [&_td]:px-2 [&_th]:px-2" }}
+      headProps={{ className: "text-xs" }}
+      resultsPerPage={50}
+    />
   );
 };
 
@@ -206,10 +201,10 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
         />
       </div>
 
-      <Table
-        {...props}
-        proposalIds={proposals.isSuccess ? proposals.data.map((p) => p.id) : []}
-      />
+      <div className="h-[490px] flex flex-col">
+        {proposals.status === "error" || proposals.status === "pending" ? null
+        : <Table {...props} proposalIds={proposals.data.map((p) => p.id)} />}
+      </div>
     </Stack>
   );
 };
