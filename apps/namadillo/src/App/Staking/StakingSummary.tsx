@@ -38,7 +38,7 @@ export const StakingSummary = (): JSX.Element => {
 
     return [
       { value: balance, color: "#ffffff" },
-      { value: totalStaked.totalBonded, color: "#ffff00" },
+      { value: totalStaked.totalBonded, color: "#00ffff" },
       { value: totalStaked.totalUnbonded, color: "#DD1599" },
     ];
   };
@@ -60,6 +60,7 @@ export const StakingSummary = (): JSX.Element => {
             className="xl:max-w-[85%] mx-auto"
             data={getPiechartData()}
             strokeWidth={7}
+            segmentMargin={0}
           >
             <div className="flex flex-col gap-1 leading-tight">
               <Heading className="text-sm text-neutral-500" level="h3">
