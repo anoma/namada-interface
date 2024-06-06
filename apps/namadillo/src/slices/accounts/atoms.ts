@@ -1,4 +1,4 @@
-import { Account as AccountDetails } from "@namada/types";
+import { Account } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { shouldUpdateBalanceAtom } from "slices/etc";
@@ -14,14 +14,14 @@ const {
     tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
-export const accountsAtom = atomWithQuery<readonly AccountDetails[]>(() => {
+export const accountsAtom = atomWithQuery<readonly Account[]>(() => {
   return {
     queryKey: ["fetch-accounts"],
     queryFn: fetchAccounts,
   };
 });
 
-export const transparentAccountsAtom = atomWithQuery<readonly AccountDetails[]>(
+export const transparentAccountsAtom = atomWithQuery<readonly Account[]>(
   (get) => {
     const accounts = get(accountsAtom);
     return {
@@ -32,14 +32,12 @@ export const transparentAccountsAtom = atomWithQuery<readonly AccountDetails[]>(
   }
 );
 
-export const defaultAccountAtom = atomWithQuery<AccountDetails | undefined>(
-  () => {
-    return {
-      queryKey: ["default-account"],
-      queryFn: fetchDefaultAccount,
-    };
-  }
-);
+export const defaultAccountAtom = atomWithQuery<Account | undefined>(() => {
+  return {
+    queryKey: ["default-account"],
+    queryFn: fetchDefaultAccount,
+  };
+});
 
 export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
   const defaultAccount = get(defaultAccountAtom);
