@@ -3,7 +3,7 @@ import { DefaultApi } from "namada-indexer-client";
 import { chainAtom } from "./chain";
 
 type ChainParameters = {
-  unbondingPeriodInDays: number;
+  unbondingPeriodInDays: bigint;
 };
 
 export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
@@ -16,7 +16,7 @@ export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
       const parameters = parametersResponse.data;
 
       return {
-        unbondingPeriodInDays: parameters.unbondingLength,
+        unbondingPeriodInDays: BigInt(parameters.unbondingLength),
       };
     },
   };

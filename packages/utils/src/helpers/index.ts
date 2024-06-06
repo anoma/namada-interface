@@ -74,8 +74,8 @@ export const stringFromTimestamp = (timestamp: number): string => {
 /**
  * Format a date-time string from a timestamp in seconds
  */
-export const stringFromTimestampInSec = (timestamp: number): string => {
-  const datetime = DateTime.fromSeconds(timestamp).toLocal();
+export const stringFromTimestampInSec = (timestamp: bigint): string => {
+  const datetime = DateTime.fromSeconds(Number(timestamp)).toLocal();
   return datetime.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS);
 };
 
@@ -85,10 +85,15 @@ export const stringFromTimestampInSec = (timestamp: number): string => {
  * @param {number} seconds - timestamp in seconds
  * @returns {string} time in format "DD Days: HH Hrs: MM Mins"
  */
-export const timeFromSeconds = (seconds: number): string => {
-  const days = Math.floor(seconds / 86400); // 3600 * 24
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor(seconds / 60);
+export const timeFromSeconds = (seconds: bigint): string => {
+  const big60 = BigInt(60);
+  const big24 = BigInt(24);
+
+  const totalMinutes = seconds / big60;
+  const minutes = totalMinutes % big60;
+  const totalHours = totalMinutes / big60;
+  const hours = totalHours % big24;
+  const days = totalHours / big24;
 
   return `${days} Days: ${hours} Hrs: ${minutes} Mins`;
 };

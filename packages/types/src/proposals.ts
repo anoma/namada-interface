@@ -19,9 +19,9 @@ export type Proposal = {
   startEpoch: bigint;
   endEpoch: bigint;
   activationEpoch: bigint;
-  startTime: number;
-  endTime: number;
-  currentTime: number;
+  startTime: bigint;
+  endTime: bigint;
+  currentTime: bigint;
   proposalType: ProposalType;
   tallyType: TallyType;
   status: ProposalStatus;

@@ -42,7 +42,7 @@ export type MyValidator = {
 const toValidator = (
   indexerValidator: IndexerValidator,
   indexerVotingPower: IndexerVotingPower,
-  unbondingPeriod: number
+  unbondingPeriod: bigint
 ): Validator => {
   return {
     uuid: indexerValidator.address,
@@ -53,7 +53,6 @@ const toValidator = (
     // TODO: Return this from the indexer
     expectedApr: 0.1127,
     unbondingPeriod: `${unbondingPeriod} days`,
-    // TODO: cleanup string/number/bignumber types
     votingPowerInNAM: BigNumber(indexerValidator.votingPower),
     votingPowerPercentage:
       Number(indexerValidator.votingPower) /
@@ -69,7 +68,8 @@ export const allValidatorsAtom = atomWithQuery((get) => {
     queryKey: ["all-validators", chainParameters.dataUpdatedAt],
     enabled: !!chainParameters,
     queryFn: async () => {
-      const parameters = chainParameters.data?.unbondingPeriodInDays || 0;
+      const parameters =
+        chainParameters.data?.unbondingPeriodInDays || BigInt(0);
 
       const api = new DefaultApi();
       const [validatorsResponse, votingPowerResponse] = await Promise.all([
@@ -99,7 +99,7 @@ export const myValidatorsAtom = atomWithQuery((get) => {
     enabled: account.isSuccess,
     refetchInterval: enablePolling ? 1000 : false,
     queryFn: async (): Promise<MyValidator[]> => {
- const unbondingPeriod =
+      const unbondingPeriod =
         chainParameters.data?.unbondingPeriodInDays || BigInt(0);
       const api = new DefaultApi();
       const [bonds, totalVotingPowerResponse] = await Promise.all([
@@ -162,7 +162,7 @@ const deriveFromMyValidatorsAtom = (
 const toMyValidators = (
   indexerBonds: IndexerBond[],
   totalVotingPower: IndexerVotingPower,
-  unbondingPeriod: number
+  unbondingPeriod: bigint
 ): MyValidator[] => {
   return indexerBonds.map((indexerBond) => {
     const validator = toValidator(

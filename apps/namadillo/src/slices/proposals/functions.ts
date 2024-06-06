@@ -38,11 +38,11 @@ const decodeProposalType = (
   data: string | undefined
 ): ProposalType => {
   switch (indexerProposalType) {
-    case "default":
+    case IndexerProposalTypeEnum.Default:
       return {
         type: "default",
       };
-    case "defaultWithWasm":
+    case IndexerProposalTypeEnum.DefaultWithWasm:
       if (typeof data === "undefined") {
         throw new Error("data was undefined for default_with_wasm proposal");
       }
@@ -51,7 +51,7 @@ const decodeProposalType = (
         type: "default_with_wasm",
         data: dataBytes,
       };
-    case "pgfSteward":
+    case IndexerProposalTypeEnum.PgfSteward:
       if (typeof data === "undefined") {
         throw new Error("data was undefined for pgf_steward proposal");
       }
@@ -84,7 +84,7 @@ const decodeProposalType = (
 
       return { type: "pgf_steward", data: addRemove };
 
-    case "pgfFunding":
+    case IndexerProposalTypeEnum.PgfFunding:
       if (typeof data === "undefined") {
         throw new Error("data was undefined for pgf_payment proposal");
       }
@@ -181,11 +181,11 @@ const decodeProposalType = (
 
 const toTally = (tallyType: IndexerProposalTallyTypeEnum): TallyType => {
   switch (tallyType) {
-    case "twoThirds":
+    case IndexerProposalTallyTypeEnum.TwoThirds:
       return "two-thirds";
-    case "oneHalfOverOneThird":
+    case IndexerProposalTallyTypeEnum.OneHalfOverOneThird:
       return "one-half-over-one-third";
-    case "lessOneHalfOverOneThirdNay":
+    case IndexerProposalTallyTypeEnum.LessOneHalfOverOneThirdNay:
       return "less-one-half-over-one-third-nay";
     default:
       throw new Error(`unknown tally type string, got ${tallyType}`);
@@ -196,17 +196,25 @@ const toProposal = (
   proposal: IndexerProposal,
   votingPower: IndexerVotingPower
 ): Proposal => {
+  let content;
+  // We have to handle the case where the content is just a string
+  try {
+    content = JSON.parse(proposal.content);
+  } catch (e) {
+    // TODO: do we need to escape the string? I think react does it for us
+    content = proposal.content;
+  }
+
   return {
     id: BigInt(proposal.id),
     author: proposal.author,
-    //TODO: content might not be JSON
-    content: JSON.parse(proposal.content),
+    content,
     startEpoch: BigInt(proposal.startEpoch),
     endEpoch: BigInt(proposal.endEpoch),
     activationEpoch: BigInt(proposal.activationEpoch),
-    startTime: proposal.startTime,
-    endTime: proposal.endTime,
-    currentTime: proposal.currentTime,
+    startTime: BigInt(proposal.startTime),
+    endTime: BigInt(proposal.endTime),
+    currentTime: BigInt(proposal.currentTime),
     proposalType: decodeProposalType(proposal.type, proposal.data),
     tallyType: toTally(proposal.tallyType),
     status: statusMap(proposal.status),
@@ -229,7 +237,6 @@ export const fetchProposalById = async (id: bigint): Promise<Proposal> => {
   return toProposal(proposalResponse.data, votingPowerResponse.data);
 };
 
-// TODO: we can change backend or frontend to use the same enum
 const statusMap = (
   indexerProposalStatus: IndexerProposalStatusEnum
 ): ProposalStatus => {
