@@ -95,21 +95,26 @@ export const myValidatorsAtom = atomWithQuery((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
 
   return {
-    queryKey: ["my-validators", account.data?.address, chainParameters.dataUpdatedAt],
+    queryKey: [
+      "my-validators",
+      account.data?.address,
+      chainParameters.dataUpdatedAt,
+    ],
     enabled: account.isSuccess,
     refetchInterval: enablePolling ? 1000 : false,
     queryFn: async (): Promise<MyValidator[]> => {
       const unbondingPeriod =
         chainParameters.data?.unbondingPeriodInDays || BigInt(0);
       const api = new DefaultApi();
-      const [bonds, totalVotingPowerResponse] = await Promise.all([
-        api.apiV1PosBondAddressGet(account.data?.address),
+      const [bondsResponse, totalVotingPowerResponse] = await Promise.all([
+        // TODO: is address always available?
+        api.apiV1PosBondAddressGet(account.data!.address!),
         api.apiV1PosVotingPowerGet(),
       ]);
 
       return toMyValidators(
-        bonds,
-        totalVotingPowerResponse.data
+        bondsResponse.data,
+        totalVotingPowerResponse.data,
         unbondingPeriod
       );
     },
@@ -118,28 +123,29 @@ export const myValidatorsAtom = atomWithQuery((get) => {
 
 export const myUnbondsAtom = atomWithQuery<MyValidator[]>((get) => {
   const chainParameters = get(chainParametersAtom);
-  const accounts = get(transparentAccountsAtom);
-  const ids = accounts.map((account) => account.address).join("-");
+  const account = get(defaultAccountAtom);
+
   // TODO: Refactor after this event subscription is enabled in the indexer
   const enablePolling = get(shouldUpdateBalanceAtom);
   return {
     refetchInterval: enablePolling ? 1000 : false,
-    queryKey: ["my-unbonds", ids, chainParameters.dataUpdatedAt],
+    queryKey: [
+      "my-unbonds",
+      account.data?.address,
+      chainParameters.dataUpdatedAt,
+    ],
     queryFn: async () => {
       const unbondingPeriod =
         chainParameters.data?.unbondingPeriodInDays || BigInt(0);
-      const addresses = accounts.map((account) => account.address);
       const api = new DefaultApi();
-      const unbondsPromises = Promise.all(
-        addresses.map((a) => api.apiV1PosUnbondAddressGet(a))
-      );
-      const [unbonds, totalVotingPowerResponse] = await Promise.all([
-        unbondsPromises,
+      const [unbondsResponse, totalVotingPowerResponse] = await Promise.all([
+        // TODO: is address always available?
+        api.apiV1PosUnbondAddressGet(account.data!.address!),
         api.apiV1PosVotingPowerGet(),
       ]);
 
       return toUnbondingValidators(
-        unbonds.flatMap((b) => b.data),
+        unbondsResponse.data,
         totalVotingPowerResponse.data,
         unbondingPeriod
       );

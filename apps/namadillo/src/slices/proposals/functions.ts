@@ -323,7 +323,7 @@ export const performVote = async (
   if (typeof publicKey === "undefined") {
     throw new Error("no public key on account");
   }
-  const { tx } = await getSdkInstance();
+  const { tx, rpc } = await getSdkInstance();
   const signer = account.address;
 
   const proposalProps = {
@@ -345,11 +345,11 @@ export const performVote = async (
 
   // RevealPK if needed
   const api = new DefaultApi();
-  const { publicKey } = (await api.apiV1RevealedPublicKeyAddressGet(address))
+  const { publicKey: pk } = (await api.apiV1RevealedPublicKeyAddressGet(signer))
     .data;
 
-  if (!publicKey) {
-    const revealPkTx = await tx.buildRevealPk(wrapperTxProps, account.address);
+  if (!pk) {
+    const revealPkTx = await tx.buildRevealPk(wrapperTxProps, signer);
     // Add to txArray to sign & broadcast below:
     txArray.push(revealPkTx);
   }
