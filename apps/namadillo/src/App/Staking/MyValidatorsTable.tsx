@@ -88,7 +88,7 @@ export const MyValidatorsTable = (): JSX.Element => {
       <nav className="absolute top-6 right-4 flex gap-2 flex-1 z-50">
         <ActionButton
           className="basis-[content] py-1"
-          color="primary"
+          color="secondary"
           size="md"
           borderRadius="sm"
           onClick={() => navigate(StakingRoutes.incrementBonding().url)}
@@ -110,6 +110,7 @@ export const MyValidatorsTable = (): JSX.Element => {
           size="md"
           outlined
           borderRadius="sm"
+          hoverColor="magenta"
           onClick={() => navigate(StakingRoutes.unstake().url)}
         >
           Unstake

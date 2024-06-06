@@ -79,7 +79,7 @@ export const StakingSummary = (): JSX.Element => {
           </PieChart>
         )}
       </Panel>
-      <Panel as="li" className="border border-yellow">
+      <Panel as="li">
         <AmountSummaryCard
           logoElement={<Image imageName="LogoMinimal" />}
           title={
@@ -109,7 +109,7 @@ export const StakingSummary = (): JSX.Element => {
               className="px-8"
               borderRadius="sm"
               size="xs"
-              color="primary"
+              color="secondary"
               onClick={() => navigate(StakingRoutes.incrementBonding().url)}
             >
               Stake

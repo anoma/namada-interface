@@ -224,6 +224,7 @@ const IncrementBonding = (): JSX.Element => {
               size="sm"
               borderRadius="sm"
               className="mt-2 w-1/4 mx-auto"
+              color="secondary"
               disabled={
                 !!errorMessage || isPerformingBond || totalUpdatedAmount.eq(0)
               }
