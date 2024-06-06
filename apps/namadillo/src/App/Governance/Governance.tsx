@@ -8,10 +8,7 @@ import GovernanceRoutes from "./routes";
 export const Governance: React.FC = () => (
   <main className="w-full">
     <Routes>
-      <Route
-        path={`${GovernanceRoutes.overview()}`}
-        element={<GovernanceOverview />}
-      />
+      <Route path="/*" element={<GovernanceOverview />} />
       <Route
         path={`${GovernanceRoutes.proposal()}`}
         element={<ProposalAndVote />}
