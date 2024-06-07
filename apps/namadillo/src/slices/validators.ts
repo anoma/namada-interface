@@ -81,6 +81,7 @@ export const myValidatorsAtom = atomWithQuery((get) => {
     },
   };
 });
+
 export const unbondedAmountByAddressAtom = atomWithQuery((get) =>
   deriveFromMyValidatorsAtom(
     "unbonded-amount",

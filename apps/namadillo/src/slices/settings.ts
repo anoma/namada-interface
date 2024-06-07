@@ -10,7 +10,12 @@ type SettingsStorage = {
   signArbitraryEnabled: boolean;
 };
 
-export const namadaExtensionConnectedAtom = atom(false);
+export type ConnectStatus = "idle" | "connecting" | "connected" | "error";
+
+export const namadaExtensionConnectionStatus = atom<ConnectStatus>("idle");
+export const namadaExtensionConnectedAtom = atom<boolean>(
+  (get) => get(namadaExtensionConnectionStatus) === "connected"
+);
 
 export const namadilloSettingsAtom = atomWithStorage<SettingsStorage>(
   "namadillo:settings",

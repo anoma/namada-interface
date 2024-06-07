@@ -2,6 +2,7 @@ import { Account } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { shouldUpdateBalanceAtom } from "slices/etc";
+import { namadaExtensionConnectedAtom } from "slices/settings";
 import {
   fetchAccountBalance,
   fetchAccounts,
@@ -13,16 +14,20 @@ const {
     tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
-export const accountsAtom = atomWithQuery<readonly Account[]>(() => {
+export const accountsAtom = atomWithQuery<readonly Account[]>((get) => {
+  const isExtensionConnected = get(namadaExtensionConnectedAtom);
   return {
-    queryKey: ["fetch-accounts"],
+    enabled: isExtensionConnected,
+    queryKey: ["fetch-accounts", isExtensionConnected],
     queryFn: fetchAccounts,
   };
 });
 
-export const defaultAccountAtom = atomWithQuery<Account | undefined>(() => {
+export const defaultAccountAtom = atomWithQuery<Account | undefined>((get) => {
+  const isExtensionConnected = get(namadaExtensionConnectedAtom);
   return {
-    queryKey: ["default-account"],
+    enabled: isExtensionConnected,
+    queryKey: ["default-account", isExtensionConnected],
     queryFn: fetchDefaultAccount,
   };
 });

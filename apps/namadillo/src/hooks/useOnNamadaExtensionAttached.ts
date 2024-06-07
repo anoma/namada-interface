@@ -6,10 +6,10 @@ import {
 } from "@namada/integrations";
 import { useAtomValue, useSetAtom } from "jotai";
 import { chainAtom } from "slices/chain";
-import { namadaExtensionConnectedAtom } from "slices/settings";
+import { namadaExtensionConnectionStatus } from "slices/settings";
 
 export const useOnNamadaExtensionAttached = (): void => {
-  const setNamadaExtensionConnected = useSetAtom(namadaExtensionConnectedAtom);
+  const setNamadExtensionStatus = useSetAtom(namadaExtensionConnectionStatus);
   const chain = useAtomValue(chainAtom); // should always be namada
   const { namada: attachStatus } = useUntilIntegrationAttached(chain);
   const integration = useIntegration("namada") as Namada;
@@ -17,8 +17,9 @@ export const useOnNamadaExtensionAttached = (): void => {
   useEffectSkipFirstRender(() => {
     (async () => {
       if (attachStatus === "attached") {
-        const connected = !!(await integration.isConnected());
-        setNamadaExtensionConnected(connected);
+        if (!!(await integration.isConnected())) {
+          setNamadExtensionStatus("connected");
+        }
       }
     })();
   }, [attachStatus]);
