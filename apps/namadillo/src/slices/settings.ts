@@ -3,6 +3,7 @@ import { Getter, Setter, atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
 type SettingsStorage = {
+  version: string;
   fiat: CurrencyType;
   hideBalances: boolean;
   rpcUrl: string;
@@ -19,8 +20,9 @@ export const namadaExtensionConnectedAtom = atom<boolean>(
 );
 
 export const namadilloSettingsAtom = atomWithStorage<SettingsStorage>(
-  "namadillo:settings:v0.1",
+  "namadillo:settings",
   {
+    version: "0.1",
     fiat: "usd",
     hideBalances: false,
     rpcUrl: process.env.NAMADA_INTERFACE_NAMADA_URL || "",
