@@ -2,17 +2,12 @@ import { Account } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { shouldUpdateBalanceAtom } from "slices/etc";
-import { namadaExtensionConnectedAtom } from "slices/settings";
+import { namadaExtensionConnectedAtom, nativeTokenAtom } from "slices/settings";
 import {
   fetchAccountBalance,
   fetchAccounts,
   fetchDefaultAccount,
 } from "./services";
-
-const {
-  NAMADA_INTERFACE_NAMADA_TOKEN:
-    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
-} = process.env;
 
 export const accountsAtom = atomWithQuery<readonly Account[]>((get) => {
   const isExtensionConnected = get(namadaExtensionConnectedAtom);
@@ -34,6 +29,7 @@ export const defaultAccountAtom = atomWithQuery<Account | undefined>((get) => {
 
 export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
   const defaultAccount = get(defaultAccountAtom);
+  const tokenAddress = get(nativeTokenAtom);
   const enablePolling = get(shouldUpdateBalanceAtom);
   return {
     enabled: !!tokenAddress && defaultAccount.isSuccess,
