@@ -104,7 +104,7 @@ export const AllValidatorsTable = ({
         {isConnected && (
           <ActionButton
             size="sm"
-            color="primary"
+            color="secondary"
             borderRadius="sm"
             onClick={() => navigate(StakingRoutes.incrementBonding().url)}
           >

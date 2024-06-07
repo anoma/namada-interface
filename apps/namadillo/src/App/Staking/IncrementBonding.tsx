@@ -5,6 +5,7 @@ import { ModalContainer } from "App/Common/ModalContainer";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { TransactionFees } from "App/Common/TransactionFees";
+import clsx from "clsx";
 import { useStakeModule } from "hooks/useStakeModule";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useValidatorSorting } from "hooks/useValidatorSorting";
@@ -12,6 +13,7 @@ import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
 import { TransactionPair, broadcastTx } from "lib/query";
 import { useEffect, useState } from "react";
+import { GoAlert } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { accountBalanceAtom, defaultAccountAtom } from "slices/accounts";
 import { GAS_LIMIT, minimumGasPriceAtom } from "slices/fees";
@@ -158,14 +160,23 @@ const IncrementBonding = (): JSX.Element => {
               updatedAmountInNam={totalNamAfterStaking}
               extraContent={
                 <>
-                  {totalNamAfterStaking.lt(GAS_LIMIT.multipliedBy(2)) && (
-                    <Alert
-                      type="warning"
-                      className="absolute py-3 right-2 top-4 max-w-[50%] text-xs rounded-sm"
-                    >
-                      We recommend leaving a small amount of NAM to cover fees
-                    </Alert>
-                  )}
+                  <Alert
+                    type="warning"
+                    className={clsx(
+                      "rounded-sm text-xs absolute",
+                      "py-3 right-2 top-4 max-w-[50%] w-[240px]"
+                    )}
+                  >
+                    <div className="flex items-center gap-3 text-xs">
+                      <i className="text-base">
+                        <GoAlert />
+                      </i>
+                      <p className="text-balance">
+                        Staking will lock and bind your assets to unbonding
+                        schedule
+                      </p>
+                    </div>
+                  </Alert>
                 </>
               }
             />
@@ -213,6 +224,7 @@ const IncrementBonding = (): JSX.Element => {
               size="sm"
               borderRadius="sm"
               className="mt-2 w-1/4 mx-auto"
+              color="secondary"
               disabled={
                 !!errorMessage || isPerformingBond || totalUpdatedAmount.eq(0)
               }

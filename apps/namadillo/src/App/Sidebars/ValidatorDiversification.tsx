@@ -7,7 +7,7 @@ export const ValidatorDiversification = (): JSX.Element => {
   return (
     <div
       className={clsx(
-        "flex flex-col items-center text-[18px] py-8 px-2 text-center text-yellow",
+        "flex flex-col items-center text-[18px] py-8 px-2 text-center text-cyan",
         "gap-7 leading-tight"
       )}
     >
@@ -15,6 +15,7 @@ export const ValidatorDiversification = (): JSX.Element => {
       <p>When staking consider diversifying Across multiple validators.</p>
       <ActionButton
         className="max-w-44"
+        color="secondary"
         href="https://namada.net"
         borderRadius="sm"
         size="xs"
