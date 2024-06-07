@@ -15,17 +15,18 @@ import StakingRoutes from "App/Staking/routes";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
-import { accountBalanceAtom, defaultAccountAtom } from "slices/accounts";
+import { accountBalanceAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
+import { namadaExtensionConnectedAtom } from "slices/settings";
 
 export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
   const chain = useAtomValue(chainAtom);
+  const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
 
-  const { data: account } = useAtomValue(defaultAccountAtom);
   const {
     data: totalBalance,
     isSuccess: balanceHasLoaded,
@@ -36,7 +37,6 @@ export const AccountOverview = (): JSX.Element => {
     currentExtensionAttachStatus === "attached" ||
     currentExtensionAttachStatus === "pending";
 
-  const isConnected = account !== undefined;
   const fullWidthClassName = clsx({ "col-span-2": !isConnected });
 
   return (

@@ -1,24 +1,17 @@
 import { useEventListenerOnce } from "@namada/hooks";
-import { Namada, useIntegration } from "@namada/integrations";
 import { Events } from "@namada/types";
 import { useAtomValue, useSetAtom } from "jotai";
 import { createContext } from "react";
 import { accountBalanceAtom, defaultAccountAtom } from "slices/accounts";
-import { namadaExtensionConnectedAtom } from "slices/settings";
-import { NamadaConnectionRevokedHandler } from "./handlers";
+import { namadaExtensionConnectionStatus } from "slices/settings";
 
 export const ExtensionEventsContext = createContext({});
 
 export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
-  const namadaIntegration = useIntegration("namada");
   const defaultAccount = useAtomValue(defaultAccountAtom);
   const balances = useAtomValue(accountBalanceAtom);
-  const setNamadaExtensionConnected = useSetAtom(namadaExtensionConnectedAtom);
-
-  // Instantiate handlers:
-  const namadaConnectionRevokedHandler = NamadaConnectionRevokedHandler(
-    namadaIntegration as Namada,
-    setNamadaExtensionConnected
+  const setNamadaExtensionConnected = useSetAtom(
+    namadaExtensionConnectionStatus
   );
 
   // Register handlers:
@@ -27,9 +20,8 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     balances.refetch();
   });
 
-  useEventListenerOnce(
-    Events.ConnectionRevoked,
-    namadaConnectionRevokedHandler
+  useEventListenerOnce(Events.ConnectionRevoked, () =>
+    setNamadaExtensionConnected("idle")
   );
 
   return (
