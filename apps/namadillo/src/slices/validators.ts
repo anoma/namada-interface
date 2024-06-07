@@ -113,7 +113,7 @@ export const myValidatorsAtom = atomWithQuery((get) => {
       ]);
 
       return toMyValidators(
-        bondsResponse.data,
+        bondsResponse.data.data,
         totalVotingPowerResponse.data,
         unbondingPeriod
       );
@@ -145,7 +145,7 @@ export const myUnbondsAtom = atomWithQuery<MyValidator[]>((get) => {
       ]);
 
       return toUnbondingValidators(
-        unbondsResponse.data,
+        unbondsResponse.data.data,
         totalVotingPowerResponse.data,
         unbondingPeriod
       );
