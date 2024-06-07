@@ -6,8 +6,8 @@ import {
   atomWithQuery,
 } from "jotai-tanstack-query";
 import { defaultAccountAtom } from "slices/accounts";
-import { chainAtom } from "./chain";
 import { shouldUpdateBalanceAtom } from "./etc";
+import { rpcUrlAtom } from "./settings";
 
 type Unique = {
   uuid: string;
@@ -52,8 +52,8 @@ const toValidator = (address: string): Validator => ({
 export const allValidatorsAtom = atomWithQuery((get) => ({
   queryKey: ["all-validators"],
   queryFn: async () => {
-    const { rpc } = get(chainAtom);
-    const query = new Query(rpc);
+    const rpcUrl = get(rpcUrlAtom);
+    const query = new Query(rpcUrl);
     const queryResult =
       (await query.query_all_validator_addresses()) as string[];
     return queryResult.map(toValidator);
@@ -72,8 +72,8 @@ export const myValidatorsAtom = atomWithQuery((get) => {
     enabled: account.isSuccess,
     refetchInterval: enablePolling ? 1000 : false,
     queryFn: async (): Promise<MyValidator[]> => {
-      const { rpc } = get(chainAtom);
-      const query = new Query(rpc);
+      const rpcUrl = get(rpcUrlAtom);
+      const query = new Query(rpcUrl);
       const myValidatorsRes = await query.query_my_validators([
         account.data?.address,
       ]);

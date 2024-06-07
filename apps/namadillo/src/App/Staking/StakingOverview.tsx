@@ -4,8 +4,6 @@ import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification";
 import { YourStakingDistribution } from "App/Sidebars/YourStakingDistribution";
 import { useAtomValue } from "jotai";
-import { useEffect } from "react";
-import { defaultAccountAtom } from "slices/accounts";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import {
   myValidatorsAtom,
@@ -25,7 +23,6 @@ import { UnbondingAmountsTable } from "./UnbondingAmountsTable";
 // * user can also navigate to sibling view for validator details
 export const StakingOverview = (): JSX.Element => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
-  const { data: account } = useAtomValue(defaultAccountAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
   const unbondedAmounts = useAtomValue(unbondedAmountByAddressAtom);
   const stakedByAddress = useAtomValue(stakedAmountByAddressAtom);
@@ -33,12 +30,6 @@ export const StakingOverview = (): JSX.Element => {
     stakedByAddress.isSuccess && Object.keys(stakedByAddress.data).length > 0;
   const hasUnbonded =
     unbondedAmounts.isSuccess && Object.keys(unbondedAmounts.data).length > 0;
-
-  useEffect(() => {
-    if (isConnected && account) {
-      myValidators.refetch();
-    }
-  }, [isConnected, account]);
 
   return (
     <PageWithSidebar>

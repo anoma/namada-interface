@@ -5,7 +5,6 @@ import { TopNavigation } from "App/Common/TopNavigation";
 import { AnimatePresence } from "framer-motion";
 import { createBrowserHistory } from "history";
 import { useSmallScreen } from "hooks/useIsSmallScren";
-import { useOnChainChanged } from "hooks/useOnChainChanged";
 import { useOnNamadaExtensionAttached } from "hooks/useOnNamadaExtensionAttached";
 import { useTransactionCallback } from "hooks/useTransactionCallbacks";
 import { useTransactionNotifications } from "hooks/useTransactionNotifications";
@@ -19,7 +18,6 @@ export const history = createBrowserHistory({ window });
 
 export function App(): JSX.Element {
   useOnNamadaExtensionAttached();
-  useOnChainChanged();
   useTransactionNotifications();
   useTransactionCallback();
 
