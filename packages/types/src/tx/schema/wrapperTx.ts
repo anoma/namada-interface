@@ -24,9 +24,6 @@ export class WrapperTxMsgValue {
   disposableSigningKey?: boolean;
 
   @field({ type: option("string") })
-  feeUnshield?: string;
-
-  @field({ type: option("string") })
   memo?: string;
 
   constructor(data: WrapperTxProps) {

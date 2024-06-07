@@ -4,7 +4,7 @@ import {
   IbcTransferMsgValue,
   RedelegateMsgValue,
   SignatureMsgValue,
-  TransferMsgValue,
+  TransparentTransferMsgValue,
   UnbondMsgValue,
   VoteProposalMsgValue,
   WithdrawMsgValue,
@@ -16,7 +16,7 @@ export type BondProps = BondMsgValue;
 export type UnbondProps = UnbondMsgValue;
 export type WithdrawProps = WithdrawMsgValue;
 export type RedelegateProps = RedelegateMsgValue;
-export type TransferProps = TransferMsgValue;
+export type TransparentTransferProps = TransparentTransferMsgValue;
 export type EthBridgeTransferProps = EthBridgeTransferMsgValue;
 export type SignatureProps = SignatureMsgValue;
 export type VoteProposalProps = VoteProposalMsgValue;

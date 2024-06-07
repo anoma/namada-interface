@@ -1,10 +1,12 @@
 use js_sys::Uint8Array;
 use namada::address::Address;
 use namada::core::borsh::BorshSerialize;
+use namada::core::collections::{HashMap, HashSet};
 use namada::eth_bridge_pool::TransferToEthereum;
 use namada::governance::storage::keys as governance_storage;
-use namada::governance::utils::{compute_proposal_result, ProposalVotes,
-                                VotePower, TallyType, TallyResult};
+use namada::governance::utils::{
+    compute_proposal_result, ProposalVotes, TallyResult, TallyType, VotePower,
+};
 use namada::governance::{ProposalType, ProposalVote};
 use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
 use namada::ledger::parameters::storage;
@@ -18,14 +20,13 @@ use namada::sdk::masp_primitives::transaction::components::ValueSum;
 use namada::sdk::masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::sdk::rpc::{
     format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
-    query_epoch, query_native_token, query_proposal_by_id, query_proposal_votes,
-    query_storage_value, is_steward
+    is_steward, query_epoch, query_masp_epoch, query_native_token, query_proposal_by_id,
+    query_proposal_votes, query_storage_value,
 };
 use namada::token;
 use namada::uint::I256;
-use std::collections::{BTreeMap};
+use std::collections::BTreeMap;
 use std::str::FromStr;
-use namada::core::collections::{HashSet, HashMap};
 use wasm_bindgen::prelude::*;
 
 use crate::rpc_client::HttpClient;
@@ -310,7 +311,7 @@ impl Query {
         let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
         shielded.load().await?;
 
-        let epoch = query_epoch(&self.client).await?;
+        let epoch = query_masp_epoch(&self.client).await?;
         let balance = shielded
             .compute_exchanged_balance(&self.client, &WebIo, &viewing_key, epoch)
             .await?;
@@ -393,13 +394,8 @@ impl Query {
         to_js_result(result)
     }
 
-    pub async fn query_total_staked_tokens(
-        &self,
-        epoch: u64
-    ) -> Result<JsValue, JsError> {
-        let total_staked_tokens =
-            get_total_staked_tokens(&self.client, Epoch(epoch))
-                .await?;
+    pub async fn query_total_staked_tokens(&self, epoch: u64) -> Result<JsValue, JsError> {
+        let total_staked_tokens = get_total_staked_tokens(&self.client, Epoch(epoch)).await?;
 
         to_js_result(total_staked_tokens)
     }
@@ -427,20 +423,16 @@ impl Query {
         let tally_type_string = match tally_type {
             TallyType::TwoThirds => "two-thirds",
             TallyType::OneHalfOverOneThird => "one-half-over-one-third",
-            TallyType::LessOneHalfOverOneThirdNay => "less-one-half-over-one-third-nay"
+            TallyType::LessOneHalfOverOneThirdNay => "less-one-half-over-one-third-nay",
         };
 
         let (proposal_type, data) = match proposal.r#type {
-            ProposalType::Default => {
-                ("default", None)
-            },
-            ProposalType::DefaultWithWasm(hash) => {
-                ("default", Some(hash.to_string()))
-            },
+            ProposalType::Default => ("default", None),
+            ProposalType::DefaultWithWasm(hash) => ("default", Some(hash.to_string())),
             ProposalType::PGFSteward(data) => {
                 let data_string = serde_json::to_string(&data)?;
                 ("pgf_steward", Some(data_string))
-            },
+            }
             ProposalType::PGFPayment(data) => {
                 let data_string = serde_json::to_string(&data)?;
                 ("pgf_payment", Some(data_string))
@@ -456,7 +448,7 @@ impl Query {
             content,
             tally_type: String::from(tally_type_string),
             proposal_type: String::from(proposal_type),
-            data
+            data,
         };
 
         let mut writer = vec![];
@@ -468,9 +460,8 @@ impl Query {
     pub async fn query_proposal_votes(
         &self,
         proposal_id: u64,
-        epoch: u64
+        epoch: u64,
     ) -> Result<JsValue, JsError> {
-
         let votes = compute_proposal_votes(&self.client, proposal_id, Epoch(epoch)).await;
 
         //let result = query_proposal_votes(&self.client, id).await?;
@@ -492,43 +483,44 @@ impl Query {
         //    })
         //    .collect();
 
-        let validator_votes: Vec<(Address, String, token::Amount)> = Vec::from_iter(
-            votes.validators_vote.iter().map(|(address, vote)| {
+        let validator_votes: Vec<(Address, String, token::Amount)> =
+            Vec::from_iter(votes.validators_vote.iter().map(|(address, vote)| {
                 let vote = match vote {
                     ProposalVote::Yay => "yay",
                     ProposalVote::Nay => "nay",
                     ProposalVote::Abstain => "abstain",
                 };
 
-                let voting_power = votes.validator_voting_power.get(address)
+                let voting_power = votes
+                    .validator_voting_power
+                    .get(address)
                     .expect("validator has voting power entry")
                     .clone();
 
                 (address.clone(), String::from(vote), voting_power)
-            })
-        );
+            }));
 
         //let validator_voting_power: Vec<(Address, token::Amount)> =
         //    votes.validator_voting_power.into_iter().collect();
 
         let delegator_votes: Vec<(Address, String, Vec<(Address, token::Amount)>)> =
-            Vec::from_iter(
-                votes.delegators_vote.iter().map(|(address, vote)| {
-                    let vote = match vote {
-                        ProposalVote::Yay => "yay",
-                        ProposalVote::Nay => "nay",
-                        ProposalVote::Abstain => "abstain",
-                    };
+            Vec::from_iter(votes.delegators_vote.iter().map(|(address, vote)| {
+                let vote = match vote {
+                    ProposalVote::Yay => "yay",
+                    ProposalVote::Nay => "nay",
+                    ProposalVote::Abstain => "abstain",
+                };
 
-                    let voting_power = votes.delegator_voting_power.get(address)
-                        .expect("delegator has voting power entry")
-                        .clone()
-                        .into_iter()
-                        .collect();
+                let voting_power = votes
+                    .delegator_voting_power
+                    .get(address)
+                    .expect("delegator has voting power entry")
+                    .clone()
+                    .into_iter()
+                    .collect();
 
-                    (address.clone(), String::from(vote), voting_power)
-                })
-            );
+                (address.clone(), String::from(vote), voting_power)
+            }));
 
         //let validator_voting_power: Vec<(Address, Amount)> = Vec::from_iter(
         //    votes.validator_voting_power.iter().map(|(address, voting_power)| {
@@ -542,23 +534,19 @@ impl Query {
         //    })
         //);
 
-        to_js_result((
-            validator_votes,
-            delegator_votes
-        ))
+        to_js_result((validator_votes, delegator_votes))
     }
 
     pub async fn query_proposal_result(
         &self,
         proposal_id: u64,
-        epoch: u64
+        epoch: u64,
     ) -> Result<JsValue, JsError> {
         let epoch = Epoch(epoch);
 
         let votes = compute_proposal_votes(&self.client, proposal_id, epoch).await;
 
-        let total_voting_power =
-            get_total_staked_tokens(&self.client, epoch).await?;
+        let total_voting_power = get_total_staked_tokens(&self.client, epoch).await?;
 
         let proposal = query_proposal_by_id(&self.client, proposal_id)
             .await
@@ -567,9 +555,8 @@ impl Query {
         let is_steward = is_steward(&self.client, &proposal.author).await;
         let tally_type = proposal.get_tally_type(is_steward);
 
-        let proposal_result =
-            compute_proposal_result(votes, total_voting_power, tally_type)
-              .expect("could compute proposal result");
+        let proposal_result = compute_proposal_result(votes, total_voting_power, tally_type)
+            .expect("could compute proposal result");
 
         let passed = match proposal_result.result {
             TallyResult::Passed => true,
@@ -586,12 +573,9 @@ impl Query {
     }
 
     pub async fn query_proposal_code(&self, proposal_id: u64) -> Result<Uint8Array, JsError> {
-        let proposal_code_key =
-            governance_storage::get_proposal_code_key(proposal_id);
-        let code = query_storage_value::<HttpClient, Vec<u8>>(
-            &self.client,
-            &proposal_code_key
-        ).await?;
+        let proposal_code_key = governance_storage::get_proposal_code_key(proposal_id);
+        let code =
+            query_storage_value::<HttpClient, Vec<u8>>(&self.client, &proposal_code_key).await?;
 
         Ok(Uint8Array::from(code.as_slice()))
     }
@@ -757,20 +741,13 @@ pub async fn compute_proposal_votes(
     proposal_id: u64,
     epoch: Epoch,
 ) -> ProposalVotes {
-    let votes = query_proposal_votes(client, proposal_id)
-        .await
-        .unwrap();
+    let votes = query_proposal_votes(client, proposal_id).await.unwrap();
 
-    let mut validators_vote: HashMap<Address, ProposalVote> =
+    let mut validators_vote: HashMap<Address, ProposalVote> = HashMap::default();
+    let mut validator_voting_power: HashMap<Address, VotePower> = HashMap::default();
+    let mut delegators_vote: HashMap<Address, ProposalVote> = HashMap::default();
+    let mut delegator_voting_power: HashMap<Address, HashMap<Address, VotePower>> =
         HashMap::default();
-    let mut validator_voting_power: HashMap<Address, VotePower> =
-        HashMap::default();
-    let mut delegators_vote: HashMap<Address, ProposalVote> =
-        HashMap::default();
-    let mut delegator_voting_power: HashMap<
-        Address,
-        HashMap<Address, VotePower>,
-    > = HashMap::default();
 
     for vote in votes {
         if vote.is_validator() {
@@ -792,11 +769,11 @@ pub async fn compute_proposal_votes(
                 .await
                 .expect("Delegator stake should be present");
 
-             delegators_vote.insert(vote.delegator.clone(), vote.data);
-             delegator_voting_power
-                 .entry(vote.delegator.clone())
-                 .or_default()
-                 .insert(vote.validator, delegator_stake);
+            delegators_vote.insert(vote.delegator.clone(), vote.data);
+            delegator_voting_power
+                .entry(vote.delegator.clone())
+                .or_default()
+                .insert(vote.validator, delegator_stake);
         }
     }
 

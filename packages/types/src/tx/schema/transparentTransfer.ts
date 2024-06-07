@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import BigNumber from "bignumber.js";
 import { field } from "@dao-xyz/borsh";
+import BigNumber from "bignumber.js";
+import { TransparentTransferProps } from "../types";
 import { BigNumberSerializer } from "./utils";
-import { TransferProps } from "../types";
 
-export class TransferMsgValue {
+export class TransparentTransferMsgValue {
   @field({ type: "string" })
   source!: string;
 
@@ -20,7 +20,7 @@ export class TransferMsgValue {
   @field({ type: "string" })
   nativeToken!: string;
 
-  constructor(data: TransferProps) {
+  constructor(data: TransparentTransferProps) {
     Object.assign(this, data);
   }
 }

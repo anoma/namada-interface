@@ -11,7 +11,7 @@
 - [IBCTransfer](TxType.md#ibctransfer)
 - [Redelegate](TxType.md#redelegate)
 - [RevealPK](TxType.md#revealpk)
-- [Transfer](TxType.md#transfer)
+- [TransparentTransfer](TxType.md#transparenttransfer)
 - [Unbond](TxType.md#unbond)
 - [VoteProposal](TxType.md#voteproposal)
 - [Withdraw](TxType.md#withdraw)
@@ -68,9 +68,9 @@ shared/src/shared/shared.d.ts:23
 
 ___
 
-### Transfer
+### TransparentTransfer
 
-• **Transfer** = ``4``
+• **TransparentTransfer** = ``4``
 
 #### Defined in
 
