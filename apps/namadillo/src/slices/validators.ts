@@ -1,6 +1,7 @@
 import {
   DefaultApi,
   Bond as IndexerBond,
+  Unbond as IndexerUnbond,
   Validator as IndexerValidator,
   VotingPower as IndexerVotingPower,
 } from "@anomaorg/namada-indexer-client";

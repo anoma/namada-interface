@@ -34,6 +34,9 @@ export type StoredProposal = Pick<
   | "startEpoch"
   | "endEpoch"
   | "activationEpoch"
+  | "startTime"
+  | "endTime"
+  | "currentTime"
   | "proposalType"
   | "tallyType"
 > &
@@ -58,6 +61,9 @@ export const proposalFamilyPersist = atomFamily((id: bigint) =>
             startEpoch,
             endEpoch,
             activationEpoch,
+            startTime,
+            endTime,
+            currentTime,
             proposalType,
             tallyType,
             status,
@@ -80,6 +86,9 @@ export const proposalFamilyPersist = atomFamily((id: bigint) =>
             startEpoch,
             endEpoch,
             activationEpoch,
+            startTime,
+            endTime,
+            currentTime,
             proposalType,
             tallyType,
             ...finishedProposalProps,
