@@ -19,7 +19,7 @@ use namada::sdk::rpc::query_epoch;
 use namada::sdk::signing::SigningTxData;
 use namada::sdk::tx::build_redelegation;
 use namada::sdk::tx::{
-    build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond,
+    build_bond, build_ibc_transfer, build_reveal_pk, build_transparent_transfer, build_unbond,
     build_vote_proposal, build_withdraw, is_reveal_pk_needed, process_tx,
 };
 use namada::sdk::wallet::{Store, Wallet};
@@ -38,7 +38,7 @@ pub enum TxType {
     Bond = 1,
     Unbond = 2,
     Withdraw = 3,
-    Transfer = 4,
+    TransparentTransfer = 4,
     IBCTransfer = 5,
     EthBridgeTransfer = 6,
     RevealPK = 7,
@@ -278,8 +278,8 @@ impl Sdk {
                 self.build_withdraw(specific_msg, tx_msg, Some(gas_payer))
                     .await?
             }
-            TxType::Transfer => {
-                self.build_transfer(specific_msg, tx_msg, Some(gas_payer))
+            TxType::TransparentTransfer => {
+                self.build_transparent_transfer(specific_msg, tx_msg, Some(gas_payer))
                     .await?
             }
             TxType::IBCTransfer => {
@@ -336,39 +336,14 @@ impl Sdk {
         to_js_result(borsh::to_vec(&tx)?)
     }
 
-    pub async fn build_transfer(
+    pub async fn build_transparent_transfer(
         &self,
         transfer_msg: &[u8],
         tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let mut args = tx::transfer_tx_args(transfer_msg, tx_msg)?;
-
-        // TODO: this might not be needed. I will test it out in future
-        // match args.source {
-        //     TransferSource::Address(_) => {}
-        //     TransferSource::ExtendedSpendingKey(xsk) => {
-        //         self.namada
-        //             .shielded_mut()
-        //             .await
-        //             .fetch(
-        //                 self.namada.client(),
-        //                 &DefaultLogger::new(&WebIo),
-        //                 None,
-        //                 None,
-        //                 1,
-        //                 &[xsk.into()],
-        //                 &[],
-        //             )
-        //             .await?;
-        //
-        //         // It's temporary solution to add xsk to wallet as xvk is queried when unshielding
-        //         // This will change in namada in the future
-        //         self.add_spending_key(xsk.to_string(), "temp".to_string())
-        //             .await;
-        //     }
-        // }
-        let (tx, signing_data, _) = build_transfer(&self.namada, &mut args).await?;
+        let mut args = tx::transparent_transfer_tx_args(transfer_msg, tx_msg)?;
+        let (tx, signing_data) = build_transparent_transfer(&self.namada, &mut args).await?;
 
         Ok(BuiltTx { tx, signing_data })
     }

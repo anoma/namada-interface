@@ -36,7 +36,7 @@ describe("Tx", () => {
       publicKey: account1.publicKey,
     };
 
-    const transferProps = {
+    const transparentTransferProps = {
       source: account1.address,
       token: nativeToken,
       target: account2.address,
@@ -44,7 +44,10 @@ describe("Tx", () => {
       amount: BigNumber(123),
     };
 
-    const encodedTx = await tx.buildTransfer(txProps, transferProps);
+    const encodedTx = await tx.buildTransparentTransfer(
+      txProps,
+      transparentTransferProps
+    );
     expect(encodedTx).toBeDefined();
 
     const txBytes = encodedTx.toBytes();

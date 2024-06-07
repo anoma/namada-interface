@@ -27,7 +27,7 @@ export const submitTransfer = async (
     chainId,
     publicKey,
   };
-  const transferMsgValue = {
+  const transparentTransferMsgValue = {
     source,
     target,
     token: nativeToken,
@@ -43,9 +43,9 @@ export const submitTransfer = async (
     await sdk.tx.revealPk(signingKey, wrapperTxMsgValue);
 
     console.log("Building transfer transaction...");
-    const encodedTx = await sdk.tx.buildTransfer(
+    const encodedTx = await sdk.tx.buildTransparentTransfer(
       wrapperTxMsgValue,
-      transferMsgValue
+      transparentTransferMsgValue
     );
 
     console.log("Signing transaction...");

@@ -10,8 +10,8 @@ import {
   RedelegateMsgValue,
   RedelegateProps,
   SignatureMsgValue,
-  TransferMsgValue,
-  TransferProps,
+  TransparentTransferMsgValue,
+  TransparentTransferProps,
   UnbondMsgValue,
   UnbondProps,
   VoteProposalMsgValue,
@@ -31,7 +31,7 @@ export class Tx {
   /**
    * @param sdk - Instance of Sdk struct from wasm lib
    */
-  constructor(protected readonly sdk: SdkWasm) {}
+  constructor(protected readonly sdk: SdkWasm) { }
 
   /**
    * Build a transaction
@@ -104,10 +104,10 @@ export class Tx {
           throw new Error("For RevealPK you must provide a public key!");
         }
         return await this.buildRevealPk(wrapperTxProps, publicKey);
-      case TxType.Transfer:
-        return await this.buildTransfer(
+      case TxType.TransparentTransfer:
+        return await this.buildTransparentTransfer(
           wrapperTxProps,
-          props as TransferProps,
+          props as TransparentTransferProps,
           gasPayer
         );
       case TxType.IBCTransfer:
@@ -141,20 +141,20 @@ export class Tx {
    * @param [gasPayer] - optional gas payer, if not provided, defaults to transferProps.source
    * @returns promise that resolves to an EncodedTx
    */
-  async buildTransfer(
+  async buildTransparentTransfer(
     wrapperTxProps: WrapperTxProps,
-    transferProps: TransferProps,
+    transferProps: TransparentTransferMsgValue,
     gasPayer?: string
   ): Promise<EncodedTx> {
-    const transferMsg = new Message<TransferMsgValue>();
+    const transferMsg = new Message<TransparentTransferMsgValue>();
 
     const encodedTx = this.encodeTxArgs(wrapperTxProps);
     const encodedTransfer = transferMsg.encode(
-      new TransferMsgValue(transferProps)
+      new TransparentTransferMsgValue(transferProps)
     );
 
     return await this.buildTxFromSerializedArgs(
-      TxType.Transfer,
+      TxType.TransparentTransfer,
       encodedTransfer,
       encodedTx,
       gasPayer || transferProps.source

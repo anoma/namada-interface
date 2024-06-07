@@ -10,7 +10,7 @@ use namada::{
     chain::ChainId,
     ethereum_events::EthAddress,
     key::common::PublicKey,
-    masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
+    masp::TransferSource,
     sdk::args::{self, InputAmount, TxExpiration},
     token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
 };
@@ -86,13 +86,12 @@ pub struct WrapperTxMsg {
     chain_id: String,
     public_key: Option<String>,
     disposable_signing_key: Option<bool>,
-    fee_unshield: Option<String>,
     memo: Option<String>,
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
-pub struct SubmitBondMsg {
+pub struct BondMsg {
     source: String,
     validator: String,
     amount: String,
@@ -111,9 +110,9 @@ pub struct SubmitBondMsg {
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
 pub fn bond_tx_args(bond_msg: &[u8], tx_msg: &[u8]) -> Result<args::Bond, JsError> {
-    let bond_msg = SubmitBondMsg::try_from_slice(bond_msg)?;
+    let bond_msg = BondMsg::try_from_slice(bond_msg)?;
 
-    let SubmitBondMsg {
+    let BondMsg {
         source,
         validator,
         native_token: _native_token,
@@ -138,7 +137,7 @@ pub fn bond_tx_args(bond_msg: &[u8], tx_msg: &[u8]) -> Result<args::Bond, JsErro
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
-pub struct SubmitUnbondMsg {
+pub struct UnbondMsg {
     source: String,
     validator: String,
     amount: String,
@@ -156,9 +155,9 @@ pub struct SubmitUnbondMsg {
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
 pub fn unbond_tx_args(unbond_msg: &[u8], tx_msg: &[u8]) -> Result<args::Unbond, JsError> {
-    let unbond_msg = SubmitUnbondMsg::try_from_slice(unbond_msg)?;
+    let unbond_msg = UnbondMsg::try_from_slice(unbond_msg)?;
 
-    let SubmitUnbondMsg {
+    let UnbondMsg {
         source,
         validator,
         amount,
@@ -183,7 +182,7 @@ pub fn unbond_tx_args(unbond_msg: &[u8], tx_msg: &[u8]) -> Result<args::Unbond, 
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
-pub struct SubmitWithdrawMsg {
+pub struct WithdrawMsg {
     source: String,
     validator: String,
 }
@@ -200,9 +199,9 @@ pub struct SubmitWithdrawMsg {
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
 pub fn withdraw_tx_args(withdraw_msg: &[u8], tx_msg: &[u8]) -> Result<args::Withdraw, JsError> {
-    let withdraw_msg = SubmitWithdrawMsg::try_from_slice(withdraw_msg)?;
+    let withdraw_msg = WithdrawMsg::try_from_slice(withdraw_msg)?;
 
-    let SubmitWithdrawMsg { source, validator } = withdraw_msg;
+    let WithdrawMsg { source, validator } = withdraw_msg;
 
     let source = Address::from_str(&source)?;
     let validator = Address::from_str(&validator)?;
@@ -220,7 +219,7 @@ pub fn withdraw_tx_args(withdraw_msg: &[u8], tx_msg: &[u8]) -> Result<args::With
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
-pub struct SubmitRedelegateMsg {
+pub struct RedelegateMsg {
     owner: String,
     source_validator: String,
     destination_validator: String,
@@ -242,9 +241,9 @@ pub fn redelegate_tx_args(
     redelegate_msg: &[u8],
     tx_msg: &[u8],
 ) -> Result<args::Redelegate, JsError> {
-    let redelegate_msg = SubmitRedelegateMsg::try_from_slice(redelegate_msg)?;
+    let redelegate_msg = RedelegateMsg::try_from_slice(redelegate_msg)?;
 
-    let SubmitRedelegateMsg {
+    let RedelegateMsg {
         owner,
         source_validator,
         destination_validator,
@@ -271,7 +270,7 @@ pub fn redelegate_tx_args(
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
-pub struct SubmitVoteProposalMsg {
+pub struct VoteProposalMsg {
     signer: String,
     proposal_id: u64,
     vote: String,
@@ -292,9 +291,9 @@ pub fn vote_proposal_tx_args(
     vote_proposal_msg: &[u8],
     tx_msg: &[u8],
 ) -> Result<args::VoteProposal, JsError> {
-    let vote_proposal_msg = SubmitVoteProposalMsg::try_from_slice(vote_proposal_msg)?;
+    let vote_proposal_msg = VoteProposalMsg::try_from_slice(vote_proposal_msg)?;
 
-    let SubmitVoteProposalMsg {
+    let VoteProposalMsg {
         signer,
         proposal_id,
         vote,
@@ -315,7 +314,7 @@ pub fn vote_proposal_tx_args(
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
-pub struct SubmitTransferMsg {
+pub struct TransparentTransferMsg {
     source: String,
     target: String,
     token: String,
@@ -334,9 +333,12 @@ pub struct SubmitTransferMsg {
 ///
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
-pub fn transfer_tx_args(transfer_msg: &[u8], tx_msg: &[u8]) -> Result<args::TxTransfer, JsError> {
-    let transfer_msg = SubmitTransferMsg::try_from_slice(transfer_msg)?;
-    let SubmitTransferMsg {
+pub fn transparent_transfer_tx_args(
+    transfer_msg: &[u8],
+    tx_msg: &[u8],
+) -> Result<args::TxTransparentTransfer, JsError> {
+    let transfer_msg = TransparentTransferMsg::try_from_slice(transfer_msg)?;
+    let TransparentTransferMsg {
         source,
         target,
         token,
@@ -344,34 +346,16 @@ pub fn transfer_tx_args(transfer_msg: &[u8], tx_msg: &[u8]) -> Result<args::TxTr
         native_token: _native_token,
     } = transfer_msg;
 
-    let source = match Address::from_str(&source) {
-        Ok(v) => Ok(TransferSource::Address(v)),
-        Err(e1) => match ExtendedSpendingKey::from_str(&source) {
-            Ok(v) => Ok(TransferSource::ExtendedSpendingKey(v)),
-            Err(e2) => Err(JsError::new(&format!(
-                "Can't compute the transfer source. {}, {}",
-                e1, e2
-            ))),
-        },
-    }?;
+    let source = Address::from_str(&source)?;
 
-    let target = match Address::from_str(&target) {
-        Ok(v) => Ok(TransferTarget::Address(v)),
-        Err(e1) => match PaymentAddress::from_str(&target) {
-            Ok(v) => Ok(TransferTarget::PaymentAddress(v)),
-            Err(e2) => Err(JsError::new(&format!(
-                "Can't compute the transfer target. {}, {}",
-                e1, e2
-            ))),
-        },
-    }?;
+    let target = Address::from_str(&target)?;
 
     let token = Address::from_str(&token)?;
     let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
     let amount = InputAmount::Unvalidated(denom_amount);
     let tx = tx_msg_into_args(tx_msg)?;
 
-    let args = args::TxTransfer {
+    let args = args::TxTransparentTransfer {
         tx,
         source,
         target,
@@ -385,7 +369,7 @@ pub fn transfer_tx_args(transfer_msg: &[u8], tx_msg: &[u8]) -> Result<args::TxTr
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
-pub struct SubmitIbcTransferMsg {
+pub struct IbcTransferMsg {
     source: String,
     receiver: String,
     token: String,
@@ -412,8 +396,8 @@ pub fn ibc_transfer_tx_args(
     ibc_transfer_msg: &[u8],
     tx_msg: &[u8],
 ) -> Result<args::TxIbcTransfer, JsError> {
-    let ibc_transfer_msg = SubmitIbcTransferMsg::try_from_slice(ibc_transfer_msg)?;
-    let SubmitIbcTransferMsg {
+    let ibc_transfer_msg = IbcTransferMsg::try_from_slice(ibc_transfer_msg)?;
+    let IbcTransferMsg {
         source,
         receiver,
         token,
@@ -454,7 +438,7 @@ pub fn ibc_transfer_tx_args(
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
-pub struct SubmitEthBridgeTransferMsg {
+pub struct EthBridgeTransferMsg {
     nut: bool,
     asset: String,
     recipient: String,
@@ -469,9 +453,8 @@ pub fn eth_bridge_transfer_tx_args(
     eth_bridge_transfer_msg: &[u8],
     tx_msg: &[u8],
 ) -> Result<args::EthereumBridgePool, JsError> {
-    let eth_bridge_transfer_msg =
-        SubmitEthBridgeTransferMsg::try_from_slice(eth_bridge_transfer_msg)?;
-    let SubmitEthBridgeTransferMsg {
+    let eth_bridge_transfer_msg = EthBridgeTransferMsg::try_from_slice(eth_bridge_transfer_msg)?;
+    let EthBridgeTransferMsg {
         nut,
         asset,
         recipient,
@@ -536,7 +519,6 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         chain_id,
         public_key,
         disposable_signing_key,
-        fee_unshield: _fee_unshield,
         memo,
     } = tx_msg;
 
@@ -559,15 +541,6 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         Some(v) => vec![v.clone()],
         _ => vec![],
     };
-
-    // Support for fee_unshield was removed in 0.36.0 of namada
-    // Keeping this as a reminder
-    // let fee_unshield = match fee_unshield {
-    //     Some(v) => Some(TransferSource::ExtendedSpendingKey(
-    //         ExtendedSpendingKey::from_str(&v)?
-    //     )),
-    //     _ => None,
-    // };
 
     // Ledger address is not used in the SDK.
     // We can leave it as whatever as long as it's valid url.
