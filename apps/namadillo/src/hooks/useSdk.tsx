@@ -1,18 +1,17 @@
 import initSdk from "@heliax/namada-sdk/inline-init";
 import { Sdk, getSdk } from "@heliax/namada-sdk/web";
+import { createStore } from "jotai";
 import { createContext, useContext, useEffect, useState } from "react";
-
-const {
-  NAMADA_INTERFACE_NAMADA_URL: rpcUrl = "http://localhost:27657",
-  NAMADA_INTERFACE_NAMADA_TOKEN:
-    token = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
-} = process.env;
+import { nativeTokenAtom, rpcUrlAtom } from "slices/settings";
 
 export const SdkContext = createContext<Sdk | null>(null);
 
 const initializeSdk = async (): Promise<Sdk> => {
   const { cryptoMemory } = await initSdk();
-  const sdk = getSdk(cryptoMemory, rpcUrl, "", token);
+  const store = createStore();
+  const rpcUrl = store.get(rpcUrlAtom);
+  const nativeToken = store.get(nativeTokenAtom);
+  const sdk = getSdk(cryptoMemory, rpcUrl, "", nativeToken);
   return sdk;
 };
 
