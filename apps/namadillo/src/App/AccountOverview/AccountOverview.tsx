@@ -43,7 +43,7 @@ export const AccountOverview = (): JSX.Element => {
     <PageWithSidebar footerClassName={fullWidthClassName}>
       <div
         className={clsx(
-          "flex items-center bg-rblack rounded-sm w-full",
+          "flex items-center bg-black rounded-sm w-full",
           fullWidthClassName
         )}
       >

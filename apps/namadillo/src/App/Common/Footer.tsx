@@ -5,7 +5,7 @@ export const Footer = ({ className, ...props }: FooterProps): JSX.Element => {
   return (
     <footer
       className={twMerge(
-        "flex items-center justify-center w-full h-[50px] bg-rblack rounded-sm",
+        "flex items-center justify-center w-full h-[50px] bg-black rounded-sm",
         className
       )}
       {...props}
