@@ -3,5 +3,5 @@
     "prettier --write",
     "eslint --rule 'no-console: [\"error\", { allow: [\"warn\", \"error\"] }]' --fix --max-warnings=0"
   ],
-  "*.{json}": ["prettier --write"]
+  "*.json": ["prettier --write"]
 }
