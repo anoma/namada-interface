@@ -1,4 +1,4 @@
-import { ActionButton, SegmentedBar, Stack } from "@namada/components";
+import { SegmentedBar, Stack } from "@namada/components";
 import BigNumber from "bignumber.js";
 import { GoInfo } from "react-icons/go";
 import GovernanceRoutes from "./routes";
@@ -29,11 +29,6 @@ const ProposalListItem: React.FC<{
         color: colors[voteType],
       }));
 
-  const onVote = (e: React.MouseEvent): void => {
-    e.stopPropagation();
-    navigate(GovernanceRoutes.submitVote(proposal.id).url);
-  };
-
   return (
     <Stack
       as="li"
@@ -54,22 +49,9 @@ const ProposalListItem: React.FC<{
         <div className="min-w-[6ch]">#{proposal.id.toString()}</div>
         <div className="flex-1">{proposal.content.title}</div>
         <TypeLabel proposalType={proposal.proposalType} color="dark" />
-        {typeof voted !== "undefined" && (
-          <div>
-            {voted ?
-              <VotedLabel className="text-[10px]" />
-            : <ActionButton
-                className="uppercase py-1.5"
-                size="xs"
-                color="white"
-                borderRadius="sm"
-                onClick={onVote}
-              >
-                Vote
-              </ActionButton>
-            }
-          </div>
-        )}
+        <div className="min-w-20">
+          {voted && <VotedLabel className="text-[10px] w-fit m-auto" />}
+        </div>
         <i
           className={clsx(
             "flex justify-center w-10 text-md text-center",
