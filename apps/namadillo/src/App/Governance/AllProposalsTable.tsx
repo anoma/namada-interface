@@ -26,7 +26,11 @@ const Table: React.FC<
     "Type",
     "Status",
     "",
-    { children: "Voting end on UTC", className: "text-right" },
+    {
+      children: "Voting end on UTC",
+      className: "text-right whitespace-nowrap rtl-grid",
+      dir: "rtl",
+    },
     "",
   ];
 
@@ -78,7 +82,17 @@ const Table: React.FC<
       headers={headers}
       itemList={props.proposalIds}
       renderRow={renderRow}
-      tableProps={{ className: "w-full text-xs [&_td]:px-2 [&_th]:px-2" }}
+      tableProps={{
+        className: clsx(
+          "w-full text-xs [&_td]:px-2 [&_th]:px-2 table-fixed",
+          "[&_th:nth-child(1)]:w-[10%]", // ID
+          "[&_th:nth-child(3)]:w-[20%]", // Type
+          "[&_th:nth-child(4)]:w-[15%]", // Status
+          "[&_th:nth-child(5)]:w-[5%]", // Voted
+          "[&_th:nth-child(6)]:w-[10%]", // Voting End
+          "[&_th:nth-child(7)]:w-[5%]" // Info button
+        ),
+      }}
       headProps={{ className: "text-xs" }}
       resultsPerPage={50}
     />
@@ -255,7 +269,11 @@ const useWithProposal = (
 type CellProps = { id: bigint };
 
 const Title: React.FC<CellProps> = ({ id }) =>
-  useWithProposal(id, (proposal) => <>{proposal.content.title}</>);
+  useWithProposal(id, (proposal) => (
+    <div className="w-full overflow-x-hidden whitespace-nowrap text-ellipsis">
+      {proposal.content.title}
+    </div>
+  ));
 
 const Type: React.FC<{ index: number } & CellProps> = ({ id, index }) =>
   useWithProposal(id, (proposal) => (
