@@ -21,12 +21,30 @@ export class Sdk {
    * @param nativeToken - Address of chain's native token
    */
   constructor(
-    protected readonly sdk: SdkWasm,
-    protected readonly query: QueryWasm,
+    protected sdk: SdkWasm,
+    protected query: QueryWasm,
     public readonly cryptoMemory: WebAssembly.Memory,
     public readonly url: string,
     public readonly nativeToken: string
   ) {}
+
+  /**
+   * Re-initialize wasm instances and return this instance
+   * @param url - RPC url
+   * @param [nativeToken] - Address of chain's native token
+   * @returns this instance of Sdk
+   */
+  updateNetwork(url: string, nativeToken?: string): Sdk {
+    const query = new QueryWasm(url);
+    this.query = query;
+
+    // Update nativeToken as well if provided
+    const sdk = new SdkWasm(url, nativeToken || this.nativeToken, "");
+    this.sdk = sdk;
+
+    return this;
+  }
+
   /**
    * Return initialized Rpc class
    * @returns Namada RPC client
