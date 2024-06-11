@@ -1,9 +1,5 @@
-import {
-  AccountType,
-  Chain,
-  DerivedAccount,
-  SignArbitraryResponse,
-} from "@namada/types";
+import { TxType } from "@heliax/namada-sdk/web";
+import { Chain, DerivedAccount, SignArbitraryResponse } from "@namada/types";
 import { Message } from "router";
 import { validateProps } from "utils";
 
@@ -161,15 +157,15 @@ export class ApproveSignTxMsg extends Message<Uint8Array[]> {
   }
 
   constructor(
-    public readonly accountType: AccountType,
-    public readonly signer: string,
-    public readonly tx: string[][]
+    public readonly txType: TxType,
+    public readonly tx: string[][],
+    public readonly signer: string
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["accountType", "signer", "tx"]);
+    validateProps(this, ["txType", "signer", "tx"]);
   }
 
   route(): string {

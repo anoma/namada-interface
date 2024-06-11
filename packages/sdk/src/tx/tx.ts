@@ -31,7 +31,7 @@ export class Tx {
   /**
    * @param sdk - Instance of Sdk struct from wasm lib
    */
-  constructor(protected readonly sdk: SdkWasm) {}
+  constructor(protected readonly sdk: SdkWasm) { }
 
   /**
    * Build a transaction
@@ -367,11 +367,12 @@ export class Tx {
 
   /**
    * Build a batched transaction
+   * @param txType - transaction type enum
    * @param txs - array of BuiltTx types
    * @returns a BatchTx type
    */
-  buildBatch(txs: BuiltTx[]): BatchTx {
-    return SdkWasm.build_batch(txs);
+  buildBatch(txType: TxType, txs: BuiltTx[]): BatchTx {
+    return SdkWasm.build_batch(txType, txs);
   }
 
   /**

@@ -1,8 +1,9 @@
-import { SupportedTx } from "@heliax/namada-sdk/web";
+import { SupportedTx, TxType } from "@heliax/namada-sdk/web";
 
 export type ApprovedOriginsStore = string[];
 
 export type PendingTx = {
+  txType: TxType;
   tx: {
     txBytes: Uint8Array;
     signingDataBytes: Uint8Array;
