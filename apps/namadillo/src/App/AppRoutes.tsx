@@ -22,6 +22,12 @@ export const MainRoutes = (): JSX.Element => {
   const location = useLocation();
   const state = location.state as { backgroundLocation?: Location };
 
+  // Avoid animation being fired twice when navigating inside settings modal routes
+  const settingsAnimationKey =
+    location.pathname.indexOf(SettingsRoutes.index()) > -1 ?
+      "settings-modal"
+    : location.pathname;
+
   return (
     <>
       <Routes location={state?.backgroundLocation || location}>
@@ -35,7 +41,7 @@ export const MainRoutes = (): JSX.Element => {
         </Route>
       </Routes>
       <AnimatePresence>
-        <Routes>
+        <Routes location={location} key={settingsAnimationKey}>
           <Route
             path={`${SettingsRoutes.index()}/*`}
             element={<SettingsPanel />}

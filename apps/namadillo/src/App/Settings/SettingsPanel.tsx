@@ -1,4 +1,5 @@
 import { Modal } from "@namada/components";
+import { ModalTransition } from "App/Common/ModalTransition";
 import clsx from "clsx";
 import { FaChevronLeft } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
@@ -31,7 +32,7 @@ export const SettingsPanel = (): JSX.Element => {
       onClose={onClose}
       className="left-auto right-4 top-2 translate-x-0 translate-y-0 p-5"
     >
-      <main
+      <ModalTransition
         className={clsx(
           "flex flex-col gap-8",
           "w-[400px] min-h-[700px] max-h-[80vh] rounded-md text-white",
@@ -63,7 +64,7 @@ export const SettingsPanel = (): JSX.Element => {
           />
           <Route path={`${SettingsRoutes.advanced()}`} element={<Advanced />} />
         </Routes>
-      </main>
+      </ModalTransition>
     </Modal>
   );
 };
