@@ -238,7 +238,7 @@ export function paramsToUrl(
 
 export const formatPercentage = (
   bigNumber: BigNumber,
-  decimalPlaces?: number
+  decimalPlaces: number = 2
 ): string => {
   const percentage = bigNumber.multipliedBy(100);
   const rounded =
