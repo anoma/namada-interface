@@ -17,11 +17,10 @@ use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::query_epoch;
 use namada::sdk::signing::SigningTxData;
-use namada::sdk::tx::build_batch;
-use namada::sdk::tx::build_redelegation;
 use namada::sdk::tx::{
-    build_bond, build_ibc_transfer, build_reveal_pk, build_transparent_transfer, build_unbond,
-    build_vote_proposal, build_withdraw, is_reveal_pk_needed, process_tx,
+    build_batch, build_bond, build_ibc_transfer, build_redelegation, build_reveal_pk,
+    build_transparent_transfer, build_unbond, build_vote_proposal, build_withdraw,
+    is_reveal_pk_needed, process_tx,
 };
 use namada::sdk::wallet::{Store, Wallet};
 use namada::sdk::{Namada, NamadaImpl};
@@ -78,6 +77,38 @@ impl BuiltTx {
         let signing_data: SigningTxData = signing_data.to_signing_tx_data()?;
 
         Ok(BuiltTx { tx, signing_data })
+    }
+}
+
+#[wasm_bindgen]
+pub struct BatchTx {
+    tx: Tx,
+    built_txs: Vec<BuiltTx>,
+}
+
+#[wasm_bindgen]
+impl BatchTx {
+    #[wasm_bindgen(constructor)]
+    pub fn new(tx_bytes: Vec<u8>, txs: Vec<BuiltTx>) -> Result<BatchTx, JsError> {
+        let tx: Tx = borsh::from_slice(&tx_bytes)?;
+        Ok(BatchTx { tx, built_txs: txs })
+    }
+
+    pub fn tx_bytes(&self) -> Result<Vec<u8>, JsError> {
+        Ok(borsh::to_vec(&self.tx)?)
+    }
+
+    // Hash of batch Tx
+    pub fn tx_hash(&self) -> String {
+        self.tx.raw_header_hash().to_string()
+    }
+
+    // Hashes for all batched Txs
+    pub fn tx_hashes(&self) -> Vec<String> {
+        self.built_txs
+            .iter()
+            .map(|tx| tx.tx.raw_header_hash().to_string())
+            .collect()
     }
 }
 
@@ -247,6 +278,42 @@ impl Sdk {
         to_js_result(borsh::to_vec(&tx)?)
     }
 
+    pub async fn sign_batch(
+        &self,
+        batch_tx: BatchTx,
+        private_key: Option<String>,
+        chain_id: Option<String>,
+    ) -> Result<JsValue, JsError> {
+        let mut tx: Tx = batch_tx.tx;
+
+        // If chain_id is provided, validate this against value in Tx header
+        if let Some(c) = chain_id {
+            if c != tx.header.chain_id.to_string() {
+                return Err(JsError::new(&format!(
+                    "chain_id {} does not match Tx header chain_id {}",
+                    &c,
+                    tx.header.chain_id.as_str()
+                )));
+            }
+        }
+
+        let signing_keys = match private_key.clone() {
+            Some(private_key) => vec![common::SecretKey::Ed25519(ed25519::SecretKey::from_str(
+                &private_key,
+            )?)],
+            // If no private key is provided, we assume masp source and return empty vec
+            None => vec![],
+        };
+
+        // The key is either passed private key for transparent sources or the disposable signing
+        // key for shielded sources
+        let key = signing_keys[0].clone();
+
+        // Sign the fee header
+        tx.sign_wrapper(key);
+        to_js_result(borsh::to_vec(&tx)?)
+    }
+
     // Broadcast Tx
     pub async fn process_tx(&self, tx_bytes: &[u8], tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
@@ -259,7 +326,7 @@ impl Sdk {
     }
 
     /// Build a batch Tx from built transactions and return the bytes
-    pub fn build_batch(built_txs: Vec<BuiltTx>) -> Result<JsValue, JsError> {
+    pub fn build_batch(built_txs: Vec<BuiltTx>) -> Result<BatchTx, JsError> {
         let mut txs: Vec<(Tx, SigningTxData)> = vec![];
         let mut tx_hashes: Vec<String> = vec![];
 
@@ -271,11 +338,14 @@ impl Sdk {
             txs.push((tx, built_tx.signing_data));
         }
 
-        let (batch_tx, _signing_data) = build_batch(txs)?;
-        let hash = batch_tx.raw_header_hash().to_string();
+        let (tx, _signing_data) = build_batch(txs.clone())?;
 
-        let tx = borsh::to_vec(&batch_tx)?;
-        to_js_result((hash, tx, tx_hashes))
+        let built_txs = txs
+            .into_iter()
+            .map(|(tx, signing_data)| BuiltTx { tx, signing_data })
+            .collect();
+
+        Ok(BatchTx { tx, built_txs })
     }
 
     /// Build transaction for specified type, return bytes to client

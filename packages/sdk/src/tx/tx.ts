@@ -1,4 +1,4 @@
-import { BuiltTx, Sdk as SdkWasm, TxType } from "@namada/shared";
+import { BatchTx, BuiltTx, Sdk as SdkWasm, TxType } from "@namada/shared";
 import {
   BondMsgValue,
   BondProps,
@@ -31,7 +31,7 @@ export class Tx {
   /**
    * @param sdk - Instance of Sdk struct from wasm lib
    */
-  constructor(protected readonly sdk: SdkWasm) { }
+  constructor(protected readonly sdk: SdkWasm) {}
 
   /**
    * Build a transaction
@@ -368,9 +368,9 @@ export class Tx {
   /**
    * Build a batched transaction
    * @param txs - array of BuiltTx types
-   * @returns a tuple of Tx hash, Uint8Array of bytes for broadcasting, and array of hashes of inner Txs
+   * @returns a BatchTx type
    */
-  buildBatch(txs: BuiltTx[]): [string, Uint8Array, string[]] {
+  buildBatch(txs: BuiltTx[]): BatchTx {
     return SdkWasm.build_batch(txs);
   }
 
