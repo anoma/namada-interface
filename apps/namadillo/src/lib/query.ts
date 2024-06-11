@@ -1,4 +1,3 @@
-import { DefaultApi } from "@anomaorg/namada-indexer-client";
 import { EncodedTx } from "@heliax/namada-sdk/web";
 import { getIntegration } from "@namada/integrations";
 import {
@@ -10,6 +9,7 @@ import {
 } from "@namada/types";
 import { getSdkInstance } from "hooks";
 import invariant from "invariant";
+import { getIndexerApi } from "slices/api";
 import { TransactionEventsClasses } from "types/events";
 import { GasConfig } from "types/fees";
 
@@ -84,7 +84,7 @@ export const buildTxArray = async <T>(
   const txArray: EncodedTxData<T>[] = [];
 
   // Determine if RevealPK is needed:
-  const api = new DefaultApi();
+  const api = getIndexerApi();
   const { publicKey } = (
     await api.apiV1RevealedPublicKeyAddressGet(account.address)
   ).data;

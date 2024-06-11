@@ -260,7 +260,8 @@ const ProgressBar: React.FC<{
       return loadingData;
     }
 
-    const { endTime, startTime, currentTime } = proposal.data;
+    const { endTime, startTime } = proposal.data;
+    const currentTime = BigInt(Math.round(Date.now() / 1000));
 
     const totalProgress = endTime - startTime;
     const currentProgress = currentTime - startTime;

@@ -1,7 +1,7 @@
-import { DefaultApi } from "@anomaorg/namada-indexer-client";
 import BigNumber from "bignumber.js";
 import invariant from "invariant";
 import { atomWithQuery } from "jotai-tanstack-query";
+import { indexerApiAtom } from "./api";
 import { nativeTokenAtom } from "./settings";
 
 // TODO: remove harcoding of gas limit
@@ -9,10 +9,11 @@ export const GAS_LIMIT = new BigNumber(20_000);
 
 export const minimumGasPriceAtom = atomWithQuery<BigNumber>((get) => {
   const nativeToken = get(nativeTokenAtom);
+  const api = get(indexerApiAtom);
+
   return {
     queryKey: ["minimum-gas-price", nativeToken],
     queryFn: async () => {
-      const api = new DefaultApi();
       const gasTableResponse = await api.apiV1GasTableGet();
 
       // TODO: Can nativeToken ever be undefined?

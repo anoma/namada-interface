@@ -1,5 +1,5 @@
-import { DefaultApi } from "@anomaorg/namada-indexer-client";
 import { atomWithQuery } from "jotai-tanstack-query";
+import { indexerApiAtom } from "./api";
 import { chainAtom } from "./chain";
 
 type ChainParameters = {
@@ -8,10 +8,11 @@ type ChainParameters = {
 
 export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
   const chain = get(chainAtom);
+  const api = get(indexerApiAtom);
+
   return {
-    queryKey: ["chain-parameters-" + chain.chainId],
+    queryKey: ["chain-parameters", chain.chainId],
     queryFn: async () => {
-      const api = new DefaultApi();
       const parametersResponse = await api.apiV1ChainParametersGet();
       const parameters = parametersResponse.data;
 

@@ -1,5 +1,4 @@
 import {
-  DefaultApi,
   Bond as IndexerBond,
   Unbond as IndexerUnbond,
   Validator as IndexerValidator,
@@ -12,6 +11,7 @@ import {
   atomWithQuery,
 } from "jotai-tanstack-query";
 import { defaultAccountAtom } from "slices/accounts";
+import { indexerApiAtom } from "./api";
 import { chainParametersAtom } from "./chainParameters";
 import { shouldUpdateBalanceAtom } from "./etc";
 
@@ -63,26 +63,36 @@ const toValidator = (
   };
 };
 
+export const votingPowerAtom = atomWithQuery((get) => {
+  const api = get(indexerApiAtom);
+
+  return {
+    queryKey: ["voting-power"],
+    queryFn: async () => {
+      const response = await api.apiV1PosVotingPowerGet();
+      return response.data;
+    },
+  };
+});
+
 export const allValidatorsAtom = atomWithQuery((get) => {
   const chainParameters = get(chainParametersAtom);
+  const votingPower = get(votingPowerAtom);
+  const api = get(indexerApiAtom);
+
   return {
-    queryKey: ["all-validators", chainParameters.dataUpdatedAt],
-    enabled: !!chainParameters,
+    queryKey: ["all-validators"],
+    enabled: chainParameters.isSuccess && votingPower.isSuccess,
     queryFn: async () => {
       const parameters =
         chainParameters.data?.unbondingPeriodInDays || BigInt(0);
 
-      const api = new DefaultApi();
-      const [validatorsResponse, votingPowerResponse] = await Promise.all([
-        api.apiV1PosValidatorGet(),
-        api.apiV1PosVotingPowerGet(),
-      ]);
-
+      const validatorsResponse = await api.apiV1PosValidatorGet();
       // TODO: rename one data to items?
       const validators = validatorsResponse.data.data;
-      const votingPower = votingPowerResponse.data;
+      const vp = votingPower.data!;
 
-      return validators.map((v) => toValidator(v, votingPower, parameters));
+      return validators.map((v) => toValidator(v, vp, parameters));
     },
   };
 });
@@ -91,33 +101,26 @@ export const allValidatorsAtom = atomWithQuery((get) => {
 export const myValidatorsAtom = atomWithQuery((get) => {
   const account = get(defaultAccountAtom);
   const chainParameters = get(chainParametersAtom);
+  const votingPower = get(votingPowerAtom);
+  const api = get(indexerApiAtom);
 
   // TODO: Refactor after this event subscription is enabled in the indexer
   const enablePolling = get(shouldUpdateBalanceAtom);
 
   return {
-    queryKey: [
-      "my-validators",
-      account.data?.address,
-      chainParameters.dataUpdatedAt,
-    ],
-    enabled: account.isSuccess,
+    queryKey: ["my-validators", account.data?.address],
+    enabled:
+      account.isSuccess && chainParameters.isSuccess && votingPower.isSuccess,
     refetchInterval: enablePolling ? 1000 : false,
     queryFn: async (): Promise<MyValidator[]> => {
-      const unbondingPeriod =
-        chainParameters.data?.unbondingPeriodInDays || BigInt(0);
-      const api = new DefaultApi();
-      const [bondsResponse, totalVotingPowerResponse] = await Promise.all([
-        // TODO: is address always available?
-        api.apiV1PosBondAddressGet(account.data!.address!),
-        api.apiV1PosVotingPowerGet(),
-      ]);
+      const unbondingPeriod = chainParameters.data!.unbondingPeriodInDays;
+      const vp = votingPower.data!;
 
-      return toMyValidators(
-        bondsResponse.data.data,
-        totalVotingPowerResponse.data,
-        unbondingPeriod
+      const bondsResponse = await api.apiV1PosBondAddressGet(
+        account.data!.address
       );
+
+      return toMyValidators(bondsResponse.data.data, vp, unbondingPeriod);
     },
   };
 });
@@ -125,29 +128,26 @@ export const myValidatorsAtom = atomWithQuery((get) => {
 export const myUnbondsAtom = atomWithQuery<MyValidator[]>((get) => {
   const chainParameters = get(chainParametersAtom);
   const account = get(defaultAccountAtom);
+  const votingPower = get(votingPowerAtom);
+  const api = get(indexerApiAtom);
 
   // TODO: Refactor after this event subscription is enabled in the indexer
   const enablePolling = get(shouldUpdateBalanceAtom);
   return {
+    queryKey: ["my-unbonds", account.data?.address],
+    enabled:
+      account.isSuccess && chainParameters.isSuccess && votingPower.isSuccess,
     refetchInterval: enablePolling ? 1000 : false,
-    queryKey: [
-      "my-unbonds",
-      account.data?.address,
-      chainParameters.dataUpdatedAt,
-    ],
     queryFn: async () => {
-      const unbondingPeriod =
-        chainParameters.data?.unbondingPeriodInDays || BigInt(0);
-      const api = new DefaultApi();
-      const [unbondsResponse, totalVotingPowerResponse] = await Promise.all([
-        // TODO: is address always available?
-        api.apiV1PosUnbondAddressGet(account.data!.address!),
-        api.apiV1PosVotingPowerGet(),
-      ]);
+      const unbondingPeriod = chainParameters.data!.unbondingPeriodInDays;
+      const vp = votingPower.data!;
+      const unbondsResponse = await api.apiV1PosUnbondAddressGet(
+        account.data!.address
+      );
 
       return toUnbondingValidators(
         unbondsResponse.data.data,
-        totalVotingPowerResponse.data,
+        vp,
         unbondingPeriod
       );
     },

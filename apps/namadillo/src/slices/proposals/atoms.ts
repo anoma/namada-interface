@@ -17,13 +17,18 @@ import {
   performVote,
 } from "./functions";
 
+import { indexerApiAtom } from "slices/api";
 import { queryClient } from "store";
 
 export const proposalFamily = atomFamily((id: bigint) =>
-  atomWithQuery(() => ({
-    queryKey: ["proposal", id.toString()],
-    queryFn: () => fetchProposalById(id),
-  }))
+  atomWithQuery((get) => {
+    const api = get(indexerApiAtom);
+
+    return {
+      queryKey: ["proposal", id.toString()],
+      queryFn: () => fetchProposalById(api, id),
+    };
+  })
 );
 
 export type StoredProposal = Pick<
@@ -36,7 +41,6 @@ export type StoredProposal = Pick<
   | "activationEpoch"
   | "startTime"
   | "endTime"
-  | "currentTime"
   | "proposalType"
   | "tallyType"
 > &
@@ -63,7 +67,6 @@ export const proposalFamilyPersist = atomFamily((id: bigint) =>
             activationEpoch,
             startTime,
             endTime,
-            currentTime,
             proposalType,
             tallyType,
             status,
@@ -88,7 +91,6 @@ export const proposalFamilyPersist = atomFamily((id: bigint) =>
             activationEpoch,
             startTime,
             endTime,
-            currentTime,
             proposalType,
             tallyType,
             ...finishedProposalProps,
@@ -104,22 +106,28 @@ export const proposalFamilyPersist = atomFamily((id: bigint) =>
 
 export const proposalVotedFamily = atomFamily((id: bigint) => {
   const account = useAtomValue(defaultAccountAtom);
-  return atomWithQuery(() => ({
-    queryKey: ["proposal-voted", id.toString()],
-    enabled: account.isSuccess,
-    queryFn: async () => {
-      if (typeof account.data === "undefined") {
-        throw new Error("no account found");
-      }
-      return await fetchProposalVoted(id, account.data);
-    },
-  }));
+  return atomWithQuery((get) => {
+    const api = get(indexerApiAtom);
+    return {
+      queryKey: ["proposal-voted", id.toString()],
+      enabled: account.isSuccess,
+      queryFn: async () => {
+        if (typeof account.data === "undefined") {
+          throw new Error("no account found");
+        }
+        return await fetchProposalVoted(api, id, account.data);
+      },
+    };
+  });
 });
 
-export const allProposalsAtom = atomWithQuery(() => ({
-  queryKey: ["all-proposals"],
-  queryFn: () => fetchAllProposals(),
-}));
+export const allProposalsAtom = atomWithQuery((get) => {
+  const api = get(indexerApiAtom);
+  return {
+    queryKey: ["all-proposals"],
+    queryFn: () => fetchAllProposals(api),
+  };
+});
 
 // TODO: this is a bad way to filter/search
 export const allProposalsFamily = atomFamily(
@@ -128,21 +136,27 @@ export const allProposalsFamily = atomFamily(
     type?: ProposalTypeString;
     search?: string;
   }) =>
-    atomWithQuery(() => ({
-      queryKey: [
-        "all-proposals",
-        options?.status,
-        options?.type,
-        options?.search,
-      ],
-      queryFn: () => fetchAllProposals(),
-    })),
+    atomWithQuery((get) => {
+      const api = get(indexerApiAtom);
+
+      return {
+        queryKey: [
+          "all-proposals",
+          options?.status,
+          options?.type,
+          options?.search,
+        ],
+        queryFn: () => fetchAllProposals(api),
+      };
+    }),
   (a, b) =>
     a?.status === b?.status && a?.type === b?.type && a?.search === b?.search
 );
 
 export const votedProposalIdsAtom = atomWithQuery((get) => {
   const account = get(defaultAccountAtom);
+  const api = get(indexerApiAtom);
+
   return {
     queryKey: ["voted-proposal-ids"],
     enabled: account.isSuccess,
@@ -150,7 +164,7 @@ export const votedProposalIdsAtom = atomWithQuery((get) => {
       if (typeof account.data === "undefined") {
         throw new Error("no account found");
       }
-      return await fetchVotedProposalIds(get(chainAtom), account.data);
+      return await fetchVotedProposalIds(api, account.data);
     },
   };
 });
@@ -161,6 +175,8 @@ type PerformVoteArgs = {
 };
 export const performVoteAtom = atomWithMutation((get) => {
   const account = get(defaultAccountAtom);
+  const api = get(indexerApiAtom);
+
   return {
     enabled: account.isSuccess,
     mutationKey: ["voting"],
@@ -169,7 +185,7 @@ export const performVoteAtom = atomWithMutation((get) => {
       if (typeof account.data === "undefined") {
         throw new Error("no account");
       }
-      performVote(proposalId, vote, account.data, chain);
+      performVote(api, proposalId, vote, account.data, chain);
     },
   };
 });

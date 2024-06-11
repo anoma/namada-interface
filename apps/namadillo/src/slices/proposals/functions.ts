@@ -196,19 +196,18 @@ const toProposal = (
   proposal: IndexerProposal,
   votingPower: IndexerVotingPower
 ): Proposal => {
-  let content;
-  // We have to handle the case where the content is just a string
-  try {
-    content = JSON.parse(proposal.content);
-  } catch (e) {
-    // TODO: do we need to escape the string? I think react does it for us
-    content = proposal.content;
+  const ContentSchema = t.record(t.string, t.union([t.string, t.undefined]));
+  const content = JSON.parse(proposal.content);
+  const contentDecoded = ContentSchema.decode(content);
+
+  if (E.isLeft(contentDecoded)) {
+    throw new Error("content is not valid");
   }
 
   return {
     id: BigInt(proposal.id),
     author: proposal.author,
-    content,
+    content: contentDecoded.right,
     startEpoch: BigInt(proposal.startEpoch),
     endEpoch: BigInt(proposal.endEpoch),
     activationEpoch: BigInt(proposal.activationEpoch),
@@ -225,8 +224,10 @@ const toProposal = (
   };
 };
 
-export const fetchProposalById = async (id: bigint): Promise<Proposal> => {
-  const api = new DefaultApi();
+export const fetchProposalById = async (
+  api: DefaultApi,
+  id: bigint
+): Promise<Proposal> => {
   const proposalPromise = api.apiV1GovProposalIdGet(Number(id));
   const totalVotingPowerPromise = api.apiV1PosVotingPowerGet();
   const [proposalResponse, votingPowerResponse] = await Promise.all([
@@ -252,9 +253,9 @@ const statusMap = (
   }
 };
 
-export const fetchAllProposals = async (): Promise<Proposal[]> => {
-  const api = new DefaultApi();
-
+export const fetchAllProposals = async (
+  api: DefaultApi
+): Promise<Proposal[]> => {
   const proposalsPromise = api.apiV1GovProposalGet();
   const totalVotingPowerPromise = api.apiV1PosVotingPowerGet();
   const [proposalResponse, votingPowerResponse] = await Promise.all([
@@ -267,9 +268,10 @@ export const fetchAllProposals = async (): Promise<Proposal[]> => {
   );
 };
 
-export const fetchProposalVotes = async (id: bigint): Promise<Vote[]> => {
-  const api = new DefaultApi();
-
+export const fetchProposalVotes = async (
+  api: DefaultApi,
+  id: bigint
+): Promise<Vote[]> => {
   const response = await api.apiV1GovProposalIdVotesGet(Number(id));
 
   // TODO: This is only needed for votes breakdown, check if it's still relevant
@@ -288,19 +290,18 @@ export const fetchProposalVotes = async (id: bigint): Promise<Vote[]> => {
 };
 
 export const fetchProposalVoted = async (
+  api: DefaultApi,
   id: bigint,
   account: Account
 ): Promise<boolean> => {
-  const votes = await fetchProposalVotes(id);
+  const votes = await fetchProposalVotes(api, id);
   return votes.some((vote) => vote.address === account.address);
 };
 
 export const fetchVotedProposalIds = async (
-  _chain: Chain,
+  api: DefaultApi,
   account: Account
 ): Promise<bigint[]> => {
-  const api = new DefaultApi();
-
   const response = await api.apiV1GovVoterAddressVotesGet(account.address);
   const proposalIds = response.data.map((vote) => BigInt(vote.proposalId));
 
@@ -308,6 +309,7 @@ export const fetchVotedProposalIds = async (
 };
 
 export const performVote = async (
+  api: DefaultApi,
   proposalId: bigint,
   vote: VoteType,
   account: Account,
@@ -344,7 +346,6 @@ export const performVote = async (
   const txArray: EncodedTx[] = [];
 
   // RevealPK if needed
-  const api = new DefaultApi();
   const { publicKey: pk } = (await api.apiV1RevealedPublicKeyAddressGet(signer))
     .data;
 

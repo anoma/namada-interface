@@ -15,11 +15,11 @@ export const fetchDefaultAccount = async (): Promise<Account | undefined> => {
 };
 
 export const fetchAccountBalance = async (
+  api: DefaultApi,
   account: Account | undefined,
   tokenAddress: string
 ): Promise<BigNumber> => {
   if (!account) return BigNumber(0);
-  const api = new DefaultApi();
   const balancesResponse = await api.apiV1AccountAddressGet(account.address);
 
   const balances = balancesResponse.data
