@@ -1,5 +1,6 @@
+import { AnimatePresence } from "framer-motion";
 import { useAtomValue } from "jotai";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { minimumGasPriceAtom } from "slices/fees";
 import IncrementBonding from "./IncrementBonding";
 import { ReDelegate } from "./ReDelegate";
@@ -16,6 +17,7 @@ import StakingRoutes from "./routes";
 //     this is for creating new staking positions
 //  * UnstakePositions - rendered in modal on top of other content, for unstaking
 export const Staking = (): JSX.Element => {
+  const location = useLocation();
   useAtomValue(minimumGasPriceAtom);
 
   return (
@@ -23,17 +25,19 @@ export const Staking = (): JSX.Element => {
       <Routes>
         <Route path="/*" element={<StakingOverview />} />
       </Routes>
-      <Routes>
-        <Route
-          path={`${StakingRoutes.incrementBonding()}`}
-          element={<IncrementBonding />}
-        />
-        <Route path={`${StakingRoutes.unstake()}`} element={<Unstake />} />
-        <Route
-          path={`${StakingRoutes.redelegateBonding()}`}
-          element={<ReDelegate />}
-        />
-      </Routes>
+      <AnimatePresence>
+        <Routes location={location} key={location.pathname}>
+          <Route
+            path={`${StakingRoutes.incrementBonding()}`}
+            element={<IncrementBonding />}
+          />
+          <Route path={`${StakingRoutes.unstake()}`} element={<Unstake />} />
+          <Route
+            path={`${StakingRoutes.redelegateBonding()}`}
+            element={<ReDelegate />}
+          />
+        </Routes>
+      </AnimatePresence>
     </main>
   );
 };

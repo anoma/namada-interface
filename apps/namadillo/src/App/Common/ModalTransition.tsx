@@ -11,13 +11,10 @@ export const ModalTransition = ({
 }: ModalTransitionProps): JSX.Element => {
   return (
     <motion.div
-      key="modal-transition"
       initial={{ opacity: 0 }}
-      animate={{
-        opacity: 1,
-        transition: { duration: 0.15, ease: easings.quartOut },
-      }}
-      exit={{ opacity: 0, transition: { duration: 0.15 } }}
+      transition={{ duration: 0.35, ease: easings.expoOut }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
       {...props}
     >
       {children}

@@ -23,14 +23,14 @@ export const AccountBalanceContainer = (): JSX.Element => {
       animate(
         scope.current,
         { minWidth: "450px" },
-        { duration: 1, ease: easings.expoOut }
+        { duration: 0.5, ease: easings.expoOut }
       );
       animate(
         "article",
         {
           opacity: [0, 1],
         },
-        { duration: 1, ease: easings.expoOut, delay: 0.25 }
+        { duration: 1, ease: easings.expoOut, delay: 0.15 }
       );
     }
   }, [status]);
