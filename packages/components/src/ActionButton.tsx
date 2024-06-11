@@ -91,7 +91,7 @@ const actionButtonHover = tv({
       secondary: "bg-cyan",
       black: "bg-black",
       white: "bg-white",
-      magenta: "bg-pink-900",
+      magenta: "bg-pink",
     },
     disabled: {
       true: "group-hover:translate-y-[calc(100%+2px)]",

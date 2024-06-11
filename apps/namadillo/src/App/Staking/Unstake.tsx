@@ -206,6 +206,7 @@ const Unstake = (): JSX.Element => {
               size="sm"
               color="white"
               borderRadius="sm"
+              hoverColor="magenta"
               className="mt-2 w-1/4 mx-auto"
               disabled={
                 !!validationMessage ||
