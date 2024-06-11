@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AccountType } from "@namada/types";
+import { TxType } from "@heliax/namada-sdk/web";
 import createMockInstance from "jest-create-mock-instance";
 import {
   ApproveConnectInterfaceMsg,
@@ -47,9 +47,9 @@ describe("approvals handler", () => {
     };
 
     const approveTxMsg = new ApproveSignTxMsg(
-      AccountType.PrivateKey,
-      "test",
-      []
+      TxType.TransparentTransfer,
+      [],
+      "signer"
     );
     handler(env, approveTxMsg);
     expect(service.approveSignTx).toBeCalled();

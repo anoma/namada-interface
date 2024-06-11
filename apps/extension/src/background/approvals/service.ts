@@ -2,9 +2,9 @@ import { fromBase64 } from "@cosmjs/encoding";
 import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
 
-import { BuiltTx } from "@namada/shared";
+import { BuiltTx, TxType } from "@heliax/namada-sdk/web";
 import { KVStore } from "@namada/storage";
-import { AccountType, SignArbitraryResponse } from "@namada/types";
+import { SignArbitraryResponse } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 
 import { KeyRingService } from "background/keyring";
@@ -32,12 +32,17 @@ export class ApprovalsService {
   ) {}
 
   async approveSignTx(
-    accountType: AccountType,
+    txType: TxType,
     signer: string,
     // TODO: Pass serialized BuiltTxMsgValue instead of these:
     tx: string[][]
   ): Promise<Uint8Array[]> {
     const msgId = uuid();
+
+    const details = await this.keyRingService.queryAccountDetails(signer);
+    if (!details) {
+      throw new Error(`Could not find account for ${signer}`);
+    }
 
     const pendingTx = tx.map(([txBytes, signingDataBytes]) => ({
       txBytes: fromBase64(txBytes),
@@ -45,13 +50,14 @@ export class ApprovalsService {
     }));
 
     await this.txStore.set(msgId, {
+      txType,
       tx: pendingTx,
       signer,
     });
 
     const url = `${browser.runtime.getURL(
       "approvals.html"
-    )}#/approve-sign-tx/${msgId}/${accountType}/${signer}`;
+    )}#/approve-sign-tx/${msgId}/${details.type}/${signer}`;
 
     const popupTabId = await this.getPopupTabId(url);
 
@@ -114,7 +120,7 @@ export class ApprovalsService {
     }
 
     const builtTx = pendingTx.tx.map(({ txBytes, signingDataBytes }) =>
-      BuiltTx.from_stored_tx(txBytes, signingDataBytes)
+      BuiltTx.from_stored_tx(pendingTx.txType, txBytes, signingDataBytes)
     );
 
     try {

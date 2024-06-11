@@ -121,10 +121,11 @@ export const signTxArray = async <T>(
   const integration = getIntegration(chain.id);
   const signingClient = integration.signer() as Signer;
   try {
-    // TODO: after rejecting, it keeps awaiting forever
+    // TODO: Don't submit RevealPK with other Tx!:
     const signedTxs = await signingClient.sign(
-      owner,
-      typedEncodedTxs.map(({ encodedTx }) => encodedTx.tx)
+      typedEncodedTxs[0].encodedTx.tx.tx_type(),
+      typedEncodedTxs.map(({ encodedTx }) => encodedTx.tx),
+      owner
     );
 
     if (!signedTxs) {

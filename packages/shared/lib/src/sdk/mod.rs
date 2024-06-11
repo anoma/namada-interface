@@ -48,6 +48,7 @@ pub enum TxType {
 
 #[wasm_bindgen]
 pub struct BuiltTx {
+    tx_type: TxType,
     tx: Tx,
     signing_data: SigningTxData,
 }
@@ -67,8 +68,11 @@ impl BuiltTx {
         Ok(signing_data.to_bytes()?)
     }
 
+    // TODO: Add method to retrieve deserialized Tx properties
+
     // Return instance from serialized values
     pub fn from_stored_tx(
+        tx_type: TxType,
         tx_bytes: Vec<u8>,
         signing_data_bytes: Vec<u8>,
     ) -> Result<BuiltTx, JsError> {
@@ -76,12 +80,21 @@ impl BuiltTx {
         let signing_data: tx::SigningData = borsh::from_slice(&signing_data_bytes)?;
         let signing_data: SigningTxData = signing_data.to_signing_tx_data()?;
 
-        Ok(BuiltTx { tx, signing_data })
+        Ok(BuiltTx {
+            tx_type,
+            tx,
+            signing_data,
+        })
+    }
+
+    pub fn tx_type(&self) -> TxType {
+        self.tx_type
     }
 }
 
 #[wasm_bindgen]
 pub struct BatchTx {
+    tx_type: TxType,
     tx: Tx,
     built_txs: Vec<BuiltTx>,
 }
@@ -89,9 +102,13 @@ pub struct BatchTx {
 #[wasm_bindgen]
 impl BatchTx {
     #[wasm_bindgen(constructor)]
-    pub fn new(tx_bytes: Vec<u8>, txs: Vec<BuiltTx>) -> Result<BatchTx, JsError> {
+    pub fn new(tx_type: TxType, tx_bytes: Vec<u8>, txs: Vec<BuiltTx>) -> Result<BatchTx, JsError> {
         let tx: Tx = borsh::from_slice(&tx_bytes)?;
-        Ok(BatchTx { tx, built_txs: txs })
+        Ok(BatchTx {
+            tx_type,
+            tx,
+            built_txs: txs,
+        })
     }
 
     pub fn tx_bytes(&self) -> Result<Vec<u8>, JsError> {
@@ -109,6 +126,10 @@ impl BatchTx {
             .iter()
             .map(|tx| tx.tx.raw_header_hash().to_string())
             .collect()
+    }
+
+    pub fn tx_type(&self) -> TxType {
+        self.tx_type
     }
 }
 
@@ -326,7 +347,7 @@ impl Sdk {
     }
 
     /// Build a batch Tx from built transactions and return the bytes
-    pub fn build_batch(built_txs: Vec<BuiltTx>) -> Result<BatchTx, JsError> {
+    pub fn build_batch(tx_type: TxType, built_txs: Vec<BuiltTx>) -> Result<BatchTx, JsError> {
         let mut txs: Vec<(Tx, SigningTxData)> = vec![];
         let mut tx_hashes: Vec<String> = vec![];
 
@@ -342,10 +363,18 @@ impl Sdk {
 
         let built_txs = txs
             .into_iter()
-            .map(|(tx, signing_data)| BuiltTx { tx, signing_data })
+            .map(|(tx, signing_data)| BuiltTx {
+                tx_type,
+                tx,
+                signing_data,
+            })
             .collect();
 
-        Ok(BatchTx { tx, built_txs })
+        Ok(BatchTx {
+            tx_type,
+            tx,
+            built_txs,
+        })
     }
 
     /// Build transaction for specified type, return bytes to client
@@ -436,7 +465,11 @@ impl Sdk {
         let mut args = tx::transparent_transfer_tx_args(transfer_msg, tx_msg)?;
         let (tx, signing_data) = build_transparent_transfer(&self.namada, &mut args).await?;
 
-        Ok(BuiltTx { tx, signing_data })
+        Ok(BuiltTx {
+            tx_type: TxType::TransparentTransfer,
+            tx,
+            signing_data,
+        })
     }
 
     pub async fn build_ibc_transfer(
@@ -448,7 +481,11 @@ impl Sdk {
         let args = tx::ibc_transfer_tx_args(ibc_transfer_msg, tx_msg)?;
         let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args).await?;
 
-        Ok(BuiltTx { tx, signing_data })
+        Ok(BuiltTx {
+            tx_type: TxType::IBCTransfer,
+            tx,
+            signing_data,
+        })
     }
 
     pub async fn build_eth_bridge_transfer(
@@ -460,7 +497,11 @@ impl Sdk {
         let args = tx::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, tx_msg)?;
         let (tx, signing_data) = build_bridge_pool_tx(&self.namada, args.clone()).await?;
 
-        Ok(BuiltTx { tx, signing_data })
+        Ok(BuiltTx {
+            tx_type: TxType::EthBridgeTransfer,
+            tx,
+            signing_data,
+        })
     }
 
     pub async fn build_vote_proposal(
@@ -475,7 +516,11 @@ impl Sdk {
             .await
             .map_err(JsError::from)?;
 
-        Ok(BuiltTx { tx, signing_data })
+        Ok(BuiltTx {
+            tx_type: TxType::VoteProposal,
+            tx,
+            signing_data,
+        })
     }
 
     pub async fn build_bond(
@@ -487,7 +532,11 @@ impl Sdk {
         let args = tx::bond_tx_args(bond_msg, tx_msg)?;
         let (tx, signing_data) = build_bond(&self.namada, &args).await?;
 
-        Ok(BuiltTx { tx, signing_data })
+        Ok(BuiltTx {
+            tx_type: TxType::Bond,
+            tx,
+            signing_data,
+        })
     }
 
     pub async fn build_unbond(
@@ -499,7 +548,11 @@ impl Sdk {
         let args = tx::unbond_tx_args(unbond_msg, tx_msg)?;
         let (tx, signing_data, _) = build_unbond(&self.namada, &args).await?;
 
-        Ok(BuiltTx { tx, signing_data })
+        Ok(BuiltTx {
+            tx_type: TxType::Unbond,
+            tx,
+            signing_data,
+        })
     }
 
     pub async fn build_withdraw(
@@ -511,7 +564,11 @@ impl Sdk {
         let args = tx::withdraw_tx_args(withdraw_msg, tx_msg)?;
         let (tx, signing_data) = build_withdraw(&self.namada, &args).await?;
 
-        Ok(BuiltTx { tx, signing_data })
+        Ok(BuiltTx {
+            tx_type: TxType::Withdraw,
+            tx,
+            signing_data,
+        })
     }
 
     pub async fn build_redelegate(
@@ -523,7 +580,11 @@ impl Sdk {
         let args = tx::redelegate_tx_args(redelegate_msg, tx_msg)?;
         let (tx, signing_data) = build_redelegation(&self.namada, &args).await?;
 
-        Ok(BuiltTx { tx, signing_data })
+        Ok(BuiltTx {
+            tx_type: TxType::Redelegate,
+            tx,
+            signing_data,
+        })
     }
 
     pub async fn build_reveal_pk(
@@ -536,7 +597,11 @@ impl Sdk {
 
         let (tx, signing_data) = build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
 
-        Ok(BuiltTx { tx, signing_data })
+        Ok(BuiltTx {
+            tx_type: TxType::RevealPK,
+            tx,
+            signing_data,
+        })
     }
 
     // Helper function to reveal public key

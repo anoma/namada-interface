@@ -193,4 +193,10 @@ export class KeyRingService {
 
     return sdk.signing.verifyArbitrary(publicKey, hash, signature);
   }
+
+  async queryAccountDetails(
+    address: string
+  ): Promise<DerivedAccount | undefined> {
+    return this._keyRing.queryAccountDetails(address);
+  }
 }

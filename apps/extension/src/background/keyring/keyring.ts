@@ -568,4 +568,18 @@ export class KeyRing {
 
     return { hash, signature };
   }
+
+  async queryAccountDetails(
+    address: string
+  ): Promise<DerivedAccount | undefined> {
+    const account = await this.vaultStorage.findOneOrFail(
+      KeyStore,
+      "address",
+      address
+    );
+    if (!account) {
+      return;
+    }
+    return account.public;
+  }
 }
