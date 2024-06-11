@@ -7,7 +7,7 @@ import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { myUnbondsAtom } from "slices/validators";
 import { twMerge } from "tailwind-merge";
-import { ValidatorName } from "./ValidatorName";
+import { ValidatorCard } from "./ValidatorCard";
 import { WithdrawalButton } from "./WithdrawalButton";
 
 export const UnbondingAmountsTable = (): JSX.Element => {
@@ -28,7 +28,7 @@ export const UnbondingAmountsTable = (): JSX.Element => {
       if (myValidator.unbondedAmount?.gt(0)) {
         rowsList.push({
           cells: [
-            <ValidatorName
+            <ValidatorCard
               key={`unbonding-list-${validator.address}`}
               validator={validator}
               showAddress={false}

@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import { Validator, allValidatorsAtom } from "slices/validators";
 import { useNotifyOnAtomError } from "store/utils";
+import { ValidatorThumb } from "./ValidatorThumb";
 import { ValidatorsTable } from "./ValidatorsTable";
 import StakingRoutes from "./routes";
 
@@ -54,10 +55,10 @@ export const AllValidatorsTable = ({
     className: "[&_td:first-child]:pr-0",
     cells: [
       // Thumbnail:
-      <img
+      <ValidatorThumb
         key={`validator-image-${validator.address}`}
-        src={validator.imageUrl}
-        className="w-8 rounded-full aspect-square"
+        imageUrl={validator.imageUrl}
+        alt={validator.alias ?? validator.address}
       />,
       // Alias:
       <strong

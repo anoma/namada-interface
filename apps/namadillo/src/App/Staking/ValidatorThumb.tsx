@@ -16,16 +16,15 @@ export const ValidatorThumb = ({
   hasStake = false,
 }: ValidatorThumbProps): JSX.Element => {
   return (
-    <span className="relative">
-      <img
-        src={imageUrl}
-        alt={alt}
-        title={alt}
-        className={twMerge(
-          "rounded-full aspect-square w-8 bg-neutral-900",
-          className
-        )}
-      />
+    <span className="flex relative w-8 aspect-square rounded-full bg-neutral-600/30">
+      {imageUrl && (
+        <img
+          src={imageUrl}
+          alt={alt}
+          title={alt}
+          className={twMerge("aspect-square w-8", className)}
+        />
+      )}
       {hasStake && (
         <i
           className={clsx(

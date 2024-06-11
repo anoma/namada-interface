@@ -7,7 +7,7 @@ import { IoClose } from "react-icons/io5";
 import { chainAtom } from "slices/chain";
 import { Validator } from "slices/validators";
 import { twMerge } from "tailwind-merge";
-import { ValidatorName } from "./ValidatorName";
+import { ValidatorCard } from "./ValidatorCard";
 
 type ValidatorInfoPanel = {
   validator: Validator;
@@ -45,7 +45,7 @@ export const ValidatorInfoPanel = ({
           "mb-3"
         )}
       >
-        <ValidatorName validator={validator} showAddress={false} />
+        <ValidatorCard validator={validator} showAddress={false} />
         {validator.homepageUrl && (
           <a
             href={validator.homepageUrl}

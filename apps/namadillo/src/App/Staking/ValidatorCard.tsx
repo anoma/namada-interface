@@ -1,18 +1,19 @@
 import { WalletAddress } from "App/Common/WalletAddress";
+import { ValidatorAliasPlaceholder } from "App/Staking/ValidatorAliasPlaceholder";
 import { Validator } from "slices/validators";
 import { ValidatorThumb } from "./ValidatorThumb";
 
-type ValidatorNameProps = {
+type ValidatorCardProps = {
   validator: Validator;
   showAddress?: boolean;
   hasStake?: boolean;
 };
 
-export const ValidatorName = ({
+export const ValidatorCard = ({
   validator,
   showAddress = true,
   hasStake,
-}: ValidatorNameProps): JSX.Element => {
+}: ValidatorCardProps): JSX.Element => {
   return (
     <div className="flex items-center gap-4">
       <aside>
@@ -23,7 +24,12 @@ export const ValidatorName = ({
         />
       </aside>
       <span className="leading-tight">
-        <strong className="font-medium">{validator.alias}</strong>
+        {validator.alias ?
+          <strong className="font-medium">{validator.alias}</strong>
+        : <span className="block mb-1">
+            <ValidatorAliasPlaceholder />
+          </span>
+        }
         {showAddress && (
           <small className="block text-xs text-neutral-500">
             <WalletAddress
