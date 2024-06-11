@@ -12,10 +12,10 @@ export const NavigationFooter = (): JSX.Element => {
       </Heading>
       <Stack gap={3} direction="horizontal">
         <ActionButton
-          className="border-yellow border uppercase"
+          className="border uppercase"
           onClick={() => navigate(StakingRoutes.overview().url)}
           size="sm"
-          color="primary"
+          color="secondary"
           borderRadius="sm"
         >
           Stake
