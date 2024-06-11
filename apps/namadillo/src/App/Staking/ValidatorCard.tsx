@@ -1,6 +1,7 @@
 import { WalletAddress } from "App/Common/WalletAddress";
-import { ValidatorAliasPlaceholder } from "App/Staking/ValidatorAliasPlaceholder";
+import clsx from "clsx";
 import { Validator } from "slices/validators";
+import { ValidatorAlias } from "./ValidatorAlias";
 import { ValidatorThumb } from "./ValidatorThumb";
 
 type ValidatorCardProps = {
@@ -24,12 +25,9 @@ export const ValidatorCard = ({
         />
       </aside>
       <span className="leading-tight">
-        {validator.alias ?
-          <strong className="font-medium">{validator.alias}</strong>
-        : <span className="block mb-1">
-            <ValidatorAliasPlaceholder />
-          </span>
-        }
+        <span className={clsx("block", { "mb-0.5": !validator.alias })}>
+          <ValidatorAlias alias={validator.alias} />
+        </span>
         {showAddress && (
           <small className="block text-xs text-neutral-500">
             <WalletAddress
