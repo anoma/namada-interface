@@ -13,7 +13,6 @@ import { VscJson } from "react-icons/vsc";
 import { Link, useNavigate } from "react-router-dom";
 import {
   StoredProposal,
-  currentEpochAtom,
   proposalFamily,
   proposalFamilyPersist,
   proposalVotedFamily,
@@ -143,8 +142,11 @@ const WasmButton: React.FC<{
 }> = ({ proposal }) => {
   const { disabled, href, filename } = (() => {
     if (proposal.status !== "pending" && proposal.status !== "error") {
-      const { type, data } = proposal.data.proposalType;
-      const wasmCode = type === "default" ? data : undefined;
+      const { proposalType } = proposal.data;
+      const wasmCode =
+        proposalType.type === "default_with_wasm" ?
+          proposalType.data
+        : undefined;
 
       if (typeof wasmCode !== "undefined") {
         const href = URL.createObjectURL(
@@ -247,42 +249,26 @@ const ProgressStartEnd: React.FC<{
 
 const ProgressBar: React.FC<{
   cachedProposal: AtomWithQueryResult<StoredProposal>;
-}> = ({ cachedProposal }) => {
-  const currentEpoch = useAtomValue(currentEpochAtom);
-
+}> = ({ cachedProposal: proposal }) => {
   const { value, total } = (() => {
     const loadingData = {
       value: 0,
       total: 0,
     };
 
-    if (
-      cachedProposal.status === "pending" ||
-      cachedProposal.status === "error"
-    ) {
+    if (proposal.status === "pending" || proposal.status === "error") {
       return loadingData;
     }
 
-    const { startEpoch, endEpoch, status } = cachedProposal.data;
+    const { endTime, startTime } = proposal.data;
+    const currentTime = BigInt(Math.round(Date.now() / 1000));
 
-    // If proposal already passed or rejected, bypass waiting for currentEpochAtom
-    if (status === "passed" || status === "rejected") {
-      return {
-        value: 1,
-        total: 1,
-      };
-    }
-
-    if (currentEpoch.status === "pending" || currentEpoch.status === "error") {
-      return loadingData;
-    }
-
-    const totalEpochs = endEpoch - startEpoch;
-    const relativeCurrentEpoch = currentEpoch.data - startEpoch;
+    const totalProgress = endTime - startTime;
+    const currentProgress = currentTime - startTime;
 
     return {
-      value: relativeCurrentEpoch,
-      total: totalEpochs,
+      value: currentProgress,
+      total: totalProgress,
     };
   })();
 

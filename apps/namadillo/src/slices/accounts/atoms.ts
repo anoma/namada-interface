@@ -1,6 +1,7 @@
 import { Account } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
+import { indexerApiAtom } from "slices/api";
 import { shouldUpdateBalanceAtom } from "slices/etc";
 import { namadaExtensionConnectedAtom, nativeTokenAtom } from "slices/settings";
 import {
@@ -31,11 +32,14 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
   const defaultAccount = get(defaultAccountAtom);
   const tokenAddress = get(nativeTokenAtom);
   const enablePolling = get(shouldUpdateBalanceAtom);
+  const api = get(indexerApiAtom);
+
   return {
     enabled: !!tokenAddress && defaultAccount.isSuccess,
     // TODO: subscribe to indexer events when it's done
     refetchInterval: enablePolling ? 1000 : false,
     queryKey: ["balances", tokenAddress, defaultAccount],
-    queryFn: async () => fetchAccountBalance(defaultAccount.data, tokenAddress),
+    queryFn: async () =>
+      fetchAccountBalance(api, defaultAccount.data, tokenAddress),
   };
 });

@@ -11,31 +11,24 @@ import { defaultAccountAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
 import {
   fetchAllProposals,
-  fetchCurrentEpoch,
   fetchProposalById,
-  fetchProposalCounter,
   fetchProposalVoted,
   fetchVotedProposalIds,
   performVote,
 } from "./functions";
 
+import { indexerApiAtom } from "slices/api";
 import { queryClient } from "store";
 
-export const currentEpochAtom = atomWithQuery((get) => ({
-  queryKey: ["current-epoch"],
-  queryFn: () => fetchCurrentEpoch(get(chainAtom)),
-}));
-
-export const proposalCounterAtom = atomWithQuery((get) => ({
-  queryKey: ["proposal-counter"],
-  queryFn: () => fetchProposalCounter(get(chainAtom)),
-}));
-
 export const proposalFamily = atomFamily((id: bigint) =>
-  atomWithQuery((get) => ({
-    queryKey: ["proposal", id.toString()],
-    queryFn: () => fetchProposalById(get(chainAtom), id),
-  }))
+  atomWithQuery((get) => {
+    const api = get(indexerApiAtom);
+
+    return {
+      queryKey: ["proposal", id.toString()],
+      queryFn: () => fetchProposalById(api, id),
+    };
+  })
 );
 
 export type StoredProposal = Pick<
@@ -45,7 +38,9 @@ export type StoredProposal = Pick<
   | "content"
   | "startEpoch"
   | "endEpoch"
-  | "graceEpoch"
+  | "activationEpoch"
+  | "startTime"
+  | "endTime"
   | "proposalType"
   | "tallyType"
 > &
@@ -69,7 +64,9 @@ export const proposalFamilyPersist = atomFamily((id: bigint) =>
             content,
             startEpoch,
             endEpoch,
-            graceEpoch,
+            activationEpoch,
+            startTime,
+            endTime,
             proposalType,
             tallyType,
             status,
@@ -91,7 +88,9 @@ export const proposalFamilyPersist = atomFamily((id: bigint) =>
             content,
             startEpoch,
             endEpoch,
-            graceEpoch,
+            activationEpoch,
+            startTime,
+            endTime,
             proposalType,
             tallyType,
             ...finishedProposalProps,
@@ -107,22 +106,28 @@ export const proposalFamilyPersist = atomFamily((id: bigint) =>
 
 export const proposalVotedFamily = atomFamily((id: bigint) => {
   const account = useAtomValue(defaultAccountAtom);
-  return atomWithQuery((get) => ({
-    queryKey: ["proposal-voted", id.toString()],
-    enabled: account.isSuccess,
-    queryFn: async () => {
-      if (typeof account.data === "undefined") {
-        throw new Error("no account found");
-      }
-      return await fetchProposalVoted(get(chainAtom), id, account.data);
-    },
-  }));
+  return atomWithQuery((get) => {
+    const api = get(indexerApiAtom);
+    return {
+      queryKey: ["proposal-voted", id.toString()],
+      enabled: account.isSuccess,
+      queryFn: async () => {
+        if (typeof account.data === "undefined") {
+          throw new Error("no account found");
+        }
+        return await fetchProposalVoted(api, id, account.data);
+      },
+    };
+  });
 });
 
-export const allProposalsAtom = atomWithQuery((get) => ({
-  queryKey: ["all-proposals"],
-  queryFn: () => fetchAllProposals(get(chainAtom)),
-}));
+export const allProposalsAtom = atomWithQuery((get) => {
+  const api = get(indexerApiAtom);
+  return {
+    queryKey: ["all-proposals"],
+    queryFn: () => fetchAllProposals(api),
+  };
+});
 
 // TODO: this is a bad way to filter/search
 export const allProposalsFamily = atomFamily(
@@ -131,27 +136,27 @@ export const allProposalsFamily = atomFamily(
     type?: ProposalTypeString;
     search?: string;
   }) =>
-    atomWithQuery((get) => ({
-      queryKey: [
-        "all-proposals",
-        options?.status,
-        options?.type,
-        options?.search,
-      ],
-      queryFn: () =>
-        fetchAllProposals(
-          get(chainAtom),
+    atomWithQuery((get) => {
+      const api = get(indexerApiAtom);
+
+      return {
+        queryKey: [
+          "all-proposals",
           options?.status,
           options?.type,
-          options?.search
-        ),
-    })),
+          options?.search,
+        ],
+        queryFn: () => fetchAllProposals(api),
+      };
+    }),
   (a, b) =>
     a?.status === b?.status && a?.type === b?.type && a?.search === b?.search
 );
 
 export const votedProposalIdsAtom = atomWithQuery((get) => {
   const account = get(defaultAccountAtom);
+  const api = get(indexerApiAtom);
+
   return {
     queryKey: ["voted-proposal-ids"],
     enabled: account.isSuccess,
@@ -159,7 +164,7 @@ export const votedProposalIdsAtom = atomWithQuery((get) => {
       if (typeof account.data === "undefined") {
         throw new Error("no account found");
       }
-      return await fetchVotedProposalIds(get(chainAtom), account.data);
+      return await fetchVotedProposalIds(api, account.data);
     },
   };
 });
@@ -170,6 +175,8 @@ type PerformVoteArgs = {
 };
 export const performVoteAtom = atomWithMutation((get) => {
   const account = get(defaultAccountAtom);
+  const api = get(indexerApiAtom);
+
   return {
     enabled: account.isSuccess,
     mutationKey: ["voting"],
@@ -178,7 +185,7 @@ export const performVoteAtom = atomWithMutation((get) => {
       if (typeof account.data === "undefined") {
         throw new Error("no account");
       }
-      performVote(proposalId, vote, account.data, chain);
+      performVote(api, proposalId, vote, account.data, chain);
     },
   };
 });

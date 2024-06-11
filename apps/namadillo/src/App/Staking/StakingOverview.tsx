@@ -55,7 +55,7 @@ export const StakingOverview = (): JSX.Element => {
       <aside className="w-full mt-2 flex flex-col sm:flex-row lg:mt-0 lg:flex-col gap-2">
         {hasStaking && myValidators.isSuccess && (
           <Panel className="w-full @container">
-            <YourStakingDistribution myValidators={myValidators.data} />
+            <YourStakingDistribution myValidators={myValidators.data!} />
           </Panel>
         )}
         <Panel>

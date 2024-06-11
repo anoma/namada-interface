@@ -9,6 +9,7 @@ import {
 } from "@namada/types";
 import { getSdkInstance } from "hooks";
 import invariant from "invariant";
+import { getIndexerApi } from "slices/api";
 import { TransactionEventsClasses } from "types/events";
 import { GasConfig } from "types/fees";
 
@@ -78,13 +79,17 @@ export const buildTxArray = async <T>(
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<EncodedTx>
 ): Promise<EncodedTxData<T>[]> => {
-  const { tx, rpc } = await getSdkInstance();
+  const { tx } = await getSdkInstance();
   const wrapperTxProps = getTxProps(account, gasConfig, chain);
   const txArray: EncodedTxData<T>[] = [];
 
   // Determine if RevealPK is needed:
-  const pk = await rpc.queryPublicKey(account.address);
-  if (!pk) {
+  const api = getIndexerApi();
+  const { publicKey } = (
+    await api.apiV1RevealedPublicKeyAddressGet(account.address)
+  ).data;
+
+  if (!publicKey) {
     const revealPkTx = await tx.buildRevealPk(wrapperTxProps, account.address);
     txArray.push({ type: revealPublicKeyType, encodedTx: revealPkTx });
   }
@@ -123,12 +128,12 @@ export const signTxArray = async <T>(
     );
 
     if (!signedTxs) {
-      throw new Error("Signing failed");
+      throw new Error("Signing failed: No signed transactions returned");
     }
 
     return signedTxs;
   } catch (err) {
-    throw new Error("Signing failed");
+    throw new Error("Signing failed: " + err);
   }
 };
 

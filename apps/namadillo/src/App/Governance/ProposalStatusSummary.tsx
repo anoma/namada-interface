@@ -8,7 +8,7 @@ import { formatPercentage } from "@namada/utils";
 import { useAtomValue } from "jotai";
 import { proposalFamily, proposalFamilyPersist } from "slices/proposals";
 
-import { TallyType, VoteType, voteTypes } from "@namada/types";
+import { ProposalStatus, TallyType, VoteType, voteTypes } from "@namada/types";
 import { AnimatePresence } from "framer-motion";
 import { colors } from "./types";
 
@@ -50,6 +50,7 @@ const StatusListItem: React.FC<{
 };
 
 const Layout: React.FC<{
+  status: ProposalStatus;
   pieChartData?: PieChartData[];
   percentages: Record<VoteType, string>;
   amounts: Record<VoteType, string>;
@@ -60,6 +61,7 @@ const Layout: React.FC<{
   onMouseEnter?: (data: PieChartData, index: number) => void;
   onMouseLeave?: () => void;
 }> = ({
+  status,
   pieChartData,
   percentages,
   amounts,
@@ -95,12 +97,16 @@ const Layout: React.FC<{
         ))}
       </Stack>
 
-      <div className="@sm:mt-6">
-        <h3 className="text-[#A3A3A3] text-xs">Turnout / Quorum</h3>
-        <p className="text-xl">
-          {turnout} / {quorum}
-        </p>
-      </div>
+      {/* We do not want to display the turnout and quorum if the proposal is not ongoing
+        as we can't get historical data to calculate it properly*/}
+      {status === "ongoing" && (
+        <div className="@sm:mt-6">
+          <h3 className="text-[#A3A3A3] text-xs">Turnout / Quorum</h3>
+          <p className="text-xl">
+            {turnout} / {quorum}
+          </p>
+        </div>
+      )}
     </div>
   </Stack>
 );
@@ -123,7 +129,7 @@ export const ProposalStatusSummary: React.FC<{
       const { data } = cachedProposal;
 
       if (typeof data.status !== "undefined") {
-        return data;
+        return { ...data, status: data.status };
       }
     }
 
@@ -133,6 +139,7 @@ export const ProposalStatusSummary: React.FC<{
   if (typeof props === "undefined") {
     return (
       <Layout
+        status="pending"
         percentages={{
           yay: "%",
           nay: "%",
@@ -158,13 +165,14 @@ export const ProposalStatusSummary: React.FC<{
 };
 
 const Loaded: React.FC<{
+  status: ProposalStatus;
   yay: BigNumber;
   nay: BigNumber;
   abstain: BigNumber;
   totalVotingPower: BigNumber;
   tallyType: TallyType;
 }> = (props) => {
-  const { yay, nay, abstain, totalVotingPower, tallyType } = props;
+  const { status, yay, nay, abstain, totalVotingPower, tallyType } = props;
 
   const [hoveredVoteType, setHoveredVoteType] = useState<
     VoteType | undefined
@@ -241,6 +249,7 @@ const Loaded: React.FC<{
 
   return (
     <Layout
+      status={status}
       pieChartData={data}
       percentages={percentages}
       amounts={amounts}

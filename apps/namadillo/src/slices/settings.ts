@@ -7,6 +7,7 @@ type SettingsStorage = {
   fiat: CurrencyType;
   hideBalances: boolean;
   rpcUrl: string;
+  indexerUrl: string;
   chainId: string;
   nativeToken: string;
   signArbitraryEnabled: boolean;
@@ -26,6 +27,7 @@ export const namadilloSettingsAtom = atomWithStorage<SettingsStorage>(
     fiat: "usd",
     hideBalances: false,
     rpcUrl: process.env.NAMADA_INTERFACE_NAMADA_URL || "",
+    indexerUrl: process.env.NAMADA_INTERFACE_INDEXER_URL || "",
     chainId: process.env.NAMADA_INTERFACE_NAMADA_CHAIN_ID || "",
     nativeToken: process.env.NAMADA_INTERFACE_NAMADA_TOKEN || "",
     signArbitraryEnabled: false,
@@ -54,6 +56,11 @@ export const hideBalancesAtom = atom(
 export const rpcUrlAtom = atom(
   (get) => get(namadilloSettingsAtom).rpcUrl,
   changeSettings<string>("rpcUrl")
+);
+
+export const indexerUrlAtom = atom(
+  (get) => get(namadilloSettingsAtom).indexerUrl,
+  changeSettings<string>("indexerUrl")
 );
 
 export const chainIdAtom = atom(

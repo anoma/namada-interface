@@ -1,5 +1,5 @@
 import { ActionButton, TableRow } from "@namada/components";
-import { formatPercentage } from "@namada/utils";
+import { formatPercentage, shortenAddress } from "@namada/utils";
 import { Search } from "App/Common/Search";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { WalletAddress } from "App/Common/WalletAddress";
@@ -64,7 +64,7 @@ export const AllValidatorsTable = ({
         key={`validator-alias-${validator.address}`}
         className="font-medium"
       >
-        {validator.alias}
+        {validator.alias || shortenAddress(validator.address, 8, 6)}
       </strong>,
       // Address:
       <WalletAddress
