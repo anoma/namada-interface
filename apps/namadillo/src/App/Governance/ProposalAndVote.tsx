@@ -1,5 +1,6 @@
 import { Panel } from "@namada/components";
 
+import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { ProposalDiscord } from "App/Sidebars/ProposalDiscord";
 import { useProposalIdParam } from "hooks";
 import { ProposalDescription } from "./ProposalDescription";
@@ -19,8 +20,8 @@ export const ProposalAndVote: React.FC = () => {
 export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
   proposalId,
 }) => (
-  <div className="flex flex-col md:grid md:grid-cols-[auto_270px] gap-2">
-    <div className="flex flex-col gap-1.5">
+  <PageWithSidebar>
+    <div className="flex flex-col gap-2">
       <Panel className="px-3">
         <div className="px-12">
           <ProposalHeader proposalId={proposalId} />
@@ -42,5 +43,5 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
       </Panel>
       <ProposalDiscord />
     </aside>
-  </div>
+  </PageWithSidebar>
 );
