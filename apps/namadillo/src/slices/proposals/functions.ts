@@ -128,7 +128,7 @@ const decodeProposalType = (
             ] =
               "Add" in continuous ?
                 [continuous["Add"], "add" as const]
-                : [continuous["Remove"], "remove" as const];
+              : [continuous["Remove"], "remove" as const];
 
             const amountAsBigNumber = BigNumber(amount);
 

@@ -47,6 +47,7 @@ pub enum TxType {
 }
 
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct BuiltTx {
     tx_type: TxType,
     tx: Tx,
@@ -55,23 +56,8 @@ pub struct BuiltTx {
 
 #[wasm_bindgen]
 impl BuiltTx {
-    pub fn tx_bytes(&self) -> Result<Vec<u8>, JsError> {
-        Ok(borsh::to_vec(&self.tx)?)
-    }
-
-    pub fn tx_hash(&self) -> String {
-        self.tx.raw_header_hash().to_string()
-    }
-
-    pub fn signing_data_bytes(&self) -> Result<Vec<u8>, JsError> {
-        let signing_data = tx::SigningData::from_signing_tx_data(self.signing_data.clone())?;
-        Ok(signing_data.to_bytes()?)
-    }
-
-    // TODO: Add method to retrieve deserialized Tx properties
-
-    // Return instance from serialized values
-    pub fn from_stored_tx(
+    #[wasm_bindgen(constructor)]
+    pub fn new(
         tx_type: TxType,
         tx_bytes: Vec<u8>,
         signing_data_bytes: Vec<u8>,
@@ -86,6 +72,21 @@ impl BuiltTx {
             signing_data,
         })
     }
+
+    pub fn tx_bytes(&self) -> Result<Vec<u8>, JsError> {
+        Ok(borsh::to_vec(&self.tx)?)
+    }
+
+    pub fn tx_hash(&self) -> String {
+        self.tx.raw_header_hash().to_string()
+    }
+
+    pub fn signing_data_bytes(&self) -> Result<Vec<u8>, JsError> {
+        let signing_data = tx::SigningData::from_signing_tx_data(self.signing_data.clone())?;
+        Ok(signing_data.to_bytes()?)
+    }
+
+    // TODO: Add method to retrieve deserialized Tx properties
 
     pub fn tx_type(&self) -> TxType {
         self.tx_type
@@ -118,6 +119,10 @@ impl BatchTx {
     // Hash of batch Tx
     pub fn tx_hash(&self) -> String {
         self.tx.raw_header_hash().to_string()
+    }
+
+    pub fn txs(&self) -> Vec<BuiltTx> {
+        self.built_txs.clone()
     }
 
     // Hashes for all batched Txs

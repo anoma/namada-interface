@@ -19,7 +19,7 @@ import {
   UtilityStore,
 } from "./types";
 
-import { BuiltTx } from "@namada/shared";
+import { BatchTx, BuiltTx } from "@namada/shared";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
@@ -544,16 +544,25 @@ export class KeyRing {
   }
 
   async sign(
-    builtTx: BuiltTx[],
+    builtTx: BuiltTx,
     signer: string,
     chainId: string
-  ): Promise<Uint8Array[]> {
+  ): Promise<Uint8Array> {
     await this.vaultService.assertIsUnlocked();
     const key = await this.getSigningKey(signer);
     const { signing } = this.sdkService.getSdk();
-    return await Promise.all(
-      builtTx.map(async (tx) => await signing.sign(tx, key, chainId))
-    );
+    return await signing.sign(builtTx, key, chainId);
+  }
+
+  async signBatch(
+    batchTx: BatchTx,
+    signer: string,
+    chainId: string
+  ): Promise<Uint8Array> {
+    await this.vaultService.assertIsUnlocked();
+    const key = await this.getSigningKey(signer);
+    const { signing } = this.sdkService.getSdk();
+    return await signing.signBatch(batchTx, key, chainId);
   }
 
   async signArbitrary(

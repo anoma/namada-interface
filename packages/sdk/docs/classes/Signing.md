@@ -18,6 +18,7 @@ Non-Tx signing functions
 
 - [sign](Signing.md#sign)
 - [signArbitrary](Signing.md#signarbitrary)
+- [signBatch](Signing.md#signbatch)
 - [verifyArbitrary](Signing.md#verifyarbitrary)
 
 ## Constructors
@@ -40,7 +41,7 @@ Signing constructor
 
 #### Defined in
 
-[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/ce1562bf/packages/sdk/src/signing.ts#L13)
+[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/signing.ts#L13)
 
 ## Properties
 
@@ -52,7 +53,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/ce1562bf/packages/sdk/src/signing.ts#L13)
+[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/signing.ts#L13)
 
 ## Methods
 
@@ -66,7 +67,7 @@ Sign Namada transaction
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `builtTx` | `BuiltTx` | BuiltTx instance |
+| `builtTx` | [`BuiltTx`](BuiltTx.md) | BuiltTx instance |
 | `signingKey` | `string` | private key |
 | `chainId?` | `string` | optional chain ID, will enforce validation if present |
 
@@ -78,7 +79,7 @@ signed tx bytes - Promise resolving to Uint8Array
 
 #### Defined in
 
-[sdk/src/signing.ts:22](https://github.com/anoma/namada-interface/blob/ce1562bf/packages/sdk/src/signing.ts#L22)
+[sdk/src/signing.ts:22](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/signing.ts#L22)
 
 ___
 
@@ -103,7 +104,33 @@ hash and signature
 
 #### Defined in
 
-[sdk/src/signing.ts:36](https://github.com/anoma/namada-interface/blob/ce1562bf/packages/sdk/src/signing.ts#L36)
+[sdk/src/signing.ts:51](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/signing.ts#L51)
+
+___
+
+### signBatch
+
+▸ **signBatch**(`batchTx`, `signingKey`, `chainId?`): `Promise`\<`Uint8Array`\>
+
+Sign Namada batched transaction
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `batchTx` | [`BatchTx`](BatchTx.md) | BatchTx instance |
+| `signingKey` | `string` | private key |
+| `chainId?` | `string` | optional chain ID, will enforce validation if present |
+
+#### Returns
+
+`Promise`\<`Uint8Array`\>
+
+signed tx bytes - Promise resolving to Uint8Array
+
+#### Defined in
+
+[sdk/src/signing.ts:37](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/signing.ts#L37)
 
 ___
 
@@ -129,4 +156,4 @@ void
 
 #### Defined in
 
-[sdk/src/signing.ts:47](https://github.com/anoma/namada-interface/blob/ce1562bf/packages/sdk/src/signing.ts#L47)
+[sdk/src/signing.ts:62](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/signing.ts#L62)

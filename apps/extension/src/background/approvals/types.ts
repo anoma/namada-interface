@@ -7,6 +7,16 @@ export type PendingTx = {
   tx: {
     txBytes: Uint8Array;
     signingDataBytes: Uint8Array;
+  };
+  signer: string;
+};
+
+export type PendingBatchTx = {
+  txType: TxType;
+  batchTx: string;
+  txs: {
+    txBytes: Uint8Array;
+    signingDataBytes: Uint8Array;
   }[];
   signer: string;
 };

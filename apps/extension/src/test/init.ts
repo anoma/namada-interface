@@ -18,6 +18,7 @@ import { SessionPassword, VaultService } from "background/vault";
 
 import {
   ApprovalsService,
+  PendingBatchTx,
   PendingTx,
   init as initApprovals,
 } from "../background/approvals";
@@ -30,7 +31,7 @@ import { LocalStorage, VaultStorage } from "storage";
 export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
 
-  constructor(readonly _prefix: string) { }
+  constructor(readonly _prefix: string) {}
 
   get<U extends T>(key: string): Promise<U | undefined> {
     return new Promise((resolve) => {
@@ -65,7 +66,9 @@ export const init = async (): Promise<{
   const vaultStorage = new VaultStorage(new KVStoreMock(KVPrefix.IndexedDB));
   const namadaRouterId = await getNamadaRouterId(localStorage);
   const requester = new ExtensionRequester(messenger, namadaRouterId);
-  const txStore = new KVStoreMock<PendingTx>(KVPrefix.LocalStorage);
+  const txStore = new KVStoreMock<PendingTx | PendingBatchTx>(
+    KVPrefix.LocalStorage
+  );
   const dataStore = new KVStoreMock<string>(KVPrefix.LocalStorage);
   const broadcaster = new ExtensionBroadcaster(localStorage, requester);
 
