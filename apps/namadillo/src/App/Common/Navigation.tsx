@@ -73,7 +73,7 @@ export const Navigation = (): JSX.Element => {
           <li>
             <a
               href={TWITTER_URL}
-              className="transition-colors duration-150 hover:text-cyan"
+              className="transition-colors duration-300 hover:text-cyan"
             >
               <BsTwitterX />
             </a>
@@ -81,7 +81,7 @@ export const Navigation = (): JSX.Element => {
           <li>
             <a
               href={DISCORD_URL}
-              className="transition-colors duration-150 hover:text-cyan"
+              className="transition-colors duration-300 hover:text-cyan"
             >
               <BsDiscord />
             </a>
