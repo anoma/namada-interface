@@ -147,7 +147,13 @@ export const allProposalsFamily = atomFamily(
           options?.type,
           options?.search,
         ],
-        queryFn: () => fetchAllProposals(api),
+        queryFn: () =>
+          fetchAllProposals(
+            api,
+            options?.status,
+            options?.type,
+            options?.search
+          ),
       };
     }),
   (a, b) =>

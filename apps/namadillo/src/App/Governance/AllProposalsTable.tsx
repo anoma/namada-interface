@@ -115,7 +115,13 @@ type StatusFilter = (typeof statusFilters)[number];
 const isStatusFilter = (str: string): str is StatusFilter =>
   statusFilters.includes(str as StatusFilter);
 
-const typeFilters = ["all", "default", "pgf_steward", "pgf_payment"] as const;
+const typeFilters = [
+  "all",
+  "default",
+  "default_with_wasm",
+  "pgf_steward",
+  "pgf_payment",
+] as const;
 type TypeFilter = (typeof typeFilters)[number];
 
 const isTypeFilter = (str: string): str is TypeFilter =>
@@ -182,17 +188,22 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
               value: <TableSelectOption>All</TableSelectOption>,
               ariaLabel: "",
             },
-            ...(["default", "pgf_steward", "pgf_payment"] as const).map(
-              (type) => ({
-                id: type,
-                value: (
-                  <TableSelectOption>
-                    {showProposalTypeString(type)}
-                  </TableSelectOption>
-                ),
-                ariaLabel: type,
-              })
-            ),
+            ...(
+              [
+                "default",
+                "default_with_wasm",
+                "pgf_steward",
+                "pgf_payment",
+              ] as const
+            ).map((type) => ({
+              id: type,
+              value: (
+                <TableSelectOption>
+                  {showProposalTypeString(type)}
+                </TableSelectOption>
+              ),
+              ariaLabel: type,
+            })),
           ]}
           id="proposal-type-select"
           label="Proposal Type"
@@ -225,7 +236,7 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
 
 const TableSelectOption: React.FC<{
   children?: React.ReactNode;
-}> = ({ children }) => <span className="col-span-full">{children}</span>;
+}> = ({ children }) => <span className="col-span-full w-fit">{children}</span>;
 
 type TableSelectProps<T extends string> = Omit<
   React.ComponentProps<typeof StyledSelectBox<T>>,
@@ -246,7 +257,7 @@ const TableSelect = <T extends string>(
         ),
       }}
       listItemProps={{
-        className: "w-32",
+        className: "min-w-32",
       }}
       {...props}
     />

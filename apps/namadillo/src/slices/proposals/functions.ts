@@ -14,11 +14,13 @@ import {
   Proposal,
   ProposalStatus,
   ProposalType,
+  ProposalTypeString,
   TallyType,
   Vote,
   VoteProposalProps,
   VoteType,
 } from "@namada/types";
+import { assertNever, mapUndefined } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import * as E from "fp-ts/Either";
 import * as t from "io-ts";
@@ -212,7 +214,7 @@ const toProposal = (
     currentTime: BigInt(proposal.currentTime),
     proposalType: decodeProposalType(proposal.type, proposal.data),
     tallyType: toTally(proposal.tallyType),
-    status: statusMap(proposal.status),
+    status: fromIndexerStatus(proposal.status),
     totalVotingPower: BigNumber(votingPower.totalVotingPower),
     yay: BigNumber(proposal.yayVotes),
     nay: BigNumber(proposal.nayVotes),
@@ -234,7 +236,7 @@ export const fetchProposalById = async (
   return toProposal(proposalResponse.data, votingPowerResponse.data);
 };
 
-const statusMap = (
+const fromIndexerStatus = (
   indexerProposalStatus: IndexerProposalStatusEnum
 ): ProposalStatus => {
   switch (indexerProposalStatus) {
@@ -246,13 +248,58 @@ const statusMap = (
       return "passed";
     case IndexerProposalStatusEnum.Rejected:
       return "rejected";
+    default:
+      return assertNever(indexerProposalStatus);
+  }
+};
+
+const toIndexerStatus = (
+  proposalStatus: ProposalStatus
+): IndexerProposalStatusEnum => {
+  switch (proposalStatus) {
+    case "pending":
+      return IndexerProposalStatusEnum.Pending;
+    case "ongoing":
+      return IndexerProposalStatusEnum.Voting;
+    case "passed":
+      return IndexerProposalStatusEnum.Passed;
+    case "rejected":
+      return IndexerProposalStatusEnum.Rejected;
+    default:
+      return assertNever(proposalStatus);
+  }
+};
+
+const toIndexerProposalType = (
+  proposalType: ProposalTypeString
+): IndexerProposalTypeEnum => {
+  switch (proposalType) {
+    case "default":
+      return IndexerProposalTypeEnum.Default;
+    case "default_with_wasm":
+      return IndexerProposalTypeEnum.DefaultWithWasm;
+    case "pgf_steward":
+      return IndexerProposalTypeEnum.PgfSteward;
+    case "pgf_payment":
+      return IndexerProposalTypeEnum.PgfFunding;
+    default:
+      return assertNever(proposalType);
   }
 };
 
 export const fetchAllProposals = async (
-  api: DefaultApi
+  api: DefaultApi,
+  status?: ProposalStatus,
+  proposalType?: ProposalTypeString,
+  search?: string
 ): Promise<Proposal[]> => {
-  const proposalsPromise = api.apiV1GovProposalGet();
+  const proposalsPromise = api.apiV1GovProposalGet(
+    undefined,
+    mapUndefined(toIndexerStatus, status),
+    mapUndefined(toIndexerProposalType, proposalType),
+    search,
+    undefined
+  );
   const totalVotingPowerPromise = api.apiV1PosVotingPowerGet();
   const [proposalResponse, votingPowerResponse] = await Promise.all([
     proposalsPromise,
