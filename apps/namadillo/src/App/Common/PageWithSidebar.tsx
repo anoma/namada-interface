@@ -1,6 +1,5 @@
 import clsx from "clsx";
 import { Footer } from "./Footer";
-import { PageErrorBoundary } from "./PageErrorBoundary";
 
 type PageWithSidebar = {
   footerClassName?: string;
@@ -18,7 +17,7 @@ export const PageWithSidebar = ({
         "lg:grid-rows-[auto_max-content]"
       )}
     >
-      <PageErrorBoundary>{children}</PageErrorBoundary>
+      {children}
       <Footer className={clsx(footerClassName)} />
     </div>
   );

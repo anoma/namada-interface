@@ -148,7 +148,7 @@ export const ReDelegate = (): JSX.Element => {
           onSubmit={onSubmit}
           className="grid grid-rows-[max-content_auto_max-content] gap-2 h-full"
         >
-          <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
+          <header className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
             <BondingAmountOverview
               title="Total amount to re-delegate"
               amountInNam={0}
@@ -187,7 +187,7 @@ export const ReDelegate = (): JSX.Element => {
                 Unstake
               </ActionButton>
             </Panel>
-          </div>
+          </header>
 
           {step === "remove" && (
             <ReDelegateRemoveStake

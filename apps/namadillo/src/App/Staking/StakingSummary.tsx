@@ -8,6 +8,7 @@ import {
   PieChartData,
   SkeletonLoading,
 } from "@namada/components";
+import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { useAtomValue } from "jotai";
@@ -20,11 +21,12 @@ import StakingRoutes from "./routes";
 export const StakingSummary = (): JSX.Element => {
   const navigate = useNavigate();
   const totalStakedBalance = useAtomValue(getStakingTotalAtom);
+  const totalAccountBalance = useAtomValue(accountBalanceAtom);
   const {
     data: balance,
     isSuccess: isBalanceLoaded,
     isLoading: isFetchingBalance,
-  } = useAtomValue(accountBalanceAtom);
+  } = totalAccountBalance;
 
   const getPiechartData = (): Array<PieChartData> => {
     if (!totalStakedBalance.isSuccess || !isBalanceLoaded) {
@@ -54,68 +56,78 @@ export const StakingSummary = (): JSX.Element => {
             className="rounded-full aspect-square mx-auto border-neutral-800 border-[22px] bg-transparent"
           />
         )}
-        {totalStakedBalance.isSuccess && (
-          <PieChart
-            id="total-staked-balance"
-            className="xl:max-w-[85%] mx-auto"
-            data={getPiechartData()}
-            strokeWidth={7}
-            segmentMargin={0}
-          >
-            <div className="flex flex-col gap-1 leading-tight">
-              <Heading className="text-sm text-neutral-500" level="h3">
-                Total Staked Balance
-              </Heading>
-              <NamCurrency
-                amount={totalStakedBalance.data.totalBonded}
-                className="text-2xl"
-                currencySignClassName="block mb-1 text-xs ml-1"
-              />
-              <FiatCurrency
-                amountInNam={totalStakedBalance.data.totalBonded}
-                className="text-neutral-500 text-sm"
-              />
-            </div>
-          </PieChart>
-        )}
+        <AtomErrorBoundary
+          result={totalStakedBalance}
+          niceError="Unable to load staked balance"
+        >
+          {totalStakedBalance.isSuccess && (
+            <PieChart
+              id="total-staked-balance"
+              className="xl:max-w-[85%] mx-auto"
+              data={getPiechartData()}
+              strokeWidth={7}
+              segmentMargin={0}
+            >
+              <div className="flex flex-col gap-1 leading-tight">
+                <Heading className="text-sm text-neutral-500" level="h3">
+                  Total Staked Balance
+                </Heading>
+                <NamCurrency
+                  amount={totalStakedBalance.data.totalBonded}
+                  className="text-2xl"
+                  currencySignClassName="block mb-1 text-xs ml-1"
+                />
+                <FiatCurrency
+                  amountInNam={totalStakedBalance.data.totalBonded}
+                  className="text-neutral-500 text-sm"
+                />
+              </div>
+            </PieChart>
+          )}
+        </AtomErrorBoundary>
       </Panel>
       <Panel as="li">
-        <AmountSummaryCard
-          logoElement={<Image imageName="LogoMinimal" />}
-          title={
-            <>
-              Available NAM
-              <br />
-              to Stake
-            </>
-          }
-          isLoading={totalStakedBalance.isPending || isFetchingBalance}
-          mainAmount={
-            <NamCurrency
-              amount={balance ?? 0}
-              className="block leading-none"
-              currencySignClassName="block mb-3 mt-0.5 text-sm"
-            />
-          }
-          alternativeAmount={
-            totalStakedBalance.isSuccess && (
-              <FiatCurrency
-                amountInNam={totalStakedBalance.data.totalUnbonded}
+        <AtomErrorBoundary
+          result={totalAccountBalance}
+          niceError="Unable to load available NAM balance"
+        >
+          <AmountSummaryCard
+            logoElement={<Image imageName="LogoMinimal" />}
+            title={
+              <>
+                Available NAM
+                <br />
+                to Stake
+              </>
+            }
+            isLoading={totalStakedBalance.isPending || isFetchingBalance}
+            mainAmount={
+              <NamCurrency
+                amount={balance ?? 0}
+                className="block leading-none"
+                currencySignClassName="block mb-3 mt-0.5 text-sm"
               />
-            )
-          }
-          callToAction={
-            <ActionButton
-              className="px-8"
-              borderRadius="sm"
-              size="xs"
-              color="secondary"
-              onClick={() => navigate(StakingRoutes.incrementBonding().url)}
-            >
-              Stake
-            </ActionButton>
-          }
-        />
+            }
+            alternativeAmount={
+              totalStakedBalance.isSuccess && (
+                <FiatCurrency
+                  amountInNam={totalStakedBalance.data.totalUnbonded}
+                />
+              )
+            }
+            callToAction={
+              <ActionButton
+                className="px-8"
+                borderRadius="sm"
+                size="xs"
+                color="secondary"
+                onClick={() => navigate(StakingRoutes.incrementBonding().url)}
+              >
+                Stake
+              </ActionButton>
+            }
+          />
+        </AtomErrorBoundary>
       </Panel>
       <Panel as="li" className="opacity-60 pointer-events-none select-none">
         <AmountSummaryCard

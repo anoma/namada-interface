@@ -1,5 +1,6 @@
 import { ActionButton, TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
+import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { Search } from "App/Common/Search";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { WalletAddress } from "App/Common/WalletAddress";
@@ -95,35 +96,41 @@ export const AllValidatorsTable = ({
   }
 
   return (
-    <div className="min-h-[450px] flex flex-col">
-      <div className="grid grid-cols-[40%_max-content] justify-between mb-5">
-        <Search
-          onChange={(value: string) => setFilter(value)}
-          placeholder="Search Validator"
-        />
-        {isConnected && (
-          <ActionButton
-            size="sm"
-            color="secondary"
-            borderRadius="sm"
-            onClick={() => navigate(StakingRoutes.incrementBonding().url)}
-          >
-            Stake
-          </ActionButton>
+    <AtomErrorBoundary
+      result={validators}
+      niceError="Unable to load validators list"
+      containerProps={{ className: "pb-16" }}
+    >
+      <div className="min-h-[450px] flex flex-col">
+        <div className="grid grid-cols-[40%_max-content] justify-between mb-5">
+          <Search
+            onChange={(value: string) => setFilter(value)}
+            placeholder="Search Validator"
+          />
+          {isConnected && (
+            <ActionButton
+              size="sm"
+              color="secondary"
+              borderRadius="sm"
+              onClick={() => navigate(StakingRoutes.incrementBonding().url)}
+            >
+              Stake
+            </ActionButton>
+          )}
+        </div>
+        {validators.data && (
+          <div className="flex flex-col h-[490px] overflow-hidden">
+            <ValidatorsTable
+              id="all-validators"
+              validatorList={filteredValidators}
+              headers={headers}
+              initialPage={initialPage}
+              resultsPerPage={resultsPerPage}
+              renderRow={renderRow}
+            />
+          </div>
         )}
       </div>
-      {validators.data && (
-        <div className="flex flex-col h-[490px] overflow-hidden">
-          <ValidatorsTable
-            id="all-validators"
-            validatorList={filteredValidators}
-            headers={headers}
-            initialPage={initialPage}
-            resultsPerPage={resultsPerPage}
-            renderRow={renderRow}
-          />
-        </div>
-      )}
-    </div>
+    </AtomErrorBoundary>
   );
 };

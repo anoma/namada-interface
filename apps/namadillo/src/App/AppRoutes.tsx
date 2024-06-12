@@ -10,6 +10,7 @@ import {
 } from "react-router-dom";
 import { AccountOverview } from "./AccountOverview";
 import { App } from "./App";
+import { RouteErrorBoundary } from "./Common/RouteErrorBoundary";
 import { Governance } from "./Governance";
 import { SettingsPanel } from "./Settings/SettingsPanel";
 import { Staking } from "./Staking";
@@ -31,7 +32,7 @@ export const MainRoutes = (): JSX.Element => {
   return (
     <>
       <Routes location={state?.backgroundLocation || location}>
-        <Route path="/" element={<App />}>
+        <Route path="/" element={<App />} errorElement={<RouteErrorBoundary />}>
           <Route index element={<AccountOverview />} />
           <Route path={`${StakingRoutes.index()}/*`} element={<Staking />} />
           <Route
@@ -45,6 +46,7 @@ export const MainRoutes = (): JSX.Element => {
           <Route
             path={`${SettingsRoutes.index()}/*`}
             element={<SettingsPanel />}
+            errorElement={<RouteErrorBoundary />}
           />
         </Routes>
       </AnimatePresence>

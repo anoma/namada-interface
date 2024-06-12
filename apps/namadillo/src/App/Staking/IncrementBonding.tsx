@@ -1,5 +1,6 @@
 import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { BondProps } from "@namada/types";
+import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { NamCurrency } from "App/Common/NamCurrency";
@@ -208,15 +209,20 @@ const IncrementBonding = (): JSX.Element => {
                 <TableRowLoading count={2} />
               </div>
             )}
-            {validators.isSuccess && myValidators.isSuccess && (
-              <IncrementBondingTable
-                resultsPerPage={resultsPerPage}
-                validators={sortedValidators}
-                onChangeValidatorAmount={onChangeValidatorAmount}
-                updatedAmountByAddress={updatedAmountByAddress}
-                stakedAmountByAddress={stakedAmountByAddress}
-              />
-            )}
+            <AtomErrorBoundary
+              result={[validators, myValidators]}
+              niceError="Unable to load validators list"
+            >
+              {validators.isSuccess && myValidators.isSuccess && (
+                <IncrementBondingTable
+                  resultsPerPage={resultsPerPage}
+                  validators={sortedValidators}
+                  onChangeValidatorAmount={onChangeValidatorAmount}
+                  updatedAmountByAddress={updatedAmountByAddress}
+                  stakedAmountByAddress={stakedAmountByAddress}
+                />
+              )}
+            </AtomErrorBoundary>
           </Panel>
           <div className="relative">
             <ActionButton

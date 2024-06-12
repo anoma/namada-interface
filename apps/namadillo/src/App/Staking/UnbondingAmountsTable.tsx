@@ -1,5 +1,6 @@
 import { StyledTable, TableRow } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
+import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { NamCurrency } from "App/Common/NamCurrency";
 import BigNumber from "bignumber.js";
@@ -65,24 +66,29 @@ export const UnbondingAmountsTable = (): JSX.Element => {
   }, [myUnbonds]);
 
   return (
-    <StyledTable
-      id="unbonding-amounts-table"
-      headers={headers.concat("")}
-      rows={rows}
-      containerClassName="table-container flex-1 dark-scrollbar overscroll-contain"
-      tableProps={{
-        className: twMerge(
-          "w-full flex-1 [&_td]:px-1 [&_th]:px-1 [&_td]:h-[64px] [&_tr]:relative",
-          "[&_td:first-child]:pl-4 [&_td:last-child]:pr-4",
-          "[&_td]:font-normal [&_th:first-child]:pl-4 [&_th:last-child]:pr-4",
-          "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md",
-          "[&_td:first-child]:before:absolute [&_td:first-child]:before:w-full [&_td:first-child]:before:h-full",
-          "[&_td:first-child]:before:border [&_td:first-child]:before:border-pink",
-          "[&_td:first-child]:before:left-0 [&_td:first-child]:before:top-0",
-          "[&_td:first-child]:before:rounded-sm [&_td:first-child]:before:pointer-events-none"
-        ),
-      }}
-      headProps={{ className: "text-neutral-500" }}
-    />
+    <AtomErrorBoundary
+      result={myUnbonds}
+      niceError="Unable to load unbonding list"
+    >
+      <StyledTable
+        id="unbonding-amounts-table"
+        headers={headers.concat("")}
+        rows={rows}
+        containerClassName="table-container flex-1 dark-scrollbar overscroll-contain"
+        tableProps={{
+          className: twMerge(
+            "w-full flex-1 [&_td]:px-1 [&_th]:px-1 [&_td]:h-[64px] [&_tr]:relative",
+            "[&_td:first-child]:pl-4 [&_td:last-child]:pr-4",
+            "[&_td]:font-normal [&_th:first-child]:pl-4 [&_th:last-child]:pr-4",
+            "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md",
+            "[&_td:first-child]:before:absolute [&_td:first-child]:before:w-full [&_td:first-child]:before:h-full",
+            "[&_td:first-child]:before:border [&_td:first-child]:before:border-pink",
+            "[&_td:first-child]:before:left-0 [&_td:first-child]:before:top-0",
+            "[&_td:first-child]:before:rounded-sm [&_td:first-child]:before:pointer-events-none"
+          ),
+        }}
+        headProps={{ className: "text-neutral-500" }}
+      />
+    </AtomErrorBoundary>
   );
 };
