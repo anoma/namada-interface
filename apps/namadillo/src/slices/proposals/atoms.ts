@@ -5,7 +5,7 @@ import {
   VoteProposalProps,
   VoteType,
 } from "@namada/types";
-import { useAtomValue } from "jotai";
+import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
 import { TransactionPair } from "lib/query";
@@ -16,7 +16,6 @@ import {
   createVoteProposalTx,
   fetchAllProposals,
   fetchProposalById,
-  fetchProposalVoted,
   fetchVotedProposalIds,
 } from "./functions";
 
@@ -110,22 +109,18 @@ export const proposalFamilyPersist = atomFamily((id: bigint) =>
 );
 */
 
-export const proposalVotedFamily = atomFamily((id: bigint) => {
-  const account = useAtomValue(defaultAccountAtom);
-  return atomWithQuery((get) => {
-    const api = get(indexerApiAtom);
-    return {
-      queryKey: ["proposal-voted", id.toString()],
-      enabled: account.isSuccess,
-      queryFn: async () => {
-        if (typeof account.data === "undefined") {
-          throw new Error("no account found");
-        }
-        return await fetchProposalVoted(api, id, account.data);
-      },
-    };
-  });
-});
+export const proposalVotedFamily = atomFamily((id: bigint) =>
+  atom<boolean | undefined>((get) => {
+    const query = get(votedProposalIdsAtom);
+
+    if (query.status === "pending" || query.status === "error") {
+      return undefined;
+    } else {
+      const votedProposalIds = query.data;
+      return votedProposalIds.includes(id);
+    }
+  })
+);
 
 export const allProposalsAtom = atomWithQuery((get) => {
   const api = get(indexerApiAtom);

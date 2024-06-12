@@ -282,7 +282,7 @@ const ProgressBar: React.FC<{
 
 const VoteButton: React.FC<{
   proposal: AtomWithQueryResult<Proposal>;
-  voted: AtomWithQueryResult<boolean>;
+  voted: boolean | undefined;
   proposalId: bigint;
 }> = ({ proposal, voted, proposalId }) => {
   const navigate = useNavigate();
@@ -292,26 +292,28 @@ const VoteButton: React.FC<{
     return null;
   }
 
-  const { disabled, onClick } = (() => {
+  const { disabled, onClick, text } = (() => {
     if (
       proposal.status === "pending" ||
       proposal.status === "error" ||
-      voted.status === "pending" ||
-      voted.status === "error"
+      typeof voted === "undefined"
     ) {
       return {
         disabled: true,
         onClick: undefined,
+        text: "Vote",
       };
     } else {
       const { status } = proposal.data;
 
-      const disabled =
-        !isExtensionConnected || voted.data || status !== "ongoing";
+      const disabled = !isExtensionConnected || status !== "ongoing";
+
+      const text = voted ? "Edit Vote" : "Vote";
 
       return {
         disabled,
         onClick: () => navigate(GovernanceRoutes.submitVote(proposalId).url),
+        text,
       };
     }
   })();
@@ -321,20 +323,18 @@ const VoteButton: React.FC<{
       <ActionButton
         size="sm"
         borderRadius="sm"
-        className="py-2"
+        className="py-2 px-4"
         color="white"
         disabled={disabled}
         onClick={onClick}
       >
-        Vote
+        {text}
       </ActionButton>
     </div>
   );
 };
 
 const VotedLabel: React.FC<{
-  voted: AtomWithQueryResult<boolean>;
+  voted: boolean | undefined;
 }> = ({ voted }) =>
-  voted.status === "pending" || voted.status === "error" || !voted.data ?
-    null
-  : <VotedLabelComponent className="text-xs min-w-22" />;
+  voted ? <VotedLabelComponent className="text-xs min-w-22" /> : null;
