@@ -6,7 +6,6 @@ import { useProposalIdParam } from "hooks";
 import { ProposalDescription } from "./ProposalDescription";
 import { ProposalHeader } from "./ProposalHeader";
 import { ProposalStatusSummary } from "./ProposalStatusSummary";
-import { VoteHelpText } from "./VoteHelpText";
 import { VoteInfoCards } from "./VoteInfoCards";
 
 export const ProposalAndVote: React.FC = () => {
@@ -33,9 +32,11 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
       <Panel className="py-6 px-7">
         <VoteInfoCards proposalId={proposalId} />
       </Panel>
+      {/* TODO: show this once the component text is finalized
       <Panel className="py-6">
         <VoteHelpText />
       </Panel>
+     */}
     </div>
     <aside className="flex flex-col gap-2">
       <Panel className="@container" title="Proposal Status">
