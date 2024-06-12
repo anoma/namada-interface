@@ -9,7 +9,6 @@ export const SmallScreenBlocking = ({}): JSX.Element => {
           "py-6 text-yellow"
         )}
       >
-        <i className="w-12 rounded-full border-[5px] border-yellow aspect-square" />
         Namadillo
       </header>
       <Panel className="py-12 overflow-hidden flex justify-center items-center">
