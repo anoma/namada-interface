@@ -105,7 +105,7 @@ export const MyValidatorsTable = (): JSX.Element => {
           Re-delegate
         </ActionButton>
         <ActionButton
-          className="basis-[content] py-1"
+          className="basis-[content] py-1 hover:before:border-pink"
           color="white"
           size="md"
           outlined

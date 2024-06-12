@@ -69,14 +69,20 @@ export const Navigation = (): JSX.Element => {
             </a>
           </li>
         </ul>
-        <ul className="flex items-center gap-4 text-yellow text-2xl transition-colors duration-300 ease-out-quad">
+        <ul className="flex items-center gap-4 text-yellow text-2xl">
           <li>
-            <a href={TWITTER_URL} className="hover:text-cyan">
+            <a
+              href={TWITTER_URL}
+              className="transition-colors duration-300 hover:text-cyan"
+            >
               <BsTwitterX />
             </a>
           </li>
           <li>
-            <a href={DISCORD_URL} className="hover:text-cyan">
+            <a
+              href={DISCORD_URL}
+              className="transition-colors duration-300 hover:text-cyan"
+            >
               <BsDiscord />
             </a>
           </li>

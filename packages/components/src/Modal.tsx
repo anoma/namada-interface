@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -36,7 +37,9 @@ export const Modal = ({
 
   return (
     <>
-      <div
+      <motion.div
+        transition={{ duration: 0 }}
+        exit={{ opacity: 0 }}
         onClick={onClose}
         className="fixed top-0 left-0 w-full h-full cursor-pointer backdrop-blur-lg z-[1000] bg-rblack/50"
       />

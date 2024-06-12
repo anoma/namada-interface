@@ -3,7 +3,7 @@ import { tv } from "tailwind-variants";
 
 type StackProps<T extends keyof JSX.IntrinsicElements> = {
   children: React.ReactNode;
-  gap: "px" | number;
+  gap?: "px" | number;
   direction?: "vertical" | "horizontal";
   as?: T;
   full?: boolean;
