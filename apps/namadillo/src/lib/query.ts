@@ -98,6 +98,9 @@ export const buildTxArray = async <T>(
     queryProps.map((props) => txFn.apply(tx, [wrapperTxProps, props]))
   );
 
+  // TODO: Build Batch!
+  // const batchedTx = await tx.buildBatch(...);
+
   const typedEncodedTxs = encodedTxs.map((encodedTx, index) => ({
     encodedTx,
     type: txFn.name,
@@ -120,18 +123,45 @@ export const signTxArray = async <T>(
 ): Promise<Uint8Array[]> => {
   const integration = getIntegration(chain.id);
   const signingClient = integration.signer() as Signer;
-  try {
-    // TODO: Don't submit RevealPK with other Tx!:
-    const signedTxs = await signingClient.sign(
-      typedEncodedTxs[0].encodedTx.tx.tx_type(),
-      typedEncodedTxs.map(({ encodedTx }) => encodedTx.tx),
-      owner
-    );
+  const signedTxs: Uint8Array[] = [];
 
-    if (!signedTxs) {
-      throw new Error("Signing failed: No signed transactions returned");
+  try {
+    // Sign RevealPK first, if public key is not found:
+    if (typedEncodedTxs[0].type === revealPublicKeyType) {
+      const revealPk = typedEncodedTxs.shift()!;
+      const { tx } = revealPk.encodedTx;
+
+      const signedRevealPk = await signingClient.sign(
+        tx.tx_type(),
+        { txData: tx.tx_bytes(), signingData: tx.signing_data_bytes() },
+        owner
+      );
+
+      if (!signedRevealPk) {
+        throw new Error(
+          "Sign RevealPk failed: No signed transactions returned"
+        );
+      }
+      signedTxs.push(signedRevealPk);
     }
 
+    // Sign remaining Tx as a batch (TODO)
+    const signedBatchedTx = await Promise.all(
+      typedEncodedTxs.map(async (typedEncodedTx) => {
+        const { tx } = typedEncodedTx.encodedTx;
+        const signedTx = await signingClient.sign(
+          tx.tx_type(),
+          { txData: tx.tx_bytes(), signingData: tx.signing_data_bytes() },
+          owner
+        );
+        if (!signedTx) {
+          throw new Error("Signing failed: No signed transactions returned");
+        }
+        return signedTx;
+      })
+    );
+
+    signedTxs.push(...signedBatchedTx);
     return signedTxs;
   } catch (err) {
     throw new Error("Signing failed: " + err);

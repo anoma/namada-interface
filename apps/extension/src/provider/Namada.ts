@@ -1,11 +1,12 @@
 import { toBase64 } from "@cosmjs/encoding";
-import { TxType } from "@heliax/namada-sdk/web";
+import { BatchTx, TxType } from "@heliax/namada-sdk/web";
 import {
   Chain,
   DerivedAccount,
   Namada as INamada,
   SignArbitraryProps,
   SignArbitraryResponse,
+  SignBatchProps,
   SignProps,
   VerifyArbitraryProps,
 } from "@namada/types";
@@ -14,6 +15,7 @@ import { MessageRequester, Ports } from "router";
 import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
+  ApproveSignBatchTxMsg,
   ApproveSignTxMsg,
   CheckDurabilityMsg,
   GetChainMsg,
@@ -61,13 +63,37 @@ export class Namada implements INamada {
     );
   }
 
-  public async sign(props: SignProps): Promise<Uint8Array[] | undefined> {
-    const { txType, signer, tx } = props;
+  public async sign(props: SignProps): Promise<Uint8Array | undefined> {
+    const {
+      txType,
+      signer,
+      tx: { txData, signingData },
+    } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
       new ApproveSignTxMsg(
         txType as TxType,
-        tx.map((t) => [toBase64(t.txData), toBase64(t.signingData)]),
+        [toBase64(txData), toBase64(signingData)],
+        signer
+      )
+    );
+  }
+
+  public async signBatch(
+    props: SignBatchProps
+  ): Promise<Uint8Array | undefined> {
+    const { txType, batchTx, signer } = props;
+
+    const txs = (batchTx as BatchTx)
+      .txs()
+      .map((t) => [toBase64(t.tx_bytes()), toBase64(t.signing_data_bytes())]);
+
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new ApproveSignBatchTxMsg(
+        txType as TxType,
+        toBase64((batchTx as BatchTx).tx_bytes()),
+        txs,
         signer
       )
     );

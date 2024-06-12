@@ -1,6 +1,6 @@
 import { DerivedAccount } from "./account";
 import { Chain } from "./chain";
-import { SignArbitraryResponse, Signer } from "./signer";
+import { SignArbitraryResponse, Signer, TxData } from "./signer";
 
 export type SignArbitraryProps = {
   signer: string;
@@ -10,10 +10,14 @@ export type SignArbitraryProps = {
 export type SignProps = {
   txType: unknown;
   signer: string;
-  tx: {
-    txData: Uint8Array;
-    signingData: Uint8Array;
-  }[];
+  tx: TxData;
+};
+
+export type SignBatchProps = {
+  txType: unknown;
+  // BatchTx Instance (see @heliax/namada-sdk)
+  batchTx: unknown;
+  signer: string;
 };
 
 export type VerifyArbitraryProps = {
@@ -32,7 +36,9 @@ export interface Namada {
   connect(chainId?: string): Promise<void>;
   isConnected(): Promise<boolean | undefined>;
   defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
-  sign(props: SignProps): Promise<Uint8Array[] | undefined>;
+  // TODO: Return single signed Tx bytes
+  sign(props: SignProps): Promise<Uint8Array | undefined>;
+  signBatch(props: SignBatchProps): Promise<Uint8Array | undefined>;
   signArbitrary(
     props: SignArbitraryProps
   ): Promise<SignArbitraryResponse | undefined>;

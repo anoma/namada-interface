@@ -8,7 +8,7 @@ import { LocalStorage } from "storage";
 import { KVStoreMock } from "test/init";
 import * as webextensionPolyfill from "webextension-polyfill";
 import { ApprovalsService } from "./service";
-import { PendingTx } from "./types";
+import { PendingBatchTx, PendingTx } from "./types";
 
 jest.mock("webextension-polyfill", () => ({
   runtime: {
@@ -40,7 +40,7 @@ describe("approvals service", () => {
   let service: ApprovalsService;
   let keyRingService: jest.Mocked<KeyRingService>;
   let dataStore: KVStoreMock<string>;
-  let txStore: KVStoreMock<PendingTx>;
+  let txStore: KVStoreMock<PendingTx | PendingBatchTx>;
   let localStorage: LocalStorage;
 
   afterEach(() => {

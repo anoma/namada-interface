@@ -2,7 +2,7 @@ import { fromBase64 } from "@cosmjs/encoding";
 import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
 
-import { BuiltTx, TxType } from "@heliax/namada-sdk/web";
+import { BatchTx, BuiltTx, TxType } from "@heliax/namada-sdk/web";
 import { KVStore } from "@namada/storage";
 import { SignArbitraryResponse } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
@@ -11,7 +11,7 @@ import { KeyRingService } from "background/keyring";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
-import { PendingTx } from "./types";
+import { PendingBatchTx, PendingTx } from "./types";
 
 export class ApprovalsService {
   // holds promises which can be resolved with a message from a pop-up window
@@ -23,7 +23,7 @@ export class ApprovalsService {
   > = {};
 
   constructor(
-    protected readonly txStore: KVStore<PendingTx>,
+    protected readonly txStore: KVStore<PendingTx | PendingBatchTx>,
     protected readonly dataStore: KVStore<string>,
     protected readonly localStorage: LocalStorage,
     protected readonly keyRingService: KeyRingService,
@@ -34,9 +34,8 @@ export class ApprovalsService {
   async approveSignTx(
     txType: TxType,
     signer: string,
-    // TODO: Pass serialized BuiltTxMsgValue instead of these:
-    tx: string[][]
-  ): Promise<Uint8Array[]> {
+    tx: string[]
+  ): Promise<Uint8Array> {
     const msgId = uuid();
 
     const details = await this.keyRingService.queryAccountDetails(signer);
@@ -44,14 +43,58 @@ export class ApprovalsService {
       throw new Error(`Could not find account for ${signer}`);
     }
 
-    const pendingTx = tx.map(([txBytes, signingDataBytes]) => ({
+    const pendingTx = {
+      txBytes: fromBase64(tx[0]),
+      signingDataBytes: fromBase64(tx[1]),
+    };
+
+    await this.txStore.set(msgId, {
+      txType,
+      tx: pendingTx,
+      signer,
+    });
+
+    const url = `${browser.runtime.getURL(
+      "approvals.html"
+    )}#/approve-sign-tx/${msgId}/${details.type}/${signer}`;
+
+    const popupTabId = await this.getPopupTabId(url);
+
+    if (!popupTabId) {
+      throw new Error("no popup tab ID");
+    }
+
+    if (popupTabId in this.resolverMap) {
+      throw new Error(`tab ID ${popupTabId} already exists in promise map`);
+    }
+
+    return await new Promise((resolve, reject) => {
+      this.resolverMap[popupTabId] = { resolve, reject };
+    });
+  }
+
+  async approveSignBatchTx(
+    txType: TxType,
+    batchTx: string,
+    txs: string[][],
+    signer: string
+  ): Promise<Uint8Array> {
+    const msgId = uuid();
+
+    const details = await this.keyRingService.queryAccountDetails(signer);
+    if (!details) {
+      throw new Error(`Could not find account for ${signer}`);
+    }
+
+    const pendingTxs = txs.map(([txBytes, signingDataBytes]) => ({
       txBytes: fromBase64(txBytes),
       signingDataBytes: fromBase64(signingDataBytes),
     }));
 
     await this.txStore.set(msgId, {
       txType,
-      tx: pendingTx,
+      batchTx,
+      txs: pendingTxs,
       signer,
     });
 
@@ -109,7 +152,7 @@ export class ApprovalsService {
     msgId: string,
     signer: string
   ): Promise<void> {
-    const pendingTx = await this.txStore.get(msgId);
+    const pendingTx = (await this.txStore.get(msgId)) as PendingTx;
     const resolvers = this.resolverMap[popupTabId];
 
     if (!resolvers) {
@@ -120,12 +163,68 @@ export class ApprovalsService {
       throw new Error(`Signing data for ${msgId} not found!`);
     }
 
-    const builtTx = pendingTx.tx.map(({ txBytes, signingDataBytes }) =>
-      BuiltTx.from_stored_tx(pendingTx.txType, txBytes, signingDataBytes)
+    const builtTx = new BuiltTx(
+      pendingTx.txType,
+      pendingTx.tx.txBytes,
+      pendingTx.tx.signingDataBytes
     );
 
     try {
       const signature = await this.keyRingService.sign(builtTx, signer);
+      resolvers.resolve(signature);
+    } catch (e) {
+      resolvers.reject(e);
+    }
+
+    await this._clearPendingSignature(msgId);
+  }
+
+  async submitSignBatchTx(
+    popupTabId: number,
+    msgId: string,
+    signer: string
+  ): Promise<void> {
+    const pendingBatchTx = (await this.txStore.get(msgId)) as PendingBatchTx;
+    const resolvers = this.resolverMap[popupTabId];
+
+    if (!resolvers) {
+      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
+    }
+
+    if (!pendingBatchTx) {
+      throw new Error(`Signing data for ${msgId} not found!`);
+    }
+
+    const { txType, batchTx, txs } = pendingBatchTx;
+
+    const builtTxs = txs.map(
+      ({ txBytes, signingDataBytes }) =>
+        new BuiltTx(pendingBatchTx.txType, txBytes, signingDataBytes)
+    );
+
+    // Sign inner Txs
+    const signedTxs = await Promise.all(
+      builtTxs.map(
+        async (builtTx) => await this.keyRingService.sign(builtTx, signer)
+      )
+    );
+
+    const signedBuiltTxs = signedTxs.map(
+      (signedTx, i) =>
+        new BuiltTx(txType, signedTx, builtTxs[i].signing_data_bytes())
+    );
+
+    const batchTxInstance = new BatchTx(
+      pendingBatchTx.txType,
+      fromBase64(batchTx),
+      signedBuiltTxs
+    );
+
+    try {
+      const signature = await this.keyRingService.signBatch(
+        batchTxInstance,
+        signer
+      );
       resolvers.resolve(signature);
     } catch (e) {
       resolvers.reject(e);

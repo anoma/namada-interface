@@ -6,6 +6,7 @@ import { validateProps } from "utils";
 export enum MessageType {
   RejectSignTx = "reject-sign-tx",
   SubmitApprovedSignTx = "submit-approved-sign-tx",
+  SubmitApprovedSignBatchTx = "submit-approved-sign-batch-tx",
   SubmitApprovedSignArbitrary = "submit-approved-sign-arbitrary",
   RejectSignArbitrary = "reject-sign-arbitrary",
   ConnectInterfaceResponse = "connect-interface-response",
@@ -34,6 +35,31 @@ export class SubmitApprovedSignTxMsg extends Message<void> {
 
   type(): string {
     return SubmitApprovedSignTxMsg.type();
+  }
+}
+
+export class SubmitApprovedSignBatchTxMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.SubmitApprovedSignBatchTx;
+  }
+
+  constructor(
+    public readonly msgId: string,
+    public readonly signer: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["msgId", "signer"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SubmitApprovedSignBatchTxMsg.type();
   }
 }
 
