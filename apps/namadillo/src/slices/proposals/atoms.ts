@@ -2,19 +2,22 @@ import {
   Proposal,
   ProposalStatus,
   ProposalTypeString,
+  VoteProposalProps,
   VoteType,
 } from "@namada/types";
 import { useAtomValue } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
+import { TransactionPair } from "lib/query";
 import { defaultAccountAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
+import { GasConfig } from "types/fees";
 import {
+  createVoteProposalTx,
   fetchAllProposals,
   fetchProposalById,
   fetchProposalVoted,
   fetchVotedProposalIds,
-  performVote,
 } from "./functions";
 
 import { indexerApiAtom } from "slices/api";
@@ -172,23 +175,34 @@ export const votedProposalIdsAtom = atomWithQuery((get) => {
   };
 });
 
-type PerformVoteArgs = {
+type CreateVoteTxArgs = {
   proposalId: bigint;
   vote: VoteType;
+  gasConfig: GasConfig;
 };
-export const performVoteAtom = atomWithMutation((get) => {
+
+export const createVoteTxAtom = atomWithMutation((get) => {
   const account = get(defaultAccountAtom);
-  const api = get(indexerApiAtom);
 
   return {
     enabled: account.isSuccess,
     mutationKey: ["voting"],
-    mutationFn: async ({ proposalId, vote }: PerformVoteArgs) => {
+    mutationFn: async ({
+      proposalId,
+      vote,
+      gasConfig,
+    }: CreateVoteTxArgs): Promise<TransactionPair<VoteProposalProps>[]> => {
       const chain = get(chainAtom);
       if (typeof account.data === "undefined") {
         throw new Error("no account");
       }
-      performVote(api, proposalId, vote, account.data, chain);
+      return createVoteProposalTx(
+        proposalId,
+        vote,
+        account.data,
+        gasConfig,
+        chain
+      );
     },
   };
 });

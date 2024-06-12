@@ -6,8 +6,6 @@ import {
   ProposalTypeEnum as IndexerProposalTypeEnum,
   VotingPower as IndexerVotingPower,
 } from "@anomaorg/namada-indexer-client";
-import { EncodedTx } from "@heliax/namada-sdk/web";
-import { getIntegration } from "@namada/integrations";
 import {
   Account,
   AddRemove,
@@ -18,19 +16,17 @@ import {
   ProposalType,
   TallyType,
   Vote,
+  VoteProposalProps,
   VoteType,
 } from "@namada/types";
 import BigNumber from "bignumber.js";
 import * as E from "fp-ts/Either";
 import * as t from "io-ts";
+import { TransactionPair, buildTxPair } from "lib/query";
+import { GasConfig } from "types/fees";
 
 import { fromHex } from "@cosmjs/encoding";
 import { getSdkInstance } from "hooks";
-
-const {
-  NAMADA_INTERFACE_NAMADA_TOKEN:
-    nativeToken = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
-} = process.env;
 
 // TODO: this function is way too big
 const decodeProposalType = (
@@ -308,71 +304,33 @@ export const fetchVotedProposalIds = async (
   return proposalIds;
 };
 
-export const performVote = async (
-  api: DefaultApi,
+export const createVoteProposalTx = async (
   proposalId: bigint,
   vote: VoteType,
   account: Account,
+  gasConfig: GasConfig,
   chain: Chain
-): Promise<void> => {
-  const signingClient = getIntegration("namada").signer();
-
-  if (typeof signingClient === "undefined") {
-    throw new Error("no signer");
-  }
-
-  const publicKey = account.publicKey;
-  if (typeof publicKey === "undefined") {
-    throw new Error("no public key on account");
-  }
-  const { tx, rpc } = await getSdkInstance();
-  const signer = account.address;
-
-  const proposalProps = {
-    signer,
-    proposalId,
-    vote,
-  };
-
-  const wrapperTxProps = {
-    token: nativeToken,
-    feeAmount: BigNumber(0),
-    gasLimit: BigNumber(20_000),
-    chainId: chain.chainId,
-    publicKey,
-    memo: "",
-  };
-
-  const txArray: EncodedTx[] = [];
-
-  // RevealPK if needed
-  const { publicKey: pk } = (await api.apiV1RevealedPublicKeyAddressGet(signer))
-    .data;
-
-  if (!pk) {
-    const revealPkTx = await tx.buildRevealPk(wrapperTxProps, signer);
-    // Add to txArray to sign & broadcast below:
-    txArray.push(revealPkTx);
-  }
-
-  const encodedTx = await tx.buildVoteProposal(wrapperTxProps, proposalProps);
-  txArray.push(encodedTx);
-
+): Promise<TransactionPair<VoteProposalProps>[]> => {
   try {
-    const signedTx = await signingClient.sign(
-      signer,
-      txArray.map(({ tx }) => tx)
+    const { tx } = await getSdkInstance();
+
+    const voteProposalProps = {
+      signer: account.address,
+      proposalId,
+      vote,
+    };
+
+    const transactionPairs = await buildTxPair(
+      account,
+      gasConfig,
+      chain,
+      [voteProposalProps],
+      tx.buildVoteProposal,
+      account.address
     );
-    if (!signedTx) {
-      throw new Error("Signing failed");
-    }
-    txArray.forEach(async (tx, i) => {
-      await rpc.broadcastTx({
-        wrapperTxMsg: tx.txMsg,
-        tx: signedTx[i],
-      });
-    });
-  } catch (e) {
-    console.error(e);
+    return transactionPairs;
+  } catch (err) {
+    console.error(err);
+    throw err;
   }
 };

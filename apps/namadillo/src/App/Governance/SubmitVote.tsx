@@ -5,17 +5,38 @@ import {
   Stack,
   TickedRadioList,
 } from "@namada/components";
-import { VoteType, isVoteType, voteTypes } from "@namada/types";
+import {
+  VoteProposalProps,
+  VoteType,
+  isVoteType,
+  voteTypes,
+} from "@namada/types";
 import { TransactionFees } from "App/Common/TransactionFees";
+import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useProposalIdParam } from "hooks";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
+import { TransactionPair, broadcastTx } from "lib/query";
 import { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { GAS_LIMIT } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
-import { performVoteAtom, proposalFamily } from "slices/proposals";
+import { createVoteTxAtom, proposalFamily } from "slices/proposals";
+
+const dispatchVoteTx = (
+  transactions: TransactionPair<VoteProposalProps>[]
+): void => {
+  for (const tx of transactions) {
+    broadcastTx(
+      tx.encodedTxData.encodedTx,
+      tx.signedTx,
+      tx.encodedTxData.meta?.props,
+      "VoteProposal"
+    );
+  }
+};
 
 export const SubmitVote: React.FC = () => {
   const proposalId = useProposalIdParam();
@@ -29,12 +50,17 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
   proposalId,
 }) => {
   const navigate = useNavigate();
-  const { mutate: performVote, isSuccess } = useAtomValue(performVoteAtom);
+  const {
+    mutate: createVoteTx,
+    isSuccess,
+    data: voteTxData,
+  } = useAtomValue(createVoteTxAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
 
   useEffect(() => {
     if (isSuccess) {
-      dispatchSuccessNotification();
+      dispatchPendingNotification();
+      dispatchVoteTx(voteTxData);
       onCloseModal();
     }
   }, [isSuccess]);
@@ -48,26 +74,29 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
 
   const onCloseModal = (): void => navigate(-1);
 
-  const dispatchSuccessNotification = (): void => {
+  const dispatchPendingNotification = (): void => {
     dispatchNotification({
       id: "proposal-voted",
       type: "pending",
       title: "Governance transaction in progress",
-      description: `You've voted ${selectedVoteType} for the proposal
-          #${proposalId}. Your transaction is being procesed.`,
+      description: `You've voted ${selectedVoteType} for proposal
+          #${proposalId}. Your transaction is being processed.`,
     });
   };
 
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
-    invariant(!Number.isNaN(proposalId), "Proposal ID is not a number");
     invariant(
       typeof selectedVoteType !== "undefined",
       "There is no selected vote type"
     );
-    performVote({
+    createVoteTx({
       proposalId,
       vote: selectedVoteType,
+      gasConfig: {
+        gasPrice: BigNumber(0),
+        gasLimit: GAS_LIMIT,
+      },
     });
   };
 

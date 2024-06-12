@@ -2,7 +2,8 @@ export type TransactionEventsClasses =
   | "Bond"
   | "Unbond"
   | "ReDelegate"
-  | "Withdraw";
+  | "Withdraw"
+  | "VoteProposal";
 
 export type TransactionEventsStatus = "Pending" | "Error" | "Success";
 

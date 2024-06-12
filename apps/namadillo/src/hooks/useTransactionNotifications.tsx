@@ -3,6 +3,7 @@ import {
   BondProps,
   RedelegateProps,
   UnbondProps,
+  VoteProposalProps,
   WithdrawProps,
 } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
@@ -45,7 +46,7 @@ export const useTransactionNotifications = (): void => {
       dispatchNotification({
         id: e.detail.transactionId,
         title: "Staking transaction succeeded",
-        description: `Your staking transaction of ${e.detail.data.amount} NAM to ${address} has been succeeded`,
+        description: `Your staking transaction of ${e.detail.data.amount} NAM to ${address} has succeeded`,
         type: "success",
         timeout: 5000,
       });
@@ -137,6 +138,34 @@ export const useTransactionNotifications = (): void => {
           description:
             `Your withdrawal transaction ` + ` from ${address} has failed`,
           type: "error",
+          timeout: 5000,
+        });
+      }
+    );
+
+    addTransactionEvent(
+      "VoteProposal.Error",
+      (e: EventData<VoteProposalProps>): void => {
+        clearPendingNotifications();
+        dispatchNotification({
+          id: e.detail.transactionId,
+          type: "error",
+          title: "Staking transaction failed",
+          description: `Your vote transaction for proposal ${e.detail.data.proposalId} has failed.`,
+          timeout: 5000,
+        });
+      }
+    );
+
+    addTransactionEvent(
+      "VoteProposal.Success",
+      (e: EventData<VoteProposalProps>): void => {
+        clearPendingNotifications();
+        dispatchNotification({
+          id: e.detail.transactionId,
+          title: "Staking transaction succeeded",
+          description: `Your vote transaction for proposal ${e.detail.data.proposalId} has succeeded`,
+          type: "success",
           timeout: 5000,
         });
       }
