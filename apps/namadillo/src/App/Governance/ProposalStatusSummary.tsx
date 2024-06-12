@@ -174,13 +174,18 @@ const Loaded: React.FC<{
 }> = (props) => {
   const { status, yay, nay, abstain, totalVotingPower, tallyType } = props;
 
-  const [hoveredVoteType, setHoveredVoteType] = useState<
-    VoteType | undefined
-  >();
-
   const yayNayAbstainSummedPower = BigNumber.sum(yay, nay, abstain);
 
   const zeroVotes = yayNayAbstainSummedPower.isEqualTo(0);
+
+  const highestVoteType: VoteType | undefined =
+    zeroVotes ? undefined : (
+      voteTypes.reduce((a, b) => (props[a] > props[b] ? a : b))
+    );
+
+  const [hoveredVoteType, setHoveredVoteType] = useState<VoteType | undefined>(
+    highestVoteType
+  );
 
   const votedProportion =
     totalVotingPower.isEqualTo(0) ?
@@ -210,7 +215,7 @@ const Loaded: React.FC<{
     }
   };
 
-  const handleMouseLeave = (): void => setHoveredVoteType(undefined);
+  const handleMouseLeave = (): void => setHoveredVoteType(highestVoteType);
 
   const pieChartMiddle = (
     <AnimatePresence>
