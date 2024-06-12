@@ -18,7 +18,6 @@ import {
 } from "./functions";
 
 import { indexerApiAtom } from "slices/api";
-import { queryClient } from "store";
 
 export const proposalFamily = atomFamily((id: bigint) =>
   atomWithQuery((get) => {
@@ -49,6 +48,9 @@ export type StoredProposal = Pick<
     | Pick<Proposal, "status" | "yay" | "nay" | "abstain" | "totalVotingPower">
   );
 
+// TODO: switch this back on
+export const proposalFamilyPersist = proposalFamily;
+/*
 export const proposalFamilyPersist = atomFamily((id: bigint) =>
   atomWithQuery<StoredProposal>(
     (get) => {
@@ -103,6 +105,7 @@ export const proposalFamilyPersist = atomFamily((id: bigint) =>
     () => queryClient
   )
 );
+*/
 
 export const proposalVotedFamily = atomFamily((id: bigint) => {
   const account = useAtomValue(defaultAccountAtom);
