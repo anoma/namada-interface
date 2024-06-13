@@ -5,7 +5,7 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { Validator } from "slices/validators";
 import { twMerge } from "tailwind-merge";
-import { ValidatorName } from "./ValidatorName";
+import { ValidatorCard } from "./ValidatorCard";
 import { ValidatorsTable } from "./ValidatorsTable";
 
 type IncrementBondingTableProps = {
@@ -51,7 +51,7 @@ export const IncrementBondingTable = ({
       className: "",
       cells: [
         // Validator Alias + Avatar
-        <ValidatorName
+        <ValidatorCard
           key={`increment-bonding-alias-${validator.address}`}
           validator={validator}
           hasStake={hasStakedAmount}

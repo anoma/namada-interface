@@ -5,7 +5,7 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { MyValidator, Validator } from "slices/validators";
 import { twMerge } from "tailwind-merge";
-import { ValidatorName } from "./ValidatorName";
+import { ValidatorCard } from "./ValidatorCard";
 import { ValidatorsTable } from "./ValidatorsTable";
 
 type UnstakeBondingTableProps = {
@@ -49,7 +49,7 @@ export const UnstakeBondingTable = ({
       className: "",
       cells: [
         // Validator Alias + Avatar
-        <ValidatorName
+        <ValidatorCard
           key={`validator-name-${validator.address}`}
           validator={validator}
           hasStake={true}

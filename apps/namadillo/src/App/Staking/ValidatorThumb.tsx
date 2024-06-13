@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { CiServer } from "react-icons/ci";
 import { PiStackBold } from "react-icons/pi";
 import { twMerge } from "tailwind-merge";
 
@@ -16,16 +17,20 @@ export const ValidatorThumb = ({
   hasStake = false,
 }: ValidatorThumbProps): JSX.Element => {
   return (
-    <span className="relative">
-      <img
-        src={imageUrl}
-        alt={alt}
-        title={alt}
-        className={twMerge(
-          "rounded-full aspect-square w-8 bg-neutral-900",
-          className
-        )}
-      />
+    <span className="flex items-center justify-center relative w-8 aspect-square rounded-full bg-neutral-600/30">
+      {imageUrl && (
+        <img
+          src={imageUrl}
+          alt={alt}
+          title={alt}
+          className={twMerge("aspect-square w-8", className)}
+        />
+      )}
+      {!imageUrl && (
+        <span className="text-lg text-neutral-500">
+          <CiServer />
+        </span>
+      )}
       {hasStake && (
         <i
           className={clsx(
