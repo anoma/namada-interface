@@ -1,7 +1,6 @@
 import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
-  ApproveSignBatchTxMsg,
   ApproveSignTxMsg,
   IsConnectionApprovedMsg,
 } from "provider";
@@ -12,7 +11,6 @@ import {
   RejectSignTxMsg,
   RevokeConnectionMsg,
   SubmitApprovedSignArbitraryMsg,
-  SubmitApprovedSignBatchTxMsg,
   SubmitApprovedSignTxMsg,
 } from "./messages";
 import { ApprovalsService } from "./service";
@@ -42,11 +40,6 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         );
       case ApproveSignTxMsg:
         return handleApproveSignTxMsg(service)(env, msg as ApproveSignTxMsg);
-      case ApproveSignBatchTxMsg:
-        return handleApproveSignBatchTxMsg(service)(
-          env,
-          msg as ApproveSignBatchTxMsg
-        );
       case RejectSignTxMsg:
         return handleRejectSignTxMsg(service)(env, msg as RejectSignTxMsg);
       case SubmitApprovedSignTxMsg:
@@ -54,12 +47,6 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
           env,
           msg as SubmitApprovedSignTxMsg
         );
-      case SubmitApprovedSignBatchTxMsg:
-        return handleSubmitApprovedSignBatchTxMsg(service)(
-          env,
-          msg as SubmitApprovedSignBatchTxMsg
-        );
-
       case ApproveSignArbitraryMsg:
         return handleApproveSignArbitraryMsg(service)(
           env,
@@ -125,16 +112,8 @@ const handleRevokeConnectionMsg: (
 const handleApproveSignTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveSignTxMsg> = (service) => {
-  return async (_, { signer, tx, txType }) => {
-    return await service.approveSignTx(txType, signer, tx);
-  };
-};
-
-const handleApproveSignBatchTxMsg: (
-  service: ApprovalsService
-) => InternalHandler<ApproveSignBatchTxMsg> = (service) => {
-  return async (_, { signer, batchTx, txs, txType }) => {
-    return await service.approveSignBatchTx(txType, batchTx, txs, signer);
+  return async (_, { signer, tx, txType, wrapperTxMsg }) => {
+    return await service.approveSignTx(txType, signer, tx, wrapperTxMsg);
   };
 };
 
@@ -151,14 +130,6 @@ const handleSubmitApprovedSignTxMsg: (
 ) => InternalHandler<SubmitApprovedSignTxMsg> = (service) => {
   return async ({ senderTabId: popupTabId }, { msgId, signer }) => {
     return await service.submitSignTx(popupTabId, msgId, signer);
-  };
-};
-
-const handleSubmitApprovedSignBatchTxMsg: (
-  service: ApprovalsService
-) => InternalHandler<SubmitApprovedSignBatchTxMsg> = (service) => {
-  return async ({ senderTabId: popupTabId }, { msgId, signer }) => {
-    return await service.submitSignBatchTx(popupTabId, msgId, signer);
   };
 };
 

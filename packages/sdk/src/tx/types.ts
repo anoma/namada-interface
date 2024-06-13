@@ -57,5 +57,5 @@ export class SignedTx {
   ) {}
 }
 
-export { BatchTx, BuiltTx, TxType, TxTypeLabel } from "@namada/shared";
+export { BuiltTx, TxType, TxTypeLabel } from "@namada/shared";
 export type { SupportedTx } from "@namada/shared";

@@ -5,7 +5,6 @@ import {
   Signer as ISigner,
   SignArbitraryProps,
   SignArbitraryResponse,
-  SignBatchProps,
   SignProps,
   VerifyArbitraryProps,
 } from "@namada/types";
@@ -38,13 +37,6 @@ export class InjectedNamada implements INamada {
   public async sign(props: SignProps): Promise<Uint8Array> {
     return await InjectedProxy.requestMethod<SignProps, Uint8Array>(
       "sign",
-      props
-    );
-  }
-
-  public async signBatch(props: SignBatchProps): Promise<Uint8Array> {
-    return await InjectedProxy.requestMethod<SignBatchProps, Uint8Array>(
-      "signBatch",
       props
     );
   }

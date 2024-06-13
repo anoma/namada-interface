@@ -21,7 +21,7 @@ export type {
   Unbonds,
 } from "./rpc";
 
-export { BatchTx, BuiltTx, TxType, TxTypeLabel } from "./tx";
+export { BuiltTx, TxType, TxTypeLabel } from "./tx";
 export type { EncodedTx, SignedTx, SupportedTx } from "./tx";
 
 export { Sdk } from "./sdk";

@@ -18,7 +18,6 @@ import { SessionPassword, VaultService } from "background/vault";
 
 import {
   ApprovalsService,
-  PendingBatchTx,
   PendingTx,
   init as initApprovals,
 } from "../background/approvals";
@@ -66,9 +65,7 @@ export const init = async (): Promise<{
   const vaultStorage = new VaultStorage(new KVStoreMock(KVPrefix.IndexedDB));
   const namadaRouterId = await getNamadaRouterId(localStorage);
   const requester = new ExtensionRequester(messenger, namadaRouterId);
-  const txStore = new KVStoreMock<PendingTx | PendingBatchTx>(
-    KVPrefix.LocalStorage
-  );
+  const txStore = new KVStoreMock<PendingTx>(KVPrefix.LocalStorage);
   const dataStore = new KVStoreMock<string>(KVPrefix.LocalStorage);
   const broadcaster = new ExtensionBroadcaster(localStorage, requester);
 

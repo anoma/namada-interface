@@ -68,14 +68,16 @@ const Unstake = (): JSX.Element => {
       account,
       "Extension is not connected or you don't have an account"
     );
+    const changes = parseUpdatedAmounts();
     invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
     invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
+    const unbondGasLimit = gasLimits.data!.Unbond.native;
     createUnbondTx({
-      changes: parseUpdatedAmounts(),
+      changes,
       account,
       gasConfig: {
         gasPrice: minimumGasPrice.data!,
-        gasLimit: gasLimits.data!.Unbond.native,
+        gasLimit: unbondGasLimit.multipliedBy(changes.length),
       },
     });
   };
@@ -119,7 +121,7 @@ const Unstake = (): JSX.Element => {
   ): void => {
     for (const tx of transactions) {
       broadcastTx(
-        tx.encodedTxData.encodedTx,
+        tx.encodedTxData.tx,
         tx.signedTx,
         tx.encodedTxData.meta?.props,
         "Unbond"

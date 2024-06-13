@@ -25,7 +25,6 @@ enum MessageType {
   AddLedgerAccount = "add-ledger-account",
   RevealAccountMnemonic = "reveal-account-mnemonic",
   RenameAccount = "rename-account",
-  QueryAccountDetails = "query-account-details",
 }
 
 export class GenerateMnemonicMsg extends Message<string[]> {
@@ -349,32 +348,5 @@ export class DeleteAccountMsg extends Message<
 
   type(): string {
     return DeleteAccountMsg.type();
-  }
-}
-
-export class QueryAccountDetailsMsg extends Message<
-  DerivedAccount | undefined
-> {
-  public static type(): MessageType {
-    return MessageType.QueryAccountDetails;
-  }
-
-  constructor(public address: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.address) {
-      throw new Error("Account address is required!");
-    }
-    return;
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return QueryAccountDetailsMsg.type();
   }
 }

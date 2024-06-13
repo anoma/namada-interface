@@ -14,13 +14,15 @@
 - [signing\_data\_bytes](BuiltTx.md#signing_data_bytes)
 - [tx\_bytes](BuiltTx.md#tx_bytes)
 - [tx\_hash](BuiltTx.md#tx_hash)
+- [tx\_hashes](BuiltTx.md#tx_hashes)
 - [tx\_type](BuiltTx.md#tx_type)
+- [wrapper\_tx\_msg](BuiltTx.md#wrapper_tx_msg)
 
 ## Constructors
 
 ### constructor
 
-• **new BuiltTx**(`tx_type`, `tx_bytes`, `signing_data_bytes`): [`BuiltTx`](BuiltTx.md)
+• **new BuiltTx**(`tx_type`, `tx_bytes`, `signing_data_bytes`, `wrapper_tx_msg`): [`BuiltTx`](BuiltTx.md)
 
 #### Parameters
 
@@ -29,6 +31,7 @@
 | `tx_type` | [`TxType`](../enums/TxType.md) |
 | `tx_bytes` | `Uint8Array` |
 | `signing_data_bytes` | `Uint8Array` |
+| `wrapper_tx_msg` | `Uint8Array` |
 
 #### Returns
 
@@ -36,7 +39,7 @@
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:89
+shared/src/shared/shared.d.ts:64
 
 ## Methods
 
@@ -50,7 +53,7 @@ shared/src/shared/shared.d.ts:89
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:83
+shared/src/shared/shared.d.ts:57
 
 ___
 
@@ -64,7 +67,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:101
+shared/src/shared/shared.d.ts:80
 
 ___
 
@@ -78,7 +81,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:93
+shared/src/shared/shared.d.ts:68
 
 ___
 
@@ -92,7 +95,21 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:97
+shared/src/shared/shared.d.ts:72
+
+___
+
+### tx\_hashes
+
+▸ **tx_hashes**(): `string`[]
+
+#### Returns
+
+`string`[]
+
+#### Defined in
+
+shared/src/shared/shared.d.ts:76
 
 ___
 
@@ -106,4 +123,18 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:105
+shared/src/shared/shared.d.ts:84
+
+___
+
+### wrapper\_tx\_msg
+
+▸ **wrapper_tx_msg**(): `Uint8Array`
+
+#### Returns
+
+`Uint8Array`
+
+#### Defined in
+
+shared/src/shared/shared.d.ts:88
