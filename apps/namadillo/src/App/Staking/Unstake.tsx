@@ -97,7 +97,7 @@ const Unstake = (): JSX.Element => {
   ): void => {
     for (const tx of transactions) {
       broadcastTx(
-        tx.encodedTxData.encodedTx,
+        tx.encodedTxData.tx,
         tx.signedTx,
         tx.encodedTxData.meta?.props,
         "Unbond"

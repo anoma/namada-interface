@@ -1,6 +1,6 @@
 import { DerivedAccount } from "./account";
 import { Chain } from "./chain";
-import { SignArbitraryResponse, Signer, TxData } from "./signer";
+import { BatchTxData, SignArbitraryResponse, Signer, TxData } from "./signer";
 
 export type SignArbitraryProps = {
   signer: string;
@@ -11,13 +11,14 @@ export type SignProps = {
   txType: unknown;
   signer: string;
   tx: TxData;
+  wrapperTxMsg: Uint8Array;
 };
 
 export type SignBatchProps = {
   txType: unknown;
-  // BatchTx Instance (see @heliax/namada-sdk)
-  batchTx: unknown;
+  batchTx: BatchTxData;
   signer: string;
+  wrapperTxMsg: Uint8Array;
 };
 
 export type VerifyArbitraryProps = {

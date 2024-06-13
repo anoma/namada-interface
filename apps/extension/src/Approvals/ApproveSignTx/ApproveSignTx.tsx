@@ -24,13 +24,15 @@ export const ApproveSignTx: React.FC<Props> = ({ setDetails }) => {
     (params?.accountType as AccountType) || AccountType.PrivateKey;
   const msgId = params?.msgId || "0";
   const signer = params?.signer;
+  const signType = params?.signType;
 
   useEffect(() => {
-    if (signer && msgId) {
+    if (signer && msgId && signType) {
       setDetails({
         msgId,
         signer,
         accountType,
+        signType,
       });
     }
   }, []);

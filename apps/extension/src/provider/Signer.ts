@@ -2,6 +2,7 @@ import { chains } from "@namada/chains";
 import {
   Account,
   AccountType,
+  BatchTxData,
   Signer as ISigner,
   Namada,
   SignArbitraryResponse,
@@ -9,7 +10,7 @@ import {
 } from "@namada/types";
 
 export class Signer implements ISigner {
-  constructor(private readonly _namada: Namada) {}
+  constructor(private readonly _namada: Namada) { }
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts())?.map(
@@ -45,29 +46,33 @@ export class Signer implements ISigner {
 
   public async sign(
     txType: unknown,
-    { txData, signingData }: TxData,
-    signer: string
+    { txBytes, signingDataBytes }: TxData,
+    signer: string,
+    wrapperTxMsg: Uint8Array
   ): Promise<Uint8Array | undefined> {
     // TODO: Handle only a single Tx!
     return await this._namada.sign({
       txType,
       signer,
       tx: {
-        txData,
-        signingData,
+        txBytes,
+        signingDataBytes,
       },
+      wrapperTxMsg,
     });
   }
 
   public async signBatch(
     txType: unknown,
-    batchTx: unknown,
-    signer: string
+    batchTx: BatchTxData,
+    signer: string,
+    wrapperTxMsg: Uint8Array
   ): Promise<Uint8Array | undefined> {
     return await this._namada.signBatch({
       txType,
       batchTx,
       signer,
+      wrapperTxMsg,
     });
   }
 

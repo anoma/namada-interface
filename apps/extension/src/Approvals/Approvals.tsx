@@ -25,6 +25,7 @@ export type ApprovalDetails = {
   signer: string;
   accountType: AccountType;
   msgId: string;
+  signType: string;
 };
 
 export type SignArbitraryDetails = {
@@ -50,7 +51,7 @@ export const Approvals: React.FC = () => {
     >
       <Routes>
         <Route
-          path={`${TopLevelRoute.ApproveSignTx}/:msgId/:accountType/:signer`}
+          path={`${TopLevelRoute.ApproveSignTx}/:signType/:msgId/:accountType/:signer`}
           element={<ApproveSignTx setDetails={setDetails} />}
         />
         <Route

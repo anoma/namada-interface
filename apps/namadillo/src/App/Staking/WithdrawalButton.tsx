@@ -61,7 +61,7 @@ export const WithdrawalButton = ({
     tx: TransactionPair<WithdrawMsgValue>
   ): Promise<void> => {
     broadcastTx(
-      tx.encodedTxData.encodedTx,
+      tx.encodedTxData.tx,
       tx.signedTx,
       tx.encodedTxData.meta?.props,
       "Withdraw"
@@ -72,7 +72,7 @@ export const WithdrawalButton = ({
     transaction: TransactionPair<WithdrawMsgValue>
   ): void => {
     dispatchNotification({
-      id: transaction.encodedTxData.encodedTx.hash(),
+      id: transaction.encodedTxData.tx.tx_hash(),
       title: "Withdrawal transaction in progress",
       description: (
         <>

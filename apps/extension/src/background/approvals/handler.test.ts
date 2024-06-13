@@ -48,8 +48,9 @@ describe("approvals handler", () => {
 
     const approveTxMsg = new ApproveSignTxMsg(
       TxType.TransparentTransfer,
-      [],
-      "signer"
+      { txBytes: "", signingDataBytes: "" },
+      "signer",
+      ""
     );
     handler(env, approveTxMsg);
     expect(service.approveSignTx).toBeCalled();

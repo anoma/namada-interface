@@ -31,31 +31,31 @@ export class Tx {
   /**
    * @param sdk - Instance of Sdk struct from wasm lib
    */
-  constructor(protected readonly sdk: SdkWasm) { }
+  constructor(protected readonly sdk: SdkWasm) {}
 
   /**
    * Build a transaction
    * @async
    * @param txType - type of the transaction
    * @param encodedSpecificTx - encoded specific transaction
-   * @param encodedTx - encoded transaction
+   * @param wrapperTxMsg - encoded transaction
    * @param gasPayer - address of the gas payer
    * @returns promise that resolves to an EncodedTx
    */
   async buildTxFromSerializedArgs(
     txType: TxType,
     encodedSpecificTx: Uint8Array,
-    encodedTx: Uint8Array,
+    wrapperTxMsg: Uint8Array,
     gasPayer: string
   ): Promise<EncodedTx> {
     const tx = await this.sdk.build_tx(
       txType,
       encodedSpecificTx,
-      encodedTx,
+      wrapperTxMsg,
       gasPayer
     );
 
-    return new EncodedTx(encodedTx, tx);
+    return new EncodedTx(wrapperTxMsg, tx);
   }
 
   /**
@@ -369,10 +369,15 @@ export class Tx {
    * Build a batched transaction
    * @param txType - transaction type enum
    * @param txs - array of BuiltTx types
+   * @param wrapperTxMsg - Uint8Array of serialized WrapperTxMsg
    * @returns a BatchTx type
    */
-  buildBatch(txType: TxType, txs: BuiltTx[]): BatchTx {
-    return SdkWasm.build_batch(txType, txs);
+  buildBatch(
+    txType: TxType,
+    txs: BuiltTx[],
+    wrapperTxMsg: Uint8Array
+  ): BatchTx {
+    return SdkWasm.build_batch(txType, txs, wrapperTxMsg);
   }
 
   /**

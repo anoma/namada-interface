@@ -1,4 +1,4 @@
-import { BuiltTx } from "@namada/shared";
+import { BatchTx, BuiltTx } from "@namada/shared";
 
 /**
  * Wrap results of tx building along with TxMsg
@@ -11,7 +11,7 @@ export class EncodedTx {
    */
   constructor(
     public readonly txMsg: Uint8Array,
-    public readonly tx: BuiltTx
+    public readonly tx: BuiltTx | BatchTx
   ) {}
 
   /**

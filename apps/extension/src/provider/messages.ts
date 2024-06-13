@@ -1,5 +1,6 @@
 import { TxType } from "@heliax/namada-sdk/web";
 import { Chain, DerivedAccount, SignArbitraryResponse } from "@namada/types";
+import { EncodedBatchTxData, EncodedTxData } from "background/approvals";
 import { Message } from "router";
 import { validateProps } from "utils";
 
@@ -38,14 +39,15 @@ export class ApproveSignTxMsg extends Message<Uint8Array> {
 
   constructor(
     public readonly txType: TxType,
-    public readonly tx: string[],
-    public readonly signer: string
+    public readonly tx: EncodedTxData,
+    public readonly signer: string,
+    public readonly wrapperTxMsg: string
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["txType", "signer", "tx"]);
+    validateProps(this, ["txType", "signer", "tx", "wrapperTxMsg"]);
   }
 
   route(): string {
@@ -64,15 +66,15 @@ export class ApproveSignBatchTxMsg extends Message<Uint8Array> {
 
   constructor(
     public readonly txType: TxType,
-    public readonly batchTx: string,
-    public readonly txs: string[][],
-    public readonly signer: string
+    public readonly batchTx: EncodedBatchTxData,
+    public readonly signer: string,
+    public readonly wrapperTxMsg: string
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["txType", "batchTx", "txs", "signer"]);
+    validateProps(this, ["txType", "batchTx", "signer", "wrapperTxMsg"]);
   }
 
   route(): string {
@@ -170,7 +172,7 @@ export class GetChainMsg extends Message<Chain> {
     super();
   }
 
-  validate(): void {}
+  validate(): void { }
 
   route(): string {
     return Route.Chains;

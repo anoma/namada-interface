@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 
 import { ActionButton, Alert, Input, Stack } from "@namada/components";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
-import { SubmitApprovedSignTxMsg } from "background/approvals";
+import {
+  SubmitApprovedSignBatchTxMsg,
+  SubmitApprovedSignTxMsg,
+} from "background/approvals";
 import { UnlockVaultMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
@@ -14,7 +17,7 @@ type Props = {
 };
 
 export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
-  const { msgId, signer } = details || {};
+  const { msgId, signer, signType } = details || {};
 
   const navigate = useNavigate();
   const requester = useRequester();
@@ -48,7 +51,9 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
 
         await requester.sendMessage(
           Ports.Background,
-          new SubmitApprovedSignTxMsg(msgId, signer)
+          signType === "batch" ?
+            new SubmitApprovedSignBatchTxMsg(msgId, signer)
+            : new SubmitApprovedSignTxMsg(msgId, signer)
         );
 
         setStatus(Status.Completed);

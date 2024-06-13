@@ -11,7 +11,12 @@ import { KeyRingService } from "background/keyring";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
-import { PendingBatchTx, PendingTx } from "./types";
+import {
+  EncodedBatchTxData,
+  EncodedTxData,
+  PendingBatchTx,
+  PendingTx,
+} from "./types";
 
 export class ApprovalsService {
   // holds promises which can be resolved with a message from a pop-up window
@@ -34,7 +39,8 @@ export class ApprovalsService {
   async approveSignTx(
     txType: TxType,
     signer: string,
-    tx: string[]
+    tx: EncodedTxData,
+    wrapperTxMsg: string
   ): Promise<Uint8Array> {
     const msgId = uuid();
 
@@ -44,19 +50,20 @@ export class ApprovalsService {
     }
 
     const pendingTx = {
-      txBytes: fromBase64(tx[0]),
-      signingDataBytes: fromBase64(tx[1]),
+      txBytes: fromBase64(tx.txBytes),
+      signingDataBytes: fromBase64(tx.signingDataBytes),
     };
 
     await this.txStore.set(msgId, {
       txType,
       tx: pendingTx,
       signer,
+      wrapperTxMsg: fromBase64(wrapperTxMsg),
     });
 
     const url = `${browser.runtime.getURL(
       "approvals.html"
-    )}#/approve-sign-tx/${msgId}/${details.type}/${signer}`;
+    )}#/approve-sign-tx/tx/${msgId}/${details.type}/${signer}`;
 
     const popupTabId = await this.getPopupTabId(url);
 
@@ -75,32 +82,34 @@ export class ApprovalsService {
 
   async approveSignBatchTx(
     txType: TxType,
-    batchTx: string,
-    txs: string[][],
-    signer: string
+    batchTx: EncodedBatchTxData,
+    signer: string,
+    wrapperTxMsg: string
   ): Promise<Uint8Array> {
     const msgId = uuid();
-
     const details = await this.keyRingService.queryAccountDetails(signer);
     if (!details) {
       throw new Error(`Could not find account for ${signer}`);
     }
 
-    const pendingTxs = txs.map(([txBytes, signingDataBytes]) => ({
-      txBytes: fromBase64(txBytes),
-      signingDataBytes: fromBase64(signingDataBytes),
-    }));
+    const signingDataBytes =
+      batchTx.signingDataBytes ?
+        fromBase64(batchTx.signingDataBytes)
+      : undefined;
 
     await this.txStore.set(msgId, {
       txType,
-      batchTx,
-      txs: pendingTxs,
+      batchTx: {
+        txBytes: fromBase64(batchTx.txBytes),
+        signingDataBytes,
+      },
       signer,
+      wrapperTxMsg: fromBase64(wrapperTxMsg),
     });
 
     const url = `${browser.runtime.getURL(
       "approvals.html"
-    )}#/approve-sign-tx/${msgId}/${details.type}/${signer}`;
+    )}#/approve-sign-tx/batch/${msgId}/${details.type}/${signer}`;
 
     const popupTabId = await this.getPopupTabId(url);
 
@@ -166,7 +175,8 @@ export class ApprovalsService {
     const builtTx = new BuiltTx(
       pendingTx.txType,
       pendingTx.tx.txBytes,
-      pendingTx.tx.signingDataBytes
+      pendingTx.tx.signingDataBytes,
+      pendingTx.wrapperTxMsg
     );
 
     try {
@@ -195,29 +205,13 @@ export class ApprovalsService {
       throw new Error(`Signing data for ${msgId} not found!`);
     }
 
-    const { txType, batchTx, txs } = pendingBatchTx;
-
-    const builtTxs = txs.map(
-      ({ txBytes, signingDataBytes }) =>
-        new BuiltTx(pendingBatchTx.txType, txBytes, signingDataBytes)
-    );
-
-    // Sign inner Txs
-    const signedTxs = await Promise.all(
-      builtTxs.map(
-        async (builtTx) => await this.keyRingService.sign(builtTx, signer)
-      )
-    );
-
-    const signedBuiltTxs = signedTxs.map(
-      (signedTx, i) =>
-        new BuiltTx(txType, signedTx, builtTxs[i].signing_data_bytes())
-    );
+    const { txType, batchTx, wrapperTxMsg } = pendingBatchTx;
 
     const batchTxInstance = new BatchTx(
-      pendingBatchTx.txType,
-      fromBase64(batchTx),
-      signedBuiltTxs
+      txType,
+      batchTx.txBytes,
+      batchTx.signingDataBytes ? batchTx.signingDataBytes : undefined,
+      wrapperTxMsg
     );
 
     try {

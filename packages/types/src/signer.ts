@@ -6,8 +6,14 @@ export type SignArbitraryResponse = {
 };
 
 export type TxData = {
-  txData: Uint8Array;
-  signingData: Uint8Array;
+  txBytes: Uint8Array;
+  signingDataBytes: Uint8Array;
+};
+
+export type BatchTxData = {
+  txBytes: Uint8Array;
+  // TODO: This should be UintArray[]
+  signingDataBytes?: Uint8Array;
 };
 
 export interface Signer {
@@ -16,13 +22,14 @@ export interface Signer {
   sign: (
     txType: unknown,
     tx: TxData,
-    signer: string
+    signer: string,
+    wrapperTxMsg: Uint8Array
   ) => Promise<Uint8Array | undefined>;
   signBatch: (
     txType: unknown,
-    // BatchTx instance
-    batchTx: unknown,
-    signer: string
+    batchTx: BatchTxData,
+    signer: string,
+    wrapperTxMsg: Uint8Array
   ) => Promise<Uint8Array | undefined>;
   signArbitrary: (
     signer: string,

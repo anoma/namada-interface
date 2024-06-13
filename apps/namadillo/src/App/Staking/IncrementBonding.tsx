@@ -90,7 +90,9 @@ const IncrementBonding = (): JSX.Element => {
       account,
       gasConfig: {
         gasPrice: gasPrice.data!,
-        gasLimit: gasLimits.data!.Bond.native,
+        gasLimit: gasLimits.data!.Bond.native.multipliedBy(
+          parseUpdatedAmounts().length
+        ),
       },
     });
   };
@@ -114,7 +116,7 @@ const IncrementBonding = (): JSX.Element => {
   ): void => {
     for (const tx of transactions) {
       broadcastTx(
-        tx.encodedTxData.encodedTx,
+        tx.encodedTxData.tx,
         tx.signedTx,
         tx.encodedTxData.meta?.props,
         "Bond"
