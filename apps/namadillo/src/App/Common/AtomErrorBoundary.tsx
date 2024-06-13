@@ -6,7 +6,6 @@ import { twMerge } from "tailwind-merge";
 type AtomErrorBoundaryProps = {
   result: AtomWithQueryResult | AtomWithQueryResult[];
   niceError: string;
-  successIf?: boolean;
   children?: React.ReactNode;
   containerProps?: React.ComponentPropsWithoutRef<"div">;
   buttonProps?: React.ComponentPropsWithoutRef<"button">;
@@ -16,7 +15,6 @@ export const AtomErrorBoundary = ({
   result,
   niceError,
   containerProps,
-  successIf,
   children,
   buttonProps,
 }: AtomErrorBoundaryProps): JSX.Element => {
@@ -37,10 +35,6 @@ export const AtomErrorBoundary = ({
     }
     result.forEach((r) => r.refetch());
   };
-
-  if ((successIf === undefined || successIf) && !hasError) {
-    return children as JSX.Element;
-  }
 
   if (hasError) {
     return (
@@ -72,5 +66,5 @@ export const AtomErrorBoundary = ({
     );
   }
 
-  return <></>;
+  return children as JSX.Element;
 };

@@ -55,7 +55,6 @@ export const AccountBalanceContainer = (): JSX.Element => {
       <AtomErrorBoundary
         result={accountBalance}
         niceError="Balance couldn't be loaded"
-        successIf={balanceHasLoaded && !!totalBalance}
       >
         {balanceHasLoaded && totalBalance && (
           <Stack
