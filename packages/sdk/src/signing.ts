@@ -1,4 +1,4 @@
-import { BatchTx, BuiltTx, Sdk as SdkWasm } from "@namada/shared";
+import { BuiltTx, Sdk as SdkWasm } from "@namada/shared";
 
 type Signature = [string, string];
 
@@ -25,21 +25,6 @@ export class Signing {
     chainId?: string
   ): Promise<Uint8Array> {
     return await this.sdk.sign_tx(builtTx, signingKey, chainId);
-  }
-
-  /**
-   * Sign Namada batched transaction
-   * @param batchTx - BatchTx instance
-   * @param signingKey - private key
-   * @param [chainId] - optional chain ID, will enforce validation if present
-   * @returns signed tx bytes - Promise resolving to Uint8Array
-   */
-  async signBatch(
-    batchTx: BatchTx,
-    signingKey: string,
-    chainId?: string
-  ): Promise<Uint8Array> {
-    return await this.sdk.sign_batch(batchTx, signingKey, chainId);
   }
 
   /**

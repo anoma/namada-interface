@@ -50,7 +50,7 @@ SDK functionality related to transactions
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:34](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L34)
+[sdk/src/tx/tx.ts:34](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L34)
 
 ## Properties
 
@@ -62,7 +62,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:34](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L34)
+[sdk/src/tx/tx.ts:34](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L34)
 
 ## Methods
 
@@ -87,13 +87,13 @@ Append signature for transactions signed by Ledger Hardware Wallet
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:401](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L401)
+[sdk/src/tx/tx.ts:406](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L406)
 
 ___
 
 ### buildBatch
 
-▸ **buildBatch**(`txType`, `txs`): [`BatchTx`](BatchTx.md)
+▸ **buildBatch**(`txType`, `txs`, `wrapperTxMsg`): [`BuiltTx`](BuiltTx.md)
 
 Build a batched transaction
 
@@ -103,16 +103,17 @@ Build a batched transaction
 | :------ | :------ | :------ |
 | `txType` | [`TxType`](../enums/TxType.md) | transaction type enum |
 | `txs` | [`BuiltTx`](BuiltTx.md)[] | array of BuiltTx types |
+| `wrapperTxMsg` | `Uint8Array` | Uint8Array of serialized WrapperTxMsg |
 
 #### Returns
 
-[`BatchTx`](BatchTx.md)
+[`BuiltTx`](BuiltTx.md)
 
-a BatchTx type
+a BuiltTx type
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:374](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L374)
+[sdk/src/tx/tx.ts:375](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L375)
 
 ___
 
@@ -140,7 +141,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:193](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L193)
+[sdk/src/tx/tx.ts:193](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L193)
 
 ___
 
@@ -168,7 +169,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:322](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L322)
+[sdk/src/tx/tx.ts:322](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L322)
 
 ___
 
@@ -196,7 +197,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:295](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L295)
+[sdk/src/tx/tx.ts:295](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L295)
 
 ___
 
@@ -224,7 +225,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:268](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L268)
+[sdk/src/tx/tx.ts:268](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L268)
 
 ___
 
@@ -251,7 +252,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:171](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L171)
+[sdk/src/tx/tx.ts:171](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L171)
 
 ___
 
@@ -279,7 +280,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:144](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L144)
+[sdk/src/tx/tx.ts:144](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L144)
 
 ___
 
@@ -308,13 +309,13 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:70](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L70)
+[sdk/src/tx/tx.ts:70](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L70)
 
 ___
 
 ### buildTxFromSerializedArgs
 
-▸ **buildTxFromSerializedArgs**(`txType`, `encodedSpecificTx`, `encodedTx`, `gasPayer`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildTxFromSerializedArgs**(`txType`, `encodedSpecificTx`, `wrapperTxMsg`, `gasPayer`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
 
 Build a transaction
 
@@ -324,7 +325,7 @@ Build a transaction
 | :------ | :------ | :------ |
 | `txType` | [`TxType`](../enums/TxType.md) | type of the transaction |
 | `encodedSpecificTx` | `Uint8Array` | encoded specific transaction |
-| `encodedTx` | `Uint8Array` | encoded transaction |
+| `wrapperTxMsg` | `Uint8Array` | encoded transaction |
 | `gasPayer` | `string` | address of the gas payer |
 
 #### Returns
@@ -337,7 +338,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:45](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L45)
+[sdk/src/tx/tx.ts:45](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L45)
 
 ___
 
@@ -365,7 +366,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:218](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L218)
+[sdk/src/tx/tx.ts:218](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L218)
 
 ___
 
@@ -393,7 +394,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:349](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L349)
+[sdk/src/tx/tx.ts:349](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L349)
 
 ___
 
@@ -421,7 +422,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:243](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L243)
+[sdk/src/tx/tx.ts:243](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L243)
 
 ___
 
@@ -445,7 +446,7 @@ Serialized WrapperTxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:442](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L442)
+[sdk/src/tx/tx.ts:447](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L447)
 
 ___
 
@@ -473,4 +474,4 @@ void
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:386](https://github.com/anoma/namada-interface/blob/f5f7d02d/packages/sdk/src/tx/tx.ts#L386)
+[sdk/src/tx/tx.ts:391](https://github.com/anoma/namada-interface/blob/13677070/packages/sdk/src/tx/tx.ts#L391)

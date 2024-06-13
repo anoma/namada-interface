@@ -11,13 +11,7 @@ export type SignProps = {
   txType: unknown;
   signer: string;
   tx: TxData;
-};
-
-export type SignBatchProps = {
-  txType: unknown;
-  // BatchTx Instance (see @heliax/namada-sdk)
-  batchTx: unknown;
-  signer: string;
+  wrapperTxMsg: Uint8Array;
 };
 
 export type VerifyArbitraryProps = {
@@ -36,9 +30,7 @@ export interface Namada {
   connect(chainId?: string): Promise<void>;
   isConnected(): Promise<boolean | undefined>;
   defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
-  // TODO: Return single signed Tx bytes
   sign(props: SignProps): Promise<Uint8Array | undefined>;
-  signBatch(props: SignBatchProps): Promise<Uint8Array | undefined>;
   signArbitrary(
     props: SignArbitraryProps
   ): Promise<SignArbitraryResponse | undefined>;

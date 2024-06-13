@@ -6,7 +6,6 @@ import {
   ProposalTypeEnum as IndexerProposalTypeEnum,
   VotingPower as IndexerVotingPower,
 } from "@anomaorg/namada-indexer-client";
-
 import {
   Account,
   AddRemove,

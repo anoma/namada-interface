@@ -114,7 +114,7 @@ export const ReDelegate = (): JSX.Element => {
   ): void => {
     for (const tx of transactions) {
       broadcastTx(
-        tx.encodedTxData.encodedTx,
+        tx.encodedTxData.tx,
         tx.signedTx,
         tx.encodedTxData.meta?.props,
         "ReDelegate"
@@ -127,15 +127,16 @@ export const ReDelegate = (): JSX.Element => {
     invariant(account, `Extension is connected but you don't have an account`);
     invariant(gasPrice, "Gas price loading is still pending");
     invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
-    const redelegationChanges = getAmountDistribution(
+    const redelegateGasLimit = gasLimits.data!.Redelegation.native;
+    const changes = getAmountDistribution(
       amountsRemovedByAddress,
       amountsToAssignByAddress
     );
     createRedelegateTx({
-      changes: redelegationChanges,
+      changes,
       gasConfig: {
         gasPrice: gasPrice,
-        gasLimit: gasLimits.data!.Redelegation.native,
+        gasLimit: redelegateGasLimit.multipliedBy(changes.length),
       },
       account,
     });

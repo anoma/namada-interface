@@ -1,5 +1,6 @@
 import { TxType } from "@heliax/namada-sdk/web";
 import { Chain, DerivedAccount, SignArbitraryResponse } from "@namada/types";
+import { EncodedTxData } from "background/approvals";
 import { Message } from "router";
 import { validateProps } from "utils";
 
@@ -17,7 +18,6 @@ enum Route {
 
 enum MessageType {
   ApproveSignTx = "approve-sign-tx",
-  ApproveSignBatchTx = "approve-sign-batch-tx",
   ApproveSignArbitrary = "approve-sign-arbitrary",
   IsConnectionApproved = "is-connection-approved",
   ApproveConnectInterface = "approve-connect-interface",
@@ -38,14 +38,15 @@ export class ApproveSignTxMsg extends Message<Uint8Array> {
 
   constructor(
     public readonly txType: TxType,
-    public readonly tx: string[],
-    public readonly signer: string
+    public readonly tx: EncodedTxData,
+    public readonly signer: string,
+    public readonly wrapperTxMsg: string
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["txType", "signer", "tx"]);
+    validateProps(this, ["txType", "signer", "tx", "wrapperTxMsg"]);
   }
 
   route(): string {
@@ -54,33 +55,6 @@ export class ApproveSignTxMsg extends Message<Uint8Array> {
 
   type(): string {
     return ApproveSignTxMsg.type();
-  }
-}
-
-export class ApproveSignBatchTxMsg extends Message<Uint8Array> {
-  public static type(): MessageType {
-    return MessageType.ApproveSignBatchTx;
-  }
-
-  constructor(
-    public readonly txType: TxType,
-    public readonly batchTx: string,
-    public readonly txs: string[][],
-    public readonly signer: string
-  ) {
-    super();
-  }
-
-  validate(): void {
-    validateProps(this, ["txType", "batchTx", "txs", "signer"]);
-  }
-
-  route(): string {
-    return Route.Approvals;
-  }
-
-  type(): string {
-    return ApproveSignBatchTxMsg.type();
   }
 }
 

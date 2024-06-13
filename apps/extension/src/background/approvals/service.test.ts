@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AccountType } from "@namada/types";
+import { TxType } from "@heliax/namada-sdk/web";
 import { paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
 import { VaultService } from "background/vault";
@@ -9,7 +9,7 @@ import { LocalStorage } from "storage";
 import { KVStoreMock } from "test/init";
 import * as webextensionPolyfill from "webextension-polyfill";
 import { ApprovalsService } from "./service";
-import { PendingBatchTx, PendingTx } from "./types";
+import { PendingTx } from "./types";
 
 jest.mock("webextension-polyfill", () => ({
   runtime: {
@@ -41,7 +41,7 @@ describe("approvals service", () => {
   let service: ApprovalsService;
   let keyRingService: jest.Mocked<KeyRingService>;
   let dataStore: KVStoreMock<string>;
-  let txStore: KVStoreMock<PendingTx | PendingBatchTx>;
+  let txStore: KVStoreMock<PendingTx>;
   let localStorage: LocalStorage;
 
   afterEach(() => {
@@ -206,12 +206,16 @@ describe("approvals service", () => {
       const tabId = 1;
       const signer = "signer";
       // data expected to be base64-encoded
-      const txData = "dHhEYXRh"; // "txData"
-      const signingData = "c2lnbmluZ0RhdGE="; // "signingData"
+      const txBytes = "dHhEYXRh"; // "txData"
+      const signingDataBytes = "c2lnbmluZ0RhdGE="; // "signingData"
+
+      (keyRingService.queryAccountDetails as any).mockResolvedValue(() => ({}));
+
       const signaturePromise = service.approveSignTx(
-        AccountType.PrivateKey,
+        TxType.Bond,
         signer,
-        [[txData, signingData]]
+        { txBytes, signingDataBytes },
+        ""
       );
       jest.spyOn(service as any, "_clearPendingTx");
 
