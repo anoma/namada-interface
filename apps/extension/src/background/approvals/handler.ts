@@ -7,6 +7,7 @@ import {
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
   ConnectInterfaceResponseMsg,
+  QueryPendingTxBytesMsg,
   QuerySignArbitraryDataMsg,
   QueryTxDetailsMsg,
   RejectSignArbitraryMsg,
@@ -67,6 +68,11 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         );
       case QueryTxDetailsMsg:
         return handleQueryTxDetails(service)(env, msg as QueryTxDetailsMsg);
+      case QueryPendingTxBytesMsg:
+        return handleQueryPendingTxBytes(service)(
+          env,
+          msg as QueryPendingTxBytesMsg
+        );
       case QuerySignArbitraryDataMsg:
         return handleQuerySignArbitraryData(service)(
           env,
@@ -183,6 +189,14 @@ const handleQueryTxDetails: (
 ) => InternalHandler<QueryTxDetailsMsg> = (service) => {
   return async (_, { msgId }) => {
     return await service.queryTxDetails(msgId);
+  };
+};
+
+const handleQueryPendingTxBytes: (
+  service: ApprovalsService
+) => InternalHandler<QueryPendingTxBytesMsg> = (service) => {
+  return async (_, { msgId }) => {
+    return await service.queryPendingTxBytes(msgId);
   };
 };
 
