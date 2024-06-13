@@ -4,7 +4,6 @@ import { ROUTE } from "./constants";
 import { TxDetails } from "@namada/types";
 import { ResponseSign } from "@zondax/ledger-namada";
 import { validateProps } from "utils";
-import { PendingTx } from "./types";
 
 export enum MessageType {
   RejectSignTx = "reject-sign-tx",
@@ -16,7 +15,7 @@ export enum MessageType {
   RevokeConnection = "revoke-connection",
   QueryTxDetails = "query-tx-details",
   QuerySignArbitraryData = "query-sign-arbitrary-data",
-  QueryPendingTx = "query-pending-tx",
+  QueryPendingTxBytes = "query-pending-tx-bytes",
 }
 
 export class SubmitApprovedSignTxMsg extends Message<void> {
@@ -213,9 +212,9 @@ export class QueryTxDetailsMsg extends Message<TxDetails> {
   }
 }
 
-export class QueryPendingTxMsg extends Message<PendingTx | undefined> {
+export class QueryPendingTxBytesMsg extends Message<string | undefined> {
   public static type(): MessageType {
-    return MessageType.QueryPendingTx;
+    return MessageType.QueryPendingTxBytes;
   }
 
   constructor(public readonly msgId: string) {
@@ -231,7 +230,7 @@ export class QueryPendingTxMsg extends Message<PendingTx | undefined> {
   }
 
   type(): string {
-    return QueryPendingTxMsg.type();
+    return QueryPendingTxBytesMsg.type();
   }
 }
 
