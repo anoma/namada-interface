@@ -4,10 +4,11 @@ import { Ledger, makeBip44Path } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Stack } from "@namada/components";
 import { LedgerError, ResponseSign } from "@zondax/ledger-namada";
 
+import { fromBase64 } from "@cosmjs/encoding";
 import { chains } from "@namada/chains";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {
-  QueryPendingTxMsg,
+  QueryPendingTxBytesMsg,
   SubmitApprovedSignLedgerTxMsg,
 } from "background/approvals";
 import { QueryAccountDetailsMsg } from "background/keyring";
@@ -88,17 +89,17 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
           chains.namada.bip44.coinType,
           accountDetails.path
         );
-        const pendingTx = await requester.sendMessage(
+        const pendingTxBytes = await requester.sendMessage(
           Ports.Background,
-          new QueryPendingTxMsg(msgId)
+          new QueryPendingTxBytesMsg(msgId)
         );
-        if (!pendingTx) {
+
+        if (!pendingTxBytes) {
           throw new Error(`Tx for msgId ${msgId} not found!`);
         }
-        // TODO: This Tx should be batched! For now, just iterate over all Tx
         const signature = await signLedgerTx(
           ledger,
-          pendingTx.tx.txBytes,
+          fromBase64(pendingTxBytes),
           path
         );
 
