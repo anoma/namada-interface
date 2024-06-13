@@ -31,7 +31,6 @@ export const Container = ({
               "flex items-center gap-4 text-yellow text-xl not-italic uppercase"
             )}
           >
-            <i className="w-[42px] aspect-square inline-flex rounded-full border-[5px] border-yellow" />
             Namadillo
           </i>
         </div>
