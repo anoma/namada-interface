@@ -33,7 +33,7 @@ export const RouteErrorBoundary = (): JSX.Element => {
         <i className="text-7xl">
           <MdOutlineFace5 />
         </i>
-        <strong className="text-2xl">Ops... an error occurred</strong>
+        <strong className="text-2xl">Oops... an error occurred</strong>
         <p>{renderError()}</p>
         <footer className="flex flex-col w-full gap-2 mt-8">
           <ActionButton
