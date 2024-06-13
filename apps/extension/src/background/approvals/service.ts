@@ -1,4 +1,4 @@
-import { fromBase64 } from "@cosmjs/encoding";
+import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
 
@@ -304,6 +304,11 @@ export class ApprovalsService {
 
     const { tx } = this.sdkService.getSdk();
     return tx.deserialize(pendingTx.tx.txBytes, pendingTx.checksums || {});
+  }
+
+  async queryPendingTxBytes(msgId: string): Promise<string | undefined> {
+    const pendingTx = await this.txStore.get(msgId);
+    return pendingTx ? toBase64(pendingTx.tx.txBytes) : undefined;
   }
 
   async querySignArbitraryDetails(msgId: string): Promise<string> {

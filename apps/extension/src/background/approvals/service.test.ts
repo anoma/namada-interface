@@ -223,6 +223,7 @@ describe("approvals service", () => {
         { txBytes, signingDataBytes: [signingDataBytes] },
         ""
       );
+
       jest.spyOn(service as any, "_clearPendingTx");
 
       (webextensionPolyfill.windows.create as any).mockResolvedValue({
