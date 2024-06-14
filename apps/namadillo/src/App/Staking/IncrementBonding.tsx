@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import { GoAlert } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { accountBalanceAtom, defaultAccountAtom } from "slices/accounts";
-import { GAS_LIMIT, minimumGasPriceAtom } from "slices/fees";
+import { gasLimitAtom, minimumGasPriceAtom } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
 import { createBondTxAtom } from "slices/staking";
 import { allValidatorsAtom } from "slices/validators";
@@ -32,6 +32,7 @@ const IncrementBonding = (): JSX.Element => {
   const navigate = useNavigate();
   const accountBalance = useAtomValue(accountBalanceAtom);
   const gasPrice = useAtomValue(minimumGasPriceAtom);
+  const gasLimit = useAtomValue(gasLimitAtom("Bond"));
   const { data: account } = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
@@ -83,12 +84,13 @@ const IncrementBonding = (): JSX.Element => {
       "Extension is not connected or you don't have an account"
     );
     invariant(gasPrice.data, "Gas price loading is still pending");
+    invariant(gasLimit.isSuccess, "Gas limit loading is still pending");
     createBondTransaction({
       changes: parseUpdatedAmounts(),
       account,
       gasConfig: {
         gasPrice: gasPrice.data!,
-        gasLimit: GAS_LIMIT,
+        gasLimit: gasLimit.data!,
       },
     });
   };

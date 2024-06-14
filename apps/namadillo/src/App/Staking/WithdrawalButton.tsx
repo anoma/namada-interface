@@ -8,7 +8,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { TransactionPair, broadcastTx } from "lib/query";
 import { useCallback, useEffect } from "react";
 import { defaultAccountAtom } from "slices/accounts";
-import { GAS_LIMIT } from "slices/fees";
+import { gasLimitAtom } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
 import { createWithdrawTxAtom } from "slices/staking";
 import { MyValidator } from "slices/validators";
@@ -21,6 +21,7 @@ export const WithdrawalButton = ({
   myValidator,
 }: WithdrawalButtonProps): JSX.Element => {
   const { gasPrice } = useGasEstimate();
+  const gasLimit = useAtomValue(gasLimitAtom("Withdraw"));
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
   const {
@@ -36,6 +37,7 @@ export const WithdrawalButton = ({
       "Extension is not connected or you don't have an account"
     );
     invariant(gasPrice, "Gas price loading is still pending");
+    invariant(gasLimit, "Gas limit loading is still pending");
     invariant(
       myValidator.withdrawableAmount,
       "Validator doesn't have amounts available for withdrawal"
@@ -49,7 +51,7 @@ export const WithdrawalButton = ({
       ],
       gasConfig: {
         gasPrice: gasPrice!,
-        gasLimit: GAS_LIMIT,
+        gasLimit: gasLimit.data!,
       },
       account: account!,
     });

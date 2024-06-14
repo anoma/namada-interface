@@ -13,7 +13,7 @@ import { getAmountDistribution } from "lib/staking";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { defaultAccountAtom } from "slices/accounts";
-import { GAS_LIMIT } from "slices/fees";
+import { gasLimitAtom } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
 import { createReDelegateTxAtom } from "slices/staking";
 import { Validator, allValidatorsAtom } from "slices/validators";
@@ -30,6 +30,7 @@ export const ReDelegate = (): JSX.Element => {
   >({});
 
   const { gasPrice } = useGasEstimate();
+  const gasLimit = useAtomValue(gasLimitAtom("Redelegation"));
   const navigate = useNavigate();
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
@@ -103,6 +104,7 @@ export const ReDelegate = (): JSX.Element => {
     e.preventDefault();
     invariant(account, `Extension is connected but you don't have an account`);
     invariant(gasPrice, "Gas price loading is still pending");
+    invariant(gasLimit.isSuccess, "Gas limit loading is still pending");
     const redelegationChanges = getAmountDistribution(
       amountsRemovedByAddress,
       amountsToAssignByAddress
@@ -111,7 +113,7 @@ export const ReDelegate = (): JSX.Element => {
       changes: redelegationChanges,
       gasConfig: {
         gasPrice: gasPrice,
-        gasLimit: GAS_LIMIT,
+        gasLimit: gasLimit.data!,
       },
       account,
     });
