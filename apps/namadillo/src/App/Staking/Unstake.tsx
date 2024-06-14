@@ -15,7 +15,7 @@ import { TransactionPair, broadcastTx } from "lib/query";
 import { FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { defaultAccountAtom } from "slices/accounts";
-import { gasLimitAtom, minimumGasPriceAtom } from "slices/fees";
+import { gasLimitsAtom, minimumGasPriceAtom } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
 import { createUnbondTxAtom } from "slices/staking";
 import { MyValidator, myValidatorsAtom } from "slices/validators";
@@ -29,7 +29,7 @@ const Unstake = (): JSX.Element => {
   const validators = useAtomValue(myValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
-  const gasLimit = useAtomValue(gasLimitAtom("Unbond"));
+  const gasLimits = useAtomValue(gasLimitsAtom);
 
   const {
     mutate: createUnbondTx,
@@ -66,13 +66,13 @@ const Unstake = (): JSX.Element => {
       "Extension is not connected or you don't have an account"
     );
     invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
-    invariant(gasLimit.isSuccess, "Gas limit loading is still pending");
+    invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
     createUnbondTx({
       changes: parseUpdatedAmounts(),
       account,
       gasConfig: {
         gasPrice: minimumGasPrice.data!,
-        gasLimit: gasLimit.data!,
+        gasLimit: gasLimits.data!.Unbond.native,
       },
     });
   };

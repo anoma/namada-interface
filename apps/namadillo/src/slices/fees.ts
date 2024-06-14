@@ -1,8 +1,8 @@
 import { GasLimitTableInnerTxKindEnum as GasLimitTableIndexer } from "@anomaorg/namada-indexer-client";
 import BigNumber from "bignumber.js";
 import invariant from "invariant";
-import { Atom, atom } from "jotai";
-import { AtomWithQueryResult, atomWithQuery } from "jotai-tanstack-query";
+import { atom } from "jotai";
+import { atomWithQuery } from "jotai-tanstack-query";
 import { indexerApiAtom } from "./api";
 import { nativeTokenAtom } from "./settings";
 
@@ -12,9 +12,12 @@ export type TxKind =
   | "Redelegation"
   | "Withdraw"
   | "ClaimRewards"
-  | "VoteProposal";
+  | "VoteProposal"
+  | "Unknown";
 
-const txKindFromIndexerTxKind = (txKind: GasLimitTableIndexer): TxKind => {
+const txKindFromIndexerTxKind = (
+  txKind: GasLimitTableIndexer
+): TxKind | undefined => {
   switch (txKind) {
     case GasLimitTableIndexer.Bond:
       return "Bond";
@@ -29,7 +32,7 @@ const txKindFromIndexerTxKind = (txKind: GasLimitTableIndexer): TxKind => {
     case GasLimitTableIndexer.VoteProposal:
       return "VoteProposal";
     default:
-      throw new Error(`Unknown txKind: ${txKind}`);
+      return undefined;
   }
 };
 
@@ -48,11 +51,13 @@ export const gasLimitsAtom = atomWithQuery<GasTable>((get) => {
     queryFn: async () => {
       const gasTableResponse = await api.apiV1GasTokenGet("native");
       const gasTable = gasTableResponse.data.reduce(
-        (acc, { token, gasLimit, txKind: indexerTxKind }) => {
+        (acc, { gasLimit, txKind: indexerTxKind }) => {
           const txKind = txKindFromIndexerTxKind(indexerTxKind);
-          const perKind = acc[txKind] || {};
+          if (txKind) {
+            const perKind = acc[txKind] || {};
 
-          acc[txKind] = { ...perKind, [token]: new BigNumber(gasLimit) };
+            acc[txKind] = { ...perKind, native: new BigNumber(gasLimit) };
+          }
 
           return acc;
         },
@@ -65,25 +70,6 @@ export const gasLimitsAtom = atomWithQuery<GasTable>((get) => {
 });
 
 export const gasCostTxKindAtom = atom<TxKind | undefined>(undefined);
-
-export const gasLimitAtom = (
-  txKind: TxKind
-): Atom<AtomWithQueryResult<BigNumber>> => {
-  // TODO: for now we hardcode 'native'
-  const token = "native";
-
-  return atomWithQuery<BigNumber>((get) => {
-    const gasLimits = get(gasLimitsAtom);
-
-    return {
-      queryKey: ["minimum-gas-limit", txKind, token],
-      enabled: gasLimits.isSuccess && !!txKind,
-      queryFn: () => {
-        return gasLimits.data![txKind][token];
-      },
-    };
-  });
-};
 
 export const minimumGasPriceAtom = atomWithQuery<BigNumber>((get) => {
   const nativeToken = get(nativeTokenAtom);
