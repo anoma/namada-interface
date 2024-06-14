@@ -122,18 +122,6 @@ export const proposalVotedFamily = atomFamily((id: bigint) =>
   })
 );
 
-export const allProposalsAtom = atomWithQuery((get) => {
-  const api = get(indexerApiAtom);
-  return {
-    queryKey: ["all-proposals"],
-    queryFn: async () => {
-      const { proposals } = await fetchAllProposals(api);
-      return proposals;
-    },
-  };
-});
-
-// TODO: this is a bad way to filter/search
 export const allProposalsFamily = atomFamily(
   (options?: {
     status?: ProposalStatus;

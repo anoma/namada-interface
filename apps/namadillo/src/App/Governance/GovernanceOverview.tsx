@@ -2,7 +2,7 @@ import { Panel, SkeletonLoading } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { useAtomValue } from "jotai";
-import { allProposalsAtom, votedProposalIdsAtom } from "slices/proposals";
+import { allProposalsFamily, votedProposalIdsAtom } from "slices/proposals";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import {
   atomsAreFetching,
@@ -16,7 +16,7 @@ import { UpcomingProposals } from "./UpcomingProposals";
 
 export const GovernanceOverview: React.FC = () => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
-  const allProposals = useAtomValue(allProposalsAtom);
+  const allProposals = useAtomValue(allProposalsFamily({}));
   const votedProposalIds = useAtomValue(votedProposalIdsAtom);
 
   // TODO: is there a better way than this to show that votedProposalIdsAtom
@@ -40,14 +40,14 @@ export const GovernanceOverview: React.FC = () => {
           )}
           {isConnected && atomsAreLoaded(allProposals, ...extensionAtoms) && (
             <LiveGovernanceProposals
-              allProposals={allProposals.data!}
+              allProposals={allProposals.data!.proposals}
               isExtensionConnected={true}
               votedProposalIds={votedProposalIds.data!}
             />
           )}
           {!isConnected && atomsAreLoaded(allProposals) && (
             <LiveGovernanceProposals
-              allProposals={allProposals.data!}
+              allProposals={allProposals.data!.proposals}
               isExtensionConnected={false}
             />
           )}
@@ -57,7 +57,7 @@ export const GovernanceOverview: React.FC = () => {
             <SkeletonLoading height="150px" width="100%" />
           )}
           {atomsAreLoaded(allProposals) && (
-            <UpcomingProposals allProposals={allProposals.data!} />
+            <UpcomingProposals allProposals={allProposals.data!.proposals} />
           )}
         </Panel>
         <Panel title="All Proposals">
@@ -76,7 +76,7 @@ export const GovernanceOverview: React.FC = () => {
             <SkeletonLoading height="150px" width="100%" />
           )}
           {atomsAreLoaded(allProposals) && (
-            <ProposalsSummary allProposals={allProposals.data!} />
+            <ProposalsSummary allProposals={allProposals.data!.proposals} />
           )}
         </Panel>
       </aside>
