@@ -19,6 +19,7 @@ export const AccountOverview = (): JSX.Element => {
   // TODO: we need a better way to verify if extension is connected
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
+
   const hasExtensionInstalled =
     currentExtensionAttachStatus === "attached" ||
     currentExtensionAttachStatus === "pending";

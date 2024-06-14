@@ -1,5 +1,6 @@
 import { ActionButton, Alert, Modal, Panel, Stack } from "@namada/components";
 import { UnbondProps } from "@namada/types";
+import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { NamCurrency } from "App/Common/NamCurrency";
@@ -192,14 +193,19 @@ const Unstake = (): JSX.Element => {
               </div>
             )}
             {validators.isLoading && <TableRowLoading count={2} />}
-            {validators.isSuccess && (
-              <UnstakeBondingTable
-                myValidators={validators.data}
-                onChangeValidatorAmount={onChangeValidatorAmount}
-                updatedAmountByAddress={updatedAmountByAddress}
-                stakedAmountByAddress={stakedAmountByAddress}
-              />
-            )}
+            <AtomErrorBoundary
+              result={validators}
+              niceError="Unable to load your validators list"
+            >
+              {validators.isSuccess && (
+                <UnstakeBondingTable
+                  myValidators={validators.data}
+                  onChangeValidatorAmount={onChangeValidatorAmount}
+                  updatedAmountByAddress={updatedAmountByAddress}
+                  stakedAmountByAddress={stakedAmountByAddress}
+                />
+              )}
+            </AtomErrorBoundary>
           </Panel>
           <div className="relative">
             <ActionButton

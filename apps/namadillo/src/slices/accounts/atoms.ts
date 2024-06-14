@@ -4,6 +4,7 @@ import { atomWithQuery } from "jotai-tanstack-query";
 import { indexerApiAtom } from "slices/api";
 import { shouldUpdateBalanceAtom } from "slices/etc";
 import { namadaExtensionConnectedAtom, nativeTokenAtom } from "slices/settings";
+import { queryDependentFn } from "store/utils";
 import {
   fetchAccountBalance,
   fetchAccounts,
@@ -35,11 +36,11 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
   const api = get(indexerApiAtom);
 
   return {
-    enabled: !!tokenAddress && defaultAccount.isSuccess,
     // TODO: subscribe to indexer events when it's done
     refetchInterval: enablePolling ? 1000 : false,
     queryKey: ["balances", tokenAddress, defaultAccount],
-    queryFn: async () =>
-      fetchAccountBalance(api, defaultAccount.data, tokenAddress),
+    ...queryDependentFn(async (): Promise<BigNumber> => {
+      return await fetchAccountBalance(api, defaultAccount.data, tokenAddress);
+    }, [!!tokenAddress, defaultAccount]),
   };
 });

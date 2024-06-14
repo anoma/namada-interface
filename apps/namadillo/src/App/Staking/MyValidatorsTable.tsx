@@ -1,5 +1,6 @@
 import { ActionButton, TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
+import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { WalletAddress } from "App/Common/WalletAddress";
@@ -116,17 +117,23 @@ export const MyValidatorsTable = (): JSX.Element => {
           Unstake
         </ActionButton>
       </nav>
-      <ValidatorsTable
-        id="my-validators"
-        tableClassName="mt-2"
-        validatorList={
-          myValidators.isSuccess ?
-            myValidators.data.map((v: MyValidator) => v.validator)
-          : []
-        }
-        headers={head}
-        renderRow={renderRow}
-      />
+      <AtomErrorBoundary
+        result={myValidators}
+        niceError="Unable to load your validators list"
+        containerProps={{ className: "pb-16" }}
+      >
+        <ValidatorsTable
+          id="my-validators"
+          tableClassName="mt-2"
+          validatorList={
+            myValidators.isSuccess ?
+              myValidators.data.map((v: MyValidator) => v.validator)
+            : []
+          }
+          headers={head}
+          renderRow={renderRow}
+        />
+      </AtomErrorBoundary>
     </>
   );
 };

@@ -1,4 +1,5 @@
 import { Heading, Stack } from "@namada/components";
+import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { NamCurrency } from "App/Common/NamCurrency";
 import clsx from "clsx";
@@ -11,12 +12,13 @@ import { easings } from "utils/animations";
 
 export const AccountBalanceContainer = (): JSX.Element => {
   const [scope, animate] = useAnimate();
+  const accountBalance = useAtomValue(accountBalanceAtom);
   const {
     data: totalBalance,
     status,
     isSuccess: balanceHasLoaded,
     isLoading: balanceIsLoading,
-  } = useAtomValue(accountBalanceAtom);
+  } = accountBalance;
 
   useLayoutEffect(() => {
     if (balanceHasLoaded) {
@@ -50,26 +52,32 @@ export const AccountBalanceContainer = (): JSX.Element => {
         )
       )}
     >
-      {balanceHasLoaded && totalBalance && (
-        <Stack
-          as="article"
-          gap={0}
-          className="text-neutral-400 leading-tight text-center"
-        >
-          <Heading level="h3" className="text-xl neutral-600">
-            NAM Balance
-          </Heading>
-          <NamCurrency
-            amount={totalBalance}
-            className="text-4xl text-white font-medium"
-            currencySignClassName="text-xl ml-2"
-          />
-          <FiatCurrency
-            amountInNam={totalBalance}
-            className="text-xl font-medium"
-          />
-        </Stack>
-      )}
+      <AtomErrorBoundary
+        result={accountBalance}
+        niceError="Balance couldn't be loaded"
+        containerProps={{ className: "text-white" }}
+      >
+        {balanceHasLoaded && totalBalance && (
+          <Stack
+            as="article"
+            gap={0}
+            className="text-neutral-400 leading-tight text-center"
+          >
+            <Heading level="h3" className="text-xl neutral-600">
+              NAM Balance
+            </Heading>
+            <NamCurrency
+              amount={totalBalance}
+              className="text-4xl text-white font-medium"
+              currencySignClassName="text-xl ml-2"
+            />
+            <FiatCurrency
+              amountInNam={totalBalance}
+              className="text-xl font-medium"
+            />
+          </Stack>
+        )}
+      </AtomErrorBoundary>
     </div>
   );
 };

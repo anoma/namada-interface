@@ -19,6 +19,58 @@ export const atomsAreError = (...args: AtomWithQueryResult[]): boolean => {
   return args.reduce((prev, current) => prev || current.isError, false);
 };
 
+export const atomsAreLoading = (...args: AtomWithQueryResult[]): boolean => {
+  return args.reduce((prev, current) => prev || current.isLoading, false);
+};
+
+export const getFirstError = (
+  ...args: AtomWithQueryResult[]
+): Error | null | undefined => {
+  return args.find((arg) => arg.isError)?.error;
+};
+
+export const atomsAreNotInitialized = (
+  ...args: AtomWithQueryResult[]
+): boolean => {
+  return args.reduce(
+    (prev, current) =>
+      prev ||
+      (current.fetchStatus === "idle" &&
+        current.isPending &&
+        !current.isFetched),
+    false
+  );
+};
+
+export const queryDependentFn = <T>(
+  queryFn: () => Promise<T>,
+  dependencies: (AtomWithQueryResult | boolean)[]
+): { queryFn: () => Promise<T>; enabled: boolean } => {
+  const atomDependencies: AtomWithQueryResult[] = [];
+  let booleanDependencies: boolean = true;
+
+  dependencies.forEach((dep) => {
+    if (typeof dep === "boolean") {
+      booleanDependencies = booleanDependencies && dep;
+    } else {
+      atomDependencies.push(dep);
+    }
+  });
+
+  const atomHasError = atomsAreError(...atomDependencies);
+  const atomsLoaded = atomsAreLoaded(...atomDependencies);
+
+  return {
+    enabled: atomHasError || (atomsLoaded && booleanDependencies),
+    queryFn: async () => {
+      if (atomHasError) {
+        throw getFirstError(...atomDependencies);
+      }
+      return queryFn();
+    },
+  };
+};
+
 export const useNotifyOnAtomError = (
   atoms: AtomWithQueryResult[],
   deps: React.DependencyList

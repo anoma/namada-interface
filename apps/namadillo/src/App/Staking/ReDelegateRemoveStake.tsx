@@ -1,4 +1,5 @@
 import { ActionButton, Panel } from "@namada/components";
+import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import BigNumber from "bignumber.js";
@@ -132,16 +133,21 @@ export const ReDelegateRemoveStake = ({
             <TableRowLoading count={2} />
           </nav>
         )}
-        {myValidators.isSuccess &&
-          Object.keys(stakedAmountByAddress).length > 0 && (
-            <ReDelegateTable
-              validators={validators}
-              onChangeValidatorAmount={onChangeValidatorAmount}
-              updatedAmountByAddress={amountsRemovedByAddress}
-              stakedAmountByAddress={stakedAmountByAddress}
-              renderInfoColumn={renderInfoColumn}
-            />
-          )}
+        <AtomErrorBoundary
+          result={myValidators}
+          niceError="Unable to load your validators list"
+        >
+          {myValidators.isSuccess &&
+            Object.keys(stakedAmountByAddress).length > 0 && (
+              <ReDelegateTable
+                validators={validators}
+                onChangeValidatorAmount={onChangeValidatorAmount}
+                updatedAmountByAddress={amountsRemovedByAddress}
+                stakedAmountByAddress={stakedAmountByAddress}
+                renderInfoColumn={renderInfoColumn}
+              />
+            )}
+        </AtomErrorBoundary>
       </Panel>
       <div className="relative">
         <ActionButton
