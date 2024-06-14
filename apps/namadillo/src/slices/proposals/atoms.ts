@@ -126,7 +126,10 @@ export const allProposalsAtom = atomWithQuery((get) => {
   const api = get(indexerApiAtom);
   return {
     queryKey: ["all-proposals"],
-    queryFn: () => fetchAllProposals(api),
+    queryFn: async () => {
+      const { proposals } = await fetchAllProposals(api);
+      return proposals;
+    },
   };
 });
 

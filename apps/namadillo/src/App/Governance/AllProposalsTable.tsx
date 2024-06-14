@@ -3,19 +3,26 @@ import { useState } from "react";
 import { GoCheckCircleFill, GoInfo } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 
+import { Pagination } from "@anomaorg/namada-indexer-client";
 import { Stack, StyledSelectBox, TableRow } from "@namada/components";
 import { Proposal, isProposalStatus, proposalStatuses } from "@namada/types";
+import { mapUndefined } from "@namada/utils";
 import { Search } from "App/Common/Search";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import clsx from "clsx";
-import { allProposalsFamily, proposalFamily } from "slices/proposals";
-import { showProposalStatus, showProposalTypeString } from "utils";
+import { allProposalsFamily } from "slices/proposals";
+import {
+  showProposalId,
+  showProposalStatus,
+  showProposalTypeString,
+} from "utils";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
 import GovernanceRoutes from "./routes";
 
 const Table: React.FC<
   {
-    proposalIds: bigint[];
+    proposals: Proposal[];
+    pagination: Pagination;
   } & ExtensionConnectedProps
 > = (props) => {
   const navigate = useNavigate();
@@ -34,37 +41,38 @@ const Table: React.FC<
     "",
   ];
 
-  const renderRow = (id: bigint, index: number): TableRow => ({
-    key: id.toString(),
+  const renderRow = (proposal: Proposal, index: number): TableRow => ({
+    key: proposal.id.toString(),
     className: clsx(
       "group/proposals cursor-pointer text-xs [&_td]:py-4",
       "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md"
     ),
     onClick: () => {
-      navigate(GovernanceRoutes.proposal(id).url);
+      navigate(GovernanceRoutes.proposal(proposal.id).url);
     },
     cells: [
       // ID
       <div key="id" className="pl-3 flex">
-        #{id.toString()}
+        {showProposalId(proposal.id)}
       </div>,
 
       // Title
-      <Title key="title" id={id} />,
+      <Title key="title" proposal={proposal} />,
 
       // Type
-      <Type key="type" id={id} index={index} />,
+      <Type key="type" proposal={proposal} index={index} />,
 
       // Status
-      <Status key="status" id={id} />,
+      <Status key="status" proposal={proposal} />,
 
       // Voted
-      props.isExtensionConnected && props.votedProposalIds.includes(id) && (
-        <GoCheckCircleFill key="voted" className="text-cyan text-lg" />
-      ),
+      props.isExtensionConnected &&
+        props.votedProposalIds.includes(proposal.id) && (
+          <GoCheckCircleFill key="voted" className="text-cyan text-lg" />
+        ),
 
       // Voting end on
-      <VotingEnd key="voting-end" id={id} />,
+      <VotingEnd key="voting-end" proposal={proposal} />,
 
       // Info
       <i
@@ -80,7 +88,7 @@ const Table: React.FC<
     <TableWithPaginator
       id="all-proposals-table"
       headers={headers}
-      itemList={props.proposalIds}
+      itemList={props.proposals}
       renderRow={renderRow}
       tableProps={{
         className: clsx(
@@ -94,7 +102,7 @@ const Table: React.FC<
         ),
       }}
       headProps={{ className: "text-xs" }}
-      resultsPerPage={50}
+      resultsPerPage={mapUndefined(Number, props.pagination.perPage)}
     />
   );
 };
@@ -228,7 +236,11 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
 
       <div className="h-[490px] flex flex-col">
         {proposals.status === "error" || proposals.status === "pending" ? null
-        : <Table {...props} proposalIds={proposals.data.map((p) => p.id)} />}
+        : <Table
+            {...props}
+            proposals={proposals.data.proposals}
+            pagination={proposals.data.pagination}
+          />}
       </div>
     </Stack>
   );
@@ -264,43 +276,27 @@ const TableSelect = <T extends string>(
   </div>
 );
 
-const useWithProposal = (
-  id: bigint,
-  render: (proposal: Proposal) => JSX.Element | null
-): JSX.Element | null => {
-  const proposal = useAtomValue(proposalFamily(id));
+const Title: React.FC<{ proposal: Proposal }> = ({ proposal }) => (
+  <div className="w-full overflow-x-hidden whitespace-nowrap text-ellipsis">
+    {proposal.content.title}
+  </div>
+);
 
-  if (proposal.isPending || proposal.isError) {
-    return null;
-  } else {
-    return render(proposal.data);
-  }
-};
+const Type: React.FC<{ proposal: Proposal; index: number }> = ({
+  proposal,
+  index,
+}) => (
+  <TypeLabel
+    color={index % 2 === 0 ? "dark" : "light"}
+    proposalType={proposal.proposalType}
+    className="w-full text-center"
+  />
+);
 
-type CellProps = { id: bigint };
+const Status: React.FC<{ proposal: Proposal }> = ({ proposal }) => (
+  <StatusLabel status={proposal.status} className="ml-auto" />
+);
 
-const Title: React.FC<CellProps> = ({ id }) =>
-  useWithProposal(id, (proposal) => (
-    <div className="w-full overflow-x-hidden whitespace-nowrap text-ellipsis">
-      {proposal.content.title}
-    </div>
-  ));
-
-const Type: React.FC<{ index: number } & CellProps> = ({ id, index }) =>
-  useWithProposal(id, (proposal) => (
-    <TypeLabel
-      color={index % 2 === 0 ? "dark" : "light"}
-      proposalType={proposal.proposalType}
-      className="w-full text-center"
-    />
-  ));
-
-const Status: React.FC<CellProps> = ({ id }) =>
-  useWithProposal(id, (proposal) => (
-    <StatusLabel status={proposal.status} className="ml-auto" />
-  ));
-
-const VotingEnd: React.FC<CellProps> = ({ id }) =>
-  useWithProposal(id, (proposal) => (
-    <div className="text-right">Epoch {proposal.endEpoch.toString()}</div>
-  ));
+const VotingEnd: React.FC<{ proposal: Proposal }> = ({ proposal }) => (
+  <div className="text-right">Epoch {proposal.endEpoch.toString()}</div>
+);

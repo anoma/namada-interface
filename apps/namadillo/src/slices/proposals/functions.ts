@@ -5,6 +5,7 @@ import {
   ProposalTallyTypeEnum as IndexerProposalTallyTypeEnum,
   ProposalTypeEnum as IndexerProposalTypeEnum,
   VotingPower as IndexerVotingPower,
+  Pagination,
 } from "@anomaorg/namada-indexer-client";
 import {
   Account,
@@ -292,7 +293,7 @@ export const fetchAllProposals = async (
   status?: ProposalStatus,
   proposalType?: ProposalTypeString,
   search?: string
-): Promise<Proposal[]> => {
+): Promise<{ proposals: Proposal[]; pagination: Pagination }> => {
   const proposalsPromise = api.apiV1GovProposalGet(
     undefined,
     mapUndefined(toIndexerStatus, status),
@@ -306,9 +307,14 @@ export const fetchAllProposals = async (
     totalVotingPowerPromise,
   ]);
 
-  return proposalResponse.data.data.map((proposal) =>
+  const proposals = proposalResponse.data.data.map((proposal) =>
     toProposal(proposal, votingPowerResponse.data)
   );
+
+  return {
+    proposals,
+    pagination: proposalResponse.data.pagination,
+  };
 };
 
 export const fetchProposalVotes = async (
