@@ -11,6 +11,7 @@ import {
   atomWithQuery,
 } from "jotai-tanstack-query";
 import { defaultAccountAtom } from "slices/accounts";
+import { queryDependentFn } from "store/utils";
 import { indexerApiAtom } from "./api";
 import { chainParametersAtom } from "./chainParameters";
 import { shouldUpdateBalanceAtom } from "./etc";
@@ -82,8 +83,7 @@ export const allValidatorsAtom = atomWithQuery((get) => {
 
   return {
     queryKey: ["all-validators"],
-    enabled: chainParameters.isSuccess && votingPower.isSuccess,
-    queryFn: async () => {
+    ...queryDependentFn(async (): Promise<Validator[]> => {
       const parameters =
         chainParameters.data?.unbondingPeriodInDays || BigInt(0);
 
@@ -93,7 +93,7 @@ export const allValidatorsAtom = atomWithQuery((get) => {
       const vp = votingPower.data!;
 
       return validators.map((v) => toValidator(v, vp, parameters));
-    },
+    }, [chainParameters, votingPower]),
   };
 });
 
@@ -106,22 +106,17 @@ export const myValidatorsAtom = atomWithQuery((get) => {
 
   // TODO: Refactor after this event subscription is enabled in the indexer
   const enablePolling = get(shouldUpdateBalanceAtom);
-
   return {
     queryKey: ["my-validators", account.data?.address],
-    enabled:
-      account.isSuccess && chainParameters.isSuccess && votingPower.isSuccess,
     refetchInterval: enablePolling ? 1000 : false,
-    queryFn: async (): Promise<MyValidator[]> => {
+    ...queryDependentFn(async (): Promise<MyValidator[]> => {
       const unbondingPeriod = chainParameters.data!.unbondingPeriodInDays;
       const vp = votingPower.data!;
-
       const bondsResponse = await api.apiV1PosBondAddressGet(
         account.data!.address
       );
-
       return toMyValidators(bondsResponse.data.data, vp, unbondingPeriod);
-    },
+    }, [account, chainParameters, votingPower]),
   };
 });
 
@@ -135,10 +130,8 @@ export const myUnbondsAtom = atomWithQuery<MyValidator[]>((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
   return {
     queryKey: ["my-unbonds", account.data?.address],
-    enabled:
-      account.isSuccess && chainParameters.isSuccess && votingPower.isSuccess,
     refetchInterval: enablePolling ? 1000 : false,
-    queryFn: async () => {
+    ...queryDependentFn(async (): Promise<MyValidator[]> => {
       const unbondingPeriod = chainParameters.data!.unbondingPeriodInDays;
       const vp = votingPower.data!;
       const unbondsResponse = await api.apiV1PosUnbondAddressGet(
@@ -150,7 +143,7 @@ export const myUnbondsAtom = atomWithQuery<MyValidator[]>((get) => {
         vp,
         unbondingPeriod
       );
-    },
+    }, [account, chainParameters, votingPower]),
   };
 });
 

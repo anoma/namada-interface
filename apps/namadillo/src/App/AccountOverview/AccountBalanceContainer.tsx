@@ -55,6 +55,7 @@ export const AccountBalanceContainer = (): JSX.Element => {
       <AtomErrorBoundary
         result={accountBalance}
         niceError="Balance couldn't be loaded"
+        containerProps={{ className: "text-white" }}
       >
         {balanceHasLoaded && totalBalance && (
           <Stack

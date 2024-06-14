@@ -11,7 +11,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 import { Validator, allValidatorsAtom } from "slices/validators";
-import { useNotifyOnAtomError } from "store/utils";
+import { atomsAreLoading, atomsAreNotInitialized } from "store/utils";
 import { ValidatorAlias } from "./ValidatorAlias";
 import { ValidatorThumb } from "./ValidatorThumb";
 import { ValidatorsTable } from "./ValidatorsTable";
@@ -36,10 +36,6 @@ export const AllValidatorsTable = ({
     searchTerm: filter,
     onlyMyValidators: false,
   });
-
-  useNotifyOnAtomError([validators], [validators.isError]);
-
-  if (validators.isError) return <>Error!</>;
 
   const headers = [
     "",
@@ -91,7 +87,7 @@ export const AllValidatorsTable = ({
     ],
   });
 
-  if (validators.isLoading) {
+  if (atomsAreLoading(validators) || atomsAreNotInitialized(validators)) {
     return <TableRowLoading count={2} />;
   }
 

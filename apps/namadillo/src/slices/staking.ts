@@ -9,6 +9,7 @@ import { invariant } from "framer-motion";
 import { getSdkInstance } from "hooks";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { TransactionPair, buildTxPair } from "lib/query";
+import { queryDependentFn } from "store/utils";
 import { GasConfig } from "types/fees";
 import { ChangeInStakingPosition, RedelegateChange } from "types/staking";
 import { chainAtom } from "./chain";
@@ -40,9 +41,8 @@ type RedelegateChangesProps = {
 export const getStakingTotalAtom = atomWithQuery<StakingTotals>((get) => {
   const myValidators = get(myValidatorsAtom);
   return {
-    enabled: myValidators.isSuccess,
     queryKey: ["staking-totals", myValidators.dataUpdatedAt],
-    queryFn: async () => {
+    ...queryDependentFn(async (): Promise<StakingTotals> => {
       const validatorsData = myValidators.data || [];
 
       const totalBonded = validatorsData.reduce(
@@ -64,7 +64,7 @@ export const getStakingTotalAtom = atomWithQuery<StakingTotals>((get) => {
       );
 
       return { totalBonded, totalUnbonded, totalWithdrawable };
-    },
+    }, [myValidators]),
   };
 });
 
