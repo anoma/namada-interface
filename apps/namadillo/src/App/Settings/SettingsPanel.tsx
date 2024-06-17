@@ -5,8 +5,8 @@ import { FaChevronLeft } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Advanced } from "./Advanced";
-import { CurrencySelector } from "./CurrencySelector";
 import { SettingsMain } from "./SettingsMain";
+import { SettingsSignArbitrary } from "./SettingsSignArbitrary";
 import SettingsRoutes from "./routes";
 
 export const SettingsPanel = (): JSX.Element => {
@@ -63,8 +63,8 @@ export const SettingsPanel = (): JSX.Element => {
           <Routes>
             <Route index element={<SettingsMain />} />
             <Route
-              path={`${SettingsRoutes.currencySelection()}`}
-              element={<CurrencySelector />}
+              path={`${SettingsRoutes.signArbitrary()}`}
+              element={<SettingsSignArbitrary />}
             />
             <Route
               path={`${SettingsRoutes.advanced()}`}
