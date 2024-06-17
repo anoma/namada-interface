@@ -20,7 +20,7 @@ export const ValidatorDiversification = (): JSX.Element => {
         borderRadius="sm"
         size="xs"
       >
-        Learn about CPos
+        Learn about CPoS
       </ActionButton>
     </div>
   );
