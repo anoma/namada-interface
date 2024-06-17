@@ -52,7 +52,7 @@ export const Container = ({
         >
           {navigation}
         </aside>
-        <main>{children}</main>
+        <main className="min-h-full">{children}</main>
       </div>
     </div>
   );

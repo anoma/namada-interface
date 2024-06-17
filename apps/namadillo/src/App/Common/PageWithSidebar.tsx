@@ -13,7 +13,7 @@ export const PageWithSidebar = ({
   return (
     <div
       className={clsx(
-        "w-full flex flex-col gap-2 lg:grid lg:grid-cols-[auto_240px]",
+        "w-full flex flex-col gap-2 min-h-full lg:grid lg:grid-cols-[auto_240px]",
         "lg:grid-rows-[auto_max-content]"
       )}
     >
