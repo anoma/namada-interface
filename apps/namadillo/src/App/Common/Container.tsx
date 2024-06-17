@@ -17,7 +17,7 @@ export const Container = ({
   const [displayNavigation, setDisplayNavigation] = useState(false);
 
   return (
-    <div className="max-w-[1920px] px-6 mx-auto pb-2" {...props}>
+    <div className="custom-container pb-2" {...props}>
       <header className="flex justify-between font-medium pt-4 pb-5 pl-4">
         <div className="flex items-center gap-8">
           <span className="xl:hidden">
