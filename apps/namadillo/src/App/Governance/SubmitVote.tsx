@@ -149,10 +149,6 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
                 value={selectedVoteType}
                 onChange={handleSelectVoteType}
               />
-
-              {voteTypes.map((voteType, i) => (
-                <div key={i}>{}</div>
-              ))}
             </Stack>
             <footer>
               <TransactionFees
