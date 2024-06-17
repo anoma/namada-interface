@@ -1,6 +1,7 @@
-import { AmountInput, TableRow } from "@namada/components";
+import { TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 import { NamCurrency } from "App/Common/NamCurrency";
+import { NamInput } from "App/Common/NamInput";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { Validator } from "slices/validators";
@@ -62,7 +63,7 @@ export const IncrementBondingTable = ({
           key={`increment-bonding-new-amounts-${validator.address}`}
           className="relative"
         >
-          <AmountInput
+          <NamInput
             placeholder="Select to increase stake"
             className={twMerge(
               clsx("[&_input]:border-neutral-500 [&_input]:py-2 [&>div]:my-0", {

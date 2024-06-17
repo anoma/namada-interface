@@ -1,6 +1,7 @@
-import { AmountInput, TableRow } from "@namada/components";
+import { TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 import { NamCurrency } from "App/Common/NamCurrency";
+import { NamInput } from "App/Common/NamInput";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { Validator } from "slices/validators";
@@ -66,7 +67,7 @@ export const ReDelegateTable = ({
           key={`increment-bonding-new-amounts-${validator.address}`}
           className="relative"
         >
-          <AmountInput
+          <NamInput
             value={updatedAmountByAddress[validator.address]}
             onChange={(e) => onChangeValidatorAmount(validator, e.target.value)}
             placeholder="Select to enter stake"

@@ -1,6 +1,7 @@
-import { AmountInput, TableRow } from "@namada/components";
+import { TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 import { NamCurrency } from "App/Common/NamCurrency";
+import { NamInput } from "App/Common/NamInput";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { MyValidator, Validator } from "slices/validators";
@@ -60,7 +61,7 @@ export const UnstakeBondingTable = ({
           key={`increment-bonding-new-amounts-${validator.address}`}
           className="relative"
         >
-          <AmountInput
+          <NamInput
             placeholder="Select to increase stake"
             value={amountToUnstake.eq(0) ? undefined : amountToUnstake}
             onChange={(e) =>
