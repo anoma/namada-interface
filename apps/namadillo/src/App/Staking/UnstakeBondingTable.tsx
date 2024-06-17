@@ -22,7 +22,7 @@ export const UnstakeBondingTable = ({
   onChangeValidatorAmount,
 }: UnstakeBondingTableProps): JSX.Element => {
   const headers = [
-    { children: "Validator", sortable: true },
+    { children: "Validator" },
     "Amount to Unstake",
     <div key={`unstake-new-total`} className="text-right">
       <span className="block">Stake</span>

@@ -27,7 +27,7 @@ export const ReDelegateTable = ({
   onChangeValidatorAmount,
 }: IncrementBondingTableProps): JSX.Element => {
   const headers = [
-    { children: "Validator", sortable: true },
+    { children: "Validator" },
     "Amount to Re-delegate",
     {
       children: (

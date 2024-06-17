@@ -3,7 +3,6 @@ import { twMerge } from "tailwind-merge";
 
 export type TableHeader = {
   children: ReactNode;
-  sortable?: boolean;
 } & React.ComponentPropsWithoutRef<"th">;
 
 type StyledTableHeadProps = {

@@ -24,7 +24,7 @@ export const IncrementBondingTable = ({
   resultsPerPage = 100,
 }: IncrementBondingTableProps): JSX.Element => {
   const headers = [
-    { children: "Validator", sortable: true },
+    { children: "Validator" },
     "Amount to Stake",
     {
       children: (

@@ -5,7 +5,6 @@ import { StyledTableRow, TableRow } from "./StyledTableRow";
 
 type StyledTableProps = {
   id: string;
-  sortable?: boolean;
   containerClassName?: string;
   tableProps?: React.ComponentPropsWithoutRef<"table">;
   headProps?: React.ComponentPropsWithoutRef<"thead">;
