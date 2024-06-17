@@ -12,7 +12,6 @@ import {
   voteTypes,
 } from "@namada/types";
 import { TransactionFees } from "App/Common/TransactionFees";
-import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useProposalIdParam } from "hooks";
 import invariant from "invariant";
@@ -21,7 +20,7 @@ import { TransactionPair, broadcastTx } from "lib/query";
 import { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { GAS_LIMIT } from "slices/fees";
+import { gasLimitsAtom, minimumGasPriceAtom } from "slices/fees";
 import { dispatchToastNotificationAtom } from "slices/notifications";
 import { createVoteTxAtom, proposalFamily } from "slices/proposals";
 
@@ -56,6 +55,8 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
     data: voteTxData,
   } = useAtomValue(createVoteTxAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
+  const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
+  const gasLimits = useAtomValue(gasLimitsAtom);
 
   useEffect(() => {
     if (isSuccess) {
@@ -90,12 +91,14 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
       typeof selectedVoteType !== "undefined",
       "There is no selected vote type"
     );
+    invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
+    invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
     createVoteTx({
       proposalId,
       vote: selectedVoteType,
       gasConfig: {
-        gasPrice: BigNumber(0),
-        gasLimit: GAS_LIMIT,
+        gasPrice: minimumGasPrice.data!,
+        gasLimit: gasLimits.data!.VoteProposal.native,
       },
     });
   };
