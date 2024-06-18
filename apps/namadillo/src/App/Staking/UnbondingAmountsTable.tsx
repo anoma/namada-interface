@@ -24,8 +24,14 @@ export const UnbondingAmountsTable = (): JSX.Element => {
 
     const rowsList: TableRow[] = [];
     for (const myValidator of myUnbonds.data) {
-      const { validator, unbondedAmount } = myValidator;
-      if (myValidator.unbondedAmount?.gt(0)) {
+      const { validator, unbondedAmount, withdrawableAmount } = myValidator;
+
+      const amount =
+        unbondedAmount?.gt(0) ? unbondedAmount!
+        : withdrawableAmount?.gt(0) ? withdrawableAmount!
+        : new BigNumber(0);
+
+      if (amount.gt(0)) {
         rowsList.push({
           cells: [
             <ValidatorCard
@@ -38,14 +44,13 @@ export const UnbondingAmountsTable = (): JSX.Element => {
               key={`my-validator-currency-${validator.address}`}
               className="text-right leading-tight"
             >
-              <NamCurrency amount={unbondedAmount || new BigNumber(0)} />
+              <NamCurrency amount={amount || new BigNumber(0)} />
             </div>,
-            //TODO: implement this after indexer is ready
             <div
               key={`comission-${validator.address}`}
               className="text-right leading-tight text-sm"
             >
-              15 TODOS {/* TODO */}
+              {myValidator.timeLeft}
             </div>,
             <div
               key={`withdraw-${validator.address}`}
