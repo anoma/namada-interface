@@ -1,6 +1,5 @@
 import { Heading, Stack } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
-import { FiatCurrency } from "App/Common/FiatCurrency";
 import { NamCurrency } from "App/Common/NamCurrency";
 import clsx from "clsx";
 import { useAnimate } from "framer-motion";
@@ -70,10 +69,6 @@ export const AccountBalanceContainer = (): JSX.Element => {
               amount={totalBalance}
               className="text-4xl text-white font-medium"
               currencySignClassName="text-xl ml-2"
-            />
-            <FiatCurrency
-              amountInNam={totalBalance}
-              className="text-xl font-medium"
             />
           </Stack>
         )}

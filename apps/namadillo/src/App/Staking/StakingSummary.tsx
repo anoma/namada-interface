@@ -9,7 +9,6 @@ import {
   SkeletonLoading,
 } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
-import { FiatCurrency } from "App/Common/FiatCurrency";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { useAtomValue } from "jotai";
 import { GoStack } from "react-icons/go";
@@ -77,10 +76,6 @@ export const StakingSummary = (): JSX.Element => {
                   className="text-2xl"
                   currencySignClassName="block mb-1 text-xs ml-1"
                 />
-                <FiatCurrency
-                  amountInNam={totalStakedBalance.data.totalBonded}
-                  className="text-neutral-500 text-sm"
-                />
               </div>
             </PieChart>
           )}
@@ -107,13 +102,6 @@ export const StakingSummary = (): JSX.Element => {
                 className="block leading-none"
                 currencySignClassName="block mb-3 mt-0.5 text-sm"
               />
-            }
-            alternativeAmount={
-              totalStakedBalance.isSuccess && (
-                <FiatCurrency
-                  amountInNam={totalStakedBalance.data.totalUnbonded}
-                />
-              )
             }
             callToAction={
               <ActionButton
@@ -144,7 +132,6 @@ export const StakingSummary = (): JSX.Element => {
               currencySignClassName="block mb-3 mt-0.5 text-sm"
             />
           }
-          alternativeAmount="$0"
           callToAction={
             <ActionButton
               className="px-8"

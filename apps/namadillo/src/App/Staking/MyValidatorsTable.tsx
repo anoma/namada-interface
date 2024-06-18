@@ -1,7 +1,6 @@
 import { ActionButton, TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
-import { FiatCurrency } from "App/Common/FiatCurrency";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { WalletAddress } from "App/Common/WalletAddress";
 import BigNumber from "bignumber.js";
@@ -69,10 +68,6 @@ export const MyValidatorsTable = (): JSX.Element => {
           className="text-right leading-tight"
         >
           <NamCurrency amount={stakedAmount || new BigNumber(0)} />
-          <FiatCurrency
-            amountInNam={stakedAmount || new BigNumber(0)}
-            className="block text-sm text-neutral-600"
-          />
         </div>,
         <div
           key={`comission-${validator.address}`}

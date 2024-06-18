@@ -1,5 +1,4 @@
 import { Panel, Stack } from "@namada/components";
-import { FiatCurrency } from "App/Common/FiatCurrency";
 import { NamCurrency } from "App/Common/NamCurrency";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -46,10 +45,6 @@ export const BondingAmountOverview = ({
             </span>
           )}
         </div>
-        <FiatCurrency
-          className="text-base text-neutral-400"
-          amountInNam={new BigNumber(namToDisplay)}
-        />
         {additionalText && <p className="text-[10px]">{additionalText}</p>}
         {extraContent}
       </Stack>

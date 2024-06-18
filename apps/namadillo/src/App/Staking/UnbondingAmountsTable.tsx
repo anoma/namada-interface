@@ -1,7 +1,6 @@
 import { StyledTable, TableRow } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
-import { FiatCurrency } from "App/Common/FiatCurrency";
 import { NamCurrency } from "App/Common/NamCurrency";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
@@ -40,10 +39,6 @@ export const UnbondingAmountsTable = (): JSX.Element => {
               className="text-right leading-tight"
             >
               <NamCurrency amount={unbondedAmount || new BigNumber(0)} />
-              <FiatCurrency
-                amountInNam={unbondedAmount || new BigNumber(0)}
-                className="block text-sm text-neutral-600"
-              />
             </div>,
             //TODO: implement this after indexer is ready
             <div
