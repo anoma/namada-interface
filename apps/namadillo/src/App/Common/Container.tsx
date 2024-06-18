@@ -17,7 +17,7 @@ export const Container = ({
   const [displayNavigation, setDisplayNavigation] = useState(false);
 
   return (
-    <div className="max-w-[1920px] px-6 mx-auto pb-2" {...props}>
+    <div className="custom-container pb-2" {...props}>
       <header className="flex justify-between font-medium pt-4 pb-5 pl-4">
         <div className="flex items-center gap-8">
           <span className="xl:hidden">
@@ -46,13 +46,13 @@ export const Container = ({
           className={clsx(
             "transition-transform duration-500 ease-out-expo",
             "pt-10 bg-black rounded-sm fixed top-0 z-[9999] w-[240px]",
-            "h-[calc(100svh-95px)] left-0 xl:z-0 xl:transition-none xl:pt-0 xl:w-auto xl:relative",
+            "h-[calc(100svh-85px)] left-0 xl:z-0 xl:transition-none xl:pt-0 xl:w-auto xl:relative",
             { "-translate-x-full xl:translate-x-0": !displayNavigation }
           )}
         >
           {navigation}
         </aside>
-        <main>{children}</main>
+        <main className="min-h-full">{children}</main>
       </div>
     </div>
   );

@@ -59,13 +59,13 @@ export const Navigation = (): JSX.Element => {
       <footer className="flex flex-col gap-10">
         <ul className="flex flex-col gap-1 text-neutral-300 text-sm">
           <li>
-            <a href="#" className="hover:text-cyan">
+            <a
+              href={DISCORD_URL}
+              className="hover:text-cyan"
+              target="_blank"
+              rel="nofollow noreferrer"
+            >
               Help
-            </a>
-          </li>
-          <li>
-            <a href="#" className="hover:text-cyan">
-              Privacy Policy
             </a>
           </li>
         </ul>

@@ -32,5 +32,6 @@ export const fetchAccountBalance = async (
       };
     });
 
+  if (balances.length === 0) return BigNumber(0);
   return new BigNumber(balances[0].amount || 0);
 };

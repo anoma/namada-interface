@@ -214,6 +214,7 @@ const IncrementBonding = (): JSX.Element => {
             <AtomErrorBoundary
               result={[validators, myValidators]}
               niceError="Unable to load validators list"
+              containerProps={{ className: "span-2" }}
             >
               {validators.isSuccess && myValidators.isSuccess && (
                 <IncrementBondingTable

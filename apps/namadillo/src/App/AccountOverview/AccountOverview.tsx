@@ -25,7 +25,7 @@ export const AccountOverview = (): JSX.Element => {
     currentExtensionAttachStatus === "pending";
 
   return (
-    <PageWithSidebar footerClassName={fullWidthClassName}>
+    <PageWithSidebar>
       <div
         className={clsx(
           "flex items-center bg-black rounded-sm w-full",
