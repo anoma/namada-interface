@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { AccountType } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
 import { VaultService } from "background/vault";
@@ -69,7 +70,7 @@ describe("approvals service", () => {
     );
   });
 
-  describe("approveSignature", () => {
+  describe("approveSignArbitrary", () => {
     it("should add popupTabId to resolverMap", async () => {
       const tabId = 1;
       const sigResponse = {
@@ -118,7 +119,7 @@ describe("approvals service", () => {
     });
   });
 
-  describe("submitSignature", () => {
+  describe("approveSignArbitrary", () => {
     it("should add popupTabId to resolverMap", async () => {
       const tabId = 1;
       const sigResponse = {
@@ -200,11 +201,19 @@ describe("approvals service", () => {
     });
   });
 
-  describe("submitSignature", () => {
+  describe("approveSignTx", () => {
     it("should reject resolver", async () => {
       const tabId = 1;
       const signer = "signer";
-      const signaturePromise = service.approveSignArbitrary(signer, "data");
+      // data expected to be base64-encoded
+      const txData = "dHhEYXRh"; // "txData"
+      const signingData = "c2lnbmluZ0RhdGE="; // "signingData"
+      const signaturePromise = service.approveSignTx(
+        AccountType.PrivateKey,
+        signer,
+        [[txData, signingData]]
+      );
+      jest.spyOn(service as any, "_clearPendingTx");
 
       (webextensionPolyfill.windows.create as any).mockResolvedValue({
         tabs: [{ id: tabId }],
@@ -215,40 +224,19 @@ describe("approvals service", () => {
           resolve(true);
         })
       );
-      await service.rejectSignature(tabId, "msgId");
 
-      await expect(signaturePromise).rejects.toBeUndefined();
+      // Reject the pending Tx
+      await service.rejectSignTx(tabId, "msgId");
+
+      // rejectSignTx should clear promise resolver for that msgId
+      expect((service as any)._clearPendingTx).toHaveBeenCalledWith("msgId");
+
+      await expect(signaturePromise).rejects.toBeDefined();
     });
 
     it("should throw an error if resolver is not found", async () => {
       const tabId = 1;
-      await expect(
-        service.rejectSignature(tabId, "msgId")
-      ).rejects.toBeDefined();
-    });
-  });
-
-  // describe("approveTx", () => {
-  //   it.each(txTypes)("%i txType fn: %s", async (type, paramsFn) => {
-  //     jest.spyOn(service as any, "_launchApprovalWindow");
-  //
-  //     try {
-  //       const res = await service.approveTx(
-  //         type,
-  //         tx,
-  //         AccountType.Mnemonic
-  //       );
-  //       expect(res).toBeUndefined();
-  //     } catch (e) {}
-  //   });
-  // });
-
-  describe("rejectSignTx", () => {
-    it("should clear pending tx", async () => {
-      jest.spyOn(service as any, "_clearPendingTx");
-      await service.rejectSignTx("msgId");
-
-      expect((service as any)._clearPendingTx).toHaveBeenCalledWith("msgId");
+      await expect(service.rejectSignTx(tabId, "msgId")).rejects.toBeDefined();
     });
   });
 
