@@ -5,6 +5,7 @@ import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
+import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { TransactionFees } from "App/Common/TransactionFees";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -36,6 +37,8 @@ const Unstake = (): JSX.Element => {
     isPending: isPerformingUnbond,
     data: unbondTransactionData,
     isSuccess,
+    isError,
+    error: unstakeTxError,
   } = useAtomValue(createUnbondTxAtom);
 
   const {
@@ -91,6 +94,25 @@ const Unstake = (): JSX.Element => {
       type: "pending",
     });
   };
+
+  useEffect(() => {
+    if (isError) {
+      dispatchNotification({
+        id: "unstake-error",
+        title: "Unstake transaction failed",
+        description: (
+          <ToastErrorDescription
+            errorMessage={
+              unstakeTxError instanceof Error ?
+                unstakeTxError.message
+              : undefined
+            }
+          />
+        ),
+        type: "error",
+      });
+    }
+  }, [isError]);
 
   const dispatchUnbondingTransactions = (
     transactions: TransactionPair<UnbondProps>[]

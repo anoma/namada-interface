@@ -133,7 +133,8 @@ export const signTxArray = async <T>(
 
     return signedTxs;
   } catch (err) {
-    throw new Error("Signing failed: " + err);
+    const message = err instanceof Error ? err.message : err;
+    throw new Error("Signing failed: " + message);
   }
 };
 

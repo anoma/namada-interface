@@ -2,6 +2,7 @@ import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { RedelegateMsgValue } from "@namada/types";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
+import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useGasEstimate } from "hooks/useGasEstimate";
@@ -49,6 +50,8 @@ export const ReDelegate = (): JSX.Element => {
     isPending: isCreatingTx,
     data: redelegateTxData,
     isSuccess,
+    isError,
+    error: redelegateTxError,
   } = useAtomValue(createReDelegateTxAtom);
 
   useEffect(() => {
@@ -86,6 +89,25 @@ export const ReDelegate = (): JSX.Element => {
       type: "pending",
     });
   };
+
+  useEffect(() => {
+    if (isError) {
+      dispatchNotification({
+        id: "staking-redelegate-error",
+        title: "Staking re-delegation failed",
+        description: (
+          <ToastErrorDescription
+            errorMessage={
+              redelegateTxError instanceof Error ?
+                redelegateTxError.message
+              : undefined
+            }
+          />
+        ),
+        type: "error",
+      });
+    }
+  }, [isError]);
 
   const dispatchReDelegateTransactions = (
     transactions: TransactionPair<RedelegateMsgValue>[]

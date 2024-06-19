@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { useGasEstimate } from "hooks/useGasEstimate";
 import { NamCurrency } from "./NamCurrency";
+import { TextLink } from "./TextLink";
 type TransactionFeesProps = {
   numberOfTransactions: number;
   className?: string;
@@ -16,7 +17,7 @@ export const TransactionFees = ({
   if (!minimumGas || minimumGas.eq(0)) return <></>;
   return (
     <div className={clsx("text-white text-sm", className)}>
-      <span className="underline cursor-pointer">Transaction fee:</span>{" "}
+      <TextLink>Transaction fee:</TextLink>{" "}
       <NamCurrency
         className="font-medium"
         amount={minimumGas}

@@ -5,6 +5,7 @@ import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
+import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { TransactionFees } from "App/Common/TransactionFees";
 import clsx from "clsx";
 import { useStakeModule } from "hooks/useStakeModule";
@@ -43,7 +44,9 @@ const IncrementBonding = (): JSX.Element => {
     mutate: createBondTransaction,
     isPending: isPerformingBond,
     isSuccess,
+    isError,
     data: bondTransactionData,
+    error: bondTransactionError,
   } = useAtomValue(createBondTxAtom);
 
   const {
@@ -129,6 +132,25 @@ const IncrementBonding = (): JSX.Element => {
       onCloseModal();
     }
   }, [isSuccess]);
+
+  useEffect(() => {
+    if (isError) {
+      dispatchNotification({
+        id: "staking-error",
+        title: "Staking transaction failed",
+        description: (
+          <ToastErrorDescription
+            errorMessage={
+              bondTransactionError instanceof Error ?
+                bondTransactionError.message
+              : undefined
+            }
+          />
+        ),
+        type: "error",
+      });
+    }
+  }, [isError]);
 
   const errorMessage = ((): string => {
     if (accountBalance.isPending) return "Loading...";

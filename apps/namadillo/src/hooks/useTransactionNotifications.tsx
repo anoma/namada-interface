@@ -7,6 +7,7 @@ import {
   WithdrawProps,
 } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
+import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { useSetAtom } from "jotai";
 import {
   dispatchToastNotificationAtom,
@@ -35,8 +36,12 @@ export const useTransactionNotifications = (): void => {
         id: e.detail.transactionId,
         type: "error",
         title: "Staking transaction failed",
-        description: `Your staking transaction to ${address} has failed.`,
-        timeout: 5000,
+        description: (
+          <ToastErrorDescription
+            basicMessage={`Your staking transaction to ${address} has failed.`}
+            errorMessage={e.detail.error?.message}
+          />
+        ),
       });
     });
 
@@ -70,9 +75,13 @@ export const useTransactionNotifications = (): void => {
       dispatchNotification({
         id: e.detail.transactionId,
         title: "Unstake transaction failed",
-        description: `Your request to unstake ${e.detail.data.amount} NAM from ${address} has failed`,
-        type: "success",
-        timeout: 5000,
+        type: "error",
+        description: (
+          <ToastErrorDescription
+            basicMessage={`Your request to unstake ${e.detail.data.amount} NAM from ${address} has failed`}
+            errorMessage={e.detail.error?.message}
+          />
+        ),
       });
     });
 
@@ -85,11 +94,16 @@ export const useTransactionNotifications = (): void => {
         dispatchNotification({
           id: e.detail.transactionId,
           title: "Re-delegate failed",
-          description:
-            `Your re-delegate transaction of ${e.detail.data.amount}` +
-            ` NAM from ${sourceAddress} to ${destAddress} has failed`,
-          type: "success",
-          timeout: 5000,
+          description: (
+            <ToastErrorDescription
+              basicMessage={
+                `Your re-delegate transaction of ${e.detail.data.amount}` +
+                ` NAM from ${sourceAddress} to ${destAddress} has failed`
+              }
+              errorMessage={e.detail.error?.message}
+            />
+          ),
+          type: "error",
         });
       }
     );
@@ -135,10 +149,15 @@ export const useTransactionNotifications = (): void => {
         dispatchNotification({
           id: e.detail.transactionId,
           title: "Withdrawal Error",
-          description:
-            `Your withdrawal transaction ` + ` from ${address} has failed`,
+          description: (
+            <ToastErrorDescription
+              basicMessage={
+                `Your withdrawal transaction ` + ` from ${address} has failed`
+              }
+              errorMessage={e.detail.error?.message}
+            />
+          ),
           type: "error",
-          timeout: 5000,
         });
       }
     );
@@ -151,8 +170,12 @@ export const useTransactionNotifications = (): void => {
           id: e.detail.transactionId,
           type: "error",
           title: "Staking transaction failed",
-          description: `Your vote transaction for proposal ${e.detail.data.proposalId} has failed.`,
-          timeout: 5000,
+          description: (
+            <ToastErrorDescription
+              basicMessage={`Your vote transaction for proposal ${e.detail.data.proposalId} has failed.`}
+              errorMessage={e.detail.error?.message}
+            />
+          ),
         });
       }
     );

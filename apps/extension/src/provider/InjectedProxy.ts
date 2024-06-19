@@ -60,7 +60,11 @@ export class InjectedProxy {
         }
 
         if (result.error) {
-          reject(new Error(`${result.error}`));
+          const error =
+            result.error instanceof Error ?
+              result.error
+            : new Error(`${result.error}`);
+          reject(error);
           return;
         }
 

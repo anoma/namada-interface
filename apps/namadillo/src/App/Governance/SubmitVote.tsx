@@ -11,6 +11,7 @@ import {
   isVoteType,
   voteTypes,
 } from "@namada/types";
+import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { TransactionFees } from "App/Common/TransactionFees";
 import clsx from "clsx";
 import { useProposalIdParam } from "hooks";
@@ -53,6 +54,8 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
     mutate: createVoteTx,
     isSuccess,
     data: voteTxData,
+    isError,
+    error: voteTxError,
   } = useAtomValue(createVoteTxAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
@@ -84,6 +87,23 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
           #${proposalId}. Your transaction is being processed.`,
     });
   };
+
+  useEffect(() => {
+    if (isError) {
+      dispatchNotification({
+        id: "vote-tx-error",
+        title: "Governance transaction failed",
+        description: (
+          <ToastErrorDescription
+            errorMessage={
+              voteTxError instanceof Error ? voteTxError.message : undefined
+            }
+          />
+        ),
+        type: "error",
+      });
+    }
+  }, [isError]);
 
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault();

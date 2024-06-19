@@ -1,6 +1,7 @@
 import { ActionButton } from "@namada/components";
 import { WithdrawMsgValue } from "@namada/types";
 import { NamCurrency } from "App/Common/NamCurrency";
+import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import BigNumber from "bignumber.js";
 import { useGasEstimate } from "hooks/useGasEstimate";
 import invariant from "invariant";
@@ -29,6 +30,8 @@ export const WithdrawalButton = ({
     data: withdrawalTxs,
     isPending,
     isSuccess,
+    isError,
+    error: withdrawalTransactionError,
   } = useAtomValue(createWithdrawTxAtom);
 
   const onWithdraw = useCallback(async (myValidator: MyValidator) => {
@@ -86,6 +89,25 @@ export const WithdrawalButton = ({
       type: "pending",
     });
   };
+
+  useEffect(() => {
+    if (isError) {
+      dispatchNotification({
+        id: "withdrawal-error",
+        title: "Withdrawal transaction failed",
+        description: (
+          <ToastErrorDescription
+            errorMessage={
+              withdrawalTransactionError instanceof Error ?
+                withdrawalTransactionError.message
+              : undefined
+            }
+          />
+        ),
+        type: "error",
+      });
+    }
+  }, [isError]);
 
   useEffect(() => {
     if (withdrawalTxs) {
