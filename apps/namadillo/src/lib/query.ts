@@ -1,7 +1,8 @@
-import { BatchTx, BuiltTx, EncodedTx } from "@heliax/namada-sdk/web";
+import { BatchTx, BuiltTx, EncodedTx, TxType } from "@heliax/namada-sdk/web";
 import { getIntegration } from "@namada/integrations";
 import {
   Account,
+  BondProps,
   Chain,
   Signer,
   WrapperTxMsgValue,
@@ -15,7 +16,7 @@ import { GasConfig } from "types/fees";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-    nativeToken = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+  nativeToken = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 export type TransactionPair<T> = {
@@ -195,6 +196,19 @@ export const buildTxPair = async <T>(
     queryProps,
     txFn
   );
+
+  // TEST!
+  try {
+    const { tx } = await getSdkInstance();
+    const wrapperTxProps = getTxProps(account, gasConfig, chain);
+    const bondProps = queryProps[0] as BondProps;
+    console.log({ txType: TxType.Bond, wrapperTxProps, bondProps });
+    const test = await tx.buildTxNew(TxType.Bond, wrapperTxProps, bondProps);
+    console.log("TEST", test);
+  } catch (e) {
+    console.warn(e);
+  }
+
   const signedTxs = await signTxArray<T>(chain, encodedTxs, owner);
   return signedTxs.map(
     (tx, index): TransactionPair<T> => ({

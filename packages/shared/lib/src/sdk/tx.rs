@@ -14,9 +14,94 @@ use namada::{
     sdk::args::{self, InputAmount, TxExpiration},
     token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
 };
-use wasm_bindgen::JsError;
+use wasm_bindgen::{prelude::wasm_bindgen, JsError};
 
-#[derive(BorshSerialize, BorshDeserialize)]
+use crate::utils::console_log;
+
+#[wasm_bindgen]
+#[derive(Copy, Clone, Debug, BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh", use_discriminant = false)]
+pub enum TxType {
+    Bond = 1,
+    Unbond = 2,
+    Withdraw = 3,
+    TransparentTransfer = 4,
+    IBCTransfer = 5,
+    EthBridgeTransfer = 6,
+    RevealPK = 7,
+    VoteProposal = 8,
+    Redelegate = 9,
+}
+
+// Tx represents a built transaction of any type
+#[derive(Clone, BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
+pub struct Tx {
+    hash: String,
+    tx_type: TxType,
+    tx_bytes: Vec<u8>,
+    signing_data: Vec<Vec<u8>>,
+}
+
+impl Tx {
+    pub fn new(hash: String, tx_type: TxType, tx_bytes: Vec<u8>, signing_data: Vec<Vec<u8>>) -> Tx {
+        console_log(&format!("Tx::new() {}", &hash));
+        Tx {
+            hash,
+            tx_type,
+            tx_bytes,
+            signing_data,
+        }
+    }
+
+    pub fn tx_bytes(&self) -> Vec<u8> {
+        self.tx_bytes.clone()
+    }
+
+    pub fn signing_data(&self) -> Result<Vec<SigningData>, JsError> {
+        let mut signing_data: Vec<SigningData> = vec![];
+
+        for sd in self.signing_data.clone().into_iter() {
+            let sd = SigningData::from_bytes(sd)?;
+            signing_data.push(sd);
+        }
+
+        Ok(signing_data)
+    }
+}
+
+#[wasm_bindgen]
+#[derive(Clone, BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
+pub struct TxBatch {
+    tx_type: TxType,
+    txs: Vec<Tx>,
+}
+
+impl TxBatch {
+    pub fn new(tx_type: TxType, txs: Vec<Tx>) -> TxBatch {
+        TxBatch { tx_type, txs }
+    }
+
+    pub fn from_bytes(batch: Vec<u8>) -> Result<TxBatch, JsError> {
+        let tx_batch = TxBatch::try_from_slice(&batch)?;
+        Ok(tx_batch)
+    }
+
+    pub fn to_bytes(&self) -> Result<Vec<u8>, JsError> {
+        Ok(borsh::to_vec(&self)?)
+    }
+
+    pub fn txs(&self) -> Vec<Tx> {
+        self.txs.clone()
+    }
+
+    pub fn tx_type(&self) -> TxType {
+        self.tx_type
+    }
+}
+
+#[derive(Clone, BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
 pub struct SigningData {
     owner: Option<String>,
@@ -27,6 +112,11 @@ pub struct SigningData {
 }
 
 impl SigningData {
+    // Create SigningData instance from serialized bytes
+    pub fn from_bytes(bytes: Vec<u8>) -> Result<SigningData, JsError> {
+        Ok(borsh::from_slice(&bytes)?)
+    }
+
     // Create serializable struct from Namada type
     pub fn from_signing_tx_data(signing_tx_data: SigningTxData) -> Result<SigningData, JsError> {
         let owner: Option<String> = match signing_tx_data.owner {

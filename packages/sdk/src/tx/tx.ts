@@ -1,3 +1,4 @@
+import { deserialize } from "@dao-xyz/borsh";
 import { BatchTx, BuiltTx, Sdk as SdkWasm, TxType } from "@namada/shared";
 import {
   BondMsgValue,
@@ -12,6 +13,7 @@ import {
   SignatureMsgValue,
   TransparentTransferMsgValue,
   TransparentTransferProps,
+  TxMsgValue,
   UnbondMsgValue,
   UnbondProps,
   VoteProposalMsgValue,
@@ -31,7 +33,7 @@ export class Tx {
   /**
    * @param sdk - Instance of Sdk struct from wasm lib
    */
-  constructor(protected readonly sdk: SdkWasm) {}
+  constructor(protected readonly sdk: SdkWasm) { }
 
   /**
    * Build a transaction
@@ -56,6 +58,31 @@ export class Tx {
     );
 
     return new EncodedTx(wrapperTxMsg, tx);
+  }
+
+  // TODO: Replace builtTx with this
+  async buildTxNew(
+    txType: TxType,
+    wrapperTxProps: WrapperTxProps,
+    props: unknown,
+    gasPayer?: string
+  ): Promise<Uint8Array> {
+    const builtTx = await this.buildTx(txType, wrapperTxProps, props, gasPayer);
+    console.log({ builtTx });
+    const encodedWrapperTx = this.encodeWrapperTx(wrapperTxProps);
+    console.log({ encodedWrapperTx });
+    const newTx = await this.sdk.build_tx_new(
+      txType,
+      builtTx.txMsg,
+      encodedWrapperTx,
+      gasPayer || ""
+    );
+    console.log({ newTx });
+
+    // TEST! Deserialize
+    const txProps = deserialize(Buffer.from(newTx), TxMsgValue);
+    console.log({ txProps });
+    return newTx;
   }
 
   /**
@@ -148,7 +175,7 @@ export class Tx {
   ): Promise<EncodedTx> {
     const transferMsg = new Message<TransparentTransferMsgValue>();
 
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedTx = this.encodeWrapperTx(wrapperTxProps);
     const encodedTransfer = transferMsg.encode(
       new TransparentTransferMsgValue(transferProps)
     );
@@ -172,7 +199,7 @@ export class Tx {
     wrapperTxProps: WrapperTxProps,
     gasPayer: string
   ): Promise<EncodedTx> {
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedTx = this.encodeWrapperTx(wrapperTxProps);
 
     return await this.buildTxFromSerializedArgs(
       TxType.RevealPK,
@@ -196,7 +223,7 @@ export class Tx {
     gasPayer?: string
   ): Promise<EncodedTx> {
     const bondMsg = new Message<BondMsgValue>();
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedTx = this.encodeWrapperTx(wrapperTxProps);
     const encodedBond = bondMsg.encode(new BondMsgValue(bondProps));
 
     return await this.buildTxFromSerializedArgs(
@@ -221,7 +248,7 @@ export class Tx {
     gasPayer?: string
   ): Promise<EncodedTx> {
     const bondMsg = new Message<UnbondMsgValue>();
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedTx = this.encodeWrapperTx(wrapperTxProps);
     const encodedUnbond = bondMsg.encode(new UnbondMsgValue(unbondProps));
 
     return await this.buildTxFromSerializedArgs(
@@ -246,7 +273,7 @@ export class Tx {
     gasPayer?: string
   ): Promise<EncodedTx> {
     const bondMsg = new Message<WithdrawProps>();
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedTx = this.encodeWrapperTx(wrapperTxProps);
     const encodedWithdraw = bondMsg.encode(new WithdrawMsgValue(withdrawProps));
 
     return await this.buildTxFromSerializedArgs(
@@ -271,7 +298,7 @@ export class Tx {
     gasPayer?: string
   ): Promise<EncodedTx> {
     const redelegateMsg = new Message<RedelegateMsgValue>();
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedTx = this.encodeWrapperTx(wrapperTxProps);
     const encodedRedelegate = redelegateMsg.encode(
       new RedelegateMsgValue(redelegateProps)
     );
@@ -298,7 +325,7 @@ export class Tx {
     gasPayer?: string
   ): Promise<EncodedTx> {
     const ibcTransferMsg = new Message<IbcTransferProps>();
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedTx = this.encodeWrapperTx(wrapperTxProps);
     const encodedIbcTransfer = ibcTransferMsg.encode(
       new IbcTransferMsgValue(ibcTransferProps)
     );
@@ -325,7 +352,7 @@ export class Tx {
     gasPayer?: string
   ): Promise<EncodedTx> {
     const ethBridgeTransferMsg = new Message<EthBridgeTransferProps>();
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedTx = this.encodeWrapperTx(wrapperTxProps);
     const encodedEthBridgeTransfer = ethBridgeTransferMsg.encode(
       new EthBridgeTransferMsgValue(ethBridgeTransferProps)
     );
@@ -352,7 +379,7 @@ export class Tx {
     gasPayer?: string
   ): Promise<EncodedTx> {
     const voteProposalMsg = new Message<VoteProposalProps>();
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedTx = this.encodeWrapperTx(wrapperTxProps);
     const encodedVoteProposal = voteProposalMsg.encode(
       new VoteProposalMsgValue(voteProposalProps)
     );
@@ -393,7 +420,7 @@ export class Tx {
     wrapperTxProps: WrapperTxProps,
     chainId?: string
   ): Promise<void> {
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedTx = this.encodeWrapperTx(wrapperTxProps);
     return await this.sdk.reveal_pk(signingKey, encodedTx, chainId);
   }
 
@@ -444,7 +471,7 @@ export class Tx {
    * @param wrapperTxProps - properties of the transaction
    * @returns Serialized WrapperTxMsgValue
    */
-  encodeTxArgs(wrapperTxProps: WrapperTxProps): Uint8Array {
+  encodeWrapperTx(wrapperTxProps: WrapperTxProps): Uint8Array {
     const txMsgValue = new WrapperTxMsgValue(wrapperTxProps);
     const msg = new Message<WrapperTxMsgValue>();
     return msg.encode(txMsgValue);

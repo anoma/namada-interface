@@ -6,6 +6,7 @@ import {
   RedelegateMsgValue,
   SignatureMsgValue,
   TransparentTransferMsgValue,
+  TxMsgValue,
   TxResponseMsgValue,
   UnbondMsgValue,
   VoteProposalMsgValue,
@@ -20,6 +21,7 @@ export type UnbondProps = UnbondMsgValue;
 export type WithdrawProps = WithdrawMsgValue;
 export type RedelegateProps = RedelegateMsgValue;
 export type TransparentTransferProps = TransparentTransferMsgValue;
+export type TxProps = TxMsgValue;
 export type TxResponseProps = TxResponseMsgValue;
 export type EthBridgeTransferProps = EthBridgeTransferMsgValue;
 export type SignatureProps = SignatureMsgValue;

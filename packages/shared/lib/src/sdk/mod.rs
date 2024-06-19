@@ -6,10 +6,10 @@ mod wallet;
 
 use self::io::WebIo;
 use crate::rpc_client::HttpClient;
-use crate::utils::set_panic_hook;
 #[cfg(feature = "web")]
 use crate::utils::to_bytes;
 use crate::utils::to_js_result;
+use crate::utils::{console_log, set_panic_hook};
 use js_sys::Uint8Array;
 use namada::address::Address;
 use namada::core::borsh::{self, BorshDeserialize, BorshSerialize};
@@ -29,21 +29,8 @@ use namada::sdk::{Namada, NamadaImpl};
 use namada::string_encoding::Format;
 use namada::tx::Tx;
 use std::str::FromStr;
+use tx::TxType;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
-
-#[wasm_bindgen]
-#[derive(Copy, Clone, Debug)]
-pub enum TxType {
-    Bond = 1,
-    Unbond = 2,
-    Withdraw = 3,
-    TransparentTransfer = 4,
-    IBCTransfer = 5,
-    EthBridgeTransfer = 6,
-    RevealPK = 7,
-    VoteProposal = 8,
-    Redelegate = 9,
-}
 
 #[wasm_bindgen]
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -98,7 +85,7 @@ impl BuiltTx {
     }
 
     pub fn tx_hash(&self) -> String {
-        self.tx.raw_header_hash().to_string()
+        self.tx.header_hash().to_string()
     }
 
     pub fn signing_data_bytes(&self) -> Result<Vec<u8>, JsError> {
@@ -430,6 +417,7 @@ impl Sdk {
             let hash = cmt.get_hash().to_string();
             batch_tx_results.push(BatchTxResult {
                 hash,
+                // TODO: get actual gas_used
                 gas_used: String::from("10000.00"),
                 is_applied: response.is_some(),
             });
@@ -437,12 +425,50 @@ impl Sdk {
 
         let response = TxResponse {
             hash,
+            // TODO: get actual gas_used
             gas_used: String::from("10000.00"),
             commitments: batch_tx_results,
         };
 
         // Serialized TxResponse
         to_js_result(borsh::to_vec(&response)?)
+    }
+
+    pub fn build_batch_new(batch_bytes: Vec<u8>) -> Result<Vec<u8>, JsError> {
+        let tx_batch = tx::TxBatch::from_bytes(batch_bytes)?;
+        let mut txs: Vec<(Tx, SigningTxData)> = vec![];
+
+        // Iterate through provided Txs collecting tx and signing_data
+        for built_tx in tx_batch.txs().into_iter() {
+            let tx_bytes = &built_tx.tx_bytes();
+            let signing_data = built_tx.signing_data()?;
+
+            let tx: Tx = Tx::try_from_slice(tx_bytes)?;
+            // Signing data is always treated as a vec, so get the first item for
+            // each single Tx, and convert to SigningTxData type:
+            let sd = signing_data.iter().nth(0);
+
+            if sd.is_some() {
+                txs.push((tx, sd.unwrap().to_signing_tx_data()?));
+            }
+        }
+
+        let (tx, signing_data) = build_batch(txs)?;
+        let tx_bytes = borsh::to_vec(&tx)?;
+        let mut sd: Vec<Vec<u8>> = vec![];
+
+        for data in signing_data {
+            sd.push(tx::SigningData::from_signing_tx_data(data)?.to_bytes()?);
+        }
+
+        let tx = tx::Tx::new(
+            tx.header_hash().to_string(),
+            tx_batch.tx_type(),
+            tx_bytes,
+            sd,
+        );
+
+        Ok(borsh::to_vec(&tx)?)
     }
 
     /// Build a batch Tx from built transactions and return the bytes
@@ -470,46 +496,71 @@ impl Sdk {
         })
     }
 
+    pub async fn build_tx_new(
+        &self,
+        tx_type: TxType,
+        tx_msg: &[u8],
+        wrapper_tx_msg: &[u8],
+        gas_payer: String,
+    ) -> Result<JsValue, JsError> {
+        let built_tx = &self
+            .build_tx(tx_type, tx_msg, wrapper_tx_msg, gas_payer)
+            .await?;
+        console_log("built_tx");
+
+        let tx_bytes = built_tx.tx_bytes()?;
+
+        console_log("tx_bytes");
+        let tx = tx::Tx::new(
+            built_tx.tx_hash(),
+            tx_type,
+            tx_bytes,
+            vec![built_tx.signing_data_bytes()?],
+        );
+        console_log("tx");
+        to_js_result(borsh::to_vec(&tx)?)
+    }
+
     /// Build transaction for specified type, return bytes to client
     pub async fn build_tx(
         &self,
         tx_type: TxType,
-        specific_msg: &[u8],
         tx_msg: &[u8],
+        wrapper_tx_msg: &[u8],
         gas_payer: String,
     ) -> Result<BuiltTx, JsError> {
         let tx = match tx_type {
             TxType::Bond => {
-                self.build_bond(specific_msg, tx_msg, Some(gas_payer))
+                self.build_bond(tx_msg, wrapper_tx_msg, Some(gas_payer))
                     .await?
             }
             TxType::Unbond => {
-                self.build_unbond(specific_msg, tx_msg, Some(gas_payer))
+                self.build_unbond(tx_msg, wrapper_tx_msg, Some(gas_payer))
                     .await?
             }
             TxType::Withdraw => {
-                self.build_withdraw(specific_msg, tx_msg, Some(gas_payer))
+                self.build_withdraw(tx_msg, wrapper_tx_msg, Some(gas_payer))
                     .await?
             }
             TxType::TransparentTransfer => {
-                self.build_transparent_transfer(specific_msg, tx_msg, Some(gas_payer))
+                self.build_transparent_transfer(tx_msg, wrapper_tx_msg, Some(gas_payer))
                     .await?
             }
             TxType::IBCTransfer => {
-                self.build_ibc_transfer(specific_msg, tx_msg, Some(gas_payer))
+                self.build_ibc_transfer(tx_msg, wrapper_tx_msg, Some(gas_payer))
                     .await?
             }
             TxType::EthBridgeTransfer => {
-                self.build_eth_bridge_transfer(specific_msg, tx_msg, Some(gas_payer))
+                self.build_eth_bridge_transfer(tx_msg, wrapper_tx_msg, Some(gas_payer))
                     .await?
             }
-            TxType::RevealPK => self.build_reveal_pk(tx_msg, gas_payer).await?,
+            TxType::RevealPK => self.build_reveal_pk(wrapper_tx_msg, gas_payer).await?,
             TxType::VoteProposal => {
-                self.build_vote_proposal(specific_msg, tx_msg, Some(gas_payer))
+                self.build_vote_proposal(tx_msg, wrapper_tx_msg, Some(gas_payer))
                     .await?
             }
             TxType::Redelegate => {
-                self.build_redelegate(specific_msg, tx_msg, Some(gas_payer))
+                self.build_redelegate(tx_msg, wrapper_tx_msg, Some(gas_payer))
                     .await?
             }
         };
