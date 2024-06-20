@@ -6,6 +6,7 @@ import {
 } from "@namada/types";
 import { bech32m } from "bech32";
 import BigNumber from "bignumber.js";
+import * as fns from "date-fns";
 import { DateTime } from "luxon";
 
 const MICRO_FACTOR = 1000000; // 1,000,000
@@ -80,22 +81,35 @@ export const stringFromTimestampInSec = (timestamp: bigint): string => {
 };
 
 /**
- * Converts a timestamp in secods to a date-time string
+ * Get formatted duration from interval
  *
- * @param {number} seconds - timestamp in seconds
- * @returns {string} time in format "DD Days: HH Hrs: MM Mins"
+ * @param {number} fromSec - from date in seconds
+ * @param {number} toSec - to date in seconds
+ * @returns {string} formatted duration
  */
-export const timeFromSeconds = (seconds: bigint): string => {
-  const big60 = BigInt(60);
-  const big24 = BigInt(24);
+export const durationFromInterval = (
+  fromSec: number,
+  toSec: number
+): string => {
+  const interval = {
+    start: fromSec * 1000,
+    end: toSec * 1000,
+  };
 
-  const totalMinutes = seconds / big60;
-  const minutes = totalMinutes % big60;
-  const totalHours = totalMinutes / big60;
-  const hours = totalHours % big24;
-  const days = totalHours / big24;
+  const timeLeft = fns.intervalToDuration(interval);
 
-  return `${days} Days: ${hours} Hrs: ${minutes} Mins`;
+  const initialFormat = fns.formatDuration(timeLeft, {
+    format: ["days", "hours", "minutes"],
+    zero: true,
+    delimiter: ": ",
+  });
+
+  const formatted = initialFormat
+    .replace("days", "Days")
+    .replace("hours", "Hrs")
+    .replace("minutes", "Mins");
+
+  return formatted;
 };
 
 /**

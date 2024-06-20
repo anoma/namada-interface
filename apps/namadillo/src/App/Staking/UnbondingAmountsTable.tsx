@@ -26,10 +26,7 @@ export const UnbondingAmountsTable = (): JSX.Element => {
     for (const myValidator of myUnbonds.data) {
       const { validator, unbondedAmount, withdrawableAmount } = myValidator;
 
-      const amount =
-        unbondedAmount?.gt(0) ? unbondedAmount!
-        : withdrawableAmount?.gt(0) ? withdrawableAmount!
-        : new BigNumber(0);
+      const amount = new BigNumber(unbondedAmount || withdrawableAmount || 0);
 
       if (amount.gt(0)) {
         rowsList.push({

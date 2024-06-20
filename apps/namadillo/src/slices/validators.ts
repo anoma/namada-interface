@@ -5,7 +5,7 @@ import {
   ValidatorStatus as IndexerValidatorStatus,
   VotingPower as IndexerVotingPower,
 } from "@anomaorg/namada-indexer-client";
-import { timeFromSeconds } from "@namada/utils";
+import { durationFromInterval } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import {
   AtomWithQueryResult,
@@ -249,11 +249,14 @@ const toUnbondingValidators = (
       unbondingPeriod,
       apr
     );
-    const secondsLeft = BigInt(Number(indexerUnbond.withdrawTime) - timeNow);
+    const withdrawTime = Number(indexerUnbond.withdrawTime);
+    const secondsLeft = withdrawTime - timeNow;
 
     // TODO: later return from the backend
-    const canWithdraw = secondsLeft <= BigInt(0);
-    const timeLeft = timeFromSeconds(canWithdraw ? BigInt(0) : secondsLeft);
+    const canWithdraw = secondsLeft <= 0;
+    const timeLeft =
+      canWithdraw ? "" : durationFromInterval(timeNow, withdrawTime);
+
     const amountValue = BigNumber(indexerUnbond.amount);
     const amount = {
       [canWithdraw ? "withdrawableAmount" : "unbondedAmount"]: amountValue,
@@ -265,8 +268,6 @@ const toUnbondingValidators = (
       stakedAmount: BigNumber(0),
       timeLeft,
       validator,
-      unbondedAmount: BigNumber(0),
-      withdrawableAmount: BigNumber(0),
       ...amount,
     };
   });
