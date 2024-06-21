@@ -120,8 +120,8 @@ const handleApproveSignTxMsg: (
 const handleRejectSignTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<RejectSignTxMsg> = (service) => {
-  return async (_, { msgId }) => {
-    return await service.rejectSignTx(msgId);
+  return async ({ senderTabId: popupTabId }, { msgId }) => {
+    return await service.rejectSignTx(popupTabId, msgId);
   };
 };
 
@@ -145,7 +145,7 @@ const handleRejectSignArbitraryMsg: (
   service: ApprovalsService
 ) => InternalHandler<RejectSignArbitraryMsg> = (service) => {
   return async ({ senderTabId: popupTabId }, { msgId }) => {
-    return await service.rejectSignature(popupTabId, msgId);
+    return await service.rejectSignArbitrary(popupTabId, msgId);
   };
 };
 

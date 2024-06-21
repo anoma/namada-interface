@@ -84,7 +84,7 @@ describe("approvals handler", () => {
 
     const rejectSignArbitraryMsg = new RejectSignArbitraryMsg("");
     handler(env, rejectSignArbitraryMsg);
-    expect(service.rejectSignature).toBeCalled();
+    expect(service.rejectSignArbitrary).toBeCalled();
 
     const submitApprovedSignArbitrartyMsg = new SubmitApprovedSignArbitraryMsg(
       "",

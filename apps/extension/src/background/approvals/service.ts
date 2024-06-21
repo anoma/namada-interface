@@ -67,7 +67,6 @@ export class ApprovalsService {
       this.resolverMap[popupTabId] = { resolve, reject };
     });
   }
-
   async approveSignArbitrary(
     signer: string,
     data: string
@@ -104,7 +103,6 @@ export class ApprovalsService {
     signer: string
   ): Promise<void> {
     const pendingTx = await this.txStore.get(msgId);
-    console.log("encodedTx", pendingTx);
     const resolvers = this.resolverMap[popupTabId];
 
     if (!resolvers) {
@@ -156,7 +154,7 @@ export class ApprovalsService {
     await this._clearPendingSignature(msgId);
   }
 
-  async rejectSignature(popupTabId: number, msgId: string): Promise<void> {
+  async rejectSignArbitrary(popupTabId: number, msgId: string): Promise<void> {
     const resolvers = this.resolverMap[popupTabId];
 
     if (!resolvers) {
@@ -164,12 +162,18 @@ export class ApprovalsService {
     }
 
     await this._clearPendingSignature(msgId);
-    resolvers.reject();
+    resolvers.reject(new Error("Sign arbitrary rejected"));
   }
 
   // Remove pending transaction from storage
-  async rejectSignTx(msgId: string): Promise<void> {
+  async rejectSignTx(popupTabId: number, msgId: string): Promise<void> {
+    const resolvers = this.resolverMap[popupTabId];
+    if (!resolvers) {
+      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
+    }
+
     await this._clearPendingTx(msgId);
+    resolvers.reject(new Error("Sign Tx rejected"));
   }
 
   async isConnectionApproved(interfaceOrigin: string): Promise<boolean> {
