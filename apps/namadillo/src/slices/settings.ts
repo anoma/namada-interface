@@ -1,3 +1,4 @@
+import { DefaultApi } from "@anomaorg/namada-indexer-client";
 import { CurrencyType } from "@namada/utils";
 import { Getter, Setter, atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
@@ -20,6 +21,16 @@ export const namadaExtensionConnectionStatus = atom<ConnectStatus>("idle");
 export const namadaExtensionConnectedAtom = atom<boolean>(
   (get) => get(namadaExtensionConnectionStatus) === "connected"
 );
+
+export const isValidIndexerUrl = async (url: string): Promise<boolean> => {
+  try {
+    const api = new DefaultApi({ basePath: url });
+    const response = await api.healthGet();
+    return response.status === 200;
+  } catch {
+    return false;
+  }
+};
 
 export const defaultServerConfigAtom = atomWithQuery((_get) => {
   return {

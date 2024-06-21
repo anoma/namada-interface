@@ -4,6 +4,7 @@ import { chainAtom } from "slices/chain";
 import { indexerUrlAtom } from "slices/settings";
 
 import React from "react";
+import { Setup } from "./Common/Setup";
 
 type AppSetupProps = {
   children: React.ReactNode;
@@ -17,11 +18,11 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
 
   // Displays setup screen if the indexer is not defined
   if (!indexerUrl) {
-    return <>Indexer is not defined!</>;
+    return <Setup />;
   }
 
   // Loading screen
-  if (!extensionReady || chain.isLoading) {
+  if (!extensionReady || chain.isPending) {
     return <>Loading</>;
   }
 

@@ -4,14 +4,15 @@ import { atomWithQuery } from "jotai-tanstack-query";
 import { queryDependentFn } from "store/utils";
 import { ChainSettings } from "types";
 import { chainParametersAtom, indexerRpcUrlAtom } from "./chainParameters";
-import { rpcUrlAtom } from "./settings";
+import { indexerUrlAtom, rpcUrlAtom } from "./settings";
 
 export const chainAtom = atomWithQuery<ChainSettings>((get) => {
   const chainParameters = get(chainParametersAtom);
   const indexerRpcUrl = get(indexerRpcUrlAtom);
+  const indexerUrl = get(indexerUrlAtom);
 
   return {
-    queryKey: ["chain", chainParameters, indexerRpcUrl],
+    queryKey: ["chain", indexerUrl, chainParameters, indexerRpcUrl],
     staleTime: Infinity,
     ...queryDependentFn(async () => {
       const rpcUrl = get(rpcUrlAtom);
@@ -26,6 +27,6 @@ export const chainAtom = atomWithQuery<ChainSettings>((get) => {
         unbondingPeriodInDays: chainParameters.data!.unbondingPeriodInDays,
         nativeTokenAddress: chainParameters.data!.nativeTokenAddress,
       };
-    }, [indexerRpcUrl, chainParameters]),
+    }, [!!indexerUrl, indexerRpcUrl, chainParameters]),
   };
 });
