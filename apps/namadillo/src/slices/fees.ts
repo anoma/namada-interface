@@ -4,7 +4,7 @@ import invariant from "invariant";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { indexerApiAtom } from "./api";
-import { nativeTokenAtom } from "./settings";
+import { nativeTokenAddressAtom } from "./chainParameters";
 
 export type TxKind =
   | "Bond"
@@ -72,7 +72,7 @@ export const gasLimitsAtom = atomWithQuery<GasTable>((get) => {
 export const gasCostTxKindAtom = atom<TxKind | undefined>(undefined);
 
 export const minimumGasPriceAtom = atomWithQuery<BigNumber>((get) => {
-  const nativeToken = get(nativeTokenAtom);
+  const nativeToken = get(nativeTokenAddressAtom);
   const api = get(indexerApiAtom);
 
   return {

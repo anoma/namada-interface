@@ -11,7 +11,7 @@ import { atomFamily } from "jotai/utils";
 import { TransactionPair } from "lib/query";
 import { defaultAccountAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
-import { GasConfig } from "types/fees";
+import { GasConfig } from "types";
 import {
   createVoteProposalTx,
   fetchAllProposals,
@@ -184,16 +184,16 @@ type CreateVoteTxArgs = {
 
 export const createVoteTxAtom = atomWithMutation((get) => {
   const account = get(defaultAccountAtom);
+  const chain = get(chainAtom);
 
   return {
-    enabled: account.isSuccess,
+    enabled: account.isSuccess && chain.isSuccess,
     mutationKey: ["voting"],
     mutationFn: async ({
       proposalId,
       vote,
       gasConfig,
     }: CreateVoteTxArgs): Promise<TransactionPair<VoteProposalProps>[]> => {
-      const chain = get(chainAtom);
       if (typeof account.data === "undefined") {
         throw new Error("no account");
       }
@@ -202,7 +202,7 @@ export const createVoteTxAtom = atomWithMutation((get) => {
         vote,
         account.data,
         gasConfig,
-        chain
+        chain.data!
       );
     },
   };

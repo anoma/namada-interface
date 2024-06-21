@@ -1,4 +1,5 @@
 import { init as initShared } from "@namada/shared/src/init-inline";
+import { AppSetup } from "App/AppSetup";
 import { SdkProvider } from "hooks/useSdk";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -6,12 +7,12 @@ import { RouterProvider } from "react-router-dom";
 import { StoreProvider } from "store";
 import { getRouter } from "./App/AppRoutes";
 import reportWebVitals from "./reportWebVitals";
-import { ExtensionEventsProvider, IntegrationsProvider } from "./services";
+import { IntegrationsProvider } from "./services";
 
 import "@namada/components/src/base.css";
+import "./polyfills";
 import "./tailwind.css";
 
-// TODO: we could show the loading screen while initShared is pending
 const container = document.getElementById("root");
 if (container) {
   const root = createRoot(container);
@@ -20,11 +21,11 @@ if (container) {
       <React.StrictMode>
         <StoreProvider>
           <IntegrationsProvider>
-            <SdkProvider>
-              <ExtensionEventsProvider>
+            <AppSetup>
+              <SdkProvider>
                 <RouterProvider router={getRouter()} />
-              </ExtensionEventsProvider>
-            </SdkProvider>
+              </SdkProvider>
+            </AppSetup>
           </IntegrationsProvider>
         </StoreProvider>
       </React.StrictMode>

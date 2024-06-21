@@ -9,7 +9,6 @@ import {
 import {
   Account,
   AddRemove,
-  Chain,
   PgfActions,
   Proposal,
   ProposalStatus,
@@ -25,10 +24,11 @@ import BigNumber from "bignumber.js";
 import * as E from "fp-ts/Either";
 import * as t from "io-ts";
 import { TransactionPair, buildTxPair } from "lib/query";
-import { GasConfig } from "types/fees";
+import { GasConfig } from "types";
 
 import { fromHex } from "@cosmjs/encoding";
 import { getSdkInstance } from "hooks";
+import { ChainSettings } from "types";
 
 // TODO: this function is way too big
 const decodeProposalType = (
@@ -356,7 +356,7 @@ export const createVoteProposalTx = async (
   vote: VoteType,
   account: Account,
   gasConfig: GasConfig,
-  chain: Chain
+  chain: ChainSettings
 ): Promise<TransactionPair<VoteProposalProps>[]> => {
   try {
     const { tx } = await getSdkInstance();

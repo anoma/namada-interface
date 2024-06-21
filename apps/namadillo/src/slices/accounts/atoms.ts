@@ -2,8 +2,9 @@ import { Account } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { indexerApiAtom } from "slices/api";
+import { nativeTokenAddressAtom } from "slices/chainParameters";
 import { shouldUpdateBalanceAtom } from "slices/etc";
-import { namadaExtensionConnectedAtom, nativeTokenAtom } from "slices/settings";
+import { namadaExtensionConnectedAtom } from "slices/settings";
 import { queryDependentFn } from "store/utils";
 import {
   fetchAccountBalance,
@@ -31,7 +32,7 @@ export const defaultAccountAtom = atomWithQuery<Account | undefined>((get) => {
 
 export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
   const defaultAccount = get(defaultAccountAtom);
-  const tokenAddress = get(nativeTokenAtom);
+  const tokenAddress = get(nativeTokenAddressAtom);
   const enablePolling = get(shouldUpdateBalanceAtom);
   const api = get(indexerApiAtom);
 

@@ -1,24 +1,36 @@
 import { CurrencyType } from "@namada/utils";
 import { Getter, Setter, atom } from "jotai";
+import { atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
+import { indexerRpcUrlAtom } from "./chainParameters";
 
 type SettingsStorage = {
   version: string;
   fiat: CurrencyType;
   hideBalances: boolean;
-  rpcUrl: string;
+  rpcUrl?: string;
   indexerUrl: string;
-  chainId: string;
-  nativeToken: string;
   signArbitraryEnabled: boolean;
 };
 
 export type ConnectStatus = "idle" | "connecting" | "connected" | "error";
 
 export const namadaExtensionConnectionStatus = atom<ConnectStatus>("idle");
+
 export const namadaExtensionConnectedAtom = atom<boolean>(
   (get) => get(namadaExtensionConnectionStatus) === "connected"
 );
+
+export const defaultServerConfigAtom = atomWithQuery((_get) => {
+  return {
+    queryKey: ["server-config"],
+    staleTime: Infinity,
+    queryFn: async () => {
+      const response = await fetch("/config.toml");
+      response.text;
+    },
+  };
+});
 
 export const namadilloSettingsAtom = atomWithStorage<SettingsStorage>(
   "namadillo:settings",
@@ -26,10 +38,7 @@ export const namadilloSettingsAtom = atomWithStorage<SettingsStorage>(
     version: "0.1",
     fiat: "usd",
     hideBalances: false,
-    rpcUrl: process.env.NAMADA_INTERFACE_NAMADA_URL || "",
     indexerUrl: process.env.NAMADA_INTERFACE_INDEXER_URL || "",
-    chainId: process.env.NAMADA_INTERFACE_NAMADA_CHAIN_ID || "",
-    nativeToken: process.env.NAMADA_INTERFACE_NAMADA_TOKEN || "",
     signArbitraryEnabled: false,
   },
   undefined,
@@ -53,24 +62,17 @@ export const hideBalancesAtom = atom(
   changeSettings<boolean>("hideBalances")
 );
 
-export const rpcUrlAtom = atom(
-  (get) => get(namadilloSettingsAtom).rpcUrl,
-  changeSettings<string>("rpcUrl")
-);
+export const rpcUrlAtom = atom((get) => {
+  const localStorageRpc = get(namadilloSettingsAtom).rpcUrl;
+  const indexerRpc = get(indexerRpcUrlAtom).data;
+  if (localStorageRpc) return localStorageRpc;
+  if (indexerRpc) return indexerRpc;
+  throw "RPC url is not defined";
+}, changeSettings<string>("rpcUrl"));
 
 export const indexerUrlAtom = atom(
   (get) => get(namadilloSettingsAtom).indexerUrl,
   changeSettings<string>("indexerUrl")
-);
-
-export const chainIdAtom = atom(
-  (get) => get(namadilloSettingsAtom).chainId,
-  changeSettings<string>("chainId")
-);
-
-export const nativeTokenAtom = atom(
-  (get) => get(namadilloSettingsAtom).nativeToken,
-  changeSettings<string>("nativeToken")
 );
 
 export const signArbitraryEnabledAtom = atom(

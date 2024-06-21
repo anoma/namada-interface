@@ -9,7 +9,7 @@ import {
 import { chains } from "@namada/chains";
 import { useUntil } from "@namada/hooks";
 import { Keplr, Metamask, Namada } from "@namada/integrations";
-import { Chain, ChainKey, ExtensionKey } from "@namada/types";
+import { ChainKey, ExtensionKey } from "@namada/types";
 
 type ExtensionConnection<T, U> = (
   onSuccess: () => T,
@@ -95,14 +95,12 @@ type AttachStatusMap = { [key in ExtensionKey]: AttachStatus };
 
 /**
  * Hook used for returning attach status of extension
- *
- * @param {Chain} chain - Current chain configuration
- * @returns {AttachStatusMap} Map of extension -> status
  */
-export const useUntilIntegrationAttached = (chain: Chain): AttachStatusMap => {
-  const { id, extension } = chain;
-  const integration = useIntegration(id);
-
+export const useUntilIntegrationAttached = (
+  chainId: ChainKey = "namada",
+  extensionId: ExtensionKey = "namada"
+): AttachStatus => {
+  const integration = useIntegration(chainId);
   const [attachStatusMap, setAttachStatus] = useState<AttachStatusMap>({
     namada: "pending",
     keplr: "pending",
@@ -110,17 +108,17 @@ export const useUntilIntegrationAttached = (chain: Chain): AttachStatusMap => {
   });
 
   useEffect(() => {
-    setAttachStatus((v) => ({ ...v, [extension.id]: "pending" }));
-  }, [id]);
+    setAttachStatus((v) => ({ ...v, [extensionId]: "pending" }));
+  }, [chainId]);
 
   useUntil(
     {
       predFn: () => Promise.resolve(integration.detect()),
       onSuccess: () => {
-        setAttachStatus((v) => ({ ...v, [extension.id]: "attached" }));
+        setAttachStatus((v) => ({ ...v, [extensionId]: "attached" }));
       },
       onFail: () =>
-        setAttachStatus((v) => ({ ...v, [extension.id]: "detached" })),
+        setAttachStatus((v) => ({ ...v, [extensionId]: "detached" })),
     },
     {
       tries: 10,
@@ -129,7 +127,7 @@ export const useUntilIntegrationAttached = (chain: Chain): AttachStatusMap => {
     [integration]
   );
 
-  return attachStatusMap;
+  return attachStatusMap[extensionId];
 };
 
 /**

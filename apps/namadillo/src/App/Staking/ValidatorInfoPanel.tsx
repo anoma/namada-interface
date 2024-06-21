@@ -1,10 +1,8 @@
 import { formatPercentage, shortenAddress } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { useAtomValue } from "jotai";
 import { GoGlobe } from "react-icons/go";
 import { IoClose } from "react-icons/io5";
-import { chainAtom } from "slices/chain";
 import { Validator } from "slices/validators";
 import { twMerge } from "tailwind-merge";
 import { ValidatorCard } from "./ValidatorCard";
@@ -19,7 +17,6 @@ export const ValidatorInfoPanel = ({
   onClose,
   ...props
 }: ValidatorInfoPanel): JSX.Element => {
-  const chain = useAtomValue(chainAtom);
   const {
     className: articleClassName,
     onClick: articleClick,
@@ -70,7 +67,7 @@ export const ValidatorInfoPanel = ({
         )}
       >
         <dt>Chain</dt>
-        <dd>{chain.alias}</dd>
+        <dd>Namada</dd>
         <dt>Commission</dt>
         <dd>{formatPercentage(validator.commission)}</dd>
         <dt>Expected APR (%)</dt>

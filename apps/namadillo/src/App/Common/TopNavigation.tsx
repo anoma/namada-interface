@@ -1,5 +1,4 @@
 import { ToggleButton } from "@namada/components";
-import { Chain } from "@namada/types";
 import { ActiveAccount } from "App/Common/ActiveAccount";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
 import SettingsRoutes from "App/Settings/routes";
@@ -11,21 +10,16 @@ import {
   namadaExtensionConnectedAtom,
 } from "slices/settings";
 
-type Props = {
-  chain: Chain;
-};
-
-export const TopNavigation = ({ chain }: Props): JSX.Element => {
+export const TopNavigation = (): JSX.Element => {
   const isExtensionConnected = useAtomValue(namadaExtensionConnectedAtom);
   const [hideBalances, setHideBalances] = useAtom(hideBalancesAtom);
   const location = useLocation();
   const navigate = useNavigate();
-
   return (
     <>
       {!isExtensionConnected && (
         <span>
-          <ConnectExtensionButton chain={chain} />
+          <ConnectExtensionButton />
         </span>
       )}
 

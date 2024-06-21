@@ -1,38 +1,17 @@
 import { ActionButton } from "@namada/components";
 import { useUntilIntegrationAttached } from "@namada/integrations";
-import { Chain } from "@namada/types";
 import { useExtensionConnect } from "hooks/useExtensionConnect";
 import { useAtomValue } from "jotai";
 import { namadaExtensionConnectedAtom } from "slices/settings";
 
-type Props = {
-  chain: Chain;
-};
-
-export const ConnectExtensionButton = ({ chain }: Props): JSX.Element => {
-  const extensionAttachStatus = useUntilIntegrationAttached(chain);
+export const ConnectExtensionButton = (): JSX.Element => {
+  const extensionAttachStatus = useUntilIntegrationAttached();
   const isExtensionConnected = useAtomValue(namadaExtensionConnectedAtom);
-
-  const { connect } = useExtensionConnect(chain);
-
-  const currentExtensionAttachStatus =
-    extensionAttachStatus[chain.extension.id];
-
-  const hasExtensionInstalled =
-    currentExtensionAttachStatus === "attached" ||
-    currentExtensionAttachStatus === "pending";
-
-  const handleDownloadExtension = (): void => {
-    window.open(
-      "https://namada.net/extension",
-      "_blank",
-      "noopener,noreferrer"
-    );
-  };
+  const { connect } = useExtensionConnect();
 
   return (
     <>
-      {hasExtensionInstalled && !isExtensionConnected && (
+      {extensionAttachStatus === "attached" && !isExtensionConnected && (
         <ActionButton
           color="primary"
           size="sm"
@@ -42,10 +21,11 @@ export const ConnectExtensionButton = ({ chain }: Props): JSX.Element => {
           Connect Extension
         </ActionButton>
       )}
-
-      {!hasExtensionInstalled && (
+      {extensionAttachStatus === "detached" && (
         <ActionButton
-          onClick={() => handleDownloadExtension()}
+          href="https://namada.net/extension"
+          target="_blank"
+          rel="nofollow noreferrer"
           color="primary"
           size="sm"
           borderRadius="sm"

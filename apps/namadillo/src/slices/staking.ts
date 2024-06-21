@@ -10,7 +10,7 @@ import { getSdkInstance } from "hooks";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { TransactionPair, buildTxPair } from "lib/query";
 import { queryDependentFn } from "store/utils";
-import { GasConfig } from "types/fees";
+import { GasConfig } from "types";
 import { ChangeInStakingPosition, RedelegateChange } from "types/staking";
 import { chainAtom } from "./chain";
 import { MyValidator, myValidatorsAtom } from "./validators";
@@ -93,8 +93,10 @@ const getRedelegateChangeParams = (
 };
 
 export const createBondTxAtom = atomWithMutation((get) => {
+  const chain = get(chainAtom);
   return {
     mutationKey: ["create-bonding-tx"],
+    enabled: chain.isSuccess,
     mutationFn: async ({
       changes,
       gasConfig,
@@ -103,13 +105,12 @@ export const createBondTxAtom = atomWithMutation((get) => {
       TransactionPair<BondProps>[] | undefined
     > => {
       try {
-        const chain = get(chainAtom);
         const { tx } = await getSdkInstance();
         const bondProps = getStakingChangesParams(account, changes);
         const transactionPairs = await buildTxPair(
           account,
           gasConfig,
-          chain,
+          chain.data!,
           bondProps,
           tx.buildBond,
           bondProps[0].source
@@ -124,21 +125,22 @@ export const createBondTxAtom = atomWithMutation((get) => {
 });
 
 export const createUnbondTxAtom = atomWithMutation((get) => {
+  const chain = get(chainAtom);
   return {
     mutationKey: ["creat-unbonding-tx"],
+    enabled: chain.isSuccess,
     mutationFn: async ({
       changes,
       gasConfig,
       account,
     }: ChangeInStakingProps) => {
       try {
-        const chain = get(chainAtom);
         const { tx } = await getSdkInstance();
         const unbondProps = getStakingChangesParams(account, changes);
         const transactionPairs = await buildTxPair(
           account,
           gasConfig,
-          chain,
+          chain.data!,
           unbondProps,
           tx.buildUnbond,
           unbondProps[0].source
@@ -153,21 +155,22 @@ export const createUnbondTxAtom = atomWithMutation((get) => {
 });
 
 export const createReDelegateTxAtom = atomWithMutation((get) => {
+  const chain = get(chainAtom);
   return {
     mutationKey: ["create-redelegate-tx"],
+    enabled: chain.isSuccess,
     mutationFn: async ({
       changes,
       gasConfig,
       account,
     }: RedelegateChangesProps) => {
       try {
-        const chain = get(chainAtom);
         const { tx } = await getSdkInstance();
         const redelegateProps = getRedelegateChangeParams(account, changes);
         const transactionPairs = await buildTxPair(
           account,
           gasConfig,
-          chain,
+          chain.data!,
           redelegateProps,
           tx.buildRedelegate,
           redelegateProps[0].owner
@@ -182,8 +185,10 @@ export const createReDelegateTxAtom = atomWithMutation((get) => {
 });
 
 export const createWithdrawTxAtom = atomWithMutation((get) => {
+  const chain = get(chainAtom);
   return {
     mutationKey: ["create-withdraw-tx"],
+    enabled: chain.isSuccess,
     mutationFn: async ({
       changes,
       gasConfig,
@@ -198,7 +203,7 @@ export const createWithdrawTxAtom = atomWithMutation((get) => {
         const transactionPairs = await buildTxPair(
           account,
           gasConfig,
-          chain,
+          chain.data!,
           withdrawProps,
           tx.buildWithdraw,
           withdrawProps[0].source
