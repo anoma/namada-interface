@@ -20,6 +20,10 @@ import {
   fetchVotedProposalIds,
 } from "./functions";
 
+import {
+  Bond as NamadaIndexerBond,
+  BondStatusEnum as NamadaIndexerBondStatusEnum,
+} from "@anomaorg/namada-indexer-client";
 export const proposalFamily = atomFamily((id: bigint) =>
   atomWithQuery((get) => {
     const api = get(indexerApiAtom);
@@ -171,6 +175,26 @@ export const votedProposalIdsAtom = atomWithQuery((get) => {
         throw new Error("no account found");
       }
       return await fetchVotedProposalIds(api, account.data);
+    },
+  };
+});
+
+export const canVoteAtom = atomWithQuery((get) => {
+  const account = get(defaultAccountAtom);
+  const api = get(indexerApiAtom);
+
+  return {
+    queryKey: ["can-vote"],
+    enabled: account.isSuccess,
+    queryFn: async () => {
+      const all_bonds = await api.apiV1PosBondAddressGet(account.data!.address);
+
+      return all_bonds.data.data.reduce(
+        (acc: boolean, current: NamadaIndexerBond) => {
+          return acc || current.status === NamadaIndexerBondStatusEnum.Active;
+        },
+        false
+      );
     },
   };
 });
