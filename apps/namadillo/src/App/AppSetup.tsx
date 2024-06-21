@@ -4,6 +4,7 @@ import { chainAtom } from "slices/chain";
 import { indexerUrlAtom } from "slices/settings";
 
 import React from "react";
+import { PageLoader } from "./Common/PageLoader";
 import { Setup } from "./Common/Setup";
 
 type AppSetupProps = {
@@ -23,7 +24,7 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
 
   // Loading screen
   if (!extensionReady || chain.isPending) {
-    return <>Loading</>;
+    return <PageLoader />;
   }
 
   // Handles indexer / connection errors

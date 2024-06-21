@@ -13,9 +13,19 @@ module.exports = {
           "25%, 90%": { transform: "rotateZ(180deg)" },
           "100%": { transform: "rotateZ(360deg)" },
         },
+
+        loading: {
+          from: {
+            transform: "rotate(0turn)",
+          },
+          to: {
+            transform: "rotate(1turn)",
+          },
+        },
       },
       animation: {
         niceSpin: "niceSpin 1s ease-out infinite 1s",
+        loadingSpinner: "loading 1s ease infinite",
       },
     },
   },
