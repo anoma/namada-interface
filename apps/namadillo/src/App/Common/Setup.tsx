@@ -1,12 +1,17 @@
 import { ActionButton, Container, Input, Stack } from "@namada/components";
 import { isUrlValid } from "@namada/utils";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useState } from "react";
 import { indexerUrlAtom, isValidIndexerUrl } from "slices/settings";
 import { DISCORD_URL } from "urls";
 
-export const Setup = (): JSX.Element => {
-  const [url, setUrl] = useState("");
+type SetupProps = {
+  onChange: (newUrl: string) => void;
+};
+
+export const Setup = ({ onChange }: SetupProps): JSX.Element => {
+  const indexerUrl = useAtomValue(indexerUrlAtom);
+  const [url, setUrl] = useState(indexerUrl || "");
   const [validatingUrl, setValidatingUrl] = useState(false);
   const [error, setError] = useState("");
 
@@ -25,6 +30,7 @@ export const Setup = (): JSX.Element => {
     setValidatingUrl(true);
     if (await isValidIndexerUrl(url)) {
       setIndexerAtom(url);
+      onChange(url);
     } else {
       setError(
         "Error: Couldn't reach the indexer URL. Please provide a valid indexer service."

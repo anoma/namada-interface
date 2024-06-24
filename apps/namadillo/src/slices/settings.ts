@@ -90,3 +90,17 @@ export const signArbitraryEnabledAtom = atom(
   (get) => get(namadilloSettingsAtom).signArbitraryEnabled,
   changeSettings<boolean>("signArbitraryEnabled")
 );
+
+export const indexerHeartbeatAtom = atomWithQuery((get) => {
+  const indexerUrl = get(indexerUrlAtom);
+  return {
+    queryKey: ["indexer-heartbeat", indexerUrl],
+    enabled: !!indexerUrl,
+    retry: false,
+    queryFn: async () => {
+      const valid = await isValidIndexerUrl(indexerUrl);
+      if (!valid) throw "Unable to verify indexer heartbeat";
+      return true;
+    },
+  };
+});

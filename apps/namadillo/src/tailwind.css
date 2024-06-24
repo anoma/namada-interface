@@ -4,7 +4,6 @@
 
 body {
   @apply bg-gray;
-  @apply pb-1;
 }
 
 .dark-scrollbar {
