@@ -26,7 +26,7 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
   const errorContainerProps = { className: "text-white h-svh" };
   const [changeIndexerSettings, setChangeIndexerSettings] = useState(false);
 
-  // Before any other thing, we need to check if there's a toml config file in the root and load it
+  // Before anything else, we need to check if there's a TOML config file in the root and load it.
   if (tomlConfig.isPending) {
     return <PageLoader />;
   }
@@ -44,12 +44,12 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
     );
   }
 
-  // Prioritize indexer loading, if it fails, we won't wait for other pending requests
+  // Prioritizes indexer loading; if it fails, we won't wait for other pending requests.
   if (indexerHeartbeat.isPending) {
     return <PageLoader />;
   }
 
-  // Check if indexer details are valid
+  // Checks if the indexer details are valid.
   if (indexerHeartbeat.isError) {
     return (
       <AtomErrorBoundary
@@ -72,12 +72,12 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
     );
   }
 
-  // Waiting for extension being detected and other chain settings
+  // Waiting for the extension to be detected along with other chain settings.
   if (!extensionReady || chain.isPending) {
     return <PageLoader />;
   }
 
-  // Handles chain connection errors
+  // Handles chain connection errors.
   if (chain.isError) {
     return (
       <AtomErrorBoundary
@@ -88,7 +88,7 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
     );
   }
 
-  // Error if for some reason the RPC url is missing
+  // Error if, for some reason, the RPC URL is missing.
   if (!chain.data!.rpcUrl) {
     return (
       <ErrorBox
