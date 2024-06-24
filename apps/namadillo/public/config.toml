@@ -1,2 +1,4 @@
-#indexer_url = "https://indexer.luminara.icu"
+# Uncomment the following lines to define your default indexer and rpc urls
+#indexer_url = ""
+#rpc_url = ""
 

@@ -3,6 +3,7 @@ import { CurrencyType } from "@namada/utils";
 import { Getter, Setter, atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
+import toml from "toml";
 import { indexerRpcUrlAtom } from "./chainParameters";
 
 type SettingsStorage = {
@@ -12,6 +13,11 @@ type SettingsStorage = {
   rpcUrl?: string;
   indexerUrl: string;
   signArbitraryEnabled: boolean;
+};
+
+type SettingsTomlOptions = {
+  indexer_url?: string;
+  rpc_url?: string;
 };
 
 export type ConnectStatus = "idle" | "connecting" | "connected" | "error";
@@ -36,9 +42,10 @@ export const defaultServerConfigAtom = atomWithQuery((_get) => {
   return {
     queryKey: ["server-config"],
     staleTime: Infinity,
+    retry: false,
     queryFn: async () => {
       const response = await fetch("/config.toml");
-      response.text;
+      return toml.parse(await response.text()) as SettingsTomlOptions;
     },
   };
 });
@@ -73,18 +80,32 @@ export const hideBalancesAtom = atom(
   changeSettings<boolean>("hideBalances")
 );
 
+/**
+ * Returns RPC Url.
+ * Priority: user defined RPC Url > TOML config > indexer RPC url
+ */
 export const rpcUrlAtom = atom((get) => {
-  const localStorageRpc = get(namadilloSettingsAtom).rpcUrl;
+  const userDefinedRpc = get(namadilloSettingsAtom).rpcUrl;
+  if (userDefinedRpc) return userDefinedRpc;
+
+  const tomlRpc = get(defaultServerConfigAtom).data?.indexer_url;
+  if (tomlRpc) return tomlRpc;
+
   const indexerRpc = get(indexerRpcUrlAtom).data;
-  if (localStorageRpc) return localStorageRpc;
   if (indexerRpc) return indexerRpc;
+
   throw "RPC url is not defined";
 }, changeSettings<string>("rpcUrl"));
 
-export const indexerUrlAtom = atom(
-  (get) => get(namadilloSettingsAtom).indexerUrl,
-  changeSettings<string>("indexerUrl")
-);
+export const indexerUrlAtom = atom((get) => {
+  const customIndexerUrl = get(namadilloSettingsAtom).indexerUrl;
+  if (customIndexerUrl) return customIndexerUrl;
+
+  const tomlIndexerUrl = get(defaultServerConfigAtom).data?.indexer_url;
+  if (tomlIndexerUrl) return tomlIndexerUrl;
+
+  return "";
+}, changeSettings<string>("indexerUrl"));
 
 export const signArbitraryEnabledAtom = atom(
   (get) => get(namadilloSettingsAtom).signArbitraryEnabled,

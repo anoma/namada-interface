@@ -2,7 +2,11 @@ import { useUntilIntegrationAttached } from "@namada/integrations";
 import { useAtomValue } from "jotai";
 import React, { useState } from "react";
 import { chainAtom } from "slices/chain";
-import { indexerHeartbeatAtom, indexerUrlAtom } from "slices/settings";
+import {
+  defaultServerConfigAtom,
+  indexerHeartbeatAtom,
+  indexerUrlAtom,
+} from "slices/settings";
 import { AtomErrorBoundary } from "./Common/AtomErrorBoundary";
 import { ErrorBox } from "./Common/ErrorBox";
 import { PageLoader } from "./Common/PageLoader";
@@ -15,17 +19,21 @@ type AppSetupProps = {
 export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
   const indexerUrl = useAtomValue(indexerUrlAtom);
   const indexerHeartbeat = useAtomValue(indexerHeartbeatAtom);
+  const tomlConfig = useAtomValue(defaultServerConfigAtom);
   const chain = useAtomValue(chainAtom);
   const extensionAttachStatus = useUntilIntegrationAttached();
   const extensionReady = extensionAttachStatus !== "pending";
   const errorContainerProps = { className: "text-white h-svh" };
+  const [changeIndexerSettings, setChangeIndexerSettings] = useState(false);
 
-  const [changeIndexerSettings, setChangeIndexerSettings] =
-    useState(!indexerUrl);
+  // Before any other thing, we need to check if there's a toml config file in the root and load it
+  if (tomlConfig.isPending) {
+    return <PageLoader />;
+  }
 
   // Displays setup screen if the indexer is not defined
-  // AppSetup is outside route context
-  if (changeIndexerSettings) {
+  // (AppSetup is outside route context)
+  if (!indexerUrl || changeIndexerSettings) {
     return (
       <Setup
         onChange={() => {
