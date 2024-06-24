@@ -1,8 +1,8 @@
 //! PaymentAddress - Provide wasm_bindgen bindings for shielded addresses
 //! See @namada/crypto for zip32 HD wallet functionality.
-use namada::core::borsh::BorshDeserialize;
-use namada::masp;
-use namada::sdk::masp_primitives::{sapling, zip32};
+use namada_sdk::borsh::BorshDeserialize;
+use namada_sdk::masp;
+use namada_sdk::masp_primitives::{sapling, zip32};
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
 

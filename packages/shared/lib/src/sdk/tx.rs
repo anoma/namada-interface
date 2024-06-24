@@ -1,23 +1,23 @@
 use std::{path::PathBuf, str::FromStr};
 
-use namada::core::borsh::{self, BorshDeserialize, BorshSerialize};
-use namada::core::ibc::core::host::types::identifiers::{ChannelId, PortId};
-use namada::sdk::signing::SigningTxData;
-use namada::tendermint_rpc;
-use namada::tx::data::GasLimit;
-use namada::{
+use namada_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
+use namada_sdk::signing::SigningTxData;
+use namada_sdk::tendermint_rpc;
+use namada_sdk::tx::data::GasLimit;
+use namada_sdk::{
     address::Address,
+    args::{self, InputAmount, TxExpiration},
     chain::ChainId,
     ethereum_events::EthAddress,
     key::common::PublicKey,
     masp::TransferSource,
-    sdk::args::{self, InputAmount, TxExpiration},
     token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
 };
 use wasm_bindgen::JsError;
 
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct SigningData {
     owner: Option<String>,
     public_keys: Vec<u8>,
@@ -78,7 +78,7 @@ impl SigningData {
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct WrapperTxMsg {
     token: String,
     fee_amount: String,
@@ -90,7 +90,7 @@ pub struct WrapperTxMsg {
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct BondMsg {
     source: String,
     validator: String,
@@ -136,7 +136,7 @@ pub fn bond_tx_args(bond_msg: &[u8], tx_msg: &[u8]) -> Result<args::Bond, JsErro
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct UnbondMsg {
     source: String,
     validator: String,
@@ -181,7 +181,7 @@ pub fn unbond_tx_args(unbond_msg: &[u8], tx_msg: &[u8]) -> Result<args::Unbond, 
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct WithdrawMsg {
     source: String,
     validator: String,
@@ -218,7 +218,7 @@ pub fn withdraw_tx_args(withdraw_msg: &[u8], tx_msg: &[u8]) -> Result<args::With
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct RedelegateMsg {
     owner: String,
     source_validator: String,
@@ -269,7 +269,7 @@ pub fn redelegate_tx_args(
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct VoteProposalMsg {
     signer: String,
     proposal_id: u64,
@@ -313,7 +313,7 @@ pub fn vote_proposal_tx_args(
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct TransparentTransferMsg {
     source: String,
     target: String,
@@ -368,7 +368,7 @@ pub fn transparent_transfer_tx_args(
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct IbcTransferMsg {
     source: String,
     receiver: String,
@@ -437,7 +437,7 @@ pub fn ibc_transfer_tx_args(
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct EthBridgeTransferMsg {
     nut: bool,
     asset: String,

@@ -1,5 +1,5 @@
-use namada::core::borsh::{BorshDeserialize, BorshSerialize};
-use namada::{
+use namada_sdk::borsh::{BorshDeserialize, BorshSerialize};
+use namada_sdk::{
     key::common::{PublicKey, Signature},
     tx::{CompressedAuthorization, Section, Signer, Tx},
 };
@@ -7,7 +7,7 @@ use std::collections::BTreeMap;
 use wasm_bindgen::JsError;
 
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct SignatureMsg {
     pub pubkey: Vec<u8>,
     pub raw_indices: Vec<u8>,

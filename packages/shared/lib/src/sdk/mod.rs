@@ -9,23 +9,23 @@ use crate::rpc_client::HttpClient;
 use crate::utils::set_panic_hook;
 use crate::utils::to_js_result;
 use js_sys::Uint8Array;
-use namada::address::Address;
-use namada::core::borsh::{self, BorshDeserialize};
-use namada::hash::Hash;
-use namada::key::{common, ed25519, SigScheme};
-use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
-use namada::sdk::masp::ShieldedContext;
-use namada::sdk::rpc::query_epoch;
-use namada::sdk::signing::SigningTxData;
-use namada::sdk::tx::build_redelegation;
-use namada::sdk::tx::{
+use namada_sdk::address::Address;
+use namada_sdk::borsh::{self, BorshDeserialize};
+use namada_sdk::hash::Hash;
+use namada_sdk::key::{common, ed25519, SigScheme};
+use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
+use namada_sdk::masp::ShieldedContext;
+use namada_sdk::rpc::query_epoch;
+use namada_sdk::signing::SigningTxData;
+use namada_sdk::tx::build_redelegation;
+use namada_sdk::tx::{
     build_bond, build_ibc_transfer, build_reveal_pk, build_transparent_transfer, build_unbond,
     build_vote_proposal, build_withdraw, is_reveal_pk_needed, process_tx,
 };
-use namada::sdk::wallet::{Store, Wallet};
-use namada::sdk::{Namada, NamadaImpl};
-use namada::string_encoding::Format;
-use namada::tx::Tx;
+use namada_sdk::wallet::{Store, Wallet};
+use namada_sdk::{Namada, NamadaImpl};
+use namada_sdk::string_encoding::Format;
+use namada_sdk::tx::Tx;
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 

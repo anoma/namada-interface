@@ -1,20 +1,20 @@
 use async_trait::async_trait;
 use gloo_utils::format::JsValueSerdeExt;
-use namada::core::borsh::{BorshDeserialize, BorshSerialize};
-use namada::sdk::masp::{ContextSyncStatus, ShieldedContext, ShieldedUtils};
-use namada::sdk::masp_proofs::prover::LocalTxProver;
+use namada_sdk::borsh::{BorshDeserialize, BorshSerialize};
+use namada_sdk::masp::{ContextSyncStatus, ShieldedContext, ShieldedUtils};
+use namada_sdk::masp_proofs::prover::LocalTxProver;
 use rexie::{Error, ObjectStore, Rexie, TransactionMode};
 use wasm_bindgen::{JsError, JsValue};
 
 use crate::utils::to_bytes;
 
-const DB_PREFIX: &str = "Namada::MASP";
+const DB_PREFIX: &str = "namada_sdk::MASP";
 const SHIELDED_CONTEXT_TABLE: &str = "ShieldedContext";
 const SHIELDED_CONTEXT_KEY_CONFIRMED: &str = "shielded-context-confirmed";
 const SHIELDED_CONTEXT_KEY_SPECULATIVE: &str = "shielded-context-speculative";
 
 #[derive(Default, Debug, BorshSerialize, BorshDeserialize, Clone)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct WebShieldedUtils {
     spend_param_bytes: Vec<u8>,
     output_param_bytes: Vec<u8>,
