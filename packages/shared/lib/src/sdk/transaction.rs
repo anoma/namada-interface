@@ -1,10 +1,10 @@
-use namada::token::Transfer;
+use namada_sdk::token::Transfer;
 use serde::Serialize;
 
-use namada::governance::VoteProposalData;
-use namada::tx::data::pos::{Bond, ClaimRewards, Redelegation, Unbond, Withdraw};
-use namada::{
-    core::borsh::{self, BorshDeserialize},
+use namada_sdk::governance::VoteProposalData;
+use namada_sdk::tx::data::pos::{Bond, ClaimRewards, Redelegation, Unbond, Withdraw};
+use namada_sdk::{
+    borsh::{self, BorshDeserialize},
     key::common::PublicKey,
 };
 use wasm_bindgen::JsError;

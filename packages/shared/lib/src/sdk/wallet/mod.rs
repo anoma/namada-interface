@@ -1,10 +1,8 @@
-use namada::{
+use namada_sdk::{
     key::common::SecretKey,
     masp::{ExtendedSpendingKey, ExtendedViewingKey, PaymentAddress},
-    sdk::{
-        masp_primitives::zip32::ExtendedFullViewingKey,
-        wallet::{alias::Alias, Wallet, WalletIo},
-    },
+    masp_primitives::zip32::ExtendedFullViewingKey,
+    wallet::{alias::Alias, Wallet, WalletIo},
 };
 use std::str::FromStr;
 use zeroize::Zeroizing;

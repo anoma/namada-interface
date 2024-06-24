@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use namada::sdk::{
+use namada_sdk::{
     borsh::{BorshDeserialize, BorshSerialize},
     wallet::{LoadStoreError, Store, Wallet, WalletIo, WalletStorage},
 };
@@ -10,7 +10,7 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 use crate::utils::to_bytes;
 
 #[derive(Debug, BorshSerialize, BorshDeserialize, Clone)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct NodeWalletUtils {
     #[borsh(skip)]
     store_dir: PathBuf,
@@ -40,7 +40,7 @@ impl NodeWalletStorage for NodeWalletUtils {
 const FILE_NAME: &str = "wallet.toml";
 
 impl WalletStorage for NodeWalletUtils {
-    fn save<U>(&self, wallet: &Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
+    fn save<U>(&self, wallet: &Wallet<U>) -> Result<(), namada_sdk::wallet::LoadStoreError> {
         let data = wallet.store().encode();
 
         let wallet_path = self.store_dir().join(FILE_NAME);
@@ -57,7 +57,7 @@ impl WalletStorage for NodeWalletUtils {
         Ok(())
     }
 
-    fn load<U>(&self, wallet: &mut Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
+    fn load<U>(&self, wallet: &mut Wallet<U>) -> Result<(), namada_sdk::wallet::LoadStoreError> {
         let wallet_file = self.store_dir().join(FILE_NAME);
 
         let stored_data: Vec<u8> =

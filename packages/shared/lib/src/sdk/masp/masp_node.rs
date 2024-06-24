@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use namada::sdk::{
+use namada_sdk::{
     borsh::{BorshDeserialize, BorshSerialize},
     masp::{ContextSyncStatus, ShieldedContext, ShieldedUtils},
     masp_proofs::prover::LocalTxProver,
@@ -25,7 +25,7 @@ const SPECULATIVE_TMP_FILE_NAME: &str = "speculative_shielded.tmp";
 /// Mostly copied from the Namada CLI
 
 #[derive(Default, Debug, BorshSerialize, BorshDeserialize, Clone)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct NodeShieldedUtils {
     #[borsh(skip)]
     context_dir: PathBuf,
