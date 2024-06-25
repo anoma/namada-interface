@@ -2,8 +2,25 @@ use std::str::FromStr;
 
 use namada::core::borsh::{self, BorshDeserialize, BorshSerialize};
 use namada::sdk::signing::SigningTxData;
+use namada::tx::Tx;
 use namada::{address::Address, key::common::PublicKey};
-use wasm_bindgen::JsError;
+use wasm_bindgen::{prelude::wasm_bindgen, JsError};
+
+use crate::sdk::transaction;
+
+#[wasm_bindgen]
+#[derive(Copy, Clone, Debug)]
+pub enum TxType {
+    Bond = 1,
+    Unbond = 2,
+    Withdraw = 3,
+    TransparentTransfer = 4,
+    IBCTransfer = 5,
+    EthBridgeTransfer = 6,
+    RevealPK = 7,
+    VoteProposal = 8,
+    Redelegate = 9,
+}
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
@@ -64,4 +81,21 @@ impl SigningData {
     pub fn to_bytes(&self) -> Result<Vec<u8>, JsError> {
         Ok(borsh::to_vec(&self)?)
     }
+}
+
+#[wasm_bindgen]
+pub fn deserialize_tx(tx_type: TxType, tx_bytes: Vec<u8>) -> Result<Vec<String>, JsError> {
+    // Deserialize tx
+    let tx: Tx = borsh::from_slice(&tx_bytes)?;
+
+    let mut json_result = vec![];
+
+    for cmt in tx.commitments() {
+        let tx_data = tx.data(&cmt).unwrap_or_default();
+        let tx_kind = transaction::TransactionKind::from(tx_type, &tx_data);
+        let json = tx_kind.to_json();
+        json_result.push(json);
+    }
+
+    Ok(json_result)
 }

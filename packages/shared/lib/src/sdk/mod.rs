@@ -2,6 +2,7 @@ mod args;
 pub mod io;
 pub mod masp;
 mod signature;
+mod transaction;
 mod tx;
 mod wallet;
 
@@ -32,19 +33,7 @@ use namada::tx::Tx;
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
-#[wasm_bindgen]
-#[derive(Copy, Clone, Debug)]
-pub enum TxType {
-    Bond = 1,
-    Unbond = 2,
-    Withdraw = 3,
-    TransparentTransfer = 4,
-    IBCTransfer = 5,
-    EthBridgeTransfer = 6,
-    RevealPK = 7,
-    VoteProposal = 8,
-    Redelegate = 9,
-}
+use tx::TxType;
 
 #[wasm_bindgen]
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -118,7 +107,7 @@ impl BuiltTx {
 
     // TODO: Add method to retrieve deserialized Tx properties
 
-    pub fn tx_type(&self) -> TxType {
+    pub fn tx_type(&self) -> tx::TxType {
         self.tx_type
     }
 
