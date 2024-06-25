@@ -1,30 +1,30 @@
 use js_sys::Uint8Array;
-use namada::address::Address;
-use namada::core::borsh::BorshSerialize;
-use namada::core::collections::{HashMap, HashSet};
-use namada::eth_bridge_pool::TransferToEthereum;
-use namada::governance::storage::keys as governance_storage;
-use namada::governance::utils::{
+use namada_sdk::address::Address;
+use namada_sdk::borsh::BorshSerialize;
+use namada_sdk::collections::{HashMap, HashSet};
+use namada_sdk::eth_bridge_pool::TransferToEthereum;
+use namada_sdk::governance::storage::keys as governance_storage;
+use namada_sdk::governance::utils::{
     compute_proposal_result, ProposalVotes, TallyResult, TallyType, VotePower,
 };
-use namada::governance::{ProposalType, ProposalVote};
-use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
-use namada::ledger::parameters::storage;
-use namada::ledger::queries::RPC;
-use namada::masp::ExtendedViewingKey;
-use namada::proof_of_stake::Epoch;
-use namada::sdk::masp::{DefaultLogger, ShieldedContext};
-use namada::sdk::masp_primitives::asset_type::AssetType;
-use namada::sdk::masp_primitives::sapling::ViewingKey;
-use namada::sdk::masp_primitives::transaction::components::ValueSum;
-use namada::sdk::masp_primitives::zip32::ExtendedFullViewingKey;
-use namada::sdk::rpc::{
+use namada_sdk::governance::{ProposalType, ProposalVote};
+use namada_sdk::eth_bridge::bridge_pool::query_signed_bridge_pool;
+use namada_sdk::parameters::storage;
+use namada_sdk::queries::RPC;
+use namada_sdk::masp::ExtendedViewingKey;
+use namada_sdk::proof_of_stake::Epoch;
+use namada_sdk::masp::{DefaultLogger, ShieldedContext};
+use namada_sdk::masp_primitives::asset_type::AssetType;
+use namada_sdk::masp_primitives::sapling::ViewingKey;
+use namada_sdk::masp_primitives::transaction::components::ValueSum;
+use namada_sdk::masp_primitives::zip32::ExtendedFullViewingKey;
+use namada_sdk::rpc::{
     format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
     is_steward, query_epoch, query_masp_epoch, query_native_token, query_proposal_by_id,
     query_proposal_votes, query_storage_value,
 };
-use namada::token;
-use namada::uint::I256;
+use namada_sdk::token;
+use namada_sdk::uint::I256;
 use std::collections::BTreeMap;
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;

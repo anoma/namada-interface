@@ -1,7 +1,7 @@
-use namada::core::borsh::BorshSerialize;
+use namada_sdk::borsh::BorshSerialize;
 
 #[derive(BorshSerialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct ProposalInfo {
     pub id: u64,
     pub content: String,
@@ -11,5 +11,5 @@ pub struct ProposalInfo {
     pub grace_epoch: u64,
     pub tally_type: String,
     pub proposal_type: String,
-    pub data: Option<String>
+    pub data: Option<String>,
 }
