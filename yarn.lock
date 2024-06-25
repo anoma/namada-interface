@@ -8434,6 +8434,7 @@ __metadata:
     "@anomaorg/namada-indexer-client": "npm:0.0.15"
     "@cosmjs/encoding": "npm:^0.32.3"
     "@playwright/test": "npm:^1.24.1"
+    "@release-it/keep-a-changelog": "npm:^5.0.0"
     "@svgr/webpack": "npm:^6.5.1"
     "@tailwindcss/container-queries": "npm:^0.1.1"
     "@tanstack/react-query": "npm:^5.40.0"
@@ -8484,6 +8485,7 @@ __metadata:
     react-paginate: "npm:^8.2.0"
     react-router-dom: "npm:^6.0.0"
     react-scripts: "npm:5.0.1"
+    release-it: "npm:^17.0.1"
     style-loader: "npm:^3.3.1"
     styled-components: "npm:^5.3.3"
     tailwind-merge: "npm:^2.3.0"
@@ -9045,6 +9047,18 @@ __metadata:
   peerDependencies:
     release-it: ^17.0.0
   checksum: b6057038b91c665129e37af1d297dad68abbe2095cc10e9d507be6dcc1432bc6b7545c1bbdf6eab4c35eeafca223c5a43a567ba1cdfdd774aa62bb6220c5ebe6
+  languageName: node
+  linkType: hard
+
+"@release-it/keep-a-changelog@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@release-it/keep-a-changelog@npm:5.0.0"
+  dependencies:
+    detect-newline: "npm:^4.0.1"
+    string-template: "npm:^1.0.0"
+  peerDependencies:
+    release-it: ^17.0.0
+  checksum: 352fae20b0814952cf0b15a98cbc00ff24e50f6042b48da6757f7e723579e39f0fbbcc0dc7f6dad706db9d9f3d179adc9a4d7f0065f3c3af642c1e637774c6c7
   languageName: node
   linkType: hard
 
@@ -16596,6 +16610,13 @@ __metadata:
   version: 3.1.0
   resolution: "detect-newline@npm:3.1.0"
   checksum: c38cfc8eeb9fda09febb44bcd85e467c970d4e3bf526095394e5a4f18bc26dd0cf6b22c69c1fa9969261521c593836db335c2795218f6d781a512aea2fb8209d
+  languageName: node
+  linkType: hard
+
+"detect-newline@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "detect-newline@npm:4.0.1"
+  checksum: 1cc1082e88ad477f30703ae9f23bd3e33816ea2db6a35333057e087d72d466f5a777809b71f560118ecff935d2c712f5b59e1008a8b56a900909d8fd4621c603
   languageName: node
   linkType: hard
 
@@ -33274,6 +33295,13 @@ __metadata:
   version: 3.0.1
   resolution: "string-natural-compare@npm:3.0.1"
   checksum: 85a6a9195736be500af5d817c7ea36b7e1ac278af079a807f70f79a56602359ee6743ca409af6291b94557de550ff60d1ec31b3c4fc8e7a08d0e12cdab57c149
+  languageName: node
+  linkType: hard
+
+"string-template@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "string-template@npm:1.0.0"
+  checksum: 7c07ab5b4274a50b1f077a47769044b9a8f0a5a4a47811cf3f9ba5acc9d2ff1231d593a93983ea554c3211fb09949e805912f9ce9d7688990eeb41d5008b95d2
   languageName: node
   linkType: hard
 

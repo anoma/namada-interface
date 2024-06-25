@@ -1,0 +1,44 @@
+name: Create Namadillo draft release
+on:
+  workflow_dispatch:
+    inputs:
+      INCREMENT:
+        required: true
+        type: string
+        default: "patch"
+        description: "Version increment (major/minor/patch etc.)"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apps/namadillo
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
+
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
+        with:
+          cache-name: build
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
+      - name: Build Namadillo
+        run: yarn build
+
+      - name: Configure git identity
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+      - name: Create a draft release
+        run: npx release-it --increment $INCREMENT
+        env:
+          INCREMENT: ${{ inputs.INCREMENT }}
+          GITHUB_TOKEN: ${{ github.token }}
