@@ -1,9 +1,11 @@
+import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { indexerApiAtom } from "./api";
 import { chainAtom } from "./chain";
 
 type ChainParameters = {
   unbondingPeriodInDays: bigint;
+  apr: BigNumber;
 };
 
 export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
@@ -18,6 +20,7 @@ export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
 
       return {
         unbondingPeriodInDays: BigInt(parameters.unbondingLength),
+        apr: BigNumber(parameters.apr),
       };
     },
   };

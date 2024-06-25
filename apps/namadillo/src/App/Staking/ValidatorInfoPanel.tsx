@@ -74,7 +74,7 @@ export const ValidatorInfoPanel = ({
         <dt>Commission</dt>
         <dd>{formatPercentage(validator.commission)}</dd>
         <dt>Expected APR (%)</dt>
-        <dd>{formatPercentage(new BigNumber(validator.expectedApr))} TODO</dd>
+        <dd>{formatPercentage(validator.expectedApr)}</dd>
         <dt>Voting Power</dt>
         <dd>
           {formatPercentage(

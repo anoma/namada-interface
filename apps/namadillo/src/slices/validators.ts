@@ -2,8 +2,10 @@ import {
   Bond as IndexerBond,
   Unbond as IndexerUnbond,
   Validator as IndexerValidator,
+  ValidatorStatus as IndexerValidatorStatus,
   VotingPower as IndexerVotingPower,
 } from "@anomaorg/namada-indexer-client";
+import { durationFromInterval } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import {
   AtomWithQueryResult,
@@ -25,7 +27,7 @@ export type Validator = Unique & {
   address: string;
   description?: string;
   homepageUrl?: string;
-  expectedApr: number;
+  expectedApr: BigNumber;
   unbondingPeriod: string;
   votingPowerInNAM?: BigNumber;
   votingPowerPercentage?: number;
@@ -41,19 +43,26 @@ export type MyValidator = {
   validator: Validator;
 };
 
+export type MyUnbondingValidator = MyValidator & {
+  timeLeft: string;
+};
+
 const toValidator = (
   indexerValidator: IndexerValidator,
   indexerVotingPower: IndexerVotingPower,
-  unbondingPeriod: bigint
+  unbondingPeriod: bigint,
+  nominalApr: BigNumber
 ): Validator => {
+  const commission = BigNumber(indexerValidator.commission);
+  const expectedApr = nominalApr.times(1 - commission.toNumber());
+
   return {
     uuid: indexerValidator.address,
     alias: indexerValidator.name,
     description: indexerValidator.description,
     address: indexerValidator.address,
     homepageUrl: indexerValidator.website,
-    // TODO: Return this from the indexer
-    expectedApr: 0.1127,
+    expectedApr,
     unbondingPeriod: `${unbondingPeriod} days`,
     votingPowerInNAM: BigNumber(indexerValidator.votingPower),
     votingPowerPercentage:
@@ -84,15 +93,19 @@ export const allValidatorsAtom = atomWithQuery((get) => {
   return {
     queryKey: ["all-validators"],
     ...queryDependentFn(async (): Promise<Validator[]> => {
-      const parameters =
-        chainParameters.data?.unbondingPeriodInDays || BigInt(0);
+      const unbondingPeriodInDays = chainParameters.data!.unbondingPeriodInDays;
+      const nominalApr = chainParameters.data!.apr;
 
-      const validatorsResponse = await api.apiV1PosValidatorGet();
+      const validatorsResponse = await api.apiV1PosValidatorGet(1, [
+        IndexerValidatorStatus.Consensus,
+      ]);
       // TODO: rename one data to items?
       const validators = validatorsResponse.data.data;
       const vp = votingPower.data!;
 
-      return validators.map((v) => toValidator(v, vp, parameters));
+      return validators.map((v) =>
+        toValidator(v, vp, unbondingPeriodInDays, nominalApr)
+      );
     }, [chainParameters, votingPower]),
   };
 });
@@ -111,16 +124,17 @@ export const myValidatorsAtom = atomWithQuery((get) => {
     refetchInterval: enablePolling ? 1000 : false,
     ...queryDependentFn(async (): Promise<MyValidator[]> => {
       const unbondingPeriod = chainParameters.data!.unbondingPeriodInDays;
+      const apr = chainParameters.data!.apr;
       const vp = votingPower.data!;
       const bondsResponse = await api.apiV1PosBondAddressGet(
         account.data!.address
       );
-      return toMyValidators(bondsResponse.data.data, vp, unbondingPeriod);
+      return toMyValidators(bondsResponse.data.data, vp, unbondingPeriod, apr);
     }, [account, chainParameters, votingPower]),
   };
 });
 
-export const myUnbondsAtom = atomWithQuery<MyValidator[]>((get) => {
+export const myUnbondsAtom = atomWithQuery<MyUnbondingValidator[]>((get) => {
   const chainParameters = get(chainParametersAtom);
   const account = get(defaultAccountAtom);
   const votingPower = get(votingPowerAtom);
@@ -131,8 +145,9 @@ export const myUnbondsAtom = atomWithQuery<MyValidator[]>((get) => {
   return {
     queryKey: ["my-unbonds", account.data?.address],
     refetchInterval: enablePolling ? 1000 : false,
-    ...queryDependentFn(async (): Promise<MyValidator[]> => {
+    ...queryDependentFn(async (): Promise<MyUnbondingValidator[]> => {
       const unbondingPeriod = chainParameters.data!.unbondingPeriodInDays;
+      const apr = chainParameters.data!.apr;
       const vp = votingPower.data!;
       const unbondsResponse = await api.apiV1PosUnbondAddressGet(
         account.data!.address
@@ -141,7 +156,8 @@ export const myUnbondsAtom = atomWithQuery<MyValidator[]>((get) => {
       return toUnbondingValidators(
         unbondsResponse.data.data,
         vp,
-        unbondingPeriod
+        unbondingPeriod,
+        apr
       );
     }, [account, chainParameters, votingPower]),
   };
@@ -174,7 +190,10 @@ export const stakedAmountByAddressAtom = atomWithQuery((get) =>
 const deriveFromMyValidatorsAtom = (
   key: string,
   property: "stakedAmount" | "unbondedAmount" | "withdrawableAmount",
-  myValidators: AtomWithQueryResult<MyValidator[], Error>
+  myValidators: AtomWithQueryResult<
+    (MyValidator | MyUnbondingValidator)[],
+    Error
+  >
 ): UndefinedInitialDataOptions<Record<string, BigNumber>> => {
   return {
     queryKey: [key, myValidators.data],
@@ -193,13 +212,15 @@ const deriveFromMyValidatorsAtom = (
 const toMyValidators = (
   indexerBonds: IndexerBond[],
   totalVotingPower: IndexerVotingPower,
-  unbondingPeriod: bigint
+  unbondingPeriod: bigint,
+  apr: BigNumber
 ): MyValidator[] => {
   return indexerBonds.map((indexerBond) => {
     const validator = toValidator(
       indexerBond.validator,
       totalVotingPower,
-      unbondingPeriod
+      unbondingPeriod,
+      apr
     );
 
     return {
@@ -216,22 +237,38 @@ const toMyValidators = (
 const toUnbondingValidators = (
   indexerBonds: IndexerUnbond[],
   totalVotingPower: IndexerVotingPower,
-  unbondingPeriod: bigint
-): MyValidator[] => {
+  unbondingPeriod: bigint,
+  apr: BigNumber
+): MyUnbondingValidator[] => {
+  const timeNow = Math.round(Date.now() / 1000);
+
   return indexerBonds.map((indexerUnbond) => {
     const validator = toValidator(
       indexerUnbond.validator,
       totalVotingPower,
-      unbondingPeriod
+      unbondingPeriod,
+      apr
     );
+    const withdrawTime = Number(indexerUnbond.withdrawTime);
+    const secondsLeft = withdrawTime - timeNow;
+
+    // TODO: later return from the backend
+    const canWithdraw = secondsLeft <= 0;
+    const timeLeft =
+      canWithdraw ? "" : durationFromInterval(timeNow, withdrawTime);
+
+    const amountValue = BigNumber(indexerUnbond.amount);
+    const amount = {
+      [canWithdraw ? "withdrawableAmount" : "unbondedAmount"]: amountValue,
+    };
 
     return {
       uuid: String(indexerUnbond.validator.validatorId),
       stakingStatus: "unbonded",
       stakedAmount: BigNumber(0),
-      unbondedAmount: BigNumber(indexerUnbond.amount),
-      withdrawableAmount: BigNumber(0),
+      timeLeft,
       validator,
+      ...amount,
     };
   });
 };

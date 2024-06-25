@@ -15,7 +15,7 @@ export type TxKind =
   | "VoteProposal"
   | "Unknown";
 
-const txKindFromIndexerTxKind = (
+const txKindFromIndexer = (
   txKind: GasLimitTableIndexer
 ): TxKind | undefined => {
   switch (txKind) {
@@ -52,7 +52,7 @@ export const gasLimitsAtom = atomWithQuery<GasTable>((get) => {
       const gasTableResponse = await api.apiV1GasTokenGet("native");
       const gasTable = gasTableResponse.data.reduce(
         (acc, { gasLimit, txKind: indexerTxKind }) => {
-          const txKind = txKindFromIndexerTxKind(indexerTxKind);
+          const txKind = txKindFromIndexer(indexerTxKind);
           if (txKind) {
             const perKind = acc[txKind] || {};
 

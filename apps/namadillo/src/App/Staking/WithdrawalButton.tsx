@@ -125,10 +125,7 @@ export const WithdrawalButton = ({
       outlined
       borderRadius="sm"
       disabled={
-        myValidator.withdrawableAmount?.eq(0) ||
-        isPending ||
-        isSuccess ||
-        !gasPrice
+        !myValidator.withdrawableAmount || isPending || isSuccess || !gasPrice
       }
       onClick={() => onWithdraw(myValidator)}
     >
