@@ -79,6 +79,26 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
     return <PageLoader />;
   }
 
+  // Look for syntax errors in toml config file
+  if (tomlConfig.isError && tomlConfig.error.name === "SyntaxError") {
+    return (
+      <AtomErrorBoundary
+        containerProps={errorContainerProps}
+        result={tomlConfig}
+        niceError={
+          <>
+            <p>You have a syntax error in your /config.toml file</p>
+            {tomlConfig.error.message && (
+              <p className="mt-2 text-xs text-neutral-500">
+                Error: {tomlConfig.error.message}
+              </p>
+            )}
+          </>
+        }
+      />
+    );
+  }
+
   // Handles chain connection errors.
   if (chain.isError) {
     return (
