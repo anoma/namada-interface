@@ -1,27 +1,33 @@
 import clsx from "clsx";
-import { useGasEstimate } from "hooks/useGasEstimate";
+import { useAtomValue } from "jotai";
+import { TxKind, gasLimitsAtom, minimumGasPriceAtom } from "slices/fees";
 import { NamCurrency } from "./NamCurrency";
 import { TextLink } from "./TextLink";
+
 type TransactionFeesProps = {
+  txKind: TxKind;
   numberOfTransactions: number;
   className?: string;
 };
 
 export const TransactionFees = ({
+  txKind,
   numberOfTransactions,
   className,
 }: TransactionFeesProps): JSX.Element => {
-  const { calculateMinGasRequired } = useGasEstimate();
-  const minimumGas = calculateMinGasRequired(numberOfTransactions);
+  const gasLimits = useAtomValue(gasLimitsAtom);
+  const gasPrice = useAtomValue(minimumGasPriceAtom);
 
-  if (!minimumGas || minimumGas.eq(0)) return <></>;
+  if (!gasLimits.isSuccess || !gasPrice.isSuccess) return <></>;
   return (
     <div className={clsx("text-white text-sm", className)}>
       <TextLink>Transaction fee:</TextLink>{" "}
       <NamCurrency
         className="font-medium"
-        amount={minimumGas}
         forceBalanceDisplay={true}
+        amount={gasLimits.data[txKind].native.multipliedBy(
+          numberOfTransactions
+        )}
       />
     </div>
   );

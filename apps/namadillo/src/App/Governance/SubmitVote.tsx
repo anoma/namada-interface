@@ -175,6 +175,7 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
             </Stack>
             <footer>
               <TransactionFees
+                txKind="VoteProposal"
                 className="flex justify-between"
                 numberOfTransactions={1}
               />
