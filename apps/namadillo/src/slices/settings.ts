@@ -56,7 +56,7 @@ export const namadilloSettingsAtom = atomWithStorage<SettingsStorage>(
     version: "0.1",
     fiat: "usd",
     hideBalances: false,
-    indexerUrl: process.env.NAMADA_INTERFACE_INDEXER_URL || "",
+    indexerUrl: "",
     signArbitraryEnabled: false,
   },
   undefined,
@@ -94,7 +94,7 @@ export const rpcUrlAtom = atom((get) => {
   const indexerRpc = get(indexerRpcUrlAtom).data;
   if (indexerRpc) return indexerRpc;
 
-  throw "RPC url is not defined";
+  return "";
 }, changeSettings<string>("rpcUrl"));
 
 export const indexerUrlAtom = atom((get) => {

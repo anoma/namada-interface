@@ -14,6 +14,7 @@ import {
 export const chainAtom = atomWithQuery<ChainSettings>((get) => {
   const chainParameters = get(chainParametersAtom);
   const indexerRpcUrl = get(indexerRpcUrlAtom);
+  const rpcUrl = get(rpcUrlAtom);
   const indexerUrl = get(indexerUrlAtom);
   const tomlConfig = get(defaultServerConfigAtom);
   const extensionConnected = get(namadaExtensionConnectedAtom);
@@ -21,7 +22,7 @@ export const chainAtom = atomWithQuery<ChainSettings>((get) => {
   return {
     queryKey: [
       "chain",
-      indexerUrl,
+      rpcUrl,
       chainParameters,
       indexerRpcUrl,
       extensionConnected,

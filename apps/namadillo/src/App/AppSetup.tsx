@@ -2,6 +2,7 @@ import { useUntilIntegrationAttached } from "@namada/integrations";
 import { useAtomValue } from "jotai";
 import React, { useState } from "react";
 import { chainAtom } from "slices/chain";
+import { chainParametersAtom } from "slices/chainParameters";
 import {
   defaultServerConfigAtom,
   indexerHeartbeatAtom,
@@ -21,6 +22,7 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
   const indexerHeartbeat = useAtomValue(indexerHeartbeatAtom);
   const tomlConfig = useAtomValue(defaultServerConfigAtom);
   const chain = useAtomValue(chainAtom);
+  const chainParameters = useAtomValue(chainParametersAtom);
   const extensionAttachStatus = useUntilIntegrationAttached();
   const extensionReady = extensionAttachStatus !== "pending";
   const errorContainerProps = { className: "text-white h-svh" };
@@ -73,7 +75,7 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
   }
 
   // Waiting for the extension to be detected along with other chain settings.
-  if (!extensionReady || chain.isPending) {
+  if (!extensionReady || chainParameters.isLoading || chain.isPending) {
     return <PageLoader />;
   }
 

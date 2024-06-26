@@ -39,9 +39,13 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
   return {
     // TODO: subscribe to indexer events when it's done
     refetchInterval: enablePolling ? 1000 : false,
-    queryKey: ["balances", tokenAddress, defaultAccount],
+    queryKey: ["balances", tokenAddress.data, defaultAccount.data],
     ...queryDependentFn(async (): Promise<BigNumber> => {
-      return await fetchAccountBalance(api, defaultAccount.data, tokenAddress);
-    }, [!!tokenAddress, defaultAccount]),
+      return await fetchAccountBalance(
+        api,
+        defaultAccount.data,
+        tokenAddress.data!
+      );
+    }, [tokenAddress, defaultAccount]),
   };
 });

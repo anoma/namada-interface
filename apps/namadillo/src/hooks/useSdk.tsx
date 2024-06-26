@@ -1,6 +1,6 @@
 import initSdk from "@heliax/namada-sdk/inline-init";
 import { Sdk, getSdk } from "@heliax/namada-sdk/web";
-import { createStore } from "jotai";
+import { createStore, useAtomValue } from "jotai";
 import { createContext, useContext, useEffect, useState } from "react";
 import { nativeTokenAddressAtom } from "slices/chainParameters";
 import { rpcUrlAtom } from "slices/settings";
@@ -12,7 +12,12 @@ const initializeSdk = async (): Promise<Sdk> => {
   const store = createStore();
   const rpcUrl = store.get(rpcUrlAtom);
   const nativeToken = store.get(nativeTokenAddressAtom);
-  const sdk = getSdk(cryptoMemory, rpcUrl, "", nativeToken);
+
+  if (!nativeToken.isSuccess) {
+    throw "Native token not loaded";
+  }
+
+  const sdk = getSdk(cryptoMemory, rpcUrl, "", nativeToken.data);
   return sdk;
 };
 
@@ -29,10 +34,13 @@ export const getSdkInstance = async (): Promise<Sdk> => {
 
 export const SdkProvider: React.FC = ({ children }) => {
   const [sdk, setSdk] = useState<Sdk>();
+  const nativeToken = useAtomValue(nativeTokenAddressAtom);
 
   useEffect(() => {
-    getSdkInstance().then((sdk) => setSdk(sdk));
-  }, []);
+    if (nativeToken.data) {
+      getSdkInstance().then((sdk) => setSdk(sdk));
+    }
+  }, [nativeToken.data]);
 
   return (
     <>
