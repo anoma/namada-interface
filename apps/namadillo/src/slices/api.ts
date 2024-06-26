@@ -1,5 +1,5 @@
 import { DefaultApi } from "@anomaorg/namada-indexer-client";
-import { Atom, atom, createStore } from "jotai";
+import { Atom, atom, getDefaultStore } from "jotai";
 import { indexerUrlAtom } from "./settings";
 
 export const indexerApiAtom = atom<DefaultApi>((get) => {
@@ -7,8 +7,7 @@ export const indexerApiAtom = atom<DefaultApi>((get) => {
 });
 
 export const getIndexerApi = (): DefaultApi => {
-  const { get } = createStore();
-
+  const { get } = getDefaultStore();
   return getApi(get);
 };
 

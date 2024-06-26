@@ -1,6 +1,6 @@
 import initSdk from "@heliax/namada-sdk/inline-init";
 import { Sdk, getSdk } from "@heliax/namada-sdk/web";
-import { createStore, useAtomValue } from "jotai";
+import { getDefaultStore, useAtomValue } from "jotai";
 import { createContext, useContext, useEffect, useState } from "react";
 import { nativeTokenAddressAtom } from "slices/chainParameters";
 import { rpcUrlAtom } from "slices/settings";
@@ -9,7 +9,7 @@ export const SdkContext = createContext<Sdk | null>(null);
 
 const initializeSdk = async (): Promise<Sdk> => {
   const { cryptoMemory } = await initSdk();
-  const store = createStore();
+  const store = getDefaultStore();
   const rpcUrl = store.get(rpcUrlAtom);
   const nativeToken = store.get(nativeTokenAddressAtom);
 
