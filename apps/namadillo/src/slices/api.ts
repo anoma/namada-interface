@@ -1,6 +1,6 @@
 import { DefaultApi } from "@anomaorg/namada-indexer-client";
 import { Atom, atom, createStore } from "jotai";
-import { namadilloSettingsAtom } from "./settings";
+import { indexerUrlAtom } from "./settings";
 
 export const indexerApiAtom = atom<DefaultApi>((get) => {
   return getApi(get);
@@ -14,7 +14,6 @@ export const getIndexerApi = (): DefaultApi => {
 
 // Helper function to use outside of hooks
 const getApi = (get: <Value>(atom: Atom<Value>) => Value): DefaultApi => {
-  const { indexerUrl } = get(namadilloSettingsAtom);
-
+  const indexerUrl = get(indexerUrlAtom);
   return new DefaultApi({ basePath: indexerUrl });
 };
