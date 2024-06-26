@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AccountType } from "@namada/types";
+import { TxType } from "@heliax/namada-sdk/web";
 import { paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
 import { VaultService } from "background/vault";
@@ -206,12 +206,16 @@ describe("approvals service", () => {
       const tabId = 1;
       const signer = "signer";
       // data expected to be base64-encoded
-      const txData = "dHhEYXRh"; // "txData"
-      const signingData = "c2lnbmluZ0RhdGE="; // "signingData"
+      const txBytes = "dHhEYXRh"; // "txData"
+      const signingDataBytes = "c2lnbmluZ0RhdGE="; // "signingData"
+
+      (keyRingService.queryAccountDetails as any).mockResolvedValue(() => ({}));
+
       const signaturePromise = service.approveSignTx(
-        AccountType.PrivateKey,
+        TxType.Bond,
         signer,
-        [[txData, signingData]]
+        { txBytes, signingDataBytes },
+        ""
       );
       jest.spyOn(service as any, "_clearPendingTx");
 

@@ -1,17 +1,6 @@
-import { AccountType, DerivedAccount } from "./account";
+import { DerivedAccount } from "./account";
 import { Chain } from "./chain";
-import { SignArbitraryResponse, Signer } from "./signer";
-
-export type TxMsgProps = {
-  //TODO: figure out if we can make it better
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  txType: any;
-  tx: {
-    specificMsg: string;
-    txMsg: string;
-  }[];
-  type: AccountType;
-};
+import { SignArbitraryResponse, Signer, TxData } from "./signer";
 
 export type SignArbitraryProps = {
   signer: string;
@@ -19,12 +8,10 @@ export type SignArbitraryProps = {
 };
 
 export type SignProps = {
-  accountType: AccountType;
+  txType: unknown;
   signer: string;
-  tx: {
-    txData: Uint8Array;
-    signingData: Uint8Array;
-  }[];
+  tx: TxData;
+  wrapperTxMsg: Uint8Array;
 };
 
 export type VerifyArbitraryProps = {
@@ -43,8 +30,7 @@ export interface Namada {
   connect(chainId?: string): Promise<void>;
   isConnected(): Promise<boolean | undefined>;
   defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
-  sign(props: SignProps): Promise<Uint8Array[] | undefined>;
-  signLedger(props: SignProps): Promise<Uint8Array[] | undefined>;
+  sign(props: SignProps): Promise<Uint8Array | undefined>;
   signArbitrary(
     props: SignArbitraryProps
   ): Promise<SignArbitraryResponse | undefined>;

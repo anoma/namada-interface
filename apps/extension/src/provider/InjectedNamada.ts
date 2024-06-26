@@ -34,16 +34,9 @@ export class InjectedNamada implements INamada {
     );
   }
 
-  public async sign(props: SignProps): Promise<Uint8Array[]> {
-    return await InjectedProxy.requestMethod<SignProps, Uint8Array[]>(
+  public async sign(props: SignProps): Promise<Uint8Array> {
+    return await InjectedProxy.requestMethod<SignProps, Uint8Array>(
       "sign",
-      props
-    );
-  }
-
-  public async signLedger(props: SignProps): Promise<Uint8Array[]> {
-    return await InjectedProxy.requestMethod<SignProps, Uint8Array[]>(
-      "signLedger",
       props
     );
   }

@@ -544,16 +544,14 @@ export class KeyRing {
   }
 
   async sign(
-    builtTx: BuiltTx[],
+    builtTx: BuiltTx,
     signer: string,
     chainId: string
-  ): Promise<Uint8Array[]> {
+  ): Promise<Uint8Array> {
     await this.vaultService.assertIsUnlocked();
     const key = await this.getSigningKey(signer);
     const { signing } = this.sdkService.getSdk();
-    return await Promise.all(
-      builtTx.map(async (tx) => await signing.sign(tx, key, chainId))
-    );
+    return await signing.sign(builtTx, key, chainId);
   }
 
   async signArbitrary(
@@ -567,5 +565,19 @@ export class KeyRing {
     const [hash, signature] = sdk.signing.signArbitrary(key, data);
 
     return { hash, signature };
+  }
+
+  async queryAccountDetails(
+    address: string
+  ): Promise<DerivedAccount | undefined> {
+    const account = await this.vaultStorage.findOneOrFail(
+      KeyStore,
+      "address",
+      address
+    );
+    if (!account) {
+      return;
+    }
+    return account.public;
   }
 }

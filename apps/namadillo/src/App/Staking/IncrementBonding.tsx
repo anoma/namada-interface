@@ -86,14 +86,16 @@ const IncrementBonding = (): JSX.Element => {
       account,
       "Extension is not connected or you don't have an account"
     );
+    const changes = parseUpdatedAmounts();
     invariant(gasPrice.data, "Gas price loading is still pending");
     invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
+    const bondGasLimit = gasLimits.data!.Bond.native;
     createBondTransaction({
-      changes: parseUpdatedAmounts(),
+      changes,
       account,
       gasConfig: {
         gasPrice: gasPrice.data!,
-        gasLimit: gasLimits.data!.Bond.native,
+        gasLimit: bondGasLimit.multipliedBy(changes.length),
       },
     });
   };
@@ -117,7 +119,7 @@ const IncrementBonding = (): JSX.Element => {
   ): void => {
     for (const tx of transactions) {
       broadcastTx(
-        tx.encodedTxData.encodedTx,
+        tx.encodedTxData.tx,
         tx.signedTx,
         tx.encodedTxData.meta?.props,
         "Bond"

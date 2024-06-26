@@ -1,6 +1,6 @@
 import { toBase64 } from "@cosmjs/encoding";
+import { TxType } from "@heliax/namada-sdk/web";
 import {
-  AccountType,
   Chain,
   DerivedAccount,
   Namada as INamada,
@@ -47,46 +47,37 @@ export class Namada implements INamada {
     );
   }
 
-  public async accounts(
-    // TODO: This argument should be removed in the future!
-    _chainId?: string
-  ): Promise<DerivedAccount[] | undefined> {
+  public async accounts(): Promise<DerivedAccount[] | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryAccountsMsg()
     );
   }
 
-  public async defaultAccount(
-    // TODO: This argument should be removed in the future!
-    _chainId?: string
-  ): Promise<DerivedAccount | undefined> {
+  public async defaultAccount(): Promise<DerivedAccount | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryDefaultAccountMsg()
     );
   }
 
-  public async sign(props: SignProps): Promise<Uint8Array[] | undefined> {
-    const { accountType, signer, tx } = props;
+  public async sign(props: SignProps): Promise<Uint8Array | undefined> {
+    const {
+      txType,
+      signer,
+      tx: { txBytes, signingDataBytes },
+      wrapperTxMsg,
+    } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
       new ApproveSignTxMsg(
-        accountType,
+        txType as TxType,
+        {
+          txBytes: toBase64(txBytes),
+          signingDataBytes: toBase64(signingDataBytes),
+        },
         signer,
-        tx.map((t) => [toBase64(t.txData), toBase64(t.signingData)])
-      )
-    );
-  }
-
-  public async signLedger(props: SignProps): Promise<Uint8Array[] | undefined> {
-    const { signer, tx } = props;
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new ApproveSignTxMsg(
-        AccountType.Ledger,
-        signer,
-        tx.map((t) => [toBase64(t.txData), toBase64(t.signingData)])
+        toBase64(wrapperTxMsg)
       )
     );
   }

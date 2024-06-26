@@ -1,4 +1,4 @@
-import { EncodedTx } from "@heliax/namada-sdk/web";
+import { BuiltTx, EncodedTx } from "@heliax/namada-sdk/web";
 import { getIntegration } from "@namada/integrations";
 import {
   Account,
@@ -25,7 +25,7 @@ export type TransactionPair<T> = {
 
 export type EncodedTxData<T> = {
   type: string;
-  encodedTx: EncodedTx;
+  tx: BuiltTx;
   meta?: {
     props: T;
   };
@@ -91,22 +91,30 @@ export const buildTxArray = async <T>(
 
   if (!publicKey) {
     const revealPkTx = await tx.buildRevealPk(wrapperTxProps, account.address);
-    txArray.push({ type: revealPublicKeyType, encodedTx: revealPkTx });
+    txArray.push({ type: revealPublicKeyType, tx: revealPkTx.tx });
   }
 
   const encodedTxs = await Promise.all(
     queryProps.map((props) => txFn.apply(tx, [wrapperTxProps, props]))
   );
 
-  const typedEncodedTxs = encodedTxs.map((encodedTx, index) => ({
-    encodedTx,
+  const initialTx = encodedTxs[0].tx;
+  const wrapperTxMsg = initialTx.wrapper_tx_msg();
+  const txType = initialTx.tx_type();
+
+  const batchTx = tx.buildBatch(
+    txType,
+    encodedTxs.map((tx) => tx.tx),
+    wrapperTxMsg
+  );
+
+  txArray.push({
+    tx: batchTx,
     type: txFn.name,
     meta: {
-      props: queryProps[index],
+      props: queryProps[0],
     },
-  }));
-
-  txArray.push(...typedEncodedTxs);
+  });
   return txArray;
 };
 
@@ -120,17 +128,45 @@ export const signTxArray = async <T>(
 ): Promise<Uint8Array[]> => {
   const integration = getIntegration(chain.id);
   const signingClient = integration.signer() as Signer;
-  try {
-    // TODO: after rejecting, it keeps awaiting forever
-    const signedTxs = await signingClient.sign(
-      owner,
-      typedEncodedTxs.map(({ encodedTx }) => encodedTx.tx)
-    );
+  const signedTxs: Uint8Array[] = [];
 
-    if (!signedTxs) {
-      throw new Error("Signing failed: No signed transactions returned");
+  try {
+    // Sign RevealPK first, if public key is not found:
+    if (typedEncodedTxs[0].type === revealPublicKeyType) {
+      const revealPk = typedEncodedTxs.shift()!;
+      const tx = revealPk.tx;
+
+      const signedRevealPk = await signingClient.sign(
+        tx.tx_type(),
+        { txBytes: tx.tx_bytes(), signingDataBytes: tx.signing_data_bytes() },
+        owner,
+        revealPk.tx.wrapper_tx_msg()
+      );
+
+      if (!signedRevealPk) {
+        throw new Error(
+          "Sign RevealPk failed: No signed transactions returned"
+        );
+      }
+      signedTxs.push(signedRevealPk);
     }
 
+    // Sign batch Tx
+    const signedBatchTxBytes = await signingClient.sign(
+      typedEncodedTxs[0].tx.tx_type(),
+      {
+        txBytes: typedEncodedTxs[0].tx.tx_bytes(),
+        signingDataBytes: typedEncodedTxs[0].tx.signing_data_bytes(),
+      },
+      owner,
+      typedEncodedTxs[0].tx.wrapper_tx_msg()
+    );
+
+    if (!signedBatchTxBytes) {
+      throw new Error("Signing batch Tx failed");
+    }
+
+    signedTxs.push(signedBatchTxBytes);
     return signedTxs;
   } catch (err) {
     const message = err instanceof Error ? err.message : err;
@@ -170,13 +206,13 @@ export const buildTxPair = async <T>(
 };
 
 export const broadcastTx = async <T>(
-  encoded: EncodedTx,
+  encoded: BuiltTx,
   signedTx: Uint8Array,
   data?: T,
   eventType?: TransactionEventsClasses
 ): Promise<void> => {
   const { rpc } = await getSdkInstance();
-  const transactionId = encoded.hash();
+  const transactionId = encoded.tx_hash();
   eventType &&
     window.dispatchEvent(
       new CustomEvent(`${eventType}.Pending`, {
@@ -184,8 +220,10 @@ export const broadcastTx = async <T>(
       })
     );
   try {
+    // TODO: rpc.broadcastTx returns a TxResponseProps object now, containing hashes and
+    // applied status of each commitment
     await rpc.broadcastTx({
-      wrapperTxMsg: encoded.txMsg,
+      wrapperTxMsg: encoded.wrapper_tx_msg(),
       tx: signedTx,
     });
     eventType &&

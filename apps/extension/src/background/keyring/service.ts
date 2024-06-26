@@ -172,7 +172,7 @@ export class KeyRingService {
     return await IndexedDBKVStore.durabilityCheck();
   }
 
-  async sign(builtTx: BuiltTx[], signer: string): Promise<Uint8Array[]> {
+  async sign(builtTx: BuiltTx, signer: string): Promise<Uint8Array> {
     const { chainId } = await this.chainsService.getChain();
     return await this._keyRing.sign(builtTx, signer, chainId);
   }
@@ -192,5 +192,11 @@ export class KeyRingService {
     const sdk = this.sdkService.getSdk();
 
     return sdk.signing.verifyArbitrary(publicKey, hash, signature);
+  }
+
+  async queryAccountDetails(
+    address: string
+  ): Promise<DerivedAccount | undefined> {
+    return this._keyRing.queryAccountDetails(address);
   }
 }

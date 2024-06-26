@@ -4,6 +4,8 @@ import {
   TransferToEthereum,
 } from "@namada/shared";
 
+import { deserialize } from "@dao-xyz/borsh";
+import { TxResponseMsgValue, TxResponseProps } from "../../../types/src";
 import { SignedTx } from "../tx/types";
 import {
   Balance,
@@ -191,11 +193,12 @@ export class Rpc {
    * Broadcast a Tx to the ledger
    * @async
    * @param signedTx - Transaction with signature
-   * @returns void
+   * @returns TxResponseProps object
    */
-  async broadcastTx(signedTx: SignedTx): Promise<string> {
+  async broadcastTx(signedTx: SignedTx): Promise<TxResponseProps> {
     const { wrapperTxMsg, tx } = signedTx;
-    return await this.sdk.process_tx(tx, wrapperTxMsg);
+    const response = await this.sdk.process_tx(tx, wrapperTxMsg);
+    return deserialize(Buffer.from(response), TxResponseMsgValue);
   }
 
   /**
