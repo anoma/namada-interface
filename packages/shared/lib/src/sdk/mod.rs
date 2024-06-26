@@ -1,6 +1,8 @@
+mod args;
 pub mod io;
 pub mod masp;
 mod signature;
+mod transaction;
 mod tx;
 mod wallet;
 
@@ -31,19 +33,7 @@ use namada::tx::Tx;
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
-#[wasm_bindgen]
-#[derive(Copy, Clone, Debug)]
-pub enum TxType {
-    Bond = 1,
-    Unbond = 2,
-    Withdraw = 3,
-    TransparentTransfer = 4,
-    IBCTransfer = 5,
-    EthBridgeTransfer = 6,
-    RevealPK = 7,
-    VoteProposal = 8,
-    Redelegate = 9,
-}
+use tx::TxType;
 
 #[wasm_bindgen]
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -117,7 +107,7 @@ impl BuiltTx {
 
     // TODO: Add method to retrieve deserialized Tx properties
 
-    pub fn tx_type(&self) -> TxType {
+    pub fn tx_type(&self) -> tx::TxType {
         self.tx_type
     }
 
@@ -293,7 +283,7 @@ impl Sdk {
 
     // Broadcast Tx
     pub async fn process_tx(&self, tx_bytes: &[u8], tx_msg: &[u8]) -> Result<JsValue, JsError> {
-        let args = tx::tx_args_from_slice(tx_msg)?;
+        let args = args::tx_args_from_slice(tx_msg)?;
 
         let tx = Tx::try_from_slice(tx_bytes)?;
         let cmts = tx.commitments().clone();
@@ -437,7 +427,7 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let mut args = tx::transparent_transfer_tx_args(transfer_msg, wrapper_tx_msg)?;
+        let mut args = args::transparent_transfer_tx_args(transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_transparent_transfer(&self.namada, &mut args).await?;
 
         Ok(BuiltTx {
@@ -454,7 +444,7 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg)?;
+        let args = args::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args).await?;
 
         Ok(BuiltTx {
@@ -471,7 +461,7 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, wrapper_tx_msg)?;
+        let args = args::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_bridge_pool_tx(&self.namada, args.clone()).await?;
 
         Ok(BuiltTx {
@@ -488,7 +478,7 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::vote_proposal_tx_args(vote_proposal_msg, wrapper_tx_msg)?;
+        let args = args::vote_proposal_tx_args(vote_proposal_msg, wrapper_tx_msg)?;
         let epoch = query_epoch(self.namada.client()).await?;
         let (tx, signing_data) = build_vote_proposal(&self.namada, &args, epoch)
             .await
@@ -508,7 +498,7 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::bond_tx_args(bond_msg, wrapper_tx_msg)?;
+        let args = args::bond_tx_args(bond_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_bond(&self.namada, &args).await?;
 
         Ok(BuiltTx {
@@ -525,7 +515,7 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::unbond_tx_args(unbond_msg, wrapper_tx_msg)?;
+        let args = args::unbond_tx_args(unbond_msg, wrapper_tx_msg)?;
         let (tx, signing_data, _) = build_unbond(&self.namada, &args).await?;
 
         Ok(BuiltTx {
@@ -542,7 +532,7 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::withdraw_tx_args(withdraw_msg, wrapper_tx_msg)?;
+        let args = args::withdraw_tx_args(withdraw_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_withdraw(&self.namada, &args).await?;
 
         Ok(BuiltTx {
@@ -559,7 +549,7 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::redelegate_tx_args(redelegate_msg, wrapper_tx_msg)?;
+        let args = args::redelegate_tx_args(redelegate_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_redelegation(&self.namada, &args).await?;
 
         Ok(BuiltTx {
@@ -575,7 +565,7 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: String,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::tx_args_from_slice(wrapper_tx_msg)?;
+        let args = args::tx_args_from_slice(wrapper_tx_msg)?;
         let public_key = args.signing_keys[0].clone();
 
         let (tx, signing_data) = build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
@@ -595,7 +585,7 @@ impl Sdk {
         wraper_tx_msg: &[u8],
         chain_id: Option<String>,
     ) -> Result<(), JsError> {
-        let args = tx::tx_args_from_slice(wraper_tx_msg)?;
+        let args = args::tx_args_from_slice(wraper_tx_msg)?;
         let pk = &args
             .signing_keys
             .clone()

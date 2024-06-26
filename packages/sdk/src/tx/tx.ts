@@ -1,4 +1,9 @@
-import { BuiltTx, Sdk as SdkWasm, TxType } from "@namada/shared";
+import {
+  BuiltTx,
+  Sdk as SdkWasm,
+  TxType,
+  deserialize_tx,
+} from "@namada/shared";
 import {
   BondMsgValue,
   BondProps,
@@ -448,5 +453,15 @@ export class Tx {
     const txMsgValue = new WrapperTxMsgValue(wrapperTxProps);
     const msg = new Message<WrapperTxMsgValue>();
     return msg.encode(txMsgValue);
+  }
+
+  /**
+   * Method to retrieve JSON strings for all commitments of a Tx
+   * @param txType - TxType enum value
+   * @param txBytes - Bytes of a transaction
+   * @returns array of JSON strings
+   */
+  deserialize(txType: TxType, txBytes: Uint8Array): string[] {
+    return deserialize_tx(txType, txBytes);
   }
 }
