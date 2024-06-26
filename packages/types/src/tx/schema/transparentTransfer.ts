@@ -17,9 +17,6 @@ export class TransparentTransferMsgValue {
   @field(BigNumberSerializer)
   amount!: BigNumber;
 
-  @field({ type: "string" })
-  nativeToken!: string;
-
   constructor(data: TransparentTransferProps) {
     Object.assign(this, data);
   }

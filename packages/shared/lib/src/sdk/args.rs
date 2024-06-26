@@ -33,7 +33,16 @@ pub struct BondMsg {
     source: String,
     validator: String,
     amount: String,
-    native_token: String,
+}
+
+impl BondMsg {
+    pub fn new(source: String, validator: String, amount: String) -> BondMsg {
+        BondMsg {
+            source,
+            validator,
+            amount,
+        }
+    }
 }
 
 /// Maps serialized tx_msg into BondTx args.
@@ -53,7 +62,6 @@ pub fn bond_tx_args(bond_msg: &[u8], tx_msg: &[u8]) -> Result<args::Bond, JsErro
     let BondMsg {
         source,
         validator,
-        native_token: _native_token,
         amount,
     } = bond_msg;
 
@@ -79,6 +87,16 @@ pub struct UnbondMsg {
     source: String,
     validator: String,
     amount: String,
+}
+
+impl UnbondMsg {
+    pub fn new(source: String, validator: String, amount: String) -> UnbondMsg {
+        UnbondMsg {
+            source,
+            validator,
+            amount,
+        }
+    }
 }
 
 /// Maps serialized tx_msg into UnbondTx args.
@@ -125,6 +143,12 @@ pub struct WithdrawMsg {
     validator: String,
 }
 
+impl WithdrawMsg {
+    pub fn new(source: String, validator: String) -> WithdrawMsg {
+        WithdrawMsg { source, validator }
+    }
+}
+
 /// Maps serialized tx_msg into WithdrawTx args.
 ///
 /// # Arguments
@@ -162,6 +186,22 @@ pub struct RedelegateMsg {
     source_validator: String,
     destination_validator: String,
     amount: String,
+}
+
+impl RedelegateMsg {
+    pub fn new(
+        owner: String,
+        source_validator: String,
+        destination_validator: String,
+        amount: String,
+    ) -> RedelegateMsg {
+        RedelegateMsg {
+            owner,
+            source_validator,
+            destination_validator,
+            amount,
+        }
+    }
 }
 
 /// Maps serialized tx_msg into RedelgationTx args.
@@ -214,6 +254,16 @@ pub struct VoteProposalMsg {
     vote: String,
 }
 
+impl VoteProposalMsg {
+    pub fn new(signer: String, proposal_id: u64, vote: String) -> VoteProposalMsg {
+        VoteProposalMsg {
+            signer,
+            proposal_id,
+            vote,
+        }
+    }
+}
+
 /// Maps serialized tx_msg into VoteProposalTx args.
 ///
 /// # Arguments
@@ -257,7 +307,22 @@ pub struct TransparentTransferMsg {
     target: String,
     token: String,
     amount: String,
-    native_token: String,
+}
+
+impl TransparentTransferMsg {
+    pub fn new(
+        source: String,
+        target: String,
+        token: String,
+        amount: String,
+    ) -> TransparentTransferMsg {
+        TransparentTransferMsg {
+            source,
+            target,
+            token,
+            amount,
+        }
+    }
 }
 
 /// Maps serialized tx_msg into TransferTx args.
@@ -281,7 +346,6 @@ pub fn transparent_transfer_tx_args(
         target,
         token,
         amount,
-        native_token: _native_token,
     } = transfer_msg;
 
     let source = Address::from_str(&source)?;
@@ -317,6 +381,32 @@ pub struct IbcTransferMsg {
     timeout_height: Option<u64>,
     timeout_sec_offset: Option<u64>,
     memo: Option<String>,
+}
+
+impl IbcTransferMsg {
+    pub fn new(
+        source: String,
+        receiver: String,
+        token: String,
+        amount: String,
+        port_id: String,
+        channel_id: String,
+        timeout_height: Option<u64>,
+        timeout_sec_offset: Option<u64>,
+        memo: Option<String>,
+    ) -> IbcTransferMsg {
+        IbcTransferMsg {
+            source,
+            receiver,
+            token,
+            amount,
+            port_id,
+            channel_id,
+            timeout_height,
+            timeout_sec_offset,
+            memo,
+        }
+    }
 }
 
 /// Maps serialized tx_msg into IbcTransferTx args.
@@ -385,6 +475,30 @@ pub struct EthBridgeTransferMsg {
     fee_amount: String,
     fee_payer: Option<String>,
     fee_token: String,
+}
+
+impl EthBridgeTransferMsg {
+    pub fn new(
+        nut: bool,
+        asset: String,
+        recipient: String,
+        sender: String,
+        amount: String,
+        fee_amount: String,
+        fee_payer: Option<String>,
+        fee_token: String,
+    ) -> EthBridgeTransferMsg {
+        EthBridgeTransferMsg {
+            nut,
+            asset,
+            recipient,
+            sender,
+            amount,
+            fee_amount,
+            fee_payer,
+            fee_token,
+        }
+    }
 }
 
 pub fn eth_bridge_transfer_tx_args(

@@ -14,9 +14,6 @@ export class BondMsgValue {
   @field(BigNumberSerializer)
   amount!: BigNumber;
 
-  @field({ type: "string" })
-  nativeToken!: string;
-
   constructor(data: BondProps) {
     Object.assign(this, data);
   }
