@@ -25,6 +25,7 @@ export const WithdrawalButton = ({
   const gasLimits = useAtomValue(gasLimitsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
+
   const {
     mutate: createWithdrawTx,
     data: withdrawalTxs,
@@ -32,7 +33,7 @@ export const WithdrawalButton = ({
     isSuccess,
     isError,
     error: withdrawalTransactionError,
-  } = useAtomValue(createWithdrawTxAtom);
+  } = useAtomValue(createWithdrawTxAtom(JSON.stringify(myValidator)));
 
   const onWithdraw = useCallback(
     async (myValidator: MyValidator) => {
@@ -63,6 +64,7 @@ export const WithdrawalButton = ({
     [gasLimits.isSuccess, gasPrice, account, myValidator.withdrawableAmount]
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const dispatchWithdrawalTransactions = async (
     tx: TransactionPair<WithdrawMsgValue>
   ): Promise<void> => {
@@ -74,6 +76,7 @@ export const WithdrawalButton = ({
     );
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const dispatchPendingNotification = (
     transaction: TransactionPair<WithdrawMsgValue>
   ): void => {

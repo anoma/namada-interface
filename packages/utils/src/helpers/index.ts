@@ -80,17 +80,22 @@ export const stringFromTimestampInSec = (timestamp: bigint): string => {
   return datetime.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS);
 };
 
+type FnsDurationUnit = fns.DurationUnit;
+
 export const getMostSignificantDurationUnit = (
   duration: fns.Duration,
-  format: fns.DurationUnit[]
-): fns.DurationUnit[] => {
-  const display = format.reduce((acc, curr) => {
-    const value = duration[curr] || 0;
+  format: FnsDurationUnit[]
+): fns.DurationUnit => {
+  const display = format.reduce(
+    (acc, curr) => {
+      const value = duration[curr] || 0;
 
-    return acc.length === 0 && value > 0 ? [curr] : acc;
-  }, [] as fns.DurationUnit[]);
+      return !acc && value > 0 ? curr : acc;
+    },
+    undefined as FnsDurationUnit | undefined
+  );
 
-  return display;
+  return display || "seconds";
 };
 
 /**
@@ -100,44 +105,33 @@ export const getMostSignificantDurationUnit = (
  * @param {number} toSec - to date in seconds
  * @returns {string} formatted duration
  */
-export const durationFromInterval = (
+export const singleUnitDurationFromInterval = (
   fromSec: number,
-  toSec: number,
-  options: {
-    significantOnly?: boolean;
-  } = {}
+  toSec: number
 ): string => {
   const interval = {
     start: fromSec * 1000,
     end: toSec * 1000,
   };
-  const defaultFormat: Array<keyof fns.Duration> = [
-    "days",
-    "hours",
-    "minutes",
-    "seconds",
-  ];
+  const format: FnsDurationUnit[] = ["days", "hours", "minutes", "seconds"];
 
   const timeLeft = fns.intervalToDuration(interval);
+  const unit = getMostSignificantDurationUnit(timeLeft, format);
+  const previousUnit = format[format.indexOf(unit) + 1];
+  const previousUnitTime = timeLeft[previousUnit] || 0;
 
-  const format =
-    options.significantOnly ?
-      getMostSignificantDurationUnit(timeLeft, defaultFormat)
-    : defaultFormat;
+  const adjustedTimeLeft = {
+    ...timeLeft,
+    [unit]: previousUnitTime > 30 ? timeLeft[unit]! + 1 : timeLeft[unit],
+  };
 
-  const initialFormat = fns.formatDuration(timeLeft, {
-    format,
+  const formattedDuration = fns.formatDuration(adjustedTimeLeft, {
+    format: [unit],
     zero: true,
     delimiter: ": ",
   });
 
-  const formatted = initialFormat
-    .replace("days", "Days")
-    .replace("hours", "Hrs")
-    .replace("minutes", "Mins")
-    .replace(/^.*seconds$/, "< Min");
-
-  return formatted;
+  return formattedDuration.replace(/^.*seconds?$/, "< minute");
 };
 
 /**
