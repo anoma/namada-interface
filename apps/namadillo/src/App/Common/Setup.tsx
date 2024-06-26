@@ -14,13 +14,16 @@ export const Setup = ({ onChange }: SetupProps): JSX.Element => {
   const [url, setUrl] = useState(indexerUrl || "");
   const [validatingUrl, setValidatingUrl] = useState(false);
   const [error, setError] = useState("");
-
   const setIndexerAtom = useSetAtom(indexerUrlAtom);
 
   const onSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
-    if (!isUrlValid(url)) {
+    const trimmedUrl = url.trim();
+    const sanitizedUrl =
+      trimmedUrl.endsWith("/") ? trimmedUrl.slice(0, -1) : url;
+
+    if (!isUrlValid(sanitizedUrl)) {
       setError(
         "Error: Invalid URL. Please provide a valid Namada indexer URL to complete your setup."
       );
@@ -28,9 +31,9 @@ export const Setup = ({ onChange }: SetupProps): JSX.Element => {
     }
 
     setValidatingUrl(true);
-    if (await isValidIndexerUrl(url)) {
-      setIndexerAtom(url);
-      onChange(url);
+    if (await isValidIndexerUrl(sanitizedUrl)) {
+      setIndexerAtom(sanitizedUrl);
+      onChange(sanitizedUrl);
     } else {
       setError(
         "Error: Couldn't reach the indexer URL. Please provide a valid indexer service."
