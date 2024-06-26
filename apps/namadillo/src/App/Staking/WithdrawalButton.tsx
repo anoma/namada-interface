@@ -34,31 +34,34 @@ export const WithdrawalButton = ({
     error: withdrawalTransactionError,
   } = useAtomValue(createWithdrawTxAtom);
 
-  const onWithdraw = useCallback(async (myValidator: MyValidator) => {
-    invariant(
-      account,
-      "Extension is not connected or you don't have an account"
-    );
-    invariant(gasPrice, "Gas price loading is still pending");
-    invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
-    invariant(
-      myValidator.withdrawableAmount,
-      "Validator doesn't have amounts available for withdrawal"
-    );
-    createWithdrawTx({
-      changes: [
-        {
-          validatorId: myValidator.validator.address,
-          amount: myValidator.withdrawableAmount!,
+  const onWithdraw = useCallback(
+    async (myValidator: MyValidator) => {
+      invariant(
+        account,
+        "Extension is not connected or you don't have an account"
+      );
+      invariant(gasPrice, "Gas price loading is still pending");
+      invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
+      invariant(
+        myValidator.withdrawableAmount,
+        "Validator doesn't have amounts available for withdrawal"
+      );
+      createWithdrawTx({
+        changes: [
+          {
+            validatorId: myValidator.validator.address,
+            amount: myValidator.withdrawableAmount!,
+          },
+        ],
+        gasConfig: {
+          gasPrice: gasPrice!,
+          gasLimit: gasLimits.data!.Withdraw.native,
         },
-      ],
-      gasConfig: {
-        gasPrice: gasPrice!,
-        gasLimit: gasLimits.data!.Withdraw.native,
-      },
-      account: account!,
-    });
-  }, []);
+        account: account!,
+      });
+    },
+    [gasLimits.isSuccess, gasPrice, account, myValidator.withdrawableAmount]
+  );
 
   const dispatchWithdrawalTransactions = async (
     tx: TransactionPair<WithdrawMsgValue>
