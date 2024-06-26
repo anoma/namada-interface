@@ -7,6 +7,7 @@ import { chainParametersAtom, indexerRpcUrlAtom } from "./chainParameters";
 import {
   defaultServerConfigAtom,
   indexerUrlAtom,
+  namadaExtensionConnectedAtom,
   rpcUrlAtom,
 } from "./settings";
 
@@ -15,13 +16,24 @@ export const chainAtom = atomWithQuery<ChainSettings>((get) => {
   const indexerRpcUrl = get(indexerRpcUrlAtom);
   const indexerUrl = get(indexerUrlAtom);
   const tomlConfig = get(defaultServerConfigAtom);
+  const extensionConnected = get(namadaExtensionConnectedAtom);
 
   return {
-    queryKey: ["chain", indexerUrl, chainParameters, indexerRpcUrl],
+    queryKey: [
+      "chain",
+      indexerUrl,
+      chainParameters,
+      indexerRpcUrl,
+      extensionConnected,
+    ],
     staleTime: Infinity,
+    retry: false,
     ...queryDependentFn(async () => {
       const rpcUrl = get(rpcUrlAtom);
-      const extensionChainId = (await integrations.namada.getChain())?.chainId;
+      const extensionChainId =
+        extensionConnected ?
+          (await integrations.namada.getChain())?.chainId
+        : "";
 
       return {
         id: namada.id,
