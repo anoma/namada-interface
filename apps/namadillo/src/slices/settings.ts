@@ -88,7 +88,7 @@ export const rpcUrlAtom = atom((get) => {
   const userDefinedRpc = get(namadilloSettingsAtom).rpcUrl;
   if (userDefinedRpc) return userDefinedRpc;
 
-  const tomlRpc = get(defaultServerConfigAtom).data?.indexer_url;
+  const tomlRpc = get(defaultServerConfigAtom).data?.rpc_url;
   if (tomlRpc) return tomlRpc;
 
   const indexerRpc = get(indexerRpcUrlAtom).data;
