@@ -16,9 +16,11 @@ import {
   RedelegateMsgValue,
   RedelegateProps,
   SignatureMsgValue,
+  SupportedTxProps,
   TransparentTransferMsgValue,
   TransparentTransferProps,
-  TxMsgValue,
+  TxDetails,
+  TxDetailsMsgValue,
   UnbondMsgValue,
   UnbondProps,
   VoteProposalMsgValue,
@@ -38,7 +40,7 @@ export class Tx {
   /**
    * @param sdk - Instance of Sdk struct from wasm lib
    */
-  constructor(protected readonly sdk: SdkWasm) { }
+  constructor(protected readonly sdk: SdkWasm) {}
 
   /**
    * Build a transaction
@@ -459,15 +461,19 @@ export class Tx {
 
   /**
    * Method to retrieve JSON strings for all commitments of a Tx
-   * @param txType - TxType enum value
    * @param txBytes - Bytes of a transaction
-   * @returns array of Tx props
+   * @param pathsHashes - Array of wasm paths with their associated hash
+   * @returns a TxDetails object
    */
-  deserialize(txType: TxType, txBytes: Uint8Array): unknown[] {
-    const tx = deserialize_tx(txType, txBytes);
-    const { commitments } = deserialize(tx, TxMsgValue);
+  deserialize(
+    txBytes: Uint8Array,
+    pathsHashes: { path: string; hash: string }[]
+  ): TxDetails {
+    console.log({ txBytes, pathsHashes });
+    const tx = deserialize_tx(txBytes, pathsHashes);
+    const { wrapperTx, commitments } = deserialize(tx, TxDetailsMsgValue);
 
-    return commitments.map(({ txType, data }) => {
+    const getProps = (txType: TxType, data: Uint8Array): SupportedTxProps => {
       switch (txType) {
         case TxType.Bond:
           return deserialize(data, BondMsgValue);
@@ -484,6 +490,14 @@ export class Tx {
         default:
           throw "Unsupported Tx type!";
       }
-    });
+    };
+
+    return {
+      ...wrapperTx,
+      commitments: commitments.map((props) => ({
+        ...props,
+        ...getProps(props.txType, props.data),
+      })),
+    };
   }
 }

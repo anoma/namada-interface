@@ -79,6 +79,7 @@ const init = new Promise<void>(async (resolve) => {
     txStore,
     dataStore,
     localStorage,
+    sdkService,
     keyRingService,
     vaultService,
     broadcaster

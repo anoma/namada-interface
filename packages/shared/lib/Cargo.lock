@@ -4801,6 +4801,7 @@ dependencies = [
  "rexie",
  "serde",
  "serde_json",
+ "subtle-encoding",
  "tendermint-config 0.34.1",
  "thiserror",
  "tiny-bip39 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",

@@ -2,6 +2,7 @@
 import { TxType } from "@heliax/namada-sdk/web";
 import { paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
+import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import createMockInstance from "jest-create-mock-instance";
@@ -39,6 +40,7 @@ jest.mock(
 
 describe("approvals service", () => {
   let service: ApprovalsService;
+  let sdkService: jest.Mocked<SdkService>;
   let keyRingService: jest.Mocked<KeyRingService>;
   let dataStore: KVStoreMock<string>;
   let txStore: KVStoreMock<PendingTx>;
@@ -64,6 +66,7 @@ describe("approvals service", () => {
       txStore,
       dataStore,
       localStorage,
+      sdkService,
       keyRingService,
       vaultService,
       broadcaster

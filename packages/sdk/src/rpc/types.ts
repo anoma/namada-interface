@@ -67,3 +67,11 @@ export type GasCosts = [string, string][];
  * [tokenAddress, amount][]
  */
 export type Balance = [string, string][];
+
+/**
+ * Object containing a wasm code path and its hash on chain
+ */
+export type WasmHash = {
+  path: string;
+  hash: string;
+};

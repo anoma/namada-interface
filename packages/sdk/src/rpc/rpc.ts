@@ -17,6 +17,7 @@ import {
   StakingTotals,
   StakingTotalsResponse,
   UnbondsResponse,
+  WasmHash,
 } from "./types";
 
 /**
@@ -187,6 +188,15 @@ export class Rpc {
    */
   async queryGasCosts(): Promise<GasCosts> {
     return await this.query.query_gas_costs();
+  }
+
+  /**
+   * Query code paths and their associated hash on chain
+   * @async
+   * @returns WasmHash[]
+   */
+  async queryWasmHashes(): Promise<WasmHash[]> {
+    return await this.query.query_wasm_hashes();
   }
 
   /**

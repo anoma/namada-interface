@@ -1,3 +1,4 @@
+use gloo_utils::format::JsValueSerdeExt;
 use js_sys::Uint8Array;
 use namada::address::Address;
 use namada::core::borsh::BorshSerialize;
@@ -13,15 +14,21 @@ use namada::ledger::parameters::storage;
 use namada::ledger::queries::RPC;
 use namada::masp::ExtendedViewingKey;
 use namada::proof_of_stake::Epoch;
+use namada::sdk::hash::Hash;
 use namada::sdk::masp::{DefaultLogger, ShieldedContext};
 use namada::sdk::masp_primitives::asset_type::AssetType;
 use namada::sdk::masp_primitives::sapling::ViewingKey;
 use namada::sdk::masp_primitives::transaction::components::ValueSum;
 use namada::sdk::masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::sdk::rpc::{
-    format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
+    self, format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
     is_steward, query_epoch, query_masp_epoch, query_native_token, query_proposal_by_id,
     query_proposal_votes, query_storage_value,
+};
+use namada::sdk::state::Key;
+use namada::sdk::tx::{
+    TX_BOND_WASM, TX_REDELEGATE_WASM, TX_TRANSPARENT_TRANSFER_WASM, TX_UNBOND_WASM,
+    TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
 };
 use namada::token;
 use namada::uint::I256;
@@ -31,7 +38,7 @@ use wasm_bindgen::prelude::*;
 
 use crate::rpc_client::HttpClient;
 use crate::sdk::{io::WebIo, masp};
-use crate::types::query::ProposalInfo;
+use crate::types::query::{ProposalInfo, WasmHash};
 use crate::utils::{set_panic_hook, to_js_result};
 
 #[wasm_bindgen]
@@ -732,6 +739,51 @@ impl Query {
     pub async fn query_native_token(&self) -> Result<JsValue, JsError> {
         let address = query_native_token(&self.client).await?;
         to_js_result(address)
+    }
+
+    // Vec of code paths of supported transactions
+    pub fn code_paths() -> Vec<String> {
+        vec![
+            TX_TRANSPARENT_TRANSFER_WASM.to_string(),
+            TX_BOND_WASM.to_string(),
+            TX_REDELEGATE_WASM.to_string(),
+            TX_UNBOND_WASM.to_string(),
+            TX_WITHDRAW_WASM.to_string(),
+            // TX_CLAIM_REWARDS_WASM.to_string(),
+            TX_VOTE_PROPOSAL.to_string(),
+        ]
+    }
+
+    // Query supported wasm code-paths, and return a serialized vec of object containing path and hash
+    pub async fn query_wasm_hashes(&self) -> Result<JsValue, JsError> {
+        let mut results: Vec<WasmHash> = vec![];
+        let code_paths = Query::code_paths();
+
+        for path in code_paths {
+            let hash = self.query_wasm_hash(&path).await;
+
+            if hash.is_some() {
+                let hash = String::from(hash.unwrap());
+                let wasm_hash = WasmHash::new(path, hash);
+                results.push(wasm_hash);
+            }
+        }
+
+        Ok(JsValue::from_serde(&results).unwrap())
+    }
+
+    // Query hash of wasm code on chain
+    pub async fn query_wasm_hash(&self, tx_code_path: &str) -> Option<String> {
+        let hash_key = Key::wasm_hash(tx_code_path);
+        let (tx_code_res, _) = rpc::query_storage_value_bytes(&self.client, &hash_key, None, false)
+            .await
+            .ok()?;
+        if let Some(tx_code_bytes) = tx_code_res {
+            let tx_code = Hash::try_from(&tx_code_bytes[..]).expect("Invalid code hash");
+            Some(tx_code.to_string())
+        } else {
+            None
+        }
     }
 }
 

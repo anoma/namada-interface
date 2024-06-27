@@ -23,8 +23,27 @@ pub struct WrapperTxMsg {
     gas_limit: String,
     chain_id: String,
     public_key: Option<String>,
-    disposable_signing_key: Option<bool>,
     memo: Option<String>,
+}
+
+impl WrapperTxMsg {
+    pub fn new(
+        token: String,
+        fee_amount: String,
+        gas_limit: String,
+        chain_id: String,
+        public_key: Option<String>,
+        memo: Option<String>,
+    ) -> WrapperTxMsg {
+        WrapperTxMsg {
+            token,
+            fee_amount,
+            gas_limit,
+            chain_id,
+            public_key,
+            memo,
+        }
+    }
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -570,7 +589,6 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         gas_limit,
         chain_id,
         public_key,
-        disposable_signing_key,
         memo,
     } = tx_msg;
 
@@ -588,7 +606,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         _ => None,
     };
 
-    let disposable_signing_key = disposable_signing_key.unwrap_or(false);
+    let disposable_signing_key = false;
     let signing_keys: Vec<PublicKey> = match public_key {
         Some(v) => vec![v.clone()],
         _ => vec![],

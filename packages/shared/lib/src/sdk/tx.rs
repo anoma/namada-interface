@@ -1,12 +1,20 @@
+use std::collections::HashMap;
 use std::str::FromStr;
 
+use gloo_utils::format::JsValueSerdeExt;
 use namada::core::borsh::{self, BorshDeserialize, BorshSerialize};
 use namada::sdk::signing::SigningTxData;
+use namada::sdk::tx::{
+    TX_BOND_WASM, TX_REDELEGATE_WASM, TX_TRANSPARENT_TRANSFER_WASM, TX_UNBOND_WASM,
+    TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
+};
 use namada::tx;
 use namada::{address::Address, key::common::PublicKey};
-use wasm_bindgen::{prelude::wasm_bindgen, JsError};
+use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
+use super::args::WrapperTxMsg;
 use crate::sdk::transaction;
+use crate::types::query::WasmHash;
 
 #[wasm_bindgen]
 #[derive(BorshSerialize, BorshDeserialize, Copy, Clone, Debug)]
@@ -84,10 +92,37 @@ impl SigningData {
     }
 }
 
+pub fn wasm_hash_to_tx_type(wasm_hash: &str, wasm_hashes: &Vec<WasmHash>) -> Option<TxType> {
+    let type_map: HashMap<String, TxType> = HashMap::from([
+        (
+            TX_TRANSPARENT_TRANSFER_WASM.to_string(),
+            TxType::TransparentTransfer,
+        ),
+        (TX_BOND_WASM.to_string(), TxType::Bond),
+        (TX_REDELEGATE_WASM.to_string(), TxType::Redelegate),
+        (TX_UNBOND_WASM.to_string(), TxType::Unbond),
+        (TX_WITHDRAW_WASM.to_string(), TxType::Withdraw),
+        // (TX_CLAIM_REWARDS_WASM.to_string(), TxType::ClaimRewards),
+        (TX_VOTE_PROPOSAL.to_string(), TxType::VoteProposal),
+    ]);
+
+    for wh in wasm_hashes {
+        if wh.hash() == wasm_hash {
+            let tx_type = type_map.get(&wh.path());
+
+            if tx_type.is_some() {
+                return Some(*tx_type.unwrap());
+            }
+        }
+    }
+
+    None
+}
+
 // Deserialize Tx commitments into Borsh-serialized struct
 #[wasm_bindgen]
-pub fn deserialize_tx(tx_type: TxType, tx_bytes: Vec<u8>) -> Result<Vec<u8>, JsError> {
-    let tx = Tx::from_bytes(tx_type, tx_bytes)?;
+pub fn deserialize_tx(tx_bytes: Vec<u8>, wasm_hashes: JsValue) -> Result<Vec<u8>, JsError> {
+    let tx = TxDetails::from_bytes(tx_bytes, wasm_hashes)?;
     Ok(borsh::to_vec(&tx)?)
 }
 
@@ -95,35 +130,76 @@ pub fn deserialize_tx(tx_type: TxType, tx_bytes: Vec<u8>) -> Result<Vec<u8>, JsE
 #[borsh(crate = "namada::core::borsh")]
 pub struct Commitment {
     tx_type: TxType,
+    hash: String,
+    wasm_hash: String,
+    memo: Option<String>,
     data: Vec<u8>,
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
-pub struct Tx {
-    wrapper_tx: Vec<u8>,
+pub struct TxDetails {
+    wrapper_tx: WrapperTxMsg,
     commitments: Vec<Commitment>,
 }
 
-impl Tx {
-    pub fn from_bytes(tx_type: TxType, tx_bytes: Vec<u8>) -> Result<Tx, JsError> {
+impl TxDetails {
+    pub fn from_bytes(tx_bytes: Vec<u8>, paths_hashes: JsValue) -> Result<TxDetails, JsError> {
         let tx: tx::Tx = borsh::from_slice(&tx_bytes)?;
-
+        let chain_id = tx.header().chain_id.to_string();
+        // TODO: Parse the following values from the Tx:
+        let wrapper_tx = WrapperTxMsg::new(
+            String::from("token"),
+            String::from("1000"),
+            String::from("1000"),
+            chain_id,
+            None,
+            None,
+        );
         let mut commitments: Vec<Commitment> = vec![];
 
-        for cmt in tx.commitments() {
-            let tx_data = tx.data(&cmt).unwrap_or_default();
-            let tx_kind = transaction::TransactionKind::from(tx_type, &tx_data);
-            let cmt_bytes = tx_kind.to_bytes()?;
+        let wasm_hashes: Vec<WasmHash> = paths_hashes.into_serde().unwrap();
 
-            commitments.push(Commitment {
-                tx_type,
-                data: cmt_bytes,
-            });
+        for cmt in tx.commitments() {
+            let memo = tx
+                .memo(&cmt)
+                .map(|memo_bytes| String::from_utf8_lossy(&memo_bytes).to_string());
+            let hash = cmt.get_hash().to_string();
+            let tx_code_id = tx
+                .get_section(cmt.code_sechash())
+                .and_then(|s| s.code_sec())
+                .map(|s| s.code.hash().0)
+                .map(|bytes| String::from_utf8(subtle_encoding::hex::encode(bytes)).unwrap());
+
+            if tx_code_id.is_some() {
+                let wasm_hash = tx_code_id.unwrap().to_uppercase();
+                let tx_type = wasm_hash_to_tx_type(&wasm_hash, &wasm_hashes);
+
+                if tx_type.is_some() {
+                    let tx_type = tx_type.unwrap();
+                    let tx_data = tx.data(&cmt).unwrap_or_default();
+                    let tx_kind = transaction::TransactionKind::from(tx_type, &tx_data);
+                    let data = tx_kind.to_bytes()?;
+
+                    // TODO - Remove me:
+                    crate::utils::console_log(&format!(
+                        "hash = {} memo = {:?} wasm_hash = {:?} tx_type = {:?}",
+                        &hash, &memo, &wasm_hash, &tx_type
+                    ));
+
+                    commitments.push(Commitment {
+                        tx_type,
+                        hash,
+                        wasm_hash,
+                        memo,
+                        data,
+                    });
+                }
+            }
         }
 
-        Ok(Tx {
-            wrapper_tx: vec![0, 1, 2, 3, 4], // TODO
+        Ok(TxDetails {
+            wrapper_tx,
             commitments,
         })
     }

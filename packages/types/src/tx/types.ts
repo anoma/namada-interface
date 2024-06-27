@@ -7,7 +7,7 @@ import {
   RedelegateMsgValue,
   SignatureMsgValue,
   TransparentTransferMsgValue,
-  TxMsgValue,
+  TxDetailsMsgValue,
   TxResponseMsgValue,
   UnbondMsgValue,
   VoteProposalMsgValue,
@@ -23,9 +23,29 @@ export type IbcTransferProps = IbcTransferMsgValue;
 export type RedelegateProps = RedelegateMsgValue;
 export type SignatureProps = SignatureMsgValue;
 export type TransparentTransferProps = TransparentTransferMsgValue;
-export type TxProps = TxMsgValue;
+export type TxDetailsProps = TxDetailsMsgValue;
 export type TxResponseProps = TxResponseMsgValue;
 export type UnbondProps = UnbondMsgValue;
 export type VoteProposalProps = VoteProposalMsgValue;
 export type WithdrawProps = WithdrawMsgValue;
 export type WrapperTxProps = WrapperTxMsgValue;
+
+export type SupportedTxProps =
+  | BondProps
+  | UnbondProps
+  | WithdrawProps
+  | RedelegateProps
+  | EthBridgeTransferProps
+  | IbcTransferProps
+  | VoteProposalProps
+  | TransparentTransferProps;
+
+export type CommitmentDetailProps = SupportedTxProps & {
+  txType: unknown;
+  hash: string;
+  memo?: string;
+};
+
+export type TxDetails = WrapperTxProps & {
+  commitments: CommitmentDetailProps[];
+};

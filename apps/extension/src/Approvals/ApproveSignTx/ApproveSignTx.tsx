@@ -7,7 +7,7 @@ import { AccountType } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { ApprovalDetails } from "Approvals/Approvals";
 import { TopLevelRoute } from "Approvals/types";
-import { RejectSignTxMsg } from "background/approvals";
+import { QueryTxDetailsMsg, RejectSignTxMsg } from "background/approvals";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
@@ -22,17 +22,28 @@ export const ApproveSignTx: React.FC<Props> = ({ setDetails }) => {
   const params = useSanitizedParams();
   const accountType =
     (params?.accountType as AccountType) || AccountType.PrivateKey;
-  const msgId = params?.msgId || "0";
+  const msgId = params?.msgId;
   const signer = params?.signer;
 
   useEffect(() => {
-    if (signer && msgId) {
-      setDetails({
-        msgId,
-        signer,
-        accountType,
-      });
-    }
+    const fetchDetails = async (): Promise<void> => {
+      if (signer && msgId) {
+        const txDetails = await requester.sendMessage(
+          Ports.Background,
+          new QueryTxDetailsMsg(msgId)
+        );
+
+        setDetails({
+          msgId,
+          signer,
+          accountType,
+          txDetails,
+        });
+      }
+    };
+
+    // TODO: Add error state
+    fetchDetails().catch((e) => console.error(e));
   }, []);
 
   const handleApproveSubmit = useCallback(

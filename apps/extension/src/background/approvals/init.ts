@@ -7,6 +7,7 @@ import {
 import { Router } from "router";
 import {
   ConnectInterfaceResponseMsg,
+  QueryTxDetailsMsg,
   RejectSignArbitraryMsg,
   RejectSignTxMsg,
   RevokeConnectionMsg,
@@ -29,6 +30,7 @@ export function init(router: Router, service: ApprovalsService): void {
   router.registerMessage(ApproveConnectInterfaceMsg);
   router.registerMessage(ConnectInterfaceResponseMsg);
   router.registerMessage(RevokeConnectionMsg);
+  router.registerMessage(QueryTxDetailsMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }

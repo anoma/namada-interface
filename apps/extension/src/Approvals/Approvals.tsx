@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { Container } from "@namada/components";
-import { AccountType } from "@namada/types";
+import { AccountType, TxDetails } from "@namada/types";
 
 import { AppHeader } from "App/Common/AppHeader";
 import { TopLevelRoute } from "Approvals/types";
@@ -25,6 +25,7 @@ export type ApprovalDetails = {
   signer: string;
   accountType: AccountType;
   msgId: string;
+  txDetails: TxDetails;
 };
 
 export type SignArbitraryDetails = {

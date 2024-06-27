@@ -107,6 +107,7 @@ export const init = async (): Promise<{
     txStore,
     dataStore,
     localStorage,
+    sdkService,
     keyRingService,
     vaultService,
     broadcaster
