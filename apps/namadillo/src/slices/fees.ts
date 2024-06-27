@@ -3,8 +3,9 @@ import BigNumber from "bignumber.js";
 import invariant from "invariant";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
+import { queryDependentFn } from "store/utils";
 import { indexerApiAtom } from "./api";
-import { nativeTokenAtom } from "./settings";
+import { nativeTokenAddressAtom } from "./chainParameters";
 
 export type TxKind =
   | "Bond"
@@ -72,19 +73,18 @@ export const gasLimitsAtom = atomWithQuery<GasTable>((get) => {
 export const gasCostTxKindAtom = atom<TxKind | undefined>(undefined);
 
 export const minimumGasPriceAtom = atomWithQuery<BigNumber>((get) => {
-  const nativeToken = get(nativeTokenAtom);
   const api = get(indexerApiAtom);
+  const nativeTokenQuery = get(nativeTokenAddressAtom);
 
   return {
-    queryKey: ["minimum-gas-price", nativeToken],
-    queryFn: async () => {
+    queryKey: ["minimum-gas-price", nativeTokenQuery.data],
+    ...queryDependentFn(async () => {
+      const nativeToken = nativeTokenQuery.data!;
       const gasTableResponse = await api.apiV1GasPriceTokenGet(nativeToken);
-
-      // TODO: Can nativeToken ever be undefined?
-      invariant(!!nativeToken, "Native token is undefined");
       const nativeTokenCost = gasTableResponse.data.find(
         ({ token }) => token === nativeToken
       );
+
       invariant(!!nativeTokenCost, "Error querying minimum gas price");
       const asBigNumber = new BigNumber(nativeTokenCost.amount);
       invariant(
@@ -92,6 +92,6 @@ export const minimumGasPriceAtom = atomWithQuery<BigNumber>((get) => {
         "Error converting minimum gas price to BigNumber"
       );
       return asBigNumber;
-    },
+    }, [nativeTokenQuery]),
   };
 });

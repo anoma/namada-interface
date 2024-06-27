@@ -1,5 +1,5 @@
 import { useIntegrationConnection } from "@namada/integrations";
-import { Chain } from "@namada/types";
+import { ChainKey } from "@namada/types";
 import { useAtom } from "jotai";
 import { useEffect } from "react";
 import {
@@ -13,13 +13,15 @@ type UseConnectOutput = {
   connect: () => Promise<void>;
 };
 
-export const useExtensionConnect = (chain: Chain): UseConnectOutput => {
+export const useExtensionConnect = (
+  chainKey: ChainKey = "namada"
+): UseConnectOutput => {
   const [connectionStatus, setConnectionStatus] = useAtom(
     namadaExtensionConnectionStatus
   );
 
   const [_integration, isConnectingToExtension, withConnection] =
-    useIntegrationConnection(chain.id);
+    useIntegrationConnection(chainKey);
 
   useEffect(() => {
     if (isConnectingToExtension) {

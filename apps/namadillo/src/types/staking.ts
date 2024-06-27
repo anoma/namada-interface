@@ -1,13 +1,13 @@
 import BigNumber from "bignumber.js";
-import { ValidatorAddress } from "./validators";
+import { Address } from "types";
 
 export type ChangeInStakingPosition = {
-  validatorId: ValidatorAddress;
+  validatorId: Address;
   amount: BigNumber;
 };
 
 export type RedelegateChange = {
-  sourceValidator: string;
-  destinationValidator: string;
+  sourceValidator: Address;
+  destinationValidator: Address;
   amount: BigNumber;
 };

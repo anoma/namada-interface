@@ -1,14 +1,8 @@
 import { ActionButton, Image } from "@namada/components";
-import { Chain } from "@namada/types";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
 import clsx from "clsx";
 
-type IntroProps = {
-  chain: Chain;
-  hasExtensionInstalled: boolean;
-};
-
-export const Intro = ({ chain }: IntroProps): JSX.Element => {
+export const Intro = (): JSX.Element => {
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="flex flex-col gap-5 items-center">
@@ -22,7 +16,7 @@ export const Intro = ({ chain }: IntroProps): JSX.Element => {
         </h2>
       </div>
       <div className="flex gap-4 w-full">
-        <ConnectExtensionButton chain={chain} />
+        <ConnectExtensionButton />
         <ActionButton size="sm" outlined borderRadius="sm">
           Help
         </ActionButton>

@@ -2,7 +2,6 @@ import { BuiltTx, EncodedTx } from "@heliax/namada-sdk/web";
 import { getIntegration } from "@namada/integrations";
 import {
   Account,
-  Chain,
   Signer,
   WrapperTxMsgValue,
   WrapperTxProps,
@@ -10,13 +9,8 @@ import {
 import { getSdkInstance } from "hooks";
 import invariant from "invariant";
 import { getIndexerApi } from "slices/api";
+import { ChainSettings, GasConfig } from "types";
 import { TransactionEventsClasses } from "types/events";
-import { GasConfig } from "types/fees";
-
-const {
-  NAMADA_INTERFACE_NAMADA_TOKEN:
-    nativeToken = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
-} = process.env;
 
 export type TransactionPair<T> = {
   encodedTxData: EncodedTxData<T>;
@@ -47,17 +41,15 @@ export const revealPublicKeyType = "revealPublicKey";
 const getTxProps = (
   account: Account,
   gasConfig: GasConfig,
-  chain: Chain
+  chain: ChainSettings
 ): WrapperTxMsgValue => {
-  const address = nativeToken;
-  invariant(!!address, "Invalid currency address");
   invariant(
     !!account.publicKey,
     "Account doesn't contain a publicKey attached to it"
   );
 
   return {
-    token: address!,
+    token: chain.nativeTokenAddress,
     feeAmount: gasConfig.gasPrice,
     gasLimit: gasConfig.gasLimit,
     chainId: chain.chainId,
@@ -75,7 +67,7 @@ const getTxProps = (
 export const buildTxArray = async <T>(
   account: Account,
   gasConfig: GasConfig,
-  chain: Chain,
+  chain: ChainSettings,
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<EncodedTx>
 ): Promise<EncodedTxData<T>[]> => {
@@ -122,7 +114,7 @@ export const buildTxArray = async <T>(
  * Asynchronously signs an array of encoded transactions using Namada extension.
  */
 export const signTxArray = async <T>(
-  chain: Chain,
+  chain: ChainSettings,
   typedEncodedTxs: EncodedTxData<T>[],
   owner: string
 ): Promise<Uint8Array[]> => {
@@ -184,7 +176,7 @@ export const signTxArray = async <T>(
 export const buildTxPair = async <T>(
   account: Account,
   gasConfig: GasConfig,
-  chain: Chain,
+  chain: ChainSettings,
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<EncodedTx>,
   owner: string

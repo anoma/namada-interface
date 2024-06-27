@@ -1,32 +1,46 @@
 import initSdk from "@heliax/namada-sdk/inline-init";
 import { Sdk, getSdk } from "@heliax/namada-sdk/web";
-import { createStore } from "jotai";
+import { getDefaultStore, useAtomValue } from "jotai";
 import { createContext, useContext, useEffect, useState } from "react";
-import { nativeTokenAtom, rpcUrlAtom } from "slices/settings";
+import { nativeTokenAddressAtom } from "slices/chainParameters";
+import { rpcUrlAtom } from "slices/settings";
 
 export const SdkContext = createContext<Sdk | null>(null);
 
 const initializeSdk = async (): Promise<Sdk> => {
   const { cryptoMemory } = await initSdk();
-  const store = createStore();
+  const store = getDefaultStore();
   const rpcUrl = store.get(rpcUrlAtom);
-  const nativeToken = store.get(nativeTokenAtom);
-  const sdk = getSdk(cryptoMemory, rpcUrl, "", nativeToken);
+  const nativeToken = store.get(nativeTokenAddressAtom);
+
+  if (!nativeToken.isSuccess) {
+    throw "Native token not loaded";
+  }
+
+  const sdk = getSdk(cryptoMemory, rpcUrl, "", nativeToken.data);
   return sdk;
 };
 
 // Global instance of initialized SDK
-const sdkInstance = initializeSdk();
+let sdkInstance: Promise<Sdk>;
 
 // Helper to access SDK instance
-export const getSdkInstance = async (): Promise<Sdk> => sdkInstance;
+export const getSdkInstance = async (): Promise<Sdk> => {
+  if (!sdkInstance) {
+    sdkInstance = initializeSdk();
+  }
+  return sdkInstance;
+};
 
 export const SdkProvider: React.FC = ({ children }) => {
   const [sdk, setSdk] = useState<Sdk>();
+  const nativeToken = useAtomValue(nativeTokenAddressAtom);
 
   useEffect(() => {
-    getSdkInstance().then((sdk) => setSdk(sdk));
-  }, []);
+    if (nativeToken.data) {
+      getSdkInstance().then((sdk) => setSdk(sdk));
+    }
+  }, [nativeToken.data]);
 
   return (
     <>

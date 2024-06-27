@@ -25,7 +25,7 @@ export const RouteErrorBoundary = (): JSX.Element => {
   return (
     <div
       className={clsx(
-        "flex items-center justify-center flex-1 w-full h-full",
+        "flex items-center justify-center flex-1 w-full",
         "relative text-yellow h-[100svh]"
       )}
     >
