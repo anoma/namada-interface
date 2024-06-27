@@ -1,11 +1,13 @@
 import {
   BatchTxResultMsgValue,
   BondMsgValue,
+  CommitmentMsgValue,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
   RedelegateMsgValue,
   SignatureMsgValue,
   TransparentTransferMsgValue,
+  TxMsgValue,
   TxResponseMsgValue,
   UnbondMsgValue,
   VoteProposalMsgValue,
@@ -14,14 +16,16 @@ import {
 } from "./schema";
 
 export type BatchTxResultProps = BatchTxResultMsgValue;
-export type WrapperTxProps = WrapperTxMsgValue;
 export type BondProps = BondMsgValue;
-export type UnbondProps = UnbondMsgValue;
-export type WithdrawProps = WithdrawMsgValue;
-export type RedelegateProps = RedelegateMsgValue;
-export type TransparentTransferProps = TransparentTransferMsgValue;
-export type TxResponseProps = TxResponseMsgValue;
+export type CommitmentProps = CommitmentMsgValue;
 export type EthBridgeTransferProps = EthBridgeTransferMsgValue;
-export type SignatureProps = SignatureMsgValue;
-export type VoteProposalProps = VoteProposalMsgValue;
 export type IbcTransferProps = IbcTransferMsgValue;
+export type RedelegateProps = RedelegateMsgValue;
+export type SignatureProps = SignatureMsgValue;
+export type TransparentTransferProps = TransparentTransferMsgValue;
+export type TxProps = TxMsgValue;
+export type TxResponseProps = TxResponseMsgValue;
+export type UnbondProps = UnbondMsgValue;
+export type VoteProposalProps = VoteProposalMsgValue;
+export type WithdrawProps = WithdrawMsgValue;
+export type WrapperTxProps = WrapperTxMsgValue;

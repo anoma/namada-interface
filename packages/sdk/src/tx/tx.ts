@@ -1,3 +1,4 @@
+import { deserialize } from "@dao-xyz/borsh";
 import {
   BuiltTx,
   Sdk as SdkWasm,
@@ -17,6 +18,7 @@ import {
   SignatureMsgValue,
   TransparentTransferMsgValue,
   TransparentTransferProps,
+  TxMsgValue,
   UnbondMsgValue,
   UnbondProps,
   VoteProposalMsgValue,
@@ -36,7 +38,7 @@ export class Tx {
   /**
    * @param sdk - Instance of Sdk struct from wasm lib
    */
-  constructor(protected readonly sdk: SdkWasm) {}
+  constructor(protected readonly sdk: SdkWasm) { }
 
   /**
    * Build a transaction
@@ -459,9 +461,29 @@ export class Tx {
    * Method to retrieve JSON strings for all commitments of a Tx
    * @param txType - TxType enum value
    * @param txBytes - Bytes of a transaction
-   * @returns array of JSON strings
+   * @returns array of Tx props
    */
-  deserialize(txType: TxType, txBytes: Uint8Array): string[] {
-    return deserialize_tx(txType, txBytes);
+  deserialize(txType: TxType, txBytes: Uint8Array): unknown[] {
+    const tx = deserialize_tx(txType, txBytes);
+    const { commitments } = deserialize(tx, TxMsgValue);
+
+    return commitments.map(({ txType, data }) => {
+      switch (txType) {
+        case TxType.Bond:
+          return deserialize(data, BondMsgValue);
+        case TxType.Unbond:
+          return deserialize(data, UnbondMsgValue);
+        case TxType.Withdraw:
+          return deserialize(data, WithdrawMsgValue);
+        case TxType.Redelegate:
+          return deserialize(data, RedelegateMsgValue);
+        case TxType.VoteProposal:
+          return deserialize(data, VoteProposalMsgValue);
+        case TxType.TransparentTransfer:
+          return deserialize(data, TransparentTransferMsgValue);
+        default:
+          throw "Unsupported Tx type!";
+      }
+    });
   }
 }

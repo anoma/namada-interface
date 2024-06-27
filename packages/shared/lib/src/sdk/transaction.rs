@@ -1,4 +1,3 @@
-use namada::key::common::CommonPublicKey;
 use serde::Serialize;
 
 use namada::governance::VoteProposalData;
@@ -79,9 +78,9 @@ impl TransactionKind {
                 }
 
                 let bond = BondMsg::new(
-                    amount.to_string(),
-                    validator.to_string(),
                     source.clone().unwrap().to_string(),
+                    validator.to_string(),
+                    amount.to_string(),
                 );
                 borsh::to_vec(&bond)?
             }
@@ -97,9 +96,9 @@ impl TransactionKind {
                 }
 
                 let unbond = UnbondMsg::new(
-                    amount.to_string(),
-                    validator.to_string(),
                     source.clone().unwrap().to_string(),
+                    validator.to_string(),
+                    amount.to_string(),
                 );
                 borsh::to_vec(&unbond)?
             }
@@ -116,9 +115,9 @@ impl TransactionKind {
             }
             TransactionKind::Redelegation(redelegation) => {
                 let Redelegation {
+                    owner,
                     src_validator,
                     dest_validator,
-                    owner,
                     amount,
                 } = redelegation;
 

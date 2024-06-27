@@ -2,14 +2,15 @@ use std::str::FromStr;
 
 use namada::core::borsh::{self, BorshDeserialize, BorshSerialize};
 use namada::sdk::signing::SigningTxData;
-use namada::tx::Tx;
+use namada::tx;
 use namada::{address::Address, key::common::PublicKey};
 use wasm_bindgen::{prelude::wasm_bindgen, JsError};
 
 use crate::sdk::transaction;
 
 #[wasm_bindgen]
-#[derive(Copy, Clone, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Copy, Clone, Debug)]
+#[borsh(crate = "namada::core::borsh", use_discriminant = true)]
 pub enum TxType {
     Bond = 1,
     Unbond = 2,
@@ -83,19 +84,47 @@ impl SigningData {
     }
 }
 
+// Deserialize Tx commitments into Borsh-serialized struct
 #[wasm_bindgen]
-pub fn deserialize_tx(tx_type: TxType, tx_bytes: Vec<u8>) -> Result<Vec<String>, JsError> {
-    // Deserialize tx
-    let tx: Tx = borsh::from_slice(&tx_bytes)?;
+pub fn deserialize_tx(tx_type: TxType, tx_bytes: Vec<u8>) -> Result<Vec<u8>, JsError> {
+    let tx = Tx::from_bytes(tx_type, tx_bytes)?;
+    Ok(borsh::to_vec(&tx)?)
+}
 
-    let mut json_result = vec![];
+#[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
+pub struct Commitment {
+    tx_type: TxType,
+    data: Vec<u8>,
+}
 
-    for cmt in tx.commitments() {
-        let tx_data = tx.data(&cmt).unwrap_or_default();
-        let tx_kind = transaction::TransactionKind::from(tx_type, &tx_data);
-        let json = tx_kind.to_json();
-        json_result.push(json);
+#[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
+pub struct Tx {
+    wrapper_tx: Vec<u8>,
+    commitments: Vec<Commitment>,
+}
+
+impl Tx {
+    pub fn from_bytes(tx_type: TxType, tx_bytes: Vec<u8>) -> Result<Tx, JsError> {
+        let tx: tx::Tx = borsh::from_slice(&tx_bytes)?;
+
+        let mut commitments: Vec<Commitment> = vec![];
+
+        for cmt in tx.commitments() {
+            let tx_data = tx.data(&cmt).unwrap_or_default();
+            let tx_kind = transaction::TransactionKind::from(tx_type, &tx_data);
+            let cmt_bytes = tx_kind.to_bytes()?;
+
+            commitments.push(Commitment {
+                tx_type,
+                data: cmt_bytes,
+            });
+        }
+
+        Ok(Tx {
+            wrapper_tx: vec![0, 1, 2, 3, 4], // TODO
+            commitments,
+        })
     }
-
-    Ok(json_result)
 }
