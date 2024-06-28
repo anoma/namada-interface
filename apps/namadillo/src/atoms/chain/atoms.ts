@@ -43,7 +43,8 @@ export const chainAtom = atomWithQuery<ChainSettings>((get) => {
         bench32Prefix: namada.bech32Prefix,
         rpcUrl,
         chainId: extensionChainId || chainParameters.data!.chainId,
-        unbondingPeriodInDays: chainParameters.data!.unbondingPeriodInDays,
+        unbondingPeriodInEpochs:
+          chainParameters.data!.epochInfo.unbondingPeriodInEpochs,
         nativeTokenAddress: chainParameters.data!.nativeTokenAddress,
       };
     }, [!!indexerUrl, indexerRpcUrl, chainParameters, tomlConfig]),

@@ -45,12 +45,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anomaorg/namada-indexer-client@npm:0.0.14":
-  version: 0.0.14
-  resolution: "@anomaorg/namada-indexer-client@npm:0.0.14"
+"@anomaorg/namada-indexer-client@npm:0.0.15":
+  version: 0.0.15
+  resolution: "@anomaorg/namada-indexer-client@npm:0.0.15"
   dependencies:
     axios: "npm:^0.21.1"
-  checksum: f03a33a8c4adb117213534d43f34de55a72fefc867d4f981e572b1b7bf6ae4a68136b2f45f109cc58ac128327f78f43843dd74652b0947adb7c92a6da4228442
+  checksum: af42db9c2ad99e378327b1f569c150c53757c569a3ad046c212227d1fb11b3ced7c4be62f707806dedea4804137eebe2fdb5ab232a10990447502b2469c99b91
   languageName: node
   linkType: hard
 
@@ -8431,7 +8431,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@namada/namadillo@workspace:apps/namadillo"
   dependencies:
-    "@anomaorg/namada-indexer-client": "npm:0.0.14"
+    "@anomaorg/namada-indexer-client": "npm:0.0.15"
     "@cosmjs/encoding": "npm:^0.32.3"
     "@playwright/test": "npm:^1.24.1"
     "@svgr/webpack": "npm:^6.5.1"
@@ -8474,6 +8474,7 @@ __metadata:
     jest-fetch-mock: "npm:^3.0.3"
     jotai: "npm:^2.6.3"
     jotai-tanstack-query: "npm:^0.8.5"
+    js-xxhash: "npm:^4.0.0"
     local-cors-proxy: "npm:^1.1.0"
     lodash.debounce: "npm:^4.0.8"
     postcss: "npm:^8.4.32"
@@ -25211,6 +25212,13 @@ __metadata:
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
   checksum: e248708d377aa058eacf2037b07ded847790e6de892bbad3dac0abba2e759cb9f121b00099a65195616badcb6eca8d14d975cb3e89eb1cfda644756402c8aeed
+  languageName: node
+  linkType: hard
+
+"js-xxhash@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "js-xxhash@npm:4.0.0"
+  checksum: 4d36c67c4ffefaf0811d81e330e12721a659aafbf5512ffd6f7d581a26083837470069da3749c61bfe5b3eb7be39bcfe3fdaf87a256698e1636d108add7b4a65
   languageName: node
   linkType: hard
 

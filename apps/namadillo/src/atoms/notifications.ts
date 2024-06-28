@@ -14,7 +14,11 @@ export const dispatchToastNotificationAtom = atom(
   null,
   (get, set, data: ToastNotification) => {
     const notifications = get(toastNotificationsBaseAtom);
-    set(toastNotificationsBaseAtom, [...notifications, { ...data }]);
+    const exists = notifications.some((n) => n.id === data.id);
+
+    if (!exists) {
+      set(toastNotificationsBaseAtom, [...notifications, { ...data }]);
+    }
   }
 );
 

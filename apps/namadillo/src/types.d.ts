@@ -29,7 +29,7 @@ export type ChainSettings = {
   nativeTokenAddress: Address;
   rpcUrl: string;
   chainId: string;
-  unbondingPeriodInDays: bigint;
+  unbondingPeriodInEpochs: number;
   extensionId: ExtensionKey;
 };
 

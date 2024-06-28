@@ -10,6 +10,7 @@ import BigNumber from "bignumber.js";
 import { useGasEstimate } from "hooks/useGasEstimate";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
+import { xxHash32 } from "js-xxhash";
 import { TransactionPair, broadcastTx } from "lib/query";
 import { useCallback, useEffect } from "react";
 import { MyValidator } from "types";
@@ -21,6 +22,11 @@ type WithdrawalButtonProps = {
 export const WithdrawalButton = ({
   myValidator,
 }: WithdrawalButtonProps): JSX.Element => {
+  const change = {
+    validatorId: myValidator.validator.address,
+    amount: myValidator.withdrawableAmount!,
+  };
+
   const { gasPrice } = useGasEstimate();
   const gasLimits = useAtomValue(gasLimitsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
@@ -33,7 +39,7 @@ export const WithdrawalButton = ({
     isSuccess,
     isError,
     error: withdrawalTransactionError,
-  } = useAtomValue(createWithdrawTxAtom(JSON.stringify(myValidator)));
+  } = useAtomValue(createWithdrawTxAtom(xxHash32(JSON.stringify(change))));
 
   const onWithdraw = useCallback(
     async (myValidator: MyValidator) => {
@@ -48,12 +54,7 @@ export const WithdrawalButton = ({
         "Validator doesn't have amounts available for withdrawal"
       );
       createWithdrawTx({
-        changes: [
-          {
-            validatorId: myValidator.validator.address,
-            amount: myValidator.withdrawableAmount!,
-          },
-        ],
+        changes: [change],
         gasConfig: {
           gasPrice: gasPrice!,
           gasLimit: gasLimits.data!.Withdraw.native,
@@ -61,10 +62,9 @@ export const WithdrawalButton = ({
         account: account!,
       });
     },
-    [gasLimits.isSuccess, gasPrice, account, myValidator.withdrawableAmount]
+    [myValidator.withdrawableAmount, gasPrice, gasLimits.isSuccess]
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const dispatchWithdrawalTransactions = async (
     tx: TransactionPair<WithdrawMsgValue>
   ): Promise<void> => {
@@ -76,7 +76,6 @@ export const WithdrawalButton = ({
     );
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const dispatchPendingNotification = (
     transaction: TransactionPair<WithdrawMsgValue>
   ): void => {
@@ -130,9 +129,7 @@ export const WithdrawalButton = ({
       color="white"
       outlined
       borderRadius="sm"
-      disabled={
-        !myValidator.withdrawableAmount || isPending || isSuccess || !gasPrice
-      }
+      disabled={!myValidator.withdrawableAmount || isPending || isSuccess}
       onClick={() => onWithdraw(myValidator)}
     >
       {isSuccess && "Claimed"}
