@@ -1,20 +1,19 @@
 import { useUntilIntegrationAttached } from "@namada/integrations";
-import { useAtomValue } from "jotai";
-import React, { useState } from "react";
-import { chainAtom } from "slices/chain";
-import { chainParametersAtom } from "slices/chainParameters";
+import { chainAtom } from "atoms/chain";
 import {
   defaultServerConfigAtom,
   indexerHeartbeatAtom,
   indexerUrlAtom,
-} from "slices/settings";
+} from "atoms/settings";
+import { useAtomValue } from "jotai";
+import { ReactNode, useState } from "react";
 import { AtomErrorBoundary } from "./Common/AtomErrorBoundary";
 import { ErrorBox } from "./Common/ErrorBox";
 import { PageLoader } from "./Common/PageLoader";
 import { Setup } from "./Common/Setup";
 
 type AppSetupProps = {
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
@@ -22,7 +21,6 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
   const indexerHeartbeat = useAtomValue(indexerHeartbeatAtom);
   const tomlConfig = useAtomValue(defaultServerConfigAtom);
   const chain = useAtomValue(chainAtom);
-  const chainParameters = useAtomValue(chainParametersAtom);
   const extensionAttachStatus = useUntilIntegrationAttached();
   const extensionReady = extensionAttachStatus !== "pending";
   const errorContainerProps = { className: "text-white h-svh" };
@@ -75,7 +73,7 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
   }
 
   // Waiting for the extension to be detected along with other chain settings.
-  if (!extensionReady || chainParameters.isLoading || chain.isPending) {
+  if (!extensionReady || chain.isPending) {
     return <PageLoader />;
   }
 

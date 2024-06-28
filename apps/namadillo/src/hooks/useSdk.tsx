@@ -1,9 +1,9 @@
 import initSdk from "@heliax/namada-sdk/inline-init";
 import { Sdk, getSdk } from "@heliax/namada-sdk/web";
+import { nativeTokenAddressAtom } from "atoms/chain";
+import { rpcUrlAtom } from "atoms/settings";
 import { getDefaultStore, useAtomValue } from "jotai";
 import { createContext, useContext, useEffect, useState } from "react";
-import { nativeTokenAddressAtom } from "slices/chainParameters";
-import { rpcUrlAtom } from "slices/settings";
 
 export const SdkContext = createContext<Sdk | null>(null);
 

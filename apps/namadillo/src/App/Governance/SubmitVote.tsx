@@ -13,6 +13,9 @@ import {
 } from "@namada/types";
 import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { TransactionFees } from "App/Common/TransactionFees";
+import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
+import { dispatchToastNotificationAtom } from "atoms/notifications";
+import { createVoteTxAtom, proposalFamily } from "atoms/proposals";
 import clsx from "clsx";
 import { useProposalIdParam } from "hooks";
 import invariant from "invariant";
@@ -21,9 +24,6 @@ import { TransactionPair, broadcastTx } from "lib/query";
 import { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { gasLimitsAtom, minimumGasPriceAtom } from "slices/fees";
-import { dispatchToastNotificationAtom } from "slices/notifications";
-import { createVoteTxAtom, proposalFamily } from "slices/proposals";
 
 const dispatchVoteTx = (
   transactions: TransactionPair<VoteProposalProps>[]

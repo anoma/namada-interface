@@ -1,14 +1,14 @@
 import { Stack } from "@namada/components";
+import {
+  dismissToastNotificationAtom,
+  toastNotificationsAtom,
+} from "atoms/notifications";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useEffect } from "react";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { FaRegHourglassHalf, FaXmark } from "react-icons/fa6";
-import {
-  dismissToastNotificationAtom,
-  toastNotificationsAtom,
-} from "slices/notifications";
 import { ToastNotification } from "types/notifications";
 
 export const Toasts = (): JSX.Element => {

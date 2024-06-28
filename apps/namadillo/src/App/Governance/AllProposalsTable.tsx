@@ -1,14 +1,13 @@
-import { useAtomValue } from "jotai";
-import { useState } from "react";
-import { GoCheckCircleFill, GoInfo } from "react-icons/go";
-import { useNavigate } from "react-router-dom";
-
 import { Stack, StyledSelectBox, TableRow } from "@namada/components";
 import { Proposal, isProposalStatus, proposalStatuses } from "@namada/types";
 import { Search } from "App/Common/Search";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
+import { allProposalsFamily, proposalFamily } from "atoms/proposals";
 import clsx from "clsx";
-import { allProposalsFamily, proposalFamily } from "slices/proposals";
+import { useAtomValue } from "jotai";
+import { useState } from "react";
+import { GoCheckCircleFill, GoInfo } from "react-icons/go";
+import { useNavigate } from "react-router-dom";
 import { showProposalStatus, showProposalTypeString } from "utils";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
 import GovernanceRoutes from "./routes";

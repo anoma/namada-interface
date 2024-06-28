@@ -6,8 +6,8 @@ import clsx from "clsx";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useValidatorSorting } from "hooks/useValidatorSorting";
 import { useState } from "react";
-import { Validator } from "slices/validators";
 import { twMerge } from "tailwind-merge";
+import { Validator } from "types";
 import { ReDelegateTable } from "./ReDelegateTable";
 import { ValidatorFilterNav } from "./ValidatorFilterNav";
 

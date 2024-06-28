@@ -8,11 +8,11 @@ import {
 } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
-import { useSetAtom } from "jotai";
 import {
   dispatchToastNotificationAtom,
   filterToastNotificationsAtom,
-} from "slices/notifications";
+} from "atoms/notifications";
+import { useSetAtom } from "jotai";
 import { EventData } from "types/events";
 import { addTransactionEvent } from "utils";
 

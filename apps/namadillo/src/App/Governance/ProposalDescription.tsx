@@ -2,7 +2,7 @@ import { SkeletonLoading, Stack } from "@namada/components";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
 
-import { proposalFamilyPersist, StoredProposal } from "slices/proposals";
+import { proposalFamilyPersist, StoredProposal } from "atoms/proposals";
 
 export const ProposalDescription: React.FC<{
   proposalId: bigint;

@@ -3,8 +3,8 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { GoGlobe } from "react-icons/go";
 import { IoClose } from "react-icons/io5";
-import { Validator } from "slices/validators";
 import { twMerge } from "tailwind-merge";
+import { Validator } from "types";
 import { ValidatorCard } from "./ValidatorCard";
 
 type ValidatorInfoPanel = {

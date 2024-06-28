@@ -4,8 +4,8 @@ import { twMerge } from "tailwind-merge";
 import { SkeletonLoading } from "@namada/components";
 import { AddRemove, PgfActions } from "@namada/types";
 
+import { proposalFamilyPersist, StoredProposal } from "atoms/proposals";
 import { useAtomValue } from "jotai";
-import { proposalFamilyPersist, StoredProposal } from "slices/proposals";
 import { showEpoch } from "utils";
 
 const InfoCard: React.FC<

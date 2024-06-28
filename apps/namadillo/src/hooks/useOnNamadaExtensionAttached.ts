@@ -4,8 +4,8 @@ import {
   useIntegration,
   useUntilIntegrationAttached,
 } from "@namada/integrations";
+import { namadaExtensionConnectionStatus } from "atoms/settings";
 import { useSetAtom } from "jotai";
-import { namadaExtensionConnectionStatus } from "slices/settings";
 
 export const useOnNamadaExtensionAttached = (): void => {
   const setNamadExtensionStatus = useSetAtom(namadaExtensionConnectionStatus);

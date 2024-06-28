@@ -5,11 +5,11 @@ import { Modal } from "@namada/components";
 import { PgfTarget, Proposal } from "@namada/types";
 import { assertNever, copyToClipboard } from "@namada/utils";
 import { ModalContainer } from "App/Common/ModalContainer";
+import { proposalFamily } from "atoms/proposals";
 import clsx from "clsx";
 import { useProposalIdParam } from "hooks";
 import { useState } from "react";
 import { GoCheck, GoCopy } from "react-icons/go";
-import { proposalFamily } from "slices/proposals";
 import GovernanceRoutes from "./routes";
 
 type DefaultData = Uint8Array;

@@ -1,7 +1,7 @@
 import { Alert, Stack, ToggleButton } from "@namada/components";
+import { signArbitraryEnabledAtom } from "atoms/settings";
 import { useAtom } from "jotai";
 import { IoWarning } from "react-icons/io5";
-import { signArbitraryEnabledAtom } from "slices/settings";
 
 export const SettingsSignArbitrary = (): JSX.Element => {
   const [signArbitraryEnabled, setSignArbitraryEnabled] = useAtom(

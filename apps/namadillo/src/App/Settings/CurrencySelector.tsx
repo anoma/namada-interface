@@ -1,7 +1,7 @@
 import { Stack } from "@namada/components";
 import { FiatCurrencyList } from "@namada/utils";
+import { selectedCurrencyAtom } from "atoms/settings";
 import { useAtom } from "jotai";
-import { selectedCurrencyAtom } from "slices/settings";
 import { CurrencySelectorEntry } from "./CurrencySelectorEntry";
 
 export const CurrencySelector = (): JSX.Element => {

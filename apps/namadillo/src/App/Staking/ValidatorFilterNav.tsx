@@ -1,7 +1,7 @@
 import { ActionButton, Stack } from "@namada/components";
 import { Search } from "App/Common/Search";
 import BigNumber from "bignumber.js";
-import { Validator } from "slices/validators";
+import { Validator } from "types";
 import { MyValidatorsFilter } from "./MyValidatorsFilter";
 import { QuickAccessList } from "./QuickAccessList";
 

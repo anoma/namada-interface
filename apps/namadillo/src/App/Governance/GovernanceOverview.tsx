@@ -1,14 +1,14 @@
 import { Panel, SkeletonLoading } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
-import { useAtomValue } from "jotai";
-import { allProposalsAtom, votedProposalIdsAtom } from "slices/proposals";
-import { namadaExtensionConnectedAtom } from "slices/settings";
+import { allProposalsAtom, votedProposalIdsAtom } from "atoms/proposals";
+import { namadaExtensionConnectedAtom } from "atoms/settings";
 import {
   atomsAreFetching,
   atomsAreLoaded,
   useNotifyOnAtomError,
-} from "store/utils";
+} from "atoms/utils";
+import { useAtomValue } from "jotai";
 import { AllProposalsTable } from "./AllProposalsTable";
 import { LiveGovernanceProposals } from "./LiveGovernanceProposals";
 import { ProposalsSummary } from "./ProposalsSummary";

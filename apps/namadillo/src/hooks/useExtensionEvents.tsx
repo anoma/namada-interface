@@ -1,8 +1,8 @@
 import { useEventListenerOnce } from "@namada/hooks";
 import { Events } from "@namada/types";
+import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
+import { namadaExtensionConnectionStatus } from "atoms/settings";
 import { useAtomValue, useSetAtom } from "jotai";
-import { accountBalanceAtom, defaultAccountAtom } from "slices/accounts";
-import { namadaExtensionConnectionStatus } from "slices/settings";
 
 export const useExtensionEvents = (): void => {
   const defaultAccount = useAtomValue(defaultAccountAtom);

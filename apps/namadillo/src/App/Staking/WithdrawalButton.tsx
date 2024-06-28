@@ -2,17 +2,17 @@ import { ActionButton } from "@namada/components";
 import { WithdrawMsgValue } from "@namada/types";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
+import { defaultAccountAtom } from "atoms/accounts";
+import { gasLimitsAtom } from "atoms/fees";
+import { dispatchToastNotificationAtom } from "atoms/notifications";
+import { createWithdrawTxAtom } from "atoms/staking";
 import BigNumber from "bignumber.js";
 import { useGasEstimate } from "hooks/useGasEstimate";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
 import { TransactionPair, broadcastTx } from "lib/query";
 import { useCallback, useEffect } from "react";
-import { defaultAccountAtom } from "slices/accounts";
-import { gasLimitsAtom } from "slices/fees";
-import { dispatchToastNotificationAtom } from "slices/notifications";
-import { createWithdrawTxAtom } from "slices/staking";
-import { MyValidator } from "slices/validators";
+import { MyValidator } from "types";
 
 type WithdrawalButtonProps = {
   myValidator: MyValidator;

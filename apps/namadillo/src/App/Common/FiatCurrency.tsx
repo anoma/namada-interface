@@ -1,8 +1,8 @@
 import { Currency, CurrencyProps } from "@namada/components";
+import { selectedCurrencyRateAtom } from "atoms/exchangeRates";
+import { hideBalancesAtom, selectedCurrencyAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
-import { selectedCurrencyRateAtom } from "slices/exchangeRates";
-import { hideBalancesAtom, selectedCurrencyAtom } from "slices/settings";
 
 type FiatCurrencyProps = {
   amountInNam: BigNumber;

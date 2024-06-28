@@ -2,13 +2,10 @@ import { ToggleButton } from "@namada/components";
 import { ActiveAccount } from "App/Common/ActiveAccount";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
 import SettingsRoutes from "App/Settings/routes";
+import { hideBalancesAtom, namadaExtensionConnectedAtom } from "atoms/settings";
 import { useAtom, useAtomValue } from "jotai";
 import { IoSettingsOutline } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  hideBalancesAtom,
-  namadaExtensionConnectedAtom,
-} from "slices/settings";
 
 export const TopNavigation = (): JSX.Element => {
   const isExtensionConnected = useAtomValue(namadaExtensionConnectedAtom);

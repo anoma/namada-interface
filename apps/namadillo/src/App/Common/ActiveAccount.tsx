@@ -1,7 +1,7 @@
 import { CopyToClipboardControl } from "@namada/components";
+import { defaultAccountAtom } from "atoms/accounts";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { defaultAccountAtom } from "slices/accounts";
 
 export const ActiveAccount = (): JSX.Element => {
   const { data: account, isFetching } = useAtomValue(defaultAccountAtom);

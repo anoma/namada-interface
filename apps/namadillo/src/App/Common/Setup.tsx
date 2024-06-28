@@ -1,8 +1,8 @@
 import { ActionButton, Container, Input, Stack } from "@namada/components";
 import { isUrlValid } from "@namada/utils";
+import { indexerUrlAtom, isIndexerAlive } from "atoms/settings";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useState } from "react";
-import { indexerUrlAtom, isValidIndexerUrl } from "slices/settings";
 import { DISCORD_URL } from "urls";
 
 type SetupProps = {
@@ -31,7 +31,7 @@ export const Setup = ({ onChange }: SetupProps): JSX.Element => {
     }
 
     setValidatingUrl(true);
-    if (await isValidIndexerUrl(sanitizedUrl)) {
+    if (await isIndexerAlive(sanitizedUrl)) {
       setIndexerAtom(sanitizedUrl);
       onChange(sanitizedUrl);
     } else {

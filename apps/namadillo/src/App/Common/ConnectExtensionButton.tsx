@@ -1,8 +1,8 @@
 import { ActionButton } from "@namada/components";
 import { useUntilIntegrationAttached } from "@namada/integrations";
+import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { useExtensionConnect } from "hooks/useExtensionConnect";
 import { useAtomValue } from "jotai";
-import { namadaExtensionConnectedAtom } from "slices/settings";
 
 export const ConnectExtensionButton = (): JSX.Element => {
   const extensionAttachStatus = useUntilIntegrationAttached();

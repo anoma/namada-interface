@@ -6,9 +6,9 @@ import {
   WrapperTxMsgValue,
   WrapperTxProps,
 } from "@namada/types";
+import { getIndexerApi } from "atoms/api";
 import { getSdkInstance } from "hooks";
 import invariant from "invariant";
-import { getIndexerApi } from "slices/api";
 import { ChainSettings, GasConfig } from "types";
 import { TransactionEventsClasses } from "types/events";
 

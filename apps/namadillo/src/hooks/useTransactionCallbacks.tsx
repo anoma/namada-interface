@@ -1,7 +1,7 @@
 import { useEffectSkipFirstRender } from "@namada/hooks";
+import { accountBalanceAtom } from "atoms/accounts";
+import { shouldUpdateBalanceAtom } from "atoms/etc";
 import { useAtomValue, useSetAtom } from "jotai";
-import { accountBalanceAtom } from "slices/accounts";
-import { shouldUpdateBalanceAtom } from "slices/etc";
 import { addTransactionEvent } from "utils";
 
 export const useTransactionCallback = (): void => {

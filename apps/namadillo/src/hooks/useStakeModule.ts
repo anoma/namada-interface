@@ -1,11 +1,10 @@
 import { Account } from "@namada/types";
+import { accountBalanceAtom } from "atoms/accounts";
+import { myValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { accountBalanceAtom } from "slices/accounts";
-import { Validator, myValidatorsAtom } from "slices/validators";
-import { AddressBalance } from "types";
-import { ChangeInStakingPosition } from "types/staking";
+import { AddressBalance, ChangeInStakingPosition, Validator } from "types";
 
 type UseStakeModuleProps = {
   account: Account | undefined;

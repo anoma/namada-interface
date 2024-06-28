@@ -3,13 +3,13 @@ import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification";
 import { YourStakingDistribution } from "App/Sidebars/YourStakingDistribution";
-import { useAtomValue } from "jotai";
-import { namadaExtensionConnectedAtom } from "slices/settings";
+import { namadaExtensionConnectedAtom } from "atoms/settings";
 import {
   myValidatorsAtom,
   stakedAmountByAddressAtom,
   unbondedAmountByAddressAtom,
-} from "slices/validators";
+} from "atoms/validators";
+import { useAtomValue } from "jotai";
 import { AllValidatorsTable } from "./AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
 import { StakingSummary } from "./StakingSummary";

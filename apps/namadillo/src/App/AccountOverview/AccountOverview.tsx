@@ -2,9 +2,9 @@ import { Stack } from "@namada/components";
 import { Intro } from "App/Common/Intro";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
+import { namadaExtensionConnectedAtom } from "atoms/settings";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { namadaExtensionConnectedAtom } from "slices/settings";
 import { AccountBalanceContainer } from "./AccountBalanceContainer";
 import { NavigationFooter } from "./NavigationFooter";
 
