@@ -8,6 +8,7 @@ import {
 import { defaultAccountAtom } from "atoms/accounts";
 import { indexerApiAtom } from "atoms/api";
 import { chainAtom } from "atoms/chain";
+import { queryDependentFn } from "atoms/utils";
 import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
@@ -162,16 +163,14 @@ export const allProposalsFamily = atomFamily(
 export const votedProposalIdsAtom = atomWithQuery((get) => {
   const account = get(defaultAccountAtom);
   const api = get(indexerApiAtom);
-
   return {
-    queryKey: ["voted-proposal-ids"],
-    enabled: account.isSuccess,
-    queryFn: async () => {
+    queryKey: ["voted-proposal-ids", account.data],
+    ...queryDependentFn(async () => {
       if (typeof account.data === "undefined") {
         throw new Error("no account found");
       }
       return await fetchVotedProposalIds(api, account.data);
-    },
+    }, [account]),
   };
 });
 

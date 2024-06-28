@@ -58,10 +58,9 @@ const Table: React.FC<
       <Status key="status" proposal={proposal} />,
 
       // Voted
-      props.isExtensionConnected &&
-        props.votedProposalIds.includes(proposal.id) && (
-          <GoCheckCircleFill key="voted" className="text-cyan text-lg" />
-        ),
+      props.votedProposalIds.includes(proposal.id) && (
+        <GoCheckCircleFill key="voted" className="text-cyan text-lg" />
+      ),
 
       // Voting end on
       <VotingEnd key="voting-end" proposal={proposal} />,
@@ -99,9 +98,7 @@ const Table: React.FC<
   );
 };
 
-type ExtensionConnectedProps =
-  | { isExtensionConnected: true; votedProposalIds: bigint[] }
-  | { isExtensionConnected: false };
+type ExtensionConnectedProps = { votedProposalIds: bigint[] };
 
 const statusFilters = [
   "all",
