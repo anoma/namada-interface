@@ -1,18 +1,11 @@
 import { ActionButton } from "@namada/components";
-import { WithdrawMsgValue } from "@namada/types";
-import { NamCurrency } from "App/Common/NamCurrency";
-import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { defaultAccountAtom } from "atoms/accounts";
 import { gasLimitsAtom } from "atoms/fees";
-import { dispatchToastNotificationAtom } from "atoms/notifications";
 import { createWithdrawTxAtom } from "atoms/staking";
-import BigNumber from "bignumber.js";
 import { useGasEstimate } from "hooks/useGasEstimate";
 import invariant from "invariant";
-import { useAtomValue, useSetAtom } from "jotai";
-import { xxHash32 } from "js-xxhash";
-import { TransactionPair, broadcastTx } from "lib/query";
-import { useCallback, useEffect } from "react";
+import { useAtomValue } from "jotai";
+import { useCallback } from "react";
 import { MyValidator } from "types";
 
 type WithdrawalButtonProps = {
@@ -29,17 +22,13 @@ export const WithdrawalButton = ({
 
   const { gasPrice } = useGasEstimate();
   const gasLimits = useAtomValue(gasLimitsAtom);
-  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
 
   const {
     mutate: createWithdrawTx,
-    data: withdrawalTxs,
     isPending,
     isSuccess,
-    isError,
-    error: withdrawalTransactionError,
-  } = useAtomValue(createWithdrawTxAtom(xxHash32(JSON.stringify(change))));
+  } = useAtomValue(createWithdrawTxAtom);
 
   const onWithdraw = useCallback(
     async (myValidator: MyValidator) => {
@@ -64,64 +53,6 @@ export const WithdrawalButton = ({
     },
     [myValidator.withdrawableAmount, gasPrice, gasLimits.isSuccess]
   );
-
-  const dispatchWithdrawalTransactions = async (
-    tx: TransactionPair<WithdrawMsgValue>
-  ): Promise<void> => {
-    broadcastTx(
-      tx.encodedTxData.tx,
-      tx.signedTx,
-      tx.encodedTxData.meta?.props,
-      "Withdraw"
-    );
-  };
-
-  const dispatchPendingNotification = (
-    transaction: TransactionPair<WithdrawMsgValue>
-  ): void => {
-    dispatchNotification({
-      id: transaction.encodedTxData.tx.tx_hash(),
-      title: "Withdrawal transaction in progress",
-      description: (
-        <>
-          The withdrawal of{" "}
-          <NamCurrency
-            amount={myValidator.withdrawableAmount || new BigNumber(0)}
-          />{" "}
-          is being processed
-        </>
-      ),
-      type: "pending",
-    });
-  };
-
-  useEffect(() => {
-    if (isError) {
-      dispatchNotification({
-        id: "withdrawal-error",
-        title: "Withdrawal transaction failed",
-        description: (
-          <ToastErrorDescription
-            errorMessage={
-              withdrawalTransactionError instanceof Error ?
-                withdrawalTransactionError.message
-              : undefined
-            }
-          />
-        ),
-        type: "error",
-      });
-    }
-  }, [isError]);
-
-  useEffect(() => {
-    if (withdrawalTxs) {
-      for (const tx of withdrawalTxs) {
-        dispatchPendingNotification(tx);
-        dispatchWithdrawalTransactions(tx);
-      }
-    }
-  }, [isSuccess]);
 
   return (
     <ActionButton

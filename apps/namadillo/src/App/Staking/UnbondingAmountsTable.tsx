@@ -1,11 +1,13 @@
 import { StyledTable, TableRow } from "@namada/components";
+import { BondMsgValue, WithdrawMsgValue } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { myUnbondsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
-import { useMemo } from "react";
+import { TransactionPair, broadcastTx } from "lib/query";
+import { useEffect, useMemo } from "react";
 import { twMerge } from "tailwind-merge";
 import { ValidatorCard } from "./ValidatorCard";
 import { WithdrawalButton } from "./WithdrawalButton";
@@ -61,6 +63,72 @@ export const UnbondingAmountsTable = (): JSX.Element => {
     }
     return rowsList;
   }, [myUnbonds]);
+
+  const {
+    data: withdrawalTxs,
+    isSuccess,
+    isError,
+    error: withdrawalTransactionError,
+  } = useAtomValue(createWithdrawTxAtom);
+
+  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
+
+  const dispatchWithdrawalTransactions = async (
+    tx: TransactionPair<WithdrawMsgValue>
+  ): Promise<void> => {
+    broadcastTx(
+      tx.encodedTxData.tx,
+      tx.signedTx,
+      tx.encodedTxData.meta?.props,
+      "Withdraw"
+    );
+  };
+
+  const dispatchPendingNotification = (
+    transaction: TransactionPair<WithdrawMsgValue>,
+    props: BondMsgValue
+  ): void => {
+    dispatchNotification({
+      id: transaction.encodedTxData.tx.tx_hash(),
+      title: "Withdrawal transaction in progress",
+      description: (
+        <>
+          The withdrawal of{" "}
+          <NamCurrency amount={props.amount || new BigNumber(0)} /> is being
+          processed
+        </>
+      ),
+      type: "pending",
+    });
+  };
+
+  useEffect(() => {
+    if (withdrawalTxs) {
+      for (const [tx, props] of withdrawalTxs) {
+        dispatchPendingNotification(tx, props);
+        dispatchWithdrawalTransactions(tx);
+      }
+    }
+  }, [isSuccess]);
+
+  useEffect(() => {
+    if (isError) {
+      dispatchNotification({
+        id: "withdrawal-error",
+        title: "Withdrawal transaction failed",
+        description: (
+          <ToastErrorDescription
+            errorMessage={
+              withdrawalTransactionError instanceof Error ?
+                withdrawalTransactionError.message
+              : undefined
+            }
+          />
+        ),
+        type: "error",
+      });
+    }
+  }, [isError]);
 
   return (
     <AtomErrorBoundary
