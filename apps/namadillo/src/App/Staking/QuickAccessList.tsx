@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useMemo } from "react";
-import { Validator } from "slices/validators";
+import { Validator } from "types";
 import { ValidatorThumb } from "./ValidatorThumb";
 
 type QuickAccessListProps = {

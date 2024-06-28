@@ -1,9 +1,9 @@
 import { ActionButton, Input, Stack } from "@namada/components";
 import SettingsRoute from "App/Settings/routes";
+import { indexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { useAtom } from "jotai";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { indexerUrlAtom, rpcUrlAtom } from "slices/settings";
 
 export const Advanced = (): JSX.Element => {
   const navigate = useNavigate();

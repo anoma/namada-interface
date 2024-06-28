@@ -2,13 +2,14 @@ import { ActionButton, Panel } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
+import { myValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
-import { MyValidator, Validator, myValidatorsAtom } from "slices/validators";
 import { twMerge } from "tailwind-merge";
+import { MyValidator, Validator } from "types";
 import { ReDelegateTable } from "./ReDelegateTable";
 
 type ReDelegateRemoveStakeProps = {

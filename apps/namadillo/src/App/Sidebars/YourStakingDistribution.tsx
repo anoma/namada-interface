@@ -3,7 +3,7 @@ import { shortenAddress } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { MyValidator } from "slices/validators";
+import { MyValidator } from "types";
 
 type YourStakingDistributionProps = {
   myValidators: MyValidator[];

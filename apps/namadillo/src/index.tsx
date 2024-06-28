@@ -1,10 +1,10 @@
 import { init as initShared } from "@namada/shared/src/init-inline";
 import { AppSetup } from "App/AppSetup";
+import { StoreProvider } from "atoms/store";
 import { SdkProvider } from "hooks/useSdk";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
-import { StoreProvider } from "store";
 import { getRouter } from "./App/AppRoutes";
 import reportWebVitals from "./reportWebVitals";
 import { IntegrationsProvider } from "./services";

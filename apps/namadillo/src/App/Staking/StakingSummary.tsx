@@ -10,11 +10,11 @@ import {
 } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
+import { accountBalanceAtom } from "atoms/accounts";
+import { getStakingTotalAtom } from "atoms/staking";
 import { useAtomValue } from "jotai";
 import { GoStack } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
-import { accountBalanceAtom } from "slices/accounts";
-import { getStakingTotalAtom } from "slices/staking";
 import StakingRoutes from "./routes";
 
 export const StakingSummary = (): JSX.Element => {

@@ -5,12 +5,13 @@ import {
   VoteProposalProps,
   VoteType,
 } from "@namada/types";
+import { defaultAccountAtom } from "atoms/accounts";
+import { indexerApiAtom } from "atoms/api";
+import { chainAtom } from "atoms/chain";
 import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
 import { TransactionPair } from "lib/query";
-import { defaultAccountAtom } from "slices/accounts";
-import { chainAtom } from "slices/chain";
 import { GasConfig } from "types";
 import {
   createVoteProposalTx,
@@ -18,8 +19,6 @@ import {
   fetchProposalById,
   fetchVotedProposalIds,
 } from "./functions";
-
-import { indexerApiAtom } from "slices/api";
 
 export const proposalFamily = atomFamily((id: bigint) =>
   atomWithQuery((get) => {

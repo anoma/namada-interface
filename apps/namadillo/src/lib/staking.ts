@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { RedelegateChange } from "types/staking";
+import { RedelegateChange } from "types";
 
 export const getReducedAmounts = (
   stakedAmounts: Record<string, BigNumber>,

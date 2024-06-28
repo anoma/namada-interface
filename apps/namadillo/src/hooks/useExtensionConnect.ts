@@ -1,11 +1,8 @@
 import { useIntegrationConnection } from "@namada/integrations";
 import { ChainKey } from "@namada/types";
+import { ConnectStatus, namadaExtensionConnectionStatus } from "atoms/settings";
 import { useAtom } from "jotai";
 import { useEffect } from "react";
-import {
-  ConnectStatus,
-  namadaExtensionConnectionStatus,
-} from "slices/settings";
 
 type UseConnectOutput = {
   connectionStatus: ConnectStatus;

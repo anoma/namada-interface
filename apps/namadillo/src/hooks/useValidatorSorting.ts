@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { useMemo } from "react";
-import { Validator } from "slices/validators";
+import { Validator } from "types";
 
 type useValidatorSortingProps = {
   validators: Validator[];

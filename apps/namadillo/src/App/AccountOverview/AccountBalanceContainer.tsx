@@ -1,11 +1,11 @@
 import { Heading, Stack } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
+import { accountBalanceAtom } from "atoms/accounts";
 import clsx from "clsx";
 import { useAnimate } from "framer-motion";
 import { useAtomValue } from "jotai";
 import { useLayoutEffect } from "react";
-import { accountBalanceAtom } from "slices/accounts";
 import { twMerge } from "tailwind-merge";
 import { easings } from "utils/animations";
 

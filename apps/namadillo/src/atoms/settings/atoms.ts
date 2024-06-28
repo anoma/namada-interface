@@ -1,24 +1,10 @@
-import { DefaultApi } from "@anomaorg/namada-indexer-client";
 import { CurrencyType } from "@namada/utils";
+import { indexerRpcUrlAtom } from "atoms/chain";
 import { Getter, Setter, atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
-import toml from "toml";
-import { indexerRpcUrlAtom } from "./chainParameters";
-
-type SettingsStorage = {
-  version: string;
-  fiat: CurrencyType;
-  hideBalances: boolean;
-  rpcUrl?: string;
-  indexerUrl: string;
-  signArbitraryEnabled: boolean;
-};
-
-type SettingsTomlOptions = {
-  indexer_url?: string;
-  rpc_url?: string;
-};
+import { SettingsStorage } from "types";
+import { fetchDefaultTomlConfig, isIndexerAlive } from "./services";
 
 export type ConnectStatus = "idle" | "connecting" | "connected" | "error";
 
@@ -28,37 +14,26 @@ export const namadaExtensionConnectedAtom = atom<boolean>(
   (get) => get(namadaExtensionConnectionStatus) === "connected"
 );
 
-export const isValidIndexerUrl = async (url: string): Promise<boolean> => {
-  try {
-    const api = new DefaultApi({ basePath: url });
-    const response = await api.healthGet();
-    return response.status === 200;
-  } catch {
-    return false;
-  }
-};
-
 export const defaultServerConfigAtom = atomWithQuery((_get) => {
   return {
     queryKey: ["server-config"],
     staleTime: Infinity,
     retry: false,
-    queryFn: async () => {
-      const response = await fetch("/config.toml");
-      return toml.parse(await response.text()) as SettingsTomlOptions;
-    },
+    queryFn: async () => fetchDefaultTomlConfig(),
   };
 });
 
-export const namadilloSettingsAtom = atomWithStorage<SettingsStorage>(
+export const defaultSettings = {
+  version: "0.1",
+  fiat: "usd",
+  hideBalances: false,
+  indexerUrl: "",
+  signArbitraryEnabled: false,
+};
+
+export const settingsAtom = atomWithStorage<SettingsStorage>(
   "namadillo:settings",
-  {
-    version: "0.1",
-    fiat: "usd",
-    hideBalances: false,
-    indexerUrl: "",
-    signArbitraryEnabled: false,
-  },
+  defaultSettings,
   undefined,
   { getOnInit: true }
 );
@@ -66,17 +41,17 @@ export const namadilloSettingsAtom = atomWithStorage<SettingsStorage>(
 const changeSettings =
   <T>(key: keyof SettingsStorage) =>
   (get: Getter, set: Setter, value: T) => {
-    const settings = get(namadilloSettingsAtom);
-    set(namadilloSettingsAtom, { ...settings, [key]: value });
+    const settings = get(settingsAtom);
+    set(settingsAtom, { ...settings, [key]: value });
   };
 
 export const selectedCurrencyAtom = atom(
-  (get) => get(namadilloSettingsAtom).fiat,
+  (get) => get(settingsAtom).fiat,
   changeSettings<CurrencyType>("fiat")
 );
 
 export const hideBalancesAtom = atom(
-  (get) => get(namadilloSettingsAtom).hideBalances,
+  (get) => get(settingsAtom).hideBalances,
   changeSettings<boolean>("hideBalances")
 );
 
@@ -85,7 +60,7 @@ export const hideBalancesAtom = atom(
  * Priority: user defined RPC Url > TOML config > indexer RPC url
  */
 export const rpcUrlAtom = atom((get) => {
-  const userDefinedRpc = get(namadilloSettingsAtom).rpcUrl;
+  const userDefinedRpc = get(settingsAtom).rpcUrl;
   if (userDefinedRpc) return userDefinedRpc;
 
   const tomlRpc = get(defaultServerConfigAtom).data?.rpc_url;
@@ -97,8 +72,12 @@ export const rpcUrlAtom = atom((get) => {
   return "";
 }, changeSettings<string>("rpcUrl"));
 
+/**
+ * Returns Indexer url
+ * Priority: user defined indexer URL > TOML config
+ */
 export const indexerUrlAtom = atom((get) => {
-  const customIndexerUrl = get(namadilloSettingsAtom).indexerUrl;
+  const customIndexerUrl = get(settingsAtom).indexerUrl;
   if (customIndexerUrl) return customIndexerUrl;
 
   const tomlIndexerUrl = get(defaultServerConfigAtom).data?.indexer_url;
@@ -108,7 +87,7 @@ export const indexerUrlAtom = atom((get) => {
 }, changeSettings<string>("indexerUrl"));
 
 export const signArbitraryEnabledAtom = atom(
-  (get) => get(namadilloSettingsAtom).signArbitraryEnabled,
+  (get) => get(settingsAtom).signArbitraryEnabled,
   changeSettings<boolean>("signArbitraryEnabled")
 );
 
@@ -119,7 +98,7 @@ export const indexerHeartbeatAtom = atomWithQuery((get) => {
     enabled: !!indexerUrl,
     retry: false,
     queryFn: async () => {
-      const valid = await isValidIndexerUrl(indexerUrl);
+      const valid = await isIndexerAlive(indexerUrl);
       if (!valid) throw "Unable to verify indexer heartbeat";
       return true;
     },

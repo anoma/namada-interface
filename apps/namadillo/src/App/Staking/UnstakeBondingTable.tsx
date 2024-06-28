@@ -4,8 +4,8 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { NamInput } from "App/Common/NamInput";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { MyValidator, Validator } from "slices/validators";
 import { twMerge } from "tailwind-merge";
+import { MyValidator, Validator } from "types";
 import { ValidatorCard } from "./ValidatorCard";
 import { ValidatorsTable } from "./ValidatorsTable";
 

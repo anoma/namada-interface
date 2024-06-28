@@ -5,8 +5,8 @@ import { useState } from "react";
 
 import { PieChart, PieChartData, Stack } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
+import { proposalFamily, proposalFamilyPersist } from "atoms/proposals";
 import { useAtomValue } from "jotai";
-import { proposalFamily, proposalFamilyPersist } from "slices/proposals";
 
 import { ProposalStatus, TallyType, VoteType, voteTypes } from "@namada/types";
 import { AnimatePresence } from "framer-motion";

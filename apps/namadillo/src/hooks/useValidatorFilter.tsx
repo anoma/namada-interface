@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Validator } from "slices/validators";
+import { Validator } from "types";
 
 type Props = {
   validators: Validator[];

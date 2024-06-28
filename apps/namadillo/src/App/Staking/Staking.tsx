@@ -1,7 +1,7 @@
+import { minimumGasPriceAtom } from "atoms/fees";
 import { AnimatePresence } from "framer-motion";
 import { useAtomValue } from "jotai";
 import { Route, Routes, useLocation } from "react-router-dom";
-import { minimumGasPriceAtom } from "slices/fees";
 import IncrementBonding from "./IncrementBonding";
 import { ReDelegate } from "./ReDelegate";
 import { StakingOverview } from "./StakingOverview";

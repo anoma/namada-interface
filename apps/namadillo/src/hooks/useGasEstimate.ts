@@ -1,6 +1,6 @@
+import { minimumGasPriceAtom } from "atoms/fees";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
-import { minimumGasPriceAtom } from "slices/fees";
 
 type useGasEstimateReturn = {
   gasPrice: BigNumber | undefined;

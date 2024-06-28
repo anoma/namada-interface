@@ -4,6 +4,13 @@ import {
   Stack,
 } from "@namada/components";
 import { Proposal, ProposalStatus } from "@namada/types";
+import {
+  StoredProposal,
+  proposalFamily,
+  proposalFamilyPersist,
+  proposalVotedFamily,
+} from "atoms/proposals";
+import { namadaExtensionConnectedAtom } from "atoms/settings";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { AtomWithQueryResult } from "jotai-tanstack-query";
@@ -11,13 +18,6 @@ import { FaChevronLeft } from "react-icons/fa";
 import { SiWebassembly } from "react-icons/si";
 import { VscJson } from "react-icons/vsc";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  StoredProposal,
-  proposalFamily,
-  proposalFamilyPersist,
-  proposalVotedFamily,
-} from "slices/proposals";
-import { namadaExtensionConnectedAtom } from "slices/settings";
 import { showEpoch, showProposalId } from "utils";
 import {
   StatusLabel as StatusLabelComponent,

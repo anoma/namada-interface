@@ -1,6 +1,6 @@
 import { WalletAddress } from "App/Common/WalletAddress";
 import clsx from "clsx";
-import { Validator } from "slices/validators";
+import { Validator } from "types";
 import { ValidatorAlias } from "./ValidatorAlias";
 import { ValidatorThumb } from "./ValidatorThumb";
 

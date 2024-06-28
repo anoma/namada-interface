@@ -4,8 +4,8 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useCallback, useEffect, useState } from "react";
 import { GoInfo } from "react-icons/go";
-import { Validator } from "slices/validators";
 import { twMerge } from "tailwind-merge";
+import { Validator } from "types";
 import { ValidatorInfoPanel } from "./ValidatorInfoPanel";
 
 type ValidatorsTableProps = {

@@ -1,6 +1,6 @@
 import { Currency, CurrencyProps } from "@namada/components";
+import { hideBalancesAtom } from "atoms/settings";
 import { useAtomValue } from "jotai";
-import { hideBalancesAtom } from "slices/settings";
 
 type NamCurrencyProps = Omit<
   CurrencyProps,

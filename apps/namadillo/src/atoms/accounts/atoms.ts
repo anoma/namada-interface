@@ -1,11 +1,11 @@
 import { Account } from "@namada/types";
+import { indexerApiAtom } from "atoms/api";
+import { nativeTokenAddressAtom } from "atoms/chain";
+import { shouldUpdateBalanceAtom } from "atoms/etc";
+import { namadaExtensionConnectedAtom } from "atoms/settings";
+import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { indexerApiAtom } from "slices/api";
-import { nativeTokenAddressAtom } from "slices/chainParameters";
-import { shouldUpdateBalanceAtom } from "slices/etc";
-import { namadaExtensionConnectedAtom } from "slices/settings";
-import { queryDependentFn } from "store/utils";
 import {
   fetchAccountBalance,
   fetchAccounts,
