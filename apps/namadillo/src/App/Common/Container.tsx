@@ -18,7 +18,7 @@ export const Container = ({
 
   return (
     <div className="custom-container pb-2" {...props}>
-      <header className="flex justify-between font-medium pt-4 pb-5 pl-4">
+      <header className="flex justify-between flex-wrap font-medium pt-4 pb-5 pl-4">
         <div className="flex items-center gap-8">
           <span className="xl:hidden">
             <BurgerButton

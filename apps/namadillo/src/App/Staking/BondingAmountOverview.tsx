@@ -11,6 +11,8 @@ type BondingAmountOverviewProps = {
   additionalText?: React.ReactNode;
   extraContent?: React.ReactNode;
   updatedValueClassList?: string;
+  className?: string;
+  stackClassName?: string;
 };
 
 export const BondingAmountOverview = ({
@@ -21,15 +23,17 @@ export const BondingAmountOverview = ({
   extraContent,
   amountToDelegate,
   updatedValueClassList = "",
+  className,
+  stackClassName,
 }: BondingAmountOverviewProps): JSX.Element => {
   const hasUpdatedValue =
     updatedAmountInNam && !new BigNumber(updatedAmountInNam).eq(amountInNam);
   const namToDisplay = hasUpdatedValue ? updatedAmountInNam : amountInNam;
 
   return (
-    <Panel className="relative w-full rounded-md">
-      <Stack gap={2} className="leading-none">
-        <h3 className="text-sm">{title}</h3>
+    <Panel className={clsx("relative flex-1 rounded-md", className)}>
+      <Stack gap={2} className={clsx("leading-none", stackClassName)}>
+        <h3 className="text-sm whitespace-nowrap">{title}</h3>
         <div className="flex items-center">
           <NamCurrency
             amount={namToDisplay}

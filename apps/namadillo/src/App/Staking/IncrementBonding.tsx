@@ -180,9 +180,11 @@ const IncrementBonding = (): JSX.Element => {
           onSubmit={onSubmit}
           className="grid grid-rows-[max-content_auto_max-content] gap-2 h-full"
         >
-          <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
+          <div className="grid grid-cols-[repeat(auto-fit,_minmax(8rem,_1fr))] gap-1.5">
             <BondingAmountOverview
               title="Available to Stake"
+              className="col-span-2"
+              stackClassName="grid grid-rows-[auto_auto_auto]"
               amountInNam={accountBalance.data ?? 0}
               updatedAmountInNam={totalNamAfterStaking}
               extraContent={
@@ -190,8 +192,9 @@ const IncrementBonding = (): JSX.Element => {
                   <Alert
                     type="warning"
                     className={clsx(
-                      "rounded-sm text-xs absolute",
-                      "py-3 right-2 top-4 max-w-[50%] w-[240px]"
+                      "rounded-sm text-xs",
+                      "py-3 right-2 top-4 max-w-[240px]",
+                      "sm:col-start-2 sm:row-span-full sm:justify-self-end"
                     )}
                   >
                     <div className="flex items-center gap-3 text-xs">
@@ -251,12 +254,12 @@ const IncrementBonding = (): JSX.Element => {
               )}
             </AtomErrorBoundary>
           </Panel>
-          <div className="relative">
+          <div className="relative grid grid-cols-[1fr_25%_1fr] items-center">
             <ActionButton
               type="submit"
               size="sm"
               borderRadius="sm"
-              className="mt-2 w-1/4 mx-auto"
+              className="mt-2 col-start-2"
               color="secondary"
               disabled={
                 !!errorMessage || isPerformingBond || totalUpdatedAmount.eq(0)
@@ -265,7 +268,7 @@ const IncrementBonding = (): JSX.Element => {
               {isPerformingBond ? "Processing..." : errorMessage || "Stake"}
             </ActionButton>
             <TransactionFees
-              className="absolute right-4 top-1/2 -translate-y-1/2"
+              className="justify-self-end px-4"
               numberOfTransactions={Object.keys(updatedAmountByAddress).length}
             />
           </div>

@@ -44,7 +44,7 @@ export const StakingOverview = (): JSX.Element => {
         )}
         {isConnected && <StakingSummary />}
         {hasStaking && (
-          <Panel title="My Validators" className="relative">
+          <Panel title="My Validators" className="relative grid">
             <MyValidatorsTable />
           </Panel>
         )}

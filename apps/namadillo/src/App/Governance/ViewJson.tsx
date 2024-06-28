@@ -175,7 +175,7 @@ const Loaded: React.FC<{ proposal: Proposal }> = ({ proposal }) => {
   };
 
   return (
-    <>
+    <div className="h-full flex flex-col justify-end">
       <i
         className={clsx(
           "border border-current rounded-sm p-1 absolute",
@@ -191,11 +191,11 @@ const Loaded: React.FC<{ proposal: Proposal }> = ({ proposal }) => {
       <pre
         className={clsx(
           "overflow-x-auto dark-scrollbar whitespace-pre-wrap",
-          "px-8 pt-4 mt-8 h-[95%]"
+          "sm:px-8 h-[95%]"
         )}
       >
         {jsonString}
       </pre>
-    </>
+    </div>
   );
 };

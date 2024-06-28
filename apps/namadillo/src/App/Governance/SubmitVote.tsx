@@ -133,7 +133,12 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
 
   return (
     <Modal onClose={onCloseModal}>
-      <div className="relative py-9 px-8 bg-neutral-800 min-w-[540px] rounded-md text-white">
+      <div
+        className={clsx(
+          "relative py-9 px-8 bg-neutral-800 min-w-[min(100vw,_540px)] rounded-md",
+          "text-white max-h-[100vh] flex flex-col"
+        )}
+      >
         <i
           className={clsx(
             "cursor-pointer text-white absolute right-8 top-8 text-3xl",
@@ -159,7 +164,13 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
           </Stack>
         )}
         {proposalQueryResult.isSuccess && proposal && (
-          <Stack gap={4} full as="form" onSubmit={onSubmit}>
+          <Stack
+            gap={4}
+            full
+            as="form"
+            onSubmit={onSubmit}
+            className="dark-scrollbar overflow-x-auto"
+          >
             <div>
               #{proposal.id.toString()} {proposal.content.title}
             </div>

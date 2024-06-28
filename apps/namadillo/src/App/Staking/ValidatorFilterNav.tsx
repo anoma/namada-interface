@@ -37,7 +37,11 @@ export const ValidatorFilterNav = ({
   };
 
   return (
-    <Stack direction="horizontal" gap={2} className="w-full items-center mb-2">
+    <Stack
+      direction="horizontal"
+      gap={2}
+      className="w-full items-center mb-2 flex-wrap"
+    >
       <div className="w-[300px]">
         <Search
           onChange={(value: string) => onChangeSearch(value)}
@@ -64,7 +68,7 @@ export const ValidatorFilterNav = ({
           type="button"
           onClick={onRandomize}
           color="white"
-          className="ml-auto w-auto px-8"
+          className="sm:ml-auto w-auto px-8"
           size="sm"
           borderRadius="sm"
         >

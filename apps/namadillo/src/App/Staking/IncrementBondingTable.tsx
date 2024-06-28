@@ -61,7 +61,7 @@ export const IncrementBondingTable = ({
         // Amount Text input
         <div
           key={`increment-bonding-new-amounts-${validator.address}`}
-          className="relative"
+          className="relative min-w-[24ch]"
         >
           <NamInput
             placeholder="Select to increase stake"

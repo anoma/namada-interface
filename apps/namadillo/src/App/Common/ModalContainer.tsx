@@ -16,7 +16,8 @@ export const ModalContainer = ({
   return (
     <ModalTransition
       className={clsx(
-        "relative flex flex-col w-[95vw] lg:w-[90vw] 2xl:w-[75vw] h-[90svh]",
+        "relative flex flex-col",
+        "w-[100vw] sm:w-[95vw] lg:w-[90vw] 2xl:w-[75vw] h-[100svh] sm:h-[90svh]",
         "overflow-auto px-6 py-6 bg-neutral-800 text-white rounded-md"
       )}
     >

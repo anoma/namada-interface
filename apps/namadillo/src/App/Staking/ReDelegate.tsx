@@ -174,9 +174,10 @@ export const ReDelegate = (): JSX.Element => {
           onSubmit={onSubmit}
           className="grid grid-rows-[max-content_auto_max-content] gap-2 h-full"
         >
-          <header className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
+          <header className="grid grid-cols-[repeat(auto-fit,_minmax(8rem,_1fr))] gap-1.5">
             <BondingAmountOverview
               title="Total amount to re-delegate"
+              className="col-span-2"
               amountInNam={0}
               updatedAmountInNam={totalUpdatedAmount}
               updatedValueClassList={twMerge(
@@ -201,7 +202,7 @@ export const ReDelegate = (): JSX.Element => {
               title="Current Stake"
               amountInNam={totalStakedAmount}
             />
-            <Panel className="flex items-center h-full justify-center">
+            <Panel className="flex items-center h-full justify-center rounded-md">
               <ActionButton
                 type="button"
                 className="w-32 mx-auto"

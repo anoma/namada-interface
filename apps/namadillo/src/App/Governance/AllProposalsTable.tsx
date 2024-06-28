@@ -145,7 +145,7 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
 
   return (
     <Stack gap={4}>
-      <div className="flex gap-2 items-end">
+      <div className="flex gap-2 items-end flex-wrap">
         <TableSelect<StatusFilter>
           id="proposal-status-select"
           value={selectedStatus}
@@ -213,14 +213,16 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
           }}
         />
 
-        <Search
-          placeholder="Search by title or ID"
-          className={clsx(
-            "[&_input]:py-2 [&_input]:rounded-md [&_input]:border-[#5C5C5C]",
-            "w-64 [&_input]:leading-normal [&_input]:h-9"
-          )}
-          onChange={setSearch}
-        />
+        <div className="w-64">
+          <Search
+            placeholder="Search by title or ID"
+            className={clsx(
+              "[&_input]:py-2 [&_input]:rounded-md [&_input]:border-[#5C5C5C]",
+              "[&_input]:leading-normal [&_input]:h-9"
+            )}
+            onChange={setSearch}
+          />
+        </div>
       </div>
 
       <div className="h-[490px] flex flex-col">

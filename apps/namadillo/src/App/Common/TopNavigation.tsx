@@ -26,7 +26,7 @@ export const TopNavigation = (): JSX.Element => {
             label="Hide Balances"
             checked={hideBalances}
             onChange={() => setHideBalances(!hideBalances)}
-            containerProps={{ className: "hidden text-white md:flex" }}
+            containerProps={{ className: "text-white flex" }}
           />
           <button
             className="text-2xl text-yellow hover:text-cyan"

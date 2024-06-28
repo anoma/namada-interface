@@ -23,5 +23,5 @@ body {
 }
 
 .custom-container {
-  @apply block w-full max-w-[1920px] px-6 mx-auto relative;
+  @apply block w-full max-w-[1920px] sm:px-6 mx-auto relative;
 }

@@ -156,7 +156,7 @@ export const ReDelegateRemoveStake = ({
           size="sm"
           color="secondary"
           borderRadius="sm"
-          className="mt-2 w-1/4 mx-auto"
+          className="mt-2 w-1/4 mx-auto text-nowrap min-w-fit"
           disabled={hasZeroUpdatedAmounts || !hasValidUpdatedAmounts}
           onClick={onProceed}
         >

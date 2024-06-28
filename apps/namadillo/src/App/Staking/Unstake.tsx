@@ -163,9 +163,11 @@ const Unstake = (): JSX.Element => {
           className="grid grid-rows-[max-content_auto_max-content] h-full gap-2"
           onSubmit={onSubmit}
         >
-          <div className="grid grid-cols-[2fr_1fr_1fr] gap-1.5">
+          <div className="grid grid-cols-[repeat(auto-fit,_minmax(8rem,_1fr))] gap-1.5">
             <BondingAmountOverview
               title="Amount of NAM to Unstake"
+              className="col-span-2"
+              stackClassName="grid grid-rows-[auto_auto_auto]"
               amountInNam={0}
               updatedAmountInNam={totalUpdatedAmount}
               updatedValueClassList="text-pink"
@@ -173,7 +175,10 @@ const Unstake = (): JSX.Element => {
                 <>
                   <Alert
                     type="removal"
-                    className="absolute py-3 right-3 top-4 max-w-[50%] text-xs rounded-sm"
+                    className={clsx(
+                      "py-3 right-3 top-4 max-w-[240px] text-xs rounded-sm",
+                      "md:col-start-2 md:row-span-full md:justify-self-end"
+                    )}
                   >
                     <ul className="list-disc pl-4">
                       <li className="mb-1">
@@ -235,13 +240,13 @@ const Unstake = (): JSX.Element => {
               )}
             </AtomErrorBoundary>
           </Panel>
-          <div className="relative">
+          <div className="relative grid grid-cols-[1fr_25%_1fr] items-center">
             <ActionButton
               size="sm"
               color="white"
               borderRadius="sm"
               hoverColor="magenta"
-              className="mt-2 w-1/4 mx-auto"
+              className="mt-2 col-start-2"
               disabled={
                 !!validationMessage ||
                 isPerformingUnbond ||
@@ -253,7 +258,7 @@ const Unstake = (): JSX.Element => {
               : validationMessage || "Unstake"}
             </ActionButton>
             <TransactionFees
-              className="absolute right-4 top-1/2 -translate-y-1/2"
+              className="justify-self-end px-4"
               numberOfTransactions={Object.keys(updatedAmountByAddress).length}
             />
           </div>

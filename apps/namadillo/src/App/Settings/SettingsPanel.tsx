@@ -32,14 +32,14 @@ export const SettingsPanel = (): JSX.Element => {
       onClose={onClose}
       className={clsx(
         "w-full left-auto right-0 top-0 translate-x-0",
-        "translate-y-0 p-5 pointer-events-none"
+        "translate-y-0 pointer-events-none"
       )}
     >
-      <ModalTransition className="custom-container">
+      <ModalTransition className="custom-container h-[min(700px,_100vh)] sm:p-5">
         <div
           className={clsx(
             "flex flex-col gap-8 ml-auto pointer-events-auto",
-            "w-[400px] min-h-[700px] max-h-[80vh] rounded-md text-white",
+            "max-w-[400px] rounded-md text-white h-full",
             "bg-rblack border border-neutral-700 p-5"
           )}
         >
@@ -60,17 +60,19 @@ export const SettingsPanel = (): JSX.Element => {
               </button>
             )}
           </header>
-          <Routes>
-            <Route index element={<SettingsMain />} />
-            <Route
-              path={`${SettingsRoutes.signArbitrary()}`}
-              element={<SettingsSignArbitrary />}
-            />
-            <Route
-              path={`${SettingsRoutes.advanced()}`}
-              element={<Advanced />}
-            />
-          </Routes>
+          <div className="flex flex-1 overflow-auto dark-scrollbar">
+            <Routes>
+              <Route index element={<SettingsMain />} />
+              <Route
+                path={`${SettingsRoutes.signArbitrary()}`}
+                element={<SettingsSignArbitrary />}
+              />
+              <Route
+                path={`${SettingsRoutes.advanced()}`}
+                element={<Advanced />}
+              />
+            </Routes>
+          </div>
         </div>
       </ModalTransition>
     </Modal>

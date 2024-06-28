@@ -20,11 +20,12 @@ const tickedRadioList = tv({
   slots: {
     fieldset: "flex flex-col",
     label: clsx(
-      "w-full bg-black text-white text-base text-center rounded-sm py-3.5 px-5 border border-black",
-      "cursor-pointer font-medium flex items-center justify-center hover:text-yellow transition-colors"
+      "w-full bg-black text-white text-base text-center rounded-sm py-3.5 px-5",
+      "border border-black cursor-pointer font-medium flex items-center",
+      "justify-center hover:text-yellow transition-colors relative"
     ),
     input: "hidden",
-    icon: "absolute right-12 text-neutral-450 text-xl text-yellow",
+    icon: "absolute right-4 text-neutral-450 text-xl text-yellow",
   },
   variants: {
     checked: {

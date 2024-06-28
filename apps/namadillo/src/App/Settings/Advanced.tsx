@@ -22,7 +22,7 @@ export const Advanced = (): JSX.Element => {
 
   return (
     <form
-      className="flex flex-col flex-1 justify-between text-base"
+      className="flex flex-col flex-1 justify-between text-base gap-6"
       onSubmit={onSubmit}
     >
       <Stack gap={6}>
@@ -43,7 +43,7 @@ export const Advanced = (): JSX.Element => {
           required
         />
       </Stack>
-      <ActionButton size="lg" borderRadius="sm">
+      <ActionButton size="lg" borderRadius="sm" className="shrink-0">
         Confirm
       </ActionButton>
     </form>

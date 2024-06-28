@@ -121,13 +121,13 @@ export const ReDelegateAssignStake = ({
           />
         )}
       </Panel>
-      <div className="relative">
+      <div className="relative grid grid-cols-[1fr_25%_1fr] items-center">
         <ActionButton
           type="submit"
           size="sm"
           color="white"
           borderRadius="sm"
-          className="mt-2 w-1/4 mx-auto"
+          className="mt-2 col-start-2"
           disabled={hasInvalidDistribution || isPerformingRedelegation}
         >
           {hasInvalidDistribution && hasUpdatedAmounts ?
@@ -135,7 +135,7 @@ export const ReDelegateAssignStake = ({
           : "Re-Delegate"}
         </ActionButton>
         <TransactionFees
-          className="absolute right-4 top-1/2 -translate-y-1/2"
+          className="justify-self-end px-4"
           numberOfTransactions={numberOfTransactions}
         />
       </div>

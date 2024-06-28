@@ -23,7 +23,7 @@ export const AccountBalanceContainer = (): JSX.Element => {
     if (balanceHasLoaded) {
       animate(
         scope.current,
-        { minWidth: "450px" },
+        { minWidth: "min(90vw, 450px)" },
         { duration: 0.5, ease: easings.expoOut }
       );
       animate(
