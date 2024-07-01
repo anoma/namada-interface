@@ -253,7 +253,7 @@ export class ApprovalsService {
 
   async revokeConnection(originToRevoke: string): Promise<void> {
     await this.localStorage.removeApprovedOrigin(originToRevoke);
-    await this.broadcaster.revokeConnection();
+    await this.broadcaster.revokeConnection(originToRevoke);
   }
 
   private async _clearPendingTx(msgId: string): Promise<void> {

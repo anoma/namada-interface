@@ -17,7 +17,19 @@ export const useExtensionEvents = (): void => {
     balances.refetch();
   });
 
-  useEventListenerOnce(Events.ConnectionRevoked, () =>
-    setNamadaExtensionConnected("idle")
+  useEventListenerOnce(
+    Events.ConnectionRevoked,
+    (e: CustomEventInit<{ originToRevoke: string }>) => {
+      try {
+        const url = new URL(e.detail?.originToRevoke || "");
+        if (url.origin === window.location.origin) {
+          setNamadaExtensionConnected("idle");
+        }
+      } catch {
+        console.error(
+          "Unable to disconnect from origin. originToRevoke is not a valid URL."
+        );
+      }
+    }
   );
 };

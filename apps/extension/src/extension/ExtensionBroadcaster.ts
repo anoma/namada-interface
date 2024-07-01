@@ -26,8 +26,8 @@ export class ExtensionBroadcaster {
     await this.sendMsgToTabs(new VaultLockedEventMsg());
   }
 
-  async revokeConnection(): Promise<void> {
-    await this.sendMsgToTabs(new ConnectionRevokedEventMsg());
+  async revokeConnection(origin: string): Promise<void> {
+    await this.sendMsgToTabs(new ConnectionRevokedEventMsg(origin));
   }
 
   /**

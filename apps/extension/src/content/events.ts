@@ -75,7 +75,7 @@ export class ConnectionRevokedEventMsg extends Message<void> {
     return Events.ConnectionRevoked;
   }
 
-  constructor() {
+  constructor(public readonly originToRevoke: string) {
     super();
   }
 
@@ -122,7 +122,13 @@ export function initEvents(router: Router, localStorage: LocalStorage): void {
         window.dispatchEvent(new CustomEvent(Events.ExtensionLocked));
         break;
       case ConnectionRevokedEventMsg:
-        window.dispatchEvent(new CustomEvent(Events.ConnectionRevoked));
+        window.dispatchEvent(
+          new CustomEvent(Events.ConnectionRevoked, {
+            detail: {
+              originToRevoke: (msg as ConnectionRevokedEventMsg).originToRevoke,
+            },
+          })
+        );
         break;
       default:
         throw new Error("Unknown msg type");
