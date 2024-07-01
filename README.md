@@ -264,6 +264,10 @@ yarn storybook-build
 
 The generated output will be available at `/storybook/storybook-static` folder.
 
+## Audits
+
+[Least Authority audit - 03.07.2023](audits/LeastAuthority-03-07-2023.pdf)
+
 ## License
 
 Unless explicitly stated otherwise all files in this repository are licensed under the Apache License 2.0.
