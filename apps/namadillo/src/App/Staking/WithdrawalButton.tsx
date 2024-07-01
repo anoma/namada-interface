@@ -1,12 +1,19 @@
 import { ActionButton } from "@namada/components";
+import { BondMsgValue, WithdrawMsgValue } from "@namada/types";
+import { NamCurrency } from "App/Common/NamCurrency";
+import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { defaultAccountAtom } from "atoms/accounts";
 import { gasLimitsAtom } from "atoms/fees";
-import { createWithdrawTxAtom } from "atoms/staking";
+import { dispatchToastNotificationAtom } from "atoms/notifications";
+import { createWithdrawTxAtomFamily } from "atoms/staking";
+import BigNumber from "bignumber.js";
 import { useGasEstimate } from "hooks/useGasEstimate";
 import invariant from "invariant";
-import { useAtomValue } from "jotai";
-import { useCallback } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
+import { TransactionPair, broadcastTx } from "lib/query";
+import { useCallback, useEffect } from "react";
 import { MyValidator } from "types";
+import { hashFromObj } from "utils";
 
 type WithdrawalButtonProps = {
   myValidator: MyValidator;
@@ -24,11 +31,22 @@ export const WithdrawalButton = ({
   const gasLimits = useAtomValue(gasLimitsAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
 
+  const hashedChange = hashFromObj(change);
   const {
     mutate: createWithdrawTx,
+    data: withdrawalTxs,
     isPending,
     isSuccess,
-  } = useAtomValue(createWithdrawTxAtom);
+    isError,
+    error: withdrawalTransactionError,
+  } = useAtomValue(createWithdrawTxAtomFamily(hashedChange));
+
+  useEffect(() => {
+    return () => {
+      // On detach we have to remove the param to avoid memory leaks
+      createWithdrawTxAtomFamily.remove(hashedChange);
+    };
+  }, []);
 
   const onWithdraw = useCallback(
     async (myValidator: MyValidator) => {
@@ -53,6 +71,65 @@ export const WithdrawalButton = ({
     },
     [myValidator.withdrawableAmount, gasPrice, gasLimits.isSuccess]
   );
+
+  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
+
+  const dispatchWithdrawalTransactions = async (
+    tx: TransactionPair<WithdrawMsgValue>
+  ): Promise<void> => {
+    broadcastTx(
+      tx.encodedTxData.tx,
+      tx.signedTx,
+      tx.encodedTxData.meta?.props,
+      "Withdraw"
+    );
+  };
+
+  const dispatchPendingNotification = (
+    transaction: TransactionPair<WithdrawMsgValue>,
+    props: BondMsgValue
+  ): void => {
+    dispatchNotification({
+      id: transaction.encodedTxData.tx.tx_hash(),
+      title: "Withdrawal transaction in progress",
+      description: (
+        <>
+          The withdrawal of{" "}
+          <NamCurrency amount={props.amount || new BigNumber(0)} /> is being
+          processed
+        </>
+      ),
+      type: "pending",
+    });
+  };
+
+  useEffect(() => {
+    if (withdrawalTxs) {
+      for (const [tx, props] of withdrawalTxs) {
+        dispatchPendingNotification(tx, props);
+        dispatchWithdrawalTransactions(tx);
+      }
+    }
+  }, [isSuccess]);
+
+  useEffect(() => {
+    if (isError) {
+      dispatchNotification({
+        id: "withdrawal-error",
+        title: "Withdrawal transaction failed",
+        description: (
+          <ToastErrorDescription
+            errorMessage={
+              withdrawalTransactionError instanceof Error ?
+                withdrawalTransactionError.message
+              : undefined
+            }
+          />
+        ),
+        type: "error",
+      });
+    }
+  }, [isError]);
 
   return (
     <ActionButton
