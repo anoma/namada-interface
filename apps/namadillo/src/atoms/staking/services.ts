@@ -88,7 +88,7 @@ export const createWithdrawTx = async (
   account: Account,
   changes: ChangeInStakingPosition[],
   gasConfig: GasConfig
-): Promise<TransactionPair<WithdrawProps>[]> => {
+): Promise<[TransactionPair<WithdrawProps>, BondProps][] | undefined> => {
   const { tx } = await getSdkInstance();
   const withdrawProps = getStakingChangesParams(
     account,
@@ -103,5 +103,6 @@ export const createWithdrawTx = async (
     tx.buildWithdraw,
     withdrawProps[0].source
   );
-  return transactionPairs;
+
+  return transactionPairs.map((pair, index) => [pair, withdrawProps[index]]);
 };

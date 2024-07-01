@@ -1,4 +1,4 @@
-import { WithdrawProps } from "@namada/types";
+import { BondProps, WithdrawProps } from "@namada/types";
 import { chainAtom } from "atoms/chain";
 import { queryDependentFn } from "atoms/utils";
 import { myValidatorsAtom } from "atoms/validators";
@@ -73,7 +73,7 @@ export const createWithdrawTxAtom = atomWithMutation((get) => {
       gasConfig,
       account,
     }: ChangeInStakingProps): Promise<
-      TransactionPair<WithdrawProps>[] | undefined
+      [TransactionPair<WithdrawProps>, BondProps][] | undefined
     > => createWithdrawTx(chain.data!, account, changes, gasConfig),
   };
 });

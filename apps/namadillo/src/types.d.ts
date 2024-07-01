@@ -38,11 +38,18 @@ export type SettingsTomlOptions = {
   rpc_url?: string;
 };
 
+export type EpochInfo = {
+  unbondingPeriodInEpochs: number;
+  minEpochDuration: number;
+  minNumOfBlocks: number;
+  epochSwitchBlocksDelay: number;
+};
+
 export type ChainParameters = {
-  unbondingPeriodInDays: bigint;
   apr: BigNumber;
   chainId: string;
   nativeTokenAddress: Address;
+  epochInfo: EpochInfo;
 };
 
 export type SettingsStorage = {

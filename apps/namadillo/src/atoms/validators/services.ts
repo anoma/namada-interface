@@ -29,7 +29,7 @@ export const fetchAllValidators = async (
   chainParameters: ChainParameters,
   votingPower: IndexerVotingPower
 ): Promise<Validator[]> => {
-  const unbondingPeriodInDays = chainParameters.unbondingPeriodInDays;
+  const epochInfo = chainParameters.epochInfo;
   const nominalApr = chainParameters.apr;
   const validatorsResponse = await api.apiV1PosValidatorGet(1, [
     IndexerValidatorStatus.Consensus,
@@ -38,7 +38,7 @@ export const fetchAllValidators = async (
   // TODO: rename one data to items?
   const validators = validatorsResponse.data.data;
   return validators.map((v) =>
-    toValidator(v, votingPower, unbondingPeriodInDays, nominalApr)
+    toValidator(v, votingPower, epochInfo, nominalApr)
   );
 };
 
@@ -48,15 +48,12 @@ export const fetchMyValidators = async (
   chainParameters: ChainParameters,
   votingPower: IndexerVotingPower
 ): Promise<MyValidator[]> => {
-  const unbondingPeriod = chainParameters.unbondingPeriodInDays;
+  const epochInfo = chainParameters.epochInfo;
   const apr = chainParameters.apr;
-  const bondsResponse = await api.apiV1PosBondAddressGet(account.address);
-  return toMyValidators(
-    bondsResponse.data.data,
-    votingPower,
-    unbondingPeriod,
-    apr
+  const bondsResponse = await api.apiV1PosMergedBondsAddressGet(
+    account.address
   );
+  return toMyValidators(bondsResponse.data.data, votingPower, epochInfo, apr);
 };
 
 export const fetchMyUnbonds = async (
@@ -65,13 +62,15 @@ export const fetchMyUnbonds = async (
   chainParameters: ChainParameters,
   votingPower: IndexerVotingPower
 ): Promise<MyUnbondingValidator[]> => {
-  const unbondingPeriod = chainParameters.unbondingPeriodInDays;
+  const epochInfo = chainParameters.epochInfo;
   const apr = chainParameters.apr;
-  const unbondsResponse = await api.apiV1PosUnbondAddressGet(account.address);
+  const unbondsResponse = await api.apiV1PosMergedUnbondsAddressGet(
+    account.address
+  );
   return toUnbondingValidators(
     unbondsResponse.data.data,
     votingPower,
-    unbondingPeriod,
+    epochInfo,
     apr
   );
 };

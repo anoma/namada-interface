@@ -15,7 +15,16 @@ export const fetchChainParameters = async (
   const parametersResponse = await api.apiV1ChainParametersGet();
   const parameters = parametersResponse.data;
   return {
-    unbondingPeriodInDays: BigInt(parameters.unbondingLength),
+    epochInfo: {
+      unbondingPeriodInEpochs:
+        Number(parameters.unbondingLength) +
+        Number(parameters.pipelineLength) +
+        // + 1 because we unbonding period starts from the next epoch
+        1,
+      minEpochDuration: Number(parameters.minDuration),
+      minNumOfBlocks: Number(parameters.minNumOfBlocks),
+      epochSwitchBlocksDelay: Number(parameters.epochSwitchBlocksDelay),
+    },
     apr: BigNumber(parameters.apr),
     chainId: parameters.chainId,
     nativeTokenAddress: parameters.nativeTokenAddress,

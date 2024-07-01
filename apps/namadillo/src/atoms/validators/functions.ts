@@ -4,18 +4,29 @@ import {
   Validator as IndexerValidator,
   VotingPower as IndexerVotingPower,
 } from "@anomaorg/namada-indexer-client";
-import { durationFromInterval } from "@namada/utils";
+import { singleUnitDurationFromInterval } from "@namada/utils";
 import BigNumber from "bignumber.js";
-import { MyUnbondingValidator, MyValidator, Validator } from "types";
+import { EpochInfo, MyUnbondingValidator, MyValidator, Validator } from "types";
 
 export const toValidator = (
   indexerValidator: IndexerValidator,
   indexerVotingPower: IndexerVotingPower,
-  unbondingPeriod: bigint,
+  epochInfo: EpochInfo,
   nominalApr: BigNumber
 ): Validator => {
   const commission = BigNumber(indexerValidator.commission);
   const expectedApr = nominalApr.times(1 - commission.toNumber());
+
+  // Because epoch duration is in reality longer by epochSwitchBlocksDelay we have to account for that
+  const timePerBlock = epochInfo.minEpochDuration / epochInfo.minNumOfBlocks;
+  const realMinEpochDuration =
+    epochInfo.minEpochDuration +
+    timePerBlock * epochInfo.epochSwitchBlocksDelay;
+
+  const unbondingPeriod = singleUnitDurationFromInterval(
+    0,
+    epochInfo.unbondingPeriodInEpochs * realMinEpochDuration
+  );
 
   return {
     uuid: indexerValidator.address,
@@ -24,7 +35,7 @@ export const toValidator = (
     address: indexerValidator.address,
     homepageUrl: indexerValidator.website,
     expectedApr,
-    unbondingPeriod: `${unbondingPeriod} days`,
+    unbondingPeriod,
     votingPowerInNAM: BigNumber(indexerValidator.votingPower),
     votingPowerPercentage:
       Number(indexerValidator.votingPower) /
@@ -37,14 +48,14 @@ export const toValidator = (
 export const toMyValidators = (
   indexerBonds: IndexerBond[],
   totalVotingPower: IndexerVotingPower,
-  unbondingPeriod: bigint,
+  epochInfo: EpochInfo,
   apr: BigNumber
 ): MyValidator[] => {
   return indexerBonds.map((indexerBond) => {
     const validator = toValidator(
       indexerBond.validator,
       totalVotingPower,
-      unbondingPeriod,
+      epochInfo,
       apr
     );
 
@@ -62,7 +73,7 @@ export const toMyValidators = (
 export const toUnbondingValidators = (
   indexerBonds: IndexerUnbond[],
   totalVotingPower: IndexerVotingPower,
-  unbondingPeriod: bigint,
+  epochInfo: EpochInfo,
   apr: BigNumber
 ): MyUnbondingValidator[] => {
   const timeNow = Math.round(Date.now() / 1000);
@@ -71,16 +82,17 @@ export const toUnbondingValidators = (
     const validator = toValidator(
       indexerUnbond.validator,
       totalVotingPower,
-      unbondingPeriod,
+      epochInfo,
       apr
     );
     const withdrawTime = Number(indexerUnbond.withdrawTime);
-    const secondsLeft = withdrawTime - timeNow;
+    const currentTime = Number(indexerUnbond.currentTime);
+    const secondsLeft = withdrawTime - currentTime;
 
     // TODO: later return from the backend
     const canWithdraw = secondsLeft <= 0;
     const timeLeft =
-      canWithdraw ? "" : durationFromInterval(timeNow, withdrawTime);
+      canWithdraw ? "" : singleUnitDurationFromInterval(timeNow, withdrawTime);
 
     const amountValue = BigNumber(indexerUnbond.amount);
     const amount = {
