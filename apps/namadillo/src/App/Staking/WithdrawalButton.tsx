@@ -13,7 +13,6 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { TransactionPair, broadcastTx } from "lib/query";
 import { useCallback, useEffect } from "react";
 import { MyValidator } from "types";
-import { hashFromObj } from "utils";
 
 type WithdrawalButtonProps = {
   myValidator: MyValidator;
@@ -30,8 +29,8 @@ export const WithdrawalButton = ({
   const { gasPrice } = useGasEstimate();
   const gasLimits = useAtomValue(gasLimitsAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
+  const withdrawFamilyId = `${change.validatorId}- ${change.amount}`;
 
-  const hashedChange = hashFromObj(change);
   const {
     mutate: createWithdrawTx,
     data: withdrawalTxs,
@@ -39,12 +38,12 @@ export const WithdrawalButton = ({
     isSuccess,
     isError,
     error: withdrawalTransactionError,
-  } = useAtomValue(createWithdrawTxAtomFamily(hashedChange));
+  } = useAtomValue(createWithdrawTxAtomFamily(withdrawFamilyId));
 
   useEffect(() => {
     return () => {
       // On detach we have to remove the param to avoid memory leaks
-      createWithdrawTxAtomFamily.remove(hashedChange);
+      createWithdrawTxAtomFamily.remove(withdrawFamilyId);
     };
   }, []);
 

@@ -1,5 +1,4 @@
 import { ProposalStatus, ProposalTypeString } from "@namada/types";
-import { xxHash32 } from "js-xxhash";
 import { EventData, TransactionEvent } from "types/events";
 
 export const showProposalStatus = (status: ProposalStatus): string => {
@@ -34,8 +33,4 @@ export const addTransactionEvent = <T>(
   callback: (e: EventData<T>) => void
 ): void => {
   window.addEventListener(handle, callback as EventListener, false);
-};
-
-export const hashFromObj = (obj: object): number => {
-  return xxHash32(JSON.stringify(obj));
 };

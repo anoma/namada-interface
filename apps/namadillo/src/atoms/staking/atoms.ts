@@ -79,11 +79,11 @@ export const createWithdrawTxAtom = atomWithMutation((get) => {
   };
 });
 
-export const createWithdrawTxAtomFamily = atomFamily((hash: number) => {
+export const createWithdrawTxAtomFamily = atomFamily((id: string) => {
   return atomWithMutation((get) => {
     const chain = get(chainAtom);
     return {
-      mutationKey: ["create-withdraw-tx", hash],
+      mutationKey: ["create-withdraw-tx", id],
       enabled: chain.isSuccess,
       mutationFn: async ({
         changes,

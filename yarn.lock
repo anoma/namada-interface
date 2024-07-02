@@ -8474,7 +8474,6 @@ __metadata:
     jest-fetch-mock: "npm:^3.0.3"
     jotai: "npm:^2.6.3"
     jotai-tanstack-query: "npm:^0.8.5"
-    js-xxhash: "npm:^4.0.0"
     local-cors-proxy: "npm:^1.1.0"
     lodash.debounce: "npm:^4.0.8"
     postcss: "npm:^8.4.32"
@@ -25212,13 +25211,6 @@ __metadata:
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
   checksum: e248708d377aa058eacf2037b07ded847790e6de892bbad3dac0abba2e759cb9f121b00099a65195616badcb6eca8d14d975cb3e89eb1cfda644756402c8aeed
-  languageName: node
-  linkType: hard
-
-"js-xxhash@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "js-xxhash@npm:4.0.0"
-  checksum: 4d36c67c4ffefaf0811d81e330e12721a659aafbf5512ffd6f7d581a26083837470069da3749c61bfe5b3eb7be39bcfe3fdaf87a256698e1636d108add7b4a65
   languageName: node
   linkType: hard
 
