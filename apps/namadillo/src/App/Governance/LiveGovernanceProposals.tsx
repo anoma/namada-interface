@@ -1,17 +1,16 @@
 import { SegmentedBar, Stack } from "@namada/components";
-import BigNumber from "bignumber.js";
-import { GoInfo } from "react-icons/go";
-import GovernanceRoutes from "./routes";
-
 import { Proposal, voteTypes } from "@namada/types";
+import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { GoInfo } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { StatusLabel, TypeLabel, VotedLabel } from "./ProposalLabels";
+import GovernanceRoutes from "./routes";
 import { colors } from "./types";
 
 const ProposalListItem: React.FC<{
   proposal: Proposal;
-  voted?: boolean;
+  voted: boolean;
 }> = ({ proposal, voted }) => {
   const { status } = proposal;
 
@@ -67,20 +66,15 @@ const ProposalListItem: React.FC<{
   );
 };
 
-type LiveGovernanceProposalsProps = (
-  | { isExtensionConnected: true; votedProposalIds: bigint[] }
-  | { isExtensionConnected: false }
-) & {
-  allProposals: Proposal[];
+type LiveGovernanceProposalsProps = {
+  votedProposalIds: bigint[];
+} & {
+  proposals: Proposal[];
 };
 
-export const LiveGovernanceProposals: React.FC<LiveGovernanceProposalsProps> = (
-  props
-) => {
-  const liveProposals = props.allProposals.filter(
-    (proposal) => proposal.status === "ongoing"
-  );
-
+export const LiveGovernanceProposals: React.FC<
+  LiveGovernanceProposalsProps
+> = ({ proposals, votedProposalIds }) => {
   return (
     <div className="max-h-[490px] flex flex-col">
       <Stack
@@ -88,12 +82,8 @@ export const LiveGovernanceProposals: React.FC<LiveGovernanceProposalsProps> = (
         as="ul"
         className="dark-scrollbar overscroll-contain overflow-x-auto"
       >
-        {liveProposals.map((proposal) => {
-          const voted =
-            props.isExtensionConnected ?
-              props.votedProposalIds.includes(proposal.id)
-            : undefined;
-
+        {proposals.map((proposal) => {
+          const voted = votedProposalIds.includes(proposal.id);
           return (
             <ProposalListItem
               proposal={proposal}

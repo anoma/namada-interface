@@ -11,6 +11,7 @@ import {
 import { useAtomValue } from "jotai";
 import { AllProposalsTable } from "./AllProposalsTable";
 import { LiveGovernanceProposals } from "./LiveGovernanceProposals";
+import { ProposalListPanel } from "./ProposalListPanel";
 import { ProposalsSummary } from "./ProposalsSummary";
 import { UpcomingProposals } from "./UpcomingProposals";
 
@@ -22,11 +23,20 @@ export const GovernanceOverview: React.FC = () => {
   // TODO: is there a better way than this to show that votedProposalIdsAtom
   // is dependent on isConnected?
   const extensionAtoms = isConnected ? [votedProposalIds] : [];
+  const activeAtoms = [allProposals, ...extensionAtoms];
 
-  useNotifyOnAtomError(
-    [allProposals, ...extensionAtoms],
-    [allProposals.isError, votedProposalIds.isError]
-  );
+  const liveProposals =
+    allProposals.data?.filter((proposal) => proposal.status === "ongoing") ||
+    [];
+
+  const upcomingProposals =
+    allProposals.data?.filter((proposal) => proposal.status === "pending") ||
+    [];
+
+  useNotifyOnAtomError(activeAtoms, [
+    allProposals.isError,
+    votedProposalIds.isError,
+  ]);
 
   return (
     <PageWithSidebar>
@@ -34,41 +44,34 @@ export const GovernanceOverview: React.FC = () => {
         {!isConnected && (
           <ConnectBanner text="To vote please connect your account" />
         )}
-        <Panel title="Live Governance Proposals">
-          {atomsAreFetching(allProposals, ...extensionAtoms) && (
-            <SkeletonLoading height="150px" width="100%" />
-          )}
-          {isConnected && atomsAreLoaded(allProposals, ...extensionAtoms) && (
-            <LiveGovernanceProposals
-              allProposals={allProposals.data!}
-              isExtensionConnected={true}
-              votedProposalIds={votedProposalIds.data!}
-            />
-          )}
-          {!isConnected && atomsAreLoaded(allProposals) && (
-            <LiveGovernanceProposals
-              allProposals={allProposals.data!}
-              isExtensionConnected={false}
-            />
-          )}
-        </Panel>
-        <Panel title="Upcoming Proposals">
-          {atomsAreFetching(allProposals) && (
-            <SkeletonLoading height="150px" width="100%" />
-          )}
-          {atomsAreLoaded(allProposals) && (
-            <UpcomingProposals allProposals={allProposals.data!} />
-          )}
-        </Panel>
-        <Panel title="All Proposals">
-          {isConnected && atomsAreLoaded(...extensionAtoms) && (
-            <AllProposalsTable
-              isExtensionConnected={true}
-              votedProposalIds={votedProposalIds.data!}
-            />
-          )}
-          {!isConnected && <AllProposalsTable isExtensionConnected={false} />}
-        </Panel>
+        <ProposalListPanel
+          title="Live Governance Proposals"
+          errorText="Unable to load live governance proposals"
+          emptyText="There are no active live proposals"
+          isEmpty={liveProposals.length === 0}
+          atoms={activeAtoms}
+        >
+          <LiveGovernanceProposals
+            proposals={liveProposals}
+            votedProposalIds={votedProposalIds.data! || []}
+          />
+        </ProposalListPanel>
+        <ProposalListPanel
+          title="Upcoming Proposals"
+          errorText="Unable to load upcoming proposals"
+          emptyText="There are no upcoming proposals"
+          isEmpty={upcomingProposals.length === 0}
+          atoms={[allProposals]}
+        >
+          <UpcomingProposals proposals={allProposals.data!} />
+        </ProposalListPanel>
+        <ProposalListPanel
+          title="All Proposals"
+          errorText="Unable to load the list of proposals"
+          atoms={activeAtoms}
+        >
+          <AllProposalsTable votedProposalIds={votedProposalIds.data! || []} />
+        </ProposalListPanel>
       </div>
       <aside className="flex flex-col gap-2 mt-1.5 lg:mt-0">
         <Panel>

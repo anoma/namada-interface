@@ -46,12 +46,8 @@ const ProposalListItem: React.FC<{
 };
 
 export const UpcomingProposals: React.FC<{
-  allProposals: Proposal[];
-}> = ({ allProposals }) => {
-  const upcomingProposals = allProposals.filter(
-    (proposal) => proposal.status === "pending"
-  );
-
+  proposals: Proposal[];
+}> = ({ proposals }) => {
   return (
     <div className="max-h-[490px] flex flex-col">
       <Stack
@@ -59,7 +55,7 @@ export const UpcomingProposals: React.FC<{
         as="ul"
         className="dark-scrollbar overscroll-contain overflow-x-auto"
       >
-        {upcomingProposals.map((proposal) => (
+        {proposals.map((proposal) => (
           <ProposalListItem proposal={proposal} key={proposal.id.toString()} />
         ))}
       </Stack>
