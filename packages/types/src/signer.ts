@@ -7,7 +7,7 @@ export type SignArbitraryResponse = {
 
 export type TxData = {
   txBytes: Uint8Array;
-  signingDataBytes: Uint8Array;
+  signingDataBytes: Uint8Array[];
 };
 
 export interface Signer {

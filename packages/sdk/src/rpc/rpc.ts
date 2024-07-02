@@ -5,7 +5,7 @@ import {
 } from "@namada/shared";
 
 import { deserialize } from "@dao-xyz/borsh";
-import { TxResponseMsgValue, TxResponseProps } from "../../../types/src";
+import { TxResponseMsgValue, TxResponseProps, WasmHash } from "@namada/types";
 import { SignedTx } from "../tx/types";
 import {
   Balance,
@@ -17,7 +17,6 @@ import {
   StakingTotals,
   StakingTotalsResponse,
   UnbondsResponse,
-  WasmHash,
 } from "./types";
 
 /**

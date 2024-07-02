@@ -3,6 +3,7 @@ import {
   BuiltTx,
   Sdk as SdkWasm,
   TxType,
+  TxTypeLabel,
   deserialize_tx,
 } from "@namada/shared";
 import {
@@ -15,6 +16,7 @@ import {
   Message,
   RedelegateMsgValue,
   RedelegateProps,
+  RevealPkMsgValue,
   SignatureMsgValue,
   SupportedTxProps,
   TransparentTransferMsgValue,
@@ -462,15 +464,14 @@ export class Tx {
   /**
    * Method to retrieve JSON strings for all commitments of a Tx
    * @param txBytes - Bytes of a transaction
-   * @param pathsHashes - Array of wasm paths with their associated hash
+   * @param wasmHashes - Array of wasm paths with their associated hash
    * @returns a TxDetails object
    */
   deserialize(
     txBytes: Uint8Array,
-    pathsHashes: { path: string; hash: string }[]
+    wasmHashes: { path: string; hash: string }[]
   ): TxDetails {
-    console.log({ txBytes, pathsHashes });
-    const tx = deserialize_tx(txBytes, pathsHashes);
+    const tx = deserialize_tx(txBytes, wasmHashes);
     const { wrapperTx, commitments } = deserialize(tx, TxDetailsMsgValue);
 
     const getProps = (txType: TxType, data: Uint8Array): SupportedTxProps => {
@@ -487,6 +488,8 @@ export class Tx {
           return deserialize(data, VoteProposalMsgValue);
         case TxType.TransparentTransfer:
           return deserialize(data, TransparentTransferMsgValue);
+        case TxType.RevealPK:
+          return deserialize(data, RevealPkMsgValue);
         default:
           throw "Unsupported Tx type!";
       }
@@ -494,10 +497,15 @@ export class Tx {
 
     return {
       ...wrapperTx,
-      commitments: commitments.map((props) => ({
-        ...props,
-        ...getProps(props.txType, props.data),
-      })),
+      commitments: commitments.map(
+        ({ txType, hash, wasmHash, memo, data }) => ({
+          txType: TxTypeLabel[txType as TxType],
+          hash,
+          wasmHash,
+          memo,
+          ...getProps(txType, data),
+        })
+      ),
     };
   }
 }

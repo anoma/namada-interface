@@ -7,6 +7,8 @@ import {
   SignArbitraryResponse,
   SignProps,
   VerifyArbitraryProps,
+  WasmHash,
+  WasmHashProps,
 } from "@namada/types";
 import { InjectedProxy } from "./InjectedProxy";
 import { Signer } from "./Signer";
@@ -59,6 +61,22 @@ export class InjectedNamada implements INamada {
 
   public async getChain(): Promise<Chain | undefined> {
     return await InjectedProxy.requestMethod<void, Chain>("getChain");
+  }
+
+  public async addTxWasmHashes(props: WasmHashProps): Promise<void> {
+    return await InjectedProxy.requestMethod<WasmHashProps, void>(
+      "addTxWasmHashes",
+      props
+    );
+  }
+
+  public async getTxWasmHashes(
+    chainId: string
+  ): Promise<WasmHash[] | undefined> {
+    return await InjectedProxy.requestMethod<string, WasmHash[] | undefined>(
+      "getTxWasmHashes",
+      chainId
+    );
   }
 
   public getSigner(): ISigner | undefined {

@@ -7,12 +7,13 @@ import { KVStore } from "@namada/storage";
 import { SignArbitraryResponse, TxDetails } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 
+import { ChainsService } from "background/chains";
 import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
-import { EncodedTxData, PendingTx } from "./types";
+import { EncodedTxData, PendingTx, WasmHashesStore } from "./types";
 
 export class ApprovalsService {
   // holds promises which can be resolved with a message from a pop-up window
@@ -27,9 +28,11 @@ export class ApprovalsService {
     protected readonly txStore: KVStore<PendingTx>,
     protected readonly dataStore: KVStore<string>,
     protected readonly localStorage: LocalStorage,
+    protected readonly wasmHashesStore: KVStore<WasmHashesStore>,
     protected readonly sdkService: SdkService,
     protected readonly keyRingService: KeyRingService,
     protected readonly vaultService: VaultService,
+    protected readonly chainService: ChainsService,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {}
 
@@ -48,7 +51,7 @@ export class ApprovalsService {
 
     const pendingTx = {
       txBytes: fromBase64(tx.txBytes),
-      signingDataBytes: fromBase64(tx.signingDataBytes),
+      signingDataBytes: tx.signingDataBytes.map((bytes) => fromBase64(bytes)),
     };
 
     await this.txStore.set(msgId, {
@@ -76,6 +79,7 @@ export class ApprovalsService {
       this.resolverMap[popupTabId] = { resolve, reject };
     });
   }
+
   async approveSignArbitrary(
     signer: string,
     data: string
@@ -125,7 +129,9 @@ export class ApprovalsService {
     const builtTx = new BuiltTx(
       pendingTx.txType,
       pendingTx.tx.txBytes,
-      pendingTx.tx.signingDataBytes,
+      // TODO: In shared, fix "into_serde" call to handle Uint8Array so the following
+      // isn't needed:
+      pendingTx.tx.signingDataBytes.map((bytes) => [...bytes]),
       pendingTx.wrapperTxMsg
     );
 
@@ -265,37 +271,11 @@ export class ApprovalsService {
       throw new Error(`No transaction found for ${msgId}`);
     }
 
-    // TODO: Pass this from the interface on connect()!
-    const pathsHashes = [
-      {
-        path: "tx_transparent_transfer.wasm",
-        hash: "BA41FA04AD3906BFDA62A6476DF907D71C4E639EF7E5A1C7A9B860C3CA3610D4",
-      },
-      {
-        path: "tx_bond.wasm",
-        hash: "B14411AE69CCBB965031106C90C1D96C5B91FD46BF4D569338B0A5594E85682F",
-      },
-      {
-        path: "tx_redelegate.wasm",
-        hash: "14F0B0537FE1E1DE8614F6D98933A86CC8C737D121A1A972A40D00BC25F9B1AC",
-      },
-      {
-        path: "tx_unbond.wasm",
-        hash: "DFC62391C3E00DF72115ED0360E6D620FC686068C63BAA59556847C5E64460A0",
-      },
-      {
-        path: "tx_withdraw.wasm",
-        hash: "7C3EC5670888B045DEC60A01CB325D94AB711CF304D7E67B364413463E34C4FF",
-      },
-      {
-        path: "tx_vote_proposal.wasm",
-        hash: "2772210EEB869B3DBDBF15AD591E49D5D7C76C19558AB1659044038577BE024D",
-      },
-    ];
+    const { chainId } = await this.chainService.getChain();
+    const wasmHashes = await this.wasmHashesStore.get(chainId);
 
     const { tx } = this.sdkService.getSdk();
-
-    return tx.deserialize(pendingTx.tx.txBytes, pathsHashes);
+    return tx.deserialize(pendingTx.tx.txBytes, wasmHashes || []);
   }
 
   private async _clearPendingTx(msgId: string): Promise<void> {

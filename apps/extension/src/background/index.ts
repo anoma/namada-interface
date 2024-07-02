@@ -17,7 +17,11 @@ import {
 } from "extension";
 import { KVPrefix, Ports } from "router";
 import { LocalStorage, VaultStorage } from "storage";
-import { ApprovalsService, init as initApprovals } from "./approvals";
+import {
+  ApprovalsService,
+  WasmHashesStore,
+  init as initApprovals,
+} from "./approvals";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, UtilityStore, init as initKeyRing } from "./keyring";
 import { SdkService } from "./sdk/service";
@@ -31,6 +35,9 @@ const localStorage = new LocalStorage(
 //IDB storages
 const vaultStorage = new VaultStorage(new IndexedDBKVStore(KVPrefix.IndexedDB));
 const utilityStore = new IndexedDBKVStore<UtilityStore>(KVPrefix.Utility);
+const wasmHashesStore = new IndexedDBKVStore<WasmHashesStore>(
+  KVPrefix.WasmHashesStorage
+);
 
 // Memory/transient storages
 const sessionStore = new SessionKVStore(KVPrefix.SessionStorage);
@@ -63,6 +70,7 @@ const init = new Promise<void>(async (resolve) => {
   const chainsService = new ChainsService(
     sdkService,
     localStorage,
+    wasmHashesStore,
     broadcaster
   );
   const keyRingService = new KeyRingService(
@@ -79,9 +87,11 @@ const init = new Promise<void>(async (resolve) => {
     txStore,
     dataStore,
     localStorage,
+    wasmHashesStore,
     sdkService,
     keyRingService,
     vaultService,
+    chainsService,
     broadcaster
   );
 

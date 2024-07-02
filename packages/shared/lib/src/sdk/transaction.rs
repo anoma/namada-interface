@@ -11,7 +11,7 @@ use wasm_bindgen::JsError;
 
 use crate::sdk::{
     args::{
-        BondMsg, RedelegateMsg, TransparentTransferMsg, UnbondMsg, VoteProposalMsg, WithdrawMsg,
+        BondMsg, RedelegateMsg, TransparentTransferMsg, UnbondMsg, VoteProposalMsg, WithdrawMsg, RevealPkMsg
     },
     tx::TxType,
 };
@@ -56,11 +56,6 @@ impl TransactionKind {
             ),
             _ => TransactionKind::Unknown,
         }
-    }
-
-    // Returns deserialized values in a JSON string
-    pub fn to_json(&self) -> String {
-        serde_json::to_string(&self).expect("Cannot serialize TransactionKind")
     }
 
     // Returns vec of borsh-serialized arguments bytes based on transaction type
@@ -129,7 +124,10 @@ impl TransactionKind {
                 );
                 borsh::to_vec(&redelegation)?
             }
-            TransactionKind::RevealPk(reveal_pk) => borsh::to_vec(&reveal_pk)?,
+            TransactionKind::RevealPk(public_key) => {
+                let reveal_pk = RevealPkMsg::new(public_key.to_string());
+                borsh::to_vec(&reveal_pk)?
+            },
             TransactionKind::TransparentTransfer(transparent_transfer) => {
                 let TransparentTransfer {
                     amount,

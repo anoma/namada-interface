@@ -14,6 +14,7 @@ import {
   WithdrawMsgValue,
   WrapperTxMsgValue,
 } from "./schema";
+import { RevealPkMsgValue } from "./schema/revealPk";
 
 export type BatchTxResultProps = BatchTxResultMsgValue;
 export type BondProps = BondMsgValue;
@@ -29,6 +30,7 @@ export type UnbondProps = UnbondMsgValue;
 export type VoteProposalProps = VoteProposalMsgValue;
 export type WithdrawProps = WithdrawMsgValue;
 export type WrapperTxProps = WrapperTxMsgValue;
+export type RevealPkProps = RevealPkMsgValue;
 
 export type SupportedTxProps =
   | BondProps
@@ -38,7 +40,8 @@ export type SupportedTxProps =
   | EthBridgeTransferProps
   | IbcTransferProps
   | VoteProposalProps
-  | TransparentTransferProps;
+  | TransparentTransferProps
+  | RevealPkProps;
 
 export type CommitmentDetailProps = SupportedTxProps & {
   txType: unknown;

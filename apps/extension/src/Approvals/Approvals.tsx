@@ -13,6 +13,7 @@ import {
   ConfirmSignLedgerTx,
   ConfirmSignTx,
 } from "./ApproveSignTx";
+import { ApproveSignTxDetails } from "./ApproveSignTx/ApproveSignTxDetails";
 import { ConfirmSignature } from "./ConfirmSignArbitrary";
 
 export enum Status {
@@ -52,8 +53,14 @@ export const Approvals: React.FC = () => {
       <Routes>
         <Route
           path={`${TopLevelRoute.ApproveSignTx}/:msgId/:accountType/:signer`}
-          element={<ApproveSignTx setDetails={setDetails} />}
+          element={<ApproveSignTx details={details} setDetails={setDetails} />}
         />
+        {details && (
+          <Route
+            path={TopLevelRoute.ApproveSignTxDetails}
+            element={<ApproveSignTxDetails details={details} />}
+          />
+        )}
         <Route
           path={TopLevelRoute.ConfirmSignTx}
           element={<ConfirmSignTx details={details} />}

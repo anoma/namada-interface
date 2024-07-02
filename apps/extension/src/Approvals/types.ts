@@ -8,6 +8,7 @@ export enum TopLevelRoute {
 
   // Sign Tx approval
   ApproveSignTx = "/approve-sign-tx",
+  ApproveSignTxDetails = "/approve-sign-tx-details",
   ConfirmSignTx = "/confirm-sign-tx",
   ConfirmLedgerTx = "/confirm-ledger-tx",
 

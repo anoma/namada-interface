@@ -8,9 +8,12 @@ import {
   SignArbitraryResponse,
   SignProps,
   VerifyArbitraryProps,
+  WasmHash,
+  WasmHashProps,
 } from "@namada/types";
 import { MessageRequester, Ports } from "router";
 
+import { AddTxWasmHashesMsg, GetTxWasmHashesMsg } from "background/chains";
 import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
@@ -74,7 +77,7 @@ export class Namada implements INamada {
         txType as TxType,
         {
           txBytes: toBase64(txBytes),
-          signingDataBytes: toBase64(signingDataBytes),
+          signingDataBytes: signingDataBytes.map((bytes) => toBase64(bytes)),
         },
         signer,
         toBase64(wrapperTxMsg)
@@ -104,6 +107,25 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new GetChainMsg()
+    );
+  }
+
+  public async addTxWasmHashes({
+    chainId,
+    wasmHashes,
+  }: WasmHashProps): Promise<void> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new AddTxWasmHashesMsg(chainId, wasmHashes)
+    );
+  }
+
+  public async getTxWasmHashes(
+    chainId: string
+  ): Promise<WasmHash[] | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new GetTxWasmHashesMsg(chainId)
     );
   }
 

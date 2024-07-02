@@ -21,7 +21,8 @@ export type TxLabel =
   | "Withdraw"
   | "RevealPK"
   | "Vote Proposal"
-  | "Redelegate";
+  | "Redelegate"
+  | "Batch";
 
 export const TxTypeLabel: Record<TxType, TxLabel> = {
   [TxType.Bond]: "Bond",
@@ -33,6 +34,7 @@ export const TxTypeLabel: Record<TxType, TxLabel> = {
   [TxType.RevealPK]: "RevealPK",
   [TxType.VoteProposal]: "Vote Proposal",
   [TxType.Redelegate]: "Redelegate",
+  [TxType.Batch]: "Batch",
 };
 
 type TransferToEthereumKind = "Erc20" | "Nut";

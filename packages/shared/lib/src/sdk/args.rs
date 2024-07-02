@@ -17,6 +17,20 @@ use wasm_bindgen::JsError;
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
+pub struct RevealPkMsg {
+    public_key: String,
+}
+
+impl RevealPkMsg {
+    pub fn new(public_key: String) -> RevealPkMsg {
+        RevealPkMsg {
+            public_key
+        }
+    }
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct WrapperTxMsg {
     token: String,
     fee_amount: String,
@@ -402,32 +416,6 @@ pub struct IbcTransferMsg {
     memo: Option<String>,
 }
 
-impl IbcTransferMsg {
-    pub fn new(
-        source: String,
-        receiver: String,
-        token: String,
-        amount: String,
-        port_id: String,
-        channel_id: String,
-        timeout_height: Option<u64>,
-        timeout_sec_offset: Option<u64>,
-        memo: Option<String>,
-    ) -> IbcTransferMsg {
-        IbcTransferMsg {
-            source,
-            receiver,
-            token,
-            amount,
-            port_id,
-            channel_id,
-            timeout_height,
-            timeout_sec_offset,
-            memo,
-        }
-    }
-}
-
 /// Maps serialized tx_msg into IbcTransferTx args.
 ///
 /// # Arguments
@@ -494,30 +482,6 @@ pub struct EthBridgeTransferMsg {
     fee_amount: String,
     fee_payer: Option<String>,
     fee_token: String,
-}
-
-impl EthBridgeTransferMsg {
-    pub fn new(
-        nut: bool,
-        asset: String,
-        recipient: String,
-        sender: String,
-        amount: String,
-        fee_amount: String,
-        fee_payer: Option<String>,
-        fee_token: String,
-    ) -> EthBridgeTransferMsg {
-        EthBridgeTransferMsg {
-            nut,
-            asset,
-            recipient,
-            sender,
-            amount,
-            fee_amount,
-            fee_payer,
-            fee_token,
-        }
-    }
 }
 
 pub fn eth_bridge_transfer_tx_args(

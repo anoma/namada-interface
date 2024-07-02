@@ -1,4 +1,4 @@
-import { BuiltTx, EncodedTx } from "@heliax/namada-sdk/web";
+import { BuiltTx, EncodedTx, TxType } from "@heliax/namada-sdk/web";
 import { getIntegration } from "@namada/integrations";
 import {
   Account,
@@ -74,6 +74,7 @@ export const buildTxArray = async <T>(
   const { tx } = await getSdkInstance();
   const wrapperTxProps = getTxProps(account, gasConfig, chain);
   const txArray: EncodedTxData<T>[] = [];
+  const txs: BuiltTx[] = [];
 
   // Determine if RevealPK is needed:
   const api = getIndexerApi();
@@ -83,22 +84,19 @@ export const buildTxArray = async <T>(
 
   if (!publicKey) {
     const revealPkTx = await tx.buildRevealPk(wrapperTxProps, account.address);
-    txArray.push({ type: revealPublicKeyType, tx: revealPkTx.tx });
+    txs.push(revealPkTx.tx);
   }
 
   const encodedTxs = await Promise.all(
     queryProps.map((props) => txFn.apply(tx, [wrapperTxProps, props]))
   );
 
+  txs.push(...encodedTxs.map((tx) => tx.tx));
+
   const initialTx = encodedTxs[0].tx;
   const wrapperTxMsg = initialTx.wrapper_tx_msg();
-  const txType = initialTx.tx_type();
 
-  const batchTx = tx.buildBatch(
-    txType,
-    encodedTxs.map((tx) => tx.tx),
-    wrapperTxMsg
-  );
+  const batchTx = tx.buildBatch(TxType.Batch, txs, wrapperTxMsg);
 
   txArray.push({
     tx: batchTx,
@@ -123,26 +121,6 @@ export const signTxArray = async <T>(
   const signedTxs: Uint8Array[] = [];
 
   try {
-    // Sign RevealPK first, if public key is not found:
-    if (typedEncodedTxs[0].type === revealPublicKeyType) {
-      const revealPk = typedEncodedTxs.shift()!;
-      const tx = revealPk.tx;
-
-      const signedRevealPk = await signingClient.sign(
-        tx.tx_type(),
-        { txBytes: tx.tx_bytes(), signingDataBytes: tx.signing_data_bytes() },
-        owner,
-        revealPk.tx.wrapper_tx_msg()
-      );
-
-      if (!signedRevealPk) {
-        throw new Error(
-          "Sign RevealPk failed: No signed transactions returned"
-        );
-      }
-      signedTxs.push(signedRevealPk);
-    }
-
     // Sign batch Tx
     const signedBatchTxBytes = await signingClient.sign(
       typedEncodedTxs[0].tx.tx_type(),
