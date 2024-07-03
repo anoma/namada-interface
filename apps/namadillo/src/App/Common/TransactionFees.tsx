@@ -1,8 +1,8 @@
+import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { TxKind, gasLimitsAtom, minimumGasPriceAtom } from "slices/fees";
+import { TxKind } from "types";
 import { NamCurrency } from "./NamCurrency";
-import { TextLink } from "./TextLink";
 
 type TransactionFeesProps = {
   txKind: TxKind;
@@ -18,15 +18,17 @@ export const TransactionFees = ({
   const gasLimits = useAtomValue(gasLimitsAtom);
   const gasPrice = useAtomValue(minimumGasPriceAtom);
 
-  if (!gasLimits.isSuccess || !gasPrice.isSuccess) return <></>;
+  if (!gasLimits.isSuccess || !gasPrice.isSuccess || numberOfTransactions === 0)
+    return <></>;
+
   return (
     <div className={clsx("text-white text-sm", className)}>
-      <TextLink>Transaction fee:</TextLink>{" "}
+      Transaction fee:{" "}
       <NamCurrency
         className="font-medium"
         forceBalanceDisplay={true}
-        amount={gasLimits.data[txKind].native.multipliedBy(
-          numberOfTransactions
+        amount={gasPrice.data.multipliedBy(
+          gasLimits.data[txKind].native.multipliedBy(numberOfTransactions)
         )}
       />
     </div>

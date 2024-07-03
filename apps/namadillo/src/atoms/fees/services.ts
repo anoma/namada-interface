@@ -30,7 +30,8 @@ export const fetchMinimumGasPrice = async (
     ({ token }) => token === nativeToken
   );
   invariant(!!nativeTokenCost, "Error querying minimum gas price");
-  const asBigNumber = new BigNumber(nativeTokenCost.amount);
+  // TODO: this should be removed after indexer error is fixed!
+  const asBigNumber = new BigNumber(nativeTokenCost.amount).dividedBy(100000);
   invariant(
     !asBigNumber.isNaN(),
     "Error converting minimum gas price to BigNumber"
