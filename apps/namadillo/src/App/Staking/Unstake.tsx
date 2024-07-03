@@ -254,7 +254,8 @@ const Unstake = (): JSX.Element => {
             </ActionButton>
             <TransactionFees
               txKind="Unbond"
-              className="absolute right-4 top-1/2 -translate-y-1/2"
+              displayWarning={true}
+              className="absolute text-right right-4 top-1/2 -translate-y-1/2"
               numberOfTransactions={Object.keys(updatedAmountByAddress).length}
             />
           </div>

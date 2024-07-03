@@ -267,7 +267,8 @@ const IncrementBonding = (): JSX.Element => {
             {gasLimits.isSuccess && (
               <TransactionFees
                 txKind="Bond"
-                className="absolute right-4 top-1/2 -translate-y-1/2"
+                className="absolute text-right right-4 top-1/2 -translate-y-1/2"
+                displayWarning={true}
                 numberOfTransactions={
                   Object.keys(updatedAmountByAddress).length
                 }

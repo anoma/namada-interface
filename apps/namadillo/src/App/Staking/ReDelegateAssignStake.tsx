@@ -136,7 +136,8 @@ export const ReDelegateAssignStake = ({
         </ActionButton>
         <TransactionFees
           txKind="Redelegation"
-          className="absolute right-4 top-1/2 -translate-y-1/2"
+          displayWarning={true}
+          className="absolute text-right right-4 top-1/2 -translate-y-1/2"
           numberOfTransactions={numberOfTransactions}
         />
       </div>

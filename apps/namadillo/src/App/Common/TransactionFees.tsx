@@ -2,17 +2,20 @@ import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { TxKind } from "types";
+import { FeeWarning } from "./FeeWarning";
 import { NamCurrency } from "./NamCurrency";
 
 type TransactionFeesProps = {
   txKind: TxKind;
   numberOfTransactions: number;
+  displayWarning?: boolean;
   className?: string;
 };
 
 export const TransactionFees = ({
   txKind,
   numberOfTransactions,
+  displayWarning,
   className,
 }: TransactionFeesProps): JSX.Element => {
   const gasLimits = useAtomValue(gasLimitsAtom);
@@ -22,15 +25,18 @@ export const TransactionFees = ({
     return <></>;
 
   return (
-    <div className={clsx("text-white text-sm", className)}>
-      Transaction fee:{" "}
-      <NamCurrency
-        className="font-medium"
-        forceBalanceDisplay={true}
-        amount={gasPrice.data.multipliedBy(
-          gasLimits.data[txKind].native.multipliedBy(numberOfTransactions)
-        )}
-      />
+    <div className={clsx("flex flex-col", className)}>
+      <div className="text-white text-sm">
+        Transaction fee:{" "}
+        <NamCurrency
+          className="font-medium"
+          forceBalanceDisplay={true}
+          amount={gasPrice.data.multipliedBy(
+            gasLimits.data[txKind].native.multipliedBy(numberOfTransactions)
+          )}
+        />
+      </div>
+      {displayWarning && <FeeWarning />}
     </div>
   );
 };
