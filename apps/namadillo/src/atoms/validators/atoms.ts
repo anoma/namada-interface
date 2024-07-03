@@ -100,7 +100,7 @@ export const withdrawableAmountByAddressAtom = atomWithQuery((get) =>
   deriveFromMyValidatorsAtom(
     "withdrawable-amount",
     "withdrawableAmount",
-    get(myValidatorsAtom)
+    get(myUnbondsAtom)
   )
 );
 

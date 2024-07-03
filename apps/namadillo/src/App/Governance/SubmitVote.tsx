@@ -15,7 +15,7 @@ import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { TransactionFees } from "App/Common/TransactionFees";
 import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
 import { dispatchToastNotificationAtom } from "atoms/notifications";
-import { createVoteTxAtom, proposalFamily } from "atoms/proposals";
+import { canVoteAtom, createVoteTxAtom, proposalFamily } from "atoms/proposals";
 import clsx from "clsx";
 import { useProposalIdParam } from "hooks";
 import invariant from "invariant";
@@ -72,6 +72,7 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
   const [selectedVoteType, setSelectedVoteType] = useState<VoteType>();
 
   const proposalQueryResult = useAtomValue(proposalFamily(proposalId));
+  const canVote = useAtomValue(canVoteAtom);
 
   const proposal =
     proposalQueryResult.isSuccess ? proposalQueryResult.data : null;
@@ -182,7 +183,9 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
             <ActionButton
               type="submit"
               borderRadius="sm"
-              disabled={typeof selectedVoteType === "undefined"}
+              disabled={
+                !canVote.data || typeof selectedVoteType === "undefined"
+              }
             >
               Confirm
             </ActionButton>

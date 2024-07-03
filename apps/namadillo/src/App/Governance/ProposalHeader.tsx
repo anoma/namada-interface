@@ -6,6 +6,7 @@ import {
 import { Proposal, ProposalStatus } from "@namada/types";
 import {
   StoredProposal,
+  canVoteAtom,
   proposalFamily,
   proposalFamilyPersist,
   proposalVotedFamily,
@@ -287,6 +288,7 @@ const VoteButton: React.FC<{
 }> = ({ proposal, voted, proposalId }) => {
   const navigate = useNavigate();
   const isExtensionConnected = useAtomValue(namadaExtensionConnectedAtom);
+  const canVote = useAtomValue(canVoteAtom);
 
   if (!isExtensionConnected) {
     return null;
@@ -306,7 +308,8 @@ const VoteButton: React.FC<{
     } else {
       const { status } = proposal.data;
 
-      const disabled = !isExtensionConnected || status !== "ongoing";
+      const disabled =
+        !isExtensionConnected || !canVote.data || status !== "ongoing";
 
       const text = voted ? "Edit Vote" : "Vote";
 

@@ -8,6 +8,7 @@ import {
   myValidatorsAtom,
   stakedAmountByAddressAtom,
   unbondedAmountByAddressAtom,
+  withdrawableAmountByAddressAtom,
 } from "atoms/validators";
 import { useAtomValue } from "jotai";
 import { AllValidatorsTable } from "./AllValidatorsTable";
@@ -25,11 +26,15 @@ export const StakingOverview = (): JSX.Element => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
   const unbondedAmounts = useAtomValue(unbondedAmountByAddressAtom);
+  const withdrawableAmounts = useAtomValue(withdrawableAmountByAddressAtom);
   const stakedByAddress = useAtomValue(stakedAmountByAddressAtom);
   const hasStaking =
     stakedByAddress.isSuccess && Object.keys(stakedByAddress.data).length > 0;
   const hasUnbonded =
     unbondedAmounts.isSuccess && Object.keys(unbondedAmounts.data).length > 0;
+  const hasWithdraws =
+    withdrawableAmounts.isSuccess &&
+    Object.keys(withdrawableAmounts.data).length > 0;
 
   return (
     <PageWithSidebar>
@@ -43,7 +48,7 @@ export const StakingOverview = (): JSX.Element => {
             <MyValidatorsTable />
           </Panel>
         )}
-        {hasUnbonded && (
+        {(hasUnbonded || hasWithdraws) && (
           <Panel title="Unbonding" className="relative">
             <UnbondingAmountsTable />
           </Panel>

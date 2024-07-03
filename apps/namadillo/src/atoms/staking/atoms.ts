@@ -1,8 +1,9 @@
-import { WithdrawProps } from "@namada/types";
+import { BondProps, WithdrawProps } from "@namada/types";
 import { chainAtom } from "atoms/chain";
 import { queryDependentFn } from "atoms/utils";
 import { myValidatorsAtom } from "atoms/validators";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
+import { atomFamily } from "jotai/utils";
 import { TransactionPair } from "lib/query";
 import {
   ChangeInStakingProps,
@@ -73,7 +74,24 @@ export const createWithdrawTxAtom = atomWithMutation((get) => {
       gasConfig,
       account,
     }: ChangeInStakingProps): Promise<
-      TransactionPair<WithdrawProps>[] | undefined
+      [TransactionPair<WithdrawProps>, BondProps][] | undefined
     > => createWithdrawTx(chain.data!, account, changes, gasConfig),
   };
+});
+
+export const createWithdrawTxAtomFamily = atomFamily((id: string) => {
+  return atomWithMutation((get) => {
+    const chain = get(chainAtom);
+    return {
+      mutationKey: ["create-withdraw-tx", id],
+      enabled: chain.isSuccess,
+      mutationFn: async ({
+        changes,
+        gasConfig,
+        account,
+      }: ChangeInStakingProps): Promise<
+        [TransactionPair<WithdrawProps>, BondProps][] | undefined
+      > => createWithdrawTx(chain.data!, account, changes, gasConfig),
+    };
+  });
 });
