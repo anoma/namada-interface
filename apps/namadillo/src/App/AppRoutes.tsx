@@ -17,6 +17,8 @@ import { Staking } from "./Staking";
 
 import GovernanceRoutes from "./Governance/routes";
 import SettingsRoutes from "./Settings/routes";
+import { SignMessages } from "./SignMessages/SignMessages";
+import MessageRoutes from "./SignMessages/routes";
 import StakingRoutes from "./Staking/routes";
 
 export const MainRoutes = (): JSX.Element => {
@@ -46,6 +48,11 @@ export const MainRoutes = (): JSX.Element => {
           <Route
             path={`${SettingsRoutes.index()}/*`}
             element={<SettingsPanel />}
+            errorElement={<RouteErrorBoundary />}
+          />
+          <Route
+            path={`${MessageRoutes.index()}/*`}
+            element={<SignMessages />}
             errorElement={<RouteErrorBoundary />}
           />
         </Routes>
