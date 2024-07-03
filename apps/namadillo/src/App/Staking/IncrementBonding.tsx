@@ -264,10 +264,16 @@ const IncrementBonding = (): JSX.Element => {
             >
               {isPerformingBond ? "Processing..." : errorMessage || "Stake"}
             </ActionButton>
-            <TransactionFees
-              className="absolute right-4 top-1/2 -translate-y-1/2"
-              numberOfTransactions={Object.keys(updatedAmountByAddress).length}
-            />
+            {gasLimits.isSuccess && (
+              <TransactionFees
+                txKind="Bond"
+                className="absolute text-right right-4 top-1/2 -translate-y-1/2"
+                displayWarning={true}
+                numberOfTransactions={
+                  Object.keys(updatedAmountByAddress).length
+                }
+              />
+            )}
           </div>
         </form>
       </ModalContainer>
