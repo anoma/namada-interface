@@ -47,7 +47,7 @@ export const SignMessages = (): JSX.Element => {
               onChange={(e) => setMessage(e.target.value)}
               variant="Textarea"
               placeholder="Type the message you want to sign"
-              className="h-full [&>div]:h-full"
+              className="h-full [&>div]:h-full [&_textarea]:resize-none"
               readOnly={isPending}
               required
             />
