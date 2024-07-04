@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { ChangeEventHandler, useState } from "react";
+import { ChangeEventHandler, useEffect, useState } from "react";
 
 import { Result } from "@namada/utils";
 
@@ -26,7 +26,11 @@ type ValidationError =
 const validate = (
   stringValue: string,
   props: Pick<Props, "min" | "max" | "maxDecimalPlaces">
-): Result<BigNumber, ValidationError> => {
+): Result<BigNumber | undefined, ValidationError> => {
+  if (stringValue === "") {
+    return Result.ok(undefined);
+  }
+
   const { min, max, maxDecimalPlaces } = props;
   const asBigNumber = new BigNumber(stringValue);
 
@@ -34,16 +38,18 @@ const validate = (
     return Result.err("NotANumber");
   }
 
-  const decimalPlaces = asBigNumber.decimalPlaces();
+  // Test for too many decimal places against the input string and not the
+  // BigNumber in order to catch too many zeroes e.g. "12.00000000000000"
+  const tooManyDecimalPlaces =
+    typeof maxDecimalPlaces === "undefined" ? false : (
+      new RegExp(`\\..{${maxDecimalPlaces + 1},}$`).test(stringValue)
+    );
 
-  if (decimalPlaces === null) {
-    return Result.err("NotANumber");
-  } else if (
-    maxDecimalPlaces !== undefined &&
-    decimalPlaces > maxDecimalPlaces
-  ) {
+  if (tooManyDecimalPlaces) {
     return Result.err("TooManyDecimalPlaces");
-  } else if (min !== undefined && asBigNumber.isLessThan(min)) {
+  }
+
+  if (min !== undefined && asBigNumber.isLessThan(min)) {
     return Result.err("TooSmall");
   } else if (max !== undefined && asBigNumber.isGreaterThan(max)) {
     return Result.err("TooBig");
@@ -61,19 +67,23 @@ export const AmountInput: React.FC<Props> = ({
   error,
   ...rest
 }) => {
-  const [inputString, setInputString] = useState<string | undefined>();
+  const [inputString, setInputString] = useState<string>("");
   const [lastKnownValue, setLastKnownValue] = useState<BigNumber>();
-  const [validationError, setValidationError] = useState<string>();
+  const [validationError, setValidationError] = useState<string>("");
 
-  const valueChanged =
-    value === undefined || lastKnownValue === undefined ?
-      value !== lastKnownValue
-    : !value.isEqualTo(lastKnownValue);
+  useEffect(() => {
+    // This check ensures we don't overwrite the user's input string.
+    // Otherwise, typing "12.0" would render "12", for example.
+    const valueChanged =
+      value === undefined || lastKnownValue === undefined ?
+        value !== lastKnownValue
+      : !value.isEqualTo(lastKnownValue);
 
-  if (valueChanged) {
-    setLastKnownValue(value);
-    setInputString(value?.toString());
-  }
+    if (valueChanged) {
+      setLastKnownValue(value);
+      setInputString(typeof value === "undefined" ? "" : value.toString());
+    }
+  }, [value]);
 
   const errorMessages: Record<ValidationError, string> = {
     NotANumber: "Not a number",
@@ -86,29 +96,19 @@ export const AmountInput: React.FC<Props> = ({
     const stringValue = event.target.value;
     setInputString(stringValue);
 
-    if (stringValue === undefined || stringValue === "") {
-      onChange?.({
-        ...event,
-        target: { ...event.target, value: undefined },
-        currentTarget: { ...event.currentTarget, value: undefined },
-      });
-      return;
-    }
-
     const validateResult = validate(stringValue, {
       min,
       max,
       maxDecimalPlaces,
     });
-    const asBigNumber = validateResult.ok ? validateResult.value : undefined;
 
-    const error =
-      validateResult.ok || stringValue === "" ?
-        ""
-      : errorMessages[validateResult.error];
-    setValidationError(error);
+    const asBigNumber = validateResult.ok ? validateResult.value : undefined;
     setLastKnownValue(asBigNumber);
+
+    const error = validateResult.ok ? "" : errorMessages[validateResult.error];
+    setValidationError(error);
     event.currentTarget.setCustomValidity(error);
+
     onChange?.({
       ...event,
       target: { ...event.target, value: asBigNumber },

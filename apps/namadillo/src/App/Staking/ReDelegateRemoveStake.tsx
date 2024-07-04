@@ -71,7 +71,7 @@ export const ReDelegateRemoveStake = ({
     invariant(myValidators.isSuccess, "My validators are not loaded");
     myValidators.data!.forEach((mv: MyValidator) => {
       if (stakedAmountByAddress[mv.validator.address]) {
-        onChangeValidatorAmount(mv.validator, new BigNumber(0));
+        onChangeValidatorAmount(mv.validator, undefined);
       }
     });
   };
