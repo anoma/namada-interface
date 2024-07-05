@@ -1,6 +1,7 @@
 import { Modal } from "@namada/components";
 import { ModalTransition } from "App/Common/ModalTransition";
 import clsx from "clsx";
+import { useModalCloseEvent } from "hooks/useModalCloseEvent";
 import { FaChevronLeft } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
@@ -12,16 +13,7 @@ import SettingsRoutes from "./routes";
 export const SettingsPanel = (): JSX.Element => {
   const location = useLocation();
   const navigate = useNavigate();
-
-  const onClose = (): void => {
-    if (location.state?.backgroundLocation) {
-      navigate((location.state.backgroundLocation as Location).pathname, {
-        replace: true,
-      });
-    } else {
-      navigate("/", { replace: true });
-    }
-  };
+  const { onCloseModal } = useModalCloseEvent();
 
   const onClickBack = (): void => {
     navigate(SettingsRoutes.index(), { state: location.state });
@@ -29,7 +21,7 @@ export const SettingsPanel = (): JSX.Element => {
 
   return (
     <Modal
-      onClose={onClose}
+      onClose={onCloseModal}
       className={clsx(
         "w-full left-auto right-0 top-0 translate-x-0",
         "translate-y-0 pointer-events-none"
@@ -46,7 +38,7 @@ export const SettingsPanel = (): JSX.Element => {
           <header className="relative">
             <h1 className="text-center text-md">Settings</h1>
             <button
-              onClick={onClose}
+              onClick={onCloseModal}
               className="absolute right-0 top-0 flex items-center h-full text-2xl hover:text-yellow"
             >
               <IoClose />
