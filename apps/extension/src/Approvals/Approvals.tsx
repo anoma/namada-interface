@@ -8,6 +8,7 @@ import { AppHeader } from "App/Common/AppHeader";
 import { TopLevelRoute } from "Approvals/types";
 import { ApproveConnection } from "./ApproveConnection";
 import { ApproveSignArbitrary } from "./ApproveSignArbitrary";
+import { ApproveSignArbitraryDetails } from "./ApproveSignArbitraryDetails";
 import {
   ApproveSignTx,
   ConfirmSignLedgerTx,
@@ -32,6 +33,7 @@ export type ApprovalDetails = {
 export type SignArbitraryDetails = {
   msgId: string;
   signer: string;
+  data: string;
 };
 
 export const Approvals: React.FC = () => {
@@ -81,6 +83,14 @@ export const Approvals: React.FC = () => {
             />
           }
         />
+        {signArbitraryDetails && (
+          <Route
+            path={TopLevelRoute.ApproveSignArbitraryDetails}
+            element={
+              <ApproveSignArbitraryDetails details={signArbitraryDetails} />
+            }
+          />
+        )}
         <Route
           path={TopLevelRoute.ConfirmSignArbitrary}
           element={<ConfirmSignature details={signArbitraryDetails} />}

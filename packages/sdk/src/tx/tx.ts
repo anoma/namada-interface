@@ -3,7 +3,6 @@ import {
   BuiltTx,
   Sdk as SdkWasm,
   TxType,
-  TxTypeLabel,
   deserialize_tx,
 } from "@namada/shared";
 import {
@@ -378,17 +377,12 @@ export class Tx {
 
   /**
    * Build a batched transaction
-   * @param txType - transaction type enum
    * @param txs - array of BuiltTx types
    * @param wrapperTxMsg - Uint8Array of serialized WrapperTxMsg
    * @returns a BuiltTx type
    */
-  buildBatch(
-    txType: TxType,
-    txs: BuiltTx[],
-    wrapperTxMsg: Uint8Array
-  ): BuiltTx {
-    return SdkWasm.build_batch(txType, txs, wrapperTxMsg);
+  buildBatch(txs: BuiltTx[], wrapperTxMsg: Uint8Array): BuiltTx {
+    return SdkWasm.build_batch(txs, wrapperTxMsg);
   }
 
   /**
@@ -499,7 +493,7 @@ export class Tx {
       ...wrapperTx,
       commitments: commitments.map(
         ({ txType, hash, wasmHash, memo, data }) => ({
-          txType: TxTypeLabel[txType as TxType],
+          txType: txType as TxType,
           hash,
           wasmHash,
           memo,

@@ -7,6 +7,7 @@ import {
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
   ConnectInterfaceResponseMsg,
+  QuerySignArbitraryDataMsg,
   QueryTxDetailsMsg,
   RejectSignArbitraryMsg,
   RejectSignTxMsg,
@@ -65,6 +66,11 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         );
       case QueryTxDetailsMsg:
         return handleQueryTxDetails(service)(env, msg as QueryTxDetailsMsg);
+      case QuerySignArbitraryDataMsg:
+        return handleQuerySignArbitraryData(service)(
+          env,
+          msg as QuerySignArbitraryDataMsg
+        );
 
       default:
         throw new Error("Unknown msg type");
@@ -165,5 +171,13 @@ const handleQueryTxDetails: (
 ) => InternalHandler<QueryTxDetailsMsg> = (service) => {
   return async (_, { msgId }) => {
     return await service.queryTxDetails(msgId);
+  };
+};
+
+const handleQuerySignArbitraryData: (
+  service: ApprovalsService
+) => InternalHandler<QuerySignArbitraryDataMsg> = (service) => {
+  return async (_, { msgId }) => {
+    return await service.querySignArbitraryDetails(msgId);
   };
 };

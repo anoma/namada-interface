@@ -10,6 +10,8 @@ export type PendingTx = {
   signer: string;
 };
 
+export type PendingSignArbitrary = string;
+
 export type EncodedTxData = {
   txBytes: string;
   signingDataBytes: string[];

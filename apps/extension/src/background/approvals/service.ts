@@ -96,7 +96,6 @@ export class ApprovalsService {
     });
     const popupTabId = await this.getPopupTabId(url);
 
-    // TODO: can tabId be 0?
     if (!popupTabId) {
       throw new Error("no popup tab ID");
     }
@@ -276,6 +275,16 @@ export class ApprovalsService {
 
     const { tx } = this.sdkService.getSdk();
     return tx.deserialize(pendingTx.tx.txBytes, wasmHashes || []);
+  }
+
+  async querySignArbitraryDetails(msgId: string): Promise<string> {
+    const pendingSignArbitrary = await this.dataStore.get(msgId);
+
+    if (!pendingSignArbitrary) {
+      throw new Error(`No pending sign-arbitrary data found for ${msgId}`);
+    }
+
+    return pendingSignArbitrary;
   }
 
   private async _clearPendingTx(msgId: string): Promise<void> {

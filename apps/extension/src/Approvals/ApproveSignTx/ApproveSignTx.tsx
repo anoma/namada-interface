@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { TxType, TxTypeLabel } from "@heliax/namada-sdk/web";
+import { TxType } from "@heliax/namada-sdk/web";
 import { ActionButton, Alert, Stack } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
 import {
@@ -107,34 +107,34 @@ export const ApproveSignTx: React.FC<Props> = ({ details, setDetails }) => {
           <Stack gap={1}>
             {details.txDetails.commitments.map((tx, i) => {
               switch (tx.txType) {
-                case TxTypeLabel[TxType.RevealPK]:
+                case TxType.RevealPK:
                   const revealPk = tx as RevealPkProps;
                   return <div key={i}>RevealPK: {revealPk.publicKey}</div>;
-                case TxTypeLabel[TxType.Bond]:
+                case TxType.Bond:
                   const bond = tx as BondProps;
                   return (
                     <div key={i}>
                       Bond: {bond.validator} {bond.amount}
                     </div>
                   );
-                case TxTypeLabel[TxType.Unbond]:
+                case TxType.Unbond:
                   const unbond = tx as UnbondProps;
                   return (
                     <div key={i}>
                       Unbond: {unbond.validator} {unbond.amount}
                     </div>
                   );
-                case TxTypeLabel[TxType.VoteProposal]:
+                case TxType.VoteProposal:
                   const voteProposal = tx as VoteProposalProps;
                   return (
                     <div key={i}>
                       Vote: {voteProposal.vote} {voteProposal.proposalId}
                     </div>
                   );
-                case TxTypeLabel[TxType.Withdraw]:
+                case TxType.Withdraw:
                   const withdraw = tx as WithdrawProps;
                   return <div key={i}>Withdraw: {withdraw.validator}</div>;
-                case TxTypeLabel[TxType.TransparentTransfer]:
+                case TxType.TransparentTransfer:
                   const transfer = tx as TransparentTransferProps;
                   return (
                     <div key={i}>

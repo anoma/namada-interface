@@ -1,4 +1,4 @@
-import { BuiltTx, EncodedTx, TxType } from "@heliax/namada-sdk/web";
+import { BuiltTx, EncodedTx } from "@heliax/namada-sdk/web";
 import { getIntegration } from "@namada/integrations";
 import {
   Account,
@@ -96,7 +96,7 @@ export const buildTxArray = async <T>(
   const initialTx = encodedTxs[0].tx;
   const wrapperTxMsg = initialTx.wrapper_tx_msg();
 
-  const batchTx = tx.buildBatch(TxType.Batch, txs, wrapperTxMsg);
+  const batchTx = tx.buildBatch(txs, wrapperTxMsg);
 
   txArray.push({
     tx: batchTx,

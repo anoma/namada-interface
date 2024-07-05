@@ -14,6 +14,7 @@ export enum TopLevelRoute {
 
   // Sign arbitrary approval
   ApproveSignArbitrary = "/approve-sign-arbitrary",
+  ApproveSignArbitraryDetails = "/approve-sign-arbitrary-details",
   ConfirmSignArbitrary = "/confirm-sign-arbitrary",
 }
 

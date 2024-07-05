@@ -330,7 +330,6 @@ impl Sdk {
 
     /// Build a batch Tx from built transactions and return the bytes
     pub fn build_batch(
-        tx_type: TxType,
         built_txs: Vec<BuiltTx>,
         wrapper_tx_msg: Vec<u8>,
     ) -> Result<BuiltTx, JsError> {
@@ -351,7 +350,7 @@ impl Sdk {
         let (tx, signing_data) = build_batch(txs.clone())?;
 
         Ok(BuiltTx {
-            tx_type,
+            tx_type: TxType::Batch,
             tx,
             signing_data,
             wrapper_tx_msg,

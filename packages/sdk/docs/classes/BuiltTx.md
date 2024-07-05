@@ -30,7 +30,7 @@
 | :------ | :------ |
 | `tx_type` | [`TxType`](../enums/TxType.md) |
 | `tx_bytes` | `Uint8Array` |
-| `signing_data_bytes` | `Uint8Array` |
+| `signing_data_bytes` | `any` |
 | `wrapper_tx_msg` | `Uint8Array` |
 
 #### Returns
@@ -39,7 +39,7 @@
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:64
+shared/src/shared/shared.d.ts:71
 
 ## Methods
 
@@ -53,21 +53,21 @@ shared/src/shared/shared.d.ts:64
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:57
+shared/src/shared/shared.d.ts:64
 
 ___
 
 ### signing\_data\_bytes
 
-▸ **signing_data_bytes**(): `Uint8Array`
+▸ **signing_data_bytes**(): `any`
 
 #### Returns
 
-`Uint8Array`
+`any`
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:80
+shared/src/shared/shared.d.ts:87
 
 ___
 
@@ -81,7 +81,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:68
+shared/src/shared/shared.d.ts:75
 
 ___
 
@@ -95,7 +95,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:72
+shared/src/shared/shared.d.ts:79
 
 ___
 
@@ -109,7 +109,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:76
+shared/src/shared/shared.d.ts:83
 
 ___
 
@@ -123,7 +123,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:84
+shared/src/shared/shared.d.ts:91
 
 ___
 
@@ -137,4 +137,4 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:88
+shared/src/shared/shared.d.ts:95

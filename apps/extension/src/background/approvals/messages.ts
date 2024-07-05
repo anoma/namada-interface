@@ -12,6 +12,7 @@ export enum MessageType {
   ConnectInterfaceResponse = "connect-interface-response",
   RevokeConnection = "revoke-connection",
   QueryTxDetails = "query-tx-details",
+  QuerySignArbitraryData = "query-sign-arbitrary-data",
 }
 
 export class SubmitApprovedSignTxMsg extends Message<void> {
@@ -180,5 +181,27 @@ export class QueryTxDetailsMsg extends Message<TxDetails> {
 
   type(): string {
     return QueryTxDetailsMsg.type();
+  }
+}
+
+export class QuerySignArbitraryDataMsg extends Message<string> {
+  public static type(): MessageType {
+    return MessageType.QuerySignArbitraryData;
+  }
+
+  constructor(public readonly msgId: string) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["msgId"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return QuerySignArbitraryDataMsg.type();
   }
 }
