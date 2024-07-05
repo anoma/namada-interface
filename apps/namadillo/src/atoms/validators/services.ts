@@ -31,12 +31,10 @@ export const fetchAllValidators = async (
 ): Promise<Validator[]> => {
   const epochInfo = chainParameters.epochInfo;
   const nominalApr = chainParameters.apr;
-  const validatorsResponse = await api.apiV1PosValidatorGet(1, [
+  const validatorsResponse = await api.apiV1PosValidatorAllGet([
     IndexerValidatorStatus.Consensus,
   ]);
-
-  // TODO: rename one data to items?
-  const validators = validatorsResponse.data.data;
+  const validators = validatorsResponse.data;
   return validators.map((v) =>
     toValidator(v, votingPower, epochInfo, nominalApr)
   );
