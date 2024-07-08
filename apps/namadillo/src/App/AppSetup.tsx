@@ -66,7 +66,7 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
               onClick={() => setChangeIndexerSettings(true)}
             >
               click here
-            </button>
+            </button>{" "}
             to verify your indexer settings.
           </>
         }
