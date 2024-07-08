@@ -127,7 +127,7 @@ const decodeProposalType = (
             ] =
               "Add" in continuous ?
                 [continuous["Add"], "add" as const]
-              : [continuous["Remove"], "remove" as const];
+                : [continuous["Remove"], "remove" as const];
 
             const amountAsBigNumber = BigNumber(amount);
 
@@ -357,7 +357,7 @@ export const createVoteProposalTx = async (
   account: Account,
   gasConfig: GasConfig,
   chain: ChainSettings
-): Promise<TransactionPair<VoteProposalProps>[]> => {
+): Promise<TransactionPair<VoteProposalProps>> => {
   try {
     const { tx } = await getSdkInstance();
 
@@ -367,7 +367,7 @@ export const createVoteProposalTx = async (
       vote,
     };
 
-    const transactionPairs = await buildTxPair(
+    const transactionPair = await buildTxPair(
       account,
       gasConfig,
       chain,
@@ -375,7 +375,7 @@ export const createVoteProposalTx = async (
       tx.buildVoteProposal,
       account.address
     );
-    return transactionPairs;
+    return transactionPair;
   } catch (err) {
     console.error(err);
     throw err;

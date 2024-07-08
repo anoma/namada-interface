@@ -114,23 +114,19 @@ const IncrementBonding = (): JSX.Element => {
     });
   };
 
-  const dispatchBondingTransactions = (
-    transactions: TransactionPair<BondProps>[]
-  ): void => {
-    for (const tx of transactions) {
-      broadcastTx(
-        tx.encodedTxData.tx,
-        tx.signedTx,
-        tx.encodedTxData.meta?.props,
-        "Bond"
-      );
-    }
+  const dispatchBondingTransaction = (tx: TransactionPair<BondProps>): void => {
+    broadcastTx(
+      tx.encodedTxData.tx,
+      tx.signedTx,
+      tx.encodedTxData.meta?.props,
+      "Bond"
+    );
   };
 
   useEffect(() => {
     if (isSuccess) {
       dispatchPendingNotification();
-      bondTransactionData && dispatchBondingTransactions(bondTransactionData);
+      bondTransactionData && dispatchBondingTransaction(bondTransactionData);
       onCloseModal();
     }
   }, [isSuccess]);
@@ -145,7 +141,7 @@ const IncrementBonding = (): JSX.Element => {
             errorMessage={
               bondTransactionError instanceof Error ?
                 bondTransactionError.message
-              : undefined
+                : undefined
             }
           />
         ),

@@ -23,7 +23,7 @@ export const createBondTx = async (
   account: Account,
   changes: ChangeInStakingPosition[],
   gasConfig: GasConfig
-): Promise<TransactionPair<BondProps>[] | undefined> => {
+): Promise<TransactionPair<BondProps> | undefined> => {
   const { tx } = await getSdkInstance();
   const bondProps = getStakingChangesParams(
     account,
@@ -46,7 +46,7 @@ export const createUnbondTx = async (
   account: Account,
   changes: ChangeInStakingPosition[],
   gasConfig: GasConfig
-): Promise<TransactionPair<UnbondMsgValue>[]> => {
+): Promise<TransactionPair<UnbondMsgValue>> => {
   const { tx } = await getSdkInstance();
   const unbondProps = getStakingChangesParams(
     account,
@@ -69,7 +69,7 @@ export const createReDelegateTx = async (
   account: Account,
   changes: RedelegateChange[],
   gasConfig: GasConfig
-): Promise<TransactionPair<RedelegateMsgValue>[]> => {
+): Promise<TransactionPair<RedelegateMsgValue>> => {
   const { tx } = await getSdkInstance();
   const redelegateProps = getRedelegateChangeParams(account, changes);
   const transactionPairs = await buildTxPair(
@@ -88,14 +88,14 @@ export const createWithdrawTx = async (
   account: Account,
   changes: ChangeInStakingPosition[],
   gasConfig: GasConfig
-): Promise<[TransactionPair<WithdrawProps>, BondProps][] | undefined> => {
+): Promise<[TransactionPair<WithdrawProps>, BondProps] | undefined> => {
   const { tx } = await getSdkInstance();
   const withdrawProps = getStakingChangesParams(
     account,
     chain.nativeTokenAddress,
     changes
   );
-  const transactionPairs = await buildTxPair(
+  const transactionPair = await buildTxPair(
     account,
     gasConfig,
     chain,
@@ -104,5 +104,5 @@ export const createWithdrawTx = async (
     withdrawProps[0].source
   );
 
-  return transactionPairs.map((pair, index) => [pair, withdrawProps[index]]);
+  return [transactionPair, withdrawProps[0]];
 };
