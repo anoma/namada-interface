@@ -79,7 +79,7 @@ export const borderRadius = {
   buttonBorderRadius: "200px",
 };
 
-export const fonts = {
+export const fontSize = {
   xxs: "0.625rem",
   xs: "0.75rem",
   sm: "0.875rem",
@@ -147,7 +147,7 @@ export const keyframes = {
   },
 };
 
-export const spacements = {
+export const spacing = {
   13: "3.25rem",
   14: "3.5rem",
   15: "3.75rem",

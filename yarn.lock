@@ -8205,7 +8205,6 @@ __metadata:
     eslint-plugin-react: "npm:^7.33.0"
     eslint-plugin-react-hooks: "npm:^4.6.0"
     react-icons: "npm:^4.12.0"
-    styled-components: "npm:^5.3.5"
     tailwind-merge: "npm:^2.1.0"
     tailwind-variants: "npm:^0.1.18"
     typescript: "npm:^5.1.3"
