@@ -492,10 +492,10 @@ export class Tx {
     return {
       ...wrapperTx,
       commitments: commitments.map(
-        ({ txType, hash, wasmHash, memo, data }) => ({
+        ({ txType, hash, txCodeId, memo, data }) => ({
           txType: txType as TxType,
           hash,
-          wasmHash,
+          txCodeId,
           memo,
           ...getProps(txType, data),
         })

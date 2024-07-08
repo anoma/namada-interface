@@ -35,5 +35,5 @@ export const fetchMinimumGasPrice = async (
     !asBigNumber.isNaN(),
     "Error converting minimum gas price to BigNumber"
   );
-  return asBigNumber.dividedBy(10_000);
+  return asBigNumber;
 };

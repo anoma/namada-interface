@@ -1,11 +1,11 @@
+import { deserialize } from "@dao-xyz/borsh";
 import {
   Query as QueryWasm,
   Sdk as SdkWasm,
   TransferToEthereum,
 } from "@namada/shared";
-
-import { deserialize } from "@dao-xyz/borsh";
 import { TxResponseMsgValue, TxResponseProps, WasmHash } from "@namada/types";
+
 import { SignedTx } from "../tx/types";
 import {
   Balance,

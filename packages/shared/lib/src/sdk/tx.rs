@@ -134,7 +134,7 @@ pub fn deserialize_tx(tx_bytes: Vec<u8>, wasm_hashes: JsValue) -> Result<Vec<u8>
 pub struct Commitment {
     tx_type: TxType,
     hash: String,
-    wasm_hash: String,
+    tx_code_id: String,
     memo: Option<String>,
     data: Vec<u8>,
 }
@@ -147,7 +147,7 @@ pub struct TxDetails {
 }
 
 impl TxDetails {
-    pub fn from_bytes(tx_bytes: Vec<u8>, paths_hashes: JsValue) -> Result<TxDetails, JsError> {
+    pub fn from_bytes(tx_bytes: Vec<u8>, wasm_hashes: JsValue) -> Result<TxDetails, JsError> {
         let tx: tx::Tx = borsh::from_slice(&tx_bytes)?;
         let chain_id = tx.header().chain_id.to_string();
 
@@ -160,7 +160,7 @@ impl TxDetails {
                 let wrapper_tx =
                     WrapperTxMsg::new(token, fee_amount, gas_limit, chain_id, None, None);
                 let mut commitments: Vec<Commitment> = vec![];
-                let wasm_hashes: Vec<WasmHash> = paths_hashes.into_serde().unwrap();
+                let wasm_hashes: Vec<WasmHash> = wasm_hashes.into_serde().unwrap();
 
                 for cmt in tx.commitments() {
                     let memo = tx
@@ -176,8 +176,8 @@ impl TxDetails {
                         });
 
                     if tx_code_id.is_some() {
-                        let wasm_hash = tx_code_id.unwrap().to_uppercase();
-                        let tx_type = wasm_hash_to_tx_type(&wasm_hash, &wasm_hashes);
+                        let tx_code_id = tx_code_id.unwrap().to_uppercase();
+                        let tx_type = wasm_hash_to_tx_type(&tx_code_id, &wasm_hashes);
 
                         if tx_type.is_some() {
                             let tx_type = tx_type.unwrap();
@@ -188,7 +188,7 @@ impl TxDetails {
                             commitments.push(Commitment {
                                 tx_type,
                                 hash,
-                                wasm_hash,
+                                tx_code_id,
                                 memo,
                                 data,
                             });

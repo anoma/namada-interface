@@ -11,7 +11,7 @@ export class CommitmentMsgValue {
   hash!: string;
 
   @field({ type: "string" })
-  wasmHash!: string;
+  txCodeId!: string;
 
   @field({ type: option("string") })
   memo?: string;

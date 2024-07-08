@@ -1,8 +1,6 @@
 import initSdk from "@heliax/namada-sdk/inline-init";
 import { Sdk, getSdk } from "@heliax/namada-sdk/web";
-import { Namada, useIntegration } from "@namada/integrations";
-import { WasmHash } from "@namada/types";
-import { chainAtom, nativeTokenAddressAtom } from "atoms/chain";
+import { nativeTokenAddressAtom } from "atoms/chain";
 import { rpcUrlAtom } from "atoms/settings";
 import { getDefaultStore, useAtomValue } from "jotai";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -34,42 +32,15 @@ export const getSdkInstance = async (): Promise<Sdk> => {
   return sdkInstance;
 };
 
-const fetchWasmHashes = async (
-  chainId: string,
-  sdk: Sdk,
-  integration: Namada
-): Promise<WasmHash[] | undefined> => {
-  const wasmHashes = await integration.getTxWasmHashes(chainId);
-  if (!wasmHashes) {
-    const { rpc } = sdk;
-    return await rpc.queryWasmHashes();
-  }
-};
-
 export const SdkProvider: React.FC = ({ children }) => {
   const [sdk, setSdk] = useState<Sdk>();
   const nativeToken = useAtomValue(nativeTokenAddressAtom);
-  // TODO: Is this the best place for this?
-  const chain = useAtomValue(chainAtom);
-  const integration = useIntegration("namada");
 
   useEffect(() => {
     if (nativeToken.data) {
       getSdkInstance().then((sdk) => setSdk(sdk));
     }
   }, [nativeToken.data]);
-
-  useEffect(() => {
-    if (chain.data && sdk) {
-      const { chainId } = chain.data;
-      fetchWasmHashes(chainId, sdk, integration).then((hashes) => {
-        // Add new wasm hashes if they are returned
-        if (hashes) {
-          integration.addTxWasmHashes(chainId, hashes);
-        }
-      });
-    }
-  }, [chain, sdk]);
 
   return (
     <>
