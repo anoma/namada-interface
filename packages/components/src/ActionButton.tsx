@@ -125,7 +125,7 @@ export const ActionButton = ({
   ...props
 }: ActionButtonProps<keyof React.ReactHTML>): JSX.Element => {
   return createElement(
-    props.as || "button",
+    props.as ?? ("href" in props ? "a" : "button"),
     {
       className: actionButton({
         class: className,

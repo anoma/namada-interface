@@ -16,7 +16,6 @@ export const ProposalDiscord: React.FC = () => {
           color="black"
           className="text-white"
           hoverColor="secondary"
-          as="a"
           href={DISCORD_URL}
           target="_blank"
         >
