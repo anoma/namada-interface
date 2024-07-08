@@ -15,12 +15,19 @@ type SearchProps = Omit<
 export const Search = ({
   onChange,
   className,
+  placeholder,
   ...rest
 }: SearchProps): JSX.Element => {
   const [displaySearchIcon, setDisplaySearchIcon] = useState(true);
   const debouncedSearch = useRef(
     debounce((value: string) => onChange?.(value), 300)
   );
+
+  // Hideous hack to add padding to placeholder in Firefox.
+  // Needed because setting padding or text-indent on ::placeholder in Firefox
+  // doesn't work.
+  const isFirefox = /firefox/i.test(navigator.userAgent);
+  const paddedPlaceholder = isFirefox ? `       ${placeholder}` : placeholder;
 
   return (
     <div className="w-full text-neutral-500/50 flex relative">
@@ -45,6 +52,7 @@ export const Search = ({
         onBlur={(e) =>
           e.target.value.length === 0 && setDisplaySearchIcon(true)
         }
+        placeholder={paddedPlaceholder}
         {...rest}
       />
     </div>
