@@ -179,7 +179,6 @@ const WasmButton: React.FC<{
       outlined
       borderRadius="sm"
       disabled={disabled}
-      as="a"
       download={filename}
       href={href}
     >
