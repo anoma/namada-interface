@@ -46,7 +46,8 @@ export const Container = ({
           className={clsx(
             "transition-transform duration-500 ease-out-expo",
             "pt-10 bg-black rounded-sm fixed top-0 z-[9999] w-[240px]",
-            "h-[calc(100svh-90px)] left-0 xl:z-0 xl:transition-none xl:pt-0 xl:w-auto xl:relative",
+            "h-svh xl:h-[calc(100svh-90px)] left-0 xl:z-0 xl:transition-none",
+            "xl:pt-0 xl:w-auto xl:relative",
             { "-translate-x-full xl:translate-x-0": !displayNavigation }
           )}
         >
