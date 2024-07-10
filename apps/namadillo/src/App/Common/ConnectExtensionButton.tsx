@@ -13,7 +13,7 @@ export const ConnectExtensionButton = (): JSX.Element => {
     <>
       {extensionAttachStatus === "attached" && !isExtensionConnected && (
         <ActionButton
-          color="yellow"
+          backgroundColor="yellow"
           size="sm"
           borderRadius="sm"
           onClick={connect}
@@ -26,7 +26,7 @@ export const ConnectExtensionButton = (): JSX.Element => {
           href="https://namada.net/extension"
           target="_blank"
           rel="nofollow noreferrer"
-          color="yellow"
+          backgroundColor="yellow"
           size="sm"
           borderRadius="sm"
         >

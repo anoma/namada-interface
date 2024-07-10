@@ -108,7 +108,7 @@ export const StakingSummary = (): JSX.Element => {
                 className="px-8"
                 borderRadius="sm"
                 size="xs"
-                color="cyan"
+                backgroundColor="cyan"
                 onClick={() => navigate(StakingRoutes.incrementBonding().url)}
               >
                 Stake
@@ -137,7 +137,7 @@ export const StakingSummary = (): JSX.Element => {
               className="px-8"
               borderRadius="sm"
               size="xs"
-              color="white"
+              backgroundColor="white"
               disabled
             >
               Claim

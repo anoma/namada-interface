@@ -111,7 +111,7 @@ export const ReDelegateRemoveStake = ({
               outlined
               size="sm"
               borderRadius="sm"
-              color="cyan"
+              backgroundColor="cyan"
               onClick={onReDelegateAll}
             >
               Re-delegate all
@@ -122,7 +122,7 @@ export const ReDelegateRemoveStake = ({
               outlined
               size="sm"
               borderRadius="sm"
-              color="white"
+              backgroundColor="white"
               onClick={onClear}
             >
               Clear
@@ -154,7 +154,7 @@ export const ReDelegateRemoveStake = ({
         <ActionButton
           type="button"
           size="sm"
-          color="cyan"
+          backgroundColor="cyan"
           borderRadius="sm"
           className="mt-2 w-1/4 mx-auto text-nowrap min-w-fit"
           disabled={hasZeroUpdatedAmounts || !hasValidUpdatedAmounts}

@@ -8,7 +8,9 @@ import { tv, type VariantProps } from "tailwind-variants";
 const actionButtonShape = tv({
   base: clsx(
     `group relative flex items-center cursor-pointer min-h-[2em]`,
-    `border-transparent border overflow-hidden w-full justify-center text-center relative`,
+    `overflow-hidden w-full justify-center text-center relative`,
+    `text-[var(--text-color)] hover:text-[var(--text-hover-color)]`,
+    `before:border before:border-transparent`,
     `border-none outline-0 active:top-px`
   ),
   variants: {
@@ -25,11 +27,11 @@ const actionButtonShape = tv({
       lg: "rounded-lg before:rounded-lg",
     },
     disabled: {
-      true: "cursor-auto opacity-25 active:top-0",
+      true: "pointer-events-none cursor-auto opacity-25 active:top-0",
     },
     outlined: {
       true: clsx(
-        "text-[var(--color)] before:border-current before:border-[var(--color)] before:absolute",
+        "before:transition-colors before:border before:border-[var(--outline)] before:absolute",
         "before:left-0 before:top-0 before:w-full before:h-full before:z-[1000]"
       ),
     },
@@ -43,25 +45,23 @@ const actionButtonBackground = tv({
     "before:bg-[var(--color)] after:bg-[var(--hover)]",
     "transition-all duration-[0.5s] ease-[var(--ease-out-circ)]"
   ),
-  variants: {
-    outlined: {
-      true: "before:!bg-transparent",
-    },
-  },
 });
 
 const actionButtonText = tv({
   base: clsx(
     "relative font-medium transition-colors duration-100",
-    "text-black z-40 h-full text-center w-full group-hover:text-[var(--color)]"
+    "z-40 h-full text-center w-full"
   ),
 });
 
 export type ActionButtonProps<HtmlTag extends keyof React.ReactHTML> = {
   as?: HtmlTag;
   icon?: React.ReactNode;
-  color?: Color;
-  hoverColor?: Color;
+  backgroundColor?: Color;
+  backgroundHoverColor?: Color;
+  outlineColor?: Color;
+  textColor?: Color;
+  textHoverColor?: Color;
 } & React.ComponentPropsWithoutRef<HtmlTag> &
   VariantProps<typeof actionButtonShape> &
   VariantProps<typeof actionButtonBackground>;
@@ -72,24 +72,39 @@ export const ActionButton = ({
   className,
   size,
   borderRadius,
-  outlined,
   disabled,
-  color = "yellow",
-  hoverColor = "black",
+  backgroundColor = "yellow",
+  backgroundHoverColor = "black",
+  textColor = "black",
   ...props
 }: ActionButtonProps<keyof React.ReactHTML>): JSX.Element => {
-  const colorString = getDefaultColorString(color || "yellow");
-  const hoverString = getDefaultColorString(hoverColor || "black");
+  const colorString = getDefaultColorString(backgroundColor || "yellow");
+  const hoverString = getDefaultColorString(backgroundHoverColor || "black");
+  const outlineColor = props.outlineColor;
+  const textHoverColor =
+    props.textHoverColor ? props.textHoverColor
+    : props.outlineColor ? "black"
+    : backgroundColor;
+  const outlined = !!outlineColor;
+
   return createElement(
     props.as ?? ("href" in props ? "a" : "button"),
     {
       className: twMerge(
-        actionButtonShape({ size, disabled, outlined, borderRadius }),
+        actionButtonShape({
+          size,
+          disabled,
+          borderRadius,
+          outlined,
+        }),
         className
       ),
       style: {
         "--color": colorString,
         "--hover": hoverString,
+        "--text-color": textColor,
+        "--text-hover-color": textHoverColor,
+        "--outline": outlineColor,
       } as CSSProperties,
       disabled,
       ...props,
@@ -101,7 +116,7 @@ export const ActionButton = ({
         </i>
       )}
       <span className={actionButtonText()}>{children}</span>
-      <span className={actionButtonBackground({ outlined })} />
+      <span className={actionButtonBackground()} />
     </>
   );
 };

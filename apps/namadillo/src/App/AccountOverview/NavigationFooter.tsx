@@ -15,18 +15,24 @@ export const NavigationFooter = (): JSX.Element => {
           className="border uppercase"
           onClick={() => navigate(StakingRoutes.overview().url)}
           size="sm"
-          color="cyan"
+          backgroundColor="cyan"
+          outlineColor="cyan"
+          textHoverColor="cyan"
+          backgroundHoverColor="transparent"
           borderRadius="sm"
+          outlined
         >
           Stake
         </ActionButton>
         <ActionButton
           size="sm"
           onClick={() => navigate(GovernanceRoutes.index())}
-          outlined
-          className="uppercase hover:text-rblack before:border before:border-yellow"
+          outlineColor="yellow"
+          className="uppercase"
           borderRadius="sm"
-          hoverColor="cyan"
+          backgroundColor="transparent"
+          textColor="yellow"
+          backgroundHoverColor="yellow"
         >
           Governance
         </ActionButton>

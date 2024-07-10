@@ -124,7 +124,7 @@ const JsonButton: React.FC<{
   return (
     <ActionButton
       className="px-3 py-2"
-      color="white"
+      backgroundColor="white"
       size="xs"
       outlined
       borderRadius="sm"
@@ -174,7 +174,7 @@ const WasmButton: React.FC<{
   return (
     <ActionButton
       className="px-3 py-2"
-      color="white"
+      backgroundColor="white"
       size="xs"
       outlined
       borderRadius="sm"
@@ -326,7 +326,7 @@ const VoteButton: React.FC<{
         size="sm"
         borderRadius="sm"
         className="py-2 px-4"
-        color="white"
+        backgroundColor="white"
         disabled={disabled}
         onClick={onClick}
       >

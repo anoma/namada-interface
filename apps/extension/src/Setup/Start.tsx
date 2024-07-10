@@ -45,7 +45,7 @@ export const Start: React.FC = () => {
         <LinkButton
           className="py-3"
           color="white"
-          hoverColor="primary"
+          backgroundHoverColor="primary"
           onClick={() => navigate(routes.ledgerConnect())}
         >
           Connect Hardware Wallet

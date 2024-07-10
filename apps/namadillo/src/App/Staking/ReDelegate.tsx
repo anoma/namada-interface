@@ -206,7 +206,7 @@ export const ReDelegate = (): JSX.Element => {
               <ActionButton
                 type="button"
                 className="w-32 mx-auto"
-                color="white"
+                backgroundColor="white"
                 size="sm"
                 borderRadius="sm"
                 onClick={() => navigate(StakingRoutes.unstake().url)}

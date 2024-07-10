@@ -85,7 +85,7 @@ export const MyValidatorsTable = (): JSX.Element => {
       <nav className="sm:absolute top-6 right-4 flex gap-2 flex-1 z-50">
         <ActionButton
           className="basis-[content] py-1"
-          color="cyan"
+          backgroundColor="cyan"
           size="md"
           borderRadius="sm"
           onClick={() => navigate(StakingRoutes.incrementBonding().url)}
@@ -94,7 +94,7 @@ export const MyValidatorsTable = (): JSX.Element => {
         </ActionButton>
         <ActionButton
           className="basis-[content] py-1"
-          color="white"
+          backgroundColor="white"
           size="md"
           borderRadius="sm"
           onClick={() => navigate(StakingRoutes.redelegateBonding().url)}
@@ -103,11 +103,11 @@ export const MyValidatorsTable = (): JSX.Element => {
         </ActionButton>
         <ActionButton
           className="basis-[content] py-1 hover:before:border-pink"
-          color="white"
+          backgroundColor="white"
           size="md"
           outlined
           borderRadius="sm"
-          hoverColor="pink"
+          backgroundHoverColor="pink"
           onClick={() => navigate(StakingRoutes.unstake().url)}
         >
           Unstake

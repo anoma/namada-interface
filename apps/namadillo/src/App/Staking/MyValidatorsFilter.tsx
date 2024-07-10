@@ -18,7 +18,7 @@ export const MyValidatorsFilter = ({
       <li>
         <ActionButton
           type="button"
-          color="white"
+          backgroundColor="white"
           size="sm"
           borderRadius="sm"
           outlined={value !== "all"}
@@ -32,7 +32,7 @@ export const MyValidatorsFilter = ({
         <ActionButton
           className={clsx({ [selectedClassList]: value === "my-validators" })}
           type="button"
-          color="white"
+          backgroundColor="white"
           size="sm"
           borderRadius="sm"
           outlined={value !== "my-validators"}
