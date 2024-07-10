@@ -135,8 +135,8 @@ export AR=/opt/homebrew/opt/llvm/bin/llvm-ar
 ### Local chain
 
 Before you start the extension and interface, you will need at least a chain ID and an RPC URL. This can either be a local chain or an
-existing network. If you know the chain ID and URL, you can skip the following and simply enter these values in the `apps/namada-interface/.env`
-file (to see an example of the values you can set, see [.env.sample](./apps/namada-interface/.env.sample).)
+existing network. If you know the chain ID and URL, you can skip the following and simply enter these values in the `apps/namadillo/.env`
+file (to see an example of the values you can set, see [.env.sample](./apps/namadillo/.env.sample).)
 
 To build and run the chain locally, you will need to clone <http://github.com/anoma/namada>.
 
@@ -172,7 +172,7 @@ To build and run the chain locally, you will need to clone <http://github.com/an
    namadan --chain-id {CHAIN_ID} --base-dir ~/Library/Application\ Support/Namada/{CHAIN_ID}/setup/validator-0/.namada ledger run
    ```
 
-6. Edit the following value in `namada-interface/apps/namada-interface/.env` (remember to replace `{CHAIN_ID}`
+6. Edit the following value in `namada-interface/apps/namadillo/.env` (remember to replace `{CHAIN_ID}`
    with the actual chain ID from above):
 
    ```bash
@@ -206,7 +206,7 @@ yarn build:firefox
 
 ### Interface
 
-Within `apps/namada-interface/`, we may issue the following commands:
+Within `apps/namadillo/`, we may issue the following commands:
 
 ```bash
 # Make sure to build wasm dependencies before starting development server
@@ -219,7 +219,7 @@ yarn dev:local
 yarn build
 ```
 
-There are also app-specific instructions in the [namada-interface README](apps/namada-interface/README.md) and the [extension README](apps/extension/README.md).
+There are also app-specific instructions in the [namadillo README](apps/namadillo/README.md) and the [extension README](apps/extension/README.md).
 
 ### Testing
 

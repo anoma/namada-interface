@@ -17,7 +17,7 @@ export NODE_ENV=development; \
     export NAMADA_INTERFACE_NAMADA_URL=http://localhost:27657 && \
     yarn workspace @namada/namada-interface run watch &
 
-npx http-server -p 8080 -c-1 ../apps/namada-interface/build
+npx http-server -p 8080 -c-1 ../apps/namadillo/build
 
 # Sleep indefinitely
 while :; do sleep 86400; done
