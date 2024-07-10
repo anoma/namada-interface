@@ -57,15 +57,19 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
         containerProps={errorContainerProps}
         niceError={
           <>
-            Unable to connect to indexer. Please check your internet connection.
-            If the problem persists,{" "}
-            <button
-              className="text-yellow hover:text-cyan"
-              onClick={() => setChangeIndexerSettings(true)}
-            >
-              click here
-            </button>
-            to verify your indexer settings.
+            <p>
+              Unable to connect to indexer. Please check your internet
+              connection.
+            </p>
+            <p className="mt-1">
+              If the problem persists, you can{" "}
+              <button
+                className="text-yellow hover:text-cyan"
+                onClick={() => setChangeIndexerSettings(true)}
+              >
+                update the indexer settings.
+              </button>
+            </p>
           </>
         }
       />
