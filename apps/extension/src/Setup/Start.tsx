@@ -36,7 +36,9 @@ export const Start: React.FC = () => {
         </ActionButton>
         <ActionButton
           size="lg"
-          outlined
+          outlineColor="yellow"
+          backgroundHoverColor="black"
+          textHoverColor="yellow"
           data-testid="setup-import-keys-button"
           onClick={() => navigate(routes.accountImportSeed())}
         >
@@ -45,7 +47,7 @@ export const Start: React.FC = () => {
         <LinkButton
           className="py-3"
           color="white"
-          backgroundHoverColor="primary"
+          hoverColor="primary"
           onClick={() => navigate(routes.ledgerConnect())}
         >
           Connect Hardware Wallet

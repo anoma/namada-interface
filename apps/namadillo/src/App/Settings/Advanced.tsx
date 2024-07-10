@@ -43,7 +43,7 @@ export const Advanced = (): JSX.Element => {
           required
         />
       </Stack>
-      <ActionButton size="lg" borderRadius="sm" className="shrink-0">
+      <ActionButton borderRadius="sm" className="shrink-0">
         Confirm
       </ActionButton>
     </form>

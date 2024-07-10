@@ -17,10 +17,10 @@ export const NavigationFooter = (): JSX.Element => {
           size="sm"
           backgroundColor="cyan"
           outlineColor="cyan"
+          textColor="black"
           textHoverColor="cyan"
           backgroundHoverColor="transparent"
           borderRadius="sm"
-          outlined
         >
           Stake
         </ActionButton>

@@ -8,7 +8,7 @@ import { tv, type VariantProps } from "tailwind-variants";
 const actionButtonShape = tv({
   base: clsx(
     `group relative flex items-center cursor-pointer min-h-[2em]`,
-    `overflow-hidden w-full justify-center text-center relative`,
+    `overflow-hidden w-full justify-center text-center font-medium relative`,
     `text-[var(--text-color)] hover:text-[var(--text-hover-color)]`,
     `before:border before:border-transparent`,
     `border-none outline-0 active:top-px`
@@ -27,7 +27,7 @@ const actionButtonShape = tv({
       lg: "rounded-lg before:rounded-lg",
     },
     disabled: {
-      true: "pointer-events-none cursor-auto opacity-25 active:top-0",
+      true: "pointer-events-none cursor-auto opacity-25 active:top-0 text-white",
     },
     outlined: {
       true: clsx(
@@ -35,6 +35,10 @@ const actionButtonShape = tv({
         "before:left-0 before:top-0 before:w-full before:h-full before:z-[1000]"
       ),
     },
+  },
+  defaultVariants: {
+    size: "md",
+    borderRadius: "lg",
   },
 });
 
@@ -45,11 +49,19 @@ const actionButtonBackground = tv({
     "before:bg-[var(--color)] after:bg-[var(--hover)]",
     "transition-all duration-[0.5s] ease-[var(--ease-out-circ)]"
   ),
+  variants: {
+    disabled: {
+      true: "before:bg-neutral-500",
+    },
+    noHover: {
+      true: "group-hover:grid-rows-[100%_100%]",
+    },
+  },
 });
 
 const actionButtonText = tv({
   base: clsx(
-    "relative font-medium transition-colors duration-100",
+    "relative transition-colors duration-100",
     "z-40 h-full text-center w-full"
   ),
 });
@@ -73,19 +85,37 @@ export const ActionButton = ({
   size,
   borderRadius,
   disabled,
-  backgroundColor = "yellow",
-  backgroundHoverColor = "black",
-  textColor = "black",
   ...props
 }: ActionButtonProps<keyof React.ReactHTML>): JSX.Element => {
-  const colorString = getDefaultColorString(backgroundColor || "yellow");
-  const hoverString = getDefaultColorString(backgroundHoverColor || "black");
   const outlineColor = props.outlineColor;
+
+  const textColor =
+    props.textColor ? props.textColor
+    : props.outlineColor ? props.outlineColor
+    : "black";
+
+  const backgroundColor =
+    props.backgroundColor ? props.backgroundColor
+    : props.outlineColor ? "transparent"
+    : "yellow";
+
+  const backgroundHoverColor =
+    props.backgroundHoverColor ? props.backgroundHoverColor
+    : props.outlineColor ? props.outlineColor
+    : "black";
+
   const textHoverColor =
     props.textHoverColor ? props.textHoverColor
     : props.outlineColor ? "black"
     : backgroundColor;
+
   const outlined = !!outlineColor;
+  const colorString = getDefaultColorString(backgroundColor);
+  const hoverString = getDefaultColorString(backgroundHoverColor);
+  const textColorString = getDefaultColorString(textColor);
+  const textHoverColorString = getDefaultColorString(textHoverColor);
+  const outlineColorString =
+    outlined ? getDefaultColorString(outlineColor) : undefined;
 
   return createElement(
     props.as ?? ("href" in props ? "a" : "button"),
@@ -102,9 +132,9 @@ export const ActionButton = ({
       style: {
         "--color": colorString,
         "--hover": hoverString,
-        "--text-color": textColor,
-        "--text-hover-color": textHoverColor,
-        "--outline": outlineColor,
+        "--text-color": textColorString,
+        "--text-hover-color": textHoverColorString,
+        "--outline": outlineColorString,
       } as CSSProperties,
       disabled,
       ...props,
@@ -116,7 +146,12 @@ export const ActionButton = ({
         </i>
       )}
       <span className={actionButtonText()}>{children}</span>
-      <span className={actionButtonBackground()} />
+      <span
+        className={actionButtonBackground({
+          disabled,
+          noHover: hoverString === colorString,
+        })}
+      />
     </>
   );
 };

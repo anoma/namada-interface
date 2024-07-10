@@ -48,7 +48,7 @@ export const ParentAccounts = (): JSX.Element => {
       <Stack gap={4}>
         <nav className="grid items-end grid-cols-[auto_min-content]">
           <p className="text-white font-medium text-xs">Set default keys</p>
-          <div className="w-24">
+          <div className="w-26">
             <ActionButton borderRadius="md" size="xs" onClick={goToSetupPage}>
               Add Keys
             </ActionButton>

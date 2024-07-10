@@ -133,8 +133,7 @@ export const WithdrawalButton = ({
   return (
     <ActionButton
       size="xs"
-      backgroundColor="white"
-      outlined
+      outlineColor="white"
       borderRadius="sm"
       disabled={!myValidator.withdrawableAmount || isPending || isSuccess}
       onClick={() => onWithdraw(myValidator)}

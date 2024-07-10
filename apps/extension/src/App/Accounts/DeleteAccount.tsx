@@ -100,7 +100,7 @@ export const DeleteAccount = (): JSX.Element => {
                 private key.
               </p>
               <LinkButton
-                color="yellow"
+                color="primary"
                 className="font-bold mt-4 text-sm underline"
                 href={routes.viewAccountMnemonic(accountId)}
               >

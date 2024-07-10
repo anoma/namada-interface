@@ -1,3 +1,3 @@
-import { colors } from "@namada/components/theme";
+import { colors } from "./theme.js";
 
 export type Color = keyof typeof colors;

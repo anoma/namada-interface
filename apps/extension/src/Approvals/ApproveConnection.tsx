@@ -39,7 +39,7 @@ export const ApproveConnection: React.FC = () => {
           </ActionButton>
           <ActionButton
             borderRadius="sm"
-            outlined
+            outlineColor="yellow"
             onClick={() => handleResponse(false)}
           >
             Reject

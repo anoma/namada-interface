@@ -1,9 +1,9 @@
-import { colors } from "@namada/components/theme";
-import { Color } from "@namada/components/types";
+import { colors } from "./theme.js";
+import { Color } from "./types";
 
 export const getDefaultColorString = (color: Color): string => {
   if (!colors.hasOwnProperty(color)) {
-    throw `Unable to find color ${color}`;
+    throw `Unable to find color`;
   }
 
   const colorValue = colors[color];

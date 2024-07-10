@@ -103,11 +103,13 @@ export const MyValidatorsTable = (): JSX.Element => {
         </ActionButton>
         <ActionButton
           className="basis-[content] py-1 hover:before:border-pink"
-          backgroundColor="white"
-          size="md"
-          outlined
-          borderRadius="sm"
+          backgroundColor="transparent"
+          outlineColor="white"
+          textColor="white"
+          textHoverColor="white"
           backgroundHoverColor="pink"
+          size="md"
+          borderRadius="sm"
           onClick={() => navigate(StakingRoutes.unstake().url)}
         >
           Unstake

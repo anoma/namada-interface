@@ -17,7 +17,7 @@ export const Intro = (): JSX.Element => {
       </div>
       <div className="flex gap-4 w-full">
         <ConnectExtensionButton />
-        <ActionButton size="sm" outlined borderRadius="sm">
+        <ActionButton size="sm" outlineColor="yellow" borderRadius="sm">
           Help
         </ActionButton>
       </div>

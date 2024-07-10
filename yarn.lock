@@ -8195,7 +8195,6 @@ __metadata:
   dependencies:
     "@namada/utils": "npm:0.2.1"
     "@types/react": "npm:^17.0.39"
-    "@types/styled-components": "npm:^5.1.26"
     autoprefixer: "npm:^10.4.16"
     bignumber.js: "npm:^9.1.1"
     clsx: "npm:^2.0.0"
