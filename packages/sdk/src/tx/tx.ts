@@ -26,6 +26,7 @@ import {
   UnbondProps,
   VoteProposalMsgValue,
   VoteProposalProps,
+  WasmHash,
   WithdrawMsgValue,
   WithdrawProps,
   WrapperTxMsgValue,
@@ -461,10 +462,7 @@ export class Tx {
    * @param wasmHashes - Array of wasm paths with their associated hash
    * @returns a TxDetails object
    */
-  deserialize(
-    txBytes: Uint8Array,
-    wasmHashes: { path: string; hash: string }[]
-  ): TxDetails {
+  deserialize(txBytes: Uint8Array, wasmHashes: WasmHash[]): TxDetails {
     const tx = deserialize_tx(txBytes, wasmHashes);
     const { wrapperTx, commitments } = deserialize(tx, TxDetailsMsgValue);
 
