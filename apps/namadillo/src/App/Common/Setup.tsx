@@ -1,7 +1,7 @@
 import { ActionButton, Container, Input, Stack } from "@namada/components";
-import { isUrlValid } from "@namada/utils";
-import { indexerUrlAtom, isIndexerAlive } from "atoms/settings";
-import { useAtomValue, useSetAtom } from "jotai";
+import { indexerUrlAtom } from "atoms/settings";
+import { useUpdateIndexerUrl } from "hooks/useUpdateIndexerUrl";
+import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { DISCORD_URL } from "urls";
 
@@ -10,34 +10,20 @@ type SetupProps = {
 };
 
 export const Setup = ({ onChange }: SetupProps): JSX.Element => {
+  const updateIndexerUrl = useUpdateIndexerUrl();
   const indexerUrl = useAtomValue(indexerUrlAtom);
   const [url, setUrl] = useState(indexerUrl || "");
   const [validatingUrl, setValidatingUrl] = useState(false);
   const [error, setError] = useState("");
-  const setIndexerAtom = useSetAtom(indexerUrlAtom);
 
   const onSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-
-    const trimmedUrl = url.trim();
-    const sanitizedUrl =
-      trimmedUrl.endsWith("/") ? trimmedUrl.slice(0, -1) : url;
-
-    if (!isUrlValid(sanitizedUrl)) {
-      setError(
-        "Error: Invalid URL. Please provide a valid Namada indexer URL to complete your setup."
-      );
-      return;
-    }
-
     setValidatingUrl(true);
-    if (await isIndexerAlive(sanitizedUrl)) {
-      setIndexerAtom(sanitizedUrl);
-      onChange(sanitizedUrl);
-    } else {
-      setError(
-        "Error: Couldn't reach the indexer URL. Please provide a valid indexer service."
-      );
+    try {
+      const result = await updateIndexerUrl(url);
+      onChange(result);
+    } catch (error) {
+      setError(String(error));
     }
     setValidatingUrl(false);
   };
