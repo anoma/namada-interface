@@ -56,7 +56,7 @@ export const ViewKeys = ({
         {viewingKeys && (
           <div className="text-white flex flex-col text-base font-medium gap-3 text-center">
             Viewing keys of shielded account
-            <ActionButton size="md" color="secondary">
+            <ActionButton size="md" color="cyan">
               Download
             </ActionButton>
           </div>

@@ -8,6 +8,7 @@ export const colors = {
   gray: "#292929",
   rblack: "#000000",
   upcoming: "#7DA0A8",
+  transparent: "#00000000",
 
   yellow: {
     DEFAULT: "#FFFF00",
@@ -236,15 +237,15 @@ export const spacing = {
   98: "24.5rem",
 };
 
-module.exports = {
+export default {
   theme: {
     extend: {
       colors,
       borderRadius,
       fontSize,
       transitionTimingFunction,
-      animation,
       keyframes,
+      animation,
       spacing,
     },
   },

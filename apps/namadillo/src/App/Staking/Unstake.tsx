@@ -216,7 +216,7 @@ const Unstake = (): JSX.Element => {
                 <ActionButton
                   type="button"
                   className="inline-flex w-auto leading-none px-4 py-3 mb-4"
-                  color="magenta"
+                  color="pink"
                   borderRadius="sm"
                   outlined
                   onClick={onUnbondAll}
@@ -245,7 +245,7 @@ const Unstake = (): JSX.Element => {
               size="sm"
               color="white"
               borderRadius="sm"
-              hoverColor="magenta"
+              hoverColor="pink"
               className="mt-2 col-start-2"
               disabled={
                 !!validationMessage ||

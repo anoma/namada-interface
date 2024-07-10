@@ -1,6 +1,5 @@
 import { ActionButton, Panel, Stack } from "@namada/components";
 import { BsDiscord } from "react-icons/bs";
-import { DISCORD_URL } from "urls";
 
 export const ProposalDiscord: React.FC = () => {
   return (
@@ -15,8 +14,7 @@ export const ProposalDiscord: React.FC = () => {
           borderRadius="sm"
           color="black"
           className="text-white"
-          hoverColor="secondary"
-          href={DISCORD_URL}
+          backgroundHoverColor="cyan"
           target="_blank"
         >
           Discord

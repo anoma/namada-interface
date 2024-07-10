@@ -15,7 +15,7 @@ export const NavigationFooter = (): JSX.Element => {
           className="border uppercase"
           onClick={() => navigate(StakingRoutes.overview().url)}
           size="sm"
-          color="secondary"
+          color="cyan"
           borderRadius="sm"
         >
           Stake
@@ -23,11 +23,10 @@ export const NavigationFooter = (): JSX.Element => {
         <ActionButton
           size="sm"
           onClick={() => navigate(GovernanceRoutes.index())}
-          color="primary"
           outlined
           className="uppercase hover:text-rblack before:border before:border-yellow"
           borderRadius="sm"
-          hoverColor="primary"
+          hoverColor="cyan"
         >
           Governance
         </ActionButton>

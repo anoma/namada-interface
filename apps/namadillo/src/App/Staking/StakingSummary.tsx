@@ -108,7 +108,7 @@ export const StakingSummary = (): JSX.Element => {
                 className="px-8"
                 borderRadius="sm"
                 size="xs"
-                color="secondary"
+                color="cyan"
                 onClick={() => navigate(StakingRoutes.incrementBonding().url)}
               >
                 Stake
