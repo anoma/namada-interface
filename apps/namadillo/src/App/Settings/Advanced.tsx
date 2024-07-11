@@ -1,20 +1,17 @@
 import { ActionButton, Input, Stack } from "@namada/components";
 import SettingsRoute from "App/Settings/routes";
 import { indexerUrlAtom, rpcUrlAtom } from "atoms/settings";
-import { useUpdateIndexerUrl } from "hooks/useUpdateIndexerUrl";
-import { useUpdateRpcUrl } from "hooks/useUpdateRpcUrl";
-import { useAtomValue } from "jotai";
+import { useValidateApiUrl } from "hooks/useValidateApiUrl";
+import { useAtom } from "jotai";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export const Advanced = (): JSX.Element => {
   const navigate = useNavigate();
   const location = useLocation();
-  const updateRpcUrl = useUpdateRpcUrl();
-  const updateIndexerUrl = useUpdateIndexerUrl();
-  const currentRpc = useAtomValue(rpcUrlAtom);
-  const currentIndexer = useAtomValue(indexerUrlAtom);
-
+  const validateApiUrl = useValidateApiUrl();
+  const [currentRpc, setCurrentRpc] = useAtom(rpcUrlAtom);
+  const [currentIndexer, setCurrentIndexer] = useAtom(indexerUrlAtom);
   const [rpc, setRpc] = useState(currentRpc);
   const [rpcError, setRpcError] = useState("");
   const [indexer, setIndexer] = useState(currentIndexer);
@@ -24,9 +21,10 @@ export const Advanced = (): JSX.Element => {
   const onSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setValidatingUrl(true);
+
     const [rpcResult, indexerResult] = await Promise.allSettled([
-      updateRpcUrl(rpc),
-      updateIndexerUrl(indexer),
+      validateApiUrl(rpc),
+      validateApiUrl(indexer),
     ]);
     if (rpcResult.status === "rejected") {
       setRpcError(String(rpcResult.reason));
@@ -38,6 +36,8 @@ export const Advanced = (): JSX.Element => {
       rpcResult.status === "fulfilled" &&
       indexerResult.status == "fulfilled"
     ) {
+      setCurrentRpc(rpcResult.value);
+      setCurrentIndexer(indexerResult.value);
       navigate(SettingsRoute.index(), { replace: true, state: location.state });
     }
     setValidatingUrl(false);

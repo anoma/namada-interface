@@ -4,7 +4,7 @@ import { Getter, Setter, atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
 import { SettingsStorage } from "types";
-import { fetchDefaultTomlConfig, isIndexerAlive } from "./services";
+import { fetchDefaultTomlConfig, isApiAlive } from "./services";
 
 export type ConnectStatus = "idle" | "connecting" | "connected" | "error";
 
@@ -98,7 +98,7 @@ export const indexerHeartbeatAtom = atomWithQuery((get) => {
     enabled: !!indexerUrl,
     retry: false,
     queryFn: async () => {
-      const valid = await isIndexerAlive(indexerUrl);
+      const valid = await isApiAlive(indexerUrl);
       if (!valid) throw "Unable to verify indexer heartbeat";
       return true;
     },

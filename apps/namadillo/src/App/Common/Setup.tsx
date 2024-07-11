@@ -1,26 +1,27 @@
 import { ActionButton, Container, Input, Stack } from "@namada/components";
 import { indexerUrlAtom } from "atoms/settings";
-import { useUpdateIndexerUrl } from "hooks/useUpdateIndexerUrl";
-import { useAtomValue } from "jotai";
+import { useValidateApiUrl } from "hooks/useValidateApiUrl";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useState } from "react";
 import { DISCORD_URL } from "urls";
-
 type SetupProps = {
   onChange: (newUrl: string) => void;
 };
 
 export const Setup = ({ onChange }: SetupProps): JSX.Element => {
-  const updateIndexerUrl = useUpdateIndexerUrl();
+  const validateApiUrl = useValidateApiUrl();
   const indexerUrl = useAtomValue(indexerUrlAtom);
   const [url, setUrl] = useState(indexerUrl || "");
   const [validatingUrl, setValidatingUrl] = useState(false);
   const [error, setError] = useState("");
+  const setIndexerAtom = useSetAtom(indexerUrlAtom);
 
   const onSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setValidatingUrl(true);
     try {
-      const result = await updateIndexerUrl(url);
+      const result = await validateApiUrl(url);
+      setIndexerAtom(result);
       onChange(result);
     } catch (error) {
       setError(String(error));
