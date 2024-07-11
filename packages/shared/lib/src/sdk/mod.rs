@@ -25,7 +25,7 @@ use namada::sdk::signing::SigningTxData;
 use namada::sdk::tx::{
     build_batch, build_bond, build_ibc_transfer, build_redelegation, build_reveal_pk,
     build_transparent_transfer, build_unbond, build_vote_proposal, build_withdraw,
-    is_reveal_pk_needed, process_tx,
+    is_reveal_pk_needed, process_tx, ProcessTxResponse,
 };
 use namada::sdk::wallet::{Store, Wallet};
 use namada::sdk::{Namada, NamadaImpl};
@@ -41,7 +41,6 @@ use tx::TxType;
 #[borsh(crate = "namada::core::borsh")]
 pub struct BatchTxResult {
     hash: String,
-    gas_used: String,
     is_applied: bool,
 }
 
@@ -49,9 +48,13 @@ pub struct BatchTxResult {
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
 pub struct TxResponse {
-    hash: String,
-    gas_used: String,
+    code: String,
     commitments: Vec<BatchTxResult>,
+    gas_used: String,
+    hash: String,
+    height: String,
+    info: String,
+    log: String,
 }
 
 #[wasm_bindgen]
@@ -311,21 +314,35 @@ impl Sdk {
         for cmt in cmts {
             let response = resp.is_applied_and_valid(&cmt);
             let hash = cmt.get_hash().to_string();
+
             batch_tx_results.push(BatchTxResult {
                 hash,
-                gas_used: String::from("10000.00"),
                 is_applied: response.is_some(),
             });
         }
 
-        let response = TxResponse {
-            hash,
-            gas_used: String::from("10000.00"),
-            commitments: batch_tx_results,
-        };
+        // Collect results and return
+        match resp {
+            ProcessTxResponse::Applied(tx_response) => {
+                let code = tx_response.code.to_string();
+                let gas_used = tx_response.gas_used.to_string();
+                let height = tx_response.height.to_string();
+                let info = tx_response.info.to_string();
+                let log = tx_response.log.to_string();
 
-        // Serialized TxResponse
-        to_js_result(borsh::to_vec(&response)?)
+                let response = TxResponse {
+                    code,
+                    commitments: batch_tx_results,
+                    gas_used,
+                    hash,
+                    height,
+                    info,
+                    log,
+                };
+                to_js_result(borsh::to_vec(&response)?)
+            }
+            _ => return Err(JsError::new(&format!("Tx not applied: {}", &hash))),
+        }
     }
 
     /// Build a batch Tx from built transactions and return the bytes
