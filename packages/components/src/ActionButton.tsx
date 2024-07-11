@@ -88,26 +88,13 @@ export const ActionButton = ({
   ...props
 }: ActionButtonProps<keyof React.ReactHTML>): JSX.Element => {
   const outlineColor = props.outlineColor;
-
-  const textColor =
-    props.textColor ? props.textColor
-    : props.outlineColor ? props.outlineColor
-    : "black";
-
+  const textColor = props.textColor || outlineColor || "black";
   const backgroundColor =
-    props.backgroundColor ? props.backgroundColor
-    : props.outlineColor ? "transparent"
-    : "yellow";
-
+    props.backgroundColor || (props.outlineColor ? "transparent" : "yellow");
   const backgroundHoverColor =
-    props.backgroundHoverColor ? props.backgroundHoverColor
-    : props.outlineColor ? props.outlineColor
-    : "black";
-
+    props.backgroundHoverColor || props.outlineColor || "black";
   const textHoverColor =
-    props.textHoverColor ? props.textHoverColor
-    : props.outlineColor ? "black"
-    : backgroundColor;
+    props.textHoverColor || (props.outlineColor ? "black" : backgroundColor);
 
   const outlined = !!outlineColor;
   const colorString = getDefaultColorString(backgroundColor);
