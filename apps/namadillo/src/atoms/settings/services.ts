@@ -12,10 +12,11 @@ export const isIndexerAlive = async (url: string): Promise<boolean> => {
   }
 };
 
-export const isRpcAlive = async (_url: string): Promise<boolean> => {
+export const isRpcAlive = async (url: string): Promise<boolean> => {
   try {
-    // TODO
-    return true;
+    const api = new DefaultApi({ basePath: url });
+    const response = await api.healthGet();
+    return response.status === 200;
   } catch {
     return false;
   }
