@@ -1,7 +1,7 @@
 use serde::Serialize;
 
 use namada::governance::VoteProposalData;
-use namada::sdk::token::TransparentTransfer;
+use namada::sdk::token::Transfer;
 use namada::tx::data::pos::{Bond, Redelegation, Unbond, Withdraw};
 use namada::{
     core::borsh::{self, BorshDeserialize},
@@ -11,7 +11,8 @@ use wasm_bindgen::JsError;
 
 use crate::sdk::{
     args::{
-        BondMsg, RedelegateMsg, TransparentTransferMsg, UnbondMsg, VoteProposalMsg, WithdrawMsg, RevealPkMsg
+        BondMsg, RedelegateMsg, RevealPkMsg, TransparentTransferMsg, UnbondMsg, VoteProposalMsg,
+        WithdrawMsg,
     },
     tx::TxType,
 };
@@ -19,7 +20,7 @@ use crate::sdk::{
 #[derive(Serialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum TransactionKind {
-    TransparentTransfer(TransparentTransfer),
+    TransparentTransfer(Transfer),
     Bond(Bond),
     Redelegation(Redelegation),
     Unbond(Unbond),
@@ -33,8 +34,7 @@ impl TransactionKind {
     pub fn from(tx_type: TxType, data: &[u8]) -> Self {
         match tx_type {
             TxType::TransparentTransfer => TransactionKind::TransparentTransfer(
-                TransparentTransfer::try_from_slice(data)
-                    .expect("Cannot deserialize TransparentTransfer"),
+                Transfer::try_from_slice(data).expect("Cannot deserialize TransparentTransfer"),
             ),
             TxType::Bond => {
                 TransactionKind::Bond(Bond::try_from_slice(data).expect("Cannot deserialize Bond"))
@@ -127,18 +127,20 @@ impl TransactionKind {
             TransactionKind::RevealPk(public_key) => {
                 let reveal_pk = RevealPkMsg::new(public_key.to_string());
                 borsh::to_vec(&reveal_pk)?
-            },
+            }
             TransactionKind::TransparentTransfer(transparent_transfer) => {
-                let TransparentTransfer {
-                    amount,
-                    source,
-                    target,
-                    token,
+                let Transfer {
+                    sources,
+                    targets,
+                    shielded_section_hash: _,
                 } = transparent_transfer;
 
+                let (source, amount) = sources.iter().nth(0).unwrap();
+                let (target, token) = targets.iter().nth(0).unwrap();
+
                 let transparent_transfer = TransparentTransferMsg::new(
-                    source.to_string(),
-                    target.to_string(),
+                    source.owner.to_string(),
+                    target.owner.to_string(),
                     token.to_string(),
                     amount.to_string(),
                 );

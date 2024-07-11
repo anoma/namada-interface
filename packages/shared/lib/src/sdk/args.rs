@@ -23,9 +23,7 @@ pub struct RevealPkMsg {
 
 impl RevealPkMsg {
     pub fn new(public_key: String) -> RevealPkMsg {
-        RevealPkMsg {
-            public_key
-        }
+        RevealPkMsg { public_key }
     }
 }
 
@@ -390,12 +388,17 @@ pub fn transparent_transfer_tx_args(
     let amount = InputAmount::Unvalidated(denom_amount);
     let tx = tx_msg_into_args(tx_msg)?;
 
-    let args = args::TxTransparentTransfer {
-        tx,
+    // TODO: Update schema to support multiple transfer data args
+    let transfer_data = vec![args::TxTransparentTransferData {
         source,
         target,
         token,
         amount,
+    }];
+
+    let args = args::TxTransparentTransfer {
+        tx,
+        data: transfer_data,
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
     };
 
@@ -466,6 +469,8 @@ pub fn ibc_transfer_tx_args(
         timeout_sec_offset,
         tx_code_path: PathBuf::from("tx_ibc.wasm"),
         refund_target: None,
+        // TODO: Implement?
+        gas_spending_keys: vec![],
     };
 
     Ok(args)

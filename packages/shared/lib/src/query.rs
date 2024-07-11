@@ -27,7 +27,7 @@ use namada::sdk::rpc::{
 };
 use namada::sdk::state::Key;
 use namada::sdk::tx::{
-    TX_BOND_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSPARENT_TRANSFER_WASM, TX_UNBOND_WASM,
+    TX_BOND_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSFER_WASM, TX_UNBOND_WASM,
     TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
 };
 use namada::token;
@@ -744,7 +744,7 @@ impl Query {
     // Vec of code paths of supported transactions
     pub fn code_paths() -> Vec<String> {
         vec![
-            TX_TRANSPARENT_TRANSFER_WASM.to_string(),
+            TX_TRANSFER_WASM.to_string(),
             TX_BOND_WASM.to_string(),
             TX_REDELEGATE_WASM.to_string(),
             TX_UNBOND_WASM.to_string(),

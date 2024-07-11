@@ -307,12 +307,12 @@ impl Sdk {
         let tx = Tx::try_from_slice(tx_bytes)?;
         let cmts = tx.commitments().clone();
         let hash = tx.header_hash().to_string();
-        let resp = process_tx(&self.namada, &args, tx).await?;
+        let resp = process_tx(&self.namada, &args, tx.clone()).await?;
 
         let mut batch_tx_results: Vec<BatchTxResult> = vec![];
 
         for cmt in cmts {
-            let response = resp.is_applied_and_valid(&cmt);
+            let response = resp.is_applied_and_valid(Some(&tx.header_hash()), &cmt);
             let hash = cmt.get_hash().to_string();
 
             batch_tx_results.push(BatchTxResult {

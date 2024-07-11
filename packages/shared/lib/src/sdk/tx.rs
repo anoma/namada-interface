@@ -5,7 +5,7 @@ use gloo_utils::format::JsValueSerdeExt;
 use namada::core::borsh::{self, BorshDeserialize, BorshSerialize};
 use namada::sdk::signing::SigningTxData;
 use namada::sdk::tx::{
-    TX_BOND_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSPARENT_TRANSFER_WASM, TX_UNBOND_WASM,
+    TX_BOND_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSFER_WASM, TX_UNBOND_WASM,
     TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
 };
 use namada::sdk::uint::Uint;
@@ -96,10 +96,7 @@ impl SigningData {
 
 pub fn wasm_hash_to_tx_type(wasm_hash: &str, wasm_hashes: &Vec<WasmHash>) -> Option<TxType> {
     let type_map: HashMap<String, TxType> = HashMap::from([
-        (
-            TX_TRANSPARENT_TRANSFER_WASM.to_string(),
-            TxType::TransparentTransfer,
-        ),
+        (TX_TRANSFER_WASM.to_string(), TxType::TransparentTransfer),
         (TX_BOND_WASM.to_string(), TxType::Bond),
         (TX_REDELEGATE_WASM.to_string(), TxType::Redelegate),
         (TX_UNBOND_WASM.to_string(), TxType::Unbond),
