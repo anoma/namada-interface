@@ -21,7 +21,6 @@ export const Advanced = (): JSX.Element => {
   const onSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setValidatingUrl(true);
-
     const [rpcResult, indexerResult] = await Promise.allSettled([
       validateApiUrl(rpc),
       validateApiUrl(indexer),
