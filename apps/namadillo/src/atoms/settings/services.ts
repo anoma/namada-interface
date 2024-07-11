@@ -12,6 +12,15 @@ export const isIndexerAlive = async (url: string): Promise<boolean> => {
   }
 };
 
+export const isRpcAlive = async (_url: string): Promise<boolean> => {
+  try {
+    // TODO
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const fetchDefaultTomlConfig =
   async (): Promise<SettingsTomlOptions> => {
     const response = await fetch("/config.toml");

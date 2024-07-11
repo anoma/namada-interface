@@ -2,18 +2,21 @@ import { ActionButton, Input, Stack } from "@namada/components";
 import SettingsRoute from "App/Settings/routes";
 import { indexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { useUpdateIndexerUrl } from "hooks/useUpdateIndexerUrl";
-import { useAtom, useAtomValue } from "jotai";
+import { useUpdateRpcUrl } from "hooks/useUpdateRpcUrl";
+import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export const Advanced = (): JSX.Element => {
   const navigate = useNavigate();
   const location = useLocation();
+  const updateRpcUrl = useUpdateRpcUrl();
   const updateIndexerUrl = useUpdateIndexerUrl();
-  const [currentRpc, setCurrentRpc] = useAtom(rpcUrlAtom);
+  const currentRpc = useAtomValue(rpcUrlAtom);
   const currentIndexer = useAtomValue(indexerUrlAtom);
 
   const [rpc, setRpc] = useState(currentRpc);
+  const [rpcError, setRpcError] = useState("");
   const [indexer, setIndexer] = useState(currentIndexer);
   const [indexerError, setIndexerError] = useState("");
   const [validatingUrl, setValidatingUrl] = useState(false);
@@ -21,12 +24,21 @@ export const Advanced = (): JSX.Element => {
   const onSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setValidatingUrl(true);
-    try {
-      await updateIndexerUrl(indexer);
-      setCurrentRpc(rpc);
+    const [rpcResult, indexerResult] = await Promise.allSettled([
+      updateRpcUrl(rpc),
+      updateIndexerUrl(indexer),
+    ]);
+    if (rpcResult.status === "rejected") {
+      setRpcError(String(rpcResult.reason));
+    }
+    if (indexerResult.status === "rejected") {
+      setIndexerError(String(indexerResult.reason));
+    }
+    if (
+      rpcResult.status === "fulfilled" &&
+      indexerResult.status == "fulfilled"
+    ) {
       navigate(SettingsRoute.index(), { replace: true, state: location.state });
-    } catch (error) {
-      setIndexerError(String(error));
     }
     setValidatingUrl(false);
   };
@@ -52,9 +64,13 @@ export const Advanced = (): JSX.Element => {
         <Input
           type="text"
           value={rpc}
+          error={rpcError}
           label="RPC Url"
           className="[&_input]:border-neutral-300"
-          onChange={(e) => setRpc(e.currentTarget.value)}
+          onChange={(e) => {
+            setRpc(e.currentTarget.value);
+            setRpcError("");
+          }}
           required
         />
       </Stack>
@@ -62,7 +78,7 @@ export const Advanced = (): JSX.Element => {
         size="lg"
         borderRadius="sm"
         className="shrink-0"
-        disabled={validatingUrl || !!indexerError}
+        disabled={validatingUrl || !!indexerError || !!rpcError}
       >
         {validatingUrl ? "Verifying..." : "Confirm"}
       </ActionButton>
