@@ -1,5 +1,7 @@
 import { chains } from "@namada/chains";
-import { Chain } from "@namada/types";
+import { KVStore } from "@namada/storage";
+import { Chain, WasmHash } from "@namada/types";
+import { WasmHashesStore } from "background/approvals";
 import { SdkService } from "background/sdk";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
@@ -10,6 +12,7 @@ export class ChainsService {
   constructor(
     protected readonly sdkService: SdkService,
     protected readonly localStorage: LocalStorage,
+    protected readonly wasmHashesStore: KVStore<WasmHashesStore>,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {}
 
@@ -30,5 +33,16 @@ export class ChainsService {
 
     await this.localStorage.setChain(chain);
     await this.broadcaster.updateNetwork();
+  }
+
+  async addTxWasmHashes(
+    chainId: string,
+    wasmHashes: WasmHash[]
+  ): Promise<void> {
+    await this.wasmHashesStore.set(chainId, wasmHashes);
+  }
+
+  async getTxWasmHashes(chainId: string): Promise<WasmHash[] | undefined> {
+    return await this.wasmHashesStore.get(chainId);
   }
 }

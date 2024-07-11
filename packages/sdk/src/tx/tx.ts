@@ -1,4 +1,10 @@
-import { BuiltTx, Sdk as SdkWasm, TxType } from "@namada/shared";
+import { deserialize } from "@dao-xyz/borsh";
+import {
+  BuiltTx,
+  Sdk as SdkWasm,
+  TxType,
+  deserialize_tx,
+} from "@namada/shared";
 import {
   BondMsgValue,
   BondProps,
@@ -9,13 +15,18 @@ import {
   Message,
   RedelegateMsgValue,
   RedelegateProps,
+  RevealPkMsgValue,
   SignatureMsgValue,
+  SupportedTxProps,
   TransparentTransferMsgValue,
   TransparentTransferProps,
+  TxDetails,
+  TxDetailsMsgValue,
   UnbondMsgValue,
   UnbondProps,
   VoteProposalMsgValue,
   VoteProposalProps,
+  WasmHash,
   WithdrawMsgValue,
   WithdrawProps,
   WrapperTxMsgValue,
@@ -367,17 +378,12 @@ export class Tx {
 
   /**
    * Build a batched transaction
-   * @param txType - transaction type enum
    * @param txs - array of BuiltTx types
    * @param wrapperTxMsg - Uint8Array of serialized WrapperTxMsg
    * @returns a BuiltTx type
    */
-  buildBatch(
-    txType: TxType,
-    txs: BuiltTx[],
-    wrapperTxMsg: Uint8Array
-  ): BuiltTx {
-    return SdkWasm.build_batch(txType, txs, wrapperTxMsg);
+  buildBatch(txs: BuiltTx[], wrapperTxMsg: Uint8Array): BuiltTx {
+    return SdkWasm.build_batch(txs, wrapperTxMsg);
   }
 
   /**
@@ -448,5 +454,50 @@ export class Tx {
     const txMsgValue = new WrapperTxMsgValue(wrapperTxProps);
     const msg = new Message<WrapperTxMsgValue>();
     return msg.encode(txMsgValue);
+  }
+
+  /**
+   * Method to retrieve JSON strings for all commitments of a Tx
+   * @param txBytes - Bytes of a transaction
+   * @param wasmHashes - Array of wasm paths with their associated hash
+   * @returns a TxDetails object
+   */
+  deserialize(txBytes: Uint8Array, wasmHashes: WasmHash[]): TxDetails {
+    const tx = deserialize_tx(txBytes, wasmHashes);
+    const { wrapperTx, commitments } = deserialize(tx, TxDetailsMsgValue);
+
+    const getProps = (txType: TxType, data: Uint8Array): SupportedTxProps => {
+      switch (txType) {
+        case TxType.Bond:
+          return deserialize(data, BondMsgValue);
+        case TxType.Unbond:
+          return deserialize(data, UnbondMsgValue);
+        case TxType.Withdraw:
+          return deserialize(data, WithdrawMsgValue);
+        case TxType.Redelegate:
+          return deserialize(data, RedelegateMsgValue);
+        case TxType.VoteProposal:
+          return deserialize(data, VoteProposalMsgValue);
+        case TxType.TransparentTransfer:
+          return deserialize(data, TransparentTransferMsgValue);
+        case TxType.RevealPK:
+          return deserialize(data, RevealPkMsgValue);
+        default:
+          throw "Unsupported Tx type!";
+      }
+    };
+
+    return {
+      ...wrapperTx,
+      commitments: commitments.map(
+        ({ txType, hash, txCodeId, memo, data }) => ({
+          txType: txType as TxType,
+          hash,
+          txCodeId,
+          memo,
+          ...getProps(txType, data),
+        })
+      ),
+    };
   }
 }

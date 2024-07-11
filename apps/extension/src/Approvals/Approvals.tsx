@@ -2,17 +2,19 @@ import React, { useState } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { Container } from "@namada/components";
-import { AccountType } from "@namada/types";
+import { AccountType, TxDetails } from "@namada/types";
 
 import { AppHeader } from "App/Common/AppHeader";
 import { TopLevelRoute } from "Approvals/types";
 import { ApproveConnection } from "./ApproveConnection";
 import { ApproveSignArbitrary } from "./ApproveSignArbitrary";
+import { ApproveSignArbitraryDetails } from "./ApproveSignArbitraryDetails";
 import {
   ApproveSignTx,
   ConfirmSignLedgerTx,
   ConfirmSignTx,
 } from "./ApproveSignTx";
+import { ApproveSignTxDetails } from "./ApproveSignTx/ApproveSignTxDetails";
 import { ConfirmSignature } from "./ConfirmSignArbitrary";
 
 export enum Status {
@@ -25,11 +27,13 @@ export type ApprovalDetails = {
   signer: string;
   accountType: AccountType;
   msgId: string;
+  txDetails: TxDetails;
 };
 
 export type SignArbitraryDetails = {
   msgId: string;
   signer: string;
+  data: string;
 };
 
 export const Approvals: React.FC = () => {
@@ -51,8 +55,14 @@ export const Approvals: React.FC = () => {
       <Routes>
         <Route
           path={`${TopLevelRoute.ApproveSignTx}/:msgId/:accountType/:signer`}
-          element={<ApproveSignTx setDetails={setDetails} />}
+          element={<ApproveSignTx details={details} setDetails={setDetails} />}
         />
+        {details && (
+          <Route
+            path={TopLevelRoute.ApproveSignTxDetails}
+            element={<ApproveSignTxDetails details={details} />}
+          />
+        )}
         <Route
           path={TopLevelRoute.ConfirmSignTx}
           element={<ConfirmSignTx details={details} />}
@@ -73,6 +83,14 @@ export const Approvals: React.FC = () => {
             />
           }
         />
+        {signArbitraryDetails && (
+          <Route
+            path={TopLevelRoute.ApproveSignArbitraryDetails}
+            element={
+              <ApproveSignArbitraryDetails details={signArbitraryDetails} />
+            }
+          />
+        )}
         <Route
           path={TopLevelRoute.ConfirmSignArbitrary}
           element={<ConfirmSignature details={signArbitraryDetails} />}

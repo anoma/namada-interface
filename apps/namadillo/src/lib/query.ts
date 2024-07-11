@@ -59,21 +59,21 @@ const getTxProps = (
 };
 
 /**
- * Builds an array of encoded transactions based on the provided query properties.
- * Each transaction is processed through the provided transaction function `txFn`.
+ * Builds an batch  transactions based on the provided query properties.
+ * Each transaction is built through the provided transaction function `txFn`.
  * @param {T[]} queryProps - An array of properties used to build transactions.
  * @param {(WrapperTxProps, T) => Promise<EncodedTx>} txFn - Function to build each transaction.
  */
-export const buildTxArray = async <T>(
+export const buildBatchTx = async <T>(
   account: Account,
   gasConfig: GasConfig,
   chain: ChainSettings,
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<EncodedTx>
-): Promise<EncodedTxData<T>[]> => {
+): Promise<EncodedTxData<T>> => {
   const { tx } = await getSdkInstance();
   const wrapperTxProps = getTxProps(account, gasConfig, chain);
-  const txArray: EncodedTxData<T>[] = [];
+  const txs: BuiltTx[] = [];
 
   // Determine if RevealPK is needed:
   const api = getIndexerApi();
@@ -83,83 +83,57 @@ export const buildTxArray = async <T>(
 
   if (!publicKey) {
     const revealPkTx = await tx.buildRevealPk(wrapperTxProps, account.address);
-    txArray.push({ type: revealPublicKeyType, tx: revealPkTx.tx });
+    txs.push(revealPkTx.tx);
   }
 
   const encodedTxs = await Promise.all(
     queryProps.map((props) => txFn.apply(tx, [wrapperTxProps, props]))
   );
 
+  txs.push(...encodedTxs.map((tx) => tx.tx));
+
   const initialTx = encodedTxs[0].tx;
   const wrapperTxMsg = initialTx.wrapper_tx_msg();
-  const txType = initialTx.tx_type();
 
-  const batchTx = tx.buildBatch(
-    txType,
-    encodedTxs.map((tx) => tx.tx),
-    wrapperTxMsg
-  );
+  const batchTx = tx.buildBatch(txs, wrapperTxMsg);
 
-  txArray.push({
+  return {
     tx: batchTx,
     type: txFn.name,
     meta: {
       props: queryProps[0],
     },
-  });
-  return txArray;
+  };
 };
 
 /**
- * Asynchronously signs an array of encoded transactions using Namada extension.
+ * Asynchronously signs an encoded batch transaction using Namada extension.
  */
-export const signTxArray = async <T>(
+export const signTx = async <T>(
   chain: ChainSettings,
-  typedEncodedTxs: EncodedTxData<T>[],
+  typedEncodedTx: EncodedTxData<T>,
   owner: string
-): Promise<Uint8Array[]> => {
+): Promise<Uint8Array> => {
   const integration = getIntegration(chain.id);
   const signingClient = integration.signer() as Signer;
-  const signedTxs: Uint8Array[] = [];
 
   try {
-    // Sign RevealPK first, if public key is not found:
-    if (typedEncodedTxs[0].type === revealPublicKeyType) {
-      const revealPk = typedEncodedTxs.shift()!;
-      const tx = revealPk.tx;
-
-      const signedRevealPk = await signingClient.sign(
-        tx.tx_type(),
-        { txBytes: tx.tx_bytes(), signingDataBytes: tx.signing_data_bytes() },
-        owner,
-        revealPk.tx.wrapper_tx_msg()
-      );
-
-      if (!signedRevealPk) {
-        throw new Error(
-          "Sign RevealPk failed: No signed transactions returned"
-        );
-      }
-      signedTxs.push(signedRevealPk);
-    }
-
     // Sign batch Tx
     const signedBatchTxBytes = await signingClient.sign(
-      typedEncodedTxs[0].tx.tx_type(),
+      typedEncodedTx.tx.tx_type(),
       {
-        txBytes: typedEncodedTxs[0].tx.tx_bytes(),
-        signingDataBytes: typedEncodedTxs[0].tx.signing_data_bytes(),
+        txBytes: typedEncodedTx.tx.tx_bytes(),
+        signingDataBytes: typedEncodedTx.tx.signing_data_bytes(),
       },
       owner,
-      typedEncodedTxs[0].tx.wrapper_tx_msg()
+      typedEncodedTx.tx.wrapper_tx_msg()
     );
 
     if (!signedBatchTxBytes) {
       throw new Error("Signing batch Tx failed");
     }
 
-    signedTxs.push(signedBatchTxBytes);
-    return signedTxs;
+    return signedBatchTxBytes;
   } catch (err) {
     const message = err instanceof Error ? err.message : err;
     throw new Error("Signing failed: " + message);
@@ -180,21 +154,19 @@ export const buildTxPair = async <T>(
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<EncodedTx>,
   owner: string
-): Promise<TransactionPair<T>[]> => {
-  const encodedTxs = await buildTxArray<T>(
+): Promise<TransactionPair<T>> => {
+  const encodedTxData = await buildBatchTx<T>(
     account,
     gasConfig,
     chain,
     queryProps,
     txFn
   );
-  const signedTxs = await signTxArray<T>(chain, encodedTxs, owner);
-  return signedTxs.map(
-    (tx, index): TransactionPair<T> => ({
-      signedTx: tx,
-      encodedTxData: encodedTxs[index],
-    })
-  );
+  const signedTx = await signTx<T>(chain, encodedTxData, owner);
+  return {
+    signedTx,
+    encodedTxData,
+  };
 };
 
 export const broadcastTx = async <T>(

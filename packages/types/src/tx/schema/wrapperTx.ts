@@ -20,9 +20,6 @@ export class WrapperTxMsgValue {
   @field({ type: option("string") })
   publicKey?: string;
 
-  @field({ type: option("bool") })
-  disposableSigningKey?: boolean;
-
   @field({ type: option("string") })
   memo?: string;
 

@@ -4,14 +4,16 @@ import browser, { Windows } from "webextension-polyfill";
 
 import { BuiltTx, TxType } from "@heliax/namada-sdk/web";
 import { KVStore } from "@namada/storage";
-import { SignArbitraryResponse } from "@namada/types";
+import { SignArbitraryResponse, TxDetails } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 
+import { ChainsService } from "background/chains";
 import { KeyRingService } from "background/keyring";
+import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
-import { EncodedTxData, PendingTx } from "./types";
+import { EncodedTxData, PendingTx, WasmHashesStore } from "./types";
 
 export class ApprovalsService {
   // holds promises which can be resolved with a message from a pop-up window
@@ -26,8 +28,11 @@ export class ApprovalsService {
     protected readonly txStore: KVStore<PendingTx>,
     protected readonly dataStore: KVStore<string>,
     protected readonly localStorage: LocalStorage,
+    protected readonly wasmHashesStore: KVStore<WasmHashesStore>,
+    protected readonly sdkService: SdkService,
     protected readonly keyRingService: KeyRingService,
     protected readonly vaultService: VaultService,
+    protected readonly chainService: ChainsService,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {}
 
@@ -46,7 +51,7 @@ export class ApprovalsService {
 
     const pendingTx = {
       txBytes: fromBase64(tx.txBytes),
-      signingDataBytes: fromBase64(tx.signingDataBytes),
+      signingDataBytes: tx.signingDataBytes.map((bytes) => fromBase64(bytes)),
     };
 
     await this.txStore.set(msgId, {
@@ -74,6 +79,7 @@ export class ApprovalsService {
       this.resolverMap[popupTabId] = { resolve, reject };
     });
   }
+
   async approveSignArbitrary(
     signer: string,
     data: string
@@ -90,7 +96,6 @@ export class ApprovalsService {
     });
     const popupTabId = await this.getPopupTabId(url);
 
-    // TODO: can tabId be 0?
     if (!popupTabId) {
       throw new Error("no popup tab ID");
     }
@@ -123,7 +128,9 @@ export class ApprovalsService {
     const builtTx = new BuiltTx(
       pendingTx.txType,
       pendingTx.tx.txBytes,
-      pendingTx.tx.signingDataBytes,
+      // TODO: In shared, fix "into_serde" call to handle Uint8Array so the following
+      // isn't needed:
+      pendingTx.tx.signingDataBytes.map((bytes) => [...bytes]),
       pendingTx.wrapperTxMsg
     );
 
@@ -254,6 +261,30 @@ export class ApprovalsService {
   async revokeConnection(originToRevoke: string): Promise<void> {
     await this.localStorage.removeApprovedOrigin(originToRevoke);
     await this.broadcaster.revokeConnection();
+  }
+
+  async queryTxDetails(msgId: string): Promise<TxDetails> {
+    const pendingTx = await this.txStore.get(msgId);
+
+    if (!pendingTx) {
+      throw new Error(`No transaction found for ${msgId}`);
+    }
+
+    const { chainId } = await this.chainService.getChain();
+    const wasmHashes = await this.wasmHashesStore.get(chainId);
+
+    const { tx } = this.sdkService.getSdk();
+    return tx.deserialize(pendingTx.tx.txBytes, wasmHashes || []);
+  }
+
+  async querySignArbitraryDetails(msgId: string): Promise<string> {
+    const pendingSignArbitrary = await this.dataStore.get(msgId);
+
+    if (!pendingSignArbitrary) {
+      throw new Error(`No pending sign-arbitrary data found for ${msgId}`);
+    }
+
+    return pendingSignArbitrary;
   }
 
   private async _clearPendingTx(msgId: string): Promise<void> {

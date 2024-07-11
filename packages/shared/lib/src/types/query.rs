@@ -1,4 +1,5 @@
 use namada::core::borsh::BorshSerialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(BorshSerialize)]
 #[borsh(crate = "namada::core::borsh")]
@@ -11,5 +12,25 @@ pub struct ProposalInfo {
     pub grace_epoch: u64,
     pub tally_type: String,
     pub proposal_type: String,
-    pub data: Option<String>
+    pub data: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct WasmHash {
+    path: String,
+    hash: String,
+}
+
+impl WasmHash {
+    pub fn new(path: String, hash: String) -> WasmHash {
+        WasmHash { path, hash }
+    }
+
+    pub fn path(&self) -> String {
+        self.path.clone()
+    }
+
+    pub fn hash(&self) -> String {
+        self.hash.clone()
+    }
 }

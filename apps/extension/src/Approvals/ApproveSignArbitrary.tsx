@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { ActionButton, Alert, GapPatterns, Stack } from "@namada/components";
@@ -7,7 +7,10 @@ import { shortenAddress } from "@namada/utils";
 import { PageHeader } from "App/Common";
 import { SignArbitraryDetails } from "Approvals/Approvals";
 import { TopLevelRoute } from "Approvals/types";
-import { RejectSignArbitraryMsg } from "background/approvals";
+import {
+  QuerySignArbitraryDataMsg,
+  RejectSignArbitraryMsg,
+} from "background/approvals";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
@@ -27,9 +30,30 @@ export const ApproveSignArbitrary: React.FC<Props> = ({
   const query = useQuery();
   const { msgId } = query.getAll();
 
+  const queryPendingSignArbitraryData = async (
+    msgId: string
+  ): Promise<string> => {
+    const pendingSignAbitrary = await requester.sendMessage(
+      Ports.Background,
+      new QuerySignArbitraryDataMsg(msgId)
+    );
+    return pendingSignAbitrary;
+  };
+
+  useEffect(() => {
+    if (msgId && signer) {
+      queryPendingSignArbitraryData(msgId)
+        .then((data) => {
+          setSignArbitraryDetails({ msgId, signer, data });
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    }
+  }, [msgId, signer]);
+
   const handleApproveClick = useCallback((): void => {
     if (signer) {
-      setSignArbitraryDetails({ msgId, signer });
       navigate(TopLevelRoute.ConfirmSignArbitrary);
     }
   }, [signer]);
@@ -66,6 +90,12 @@ export const ApproveSignArbitrary: React.FC<Props> = ({
             Signer: <strong>{shortenAddress(signer)}</strong>
           </p>
         )}
+        <ActionButton
+          borderRadius="sm"
+          onClick={() => navigate(TopLevelRoute.ApproveSignArbitraryDetails)}
+        >
+          View Data
+        </ActionButton>
       </Stack>
       <Stack gap={2}>
         <ActionButton borderRadius="sm" onClick={handleApproveClick}>

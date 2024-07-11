@@ -33,7 +33,7 @@ export const WithdrawalButton = ({
 
   const {
     mutate: createWithdrawTx,
-    data: withdrawalTxs,
+    data: withdrawalTx,
     isPending,
     isSuccess,
     isError,
@@ -103,11 +103,10 @@ export const WithdrawalButton = ({
   };
 
   useEffect(() => {
-    if (withdrawalTxs) {
-      for (const [tx, props] of withdrawalTxs) {
-        dispatchPendingNotification(tx, props);
-        dispatchWithdrawalTransactions(tx);
-      }
+    if (withdrawalTx) {
+      const [tx, props] = withdrawalTx;
+      dispatchPendingNotification(tx, props);
+      dispatchWithdrawalTransactions(tx);
     }
   }, [isSuccess]);
 
@@ -121,7 +120,7 @@ export const WithdrawalButton = ({
             errorMessage={
               withdrawalTransactionError instanceof Error ?
                 withdrawalTransactionError.message
-              : undefined
+                : undefined
             }
           />
         ),

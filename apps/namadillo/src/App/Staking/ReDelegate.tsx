@@ -58,7 +58,7 @@ export const ReDelegate = (): JSX.Element => {
   useEffect(() => {
     if (isSuccess) {
       dispatchPendingNotification();
-      redelegateTxData && dispatchReDelegateTransactions(redelegateTxData);
+      redelegateTxData && dispatchReDelegateTransaction(redelegateTxData);
       onCloseModal();
     }
   }, [isSuccess]);
@@ -101,7 +101,7 @@ export const ReDelegate = (): JSX.Element => {
             errorMessage={
               redelegateTxError instanceof Error ?
                 redelegateTxError.message
-              : undefined
+                : undefined
             }
           />
         ),
@@ -110,17 +110,15 @@ export const ReDelegate = (): JSX.Element => {
     }
   }, [isError]);
 
-  const dispatchReDelegateTransactions = (
-    transactions: TransactionPair<RedelegateMsgValue>[]
+  const dispatchReDelegateTransaction = (
+    tx: TransactionPair<RedelegateMsgValue>
   ): void => {
-    for (const tx of transactions) {
-      broadcastTx(
-        tx.encodedTxData.tx,
-        tx.signedTx,
-        tx.encodedTxData.meta?.props,
-        "ReDelegate"
-      );
-    }
+    broadcastTx(
+      tx.encodedTxData.tx,
+      tx.signedTx,
+      tx.encodedTxData.meta?.props,
+      "ReDelegate"
+    );
   };
 
   const onSubmit = (e: React.FormEvent): void => {

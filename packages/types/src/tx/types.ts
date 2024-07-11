@@ -1,27 +1,54 @@
 import {
   BatchTxResultMsgValue,
   BondMsgValue,
+  CommitmentMsgValue,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
   RedelegateMsgValue,
   SignatureMsgValue,
   TransparentTransferMsgValue,
+  TxDetailsMsgValue,
   TxResponseMsgValue,
   UnbondMsgValue,
   VoteProposalMsgValue,
   WithdrawMsgValue,
   WrapperTxMsgValue,
 } from "./schema";
+import { RevealPkMsgValue } from "./schema/revealPk";
 
 export type BatchTxResultProps = BatchTxResultMsgValue;
-export type WrapperTxProps = WrapperTxMsgValue;
 export type BondProps = BondMsgValue;
-export type UnbondProps = UnbondMsgValue;
-export type WithdrawProps = WithdrawMsgValue;
-export type RedelegateProps = RedelegateMsgValue;
-export type TransparentTransferProps = TransparentTransferMsgValue;
-export type TxResponseProps = TxResponseMsgValue;
+export type CommitmentProps = CommitmentMsgValue;
 export type EthBridgeTransferProps = EthBridgeTransferMsgValue;
-export type SignatureProps = SignatureMsgValue;
-export type VoteProposalProps = VoteProposalMsgValue;
 export type IbcTransferProps = IbcTransferMsgValue;
+export type RedelegateProps = RedelegateMsgValue;
+export type SignatureProps = SignatureMsgValue;
+export type TransparentTransferProps = TransparentTransferMsgValue;
+export type TxDetailsProps = TxDetailsMsgValue;
+export type TxResponseProps = TxResponseMsgValue;
+export type UnbondProps = UnbondMsgValue;
+export type VoteProposalProps = VoteProposalMsgValue;
+export type WithdrawProps = WithdrawMsgValue;
+export type WrapperTxProps = WrapperTxMsgValue;
+export type RevealPkProps = RevealPkMsgValue;
+
+export type SupportedTxProps =
+  | BondProps
+  | UnbondProps
+  | WithdrawProps
+  | RedelegateProps
+  | EthBridgeTransferProps
+  | IbcTransferProps
+  | VoteProposalProps
+  | TransparentTransferProps
+  | RevealPkProps;
+
+export type CommitmentDetailProps = SupportedTxProps & {
+  txType: unknown;
+  hash: string;
+  memo?: string;
+};
+
+export type TxDetails = WrapperTxProps & {
+  commitments: CommitmentDetailProps[];
+};

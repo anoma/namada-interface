@@ -3,6 +3,7 @@ import {
   Chain,
   Namada as INamada,
   Signer,
+  WasmHash,
   WindowWithNamada,
 } from "@namada/types";
 
@@ -28,8 +29,8 @@ export default class Namada implements Integration<Account, Signer> {
     return !!this._namada;
   }
 
-  public async connect(chainId?: string): Promise<void> {
-    await this._namada?.connect(chainId);
+  public async connect(): Promise<void> {
+    await this._namada?.connect();
   }
 
   public async isConnected(): Promise<boolean | undefined> {
@@ -54,5 +55,18 @@ export default class Namada implements Integration<Account, Signer> {
 
   public signer(): Signer | undefined {
     return this._namada?.getSigner();
+  }
+
+  public async addTxWasmHashes(
+    chainId: string,
+    wasmHashes: WasmHash[]
+  ): Promise<void> {
+    return this._namada?.addTxWasmHashes({ chainId, wasmHashes });
+  }
+
+  public async getTxWasmHashes(
+    chainId: string
+  ): Promise<WasmHash[] | undefined> {
+    return this._namada?.getTxWasmHashes(chainId);
   }
 }

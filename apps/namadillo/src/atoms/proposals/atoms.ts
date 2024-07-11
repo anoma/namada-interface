@@ -215,7 +215,7 @@ export const createVoteTxAtom = atomWithMutation((get) => {
       proposalId,
       vote,
       gasConfig,
-    }: CreateVoteTxArgs): Promise<TransactionPair<VoteProposalProps>[]> => {
+    }: CreateVoteTxArgs): Promise<TransactionPair<VoteProposalProps>> => {
       if (typeof account.data === "undefined") {
         throw new Error("no account");
       }

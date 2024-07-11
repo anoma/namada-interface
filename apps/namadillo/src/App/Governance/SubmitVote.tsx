@@ -25,25 +25,21 @@ import { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
-const dispatchVoteTx = (
-  transactions: TransactionPair<VoteProposalProps>[]
-): void => {
-  for (const tx of transactions) {
-    broadcastTx(
-      tx.encodedTxData.tx,
-      tx.signedTx,
-      tx.encodedTxData.meta?.props,
-      "VoteProposal"
-    );
-  }
+const dispatchVoteTx = (tx: TransactionPair<VoteProposalProps>): void => {
+  broadcastTx(
+    tx.encodedTxData.tx,
+    tx.signedTx,
+    tx.encodedTxData.meta?.props,
+    "VoteProposal"
+  );
 };
 
 export const SubmitVote: React.FC = () => {
   const proposalId = useProposalIdParam();
 
   return proposalId === null ? null : (
-      <WithProposalId proposalId={proposalId} />
-    );
+    <WithProposalId proposalId={proposalId} />
+  );
 };
 
 export const WithProposalId: React.FC<{ proposalId: bigint }> = ({

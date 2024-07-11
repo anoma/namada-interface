@@ -38,6 +38,7 @@ console_error_panic_hook = "0.1.6"
 zeroize = "1.6.0"
 hex = "0.4.3"
 reqwest = "0.11.25"
+subtle-encoding = "0.5.1"
 
 [dependencies.web-sys]
 version = "0.3.4"

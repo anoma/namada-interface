@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TxType } from "@heliax/namada-sdk/web";
 import { paramsToUrl } from "@namada/utils";
+import { ChainsService } from "background/chains";
 import { KeyRingService } from "background/keyring";
+import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import createMockInstance from "jest-create-mock-instance";
@@ -9,7 +11,7 @@ import { LocalStorage } from "storage";
 import { KVStoreMock } from "test/init";
 import * as webextensionPolyfill from "webextension-polyfill";
 import { ApprovalsService } from "./service";
-import { PendingTx } from "./types";
+import { PendingTx, WasmHashesStore } from "./types";
 
 jest.mock("webextension-polyfill", () => ({
   runtime: {
@@ -39,9 +41,12 @@ jest.mock(
 
 describe("approvals service", () => {
   let service: ApprovalsService;
+  let sdkService: jest.Mocked<SdkService>;
   let keyRingService: jest.Mocked<KeyRingService>;
+  let chainService: jest.Mocked<ChainsService>;
   let dataStore: KVStoreMock<string>;
   let txStore: KVStoreMock<PendingTx>;
+  let wasmHashesStore: KVStoreMock<WasmHashesStore>;
   let localStorage: LocalStorage;
 
   afterEach(() => {
@@ -64,8 +69,11 @@ describe("approvals service", () => {
       txStore,
       dataStore,
       localStorage,
+      wasmHashesStore,
+      sdkService,
       keyRingService,
       vaultService,
+      chainService,
       broadcaster
     );
   });
@@ -214,7 +222,7 @@ describe("approvals service", () => {
       const signaturePromise = service.approveSignTx(
         TxType.Bond,
         signer,
-        { txBytes, signingDataBytes },
+        { txBytes, signingDataBytes: [signingDataBytes] },
         ""
       );
       jest.spyOn(service as any, "_clearPendingTx");
