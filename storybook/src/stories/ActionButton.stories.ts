@@ -1,5 +1,8 @@
 import { ActionButton } from "@namada/components";
+import { colors } from "@namada/components/src/theme";
 import type { Meta, StoryObj } from "@storybook/react";
+
+const colorOption = Object.keys(colors);
 
 const meta: Meta<typeof ActionButton> = {
   title: "Components/ActionButton",
@@ -9,12 +12,24 @@ const meta: Meta<typeof ActionButton> = {
       options: ["xs", "sm", "md", "lg", "xl"],
       control: { type: "select" },
     },
-    color: {
-      options: ["primary", "secondary", "black", "white"],
+    outlineColor: {
+      options: colorOption,
       control: { type: "select" },
     },
-    hoverColor: {
-      options: ["primary", "secondary", "black", "white"],
+    backgroundColor: {
+      options: colorOption,
+      control: { type: "select" },
+    },
+    backgroundHoverColor: {
+      options: colorOption,
+      control: { type: "select" },
+    },
+    textColor: {
+      options: colorOption,
+      control: { type: "select" },
+    },
+    textHoverColor: {
+      options: colorOption,
       control: { type: "select" },
     },
     borderRadius: {
@@ -27,11 +42,10 @@ const meta: Meta<typeof ActionButton> = {
 export default meta;
 type Story = StoryObj<typeof ActionButton>;
 
-export const Primary: Story = {
+export const Solid: Story = {
   args: {
     children: "Primary Button",
     color: "primary",
-    hoverColor: "black",
     size: "md",
     borderRadius: "md",
     outlined: false,
@@ -39,51 +53,17 @@ export const Primary: Story = {
   },
 };
 
-export const Secondary: Story = {
+export const Outlined: Story = {
   args: {
-    ...Primary.args,
-    color: "secondary",
-    children: "Secondary Button",
-  },
-};
-
-export const Black: Story = {
-  args: {
-    ...Primary.args,
-    color: "black",
-    children: "Black Button",
-  },
-};
-
-export const OutlinedPrimary: Story = {
-  args: {
-    ...Primary.args,
-    outlined: true,
+    ...Solid.args,
+    outlineColor: "yellow",
     children: "Outlined Primary Button",
-  },
-};
-
-export const OutlinedSecondary: Story = {
-  args: {
-    ...Primary.args,
-    color: "secondary",
-    outlined: true,
-    children: "Outlined Secondary Button",
-  },
-};
-
-export const OutlinedBlack: Story = {
-  args: {
-    ...Primary.args,
-    color: "black",
-    outlined: true,
-    children: "Outlined Black Button",
   },
 };
 
 export const Disabled: Story = {
   args: {
-    ...Primary.args,
+    ...Solid.args,
     disabled: true,
     children: "Disabled Button",
   },
