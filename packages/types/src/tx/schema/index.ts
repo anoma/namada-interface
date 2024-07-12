@@ -5,7 +5,7 @@ export * from "./ibcTransfer";
 export * from "./redelegate";
 export * from "./revealPk";
 export * from "./signature";
-export * from "./transparentTransfer";
+export * from "./transfer";
 export * from "./txDetails";
 export * from "./txResponse";
 export * from "./unbond";
@@ -21,7 +21,7 @@ import { IbcTransferMsgValue } from "./ibcTransfer";
 import { RedelegateMsgValue } from "./redelegate";
 import { RevealPkMsgValue } from "./revealPk";
 import { SignatureMsgValue } from "./signature";
-import { TransparentTransferMsgValue } from "./transparentTransfer";
+import { TransferDataMsgValue, TransferMsgValue } from "./transfer";
 import { CommitmentMsgValue, TxDetailsMsgValue } from "./txDetails";
 import { TxResponseMsgValue } from "./txResponse";
 import { UnbondMsgValue } from "./unbond";
@@ -38,7 +38,8 @@ export type Schema =
   | UnbondMsgValue
   | VoteProposalMsgValue
   | WithdrawMsgValue
-  | TransparentTransferMsgValue
+  | TransferMsgValue
+  | TransferDataMsgValue
   | TxResponseMsgValue
   | WrapperTxMsgValue
   | RedelegateMsgValue

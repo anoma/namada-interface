@@ -333,26 +333,33 @@ pub fn vote_proposal_tx_args(
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
-pub struct TransparentTransferMsg {
+pub struct TransferDataMsg {
     source: String,
     target: String,
     token: String,
     amount: String,
 }
 
-impl TransparentTransferMsg {
-    pub fn new(
-        source: String,
-        target: String,
-        token: String,
-        amount: String,
-    ) -> TransparentTransferMsg {
-        TransparentTransferMsg {
+impl TransferDataMsg {
+    pub fn new(source: String, target: String, token: String, amount: String) -> TransferDataMsg {
+        TransferDataMsg {
             source,
             target,
             token,
             amount,
         }
+    }
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
+pub struct TransferMsg {
+    data: Vec<TransferDataMsg>,
+}
+
+impl TransferMsg {
+    pub fn new(data: Vec<TransferDataMsg>) -> TransferMsg {
+        TransferMsg { data }
     }
 }
 
@@ -371,30 +378,28 @@ pub fn transparent_transfer_tx_args(
     transfer_msg: &[u8],
     tx_msg: &[u8],
 ) -> Result<args::TxTransparentTransfer, JsError> {
-    let transfer_msg = TransparentTransferMsg::try_from_slice(transfer_msg)?;
-    let TransparentTransferMsg {
-        source,
-        target,
-        token,
-        amount,
-    } = transfer_msg;
+    let transfer_msg = TransferMsg::try_from_slice(transfer_msg)?;
+    let TransferMsg { data } = transfer_msg;
 
-    let source = Address::from_str(&source)?;
+    let mut transfer_data: Vec<args::TxTransparentTransferData> = vec![];
 
-    let target = Address::from_str(&target)?;
+    for transfer in data {
+        let source = Address::from_str(&transfer.source)?;
+        let target = Address::from_str(&transfer.target)?;
+        let token = Address::from_str(&transfer.token)?;
+        let denom_amount =
+            DenominatedAmount::from_str(&transfer.amount).expect("Amount to be valid.");
+        let amount = InputAmount::Unvalidated(denom_amount);
 
-    let token = Address::from_str(&token)?;
-    let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
-    let amount = InputAmount::Unvalidated(denom_amount);
+        transfer_data.push(args::TxTransparentTransferData {
+            source,
+            target,
+            token,
+            amount,
+        });
+    }
+
     let tx = tx_msg_into_args(tx_msg)?;
-
-    // TODO: Update schema to support multiple transfer data args
-    let transfer_data = vec![args::TxTransparentTransferData {
-        source,
-        target,
-        token,
-        amount,
-    }];
 
     let args = args::TxTransparentTransfer {
         tx,

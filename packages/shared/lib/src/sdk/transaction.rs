@@ -11,16 +11,17 @@ use wasm_bindgen::JsError;
 
 use crate::sdk::{
     args::{
-        BondMsg, RedelegateMsg, RevealPkMsg, TransparentTransferMsg, UnbondMsg, VoteProposalMsg,
-        WithdrawMsg,
+        BondMsg, RedelegateMsg, RevealPkMsg, TransferMsg, UnbondMsg, VoteProposalMsg, WithdrawMsg,
     },
     tx::TxType,
 };
 
+use super::args::TransferDataMsg;
+
 #[derive(Serialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum TransactionKind {
-    TransparentTransfer(Transfer),
+    Transfer(Transfer),
     Bond(Bond),
     Redelegation(Redelegation),
     Unbond(Unbond),
@@ -33,7 +34,7 @@ pub enum TransactionKind {
 impl TransactionKind {
     pub fn from(tx_type: TxType, data: &[u8]) -> Self {
         match tx_type {
-            TxType::TransparentTransfer => TransactionKind::TransparentTransfer(
+            TxType::Transfer => TransactionKind::Transfer(
                 Transfer::try_from_slice(data).expect("Cannot deserialize TransparentTransfer"),
             ),
             TxType::Bond => {
@@ -128,24 +129,28 @@ impl TransactionKind {
                 let reveal_pk = RevealPkMsg::new(public_key.to_string());
                 borsh::to_vec(&reveal_pk)?
             }
-            TransactionKind::TransparentTransfer(transparent_transfer) => {
+            TransactionKind::Transfer(transfer) => {
                 let Transfer {
                     sources,
                     targets,
                     shielded_section_hash: _,
-                } = transparent_transfer;
+                } = transfer;
 
-                let (source, amount) = sources.iter().nth(0).unwrap();
-                let (target, token) = targets.iter().nth(0).unwrap();
+                let mut data: Vec<TransferDataMsg> = vec![];
 
-                let transparent_transfer = TransparentTransferMsg::new(
-                    source.owner.to_string(),
-                    target.owner.to_string(),
-                    token.to_string(),
-                    amount.to_string(),
-                );
+                for (i, (source, amount)) in sources.into_iter().enumerate() {
+                    let (target, token) = targets.iter().nth(i).unwrap();
 
-                borsh::to_vec(&transparent_transfer)?
+                    let transfer = TransferDataMsg::new(
+                        source.owner.to_string(),
+                        target.owner.to_string(),
+                        token.to_string(),
+                        amount.to_string(),
+                    );
+                    data.push(transfer);
+                }
+
+                borsh::to_vec(&TransferMsg::new(data))?
             }
             TransactionKind::ProposalVote(vote_proposal) => {
                 let VoteProposalData { id, vote, voter } = vote_proposal;

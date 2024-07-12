@@ -18,8 +18,8 @@ import {
   RevealPkMsgValue,
   SignatureMsgValue,
   SupportedTxProps,
-  TransparentTransferMsgValue,
-  TransparentTransferProps,
+  TransferMsgValue,
+  TransferProps,
   TxDetails,
   TxDetailsMsgValue,
   UnbondMsgValue,
@@ -115,10 +115,10 @@ export class Tx {
           throw new Error("For RevealPK you must provide a public key!");
         }
         return await this.buildRevealPk(wrapperTxProps, publicKey);
-      case TxType.TransparentTransfer:
+      case TxType.Transfer:
         return await this.buildTransparentTransfer(
           wrapperTxProps,
-          props as TransparentTransferProps,
+          props as TransferProps,
           gasPayer
         );
       case TxType.IBCTransfer:
@@ -154,21 +154,21 @@ export class Tx {
    */
   async buildTransparentTransfer(
     wrapperTxProps: WrapperTxProps,
-    transferProps: TransparentTransferMsgValue,
+    transferProps: TransferProps,
     gasPayer?: string
   ): Promise<EncodedTx> {
-    const transferMsg = new Message<TransparentTransferMsgValue>();
+    const transferMsg = new Message<TransferMsgValue>();
 
     const encodedTx = this.encodeTxArgs(wrapperTxProps);
     const encodedTransfer = transferMsg.encode(
-      new TransparentTransferMsgValue(transferProps)
+      new TransferMsgValue(transferProps)
     );
 
     return await this.buildTxFromSerializedArgs(
-      TxType.TransparentTransfer,
+      TxType.Transfer,
       encodedTransfer,
       encodedTx,
-      gasPayer || transferProps.source
+      gasPayer || transferProps.data[0].source
     );
   }
 
@@ -478,8 +478,8 @@ export class Tx {
           return deserialize(data, RedelegateMsgValue);
         case TxType.VoteProposal:
           return deserialize(data, VoteProposalMsgValue);
-        case TxType.TransparentTransfer:
-          return deserialize(data, TransparentTransferMsgValue);
+        case TxType.Transfer:
+          return deserialize(data, TransferMsgValue);
         case TxType.RevealPK:
           return deserialize(data, RevealPkMsgValue);
         default:

@@ -24,7 +24,7 @@ pub enum TxType {
     Bond = 1,
     Unbond = 2,
     Withdraw = 3,
-    TransparentTransfer = 4,
+    Transfer = 4,
     IBCTransfer = 5,
     EthBridgeTransfer = 6,
     RevealPK = 7,
@@ -96,7 +96,7 @@ impl SigningData {
 
 pub fn wasm_hash_to_tx_type(wasm_hash: &str, wasm_hashes: &Vec<WasmHash>) -> Option<TxType> {
     let type_map: HashMap<String, TxType> = HashMap::from([
-        (TX_TRANSFER_WASM.to_string(), TxType::TransparentTransfer),
+        (TX_TRANSFER_WASM.to_string(), TxType::Transfer),
         (TX_BOND_WASM.to_string(), TxType::Bond),
         (TX_REDELEGATE_WASM.to_string(), TxType::Redelegate),
         (TX_UNBOND_WASM.to_string(), TxType::Unbond),

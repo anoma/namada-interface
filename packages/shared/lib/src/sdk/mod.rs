@@ -395,8 +395,8 @@ impl Sdk {
                 self.build_withdraw(specific_msg, tx_msg, Some(gas_payer))
                     .await?
             }
-            TxType::TransparentTransfer => {
-                self.build_transparent_transfer(specific_msg, tx_msg, Some(gas_payer))
+            TxType::Transfer => {
+                self.build_transfer(specific_msg, tx_msg, Some(gas_payer))
                     .await?
             }
             TxType::IBCTransfer => {
@@ -454,7 +454,7 @@ impl Sdk {
         to_js_result(borsh::to_vec(&tx)?)
     }
 
-    pub async fn build_transparent_transfer(
+    pub async fn build_transfer(
         &self,
         transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
@@ -464,7 +464,7 @@ impl Sdk {
         let (tx, signing_data) = build_transparent_transfer(&self.namada, &mut args).await?;
 
         Ok(BuiltTx {
-            tx_type: TxType::TransparentTransfer,
+            tx_type: TxType::Transfer,
             tx,
             signing_data: vec![signing_data],
             wrapper_tx_msg: Vec::from(wrapper_tx_msg),

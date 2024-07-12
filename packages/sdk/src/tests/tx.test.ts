@@ -36,18 +36,16 @@ describe("Tx", () => {
       publicKey: account1.publicKey,
     };
 
-    const transparentTransferProps = {
+    const transferProps = {
       source: account1.address,
       token: nativeToken,
       target: account2.address,
-      nativeToken,
       amount: BigNumber(123),
     };
 
-    const encodedTx = await tx.buildTransparentTransfer(
-      txProps,
-      transparentTransferProps
-    );
+    const encodedTx = await tx.buildTransparentTransfer(txProps, {
+      data: [transferProps],
+    });
     expect(encodedTx).toBeDefined();
 
     const txBytes = encodedTx.toBytes();

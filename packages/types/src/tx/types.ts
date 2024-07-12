@@ -6,7 +6,8 @@ import {
   IbcTransferMsgValue,
   RedelegateMsgValue,
   SignatureMsgValue,
-  TransparentTransferMsgValue,
+  TransferDataMsgValue,
+  TransferMsgValue,
   TxDetailsMsgValue,
   TxResponseMsgValue,
   UnbondMsgValue,
@@ -23,7 +24,8 @@ export type EthBridgeTransferProps = EthBridgeTransferMsgValue;
 export type IbcTransferProps = IbcTransferMsgValue;
 export type RedelegateProps = RedelegateMsgValue;
 export type SignatureProps = SignatureMsgValue;
-export type TransparentTransferProps = TransparentTransferMsgValue;
+export type TransferProps = TransferMsgValue;
+export type TransferDataProps = TransferDataMsgValue;
 export type TxDetailsProps = TxDetailsMsgValue;
 export type TxResponseProps = TxResponseMsgValue;
 export type UnbondProps = UnbondMsgValue;
@@ -40,7 +42,7 @@ export type SupportedTxProps =
   | EthBridgeTransferProps
   | IbcTransferProps
   | VoteProposalProps
-  | TransparentTransferProps
+  | TransferProps
   | RevealPkProps;
 
 export type CommitmentDetailProps = SupportedTxProps & {
