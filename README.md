@@ -135,8 +135,7 @@ export AR=/opt/homebrew/opt/llvm/bin/llvm-ar
 ### Local chain
 
 Before you start the extension and interface, you will need at least a chain ID and an RPC URL. This can either be a local chain or an
-existing network. If you know the chain ID and URL, you can skip the following and simply enter these values in the `apps/namadillo/.env`
-file (to see an example of the values you can set, see [.env.sample](./apps/namadillo/.env.sample).)
+existing network. If you know the chain ID and URL, you can skip the following and simply enter these values on the app interface.
 
 To build and run the chain locally, you will need to clone <http://github.com/anoma/namada>.
 
