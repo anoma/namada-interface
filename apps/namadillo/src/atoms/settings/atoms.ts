@@ -1,4 +1,4 @@
-import { CurrencyType } from "@namada/utils";
+import { CurrencyType, isUrlValid } from "@namada/utils";
 import { indexerRpcUrlAtom } from "atoms/chain";
 import { Getter, Setter, atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
@@ -45,6 +45,27 @@ const changeSettings =
     set(settingsAtom, { ...settings, [key]: value });
   };
 
+const changeSettingsUrl =
+  (
+    key: keyof SettingsStorage,
+    healthCheck: (url: string) => Promise<boolean>
+  ) =>
+  async (get: Getter, set: Setter, url: string) => {
+    const trimmedUrl = url.trim();
+    const sanitizedUrl =
+      trimmedUrl.endsWith("/") ? trimmedUrl.slice(0, -1) : url;
+    if (!isUrlValid(sanitizedUrl)) {
+      throw new Error("Invalid URL. The URL should starts with 'http'.");
+    }
+    if (await healthCheck(sanitizedUrl)) {
+      changeSettings(key)(get, set, sanitizedUrl);
+    } else {
+      throw new Error(
+        "Couldn't reach the URL. Please provide a valid Namada URL service."
+      );
+    }
+  };
+
 export const selectedCurrencyAtom = atom(
   (get) => get(settingsAtom).fiat,
   changeSettings<CurrencyType>("fiat")
@@ -59,32 +80,38 @@ export const hideBalancesAtom = atom(
  * Returns RPC Url.
  * Priority: user defined RPC Url > TOML config > indexer RPC url
  */
-export const rpcUrlAtom = atom((get) => {
-  const userDefinedRpc = get(settingsAtom).rpcUrl;
-  if (userDefinedRpc) return userDefinedRpc;
+export const rpcUrlAtom = atom(
+  (get) => {
+    const userDefinedRpc = get(settingsAtom).rpcUrl;
+    if (userDefinedRpc) return userDefinedRpc;
 
-  const tomlRpc = get(defaultServerConfigAtom).data?.rpc_url;
-  if (tomlRpc) return tomlRpc;
+    const tomlRpc = get(defaultServerConfigAtom).data?.rpc_url;
+    if (tomlRpc) return tomlRpc;
 
-  const indexerRpc = get(indexerRpcUrlAtom).data;
-  if (indexerRpc) return indexerRpc;
+    const indexerRpc = get(indexerRpcUrlAtom).data;
+    if (indexerRpc) return indexerRpc;
 
-  return "";
-}, changeSettings<string>("rpcUrl"));
+    return "";
+  },
+  changeSettingsUrl("rpcUrl", isApiAlive)
+);
 
 /**
  * Returns Indexer url
  * Priority: user defined indexer URL > TOML config
  */
-export const indexerUrlAtom = atom((get) => {
-  const customIndexerUrl = get(settingsAtom).indexerUrl;
-  if (customIndexerUrl) return customIndexerUrl;
+export const indexerUrlAtom = atom(
+  (get) => {
+    const customIndexerUrl = get(settingsAtom).indexerUrl;
+    if (customIndexerUrl) return customIndexerUrl;
 
-  const tomlIndexerUrl = get(defaultServerConfigAtom).data?.indexer_url;
-  if (tomlIndexerUrl) return tomlIndexerUrl;
+    const tomlIndexerUrl = get(defaultServerConfigAtom).data?.indexer_url;
+    if (tomlIndexerUrl) return tomlIndexerUrl;
 
-  return "";
-}, changeSettings<string>("indexerUrl"));
+    return "";
+  },
+  changeSettingsUrl("indexerUrl", isApiAlive)
+);
 
 export const signArbitraryEnabledAtom = atom(
   (get) => get(settingsAtom).signArbitraryEnabled,

@@ -1,15 +1,13 @@
 import { ActionButton, Container, Input, Stack } from "@namada/components";
 import { indexerUrlAtom } from "atoms/settings";
-import { useValidateApiUrl } from "hooks/useValidateApiUrl";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useState } from "react";
 import { DISCORD_URL } from "urls";
 type SetupProps = {
-  onChange: (newUrl: string) => void;
+  onChange: () => void;
 };
 
 export const Setup = ({ onChange }: SetupProps): JSX.Element => {
-  const validateApiUrl = useValidateApiUrl();
   const indexerUrl = useAtomValue(indexerUrlAtom);
   const [url, setUrl] = useState(indexerUrl || "");
   const [validatingUrl, setValidatingUrl] = useState(false);
@@ -20,9 +18,8 @@ export const Setup = ({ onChange }: SetupProps): JSX.Element => {
     e.preventDefault();
     setValidatingUrl(true);
     try {
-      const result = await validateApiUrl(url);
-      setIndexerAtom(result);
-      onChange(result);
+      await setIndexerAtom(url);
+      onChange();
     } catch (error) {
       setError(String(error));
     }
