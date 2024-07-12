@@ -22,6 +22,7 @@
     "framer-motion": "^11.0.28",
     "idb-keyval": "^6.2.1",
     "invariant": "^2.2.4",
+    "io-ts": "^2.2.21",
     "jotai": "^2.6.3",
     "jotai-tanstack-query": "^0.8.5",
     "lodash.debounce": "^4.0.8",
