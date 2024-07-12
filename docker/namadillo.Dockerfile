@@ -11,6 +11,8 @@ COPY ./scripts ./scripts
 COPY ./apps/namadillo/package.json ./apps/namadillo/package.json
 RUN yarn 
 WORKDIR /app/apps/namadillo
+COPY ./apps/namadillo/scripts ./scripts
+RUN yarn wasm:build
 COPY ./apps/namadillo .
 RUN yarn 
 RUN yarn build
