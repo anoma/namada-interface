@@ -9,7 +9,7 @@ export const getDefaultColorString = (color: Color): string => {
   const colorValue = colors[color];
 
   if (typeof colorValue === "string") {
-    return colors[color] as string;
+    return colorValue;
   }
 
   if (typeof colorValue === "object" && "DEFAULT" in colorValue) {
