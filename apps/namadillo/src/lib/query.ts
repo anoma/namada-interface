@@ -3,6 +3,7 @@ import { getIntegration } from "@namada/integrations";
 import {
   Account,
   Signer,
+  WasmHash,
   WrapperTxMsgValue,
   WrapperTxProps,
 } from "@namada/types";
@@ -112,7 +113,8 @@ export const buildBatchTx = async <T>(
 export const signTx = async <T>(
   chain: ChainSettings,
   typedEncodedTx: EncodedTxData<T>,
-  owner: string
+  owner: string,
+  checksums?: WasmHash[]
 ): Promise<Uint8Array> => {
   const integration = getIntegration(chain.id);
   const signingClient = integration.signer() as Signer;
@@ -126,7 +128,8 @@ export const signTx = async <T>(
         signingDataBytes: typedEncodedTx.tx.signing_data_bytes(),
       },
       owner,
-      typedEncodedTx.tx.wrapper_tx_msg()
+      typedEncodedTx.tx.wrapper_tx_msg(),
+      checksums
     );
 
     if (!signedBatchTxBytes) {
@@ -153,7 +156,8 @@ export const buildTxPair = async <T>(
   chain: ChainSettings,
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<EncodedTx>,
-  owner: string
+  owner: string,
+  checksums?: WasmHash[]
 ): Promise<TransactionPair<T>> => {
   const encodedTxData = await buildBatchTx<T>(
     account,
@@ -162,7 +166,7 @@ export const buildTxPair = async <T>(
     queryProps,
     txFn
   );
-  const signedTx = await signTx<T>(chain, encodedTxData, owner);
+  const signedTx = await signTx<T>(chain, encodedTxData, owner, checksums);
   return {
     signedTx,
     encodedTxData,

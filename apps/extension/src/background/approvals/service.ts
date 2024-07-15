@@ -4,7 +4,7 @@ import browser, { Windows } from "webextension-polyfill";
 
 import { BuiltTx, TxType } from "@heliax/namada-sdk/web";
 import { KVStore } from "@namada/storage";
-import { SignArbitraryResponse, TxDetails } from "@namada/types";
+import { SignArbitraryResponse, TxDetails, WasmHash } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 
 import { ChainsService } from "background/chains";
@@ -13,7 +13,7 @@ import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
-import { EncodedTxData, PendingTx, WasmHashesStore } from "./types";
+import { EncodedTxData, PendingTx } from "./types";
 
 export class ApprovalsService {
   // holds promises which can be resolved with a message from a pop-up window
@@ -28,7 +28,6 @@ export class ApprovalsService {
     protected readonly txStore: KVStore<PendingTx>,
     protected readonly dataStore: KVStore<string>,
     protected readonly localStorage: LocalStorage,
-    protected readonly wasmHashesStore: KVStore<WasmHashesStore>,
     protected readonly sdkService: SdkService,
     protected readonly keyRingService: KeyRingService,
     protected readonly vaultService: VaultService,
@@ -40,7 +39,8 @@ export class ApprovalsService {
     txType: TxType,
     signer: string,
     tx: EncodedTxData,
-    wrapperTxMsg: string
+    wrapperTxMsg: string,
+    checksums?: WasmHash[]
   ): Promise<Uint8Array> {
     const msgId = uuid();
 
@@ -54,11 +54,13 @@ export class ApprovalsService {
       signingDataBytes: tx.signingDataBytes.map((bytes) => fromBase64(bytes)),
     };
 
+    // Set PendingTx
     await this.txStore.set(msgId, {
       txType,
       tx: pendingTx,
       signer,
       wrapperTxMsg: fromBase64(wrapperTxMsg),
+      checksums,
     });
 
     const url = `${browser.runtime.getURL(
@@ -270,11 +272,8 @@ export class ApprovalsService {
       throw new Error(`No transaction found for ${msgId}`);
     }
 
-    const { chainId } = await this.chainService.getChain();
-    const wasmHashes = await this.wasmHashesStore.get(chainId);
-
     const { tx } = this.sdkService.getSdk();
-    return tx.deserialize(pendingTx.tx.txBytes, wasmHashes || []);
+    return tx.deserialize(pendingTx.tx.txBytes, pendingTx.checksums || []);
   }
 
   async querySignArbitraryDetails(msgId: string): Promise<string> {

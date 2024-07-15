@@ -13,6 +13,7 @@ import {
 } from "@namada/types";
 import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { TransactionFees } from "App/Common/TransactionFees";
+import { checksumsAtom } from "atoms/checksums";
 import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
 import { dispatchToastNotificationAtom } from "atoms/notifications";
 import { canVoteAtom, createVoteTxAtom, proposalFamily } from "atoms/proposals";
@@ -38,8 +39,8 @@ export const SubmitVote: React.FC = () => {
   const proposalId = useProposalIdParam();
 
   return proposalId === null ? null : (
-    <WithProposalId proposalId={proposalId} />
-  );
+      <WithProposalId proposalId={proposalId} />
+    );
 };
 
 export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
@@ -56,6 +57,7 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
   const gasLimits = useAtomValue(gasLimitsAtom);
+  const checksums = useAtomValue(checksumsAtom);
 
   useEffect(() => {
     if (isSuccess) {
@@ -117,6 +119,7 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
         gasPrice: minimumGasPrice.data!,
         gasLimit: gasLimits.data!.VoteProposal.native,
       },
+      checksums: checksums.data,
     });
   };
 

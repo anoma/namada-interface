@@ -3,6 +3,7 @@ import { BondMsgValue, WithdrawMsgValue } from "@namada/types";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { defaultAccountAtom } from "atoms/accounts";
+import { checksumsAtom } from "atoms/checksums";
 import { gasLimitsAtom } from "atoms/fees";
 import { dispatchToastNotificationAtom } from "atoms/notifications";
 import { createWithdrawTxAtomFamily } from "atoms/staking";
@@ -29,6 +30,7 @@ export const WithdrawalButton = ({
   const { gasPrice } = useGasEstimate();
   const gasLimits = useAtomValue(gasLimitsAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
+  const { data: checksums } = useAtomValue(checksumsAtom);
   const withdrawFamilyId = `${change.validatorId}- ${change.amount}`;
 
   const {
@@ -66,6 +68,7 @@ export const WithdrawalButton = ({
           gasLimit: gasLimits.data!.Withdraw.native,
         },
         account: account!,
+        checksums: checksums,
       });
     },
     [myValidator.withdrawableAmount, gasPrice, gasLimits.isSuccess]
@@ -120,7 +123,7 @@ export const WithdrawalButton = ({
             errorMessage={
               withdrawalTransactionError instanceof Error ?
                 withdrawalTransactionError.message
-                : undefined
+              : undefined
             }
           />
         ),

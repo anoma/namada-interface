@@ -1,4 +1,4 @@
-import { SupportedTx, TxType } from "@heliax/namada-sdk/web";
+import { TxType } from "@heliax/namada-sdk/web";
 import { TxData, WasmHash } from "@namada/types";
 
 export type ApprovedOriginsStore = string[];
@@ -8,6 +8,7 @@ export type PendingTx = {
   tx: TxData;
   wrapperTxMsg: Uint8Array;
   signer: string;
+  checksums?: WasmHash[];
 };
 
 export type PendingSignArbitrary = string;
@@ -16,10 +17,3 @@ export type EncodedTxData = {
   txBytes: string;
   signingDataBytes: string[];
 };
-
-export type TxStore = {
-  txType: SupportedTx;
-  tx: PendingTx[];
-};
-
-export type WasmHashesStore = WasmHash[];

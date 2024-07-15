@@ -19,6 +19,7 @@ import {
   Vote,
   VoteProposalProps,
   VoteType,
+  WasmHash,
 } from "@namada/types";
 import { assertNever, mapUndefined } from "@namada/utils";
 import BigNumber from "bignumber.js";
@@ -380,7 +381,8 @@ export const createVoteProposalTx = async (
   vote: VoteType,
   account: Account,
   gasConfig: GasConfig,
-  chain: ChainSettings
+  chain: ChainSettings,
+  checksums?: WasmHash[]
 ): Promise<TransactionPair<VoteProposalProps>> => {
   try {
     const { tx } = await getSdkInstance();
@@ -397,7 +399,8 @@ export const createVoteProposalTx = async (
       chain,
       [voteProposalProps],
       tx.buildVoteProposal,
-      account.address
+      account.address,
+      checksums
     );
     return transactionPair;
   } catch (err) {

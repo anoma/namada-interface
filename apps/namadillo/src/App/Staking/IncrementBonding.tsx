@@ -8,6 +8,7 @@ import { TableRowLoading } from "App/Common/TableRowLoading";
 import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { TransactionFees } from "App/Common/TransactionFees";
 import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
+import { checksumsAtom } from "atoms/checksums";
 import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
 import { dispatchToastNotificationAtom } from "atoms/notifications";
 import { createBondTxAtom } from "atoms/staking";
@@ -35,6 +36,7 @@ const IncrementBonding = (): JSX.Element => {
   const gasPrice = useAtomValue(minimumGasPriceAtom);
   const gasLimits = useAtomValue(gasLimitsAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
+  const { data: checksums } = useAtomValue(checksumsAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const resultsPerPage = 100;
@@ -97,6 +99,7 @@ const IncrementBonding = (): JSX.Element => {
         gasPrice: gasPrice.data!,
         gasLimit: bondGasLimit.multipliedBy(changes.length),
       },
+      checksums,
     });
   };
 
@@ -141,7 +144,7 @@ const IncrementBonding = (): JSX.Element => {
             errorMessage={
               bondTransactionError instanceof Error ?
                 bondTransactionError.message
-                : undefined
+              : undefined
             }
           />
         ),

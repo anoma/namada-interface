@@ -35,8 +35,13 @@ export const createBondTxAtom = atomWithMutation((get) => {
   return {
     mutationKey: ["create-bonding-tx"],
     enabled: chain.isSuccess,
-    mutationFn: async ({ changes, gasConfig, account }: ChangeInStakingProps) =>
-      createBondTx(chain.data!, account, changes, gasConfig),
+    mutationFn: async ({
+      changes,
+      gasConfig,
+      account,
+      checksums,
+    }: ChangeInStakingProps) =>
+      createBondTx(chain.data!, account, changes, gasConfig, checksums),
   };
 });
 
@@ -45,8 +50,13 @@ export const createUnbondTxAtom = atomWithMutation((get) => {
   return {
     mutationKey: ["create-unbonding-tx"],
     enabled: chain.isSuccess,
-    mutationFn: async ({ changes, gasConfig, account }: ChangeInStakingProps) =>
-      createUnbondTx(chain.data!, account, changes, gasConfig),
+    mutationFn: async ({
+      changes,
+      gasConfig,
+      account,
+      checksums,
+    }: ChangeInStakingProps) =>
+      createUnbondTx(chain.data!, account, changes, gasConfig, checksums),
   };
 });
 
@@ -59,8 +69,9 @@ export const createReDelegateTxAtom = atomWithMutation((get) => {
       changes,
       gasConfig,
       account,
+      checksums,
     }: RedelegateChangesProps) =>
-      createReDelegateTx(chain.data!, account, changes, gasConfig),
+      createReDelegateTx(chain.data!, account, changes, gasConfig, checksums),
   };
 });
 
@@ -73,9 +84,10 @@ export const createWithdrawTxAtom = atomWithMutation((get) => {
       changes,
       gasConfig,
       account,
+      checksums,
     }: ChangeInStakingProps): Promise<
       [TransactionPair<WithdrawProps>, BondProps] | undefined
-    > => createWithdrawTx(chain.data!, account, changes, gasConfig),
+    > => createWithdrawTx(chain.data!, account, changes, gasConfig, checksums),
   };
 });
 
@@ -89,9 +101,11 @@ export const createWithdrawTxAtomFamily = atomFamily((id: string) => {
         changes,
         gasConfig,
         account,
+        checksums,
       }: ChangeInStakingProps): Promise<
         [TransactionPair<WithdrawProps>, BondProps] | undefined
-      > => createWithdrawTx(chain.data!, account, changes, gasConfig),
+      > =>
+        createWithdrawTx(chain.data!, account, changes, gasConfig, checksums),
     };
   });
 });

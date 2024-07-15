@@ -19,7 +19,6 @@ import { SessionPassword, VaultService } from "background/vault";
 import {
   ApprovalsService,
   PendingTx,
-  WasmHashesStore,
   init as initApprovals,
 } from "../background/approvals";
 
@@ -67,9 +66,6 @@ export const init = async (): Promise<{
   const namadaRouterId = await getNamadaRouterId(localStorage);
   const requester = new ExtensionRequester(messenger, namadaRouterId);
   const txStore = new KVStoreMock<PendingTx>(KVPrefix.LocalStorage);
-  const wasmHashesStore = new KVStoreMock<WasmHashesStore>(
-    KVPrefix.WasmHashesStorage
-  );
   const dataStore = new KVStoreMock<string>(KVPrefix.LocalStorage);
   const broadcaster = new ExtensionBroadcaster(localStorage, requester);
 
@@ -93,7 +89,6 @@ export const init = async (): Promise<{
   const chainsService = new ChainsService(
     sdkService,
     localStorage,
-    wasmHashesStore,
     broadcaster
   );
 
@@ -112,7 +107,6 @@ export const init = async (): Promise<{
     txStore,
     dataStore,
     localStorage,
-    wasmHashesStore,
     sdkService,
     keyRingService,
     vaultService,

@@ -4,6 +4,7 @@ import {
   ProposalTypeString,
   VoteProposalProps,
   VoteType,
+  WasmHash,
 } from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
 import { indexerApiAtom } from "atoms/api";
@@ -209,6 +210,7 @@ type CreateVoteTxArgs = {
   proposalId: bigint;
   vote: VoteType;
   gasConfig: GasConfig;
+  checksums?: WasmHash[];
 };
 
 export const createVoteTxAtom = atomWithMutation((get) => {
@@ -222,6 +224,7 @@ export const createVoteTxAtom = atomWithMutation((get) => {
       proposalId,
       vote,
       gasConfig,
+      checksums,
     }: CreateVoteTxArgs): Promise<TransactionPair<VoteProposalProps>> => {
       if (typeof account.data === "undefined") {
         throw new Error("no account");
@@ -231,7 +234,8 @@ export const createVoteTxAtom = atomWithMutation((get) => {
         vote,
         account.data,
         gasConfig,
-        chain.data!
+        chain.data!,
+        checksums
       );
     },
   };
