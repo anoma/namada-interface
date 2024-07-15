@@ -8471,6 +8471,7 @@ __metadata:
     html-webpack-plugin: "npm:^5.5.0"
     idb-keyval: "npm:^6.2.1"
     invariant: "npm:^2.2.4"
+    io-ts: "npm:^2.2.21"
     jest: "npm:^29.4.1"
     jest-fetch-mock: "npm:^3.0.3"
     jotai: "npm:^2.6.3"
