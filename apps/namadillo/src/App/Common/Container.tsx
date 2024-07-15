@@ -1,6 +1,10 @@
+import { hideBalancesAtom } from "atoms/settings";
 import clsx from "clsx";
+import { useAtomValue } from "jotai";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { BurgerButton } from "./BurgerButton";
+import { Logo } from "./Logo";
 
 type ContainerProps = {
   header: JSX.Element;
@@ -15,24 +19,29 @@ export const Container = ({
   ...props
 }: ContainerProps): JSX.Element => {
   const [displayNavigation, setDisplayNavigation] = useState(false);
+  const hideBalance = useAtomValue(hideBalancesAtom);
 
   return (
     <div className="custom-container pb-2" {...props}>
       <header className="flex justify-between flex-wrap font-medium pt-4 pb-5 pl-4">
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-4">
           <span className="xl:hidden">
             <BurgerButton
               open={displayNavigation}
               onClick={() => setDisplayNavigation(!displayNavigation)}
             />
           </span>
-          <i
+          <Link
+            to={"/"}
             className={clsx(
-              "flex items-center gap-4 text-yellow text-xl not-italic uppercase"
+              "flex items-center gap-3 text-yellow text-xl not-italic uppercase"
             )}
           >
+            <i className="w-[40px]">
+              <Logo eyeOpen={!hideBalance} />
+            </i>
             Namadillo
-          </i>
+          </Link>
         </div>
         <div className="flex gap-8 items-center">{header}</div>
       </header>
