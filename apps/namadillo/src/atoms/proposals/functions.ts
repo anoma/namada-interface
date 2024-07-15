@@ -5,6 +5,7 @@ import {
   ProposalTallyTypeEnum as IndexerProposalTallyTypeEnum,
   ProposalTypeEnum as IndexerProposalTypeEnum,
   VotingPower as IndexerVotingPower,
+  Pagination,
 } from "@anomaorg/namada-indexer-client";
 import {
   Account,
@@ -127,7 +128,7 @@ const decodeProposalType = (
             ] =
               "Add" in continuous ?
                 [continuous["Add"], "add" as const]
-                : [continuous["Remove"], "remove" as const];
+              : [continuous["Remove"], "remove" as const];
 
             const amountAsBigNumber = BigNumber(amount);
 
@@ -288,27 +289,50 @@ const toIndexerProposalType = (
 };
 
 export const fetchAllProposals = async (
+  api: DefaultApi
+): Promise<Proposal[]> => {
+  const proposalsPromise = api.apiV1GovProposalAllGet();
+  const totalVotingPowerPromise = api.apiV1PosVotingPowerGet();
+
+  const [proposalResponse, votingPowerResponse] = await Promise.all([
+    proposalsPromise,
+    totalVotingPowerPromise,
+  ]);
+
+  return proposalResponse.data.map((proposal) =>
+    toProposal(proposal, votingPowerResponse.data)
+  );
+};
+
+export const fetchPaginatedProposals = async (
   api: DefaultApi,
+  page?: number,
   status?: ProposalStatus,
   proposalType?: ProposalTypeString,
   search?: string
-): Promise<Proposal[]> => {
+): Promise<{ proposals: Proposal[]; pagination: Pagination }> => {
   const proposalsPromise = api.apiV1GovProposalGet(
-    undefined,
+    mapUndefined((p) => p + 1, page), // indexer uses 1 as first page, not 0
     mapUndefined(toIndexerStatus, status),
     mapUndefined(toIndexerProposalType, proposalType),
     search,
     undefined
   );
+
   const totalVotingPowerPromise = api.apiV1PosVotingPowerGet();
   const [proposalResponse, votingPowerResponse] = await Promise.all([
     proposalsPromise,
     totalVotingPowerPromise,
   ]);
 
-  return proposalResponse.data.data.map((proposal) =>
+  const proposals = proposalResponse.data.data.map((proposal) =>
     toProposal(proposal, votingPowerResponse.data)
   );
+
+  return {
+    proposals,
+    pagination: proposalResponse.data.pagination,
+  };
 };
 
 export const fetchProposalVotes = async (

@@ -28,6 +28,8 @@ export const ValidatorsTable = ({
   initialPage = 0,
   tableClassName,
 }: ValidatorsTableProps): JSX.Element => {
+  const [page, setPage] = useState(initialPage);
+
   const [selectedValidator, setSelectedValidator] = useState<
     Validator | undefined
   >();
@@ -62,14 +64,26 @@ export const ValidatorsTable = ({
     [renderRow, setSelectedValidator]
   );
 
+  useEffect(() => {
+    setPage(0);
+  }, [validatorList]);
+
+  const paginatedItems = validatorList.slice(
+    page * resultsPerPage,
+    page * resultsPerPage + resultsPerPage
+  );
+
+  const pageCount = Math.ceil(validatorList.length / resultsPerPage);
+
   return (
     <TableWithPaginator
       id={id}
       headers={headers.concat("")}
       renderRow={mapValidatorRow}
-      itemList={validatorList}
-      resultsPerPage={resultsPerPage}
-      initialPage={initialPage}
+      itemList={paginatedItems}
+      page={page}
+      pageCount={pageCount}
+      onPageChange={setPage}
       tableProps={{
         className: twMerge(
           "w-full flex-1 [&_td]:px-1 [&_th]:px-1 [&_td:first-child]:pl-4 [&_td]:h-[64px]",

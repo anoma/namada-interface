@@ -1,11 +1,13 @@
+import { Pagination } from "@anomaorg/namada-indexer-client";
 import { Stack, StyledSelectBox, TableRow } from "@namada/components";
 import { Proposal, isProposalStatus, proposalStatuses } from "@namada/types";
+import { mapUndefined } from "@namada/utils";
 import { Search } from "App/Common/Search";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
-import { allProposalsFamily } from "atoms/proposals";
+import { paginatedProposalsFamily } from "atoms/proposals";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GoCheckCircleFill, GoInfo } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { showProposalStatus, showProposalTypeString } from "utils";
@@ -15,6 +17,9 @@ import GovernanceRoutes from "./routes";
 const Table: React.FC<
   {
     proposals: Proposal[];
+    pagination: Pagination;
+    page: number;
+    onPageChange: (page: number) => void;
   } & ExtensionConnectedProps
 > = (props) => {
   const navigate = useNavigate();
@@ -92,8 +97,10 @@ const Table: React.FC<
           "[&_th:nth-child(7)]:w-[5%]" // Info button
         ),
       }}
+      page={props.page}
+      onPageChange={props.onPageChange}
+      pageCount={mapUndefined(Number, props.pagination.totalPages)}
       headProps={{ className: "text-xs" }}
-      resultsPerPage={50}
     />
   );
 };
@@ -128,15 +135,19 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>("all");
   const [selectedType, setSelectedType] = useState<TypeFilter>("all");
   const [search, setSearch] = useState<string | undefined>();
+  const [page, setPage] = useState<number>(0);
+
+  useEffect(() => {
+    setPage(0);
+  }, [selectedStatus, selectedType, search]);
 
   const maybeStatus =
     isProposalStatus(selectedStatus) ? selectedStatus : undefined;
   const maybeType = selectedType === "all" ? undefined : selectedType;
 
-  // TODO: just query IDs, don't query full proposals.
-  // This should be better for loading table rows in parallel.
   const proposals = useAtomValue(
-    allProposalsFamily({
+    paginatedProposalsFamily({
+      page,
       status: maybeStatus,
       type: maybeType,
       search,
@@ -226,8 +237,13 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
       </div>
 
       <div className="h-[490px] flex flex-col">
-        {proposals.status === "error" || proposals.status === "pending" ? null
-        : <Table {...props} proposals={proposals.data || []} />}
+        <Table
+          {...props}
+          proposals={proposals.data?.proposals || []}
+          page={page}
+          onPageChange={setPage}
+          pagination={proposals.data?.pagination || {}}
+        />
       </div>
     </Stack>
   );

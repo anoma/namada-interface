@@ -6,10 +6,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 type TableWithPaginatorProps<T> = {
   id: string;
   headers: (TableHeader | React.ReactNode)[];
-  itemList: T[];
   renderRow: (item: T, index: number) => TableRow;
-  resultsPerPage?: number;
-  initialPage?: number;
+  itemList: T[];
+  page?: number;
+  pageCount?: number;
+  onPageChange?: (page: number) => void;
   children?: React.ReactNode;
 } & Pick<React.ComponentProps<typeof StyledTable>, "tableProps" | "headProps">;
 
@@ -18,31 +19,20 @@ export const TableWithPaginator = <T,>({
   headers,
   renderRow,
   itemList,
-  resultsPerPage = 100,
-  initialPage = 0,
+  page = 0,
+  pageCount = 1,
+  onPageChange,
+  children,
   tableProps,
   headProps,
-  children,
 }: TableWithPaginatorProps<T>): JSX.Element => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [page, setPage] = useState(initialPage);
   const [rows, setRows] = useState<TableRow[]>([]);
-
-  const paginatedItems = itemList.slice(
-    page * resultsPerPage,
-    page * resultsPerPage + resultsPerPage
-  );
-
-  const pageCount = Math.ceil(itemList.length / resultsPerPage);
-
-  useEffect(() => {
-    setPage(0);
-  }, [itemList]);
 
   // Update all rows
   useEffect(() => {
-    setRows(paginatedItems.map(renderRow));
-  }, [renderRow, page, itemList]);
+    setRows(itemList.map(renderRow));
+  }, [renderRow, itemList]);
 
   const scrollTop = useCallback((): void => {
     const container = containerRef.current!.querySelector(".table-container");
@@ -69,13 +59,14 @@ export const TableWithPaginator = <T,>({
       <FormattedPaginator
         pageRangeDisplayed={3}
         pageCount={pageCount}
+        forcePage={page}
         onPageChange={({ selected }) => {
-          setPage(selected);
           scrollTop();
+          onPageChange?.(selected);
         }}
       />
     );
-  }, [page, itemList]);
+  }, [page, itemList, onPageChange]);
 
   if (rows.length === 0) {
     return (

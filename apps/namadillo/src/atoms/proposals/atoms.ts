@@ -17,6 +17,7 @@ import { GasConfig } from "types";
 import {
   createVoteProposalTx,
   fetchAllProposals,
+  fetchPaginatedProposals,
   fetchProposalById,
   fetchVotedProposalIds,
 } from "./functions";
@@ -134,9 +135,9 @@ export const allProposalsAtom = atomWithQuery((get) => {
   };
 });
 
-// TODO: this is a bad way to filter/search
-export const allProposalsFamily = atomFamily(
+export const paginatedProposalsFamily = atomFamily(
   (options?: {
+    page?: number;
     status?: ProposalStatus;
     type?: ProposalTypeString;
     search?: string;
@@ -146,14 +147,16 @@ export const allProposalsFamily = atomFamily(
 
       return {
         queryKey: [
-          "all-proposals",
+          "paginated-proposals",
+          options?.page,
           options?.status,
           options?.type,
           options?.search,
         ],
         queryFn: () =>
-          fetchAllProposals(
+          fetchPaginatedProposals(
             api,
+            options?.page,
             options?.status,
             options?.type,
             options?.search
@@ -161,7 +164,11 @@ export const allProposalsFamily = atomFamily(
       };
     }),
   (a, b) =>
-    a?.status === b?.status && a?.type === b?.type && a?.search === b?.search
+    // TODO: there might be a better way to do this equality check
+    a?.page === b?.page &&
+    a?.status === b?.status &&
+    a?.type === b?.type &&
+    a?.search === b?.search
 );
 
 export const votedProposalIdsAtom = atomWithQuery((get) => {
