@@ -66,6 +66,9 @@ const actionButtonText = tv({
   ),
 });
 
+type ButtonTailwindVariantsProps = VariantProps<typeof actionButtonShape> &
+  VariantProps<typeof actionButtonBackground>;
+
 export type ActionButtonProps<HtmlTag extends keyof React.ReactHTML> = {
   as?: HtmlTag;
   icon?: React.ReactNode;
@@ -75,8 +78,7 @@ export type ActionButtonProps<HtmlTag extends keyof React.ReactHTML> = {
   textColor?: Color;
   textHoverColor?: Color;
 } & React.ComponentPropsWithoutRef<HtmlTag> &
-  VariantProps<typeof actionButtonShape> &
-  VariantProps<typeof actionButtonBackground>;
+  Omit<ButtonTailwindVariantsProps, "noHover" | "outlined">;
 
 export const ActionButton = ({
   icon,
