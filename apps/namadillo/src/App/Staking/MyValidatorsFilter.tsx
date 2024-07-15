@@ -1,5 +1,4 @@
-import { ActionButton, Stack } from "@namada/components";
-import clsx from "clsx";
+import { ActionButton, ActionButtonProps, Stack } from "@namada/components";
 
 type FilterOptions = "all" | "my-validators";
 
@@ -12,17 +11,24 @@ export const MyValidatorsFilter = ({
   onChange,
   value,
 }: MyValidatorsFilterProps): JSX.Element => {
-  const selectedClassList = "[&_i]:!bg-white !text-black";
+  const getButtonProps = (selected: boolean): ActionButtonProps<"button"> => {
+    return {
+      size: "sm",
+      type: "button",
+      borderRadius: "sm",
+      outlineColor: "white",
+      backgroundColor: selected ? "white" : "transparent",
+      backgroundHoverColor: "white",
+      textColor: selected ? "black" : "white",
+      textHoverColor: "black",
+    };
+  };
+
   return (
     <Stack gap={1.5} direction="horizontal" as="ul">
       <li>
         <ActionButton
-          type="button"
-          color="white"
-          size="sm"
-          borderRadius="sm"
-          outlined={value !== "all"}
-          className={clsx({ [selectedClassList]: value === "all" })}
+          {...getButtonProps(value === "all")}
           onClick={() => onChange("all")}
         >
           All
@@ -30,12 +36,7 @@ export const MyValidatorsFilter = ({
       </li>
       <li>
         <ActionButton
-          className={clsx({ [selectedClassList]: value === "my-validators" })}
-          type="button"
-          color="white"
-          size="sm"
-          borderRadius="sm"
-          outlined={value !== "my-validators"}
+          {...getButtonProps(value === "my-validators")}
           onClick={() => onChange("my-validators")}
         >
           Your Validators

@@ -115,7 +115,7 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
             </ActionButton>
             <ActionButton
               borderRadius="sm"
-              outlined
+              outlineColor="yellow"
               onClick={() => navigate(-1)}
             >
               Back

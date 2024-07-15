@@ -101,7 +101,11 @@ export const ApproveSignArbitrary: React.FC<Props> = ({
         <ActionButton borderRadius="sm" onClick={handleApproveClick}>
           Approve
         </ActionButton>
-        <ActionButton borderRadius="sm" outlined onClick={handleReject}>
+        <ActionButton
+          borderRadius="sm"
+          outlineColor="yellow"
+          onClick={handleReject}
+        >
           Reject
         </ActionButton>
       </Stack>

@@ -125,7 +125,7 @@ export const ReDelegateAssignStake = ({
         <ActionButton
           type="submit"
           size="sm"
-          color="white"
+          backgroundColor="white"
           borderRadius="sm"
           className="mt-2 col-start-2"
           disabled={hasInvalidDistribution || isPerformingRedelegation}

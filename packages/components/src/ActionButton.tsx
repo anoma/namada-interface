@@ -1,23 +1,19 @@
+import { Color } from "@namada/components/types";
+import { getDefaultColorString } from "@namada/components/utils";
 import clsx from "clsx";
-import { createElement } from "react";
+import { createElement, CSSProperties } from "react";
+import { twMerge } from "tailwind-merge";
 import { tv, type VariantProps } from "tailwind-variants";
 
-const actionButton = tv({
+const actionButtonShape = tv({
   base: clsx(
-    `group flex items-center cursor-pointer min-h-[2em] overflow-hidden text-black text-center relative`,
-    `transition-colors duration-100 w-full select-none justify-center font-medium`,
-    `active:top-px`
+    `group relative flex items-center cursor-pointer min-h-[2em]`,
+    `overflow-hidden w-full justify-center text-center font-medium relative`,
+    `text-[var(--text-color)] hover:text-[var(--text-hover-color)]`,
+    `before:border before:border-transparent`,
+    `border-none outline-0 active:top-px`
   ),
-
   variants: {
-    color: {
-      primary: "bg-yellow hover:text-yellow",
-      secondary: "bg-cyan hover:text-cyan",
-      black: "bg-black text-yellow hover:text-black",
-      white: "bg-white text-black hover:text-white",
-      magenta: "bg-pink text-white",
-    },
-
     size: {
       xs: "px-4 py-1.5 text-sm leading-none",
       sm: "px-6 py-2.5 text-sm",
@@ -25,116 +21,110 @@ const actionButton = tv({
       lg: "px-8 py-[0.825em] text-lg",
       xl: "px-10 py-5 text-xl",
     },
-
     borderRadius: {
       sm: "rounded-sm before:rounded-sm",
       md: "rounded-md before:rounded-md",
       lg: "rounded-lg before:rounded-lg",
     },
-
+    disabled: {
+      true: "pointer-events-none cursor-auto opacity-25 active:top-0 text-white",
+    },
     outlined: {
       true: clsx(
-        "bg-transparent before:border before:border-current before:absolute",
+        "before:transition-colors before:border before:border-[var(--outline)] before:absolute",
         "before:left-0 before:top-0 before:w-full before:h-full before:z-[1000]"
       ),
     },
-
-    disabled: {
-      true: clsx(
-        "bg-neutral-500 text-neutral-100 cursor-auto opacity-25",
-        "hover:text-neutral-100 active:top-0"
-      ),
-    },
   },
-
-  compoundVariants: [
-    {
-      outlined: true,
-      color: "primary",
-      class: "text-yellow",
-    },
-    {
-      outlined: true,
-      color: "secondary",
-      class: "text-cyan",
-    },
-    { outlined: true, color: "magenta", class: "text-pink bg-pink-800" },
-    {
-      outlined: true,
-      color: "black",
-      class: "text-black",
-    },
-    {
-      outlined: true,
-      color: "white",
-      class: "text-white",
-    },
-  ],
-
   defaultVariants: {
-    color: "primary",
     size: "md",
     borderRadius: "lg",
-    outlined: false,
-    disabled: false,
   },
 });
 
-const actionButtonHover = tv({
+const actionButtonBackground = tv({
   base: clsx(
-    "block absolute h-full w-full left-0 top-0 origin-center translate-y-[calc(100%+2px)]",
-    "transition-all ease-out-circ duration-[0.5s] group-hover:translate-y-0"
+    "absolute left-0 top-0 w-full h-full z-10 w-full overflow-hidden",
+    "grid grid-rows-[100%_100%] group-hover:grid-rows-[0%_100%]",
+    "before:bg-[var(--color)] after:bg-[var(--hover)]",
+    "transition-all duration-[0.5s] ease-[var(--ease-out-circ)]"
   ),
   variants: {
-    hoverColor: {
-      primary: "bg-yellow",
-      secondary: "bg-cyan",
-      black: "bg-black",
-      white: "bg-white",
-      magenta: "bg-pink",
-    },
     disabled: {
-      true: "group-hover:translate-y-[calc(100%+2px)]",
+      true: "before:bg-neutral-500",
     },
-  },
-
-  defaultVariants: {
-    hoverColor: "black",
+    noHover: {
+      true: "group-hover:grid-rows-[100%_100%]",
+    },
   },
 });
 
-type ActionButtonBaseProps = VariantProps<typeof actionButton>;
-type ActionButtonHoverBaseProps = VariantProps<typeof actionButtonHover>;
+const actionButtonText = tv({
+  base: clsx(
+    "relative transition-colors duration-100",
+    "z-40 h-full text-center w-full"
+  ),
+});
+
+type ButtonTailwindVariantsProps = VariantProps<typeof actionButtonShape> &
+  VariantProps<typeof actionButtonBackground>;
+
 export type ActionButtonProps<HtmlTag extends keyof React.ReactHTML> = {
   as?: HtmlTag;
   icon?: React.ReactNode;
+  backgroundColor?: Color;
+  backgroundHoverColor?: Color;
+  outlineColor?: Color;
+  textColor?: Color;
+  textHoverColor?: Color;
 } & React.ComponentPropsWithoutRef<HtmlTag> &
-  ActionButtonBaseProps &
-  ActionButtonHoverBaseProps;
+  Omit<ButtonTailwindVariantsProps, "noHover" | "outlined">;
 
 export const ActionButton = ({
   icon,
   children,
   className,
-  color,
   size,
   borderRadius,
-  outlined,
   disabled,
-  hoverColor,
   ...props
 }: ActionButtonProps<keyof React.ReactHTML>): JSX.Element => {
+  const outlineColor = props.outlineColor;
+  const textColor = props.textColor || outlineColor || "black";
+  const backgroundColor =
+    props.backgroundColor || (props.outlineColor ? "transparent" : "yellow");
+  const backgroundHoverColor =
+    props.backgroundHoverColor || props.outlineColor || "black";
+  const textHoverColor =
+    props.textHoverColor || (props.outlineColor ? "black" : backgroundColor);
+
+  const outlined = !!outlineColor;
+  const colorString = getDefaultColorString(backgroundColor);
+  const hoverString = getDefaultColorString(backgroundHoverColor);
+  const textColorString = getDefaultColorString(textColor);
+  const textHoverColorString = getDefaultColorString(textHoverColor);
+  const outlineColorString =
+    outlined ? getDefaultColorString(outlineColor) : undefined;
+
   return createElement(
     props.as ?? ("href" in props ? "a" : "button"),
     {
-      className: actionButton({
-        class: className,
-        color,
-        size,
-        borderRadius,
-        outlined,
-        disabled,
-      }),
+      className: twMerge(
+        actionButtonShape({
+          size,
+          disabled,
+          borderRadius,
+          outlined,
+        }),
+        className
+      ),
+      style: {
+        "--color": colorString,
+        "--hover": hoverString,
+        "--text-color": textColorString,
+        "--text-hover-color": textHoverColorString,
+        "--outline": outlineColorString,
+      } as CSSProperties,
       disabled,
       ...props,
     },
@@ -144,8 +134,13 @@ export const ActionButton = ({
           {icon}
         </i>
       )}
-      <span className="relative z-10 h-full">{children}</span>
-      <i className={actionButtonHover({ hoverColor, disabled })} />
+      <span className={actionButtonText()}>{children}</span>
+      <span
+        className={actionButtonBackground({
+          disabled,
+          noHover: hoverString === colorString,
+        })}
+      />
     </>
   );
 };

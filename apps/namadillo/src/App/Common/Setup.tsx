@@ -85,11 +85,7 @@ export const Setup = ({ onChange }: SetupProps): JSX.Element => {
               setError("");
             }}
           />
-          <ActionButton
-            size="lg"
-            borderRadius="sm"
-            disabled={validatingUrl || !!error}
-          >
+          <ActionButton borderRadius="sm" disabled={validatingUrl || !!error}>
             {validatingUrl ? "Verifying..." : "Confirm"}
           </ActionButton>
         </form>
