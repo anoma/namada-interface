@@ -50,7 +50,7 @@ export class SubmitApprovedSignLedgerTxMsg extends Message<void> {
 
   constructor(
     public readonly msgId: string,
-    public readonly responseSign: ResponseSign
+    public readonly responseSign: ResponseSign[]
   ) {
     super();
   }
@@ -212,7 +212,7 @@ export class QueryTxDetailsMsg extends Message<TxDetails> {
   }
 }
 
-export class QueryPendingTxBytesMsg extends Message<string | undefined> {
+export class QueryPendingTxBytesMsg extends Message<string[] | undefined> {
   public static type(): MessageType {
     return MessageType.QueryPendingTxBytes;
   }
