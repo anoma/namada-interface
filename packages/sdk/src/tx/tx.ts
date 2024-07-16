@@ -273,11 +273,10 @@ export class Tx {
   /**
    * Build a batched transaction
    * @param txs - array of BuiltTx types
-   * @param wrapperTxMsg - Uint8Array of serialized WrapperTxMsg
    * @returns a BuiltTx type
    */
-  buildBatch(txs: BuiltTx[], wrapperTxMsg: Uint8Array): BuiltTx {
-    return SdkWasm.build_batch(txs, wrapperTxMsg);
+  buildBatch(txs: BuiltTx[]): BuiltTx {
+    return SdkWasm.build_batch(txs);
   }
 
   /**

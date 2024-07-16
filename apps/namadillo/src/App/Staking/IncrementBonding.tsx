@@ -116,7 +116,7 @@ const IncrementBonding = (): JSX.Element => {
 
   const dispatchBondingTransaction = (tx: TransactionPair<BondProps>): void => {
     broadcastTx(
-      tx.encodedTxData.tx,
+      tx.encodedTxData,
       tx.signedTx,
       tx.encodedTxData.meta?.props,
       "Bond"
@@ -141,7 +141,7 @@ const IncrementBonding = (): JSX.Element => {
             errorMessage={
               bondTransactionError instanceof Error ?
                 bondTransactionError.message
-                : undefined
+              : undefined
             }
           />
         ),

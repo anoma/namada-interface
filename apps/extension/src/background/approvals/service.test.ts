@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TxType } from "@heliax/namada-sdk/web";
 import { paramsToUrl } from "@namada/utils";
 import { ChainsService } from "background/chains";
 import { KeyRingService } from "background/keyring";
@@ -217,12 +216,10 @@ describe("approvals service", () => {
 
       (keyRingService.queryAccountDetails as any).mockResolvedValue(() => ({}));
 
-      const signaturePromise = service.approveSignTx(
-        TxType.Bond,
-        signer,
-        { txBytes, signingDataBytes: [signingDataBytes] },
-        ""
-      );
+      const signaturePromise = service.approveSignTx(signer, {
+        txBytes,
+        signingDataBytes: [signingDataBytes],
+      });
 
       jest.spyOn(service as any, "_clearPendingTx");
 

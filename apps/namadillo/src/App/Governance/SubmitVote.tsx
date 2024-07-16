@@ -27,7 +27,7 @@ import { useNavigate } from "react-router-dom";
 
 const dispatchVoteTx = (tx: TransactionPair<VoteProposalProps>): void => {
   broadcastTx(
-    tx.encodedTxData.tx,
+    tx.encodedTxData,
     tx.signedTx,
     tx.encodedTxData.meta?.props,
     "VoteProposal"
@@ -38,8 +38,8 @@ export const SubmitVote: React.FC = () => {
   const proposalId = useProposalIdParam();
 
   return proposalId === null ? null : (
-    <WithProposalId proposalId={proposalId} />
-  );
+      <WithProposalId proposalId={proposalId} />
+    );
 };
 
 export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
