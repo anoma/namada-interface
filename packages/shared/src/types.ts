@@ -21,6 +21,7 @@ export type TxLabel =
   | "Withdraw"
   | "RevealPK"
   | "Vote Proposal"
+  | "Claim Rewards"
   | "Redelegate"
   | "Batch";
 
@@ -33,6 +34,7 @@ export const TxTypeLabel: Record<TxType, TxLabel> = {
   [TxType.EthBridgeTransfer]: "Add to Eth Bridge Pool",
   [TxType.RevealPK]: "RevealPK",
   [TxType.VoteProposal]: "Vote Proposal",
+  [TxType.ClaimRewards]: "Claim Rewards",
   [TxType.Redelegate]: "Redelegate",
   [TxType.Batch]: "Batch",
 };

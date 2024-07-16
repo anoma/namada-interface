@@ -28,7 +28,7 @@ use namada::sdk::rpc::{
 use namada::sdk::state::Key;
 use namada::sdk::tx::{
     TX_BOND_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSFER_WASM, TX_UNBOND_WASM,
-    TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
+    TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM, TX_CLAIM_REWARDS_WASM
 };
 use namada::token;
 use namada::uint::I256;
@@ -749,7 +749,7 @@ impl Query {
             TX_REDELEGATE_WASM.to_string(),
             TX_UNBOND_WASM.to_string(),
             TX_WITHDRAW_WASM.to_string(),
-            // TX_CLAIM_REWARDS_WASM.to_string(),
+            TX_CLAIM_REWARDS_WASM.to_string(),
             TX_REVEAL_PK.to_string(),
             TX_VOTE_PROPOSAL.to_string(),
         ]

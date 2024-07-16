@@ -25,7 +25,7 @@ use namada::sdk::signing::SigningTxData;
 use namada::sdk::tx::{
     build_batch, build_bond, build_ibc_transfer, build_redelegation, build_reveal_pk,
     build_transparent_transfer, build_unbond, build_vote_proposal, build_withdraw,
-    is_reveal_pk_needed, process_tx, ProcessTxResponse,
+    build_claim_rewards, is_reveal_pk_needed, process_tx, ProcessTxResponse,
 };
 use namada::sdk::wallet::{Store, Wallet};
 use namada::sdk::{Namada, NamadaImpl};
@@ -471,6 +471,24 @@ impl Sdk {
 
         Ok(BuiltTx {
             tx_type: TxType::VoteProposal,
+            tx,
+            signing_data: vec![signing_data],
+            wrapper_tx_msg: Vec::from(wrapper_tx_msg),
+        })
+    }
+
+    pub async fn build_claim_rewards(
+        &self,
+        claim_rewards_msg: &[u8],
+        wrapper_tx_msg: &[u8],
+    ) -> Result<BuiltTx, JsError> {
+        let args = args::claim_rewards_tx_args(claim_rewards_msg, wrapper_tx_msg)?;
+        let (tx, signing_data) = build_claim_rewards(&self.namada, &args)
+            .await
+            .map_err(JsError::from)?;
+
+        Ok(BuiltTx {
+            tx_type: TxType::ClaimRewards,
             tx,
             signing_data: vec![signing_data],
             wrapper_tx_msg: Vec::from(wrapper_tx_msg),

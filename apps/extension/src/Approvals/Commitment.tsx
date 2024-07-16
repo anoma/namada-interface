@@ -32,6 +32,7 @@ const IconMap: Record<TxType, React.ReactNode> = {
   [TxType.EthBridgeTransfer]: <FaWallet />,
   [TxType.VoteProposal]: <FaVoteYea />,
   [TxType.Batch]: <PiDotsNineBold />,
+  [TxType.ClaimRewards]: <GoStack />,
 };
 
 const TitleMap: Record<TxType, string> = {
@@ -45,6 +46,7 @@ const TitleMap: Record<TxType, string> = {
   [TxType.EthBridgeTransfer]: "ETH Transfer",
   [TxType.VoteProposal]: "Vote",
   [TxType.Batch]: "Batch",
+  [TxType.ClaimRewards]: "Claim Rewards",
 };
 
 const formatAddress = (address: string): string =>

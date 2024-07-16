@@ -34,7 +34,7 @@ Wrap results of tx signing to simplify passing between Sdk functions
 
 #### Defined in
 
-[sdk/src/tx/types.ts:52](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/types.ts#L52)
+[sdk/src/tx/types.ts:52](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/types.ts#L52)
 
 ## Properties
 
@@ -46,7 +46,7 @@ Serialized tx bytes
 
 #### Defined in
 
-[sdk/src/tx/types.ts:56](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/types.ts#L56)
+[sdk/src/tx/types.ts:56](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/types.ts#L56)
 
 ___
 
@@ -58,4 +58,4 @@ Serialized wrapper tx msg bytes
 
 #### Defined in
 
-[sdk/src/tx/types.ts:54](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/types.ts#L54)
+[sdk/src/tx/types.ts:54](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/types.ts#L54)

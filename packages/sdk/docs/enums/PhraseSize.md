@@ -17,7 +17,7 @@
 
 #### Defined in
 
-crypto/src/crypto/crypto.d.ts:13
+crypto/src/crypto/crypto.d.ts:6
 
 ___
 
@@ -27,4 +27,4 @@ ___
 
 #### Defined in
 
-crypto/src/crypto/crypto.d.ts:14
+crypto/src/crypto/crypto.d.ts:7

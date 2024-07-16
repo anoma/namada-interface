@@ -2,7 +2,7 @@ use namada::token::Transfer;
 use serde::Serialize;
 
 use namada::governance::VoteProposalData;
-use namada::tx::data::pos::{Bond, Redelegation, Unbond, Withdraw};
+use namada::tx::data::pos::{Bond, Redelegation, Unbond, Withdraw, ClaimRewards};
 use namada::{
     core::borsh::{self, BorshDeserialize},
     key::common::PublicKey,
@@ -12,7 +12,7 @@ use wasm_bindgen::JsError;
 use crate::sdk::{
     args::{
         BondMsg, RedelegateMsg, RevealPkMsg, TransferDataMsg, TransferMsg, UnbondMsg,
-        VoteProposalMsg, WithdrawMsg,
+        VoteProposalMsg, WithdrawMsg, ClaimRewardsMsg
     },
     tx::TxType,
 };
@@ -26,6 +26,7 @@ pub enum TransactionKind {
     Unbond(Unbond),
     Withdraw(Withdraw),
     ProposalVote(VoteProposalData),
+    ClaimRewards(ClaimRewards),
     RevealPk(PublicKey),
     Unknown,
 }
@@ -50,6 +51,9 @@ impl TransactionKind {
             ),
             TxType::VoteProposal => TransactionKind::ProposalVote(
                 VoteProposalData::try_from_slice(data).expect("Cannot deserialize VoteProposal"),
+            ),
+            TxType::ClaimRewards => TransactionKind::ClaimRewards(
+                ClaimRewards::try_from_slice(data).expect("Cannot deserialize ClaimRewards"),
             ),
             TxType::RevealPK => TransactionKind::RevealPk(
                 PublicKey::try_from_slice(data).expect("Cannot deserialize PublicKey"),
@@ -159,6 +163,14 @@ impl TransactionKind {
                 let VoteProposalData { id, vote, voter } = vote_proposal;
                 let vote_proposal = VoteProposalMsg::new(voter.to_string(), *id, vote.to_string());
                 borsh::to_vec(&vote_proposal)?
+            }
+            TransactionKind::ClaimRewards(claim_rewards) => {
+                let ClaimRewards { validator, source } = claim_rewards;
+                let claim_rewards = ClaimRewardsMsg::new(
+                    validator.to_string(),
+                    source.clone().map(|addr| addr.to_string())
+                );
+                borsh::to_vec(&claim_rewards)?
             }
             _ => panic!("Unsupported Tx provided, cannot serialize"),
         };

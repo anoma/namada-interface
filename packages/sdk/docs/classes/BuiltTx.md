@@ -39,7 +39,7 @@
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:71
+shared/src/shared/shared.d.ts:72
 
 ## Methods
 
@@ -53,7 +53,7 @@ shared/src/shared/shared.d.ts:71
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:64
+shared/src/shared/shared.d.ts:65
 
 ___
 
@@ -67,7 +67,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:87
+shared/src/shared/shared.d.ts:88
 
 ___
 
@@ -81,7 +81,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:75
+shared/src/shared/shared.d.ts:76
 
 ___
 
@@ -95,7 +95,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:79
+shared/src/shared/shared.d.ts:80
 
 ___
 
@@ -109,7 +109,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:83
+shared/src/shared/shared.d.ts:84
 
 ___
 
@@ -123,7 +123,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:91
+shared/src/shared/shared.d.ts:92
 
 ___
 
@@ -137,4 +137,4 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:95
+shared/src/shared/shared.d.ts:96

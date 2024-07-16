@@ -19,6 +19,7 @@ SDK functionality related to transactions
 - [appendSignature](Tx.md#appendsignature)
 - [buildBatch](Tx.md#buildbatch)
 - [buildBond](Tx.md#buildbond)
+- [buildClaimRewards](Tx.md#buildclaimrewards)
 - [buildEthBridgeTransfer](Tx.md#buildethbridgetransfer)
 - [buildIbcTransfer](Tx.md#buildibctransfer)
 - [buildRedelegate](Tx.md#buildredelegate)
@@ -49,7 +50,7 @@ SDK functionality related to transactions
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:46](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L46)
+[sdk/src/tx/tx.ts:48](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L48)
 
 ## Properties
 
@@ -61,7 +62,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:46](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L46)
+[sdk/src/tx/tx.ts:48](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L48)
 
 ## Methods
 
@@ -86,7 +87,7 @@ Append signature for transactions signed by Ledger Hardware Wallet
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:280](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L280)
+[sdk/src/tx/tx.ts:306](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L306)
 
 ___
 
@@ -111,7 +112,7 @@ a BuiltTx type
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:253](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L253)
+[sdk/src/tx/tx.ts:279](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L279)
 
 ___
 
@@ -138,7 +139,34 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:94](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L94)
+[sdk/src/tx/tx.ts:96](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L96)
+
+___
+
+### buildClaimRewards
+
+▸ **buildClaimRewards**(`wrapperTxProps`, `claimRewardsProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+
+Build Claim Rewards Tx
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `wrapperTxProps` | `WrapperTxMsgValue` | properties of the transaction |
+| `claimRewardsProps` | `ClaimRewardsMsgValue` | properties of the claim rewards tx |
+
+#### Returns
+
+`Promise`\<[`EncodedTx`](EncodedTx.md)\>
+
+promise that resolves to an EncodedTx
+
+**`Async`**
+
+#### Defined in
+
+[sdk/src/tx/tx.ts:256](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L256)
 
 ___
 
@@ -165,7 +193,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:206](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L206)
+[sdk/src/tx/tx.ts:208](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L208)
 
 ___
 
@@ -192,7 +220,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:182](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L182)
+[sdk/src/tx/tx.ts:184](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L184)
 
 ___
 
@@ -219,7 +247,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:158](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L158)
+[sdk/src/tx/tx.ts:160](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L160)
 
 ___
 
@@ -245,7 +273,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:80](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L80)
+[sdk/src/tx/tx.ts:82](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L82)
 
 ___
 
@@ -272,7 +300,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:55](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L55)
+[sdk/src/tx/tx.ts:57](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L57)
 
 ___
 
@@ -299,7 +327,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:113](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L113)
+[sdk/src/tx/tx.ts:115](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L115)
 
 ___
 
@@ -307,7 +335,7 @@ ___
 
 ▸ **buildVoteProposal**(`wrapperTxProps`, `voteProposalProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
 
-Built Vote Proposal Tx
+Build Vote Proposal Tx
 
 #### Parameters
 
@@ -326,7 +354,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:230](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L230)
+[sdk/src/tx/tx.ts:232](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L232)
 
 ___
 
@@ -353,7 +381,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:136](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L136)
+[sdk/src/tx/tx.ts:138](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L138)
 
 ___
 
@@ -378,7 +406,7 @@ a TxDetails object
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:333](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L333)
+[sdk/src/tx/tx.ts:359](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L359)
 
 ___
 
@@ -402,7 +430,7 @@ Serialized WrapperTxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:321](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L321)
+[sdk/src/tx/tx.ts:347](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L347)
 
 ___
 
@@ -430,4 +458,4 @@ void
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:265](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/tx/tx.ts#L265)
+[sdk/src/tx/tx.ts:291](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L291)

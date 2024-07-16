@@ -1,5 +1,6 @@
 export * from "./batchTxResult";
 export * from "./bond";
+export * from "./claimRewards";
 export * from "./ethBridgeTransfer";
 export * from "./ibcTransfer";
 export * from "./redelegate";
@@ -16,6 +17,7 @@ export * from "./wrapperTx";
 
 import { BatchTxResultMsgValue } from "./batchTxResult";
 import { BondMsgValue } from "./bond";
+import { ClaimRewardsMsgValue } from "./claimRewards";
 import { EthBridgeTransferMsgValue } from "./ethBridgeTransfer";
 import { IbcTransferMsgValue } from "./ibcTransfer";
 import { RedelegateMsgValue } from "./redelegate";
@@ -42,6 +44,7 @@ export type Schema =
   | BondMsgValue
   | UnbondMsgValue
   | VoteProposalMsgValue
+  | ClaimRewardsMsgValue
   | WithdrawMsgValue
   | TransferMsgValue
   | TransferDataMsgValue

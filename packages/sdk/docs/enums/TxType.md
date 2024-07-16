@@ -8,6 +8,7 @@
 
 - [Batch](TxType.md#batch)
 - [Bond](TxType.md#bond)
+- [ClaimRewards](TxType.md#claimrewards)
 - [EthBridgeTransfer](TxType.md#ethbridgetransfer)
 - [IBCTransfer](TxType.md#ibctransfer)
 - [Redelegate](TxType.md#redelegate)
@@ -36,6 +37,16 @@ ___
 #### Defined in
 
 shared/src/shared/shared.d.ts:23
+
+___
+
+### ClaimRewards
+
+• **ClaimRewards** = ``11``
+
+#### Defined in
+
+shared/src/shared/shared.d.ts:33
 
 ___
 

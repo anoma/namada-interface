@@ -1,6 +1,7 @@
 import {
   BatchTxResultMsgValue,
   BondMsgValue,
+  ClaimRewardsMsgValue,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
   RedelegateMsgValue,
@@ -28,6 +29,7 @@ export type TransparentTransferDataProps = TransparentTransferDataMsgValue;
 export type TxResponseProps = TxResponseMsgValue;
 export type UnbondProps = UnbondMsgValue;
 export type VoteProposalProps = VoteProposalMsgValue;
+export type ClaimRewardsProps = ClaimRewardsMsgValue;
 export type WithdrawProps = WithdrawMsgValue;
 export type WrapperTxProps = WrapperTxMsgValue;
 export type RevealPkProps = RevealPkMsgValue;
@@ -40,6 +42,7 @@ export type SupportedTxProps =
   | EthBridgeTransferProps
   | IbcTransferProps
   | VoteProposalProps
+  | ClaimRewardsProps
   | TransferProps
   | RevealPkProps;
 

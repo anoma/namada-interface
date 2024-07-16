@@ -6,7 +6,7 @@ use namada::core::borsh::{self, BorshDeserialize, BorshSerialize};
 use namada::sdk::signing::SigningTxData;
 use namada::sdk::tx::{
     TX_BOND_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSFER_WASM, TX_UNBOND_WASM,
-    TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
+    TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM, TX_CLAIM_REWARDS_WASM
 };
 use namada::sdk::uint::Uint;
 use namada::tx;
@@ -31,6 +31,7 @@ pub enum TxType {
     VoteProposal = 8,
     Redelegate = 9,
     Batch = 10,
+    ClaimRewards = 11,
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -101,7 +102,7 @@ pub fn wasm_hash_to_tx_type(wasm_hash: &str, wasm_hashes: &Vec<WasmHash>) -> Opt
         (TX_REDELEGATE_WASM.to_string(), TxType::Redelegate),
         (TX_UNBOND_WASM.to_string(), TxType::Unbond),
         (TX_WITHDRAW_WASM.to_string(), TxType::Withdraw),
-        // (TX_CLAIM_REWARDS_WASM.to_string(), TxType::ClaimRewards),
+        (TX_CLAIM_REWARDS_WASM.to_string(), TxType::ClaimRewards),
         (TX_REVEAL_PK.to_string(), TxType::RevealPK),
         (TX_VOTE_PROPOSAL.to_string(), TxType::VoteProposal),
     ]);

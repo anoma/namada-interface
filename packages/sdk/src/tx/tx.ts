@@ -8,6 +8,8 @@ import {
 import {
   BondMsgValue,
   BondProps,
+  ClaimRewardsMsgValue,
+  ClaimRewardsProps,
   EthBridgeTransferMsgValue,
   EthBridgeTransferProps,
   IbcTransferMsgValue,
@@ -221,7 +223,7 @@ export class Tx {
   }
 
   /**
-   * Built Vote Proposal Tx
+   * Build Vote Proposal Tx
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param voteProposalProps - properties of the vote proposal tx
@@ -239,6 +241,30 @@ export class Tx {
 
     const builtTx = await this.sdk.build_vote_proposal(
       encodedVoteProposal,
+      encodedWrapperArgs
+    );
+    return new EncodedTx(encodedWrapperArgs, builtTx);
+  }
+
+  /**
+   * Build Claim Rewards Tx
+   * @async
+   * @param wrapperTxProps - properties of the transaction
+   * @param claimRewardsProps - properties of the claim rewards tx
+   * @returns promise that resolves to an EncodedTx
+   */
+  async buildClaimRewards(
+    wrapperTxProps: WrapperTxProps,
+    claimRewardsProps: ClaimRewardsProps
+  ): Promise<EncodedTx> {
+    const claimRewardsMsg = new Message<ClaimRewardsProps>();
+    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
+    const encodedClaimRewards = claimRewardsMsg.encode(
+      new ClaimRewardsMsgValue(claimRewardsProps)
+    );
+
+    const builtTx = await this.sdk.build_claim_rewards(
+      encodedClaimRewards,
       encodedWrapperArgs
     );
     return new EncodedTx(encodedWrapperArgs, builtTx);
@@ -356,6 +382,8 @@ export class Tx {
           return deserialize(data, RedelegateMsgValue);
         case TxType.VoteProposal:
           return deserialize(data, VoteProposalMsgValue);
+        case TxType.ClaimRewards:
+          return deserialize(data, ClaimRewardsMsgValue);
         case TxType.Transfer:
           return deserialize(data, TransferMsgValue);
         case TxType.RevealPK:

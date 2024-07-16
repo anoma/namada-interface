@@ -333,6 +333,58 @@ pub fn vote_proposal_tx_args(
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 #[borsh(crate = "namada::core::borsh")]
+pub struct ClaimRewardsMsg {
+    validator: String,
+    source: Option<String>,
+}
+
+impl ClaimRewardsMsg {
+    pub fn new(validator: String, source: Option<String>) -> ClaimRewardsMsg {
+        ClaimRewardsMsg {
+            validator,
+            source,
+        }
+    }
+}
+
+/// Maps serialized tx_msg into ClaimRewardsTx args.
+///
+/// # Arguments
+///
+/// * `claim_rewards_msg` - Borsh serialized claim_rewards_msg.
+/// * `tx_msg` - Borsh serialized tx_msg.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
+pub fn claim_rewards_tx_args(
+    claim_rewards_msg: &[u8],
+    tx_msg: &[u8],
+) -> Result<args::ClaimRewards, JsError> {
+    let claim_rewards_msg = ClaimRewardsMsg::try_from_slice(claim_rewards_msg)?;
+
+    let ClaimRewardsMsg {
+        validator,
+        source,
+    } = claim_rewards_msg;
+    let tx = tx_msg_into_args(tx_msg)?;
+
+    let validator_address = Address::from_str(&validator)?;
+    let source_address = source.map(|str| Address::from_str(&str).expect("valid address"));
+
+    let args = args::ClaimRewards {
+        tx,
+        validator: validator_address,
+        source: source_address,
+        tx_code_path: PathBuf::from("tx_claim_rewards.wasm"),
+    };
+
+    Ok(args)
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct TransferDataMsg {
     owner: String,
     token: String,
