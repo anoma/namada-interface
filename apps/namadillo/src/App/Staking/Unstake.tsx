@@ -108,7 +108,7 @@ const Unstake = (): JSX.Element => {
             errorMessage={
               unstakeTxError instanceof Error ?
                 unstakeTxError.message
-                : undefined
+              : undefined
             }
           />
         ),
@@ -121,7 +121,7 @@ const Unstake = (): JSX.Element => {
     tx: TransactionPair<UnbondProps>
   ): void => {
     broadcastTx(
-      tx.encodedTxData.tx,
+      tx.encodedTxData,
       tx.signedTx,
       tx.encodedTxData.meta?.props,
       "Unbond"
@@ -253,7 +253,7 @@ const Unstake = (): JSX.Element => {
             >
               {isPerformingUnbond ?
                 "Processing..."
-                : validationMessage || "Unstake"}
+              : validationMessage || "Unstake"}
             </ActionButton>
             <TransactionFees
               className="justify-self-end px-4"

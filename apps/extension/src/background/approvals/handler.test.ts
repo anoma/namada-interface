@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TxType } from "@heliax/namada-sdk/web";
 import createMockInstance from "jest-create-mock-instance";
 import {
   ApproveConnectInterfaceMsg,
@@ -21,7 +20,7 @@ import { ApprovalsService } from "./service";
 jest.mock("webextension-polyfill", () => ({}));
 
 class UnknownMsg extends Message<unknown> {
-  validate(): void {}
+  validate(): void { }
   route(): string {
     return "unknown";
   }
@@ -43,14 +42,12 @@ describe("approvals handler", () => {
     const env = {
       isInternalMsg: true,
       senderTabId: 1,
-      requestInteraction: () => {},
+      requestInteraction: () => { },
     };
 
     const approveTxMsg = new ApproveSignTxMsg(
-      TxType.Transfer,
       { txBytes: "", signingDataBytes: [""] },
-      "signer",
-      ""
+      "signer"
     );
 
     handler(env, approveTxMsg);

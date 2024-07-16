@@ -1,4 +1,3 @@
-import { TxType } from "@heliax/namada-sdk/web";
 import { Chain, DerivedAccount, SignArbitraryResponse } from "@namada/types";
 import { EncodedTxData } from "background/approvals";
 import { Message } from "router";
@@ -37,18 +36,15 @@ export class ApproveSignTxMsg extends Message<Uint8Array> {
   }
 
   constructor(
-    // TODO: Simplify these args!
-    public readonly txType: TxType,
     public readonly tx: EncodedTxData,
     public readonly signer: string,
-    public readonly wrapperTxMsg: string,
     public readonly checksums?: Record<string, string>
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["txType", "signer", "tx", "wrapperTxMsg"]);
+    validateProps(this, ["signer", "tx"]);
   }
 
   route(): string {
@@ -146,7 +142,7 @@ export class GetChainMsg extends Message<Chain> {
     super();
   }
 
-  validate(): void {}
+  validate(): void { }
 
   route(): string {
     return Route.Chains;

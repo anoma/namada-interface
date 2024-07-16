@@ -2,7 +2,7 @@ import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
 
-import { BuiltTx, TxType } from "@heliax/namada-sdk/web";
+import { BuiltTx } from "@heliax/namada-sdk/web";
 import { KVStore } from "@namada/storage";
 import { SignArbitraryResponse, TxDetails } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
@@ -34,13 +34,11 @@ export class ApprovalsService {
     protected readonly vaultService: VaultService,
     protected readonly chainService: ChainsService,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) {}
+  ) { }
 
   async approveSignTx(
-    txType: TxType,
     signer: string,
     tx: EncodedTxData,
-    wrapperTxMsg: string,
     checksums?: Record<string, string>
   ): Promise<Uint8Array> {
     const msgId = uuid();
@@ -57,10 +55,8 @@ export class ApprovalsService {
 
     // Set PendingTx
     await this.txStore.set(msgId, {
-      txType,
       tx: pendingTx,
       signer,
-      wrapperTxMsg: fromBase64(wrapperTxMsg),
       checksums,
     });
 
@@ -129,12 +125,10 @@ export class ApprovalsService {
     }
 
     const builtTx = new BuiltTx(
-      pendingTx.txType,
       pendingTx.tx.txBytes,
       // TODO: In shared, fix "into_serde" call to handle Uint8Array so the following
       // isn't needed:
-      pendingTx.tx.signingDataBytes.map((bytes) => [...bytes]),
-      pendingTx.wrapperTxMsg
+      pendingTx.tx.signingDataBytes.map((bytes) => [...bytes])
     );
 
     try {
