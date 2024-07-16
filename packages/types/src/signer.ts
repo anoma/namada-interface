@@ -16,7 +16,8 @@ export interface Signer {
   sign: (
     tx: TxData,
     signer: string,
-    checksums?: Record<string, string>
+    checksums?: Record<string, string>,
+    txs?: Uint8Array[]
   ) => Promise<Uint8Array | undefined>;
   signArbitrary: (
     signer: string,
