@@ -39,7 +39,8 @@ export class ApprovalsService {
   async approveSignTx(
     signer: string,
     tx: EncodedTxData,
-    checksums?: Record<string, string>
+    checksums?: Record<string, string>,
+    txs?: string[]
   ): Promise<Uint8Array> {
     const msgId = uuid();
 
@@ -48,17 +49,21 @@ export class ApprovalsService {
       throw new Error(`Could not find account for ${signer}`);
     }
 
-    const pendingTx = {
-      txBytes: fromBase64(tx.txBytes),
-      signingDataBytes: tx.signingDataBytes.map((bytes) => fromBase64(bytes)),
+    const pendingTx: PendingTx = {
+      signer,
+      tx: {
+        txBytes: fromBase64(tx.txBytes),
+        signingDataBytes: tx.signingDataBytes.map((bytes) => fromBase64(bytes)),
+      },
+      checksums,
     };
 
-    // Set PendingTx
-    await this.txStore.set(msgId, {
-      tx: pendingTx,
-      signer,
-      checksums,
-    });
+    // Ledger Tx must provide individual tx bytes for signing:
+    if (txs) {
+      pendingTx.txs = txs.map((tx) => fromBase64(tx));
+    }
+
+    await this.txStore.set(msgId, pendingTx);
 
     const url = `${browser.runtime.getURL(
       "approvals.html"
@@ -144,7 +149,7 @@ export class ApprovalsService {
   async submitSignLedgerTx(
     popupTabId: number,
     msgId: string,
-    responseSign: ResponseSign
+    responseSign: ResponseSign[]
   ): Promise<void> {
     const pendingTx = await this.txStore.get(msgId);
     const resolvers = this.resolverMap[popupTabId];
@@ -153,16 +158,30 @@ export class ApprovalsService {
       throw new Error(`no resolvers found for tab ID ${popupTabId}`);
     }
 
-    if (!pendingTx) {
-      throw new Error(`Signing data for ${msgId} not found!`);
+    if (!pendingTx || !pendingTx.txs) {
+      throw new Error(`Transaction data for ${msgId} not found!`);
+    }
+
+    if (pendingTx.txs.length !== responseSign.length) {
+      throw new Error(`Did not receive correct signatures for tx ${msgId}`);
     }
 
     try {
-      const signedBytes = await this.keyRingService.appendSignature(
-        pendingTx.tx.txBytes,
-        responseSign
+      const signedTxs = await Promise.all(
+        pendingTx.txs.map(
+          async (tx, i) =>
+            await this.keyRingService.appendSignature(tx, responseSign[i])
+        )
       );
-      resolvers.resolve(signedBytes);
+      const { tx } = this.sdkService.getSdk();
+      const builtTxs = signedTxs.map(
+        (signedTxBytes) =>
+          new BuiltTx(signedTxBytes, pendingTx.tx.signingDataBytes)
+      );
+
+      const batchTx = tx.buildBatch(builtTxs);
+
+      resolvers.resolve(batchTx.tx_bytes());
     } catch (e) {
       resolvers.reject(e);
     }
@@ -300,9 +319,16 @@ export class ApprovalsService {
     return tx.deserialize(pendingTx.tx.txBytes, pendingTx.checksums || {});
   }
 
-  async queryPendingTxBytes(msgId: string): Promise<string | undefined> {
+  async queryPendingTxBytes(msgId: string): Promise<string[] | undefined> {
     const pendingTx = await this.txStore.get(msgId);
-    return pendingTx ? toBase64(pendingTx.tx.txBytes) : undefined;
+
+    if (!pendingTx) {
+      throw new Error(`Tx not found for ${msgId}`);
+    }
+
+    if (pendingTx.txs) {
+      return pendingTx.txs.map((tx) => toBase64(tx));
+    }
   }
 
   async querySignArbitraryDetails(msgId: string): Promise<string> {

@@ -95,17 +95,19 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
         );
 
         if (!pendingTxBytes) {
-          throw new Error(`Tx for msgId ${msgId} not found!`);
+          throw new Error(`Txs for msgId ${msgId} not found!`);
         }
-        const signature = await signLedgerTx(
-          ledger,
-          fromBase64(pendingTxBytes),
-          path
-        );
+
+        const signatures: ResponseSign[] = [];
+
+        for await (const tx of pendingTxBytes) {
+          const signature = await signLedgerTx(ledger, fromBase64(tx), path);
+          signatures.push(signature);
+        }
 
         await requester.sendMessage(
           Ports.Background,
-          new SubmitApprovedSignLedgerTxMsg(msgId, signature)
+          new SubmitApprovedSignLedgerTxMsg(msgId, signatures)
         );
 
         setStatus(Status.Completed);

@@ -38,7 +38,8 @@ export class ApproveSignTxMsg extends Message<Uint8Array> {
   constructor(
     public readonly tx: EncodedTxData,
     public readonly signer: string,
-    public readonly checksums?: Record<string, string>
+    public readonly checksums?: Record<string, string>,
+    public readonly txs?: string[]
   ) {
     super();
   }

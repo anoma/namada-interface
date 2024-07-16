@@ -65,6 +65,7 @@ export class Namada implements INamada {
       signer,
       tx: { txBytes, signingDataBytes },
       checksums,
+      txs,
     } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
@@ -74,7 +75,8 @@ export class Namada implements INamada {
           signingDataBytes: signingDataBytes.map((bytes) => toBase64(bytes)),
         },
         signer,
-        checksums
+        checksums,
+        txs ? txs.map((tx) => toBase64(tx)) : undefined
       )
     );
   }
