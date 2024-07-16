@@ -46,7 +46,8 @@ export class Signer implements ISigner {
   public async sign(
     { txBytes, signingDataBytes }: TxData,
     signer: string,
-    checksums?: Record<string, string>
+    checksums?: Record<string, string>,
+    txs?: Uint8Array[]
   ): Promise<Uint8Array | undefined> {
     return await this._namada.sign({
       signer,
@@ -55,6 +56,7 @@ export class Signer implements ISigner {
         signingDataBytes,
       },
       checksums,
+      txs,
     });
   }
 

@@ -2,6 +2,7 @@ import { BuiltTx, EncodedTx } from "@heliax/namada-sdk/web";
 import { getIntegration } from "@namada/integrations";
 import {
   Account,
+  AccountType,
   Signer,
   WrapperTxMsgValue,
   WrapperTxProps,
@@ -22,6 +23,7 @@ export type TransactionPair<T> = {
 export type EncodedTxData<T> = {
   type: string;
   tx: BuiltTx;
+  txs?: Uint8Array[];
   wrapperTxMsg: Uint8Array;
   meta?: {
     props: T;
@@ -101,10 +103,17 @@ export const buildBatchTx = async <T>(
 
   txs.push(...encodedTxs);
 
+  let ledgerTxs: Uint8Array[] | undefined;
+
+  if (account.type === AccountType.Ledger) {
+    ledgerTxs = txs.map((tx) => tx.tx.tx_bytes());
+  }
+
   const batchTx = tx.buildBatch(txs.map(({ tx }) => tx));
 
   return {
     tx: batchTx,
+    txs: ledgerTxs,
     wrapperTxMsg: tx.encodeTxArgs(wrapperTxProps),
     type: txFn.name,
     meta: {
@@ -136,7 +145,8 @@ export const signTx = async <T>(
         signingDataBytes: typedEncodedTx.tx.signing_data_bytes(),
       },
       owner,
-      checksums
+      checksums,
+      typedEncodedTx.txs
     );
 
     if (!signedBatchTxBytes) {
