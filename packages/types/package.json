@@ -10,6 +10,7 @@
   "scripts": {
     "prepublish": "yarn && yarn build",
     "build": "rimraf ./dist && tsc --build",
+    "build:docs": "typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts",
     "release": "yarn prepublish && release-it --verbose --ci",
     "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
     "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish",
@@ -33,7 +34,9 @@
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "release-it": "^17.0.1",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.5",
+    "typedoc": "^0.25.12",
+    "typedoc-plugin-markdown": "^3.17.1"
   },
   "files": [
     "dist"
