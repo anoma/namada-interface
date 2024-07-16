@@ -101,7 +101,7 @@ export const ReDelegate = (): JSX.Element => {
             errorMessage={
               redelegateTxError instanceof Error ?
                 redelegateTxError.message
-                : undefined
+              : undefined
             }
           />
         ),
@@ -114,7 +114,7 @@ export const ReDelegate = (): JSX.Element => {
     tx: TransactionPair<RedelegateMsgValue>
   ): void => {
     broadcastTx(
-      tx.encodedTxData.tx,
+      tx.encodedTxData,
       tx.signedTx,
       tx.encodedTxData.meta?.props,
       "ReDelegate"
