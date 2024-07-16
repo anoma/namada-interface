@@ -10,6 +10,7 @@ export type PendingTx = {
 
 export type PendingSignArbitrary = string;
 
+// base64 encoded Tx data for use with postMessage
 export type EncodedTxData = {
   txBytes: string;
   signingDataBytes: string[];
