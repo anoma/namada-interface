@@ -8,12 +8,8 @@ export type SignArbitraryProps = {
 };
 
 export type SignProps = {
-  // TODO: Simplify these props!
-  // Remove txType & wrapperTxMsg!
-  txType: unknown;
   signer: string;
   tx: TxData;
-  wrapperTxMsg: Uint8Array;
   checksums?: Record<string, string>;
 };
 

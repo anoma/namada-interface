@@ -22,6 +22,7 @@ export type TransactionPair<T> = {
 export type EncodedTxData<T> = {
   type: string;
   tx: BuiltTx;
+  wrapperTxMsg: Uint8Array;
   meta?: {
     props: T;
   };
@@ -85,27 +86,26 @@ export const buildBatchTx = async <T>(
 ): Promise<EncodedTxData<T>> => {
   const { tx } = await getSdkInstance();
   const wrapperTxProps = getTxProps(account, gasConfig, chain);
-  const txs: BuiltTx[] = [];
+  const txs: EncodedTx[] = [];
 
   // Determine if RevealPK is needed:
   const publicKeyRevealed = await isPublicKeyRevealed(account.address);
   if (!publicKeyRevealed) {
     const revealPkTx = await tx.buildRevealPk(wrapperTxProps);
-    txs.push(revealPkTx.tx);
+    txs.push(revealPkTx);
   }
 
   const encodedTxs = await Promise.all(
     queryProps.map((props) => txFn.apply(tx, [wrapperTxProps, props]))
   );
 
-  txs.push(...encodedTxs.map((tx) => tx.tx));
+  txs.push(...encodedTxs);
 
-  const initialTx = encodedTxs[0].tx;
-  const wrapperTxMsg = initialTx.wrapper_tx_msg();
-  const batchTx = tx.buildBatch(txs, wrapperTxMsg);
+  const batchTx = tx.buildBatch(txs.map(({ tx }) => tx));
 
   return {
     tx: batchTx,
+    wrapperTxMsg: tx.encodeTxArgs(wrapperTxProps),
     type: txFn.name,
     meta: {
       props: queryProps[0],
@@ -131,13 +131,11 @@ export const signTx = async <T>(
   try {
     // Sign batch Tx
     const signedBatchTxBytes = await signingClient.sign(
-      typedEncodedTx.tx.tx_type(),
       {
         txBytes: typedEncodedTx.tx.tx_bytes(),
         signingDataBytes: typedEncodedTx.tx.signing_data_bytes(),
       },
       owner,
-      typedEncodedTx.tx.wrapper_tx_msg(),
       checksums
     );
 
@@ -182,13 +180,13 @@ export const buildTxPair = async <T>(
 };
 
 export const broadcastTx = async <T>(
-  encoded: BuiltTx,
+  encoded: EncodedTxData<T>,
   signedTx: Uint8Array,
   data?: T,
   eventType?: TransactionEventsClasses
 ): Promise<void> => {
   const { rpc } = await getSdkInstance();
-  const transactionId = encoded.tx_hash();
+  const transactionId = encoded.tx.tx_hash();
   eventType &&
     window.dispatchEvent(
       new CustomEvent(`${eventType}.Pending`, {
@@ -199,7 +197,7 @@ export const broadcastTx = async <T>(
     // TODO: rpc.broadcastTx returns a TxResponseProps object now, containing hashes and
     // applied status of each commitment
     await rpc.broadcastTx({
-      wrapperTxMsg: encoded.wrapper_tx_msg(),
+      wrapperTxMsg: encoded.wrapperTxMsg,
       tx: signedTx,
     });
     eventType &&

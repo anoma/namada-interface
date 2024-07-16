@@ -115,7 +115,7 @@ export const ReDelegate = (): JSX.Element => {
     tx: TransactionPair<RedelegateMsgValue>
   ): void => {
     broadcastTx(
-      tx.encodedTxData.tx,
+      tx.encodedTxData,
       tx.signedTx,
       tx.encodedTxData.meta?.props,
       "ReDelegate"

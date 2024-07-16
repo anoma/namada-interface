@@ -77,7 +77,7 @@ export const WithdrawalButton = ({
     tx: TransactionPair<WithdrawMsgValue>
   ): Promise<void> => {
     broadcastTx(
-      tx.encodedTxData.tx,
+      tx.encodedTxData,
       tx.signedTx,
       tx.encodedTxData.meta?.props,
       "Withdraw"
@@ -120,7 +120,7 @@ export const WithdrawalButton = ({
             errorMessage={
               withdrawalTransactionError instanceof Error ?
                 withdrawalTransactionError.message
-                : undefined
+              : undefined
             }
           />
         ),
