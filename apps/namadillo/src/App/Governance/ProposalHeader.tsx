@@ -19,7 +19,11 @@ import { FaChevronLeft } from "react-icons/fa";
 import { SiWebassembly } from "react-icons/si";
 import { VscJson } from "react-icons/vsc";
 import { Link, useNavigate } from "react-router-dom";
-import { showEpoch, showProposalId } from "utils";
+import {
+  proposalIdToString,
+  secondsToDateTimeString,
+  secondsToTimeRemainingString,
+} from "utils";
 import {
   StatusLabel as StatusLabelComponent,
   TypeLabel as TypeLabelComponent,
@@ -68,7 +72,7 @@ const Title: React.FC<{
   proposalId: bigint;
 }> = ({ proposal, proposalId }) => (
   <div className="text-xl">
-    {showProposalId(proposalId)}{" "}
+    {proposalIdToString(proposalId)}{" "}
     {proposal.status === "pending" || proposal.status === "error" ? null : (
       proposal.data.content.title
     )}
@@ -88,7 +92,7 @@ const Breadcrumbs: React.FC<{ proposalId: bigint }> = ({ proposalId }) => (
       className="transition-colors hover:text-white"
       to={GovernanceRoutes.proposal(proposalId).url}
     >
-      Proposal {showProposalId(proposalId)}
+      Proposal {proposalIdToString(proposalId)}
     </Link>
   </div>
 );
@@ -141,7 +145,7 @@ const WasmButton: React.FC<{
   proposal: AtomWithQueryResult<StoredProposal>;
 }> = ({ proposal }) => {
   const { disabled, href, filename } = (() => {
-    if (proposal.status !== "pending" && proposal.status !== "error") {
+    if (proposal.status === "success") {
       const { proposalType } = proposal.data;
       const wasmCode =
         proposalType.type === "default_with_wasm" ?
@@ -193,12 +197,9 @@ const StatusLabel: React.FC<{
   cachedProposal: AtomWithQueryResult<StoredProposal>;
 }> = ({ proposal, cachedProposal }) => {
   const status: ProposalStatus | undefined = (() => {
-    if (proposal.status !== "pending" && proposal.status !== "error") {
+    if (proposal.status === "success") {
       return proposal.data.status;
-    } else if (
-      cachedProposal.status !== "pending" &&
-      cachedProposal.status !== "error"
-    ) {
+    } else if (cachedProposal.status === "success") {
       return cachedProposal.data.status;
     } else {
       return undefined;
@@ -211,37 +212,60 @@ const StatusLabel: React.FC<{
 };
 
 const Progress: React.FC<{
-  proposal: AtomWithQueryResult<StoredProposal>;
+  proposal: AtomWithQueryResult<Proposal>;
 }> = ({ proposal }) => {
   return (
     <div className="w-full grid grid-cols-2 text-xs">
       <span>Progress</span>
+      <TimeRemaining proposalQuery={proposal} />
       <div className="col-span-2 mt-3 mb-2">
         <ProgressBar cachedProposal={proposal} />
       </div>
       <ProgressStartEnd
         proposal={proposal}
-        epochKey="startEpoch"
+        timeKey="startTime"
         className="col-start-1"
       />
       <ProgressStartEnd
         proposal={proposal}
-        epochKey="endEpoch"
+        timeKey="endTime"
         className="text-right"
       />
     </div>
   );
 };
 
+const TimeRemaining: React.FC<{
+  proposalQuery: AtomWithQueryResult<Proposal>;
+}> = ({ proposalQuery }) => {
+  const text = (() => {
+    if (proposalQuery.status === "success") {
+      const proposal = proposalQuery.data;
+
+      if (proposal.status === "ongoing") {
+        const timeRemaining = secondsToTimeRemainingString(
+          proposal.currentTime,
+          proposal.endTime
+        );
+        return `${timeRemaining} Remaining`;
+      }
+    }
+
+    return "";
+  })();
+
+  return <span className="text-right">{text}</span>;
+};
+
 const ProgressStartEnd: React.FC<{
   proposal: AtomWithQueryResult<StoredProposal>;
-  epochKey: "startEpoch" | "endEpoch";
+  timeKey: "startTime" | "endTime";
   className: string;
-}> = ({ proposal, epochKey, className }) => (
+}> = ({ proposal, timeKey, className }) => (
   <div className={className}>
     {proposal.status === "pending" || proposal.status === "error" ?
       "..."
-    : showEpoch(proposal.data[epochKey])}
+    : secondsToDateTimeString(proposal.data[timeKey])}
   </div>
 );
 

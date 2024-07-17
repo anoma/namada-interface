@@ -10,7 +10,12 @@ import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { GoCheckCircleFill, GoInfo } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
-import { showProposalStatus, showProposalTypeString } from "utils";
+import {
+  proposalStatusToString,
+  proposalTypeStringToString,
+  secondsToDateString,
+  secondsToTimeString,
+} from "utils";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
 import GovernanceRoutes from "./routes";
 
@@ -171,7 +176,7 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
               id: status,
               value: (
                 <TableSelectOption>
-                  {showProposalStatus(status)}
+                  {proposalStatusToString(status)}
                 </TableSelectOption>
               ),
               ariaLabel: status,
@@ -207,7 +212,7 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
               id: type,
               value: (
                 <TableSelectOption>
-                  {showProposalTypeString(type)}
+                  {proposalTypeStringToString(type)}
                 </TableSelectOption>
               ),
               ariaLabel: type,
@@ -299,6 +304,9 @@ const Status: React.FC<CellProps> = ({ proposal }) => (
   <StatusLabel status={proposal.status} className="ml-auto" />
 );
 
-const VotingEnd: React.FC<CellProps> = ({ proposal }) => (
-  <div className="text-right">Epoch {proposal.endEpoch.toString()}</div>
+const VotingEnd: React.FC<CellProps> = ({ proposal: { endTime } }) => (
+  <div className="text-right">
+    <div>{secondsToTimeString(endTime)}</div>
+    <div className="text-neutral-450">{secondsToDateString(endTime)}</div>
+  </div>
 );

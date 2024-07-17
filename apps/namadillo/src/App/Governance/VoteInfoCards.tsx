@@ -6,7 +6,7 @@ import { AddRemove, PgfActions } from "@namada/types";
 
 import { proposalFamilyPersist, StoredProposal } from "atoms/proposals";
 import { useAtomValue } from "jotai";
-import { showEpoch } from "utils";
+import { epochToString, secondsToDateTimeString } from "utils";
 
 const InfoCard: React.FC<
   {
@@ -120,17 +120,17 @@ const Loaded: React.FC<{
     <>
       <InfoCard
         title="Voting Start"
-        content={showEpoch(proposal.startEpoch)}
+        content={secondsToDateTimeString(proposal.startTime)}
         className="col-span-2"
       />
       <InfoCard
         title="Voting End"
-        content={showEpoch(proposal.endEpoch)}
+        content={secondsToDateTimeString(proposal.endTime)}
         className="col-span-2"
       />
       <InfoCard
         title="Activation Epoch"
-        content={showEpoch(proposal.activationEpoch)}
+        content={epochToString(proposal.activationEpoch)}
         className="col-span-2"
       />
       <InfoCard

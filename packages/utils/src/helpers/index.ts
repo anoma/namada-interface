@@ -1,9 +1,5 @@
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
-import {
-  JsonCompatibleArray,
-  JsonCompatibleDictionary,
-  Tokens,
-} from "@namada/types";
+import { JsonCompatibleArray, JsonCompatibleDictionary } from "@namada/types";
 import { bech32m } from "bech32";
 import BigNumber from "bignumber.js";
 import * as fns from "date-fns";
@@ -291,10 +287,6 @@ export const mapUndefined = <A, B>(
   f: (a: A) => B,
   a: A | undefined
 ): B | undefined => (typeof a === "undefined" ? undefined : f(a));
-
-export const showMaybeNam = (maybeNam: BigNumber | undefined): string =>
-  mapUndefined((nam) => `${Tokens.NAM.symbol} ${nam.toString()}`, maybeNam) ??
-  "-";
 
 export const isEmptyObject = (object: Record<string, unknown>): boolean => {
   return Object.keys(object).length === 0;

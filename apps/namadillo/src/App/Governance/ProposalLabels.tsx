@@ -3,7 +3,7 @@ import { ProposalStatus, ProposalType } from "@namada/types";
 import { assertNever } from "@namada/utils";
 import { GoCheckCircleFill } from "react-icons/go";
 import { twMerge } from "tailwind-merge";
-import { showProposalStatus, showProposalTypeString } from "utils";
+import { proposalStatusToString, proposalTypeStringToString } from "utils";
 
 export const StatusLabel: React.FC<
   {
@@ -19,7 +19,7 @@ export const StatusLabel: React.FC<
 
   return (
     <RoundedLabel className={twMerge(className, statusClassName)} {...rest}>
-      {showProposalStatus(status)}
+      {proposalStatusToString(status)}
     </RoundedLabel>
   );
 };
@@ -50,6 +50,6 @@ export const TypeLabel: React.FC<
   } & React.ComponentProps<typeof InsetLabel>
 > = ({ proposalType, ...rest }) => (
   <InsetLabel className="text-xs leading-[1.65em]" {...rest}>
-    {showProposalTypeString(proposalType.type)}
+    {proposalTypeStringToString(proposalType.type)}
   </InsetLabel>
 );

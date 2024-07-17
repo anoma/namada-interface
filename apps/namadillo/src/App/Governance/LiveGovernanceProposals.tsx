@@ -4,6 +4,7 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { GoInfo } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
+import { secondsToDateTimeString } from "utils";
 import { StatusLabel, TypeLabel, VotedLabel } from "./ProposalLabels";
 import GovernanceRoutes from "./routes";
 import { colors } from "./types";
@@ -41,7 +42,7 @@ const ProposalListItem: React.FC<{
       <div className="flex items-center justify-between gap-4">
         <StatusLabel className="text-[10px] min-w-38" status={status} />
         <div className="text-xs text-neutral-400">
-          Voting End on epoch {proposal.endEpoch.toString()}
+          Voting End on {secondsToDateTimeString(proposal.endTime)}
         </div>
       </div>
       <div className="flex items-center justify-between gap-4">
