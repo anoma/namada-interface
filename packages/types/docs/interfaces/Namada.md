@@ -12,8 +12,10 @@
 ### Methods
 
 - [accounts](Namada.md#accounts)
+- [addTxWasmHashes](Namada.md#addtxwasmhashes)
 - [connect](Namada.md#connect)
 - [defaultAccount](Namada.md#defaultaccount)
+- [getTxWasmHashes](Namada.md#gettxwasmhashes)
 - [isConnected](Namada.md#isconnected)
 - [sign](Namada.md#sign)
 - [signArbitrary](Namada.md#signarbitrary)
@@ -35,7 +37,7 @@
 
 #### Defined in
 
-[namada.ts:38](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/namada.ts#L38)
+[namada.ts:48](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L48)
 
 ___
 
@@ -53,7 +55,7 @@ ___
 
 #### Defined in
 
-[namada.ts:39](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/namada.ts#L39)
+[namada.ts:51](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L51)
 
 ## Methods
 
@@ -73,19 +75,19 @@ ___
 
 #### Defined in
 
-[namada.ts:29](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/namada.ts#L29)
+[namada.ts:39](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L39)
 
 ___
 
-### connect
+### addTxWasmHashes
 
-▸ **connect**(`chainId?`): `Promise`\<`void`\>
+▸ **addTxWasmHashes**(`props`): `Promise`\<`void`\>
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `chainId?` | `string` |
+| `props` | [`WasmHashProps`](../modules.md#wasmhashprops) |
 
 #### Returns
 
@@ -93,7 +95,21 @@ ___
 
 #### Defined in
 
-[namada.ts:30](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/namada.ts#L30)
+[namada.ts:49](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L49)
+
+___
+
+### connect
+
+▸ **connect**(): `Promise`\<`void`\>
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Defined in
+
+[namada.ts:40](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L40)
 
 ___
 
@@ -113,7 +129,27 @@ ___
 
 #### Defined in
 
-[namada.ts:32](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/namada.ts#L32)
+[namada.ts:42](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L42)
+
+___
+
+### getTxWasmHashes
+
+▸ **getTxWasmHashes**(`chainId`): `Promise`\<`undefined` \| [`WasmHash`](../modules.md#wasmhash)[]\>
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `chainId` | `string` |
+
+#### Returns
+
+`Promise`\<`undefined` \| [`WasmHash`](../modules.md#wasmhash)[]\>
+
+#### Defined in
+
+[namada.ts:50](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L50)
 
 ___
 
@@ -127,7 +163,7 @@ ___
 
 #### Defined in
 
-[namada.ts:31](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/namada.ts#L31)
+[namada.ts:41](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L41)
 
 ___
 
@@ -147,7 +183,7 @@ ___
 
 #### Defined in
 
-[namada.ts:33](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/namada.ts#L33)
+[namada.ts:43](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L43)
 
 ___
 
@@ -167,7 +203,7 @@ ___
 
 #### Defined in
 
-[namada.ts:34](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/namada.ts#L34)
+[namada.ts:44](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L44)
 
 ___
 
@@ -187,4 +223,4 @@ ___
 
 #### Defined in
 
-[namada.ts:37](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/namada.ts#L37)
+[namada.ts:47](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L47)

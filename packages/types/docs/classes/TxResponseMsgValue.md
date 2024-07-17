@@ -10,9 +10,13 @@
 
 ### Properties
 
+- [code](TxResponseMsgValue.md#code)
 - [commitments](TxResponseMsgValue.md#commitments)
 - [gasUsed](TxResponseMsgValue.md#gasused)
 - [hash](TxResponseMsgValue.md#hash)
+- [height](TxResponseMsgValue.md#height)
+- [info](TxResponseMsgValue.md#info)
+- [log](TxResponseMsgValue.md#log)
 
 ## Constructors
 
@@ -32,9 +36,19 @@
 
 #### Defined in
 
-[tx/schema/txResponse.ts:16](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/txResponse.ts#L16)
+[tx/schema/txResponse.ts:28](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/tx/schema/txResponse.ts#L28)
 
 ## Properties
+
+### code
+
+• **code**: `string`
+
+#### Defined in
+
+[tx/schema/txResponse.ts:8](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/tx/schema/txResponse.ts#L8)
+
+___
 
 ### commitments
 
@@ -42,7 +56,7 @@
 
 #### Defined in
 
-[tx/schema/txResponse.ts:14](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/txResponse.ts#L14)
+[tx/schema/txResponse.ts:11](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/tx/schema/txResponse.ts#L11)
 
 ___
 
@@ -52,7 +66,7 @@ ___
 
 #### Defined in
 
-[tx/schema/txResponse.ts:11](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/txResponse.ts#L11)
+[tx/schema/txResponse.ts:14](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/tx/schema/txResponse.ts#L14)
 
 ___
 
@@ -62,4 +76,34 @@ ___
 
 #### Defined in
 
-[tx/schema/txResponse.ts:8](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/txResponse.ts#L8)
+[tx/schema/txResponse.ts:17](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/tx/schema/txResponse.ts#L17)
+
+___
+
+### height
+
+• **height**: `string`
+
+#### Defined in
+
+[tx/schema/txResponse.ts:20](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/tx/schema/txResponse.ts#L20)
+
+___
+
+### info
+
+• **info**: `string`
+
+#### Defined in
+
+[tx/schema/txResponse.ts:23](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/tx/schema/txResponse.ts#L23)
+
+___
+
+### log
+
+• **log**: `string`
+
+#### Defined in
+
+[tx/schema/txResponse.ts:26](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/tx/schema/txResponse.ts#L26)

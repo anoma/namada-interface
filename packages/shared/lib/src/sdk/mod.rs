@@ -395,7 +395,7 @@ impl Sdk {
                 self.build_withdraw(specific_msg, tx_msg, Some(gas_payer))
                     .await?
             }
-            TxType::Transfer => {
+            TxType::TransparentTransfer => {
                 self.build_transfer(specific_msg, tx_msg, Some(gas_payer))
                     .await?
             }
@@ -464,7 +464,7 @@ impl Sdk {
         let (tx, signing_data) = build_transparent_transfer(&self.namada, &mut args).await?;
 
         Ok(BuiltTx {
-            tx_type: TxType::Transfer,
+            tx_type: TxType::TransparentTransfer,
             tx,
             signing_data: vec![signing_data],
             wrapper_tx_msg: Vec::from(wrapper_tx_msg),

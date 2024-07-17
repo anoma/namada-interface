@@ -8,7 +8,7 @@ import {
   AccountType,
   BondProps,
   RevealPkProps,
-  TransferProps,
+  TransparentTransferProps,
   UnbondProps,
   VoteProposalProps,
   WithdrawProps,
@@ -134,8 +134,8 @@ export const ApproveSignTx: React.FC<Props> = ({ details, setDetails }) => {
                 case TxType.Withdraw:
                   const withdraw = tx as WithdrawProps;
                   return <div key={i}>Withdraw: {withdraw.validator}</div>;
-                case TxType.Transfer:
-                  const transfer = tx as TransferProps;
+                case TxType.TransparentTransfer:
+                  const transfer = tx as TransparentTransferProps;
                   return (
                     <div key={i}>
                       Transparent Transfer:

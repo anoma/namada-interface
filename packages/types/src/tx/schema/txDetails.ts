@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { field, option, vec } from "@dao-xyz/borsh";
-import { CommitmentProps, TxDetailsProps } from "../../tx/types";
 import { WrapperTxMsgValue } from "./wrapperTx";
 
 export class CommitmentMsgValue {
@@ -18,10 +17,6 @@ export class CommitmentMsgValue {
 
   @field({ type: vec("u8") })
   data!: Uint8Array;
-
-  constructor(data: CommitmentProps) {
-    Object.assign(this, data);
-  }
 }
 
 export class TxDetailsMsgValue {
@@ -30,8 +25,4 @@ export class TxDetailsMsgValue {
 
   @field({ type: vec(CommitmentMsgValue) })
   commitments!: CommitmentMsgValue[];
-
-  constructor(data: TxDetailsProps) {
-    Object.assign(this, data);
-  }
 }

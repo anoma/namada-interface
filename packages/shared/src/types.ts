@@ -4,7 +4,7 @@ export type SupportedTx = Extract<
   TxType,
   | TxType.Bond
   | TxType.Unbond
-  | TxType.Transfer
+  | TxType.TransparentTransfer
   | TxType.IBCTransfer
   | TxType.EthBridgeTransfer
   | TxType.Withdraw
@@ -15,7 +15,7 @@ export type SupportedTx = Extract<
 export type TxLabel =
   | "Bond"
   | "Unbond"
-  | "Transfer"
+  | "Transparent Transfer"
   | "IBC Transfer"
   | "Add to Eth Bridge Pool"
   | "Withdraw"
@@ -28,7 +28,7 @@ export const TxTypeLabel: Record<TxType, TxLabel> = {
   [TxType.Bond]: "Bond",
   [TxType.Unbond]: "Unbond",
   [TxType.Withdraw]: "Withdraw",
-  [TxType.Transfer]: "Transfer",
+  [TxType.TransparentTransfer]: "Transparent Transfer",
   [TxType.IBCTransfer]: "IBC Transfer",
   [TxType.EthBridgeTransfer]: "Add to Eth Bridge Pool",
   [TxType.RevealPK]: "RevealPK",

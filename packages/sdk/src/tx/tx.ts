@@ -18,8 +18,8 @@ import {
   RevealPkMsgValue,
   SignatureMsgValue,
   SupportedTxProps,
-  TransferMsgValue,
-  TransferProps,
+  TransparentTransferMsgValue,
+  TransparentTransferProps,
   TxDetails,
   TxDetailsMsgValue,
   UnbondMsgValue,
@@ -115,10 +115,10 @@ export class Tx {
           throw new Error("For RevealPK you must provide a public key!");
         }
         return await this.buildRevealPk(wrapperTxProps, publicKey);
-      case TxType.Transfer:
+      case TxType.TransparentTransfer:
         return await this.buildTransparentTransfer(
           wrapperTxProps,
-          props as TransferProps,
+          props as TransparentTransferProps,
           gasPayer
         );
       case TxType.IBCTransfer:
@@ -154,18 +154,18 @@ export class Tx {
    */
   async buildTransparentTransfer(
     wrapperTxProps: WrapperTxProps,
-    transferProps: TransferProps,
+    transferProps: TransparentTransferProps,
     gasPayer?: string
   ): Promise<EncodedTx> {
-    const transferMsg = new Message<TransferMsgValue>();
+    const transferMsg = new Message<TransparentTransferMsgValue>();
 
     const encodedTx = this.encodeTxArgs(wrapperTxProps);
     const encodedTransfer = transferMsg.encode(
-      new TransferMsgValue(transferProps)
+      new TransparentTransferMsgValue(transferProps)
     );
 
     return await this.buildTxFromSerializedArgs(
-      TxType.Transfer,
+      TxType.TransparentTransfer,
       encodedTransfer,
       encodedTx,
       gasPayer || transferProps.data[0].source
@@ -478,8 +478,8 @@ export class Tx {
           return deserialize(data, RedelegateMsgValue);
         case TxType.VoteProposal:
           return deserialize(data, VoteProposalMsgValue);
-        case TxType.Transfer:
-          return deserialize(data, TransferMsgValue);
+        case TxType.TransparentTransfer:
+          return deserialize(data, TransparentTransferMsgValue);
         case TxType.RevealPK:
           return deserialize(data, RevealPkMsgValue);
         default:

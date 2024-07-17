@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { field, vec } from "@dao-xyz/borsh";
 import BigNumber from "bignumber.js";
-import { TransferDataProps, TransferProps } from "../types";
+import {
+  TransparentTransferDataProps,
+  TransparentTransferProps,
+} from "../types";
 import { BigNumberSerializer } from "./utils";
 
-export class TransferDataMsgValue {
+export class TransparentTransferDataMsgValue {
   @field({ type: "string" })
   source!: string;
 
@@ -17,16 +20,20 @@ export class TransferDataMsgValue {
   @field(BigNumberSerializer)
   amount!: BigNumber;
 
-  constructor(data: TransferDataProps) {
+  constructor(data: TransparentTransferDataProps) {
     Object.assign(this, data);
   }
 }
 
-export class TransferMsgValue {
-  @field({ type: vec(TransferDataMsgValue) })
-  data!: TransferDataMsgValue[];
+export class TransparentTransferMsgValue {
+  @field({ type: vec(TransparentTransferDataMsgValue) })
+  data!: TransparentTransferDataMsgValue[];
 
-  constructor(data: TransferProps) {
-    Object.assign(this, data);
+  constructor({ data }: TransparentTransferProps) {
+    Object.assign(this, {
+      data: data.map(
+        (transferProps) => new TransparentTransferDataMsgValue(transferProps)
+      ),
+    });
   }
 }

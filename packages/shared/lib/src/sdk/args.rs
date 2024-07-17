@@ -333,16 +333,21 @@ pub fn vote_proposal_tx_args(
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
-pub struct TransferDataMsg {
+pub struct TransparentTransferDataMsg {
     source: String,
     target: String,
     token: String,
     amount: String,
 }
 
-impl TransferDataMsg {
-    pub fn new(source: String, target: String, token: String, amount: String) -> TransferDataMsg {
-        TransferDataMsg {
+impl TransparentTransferDataMsg {
+    pub fn new(
+        source: String,
+        target: String,
+        token: String,
+        amount: String,
+    ) -> TransparentTransferDataMsg {
+        TransparentTransferDataMsg {
             source,
             target,
             token,
@@ -353,13 +358,13 @@ impl TransferDataMsg {
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
-pub struct TransferMsg {
-    data: Vec<TransferDataMsg>,
+pub struct TransparentTransferMsg {
+    data: Vec<TransparentTransferDataMsg>,
 }
 
-impl TransferMsg {
-    pub fn new(data: Vec<TransferDataMsg>) -> TransferMsg {
-        TransferMsg { data }
+impl TransparentTransferMsg {
+    pub fn new(data: Vec<TransparentTransferDataMsg>) -> TransparentTransferMsg {
+        TransparentTransferMsg { data }
     }
 }
 
@@ -378,8 +383,8 @@ pub fn transparent_transfer_tx_args(
     transfer_msg: &[u8],
     tx_msg: &[u8],
 ) -> Result<args::TxTransparentTransfer, JsError> {
-    let transfer_msg = TransferMsg::try_from_slice(transfer_msg)?;
-    let TransferMsg { data } = transfer_msg;
+    let transfer_msg = TransparentTransferMsg::try_from_slice(transfer_msg)?;
+    let TransparentTransferMsg { data } = transfer_msg;
 
     let mut transfer_data: Vec<args::TxTransparentTransferData> = vec![];
 
