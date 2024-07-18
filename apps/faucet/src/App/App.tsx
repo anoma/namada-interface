@@ -22,27 +22,32 @@ import { FaucetForm } from "App/Faucet";
 import { chains } from "@namada/chains";
 import { useUntil } from "@namada/hooks";
 import { Account, AccountType } from "@namada/types";
-import { API } from "utils";
+import { API, ChainsAPI } from "utils";
 import dotsBackground from "../../public/bg-dots.svg";
 import { CallToActionCard } from "./CallToActionCard";
 import { CardsContainer } from "./Card.components";
 import { Faq } from "./Faq";
 
-const DEFAULT_URL = "http://localhost:5000";
+const DEFAULT_URL = "http://localhost:5000/";
 const DEFAULT_ENDPOINT = "/api/v1/faucet";
 const DEFAULT_FAUCET_LIMIT = "1000";
+const DEFAULT_CHAIN_ID = "shielded-expedition.88f17d1d14";
+const DEFAULT_CHAINS_URL = "";
 
 const {
   NAMADA_INTERFACE_FAUCET_API_URL: faucetApiUrl = DEFAULT_URL,
   NAMADA_INTERFACE_FAUCET_API_ENDPOINT: faucetApiEndpoint = DEFAULT_ENDPOINT,
   NAMADA_INTERFACE_FAUCET_LIMIT: faucetLimit = DEFAULT_FAUCET_LIMIT,
+  NAMADA_INTERFACE_CHAIN_ID: chainId = DEFAULT_CHAIN_ID,
+  NAMADA_INTERFACE_CHAINS_URL: chainsURL = DEFAULT_CHAINS_URL,
   NAMADA_INTERFACE_PROXY: isProxied,
   NAMADA_INTERFACE_PROXY_PORT: proxyPort = 9000,
 } = process.env;
 
 const apiUrl = isProxied ? `http://localhost:${proxyPort}/proxy` : faucetApiUrl;
-const url = `${apiUrl}${faucetApiEndpoint}`;
+const url = `${apiUrl}${chainId}${faucetApiEndpoint}`;
 const api = new API(url);
+const chainsApi = new ChainsAPI(chainsURL, chainId)
 const limit = parseInt(faucetLimit);
 const runFullNodeUrl = "https://docs.namada.net/operators/ledger";
 const becomeBuilderUrl = "https://docs.namada.net/integrating-with-namada";
@@ -124,7 +129,7 @@ export const App: React.FC = () => {
   );
 
   useEffect(() => {
-    const { startsAt } = settings;
+    let { startsAt } = settings;
     const now = new Date();
     const nowUTC = Date.UTC(
       now.getUTCFullYear(),
@@ -133,14 +138,37 @@ export const App: React.FC = () => {
       now.getUTCHours(),
       now.getUTCMinutes()
     );
-    const startsAtToMilliseconds = startsAt * 1000;
-    if (nowUTC < startsAtToMilliseconds) {
-      setIsTestnetLive(false);
-    }
 
     // Fetch settings from faucet API
     (async () => {
       try {
+        let startsAtToMilliseconds = startsAt * 1000;
+        let startsAtText = defaults.startsAtText
+        try{
+          const chainsData = await chainsApi.chainsData()
+          let validFrom = 0;
+          chainsData["chains"].filter(chain => chain.chain_id === chainId).forEach(chain => {
+            validFrom = Date.parse(chain.valid_from) / 1000;
+          })
+          validFrom != 0 ? startsAt = validFrom : startsAt = START_TIME_UTC
+          startsAtToMilliseconds = startsAt * 1000;
+          startsAtText = new Date(startsAtToMilliseconds).toLocaleString(
+            "en-gb",
+            {
+              timeZone: "UTC",
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+            }
+          );
+        } catch(e) {}
+
+        if (nowUTC < startsAtToMilliseconds) {
+          setIsTestnetLive(false);
+        }
+
         const { difficulty, tokens_alias_to_address: tokens } = await api
           .settings()
           .catch((e) => {
@@ -152,9 +180,10 @@ export const App: React.FC = () => {
           });
         // Append difficulty level and tokens to settings
         setSettings({
-          ...settings,
           difficulty,
           tokens,
+          startsAt,
+          startsAtText
         });
       } catch (e) {
         setSettingsError(`Failed to load settings! ${e}`);
