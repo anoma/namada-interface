@@ -6,6 +6,7 @@
 
 ### Enumeration Members
 
+- [Batch](TxType.md#batch)
 - [Bond](TxType.md#bond)
 - [EthBridgeTransfer](TxType.md#ethbridgetransfer)
 - [IBCTransfer](TxType.md#ibctransfer)
@@ -18,13 +19,23 @@
 
 ## Enumeration Members
 
+### Batch
+
+• **Batch** = ``10``
+
+#### Defined in
+
+shared/src/shared/shared.d.ts:32
+
+___
+
 ### Bond
 
 • **Bond** = ``1``
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:17
+shared/src/shared/shared.d.ts:23
 
 ___
 
@@ -34,7 +45,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:22
+shared/src/shared/shared.d.ts:28
 
 ___
 
@@ -44,7 +55,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:21
+shared/src/shared/shared.d.ts:27
 
 ___
 
@@ -54,7 +65,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:25
+shared/src/shared/shared.d.ts:31
 
 ___
 
@@ -64,7 +75,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:23
+shared/src/shared/shared.d.ts:29
 
 ___
 
@@ -74,7 +85,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:20
+shared/src/shared/shared.d.ts:26
 
 ___
 
@@ -84,7 +95,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:18
+shared/src/shared/shared.d.ts:24
 
 ___
 
@@ -94,7 +105,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:24
+shared/src/shared/shared.d.ts:30
 
 ___
 
@@ -104,4 +115,4 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:19
+shared/src/shared/shared.d.ts:25

@@ -80,7 +80,6 @@ export const Login = ({ onLogin }: LoginProps): JSX.Element => {
       </Stack>
       <ActionButton
         disabled={status === Status.Pending || !(password.length > 0)}
-        size="lg"
       >
         Unlock
       </ActionButton>

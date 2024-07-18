@@ -15,7 +15,9 @@ export const ValidatorDiversification = (): JSX.Element => {
       <p>When staking consider diversifying Across multiple validators.</p>
       <ActionButton
         className="max-w-44"
-        color="secondary"
+        outlineColor="cyan"
+        textHoverColor="black"
+        backgroundHoverColor="cyan"
         href="https://namada.net"
         borderRadius="sm"
         size="xs"

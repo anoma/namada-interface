@@ -25,3 +25,14 @@ body {
 .custom-container {
   @apply block w-full max-w-[1920px] sm:px-6 mx-auto relative;
 }
+
+@keyframes backgroundHover {
+  0% {
+    background-position: 0% 0%;
+    opacity: 0;
+  }
+  100% {
+    background-position: 0% 20%;
+    opacity: 1;
+  }
+}

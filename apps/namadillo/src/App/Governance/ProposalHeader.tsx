@@ -124,9 +124,8 @@ const JsonButton: React.FC<{
   return (
     <ActionButton
       className="px-3 py-2"
-      color="white"
       size="xs"
-      outlined
+      outlineColor="white"
       borderRadius="sm"
       onClick={() => navigate(GovernanceRoutes.viewJson(proposalId).url)}
     >
@@ -174,9 +173,8 @@ const WasmButton: React.FC<{
   return (
     <ActionButton
       className="px-3 py-2"
-      color="white"
+      outlineColor="white"
       size="xs"
-      outlined
       borderRadius="sm"
       disabled={disabled}
       download={filename}
@@ -326,7 +324,7 @@ const VoteButton: React.FC<{
         size="sm"
         borderRadius="sm"
         className="py-2 px-4"
-        color="white"
+        backgroundColor="white"
         disabled={disabled}
         onClick={onClick}
       >

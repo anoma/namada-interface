@@ -75,7 +75,6 @@ export const Advanced = (): JSX.Element => {
         />
       </Stack>
       <ActionButton
-        size="lg"
         borderRadius="sm"
         className="shrink-0"
         disabled={

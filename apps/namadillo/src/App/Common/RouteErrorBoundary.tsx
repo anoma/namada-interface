@@ -44,7 +44,7 @@ export const RouteErrorBoundary = (): JSX.Element => {
           </ActionButton>
           {error instanceof Error && (
             <ActionButton
-              outlined
+              outlineColor="yellow"
               onClick={() =>
                 navigator.clipboard.writeText(JSON.stringify(error.stack))
               }

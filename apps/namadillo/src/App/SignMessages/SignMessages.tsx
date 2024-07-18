@@ -54,7 +54,6 @@ export const SignMessages = (): JSX.Element => {
             <ActionButton
               className="shrink-0"
               borderRadius="sm"
-              size="lg"
               disabled={isPending}
             >
               {isPending ? "Signing..." : "Sign Message"}
@@ -73,7 +72,7 @@ export const SignMessages = (): JSX.Element => {
                 value={data?.signature}
               />
             </Stack>
-            <ActionButton size="lg" borderRadius="sm" onClick={onCloseModal}>
+            <ActionButton borderRadius="sm" onClick={onCloseModal}>
               Close
             </ActionButton>
           </div>

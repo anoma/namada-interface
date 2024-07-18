@@ -3,8 +3,10 @@ export * from "./bond";
 export * from "./ethBridgeTransfer";
 export * from "./ibcTransfer";
 export * from "./redelegate";
+export * from "./revealPk";
 export * from "./signature";
 export * from "./transparentTransfer";
+export * from "./txDetails";
 export * from "./txResponse";
 export * from "./unbond";
 export * from "./utils";
@@ -17,8 +19,10 @@ import { BondMsgValue } from "./bond";
 import { EthBridgeTransferMsgValue } from "./ethBridgeTransfer";
 import { IbcTransferMsgValue } from "./ibcTransfer";
 import { RedelegateMsgValue } from "./redelegate";
+import { RevealPkMsgValue } from "./revealPk";
 import { SignatureMsgValue } from "./signature";
 import { TransparentTransferMsgValue } from "./transparentTransfer";
+import { CommitmentMsgValue, TxDetailsMsgValue } from "./txDetails";
 import { TxResponseMsgValue } from "./txResponse";
 import { UnbondMsgValue } from "./unbond";
 import { VoteProposalMsgValue } from "./voteProposal";
@@ -37,4 +41,7 @@ export type Schema =
   | TransparentTransferMsgValue
   | TxResponseMsgValue
   | WrapperTxMsgValue
-  | RedelegateMsgValue;
+  | RedelegateMsgValue
+  | CommitmentMsgValue
+  | TxDetailsMsgValue
+  | RevealPkMsgValue;

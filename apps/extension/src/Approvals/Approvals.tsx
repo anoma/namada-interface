@@ -2,18 +2,16 @@ import React, { useState } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { Container } from "@namada/components";
-import { AccountType } from "@namada/types";
+import { AccountType, TxDetails } from "@namada/types";
 
 import { AppHeader } from "App/Common/AppHeader";
 import { TopLevelRoute } from "Approvals/types";
 import { ApproveConnection } from "./ApproveConnection";
 import { ApproveSignArbitrary } from "./ApproveSignArbitrary";
-import {
-  ApproveSignTx,
-  ConfirmSignLedgerTx,
-  ConfirmSignTx,
-} from "./ApproveSignTx";
+import { ApproveSignTx } from "./ApproveSignTx";
 import { ConfirmSignature } from "./ConfirmSignArbitrary";
+import { ConfirmSignLedgerTx } from "./ConfirmSignLedgerTx";
+import { ConfirmSignTx } from "./ConfirmSignTx";
 
 export enum Status {
   Completed,
@@ -25,11 +23,13 @@ export type ApprovalDetails = {
   signer: string;
   accountType: AccountType;
   msgId: string;
+  txDetails: TxDetails;
 };
 
 export type SignArbitraryDetails = {
   msgId: string;
   signer: string;
+  data: string;
 };
 
 export const Approvals: React.FC = () => {
@@ -51,7 +51,7 @@ export const Approvals: React.FC = () => {
       <Routes>
         <Route
           path={`${TopLevelRoute.ApproveSignTx}/:msgId/:accountType/:signer`}
-          element={<ApproveSignTx setDetails={setDetails} />}
+          element={<ApproveSignTx details={details} setDetails={setDetails} />}
         />
         <Route
           path={TopLevelRoute.ConfirmSignTx}

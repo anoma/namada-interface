@@ -5,13 +5,25 @@ import { BatchTxResultMsgValue } from "./batchTxResult";
 
 export class TxResponseMsgValue {
   @field({ type: "string" })
-  hash!: string;
+  code!: string;
+
+  @field({ type: vec(BatchTxResultMsgValue) })
+  commitments!: BatchTxResultMsgValue[];
 
   @field({ type: "string" })
   gasUsed!: string;
 
-  @field({ type: vec(BatchTxResultMsgValue) })
-  commitments!: BatchTxResultMsgValue[];
+  @field({ type: "string" })
+  hash!: string;
+
+  @field({ type: "string" })
+  height!: string;
+
+  @field({ type: "string" })
+  info!: string;
+
+  @field({ type: "string" })
+  log!: string;
 
   constructor(data: TxResponseProps) {
     Object.assign(this, data);

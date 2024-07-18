@@ -1,11 +1,11 @@
+import { deserialize } from "@dao-xyz/borsh";
 import {
   Query as QueryWasm,
   Sdk as SdkWasm,
   TransferToEthereum,
 } from "@namada/shared";
+import { TxResponseMsgValue, TxResponseProps, WasmHash } from "@namada/types";
 
-import { deserialize } from "@dao-xyz/borsh";
-import { TxResponseMsgValue, TxResponseProps } from "../../../types/src";
 import { SignedTx } from "../tx/types";
 import {
   Balance,
@@ -187,6 +187,15 @@ export class Rpc {
    */
   async queryGasCosts(): Promise<GasCosts> {
     return await this.query.query_gas_costs();
+  }
+
+  /**
+   * Query code paths and their associated hash on chain
+   * @async
+   * @returns WasmHash[]
+   */
+  async queryWasmHashes(): Promise<WasmHash[]> {
+    return await this.query.query_wasm_hashes();
   }
 
   /**

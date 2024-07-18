@@ -18,12 +18,7 @@ export const Default: Story = {
     alternativeAmount: "$100.34",
     className: "bg-rblack border-yellow border",
     callToAction: (
-      <ActionButton
-        className="px-8"
-        borderRadius="sm"
-        size="xs"
-        color="primary"
-      >
+      <ActionButton className="px-8" borderRadius="sm" size="xs" color="yellow">
         Stake
       </ActionButton>
     ),

@@ -108,7 +108,7 @@ const Unstake = (): JSX.Element => {
             errorMessage={
               unstakeTxError instanceof Error ?
                 unstakeTxError.message
-              : undefined
+                : undefined
             }
           />
         ),
@@ -117,24 +117,22 @@ const Unstake = (): JSX.Element => {
     }
   }, [isError]);
 
-  const dispatchUnbondingTransactions = (
-    transactions: TransactionPair<UnbondProps>[]
+  const dispatchUnbondingTransaction = (
+    tx: TransactionPair<UnbondProps>
   ): void => {
-    for (const tx of transactions) {
-      broadcastTx(
-        tx.encodedTxData.tx,
-        tx.signedTx,
-        tx.encodedTxData.meta?.props,
-        "Unbond"
-      );
-    }
+    broadcastTx(
+      tx.encodedTxData.tx,
+      tx.signedTx,
+      tx.encodedTxData.meta?.props,
+      "Unbond"
+    );
   };
 
   useEffect(() => {
     if (isSuccess) {
       dispatchPendingNotification();
       unbondTransactionData &&
-        dispatchUnbondingTransactions(unbondTransactionData);
+        dispatchUnbondingTransaction(unbondTransactionData);
       onCloseModal();
     }
   }, [isSuccess]);
@@ -216,9 +214,9 @@ const Unstake = (): JSX.Element => {
                 <ActionButton
                   type="button"
                   className="inline-flex w-auto leading-none px-4 py-3 mb-4"
-                  color="magenta"
+                  outlineColor="pink"
+                  textHoverColor="white"
                   borderRadius="sm"
-                  outlined
                   onClick={onUnbondAll}
                 >
                   Unbond All
@@ -243,9 +241,9 @@ const Unstake = (): JSX.Element => {
           <div className="relative grid grid-cols-[1fr_25%_1fr] items-center">
             <ActionButton
               size="sm"
-              color="white"
+              backgroundColor="white"
               borderRadius="sm"
-              hoverColor="magenta"
+              backgroundHoverColor="pink"
               className="mt-2 col-start-2"
               disabled={
                 !!validationMessage ||
@@ -255,7 +253,7 @@ const Unstake = (): JSX.Element => {
             >
               {isPerformingUnbond ?
                 "Processing..."
-              : validationMessage || "Unstake"}
+                : validationMessage || "Unstake"}
             </ActionButton>
             <TransactionFees
               className="justify-self-end px-4"

@@ -7,6 +7,8 @@ import {
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
   ConnectInterfaceResponseMsg,
+  QuerySignArbitraryDataMsg,
+  QueryTxDetailsMsg,
   RejectSignArbitraryMsg,
   RejectSignTxMsg,
   RevokeConnectionMsg,
@@ -61,6 +63,13 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleSubmitApprovedSignArbitraryMsg(service)(
           env,
           msg as SubmitApprovedSignArbitraryMsg
+        );
+      case QueryTxDetailsMsg:
+        return handleQueryTxDetails(service)(env, msg as QueryTxDetailsMsg);
+      case QuerySignArbitraryDataMsg:
+        return handleQuerySignArbitraryData(service)(
+          env,
+          msg as QuerySignArbitraryDataMsg
         );
 
       default:
@@ -154,5 +163,21 @@ const handleSubmitApprovedSignArbitraryMsg: (
 ) => InternalHandler<SubmitApprovedSignArbitraryMsg> = (service) => {
   return async ({ senderTabId: popupTabId }, { msgId, signer }) => {
     return await service.submitSignArbitrary(popupTabId, msgId, signer);
+  };
+};
+
+const handleQueryTxDetails: (
+  service: ApprovalsService
+) => InternalHandler<QueryTxDetailsMsg> = (service) => {
+  return async (_, { msgId }) => {
+    return await service.queryTxDetails(msgId);
+  };
+};
+
+const handleQuerySignArbitraryData: (
+  service: ApprovalsService
+) => InternalHandler<QuerySignArbitraryDataMsg> = (service) => {
+  return async (_, { msgId }) => {
+    return await service.querySignArbitraryDetails(msgId);
   };
 };

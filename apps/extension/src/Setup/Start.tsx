@@ -36,7 +36,9 @@ export const Start: React.FC = () => {
         </ActionButton>
         <ActionButton
           size="lg"
-          outlined
+          outlineColor="yellow"
+          backgroundHoverColor="black"
+          textHoverColor="yellow"
           data-testid="setup-import-keys-button"
           onClick={() => navigate(routes.accountImportSeed())}
         >

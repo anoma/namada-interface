@@ -6,9 +6,6 @@ export class BatchTxResultMsgValue {
   @field({ type: "string" })
   hash!: string;
 
-  @field({ type: "string" })
-  gasUsed!: string;
-
   @field({ type: "bool" })
   isApplied!: string;
 

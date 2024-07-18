@@ -183,19 +183,18 @@ export const FaucetForm: React.FC<Props> = ({
     <FaucetFormContainer>
       {settingsError && <Alert type="error">{settingsError}</Alert>}
       <InputContainer>
-        {accounts.length > 0 ? (
+        {accounts.length > 0 ?
           <Select
             data={accountsSelectData}
             value={account.address}
             label="Account"
             onChange={(e) => setAccount(accountLookup[e.target.value])}
           />
-        ) : (
-          <div>
+        : <div>
             You have no signing accounts! Import or create an account in the
             extension, then reload this page.
           </div>
-        )}
+        }
       </InputContainer>
 
       <InputContainer>
@@ -217,9 +216,9 @@ export const FaucetForm: React.FC<Props> = ({
           onFocus={handleFocus}
           onChange={(e) => setAmount(e.target.value?.toNumber())}
           error={
-            amount && amount > limit
-              ? `Amount must be less than or equal to ${limit}`
-              : ""
+            amount && amount > limit ?
+              `Amount must be less than or equal to ${limit}`
+            : ""
           }
         />
       </InputContainer>
@@ -255,7 +254,7 @@ export const FaucetForm: React.FC<Props> = ({
             margin: 0,
           }}
           className={`max-w-fit ${!isFormValid && "opacity-50"}`}
-          color="secondary"
+          color="cyan"
           borderRadius="lg"
           onClick={handleSubmit}
           disabled={!isFormValid}

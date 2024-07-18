@@ -70,9 +70,10 @@ const MainnetRoadmap = (): JSX.Element => {
         className="max-w-40 mt-6"
         href="https://namada.net/mainnet-launch"
         target="_blank"
-        color="primary"
+        backgroundColor="transparent"
+        backgroundHoverColor="yellow"
+        outlineColor="yellow"
         size="sm"
-        outlined
         borderRadius="sm"
       >
         Learn about Mainnet phases

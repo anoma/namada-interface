@@ -1,6 +1,8 @@
+mod args;
 pub mod io;
 pub mod masp;
 mod signature;
+mod transaction;
 mod tx;
 mod wallet;
 
@@ -10,6 +12,7 @@ use crate::utils::set_panic_hook;
 #[cfg(feature = "web")]
 use crate::utils::to_bytes;
 use crate::utils::to_js_result;
+use gloo_utils::format::JsValueSerdeExt;
 use js_sys::Uint8Array;
 use namada::address::Address;
 use namada::core::borsh::{self, BorshDeserialize, BorshSerialize};
@@ -22,7 +25,7 @@ use namada::sdk::signing::SigningTxData;
 use namada::sdk::tx::{
     build_batch, build_bond, build_ibc_transfer, build_redelegation, build_reveal_pk,
     build_transparent_transfer, build_unbond, build_vote_proposal, build_withdraw,
-    is_reveal_pk_needed, process_tx,
+    is_reveal_pk_needed, process_tx, ProcessTxResponse,
 };
 use namada::sdk::wallet::{Store, Wallet};
 use namada::sdk::{Namada, NamadaImpl};
@@ -31,26 +34,13 @@ use namada::tx::Tx;
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
-#[wasm_bindgen]
-#[derive(Copy, Clone, Debug)]
-pub enum TxType {
-    Bond = 1,
-    Unbond = 2,
-    Withdraw = 3,
-    TransparentTransfer = 4,
-    IBCTransfer = 5,
-    EthBridgeTransfer = 6,
-    RevealPK = 7,
-    VoteProposal = 8,
-    Redelegate = 9,
-}
+use tx::TxType;
 
 #[wasm_bindgen]
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
 pub struct BatchTxResult {
     hash: String,
-    gas_used: String,
     is_applied: bool,
 }
 
@@ -58,9 +48,13 @@ pub struct BatchTxResult {
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada::core::borsh")]
 pub struct TxResponse {
-    hash: String,
-    gas_used: String,
+    code: String,
     commitments: Vec<BatchTxResult>,
+    gas_used: String,
+    hash: String,
+    height: String,
+    info: String,
+    log: String,
 }
 
 #[wasm_bindgen]
@@ -68,7 +62,7 @@ pub struct TxResponse {
 pub struct BuiltTx {
     tx_type: TxType,
     tx: Tx,
-    signing_data: SigningTxData,
+    signing_data: Vec<SigningTxData>,
     wrapper_tx_msg: Vec<u8>,
 }
 
@@ -78,12 +72,22 @@ impl BuiltTx {
     pub fn new(
         tx_type: TxType,
         tx_bytes: Vec<u8>,
-        signing_data_bytes: Vec<u8>,
+        signing_data_bytes: JsValue,
         wrapper_tx_msg: Vec<u8>,
     ) -> Result<BuiltTx, JsError> {
         let tx: Tx = borsh::from_slice(&tx_bytes)?;
-        let signing_data: tx::SigningData = borsh::from_slice(&signing_data_bytes)?;
-        let signing_data: SigningTxData = signing_data.to_signing_tx_data()?;
+
+        let signing_data_bytes: Vec<Vec<u8>> = signing_data_bytes
+            .into_serde()
+            .expect("Deserializing should not fail");
+
+        let mut signing_data: Vec<SigningTxData> = vec![];
+
+        for bytes in signing_data_bytes {
+            let sd: tx::SigningData = borsh::from_slice(&bytes)?;
+            let signing_tx_data: SigningTxData = sd.to_signing_tx_data()?;
+            signing_data.push(signing_tx_data);
+        }
 
         Ok(BuiltTx {
             tx_type,
@@ -110,14 +114,21 @@ impl BuiltTx {
             .collect()
     }
 
-    pub fn signing_data_bytes(&self) -> Result<Vec<u8>, JsError> {
-        let signing_data = tx::SigningData::from_signing_tx_data(self.signing_data.clone())?;
-        Ok(signing_data.to_bytes()?)
+    pub fn signing_data_bytes(&self) -> Result<JsValue, JsError> {
+        let mut signing_data_bytes: Vec<Vec<u8>> = vec![];
+
+        for signing_tx_data in self.signing_data.clone() {
+            let signing_data = tx::SigningData::from_signing_tx_data(signing_tx_data)?;
+            let bytes = signing_data.to_bytes()?;
+            signing_data_bytes.push(bytes);
+        }
+
+        Ok(JsValue::from_serde(&signing_data_bytes)?)
     }
 
     // TODO: Add method to retrieve deserialized Tx properties
 
-    pub fn tx_type(&self) -> TxType {
+    pub fn tx_type(&self) -> tx::TxType {
         self.tx_type
     }
 
@@ -244,10 +255,6 @@ impl Sdk {
         private_key: Option<String>,
         chain_id: Option<String>,
     ) -> Result<JsValue, JsError> {
-        let signing_data_bytes = built_tx.signing_data_bytes()?;
-        let signing_data: tx::SigningData = borsh::from_slice(&signing_data_bytes)?;
-        let signing_data = signing_data.to_signing_tx_data()?;
-
         let mut tx: Tx = built_tx.tx;
 
         // If chain_id is provided, validate this against value in Tx header
@@ -269,15 +276,17 @@ impl Sdk {
             None => vec![],
         };
 
-        if let Some(account_public_keys_map) = signing_data.account_public_keys_map.clone() {
-            // We only sign the raw header for transfers from transparent source
-            if !signing_keys.is_empty() {
-                // Sign the raw header
-                tx.sign_raw(
-                    signing_keys.clone(),
-                    account_public_keys_map,
-                    signing_data.owner.clone(),
-                );
+        for signing_tx_data in built_tx.signing_data {
+            if let Some(account_public_keys_map) = signing_tx_data.account_public_keys_map.clone() {
+                // We only sign the raw header for transfers from transparent source
+                if !signing_keys.is_empty() {
+                    // Sign the raw header
+                    tx.sign_raw(
+                        signing_keys.clone(),
+                        account_public_keys_map,
+                        signing_tx_data.owner.clone(),
+                    );
+                }
             }
         }
 
@@ -293,7 +302,7 @@ impl Sdk {
 
     // Broadcast Tx
     pub async fn process_tx(&self, tx_bytes: &[u8], tx_msg: &[u8]) -> Result<JsValue, JsError> {
-        let args = tx::tx_args_from_slice(tx_msg)?;
+        let args = args::tx_args_from_slice(tx_msg)?;
 
         let tx = Tx::try_from_slice(tx_bytes)?;
         let cmts = tx.commitments().clone();
@@ -305,26 +314,39 @@ impl Sdk {
         for cmt in cmts {
             let response = resp.is_applied_and_valid(&cmt);
             let hash = cmt.get_hash().to_string();
+
             batch_tx_results.push(BatchTxResult {
                 hash,
-                gas_used: String::from("10000.00"),
                 is_applied: response.is_some(),
             });
         }
 
-        let response = TxResponse {
-            hash,
-            gas_used: String::from("10000.00"),
-            commitments: batch_tx_results,
-        };
+        // Collect results and return
+        match resp {
+            ProcessTxResponse::Applied(tx_response) => {
+                let code = tx_response.code.to_string();
+                let gas_used = tx_response.gas_used.to_string();
+                let height = tx_response.height.to_string();
+                let info = tx_response.info.to_string();
+                let log = tx_response.log.to_string();
 
-        // Serialized TxResponse
-        to_js_result(borsh::to_vec(&response)?)
+                let response = TxResponse {
+                    code,
+                    commitments: batch_tx_results,
+                    gas_used,
+                    hash,
+                    height,
+                    info,
+                    log,
+                };
+                to_js_result(borsh::to_vec(&response)?)
+            }
+            _ => return Err(JsError::new(&format!("Tx not applied: {}", &hash))),
+        }
     }
 
     /// Build a batch Tx from built transactions and return the bytes
     pub fn build_batch(
-        tx_type: TxType,
         built_txs: Vec<BuiltTx>,
         wrapper_tx_msg: Vec<u8>,
     ) -> Result<BuiltTx, JsError> {
@@ -334,20 +356,20 @@ impl Sdk {
         for built_tx in built_txs.into_iter() {
             let tx_bytes = &built_tx.tx_bytes()?;
             let tx: Tx = Tx::try_from_slice(tx_bytes)?;
-            txs.push((tx, built_tx.signing_data));
+            let first_signing_data = built_tx
+                .signing_data
+                .iter()
+                .nth(0)
+                .expect("At least one signing data should be present on a Tx");
+            txs.push((tx, first_signing_data.to_owned()));
         }
 
         let (tx, signing_data) = build_batch(txs.clone())?;
 
-        let signing_data = signing_data.into_iter().nth(0);
-        if !signing_data.is_some() {
-            panic!("Signing data should always be defined!");
-        }
-
         Ok(BuiltTx {
-            tx_type,
+            tx_type: TxType::Batch,
             tx,
-            signing_data: signing_data.unwrap(),
+            signing_data,
             wrapper_tx_msg,
         })
     }
@@ -394,6 +416,7 @@ impl Sdk {
                 self.build_redelegate(specific_msg, tx_msg, Some(gas_payer))
                     .await?
             }
+            TxType::Batch => todo!("build_tx called on Batch Tx! Use build_batch instead!"),
         };
 
         Ok(tx)
@@ -437,13 +460,13 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let mut args = tx::transparent_transfer_tx_args(transfer_msg, wrapper_tx_msg)?;
+        let mut args = args::transparent_transfer_tx_args(transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_transparent_transfer(&self.namada, &mut args).await?;
 
         Ok(BuiltTx {
             tx_type: TxType::TransparentTransfer,
             tx,
-            signing_data,
+            signing_data: vec![signing_data],
             wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
@@ -454,13 +477,13 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg)?;
+        let args = args::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args).await?;
 
         Ok(BuiltTx {
             tx_type: TxType::IBCTransfer,
             tx,
-            signing_data,
+            signing_data: vec![signing_data],
             wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
@@ -471,13 +494,13 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, wrapper_tx_msg)?;
+        let args = args::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_bridge_pool_tx(&self.namada, args.clone()).await?;
 
         Ok(BuiltTx {
             tx_type: TxType::EthBridgeTransfer,
             tx,
-            signing_data,
+            signing_data: vec![signing_data],
             wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
@@ -488,7 +511,7 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::vote_proposal_tx_args(vote_proposal_msg, wrapper_tx_msg)?;
+        let args = args::vote_proposal_tx_args(vote_proposal_msg, wrapper_tx_msg)?;
         let epoch = query_epoch(self.namada.client()).await?;
         let (tx, signing_data) = build_vote_proposal(&self.namada, &args, epoch)
             .await
@@ -497,7 +520,7 @@ impl Sdk {
         Ok(BuiltTx {
             tx_type: TxType::VoteProposal,
             tx,
-            signing_data,
+            signing_data: vec![signing_data],
             wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
@@ -508,13 +531,13 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::bond_tx_args(bond_msg, wrapper_tx_msg)?;
+        let args = args::bond_tx_args(bond_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_bond(&self.namada, &args).await?;
 
         Ok(BuiltTx {
             tx_type: TxType::Bond,
             tx,
-            signing_data,
+            signing_data: vec![signing_data],
             wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
@@ -525,13 +548,13 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::unbond_tx_args(unbond_msg, wrapper_tx_msg)?;
+        let args = args::unbond_tx_args(unbond_msg, wrapper_tx_msg)?;
         let (tx, signing_data, _) = build_unbond(&self.namada, &args).await?;
 
         Ok(BuiltTx {
             tx_type: TxType::Unbond,
             tx,
-            signing_data,
+            signing_data: vec![signing_data],
             wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
@@ -542,13 +565,13 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::withdraw_tx_args(withdraw_msg, wrapper_tx_msg)?;
+        let args = args::withdraw_tx_args(withdraw_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_withdraw(&self.namada, &args).await?;
 
         Ok(BuiltTx {
             tx_type: TxType::Withdraw,
             tx,
-            signing_data,
+            signing_data: vec![signing_data],
             wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
@@ -559,13 +582,13 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::redelegate_tx_args(redelegate_msg, wrapper_tx_msg)?;
+        let args = args::redelegate_tx_args(redelegate_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_redelegation(&self.namada, &args).await?;
 
         Ok(BuiltTx {
             tx_type: TxType::Redelegate,
             tx,
-            signing_data,
+            signing_data: vec![signing_data],
             wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
@@ -575,7 +598,7 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         _gas_payer: String,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::tx_args_from_slice(wrapper_tx_msg)?;
+        let args = args::tx_args_from_slice(wrapper_tx_msg)?;
         let public_key = args.signing_keys[0].clone();
 
         let (tx, signing_data) = build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
@@ -583,7 +606,7 @@ impl Sdk {
         Ok(BuiltTx {
             tx_type: TxType::RevealPK,
             tx,
-            signing_data,
+            signing_data: vec![signing_data],
             wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
@@ -595,7 +618,7 @@ impl Sdk {
         wraper_tx_msg: &[u8],
         chain_id: Option<String>,
     ) -> Result<(), JsError> {
-        let args = tx::tx_args_from_slice(wraper_tx_msg)?;
+        let args = args::tx_args_from_slice(wraper_tx_msg)?;
         let pk = &args
             .signing_keys
             .clone()

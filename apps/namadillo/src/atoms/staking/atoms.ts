@@ -74,7 +74,7 @@ export const createWithdrawTxAtom = atomWithMutation((get) => {
       gasConfig,
       account,
     }: ChangeInStakingProps): Promise<
-      [TransactionPair<WithdrawProps>, BondProps][] | undefined
+      [TransactionPair<WithdrawProps>, BondProps] | undefined
     > => createWithdrawTx(chain.data!, account, changes, gasConfig),
   };
 });
@@ -90,7 +90,7 @@ export const createWithdrawTxAtomFamily = atomFamily((id: string) => {
         gasConfig,
         account,
       }: ChangeInStakingProps): Promise<
-        [TransactionPair<WithdrawProps>, BondProps][] | undefined
+        [TransactionPair<WithdrawProps>, BondProps] | undefined
       > => createWithdrawTx(chain.data!, account, changes, gasConfig),
     };
   });

@@ -13,9 +13,9 @@ export const ProposalDiscord: React.FC = () => {
         <ActionButton
           size="xs"
           borderRadius="sm"
-          color="black"
+          backgroundColor="black"
           className="text-white"
-          hoverColor="secondary"
+          backgroundHoverColor="cyan"
           href={DISCORD_URL}
           target="_blank"
         >
