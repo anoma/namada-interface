@@ -8,14 +8,10 @@ import { AppHeader } from "App/Common/AppHeader";
 import { TopLevelRoute } from "Approvals/types";
 import { ApproveConnection } from "./ApproveConnection";
 import { ApproveSignArbitrary } from "./ApproveSignArbitrary";
-import { ApproveSignArbitraryDetails } from "./ApproveSignArbitraryDetails";
-import {
-  ApproveSignTx,
-  ConfirmSignLedgerTx,
-  ConfirmSignTx,
-} from "./ApproveSignTx";
-import { ApproveSignTxDetails } from "./ApproveSignTx/ApproveSignTxDetails";
+import { ApproveSignTx } from "./ApproveSignTx";
 import { ConfirmSignature } from "./ConfirmSignArbitrary";
+import { ConfirmSignLedgerTx } from "./ConfirmSignLedgerTx";
+import { ConfirmSignTx } from "./ConfirmSignTx";
 
 export enum Status {
   Completed,
@@ -57,12 +53,6 @@ export const Approvals: React.FC = () => {
           path={`${TopLevelRoute.ApproveSignTx}/:msgId/:accountType/:signer`}
           element={<ApproveSignTx details={details} setDetails={setDetails} />}
         />
-        {details && (
-          <Route
-            path={TopLevelRoute.ApproveSignTxDetails}
-            element={<ApproveSignTxDetails details={details} />}
-          />
-        )}
         <Route
           path={TopLevelRoute.ConfirmSignTx}
           element={<ConfirmSignTx details={details} />}
@@ -83,14 +73,6 @@ export const Approvals: React.FC = () => {
             />
           }
         />
-        {signArbitraryDetails && (
-          <Route
-            path={TopLevelRoute.ApproveSignArbitraryDetails}
-            element={
-              <ApproveSignArbitraryDetails details={signArbitraryDetails} />
-            }
-          />
-        )}
         <Route
           path={TopLevelRoute.ConfirmSignArbitrary}
           element={<ConfirmSignature details={signArbitraryDetails} />}
