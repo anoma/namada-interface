@@ -1,7 +1,4 @@
-import { useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
-import { ActionButton, Alert, GapPatterns, Stack } from "@namada/components";
+import { ActionButton, GapPatterns, Stack } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
 import { shortenAddress } from "@namada/utils";
 import { PageHeader } from "App/Common";
@@ -13,8 +10,14 @@ import {
 } from "background/approvals";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
+import { useCallback, useEffect, useState } from "react";
+import { AiOutlineMessage } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
+import { ApprovalPanelHeader } from "./ApprovalPanelHeader";
+import { TransactionCard } from "./TransactionCard";
+import { TransactionDataPanel } from "./TransactionDataPanel";
 
 type Props = {
   setSignArbitraryDetails: (details: SignArbitraryDetails) => void;
@@ -23,6 +26,8 @@ type Props = {
 export const ApproveSignArbitrary: React.FC<Props> = ({
   setSignArbitraryDetails,
 }) => {
+  const [displayTransactionData, setDisplayTransactionData] = useState(false);
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const params = useSanitizedParams();
   const requester = useRequester();
@@ -44,6 +49,7 @@ export const ApproveSignArbitrary: React.FC<Props> = ({
     if (msgId && signer) {
       queryPendingSignArbitraryData(msgId)
         .then((data) => {
+          setMessage(data);
           setSignArbitraryDetails({ msgId, signer, data });
         })
         .catch((e) => {
@@ -74,41 +80,59 @@ export const ApproveSignArbitrary: React.FC<Props> = ({
     }
   }, []);
 
-  return (
-    <Stack full gap={GapPatterns.TitleContent} className="text-white pt-4 pb-8">
-      <PageHeader title="Approve Sign Arbitrary Request" />
+  const getDataAsText = (data: string): string => {
+    try {
+      const parsed = JSON.parse(data);
+      return JSON.stringify(parsed, null, 2);
+    } catch (_) {
+      // Not JSON, return raw data
+      return data;
+    }
+  };
 
-      {signer && (
-        <Alert type="warning">
-          Approve this signature request for account{" "}
-          {shortenAddress(signer, 24)}?
-        </Alert>
-      )}
-      <Stack full gap={2}>
-        {signer && (
-          <p className="text-xs">
-            Signer: <strong>{shortenAddress(signer)}</strong>
-          </p>
-        )}
-        <ActionButton
-          borderRadius="sm"
-          onClick={() => navigate(TopLevelRoute.ApproveSignArbitraryDetails)}
-        >
-          View Data
-        </ActionButton>
-      </Stack>
-      <Stack gap={2}>
-        <ActionButton borderRadius="sm" onClick={handleApproveClick}>
-          Approve
-        </ActionButton>
-        <ActionButton
-          borderRadius="sm"
-          outlineColor="yellow"
-          onClick={handleReject}
-        >
-          Reject
-        </ActionButton>
-      </Stack>
+  return (
+    <Stack full gap={GapPatterns.TitleContent} className="text-white pt-4 pb-6">
+      <PageHeader title="Approve Sign Arbitrary Request" />
+      <div className="flex flex-col flex-1 gap-4 justify-between">
+        <main className="flex-1">
+          <ApprovalPanelHeader
+            numberOfTransactions={1}
+            onChangeViewData={setDisplayTransactionData}
+            viewTransactionData={displayTransactionData}
+          />
+          {message && !displayTransactionData && (
+            <TransactionCard
+              title="Sign message"
+              content={<span className="italic">{message}</span>}
+              icon={<AiOutlineMessage />}
+            />
+          )}
+          {message && displayTransactionData && (
+            <TransactionDataPanel data={getDataAsText(message)} />
+          )}
+        </main>
+        <Stack gap={2}>
+          {signer && (
+            <p className="text-xs">
+              Signer: <strong>{shortenAddress(signer)}</strong>
+            </p>
+          )}
+          <Stack gap={2}>
+            <ActionButton borderRadius="sm" onClick={handleApproveClick}>
+              Approve
+            </ActionButton>
+            <ActionButton
+              backgroundHoverColor="black"
+              textHoverColor="yellow"
+              borderRadius="sm"
+              outlineColor="yellow"
+              onClick={handleReject}
+            >
+              Reject
+            </ActionButton>
+          </Stack>
+        </Stack>
+      </div>
     </Stack>
   );
 };
