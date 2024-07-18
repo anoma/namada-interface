@@ -31,7 +31,7 @@
 
 #### Defined in
 
-[tx/schema/txDetails.ts:27](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/tx/schema/txDetails.ts#L27)
+[tx/schema/txDetails.ts:27](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/txDetails.ts#L27)
 
 ___
 
@@ -41,4 +41,4 @@ ___
 
 #### Defined in
 
-[tx/schema/txDetails.ts:24](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/tx/schema/txDetails.ts#L24)
+[tx/schema/txDetails.ts:24](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/txDetails.ts#L24)

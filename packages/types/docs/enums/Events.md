@@ -19,7 +19,7 @@
 
 #### Defined in
 
-[events.ts:5](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/events.ts#L5)
+[events.ts:5](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/events.ts#L5)
 
 ___
 
@@ -29,7 +29,7 @@ ___
 
 #### Defined in
 
-[events.ts:8](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/events.ts#L8)
+[events.ts:8](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/events.ts#L8)
 
 ___
 
@@ -39,7 +39,7 @@ ___
 
 #### Defined in
 
-[events.ts:7](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/events.ts#L7)
+[events.ts:7](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/events.ts#L7)
 
 ___
 
@@ -49,4 +49,4 @@ ___
 
 #### Defined in
 
-[events.ts:6](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/events.ts#L6)
+[events.ts:6](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/events.ts#L6)

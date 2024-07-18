@@ -22,6 +22,8 @@ import { RedelegateMsgValue } from "./redelegate";
 import { RevealPkMsgValue } from "./revealPk";
 import { SignatureMsgValue } from "./signature";
 import {
+  TransferDataMsgValue,
+  TransferMsgValue,
   TransparentTransferDataMsgValue,
   TransparentTransferMsgValue,
 } from "./transfer";
@@ -41,6 +43,8 @@ export type Schema =
   | UnbondMsgValue
   | VoteProposalMsgValue
   | WithdrawMsgValue
+  | TransferMsgValue
+  | TransferDataMsgValue
   | TransparentTransferMsgValue
   | TransparentTransferDataMsgValue
   | TxResponseMsgValue

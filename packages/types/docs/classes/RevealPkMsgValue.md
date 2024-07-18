@@ -30,7 +30,7 @@
 
 #### Defined in
 
-[tx/schema/revealPk.ts:8](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/tx/schema/revealPk.ts#L8)
+[tx/schema/revealPk.ts:8](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/revealPk.ts#L8)
 
 ## Properties
 
@@ -40,4 +40,4 @@
 
 #### Defined in
 
-[tx/schema/revealPk.ts:6](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/tx/schema/revealPk.ts#L6)
+[tx/schema/revealPk.ts:6](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/revealPk.ts#L6)

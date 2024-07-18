@@ -18,6 +18,7 @@ import {
   RevealPkMsgValue,
   SignatureMsgValue,
   SupportedTxProps,
+  TransferMsgValue,
   TransparentTransferMsgValue,
   TransparentTransferProps,
   TxDetails,
@@ -115,7 +116,7 @@ export class Tx {
           throw new Error("For RevealPK you must provide a public key!");
         }
         return await this.buildRevealPk(wrapperTxProps, publicKey);
-      case TxType.TransparentTransfer:
+      case TxType.Transfer:
         return await this.buildTransparentTransfer(
           wrapperTxProps,
           props as TransparentTransferProps,
@@ -165,7 +166,7 @@ export class Tx {
     );
 
     return await this.buildTxFromSerializedArgs(
-      TxType.TransparentTransfer,
+      TxType.Transfer,
       encodedTransfer,
       encodedTx,
       gasPayer || transferProps.data[0].source
@@ -478,8 +479,8 @@ export class Tx {
           return deserialize(data, RedelegateMsgValue);
         case TxType.VoteProposal:
           return deserialize(data, VoteProposalMsgValue);
-        case TxType.TransparentTransfer:
-          return deserialize(data, TransparentTransferMsgValue);
+        case TxType.Transfer:
+          return deserialize(data, TransferMsgValue);
         case TxType.RevealPK:
           return deserialize(data, RevealPkMsgValue);
         default:

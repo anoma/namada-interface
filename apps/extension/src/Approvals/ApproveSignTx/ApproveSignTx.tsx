@@ -8,7 +8,7 @@ import {
   AccountType,
   BondProps,
   RevealPkProps,
-  TransparentTransferProps,
+  TransferProps,
   UnbondProps,
   VoteProposalProps,
   WithdrawProps,
@@ -134,15 +134,21 @@ export const ApproveSignTx: React.FC<Props> = ({ details, setDetails }) => {
                 case TxType.Withdraw:
                   const withdraw = tx as WithdrawProps;
                   return <div key={i}>Withdraw: {withdraw.validator}</div>;
-                case TxType.TransparentTransfer:
-                  const transfer = tx as TransparentTransferProps;
+                case TxType.Transfer:
+                  const transfer = tx as TransferProps;
                   return (
                     <div key={i}>
-                      Transparent Transfer:
+                      Transfer:
                       <br />
-                      {transfer.data.map(({ source, target, amount }, j) => (
+                      {transfer.sources.map(({ owner, token, amount }, j) => (
                         <div key={`transfer-${j}`}>
-                          {source} {target} {amount}
+                          Sources: {owner} {token} {amount.toString()}
+                        </div>
+                      ))}
+                      <br />
+                      {transfer.targets.map(({ owner, token, amount }, j) => (
+                        <div key={`transfer-${j}`}>
+                          Targets: {owner} {token} {amount.toString()}
                         </div>
                       ))}
                     </div>

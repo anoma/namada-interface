@@ -37,7 +37,7 @@
 
 #### Defined in
 
-[namada.ts:48](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L48)
+[namada.ts:48](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/namada.ts#L48)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 #### Defined in
 
-[namada.ts:51](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L51)
+[namada.ts:51](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/namada.ts#L51)
 
 ## Methods
 
@@ -75,7 +75,7 @@ ___
 
 #### Defined in
 
-[namada.ts:39](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L39)
+[namada.ts:39](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/namada.ts#L39)
 
 ___
 
@@ -95,7 +95,7 @@ ___
 
 #### Defined in
 
-[namada.ts:49](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L49)
+[namada.ts:49](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/namada.ts#L49)
 
 ___
 
@@ -109,7 +109,7 @@ ___
 
 #### Defined in
 
-[namada.ts:40](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L40)
+[namada.ts:40](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/namada.ts#L40)
 
 ___
 
@@ -129,7 +129,7 @@ ___
 
 #### Defined in
 
-[namada.ts:42](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L42)
+[namada.ts:42](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/namada.ts#L42)
 
 ___
 
@@ -149,7 +149,7 @@ ___
 
 #### Defined in
 
-[namada.ts:50](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L50)
+[namada.ts:50](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/namada.ts#L50)
 
 ___
 
@@ -163,7 +163,7 @@ ___
 
 #### Defined in
 
-[namada.ts:41](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L41)
+[namada.ts:41](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/namada.ts#L41)
 
 ___
 
@@ -183,7 +183,7 @@ ___
 
 #### Defined in
 
-[namada.ts:43](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L43)
+[namada.ts:43](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/namada.ts#L43)
 
 ___
 
@@ -203,7 +203,7 @@ ___
 
 #### Defined in
 
-[namada.ts:44](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L44)
+[namada.ts:44](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/namada.ts#L44)
 
 ___
 
@@ -223,4 +223,4 @@ ___
 
 #### Defined in
 
-[namada.ts:47](https://github.com/anoma/namada-interface/blob/b81618b0/packages/types/src/namada.ts#L47)
+[namada.ts:47](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/namada.ts#L47)
