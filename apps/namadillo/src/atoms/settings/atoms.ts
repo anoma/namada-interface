@@ -4,7 +4,12 @@ import { Getter, Setter, atom, getDefaultStore } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
 import { SettingsStorage } from "types";
-import { fetchDefaultTomlConfig, isIndexerAlive, isRpcAlive } from "./services";
+import {
+  fetchDefaultTomlConfig,
+  isIndexerAlive,
+  isRpcAlive,
+  sanitizeUrl,
+} from "./services";
 
 export type ConnectStatus = "idle" | "connecting" | "connected" | "error";
 
@@ -51,9 +56,7 @@ const changeSettingsUrl =
     healthCheck: (url: string) => Promise<boolean>
   ) =>
   async (url: string) => {
-    const trimmedUrl = url.trim();
-    const sanitizedUrl =
-      trimmedUrl.endsWith("/") ? trimmedUrl.slice(0, -1) : url;
+    const sanitizedUrl = sanitizeUrl(url);
     if (!isUrlValid(sanitizedUrl)) {
       throw new Error(
         "Invalid URL. The URL should be valid and starting with 'http'."
@@ -119,7 +122,7 @@ export const indexerUrlAtom = atom((get) => {
 
 export const updateIndexerUrlAtom = atomWithMutation(() => {
   return {
-    mutationKey: ["update-rpc-url"],
+    mutationKey: ["update-indexer-url"],
     mutationFn: changeSettingsUrl("indexerUrl", isIndexerAlive),
   };
 });
