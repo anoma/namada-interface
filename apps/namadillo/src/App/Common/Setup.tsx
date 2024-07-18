@@ -1,6 +1,6 @@
 import { ActionButton, Container, Input, Stack } from "@namada/components";
-import { indexerUrlAtom } from "atoms/settings";
-import { useAtomValue, useSetAtom } from "jotai";
+import { indexerUrlAtom, updateIndexerUrlAtom } from "atoms/settings";
+import { useAtom, useAtomValue } from "jotai";
 import { useState } from "react";
 import { DISCORD_URL } from "urls";
 type SetupProps = {
@@ -10,20 +10,15 @@ type SetupProps = {
 export const Setup = ({ onChange }: SetupProps): JSX.Element => {
   const indexerUrl = useAtomValue(indexerUrlAtom);
   const [url, setUrl] = useState(indexerUrl || "");
-  const [validatingUrl, setValidatingUrl] = useState(false);
-  const [error, setError] = useState("");
-  const setIndexerAtom = useSetAtom(indexerUrlAtom);
+  const [{ mutateAsync, reset, error, isPending, isError }] =
+    useAtom(updateIndexerUrlAtom);
 
   const onSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    setValidatingUrl(true);
     try {
-      await setIndexerAtom(url);
+      await mutateAsync(url);
       onChange();
-    } catch (error) {
-      setError(String(error));
-    }
-    setValidatingUrl(false);
+    } catch {}
   };
 
   return (
@@ -63,18 +58,18 @@ export const Setup = ({ onChange }: SetupProps): JSX.Element => {
             label="Indexer URL"
             placeholder="http://example.com:5000"
             value={url}
-            error={error}
+            error={error instanceof Error ? error.message : error}
             onChange={(e) => {
               setUrl(e.target.value);
-              setError("");
+              reset();
             }}
           />
           <ActionButton
             size="lg"
             borderRadius="sm"
-            disabled={validatingUrl || !!error}
+            disabled={isPending || isError}
           >
-            {validatingUrl ? "Verifying..." : "Confirm"}
+            {isPending ? "Verifying..." : "Confirm"}
           </ActionButton>
         </form>
       </Stack>
