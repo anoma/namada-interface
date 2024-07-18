@@ -82,7 +82,7 @@ export const buildBatchTx = async <T>(
   ).data;
 
   if (!publicKey) {
-    const revealPkTx = await tx.buildRevealPk(wrapperTxProps, account.address);
+    const revealPkTx = await tx.buildRevealPk(wrapperTxProps);
     txs.push(revealPkTx.tx);
   }
 

@@ -374,54 +374,6 @@ impl Sdk {
         })
     }
 
-    /// Build transaction for specified type, return bytes to client
-    pub async fn build_tx(
-        &self,
-        tx_type: TxType,
-        specific_msg: &[u8],
-        tx_msg: &[u8],
-        gas_payer: String,
-    ) -> Result<BuiltTx, JsError> {
-        let tx = match tx_type {
-            TxType::Bond => {
-                self.build_bond(specific_msg, tx_msg, Some(gas_payer))
-                    .await?
-            }
-            TxType::Unbond => {
-                self.build_unbond(specific_msg, tx_msg, Some(gas_payer))
-                    .await?
-            }
-            TxType::Withdraw => {
-                self.build_withdraw(specific_msg, tx_msg, Some(gas_payer))
-                    .await?
-            }
-            TxType::Transfer => {
-                self.build_transfer(specific_msg, tx_msg, Some(gas_payer))
-                    .await?
-            }
-            TxType::IBCTransfer => {
-                self.build_ibc_transfer(specific_msg, tx_msg, Some(gas_payer))
-                    .await?
-            }
-            TxType::EthBridgeTransfer => {
-                self.build_eth_bridge_transfer(specific_msg, tx_msg, Some(gas_payer))
-                    .await?
-            }
-            TxType::RevealPK => self.build_reveal_pk(tx_msg, gas_payer).await?,
-            TxType::VoteProposal => {
-                self.build_vote_proposal(specific_msg, tx_msg, Some(gas_payer))
-                    .await?
-            }
-            TxType::Redelegate => {
-                self.build_redelegate(specific_msg, tx_msg, Some(gas_payer))
-                    .await?
-            }
-            TxType::Batch => todo!("build_tx called on Batch Tx! Use build_batch instead!"),
-        };
-
-        Ok(tx)
-    }
-
     // Append signatures and return tx bytes
     pub fn append_signature(
         &self,
@@ -454,7 +406,7 @@ impl Sdk {
         to_js_result(borsh::to_vec(&tx)?)
     }
 
-    pub async fn build_transfer(
+    pub async fn build_transparent_transfer(
         &self,
         transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
@@ -593,11 +545,7 @@ impl Sdk {
         })
     }
 
-    pub async fn build_reveal_pk(
-        &self,
-        wrapper_tx_msg: &[u8],
-        _gas_payer: String,
-    ) -> Result<BuiltTx, JsError> {
+    pub async fn build_reveal_pk(&self, wrapper_tx_msg: &[u8]) -> Result<BuiltTx, JsError> {
         let args = args::tx_args_from_slice(wrapper_tx_msg)?;
         let public_key = args.signing_keys[0].clone();
 
@@ -615,10 +563,10 @@ impl Sdk {
     pub async fn reveal_pk(
         &self,
         signing_key: String,
-        wraper_tx_msg: &[u8],
+        wrapper_tx_msg: &[u8],
         chain_id: Option<String>,
     ) -> Result<(), JsError> {
-        let args = args::tx_args_from_slice(wraper_tx_msg)?;
+        let args = args::tx_args_from_slice(wrapper_tx_msg)?;
         let pk = &args
             .signing_keys
             .clone()
@@ -628,14 +576,12 @@ impl Sdk {
         let address = Address::from(pk);
 
         if is_reveal_pk_needed(self.namada.client(), &address).await? {
-            let built_tx = self
-                .build_reveal_pk(wraper_tx_msg, String::from(""))
-                .await?;
+            let built_tx = self.build_reveal_pk(wrapper_tx_msg).await?;
             // Conversion from JsValue so we can use self.sign_tx
             let tx_bytes =
                 Uint8Array::new(&self.sign_tx(built_tx, Some(signing_key), chain_id).await?)
                     .to_vec();
-            self.process_tx(&tx_bytes, wraper_tx_msg).await?;
+            self.process_tx(&tx_bytes, wrapper_tx_msg).await?;
         }
 
         Ok(())

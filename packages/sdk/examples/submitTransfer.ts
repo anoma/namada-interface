@@ -52,7 +52,7 @@ export const submitTransfer = async (
 
     console.log("Broadcasting transaction...");
     await sdk.rpc.broadcastTx({
-      wrapperTxMsg: encodedTx.txMsg,
+      wrapperTxMsg: encodedTx.wrapperTxMsg,
       tx: signedTx,
     });
     process.exit(0);

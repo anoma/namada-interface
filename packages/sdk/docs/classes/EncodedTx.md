@@ -13,7 +13,7 @@ Wrap results of tx building along with TxMsg
 ### Properties
 
 - [tx](EncodedTx.md#tx)
-- [txMsg](EncodedTx.md#txmsg)
+- [wrapperTxMsg](EncodedTx.md#wrappertxmsg)
 
 ### Methods
 
@@ -25,7 +25,7 @@ Wrap results of tx building along with TxMsg
 
 ### constructor
 
-• **new EncodedTx**(`txMsg`, `tx`): [`EncodedTx`](EncodedTx.md)
+• **new EncodedTx**(`wrapperTxMsg`, `tx`): [`EncodedTx`](EncodedTx.md)
 
 Create an EncodedTx class
 
@@ -33,7 +33,7 @@ Create an EncodedTx class
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `txMsg` | `Uint8Array` | Borsh-serialized transaction |
+| `wrapperTxMsg` | `Uint8Array` | Borsh-serialized wrapper tx args |
 | `tx` | [`BuiltTx`](BuiltTx.md) | Specific tx struct instance |
 
 #### Returns
@@ -42,7 +42,7 @@ Create an EncodedTx class
 
 #### Defined in
 
-[sdk/src/tx/types.ts:12](https://github.com/anoma/namada-interface/blob/377244de/packages/sdk/src/tx/types.ts#L12)
+[sdk/src/tx/types.ts:12](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/types.ts#L12)
 
 ## Properties
 
@@ -54,19 +54,19 @@ Specific tx struct instance
 
 #### Defined in
 
-[sdk/src/tx/types.ts:14](https://github.com/anoma/namada-interface/blob/377244de/packages/sdk/src/tx/types.ts#L14)
+[sdk/src/tx/types.ts:14](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/types.ts#L14)
 
 ___
 
-### txMsg
+### wrapperTxMsg
 
-• `Readonly` **txMsg**: `Uint8Array`
+• `Readonly` **wrapperTxMsg**: `Uint8Array`
 
-Borsh-serialized transaction
+Borsh-serialized wrapper tx args
 
 #### Defined in
 
-[sdk/src/tx/types.ts:13](https://github.com/anoma/namada-interface/blob/377244de/packages/sdk/src/tx/types.ts#L13)
+[sdk/src/tx/types.ts:13](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/types.ts#L13)
 
 ## Methods
 
@@ -82,7 +82,7 @@ Clear tx bytes resource
 
 #### Defined in
 
-[sdk/src/tx/types.ts:39](https://github.com/anoma/namada-interface/blob/377244de/packages/sdk/src/tx/types.ts#L39)
+[sdk/src/tx/types.ts:39](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/types.ts#L39)
 
 ___
 
@@ -100,7 +100,7 @@ string of tx hash
 
 #### Defined in
 
-[sdk/src/tx/types.ts:32](https://github.com/anoma/namada-interface/blob/377244de/packages/sdk/src/tx/types.ts#L32)
+[sdk/src/tx/types.ts:32](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/types.ts#L32)
 
 ___
 
@@ -119,4 +119,4 @@ Serialized tx bytes
 
 #### Defined in
 
-[sdk/src/tx/types.ts:22](https://github.com/anoma/namada-interface/blob/377244de/packages/sdk/src/tx/types.ts#L22)
+[sdk/src/tx/types.ts:22](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/types.ts#L22)
