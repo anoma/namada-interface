@@ -134,50 +134,11 @@ export AR=/opt/homebrew/opt/llvm/bin/llvm-ar
 
 ### Local chain
 
-Before you start the extension and interface, you will need at least a chain ID and an RPC URL. This can either be a local chain or an
+Before you start the extension and interface, you will need at least a chain ID, an RPC URL, and an Indexer URL. This can either be a local chain or an
 existing network. If you know the chain ID and URL, you can skip the following and simply enter these values on the app interface.
 
-To build and run the chain locally, you will need to clone <http://github.com/anoma/namada>.
-
-1. In `namada/`, first run `make build`, then `make install`
-2. Initialize a local chain with:
-
-   ```bash
-   namadac utils init-network --genesis-path genesis/e2e-tests-single-node.toml --wasm-checksums-path wasm/checksums.json --chain-prefix local --unsafe-dont-encrypt --localhost --allow-duplicate-ip
-   ```
-
-   Make note of the chain ID from this output! This will be used below where `{CHAIN_ID}` is denoted (replace these instances
-   with the actual chain ID). 3. To transfer funds from faucet via the CLI, you will need to create a wallet:
-
-   ```bash
-   namadaw key gen --alias my-key
-   ```
-
-3. Before running the chain, you will need to change one configuration file:
-   - On Linux: Edit `~/.local/share/namada/{CHAIN_ID}/setup/validator-0/.namada/{CHAIN_ID}/config.toml`
-   - On macOS: Edit `~/Library/Application\ Support/Namada/{CHAIN_ID}/setup/validator-0/.namada/{CHAIN_ID}/config.toml`
-4. In `config.toml`, change the line `cors_allowed_origins = []` to `cors_allowed_origins = ["*"]`, then save and close.
-5. You can now start the local chain
-
-   - On Linux:
-
-   ```bash
-   namadan --chain-id {CHAIN_ID} --base-dir ~/.local/share/Namada/{CHAIN_ID}/setup/validator-0/.namada ledger run
-   ```
-
-   - On macOS:
-
-   ```bash
-   namadan --chain-id {CHAIN_ID} --base-dir ~/Library/Application\ Support/Namada/{CHAIN_ID}/setup/validator-0/.namada ledger run
-   ```
-
-6. Edit the following value in `namada-interface/apps/namadillo/.env` (remember to replace `{CHAIN_ID}`
-   with the actual chain ID from above):
-
-   ```bash
-   NAMADA_INTERFACE_NAMADA_CHAIN_ID={CHAIN_ID}
-   NAMADA_INTERFACE_NAMADA_URL=http://127.0.0.1:27657/
-   ```
+- To install and run Namada locally, refer to these [instructions](https://docs.namada.net/operators/networks/local-network).
+- To run a local indexer, follow these [instructions](https://github.com/anoma/namada-indexer). Ensure that the `TENDERMINT_URL` in your `.env` file points to your local RPC (default is `http://localhost:27657`) or to a public RPC.
 
 ### Extension
 
@@ -211,8 +172,8 @@ Within `apps/namadillo/`, we may issue the following commands:
 # Make sure to build wasm dependencies before starting development server
 yarn wasm:build
 
-# Run development interface, hosted at http://localhost:3000
-yarn dev:local
+# Run development interface, hosted at http://localhost:5173
+yarn dev
 
 # Build production version
 yarn build
@@ -238,10 +199,6 @@ yarn lint
 # Fix linting on all packages
 yarn lint:fix
 ```
-
-#### e2e
-
-TBA
 
 ### Storybook
 
