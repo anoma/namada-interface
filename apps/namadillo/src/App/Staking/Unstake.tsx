@@ -8,7 +8,6 @@ import { TableRowLoading } from "App/Common/TableRowLoading";
 import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { TransactionFees } from "App/Common/TransactionFees";
 import { defaultAccountAtom } from "atoms/accounts";
-import { checksumsAtom } from "atoms/checksums";
 import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
 import { dispatchToastNotificationAtom } from "atoms/notifications";
 import { createUnbondTxAtom } from "atoms/staking";
@@ -29,7 +28,6 @@ import StakingRoutes from "./routes";
 const Unstake = (): JSX.Element => {
   const navigate = useNavigate();
   const { data: account } = useAtomValue(defaultAccountAtom);
-  const { data: checksums } = useAtomValue(checksumsAtom);
   const validators = useAtomValue(myValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
@@ -82,7 +80,6 @@ const Unstake = (): JSX.Element => {
         gasPrice: minimumGasPrice.data!,
         gasLimit: unbondGasLimit.multipliedBy(changes.length),
       },
-      checksums,
     });
   };
 
@@ -111,7 +108,7 @@ const Unstake = (): JSX.Element => {
             errorMessage={
               unstakeTxError instanceof Error ?
                 unstakeTxError.message
-              : undefined
+                : undefined
             }
           />
         ),
@@ -256,7 +253,7 @@ const Unstake = (): JSX.Element => {
             >
               {isPerformingUnbond ?
                 "Processing..."
-              : validationMessage || "Unstake"}
+                : validationMessage || "Unstake"}
             </ActionButton>
             <TransactionFees
               className="justify-self-end px-4"

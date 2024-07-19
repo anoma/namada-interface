@@ -3,13 +3,14 @@ import { getIntegration } from "@namada/integrations";
 import {
   Account,
   Signer,
-  WasmHash,
   WrapperTxMsgValue,
   WrapperTxProps,
 } from "@namada/types";
 import { getIndexerApi } from "atoms/api";
+import { chainParametersAtom } from "atoms/chain";
 import { getSdkInstance } from "hooks";
 import invariant from "invariant";
+import { getDefaultStore } from "jotai";
 import { ChainSettings, GasConfig } from "types";
 import { TransactionEventsClasses } from "types/events";
 
@@ -113,11 +114,14 @@ export const buildBatchTx = async <T>(
 export const signTx = async <T>(
   chain: ChainSettings,
   typedEncodedTx: EncodedTxData<T>,
-  owner: string,
-  checksums?: WasmHash[]
+  owner: string
 ): Promise<Uint8Array> => {
   const integration = getIntegration(chain.id);
   const signingClient = integration.signer() as Signer;
+
+  const store = getDefaultStore();
+  const { data: chainParameters } = store.get(chainParametersAtom);
+  const checksums = chainParameters?.checksums;
 
   try {
     // Sign batch Tx
@@ -156,8 +160,7 @@ export const buildTxPair = async <T>(
   chain: ChainSettings,
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<EncodedTx>,
-  owner: string,
-  checksums?: WasmHash[]
+  owner: string
 ): Promise<TransactionPair<T>> => {
   const encodedTxData = await buildBatchTx<T>(
     account,
@@ -166,7 +169,7 @@ export const buildTxPair = async <T>(
     queryProps,
     txFn
   );
-  const signedTx = await signTx<T>(chain, encodedTxData, owner, checksums);
+  const signedTx = await signTx<T>(chain, encodedTxData, owner);
   return {
     signedTx,
     encodedTxData,

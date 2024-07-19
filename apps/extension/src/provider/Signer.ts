@@ -6,7 +6,6 @@ import {
   Namada,
   SignArbitraryResponse,
   TxData,
-  WasmHash,
 } from "@namada/types";
 
 export class Signer implements ISigner {
@@ -49,7 +48,7 @@ export class Signer implements ISigner {
     { txBytes, signingDataBytes }: TxData,
     signer: string,
     wrapperTxMsg: Uint8Array,
-    checksums?: WasmHash[]
+    checksums?: Record<string, string>
   ): Promise<Uint8Array | undefined> {
     return await this._namada.sign({
       txType,

@@ -7,11 +7,6 @@ export type SignArbitraryProps = {
   data: string;
 };
 
-export type WasmHash = {
-  path: string;
-  hash: string;
-};
-
 export type SignProps = {
   // TODO: Simplify these props!
   // Remove txType & wrapperTxMsg!
@@ -19,7 +14,7 @@ export type SignProps = {
   signer: string;
   tx: TxData;
   wrapperTxMsg: Uint8Array;
-  checksums?: WasmHash[];
+  checksums?: Record<string, string>;
 };
 
 export type VerifyArbitraryProps = {

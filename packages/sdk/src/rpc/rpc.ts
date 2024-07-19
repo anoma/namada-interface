@@ -4,7 +4,7 @@ import {
   Sdk as SdkWasm,
   TransferToEthereum,
 } from "@namada/shared";
-import { TxResponseMsgValue, TxResponseProps, WasmHash } from "@namada/types";
+import { TxResponseMsgValue, TxResponseProps } from "@namada/types";
 
 import { SignedTx } from "../tx/types";
 import {
@@ -17,6 +17,7 @@ import {
   StakingTotals,
   StakingTotalsResponse,
   UnbondsResponse,
+  WasmHash,
 } from "./types";
 
 /**
@@ -192,10 +193,19 @@ export class Rpc {
   /**
    * Query code paths and their associated hash on chain
    * @async
-   * @returns WasmHash[]
+   * @returns Object
    */
-  async queryWasmHashes(): Promise<WasmHash[]> {
-    return await this.query.query_wasm_hashes();
+  async queryChecksums(): Promise<Record<string, string>> {
+    const wasmHashes: WasmHash[] = await this.query.query_wasm_hashes();
+    const checksums = wasmHashes.reduce(
+      (acc: Record<string, string>, { path, hash }: WasmHash) => {
+        acc[path] = hash;
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+
+    return checksums;
   }
 
   /**

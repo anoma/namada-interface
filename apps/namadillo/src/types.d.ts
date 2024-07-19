@@ -1,4 +1,4 @@
-import { ChainKey, ExtensionKey, WasmHash } from "@namada/types";
+import { ChainKey, ExtensionKey } from "@namada/types";
 import BigNumber from "bignumber.js";
 
 // TODO: can we remove this Unique type? We shouldn't be using uuids anywhere
@@ -31,6 +31,7 @@ export type ChainSettings = {
   chainId: string;
   unbondingPeriodInEpochs: number;
   extensionId: ExtensionKey;
+  checksums: Record<string, string>;
 };
 
 export type SettingsTomlOptions = {
@@ -50,6 +51,7 @@ export type ChainParameters = {
   chainId: string;
   nativeTokenAddress: Address;
   epochInfo: EpochInfo;
+  checksums: Record<string, string>;
 };
 
 export type SettingsStorage = {
@@ -96,7 +98,6 @@ export type ChangeInStakingProps = {
   account: Account;
   changes: ChangeInStakingPosition[];
   gasConfig: GasConfig;
-  checksums?: WasmHash[];
 };
 
 export type ChangeInStakingPosition = {
@@ -108,7 +109,6 @@ export type RedelegateChangesProps = {
   account: Account;
   changes: RedelegateChange[];
   gasConfig: GasConfig;
-  checksums?: WasmHash[];
 };
 
 export type RedelegateChange = {

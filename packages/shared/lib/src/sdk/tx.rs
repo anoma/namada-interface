@@ -173,7 +173,7 @@ impl TxDetails {
                         });
 
                     if tx_code_id.is_some() {
-                        let tx_code_id = tx_code_id.unwrap().to_uppercase();
+                        let tx_code_id = tx_code_id.unwrap();
                         let tx_type = wasm_hash_to_tx_type(&tx_code_id, &wasm_hashes);
 
                         if tx_type.is_some() {

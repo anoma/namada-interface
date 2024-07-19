@@ -19,7 +19,6 @@ import {
   Vote,
   VoteProposalProps,
   VoteType,
-  WasmHash,
 } from "@namada/types";
 import { assertNever, mapUndefined } from "@namada/utils";
 import BigNumber from "bignumber.js";
@@ -129,7 +128,7 @@ const decodeProposalType = (
             ] =
               "Add" in continuous ?
                 [continuous["Add"], "add" as const]
-              : [continuous["Remove"], "remove" as const];
+                : [continuous["Remove"], "remove" as const];
 
             const amountAsBigNumber = BigNumber(amount);
 
@@ -381,8 +380,7 @@ export const createVoteProposalTx = async (
   vote: VoteType,
   account: Account,
   gasConfig: GasConfig,
-  chain: ChainSettings,
-  checksums?: WasmHash[]
+  chain: ChainSettings
 ): Promise<TransactionPair<VoteProposalProps>> => {
   try {
     const { tx } = await getSdkInstance();
@@ -399,8 +397,7 @@ export const createVoteProposalTx = async (
       chain,
       [voteProposalProps],
       tx.buildVoteProposal,
-      account.address,
-      checksums
+      account.address
     );
     return transactionPair;
   } catch (err) {

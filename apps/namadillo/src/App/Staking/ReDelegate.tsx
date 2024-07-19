@@ -4,7 +4,6 @@ import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { defaultAccountAtom } from "atoms/accounts";
-import { checksumsAtom } from "atoms/checksums";
 import { gasLimitsAtom } from "atoms/fees";
 import { dispatchToastNotificationAtom } from "atoms/notifications";
 import { createReDelegateTxAtom } from "atoms/staking";
@@ -38,7 +37,6 @@ export const ReDelegate = (): JSX.Element => {
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(allValidatorsAtom);
-  const { data: checksums } = useAtomValue(checksumsAtom);
   const {
     totalStakedAmount,
     totalUpdatedAmount: totalToRedelegate,
@@ -103,7 +101,7 @@ export const ReDelegate = (): JSX.Element => {
             errorMessage={
               redelegateTxError instanceof Error ?
                 redelegateTxError.message
-              : undefined
+                : undefined
             }
           />
         ),
@@ -140,7 +138,6 @@ export const ReDelegate = (): JSX.Element => {
         gasLimit: redelegateGasLimit.multipliedBy(changes.length),
       },
       account,
-      checksums,
     });
   };
 

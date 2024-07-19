@@ -1,10 +1,5 @@
 import { TxType } from "@heliax/namada-sdk/web";
-import {
-  Chain,
-  DerivedAccount,
-  SignArbitraryResponse,
-  WasmHash,
-} from "@namada/types";
+import { Chain, DerivedAccount, SignArbitraryResponse } from "@namada/types";
 import { EncodedTxData } from "background/approvals";
 import { Message } from "router";
 import { validateProps } from "utils";
@@ -47,7 +42,7 @@ export class ApproveSignTxMsg extends Message<Uint8Array> {
     public readonly tx: EncodedTxData,
     public readonly signer: string,
     public readonly wrapperTxMsg: string,
-    public readonly checksums?: WasmHash[]
+    public readonly checksums?: Record<string, string>
   ) {
     super();
   }

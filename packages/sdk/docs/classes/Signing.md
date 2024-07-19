@@ -40,7 +40,7 @@ Signing constructor
 
 #### Defined in
 
-[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/signing.ts#L13)
+[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/signing.ts#L13)
 
 ## Properties
 
@@ -52,7 +52,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/signing.ts#L13)
+[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/signing.ts#L13)
 
 ## Methods
 
@@ -78,7 +78,7 @@ signed tx bytes - Promise resolving to Uint8Array
 
 #### Defined in
 
-[sdk/src/signing.ts:22](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/signing.ts#L22)
+[sdk/src/signing.ts:22](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/signing.ts#L22)
 
 ___
 
@@ -103,7 +103,7 @@ hash and signature
 
 #### Defined in
 
-[sdk/src/signing.ts:36](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/signing.ts#L36)
+[sdk/src/signing.ts:36](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/signing.ts#L36)
 
 ___
 
@@ -129,4 +129,4 @@ void
 
 #### Defined in
 
-[sdk/src/signing.ts:47](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/signing.ts#L47)
+[sdk/src/signing.ts:47](https://github.com/anoma/namada-interface/blob/4f0a4dbf/packages/sdk/src/signing.ts#L47)

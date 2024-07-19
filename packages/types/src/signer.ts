@@ -1,5 +1,4 @@
 import { Account } from "./account";
-import { WasmHash } from "./namada";
 
 export type SignArbitraryResponse = {
   hash: string;
@@ -21,7 +20,7 @@ export interface Signer {
     tx: TxData,
     signer: string,
     wrapperTxMsg: Uint8Array,
-    checksums?: WasmHash[]
+    checksums?: Record<string, string>
   ) => Promise<Uint8Array | undefined>;
   signArbitrary: (
     signer: string,

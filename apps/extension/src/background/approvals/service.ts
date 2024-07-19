@@ -4,7 +4,7 @@ import browser, { Windows } from "webextension-polyfill";
 
 import { BuiltTx, TxType } from "@heliax/namada-sdk/web";
 import { KVStore } from "@namada/storage";
-import { SignArbitraryResponse, TxDetails, WasmHash } from "@namada/types";
+import { SignArbitraryResponse, TxDetails } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 
 import { ChainsService } from "background/chains";
@@ -40,7 +40,7 @@ export class ApprovalsService {
     signer: string,
     tx: EncodedTxData,
     wrapperTxMsg: string,
-    checksums?: WasmHash[]
+    checksums?: Record<string, string>
   ): Promise<Uint8Array> {
     const msgId = uuid();
 
@@ -273,7 +273,7 @@ export class ApprovalsService {
     }
 
     const { tx } = this.sdkService.getSdk();
-    return tx.deserialize(pendingTx.tx.txBytes, pendingTx.checksums || []);
+    return tx.deserialize(pendingTx.tx.txBytes, pendingTx.checksums || {});
   }
 
   async querySignArbitraryDetails(msgId: string): Promise<string> {
