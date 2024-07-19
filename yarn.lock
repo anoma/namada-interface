@@ -19944,15 +19944,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"git-commit-msg-linter@npm:^5.0.4":
-  version: 5.0.4
-  resolution: "git-commit-msg-linter@npm:5.0.4"
+"git-commit-msg-linter@npm:^5.0.6":
+  version: 5.0.8
+  resolution: "git-commit-msg-linter@npm:5.0.8"
   dependencies:
     chalk: "npm:^2.4.2"
     commit-msg-linter: "npm:^1.0.0"
   bin:
     commit-msg-linter: cli/validate.js
-  checksum: dd0c11bc91cb012638c4afb35a34afb7969da126c98702608c66d25e29aecec631489a6f9c8b40147a34f0aeb0a8a3e0ff67b6ebf54db82bf185b8cb6bcc34bc
+  checksum: edfd4186e2fd1a0dfc593b863705cbd0b2d0f92b9da82b6277815717ac64b78c744b527cae78da7d7c97e57acce7765affdca813a2b686884b3f95b05c152aa4
   languageName: node
   linkType: hard
 
@@ -27100,7 +27100,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^6.13.0"
     "@typescript-eslint/parser": "npm:^6.13.0"
     eslint: "npm:^8.49.0"
-    git-commit-msg-linter: "npm:^5.0.4"
+    git-commit-msg-linter: "npm:^5.0.6"
     husky: "npm:^8.0.3"
     jsdoc-to-markdown: "npm:^8.0.1"
     lint-staged: "npm:^15.2.0"
