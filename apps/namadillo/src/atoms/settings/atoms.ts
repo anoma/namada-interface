@@ -1,15 +1,10 @@
-import { CurrencyType, isUrlValid } from "@namada/utils";
+import { CurrencyType, isUrlValid, sanitizeUrl } from "@namada/utils";
 import { indexerRpcUrlAtom } from "atoms/chain";
 import { Getter, Setter, atom, getDefaultStore } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
 import { SettingsStorage } from "types";
-import {
-  fetchDefaultTomlConfig,
-  isIndexerAlive,
-  isRpcAlive,
-  sanitizeUrl,
-} from "./services";
+import { fetchDefaultTomlConfig, isIndexerAlive, isRpcAlive } from "./services";
 
 export type ConnectStatus = "idle" | "connecting" | "connected" | "error";
 
@@ -59,7 +54,7 @@ const changeSettingsUrl =
     const sanitizedUrl = sanitizeUrl(url);
     if (!isUrlValid(sanitizedUrl)) {
       throw new Error(
-        "Invalid URL. The URL should be valid and starting with 'http'."
+        "Invalid URL. The URL should be valid starting with 'http', 'https', 'ws', or 'wss'."
       );
     }
     if (await healthCheck(sanitizedUrl)) {

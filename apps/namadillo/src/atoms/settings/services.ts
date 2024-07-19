@@ -3,17 +3,8 @@ import { isUrlValid } from "@namada/utils";
 import toml from "toml";
 import { SettingsTomlOptions } from "types";
 
-export const sanitizeUrl = (url: string): string => {
-  const trimmedUrl = url.trim();
-  const sanitizedUrl = trimmedUrl.endsWith("/") ? trimmedUrl.slice(0, -1) : url;
-  if (!isUrlValid(sanitizedUrl)) {
-    return "";
-  }
-  return sanitizedUrl;
-};
-
 export const isIndexerAlive = async (url: string): Promise<boolean> => {
-  if (!url.startsWith("http")) {
+  if (!isUrlValid(url)) {
     return false;
   }
   try {
@@ -26,7 +17,7 @@ export const isIndexerAlive = async (url: string): Promise<boolean> => {
 };
 
 export const isRpcAlive = async (url: string): Promise<boolean> => {
-  if (!url.startsWith("http")) {
+  if (!isUrlValid(url)) {
     return false;
   }
   try {

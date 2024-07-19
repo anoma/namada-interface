@@ -344,8 +344,19 @@ export const matchMapFn = (
 export const isUrlValid = (url: string): boolean => {
   try {
     const newUrl = new URL(url);
-    return newUrl.protocol === "http:" || newUrl.protocol === "https:";
+    return ["http:", "https:", "ws:", "wss:"].includes(newUrl.protocol);
   } catch (err) {
     return false;
   }
+};
+
+/**
+ * Sanitize the url removing leading and trailing spaces as well the trailing slash
+ *
+ * @param {string} url
+ * @returns {string}
+ */
+export const sanitizeUrl = (url: string): string => {
+  const trimmedUrl = url.trim();
+  return trimmedUrl.endsWith("/") ? trimmedUrl.slice(0, -1) : url;
 };
