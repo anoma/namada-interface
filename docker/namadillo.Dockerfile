@@ -19,4 +19,5 @@ RUN yarn build
 
 FROM nginx:alpine
 COPY --from=builder /app/apps/namadillo/dist /usr/share/nginx/html
-COPY ./docker/namadillo.conf /etc/nginx/conf.d/default.conf
+COPY ./docker/namadillo-nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./docker/namadillo.config.tom[l] /usr/share/nginx/html/config.toml
