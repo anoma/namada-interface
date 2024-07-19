@@ -17,7 +17,7 @@ const container = tv({
         base: "items-stretch py-0 w-full",
         header: "absolute top-0 w-full left-0 h-17",
         wrapper:
-          "rounded-none min-h-[320px] min-w-full basis-[min-content] px-5",
+          "rounded-none min-h-[600px] min-w-full basis-[min-content] px-5",
       },
       base: {
         wrapper: "w-[540px] min-h-[600px] pb-10",
