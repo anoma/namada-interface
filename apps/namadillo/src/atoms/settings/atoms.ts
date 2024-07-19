@@ -1,10 +1,10 @@
-import { CurrencyType } from "@namada/utils";
+import { CurrencyType, isUrlValid, sanitizeUrl } from "@namada/utils";
 import { indexerRpcUrlAtom } from "atoms/chain";
-import { Getter, Setter, atom } from "jotai";
-import { atomWithQuery } from "jotai-tanstack-query";
+import { Getter, Setter, atom, getDefaultStore } from "jotai";
+import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
 import { SettingsStorage } from "types";
-import { fetchDefaultTomlConfig, isIndexerAlive } from "./services";
+import { fetchDefaultTomlConfig, isIndexerAlive, isRpcAlive } from "./services";
 
 export type ConnectStatus = "idle" | "connecting" | "connected" | "error";
 
@@ -45,6 +45,28 @@ const changeSettings =
     set(settingsAtom, { ...settings, [key]: value });
   };
 
+const changeSettingsUrl =
+  (
+    key: keyof SettingsStorage,
+    healthCheck: (url: string) => Promise<boolean>
+  ) =>
+  async (url: string) => {
+    const sanitizedUrl = sanitizeUrl(url);
+    if (!isUrlValid(sanitizedUrl)) {
+      throw new Error(
+        "Invalid URL. The URL should be valid starting with 'http', 'https', 'ws', or 'wss'."
+      );
+    }
+    if (await healthCheck(sanitizedUrl)) {
+      const { get, set } = getDefaultStore();
+      changeSettings(key)(get, set, sanitizedUrl);
+    } else {
+      throw new Error(
+        "Couldn't reach the URL. Please provide a valid Namada URL service."
+      );
+    }
+  };
+
 export const selectedCurrencyAtom = atom(
   (get) => get(settingsAtom).fiat,
   changeSettings<CurrencyType>("fiat")
@@ -70,7 +92,14 @@ export const rpcUrlAtom = atom((get) => {
   if (indexerRpc) return indexerRpc;
 
   return "";
-}, changeSettings<string>("rpcUrl"));
+});
+
+export const updateRpcUrlAtom = atomWithMutation(() => {
+  return {
+    mutationKey: ["update-rpc-url"],
+    mutationFn: changeSettingsUrl("rpcUrl", isRpcAlive),
+  };
+});
 
 /**
  * Returns Indexer url
@@ -84,7 +113,14 @@ export const indexerUrlAtom = atom((get) => {
   if (tomlIndexerUrl) return tomlIndexerUrl;
 
   return "";
-}, changeSettings<string>("indexerUrl"));
+});
+
+export const updateIndexerUrlAtom = atomWithMutation(() => {
+  return {
+    mutationKey: ["update-indexer-url"],
+    mutationFn: changeSettingsUrl("indexerUrl", isIndexerAlive),
+  };
+});
 
 export const signArbitraryEnabledAtom = atom(
   (get) => get(settingsAtom).signArbitraryEnabled,

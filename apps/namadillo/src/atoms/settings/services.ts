@@ -1,12 +1,28 @@
 import { DefaultApi } from "@anomaorg/namada-indexer-client";
+import { isUrlValid } from "@namada/utils";
 import toml from "toml";
 import { SettingsTomlOptions } from "types";
 
 export const isIndexerAlive = async (url: string): Promise<boolean> => {
+  if (!isUrlValid(url)) {
+    return false;
+  }
   try {
     const api = new DefaultApi({ basePath: url });
     const response = await api.healthGet();
     return response.status === 200;
+  } catch {
+    return false;
+  }
+};
+
+export const isRpcAlive = async (url: string): Promise<boolean> => {
+  if (!isUrlValid(url)) {
+    return false;
+  }
+  try {
+    const response = await fetch(`${url}/health`);
+    return response.ok && response.status === 200;
   } catch {
     return false;
   }
