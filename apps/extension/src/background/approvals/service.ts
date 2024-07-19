@@ -299,7 +299,7 @@ export class ApprovalsService {
     return browser.windows.create({
       url,
       width: 396,
-      height: 510,
+      height: 640,
       type: "popup",
     });
   };
