@@ -10,23 +10,19 @@
 
 ### Properties
 
-- [amount](TransparentTransferMsgValue.md#amount)
-- [nativeToken](TransparentTransferMsgValue.md#nativetoken)
-- [source](TransparentTransferMsgValue.md#source)
-- [target](TransparentTransferMsgValue.md#target)
-- [token](TransparentTransferMsgValue.md#token)
+- [data](TransparentTransferMsgValue.md#data)
 
 ## Constructors
 
 ### constructor
 
-• **new TransparentTransferMsgValue**(`data`): [`TransparentTransferMsgValue`](TransparentTransferMsgValue.md)
+• **new TransparentTransferMsgValue**(`«destructured»`): [`TransparentTransferMsgValue`](TransparentTransferMsgValue.md)
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `data` | [`TransparentTransferMsgValue`](TransparentTransferMsgValue.md) |
+| `«destructured»` | [`TransparentTransferMsgValue`](TransparentTransferMsgValue.md) |
 
 #### Returns
 
@@ -34,54 +30,14 @@
 
 #### Defined in
 
-[tx/schema/transparentTransfer.ts:23](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/transparentTransfer.ts#L23)
+[tx/schema/transfer.ts:32](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/transfer.ts#L32)
 
 ## Properties
 
-### amount
+### data
 
-• **amount**: `BigNumber`
-
-#### Defined in
-
-[tx/schema/transparentTransfer.ts:18](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/transparentTransfer.ts#L18)
-
-___
-
-### nativeToken
-
-• **nativeToken**: `string`
+• **data**: [`TransparentTransferDataMsgValue`](TransparentTransferDataMsgValue.md)[]
 
 #### Defined in
 
-[tx/schema/transparentTransfer.ts:21](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/transparentTransfer.ts#L21)
-
-___
-
-### source
-
-• **source**: `string`
-
-#### Defined in
-
-[tx/schema/transparentTransfer.ts:9](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/transparentTransfer.ts#L9)
-
-___
-
-### target
-
-• **target**: `string`
-
-#### Defined in
-
-[tx/schema/transparentTransfer.ts:12](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/transparentTransfer.ts#L12)
-
-___
-
-### token
-
-• **token**: `string`
-
-#### Defined in
-
-[tx/schema/transparentTransfer.ts:15](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/transparentTransfer.ts#L15)
+[tx/schema/transfer.ts:30](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/transfer.ts#L30)

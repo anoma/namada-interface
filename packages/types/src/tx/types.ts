@@ -1,13 +1,13 @@
 import {
   BatchTxResultMsgValue,
   BondMsgValue,
-  CommitmentMsgValue,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
   RedelegateMsgValue,
   SignatureMsgValue,
+  TransferMsgValue,
+  TransparentTransferDataMsgValue,
   TransparentTransferMsgValue,
-  TxDetailsMsgValue,
   TxResponseMsgValue,
   UnbondMsgValue,
   VoteProposalMsgValue,
@@ -18,13 +18,13 @@ import { RevealPkMsgValue } from "./schema/revealPk";
 
 export type BatchTxResultProps = BatchTxResultMsgValue;
 export type BondProps = BondMsgValue;
-export type CommitmentProps = CommitmentMsgValue;
 export type EthBridgeTransferProps = EthBridgeTransferMsgValue;
 export type IbcTransferProps = IbcTransferMsgValue;
 export type RedelegateProps = RedelegateMsgValue;
 export type SignatureProps = SignatureMsgValue;
+export type TransferProps = TransferMsgValue;
 export type TransparentTransferProps = TransparentTransferMsgValue;
-export type TxDetailsProps = TxDetailsMsgValue;
+export type TransparentTransferDataProps = TransparentTransferDataMsgValue;
 export type TxResponseProps = TxResponseMsgValue;
 export type UnbondProps = UnbondMsgValue;
 export type VoteProposalProps = VoteProposalMsgValue;
@@ -40,7 +40,7 @@ export type SupportedTxProps =
   | EthBridgeTransferProps
   | IbcTransferProps
   | VoteProposalProps
-  | TransparentTransferProps
+  | TransferProps
   | RevealPkProps;
 
 export type CommitmentDetailProps = SupportedTxProps & {

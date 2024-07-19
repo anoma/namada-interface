@@ -11,7 +11,6 @@
 ### Properties
 
 - [chainId](WrapperTxMsgValue.md#chainid)
-- [disposableSigningKey](WrapperTxMsgValue.md#disposablesigningkey)
 - [feeAmount](WrapperTxMsgValue.md#feeamount)
 - [gasLimit](WrapperTxMsgValue.md#gaslimit)
 - [memo](WrapperTxMsgValue.md#memo)
@@ -36,7 +35,7 @@
 
 #### Defined in
 
-[tx/schema/wrapperTx.ts:29](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/wrapperTx.ts#L29)
+[tx/schema/wrapperTx.ts:26](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/wrapperTx.ts#L26)
 
 ## Properties
 
@@ -46,17 +45,7 @@
 
 #### Defined in
 
-[tx/schema/wrapperTx.ts:18](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/wrapperTx.ts#L18)
-
-___
-
-### disposableSigningKey
-
-• `Optional` **disposableSigningKey**: `boolean`
-
-#### Defined in
-
-[tx/schema/wrapperTx.ts:24](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/wrapperTx.ts#L24)
+[tx/schema/wrapperTx.ts:18](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/wrapperTx.ts#L18)
 
 ___
 
@@ -66,7 +55,7 @@ ___
 
 #### Defined in
 
-[tx/schema/wrapperTx.ts:12](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/wrapperTx.ts#L12)
+[tx/schema/wrapperTx.ts:12](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/wrapperTx.ts#L12)
 
 ___
 
@@ -76,7 +65,7 @@ ___
 
 #### Defined in
 
-[tx/schema/wrapperTx.ts:15](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/wrapperTx.ts#L15)
+[tx/schema/wrapperTx.ts:15](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/wrapperTx.ts#L15)
 
 ___
 
@@ -86,7 +75,7 @@ ___
 
 #### Defined in
 
-[tx/schema/wrapperTx.ts:27](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/wrapperTx.ts#L27)
+[tx/schema/wrapperTx.ts:24](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/wrapperTx.ts#L24)
 
 ___
 
@@ -96,7 +85,7 @@ ___
 
 #### Defined in
 
-[tx/schema/wrapperTx.ts:21](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/wrapperTx.ts#L21)
+[tx/schema/wrapperTx.ts:21](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/wrapperTx.ts#L21)
 
 ___
 
@@ -106,4 +95,4 @@ ___
 
 #### Defined in
 
-[tx/schema/wrapperTx.ts:9](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/wrapperTx.ts#L9)
+[tx/schema/wrapperTx.ts:9](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/wrapperTx.ts#L9)

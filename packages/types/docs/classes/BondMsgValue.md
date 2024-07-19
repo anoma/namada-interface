@@ -11,7 +11,6 @@
 ### Properties
 
 - [amount](BondMsgValue.md#amount)
-- [nativeToken](BondMsgValue.md#nativetoken)
 - [source](BondMsgValue.md#source)
 - [validator](BondMsgValue.md#validator)
 
@@ -33,7 +32,7 @@
 
 #### Defined in
 
-[tx/schema/bond.ts:20](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/bond.ts#L20)
+[tx/schema/bond.ts:17](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/bond.ts#L17)
 
 ## Properties
 
@@ -43,17 +42,7 @@
 
 #### Defined in
 
-[tx/schema/bond.ts:15](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/bond.ts#L15)
-
-___
-
-### nativeToken
-
-• **nativeToken**: `string`
-
-#### Defined in
-
-[tx/schema/bond.ts:18](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/bond.ts#L18)
+[tx/schema/bond.ts:15](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/bond.ts#L15)
 
 ___
 
@@ -63,7 +52,7 @@ ___
 
 #### Defined in
 
-[tx/schema/bond.ts:9](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/bond.ts#L9)
+[tx/schema/bond.ts:9](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/bond.ts#L9)
 
 ___
 
@@ -73,4 +62,4 @@ ___
 
 #### Defined in
 
-[tx/schema/bond.ts:12](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/bond.ts#L12)
+[tx/schema/bond.ts:12](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/bond.ts#L12)

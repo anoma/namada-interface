@@ -18,6 +18,7 @@ import {
   RevealPkMsgValue,
   SignatureMsgValue,
   SupportedTxProps,
+  TransferMsgValue,
   TransparentTransferMsgValue,
   TransparentTransferProps,
   TxDetails,
@@ -45,152 +46,42 @@ export class Tx {
   constructor(protected readonly sdk: SdkWasm) {}
 
   /**
-   * Build a transaction
-   * @async
-   * @param txType - type of the transaction
-   * @param encodedSpecificTx - encoded specific transaction
-   * @param wrapperTxMsg - encoded transaction
-   * @param gasPayer - address of the gas payer
-   * @returns promise that resolves to an EncodedTx
-   */
-  async buildTxFromSerializedArgs(
-    txType: TxType,
-    encodedSpecificTx: Uint8Array,
-    wrapperTxMsg: Uint8Array,
-    gasPayer: string
-  ): Promise<EncodedTx> {
-    const tx = await this.sdk.build_tx(
-      txType,
-      encodedSpecificTx,
-      wrapperTxMsg,
-      gasPayer
-    );
-
-    return new EncodedTx(wrapperTxMsg, tx);
-  }
-
-  /**
-   * Wrapper method to handle all supported Tx
-   * @async
-   * @param txType - type of the transaction
-   * @param wrapperTxProps - transaction properties
-   * @param props - Props specific to type of Tx
-   * @param [gasPayer] - optional gas payer, defaults to source or sender
-   * @returns promise that resolves to an EncodedTx
-   */
-  async buildTx(
-    txType: TxType,
-    wrapperTxProps: WrapperTxProps,
-    props: unknown,
-    gasPayer?: string
-  ): Promise<EncodedTx> {
-    switch (txType) {
-      case TxType.Bond:
-        return await this.buildBond(
-          wrapperTxProps,
-          props as BondProps,
-          gasPayer
-        );
-      case TxType.Unbond:
-        return await this.buildUnbond(
-          wrapperTxProps,
-          props as UnbondProps,
-          gasPayer
-        );
-      case TxType.Withdraw:
-        return await this.buildWithdraw(
-          wrapperTxProps,
-          props as WithdrawProps,
-          gasPayer
-        );
-      case TxType.Redelegate:
-        return await this.buildRedelegate(
-          wrapperTxProps,
-          props as RedelegateProps,
-          gasPayer
-        );
-      case TxType.RevealPK:
-        const { publicKey } = wrapperTxProps;
-        if (!publicKey) {
-          throw new Error("For RevealPK you must provide a public key!");
-        }
-        return await this.buildRevealPk(wrapperTxProps, publicKey);
-      case TxType.TransparentTransfer:
-        return await this.buildTransparentTransfer(
-          wrapperTxProps,
-          props as TransparentTransferProps,
-          gasPayer
-        );
-      case TxType.IBCTransfer:
-        return await this.buildIbcTransfer(
-          wrapperTxProps,
-          props as IbcTransferProps,
-          gasPayer
-        );
-      case TxType.VoteProposal:
-        return await this.buildVoteProposal(
-          wrapperTxProps,
-          props as VoteProposalProps,
-          gasPayer
-        );
-      case TxType.EthBridgeTransfer:
-        return await this.buildEthBridgeTransfer(
-          wrapperTxProps,
-          props as EthBridgeTransferProps,
-          gasPayer
-        );
-      default:
-        throw new Error(`Unsupported Tx type: ${txType}`);
-    }
-  }
-
-  /**
    * Build Transfer Tx
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param transferProps -  properties of the transfer
-   * @param [gasPayer] - optional gas payer, if not provided, defaults to transferProps.source
    * @returns promise that resolves to an EncodedTx
    */
   async buildTransparentTransfer(
     wrapperTxProps: WrapperTxProps,
-    transferProps: TransparentTransferMsgValue,
-    gasPayer?: string
+    transferProps: TransparentTransferProps
   ): Promise<EncodedTx> {
     const transferMsg = new Message<TransparentTransferMsgValue>();
 
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedTransfer = transferMsg.encode(
       new TransparentTransferMsgValue(transferProps)
     );
 
-    return await this.buildTxFromSerializedArgs(
-      TxType.TransparentTransfer,
+    const builtTx = await this.sdk.build_transparent_transfer(
       encodedTransfer,
-      encodedTx,
-      gasPayer || transferProps.source
+      encodedWrapperArgs
     );
+
+    return new EncodedTx(encodedWrapperArgs, builtTx);
   }
 
   /**
    * Build RevealPK Tx
    * @async
    * @param wrapperTxProps - properties of the transaction
-   * @param gasPayer - address for gas payer
    * @returns promise that resolves to an EncodedTx
    */
-  async buildRevealPk(
-    wrapperTxProps: WrapperTxProps,
-    gasPayer: string
-  ): Promise<EncodedTx> {
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+  async buildRevealPk(wrapperTxProps: WrapperTxProps): Promise<EncodedTx> {
+    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
+    const builtTx = await this.sdk.build_reveal_pk(encodedWrapperArgs);
 
-    return await this.buildTxFromSerializedArgs(
-      TxType.RevealPK,
-      new Uint8Array(),
-      encodedTx,
-      gasPayer
-    );
+    return new EncodedTx(encodedWrapperArgs, builtTx);
   }
 
   /**
@@ -198,24 +89,18 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param bondProps -  properties of the bond tx
-   * @param [gasPayer] - optional gas payer, if not provided, defaults to bondProps.source
    * @returns promise that resolves to an EncodedTx
    */
   async buildBond(
     wrapperTxProps: WrapperTxProps,
-    bondProps: BondProps,
-    gasPayer?: string
+    bondProps: BondProps
   ): Promise<EncodedTx> {
     const bondMsg = new Message<BondMsgValue>();
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedBond = bondMsg.encode(new BondMsgValue(bondProps));
+    const builtTx = await this.sdk.build_bond(encodedBond, encodedWrapperArgs);
 
-    return await this.buildTxFromSerializedArgs(
-      TxType.Bond,
-      encodedBond,
-      encodedTx,
-      gasPayer || bondProps.source
-    );
+    return new EncodedTx(encodedWrapperArgs, builtTx);
   }
 
   /**
@@ -223,24 +108,22 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param unbondProps - properties of the unbond tx
-   * @param [gasPayer] - optional gas payer, if not provided, defaults to unbondProps.source
    * @returns promise that resolves to an EncodedTx
    */
   async buildUnbond(
     wrapperTxProps: WrapperTxProps,
-    unbondProps: UnbondProps,
-    gasPayer?: string
+    unbondProps: UnbondProps
   ): Promise<EncodedTx> {
-    const bondMsg = new Message<UnbondMsgValue>();
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
-    const encodedUnbond = bondMsg.encode(new UnbondMsgValue(unbondProps));
+    const unbondMsg = new Message<UnbondMsgValue>();
+    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
+    const encodedUnbond = unbondMsg.encode(new UnbondMsgValue(unbondProps));
 
-    return await this.buildTxFromSerializedArgs(
-      TxType.Unbond,
+    const builtTx = await this.sdk.build_unbond(
       encodedUnbond,
-      encodedTx,
-      gasPayer || unbondProps.source
+      encodedWrapperArgs
     );
+
+    return new EncodedTx(encodedWrapperArgs, builtTx);
   }
 
   /**
@@ -248,24 +131,21 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param withdrawProps - properties of the withdraw tx
-   * @param [gasPayer] - optional gas payer, if not provided, defaults to withdrawProps.source
    * @returns promise that resolves to an EncodedTx
    */
   async buildWithdraw(
     wrapperTxProps: WrapperTxProps,
-    withdrawProps: WithdrawProps,
-    gasPayer?: string
+    withdrawProps: WithdrawProps
   ): Promise<EncodedTx> {
     const bondMsg = new Message<WithdrawProps>();
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedWithdraw = bondMsg.encode(new WithdrawMsgValue(withdrawProps));
-
-    return await this.buildTxFromSerializedArgs(
-      TxType.Withdraw,
+    const builtTx = await this.sdk.build_withdraw(
       encodedWithdraw,
-      encodedTx,
-      gasPayer || withdrawProps.source
+      encodedWrapperArgs
     );
+
+    return new EncodedTx(encodedWrapperArgs, builtTx);
   }
 
   /**
@@ -273,26 +153,23 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param redelegateProps -  properties of the redelegate tx
-   * @param [gasPayer] - optional gas payer, if not provided, defaults to redelegateProps.owner
    * @returns promise that resolves to an EncodedTx
    */
   async buildRedelegate(
     wrapperTxProps: WrapperTxProps,
-    redelegateProps: RedelegateProps,
-    gasPayer?: string
+    redelegateProps: RedelegateProps
   ): Promise<EncodedTx> {
     const redelegateMsg = new Message<RedelegateMsgValue>();
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedRedelegate = redelegateMsg.encode(
       new RedelegateMsgValue(redelegateProps)
     );
-
-    return await this.buildTxFromSerializedArgs(
-      TxType.Redelegate,
+    const builtTx = await this.sdk.build_redelegate(
       encodedRedelegate,
-      encodedTx,
-      gasPayer || redelegateProps.owner
+      encodedWrapperArgs
     );
+
+    return new EncodedTx(encodedWrapperArgs, builtTx);
   }
 
   /**
@@ -300,26 +177,23 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param ibcTransferProps - properties of the ibc transfer tx
-   * @param [gasPayer] - optional gas payer, if not provided, defaults to ibcTransferProps.source
    * @returns promise that resolves to an EncodedTx
    */
   async buildIbcTransfer(
     wrapperTxProps: WrapperTxProps,
-    ibcTransferProps: IbcTransferProps,
-    gasPayer?: string
+    ibcTransferProps: IbcTransferProps
   ): Promise<EncodedTx> {
     const ibcTransferMsg = new Message<IbcTransferProps>();
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedIbcTransfer = ibcTransferMsg.encode(
       new IbcTransferMsgValue(ibcTransferProps)
     );
-
-    return await this.buildTxFromSerializedArgs(
-      TxType.IBCTransfer,
+    const builtTx = await this.sdk.build_ibc_transfer(
       encodedIbcTransfer,
-      encodedTx,
-      gasPayer || ibcTransferProps.source
+      encodedWrapperArgs
     );
+
+    return new EncodedTx(encodedWrapperArgs, builtTx);
   }
 
   /**
@@ -327,26 +201,23 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param ethBridgeTransferProps - properties of the eth bridge transfer tx
-   * @param [gasPayer] - optional gas payer, if not provided, defaults to ethBridgeTransferProps.sender
    * @returns promise that resolves to an EncodedTx
    */
   async buildEthBridgeTransfer(
     wrapperTxProps: WrapperTxProps,
-    ethBridgeTransferProps: EthBridgeTransferProps,
-    gasPayer?: string
+    ethBridgeTransferProps: EthBridgeTransferProps
   ): Promise<EncodedTx> {
     const ethBridgeTransferMsg = new Message<EthBridgeTransferProps>();
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedEthBridgeTransfer = ethBridgeTransferMsg.encode(
       new EthBridgeTransferMsgValue(ethBridgeTransferProps)
     );
-
-    return await this.buildTxFromSerializedArgs(
-      TxType.EthBridgeTransfer,
+    const builtTx = await this.sdk.build_eth_bridge_transfer(
       encodedEthBridgeTransfer,
-      encodedTx,
-      gasPayer || ethBridgeTransferProps.sender
+      encodedWrapperArgs
     );
+
+    return new EncodedTx(encodedWrapperArgs, builtTx);
   }
 
   /**
@@ -354,26 +225,23 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param voteProposalProps - properties of the vote proposal tx
-   * @param [gasPayer] - optional gas payer, if not provided, defaults to voteProposalProps.signer
    * @returns promise that resolves to an EncodedTx
    */
   async buildVoteProposal(
     wrapperTxProps: WrapperTxProps,
-    voteProposalProps: VoteProposalProps,
-    gasPayer?: string
+    voteProposalProps: VoteProposalProps
   ): Promise<EncodedTx> {
     const voteProposalMsg = new Message<VoteProposalProps>();
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
+    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedVoteProposal = voteProposalMsg.encode(
       new VoteProposalMsgValue(voteProposalProps)
     );
 
-    return await this.buildTxFromSerializedArgs(
-      TxType.VoteProposal,
+    const builtTx = await this.sdk.build_vote_proposal(
       encodedVoteProposal,
-      encodedTx,
-      gasPayer || voteProposalProps.signer
+      encodedWrapperArgs
     );
+    return new EncodedTx(encodedWrapperArgs, builtTx);
   }
 
   /**
@@ -399,8 +267,8 @@ export class Tx {
     wrapperTxProps: WrapperTxProps,
     chainId?: string
   ): Promise<void> {
-    const encodedTx = this.encodeTxArgs(wrapperTxProps);
-    return await this.sdk.reveal_pk(signingKey, encodedTx, chainId);
+    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
+    return await this.sdk.reveal_pk(signingKey, encodedWrapperArgs, chainId);
   }
 
   /**
@@ -451,9 +319,9 @@ export class Tx {
    * @returns Serialized WrapperTxMsgValue
    */
   encodeTxArgs(wrapperTxProps: WrapperTxProps): Uint8Array {
-    const txMsgValue = new WrapperTxMsgValue(wrapperTxProps);
+    const wrapperTxMsgValue = new WrapperTxMsgValue(wrapperTxProps);
     const msg = new Message<WrapperTxMsgValue>();
-    return msg.encode(txMsgValue);
+    return msg.encode(wrapperTxMsgValue);
   }
 
   /**
@@ -478,8 +346,8 @@ export class Tx {
           return deserialize(data, RedelegateMsgValue);
         case TxType.VoteProposal:
           return deserialize(data, VoteProposalMsgValue);
-        case TxType.TransparentTransfer:
-          return deserialize(data, TransparentTransferMsgValue);
+        case TxType.Transfer:
+          return deserialize(data, TransferMsgValue);
         case TxType.RevealPK:
           return deserialize(data, RevealPkMsgValue);
         default:

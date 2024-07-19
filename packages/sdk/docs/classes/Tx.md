@@ -24,8 +24,6 @@ SDK functionality related to transactions
 - [buildRedelegate](Tx.md#buildredelegate)
 - [buildRevealPk](Tx.md#buildrevealpk)
 - [buildTransparentTransfer](Tx.md#buildtransparenttransfer)
-- [buildTx](Tx.md#buildtx)
-- [buildTxFromSerializedArgs](Tx.md#buildtxfromserializedargs)
 - [buildUnbond](Tx.md#buildunbond)
 - [buildVoteProposal](Tx.md#buildvoteproposal)
 - [buildWithdraw](Tx.md#buildwithdraw)
@@ -51,7 +49,7 @@ SDK functionality related to transactions
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:44](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L44)
+[sdk/src/tx/tx.ts:46](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L46)
 
 ## Properties
 
@@ -63,7 +61,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:44](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L44)
+[sdk/src/tx/tx.ts:46](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L46)
 
 ## Methods
 
@@ -88,7 +86,7 @@ Append signature for transactions signed by Ledger Hardware Wallet
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:411](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L411)
+[sdk/src/tx/tx.ts:282](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L282)
 
 ___
 
@@ -113,13 +111,13 @@ a BuiltTx type
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:384](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L384)
+[sdk/src/tx/tx.ts:255](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L255)
 
 ___
 
 ### buildBond
 
-▸ **buildBond**(`wrapperTxProps`, `bondProps`, `gasPayer?`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildBond**(`wrapperTxProps`, `bondProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
 
 Build Bond Tx
 
@@ -129,7 +127,6 @@ Build Bond Tx
 | :------ | :------ | :------ |
 | `wrapperTxProps` | `WrapperTxMsgValue` | properties of the transaction |
 | `bondProps` | `BondMsgValue` | properties of the bond tx |
-| `gasPayer?` | `string` | optional gas payer, if not provided, defaults to bondProps.source |
 
 #### Returns
 
@@ -141,13 +138,13 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:203](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L203)
+[sdk/src/tx/tx.ts:95](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L95)
 
 ___
 
 ### buildEthBridgeTransfer
 
-▸ **buildEthBridgeTransfer**(`wrapperTxProps`, `ethBridgeTransferProps`, `gasPayer?`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildEthBridgeTransfer**(`wrapperTxProps`, `ethBridgeTransferProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
 
 Build Ethereum Bridge Transfer Tx
 
@@ -157,7 +154,6 @@ Build Ethereum Bridge Transfer Tx
 | :------ | :------ | :------ |
 | `wrapperTxProps` | `WrapperTxMsgValue` | properties of the transaction |
 | `ethBridgeTransferProps` | `EthBridgeTransferMsgValue` | properties of the eth bridge transfer tx |
-| `gasPayer?` | `string` | optional gas payer, if not provided, defaults to ethBridgeTransferProps.sender |
 
 #### Returns
 
@@ -169,13 +165,13 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:332](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L332)
+[sdk/src/tx/tx.ts:207](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L207)
 
 ___
 
 ### buildIbcTransfer
 
-▸ **buildIbcTransfer**(`wrapperTxProps`, `ibcTransferProps`, `gasPayer?`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildIbcTransfer**(`wrapperTxProps`, `ibcTransferProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
 
 Build Ibc Transfer Tx
 
@@ -185,7 +181,6 @@ Build Ibc Transfer Tx
 | :------ | :------ | :------ |
 | `wrapperTxProps` | `WrapperTxMsgValue` | properties of the transaction |
 | `ibcTransferProps` | `IbcTransferMsgValue` | properties of the ibc transfer tx |
-| `gasPayer?` | `string` | optional gas payer, if not provided, defaults to ibcTransferProps.source |
 
 #### Returns
 
@@ -197,13 +192,13 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:305](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L305)
+[sdk/src/tx/tx.ts:183](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L183)
 
 ___
 
 ### buildRedelegate
 
-▸ **buildRedelegate**(`wrapperTxProps`, `redelegateProps`, `gasPayer?`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildRedelegate**(`wrapperTxProps`, `redelegateProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
 
 Build Redelegate Tx
 
@@ -213,7 +208,6 @@ Build Redelegate Tx
 | :------ | :------ | :------ |
 | `wrapperTxProps` | `WrapperTxMsgValue` | properties of the transaction |
 | `redelegateProps` | `RedelegateMsgValue` | properties of the redelegate tx |
-| `gasPayer?` | `string` | optional gas payer, if not provided, defaults to redelegateProps.owner |
 
 #### Returns
 
@@ -225,13 +219,13 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:278](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L278)
+[sdk/src/tx/tx.ts:159](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L159)
 
 ___
 
 ### buildRevealPk
 
-▸ **buildRevealPk**(`wrapperTxProps`, `gasPayer`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildRevealPk**(`wrapperTxProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
 
 Build RevealPK Tx
 
@@ -240,7 +234,6 @@ Build RevealPK Tx
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `wrapperTxProps` | `WrapperTxMsgValue` | properties of the transaction |
-| `gasPayer` | `string` | address for gas payer |
 
 #### Returns
 
@@ -252,13 +245,13 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:181](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L181)
+[sdk/src/tx/tx.ts:80](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L80)
 
 ___
 
 ### buildTransparentTransfer
 
-▸ **buildTransparentTransfer**(`wrapperTxProps`, `transferProps`, `gasPayer?`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildTransparentTransfer**(`wrapperTxProps`, `transferProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
 
 Build Transfer Tx
 
@@ -268,7 +261,6 @@ Build Transfer Tx
 | :------ | :------ | :------ |
 | `wrapperTxProps` | `WrapperTxMsgValue` | properties of the transaction |
 | `transferProps` | `TransparentTransferMsgValue` | properties of the transfer |
-| `gasPayer?` | `string` | optional gas payer, if not provided, defaults to transferProps.source |
 
 #### Returns
 
@@ -280,71 +272,13 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:154](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L154)
-
-___
-
-### buildTx
-
-▸ **buildTx**(`txType`, `wrapperTxProps`, `props`, `gasPayer?`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
-
-Wrapper method to handle all supported Tx
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `txType` | [`TxType`](../enums/TxType.md) | type of the transaction |
-| `wrapperTxProps` | `WrapperTxMsgValue` | transaction properties |
-| `props` | `unknown` | Props specific to type of Tx |
-| `gasPayer?` | `string` | optional gas payer, defaults to source or sender |
-
-#### Returns
-
-`Promise`\<[`EncodedTx`](EncodedTx.md)\>
-
-promise that resolves to an EncodedTx
-
-**`Async`**
-
-#### Defined in
-
-[sdk/src/tx/tx.ts:80](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L80)
-
-___
-
-### buildTxFromSerializedArgs
-
-▸ **buildTxFromSerializedArgs**(`txType`, `encodedSpecificTx`, `wrapperTxMsg`, `gasPayer`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
-
-Build a transaction
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `txType` | [`TxType`](../enums/TxType.md) | type of the transaction |
-| `encodedSpecificTx` | `Uint8Array` | encoded specific transaction |
-| `wrapperTxMsg` | `Uint8Array` | encoded transaction |
-| `gasPayer` | `string` | address of the gas payer |
-
-#### Returns
-
-`Promise`\<[`EncodedTx`](EncodedTx.md)\>
-
-promise that resolves to an EncodedTx
-
-**`Async`**
-
-#### Defined in
-
-[sdk/src/tx/tx.ts:55](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L55)
+[sdk/src/tx/tx.ts:55](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L55)
 
 ___
 
 ### buildUnbond
 
-▸ **buildUnbond**(`wrapperTxProps`, `unbondProps`, `gasPayer?`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildUnbond**(`wrapperTxProps`, `unbondProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
 
 Build Unbond Tx
 
@@ -354,7 +288,6 @@ Build Unbond Tx
 | :------ | :------ | :------ |
 | `wrapperTxProps` | `WrapperTxMsgValue` | properties of the transaction |
 | `unbondProps` | `UnbondMsgValue` | properties of the unbond tx |
-| `gasPayer?` | `string` | optional gas payer, if not provided, defaults to unbondProps.source |
 
 #### Returns
 
@@ -366,13 +299,13 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:228](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L228)
+[sdk/src/tx/tx.ts:114](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L114)
 
 ___
 
 ### buildVoteProposal
 
-▸ **buildVoteProposal**(`wrapperTxProps`, `voteProposalProps`, `gasPayer?`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildVoteProposal**(`wrapperTxProps`, `voteProposalProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
 
 Built Vote Proposal Tx
 
@@ -382,7 +315,6 @@ Built Vote Proposal Tx
 | :------ | :------ | :------ |
 | `wrapperTxProps` | `WrapperTxMsgValue` | properties of the transaction |
 | `voteProposalProps` | `VoteProposalMsgValue` | properties of the vote proposal tx |
-| `gasPayer?` | `string` | optional gas payer, if not provided, defaults to voteProposalProps.signer |
 
 #### Returns
 
@@ -394,13 +326,13 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:359](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L359)
+[sdk/src/tx/tx.ts:232](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L232)
 
 ___
 
 ### buildWithdraw
 
-▸ **buildWithdraw**(`wrapperTxProps`, `withdrawProps`, `gasPayer?`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildWithdraw**(`wrapperTxProps`, `withdrawProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
 
 Build Withdraw Tx
 
@@ -410,7 +342,6 @@ Build Withdraw Tx
 | :------ | :------ | :------ |
 | `wrapperTxProps` | `WrapperTxMsgValue` | properties of the transaction |
 | `withdrawProps` | `WithdrawMsgValue` | properties of the withdraw tx |
-| `gasPayer?` | `string` | optional gas payer, if not provided, defaults to withdrawProps.source |
 
 #### Returns
 
@@ -422,7 +353,7 @@ promise that resolves to an EncodedTx
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:253](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L253)
+[sdk/src/tx/tx.ts:137](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L137)
 
 ___
 
@@ -437,7 +368,7 @@ Method to retrieve JSON strings for all commitments of a Tx
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `txBytes` | `Uint8Array` | Bytes of a transaction |
-| `wasmHashes` | \{ `hash`: `string` ; `path`: `string`  }[] | Array of wasm paths with their associated hash |
+| `wasmHashes` | `WasmHash`[] | Array of wasm paths with their associated hash |
 
 #### Returns
 
@@ -447,7 +378,7 @@ a TxDetails object
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:464](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L464)
+[sdk/src/tx/tx.ts:335](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L335)
 
 ___
 
@@ -471,7 +402,7 @@ Serialized WrapperTxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:452](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L452)
+[sdk/src/tx/tx.ts:323](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L323)
 
 ___
 
@@ -499,4 +430,4 @@ void
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:396](https://github.com/anoma/namada-interface/blob/b1517904/packages/sdk/src/tx/tx.ts#L396)
+[sdk/src/tx/tx.ts:267](https://github.com/anoma/namada-interface/blob/12a1c5c6/packages/sdk/src/tx/tx.ts#L267)

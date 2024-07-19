@@ -7,11 +7,12 @@ export const fetchWasmHashes = async (
   integration: Namada
 ): Promise<WasmHash[]> => {
   const wasmHashes = await integration.getTxWasmHashes(chainId);
-  const sdk = await getSdkInstance();
-  if (!wasmHashes) {
-    const { rpc } = sdk;
+  if (!wasmHashes || wasmHashes.length === 0) {
+    const { rpc } = await getSdkInstance();
     const hashes = await rpc.queryWasmHashes();
-    await integration.addTxWasmHashes(chainId, hashes);
+    if (hashes && hashes.length > 0) {
+      await integration.addTxWasmHashes(chainId, hashes);
+    }
     return hashes;
   }
   return wasmHashes;

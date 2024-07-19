@@ -10,7 +10,6 @@
 
 ### Properties
 
-- [gasUsed](BatchTxResultMsgValue.md#gasused)
 - [hash](BatchTxResultMsgValue.md#hash)
 - [isApplied](BatchTxResultMsgValue.md#isapplied)
 
@@ -32,19 +31,9 @@
 
 #### Defined in
 
-[tx/schema/batchTxResult.ts:15](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/batchTxResult.ts#L15)
+[tx/schema/batchTxResult.ts:12](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/batchTxResult.ts#L12)
 
 ## Properties
-
-### gasUsed
-
-• **gasUsed**: `string`
-
-#### Defined in
-
-[tx/schema/batchTxResult.ts:10](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/batchTxResult.ts#L10)
-
-___
 
 ### hash
 
@@ -52,7 +41,7 @@ ___
 
 #### Defined in
 
-[tx/schema/batchTxResult.ts:7](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/batchTxResult.ts#L7)
+[tx/schema/batchTxResult.ts:7](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/batchTxResult.ts#L7)
 
 ___
 
@@ -62,4 +51,4 @@ ___
 
 #### Defined in
 
-[tx/schema/batchTxResult.ts:13](https://github.com/anoma/namada-interface/blob/52e59b9f/packages/types/src/tx/schema/batchTxResult.ts#L13)
+[tx/schema/batchTxResult.ts:10](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/tx/schema/batchTxResult.ts#L10)

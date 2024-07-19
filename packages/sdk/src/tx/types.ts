@@ -6,11 +6,11 @@ import { BuiltTx } from "@namada/shared";
 export class EncodedTx {
   /**
    * Create an EncodedTx class
-   * @param txMsg - Borsh-serialized transaction
+   * @param wrapperTxMsg - Borsh-serialized wrapper tx args
    * @param tx - Specific tx struct instance
    */
   constructor(
-    public readonly txMsg: Uint8Array,
+    public readonly wrapperTxMsg: Uint8Array,
     public readonly tx: BuiltTx
   ) {}
 

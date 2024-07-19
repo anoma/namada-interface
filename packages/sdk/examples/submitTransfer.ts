@@ -43,17 +43,16 @@ export const submitTransfer = async (
     await sdk.tx.revealPk(signingKey, wrapperTxMsgValue);
 
     console.log("Building transfer transaction...");
-    const encodedTx = await sdk.tx.buildTransparentTransfer(
-      wrapperTxMsgValue,
-      transparentTransferMsgValue
-    );
+    const encodedTx = await sdk.tx.buildTransparentTransfer(wrapperTxMsgValue, {
+      data: [transparentTransferMsgValue],
+    });
 
     console.log("Signing transaction...");
     const signedTx = await sdk.signing.sign(encodedTx.tx, signingKey);
 
     console.log("Broadcasting transaction...");
     await sdk.rpc.broadcastTx({
-      wrapperTxMsg: encodedTx.txMsg,
+      wrapperTxMsg: encodedTx.wrapperTxMsg,
       tx: signedTx,
     });
     process.exit(0);

@@ -47,7 +47,7 @@ describe("approvals handler", () => {
     };
 
     const approveTxMsg = new ApproveSignTxMsg(
-      TxType.TransparentTransfer,
+      TxType.Transfer,
       { txBytes: "", signingDataBytes: [""] },
       "signer",
       ""
