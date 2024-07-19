@@ -81,10 +81,10 @@ echo "Replacing CHAIN_ID: $CHAIN_ID"
 # Override envs - so we do not have to rebuild extension and app
 if [[ $OS == "Darwin" ]]; then
     LC_ALL=C find ../apps/extension/build/chrome -type f -name "*.js" -exec sed -i "" -E "s/${CHAIN_PREFIX}\..{21}/$CHAIN_ID/g" {} +
-    LC_ALL=C find ../apps/namada-interface/build -type f -name "*.js" -exec sed -i "" -E "s/${CHAIN_PREFIX}\..{21}/$CHAIN_ID/g" {} +
+    LC_ALL=C find ../apps/namadillo/build -type f -name "*.js" -exec sed -i "" -E "s/${CHAIN_PREFIX}\..{21}/$CHAIN_ID/g" {} +
 else
     find ../apps/extension/build/chrome -type f -name "*.js" -exec sed -i -E "s/${CHAIN_PREFIX}\..{21}/$CHAIN_ID/g" {} +
-    find ../apps/namada-interface/build -type f -name "*.js" -exec sed -i -E "s/${CHAIN_PREFIX}\..{21}/$CHAIN_ID/g" {} +
+    find ../apps/namadillo/build -type f -name "*.js" -exec sed -i -E "s/${CHAIN_PREFIX}\..{21}/$CHAIN_ID/g" {} +
 fi
 
 echo "Removing archive"
@@ -94,4 +94,4 @@ echo "Fixing CORS"
 find ${NAMADA_BASE_DIR} -type f -name "config.toml" -exec sed -i -E "s/cors_allowed_origins[[:space:]]=[[:space:]]\[\]/cors_allowed_origins = [\"*\"]/g" {} +
 
 echo "Moving MASP params"
-cp ${NAMADA_DIR}/masp-*.params ../apps/namada-interface/build/assets
+cp ${NAMADA_DIR}/masp-*.params ../apps/namadillo/build/assets
