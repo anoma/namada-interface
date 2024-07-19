@@ -31,12 +31,14 @@ const checkbox = tv({
 
 type CheckboxProps = {
   checkedClassName?: string;
+  type?: "checkbox" | "radio";
 } & React.ComponentPropsWithRef<"input"> &
   VariantProps<typeof checkbox>;
 
 export const Checkbox = ({
   className,
   checkedClassName,
+  type = "checkbox",
   ...props
 }: CheckboxProps): JSX.Element => {
   const checkboxClasses = checkbox({
@@ -50,11 +52,7 @@ export const Checkbox = ({
         props.checked && checkedClassName
       )}
     >
-      <input
-        className={checkboxClasses.checkbox()}
-        type="checkbox"
-        {...props}
-      />
+      <input className={checkboxClasses.checkbox()} type={type} {...props} />
       <i className={checkboxClasses.control()}>
         <GoCheck />
       </i>

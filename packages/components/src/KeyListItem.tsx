@@ -47,7 +47,11 @@ export const KeyListItem = ({
     { className: keyListItem({ selected: isMainKey }) },
     <>
       <div>
-        <Checkbox onChange={() => onSelectAccount()} checked={isMainKey} />
+        <Checkbox
+          type="radio"
+          onChange={() => onSelectAccount()}
+          checked={isMainKey}
+        />
       </div>
       <label>{alias}</label>
       <DropdownMenu
