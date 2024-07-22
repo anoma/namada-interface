@@ -12,7 +12,6 @@ export * from "./Currency";
 export * from "./DropdownMenu";
 export * from "./FeedbackButton";
 export * from "./Heading";
-export * from "./Icon";
 export * from "./Image";
 export * from "./Input";
 export * from "./InsetLabel";
