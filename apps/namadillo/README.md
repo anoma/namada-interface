@@ -53,7 +53,11 @@ yarn test
 
 ### Configuration
 
-You can configure the application by modifying the `config.toml` file, located in the public folder. Use the [template provided](./public/config.toml) as a base, and specify the values you wish to override.
+By running Namadillo, the interface will prompt you to enter a valid indexer URL. After you provide it, the RPC URL will be fetched from the indexer.
+
+**Note**: If the indexer provides an incorrect RPC URL, such as a local IP address or a URL accessible only via VPN, Namadillo might not work correctly. Therefore, when configuring Namadillo with a new indexer URL, please check the settings to ensure the provided RPC URL is valid.
+
+Alternatively, you can configure the application by modifying the `config.toml` file located in the public folder. Use the [template provided](./public/config.toml) as a base, and specify the values you wish to override.
 
 Example:
 
