@@ -16,6 +16,7 @@ export const Default: Story = {
     maxDecimalPlaces: 5,
     min: new BigNumber(0),
     max: new BigNumber("1000000"),
+    autoFocus: true,
   },
   decorators: [
     (Story, ctx) => {
