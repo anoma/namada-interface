@@ -48,7 +48,6 @@ export const Solid: Story = {
     color: "primary",
     size: "md",
     borderRadius: "md",
-    outlined: false,
     disabled: false,
   },
 };
