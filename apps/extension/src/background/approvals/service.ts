@@ -133,12 +133,12 @@ export class ApprovalsService {
       pendingTx.tx.txBytes,
       // TODO: In shared, fix "into_serde" call to handle Uint8Array so the following
       // isn't needed:
-      pendingTx.tx.signingDataBytes.map((bytes) => [...bytes])
+      pendingTx.tx.signingDataBytes.map((sdBytes) => [...sdBytes])
     );
 
     try {
-      const signature = await this.keyRingService.sign(builtTx, signer);
-      resolvers.resolve(signature);
+      const signedTx = await this.keyRingService.sign(builtTx, signer);
+      resolvers.resolve(signedTx);
     } catch (e) {
       resolvers.reject(e);
     }
@@ -166,22 +166,23 @@ export class ApprovalsService {
       throw new Error(`Did not receive correct signatures for tx ${msgId}`);
     }
 
+    const { tx } = this.sdkService.getSdk();
+
     try {
       const signedTxs = await Promise.all(
-        pendingTx.txs.map(
-          async (tx, i) =>
-            await this.keyRingService.appendSignature(tx, responseSign[i])
+        pendingTx.txs.map(async (txBytes, i) =>
+          tx.appendSignature(txBytes, responseSign[i])
         )
       );
-      const { tx } = this.sdkService.getSdk();
-      const builtTxs = signedTxs.map(
-        (signedTxBytes) =>
-          new BuiltTx(signedTxBytes, pendingTx.tx.signingDataBytes)
-      );
+      const builtTxs = signedTxs.map((signedTxBytes) => {
+        return new BuiltTx(
+          signedTxBytes,
+          pendingTx.tx.signingDataBytes.map((sdBytes) => [...sdBytes])
+        );
+      });
 
       const batchTx = tx.buildBatch(builtTxs);
-
-      resolvers.resolve(batchTx.tx_bytes());
+      resolvers.resolve([...batchTx.tx_bytes()]);
     } catch (e) {
       resolvers.reject(e);
     }

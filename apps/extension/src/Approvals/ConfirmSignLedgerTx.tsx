@@ -42,13 +42,13 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
     setStatusInfo(`Review and approve transaction on your Ledger`);
 
     // Sign with Ledger
-    const signatures = await ledger.sign(bytes, path);
-    const { errorMessage, returnCode } = signatures;
+    const signature = await ledger.sign(bytes, path);
+    const { errorMessage, returnCode } = signature;
 
     if (returnCode !== LedgerError.NoErrors) {
       throw new Error(`Signing error encountered: ${errorMessage}`);
     }
-    return signatures;
+    return signature;
   };
 
   const handleApproveLedgerSignTx = useCallback(
@@ -89,18 +89,20 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
           chains.namada.bip44.coinType,
           accountDetails.path
         );
-        const pendingTxBytes = await requester.sendMessage(
+        const pendingTxs = await requester.sendMessage(
           Ports.Background,
           new QueryPendingTxBytesMsg(msgId)
         );
 
-        if (!pendingTxBytes) {
-          throw new Error(`Txs for msgId ${msgId} not found!`);
+        if (!pendingTxs) {
+          throw new Error(
+            `Pending transactions for msgId: ${msgId} not found!`
+          );
         }
 
         const signatures: ResponseSign[] = [];
 
-        for await (const tx of pendingTxBytes) {
+        for await (const tx of pendingTxs) {
           const signature = await signLedgerTx(ledger, fromBase64(tx), path);
           signatures.push(signature);
         }
@@ -111,7 +113,6 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
         );
 
         setStatus(Status.Completed);
-        // TODO: We need a SubmitApprovedLedgerTx msg that accepts these bytes
       } catch (e) {
         await ledger.closeTransport();
         setError(`${e}`);
