@@ -87,16 +87,21 @@ export const ActionButton = ({
   size,
   borderRadius,
   disabled,
-  ...props
+  outlineColor,
+  textColor: textColorProp,
+  backgroundColor: backgroundColorProp,
+  backgroundHoverColor: backgroundHoverColorProp,
+  textHoverColor: textHoverColorProp,
+  as,
+  ...domProps
 }: ActionButtonProps<keyof React.ReactHTML>): JSX.Element => {
-  const outlineColor = props.outlineColor;
-  const textColor = props.textColor || outlineColor || "black";
+  const textColor = textColorProp || outlineColor || "black";
   const backgroundColor =
-    props.backgroundColor || (props.outlineColor ? "transparent" : "yellow");
+    backgroundColorProp || (outlineColor ? "transparent" : "yellow");
   const backgroundHoverColor =
-    props.backgroundHoverColor || props.outlineColor || "black";
+    backgroundHoverColorProp || outlineColor || "black";
   const textHoverColor =
-    props.textHoverColor || (props.outlineColor ? "black" : backgroundColor);
+    textHoverColorProp || (outlineColor ? "black" : backgroundColor);
 
   const outlined = !!outlineColor;
   const colorString = getDefaultColorString(backgroundColor);
@@ -107,7 +112,7 @@ export const ActionButton = ({
     outlined ? getDefaultColorString(outlineColor) : undefined;
 
   return createElement(
-    props.as ?? ("href" in props ? "a" : "button"),
+    as ?? ("href" in domProps ? "a" : "button"),
     {
       className: twMerge(
         actionButtonShape({
@@ -126,7 +131,7 @@ export const ActionButton = ({
         "--outline": outlineColorString,
       } as CSSProperties,
       disabled,
-      ...props,
+      ...domProps,
     },
     <>
       {icon && (
