@@ -31,6 +31,7 @@ export type ChainSettings = {
   chainId: string;
   unbondingPeriodInEpochs: number;
   extensionId: ExtensionKey;
+  checksums: Record<string, string>;
 };
 
 export type SettingsTomlOptions = {
@@ -50,6 +51,7 @@ export type ChainParameters = {
   chainId: string;
   nativeTokenAddress: Address;
   epochInfo: EpochInfo;
+  checksums: Record<string, string>;
 };
 
 export type SettingsStorage = {

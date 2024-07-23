@@ -34,7 +34,7 @@
 
 #### Defined in
 
-[signer.ts:14](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/signer.ts#L14)
+[signer.ts:14](https://github.com/anoma/namada-interface/blob/8d368aaf/packages/types/src/signer.ts#L14)
 
 ___
 
@@ -58,17 +58,17 @@ ___
 
 #### Defined in
 
-[signer.ts:15](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/signer.ts#L15)
+[signer.ts:15](https://github.com/anoma/namada-interface/blob/8d368aaf/packages/types/src/signer.ts#L15)
 
 ___
 
 ### sign
 
-• **sign**: (`txType`: `unknown`, `tx`: [`TxData`](../modules.md#txdata), `signer`: `string`, `wrapperTxMsg`: `Uint8Array`) => `Promise`\<`undefined` \| `Uint8Array`\>
+• **sign**: (`txType`: `unknown`, `tx`: [`TxData`](../modules.md#txdata), `signer`: `string`, `wrapperTxMsg`: `Uint8Array`, `checksums?`: `Record`\<`string`, `string`\>) => `Promise`\<`undefined` \| `Uint8Array`\>
 
 #### Type declaration
 
-▸ (`txType`, `tx`, `signer`, `wrapperTxMsg`): `Promise`\<`undefined` \| `Uint8Array`\>
+▸ (`txType`, `tx`, `signer`, `wrapperTxMsg`, `checksums?`): `Promise`\<`undefined` \| `Uint8Array`\>
 
 ##### Parameters
 
@@ -78,6 +78,7 @@ ___
 | `tx` | [`TxData`](../modules.md#txdata) |
 | `signer` | `string` |
 | `wrapperTxMsg` | `Uint8Array` |
+| `checksums?` | `Record`\<`string`, `string`\> |
 
 ##### Returns
 
@@ -85,7 +86,7 @@ ___
 
 #### Defined in
 
-[signer.ts:16](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/signer.ts#L16)
+[signer.ts:18](https://github.com/anoma/namada-interface/blob/8d368aaf/packages/types/src/signer.ts#L18)
 
 ___
 
@@ -110,7 +111,7 @@ ___
 
 #### Defined in
 
-[signer.ts:22](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/signer.ts#L22)
+[signer.ts:25](https://github.com/anoma/namada-interface/blob/8d368aaf/packages/types/src/signer.ts#L25)
 
 ___
 
@@ -136,4 +137,4 @@ ___
 
 #### Defined in
 
-[signer.ts:26](https://github.com/anoma/namada-interface/blob/1d7305cb/packages/types/src/signer.ts#L26)
+[signer.ts:29](https://github.com/anoma/namada-interface/blob/8d368aaf/packages/types/src/signer.ts#L29)

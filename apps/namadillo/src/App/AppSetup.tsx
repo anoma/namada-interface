@@ -1,6 +1,5 @@
 import { useUntilIntegrationAttached } from "@namada/integrations";
 import { chainAtom } from "atoms/chain";
-import { checksumsAtom } from "atoms/checksums";
 import {
   defaultServerConfigAtom,
   indexerHeartbeatAtom,
@@ -22,7 +21,6 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
   const indexerHeartbeat = useAtomValue(indexerHeartbeatAtom);
   const tomlConfig = useAtomValue(defaultServerConfigAtom);
   const chain = useAtomValue(chainAtom);
-  const wasmChecksums = useAtomValue(checksumsAtom);
   const extensionAttachStatus = useUntilIntegrationAttached();
   const extensionReady = extensionAttachStatus !== "pending";
   const errorContainerProps = { className: "text-white h-svh" };
@@ -110,17 +108,6 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
         containerProps={errorContainerProps}
         result={chain}
         niceError="Unable to load chain info. Please check your internet connection."
-      />
-    );
-  }
-
-  // Handle wasm checksum hash fetching errors
-  if (wasmChecksums.isError) {
-    return (
-      <AtomErrorBoundary
-        containerProps={errorContainerProps}
-        result={wasmChecksums}
-        niceError="Unable to load wasm checksums. Please check your internet connection."
       />
     );
   }

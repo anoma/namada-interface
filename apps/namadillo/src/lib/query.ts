@@ -7,8 +7,10 @@ import {
   WrapperTxProps,
 } from "@namada/types";
 import { getIndexerApi } from "atoms/api";
+import { chainParametersAtom } from "atoms/chain";
 import { getSdkInstance } from "hooks";
 import invariant from "invariant";
+import { getDefaultStore } from "jotai";
 import { ChainSettings, GasConfig } from "types";
 import { TransactionEventsClasses } from "types/events";
 
@@ -117,6 +119,10 @@ export const signTx = async <T>(
   const integration = getIntegration(chain.id);
   const signingClient = integration.signer() as Signer;
 
+  const store = getDefaultStore();
+  const { data: chainParameters } = store.get(chainParametersAtom);
+  const checksums = chainParameters?.checksums;
+
   try {
     // Sign batch Tx
     const signedBatchTxBytes = await signingClient.sign(
@@ -126,7 +132,8 @@ export const signTx = async <T>(
         signingDataBytes: typedEncodedTx.tx.signing_data_bytes(),
       },
       owner,
-      typedEncodedTx.tx.wrapper_tx_msg()
+      typedEncodedTx.tx.wrapper_tx_msg(),
+      checksums
     );
 
     if (!signedBatchTxBytes) {

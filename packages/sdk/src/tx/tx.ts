@@ -27,13 +27,13 @@ import {
   UnbondProps,
   VoteProposalMsgValue,
   VoteProposalProps,
-  WasmHash,
   WithdrawMsgValue,
   WithdrawProps,
   WrapperTxMsgValue,
   WrapperTxProps,
 } from "@namada/types";
 import { ResponseSign } from "@zondax/ledger-namada";
+import { WasmHash } from "../rpc";
 import { EncodedTx } from "./types";
 
 /**
@@ -327,10 +327,20 @@ export class Tx {
   /**
    * Method to retrieve JSON strings for all commitments of a Tx
    * @param txBytes - Bytes of a transaction
-   * @param wasmHashes - Array of wasm paths with their associated hash
+   * @param checksums - Record of paths mapped to their respective hashes
    * @returns a TxDetails object
    */
-  deserialize(txBytes: Uint8Array, wasmHashes: WasmHash[]): TxDetails {
+  deserialize(
+    txBytes: Uint8Array,
+    checksums: Record<string, string>
+  ): TxDetails {
+    const wasmHashes: WasmHash[] = [];
+    for (const path in checksums) {
+      wasmHashes.push({
+        path,
+        hash: checksums[path],
+      });
+    }
     const tx = deserialize_tx(txBytes, wasmHashes);
     const { wrapperTx, commitments } = deserialize(tx, TxDetailsMsgValue);
 

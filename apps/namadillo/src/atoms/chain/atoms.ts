@@ -46,6 +46,7 @@ export const chainAtom = atomWithQuery<ChainSettings>((get) => {
         unbondingPeriodInEpochs:
           chainParameters.data!.epochInfo.unbondingPeriodInEpochs,
         nativeTokenAddress: chainParameters.data!.nativeTokenAddress,
+        checksums: chainParameters.data!.checksums,
       };
     }, [!!indexerUrl, indexerRpcUrl, chainParameters, tomlConfig]),
   };

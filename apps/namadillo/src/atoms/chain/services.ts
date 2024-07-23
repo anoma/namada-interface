@@ -28,5 +28,6 @@ export const fetchChainParameters = async (
     apr: BigNumber(parameters.apr),
     chainId: parameters.chainId,
     nativeTokenAddress: parameters.nativeTokenAddress,
+    checksums: parameters.checksums,
   };
 };

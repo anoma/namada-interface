@@ -11,7 +11,7 @@ import { LocalStorage } from "storage";
 import { KVStoreMock } from "test/init";
 import * as webextensionPolyfill from "webextension-polyfill";
 import { ApprovalsService } from "./service";
-import { PendingTx, WasmHashesStore } from "./types";
+import { PendingTx } from "./types";
 
 jest.mock("webextension-polyfill", () => ({
   runtime: {
@@ -46,7 +46,6 @@ describe("approvals service", () => {
   let chainService: jest.Mocked<ChainsService>;
   let dataStore: KVStoreMock<string>;
   let txStore: KVStoreMock<PendingTx>;
-  let wasmHashesStore: KVStoreMock<WasmHashesStore>;
   let localStorage: LocalStorage;
 
   afterEach(() => {
@@ -69,7 +68,6 @@ describe("approvals service", () => {
       txStore,
       dataStore,
       localStorage,
-      wasmHashesStore,
       sdkService,
       keyRingService,
       vaultService,

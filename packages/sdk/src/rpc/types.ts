@@ -67,3 +67,11 @@ export type GasCosts = [string, string][];
  * [tokenAddress, amount][]
  */
 export type Balance = [string, string][];
+
+/**
+ * Wasm checksum hashes returned from shared package
+ */
+export type WasmHash = {
+  path: string;
+  hash: string;
+};

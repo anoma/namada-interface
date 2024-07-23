@@ -8,10 +8,13 @@ export type SignArbitraryProps = {
 };
 
 export type SignProps = {
+  // TODO: Simplify these props!
+  // Remove txType & wrapperTxMsg!
   txType: unknown;
   signer: string;
   tx: TxData;
   wrapperTxMsg: Uint8Array;
+  checksums?: Record<string, string>;
 };
 
 export type VerifyArbitraryProps = {
@@ -25,16 +28,6 @@ export type BalancesProps = {
   tokens: string[];
 };
 
-export type WasmHash = {
-  path: string;
-  hash: string;
-};
-
-export type WasmHashProps = {
-  chainId: string;
-  wasmHashes: WasmHash[];
-};
-
 export interface Namada {
   accounts(chainId?: string): Promise<DerivedAccount[] | undefined>;
   connect(): Promise<void>;
@@ -46,8 +39,6 @@ export interface Namada {
   ): Promise<SignArbitraryResponse | undefined>;
   verify(props: VerifyArbitraryProps): Promise<void>;
   getChain: () => Promise<Chain | undefined>;
-  addTxWasmHashes(props: WasmHashProps): Promise<void>;
-  getTxWasmHashes(chainId: string): Promise<WasmHash[] | undefined>;
   version: () => string;
 }
 

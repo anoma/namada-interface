@@ -47,7 +47,8 @@ export class Signer implements ISigner {
     txType: unknown,
     { txBytes, signingDataBytes }: TxData,
     signer: string,
-    wrapperTxMsg: Uint8Array
+    wrapperTxMsg: Uint8Array,
+    checksums?: Record<string, string>
   ): Promise<Uint8Array | undefined> {
     return await this._namada.sign({
       txType,
@@ -57,6 +58,7 @@ export class Signer implements ISigner {
         signingDataBytes,
       },
       wrapperTxMsg,
+      checksums,
     });
   }
 
