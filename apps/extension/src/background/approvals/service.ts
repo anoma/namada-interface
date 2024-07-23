@@ -14,7 +14,7 @@ import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
-import { EncodedTxData, PendingTx } from "./types";
+import { EncodedPendingTxData, PendingTx } from "./types";
 
 export class ApprovalsService {
   // holds promises which can be resolved with a message from a pop-up window
@@ -34,13 +34,12 @@ export class ApprovalsService {
     protected readonly vaultService: VaultService,
     protected readonly chainService: ChainsService,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) { }
+  ) {}
 
   async approveSignTx(
     signer: string,
-    tx: EncodedTxData,
-    checksums?: Record<string, string>,
-    txs?: string[]
+    tx: EncodedPendingTxData,
+    checksums?: Record<string, string>
   ): Promise<Uint8Array> {
     const msgId = uuid();
 
@@ -59,8 +58,11 @@ export class ApprovalsService {
     };
 
     // Ledger Tx must provide individual tx bytes for signing:
-    if (txs) {
-      pendingTx.txs = txs.map((tx) => fromBase64(tx));
+    if (tx.txs) {
+      pendingTx.txs = tx.txs.map(({ txBytes, signingDataBytes }) => ({
+        txBytes: fromBase64(txBytes),
+        signingDataBytes: signingDataBytes.map((sd) => fromBase64(sd)),
+      }));
     }
 
     await this.txStore.set(msgId, pendingTx);
@@ -169,19 +171,16 @@ export class ApprovalsService {
     const { tx } = this.sdkService.getSdk();
 
     try {
-      const signedTxs = await Promise.all(
-        pendingTx.txs.map(async (txBytes, i) =>
-          tx.appendSignature(txBytes, responseSign[i])
-        )
+      const signedTxs = pendingTx.txs.map(
+        ({ txBytes, signingDataBytes }, i) => {
+          const signedTxBytes = tx.appendSignature(txBytes, responseSign[i]);
+          return new BuiltTx(
+            signedTxBytes,
+            signingDataBytes.map((sd) => [...sd])
+          );
+        }
       );
-      const builtTxs = signedTxs.map((signedTxBytes) => {
-        return new BuiltTx(
-          signedTxBytes,
-          pendingTx.tx.signingDataBytes.map((sdBytes) => [...sdBytes])
-        );
-      });
-
-      const batchTx = tx.buildBatch(builtTxs);
+      const batchTx = tx.buildBatch(signedTxs);
       resolvers.resolve([...batchTx.tx_bytes()]);
     } catch (e) {
       resolvers.reject(e);
@@ -328,7 +327,7 @@ export class ApprovalsService {
     }
 
     if (pendingTx.txs) {
-      return pendingTx.txs.map((tx) => toBase64(tx));
+      return pendingTx.txs.map(({ txBytes }) => toBase64(txBytes));
     }
   }
 

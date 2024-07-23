@@ -26,7 +26,7 @@ export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) { }
+  ) {}
 
   public async connect(): Promise<void> {
     return await this.requester?.sendMessage(
@@ -73,10 +73,16 @@ export class Namada implements INamada {
         {
           txBytes: toBase64(txBytes),
           signingDataBytes: signingDataBytes.map((bytes) => toBase64(bytes)),
+          txs:
+            txs ?
+              txs.map(({ txBytes, signingDataBytes }) => ({
+                txBytes: toBase64(txBytes),
+                signingDataBytes: signingDataBytes.map((sd) => toBase64(sd)),
+              }))
+            : undefined,
         },
         signer,
-        checksums,
-        txs ? txs.map((tx) => toBase64(tx)) : undefined
+        checksums
       )
     );
   }

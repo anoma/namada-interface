@@ -1,5 +1,5 @@
 import { Chain, DerivedAccount, SignArbitraryResponse } from "@namada/types";
-import { EncodedTxData } from "background/approvals";
+import { EncodedPendingTxData } from "background/approvals";
 import { Message } from "router";
 import { validateProps } from "utils";
 
@@ -36,10 +36,9 @@ export class ApproveSignTxMsg extends Message<Uint8Array> {
   }
 
   constructor(
-    public readonly tx: EncodedTxData,
+    public readonly tx: EncodedPendingTxData,
     public readonly signer: string,
-    public readonly checksums?: Record<string, string>,
-    public readonly txs?: string[]
+    public readonly checksums?: Record<string, string>
   ) {
     super();
   }
@@ -143,7 +142,7 @@ export class GetChainMsg extends Message<Chain> {
     super();
   }
 
-  validate(): void { }
+  validate(): void {}
 
   route(): string {
     return Route.Chains;

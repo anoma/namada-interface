@@ -7,16 +7,18 @@ export type PendingTx = {
   signer: string;
   checksums?: Record<string, string>;
   // Optional tx bytes array
-  txs?: Uint8Array[];
+  txs?: TxData[];
 };
 
 export type PendingSignArbitrary = string;
 
-// base64 encoded Tx data for use with postMessage
 export type EncodedTxData = {
-  // encoded batch Tx
   txBytes: string;
   signingDataBytes: string[];
+};
+
+// base64 encoded Tx data for use with postMessage
+export type EncodedPendingTxData = EncodedTxData & {
   // optional encoded tx bytes array
-  txs?: string[];
+  txs?: EncodedTxData[];
 };

@@ -133,8 +133,8 @@ const handleRevokeConnectionMsg: (
 const handleApproveSignTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveSignTxMsg> = (service) => {
-  return async (_, { signer, tx, txs, checksums }) => {
-    return await service.approveSignTx(signer, tx, checksums, txs);
+  return async (_, { signer, tx, checksums }) => {
+    return await service.approveSignTx(signer, tx, checksums);
   };
 };
 

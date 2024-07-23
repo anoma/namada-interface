@@ -4,6 +4,7 @@ import {
   Account,
   AccountType,
   Signer,
+  TxData,
   WrapperTxMsgValue,
   WrapperTxProps,
 } from "@namada/types";
@@ -23,7 +24,7 @@ export type TransactionPair<T> = {
 export type EncodedTxData<T> = {
   type: string;
   tx: BuiltTx;
-  txs?: Uint8Array[];
+  txs?: TxData[];
   wrapperTxMsg: Uint8Array;
   meta?: {
     props: T;
@@ -103,10 +104,13 @@ export const buildBatchTx = async <T>(
 
   txs.push(...encodedTxs);
 
-  let ledgerTxs: Uint8Array[] | undefined;
+  let ledgerTxs: TxData[] | undefined;
 
   if (account.type === AccountType.Ledger) {
-    ledgerTxs = txs.map((tx) => tx.tx.tx_bytes());
+    ledgerTxs = txs.map((tx) => ({
+      txBytes: tx.tx.tx_bytes(),
+      signingDataBytes: tx.tx.signing_data_bytes(),
+    }));
   }
 
   const batchTx = tx.buildBatch(txs.map(({ tx }) => tx));

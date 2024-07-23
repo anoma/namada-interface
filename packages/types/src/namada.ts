@@ -11,7 +11,7 @@ export type SignProps = {
   signer: string;
   tx: TxData;
   checksums?: Record<string, string>;
-  txs?: Uint8Array[];
+  txs?: TxData[];
 };
 
 export type VerifyArbitraryProps = {
