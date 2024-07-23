@@ -16,4 +16,4 @@
 
 #### Defined in
 
-[events.ts:13](https://github.com/anoma/namada-interface/blob/cebcdd13/packages/types/src/events.ts#L13)
+[events.ts:13](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/events.ts#L13)
