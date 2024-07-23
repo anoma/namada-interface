@@ -36,4 +36,4 @@
 
 #### Defined in
 
-[tx/messages/index.ts:5](https://github.com/anoma/namada-interface/blob/8d368aaf/packages/types/src/tx/messages/index.ts#L5)
+[tx/messages/index.ts:5](https://github.com/anoma/namada-interface/blob/65deeb6f/packages/types/src/tx/messages/index.ts#L5)

@@ -23,9 +23,9 @@ use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::query_epoch;
 use namada::sdk::signing::SigningTxData;
 use namada::sdk::tx::{
-    build_batch, build_bond, build_ibc_transfer, build_redelegation, build_reveal_pk,
-    build_transparent_transfer, build_unbond, build_vote_proposal, build_withdraw,
-    build_claim_rewards, is_reveal_pk_needed, process_tx, ProcessTxResponse,
+    build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
+    build_reveal_pk, build_transparent_transfer, build_unbond, build_vote_proposal, build_withdraw,
+    is_reveal_pk_needed, process_tx, ProcessTxResponse,
 };
 use namada::sdk::wallet::{Store, Wallet};
 use namada::sdk::{Namada, NamadaImpl};
@@ -440,10 +440,8 @@ impl Sdk {
             .map_err(JsError::from)?;
 
         Ok(BuiltTx {
-            tx_type: TxType::ClaimRewards,
-            tx,
+            tx: borsh::to_vec(&tx)?,
             signing_data: vec![signing_data],
-            wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
 
