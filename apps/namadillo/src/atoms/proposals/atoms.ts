@@ -195,7 +195,7 @@ export const canVoteAtom = atomWithQuery((get) => {
     queryFn: async () => {
       const all_bonds = await api.apiV1PosBondAddressGet(account.data!.address);
 
-      return all_bonds.data.data.reduce(
+      return all_bonds.data.results.reduce(
         (acc: boolean, current: NamadaIndexerBond) => {
           return acc || current.status === NamadaIndexerBondStatusEnum.Active;
         },
