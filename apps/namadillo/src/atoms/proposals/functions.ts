@@ -128,7 +128,7 @@ const decodeProposalType = (
             ] =
               "Add" in continuous ?
                 [continuous["Add"], "add" as const]
-                : [continuous["Remove"], "remove" as const];
+              : [continuous["Remove"], "remove" as const];
 
             const amountAsBigNumber = BigNumber(amount);
 
@@ -325,7 +325,7 @@ export const fetchPaginatedProposals = async (
     totalVotingPowerPromise,
   ]);
 
-  const proposals = proposalResponse.data.data.map((proposal) =>
+  const proposals = proposalResponse.data.results.map((proposal) =>
     toProposal(proposal, votingPowerResponse.data)
   );
 
@@ -346,7 +346,7 @@ export const fetchProposalVotes = async (
     ["_", BigNumber(0)], // TODO: return voting power
   ];
 
-  const votes: Vote[] = response.data.data.map((vote) => ({
+  const votes: Vote[] = response.data.results.map((vote) => ({
     address: vote.voterAddress,
     voteType: vote.vote,
     votingPower,

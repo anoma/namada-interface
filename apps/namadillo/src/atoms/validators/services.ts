@@ -52,7 +52,12 @@ export const fetchMyValidators = async (
   const bondsResponse = await api.apiV1PosMergedBondsAddressGet(
     account.address
   );
-  return toMyValidators(bondsResponse.data.data, votingPower, epochInfo, apr);
+  return toMyValidators(
+    bondsResponse.data.results,
+    votingPower,
+    epochInfo,
+    apr
+  );
 };
 
 export const fetchMyUnbonds = async (
@@ -67,7 +72,7 @@ export const fetchMyUnbonds = async (
     account.address
   );
   return toUnbondingValidators(
-    unbondsResponse.data.data,
+    unbondsResponse.data.results,
     votingPower,
     epochInfo,
     apr
