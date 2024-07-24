@@ -9,7 +9,7 @@ import { getRouter } from "./App/AppRoutes";
 import { IntegrationsProvider } from "./services";
 
 import "@namada/components/src/base.css";
-import "./polyfills";
+import "@namada/utils/bigint-to-json-polyfill";
 import "./tailwind.css";
 
 const container = document.getElementById("root");

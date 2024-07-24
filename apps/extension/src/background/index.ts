@@ -6,6 +6,10 @@ import {
 } from "@namada/storage";
 import browser from "webextension-polyfill";
 
+// Needed to allow the background script to send messages containing bigints
+// e.g. when responding to QueryTxDetailsMsg with a bigint proposal ID
+import "@namada/utils/bigint-to-json-polyfill";
+
 import {
   ContentScriptEnv,
   ExtensionBroadcaster,
