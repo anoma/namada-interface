@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { PieChart, PieChartData, Stack } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
-import { proposalFamily, proposalFamilyPersist } from "atoms/proposals";
+import { proposalFamily } from "atoms/proposals";
 import { useAtomValue } from "jotai";
 
 import { ProposalStatus, TallyType, VoteType, voteTypes } from "@namada/types";
@@ -115,53 +115,31 @@ export const ProposalStatusSummary: React.FC<{
   proposalId: bigint;
 }> = ({ proposalId }) => {
   const proposal = useAtomValue(proposalFamily(proposalId));
-  const cachedProposal = useAtomValue(proposalFamilyPersist(proposalId));
 
-  const props: React.ComponentProps<typeof Loaded> | undefined = (() => {
-    if (proposal.status !== "error" && proposal.status !== "pending") {
-      return proposal.data;
-    }
-
-    if (
-      cachedProposal.status !== "error" &&
-      cachedProposal.status !== "pending"
-    ) {
-      const { data } = cachedProposal;
-
-      if (typeof data.status !== "undefined") {
-        return { ...data, status: data.status };
-      }
-    }
-
-    return undefined;
-  })();
-
-  if (typeof props === "undefined") {
-    return (
-      <Layout
-        status="pending"
-        percentages={{
-          yay: "%",
-          nay: "%",
-          abstain: "%",
-        }}
-        amounts={{
-          yay: "NAM",
-          nay: "NAM",
-          abstain: "NAM",
-        }}
-        turnout="%"
-        quorum="%"
-        pieChartMiddle={
-          <div className="text-sm text-[#B0B0B0] animate-pulse">
-            Syncing Data
-          </div>
-        }
-      />
-    );
-  } else {
-    return <Loaded {...props} />;
+  if (proposal.status === "success") {
+    return <Loaded {...proposal.data} />;
   }
+
+  return (
+    <Layout
+      status="pending"
+      percentages={{
+        yay: "%",
+        nay: "%",
+        abstain: "%",
+      }}
+      amounts={{
+        yay: "NAM",
+        nay: "NAM",
+        abstain: "NAM",
+      }}
+      turnout="%"
+      quorum="%"
+      pieChartMiddle={
+        <div className="text-sm text-[#B0B0B0] animate-pulse">Syncing Data</div>
+      }
+    />
+  );
 };
 
 const Loaded: React.FC<{

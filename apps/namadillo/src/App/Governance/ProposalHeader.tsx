@@ -3,12 +3,10 @@ import {
   ProgressBar as ProgressBarComponent,
   Stack,
 } from "@namada/components";
-import { Proposal, ProposalStatus } from "@namada/types";
+import { Proposal } from "@namada/types";
 import {
-  StoredProposal,
   canVoteAtom,
   proposalFamily,
-  proposalFamilyPersist,
   proposalVotedFamily,
 } from "atoms/proposals";
 import { namadaExtensionConnectedAtom } from "atoms/settings";
@@ -35,7 +33,6 @@ export const ProposalHeader: React.FC<{
   proposalId: bigint;
 }> = ({ proposalId }) => {
   const proposal = useAtomValue(proposalFamily(proposalId));
-  const cachedProposal = useAtomValue(proposalFamilyPersist(proposalId));
   const voted = useAtomValue(proposalVotedFamily(proposalId));
 
   return (
@@ -45,22 +42,22 @@ export const ProposalHeader: React.FC<{
           <Breadcrumbs proposalId={proposalId} />
           <BackButton />
           <Stack gap={2.5}>
-            <TypeLabel proposal={cachedProposal} />
-            <Title proposal={cachedProposal} proposalId={proposalId} />
+            <TypeLabel proposal={proposal} />
+            <Title proposal={proposal} proposalId={proposalId} />
           </Stack>
         </div>
         <Stack gap={2}>
           <JsonButton proposalId={proposalId} />
-          <WasmButton proposal={cachedProposal} />
+          <WasmButton proposal={proposal} />
         </Stack>
       </div>
       <hr className="border-neutral-900 w-full mb-4" />
       <div className="flex gap-2 mb-4">
-        <StatusLabel proposal={proposal} cachedProposal={cachedProposal} />
+        <StatusLabel proposal={proposal} />
         <VotedLabel voted={voted} />
       </div>
       <div className="flex gap-10 bg-neutral-900 mb-9 px-5 py-3 -mx-3 rounded-md">
-        <Progress proposal={cachedProposal} />
+        <Progress proposal={proposal} />
         <VoteButton proposal={proposal} voted={voted} proposalId={proposalId} />
       </div>
     </>
@@ -68,7 +65,7 @@ export const ProposalHeader: React.FC<{
 };
 
 const Title: React.FC<{
-  proposal: AtomWithQueryResult<StoredProposal>;
+  proposal: AtomWithQueryResult<Proposal>;
   proposalId: bigint;
 }> = ({ proposal, proposalId }) => (
   <div className="text-xl">
@@ -114,7 +111,7 @@ const BackButton: React.FC = () => (
 );
 
 const TypeLabel: React.FC<{
-  proposal: AtomWithQueryResult<StoredProposal>;
+  proposal: AtomWithQueryResult<Proposal>;
 }> = ({ proposal }) =>
   proposal.status === "pending" || proposal.status === "error" ?
     null
@@ -142,7 +139,7 @@ const JsonButton: React.FC<{
 };
 
 const WasmButton: React.FC<{
-  proposal: AtomWithQueryResult<StoredProposal>;
+  proposal: AtomWithQueryResult<Proposal>;
 }> = ({ proposal }) => {
   const { disabled, href, filename } = (() => {
     if (proposal.status === "success") {
@@ -194,21 +191,13 @@ const WasmButton: React.FC<{
 
 const StatusLabel: React.FC<{
   proposal: AtomWithQueryResult<Proposal>;
-  cachedProposal: AtomWithQueryResult<StoredProposal>;
-}> = ({ proposal, cachedProposal }) => {
-  const status: ProposalStatus | undefined = (() => {
-    if (proposal.status === "success") {
-      return proposal.data.status;
-    } else if (cachedProposal.status === "success") {
-      return cachedProposal.data.status;
-    } else {
-      return undefined;
-    }
-  })();
-
-  return typeof status === "undefined" ? null : (
-      <StatusLabelComponent status={status} className="text-xs min-w-42" />
-    );
+}> = ({ proposal }) => {
+  return proposal.status === "success" ?
+      <StatusLabelComponent
+        status={proposal.data.status}
+        className="text-xs min-w-42"
+      />
+    : null;
 };
 
 const Progress: React.FC<{
@@ -219,7 +208,7 @@ const Progress: React.FC<{
       <span>Progress</span>
       <TimeRemaining proposalQuery={proposal} />
       <div className="col-span-2 mt-3 mb-2">
-        <ProgressBar cachedProposal={proposal} />
+        <ProgressBar proposal={proposal} />
       </div>
       <ProgressStartEnd
         proposal={proposal}
@@ -258,7 +247,7 @@ const TimeRemaining: React.FC<{
 };
 
 const ProgressStartEnd: React.FC<{
-  proposal: AtomWithQueryResult<StoredProposal>;
+  proposal: AtomWithQueryResult<Proposal>;
   timeKey: "startTime" | "endTime";
   className: string;
 }> = ({ proposal, timeKey, className }) => (
@@ -270,8 +259,8 @@ const ProgressStartEnd: React.FC<{
 );
 
 const ProgressBar: React.FC<{
-  cachedProposal: AtomWithQueryResult<StoredProposal>;
-}> = ({ cachedProposal: proposal }) => {
+  proposal: AtomWithQueryResult<Proposal>;
+}> = ({ proposal }) => {
   const { value, total } = (() => {
     const loadingData = {
       value: 0,

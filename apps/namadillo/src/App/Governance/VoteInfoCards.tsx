@@ -2,9 +2,9 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { twMerge } from "tailwind-merge";
 
 import { SkeletonLoading } from "@namada/components";
-import { AddRemove, PgfActions } from "@namada/types";
+import { AddRemove, PgfActions, Proposal } from "@namada/types";
 
-import { proposalFamilyPersist, StoredProposal } from "atoms/proposals";
+import { proposalFamily } from "atoms/proposals";
 import { useAtomValue } from "jotai";
 import { epochToString, secondsToDateTimeString } from "utils";
 
@@ -89,7 +89,7 @@ const PgfPaymentInfoCards: React.FC<{
 export const VoteInfoCards: React.FC<{
   proposalId: bigint;
 }> = ({ proposalId }) => {
-  const proposal = useAtomValue(proposalFamilyPersist(proposalId));
+  const proposal = useAtomValue(proposalFamily(proposalId));
 
   return (
     <div className="grid grid-cols-6 gap-2 m-4">
@@ -114,7 +114,7 @@ const LoadingCard: React.FC<{ className?: string }> = ({ className }) => (
 );
 
 const Loaded: React.FC<{
-  proposal: StoredProposal;
+  proposal: Proposal;
 }> = ({ proposal }) => {
   return (
     <>
