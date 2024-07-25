@@ -38,13 +38,13 @@ yarn lint:fix
 
 ## Installation of extension
 
-Once you have run `yarn build`, you can use the files in `./dist` to install the extension:
+Once you have run `yarn build`, you can use the files in `./build` to install the extension:
 
 ### Chrome
 
 1. In Chrome, select `Manage Extensions`
 2. Click the toggle to enable `Developer Mode`
-3. Click `Load Unpacked` and point to the `dist` folder in this project
+3. Click `Load Unpacked` and point to the `build` folder in this project
 
 ### Firefox
 
