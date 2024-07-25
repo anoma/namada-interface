@@ -212,6 +212,7 @@ const toProposal = (
     activationEpoch: BigInt(proposal.activationEpoch),
     startTime: BigInt(proposal.startTime),
     endTime: BigInt(proposal.endTime),
+    activationTime: BigInt(proposal.activationTime),
     currentTime: BigInt(proposal.currentTime),
     proposalType: decodeProposalType(proposal.type, proposal.data),
     tallyType: toTally(proposal.tallyType),

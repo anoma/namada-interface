@@ -6,7 +6,7 @@ import { AddRemove, PgfActions, Proposal } from "@namada/types";
 
 import { proposalFamily } from "atoms/proposals";
 import { useAtomValue } from "jotai";
-import { epochToString, secondsToDateTimeString } from "utils";
+import { secondsToDateTimeString } from "utils";
 
 const InfoCard: React.FC<
   {
@@ -129,8 +129,8 @@ const Loaded: React.FC<{
         className="col-span-2"
       />
       <InfoCard
-        title="Activation Epoch"
-        content={epochToString(proposal.activationEpoch)}
+        title="Activation Time"
+        content={secondsToDateTimeString(proposal.activationTime)}
         className="col-span-2"
       />
       <InfoCard

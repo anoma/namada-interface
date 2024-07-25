@@ -21,6 +21,7 @@ export type Proposal = {
   activationEpoch: bigint;
   startTime: bigint;
   endTime: bigint;
+  activationTime: bigint;
   currentTime: bigint;
   proposalType: ProposalType;
   tallyType: TallyType;
