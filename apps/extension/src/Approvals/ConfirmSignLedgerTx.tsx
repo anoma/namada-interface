@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
 import { Ledger, makeBip44Path } from "@heliax/namada-sdk/web";
-import { ActionButton, Alert, GapPatterns, Stack } from "@namada/components";
+import { ActionButton, Stack } from "@namada/components";
 import { LedgerError, ResponseSign } from "@zondax/ledger-namada";
 
 import { fromBase64 } from "@cosmjs/encoding";
@@ -19,6 +19,7 @@ import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 import { ApproveIcon } from "./ApproveIcon";
 import { LedgerIcon } from "./LedgerIcon";
+import { StatusBox } from "./StatusBox";
 
 type Props = {
   details: ApprovalDetails;
@@ -32,7 +33,7 @@ const Step: React.FC<{
   disabled?: boolean;
 }> = ({ title, description, icon, selected, disabled }) => {
   return (
-    <p
+    <div
       className={clsx(
         "text-white p-4",
         selected ? "border border-yellow rounded-md" : "",
@@ -50,7 +51,7 @@ const Step: React.FC<{
           <div className="text-sm font-medium">{description}</div>
         </div>
       </div>
-    </p>
+    </div>
   );
 };
 
@@ -167,43 +168,37 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
   }, []);
 
   return (
-    <Stack
-      as="form"
-      gap={GapPatterns.TitleContent}
-      onSubmit={handleApproveLedgerSignTx}
-    >
+    <Stack full className="py-4">
       <PageHeader title="Ledger sign" />
-      {status === Status.Failed && (
-        <Alert type="error">
-          {error}
-          <br />
-          Try again
-        </Alert>
-      )}
-      {status === Status.Pending && <Alert type="info">{statusInfo}</Alert>}
-      <Step
-        title="Step 1"
-        description='Make sure your Ledger is unlocked, and click "Submit"'
-        icon={<LedgerIcon />}
-        selected={!isLedgerConnected}
-        disabled={isLedgerConnected}
-      />
-      <Step
-        title="Step 2"
-        description="Review and approve transaction on your ledger"
-        icon={<ApproveIcon />}
-        selected={isLedgerConnected}
-      />
-      <div className="flex flex-col gap-2">
-        <ActionButton disabled={status === Status.Pending}>Submit</ActionButton>
-        <ActionButton
-          outlineColor="yellow"
-          type="button"
-          onClick={handleRejectButton}
-        >
-          Reject
-        </ActionButton>
-      </div>
+      <Stack full as="form" onSubmit={handleApproveLedgerSignTx}>
+        <StatusBox status={status} pendingText={statusInfo} errorText={error} />
+        <Step
+          title="Step 1"
+          description='Make sure your Ledger is unlocked, and click "Submit"'
+          icon={<LedgerIcon />}
+          selected={!isLedgerConnected}
+          disabled={isLedgerConnected}
+        />
+        <Step
+          title="Step 2"
+          description="Review and approve transaction on your ledger"
+          icon={<ApproveIcon />}
+          selected={isLedgerConnected}
+        />
+        <div className="flex-1" />
+        <Stack gap={2}>
+          <ActionButton disabled={status === Status.Pending}>
+            Submit
+          </ActionButton>
+          <ActionButton
+            outlineColor="yellow"
+            type="button"
+            onClick={handleRejectButton}
+          >
+            Reject
+          </ActionButton>
+        </Stack>
+      </Stack>
     </Stack>
   );
 };
