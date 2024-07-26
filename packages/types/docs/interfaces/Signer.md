@@ -34,7 +34,7 @@
 
 #### Defined in
 
-[signer.ts:14](https://github.com/anoma/namada-interface/blob/8d368aaf/packages/types/src/signer.ts#L14)
+[signer.ts:14](https://github.com/anoma/namada-interface/blob/cebcdd13/packages/types/src/signer.ts#L14)
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 #### Defined in
 
-[signer.ts:15](https://github.com/anoma/namada-interface/blob/8d368aaf/packages/types/src/signer.ts#L15)
+[signer.ts:15](https://github.com/anoma/namada-interface/blob/cebcdd13/packages/types/src/signer.ts#L15)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 #### Defined in
 
-[signer.ts:18](https://github.com/anoma/namada-interface/blob/8d368aaf/packages/types/src/signer.ts#L18)
+[signer.ts:18](https://github.com/anoma/namada-interface/blob/cebcdd13/packages/types/src/signer.ts#L18)
 
 ___
 
@@ -111,7 +111,7 @@ ___
 
 #### Defined in
 
-[signer.ts:25](https://github.com/anoma/namada-interface/blob/8d368aaf/packages/types/src/signer.ts#L25)
+[signer.ts:25](https://github.com/anoma/namada-interface/blob/cebcdd13/packages/types/src/signer.ts#L25)
 
 ___
 
@@ -137,4 +137,4 @@ ___
 
 #### Defined in
 
-[signer.ts:29](https://github.com/anoma/namada-interface/blob/8d368aaf/packages/types/src/signer.ts#L29)
+[signer.ts:29](https://github.com/anoma/namada-interface/blob/cebcdd13/packages/types/src/signer.ts#L29)

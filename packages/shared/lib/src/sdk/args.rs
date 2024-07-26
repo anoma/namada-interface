@@ -2,6 +2,7 @@ use std::{path::PathBuf, str::FromStr};
 
 use namada::core::borsh::{BorshDeserialize, BorshSerialize};
 use namada::core::ibc::core::host::types::identifiers::{ChannelId, PortId};
+use namada::ibc::IbcShieldingData;
 use namada::tendermint_rpc;
 use namada::tx::data::GasLimit;
 use namada::{
@@ -340,10 +341,7 @@ pub struct ClaimRewardsMsg {
 
 impl ClaimRewardsMsg {
     pub fn new(validator: String, source: Option<String>) -> ClaimRewardsMsg {
-        ClaimRewardsMsg {
-            validator,
-            source,
-        }
+        ClaimRewardsMsg { validator, source }
     }
 }
 
@@ -364,10 +362,7 @@ pub fn claim_rewards_tx_args(
 ) -> Result<args::ClaimRewards, JsError> {
     let claim_rewards_msg = ClaimRewardsMsg::try_from_slice(claim_rewards_msg)?;
 
-    let ClaimRewardsMsg {
-        validator,
-        source,
-    } = claim_rewards_msg;
+    let ClaimRewardsMsg { validator, source } = claim_rewards_msg;
     let tx = tx_msg_into_args(tx_msg)?;
 
     let validator_address = Address::from_str(&validator)?;
@@ -497,6 +492,7 @@ pub struct IbcTransferMsg {
     timeout_height: Option<u64>,
     timeout_sec_offset: Option<u64>,
     memo: Option<String>,
+    shielding_data: Option<Vec<u8>>,
 }
 
 /// Maps serialized tx_msg into IbcTransferTx args.
@@ -525,6 +521,7 @@ pub fn ibc_transfer_tx_args(
         timeout_height,
         timeout_sec_offset,
         memo,
+        shielding_data,
     } = ibc_transfer_msg;
 
     let source_address = Address::from_str(&source)?;
@@ -534,11 +531,17 @@ pub fn ibc_transfer_tx_args(
     let amount = InputAmount::Unvalidated(denom_amount);
     let port_id = PortId::from_str(&port_id).expect("Port id to be valid");
     let channel_id = ChannelId::from_str(&channel_id).expect("Channel id to be valid");
+    let ibc_shielding_data = match shielding_data {
+        Some(v) => Some(IbcShieldingData::try_from_slice(&v)?),
+        None => None,
+    };
+
     let tx = tx_msg_into_args(tx_msg)?;
 
     let args = args::TxIbcTransfer {
         tx,
-        memo,
+        ibc_memo: memo,
+        ibc_shielding_data,
         source,
         receiver,
         token,

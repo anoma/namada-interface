@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { field, option } from "@dao-xyz/borsh";
+import { field, option, vec } from "@dao-xyz/borsh";
 import BigNumber from "bignumber.js";
 import { IbcTransferProps } from "../types";
 import { BigNumberSerializer } from "./utils";
@@ -31,6 +31,9 @@ export class IbcTransferMsgValue {
 
   @field({ type: option("string") })
   memo?: string;
+
+  @field({ type: option(vec("u8")) })
+  shieldingData?: Uint8Array;
 
   constructor(data: IbcTransferProps) {
     Object.assign(this, data);
