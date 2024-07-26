@@ -1,5 +1,4 @@
 import {
-  Proposal,
   ProposalStatus,
   ProposalTypeString,
   VoteProposalProps,
@@ -36,83 +35,6 @@ export const proposalFamily = atomFamily((id: bigint) =>
     };
   })
 );
-
-export type StoredProposal = Pick<
-  Proposal,
-  | "id"
-  | "author"
-  | "content"
-  | "startEpoch"
-  | "endEpoch"
-  | "activationEpoch"
-  | "startTime"
-  | "endTime"
-  | "proposalType"
-  | "tallyType"
-> &
-  (
-    | { status?: undefined }
-    | Pick<Proposal, "status" | "yay" | "nay" | "abstain" | "totalVotingPower">
-  );
-
-// TODO: switch this back on
-export const proposalFamilyPersist = proposalFamily;
-/*
-export const proposalFamilyPersist = atomFamily((id: bigint) =>
-  atomWithQuery<StoredProposal>(
-    (get) => {
-      const proposal = get(proposalFamily(id));
-
-      return {
-        enabled: proposal.isSuccess,
-        queryKey: ["proposal-persist", id.toString()],
-        queryFn: async () => {
-          const {
-            id,
-            author,
-            content,
-            startEpoch,
-            endEpoch,
-            activationEpoch,
-            startTime,
-            endTime,
-            proposalType,
-            tallyType,
-            status,
-            yay,
-            nay,
-            abstain,
-            totalVotingPower,
-          } = proposal.data!;
-
-          // If proposal is finished, it is safe to store status and voting data
-          const finishedProposalProps =
-            status === "passed" || status === "rejected" ?
-              { status, yay, nay, abstain, totalVotingPower }
-            : {};
-
-          return {
-            id,
-            author,
-            content,
-            startEpoch,
-            endEpoch,
-            activationEpoch,
-            startTime,
-            endTime,
-            proposalType,
-            tallyType,
-            ...finishedProposalProps,
-          };
-        },
-        meta: { persist: true },
-      };
-    },
-    // TODO: It should be possible to avoid passing queryClient manually
-    () => queryClient
-  )
-);
-*/
 
 export const proposalVotedFamily = atomFamily((id: bigint) =>
   atom<boolean | undefined>((get) => {

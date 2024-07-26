@@ -1,13 +1,14 @@
 import { SkeletonLoading, Stack } from "@namada/components";
+import { Proposal } from "@namada/types";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
 
-import { proposalFamilyPersist, StoredProposal } from "atoms/proposals";
+import { proposalFamily } from "atoms/proposals";
 
 export const ProposalDescription: React.FC<{
   proposalId: bigint;
 }> = ({ proposalId }) => {
-  const proposal = useAtomValue(proposalFamilyPersist(proposalId));
+  const proposal = useAtomValue(proposalFamily(proposalId));
 
   return (
     <Stack className="text-sm px-8 -mt-3" gap={4}>
@@ -22,7 +23,7 @@ export const ProposalDescription: React.FC<{
 };
 
 export const Loaded: React.FC<{
-  proposal: StoredProposal;
+  proposal: Proposal;
 }> = ({ proposal }) => {
   const [expanded, setExpanded] = useState(false);
 
