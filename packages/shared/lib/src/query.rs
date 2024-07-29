@@ -15,7 +15,7 @@ use namada::ledger::queries::RPC;
 use namada::masp::ExtendedViewingKey;
 use namada::proof_of_stake::Epoch;
 use namada::sdk::hash::Hash;
-use namada::sdk::masp::{DefaultLogger, ShieldedContext};
+use namada::sdk::masp::ShieldedContext;
 use namada::sdk::masp_primitives::asset_type::AssetType;
 use namada::sdk::masp_primitives::sapling::ViewingKey;
 use namada::sdk::masp_primitives::transaction::components::ValueSum;
@@ -27,8 +27,8 @@ use namada::sdk::rpc::{
 };
 use namada::sdk::state::Key;
 use namada::sdk::tx::{
-    TX_BOND_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSFER_WASM, TX_UNBOND_WASM,
-    TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM, TX_CLAIM_REWARDS_WASM
+    TX_BOND_WASM, TX_CLAIM_REWARDS_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSFER_WASM,
+    TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
 };
 use namada::token;
 use namada::uint::I256;
@@ -266,7 +266,8 @@ impl Query {
     }
 
     pub async fn shielded_sync(&self, owners: Box<[JsValue]>) -> Result<(), JsError> {
-        let owners: Vec<ViewingKey> = owners
+        // TODO: Can this be re-enabled?
+        let _owners: Vec<ViewingKey> = owners
             .into_iter()
             .filter_map(|owner| owner.as_string())
             .map(|o| {
@@ -288,17 +289,18 @@ impl Query {
 
         let _ = shielded.save().await?;
 
-        shielded
-            .fetch(
-                &self.client,
-                &DefaultLogger::new(&WebIo),
-                None,
-                None,
-                1,
-                &[],
-                &owners,
-            )
-            .await?;
+        // TODO: Can we still do the following? shielded.fetch() and DefaultLogger no longer exist:
+        // shielded.
+        //     .fetch(
+        //         &self.client,
+        //         // &DefaultLogger::new(&WebIo),
+        //         None,
+        //         None,
+        //         1,
+        //         &[],
+        //         &owners,
+        //     )
+        //     .await?;
 
         Ok(())
     }
@@ -471,25 +473,6 @@ impl Query {
     ) -> Result<JsValue, JsError> {
         let votes = compute_proposal_votes(&self.client, proposal_id, Epoch(epoch)).await;
 
-        //let result = query_proposal_votes(&self.client, id).await?;
-
-        //let votes: Vec<(Address, String, bool)> = result
-        //    .into_iter()
-        //    .map(|vote| {
-        //        let data = match vote.data {
-        //            ProposalVote::Yay => "yay",
-        //            ProposalVote::Nay => "nay",
-        //            ProposalVote::Abstain => "abstain"
-        //        };
-        //        let is_validator = vote.is_validator();
-        //        (
-        //            vote.delegator,
-        //            String::from(data),
-        //            is_validator
-        //        )
-        //    })
-        //    .collect();
-
         let validator_votes: Vec<(Address, String, token::Amount)> =
             Vec::from_iter(votes.validators_vote.iter().map(|(address, vote)| {
                 let vote = match vote {
@@ -506,9 +489,6 @@ impl Query {
 
                 (address.clone(), String::from(vote), voting_power)
             }));
-
-        //let validator_voting_power: Vec<(Address, token::Amount)> =
-        //    votes.validator_voting_power.into_iter().collect();
 
         let delegator_votes: Vec<(Address, String, Vec<(Address, token::Amount)>)> =
             Vec::from_iter(votes.delegators_vote.iter().map(|(address, vote)| {
@@ -528,18 +508,6 @@ impl Query {
 
                 (address.clone(), String::from(vote), voting_power)
             }));
-
-        //let validator_voting_power: Vec<(Address, Amount)> = Vec::from_iter(
-        //    votes.validator_voting_power.iter().map(|(address, voting_power)| {
-        //        let vote = match vote {
-        //            TallyVote::OnChain(ProposalVote::Yay) => "yay",
-        //            TallyVote::OnChain(ProposalVote::Nay) => "nay",
-        //            TallyVote::OnChain(ProposalVote::Abstain) => "abstain",
-        //            TallyVote::Offline(_) => panic!("received offline tally")
-        //        };
-        //        (address.clone(), String::from(vote))
-        //    })
-        //);
 
         to_js_result((validator_votes, delegator_votes))
     }
@@ -586,78 +554,6 @@ impl Query {
 
         Ok(Uint8Array::from(code.as_slice()))
     }
-
-    ///// Returns a list of all proposals
-    //pub async fn query_proposals(&self) -> Result<Uint8Array, JsError> {
-    //    let last_proposal_id_key = governance_storage::get_counter_key();
-    //    let last_proposal_id =
-    //        query_storage_value::<HttpClient, u64>(&self.client, &last_proposal_id_key)
-    //            .await
-    //            .unwrap();
-
-    //    let from_id = if last_proposal_id > 10 {
-    //        last_proposal_id - 10
-    //    } else {
-    //        0
-    //    };
-
-    //    let mut proposals: Vec<ProposalInfo> = vec![];
-    //    let epoch = RPC.shell().epoch(&self.client).await?;
-
-    //    for id in from_id..last_proposal_id {
-    //        let proposal = query_proposal_by_id(&self.client, id)
-    //            .await
-    //            .unwrap()
-    //            .expect("Proposal should be written to storage.");
-    //        let votes = compute_proposal_votes(&self.client, id, proposal.voting_end_epoch).await;
-    //        let total_voting_power =
-    //            get_total_staked_tokens(&self.client, proposal.voting_end_epoch)
-    //                .await
-    //                .unwrap();
-    //        //TODO: for now we assume that interface does not support steward accounts
-    //        let tally_type = proposal.get_tally_type(false);
-
-    //        let proposal_type = match proposal.r#type {
-    //            ProposalType::PGFSteward(_) => "pgf_steward",
-    //            ProposalType::PGFPayment(_) => "pgf_payment",
-    //            ProposalType::Default(_) => "default",
-    //        };
-    //        let status =
-    //            if proposal.voting_start_epoch <= epoch && proposal.voting_end_epoch >= epoch {
-    //                "ongoing"
-    //            } else if proposal.voting_end_epoch < epoch {
-    //                "finished"
-    //            } else {
-    //                "upcoming"
-    //            };
-
-    //        let content = serde_json::to_string(&proposal.content)?;
-
-    //        let proposal_result = compute_proposal_result(votes, total_voting_power, tally_type);
-
-    //        let proposal_info = ProposalInfo {
-    //            id: proposal.id.to_string(),
-    //            proposal_type: proposal_type.to_string(),
-    //            author: proposal.author.to_string(),
-    //            start_epoch: proposal.voting_start_epoch.0,
-    //            end_epoch: proposal.voting_end_epoch.0,
-    //            grace_epoch: proposal.grace_epoch.0,
-    //            content,
-    //            status: status.to_string(),
-    //            result: proposal_result.result.to_string(),
-    //            total_voting_power: proposal_result.total_voting_power.to_string_native(),
-    //            total_yay_power: proposal_result.total_yay_power.to_string_native(),
-    //            total_nay_power: proposal_result.total_nay_power.to_string_native(),
-    //        };
-
-    //        proposals.push(proposal_info);
-    //    }
-
-    //    let mut writer = vec![];
-    //    BorshSerialize::serialize(&proposals, &mut writer)?;
-
-    //    Ok(Uint8Array::from(writer.as_slice()))
-    //}
 
     /// Returns a list of all delegations for given addresses and epoch
     ///
