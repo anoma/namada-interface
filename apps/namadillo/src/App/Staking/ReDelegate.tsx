@@ -37,10 +37,11 @@ export const ReDelegate = (): JSX.Element => {
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(allValidatorsAtom);
+
   const {
     totalStakedAmount,
-    totalUpdatedAmount: totalToRedelegate,
     stakedAmountByAddress,
+    totalUpdatedAmount: totalToRedelegate,
     updatedAmountByAddress: amountsRemovedByAddress,
     onChangeValidatorAmount,
     myValidators,
@@ -101,7 +102,7 @@ export const ReDelegate = (): JSX.Element => {
             errorMessage={
               redelegateTxError instanceof Error ?
                 redelegateTxError.message
-                : undefined
+              : undefined
             }
           />
         ),
@@ -121,8 +122,7 @@ export const ReDelegate = (): JSX.Element => {
     );
   };
 
-  const onSubmit = (e: React.FormEvent): void => {
-    e.preventDefault();
+  const performRedelegate = (): void => {
     invariant(account, `Extension is connected but you don't have an account`);
     invariant(gasPrice, "Gas price loading is still pending");
     invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
@@ -139,6 +139,18 @@ export const ReDelegate = (): JSX.Element => {
       },
       account,
     });
+  };
+
+  const onSubmit = (e: React.FormEvent): void => {
+    e.preventDefault();
+    // Go to next page or do nothing
+    if (step === "remove" && totalToRedelegate) {
+      if (totalToRedelegate.gt(0)) {
+        setStep("assign");
+      }
+      return;
+    }
+    performRedelegate();
   };
 
   const totalAssignedAmounts = BigNumber.sum(
