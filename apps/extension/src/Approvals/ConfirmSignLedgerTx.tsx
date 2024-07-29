@@ -187,10 +187,11 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
         />
         <div className="flex-1" />
         <Stack gap={2}>
-          <ActionButton disabled={status === Status.Pending}>
+          <ActionButton borderRadius="sm" disabled={status === Status.Pending}>
             Submit
           </ActionButton>
           <ActionButton
+            borderRadius="sm"
             outlineColor="yellow"
             type="button"
             onClick={handleRejectButton}

@@ -78,10 +78,14 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
         />
         <div className="flex-1" />
         <Stack gap={2}>
-          <ActionButton disabled={!password || status === Status.Pending}>
+          <ActionButton
+            borderRadius="sm"
+            disabled={!password || status === Status.Pending}
+          >
             Authenticate
           </ActionButton>
           <ActionButton
+            borderRadius="sm"
             outlineColor="yellow"
             type="button"
             onClick={() => navigate(-1)}
