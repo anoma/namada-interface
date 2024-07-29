@@ -2,7 +2,7 @@ use namada::token::Transfer;
 use serde::Serialize;
 
 use namada::governance::VoteProposalData;
-use namada::tx::data::pos::{Bond, Redelegation, Unbond, Withdraw, ClaimRewards};
+use namada::tx::data::pos::{Bond, ClaimRewards, Redelegation, Unbond, Withdraw};
 use namada::{
     core::borsh::{self, BorshDeserialize},
     key::common::PublicKey,
@@ -11,8 +11,8 @@ use wasm_bindgen::JsError;
 
 use crate::sdk::{
     args::{
-        BondMsg, RedelegateMsg, RevealPkMsg, TransferDataMsg, TransferMsg, UnbondMsg,
-        VoteProposalMsg, WithdrawMsg, ClaimRewardsMsg
+        BondMsg, ClaimRewardsMsg, RedelegateMsg, RevealPkMsg, TransferDataMsg, TransferMsg,
+        UnbondMsg, VoteProposalMsg, WithdrawMsg,
     },
     tx::TxType,
 };
@@ -79,7 +79,7 @@ impl TransactionKind {
                 let bond = BondMsg::new(
                     source.clone().unwrap().to_string(),
                     validator.to_string(),
-                    amount.to_string(),
+                    amount.native_denominated().to_string(),
                 );
                 borsh::to_vec(&bond)?
             }
@@ -97,7 +97,7 @@ impl TransactionKind {
                 let unbond = UnbondMsg::new(
                     source.clone().unwrap().to_string(),
                     validator.to_string(),
-                    amount.to_string(),
+                    amount.native_denominated().to_string(),
                 );
                 borsh::to_vec(&unbond)?
             }
@@ -124,7 +124,7 @@ impl TransactionKind {
                     owner.to_string(),
                     src_validator.to_string(),
                     dest_validator.to_string(),
-                    amount.to_string(),
+                    amount.native_denominated().to_string(),
                 );
                 borsh::to_vec(&redelegation)?
             }
@@ -146,14 +146,14 @@ impl TransactionKind {
                 for (source, amount) in sources {
                     let owner = source.owner.to_string();
                     let token = source.token.to_string();
-                    let amount = amount.to_string();
+                    let amount = amount.amount().native_denominated().to_string();
                     sources_data.push(TransferDataMsg::new(owner, token, amount))
                 }
 
                 for (target, amount) in targets {
                     let owner = target.owner.to_string();
                     let token = target.token.to_string();
-                    let amount = amount.to_string();
+                    let amount = amount.amount().native_denominated().to_string();
                     targets_data.push(TransferDataMsg::new(owner, token, amount))
                 }
 
@@ -168,7 +168,7 @@ impl TransactionKind {
                 let ClaimRewards { validator, source } = claim_rewards;
                 let claim_rewards = ClaimRewardsMsg::new(
                     validator.to_string(),
-                    source.clone().map(|addr| addr.to_string())
+                    source.clone().map(|addr| addr.to_string()),
                 );
                 borsh::to_vec(&claim_rewards)?
             }
