@@ -103,7 +103,10 @@ export const ReDelegateTable = ({
           key={`validator-voting-power-${validator.address}`}
         >
           {validator.votingPowerInNAM && (
-            <span>{validator.votingPowerInNAM?.toString()} NAM</span>
+            <NamCurrency
+              amount={validator.votingPowerInNAM}
+              forceBalanceDisplay
+            />
           )}
           <span className="text-neutral-600 text-sm">
             {formatPercentage(BigNumber(validator.votingPowerPercentage || 0))}

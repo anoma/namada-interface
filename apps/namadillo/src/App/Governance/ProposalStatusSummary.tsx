@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 
 import { PieChart, PieChartData, Stack } from "@namada/components";
@@ -9,7 +9,7 @@ import { proposalFamily } from "atoms/proposals";
 import { useAtomValue } from "jotai";
 
 import { ProposalStatus, TallyType, VoteType, voteTypes } from "@namada/types";
-import { AnimatePresence } from "framer-motion";
+import { NamCurrency } from "App/Common/NamCurrency";
 import { colors } from "./types";
 
 // TODO: is this a good enough way to represent rational numbers?
@@ -23,7 +23,7 @@ const StatusListItem: React.FC<{
   color: string;
   leftContent: string;
   rightContent: string;
-  rightSubContent: string;
+  rightSubContent: React.ReactNode;
   selected: boolean;
 }> = ({ color, leftContent, rightContent, rightSubContent, selected }) => {
   return (
@@ -53,7 +53,7 @@ const Layout: React.FC<{
   status: ProposalStatus;
   pieChartData?: PieChartData[];
   percentages: Record<VoteType, string>;
-  amounts: Record<VoteType, string>;
+  amounts: Record<VoteType, React.ReactNode>;
   turnout: string;
   quorum: string;
   pieChartMiddle?: React.ReactNode;
@@ -221,13 +221,14 @@ const Loaded: React.FC<{
     abstain: percentageString(abstain),
   };
 
-  const amountString = (voteType: VoteType): string =>
-    props[voteType].toString() + " NAM";
+  const formattedAmount = (voteType: VoteType): React.ReactNode => (
+    <NamCurrency amount={props[voteType]} forceBalanceDisplay />
+  );
 
   const amounts = {
-    yay: amountString("yay"),
-    nay: amountString("nay"),
-    abstain: amountString("abstain"),
+    yay: formattedAmount("yay"),
+    nay: formattedAmount("nay"),
+    abstain: formattedAmount("abstain"),
   };
 
   return (

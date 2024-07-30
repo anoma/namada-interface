@@ -1,6 +1,7 @@
 import { ActionButton, TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
+import { NamCurrency } from "App/Common/NamCurrency";
 import { Search } from "App/Common/Search";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { WalletAddress } from "App/Common/WalletAddress";
@@ -75,7 +76,10 @@ export const AllValidatorsTable = ({
         key={`validator-voting-power-${validator.address}`}
       >
         {validator.votingPowerInNAM && (
-          <span>{validator.votingPowerInNAM?.toString()} NAM</span>
+          <NamCurrency
+            amount={validator.votingPowerInNAM}
+            forceBalanceDisplay
+          />
         )}
         <span className="text-neutral-600 text-sm">
           {formatPercentage(BigNumber(validator.votingPowerPercentage || 0))}

@@ -27,7 +27,7 @@ export const Currency = ({
   ...containerRest
 }: CurrencyProps): JSX.Element => {
   const currencyObj = KnownCurrencies[currency];
-  const amountParts = BigNumber(amount).toString().split(".");
+  const amountParts = BigNumber(amount).toFormat().split(".");
   const baseAmount = hideBalances ? "✳✳✳✳" : amountParts[0] || "0";
   const fraction =
     amountParts.length > 1 && !hideBalances ? amountParts[1] : "";

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { TextLink } from "./TextLink";
 
 export const ToastErrorDescription: React.FC<{
-  basicMessage?: string;
+  basicMessage?: React.ReactNode;
   errorMessage?: string;
 }> = ({ basicMessage, errorMessage }) => {
   const [expanded, setExpanded] = useState<boolean>(false);

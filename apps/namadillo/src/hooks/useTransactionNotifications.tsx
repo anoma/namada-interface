@@ -7,6 +7,7 @@ import {
   WithdrawProps,
 } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
+import { NamCurrency } from "App/Common/NamCurrency";
 import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import {
   dispatchToastNotificationAtom,
@@ -51,7 +52,13 @@ export const useTransactionNotifications = (): void => {
       dispatchNotification({
         id: e.detail.transactionId,
         title: "Staking transaction succeeded",
-        description: `Your staking transaction of ${e.detail.data.amount} NAM to ${address} has succeeded`,
+        description: (
+          <>
+            Your staking transaction of{" "}
+            <NamCurrency amount={e.detail.data.amount} /> to {address} has
+            succeeded
+          </>
+        ),
         type: "success",
         timeout: 5000,
       });
@@ -63,7 +70,12 @@ export const useTransactionNotifications = (): void => {
       dispatchNotification({
         id: e.detail.transactionId,
         title: "Unstake transaction succeeded",
-        description: `You've removed ${e.detail.data.amount} NAM from validator ${address}`,
+        description: (
+          <>
+            You{"'"}ve removed <NamCurrency amount={e.detail.data.amount} />{" "}
+            from validator {address}
+          </>
+        ),
         type: "success",
         timeout: 5000,
       });
@@ -78,7 +90,13 @@ export const useTransactionNotifications = (): void => {
         type: "error",
         description: (
           <ToastErrorDescription
-            basicMessage={`Your request to unstake ${e.detail.data.amount} NAM from ${address} has failed`}
+            basicMessage={
+              <>
+                Your request to unstake{" "}
+                <NamCurrency amount={e.detail.data.amount} /> from {address} has
+                failed
+              </>
+            }
             errorMessage={e.detail.error?.message}
           />
         ),
@@ -97,8 +115,11 @@ export const useTransactionNotifications = (): void => {
           description: (
             <ToastErrorDescription
               basicMessage={
-                `Your re-delegate transaction of ${e.detail.data.amount}` +
-                ` NAM from ${sourceAddress} to ${destAddress} has failed`
+                <>
+                  Your re-delegate transaction of{" "}
+                  <NamCurrency amount={e.detail.data.amount} /> from{" "}
+                  {sourceAddress} to {destAddress} has failed
+                </>
               }
               errorMessage={e.detail.error?.message}
             />
@@ -116,9 +137,13 @@ export const useTransactionNotifications = (): void => {
         dispatchNotification({
           id: e.detail.transactionId,
           title: "Re-delegate succeeded",
-          description:
-            `Your re-delegate transaction of ${e.detail.data.amount}` +
-            ` NAM from ${sourceAddress} to ${destAddress} has succeeded`,
+          description: (
+            <>
+              Your re-delegate transaction of{" "}
+              <NamCurrency amount={e.detail.data.amount} /> from {sourceAddress}{" "}
+              to {destAddress} has succeeded
+            </>
+          ),
           type: "success",
           timeout: 5000,
         });
