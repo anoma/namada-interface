@@ -29,13 +29,15 @@ export const Loaded: React.FC<{
 
   const { abstract, ...details } = proposal.content;
 
-  const formattedDetails = Object.entries(details).map(([key, value]) => {
-    const spacedKey = key.replaceAll("-", " ");
-    const capitalizedKey =
-      spacedKey.charAt(0).toUpperCase() + spacedKey.slice(1);
+  const formattedDetails = Object.entries(details)
+    .filter(([key]) => key !== "title")
+    .map(([key, value]) => {
+      const spacedKey = key.replaceAll("-", " ");
+      const capitalizedKey =
+        spacedKey.charAt(0).toUpperCase() + spacedKey.slice(1);
 
-    return [capitalizedKey, value];
-  });
+      return [capitalizedKey, value];
+    });
 
   return (
     <>
