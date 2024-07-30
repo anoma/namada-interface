@@ -1,5 +1,6 @@
 import { SkeletonLoading, Stack } from "@namada/components";
 import { Proposal } from "@namada/types";
+import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
 
@@ -52,7 +53,10 @@ export const Loaded: React.FC<{
         ))}
 
       <a
-        className="block text-center cursor-pointer after:content-['_+']"
+        className={clsx(
+          "block text-center cursor-pointer",
+          expanded ? "after:content-['_-']" : "after:content-['_+']"
+        )}
         onClick={() => setExpanded(!expanded)}
       >
         Show {expanded ? "Less" : "More"}
