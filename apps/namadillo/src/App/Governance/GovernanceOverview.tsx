@@ -63,7 +63,7 @@ export const GovernanceOverview: React.FC = () => {
           isEmpty={upcomingProposals.length === 0}
           atoms={[allProposals]}
         >
-          <UpcomingProposals proposals={allProposals.data!} />
+          <UpcomingProposals proposals={upcomingProposals} />
         </ProposalListPanel>
         <ProposalListPanel
           title="All Proposals"
