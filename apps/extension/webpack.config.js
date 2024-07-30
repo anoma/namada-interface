@@ -10,8 +10,8 @@ const RemovePlugin = require("remove-files-webpack-plugin");
 const packageJson = require("./package.json");
 const { getProcessEnv } = require("@namada/config/webpack.js");
 
-// Load .env from namada-interface:
-require("dotenv").config({ path: "../namada-interface/.env" });
+// Load .env from namadillo:
+require("dotenv").config({ path: "../namadillo/.env" });
 
 const { NODE_ENV, TARGET, BUNDLE_ANALYZE } = process.env;
 
