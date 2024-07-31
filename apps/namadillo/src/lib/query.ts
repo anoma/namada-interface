@@ -11,7 +11,7 @@ import { chainParametersAtom } from "atoms/chain";
 import { getSdkInstance } from "hooks";
 import invariant from "invariant";
 import { getDefaultStore } from "jotai";
-import { ChainSettings, GasConfig } from "types";
+import { Address, ChainSettings, GasConfig } from "types";
 import { TransactionEventsClasses } from "types/events";
 
 export type TransactionPair<T> = {
@@ -60,6 +60,16 @@ const getTxProps = (
   };
 };
 
+const isPublicKeyRevealed = async (address: Address): Promise<boolean> => {
+  const api = getIndexerApi();
+  let publicKey: string | undefined;
+  try {
+    publicKey = (await api.apiV1RevealedPublicKeyAddressGet(address)).data
+      ?.publicKey;
+  } catch (err) {}
+  return Boolean(publicKey);
+};
+
 /**
  * Builds an batch  transactions based on the provided query properties.
  * Each transaction is built through the provided transaction function `txFn`.
@@ -78,12 +88,8 @@ export const buildBatchTx = async <T>(
   const txs: BuiltTx[] = [];
 
   // Determine if RevealPK is needed:
-  const api = getIndexerApi();
-  const { publicKey } = (
-    await api.apiV1RevealedPublicKeyAddressGet(account.address)
-  ).data;
-
-  if (!publicKey) {
+  const publicKeyRevealed = await isPublicKeyRevealed(account.address);
+  if (!publicKeyRevealed) {
     const revealPkTx = await tx.buildRevealPk(wrapperTxProps);
     txs.push(revealPkTx.tx);
   }
@@ -96,7 +102,6 @@ export const buildBatchTx = async <T>(
 
   const initialTx = encodedTxs[0].tx;
   const wrapperTxMsg = initialTx.wrapper_tx_msg();
-
   const batchTx = tx.buildBatch(txs, wrapperTxMsg);
 
   return {

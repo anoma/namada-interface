@@ -64,10 +64,12 @@ export const buildRedelegateChange = (
 ): RedelegateChange => ({ sourceValidator, destinationValidator, amount });
 
 export const getAmountDistribution = (
-  reducedAmounts: Record<string, BigNumber>,
-  increasedAmounts: Record<string, BigNumber>
+  _reducedAmounts: Record<string, BigNumber>,
+  _increasedAmounts: Record<string, BigNumber>
 ): RedelegateChange[] => {
   const redelegateChanges: RedelegateChange[] = [];
+  const reducedAmounts = { ..._reducedAmounts };
+  const increasedAmounts = { ..._increasedAmounts };
 
   // If two addresses are present in both objects, fix the assigned amounts
   for (const address in reducedAmounts) {
