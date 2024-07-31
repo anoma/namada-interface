@@ -115,12 +115,14 @@ const IncrementBonding = (): JSX.Element => {
   };
 
   const dispatchBondingTransaction = (tx: TransactionPair<BondProps>): void => {
-    broadcastTx(
-      tx.encodedTxData,
-      tx.signedTx,
-      tx.encodedTxData.meta?.props,
-      "Bond"
-    );
+    tx.signedTxs.forEach((signedTx) => {
+      broadcastTx(
+        tx.encodedTxData,
+        signedTx,
+        tx.encodedTxData.meta?.props,
+        "Bond"
+      );
+    });
   };
 
   useEffect(() => {

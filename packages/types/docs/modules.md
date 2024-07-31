@@ -133,7 +133,7 @@
 
 #### Defined in
 
-[account.ts:32](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/account.ts#L32)
+[account.ts:32](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/account.ts#L32)
 
 ___
 
@@ -150,7 +150,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:34](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L34)
+[proposals.ts:34](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L34)
 
 ___
 
@@ -167,7 +167,7 @@ ___
 
 #### Defined in
 
-[namada.ts:23](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/namada.ts#L23)
+[namada.ts:22](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/namada.ts#L22)
 
 ___
 
@@ -177,7 +177,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:20](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L20)
+[tx/types.ts:20](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L20)
 
 ___
 
@@ -195,7 +195,7 @@ ___
 
 #### Defined in
 
-[account.ts:3](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/account.ts#L3)
+[account.ts:3](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/account.ts#L3)
 
 ___
 
@@ -205,7 +205,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:21](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L21)
+[tx/types.ts:21](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L21)
 
 ___
 
@@ -232,7 +232,7 @@ ___
 
 #### Defined in
 
-[chain.ts:49](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/chain.ts#L49)
+[chain.ts:49](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/chain.ts#L49)
 
 ___
 
@@ -242,7 +242,7 @@ ___
 
 #### Defined in
 
-[chain.ts:21](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/chain.ts#L21)
+[chain.ts:21](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/chain.ts#L21)
 
 ___
 
@@ -252,7 +252,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:32](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L32)
+[tx/types.ts:32](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L32)
 
 ___
 
@@ -262,7 +262,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:49](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L49)
+[tx/types.ts:49](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L49)
 
 ___
 
@@ -272,7 +272,7 @@ ___
 
 #### Defined in
 
-[tokens/Cosmos.ts:13](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tokens/Cosmos.ts#L13)
+[tokens/Cosmos.ts:13](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tokens/Cosmos.ts#L13)
 
 ___
 
@@ -282,7 +282,7 @@ ___
 
 #### Defined in
 
-[tokens/Cosmos.ts:6](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tokens/Cosmos.ts#L6)
+[tokens/Cosmos.ts:6](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tokens/Cosmos.ts#L6)
 
 ___
 
@@ -304,7 +304,7 @@ ___
 
 #### Defined in
 
-[chain.ts:1](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/chain.ts#L1)
+[chain.ts:1](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/chain.ts#L1)
 
 ___
 
@@ -320,7 +320,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:55](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L55)
+[proposals.ts:55](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L55)
 
 ___
 
@@ -337,7 +337,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:56](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L56)
+[proposals.ts:56](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L56)
 
 ___
 
@@ -347,7 +347,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:84](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L84)
+[proposals.ts:84](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L84)
 
 ___
 
@@ -370,7 +370,7 @@ ___
 
 #### Defined in
 
-[account.ts:21](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/account.ts#L21)
+[account.ts:21](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/account.ts#L21)
 
 ___
 
@@ -380,7 +380,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:22](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L22)
+[tx/types.ts:22](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L22)
 
 ___
 
@@ -398,7 +398,7 @@ ___
 
 #### Defined in
 
-[chain.ts:23](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/chain.ts#L23)
+[chain.ts:23](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/chain.ts#L23)
 
 ___
 
@@ -408,7 +408,7 @@ ___
 
 #### Defined in
 
-[chain.ts:18](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/chain.ts#L18)
+[chain.ts:18](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/chain.ts#L18)
 
 ___
 
@@ -418,7 +418,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:23](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L23)
+[tx/types.ts:23](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L23)
 
 ___
 
@@ -428,7 +428,7 @@ ___
 
 #### Defined in
 
-[utils.ts:1](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/utils.ts#L1)
+[utils.ts:1](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/utils.ts#L1)
 
 ___
 
@@ -442,7 +442,7 @@ ___
 
 #### Defined in
 
-[utils.ts:2](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/utils.ts#L2)
+[utils.ts:2](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/utils.ts#L2)
 
 ___
 
@@ -461,7 +461,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:47](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L47)
+[proposals.ts:47](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L47)
 
 ___
 
@@ -478,7 +478,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:58](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L58)
+[proposals.ts:58](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L58)
 
 ___
 
@@ -495,7 +495,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:57](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L57)
+[proposals.ts:57](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L57)
 
 ___
 
@@ -513,7 +513,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:40](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L40)
+[proposals.ts:40](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L40)
 
 ___
 
@@ -523,7 +523,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:15](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L15)
+[proposals.ts:15](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L15)
 
 ___
 
@@ -533,7 +533,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:10](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L10)
+[proposals.ts:10](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L10)
 
 ___
 
@@ -543,7 +543,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:59](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L59)
+[proposals.ts:59](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L59)
 
 ___
 
@@ -553,7 +553,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:61](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L61)
+[proposals.ts:61](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L61)
 
 ___
 
@@ -563,7 +563,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:24](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L24)
+[tx/types.ts:24](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L24)
 
 ___
 
@@ -573,7 +573,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:35](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L35)
+[tx/types.ts:35](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L35)
 
 ___
 
@@ -583,7 +583,7 @@ ___
 
 #### Defined in
 
-[tx/schema/index.ts:39](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/schema/index.ts#L39)
+[tx/schema/index.ts:39](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/schema/index.ts#L39)
 
 ___
 
@@ -600,7 +600,7 @@ ___
 
 #### Defined in
 
-[namada.ts:5](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/namada.ts#L5)
+[namada.ts:5](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/namada.ts#L5)
 
 ___
 
@@ -617,7 +617,7 @@ ___
 
 #### Defined in
 
-[signer.ts:3](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/signer.ts#L3)
+[signer.ts:3](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/signer.ts#L3)
 
 ___
 
@@ -631,12 +631,11 @@ ___
 | :------ | :------ |
 | `checksums?` | `Record`\<`string`, `string`\> |
 | `signer` | `string` |
-| `tx` | [`TxData`](modules.md#txdata) |
-| `txs?` | `Uint8Array`[] |
+| `txs` | [`TxData`](modules.md#txdata)[] |
 
 #### Defined in
 
-[namada.ts:10](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/namada.ts#L10)
+[namada.ts:10](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/namada.ts#L10)
 
 ___
 
@@ -646,7 +645,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:25](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L25)
+[tx/types.ts:25](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L25)
 
 ___
 
@@ -656,7 +655,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:37](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L37)
+[tx/types.ts:37](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L37)
 
 ___
 
@@ -666,7 +665,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:100](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L100)
+[proposals.ts:100](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L100)
 
 ___
 
@@ -682,7 +681,7 @@ ___
 
 #### Defined in
 
-[tokens/types.ts:19](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tokens/types.ts#L19)
+[tokens/types.ts:19](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tokens/types.ts#L19)
 
 ___
 
@@ -714,7 +713,7 @@ ___
 
 #### Defined in
 
-[tokens/types.ts:5](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tokens/types.ts#L5)
+[tokens/types.ts:5](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tokens/types.ts#L5)
 
 ___
 
@@ -724,7 +723,7 @@ ___
 
 #### Defined in
 
-[tokens/Namada.ts:21](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tokens/Namada.ts#L21)
+[tokens/Namada.ts:21](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tokens/Namada.ts#L21)
 
 ___
 
@@ -734,7 +733,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:26](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L26)
+[tx/types.ts:26](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L26)
 
 ___
 
@@ -744,7 +743,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:28](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L28)
+[tx/types.ts:28](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L28)
 
 ___
 
@@ -754,7 +753,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:27](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L27)
+[tx/types.ts:27](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L27)
 
 ___
 
@@ -771,7 +770,7 @@ ___
 
 #### Defined in
 
-[signer.ts:8](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/signer.ts#L8)
+[signer.ts:8](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/signer.ts#L8)
 
 ___
 
@@ -781,7 +780,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:55](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L55)
+[tx/types.ts:55](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L55)
 
 ___
 
@@ -791,7 +790,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:29](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L29)
+[tx/types.ts:29](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L29)
 
 ___
 
@@ -801,7 +800,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:30](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L30)
+[tx/types.ts:30](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L30)
 
 ___
 
@@ -811,7 +810,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:76](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L76)
+[proposals.ts:76](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L76)
 
 ___
 
@@ -829,7 +828,7 @@ ___
 
 #### Defined in
 
-[namada.ts:17](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/namada.ts#L17)
+[namada.ts:16](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/namada.ts#L16)
 
 ___
 
@@ -839,7 +838,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:92](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L92)
+[proposals.ts:92](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L92)
 
 ___
 
@@ -849,7 +848,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:31](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L31)
+[tx/types.ts:31](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L31)
 
 ___
 
@@ -859,7 +858,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:64](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L64)
+[proposals.ts:64](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L64)
 
 ___
 
@@ -869,7 +868,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:69](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L69)
+[proposals.ts:69](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L69)
 
 ___
 
@@ -879,7 +878,7 @@ ___
 
 #### Defined in
 
-[namada.ts:42](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/namada.ts#L42)
+[namada.ts:41](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/namada.ts#L41)
 
 ___
 
@@ -889,7 +888,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:33](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L33)
+[tx/types.ts:33](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L33)
 
 ___
 
@@ -899,7 +898,7 @@ ___
 
 #### Defined in
 
-[tx/types.ts:34](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/types.ts#L34)
+[tx/types.ts:34](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/types.ts#L34)
 
 ## Variables
 
@@ -916,7 +915,7 @@ ___
 
 #### Defined in
 
-[tx/schema/utils.ts:4](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tx/schema/utils.ts#L4)
+[tx/schema/utils.ts:4](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/schema/utils.ts#L4)
 
 ___
 
@@ -926,7 +925,7 @@ ___
 
 #### Defined in
 
-[tokens/Cosmos.ts:5](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tokens/Cosmos.ts#L5)
+[tokens/Cosmos.ts:5](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tokens/Cosmos.ts#L5)
 
 ___
 
@@ -936,7 +935,7 @@ ___
 
 #### Defined in
 
-[tokens/Cosmos.ts:22](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tokens/Cosmos.ts#L22)
+[tokens/Cosmos.ts:22](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tokens/Cosmos.ts#L22)
 
 ___
 
@@ -963,7 +962,7 @@ ___
 
 #### Defined in
 
-[chain.ts:30](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/chain.ts#L30)
+[chain.ts:30](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/chain.ts#L30)
 
 ___
 
@@ -973,7 +972,7 @@ ___
 
 #### Defined in
 
-[tokens/Namada.ts:11](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tokens/Namada.ts#L11)
+[tokens/Namada.ts:11](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tokens/Namada.ts#L11)
 
 ___
 
@@ -983,7 +982,7 @@ ___
 
 #### Defined in
 
-[tokens/Namada.ts:23](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tokens/Namada.ts#L23)
+[tokens/Namada.ts:23](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tokens/Namada.ts#L23)
 
 ___
 
@@ -993,7 +992,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:3](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L3)
+[proposals.ts:3](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L3)
 
 ___
 
@@ -1003,7 +1002,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:94](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L94)
+[proposals.ts:94](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L94)
 
 ___
 
@@ -1013,7 +1012,7 @@ ___
 
 #### Defined in
 
-[proposals.ts:63](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L63)
+[proposals.ts:63](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L63)
 
 ## Functions
 
@@ -1033,7 +1032,7 @@ vote is DelegatorVote
 
 #### Defined in
 
-[proposals.ts:89](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L89)
+[proposals.ts:89](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L89)
 
 ___
 
@@ -1053,7 +1052,7 @@ str is "pending" \| "ongoing" \| "passed" \| "rejected"
 
 #### Defined in
 
-[proposals.ts:12](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L12)
+[proposals.ts:12](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L12)
 
 ___
 
@@ -1073,7 +1072,7 @@ tallyType is "two-thirds" \| "one-half-over-one-third" \| "less-one-half-over-on
 
 #### Defined in
 
-[proposals.ts:102](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L102)
+[proposals.ts:102](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L102)
 
 ___
 
@@ -1093,7 +1092,7 @@ vote is ValidatorVote
 
 #### Defined in
 
-[proposals.ts:81](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L81)
+[proposals.ts:81](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L81)
 
 ___
 
@@ -1113,7 +1112,7 @@ str is "yay" \| "nay" \| "abstain"
 
 #### Defined in
 
-[proposals.ts:66](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/proposals.ts#L66)
+[proposals.ts:66](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/proposals.ts#L66)
 
 ___
 
@@ -1133,7 +1132,7 @@ ___
 
 #### Defined in
 
-[tokens/Cosmos.ts:66](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tokens/Cosmos.ts#L66)
+[tokens/Cosmos.ts:66](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tokens/Cosmos.ts#L66)
 
 ___
 
@@ -1153,4 +1152,4 @@ ___
 
 #### Defined in
 
-[tokens/Cosmos.ts:48](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/tokens/Cosmos.ts#L48)
+[tokens/Cosmos.ts:48](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tokens/Cosmos.ts#L48)

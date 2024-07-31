@@ -76,29 +76,33 @@ export const WithdrawalButton = ({
   const dispatchWithdrawalTransactions = async (
     tx: TransactionPair<WithdrawMsgValue>
   ): Promise<void> => {
-    broadcastTx(
-      tx.encodedTxData,
-      tx.signedTx,
-      tx.encodedTxData.meta?.props,
-      "Withdraw"
-    );
+    tx.signedTxs.forEach((signedTx) => {
+      broadcastTx(
+        tx.encodedTxData,
+        signedTx,
+        tx.encodedTxData.meta?.props,
+        "Withdraw"
+      );
+    });
   };
 
   const dispatchPendingNotification = (
     transaction: TransactionPair<WithdrawMsgValue>,
     props: BondMsgValue
   ): void => {
-    dispatchNotification({
-      id: transaction.encodedTxData.tx.tx_hash(),
-      title: "Withdrawal transaction in progress",
-      description: (
-        <>
-          The withdrawal of{" "}
-          <NamCurrency amount={props.amount || new BigNumber(0)} /> is being
-          processed
-        </>
-      ),
-      type: "pending",
+    transaction.encodedTxData.txs.forEach((tx) => {
+      dispatchNotification({
+        id: tx.tx_hash(),
+        title: "Withdrawal transaction in progress",
+        description: (
+          <>
+            The withdrawal of{" "}
+            <NamCurrency amount={props.amount || new BigNumber(0)} /> is being
+            processed
+          </>
+        ),
+        type: "pending",
+      });
     });
   };
 

@@ -1,5 +1,5 @@
 import { Chain, DerivedAccount, SignArbitraryResponse } from "@namada/types";
-import { EncodedPendingTxData } from "background/approvals";
+import { EncodedTxData } from "background/approvals";
 import { Message } from "router";
 import { validateProps } from "utils";
 
@@ -30,13 +30,13 @@ enum MessageType {
   VerifyArbitrary = "verify-arbitrary",
 }
 
-export class ApproveSignTxMsg extends Message<Uint8Array> {
+export class ApproveSignTxMsg extends Message<Uint8Array[]> {
   public static type(): MessageType {
     return MessageType.ApproveSignTx;
   }
 
   constructor(
-    public readonly tx: EncodedPendingTxData,
+    public readonly tx: EncodedTxData[],
     public readonly signer: string,
     public readonly checksums?: Record<string, string>
   ) {

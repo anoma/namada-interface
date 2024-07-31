@@ -34,7 +34,7 @@
 
 #### Defined in
 
-[signer.ts:14](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/signer.ts#L14)
+[signer.ts:14](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/signer.ts#L14)
 
 ___
 
@@ -58,34 +58,33 @@ ___
 
 #### Defined in
 
-[signer.ts:15](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/signer.ts#L15)
+[signer.ts:15](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/signer.ts#L15)
 
 ___
 
 ### sign
 
-• **sign**: (`tx`: [`TxData`](../modules.md#txdata), `signer`: `string`, `checksums?`: `Record`\<`string`, `string`\>, `txs?`: `Uint8Array`[]) => `Promise`\<`undefined` \| `Uint8Array`\>
+• **sign**: (`tx`: [`TxData`](../modules.md#txdata) \| [`TxData`](../modules.md#txdata)[], `signer`: `string`, `checksums?`: `Record`\<`string`, `string`\>) => `Promise`\<`undefined` \| `Uint8Array`[]\>
 
 #### Type declaration
 
-▸ (`tx`, `signer`, `checksums?`, `txs?`): `Promise`\<`undefined` \| `Uint8Array`\>
+▸ (`tx`, `signer`, `checksums?`): `Promise`\<`undefined` \| `Uint8Array`[]\>
 
 ##### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `tx` | [`TxData`](../modules.md#txdata) |
+| `tx` | [`TxData`](../modules.md#txdata) \| [`TxData`](../modules.md#txdata)[] |
 | `signer` | `string` |
 | `checksums?` | `Record`\<`string`, `string`\> |
-| `txs?` | `Uint8Array`[] |
 
 ##### Returns
 
-`Promise`\<`undefined` \| `Uint8Array`\>
+`Promise`\<`undefined` \| `Uint8Array`[]\>
 
 #### Defined in
 
-[signer.ts:16](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/signer.ts#L16)
+[signer.ts:16](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/signer.ts#L16)
 
 ___
 
@@ -110,7 +109,7 @@ ___
 
 #### Defined in
 
-[signer.ts:22](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/signer.ts#L22)
+[signer.ts:21](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/signer.ts#L21)
 
 ___
 
@@ -136,4 +135,4 @@ ___
 
 #### Defined in
 
-[signer.ts:26](https://github.com/anoma/namada-interface/blob/3f6d5c3f/packages/types/src/signer.ts#L26)
+[signer.ts:25](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/signer.ts#L25)

@@ -190,7 +190,7 @@ export class RevokeConnectionMsg extends Message<void> {
   }
 }
 
-export class QueryTxDetailsMsg extends Message<TxDetails> {
+export class QueryTxDetailsMsg extends Message<TxDetails[]> {
   public static type(): MessageType {
     return MessageType.QueryTxDetails;
   }

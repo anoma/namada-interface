@@ -120,12 +120,14 @@ const Unstake = (): JSX.Element => {
   const dispatchUnbondingTransaction = (
     tx: TransactionPair<UnbondProps>
   ): void => {
-    broadcastTx(
-      tx.encodedTxData,
-      tx.signedTx,
-      tx.encodedTxData.meta?.props,
-      "Unbond"
-    );
+    tx.signedTxs.forEach((signedTx) => {
+      broadcastTx(
+        tx.encodedTxData,
+        signedTx,
+        tx.encodedTxData.meta?.props,
+        "Unbond"
+      );
+    });
   };
 
   useEffect(() => {

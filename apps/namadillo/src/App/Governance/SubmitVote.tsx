@@ -26,12 +26,14 @@ import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
 const dispatchVoteTx = (tx: TransactionPair<VoteProposalProps>): void => {
-  broadcastTx(
-    tx.encodedTxData,
-    tx.signedTx,
-    tx.encodedTxData.meta?.props,
-    "VoteProposal"
-  );
+  tx.signedTxs.forEach((signedTx) => {
+    broadcastTx(
+      tx.encodedTxData,
+      signedTx,
+      tx.encodedTxData.meta?.props,
+      "VoteProposal"
+    );
+  });
 };
 
 export const SubmitVote: React.FC = () => {

@@ -60,27 +60,15 @@ export class Namada implements INamada {
     );
   }
 
-  public async sign(props: SignProps): Promise<Uint8Array | undefined> {
-    const {
-      signer,
-      tx: { txBytes, signingDataBytes },
-      checksums,
-      txs,
-    } = props;
+  public async sign(props: SignProps): Promise<Uint8Array[] | undefined> {
+    const { signer, txs, checksums } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
       new ApproveSignTxMsg(
-        {
+        txs.map(({ txBytes, signingDataBytes }) => ({
           txBytes: toBase64(txBytes),
           signingDataBytes: signingDataBytes.map((bytes) => toBase64(bytes)),
-          txs:
-            txs ?
-              txs.map(({ txBytes, signingDataBytes }) => ({
-                txBytes: toBase64(txBytes),
-                signingDataBytes: signingDataBytes.map((sd) => toBase64(sd)),
-              }))
-            : undefined,
-        },
+        })),
         signer,
         checksums
       )

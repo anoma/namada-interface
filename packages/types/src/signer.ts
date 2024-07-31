@@ -14,11 +14,10 @@ export interface Signer {
   accounts: (chainId?: string) => Promise<Account[] | undefined>;
   defaultAccount: (chainId?: string) => Promise<Account | undefined>;
   sign: (
-    tx: TxData,
+    tx: TxData | TxData[],
     signer: string,
-    checksums?: Record<string, string>,
-    txs?: TxData[]
-  ) => Promise<Uint8Array | undefined>;
+    checksums?: Record<string, string>
+  ) => Promise<Uint8Array[] | undefined>;
   signArbitrary: (
     signer: string,
     data: string

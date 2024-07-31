@@ -14,7 +14,7 @@ import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
-import { EncodedPendingTxData, PendingTx } from "./types";
+import { EncodedTxData, PendingTx } from "./types";
 
 export class ApprovalsService {
   // holds promises which can be resolved with a message from a pop-up window
@@ -38,9 +38,9 @@ export class ApprovalsService {
 
   async approveSignTx(
     signer: string,
-    tx: EncodedPendingTxData,
+    txs: EncodedTxData[],
     checksums?: Record<string, string>
-  ): Promise<Uint8Array> {
+  ): Promise<Uint8Array[]> {
     const msgId = uuid();
 
     const details = await this.keyRingService.queryAccountDetails(signer);
@@ -50,21 +50,12 @@ export class ApprovalsService {
 
     const pendingTx: PendingTx = {
       signer,
-      tx: {
-        txBytes: fromBase64(tx.txBytes),
-        signingDataBytes: tx.signingDataBytes.map((bytes) => fromBase64(bytes)),
-      },
+      txs: txs.map(({ txBytes, signingDataBytes }) => ({
+        txBytes: fromBase64(txBytes),
+        signingDataBytes: signingDataBytes.map((bytes) => fromBase64(bytes)),
+      })),
       checksums,
     };
-
-    // Ledger Tx must provide individual tx bytes for signing:
-    if (tx.txs) {
-      pendingTx.txs = tx.txs.map(({ txBytes, signingDataBytes }) => ({
-        txBytes: fromBase64(txBytes),
-        signingDataBytes: signingDataBytes.map((sd) => fromBase64(sd)),
-      }));
-    }
-
     await this.txStore.set(msgId, pendingTx);
 
     const url = `${browser.runtime.getURL(
@@ -131,16 +122,19 @@ export class ApprovalsService {
       throw new Error(`Signing data for ${msgId} not found!`);
     }
 
-    const builtTx = new BuiltTx(
-      pendingTx.tx.txBytes,
-      // TODO: In shared, fix "into_serde" call to handle Uint8Array so the following
-      // isn't needed:
-      pendingTx.tx.signingDataBytes.map((sdBytes) => [...sdBytes])
-    );
+    const txs = pendingTx.txs.map(({ txBytes, signingDataBytes }) => {
+      return new BuiltTx(
+        txBytes,
+        signingDataBytes.map((sdBytes) => [...sdBytes])
+      );
+    });
 
     try {
-      const signedTx = await this.keyRingService.sign(builtTx, signer);
-      resolvers.resolve(signedTx);
+      const signedBytes: Uint8Array[] = [];
+      for await (const tx of txs) {
+        signedBytes.push(await this.keyRingService.sign(tx, signer));
+      }
+      resolvers.resolve(signedBytes);
     } catch (e) {
       resolvers.reject(e);
     }
@@ -171,17 +165,10 @@ export class ApprovalsService {
     const { tx } = this.sdkService.getSdk();
 
     try {
-      const signedTxs = pendingTx.txs.map(
-        ({ txBytes, signingDataBytes }, i) => {
-          const signedTxBytes = tx.appendSignature(txBytes, responseSign[i]);
-          return new BuiltTx(
-            signedTxBytes,
-            signingDataBytes.map((sd) => [...sd])
-          );
-        }
-      );
-      const batchTx = tx.buildBatch(signedTxs);
-      resolvers.resolve([...batchTx.tx_bytes()]);
+      const signedTxs = pendingTx.txs.map(({ txBytes }, i) => {
+        return tx.appendSignature(txBytes, responseSign[i]);
+      });
+      resolvers.resolve(signedTxs);
     } catch (e) {
       resolvers.reject(e);
     }
@@ -308,7 +295,7 @@ export class ApprovalsService {
     await this.broadcaster.revokeConnection();
   }
 
-  async queryTxDetails(msgId: string): Promise<TxDetails> {
+  async queryTxDetails(msgId: string): Promise<TxDetails[]> {
     const pendingTx = await this.txStore.get(msgId);
 
     if (!pendingTx) {
@@ -316,7 +303,9 @@ export class ApprovalsService {
     }
 
     const { tx } = this.sdkService.getSdk();
-    return tx.deserialize(pendingTx.tx.txBytes, pendingTx.checksums || {});
+    return pendingTx.txs.map(({ txBytes }) =>
+      tx.deserialize(txBytes, pendingTx.checksums || {})
+    );
   }
 
   async queryPendingTxBytes(msgId: string): Promise<string[] | undefined> {

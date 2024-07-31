@@ -20,7 +20,7 @@ import { ApprovalsService } from "./service";
 jest.mock("webextension-polyfill", () => ({}));
 
 class UnknownMsg extends Message<unknown> {
-  validate(): void { }
+  validate(): void {}
   route(): string {
     return "unknown";
   }
@@ -42,11 +42,11 @@ describe("approvals handler", () => {
     const env = {
       isInternalMsg: true,
       senderTabId: 1,
-      requestInteraction: () => { },
+      requestInteraction: () => {},
     };
 
     const approveTxMsg = new ApproveSignTxMsg(
-      { txBytes: "", signingDataBytes: [""] },
+      [{ txBytes: "", signingDataBytes: [""] }],
       "signer"
     );
 

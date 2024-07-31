@@ -23,7 +23,7 @@ export type ApprovalDetails = {
   signer: string;
   accountType: AccountType;
   msgId: string;
-  txDetails: TxDetails;
+  txDetails: TxDetails[];
 };
 
 export type SignArbitraryDetails = {

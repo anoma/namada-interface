@@ -216,10 +216,12 @@ describe("approvals service", () => {
 
       (keyRingService.queryAccountDetails as any).mockResolvedValue(() => ({}));
 
-      const signaturePromise = service.approveSignTx(signer, {
-        txBytes,
-        signingDataBytes: [signingDataBytes],
-      });
+      const signaturePromise = service.approveSignTx(signer, [
+        {
+          txBytes,
+          signingDataBytes: [signingDataBytes],
+        },
+      ]);
 
       jest.spyOn(service as any, "_clearPendingTx");
 

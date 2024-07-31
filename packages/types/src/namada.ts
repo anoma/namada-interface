@@ -9,9 +9,8 @@ export type SignArbitraryProps = {
 
 export type SignProps = {
   signer: string;
-  tx: TxData;
+  txs: TxData[];
   checksums?: Record<string, string>;
-  txs?: TxData[];
 };
 
 export type VerifyArbitraryProps = {
@@ -30,7 +29,7 @@ export interface Namada {
   connect(): Promise<void>;
   isConnected(): Promise<boolean | undefined>;
   defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
-  sign(props: SignProps): Promise<Uint8Array | undefined>;
+  sign(props: SignProps): Promise<Uint8Array[] | undefined>;
   signArbitrary(
     props: SignArbitraryProps
   ): Promise<SignArbitraryResponse | undefined>;
