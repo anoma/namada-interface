@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useState } from "react";
+import clsx from "clsx";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 
 import { Ledger, makeBip44Path } from "@heliax/namada-sdk/web";
-import { ActionButton, Alert, Stack } from "@namada/components";
+import { ActionButton, Stack } from "@namada/components";
 import { LedgerError, ResponseSign } from "@zondax/ledger-namada";
 
 import { fromBase64 } from "@cosmjs/encoding";
 import { chains } from "@namada/chains";
+import { PageHeader } from "App/Common";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {
   QueryPendingTxBytesMsg,
@@ -15,9 +17,42 @@ import { QueryAccountDetailsMsg } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
+import { ApproveIcon } from "./ApproveIcon";
+import { LedgerIcon } from "./LedgerIcon";
+import { StatusBox } from "./StatusBox";
 
 type Props = {
   details: ApprovalDetails;
+};
+
+const Step: React.FC<{
+  title: string;
+  description: string;
+  icon: ReactNode;
+  selected: boolean;
+  disabled?: boolean;
+}> = ({ title, description, icon, selected, disabled }) => {
+  return (
+    <div
+      className={clsx(
+        "text-white p-4",
+        selected ? "border border-yellow rounded-md" : "",
+        disabled ? "opacity-25" : ""
+      )}
+    >
+      <div className="flex items-center gap-4">
+        <div className="bg-black w-20 h-20 rounded-md flex items-center justify-center">
+          {icon}
+        </div>
+        <div className="flex-1">
+          <div className="text-yellow text-base uppercase font-semibold">
+            {title}
+          </div>
+          <div className="text-sm font-medium">{description}</div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
@@ -25,6 +60,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
+  const [isLedgerConnected, setIsLedgerConnected] = useState(false);
   const { msgId, signer } = details;
 
   useEffect(() => {
@@ -54,6 +90,10 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
   const handleApproveLedgerSignTx = useCallback(
     async (e: React.FormEvent): Promise<void> => {
       e.preventDefault();
+      setIsLedgerConnected(false);
+      setStatusInfo(`Connecting Ledger...`);
+      setStatus(Status.Pending);
+
       const ledger = await Ledger.init().catch((e) => {
         setError(`${e}`);
         setStatus(Status.Failed);
@@ -71,11 +111,11 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
       if (returnCode !== LedgerError.NoErrors) {
         await ledger.closeTransport();
         setError(errorMessage);
-        return setStatus(Status.Failed);
+        setStatus(Status.Failed);
       }
 
+      setIsLedgerConnected(true);
       setStatusInfo("Preparing transaction...");
-      setStatus(Status.Pending);
 
       try {
         const accountDetails = await requester.sendMessage(
@@ -117,36 +157,49 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
         await ledger.closeTransport();
         setError(`${e}`);
         setStatus(Status.Failed);
+        setIsLedgerConnected(false);
       }
     },
     []
   );
 
+  const handleRejectButton = useCallback(() => {
+    void closeCurrentTab();
+  }, []);
+
   return (
-    <Stack gap={12} as="form" onSubmit={handleApproveLedgerSignTx}>
-      {status !== Status.Pending && status !== Status.Completed && (
-        <Alert type="warning">
-          Make sure your Ledger is unlocked, and click &quot;Submit&quot;
-        </Alert>
-      )}
-      {status === Status.Failed && (
-        <Alert type="error">
-          {error}
-          <br />
-          Try again
-        </Alert>
-      )}
-      {status === Status.Pending && <Alert type="info">{statusInfo}</Alert>}
-      {status !== Status.Pending && status !== Status.Completed && (
-        <>
-          <p className="text-white">
-            Make sure your Ledger is unlocked, and click &quot;Submit&quot;
-          </p>
-          <div className="flex">
-            <ActionButton>Submit</ActionButton>
-          </div>
-        </>
-      )}
+    <Stack full className="py-4">
+      <PageHeader title="Ledger sign" />
+      <Stack full as="form" onSubmit={handleApproveLedgerSignTx}>
+        <StatusBox status={status} pendingText={statusInfo} errorText={error} />
+        <Step
+          title="Step 1"
+          description='Make sure your Ledger is unlocked, and click "Submit"'
+          icon={<LedgerIcon />}
+          selected={!isLedgerConnected}
+          disabled={isLedgerConnected}
+        />
+        <Step
+          title="Step 2"
+          description="Review and approve transaction on your ledger"
+          icon={<ApproveIcon />}
+          selected={isLedgerConnected}
+        />
+        <div className="flex-1" />
+        <Stack gap={2}>
+          <ActionButton borderRadius="sm" disabled={status === Status.Pending}>
+            Submit
+          </ActionButton>
+          <ActionButton
+            borderRadius="sm"
+            outlineColor="yellow"
+            type="button"
+            onClick={handleRejectButton}
+          >
+            Reject
+          </ActionButton>
+        </Stack>
+      </Stack>
     </Stack>
   );
 };

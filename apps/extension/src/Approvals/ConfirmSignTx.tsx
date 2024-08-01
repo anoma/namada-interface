@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ActionButton, Alert, Input, Stack } from "@namada/components";
+import { ActionButton, Input, Stack } from "@namada/components";
+import { PageHeader } from "App/Common";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import { SubmitApprovedSignTxMsg } from "background/approvals";
 import { UnlockVaultMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
+import { StatusBox } from "./StatusBox";
 
 type Props = {
   details: ApprovalDetails;
@@ -46,7 +48,6 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
 
         setStatus(Status.Completed);
       } catch (e) {
-        console.info(e);
         setError(`${e}`);
         setStatus(Status.Failed);
       }
@@ -61,29 +62,38 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
   }, [status]);
 
   return (
-    <Stack gap={4} as="form" onSubmit={handleApproveSignTx}>
-      {status === Status.Pending && <Alert type="info">{statusInfo}</Alert>}
-      {status === Status.Failed && (
-        <Alert type="error">
-          {error}
-          <br />
-          Try again
-        </Alert>
-      )}
-      {status !== (Status.Pending || Status.Completed) && (
-        <>
-          <Alert type="warning">Verify your password to continue</Alert>
-          <Input
-            variant="Password"
-            label={"Password"}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <Stack gap={3} direction="horizontal">
-            <ActionButton disabled={!password}>Authenticate</ActionButton>
-            <ActionButton onClick={() => navigate(-1)}>Back</ActionButton>
-          </Stack>
-        </>
-      )}
+    <Stack full className="py-4">
+      <PageHeader title="Verify" />
+      <Stack full as="form" onSubmit={handleApproveSignTx}>
+        <StatusBox
+          status={status}
+          idleText="Verify your password to continue"
+          pendingText={statusInfo}
+          errorText={error}
+        />
+        <Input
+          variant="Password"
+          label={"Password"}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <div className="flex-1" />
+        <Stack gap={2}>
+          <ActionButton
+            borderRadius="sm"
+            disabled={!password || status === Status.Pending}
+          >
+            Authenticate
+          </ActionButton>
+          <ActionButton
+            borderRadius="sm"
+            outlineColor="yellow"
+            type="button"
+            onClick={() => navigate(-1)}
+          >
+            Reject
+          </ActionButton>
+        </Stack>
+      </Stack>
     </Stack>
   );
 };
