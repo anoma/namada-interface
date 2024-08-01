@@ -3,9 +3,7 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "apps/namadillo/**"
-      - ".github/workflows/**"
+
 env:
   CI: false
 jobs:
@@ -25,11 +23,6 @@ jobs:
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
-
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.3.0
-        with:
-          version: "v0.10.3"
 
       - name: build the site
         working-directory: ./apps/namadillo
@@ -51,13 +44,6 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
           NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
 
-      - name: Slack Notification
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"https://wallet-preview-heliax-dev.netlify.app"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_RELEASE }}
-
   rust-unit-test-js-cache:
     runs-on: ubuntu-latest
     steps:
@@ -74,11 +60,6 @@ jobs:
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
-
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.4.0
-        with:
-          version: "v0.10.3"
 
       - name: Compile WASM
         run: yarn wasm:build-test
@@ -103,11 +84,27 @@ jobs:
       - name: Install wsrun
         run: npm install -g wsrun
 
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.4.0
-        with:
-          version: "v0.10.3"
-
       - name: Run unit tests
         id: run-unit-tests
         run: yarn test-wasm:ci
+
+  rust-multicore-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
+
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
+        with:
+          cache-name: build-multicore
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
+      - name: Build WASM dependencies
+        working-directory: ./apps/extension
+        run: yarn wasm:build:multicore

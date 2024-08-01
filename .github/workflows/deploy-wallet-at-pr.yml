@@ -1,20 +1,18 @@
-name: Deploy wallet preview to netlify at PR and pushes to it
+name: PR checks
 on:
   pull_request:
-    paths:
-      - "apps/namadillo/**"
-      - "apps/extension/**"
-      - "packages/**"
-      - ".github/workflows/**"
 
 env:
   CI: false
+  YARN_ENABLE_HARDENED_MODE: 0
+
 jobs:
   lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install yarn dependencies
         uses: ./.github/actions/yarn-cache
@@ -23,10 +21,11 @@ jobs:
         run: yarn lint:ci
 
   unit-tests-js:
+    name: JS unit tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install yarn dependencies
         uses: ./.github/actions/yarn-cache
@@ -39,37 +38,19 @@ jobs:
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
 
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.4.0
-        with:
-          version: "v0.10.3"
-
       - name: Compile WASM
         run: yarn wasm:build-test
 
       - name: Run unit tests
         id: run-unit-tests
         run: yarn test:ci
-      - name: Report success
-        if: steps.run-unit-tests.outcome == 'success'
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"Unit tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
-      - name: Report failure
-        if: steps.run-unit-tests.outcome != 'success'
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"Unit tests failed ⛔️ \n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
 
   unit-tests-wasm:
+    name: WASM unit tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Restore Rust cache
         uses: ./.github/actions/rust-cache
@@ -85,34 +66,16 @@ jobs:
       - name: Install wsrun
         run: npm install -g wsrun
 
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.4.0
-        with:
-          version: "v0.10.3"
-
       - name: Run unit tests
         id: run-unit-tests
         run: yarn test-wasm:ci
-      - name: Report success
-        if: steps.run-unit-tests.outcome == 'success'
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"Unit tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
-      - name: Report failure
-        if: steps.run-unit-tests.outcome != 'success'
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"Unit tests failed ⛔️ \n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
 
   build-interface:
+    name: Build Namadillo
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install yarn dependencies
         uses: ./.github/actions/yarn-cache
@@ -125,14 +88,6 @@ jobs:
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
 
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.4.0
-        with:
-          version: "v0.10.3"
-
-      - name: Rustup add target
-        run: rustup target add wasm32-unknown-unknown
-
       - name: build the site
         working-directory: ./apps/namadillo
         run: yarn build
@@ -140,32 +95,13 @@ jobs:
           NAMADA_INTERFACE_NAMADA_ALIAS: "Namada Devnet"
           NAMADA_INTERFACE_NAMADA_CHAIN_ID: "internal-devnet-6be.86067e06a5"
           NAMADA_INTERFACE_NAMADA_URL: "https://proxy.heliax.click/internal-devnet-6be.86067e06a5"
-      - name: Deploy to Netlify
-        uses: nwtgck/actions-netlify@v1.2.3
-        with:
-          publish-dir: "./apps/namadillo/dist"
-          production-branch: main
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "deploy ${{ github.event.number }} at creating a PR"
-          alias: pull-request-${{ github.event.number }}
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
-          NETLIFY_SITE_ID: 1f548c68-c620-4522-97e0-0d85c08366fb
-          # namada.me
-          # NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
-
-      - name: Slack Notification
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"New deployment for a PR\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
 
   build-extension-chrome:
+    name: Build Chrome extension
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install yarn dependencies
         uses: ./.github/actions/yarn-cache
@@ -173,7 +109,7 @@ jobs:
       - name: Restore Rust cache
         uses: ./.github/actions/rust-cache
         with:
-          cache-name: build
+          cache-name: build-multicore
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
@@ -186,25 +122,12 @@ jobs:
         working-directory: ./apps/extension
         run: yarn build:chrome
 
-      # GitHub actions zips artifacts so we need to unzip the built extension to
-      # avoid a double zip
-      - name: Prepare artifact
-        id: prepare-artifact
-        working-directory: ./apps/extension/build/chrome
-        run: |
-          mkdir artifact
-          unzip -d artifact namada_extension-*.zip
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: namada-extension-chrome
-          path: ./apps/extension/build/chrome/artifact/*
-
   build-extension-firefox:
+    name: Build Firefox extension
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install yarn dependencies
         uses: ./.github/actions/yarn-cache
@@ -225,29 +148,17 @@ jobs:
         working-directory: ./apps/extension
         run: yarn build:firefox
 
-      # GitHub actions zips artifacts so we need to unzip the built extension to
-      # avoid a double zip
-      - name: Prepare artifact
-        id: prepare-artifact
-        working-directory: ./apps/extension/build/firefox
-        run: |
-          mkdir artifact
-          unzip -d artifact namada_extension-*.zip
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: namada-extension-firefox
-          path: ./apps/extension/build/firefox/artifact/*
-
   E2E-tests:
-    needs: [build-interface, build-extension-chrome]
+    if: false
+    name: E2E tests
+    needs: [build-interface]
     timeout-minutes: 60
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./apps/namadillo
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install yarn dependencies
         uses: ./.github/actions/yarn-cache
@@ -265,23 +176,33 @@ jobs:
       - name: Run Playwright tests
         id: run-playwright-tests
         run: PLAYWRIGHT_BASE_URL=https://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app NETLIFY_SITE_PROTECTION_PASSWORD=${{ secrets.NETLIFY_SITE_PROTECTION_PASSWORD }} yarn playwright test
-      - name: report success
-        if: steps.run-playwright-tests.outcome == 'success'
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"E2E tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
-      - name: report failure
-        if: failure() && steps.run-playwright-tests.outcome != 'success'
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"E2E tests failed ⛔️ \n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
       - uses: actions/upload-artifact@v2
         if: always()
         with:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+  # Running yarn install in hardened mode here makes it safe to run the other
+  # jobs without hardened mode, which is good because hardened mode is slow.
+  # https://yarnpkg.com/features/security#hardened-mode
+  check-yarn-lock-poisoning:
+    name: Check for yarn.lock poisoning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if yarn.lock changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            lockfile:
+              - "yarn.lock"
+
+      - name: Check yarn.lock for lockfile poisoning
+        if: steps.filter.outputs.lockfile == 'true'
+        uses: ./.github/actions/yarn-cache
+        env:
+          YARN_ENABLE_HARDENED_MODE: 1

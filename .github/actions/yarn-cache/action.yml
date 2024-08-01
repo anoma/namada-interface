@@ -12,6 +12,7 @@ runs:
           ./apps/*/node_modules
           ./packages/*/node_modules
           ./e2e/node_modules
+          ~/.cache/puppeteer
         key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
     - name: Install dependencies
