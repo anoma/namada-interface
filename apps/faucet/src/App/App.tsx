@@ -21,7 +21,7 @@ import { FaucetForm } from "App/Faucet";
 
 import { chains } from "@namada/chains";
 import { useUntil } from "@namada/hooks";
-import { Account, AccountType } from "@namada/types";
+import { Account } from "@namada/types";
 import { API } from "utils";
 import dotsBackground from "../../public/bg-dots.svg";
 import { CallToActionCard } from "./CallToActionCard";
@@ -174,12 +174,7 @@ export const App: React.FC = () => {
         await integration.connect();
         const accounts = await integration.accounts();
         if (accounts) {
-          setAccounts(
-            accounts.filter(
-              (account) =>
-                !account.isShielded && account.type !== AccountType.Ledger
-            )
-          );
+          setAccounts(accounts.filter((account) => !account.isShielded));
         }
         setIsExtensionConnected(true);
       } catch (e) {

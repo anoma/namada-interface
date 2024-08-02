@@ -133,17 +133,10 @@ export const FaucetForm: React.FC<Props> = ({
         throw new Error("signer not defined");
       }
 
-      const sig = await signer.signArbitrary(account.address, challenge);
-      if (!sig) {
-        throw new Error("Signature was rejected");
-      }
-
       const submitData = {
         solution,
         tag,
         challenge,
-        player_id: account.publicKey,
-        challenge_signature: sig.signature,
         transfer: {
           target: account.address,
           token: sanitizedToken,
