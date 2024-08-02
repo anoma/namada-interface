@@ -23,9 +23,9 @@ use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::query_epoch;
 use namada::sdk::signing::SigningTxData;
 use namada::sdk::tx::{
-    build_batch, build_bond, build_ibc_transfer, build_redelegation, build_reveal_pk,
-    build_transparent_transfer, build_unbond, build_vote_proposal, build_withdraw,
-    build_claim_rewards, is_reveal_pk_needed, process_tx, ProcessTxResponse,
+    build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
+    build_reveal_pk, build_transparent_transfer, build_unbond, build_vote_proposal, build_withdraw,
+    is_reveal_pk_needed, process_tx, ProcessTxResponse,
 };
 use namada::sdk::wallet::{Store, Wallet};
 use namada::sdk::{Namada, NamadaImpl};
@@ -33,8 +33,6 @@ use namada::string_encoding::Format;
 use namada::tx::Tx;
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
-
-use tx::TxType;
 
 #[wasm_bindgen]
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -60,23 +58,14 @@ pub struct TxResponse {
 #[wasm_bindgen]
 #[derive(Clone)]
 pub struct BuiltTx {
-    tx_type: TxType,
-    tx: Tx,
+    tx: Vec<u8>,
     signing_data: Vec<SigningTxData>,
-    wrapper_tx_msg: Vec<u8>,
 }
 
 #[wasm_bindgen]
 impl BuiltTx {
     #[wasm_bindgen(constructor)]
-    pub fn new(
-        tx_type: TxType,
-        tx_bytes: Vec<u8>,
-        signing_data_bytes: JsValue,
-        wrapper_tx_msg: Vec<u8>,
-    ) -> Result<BuiltTx, JsError> {
-        let tx: Tx = borsh::from_slice(&tx_bytes)?;
-
+    pub fn new(tx: Vec<u8>, signing_data_bytes: JsValue) -> Result<BuiltTx, JsError> {
         let signing_data_bytes: Vec<Vec<u8>> = signing_data_bytes
             .into_serde()
             .expect("Deserializing should not fail");
@@ -89,29 +78,16 @@ impl BuiltTx {
             signing_data.push(signing_tx_data);
         }
 
-        Ok(BuiltTx {
-            tx_type,
-            tx,
-            signing_data,
-            wrapper_tx_msg,
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
-    pub fn tx_bytes(&self) -> Result<Vec<u8>, JsError> {
-        Ok(borsh::to_vec(&self.tx)?)
+    pub fn tx_bytes(&self) -> Vec<u8> {
+        self.tx.clone()
     }
 
-    pub fn tx_hash(&self) -> String {
-        self.tx.raw_header_hash().to_string()
-    }
-
-    // Hashes for all commitments
-    pub fn tx_hashes(&self) -> Vec<String> {
-        self.tx
-            .commitments()
-            .iter()
-            .map(|cmt| cmt.get_hash().to_string())
-            .collect()
+    pub fn tx_hash(&self) -> Result<JsValue, JsError> {
+        let tx: Tx = borsh::from_slice(&self.tx_bytes())?;
+        to_js_result(tx.header_hash().to_string())
     }
 
     pub fn signing_data_bytes(&self) -> Result<JsValue, JsError> {
@@ -124,16 +100,6 @@ impl BuiltTx {
         }
 
         Ok(JsValue::from_serde(&signing_data_bytes)?)
-    }
-
-    // TODO: Add method to retrieve deserialized Tx properties
-
-    pub fn tx_type(&self) -> tx::TxType {
-        self.tx_type
-    }
-
-    pub fn wrapper_tx_msg(&self) -> Vec<u8> {
-        self.wrapper_tx_msg.clone()
     }
 }
 
@@ -255,7 +221,7 @@ impl Sdk {
         private_key: Option<String>,
         chain_id: Option<String>,
     ) -> Result<JsValue, JsError> {
-        let mut tx: Tx = built_tx.tx;
+        let mut tx: Tx = borsh::from_slice(&built_tx.tx)?;
 
         // If chain_id is provided, validate this against value in Tx header
         if let Some(c) = chain_id {
@@ -346,16 +312,12 @@ impl Sdk {
     }
 
     /// Build a batch Tx from built transactions and return the bytes
-    pub fn build_batch(
-        built_txs: Vec<BuiltTx>,
-        wrapper_tx_msg: Vec<u8>,
-    ) -> Result<BuiltTx, JsError> {
+    pub fn build_batch(built_txs: Vec<BuiltTx>) -> Result<BuiltTx, JsError> {
         let mut txs: Vec<(Tx, SigningTxData)> = vec![];
 
         // Iterate through provided BuiltTx and deserialize bytes to Tx
         for built_tx in built_txs.into_iter() {
-            let tx_bytes = &built_tx.tx_bytes()?;
-            let tx: Tx = Tx::try_from_slice(tx_bytes)?;
+            let tx: Tx = Tx::try_from_slice(&built_tx.tx_bytes())?;
             let first_signing_data = built_tx
                 .signing_data
                 .iter()
@@ -367,10 +329,8 @@ impl Sdk {
         let (tx, signing_data) = build_batch(txs.clone())?;
 
         Ok(BuiltTx {
-            tx_type: TxType::Batch,
-            tx,
+            tx: borsh::to_vec(&tx)?,
             signing_data,
-            wrapper_tx_msg,
         })
     }
 
@@ -416,10 +376,8 @@ impl Sdk {
         let (tx, signing_data) = build_transparent_transfer(&self.namada, &mut args).await?;
 
         Ok(BuiltTx {
-            tx_type: TxType::Transfer,
-            tx,
+            tx: borsh::to_vec(&tx)?,
             signing_data: vec![signing_data],
-            wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
 
@@ -433,10 +391,8 @@ impl Sdk {
         let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args).await?;
 
         Ok(BuiltTx {
-            tx_type: TxType::IBCTransfer,
-            tx,
+            tx: borsh::to_vec(&tx)?,
             signing_data: vec![signing_data],
-            wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
 
@@ -450,10 +406,8 @@ impl Sdk {
         let (tx, signing_data) = build_bridge_pool_tx(&self.namada, args.clone()).await?;
 
         Ok(BuiltTx {
-            tx_type: TxType::EthBridgeTransfer,
-            tx,
+            tx: borsh::to_vec(&tx)?,
             signing_data: vec![signing_data],
-            wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
 
@@ -470,10 +424,8 @@ impl Sdk {
             .map_err(JsError::from)?;
 
         Ok(BuiltTx {
-            tx_type: TxType::VoteProposal,
-            tx,
+            tx: borsh::to_vec(&tx)?,
             signing_data: vec![signing_data],
-            wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
 
@@ -488,10 +440,8 @@ impl Sdk {
             .map_err(JsError::from)?;
 
         Ok(BuiltTx {
-            tx_type: TxType::ClaimRewards,
-            tx,
+            tx: borsh::to_vec(&tx)?,
             signing_data: vec![signing_data],
-            wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
 
@@ -505,10 +455,8 @@ impl Sdk {
         let (tx, signing_data) = build_bond(&self.namada, &args).await?;
 
         Ok(BuiltTx {
-            tx_type: TxType::Bond,
-            tx,
+            tx: borsh::to_vec(&tx)?,
             signing_data: vec![signing_data],
-            wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
 
@@ -522,10 +470,8 @@ impl Sdk {
         let (tx, signing_data, _) = build_unbond(&self.namada, &args).await?;
 
         Ok(BuiltTx {
-            tx_type: TxType::Unbond,
-            tx,
+            tx: borsh::to_vec(&tx)?,
             signing_data: vec![signing_data],
-            wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
 
@@ -539,10 +485,8 @@ impl Sdk {
         let (tx, signing_data) = build_withdraw(&self.namada, &args).await?;
 
         Ok(BuiltTx {
-            tx_type: TxType::Withdraw,
-            tx,
+            tx: borsh::to_vec(&tx)?,
             signing_data: vec![signing_data],
-            wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
 
@@ -556,10 +500,8 @@ impl Sdk {
         let (tx, signing_data) = build_redelegation(&self.namada, &args).await?;
 
         Ok(BuiltTx {
-            tx_type: TxType::Redelegate,
-            tx,
+            tx: borsh::to_vec(&tx)?,
             signing_data: vec![signing_data],
-            wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
 
@@ -570,10 +512,8 @@ impl Sdk {
         let (tx, signing_data) = build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
 
         Ok(BuiltTx {
-            tx_type: TxType::RevealPK,
-            tx,
+            tx: borsh::to_vec(&tx)?,
             signing_data: vec![signing_data],
-            wrapper_tx_msg: Vec::from(wrapper_tx_msg),
         })
     }
 

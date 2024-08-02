@@ -23,7 +23,7 @@ export type ApprovalDetails = {
   signer: string;
   accountType: AccountType;
   msgId: string;
-  txDetails: TxDetails;
+  txDetails: TxDetails[];
 };
 
 export type SignArbitraryDetails = {
@@ -55,11 +55,11 @@ export const Approvals: React.FC = () => {
         />
         <Route
           path={TopLevelRoute.ConfirmSignTx}
-          element={<ConfirmSignTx details={details} />}
+          element={details && <ConfirmSignTx details={details} />}
         />
         <Route
           path={TopLevelRoute.ConfirmLedgerTx}
-          element={<ConfirmSignLedgerTx details={details} />}
+          element={details && <ConfirmSignLedgerTx details={details} />}
         />
         <Route
           path={TopLevelRoute.ApproveConnection}
@@ -75,7 +75,11 @@ export const Approvals: React.FC = () => {
         />
         <Route
           path={TopLevelRoute.ConfirmSignArbitrary}
-          element={<ConfirmSignature details={signArbitraryDetails} />}
+          element={
+            signArbitraryDetails && (
+              <ConfirmSignature details={signArbitraryDetails} />
+            )
+          }
         />
       </Routes>
     </Container>

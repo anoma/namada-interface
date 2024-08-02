@@ -108,7 +108,7 @@ const Unstake = (): JSX.Element => {
             errorMessage={
               unstakeTxError instanceof Error ?
                 unstakeTxError.message
-                : undefined
+              : undefined
             }
           />
         ),
@@ -120,12 +120,14 @@ const Unstake = (): JSX.Element => {
   const dispatchUnbondingTransaction = (
     tx: TransactionPair<UnbondProps>
   ): void => {
-    broadcastTx(
-      tx.encodedTxData.tx,
-      tx.signedTx,
-      tx.encodedTxData.meta?.props,
-      "Unbond"
-    );
+    tx.signedTxs.forEach((signedTx) => {
+      broadcastTx(
+        tx.encodedTxData,
+        signedTx,
+        tx.encodedTxData.meta?.props,
+        "Unbond"
+      );
+    });
   };
 
   useEffect(() => {
@@ -253,7 +255,7 @@ const Unstake = (): JSX.Element => {
             >
               {isPerformingUnbond ?
                 "Processing..."
-                : validationMessage || "Unstake"}
+              : validationMessage || "Unstake"}
             </ActionButton>
             <TransactionFees
               className="justify-self-end px-4"

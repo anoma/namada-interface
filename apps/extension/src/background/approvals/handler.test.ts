@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TxType } from "@heliax/namada-sdk/web";
 import createMockInstance from "jest-create-mock-instance";
 import {
   ApproveConnectInterfaceMsg,
@@ -47,11 +46,10 @@ describe("approvals handler", () => {
     };
 
     const approveTxMsg = new ApproveSignTxMsg(
-      TxType.Transfer,
-      { txBytes: "", signingDataBytes: [""] },
-      "signer",
-      ""
+      [{ txBytes: "", signingDataBytes: [""] }],
+      "signer"
     );
+
     handler(env, approveTxMsg);
     expect(service.approveSignTx).toBeCalled();
 

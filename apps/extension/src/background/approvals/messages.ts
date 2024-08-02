@@ -2,17 +2,20 @@ import { Message } from "router";
 import { ROUTE } from "./constants";
 
 import { TxDetails } from "@namada/types";
+import { ResponseSign } from "@zondax/ledger-namada";
 import { validateProps } from "utils";
 
 export enum MessageType {
   RejectSignTx = "reject-sign-tx",
   SubmitApprovedSignTx = "submit-approved-sign-tx",
   SubmitApprovedSignArbitrary = "submit-approved-sign-arbitrary",
+  SubmitApprovedSignLedgerTx = "submit-approved-sign-ledger-tx",
   RejectSignArbitrary = "reject-sign-arbitrary",
   ConnectInterfaceResponse = "connect-interface-response",
   RevokeConnection = "revoke-connection",
   QueryTxDetails = "query-tx-details",
   QuerySignArbitraryData = "query-sign-arbitrary-data",
+  QueryPendingTxBytes = "query-pending-tx-bytes",
 }
 
 export class SubmitApprovedSignTxMsg extends Message<void> {
@@ -37,6 +40,31 @@ export class SubmitApprovedSignTxMsg extends Message<void> {
 
   type(): string {
     return SubmitApprovedSignTxMsg.type();
+  }
+}
+
+export class SubmitApprovedSignLedgerTxMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.SubmitApprovedSignLedgerTx;
+  }
+
+  constructor(
+    public readonly msgId: string,
+    public readonly responseSign: ResponseSign[]
+  ) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["msgId", "responseSign"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SubmitApprovedSignLedgerTxMsg.type();
   }
 }
 
@@ -162,7 +190,7 @@ export class RevokeConnectionMsg extends Message<void> {
   }
 }
 
-export class QueryTxDetailsMsg extends Message<TxDetails> {
+export class QueryTxDetailsMsg extends Message<TxDetails[]> {
   public static type(): MessageType {
     return MessageType.QueryTxDetails;
   }
@@ -181,6 +209,28 @@ export class QueryTxDetailsMsg extends Message<TxDetails> {
 
   type(): string {
     return QueryTxDetailsMsg.type();
+  }
+}
+
+export class QueryPendingTxBytesMsg extends Message<string[] | undefined> {
+  public static type(): MessageType {
+    return MessageType.QueryPendingTxBytes;
+  }
+
+  constructor(public readonly msgId: string) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["msgId"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return QueryPendingTxBytesMsg.type();
   }
 }
 

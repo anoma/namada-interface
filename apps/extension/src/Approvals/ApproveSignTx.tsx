@@ -85,20 +85,23 @@ export const ApproveSignTx: React.FC<Props> = ({ details, setDetails }) => {
 
   const getDataAsText = (): string => {
     if (!details) return "";
-    return JSON.stringify(
-      {
-        ...details.txDetails,
-        commitments: details.txDetails.commitments.map((cmt) => ({
-          ...cmt,
-          txType: TxTypeLabel[cmt.txType as TxType],
-        })),
-      },
-      null,
-      2
-    );
+
+    const data = details.txDetails.map((d) => ({
+      ...d,
+      commitments: d.commitments.map((cmt) => ({
+        ...cmt,
+        txType: TxTypeLabel[cmt.txType as TxType],
+      })),
+    }));
+
+    return JSON.stringify(data.length === 1 ? data[0] : data, null, 2);
   };
 
-  const numberOfTx = details?.txDetails.commitments.length || 0;
+  const numberOfTx =
+    details?.txDetails.reduce((len, details) => {
+      return len + details.commitments.length || 0;
+    }, 0) || 0;
+
   return (
     <Stack
       className="h-full text-white pt-4 pb-6"
@@ -112,14 +115,17 @@ export const ApproveSignTx: React.FC<Props> = ({ details, setDetails }) => {
             onChangeViewData={setDisplayTransactionData}
             viewTransactionData={displayTransactionData}
           />
-          {!displayTransactionData &&
-            details?.txDetails?.commitments?.length && (
-              <Stack gap={1}>
-                {details.txDetails.commitments.map((tx, i) => (
-                  <Commitment key={i} commitment={tx} />
-                ))}
-              </Stack>
-            )}
+          {!displayTransactionData && (
+            <Stack gap={1}>
+              {details?.txDetails?.map(
+                ({ commitments }) =>
+                  commitments?.length &&
+                  commitments.map((tx, i) => (
+                    <Commitment key={`${tx.hash}-${i}`} commitment={tx} />
+                  ))
+              )}
+            </Stack>
+          )}
           {displayTransactionData && details?.txDetails && (
             <TransactionDataPanel data={getDataAsText()} />
           )}

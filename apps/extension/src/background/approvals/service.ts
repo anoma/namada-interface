@@ -1,12 +1,13 @@
-import { fromBase64 } from "@cosmjs/encoding";
+import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
 
-import { BuiltTx, TxType } from "@heliax/namada-sdk/web";
+import { BuiltTx } from "@heliax/namada-sdk/web";
 import { KVStore } from "@namada/storage";
 import { SignArbitraryResponse, TxDetails } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 
+import { ResponseSign } from "@zondax/ledger-namada";
 import { ChainsService } from "background/chains";
 import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
@@ -36,12 +37,10 @@ export class ApprovalsService {
   ) {}
 
   async approveSignTx(
-    txType: TxType,
     signer: string,
-    tx: EncodedTxData,
-    wrapperTxMsg: string,
+    txs: EncodedTxData[],
     checksums?: Record<string, string>
-  ): Promise<Uint8Array> {
+  ): Promise<Uint8Array[]> {
     const msgId = uuid();
 
     const details = await this.keyRingService.queryAccountDetails(signer);
@@ -49,19 +48,15 @@ export class ApprovalsService {
       throw new Error(`Could not find account for ${signer}`);
     }
 
-    const pendingTx = {
-      txBytes: fromBase64(tx.txBytes),
-      signingDataBytes: tx.signingDataBytes.map((bytes) => fromBase64(bytes)),
-    };
-
-    // Set PendingTx
-    await this.txStore.set(msgId, {
-      txType,
-      tx: pendingTx,
+    const pendingTx: PendingTx = {
       signer,
-      wrapperTxMsg: fromBase64(wrapperTxMsg),
+      txs: txs.map(({ txBytes, signingDataBytes }) => ({
+        txBytes: fromBase64(txBytes),
+        signingDataBytes: signingDataBytes.map((bytes) => fromBase64(bytes)),
+      })),
       checksums,
-    });
+    };
+    await this.txStore.set(msgId, pendingTx);
 
     const url = `${browser.runtime.getURL(
       "approvals.html"
@@ -127,18 +122,53 @@ export class ApprovalsService {
       throw new Error(`Signing data for ${msgId} not found!`);
     }
 
-    const builtTx = new BuiltTx(
-      pendingTx.txType,
-      pendingTx.tx.txBytes,
-      // TODO: In shared, fix "into_serde" call to handle Uint8Array so the following
-      // isn't needed:
-      pendingTx.tx.signingDataBytes.map((bytes) => [...bytes]),
-      pendingTx.wrapperTxMsg
-    );
+    const txs = pendingTx.txs.map(({ txBytes, signingDataBytes }) => {
+      return new BuiltTx(
+        txBytes,
+        signingDataBytes.map((sdBytes) => [...sdBytes])
+      );
+    });
 
     try {
-      const signature = await this.keyRingService.sign(builtTx, signer);
-      resolvers.resolve(signature);
+      const signedBytes: Uint8Array[] = [];
+      for await (const tx of txs) {
+        signedBytes.push(await this.keyRingService.sign(tx, signer));
+      }
+      resolvers.resolve(signedBytes);
+    } catch (e) {
+      resolvers.reject(e);
+    }
+
+    await this._clearPendingSignature(msgId);
+  }
+
+  async submitSignLedgerTx(
+    popupTabId: number,
+    msgId: string,
+    responseSign: ResponseSign[]
+  ): Promise<void> {
+    const pendingTx = await this.txStore.get(msgId);
+    const resolvers = this.resolverMap[popupTabId];
+
+    if (!resolvers) {
+      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
+    }
+
+    if (!pendingTx || !pendingTx.txs) {
+      throw new Error(`Transaction data for ${msgId} not found!`);
+    }
+
+    if (pendingTx.txs.length !== responseSign.length) {
+      throw new Error(`Did not receive correct signatures for tx ${msgId}`);
+    }
+
+    const { tx } = this.sdkService.getSdk();
+
+    try {
+      const signedTxs = pendingTx.txs.map(({ txBytes }, i) => {
+        return tx.appendSignature(txBytes, responseSign[i]);
+      });
+      resolvers.resolve(signedTxs);
     } catch (e) {
       resolvers.reject(e);
     }
@@ -265,7 +295,7 @@ export class ApprovalsService {
     await this.broadcaster.revokeConnection();
   }
 
-  async queryTxDetails(msgId: string): Promise<TxDetails> {
+  async queryTxDetails(msgId: string): Promise<TxDetails[]> {
     const pendingTx = await this.txStore.get(msgId);
 
     if (!pendingTx) {
@@ -273,7 +303,21 @@ export class ApprovalsService {
     }
 
     const { tx } = this.sdkService.getSdk();
-    return tx.deserialize(pendingTx.tx.txBytes, pendingTx.checksums || {});
+    return pendingTx.txs.map(({ txBytes }) =>
+      tx.deserialize(txBytes, pendingTx.checksums || {})
+    );
+  }
+
+  async queryPendingTxBytes(msgId: string): Promise<string[] | undefined> {
+    const pendingTx = await this.txStore.get(msgId);
+
+    if (!pendingTx) {
+      throw new Error(`Tx not found for ${msgId}`);
+    }
+
+    if (pendingTx.txs) {
+      return pendingTx.txs.map(({ txBytes }) => toBase64(txBytes));
+    }
   }
 
   async querySignArbitraryDetails(msgId: string): Promise<string> {

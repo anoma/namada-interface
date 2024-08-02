@@ -7,12 +7,14 @@ import {
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
   ConnectInterfaceResponseMsg,
+  QueryPendingTxBytesMsg,
   QuerySignArbitraryDataMsg,
   QueryTxDetailsMsg,
   RejectSignArbitraryMsg,
   RejectSignTxMsg,
   RevokeConnectionMsg,
   SubmitApprovedSignArbitraryMsg,
+  SubmitApprovedSignLedgerTxMsg,
   SubmitApprovedSignTxMsg,
 } from "./messages";
 import { ApprovalsService } from "./service";
@@ -66,10 +68,20 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         );
       case QueryTxDetailsMsg:
         return handleQueryTxDetails(service)(env, msg as QueryTxDetailsMsg);
+      case QueryPendingTxBytesMsg:
+        return handleQueryPendingTxBytes(service)(
+          env,
+          msg as QueryPendingTxBytesMsg
+        );
       case QuerySignArbitraryDataMsg:
         return handleQuerySignArbitraryData(service)(
           env,
           msg as QuerySignArbitraryDataMsg
+        );
+      case SubmitApprovedSignLedgerTxMsg:
+        return handleSubmitApprovedSignLedgerTxMsg(service)(
+          env,
+          msg as SubmitApprovedSignLedgerTxMsg
         );
 
       default:
@@ -121,14 +133,8 @@ const handleRevokeConnectionMsg: (
 const handleApproveSignTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveSignTxMsg> = (service) => {
-  return async (_, { signer, tx, txType, wrapperTxMsg, checksums }) => {
-    return await service.approveSignTx(
-      txType,
-      signer,
-      tx,
-      wrapperTxMsg,
-      checksums
-    );
+  return async (_, { signer, tx, checksums }) => {
+    return await service.approveSignTx(signer, tx, checksums);
   };
 };
 
@@ -180,10 +186,26 @@ const handleQueryTxDetails: (
   };
 };
 
+const handleQueryPendingTxBytes: (
+  service: ApprovalsService
+) => InternalHandler<QueryPendingTxBytesMsg> = (service) => {
+  return async (_, { msgId }) => {
+    return await service.queryPendingTxBytes(msgId);
+  };
+};
+
 const handleQuerySignArbitraryData: (
   service: ApprovalsService
 ) => InternalHandler<QuerySignArbitraryDataMsg> = (service) => {
   return async (_, { msgId }) => {
     return await service.querySignArbitraryDetails(msgId);
+  };
+};
+
+const handleSubmitApprovedSignLedgerTxMsg: (
+  service: ApprovalsService
+) => InternalHandler<SubmitApprovedSignLedgerTxMsg> = (service) => {
+  return async ({ senderTabId: popupTabId }, { msgId, responseSign }) => {
+    return await service.submitSignLedgerTx(popupTabId, msgId, responseSign);
   };
 };

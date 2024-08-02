@@ -1,5 +1,4 @@
 import { toBase64 } from "@cosmjs/encoding";
-import { TxType } from "@heliax/namada-sdk/web";
 import {
   Chain,
   DerivedAccount,
@@ -61,24 +60,16 @@ export class Namada implements INamada {
     );
   }
 
-  public async sign(props: SignProps): Promise<Uint8Array | undefined> {
-    const {
-      txType,
-      signer,
-      tx: { txBytes, signingDataBytes },
-      wrapperTxMsg,
-      checksums,
-    } = props;
+  public async sign(props: SignProps): Promise<Uint8Array[] | undefined> {
+    const { signer, txs, checksums } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
       new ApproveSignTxMsg(
-        txType as TxType,
-        {
+        txs.map(({ txBytes, signingDataBytes }) => ({
           txBytes: toBase64(txBytes),
           signingDataBytes: signingDataBytes.map((bytes) => toBase64(bytes)),
-        },
+        })),
         signer,
-        toBase64(wrapperTxMsg),
         checksums
       )
     );

@@ -31,7 +31,7 @@ export const ApproveSignArbitrary: React.FC<Props> = ({
   const navigate = useNavigate();
   const params = useSanitizedParams();
   const requester = useRequester();
-  const signer = params?.signer;
+  const signer = params.signer!;
   const query = useQuery();
   const { msgId } = query.getAll();
 

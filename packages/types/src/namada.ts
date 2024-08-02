@@ -8,12 +8,8 @@ export type SignArbitraryProps = {
 };
 
 export type SignProps = {
-  // TODO: Simplify these props!
-  // Remove txType & wrapperTxMsg!
-  txType: unknown;
   signer: string;
-  tx: TxData;
-  wrapperTxMsg: Uint8Array;
+  txs: TxData[];
   checksums?: Record<string, string>;
 };
 
@@ -33,7 +29,7 @@ export interface Namada {
   connect(): Promise<void>;
   isConnected(): Promise<boolean | undefined>;
   defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
-  sign(props: SignProps): Promise<Uint8Array | undefined>;
+  sign(props: SignProps): Promise<Uint8Array[] | undefined>;
   signArbitrary(
     props: SignArbitraryProps
   ): Promise<SignArbitraryResponse | undefined>;

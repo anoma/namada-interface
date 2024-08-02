@@ -114,12 +114,14 @@ export const ReDelegate = (): JSX.Element => {
   const dispatchReDelegateTransaction = (
     tx: TransactionPair<RedelegateMsgValue>
   ): void => {
-    broadcastTx(
-      tx.encodedTxData.tx,
-      tx.signedTx,
-      tx.encodedTxData.meta?.props,
-      "ReDelegate"
-    );
+    tx.signedTxs.forEach((signedTx) => {
+      broadcastTx(
+        tx.encodedTxData,
+        signedTx,
+        tx.encodedTxData.meta?.props,
+        "ReDelegate"
+      );
+    });
   };
 
   const performRedelegate = (): void => {

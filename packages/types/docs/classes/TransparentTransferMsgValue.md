@@ -30,7 +30,7 @@
 
 #### Defined in
 
-[tx/schema/transfer.ts:32](https://github.com/anoma/namada-interface/blob/cebcdd13/packages/types/src/tx/schema/transfer.ts#L32)
+[tx/schema/transfer.ts:32](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/schema/transfer.ts#L32)
 
 ## Properties
 
@@ -40,4 +40,4 @@
 
 #### Defined in
 
-[tx/schema/transfer.ts:30](https://github.com/anoma/namada-interface/blob/cebcdd13/packages/types/src/tx/schema/transfer.ts#L30)
+[tx/schema/transfer.ts:30](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/schema/transfer.ts#L30)

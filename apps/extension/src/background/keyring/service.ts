@@ -1,6 +1,4 @@
-import { fromHex } from "@cosmjs/encoding";
-
-import { PhraseSize, publicKeyToBech32 } from "@heliax/namada-sdk/web";
+import { PhraseSize } from "@heliax/namada-sdk/web";
 import { IndexedDBKVStore, KVStore } from "@namada/storage";
 import {
   AccountType,
@@ -78,9 +76,6 @@ export class KeyRingService {
     publicKey: string,
     bip44Path: Bip44Path
   ): Promise<AccountStore | false> {
-    const publicKeyBytes = fromHex(publicKey);
-    const bech32PublicKey = publicKeyToBech32(publicKeyBytes);
-
     const account = await this._keyRing.queryAccountByAddress(address);
     if (account) {
       throw new Error(
@@ -91,7 +86,7 @@ export class KeyRingService {
     const response = await this._keyRing.storeLedger(
       alias,
       address,
-      bech32PublicKey,
+      publicKey,
       bip44Path
     );
 
