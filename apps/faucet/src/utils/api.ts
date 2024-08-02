@@ -8,7 +8,7 @@ import {
 
 enum Endpoint {
   Settings = "/setting",
-  Challenge = "/challenge",
+  Challenge = "",
   Transfer = "",
 }
 
@@ -69,11 +69,10 @@ export class API {
   /**
    * Request challenge from endpoint url
    *
-   * @param {string} publicKey
    * @returns Object
    */
-  async challenge(publicKey: string): Promise<ChallengeResponse> {
-    return this.request(`${Endpoint.Challenge}/${publicKey}`);
+  async challenge(): Promise<ChallengeResponse> {
+    return this.request(Endpoint.Challenge);
   }
 
   /**

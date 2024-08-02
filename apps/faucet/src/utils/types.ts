@@ -20,9 +20,7 @@ export type Data = {
   solution: string;
   tag: string;
   challenge: unknown;
-  challenge_signature: string;
   transfer: TransferDetails;
-  player_id: string;
 };
 
 export type TransferResponse = {
