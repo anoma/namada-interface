@@ -213,7 +213,7 @@ export const App: React.FC = () => {
           <ContentContainer>
             <TopSection>
               <Heading className="uppercase text-black text-4xl" level="h1">
-                Namada Shielded Expedition Faucet
+                Namada Faucet
               </Heading>
             </TopSection>
             <FaucetContainer>

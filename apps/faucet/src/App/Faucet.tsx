@@ -121,7 +121,7 @@ export const FaucetForm: React.FC<Props> = ({
       }
 
       const { challenge, tag } = await api
-        .challenge(account.publicKey)
+        .challenge()
         .catch(({ message, code }) => {
           throw new Error(`Unable to request challenge: ${code} - ${message}`);
         });
@@ -133,7 +133,7 @@ export const FaucetForm: React.FC<Props> = ({
         throw new Error("signer not defined");
       }
 
-      const sig = await signer.sign(account.address, challenge);
+      const sig = await signer.signArbitrary(account.address, challenge);
       if (!sig) {
         throw new Error("Signature was rejected");
       }
@@ -247,15 +247,12 @@ export const FaucetForm: React.FC<Props> = ({
 
       <ButtonContainer>
         <ActionButton
-          style={{
-            fontSize: "1.25rem",
-            lineHeight: "1.6",
-            padding: "0.6em 2.5em",
-            margin: 0,
-          }}
+          backgroundHoverColor="yellow"
+          textHoverColor="black"
+          borderRadius="sm"
+          outlineColor="yellow"
           className={`max-w-fit ${!isFormValid && "opacity-50"}`}
           color="cyan"
-          borderRadius="lg"
           onClick={handleSubmit}
           disabled={!isFormValid}
         >
