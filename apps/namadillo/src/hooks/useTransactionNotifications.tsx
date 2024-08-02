@@ -1,4 +1,3 @@
-import { useEffectSkipFirstRender } from "@namada/hooks";
 import {
   BondProps,
   RedelegateProps,
@@ -15,38 +14,35 @@ import {
 } from "atoms/notifications";
 import { useSetAtom } from "jotai";
 import { EventData } from "types/events";
-import { addTransactionEvent } from "utils";
+import { useTransactionEventListener } from "utils";
 
 export const useTransactionNotifications = (): void => {
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const filterNotifications = useSetAtom(filterToastNotificationsAtom);
 
-  useEffectSkipFirstRender(() => {
-    initEvents();
-  }, []);
-
   const clearPendingNotifications = (): void => {
     filterNotifications((notification) => notification.type !== "pending");
   };
 
-  function initEvents(): void {
-    addTransactionEvent("Bond.Error", (e: EventData<BondProps>): void => {
-      const address = shortenAddress(e.detail.data.validator, 8, 8);
-      clearPendingNotifications();
-      dispatchNotification({
-        id: e.detail.transactionId,
-        type: "error",
-        title: "Staking transaction failed",
-        description: (
-          <ToastErrorDescription
-            basicMessage={`Your staking transaction to ${address} has failed.`}
-            errorMessage={e.detail.error?.message}
-          />
-        ),
-      });
+  useTransactionEventListener("Bond.Error", (e: EventData<BondProps>): void => {
+    const address = shortenAddress(e.detail.data.validator, 8, 8);
+    clearPendingNotifications();
+    dispatchNotification({
+      id: e.detail.transactionId,
+      type: "error",
+      title: "Staking transaction failed",
+      description: (
+        <ToastErrorDescription
+          basicMessage={`Your staking transaction to ${address} has failed.`}
+          errorMessage={e.detail.error?.message}
+        />
+      ),
     });
+  });
 
-    addTransactionEvent("Bond.Success", (e: EventData<BondProps>): void => {
+  useTransactionEventListener(
+    "Bond.Success",
+    (e: EventData<BondProps>): void => {
       const address = shortenAddress(e.detail.data.validator, 8, 8);
       clearPendingNotifications();
       dispatchNotification({
@@ -62,9 +58,12 @@ export const useTransactionNotifications = (): void => {
         type: "success",
         timeout: 5000,
       });
-    });
+    }
+  );
 
-    addTransactionEvent("Unbond.Success", (e: EventData<UnbondProps>): void => {
+  useTransactionEventListener(
+    "Unbond.Success",
+    (e: EventData<UnbondProps>): void => {
       const address = shortenAddress(e.detail.data.validator, 8, 8);
       clearPendingNotifications();
       dispatchNotification({
@@ -79,9 +78,12 @@ export const useTransactionNotifications = (): void => {
         type: "success",
         timeout: 5000,
       });
-    });
+    }
+  );
 
-    addTransactionEvent("Unbond.Error", (e: EventData<UnbondProps>): void => {
+  useTransactionEventListener(
+    "Unbond.Error",
+    (e: EventData<UnbondProps>): void => {
       const address = shortenAddress(e.detail.data.validator, 8, 8);
       clearPendingNotifications();
       dispatchNotification({
@@ -101,122 +103,122 @@ export const useTransactionNotifications = (): void => {
           />
         ),
       });
-    });
+    }
+  );
 
-    addTransactionEvent(
-      "ReDelegate.Error",
-      (e: EventData<RedelegateProps>): void => {
-        const sourceAddress = shortenAddress(e.detail.data.sourceValidator);
-        const destAddress = shortenAddress(e.detail.data.destinationValidator);
-        clearPendingNotifications();
-        dispatchNotification({
-          id: e.detail.transactionId,
-          title: "Re-delegate failed",
-          description: (
-            <ToastErrorDescription
-              basicMessage={
-                <>
-                  Your re-delegate transaction of{" "}
-                  <NamCurrency amount={e.detail.data.amount} /> from{" "}
-                  {sourceAddress} to {destAddress} has failed
-                </>
-              }
-              errorMessage={e.detail.error?.message}
-            />
-          ),
-          type: "error",
-        });
-      }
-    );
+  useTransactionEventListener(
+    "ReDelegate.Error",
+    (e: EventData<RedelegateProps>): void => {
+      const sourceAddress = shortenAddress(e.detail.data.sourceValidator);
+      const destAddress = shortenAddress(e.detail.data.destinationValidator);
+      clearPendingNotifications();
+      dispatchNotification({
+        id: e.detail.transactionId,
+        title: "Re-delegate failed",
+        description: (
+          <ToastErrorDescription
+            basicMessage={
+              <>
+                Your re-delegate transaction of{" "}
+                <NamCurrency amount={e.detail.data.amount} /> from{" "}
+                {sourceAddress} to {destAddress} has failed
+              </>
+            }
+            errorMessage={e.detail.error?.message}
+          />
+        ),
+        type: "error",
+      });
+    }
+  );
 
-    addTransactionEvent(
-      "ReDelegate.Success",
-      (e: EventData<RedelegateProps>): void => {
-        const sourceAddress = shortenAddress(e.detail.data.sourceValidator);
-        const destAddress = shortenAddress(e.detail.data.destinationValidator);
-        dispatchNotification({
-          id: e.detail.transactionId,
-          title: "Re-delegate succeeded",
-          description: (
-            <>
-              Your re-delegate transaction of{" "}
-              <NamCurrency amount={e.detail.data.amount} /> from {sourceAddress}{" "}
-              to {destAddress} has succeeded
-            </>
-          ),
-          type: "success",
-          timeout: 5000,
-        });
-      }
-    );
+  useTransactionEventListener(
+    "ReDelegate.Success",
+    (e: EventData<RedelegateProps>): void => {
+      const sourceAddress = shortenAddress(e.detail.data.sourceValidator);
+      const destAddress = shortenAddress(e.detail.data.destinationValidator);
+      dispatchNotification({
+        id: e.detail.transactionId,
+        title: "Re-delegate succeeded",
+        description: (
+          <>
+            Your re-delegate transaction of{" "}
+            <NamCurrency amount={e.detail.data.amount} /> from {sourceAddress}{" "}
+            to {destAddress} has succeeded
+          </>
+        ),
+        type: "success",
+        timeout: 5000,
+      });
+    }
+  );
 
-    addTransactionEvent(
-      "Withdraw.Success",
-      (e: EventData<WithdrawProps>): void => {
-        const address = shortenAddress(e.detail.data.source, 8, 8);
-        clearPendingNotifications();
-        dispatchNotification({
-          id: e.detail.transactionId,
-          title: "Withdrawal Success",
-          description:
-            `Your withdrawal transaction ` + ` from ${address} has succeeded`,
-          type: "success",
-          timeout: 5000,
-        });
-      }
-    );
+  useTransactionEventListener(
+    "Withdraw.Success",
+    (e: EventData<WithdrawProps>): void => {
+      const address = shortenAddress(e.detail.data.source, 8, 8);
+      clearPendingNotifications();
+      dispatchNotification({
+        id: e.detail.transactionId,
+        title: "Withdrawal Success",
+        description:
+          `Your withdrawal transaction ` + ` from ${address} has succeeded`,
+        type: "success",
+        timeout: 5000,
+      });
+    }
+  );
 
-    addTransactionEvent(
-      "Withdraw.Error",
-      (e: EventData<WithdrawProps>): void => {
-        const address = shortenAddress(e.detail.data.source, 8, 8);
-        clearPendingNotifications();
-        dispatchNotification({
-          id: e.detail.transactionId,
-          title: "Withdrawal Error",
-          description: (
-            <ToastErrorDescription
-              basicMessage={
-                `Your withdrawal transaction ` + ` from ${address} has failed`
-              }
-              errorMessage={e.detail.error?.message}
-            />
-          ),
-          type: "error",
-        });
-      }
-    );
+  useTransactionEventListener(
+    "Withdraw.Error",
+    (e: EventData<WithdrawProps>): void => {
+      const address = shortenAddress(e.detail.data.source, 8, 8);
+      clearPendingNotifications();
+      dispatchNotification({
+        id: e.detail.transactionId,
+        title: "Withdrawal Error",
+        description: (
+          <ToastErrorDescription
+            basicMessage={
+              `Your withdrawal transaction ` + ` from ${address} has failed`
+            }
+            errorMessage={e.detail.error?.message}
+          />
+        ),
+        type: "error",
+      });
+    }
+  );
 
-    addTransactionEvent(
-      "VoteProposal.Error",
-      (e: EventData<VoteProposalProps>): void => {
-        clearPendingNotifications();
-        dispatchNotification({
-          id: e.detail.transactionId,
-          type: "error",
-          title: "Staking transaction failed",
-          description: (
-            <ToastErrorDescription
-              basicMessage={`Your vote transaction for proposal ${e.detail.data.proposalId} has failed.`}
-              errorMessage={e.detail.error?.message}
-            />
-          ),
-        });
-      }
-    );
+  useTransactionEventListener(
+    "VoteProposal.Error",
+    (e: EventData<VoteProposalProps>): void => {
+      clearPendingNotifications();
+      dispatchNotification({
+        id: e.detail.transactionId,
+        type: "error",
+        title: "Staking transaction failed",
+        description: (
+          <ToastErrorDescription
+            basicMessage={`Your vote transaction for proposal ${e.detail.data.proposalId} has failed.`}
+            errorMessage={e.detail.error?.message}
+          />
+        ),
+      });
+    }
+  );
 
-    addTransactionEvent(
-      "VoteProposal.Success",
-      (e: EventData<VoteProposalProps>): void => {
-        clearPendingNotifications();
-        dispatchNotification({
-          id: e.detail.transactionId,
-          title: "Staking transaction succeeded",
-          description: `Your vote transaction for proposal ${e.detail.data.proposalId} has succeeded`,
-          type: "success",
-          timeout: 5000,
-        });
-      }
-    );
-  }
+  useTransactionEventListener(
+    "VoteProposal.Success",
+    (e: EventData<VoteProposalProps>): void => {
+      clearPendingNotifications();
+      dispatchNotification({
+        id: e.detail.transactionId,
+        title: "Staking transaction succeeded",
+        description: `Your vote transaction for proposal ${e.detail.data.proposalId} has succeeded`,
+        type: "success",
+        timeout: 5000,
+      });
+    }
+  );
 };

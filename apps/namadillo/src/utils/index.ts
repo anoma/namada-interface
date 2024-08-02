@@ -1,6 +1,7 @@
 import { ProposalStatus, ProposalTypeString } from "@namada/types";
 import * as fns from "date-fns";
 import { DateTime } from "luxon";
+import { useEffect } from "react";
 import { EventData, TransactionEvent } from "types/events";
 
 export const proposalStatusToString = (status: ProposalStatus): string => {
@@ -33,11 +34,16 @@ export const epochToString = (epoch: bigint): string =>
 export const proposalIdToString = (proposalId: bigint): string =>
   `#${proposalId.toString()}`;
 
-export const addTransactionEvent = <T>(
+export const useTransactionEventListener = <T>(
   handle: TransactionEvent,
   callback: (e: EventData<T>) => void
 ): void => {
-  window.addEventListener(handle, callback as EventListener, false);
+  useEffect(() => {
+    window.addEventListener(handle, callback as EventListener);
+    return () => {
+      window.removeEventListener(handle, callback as EventListener);
+    };
+  }, []);
 };
 
 const secondsToDateTime = (seconds: bigint): DateTime =>
