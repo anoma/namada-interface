@@ -102,7 +102,7 @@ export const DeleteAccount = (): JSX.Element => {
               <LinkButton
                 color="primary"
                 className="font-bold mt-4 text-sm underline"
-                href={routes.viewAccountMnemonic(accountId)}
+                onClick={() => navigate(routes.viewAccountMnemonic(accountId))}
               >
                 Back Up My Wallet
               </LinkButton>
