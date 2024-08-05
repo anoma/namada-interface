@@ -1,3 +1,11 @@
+import {
+  BondProps,
+  RedelegateProps,
+  UnbondProps,
+  VoteProposalProps,
+  WithdrawProps,
+} from "@namada/types";
+
 export type TransactionEventsClasses =
   | "Bond"
   | "Unbond"
@@ -22,4 +30,19 @@ export interface EventData<T> extends CustomEvent {
     data: T;
     error?: Error;
   };
+}
+
+declare global {
+  interface WindowEventMap {
+    "Bond.Success": EventData<BondProps>;
+    "Bond.Error": EventData<BondProps>;
+    "Unbond.Success": EventData<UnbondProps>;
+    "Unbond.Error": EventData<UnbondProps>;
+    "ReDelegate.Success": EventData<RedelegateProps>;
+    "ReDelegate.Error": EventData<RedelegateProps>;
+    "Withdraw.Success": EventData<WithdrawProps>;
+    "Withdraw.Error": EventData<WithdrawProps>;
+    "VoteProposal.Success": EventData<VoteProposalProps>;
+    "VoteProposal.Error": EventData<VoteProposalProps>;
+  }
 }
