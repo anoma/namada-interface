@@ -1,8 +1,15 @@
-import { ReactNode } from "react";
+import clsx from "clsx";
+import { MouseEvent, ReactNode } from "react";
+import { GoChevronDown, GoChevronUp } from "react-icons/go";
 import { twMerge } from "tailwind-merge";
+
+export type SortableHeaderOptions = "desc" | "asc";
 
 export type TableHeader = {
   children: ReactNode;
+  sortable?: boolean;
+  sorting?: SortableHeaderOptions;
+  onSort?: (sorting: SortableHeaderOptions) => void;
 } & React.ComponentPropsWithoutRef<"th">;
 
 type StyledTableHeadProps = {
@@ -25,14 +32,39 @@ const renderTableHeaderElement = (
   const baseClassName = `px-6 py-2`;
 
   if (checkIsTableHeader(h)) {
-    const { className: additionalClassName, children, ...props } = h;
+    const {
+      className: additionalClassName,
+      children,
+      onClick,
+      sortable,
+      onSort,
+      sorting,
+      ...props
+    } = h;
+
+    const _onClick = (e: MouseEvent<HTMLTableCellElement>): void => {
+      if (sortable && onSort) {
+        onSort(sorting === "desc" ? "asc" : "desc");
+      }
+      if (onClick) onClick(e);
+    };
+
     return (
       <th
         key={key}
-        className={twMerge(baseClassName, additionalClassName)}
+        className={twMerge(
+          clsx(baseClassName, additionalClassName, {
+            "cursor-pointer flex items-center justify-between": sortable,
+          })
+        )}
+        onClick={_onClick}
         {...props}
       >
         {children}
+        <span className="pl-4">
+          {sorting === "desc" && <GoChevronUp />}
+          {sorting === "asc" && <GoChevronDown />}
+        </span>
       </th>
     );
   }

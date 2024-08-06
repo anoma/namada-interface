@@ -1,5 +1,10 @@
-import { StyledTable } from "@namada/components";
+import {
+  SortableHeaderOptions,
+  StyledTable,
+  StyledTableProps,
+} from "@namada/components";
 import type { StoryObj } from "@storybook/react";
+import { useMemo, useState } from "react";
 import cosmostationLogo from "../../public/images/cosmostation.png";
 import everstakeLogo from "../../public/images/everstake.png";
 
@@ -50,6 +55,51 @@ export const Default: Story = {
       },
     ],
   },
+};
+
+const SortableTitlesExample = (props: StyledTableProps): JSX.Element => {
+  const [nameSort, setNameSort] = useState<SortableHeaderOptions | undefined>();
+  const data = [
+    { id: 1, name: "Justin" },
+    { id: 2, name: "Mateusz" },
+    { id: 3, name: "Pedro" },
+    { id: 4, name: "Eric" },
+    { id: 5, name: "Harri" },
+  ];
+
+  const rows = useMemo(() => {
+    if (!nameSort) return data;
+    return data.sort((entry1, entry2) => {
+      if (nameSort === "asc") return entry2.name.localeCompare(entry1.name);
+      return entry1.name.localeCompare(entry2.name);
+    });
+  }, [nameSort]);
+
+  return (
+    <StyledTable
+      {...props}
+      headers={[
+        "ID",
+        {
+          children: "Name",
+          sortable: true,
+          onSort: (order: SortableHeaderOptions) => {
+            setNameSort(order);
+          },
+          sorting: nameSort,
+        },
+      ]}
+      rows={rows.map((row) => ({ cells: [row.id, row.name] }))}
+    />
+  );
+};
+
+export const WithSortableTitles: Story = {
+  decorators: [
+    (_Story, context) => {
+      return <SortableTitlesExample {...context.args} />;
+    },
+  ],
 };
 
 export const WithEmptyTitles: Story = {
