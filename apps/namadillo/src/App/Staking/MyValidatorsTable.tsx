@@ -28,11 +28,11 @@ export const MyValidatorsTable = (): JSX.Element => {
   const head = [
     "My Validators",
     "Address",
-    <div key="my-validators-vp" className="text-right">
-      Voting Power
-    </div>,
     <div key="my-validators-staked-amount" className="text-right">
       Staked Amount
+    </div>,
+    <div key="my-validators-vp" className="text-right">
+      Voting Power
     </div>,
     <div key="my-validators-comission" className="text-right">
       Commission
@@ -54,6 +54,12 @@ export const MyValidatorsTable = (): JSX.Element => {
           address={validator.address}
         />,
         <div
+          key={`my-validator-currency-${validator.address}`}
+          className="text-right leading-tight"
+        >
+          <NamCurrency amount={stakedAmount || new BigNumber(0)} />
+        </div>,
+        <div
           className="flex flex-col text-right leading-tight"
           key={`my-validator-voting-power-${validator.address}`}
         >
@@ -66,12 +72,6 @@ export const MyValidatorsTable = (): JSX.Element => {
           <span className="text-neutral-600 text-sm">
             {formatPercentage(BigNumber(validator.votingPowerPercentage || 0))}
           </span>
-        </div>,
-        <div
-          key={`my-validator-currency-${validator.address}`}
-          className="text-right leading-tight"
-        >
-          <NamCurrency amount={stakedAmount || new BigNumber(0)} />
         </div>,
         <div
           key={`comission-${validator.address}`}
