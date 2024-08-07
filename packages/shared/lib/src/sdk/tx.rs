@@ -151,7 +151,7 @@ impl TxDetails {
 
         let tx_details = match tx.header().tx_type {
             tx::data::TxType::Wrapper(wrapper) => {
-                let fee_amount = wrapper.get_tx_fee()?.to_string();
+                let fee_amount = wrapper.fee.amount_per_gas_unit.to_string();
                 let gas_limit = Uint::from(wrapper.gas_limit).to_string();
                 let token = wrapper.fee.token.to_string();
 
