@@ -45,12 +45,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anomaorg/namada-indexer-client@npm:0.0.20":
-  version: 0.0.20
-  resolution: "@anomaorg/namada-indexer-client@npm:0.0.20"
+"@anomaorg/namada-indexer-client@npm:0.0.21":
+  version: 0.0.21
+  resolution: "@anomaorg/namada-indexer-client@npm:0.0.21"
   dependencies:
     axios: "npm:^0.21.1"
-  checksum: d5cc8cf1691559758e0773379f54e2203f05a44b057f05053c3e21820ff96eb29c502e1a4b0148d6e6b1322ce88ada9fa027f36b88d60eded76d8fc6f8fb66e1
+  checksum: 4b9632145eee1d20672ad65eef447ed90e3abfc2fee09a5c3e40fc5fd9321ff83aff03acf4be75abe1c74c83fc635216f46f5c58155c11a291656bb822f05465
   languageName: node
   linkType: hard
 
@@ -8429,7 +8429,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@namada/namadillo@workspace:apps/namadillo"
   dependencies:
-    "@anomaorg/namada-indexer-client": "npm:0.0.20"
+    "@anomaorg/namada-indexer-client": "npm:0.0.21"
     "@cosmjs/encoding": "npm:^0.32.3"
     "@playwright/test": "npm:^1.24.1"
     "@release-it/keep-a-changelog": "npm:^5.0.0"
