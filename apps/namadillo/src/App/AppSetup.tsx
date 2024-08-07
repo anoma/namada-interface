@@ -1,5 +1,5 @@
 import { useUntilIntegrationAttached } from "@namada/integrations";
-import { chainAtom } from "atoms/chain";
+import { chainAtomWithRefetch } from "atoms/chain";
 import {
   defaultServerConfigAtom,
   indexerHeartbeatAtom,
@@ -20,7 +20,7 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
   const indexerUrl = useAtomValue(indexerUrlAtom);
   const indexerHeartbeat = useAtomValue(indexerHeartbeatAtom);
   const tomlConfig = useAtomValue(defaultServerConfigAtom);
-  const chain = useAtomValue(chainAtom);
+  const chain = useAtomValue(chainAtomWithRefetch);
   const extensionAttachStatus = useUntilIntegrationAttached();
   const extensionReady = extensionAttachStatus !== "pending";
   const errorContainerProps = { className: "text-white h-svh" };
