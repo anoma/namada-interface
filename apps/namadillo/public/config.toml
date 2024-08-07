@@ -1,4 +1,4 @@
 # Uncomment the following lines to define your default indexer and rpc urls
-#indexer_url = ""
-#rpc_url = ""
+indexer_url = "https://indexer.public.heliax.work/internal-devnet-it.14814a0e13c"
+rpc_url = "https://proxy.public.heliax.work/internal-devnet-it.14814a0e13c"
 

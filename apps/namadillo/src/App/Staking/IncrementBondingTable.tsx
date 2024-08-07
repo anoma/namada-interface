@@ -4,8 +4,10 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { NamInput } from "App/Common/NamInput";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { Validator } from "types";
+import { SortedColumnPair, Validator } from "types";
+import { createSortableHeaderOption, sortCollection } from "utils/sorting";
 import { ValidatorCard } from "./ValidatorCard";
 import { ValidatorsTable } from "./ValidatorsTable";
 
@@ -17,6 +19,8 @@ type IncrementBondingTableProps = {
   resultsPerPage?: number;
 };
 
+type SortableColumns = "votingPowerInNAM" | "expectedApr";
+
 export const IncrementBondingTable = ({
   validators,
   updatedAmountByAddress,
@@ -24,6 +28,13 @@ export const IncrementBondingTable = ({
   onChangeValidatorAmount,
   resultsPerPage = 100,
 }: IncrementBondingTableProps): JSX.Element => {
+  const [sorting, setSorting] = useState<SortedColumnPair<SortableColumns>>();
+
+  const sortedValidators = useMemo(() => {
+    if (!sorting) return validators;
+    return sortCollection<Validator, SortableColumns>(validators, sorting);
+  }, [sorting, validators]);
+
   const headers = [
     { children: "Validator" },
     "Amount to Stake",
@@ -36,8 +47,18 @@ export const IncrementBondingTable = ({
       ),
       className: "text-right",
     },
-    { children: "Voting Power", className: "text-right" },
-    { children: "Commission", className: "text-right" },
+    createSortableHeaderOption<Validator, SortableColumns>(
+      <div className="w-full text-right">Voting Power</div>,
+      "votingPowerInNAM",
+      setSorting,
+      sorting
+    ),
+    createSortableHeaderOption<Validator, SortableColumns>(
+      <div className="w-full text-right">Commission</div>,
+      "expectedApr",
+      setSorting,
+      sorting
+    ),
   ];
 
   const renderRow = (validator: Validator): TableRow => {
@@ -136,7 +157,7 @@ export const IncrementBondingTable = ({
     <ValidatorsTable
       id="increment-bonding-table"
       tableClassName="flex-1 overflow-auto mt-2"
-      validatorList={validators}
+      validatorList={sortedValidators}
       updatedAmountByAddress={updatedAmountByAddress}
       headers={headers}
       renderRow={renderRow}

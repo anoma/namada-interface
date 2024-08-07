@@ -1,9 +1,9 @@
 import clsx from "clsx";
 import { MouseEvent, ReactNode } from "react";
-import { GoChevronDown, GoChevronUp } from "react-icons/go";
+import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa6";
 import { twMerge } from "tailwind-merge";
 
-export type SortableHeaderOptions = "desc" | "asc";
+export type SortableHeaderOptions = "desc" | "asc" | undefined;
 
 export type TableHeader = {
   children: ReactNode;
@@ -54,17 +54,24 @@ const renderTableHeaderElement = (
         key={key}
         className={twMerge(
           clsx(baseClassName, additionalClassName, {
-            "cursor-pointer flex items-center justify-between": sortable,
+            "cursor-pointer": sortable,
           })
         )}
         onClick={_onClick}
         {...props}
       >
-        {children}
-        <span className="pl-4">
-          {sorting === "desc" && <GoChevronUp />}
-          {sorting === "asc" && <GoChevronDown />}
-        </span>
+        <div className="flex items-center justify-between">
+          <span className="w-full">{children}</span>
+          {sortable && (
+            <span
+              className={clsx("pl-2", { "text-white": sorting !== undefined })}
+            >
+              {sorting === "desc" && <FaSortUp className="mt-[0.5em]" />}
+              {sorting === "asc" && <FaSortDown className="mt-[-0.5em]" />}
+              {sorting === undefined && <FaSort />}
+            </span>
+          )}
+        </div>
       </th>
     );
   }

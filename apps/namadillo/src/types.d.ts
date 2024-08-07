@@ -125,3 +125,7 @@ export type TxKind =
   | "ClaimRewards"
   | "VoteProposal"
   | "Unknown";
+
+export type SortOptions = "asc" | "desc" | undefined;
+
+export type SortedColumnPair<T> = [id: T, SortOptions] | undefined;
