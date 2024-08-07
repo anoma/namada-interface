@@ -19,6 +19,7 @@ export const ValidatorDiversification = (): JSX.Element => {
         textHoverColor="black"
         backgroundHoverColor="cyan"
         href="https://namada.net"
+        target="_blank"
         borderRadius="sm"
         size="xs"
       >
