@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 import { StyledTableHead, TableHeader } from "./StyledTableHead";
 import { StyledTableRow, TableRow } from "./StyledTableRow";
 
-type StyledTableProps = {
+export type StyledTableProps = {
   id: string;
   containerClassName?: string;
   tableProps?: React.ComponentPropsWithoutRef<"table">;
@@ -29,7 +29,7 @@ export const StyledTable = ({
       headers && (
         <StyledTableHead id={id} headers={headers} headProps={headProps} />
       ),
-    []
+    [headers]
   );
 
   return (

@@ -4,6 +4,7 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { NamInput } from "App/Common/NamInput";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
 import { twMerge } from "tailwind-merge";
 import { Validator } from "types";
 import { ValidatorCard } from "./ValidatorCard";
@@ -24,6 +25,11 @@ export const IncrementBondingTable = ({
   onChangeValidatorAmount,
   resultsPerPage = 100,
 }: IncrementBondingTableProps): JSX.Element => {
+  const { sortableColumns, sortedValidators } = useValidatorTableSorting({
+    validators,
+    stakedAmountByAddress,
+  });
+
   const headers = [
     { children: "Validator" },
     "Amount to Stake",
@@ -35,9 +41,16 @@ export const IncrementBondingTable = ({
         </div>
       ),
       className: "text-right",
+      ...sortableColumns["stakedAmount"],
     },
-    { children: "Voting Power", className: "text-right" },
-    { children: "Commission", className: "text-right" },
+    {
+      children: <div className="w-full text-right">Voting Power</div>,
+      ...sortableColumns["votingPowerInNAM"],
+    },
+    {
+      children: <div className="w-full text-right">Commission</div>,
+      ...sortableColumns["commission"],
+    },
   ];
 
   const renderRow = (validator: Validator): TableRow => {
@@ -136,7 +149,7 @@ export const IncrementBondingTable = ({
     <ValidatorsTable
       id="increment-bonding-table"
       tableClassName="flex-1 overflow-auto mt-2"
-      validatorList={validators}
+      validatorList={sortedValidators}
       updatedAmountByAddress={updatedAmountByAddress}
       headers={headers}
       renderRow={renderRow}

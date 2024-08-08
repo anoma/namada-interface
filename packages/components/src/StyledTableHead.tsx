@@ -1,8 +1,15 @@
-import { ReactNode } from "react";
+import clsx from "clsx";
+import { MouseEvent, ReactNode } from "react";
+import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa6";
 import { twMerge } from "tailwind-merge";
+
+export type SortableHeaderOptions = "desc" | "asc" | undefined;
 
 export type TableHeader = {
   children: ReactNode;
+  sortable?: boolean;
+  sorting?: SortableHeaderOptions;
+  onSort?: (sorting: SortableHeaderOptions) => void;
 } & React.ComponentPropsWithoutRef<"th">;
 
 type StyledTableHeadProps = {
@@ -25,14 +32,50 @@ const renderTableHeaderElement = (
   const baseClassName = `px-6 py-2`;
 
   if (checkIsTableHeader(h)) {
-    const { className: additionalClassName, children, ...props } = h;
+    const {
+      className: additionalClassName,
+      children,
+      onClick,
+      sortable,
+      onSort,
+      sorting,
+      ...props
+    } = h;
+
+    const _onClick = (e: MouseEvent<HTMLTableCellElement>): void => {
+      if (sortable && onSort) {
+        onSort(
+          sorting === undefined ? "desc"
+          : sorting === "desc" ? "asc"
+          : undefined
+        );
+      }
+      if (onClick) onClick(e);
+    };
+
     return (
       <th
         key={key}
-        className={twMerge(baseClassName, additionalClassName)}
+        className={twMerge(
+          clsx(baseClassName, additionalClassName, {
+            "cursor-pointer": sortable,
+          })
+        )}
+        onClick={_onClick}
         {...props}
       >
-        {children}
+        <div className="flex items-center justify-between">
+          <span className="w-full">{children}</span>
+          {sortable && (
+            <span
+              className={clsx("pl-2", { "text-white": sorting !== undefined })}
+            >
+              {sorting === "desc" && <FaSortUp className="mt-[0.5em]" />}
+              {sorting === "asc" && <FaSortDown className="mt-[-0.5em]" />}
+              {sorting === undefined && <FaSort />}
+            </span>
+          )}
+        </div>
       </th>
     );
   }
