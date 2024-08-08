@@ -5,9 +5,10 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { WalletAddress } from "App/Common/WalletAddress";
 import { myValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
+import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
-import { MyValidator, Validator } from "types";
+import { Address, MyValidator, Validator } from "types";
 import { ValidatorCard } from "./ValidatorCard";
 import { ValidatorsTable } from "./ValidatorsTable";
 import StakingRoutes from "./routes";
@@ -15,32 +16,48 @@ import StakingRoutes from "./routes";
 export const MyValidatorsTable = (): JSX.Element => {
   const navigate = useNavigate();
   const myValidators = useAtomValue(myValidatorsAtom);
-  const myValidatorsObj: Record<string, MyValidator> =
+
+  const validators =
     myValidators.isSuccess ?
-      myValidators.data.reduce(
-        (acc: Record<string, MyValidator>, current: MyValidator) => {
-          return { ...acc, [current.validator.address]: current };
-        },
-        {}
-      )
+      myValidators.data.map((v: MyValidator) => v.validator)
+    : [];
+
+  const stakedAmountByAddress: Record<Address, BigNumber> =
+    myValidators.isSuccess ?
+      myValidators.data.reduce((prev, current) => {
+        return {
+          ...prev,
+          [current.validator.address]: current.stakedAmount,
+        };
+      }, {})
     : {};
+
+  const { sortableColumns, sortedValidators } = useValidatorTableSorting({
+    validators,
+    stakedAmountByAddress,
+  });
 
   const head = [
     "My Validators",
     "Address",
-    <div key="my-validators-staked-amount" className="text-right">
-      Staked Amount
-    </div>,
-    <div key="my-validators-vp" className="text-right">
-      Voting Power
-    </div>,
-    <div key="my-validators-comission" className="text-right">
-      Commission
-    </div>,
+    {
+      children: "Staked Amount",
+      className: "text-right",
+      ...sortableColumns["stakedAmount"],
+    },
+    {
+      children: "Voting Power",
+      className: "text-right",
+      ...sortableColumns["votingPowerInNAM"],
+    },
+    {
+      children: "Commission",
+      className: "text-right",
+      ...sortableColumns["commission"],
+    },
   ];
 
   const renderRow = (validator: Validator): TableRow => {
-    const stakedAmount = myValidatorsObj[validator.address].stakedAmount;
     return {
       className: "",
       cells: [
@@ -57,7 +74,11 @@ export const MyValidatorsTable = (): JSX.Element => {
           key={`my-validator-currency-${validator.address}`}
           className="text-right leading-tight"
         >
-          <NamCurrency amount={stakedAmount || new BigNumber(0)} />
+          <NamCurrency
+            amount={
+              stakedAmountByAddress[validator.address] || new BigNumber(0)
+            }
+          />
         </div>,
         <div
           className="flex flex-col text-right leading-tight"
@@ -126,11 +147,7 @@ export const MyValidatorsTable = (): JSX.Element => {
         <ValidatorsTable
           id="my-validators"
           tableClassName="mt-2"
-          validatorList={
-            myValidators.isSuccess ?
-              myValidators.data.map((v: MyValidator) => v.validator)
-            : []
-          }
+          validatorList={sortedValidators}
           headers={head}
           renderRow={renderRow}
         />

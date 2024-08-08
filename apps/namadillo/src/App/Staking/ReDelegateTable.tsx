@@ -4,6 +4,7 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { NamInput } from "App/Common/NamInput";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
 import { twMerge } from "tailwind-merge";
 import { Validator } from "types";
 import { ValidatorCard } from "./ValidatorCard";
@@ -27,6 +28,11 @@ export const ReDelegateTable = ({
   renderInfoColumn,
   onChangeValidatorAmount,
 }: IncrementBondingTableProps): JSX.Element => {
+  const { sortableColumns, sortedValidators } = useValidatorTableSorting({
+    validators,
+    stakedAmountByAddress,
+  });
+
   const headers = [
     { children: "Validator" },
     "Amount to Re-delegate",
@@ -40,9 +46,18 @@ export const ReDelegateTable = ({
         </div>
       ),
       className: "text-right",
+      ...sortableColumns["stakedAmount"],
     },
-    { children: "Voting Power", className: "text-right" },
-    { children: "Commission", className: "text-right" },
+    {
+      children: "Voting Power",
+      className: "text-right",
+      ...sortableColumns["votingPowerInNAM"],
+    },
+    {
+      children: "Commission",
+      className: "text-right",
+      ...sortableColumns["commission"],
+    },
   ];
 
   const renderRow = (validator: Validator): TableRow => {
@@ -128,7 +143,7 @@ export const ReDelegateTable = ({
     <ValidatorsTable
       id="increment-bonding-table"
       tableClassName="mt-2"
-      validatorList={validators}
+      validatorList={sortedValidators}
       updatedAmountByAddress={updatedAmountByAddress}
       headers={headers}
       renderRow={renderRow}

@@ -4,10 +4,9 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { NamInput } from "App/Common/NamInput";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { useMemo, useState } from "react";
+import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
 import { twMerge } from "tailwind-merge";
-import { SortedColumnPair, Validator } from "types";
-import { createSortableHeaderOption, sortCollection } from "utils/sorting";
+import { Validator } from "types";
 import { ValidatorCard } from "./ValidatorCard";
 import { ValidatorsTable } from "./ValidatorsTable";
 
@@ -19,8 +18,6 @@ type IncrementBondingTableProps = {
   resultsPerPage?: number;
 };
 
-type SortableColumns = "votingPowerInNAM" | "expectedApr";
-
 export const IncrementBondingTable = ({
   validators,
   updatedAmountByAddress,
@@ -28,12 +25,10 @@ export const IncrementBondingTable = ({
   onChangeValidatorAmount,
   resultsPerPage = 100,
 }: IncrementBondingTableProps): JSX.Element => {
-  const [sorting, setSorting] = useState<SortedColumnPair<SortableColumns>>();
-
-  const sortedValidators = useMemo(() => {
-    if (!sorting) return validators;
-    return sortCollection<Validator, SortableColumns>(validators, sorting);
-  }, [sorting, validators]);
+  const { sortableColumns, sortedValidators } = useValidatorTableSorting({
+    validators,
+    stakedAmountByAddress,
+  });
 
   const headers = [
     { children: "Validator" },
@@ -46,19 +41,16 @@ export const IncrementBondingTable = ({
         </div>
       ),
       className: "text-right",
+      ...sortableColumns["stakedAmount"],
     },
-    createSortableHeaderOption<Validator, SortableColumns>(
-      <div className="w-full text-right">Voting Power</div>,
-      "votingPowerInNAM",
-      setSorting,
-      sorting
-    ),
-    createSortableHeaderOption<Validator, SortableColumns>(
-      <div className="w-full text-right">Commission</div>,
-      "expectedApr",
-      setSorting,
-      sorting
-    ),
+    {
+      children: <div className="w-full text-right">Voting Power</div>,
+      ...sortableColumns["votingPowerInNAM"],
+    },
+    {
+      children: <div className="w-full text-right">Commission</div>,
+      ...sortableColumns["commission"],
+    },
   ];
 
   const renderRow = (validator: Validator): TableRow => {

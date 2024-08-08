@@ -25,7 +25,7 @@ type AllValidatorsProps = {
   initialPage?: number;
 };
 
-type SortableColumns = "votingPowerInNAM" | "expectedApr";
+type SortableColumns = "votingPowerInNAM" | "commission";
 
 export const AllValidatorsTable = ({
   resultsPerPage = 100,
@@ -68,7 +68,7 @@ export const AllValidatorsTable = ({
       <div key={`all-validators-comission`} className="text-right w-full">
         Commission
       </div>,
-      "expectedApr",
+      "commission",
       setSorting,
       sorting
     ),
