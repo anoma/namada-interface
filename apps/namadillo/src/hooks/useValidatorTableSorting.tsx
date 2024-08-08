@@ -37,7 +37,7 @@ export const useValidatorTableSorting = ({
 
   const onSortCallback =
     (key: SortableColumns) => (order: SortableHeaderOptions) =>
-      setSorting([key, order]);
+      order ? setSorting([key, order]) : setSorting(undefined);
 
   const makeSortableColumn = (key: SortableColumns): Partial<TableHeader> => {
     return {

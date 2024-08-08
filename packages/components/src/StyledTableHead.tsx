@@ -44,7 +44,11 @@ const renderTableHeaderElement = (
 
     const _onClick = (e: MouseEvent<HTMLTableCellElement>): void => {
       if (sortable && onSort) {
-        onSort(sorting === "desc" ? "asc" : "desc");
+        onSort(
+          sorting === undefined ? "desc"
+          : sorting === "desc" ? "asc"
+          : undefined
+        );
       }
       if (onClick) onClick(e);
     };
