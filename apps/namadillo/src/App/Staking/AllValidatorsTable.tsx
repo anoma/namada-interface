@@ -10,11 +10,11 @@ import { atomsAreLoading, atomsAreNotInitialized } from "atoms/utils";
 import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
+import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
 import { useAtomValue } from "jotai";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SortedColumnPair, Validator } from "types";
-import { createSortableHeaderOption, sortCollection } from "utils/sorting";
+import { Validator } from "types";
 import { ValidatorAlias } from "./ValidatorAlias";
 import { ValidatorThumb } from "./ValidatorThumb";
 import { ValidatorsTable } from "./ValidatorsTable";
@@ -25,8 +25,6 @@ type AllValidatorsProps = {
   initialPage?: number;
 };
 
-type SortableColumns = "votingPowerInNAM" | "commission";
-
 export const AllValidatorsTable = ({
   resultsPerPage = 100,
   initialPage = 0,
@@ -35,7 +33,6 @@ export const AllValidatorsTable = ({
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const navigate = useNavigate();
   const [filter, setFilter] = useState("");
-  const [sorting, setSorting] = useState<SortedColumnPair<SortableColumns>>();
 
   const filteredValidators = useValidatorFilter({
     validators: validators.isSuccess ? validators.data : [],
@@ -44,35 +41,28 @@ export const AllValidatorsTable = ({
     onlyMyValidators: false,
   });
 
-  const sortedAndFilteredValidators = useMemo(() => {
-    if (!sorting) return filteredValidators;
-    return sortCollection<Validator, SortableColumns>(
-      filteredValidators,
-      sorting
-    );
-  }, [filteredValidators, sorting]);
+  const { sortedValidators: sortedAndFilteredValidators, sortableColumns } =
+    useValidatorTableSorting({
+      validators: filteredValidators,
+      stakedAmountByAddress: {},
+    });
 
   const headers = [
     "",
     "Validator",
     "Address",
-    createSortableHeaderOption<Validator, SortableColumns>(
-      <div key={`all-validators-voting-power`} className="text-right w-full">
-        Voting Power
-      </div>,
-      "votingPowerInNAM",
-      setSorting,
-      sorting
-    ),
-    createSortableHeaderOption<Validator, SortableColumns>(
-      <div key={`all-validators-comission`} className="text-right w-full">
-        Commission
-      </div>,
-      "commission",
-      setSorting,
-      sorting
-    ),
+    {
+      children: "Voting Power",
+      className: "text-right",
+      ...sortableColumns["votingPowerInNAM"],
+    },
+    {
+      children: "Comission",
+      className: "text-right",
+      ...sortableColumns["commission"],
+    },
   ];
+
   const renderRow = (validator: Validator): TableRow => ({
     className: "[&_td:first-child]:pr-0",
     cells: [

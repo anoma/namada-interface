@@ -1,4 +1,3 @@
-import { SortableHeaderOptions, TableHeader } from "@namada/components";
 import BigNumber from "bignumber.js";
 import { SortedColumnPair } from "types";
 
@@ -54,20 +53,4 @@ export const sortCollection = <T, S extends keyof T>(
 
     return 0;
   });
-};
-
-export const createSortableHeaderOption = <T, S extends keyof T>(
-  children: React.ReactNode,
-  key: S,
-  onSort: (pair: SortedColumnPair<S>) => void,
-  sortablePair?: SortedColumnPair<S>
-): TableHeader => {
-  const sorting =
-    sortablePair && sortablePair[0] === key ? sortablePair[1] : undefined;
-  return {
-    children,
-    sortable: true,
-    sorting,
-    onSort: (order: SortableHeaderOptions) => onSort([key, order]),
-  };
 };
