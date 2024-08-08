@@ -89,9 +89,9 @@ export const toUnbondingValidators = (
 
     const canWithdraw = indexerUnbond.canWithdraw;
     const timeLeft =
-      // If can't withdraw but estimation is incorrect display n/a
-      !canWithdraw && withdrawTime < timeNow ? "N/A"
-      : canWithdraw ? ""
+      canWithdraw ? ""
+        // If can't withdraw but estimation is incorrect display withdraw epoch
+      : withdrawTime < timeNow ? `Epoch ${indexerUnbond.withdrawEpoch}`
       : singleUnitDurationFromInterval(timeNow, withdrawTime);
 
     const amountValue = BigNumber(indexerUnbond.amount);
