@@ -81,6 +81,8 @@ export const Navigation = (): JSX.Element => {
           <li>
             <a
               href={DISCORD_URL}
+              target="_blank"
+              rel="nofollow noreferrer"
               className="transition-colors duration-300 hover:text-cyan"
             >
               <BsDiscord />

@@ -18,6 +18,7 @@ export const ProposalDiscord: React.FC = () => {
           backgroundHoverColor="cyan"
           href={DISCORD_URL}
           target="_blank"
+          rel="nofollow noreferrer"
         >
           Discord
         </ActionButton>
