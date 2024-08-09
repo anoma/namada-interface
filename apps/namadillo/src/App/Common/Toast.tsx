@@ -6,7 +6,7 @@ import {
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { FaRegHourglassHalf, FaXmark } from "react-icons/fa6";
 import { ToastNotification } from "types/notifications";
@@ -37,11 +37,29 @@ type ToastProps = {
 };
 
 const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
-  useEffect(() => {
-    notification.timeout &&
-      setTimeout(() => {
-        onClose(notification);
+  const interval = useRef<NodeJS.Timeout>();
+
+  const closeNotification = (): void => {
+    onClose(notification);
+  };
+
+  const keepNotification = (): void => {
+    if (notification.timeout && interval.current) {
+      clearTimeout(interval.current);
+      interval.current = undefined;
+    }
+  };
+
+  const startTimeout = (): void => {
+    if (notification.timeout && !interval.current) {
+      interval.current = setTimeout(() => {
+        closeNotification();
       }, notification.timeout);
+    }
+  };
+
+  useEffect(() => {
+    startTimeout();
   }, []);
 
   return (
@@ -58,6 +76,8 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      onMouseEnter={keepNotification}
+      onMouseLeave={startTimeout}
     >
       <span className="flex h-full items-center justify-center">
         {notification.type === "success" && (

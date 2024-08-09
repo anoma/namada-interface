@@ -147,6 +147,7 @@ const IncrementBonding = (): JSX.Element => {
             }
           />
         ),
+        timeout: 5000,
         type: "error",
       });
     }
