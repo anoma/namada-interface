@@ -2,36 +2,26 @@ import namada from "@namada/chains/chains/namada";
 import { integrations } from "@namada/integrations";
 import { indexerApiAtom } from "atoms/api";
 import {
-  defaultServerConfigAtom,
   indexerUrlAtom,
   namadaExtensionConnectedAtom,
   rpcUrlAtom,
 } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
+import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { ChainParameters, ChainSettings } from "types";
 import { fetchChainParameters, fetchRpcUrlFromIndexer } from "./services";
 
 export const chainAtom = atomWithQuery<ChainSettings>((get) => {
   const chainParameters = get(chainParametersAtom);
-  const indexerRpcUrl = get(indexerRpcUrlAtom);
   const rpcUrl = get(rpcUrlAtom);
-  const indexerUrl = get(indexerUrlAtom);
-  const tomlConfig = get(defaultServerConfigAtom);
   const extensionConnected = get(namadaExtensionConnectedAtom);
 
   return {
-    queryKey: [
-      "chain",
-      rpcUrl,
-      chainParameters,
-      indexerRpcUrl,
-      extensionConnected,
-    ],
+    queryKey: ["chain", rpcUrl, chainParameters.data, extensionConnected],
     staleTime: Infinity,
     retry: false,
     ...queryDependentFn(async () => {
-      const rpcUrl = get(rpcUrlAtom);
       const extensionChainId =
         extensionConnected ?
           (await integrations.namada.getChain())?.chainId
@@ -48,7 +38,19 @@ export const chainAtom = atomWithQuery<ChainSettings>((get) => {
         nativeTokenAddress: chainParameters.data!.nativeTokenAddress,
         checksums: chainParameters.data!.checksums,
       };
-    }, [!!indexerUrl, indexerRpcUrl, chainParameters, tomlConfig]),
+    }, [chainParameters]),
+  };
+});
+
+export const chainAtomWithRefetch = atom((get) => {
+  const chainParameters = get(chainParametersAtom);
+  const chain = get(chainAtom);
+  return {
+    ...chain,
+    refetch: async () => {
+      await chainParameters.refetch();
+      return chain.refetch();
+    },
   };
 });
 
