@@ -1,5 +1,6 @@
 import { ActionButton, Alert, Modal, Panel, Stack } from "@namada/components";
 import { UnbondProps } from "@namada/types";
+import { singleUnitDurationFromInterval } from "@namada/utils/helpers";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
@@ -8,6 +9,7 @@ import { TableRowLoading } from "App/Common/TableRowLoading";
 import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { TransactionFees } from "App/Common/TransactionFees";
 import { defaultAccountAtom } from "atoms/accounts";
+import { chainParametersAtom } from "atoms/chain";
 import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
 import { dispatchToastNotificationAtom } from "atoms/notifications";
 import { createUnbondTxAtom } from "atoms/staking";
@@ -20,10 +22,18 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { TransactionPair, broadcastTx } from "lib/query";
 import { FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MyValidator } from "types";
+import { EpochInfo, MyValidator } from "types";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { UnstakeBondingTable } from "./UnstakeBondingTable";
 import StakingRoutes from "./routes";
+
+const getUnboundPeriod = ({
+  unbondingPeriodInEpochs,
+  minEpochDuration,
+}: EpochInfo): number => {
+  const duration = unbondingPeriodInEpochs * minEpochDuration;
+  return singleUnitDurationFromInterval(0, duration);
+};
 
 const Unstake = (): JSX.Element => {
   const navigate = useNavigate();
@@ -32,6 +42,7 @@ const Unstake = (): JSX.Element => {
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
   const gasLimits = useAtomValue(gasLimitsAtom);
+  const { data: chainParameters } = useAtomValue(chainParametersAtom);
 
   const {
     mutate: createUnbondTx,
@@ -144,6 +155,9 @@ const Unstake = (): JSX.Element => {
     return "";
   })();
 
+  const unboundPeriod =
+    chainParameters ? getUnboundPeriod(chainParameters.epochInfo) : "N/A";
+
   return (
     <Modal onClose={onCloseModal}>
       <ModalContainer
@@ -184,7 +198,9 @@ const Unstake = (): JSX.Element => {
                       <li className="mb-1">
                         You will not receive staking rewards
                       </li>
-                      <li>It will take 21 days for the amount to be liquid</li>
+                      <li>
+                        It will take {unboundPeriod} for the amount to be liquid
+                      </li>
                     </ul>
                   </Alert>
                 </>
@@ -197,7 +213,7 @@ const Unstake = (): JSX.Element => {
             <Panel className="rounded-md">
               <Stack gap={2} className="leading-none">
                 <h3 className="text-sm">Unbonding period</h3>
-                <div className="text-xl">21 Days</div>
+                <div className="text-xl">{unboundPeriod}</div>
                 <p className="text-xs">
                   Once this period has elapsed, you may access your assets in
                   the main dashboard
