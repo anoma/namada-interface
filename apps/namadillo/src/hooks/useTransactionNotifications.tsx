@@ -95,12 +95,12 @@ export const useTransactionNotifications = (): void => {
     clearPendingNotifications();
     dispatchNotification({
       id: e.detail.transactionId,
-      title: "Re-delegate failed",
+      title: "Redelegate failed",
       description: (
         <ToastErrorDescription
           basicMessage={
             <>
-              Your re-delegate transaction of{" "}
+              Your redelegate transaction of{" "}
               <NamCurrency amount={e.detail.data.amount} /> from {sourceAddress}{" "}
               to {destAddress} has failed
             </>
@@ -117,10 +117,10 @@ export const useTransactionNotifications = (): void => {
     const destAddress = shortenAddress(e.detail.data.destinationValidator);
     dispatchNotification({
       id: e.detail.transactionId,
-      title: "Re-delegate succeeded",
+      title: "Redelegate succeeded",
       description: (
         <>
-          Your re-delegate transaction of{" "}
+          Your redelegate transaction of{" "}
           <NamCurrency amount={e.detail.data.amount} /> from {sourceAddress} to{" "}
           {destAddress} has succeeded
         </>

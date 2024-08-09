@@ -45,7 +45,7 @@ export const BondingAmountOverview = ({
           {amountToDelegate && amountToDelegate.gt(0) && (
             <span className="text-success text-md font-light mt-1.5 ml-3">
               (+
-              <NamCurrency amount={amountToDelegate} /> Re-Delegate)
+              <NamCurrency amount={amountToDelegate} /> Redelegate)
             </span>
           )}
         </div>

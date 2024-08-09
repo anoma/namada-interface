@@ -86,8 +86,8 @@ export const ReDelegate = (): JSX.Element => {
   const dispatchPendingNotification = (): void => {
     dispatchNotification({
       id: "staking-redelegate",
-      title: "Staking re-delegation in progress",
-      description: <>The re-delegation transaction is being processed</>,
+      title: "Staking redelegation in progress",
+      description: <>Your redelegation transaction is being processed</>,
       type: "pending",
     });
   };
@@ -96,7 +96,7 @@ export const ReDelegate = (): JSX.Element => {
     if (isError) {
       dispatchNotification({
         id: "staking-redelegate-error",
-        title: "Staking re-delegation failed",
+        title: "Staking redelegation failed",
         description: (
           <ToastErrorDescription
             errorMessage={
@@ -162,7 +162,7 @@ export const ReDelegate = (): JSX.Element => {
 
   const stepTitle = {
     remove: "Step 1 - Remove NAM from current Validators",
-    assign: "Step 2 - Assign Re-delegating NAM",
+    assign: "Step 2 - Assign Redelegating NAM",
   };
 
   const totalUpdatedAmount = totalToRedelegate.minus(totalAssignedAmounts);
@@ -188,7 +188,7 @@ export const ReDelegate = (): JSX.Element => {
         >
           <header className="grid grid-cols-[repeat(auto-fit,_minmax(8rem,_1fr))] gap-1.5">
             <BondingAmountOverview
-              title="Total amount to re-delegate"
+              title="Total amount to redelegate"
               className="col-span-2"
               amountInNam={0}
               updatedAmountInNam={totalUpdatedAmount}
@@ -204,7 +204,7 @@ export const ReDelegate = (): JSX.Element => {
                       type="warning"
                       className="absolute py-3 right-3 top-4 max-w-[50%] text-xs rounded-sm"
                     >
-                      To proceed, all re-delegated value must be assigned
+                      To proceed, all redelegated value must be assigned
                     </Alert>
                   </>
                 )

@@ -57,7 +57,7 @@ export const AllValidatorsTable = ({
       ...sortableColumns["votingPowerInNAM"],
     },
     {
-      children: "Comission",
+      children: "Commission",
       className: "text-right",
       ...sortableColumns["commission"],
     },
@@ -98,7 +98,7 @@ export const AllValidatorsTable = ({
         </span>
       </div>,
       // Commission:
-      <div key={`comission-${validator.address}`} className="text-right">
+      <div key={`commission-${validator.address}`} className="text-right">
         {formatPercentage(BigNumber(validator.commission))}
       </div>,
     ],

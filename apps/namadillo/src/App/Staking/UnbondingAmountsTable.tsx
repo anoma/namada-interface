@@ -44,7 +44,7 @@ export const UnbondingAmountsTable = (): JSX.Element => {
               <NamCurrency amount={amount || new BigNumber(0)} />
             </div>,
             <div
-              key={`comission-${validator.address}`}
+              key={`commission-${validator.address}`}
               className="text-right leading-tight text-sm"
             >
               {myValidator.timeLeft}

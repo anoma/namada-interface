@@ -65,7 +65,7 @@ export const Advanced = (): JSX.Element => {
               rpcMutation.error.message
             : rpcMutation.error
           }
-          label="RPC Url"
+          label="RPC URL"
           className="[&_input]:border-neutral-300"
           onChange={(e) => {
             setRpc(e.currentTarget.value);

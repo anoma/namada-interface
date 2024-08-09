@@ -113,7 +113,7 @@ export const ReDelegateRemoveStake = ({
               borderRadius="sm"
               onClick={onReDelegateAll}
             >
-              Re-delegate all
+              Redelegate all
             </ActionButton>
             <ActionButton
               type="button"
