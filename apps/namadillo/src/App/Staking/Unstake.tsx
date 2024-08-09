@@ -89,9 +89,8 @@ const Unstake = (): JSX.Element => {
       title: "Unstake transaction in progress",
       description: (
         <>
-          You&apos;ve unstaked&nbsp;
-          <NamCurrency amount={totalUpdatedAmount} /> and the transaction is
-          being processed
+          Your unstaking transaction of{" "}
+          <NamCurrency amount={totalUpdatedAmount} /> is being processed
         </>
       ),
       type: "pending",
@@ -152,8 +151,8 @@ const Unstake = (): JSX.Element => {
             Select amount to unstake
             <Info>
               To unstake, type the amount of NAM you wish to remove from a
-              validator. Please pay attention to the unbonding period, it might
-              take a few days before the amount to be available.
+              validator. Pay attention to the unbonding period; it might take a
+              few days for the amount to become available.
             </Info>
           </span>
         }
@@ -199,7 +198,7 @@ const Unstake = (): JSX.Element => {
                 <h3 className="text-sm">Unbonding period</h3>
                 <div className="text-xl">21 Days</div>
                 <p className="text-xs">
-                  Once this period has elapsed, you may access your assets in
+                  Once this period has elapsed, you can access your assets in
                   the main dashboard
                 </p>
               </Stack>

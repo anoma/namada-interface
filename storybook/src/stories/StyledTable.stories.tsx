@@ -25,7 +25,7 @@ export const Default: Story = {
       <div key="voting-power" className="text-right">
         Voting Power
       </div>,
-      "Comission",
+      "Commission",
     ],
     rows: [
       {
@@ -104,7 +104,7 @@ export const WithSortableTitles: Story = {
 
 export const WithEmptyTitles: Story = {
   args: {
-    headers: ["", "Validator", "Address", "Voting Power", "Comission", ""],
+    headers: ["", "Validator", "Address", "Voting Power", "Commission", ""],
     rows: [
       {
         cells: [
@@ -134,7 +134,7 @@ export const WithEmptyTitles: Story = {
 
 export const WithEvents: Story = {
   args: {
-    headers: ["", "Validator", "Address", "Voting Power", "Comission", ""],
+    headers: ["", "Validator", "Address", "Voting Power", "Commission", ""],
     rows: [
       {
         cells: [

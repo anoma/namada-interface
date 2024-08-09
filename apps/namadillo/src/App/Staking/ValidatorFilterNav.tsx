@@ -72,7 +72,7 @@ export const ValidatorFilterNav = ({
           size="sm"
           borderRadius="sm"
         >
-          Randomise
+          Randomize
         </ActionButton>
       )}
     </Stack>

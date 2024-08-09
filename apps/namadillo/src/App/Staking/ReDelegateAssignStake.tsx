@@ -132,7 +132,7 @@ export const ReDelegateAssignStake = ({
         >
           {hasInvalidDistribution && hasUpdatedAmounts ?
             "Invalid distribution"
-          : "Re-Delegate"}
+          : "Redelegate"}
         </ActionButton>
         <TransactionFees
           className="justify-self-end px-4"

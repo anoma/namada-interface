@@ -106,8 +106,8 @@ const IncrementBonding = (): JSX.Element => {
       title: "Staking transaction in progress",
       description: (
         <>
-          The staking transaction of <NamCurrency amount={totalUpdatedAmount} />{" "}
-          is being processed
+          Your staking transaction of{" "}
+          <NamCurrency amount={totalUpdatedAmount} /> is being processed
         </>
       ),
       type: "pending",
@@ -200,8 +200,9 @@ const IncrementBonding = (): JSX.Element => {
                         <GoAlert />
                       </i>
                       <p className="text-balance">
-                        Staking will lock and bind your assets to unbonding
-                        schedule
+                        Staking will lock and bind your assets to the TODO
+                        unbonding schedule. To make your NAM liquid again, you
+                        will need to unstake.
                       </p>
                     </div>
                   </Alert>

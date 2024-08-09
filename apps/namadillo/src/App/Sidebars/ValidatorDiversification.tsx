@@ -12,7 +12,7 @@ export const ValidatorDiversification = (): JSX.Element => {
       )}
     >
       <img src={stakingInfo} className="w-full max-w-42 mx-auto" />
-      <p>When staking consider diversifying Across multiple validators.</p>
+      <p>When staking, consider diversifying across multiple validators</p>
       <ActionButton
         className="max-w-44"
         outlineColor="cyan"
