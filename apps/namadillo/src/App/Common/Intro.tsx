@@ -1,6 +1,7 @@
 import { ActionButton, Image } from "@namada/components";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
 import clsx from "clsx";
+import { DISCORD_URL } from "urls";
 
 export const Intro = (): JSX.Element => {
   return (
@@ -17,7 +18,14 @@ export const Intro = (): JSX.Element => {
       </div>
       <div className="flex gap-4 w-full">
         <ConnectExtensionButton />
-        <ActionButton size="sm" outlineColor="yellow" borderRadius="sm">
+        <ActionButton
+          href={DISCORD_URL}
+          target="_blank"
+          rel="noreferrer"
+          size="sm"
+          outlineColor="yellow"
+          borderRadius="sm"
+        >
           Help
         </ActionButton>
       </div>

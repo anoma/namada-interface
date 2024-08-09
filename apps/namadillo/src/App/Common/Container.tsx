@@ -47,7 +47,7 @@ export const Container = ({
       </header>
       <div
         className={clsx(
-          "xl:grid xl:grid-cols-[220px_auto] xl:gap-2 min-h-[calc(100svh-95px)]"
+          "grid xl:grid-cols-[220px_auto] xl:gap-2 min-h-[calc(100svh-95px)]"
         )}
       >
         <aside
