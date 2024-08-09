@@ -42,7 +42,7 @@ export const Setup = ({ onChange }: SetupProps): JSX.Element => {
               href={DISCORD_URL}
               className="underline"
               target="_blank"
-              rel="nofollow noreferrer"
+              rel="noreferrer"
             >
               here
             </a>

@@ -63,7 +63,7 @@ export const Navigation = (): JSX.Element => {
               href={DISCORD_URL}
               className="hover:text-cyan"
               target="_blank"
-              rel="nofollow noreferrer"
+              rel="noreferrer"
             >
               Help
             </a>
@@ -73,6 +73,8 @@ export const Navigation = (): JSX.Element => {
           <li>
             <a
               href={TWITTER_URL}
+              target="_blank"
+              rel="noreferrer"
               className="transition-colors duration-300 hover:text-cyan"
             >
               <BsTwitterX />
@@ -82,7 +84,7 @@ export const Navigation = (): JSX.Element => {
             <a
               href={DISCORD_URL}
               target="_blank"
-              rel="nofollow noreferrer"
+              rel="noreferrer"
               className="transition-colors duration-300 hover:text-cyan"
             >
               <BsDiscord />

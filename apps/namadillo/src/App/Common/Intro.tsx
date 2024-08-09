@@ -21,7 +21,7 @@ export const Intro = (): JSX.Element => {
         <ActionButton
           href={DISCORD_URL}
           target="_blank"
-          rel="nofollow noreferrer"
+          rel="noreferrer"
           size="sm"
           outlineColor="yellow"
           borderRadius="sm"
