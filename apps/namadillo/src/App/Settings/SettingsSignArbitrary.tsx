@@ -14,7 +14,7 @@ export const SettingsSignArbitrary = (): JSX.Element => {
       <p className="text-sm">
         Enabling this setting puts you at risk of phishing attacks. Please check
         what you are signing very carefully when using this feature. We
-        recommend keeping this setting turned off unless absolutely necessary
+        recommend keeping this setting turned off unless absolutely necessary.
       </p>
       <ToggleButton
         label={
@@ -32,7 +32,7 @@ export const SettingsSignArbitrary = (): JSX.Element => {
               <IoWarning />
             </i>
             You are at risk of phishing attacks. Please review carefully what
-            you sign
+            you sign.
           </div>
         </Alert>
       )}

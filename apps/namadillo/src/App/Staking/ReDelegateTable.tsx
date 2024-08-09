@@ -35,7 +35,7 @@ export const ReDelegateTable = ({
 
   const headers = [
     { children: "Validator" },
-    "Amount to Re-delegate",
+    "Amount to Redelegate",
     {
       children: (
         <div className="leading-tight">
@@ -130,7 +130,7 @@ export const ReDelegateTable = ({
 
         // Commission
         <div
-          key={`comission-${validator.uuid}`}
+          key={`commission-${validator.uuid}`}
           className="text-right leading-tight"
         >
           {formatPercentage(validator.commission)}

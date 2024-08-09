@@ -95,7 +95,7 @@ export const MyValidatorsTable = (): JSX.Element => {
           </span>
         </div>,
         <div
-          key={`comission-${validator.address}`}
+          key={`commission-${validator.address}`}
           className="text-right leading-tight"
         >
           {formatPercentage(validator.commission)}
@@ -123,7 +123,7 @@ export const MyValidatorsTable = (): JSX.Element => {
           borderRadius="sm"
           onClick={() => navigate(StakingRoutes.redelegateBonding().url)}
         >
-          Re-delegate
+          Redelegate
         </ActionButton>
         <ActionButton
           className="basis-[content] py-1 hover:before:border-pink"
