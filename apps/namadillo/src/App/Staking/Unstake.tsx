@@ -30,7 +30,7 @@ import StakingRoutes from "./routes";
 const getUnboundPeriod = ({
   unbondingPeriodInEpochs,
   minEpochDuration,
-}: EpochInfo): number => {
+}: EpochInfo): string => {
   const duration = unbondingPeriodInEpochs * minEpochDuration;
   return singleUnitDurationFromInterval(0, duration);
 };
