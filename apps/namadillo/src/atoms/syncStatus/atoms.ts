@@ -1,15 +1,28 @@
-import { allValidatorsAtom, myValidatorsAtom } from "atoms/validators";
+import { accountBalanceAtom } from "atoms/accounts/atoms";
+import { allProposalsAtom, votedProposalIdsAtom } from "atoms/proposals/atoms";
+import {
+  allValidatorsAtom,
+  myUnbondsAtom,
+  myValidatorsAtom,
+} from "atoms/validators/atoms";
 import { atom } from "jotai";
 
 export const syncStatusAtom = atom((get) => {
-  const myValidators = get(myValidatorsAtom);
-  const allValidators = get(allValidatorsAtom);
+  const queries = [
+    // Staking
+    get(accountBalanceAtom),
+    get(myValidatorsAtom),
+    get(myUnbondsAtom),
+    get(allValidatorsAtom),
 
-  const watchedQueries = [myValidators, allValidators];
+    // Governance
+    get(allProposalsAtom),
+    get(votedProposalIdsAtom),
+  ];
 
-  const isSyncing = watchedQueries.some((q) => q.isFetching);
-  const isError = watchedQueries.some((q) => q.isError);
-  const error = watchedQueries.find((q) => q.error)?.error || undefined;
+  const isSyncing = queries.some((q) => q.isFetching);
+  const isError = queries.some((q) => q.isError);
+  const error = queries.find((q) => q.error)?.error || undefined;
 
   return {
     isSyncing,
