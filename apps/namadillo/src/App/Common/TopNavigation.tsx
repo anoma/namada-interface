@@ -12,6 +12,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { AiOutlineMessage } from "react-icons/ai";
 import { IoSettingsOutline } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
+import { SyncIndicator } from "./SyncIndicator";
 
 export const TopNavigation = (): JSX.Element => {
   const isExtensionConnected = useAtomValue(namadaExtensionConnectedAtom);
@@ -60,6 +61,8 @@ export const TopNavigation = (): JSX.Element => {
               <AiOutlineMessage />
             </button>
           )}
+          <div />
+          <SyncIndicator />
           <ActiveAccount />
         </div>
       )}

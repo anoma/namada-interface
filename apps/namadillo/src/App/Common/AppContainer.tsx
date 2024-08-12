@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { BurgerButton } from "./BurgerButton";
 import { Logo } from "./Logo";
-import { SyncIndicator } from "./SyncIndicator";
 
 type ContainerProps = {
   header: JSX.Element;
@@ -43,7 +42,6 @@ export const AppContainer = ({
             </i>
             Namadillo
           </Link>
-          <SyncIndicator />
         </div>
         <div className="flex gap-8 items-center">{header}</div>
       </header>
