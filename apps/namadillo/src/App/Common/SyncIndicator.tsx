@@ -16,11 +16,11 @@ export const SyncIndicator = (): JSX.Element => {
           syncStatus.isError ? "bg-red-500" : undefined
         )}
       />
-      <Tooltip>
+      <Tooltip className="whitespace-nowrap">
         {syncStatus.isSyncing ?
           "Syncing"
         : syncStatus.isError ?
-          `Error syncing: ${syncStatus.error}`
+          "Error syncing"
         : "Fully synced"}
       </Tooltip>
     </div>
