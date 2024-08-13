@@ -6,10 +6,10 @@ import {
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { FaRegHourglassHalf, FaXmark } from "react-icons/fa6";
-import { ToastNotification } from "types/notifications";
+import { ToastNotification } from "types";
 
 export const Toasts = (): JSX.Element => {
   const dismiss = useSetAtom(dismissToastNotificationAtom);
@@ -37,6 +37,7 @@ type ToastProps = {
 };
 
 const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
+  const [viewDetails, setViewDetails] = useState(false);
   const interval = useRef<NodeJS.Timeout>();
 
   const closeNotification = (): void => {
@@ -99,6 +100,19 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
       <div className="relative">
         <strong className="block text-sm mb-1">{notification.title}</strong>
         <div className="leading-tight text-xs">{notification.description}</div>
+        {notification.details && !viewDetails && (
+          <button
+            className="text-xs text-white leading-0 underline"
+            onClick={() => setViewDetails(true)}
+          >
+            View details
+          </button>
+        )}
+        {notification.details && viewDetails && (
+          <p className="text-xs text-white mt-2 block">
+            {notification.details}
+          </p>
+        )}
       </div>
       <i
         onClick={() => onClose(notification)}

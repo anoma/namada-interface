@@ -1,8 +1,5 @@
 import { atom } from "jotai";
-import {
-  ToastNotification,
-  ToastNotificationEntryFilter,
-} from "types/notifications";
+import { ToastNotification, ToastNotificationEntryFilter } from "types";
 
 const toastNotificationsBaseAtom = atom<ToastNotification[]>([]);
 
@@ -14,11 +11,7 @@ export const dispatchToastNotificationAtom = atom(
   null,
   (get, set, data: ToastNotification) => {
     const notifications = get(toastNotificationsBaseAtom);
-    const exists = notifications.some((n) => n.id === data.id);
-
-    if (!exists) {
-      set(toastNotificationsBaseAtom, [...notifications, { ...data }]);
-    }
+    set(toastNotificationsBaseAtom, [...notifications, { ...data }]);
   }
 );
 

@@ -4,7 +4,10 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { defaultAccountAtom } from "atoms/accounts";
 import { gasLimitsAtom } from "atoms/fees";
-import { dispatchToastNotificationAtom } from "atoms/notifications";
+import {
+  createNotificationId,
+  dispatchToastNotificationAtom,
+} from "atoms/notifications";
 import { createWithdrawTxAtomFamily } from "atoms/staking";
 import BigNumber from "bignumber.js";
 import { useGasEstimate } from "hooks/useGasEstimate";
@@ -90,19 +93,17 @@ export const WithdrawalButton = ({
     transaction: TransactionPair<WithdrawMsgValue>,
     props: BondMsgValue
   ): void => {
-    transaction.encodedTxData.txs.forEach((tx) => {
-      dispatchNotification({
-        id: tx.tx_hash(),
-        title: "Withdrawal transaction in progress",
-        description: (
-          <>
-            The withdrawal of{" "}
-            <NamCurrency amount={props.amount || new BigNumber(0)} /> is being
-            processed
-          </>
-        ),
-        type: "pending",
-      });
+    dispatchNotification({
+      id: createNotificationId(transaction.encodedTxData.txs),
+      title: "Withdrawal transaction in progress",
+      description: (
+        <>
+          The withdrawal of{" "}
+          <NamCurrency amount={props.amount || new BigNumber(0)} /> is being
+          processed
+        </>
+      ),
+      type: "pending",
     });
   };
 
@@ -117,7 +118,7 @@ export const WithdrawalButton = ({
   useEffect(() => {
     if (isError) {
       dispatchNotification({
-        id: "withdrawal-error",
+        id: createNotificationId(),
         title: "Withdrawal transaction failed",
         description: (
           <ToastErrorDescription
