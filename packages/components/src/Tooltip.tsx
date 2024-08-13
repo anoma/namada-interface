@@ -23,9 +23,9 @@ export const Tooltip = ({
           "group-hover/tooltip:visible group-hover/tooltip:opacity-100",
           "group-hover/tooltip:pointer-events-auto",
           {
-            "-top-1/2 group-hover/tooltip:top-[calc(-100%-4px)]":
+            "top-0 -translate-y-1/2 group-hover/tooltip:-translate-y-full":
               position === "top",
-            "-bottom-1/2 group-hover/tooltip:bottom-[calc(-100%-4px)]":
+            "bottom-0 translate-y-1/2 group-hover/tooltip:translate-y-full":
               position === "bottom",
           },
           className

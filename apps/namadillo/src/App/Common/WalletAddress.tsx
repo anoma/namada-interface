@@ -19,12 +19,7 @@ export const WalletAddress = ({
   return (
     <span className="relative group/tooltip">
       {shortenedAddress}
-      <Tooltip
-        className={twMerge(
-          "border border-neutral-700 group-hover/tooltip:top-[calc(-100%-8px)] z-50",
-          className
-        )}
-      >
+      <Tooltip className={twMerge("border border-neutral-700 z-50", className)}>
         {address}
       </Tooltip>
     </span>
