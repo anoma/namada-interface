@@ -97,8 +97,14 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
           </i>
         )}
       </span>
-      <div className="relative">
-        <strong className="block text-sm mb-1">{notification.title}</strong>
+      <Stack
+        gap={0.5}
+        className={clsx(
+          "items-start relative break-words overflow-hidden",
+          "max-w-full leading-normal"
+        )}
+      >
+        <strong className="block text-sm">{notification.title}</strong>
         <div className="leading-tight text-xs">{notification.description}</div>
         {notification.details && !viewDetails && (
           <button
@@ -109,11 +115,11 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
           </button>
         )}
         {notification.details && viewDetails && (
-          <p className="text-xs text-white mt-2 block">
+          <div className="w-full text-xs text-white block">
             {notification.details}
-          </p>
+          </div>
         )}
-      </div>
+      </Stack>
       <i
         onClick={() => onClose(notification)}
         className={clsx(
