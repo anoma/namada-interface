@@ -141,6 +141,12 @@ const Unstake = (): JSX.Element => {
 
   const validationMessage = ((): string => {
     if (totalStakedAmount.lt(totalUpdatedAmount)) return "Invalid amount";
+
+    for (const address in updatedAmountByAddress) {
+      if (stakedAmountByAddress[address].lt(updatedAmountByAddress[address])) {
+        return "Invalid amount";
+      }
+    }
     return "";
   })();
 
