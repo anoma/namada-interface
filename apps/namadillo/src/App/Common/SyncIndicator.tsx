@@ -12,8 +12,8 @@ export const SyncIndicator = (): JSX.Element => {
         className={twMerge(
           "w-2 h-2 rounded-full",
           "bg-green-500",
-          syncStatus.isSyncing ? "bg-yellow-500 animate-pulse" : undefined,
-          syncStatus.isError ? "bg-red-500" : undefined
+          syncStatus.isSyncing && "bg-yellow-500 animate-pulse",
+          syncStatus.isError && "bg-red-500"
         )}
       />
       <Tooltip className="whitespace-nowrap">
