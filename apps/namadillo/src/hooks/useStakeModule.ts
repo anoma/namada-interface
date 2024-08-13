@@ -61,10 +61,12 @@ export const useStakeModule = ({ account }: UseStakeModuleProps) => {
   };
 
   const parseUpdatedAmounts = (): ChangeInStakingPosition[] => {
-    return Object.keys(updatedAmountByAddress).map((validatorAddress) => ({
-      validatorId: validatorAddress,
-      amount: updatedAmountByAddress[validatorAddress],
-    }));
+    return Object.keys(updatedAmountByAddress)
+      .map((validatorAddress) => ({
+        validatorId: validatorAddress,
+        amount: updatedAmountByAddress[validatorAddress],
+      }))
+      .filter((entries) => entries.amount.gt(0));
   };
 
   useEffect(() => {
