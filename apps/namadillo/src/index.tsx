@@ -1,6 +1,6 @@
 import { init as initShared } from "@namada/shared/src/init-inline";
 import { AppSetup } from "App/AppSetup";
-import { StoreProvider } from "atoms/store";
+import { QueryProvider } from "App/Common/QueryProvider";
 import { SdkProvider } from "hooks/useSdk";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -18,7 +18,7 @@ if (container) {
   initShared().then(() => {
     root.render(
       <React.StrictMode>
-        <StoreProvider>
+        <QueryProvider>
           <IntegrationsProvider>
             <AppSetup>
               <SdkProvider>
@@ -26,7 +26,7 @@ if (container) {
               </SdkProvider>
             </AppSetup>
           </IntegrationsProvider>
-        </StoreProvider>
+        </QueryProvider>
       </React.StrictMode>
     );
   });
