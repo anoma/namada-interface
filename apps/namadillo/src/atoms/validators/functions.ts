@@ -86,13 +86,13 @@ export const toUnbondingValidators = (
       apr
     );
     const withdrawTime = Number(indexerUnbond.withdrawTime);
-    const currentTime = Number(indexerUnbond.currentTime);
-    const secondsLeft = withdrawTime - currentTime;
 
-    // TODO: later return from the backend
-    const canWithdraw = secondsLeft <= 0;
+    const canWithdraw = indexerUnbond.canWithdraw;
     const timeLeft =
-      canWithdraw ? "" : singleUnitDurationFromInterval(timeNow, withdrawTime);
+      canWithdraw ? ""
+        // If can't withdraw but estimation is incorrect display withdraw epoch
+      : withdrawTime < timeNow ? `Epoch ${indexerUnbond.withdrawEpoch}`
+      : singleUnitDurationFromInterval(timeNow, withdrawTime);
 
     const amountValue = BigNumber(indexerUnbond.amount);
     const amount = {

@@ -9,7 +9,6 @@ use namada::sdk::tx::{
     TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
 };
 use namada::sdk::uint::Uint;
-use namada::token::Amount;
 use namada::tx;
 use namada::{address::Address, key::common::PublicKey};
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
@@ -152,10 +151,8 @@ impl TxDetails {
 
         let tx_details = match tx.header().tx_type {
             tx::data::TxType::Wrapper(wrapper) => {
-                let fee_amount = wrapper.get_tx_fee()?.to_string();
-                let gas_limit = Amount::from_uint(Uint::from(wrapper.gas_limit), 0)?
-                    .native_denominated()
-                    .to_string();
+                let fee_amount = wrapper.fee.amount_per_gas_unit.to_string();
+                let gas_limit = Uint::from(wrapper.gas_limit).to_string();
                 let token = wrapper.fee.token.to_string();
 
                 let wrapper_tx =

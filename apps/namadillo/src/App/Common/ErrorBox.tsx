@@ -26,7 +26,7 @@ export const ErrorBox = ({
       <i className="text-4xl text-yellow">
         <MdErrorOutline />
       </i>
-      <p className="leading-[1.2]">{niceError}</p>
+      <div className="leading-[1.2]">{niceError}</div>
       {children}
     </div>
   );

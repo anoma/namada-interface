@@ -12,6 +12,26 @@ import { ErrorBox } from "./Common/ErrorBox";
 import { PageLoader } from "./Common/PageLoader";
 import { Setup } from "./Common/Setup";
 
+const NiceError = ({
+  children,
+  onClickUpdate,
+}: {
+  children: string;
+  onClickUpdate: () => void;
+}): JSX.Element => {
+  return (
+    <>
+      <p>{children}</p>
+      <p className="mt-1">
+        If the problem persists, you can{" "}
+        <button className="text-yellow hover:text-cyan" onClick={onClickUpdate}>
+          update your indexer settings.
+        </button>
+      </p>
+    </>
+  );
+};
+
 type AppSetupProps = {
   children: ReactNode;
 };
@@ -56,21 +76,9 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
         result={indexerHeartbeat}
         containerProps={errorContainerProps}
         niceError={
-          <>
-            <p>
-              Unable to connect to indexer. Please check your internet
-              connection.
-            </p>
-            <p className="mt-1">
-              If the problem persists, you can{" "}
-              <button
-                className="text-yellow hover:text-cyan"
-                onClick={() => setChangeIndexerSettings(true)}
-              >
-                update your indexer settings.
-              </button>
-            </p>
-          </>
+          <NiceError onClickUpdate={() => setChangeIndexerSettings(true)}>
+            Unable to connect to indexer. Please check your internet connection.
+          </NiceError>
         }
       />
     );
@@ -107,7 +115,11 @@ export const AppSetup = ({ children }: AppSetupProps): JSX.Element => {
       <AtomErrorBoundary
         containerProps={errorContainerProps}
         result={chain}
-        niceError="Unable to load chain info. Please check your internet connection."
+        niceError={
+          <NiceError onClickUpdate={() => setChangeIndexerSettings(true)}>
+            Unable to load chain info. Please check your internet connection.
+          </NiceError>
+        }
       />
     );
   }

@@ -4,6 +4,7 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { NamInput } from "App/Common/NamInput";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
 import { twMerge } from "tailwind-merge";
 import { MyValidator, Validator } from "types";
 import { ValidatorCard } from "./ValidatorCard";
@@ -22,19 +23,43 @@ export const UnstakeBondingTable = ({
   stakedAmountByAddress,
   onChangeValidatorAmount,
 }: UnstakeBondingTableProps): JSX.Element => {
+  const validators = myValidators.map((mv) => mv.validator);
+
+  const { sortableColumns, sortedValidators } = useValidatorTableSorting({
+    validators,
+    stakedAmountByAddress,
+  });
+
   const headers = [
     { children: "Validator" },
     "Amount to Unstake",
-    <div key={`unstake-new-total`} className="text-right">
-      <span className="block">Stake</span>
-      <small className="text-xs text-neutral-500 block">New total Stake</small>
-    </div>,
-    <div key={`unstake-voting-power`} className="text-right">
-      Voting Power
-    </div>,
-    <div key={`unstake-commission`} className="text-right">
-      Commission
-    </div>,
+    {
+      children: (
+        <div key={`unstake-new-total`} className="text-right">
+          <span className="block">Stake</span>
+          <small className="text-xs text-neutral-500 block">
+            New total Stake
+          </small>
+        </div>
+      ),
+      ...sortableColumns["stakedAmount"],
+    },
+    {
+      children: (
+        <div key={`unstake-voting-power`} className="text-right">
+          Voting Power
+        </div>
+      ),
+      ...sortableColumns["stakedAmount"],
+    },
+    {
+      children: (
+        <div key={`unstake-commission`} className="text-right">
+          Commission
+        </div>
+      ),
+      ...sortableColumns["commission"],
+    },
   ];
 
   const renderRow = (validator: Validator): TableRow => {
@@ -127,7 +152,7 @@ export const UnstakeBondingTable = ({
     <ValidatorsTable
       id="increment-bonding-table"
       tableClassName="mt-2"
-      validatorList={myValidators.map((mv) => mv.validator)}
+      validatorList={sortedValidators}
       headers={headers}
       renderRow={renderRow}
     />

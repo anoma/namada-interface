@@ -10,6 +10,7 @@ import { atomsAreLoading, atomsAreNotInitialized } from "atoms/utils";
 import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
+import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -32,6 +33,7 @@ export const AllValidatorsTable = ({
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const navigate = useNavigate();
   const [filter, setFilter] = useState("");
+
   const filteredValidators = useValidatorFilter({
     validators: validators.isSuccess ? validators.data : [],
     myValidatorsAddresses: [],
@@ -39,16 +41,26 @@ export const AllValidatorsTable = ({
     onlyMyValidators: false,
   });
 
+  const { sortedValidators: sortedAndFilteredValidators, sortableColumns } =
+    useValidatorTableSorting({
+      validators: filteredValidators,
+      stakedAmountByAddress: {},
+    });
+
   const headers = [
     "",
     "Validator",
     "Address",
-    <div key={`all-validators-voting-power`} className="text-right">
-      Voting Power
-    </div>,
-    <div key={`all-validators-comission`} className="text-right">
-      Commission
-    </div>,
+    {
+      children: "Voting Power",
+      className: "text-right",
+      ...sortableColumns["votingPowerInNAM"],
+    },
+    {
+      children: "Comission",
+      className: "text-right",
+      ...sortableColumns["commission"],
+    },
   ];
 
   const renderRow = (validator: Validator): TableRow => ({
@@ -123,7 +135,7 @@ export const AllValidatorsTable = ({
           <div className="flex flex-col h-[490px] overflow-hidden">
             <ValidatorsTable
               id="all-validators"
-              validatorList={filteredValidators}
+              validatorList={sortedAndFilteredValidators}
               headers={headers}
               initialPage={initialPage}
               resultsPerPage={resultsPerPage}
