@@ -30,7 +30,7 @@ const parseTxsData = <T extends TxWithAmount>(
   return { total, id };
 };
 
-const getAmountByValidatorString = <T extends AmountByValidator>(
+const getAmountByValidatorList = <T extends AmountByValidator>(
   data: T[]
 ): React.ReactNode => {
   return (
@@ -47,7 +47,7 @@ const getAmountByValidatorString = <T extends AmountByValidator>(
   );
 };
 
-const getReDelegateDetailString = (
+const getReDelegateDetailList = (
   data: RedelegateMsgValue[]
 ): React.ReactNode => {
   return (
@@ -103,7 +103,7 @@ export const useTransactionNotifications = (): void => {
           succeeded
         </>
       ),
-      details: getAmountByValidatorString(e.detail.data),
+      details: getAmountByValidatorList(e.detail.data),
       type: "success",
       timeout: 5000,
     });
@@ -120,7 +120,7 @@ export const useTransactionNotifications = (): void => {
           You&apos;ve unbonded <NamCurrency amount={total} />
         </>
       ),
-      details: getAmountByValidatorString(e.detail.data),
+      details: getAmountByValidatorList(e.detail.data),
       type: "success",
       timeout: 5000,
     });
@@ -196,7 +196,7 @@ export const useTransactionNotifications = (): void => {
           has succeeded
         </>
       ),
-      details: getReDelegateDetailString(e.detail.data),
+      details: getReDelegateDetailList(e.detail.data),
       type: "success",
       timeout: 5000,
     });
