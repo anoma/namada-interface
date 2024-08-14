@@ -1,7 +1,6 @@
 import { ActionButton } from "@namada/components";
 import { BondMsgValue, WithdrawMsgValue } from "@namada/types";
 import { NamCurrency } from "App/Common/NamCurrency";
-import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { defaultAccountAtom } from "atoms/accounts";
 import { gasLimitsAtom } from "atoms/fees";
 import {
@@ -120,15 +119,11 @@ export const WithdrawalButton = ({
       dispatchNotification({
         id: createNotificationId(),
         title: "Withdrawal transaction failed",
-        description: (
-          <ToastErrorDescription
-            errorMessage={
-              withdrawalTransactionError instanceof Error ?
-                withdrawalTransactionError.message
-              : undefined
-            }
-          />
-        ),
+        description: "",
+        details:
+          withdrawalTransactionError instanceof Error ?
+            withdrawalTransactionError.message
+          : undefined,
         type: "error",
       });
     }

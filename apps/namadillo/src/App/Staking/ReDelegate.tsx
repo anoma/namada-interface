@@ -2,7 +2,6 @@ import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { RedelegateMsgValue } from "@namada/types";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
-import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { defaultAccountAtom } from "atoms/accounts";
 import { gasLimitsAtom } from "atoms/fees";
 import {
@@ -102,15 +101,11 @@ export const ReDelegate = (): JSX.Element => {
       dispatchNotification({
         id: createNotificationId(),
         title: "Staking redelegation failed",
-        description: (
-          <ToastErrorDescription
-            errorMessage={
-              redelegateTxError instanceof Error ?
-                redelegateTxError.message
-              : undefined
-            }
-          />
-        ),
+        description: "",
+        details:
+          redelegateTxError instanceof Error ?
+            redelegateTxError.message
+          : undefined,
         type: "error",
         timeout: 5000,
       });
