@@ -1,17 +1,19 @@
 import { ActionButton, Alert, Modal, Panel, Stack } from "@namada/components";
-import { UnbondProps } from "@namada/types";
+import { UnbondMsgValue, UnbondProps } from "@namada/types";
 import { singleUnitDurationFromInterval } from "@namada/utils/helpers";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
-import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { TransactionFees } from "App/Common/TransactionFees";
 import { defaultAccountAtom } from "atoms/accounts";
 import { chainParametersAtom } from "atoms/chain";
 import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
-import { dispatchToastNotificationAtom } from "atoms/notifications";
+import {
+  createNotificationId,
+  dispatchToastNotificationAtom,
+} from "atoms/notifications";
 import { createUnbondTxAtom } from "atoms/staking";
 import { myValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
@@ -94,15 +96,16 @@ const Unstake = (): JSX.Element => {
     });
   };
 
-  const dispatchPendingNotification = (): void => {
+  const dispatchPendingNotification = (
+    data?: TransactionPair<UnbondMsgValue>
+  ): void => {
     dispatchNotification({
-      id: "unstaking",
+      id: createNotificationId(data?.encodedTxData.txs),
       title: "Unstake transaction in progress",
       description: (
         <>
-          You&apos;ve unstaked&nbsp;
-          <NamCurrency amount={totalUpdatedAmount} /> and the transaction is
-          being processed
+          Your unstaking transaction of{" "}
+          <NamCurrency amount={totalUpdatedAmount} /> is being processed
         </>
       ),
       type: "pending",
@@ -112,17 +115,11 @@ const Unstake = (): JSX.Element => {
   useEffect(() => {
     if (isError) {
       dispatchNotification({
-        id: "unstake-error",
+        id: createNotificationId(),
         title: "Unstake transaction failed",
-        description: (
-          <ToastErrorDescription
-            errorMessage={
-              unstakeTxError instanceof Error ?
-                unstakeTxError.message
-              : undefined
-            }
-          />
-        ),
+        description: "",
+        details:
+          unstakeTxError instanceof Error ? unstakeTxError.message : undefined,
         type: "error",
       });
     }
@@ -143,9 +140,9 @@ const Unstake = (): JSX.Element => {
 
   useEffect(() => {
     if (isSuccess) {
-      dispatchPendingNotification();
       unbondTransactionData &&
         dispatchUnbondingTransaction(unbondTransactionData);
+      dispatchPendingNotification(unbondTransactionData);
       onCloseModal();
     }
   }, [isSuccess]);
@@ -166,8 +163,8 @@ const Unstake = (): JSX.Element => {
             Select amount to unstake
             <Info>
               To unstake, type the amount of NAM you wish to remove from a
-              validator. Please pay attention to the unbonding period, it might
-              take a few days before the amount to be available.
+              validator. Pay attention to the unbonding period; it might take a
+              few days for the amount to become available.
             </Info>
           </span>
         }
@@ -215,7 +212,7 @@ const Unstake = (): JSX.Element => {
                 <h3 className="text-sm">Unbonding period</h3>
                 <div className="text-xl">{unboundPeriod}</div>
                 <p className="text-xs">
-                  Once this period has elapsed, you may access your assets in
+                  Once this period has elapsed, you can access your assets in
                   the main dashboard
                 </p>
               </Stack>

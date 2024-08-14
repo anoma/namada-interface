@@ -5,7 +5,7 @@ import {
 import { useSetAtom } from "jotai";
 import { AtomWithQueryResult } from "jotai-tanstack-query";
 import { useEffect } from "react";
-import { ToastNotification } from "types/notifications";
+import { ToastNotification } from "types";
 
 export const atomsAreFetching = (...args: AtomWithQueryResult[]): boolean => {
   return args.reduce((prev, current) => prev || current.isPending, false);

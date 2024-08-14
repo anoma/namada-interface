@@ -8,7 +8,7 @@ export const ProposalDiscord: React.FC = () => {
       <Stack gap={6}>
         <BsDiscord className="m-auto text-[90px] leading-none -mb-3" />
         <p className="text-[18px] leading-tight">
-          Join proposal discussions on discord
+          Join proposal discussions on Discord
         </p>
         <ActionButton
           size="xs"

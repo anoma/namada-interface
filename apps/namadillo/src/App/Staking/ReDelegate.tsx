@@ -2,10 +2,12 @@ import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { RedelegateMsgValue } from "@namada/types";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
-import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { defaultAccountAtom } from "atoms/accounts";
 import { gasLimitsAtom } from "atoms/fees";
-import { dispatchToastNotificationAtom } from "atoms/notifications";
+import {
+  createNotificationId,
+  dispatchToastNotificationAtom,
+} from "atoms/notifications";
 import { createReDelegateTxAtom } from "atoms/staking";
 import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
@@ -58,8 +60,8 @@ export const ReDelegate = (): JSX.Element => {
 
   useEffect(() => {
     if (isSuccess) {
-      dispatchPendingNotification();
       redelegateTxData && dispatchReDelegateTransaction(redelegateTxData);
+      dispatchPendingNotification(redelegateTxData);
       onCloseModal();
     }
   }, [isSuccess]);
@@ -83,11 +85,13 @@ export const ReDelegate = (): JSX.Element => {
     });
   };
 
-  const dispatchPendingNotification = (): void => {
+  const dispatchPendingNotification = (
+    data?: TransactionPair<RedelegateMsgValue>
+  ): void => {
     dispatchNotification({
-      id: "staking-redelegate",
-      title: "Staking re-delegation in progress",
-      description: <>The re-delegation transaction is being processed</>,
+      id: createNotificationId(data?.encodedTxData.txs),
+      title: "Staking redelegation in progress",
+      description: <>Your redelegation transaction is being processed</>,
       type: "pending",
     });
   };
@@ -95,18 +99,15 @@ export const ReDelegate = (): JSX.Element => {
   useEffect(() => {
     if (isError) {
       dispatchNotification({
-        id: "staking-redelegate-error",
-        title: "Staking re-delegation failed",
-        description: (
-          <ToastErrorDescription
-            errorMessage={
-              redelegateTxError instanceof Error ?
-                redelegateTxError.message
-              : undefined
-            }
-          />
-        ),
+        id: createNotificationId(),
+        title: "Staking redelegation failed",
+        description: "",
+        details:
+          redelegateTxError instanceof Error ?
+            redelegateTxError.message
+          : undefined,
         type: "error",
+        timeout: 5000,
       });
     }
   }, [isError]);
@@ -162,7 +163,7 @@ export const ReDelegate = (): JSX.Element => {
 
   const stepTitle = {
     remove: "Step 1 - Remove NAM from current Validators",
-    assign: "Step 2 - Assign Re-delegating NAM",
+    assign: "Step 2 - Assign Redelegating NAM",
   };
 
   const totalUpdatedAmount = totalToRedelegate.minus(totalAssignedAmounts);
@@ -188,7 +189,7 @@ export const ReDelegate = (): JSX.Element => {
         >
           <header className="grid grid-cols-[repeat(auto-fit,_minmax(8rem,_1fr))] gap-1.5">
             <BondingAmountOverview
-              title="Total amount to re-delegate"
+              title="Total amount to redelegate"
               className="col-span-2"
               amountInNam={0}
               updatedAmountInNam={totalUpdatedAmount}
@@ -204,7 +205,7 @@ export const ReDelegate = (): JSX.Element => {
                       type="warning"
                       className="absolute py-3 right-3 top-4 max-w-[50%] text-xs rounded-sm"
                     >
-                      To proceed, all re-delegated value must be assigned
+                      To proceed, all redelegated value must be assigned
                     </Alert>
                   </>
                 )

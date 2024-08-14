@@ -134,7 +134,7 @@ export const IncrementBondingTable = ({
 
         // Commission
         <div
-          key={`comission-${validator.uuid}`}
+          key={`commission-${validator.uuid}`}
           className="text-right leading-tight"
         >
           {formatPercentage(validator.commission)}

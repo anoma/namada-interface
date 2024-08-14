@@ -1,3 +1,4 @@
+import { BuiltTx } from "@heliax/namada-sdk/web";
 import {
   ActionButton,
   Modal,
@@ -11,10 +12,12 @@ import {
   isVoteType,
   voteTypes,
 } from "@namada/types";
-import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { TransactionFees } from "App/Common/TransactionFees";
 import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
-import { dispatchToastNotificationAtom } from "atoms/notifications";
+import {
+  createNotificationId,
+  dispatchToastNotificationAtom,
+} from "atoms/notifications";
 import { canVoteAtom, createVoteTxAtom, proposalFamily } from "atoms/proposals";
 import clsx from "clsx";
 import { useProposalIdParam } from "hooks";
@@ -61,7 +64,7 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
 
   useEffect(() => {
     if (isSuccess) {
-      dispatchPendingNotification();
+      dispatchPendingNotification(voteTxData.encodedTxData.txs);
       dispatchVoteTx(voteTxData);
       onCloseModal();
     }
@@ -77,9 +80,9 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
 
   const onCloseModal = (): void => navigate(-1);
 
-  const dispatchPendingNotification = (): void => {
+  const dispatchPendingNotification = (txs: BuiltTx[]): void => {
     dispatchNotification({
-      id: "proposal-voted",
+      id: createNotificationId(txs),
       type: "pending",
       title: "Governance transaction in progress",
       description: `You've voted ${selectedVoteType} for proposal
@@ -90,15 +93,10 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
   useEffect(() => {
     if (isError) {
       dispatchNotification({
-        id: "vote-tx-error",
+        id: createNotificationId(),
         title: "Governance transaction failed",
-        description: (
-          <ToastErrorDescription
-            errorMessage={
-              voteTxError instanceof Error ? voteTxError.message : undefined
-            }
-          />
-        ),
+        description: "",
+        details: voteTxError instanceof Error ? voteTxError.message : undefined,
         type: "error",
       });
     }

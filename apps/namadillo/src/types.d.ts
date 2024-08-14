@@ -129,3 +129,16 @@ export type TxKind =
 export type SortOptions = "asc" | "desc" | undefined;
 
 export type SortedColumnPair<T> = [id: T, SortOptions] | undefined;
+
+export type ToastNotification = {
+  id: string;
+  type: "pending" | "success" | "error";
+  title: React.ReactNode;
+  description: React.ReactNode;
+  details?: React.ReactNode;
+  timeout?: number;
+};
+
+export type ToastNotificationEntryFilter = (
+  notification: ToastNotification
+) => boolean;

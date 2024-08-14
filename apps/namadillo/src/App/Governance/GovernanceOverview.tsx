@@ -45,9 +45,9 @@ export const GovernanceOverview: React.FC = () => {
           <ConnectBanner text="To vote please connect your account" />
         )}
         <ProposalListPanel
-          title="Live Governance Proposals"
+          title="Live Proposals"
           errorText="Unable to load live governance proposals"
-          emptyText="There are no active live proposals"
+          emptyText="There are no live proposals"
           isEmpty={liveProposals.length === 0}
           atoms={activeAtoms}
         >

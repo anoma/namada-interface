@@ -38,7 +38,7 @@ const IconMap: Record<TxType, React.ReactNode> = {
 const TitleMap: Record<TxType, string> = {
   [TxType.Bond]: "Stake",
   [TxType.Unbond]: "Unstake",
-  [TxType.Redelegate]: "Re-Delegate",
+  [TxType.Redelegate]: "Redelegate",
   [TxType.Withdraw]: "Withdraw",
   [TxType.RevealPK]: "Reveal PK",
   [TxType.IBCTransfer]: "IBC Transfer",
@@ -76,7 +76,7 @@ const renderContent = (tx: CommitmentDetailProps): ReactNode => {
       const redelegateTx = tx as RedelegateProps;
       return (
         <>
-          Re-delegate <NamCurrency amount={redelegateTx.amount} /> from{" "}
+          Redelegate <NamCurrency amount={redelegateTx.amount} /> from{" "}
           {formatAddress(redelegateTx.sourceValidator)} to{" "}
           {formatAddress(redelegateTx.destinationValidator)}{" "}
         </>
