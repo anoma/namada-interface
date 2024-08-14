@@ -108,7 +108,7 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
         <div className="leading-tight text-xs">{notification.description}</div>
         {notification.details && !viewDetails && (
           <button
-            className="text-xs text-white leading-0 underline"
+            className="text-xs text-white underline"
             onClick={() => setViewDetails(true)}
           >
             View details
