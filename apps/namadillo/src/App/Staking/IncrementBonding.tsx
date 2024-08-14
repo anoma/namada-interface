@@ -1,15 +1,17 @@
 import { ActionButton, Alert, Modal, Panel } from "@namada/components";
-import { BondProps } from "@namada/types";
+import { BondMsgValue, BondProps } from "@namada/types";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
-import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { TransactionFees } from "App/Common/TransactionFees";
 import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
 import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
-import { dispatchToastNotificationAtom } from "atoms/notifications";
+import {
+  createNotificationId,
+  dispatchToastNotificationAtom,
+} from "atoms/notifications";
 import { createBondTxAtom } from "atoms/staking";
 import { allValidatorsAtom } from "atoms/validators";
 import clsx from "clsx";
@@ -100,9 +102,11 @@ const IncrementBonding = (): JSX.Element => {
     });
   };
 
-  const dispatchPendingNotification = (): void => {
+  const dispatchPendingNotification = (
+    data?: TransactionPair<BondMsgValue>
+  ): void => {
     dispatchNotification({
-      id: "staking-new",
+      id: createNotificationId(data?.encodedTxData.txs),
       title: "Staking transaction in progress",
       description: (
         <>
@@ -127,8 +131,8 @@ const IncrementBonding = (): JSX.Element => {
 
   useEffect(() => {
     if (isSuccess) {
-      dispatchPendingNotification();
       bondTransactionData && dispatchBondingTransaction(bondTransactionData);
+      dispatchPendingNotification(bondTransactionData);
       onCloseModal();
     }
   }, [isSuccess]);
@@ -136,17 +140,14 @@ const IncrementBonding = (): JSX.Element => {
   useEffect(() => {
     if (isError) {
       dispatchNotification({
-        id: "staking-error",
+        id: createNotificationId(),
         title: "Staking transaction failed",
-        description: (
-          <ToastErrorDescription
-            errorMessage={
-              bondTransactionError instanceof Error ?
-                bondTransactionError.message
-              : undefined
-            }
-          />
-        ),
+        description: "",
+        details:
+          bondTransactionError instanceof Error ?
+            bondTransactionError.message
+          : undefined,
+        timeout: 5000,
         type: "error",
       });
     }

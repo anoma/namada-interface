@@ -2,10 +2,12 @@ import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { RedelegateMsgValue } from "@namada/types";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
-import { ToastErrorDescription } from "App/Common/ToastErrorDescription";
 import { defaultAccountAtom } from "atoms/accounts";
 import { gasLimitsAtom } from "atoms/fees";
-import { dispatchToastNotificationAtom } from "atoms/notifications";
+import {
+  createNotificationId,
+  dispatchToastNotificationAtom,
+} from "atoms/notifications";
 import { createReDelegateTxAtom } from "atoms/staking";
 import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
@@ -58,8 +60,8 @@ export const ReDelegate = (): JSX.Element => {
 
   useEffect(() => {
     if (isSuccess) {
-      dispatchPendingNotification();
       redelegateTxData && dispatchReDelegateTransaction(redelegateTxData);
+      dispatchPendingNotification(redelegateTxData);
       onCloseModal();
     }
   }, [isSuccess]);
@@ -83,9 +85,11 @@ export const ReDelegate = (): JSX.Element => {
     });
   };
 
-  const dispatchPendingNotification = (): void => {
+  const dispatchPendingNotification = (
+    data?: TransactionPair<RedelegateMsgValue>
+  ): void => {
     dispatchNotification({
-      id: "staking-redelegate",
+      id: createNotificationId(data?.encodedTxData.txs),
       title: "Staking redelegation in progress",
       description: <>Your redelegation transaction is being processed</>,
       type: "pending",
@@ -95,18 +99,15 @@ export const ReDelegate = (): JSX.Element => {
   useEffect(() => {
     if (isError) {
       dispatchNotification({
-        id: "staking-redelegate-error",
+        id: createNotificationId(),
         title: "Staking redelegation failed",
-        description: (
-          <ToastErrorDescription
-            errorMessage={
-              redelegateTxError instanceof Error ?
-                redelegateTxError.message
-              : undefined
-            }
-          />
-        ),
+        description: "",
+        details:
+          redelegateTxError instanceof Error ?
+            redelegateTxError.message
+          : undefined,
         type: "error",
+        timeout: 5000,
       });
     }
   }, [isError]);

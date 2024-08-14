@@ -6,10 +6,10 @@ import {
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { FaRegHourglassHalf, FaXmark } from "react-icons/fa6";
-import { ToastNotification } from "types/notifications";
+import { ToastNotification } from "types";
 
 export const Toasts = (): JSX.Element => {
   const dismiss = useSetAtom(dismissToastNotificationAtom);
@@ -37,11 +37,30 @@ type ToastProps = {
 };
 
 const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
-  useEffect(() => {
-    notification.timeout &&
-      setTimeout(() => {
-        onClose(notification);
+  const [viewDetails, setViewDetails] = useState(false);
+  const interval = useRef<NodeJS.Timeout>();
+
+  const closeNotification = (): void => {
+    onClose(notification);
+  };
+
+  const keepNotification = (): void => {
+    if (notification.timeout && interval.current) {
+      clearTimeout(interval.current);
+      interval.current = undefined;
+    }
+  };
+
+  const startTimeout = (): void => {
+    if (notification.timeout && !interval.current) {
+      interval.current = setTimeout(() => {
+        closeNotification();
       }, notification.timeout);
+    }
+  };
+
+  useEffect(() => {
+    startTimeout();
   }, []);
 
   return (
@@ -58,6 +77,8 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      onMouseEnter={keepNotification}
+      onMouseLeave={startTimeout}
     >
       <span className="flex h-full items-center justify-center">
         {notification.type === "success" && (
@@ -76,10 +97,29 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
           </i>
         )}
       </span>
-      <div className="relative">
-        <strong className="block text-sm mb-1">{notification.title}</strong>
+      <Stack
+        gap={0.5}
+        className={clsx(
+          "items-start relative break-words overflow-hidden",
+          "max-w-full leading-normal"
+        )}
+      >
+        <strong className="block text-sm">{notification.title}</strong>
         <div className="leading-tight text-xs">{notification.description}</div>
-      </div>
+        {notification.details && !viewDetails && (
+          <button
+            className="text-xs text-white underline"
+            onClick={() => setViewDetails(true)}
+          >
+            View details
+          </button>
+        )}
+        {notification.details && viewDetails && (
+          <div className="w-full text-xs text-white block">
+            {notification.details}
+          </div>
+        )}
+      </Stack>
       <i
         onClick={() => onClose(notification)}
         className={clsx(

@@ -25,7 +25,7 @@ export type EncodedTxData<T> = {
   txs: BuiltTx[];
   wrapperTxMsg: Uint8Array;
   meta?: {
-    props: T;
+    props: T[];
   };
 };
 
@@ -114,7 +114,7 @@ export const buildTx = async <T>(
     wrapperTxMsg: tx.encodeTxArgs(wrapperTxProps),
     type: txFn.name,
     meta: {
-      props: queryProps[0],
+      props: queryProps,
     },
   };
 };
@@ -188,17 +188,16 @@ export const buildTxPair = async <T>(
 export const broadcastTx = async <T>(
   encodedTx: EncodedTxData<T>,
   signedTx: Uint8Array,
-  data?: T,
+  data?: T[],
   eventType?: TransactionEventsClasses
 ): Promise<void> => {
   const { rpc } = await getSdkInstance();
 
   encodedTx.txs.forEach(async (tx) => {
-    const transactionId = tx.tx_hash();
     eventType &&
       window.dispatchEvent(
         new CustomEvent(`${eventType}.Pending`, {
-          detail: { transactionId, data },
+          detail: { tx, data },
         })
       );
     try {
@@ -211,14 +210,14 @@ export const broadcastTx = async <T>(
       eventType &&
         window.dispatchEvent(
           new CustomEvent(`${eventType}.Success`, {
-            detail: { transactionId, data },
+            detail: { tx, data },
           })
         );
     } catch (error) {
       eventType &&
         window.dispatchEvent(
           new CustomEvent(`${eventType}.Error`, {
-            detail: { transactionId, data, error },
+            detail: { tx, data, error },
           })
         );
     }
