@@ -1,7 +1,7 @@
 import { StyledTable, TableRow } from "@namada/components";
-import { shortenAddress } from "@namada/utils";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
+import { WalletAddress } from "App/Common/WalletAddress";
 import { myUnbondsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
@@ -36,7 +36,10 @@ export const UnbondingAmountsTable = (): JSX.Element => {
               validator={validator}
               showAddress={false}
             />,
-            shortenAddress(validator.address, 8, 6),
+            <WalletAddress
+              key={`address-${validator.address}`}
+              address={validator.address}
+            />,
             <div
               key={`my-validator-currency-${validator.address}`}
               className="text-right leading-tight"

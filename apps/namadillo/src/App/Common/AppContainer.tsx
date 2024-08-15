@@ -12,7 +12,7 @@ type ContainerProps = {
   children: JSX.Element;
 } & React.ComponentPropsWithoutRef<"div">;
 
-export const Container = ({
+export const AppContainer = ({
   header,
   navigation,
   children,

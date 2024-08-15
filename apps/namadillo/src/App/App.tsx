@@ -1,4 +1,4 @@
-import { Container } from "App/Common/Container";
+import { AppContainer } from "App/Common/AppContainer";
 import { Toasts } from "App/Common/Toast";
 import { TopNavigation } from "App/Common/TopNavigation";
 import { createBrowserHistory } from "history";
@@ -20,13 +20,13 @@ export function App(): JSX.Element {
   return (
     <>
       <Toasts />
-      <Container
+      <AppContainer
         data-testid="AppContainer"
         navigation={<Navigation />}
         header={<TopNavigation />}
       >
         <Outlet />
-      </Container>
+      </AppContainer>
     </>
   );
 }
