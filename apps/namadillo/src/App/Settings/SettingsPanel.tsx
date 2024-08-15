@@ -5,6 +5,7 @@ import { useModalCloseEvent } from "hooks/useModalCloseEvent";
 import { FaChevronLeft } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { version } from "../../../package.json";
 import { Advanced } from "./Advanced";
 import { SettingsMain } from "./SettingsMain";
 import { SettingsSignArbitrary } from "./SettingsSignArbitrary";
@@ -65,6 +66,7 @@ export const SettingsPanel = (): JSX.Element => {
               />
             </Routes>
           </div>
+          <div className="text-right text-xs">{version}</div>
         </div>
       </ModalTransition>
     </Modal>
