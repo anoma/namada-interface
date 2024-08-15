@@ -70,6 +70,7 @@ export const UnstakeBondingTable = ({
       updatedAmountByAddress[validator.address] ?? new BigNumber(0);
 
     const hasNewAmounts = amountToUnstake.gt(0);
+    const newAmount = stakedAmount.minus(amountToUnstake);
 
     return {
       className: "",
@@ -114,9 +115,15 @@ export const UnstakeBondingTable = ({
             <NamCurrency amount={stakedAmount} />
           </span>
           {hasNewAmounts && (
-            <span className="text-orange text-sm">
+            <span
+              className={twMerge(
+                clsx("text-orange text-sm", {
+                  "text-fail": newAmount.lt(0),
+                })
+              )}
+            >
               =
-              <NamCurrency amount={stakedAmount.minus(amountToUnstake)} />
+              <NamCurrency amount={newAmount} />
             </span>
           )}
         </div>,
