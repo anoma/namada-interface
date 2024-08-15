@@ -21,7 +21,7 @@ export const ActiveAccount = (): JSX.Element => {
         <span className="flex items-center gap-2 ">
           <CopyToClipboardControl
             className="opacity-80 transition-opacity duration-150 hover:opacity-100"
-            value={account.publicKey || ""}
+            value={account.address || ""}
           >
             {account.alias}
           </CopyToClipboardControl>
