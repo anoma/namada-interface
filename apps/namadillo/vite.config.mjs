@@ -27,6 +27,7 @@ export default defineConfig(({ mode }) => {
       checker({
         typescript: true,
         eslint: { lintCommand: 'eslint "./src/**/*.{ts,tsx}"' },
+        overlay: { initialIsOpen: false },
       }),
     ],
     define: {
