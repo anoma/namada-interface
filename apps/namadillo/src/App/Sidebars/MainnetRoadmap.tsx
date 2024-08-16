@@ -74,7 +74,6 @@ const MainnetRoadmap = (): JSX.Element => {
         backgroundHoverColor="yellow"
         outlineColor="yellow"
         size="sm"
-        borderRadius="sm"
       >
         Learn about Mainnet phases
       </ActionButton>

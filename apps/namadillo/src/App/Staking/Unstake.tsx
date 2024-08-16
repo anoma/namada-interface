@@ -221,7 +221,6 @@ const Unstake = (): JSX.Element => {
                   className="inline-flex w-auto leading-none px-4 py-3 mb-4"
                   outlineColor="pink"
                   textHoverColor="white"
-                  borderRadius="sm"
                   onClick={onUnbondAll}
                 >
                   Unbond All
@@ -247,7 +246,6 @@ const Unstake = (): JSX.Element => {
             <ActionButton
               size="sm"
               backgroundColor="white"
-              borderRadius="sm"
               backgroundHoverColor="pink"
               className="mt-2 col-start-2"
               disabled={

@@ -49,7 +49,7 @@ export const ParentAccounts = (): JSX.Element => {
         <nav className="grid items-end grid-cols-[auto_min-content]">
           <p className="text-white font-medium text-xs">Set default keys</p>
           <div className="w-26">
-            <ActionButton borderRadius="md" size="xs" onClick={goToSetupPage}>
+            <ActionButton size="xs" onClick={goToSetupPage}>
               Add Keys
             </ActionButton>
           </div>

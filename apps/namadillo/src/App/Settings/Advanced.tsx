@@ -75,7 +75,6 @@ export const Advanced = (): JSX.Element => {
         />
       </Stack>
       <ActionButton
-        borderRadius="sm"
         className="shrink-0"
         disabled={isPending || indexerMutation.isError || rpcMutation.isError}
       >

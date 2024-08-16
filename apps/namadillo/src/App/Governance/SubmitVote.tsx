@@ -189,7 +189,6 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
             </footer>
             <ActionButton
               type="submit"
-              borderRadius="sm"
               disabled={
                 !canVote.data || typeof selectedVoteType === "undefined"
               }

@@ -70,7 +70,6 @@ export const ValidatorFilterNav = ({
           backgroundColor="white"
           className="sm:ml-auto w-auto px-8"
           size="sm"
-          borderRadius="sm"
         >
           Randomize
         </ActionButton>

@@ -137,11 +137,10 @@ export const ApproveSignTx: React.FC<Props> = ({ details, setDetails }) => {
             </p>
           )}
           <Stack gap={1.5} direction="vertical">
-            <ActionButton borderRadius="sm">Approve</ActionButton>
+            <ActionButton>Approve</ActionButton>
             <ActionButton
               backgroundHoverColor="black"
               textHoverColor="yellow"
-              borderRadius="sm"
               onClick={handleReject}
               outlineColor="yellow"
             >

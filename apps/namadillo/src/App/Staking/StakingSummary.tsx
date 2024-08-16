@@ -106,7 +106,6 @@ export const StakingSummary = (): JSX.Element => {
             callToAction={
               <ActionButton
                 className="px-8"
-                borderRadius="sm"
                 size="xs"
                 backgroundColor="cyan"
                 onClick={() => navigate(StakingRoutes.incrementBonding().url)}
@@ -135,7 +134,6 @@ export const StakingSummary = (): JSX.Element => {
           callToAction={
             <ActionButton
               className="px-8"
-              borderRadius="sm"
               size="xs"
               backgroundColor="white"
               disabled

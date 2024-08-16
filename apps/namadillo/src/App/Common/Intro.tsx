@@ -24,7 +24,6 @@ export const Intro = (): JSX.Element => {
           rel="noreferrer"
           size="sm"
           outlineColor="yellow"
-          borderRadius="sm"
         >
           Help
         </ActionButton>

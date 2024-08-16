@@ -63,11 +63,7 @@ export const ViewAccount = (): JSX.Element => {
               shieldedAccountAddress={shieldedAddress}
             />
           </Stack>
-          <ActionButton
-            size="md"
-            borderRadius="md"
-            onClick={() => navigate(-1)}
-          >
+          <ActionButton size="md" onClick={() => navigate(-1)}>
             Back
           </ActionButton>
         </>

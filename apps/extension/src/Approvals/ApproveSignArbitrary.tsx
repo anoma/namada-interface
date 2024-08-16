@@ -118,13 +118,10 @@ export const ApproveSignArbitrary: React.FC<Props> = ({
             </p>
           )}
           <Stack gap={2}>
-            <ActionButton borderRadius="sm" onClick={handleApproveClick}>
-              Approve
-            </ActionButton>
+            <ActionButton onClick={handleApproveClick}>Approve</ActionButton>
             <ActionButton
               backgroundHoverColor="black"
               textHoverColor="yellow"
-              borderRadius="sm"
               outlineColor="yellow"
               onClick={handleReject}
             >
