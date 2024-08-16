@@ -5,7 +5,7 @@ import { rpcUrlAtom } from "atoms/settings";
 import { getDefaultStore, useAtomValue } from "jotai";
 import { createContext, useContext, useEffect, useState } from "react";
 
-export const SdkContext = createContext<Sdk | null>(null);
+export const SdkContext = createContext<Sdk | undefined>(undefined);
 
 const initializeSdk = async (): Promise<Sdk> => {
   const { cryptoMemory } = await initSdk();
@@ -44,9 +44,7 @@ export const SdkProvider: React.FC = ({ children }) => {
 
   return (
     <>
-      {sdk ?
-        <SdkContext.Provider value={sdk}> {children} </SdkContext.Provider>
-      : null}
+      <SdkContext.Provider value={sdk}> {children} </SdkContext.Provider>
     </>
   );
 };
