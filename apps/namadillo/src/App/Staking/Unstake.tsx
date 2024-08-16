@@ -29,7 +29,7 @@ import { BondingAmountOverview } from "./BondingAmountOverview";
 import { UnstakeBondingTable } from "./UnstakeBondingTable";
 import StakingRoutes from "./routes";
 
-const getUnboundPeriod = ({
+const getUnbondPeriod = ({
   unbondingPeriodInEpochs,
   minEpochDuration,
 }: EpochInfo): string => {
@@ -152,8 +152,8 @@ const Unstake = (): JSX.Element => {
     return "";
   })();
 
-  const unboundPeriod =
-    chainParameters ? getUnboundPeriod(chainParameters.epochInfo) : "N/A";
+  const unbondPeriod =
+    chainParameters ? getUnbondPeriod(chainParameters.epochInfo) : "N/A";
 
   return (
     <Modal onClose={onCloseModal}>
@@ -196,7 +196,7 @@ const Unstake = (): JSX.Element => {
                         You will not receive staking rewards
                       </li>
                       <li>
-                        It will take {unboundPeriod} for the amount to be liquid
+                        It will take {unbondPeriod} for the amount to be liquid
                       </li>
                     </ul>
                   </Alert>
@@ -210,7 +210,7 @@ const Unstake = (): JSX.Element => {
             <Panel className="rounded-md">
               <Stack gap={2} className="leading-none">
                 <h3 className="text-sm">Unbonding period</h3>
-                <div className="text-xl">{unboundPeriod}</div>
+                <div className="text-xl">{unbondPeriod}</div>
                 <p className="text-xs">
                   Once this period has elapsed, you can access your assets in
                   the main dashboard
