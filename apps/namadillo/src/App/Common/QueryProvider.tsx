@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { getDefaultStore } from "jotai";
 import { queryClientAtom } from "jotai-tanstack-query";
 import { Provider as JotaiProvider } from "jotai/react";
 import { useHydrateAtoms } from "jotai/utils";
@@ -42,7 +43,7 @@ export const QueryProvider = ({
 }): JSX.Element => {
   return (
     <QueryClientProvider client={queryClient}>
-      <JotaiProvider>
+      <JotaiProvider store={getDefaultStore()}>
         <HydrateAtoms>{children}</HydrateAtoms>
       </JotaiProvider>
     </QueryClientProvider>
