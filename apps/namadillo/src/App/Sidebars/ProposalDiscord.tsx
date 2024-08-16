@@ -12,7 +12,6 @@ export const ProposalDiscord: React.FC = () => {
         </p>
         <ActionButton
           size="xs"
-          borderRadius="sm"
           backgroundColor="black"
           className="text-white"
           backgroundHoverColor="cyan"

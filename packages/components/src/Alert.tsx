@@ -3,7 +3,7 @@ import { tv, type VariantProps } from "tailwind-variants";
 
 const alert = tv({
   slots: {
-    base: "border border-current rounded-lg text-base font-normal px-4 py-5",
+    base: "border border-current rounded-md text-base font-normal px-4 py-5",
     title: "font-bold block uppercase text-sm mb-1.5",
   },
   variants: {

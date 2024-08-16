@@ -51,11 +51,7 @@ export const SignMessages = (): JSX.Element => {
               readOnly={isPending}
               required
             />
-            <ActionButton
-              className="shrink-0"
-              borderRadius="sm"
-              disabled={isPending}
-            >
+            <ActionButton className="shrink-0" disabled={isPending}>
               {isPending ? "Signing..." : "Sign Message"}
             </ActionButton>
           </form>
@@ -72,9 +68,7 @@ export const SignMessages = (): JSX.Element => {
                 value={data?.signature}
               />
             </Stack>
-            <ActionButton borderRadius="sm" onClick={onCloseModal}>
-              Close
-            </ActionButton>
+            <ActionButton onClick={onCloseModal}>Close</ActionButton>
           </div>
         )}
       </ModalContainer>

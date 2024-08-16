@@ -222,7 +222,6 @@ export const ReDelegate = (): JSX.Element => {
                 backgroundColor="white"
                 backgroundHoverColor="pink"
                 size="sm"
-                borderRadius="sm"
                 onClick={() => navigate(StakingRoutes.unstake().url)}
               >
                 Unstake

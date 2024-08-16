@@ -106,14 +106,10 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
             />
           </Stack>
           <Stack gap={3}>
-            <ActionButton borderRadius="sm" type="submit" disabled={!password}>
+            <ActionButton type="submit" disabled={!password}>
               Authenticate
             </ActionButton>
-            <ActionButton
-              borderRadius="sm"
-              outlineColor="yellow"
-              onClick={() => navigate(-1)}
-            >
+            <ActionButton outlineColor="yellow" onClick={() => navigate(-1)}>
               Back
             </ActionButton>
           </Stack>

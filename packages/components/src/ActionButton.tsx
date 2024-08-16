@@ -38,7 +38,7 @@ const actionButtonShape = tv({
   },
   defaultVariants: {
     size: "md",
-    borderRadius: "lg",
+    borderRadius: "sm",
   },
 });
 

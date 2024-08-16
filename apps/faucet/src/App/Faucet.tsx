@@ -242,7 +242,6 @@ export const FaucetForm: React.FC<Props> = ({
         <ActionButton
           backgroundHoverColor="yellow"
           textHoverColor="black"
-          borderRadius="sm"
           outlineColor="yellow"
           className={`max-w-fit ${!isFormValid && "opacity-50"}`}
           color="cyan"

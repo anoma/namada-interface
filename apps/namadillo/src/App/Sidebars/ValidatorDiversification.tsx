@@ -20,7 +20,6 @@ export const ValidatorDiversification = (): JSX.Element => {
         backgroundHoverColor="cyan"
         href="https://namada.net"
         target="_blank"
-        borderRadius="sm"
         size="xs"
       >
         Learn about CPoS

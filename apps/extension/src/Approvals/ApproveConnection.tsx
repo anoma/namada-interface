@@ -34,11 +34,10 @@ export const ApproveConnection: React.FC = () => {
           Approve connection for <strong>{interfaceOrigin}</strong>?
         </Alert>
         <Stack gap={2}>
-          <ActionButton borderRadius="sm" onClick={() => handleResponse(true)}>
+          <ActionButton onClick={() => handleResponse(true)}>
             Approve
           </ActionButton>
           <ActionButton
-            borderRadius="sm"
             outlineColor="yellow"
             onClick={() => handleResponse(false)}
           >

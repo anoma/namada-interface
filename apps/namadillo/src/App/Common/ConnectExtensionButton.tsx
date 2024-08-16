@@ -12,12 +12,7 @@ export const ConnectExtensionButton = (): JSX.Element => {
   return (
     <>
       {extensionAttachStatus === "attached" && !isExtensionConnected && (
-        <ActionButton
-          backgroundColor="yellow"
-          size="sm"
-          borderRadius="sm"
-          onClick={connect}
-        >
+        <ActionButton backgroundColor="yellow" size="sm" onClick={connect}>
           Connect Extension
         </ActionButton>
       )}
@@ -28,7 +23,6 @@ export const ConnectExtensionButton = (): JSX.Element => {
           rel="nofollow noreferrer"
           backgroundColor="yellow"
           size="sm"
-          borderRadius="sm"
         >
           Download Extension
         </ActionButton>
