@@ -1,5 +1,4 @@
 import { minimumGasPriceAtom } from "atoms/fees";
-import { AnimatePresence } from "framer-motion";
 import { useAtomValue } from "jotai";
 import { Route, Routes, useLocation } from "react-router-dom";
 import IncrementBonding from "./IncrementBonding";
@@ -25,19 +24,17 @@ export const Staking = (): JSX.Element => {
       <Routes>
         <Route path="/*" element={<StakingOverview />} />
       </Routes>
-      <AnimatePresence>
-        <Routes location={location} key={location.pathname}>
-          <Route
-            path={`${StakingRoutes.incrementBonding()}`}
-            element={<IncrementBonding />}
-          />
-          <Route path={`${StakingRoutes.unstake()}`} element={<Unstake />} />
-          <Route
-            path={`${StakingRoutes.redelegateBonding()}`}
-            element={<ReDelegate />}
-          />
-        </Routes>
-      </AnimatePresence>
+      <Routes location={location} key={location.pathname}>
+        <Route
+          path={`${StakingRoutes.incrementBonding()}`}
+          element={<IncrementBonding />}
+        />
+        <Route path={`${StakingRoutes.unstake()}`} element={<Unstake />} />
+        <Route
+          path={`${StakingRoutes.redelegateBonding()}`}
+          element={<ReDelegate />}
+        />
+      </Routes>
     </main>
   );
 };
