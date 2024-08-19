@@ -1,6 +1,6 @@
 import { Currency, CurrencyProps } from "@namada/components";
 import { selectedCurrencyRateAtom } from "atoms/exchangeRates";
-import { hideBalancesAtom, selectedCurrencyAtom } from "atoms/settings";
+import { selectedCurrencyAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 
@@ -15,14 +15,13 @@ export const FiatCurrency = ({
   amountInNam,
   ...props
 }: FiatCurrencyProps): JSX.Element => {
-  const hideBalances = useAtomValue(hideBalancesAtom);
   const selectedFiatCurrency = useAtomValue(selectedCurrencyAtom);
   const selectedCurrencyRate = useAtomValue(selectedCurrencyRateAtom);
   return (
     <Currency
       currency={selectedFiatCurrency}
       amount={amountInNam.multipliedBy(selectedCurrencyRate)}
-      hideBalances={hideBalances}
+      hideBalances={false}
       {...props}
     />
   );

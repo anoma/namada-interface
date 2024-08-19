@@ -60,7 +60,7 @@ export const Setup = (): JSX.Element => {
               reset();
             }}
           />
-          <ActionButton borderRadius="sm" disabled={isPending || isError}>
+          <ActionButton disabled={isPending || isError}>
             {isPending ? "Verifying..." : "Confirm"}
           </ActionButton>
         </form>

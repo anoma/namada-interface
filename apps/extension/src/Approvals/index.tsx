@@ -11,6 +11,9 @@ import "@namada/components/src/base.css";
 import "../global.css";
 import "../tailwind.css";
 
+// Needed to allow displaying tx details containing bigints e.g. proposals
+import "@namada/utils/bigint-to-json-polyfill";
+
 const container = document.getElementById("root")!;
 createRoot(container).render(
   <React.StrictMode>

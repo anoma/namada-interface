@@ -127,7 +127,6 @@ const JsonButton: React.FC<{
       className="px-3 py-2"
       size="xs"
       outlineColor="white"
-      borderRadius="sm"
       onClick={() => navigate(GovernanceRoutes.viewJson(proposalId).url)}
     >
       <span className="flex text-xs justify-between gap-2">
@@ -176,7 +175,6 @@ const WasmButton: React.FC<{
       className="px-3 py-2"
       outlineColor="white"
       size="xs"
-      borderRadius="sm"
       disabled={disabled}
       download={filename}
       href={href}
@@ -236,7 +234,7 @@ const TimeRemaining: React.FC<{
           proposal.currentTime,
           proposal.endTime
         );
-        return `${timeRemaining} Remaining`;
+        return timeRemaining ? `${timeRemaining} Remaining` : "";
       }
     }
 
@@ -335,7 +333,6 @@ const VoteButton: React.FC<{
     <div className="w-32 flex items-center justify-center">
       <ActionButton
         size="sm"
-        borderRadius="sm"
         className="py-2 px-4"
         backgroundColor="white"
         disabled={disabled}

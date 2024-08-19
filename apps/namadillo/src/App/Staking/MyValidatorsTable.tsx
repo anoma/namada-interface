@@ -111,7 +111,6 @@ export const MyValidatorsTable = (): JSX.Element => {
           className="basis-[content] py-1"
           backgroundColor="cyan"
           size="md"
-          borderRadius="sm"
           onClick={() => navigate(StakingRoutes.incrementBonding().url)}
         >
           Stake
@@ -120,7 +119,6 @@ export const MyValidatorsTable = (): JSX.Element => {
           className="basis-[content] py-1"
           backgroundColor="white"
           size="md"
-          borderRadius="sm"
           onClick={() => navigate(StakingRoutes.redelegateBonding().url)}
         >
           Redelegate
@@ -133,7 +131,6 @@ export const MyValidatorsTable = (): JSX.Element => {
           textHoverColor="white"
           backgroundHoverColor="pink"
           size="md"
-          borderRadius="sm"
           onClick={() => navigate(StakingRoutes.unstake().url)}
         >
           Unstake

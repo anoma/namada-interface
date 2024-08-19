@@ -89,10 +89,11 @@ const renderContent = (tx: CommitmentDetailProps): ReactNode => {
       );
 
     case TxType.VoteProposal:
+      // TODO: On Chrome, this cast is wrong because tx.proposalId is a string
       const voteTx = tx as VoteProposalProps;
       return (
         <>
-          Vote {voteTx.vote} on proposal #{voteTx.proposalId}
+          Vote {voteTx.vote} on proposal #{voteTx.proposalId.toString()}
         </>
       );
 

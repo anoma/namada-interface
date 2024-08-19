@@ -60,11 +60,10 @@ export const secondsToDateTimeString = (seconds: bigint): string =>
 export const secondsToTimeRemainingString = (
   startTimeInSeconds: bigint,
   endTimeInSeconds: bigint
-): string => {
+): string | undefined => {
+  return;
   if (endTimeInSeconds < startTimeInSeconds) {
-    throw new Error(
-      `endTimeInSeconds ${endTimeInSeconds} is before startTimeInSeconds ${startTimeInSeconds}`
-    );
+    return undefined;
   }
 
   const toMilliNumber = (n: bigint): number =>

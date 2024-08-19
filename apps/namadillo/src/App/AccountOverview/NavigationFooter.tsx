@@ -20,7 +20,6 @@ export const NavigationFooter = (): JSX.Element => {
           textColor="black"
           textHoverColor="cyan"
           backgroundHoverColor="transparent"
-          borderRadius="sm"
         >
           Stake
         </ActionButton>
@@ -29,7 +28,6 @@ export const NavigationFooter = (): JSX.Element => {
           onClick={() => navigate(GovernanceRoutes.index())}
           outlineColor="yellow"
           className="uppercase"
-          borderRadius="sm"
           backgroundColor="transparent"
           textColor="yellow"
           backgroundHoverColor="yellow"

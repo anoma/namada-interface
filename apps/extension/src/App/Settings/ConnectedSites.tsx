@@ -29,11 +29,7 @@ const DisconnectAllButton: React.FC<{
     await revokeConnection(...connectedSites);
 
   return (
-    <ActionButton
-      borderRadius="md"
-      size="xs"
-      onClick={handleRevokeAllConnections}
-    >
+    <ActionButton size="xs" onClick={handleRevokeAllConnections}>
       Disconnect All
     </ActionButton>
   );

@@ -258,7 +258,6 @@ const IncrementBonding = (): JSX.Element => {
             <ActionButton
               type="submit"
               size="sm"
-              borderRadius="sm"
               className="mt-2 col-start-2"
               backgroundColor="cyan"
               disabled={

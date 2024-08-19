@@ -57,7 +57,6 @@ export type ChainParameters = {
 export type SettingsStorage = {
   version: string;
   fiat: CurrencyType;
-  hideBalances: boolean;
   rpcUrl?: string;
   indexerUrl: string;
   signArbitraryEnabled: boolean;
