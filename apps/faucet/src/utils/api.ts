@@ -6,12 +6,6 @@ import {
   TransferResponse,
 } from "./types";
 
-enum Endpoint {
-  Settings = "/setting",
-  Challenge = "",
-  Transfer = "",
-}
-
 export class API {
   constructor(protected readonly url: string) {}
 
@@ -63,7 +57,7 @@ export class API {
    * @returns Object
    */
   async settings(): Promise<SettingsResponse> {
-    return this.request(Endpoint.Settings);
+    return this.request("/setting");
   }
 
   /**
@@ -72,7 +66,7 @@ export class API {
    * @returns Object
    */
   async challenge(): Promise<ChallengeResponse> {
-    return this.request(Endpoint.Challenge);
+    return this.request("");
   }
 
   /**
@@ -82,7 +76,7 @@ export class API {
    * @returns {Object}
    */
   async submitTransfer(data: Data): Promise<TransferResponse> {
-    return this.request(Endpoint.Transfer, {
+    return this.request("", {
       method: "POST",
       body: JSON.stringify(data),
       headers: {
