@@ -1,5 +1,4 @@
 import { ActionButton, Input, Stack } from "@namada/components";
-import SettingsRoute from "App/Settings/routes";
 import {
   indexerUrlAtom,
   rpcUrlAtom,
@@ -8,10 +7,9 @@ import {
 } from "atoms/settings";
 import { useAtom } from "jotai";
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 export const Advanced = (): JSX.Element => {
-  const navigate = useNavigate();
   const location = useLocation();
 
   const [currentRpc] = useAtom(rpcUrlAtom);
@@ -29,7 +27,8 @@ export const Advanced = (): JSX.Element => {
         rpcMutation.mutateAsync(rpc),
         indexerMutation.mutateAsync(indexer),
       ]);
-      navigate(SettingsRoute.index(), { replace: true, state: location.state });
+      document.location.href =
+        location.state.backgroundLocation.pathname ?? location.pathname;
     } catch {}
   };
 
