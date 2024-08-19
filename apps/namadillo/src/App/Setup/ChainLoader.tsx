@@ -44,6 +44,7 @@ export const ChainLoader = ({
       <AtomErrorBoundary
         containerProps={errorContainerProps}
         result={chain}
+        buttonProps={{ onClick: () => window.location.reload() }}
         niceError={
           <>
             <p>
