@@ -26,7 +26,6 @@ export const defaultServerConfigAtom = atomWithQuery((_get) => {
 export const defaultSettings = {
   version: "0.1",
   fiat: "usd",
-  hideBalances: false,
   indexerUrl: "",
   signArbitraryEnabled: false,
 };
@@ -70,11 +69,6 @@ const changeSettingsUrl =
 export const selectedCurrencyAtom = atom(
   (get) => get(settingsAtom).fiat,
   changeSettings<CurrencyType>("fiat")
-);
-
-export const hideBalancesAtom = atom(
-  (get) => get(settingsAtom).hideBalances,
-  changeSettings<boolean>("hideBalances")
 );
 
 /**

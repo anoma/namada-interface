@@ -1,6 +1,4 @@
-import { hideBalancesAtom } from "atoms/settings";
 import clsx from "clsx";
-import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { BurgerButton } from "./BurgerButton";
@@ -19,7 +17,6 @@ export const AppContainer = ({
   ...props
 }: ContainerProps): JSX.Element => {
   const [displayNavigation, setDisplayNavigation] = useState(false);
-  const hideBalance = useAtomValue(hideBalancesAtom);
 
   return (
     <div className="custom-container pb-2" {...props}>
@@ -38,7 +35,7 @@ export const AppContainer = ({
             )}
           >
             <i className="w-[40px]">
-              <Logo eyeOpen={!hideBalance} />
+              <Logo eyeOpen={true} />
             </i>
             Namadillo
           </Link>
