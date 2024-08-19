@@ -32,7 +32,7 @@ export const ChainLoader = ({
 }): JSX.Element => {
   const chain = useAtomValue(chainAtom);
   const errorContainerProps = {
-    className: "bg-black max-w-full rounded-sm w-full text-white h-svh",
+    className: "bg-black max-w-full rounded-sm w-full text-white min-h-full",
   };
 
   if (chain.isPending) {
