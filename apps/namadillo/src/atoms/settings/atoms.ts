@@ -95,6 +95,22 @@ export const updateRpcUrlAtom = atomWithMutation(() => {
   };
 });
 
+export const rpcHeartbeatAtom = atomWithQuery((get) => {
+  const rpcUrl = get(rpcUrlAtom);
+  return {
+    queryKey: ["rpc-heartbeat", rpcUrl],
+    enabled: !!rpcUrl,
+    retry: false,
+    refetchOnWindowFocus: true,
+    refetchInterval: 10_000,
+    queryFn: async () => {
+      const valid = await isRpcAlive(rpcUrl);
+      if (!valid) throw "Unable to verify rpc heartbeat";
+      return true;
+    },
+  };
+});
+
 /**
  * Returns Indexer url
  * Priority: user defined indexer URL > TOML config
@@ -127,6 +143,8 @@ export const indexerHeartbeatAtom = atomWithQuery((get) => {
     queryKey: ["indexer-heartbeat", indexerUrl],
     enabled: !!indexerUrl,
     retry: false,
+    refetchOnWindowFocus: true,
+    refetchInterval: 10_000,
     queryFn: async () => {
       const valid = await isIndexerAlive(indexerUrl);
       if (!valid) throw "Unable to verify indexer heartbeat";

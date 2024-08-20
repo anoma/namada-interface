@@ -8,6 +8,7 @@ import { useTransactionCallback } from "hooks/useTransactionCallbacks";
 import { useTransactionNotifications } from "hooks/useTransactionNotifications";
 import { Outlet } from "react-router-dom";
 import { Navigation } from "./Common/Navigation";
+import { ChainLoader } from "./Setup/ChainLoader";
 
 export const history = createBrowserHistory({ window });
 
@@ -25,7 +26,9 @@ export function App(): JSX.Element {
         navigation={<Navigation />}
         header={<TopNavigation />}
       >
-        <Outlet />
+        <ChainLoader>
+          <Outlet />
+        </ChainLoader>
       </AppContainer>
     </>
   );
