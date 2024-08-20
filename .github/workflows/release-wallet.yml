@@ -1,4 +1,4 @@
-name: Deploy interface and release extension
+name: Release extension
 on:
   workflow_dispatch:
     inputs:
@@ -6,35 +6,8 @@ on:
         required: true
         type: string
         default: "main"
-      NAMADA_INTERFACE_NAMADA_ALIAS:
-        required: true
-        type: string
-        default: "Namada Testnet"
       NAMADA_INTERFACE_NAMADA_CHAIN_ID:
         required: true
-        type: string
-      NAMADA_INTERFACE_NAMADA_URL:
-        required: true
-        type: string
-      NAMADA_INTERFACE_COSMOS_ALIAS:
-        required: false
-        type: string
-        default: "Cosmos Testnet"
-      NAMADA_INTERFACE_COSMOS_CHAIN_ID:
-        required: false
-        type: string
-      NAMADA_INTERFACE_COSMOS_URL:
-        required: false
-        type: string
-      NAMADA_INTERFACE_ETH_ALIAS:
-        required: false
-        type: string
-        default: "Goerli Testnet"
-      NAMADA_INTERFACE_ETH_CHAIN_ID:
-        required: false
-        type: string
-      NAMADA_INTERFACE_ETH_URL:
-        required: false
         type: string
 
 env:
@@ -61,46 +34,6 @@ jobs:
 
       - name: Print workflow inputs
         uses: ./.github/actions/print-workflow-inputs
-
-  build-interface:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ inputs.REF }}
-
-      - name: Install yarn dependencies
-        uses: ./.github/actions/yarn-cache
-
-      - name: Restore Rust cache
-        uses: ./.github/actions/rust-cache
-        with:
-          cache-name: build
-
-      - name: Install protoc
-        run: sudo apt-get install -y protobuf-compiler
-
-      - name: Build the interface
-        working-directory: ./apps/namadillo
-        run: yarn build
-        env:
-          NAMADA_INTERFACE_NAMADA_ALIAS: ${{ inputs.NAMADA_INTERFACE_NAMADA_ALIAS }}
-          NAMADA_INTERFACE_NAMADA_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_NAMADA_CHAIN_ID }}
-          NAMADA_INTERFACE_NAMADA_URL: ${{ inputs.NAMADA_INTERFACE_NAMADA_URL }}
-          NAMADA_INTERFACE_COSMOS_ALIAS: ${{ inputs.NAMADA_INTERFACE_COSMOS_ALIAS }}
-          NAMADA_INTERFACE_COSMOS_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_COSMOS_CHAIN_ID }}
-          NAMADA_INTERFACE_COSMOS_URL: ${{ inputs.NAMADA_INTERFACE_COSMOS_URL }}
-          NAMADA_INTERFACE_ETH_ALIAS: ${{ inputs.NAMADA_INTERFACE_ETH_ALIAS }}
-          NAMADA_INTERFACE_ETH_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_ETH_CHAIN_ID }}
-          NAMADA_INTERFACE_ETH_URL: ${{ inputs.NAMADA_INTERFACE_ETH_URL }}
-          NAMADA_INTERFACE_EXTENSION_URL: https://github.com/anoma/namada-interface/releases/tag/${{ needs.setup.outputs.VERSION }}/
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: namadillo
-          path: ./apps/namadillo/dist
 
   build-extension-chrome:
     needs: setup
@@ -130,15 +63,7 @@ jobs:
         working-directory: ./apps/extension
         run: yarn build:chrome
         env:
-          NAMADA_INTERFACE_NAMADA_ALIAS: ${{ inputs.NAMADA_INTERFACE_NAMADA_ALIAS }}
           NAMADA_INTERFACE_NAMADA_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_NAMADA_CHAIN_ID }}
-          NAMADA_INTERFACE_NAMADA_URL: ${{ inputs.NAMADA_INTERFACE_NAMADA_URL }}
-          NAMADA_INTERFACE_COSMOS_ALIAS: ${{ inputs.NAMADA_INTERFACE_COSMOS_ALIAS }}
-          NAMADA_INTERFACE_COSMOS_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_COSMOS_CHAIN_ID }}
-          NAMADA_INTERFACE_COSMOS_URL: ${{ inputs.NAMADA_INTERFACE_COSMOS_URL }}
-          NAMADA_INTERFACE_ETH_ALIAS: ${{ inputs.NAMADA_INTERFACE_ETH_ALIAS }}
-          NAMADA_INTERFACE_ETH_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_ETH_CHAIN_ID }}
-          NAMADA_INTERFACE_ETH_URL: ${{ inputs.NAMADA_INTERFACE_ETH_URL }}
 
       - uses: actions/upload-artifact@v3
         with:
@@ -173,15 +98,7 @@ jobs:
         working-directory: ./apps/extension
         run: yarn build:firefox
         env:
-          NAMADA_INTERFACE_NAMADA_ALIAS: ${{ inputs.NAMADA_INTERFACE_NAMADA_ALIAS }}
           NAMADA_INTERFACE_NAMADA_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_NAMADA_CHAIN_ID }}
-          NAMADA_INTERFACE_NAMADA_URL: ${{ inputs.NAMADA_INTERFACE_NAMADA_URL }}
-          NAMADA_INTERFACE_COSMOS_ALIAS: ${{ inputs.NAMADA_INTERFACE_COSMOS_ALIAS }}
-          NAMADA_INTERFACE_COSMOS_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_COSMOS_CHAIN_ID }}
-          NAMADA_INTERFACE_COSMOS_URL: ${{ inputs.NAMADA_INTERFACE_COSMOS_URL }}
-          NAMADA_INTERFACE_ETH_ALIAS: ${{ inputs.NAMADA_INTERFACE_ETH_ALIAS }}
-          NAMADA_INTERFACE_ETH_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_ETH_CHAIN_ID }}
-          NAMADA_INTERFACE_ETH_URL: ${{ inputs.NAMADA_INTERFACE_ETH_URL }}
 
       - uses: actions/upload-artifact@v3
         with:
@@ -189,16 +106,9 @@ jobs:
           path: ./apps/extension/build/firefox/namada_extension-*.zip
 
   release:
-    needs:
-      [setup, build-interface, build-extension-chrome, build-extension-firefox]
+    needs: [setup, build-extension-chrome, build-extension-firefox]
     runs-on: ubuntu-latest
     steps:
-      - name: Download interface build
-        uses: actions/download-artifact@v3
-        with:
-          name: namadillo
-          path: ./namadillo
-
       - name: Download Chrome extension build
         uses: actions/download-artifact@v3
         with:
@@ -217,38 +127,11 @@ jobs:
           echo "CHROME_FILENAME=$(ls -1 ./namada-extension-chrome)" >> "$GITHUB_OUTPUT"
           echo "FIREFOX_FILENAME=$(ls -1 ./namada-extension-firefox)" >> "$GITHUB_OUTPUT"
 
-      - name: Deploy interface to Netlify
-        uses: nwtgck/actions-netlify@v1.2.3
-        with:
-          publish-dir: ./namadillo
-          production-branch: main
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Deployed release ${{ needs.setup.outputs.VERSION }}"
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
-          NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
-
       - name: Make release body text
         run: |
-          echo "NAMADA_INTERFACE_NAMADA_ALIAS: $NAMADA_INTERFACE_NAMADA_ALIAS" >> RELEASE
           echo "NAMADA_INTERFACE_NAMADA_CHAIN_ID: $NAMADA_INTERFACE_NAMADA_CHAIN_ID" >> RELEASE
-          echo "NAMADA_INTERFACE_NAMADA_URL: $NAMADA_INTERFACE_NAMADA_URL" >> RELEASE
-          echo "NAMADA_INTERFACE_COSMOS_ALIAS: $NAMADA_INTERFACE_COSMOS_ALIAS" >> RELEASE
-          echo "NAMADA_INTERFACE_COSMOS_CHAIN_ID: $NAMADA_INTERFACE_COSMOS_CHAIN_ID" >> RELEASE
-          echo "NAMADA_INTERFACE_COSMOS_URL: $NAMADA_INTERFACE_COSMOS_URL" >> RELEASE
-          echo "NAMADA_INTERFACE_ETH_ALIAS: $NAMADA_INTERFACE_ETH_ALIAS" >> RELEASE
-          echo "NAMADA_INTERFACE_ETH_CHAIN_ID: $NAMADA_INTERFACE_ETH_CHAIN_ID" >> RELEASE
-          echo "NAMADA_INTERFACE_ETH_URL: $NAMADA_INTERFACE_ETH_URL" >> RELEASE
         env:
-          NAMADA_INTERFACE_NAMADA_ALIAS: ${{ inputs.NAMADA_INTERFACE_NAMADA_ALIAS }}
           NAMADA_INTERFACE_NAMADA_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_NAMADA_CHAIN_ID }}
-          NAMADA_INTERFACE_NAMADA_URL: ${{ inputs.NAMADA_INTERFACE_NAMADA_URL }}
-          NAMADA_INTERFACE_COSMOS_ALIAS: ${{ inputs.NAMADA_INTERFACE_COSMOS_ALIAS }}
-          NAMADA_INTERFACE_COSMOS_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_COSMOS_CHAIN_ID }}
-          NAMADA_INTERFACE_COSMOS_URL: ${{ inputs.NAMADA_INTERFACE_COSMOS_URL }}
-          NAMADA_INTERFACE_ETH_ALIAS: ${{ inputs.NAMADA_INTERFACE_ETH_ALIAS }}
-          NAMADA_INTERFACE_ETH_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_ETH_CHAIN_ID }}
-          NAMADA_INTERFACE_ETH_URL: ${{ inputs.NAMADA_INTERFACE_ETH_URL }}
 
       - name: Create release
         id: create-release

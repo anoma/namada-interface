@@ -11,7 +11,7 @@ const packageJson = require("./package.json");
 const { getProcessEnv } = require("@namada/config/webpack.js");
 
 // Load .env from namadillo:
-require("dotenv").config({ path: "../namadillo/.env" });
+require("dotenv").config({ path: "./.env" });
 
 const { NODE_ENV, TARGET, BUNDLE_ANALYZE } = process.env;
 

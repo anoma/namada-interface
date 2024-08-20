@@ -1,0 +1,4 @@
+# dependencies
+.env
+/node_modules
+/build
