@@ -29,7 +29,6 @@ export const fetchAllValidators = async (
   chainParameters: ChainParameters,
   votingPower: IndexerVotingPower
 ): Promise<Validator[]> => {
-  const epochInfo = chainParameters.epochInfo;
   const nominalApr = chainParameters.apr;
   const validatorsResponse = await api.apiV1PosValidatorAllGet([
     IndexerValidatorStatus.Consensus,
@@ -37,7 +36,7 @@ export const fetchAllValidators = async (
 
   const validators = validatorsResponse.data;
   return validators.map((v) =>
-    toValidator(v, votingPower, epochInfo, nominalApr)
+    toValidator(v, votingPower, chainParameters.unbondingPeriod, nominalApr)
   );
 };
 
@@ -47,7 +46,6 @@ export const fetchMyValidators = async (
   chainParameters: ChainParameters,
   votingPower: IndexerVotingPower
 ): Promise<MyValidator[]> => {
-  const epochInfo = chainParameters.epochInfo;
   const apr = chainParameters.apr;
   const bondsResponse = await api.apiV1PosMergedBondsAddressGet(
     account.address
@@ -55,7 +53,7 @@ export const fetchMyValidators = async (
   return toMyValidators(
     bondsResponse.data.results,
     votingPower,
-    epochInfo,
+    chainParameters.unbondingPeriod,
     apr
   );
 };
@@ -66,7 +64,6 @@ export const fetchMyUnbonds = async (
   chainParameters: ChainParameters,
   votingPower: IndexerVotingPower
 ): Promise<MyUnbondingValidator[]> => {
-  const epochInfo = chainParameters.epochInfo;
   const apr = chainParameters.apr;
   const unbondsResponse = await api.apiV1PosMergedUnbondsAddressGet(
     account.address
@@ -74,7 +71,7 @@ export const fetchMyUnbonds = async (
   return toUnbondingValidators(
     unbondsResponse.data.results,
     votingPower,
-    epochInfo,
+    chainParameters.unbondingPeriod,
     apr
   );
 };

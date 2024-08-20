@@ -7,6 +7,7 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { TransactionFees } from "App/Common/TransactionFees";
 import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
+import { chainParametersAtom } from "atoms/chain";
 import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
 import {
   createNotificationId,
@@ -33,6 +34,7 @@ const IncrementBonding = (): JSX.Element => {
   const [filter, setFilter] = useState<string>("");
   const [onlyMyValidators, setOnlyMyValidators] = useState(false);
   const navigate = useNavigate();
+  const { data: chainParameters } = useAtomValue(chainParametersAtom);
   const accountBalance = useAtomValue(accountBalanceAtom);
   const gasPrice = useAtomValue(minimumGasPriceAtom);
   const gasLimits = useAtomValue(gasLimitsAtom);
@@ -201,9 +203,9 @@ const IncrementBonding = (): JSX.Element => {
                         <GoAlert />
                       </i>
                       <p className="text-balance">
-                        Staking will lock and bind your assets to the TODO
-                        unbonding schedule. To make your NAM liquid again, you
-                        will need to unstake.
+                        Staking will lock and bind your assets to a{" "}
+                        {chainParameters?.unbondingPeriod} unbonding schedule.
+                        To make your NAM liquid again, you will need to unstake.
                       </p>
                     </div>
                   </Alert>

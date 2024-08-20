@@ -29,7 +29,6 @@ export type ChainSettings = {
   nativeTokenAddress: Address;
   rpcUrl: string;
   chainId: string;
-  unbondingPeriodInEpochs: number;
   extensionId: ExtensionKey;
   checksums: Record<string, string>;
 };
@@ -39,18 +38,11 @@ export type SettingsTomlOptions = {
   rpc_url?: string;
 };
 
-export type EpochInfo = {
-  unbondingPeriodInEpochs: number;
-  minEpochDuration: number;
-  minNumOfBlocks: number;
-  epochSwitchBlocksDelay: number;
-};
-
 export type ChainParameters = {
   apr: BigNumber;
   chainId: string;
   nativeTokenAddress: Address;
-  epochInfo: EpochInfo;
+  unbondingPeriod: string;
   checksums: Record<string, string>;
 };
 

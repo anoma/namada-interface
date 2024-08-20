@@ -1,5 +1,6 @@
 import namada from "@namada/chains/chains/namada";
 import { integrations } from "@namada/integrations";
+import { singleUnitDurationFromInterval } from "@namada/utils/helpers";
 import { indexerApiAtom } from "atoms/api";
 import {
   defaultServerConfigAtom,
@@ -8,6 +9,7 @@ import {
   rpcUrlAtom,
 } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
+import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { ChainParameters, ChainSettings } from "types";
 import { fetchChainParameters, fetchRpcUrlFromIndexer } from "./services";
@@ -43,8 +45,7 @@ export const chainAtom = atomWithQuery<ChainSettings>((get) => {
         bench32Prefix: namada.bech32Prefix,
         rpcUrl,
         chainId: extensionChainId || chainParameters.data!.chainId,
-        unbondingPeriodInEpochs:
-          chainParameters.data!.epochInfo.unbondingPeriodInEpochs,
+        unbondingPeriod: chainParameters.data!.unbondingPeriod,
         nativeTokenAddress: chainParameters.data!.nativeTokenAddress,
         checksums: chainParameters.data!.checksums,
       };
@@ -83,6 +84,33 @@ export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
     queryKey: ["chain-parameters", indexerUrl],
     staleTime: Infinity,
     enabled: !!indexerUrl,
-    queryFn: async () => fetchChainParameters(api),
+    queryFn: async () => {
+      const parameters = await fetchChainParameters(api);
+
+      const unbondingPeriodInEpochs =
+        Number(parameters.unbondingLength) +
+        Number(parameters.pipelineLength) +
+        // + 1 because we unbonding period starts from the next epoch
+        1;
+      const minEpochDuration = Number(parameters.minDuration);
+      const minNumOfBlocks = Number(parameters.minNumOfBlocks);
+      const epochSwitchBlocksDelay = Number(parameters.epochSwitchBlocksDelay);
+
+      // Because epoch duration is in reality longer by epochSwitchBlocksDelay we have to account for that
+      const timePerBlock = minEpochDuration / minNumOfBlocks;
+      const realMinEpochDuration =
+        minEpochDuration + timePerBlock * epochSwitchBlocksDelay;
+
+      const unbondingPeriod = singleUnitDurationFromInterval(
+        0,
+        unbondingPeriodInEpochs * realMinEpochDuration
+      );
+
+      return {
+        ...parameters,
+        apr: BigNumber(parameters.apr),
+        unbondingPeriod,
+      };
+    },
   };
 });
