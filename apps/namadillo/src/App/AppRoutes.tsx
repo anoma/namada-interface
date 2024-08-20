@@ -1,5 +1,4 @@
 import { Router } from "@remix-run/router";
-import { AnimatePresence } from "framer-motion";
 import {
   Route,
   Routes,
@@ -43,20 +42,18 @@ export const MainRoutes = (): JSX.Element => {
           />
         </Route>
       </Routes>
-      <AnimatePresence>
-        <Routes location={location} key={settingsAnimationKey}>
-          <Route
-            path={`${SettingsRoutes.index()}/*`}
-            element={<SettingsPanel />}
-            errorElement={<RouteErrorBoundary />}
-          />
-          <Route
-            path={`${MessageRoutes.index()}/*`}
-            element={<SignMessages />}
-            errorElement={<RouteErrorBoundary />}
-          />
-        </Routes>
-      </AnimatePresence>
+      <Routes location={location} key={settingsAnimationKey}>
+        <Route
+          path={`${SettingsRoutes.index()}/*`}
+          element={<SettingsPanel />}
+          errorElement={<RouteErrorBoundary />}
+        />
+        <Route
+          path={`${MessageRoutes.index()}/*`}
+          element={<SignMessages />}
+          errorElement={<RouteErrorBoundary />}
+        />
+      </Routes>
       <ScrollRestoration />
     </>
   );
