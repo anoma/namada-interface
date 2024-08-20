@@ -134,6 +134,7 @@ export const Completion: React.FC<Props> = (props) => {
             publicKeyAddress={publicKeyAddress}
             transparentAccountAddress={transparentAccountAddress}
             shieldedAccountAddress={shieldedAccountAddress}
+            trimCharacters={35}
             footer={
               <ActionButton
                 size="lg"
