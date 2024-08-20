@@ -67,7 +67,7 @@ export const ChainLoader = ({
           <>
             <p>RPC Url was not provided</p>
             <p className="mt-1">
-              Do you like to <UpdateSettingsButton />?
+              Would you like to <UpdateSettingsButton />?
             </p>
           </>
         }
