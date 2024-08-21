@@ -12,17 +12,17 @@ export const ActiveAccount = (): JSX.Element => {
   }
 
   const buttonClassName =
-    "opacity-80 transition-opacity duration-150 hover:opacity-100";
+    "p-1 opacity-80 transition-opacity duration-150 hover:opacity-100";
 
   return (
     <div>
       <span
         className={clsx(
-          "px-5 py-3.5 gap-2 flex items-center text-xs rounded-[2px]",
+          "px-4 py-2.5 flex items-center text-xs rounded-[2px]",
           "text-white bg-black rounded-xs"
         )}
       >
-        <span className="flex items-center gap-2 ">
+        <span className="flex items-center gap-2">
           <CopyToClipboardControl
             className={buttonClassName}
             value={account.address || ""}
