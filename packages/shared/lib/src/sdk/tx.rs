@@ -2,15 +2,15 @@ use std::collections::HashMap;
 use std::str::FromStr;
 
 use gloo_utils::format::JsValueSerdeExt;
-use namada::core::borsh::{self, BorshDeserialize, BorshSerialize};
-use namada::sdk::signing::SigningTxData;
-use namada::sdk::tx::{
+use namada_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use namada_sdk::signing::SigningTxData;
+use namada_sdk::tx;
+use namada_sdk::tx::{
     TX_BOND_WASM, TX_CLAIM_REWARDS_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSFER_WASM,
     TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
 };
-use namada::sdk::uint::Uint;
-use namada::tx;
-use namada::{address::Address, key::common::PublicKey};
+use namada_sdk::uint::Uint;
+use namada_sdk::{address::Address, key::common::PublicKey};
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
 use super::args::WrapperTxMsg;
@@ -19,7 +19,7 @@ use crate::types::query::WasmHash;
 
 #[wasm_bindgen]
 #[derive(BorshSerialize, BorshDeserialize, Copy, Clone, Debug)]
-#[borsh(crate = "namada::core::borsh", use_discriminant = true)]
+#[borsh(crate = "namada_sdk::borsh", use_discriminant = true)]
 pub enum TxType {
     Bond = 1,
     Unbond = 2,
@@ -35,7 +35,7 @@ pub enum TxType {
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct SigningData {
     owner: Option<String>,
     public_keys: Vec<u8>,
@@ -128,7 +128,7 @@ pub fn deserialize_tx(tx_bytes: Vec<u8>, wasm_hashes: JsValue) -> Result<Vec<u8>
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct Commitment {
     tx_type: TxType,
     hash: String,
@@ -138,7 +138,7 @@ pub struct Commitment {
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct TxDetails {
     wrapper_tx: WrapperTxMsg,
     commitments: Vec<Commitment>,

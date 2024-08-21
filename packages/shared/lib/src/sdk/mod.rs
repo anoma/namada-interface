@@ -14,29 +14,29 @@ use crate::utils::to_bytes;
 use crate::utils::to_js_result;
 use gloo_utils::format::JsValueSerdeExt;
 use js_sys::Uint8Array;
-use namada::address::Address;
-use namada::core::borsh::{self, BorshDeserialize, BorshSerialize};
-use namada::hash::Hash;
-use namada::key::{common, ed25519, SigScheme};
-use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
-use namada::sdk::masp::ShieldedContext;
-use namada::sdk::rpc::query_epoch;
-use namada::sdk::signing::SigningTxData;
-use namada::sdk::tx::{
+use namada_sdk::address::Address;
+use namada_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
+use namada_sdk::hash::Hash;
+use namada_sdk::key::{common, ed25519, SigScheme};
+use namada_sdk::masp::ShieldedContext;
+use namada_sdk::rpc::query_epoch;
+use namada_sdk::signing::SigningTxData;
+use namada_sdk::string_encoding::Format;
+use namada_sdk::tx::Tx;
+use namada_sdk::tx::{
     build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
     build_reveal_pk, build_transparent_transfer, build_unbond, build_vote_proposal, build_withdraw,
     is_reveal_pk_needed, process_tx, ProcessTxResponse,
 };
-use namada::sdk::wallet::{Store, Wallet};
-use namada::sdk::{Namada, NamadaImpl};
-use namada::string_encoding::Format;
-use namada::tx::Tx;
+use namada_sdk::wallet::{Store, Wallet};
+use namada_sdk::{Namada, NamadaImpl};
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
 #[wasm_bindgen]
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct BatchTxResult {
     hash: String,
     is_applied: bool,
@@ -44,7 +44,7 @@ pub struct BatchTxResult {
 
 #[wasm_bindgen]
 #[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct TxResponse {
     code: String,
     commitments: Vec<BatchTxResult>,
