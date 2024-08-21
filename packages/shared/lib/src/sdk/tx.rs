@@ -4,9 +4,8 @@ use std::str::FromStr;
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use namada_sdk::signing::SigningTxData;
-use namada_sdk::tx;
 use namada_sdk::tx::{
-    TX_BOND_WASM, TX_CLAIM_REWARDS_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSFER_WASM,
+    self, TX_BOND_WASM, TX_CLAIM_REWARDS_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSFER_WASM,
     TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
 };
 use namada_sdk::uint::Uint;
@@ -37,11 +36,11 @@ pub enum TxType {
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada_sdk::borsh")]
 pub struct SigningData {
-    owner: Option<String>,
     public_keys: Vec<u8>,
     threshold: u8,
-    account_public_keys_map: Option<Vec<u8>>,
     fee_payer: String,
+    account_public_keys_map: Option<Vec<u8>>,
+    owner: Option<String>,
 }
 
 impl SigningData {
@@ -59,11 +58,11 @@ impl SigningData {
         };
 
         Ok(SigningData {
-            owner,
             public_keys,
             threshold: signing_tx_data.threshold,
-            account_public_keys_map,
             fee_payer,
+            account_public_keys_map,
+            owner,
         })
     }
 
@@ -203,5 +202,102 @@ impl TxDetails {
         };
 
         Ok(tx_details?)
+    }
+}
+
+/// This takes an vec of serialized SigningData bytes and returns vec of
+/// Namada type SigningTxData
+pub fn construct_signing_tx_data(
+    signing_data_bytes: Vec<Vec<u8>>,
+) -> Result<Vec<SigningTxData>, JsError> {
+    let mut signing_tx_data: Vec<SigningTxData> = vec![];
+    for bytes in signing_data_bytes {
+        let sd: SigningData = borsh::from_slice(&bytes)?;
+        let stxd: SigningTxData = sd.to_signing_tx_data()?;
+        signing_tx_data.push(stxd);
+    }
+
+    Ok(signing_tx_data)
+}
+
+/// Serializable Tx for exported build functions
+#[wasm_bindgen]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct Tx {
+    args: Vec<u8>,
+    hash: String,
+    bytes: Vec<u8>,
+    signing_data_bytes: Vec<Vec<u8>>,
+}
+
+#[wasm_bindgen]
+impl Tx {
+    #[wasm_bindgen(constructor)]
+    pub fn new(tx: Vec<u8>, args: Vec<u8>, signing_data_bytes: JsValue) -> Result<Tx, JsError> {
+        let signing_data_bytes: Vec<Vec<u8>> = signing_data_bytes
+            .into_serde()
+            .expect("Deserializing should not fail");
+
+        let bytes = tx.clone();
+        let tx: tx::Tx = borsh::from_slice(&tx)?;
+        let hash = tx.header_hash().to_string();
+
+        Ok(Tx {
+            args,
+            hash,
+            bytes,
+            signing_data_bytes,
+        })
+    }
+}
+
+#[wasm_bindgen]
+#[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct BatchTxResult {
+    hash: String,
+    is_applied: bool,
+}
+
+impl BatchTxResult {
+    pub fn new(hash: String, is_applied: bool) -> BatchTxResult {
+        BatchTxResult { hash, is_applied }
+    }
+}
+
+/// Serializable response for process_tx calls
+#[wasm_bindgen]
+#[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct TxResponse {
+    code: String,
+    commitments: Vec<BatchTxResult>,
+    gas_used: String,
+    hash: String,
+    height: String,
+    info: String,
+    log: String,
+}
+
+impl TxResponse {
+    pub fn new(
+        code: String,
+        commitments: Vec<BatchTxResult>,
+        gas_used: String,
+        hash: String,
+        height: String,
+        info: String,
+        log: String,
+    ) -> TxResponse {
+        TxResponse {
+            code,
+            commitments,
+            gas_used,
+            hash,
+            height,
+            info,
+            log,
+        }
     }
 }

@@ -15,7 +15,7 @@ use crate::utils::to_js_result;
 use gloo_utils::format::JsValueSerdeExt;
 use js_sys::Uint8Array;
 use namada_sdk::address::Address;
-use namada_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use namada_sdk::borsh::{self, BorshDeserialize};
 use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada_sdk::hash::Hash;
 use namada_sdk::key::{common, ed25519, SigScheme};
@@ -23,37 +23,15 @@ use namada_sdk::masp::ShieldedContext;
 use namada_sdk::rpc::query_epoch;
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::string_encoding::Format;
-use namada_sdk::tx::Tx;
 use namada_sdk::tx::{
     build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
     build_reveal_pk, build_transparent_transfer, build_unbond, build_vote_proposal, build_withdraw,
-    is_reveal_pk_needed, process_tx, ProcessTxResponse,
+    is_reveal_pk_needed, process_tx, ProcessTxResponse, Tx,
 };
 use namada_sdk::wallet::{Store, Wallet};
 use namada_sdk::{Namada, NamadaImpl};
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
-
-#[wasm_bindgen]
-#[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada_sdk::borsh")]
-pub struct BatchTxResult {
-    hash: String,
-    is_applied: bool,
-}
-
-#[wasm_bindgen]
-#[derive(BorshSerialize, BorshDeserialize)]
-#[borsh(crate = "namada_sdk::borsh")]
-pub struct TxResponse {
-    code: String,
-    commitments: Vec<BatchTxResult>,
-    gas_used: String,
-    hash: String,
-    height: String,
-    info: String,
-    log: String,
-}
 
 #[wasm_bindgen]
 #[derive(Clone)]
@@ -275,16 +253,13 @@ impl Sdk {
         let hash = tx.header_hash().to_string();
         let resp = process_tx(&self.namada, &args, tx.clone()).await?;
 
-        let mut batch_tx_results: Vec<BatchTxResult> = vec![];
+        let mut batch_tx_results: Vec<tx::BatchTxResult> = vec![];
 
         for cmt in cmts {
             let response = resp.is_applied_and_valid(Some(&tx.header_hash()), &cmt);
             let hash = cmt.get_hash().to_string();
 
-            batch_tx_results.push(BatchTxResult {
-                hash,
-                is_applied: response.is_some(),
-            });
+            batch_tx_results.push(tx::BatchTxResult::new(hash, response.is_some()));
         }
 
         // Collect results and return
@@ -296,15 +271,8 @@ impl Sdk {
                 let info = tx_response.info.to_string();
                 let log = tx_response.log.to_string();
 
-                let response = TxResponse {
-                    code,
-                    commitments: batch_tx_results,
-                    gas_used,
-                    hash,
-                    height,
-                    info,
-                    log,
-                };
+                let response =
+                    tx::TxResponse::new(code, batch_tx_results, gas_used, hash, height, info, log);
                 to_js_result(borsh::to_vec(&response)?)
             }
             _ => return Err(JsError::new(&format!("Tx not applied: {}", &hash))),
@@ -370,7 +338,6 @@ impl Sdk {
         &self,
         transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
-        _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let mut args = args::transparent_transfer_tx_args(transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_transparent_transfer(&self.namada, &mut args).await?;
@@ -385,7 +352,6 @@ impl Sdk {
         &self,
         ibc_transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
-        _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = args::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args).await?;
@@ -400,7 +366,6 @@ impl Sdk {
         &self,
         eth_bridge_transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
-        _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = args::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_bridge_pool_tx(&self.namada, args.clone()).await?;
@@ -415,7 +380,6 @@ impl Sdk {
         &self,
         vote_proposal_msg: &[u8],
         wrapper_tx_msg: &[u8],
-        _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = args::vote_proposal_tx_args(vote_proposal_msg, wrapper_tx_msg)?;
         let epoch = query_epoch(self.namada.client()).await?;
@@ -449,7 +413,6 @@ impl Sdk {
         &self,
         bond_msg: &[u8],
         wrapper_tx_msg: &[u8],
-        _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = args::bond_tx_args(bond_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_bond(&self.namada, &args).await?;
@@ -464,7 +427,6 @@ impl Sdk {
         &self,
         unbond_msg: &[u8],
         wrapper_tx_msg: &[u8],
-        _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = args::unbond_tx_args(unbond_msg, wrapper_tx_msg)?;
         let (tx, signing_data, _) = build_unbond(&self.namada, &args).await?;
@@ -479,7 +441,6 @@ impl Sdk {
         &self,
         withdraw_msg: &[u8],
         wrapper_tx_msg: &[u8],
-        _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = args::withdraw_tx_args(withdraw_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_withdraw(&self.namada, &args).await?;
@@ -494,7 +455,6 @@ impl Sdk {
         &self,
         redelegate_msg: &[u8],
         wrapper_tx_msg: &[u8],
-        _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = args::redelegate_tx_args(redelegate_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_redelegation(&self.namada, &args).await?;

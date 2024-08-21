@@ -7,6 +7,7 @@ export * from "./redelegate";
 export * from "./revealPk";
 export * from "./signature";
 export * from "./transfer";
+export * from "./tx";
 export * from "./txDetails";
 export * from "./txResponse";
 export * from "./unbond";
@@ -29,6 +30,7 @@ import {
   TransparentTransferDataMsgValue,
   TransparentTransferMsgValue,
 } from "./transfer";
+import { TxMsgValue } from "./tx";
 import { CommitmentMsgValue, TxDetailsMsgValue } from "./txDetails";
 import { TxResponseMsgValue } from "./txResponse";
 import { UnbondMsgValue } from "./unbond";
@@ -50,6 +52,7 @@ export type Schema =
   | TransferDataMsgValue
   | TransparentTransferMsgValue
   | TransparentTransferDataMsgValue
+  | TxMsgValue
   | TxResponseMsgValue
   | WrapperTxMsgValue
   | RedelegateMsgValue

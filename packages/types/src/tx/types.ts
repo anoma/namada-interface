@@ -9,6 +9,7 @@ import {
   TransferMsgValue,
   TransparentTransferDataMsgValue,
   TransparentTransferMsgValue,
+  TxMsgValue,
   TxResponseMsgValue,
   UnbondMsgValue,
   VoteProposalMsgValue,
@@ -26,6 +27,7 @@ export type SignatureProps = SignatureMsgValue;
 export type TransferProps = TransferMsgValue;
 export type TransparentTransferProps = TransparentTransferMsgValue;
 export type TransparentTransferDataProps = TransparentTransferDataMsgValue;
+export type TxProps = TxMsgValue;
 export type TxResponseProps = TxResponseMsgValue;
 export type UnbondProps = UnbondMsgValue;
 export type VoteProposalProps = VoteProposalMsgValue;
