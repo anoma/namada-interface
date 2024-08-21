@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use namada_sdk::{
     borsh::{BorshDeserialize, BorshSerialize},
-    masp::{ContextSyncStatus, ShieldedContext, ShieldedUtils},
+    masp::{ContextSyncStatus, DispatcherCache, ShieldedContext, ShieldedUtils},
     masp_proofs::prover::LocalTxProver,
 };
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
