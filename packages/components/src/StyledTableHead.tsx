@@ -29,7 +29,7 @@ const renderTableHeaderElement = (
   index: number
 ): ReactNode => {
   const key = `table-th-${id}-${index}`;
-  const baseClassName = `px-6 py-2`;
+  const baseClassName = `px-6 py-2 select-none`;
 
   if (checkIsTableHeader(h)) {
     const {
