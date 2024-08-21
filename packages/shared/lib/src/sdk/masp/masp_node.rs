@@ -136,6 +136,20 @@ impl ShieldedUtils for NodeShieldedUtils {
 
         Ok(())
     }
+
+    /// Save a cache of data as part of shielded sync if that
+    /// process gets interrupted.
+    async fn cache_save(&self, _cache: &DispatcherCache) -> std::io::Result<()> {
+        // TODO:
+        todo!()
+    }
+
+    /// Load a cache of data as part of shielded sync if that
+    /// process gets interrupted.
+    async fn cache_load(&self) -> std::io::Result<DispatcherCache> {
+        // TODO:
+        todo!()
+    }
 }
 
 fn path_buf_to_js_value(path: PathBuf) -> JsValue {
