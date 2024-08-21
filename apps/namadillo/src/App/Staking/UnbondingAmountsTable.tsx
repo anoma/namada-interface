@@ -2,16 +2,17 @@ import { StyledTable, TableRow } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { WalletAddress } from "App/Common/WalletAddress";
-import { myUnbondsAtom } from "atoms/validators";
+import { myValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { twMerge } from "tailwind-merge";
+import { UnbondingValidator } from "types";
 import { ValidatorCard } from "./ValidatorCard";
 import { WithdrawalButton } from "./WithdrawalButton";
 
 export const UnbondingAmountsTable = (): JSX.Element => {
-  const myUnbonds = useAtomValue(myUnbondsAtom);
+  const myValidators = useAtomValue(myValidatorsAtom);
   const headers = [
     "Validator",
     "Address",
@@ -20,15 +21,14 @@ export const UnbondingAmountsTable = (): JSX.Element => {
   ];
 
   const rows = useMemo(() => {
-    if (!myUnbonds.isSuccess) return [];
+    if (!myValidators.isSuccess) return [];
 
     const rowsList: TableRow[] = [];
-    for (const myValidator of myUnbonds.data) {
-      const { validator, unbondedAmount, withdrawableAmount } = myValidator;
+    for (const myValidator of myValidators.data) {
+      const { validator } = myValidator;
+      const unbonding = myValidator.withdrawable.concat(myValidator.unbonding);
 
-      const amount = new BigNumber(unbondedAmount || withdrawableAmount || 0);
-
-      if (amount.gt(0)) {
+      unbonding.forEach((entry: UnbondingValidator) => {
         rowsList.push({
           cells: [
             <ValidatorCard
@@ -44,30 +44,35 @@ export const UnbondingAmountsTable = (): JSX.Element => {
               key={`my-validator-currency-${validator.address}`}
               className="text-right leading-tight"
             >
-              <NamCurrency amount={amount || new BigNumber(0)} />
+              <NamCurrency
+                amount={BigNumber(entry.amount) || new BigNumber(0)}
+              />
             </div>,
             <div
               key={`commission-${validator.address}`}
               className="text-right leading-tight text-sm"
             >
-              {myValidator.timeLeft}
+              {entry.timeLeft}
             </div>,
             <div
               key={`withdraw-${validator.address}`}
               className="ml-4 relative z-0"
             >
-              <WithdrawalButton myValidator={myValidator} />
+              <WithdrawalButton
+                myValidator={myValidator}
+                unbondingStatus={entry}
+              />
             </div>,
           ],
         });
-      }
+      });
     }
     return rowsList;
-  }, [myUnbonds]);
+  }, [myValidators]);
 
   return (
     <AtomErrorBoundary
-      result={myUnbonds}
+      result={myValidators}
       niceError="Unable to load unbonding list"
     >
       <StyledTable

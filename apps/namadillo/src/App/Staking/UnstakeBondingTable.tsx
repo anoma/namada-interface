@@ -84,7 +84,7 @@ export const UnstakeBondingTable = ({
 
         // Amount Text input
         <div
-          key={`increment-bonding-new-amounts-${validator.address}`}
+          key={`bonding-new-amounts-${validator.address}`}
           className="relative"
         >
           <NamInput
@@ -157,7 +157,7 @@ export const UnstakeBondingTable = ({
 
   return (
     <ValidatorsTable
-      id="increment-bonding-table"
+      id="increment-unbonding-table"
       tableClassName="mt-2"
       validatorList={sortedValidators}
       headers={headers}

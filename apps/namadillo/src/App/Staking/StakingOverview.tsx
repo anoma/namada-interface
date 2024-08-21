@@ -4,12 +4,7 @@ import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification";
 import { YourStakingDistribution } from "App/Sidebars/YourStakingDistribution";
 import { namadaExtensionConnectedAtom } from "atoms/settings";
-import {
-  myValidatorsAtom,
-  stakedAmountByAddressAtom,
-  unbondedAmountByAddressAtom,
-  withdrawableAmountByAddressAtom,
-} from "atoms/validators";
+import { myValidatorsAtom } from "atoms/validators";
 import { useAtomValue } from "jotai";
 import { AllValidatorsTable } from "./AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
@@ -25,16 +20,18 @@ import { UnbondingAmountsTable } from "./UnbondingAmountsTable";
 export const StakingOverview = (): JSX.Element => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
-  const unbondedAmounts = useAtomValue(unbondedAmountByAddressAtom);
-  const withdrawableAmounts = useAtomValue(withdrawableAmountByAddressAtom);
-  const stakedByAddress = useAtomValue(stakedAmountByAddressAtom);
+
   const hasStaking =
-    stakedByAddress.isSuccess && Object.keys(stakedByAddress.data).length > 0;
+    myValidators.isSuccess &&
+    myValidators.data.some((v) => v.stakedAmount?.gt(0));
+
   const hasUnbonded =
-    unbondedAmounts.isSuccess && Object.keys(unbondedAmounts.data).length > 0;
+    myValidators.isSuccess &&
+    myValidators.data.some((v) => v.unbondedAmount?.gt(0));
+
   const hasWithdraws =
-    withdrawableAmounts.isSuccess &&
-    Object.keys(withdrawableAmounts.data).length > 0;
+    myValidators.isSuccess &&
+    myValidators.data.some((v) => v.withdrawableAmount?.gt(0));
 
   return (
     <PageWithSidebar>

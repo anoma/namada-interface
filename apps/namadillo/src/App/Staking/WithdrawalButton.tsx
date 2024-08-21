@@ -14,18 +14,20 @@ import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
 import { TransactionPair, broadcastTx } from "lib/query";
 import { useCallback, useEffect } from "react";
-import { MyValidator } from "types";
+import { MyValidator, UnbondingValidator } from "types";
 
 type WithdrawalButtonProps = {
   myValidator: MyValidator;
+  unbondingStatus: UnbondingValidator;
 };
 
 export const WithdrawalButton = ({
   myValidator,
+  unbondingStatus,
 }: WithdrawalButtonProps): JSX.Element => {
   const change = {
     validatorId: myValidator.validator.address,
-    amount: myValidator.withdrawableAmount!,
+    amount: unbondingStatus.amount,
   };
 
   const { gasPrice } = useGasEstimate();
@@ -49,29 +51,26 @@ export const WithdrawalButton = ({
     };
   }, []);
 
-  const onWithdraw = useCallback(
-    async (myValidator: MyValidator) => {
-      invariant(
-        account,
-        "Extension is not connected or you don't have an account"
-      );
-      invariant(gasPrice, "Gas price loading is still pending");
-      invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
-      invariant(
-        myValidator.withdrawableAmount,
-        "Validator doesn't have amounts available for withdrawal"
-      );
-      createWithdrawTx({
-        changes: [change],
-        gasConfig: {
-          gasPrice: gasPrice!,
-          gasLimit: gasLimits.data!.Withdraw.native,
-        },
-        account: account!,
-      });
-    },
-    [myValidator.withdrawableAmount, gasPrice, gasLimits.isSuccess]
-  );
+  const onWithdraw = useCallback(async () => {
+    invariant(
+      account,
+      "Extension is not connected or you don't have an account"
+    );
+    invariant(gasPrice, "Gas price loading is still pending");
+    invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
+    invariant(
+      unbondingStatus.amount,
+      "Validator doesn't have amounts available for withdrawal"
+    );
+    createWithdrawTx({
+      changes: [change],
+      gasConfig: {
+        gasPrice: gasPrice!,
+        gasLimit: gasLimits.data!.Withdraw.native,
+      },
+      account: account!,
+    });
+  }, [unbondingStatus.amount, change, gasPrice, gasLimits.isSuccess]);
 
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
 
@@ -133,8 +132,8 @@ export const WithdrawalButton = ({
     <ActionButton
       size="xs"
       outlineColor="white"
-      disabled={!myValidator.withdrawableAmount || isPending || isSuccess}
-      onClick={() => onWithdraw(myValidator)}
+      disabled={!unbondingStatus.canWithdraw || isPending || isSuccess}
+      onClick={() => onWithdraw()}
     >
       {isSuccess && "Claimed"}
       {isPending && "Processing"}
