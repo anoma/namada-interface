@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::borsh::{BorshDeserialize, BorshSerialize};
-use namada_sdk::masp::{ContextSyncStatus, ShieldedContext, ShieldedUtils};
+use namada_sdk::masp::{ContextSyncStatus, DispatcherCache, ShieldedContext, ShieldedUtils};
 use namada_sdk::masp_proofs::prover::LocalTxProver;
 use rexie::{Error, ObjectStore, Rexie, TransactionMode};
 use wasm_bindgen::{JsError, JsValue};
@@ -179,5 +179,17 @@ impl ShieldedUtils for WebShieldedUtils {
         }
 
         Ok(())
+    }
+
+    /// Save a cache of data as part of shielded sync if that
+    /// process gets interrupted.
+    async fn cache_save(&self, _cache: &DispatcherCache) -> std::io::Result<()> {
+        todo!()
+    }
+
+    /// Load a cache of data as part of shielded sync if that
+    /// process gets interrupted.
+    async fn cache_load(&self) -> std::io::Result<DispatcherCache> {
+        todo!()
     }
 }

@@ -35,7 +35,7 @@ pub fn add_spending_key<U: WalletIo>(wallet: &mut Wallet<U>, xsk: String, alias:
     // xsk is decrypted outside of this wallet instance, so we specify None below
     if wallet
         .store_mut()
-        .insert_spending_key::<U>(alias.clone(), xsk, None, None, true)
+        .insert_spending_key::<U>(alias.clone(), xsk, None, None, None, true)
         .is_none()
     {
         panic!("Action cancelled, no changes persisted.");
@@ -48,7 +48,7 @@ pub fn add_viewing_key<U: WalletIo>(wallet: &mut Wallet<U>, xvk: String, alias: 
 
     if wallet
         .store_mut()
-        .insert_viewing_key::<U>(alias.clone(), xvk, true)
+        .insert_viewing_key::<U>(alias.clone(), xvk, None, true)
         .is_none()
     {
         panic!("Action cancelled, no changes persisted.");
