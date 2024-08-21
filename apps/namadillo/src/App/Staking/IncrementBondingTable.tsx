@@ -122,10 +122,7 @@ export const IncrementBondingTable = ({
           key={`validator-voting-power-${validator.address}`}
         >
           {validator.votingPowerInNAM && (
-            <NamCurrency
-              amount={validator.votingPowerInNAM}
-              forceBalanceDisplay
-            />
+            <NamCurrency amount={validator.votingPowerInNAM} />
           )}
           <span className="text-neutral-600 text-sm">
             {formatPercentage(BigNumber(validator.votingPowerPercentage || 0))}
