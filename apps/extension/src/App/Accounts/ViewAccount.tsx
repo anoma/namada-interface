@@ -61,6 +61,7 @@ export const ViewAccount = (): JSX.Element => {
               publicKeyAddress={parentAccount.publicKey ?? ""}
               transparentAccountAddress={transparentAddress}
               shieldedAccountAddress={shieldedAddress}
+              trimCharacters={21}
             />
           </Stack>
           <ActionButton size="md" onClick={() => navigate(-1)}>
