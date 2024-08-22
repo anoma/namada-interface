@@ -33,6 +33,7 @@ module.exports = {
         varsIgnorePattern: "^_",
         caughtErrorsIgnorePattern: "^_",
         args: "all",
+        ignoreRestSiblings: true,
       },
     ],
     "max-len": [
