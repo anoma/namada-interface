@@ -1,7 +1,7 @@
 use async_trait::async_trait;
-use namada::sdk::{
+use namada_sdk::{
     borsh::{BorshDeserialize, BorshSerialize},
-    masp::{ContextSyncStatus, ShieldedContext, ShieldedUtils},
+    masp::{ContextSyncStatus, DispatcherCache, ShieldedContext, ShieldedUtils},
     masp_proofs::prover::LocalTxProver,
 };
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
@@ -25,7 +25,7 @@ const SPECULATIVE_TMP_FILE_NAME: &str = "speculative_shielded.tmp";
 /// Mostly copied from the Namada CLI
 
 #[derive(Default, Debug, BorshSerialize, BorshDeserialize, Clone)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct NodeShieldedUtils {
     #[borsh(skip)]
     context_dir: PathBuf,
@@ -135,6 +135,20 @@ impl ShieldedUtils for NodeShieldedUtils {
         }
 
         Ok(())
+    }
+
+    /// Save a cache of data as part of shielded sync if that
+    /// process gets interrupted.
+    async fn cache_save(&self, _cache: &DispatcherCache) -> std::io::Result<()> {
+        // TODO:
+        todo!()
+    }
+
+    /// Load a cache of data as part of shielded sync if that
+    /// process gets interrupted.
+    async fn cache_load(&self) -> std::io::Result<DispatcherCache> {
+        // TODO:
+        todo!()
     }
 }
 

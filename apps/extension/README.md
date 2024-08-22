@@ -4,6 +4,8 @@ This is the Namada Browser Extension project.
 
 ## Usage
 
+Note: if you wish to set a default chain ID in the extension, set this value in `.env`. See [.env.sample](./.env.sample).
+
 ```bash
 # Build wasm dependencies
 yarn wasm:build # This needs to be run initially to ensure wasm dependencies are available

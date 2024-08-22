@@ -17,18 +17,19 @@ export const Tooltip = ({
       className={twMerge(
         "flex bg-rblack text-xs absolute opacity-0 pointer-events-none",
         "text-white rounded-sm px-4 py-1",
+        "border border-neutral-700",
         "transition-all duration-500 ease-out-expo",
         "group-hover/tooltip:visible group-hover/tooltip:opacity-100",
         "group-hover/tooltip:pointer-events-auto",
         "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
         position === "top" &&
-          "top-0 -translate-y-1/2 group-hover/tooltip:-translate-y-full",
+          "top-0 -translate-y-[calc(100%-10px)]  group-hover/tooltip:-translate-y-full",
         position === "bottom" &&
-          "bottom-0 translate-y-1/2 group-hover/tooltip:translate-y-full",
+          "bottom-0 translate-y-[calc(100%-10px)] group-hover/tooltip:translate-y-full",
         position === "left" &&
-          "left-0 -translate-x-1/2 group-hover/tooltip:-translate-x-full",
+          "left-0 -translate-x-[calc(100%-10px)] group-hover/tooltip:-translate-x-full",
         position === "right" &&
-          "right-0 translate-x-1/2 group-hover/tooltip:translate-x-full",
+          "right-0 translate-x-[calc(100%-10px)] group-hover/tooltip:translate-x-full",
         className
       )}
       {...props}

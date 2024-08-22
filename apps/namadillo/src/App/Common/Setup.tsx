@@ -3,11 +3,8 @@ import { indexerUrlAtom, updateIndexerUrlAtom } from "atoms/settings";
 import { useAtom, useAtomValue } from "jotai";
 import { useState } from "react";
 import { DISCORD_URL } from "urls";
-type SetupProps = {
-  onChange: () => void;
-};
 
-export const Setup = ({ onChange }: SetupProps): JSX.Element => {
+export const Setup = (): JSX.Element => {
   const indexerUrl = useAtomValue(indexerUrlAtom);
   const [url, setUrl] = useState(indexerUrl || "");
   const [{ mutateAsync, reset, error, isPending, isError }] =
@@ -17,7 +14,6 @@ export const Setup = ({ onChange }: SetupProps): JSX.Element => {
     e.preventDefault();
     try {
       await mutateAsync(url);
-      onChange();
     } catch {}
   };
 

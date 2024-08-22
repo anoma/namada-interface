@@ -9,6 +9,7 @@ type ViewKeysProps = {
   shieldedAccountAddress?: string;
   viewingKeys?: string;
   footer?: React.ReactNode;
+  trimCharacters?: number;
 };
 
 export const ViewKeys = ({
@@ -17,6 +18,7 @@ export const ViewKeys = ({
   shieldedAccountAddress,
   viewingKeys,
   footer,
+  trimCharacters = 16,
 }: ViewKeysProps): JSX.Element => {
   return (
     <Stack
@@ -29,7 +31,10 @@ export const ViewKeys = ({
           <Input
             label="Your Transparent Address"
             variant="ReadOnlyCopy"
-            valueToDisplay={shortenAddress(transparentAccountAddress, 16)}
+            valueToDisplay={shortenAddress(
+              transparentAccountAddress,
+              trimCharacters
+            )}
             value={transparentAccountAddress}
             theme={"primary"}
           />
@@ -38,7 +43,7 @@ export const ViewKeys = ({
           <Input
             label="Public Key"
             variant="ReadOnlyCopy"
-            valueToDisplay={shortenAddress(publicKeyAddress, 16)}
+            valueToDisplay={shortenAddress(publicKeyAddress, trimCharacters)}
             value={publicKeyAddress}
             theme={"primary"}
           />
@@ -48,7 +53,10 @@ export const ViewKeys = ({
             label="Your Shielded Address"
             variant="ReadOnlyCopy"
             readOnly={true}
-            valueToDisplay={shortenAddress(shieldedAccountAddress, 16)}
+            valueToDisplay={shortenAddress(
+              shieldedAccountAddress,
+              trimCharacters
+            )}
             value={shieldedAccountAddress}
             theme={"secondary"}
           />

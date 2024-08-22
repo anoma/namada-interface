@@ -1,11 +1,11 @@
-use namada::sdk::{
+use namada_sdk::{
     borsh::{BorshDeserialize, BorshSerialize},
     wallet::{Wallet, WalletIo, WalletStorage},
 };
 use rand::rngs::OsRng;
 
 #[derive(Debug, BorshSerialize, BorshDeserialize, Clone)]
-#[borsh(crate = "namada::core::borsh")]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct BrowserWalletUtils {
     #[borsh(skip)]
     _name: String,
@@ -25,11 +25,11 @@ impl WalletIo for BrowserWalletUtils {
 
 //TODO: We can't implement it until namada changes trait to be async
 impl WalletStorage for BrowserWalletUtils {
-    fn save<U>(&self, _wallet: &Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
+    fn save<U>(&self, _wallet: &Wallet<U>) -> Result<(), namada_sdk::wallet::LoadStoreError> {
         todo!()
     }
 
-    fn load<U>(&self, _wallet: &mut Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
+    fn load<U>(&self, _wallet: &mut Wallet<U>) -> Result<(), namada_sdk::wallet::LoadStoreError> {
         todo!()
     }
 }

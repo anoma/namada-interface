@@ -18,11 +18,7 @@ export const TransactionFees = ({
   return (
     <div className={clsx("text-white text-sm", className)}>
       <TextLink>Transaction fee:</TextLink>{" "}
-      <NamCurrency
-        className="font-medium"
-        amount={minimumGas}
-        forceBalanceDisplay={true}
-      />
+      <NamCurrency className="font-medium" amount={minimumGas} />
     </div>
   );
 };
