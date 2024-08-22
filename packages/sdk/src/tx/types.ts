@@ -1,4 +1,4 @@
-import { BuiltTx } from "@namada/shared";
+import { TxProps } from "@namada/types";
 
 /**
  * Wrap results of tx building along with TxMsg
@@ -7,11 +7,11 @@ export class EncodedTx {
   /**
    * Create an EncodedTx class
    * @param wrapperTxMsg - Borsh-serialized wrapper tx args
-   * @param tx - Specific tx struct instance
+   * @param tx - Tx props
    */
   constructor(
     public readonly wrapperTxMsg: Uint8Array,
-    public readonly tx: BuiltTx
+    public readonly tx: TxProps
   ) {}
 
   /**
@@ -20,8 +20,7 @@ export class EncodedTx {
    * @returns Serialized tx bytes
    */
   toBytes(): Uint8Array {
-    const bytes = new Uint8Array(this.tx.tx_bytes());
-    this.free();
+    const bytes = new Uint8Array(this.tx.bytes);
     return bytes;
   }
 
@@ -30,14 +29,7 @@ export class EncodedTx {
    * @returns string of tx hash
    */
   hash(): string {
-    return this.tx.tx_hash();
-  }
-
-  /**
-   * Clear tx bytes resource
-   */
-  free(): void {
-    this.tx.free();
+    return this.tx.hash;
   }
 }
 

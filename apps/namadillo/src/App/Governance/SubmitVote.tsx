@@ -1,4 +1,3 @@
-import { BuiltTx } from "@heliax/namada-sdk/web";
 import {
   ActionButton,
   Modal,
@@ -7,6 +6,7 @@ import {
   TickedRadioList,
 } from "@namada/components";
 import {
+  TxProps,
   VoteProposalProps,
   VoteType,
   isVoteType,
@@ -80,7 +80,7 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
 
   const onCloseModal = (): void => navigate(-1);
 
-  const dispatchPendingNotification = (txs: BuiltTx[]): void => {
+  const dispatchPendingNotification = (txs: TxProps[]): void => {
     dispatchNotification({
       id: createNotificationId(txs),
       type: "pending",

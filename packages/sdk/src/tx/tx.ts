@@ -1,10 +1,5 @@
 import { deserialize } from "@dao-xyz/borsh";
-import {
-  BuiltTx,
-  Sdk as SdkWasm,
-  TxType,
-  deserialize_tx,
-} from "@namada/shared";
+import { Sdk as SdkWasm, TxType, deserialize_tx } from "@namada/shared";
 import {
   BondMsgValue,
   BondProps,
@@ -25,6 +20,8 @@ import {
   TransparentTransferProps,
   TxDetails,
   TxDetailsMsgValue,
+  TxMsgValue,
+  TxProps,
   UnbondMsgValue,
   UnbondProps,
   VoteProposalMsgValue,
@@ -100,9 +97,14 @@ export class Tx {
     const bondMsg = new Message<BondMsgValue>();
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedBond = bondMsg.encode(new BondMsgValue(bondProps));
-    const builtTx = await this.sdk.build_bond(encodedBond, encodedWrapperArgs);
+    const serializedTx = await this.sdk.build_bond(
+      encodedBond,
+      encodedWrapperArgs
+    );
 
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    const tx = deserialize(serializedTx, TxMsgValue);
+
+    return new EncodedTx(encodedWrapperArgs, tx);
   }
 
   /**
@@ -272,28 +274,17 @@ export class Tx {
 
   /**
    * Build a batched transaction
-   * @param txs - array of BuiltTx types
-   * @returns a BuiltTx type
+   * @param txs - array of TxProp
+   * @returns a serialized TxMsgValue type
    */
-  buildBatch(txs: BuiltTx[]): BuiltTx {
-    return SdkWasm.build_batch(txs);
-  }
+  buildBatch(txs: TxProps[]): TxProps {
+    const encodedTxs = txs.map((txProps) => {
+      const txMsgValue = new TxMsgValue(txProps);
+      const msg = new Message<TxMsgValue>();
+      return msg.encode(txMsgValue);
+    });
 
-  /**
-   * Reveal Public Key using serialized Tx
-   * @async
-   * @param signingKey - signing key
-   * @param wrapperTxProps - properties of the transaction
-   * @param [chainId] - optional chain ID - will enforce validation if present
-   * @returns void
-   */
-  async revealPk(
-    signingKey: string,
-    wrapperTxProps: WrapperTxProps,
-    chainId?: string
-  ): Promise<void> {
-    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
-    return await this.sdk.reveal_pk(signingKey, encodedWrapperArgs, chainId);
+    return SdkWasm.build_batch(encodedTxs);
   }
 
   /**

@@ -13,7 +13,6 @@ use crate::utils::set_panic_hook;
 use crate::utils::to_bytes;
 use crate::utils::to_js_result;
 use gloo_utils::format::JsValueSerdeExt;
-use js_sys::Uint8Array;
 use namada_sdk::address::Address;
 use namada_sdk::borsh::{self, BorshDeserialize};
 use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
@@ -26,7 +25,7 @@ use namada_sdk::string_encoding::Format;
 use namada_sdk::tx::{
     build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
     build_reveal_pk, build_transparent_transfer, build_unbond, build_vote_proposal, build_withdraw,
-    is_reveal_pk_needed, process_tx, ProcessTxResponse, Tx,
+    process_tx, ProcessTxResponse, Tx,
 };
 use namada_sdk::wallet::{Store, Wallet};
 use namada_sdk::{Namada, NamadaImpl};
@@ -195,19 +194,20 @@ impl Sdk {
 
     pub async fn sign_tx(
         &self,
-        built_tx: BuiltTx,
+        tx: Vec<u8>,
         private_key: Option<String>,
         chain_id: Option<String>,
     ) -> Result<JsValue, JsError> {
-        let mut tx: Tx = borsh::from_slice(&built_tx.tx)?;
+        let tx: tx::Tx = borsh::from_slice(&tx)?;
+        let mut namada_tx: Tx = borsh::from_slice(&tx.tx_bytes())?;
 
         // If chain_id is provided, validate this against value in Tx header
         if let Some(c) = chain_id {
-            if c != tx.header.chain_id.to_string() {
+            if c != namada_tx.header.chain_id.to_string() {
                 return Err(JsError::new(&format!(
                     "chain_id {} does not match Tx header chain_id {}",
                     &c,
-                    tx.header.chain_id.as_str()
+                    namada_tx.header.chain_id.as_str()
                 )));
             }
         }
@@ -220,12 +220,12 @@ impl Sdk {
             None => vec![],
         };
 
-        for signing_tx_data in built_tx.signing_data {
+        for signing_tx_data in tx.signing_tx_data()? {
             if let Some(account_public_keys_map) = signing_tx_data.account_public_keys_map.clone() {
                 // We only sign the raw header for transfers from transparent source
                 if !signing_keys.is_empty() {
                     // Sign the raw header
-                    tx.sign_raw(
+                    namada_tx.sign_raw(
                         signing_keys.clone(),
                         account_public_keys_map,
                         signing_tx_data.owner.clone(),
@@ -239,9 +239,9 @@ impl Sdk {
         let key = signing_keys[0].clone();
 
         // Sign the fee header
-        tx.sign_wrapper(key);
+        namada_tx.sign_wrapper(key);
 
-        to_js_result(borsh::to_vec(&tx)?)
+        to_js_result(borsh::to_vec(&namada_tx)?)
     }
 
     // Broadcast Tx
@@ -280,26 +280,44 @@ impl Sdk {
     }
 
     /// Build a batch Tx from built transactions and return the bytes
-    pub fn build_batch(built_txs: Vec<BuiltTx>) -> Result<BuiltTx, JsError> {
+    pub fn build_batch(txs: JsValue) -> Result<JsValue, JsError> {
+        let mut built_txs: Vec<tx::Tx> = vec![];
+        let built_txs_bytes: Vec<Vec<u8>> = txs.into_serde().unwrap();
+        for bytes in built_txs_bytes.iter() {
+            let tx: tx::Tx = borsh::from_slice(&bytes)?;
+            built_txs.push(tx);
+        }
+
+        // Get wrapper args
+        let first_tx = built_txs
+            .iter()
+            .nth(0)
+            .expect("At least one Tx is required for building batches!");
+
+        let args = first_tx.args();
+
         let mut txs: Vec<(Tx, SigningTxData)> = vec![];
 
         // Iterate through provided BuiltTx and deserialize bytes to Tx
         for built_tx in built_txs.into_iter() {
-            let tx: Tx = Tx::try_from_slice(&built_tx.tx_bytes())?;
-            let first_signing_data = built_tx
-                .signing_data
+            let tx_bytes = built_tx.tx_bytes();
+            let signing_tx_data = built_tx.signing_tx_data()?;
+            let tx: Tx = Tx::try_from_slice(&tx_bytes)?;
+            let first_signing_data = signing_tx_data
                 .iter()
                 .nth(0)
                 .expect("At least one signing data should be present on a Tx");
+
             txs.push((tx, first_signing_data.to_owned()));
         }
 
         let (tx, signing_data) = build_batch(txs.clone())?;
 
-        Ok(BuiltTx {
-            tx: borsh::to_vec(&tx)?,
+        to_js_result(borsh::to_vec(&tx::Tx::new(
+            tx,
+            &borsh::to_vec(&args)?,
             signing_data,
-        })
+        )?)?)
     }
 
     // Append signatures and return tx bytes
@@ -338,171 +356,102 @@ impl Sdk {
         &self,
         transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
-    ) -> Result<BuiltTx, JsError> {
+    ) -> Result<JsValue, JsError> {
         let mut args = args::transparent_transfer_tx_args(transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_transparent_transfer(&self.namada, &mut args).await?;
-
-        Ok(BuiltTx {
-            tx: borsh::to_vec(&tx)?,
-            signing_data: vec![signing_data],
-        })
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 
     pub async fn build_ibc_transfer(
         &self,
         ibc_transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
-    ) -> Result<BuiltTx, JsError> {
+    ) -> Result<JsValue, JsError> {
         let args = args::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args).await?;
-
-        Ok(BuiltTx {
-            tx: borsh::to_vec(&tx)?,
-            signing_data: vec![signing_data],
-        })
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 
     pub async fn build_eth_bridge_transfer(
         &self,
         eth_bridge_transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
-    ) -> Result<BuiltTx, JsError> {
+    ) -> Result<JsValue, JsError> {
         let args = args::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_bridge_pool_tx(&self.namada, args.clone()).await?;
-
-        Ok(BuiltTx {
-            tx: borsh::to_vec(&tx)?,
-            signing_data: vec![signing_data],
-        })
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 
     pub async fn build_vote_proposal(
         &self,
         vote_proposal_msg: &[u8],
         wrapper_tx_msg: &[u8],
-    ) -> Result<BuiltTx, JsError> {
+    ) -> Result<JsValue, JsError> {
         let args = args::vote_proposal_tx_args(vote_proposal_msg, wrapper_tx_msg)?;
         let epoch = query_epoch(self.namada.client()).await?;
         let (tx, signing_data) = build_vote_proposal(&self.namada, &args, epoch)
             .await
             .map_err(JsError::from)?;
-
-        Ok(BuiltTx {
-            tx: borsh::to_vec(&tx)?,
-            signing_data: vec![signing_data],
-        })
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 
     pub async fn build_claim_rewards(
         &self,
         claim_rewards_msg: &[u8],
         wrapper_tx_msg: &[u8],
-    ) -> Result<BuiltTx, JsError> {
+    ) -> Result<JsValue, JsError> {
         let args = args::claim_rewards_tx_args(claim_rewards_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_claim_rewards(&self.namada, &args)
             .await
             .map_err(JsError::from)?;
-
-        Ok(BuiltTx {
-            tx: borsh::to_vec(&tx)?,
-            signing_data: vec![signing_data],
-        })
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 
     pub async fn build_bond(
         &self,
         bond_msg: &[u8],
         wrapper_tx_msg: &[u8],
-    ) -> Result<BuiltTx, JsError> {
+    ) -> Result<JsValue, JsError> {
         let args = args::bond_tx_args(bond_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_bond(&self.namada, &args).await?;
-
-        Ok(BuiltTx {
-            tx: borsh::to_vec(&tx)?,
-            signing_data: vec![signing_data],
-        })
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 
     pub async fn build_unbond(
         &self,
         unbond_msg: &[u8],
         wrapper_tx_msg: &[u8],
-    ) -> Result<BuiltTx, JsError> {
+    ) -> Result<JsValue, JsError> {
         let args = args::unbond_tx_args(unbond_msg, wrapper_tx_msg)?;
         let (tx, signing_data, _) = build_unbond(&self.namada, &args).await?;
-
-        Ok(BuiltTx {
-            tx: borsh::to_vec(&tx)?,
-            signing_data: vec![signing_data],
-        })
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 
     pub async fn build_withdraw(
         &self,
         withdraw_msg: &[u8],
         wrapper_tx_msg: &[u8],
-    ) -> Result<BuiltTx, JsError> {
+    ) -> Result<JsValue, JsError> {
         let args = args::withdraw_tx_args(withdraw_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_withdraw(&self.namada, &args).await?;
-
-        Ok(BuiltTx {
-            tx: borsh::to_vec(&tx)?,
-            signing_data: vec![signing_data],
-        })
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 
     pub async fn build_redelegate(
         &self,
         redelegate_msg: &[u8],
         wrapper_tx_msg: &[u8],
-    ) -> Result<BuiltTx, JsError> {
+    ) -> Result<JsValue, JsError> {
         let args = args::redelegate_tx_args(redelegate_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_redelegation(&self.namada, &args).await?;
-
-        Ok(BuiltTx {
-            tx: borsh::to_vec(&tx)?,
-            signing_data: vec![signing_data],
-        })
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 
-    pub async fn build_reveal_pk(&self, wrapper_tx_msg: &[u8]) -> Result<BuiltTx, JsError> {
+    pub async fn build_reveal_pk(&self, wrapper_tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = args::tx_args_from_slice(wrapper_tx_msg)?;
         let public_key = args.signing_keys[0].clone();
-
         let (tx, signing_data) = build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
-
-        Ok(BuiltTx {
-            tx: borsh::to_vec(&tx)?,
-            signing_data: vec![signing_data],
-        })
-    }
-
-    // Helper function to reveal public key
-    pub async fn reveal_pk(
-        &self,
-        signing_key: String,
-        wrapper_tx_msg: &[u8],
-        chain_id: Option<String>,
-    ) -> Result<(), JsError> {
-        let args = args::tx_args_from_slice(wrapper_tx_msg)?;
-        let pk = &args
-            .signing_keys
-            .clone()
-            .into_iter()
-            .nth(0)
-            .expect("No public key provided");
-        let address = Address::from(pk);
-
-        if is_reveal_pk_needed(self.namada.client(), &address).await? {
-            let built_tx = self.build_reveal_pk(wrapper_tx_msg).await?;
-            // Conversion from JsValue so we can use self.sign_tx
-            let tx_bytes =
-                Uint8Array::new(&self.sign_tx(built_tx, Some(signing_key), chain_id).await?)
-                    .to_vec();
-            self.process_tx(&tx_bytes, wrapper_tx_msg).await?;
-        }
-
-        Ok(())
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 
     // Sign arbitrary data with the provided signing key
@@ -528,6 +477,19 @@ impl Sdk {
         let result = common::SigScheme::verify_signature(&public_key, &signed_hash, &sig)?;
 
         to_js_result(result)
+    }
+
+    fn serialize_tx_result(
+        &self,
+        tx: Tx,
+        wrapper_tx_msg: &[u8],
+        signing_data: SigningTxData,
+    ) -> Result<JsValue, JsError> {
+        to_js_result(borsh::to_vec(&tx::Tx::new(
+            tx,
+            wrapper_tx_msg,
+            vec![signing_data],
+        )?)?)
     }
 }
 

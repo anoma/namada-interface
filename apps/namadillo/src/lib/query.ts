@@ -1,9 +1,10 @@
-import { BuiltTx, EncodedTx } from "@heliax/namada-sdk/web";
+import { EncodedTx } from "@heliax/namada-sdk/web";
 import { getIntegration } from "@namada/integrations";
 import {
   Account,
   AccountType,
   Signer,
+  TxProps,
   WrapperTxMsgValue,
   WrapperTxProps,
 } from "@namada/types";
@@ -22,7 +23,7 @@ export type TransactionPair<T> = {
 
 export type EncodedTxData<T> = {
   type: string;
-  txs: BuiltTx[];
+  txs: TxProps[];
   wrapperTxMsg: Uint8Array;
   meta?: {
     props: T[];
@@ -90,7 +91,7 @@ export const buildTx = async <T>(
   const { tx } = await getSdkInstance();
   const wrapperTxProps = getTxProps(account, gasConfig, chain);
   const txs: EncodedTx[] = [];
-  const builtTxs: BuiltTx[] = [];
+  const txProps: TxProps[] = [];
 
   // Determine if RevealPK is needed:
   const publicKeyRevealed = await isPublicKeyRevealed(account.address);
@@ -106,13 +107,13 @@ export const buildTx = async <T>(
   txs.push(...encodedTxs);
 
   if (account.type === AccountType.Ledger) {
-    builtTxs.push(...txs.map(({ tx }) => tx));
+    txProps.push(...txs.map(({ tx }) => tx));
   } else {
-    builtTxs.push(tx.buildBatch(txs.map(({ tx }) => tx)));
+    txProps.push(tx.buildBatch(txs.map(({ tx }) => tx)));
   }
 
   return {
-    txs: builtTxs,
+    txs: txProps,
     wrapperTxMsg: tx.encodeTxArgs(wrapperTxProps),
     type: txFn.name,
     meta: {
@@ -139,10 +140,7 @@ export const signTx = async <T>(
   try {
     // Sign txs
     const signedTxBytes = await signingClient.sign(
-      typedEncodedTx.txs.map((builtTx) => ({
-        txBytes: builtTx.tx_bytes(),
-        signingDataBytes: builtTx.signing_data_bytes(),
-      })),
+      typedEncodedTx.txs,
       owner,
       checksums
     );

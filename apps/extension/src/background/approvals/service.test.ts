@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { WrapperTxMsgValue } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 import { ChainsService } from "background/chains";
 import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
+import BigNumber from "bignumber.js";
 import { ExtensionBroadcaster } from "extension";
 import createMockInstance from "jest-create-mock-instance";
 import { LocalStorage } from "storage";
@@ -210,16 +212,22 @@ describe("approvals service", () => {
     it("should reject resolver", async () => {
       const tabId = 1;
       const signer = "signer";
-      // data expected to be base64-encoded
-      const txBytes = "dHhEYXRh"; // "txData"
-      const signingDataBytes = "c2lnbmluZ0RhdGE="; // "signingData"
+      // tx bytes expected to be base64-encoded
+      const bytes = "dHhEYXRh"; // "txData"
 
       (keyRingService.queryAccountDetails as any).mockResolvedValue(() => ({}));
 
       const signaturePromise = service.approveSignTx(signer, [
         {
-          txBytes,
-          signingDataBytes: [signingDataBytes],
+          args: new WrapperTxMsgValue({
+            token: "",
+            feeAmount: BigNumber(0),
+            gasLimit: BigNumber(0),
+            chainId: "",
+          }),
+          hash: "",
+          bytes,
+          signingData: [],
         },
       ]);
 

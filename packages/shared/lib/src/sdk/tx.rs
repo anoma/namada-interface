@@ -33,7 +33,7 @@ pub enum TxType {
     ClaimRewards = 11,
 }
 
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug)]
 #[borsh(crate = "namada_sdk::borsh")]
 pub struct SigningData {
     public_keys: Vec<u8>,
@@ -91,6 +91,57 @@ impl SigningData {
 
     pub fn to_bytes(&self) -> Result<Vec<u8>, JsError> {
         Ok(borsh::to_vec(&self)?)
+    }
+}
+
+/// Serializable Tx for exported build functions
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct Tx {
+    args: WrapperTxMsg,
+    hash: String,
+    bytes: Vec<u8>,
+    signing_data: Vec<SigningData>,
+}
+
+impl Tx {
+    pub fn new(
+        tx: tx::Tx,
+        args: &[u8],
+        signing_tx_data: Vec<SigningTxData>,
+    ) -> Result<Tx, JsError> {
+        let args: WrapperTxMsg = borsh::from_slice(&args)?;
+        let mut signing_data: Vec<SigningData> = vec![];
+        for sd in signing_tx_data.into_iter() {
+            let sd = SigningData::from_signing_tx_data(sd)?;
+            signing_data.push(sd);
+        }
+        let hash = tx.header_hash().to_string();
+        let bytes: Vec<u8> = borsh::to_vec(&tx)?;
+
+        Ok(Tx {
+            args,
+            hash,
+            bytes,
+            signing_data,
+        })
+    }
+
+    pub fn tx_bytes(&self) -> Vec<u8> {
+        self.bytes.clone()
+    }
+
+    pub fn signing_tx_data(&self) -> Result<Vec<SigningTxData>, JsError> {
+        let mut signing_tx_data: Vec<SigningTxData> = vec![];
+        for sd in self.signing_data.clone().iter() {
+            signing_tx_data.push(sd.to_signing_tx_data()?);
+        }
+
+        Ok(signing_tx_data)
+    }
+
+    pub fn args(&self) -> WrapperTxMsg {
+        self.args.clone()
     }
 }
 
@@ -202,53 +253,6 @@ impl TxDetails {
         };
 
         Ok(tx_details?)
-    }
-}
-
-/// This takes an vec of serialized SigningData bytes and returns vec of
-/// Namada type SigningTxData
-pub fn construct_signing_tx_data(
-    signing_data_bytes: Vec<Vec<u8>>,
-) -> Result<Vec<SigningTxData>, JsError> {
-    let mut signing_tx_data: Vec<SigningTxData> = vec![];
-    for bytes in signing_data_bytes {
-        let sd: SigningData = borsh::from_slice(&bytes)?;
-        let stxd: SigningTxData = sd.to_signing_tx_data()?;
-        signing_tx_data.push(stxd);
-    }
-
-    Ok(signing_tx_data)
-}
-
-/// Serializable Tx for exported build functions
-#[wasm_bindgen]
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug)]
-#[borsh(crate = "namada_sdk::borsh")]
-pub struct Tx {
-    args: Vec<u8>,
-    hash: String,
-    bytes: Vec<u8>,
-    signing_data_bytes: Vec<Vec<u8>>,
-}
-
-#[wasm_bindgen]
-impl Tx {
-    #[wasm_bindgen(constructor)]
-    pub fn new(tx: Vec<u8>, args: Vec<u8>, signing_data_bytes: JsValue) -> Result<Tx, JsError> {
-        let signing_data_bytes: Vec<Vec<u8>> = signing_data_bytes
-            .into_serde()
-            .expect("Deserializing should not fail");
-
-        let bytes = tx.clone();
-        let tx: tx::Tx = borsh::from_slice(&tx)?;
-        let hash = tx.header_hash().to_string();
-
-        Ok(Tx {
-            args,
-            hash,
-            bytes,
-            signing_data_bytes,
-        })
     }
 }
 

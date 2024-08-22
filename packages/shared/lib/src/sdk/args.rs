@@ -28,7 +28,7 @@ impl RevealPkMsg {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug)]
 #[borsh(crate = "namada_sdk::borsh")]
 pub struct WrapperTxMsg {
     token: String,

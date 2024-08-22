@@ -30,7 +30,7 @@ import {
   TransparentTransferDataMsgValue,
   TransparentTransferMsgValue,
 } from "./transfer";
-import { TxMsgValue } from "./tx";
+import { SigningDataMsgValue, TxMsgValue } from "./tx";
 import { CommitmentMsgValue, TxDetailsMsgValue } from "./txDetails";
 import { TxResponseMsgValue } from "./txResponse";
 import { UnbondMsgValue } from "./unbond";
@@ -48,6 +48,7 @@ export type Schema =
   | VoteProposalMsgValue
   | ClaimRewardsMsgValue
   | WithdrawMsgValue
+  | SigningDataMsgValue
   | TransferMsgValue
   | TransferDataMsgValue
   | TransparentTransferMsgValue
