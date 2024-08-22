@@ -18,10 +18,9 @@ export const toValidator = (
   const expectedApr = nominalApr.times(1 - commission.toNumber());
 
   // Because epoch duration is in reality longer by epochSwitchBlocksDelay we have to account for that
-  const timePerBlock = epochInfo.minEpochDuration / epochInfo.minNumOfBlocks;
   const realMinEpochDuration =
     epochInfo.minEpochDuration +
-    timePerBlock * epochInfo.epochSwitchBlocksDelay;
+    epochInfo.maxBlockTime * epochInfo.epochSwitchBlocksDelay;
 
   const unbondingPeriod = singleUnitDurationFromInterval(
     0,
