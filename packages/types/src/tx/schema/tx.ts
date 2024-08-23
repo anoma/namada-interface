@@ -4,24 +4,24 @@ import { SigningDataProps, TxProps } from "../types";
 import { WrapperTxMsgValue } from "./wrapperTx";
 
 export class SigningDataMsgValue {
+  @field({ type: option("string") })
+  owner?: string;
+
   @field({ type: vec("string") })
   publicKeys!: string[];
 
   @field({ type: "u8" })
   threshold!: number;
 
-  @field({ type: "string" })
-  feePayer!: string;
-
   // Contains a borsh-serialized AccountPublicKeysMap
   // TODO: We may be able to deserialize this further and
   // restore the original HashMap, but for now, just store
-  // the vec
+  // the vec of the serialized HashMap
   @field({ type: option(vec("u8")) })
   accountPublicKeysMap?: Uint8Array;
 
-  @field({ type: option("string") })
-  owner?: string;
+  @field({ type: "string" })
+  feePayer!: string;
 
   constructor(data: SigningDataProps) {
     Object.assign(this, data);

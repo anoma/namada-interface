@@ -283,6 +283,7 @@ impl Sdk {
     pub fn build_batch(txs: JsValue) -> Result<JsValue, JsError> {
         let mut built_txs: Vec<tx::Tx> = vec![];
         let built_txs_bytes: Vec<Vec<u8>> = txs.into_serde().unwrap();
+
         for bytes in built_txs_bytes.iter() {
             let tx: tx::Tx = borsh::from_slice(&bytes)?;
             built_txs.push(tx);
@@ -485,11 +486,8 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
         signing_data: SigningTxData,
     ) -> Result<JsValue, JsError> {
-        to_js_result(borsh::to_vec(&tx::Tx::new(
-            tx,
-            wrapper_tx_msg,
-            vec![signing_data],
-        )?)?)
+        let tx = tx::Tx::new(tx, wrapper_tx_msg, vec![signing_data])?;
+        to_js_result(borsh::to_vec(&tx)?)
     }
 }
 

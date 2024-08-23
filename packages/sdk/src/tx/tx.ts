@@ -102,9 +102,13 @@ export class Tx {
       encodedWrapperArgs
     );
 
-    const tx = deserialize(serializedTx, TxMsgValue);
-
-    return new EncodedTx(encodedWrapperArgs, tx);
+    try {
+      const tx = deserialize(Buffer.from(serializedTx), TxMsgValue);
+      return new EncodedTx(encodedWrapperArgs, tx);
+    } catch (e) {
+      console.warn(e);
+      throw Error(`${e}`);
+    }
   }
 
   /**
@@ -284,7 +288,7 @@ export class Tx {
       return msg.encode(txMsgValue);
     });
 
-    return SdkWasm.build_batch(encodedTxs);
+    return SdkWasm.build_batch(encodedTxs.map((tx) => [...tx]));
   }
 
   /**

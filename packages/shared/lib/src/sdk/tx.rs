@@ -36,11 +36,11 @@ pub enum TxType {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug)]
 #[borsh(crate = "namada_sdk::borsh")]
 pub struct SigningData {
-    public_keys: Vec<u8>,
-    threshold: u8,
-    fee_payer: String,
-    account_public_keys_map: Option<Vec<u8>>,
     owner: Option<String>,
+    public_keys: Vec<String>,
+    threshold: u8,
+    account_public_keys_map: Option<Vec<u8>>,
+    fee_payer: String,
 }
 
 impl SigningData {
@@ -50,19 +50,26 @@ impl SigningData {
             Some(addr) => Some(addr.to_string()),
             None => None,
         };
-        let public_keys = borsh::to_vec(&signing_tx_data.public_keys)?;
-        let fee_payer = signing_tx_data.fee_payer.to_string();
+        let public_keys = signing_tx_data
+            .public_keys
+            .into_iter()
+            .map(|pk| pk.to_string())
+            .collect();
+
         let account_public_keys_map = match signing_tx_data.account_public_keys_map {
             Some(pk_map) => Some(borsh::to_vec(&pk_map)?),
             None => None,
         };
 
+        let fee_payer = signing_tx_data.fee_payer.to_string();
+        let threshold = signing_tx_data.threshold;
+
         Ok(SigningData {
-            public_keys,
-            threshold: signing_tx_data.threshold,
-            fee_payer,
-            account_public_keys_map,
             owner,
+            public_keys,
+            threshold,
+            account_public_keys_map,
+            fee_payer,
         })
     }
 
@@ -72,7 +79,13 @@ impl SigningData {
             Some(addr) => Some(Address::from_str(&addr)?),
             None => None,
         };
-        let public_keys = borsh::from_slice(&self.public_keys)?;
+
+        let mut public_keys: Vec<PublicKey> = vec![];
+        for pk in self.public_keys.clone() {
+            let pk = PublicKey::from_str(&pk)?;
+            public_keys.push(pk);
+        }
+
         let fee_payer = PublicKey::from_str(&self.fee_payer)?;
         let threshold = self.threshold;
         let account_public_keys_map = match &self.account_public_keys_map {
