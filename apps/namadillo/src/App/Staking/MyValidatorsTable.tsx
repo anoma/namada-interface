@@ -19,7 +19,9 @@ export const MyValidatorsTable = (): JSX.Element => {
 
   const validators =
     myValidators.isSuccess ?
-      myValidators.data.map((v: MyValidator) => v.validator)
+      myValidators.data
+        .filter((v) => v.stakedAmount?.gt(0))
+        .map((v: MyValidator) => v.validator)
     : [];
 
   const stakedAmountByAddress: Record<Address, BigNumber> =
