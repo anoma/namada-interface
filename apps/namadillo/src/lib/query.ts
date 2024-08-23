@@ -5,7 +5,7 @@ import {
   Signer,
   TxMsgValue,
   TxProps,
-  WrapperTxMsgValue as WrapperTxProps,
+  WrapperTxProps,
 } from "@namada/types";
 import { getIndexerApi } from "atoms/api";
 import { chainParametersAtom } from "atoms/chain";

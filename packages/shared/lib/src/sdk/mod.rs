@@ -243,8 +243,7 @@ impl Sdk {
 
         // Get wrapper args
         let first_tx = built_txs
-            .iter()
-            .nth(0)
+            .get(0)
             .expect("At least one Tx is required for building batches!");
 
         let args = first_tx.args();
@@ -257,8 +256,7 @@ impl Sdk {
             let signing_tx_data = built_tx.signing_tx_data()?;
             let tx: Tx = Tx::try_from_slice(&tx_bytes)?;
             let first_signing_data = signing_tx_data
-                .iter()
-                .nth(0)
+                .get(0)
                 .expect("At least one signing data should be present on a Tx");
 
             txs.push((tx, first_signing_data.to_owned()));
