@@ -3,7 +3,7 @@ import { RedelegateMsgValue } from "@namada/types";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { defaultAccountAtom } from "atoms/accounts";
-import { gasLimitsAtom } from "atoms/fees";
+import { defaultGasConfigFamily } from "atoms/fees";
 import {
   createNotificationId,
   dispatchToastNotificationAtom,
@@ -12,7 +12,6 @@ import { createReDelegateTxAtom } from "atoms/staking";
 import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { useGasEstimate } from "hooks/useGasEstimate";
 import { useStakeModule } from "hooks/useStakeModule";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -33,8 +32,6 @@ export const ReDelegate = (): JSX.Element => {
     Record<string, BigNumber>
   >({});
 
-  const { gasPrice } = useGasEstimate();
-  const gasLimits = useAtomValue(gasLimitsAtom);
   const navigate = useNavigate();
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
@@ -48,6 +45,15 @@ export const ReDelegate = (): JSX.Element => {
     onChangeValidatorAmount,
     myValidators,
   } = useStakeModule({ account });
+
+  const changes = getAmountDistribution(
+    amountsRemovedByAddress,
+    amountsToAssignByAddress
+  );
+
+  const gasConfig = useAtomValue(
+    defaultGasConfigFamily(Array(changes.length).fill("Redelegate"))
+  );
 
   const {
     mutate: createRedelegateTx,
@@ -127,19 +133,18 @@ export const ReDelegate = (): JSX.Element => {
 
   const performRedelegate = (): void => {
     invariant(account, `Extension is connected but you don't have an account`);
-    invariant(gasPrice, "Gas price loading is still pending");
-    invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
-    const redelegateGasLimit = gasLimits.data!.Redelegation.native;
-    const changes = getAmountDistribution(
-      amountsRemovedByAddress,
-      amountsToAssignByAddress
-    );
+
+    if (changes.length === 0) {
+      throw new Error("No redelegation changes to make");
+    }
+
+    if (!gasConfig.isSuccess) {
+      throw new Error("Gas config loading is still pending");
+    }
+
     createRedelegateTx({
       changes,
-      gasConfig: {
-        gasPrice: gasPrice,
-        gasLimit: redelegateGasLimit.multipliedBy(changes.length),
-      },
+      gasConfig: gasConfig.data,
       account,
     });
   };
@@ -250,6 +255,8 @@ export const ReDelegate = (): JSX.Element => {
                 totalAssignedAmounts={totalAssignedAmounts}
                 onChangeAssignedAmount={onAssignAmount}
                 isPerformingRedelegation={isCreatingTx}
+                redelegateChanges={changes}
+                gasConfig={gasConfig}
               />
             )}
         </form>

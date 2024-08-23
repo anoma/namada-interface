@@ -13,7 +13,7 @@ import {
   voteTypes,
 } from "@namada/types";
 import { TransactionFees } from "App/Common/TransactionFees";
-import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
+import { defaultGasConfigFamily } from "atoms/fees";
 import {
   createNotificationId,
   dispatchToastNotificationAtom,
@@ -59,8 +59,8 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
     error: voteTxError,
   } = useAtomValue(createVoteTxAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
-  const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
-  const gasLimits = useAtomValue(gasLimitsAtom);
+
+  const gasConfig = useAtomValue(defaultGasConfigFamily(["VoteProposal"]));
 
   useEffect(() => {
     if (isSuccess) {
@@ -108,15 +108,13 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
       typeof selectedVoteType !== "undefined",
       "There is no selected vote type"
     );
-    invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
-    invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
+    if (!gasConfig.isSuccess) {
+      throw new Error("Gas config is still pending");
+    }
     createVoteTx({
       proposalId,
       vote: selectedVoteType,
-      gasConfig: {
-        gasPrice: minimumGasPrice.data!,
-        gasLimit: gasLimits.data!.VoteProposal.native,
-      },
+      gasConfig: gasConfig.data,
     });
   };
 
@@ -182,10 +180,12 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
               />
             </Stack>
             <footer>
-              <TransactionFees
-                className="flex justify-between"
-                numberOfTransactions={1}
-              />
+              {gasConfig.isSuccess && (
+                <TransactionFees
+                  className="flex justify-between"
+                  gasConfig={gasConfig.data}
+                />
+              )}
             </footer>
             <ActionButton
               type="submit"
