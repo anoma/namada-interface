@@ -203,9 +203,9 @@ const IncrementBonding = (): JSX.Element => {
                         <GoAlert />
                       </i>
                       <p className="text-balance">
-                        Staking will lock and bind your assets to a{" "}
-                        {chainParameters?.unbondingPeriod} unbonding schedule.
-                        To make your NAM liquid again, you will need to unstake.
+                        Staking will lock and bind your assets to an unbonding
+                        schedule of {chainParameters?.unbondingPeriod}. To make
+                        your NAM liquid again, you will need to unstake.
                       </p>
                     </div>
                   </Alert>
