@@ -22,7 +22,7 @@ export type {
 } from "./rpc";
 
 export { TxType, TxTypeLabel } from "./tx";
-export type { EncodedTx, SignedTx, SupportedTx } from "./tx";
+export type { SupportedTx } from "./tx";
 
 export { Sdk } from "./sdk";
 

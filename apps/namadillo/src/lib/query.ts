@@ -1,12 +1,11 @@
-import { EncodedTx } from "@heliax/namada-sdk/web";
 import { getIntegration } from "@namada/integrations";
 import {
   Account,
   AccountType,
   Signer,
+  TxMsgValue,
   TxProps,
-  WrapperTxMsgValue,
-  WrapperTxProps,
+  WrapperTxMsgValue as WrapperTxProps,
 } from "@namada/types";
 import { getIndexerApi } from "atoms/api";
 import { chainParametersAtom } from "atoms/chain";
@@ -24,7 +23,7 @@ export type TransactionPair<T> = {
 export type EncodedTxData<T> = {
   type: string;
   txs: TxProps[];
-  wrapperTxMsg: Uint8Array;
+  wrapperTxProps: WrapperTxProps;
   meta?: {
     props: T[];
   };
@@ -36,7 +35,7 @@ export type TransactionNotification = {
 };
 
 export type PreparedTransaction<T> = {
-  encodedTx: EncodedTx;
+  encodedTx: WrapperTxProps;
   signedTx: Uint8Array;
   meta: T;
 };
@@ -47,7 +46,7 @@ const getTxProps = (
   account: Account,
   gasConfig: GasConfig,
   chain: ChainSettings
-): WrapperTxMsgValue => {
+): WrapperTxProps => {
   invariant(
     !!account.publicKey,
     "Account doesn't contain a publicKey attached to it"
@@ -79,18 +78,18 @@ export const isPublicKeyRevealed = async (
  * Builds an batch  transactions based on the provided query properties.
  * Each transaction is built through the provided transaction function `txFn`.
  * @param {T[]} queryProps - An array of properties used to build transactions.
- * @param {(WrapperTxProps, T) => Promise<EncodedTx>} txFn - Function to build each transaction.
+ * @param {(WrapperTxProps, T) => Promise<TxMsgValue>} txFn - Function to build each transaction.
  */
 export const buildTx = async <T>(
   account: Account,
   gasConfig: GasConfig,
   chain: ChainSettings,
   queryProps: T[],
-  txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<EncodedTx>
+  txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>
 ): Promise<EncodedTxData<T>> => {
   const { tx } = await getSdkInstance();
   const wrapperTxProps = getTxProps(account, gasConfig, chain);
-  const txs: EncodedTx[] = [];
+  const txs: TxMsgValue[] = [];
   const txProps: TxProps[] = [];
 
   // Determine if RevealPK is needed:
@@ -107,15 +106,14 @@ export const buildTx = async <T>(
   txs.push(...encodedTxs);
 
   if (account.type === AccountType.Ledger) {
-    txProps.push(...txs.map(({ tx }) => tx));
+    txProps.push(...txs);
   } else {
-    txProps.push(tx.buildBatch(txs.map(({ tx }) => tx)));
+    txProps.push(tx.buildBatch(txs));
   }
 
   return {
     txs: txProps,
-    // TODO: Update broadcastTx to support WrapperTxMsg so encoding isn't necessary!
-    wrapperTxMsg: tx.encodeTxArgs(wrapperTxProps),
+    wrapperTxProps,
     type: txFn.name,
     meta: {
       props: queryProps,
@@ -169,7 +167,7 @@ export const buildTxPair = async <T>(
   gasConfig: GasConfig,
   chain: ChainSettings,
   queryProps: T[],
-  txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<EncodedTx>,
+  txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>,
   owner: string
 ): Promise<TransactionPair<T>> => {
   const encodedTxData = await buildTx<T>(
@@ -202,12 +200,7 @@ export const broadcastTx = async <T>(
         })
       );
     try {
-      // TODO: rpc.broadcastTx returns a TxResponseProps object now, containing hashes and
-      // applied status of each commitment
-      await rpc.broadcastTx({
-        wrapperTxMsg: encodedTx.wrapperTxMsg,
-        tx: signedTx,
-      });
+      await rpc.broadcastTx(signedTx, encodedTx.wrapperTxProps);
       eventType &&
         window.dispatchEvent(
           new CustomEvent(`${eventType}.Success`, {
