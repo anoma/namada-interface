@@ -62,12 +62,12 @@ export class Tx {
       new TransparentTransferMsgValue(transferProps)
     );
 
-    const builtTx = await this.sdk.build_transparent_transfer(
+    const serializedTx = await this.sdk.build_transparent_transfer(
       encodedTransfer,
       encodedWrapperArgs
     );
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    const tx = deserialize(Buffer.from(serializedTx), TxMsgValue);
+    return new EncodedTx(encodedWrapperArgs, tx);
   }
 
   /**
@@ -78,9 +78,9 @@ export class Tx {
    */
   async buildRevealPk(wrapperTxProps: WrapperTxProps): Promise<EncodedTx> {
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
-    const builtTx = await this.sdk.build_reveal_pk(encodedWrapperArgs);
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    const serializedTx = await this.sdk.build_reveal_pk(encodedWrapperArgs);
+    const tx = deserialize(Buffer.from(serializedTx), TxMsgValue);
+    return new EncodedTx(encodedWrapperArgs, tx);
   }
 
   /**
@@ -101,14 +101,8 @@ export class Tx {
       encodedBond,
       encodedWrapperArgs
     );
-
-    try {
-      const tx = deserialize(Buffer.from(serializedTx), TxMsgValue);
-      return new EncodedTx(encodedWrapperArgs, tx);
-    } catch (e) {
-      console.warn(e);
-      throw Error(`${e}`);
-    }
+    const tx = deserialize(Buffer.from(serializedTx), TxMsgValue);
+    return new EncodedTx(encodedWrapperArgs, tx);
   }
 
   /**
@@ -126,12 +120,12 @@ export class Tx {
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedUnbond = unbondMsg.encode(new UnbondMsgValue(unbondProps));
 
-    const builtTx = await this.sdk.build_unbond(
+    const serializedTx = await this.sdk.build_unbond(
       encodedUnbond,
       encodedWrapperArgs
     );
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    const tx = deserialize(Buffer.from(serializedTx), TxMsgValue);
+    return new EncodedTx(encodedWrapperArgs, tx);
   }
 
   /**
@@ -148,12 +142,12 @@ export class Tx {
     const bondMsg = new Message<WithdrawProps>();
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedWithdraw = bondMsg.encode(new WithdrawMsgValue(withdrawProps));
-    const builtTx = await this.sdk.build_withdraw(
+    const serializedTx = await this.sdk.build_withdraw(
       encodedWithdraw,
       encodedWrapperArgs
     );
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    const tx = deserialize(Buffer.from(serializedTx), TxMsgValue);
+    return new EncodedTx(encodedWrapperArgs, tx);
   }
 
   /**
@@ -172,12 +166,12 @@ export class Tx {
     const encodedRedelegate = redelegateMsg.encode(
       new RedelegateMsgValue(redelegateProps)
     );
-    const builtTx = await this.sdk.build_redelegate(
+    const serializedTx = await this.sdk.build_redelegate(
       encodedRedelegate,
       encodedWrapperArgs
     );
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    const tx = deserialize(Buffer.from(serializedTx), TxMsgValue);
+    return new EncodedTx(encodedWrapperArgs, tx);
   }
 
   /**
@@ -196,12 +190,12 @@ export class Tx {
     const encodedIbcTransfer = ibcTransferMsg.encode(
       new IbcTransferMsgValue(ibcTransferProps)
     );
-    const builtTx = await this.sdk.build_ibc_transfer(
+    const serializedTx = await this.sdk.build_ibc_transfer(
       encodedIbcTransfer,
       encodedWrapperArgs
     );
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    const tx = deserialize(Buffer.from(serializedTx), TxMsgValue);
+    return new EncodedTx(encodedWrapperArgs, tx);
   }
 
   /**
@@ -220,12 +214,12 @@ export class Tx {
     const encodedEthBridgeTransfer = ethBridgeTransferMsg.encode(
       new EthBridgeTransferMsgValue(ethBridgeTransferProps)
     );
-    const builtTx = await this.sdk.build_eth_bridge_transfer(
+    const serializedTx = await this.sdk.build_eth_bridge_transfer(
       encodedEthBridgeTransfer,
       encodedWrapperArgs
     );
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    const tx = deserialize(Buffer.from(serializedTx), TxMsgValue);
+    return new EncodedTx(encodedWrapperArgs, tx);
   }
 
   /**
@@ -245,11 +239,12 @@ export class Tx {
       new VoteProposalMsgValue(voteProposalProps)
     );
 
-    const builtTx = await this.sdk.build_vote_proposal(
+    const serializedTx = await this.sdk.build_vote_proposal(
       encodedVoteProposal,
       encodedWrapperArgs
     );
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    const tx = deserialize(Buffer.from(serializedTx), TxMsgValue);
+    return new EncodedTx(encodedWrapperArgs, tx);
   }
 
   /**
@@ -268,12 +263,12 @@ export class Tx {
     const encodedClaimRewards = claimRewardsMsg.encode(
       new ClaimRewardsMsgValue(claimRewardsProps)
     );
-
-    const builtTx = await this.sdk.build_claim_rewards(
+    const serializedTx = await this.sdk.build_claim_rewards(
       encodedClaimRewards,
       encodedWrapperArgs
     );
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    const tx = deserialize(Buffer.from(serializedTx), TxMsgValue);
+    return new EncodedTx(encodedWrapperArgs, tx);
   }
 
   /**
@@ -288,7 +283,8 @@ export class Tx {
       return msg.encode(txMsgValue);
     });
 
-    return SdkWasm.build_batch(encodedTxs.map((tx) => [...tx]));
+    const batch = SdkWasm.build_batch(encodedTxs.map((tx) => [...tx]));
+    return deserialize(Buffer.from(batch), TxMsgValue);
   }
 
   /**

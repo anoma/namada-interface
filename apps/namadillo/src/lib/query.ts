@@ -114,6 +114,7 @@ export const buildTx = async <T>(
 
   return {
     txs: txProps,
+    // TODO: Update broadcastTx to support WrapperTxMsg so encoding isn't necessary!
     wrapperTxMsg: tx.encodeTxArgs(wrapperTxProps),
     type: txFn.name,
     meta: {

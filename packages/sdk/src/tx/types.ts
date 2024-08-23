@@ -15,16 +15,6 @@ export class EncodedTx {
   ) {}
 
   /**
-   * Return serialized tx bytes for external signing. This will clear
-   * the BuiltTx struct instance from wasm memory, then return the bytes.
-   * @returns Serialized tx bytes
-   */
-  toBytes(): Uint8Array {
-    const bytes = new Uint8Array(this.tx.bytes);
-    return bytes;
-  }
-
-  /**
    * Return the inner Tx hash of the built Tx
    * @returns string of tx hash
    */
@@ -49,5 +39,5 @@ export class SignedTx {
   ) {}
 }
 
-export { BuiltTx, TxType, TxTypeLabel } from "@namada/shared";
+export { TxType, TxTypeLabel } from "@namada/shared";
 export type { SupportedTx } from "@namada/shared";

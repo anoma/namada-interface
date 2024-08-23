@@ -101,10 +101,6 @@ impl SigningData {
             account_public_keys_map,
         })
     }
-
-    pub fn to_bytes(&self) -> Result<Vec<u8>, JsError> {
-        Ok(borsh::to_vec(&self)?)
-    }
 }
 
 /// Serializable Tx for exported build functions

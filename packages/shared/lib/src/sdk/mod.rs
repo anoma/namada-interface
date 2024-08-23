@@ -32,54 +32,6 @@ use namada_sdk::{Namada, NamadaImpl};
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
-#[wasm_bindgen]
-#[derive(Clone)]
-pub struct BuiltTx {
-    tx: Vec<u8>,
-    signing_data: Vec<SigningTxData>,
-}
-
-#[wasm_bindgen]
-impl BuiltTx {
-    #[wasm_bindgen(constructor)]
-    pub fn new(tx: Vec<u8>, signing_data_bytes: JsValue) -> Result<BuiltTx, JsError> {
-        let signing_data_bytes: Vec<Vec<u8>> = signing_data_bytes
-            .into_serde()
-            .expect("Deserializing should not fail");
-
-        let mut signing_data: Vec<SigningTxData> = vec![];
-
-        for bytes in signing_data_bytes {
-            let sd: tx::SigningData = borsh::from_slice(&bytes)?;
-            let signing_tx_data: SigningTxData = sd.to_signing_tx_data()?;
-            signing_data.push(signing_tx_data);
-        }
-
-        Ok(BuiltTx { tx, signing_data })
-    }
-
-    pub fn tx_bytes(&self) -> Vec<u8> {
-        self.tx.clone()
-    }
-
-    pub fn tx_hash(&self) -> Result<JsValue, JsError> {
-        let tx: Tx = borsh::from_slice(&self.tx_bytes())?;
-        to_js_result(tx.header_hash().to_string())
-    }
-
-    pub fn signing_data_bytes(&self) -> Result<JsValue, JsError> {
-        let mut signing_data_bytes: Vec<Vec<u8>> = vec![];
-
-        for signing_tx_data in self.signing_data.clone() {
-            let signing_data = tx::SigningData::from_signing_tx_data(signing_tx_data)?;
-            let bytes = signing_data.to_bytes()?;
-            signing_data_bytes.push(bytes);
-        }
-
-        Ok(JsValue::from_serde(&signing_data_bytes)?)
-    }
-}
-
 /// Represents the Sdk public API.
 #[wasm_bindgen]
 pub struct Sdk {
@@ -299,7 +251,7 @@ impl Sdk {
 
         let mut txs: Vec<(Tx, SigningTxData)> = vec![];
 
-        // Iterate through provided BuiltTx and deserialize bytes to Tx
+        // Iterate through provided tx::Tx and deserialize bytes to Namada Tx
         for built_tx in built_txs.into_iter() {
             let tx_bytes = built_tx.tx_bytes();
             let signing_tx_data = built_tx.signing_tx_data()?;

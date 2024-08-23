@@ -48,7 +48,7 @@ describe("Tx", () => {
     });
     expect(encodedTx).toBeDefined();
 
-    const txBytes = encodedTx.toBytes();
+    const txBytes = encodedTx.tx.bytes;
     // TODO: Better test here, this is just a placeholder
     expect(txBytes.length).toEqual(1000);
     expect(addressExistsRoute).toHaveBeenCalledTimes(2);

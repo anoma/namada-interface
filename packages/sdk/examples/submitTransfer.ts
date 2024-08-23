@@ -39,9 +39,6 @@ export const submitTransfer = async (
     const { cryptoMemory } = initSync();
     const sdk = getSdk(cryptoMemory, nodeUrl, "storage path", nativeToken);
 
-    console.log("Revealing public key...");
-    await sdk.tx.revealPk(signingKey, wrapperTxMsgValue);
-
     console.log("Building transfer transaction...");
     const encodedTx = await sdk.tx.buildTransparentTransfer(wrapperTxMsgValue, {
       data: [transparentTransferMsgValue],
