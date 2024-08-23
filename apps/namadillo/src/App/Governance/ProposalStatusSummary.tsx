@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { PieChart, PieChartData, Stack } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
@@ -164,6 +164,11 @@ const Loaded: React.FC<{
   const [hoveredVoteType, setHoveredVoteType] = useState<VoteType | undefined>(
     highestVoteType
   );
+
+  useEffect(() => {
+    // Reset the hovered vote type when the highest vote type changes(on data poll)
+    setHoveredVoteType(highestVoteType);
+  }, [highestVoteType]);
 
   const votedProportion =
     totalVotingPower.isEqualTo(0) ?

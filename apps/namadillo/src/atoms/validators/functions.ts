@@ -1,5 +1,6 @@
 import {
   Bond as IndexerBond,
+  MergedBond as IndexerMergedBond,
   Unbond as IndexerUnbond,
   Validator as IndexerValidator,
   VotingPower as IndexerVotingPower,
@@ -61,7 +62,7 @@ export const calculateUnbondingTimeLeft = (unbond: IndexerUnbond): string => {
  * an array of MyValidators objects
  */
 export const toMyValidators = (
-  indexerBonds: IndexerBond[],
+  indexerBonds: IndexerBond[] | IndexerMergedBond[],
   indexerUnbonds: IndexerUnbond[],
   totalVotingPower: IndexerVotingPower,
   epochInfo: EpochInfo,

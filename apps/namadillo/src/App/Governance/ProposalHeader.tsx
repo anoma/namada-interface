@@ -296,7 +296,9 @@ const VoteButton: React.FC<{
 }> = ({ proposal, voted, proposalId }) => {
   const navigate = useNavigate();
   const isExtensionConnected = useAtomValue(namadaExtensionConnectedAtom);
-  const canVote = useAtomValue(canVoteAtom);
+  const canVote = useAtomValue(
+    canVoteAtom(proposal.data?.startEpoch || BigInt(-1))
+  );
 
   if (!isExtensionConnected) {
     return null;
