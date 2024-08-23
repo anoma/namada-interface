@@ -1,4 +1,4 @@
-import { CopyToClipboardControl } from "@namada/components";
+import { CopyToClipboardControl, Tooltip } from "@namada/components";
 import { defaultAccountAtom } from "atoms/accounts";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
@@ -22,13 +22,14 @@ export const ActiveAccount = (): JSX.Element => {
           "text-white bg-black rounded-xs"
         )}
       >
-        <span className="flex items-center gap-2">
+        <span className="flex items-center gap-2 relative group/tooltip">
           <CopyToClipboardControl
             className={buttonClassName}
             value={account.address || ""}
           >
             {account.alias}
           </CopyToClipboardControl>
+          <Tooltip position="left">{account.address}</Tooltip>
         </span>
         <button className={buttonClassName} onClick={() => {}}>
           <SwitchAccountIcon />

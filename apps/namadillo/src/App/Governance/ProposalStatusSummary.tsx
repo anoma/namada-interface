@@ -222,7 +222,7 @@ const Loaded: React.FC<{
   };
 
   const formattedAmount = (voteType: VoteType): React.ReactNode => (
-    <NamCurrency amount={props[voteType]} forceBalanceDisplay />
+    <NamCurrency amount={props[voteType]} />
   );
 
   const amounts = {

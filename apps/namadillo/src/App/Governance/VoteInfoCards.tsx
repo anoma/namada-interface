@@ -55,8 +55,7 @@ const PgfPaymentInfoCards: React.FC<{
         content={pgfActions.continuous.add.map(
           ({ internal: { amount, target } }) => (
             <span key={`info-card-continuous-add-${target}`}>
-              {target}{" "}
-              <NamCurrency amount={amount} forceBalanceDisplay={true} />
+              {target} <NamCurrency amount={amount} />
             </span>
           )
         )}
@@ -67,8 +66,7 @@ const PgfPaymentInfoCards: React.FC<{
         content={pgfActions.continuous.remove.map(
           ({ internal: { amount, target } }) => (
             <span key={`info-card-continuous-remove-${target}`}>
-              {target}{" "}
-              <NamCurrency amount={amount} forceBalanceDisplay={true} />
+              {target} <NamCurrency amount={amount} />
             </span>
           )
         )}
@@ -78,7 +76,7 @@ const PgfPaymentInfoCards: React.FC<{
         className="col-span-full"
         content={pgfActions.retro.map(({ internal: { amount, target } }) => (
           <span key={`info-card-retro-${target}`}>
-            {target} <NamCurrency amount={amount} forceBalanceDisplay={true} />
+            {target} <NamCurrency amount={amount} />
           </span>
         ))}
       />

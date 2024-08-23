@@ -7,7 +7,7 @@ export const SyncIndicator = (): JSX.Element => {
   const syncStatus = useAtomValue(syncStatusAtom);
 
   return (
-    <div className="relative group/tooltip">
+    <div className="relative group/tooltip p-1">
       <div
         className={twMerge(
           "w-2 h-2 rounded-full",
