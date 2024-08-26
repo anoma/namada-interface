@@ -191,8 +191,8 @@ const handleUpdateDefaultAccountMsg: (
   service: KeyRingService
 ) => InternalHandler<UpdateDefaultAccountMsg> = (service) => {
   return async (_, msg) => {
-    const { accountId, accountType } = msg;
-    return await service.updateDefaultAccount(accountId, accountType);
+    const { address } = msg;
+    return await service.updateDefaultAccount(address);
   };
 };
 

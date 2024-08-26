@@ -1,9 +1,4 @@
-import {
-  AccountType,
-  Chain,
-  DerivedAccount,
-  SignArbitraryResponse,
-} from "@namada/types";
+import { Chain, DerivedAccount, SignArbitraryResponse } from "@namada/types";
 import { EncodedTxData } from "background/approvals";
 import { Message } from "router";
 import { validateProps } from "utils";
@@ -218,15 +213,12 @@ export class UpdateDefaultAccountMsg extends Message<void> {
     return MessageType.UpdateDefaultAccount;
   }
 
-  constructor(
-    public readonly accountId: string,
-    public readonly accountType: AccountType.Mnemonic | AccountType.Ledger
-  ) {
+  constructor(public readonly address: string) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["accountId", "accountType"]);
+    validateProps(this, ["address"]);
   }
 
   route(): string {

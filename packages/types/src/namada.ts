@@ -1,11 +1,6 @@
-import { AccountType, DerivedAccount } from "./account";
+import { DerivedAccount } from "./account";
 import { Chain } from "./chain";
 import { SignArbitraryResponse, Signer, TxData } from "./signer";
-
-export type UpdateDefaultAccountProps = {
-  id: string;
-  type: AccountType.Mnemonic | AccountType.Ledger;
-};
 
 export type SignArbitraryProps = {
   signer: string;
@@ -34,7 +29,7 @@ export interface Namada {
   connect(): Promise<void>;
   isConnected(): Promise<boolean | undefined>;
   defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
-  updateDefaultAccount(props: UpdateDefaultAccountProps): Promise<void>;
+  updateDefaultAccount(address: string): Promise<void>;
   sign(props: SignProps): Promise<Uint8Array[] | undefined>;
   signArbitrary(
     props: SignArbitraryProps

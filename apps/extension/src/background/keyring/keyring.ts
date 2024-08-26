@@ -15,7 +15,6 @@ import {
   DeleteAccountError,
   KeyRingStatus,
   MnemonicValidationResponse,
-  ParentAccount,
   SensitiveAccountStoreData,
   UtilityStore,
 } from "./types";
@@ -409,17 +408,19 @@ export class KeyRing {
     return accounts.find((acc) => acc.id === activeAccount?.id);
   }
 
-  public async updateDefaultAccount(
-    id: string,
-    type: ParentAccount
-  ): Promise<void> {
+  public async updateDefaultAccount(address: string): Promise<void> {
     const accounts = await this.queryAllAccounts();
-    const accountExists = accounts.some(
-      (acc) => acc.id === id && acc.type === type
-    );
-    if (!accountExists) {
-      throw new Error("Account not found to be used as default.");
+    const account = accounts.find((acc) => acc.address === address);
+    if (!account) {
+      throw new Error(`Account with address ${address} not found.`);
     }
+    if (
+      account.type === AccountType.PrivateKey ||
+      account.type === AccountType.ShieldedKeys
+    ) {
+      throw new Error(`Cannot use this account type: ${account.type}`);
+    }
+    const { id, type } = account;
     await this.setActiveAccount(id, type);
   }
 
