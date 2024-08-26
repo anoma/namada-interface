@@ -8,7 +8,7 @@ import { TableRowLoading } from "App/Common/TableRowLoading";
 import { TransactionFees } from "App/Common/TransactionFees";
 import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
 import { chainParametersAtom } from "atoms/chain";
-import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
+import { defaultGasConfigFamily } from "atoms/fees";
 import {
   createNotificationId,
   dispatchToastNotificationAtom,
@@ -36,8 +36,7 @@ const IncrementBonding = (): JSX.Element => {
   const navigate = useNavigate();
   const { data: chainParameters } = useAtomValue(chainParametersAtom);
   const accountBalance = useAtomValue(accountBalanceAtom);
-  const gasPrice = useAtomValue(minimumGasPriceAtom);
-  const gasLimits = useAtomValue(gasLimitsAtom);
+
   const { data: account } = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
@@ -63,6 +62,12 @@ const IncrementBonding = (): JSX.Element => {
     onChangeValidatorAmount,
     parseUpdatedAmounts,
   } = useStakeModule({ account });
+
+  const gasConfig = useAtomValue(
+    defaultGasConfigFamily(
+      Array(Object.keys(updatedAmountByAddress).length).fill("Bond")
+    )
+  );
 
   const filteredValidators = useValidatorFilter({
     validators: validators.isSuccess ? validators.data : [],
@@ -91,16 +96,15 @@ const IncrementBonding = (): JSX.Element => {
       "Extension is not connected or you don't have an account"
     );
     const changes = parseUpdatedAmounts();
-    invariant(gasPrice.data, "Gas price loading is still pending");
-    invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
-    const bondGasLimit = gasLimits.data!.Bond.native;
+
+    if (!gasConfig.isSuccess) {
+      throw new Error("Gas config is still pending");
+    }
+
     createBondTransaction({
       changes,
       account,
-      gasConfig: {
-        gasPrice: gasPrice.data!,
-        gasLimit: bondGasLimit.multipliedBy(changes.length),
-      },
+      gasConfig: gasConfig.data,
     });
   };
 
@@ -268,10 +272,12 @@ const IncrementBonding = (): JSX.Element => {
             >
               {isPerformingBond ? "Processing..." : errorMessage || "Stake"}
             </ActionButton>
-            <TransactionFees
-              className="justify-self-end px-4"
-              numberOfTransactions={Object.keys(updatedAmountByAddress).length}
-            />
+            {gasConfig.isSuccess && (
+              <TransactionFees
+                className="justify-self-end px-4"
+                gasConfig={gasConfig.data}
+              />
+            )}
           </div>
         </form>
       </ModalContainer>

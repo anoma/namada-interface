@@ -5,11 +5,38 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useValidatorSorting } from "hooks/useValidatorSorting";
+import { AtomWithQueryResult } from "jotai-tanstack-query";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { Validator } from "types";
+import { GasConfig, RedelegateChange, Validator } from "types";
 import { ReDelegateTable } from "./ReDelegateTable";
 import { ValidatorFilterNav } from "./ValidatorFilterNav";
+
+type Validation =
+  | "NoInput"
+  | "NotAllAssigned"
+  | "TooMuchAssigned"
+  | "NoRedelegateChanges"
+  | "Valid";
+
+const validate = (
+  assignedAmountsByAddress: Record<string, BigNumber>,
+  totalAssignedAmounts: BigNumber,
+  totalToRedelegate: BigNumber,
+  redelegateChanges: RedelegateChange[]
+): Validation => {
+  if (Object.keys(assignedAmountsByAddress).length === 0) {
+    return "NoInput";
+  } else if (totalAssignedAmounts.isLessThan(totalToRedelegate)) {
+    return "NotAllAssigned";
+  } else if (totalAssignedAmounts.isGreaterThan(totalToRedelegate)) {
+    return "TooMuchAssigned";
+  } else if (redelegateChanges.length === 0) {
+    return "NoRedelegateChanges";
+  } else {
+    return "Valid";
+  }
+};
 
 type ReDelegateAssignStakeProps = {
   validators: Validator[];
@@ -23,6 +50,8 @@ type ReDelegateAssignStakeProps = {
     amount: BigNumber | undefined
   ) => void;
   isPerformingRedelegation: boolean;
+  redelegateChanges: RedelegateChange[];
+  gasConfig: AtomWithQueryResult<GasConfig>;
 };
 
 export const ReDelegateAssignStake = ({
@@ -34,21 +63,12 @@ export const ReDelegateAssignStake = ({
   assignedAmountsByAddress,
   onChangeAssignedAmount,
   isPerformingRedelegation,
+  redelegateChanges,
+  gasConfig,
 }: ReDelegateAssignStakeProps): JSX.Element => {
   const [filter, setFilter] = useState<string>("");
   const [onlyMyValidators, setOnlyMyValidators] = useState(false);
   const [seed, setSeed] = useState(Math.random());
-
-  const isAssigningValid = totalAssignedAmounts.lte(totalToRedelegate);
-  const hasUpdatedAmounts = Object.keys(assignedAmountsByAddress).length > 0;
-  const hasInvalidDistribution =
-    !isAssigningValid || !totalAssignedAmounts.minus(totalToRedelegate).eq(0);
-
-  // TODO: this is just an estimate, but we should calculate it in a better way
-  const numberOfTransactions = Math.max(
-    Object.keys(assignedAmountsByAddress).length,
-    Object.keys(amountsRemovedByAddress).length
-  );
 
   const filteredValidators = useValidatorFilter({
     validators,
@@ -68,6 +88,13 @@ export const ReDelegateAssignStake = ({
     seed,
   });
 
+  const validation = validate(
+    assignedAmountsByAddress,
+    totalAssignedAmounts,
+    totalToRedelegate,
+    redelegateChanges
+  );
+
   const renderNewTotalStakeAmount = (validator: Validator): JSX.Element => {
     const stakedAmount =
       stakedAmountByAddress[validator.address] ?? new BigNumber(0);
@@ -79,16 +106,16 @@ export const ReDelegateAssignStake = ({
       assignedAmountsByAddress[validator.address] ?? new BigNumber(0);
 
     const newAmount = stakedAmount.minus(amountRemoved).plus(updatedAmount);
-    const hasUpdatedAmount = updatedAmount ? updatedAmount.gt(0) : false;
+
     return (
       <>
-        {hasUpdatedAmount && (
+        {updatedAmount.gt(0) && (
           <span
             className={twMerge(
               clsx("text-neutral-500 text-sm", {
                 "text-orange": newAmount?.lte(stakedAmount),
                 "text-success": newAmount?.gt(stakedAmount),
-                "text-fail": !isAssigningValid,
+                "text-fail": validation === "TooMuchAssigned",
               })
             )}
           >
@@ -122,22 +149,42 @@ export const ReDelegateAssignStake = ({
         )}
       </Panel>
       <div className="relative grid grid-cols-[1fr_25%_1fr] items-center">
-        <ActionButton
-          type="submit"
-          size="sm"
-          backgroundColor="white"
-          className="mt-2 col-start-2"
-          disabled={hasInvalidDistribution || isPerformingRedelegation}
-        >
-          {hasInvalidDistribution && hasUpdatedAmounts ?
-            "Invalid distribution"
-          : "Redelegate"}
-        </ActionButton>
-        <TransactionFees
-          className="justify-self-end px-4"
-          numberOfTransactions={numberOfTransactions}
+        <SubmitButton
+          validation={validation}
+          isPerformingRedelegation={isPerformingRedelegation}
         />
+        {gasConfig.isSuccess && (
+          <TransactionFees
+            className="justify-self-end px-4"
+            gasConfig={gasConfig.data}
+          />
+        )}
       </div>
     </>
+  );
+};
+
+const SubmitButton: React.FC<{
+  validation: Validation;
+  isPerformingRedelegation: boolean;
+}> = ({ validation, isPerformingRedelegation }) => {
+  const disabled = validation !== "Valid" || isPerformingRedelegation;
+
+  const text =
+    validation === "TooMuchAssigned" ? "Too much stake assigned"
+    : validation === "NoRedelegateChanges" ? "No redelegate changes"
+    : isPerformingRedelegation ? "Processing..."
+    : "Redelegate";
+
+  return (
+    <ActionButton
+      type="submit"
+      size="sm"
+      backgroundColor="white"
+      className="mt-2 col-start-2"
+      disabled={disabled}
+    >
+      {text}
+    </ActionButton>
   );
 };

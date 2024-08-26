@@ -8,7 +8,7 @@ import { TableRowLoading } from "App/Common/TableRowLoading";
 import { TransactionFees } from "App/Common/TransactionFees";
 import { defaultAccountAtom } from "atoms/accounts";
 import { chainParametersAtom } from "atoms/chain";
-import { gasLimitsAtom, minimumGasPriceAtom } from "atoms/fees";
+import { defaultGasConfigFamily } from "atoms/fees";
 import {
   createNotificationId,
   dispatchToastNotificationAtom,
@@ -33,8 +33,6 @@ const Unstake = (): JSX.Element => {
   const { data: account } = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(myValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
-  const minimumGasPrice = useAtomValue(minimumGasPriceAtom);
-  const gasLimits = useAtomValue(gasLimitsAtom);
   const { data: chainParameters } = useAtomValue(chainParametersAtom);
 
   const {
@@ -55,6 +53,12 @@ const Unstake = (): JSX.Element => {
     onChangeValidatorAmount,
   } = useStakeModule({ account });
 
+  const gasConfig = useAtomValue(
+    defaultGasConfigFamily(
+      Array(Object.keys(updatedAmountByAddress).length).fill("Unbond")
+    )
+  );
+
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
 
   const onUnbondAll = (): void => {
@@ -74,16 +78,15 @@ const Unstake = (): JSX.Element => {
       "Extension is not connected or you don't have an account"
     );
     const changes = parseUpdatedAmounts();
-    invariant(minimumGasPrice.isSuccess, "Gas price loading is still pending");
-    invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
-    const unbondGasLimit = gasLimits.data!.Unbond.native;
+
+    if (!gasConfig.isSuccess) {
+      throw new Error("Gas config loading is still pending");
+    }
+
     createUnbondTx({
       changes,
       account,
-      gasConfig: {
-        gasPrice: minimumGasPrice.data!,
-        gasLimit: unbondGasLimit.multipliedBy(changes.length),
-      },
+      gasConfig: gasConfig.data,
     });
   };
 
@@ -264,10 +267,12 @@ const Unstake = (): JSX.Element => {
                 "Processing..."
               : validationMessage || "Unstake"}
             </ActionButton>
-            <TransactionFees
-              className="justify-self-end px-4"
-              numberOfTransactions={Object.keys(updatedAmountByAddress).length}
-            />
+            {gasConfig.isSuccess && (
+              <TransactionFees
+                className="justify-self-end px-4"
+                gasConfig={gasConfig.data}
+              />
+            )}
           </div>
         </form>
       </ModalContainer>
