@@ -123,6 +123,7 @@ export type TxKind =
   | "Withdraw"
   | "ClaimRewards"
   | "VoteProposal"
+  | "RevealPk"
   | "Unknown";
 
 export type SortOptions = "asc" | "desc" | undefined;
