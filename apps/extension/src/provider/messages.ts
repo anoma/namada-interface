@@ -1,4 +1,9 @@
-import { Chain, DerivedAccount, SignArbitraryResponse } from "@namada/types";
+import {
+  AccountType,
+  Chain,
+  DerivedAccount,
+  SignArbitraryResponse,
+} from "@namada/types";
 import { EncodedTxData } from "background/approvals";
 import { Message } from "router";
 import { validateProps } from "utils";
@@ -22,6 +27,7 @@ enum MessageType {
   ApproveConnectInterface = "approve-connect-interface",
   QueryAccounts = "query-accounts",
   QueryDefaultAccount = "query-default-account",
+  UpdateDefaultAccount = "update-default-account",
   EncodeRevealPublicKey = "encode-reveal-public-key",
   GetChain = "get-chain",
   GetChains = "get-chains",
@@ -204,6 +210,31 @@ export class QueryDefaultAccountMsg extends Message<
 
   type(): string {
     return QueryDefaultAccountMsg.type();
+  }
+}
+
+export class UpdateDefaultAccountMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.UpdateDefaultAccount;
+  }
+
+  constructor(
+    public readonly accountId: string,
+    public readonly accountType: AccountType.Mnemonic | AccountType.Ledger
+  ) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["accountId", "accountType"]);
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return UpdateDefaultAccountMsg.type();
   }
 }
 

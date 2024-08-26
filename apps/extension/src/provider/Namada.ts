@@ -6,6 +6,7 @@ import {
   SignArbitraryProps,
   SignArbitraryResponse,
   SignProps,
+  UpdateDefaultAccountProps,
   VerifyArbitraryProps,
 } from "@namada/types";
 import { MessageRequester, Ports } from "router";
@@ -19,6 +20,7 @@ import {
   IsConnectionApprovedMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
+  UpdateDefaultAccountMsg,
   VerifyArbitraryMsg,
 } from "./messages";
 
@@ -57,6 +59,16 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryDefaultAccountMsg()
+    );
+  }
+
+  public async updateDefaultAccount(
+    props: UpdateDefaultAccountProps
+  ): Promise<void> {
+    const { id, type } = props;
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new UpdateDefaultAccountMsg(id, type)
     );
   }
 

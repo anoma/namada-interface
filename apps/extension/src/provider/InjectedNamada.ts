@@ -6,6 +6,7 @@ import {
   SignArbitraryProps,
   SignArbitraryResponse,
   SignProps,
+  UpdateDefaultAccountProps,
   VerifyArbitraryProps,
 } from "@namada/types";
 import { InjectedProxy } from "./InjectedProxy";
@@ -31,6 +32,15 @@ export class InjectedNamada implements INamada {
   public async defaultAccount(): Promise<DerivedAccount> {
     return await InjectedProxy.requestMethod<string, DerivedAccount>(
       "defaultAccount"
+    );
+  }
+
+  public async updateDefaultAccount(
+    props: UpdateDefaultAccountProps
+  ): Promise<void> {
+    return await InjectedProxy.requestMethod<UpdateDefaultAccountProps, void>(
+      "updateDefaultAccount",
+      props
     );
   }
 
