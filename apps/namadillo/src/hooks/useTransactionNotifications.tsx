@@ -86,7 +86,6 @@ export const useTransactionNotifications = (): void => {
         </>
       ),
       details: e.detail.error?.message,
-      timeout: 5000,
     });
   });
 
@@ -104,7 +103,6 @@ export const useTransactionNotifications = (): void => {
       ),
       details: getAmountByValidatorList(e.detail.data),
       type: "success",
-      timeout: 5000,
     });
   });
 
@@ -121,7 +119,6 @@ export const useTransactionNotifications = (): void => {
       ),
       details: getAmountByValidatorList(e.detail.data),
       type: "success",
-      timeout: 5000,
     });
   });
 
@@ -149,7 +146,6 @@ export const useTransactionNotifications = (): void => {
       title: "Withdrawal Success",
       description: `Your withdrawal transaction has succeeded`,
       type: "success",
-      timeout: 5000,
     });
   });
 
@@ -162,7 +158,6 @@ export const useTransactionNotifications = (): void => {
       description: <>Your withdrawal transaction has failed</>,
       details: e.detail.error?.message,
       type: "error",
-      timeout: 5000,
     });
   });
 
@@ -179,7 +174,6 @@ export const useTransactionNotifications = (): void => {
         </>
       ),
       type: "error",
-      timeout: 5000,
     });
   });
 
@@ -197,7 +191,6 @@ export const useTransactionNotifications = (): void => {
       ),
       details: getReDelegateDetailList(e.detail.data),
       type: "success",
-      timeout: 5000,
     });
   });
 
@@ -210,7 +203,6 @@ export const useTransactionNotifications = (): void => {
       title: "Staking transaction failed",
       description: <>Your vote transaction has failed.</>,
       details: e.detail.error?.message,
-      timeout: 5000,
     });
   });
 
@@ -222,7 +214,6 @@ export const useTransactionNotifications = (): void => {
       title: "Staking transaction succeeded",
       description: `Your vote transaction has succeeded`,
       type: "success",
-      timeout: 5000,
     });
   });
 };

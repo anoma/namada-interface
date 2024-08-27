@@ -113,7 +113,6 @@ export const ReDelegate = (): JSX.Element => {
             redelegateTxError.message
           : undefined,
         type: "error",
-        timeout: 5000,
       });
     }
   }, [isError]);
