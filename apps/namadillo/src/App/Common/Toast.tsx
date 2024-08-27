@@ -61,7 +61,7 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
 
   useEffect(() => {
     startTimeout();
-  }, []);
+  }, [notification.type]);
 
   return (
     <motion.div
