@@ -17,13 +17,15 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Ports } from "router";
 
+type LockStatus = "locked" | "unlocked" | "pending";
+
 // Add types here
 type VaultContextType = {
   lock: () => Promise<void>;
   unlock: (password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   checkPassword: (password: string) => Promise<boolean>;
-  isLocked: boolean;
+  lockStatus: LockStatus;
   changePassword: (
     oldPassword: string,
     newPassword: string
@@ -38,7 +40,7 @@ const createVaultContext = (): VaultContextType => {
     unlock: async (_password: string) => false,
     logout: async () => {},
     checkPassword: async (_password: string) => false,
-    isLocked: true,
+    lockStatus: "locked",
     changePassword: async (_oldPassword: string, _newPassword: string) =>
       Result.ok(null),
     passwordInitialized: undefined,
@@ -57,7 +59,7 @@ export const VaultContextWrapper = ({
 }: VaultContextWrapperProps): JSX.Element => {
   const requester = useRequester();
   const navigate = useNavigate();
-  const [locked, setLocked] = useState(true);
+  const [lockStatus, setLockStatus] = useState<LockStatus>("pending");
   const [passwordInitialized, setPasswordInitialized] = useState<
     undefined | boolean
   >();
@@ -69,20 +71,20 @@ export const VaultContextWrapper = ({
     );
 
     if (unlocked) {
-      setLocked(!unlocked);
+      setLockStatus("unlocked");
     }
     return unlocked;
   };
 
   const lock = async (): Promise<void> => {
     await requester.sendMessage(Ports.Background, new LockVaultMsg());
-    setLocked(true);
+    setLockStatus("locked");
   };
 
   const logout = async (): Promise<void> => {
     await requester.sendMessage(Ports.Background, new LogoutMsg());
     setPasswordInitialized(false);
-    setLocked(true);
+    setLockStatus("locked");
     navigate(routes.setup());
   };
 
@@ -114,13 +116,15 @@ export const VaultContextWrapper = ({
   };
 
   const queryIsLocked = async (): Promise<void> => {
-    setLocked(
-      await requester.sendMessage(Ports.Background, new CheckIsLockedMsg())
+    const isLocked = await requester.sendMessage(
+      Ports.Background,
+      new CheckIsLockedMsg()
     );
+    setLockStatus(isLocked ? "locked" : "unlocked");
   };
 
   useEventListener(Events.ExtensionLocked, () => {
-    setLocked(true);
+    setLockStatus("locked");
   });
 
   useEffect(() => {
@@ -133,7 +137,7 @@ export const VaultContextWrapper = ({
       value={{
         lock,
         unlock,
-        isLocked: locked,
+        lockStatus,
         checkPassword,
         passwordInitialized,
         changePassword,

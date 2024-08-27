@@ -64,7 +64,7 @@ export const AccountContextWrapper = ({
   children,
 }: AccountContextProps): JSX.Element => {
   const requester = useRequester();
-  const { isLocked, logout } = useVaultContext();
+  const { lockStatus, logout } = useVaultContext();
 
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [parentAccounts, setParentAccounts] = useState<DerivedAccount[]>([]);
@@ -166,11 +166,11 @@ export const AccountContextWrapper = ({
   };
 
   useEffect(() => {
-    if (!isLocked) {
+    if (lockStatus === "unlocked") {
       void fetchAll();
       void fetchActiveAccountId();
     }
-  }, [isLocked]);
+  }, [lockStatus]);
 
   useEffect(() => {
     setParentAccounts(accounts.filter((account) => !account.parentId));
