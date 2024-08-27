@@ -118,7 +118,7 @@ export const canVoteAtom = atomFamily((proposalStartEpoch: bigint) =>
     const api = get(indexerApiAtom);
 
     return {
-      queryKey: ["can-vote"],
+      queryKey: ["can-vote", account.data, api],
       enabled: account.isSuccess,
       queryFn: async () => {
         const all_bonds = await api.apiV1PosBondAddressGet(

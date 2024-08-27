@@ -86,7 +86,7 @@ export const toMyValidators = (
   const addBondToAddress = (
     address: Address,
     key: "bondItems" | "unbondItems",
-    bond: IndexerBond | IndexerUnbond
+    bond: IndexerBond | IndexerMergedBond | IndexerUnbond
   ): void => {
     const { validator: _, ...bondsWithoutValidator } = bond;
     myValidators[address]![key].push(bondsWithoutValidator);
