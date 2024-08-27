@@ -65,10 +65,10 @@ export const WithdrawalButton = ({
     createWithdrawTx({
       changes: [change],
       gasConfig: {
-        gasPrice: gasPrice!,
-        gasLimit: gasLimits.data!.Withdraw.native,
+        gasPrice: gasPrice,
+        gasLimit: gasLimits.data.Withdraw.native,
       },
-      account: account!,
+      account,
     });
   }, [unbondingStatus.amount, change, gasPrice, gasLimits.isSuccess]);
 
