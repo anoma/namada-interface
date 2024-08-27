@@ -93,9 +93,9 @@ export type MyValidator = {
   unbondedAmount?: BigNumber;
   withdrawableAmount?: BigNumber;
   validator: Validator;
-  bonds: BondingValidator[];
-  unbonding: UnbondingValidator[];
-  withdrawable: UnbondingValidator[];
+  bondItems: BondingValidator[];
+  unbondingItems: UnbondingValidator[];
+  withdrawableItems: UnbondingValidator[];
 };
 
 export type StakingTotals = {

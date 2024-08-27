@@ -26,7 +26,9 @@ export const UnbondingAmountsTable = (): JSX.Element => {
     const rowsList: TableRow[] = [];
     for (const myValidator of myValidators.data) {
       const { validator } = myValidator;
-      const unbonding = myValidator.withdrawable.concat(myValidator.unbonding);
+      const unbonding = myValidator.withdrawableItems.concat(
+        myValidator.unbondingItems
+      );
 
       unbonding.forEach((entry: UnbondingValidator) => {
         rowsList.push({

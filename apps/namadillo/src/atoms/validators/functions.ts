@@ -78,9 +78,9 @@ export const toMyValidators = (
         withdrawableAmount: new BigNumber(0),
         stakedAmount: new BigNumber(0),
         unbondedAmount: new BigNumber(0),
-        bonds: [],
-        unbonding: [],
-        withdrawable: [],
+        bondItems: [],
+        unbondingItems: [],
+        withdrawableItems: [],
         validator: toValidator(validator, totalVotingPower, epochInfo, apr),
       };
     }
@@ -88,7 +88,7 @@ export const toMyValidators = (
 
   const addBondToAddress = (
     address: Address,
-    key: "bonds" | "unbonding" | "withdrawable",
+    key: "bondItems" | "unbondingItems" | "withdrawableItems",
     bond: IndexerBond | IndexerUnbond
   ): void => {
     const { validator: _, ...bondsWithoutValidator } = bond;
@@ -110,7 +110,7 @@ export const toMyValidators = (
     const { address } = bond.validator;
     createEntryIfDoesntExist(bond.validator);
     incrementAmount(address, "stakedAmount", bond.amount);
-    addBondToAddress(address, "bonds", { ...bond });
+    addBondToAddress(address, "bondItems", { ...bond });
   }
 
   for (const unbond of indexerUnbonds) {
@@ -120,10 +120,10 @@ export const toMyValidators = (
       timeLeft: calculateUnbondingTimeLeft(unbond),
     };
     if (unbond.canWithdraw) {
-      addBondToAddress(address, "withdrawable", unbondingDetails);
+      addBondToAddress(address, "withdrawableItems", unbondingDetails);
       incrementAmount(address, "withdrawableAmount", unbond.amount);
     } else {
-      addBondToAddress(address, "unbonding", unbondingDetails);
+      addBondToAddress(address, "unbondingItems", unbondingDetails);
       incrementAmount(address, "unbondedAmount", unbond.amount);
     }
   }
