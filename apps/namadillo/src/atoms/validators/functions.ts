@@ -115,6 +115,7 @@ export const toMyValidators = (
 
   for (const unbond of indexerUnbonds) {
     const { address } = unbond.validator;
+    createEntryIfDoesntExist(unbond.validator);
     const unbondingDetails: UnbondingValidator = {
       ...unbond,
       timeLeft: calculateUnbondingTimeLeft(unbond),
