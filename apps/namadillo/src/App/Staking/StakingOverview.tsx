@@ -11,27 +11,14 @@ import { MyValidatorsTable } from "./MyValidatorsTable";
 import { StakingSummary } from "./StakingSummary";
 import { UnbondingAmountsTable } from "./UnbondingAmountsTable";
 
-// This is the default view for the staking. it displays all the relevant
-// staking information of the user and allows unstake the active staking
-// positions directly from here.
-// * Unstaking happens by calling a callback that triggers a modal
-//   view in the parent
-// * user can also navigate to sibling view for validator details
 export const StakingOverview = (): JSX.Element => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
-
-  const hasStaking =
-    myValidators.isSuccess &&
-    myValidators.data.some((v) => v.stakedAmount?.gt(0));
-
-  const hasUnbonded =
-    myValidators.isSuccess &&
-    myValidators.data.some((v) => v.unbondedAmount?.gt(0));
-
-  const hasWithdraws =
-    myValidators.isSuccess &&
-    myValidators.data.some((v) => v.withdrawableAmount?.gt(0));
+  const hasStaking = myValidators.data?.some((v) => v.stakedAmount?.gt(0));
+  const hasUnbonded = myValidators.data?.some((v) => v.unbondedAmount?.gt(0));
+  const hasWithdraws = myValidators.data?.some(
+    (v) => v.withdrawableAmount?.gt(0)
+  );
 
   return (
     <PageWithSidebar>
