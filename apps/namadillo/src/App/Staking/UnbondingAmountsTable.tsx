@@ -7,7 +7,7 @@ import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { twMerge } from "tailwind-merge";
-import { UnbondingValidator } from "types";
+import { UnbondEntry } from "types";
 import { ValidatorCard } from "./ValidatorCard";
 import { WithdrawalButton } from "./WithdrawalButton";
 
@@ -26,11 +26,7 @@ export const UnbondingAmountsTable = (): JSX.Element => {
     const rowsList: TableRow[] = [];
     for (const myValidator of myValidators.data) {
       const { validator } = myValidator;
-      const unbonding = myValidator.withdrawableItems.concat(
-        myValidator.unbondingItems
-      );
-
-      unbonding.forEach((entry: UnbondingValidator) => {
+      myValidator.unbondItems.forEach((entry: UnbondEntry) => {
         rowsList.push({
           cells: [
             <ValidatorCard
@@ -62,7 +58,7 @@ export const UnbondingAmountsTable = (): JSX.Element => {
             >
               <WithdrawalButton
                 myValidator={myValidator}
-                unbondingStatus={entry}
+                unbondingEntry={entry}
               />
             </div>,
           ],

@@ -79,23 +79,22 @@ export type Validator = Unique & {
   imageUrl?: string;
 };
 
-export type UnbondingValidator = Omit<
+export type UnbondEntry = Omit<
   | (IndexerUnbond & {
       timeLeft: string;
     })
   | "validator"
 >;
 
-export type BondingValidator = Omit<IndexerBond | "validator">;
+export type BondEntry = Omit<IndexerBond | "validator">;
 
 export type MyValidator = {
   stakedAmount?: BigNumber;
   unbondedAmount?: BigNumber;
   withdrawableAmount?: BigNumber;
   validator: Validator;
-  bondItems: BondingValidator[];
-  unbondingItems: UnbondingValidator[];
-  withdrawableItems: UnbondingValidator[];
+  bondItems: BondEntry[];
+  unbondItems: UnbondEntry[];
 };
 
 export type StakingTotals = {

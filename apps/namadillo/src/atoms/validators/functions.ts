@@ -6,13 +6,7 @@ import {
 } from "@anomaorg/namada-indexer-client";
 import { singleUnitDurationFromInterval } from "@namada/utils";
 import BigNumber from "bignumber.js";
-import {
-  Address,
-  EpochInfo,
-  MyValidator,
-  UnbondingValidator,
-  Validator,
-} from "types";
+import { Address, EpochInfo, MyValidator, UnbondEntry, Validator } from "types";
 
 export const toValidator = (
   indexerValidator: IndexerValidator,
@@ -63,6 +57,10 @@ export const calculateUnbondingTimeLeft = (unbond: IndexerUnbond): string => {
   return timeLeft;
 };
 
+/**
+ * Parses the results returned by the indexer into a MyValidator structure, returning
+ * an array of MyValidators objects
+ */
 export const toMyValidators = (
   indexerBonds: IndexerBond[],
   indexerUnbonds: IndexerUnbond[],
@@ -79,8 +77,7 @@ export const toMyValidators = (
         stakedAmount: new BigNumber(0),
         unbondedAmount: new BigNumber(0),
         bondItems: [],
-        unbondingItems: [],
-        withdrawableItems: [],
+        unbondItems: [],
         validator: toValidator(validator, totalVotingPower, epochInfo, apr),
       };
     }
@@ -88,7 +85,7 @@ export const toMyValidators = (
 
   const addBondToAddress = (
     address: Address,
-    key: "bondItems" | "unbondingItems" | "withdrawableItems",
+    key: "bondItems" | "unbondItems",
     bond: IndexerBond | IndexerUnbond
   ): void => {
     const { validator: _, ...bondsWithoutValidator } = bond;
@@ -116,15 +113,14 @@ export const toMyValidators = (
   for (const unbond of indexerUnbonds) {
     const { address } = unbond.validator;
     createEntryIfDoesntExist(unbond.validator);
-    const unbondingDetails: UnbondingValidator = {
+    const unbondingDetails: UnbondEntry = {
       ...unbond,
       timeLeft: calculateUnbondingTimeLeft(unbond),
     };
+    addBondToAddress(address, "unbondItems", unbondingDetails);
     if (unbond.canWithdraw) {
-      addBondToAddress(address, "withdrawableItems", unbondingDetails);
       incrementAmount(address, "withdrawableAmount", unbond.amount);
     } else {
-      addBondToAddress(address, "unbondingItems", unbondingDetails);
       incrementAmount(address, "unbondedAmount", unbond.amount);
     }
   }

@@ -14,20 +14,20 @@ import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
 import { TransactionPair, broadcastTx } from "lib/query";
 import { useCallback, useEffect } from "react";
-import { MyValidator, UnbondingValidator } from "types";
+import { MyValidator, UnbondEntry } from "types";
 
 type WithdrawalButtonProps = {
   myValidator: MyValidator;
-  unbondingStatus: UnbondingValidator;
+  unbondingEntry: UnbondEntry;
 };
 
 export const WithdrawalButton = ({
   myValidator,
-  unbondingStatus,
+  unbondingEntry,
 }: WithdrawalButtonProps): JSX.Element => {
   const change = {
     validatorId: myValidator.validator.address,
-    amount: unbondingStatus.amount,
+    amount: unbondingEntry.amount,
   };
 
   const { gasPrice } = useGasEstimate();
@@ -59,7 +59,7 @@ export const WithdrawalButton = ({
     invariant(gasPrice, "Gas price loading is still pending");
     invariant(gasLimits.isSuccess, "Gas limit loading is still pending");
     invariant(
-      unbondingStatus.amount,
+      unbondingEntry.amount,
       "Validator doesn't have amounts available for withdrawal"
     );
     createWithdrawTx({
@@ -70,7 +70,7 @@ export const WithdrawalButton = ({
       },
       account,
     });
-  }, [unbondingStatus.amount, change, gasPrice, gasLimits.isSuccess]);
+  }, [unbondingEntry.amount, change, gasPrice, gasLimits.isSuccess]);
 
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
 
@@ -132,7 +132,7 @@ export const WithdrawalButton = ({
     <ActionButton
       size="xs"
       outlineColor="white"
-      disabled={!unbondingStatus.canWithdraw || isPending || isSuccess}
+      disabled={!unbondingEntry.canWithdraw || isPending || isSuccess}
       onClick={() => onWithdraw()}
     >
       {isSuccess && "Claimed"}
