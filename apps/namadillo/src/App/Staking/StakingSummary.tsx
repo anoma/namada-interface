@@ -40,7 +40,10 @@ export const StakingSummary = (): JSX.Element => {
     return [
       { value: balance, color: "#ffffff" },
       { value: totalStaked.totalBonded, color: "#00ffff" },
-      { value: totalStaked.totalUnbonded, color: "#DD1599" },
+      {
+        value: totalStaked.totalUnbonded.plus(totalStaked.totalWithdrawable),
+        color: "#DD1599",
+      },
     ];
   };
 

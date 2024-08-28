@@ -1,11 +1,7 @@
 import { accountBalanceAtom } from "atoms/accounts/atoms";
 import { allProposalsAtom, votedProposalIdsAtom } from "atoms/proposals/atoms";
 import { indexerHeartbeatAtom, rpcHeartbeatAtom } from "atoms/settings/atoms";
-import {
-  allValidatorsAtom,
-  myUnbondsAtom,
-  myValidatorsAtom,
-} from "atoms/validators/atoms";
+import { allValidatorsAtom, myValidatorsAtom } from "atoms/validators/atoms";
 import { atom } from "jotai";
 
 export const syncStatusAtom = atom((get) => {
@@ -17,7 +13,6 @@ export const syncStatusAtom = atom((get) => {
     // Staking
     get(accountBalanceAtom),
     get(myValidatorsAtom),
-    get(myUnbondsAtom),
     get(allValidatorsAtom),
 
     // Governance
