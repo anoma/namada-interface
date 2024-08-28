@@ -1,20 +1,16 @@
 import { Account } from "./account";
+import { TxProps } from "./tx";
 
 export type SignArbitraryResponse = {
   hash: string;
   signature: string;
 };
 
-export type TxData = {
-  txBytes: Uint8Array;
-  signingDataBytes: Uint8Array[];
-};
-
 export interface Signer {
   accounts: (chainId?: string) => Promise<Account[] | undefined>;
   defaultAccount: (chainId?: string) => Promise<Account | undefined>;
   sign: (
-    tx: TxData | TxData[],
+    tx: TxProps | TxProps[],
     signer: string,
     checksums?: Record<string, string>
   ) => Promise<Uint8Array[] | undefined>;

@@ -1,10 +1,5 @@
 import { deserialize } from "@dao-xyz/borsh";
-import {
-  BuiltTx,
-  Sdk as SdkWasm,
-  TxType,
-  deserialize_tx,
-} from "@namada/shared";
+import { Sdk as SdkWasm, TxType, deserialize_tx } from "@namada/shared";
 import {
   BondMsgValue,
   BondProps,
@@ -25,6 +20,8 @@ import {
   TransparentTransferProps,
   TxDetails,
   TxDetailsMsgValue,
+  TxMsgValue,
+  TxProps,
   UnbondMsgValue,
   UnbondProps,
   VoteProposalMsgValue,
@@ -36,7 +33,6 @@ import {
 } from "@namada/types";
 import { ResponseSign } from "@zondax/ledger-namada";
 import { WasmHash } from "../rpc";
-import { EncodedTx } from "./types";
 
 /**
  * SDK functionality related to transactions
@@ -52,12 +48,12 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param transferProps -  properties of the transfer
-   * @returns promise that resolves to an EncodedTx
+   * @returns promise that resolves to an TxMsgValue
    */
   async buildTransparentTransfer(
     wrapperTxProps: WrapperTxProps,
     transferProps: TransparentTransferProps
-  ): Promise<EncodedTx> {
+  ): Promise<TxMsgValue> {
     const transferMsg = new Message<TransparentTransferMsgValue>();
 
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
@@ -65,25 +61,23 @@ export class Tx {
       new TransparentTransferMsgValue(transferProps)
     );
 
-    const builtTx = await this.sdk.build_transparent_transfer(
+    const serializedTx = await this.sdk.build_transparent_transfer(
       encodedTransfer,
       encodedWrapperArgs
     );
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    return deserialize(Buffer.from(serializedTx), TxMsgValue);
   }
 
   /**
    * Build RevealPK Tx
    * @async
    * @param wrapperTxProps - properties of the transaction
-   * @returns promise that resolves to an EncodedTx
+   * @returns promise that resolves to an TxMsgValue
    */
-  async buildRevealPk(wrapperTxProps: WrapperTxProps): Promise<EncodedTx> {
+  async buildRevealPk(wrapperTxProps: WrapperTxProps): Promise<TxMsgValue> {
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
-    const builtTx = await this.sdk.build_reveal_pk(encodedWrapperArgs);
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    const serializedTx = await this.sdk.build_reveal_pk(encodedWrapperArgs);
+    return deserialize(Buffer.from(serializedTx), TxMsgValue);
   }
 
   /**
@@ -91,18 +85,20 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param bondProps -  properties of the bond tx
-   * @returns promise that resolves to an EncodedTx
+   * @returns promise that resolves to an TxMsgValue
    */
   async buildBond(
     wrapperTxProps: WrapperTxProps,
     bondProps: BondProps
-  ): Promise<EncodedTx> {
+  ): Promise<TxMsgValue> {
     const bondMsg = new Message<BondMsgValue>();
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedBond = bondMsg.encode(new BondMsgValue(bondProps));
-    const builtTx = await this.sdk.build_bond(encodedBond, encodedWrapperArgs);
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    const serializedTx = await this.sdk.build_bond(
+      encodedBond,
+      encodedWrapperArgs
+    );
+    return deserialize(Buffer.from(serializedTx), TxMsgValue);
   }
 
   /**
@@ -110,22 +106,21 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param unbondProps - properties of the unbond tx
-   * @returns promise that resolves to an EncodedTx
+   * @returns promise that resolves to an TxMsgValue
    */
   async buildUnbond(
     wrapperTxProps: WrapperTxProps,
     unbondProps: UnbondProps
-  ): Promise<EncodedTx> {
+  ): Promise<TxMsgValue> {
     const unbondMsg = new Message<UnbondMsgValue>();
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedUnbond = unbondMsg.encode(new UnbondMsgValue(unbondProps));
 
-    const builtTx = await this.sdk.build_unbond(
+    const serializedTx = await this.sdk.build_unbond(
       encodedUnbond,
       encodedWrapperArgs
     );
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    return deserialize(Buffer.from(serializedTx), TxMsgValue);
   }
 
   /**
@@ -133,21 +128,20 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param withdrawProps - properties of the withdraw tx
-   * @returns promise that resolves to an EncodedTx
+   * @returns promise that resolves to an TxMsgValue
    */
   async buildWithdraw(
     wrapperTxProps: WrapperTxProps,
     withdrawProps: WithdrawProps
-  ): Promise<EncodedTx> {
+  ): Promise<TxMsgValue> {
     const bondMsg = new Message<WithdrawProps>();
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedWithdraw = bondMsg.encode(new WithdrawMsgValue(withdrawProps));
-    const builtTx = await this.sdk.build_withdraw(
+    const serializedTx = await this.sdk.build_withdraw(
       encodedWithdraw,
       encodedWrapperArgs
     );
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    return deserialize(Buffer.from(serializedTx), TxMsgValue);
   }
 
   /**
@@ -155,23 +149,22 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param redelegateProps -  properties of the redelegate tx
-   * @returns promise that resolves to an EncodedTx
+   * @returns promise that resolves to an TxMsgValue
    */
   async buildRedelegate(
     wrapperTxProps: WrapperTxProps,
     redelegateProps: RedelegateProps
-  ): Promise<EncodedTx> {
+  ): Promise<TxMsgValue> {
     const redelegateMsg = new Message<RedelegateMsgValue>();
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedRedelegate = redelegateMsg.encode(
       new RedelegateMsgValue(redelegateProps)
     );
-    const builtTx = await this.sdk.build_redelegate(
+    const serializedTx = await this.sdk.build_redelegate(
       encodedRedelegate,
       encodedWrapperArgs
     );
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    return deserialize(Buffer.from(serializedTx), TxMsgValue);
   }
 
   /**
@@ -179,23 +172,22 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param ibcTransferProps - properties of the ibc transfer tx
-   * @returns promise that resolves to an EncodedTx
+   * @returns promise that resolves to an TxMsgValue
    */
   async buildIbcTransfer(
     wrapperTxProps: WrapperTxProps,
     ibcTransferProps: IbcTransferProps
-  ): Promise<EncodedTx> {
+  ): Promise<TxMsgValue> {
     const ibcTransferMsg = new Message<IbcTransferProps>();
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedIbcTransfer = ibcTransferMsg.encode(
       new IbcTransferMsgValue(ibcTransferProps)
     );
-    const builtTx = await this.sdk.build_ibc_transfer(
+    const serializedTx = await this.sdk.build_ibc_transfer(
       encodedIbcTransfer,
       encodedWrapperArgs
     );
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    return deserialize(Buffer.from(serializedTx), TxMsgValue);
   }
 
   /**
@@ -203,23 +195,22 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param ethBridgeTransferProps - properties of the eth bridge transfer tx
-   * @returns promise that resolves to an EncodedTx
+   * @returns promise that resolves to an TxMsgValue
    */
   async buildEthBridgeTransfer(
     wrapperTxProps: WrapperTxProps,
     ethBridgeTransferProps: EthBridgeTransferProps
-  ): Promise<EncodedTx> {
+  ): Promise<TxMsgValue> {
     const ethBridgeTransferMsg = new Message<EthBridgeTransferProps>();
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedEthBridgeTransfer = ethBridgeTransferMsg.encode(
       new EthBridgeTransferMsgValue(ethBridgeTransferProps)
     );
-    const builtTx = await this.sdk.build_eth_bridge_transfer(
+    const serializedTx = await this.sdk.build_eth_bridge_transfer(
       encodedEthBridgeTransfer,
       encodedWrapperArgs
     );
-
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    return deserialize(Buffer.from(serializedTx), TxMsgValue);
   }
 
   /**
@@ -227,23 +218,23 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param voteProposalProps - properties of the vote proposal tx
-   * @returns promise that resolves to an EncodedTx
+   * @returns promise that resolves to an TxMsgValue
    */
   async buildVoteProposal(
     wrapperTxProps: WrapperTxProps,
     voteProposalProps: VoteProposalProps
-  ): Promise<EncodedTx> {
+  ): Promise<TxMsgValue> {
     const voteProposalMsg = new Message<VoteProposalProps>();
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedVoteProposal = voteProposalMsg.encode(
       new VoteProposalMsgValue(voteProposalProps)
     );
 
-    const builtTx = await this.sdk.build_vote_proposal(
+    const serializedTx = await this.sdk.build_vote_proposal(
       encodedVoteProposal,
       encodedWrapperArgs
     );
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    return deserialize(Buffer.from(serializedTx), TxMsgValue);
   }
 
   /**
@@ -251,49 +242,38 @@ export class Tx {
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param claimRewardsProps - properties of the claim rewards tx
-   * @returns promise that resolves to an EncodedTx
+   * @returns promise that resolves to an TxMsgValue
    */
   async buildClaimRewards(
     wrapperTxProps: WrapperTxProps,
     claimRewardsProps: ClaimRewardsProps
-  ): Promise<EncodedTx> {
+  ): Promise<TxMsgValue> {
     const claimRewardsMsg = new Message<ClaimRewardsProps>();
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
     const encodedClaimRewards = claimRewardsMsg.encode(
       new ClaimRewardsMsgValue(claimRewardsProps)
     );
-
-    const builtTx = await this.sdk.build_claim_rewards(
+    const serializedTx = await this.sdk.build_claim_rewards(
       encodedClaimRewards,
       encodedWrapperArgs
     );
-    return new EncodedTx(encodedWrapperArgs, builtTx);
+    return deserialize(Buffer.from(serializedTx), TxMsgValue);
   }
 
   /**
    * Build a batched transaction
-   * @param txs - array of BuiltTx types
-   * @returns a BuiltTx type
+   * @param txs - array of TxProp
+   * @returns a serialized TxMsgValue type
    */
-  buildBatch(txs: BuiltTx[]): BuiltTx {
-    return SdkWasm.build_batch(txs);
-  }
+  buildBatch(txs: TxProps[]): TxProps {
+    const encodedTxs = txs.map((txProps) => {
+      const txMsgValue = new TxMsgValue(txProps);
+      const msg = new Message<TxMsgValue>();
+      return msg.encode(txMsgValue);
+    });
 
-  /**
-   * Reveal Public Key using serialized Tx
-   * @async
-   * @param signingKey - signing key
-   * @param wrapperTxProps - properties of the transaction
-   * @param [chainId] - optional chain ID - will enforce validation if present
-   * @returns void
-   */
-  async revealPk(
-    signingKey: string,
-    wrapperTxProps: WrapperTxProps,
-    chainId?: string
-  ): Promise<void> {
-    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
-    return await this.sdk.reveal_pk(signingKey, encodedWrapperArgs, chainId);
+    const batch = SdkWasm.build_batch(encodedTxs.map((tx) => [...tx]));
+    return deserialize(Buffer.from(batch), TxMsgValue);
   }
 
   /**

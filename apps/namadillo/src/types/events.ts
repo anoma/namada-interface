@@ -1,7 +1,7 @@
-import { BuiltTx } from "@heliax/namada-sdk/web";
 import {
   BondProps,
   RedelegateProps,
+  TxProps,
   UnbondProps,
   VoteProposalProps,
   WithdrawProps,
@@ -27,7 +27,7 @@ export type TransactionEventHandlers = {
 
 export interface EventData<T> extends CustomEvent {
   detail: {
-    tx: BuiltTx;
+    tx: TxProps;
     data: T[];
     error?: Error;
   };

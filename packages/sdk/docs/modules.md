@@ -12,15 +12,12 @@
 
 ### Classes
 
-- [BuiltTx](classes/BuiltTx.md)
 - [Crypto](classes/Crypto.md)
-- [EncodedTx](classes/EncodedTx.md)
 - [Ledger](classes/Ledger.md)
 - [Masp](classes/Masp.md)
 - [Mnemonic](classes/Mnemonic.md)
 - [Rpc](classes/Rpc.md)
 - [Sdk](classes/Sdk.md)
-- [SignedTx](classes/SignedTx.md)
 - [Signing](classes/Signing.md)
 - [Tx](classes/Tx.md)
 
@@ -72,7 +69,7 @@ Address and public key type
 
 #### Defined in
 
-[sdk/src/keys/types.ts:4](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/keys/types.ts#L4)
+[sdk/src/keys/types.ts:4](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/keys/types.ts#L4)
 
 ___
 
@@ -89,7 +86,7 @@ ___
 
 #### Defined in
 
-[sdk/src/ledger.ts:17](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/ledger.ts#L17)
+[sdk/src/ledger.ts:16](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/ledger.ts#L16)
 
 ___
 
@@ -99,7 +96,7 @@ ___
 
 #### Defined in
 
-[sdk/src/crypto/types.ts:23](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/crypto/types.ts#L23)
+[sdk/src/crypto/types.ts:23](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/crypto/types.ts#L23)
 
 ___
 
@@ -112,7 +109,7 @@ Balance
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:69](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/rpc/types.ts#L69)
+[sdk/src/rpc/types.ts:69](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/rpc/types.ts#L69)
 
 ___
 
@@ -131,7 +128,7 @@ ___
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:27](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/rpc/types.ts#L27)
+[sdk/src/rpc/types.ts:27](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/rpc/types.ts#L27)
 
 ___
 
@@ -159,7 +156,7 @@ ___
 
 #### Defined in
 
-[sdk/src/crypto/types.ts:42](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/crypto/types.ts#L42)
+[sdk/src/crypto/types.ts:42](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/crypto/types.ts#L42)
 
 ___
 
@@ -172,7 +169,7 @@ Record<address, totalDelegations>
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:51](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/rpc/types.ts#L51)
+[sdk/src/rpc/types.ts:51](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/rpc/types.ts#L51)
 
 ___
 
@@ -185,7 +182,7 @@ Record<address, boolean>
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:57](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/rpc/types.ts#L57)
+[sdk/src/rpc/types.ts:57](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/rpc/types.ts#L57)
 
 ___
 
@@ -204,7 +201,7 @@ ___
 
 #### Defined in
 
-[sdk/src/crypto/types.ts:30](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/crypto/types.ts#L30)
+[sdk/src/crypto/types.ts:30](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/crypto/types.ts#L30)
 
 ___
 
@@ -221,7 +218,7 @@ ___
 
 #### Defined in
 
-[sdk/src/ledger.ts:18](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/ledger.ts#L18)
+[sdk/src/ledger.ts:17](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/ledger.ts#L17)
 
 ___
 
@@ -241,7 +238,7 @@ Shielded keys and address
 
 #### Defined in
 
-[sdk/src/keys/types.ts:19](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/keys/types.ts#L19)
+[sdk/src/keys/types.ts:19](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/keys/types.ts#L19)
 
 ___
 
@@ -258,7 +255,7 @@ ___
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:42](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/rpc/types.ts#L42)
+[sdk/src/rpc/types.ts:42](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/rpc/types.ts#L42)
 
 ___
 
@@ -278,7 +275,7 @@ ___
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:19](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/rpc/types.ts#L19)
+[sdk/src/rpc/types.ts:19](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/rpc/types.ts#L19)
 
 ___
 
@@ -288,7 +285,7 @@ ___
 
 #### Defined in
 
-[shared/src/types.ts:3](https://github.com/anoma/namada-interface/blob/316cbce5/packages/shared/src/types.ts#L3)
+[shared/src/types.ts:3](https://github.com/anoma/namada-interface/blob/48e796bf/packages/shared/src/types.ts#L3)
 
 ___
 
@@ -300,7 +297,7 @@ Public and private keypair with address
 
 #### Defined in
 
-[sdk/src/keys/types.ts:12](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/keys/types.ts#L12)
+[sdk/src/keys/types.ts:12](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/keys/types.ts#L12)
 
 ___
 
@@ -320,7 +317,7 @@ ___
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:34](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/rpc/types.ts#L34)
+[sdk/src/rpc/types.ts:34](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/rpc/types.ts#L34)
 
 ## Variables
 
@@ -338,7 +335,7 @@ ___
 
 #### Defined in
 
-[sdk/src/crypto/types.ts:3](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/crypto/types.ts#L3)
+[sdk/src/crypto/types.ts:3](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/crypto/types.ts#L3)
 
 ___
 
@@ -348,7 +345,7 @@ ___
 
 #### Defined in
 
-[sdk/src/ledger.ts:41](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/ledger.ts#L41)
+[sdk/src/ledger.ts:40](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/ledger.ts#L40)
 
 ___
 
@@ -358,7 +355,7 @@ ___
 
 #### Defined in
 
-[shared/src/types.ts:28](https://github.com/anoma/namada-interface/blob/316cbce5/packages/shared/src/types.ts#L28)
+[shared/src/types.ts:28](https://github.com/anoma/namada-interface/blob/48e796bf/packages/shared/src/types.ts#L28)
 
 ## Functions
 
@@ -378,7 +375,7 @@ Transport object
 
 #### Defined in
 
-[sdk/src/ledger.ts:37](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/ledger.ts#L37)
+[sdk/src/ledger.ts:36](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/ledger.ts#L36)
 
 ___
 
@@ -398,7 +395,7 @@ Transport object
 
 #### Defined in
 
-[sdk/src/ledger.ts:28](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/ledger.ts#L28)
+[sdk/src/ledger.ts:27](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/ledger.ts#L27)
 
 ___
 
@@ -418,4 +415,4 @@ ___
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:173](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/keys/keys.ts#L173)
+[sdk/src/keys/keys.ts:173](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/keys/keys.ts#L173)

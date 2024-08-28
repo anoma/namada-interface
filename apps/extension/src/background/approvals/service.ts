@@ -1,8 +1,7 @@
-import { fromBase64, toBase64 } from "@cosmjs/encoding";
+import { toBase64 } from "@cosmjs/encoding";
 import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
 
-import { BuiltTx } from "@heliax/namada-sdk/web";
 import { KVStore } from "@namada/storage";
 import { SignArbitraryResponse, TxDetails } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
@@ -14,6 +13,7 @@ import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
+import { fromEncodedTx } from "utils";
 import { EncodedTxData, PendingTx } from "./types";
 
 export class ApprovalsService {
@@ -50,12 +50,10 @@ export class ApprovalsService {
 
     const pendingTx: PendingTx = {
       signer,
-      txs: txs.map(({ txBytes, signingDataBytes }) => ({
-        txBytes: fromBase64(txBytes),
-        signingDataBytes: signingDataBytes.map((bytes) => fromBase64(bytes)),
-      })),
+      txs: txs.map((encodedTx) => fromEncodedTx(encodedTx)),
       checksums,
     };
+
     await this.txStore.set(msgId, pendingTx);
 
     const url = `${browser.runtime.getURL(
@@ -122,16 +120,9 @@ export class ApprovalsService {
       throw new Error(`Signing data for ${msgId} not found!`);
     }
 
-    const txs = pendingTx.txs.map(({ txBytes, signingDataBytes }) => {
-      return new BuiltTx(
-        txBytes,
-        signingDataBytes.map((sdBytes) => [...sdBytes])
-      );
-    });
-
     try {
       const signedBytes: Uint8Array[] = [];
-      for await (const tx of txs) {
+      for await (const tx of pendingTx.txs) {
         signedBytes.push(await this.keyRingService.sign(tx, signer));
       }
       resolvers.resolve(signedBytes);
@@ -165,8 +156,8 @@ export class ApprovalsService {
     const { tx } = this.sdkService.getSdk();
 
     try {
-      const signedTxs = pendingTx.txs.map(({ txBytes }, i) => {
-        return tx.appendSignature(txBytes, responseSign[i]);
+      const signedTxs = pendingTx.txs.map(({ bytes }, i) => {
+        return tx.appendSignature(bytes, responseSign[i]);
       });
       resolvers.resolve(signedTxs);
     } catch (e) {
@@ -303,8 +294,8 @@ export class ApprovalsService {
     }
 
     const { tx } = this.sdkService.getSdk();
-    return pendingTx.txs.map(({ txBytes }) =>
-      tx.deserialize(txBytes, pendingTx.checksums || {})
+    return pendingTx.txs.map(({ bytes }) =>
+      tx.deserialize(bytes, pendingTx.checksums || {})
     );
   }
 
@@ -316,7 +307,7 @@ export class ApprovalsService {
     }
 
     if (pendingTx.txs) {
-      return pendingTx.txs.map(({ txBytes }) => toBase64(txBytes));
+      return pendingTx.txs.map(({ bytes }) => toBase64(bytes));
     }
   }
 
