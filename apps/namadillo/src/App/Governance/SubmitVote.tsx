@@ -73,10 +73,11 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
   const [selectedVoteType, setSelectedVoteType] = useState<VoteType>();
 
   const proposalQueryResult = useAtomValue(proposalFamily(proposalId));
-  const canVote = useAtomValue(canVoteAtom);
 
   const proposal =
     proposalQueryResult.isSuccess ? proposalQueryResult.data : null;
+
+  const canVote = useAtomValue(canVoteAtom(proposal?.startEpoch || BigInt(-1)));
 
   const onCloseModal = (): void => navigate(-1);
 

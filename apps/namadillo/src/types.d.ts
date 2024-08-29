@@ -47,6 +47,7 @@ export type EpochInfo = {
   unbondingPeriodInEpochs: number;
   minEpochDuration: number;
   minNumOfBlocks: number;
+  maxBlockTime: number;
   epochSwitchBlocksDelay: number;
 };
 

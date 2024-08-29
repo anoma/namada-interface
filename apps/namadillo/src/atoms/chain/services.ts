@@ -23,6 +23,7 @@ export const fetchChainParameters = async (
         1,
       minEpochDuration: Number(parameters.minDuration),
       minNumOfBlocks: Number(parameters.minNumOfBlocks),
+      maxBlockTime: Number(parameters.maxBlockTime),
       epochSwitchBlocksDelay: Number(parameters.epochSwitchBlocksDelay),
     },
     apr: BigNumber(parameters.apr),

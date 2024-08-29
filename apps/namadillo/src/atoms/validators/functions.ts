@@ -1,5 +1,6 @@
 import {
   Bond as IndexerBond,
+  MergedBond as IndexerMergedBond,
   Unbond as IndexerUnbond,
   Validator as IndexerValidator,
   VotingPower as IndexerVotingPower,
@@ -18,10 +19,9 @@ export const toValidator = (
   const expectedApr = nominalApr.times(1 - commission.toNumber());
 
   // Because epoch duration is in reality longer by epochSwitchBlocksDelay we have to account for that
-  const timePerBlock = epochInfo.minEpochDuration / epochInfo.minNumOfBlocks;
   const realMinEpochDuration =
     epochInfo.minEpochDuration +
-    timePerBlock * epochInfo.epochSwitchBlocksDelay;
+    epochInfo.maxBlockTime * epochInfo.epochSwitchBlocksDelay;
 
   const unbondingPeriod = singleUnitDurationFromInterval(
     0,
@@ -62,7 +62,7 @@ export const calculateUnbondingTimeLeft = (unbond: IndexerUnbond): string => {
  * an array of MyValidators objects
  */
 export const toMyValidators = (
-  indexerBonds: IndexerBond[],
+  indexerBonds: IndexerBond[] | IndexerMergedBond[],
   indexerUnbonds: IndexerUnbond[],
   totalVotingPower: IndexerVotingPower,
   epochInfo: EpochInfo,
@@ -86,7 +86,7 @@ export const toMyValidators = (
   const addBondToAddress = (
     address: Address,
     key: "bondItems" | "unbondItems",
-    bond: IndexerBond | IndexerUnbond
+    bond: IndexerBond | IndexerMergedBond | IndexerUnbond
   ): void => {
     const { validator: _, ...bondsWithoutValidator } = bond;
     myValidators[address]![key].push(bondsWithoutValidator);
