@@ -8,13 +8,11 @@ export const calculateUnbondingPeriod = (parameters: Parameters): string => {
     // + 1 because we unbonding period starts from the next epoch
     1;
   const minEpochDuration = Number(parameters.minDuration);
-  const minNumOfBlocks = Number(parameters.minNumOfBlocks);
+  const maxBlockTime = Number(parameters.maxBlockTime);
   const epochSwitchBlocksDelay = Number(parameters.epochSwitchBlocksDelay);
 
-  // Because epoch duration is in reality longer by epochSwitchBlocksDelay we have to account for that
-  const timePerBlock = minEpochDuration / minNumOfBlocks;
   const realMinEpochDuration =
-    minEpochDuration + timePerBlock * epochSwitchBlocksDelay;
+    minEpochDuration + maxBlockTime * epochSwitchBlocksDelay;
 
   return singleUnitDurationFromInterval(
     0,
