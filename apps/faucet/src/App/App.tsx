@@ -1,15 +1,13 @@
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 
-import { ActionButton, Alert, Heading } from "@namada/components";
+import { ActionButton, Alert } from "@namada/components";
 import { Namada } from "@namada/integrations";
 import { ColorMode, getTheme } from "@namada/utils";
 
 import {
   AppContainer,
   BackgroundImage,
-  Banner,
-  BannerContents,
   BottomSection,
   ContentContainer,
   FaucetContainer,
@@ -24,9 +22,13 @@ import { useUntil } from "@namada/hooks";
 import { Account } from "@namada/types";
 import { API } from "utils";
 import dotsBackground from "../../public/bg-dots.svg";
-import { CallToActionCard } from "./CallToActionCard";
-import { CardsContainer } from "./Card.components";
-import { Faq } from "./Faq";
+import {
+  AppBanner,
+  AppHeader,
+  CallToActionCard,
+  CardsContainer,
+  Faq,
+} from "./Common";
 
 const DEFAULT_URL = "http://localhost:5000";
 const DEFAULT_ENDPOINT = "/api/v1/faucet";
@@ -42,7 +44,6 @@ const {
 
 const apiUrl = isProxied ? `http://localhost:${proxyPort}/proxy` : faucetApiUrl;
 const url = `${apiUrl}${faucetApiEndpoint}`;
-const api = new API(url);
 const limit = parseInt(faucetLimit);
 const runFullNodeUrl = "https://docs.namada.net/operators/ledger";
 const becomeBuilderUrl = "https://docs.namada.net/integrating-with-namada";
@@ -54,11 +55,13 @@ type Settings = {
   startsAtText?: string;
 };
 
-type AppContext = Settings & {
+type AppContext = {
   limit: number;
   url: string;
   settingsError?: string;
   api: API;
+  isTestnetLive: boolean;
+  settings: Settings;
 };
 
 const START_TIME_UTC = 1702918800;
@@ -74,17 +77,7 @@ const START_TIME_TEXT = new Date(START_TIME_UTC * 1000).toLocaleString(
   }
 );
 
-const defaults = {
-  startsAt: START_TIME_UTC,
-  startsAtText: `${START_TIME_TEXT} UTC`,
-};
-
-export const AppContext = createContext<AppContext>({
-  ...defaults,
-  limit,
-  url,
-  api,
-});
+export const AppContext = createContext<AppContext | null>(null);
 
 enum ExtensionAttachStatus {
   PendingDetection,
@@ -104,8 +97,10 @@ export const App: React.FC = () => {
   const [colorMode, _] = useState<ColorMode>(initialColorMode);
   const [isTestnetLive, setIsTestnetLive] = useState(true);
   const [settings, setSettings] = useState<Settings>({
-    ...defaults,
+    startsAt: START_TIME_UTC,
+    startsAtText: `${START_TIME_TEXT} UTC`,
   });
+  const [api, setApi] = useState<API>(new API(url));
   const [settingsError, setSettingsError] = useState<string>();
   const theme = getTheme(colorMode);
 
@@ -186,30 +181,22 @@ export const App: React.FC = () => {
   return (
     <AppContext.Provider
       value={{
-        settingsError,
+        api,
+        isTestnetLive,
         limit,
         url,
-        api,
-        ...settings,
+        settingsError,
+        settings,
       }}
     >
       <ThemeProvider theme={theme}>
         <GlobalStyles colorMode={colorMode} />
-        {!isTestnetLive && settings?.startsAtText && (
-          <Banner>
-            <BannerContents>
-              Testnet will go live {settings.startsAtText}! Faucet is disabled
-              until then.
-            </BannerContents>
-          </Banner>
-        )}
+        <AppBanner />
         <BackgroundImage imageUrl={dotsBackground} />
         <AppContainer>
           <ContentContainer>
             <TopSection>
-              <Heading className="uppercase text-black text-4xl" level="h1">
-                Namada Faucet
-              </Heading>
+              <AppHeader />
             </TopSection>
             <FaucetContainer>
               {extensionAttachStatus ===

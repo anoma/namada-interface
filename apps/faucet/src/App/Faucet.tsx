@@ -43,8 +43,12 @@ export const FaucetForm: React.FC<Props> = ({
   integration,
   isTestnetLive,
 }) => {
-  const { api, difficulty, settingsError, limit, tokens } =
-    useContext(AppContext);
+  const {
+    api,
+    settingsError,
+    limit,
+    settings: { difficulty, tokens },
+  } = useContext(AppContext)!;
 
   const accountLookup = accounts.reduce(
     (acc, account) => {
@@ -223,7 +227,7 @@ export const FaucetForm: React.FC<Props> = ({
               <Alert type="warning">Processing faucet transfer...</Alert>
             </InfoContainer>
           )}
-          {status === Status.Completed && (
+          {status === Status.Completed && statusText && (
             <InfoContainer>
               <Alert type="info">{statusText}</Alert>
             </InfoContainer>

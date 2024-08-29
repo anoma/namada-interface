@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import plusIcon from "../../public/plus-icon.svg";
+import plusIcon from "../../../public/plus-icon.svg";
 import {
   DropDownTitle,
   DropDownTitleText,
