@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 
-import { ActionButton, Alert } from "@namada/components";
+import { ActionButton, Alert, Modal } from "@namada/components";
 import { Namada } from "@namada/integrations";
 import { ColorMode, getTheme } from "@namada/utils";
 
@@ -29,6 +29,7 @@ import {
   CardsContainer,
   Faq,
 } from "./Common";
+import { SettingsForm } from "./SettingsForm";
 
 const DEFAULT_URL = "http://localhost:5000";
 const DEFAULT_ENDPOINT = "/api/v1/faucet";
@@ -62,6 +63,8 @@ type AppContext = {
   api: API;
   isTestnetLive: boolean;
   settings: Settings;
+  setApi: (api: API) => void;
+  setIsModalOpen: (value: boolean) => void;
 };
 
 const START_TIME_UTC = 1702918800;
@@ -101,6 +104,7 @@ export const App: React.FC = () => {
     startsAtText: `${START_TIME_TEXT} UTC`,
   });
   const [api, setApi] = useState<API>(new API(url));
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [settingsError, setSettingsError] = useState<string>();
   const theme = getTheme(colorMode);
 
@@ -187,6 +191,8 @@ export const App: React.FC = () => {
         url,
         settingsError,
         settings,
+        setApi,
+        setIsModalOpen,
       }}
     >
       <ThemeProvider theme={theme}>
@@ -226,6 +232,11 @@ export const App: React.FC = () => {
                   </InfoContainer>
                 )}
             </FaucetContainer>
+            {isModalOpen && (
+              <Modal onClose={() => setIsModalOpen(false)}>
+                <SettingsForm />
+              </Modal>
+            )}
             <BottomSection>
               <CardsContainer>
                 <CallToActionCard

@@ -7,7 +7,7 @@ import {
 } from "./types";
 
 export class API {
-  constructor(protected readonly url: string) {}
+  constructor(public readonly url: string) {}
 
   /**
    * Wrapper for fetch requests to handle ReadableStream response when errors are received from API
