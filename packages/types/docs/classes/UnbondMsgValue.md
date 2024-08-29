@@ -32,7 +32,7 @@
 
 #### Defined in
 
-[tx/schema/unbond.ts:17](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/schema/unbond.ts#L17)
+[tx/schema/unbond.ts:17](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/unbond.ts#L17)
 
 ## Properties
 
@@ -42,7 +42,7 @@
 
 #### Defined in
 
-[tx/schema/unbond.ts:15](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/schema/unbond.ts#L15)
+[tx/schema/unbond.ts:15](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/unbond.ts#L15)
 
 ___
 
@@ -52,7 +52,7 @@ ___
 
 #### Defined in
 
-[tx/schema/unbond.ts:9](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/schema/unbond.ts#L9)
+[tx/schema/unbond.ts:9](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/unbond.ts#L9)
 
 ___
 
@@ -62,4 +62,4 @@ ___
 
 #### Defined in
 
-[tx/schema/unbond.ts:12](https://github.com/anoma/namada-interface/blob/c6b0e5a0/packages/types/src/tx/schema/unbond.ts#L12)
+[tx/schema/unbond.ts:12](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/unbond.ts#L12)

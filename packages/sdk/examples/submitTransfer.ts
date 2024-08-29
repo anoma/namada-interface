@@ -20,7 +20,7 @@ export const submitTransfer = async (
   const { chainId, publicKey } = tx;
   const { source, target, amount } = transfer;
 
-  const wrapperTxMsgValue = {
+  const wrapperTxProps = {
     token: nativeToken,
     feeAmount: BigNumber(5),
     gasLimit: BigNumber(20_000),
@@ -39,22 +39,13 @@ export const submitTransfer = async (
     const { cryptoMemory } = initSync();
     const sdk = getSdk(cryptoMemory, nodeUrl, "storage path", nativeToken);
 
-    console.log("Revealing public key...");
-    await sdk.tx.revealPk(signingKey, wrapperTxMsgValue);
-
-    console.log("Building transfer transaction...");
-    const encodedTx = await sdk.tx.buildTransparentTransfer(wrapperTxMsgValue, {
+    const encodedTx = await sdk.tx.buildTransparentTransfer(wrapperTxProps, {
       data: [transparentTransferMsgValue],
     });
 
-    console.log("Signing transaction...");
-    const signedTx = await sdk.signing.sign(encodedTx.tx, signingKey);
+    const signedTx = await sdk.signing.sign(encodedTx, signingKey);
 
-    console.log("Broadcasting transaction...");
-    await sdk.rpc.broadcastTx({
-      wrapperTxMsg: encodedTx.wrapperTxMsg,
-      tx: signedTx,
-    });
+    await sdk.rpc.broadcastTx(signedTx, wrapperTxProps);
     process.exit(0);
   } catch (error) {
     console.error("Error:", error);

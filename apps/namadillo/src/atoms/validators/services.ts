@@ -2,20 +2,13 @@ import {
   DefaultApi,
   ValidatorStatus as IndexerValidatorStatus,
   VotingPower as IndexerVotingPower,
+  MergedBond,
+  Unbond,
   VotingPower,
 } from "@anomaorg/namada-indexer-client";
 import { Account } from "@namada/types";
-import {
-  ChainParameters,
-  MyUnbondingValidator,
-  MyValidator,
-  Validator,
-} from "types";
-import {
-  toMyValidators,
-  toUnbondingValidators,
-  toValidator,
-} from "./functions";
+import { ChainParameters, Validator } from "types";
+import { toValidator } from "./functions";
 
 export const fetchVotingPower = async (
   api: DefaultApi
@@ -40,38 +33,22 @@ export const fetchAllValidators = async (
   );
 };
 
-export const fetchMyValidators = async (
+export const fetchMyBondedAmounts = async (
   api: DefaultApi,
-  account: Account,
-  chainParameters: ChainParameters,
-  votingPower: IndexerVotingPower
-): Promise<MyValidator[]> => {
-  const apr = chainParameters.apr;
+  account: Account
+): Promise<MergedBond[]> => {
   const bondsResponse = await api.apiV1PosMergedBondsAddressGet(
     account.address
   );
-  return toMyValidators(
-    bondsResponse.data.results,
-    votingPower,
-    chainParameters.unbondingPeriod,
-    apr
-  );
+  return bondsResponse.data.results;
 };
 
-export const fetchMyUnbonds = async (
+export const fetchMyUnbondedAmounts = async (
   api: DefaultApi,
-  account: Account,
-  chainParameters: ChainParameters,
-  votingPower: IndexerVotingPower
-): Promise<MyUnbondingValidator[]> => {
-  const apr = chainParameters.apr;
+  account: Account
+): Promise<Unbond[]> => {
   const unbondsResponse = await api.apiV1PosMergedUnbondsAddressGet(
     account.address
   );
-  return toUnbondingValidators(
-    unbondsResponse.data.results,
-    votingPower,
-    chainParameters.unbondingPeriod,
-    apr
-  );
+  return unbondsResponse.data.results;
 };

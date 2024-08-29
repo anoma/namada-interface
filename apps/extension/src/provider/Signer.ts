@@ -5,7 +5,7 @@ import {
   Signer as ISigner,
   Namada,
   SignArbitraryResponse,
-  TxData,
+  TxProps,
 } from "@namada/types";
 
 export class Signer implements ISigner {
@@ -44,7 +44,7 @@ export class Signer implements ISigner {
   }
 
   public async sign(
-    tx: TxData | TxData[],
+    tx: TxProps | TxProps[],
     signer: string,
     checksums?: Record<string, string>
   ): Promise<Uint8Array[] | undefined> {

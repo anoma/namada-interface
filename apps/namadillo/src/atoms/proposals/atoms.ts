@@ -21,15 +21,16 @@ import {
   fetchVotedProposalIds,
 } from "./functions";
 
-import {
-  Bond as NamadaIndexerBond,
-  BondStatusEnum as NamadaIndexerBondStatusEnum,
-} from "@anomaorg/namada-indexer-client";
+import { Bond as NamadaIndexerBond } from "@anomaorg/namada-indexer-client";
+import { shouldUpdateProposalAtom } from "atoms/etc";
 export const proposalFamily = atomFamily((id: bigint) =>
   atomWithQuery((get) => {
     const api = get(indexerApiAtom);
+    const enablePolling = get(shouldUpdateProposalAtom);
 
     return {
+      // TODO: subscribe to indexer events when it's done
+      refetchInterval: enablePolling ? 1000 : false,
       queryKey: ["proposal", id.toString()],
       queryFn: () => fetchProposalById(api, id),
     };
@@ -96,7 +97,11 @@ export const paginatedProposalsFamily = atomFamily(
 export const votedProposalIdsAtom = atomWithQuery((get) => {
   const account = get(defaultAccountAtom);
   const api = get(indexerApiAtom);
+  const enablePolling = get(shouldUpdateProposalAtom);
+
   return {
+    // TODO: subscribe to indexer events when it's done
+    refetchInterval: enablePolling ? 1000 : false,
     queryKey: ["voted-proposal-ids", account.data],
     ...queryDependentFn(async () => {
       if (typeof account.data === "undefined") {
@@ -107,25 +112,29 @@ export const votedProposalIdsAtom = atomWithQuery((get) => {
   };
 });
 
-export const canVoteAtom = atomWithQuery((get) => {
-  const account = get(defaultAccountAtom);
-  const api = get(indexerApiAtom);
+export const canVoteAtom = atomFamily((proposalStartEpoch: bigint) =>
+  atomWithQuery((get) => {
+    const account = get(defaultAccountAtom);
+    const api = get(indexerApiAtom);
 
-  return {
-    queryKey: ["can-vote"],
-    enabled: account.isSuccess,
-    queryFn: async () => {
-      const all_bonds = await api.apiV1PosBondAddressGet(account.data!.address);
+    return {
+      queryKey: ["can-vote", account.data, api],
+      enabled: account.isSuccess,
+      queryFn: async () => {
+        const all_bonds = await api.apiV1PosBondAddressGet(
+          account.data!.address
+        );
 
-      return all_bonds.data.results.reduce(
-        (acc: boolean, current: NamadaIndexerBond) => {
-          return acc || current.status === NamadaIndexerBondStatusEnum.Active;
-        },
-        false
-      );
-    },
-  };
-});
+        return all_bonds.data.results.reduce(
+          (acc: boolean, current: NamadaIndexerBond) => {
+            return acc || Number(current.startEpoch) <= proposalStartEpoch;
+          },
+          false
+        );
+      },
+    };
+  })
+);
 
 type CreateVoteTxArgs = {
   proposalId: bigint;

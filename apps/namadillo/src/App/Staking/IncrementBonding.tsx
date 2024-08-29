@@ -153,7 +153,6 @@ const IncrementBonding = (): JSX.Element => {
           bondTransactionError instanceof Error ?
             bondTransactionError.message
           : undefined,
-        timeout: 5000,
         type: "error",
       });
     }

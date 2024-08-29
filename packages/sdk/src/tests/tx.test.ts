@@ -43,12 +43,12 @@ describe("Tx", () => {
       amount: BigNumber(123),
     };
 
-    const encodedTx = await tx.buildTransparentTransfer(txProps, {
+    const builtTx = await tx.buildTransparentTransfer(txProps, {
       data: [transferProps],
     });
-    expect(encodedTx).toBeDefined();
+    expect(tx).toBeDefined();
 
-    const txBytes = encodedTx.toBytes();
+    const txBytes = builtTx.bytes;
     // TODO: Better test here, this is just a placeholder
     expect(txBytes.length).toEqual(1000);
     expect(addressExistsRoute).toHaveBeenCalledTimes(2);

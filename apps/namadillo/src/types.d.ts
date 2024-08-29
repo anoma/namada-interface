@@ -1,3 +1,7 @@
+import {
+  Bond as IndexerBond,
+  Unbond as IndexerUnbond,
+} from "@anomaorg/namada-indexer-client";
 import { ChainKey, ExtensionKey } from "@namada/types";
 import BigNumber from "bignumber.js";
 
@@ -67,16 +71,22 @@ export type Validator = Unique & {
   imageUrl?: string;
 };
 
+export type UnbondEntry = Omit<
+  | (IndexerUnbond & {
+      timeLeft: string;
+    })
+  | "validator"
+>;
+
+export type BondEntry = Omit<IndexerBond | "validator">;
+
 export type MyValidator = {
-  stakingStatus: string;
   stakedAmount?: BigNumber;
   unbondedAmount?: BigNumber;
   withdrawableAmount?: BigNumber;
   validator: Validator;
-};
-
-export type MyUnbondingValidator = MyValidator & {
-  timeLeft: string;
+  bondItems: BondEntry[];
+  unbondItems: UnbondEntry[];
 };
 
 export type StakingTotals = {
