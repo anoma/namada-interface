@@ -1,10 +1,12 @@
 import { Tooltip } from "@namada/components";
 import { syncStatusAtom } from "atoms/syncStatus/atoms";
+import { useChainStatus } from "hooks/useChainStatus";
 import { useAtomValue } from "jotai";
 import { twMerge } from "tailwind-merge";
 
 export const SyncIndicator = (): JSX.Element => {
   const syncStatus = useAtomValue(syncStatusAtom);
+  const { data } = useChainStatus();
 
   return (
     <div className="relative group/tooltip p-1">
@@ -21,7 +23,7 @@ export const SyncIndicator = (): JSX.Element => {
           "Syncing"
         : syncStatus.isError ?
           "Error syncing"
-        : "Fully synced"}
+        : `Fully synced: height ${data?.height}, epoch ${data?.epoch}`}
       </Tooltip>
     </div>
   );
