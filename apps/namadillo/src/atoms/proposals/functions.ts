@@ -358,23 +358,16 @@ export const fetchProposalVotes = async (
   return votes;
 };
 
-export const fetchProposalVoted = async (
-  api: DefaultApi,
-  id: bigint,
-  account: Account
-): Promise<boolean> => {
-  const votes = await fetchProposalVotes(api, id);
-  return votes.some((vote) => vote.address === account.address);
-};
-
-export const fetchVotedProposalIds = async (
+export const fetchVotedProposalsByAccount = async (
   api: DefaultApi,
   account: Account
-): Promise<bigint[]> => {
+): Promise<{ proposalId: bigint; vote: VoteType }[]> => {
   const response = await api.apiV1GovVoterAddressVotesGet(account.address);
-  const proposalIds = response.data.map((vote) => BigInt(vote.proposalId));
 
-  return proposalIds;
+  return response.data.map(({ proposalId, vote }) => ({
+    proposalId: BigInt(proposalId),
+    vote,
+  }));
 };
 
 export const createVoteProposalTx = async (

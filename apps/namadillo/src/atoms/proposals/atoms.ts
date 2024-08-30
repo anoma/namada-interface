@@ -8,7 +8,6 @@ import { defaultAccountAtom } from "atoms/accounts";
 import { indexerApiAtom } from "atoms/api";
 import { chainAtom } from "atoms/chain";
 import { queryDependentFn } from "atoms/utils";
-import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
 import { TransactionPair } from "lib/query";
@@ -18,11 +17,12 @@ import {
   fetchAllProposals,
   fetchPaginatedProposals,
   fetchProposalById,
-  fetchVotedProposalIds,
+  fetchVotedProposalsByAccount,
 } from "./functions";
 
 import { Bond as NamadaIndexerBond } from "@anomaorg/namada-indexer-client";
 import { shouldUpdateProposalAtom } from "atoms/etc";
+
 export const proposalFamily = atomFamily((id: bigint) =>
   atomWithQuery((get) => {
     const api = get(indexerApiAtom);
@@ -37,16 +37,16 @@ export const proposalFamily = atomFamily((id: bigint) =>
   })
 );
 
-export const proposalVotedFamily = atomFamily((id: bigint) =>
-  atom<boolean | undefined>((get) => {
-    const query = get(votedProposalIdsAtom);
+export const proposalVoteFamily = atomFamily((id: bigint) =>
+  atomWithQuery<VoteType | undefined>((get) => {
+    const votedProposals = get(votedProposalsAtom);
 
-    if (query.status === "pending" || query.status === "error") {
-      return undefined;
-    } else {
-      const votedProposalIds = query.data;
-      return votedProposalIds.includes(id);
-    }
+    return {
+      queryKey: ["proposal-vote", id.toString()],
+      ...queryDependentFn(async () => {
+        return votedProposals.data!.find((v) => v.proposalId === id)?.vote;
+      }, [votedProposals]),
+    };
   })
 );
 
@@ -94,7 +94,7 @@ export const paginatedProposalsFamily = atomFamily(
     a?.search === b?.search
 );
 
-export const votedProposalIdsAtom = atomWithQuery((get) => {
+export const votedProposalsAtom = atomWithQuery((get) => {
   const account = get(defaultAccountAtom);
   const api = get(indexerApiAtom);
   const enablePolling = get(shouldUpdateProposalAtom);
@@ -102,12 +102,12 @@ export const votedProposalIdsAtom = atomWithQuery((get) => {
   return {
     // TODO: subscribe to indexer events when it's done
     refetchInterval: enablePolling ? 1000 : false,
-    queryKey: ["voted-proposal-ids", account.data],
+    queryKey: ["voted-proposals", account.data],
     ...queryDependentFn(async () => {
       if (typeof account.data === "undefined") {
         throw new Error("no account found");
       }
-      return await fetchVotedProposalIds(api, account.data);
+      return await fetchVotedProposalsByAccount(api, account.data);
     }, [account]),
   };
 });

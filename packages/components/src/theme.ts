@@ -9,6 +9,9 @@ export const colors = {
   rblack: "#000000",
   upcoming: "#7DA0A8",
   transparent: "#00000000",
+  yay: "#15DD89",
+  nay: "#DD1599",
+  abstain: "#8A8A8A",
 
   yellow: {
     DEFAULT: "#FFFF00",

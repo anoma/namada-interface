@@ -1,7 +1,7 @@
 import { Panel, SkeletonLoading } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
-import { allProposalsAtom, votedProposalIdsAtom } from "atoms/proposals";
+import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals";
 import { namadaExtensionConnectedAtom } from "atoms/settings";
 import {
   atomsAreFetching,
@@ -18,11 +18,11 @@ import { UpcomingProposals } from "./UpcomingProposals";
 export const GovernanceOverview: React.FC = () => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const allProposals = useAtomValue(allProposalsAtom);
-  const votedProposalIds = useAtomValue(votedProposalIdsAtom);
+  const votedProposals = useAtomValue(votedProposalsAtom);
 
   // TODO: is there a better way than this to show that votedProposalIdsAtom
   // is dependent on isConnected?
-  const extensionAtoms = isConnected ? [votedProposalIds] : [];
+  const extensionAtoms = isConnected ? [votedProposals] : [];
   const activeAtoms = [allProposals, ...extensionAtoms];
 
   const liveProposals =
@@ -35,7 +35,7 @@ export const GovernanceOverview: React.FC = () => {
 
   useNotifyOnAtomError(activeAtoms, [
     allProposals.isError,
-    votedProposalIds.isError,
+    votedProposals.isError,
   ]);
 
   return (
@@ -53,7 +53,7 @@ export const GovernanceOverview: React.FC = () => {
         >
           <LiveGovernanceProposals
             proposals={liveProposals}
-            votedProposalIds={votedProposalIds.data! || []}
+            votedProposals={votedProposals.data || []}
           />
         </ProposalListPanel>
         <ProposalListPanel
@@ -70,7 +70,11 @@ export const GovernanceOverview: React.FC = () => {
           errorText="Unable to load the list of proposals"
           atoms={activeAtoms}
         >
-          <AllProposalsTable votedProposalIds={votedProposalIds.data! || []} />
+          <AllProposalsTable
+            votedProposalIds={(votedProposals.data || []).map(
+              (v) => v.proposalId
+            )}
+          />
         </ProposalListPanel>
       </div>
       <aside className="flex flex-col gap-2 mt-1.5 lg:mt-0">

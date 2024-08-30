@@ -3,11 +3,11 @@ import {
   ProgressBar as ProgressBarComponent,
   Stack,
 } from "@namada/components";
-import { Proposal } from "@namada/types";
+import { Proposal, VoteType } from "@namada/types";
 import {
   canVoteAtom,
   proposalFamily,
-  proposalVotedFamily,
+  proposalVoteFamily,
 } from "atoms/proposals";
 import { namadaExtensionConnectedAtom } from "atoms/settings";
 import clsx from "clsx";
@@ -33,7 +33,7 @@ export const ProposalHeader: React.FC<{
   proposalId: bigint;
 }> = ({ proposalId }) => {
   const proposal = useAtomValue(proposalFamily(proposalId));
-  const voted = useAtomValue(proposalVotedFamily(proposalId));
+  const vote = useAtomValue(proposalVoteFamily(proposalId));
 
   return (
     <>
@@ -54,11 +54,11 @@ export const ProposalHeader: React.FC<{
       <hr className="border-neutral-900 w-full mb-4" />
       <div className="flex gap-2 mb-4">
         <StatusLabel proposal={proposal} />
-        <VotedLabel voted={voted} />
+        <VotedLabel vote={vote} />
       </div>
       <div className="flex gap-10 bg-neutral-900 mb-9 px-5 py-3 -mx-3 rounded-md">
         <Progress proposal={proposal} />
-        <VoteButton proposal={proposal} voted={voted} proposalId={proposalId} />
+        <VoteButton proposal={proposal} vote={vote} proposalId={proposalId} />
       </div>
     </>
   );
@@ -291,9 +291,9 @@ const ProgressBar: React.FC<{
 
 const VoteButton: React.FC<{
   proposal: AtomWithQueryResult<Proposal>;
-  voted: boolean | undefined;
+  vote: AtomWithQueryResult<VoteType | undefined>;
   proposalId: bigint;
-}> = ({ proposal, voted, proposalId }) => {
+}> = ({ proposal, vote, proposalId }) => {
   const navigate = useNavigate();
   const isExtensionConnected = useAtomValue(namadaExtensionConnectedAtom);
   const canVote = useAtomValue(
@@ -305,11 +305,7 @@ const VoteButton: React.FC<{
   }
 
   const { disabled, onClick, text } = (() => {
-    if (
-      proposal.status === "pending" ||
-      proposal.status === "error" ||
-      typeof voted === "undefined"
-    ) {
+    if (!proposal.isSuccess || !vote.isSuccess) {
       return {
         disabled: true,
         onClick: undefined,
@@ -321,6 +317,7 @@ const VoteButton: React.FC<{
       const disabled =
         !isExtensionConnected || !canVote.data || status !== "ongoing";
 
+      const voted = typeof vote.data !== "undefined";
       const text = voted ? "Edit Vote" : "Vote";
 
       return {
@@ -347,6 +344,13 @@ const VoteButton: React.FC<{
 };
 
 const VotedLabel: React.FC<{
-  voted: boolean | undefined;
-}> = ({ voted }) =>
-  voted ? <VotedLabelComponent className="text-xs min-w-22" /> : null;
+  vote: AtomWithQueryResult<VoteType | undefined>;
+}> = ({ vote }) => {
+  if (vote.isSuccess && typeof vote.data !== "undefined") {
+    return (
+      <VotedLabelComponent vote={vote.data} className="text-xs min-w-22" />
+    );
+  } else {
+    return null;
+  }
+};
