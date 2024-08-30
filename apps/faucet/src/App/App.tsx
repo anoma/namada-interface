@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useEffect, useState } from "react";
+import { GoGear } from "react-icons/go";
 import { ThemeProvider } from "styled-components";
 
 import { ActionButton, Alert, Modal } from "@namada/components";
@@ -13,6 +14,8 @@ import {
   FaucetContainer,
   GlobalStyles,
   InfoContainer,
+  SettingsButton,
+  SettingsButtonContainer,
   TopSection,
 } from "App/App.components";
 import { FaucetForm } from "App/Faucet";
@@ -122,7 +125,6 @@ export const App: React.FC = () => {
   );
 
   useEffect(() => {
-    console.log("RECEIVED NEW URL, UPDATE API!", url);
     // Sync url to localStorage
     localStorage.setItem("baseUrl", url);
     const api = new API(url);
@@ -207,6 +209,15 @@ export const App: React.FC = () => {
         <BackgroundImage imageUrl={dotsBackground} />
         <AppContainer>
           <ContentContainer>
+            <SettingsButtonContainer>
+              <SettingsButton
+                onClick={() => setIsModalOpen(true)}
+                title="Settings"
+              >
+                <GoGear />
+              </SettingsButton>
+            </SettingsButtonContainer>
+
             <TopSection>
               <AppHeader />
             </TopSection>

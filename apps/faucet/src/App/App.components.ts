@@ -153,6 +153,21 @@ export const ButtonContainer = styled.div`
   margin: 13px 0 0 0;
 `;
 
+export const SettingsButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+`;
+
+export const SettingsButton = styled.button`
+  & > svg {
+    width: 20px;
+    height: 20px;
+    color: ${(props) => props.theme.colors.primary.main20};
+  }
+`;
+
 export const SettingsContainer = styled.div`
   flex-direction: column;
   justify-content: start;
