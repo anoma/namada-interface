@@ -20,7 +20,7 @@ import { FaucetForm } from "App/Faucet";
 import { chains } from "@namada/chains";
 import { useUntil } from "@namada/hooks";
 import { Account } from "@namada/types";
-import { API } from "utils";
+import { API, toNam } from "utils";
 import dotsBackground from "../../public/bg-dots.svg";
 import {
   AppBanner,
@@ -32,20 +32,16 @@ import {
 import { SettingsForm } from "./SettingsForm";
 
 const DEFAULT_URL = "http://localhost:5000";
-const DEFAULT_ENDPOINT = "/api/v1/faucet";
-const DEFAULT_FAUCET_LIMIT = "1000";
+const DEFAULT_LIMIT = 1_000_000_000;
 
 const {
   NAMADA_INTERFACE_FAUCET_API_URL: faucetApiUrl = DEFAULT_URL,
-  NAMADA_INTERFACE_FAUCET_API_ENDPOINT: faucetApiEndpoint = DEFAULT_ENDPOINT,
-  NAMADA_INTERFACE_FAUCET_LIMIT: faucetLimit = DEFAULT_FAUCET_LIMIT,
   NAMADA_INTERFACE_PROXY: isProxied,
   NAMADA_INTERFACE_PROXY_PORT: proxyPort = 9000,
 } = process.env;
 
-const apiUrl = isProxied ? `http://localhost:${proxyPort}/proxy` : faucetApiUrl;
-const url = `${apiUrl}${faucetApiEndpoint}`;
-const limit = parseInt(faucetLimit);
+const baseUrl =
+  isProxied ? `http://localhost:${proxyPort}/proxy` : faucetApiUrl;
 const runFullNodeUrl = "https://docs.namada.net/operators/ledger";
 const becomeBuilderUrl = "https://docs.namada.net/integrating-with-namada";
 
@@ -54,16 +50,17 @@ type Settings = {
   tokens?: Record<string, string>;
   startsAt: number;
   startsAtText?: string;
+  withdrawLimit: number;
 };
 
 type AppContext = {
-  limit: number;
-  url: string;
+  baseUrl: string;
   settingsError?: string;
   api: API;
   isTestnetLive: boolean;
   settings: Settings;
   setApi: (api: API) => void;
+  setUrl: (url: string) => void;
   setIsModalOpen: (value: boolean) => void;
 };
 
@@ -102,7 +99,9 @@ export const App: React.FC = () => {
   const [settings, setSettings] = useState<Settings>({
     startsAt: START_TIME_UTC,
     startsAtText: `${START_TIME_TEXT} UTC`,
+    withdrawLimit: toNam(DEFAULT_LIMIT),
   });
+  const [url, setUrl] = useState(localStorage.getItem("baseUrl") || baseUrl);
   const [api, setApi] = useState<API>(new API(url));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [settingsError, setSettingsError] = useState<string>();
@@ -123,6 +122,11 @@ export const App: React.FC = () => {
   );
 
   useEffect(() => {
+    console.log("RECEIVED NEW URL, UPDATE API!", url);
+    // Sync url to localStorage
+    localStorage.setItem("baseUrl", url);
+    const api = new API(url);
+    setApi(api);
     const { startsAt } = settings;
     const now = new Date();
     const nowUTC = Date.UTC(
@@ -140,26 +144,28 @@ export const App: React.FC = () => {
     // Fetch settings from faucet API
     (async () => {
       try {
-        const { difficulty, tokens_alias_to_address: tokens } = await api
-          .settings()
-          .catch((e) => {
-            const message = e.errors?.message;
-            setSettingsError(
-              `Error requesting settings: ${message?.join(" ")}`
-            );
-            throw new Error(e);
-          });
+        const {
+          difficulty,
+          tokens_alias_to_address: tokens,
+          withdraw_limit: withdrawLimit = DEFAULT_LIMIT,
+        } = await api.settings().catch((e) => {
+          const message = e.errors?.message;
+          setSettingsError(`Error requesting settings: ${message?.join(" ")}`);
+          throw new Error(e);
+        });
         // Append difficulty level and tokens to settings
         setSettings({
           ...settings,
           difficulty,
           tokens,
+          withdrawLimit: toNam(withdrawLimit),
         });
+        setSettingsError(undefined);
       } catch (e) {
         setSettingsError(`Failed to load settings! ${e}`);
       }
     })();
-  }, []);
+  }, [url]);
 
   const handleConnectExtensionClick = useCallback(async (): Promise<void> => {
     if (integration) {
@@ -187,11 +193,11 @@ export const App: React.FC = () => {
       value={{
         api,
         isTestnetLive,
-        limit,
-        url,
+        baseUrl: url,
         settingsError,
         settings,
         setApi,
+        setUrl,
         setIsModalOpen,
       }}
     >
@@ -205,17 +211,24 @@ export const App: React.FC = () => {
               <AppHeader />
             </TopSection>
             <FaucetContainer>
-              {extensionAttachStatus ===
-                ExtensionAttachStatus.PendingDetection && (
+              {settingsError && (
                 <InfoContainer>
-                  <Alert type="info">Detecting extension...</Alert>
+                  <Alert type="error">{settingsError}</Alert>
                 </InfoContainer>
               )}
+
+              {extensionAttachStatus ===
+                ExtensionAttachStatus.PendingDetection && (
+                  <InfoContainer>
+                    <Alert type="info">Detecting extension...</Alert>
+                  </InfoContainer>
+                )}
               {extensionAttachStatus === ExtensionAttachStatus.NotInstalled && (
                 <InfoContainer>
                   <Alert type="error">You must download the extension!</Alert>
                 </InfoContainer>
               )}
+
               {isExtensionConnected && (
                 <FaucetForm
                   accounts={accounts}

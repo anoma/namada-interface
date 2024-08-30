@@ -15,12 +15,14 @@ import { bech32mValidation, shortenAddress } from "@namada/utils";
 
 import { TransferResponse, computePowSolution } from "../utils";
 import { AppContext } from "./App";
-import { InfoContainer } from "./App.components";
 import {
   ButtonContainer,
+  InfoContainer,
+  InputContainer,
+} from "./App.components";
+import {
   FaucetFormContainer,
   FormStatus,
-  InputContainer,
   PreFormatted,
 } from "./Faucet.components";
 
@@ -45,9 +47,7 @@ export const FaucetForm: React.FC<Props> = ({
 }) => {
   const {
     api,
-    settingsError,
-    limit,
-    settings: { difficulty, tokens },
+    settings: { difficulty, tokens, withdrawLimit },
   } = useContext(AppContext)!;
 
   const accountLookup = accounts.reduce(
@@ -79,7 +79,7 @@ export const FaucetForm: React.FC<Props> = ({
   const isFormValid: boolean =
     Boolean(tokenAddress) &&
     Boolean(amount) &&
-    (amount || 0) <= limit &&
+    (amount || 0) <= withdrawLimit &&
     Boolean(account) &&
     status !== Status.Pending &&
     typeof difficulty !== "undefined" &&
@@ -178,7 +178,6 @@ export const FaucetForm: React.FC<Props> = ({
 
   return (
     <FaucetFormContainer>
-      {settingsError && <Alert type="error">{settingsError}</Alert>}
       <InputContainer>
         {accounts.length > 0 ?
           <Select
@@ -187,7 +186,7 @@ export const FaucetForm: React.FC<Props> = ({
             label="Account"
             onChange={(e) => setAccount(accountLookup[e.target.value])}
           />
-        : <div>
+          : <div>
             You have no signing accounts! Import or create an account in the
             extension, then reload this page.
           </div>
@@ -205,7 +204,7 @@ export const FaucetForm: React.FC<Props> = ({
 
       <InputContainer>
         <AmountInput
-          placeholder={`From 1 to ${limit}`}
+          placeholder={`From 1 to ${withdrawLimit}`}
           label="Amount"
           value={amount === undefined ? undefined : new BigNumber(amount)}
           min={0}
@@ -213,9 +212,9 @@ export const FaucetForm: React.FC<Props> = ({
           onFocus={handleFocus}
           onChange={(e) => setAmount(e.target.value?.toNumber())}
           error={
-            amount && amount > limit ?
-              `Amount must be less than or equal to ${limit}`
-            : ""
+            amount && amount > withdrawLimit ?
+              `Amount must be less than or equal to ${withdrawLimit}`
+              : ""
           }
         />
       </InputContainer>
