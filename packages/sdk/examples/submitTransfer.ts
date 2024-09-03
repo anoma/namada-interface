@@ -39,15 +39,12 @@ export const submitTransfer = async (
     const { cryptoMemory } = initSync();
     const sdk = getSdk(cryptoMemory, nodeUrl, "storage path", nativeToken);
 
-    console.log("Building transfer transaction...");
     const encodedTx = await sdk.tx.buildTransparentTransfer(wrapperTxProps, {
       data: [transparentTransferMsgValue],
     });
 
-    console.log("Signing transaction...");
     const signedTx = await sdk.signing.sign(encodedTx, signingKey);
 
-    console.log("Broadcasting transaction...");
     await sdk.rpc.broadcastTx(signedTx, wrapperTxProps);
     process.exit(0);
   } catch (error) {

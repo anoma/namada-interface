@@ -58,7 +58,7 @@ export const myValidatorsAtom = atomWithQuery((get) => {
         bondedAmounts,
         unbondedAmounts,
         votingPower.data!,
-        chainParameters.data!.epochInfo,
+        chainParameters.data!.unbondingPeriod,
         chainParameters.data!.apr
       );
     }, [account, chainParameters, votingPower]),

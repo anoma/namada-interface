@@ -1,6 +1,5 @@
 import { ActionButton, Alert, Modal, Panel, Stack } from "@namada/components";
 import { UnbondMsgValue, UnbondProps } from "@namada/types";
-import { singleUnitDurationFromInterval } from "@namada/utils/helpers";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
@@ -24,18 +23,10 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { TransactionPair, broadcastTx } from "lib/query";
 import { FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { EpochInfo, MyValidator } from "types";
+import { MyValidator } from "types";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { UnstakeBondingTable } from "./UnstakeBondingTable";
 import StakingRoutes from "./routes";
-
-const getUnbondPeriod = ({
-  unbondingPeriodInEpochs,
-  minEpochDuration,
-}: EpochInfo): string => {
-  const duration = unbondingPeriodInEpochs * minEpochDuration;
-  return singleUnitDurationFromInterval(0, duration);
-};
 
 const Unstake = (): JSX.Element => {
   const navigate = useNavigate();
@@ -161,8 +152,7 @@ const Unstake = (): JSX.Element => {
     return "";
   })();
 
-  const unbondPeriod =
-    chainParameters ? getUnbondPeriod(chainParameters.epochInfo) : "N/A";
+  const unbondPeriod = chainParameters?.unbondingPeriod;
 
   return (
     <Modal onClose={onCloseModal}>

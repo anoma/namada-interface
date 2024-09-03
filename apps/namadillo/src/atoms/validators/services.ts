@@ -22,7 +22,6 @@ export const fetchAllValidators = async (
   chainParameters: ChainParameters,
   votingPower: IndexerVotingPower
 ): Promise<Validator[]> => {
-  const epochInfo = chainParameters.epochInfo;
   const nominalApr = chainParameters.apr;
   const validatorsResponse = await api.apiV1PosValidatorAllGet([
     IndexerValidatorStatus.Consensus,
@@ -30,7 +29,7 @@ export const fetchAllValidators = async (
 
   const validators = validatorsResponse.data;
   return validators.map((v) =>
-    toValidator(v, votingPower, epochInfo, nominalApr)
+    toValidator(v, votingPower, chainParameters.unbondingPeriod, nominalApr)
   );
 };
 

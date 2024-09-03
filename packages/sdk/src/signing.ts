@@ -15,7 +15,7 @@ export class Signing {
 
   /**
    * Sign Namada transaction
-   * @param txProps - TxProps 
+   * @param txProps - TxProps
    * @param signingKey - private key
    * @param [chainId] - optional chain ID, will enforce validation if present
    * @returns signed tx bytes - Promise resolving to Uint8Array

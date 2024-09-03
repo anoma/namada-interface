@@ -7,26 +7,16 @@ import {
 } from "@anomaorg/namada-indexer-client";
 import { singleUnitDurationFromInterval } from "@namada/utils";
 import BigNumber from "bignumber.js";
-import { Address, EpochInfo, MyValidator, UnbondEntry, Validator } from "types";
+import { Address, MyValidator, UnbondEntry, Validator } from "types";
 
 export const toValidator = (
   indexerValidator: IndexerValidator,
   indexerVotingPower: IndexerVotingPower,
-  epochInfo: EpochInfo,
+  unbondingPeriod: string,
   nominalApr: BigNumber
 ): Validator => {
   const commission = BigNumber(indexerValidator.commission);
   const expectedApr = nominalApr.times(1 - commission.toNumber());
-
-  // Because epoch duration is in reality longer by epochSwitchBlocksDelay we have to account for that
-  const realMinEpochDuration =
-    epochInfo.minEpochDuration +
-    epochInfo.maxBlockTime * epochInfo.epochSwitchBlocksDelay;
-
-  const unbondingPeriod = singleUnitDurationFromInterval(
-    0,
-    epochInfo.unbondingPeriodInEpochs * realMinEpochDuration
-  );
 
   return {
     uuid: indexerValidator.address,
@@ -65,7 +55,7 @@ export const toMyValidators = (
   indexerBonds: IndexerBond[] | IndexerMergedBond[],
   indexerUnbonds: IndexerUnbond[],
   totalVotingPower: IndexerVotingPower,
-  epochInfo: EpochInfo,
+  unbondingPeriod: string,
   apr: BigNumber
 ): MyValidator[] => {
   const myValidators: Record<Address, MyValidator> = {};
@@ -78,7 +68,12 @@ export const toMyValidators = (
         unbondedAmount: new BigNumber(0),
         bondItems: [],
         unbondItems: [],
-        validator: toValidator(validator, totalVotingPower, epochInfo, apr),
+        validator: toValidator(
+          validator,
+          totalVotingPower,
+          unbondingPeriod,
+          apr
+        ),
       };
     }
   };
