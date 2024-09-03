@@ -186,7 +186,7 @@ export const FaucetForm: React.FC<Props> = ({
             label="Account"
             onChange={(e) => setAccount(accountLookup[e.target.value])}
           />
-          : <div>
+        : <div>
             You have no signing accounts! Import or create an account in the
             extension, then reload this page.
           </div>
@@ -214,7 +214,7 @@ export const FaucetForm: React.FC<Props> = ({
           error={
             amount && amount > withdrawLimit ?
               `Amount must be less than or equal to ${withdrawLimit}`
-              : ""
+            : ""
           }
         />
       </InputContainer>
