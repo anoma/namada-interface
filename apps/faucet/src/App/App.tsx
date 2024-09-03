@@ -1,20 +1,21 @@
 import React, { createContext, useCallback, useEffect, useState } from "react";
+import { GoGear } from "react-icons/go";
 import { ThemeProvider } from "styled-components";
 
-import { ActionButton, Alert, Heading } from "@namada/components";
+import { ActionButton, Alert, Modal } from "@namada/components";
 import { Namada } from "@namada/integrations";
 import { ColorMode, getTheme } from "@namada/utils";
 
 import {
   AppContainer,
   BackgroundImage,
-  Banner,
-  BannerContents,
   BottomSection,
   ContentContainer,
   FaucetContainer,
   GlobalStyles,
   InfoContainer,
+  SettingsButton,
+  SettingsButtonContainer,
   TopSection,
 } from "App/App.components";
 import { FaucetForm } from "App/Faucet";
@@ -22,28 +23,28 @@ import { FaucetForm } from "App/Faucet";
 import { chains } from "@namada/chains";
 import { useUntil } from "@namada/hooks";
 import { Account } from "@namada/types";
-import { API } from "utils";
+import { API, toNam } from "utils";
 import dotsBackground from "../../public/bg-dots.svg";
-import { CallToActionCard } from "./CallToActionCard";
-import { CardsContainer } from "./Card.components";
-import { Faq } from "./Faq";
+import {
+  AppBanner,
+  AppHeader,
+  CallToActionCard,
+  CardsContainer,
+  Faq,
+} from "./Common";
+import { SettingsForm } from "./SettingsForm";
 
 const DEFAULT_URL = "http://localhost:5000";
-const DEFAULT_ENDPOINT = "/api/v1/faucet";
-const DEFAULT_FAUCET_LIMIT = "1000";
+const DEFAULT_LIMIT = 1_000_000_000;
 
 const {
   NAMADA_INTERFACE_FAUCET_API_URL: faucetApiUrl = DEFAULT_URL,
-  NAMADA_INTERFACE_FAUCET_API_ENDPOINT: faucetApiEndpoint = DEFAULT_ENDPOINT,
-  NAMADA_INTERFACE_FAUCET_LIMIT: faucetLimit = DEFAULT_FAUCET_LIMIT,
   NAMADA_INTERFACE_PROXY: isProxied,
   NAMADA_INTERFACE_PROXY_PORT: proxyPort = 9000,
 } = process.env;
 
-const apiUrl = isProxied ? `http://localhost:${proxyPort}/proxy` : faucetApiUrl;
-const url = `${apiUrl}${faucetApiEndpoint}`;
-const api = new API(url);
-const limit = parseInt(faucetLimit);
+const baseUrl =
+  isProxied ? `http://localhost:${proxyPort}/proxy` : faucetApiUrl;
 const runFullNodeUrl = "https://docs.namada.net/operators/ledger";
 const becomeBuilderUrl = "https://docs.namada.net/integrating-with-namada";
 
@@ -52,13 +53,18 @@ type Settings = {
   tokens?: Record<string, string>;
   startsAt: number;
   startsAtText?: string;
+  withdrawLimit: number;
 };
 
-type AppContext = Settings & {
-  limit: number;
-  url: string;
+type AppContext = {
+  baseUrl: string;
   settingsError?: string;
   api: API;
+  isTestnetLive: boolean;
+  settings: Settings;
+  setApi: (api: API) => void;
+  setUrl: (url: string) => void;
+  setIsModalOpen: (value: boolean) => void;
 };
 
 const START_TIME_UTC = 1702918800;
@@ -74,17 +80,7 @@ const START_TIME_TEXT = new Date(START_TIME_UTC * 1000).toLocaleString(
   }
 );
 
-const defaults = {
-  startsAt: START_TIME_UTC,
-  startsAtText: `${START_TIME_TEXT} UTC`,
-};
-
-export const AppContext = createContext<AppContext>({
-  ...defaults,
-  limit,
-  url,
-  api,
-});
+export const AppContext = createContext<AppContext | null>(null);
 
 enum ExtensionAttachStatus {
   PendingDetection,
@@ -104,8 +100,13 @@ export const App: React.FC = () => {
   const [colorMode, _] = useState<ColorMode>(initialColorMode);
   const [isTestnetLive, setIsTestnetLive] = useState(true);
   const [settings, setSettings] = useState<Settings>({
-    ...defaults,
+    startsAt: START_TIME_UTC,
+    startsAtText: `${START_TIME_TEXT} UTC`,
+    withdrawLimit: toNam(DEFAULT_LIMIT),
   });
+  const [url, setUrl] = useState(localStorage.getItem("baseUrl") || baseUrl);
+  const [api, setApi] = useState<API>(new API(url));
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [settingsError, setSettingsError] = useState<string>();
   const theme = getTheme(colorMode);
 
@@ -124,6 +125,10 @@ export const App: React.FC = () => {
   );
 
   useEffect(() => {
+    // Sync url to localStorage
+    localStorage.setItem("baseUrl", url);
+    const api = new API(url);
+    setApi(api);
     const { startsAt } = settings;
     const now = new Date();
     const nowUTC = Date.UTC(
@@ -141,26 +146,28 @@ export const App: React.FC = () => {
     // Fetch settings from faucet API
     (async () => {
       try {
-        const { difficulty, tokens_alias_to_address: tokens } = await api
-          .settings()
-          .catch((e) => {
-            const message = e.errors?.message;
-            setSettingsError(
-              `Error requesting settings: ${message?.join(" ")}`
-            );
-            throw new Error(e);
-          });
+        const {
+          difficulty,
+          tokens_alias_to_address: tokens,
+          withdraw_limit: withdrawLimit = DEFAULT_LIMIT,
+        } = await api.settings().catch((e) => {
+          const message = e.errors?.message;
+          setSettingsError(`Error requesting settings: ${message?.join(" ")}`);
+          throw new Error(e);
+        });
         // Append difficulty level and tokens to settings
         setSettings({
           ...settings,
           difficulty,
           tokens,
+          withdrawLimit: toNam(withdrawLimit),
         });
+        setSettingsError(undefined);
       } catch (e) {
         setSettingsError(`Failed to load settings! ${e}`);
       }
     })();
-  }, []);
+  }, [url]);
 
   const handleConnectExtensionClick = useCallback(async (): Promise<void> => {
     if (integration) {
@@ -186,43 +193,53 @@ export const App: React.FC = () => {
   return (
     <AppContext.Provider
       value={{
-        settingsError,
-        limit,
-        url,
         api,
-        ...settings,
+        isTestnetLive,
+        baseUrl: url,
+        settingsError,
+        settings,
+        setApi,
+        setUrl,
+        setIsModalOpen,
       }}
     >
       <ThemeProvider theme={theme}>
         <GlobalStyles colorMode={colorMode} />
-        {!isTestnetLive && settings?.startsAtText && (
-          <Banner>
-            <BannerContents>
-              Testnet will go live {settings.startsAtText}! Faucet is disabled
-              until then.
-            </BannerContents>
-          </Banner>
-        )}
+        <AppBanner />
         <BackgroundImage imageUrl={dotsBackground} />
         <AppContainer>
           <ContentContainer>
+            <SettingsButtonContainer>
+              <SettingsButton
+                onClick={() => setIsModalOpen(true)}
+                title="Settings"
+              >
+                <GoGear />
+              </SettingsButton>
+            </SettingsButtonContainer>
+
             <TopSection>
-              <Heading className="uppercase text-black text-4xl" level="h1">
-                Namada Faucet
-              </Heading>
+              <AppHeader />
             </TopSection>
             <FaucetContainer>
-              {extensionAttachStatus ===
-                ExtensionAttachStatus.PendingDetection && (
+              {settingsError && (
                 <InfoContainer>
-                  <Alert type="info">Detecting extension...</Alert>
+                  <Alert type="error">{settingsError}</Alert>
                 </InfoContainer>
               )}
+
+              {extensionAttachStatus ===
+                ExtensionAttachStatus.PendingDetection && (
+                  <InfoContainer>
+                    <Alert type="info">Detecting extension...</Alert>
+                  </InfoContainer>
+                )}
               {extensionAttachStatus === ExtensionAttachStatus.NotInstalled && (
                 <InfoContainer>
                   <Alert type="error">You must download the extension!</Alert>
                 </InfoContainer>
               )}
+
               {isExtensionConnected && (
                 <FaucetForm
                   accounts={accounts}
@@ -239,6 +256,11 @@ export const App: React.FC = () => {
                   </InfoContainer>
                 )}
             </FaucetContainer>
+            {isModalOpen && (
+              <Modal onClose={() => setIsModalOpen(false)}>
+                <SettingsForm />
+              </Modal>
+            )}
             <BottomSection>
               <CardsContainer>
                 <CallToActionCard

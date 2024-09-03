@@ -6,8 +6,12 @@ import {
   TransferResponse,
 } from "./types";
 
+export const {
+  NAMADA_INTERFACE_FAUCET_API_ENDPOINT: endpoint = "/api/v1/faucet",
+} = process.env;
+
 export class API {
-  constructor(protected readonly url: string) {}
+  constructor(public readonly baseUrl: string) { }
 
   /**
    * Wrapper for fetch requests to handle ReadableStream response when errors are received from API
@@ -21,7 +25,7 @@ export class API {
     endpoint: string,
     options: RequestInit = { method: "GET" }
   ): Promise<T> {
-    return await fetch(new URL(`${this.url}${endpoint}`), {
+    return await fetch(this.endpoint(endpoint), {
       ...options,
     })
       .then((response) => {
@@ -83,5 +87,9 @@ export class API {
         "Content-Type": "application/json",
       },
     });
+  }
+
+  private endpoint(path?: string): URL {
+    return new URL(`${this.baseUrl}${endpoint}${path ? path : ""}`);
   }
 }
