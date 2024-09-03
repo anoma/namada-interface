@@ -230,10 +230,10 @@ export const App: React.FC = () => {
 
               {extensionAttachStatus ===
                 ExtensionAttachStatus.PendingDetection && (
-                  <InfoContainer>
-                    <Alert type="info">Detecting extension...</Alert>
-                  </InfoContainer>
-                )}
+                <InfoContainer>
+                  <Alert type="info">Detecting extension...</Alert>
+                </InfoContainer>
+              )}
               {extensionAttachStatus === ExtensionAttachStatus.NotInstalled && (
                 <InfoContainer>
                   <Alert type="error">You must download the extension!</Alert>
@@ -241,11 +241,7 @@ export const App: React.FC = () => {
               )}
 
               {isExtensionConnected && (
-                <FaucetForm
-                  accounts={accounts}
-                  integration={integration}
-                  isTestnetLive={isTestnetLive}
-                />
+                <FaucetForm accounts={accounts} isTestnetLive={isTestnetLive} />
               )}
               {extensionAttachStatus === ExtensionAttachStatus.Installed &&
                 !isExtensionConnected && (

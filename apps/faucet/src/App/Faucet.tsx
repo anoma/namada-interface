@@ -15,7 +15,6 @@ import {
   Input,
   Select,
 } from "@namada/components";
-import { Namada } from "@namada/integrations";
 import { Account } from "@namada/types";
 import { bech32mValidation, shortenAddress } from "@namada/utils";
 
@@ -40,17 +39,12 @@ enum Status {
 
 type Props = {
   accounts: Account[];
-  integration: Namada;
   isTestnetLive: boolean;
 };
 
 const bech32mPrefix = "tnam";
 
-export const FaucetForm: React.FC<Props> = ({
-  accounts,
-  integration,
-  isTestnetLive,
-}) => {
+export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
   const {
     api,
     settings: { difficulty, tokens, withdrawLimit },
@@ -192,7 +186,7 @@ export const FaucetForm: React.FC<Props> = ({
             label="Account"
             onChange={(e) => setAccount(accountLookup[e.target.value])}
           />
-          : <div>
+        : <div>
             You have no signing accounts! Import or create an account in the
             extension, then reload this page.
           </div>
@@ -220,7 +214,7 @@ export const FaucetForm: React.FC<Props> = ({
           error={
             amount && amount > withdrawLimit ?
               `Amount must be less than or equal to ${withdrawLimit}`
-              : ""
+            : ""
           }
         />
       </InputContainer>
