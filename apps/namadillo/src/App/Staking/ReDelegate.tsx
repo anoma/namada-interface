@@ -20,7 +20,7 @@ import { getAmountDistribution } from "lib/staking";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
-import { Validator } from "types";
+import { TxKind, Validator } from "types";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { ReDelegateAssignStake } from "./ReDelegateAssignStake";
 import { ReDelegateRemoveStake } from "./ReDelegateRemoveStake";
@@ -52,7 +52,7 @@ export const ReDelegate = (): JSX.Element => {
   );
 
   const gasConfig = useAtomValue(
-    defaultGasConfigFamily(Array(changes.length).fill("Redelegate"))
+    defaultGasConfigFamily(Array<TxKind>(changes.length).fill("Redelegation"))
   );
 
   const {
