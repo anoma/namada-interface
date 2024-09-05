@@ -27,11 +27,9 @@ export const allValidatorsAtom = atomWithQuery((get) => {
   const api = get(indexerApiAtom);
   return {
     queryKey: ["all-validators"],
-    ...queryDependentFn(
-      async (): Promise<Validator[]> =>
-        fetchAllValidators(api, chainParameters.data!, votingPower.data!),
-      [chainParameters, votingPower]
-    ),
+    ...queryDependentFn(async (): Promise<Validator[]> => {
+      return fetchAllValidators(api, chainParameters.data!, votingPower.data!);
+    }, [chainParameters, votingPower]),
   };
 });
 

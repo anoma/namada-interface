@@ -8,6 +8,7 @@ import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
 import { twMerge } from "tailwind-merge";
 import { Validator } from "types";
 import { ValidatorCard } from "./ValidatorCard";
+import { ValidatorRank } from "./ValidatorRank";
 import { ValidatorsTable } from "./ValidatorsTable";
 
 type IncrementBondingTableProps = {
@@ -31,6 +32,7 @@ export const IncrementBondingTable = ({
   });
 
   const headers = [
+    "Rank",
     { children: "Validator" },
     "Amount to Stake",
     {
@@ -64,6 +66,12 @@ export const IncrementBondingTable = ({
     const newRow = {
       className: "",
       cells: [
+        <div
+          key={`increment-bonding-rank-${validator.address}`}
+          className="flex items-center pl-2"
+        >
+          <ValidatorRank rank={1} status={validator.status} />
+        </div>,
         // Validator Alias + Avatar
         <ValidatorCard
           key={`increment-bonding-alias-${validator.address}`}
