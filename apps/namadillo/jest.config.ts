@@ -5,6 +5,8 @@ const config: Config.InitialOptions = {
   transform: {
     "^.+\\.tsx?$": "ts-jest",
   },
+  testEnvironment: "jsdom",
   modulePathIgnorePatterns: ["e2e-tests"],
+  moduleDirectories: ["node_modules", "src"],
 };
 export default config;
