@@ -1,6 +1,12 @@
 import BigNumber from "bignumber.js";
 import { sanitize } from "dompurify";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import {
   ActionButton,
@@ -70,6 +76,11 @@ export const FaucetForm: React.FC<Props> = ({
     value: address,
   }));
 
+  const powSolver: Worker = useMemo(
+    () => new Worker(new URL("../workers/powWorker.ts", import.meta.url)),
+    []
+  );
+
   useEffect(() => {
     if (tokens?.NAM) {
       setTokenAddress(tokens.NAM);
@@ -131,11 +142,6 @@ export const FaucetForm: React.FC<Props> = ({
         });
 
       const solution = computePowSolution(challenge, difficulty || 0);
-
-      const signer = integration.signer();
-      if (!signer) {
-        throw new Error("signer not defined");
-      }
 
       const submitData = {
         solution,
