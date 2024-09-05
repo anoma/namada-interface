@@ -44,14 +44,16 @@ export const Start: React.FC = () => {
         >
           Import existing keys
         </ActionButton>
-        <LinkButton
-          className="py-3"
-          color="white"
-          hoverColor="primary"
-          onClick={() => navigate(routes.ledgerConnect())}
-        >
-          Connect Hardware Wallet
-        </LinkButton>
+        {navigator.usb && (
+          <LinkButton
+            className="py-3"
+            color="white"
+            hoverColor="primary"
+            onClick={() => navigate(routes.ledgerConnect())}
+          >
+            Connect Hardware Wallet
+          </LinkButton>
+        )}
       </Stack>
     </div>
   );
