@@ -5917,7 +5917,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/is-prop-valid@npm:^0.8.2, @emotion/is-prop-valid@npm:^0.8.8":
+"@emotion/is-prop-valid@npm:^0.8.2":
   version: 0.8.8
   resolution: "@emotion/is-prop-valid@npm:0.8.8"
   dependencies:
@@ -8005,7 +8005,7 @@ __metadata:
     typescript: "npm:^5.1.3"
   peerDependencies:
     postcss: ^8.4.32
-    react: ^18.0.0
+    react: ^18.3.0
     tailwindcss: ^3.3.6
   languageName: unknown
   linkType: soft
@@ -8244,7 +8244,6 @@ __metadata:
     "@types/react": "npm:^17.0.39"
     "@types/react-dom": "npm:^17.0.11"
     "@types/react-paginate": "npm:^7.1.2"
-    "@types/styled-components": "npm:^5.1.22"
     "@types/traverse": "npm:^0.6.36"
     "@vitejs/plugin-react": "npm:^4.2.1"
     autoprefixer: "npm:^10.4.16"
@@ -8276,15 +8275,14 @@ __metadata:
     lodash.debounce: "npm:^4.0.8"
     postcss: "npm:^8.4.32"
     postcss-loader: "npm:^7.3.3"
-    react: "npm:^18.0.0"
-    react-dom: "npm:^18.0.0"
+    react: "npm:^18.3.1"
+    react-dom: "npm:^18.3.1"
     react-icons: "npm:^5.1.0"
     react-paginate: "npm:^8.2.0"
     react-router-dom: "npm:^6.0.0"
     react-scripts: "npm:5.0.1"
     release-it: "npm:^17.0.1"
     style-loader: "npm:^3.3.1"
-    styled-components: "npm:^5.3.3"
     tailwind-merge: "npm:^2.3.0"
     tailwindcss: "npm:^3.4.0"
     toml: "npm:^3.0.0"
@@ -8294,7 +8292,6 @@ __metadata:
     ts-node: "npm:^10.9.1"
     tsconfig-paths-webpack-plugin: "npm:^4.1.0"
     typescript: "npm:^5.1.3"
-    typescript-plugin-styled-components: "npm:^2.0.0"
     vite: "npm:^5.2.11"
     vite-plugin-node-polyfills: "npm:^0.22.0"
     vite-tsconfig-paths: "npm:^4.3.2"
@@ -8381,7 +8378,6 @@ __metadata:
     "@types/luxon": "npm:^3.0.0"
     "@types/node": "npm:^18.7.13"
     "@types/sha.js": "npm:^2.4.0"
-    "@types/styled-components": "npm:^5.1.26"
     bech32: "npm:^2.0.0"
     bs58: "npm:^5.0.0"
     crypto-js: "npm:^4.1.1"
@@ -8394,7 +8390,6 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^4.6.0"
     luxon: "npm:^3.0.1"
     sha.js: "npm:^2.4.11"
-    styled-components: "npm:^5.3.5"
     typescript: "npm:^5.1.3"
   languageName: unknown
   linkType: soft
@@ -10658,17 +10653,6 @@ __metadata:
   version: 2.0.1
   resolution: "@types/stack-utils@npm:2.0.1"
   checksum: 3327ee919a840ffe907bbd5c1d07dfd79137dd9732d2d466cf717ceec5bb21f66296173c53bb56cff95fae4185b9cd6770df3e9745fe4ba528bbc4975f54d13f
-  languageName: node
-  linkType: hard
-
-"@types/styled-components@npm:^5.1.22":
-  version: 5.1.24
-  resolution: "@types/styled-components@npm:5.1.24"
-  dependencies:
-    "@types/hoist-non-react-statics": "npm:*"
-    "@types/react": "npm:*"
-    csstype: "npm:^3.0.2"
-  checksum: d80e73d54c299056f4944b51ac2d13a5f51ed949d496781a5cc5de02d4c5fbdd49a69af0cca7413c1a7e83ec5bd27dcc392e3e7829917aeda5aeec35e77e8022
   languageName: node
   linkType: hard
 
@@ -30079,6 +30063,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-dom@npm:^18.3.1":
+  version: 18.3.1
+  resolution: "react-dom@npm:18.3.1"
+  dependencies:
+    loose-envify: "npm:^1.1.0"
+    scheduler: "npm:^0.23.2"
+  peerDependencies:
+    react: ^18.3.1
+  checksum: a752496c1941f958f2e8ac56239172296fcddce1365ce45222d04a1947e0cc5547df3e8447f855a81d6d39f008d7c32eab43db3712077f09e3f67c4874973e85
+  languageName: node
+  linkType: hard
+
 "react-error-overlay@npm:^6.0.11":
   version: 6.0.11
   resolution: "react-error-overlay@npm:6.0.11"
@@ -30247,6 +30243,15 @@ __metadata:
   dependencies:
     loose-envify: "npm:^1.1.0"
   checksum: ad87bbfdb0c5466148c657da18b0d5458e835389fc591d59840f0e6ec797a004073a01c8cdbff1767a8774c7219054a56f74dacd67bdbb849f1314e427999268
+  languageName: node
+  linkType: hard
+
+"react@npm:^18.3.1":
+  version: 18.3.1
+  resolution: "react@npm:18.3.1"
+  dependencies:
+    loose-envify: "npm:^1.1.0"
+  checksum: 283e8c5efcf37802c9d1ce767f302dd569dd97a70d9bb8c7be79a789b9902451e0d16334b05d73299b20f048cbc3c7d288bbbde10b701fa194e2089c237dbea3
   languageName: node
   linkType: hard
 
@@ -31447,6 +31452,15 @@ __metadata:
   dependencies:
     loose-envify: "npm:^1.1.0"
   checksum: cfda827a445fb57192e05275040eccc7c5e2749b98f15559520c7f6539d89d75633bb8b6c1cedf56ca0546630b72d0958bf00b63e2b8f9296e87d0d9d2d50e35
+  languageName: node
+  linkType: hard
+
+"scheduler@npm:^0.23.2":
+  version: 0.23.2
+  resolution: "scheduler@npm:0.23.2"
+  dependencies:
+    loose-envify: "npm:^1.1.0"
+  checksum: 26383305e249651d4c58e6705d5f8425f153211aef95f15161c151f7b8de885f24751b377e4a0b3dd42cce09aad3f87a61dab7636859c0d89b7daf1a1e2a5c78
   languageName: node
   linkType: hard
 
@@ -33026,28 +33040,6 @@ __metadata:
     hey-listen: "npm:^1.0.8"
     tslib: "npm:^2.1.0"
   checksum: a7b693269d48c0cab73da6c88eade845e71b5f330541a9ccb6a065468739d9bafdeb34f94fb89581931371275846da53e35989218cbc0c2d1a38f127e4d765fd
-  languageName: node
-  linkType: hard
-
-"styled-components@npm:^5.3.3":
-  version: 5.3.3
-  resolution: "styled-components@npm:5.3.3"
-  dependencies:
-    "@babel/helper-module-imports": "npm:^7.0.0"
-    "@babel/traverse": "npm:^7.4.5"
-    "@emotion/is-prop-valid": "npm:^0.8.8"
-    "@emotion/stylis": "npm:^0.8.4"
-    "@emotion/unitless": "npm:^0.7.4"
-    babel-plugin-styled-components: "npm:>= 1.12.0"
-    css-to-react-native: "npm:^3.0.0"
-    hoist-non-react-statics: "npm:^3.0.0"
-    shallowequal: "npm:^1.1.0"
-    supports-color: "npm:^5.5.0"
-  peerDependencies:
-    react: ">= 16.8.0"
-    react-dom: ">= 16.8.0"
-    react-is: ">= 16.8.0"
-  checksum: 0fda77406c668a16c753f0778850a90d5fbeae419791dac533e3f67e77f8c767d89022626aafa169fffe8b0873e15bf71126b2bab945dc98af6079d8b90e7488
   languageName: node
   linkType: hard
 
