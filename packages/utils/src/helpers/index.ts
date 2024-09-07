@@ -209,7 +209,8 @@ export const truncateInMiddle = (
  * Useful for making the compiler throw an error if you forget to
  * check a possible case e.g. when switching on the value of an enum.
  */
-export const assertNever = (): never => {
+// eslint-disable-next-line
+export const assertNever = (_a: never): never => {
   throw new Error("this should never happen");
 };
 
