@@ -15,17 +15,6 @@
     "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
     "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish --ci"
   },
-  "dependencies": {
-    "typescript": "^5.1.3"
-  },
-  "devDependencies": {
-    "eslint": "^8.49.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-import-resolver-typescript": "^3.5.2",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-react": "^7.33.0",
-    "eslint-plugin-react-hooks": "^4.6.0"
-  },
   "files": [
     "dist"
   ],
