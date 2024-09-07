@@ -4,7 +4,7 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
     "../../packages/components/src/**/*.{js,ts,jsx,tsx}",
   ],
-  presets: [require("@namada/components/src/theme.js")],
+  presets: [require("@namada/components/src/theme")],
   theme: {
     extend: {},
   },
