@@ -4392,14 +4392,8 @@ __metadata:
     "@types/invariant": "npm:^2.2.37"
     "@types/jest": "npm:^29.5.12"
     "@types/lodash.debounce": "npm:^4.0.9"
-    "@types/node": "npm:^16.11.25"
-    "@types/react": "npm:^18.3.5"
-    "@types/react-dom": "npm:^18.3.0"
     "@types/react-paginate": "npm:^7.1.2"
-    "@types/react-router-dom": "npm:^5.3.3"
     "@types/traverse": "npm:^0.6.36"
-    "@typescript-eslint/eslint-plugin": "npm:^8.4.0"
-    "@typescript-eslint/parser": "npm:^8.4.0"
     "@vitejs/plugin-react": "npm:^4.3.1"
     autoprefixer: "npm:^10.4.16"
     bignumber.js: "npm:^9.1.1"
@@ -6364,13 +6358,6 @@ __metadata:
   version: 13.13.52
   resolution: "@types/node@npm:13.13.52"
   checksum: 9224aaea219fe7f8b903039bb146d4c38b391d0166a8226a1efa2d43a35b5b7dddfe021c32941bb454a1543da94921c112687934da88e2a019f4bd44f9d517b5
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^16.11.25":
-  version: 16.18.108
-  resolution: "@types/node@npm:16.18.108"
-  checksum: 4aa0d90124c45cc49d73657a76053a9e0f9e3a35aea4dd45d9da27e81111f1dec98ac92c0d07586cdca3bd682796ef5b4dc886afd9b78d95cd2adf0ad9331592
   languageName: node
   linkType: hard
 
@@ -19448,6 +19435,7 @@ __metadata:
     "@typescript-eslint/parser": "npm:^8.4.0"
     eslint: "npm:^8.57.0"
     eslint-config-prettier: "npm:^9.1.0"
+    eslint-plugin-import: "npm:^2.30.0"
     eslint-plugin-react: "npm:^7.35.2"
     git-commit-msg-linter: "npm:^5.0.6"
     husky: "npm:^8.0.3"

@@ -1,20 +1,17 @@
-import { pathsToModuleNameMapper } from "ts-jest";
-import { compilerOptions as baseCompilerOptions } from "../../tsconfig.base.json";
-import { compilerOptions } from "./tsconfig.json";
+import { createDefaultPreset, pathsToModuleNameMapper } from "ts-jest";
+import { compilerOptions } from "../../tsconfig.base.json";
 
-import type { Config } from "@jest/types";
-
-// Sync object
-const config: Config.InitialOptions = {
-  verbose: true,
-  transform: {
-    "^.+\\.tsx?$": "ts-jest",
-  },
+/** @type {import('ts-jest').JestConfigWithTsJest} */
+module.exports = {
+  ...createDefaultPreset(),
+  roots: ["src"],
+  displayName: "Namadillo",
   testEnvironment: "jsdom",
   modulePathIgnorePatterns: ["e2e-tests"],
+  moduleDirectories: ["src", "node_modules"],
+  verbose: true,
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
+    prefix: "<rootDir>/src/",
+  }),
   setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
-  modulePaths: [compilerOptions.baseUrl],
-  moduleNameMapper: pathsToModuleNameMapper(baseCompilerOptions.paths),
-  moduleDirectories: ["node_modules", "src"],
 };
-export default config;
