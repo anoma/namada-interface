@@ -70,7 +70,7 @@ export const isPublicKeyRevealed = async (
   try {
     publicKey = (await api.apiV1RevealedPublicKeyAddressGet(address)).data
       ?.publicKey;
-  } catch (err) {}
+  } catch (_err) {}
   return Boolean(publicKey);
 };
 
