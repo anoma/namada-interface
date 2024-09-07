@@ -1,3 +1,3 @@
-import { colors } from "./theme.js";
+import { colors } from "./theme";
 
 export type Color = keyof typeof colors;
