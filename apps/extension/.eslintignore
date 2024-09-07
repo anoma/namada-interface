@@ -2,4 +2,4 @@
 *.svg
 webpack.config.js
 .eslintrc.js
-
+tsconfig.json
