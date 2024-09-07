@@ -209,9 +209,8 @@ export const truncateInMiddle = (
  * Useful for making the compiler throw an error if you forget to
  * check a possible case e.g. when switching on the value of an enum.
  */
-export const assertNever = (x: never): never => {
+export const assertNever = (): never => {
   throw new Error("this should never happen");
-  return x;
 };
 
 export type Ok<T> = { ok: true; value: T };
@@ -312,7 +311,7 @@ export const bech32mValidation = (
   try {
     const { prefix } = bech32m.decode(value);
     return prefix === expectedPrefix;
-  } catch (e) {
+  } catch {
     return false;
   }
 };
@@ -337,7 +336,7 @@ export const isUrlValid = (url: string): boolean => {
   try {
     const newUrl = new URL(url);
     return ["http:", "https:", "ws:", "wss:"].includes(newUrl.protocol);
-  } catch (err) {
+  } catch {
     return false;
   }
 };
