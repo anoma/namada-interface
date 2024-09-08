@@ -164,6 +164,10 @@ yarn build:chrome
 yarn build:firefox
 ```
 
+#### Firefox Add-On Review
+
+See the [FIREFOX_README.md](./apps/extension/FIREFOX_README.md) for specific instructions related to reviewing the Firefox Add-On.
+
 ### Interface
 
 Within `apps/namadillo/`, we may issue the following commands:
