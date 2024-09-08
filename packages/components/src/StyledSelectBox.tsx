@@ -15,6 +15,7 @@ export type SelectBoxProps<T extends string> = {
   listContainerProps?: React.ComponentPropsWithoutRef<"ul">;
   containerProps?: React.ComponentPropsWithoutRef<"div">;
   listItemProps?: React.ComponentPropsWithoutRef<"li">;
+  arrowContainerProps?: React.ComponentPropsWithoutRef<"i">;
   defaultValue: React.ReactNode;
   options: SelectBoxOption<T>[];
 } & React.ComponentPropsWithRef<"input">;
@@ -27,6 +28,7 @@ export const StyledSelectBox = <T extends string = string>({
   containerProps = {},
   listItemProps = {},
   listContainerProps = {},
+  arrowContainerProps = {},
   displayArrow = true,
   defaultValue,
   ...props
@@ -55,10 +57,9 @@ export const StyledSelectBox = <T extends string = string>({
 
   const { className: containerClassList, ...otherContainerProps } =
     containerProps;
-
   const { className: listContainerClassList, ...otherListContainerProps } =
     listContainerProps;
-
+  const { className: arrowClassList, ...otherArrowProps } = arrowContainerProps;
   const { className: listItemClassList, ...otherListItemProps } = listItemProps;
 
   return (
@@ -101,11 +102,15 @@ export const StyledSelectBox = <T extends string = string>({
           {selected ? selected.value : defaultValue}
           {displayArrow && (
             <i
-              className={clsx(
-                "absolute right-0 rotate-45 border-r border-b w-[5px] h-[5px] border-current",
-                "origin-top",
-                { "rotate-[-135deg] translate-y-[0.35em]": open }
+              className={twMerge(
+                clsx(
+                  "absolute right-0 rotate-45 border-r border-b w-[5px] h-[5px] border-current",
+                  "origin-top",
+                  { "rotate-[-135deg] translate-y-[0.35em]": open }
+                ),
+                arrowClassList
               )}
+              {...otherArrowProps}
             />
           )}
         </div>

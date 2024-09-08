@@ -1,7 +1,7 @@
-import { ActionButton, Stack } from "@namada/components";
+import { Stack } from "@namada/components";
 import { Search } from "App/Common/Search";
 import BigNumber from "bignumber.js";
-import { Validator } from "types";
+import { Validator, ValidatorFilterOptions } from "types";
 import { MyValidatorsFilter } from "./MyValidatorsFilter";
 import { QuickAccessList } from "./QuickAccessList";
 
@@ -10,8 +10,9 @@ type Props = {
   stakedAmountByAddress: Record<string, BigNumber>;
   updatedAmountByAddress: Record<string, BigNumber>;
   onChangeSearch: (searchStr: string) => void;
+  onChangeValidatorFilter: (filter: ValidatorFilterOptions) => void;
+  validatorFilter: ValidatorFilterOptions;
   onFilterByMyValidators: (showMyValidators: boolean) => void;
-  onRandomize?: () => void;
   onlyMyValidators: boolean;
 };
 
@@ -20,8 +21,9 @@ export const ValidatorFilterNav = ({
   stakedAmountByAddress,
   updatedAmountByAddress,
   onChangeSearch,
+  onChangeValidatorFilter,
+  validatorFilter,
   onFilterByMyValidators,
-  onRandomize,
   onlyMyValidators,
 }: Props): JSX.Element => {
   // this is super ugly :(
@@ -49,10 +51,10 @@ export const ValidatorFilterNav = ({
         />
       </div>
       <MyValidatorsFilter
-        value={onlyMyValidators ? "my-validators" : "all"}
-        onChange={(filter: string) =>
-          onFilterByMyValidators(filter === "my-validators")
-        }
+        onChangeFilter={onChangeValidatorFilter}
+        filter={validatorFilter}
+        onToggleMyValidatorsFilterActive={onFilterByMyValidators}
+        myValidatorsFilterActive={onlyMyValidators}
       />
       <QuickAccessList
         validators={validators}
@@ -63,17 +65,6 @@ export const ValidatorFilterNav = ({
         updatedAmountByAddress={updatedAmountByAddress}
         stakedAmountByAddress={stakedAmountByAddress}
       />
-      {onRandomize && (
-        <ActionButton
-          type="button"
-          onClick={onRandomize}
-          backgroundColor="white"
-          className="sm:ml-auto w-auto px-8"
-          size="sm"
-        >
-          Randomize
-        </ActionButton>
-      )}
     </Stack>
   );
 };

@@ -1,14 +1,15 @@
 import { useMemo } from "react";
-import { Validator } from "types";
+import { Validator, ValidatorFilterOptions } from "types";
 
 type Props = {
   validators: Validator[];
   myValidatorsAddresses: string[];
   searchTerm: string;
+  validatorFilter: ValidatorFilterOptions;
   onlyMyValidators: boolean;
 };
 
-const filterValidators = (validator: Validator, search: string): boolean => {
+const applySearchFilters = (validator: Validator, search: string): boolean => {
   if (!search) return true;
   const preparedSearch = search.toLowerCase().trim();
   return (
@@ -23,11 +24,12 @@ export const useValidatorFilter = ({
   validators,
   myValidatorsAddresses,
   searchTerm,
+  validatorFilter,
   onlyMyValidators,
 }: Props): Validator[] => {
   return useMemo(() => {
     return validators.filter((v) => {
-      const keep = filterValidators(v, searchTerm);
+      const keep = applySearchFilters(v, searchTerm);
       if (keep && onlyMyValidators) {
         return myValidatorsAddresses.indexOf(v.address) >= 0;
       }

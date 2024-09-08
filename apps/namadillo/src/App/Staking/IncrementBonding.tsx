@@ -22,9 +22,10 @@ import { useValidatorSorting } from "hooks/useValidatorSorting";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
 import { TransactionPair, broadcastTx } from "lib/query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GoAlert } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
+import { ValidatorFilterOptions } from "types";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { IncrementBondingTable } from "./IncrementBondingTable";
 import { ValidatorFilterNav } from "./ValidatorFilterNav";
@@ -33,15 +34,17 @@ import StakingRoutes from "./routes";
 const IncrementBonding = (): JSX.Element => {
   const [filter, setFilter] = useState<string>("");
   const [onlyMyValidators, setOnlyMyValidators] = useState(false);
+  const [validatorFilter, setValidatorFilter] =
+    useState<ValidatorFilterOptions>("all");
   const navigate = useNavigate();
   const { data: chainParameters } = useAtomValue(chainParametersAtom);
   const accountBalance = useAtomValue(accountBalanceAtom);
+  const seed = useRef(Math.random());
 
   const { data: account } = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(allValidatorsAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const resultsPerPage = 100;
-  const [seed, setSeed] = useState(Math.random());
 
   const {
     mutate: createBondTransaction,
@@ -78,13 +81,14 @@ const IncrementBonding = (): JSX.Element => {
       ])
     ),
     searchTerm: filter,
+    validatorFilter,
     onlyMyValidators,
   });
 
   const sortedValidators = useValidatorSorting({
     validators: filteredValidators,
     updatedAmountByAddress,
-    seed,
+    seed: seed.current,
   });
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
@@ -235,7 +239,8 @@ const IncrementBonding = (): JSX.Element => {
                 onChangeSearch={(value: string) => setFilter(value)}
                 onlyMyValidators={onlyMyValidators}
                 onFilterByMyValidators={setOnlyMyValidators}
-                onRandomize={() => setSeed(Math.random())}
+                validatorFilter={validatorFilter}
+                onChangeValidatorFilter={setValidatorFilter}
               />
             )}
             {(validators.isLoading || myValidators.isLoading) && (
