@@ -14,10 +14,6 @@ on:
         required: true
         type: string
         default: "/api/v1/faucet"
-      NAMADA_INTERFACE_FAUCET_LIMIT:
-        required: true
-        type: string
-        default: "1000"
       NAMADA_INTERFACE_PROXY_PORT:
         type: string
 

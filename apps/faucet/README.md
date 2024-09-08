@@ -21,24 +21,19 @@ yarn
 Then, look at the potential variables you may override in [.env.sample](./.env.sample) in `apps/faucet`. You can copy these variables into a `.env` file,
 and they will be used when the application is built.
 
-As an example, if all you want to override the the API url and faucet limit, you can override the following default values in a `.env`:
+As an example, if all you want to override the the API url or endpoint, you can override the following default values in a `.env`:
 
 ```bash
 # Faucet API Endpoint override
 NAMADA_INTERFACE_FAUCET_API_URL=http://127.0.0.1:5000
 NAMADA_INTERFACE_FAUCET_API_ENDPOINT=/api/v1/faucet
-
-# Faucet limit, as defined in genesis toml
-NAMADA_INTERFACE_FAUCET_LIMIT=1000
 ```
-
-Each token address used in this form may be overridden via values specified in `.env` (see [.env.sample](./.env.sample)).
 
 [ [Table of Contents](#table-of-contents) ]
 
 ## Local Development
 
-In `apps/faucet`, you can run the following scripts to test locally:
+In `apps/faucet`, you can run the following scripts to run locally:
 
 ```bash
 yarn dev
@@ -76,11 +71,8 @@ as a static HTML website.
 
 ## Notes
 
-The logic for the API calls, as well as the mining logic can be found in [utils/index.ts](./src/utils/index.ts).
+The logic for the API calls, as well as the mining logic can be found in [utils/](./src/utils/).
 
 The form interface where these calls are invoked is located in [Faucet.tsx](./src/App/Faucet.tsx).
-
-The default token address definitions can be found in [tokens.ts](./src/config/tokens.ts). Note that each of these token definitions has a corresponding [.env](./.env.sample) variable override
-that can be used at build-time to modify the address.
 
 [ [Table of Contents](#table-of-contents) ]

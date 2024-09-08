@@ -13,8 +13,6 @@ export const SettingsForm: React.FC = () => {
   const [isFormValid, setIsFormValid] = useState(false);
   const { setIsModalOpen, baseUrl, setUrl } = useContext(AppContext)!;
   const [apiUrl, setApiUrl] = useState(baseUrl);
-  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
-    e.target.select();
 
   useEffect(() => {
     validateUrl(baseUrl);
@@ -31,7 +29,7 @@ export const SettingsForm: React.FC = () => {
 
   const handleSetUrl = (url: string): void => {
     // Strip endpoint from URL if it was provided
-    setUrl(url.replace(endpoint, ""));
+    setUrl(url.replace(endpoint, "").replace(/\/$/, ""));
     setIsModalOpen(false);
   };
 
@@ -42,11 +40,11 @@ export const SettingsForm: React.FC = () => {
           <Input
             label="Set Faucet API URL"
             value={apiUrl}
-            onFocus={handleFocus}
             onChange={(e) => {
               setApiUrl(e.target.value);
               validateUrl(e.target.value);
             }}
+            autoFocus={true}
           />
         </InputContainer>
         <ButtonContainer>

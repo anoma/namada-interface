@@ -18,7 +18,7 @@ import {
 import { Account } from "@namada/types";
 import { bech32mValidation, shortenAddress } from "@namada/utils";
 
-import { TransferResponse, computePowSolution } from "../utils";
+import { ChallengeResponse, Data, TransferResponse } from "../utils";
 import { AppContext } from "./App";
 import {
   ButtonContainer,
@@ -32,7 +32,8 @@ import {
 } from "./Faucet.components";
 
 enum Status {
-  Pending,
+  PendingPowSolution,
+  PendingTransfer,
   Completed,
   Error,
 }
@@ -59,6 +60,9 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
   );
   const [account, setAccount] = useState<Account>(accounts[0]);
   const [tokenAddress, setTokenAddress] = useState<string>();
+  const [challengeResponse, setChallengeResponse] =
+    useState<ChallengeResponse>();
+  const [solution, setSolution] = useState<string>();
   const [amount, setAmount] = useState<number | undefined>(undefined);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState(Status.Completed);
@@ -86,7 +90,8 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
     Boolean(amount) &&
     (amount || 0) <= withdrawLimit &&
     Boolean(account) &&
-    status !== Status.Pending &&
+    status !== Status.PendingPowSolution &&
+    status !== Status.PendingTransfer &&
     typeof difficulty !== "undefined" &&
     isTestnetLive;
 
@@ -121,57 +126,87 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
       setStatus(Status.Error);
       return;
     }
-    setStatus(Status.Pending);
+    setStatus(Status.PendingPowSolution);
     setStatusText(undefined);
 
     try {
       if (!account.publicKey) {
         throw new Error("Account does not have a public key!");
       }
-
       const { challenge, tag } = await api
         .challenge()
         .catch(({ message, code }) => {
           throw new Error(`Unable to request challenge: ${code} - ${message}`);
         });
-
-      const solution = computePowSolution(challenge, difficulty || 0);
-
-      const submitData = {
-        solution,
-        tag,
-        challenge,
-        transfer: {
-          target: account.address,
-          token: sanitizedToken,
-          amount: amount * 1_000_000,
-        },
-      };
-
-      const response = await api.submitTransfer(submitData).catch((e) => {
-        console.info(e);
-        const { code, message } = e;
-        throw new Error(`Unable to submit transfer: ${code} ${message}`);
-      });
-
-      if (response.sent) {
-        // Reset form if successful
-        setAmount(0);
-        setError(undefined);
-        setStatus(Status.Completed);
-        setStatusText("Transfer succeeded!");
-        setResponseDetails(response);
-        return;
-      }
-
-      setStatus(Status.Completed);
-      setStatusText("Transfer did not succeed.");
-      console.info(response);
+      setChallengeResponse({ challenge, tag });
     } catch (e) {
       setError(`${e}`);
       setStatus(Status.Error);
     }
   }, [account, tokenAddress, amount]);
+
+  useEffect(() => {
+    if (challengeResponse) {
+      const { challenge } = challengeResponse;
+      // post message to worker to start POW computation
+      powSolver.postMessage({ challenge, difficulty });
+    }
+  }, [challengeResponse]);
+
+  useEffect(() => {
+    // Listen for worker solution
+    if (powSolver) {
+      powSolver.onmessage = ({ data }) => {
+        setSolution(data);
+      };
+    }
+  }, [powSolver]);
+
+  useEffect(() => {
+    void (async () => {
+      if (challengeResponse && solution && amount && tokenAddress) {
+        const { tag, challenge } = challengeResponse;
+        const submitData: Data = {
+          solution,
+          tag,
+          challenge,
+          transfer: {
+            target: account.address,
+            token: tokenAddress,
+            amount: amount * 1_000_000,
+          },
+        };
+
+        try {
+          setStatus(Status.PendingTransfer);
+          const response = await api.submitTransfer(submitData).catch((e) => {
+            console.info(e);
+            const { code, message } = e;
+            throw new Error(`Unable to submit transfer: ${code} ${message}`);
+          });
+
+          if (response.sent) {
+            // Reset form if successful
+            setAmount(0);
+            setError(undefined);
+            setStatus(Status.Completed);
+            setStatusText("Transfer succeeded!");
+            setResponseDetails(response);
+            return;
+          }
+          setSolution(undefined);
+          setStatus(Status.Completed);
+          setStatusText("Transfer did not succeed.");
+          console.info(response);
+        } catch (e) {
+          setError(`${e}`);
+          setStatus(Status.Error);
+          setChallengeResponse(undefined);
+          setSolution(undefined);
+        }
+      }
+    })();
+  }, [solution]);
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
@@ -186,7 +221,7 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
             label="Account"
             onChange={(e) => setAccount(accountLookup[e.target.value])}
           />
-        : <div>
+          : <div>
             You have no signing accounts! Import or create an account in the
             extension, then reload this page.
           </div>
@@ -214,16 +249,21 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
           error={
             amount && amount > withdrawLimit ?
               `Amount must be less than or equal to ${withdrawLimit}`
-            : ""
+              : ""
           }
         />
       </InputContainer>
 
       {status !== Status.Error && (
         <FormStatus>
-          {status === Status.Pending && (
+          {status === Status.PendingPowSolution && (
             <InfoContainer>
-              <Alert type="warning">Processing faucet transfer...</Alert>
+              <Alert type="warning">Computing POW Solution...</Alert>
+            </InfoContainer>
+          )}
+          {status === Status.PendingTransfer && (
+            <InfoContainer>
+              <Alert type="warning">Processing Faucet Transfer..</Alert>
             </InfoContainer>
           )}
           {status === Status.Completed && statusText && (
@@ -232,11 +272,13 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
             </InfoContainer>
           )}
 
-          {responseDetails && status !== Status.Pending && (
-            <PreFormatted>
-              {JSON.stringify(responseDetails, null, 2)}
-            </PreFormatted>
-          )}
+          {responseDetails &&
+            status !== Status.PendingPowSolution &&
+            status !== Status.PendingTransfer && (
+              <PreFormatted>
+                {JSON.stringify(responseDetails, null, 2)}
+              </PreFormatted>
+            )}
         </FormStatus>
       )}
       {status === Status.Error && <Alert type="error">{error}</Alert>}
