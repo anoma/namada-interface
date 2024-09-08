@@ -1,8 +1,10 @@
-import { createContext } from "react";
+import { createContext, FunctionComponent, PropsWithChildren } from "react";
 
 export const ExtensionEventsContext = createContext({});
 
-export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
+export const ExtensionEventsProvider: FunctionComponent<PropsWithChildren> = (
+  props
+): JSX.Element => {
   return (
     <ExtensionEventsContext.Provider value={{}}>
       {props.children}

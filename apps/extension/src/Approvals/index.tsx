@@ -1,10 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { HashRouter } from "react-router-dom";
-
-import { getTheme } from "@namada/utils";
 import { RequesterProvider } from "services";
-import { ThemeProvider } from "styled-components";
 import { Approvals } from "./Approvals";
 
 import "@namada/components/src/base.css";
@@ -19,9 +16,7 @@ createRoot(container).render(
   <React.StrictMode>
     <HashRouter>
       <RequesterProvider>
-        <ThemeProvider theme={getTheme("dark")}>
-          <Approvals />
-        </ThemeProvider>
+        <Approvals />
       </RequesterProvider>
     </HashRouter>
   </React.StrictMode>

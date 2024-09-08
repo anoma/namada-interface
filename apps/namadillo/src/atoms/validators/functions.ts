@@ -24,6 +24,7 @@ export const toValidator = (
     description: indexerValidator.description,
     address: indexerValidator.address,
     homepageUrl: indexerValidator.website,
+    status: indexerValidator.state,
     expectedApr,
     unbondingPeriod,
     votingPowerInNAM: BigNumber(indexerValidator.votingPower),

@@ -1,9 +1,16 @@
 import initSdk from "@heliax/namada-sdk/inline-init";
-import { Sdk, getSdk } from "@heliax/namada-sdk/web";
+import { getSdk, Sdk } from "@heliax/namada-sdk/web";
 import { nativeTokenAddressAtom } from "atoms/chain";
 import { rpcUrlAtom } from "atoms/settings";
 import { getDefaultStore, useAtomValue } from "jotai";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  FunctionComponent,
+  PropsWithChildren,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 export const SdkContext = createContext<Sdk | undefined>(undefined);
 
@@ -32,7 +39,9 @@ export const getSdkInstance = async (): Promise<Sdk> => {
   return sdkInstance;
 };
 
-export const SdkProvider: React.FC = ({ children }) => {
+export const SdkProvider: FunctionComponent<PropsWithChildren> = ({
+  children,
+}) => {
   const [sdk, setSdk] = useState<Sdk>();
   const nativeToken = useAtomValue(nativeTokenAddressAtom);
 

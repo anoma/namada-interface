@@ -135,7 +135,7 @@ export class IndexedDBKVStore<T> implements KVStore<T> {
         });
         durability = "readwriteflush" as IDBTransactionMode;
         isDurable = true;
-      } catch (e) {
+      } catch {
         durability = "readwrite";
         isDurable = false;
       }

@@ -1,5 +1,5 @@
 import { Text } from "@namada/components";
-import React from "react";
+import React, { FunctionComponent, PropsWithChildren } from "react";
 import styled, { css, keyframes } from "styled-components";
 
 export const FaqContainer = styled.div`
@@ -42,8 +42,9 @@ export const FaqDropdownContent = styled.div<{ isOpen: boolean | null }>`
   overflow: hidden; /* Ensure content doesn't overflow during animation */
   margin-top: 8px;
   ${({ isOpen }) => {
-    const toggleAnimation = isOpen
-      ? css`
+    const toggleAnimation =
+      isOpen ?
+        css`
           max-height: 200px;
           animation: ${expand} 0.35s ease-out;
         `
@@ -51,8 +52,8 @@ export const FaqDropdownContent = styled.div<{ isOpen: boolean | null }>`
           max-height: 0px;
           animation: ${collapse} 0.35s ease-out;
         `;
-    return isOpen === null
-      ? css`
+    return isOpen === null ?
+        css`
           max-height: 0px;
         `
       : toggleAnimation;
@@ -66,7 +67,9 @@ export const DropDownTitle = styled.div`
   align-items: start;
 `;
 
-export const DropDownTitleText: React.FC = ({ children }) => {
+export const DropDownTitleText: FunctionComponent<PropsWithChildren> = ({
+  children,
+}) => {
   return (
     <div
       style={{
@@ -85,8 +88,9 @@ const FaqUrlStyle = styled.a`
   }
 `;
 
-interface FaqUrlProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {}
-export const FaqUrl: React.FC<FaqUrlProps> = ({ ...props }) => {
+export const FaqUrl: FunctionComponent<
+  React.AnchorHTMLAttributes<HTMLAnchorElement>
+> = ({ ...props }) => {
   // prevent onClick from bubbling up to parent
   return <FaqUrlStyle onClick={(e) => e.stopPropagation()} {...props} />;
 };
@@ -109,8 +113,9 @@ const reverseRotateAnimation = keyframes`
 export const PlusIcon = styled.img<{ isOpen: boolean | null }>`
   width: 24px;
   ${({ isOpen }) => {
-    const rotateAnimationCss = isOpen
-      ? css`
+    const rotateAnimationCss =
+      isOpen ?
+        css`
           animation: ${rotateAnimation} 0.2s ease-in-out forwards;
         `
       : css`

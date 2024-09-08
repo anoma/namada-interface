@@ -77,7 +77,7 @@ export const useIntegrationConnection = <TSuccess, TFail, K extends ChainKey>(
           await integration.connect();
           await onSuccess();
         }
-      } catch (e) {
+      } catch {
         if (onFail) {
           await onFail();
         }

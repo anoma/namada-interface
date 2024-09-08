@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query-persist-client";
 import BigNumber from "bignumber.js";
 import { del, get, set } from "idb-keyval";
+import { FunctionComponent, PropsWithChildren } from "react";
 import traverse, { TraverseContext } from "traverse";
 
 /**
@@ -68,7 +69,9 @@ export const queryClient = new QueryClient();
 
 const persister = createIDBPersister();
 
-export const StoreProvider: React.FC = ({ children }) => {
+export const StoreProvider: FunctionComponent<PropsWithChildren> = ({
+  children,
+}) => {
   return (
     <PersistQueryClientProvider
       client={queryClient}
