@@ -2,12 +2,5 @@
   "name": "@namada/config",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT",
-  "peerDependencies": {
-    "eslint": "^8.49.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-react": "^7.33.0",
-    "eslint-plugin-react-hooks": "^4.6.0"
-  }
+  "license": "MIT"
 }

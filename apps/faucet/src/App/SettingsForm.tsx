@@ -24,7 +24,7 @@ export const SettingsForm: React.FC = () => {
     try {
       new URL(url);
       setIsFormValid(true);
-    } catch (_) {
+    } catch {
       setIsFormValid(false);
     }
   };

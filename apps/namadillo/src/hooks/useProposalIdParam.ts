@@ -12,7 +12,7 @@ const parseProposalId = (asString: string | undefined): bigint | null => {
   try {
     const asBigInt = BigInt(asString);
     return asBigInt;
-  } catch (e) {
+  } catch {
     return null;
   }
 };

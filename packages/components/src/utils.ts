@@ -1,4 +1,4 @@
-import { colors } from "./theme.js";
+import { colors } from "./theme";
 import { Color } from "./types";
 
 export const getDefaultColorString = (color: Color): string => {

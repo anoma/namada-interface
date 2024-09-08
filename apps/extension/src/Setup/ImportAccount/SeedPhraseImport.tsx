@@ -68,7 +68,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   const isSubmitButtonDisabled =
     mnemonicType === MnemonicTypes.PrivateKey ?
       privateKey === "" || privateKeyError !== ""
-      : mnemonics.slice(0, mnemonicType).some((mnemonic) => !mnemonic);
+    : mnemonics.slice(0, mnemonicType).some((mnemonic) => !mnemonic);
 
   const onPaste = useCallback(
     (index: number, e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -146,7 +146,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
           setInvalidWordIndex(invalidWordIndex);
           typeof invalidWordIndex === "number" ?
             setMnemonicError(`Word #${invalidWordIndex + 1} is invalid!`)
-            : setMnemonicError(error);
+          : setMnemonicError(error);
         } else {
           setMnemonicError(error);
         }
@@ -162,7 +162,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   );
 
   const onShowPassphraseChange = useCallback(
-    (e) => {
+    (e: React.MouseEvent) => {
       e.preventDefault();
       if (!showPassphrase) {
         setPassphrase("");

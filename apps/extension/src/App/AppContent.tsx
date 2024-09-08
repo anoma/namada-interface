@@ -1,13 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 
-import { Alert, Stack } from "@namada/components";
+import { Stack } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
 import { useAccountContext, useVaultContext } from "context";
 import { useQuery } from "hooks";
-import { useRequester } from "hooks/useRequester";
-import { CheckDurabilityMsg } from "provider/messages";
-import { Ports } from "router";
 import { openSetupTab } from "utils";
 import {
   DeleteAccount,
@@ -17,24 +14,21 @@ import {
 } from "./Accounts";
 import { ParentAccounts } from "./Accounts/ParentAccounts";
 import { ChangePassword, ConnectedSites, Network } from "./Settings";
+import { Warnings } from "./Settings/Warnings";
 import { Setup } from "./Setup";
 import routes from "./routes";
 import { LoadingStatus } from "./types";
 
-const STORE_DURABILITY_INFO =
-  'Store is not durable. This might cause problems when persisting data on disk.\
- To fix this issue, please navigate to "about:config" and set "dom.indexedDB.experimental" to true.';
-
-export const AppContent = (): JSX.Element => {
+type Props = {
+  warnings?: string[];
+};
+export const AppContent = ({ warnings }: Props): JSX.Element => {
   const { accounts, status: accountLoadingStatus } = useAccountContext();
   const { passwordInitialized } = useVaultContext();
 
   const query = useQuery();
   const redirect = query.get("redirect");
   const navigate = useNavigate();
-  const requester = useRequester();
-
-  const [isDurable, setIsDurable] = useState<boolean | undefined>();
 
   const getStartPage = (accounts: DerivedAccount[]): string => {
     return accounts.length === 0 ? routes.setup() : routes.viewAccountList();
@@ -61,22 +55,8 @@ export const AppContent = (): JSX.Element => {
     }
   }, [accounts, passwordInitialized, accountLoadingStatus]);
 
-  useEffect(() => {
-    void (async () => {
-      const isDurable = await requester.sendMessage(
-        Ports.Background,
-        new CheckDurabilityMsg()
-      );
-      setIsDurable(isDurable);
-    })();
-  }, []);
-
   return (
     <Stack className="py-5" full gap={6}>
-      {isDurable === false && (
-        <Alert type="warning">{STORE_DURABILITY_INFO}</Alert>
-      )}
-
       <Routes>
         <Route path={"/"} element={<></>} />
         <Route path={routes.setup()} element={<Setup />} />
@@ -90,6 +70,10 @@ export const AppContent = (): JSX.Element => {
           }
         />
         <Route path={routes.network()} element={<Network />} />
+        <Route
+          path={routes.warnings()}
+          element={<Warnings warnings={warnings} />}
+        />
         {/* Routes that depend on a parent account existing in storage */}
         {accounts.length > 0 && (
           <>

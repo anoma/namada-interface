@@ -54,7 +54,7 @@ export const Setup = (): JSX.Element => {
             label="Indexer URL"
             placeholder="http://example.com:5000"
             value={url}
-            error={error instanceof Error ? error.message : error}
+            error={error instanceof Error ? error.message : String(error)}
             onChange={(e) => {
               setUrl(e.target.value);
               reset();

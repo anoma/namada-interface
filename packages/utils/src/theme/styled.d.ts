@@ -5,6 +5,6 @@ interface IPalette {
   contrastText: string;
 }
 declare module "styled-components" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  // eslint-disable-next-line
   export interface DefaultTheme extends DesignConfiguration {}
 }

@@ -6,6 +6,7 @@ export default {
   changePassword: (): string => `/change-password`,
   connectedSites: (): string => `/connected-sites`,
   network: (): string => `/network`,
+  warnings: (): string => `/warnings`,
   viewAccountList: () => `/accounts/view`,
   viewAccountMnemonic: (accountId: string = ":accountId") =>
     `/accounts/mnemonic/${accountId}`,

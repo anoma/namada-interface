@@ -23,19 +23,15 @@
     "@namada/types": "0.2.1",
     "@namada/utils": "0.2.1",
     "isomorphic-dompurify": "^2.6.0",
-    "typescript": "^5.1.3"
+    "react-dom": "^18.3.0",
+    "react-router-dom": "^6.0.0"
   },
   "devDependencies": {
-    "@types/react": "^17.0.39",
-    "eslint": "^8.49.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-react": "^7.33.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
     "rimraf": "^5.0.5"
   },
   "peerDependencies": {
-    "react": "^18.0.0"
+    "react": "^18.0.0",
+    "typescript": "^5.5.4"
   },
   "files": [
     "dist"

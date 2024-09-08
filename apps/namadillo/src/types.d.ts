@@ -1,6 +1,7 @@
 import {
   Bond as IndexerBond,
   Unbond as IndexerUnbond,
+  ValidatorStatus,
 } from "@anomaorg/namada-indexer-client";
 import { ChainKey, ExtensionKey } from "@namada/types";
 import BigNumber from "bignumber.js";
@@ -69,6 +70,7 @@ export type Validator = Unique & {
   votingPowerPercentage?: number;
   commission: BigNumber;
   imageUrl?: string;
+  status: ValidatorStatus;
 };
 
 export type UnbondEntry = Omit<

@@ -46,7 +46,7 @@ export const Advanced = (): JSX.Element => {
           error={
             indexerMutation.error instanceof Error ?
               indexerMutation.error.message
-            : indexerMutation.error
+            : String(indexerMutation.error)
           }
           label="Indexer URL"
           className="[&_input]:border-neutral-300"
@@ -62,7 +62,7 @@ export const Advanced = (): JSX.Element => {
           error={
             rpcMutation.error instanceof Error ?
               rpcMutation.error.message
-            : rpcMutation.error
+            : String(rpcMutation.error)
           }
           label="RPC URL"
           className="[&_input]:border-neutral-300"

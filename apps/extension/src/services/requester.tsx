@@ -1,4 +1,10 @@
-import { createContext, useEffect, useState } from "react";
+import {
+  createContext,
+  FunctionComponent,
+  PropsWithChildren,
+  useEffect,
+  useState,
+} from "react";
 import browser from "webextension-polyfill";
 
 import { ExtensionKVStore } from "@namada/storage";
@@ -20,7 +26,9 @@ const messenger = new ExtensionMessenger();
 
 export const RequesterContext = createContext<ExtensionRequester | null>(null);
 
-export const RequesterProvider: React.FC = ({ children }) => {
+export const RequesterProvider: FunctionComponent<PropsWithChildren> = ({
+  children,
+}) => {
   const [requester, setRequester] = useState<ExtensionRequester>();
 
   useEffect(() => {
@@ -34,11 +42,11 @@ export const RequesterProvider: React.FC = ({ children }) => {
 
   return (
     <>
-      {requester ? (
+      {requester ?
         <RequesterContext.Provider value={requester}>
           {children}
         </RequesterContext.Provider>
-      ) : null}
+      : null}
     </>
   );
 };
