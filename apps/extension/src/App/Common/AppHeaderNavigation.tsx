@@ -3,17 +3,19 @@ import routes from "App/routes";
 import clsx from "clsx";
 import { useVaultContext } from "context";
 import { FaDiscord, FaXTwitter } from "react-icons/fa6";
-import { GoQuestion } from "react-icons/go";
+import { GoAlert, GoQuestion } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 
 type AppHeaderNavigationProps = {
   open: boolean;
   onClose: () => void;
+  warnings?: string[];
 };
 
 export const AppHeaderNavigation = ({
   open,
   onClose,
+  warnings,
 }: AppHeaderNavigationProps): JSX.Element => {
   const { lock } = useVaultContext();
   const navigate = useNavigate();
@@ -47,6 +49,19 @@ export const AppHeaderNavigation = ({
           { "!translate-x-0": open }
         )}
       >
+        {warnings && warnings.length > 0 && (
+          <i
+            className={clsx(
+              "text-[1.85em] cursor-pointer leading-[0] absolute left-0 px-6 py-5 not-italic",
+              "top-0 transition-colors duration-100 ease-out select-none hover:text-black active:top-px"
+            )}
+            role="button"
+            aria-label="Warnings menu"
+            onClick={() => goTo(routes.warnings)}
+          >
+            <GoAlert />
+          </i>
+        )}
         <i
           className={clsx(
             "text-[1.85em] cursor-pointer leading-[0] absolute right-0 px-5 py-8 not-italic",
@@ -106,14 +121,21 @@ export const AppHeaderNavigation = ({
                 <FaXTwitter />
               </a>
             </Stack>
-            <a
-              href="https://discord.com/channels/833618405537218590/1074984397599678534"
-              target="_blank"
-              className="transition-colors hover:text-cyan"
-              rel="noreferrer nofollow"
+            <Stack
+              as="ul"
+              gap={4}
+              direction="horizontal"
+              className="items-center"
             >
-              <GoQuestion />
-            </a>
+              <a
+                href="https://discord.com/channels/833618405537218590/1074984397599678534"
+                target="_blank"
+                className="transition-colors hover:text-cyan"
+                rel="noreferrer nofollow"
+              >
+                <GoQuestion />
+              </a>
+            </Stack>
           </footer>
         </div>
       </nav>

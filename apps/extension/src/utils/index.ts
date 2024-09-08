@@ -16,10 +16,15 @@ export const closeCurrentTab = async (): Promise<void> => {
   }
 };
 
+/**
+ * Launch the Setup tab, close existing popup
+ */
 export const openSetupTab = async (): Promise<void> => {
-  await browser.tabs.create({
-    url: browser.runtime.getURL("setup.html"),
-  });
+  await browser.tabs
+    .create({
+      url: browser.runtime.getURL("setup.html"),
+    })
+    .then(() => close());
 };
 
 export const fillArray = (arr: string[], length: number): string[] => {

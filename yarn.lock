@@ -4013,6 +4013,7 @@ __metadata:
     "@types/chrome": "npm:^0.0.237"
     "@types/firefox-webext-browser": "npm:^94.0.1"
     "@types/uuid": "npm:^8.3.4"
+    "@types/w3c-web-usb": "npm:^1.0.10"
     "@types/webextension-polyfill": "npm:^0.10.6"
     "@types/zxcvbn": "npm:^4.4.1"
     "@zondax/ledger-namada": "npm:^0.0.6"
@@ -6311,6 +6312,13 @@ __metadata:
   version: 8.3.4
   resolution: "@types/uuid@npm:8.3.4"
   checksum: b9ac98f82fcf35962317ef7dc44d9ac9e0f6fdb68121d384c88fe12ea318487d5585d3480fa003cf28be86a3bbe213ca688ba786601dce4a97724765eb5b1cf2
+  languageName: node
+  linkType: hard
+
+"@types/w3c-web-usb@npm:^1.0.10":
+  version: 1.0.10
+  resolution: "@types/w3c-web-usb@npm:1.0.10"
+  checksum: 3df5733a334c5fd22ef3fa1e97a70c029542591058d11905d1304c26bab8705d975168818b5b7ec21fef5591cdea776dbdb31d4c04aa433e7fe7d61dd7ebdecf
   languageName: node
   linkType: hard
 

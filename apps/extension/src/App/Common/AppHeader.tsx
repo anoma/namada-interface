@@ -9,12 +9,14 @@ type AppHeaderProps = {
   returnButton: boolean;
   settingsButton: boolean;
   lockButton: boolean;
+  warnings?: string[];
 };
 
 export const AppHeader = ({
   returnButton,
   settingsButton,
   lockButton,
+  warnings,
 }: AppHeaderProps): JSX.Element => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -50,7 +52,11 @@ export const AppHeader = ({
           <GoGear />
         </i>
       )}
-      <AppHeaderNavigation onClose={() => setOpen(false)} open={open} />
+      <AppHeaderNavigation
+        onClose={() => setOpen(false)}
+        open={open}
+        warnings={warnings}
+      />
     </>
   );
 };
