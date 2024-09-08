@@ -84,7 +84,7 @@ export const ApproveSignArbitrary: React.FC<Props> = ({
     try {
       const parsed = JSON.parse(data);
       return JSON.stringify(parsed, null, 2);
-    } catch (_) {
+    } catch {
       // Not JSON, return raw data
       return data;
     }

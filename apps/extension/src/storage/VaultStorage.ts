@@ -12,7 +12,7 @@ const Uint8ArrayCodec = new t.Type<Uint8Array, Uint8Array, unknown>(
     try {
       const a = Array.from(u as Uint8Array);
       return t.success(Uint8Array.from(a));
-    } catch (_e) {
+    } catch {
       return t.failure(u, c);
     }
   },
