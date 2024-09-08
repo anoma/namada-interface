@@ -9,7 +9,7 @@ import { useAtomValue } from "jotai";
 import { AiOutlineMessage } from "react-icons/ai";
 import { IoSettingsOutline } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
-import { AccountBox } from "./AccountBox";
+import { ActiveAccount } from "./ActiveAccount";
 import { SyncIndicator } from "./SyncIndicator";
 
 export const TopNavigation = (): JSX.Element => {
@@ -54,7 +54,7 @@ export const TopNavigation = (): JSX.Element => {
           )}
           <div />
           <SyncIndicator />
-          <AccountBox />
+          <ActiveAccount />
         </div>
       )}
     </>

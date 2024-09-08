@@ -13,12 +13,14 @@ import { RouteErrorBoundary } from "./Common/RouteErrorBoundary";
 import { Governance } from "./Governance";
 import { SettingsPanel } from "./Settings/SettingsPanel";
 import { Staking } from "./Staking";
+import { SwitchAccountModal } from "./SwitchAccount/SwitchAccountModal";
 
 import GovernanceRoutes from "./Governance/routes";
 import SettingsRoutes from "./Settings/routes";
 import { SignMessages } from "./SignMessages/SignMessages";
 import MessageRoutes from "./SignMessages/routes";
 import StakingRoutes from "./Staking/routes";
+import SwitchAccountRoutes from "./SwitchAccount/routes";
 
 export const MainRoutes = (): JSX.Element => {
   const location = useLocation();
@@ -46,6 +48,11 @@ export const MainRoutes = (): JSX.Element => {
         <Route
           path={`${SettingsRoutes.index()}/*`}
           element={<SettingsPanel />}
+          errorElement={<RouteErrorBoundary />}
+        />
+        <Route
+          path={`${SwitchAccountRoutes.index()}/*`}
+          element={<SwitchAccountModal />}
           errorElement={<RouteErrorBoundary />}
         />
         <Route
