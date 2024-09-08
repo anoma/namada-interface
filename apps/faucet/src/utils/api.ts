@@ -11,7 +11,7 @@ export const {
 } = process.env;
 
 export class API {
-  constructor(public readonly baseUrl: string) { }
+  constructor(public readonly baseUrl: string) {}
 
   /**
    * Wrapper for fetch requests to handle ReadableStream response when errors are received from API

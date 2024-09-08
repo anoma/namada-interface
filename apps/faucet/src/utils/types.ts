@@ -1,3 +1,8 @@
+export type PowChallenge = {
+  challenge: string;
+  difficulty: number;
+};
+
 export type ChallengeResponse = {
   challenge: string;
   tag: string;

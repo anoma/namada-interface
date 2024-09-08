@@ -110,6 +110,25 @@ export const App: React.FC = () => {
   const [settingsError, setSettingsError] = useState<string>();
   const theme = getTheme(colorMode);
 
+  const fetchSettings = async (api: API): Promise<void> => {
+    const {
+      difficulty,
+      tokens_alias_to_address: tokens,
+      withdraw_limit: withdrawLimit = DEFAULT_LIMIT,
+    } = await api.settings().catch((e) => {
+      const message = e.errors?.message;
+      setSettingsError(`Error requesting settings: ${message?.join(" ")}`);
+      throw new Error(e);
+    });
+    // Append difficulty level and tokens to settings
+    setSettings({
+      ...settings,
+      difficulty,
+      tokens,
+      withdrawLimit: toNam(withdrawLimit),
+    });
+  };
+
   useUntil(
     {
       predFn: async () => Promise.resolve(integration.detect()),
@@ -144,29 +163,9 @@ export const App: React.FC = () => {
     }
 
     // Fetch settings from faucet API
-    (async () => {
-      try {
-        const {
-          difficulty,
-          tokens_alias_to_address: tokens,
-          withdraw_limit: withdrawLimit = DEFAULT_LIMIT,
-        } = await api.settings().catch((e) => {
-          const message = e.errors?.message;
-          setSettingsError(`Error requesting settings: ${message?.join(" ")}`);
-          throw new Error(e);
-        });
-        // Append difficulty level and tokens to settings
-        setSettings({
-          ...settings,
-          difficulty,
-          tokens,
-          withdrawLimit: toNam(withdrawLimit),
-        });
-        setSettingsError(undefined);
-      } catch (e) {
-        setSettingsError(`Failed to load settings! ${e}`);
-      }
-    })();
+    fetchSettings(api)
+      .then(() => setSettingsError(undefined))
+      .catch((e) => setSettingsError(`Failed to load settings! ${e}`));
   }, [url]);
 
   const handleConnectExtensionClick = useCallback(async (): Promise<void> => {
@@ -230,10 +229,10 @@ export const App: React.FC = () => {
 
               {extensionAttachStatus ===
                 ExtensionAttachStatus.PendingDetection && (
-                  <InfoContainer>
-                    <Alert type="info">Detecting extension...</Alert>
-                  </InfoContainer>
-                )}
+                <InfoContainer>
+                  <Alert type="info">Detecting extension...</Alert>
+                </InfoContainer>
+              )}
               {extensionAttachStatus === ExtensionAttachStatus.NotInstalled && (
                 <InfoContainer>
                   <Alert type="error">You must download the extension!</Alert>
@@ -241,11 +240,7 @@ export const App: React.FC = () => {
               )}
 
               {isExtensionConnected && (
-                <FaucetForm
-                  accounts={accounts}
-                  integration={integration}
-                  isTestnetLive={isTestnetLive}
-                />
+                <FaucetForm accounts={accounts} isTestnetLive={isTestnetLive} />
               )}
               {extensionAttachStatus === ExtensionAttachStatus.Installed &&
                 !isExtensionConnected && (
