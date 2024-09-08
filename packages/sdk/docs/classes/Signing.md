@@ -40,7 +40,7 @@ Signing constructor
 
 #### Defined in
 
-[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/signing.ts#L13)
+[sdk/src/signing.ts:14](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/signing.ts#L14)
 
 ## Properties
 
@@ -52,13 +52,13 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/signing.ts:13](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/signing.ts#L13)
+[sdk/src/signing.ts:14](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/signing.ts#L14)
 
 ## Methods
 
 ### sign
 
-▸ **sign**(`builtTx`, `signingKey`, `chainId?`): `Promise`\<`Uint8Array`\>
+▸ **sign**(`txProps`, `signingKey`, `chainId?`): `Promise`\<`Uint8Array`\>
 
 Sign Namada transaction
 
@@ -66,7 +66,7 @@ Sign Namada transaction
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `builtTx` | [`BuiltTx`](BuiltTx.md) | BuiltTx instance |
+| `txProps` | `TxMsgValue` | TxProps |
 | `signingKey` | `string` | private key |
 | `chainId?` | `string` | optional chain ID, will enforce validation if present |
 
@@ -78,7 +78,7 @@ signed tx bytes - Promise resolving to Uint8Array
 
 #### Defined in
 
-[sdk/src/signing.ts:22](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/signing.ts#L22)
+[sdk/src/signing.ts:23](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/signing.ts#L23)
 
 ___
 
@@ -103,7 +103,7 @@ hash and signature
 
 #### Defined in
 
-[sdk/src/signing.ts:36](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/signing.ts#L36)
+[sdk/src/signing.ts:41](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/signing.ts#L41)
 
 ___
 
@@ -129,4 +129,4 @@ void
 
 #### Defined in
 
-[sdk/src/signing.ts:47](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/signing.ts#L47)
+[sdk/src/signing.ts:52](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/signing.ts#L52)

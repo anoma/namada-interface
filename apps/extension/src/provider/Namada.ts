@@ -1,4 +1,3 @@
-import { toBase64 } from "@cosmjs/encoding";
 import {
   Chain,
   DerivedAccount,
@@ -10,6 +9,7 @@ import {
 } from "@namada/types";
 import { MessageRequester, Ports } from "router";
 
+import { toEncodedTx } from "utils";
 import {
   ApproveConnectInterfaceMsg,
   ApproveSignArbitraryMsg,
@@ -73,10 +73,8 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new ApproveSignTxMsg(
-        txs.map(({ txBytes, signingDataBytes }) => ({
-          txBytes: toBase64(txBytes),
-          signingDataBytes: signingDataBytes.map((bytes) => toBase64(bytes)),
-        })),
+        // Encode all transactions for use with postMessage
+        txs.map((txProps) => toEncodedTx(txProps)),
         signer,
         checksums
       )

@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { WrapperTxMsgValue } from "@namada/types";
+import BigNumber from "bignumber.js";
 import createMockInstance from "jest-create-mock-instance";
 import {
   ApproveConnectInterfaceMsg,
@@ -46,7 +48,19 @@ describe("approvals handler", () => {
     };
 
     const approveTxMsg = new ApproveSignTxMsg(
-      [{ txBytes: "", signingDataBytes: [""] }],
+      [
+        {
+          args: new WrapperTxMsgValue({
+            token: "",
+            feeAmount: BigNumber(0),
+            gasLimit: BigNumber(0),
+            chainId: "",
+          }),
+          hash: "",
+          bytes: "",
+          signingData: [],
+        },
+      ],
       "signer"
     );
 

@@ -22,6 +22,7 @@ export const LedgerConfirmation = (): JSX.Element => {
       <ViewKeys
         publicKeyAddress={account.publicKey}
         transparentAccountAddress={account.address}
+        trimCharacters={35}
       />
       <ActionButton size="lg" onClick={closeCurrentTab}>
         Finish Setup

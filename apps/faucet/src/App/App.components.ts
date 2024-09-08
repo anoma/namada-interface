@@ -140,3 +140,50 @@ export const ContentContainer = styled.div`
     padding: 0 16px;
   }
 `;
+
+export const InputContainer = styled.div`
+  margin: 12px 0;
+`;
+
+export const ButtonContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 13px 0 0 0;
+`;
+
+export const SettingsButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+`;
+
+export const SettingsButton = styled.button`
+  & > svg {
+    width: 20px;
+    height: 20px;
+    color: ${(props) => props.theme.colors.primary.main20};
+  }
+`;
+
+export const SettingsContainer = styled.div`
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  box-sizing: border-box;
+  background-color: ${(props) =>
+    getColor(ComponentColor.BackgroundColor, props.theme)};
+  border: 1px solid ${(props) => props.theme.colors.primary.main20};
+  border-radius: ${(props) => props.theme.borderRadius.mainContainer};
+  transition: background-color 0.3s linear;
+`;
+
+export const SettingsFormContainer = styled.form`
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  padding: 32px 40px;
+  width: 500px;
+`;

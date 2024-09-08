@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import InclineArrowBlack from "../../public/incline-arrow-black.svg";
-import InclineArrowYellow from "../../public/incline-arrow-yellow.svg";
+import InclineArrowBlack from "../../../public/incline-arrow-black.svg";
+import InclineArrowYellow from "../../../public/incline-arrow-yellow.svg";
 import {
   BottomBorder,
   CallToActionContainer,

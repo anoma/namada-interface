@@ -1,32 +1,22 @@
 import {
   Bond as IndexerBond,
+  MergedBond as IndexerMergedBond,
   Unbond as IndexerUnbond,
   Validator as IndexerValidator,
   VotingPower as IndexerVotingPower,
 } from "@anomaorg/namada-indexer-client";
 import { singleUnitDurationFromInterval } from "@namada/utils";
 import BigNumber from "bignumber.js";
-import { EpochInfo, MyUnbondingValidator, MyValidator, Validator } from "types";
+import { Address, MyValidator, UnbondEntry, Validator } from "types";
 
 export const toValidator = (
   indexerValidator: IndexerValidator,
   indexerVotingPower: IndexerVotingPower,
-  epochInfo: EpochInfo,
+  unbondingPeriod: string,
   nominalApr: BigNumber
 ): Validator => {
   const commission = BigNumber(indexerValidator.commission);
   const expectedApr = nominalApr.times(1 - commission.toNumber());
-
-  // Because epoch duration is in reality longer by epochSwitchBlocksDelay we have to account for that
-  const timePerBlock = epochInfo.minEpochDuration / epochInfo.minNumOfBlocks;
-  const realMinEpochDuration =
-    epochInfo.minEpochDuration +
-    timePerBlock * epochInfo.epochSwitchBlocksDelay;
-
-  const unbondingPeriod = singleUnitDurationFromInterval(
-    0,
-    epochInfo.unbondingPeriodInEpochs * realMinEpochDuration
-  );
 
   return {
     uuid: indexerValidator.address,
@@ -45,67 +35,90 @@ export const toValidator = (
   };
 };
 
-export const toMyValidators = (
-  indexerBonds: IndexerBond[],
-  totalVotingPower: IndexerVotingPower,
-  epochInfo: EpochInfo,
-  apr: BigNumber
-): MyValidator[] => {
-  return indexerBonds.map((indexerBond) => {
-    const validator = toValidator(
-      indexerBond.validator,
-      totalVotingPower,
-      epochInfo,
-      apr
-    );
-
-    return {
-      uuid: String(indexerBond.validator.validatorId),
-      stakingStatus: "bonded",
-      stakedAmount: BigNumber(indexerBond.amount),
-      unbondedAmount: BigNumber(0),
-      withdrawableAmount: BigNumber(0),
-      validator,
-    };
-  });
+export const calculateUnbondingTimeLeft = (unbond: IndexerUnbond): string => {
+  const timeNow = Math.round(Date.now() / 1000);
+  const withdrawTime = Number(unbond.withdrawTime);
+  const canWithdraw = unbond.canWithdraw;
+  const timeLeft =
+    canWithdraw ? ""
+      // If can't withdraw but estimation is incorrect display withdraw epoch
+    : withdrawTime < timeNow ? `Epoch ${unbond.withdrawEpoch}`
+    : singleUnitDurationFromInterval(timeNow, withdrawTime);
+  return timeLeft;
 };
 
-export const toUnbondingValidators = (
-  indexerBonds: IndexerUnbond[],
+/**
+ * Parses the results returned by the indexer into a MyValidator structure, returning
+ * an array of MyValidators objects
+ */
+export const toMyValidators = (
+  indexerBonds: IndexerBond[] | IndexerMergedBond[],
+  indexerUnbonds: IndexerUnbond[],
   totalVotingPower: IndexerVotingPower,
-  epochInfo: EpochInfo,
+  unbondingPeriod: string,
   apr: BigNumber
-): MyUnbondingValidator[] => {
-  const timeNow = Math.round(Date.now() / 1000);
+): MyValidator[] => {
+  const myValidators: Record<Address, MyValidator> = {};
 
-  return indexerBonds.map((indexerUnbond) => {
-    const validator = toValidator(
-      indexerUnbond.validator,
-      totalVotingPower,
-      epochInfo,
-      apr
-    );
-    const withdrawTime = Number(indexerUnbond.withdrawTime);
+  const createEntryIfDoesntExist = (validator: IndexerValidator): void => {
+    if (!myValidators.hasOwnProperty(validator.address)) {
+      myValidators[validator.address] = {
+        withdrawableAmount: new BigNumber(0),
+        stakedAmount: new BigNumber(0),
+        unbondedAmount: new BigNumber(0),
+        bondItems: [],
+        unbondItems: [],
+        validator: toValidator(
+          validator,
+          totalVotingPower,
+          unbondingPeriod,
+          apr
+        ),
+      };
+    }
+  };
 
-    const canWithdraw = indexerUnbond.canWithdraw;
-    const timeLeft =
-      canWithdraw ? ""
-        // If can't withdraw but estimation is incorrect display withdraw epoch
-      : withdrawTime < timeNow ? `Epoch ${indexerUnbond.withdrawEpoch}`
-      : singleUnitDurationFromInterval(timeNow, withdrawTime);
+  const addBondToAddress = (
+    address: Address,
+    key: "bondItems" | "unbondItems",
+    bond: IndexerBond | IndexerMergedBond | IndexerUnbond
+  ): void => {
+    const { validator: _, ...bondsWithoutValidator } = bond;
+    myValidators[address]![key].push(bondsWithoutValidator);
+  };
 
-    const amountValue = BigNumber(indexerUnbond.amount);
-    const amount = {
-      [canWithdraw ? "withdrawableAmount" : "unbondedAmount"]: amountValue,
+  const incrementAmount = (
+    address: Address,
+    prop: keyof Pick<
+      MyValidator,
+      "stakedAmount" | "withdrawableAmount" | "unbondedAmount"
+    >,
+    amount: BigNumber | string
+  ): void => {
+    myValidators[address][prop] = myValidators[address][prop]!.plus(amount);
+  };
+
+  for (const bond of indexerBonds) {
+    const { address } = bond.validator;
+    createEntryIfDoesntExist(bond.validator);
+    incrementAmount(address, "stakedAmount", bond.amount);
+    addBondToAddress(address, "bondItems", { ...bond });
+  }
+
+  for (const unbond of indexerUnbonds) {
+    const { address } = unbond.validator;
+    createEntryIfDoesntExist(unbond.validator);
+    const unbondingDetails: UnbondEntry = {
+      ...unbond,
+      timeLeft: calculateUnbondingTimeLeft(unbond),
     };
+    addBondToAddress(address, "unbondItems", unbondingDetails);
+    if (unbond.canWithdraw) {
+      incrementAmount(address, "withdrawableAmount", unbond.amount);
+    } else {
+      incrementAmount(address, "unbondedAmount", unbond.amount);
+    }
+  }
 
-    return {
-      uuid: String(indexerUnbond.validator.validatorId),
-      stakingStatus: "unbonded",
-      stakedAmount: BigNumber(0),
-      timeLeft,
-      validator,
-      ...amount,
-    };
-  });
+  return Object.values(myValidators);
 };

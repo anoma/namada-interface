@@ -1,4 +1,4 @@
-import { DefaultApi } from "@anomaorg/namada-indexer-client";
+import { Configuration, DefaultApi } from "@anomaorg/namada-indexer-client";
 import { isUrlValid } from "@namada/utils";
 import toml from "toml";
 import { SettingsTomlOptions } from "types";
@@ -8,7 +8,8 @@ export const isIndexerAlive = async (url: string): Promise<boolean> => {
     return false;
   }
   try {
-    const api = new DefaultApi({ basePath: url });
+    const configuration = new Configuration({ basePath: url });
+    const api = new DefaultApi(configuration);
     const response = await api.healthGet();
     return response.status === 200;
   } catch {

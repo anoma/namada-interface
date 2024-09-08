@@ -1,6 +1,7 @@
 import { DerivedAccount } from "./account";
 import { Chain } from "./chain";
-import { SignArbitraryResponse, Signer, TxData } from "./signer";
+import { SignArbitraryResponse, Signer } from "./signer";
+import { TxProps } from "./tx";
 
 export type SignArbitraryProps = {
   signer: string;
@@ -9,7 +10,7 @@ export type SignArbitraryProps = {
 
 export type SignProps = {
   signer: string;
-  txs: TxData[];
+  txs: TxProps[];
   checksums?: Record<string, string>;
 };
 

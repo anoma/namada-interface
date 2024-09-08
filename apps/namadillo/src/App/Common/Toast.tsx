@@ -40,28 +40,34 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
   const [viewDetails, setViewDetails] = useState(false);
   const interval = useRef<NodeJS.Timeout>();
 
+  const timeout =
+    notification.timeout ??
+    (notification.type === "success" || notification.type === "error" ?
+      5000
+    : undefined);
+
   const closeNotification = (): void => {
     onClose(notification);
   };
 
   const keepNotification = (): void => {
-    if (notification.timeout && interval.current) {
+    if (interval.current) {
       clearTimeout(interval.current);
       interval.current = undefined;
     }
   };
 
   const startTimeout = (): void => {
-    if (notification.timeout && !interval.current) {
+    if (typeof timeout !== "undefined" && !interval.current) {
       interval.current = setTimeout(() => {
         closeNotification();
-      }, notification.timeout);
+      }, timeout);
     }
   };
 
   useEffect(() => {
     startTimeout();
-  }, []);
+  }, [notification.type]);
 
   return (
     <motion.div

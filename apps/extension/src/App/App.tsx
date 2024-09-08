@@ -9,36 +9,42 @@ import routes from "./routes";
 export const App: React.FC = () => {
   const location = useLocation();
 
-  const { isLocked, unlock, passwordInitialized } = useVaultContext();
+  const { lockStatus, unlock, passwordInitialized } = useVaultContext();
 
   const displayReturnButton = (): boolean => {
     const setupRoute = routes.setup();
     const indexRoute = routes.viewAccountList();
     return Boolean(
-      !isLocked &&
-        isLocked !== undefined &&
+      lockStatus === "unlocked" &&
         !matchPath(setupRoute, location.pathname) &&
         !matchPath(indexRoute, location.pathname)
     );
   };
 
-  const shouldLock = passwordInitialized && isLocked;
-  if (passwordInitialized === undefined) return null;
+  if (passwordInitialized === undefined || lockStatus === "pending") {
+    return null;
+  }
+
+  const shouldLock = passwordInitialized && lockStatus === "locked";
 
   return (
     <Container
       size="popup"
       header={
         <AppHeader
-          settingsButton={!isLocked && passwordInitialized}
+          settingsButton={lockStatus === "unlocked" && passwordInitialized}
           lockButton={
-            !isLocked && passwordInitialized && !displayReturnButton()
+            lockStatus === "unlocked" &&
+            passwordInitialized &&
+            !displayReturnButton()
           }
           returnButton={displayReturnButton()}
         />
       }
     >
-      {shouldLock ? <Login onLogin={unlock} /> : <AppContent />}
+      {shouldLock ?
+        <Login onLogin={unlock} />
+      : <AppContent />}
     </Container>
   );
 };

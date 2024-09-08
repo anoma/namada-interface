@@ -1,4 +1,5 @@
 import {
+  ApiV1GovProposalGetStatusEnum as ApiIndexerProposalStatusEnum,
   DefaultApi,
   Proposal as IndexerProposal,
   ProposalStatusEnum as IndexerProposalStatusEnum,
@@ -257,16 +258,16 @@ const fromIndexerStatus = (
 
 const toIndexerStatus = (
   proposalStatus: ProposalStatus
-): IndexerProposalStatusEnum => {
+): ApiIndexerProposalStatusEnum => {
   switch (proposalStatus) {
     case "pending":
-      return IndexerProposalStatusEnum.Pending;
+      return ApiIndexerProposalStatusEnum.Pending;
     case "ongoing":
-      return IndexerProposalStatusEnum.Voting;
+      return ApiIndexerProposalStatusEnum.VotingPeriod;
     case "passed":
-      return IndexerProposalStatusEnum.Passed;
+      return ApiIndexerProposalStatusEnum.Passed;
     case "rejected":
-      return IndexerProposalStatusEnum.Rejected;
+      return ApiIndexerProposalStatusEnum.Rejected;
     default:
       return assertNever(proposalStatus);
   }

@@ -1,9 +1,9 @@
-import { BuiltTx } from "@heliax/namada-sdk/web";
+import { TxProps } from "@namada/types";
 
-export const createNotificationId = (data?: BuiltTx | BuiltTx[]): string => {
+export const createNotificationId = (data?: TxProps | TxProps[]): string => {
   if (!data) return Date.now().toString();
   if (Array.isArray(data)) {
-    return data.map((tx) => tx.tx_hash()).join(";");
+    return data.map((tx) => tx.hash).join(";");
   }
-  return data.tx_hash();
+  return data.hash;
 };

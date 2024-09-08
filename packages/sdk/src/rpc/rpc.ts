@@ -4,9 +4,14 @@ import {
   Sdk as SdkWasm,
   TransferToEthereum,
 } from "@namada/shared";
-import { TxResponseMsgValue, TxResponseProps } from "@namada/types";
+import {
+  Message,
+  TxResponseMsgValue,
+  TxResponseProps,
+  WrapperTxMsgValue,
+  WrapperTxProps,
+} from "@namada/types";
 
-import { SignedTx } from "../tx/types";
 import {
   Balance,
   BondsResponse,
@@ -211,12 +216,19 @@ export class Rpc {
   /**
    * Broadcast a Tx to the ledger
    * @async
-   * @param signedTx - Transaction with signature
+   * @param signedTxBytes - Transaction with signature
+   * @param args - WrapperTxProps
    * @returns TxResponseProps object
    */
-  async broadcastTx(signedTx: SignedTx): Promise<TxResponseProps> {
-    const { wrapperTxMsg, tx } = signedTx;
-    const response = await this.sdk.process_tx(tx, wrapperTxMsg);
+  async broadcastTx(
+    signedTxBytes: Uint8Array,
+    args: WrapperTxProps
+  ): Promise<TxResponseProps> {
+    const wrapperTxMsgValue = new WrapperTxMsgValue(args);
+    const msg = new Message<WrapperTxMsgValue>();
+    const encodedArgs = msg.encode(wrapperTxMsgValue);
+
+    const response = await this.sdk.process_tx(signedTxBytes, encodedArgs);
     return deserialize(Buffer.from(response), TxResponseMsgValue);
   }
 

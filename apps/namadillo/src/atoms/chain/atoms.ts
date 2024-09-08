@@ -6,8 +6,10 @@ import {
   rpcUrlAtom,
 } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
+import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { ChainParameters, ChainSettings } from "types";
+import { calculateUnbondingPeriod } from "./functions";
 import { fetchChainParameters, fetchRpcUrlFromIndexer } from "./services";
 
 export const chainAtom = atomWithQuery<ChainSettings>((get) => {
@@ -30,8 +32,7 @@ export const chainAtom = atomWithQuery<ChainSettings>((get) => {
         bench32Prefix: namada.bech32Prefix,
         rpcUrl,
         chainId: chainParameters.data!.chainId,
-        unbondingPeriodInEpochs:
-          chainParameters.data!.epochInfo.unbondingPeriodInEpochs,
+        unbondingPeriod: chainParameters.data!.unbondingPeriod,
         nativeTokenAddress: chainParameters.data!.nativeTokenAddress,
         checksums: chainParameters.data!.checksums,
       };
@@ -70,6 +71,13 @@ export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
     queryKey: ["chain-parameters", indexerUrl],
     staleTime: Infinity,
     enabled: !!indexerUrl,
-    queryFn: async () => fetchChainParameters(api),
+    queryFn: async () => {
+      const parameters = await fetchChainParameters(api);
+      return {
+        ...parameters,
+        apr: BigNumber(parameters.apr),
+        unbondingPeriod: calculateUnbondingPeriod(parameters),
+      };
+    },
   };
 });

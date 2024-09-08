@@ -5,6 +5,7 @@ import {
   Bip44Path,
   DerivedAccount,
   SignArbitraryResponse,
+  TxProps,
 } from "@namada/types";
 import { Result, assertNever, truncateInMiddle } from "@namada/utils";
 
@@ -19,7 +20,6 @@ import {
   UtilityStore,
 } from "./types";
 
-import { BuiltTx } from "@namada/shared";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
@@ -560,14 +560,14 @@ export class KeyRing {
   }
 
   async sign(
-    builtTx: BuiltTx,
+    txProps: TxProps,
     signer: string,
     chainId: string
   ): Promise<Uint8Array> {
     await this.vaultService.assertIsUnlocked();
     const key = await this.getSigningKey(signer);
     const { signing } = this.sdkService.getSdk();
-    return await signing.sign(builtTx, key, chainId);
+    return await signing.sign(txProps, key, chainId);
   }
 
   async signArbitrary(

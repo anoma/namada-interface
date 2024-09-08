@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const FaucetFormContainer = styled.div`
+export const FaucetFormContainer = styled.form`
   flex-direction: column;
   justify-content: start;
   align-items: center;
@@ -9,18 +9,6 @@ export const FaucetFormContainer = styled.div`
   @media screen and (max-width: 860px) {
     padding: 32px 24px;
   }
-`;
-
-export const InputContainer = styled.div`
-  margin: 12px 0;
-`;
-
-export const ButtonContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin: 13px 0 0 0;
 `;
 
 export const PreFormatted = styled.pre`

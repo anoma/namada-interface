@@ -30,7 +30,6 @@ SDK functionality related to transactions
 - [buildWithdraw](Tx.md#buildwithdraw)
 - [deserialize](Tx.md#deserialize)
 - [encodeTxArgs](Tx.md#encodetxargs)
-- [revealPk](Tx.md#revealpk)
 
 ## Constructors
 
@@ -50,7 +49,7 @@ SDK functionality related to transactions
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:48](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L48)
+[sdk/src/tx/tx.ts:44](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L44)
 
 ## Properties
 
@@ -62,7 +61,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:48](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L48)
+[sdk/src/tx/tx.ts:44](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L44)
 
 ## Methods
 
@@ -87,13 +86,13 @@ Append signature for transactions signed by Ledger Hardware Wallet
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:306](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L306)
+[sdk/src/tx/tx.ts:285](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L285)
 
 ___
 
 ### buildBatch
 
-▸ **buildBatch**(`txs`, `wrapperTxMsg`): [`BuiltTx`](BuiltTx.md)
+▸ **buildBatch**(`txs`): `TxMsgValue`
 
 Build a batched transaction
 
@@ -101,24 +100,23 @@ Build a batched transaction
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `txs` | [`BuiltTx`](BuiltTx.md)[] | array of BuiltTx types |
-| `wrapperTxMsg` | `Uint8Array` | Uint8Array of serialized WrapperTxMsg |
+| `txs` | `TxMsgValue`[] | array of TxProp |
 
 #### Returns
 
-[`BuiltTx`](BuiltTx.md)
+`TxMsgValue`
 
-a BuiltTx type
+a serialized TxMsgValue type
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:279](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L279)
+[sdk/src/tx/tx.ts:268](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L268)
 
 ___
 
 ### buildBond
 
-▸ **buildBond**(`wrapperTxProps`, `bondProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildBond**(`wrapperTxProps`, `bondProps`): `Promise`\<`TxMsgValue`\>
 
 Build Bond Tx
 
@@ -131,21 +129,21 @@ Build Bond Tx
 
 #### Returns
 
-`Promise`\<[`EncodedTx`](EncodedTx.md)\>
+`Promise`\<`TxMsgValue`\>
 
-promise that resolves to an EncodedTx
+promise that resolves to an TxMsgValue
 
 **`Async`**
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:96](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L96)
+[sdk/src/tx/tx.ts:90](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L90)
 
 ___
 
 ### buildClaimRewards
 
-▸ **buildClaimRewards**(`wrapperTxProps`, `claimRewardsProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildClaimRewards**(`wrapperTxProps`, `claimRewardsProps`): `Promise`\<`TxMsgValue`\>
 
 Build Claim Rewards Tx
 
@@ -158,21 +156,21 @@ Build Claim Rewards Tx
 
 #### Returns
 
-`Promise`\<[`EncodedTx`](EncodedTx.md)\>
+`Promise`\<`TxMsgValue`\>
 
-promise that resolves to an EncodedTx
+promise that resolves to an TxMsgValue
 
 **`Async`**
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:256](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L256)
+[sdk/src/tx/tx.ts:247](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L247)
 
 ___
 
 ### buildEthBridgeTransfer
 
-▸ **buildEthBridgeTransfer**(`wrapperTxProps`, `ethBridgeTransferProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildEthBridgeTransfer**(`wrapperTxProps`, `ethBridgeTransferProps`): `Promise`\<`TxMsgValue`\>
 
 Build Ethereum Bridge Transfer Tx
 
@@ -185,21 +183,21 @@ Build Ethereum Bridge Transfer Tx
 
 #### Returns
 
-`Promise`\<[`EncodedTx`](EncodedTx.md)\>
+`Promise`\<`TxMsgValue`\>
 
-promise that resolves to an EncodedTx
+promise that resolves to an TxMsgValue
 
 **`Async`**
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:208](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L208)
+[sdk/src/tx/tx.ts:200](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L200)
 
 ___
 
 ### buildIbcTransfer
 
-▸ **buildIbcTransfer**(`wrapperTxProps`, `ibcTransferProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildIbcTransfer**(`wrapperTxProps`, `ibcTransferProps`): `Promise`\<`TxMsgValue`\>
 
 Build Ibc Transfer Tx
 
@@ -212,21 +210,21 @@ Build Ibc Transfer Tx
 
 #### Returns
 
-`Promise`\<[`EncodedTx`](EncodedTx.md)\>
+`Promise`\<`TxMsgValue`\>
 
-promise that resolves to an EncodedTx
+promise that resolves to an TxMsgValue
 
 **`Async`**
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:184](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L184)
+[sdk/src/tx/tx.ts:177](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L177)
 
 ___
 
 ### buildRedelegate
 
-▸ **buildRedelegate**(`wrapperTxProps`, `redelegateProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildRedelegate**(`wrapperTxProps`, `redelegateProps`): `Promise`\<`TxMsgValue`\>
 
 Build Redelegate Tx
 
@@ -239,21 +237,21 @@ Build Redelegate Tx
 
 #### Returns
 
-`Promise`\<[`EncodedTx`](EncodedTx.md)\>
+`Promise`\<`TxMsgValue`\>
 
-promise that resolves to an EncodedTx
+promise that resolves to an TxMsgValue
 
 **`Async`**
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:160](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L160)
+[sdk/src/tx/tx.ts:154](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L154)
 
 ___
 
 ### buildRevealPk
 
-▸ **buildRevealPk**(`wrapperTxProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildRevealPk**(`wrapperTxProps`): `Promise`\<`TxMsgValue`\>
 
 Build RevealPK Tx
 
@@ -265,21 +263,21 @@ Build RevealPK Tx
 
 #### Returns
 
-`Promise`\<[`EncodedTx`](EncodedTx.md)\>
+`Promise`\<`TxMsgValue`\>
 
-promise that resolves to an EncodedTx
+promise that resolves to an TxMsgValue
 
 **`Async`**
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:82](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L82)
+[sdk/src/tx/tx.ts:77](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L77)
 
 ___
 
 ### buildTransparentTransfer
 
-▸ **buildTransparentTransfer**(`wrapperTxProps`, `transferProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildTransparentTransfer**(`wrapperTxProps`, `transferProps`): `Promise`\<`TxMsgValue`\>
 
 Build Transfer Tx
 
@@ -292,21 +290,21 @@ Build Transfer Tx
 
 #### Returns
 
-`Promise`\<[`EncodedTx`](EncodedTx.md)\>
+`Promise`\<`TxMsgValue`\>
 
-promise that resolves to an EncodedTx
+promise that resolves to an TxMsgValue
 
 **`Async`**
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:57](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L57)
+[sdk/src/tx/tx.ts:53](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L53)
 
 ___
 
 ### buildUnbond
 
-▸ **buildUnbond**(`wrapperTxProps`, `unbondProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildUnbond**(`wrapperTxProps`, `unbondProps`): `Promise`\<`TxMsgValue`\>
 
 Build Unbond Tx
 
@@ -319,21 +317,21 @@ Build Unbond Tx
 
 #### Returns
 
-`Promise`\<[`EncodedTx`](EncodedTx.md)\>
+`Promise`\<`TxMsgValue`\>
 
-promise that resolves to an EncodedTx
+promise that resolves to an TxMsgValue
 
 **`Async`**
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:115](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L115)
+[sdk/src/tx/tx.ts:111](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L111)
 
 ___
 
 ### buildVoteProposal
 
-▸ **buildVoteProposal**(`wrapperTxProps`, `voteProposalProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildVoteProposal**(`wrapperTxProps`, `voteProposalProps`): `Promise`\<`TxMsgValue`\>
 
 Build Vote Proposal Tx
 
@@ -346,21 +344,21 @@ Build Vote Proposal Tx
 
 #### Returns
 
-`Promise`\<[`EncodedTx`](EncodedTx.md)\>
+`Promise`\<`TxMsgValue`\>
 
-promise that resolves to an EncodedTx
+promise that resolves to an TxMsgValue
 
 **`Async`**
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:232](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L232)
+[sdk/src/tx/tx.ts:223](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L223)
 
 ___
 
 ### buildWithdraw
 
-▸ **buildWithdraw**(`wrapperTxProps`, `withdrawProps`): `Promise`\<[`EncodedTx`](EncodedTx.md)\>
+▸ **buildWithdraw**(`wrapperTxProps`, `withdrawProps`): `Promise`\<`TxMsgValue`\>
 
 Build Withdraw Tx
 
@@ -373,15 +371,15 @@ Build Withdraw Tx
 
 #### Returns
 
-`Promise`\<[`EncodedTx`](EncodedTx.md)\>
+`Promise`\<`TxMsgValue`\>
 
-promise that resolves to an EncodedTx
+promise that resolves to an TxMsgValue
 
 **`Async`**
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:138](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L138)
+[sdk/src/tx/tx.ts:133](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L133)
 
 ___
 
@@ -406,7 +404,7 @@ a TxDetails object
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:359](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L359)
+[sdk/src/tx/tx.ts:338](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L338)
 
 ___
 
@@ -430,32 +428,4 @@ Serialized WrapperTxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:347](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L347)
-
-___
-
-### revealPk
-
-▸ **revealPk**(`signingKey`, `wrapperTxProps`, `chainId?`): `Promise`\<`void`\>
-
-Reveal Public Key using serialized Tx
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `signingKey` | `string` | signing key |
-| `wrapperTxProps` | `WrapperTxMsgValue` | properties of the transaction |
-| `chainId?` | `string` | optional chain ID - will enforce validation if present |
-
-#### Returns
-
-`Promise`\<`void`\>
-
-void
-
-**`Async`**
-
-#### Defined in
-
-[sdk/src/tx/tx.ts:291](https://github.com/anoma/namada-interface/blob/316cbce5/packages/sdk/src/tx/tx.ts#L291)
+[sdk/src/tx/tx.ts:326](https://github.com/anoma/namada-interface/blob/48e796bf/packages/sdk/src/tx/tx.ts#L326)

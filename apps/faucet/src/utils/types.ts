@@ -8,6 +8,7 @@ export type SettingsResponse = {
   chain_id: string;
   start_at: number;
   tokens_alias_to_address: Record<string, string>;
+  withdraw_limit: number;
 };
 
 export type TransferDetails = {
