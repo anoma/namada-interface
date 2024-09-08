@@ -33,7 +33,7 @@ NAMADA_INTERFACE_FAUCET_API_ENDPOINT=/api/v1/faucet
 
 ## Local Development
 
-In `apps/faucet`, you can run the following scripts to run locally:
+In `apps/faucet`, you can issue the following command to run the Faucet app locally in development mode:
 
 ```bash
 yarn dev

@@ -1,12 +1,6 @@
 import BigNumber from "bignumber.js";
 import { sanitize } from "dompurify";
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import {
   ActionButton,
@@ -18,7 +12,7 @@ import {
 import { Account } from "@namada/types";
 import { bech32mValidation, shortenAddress } from "@namada/utils";
 
-import { ChallengeResponse, Data, TransferResponse } from "../utils";
+import { Data, PowChallenge, TransferResponse } from "../utils";
 import { AppContext } from "./App";
 import {
   ButtonContainer,
@@ -58,11 +52,9 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
     },
     {} as Record<string, Account>
   );
+
   const [account, setAccount] = useState<Account>(accounts[0]);
   const [tokenAddress, setTokenAddress] = useState<string>();
-  const [challengeResponse, setChallengeResponse] =
-    useState<ChallengeResponse>();
-  const [solution, setSolution] = useState<string>();
   const [amount, setAmount] = useState<number | undefined>(undefined);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState(Status.Completed);
@@ -95,6 +87,42 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
     typeof difficulty !== "undefined" &&
     isTestnetLive;
 
+  const submitFaucetTransfer = async (submitData: Data): Promise<void> => {
+    try {
+      setStatus(Status.PendingTransfer);
+      const response = await api.submitTransfer(submitData).catch((e) => {
+        console.info(e);
+        const { code, message } = e;
+        throw new Error(`Unable to submit transfer: ${code} ${message}`);
+      });
+
+      if (response.sent) {
+        // Reset form if successful
+        setAmount(0);
+        setError(undefined);
+        setStatus(Status.Completed);
+        setStatusText("Transfer succeeded!");
+        setResponseDetails(response);
+        return;
+      }
+      setStatus(Status.Completed);
+      setStatusText("Transfer did not succeed.");
+      console.info(response);
+    } catch (e) {
+      setError(`${e}`);
+      setStatus(Status.Error);
+    }
+  };
+
+  const postPowChallenge = (powChallenge: PowChallenge): Promise<string> =>
+    new Promise((resolve) => {
+      powSolver.onmessage = ({ data }) => {
+        resolve(data);
+        powSolver.onmessage = null;
+      };
+      powSolver.postMessage(powChallenge);
+    });
+
   const handleSubmit = useCallback(async () => {
     if (
       !account ||
@@ -126,6 +154,7 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
       setStatus(Status.Error);
       return;
     }
+
     setStatus(Status.PendingPowSolution);
     setStatusText(undefined);
 
@@ -138,78 +167,25 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
         .catch(({ message, code }) => {
           throw new Error(`Unable to request challenge: ${code} - ${message}`);
         });
-      setChallengeResponse({ challenge, tag });
+
+      const solution = await postPowChallenge({ challenge, difficulty });
+      const submitData: Data = {
+        solution,
+        tag,
+        challenge,
+        transfer: {
+          target: account.address,
+          token: sanitizedToken,
+          amount: amount * 1_000_000,
+        },
+      };
+
+      await submitFaucetTransfer(submitData);
     } catch (e) {
       setError(`${e}`);
       setStatus(Status.Error);
     }
   }, [account, tokenAddress, amount]);
-
-  useEffect(() => {
-    if (challengeResponse) {
-      const { challenge } = challengeResponse;
-      // post message to worker to start POW computation
-      powSolver.postMessage({ challenge, difficulty });
-    }
-  }, [challengeResponse]);
-
-  useEffect(() => {
-    // Listen for worker solution
-    if (powSolver) {
-      powSolver.onmessage = ({ data }) => {
-        setSolution(data);
-      };
-    }
-  }, [powSolver]);
-
-  useEffect(() => {
-    void (async () => {
-      if (challengeResponse && solution && amount && tokenAddress) {
-        const { tag, challenge } = challengeResponse;
-        const submitData: Data = {
-          solution,
-          tag,
-          challenge,
-          transfer: {
-            target: account.address,
-            token: tokenAddress,
-            amount: amount * 1_000_000,
-          },
-        };
-
-        try {
-          setStatus(Status.PendingTransfer);
-          const response = await api.submitTransfer(submitData).catch((e) => {
-            console.info(e);
-            const { code, message } = e;
-            throw new Error(`Unable to submit transfer: ${code} ${message}`);
-          });
-
-          if (response.sent) {
-            // Reset form if successful
-            setAmount(0);
-            setError(undefined);
-            setStatus(Status.Completed);
-            setStatusText("Transfer succeeded!");
-            setResponseDetails(response);
-            return;
-          }
-          setSolution(undefined);
-          setStatus(Status.Completed);
-          setStatusText("Transfer did not succeed.");
-          console.info(response);
-        } catch (e) {
-          setError(`${e}`);
-          setStatus(Status.Error);
-          setChallengeResponse(undefined);
-          setSolution(undefined);
-        }
-      }
-    })();
-  }, [solution]);
-
-  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
-    e.target.select();
 
   return (
     <FaucetFormContainer>
@@ -221,7 +197,7 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
             label="Account"
             onChange={(e) => setAccount(accountLookup[e.target.value])}
           />
-          : <div>
+        : <div>
             You have no signing accounts! Import or create an account in the
             extension, then reload this page.
           </div>
@@ -232,8 +208,8 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
         <Input
           label="Token Address (defaults to NAM)"
           value={tokenAddress}
-          onFocus={handleFocus}
           onChange={(e) => setTokenAddress(e.target.value)}
+          autoFocus={true}
         />
       </InputContainer>
 
@@ -244,12 +220,11 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
           value={amount === undefined ? undefined : new BigNumber(amount)}
           min={0}
           maxDecimalPlaces={3}
-          onFocus={handleFocus}
           onChange={(e) => setAmount(e.target.value?.toNumber())}
           error={
             amount && amount > withdrawLimit ?
               `Amount must be less than or equal to ${withdrawLimit}`
-              : ""
+            : ""
           }
         />
       </InputContainer>
