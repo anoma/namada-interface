@@ -52,7 +52,10 @@ export const SwitchAccountModal = (): JSX.Element => {
                     onCloseModal();
                   }}
                 >
-                  <Checkbox checked={address === defaultAccount?.address} />
+                  <Checkbox
+                    checked={address === defaultAccount?.address}
+                    readOnly
+                  />
                   {alias}
                 </button>
               ))}
