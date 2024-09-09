@@ -31,6 +31,17 @@ export PUPPETEER_SKIP_DOWNLOAD=true
 yarn
 cd apps/extension
 yarn wasm:build
+```
+
+Before building the extension, you must specify the following value in a `.env` file in `apps/extension`:
+
+```bash
+NAMADA_INTERFACE_NAMADA_CHAIN_ID=internal-devnet-43.d9368f80c60
+```
+
+Then, issue the final build command for the Firefox add-on:
+
+```bash
 yarn build:firefox
 ```
 
