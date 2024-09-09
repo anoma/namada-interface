@@ -10,6 +10,7 @@ export type AmountFieldProps = NamInputProps & {
   hasStakedAmounts?: boolean;
   updated: boolean;
   displayCurrencyIndicator?: boolean;
+  forceActive?: boolean;
 };
 
 export const AmountField = ({
@@ -17,17 +18,21 @@ export const AmountField = ({
   onChange,
   updated,
   validator,
+  className,
   hasStakedAmounts,
   displayCurrencyIndicator = true,
+  forceActive = false,
   ...inputProps
 }: AmountFieldProps): JSX.Element => {
-  const isActive = ["consensus", "belowCapacity", "belowThreshold"].includes(
-    validator.status
-  );
+  const isActive =
+    forceActive ||
+    ["consensus", "belowCapacity", "belowThreshold"].includes(validator.status);
+  const isJailed = !forceActive && validator.status === "jailed";
+  const isInactive = !forceActive && validator.status === "inactive";
 
   return (
     <div className="relative">
-      {isActive && (
+      {(isActive || forceActive) && (
         <>
           <NamInput
             value={value}
@@ -37,7 +42,8 @@ export const AmountField = ({
                 "[&_input]:border-neutral-500 [&_input]:py-2.5 [&>div]:my-0",
                 {
                   "[&_input]:border-yellow": updated,
-                }
+                },
+                className
               )
             )}
             {...inputProps}
@@ -51,19 +57,15 @@ export const AmountField = ({
       )}
 
       <div className="opacity-50 text-sm text-center font-medium">
-        {validator.status === "jailed" && !hasStakedAmounts && (
-          <p>Validator is jailed</p>
-        )}
+        {isJailed && !hasStakedAmounts && <p>Validator is jailed</p>}
 
-        {validator.status === "jailed" && hasStakedAmounts && (
+        {isJailed && hasStakedAmounts && (
           <p>Validator is jailed. You have stopped receiving rewards</p>
         )}
 
-        {validator.status === "inactive" && !hasStakedAmounts && (
-          <p>Validator is inactive</p>
-        )}
+        {isInactive && !hasStakedAmounts && <p>Validator is inactive</p>}
 
-        {validator.status === "inactive" && hasStakedAmounts && (
+        {isInactive && hasStakedAmounts && (
           <p>
             Validator is inactive please{" "}
             <Link

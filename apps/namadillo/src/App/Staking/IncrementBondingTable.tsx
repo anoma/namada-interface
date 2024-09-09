@@ -76,22 +76,14 @@ export const IncrementBondingTable = ({
           className="min-w-[24ch]"
         >
           <AmountField
-            value={updatedAmountByAddress[validator.address]}
-            onChange={(e) => onChangeValidatorAmount(validator, e.target.value)}
-            data-validator-input={validator.address}
             placeholder="Select to increase stake"
+            value={updatedAmountByAddress[validator.address]}
             updated={hasNewAmounts}
+            validator={validator}
+            data-validator-input={validator.address}
             hasStakedAmounts={stakedAmountByAddress[validator.address]?.gt(0)}
-            validator={{ ...validator }}
+            onChange={(e) => onChangeValidatorAmount(validator, e.target.value)}
           />
-          <span
-            className={clsx(
-              "absolute flex items-center right-2 top-[0.6em]",
-              "text-neutral-500 text-sm"
-            )}
-          >
-            NAM
-          </span>
         </div>,
 
         // Current Stake / New Stake

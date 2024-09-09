@@ -1,4 +1,4 @@
-import { RenderResult, screen } from "@testing-library/react";
+import { cleanup, RenderResult, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NamInputProps } from "App/Common/NamInput";
 import { AmountField, AmountFieldProps } from "App/Staking/AmountField";
@@ -29,6 +29,15 @@ describe("AmountField", () => {
     );
   };
 
+  const assertTextfieldInDocument = (): void => {
+    expect(screen.getByRole("textbox")).toBeInTheDocument();
+  };
+
+  const assertTextFieldNotInDocument = (): void => {
+    const input = screen.queryByRole("textbox");
+    expect(input).not.toBeInTheDocument();
+  };
+
   test("renders the NamInput with correct initial value", () => {
     setup();
     const input = screen.getByRole("textbox");
@@ -57,11 +66,6 @@ describe("AmountField", () => {
     expect(onChangeMock).toHaveBeenCalled();
     expect(input).toHaveValue("200");
   });
-
-  const assertTextFieldNotInDocument = (): void => {
-    const input = screen.queryByRole("textbox");
-    expect(input).not.toBeInTheDocument();
-  };
 
   test("should display a warning if validator is jailed", () => {
     setup({ validator: { ...mockValidator, status: "jailed" } as Validator });
@@ -110,5 +114,25 @@ describe("AmountField", () => {
     expect(text).toHaveTextContent(
       /Validator is inactive please redelegate your stake/i
     );
+  });
+
+  test("should display text field if forceActive is true", () => {
+    setup({ forceActive: true });
+    assertTextfieldInDocument();
+    cleanup();
+
+    setup({
+      forceActive: true,
+      validator: { ...mockValidator, status: "inactive" } as Validator,
+    });
+    assertTextfieldInDocument();
+    cleanup();
+
+    setup({
+      forceActive: true,
+      validator: { ...mockValidator, status: "jailed" } as Validator,
+    });
+    assertTextfieldInDocument();
+    cleanup();
   });
 });
