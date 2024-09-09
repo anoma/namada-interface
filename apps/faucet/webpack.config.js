@@ -10,8 +10,7 @@ require("dotenv").config({ path: resolve(__dirname, ".env") });
 
 const { NODE_ENV } = process.env;
 
-const ASSET_PATH =
-  NODE_ENV === "development" ? "/" : "https://faucet.heliax.click/";
+const ASSET_PATH = "/";
 
 const createStyledComponentsTransformer =
   require("typescript-plugin-styled-components").default;
