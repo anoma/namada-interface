@@ -78,7 +78,7 @@ export type Validator = Unique & {
   status: ValidatorStatus;
 };
 
-export type ValidatorFilterOptions = "all" | "active" | "jailed" | "inactive";
+export type ValidatorFilterOptions = "all" | "active" | ValidatorStatus;
 
 export type UnbondEntry = Omit<
   | (IndexerUnbond & {

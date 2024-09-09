@@ -8,6 +8,7 @@ import clsx from "clsx";
 import { ValidatorFilterOptions } from "types";
 
 export type FilterOptions = "all" | "my-validators";
+
 type MyValidatorsFilterProps = {
   onChangeFilter: (type: ValidatorFilterOptions) => void;
   onToggleMyValidatorsFilterActive: (active: boolean) => void;

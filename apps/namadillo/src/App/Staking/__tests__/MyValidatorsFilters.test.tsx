@@ -1,9 +1,7 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
-import {
-  MyValidatorsFilter,
-  ValidatorFilterOptions,
-} from "App/Staking/MyValidatorsFilter";
+import { MyValidatorsFilter } from "App/Staking/MyValidatorsFilter";
+import { ValidatorFilterOptions } from "types";
 
 describe("MyValidatorsFilter component", () => {
   const mockOnChangeFilter = jest.fn();

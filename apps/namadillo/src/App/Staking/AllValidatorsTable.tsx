@@ -32,12 +32,12 @@ export const AllValidatorsTable = ({
   const validators = useAtomValue(allValidatorsAtom);
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const navigate = useNavigate();
-  const [filter, setFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const filteredValidators = useValidatorFilter({
     validators: validators.isSuccess ? validators.data : [],
     myValidatorsAddresses: [],
-    searchTerm: filter,
+    searchTerm,
     onlyMyValidators: false,
   });
 
@@ -114,7 +114,7 @@ export const AllValidatorsTable = ({
       <div className="min-h-[450px] flex flex-col">
         <div className="grid grid-cols-[40%_max-content] justify-between mb-5">
           <Search
-            onChange={(value: string) => setFilter(value)}
+            onChange={(value: string) => setSearchTerm(value)}
             placeholder="Search Validator"
           />
           {isConnected && (
