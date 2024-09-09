@@ -1,7 +1,7 @@
 import { AmountInput } from "@namada/components";
 import { Tokens } from "@namada/types";
 
-type NamInputProps = Omit<
+export type NamInputProps = Omit<
   React.ComponentProps<typeof AmountInput>,
   "maxDecimalPlaces"
 >;
