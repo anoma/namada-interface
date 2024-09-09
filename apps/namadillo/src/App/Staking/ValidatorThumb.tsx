@@ -1,3 +1,4 @@
+import { ValidatorStatus } from "@anomaorg/namada-indexer-client";
 import clsx from "clsx";
 import { CiServer } from "react-icons/ci";
 import { PiStackBold } from "react-icons/pi";
@@ -8,6 +9,7 @@ type ValidatorThumbProps = {
   imageUrl?: string;
   alt: string;
   hasStake?: boolean;
+  validatorStatus?: ValidatorStatus;
 };
 
 export const ValidatorThumb = ({
@@ -15,6 +17,7 @@ export const ValidatorThumb = ({
   imageUrl,
   alt,
   hasStake = false,
+  validatorStatus,
 }: ValidatorThumbProps): JSX.Element => {
   return (
     <span className="flex items-center justify-center relative w-8 aspect-square rounded-full bg-neutral-600/30">
@@ -33,9 +36,13 @@ export const ValidatorThumb = ({
       )}
       {hasStake && (
         <i
-          className={clsx(
-            "absolute -top-0.5 -right-1 rounded-full bg-yellow",
-            "flex items-center justify-center text-black text-[10px] p-0.5"
+          className={twMerge(
+            clsx(
+              "absolute -top-0.5 -right-1 rounded-full bg-cyan",
+              "flex items-center justify-center text-black text-[10px] p-0.5",
+              { "bg-fail": validatorStatus === "jailed" },
+              { "bg-white": validatorStatus === "inactive" }
+            )
           )}
         >
           <PiStackBold />

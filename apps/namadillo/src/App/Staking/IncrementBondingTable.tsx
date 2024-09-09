@@ -66,7 +66,7 @@ export const IncrementBondingTable = ({
         // Validator Alias + Avatar
         <ValidatorCard
           key={`increment-bonding-alias-${validator.address}`}
-          validator={{ ...validator }}
+          validator={validator}
           hasStake={hasStakedAmount}
         />,
 
