@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MyValidatorsFilter } from "App/Staking/MyValidatorsFilter";
 import { ValidatorFilterOptions } from "types";
 
-describe("MyValidatorsFilter component", () => {
+describe("Component: MyValidatorsFilter", () => {
   const mockOnChangeFilter = jest.fn();
   const toggleValidatorCallback = jest.fn();
 

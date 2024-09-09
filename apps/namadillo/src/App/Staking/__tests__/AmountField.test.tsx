@@ -6,7 +6,7 @@ import BigNumber from "bignumber.js";
 import { render } from "test-utils";
 import { Validator } from "types";
 
-describe("AmountField", () => {
+describe("Component: AmountField", () => {
   const mockValidator: Partial<Validator> = {
     address: "tnam1validator1",
     status: "consensus",
