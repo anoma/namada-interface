@@ -6,6 +6,11 @@ import {
 import { ChainKey, ExtensionKey } from "@namada/types";
 import BigNumber from "bignumber.js";
 
+declare module "*.module.css" {
+  const content: Record<string, string>;
+  export default content;
+}
+
 // TODO: can we remove this Unique type? We shouldn't be using uuids anywhere
 type Unique = {
   uuid: string;

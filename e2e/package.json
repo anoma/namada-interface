@@ -30,6 +30,7 @@
     "jest-puppeteer": "^9.0.0",
     "puppeteer": "^20.8.2",
     "start-server-and-test": "^2.0.0",
-    "terminate": "^2.6.1"
+    "terminate": "^2.6.1",
+    "typescript": "^5.5.4"
   }
 }
