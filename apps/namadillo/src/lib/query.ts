@@ -200,7 +200,24 @@ export const broadcastTx = async <T>(
         })
       );
     try {
-      await rpc.broadcastTx(signedTx, encodedTx.wrapperTxProps);
+      const response = await rpc.broadcastTx(
+        signedTx,
+        encodedTx.wrapperTxProps
+      );
+
+      const commitmentErrors: string[] = [];
+      response.commitments.forEach(({ hash, isApplied }) => {
+        if (!isApplied) {
+          commitmentErrors.push(hash);
+        }
+      });
+
+      if (commitmentErrors.length) {
+        throw new Error(
+          `The following Txs were not applied: ${commitmentErrors.join(" ")}`
+        );
+      }
+
       eventType &&
         window.dispatchEvent(
           new CustomEvent(`${eventType}.Success`, {
