@@ -123,69 +123,72 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
       powSolver.postMessage(powChallenge);
     });
 
-  const handleSubmit = useCallback(async () => {
-    if (
-      !account ||
-      !amount ||
-      !tokenAddress ||
-      typeof difficulty === "undefined"
-    ) {
-      console.error("Please provide the required values!");
-      return;
-    }
-
-    // Validate target and token inputs
-    const sanitizedToken = sanitize(tokenAddress);
-
-    if (!sanitizedToken) {
-      setStatus(Status.Error);
-      setError("Invalid token address!");
-      return;
-    }
-
-    if (!account) {
-      setStatus(Status.Error);
-      setError("No account found!");
-      return;
-    }
-
-    if (!bech32mValidation(bech32mPrefix, sanitizedToken)) {
-      setError("Invalid bech32m address for token address!");
-      setStatus(Status.Error);
-      return;
-    }
-
-    setStatus(Status.PendingPowSolution);
-    setStatusText(undefined);
-
-    try {
-      if (!account.publicKey) {
-        throw new Error("Account does not have a public key!");
+  const handleSubmit = useCallback(
+    async (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      if (
+        !account ||
+        !amount ||
+        !tokenAddress ||
+        typeof difficulty === "undefined"
+      ) {
+        console.error("Please provide the required values!");
+        return;
       }
-      const { challenge, tag } = await api
-        .challenge()
-        .catch(({ message, code }) => {
-          throw new Error(`Unable to request challenge: ${code} - ${message}`);
-        });
 
-      const solution = await postPowChallenge({ challenge, difficulty });
-      const submitData: Data = {
-        solution,
-        tag,
-        challenge,
-        transfer: {
-          target: account.address,
-          token: sanitizedToken,
-          amount: amount * 1_000_000,
-        },
-      };
+      // Validate target and token inputs
+      const sanitizedToken = sanitize(tokenAddress);
 
-      await submitFaucetTransfer(submitData);
-    } catch (e) {
-      setError(`${e}`);
-      setStatus(Status.Error);
-    }
-  }, [account, tokenAddress, amount]);
+      if (!sanitizedToken) {
+        setStatus(Status.Error);
+        setError("Invalid token address!");
+        return;
+      }
+
+      if (!account) {
+        setStatus(Status.Error);
+        setError("No account found!");
+        return;
+      }
+
+      if (!bech32mValidation(bech32mPrefix, sanitizedToken)) {
+        setError("Invalid bech32m address for token address!");
+        setStatus(Status.Error);
+        return;
+      }
+
+      setStatus(Status.PendingPowSolution);
+      setStatusText(undefined);
+
+      try {
+        const { challenge, tag } = await api
+          .challenge()
+          .catch(({ message, code }) => {
+            throw new Error(
+              `Unable to request challenge: ${code} - ${message}`
+            );
+          });
+
+        const solution = await postPowChallenge({ challenge, difficulty });
+        const submitData: Data = {
+          solution,
+          tag,
+          challenge,
+          transfer: {
+            target: account.address,
+            token: sanitizedToken,
+            amount: amount * 1_000_000,
+          },
+        };
+
+        await submitFaucetTransfer(submitData);
+      } catch (e) {
+        setError(`${e}`);
+        setStatus(Status.Error);
+      }
+    },
+    [account, tokenAddress, amount]
+  );
 
   return (
     <FaucetFormContainer>
