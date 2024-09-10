@@ -1,92 +1,55 @@
 import {
   ActionButton,
   AmountSummaryCard,
-  Heading,
   Image,
   Panel,
-  PieChart,
-  PieChartData,
-  SkeletonLoading,
 } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
+import { BalanceChart } from "App/Common/BalanceChart";
 import { NamCurrency } from "App/Common/NamCurrency";
-import { accountBalanceAtom } from "atoms/accounts";
-import { getStakingTotalAtom } from "atoms/staking";
-import { useAtomValue } from "jotai";
+import { useBalances } from "hooks/useBalances";
 import { GoStack } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import StakingRoutes from "./routes";
 
 export const StakingSummary = (): JSX.Element => {
   const navigate = useNavigate();
-  const totalStakedBalance = useAtomValue(getStakingTotalAtom);
-  const totalAccountBalance = useAtomValue(accountBalanceAtom);
   const {
-    data: balance,
-    isSuccess: isBalanceLoaded,
-    isLoading: isFetchingBalance,
-  } = totalAccountBalance;
+    balanceQuery,
+    stakeQuery,
+    isLoading,
+    isSuccess,
+    availableAmount,
+    bondedAmount,
+    shieldedAmount,
+    unbondedAmount,
+    withdrawableAmount,
+    totalAmount,
+  } = useBalances();
 
-  const getPiechartData = (): Array<PieChartData> => {
-    if (!totalStakedBalance.isSuccess || !isBalanceLoaded) {
-      return [];
-    }
-
-    const totalStaked = totalStakedBalance.data;
-    if (totalStaked.totalUnbonded.eq(0) && totalStaked.totalBonded.eq(0)) {
-      return [{ value: 1, color: "#2F2F2F" }];
-    }
-
-    return [
-      { value: balance, color: "#ffffff" },
-      { value: totalStaked.totalBonded, color: "#00ffff" },
-      {
-        value: totalStaked.totalUnbonded.plus(totalStaked.totalWithdrawable),
-        color: "#DD1599",
-      },
-    ];
-  };
-
-  // TODO: implement total staking rewards
   return (
     <ul className="flex flex-col sm:grid sm:grid-cols-[1.25fr_1fr_1fr] gap-2">
       <Panel as="li" className="flex items-center">
-        {totalStakedBalance.isPending && (
-          <SkeletonLoading
-            height="auto"
-            width="80%"
-            className="rounded-full aspect-square mx-auto border-neutral-800 border-[22px] bg-transparent"
-          />
-        )}
         <AtomErrorBoundary
-          result={totalStakedBalance}
-          niceError="Unable to load staked balance"
+          result={[balanceQuery, stakeQuery]}
+          niceError="Unable to load balance"
         >
-          {totalStakedBalance.isSuccess && (
-            <PieChart
-              id="total-staked-balance"
-              className="xl:max-w-[85%] mx-auto"
-              data={getPiechartData()}
-              strokeWidth={7}
-              segmentMargin={0}
-            >
-              <div className="flex flex-col gap-1 leading-tight">
-                <Heading className="text-sm text-neutral-500" level="h3">
-                  Total Staked Balance
-                </Heading>
-                <NamCurrency
-                  amount={totalStakedBalance.data.totalBonded}
-                  className="text-2xl"
-                  currencySignClassName="block mb-1 text-xs ml-1"
-                />
-              </div>
-            </PieChart>
-          )}
+          <BalanceChart
+            view="stake"
+            isLoading={isLoading}
+            isSuccess={isSuccess}
+            availableAmount={availableAmount}
+            bondedAmount={bondedAmount}
+            shieldedAmount={shieldedAmount}
+            unbondedAmount={unbondedAmount}
+            withdrawableAmount={withdrawableAmount}
+            totalAmount={totalAmount}
+          />
         </AtomErrorBoundary>
       </Panel>
       <Panel as="li">
         <AtomErrorBoundary
-          result={totalAccountBalance}
+          result={balanceQuery}
           niceError="Unable to load available NAM balance"
         >
           <AmountSummaryCard
@@ -98,10 +61,10 @@ export const StakingSummary = (): JSX.Element => {
                 to Stake
               </>
             }
-            isLoading={totalStakedBalance.isPending || isFetchingBalance}
+            isLoading={isLoading}
             mainAmount={
               <NamCurrency
-                amount={balance ?? 0}
+                amount={availableAmount ?? 0}
                 className="block leading-none"
                 currencySignClassName="block mb-3 mt-0.5 text-sm"
               />
