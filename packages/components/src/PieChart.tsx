@@ -5,6 +5,7 @@ import { twMerge } from "tailwind-merge";
 export type PieChartData = {
   value: number | BigNumber;
   color: string;
+  label?: string;
 };
 
 type PieChartProps = Omit<
@@ -69,6 +70,7 @@ export const PieChart = ({
           strokeDasharray={`${segmentLength} ${length}`}
           r={radius - strokeWidth}
           stroke={dataItem.color}
+          aria-label={dataItem.label || ""}
           onMouseEnter={
             onMouseEnter ?
               () => onMouseEnter(dataItem, dataItem.originalIndex)
