@@ -1,4 +1,4 @@
 {
-  "name": "Namada Extension",
-  "description": "The Namada Extension manages a user's wallet for the Namada ecosystem."
+  "name": "Namada Keychain",
+  "description": "The Namada Keychain manages a user's wallet for the Namada ecosystem."
 }
