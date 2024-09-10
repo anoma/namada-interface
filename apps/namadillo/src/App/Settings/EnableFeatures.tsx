@@ -36,6 +36,13 @@ export const EnableFeatures = (): JSX.Element => {
         </li>
         <li>
           <FeaturesCheckbox
+            id="advanced-shielded-rewards"
+            label="Shielding Rewards"
+            featureId="shieldingRewardsEnabled"
+          />
+        </li>
+        <li>
+          <FeaturesCheckbox
             id="advanced-nam-transfers"
             label="NAM Transfers"
             featureId="namTransfersEnabled"
