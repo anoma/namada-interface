@@ -18,7 +18,10 @@ const NamBalanceListItem = ({
   amount,
 }: NamBalanceListItemProps): JSX.Element => {
   return (
-    <li className="leading-5 bg-neutral-900 px-4 py-3 rounded-sm min-w-[150px]">
+    <li
+      className="leading-5 bg-neutral-900 px-4 py-3 rounded-sm min-w-[165px]"
+      aria-description={`${title} amount is ${amount.toString()} NAM`}
+    >
       <span className="flex items-center text-xs gap-1.5">
         <i className="w-2 h-2 rounded-full" style={{ background: color }} />
         {title}
@@ -47,7 +50,7 @@ export const NamBalanceContainer = (): JSX.Element => {
   } = useBalances();
 
   return (
-    <div className="flex gap-4 text-white pl-2 pr-6 py-4">
+    <div className="flex gap-4 text-white pl-4 pr-6 py-5">
       <AtomErrorBoundary
         result={[balanceQuery, stakeQuery]}
         niceError="Unable to load balances"
