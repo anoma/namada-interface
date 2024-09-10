@@ -19,7 +19,7 @@ use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada_sdk::hash::Hash;
 use namada_sdk::key::{common, ed25519, SigScheme};
 use namada_sdk::masp::ShieldedContext;
-use namada_sdk::rpc::query_epoch;
+use namada_sdk::rpc::{query_epoch, InnerTxResult};
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::string_encoding::Format;
 use namada_sdk::tx::{
@@ -208,12 +208,6 @@ impl Sdk {
         let mut batch_tx_results: Vec<tx::BatchTxResult> = vec![];
 
         let wrapper_hash = tx.wrapper_hash();
-        for cmt in cmts {
-            let response = resp.is_applied_and_valid(wrapper_hash.as_ref(), &cmt);
-            let hash = compute_inner_tx_hash(wrapper_hash.as_ref(), Either::Right(&cmt));
-
-            batch_tx_results.push(tx::BatchTxResult::new(hash.to_string(), response.is_some()));
-        }
 
         // Collect results and return
         match resp {
@@ -223,6 +217,19 @@ impl Sdk {
                 let height = tx_response.height.to_string();
                 let info = tx_response.info.to_string();
                 let log = tx_response.log.to_string();
+
+                for cmt in cmts {
+                    if let Some(InnerTxResult::Success(result)) = tx_response.batch_result().get(
+                        &compute_inner_tx_hash(wrapper_hash.as_ref(), Either::Right(&cmt)),
+                    ) {
+                        let hash =
+                            compute_inner_tx_hash(wrapper_hash.as_ref(), Either::Right(&cmt));
+
+                        batch_tx_results.push(tx::BatchTxResult::new(hash.to_string(), true));
+                    } else {
+                        batch_tx_results.push(tx::BatchTxResult::new(hash.to_string(), false));
+                    }
+                }
 
                 let response =
                     tx::TxResponse::new(code, batch_tx_results, gas_used, hash, height, info, log);
