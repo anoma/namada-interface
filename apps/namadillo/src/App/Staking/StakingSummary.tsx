@@ -8,9 +8,9 @@ import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { BalanceChart } from "App/Common/BalanceChart";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { useBalances } from "hooks/useBalances";
-import { GoStack } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import StakingRoutes from "./routes";
+import { StakingRewardsPanel } from "./StakingRewardsPanel";
 
 export const StakingSummary = (): JSX.Element => {
   const navigate = useNavigate();
@@ -82,32 +82,8 @@ export const StakingSummary = (): JSX.Element => {
           />
         </AtomErrorBoundary>
       </Panel>
-      <Panel as="li" className="opacity-60 pointer-events-none select-none">
-        <AmountSummaryCard
-          logoElement={
-            <i className="text-4xl">
-              <GoStack />
-            </i>
-          }
-          title="Staking Rewards will be enabled in phase 2"
-          mainAmount={
-            <NamCurrency
-              amount={0}
-              className="block leading-none"
-              currencySignClassName="block mb-3 mt-0.5 text-sm"
-            />
-          }
-          callToAction={
-            <ActionButton
-              className="px-8"
-              size="xs"
-              backgroundColor="white"
-              disabled
-            >
-              Claim
-            </ActionButton>
-          }
-        />
+      <Panel as="li" className="">
+        <StakingRewardsPanel />
       </Panel>
     </ul>
   );

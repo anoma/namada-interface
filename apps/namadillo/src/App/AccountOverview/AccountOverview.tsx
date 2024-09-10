@@ -2,6 +2,7 @@ import { Panel, Stack } from "@namada/components";
 import { Intro } from "App/Common/Intro";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
+import { StakingRewardsPanel } from "App/Staking/StakingRewardsPanel";
 import {
   applicationFeaturesAtom,
   namadaExtensionConnectedAtom,
@@ -47,7 +48,9 @@ export const AccountOverview = (): JSX.Element => {
               <Panel className="pl-4 pr-6 py-5">
                 <NamBalanceContainer />
               </Panel>
-              <Panel>todo</Panel>
+              <Panel>
+                <StakingRewardsPanel />
+              </Panel>
             </div>
             <Panel className="flex items-center flex-1 justify-center">
               <NavigationFooter />
