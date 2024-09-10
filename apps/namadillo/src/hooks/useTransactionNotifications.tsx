@@ -101,18 +101,26 @@ export const useTransactionNotifications = (): void => {
           succeeded
         </>
       ),
-      details: (
+      details: getAmountByValidatorList(e.detail.data),
+      type: "success",
+    });
+  });
+
+  useTransactionEventListener("Bond.PartialSuccess", (e) => {
+    const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
+    clearPendingNotifications(id);
+    dispatchNotification({
+      id,
+      title: "Some staking tx failed",
+      description: (
         <>
-          {getAmountByValidatorList(e.detail.data)}
-          {e.detail.error && (
-            <b>
-              <br />
-              {`${e.detail.error}`}
-            </b>
-          )}
+          Your staking transaction of <NamCurrency amount={total} /> has
+          succeeded
         </>
       ),
-      type: "success",
+      details: getAmountByValidatorList(e.detail.data),
+      failedDetails: getAmountByValidatorList(e.detail.failedData || []),
+      type: "partialSuccess",
       forceDetailsOpen: true,
     });
   });

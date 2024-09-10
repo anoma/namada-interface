@@ -86,6 +86,7 @@ const Toast = ({
         "grid grid-cols-[30px_auto] gap-5 z-[9999] leading-[1]",
         {
           "bg-success": notification.type === "success",
+          "bg-intermediate": notification.type === "partialSuccess",
           "bg-fail": notification.type === "error",
           "bg-neutral-500": notification.type === "pending",
         }
@@ -133,6 +134,13 @@ const Toast = ({
         {notification.details && (viewDetails || forceDetailsOpen) && (
           <div className="w-full text-xs text-white block">
             {notification.details}
+          </div>
+        )}
+        {notification.failedDetails && (viewDetails || forceDetailsOpen) && (
+          <div className="w-full text-xs text-red block">
+            <br />
+            <div>The following Tx were not applied:</div>
+            {notification.failedDetails}
           </div>
         )}
       </Stack>

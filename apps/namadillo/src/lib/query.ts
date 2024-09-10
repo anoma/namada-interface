@@ -233,18 +233,24 @@ export const broadcastTx = async <T>(
       });
 
       if (commitmentErrors.length) {
-        //Filter successful Tx, and display a success notification
         const successData = dataWithHash?.filter((data) => {
           return !commitmentErrors.includes(data.hash);
         });
 
+        const failedData = dataWithHash?.filter((data) => {
+          return commitmentErrors.includes(data.hash);
+        });
+
+        console.log({ successData, failedData });
+
         if (successData?.length) {
           eventType &&
             window.dispatchEvent(
-              new CustomEvent(`${eventType}.Success`, {
+              new CustomEvent(`${eventType}.PartialSuccess`, {
                 detail: {
                   tx,
                   data: successData,
+                  failedData,
                   error: `The following Txs were not applied: ${commitmentErrors.join(" ")}`,
                 },
               })

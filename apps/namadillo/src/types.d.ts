@@ -143,10 +143,11 @@ export type SortedColumnPair<T> = [id: T, SortOptions] | undefined;
 
 export type ToastNotification = {
   id: string;
-  type: "pending" | "success" | "error";
+  type: "pending" | "success" | "partialSuccess" | "error";
   title: React.ReactNode;
   description: React.ReactNode;
   details?: React.ReactNode;
+  failedDetails?: React.ReactNode;
   timeout?: number;
   forceDetailsOpen?: boolean;
 };
