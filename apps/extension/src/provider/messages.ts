@@ -22,6 +22,7 @@ enum MessageType {
   ApproveConnectInterface = "approve-connect-interface",
   QueryAccounts = "query-accounts",
   QueryDefaultAccount = "query-default-account",
+  UpdateDefaultAccount = "update-default-account",
   EncodeRevealPublicKey = "encode-reveal-public-key",
   GetChain = "get-chain",
   GetChains = "get-chains",
@@ -204,6 +205,28 @@ export class QueryDefaultAccountMsg extends Message<
 
   type(): string {
     return QueryDefaultAccountMsg.type();
+  }
+}
+
+export class UpdateDefaultAccountMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.UpdateDefaultAccount;
+  }
+
+  constructor(public readonly address: string) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["address"]);
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return UpdateDefaultAccountMsg.type();
   }
 }
 

@@ -30,6 +30,7 @@ export interface Namada {
   connect(): Promise<void>;
   isConnected(): Promise<boolean | undefined>;
   defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
+  updateDefaultAccount(address: string): Promise<void>;
   sign(props: SignProps): Promise<Uint8Array[] | undefined>;
   signArbitrary(
     props: SignArbitraryProps

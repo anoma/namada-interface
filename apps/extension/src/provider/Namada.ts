@@ -19,6 +19,7 @@ import {
   IsConnectionApprovedMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
+  UpdateDefaultAccountMsg,
   VerifyArbitraryMsg,
 } from "./messages";
 
@@ -57,6 +58,13 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryDefaultAccountMsg()
+    );
+  }
+
+  public async updateDefaultAccount(address: string): Promise<void> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new UpdateDefaultAccountMsg(address)
     );
   }
 

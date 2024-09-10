@@ -34,6 +34,13 @@ export class InjectedNamada implements INamada {
     );
   }
 
+  public async updateDefaultAccount(address: string): Promise<void> {
+    return await InjectedProxy.requestMethod<string, void>(
+      "updateDefaultAccount",
+      address
+    );
+  }
+
   public async sign(props: SignProps): Promise<Uint8Array[]> {
     return await InjectedProxy.requestMethod<SignProps, Uint8Array[]>(
       "sign",

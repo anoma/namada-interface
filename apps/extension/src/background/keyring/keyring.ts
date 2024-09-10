@@ -62,7 +62,7 @@ export class KeyRing {
 
   public async setActiveAccount(
     id: string,
-    type: AccountType.Mnemonic | AccountType.Ledger
+    type: AccountType.Mnemonic | AccountType.Ledger | AccountType.PrivateKey
   ): Promise<void> {
     await this.utilityStore.set(PARENT_ACCOUNT_ID_KEY, { id, type });
   }
@@ -406,6 +406,19 @@ export class KeyRing {
     const activeAccount = await this.getActiveAccount();
 
     return accounts.find((acc) => acc.id === activeAccount?.id);
+  }
+
+  public async updateDefaultAccount(address: string): Promise<void> {
+    const accounts = await this.queryAllAccounts();
+    const account = accounts.find((acc) => acc.address === address);
+    if (!account) {
+      throw new Error(`Account with address ${address} not found.`);
+    }
+    if (account.type === AccountType.ShieldedKeys) {
+      throw new Error(`Cannot use this account type: ${account.type}`);
+    }
+    const { id, type } = account;
+    await this.setActiveAccount(id, type);
   }
 
   public async queryAccountByPublicKey(

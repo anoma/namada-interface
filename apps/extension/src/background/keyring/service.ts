@@ -116,6 +116,11 @@ export class KeyRingService {
     return await this._keyRing.queryDefaultAccount();
   }
 
+  async updateDefaultAccount(address: string): Promise<void> {
+    await this._keyRing.updateDefaultAccount(address);
+    await this.broadcaster.updateAccounts();
+  }
+
   async queryParentAccounts(): Promise<DerivedAccount[]> {
     return [...(await this._keyRing.queryParentAccounts())];
   }

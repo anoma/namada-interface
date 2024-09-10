@@ -30,7 +30,10 @@ export type TabStore = {
   timestamp: number;
 };
 
-export type ParentAccount = AccountType.Mnemonic | AccountType.Ledger;
+export type ParentAccount =
+  | AccountType.Mnemonic
+  | AccountType.Ledger
+  | AccountType.PrivateKey;
 
 export type ActiveAccountStore = {
   id: string;
