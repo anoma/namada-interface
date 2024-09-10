@@ -101,8 +101,19 @@ export const useTransactionNotifications = (): void => {
           succeeded
         </>
       ),
-      details: getAmountByValidatorList(e.detail.data),
+      details: (
+        <>
+          {getAmountByValidatorList(e.detail.data)}
+          {e.detail.error && (
+            <b>
+              <br />
+              {`${e.detail.error}`}
+            </b>
+          )}
+        </>
+      ),
       type: "success",
+      forceDetailsOpen: true,
     });
   });
 

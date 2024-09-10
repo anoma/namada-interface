@@ -23,7 +23,12 @@ export const Toasts = (): JSX.Element => {
       <AnimatePresence>
         <Stack gap={2}>
           {notifications.map((n) => (
-            <Toast key={`toast-${n.id}`} notification={n} onClose={onClose} />
+            <Toast
+              key={`toast-${n.id}`}
+              notification={n}
+              onClose={onClose}
+              forceDetailsOpen={n.forceDetailsOpen}
+            />
           ))}
         </Stack>
       </AnimatePresence>
@@ -34,9 +39,14 @@ export const Toasts = (): JSX.Element => {
 type ToastProps = {
   notification: ToastNotification;
   onClose: (notification: ToastNotification) => void;
+  forceDetailsOpen?: boolean;
 };
 
-const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
+const Toast = ({
+  notification,
+  onClose,
+  forceDetailsOpen = false,
+}: ToastProps): JSX.Element => {
   const [viewDetails, setViewDetails] = useState(false);
   const interval = useRef<NodeJS.Timeout>();
 
@@ -112,7 +122,7 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
       >
         <strong className="block text-sm">{notification.title}</strong>
         <div className="leading-tight text-xs">{notification.description}</div>
-        {notification.details && !viewDetails && (
+        {notification.details && !viewDetails && !forceDetailsOpen && (
           <button
             className="text-xs text-white underline"
             onClick={() => setViewDetails(true)}
@@ -120,7 +130,7 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
             View details
           </button>
         )}
-        {notification.details && viewDetails && (
+        {notification.details && (viewDetails || forceDetailsOpen) && (
           <div className="w-full text-xs text-white block">
             {notification.details}
           </div>

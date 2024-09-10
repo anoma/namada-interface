@@ -9,6 +9,7 @@ import {
 } from "@namada/types";
 import { getIndexerApi } from "atoms/api";
 import { chainParametersAtom } from "atoms/chain";
+import BigNumber from "bignumber.js";
 import { getSdkInstance } from "hooks";
 import invariant from "invariant";
 import { getDefaultStore } from "jotai";
@@ -22,7 +23,10 @@ export type TransactionPair<T> = {
 
 export type EncodedTxData<T> = {
   type: string;
-  txs: TxProps[];
+  txs: TxProps[] &
+    {
+      innerTxHashes: string[];
+    }[];
   wrapperTxProps: WrapperTxProps;
   meta?: {
     props: T[];
@@ -55,7 +59,7 @@ const getTxProps = (
   return {
     token: chain.nativeTokenAddress,
     feeAmount: gasConfig.gasPrice,
-    gasLimit: gasConfig.gasLimit,
+    gasLimit: BigNumber(200),
     chainId: chain.chainId,
     publicKey: account.publicKey!,
     memo: "",
@@ -111,8 +115,18 @@ export const buildTx = async <T>(
     txProps.push(tx.buildBatch(txs));
   }
 
+  const sdk = await getSdkInstance();
   return {
-    txs: txProps,
+    txs: txProps.map(({ args, hash, bytes, signingData }) => {
+      const innerTxHashes = sdk.tx.getInnerTxHashes(bytes);
+      return {
+        args,
+        hash,
+        bytes,
+        signingData,
+        innerTxHashes,
+      };
+    }),
     wrapperTxProps,
     type: txFn.name,
     meta: {
@@ -193,6 +207,12 @@ export const broadcastTx = async <T>(
   const { rpc } = await getSdkInstance();
 
   encodedTx.txs.forEach(async (tx) => {
+    const { innerTxHashes } = tx as TxProps & { innerTxHashes: string[] };
+    const dataWithHash = data?.map((d, i) => ({
+      ...d,
+      hash: innerTxHashes[i],
+    }));
+
     eventType &&
       window.dispatchEvent(
         new CustomEvent(`${eventType}.Pending`, {
@@ -213,9 +233,28 @@ export const broadcastTx = async <T>(
       });
 
       if (commitmentErrors.length) {
-        throw new Error(
-          `The following Txs were not applied: ${commitmentErrors.join(" ")}`
-        );
+        //Filter successful Tx, and display a success notification
+        const successData = dataWithHash?.filter((data) => {
+          return !commitmentErrors.includes(data.hash);
+        });
+
+        if (successData?.length) {
+          eventType &&
+            window.dispatchEvent(
+              new CustomEvent(`${eventType}.Success`, {
+                detail: {
+                  tx,
+                  data: successData,
+                  error: `The following Txs were not applied: ${commitmentErrors.join(" ")}`,
+                },
+              })
+            );
+        } else {
+          throw new Error(
+            `The following Txs were not applied: ${commitmentErrors.join(" ")}`
+          );
+        }
+        return;
       }
 
       eventType &&

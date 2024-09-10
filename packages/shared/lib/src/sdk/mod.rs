@@ -199,15 +199,12 @@ impl Sdk {
     // Broadcast Tx
     pub async fn process_tx(&self, tx_bytes: &[u8], tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = args::tx_args_from_slice(tx_msg)?;
-
         let tx = Tx::try_from_slice(tx_bytes)?;
         let cmts = tx.commitments().clone();
-        let hash = tx.header_hash().to_string();
+        let wrapper_hash = tx.wrapper_hash();
         let resp = process_tx(&self.namada, &args, tx.clone()).await?;
 
         let mut batch_tx_results: Vec<tx::BatchTxResult> = vec![];
-
-        let wrapper_hash = tx.wrapper_hash();
 
         // Collect results and return
         match resp {
@@ -219,23 +216,32 @@ impl Sdk {
                 let log = tx_response.log.to_string();
 
                 for cmt in cmts {
-                    if let Some(InnerTxResult::Success(result)) = tx_response.batch_result().get(
-                        &compute_inner_tx_hash(wrapper_hash.as_ref(), Either::Right(&cmt)),
-                    ) {
-                        let hash =
-                            compute_inner_tx_hash(wrapper_hash.as_ref(), Either::Right(&cmt));
+                    let hash = compute_inner_tx_hash(wrapper_hash.as_ref(), Either::Right(&cmt));
 
+                    if let Some(InnerTxResult::Success(_)) = tx_response.batch_result().get(&hash) {
                         batch_tx_results.push(tx::BatchTxResult::new(hash.to_string(), true));
                     } else {
                         batch_tx_results.push(tx::BatchTxResult::new(hash.to_string(), false));
                     }
                 }
 
-                let response =
-                    tx::TxResponse::new(code, batch_tx_results, gas_used, hash, height, info, log);
+                let response = tx::TxResponse::new(
+                    code,
+                    batch_tx_results,
+                    gas_used,
+                    wrapper_hash.unwrap().to_string(),
+                    height,
+                    info,
+                    log,
+                );
                 to_js_result(borsh::to_vec(&response)?)
             }
-            _ => return Err(JsError::new(&format!("Tx not applied: {}", &hash))),
+            _ => {
+                return Err(JsError::new(&format!(
+                    "Tx not applied: {}",
+                    &wrapper_hash.unwrap().to_string()
+                )))
+            }
         }
     }
 
