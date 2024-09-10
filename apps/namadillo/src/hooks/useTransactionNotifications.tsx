@@ -111,7 +111,7 @@ export const useTransactionNotifications = (): void => {
     clearPendingNotifications(id);
     dispatchNotification({
       id,
-      title: "Some staking tx failed",
+      title: "Some staking transactions failed",
       description: (
         <>
           Your staking transaction of <NamCurrency amount={total} /> has
@@ -141,6 +141,27 @@ export const useTransactionNotifications = (): void => {
     });
   });
 
+  useTransactionEventListener("Unbond.PartialSuccess", (e) => {
+    const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
+    clearPendingNotifications(id);
+    dispatchNotification({
+      id,
+      title: "Some Unstake transactions failed",
+      description: (
+        <>
+          Your unbonding of <NamCurrency amount={total} /> has succeeded
+        </>
+      ),
+      details: getAmountByValidatorList(e.detail.data),
+      failedDetails:
+        e.detail.failedData ?
+          getAmountByValidatorList(e.detail.failedData)
+        : undefined,
+      type: "partialSuccess",
+      forceDetailsOpen: true,
+    });
+  });
+
   useTransactionEventListener("Unbond.Error", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
     clearPendingNotifications(id);
@@ -163,7 +184,7 @@ export const useTransactionNotifications = (): void => {
     dispatchNotification({
       id,
       title: "Withdrawal Success",
-      description: `Your withdrawal transaction has succeeded`,
+      description: <>Your withdrawal transaction has succeeded</>,
       type: "success",
     });
   });
@@ -210,6 +231,27 @@ export const useTransactionNotifications = (): void => {
       ),
       details: getReDelegateDetailList(e.detail.data),
       type: "success",
+    });
+  });
+
+  useTransactionEventListener("ReDelegate.PartialSuccess", (e) => {
+    const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
+    clearPendingNotifications(id);
+    dispatchNotification({
+      id,
+      title: "Some redelegations were not successful",
+      description: (
+        <>
+          Your redelegate transaction of <NamCurrency amount={total} />
+          has succeeded
+        </>
+      ),
+      details: getReDelegateDetailList(e.detail.data),
+      failedDetails:
+        e.detail.failedData ?
+          getReDelegateDetailList(e.detail.failedData)
+        : undefined,
+      type: "partialSuccess",
     });
   });
 
