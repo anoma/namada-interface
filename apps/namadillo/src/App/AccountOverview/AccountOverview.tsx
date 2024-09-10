@@ -42,12 +42,15 @@ export const AccountOverview = (): JSX.Element => {
         )}
 
         {isConnected && fullView && (
-          <section className="w-full rounded-sm">
+          <section className="flex flex-col w-full rounded-sm min-h-full gap-2">
             <div className="grid grid-cols-[1.25fr_1fr] gap-2">
               <div className="bg-black rounded-sm">
                 <NamBalanceContainer />
               </div>
               <div className="flex gap-2 bg-black rounded-sm"></div>
+            </div>
+            <div className="flex items-center bg-black rounded-sm flex-1 justify-center">
+              <NavigationFooter />
             </div>
           </section>
         )}
