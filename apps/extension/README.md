@@ -57,6 +57,10 @@ Once you have run `yarn build`, you can use the files in `./build` to install th
 The extension should be installed. Currently, this is enabled for `namada.me`, so navigating to that page will call the `content` scripts,
 hopefully instantiating an instance of the `Namada()` class API for handling communication between client and key store.
 
+#### Firefox Add-On Review
+
+See the [FIREFOX_README.md](./FIREFOX_README.md) for specific instructions related to reviewing the Firefox Add-On.
+
 ## Notes
 
 - Currently, Firefox does not support `manifest_version: 3`, and Chrome will be removing support for `V2` in 2023. As such, both manifest versions are supported.

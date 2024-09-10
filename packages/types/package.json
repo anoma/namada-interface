@@ -26,12 +26,16 @@
   "devDependencies": {
     "@babel/preset-env": "^7.23.8",
     "@release-it/conventional-changelog": "^8.0.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-import": "^2.30.0",
+    "eslint-plugin-react": "^7.35.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "release-it": "^17.0.1",
     "rimraf": "^5.0.5",
     "typedoc": "^0.25.12",
-    "typedoc-plugin-markdown": "^3.17.1"
-  },
-  "peerDependencies": {
+    "typedoc-plugin-markdown": "^3.17.1",
     "typescript": "^5.5.4"
   },
   "files": [

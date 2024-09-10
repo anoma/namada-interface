@@ -1,5 +1,5 @@
 import { SegmentedBar, Stack } from "@namada/components";
-import { Proposal, voteTypes } from "@namada/types";
+import { Proposal, VoteType, voteTypes } from "@namada/types";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { GoInfo } from "react-icons/go";
@@ -11,8 +11,8 @@ import { colors } from "./types";
 
 const ProposalListItem: React.FC<{
   proposal: Proposal;
-  voted: boolean;
-}> = ({ proposal, voted }) => {
+  vote?: VoteType;
+}> = ({ proposal, vote }) => {
   const { status } = proposal;
 
   const navigate = useNavigate();
@@ -50,7 +50,9 @@ const ProposalListItem: React.FC<{
         <div className="flex-1">{proposal.content.title}</div>
         <TypeLabel proposalType={proposal.proposalType} color="dark" />
         <div className="min-w-20">
-          {voted && <VotedLabel className="text-[10px] w-fit m-auto" />}
+          {typeof vote !== "undefined" && (
+            <VotedLabel vote={vote} className="text-[10px] w-fit m-auto" />
+          )}
         </div>
         <i
           className={clsx(
@@ -68,14 +70,13 @@ const ProposalListItem: React.FC<{
 };
 
 type LiveGovernanceProposalsProps = {
-  votedProposalIds: bigint[];
-} & {
   proposals: Proposal[];
+  votedProposals: { proposalId: bigint; vote: VoteType }[];
 };
 
 export const LiveGovernanceProposals: React.FC<
   LiveGovernanceProposalsProps
-> = ({ proposals, votedProposalIds }) => {
+> = ({ proposals, votedProposals }) => {
   return (
     <div className="max-h-[490px] flex flex-col">
       <Stack
@@ -84,11 +85,12 @@ export const LiveGovernanceProposals: React.FC<
         className="dark-scrollbar overscroll-contain overflow-x-auto"
       >
         {proposals.map((proposal) => {
-          const voted = votedProposalIds.includes(proposal.id);
+          const vote = votedProposals.find((v) => v.proposalId === proposal.id)
+            ?.vote;
           return (
             <ProposalListItem
               proposal={proposal}
-              voted={voted}
+              vote={vote}
               key={proposal.id.toString()}
             />
           );

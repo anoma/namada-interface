@@ -1,4 +1,4 @@
-export { App } from "./App"
+export { App } from "./App";
+export * from "./App.components";
 export { FaucetForm } from "./Faucet";
-export * from "./App.components"
-export * from "./Faucet.components"
+export * from "./Faucet.components";

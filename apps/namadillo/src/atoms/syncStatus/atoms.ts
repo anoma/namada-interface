@@ -1,5 +1,5 @@
 import { accountBalanceAtom } from "atoms/accounts/atoms";
-import { allProposalsAtom, votedProposalIdsAtom } from "atoms/proposals/atoms";
+import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals/atoms";
 import { indexerHeartbeatAtom, rpcHeartbeatAtom } from "atoms/settings/atoms";
 import { allValidatorsAtom, myValidatorsAtom } from "atoms/validators/atoms";
 import { atom } from "jotai";
@@ -17,7 +17,7 @@ export const syncStatusAtom = atom((get) => {
 
     // Governance
     get(allProposalsAtom),
-    get(votedProposalIdsAtom),
+    get(votedProposalsAtom),
   ];
 
   const isSyncing = queries.some((q) => q.isFetching);
