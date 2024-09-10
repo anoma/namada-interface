@@ -50,7 +50,7 @@ export const NamBalanceContainer = (): JSX.Element => {
   } = useBalances();
 
   return (
-    <div className="flex gap-4 text-white pl-4 pr-6 py-5">
+    <div className="flex gap-4 text-white">
       <AtomErrorBoundary
         result={[balanceQuery, stakeQuery]}
         niceError="Unable to load balances"

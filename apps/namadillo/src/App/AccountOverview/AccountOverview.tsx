@@ -1,4 +1,4 @@
-import { Stack } from "@namada/components";
+import { Panel, Stack } from "@namada/components";
 import { Intro } from "App/Common/Intro";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
@@ -44,14 +44,14 @@ export const AccountOverview = (): JSX.Element => {
         {isConnected && fullView && (
           <section className="flex flex-col w-full rounded-sm min-h-full gap-2">
             <div className="grid grid-cols-[1.25fr_1fr] gap-2">
-              <div className="bg-black rounded-sm">
+              <Panel className="pl-4 pr-6 py-5">
                 <NamBalanceContainer />
-              </div>
-              <div className="flex gap-2 bg-black rounded-sm"></div>
+              </Panel>
+              <Panel>todo</Panel>
             </div>
-            <div className="flex items-center bg-black rounded-sm flex-1 justify-center">
+            <Panel className="flex items-center flex-1 justify-center">
               <NavigationFooter />
-            </div>
+            </Panel>
           </section>
         )}
       </div>
