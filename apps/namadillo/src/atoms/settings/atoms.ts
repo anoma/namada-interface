@@ -14,16 +14,20 @@ export const namadaExtensionConnectedAtom = atom<boolean>(
   (get) => get(namadaExtensionConnectionStatus) === "connected"
 );
 
-export const applicationSettingsAtom = atomWithStorage(
+export const defaultApplicationFeatures = {
+  claimRewardsEnabled: false,
+  maspEnabled: false,
+  ibcTransfersEnabled: false,
+  ibcShieldingEnabled: false,
+  shieldingRewardsEnabled: false,
+  namTransfersEnabled: false,
+};
+
+export type ApplicationFeatures = typeof defaultApplicationFeatures;
+
+export const applicationFeaturesAtom = atomWithStorage(
   "namadillo:features",
-  {
-    claimRewardsEnabled: false,
-    maspEnabled: false,
-    ibcTransfersEnabled: false,
-    ibcShieldingEnabled: false,
-    shieldingRewardsEnabled: false,
-    namTransfersEnabled: false,
-  },
+  defaultApplicationFeatures,
   undefined,
   { getOnInit: true }
 );

@@ -6,6 +6,7 @@ import { FaChevronLeft } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Advanced } from "./Advanced";
+import { EnableFeatures } from "./EnableFeatures";
 import { SettingsMain } from "./SettingsMain";
 import { SettingsSignArbitrary } from "./SettingsSignArbitrary";
 import SettingsRoutes from "./routes";
@@ -62,6 +63,10 @@ export const SettingsPanel = (): JSX.Element => {
               <Route
                 path={`${SettingsRoutes.advanced()}`}
                 element={<Advanced />}
+              />
+              <Route
+                path={`${SettingsRoutes.features()}`}
+                element={<EnableFeatures />}
               />
             </Routes>
           </div>
