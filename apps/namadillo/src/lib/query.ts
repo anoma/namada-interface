@@ -9,7 +9,6 @@ import {
 } from "@namada/types";
 import { getIndexerApi } from "atoms/api";
 import { chainParametersAtom } from "atoms/chain";
-import BigNumber from "bignumber.js";
 import { getSdkInstance } from "hooks";
 import invariant from "invariant";
 import { getDefaultStore } from "jotai";
@@ -59,7 +58,7 @@ const getTxProps = (
   return {
     token: chain.nativeTokenAddress,
     feeAmount: gasConfig.gasPrice,
-    gasLimit: BigNumber(200),
+    gasLimit: gasConfig.gasLimit,
     chainId: chain.chainId,
     publicKey: account.publicKey!,
     memo: "",
@@ -241,8 +240,6 @@ export const broadcastTx = async <T>(
           return commitmentErrors.includes(data.hash);
         });
 
-        console.log({ successData, failedData });
-
         if (successData?.length) {
           eventType &&
             window.dispatchEvent(
@@ -251,7 +248,6 @@ export const broadcastTx = async <T>(
                   tx,
                   data: successData,
                   failedData,
-                  error: `The following Txs were not applied: ${commitmentErrors.join(" ")}`,
                 },
               })
             );

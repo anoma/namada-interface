@@ -146,6 +146,7 @@ export type ToastNotification = {
   type: "pending" | "success" | "partialSuccess" | "error";
   title: React.ReactNode;
   description: React.ReactNode;
+  failedDescription?: React.ReactNode;
   details?: React.ReactNode;
   failedDetails?: React.ReactNode;
   timeout?: number;

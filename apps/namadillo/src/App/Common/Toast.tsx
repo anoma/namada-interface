@@ -9,6 +9,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { FaRegHourglassHalf, FaXmark } from "react-icons/fa6";
+import { GoAlert } from "react-icons/go";
 import { ToastNotification } from "types";
 
 export const Toasts = (): JSX.Element => {
@@ -113,6 +114,11 @@ const Toast = ({
             <FaRegHourglassHalf />
           </i>
         )}
+        {notification.type === "partialSuccess" && (
+          <i className="text-2xl">
+            <GoAlert />
+          </i>
+        )}
       </span>
       <Stack
         gap={0.5}
@@ -137,11 +143,14 @@ const Toast = ({
           </div>
         )}
         {notification.failedDetails && (viewDetails || forceDetailsOpen) && (
-          <div className="w-full text-xs text-red block">
-            <br />
-            <div>The following Tx were not applied:</div>
-            {notification.failedDetails}
-          </div>
+          <>
+            <div className="w-full text-xs text-white block my-4">
+              <span className="font-bold">
+                {notification.failedDescription}
+              </span>
+              {notification.failedDetails}
+            </div>
+          </>
         )}
       </Stack>
       <i

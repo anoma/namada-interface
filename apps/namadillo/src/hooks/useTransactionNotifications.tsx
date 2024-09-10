@@ -118,6 +118,9 @@ export const useTransactionNotifications = (): void => {
           succeeded
         </>
       ),
+      failedDescription: (
+        <>The following staking transactions were not applied:</>
+      ),
       details: getAmountByValidatorList(e.detail.data),
       failedDetails: getAmountByValidatorList(e.detail.failedData || []),
       type: "partialSuccess",
@@ -149,8 +152,11 @@ export const useTransactionNotifications = (): void => {
       title: "Some Unstake transactions failed",
       description: (
         <>
-          Your unbonding of <NamCurrency amount={total} /> has succeeded
+          Your unstaking of <NamCurrency amount={total} /> has succeeded
         </>
+      ),
+      failedDescription: (
+        <>The following unstaking transactions were not applied:</>
       ),
       details: getAmountByValidatorList(e.detail.data),
       failedDetails:
@@ -246,6 +252,7 @@ export const useTransactionNotifications = (): void => {
           has succeeded
         </>
       ),
+      failedDescription: <>The following redelegations were not applied:</>,
       details: getReDelegateDetailList(e.detail.data),
       failedDetails:
         e.detail.failedData ?

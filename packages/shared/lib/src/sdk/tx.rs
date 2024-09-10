@@ -128,14 +128,6 @@ impl Tx {
             signing_data.push(sd);
         }
         let hash = tx.wrapper_hash();
-        let cmts = tx.commitments();
-        let mut inner_tx_hashes: Vec<String> = vec![];
-
-        for cmt in cmts {
-            let inner_tx_hash = compute_inner_tx_hash(hash.as_ref(), Either::Right(&cmt));
-            inner_tx_hashes.push(inner_tx_hash.to_string());
-        }
-
         let bytes: Vec<u8> = borsh::to_vec(&tx)?;
 
         Ok(Tx {
