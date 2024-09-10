@@ -25,7 +25,7 @@ use namada_sdk::string_encoding::Format;
 use namada_sdk::tx::{
     build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
     build_reveal_pk, build_transparent_transfer, build_unbond, build_vote_proposal, build_withdraw,
-    process_tx, ProcessTxResponse, Tx,
+    data::compute_inner_tx_hash, either::Either, process_tx, ProcessTxResponse, Tx,
 };
 use namada_sdk::wallet::{Store, Wallet};
 use namada_sdk::{Namada, NamadaImpl};
@@ -207,11 +207,12 @@ impl Sdk {
 
         let mut batch_tx_results: Vec<tx::BatchTxResult> = vec![];
 
+        let wrapper_hash = tx.wrapper_hash();
         for cmt in cmts {
-            let response = resp.is_applied_and_valid(Some(&tx.header_hash()), &cmt);
-            let hash = cmt.get_hash().to_string();
+            let response = resp.is_applied_and_valid(wrapper_hash.as_ref(), &cmt);
+            let hash = compute_inner_tx_hash(wrapper_hash.as_ref(), Either::Right(&cmt));
 
-            batch_tx_results.push(tx::BatchTxResult::new(hash, response.is_some()));
+            batch_tx_results.push(tx::BatchTxResult::new(hash.to_string(), response.is_some()));
         }
 
         // Collect results and return
