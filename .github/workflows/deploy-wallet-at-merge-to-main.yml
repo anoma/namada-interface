@@ -54,8 +54,8 @@ jobs:
 
       - name: Copy the extensions for deployment
         run: |
-          cp apps/extension/build/firefox/namada_extension-*.zip apps/namadillo/dist/namada-extension-firefox.zip
-          cp apps/extension/build/chrome/namada_extension-*.zip apps/namadillo/dist/namada-extension-chrome.zip
+          cp apps/extension/build/firefox/namada_keychain-*.zip apps/namadillo/dist/namada-keychain-firefox.zip
+          cp apps/extension/build/chrome/namada_keychain-*.zip apps/namadillo/dist/namada-keychain-chrome.zip
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.2.3
