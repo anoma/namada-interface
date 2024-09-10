@@ -2,7 +2,10 @@ import { Stack } from "@namada/components";
 import { Intro } from "App/Common/Intro";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
-import { namadaExtensionConnectedAtom } from "atoms/settings";
+import {
+  applicationFeaturesAtom,
+  namadaExtensionConnectedAtom,
+} from "atoms/settings";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { AccountBalanceContainer } from "./AccountBalanceContainer";
@@ -10,9 +13,11 @@ import { NamBalanceContainer } from "./NamBalanceContainer";
 import { NavigationFooter } from "./NavigationFooter";
 
 export const AccountOverview = (): JSX.Element => {
-  const claimRewardsEnabled = true;
-  const maspEnabled = false;
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
+  const { claimRewardsEnabled, maspEnabled } = useAtomValue(
+    applicationFeaturesAtom
+  );
+
   const fullView = claimRewardsEnabled || maspEnabled;
   const fullWidthClassName = clsx({ "col-span-2": !isConnected });
 
