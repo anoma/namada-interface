@@ -14,6 +14,20 @@ export const namadaExtensionConnectedAtom = atom<boolean>(
   (get) => get(namadaExtensionConnectionStatus) === "connected"
 );
 
+export const applicationSettingsAtom = atomWithStorage(
+  "namadillo:features",
+  {
+    claimRewardsEnabled: false,
+    maspEnabled: false,
+    ibcTransfersEnabled: false,
+    ibcShieldingEnabled: false,
+    shieldingRewardsEnabled: false,
+    namTransfersEnabled: false,
+  },
+  undefined,
+  { getOnInit: true }
+);
+
 export const defaultServerConfigAtom = atomWithQuery((_get) => {
   return {
     queryKey: ["server-config"],
@@ -23,7 +37,7 @@ export const defaultServerConfigAtom = atomWithQuery((_get) => {
   };
 });
 
-export const defaultSettings = {
+export const defaultLocalStorageProps = {
   version: "0.1",
   fiat: "usd",
   indexerUrl: "",
@@ -32,7 +46,7 @@ export const defaultSettings = {
 
 export const settingsAtom = atomWithStorage<SettingsStorage>(
   "namadillo:settings",
-  defaultSettings,
+  defaultLocalStorageProps,
   undefined,
   { getOnInit: true }
 );
