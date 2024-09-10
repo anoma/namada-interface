@@ -8,6 +8,8 @@ export const currencySelection = (): RouteOutput => routeOutput("/currency");
 
 export const advanced = (): RouteOutput => routeOutput("/advanced");
 
+export const features = (): RouteOutput => routeOutput("/features");
+
 export const signArbitrary = (): RouteOutput => routeOutput("/sign-arbitrary");
 
-export default { index, currencySelection, advanced, signArbitrary };
+export default { index, currencySelection, advanced, signArbitrary, features };
