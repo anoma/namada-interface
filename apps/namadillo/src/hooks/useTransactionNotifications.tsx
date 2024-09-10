@@ -85,7 +85,8 @@ export const useTransactionNotifications = (): void => {
           Your staking transaction of <NamCurrency amount={total} /> has failed
         </>
       ),
-      details: e.detail.error?.message,
+      failedDetails: getAmountByValidatorList(e.detail.data),
+      forceDetailsOpen: true,
     });
   });
 
@@ -180,7 +181,8 @@ export const useTransactionNotifications = (): void => {
           Your request to unstake <NamCurrency amount={total} /> has failed
         </>
       ),
-      details: e.detail.error?.message,
+      failedDetails: getAmountByValidatorList(e.detail.data),
+      forceDetailsOpen: true,
     });
   });
 
@@ -219,7 +221,9 @@ export const useTransactionNotifications = (): void => {
           has failed
         </>
       ),
+      failedDetails: getReDelegateDetailList(e.detail.data),
       type: "error",
+      forceDetailsOpen: true,
     });
   });
 

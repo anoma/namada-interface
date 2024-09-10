@@ -145,9 +145,11 @@ const Toast = ({
         {notification.failedDetails && (viewDetails || forceDetailsOpen) && (
           <>
             <div className="w-full text-xs text-white block my-4">
-              <span className="font-bold">
-                {notification.failedDescription}
-              </span>
+              {notification.failedDescription && (
+                <span className="font-bold">
+                  {notification.failedDescription}
+                </span>
+              )}
               {notification.failedDetails}
             </div>
           </>

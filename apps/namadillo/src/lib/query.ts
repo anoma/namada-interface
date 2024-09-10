@@ -252,13 +252,17 @@ export const broadcastTx = async <T>(
               })
             );
         } else {
-          throw new Error(
-            `The following Txs were not applied: ${commitmentErrors.join(" ")}`
-          );
+          eventType &&
+            window.dispatchEvent(
+              new CustomEvent(`${eventType}.Error`, {
+                detail: { tx, data, failedData },
+              })
+            );
         }
         return;
       }
 
+      // If no errors were reported, display Success toast
       eventType &&
         window.dispatchEvent(
           new CustomEvent(`${eventType}.Success`, {
