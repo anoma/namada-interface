@@ -4,7 +4,7 @@ import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { AtomWithQueryResult } from "jotai-tanstack-query";
 
-type useBalancesOutput = {
+export type useBalancesOutput = {
   isLoading: boolean;
   isSuccess: boolean;
   stakeQuery: AtomWithQueryResult;
