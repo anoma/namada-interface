@@ -13,7 +13,7 @@ import { RouteErrorBoundary } from "./Common/RouteErrorBoundary";
 import { Governance } from "./Governance";
 import { SettingsPanel } from "./Settings/SettingsPanel";
 import { Staking } from "./Staking";
-import { SwitchAccountModal } from "./SwitchAccount/SwitchAccountModal";
+import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
 
 import GovernanceRoutes from "./Governance/routes";
 import SettingsRoutes from "./Settings/routes";
@@ -52,7 +52,7 @@ export const MainRoutes = (): JSX.Element => {
         />
         <Route
           path={`${SwitchAccountRoutes.index()}/*`}
-          element={<SwitchAccountModal />}
+          element={<SwitchAccountPanel />}
           errorElement={<RouteErrorBoundary />}
         />
         <Route

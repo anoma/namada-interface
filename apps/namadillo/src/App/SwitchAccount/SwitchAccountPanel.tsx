@@ -11,7 +11,7 @@ import { useAtomValue } from "jotai";
 import { IoClose } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 
-export const SwitchAccountModal = (): JSX.Element => {
+export const SwitchAccountPanel = (): JSX.Element => {
   const { onCloseModal } = useModalCloseEvent();
   const { data: defaultAccount } = useAtomValue(defaultAccountAtom);
   const { data } = useAtomValue(accountsAtom);
