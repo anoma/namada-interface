@@ -1,7 +1,6 @@
 import { CopyToClipboardControl, Tooltip } from "@namada/components";
-import { useIntegrationDisconnect } from "@namada/integrations";
 import SwitchAccountRoutes from "App/SwitchAccount/routes";
-import { defaultAccountAtom } from "atoms/accounts";
+import { defaultAccountAtom, disconnectAccountAtom } from "atoms/accounts";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -10,9 +9,9 @@ import { SwitchAccountIcon } from "./SwitchAccountIcon";
 
 export const ActiveAccount = (): JSX.Element => {
   const { data: account, isFetching } = useAtomValue(defaultAccountAtom);
+  const { mutateAsync: disconnect } = useAtomValue(disconnectAccountAtom);
   const location = useLocation();
   const navigate = useNavigate();
-  const disconnect = useIntegrationDisconnect("namada");
 
   if (!account || isFetching) {
     return <></>;
@@ -47,12 +46,7 @@ export const ActiveAccount = (): JSX.Element => {
         >
           <SwitchAccountIcon />
         </button>
-        <button
-          className={buttonClassName}
-          onClick={() => {
-            disconnect();
-          }}
-        >
+        <button className={buttonClassName} onClick={() => disconnect()}>
           <DisconnectAccountIcon />
         </button>
       </span>
