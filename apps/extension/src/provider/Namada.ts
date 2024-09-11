@@ -9,6 +9,7 @@ import {
 } from "@namada/types";
 import { MessageRequester, Ports } from "router";
 
+import { RevokeConnectionMsg } from "background/approvals";
 import { toEncodedTx } from "utils";
 import {
   ApproveConnectInterfaceMsg,
@@ -33,6 +34,13 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new ApproveConnectInterfaceMsg()
+    );
+  }
+
+  public async disconnect(): Promise<void> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new RevokeConnectionMsg(location.origin)
     );
   }
 

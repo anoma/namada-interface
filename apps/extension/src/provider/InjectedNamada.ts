@@ -18,6 +18,10 @@ export class InjectedNamada implements INamada {
     return await InjectedProxy.requestMethod<string, void>("connect");
   }
 
+  public async disconnect(): Promise<void> {
+    return await InjectedProxy.requestMethod<string, void>("disconnect");
+  }
+
   public async isConnected(): Promise<boolean> {
     return await InjectedProxy.requestMethod<string, boolean>("isConnected");
   }

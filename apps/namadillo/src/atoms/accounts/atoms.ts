@@ -38,6 +38,13 @@ export const updateDefaultAccountAtom = atomWithMutation(() => {
   };
 });
 
+export const disconnectAccountAtom = atomWithMutation(() => {
+  const integration = getIntegration("namada");
+  return {
+    mutationFn: () => integration.disconnect(),
+  };
+});
+
 export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
   const defaultAccount = get(defaultAccountAtom);
   const tokenAddress = get(nativeTokenAddressAtom);
