@@ -1,5 +1,6 @@
 import {
   ApproveConnectInterfaceMsg,
+  ApproveDisconnectInterfaceMsg,
   ApproveSignArbitraryMsg,
   ApproveSignTxMsg,
   IsConnectionApprovedMsg,
@@ -36,6 +37,11 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleConnectInterfaceResponseMsg(service)(
           env,
           msg as ConnectInterfaceResponseMsg
+        );
+      case ApproveDisconnectInterfaceMsg:
+        return handleApproveDisconnectInterfaceMsg(service)(
+          env,
+          msg as ApproveDisconnectInterfaceMsg
         );
       case RevokeConnectionMsg:
         return handleRevokeConnectionMsg(service)(
@@ -119,6 +125,14 @@ const handleConnectInterfaceResponseMsg: (
       allowConnection,
       popupTabId
     );
+  };
+};
+
+const handleApproveDisconnectInterfaceMsg: (
+  service: ApprovalsService
+) => InternalHandler<ApproveDisconnectInterfaceMsg> = (service) => {
+  return async (_, { origin }) => {
+    return await service.approveDisconnect(origin);
   };
 };
 

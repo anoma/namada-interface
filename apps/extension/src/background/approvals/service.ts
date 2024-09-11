@@ -7,6 +7,7 @@ import { SignArbitraryResponse, TxDetails } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 
 import { ResponseSign } from "@zondax/ledger-namada";
+import { TopLevelRoute } from "Approvals/types";
 import { ChainsService } from "background/chains";
 import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
@@ -279,6 +280,30 @@ export class ApprovalsService {
     } else {
       resolvers.reject();
     }
+  }
+
+  async approveDisconnect(interfaceOrigin: string): Promise<void> {
+    const baseUrl = `${browser.runtime.getURL(
+      "approvals.html"
+    )}#${TopLevelRoute.ApproveDisconnect}`;
+
+    const url = paramsToUrl(baseUrl, {
+      interfaceOrigin,
+    });
+
+    const popupTabId = await this.getPopupTabId(url);
+
+    if (!popupTabId) {
+      throw new Error("no popup tab ID");
+    }
+
+    if (popupTabId in this.resolverMap) {
+      throw new Error(`tab ID ${popupTabId} already exists in promise map`);
+    }
+
+    return new Promise((resolve, reject) => {
+      this.resolverMap[popupTabId] = { resolve, reject };
+    });
   }
 
   async revokeConnection(originToRevoke: string): Promise<void> {

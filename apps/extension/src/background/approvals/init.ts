@@ -1,5 +1,6 @@
 import {
   ApproveConnectInterfaceMsg,
+  ApproveDisconnectInterfaceMsg,
   ApproveSignArbitraryMsg,
   ApproveSignTxMsg,
   IsConnectionApprovedMsg,
@@ -32,6 +33,7 @@ export function init(router: Router, service: ApprovalsService): void {
   router.registerMessage(SubmitApprovedSignLedgerTxMsg);
   router.registerMessage(IsConnectionApprovedMsg);
   router.registerMessage(ApproveConnectInterfaceMsg);
+  router.registerMessage(ApproveDisconnectInterfaceMsg);
   router.registerMessage(ConnectInterfaceResponseMsg);
   router.registerMessage(RevokeConnectionMsg);
   router.registerMessage(QueryTxDetailsMsg);
