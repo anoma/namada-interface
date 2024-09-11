@@ -90,19 +90,6 @@ export const useIntegrationConnection = <TSuccess, TFail, K extends ChainKey>(
   return [integration, isConnectingToExtension, connect];
 };
 
-/**
- * Hook for getting a function to disconnect the integration
- *
- * @param {ChainKey} chainKey - Index of a chain integration
- * @returns Return a function that, when executed, disconnect the current origin from the extension
- */
-export const useIntegrationDisconnect = <K extends ChainKey>(
-  chainKey: K
-): (() => Promise<void>) => {
-  const integration = useIntegration(chainKey);
-  return useCallback(() => integration.disconnect(), [chainKey]);
-};
-
 type AttachStatus = "pending" | "attached" | "detached";
 type AttachStatusMap = { [key in ExtensionKey]: AttachStatus };
 

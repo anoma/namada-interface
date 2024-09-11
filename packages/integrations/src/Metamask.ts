@@ -83,10 +83,6 @@ class Metamask implements Integration<Account, unknown> {
     }
   }
 
-  public async disconnect(): Promise<void> {
-    throw new Error("Not implemented");
-  }
-
   public async getChain(): Promise<Chain> {
     return this.chain;
   }

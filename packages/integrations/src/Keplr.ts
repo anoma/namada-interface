@@ -105,10 +105,6 @@ class Keplr implements Integration<Account, OfflineSigner> {
     return this.chain;
   }
 
-  public async disconnect(): Promise<void> {
-    throw new Error("Not implemented");
-  }
-
   /**
    * Get key from Keplr for current chain
    * @returns {Promise<boolean>}
