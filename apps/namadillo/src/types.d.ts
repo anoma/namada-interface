@@ -148,9 +148,7 @@ export type ToastNotification = {
   description: React.ReactNode;
   failedDescription?: React.ReactNode;
   details?: React.ReactNode;
-  failedDetails?: React.ReactNode;
   timeout?: number;
-  forceDetailsOpen?: boolean;
 };
 
 export type ToastNotificationEntryFilter = (

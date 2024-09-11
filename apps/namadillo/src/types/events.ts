@@ -33,6 +33,8 @@ export interface EventData<T> extends CustomEvent {
   detail: {
     tx: TxProps;
     data: T[];
+    // If event is for PartialSuccess, use the following:
+    successData?: T[];
     failedData?: T[];
     error?: Error;
   };

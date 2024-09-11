@@ -246,7 +246,8 @@ export const broadcastTx = async <T>(
               new CustomEvent(`${eventType}.PartialSuccess`, {
                 detail: {
                   tx,
-                  data: successData,
+                  data,
+                  successData,
                   failedData,
                 },
               })
