@@ -32,6 +32,10 @@ export default class Namada implements Integration<Account, Signer> {
     await this._namada?.connect();
   }
 
+  public async disconnect(): Promise<void> {
+    await this._namada?.disconnect();
+  }
+
   public async isConnected(): Promise<boolean | undefined> {
     return await this._namada?.isConnected();
   }
