@@ -1,12 +1,10 @@
 import { TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 import { NamCurrency } from "App/Common/NamCurrency";
-import { NamInput } from "App/Common/NamInput";
 import BigNumber from "bignumber.js";
-import clsx from "clsx";
 import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
-import { twMerge } from "tailwind-merge";
 import { Validator } from "types";
+import { AmountField } from "./AmountField";
 import { ValidatorCard } from "./ValidatorCard";
 import { ValidatorsTable } from "./ValidatorsTable";
 
@@ -15,6 +13,7 @@ type IncrementBondingTableProps = {
   updatedAmountByAddress: Record<string, BigNumber | undefined>;
   stakedAmountByAddress: Record<string, BigNumber>;
   renderInfoColumn: (validator: Validator) => React.ReactNode;
+  forceTextfield?: boolean;
   onChangeValidatorAmount: (
     validator: Validator,
     amount: BigNumber | undefined
@@ -27,6 +26,7 @@ export const ReDelegateTable = ({
   stakedAmountByAddress,
   renderInfoColumn,
   onChangeValidatorAmount,
+  forceTextfield = false,
 }: IncrementBondingTableProps): JSX.Element => {
   const { sortableColumns, sortedValidators } = useValidatorTableSorting({
     validators,
@@ -82,24 +82,17 @@ export const ReDelegateTable = ({
           key={`increment-bonding-new-amounts-${validator.address}`}
           className="relative"
         >
-          <NamInput
-            value={updatedAmountByAddress[validator.address]}
-            onChange={(e) => onChangeValidatorAmount(validator, e.target.value)}
+          <AmountField
             placeholder="Select to enter stake"
-            className={twMerge(
-              clsx(
-                "[&_input]:border-neutral-500 [&_input]:py-2.5 [&>div]:my-0",
-                {
-                  "[&_input]:border-yellow": hasNewAmounts,
-                }
-              )
-            )}
+            value={updatedAmountByAddress[validator.address]}
+            updated={hasNewAmounts}
+            forceActive={forceTextfield}
+            validator={validator}
+            data-validator-input={validator.address}
+            hasStakedAmounts={stakedAmountByAddress[validator.address]?.gt(0)}
+            onChange={(e) => onChangeValidatorAmount(validator, e.target.value)}
+            displayCurrencyIndicator={hasNewAmounts}
           />
-          {hasNewAmounts && (
-            <span className="absolute h-full flex items-center right-2 top-0 text-neutral-500 text-sm">
-              NAM
-            </span>
-          )}
         </div>,
 
         <div

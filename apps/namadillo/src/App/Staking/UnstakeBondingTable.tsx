@@ -1,12 +1,12 @@
 import { TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 import { NamCurrency } from "App/Common/NamCurrency";
-import { NamInput } from "App/Common/NamInput";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
 import { twMerge } from "tailwind-merge";
 import { MyValidator, Validator } from "types";
+import { AmountField } from "./AmountField";
 import { ValidatorCard } from "./ValidatorCard";
 import { ValidatorsTable } from "./ValidatorsTable";
 
@@ -87,23 +87,23 @@ export const UnstakeBondingTable = ({
           key={`bonding-new-amounts-${validator.address}`}
           className="relative"
         >
-          <NamInput
+          <AmountField
             placeholder="Select to increase stake"
             value={amountToUnstake.eq(0) ? undefined : amountToUnstake}
+            updated={hasNewAmounts}
+            forceActive={true}
+            validator={validator}
+            data-validator-input={validator.address}
+            hasStakedAmounts={stakedAmountByAddress[validator.address]?.gt(0)}
             onChange={(e) =>
               onChangeValidatorAmount(
                 validator,
                 e.target.value || new BigNumber(0)
               )
             }
-            className={twMerge(
-              clsx(
-                "[&_input]:border-neutral-500 [&_input]:py-2.5 [&>div]:my-0",
-                {
-                  "[&_input]:!border-pink [&_input]:text-pink": hasNewAmounts,
-                }
-              )
-            )}
+            className={clsx({
+              "[&_input]:!border-pink [&_input]:text-pink": hasNewAmounts,
+            })}
           />
         </div>,
 

@@ -2,7 +2,7 @@ import "@testing-library/jest-dom"; // For matcher utilities
 import { render, screen } from "@testing-library/react";
 import { ValidatorRank } from "App/Staking/ValidatorRank";
 
-describe("ValidatorRank Component", () => {
+describe("Component: ValidatorRank", () => {
   const rank = 99;
 
   const assertContentIsPresent = (): void => {

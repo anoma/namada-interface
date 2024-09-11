@@ -1,12 +1,11 @@
 import { TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 import { NamCurrency } from "App/Common/NamCurrency";
-import { NamInput } from "App/Common/NamInput";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
-import { twMerge } from "tailwind-merge";
 import { Validator } from "types";
+import { AmountField } from "./AmountField";
 import { ValidatorCard } from "./ValidatorCard";
 import { ValidatorsTable } from "./ValidatorsTable";
 
@@ -74,27 +73,17 @@ export const IncrementBondingTable = ({
         // Amount Text input
         <div
           key={`increment-bonding-new-amounts-${validator.address}`}
-          className="relative min-w-[24ch]"
+          className="min-w-[24ch]"
         >
-          <NamInput
+          <AmountField
             placeholder="Select to increase stake"
-            className={twMerge(
-              clsx("[&_input]:border-neutral-500 [&_input]:py-2 [&>div]:my-0", {
-                "[&_input]:border-yellow": hasNewAmounts,
-              })
-            )}
             value={updatedAmountByAddress[validator.address]}
-            onChange={(e) => onChangeValidatorAmount(validator, e.target.value)}
+            updated={hasNewAmounts}
+            validator={validator}
             data-validator-input={validator.address}
+            hasStakedAmounts={stakedAmountByAddress[validator.address]?.gt(0)}
+            onChange={(e) => onChangeValidatorAmount(validator, e.target.value)}
           />
-          <span
-            className={clsx(
-              "absolute flex items-center right-2 top-[0.6em]",
-              "text-neutral-500 text-sm"
-            )}
-          >
-            NAM
-          </span>
         </div>,
 
         // Current Stake / New Stake

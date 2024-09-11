@@ -142,6 +142,7 @@ export const ReDelegateRemoveStake = ({
                 updatedAmountByAddress={amountsRemovedByAddress}
                 stakedAmountByAddress={stakedAmountByAddress}
                 renderInfoColumn={renderInfoColumn}
+                forceTextfield={true}
               />
             )}
         </AtomErrorBoundary>

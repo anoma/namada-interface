@@ -6,9 +6,14 @@ import clsx from "clsx";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useValidatorSorting } from "hooks/useValidatorSorting";
 import { AtomWithQueryResult } from "jotai-tanstack-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { GasConfig, RedelegateChange, Validator } from "types";
+import {
+  GasConfig,
+  RedelegateChange,
+  Validator,
+  ValidatorFilterOptions,
+} from "types";
 import { ReDelegateTable } from "./ReDelegateTable";
 import { ValidatorFilterNav } from "./ValidatorFilterNav";
 
@@ -66,9 +71,11 @@ export const ReDelegateAssignStake = ({
   redelegateChanges,
   gasConfig,
 }: ReDelegateAssignStakeProps): JSX.Element => {
-  const [filter, setFilter] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [validatorFilter, setValidatorFilter] =
+    useState<ValidatorFilterOptions>("all");
   const [onlyMyValidators, setOnlyMyValidators] = useState(false);
-  const [seed, setSeed] = useState(Math.random());
+  const seed = useRef(Math.random());
 
   const filteredValidators = useValidatorFilter({
     validators,
@@ -78,14 +85,15 @@ export const ReDelegateAssignStake = ({
         ...Object.keys(assignedAmountsByAddress),
       ])
     ),
-    searchTerm: filter,
+    searchTerm,
+    validatorFilter,
     onlyMyValidators,
   });
 
   const sortedValidators = useValidatorSorting({
     validators: filteredValidators,
     updatedAmountByAddress: assignedAmountsByAddress,
-    seed,
+    seed: seed.current,
   });
 
   const validation = validate(
@@ -133,10 +141,11 @@ export const ReDelegateAssignStake = ({
           validators={validators}
           updatedAmountByAddress={assignedAmountsByAddress}
           stakedAmountByAddress={stakedAmountByAddress}
-          onChangeSearch={(value: string) => setFilter(value)}
+          validatorFilter={validatorFilter}
+          onChangeValidatorFilter={setValidatorFilter}
+          onChangeSearch={(value: string) => setSearchTerm(value)}
           onlyMyValidators={onlyMyValidators}
           onFilterByMyValidators={setOnlyMyValidators}
-          onRandomize={() => setSeed(Math.random())}
         />
         {Object.keys(stakedAmountByAddress).length > 0 && (
           <ReDelegateTable
