@@ -1,5 +1,10 @@
 import { deserialize } from "@dao-xyz/borsh";
-import { Sdk as SdkWasm, TxType, deserialize_tx } from "@namada/shared";
+import {
+  Sdk as SdkWasm,
+  TxType,
+  deserialize_tx,
+  get_inner_tx_hashes,
+} from "@namada/shared";
 import {
   BondMsgValue,
   BondProps,
@@ -384,5 +389,14 @@ export class Tx {
         })
       ),
     };
+  }
+
+  /**
+   * Return the inner tx hashes from the provided tx bytes
+   * @param bytes - Uint8Array
+   * @returns array of inner Tx hashes
+   */
+  getInnerTxHashes(bytes: Uint8Array): string[] {
+    return get_inner_tx_hashes(bytes);
   }
 }

@@ -9,6 +9,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { FaRegHourglassHalf, FaXmark } from "react-icons/fa6";
+import { GoAlert } from "react-icons/go";
 import { ToastNotification } from "types";
 
 export const Toasts = (): JSX.Element => {
@@ -42,9 +43,7 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
 
   const timeout =
     notification.timeout ??
-    (notification.type === "success" || notification.type === "error" ?
-      5000
-    : undefined);
+    (notification.type === "success" ? 5000 : undefined);
 
   const closeNotification = (): void => {
     onClose(notification);
@@ -76,6 +75,7 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
         "grid grid-cols-[30px_auto] gap-5 z-[9999] leading-[1]",
         {
           "bg-success": notification.type === "success",
+          "bg-intermediate": notification.type === "partialSuccess",
           "bg-fail": notification.type === "error",
           "bg-neutral-500": notification.type === "pending",
         }
@@ -102,6 +102,11 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
             <FaRegHourglassHalf />
           </i>
         )}
+        {notification.type === "partialSuccess" && (
+          <i className="text-2xl">
+            <GoAlert />
+          </i>
+        )}
       </span>
       <Stack
         gap={0.5}
@@ -112,19 +117,25 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
       >
         <strong className="block text-sm">{notification.title}</strong>
         <div className="leading-tight text-xs">{notification.description}</div>
-        {notification.details && !viewDetails && (
-          <button
-            className="text-xs text-white underline"
-            onClick={() => setViewDetails(true)}
-          >
-            View details
-          </button>
-        )}
-        {notification.details && viewDetails && (
-          <div className="w-full text-xs text-white block">
-            {notification.details}
-          </div>
-        )}
+        {notification.type !== "partialSuccess" &&
+          notification.type !== "error" &&
+          notification.details &&
+          !viewDetails && (
+            <button
+              className="text-xs text-white underline"
+              onClick={() => setViewDetails(true)}
+            >
+              View details
+            </button>
+          )}
+        {notification.details &&
+          (viewDetails ||
+            notification.type === "partialSuccess" ||
+            notification.type === "error") && (
+            <div className="w-full text-xs text-white block">
+              {notification.details}
+            </div>
+          )}
       </Stack>
       <i
         onClick={() => onClose(notification)}

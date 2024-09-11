@@ -14,7 +14,11 @@ export type TransactionEventsClasses =
   | "Withdraw"
   | "VoteProposal";
 
-export type TransactionEventsStatus = "Pending" | "Error" | "Success";
+export type TransactionEventsStatus =
+  | "Pending"
+  | "Error"
+  | "Success"
+  | "PartialSuccess";
 
 export type TransactionEvent =
   `${TransactionEventsClasses}.${TransactionEventsStatus}`;
@@ -29,6 +33,9 @@ export interface EventData<T> extends CustomEvent {
   detail: {
     tx: TxProps;
     data: T[];
+    // If event is for PartialSuccess, use the following:
+    successData?: T[];
+    failedData?: T[];
     error?: Error;
   };
 }
@@ -36,10 +43,13 @@ export interface EventData<T> extends CustomEvent {
 declare global {
   interface WindowEventMap {
     "Bond.Success": EventData<BondProps>;
+    "Bond.PartialSuccess": EventData<BondProps>;
     "Bond.Error": EventData<BondProps>;
     "Unbond.Success": EventData<UnbondProps>;
+    "Unbond.PartialSuccess": EventData<UnbondProps>;
     "Unbond.Error": EventData<UnbondProps>;
     "ReDelegate.Success": EventData<RedelegateProps>;
+    "ReDelegate.PartialSuccess": EventData<RedelegateProps>;
     "ReDelegate.Error": EventData<RedelegateProps>;
     "Withdraw.Success": EventData<WithdrawProps>;
     "Withdraw.Error": EventData<WithdrawProps>;

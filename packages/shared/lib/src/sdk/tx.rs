@@ -4,6 +4,8 @@ use std::str::FromStr;
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use namada_sdk::signing::SigningTxData;
+use namada_sdk::tx::data::compute_inner_tx_hash;
+use namada_sdk::tx::either::Either;
 use namada_sdk::tx::{
     self, TX_BOND_WASM, TX_CLAIM_REWARDS_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSFER_WASM,
     TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
@@ -125,12 +127,12 @@ impl Tx {
             let sd = SigningData::from_signing_tx_data(sd)?;
             signing_data.push(sd);
         }
-        let hash = tx.header_hash().to_string();
+        let hash = tx.wrapper_hash();
         let bytes: Vec<u8> = borsh::to_vec(&tx)?;
 
         Ok(Tx {
             args,
-            hash,
+            hash: hash.unwrap().to_string(),
             bytes,
             signing_data,
         })
@@ -152,6 +154,22 @@ impl Tx {
     pub fn args(&self) -> WrapperTxMsg {
         self.args.clone()
     }
+}
+
+// Given the bytes of a Namada Tx, return all inner Tx hashes
+#[wasm_bindgen]
+pub fn get_inner_tx_hashes(tx_bytes: &[u8]) -> Result<Vec<String>, JsError> {
+    let nam_tx: tx::Tx = borsh::from_slice(tx_bytes)?;
+    let hash = nam_tx.wrapper_hash();
+    let cmts = nam_tx.commitments();
+    let mut inner_tx_hashes: Vec<String> = vec![];
+
+    for cmt in cmts {
+        let inner_tx_hash = compute_inner_tx_hash(hash.as_ref(), Either::Right(&cmt));
+        inner_tx_hashes.push(inner_tx_hash.to_string());
+    }
+
+    Ok(inner_tx_hashes)
 }
 
 pub fn wasm_hash_to_tx_type(wasm_hash: &str, wasm_hashes: &Vec<WasmHash>) -> Option<TxType> {

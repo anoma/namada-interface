@@ -22,7 +22,10 @@ export type TransactionPair<T> = {
 
 export type EncodedTxData<T> = {
   type: string;
-  txs: TxProps[];
+  txs: TxProps[] &
+    {
+      innerTxHashes: string[];
+    }[];
   wrapperTxProps: WrapperTxProps;
   meta?: {
     props: T[];
@@ -111,8 +114,18 @@ export const buildTx = async <T>(
     txProps.push(tx.buildBatch(txs));
   }
 
+  const sdk = await getSdkInstance();
   return {
-    txs: txProps,
+    txs: txProps.map(({ args, hash, bytes, signingData }) => {
+      const innerTxHashes = sdk.tx.getInnerTxHashes(bytes);
+      return {
+        args,
+        hash,
+        bytes,
+        signingData,
+        innerTxHashes,
+      };
+    }),
     wrapperTxProps,
     type: txFn.name,
     meta: {
@@ -193,6 +206,12 @@ export const broadcastTx = async <T>(
   const { rpc } = await getSdkInstance();
 
   encodedTx.txs.forEach(async (tx) => {
+    const { innerTxHashes } = tx as TxProps & { innerTxHashes: string[] };
+    const dataWithHash = data?.map((d, i) => ({
+      ...d,
+      hash: innerTxHashes[i],
+    }));
+
     eventType &&
       window.dispatchEvent(
         new CustomEvent(`${eventType}.Pending`, {
@@ -200,7 +219,51 @@ export const broadcastTx = async <T>(
         })
       );
     try {
-      await rpc.broadcastTx(signedTx, encodedTx.wrapperTxProps);
+      const response = await rpc.broadcastTx(
+        signedTx,
+        encodedTx.wrapperTxProps
+      );
+
+      const commitmentErrors: string[] = [];
+      response.commitments.forEach(({ hash, isApplied }) => {
+        if (!isApplied) {
+          commitmentErrors.push(hash);
+        }
+      });
+
+      if (commitmentErrors.length) {
+        const successData = dataWithHash?.filter((data) => {
+          return !commitmentErrors.includes(data.hash);
+        });
+
+        const failedData = dataWithHash?.filter((data) => {
+          return commitmentErrors.includes(data.hash);
+        });
+
+        if (successData?.length) {
+          eventType &&
+            window.dispatchEvent(
+              new CustomEvent(`${eventType}.PartialSuccess`, {
+                detail: {
+                  tx,
+                  data,
+                  successData,
+                  failedData,
+                },
+              })
+            );
+        } else {
+          eventType &&
+            window.dispatchEvent(
+              new CustomEvent(`${eventType}.Error`, {
+                detail: { tx, data, failedData },
+              })
+            );
+        }
+        return;
+      }
+
+      // If no errors were reported, display Success toast
       eventType &&
         window.dispatchEvent(
           new CustomEvent(`${eventType}.Success`, {

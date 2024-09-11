@@ -65,6 +65,32 @@ const getReDelegateDetailList = (
   );
 };
 
+const partialSuccessDetails = (detail: {
+  details: React.ReactNode;
+  failedDescription: React.ReactNode;
+  failedDetails: React.ReactNode;
+}): React.ReactNode => {
+  return (
+    <>
+      <div className="w-full text-xs text-white block">
+        <div className="my-2">{detail.details}</div>
+        <div className="font-bold my-2">{detail.failedDescription}</div>
+        <div>{detail.failedDetails}</div>
+      </div>
+    </>
+  );
+};
+
+const failureDetails = (failedDetails: React.ReactNode): React.ReactNode => {
+  return (
+    <>
+      <div className="w-full text-xs text-white block my-2">
+        <div>{failedDetails}</div>
+      </div>
+    </>
+  );
+};
+
 export const useTransactionNotifications = (): void => {
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const filterNotifications = useSetAtom(filterToastNotificationsAtom);
@@ -85,7 +111,10 @@ export const useTransactionNotifications = (): void => {
           Your staking transaction of <NamCurrency amount={total} /> has failed
         </>
       ),
-      details: e.detail.error?.message,
+      details:
+        e.detail.failedData ?
+          failureDetails(getAmountByValidatorList(e.detail.failedData))
+        : e.detail.error?.message,
     });
   });
 
@@ -106,6 +135,29 @@ export const useTransactionNotifications = (): void => {
     });
   });
 
+  useTransactionEventListener("Bond.PartialSuccess", (e) => {
+    const { id, total } = parseTxsData(e.detail.tx, e.detail.successData!);
+    clearPendingNotifications(id);
+    dispatchNotification({
+      id,
+      title: "Some staking transactions failed",
+      description: (
+        <>
+          Your staking transaction of <NamCurrency amount={total} /> has
+          succeeded
+        </>
+      ),
+      details: partialSuccessDetails({
+        details: getAmountByValidatorList(e.detail.successData!),
+        failedDescription: (
+          <>The following staking transactions were not applied:</>
+        ),
+        failedDetails: getAmountByValidatorList(e.detail.failedData!),
+      }),
+      type: "partialSuccess",
+    });
+  });
+
   useTransactionEventListener("Unbond.Success", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
     clearPendingNotifications(id);
@@ -122,6 +174,28 @@ export const useTransactionNotifications = (): void => {
     });
   });
 
+  useTransactionEventListener("Unbond.PartialSuccess", (e) => {
+    const { id, total } = parseTxsData(e.detail.tx, e.detail.successData!);
+    clearPendingNotifications(id);
+    dispatchNotification({
+      id,
+      title: "Some Unstake transactions failed",
+      description: (
+        <>
+          Your unstaking of <NamCurrency amount={total} /> has succeeded
+        </>
+      ),
+      details: partialSuccessDetails({
+        details: getAmountByValidatorList(e.detail.successData!),
+        failedDescription: (
+          <>The following unstaking transactions were not applied:</>
+        ),
+        failedDetails: getAmountByValidatorList(e.detail.failedData!),
+      }),
+      type: "partialSuccess",
+    });
+  });
+
   useTransactionEventListener("Unbond.Error", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
     clearPendingNotifications(id);
@@ -134,7 +208,10 @@ export const useTransactionNotifications = (): void => {
           Your request to unstake <NamCurrency amount={total} /> has failed
         </>
       ),
-      details: e.detail.error?.message,
+      details:
+        e.detail.failedData ?
+          failureDetails(getAmountByValidatorList(e.detail.failedData))
+        : e.detail.error?.message,
     });
   });
 
@@ -144,7 +221,7 @@ export const useTransactionNotifications = (): void => {
     dispatchNotification({
       id,
       title: "Withdrawal Success",
-      description: `Your withdrawal transaction has succeeded`,
+      description: <>Your withdrawal transaction has succeeded</>,
       type: "success",
     });
   });
@@ -169,10 +246,14 @@ export const useTransactionNotifications = (): void => {
       title: "Redelegate failed",
       description: (
         <>
-          Your redelegate transaction of <NamCurrency amount={total} />
-          has failed
+          Your redelegate transaction of <NamCurrency amount={total} /> has
+          failed
         </>
       ),
+      details:
+        e.detail.failedData ?
+          failureDetails(getReDelegateDetailList(e.detail.failedData))
+        : e.detail.error?.message,
       type: "error",
     });
   });
@@ -191,6 +272,27 @@ export const useTransactionNotifications = (): void => {
       ),
       details: getReDelegateDetailList(e.detail.data),
       type: "success",
+    });
+  });
+
+  useTransactionEventListener("ReDelegate.PartialSuccess", (e) => {
+    const { id, total } = parseTxsData(e.detail.tx, e.detail.successData!);
+    clearPendingNotifications(id);
+    dispatchNotification({
+      id,
+      title: "Some redelegations were not successful",
+      description: (
+        <>
+          Your redelegate transaction of <NamCurrency amount={total} />
+          has succeeded
+        </>
+      ),
+      details: partialSuccessDetails({
+        details: getReDelegateDetailList(e.detail.successData!),
+        failedDescription: <>The following redelegations were not applied:</>,
+        failedDetails: getReDelegateDetailList(e.detail.failedData!),
+      }),
+      type: "partialSuccess",
     });
   });
 
