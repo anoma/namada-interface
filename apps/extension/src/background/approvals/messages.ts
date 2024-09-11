@@ -147,7 +147,8 @@ export class ConnectInterfaceResponseMsg extends Message<void> {
 
   constructor(
     public readonly interfaceOrigin: string,
-    public readonly allowConnection: boolean
+    public readonly allowConnection: boolean,
+    public readonly chainId?: string
   ) {
     super();
   }

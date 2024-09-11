@@ -13,7 +13,11 @@ export const ConnectExtensionButton = (): JSX.Element => {
   return (
     <>
       {extensionAttachStatus === "attached" && !isConnected && (
-        <ActionButton backgroundColor="yellow" size="sm" onClick={connect}>
+        <ActionButton
+          backgroundColor="yellow"
+          size="sm"
+          onClick={() => connect("todo")}
+        >
           Connect Keychain
         </ActionButton>
       )}

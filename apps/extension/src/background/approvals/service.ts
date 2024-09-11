@@ -184,20 +184,38 @@ export class ApprovalsService {
     resolvers.reject(new Error("Sign Tx rejected"));
   }
 
-  async isConnectionApproved(interfaceOrigin: string): Promise<boolean> {
+  async isConnectionApproved(
+    interfaceOrigin: string,
+    chainId?: string
+  ): Promise<boolean> {
     const approvedOrigins =
       (await this.localStorage.getApprovedOrigins()) || [];
 
-    return approvedOrigins.includes(interfaceOrigin);
+    const { chainId: currentChainId } = await this.chainService.getChain();
+    const isChainIdMatched = chainId ? chainId === currentChainId : true;
+
+    return approvedOrigins.includes(interfaceOrigin) && isChainIdMatched;
   }
 
-  async approveConnection(interfaceOrigin: string): Promise<void> {
-    const alreadyApproved = await this.isConnectionApproved(interfaceOrigin);
+  async approveConnection(
+    interfaceOrigin: string,
+    chainId?: string
+  ): Promise<void> {
+    const alreadyApproved = await this.isConnectionApproved(
+      interfaceOrigin,
+      chainId
+    );
+
+    const params: Record<string, string> = {
+      interfaceOrigin,
+    };
+
+    if (chainId) {
+      params.chainId = chainId;
+    }
 
     if (!alreadyApproved) {
-      return this.launchApprovalPopup(TopLevelRoute.ApproveConnection, {
-        interfaceOrigin,
-      });
+      return this.launchApprovalPopup(TopLevelRoute.ApproveConnection, params);
     }
 
     // A resolved promise is implicitly returned here if the origin had
@@ -207,13 +225,18 @@ export class ApprovalsService {
   async approveConnectionResponse(
     popupTabId: number,
     interfaceOrigin: string,
-    allowConnection: boolean
+    allowConnection: boolean,
+    chainId?: string
   ): Promise<void> {
     const resolvers = this.getResolver(popupTabId);
 
     if (allowConnection) {
       try {
         await this.localStorage.addApprovedOrigin(interfaceOrigin);
+
+        if (chainId) {
+          await this.chainService.updateChain(chainId);
+        }
       } catch (e) {
         resolvers.reject(e);
       }
