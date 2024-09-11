@@ -11,9 +11,9 @@ export const ModalTransition = ({
 }: ModalTransitionProps): JSX.Element => {
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.35, ease: easings.expoOut }}
-      animate={{ opacity: 1 }}
+      animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0 }}
       {...props}
     >

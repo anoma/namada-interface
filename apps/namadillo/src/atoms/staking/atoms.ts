@@ -1,11 +1,16 @@
+import { Reward } from "@anomaorg/namada-indexer-client";
 import { BondProps, WithdrawProps } from "@namada/types";
-import { chainAtom } from "atoms/chain";
+import { defaultAccountAtom } from "atoms/accounts";
+import { indexerApiAtom } from "atoms/api";
+import { chainAtom, chainParametersAtom } from "atoms/chain";
 import { queryDependentFn } from "atoms/utils";
 import { myValidatorsAtom } from "atoms/validators";
+import BigNumber from "bignumber.js";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
 import { TransactionPair } from "lib/query";
 import {
+  AddressBalance,
   ChangeInStakingProps,
   RedelegateChangesProps,
   StakingTotals,
@@ -16,6 +21,7 @@ import {
   createReDelegateTx,
   createUnbondTx,
   createWithdrawTx,
+  fetchClaimableRewards,
 } from "./services";
 
 export const getStakingTotalAtom = atomWithQuery<StakingTotals>((get) => {
@@ -27,6 +33,28 @@ export const getStakingTotalAtom = atomWithQuery<StakingTotals>((get) => {
         toStakingTotal(myValidators.data || []),
       [myValidators]
     ),
+  };
+});
+
+export const claimableRewardsAtom = atomWithQuery<AddressBalance>((get) => {
+  const account = get(defaultAccountAtom);
+  const chainParameters = get(chainParametersAtom);
+  const api = get(indexerApiAtom);
+  return {
+    queryKey: ["claim-rewards", account.data?.address],
+    ...queryDependentFn(async () => {
+      const rewards = await fetchClaimableRewards(api, account.data!.address);
+      return rewards.reduce(
+        (prev: AddressBalance, current: Reward): AddressBalance => {
+          if (!current.validator) return prev;
+          return {
+            ...prev,
+            [current.validator?.address]: new BigNumber(current.amount || 0),
+          };
+        },
+        {}
+      );
+    }, [account, chainParameters]),
   };
 });
 

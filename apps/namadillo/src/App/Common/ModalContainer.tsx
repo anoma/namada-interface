@@ -27,14 +27,14 @@ export const ModalContainer = ({
         clsx(
           "relative flex flex-col",
           "w-[100vw] sm:w-[95vw] lg:w-[90vw] 2xl:w-[75vw] h-[100svh] sm:h-[90svh]",
-          "overflow-auto px-6 py-6 bg-neutral-800 text-white rounded-md"
+          "overflow-auto px-6 pt-3.5 pb-4 bg-neutral-800 text-white rounded-md"
         ),
         containerClassName
       )}
       {...otherProps}
     >
       <i
-        className="cursor-pointer text-white absolute top-4 right-6 text-3xl p-1.5 hover:text-yellow z-50"
+        className="cursor-pointer text-white absolute top-1.5 right-6 text-3xl p-1.5 hover:text-yellow z-50"
         onClick={onClose}
       >
         <IoClose />
