@@ -18,7 +18,13 @@ export const SwitchAccountPanel = (): JSX.Element => {
   const { mutateAsync: updateAccount } = useAtomValue(updateDefaultAccountAtom);
 
   return (
-    <Modal onClose={onCloseModal}>
+    <Modal
+      onClose={onCloseModal}
+      className={clsx(
+        "w-full left-auto right-0 top-0 translate-x-0 translate-y-0",
+        "translate-y-0 pointer-events-none"
+      )}
+    >
       <ModalTransition className="custom-container sm:p-5">
         <div
           className={clsx(
