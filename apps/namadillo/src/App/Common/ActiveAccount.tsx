@@ -5,6 +5,7 @@ import { defaultAccountAtom } from "atoms/accounts";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useLocation, useNavigate } from "react-router-dom";
+import { DisconnectAccountIcon } from "./DisconnectAccountIcon";
 import { SwitchAccountIcon } from "./SwitchAccountIcon";
 
 export const ActiveAccount = (): JSX.Element => {
@@ -52,7 +53,7 @@ export const ActiveAccount = (): JSX.Element => {
             disconnect();
           }}
         >
-          <SwitchAccountIcon />
+          <DisconnectAccountIcon />
         </button>
       </span>
     </div>
