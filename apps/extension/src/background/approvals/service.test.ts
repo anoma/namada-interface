@@ -267,7 +267,7 @@ describe("approvals service", () => {
       const tabId = 1;
 
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(false);
-      jest.spyOn(service as any, "launchApprovalWindow");
+      jest.spyOn(service as any, "launchApprovalPopup");
       service["resolverMap"] = {};
 
       const promise = service.approveConnection(interfaceOrigin);
@@ -278,7 +278,7 @@ describe("approvals service", () => {
       );
       service["resolverMap"][tabId]?.resolve(true);
 
-      expect((service as any).launchApprovalWindow).toHaveBeenCalledWith(
+      expect((service as any).launchApprovalPopup).toHaveBeenCalledWith(
         "/approve-connection",
         { interfaceOrigin }
       );
@@ -357,7 +357,7 @@ describe("approvals service", () => {
       const tabId = 1;
 
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(true);
-      jest.spyOn(service as any, "launchApprovalWindow");
+      jest.spyOn(service as any, "launchApprovalPopup");
       service["resolverMap"] = {};
 
       const promise = service.approveDisconnection(interfaceOrigin);
@@ -368,7 +368,7 @@ describe("approvals service", () => {
       );
       service["resolverMap"][tabId]?.resolve(true);
 
-      expect((service as any).launchApprovalWindow).toHaveBeenCalledWith(
+      expect((service as any).launchApprovalPopup).toHaveBeenCalledWith(
         "/approve-disconnection",
         { interfaceOrigin }
       );
@@ -443,13 +443,13 @@ describe("approvals service", () => {
     });
   });
 
-  describe("openPopup", () => {
+  describe("createPopup", () => {
     it("should create and return a new window", async () => {
       const url = "url";
       const window = { tabs: [{ id: 1 }] };
       (webextensionPolyfill.windows.create as any).mockResolvedValue(window);
 
-      await expect((service as any).openPopup(url)).resolves.toBe(window);
+      await expect((service as any).createPopup(url)).resolves.toBe(window);
       expect(webextensionPolyfill.windows.create).toHaveBeenCalledWith(
         expect.objectContaining({ url })
       );
@@ -475,7 +475,7 @@ describe("approvals service", () => {
     });
   });
 
-  describe("launchApprovalWindow", () => {
+  describe("launchApprovalPopup", () => {
     it("should create a window with the given route and params saving the resolver on the resolverMap", async () => {
       const route = "route";
       const params = { foo: "bar" };
@@ -483,10 +483,10 @@ describe("approvals service", () => {
       const window = { tabs: [{ id: popupTabId }] };
 
       jest
-        .spyOn<any, any>(service, "openPopup")
+        .spyOn<any, any>(service, "createPopup")
         .mockImplementationOnce(() => window);
 
-      (service as any).launchApprovalWindow(route, params);
+      (service as any).launchApprovalPopup(route, params);
 
       expect(await (service as any).openPopup).toHaveBeenCalledWith(
         `url#${route}?foo=bar`

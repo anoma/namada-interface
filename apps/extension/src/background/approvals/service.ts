@@ -63,7 +63,7 @@ export class ApprovalsService {
 
     await this.txStore.set(msgId, pendingTx);
 
-    return this.launchApprovalWindow(
+    return this.launchApprovalPopup(
       `${TopLevelRoute.ApproveSignTx}/${msgId}/${details.type}/${signer}`
     );
   }
@@ -76,7 +76,7 @@ export class ApprovalsService {
 
     await this.dataStore.set(msgId, data);
 
-    return this.launchApprovalWindow(
+    return this.launchApprovalPopup(
       `${TopLevelRoute.ApproveSignArbitrary}/${signer}`,
       { msgId }
     );
@@ -186,7 +186,7 @@ export class ApprovalsService {
     const alreadyApproved = await this.isConnectionApproved(interfaceOrigin);
 
     if (!alreadyApproved) {
-      return this.launchApprovalWindow(TopLevelRoute.ApproveConnection, {
+      return this.launchApprovalPopup(TopLevelRoute.ApproveConnection, {
         interfaceOrigin,
       });
     }
@@ -218,7 +218,7 @@ export class ApprovalsService {
     const isConnected = await this.isConnectionApproved(interfaceOrigin);
 
     if (isConnected) {
-      return this.launchApprovalWindow(TopLevelRoute.ApproveDisconnection, {
+      return this.launchApprovalPopup(TopLevelRoute.ApproveDisconnection, {
         interfaceOrigin,
       });
     }
@@ -294,7 +294,7 @@ export class ApprovalsService {
     return await this.dataStore.set(msgId, null);
   }
 
-  private openPopup = (url: string): Promise<Windows.Window> => {
+  private createPopup = (url: string): Promise<Windows.Window> => {
     return browser.windows.create({
       url,
       width: 396,
@@ -318,14 +318,14 @@ export class ApprovalsService {
     return popupTabId;
   };
 
-  private launchApprovalWindow = async <T>(
+  private launchApprovalPopup = async <T>(
     route: string,
     params?: Record<string, string>
   ): Promise<T> => {
     const baseUrl = `${browser.runtime.getURL("approvals.html")}#${route}`;
     const url = params ? paramsToUrl(baseUrl, params) : baseUrl;
 
-    const window = await this.openPopup(url);
+    const window = await this.createPopup(url);
     const popupTabId = this.getPopupTabId(window);
 
     return new Promise<T>((resolve, reject) => {
