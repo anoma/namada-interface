@@ -3,7 +3,6 @@ import {
   Account,
   BondProps,
   ClaimRewardsMsgValue,
-  ClaimRewardsProps,
   RedelegateMsgValue,
   UnbondMsgValue,
   WithdrawProps,
@@ -122,7 +121,7 @@ export const createWithdrawTx = async (
 export const createClaimTx = async (
   chain: ChainSettings,
   account: Account,
-  params: ClaimRewardsProps[],
+  params: ClaimRewardsMsgValue[],
   gasConfig: GasConfig
 ): Promise<TransactionPair<ClaimRewardsMsgValue>> => {
   const { tx } = await getSdkInstance();

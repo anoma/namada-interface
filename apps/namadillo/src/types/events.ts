@@ -6,13 +6,9 @@ import {
   VoteProposalProps,
   WithdrawProps,
 } from "@namada/types";
+import { TxKind } from "types";
 
-export type TransactionEventsClasses =
-  | "Bond"
-  | "Unbond"
-  | "ReDelegate"
-  | "Withdraw"
-  | "VoteProposal";
+export type TransactionEventsClasses = Partial<TxKind>;
 
 export type TransactionEventsStatus =
   | "Pending"

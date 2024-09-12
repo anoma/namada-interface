@@ -52,7 +52,7 @@ export const ReDelegate = (): JSX.Element => {
   );
 
   const gasConfig = useAtomValue(
-    defaultGasConfigFamily(Array<TxKind>(changes.length).fill("Redelegation"))
+    defaultGasConfigFamily(Array<TxKind>(changes.length).fill("Redelegate"))
   );
 
   const {
@@ -125,7 +125,7 @@ export const ReDelegate = (): JSX.Element => {
         tx.encodedTxData,
         signedTx,
         tx.encodedTxData.meta?.props,
-        "ReDelegate"
+        "Redelegate"
       );
     });
   };

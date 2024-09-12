@@ -1,5 +1,5 @@
 import { Reward } from "@anomaorg/namada-indexer-client";
-import { BondProps, WithdrawProps } from "@namada/types";
+import { BondProps, ClaimRewardsMsgValue, WithdrawProps } from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
 import { indexerApiAtom } from "atoms/api";
 import { chainAtom, chainParametersAtom } from "atoms/chain";
@@ -11,8 +11,8 @@ import { atomFamily } from "jotai/utils";
 import { TransactionPair } from "lib/query";
 import {
   AddressBalance,
+  BuildTxAtomParams,
   ChangeInStakingProps,
-  ClaimRewardsProps,
   RedelegateChangesProps,
   StakingTotals,
 } from "types";
@@ -141,11 +141,10 @@ export const claimRewardsAtom = atomWithMutation((get) => {
     mutationKey: ["create-claim-tx"],
     enabled: chain.isSuccess,
     mutationFn: async ({
-      validators,
+      params,
       gasConfig,
       account,
-    }: ClaimRewardsProps) => {
-      const params = validators.map((validator) => ({ validator }));
+    }: BuildTxAtomParams<ClaimRewardsMsgValue>) => {
       return createClaimTx(chain.data!, account, params, gasConfig);
     },
   };
