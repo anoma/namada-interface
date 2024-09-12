@@ -8,6 +8,7 @@ import {
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
   ConnectInterfaceResponseMsg,
+  DisconnectInterfaceResponseMsg,
   QueryPendingTxBytesMsg,
   QuerySignArbitraryDataMsg,
   QueryTxDetailsMsg,
@@ -42,6 +43,11 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleApproveDisconnectInterfaceMsg(service)(
           env,
           msg as ApproveDisconnectInterfaceMsg
+        );
+      case DisconnectInterfaceResponseMsg:
+        return handleDisconnectInterfaceResponseMsg(service)(
+          env,
+          msg as DisconnectInterfaceResponseMsg
         );
       case RevokeConnectionMsg:
         return handleRevokeConnectionMsg(service)(
@@ -131,8 +137,24 @@ const handleConnectInterfaceResponseMsg: (
 const handleApproveDisconnectInterfaceMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveDisconnectInterfaceMsg> = (service) => {
-  return async (_, { origin }) => {
-    return await service.approveDisconnect(origin);
+  return async ({ senderTabId: interfaceTabId }, { origin }) => {
+    return await service.approveDisconnect(interfaceTabId, origin);
+  };
+};
+
+const handleDisconnectInterfaceResponseMsg: (
+  service: ApprovalsService
+) => InternalHandler<DisconnectInterfaceResponseMsg> = (service) => {
+  return async (
+    { senderTabId: popupTabId },
+    { interfaceTabId, interfaceOrigin, revokeConnection }
+  ) => {
+    return await service.approveDisconnectionResponse(
+      interfaceTabId,
+      interfaceOrigin,
+      revokeConnection,
+      popupTabId
+    );
   };
 };
 

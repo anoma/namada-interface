@@ -282,28 +282,62 @@ export class ApprovalsService {
     }
   }
 
-  async approveDisconnect(interfaceOrigin: string): Promise<void> {
+  async approveDisconnect(
+    interfaceTabId: number,
+    interfaceOrigin: string
+  ): Promise<void> {
     const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
     )}#${TopLevelRoute.ApproveDisconnect}`;
 
     const url = paramsToUrl(baseUrl, {
+      interfaceTabId: interfaceTabId.toString(),
       interfaceOrigin,
     });
 
-    const popupTabId = await this.getPopupTabId(url);
+    const isConnected = await this.isConnectionApproved(interfaceOrigin);
 
-    if (!popupTabId) {
-      throw new Error("no popup tab ID");
+    if (isConnected) {
+      const popupTabId = await this.getPopupTabId(url);
+
+      if (!popupTabId) {
+        throw new Error("no popup tab ID");
+      }
+
+      if (popupTabId in this.resolverMap) {
+        throw new Error(`tab ID ${popupTabId} already exists in promise map`);
+      }
+
+      return new Promise((resolve, reject) => {
+        this.resolverMap[popupTabId] = { resolve, reject };
+      });
     }
 
-    if (popupTabId in this.resolverMap) {
-      throw new Error(`tab ID ${popupTabId} already exists in promise map`);
+    // A resolved promise is implicitly returned here if the origin had
+    // previously been disconnected.
+  }
+
+  async approveDisconnectionResponse(
+    interfaceTabId: number,
+    interfaceOrigin: string,
+    revokeConnection: boolean,
+    popupTabId: number
+  ): Promise<void> {
+    const resolvers = this.resolverMap[popupTabId];
+    if (!resolvers) {
+      throw new Error(`no resolvers found for tab ID ${interfaceTabId}`);
     }
 
-    return new Promise((resolve, reject) => {
-      this.resolverMap[popupTabId] = { resolve, reject };
-    });
+    if (revokeConnection) {
+      try {
+        await this.revokeConnection(interfaceOrigin);
+      } catch (e) {
+        resolvers.reject(e);
+      }
+      resolvers.resolve();
+    } else {
+      resolvers.reject();
+    }
   }
 
   async revokeConnection(originToRevoke: string): Promise<void> {

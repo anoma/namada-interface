@@ -1,6 +1,6 @@
 import { ActionButton, Alert, GapPatterns, Stack } from "@namada/components";
 import { PageHeader } from "App/Common";
-import { RevokeConnectionMsg } from "background/approvals";
+import { DisconnectInterfaceResponseMsg } from "background/approvals";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
@@ -10,15 +10,20 @@ export const ApproveDisconnect: React.FC = () => {
   const requester = useRequester();
   const params = useQuery();
   const interfaceOrigin = params.get("interfaceOrigin");
+  const interfaceTabId = params.get("interfaceTabId");
 
   const handleResponse = async (revokeConnection: boolean): Promise<void> => {
-    if (revokeConnection && interfaceOrigin) {
+    if (interfaceTabId && interfaceOrigin) {
       await requester.sendMessage(
         Ports.Background,
-        new RevokeConnectionMsg(interfaceOrigin)
+        new DisconnectInterfaceResponseMsg(
+          parseInt(interfaceTabId),
+          interfaceOrigin,
+          revokeConnection
+        )
       );
+      await closeCurrentTab();
     }
-    await closeCurrentTab();
   };
 
   return (
