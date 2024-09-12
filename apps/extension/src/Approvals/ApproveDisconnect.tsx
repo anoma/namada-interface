@@ -10,17 +10,12 @@ export const ApproveDisconnect: React.FC = () => {
   const requester = useRequester();
   const params = useQuery();
   const interfaceOrigin = params.get("interfaceOrigin");
-  const interfaceTabId = params.get("interfaceTabId");
 
   const handleResponse = async (revokeConnection: boolean): Promise<void> => {
-    if (interfaceTabId && interfaceOrigin) {
+    if (interfaceOrigin) {
       await requester.sendMessage(
         Ports.Background,
-        new DisconnectInterfaceResponseMsg(
-          parseInt(interfaceTabId),
-          interfaceOrigin,
-          revokeConnection
-        )
+        new DisconnectInterfaceResponseMsg(interfaceOrigin, revokeConnection)
       );
       await closeCurrentTab();
     }

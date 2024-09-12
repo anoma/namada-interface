@@ -113,8 +113,8 @@ const handleIsConnectionApprovedMsg: (
 const handleApproveConnectInterfaceMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveConnectInterfaceMsg> = (service) => {
-  return async ({ senderTabId: interfaceTabId }, { origin }) => {
-    return await service.approveConnection(interfaceTabId, origin);
+  return async (_, { origin }) => {
+    return await service.approveConnection(origin);
   };
 };
 
@@ -123,13 +123,12 @@ const handleConnectInterfaceResponseMsg: (
 ) => InternalHandler<ConnectInterfaceResponseMsg> = (service) => {
   return async (
     { senderTabId: popupTabId },
-    { interfaceTabId, interfaceOrigin, allowConnection }
+    { interfaceOrigin, allowConnection }
   ) => {
     return await service.approveConnectionResponse(
-      interfaceTabId,
+      popupTabId,
       interfaceOrigin,
-      allowConnection,
-      popupTabId
+      allowConnection
     );
   };
 };
@@ -137,8 +136,8 @@ const handleConnectInterfaceResponseMsg: (
 const handleApproveDisconnectInterfaceMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveDisconnectInterfaceMsg> = (service) => {
-  return async ({ senderTabId: interfaceTabId }, { origin }) => {
-    return await service.approveDisconnect(interfaceTabId, origin);
+  return async (_, { origin }) => {
+    return await service.approveDisconnect(origin);
   };
 };
 
@@ -147,13 +146,12 @@ const handleDisconnectInterfaceResponseMsg: (
 ) => InternalHandler<DisconnectInterfaceResponseMsg> = (service) => {
   return async (
     { senderTabId: popupTabId },
-    { interfaceTabId, interfaceOrigin, revokeConnection }
+    { interfaceOrigin, revokeConnection }
   ) => {
     return await service.approveDisconnectionResponse(
-      interfaceTabId,
+      popupTabId,
       interfaceOrigin,
-      revokeConnection,
-      popupTabId
+      revokeConnection
     );
   };
 };

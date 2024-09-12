@@ -10,17 +10,12 @@ export const ApproveConnection: React.FC = () => {
   const requester = useRequester();
   const params = useQuery();
   const interfaceOrigin = params.get("interfaceOrigin");
-  const interfaceTabId = params.get("interfaceTabId");
 
   const handleResponse = async (allowConnection: boolean): Promise<void> => {
-    if (interfaceTabId && interfaceOrigin) {
+    if (interfaceOrigin) {
       await requester.sendMessage(
         Ports.Background,
-        new ConnectInterfaceResponseMsg(
-          parseInt(interfaceTabId),
-          interfaceOrigin,
-          allowConnection
-        )
+        new ConnectInterfaceResponseMsg(interfaceOrigin, allowConnection)
       );
       await closeCurrentTab();
     }

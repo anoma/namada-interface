@@ -80,7 +80,6 @@ describe("approvals handler", () => {
     expect(service.approveConnection).toBeCalled();
 
     const connectInterfaceResponseMsg = new ConnectInterfaceResponseMsg(
-      0,
       "",
       true
     );

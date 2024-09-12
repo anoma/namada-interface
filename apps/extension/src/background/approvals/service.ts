@@ -17,14 +17,16 @@ import { LocalStorage } from "storage";
 import { fromEncodedTx } from "utils";
 import { EncodedTxData, PendingTx } from "./types";
 
+type Resolver = {
+  // TODO: there should be better typing for this
+  // eslint-disable-next-line
+  resolve: (result?: any) => void;
+  reject: (error?: unknown) => void;
+};
+
 export class ApprovalsService {
   // holds promises which can be resolved with a message from a pop-up window
-  protected resolverMap: Record<
-    number,
-    // TODO: there should be better typing for this
-    // eslint-disable-next-line
-    { resolve: (result?: any) => void; reject: (error?: any) => void }
-  > = {};
+  protected resolverMap: Record<number, Resolver> = {};
 
   constructor(
     protected readonly txStore: KVStore<PendingTx>,
@@ -87,11 +89,7 @@ export class ApprovalsService {
     signer: string
   ): Promise<void> {
     const pendingTx = (await this.txStore.get(msgId)) as PendingTx;
-    const resolvers = this.resolverMap[popupTabId];
-
-    if (!resolvers) {
-      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
-    }
+    const resolvers = this.getResolver(popupTabId);
 
     if (!pendingTx) {
       throw new Error(`Signing data for ${msgId} not found!`);
@@ -116,11 +114,7 @@ export class ApprovalsService {
     responseSign: ResponseSign[]
   ): Promise<void> {
     const pendingTx = await this.txStore.get(msgId);
-    const resolvers = this.resolverMap[popupTabId];
-
-    if (!resolvers) {
-      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
-    }
+    const resolvers = this.getResolver(popupTabId);
 
     if (!pendingTx || !pendingTx.txs) {
       throw new Error(`Transaction data for ${msgId} not found!`);
@@ -150,11 +144,7 @@ export class ApprovalsService {
     signer: string
   ): Promise<void> {
     const data = await this.dataStore.get(msgId);
-    const resolvers = this.resolverMap[popupTabId];
-
-    if (!resolvers) {
-      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
-    }
+    const resolvers = this.getResolver(popupTabId);
 
     if (!data) {
       throw new Error(`Signing data for ${msgId} not found!`);
@@ -172,11 +162,7 @@ export class ApprovalsService {
   }
 
   async rejectSignArbitrary(popupTabId: number, msgId: string): Promise<void> {
-    const resolvers = this.resolverMap[popupTabId];
-
-    if (!resolvers) {
-      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
-    }
+    const resolvers = this.getResolver(popupTabId);
 
     await this._clearPendingSignature(msgId);
     resolvers.reject(new Error("Sign arbitrary rejected"));
@@ -184,10 +170,7 @@ export class ApprovalsService {
 
   // Remove pending transaction from storage
   async rejectSignTx(popupTabId: number, msgId: string): Promise<void> {
-    const resolvers = this.resolverMap[popupTabId];
-    if (!resolvers) {
-      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
-    }
+    const resolvers = this.getResolver(popupTabId);
 
     await this._clearPendingTx(msgId);
     resolvers.reject(new Error("Sign Tx rejected"));
@@ -200,16 +183,12 @@ export class ApprovalsService {
     return approvedOrigins.includes(interfaceOrigin);
   }
 
-  async approveConnection(
-    interfaceTabId: number,
-    interfaceOrigin: string
-  ): Promise<void> {
+  async approveConnection(interfaceOrigin: string): Promise<void> {
     const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
     )}#/approve-connection`;
 
     const url = paramsToUrl(baseUrl, {
-      interfaceTabId: interfaceTabId.toString(),
       interfaceOrigin,
     });
 
@@ -224,15 +203,11 @@ export class ApprovalsService {
   }
 
   async approveConnectionResponse(
-    interfaceTabId: number,
+    popupTabId: number,
     interfaceOrigin: string,
-    allowConnection: boolean,
-    popupTabId: number
+    allowConnection: boolean
   ): Promise<void> {
-    const resolvers = this.resolverMap[popupTabId];
-    if (!resolvers) {
-      throw new Error(`no resolvers found for tab ID ${interfaceTabId}`);
-    }
+    const resolvers = this.getResolver(popupTabId);
 
     if (allowConnection) {
       try {
@@ -246,16 +221,12 @@ export class ApprovalsService {
     }
   }
 
-  async approveDisconnect(
-    interfaceTabId: number,
-    interfaceOrigin: string
-  ): Promise<void> {
+  async approveDisconnect(interfaceOrigin: string): Promise<void> {
     const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
     )}#${TopLevelRoute.ApproveDisconnect}`;
 
     const url = paramsToUrl(baseUrl, {
-      interfaceTabId: interfaceTabId.toString(),
       interfaceOrigin,
     });
 
@@ -270,15 +241,11 @@ export class ApprovalsService {
   }
 
   async approveDisconnectionResponse(
-    interfaceTabId: number,
+    popupTabId: number,
     interfaceOrigin: string,
-    revokeConnection: boolean,
-    popupTabId: number
+    revokeConnection: boolean
   ): Promise<void> {
-    const resolvers = this.resolverMap[popupTabId];
-    if (!resolvers) {
-      throw new Error(`no resolvers found for tab ID ${interfaceTabId}`);
-    }
+    const resolvers = this.getResolver(popupTabId);
 
     if (revokeConnection) {
       try {
@@ -374,5 +341,13 @@ export class ApprovalsService {
         },
       };
     });
+  };
+
+  private getResolver = (popupTabId: number): Resolver => {
+    const resolvers = this.resolverMap[popupTabId];
+    if (!resolvers) {
+      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
+    }
+    return resolvers;
   };
 }

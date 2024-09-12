@@ -63,7 +63,7 @@ describe("approvals messages", () => {
   });
 
   test("valid ConnectInterfaceResponseMsg", () => {
-    const msg = new ConnectInterfaceResponseMsg(0, "interface", true);
+    const msg = new ConnectInterfaceResponseMsg("interface", true);
 
     expect(msg.type()).toBe(MessageType.ConnectInterfaceResponse);
     expect(msg.route()).toBe(ROUTE);
@@ -71,21 +71,15 @@ describe("approvals messages", () => {
   });
 
   test("invalid ConnectInterfaceResponseMsg", () => {
-    const msg = new ConnectInterfaceResponseMsg(0, "interface", true);
-
-    (msg as any).interfaceTabId = undefined;
+    const msg = new ConnectInterfaceResponseMsg("interface", true);
+    (msg as any).interfaceOrigin = undefined;
 
     expect(() => msg.validate()).toThrow();
 
-    const msg2 = new ConnectInterfaceResponseMsg(0, "interface", true);
-    (msg2 as any).interfaceOrigin = undefined;
+    const msg2 = new ConnectInterfaceResponseMsg("interface", true);
+    (msg2 as any).allowConnection = undefined;
 
     expect(() => msg2.validate()).toThrow();
-
-    const msg3 = new ConnectInterfaceResponseMsg(0, "interface", true);
-    (msg3 as any).allowConnection = undefined;
-
-    expect(() => msg3.validate()).toThrow();
   });
 
   test("valid RevokeConnectionMsg", () => {

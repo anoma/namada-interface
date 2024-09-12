@@ -145,7 +145,6 @@ export class ConnectInterfaceResponseMsg extends Message<void> {
   }
 
   constructor(
-    public readonly interfaceTabId: number,
     public readonly interfaceOrigin: string,
     public readonly allowConnection: boolean
   ) {
@@ -153,11 +152,7 @@ export class ConnectInterfaceResponseMsg extends Message<void> {
   }
 
   validate(): void {
-    validateProps(this, [
-      "interfaceTabId",
-      "interfaceOrigin",
-      "allowConnection",
-    ]);
+    validateProps(this, ["interfaceOrigin", "allowConnection"]);
   }
 
   route(): string {
@@ -175,7 +170,6 @@ export class DisconnectInterfaceResponseMsg extends Message<void> {
   }
 
   constructor(
-    public readonly interfaceTabId: number,
     public readonly interfaceOrigin: string,
     public readonly revokeConnection: boolean
   ) {
@@ -183,11 +177,7 @@ export class DisconnectInterfaceResponseMsg extends Message<void> {
   }
 
   validate(): void {
-    validateProps(this, [
-      "interfaceTabId",
-      "interfaceOrigin",
-      "revokeConnection",
-    ]);
+    validateProps(this, ["interfaceOrigin", "revokeConnection"]);
   }
 
   route(): string {

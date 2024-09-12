@@ -261,7 +261,6 @@ describe("approvals service", () => {
   describe("approveConnection", () => {
     it("should approve connection if it's not already approved", async () => {
       const url = "url-with-params";
-      const interfaceTabId = 999;
       const interfaceOrigin = "origin";
       const tabId = 1;
 
@@ -272,10 +271,7 @@ describe("approvals service", () => {
       });
       service["resolverMap"] = {};
 
-      const promise = service.approveConnection(
-        interfaceTabId,
-        interfaceOrigin
-      );
+      const promise = service.approveConnection(interfaceOrigin);
       await new Promise<void>((r) =>
         setTimeout(() => {
           r();
@@ -284,7 +280,6 @@ describe("approvals service", () => {
       service["resolverMap"][tabId]?.resolve(true);
 
       expect(paramsToUrl).toHaveBeenCalledWith("url#/approve-connection", {
-        interfaceTabId: interfaceTabId.toString(),
         interfaceOrigin,
       });
       expect(service.isConnectionApproved).toHaveBeenCalledWith(
@@ -296,19 +291,17 @@ describe("approvals service", () => {
 
     it("should not approve connection if it was already approved", async () => {
       const url = "url-with-params";
-      const interfaceTabId = 999;
       const interfaceOrigin = "origin";
       (paramsToUrl as any).mockImplementation(() => url);
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(true);
 
       await expect(
-        service.approveConnection(interfaceTabId, interfaceOrigin)
+        service.approveConnection(interfaceOrigin)
       ).resolves.toBeUndefined();
     });
 
     it("should throw an error when popupTabId is not found", async () => {
       const url = "url-with-params";
-      const interfaceTabId = 999;
       const interfaceOrigin = "origin";
 
       (paramsToUrl as any).mockImplementation(() => url);
@@ -318,13 +311,12 @@ describe("approvals service", () => {
       });
 
       await expect(
-        service.approveConnection(interfaceTabId, interfaceOrigin)
+        service.approveConnection(interfaceOrigin)
       ).rejects.toBeDefined();
     });
 
     it("should throw an error when popupTabId is found in resolverMap", async () => {
       const url = "url-with-params";
-      const interfaceTabId = 999;
       const interfaceOrigin = "origin";
       const approvedOrigins = ["other-origin"];
       const tabId = 1;
@@ -345,14 +337,13 @@ describe("approvals service", () => {
       });
 
       await expect(
-        service.approveConnection(interfaceTabId, interfaceOrigin)
+        service.approveConnection(interfaceOrigin)
       ).rejects.toBeDefined();
     });
   });
 
   describe("approveConnectionResponse", () => {
     it("should approve connection response", async () => {
-      const interfaceTabId = 999;
       const interfaceOrigin = "origin";
       const popupTabId = 1;
       service["resolverMap"] = {
@@ -364,10 +355,9 @@ describe("approvals service", () => {
       jest.spyOn(localStorage, "addApprovedOrigin").mockResolvedValue();
 
       await service.approveConnectionResponse(
-        interfaceTabId,
+        popupTabId,
         interfaceOrigin,
-        true,
-        popupTabId
+        true
       );
 
       expect(service["resolverMap"][popupTabId].resolve).toHaveBeenCalled();
@@ -377,22 +367,15 @@ describe("approvals service", () => {
     });
 
     it("should throw an error if resolvers are not found", async () => {
-      const interfaceTabId = 999;
       const interfaceOrigin = "origin";
       const popupTabId = 1;
 
       await expect(
-        service.approveConnectionResponse(
-          interfaceTabId,
-          interfaceOrigin,
-          true,
-          popupTabId
-        )
+        service.approveConnectionResponse(popupTabId, interfaceOrigin, true)
       ).rejects.toBeDefined();
     });
 
     it("should reject the connection if allowConnection is set to false", async () => {
-      const interfaceTabId = 999;
       const interfaceOrigin = "origin";
       const popupTabId = 1;
       service["resolverMap"] = {
@@ -403,10 +386,9 @@ describe("approvals service", () => {
       };
 
       await service.approveConnectionResponse(
-        interfaceTabId,
+        popupTabId,
         interfaceOrigin,
-        false,
-        popupTabId
+        false
       );
 
       expect(service["resolverMap"][popupTabId].reject).toHaveBeenCalled();
