@@ -17,7 +17,10 @@ export const StakingRewardsPanel = (): JSX.Element => {
   const navigate = useNavigate();
 
   const availableRewards = useMemo(() => {
-    return BigNumber.sum(...Object.values(rewards || []));
+    if (!claimRewardsEnabled || !rewards || Object.keys(rewards).length === 0) {
+      return new BigNumber(0);
+    }
+    return BigNumber.sum(...Object.values(rewards));
   }, [rewards]);
 
   const title =
