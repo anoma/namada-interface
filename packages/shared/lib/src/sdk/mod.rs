@@ -24,7 +24,8 @@ use namada_sdk::signing::SigningTxData;
 use namada_sdk::string_encoding::Format;
 use namada_sdk::tx::{
     build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
-    build_reveal_pk, build_transparent_transfer, build_unbond, build_vote_proposal, build_withdraw,
+    build_reveal_pk, build_shielded_transfer, build_shielding_transfer, build_transparent_transfer,
+    build_unbond, build_unshielding_transfer, build_vote_proposal, build_withdraw,
     data::compute_inner_tx_hash, either::Either, process_tx, ProcessTxResponse, Tx,
 };
 use namada_sdk::wallet::{Store, Wallet};
@@ -324,6 +325,38 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let mut args = args::transparent_transfer_tx_args(transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_transparent_transfer(&self.namada, &mut args).await?;
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+    }
+
+    pub async fn build_shielded_transfer(
+        &self,
+        shielded_transfer_msg: &[u8],
+        wrapper_tx_msg: &[u8],
+    ) -> Result<JsValue, JsError> {
+        let mut args = args::shielded_transfer_tx_args(shielded_transfer_msg, wrapper_tx_msg)?;
+        let (tx, signing_data) = build_shielded_transfer(&self.namada, &mut args).await?;
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+    }
+
+    pub async fn build_unshielding_transfer(
+        &self,
+        unshielding_transfer_msg: &[u8],
+        wrapper_tx_msg: &[u8],
+    ) -> Result<JsValue, JsError> {
+        let mut args =
+            args::unshielding_transfer_tx_args(unshielding_transfer_msg, wrapper_tx_msg)?;
+        let (tx, signing_data) = build_unshielding_transfer(&self.namada, &mut args).await?;
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+    }
+
+    pub async fn build_shielding_transfer(
+        &self,
+        shielding_transfer_msg: &[u8],
+        wrapper_tx_msg: &[u8],
+    ) -> Result<JsValue, JsError> {
+        let mut args = args::shielding_transfer_tx_args(shielding_transfer_msg, wrapper_tx_msg)?;
+        let (tx, signing_data, _masp_epoch) =
+            build_shielding_transfer(&self.namada, &mut args).await?;
         self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 

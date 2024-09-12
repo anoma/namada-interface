@@ -18,6 +18,10 @@ import {
   RedelegateMsgValue,
   RedelegateProps,
   RevealPkMsgValue,
+  ShieldedTransferMsgValue,
+  ShieldedTransferProps,
+  ShieldingTransferMsgValue,
+  ShieldingTransferProps,
   SignatureMsgValue,
   SupportedTxProps,
   TransferMsgValue,
@@ -29,6 +33,8 @@ import {
   TxProps,
   UnbondMsgValue,
   UnbondProps,
+  UnshieldingTransferMsgValue,
+  UnshieldingTransferProps,
   VoteProposalMsgValue,
   VoteProposalProps,
   WithdrawMsgValue,
@@ -49,7 +55,7 @@ export class Tx {
   constructor(protected readonly sdk: SdkWasm) {}
 
   /**
-   * Build Transfer Tx
+   * Build Transparent Transfer Tx
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param transferProps -  properties of the transfer
@@ -67,6 +73,81 @@ export class Tx {
     );
 
     const serializedTx = await this.sdk.build_transparent_transfer(
+      encodedTransfer,
+      encodedWrapperArgs
+    );
+    return deserialize(Buffer.from(serializedTx), TxMsgValue);
+  }
+
+  /**
+   * Build Shielded Transfer Tx
+   * @async
+   * @param wrapperTxProps - properties of the transaction
+   * @param shieldedTransferProps -  properties of the shielded transfer
+   * @returns promise that resolves to an TxMsgValue
+   */
+  async buildShieldedTransfer(
+    wrapperTxProps: WrapperTxProps,
+    shieldedTransferProps: ShieldedTransferProps
+  ): Promise<TxMsgValue> {
+    const shieldedTransferMsg = new Message<ShieldedTransferMsgValue>();
+
+    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
+    const encodedTransfer = shieldedTransferMsg.encode(
+      new ShieldedTransferMsgValue(shieldedTransferProps)
+    );
+
+    const serializedTx = await this.sdk.build_shielded_transfer(
+      encodedTransfer,
+      encodedWrapperArgs
+    );
+    return deserialize(Buffer.from(serializedTx), TxMsgValue);
+  }
+
+  /**
+   * Build Shielding Transfer Tx
+   * @async
+   * @param wrapperTxProps - properties of the transaction
+   * @param shieldingTransferProps -  properties of the shielding transfer
+   * @returns promise that resolves to an TxMsgValue
+   */
+  async buildShieldingTransfer(
+    wrapperTxProps: WrapperTxProps,
+    shieldingTransferProps: ShieldingTransferProps
+  ): Promise<TxMsgValue> {
+    const shieldingTransferMsg = new Message<ShieldingTransferMsgValue>();
+
+    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
+    const encodedTransfer = shieldingTransferMsg.encode(
+      new ShieldingTransferMsgValue(shieldingTransferProps)
+    );
+
+    const serializedTx = await this.sdk.build_shielding_transfer(
+      encodedTransfer,
+      encodedWrapperArgs
+    );
+    return deserialize(Buffer.from(serializedTx), TxMsgValue);
+  }
+
+  /**
+   * Build Unshielding Transfer Tx
+   * @async
+   * @param wrapperTxProps - properties of the transaction
+   * @param unshieldingTransferProps -  properties of the unshielding transfer
+   * @returns promise that resolves to an TxMsgValue
+   */
+  async buildUnshieldingTransfer(
+    wrapperTxProps: WrapperTxProps,
+    unshieldingTransferProps: UnshieldingTransferProps
+  ): Promise<TxMsgValue> {
+    const shieldingTransferMsg = new Message<UnshieldingTransferMsgValue>();
+
+    const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
+    const encodedTransfer = shieldingTransferMsg.encode(
+      new UnshieldingTransferMsgValue(unshieldingTransferProps)
+    );
+
+    const serializedTx = await this.sdk.build_unshielding_transfer(
       encodedTransfer,
       encodedWrapperArgs
     );
