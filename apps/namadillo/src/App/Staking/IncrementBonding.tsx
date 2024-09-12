@@ -65,7 +65,8 @@ const IncrementBonding = (): JSX.Element => {
   const {
     execute: performBonding,
     gasConfig,
-    isPending: isPerformingBond,
+    isEnabled,
+    isPending: isPerformingBonding,
   } = useTransaction({
     createTxAtom: createBondTxAtom,
     params: parseUpdatedAmounts(),
@@ -221,10 +222,10 @@ const IncrementBonding = (): JSX.Element => {
               className="mt-2 col-start-2"
               backgroundColor="cyan"
               disabled={
-                !!errorMessage || isPerformingBond || totalUpdatedAmount.eq(0)
+                !!errorMessage || totalUpdatedAmount.eq(0) || !isEnabled
               }
             >
-              {isPerformingBond ? "Processing..." : errorMessage || "Stake"}
+              {isPerformingBonding ? "Processing..." : errorMessage || "Stake"}
             </ActionButton>
             {gasConfig && (
               <TransactionFees

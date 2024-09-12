@@ -51,6 +51,7 @@ const Unstake = (): JSX.Element => {
     execute: performUnbond,
     gasConfig,
     isPending: isPerformingUnbond,
+    isEnabled,
   } = useTransaction({
     createTxAtom: createUnbondTxAtom,
     params: parseUnstakeParams(),
@@ -204,9 +205,7 @@ const Unstake = (): JSX.Element => {
               backgroundHoverColor="pink"
               className="mt-2 col-start-2"
               disabled={
-                !!validationMessage ||
-                isPerformingUnbond ||
-                totalUpdatedAmount.eq(0)
+                !!validationMessage || !isEnabled || totalUpdatedAmount.eq(0)
               }
             >
               {isPerformingUnbond ?

@@ -6,17 +6,12 @@ import {
   ClaimRewardsMsgValue,
   RedelegateMsgValue,
   UnbondMsgValue,
+  WithdrawMsgValue,
   WithdrawProps,
 } from "@namada/types";
 import { getSdkInstance } from "hooks";
 import { TransactionPair, buildTxPair } from "lib/query";
-import {
-  Address,
-  ChainSettings,
-  ChangeInStakingPosition,
-  GasConfig,
-} from "types";
-import { getStakingChangesParams } from "./functions";
+import { Address, ChainSettings, GasConfig } from "types";
 
 export const fetchClaimableRewards = async (
   api: DefaultApi,
@@ -83,15 +78,10 @@ export const createReDelegateTx = async (
 export const createWithdrawTx = async (
   chain: ChainSettings,
   account: Account,
-  changes: ChangeInStakingPosition[],
+  withdrawProps: WithdrawMsgValue[],
   gasConfig: GasConfig
-): Promise<[TransactionPair<WithdrawProps>, BondProps] | undefined> => {
+): Promise<TransactionPair<WithdrawProps>> => {
   const { tx } = await getSdkInstance();
-  const withdrawProps = getStakingChangesParams(
-    account,
-    chain.nativeTokenAddress,
-    changes
-  );
   const transactionPair = await buildTxPair(
     account,
     gasConfig,
@@ -100,8 +90,7 @@ export const createWithdrawTx = async (
     tx.buildWithdraw,
     withdrawProps[0].source
   );
-
-  return [transactionPair, withdrawProps[0]];
+  return transactionPair;
 };
 
 export const createClaimTx = async (

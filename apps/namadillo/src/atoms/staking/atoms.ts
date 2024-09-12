@@ -1,11 +1,10 @@
 import { Reward } from "@anomaorg/namada-indexer-client";
 import {
   BondMsgValue,
-  BondProps,
   ClaimRewardsMsgValue,
   RedelegateMsgValue,
   UnbondMsgValue,
-  WithdrawProps,
+  WithdrawMsgValue,
 } from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
 import { indexerApiAtom } from "atoms/api";
@@ -15,13 +14,7 @@ import { myValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
-import { TransactionPair } from "lib/query";
-import {
-  AddressBalance,
-  BuildTxAtomParams,
-  ChangeInStakingProps,
-  StakingTotals,
-} from "types";
+import { AddressBalance, BuildTxAtomParams, StakingTotals } from "types";
 import { toStakingTotal } from "./functions";
 import {
   createBondTx,
@@ -108,21 +101,6 @@ export const createReDelegateTxAtom = atomWithMutation((get) => {
   };
 });
 
-export const createWithdrawTxAtom = atomWithMutation((get) => {
-  const chain = get(chainAtom);
-  return {
-    mutationKey: ["create-withdraw-tx"],
-    enabled: chain.isSuccess,
-    mutationFn: async ({
-      changes,
-      gasConfig,
-      account,
-    }: ChangeInStakingProps): Promise<
-      [TransactionPair<WithdrawProps>, BondProps] | undefined
-    > => createWithdrawTx(chain.data!, account, changes, gasConfig),
-  };
-});
-
 export const createWithdrawTxAtomFamily = atomFamily((id: string) => {
   return atomWithMutation((get) => {
     const chain = get(chainAtom);
@@ -130,12 +108,11 @@ export const createWithdrawTxAtomFamily = atomFamily((id: string) => {
       mutationKey: ["create-withdraw-tx", id],
       enabled: chain.isSuccess,
       mutationFn: async ({
-        changes,
+        params,
         gasConfig,
         account,
-      }: ChangeInStakingProps): Promise<
-        [TransactionPair<WithdrawProps>, BondProps] | undefined
-      > => createWithdrawTx(chain.data!, account, changes, gasConfig),
+      }: BuildTxAtomParams<WithdrawMsgValue>) =>
+        createWithdrawTx(chain.data!, account, params, gasConfig),
     };
   });
 });
