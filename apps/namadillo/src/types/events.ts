@@ -44,8 +44,6 @@ declare global {
     "Unbond.Success": EventData<UnbondProps>;
     "Unbond.PartialSuccess": EventData<UnbondProps>;
     "Unbond.Error": EventData<UnbondProps>;
-    "ReDelegate.Success": EventData<RedelegateProps>;
-    "ReDelegate.Error": EventData<RedelegateProps>;
     "Redelegate.Success": EventData<RedelegateProps>;
     "Redelegate.PartialSuccess": EventData<RedelegateProps>;
     "Redelegate.Error": EventData<RedelegateProps>;

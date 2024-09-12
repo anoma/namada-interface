@@ -275,7 +275,7 @@ export const useTransactionNotifications = (): void => {
     });
   });
 
-  useTransactionEventListener("ReDelegate.PartialSuccess", (e) => {
+  useTransactionEventListener("Redelegate.PartialSuccess", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.successData!);
     clearPendingNotifications(id);
     dispatchNotification({
