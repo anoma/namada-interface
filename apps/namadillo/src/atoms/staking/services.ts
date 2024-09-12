@@ -15,12 +15,8 @@ import {
   ChainSettings,
   ChangeInStakingPosition,
   GasConfig,
-  RedelegateChange,
 } from "types";
-import {
-  getRedelegateChangeParams,
-  getStakingChangesParams,
-} from "./functions";
+import { getStakingChangesParams } from "./functions";
 
 export const fetchClaimableRewards = async (
   api: DefaultApi,
@@ -69,11 +65,10 @@ export const createUnbondTx = async (
 export const createReDelegateTx = async (
   chain: ChainSettings,
   account: Account,
-  changes: RedelegateChange[],
+  redelegateProps: RedelegateMsgValue[],
   gasConfig: GasConfig
 ): Promise<TransactionPair<RedelegateMsgValue>> => {
   const { tx } = await getSdkInstance();
-  const redelegateProps = getRedelegateChangeParams(account, changes);
   const transactionPairs = await buildTxPair(
     account,
     gasConfig,

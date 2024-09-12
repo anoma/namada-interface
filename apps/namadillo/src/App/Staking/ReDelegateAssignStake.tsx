@@ -5,7 +5,6 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useValidatorSorting } from "hooks/useValidatorSorting";
-import { AtomWithQueryResult } from "jotai-tanstack-query";
 import { useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import {
@@ -56,7 +55,7 @@ type ReDelegateAssignStakeProps = {
   ) => void;
   isPerformingRedelegation: boolean;
   redelegateChanges: RedelegateChange[];
-  gasConfig: AtomWithQueryResult<GasConfig>;
+  gasConfig: GasConfig | undefined;
 };
 
 export const ReDelegateAssignStake = ({
@@ -162,10 +161,10 @@ export const ReDelegateAssignStake = ({
           validation={validation}
           isPerformingRedelegation={isPerformingRedelegation}
         />
-        {gasConfig.isSuccess && (
+        {gasConfig && (
           <TransactionFees
             className="justify-self-end px-4"
-            gasConfig={gasConfig.data}
+            gasConfig={gasConfig}
           />
         )}
       </div>

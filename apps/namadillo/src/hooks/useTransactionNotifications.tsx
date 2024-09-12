@@ -238,7 +238,7 @@ export const useTransactionNotifications = (): void => {
     });
   });
 
-  useTransactionEventListener("ReDelegate.Error", (e) => {
+  useTransactionEventListener("Redelegate.Error", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
     clearPendingNotifications(id);
     dispatchNotification({
@@ -258,7 +258,7 @@ export const useTransactionNotifications = (): void => {
     });
   });
 
-  useTransactionEventListener("ReDelegate.Success", (e) => {
+  useTransactionEventListener("Redelegate.Success", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
     clearPendingNotifications(id);
     dispatchNotification({

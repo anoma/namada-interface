@@ -3,6 +3,7 @@ import {
   BondMsgValue,
   BondProps,
   ClaimRewardsMsgValue,
+  RedelegateMsgValue,
   UnbondMsgValue,
   WithdrawProps,
 } from "@namada/types";
@@ -19,7 +20,6 @@ import {
   AddressBalance,
   BuildTxAtomParams,
   ChangeInStakingProps,
-  RedelegateChangesProps,
   StakingTotals,
 } from "types";
 import { toStakingTotal } from "./functions";
@@ -100,11 +100,11 @@ export const createReDelegateTxAtom = atomWithMutation((get) => {
     mutationKey: ["create-redelegate-tx"],
     enabled: chain.isSuccess,
     mutationFn: async ({
-      changes,
+      params,
       gasConfig,
       account,
-    }: RedelegateChangesProps) =>
-      createReDelegateTx(chain.data!, account, changes, gasConfig),
+    }: BuildTxAtomParams<RedelegateMsgValue>) =>
+      createReDelegateTx(chain.data!, account, params, gasConfig),
   };
 });
 

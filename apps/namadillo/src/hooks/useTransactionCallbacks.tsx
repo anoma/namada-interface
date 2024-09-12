@@ -19,6 +19,7 @@ export const useTransactionCallback = (): void => {
   useTransactionEventListener("Bond.Success", onBalanceUpdate);
   useTransactionEventListener("Unbond.Success", onBalanceUpdate);
   useTransactionEventListener("Withdraw.Success", onBalanceUpdate);
+  useTransactionEventListener("Redelegate.Success", onBalanceUpdate);
 
   const shouldUpdateProposal = useSetAtom(shouldUpdateProposalAtom);
 
