@@ -13,7 +13,7 @@ const { getProcessEnv } = require("@namada/config/webpack.js");
 // Load .env from namadillo:
 require("dotenv").config({ path: "./.env" });
 
-const { NODE_ENV, TARGET, BUNDLE_ANALYZE } = process.env;
+const { NODE_ENV, TARGET, BUNDLE_ANALYZE, BETA_RELEASE: isBeta } = process.env;
 
 const OUTPUT_PATH = resolve(__dirname, `./build/${TARGET}`);
 const MANIFEST_VERSION = TARGET === "firefox" ? "v2" : "v3";
@@ -27,6 +27,9 @@ const GENERATED_MANIFEST = "generatedManifest.json";
 function generateManifest(buffer) {
   const manifest = JSON.parse(buffer.toString());
 
+  manifest.name = `${manifest.name}${isBeta ? " BETA" : ""}`;
+  manifest.description =
+    isBeta ? "THIS EXTENSION IS FOR BETA TESTING" : manifest.description;
   manifest.version = packageJson.version;
 
   return JSON.stringify(manifest, null, 2);
