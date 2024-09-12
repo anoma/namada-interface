@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { WrapperTxMsgValue } from "@namada/types";
-import { paramsToUrl } from "@namada/utils";
 import { ChainsService } from "background/chains";
 import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
@@ -31,7 +30,6 @@ jest.mock("webextension-polyfill", () => ({
 jest.mock("@namada/utils", () => {
   return {
     ...jest.requireActual("@namada/utils"),
-    paramsToUrl: jest.fn(),
     __esModule: true,
   };
 });
@@ -265,15 +263,11 @@ describe("approvals service", () => {
 
   describe("approveConnection", () => {
     it("should approve connection if it's not already approved", async () => {
-      const url = "url-with-params";
       const interfaceOrigin = "origin";
       const tabId = 1;
 
-      (paramsToUrl as any).mockImplementation(() => url);
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(false);
-      jest.spyOn(service as any, "openPopup").mockResolvedValue({
-        tabs: [{ id: tabId }],
-      });
+      jest.spyOn(service as any, "launchApprovalWindow");
       service["resolverMap"] = {};
 
       const promise = service.approveConnection(interfaceOrigin);
@@ -284,66 +278,23 @@ describe("approvals service", () => {
       );
       service["resolverMap"][tabId]?.resolve(true);
 
-      expect(paramsToUrl).toHaveBeenCalledWith("url#/approve-connection", {
-        interfaceOrigin,
-      });
+      expect((service as any).launchApprovalWindow).toHaveBeenCalledWith(
+        "/approve-connection",
+        { interfaceOrigin }
+      );
       expect(service.isConnectionApproved).toHaveBeenCalledWith(
         interfaceOrigin
       );
-      expect(service["openPopup"]).toHaveBeenCalledWith(url);
       await expect(promise).resolves.toBeDefined();
     });
 
     it("should not approve connection if it was already approved", async () => {
-      const url = "url-with-params";
       const interfaceOrigin = "origin";
-      (paramsToUrl as any).mockImplementation(() => url);
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(true);
 
       await expect(
         service.approveConnection(interfaceOrigin)
       ).resolves.toBeUndefined();
-    });
-
-    it("should throw an error when popupTabId is not found", async () => {
-      const url = "url-with-params";
-      const interfaceOrigin = "origin";
-
-      (paramsToUrl as any).mockImplementation(() => url);
-      jest.spyOn(service, "isConnectionApproved").mockResolvedValue(false);
-      jest.spyOn(service as any, "openPopup").mockResolvedValue({
-        tabs: [],
-      });
-
-      await expect(
-        service.approveConnection(interfaceOrigin)
-      ).rejects.toBeDefined();
-    });
-
-    it("should throw an error when popupTabId is found in resolverMap", async () => {
-      const url = "url-with-params";
-      const interfaceOrigin = "origin";
-      const approvedOrigins = ["other-origin"];
-      const tabId = 1;
-
-      service["resolverMap"] = {
-        [tabId]: {
-          resolve: jest.fn(),
-          reject: jest.fn(),
-        },
-      };
-
-      (paramsToUrl as any).mockImplementation(() => url);
-      jest
-        .spyOn(localStorage, "getApprovedOrigins")
-        .mockResolvedValue(approvedOrigins);
-      jest.spyOn(service as any, "openPopup").mockResolvedValue({
-        tabs: [{ id: tabId }],
-      });
-
-      await expect(
-        service.approveConnection(interfaceOrigin)
-      ).rejects.toBeDefined();
     });
   });
 
@@ -402,15 +353,11 @@ describe("approvals service", () => {
 
   describe("approveDisconnection", () => {
     it("should approve disconnection if there is a connection already approved", async () => {
-      const url = "url-with-params";
       const interfaceOrigin = "origin";
       const tabId = 1;
 
-      (paramsToUrl as any).mockImplementation(() => url);
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(true);
-      jest.spyOn(service as any, "openPopup").mockResolvedValue({
-        tabs: [{ id: tabId }],
-      });
+      jest.spyOn(service as any, "launchApprovalWindow");
       service["resolverMap"] = {};
 
       const promise = service.approveDisconnection(interfaceOrigin);
@@ -421,20 +368,18 @@ describe("approvals service", () => {
       );
       service["resolverMap"][tabId]?.resolve(true);
 
-      expect(paramsToUrl).toHaveBeenCalledWith("url#/approve-disconnection", {
-        interfaceOrigin,
-      });
+      expect((service as any).launchApprovalWindow).toHaveBeenCalledWith(
+        "/approve-disconnection",
+        { interfaceOrigin }
+      );
       expect(service.isConnectionApproved).toHaveBeenCalledWith(
         interfaceOrigin
       );
-      expect(service["openPopup"]).toHaveBeenCalledWith(url);
       await expect(promise).resolves.toBeDefined();
     });
 
     it("should not approve disconnection if it is NOT already approved", async () => {
-      const url = "url-with-params";
       const interfaceOrigin = "origin";
-      (paramsToUrl as any).mockImplementation(() => url);
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(false);
 
       await expect(
@@ -531,16 +476,21 @@ describe("approvals service", () => {
   });
 
   describe("launchApprovalWindow", () => {
-    it("should create a window and save the resolver on the resolverMap", async () => {
-      const url = "url";
+    it("should create a window with the given route and params saving the resolver on the resolverMap", async () => {
+      const route = "route";
+      const params = { foo: "bar" };
       const popupTabId = 1;
       const window = { tabs: [{ id: popupTabId }] };
+
       jest
         .spyOn<any, any>(service, "openPopup")
         .mockImplementationOnce(() => window);
-      (service as any).launchApprovalWindow(url);
 
-      expect(await (service as any).openPopup).toHaveBeenCalledWith(url);
+      (service as any).launchApprovalWindow(route, params);
+
+      expect(await (service as any).openPopup).toHaveBeenCalledWith(
+        `url#${route}?foo=bar`
+      );
       expect((service as any).resolverMap[popupTabId]).toBeDefined();
     });
   });

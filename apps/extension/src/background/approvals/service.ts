@@ -63,11 +63,9 @@ export class ApprovalsService {
 
     await this.txStore.set(msgId, pendingTx);
 
-    const url = `${browser.runtime.getURL(
-      "approvals.html"
-    )}#/approve-sign-tx/${msgId}/${details.type}/${signer}`;
-
-    return this.launchApprovalWindow(url);
+    return this.launchApprovalWindow(
+      `${TopLevelRoute.ApproveSignTx}/${msgId}/${details.type}/${signer}`
+    );
   }
 
   async approveSignArbitrary(
@@ -77,14 +75,11 @@ export class ApprovalsService {
     const msgId = uuid();
 
     await this.dataStore.set(msgId, data);
-    const baseUrl = `${browser.runtime.getURL(
-      "approvals.html"
-    )}#/approve-sign-arbitrary/${signer}`;
 
-    const url = paramsToUrl(baseUrl, {
-      msgId,
-    });
-    return this.launchApprovalWindow(url);
+    return this.launchApprovalWindow(
+      `${TopLevelRoute.ApproveSignArbitrary}/${signer}`,
+      { msgId }
+    );
   }
 
   async submitSignTx(
@@ -188,18 +183,12 @@ export class ApprovalsService {
   }
 
   async approveConnection(interfaceOrigin: string): Promise<void> {
-    const baseUrl = `${browser.runtime.getURL(
-      "approvals.html"
-    )}#/approve-connection`;
-
-    const url = paramsToUrl(baseUrl, {
-      interfaceOrigin,
-    });
-
     const alreadyApproved = await this.isConnectionApproved(interfaceOrigin);
 
     if (!alreadyApproved) {
-      return this.launchApprovalWindow(url);
+      return this.launchApprovalWindow(TopLevelRoute.ApproveConnection, {
+        interfaceOrigin,
+      });
     }
 
     // A resolved promise is implicitly returned here if the origin had
@@ -226,18 +215,12 @@ export class ApprovalsService {
   }
 
   async approveDisconnection(interfaceOrigin: string): Promise<void> {
-    const baseUrl = `${browser.runtime.getURL(
-      "approvals.html"
-    )}#${TopLevelRoute.ApproveDisconnection}`;
-
-    const url = paramsToUrl(baseUrl, {
-      interfaceOrigin,
-    });
-
     const isConnected = await this.isConnectionApproved(interfaceOrigin);
 
     if (isConnected) {
-      return this.launchApprovalWindow(url);
+      return this.launchApprovalWindow(TopLevelRoute.ApproveDisconnection, {
+        interfaceOrigin,
+      });
     }
 
     // A resolved promise is implicitly returned here if the origin had
@@ -335,7 +318,13 @@ export class ApprovalsService {
     return popupTabId;
   };
 
-  private launchApprovalWindow = async <T>(url: string): Promise<T> => {
+  private launchApprovalWindow = async <T>(
+    route: string,
+    params?: Record<string, string>
+  ): Promise<T> => {
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#${route}`;
+    const url = params ? paramsToUrl(baseUrl, params) : baseUrl;
+
     const window = await this.openPopup(url);
     const popupTabId = this.getPopupTabId(window);
 
