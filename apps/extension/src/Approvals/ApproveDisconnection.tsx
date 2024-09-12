@@ -6,7 +6,7 @@ import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 
-export const ApproveDisconnect: React.FC = () => {
+export const ApproveDisconnection: React.FC = () => {
   const requester = useRequester();
   const params = useQuery();
   const interfaceOrigin = params.get("interfaceOrigin");

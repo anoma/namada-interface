@@ -225,10 +225,10 @@ export class ApprovalsService {
     }
   }
 
-  async approveDisconnect(interfaceOrigin: string): Promise<void> {
+  async approveDisconnection(interfaceOrigin: string): Promise<void> {
     const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
-    )}#${TopLevelRoute.ApproveDisconnect}`;
+    )}#${TopLevelRoute.ApproveDisconnection}`;
 
     const url = paramsToUrl(baseUrl, {
       interfaceOrigin,
@@ -339,7 +339,7 @@ export class ApprovalsService {
     const window = await this.openPopup(url);
     const popupTabId = this.getPopupTabId(window);
 
-    return await new Promise<T>((resolve, reject) => {
+    return new Promise<T>((resolve, reject) => {
       this.resolverMap[popupTabId] = {
         resolve: (args: T) => {
           delete this.resolverMap[popupTabId];

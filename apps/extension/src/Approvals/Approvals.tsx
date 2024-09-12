@@ -7,7 +7,7 @@ import { AccountType, TxDetails } from "@namada/types";
 import { AppHeader } from "App/Common/AppHeader";
 import { TopLevelRoute } from "Approvals/types";
 import { ApproveConnection } from "./ApproveConnection";
-import { ApproveDisconnect } from "./ApproveDisconnect";
+import { ApproveDisconnection } from "./ApproveDisconnection";
 import { ApproveSignArbitrary } from "./ApproveSignArbitrary";
 import { ApproveSignTx } from "./ApproveSignTx";
 import { ConfirmSignature } from "./ConfirmSignArbitrary";
@@ -67,8 +67,8 @@ export const Approvals: React.FC = () => {
           element={<ApproveConnection />}
         />
         <Route
-          path={TopLevelRoute.ApproveDisconnect}
-          element={<ApproveDisconnect />}
+          path={TopLevelRoute.ApproveDisconnection}
+          element={<ApproveDisconnection />}
         />
         <Route
           path={`${TopLevelRoute.ApproveSignArbitrary}/:signer`}

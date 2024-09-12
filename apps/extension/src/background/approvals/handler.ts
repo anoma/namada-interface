@@ -137,7 +137,7 @@ const handleApproveDisconnectInterfaceMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveDisconnectInterfaceMsg> = (service) => {
   return async (_, { origin }) => {
-    return await service.approveDisconnect(origin);
+    return await service.approveDisconnection(origin);
   };
 };
 
