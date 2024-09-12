@@ -1,6 +1,7 @@
 import { DefaultApi, Reward } from "@anomaorg/namada-indexer-client";
 import {
   Account,
+  BondMsgValue,
   BondProps,
   ClaimRewardsMsgValue,
   RedelegateMsgValue,
@@ -32,15 +33,10 @@ export const fetchClaimableRewards = async (
 export const createBondTx = async (
   chain: ChainSettings,
   account: Account,
-  changes: ChangeInStakingPosition[],
+  bondProps: BondMsgValue[],
   gasConfig: GasConfig
 ): Promise<TransactionPair<BondProps> | undefined> => {
   const { tx } = await getSdkInstance();
-  const bondProps = getStakingChangesParams(
-    account,
-    chain.nativeTokenAddress,
-    changes
-  );
   const transactionPairs = await buildTxPair(
     account,
     gasConfig,

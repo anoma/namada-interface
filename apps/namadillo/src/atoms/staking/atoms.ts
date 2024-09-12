@@ -1,5 +1,10 @@
 import { Reward } from "@anomaorg/namada-indexer-client";
-import { BondProps, ClaimRewardsMsgValue, WithdrawProps } from "@namada/types";
+import {
+  BondMsgValue,
+  BondProps,
+  ClaimRewardsMsgValue,
+  WithdrawProps,
+} from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
 import { indexerApiAtom } from "atoms/api";
 import { chainAtom, chainParametersAtom } from "atoms/chain";
@@ -65,8 +70,12 @@ export const createBondTxAtom = atomWithMutation((get) => {
   return {
     mutationKey: ["create-bonding-tx"],
     enabled: chain.isSuccess,
-    mutationFn: async ({ changes, gasConfig, account }: ChangeInStakingProps) =>
-      createBondTx(chain.data!, account, changes, gasConfig),
+    mutationFn: async ({
+      params,
+      gasConfig,
+      account,
+    }: BuildTxAtomParams<BondMsgValue>) =>
+      createBondTx(chain.data!, account, params, gasConfig),
   };
 });
 

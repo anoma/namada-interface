@@ -1,5 +1,5 @@
 import { ActionButton, Alert, Modal, Panel } from "@namada/components";
-import { BondMsgValue, BondProps } from "@namada/types";
+import { BondMsgValue } from "@namada/types";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
@@ -8,21 +8,15 @@ import { TableRowLoading } from "App/Common/TableRowLoading";
 import { TransactionFees } from "App/Common/TransactionFees";
 import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
 import { chainParametersAtom } from "atoms/chain";
-import { defaultGasConfigFamily } from "atoms/fees";
-import {
-  createNotificationId,
-  dispatchToastNotificationAtom,
-} from "atoms/notifications";
 import { createBondTxAtom } from "atoms/staking";
 import { allValidatorsAtom } from "atoms/validators";
 import clsx from "clsx";
 import { useStakeModule } from "hooks/useStakeModule";
+import { useTransaction } from "hooks/useTransaction";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useValidatorSorting } from "hooks/useValidatorSorting";
-import invariant from "invariant";
-import { useAtomValue, useSetAtom } from "jotai";
-import { TransactionPair, broadcastTx } from "lib/query";
-import { useEffect, useRef, useState } from "react";
+import { useAtomValue } from "jotai";
+import { useRef, useState } from "react";
 import { GoAlert } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { ValidatorFilterOptions } from "types";
@@ -37,23 +31,13 @@ const IncrementBonding = (): JSX.Element => {
   const [validatorFilter, setValidatorFilter] =
     useState<ValidatorFilterOptions>("all");
   const navigate = useNavigate();
-  const { data: chainParameters } = useAtomValue(chainParametersAtom);
   const accountBalance = useAtomValue(accountBalanceAtom);
   const seed = useRef(Math.random());
 
+  const { data: chainParameters } = useAtomValue(chainParametersAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(allValidatorsAtom);
-  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const resultsPerPage = 100;
-
-  const {
-    mutate: createBondTransaction,
-    isPending: isPerformingBond,
-    isSuccess,
-    isError,
-    data: bondTransactionData,
-    error: bondTransactionError,
-  } = useAtomValue(createBondTxAtom);
 
   const {
     myValidators,
@@ -63,14 +47,46 @@ const IncrementBonding = (): JSX.Element => {
     stakedAmountByAddress,
     updatedAmountByAddress,
     onChangeValidatorAmount,
-    parseUpdatedAmounts,
   } = useStakeModule({ account });
 
-  const gasConfig = useAtomValue(
-    defaultGasConfigFamily(
-      Array(Object.keys(updatedAmountByAddress).length).fill("Bond")
-    )
-  );
+  const parseUpdatedAmounts = (): BondMsgValue[] => {
+    if (!account?.address) return [];
+    return Object.keys(updatedAmountByAddress)
+      .map((validatorAddress) => ({
+        validator: validatorAddress,
+        source: account.address,
+        amount: updatedAmountByAddress[validatorAddress],
+      }))
+      .filter((entries) => entries.amount.gt(0));
+  };
+
+  const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
+
+  const {
+    execute: performBonding,
+    gasConfig,
+    isPending: isPerformingBond,
+  } = useTransaction({
+    createTxAtom: createBondTxAtom,
+    params: parseUpdatedAmounts(),
+    eventType: "Bond",
+    parsePendingTxNotification: () => ({
+      title: "Staking transaction in progress",
+      description: (
+        <>
+          Your staking transaction of{" "}
+          <NamCurrency amount={totalUpdatedAmount} /> is being processed
+        </>
+      ),
+    }),
+    parseErrorTxNotification: () => ({
+      title: "Staking transaction failed",
+      description: "",
+    }),
+    onSuccess: () => {
+      onCloseModal();
+    },
+  });
 
   const filteredValidators = useValidatorFilter({
     validators: validators.isSuccess ? validators.data : [],
@@ -91,76 +107,10 @@ const IncrementBonding = (): JSX.Element => {
     seed: seed.current,
   });
 
-  const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
-
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
-    invariant(
-      account,
-      "Extension is not connected or you don't have an account"
-    );
-    const changes = parseUpdatedAmounts();
-
-    if (!gasConfig.isSuccess) {
-      throw new Error("Gas config is still pending");
-    }
-
-    createBondTransaction({
-      changes,
-      account,
-      gasConfig: gasConfig.data,
-    });
+    performBonding();
   };
-
-  const dispatchPendingNotification = (
-    data?: TransactionPair<BondMsgValue>
-  ): void => {
-    dispatchNotification({
-      id: createNotificationId(data?.encodedTxData.txs),
-      title: "Staking transaction in progress",
-      description: (
-        <>
-          Your staking transaction of{" "}
-          <NamCurrency amount={totalUpdatedAmount} /> is being processed
-        </>
-      ),
-      type: "pending",
-    });
-  };
-
-  const dispatchBondingTransaction = (tx: TransactionPair<BondProps>): void => {
-    tx.signedTxs.forEach((signedTx) => {
-      broadcastTx(
-        tx.encodedTxData,
-        signedTx,
-        tx.encodedTxData.meta?.props,
-        "Bond"
-      );
-    });
-  };
-
-  useEffect(() => {
-    if (isSuccess) {
-      bondTransactionData && dispatchBondingTransaction(bondTransactionData);
-      dispatchPendingNotification(bondTransactionData);
-      onCloseModal();
-    }
-  }, [isSuccess]);
-
-  useEffect(() => {
-    if (isError) {
-      dispatchNotification({
-        id: createNotificationId(),
-        title: "Staking transaction failed",
-        description: "",
-        details:
-          bondTransactionError instanceof Error ?
-            bondTransactionError.message
-          : undefined,
-        type: "error",
-      });
-    }
-  }, [isError]);
 
   const errorMessage = ((): string => {
     if (accountBalance.isPending) return "Loading...";
@@ -276,10 +226,10 @@ const IncrementBonding = (): JSX.Element => {
             >
               {isPerformingBond ? "Processing..." : errorMessage || "Stake"}
             </ActionButton>
-            {gasConfig.isSuccess && (
+            {gasConfig && (
               <TransactionFees
                 className="justify-self-end px-4"
-                gasConfig={gasConfig.data}
+                gasConfig={gasConfig}
               />
             )}
           </div>

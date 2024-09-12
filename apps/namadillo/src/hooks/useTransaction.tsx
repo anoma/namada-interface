@@ -8,7 +8,7 @@ import invariant from "invariant";
 import { Atom, useAtomValue, useSetAtom } from "jotai";
 import { AtomWithMutationResult } from "jotai-tanstack-query";
 import { broadcastTx, TransactionPair } from "lib/query";
-import { BuildTxAtomParams, ToastNotification } from "types";
+import { BuildTxAtomParams, GasConfig, ToastNotification } from "types";
 import { TransactionEventsClasses } from "types/events";
 
 type AtomType<T> = Atom<
@@ -26,7 +26,8 @@ type useTransactionProps<T> = {
   params: T[];
   createTxAtom: AtomType<T>;
   eventType: TransactionEventsClasses;
-  pendingTxNotification?: PartialNotification;
+  parsePendingTxNotification?: (tx: TransactionPair<T>) => PartialNotification;
+  parseErrorTxNotification?: () => PartialNotification;
   onSigned?: (tx: TransactionPair<T>) => void;
   onError?: (err: unknown) => void;
   onSuccess?: (tx: TransactionPair<T>) => void;
@@ -37,13 +38,15 @@ type useTransactionOutput = {
   isEnabled: boolean;
   isPending: boolean;
   isSuccess: boolean;
+  gasConfig: GasConfig | undefined;
 };
 
 export const useTransaction = <T,>({
   params,
   createTxAtom,
   eventType,
-  pendingTxNotification,
+  parsePendingTxNotification,
+  parseErrorTxNotification,
   onSuccess,
   onError,
 }: useTransactionProps<T>): useTransactionOutput => {
@@ -92,6 +95,18 @@ export const useTransaction = <T,>({
     });
   };
 
+  const dispatchErrorNotification = (
+    error: unknown,
+    notification: PartialNotification
+  ): void => {
+    dispatchNotification({
+      ...notification,
+      id: createNotificationId(),
+      details: error instanceof Error ? error.message : undefined,
+      type: "error",
+    });
+  };
+
   const execute = async (): Promise<void> => {
     try {
       validate();
@@ -104,14 +119,18 @@ export const useTransaction = <T,>({
       if (!tx) throw "Error: invalid TX created by buildTx";
       broadcast(tx);
 
-      if (pendingTxNotification) {
-        dispatchPendingTxNotification(tx, pendingTxNotification);
+      if (parsePendingTxNotification) {
+        dispatchPendingTxNotification(tx, parsePendingTxNotification(tx));
       }
 
       if (onSuccess) {
         onSuccess(tx);
       }
     } catch (err) {
+      if (parseErrorTxNotification) {
+        dispatchErrorNotification(err, parseErrorTxNotification());
+      }
+
       if (onError) {
         onError(err);
       }
@@ -122,6 +141,7 @@ export const useTransaction = <T,>({
     execute,
     isPending,
     isSuccess,
+    gasConfig: gasConfig.data,
     isEnabled: Boolean(
       !isPending &&
         !isSuccess &&

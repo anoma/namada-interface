@@ -40,10 +40,10 @@ export const StakingRewards = (): JSX.Element => {
     params: parseStakingRewardsParams(),
     createTxAtom: claimRewardsAtom,
     eventType: "ClaimRewards",
-    pendingTxNotification: {
+    parsePendingTxNotification: () => ({
       title: "Claiming rewards transaction in progress",
       description: <>Your rewards claim is being processed</>,
-    },
+    }),
     onSuccess: () => {
       onCloseModal();
     },
