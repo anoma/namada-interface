@@ -2,6 +2,8 @@ import { DefaultApi, Reward } from "@anomaorg/namada-indexer-client";
 import {
   Account,
   BondProps,
+  ClaimRewardsMsgValue,
+  ClaimRewardsProps,
   RedelegateMsgValue,
   UnbondMsgValue,
   WithdrawProps,
@@ -115,4 +117,21 @@ export const createWithdrawTx = async (
   );
 
   return [transactionPair, withdrawProps[0]];
+};
+
+export const createClaimTx = async (
+  chain: ChainSettings,
+  account: Account,
+  params: ClaimRewardsProps[],
+  gasConfig: GasConfig
+): Promise<TransactionPair<ClaimRewardsMsgValue>> => {
+  const { tx } = await getSdkInstance();
+  return await buildTxPair(
+    account,
+    gasConfig,
+    chain,
+    params,
+    tx.buildClaimRewards,
+    account.address
+  );
 };

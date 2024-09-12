@@ -127,6 +127,12 @@ export type RedelegateChange = {
   amount: BigNumber;
 };
 
+export type ClaimRewardsProps = {
+  account: Account;
+  validators: Address[];
+  gasConfig: GasConfig;
+};
+
 export type TxKind =
   | "Bond"
   | "Unbond"

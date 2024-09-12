@@ -12,12 +12,14 @@ import { TransactionPair } from "lib/query";
 import {
   AddressBalance,
   ChangeInStakingProps,
+  ClaimRewardsProps,
   RedelegateChangesProps,
   StakingTotals,
 } from "types";
 import { toStakingTotal } from "./functions";
 import {
   createBondTx,
+  createClaimTx,
   createReDelegateTx,
   createUnbondTx,
   createWithdrawTx,
@@ -122,4 +124,29 @@ export const createWithdrawTxAtomFamily = atomFamily((id: string) => {
       > => createWithdrawTx(chain.data!, account, changes, gasConfig),
     };
   });
+});
+
+export const claimRewardsAndStakeAtom = atomWithMutation((get) => {
+  const chain = get(chainAtom);
+  return {
+    mutationKey: ["claim-stake-atom"],
+    enabled: chain.isSuccess,
+    mutationFn: async ({}) => {},
+  };
+});
+
+export const claimRewardsAtom = atomWithMutation((get) => {
+  const chain = get(chainAtom);
+  return {
+    mutationKey: ["create-claim-tx"],
+    enabled: chain.isSuccess,
+    mutationFn: async ({
+      validators,
+      gasConfig,
+      account,
+    }: ClaimRewardsProps) => {
+      const params = validators.map((validator) => ({ validator }));
+      return createClaimTx(chain.data!, account, params, gasConfig);
+    },
+  };
 });
