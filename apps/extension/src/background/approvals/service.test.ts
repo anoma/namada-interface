@@ -278,7 +278,7 @@ describe("approvals service", () => {
       );
       service["resolverMap"][tabId]?.resolve(true);
 
-      expect((service as any).launchApprovalPopup).toHaveBeenCalledWith(
+      expect(service["launchApprovalPopup"]).toHaveBeenCalledWith(
         "/approve-connection",
         { interfaceOrigin }
       );

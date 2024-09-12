@@ -39,7 +39,11 @@ export class ApprovalsService {
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
     browser.tabs.onRemoved.addListener((tabId) => {
-      this.removeResolver(tabId);
+      const resolver = this.getResolver(tabId);
+      if (resolver) {
+        resolver.reject(new Error("Window closed"));
+        this.removeResolver(tabId);
+      }
     });
   }
 
