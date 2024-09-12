@@ -473,6 +473,19 @@ describe("approvals service", () => {
 
       expect(() => (service as any).getPopupTabId(window)).toThrow();
     });
+
+    it("should throw an error if the tab already exists on the resolverMap", async () => {
+      const popupTabId = 1;
+      const window = { tabs: [{ id: popupTabId }] };
+      service["resolverMap"] = {
+        [popupTabId]: {
+          resolve: jest.fn(),
+          reject: jest.fn(),
+        },
+      };
+
+      expect(() => (service as any).getPopupTabId(window)).toThrow();
+    });
   });
 
   describe("launchApprovalPopup", () => {
@@ -488,7 +501,7 @@ describe("approvals service", () => {
 
       (service as any).launchApprovalPopup(route, params);
 
-      expect(await (service as any).openPopup).toHaveBeenCalledWith(
+      expect(await (service as any).createPopup).toHaveBeenCalledWith(
         `url#${route}?foo=bar`
       );
       expect((service as any).resolverMap[popupTabId]).toBeDefined();
