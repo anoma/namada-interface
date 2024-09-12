@@ -101,6 +101,7 @@ export const DeleteAccount = (): JSX.Element => {
               </p>
               <LinkButton
                 color="primary"
+                type="button"
                 className="font-bold mt-4 text-sm underline"
                 onClick={() => navigate(routes.viewAccountMnemonic(accountId))}
               >
