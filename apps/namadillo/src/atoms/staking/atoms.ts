@@ -3,6 +3,7 @@ import {
   BondMsgValue,
   BondProps,
   ClaimRewardsMsgValue,
+  UnbondMsgValue,
   WithdrawProps,
 } from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
@@ -84,8 +85,12 @@ export const createUnbondTxAtom = atomWithMutation((get) => {
   return {
     mutationKey: ["create-unbonding-tx"],
     enabled: chain.isSuccess,
-    mutationFn: async ({ changes, gasConfig, account }: ChangeInStakingProps) =>
-      createUnbondTx(chain.data!, account, changes, gasConfig),
+    mutationFn: async ({
+      params,
+      gasConfig,
+      account,
+    }: BuildTxAtomParams<UnbondMsgValue>) =>
+      createUnbondTx(chain.data!, account, params, gasConfig),
   };
 });
 

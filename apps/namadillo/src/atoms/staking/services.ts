@@ -51,15 +51,10 @@ export const createBondTx = async (
 export const createUnbondTx = async (
   chain: ChainSettings,
   account: Account,
-  changes: ChangeInStakingPosition[],
+  unbondProps: UnbondMsgValue[],
   gasConfig: GasConfig
 ): Promise<TransactionPair<UnbondMsgValue>> => {
   const { tx } = await getSdkInstance();
-  const unbondProps = getStakingChangesParams(
-    account,
-    chain.nativeTokenAddress,
-    changes
-  );
   const transactionPairs = await buildTxPair(
     account,
     gasConfig,
