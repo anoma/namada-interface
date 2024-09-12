@@ -39,7 +39,7 @@ export class ApprovalsService {
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
     browser.tabs.onRemoved.addListener((tabId) => {
-      delete this.resolverMap[tabId];
+      this.removeResolver(tabId);
     });
   }
 
@@ -331,11 +331,11 @@ export class ApprovalsService {
     return new Promise<T>((resolve, reject) => {
       this.resolverMap[popupTabId] = {
         resolve: (args: T) => {
-          delete this.resolverMap[popupTabId];
+          this.removeResolver(popupTabId);
           return resolve(args);
         },
         reject: (args: unknown) => {
-          delete this.resolverMap[popupTabId];
+          this.removeResolver(popupTabId);
           return reject(args);
         },
       };
@@ -348,5 +348,9 @@ export class ApprovalsService {
       throw new Error(`no resolvers found for tab ID ${popupTabId}`);
     }
     return resolvers;
+  };
+
+  private removeResolver = (popupTabId: number): void => {
+    delete this.resolverMap[popupTabId];
   };
 }

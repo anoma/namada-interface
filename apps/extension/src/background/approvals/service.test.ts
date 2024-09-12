@@ -449,7 +449,7 @@ describe("approvals service", () => {
       const window = { tabs: [{ id: 1 }] };
       (webextensionPolyfill.windows.create as any).mockResolvedValue(window);
 
-      await expect((service as any).createPopup(url)).resolves.toBe(window);
+      await expect(service["createPopup"](url)).resolves.toBe(window);
       expect(webextensionPolyfill.windows.create).toHaveBeenCalledWith(
         expect.objectContaining({ url })
       );
@@ -458,25 +458,23 @@ describe("approvals service", () => {
 
   describe("getPopupTabId", () => {
     it("should return tab id", async () => {
-      const window = { tabs: [{ id: 1 }] };
-
-      expect((service as any).getPopupTabId(window)).toBe(1);
+      const window = { tabs: [{ id: 1 }] } as any;
+      expect(service["getPopupTabId"](window)).toBe(1);
     });
 
     it("should throw an error if tabs are undefined", async () => {
-      const window = { tabs: undefined };
-      expect(() => (service as any).getPopupTabId(window)).toThrow();
+      const window = { tabs: undefined } as any;
+      expect(() => service["getPopupTabId"](window)).toThrow();
     });
 
     it("should throw an error if tabs are empty", async () => {
-      const window = { tabs: [] };
-
-      expect(() => (service as any).getPopupTabId(window)).toThrow();
+      const window = { tabs: [] } as any;
+      expect(() => service["getPopupTabId"](window)).toThrow();
     });
 
     it("should throw an error if the tab already exists on the resolverMap", async () => {
       const popupTabId = 1;
-      const window = { tabs: [{ id: popupTabId }] };
+      const window = { tabs: [{ id: popupTabId }] } as any;
       service["resolverMap"] = {
         [popupTabId]: {
           resolve: jest.fn(),
@@ -484,7 +482,7 @@ describe("approvals service", () => {
         },
       };
 
-      expect(() => (service as any).getPopupTabId(window)).toThrow();
+      expect(() => service["getPopupTabId"](window)).toThrow();
     });
   });
 
@@ -499,34 +497,46 @@ describe("approvals service", () => {
         .spyOn<any, any>(service, "createPopup")
         .mockImplementationOnce(() => window);
 
-      (service as any).launchApprovalPopup(route, params);
+      void service["launchApprovalPopup"](route, params);
 
-      expect(await (service as any).createPopup).toHaveBeenCalledWith(
+      expect(service["createPopup"]).toHaveBeenCalledWith(
         `url#${route}?foo=bar`
       );
-      expect((service as any).resolverMap[popupTabId]).toBeDefined();
+      await new Promise<void>((r) => r());
+      expect(service["resolverMap"][popupTabId]).toBeDefined();
     });
   });
 
   describe("getResolver", () => {
     it("should get the related tab id resolver from resolverMap", async () => {
       const popupTabId = 1;
-      const resolver = new Promise(() => {});
-      (service as any).resolverMap = {
+      const resolver = { resolve: () => {}, reject: () => {} };
+      service["resolverMap"] = {
         [popupTabId]: resolver,
       };
 
-      expect((service as any).getResolver(popupTabId)).toBe(resolver);
+      expect(service["getResolver"](popupTabId)).toBe(resolver);
     });
 
     it("should throw an error if there is no resolver for the tab id", async () => {
-      const myPopupTabId = 1;
-      const myResolver = new Promise(() => {});
-      (service as any).resolverMap = {
-        [myPopupTabId]: myResolver,
+      const popupTabId = 1;
+      service["resolverMap"] = {
+        [popupTabId]: { resolve: () => {}, reject: () => {} },
       };
 
-      expect(() => (service as any).getResolver("999")).toThrow();
+      expect(() => service["getResolver"](999)).toThrow();
+    });
+  });
+
+  describe("removeResolver", () => {
+    it("should remove related tab id resolver from resolverMap", async () => {
+      const popupTabId = 1;
+      service["resolverMap"] = {
+        [popupTabId]: { resolve: () => {}, reject: () => {} },
+      };
+      service["removeResolver"](popupTabId);
+
+      expect(service["resolverMap"][popupTabId]).toBeUndefined();
     });
   });
 
