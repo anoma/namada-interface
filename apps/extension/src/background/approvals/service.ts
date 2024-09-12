@@ -37,7 +37,11 @@ export class ApprovalsService {
     protected readonly vaultService: VaultService,
     protected readonly chainService: ChainsService,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) {}
+  ) {
+    browser.tabs.onRemoved.addListener((tabId) => {
+      delete this.resolverMap[tabId];
+    });
+  }
 
   async approveSignTx(
     signer: string,
@@ -63,7 +67,7 @@ export class ApprovalsService {
       "approvals.html"
     )}#/approve-sign-tx/${msgId}/${details.type}/${signer}`;
 
-    return this.openPopup(url);
+    return this.launchApprovalWindow(url);
   }
 
   async approveSignArbitrary(
@@ -80,7 +84,7 @@ export class ApprovalsService {
     const url = paramsToUrl(baseUrl, {
       msgId,
     });
-    return this.openPopup(url);
+    return this.launchApprovalWindow(url);
   }
 
   async submitSignTx(
@@ -195,7 +199,7 @@ export class ApprovalsService {
     const alreadyApproved = await this.isConnectionApproved(interfaceOrigin);
 
     if (!alreadyApproved) {
-      return this.openPopup(url);
+      return this.launchApprovalWindow(url);
     }
 
     // A resolved promise is implicitly returned here if the origin had
@@ -233,7 +237,7 @@ export class ApprovalsService {
     const isConnected = await this.isConnectionApproved(interfaceOrigin);
 
     if (isConnected) {
-      return this.openPopup(url);
+      return this.launchApprovalWindow(url);
     }
 
     // A resolved promise is implicitly returned here if the origin had
@@ -307,7 +311,7 @@ export class ApprovalsService {
     return await this.dataStore.set(msgId, null);
   }
 
-  private _launchApprovalWindow = (url: string): Promise<Windows.Window> => {
+  private openPopup = (url: string): Promise<Windows.Window> => {
     return browser.windows.create({
       url,
       width: 396,
@@ -316,8 +320,7 @@ export class ApprovalsService {
     });
   };
 
-  private openPopup = async <T>(url: string): Promise<T> => {
-    const window = await this._launchApprovalWindow(url);
+  private getPopupTabId = (window: browser.Windows.Window): number => {
     const firstTab = window.tabs?.[0];
     const popupTabId = firstTab?.id;
 
@@ -328,6 +331,13 @@ export class ApprovalsService {
     if (popupTabId in this.resolverMap) {
       throw new Error(`tab ID ${popupTabId} already exists in promise map`);
     }
+
+    return popupTabId;
+  };
+
+  private launchApprovalWindow = async <T>(url: string): Promise<T> => {
+    const window = await this.openPopup(url);
+    const popupTabId = this.getPopupTabId(window);
 
     return await new Promise<T>((resolve, reject) => {
       this.resolverMap[popupTabId] = {
