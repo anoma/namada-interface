@@ -3,6 +3,7 @@ use std::{path::PathBuf, str::FromStr};
 use namada_sdk::borsh::{BorshDeserialize, BorshSerialize};
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::ibc::IbcShieldingData;
+use namada_sdk::masp::{ExtendedSpendingKey, PaymentAddress};
 use namada_sdk::tendermint_rpc;
 use namada_sdk::tx::data::GasLimit;
 use namada_sdk::{
@@ -401,14 +402,14 @@ impl TransferDataMsg {
 pub struct TransferMsg {
     sources: Vec<TransferDataMsg>,
     targets: Vec<TransferDataMsg>,
-    shielded_section_hash: Option<String>,
+    shielded_section_hash: Option<Vec<u8>>,
 }
 
 impl TransferMsg {
     pub fn new(
         sources: Vec<TransferDataMsg>,
         targets: Vec<TransferDataMsg>,
-        shielded_section_hash: Option<String>,
+        shielded_section_hash: Option<Vec<u8>>,
     ) -> TransferMsg {
         TransferMsg {
             sources,
@@ -437,7 +438,7 @@ pub struct TransparentTransferMsg {
 ///
 /// # Arguments
 ///
-/// * `transfer_msg` - Borsh serialized transfer_msg.
+/// * `transfer_msg` - Borsh serialized TransparentTransferMsg.
 /// * `tx_msg` - Borsh serialized tx_msg.
 ///
 /// # Errors
@@ -474,6 +475,216 @@ pub fn transparent_transfer_tx_args(
     let args = args::TxTransparentTransfer {
         tx,
         data: transfer_data,
+        tx_code_path: PathBuf::from("tx_transfer.wasm"),
+    };
+
+    Ok(args)
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct ShieldedTransferDataMsg {
+    source: String,
+    target: String,
+    token: String,
+    amount: String,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct ShieldedTransferMsg {
+    data: Vec<ShieldedTransferDataMsg>,
+    gas_spending_keys: Vec<String>,
+}
+
+/// Maps serialized tx_msg into TxShieldedTransfer args.
+///
+/// # Arguments
+///
+/// * `shielding_transfer_msg` - Borsh serialized ShieldingTransferMsg.
+/// * `tx_msg` - Borsh serialized tx_msg.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
+pub fn shielded_transfer_tx_args(
+    shielded_transfer_msg: &[u8],
+    tx_msg: &[u8],
+) -> Result<args::TxShieldedTransfer, JsError> {
+    let shielded_transfer_msg = ShieldedTransferMsg::try_from_slice(shielded_transfer_msg)?;
+    let ShieldedTransferMsg {
+        data,
+        gas_spending_keys,
+    } = shielded_transfer_msg;
+
+    let mut shielded_transfer_data: Vec<args::TxShieldedTransferData> = vec![];
+
+    for shielded_transfer in data {
+        let source = ExtendedSpendingKey::from_str(&shielded_transfer.source)?;
+        let target = PaymentAddress::from_str(&shielded_transfer.target)?;
+        let token = Address::from_str(&shielded_transfer.token)?;
+        let denom_amount =
+            DenominatedAmount::from_str(&shielded_transfer.amount).expect("Amount to be valid.");
+        let amount = InputAmount::Unvalidated(denom_amount);
+
+        shielded_transfer_data.push(args::TxShieldedTransferData {
+            source,
+            target,
+            token,
+            amount,
+        });
+    }
+
+    let tx = tx_msg_into_args(tx_msg)?;
+    let mut gsk: Vec<ExtendedSpendingKey> = vec![];
+
+    for sk in gas_spending_keys {
+        let gas_spending_key = ExtendedSpendingKey::from_str(&sk)?;
+        gsk.push(gas_spending_key);
+    }
+
+    let args = args::TxShieldedTransfer {
+        data: shielded_transfer_data,
+        tx,
+        tx_code_path: PathBuf::from("tx_transfer.wasm"),
+        gas_spending_keys: gsk,
+    };
+
+    Ok(args)
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct ShieldingTransferDataMsg {
+    source: String,
+    token: String,
+    amount: String,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct ShieldingTransferMsg {
+    target: String,
+    data: Vec<ShieldingTransferDataMsg>,
+}
+
+/// Maps serialized tx_msg into TxShieldingTransfer args.
+///
+/// # Arguments
+///
+/// * `shielding_transfer_msg` - Borsh serialized ShieldingTransferMsg.
+/// * `tx_msg` - Borsh serialized tx_msg.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
+pub fn shielding_transfer_tx_args(
+    shielding_transfer_msg: &[u8],
+    tx_msg: &[u8],
+) -> Result<args::TxShieldingTransfer, JsError> {
+    let shielding_transfer_msg = ShieldingTransferMsg::try_from_slice(shielding_transfer_msg)?;
+    let ShieldingTransferMsg { target, data } = shielding_transfer_msg;
+    let target = PaymentAddress::from_str(&target)?;
+
+    let mut shielding_transfer_data: Vec<args::TxShieldingTransferData> = vec![];
+
+    for shielding_transfer in data {
+        let source = Address::from_str(&shielding_transfer.source)?;
+        let token = Address::from_str(&shielding_transfer.token)?;
+        let denom_amount =
+            DenominatedAmount::from_str(&shielding_transfer.amount).expect("Amount to be valid.");
+        let amount = InputAmount::Unvalidated(denom_amount);
+
+        shielding_transfer_data.push(args::TxShieldingTransferData {
+            source,
+            token,
+            amount,
+        });
+    }
+
+    let tx = tx_msg_into_args(tx_msg)?;
+
+    let args = args::TxShieldingTransfer {
+        data: shielding_transfer_data,
+        target,
+        tx,
+        tx_code_path: PathBuf::from("tx_transfer.wasm"),
+    };
+
+    Ok(args)
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct UnshieldingTransferDataMsg {
+    target: String,
+    token: String,
+    amount: String,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct UnshieldingTransferMsg {
+    source: String,
+    data: Vec<UnshieldingTransferDataMsg>,
+    gas_spending_keys: Vec<String>,
+}
+
+/// Maps serialized tx_msg into TxUnshieldingTransfer args.
+///
+/// # Arguments
+///
+/// * `shielding_transfer_msg` - Borsh serialized UnshieldingTransferMsg.
+/// * `tx_msg` - Borsh serialized tx_msg.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
+pub fn unshielding_transfer_tx_args(
+    unshielding_transfer_msg: &[u8],
+    tx_msg: &[u8],
+) -> Result<args::TxUnshieldingTransfer, JsError> {
+    let unshielding_transfer_msg =
+        UnshieldingTransferMsg::try_from_slice(unshielding_transfer_msg)?;
+    let UnshieldingTransferMsg {
+        source,
+        data,
+        gas_spending_keys,
+    } = unshielding_transfer_msg;
+    let source = ExtendedSpendingKey::from_str(&source)?;
+
+    let mut unshielding_transfer_data: Vec<args::TxUnshieldingTransferData> = vec![];
+
+    for unshielding_transfer in data {
+        let target = Address::from_str(&unshielding_transfer.target)?;
+        let token = Address::from_str(&unshielding_transfer.token)?;
+        let denom_amount =
+            DenominatedAmount::from_str(&unshielding_transfer.amount).expect("Amount to be valid.");
+        let amount = InputAmount::Unvalidated(denom_amount);
+
+        unshielding_transfer_data.push(args::TxUnshieldingTransferData {
+            target,
+            token,
+            amount,
+        });
+    }
+
+    let mut gsk: Vec<ExtendedSpendingKey> = vec![];
+    for sk in gas_spending_keys {
+        let gas_spending_key = ExtendedSpendingKey::from_str(&sk)?;
+        gsk.push(gas_spending_key);
+    }
+
+    let tx = tx_msg_into_args(tx_msg)?;
+
+    let args = args::TxUnshieldingTransfer {
+        data: unshielding_transfer_data,
+        source,
+        tx,
+        gas_spending_keys: gsk,
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
     };
 

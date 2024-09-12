@@ -25,10 +25,16 @@ import { RedelegateMsgValue } from "./redelegate";
 import { RevealPkMsgValue } from "./revealPk";
 import { SignatureMsgValue } from "./signature";
 import {
+  ShieldedTransferDataMsgValue,
+  ShieldedTransferMsgValue,
+  ShieldingTransferDataMsgValue,
+  ShieldingTransferMsgValue,
   TransferDataMsgValue,
   TransferMsgValue,
   TransparentTransferDataMsgValue,
   TransparentTransferMsgValue,
+  UnshieldingTransferDataMsgValue,
+  UnshieldingTransferMsgValue,
 } from "./transfer";
 import { SigningDataMsgValue, TxMsgValue } from "./tx";
 import { CommitmentMsgValue, TxDetailsMsgValue } from "./txDetails";
@@ -48,6 +54,10 @@ export type Schema =
   | VoteProposalMsgValue
   | ClaimRewardsMsgValue
   | WithdrawMsgValue
+  | ShieldedTransferMsgValue
+  | ShieldedTransferDataMsgValue
+  | ShieldingTransferMsgValue
+  | ShieldingTransferDataMsgValue
   | SigningDataMsgValue
   | TransferMsgValue
   | TransferDataMsgValue
@@ -55,6 +65,8 @@ export type Schema =
   | TransparentTransferDataMsgValue
   | TxMsgValue
   | TxResponseMsgValue
+  | UnshieldingTransferDataMsgValue
+  | UnshieldingTransferMsgValue
   | WrapperTxMsgValue
   | RedelegateMsgValue
   | CommitmentMsgValue
