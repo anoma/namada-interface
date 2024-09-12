@@ -61,19 +61,7 @@ export class ApprovalsService {
       "approvals.html"
     )}#/approve-sign-tx/${msgId}/${details.type}/${signer}`;
 
-    const popupTabId = await this.getPopupTabId(url);
-
-    if (!popupTabId) {
-      throw new Error("no popup tab ID");
-    }
-
-    if (popupTabId in this.resolverMap) {
-      throw new Error(`tab ID ${popupTabId} already exists in promise map`);
-    }
-
-    return await new Promise((resolve, reject) => {
-      this.resolverMap[popupTabId] = { resolve, reject };
-    });
+    return this.openPopup(url);
   }
 
   async approveSignArbitrary(
@@ -90,19 +78,7 @@ export class ApprovalsService {
     const url = paramsToUrl(baseUrl, {
       msgId,
     });
-    const popupTabId = await this.getPopupTabId(url);
-
-    if (!popupTabId) {
-      throw new Error("no popup tab ID");
-    }
-
-    if (popupTabId in this.resolverMap) {
-      throw new Error(`tab ID ${popupTabId} already exists in promise map`);
-    }
-
-    return await new Promise((resolve, reject) => {
-      this.resolverMap[popupTabId] = { resolve, reject };
-    });
+    return this.openPopup(url);
   }
 
   async submitSignTx(
@@ -240,19 +216,7 @@ export class ApprovalsService {
     const alreadyApproved = await this.isConnectionApproved(interfaceOrigin);
 
     if (!alreadyApproved) {
-      const popupTabId = await this.getPopupTabId(url);
-
-      if (!popupTabId) {
-        throw new Error("no popup tab ID");
-      }
-
-      if (popupTabId in this.resolverMap) {
-        throw new Error(`tab ID ${popupTabId} already exists in promise map`);
-      }
-
-      return new Promise((resolve, reject) => {
-        this.resolverMap[popupTabId] = { resolve, reject };
-      });
+      return this.openPopup(url);
     }
 
     // A resolved promise is implicitly returned here if the origin had
@@ -298,19 +262,7 @@ export class ApprovalsService {
     const isConnected = await this.isConnectionApproved(interfaceOrigin);
 
     if (isConnected) {
-      const popupTabId = await this.getPopupTabId(url);
-
-      if (!popupTabId) {
-        throw new Error("no popup tab ID");
-      }
-
-      if (popupTabId in this.resolverMap) {
-        throw new Error(`tab ID ${popupTabId} already exists in promise map`);
-      }
-
-      return new Promise((resolve, reject) => {
-        this.resolverMap[popupTabId] = { resolve, reject };
-      });
+      return this.openPopup(url);
     }
 
     // A resolved promise is implicitly returned here if the origin had
@@ -397,11 +349,30 @@ export class ApprovalsService {
     });
   };
 
-  private getPopupTabId = async (url: string): Promise<number | undefined> => {
+  private openPopup = async <T>(url: string): Promise<T> => {
     const window = await this._launchApprovalWindow(url);
     const firstTab = window.tabs?.[0];
     const popupTabId = firstTab?.id;
 
-    return popupTabId;
+    if (!popupTabId) {
+      throw new Error("no popup tab ID");
+    }
+
+    if (popupTabId in this.resolverMap) {
+      throw new Error(`tab ID ${popupTabId} already exists in promise map`);
+    }
+
+    return await new Promise<T>((resolve, reject) => {
+      this.resolverMap[popupTabId] = {
+        resolve: (args: T) => {
+          delete this.resolverMap[popupTabId];
+          return resolve(args);
+        },
+        reject: (args: unknown) => {
+          delete this.resolverMap[popupTabId];
+          return reject(args);
+        },
+      };
+    });
   };
 }
