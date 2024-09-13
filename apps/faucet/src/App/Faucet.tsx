@@ -265,18 +265,14 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
   return (
     <FaucetFormContainer>
       <InputContainer>
-        {account && accounts.length > 0 ?
+        {account && accounts.length && (
           <Select
             data={accountsSelectData}
             value={account.address}
             label="Target"
             onChange={(e) => setAccount(accountLookup[e.target.value])}
           />
-        : <div>
-            You have no signing accounts! Import or create an account in the
-            extension, then reload this page.
-          </div>
-        }
+        )}
       </InputContainer>
 
       <InputContainer>
