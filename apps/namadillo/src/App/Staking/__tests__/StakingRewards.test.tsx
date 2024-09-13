@@ -5,6 +5,7 @@ mockJotai();
 import { fireEvent, render, screen } from "@testing-library/react";
 import { StakingRewards } from "App/Staking/StakingRewards";
 import { defaultAccountAtom } from "atoms/accounts";
+import { applicationFeaturesAtom } from "atoms/settings";
 import { claimableRewardsAtom } from "atoms/staking";
 import { useTransaction } from "hooks/useTransaction";
 import { useAtomValue } from "jotai";
@@ -27,7 +28,8 @@ jest.mock("atoms/staking", () => ({
 const mockAtomValue = (
   data: AddressBalance = {},
   isLoading: boolean = true,
-  isSuccess: boolean = false
+  isSuccess: boolean = false,
+  rewardsEnabled: boolean = true
 ): void => {
   (useAtomValue as jest.Mock).mockImplementation((atom) => {
     if (atom === defaultAccountAtom) {
@@ -36,6 +38,10 @@ const mockAtomValue = (
 
     if (atom === claimableRewardsAtom) {
       return { data, isLoading, isSuccess };
+    }
+
+    if (atom === applicationFeaturesAtom) {
+      return { claimRewardsEnabled: rewardsEnabled };
     }
 
     return null;
@@ -131,7 +137,8 @@ describe("Component: StakingRewards", () => {
         validator1: new BigNumber(100),
       },
       false,
-      true
+      true,
+      false
     );
     mockTransaction(jest.fn(), false, false);
     render(<StakingRewards />);

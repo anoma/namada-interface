@@ -6,23 +6,19 @@ import { claimableRewardsAtom } from "atoms/staking";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { useMemo } from "react";
 import { GoStack } from "react-icons/go";
 import { useLocation, useNavigate } from "react-router-dom";
+import { sumBigNumberArray } from "utils";
 
 export const StakingRewardsPanel = (): JSX.Element => {
   const { claimRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
   const { data: rewards } = useAtomValue(claimableRewardsAtom);
   const location = useLocation();
   const navigate = useNavigate();
-
-  const availableRewards = useMemo(() => {
-    if (!claimRewardsEnabled || !rewards || Object.keys(rewards).length === 0) {
-      return new BigNumber(0);
-    }
-    return BigNumber.sum(...Object.values(rewards));
-  }, [rewards]);
-
+  const availableRewards =
+    claimRewardsEnabled ?
+      sumBigNumberArray(Object.values(rewards || {}))
+    : new BigNumber(0);
   const title =
     claimRewardsEnabled ?
       "Unclaimed Staking Rewards"

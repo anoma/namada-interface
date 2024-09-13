@@ -38,28 +38,6 @@ export const getStakingTotalAtom = atomWithQuery<StakingTotals>((get) => {
   };
 });
 
-export const claimableRewardsAtom = atomWithQuery<AddressBalance>((get) => {
-  const account = get(defaultAccountAtom);
-  const chainParameters = get(chainParametersAtom);
-  const api = get(indexerApiAtom);
-  return {
-    queryKey: ["claim-rewards", account.data?.address],
-    ...queryDependentFn(async () => {
-      const rewards = await fetchClaimableRewards(api, account.data!.address);
-      return rewards.reduce(
-        (prev: AddressBalance, current: Reward): AddressBalance => {
-          if (!current.validator) return prev;
-          return {
-            ...prev,
-            [current.validator?.address]: new BigNumber(current.amount || 0),
-          };
-        },
-        {}
-      );
-    }, [account, chainParameters]),
-  };
-});
-
 export const createBondTxAtom = atomWithMutation((get) => {
   const chain = get(chainAtom);
   return {
@@ -118,15 +96,6 @@ export const createWithdrawTxAtomFamily = atomFamily((id: string) => {
   });
 });
 
-export const claimRewardsAndStakeAtom = atomWithMutation((get) => {
-  const chain = get(chainAtom);
-  return {
-    mutationKey: ["claim-stake-atom"],
-    enabled: chain.isSuccess,
-    mutationFn: async ({}) => {},
-  };
-});
-
 export const claimRewardsAtom = atomWithMutation((get) => {
   const chain = get(chainAtom);
   return {
@@ -139,6 +108,29 @@ export const claimRewardsAtom = atomWithMutation((get) => {
     }: BuildTxAtomParams<ClaimRewardsMsgValue>) => {
       return createClaimTx(chain.data!, account, params, gasConfig);
     },
+  };
+});
+
+export const claimableRewardsAtom = atomWithQuery<AddressBalance>((get) => {
+  const account = get(defaultAccountAtom);
+  const chainParameters = get(chainParametersAtom);
+  const api = get(indexerApiAtom);
+  return {
+    queryKey: ["claim-rewards", account.data?.address],
+    refetchInterval: 60 * 1000,
+    ...queryDependentFn(async () => {
+      const rewards = await fetchClaimableRewards(api, account.data!.address);
+      return rewards.reduce(
+        (prev: AddressBalance, current: Reward): AddressBalance => {
+          if (!current.validator) return prev;
+          return {
+            ...prev,
+            [current.validator?.address]: new BigNumber(current.amount || 0),
+          };
+        },
+        {}
+      );
+    }, [account, chainParameters]),
   };
 });
 

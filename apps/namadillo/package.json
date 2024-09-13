@@ -57,7 +57,7 @@
     "test:watch": "yarn wasm:build:test && yarn jest --watchAll=true",
     "test:coverage": "yarn wasm:build:test && yarn test --coverage",
     "test:ci": "jest",
-    "test:watch:only": "yarn test --watchAll=true",
+    "test:watch-only": "yarn jest --watchAll=true",
     "e2e-test": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test",
     "e2e-test:headed": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test --project=chromium --headed",
     "wasm:build": "node ./scripts/build.js --release",

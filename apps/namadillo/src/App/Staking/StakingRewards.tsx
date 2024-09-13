@@ -8,6 +8,7 @@ import { ClaimRewardsMsgValue } from "@namada/types";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { defaultAccountAtom } from "atoms/accounts";
+import { applicationFeaturesAtom } from "atoms/settings";
 import {
   claimableRewardsAtom,
   claimAndStakeRewardsAtom,
@@ -17,11 +18,12 @@ import BigNumber from "bignumber.js";
 import { useModalCloseEvent } from "hooks/useModalCloseEvent";
 import { useTransaction } from "hooks/useTransaction";
 import { useAtomValue } from "jotai";
-import { useMemo } from "react";
+import { sumBigNumberArray } from "utils";
 import claimRewardsSvg from "./assets/claim-rewards.svg";
 
 export const StakingRewards = (): JSX.Element => {
   const { data: account } = useAtomValue(defaultAccountAtom);
+  const { claimRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
   const {
     isLoading: isLoadingRewards,
     isSuccess,
@@ -42,7 +44,7 @@ export const StakingRewards = (): JSX.Element => {
 
   const {
     execute: claimRewards,
-    isEnabled: claimRewardsEnabled,
+    isEnabled: claimRewardsTxEnabled,
     isPending: claimRewardsPending,
   } = useTransaction({
     params: parseStakingRewardsParams(),
@@ -59,7 +61,7 @@ export const StakingRewards = (): JSX.Element => {
 
   const {
     execute: claimRewardsAndStake,
-    isEnabled: claimAndStakeEnabled,
+    isEnabled: claimAndStakeTxEnabled,
     isPending: claimAndStakePending,
   } = useTransaction({
     params: parseStakingRewardsParams(),
@@ -79,19 +81,18 @@ export const StakingRewards = (): JSX.Element => {
     },
   });
 
-  const availableRewards = useMemo(() => {
-    if (!rewards || Object.keys(rewards).length === 0) return BigNumber(0);
-    return BigNumber.sum(...Object.values(rewards || []));
-  }, [rewards]);
-
   const isLoading = claimRewardsPending || claimAndStakePending;
+  const availableRewards =
+    claimRewardsEnabled ?
+      sumBigNumberArray(Object.values(rewards || {}))
+    : new BigNumber(0);
 
   return (
     <Modal onClose={onCloseModal}>
       <ModalContainer
         header="Claimable Staking Rewards"
         onClose={onCloseModal}
-        containerProps={{ className: "lg:w-[540px] lg:h-[auto]" }}
+        containerProps={{ className: "md:!w-[540px] md:!h-[auto]" }}
         contentProps={{ className: "flex" }}
       >
         <Stack gap={8} className="bg-rblack py-7 px-8 rounded-md flex-1">
@@ -111,7 +112,7 @@ export const StakingRewards = (): JSX.Element => {
               backgroundColor="cyan"
               onClick={() => claimRewardsAndStake()}
               disabled={
-                availableRewards.eq(0) || !claimAndStakeEnabled || isLoading
+                availableRewards.eq(0) || !claimAndStakeTxEnabled || isLoading
               }
             >
               {claimAndStakePending ? "Loading..." : "Claim & Stake"}
@@ -120,7 +121,7 @@ export const StakingRewards = (): JSX.Element => {
               backgroundColor="white"
               onClick={() => claimRewards()}
               disabled={
-                availableRewards.eq(0) || !claimRewardsEnabled || isLoading
+                availableRewards.eq(0) || !claimRewardsTxEnabled || isLoading
               }
               type="button"
             >

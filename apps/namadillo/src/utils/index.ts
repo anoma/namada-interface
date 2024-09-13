@@ -1,4 +1,5 @@
 import { ProposalStatus, ProposalTypeString } from "@namada/types";
+import BigNumber from "bignumber.js";
 import * as fns from "date-fns";
 import { DateTime } from "luxon";
 import { useEffect } from "react";
@@ -56,6 +57,11 @@ export const secondsToDateString = (seconds: bigint): string =>
 
 export const secondsToDateTimeString = (seconds: bigint): string =>
   `${secondsToDateString(seconds)}, ${secondsToTimeString(seconds)}`;
+
+export const sumBigNumberArray = (numbers: BigNumber[]): BigNumber => {
+  if (numbers.length === 0) return new BigNumber(0);
+  return BigNumber.sum(...numbers);
+};
 
 export const secondsToTimeRemainingString = (
   startTimeInSeconds: bigint,
