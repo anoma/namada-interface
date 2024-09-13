@@ -21,4 +21,3 @@ RUN yarn build
 FROM nginx:alpine
 
 COPY --from=builder /app/apps/faucet/build /usr/share/nginx/html
-COPY ./docker/faucet/nginx.conf /etc/nginx/conf.d/default.conf
