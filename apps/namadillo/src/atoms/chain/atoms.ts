@@ -7,7 +7,10 @@ import {
 } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
+import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
+import { atomFamily } from "jotai/utils";
+import { ChainConfig, chainConfigByName } from "registry";
 import { ChainParameters, ChainSettings } from "types";
 import { calculateUnbondingPeriod } from "./functions";
 import { fetchChainParameters, fetchRpcUrlFromIndexer } from "./services";
@@ -81,3 +84,7 @@ export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
     },
   };
 });
+
+export const chainConfigAtom = atomFamily((chainName: string) =>
+  atom<ChainConfig>(() => chainConfigByName(chainName))
+);

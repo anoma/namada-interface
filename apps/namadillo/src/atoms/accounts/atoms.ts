@@ -1,7 +1,7 @@
 import { getIntegration } from "@namada/integrations";
 import { Account } from "@namada/types";
 import { indexerApiAtom } from "atoms/api";
-import { nativeTokenAddressAtom } from "atoms/chain";
+import { chainConfigAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
 import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
@@ -50,6 +50,7 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
   const tokenAddress = get(nativeTokenAddressAtom);
   const enablePolling = get(shouldUpdateBalanceAtom);
   const api = get(indexerApiAtom);
+  const chainConfig = get(chainConfigAtom("namada"));
 
   return {
     // TODO: subscribe to indexer events when it's done
@@ -59,7 +60,10 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
       return await fetchAccountBalance(
         api,
         defaultAccount.data,
-        tokenAddress.data!
+        tokenAddress.data!,
+        // As this is a nam balance specific atom, we can safely assume that the
+        // first currency is the native token
+        chainConfig.currencies[0].coinDecimals
       );
     }, [tokenAddress, defaultAccount]),
   };
