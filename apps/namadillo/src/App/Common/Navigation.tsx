@@ -6,46 +6,57 @@ import { BsDiscord, BsTwitterX } from "react-icons/bs";
 import { FaVoteYea } from "react-icons/fa";
 import { GoStack } from "react-icons/go";
 import { IoSwapHorizontal } from "react-icons/io5";
+import { TbVectorTriangle } from "react-icons/tb";
 import { DISCORD_URL, TWITTER_URL } from "urls";
 
 import StakingRoutes from "App/Staking/routes";
 
 export const Navigation = (): JSX.Element => {
+  const menuItems: { label: string; icon: React.ReactNode; url?: string }[] = [
+    {
+      label: "Overview",
+      icon: <AiFillHome />,
+      url: "/",
+    },
+    {
+      label: "Staking",
+      icon: <GoStack />,
+      url: StakingRoutes.index(),
+    },
+    {
+      label: "Governance",
+      icon: <FaVoteYea />,
+      url: GovernanceRoutes.index(),
+    },
+    {
+      label: "MASP",
+      icon: (
+        <i className="w-4">
+          <MASPIcon />
+        </i>
+      ),
+    },
+    {
+      label: "IBC Transfer",
+      icon: <TbVectorTriangle />,
+    },
+    {
+      label: "Transfer",
+      icon: <IoSwapHorizontal />,
+    },
+  ];
+
   return (
     <div className="h-full flex flex-col justify-between flex-1 pt-6 pb-8 px-6">
       <ul className="flex flex-col gap-4">
-        <li>
-          <SidebarMenuItem url={"/"}>
-            <AiFillHome />
-            Overview
-          </SidebarMenuItem>
-        </li>
-        <li>
-          <SidebarMenuItem url={StakingRoutes.index()}>
-            <GoStack />
-            Staking
-          </SidebarMenuItem>
-        </li>
-        <li>
-          <SidebarMenuItem url={GovernanceRoutes.index()}>
-            <FaVoteYea />
-            Governance
-          </SidebarMenuItem>
-        </li>
-        <li>
-          <SidebarMenuItem>
-            <IoSwapHorizontal />
-            IBC Transfer
-          </SidebarMenuItem>
-        </li>
-        <li>
-          <SidebarMenuItem>
-            <i className="w-4">
-              <MASPIcon />
-            </i>
-            MASP
-          </SidebarMenuItem>
-        </li>
+        {menuItems.map((item) => (
+          <li key={item.label}>
+            <SidebarMenuItem url={item.url}>
+              {item.icon}
+              {item.label}
+            </SidebarMenuItem>
+          </li>
+        ))}
       </ul>
       <footer className="flex flex-col gap-10">
         <ul className="flex flex-col gap-1 text-neutral-300 text-sm">
