@@ -12,6 +12,7 @@ export enum MessageType {
   SubmitApprovedSignLedgerTx = "submit-approved-sign-ledger-tx",
   RejectSignArbitrary = "reject-sign-arbitrary",
   ConnectInterfaceResponse = "connect-interface-response",
+  DisconnectInterfaceResponse = "disconnect-interface-response",
   RevokeConnection = "revoke-connection",
   QueryTxDetails = "query-tx-details",
   QuerySignArbitraryData = "query-sign-arbitrary-data",
@@ -144,7 +145,6 @@ export class ConnectInterfaceResponseMsg extends Message<void> {
   }
 
   constructor(
-    public readonly interfaceTabId: number,
     public readonly interfaceOrigin: string,
     public readonly allowConnection: boolean
   ) {
@@ -152,11 +152,7 @@ export class ConnectInterfaceResponseMsg extends Message<void> {
   }
 
   validate(): void {
-    validateProps(this, [
-      "interfaceTabId",
-      "interfaceOrigin",
-      "allowConnection",
-    ]);
+    validateProps(this, ["interfaceOrigin", "allowConnection"]);
   }
 
   route(): string {
@@ -165,6 +161,31 @@ export class ConnectInterfaceResponseMsg extends Message<void> {
 
   type(): string {
     return ConnectInterfaceResponseMsg.type();
+  }
+}
+
+export class DisconnectInterfaceResponseMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.DisconnectInterfaceResponse;
+  }
+
+  constructor(
+    public readonly interfaceOrigin: string,
+    public readonly revokeConnection: boolean
+  ) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["interfaceOrigin", "revokeConnection"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return DisconnectInterfaceResponseMsg.type();
   }
 }
 

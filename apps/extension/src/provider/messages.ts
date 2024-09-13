@@ -20,6 +20,7 @@ enum MessageType {
   ApproveSignArbitrary = "approve-sign-arbitrary",
   IsConnectionApproved = "is-connection-approved",
   ApproveConnectInterface = "approve-connect-interface",
+  ApproveDisconnectInterface = "approve-disconnect-interface",
   QueryAccounts = "query-accounts",
   QueryDefaultAccount = "query-default-account",
   UpdateDefaultAccount = "update-default-account",
@@ -131,6 +132,28 @@ export class ApproveConnectInterfaceMsg extends Message<void> {
 
   type(): string {
     return ApproveConnectInterfaceMsg.type();
+  }
+}
+
+export class ApproveDisconnectInterfaceMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.ApproveDisconnectInterface;
+  }
+
+  constructor(public readonly originToRevoke: string) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["originToRevoke"]);
+  }
+
+  route(): string {
+    return Route.Approvals;
+  }
+
+  type(): string {
+    return ApproveDisconnectInterfaceMsg.type();
   }
 }
 

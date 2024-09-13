@@ -11,14 +11,20 @@ import { useAtomValue } from "jotai";
 import { IoClose } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 
-export const SwitchAccountModal = (): JSX.Element => {
+export const SwitchAccountPanel = (): JSX.Element => {
   const { onCloseModal } = useModalCloseEvent();
   const { data: defaultAccount } = useAtomValue(defaultAccountAtom);
   const { data } = useAtomValue(accountsAtom);
   const { mutateAsync: updateAccount } = useAtomValue(updateDefaultAccountAtom);
 
   return (
-    <Modal onClose={onCloseModal}>
+    <Modal
+      onClose={onCloseModal}
+      className={clsx(
+        "w-full left-auto right-0 top-0 translate-x-0 translate-y-0",
+        "translate-y-0 pointer-events-none"
+      )}
+    >
       <ModalTransition className="custom-container sm:p-5">
         <div
           className={clsx(

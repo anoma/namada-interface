@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { WrapperTxMsgValue } from "@namada/types";
-import { paramsToUrl } from "@namada/utils";
 import { ChainsService } from "background/chains";
 import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
@@ -21,12 +20,16 @@ jest.mock("webextension-polyfill", () => ({
   windows: {
     create: jest.fn().mockResolvedValue({ tabs: [{ id: 1 }] }),
   },
+  tabs: {
+    onRemoved: {
+      addListener: jest.fn(),
+    },
+  },
 }));
 
 jest.mock("@namada/utils", () => {
   return {
     ...jest.requireActual("@namada/utils"),
-    paramsToUrl: jest.fn(),
     __esModule: true,
   };
 });
@@ -260,22 +263,14 @@ describe("approvals service", () => {
 
   describe("approveConnection", () => {
     it("should approve connection if it's not already approved", async () => {
-      const url = "url-with-params";
-      const interfaceTabId = 999;
       const interfaceOrigin = "origin";
       const tabId = 1;
 
-      (paramsToUrl as any).mockImplementation(() => url);
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(false);
-      jest.spyOn(service as any, "_launchApprovalWindow").mockResolvedValue({
-        tabs: [{ id: tabId }],
-      });
+      jest.spyOn(service as any, "launchApprovalPopup");
       service["resolverMap"] = {};
 
-      const promise = service.approveConnection(
-        interfaceTabId,
-        interfaceOrigin
-      );
+      const promise = service.approveConnection(interfaceOrigin);
       await new Promise<void>((r) =>
         setTimeout(() => {
           r();
@@ -283,76 +278,28 @@ describe("approvals service", () => {
       );
       service["resolverMap"][tabId]?.resolve(true);
 
-      expect(paramsToUrl).toHaveBeenCalledWith("url#/approve-connection", {
-        interfaceTabId: interfaceTabId.toString(),
-        interfaceOrigin,
-      });
+      expect(service["launchApprovalPopup"]).toHaveBeenCalledWith(
+        "/approve-connection",
+        { interfaceOrigin }
+      );
       expect(service.isConnectionApproved).toHaveBeenCalledWith(
         interfaceOrigin
       );
-      expect(service["_launchApprovalWindow"]).toHaveBeenCalledWith(url);
       await expect(promise).resolves.toBeDefined();
     });
 
     it("should not approve connection if it was already approved", async () => {
-      const url = "url-with-params";
-      const interfaceTabId = 999;
       const interfaceOrigin = "origin";
-      (paramsToUrl as any).mockImplementation(() => url);
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(true);
 
       await expect(
-        service.approveConnection(interfaceTabId, interfaceOrigin)
+        service.approveConnection(interfaceOrigin)
       ).resolves.toBeUndefined();
-    });
-
-    it("should throw an error when popupTabId is not found", async () => {
-      const url = "url-with-params";
-      const interfaceTabId = 999;
-      const interfaceOrigin = "origin";
-
-      (paramsToUrl as any).mockImplementation(() => url);
-      jest.spyOn(service, "isConnectionApproved").mockResolvedValue(false);
-      jest.spyOn(service as any, "_launchApprovalWindow").mockResolvedValue({
-        tabs: [],
-      });
-
-      await expect(
-        service.approveConnection(interfaceTabId, interfaceOrigin)
-      ).rejects.toBeDefined();
-    });
-
-    it("should throw an error when popupTabId is found in resolverMap", async () => {
-      const url = "url-with-params";
-      const interfaceTabId = 999;
-      const interfaceOrigin = "origin";
-      const approvedOrigins = ["other-origin"];
-      const tabId = 1;
-
-      service["resolverMap"] = {
-        [tabId]: {
-          resolve: jest.fn(),
-          reject: jest.fn(),
-        },
-      };
-
-      (paramsToUrl as any).mockImplementation(() => url);
-      jest
-        .spyOn(localStorage, "getApprovedOrigins")
-        .mockResolvedValue(approvedOrigins);
-      jest.spyOn(service as any, "_launchApprovalWindow").mockResolvedValue({
-        tabs: [{ id: tabId }],
-      });
-
-      await expect(
-        service.approveConnection(interfaceTabId, interfaceOrigin)
-      ).rejects.toBeDefined();
     });
   });
 
   describe("approveConnectionResponse", () => {
     it("should approve connection response", async () => {
-      const interfaceTabId = 999;
       const interfaceOrigin = "origin";
       const popupTabId = 1;
       service["resolverMap"] = {
@@ -364,10 +311,9 @@ describe("approvals service", () => {
       jest.spyOn(localStorage, "addApprovedOrigin").mockResolvedValue();
 
       await service.approveConnectionResponse(
-        interfaceTabId,
+        popupTabId,
         interfaceOrigin,
-        true,
-        popupTabId
+        true
       );
 
       expect(service["resolverMap"][popupTabId].resolve).toHaveBeenCalled();
@@ -377,22 +323,15 @@ describe("approvals service", () => {
     });
 
     it("should throw an error if resolvers are not found", async () => {
-      const interfaceTabId = 999;
       const interfaceOrigin = "origin";
       const popupTabId = 1;
 
       await expect(
-        service.approveConnectionResponse(
-          interfaceTabId,
-          interfaceOrigin,
-          true,
-          popupTabId
-        )
+        service.approveConnectionResponse(popupTabId, interfaceOrigin, true)
       ).rejects.toBeDefined();
     });
 
     it("should reject the connection if allowConnection is set to false", async () => {
-      const interfaceTabId = 999;
       const interfaceOrigin = "origin";
       const popupTabId = 1;
       service["resolverMap"] = {
@@ -403,10 +342,88 @@ describe("approvals service", () => {
       };
 
       await service.approveConnectionResponse(
-        interfaceTabId,
+        popupTabId,
         interfaceOrigin,
-        false,
-        popupTabId
+        false
+      );
+
+      expect(service["resolverMap"][popupTabId].reject).toHaveBeenCalled();
+    });
+  });
+
+  describe("approveDisconnection", () => {
+    it("should approve disconnection if there is a connection already approved", async () => {
+      const interfaceOrigin = "origin";
+      const tabId = 1;
+
+      jest.spyOn(service, "isConnectionApproved").mockResolvedValue(true);
+      jest.spyOn(service as any, "launchApprovalPopup");
+      service["resolverMap"] = {};
+
+      const promise = service.approveDisconnection(interfaceOrigin);
+      await new Promise<void>((r) =>
+        setTimeout(() => {
+          r();
+        })
+      );
+      service["resolverMap"][tabId]?.resolve(true);
+
+      expect((service as any).launchApprovalPopup).toHaveBeenCalledWith(
+        "/approve-disconnection",
+        { interfaceOrigin }
+      );
+      expect(service.isConnectionApproved).toHaveBeenCalledWith(
+        interfaceOrigin
+      );
+      await expect(promise).resolves.toBeDefined();
+    });
+
+    it("should not approve disconnection if it is NOT already approved", async () => {
+      const interfaceOrigin = "origin";
+      jest.spyOn(service, "isConnectionApproved").mockResolvedValue(false);
+
+      await expect(
+        service.approveDisconnection(interfaceOrigin)
+      ).resolves.toBeUndefined();
+    });
+  });
+
+  describe("approveDisconnectionResponse", () => {
+    it("should approve disconnection response", async () => {
+      const interfaceOrigin = "origin";
+      const popupTabId = 1;
+      service["resolverMap"] = {
+        [popupTabId]: {
+          resolve: jest.fn(),
+          reject: jest.fn(),
+        },
+      };
+      jest.spyOn(service, "revokeConnection").mockResolvedValue();
+
+      await service.approveDisconnectionResponse(
+        popupTabId,
+        interfaceOrigin,
+        true
+      );
+
+      expect(service["resolverMap"][popupTabId].resolve).toHaveBeenCalled();
+      expect(service.revokeConnection).toHaveBeenCalledWith(interfaceOrigin);
+    });
+
+    it("should reject the connection if revokeConnection is set to false", async () => {
+      const interfaceOrigin = "origin";
+      const popupTabId = 1;
+      service["resolverMap"] = {
+        [popupTabId]: {
+          resolve: jest.fn(),
+          reject: jest.fn(),
+        },
+      };
+
+      await service.approveConnectionResponse(
+        popupTabId,
+        interfaceOrigin,
+        false
       );
 
       expect(service["resolverMap"][popupTabId].reject).toHaveBeenCalled();
@@ -426,31 +443,100 @@ describe("approvals service", () => {
     });
   });
 
+  describe("createPopup", () => {
+    it("should create and return a new window", async () => {
+      const url = "url";
+      const window = { tabs: [{ id: 1 }] };
+      (webextensionPolyfill.windows.create as any).mockResolvedValue(window);
+
+      await expect(service["createPopup"](url)).resolves.toBe(window);
+      expect(webextensionPolyfill.windows.create).toHaveBeenCalledWith(
+        expect.objectContaining({ url })
+      );
+    });
+  });
+
   describe("getPopupTabId", () => {
     it("should return tab id", async () => {
-      (webextensionPolyfill.windows.create as any).mockResolvedValue({
-        tabs: [{ id: 1 }],
-      });
-
-      await expect((service as any).getPopupTabId("url")).resolves.toBe(1);
+      const window = { tabs: [{ id: 1 }] } as any;
+      expect(service["getPopupTabId"](window)).toBe(1);
     });
 
-    it("should return undefined if tabs are undefined", async () => {
-      (webextensionPolyfill.windows.create as any).mockResolvedValue({});
-
-      await expect(
-        (service as any).getPopupTabId("url")
-      ).resolves.toBeUndefined();
+    it("should throw an error if tabs are undefined", async () => {
+      const window = { tabs: undefined } as any;
+      expect(() => service["getPopupTabId"](window)).toThrow();
     });
 
-    it("should return undefined if tabs are empty", async () => {
-      (webextensionPolyfill.windows.create as any).mockResolvedValue({
-        tabs: [],
-      });
+    it("should throw an error if tabs are empty", async () => {
+      const window = { tabs: [] } as any;
+      expect(() => service["getPopupTabId"](window)).toThrow();
+    });
 
-      await expect(
-        (service as any).getPopupTabId("url")
-      ).resolves.toBeUndefined();
+    it("should throw an error if the tab already exists on the resolverMap", async () => {
+      const popupTabId = 1;
+      const window = { tabs: [{ id: popupTabId }] } as any;
+      service["resolverMap"] = {
+        [popupTabId]: {
+          resolve: jest.fn(),
+          reject: jest.fn(),
+        },
+      };
+
+      expect(() => service["getPopupTabId"](window)).toThrow();
+    });
+  });
+
+  describe("launchApprovalPopup", () => {
+    it("should create a window with the given route and params saving the resolver on the resolverMap", async () => {
+      const route = "route";
+      const params = { foo: "bar" };
+      const popupTabId = 1;
+      const window = { tabs: [{ id: popupTabId }] };
+
+      jest
+        .spyOn<any, any>(service, "createPopup")
+        .mockImplementationOnce(() => window);
+
+      void service["launchApprovalPopup"](route, params);
+
+      expect(service["createPopup"]).toHaveBeenCalledWith(
+        `url#${route}?foo=bar`
+      );
+      await new Promise<void>((r) => r());
+      expect(service["resolverMap"][popupTabId]).toBeDefined();
+    });
+  });
+
+  describe("getResolver", () => {
+    it("should get the related tab id resolver from resolverMap", async () => {
+      const popupTabId = 1;
+      const resolver = { resolve: () => {}, reject: () => {} };
+      service["resolverMap"] = {
+        [popupTabId]: resolver,
+      };
+
+      expect(service["getResolver"](popupTabId)).toBe(resolver);
+    });
+
+    it("should throw an error if there is no resolver for the tab id", async () => {
+      const popupTabId = 1;
+      service["resolverMap"] = {
+        [popupTabId]: { resolve: () => {}, reject: () => {} },
+      };
+
+      expect(() => service["getResolver"](999)).toThrow();
+    });
+  });
+
+  describe("removeResolver", () => {
+    it("should remove related tab id resolver from resolverMap", async () => {
+      const popupTabId = 1;
+      service["resolverMap"] = {
+        [popupTabId]: { resolve: () => {}, reject: () => {} },
+      };
+      service["removeResolver"](popupTabId);
+
+      expect(service["resolverMap"][popupTabId]).toBeUndefined();
     });
   });
 

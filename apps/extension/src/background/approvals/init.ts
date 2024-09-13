@@ -1,5 +1,6 @@
 import {
   ApproveConnectInterfaceMsg,
+  ApproveDisconnectInterfaceMsg,
   ApproveSignArbitraryMsg,
   ApproveSignTxMsg,
   IsConnectionApprovedMsg,
@@ -7,6 +8,7 @@ import {
 import { Router } from "router";
 import {
   ConnectInterfaceResponseMsg,
+  DisconnectInterfaceResponseMsg,
   QueryPendingTxBytesMsg,
   QuerySignArbitraryDataMsg,
   QueryTxDetailsMsg,
@@ -33,6 +35,8 @@ export function init(router: Router, service: ApprovalsService): void {
   router.registerMessage(IsConnectionApprovedMsg);
   router.registerMessage(ApproveConnectInterfaceMsg);
   router.registerMessage(ConnectInterfaceResponseMsg);
+  router.registerMessage(ApproveDisconnectInterfaceMsg);
+  router.registerMessage(DisconnectInterfaceResponseMsg);
   router.registerMessage(RevokeConnectionMsg);
   router.registerMessage(QueryTxDetailsMsg);
   router.registerMessage(QuerySignArbitraryDataMsg);
