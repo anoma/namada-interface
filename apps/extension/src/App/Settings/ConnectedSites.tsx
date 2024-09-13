@@ -84,7 +84,9 @@ export const ConnectedSites: React.FC = ({}) => {
                 "items-center text-base py-4 px-6"
               )}
             >
-              <span>{site}</span>
+              <span className="text-ellipsis overflow-hidden" title={site}>
+                {site}
+              </span>
               <span
                 className="p-2 cursor-pointer hover:text-yellow -mr-2"
                 onClick={() => handleRevokeConnection(site)}
