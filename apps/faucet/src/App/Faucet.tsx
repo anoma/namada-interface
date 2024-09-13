@@ -7,11 +7,15 @@ import {
   Alert,
   AmountInput,
   Input,
+  Option,
   Select,
 } from "@namada/components";
 import { Account } from "@namada/types";
 import { bech32mValidation, shortenAddress } from "@namada/utils";
 
+import { chains } from "@namada/chains";
+import { useUntil } from "@namada/hooks";
+import { Namada } from "@namada/integrations";
 import { Data, PowChallenge, TransferResponse } from "../utils";
 import { AppContext } from "./App";
 import {
@@ -33,18 +37,28 @@ enum Status {
 }
 
 type Props = {
-  accounts: Account[];
   isTestnetLive: boolean;
 };
 
 const bech32mPrefix = "tnam";
 
-export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
+enum ExtensionAttachStatus {
+  PendingDetection,
+  NotInstalled,
+  Installed,
+}
+
+export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
   const {
     api,
     settings: { difficulty, tokens, withdrawLimit },
   } = useContext(AppContext)!;
+  const [extensionAttachStatus, setExtensionAttachStatus] = useState(
+    ExtensionAttachStatus.PendingDetection
+  );
+  const [isExtensionConnected, setIsExtensionConnected] = useState(false);
 
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const accountLookup = accounts.reduce(
     (acc, account) => {
       acc[account.address] = account;
@@ -53,7 +67,13 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
     {} as Record<string, Account>
   );
 
-  const [account, setAccount] = useState<Account>(accounts[0]);
+  const chain = chains.namada;
+  const integration = new Namada(chain);
+  const [account, setAccount] = useState<Account>();
+  const [accountsSelectData, setAccountsSelectData] = useState<
+    Option<string>[]
+  >([]);
+  const [target, setTarget] = useState<string>();
   const [tokenAddress, setTokenAddress] = useState<string>();
   const [amount, setAmount] = useState<number | undefined>(undefined);
   const [error, setError] = useState<string>();
@@ -61,15 +81,22 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
   const [statusText, setStatusText] = useState<string>();
   const [responseDetails, setResponseDetails] = useState<TransferResponse>();
 
-  const accountsSelectData = accounts.map(({ alias, address }) => ({
-    label: `${alias} - ${shortenAddress(address)}`,
-    value: address,
-  }));
-
   const powSolver: Worker = useMemo(
     () => new Worker(new URL("../workers/powWorker.ts", import.meta.url)),
     []
   );
+
+  useEffect(() => {
+    if (accounts) {
+      setAccountsSelectData(
+        accounts.map(({ alias, address }) => ({
+          label: `${alias} - ${shortenAddress(address)}`,
+          value: address,
+        }))
+      );
+      setAccount(accounts[0]);
+    }
+  }, [accounts]);
 
   useEffect(() => {
     if (tokens?.NAM) {
@@ -81,7 +108,7 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
     Boolean(tokenAddress) &&
     Boolean(amount) &&
     (amount || 0) <= withdrawLimit &&
-    Boolean(account) &&
+    Boolean(target) &&
     status !== Status.PendingPowSolution &&
     status !== Status.PendingTransfer &&
     typeof difficulty !== "undefined" &&
@@ -127,7 +154,7 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
     async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       if (
-        !account ||
+        !target ||
         !amount ||
         !tokenAddress ||
         typeof difficulty === "undefined"
@@ -145,9 +172,9 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
         return;
       }
 
-      if (!account) {
+      if (!target) {
         setStatus(Status.Error);
-        setError("No account found!");
+        setError("No target specified!");
         return;
       }
 
@@ -175,7 +202,7 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
           tag,
           challenge,
           transfer: {
-            target: account.address,
+            target,
             token: sanitizedToken,
             amount: amount * 1_000_000,
           },
@@ -190,29 +217,87 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
     [account, tokenAddress, amount]
   );
 
+  useUntil(
+    {
+      predFn: async () => Promise.resolve(integration.detect()),
+      onSuccess: () => {
+        setExtensionAttachStatus(ExtensionAttachStatus.Installed);
+      },
+      onFail: () => {
+        setExtensionAttachStatus(ExtensionAttachStatus.NotInstalled);
+      },
+    },
+    { tries: 5, ms: 300 },
+    [integration]
+  );
+
+  const handleConnectExtensionClick = useCallback(
+    async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
+      e.preventDefault();
+      if (integration) {
+        try {
+          const isIntegrationDetected = integration.detect();
+
+          if (!isIntegrationDetected) {
+            throw new Error("Extension not installed!");
+          }
+
+          await integration.connect();
+          const accounts = await integration.accounts();
+          if (accounts) {
+            setAccounts(accounts.filter((account) => !account.isShielded));
+          }
+          setIsExtensionConnected(true);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    },
+    [integration]
+  );
+
+  useEffect(() => {
+    if (account) {
+      setTarget(account.address);
+    }
+  }, [account]);
+
   return (
     <FaucetFormContainer>
       <InputContainer>
-        {accounts.length > 0 ?
+        {account && accounts.length && (
           <Select
             data={accountsSelectData}
             value={account.address}
-            label="Account"
+            label="Target"
             onChange={(e) => setAccount(accountLookup[e.target.value])}
           />
-        : <div>
-            You have no signing accounts! Import or create an account in the
-            extension, then reload this page.
-          </div>
-        }
+        )}
       </InputContainer>
+
+      <InputContainer>
+        <Input
+          label="Target Address"
+          value={target}
+          onChange={(e) => setTarget(e.target.value)}
+          autoFocus={true}
+        />
+      </InputContainer>
+
+      {extensionAttachStatus === ExtensionAttachStatus.Installed &&
+        !isExtensionConnected && (
+          <InputContainer>
+            <ActionButton onClick={handleConnectExtensionClick}>
+              Load Accounts from Extension
+            </ActionButton>
+          </InputContainer>
+        )}
 
       <InputContainer>
         <Input
           label="Token Address (defaults to NAM)"
           value={tokenAddress}
           onChange={(e) => setTokenAddress(e.target.value)}
-          autoFocus={true}
         />
       </InputContainer>
 

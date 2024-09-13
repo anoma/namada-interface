@@ -1,9 +1,8 @@
-import React, { createContext, useCallback, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { GoGear } from "react-icons/go";
 import { ThemeProvider } from "styled-components";
 
-import { ActionButton, Alert, Modal } from "@namada/components";
-import { Namada } from "@namada/integrations";
+import { Alert, Modal } from "@namada/components";
 import { ColorMode, getTheme } from "@namada/utils";
 
 import {
@@ -20,9 +19,6 @@ import {
 } from "App/App.components";
 import { FaucetForm } from "App/Faucet";
 
-import { chains } from "@namada/chains";
-import { useUntil } from "@namada/hooks";
-import { Account } from "@namada/types";
 import { API, toNam } from "utils";
 import dotsBackground from "../../public/bg-dots.svg";
 import {
@@ -82,21 +78,9 @@ const START_TIME_TEXT = new Date(START_TIME_UTC * 1000).toLocaleString(
 
 export const AppContext = createContext<AppContext | null>(null);
 
-enum ExtensionAttachStatus {
-  PendingDetection,
-  NotInstalled,
-  Installed,
-}
-
 export const App: React.FC = () => {
   const initialColorMode = "dark";
-  const chain = chains.namada;
-  const integration = new Namada(chain);
-  const [extensionAttachStatus, setExtensionAttachStatus] = useState(
-    ExtensionAttachStatus.PendingDetection
-  );
-  const [isExtensionConnected, setIsExtensionConnected] = useState(false);
-  const [accounts, setAccounts] = useState<Account[]>([]);
+
   const [colorMode, _] = useState<ColorMode>(initialColorMode);
   const [isTestnetLive, setIsTestnetLive] = useState(true);
   const [settings, setSettings] = useState<Settings>({
@@ -129,20 +113,6 @@ export const App: React.FC = () => {
     });
   };
 
-  useUntil(
-    {
-      predFn: async () => Promise.resolve(integration.detect()),
-      onSuccess: () => {
-        setExtensionAttachStatus(ExtensionAttachStatus.Installed);
-      },
-      onFail: () => {
-        setExtensionAttachStatus(ExtensionAttachStatus.NotInstalled);
-      },
-    },
-    { tries: 5, ms: 300 },
-    [integration]
-  );
-
   useEffect(() => {
     // Sync url to localStorage
     localStorage.setItem("baseUrl", url);
@@ -167,27 +137,6 @@ export const App: React.FC = () => {
       .then(() => setSettingsError(undefined))
       .catch((e) => setSettingsError(`Failed to load settings! ${e}`));
   }, [url]);
-
-  const handleConnectExtensionClick = useCallback(async (): Promise<void> => {
-    if (integration) {
-      try {
-        const isIntegrationDetected = integration.detect();
-
-        if (!isIntegrationDetected) {
-          throw new Error("Extension not installed!");
-        }
-
-        await integration.connect();
-        const accounts = await integration.accounts();
-        if (accounts) {
-          setAccounts(accounts.filter((account) => !account.isShielded));
-        }
-        setIsExtensionConnected(true);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  }, [integration]);
 
   return (
     <AppContext.Provider
@@ -227,29 +176,7 @@ export const App: React.FC = () => {
                 </InfoContainer>
               )}
 
-              {extensionAttachStatus ===
-                ExtensionAttachStatus.PendingDetection && (
-                <InfoContainer>
-                  <Alert type="info">Detecting extension...</Alert>
-                </InfoContainer>
-              )}
-              {extensionAttachStatus === ExtensionAttachStatus.NotInstalled && (
-                <InfoContainer>
-                  <Alert type="error">You must download the extension!</Alert>
-                </InfoContainer>
-              )}
-
-              {isExtensionConnected && (
-                <FaucetForm accounts={accounts} isTestnetLive={isTestnetLive} />
-              )}
-              {extensionAttachStatus === ExtensionAttachStatus.Installed &&
-                !isExtensionConnected && (
-                  <InfoContainer>
-                    <ActionButton onClick={handleConnectExtensionClick}>
-                      Connect to Namada Extension
-                    </ActionButton>
-                  </InfoContainer>
-                )}
+              <FaucetForm isTestnetLive={isTestnetLive} />
             </FaucetContainer>
             {isModalOpen && (
               <Modal onClose={() => setIsModalOpen(false)}>
