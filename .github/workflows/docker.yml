@@ -9,6 +9,10 @@ on:
     branches:
       - main
     
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 env:
   GIT_LFS_SKIP_SMUDGE: 1
 
@@ -53,7 +57,7 @@ jobs:
         with:
           context: .
           file: ${{ matrix.images.path }}
-          push: true
+          push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
