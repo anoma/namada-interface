@@ -21,7 +21,9 @@
     "lint": "wsrun -l --exclude-missing -c lint",
     "lint:fix": "wsrun -l --exclude-missing -c lint:fix",
     "lint:ci": "wsrun -l --exclude-missing -c lint:ci",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "docker-build-faucet": "docker build -f docker/faucet/Dockerfile .",
+    "docker-build-namadillo": "docker build -f docker/namadillo/Dockerfile ."
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^8.0.1",
