@@ -29,7 +29,7 @@ export const SwitchAccountPanel = (): JSX.Element => {
         <div
           className={clsx(
             "flex flex-col gap-8 ml-auto pointer-events-auto",
-            "max-w-[400px] rounded-md text-white h-full",
+            "w-fit max-w-[400px] rounded-md text-white h-full",
             "bg-rblack border border-neutral-700 p-5"
           )}
         >
@@ -58,11 +58,15 @@ export const SwitchAccountPanel = (): JSX.Element => {
                     onCloseModal();
                   }}
                 >
-                  <Checkbox
-                    checked={address === defaultAccount?.address}
-                    readOnly
-                  />
-                  {alias}
+                  <span>
+                    <Checkbox
+                      checked={address === defaultAccount?.address}
+                      readOnly
+                    />
+                  </span>
+                  <span className="text-ellipsis overflow-hidden" title={alias}>
+                    {alias}
+                  </span>
                 </button>
               ))}
           </div>
