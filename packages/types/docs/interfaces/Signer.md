@@ -34,7 +34,7 @@
 
 #### Defined in
 
-[signer.ts:10](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/signer.ts#L10)
+[signer.ts:10](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/signer.ts#L10)
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 #### Defined in
 
-[signer.ts:11](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/signer.ts#L11)
+[signer.ts:11](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/signer.ts#L11)
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 #### Defined in
 
-[signer.ts:12](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/signer.ts#L12)
+[signer.ts:12](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/signer.ts#L12)
 
 ___
 
@@ -109,7 +109,7 @@ ___
 
 #### Defined in
 
-[signer.ts:17](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/signer.ts#L17)
+[signer.ts:17](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/signer.ts#L17)
 
 ___
 
@@ -135,4 +135,4 @@ ___
 
 #### Defined in
 
-[signer.ts:21](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/signer.ts#L21)
+[signer.ts:21](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/signer.ts#L21)
