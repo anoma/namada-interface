@@ -1,6 +1,7 @@
 import { SidebarMenuItem } from "App/Common/SidebarMenuItem";
 import GovernanceRoutes from "App/Governance/routes";
 import { MASPIcon } from "App/Icons/MASPIcon";
+import { useAtomValue } from "jotai";
 import { AiFillHome } from "react-icons/ai";
 import { BsDiscord, BsTwitterX } from "react-icons/bs";
 import { FaVoteYea } from "react-icons/fa";
@@ -9,9 +10,13 @@ import { IoSwapHorizontal } from "react-icons/io5";
 import { TbVectorTriangle } from "react-icons/tb";
 import { DISCORD_URL, TWITTER_URL } from "urls";
 
+import IbcRoutes from "App/Ibc/routes";
 import StakingRoutes from "App/Staking/routes";
+import { applicationFeaturesAtom } from "atoms/settings";
 
 export const Navigation = (): JSX.Element => {
+  const features = useAtomValue(applicationFeaturesAtom);
+
   const menuItems: { label: string; icon: React.ReactNode; url?: string }[] = [
     {
       label: "Overview",
@@ -39,6 +44,7 @@ export const Navigation = (): JSX.Element => {
     {
       label: "IBC Transfer",
       icon: <TbVectorTriangle />,
+      url: features.ibcTransfersEnabled ? IbcRoutes.index() : undefined,
     },
     {
       label: "Transfer",
