@@ -39,7 +39,12 @@ export class ApprovalsService {
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
     browser.tabs.onRemoved.addListener((tabId) => {
-      const resolver = this.getResolver(tabId);
+      let resolver: Resolver | undefined;
+      try {
+        resolver = this.getResolver(tabId);
+      } catch {
+        // do nothing, this is only to avoid memory leak
+      }
       if (resolver) {
         resolver.reject(new Error("Window closed"));
         this.removeResolver(tabId);
@@ -253,6 +258,26 @@ export class ApprovalsService {
   async revokeConnection(originToRevoke: string): Promise<void> {
     await this.localStorage.removeApprovedOrigin(originToRevoke);
     await this.broadcaster.revokeConnection();
+  }
+
+  async approveUpdateDefaultAccount(address: string): Promise<void> {
+    return this.launchApprovalPopup(TopLevelRoute.ApproveUpdateDefaultAccount, {
+      address,
+    });
+  }
+
+  async submitUpdateDefaultAccount(
+    popupTabId: number,
+    address: string
+  ): Promise<void> {
+    const resolvers = this.getResolver(popupTabId);
+
+    try {
+      await this.keyRingService.updateDefaultAccount(address);
+    } catch (e) {
+      resolvers.reject(e);
+    }
+    resolvers.resolve();
   }
 
   async queryTxDetails(msgId: string): Promise<TxDetails[]> {
