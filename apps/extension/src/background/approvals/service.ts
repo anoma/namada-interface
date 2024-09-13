@@ -261,8 +261,11 @@ export class ApprovalsService {
   }
 
   async approveUpdateDefaultAccount(address: string): Promise<void> {
+    const account = await this.keyRingService.queryAccountDetails(address);
+
     return this.launchApprovalPopup(TopLevelRoute.ApproveUpdateDefaultAccount, {
       address,
+      alias: account?.alias ?? "",
     });
   }
 

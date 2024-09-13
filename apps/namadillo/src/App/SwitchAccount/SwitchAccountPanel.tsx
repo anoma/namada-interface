@@ -51,14 +51,15 @@ export const SwitchAccountPanel = (): JSX.Element => {
                   className={twMerge(
                     "flex gap-2 w-full py-1",
                     "whitespace-nowrap text-left",
-                    "cursor-pointer hover:text-yellow transition-colors"
+                    "cursor-pointer hover:text-yellow transition-colors",
+                    address === defaultAccount?.address && "text-yellow"
                   )}
                   onClick={async () => {
                     updateAccount(address);
                     onCloseModal();
                   }}
                 >
-                  <span>
+                  <span className="text-yellow">
                     <Checkbox
                       checked={address === defaultAccount?.address}
                       readOnly
