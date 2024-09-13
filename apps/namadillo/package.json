@@ -43,7 +43,7 @@
     "release:dry-run": "release-it --verbose --dry-run --ci",
     "release:no-npm": "release-it --verbose --no-npm.publish --ci",
     "start:proxy": "node ./scripts/startProxies.js",
-    "dev": "vite",
+    "dev": "tsc --watch --project tsconfig.sw.json& vite",
     "preview": "vite preview",
     "dev:local": "NODE_ENV=development NAMADA_INTERFACE_LOCAL=\"true\" yarn dev",
     "dev:proxy": "NAMADA_INTERFACE_PROXY=true && ./scripts/start-proxies.sh && yarn dev:local",
