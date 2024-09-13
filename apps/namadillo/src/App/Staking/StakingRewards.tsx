@@ -80,6 +80,7 @@ export const StakingRewards = (): JSX.Element => {
   });
 
   const availableRewards = useMemo(() => {
+    if (!rewards || Object.keys(rewards).length === 0) return BigNumber(0);
     return BigNumber.sum(...Object.values(rewards || []));
   }, [rewards]);
 
@@ -109,14 +110,18 @@ export const StakingRewards = (): JSX.Element => {
             <ActionButton
               backgroundColor="cyan"
               onClick={() => claimRewardsAndStake()}
-              disabled={!claimAndStakeEnabled || isLoading}
+              disabled={
+                availableRewards.eq(0) || !claimAndStakeEnabled || isLoading
+              }
             >
               {claimAndStakePending ? "Loading..." : "Claim & Stake"}
             </ActionButton>
             <ActionButton
               backgroundColor="white"
               onClick={() => claimRewards()}
-              disabled={!claimRewardsEnabled || isLoading}
+              disabled={
+                availableRewards.eq(0) || !claimRewardsEnabled || isLoading
+              }
               type="button"
             >
               {claimRewardsPending ? "Loading..." : "Claim"}

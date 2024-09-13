@@ -22,7 +22,7 @@ type AtomType<T> = Atom<
 
 type PartialNotification = Pick<ToastNotification, "title" | "description">;
 
-type useTransactionProps<T> = {
+export type useTransactionProps<T> = {
   params: T[];
   createTxAtom: AtomType<T>;
   eventType: TransactionEventsClasses;
