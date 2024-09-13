@@ -2,6 +2,8 @@
 
 # Class: TransparentTransferDataMsgValue
 
+Transparent Transfer schemas
+
 ## Table of contents
 
 ### Constructors
@@ -33,7 +35,7 @@
 
 #### Defined in
 
-[tx/schema/transfer.ts:23](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/transfer.ts#L23)
+[tx/schema/transfer.ts:32](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/transfer.ts#L32)
 
 ## Properties
 
@@ -43,7 +45,7 @@
 
 #### Defined in
 
-[tx/schema/transfer.ts:21](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/transfer.ts#L21)
+[tx/schema/transfer.ts:30](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/transfer.ts#L30)
 
 ___
 
@@ -53,7 +55,7 @@ ___
 
 #### Defined in
 
-[tx/schema/transfer.ts:12](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/transfer.ts#L12)
+[tx/schema/transfer.ts:21](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/transfer.ts#L21)
 
 ___
 
@@ -63,7 +65,7 @@ ___
 
 #### Defined in
 
-[tx/schema/transfer.ts:15](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/transfer.ts#L15)
+[tx/schema/transfer.ts:24](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/transfer.ts#L24)
 
 ___
 
@@ -73,4 +75,4 @@ ___
 
 #### Defined in
 
-[tx/schema/transfer.ts:18](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/transfer.ts#L18)
+[tx/schema/transfer.ts:27](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/transfer.ts#L27)

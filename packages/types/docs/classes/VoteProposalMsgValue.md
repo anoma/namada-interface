@@ -32,7 +32,7 @@
 
 #### Defined in
 
-[tx/schema/voteProposal.ts:15](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/voteProposal.ts#L15)
+[tx/schema/voteProposal.ts:15](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/voteProposal.ts#L15)
 
 ## Properties
 
@@ -42,7 +42,7 @@
 
 #### Defined in
 
-[tx/schema/voteProposal.ts:10](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/voteProposal.ts#L10)
+[tx/schema/voteProposal.ts:10](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/voteProposal.ts#L10)
 
 ___
 
@@ -52,7 +52,7 @@ ___
 
 #### Defined in
 
-[tx/schema/voteProposal.ts:7](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/voteProposal.ts#L7)
+[tx/schema/voteProposal.ts:7](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/voteProposal.ts#L7)
 
 ___
 
@@ -62,4 +62,4 @@ ___
 
 #### Defined in
 
-[tx/schema/voteProposal.ts:13](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/voteProposal.ts#L13)
+[tx/schema/voteProposal.ts:13](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/voteProposal.ts#L13)
