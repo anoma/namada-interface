@@ -53,7 +53,9 @@ export const KeyListItem = ({
           checked={isMainKey}
         />
       </div>
-      <label>{alias}</label>
+      <label className="text-ellipsis overflow-hidden" title={alias}>
+        {alias}
+      </label>
       <DropdownMenu
         id={alias}
         align="right"
