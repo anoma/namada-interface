@@ -43,7 +43,7 @@ export class ApprovalsService {
       try {
         resolver = this.getResolver(tabId);
       } catch {
-        // do nothing, this is only to avoid memory leak
+        // do nothing if not found as it was resolved by the event handler
       }
       if (resolver) {
         resolver.reject(new Error("Window closed"));

@@ -35,7 +35,7 @@ export const ApproveUpdateDefaultAccount: React.FC = () => {
       <PageHeader title="Approve Request" />
       <Stack full className="justify-between" gap={12}>
         <div className="text-yellow">
-          <Alert type="warning">Approve update the default account?</Alert>
+          <Alert type="warning">Approve update default account?</Alert>
           <div
             className={clsx(
               "flex items-center gap-3 mt-4",
