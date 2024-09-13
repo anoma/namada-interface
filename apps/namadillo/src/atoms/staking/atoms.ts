@@ -18,6 +18,7 @@ import { AddressBalance, BuildTxAtomParams, StakingTotals } from "types";
 import { toStakingTotal } from "./functions";
 import {
   createBondTx,
+  createClaimAndStakeTx,
   createClaimTx,
   createReDelegateTx,
   createUnbondTx,
@@ -137,6 +138,28 @@ export const claimRewardsAtom = atomWithMutation((get) => {
       account,
     }: BuildTxAtomParams<ClaimRewardsMsgValue>) => {
       return createClaimTx(chain.data!, account, params, gasConfig);
+    },
+  };
+});
+
+export const claimAndStakeRewardsAtom = atomWithMutation((get) => {
+  const chain = get(chainAtom);
+  const claimableRewards = get(claimableRewardsAtom);
+  return {
+    mutationKey: ["create-claim-and-stake-tx"],
+    enabled: chain.isSuccess && claimableRewards.isSuccess,
+    mutationFn: async ({
+      params,
+      gasConfig,
+      account,
+    }: BuildTxAtomParams<ClaimRewardsMsgValue>) => {
+      return createClaimAndStakeTx(
+        chain.data!,
+        account,
+        params,
+        claimableRewards.data!,
+        gasConfig
+      );
     },
   };
 });

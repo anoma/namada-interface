@@ -4,14 +4,17 @@ import {
   BondMsgValue,
   BondProps,
   ClaimRewardsMsgValue,
+  ClaimRewardsProps,
   RedelegateMsgValue,
+  TxMsgValue,
   UnbondMsgValue,
   WithdrawMsgValue,
   WithdrawProps,
+  WrapperTxProps,
 } from "@namada/types";
 import { getSdkInstance } from "hooks";
 import { TransactionPair, buildTxPair } from "lib/query";
-import { Address, ChainSettings, GasConfig } from "types";
+import { Address, AddressBalance, ChainSettings, GasConfig } from "types";
 
 export const fetchClaimableRewards = async (
   api: DefaultApi,
@@ -106,6 +109,53 @@ export const createClaimTx = async (
     chain,
     params,
     tx.buildClaimRewards,
+    account.address
+  );
+};
+
+export const createClaimAndStakeTx = async (
+  chain: ChainSettings,
+  account: Account,
+  params: ClaimRewardsMsgValue[],
+  claimableRewardsByValidator: AddressBalance,
+  gasConfig: GasConfig
+): Promise<TransactionPair<ClaimRewardsMsgValue>> => {
+  const { tx } = await getSdkInstance();
+
+  // BuildTx wrapper to handle different commitment types
+  const buildClaimRewardsAndStake = async (
+    wrapperTxProps: WrapperTxProps,
+    props: ClaimRewardsProps | BondProps
+  ): Promise<TxMsgValue> => {
+    if ("amount" in props) {
+      return tx.buildBond(wrapperTxProps, props as BondProps);
+    } else {
+      return tx.buildClaimRewards(wrapperTxProps, props as ClaimRewardsProps);
+    }
+  };
+
+  // Adding bonding commitments after the claiming ones. Order is strictly
+  // important in this case
+  const claimAndStakingParams: (ClaimRewardsMsgValue | BondMsgValue)[] =
+    Array.from(params);
+
+  params.forEach((claimParam) => {
+    const { validator, source } = claimParam;
+    if (claimableRewardsByValidator.hasOwnProperty(validator)) {
+      claimAndStakingParams.push({
+        amount: claimableRewardsByValidator[validator],
+        source,
+        validator,
+      } as BondMsgValue);
+    }
+  });
+
+  return await buildTxPair(
+    account,
+    gasConfig,
+    chain,
+    claimAndStakingParams,
+    buildClaimRewardsAndStake,
     account.address
   );
 };

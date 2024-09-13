@@ -6,7 +6,7 @@ import {
   VoteProposalProps,
   WithdrawProps,
 } from "@namada/types";
-import { TxKind } from "types";
+import { ClaimRewardsProps, TxKind } from "types";
 
 export type TransactionEventsClasses = Partial<TxKind>;
 
@@ -49,6 +49,8 @@ declare global {
     "Redelegate.Error": EventData<RedelegateProps>;
     "Withdraw.Success": EventData<WithdrawProps>;
     "Withdraw.Error": EventData<WithdrawProps>;
+    "ClaimRewards.Success": EventData<ClaimRewardsProps>;
+    "ClaimRewards.Error": EventData<ClaimRewardsProps>;
     "VoteProposal.Success": EventData<VoteProposalProps>;
     "VoteProposal.Error": EventData<VoteProposalProps>;
   }

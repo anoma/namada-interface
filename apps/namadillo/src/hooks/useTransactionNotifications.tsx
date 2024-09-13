@@ -296,6 +296,28 @@ export const useTransactionNotifications = (): void => {
     });
   });
 
+  useTransactionEventListener("ClaimRewards.Success", (e) => {
+    const id = createNotificationId(e.detail.tx);
+    clearPendingNotifications(id);
+    dispatchNotification({
+      id,
+      title: "Claim Rewards",
+      description: `Your rewards have been successfully claimed and are now available for staking.`,
+      type: "success",
+    });
+  });
+
+  useTransactionEventListener("ClaimRewards.Error", (e) => {
+    const id = createNotificationId(e.detail.tx);
+    clearPendingNotifications(id);
+    dispatchNotification({
+      id,
+      title: "Claim Rewards",
+      description: `An error occurred while trying to claim your rewards.`,
+      type: "success",
+    });
+  });
+
   useTransactionEventListener("VoteProposal.Error", (e) => {
     const id = createNotificationId(e.detail.tx);
     clearPendingNotifications(id);

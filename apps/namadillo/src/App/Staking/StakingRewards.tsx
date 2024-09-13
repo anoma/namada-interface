@@ -8,7 +8,11 @@ import { ClaimRewardsMsgValue } from "@namada/types";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { defaultAccountAtom } from "atoms/accounts";
-import { claimableRewardsAtom, claimRewardsAtom } from "atoms/staking";
+import {
+  claimableRewardsAtom,
+  claimAndStakeRewardsAtom,
+  claimRewardsAtom,
+} from "atoms/staking";
 import BigNumber from "bignumber.js";
 import { useModalCloseEvent } from "hooks/useModalCloseEvent";
 import { useTransaction } from "hooks/useTransaction";
@@ -19,7 +23,7 @@ import claimRewardsSvg from "./assets/claim-rewards.svg";
 export const StakingRewards = (): JSX.Element => {
   const { data: account } = useAtomValue(defaultAccountAtom);
   const {
-    isLoading,
+    isLoading: isLoadingRewards,
     isSuccess,
     data: rewards,
   } = useAtomValue(claimableRewardsAtom);
@@ -36,13 +40,39 @@ export const StakingRewards = (): JSX.Element => {
     });
   };
 
-  const { execute: claimOnly, isEnabled } = useTransaction({
+  const {
+    execute: claimRewards,
+    isEnabled: claimRewardsEnabled,
+    isPending: claimRewardsPending,
+  } = useTransaction({
     params: parseStakingRewardsParams(),
     createTxAtom: claimRewardsAtom,
     eventType: "ClaimRewards",
     parsePendingTxNotification: () => ({
-      title: "Claiming rewards transaction in progress",
+      title: "Claim rewards transaction is in progress",
       description: <>Your rewards claim is being processed</>,
+    }),
+    onSuccess: () => {
+      onCloseModal();
+    },
+  });
+
+  const {
+    execute: claimRewardsAndStake,
+    isEnabled: claimAndStakeEnabled,
+    isPending: claimAndStakePending,
+  } = useTransaction({
+    params: parseStakingRewardsParams(),
+    createTxAtom: claimAndStakeRewardsAtom,
+    eventType: "ClaimRewards",
+    parsePendingTxNotification: () => ({
+      title: "Claim rewards transaction is in progress",
+      description: (
+        <>
+          Your rewards claim is being processed and will be staked to the same
+          validators afterward.
+        </>
+      ),
     }),
     onSuccess: () => {
       onCloseModal();
@@ -53,13 +83,7 @@ export const StakingRewards = (): JSX.Element => {
     return BigNumber.sum(...Object.values(rewards || []));
   }, [rewards]);
 
-  const onClaimAndStake = (e: React.MouseEvent): void => {
-    e.preventDefault();
-  };
-
-  const onClaim = async (): Promise<void> => {
-    claimOnly();
-  };
+  const isLoading = claimRewardsPending || claimAndStakePending;
 
   return (
     <Modal onClose={onCloseModal}>
@@ -73,7 +97,9 @@ export const StakingRewards = (): JSX.Element => {
           <Stack gap={2} className="items-center ">
             <img src={claimRewardsSvg} alt="" className="w-22 mx-auto" />
             <div>
-              {isLoading && <SkeletonLoading width="200px" height="60px" />}
+              {isLoadingRewards && (
+                <SkeletonLoading width="200px" height="60px" />
+              )}
               {isSuccess && (
                 <NamCurrency className="text-4xl" amount={availableRewards} />
               )}
@@ -82,18 +108,18 @@ export const StakingRewards = (): JSX.Element => {
           <Stack gap={2}>
             <ActionButton
               backgroundColor="cyan"
-              onClick={onClaimAndStake}
-              disabled={true}
+              onClick={() => claimRewardsAndStake()}
+              disabled={!claimAndStakeEnabled || isLoading}
             >
-              Claim & Stake
+              {claimAndStakePending ? "Loading..." : "Claim & Stake"}
             </ActionButton>
             <ActionButton
               backgroundColor="white"
-              onClick={onClaim}
-              disabled={!isEnabled}
+              onClick={() => claimRewards()}
+              disabled={!claimRewardsEnabled || isLoading}
               type="button"
             >
-              Claim
+              {claimRewardsPending ? "Loading..." : "Claim"}
             </ActionButton>
           </Stack>
         </Stack>
