@@ -12,6 +12,7 @@ import { Message } from "router";
 import { getHandler } from "./handler";
 import {
   ConnectInterfaceResponseMsg,
+  DisconnectInterfaceResponseMsg,
   RejectSignArbitraryMsg,
   RejectSignTxMsg,
   RevokeConnectionMsg,
@@ -80,12 +81,18 @@ describe("approvals handler", () => {
     expect(service.approveConnection).toBeCalled();
 
     const connectInterfaceResponseMsg = new ConnectInterfaceResponseMsg(
-      0,
       "",
       true
     );
     handler(env, connectInterfaceResponseMsg);
     expect(service.approveConnectionResponse).toBeCalled();
+
+    const disconnectInterfaceResponseMsg = new DisconnectInterfaceResponseMsg(
+      "",
+      true
+    );
+    handler(env, disconnectInterfaceResponseMsg);
+    expect(service.approveDisconnectionResponse).toBeCalled();
 
     const revokeConnectionMsg = new RevokeConnectionMsg("");
     handler(env, revokeConnectionMsg);

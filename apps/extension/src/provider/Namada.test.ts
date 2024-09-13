@@ -21,6 +21,14 @@ jest.mock(
     )
 );
 
+jest.mock("webextension-polyfill", () => ({
+  tabs: {
+    onRemoved: {
+      addListener: jest.fn(),
+    },
+  },
+}));
+
 describe("Namada", () => {
   let namada: Namada;
   let vaultStorage: VaultStorage;
