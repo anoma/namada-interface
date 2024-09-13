@@ -1,23 +1,34 @@
-FROM rust:1.79 as builder
+FROM rust:1.79 AS builder
 WORKDIR /app
+
 RUN apt update && apt install -y nodejs npm clang pkg-config libssl-dev protobuf-compiler curl
 RUN npm install -g yarn
+
 RUN rustup target add wasm32-unknown-unknown
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh -s -- -y
+
 COPY .yarnrc.yml tsconfig.base.json package.json yarn.lock .
 COPY ./.yarn ./.yarn
 COPY ./packages ./packages
 COPY ./scripts ./scripts
 COPY ./apps/namadillo/package.json ./apps/namadillo/package.json
+
 RUN yarn 
+
 WORKDIR /app/apps/namadillo
 COPY ./apps/namadillo/scripts ./scripts
+
 RUN yarn wasm:build
+
 COPY ./apps/namadillo .
-RUN yarn 
-RUN yarn build
+RUN yarn && yarn build
 
 FROM nginx:alpine
+WORKDIR /app
+
 COPY --from=builder /app/apps/namadillo/dist /usr/share/nginx/html
-COPY ./docker/namadillo-nginx.conf /etc/nginx/conf.d/default.conf
-COPY ./docker/namadillo.config.tom[l] /usr/share/nginx/html/config.toml
+COPY ./docker/namadillo/nginx.conf /etc/nginx/conf.d/default.conf
+# COPY ./docker/namadillo/config.tom[l] /usr/share/nginx/html/config.toml
+COPY --chmod=0755 ./docker/namadillo/bootstrap_config.sh /docker-entrypoint.d/bootstrap_config.sh
+
+RUN chown nginx:nginx /docker-entrypoint.d/bootstrap_config.sh
