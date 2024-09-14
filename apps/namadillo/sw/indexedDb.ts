@@ -12,7 +12,7 @@ let durability: IDBTransactionMode = "readwrite";
 class IndexedDBKVStore<T> implements KVStore<T> {
   protected cachedDB?: IDBDatabase;
 
-  constructor(protected readonly _prefix: string) { }
+  constructor(protected readonly _prefix: string) {}
 
   public async get<U extends T>(key: string): Promise<U | undefined> {
     const tx = (await this.getDB()).transaction([this.prefix()], "readonly");
@@ -105,49 +105,5 @@ class IndexedDBKVStore<T> implements KVStore<T> {
         resolve(request.result);
       };
     });
-  }
-
-  public static async durabilityCheck(): Promise<boolean> {
-    const { TARGET } = process.env;
-    let isDurable: boolean;
-
-    if (TARGET === "chrome") {
-      durability = "readwrite";
-      isDurable = true;
-    } else {
-      const prefix = "durability-check";
-      const db: IDBDatabase = await new Promise((resolve, reject) => {
-        const request = indexedDB.open(prefix);
-        request.onerror = (event) => {
-          event.stopPropagation();
-          reject(event.target);
-        };
-
-        request.onupgradeneeded = (event) => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          const db = event.target.result;
-
-          db.createObjectStore(prefix, { keyPath: "key" });
-        };
-
-        request.onsuccess = () => {
-          resolve(request.result);
-        };
-      });
-
-      try {
-        db.transaction([prefix], "readwriteflush" as IDBTransactionMode, {
-          durability: "strict",
-        });
-        durability = "readwriteflush" as IDBTransactionMode;
-        isDurable = true;
-      } catch {
-        durability = "readwrite";
-        isDurable = false;
-      }
-    }
-
-    return isDurable;
   }
 }
