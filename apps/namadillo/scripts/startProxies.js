@@ -1,7 +1,7 @@
 const { exec } = require("child_process");
-require("dotenv").config();
 
-const { MASP_MPC_URL } = process.env;
+const MASP_MPC_URL =
+  "https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup";
 
 const proxyConfigs = [
   {

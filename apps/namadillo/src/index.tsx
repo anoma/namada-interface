@@ -56,9 +56,38 @@ if ("serviceWorker" in navigator) {
       })
       .then((registration) => {
         console.log("Service Worker registered: ", registration);
+
+        const msgChannel = new MessageChannel();
+        registration.active?.postMessage(
+          {
+            type: "INIT_PORT",
+          },
+          [msgChannel.port2]
+        );
+
+        msgChannel.port1.onmessage = (event) => {
+          switch (event.type) {
+            case "namadillo:hasMaspParamsResponse":
+              console.warn(`${event.data.param}: ${event.data.hasMaspParam}`);
+              break;
+          }
+        };
+
+        registration.active?.postMessage({
+          type: "namadillo:hasMaspParams",
+          param: "masp-output.params",
+        });
+        registration.active?.postMessage({
+          type: "namadillo:hasMaspParams",
+          param: "masp-spend.params",
+        });
+        registration.active?.postMessage({
+          type: "namadillo:hasMaspParams",
+          param: "masp-convert.params",
+        });
       })
       .catch((error) => {
-        console.log("Service Worker registration failed: ", error);
+        console.warn("Service Worker registration failed: ", error);
       });
   });
 }
