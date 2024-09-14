@@ -2,7 +2,6 @@ import {
   CheckDurabilityMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
-  UpdateDefaultAccountMsg,
   VerifyArbitraryMsg,
 } from "provider/messages";
 import { Env, Handler, InternalHandler, Message } from "router";
@@ -63,11 +62,6 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleQueryDefaultAccountMsg(service)(
           env,
           msg as QueryDefaultAccountMsg
-        );
-      case UpdateDefaultAccountMsg:
-        return handleUpdateDefaultAccountMsg(service)(
-          env,
-          msg as UpdateDefaultAccountMsg
         );
       case QueryParentAccountsMsg:
         return handleQueryParentAccountsMsg(service)(
@@ -184,15 +178,6 @@ const handleQueryDefaultAccountMsg: (
 ) => InternalHandler<QueryDefaultAccountMsg> = (service) => {
   return async () => {
     return await service.queryDefaultAccount();
-  };
-};
-
-const handleUpdateDefaultAccountMsg: (
-  service: KeyRingService
-) => InternalHandler<UpdateDefaultAccountMsg> = (service) => {
-  return async (_, msg) => {
-    const { address } = msg;
-    return await service.updateDefaultAccount(address);
   };
 };
 

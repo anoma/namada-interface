@@ -7,6 +7,9 @@ export enum TopLevelRoute {
   ApproveConnection = "/approve-connection",
   ApproveDisconnection = "/approve-disconnection",
 
+  // Update default account approval
+  ApproveUpdateDefaultAccount = "/approve-update-default-account",
+
   // Sign Tx approval
   ApproveSignTx = "/approve-sign-tx",
   ApproveSignTxDetails = "/approve-sign-tx-details",

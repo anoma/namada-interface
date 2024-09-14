@@ -2,7 +2,6 @@ import {
   CheckDurabilityMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
-  UpdateDefaultAccountMsg,
   VerifyArbitraryMsg,
 } from "provider/messages";
 import { Router } from "router";
@@ -30,7 +29,6 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(GetActiveAccountMsg);
   router.registerMessage(QueryAccountsMsg);
   router.registerMessage(QueryDefaultAccountMsg);
-  router.registerMessage(UpdateDefaultAccountMsg);
   router.registerMessage(QueryParentAccountsMsg);
   router.registerMessage(QueryAccountDetailsMsg);
   router.registerMessage(SaveAccountSecretMsg);

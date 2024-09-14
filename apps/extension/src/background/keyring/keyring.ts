@@ -409,8 +409,7 @@ export class KeyRing {
   }
 
   public async updateDefaultAccount(address: string): Promise<void> {
-    const accounts = await this.queryAllAccounts();
-    const account = accounts.find((acc) => acc.address === address);
+    const account = await this.queryAccountDetails(address);
     if (!account) {
       throw new Error(`Account with address ${address} not found.`);
     }

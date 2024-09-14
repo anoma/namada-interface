@@ -3,6 +3,7 @@ import {
   ApproveDisconnectInterfaceMsg,
   ApproveSignArbitraryMsg,
   ApproveSignTxMsg,
+  ApproveUpdateDefaultAccountMsg,
   IsConnectionApprovedMsg,
 } from "provider";
 import { Env, Handler, InternalHandler, Message } from "router";
@@ -18,6 +19,7 @@ import {
   SubmitApprovedSignArbitraryMsg,
   SubmitApprovedSignLedgerTxMsg,
   SubmitApprovedSignTxMsg,
+  SubmitUpdateDefaultAccountMsg,
 } from "./messages";
 import { ApprovalsService } from "./service";
 
@@ -53,6 +55,16 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleRevokeConnectionMsg(service)(
           env,
           msg as RevokeConnectionMsg
+        );
+      case ApproveUpdateDefaultAccountMsg:
+        return handleApproveUpdateDefaultAccountMsg(service)(
+          env,
+          msg as ApproveUpdateDefaultAccountMsg
+        );
+      case SubmitUpdateDefaultAccountMsg:
+        return handleSubmitUpdateDefaultAccountMsg(service)(
+          env,
+          msg as SubmitUpdateDefaultAccountMsg
         );
       case ApproveSignTxMsg:
         return handleApproveSignTxMsg(service)(env, msg as ApproveSignTxMsg);
@@ -161,6 +173,22 @@ const handleRevokeConnectionMsg: (
 ) => InternalHandler<RevokeConnectionMsg> = (service) => {
   return async (_, { originToRevoke }) => {
     return await service.revokeConnection(originToRevoke);
+  };
+};
+
+const handleApproveUpdateDefaultAccountMsg: (
+  service: ApprovalsService
+) => InternalHandler<ApproveUpdateDefaultAccountMsg> = (service) => {
+  return async (_, { address }) => {
+    return await service.approveUpdateDefaultAccount(address);
+  };
+};
+
+const handleSubmitUpdateDefaultAccountMsg: (
+  service: ApprovalsService
+) => InternalHandler<SubmitUpdateDefaultAccountMsg> = (service) => {
+  return async ({ senderTabId: popupTabId }, { address }) => {
+    return await service.submitUpdateDefaultAccount(popupTabId, address);
   };
 };
 

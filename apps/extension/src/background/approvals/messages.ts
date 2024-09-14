@@ -14,6 +14,7 @@ export enum MessageType {
   ConnectInterfaceResponse = "connect-interface-response",
   DisconnectInterfaceResponse = "disconnect-interface-response",
   RevokeConnection = "revoke-connection",
+  SubmitUpdateDefaultAccount = "submit-update-default-account",
   QueryTxDetails = "query-tx-details",
   QuerySignArbitraryData = "query-sign-arbitrary-data",
   QueryPendingTxBytes = "query-pending-tx-bytes",
@@ -208,6 +209,28 @@ export class RevokeConnectionMsg extends Message<void> {
 
   type(): string {
     return RevokeConnectionMsg.type();
+  }
+}
+
+export class SubmitUpdateDefaultAccountMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.SubmitUpdateDefaultAccount;
+  }
+
+  constructor(public readonly address: string) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["address"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SubmitUpdateDefaultAccountMsg.type();
   }
 }
 
