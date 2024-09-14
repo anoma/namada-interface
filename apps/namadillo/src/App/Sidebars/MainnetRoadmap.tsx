@@ -1,8 +1,12 @@
 import { ActionButton, Image } from "@namada/components";
+import { applicationFeaturesAtom } from "atoms/settings";
 import clsx from "clsx";
+import { useAtomValue } from "jotai";
 import { FaCircleCheck } from "react-icons/fa6";
 
 const MainnetRoadmap = (): JSX.Element => {
+  const { claimRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
+
   const renderPhase = (
     phaseNumber: string,
     name: React.ReactNode,
@@ -52,7 +56,8 @@ const MainnetRoadmap = (): JSX.Element => {
             <br />
             PGF Inflation
           </>,
-          "opacity-25"
+          claimRewardsEnabled ? "opacity-100" : "opacity-25",
+          claimRewardsEnabled
         )}
         {renderPhase(
           "3",

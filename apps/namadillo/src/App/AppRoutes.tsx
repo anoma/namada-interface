@@ -22,6 +22,8 @@ import MessageRoutes from "./SignMessages/routes";
 import { StakingRewards } from "./Staking/StakingRewards";
 import StakingRoutes from "./Staking/routes";
 import SwitchAccountRoutes from "./SwitchAccount/routes";
+import { Transfer } from "./Transfer/Transfer";
+import TransferRoutes from "./Transfer/routes";
 
 export const MainRoutes = (): JSX.Element => {
   const location = useLocation();
@@ -43,6 +45,7 @@ export const MainRoutes = (): JSX.Element => {
             path={`${GovernanceRoutes.index()}/*`}
             element={<Governance />}
           />
+          <Route path={`${TransferRoutes.index()}/*`} element={<Transfer />} />
         </Route>
       </Routes>
       <Routes location={location} key={settingsAnimationKey}>
