@@ -1,4 +1,5 @@
 export * from "./Accordion";
+export * from "./CircleFit";
 export * from "./ActionButton";
 export * from "./Alert";
 export * from "./AmountInput";
