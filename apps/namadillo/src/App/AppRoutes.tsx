@@ -19,6 +19,7 @@ import GovernanceRoutes from "./Governance/routes";
 import SettingsRoutes from "./Settings/routes";
 import { SignMessages } from "./SignMessages/SignMessages";
 import MessageRoutes from "./SignMessages/routes";
+import { StakingRewards } from "./Staking/StakingRewards";
 import StakingRoutes from "./Staking/routes";
 import SwitchAccountRoutes from "./SwitchAccount/routes";
 
@@ -59,6 +60,10 @@ export const MainRoutes = (): JSX.Element => {
           path={`${MessageRoutes.index()}/*`}
           element={<SignMessages />}
           errorElement={<RouteErrorBoundary />}
+        />
+        <Route
+          path={`${StakingRoutes.claimRewards().url}`}
+          element={<StakingRewards />}
         />
       </Routes>
       <ScrollRestoration />

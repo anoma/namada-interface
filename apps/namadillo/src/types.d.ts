@@ -3,7 +3,7 @@ import {
   Unbond as IndexerUnbond,
   ValidatorStatus,
 } from "@anomaorg/namada-indexer-client";
-import { ChainKey, ExtensionKey } from "@namada/types";
+import { ChainKey, ClaimRewardsMsgValue, ExtensionKey } from "@namada/types";
 import BigNumber from "bignumber.js";
 
 declare module "*.module.css" {
@@ -127,10 +127,22 @@ export type RedelegateChange = {
   amount: BigNumber;
 };
 
+export type ClaimRewardsProps = {
+  account: Account;
+  params: ClaimRewardsMsgValue[];
+  gasConfig: GasConfig;
+};
+
+export type BuildTxAtomParams<T> = {
+  account: Account;
+  params: T[];
+  gasConfig: GasConfig;
+};
+
 export type TxKind =
   | "Bond"
   | "Unbond"
-  | "Redelegation"
+  | "Redelegate"
   | "Withdraw"
   | "ClaimRewards"
   | "VoteProposal"

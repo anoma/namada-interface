@@ -238,7 +238,7 @@ export const useTransactionNotifications = (): void => {
     });
   });
 
-  useTransactionEventListener("ReDelegate.Error", (e) => {
+  useTransactionEventListener("Redelegate.Error", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
     clearPendingNotifications(id);
     dispatchNotification({
@@ -258,7 +258,7 @@ export const useTransactionNotifications = (): void => {
     });
   });
 
-  useTransactionEventListener("ReDelegate.Success", (e) => {
+  useTransactionEventListener("Redelegate.Success", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
     clearPendingNotifications(id);
     dispatchNotification({
@@ -275,7 +275,7 @@ export const useTransactionNotifications = (): void => {
     });
   });
 
-  useTransactionEventListener("ReDelegate.PartialSuccess", (e) => {
+  useTransactionEventListener("Redelegate.PartialSuccess", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.successData!);
     clearPendingNotifications(id);
     dispatchNotification({
@@ -293,6 +293,28 @@ export const useTransactionNotifications = (): void => {
         failedDetails: getReDelegateDetailList(e.detail.failedData!),
       }),
       type: "partialSuccess",
+    });
+  });
+
+  useTransactionEventListener("ClaimRewards.Success", (e) => {
+    const id = createNotificationId(e.detail.tx);
+    clearPendingNotifications(id);
+    dispatchNotification({
+      id,
+      title: "Claim Rewards",
+      description: `Your rewards have been successfully claimed and are now available for staking.`,
+      type: "success",
+    });
+  });
+
+  useTransactionEventListener("ClaimRewards.Error", (e) => {
+    const id = createNotificationId(e.detail.tx);
+    clearPendingNotifications(id);
+    dispatchNotification({
+      id,
+      title: "Claim Rewards",
+      description: `An error occurred while trying to claim your rewards.`,
+      type: "success",
     });
   });
 

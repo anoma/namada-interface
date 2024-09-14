@@ -6,13 +6,9 @@ import {
   VoteProposalProps,
   WithdrawProps,
 } from "@namada/types";
+import { ClaimRewardsProps, TxKind } from "types";
 
-export type TransactionEventsClasses =
-  | "Bond"
-  | "Unbond"
-  | "ReDelegate"
-  | "Withdraw"
-  | "VoteProposal";
+export type TransactionEventsClasses = Partial<TxKind>;
 
 export type TransactionEventsStatus =
   | "Pending"
@@ -48,11 +44,13 @@ declare global {
     "Unbond.Success": EventData<UnbondProps>;
     "Unbond.PartialSuccess": EventData<UnbondProps>;
     "Unbond.Error": EventData<UnbondProps>;
-    "ReDelegate.Success": EventData<RedelegateProps>;
-    "ReDelegate.PartialSuccess": EventData<RedelegateProps>;
-    "ReDelegate.Error": EventData<RedelegateProps>;
+    "Redelegate.Success": EventData<RedelegateProps>;
+    "Redelegate.PartialSuccess": EventData<RedelegateProps>;
+    "Redelegate.Error": EventData<RedelegateProps>;
     "Withdraw.Success": EventData<WithdrawProps>;
     "Withdraw.Error": EventData<WithdrawProps>;
+    "ClaimRewards.Success": EventData<ClaimRewardsProps>;
+    "ClaimRewards.Error": EventData<ClaimRewardsProps>;
     "VoteProposal.Success": EventData<VoteProposalProps>;
     "VoteProposal.Error": EventData<VoteProposalProps>;
   }

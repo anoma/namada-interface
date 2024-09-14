@@ -1,21 +1,29 @@
-import { BondProps, WithdrawProps } from "@namada/types";
-import { chainAtom } from "atoms/chain";
+import { Reward } from "@anomaorg/namada-indexer-client";
+import {
+  BondMsgValue,
+  ClaimRewardsMsgValue,
+  RedelegateMsgValue,
+  UnbondMsgValue,
+  WithdrawMsgValue,
+} from "@namada/types";
+import { defaultAccountAtom } from "atoms/accounts";
+import { indexerApiAtom } from "atoms/api";
+import { chainAtom, chainParametersAtom } from "atoms/chain";
 import { queryDependentFn } from "atoms/utils";
 import { myValidatorsAtom } from "atoms/validators";
+import BigNumber from "bignumber.js";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
-import { TransactionPair } from "lib/query";
-import {
-  ChangeInStakingProps,
-  RedelegateChangesProps,
-  StakingTotals,
-} from "types";
+import { AddressBalance, BuildTxAtomParams, StakingTotals } from "types";
 import { toStakingTotal } from "./functions";
 import {
   createBondTx,
+  createClaimAndStakeTx,
+  createClaimTx,
   createReDelegateTx,
   createUnbondTx,
   createWithdrawTx,
+  fetchClaimableRewards,
 } from "./services";
 
 export const getStakingTotalAtom = atomWithQuery<StakingTotals>((get) => {
@@ -35,8 +43,12 @@ export const createBondTxAtom = atomWithMutation((get) => {
   return {
     mutationKey: ["create-bonding-tx"],
     enabled: chain.isSuccess,
-    mutationFn: async ({ changes, gasConfig, account }: ChangeInStakingProps) =>
-      createBondTx(chain.data!, account, changes, gasConfig),
+    mutationFn: async ({
+      params,
+      gasConfig,
+      account,
+    }: BuildTxAtomParams<BondMsgValue>) =>
+      createBondTx(chain.data!, account, params, gasConfig),
   };
 });
 
@@ -45,8 +57,12 @@ export const createUnbondTxAtom = atomWithMutation((get) => {
   return {
     mutationKey: ["create-unbonding-tx"],
     enabled: chain.isSuccess,
-    mutationFn: async ({ changes, gasConfig, account }: ChangeInStakingProps) =>
-      createUnbondTx(chain.data!, account, changes, gasConfig),
+    mutationFn: async ({
+      params,
+      gasConfig,
+      account,
+    }: BuildTxAtomParams<UnbondMsgValue>) =>
+      createUnbondTx(chain.data!, account, params, gasConfig),
   };
 });
 
@@ -56,26 +72,11 @@ export const createReDelegateTxAtom = atomWithMutation((get) => {
     mutationKey: ["create-redelegate-tx"],
     enabled: chain.isSuccess,
     mutationFn: async ({
-      changes,
+      params,
       gasConfig,
       account,
-    }: RedelegateChangesProps) =>
-      createReDelegateTx(chain.data!, account, changes, gasConfig),
-  };
-});
-
-export const createWithdrawTxAtom = atomWithMutation((get) => {
-  const chain = get(chainAtom);
-  return {
-    mutationKey: ["create-withdraw-tx"],
-    enabled: chain.isSuccess,
-    mutationFn: async ({
-      changes,
-      gasConfig,
-      account,
-    }: ChangeInStakingProps): Promise<
-      [TransactionPair<WithdrawProps>, BondProps] | undefined
-    > => createWithdrawTx(chain.data!, account, changes, gasConfig),
+    }: BuildTxAtomParams<RedelegateMsgValue>) =>
+      createReDelegateTx(chain.data!, account, params, gasConfig),
   };
 });
 
@@ -86,12 +87,71 @@ export const createWithdrawTxAtomFamily = atomFamily((id: string) => {
       mutationKey: ["create-withdraw-tx", id],
       enabled: chain.isSuccess,
       mutationFn: async ({
-        changes,
+        params,
         gasConfig,
         account,
-      }: ChangeInStakingProps): Promise<
-        [TransactionPair<WithdrawProps>, BondProps] | undefined
-      > => createWithdrawTx(chain.data!, account, changes, gasConfig),
+      }: BuildTxAtomParams<WithdrawMsgValue>) =>
+        createWithdrawTx(chain.data!, account, params, gasConfig),
     };
   });
+});
+
+export const claimRewardsAtom = atomWithMutation((get) => {
+  const chain = get(chainAtom);
+  return {
+    mutationKey: ["create-claim-tx"],
+    enabled: chain.isSuccess,
+    mutationFn: async ({
+      params,
+      gasConfig,
+      account,
+    }: BuildTxAtomParams<ClaimRewardsMsgValue>) => {
+      return createClaimTx(chain.data!, account, params, gasConfig);
+    },
+  };
+});
+
+export const claimableRewardsAtom = atomWithQuery<AddressBalance>((get) => {
+  const account = get(defaultAccountAtom);
+  const chainParameters = get(chainParametersAtom);
+  const api = get(indexerApiAtom);
+  return {
+    queryKey: ["claim-rewards", account.data?.address],
+    refetchInterval: 60 * 1000,
+    ...queryDependentFn(async () => {
+      const rewards = await fetchClaimableRewards(api, account.data!.address);
+      return rewards.reduce(
+        (prev: AddressBalance, current: Reward): AddressBalance => {
+          if (!current.validator) return prev;
+          return {
+            ...prev,
+            [current.validator?.address]: new BigNumber(current.amount || 0),
+          };
+        },
+        {}
+      );
+    }, [account, chainParameters]),
+  };
+});
+
+export const claimAndStakeRewardsAtom = atomWithMutation((get) => {
+  const chain = get(chainAtom);
+  const claimableRewards = get(claimableRewardsAtom);
+  return {
+    mutationKey: ["create-claim-and-stake-tx"],
+    enabled: chain.isSuccess && claimableRewards.isSuccess,
+    mutationFn: async ({
+      params,
+      gasConfig,
+      account,
+    }: BuildTxAtomParams<ClaimRewardsMsgValue>) => {
+      return createClaimAndStakeTx(
+        chain.data!,
+        account,
+        params,
+        claimableRewards.data!,
+        gasConfig
+      );
+    },
+  };
 });

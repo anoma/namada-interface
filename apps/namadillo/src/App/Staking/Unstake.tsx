@@ -1,5 +1,5 @@
 import { ActionButton, Alert, Modal, Panel, Stack } from "@namada/components";
-import { UnbondMsgValue, UnbondProps } from "@namada/types";
+import { UnbondMsgValue } from "@namada/types";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
@@ -8,20 +8,14 @@ import { TableRowLoading } from "App/Common/TableRowLoading";
 import { TransactionFees } from "App/Common/TransactionFees";
 import { defaultAccountAtom } from "atoms/accounts";
 import { chainParametersAtom } from "atoms/chain";
-import { defaultGasConfigFamily } from "atoms/fees";
-import {
-  createNotificationId,
-  dispatchToastNotificationAtom,
-} from "atoms/notifications";
 import { createUnbondTxAtom } from "atoms/staking";
 import { myValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useStakeModule } from "hooks/useStakeModule";
-import invariant from "invariant";
-import { useAtomValue, useSetAtom } from "jotai";
-import { TransactionPair, broadcastTx } from "lib/query";
-import { FormEvent, useEffect } from "react";
+import { useTransaction } from "hooks/useTransaction";
+import { useAtomValue } from "jotai";
+import { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { MyValidator } from "types";
 import { BondingAmountOverview } from "./BondingAmountOverview";
@@ -32,20 +26,9 @@ const Unstake = (): JSX.Element => {
   const navigate = useNavigate();
   const { data: account } = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(myValidatorsAtom);
-  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const { data: chainParameters } = useAtomValue(chainParametersAtom);
 
   const {
-    mutate: createUnbondTx,
-    isPending: isPerformingUnbond,
-    data: unbondTransactionData,
-    isSuccess,
-    isError,
-    error: unstakeTxError,
-  } = useAtomValue(createUnbondTxAtom);
-
-  const {
-    parseUpdatedAmounts,
     totalStakedAmount,
     stakedAmountByAddress,
     updatedAmountByAddress,
@@ -53,13 +36,43 @@ const Unstake = (): JSX.Element => {
     onChangeValidatorAmount,
   } = useStakeModule({ account });
 
-  const gasConfig = useAtomValue(
-    defaultGasConfigFamily(
-      Array(Object.keys(updatedAmountByAddress).length).fill("Unbond")
-    )
-  );
+  const parseUnstakeParams = (): UnbondMsgValue[] => {
+    if (!account?.address) return [];
+    return Object.keys(updatedAmountByAddress).map((validatorAddress) => ({
+      validator: validatorAddress,
+      source: account.address,
+      amount: updatedAmountByAddress[validatorAddress],
+    }));
+  };
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
+
+  const {
+    execute: performUnbond,
+    gasConfig,
+    isPending: isPerformingUnbond,
+    isEnabled,
+  } = useTransaction({
+    createTxAtom: createUnbondTxAtom,
+    params: parseUnstakeParams(),
+    eventType: "Unbond",
+    parsePendingTxNotification: () => ({
+      title: "Unstake transaction in progress",
+      description: (
+        <>
+          Your unstaking transaction of{" "}
+          <NamCurrency amount={totalUpdatedAmount} /> is being processed
+        </>
+      ),
+    }),
+    parseErrorTxNotification: () => ({
+      title: "Unstake transaction failed",
+      description: "",
+    }),
+    onSuccess: () => {
+      onCloseModal();
+    },
+  });
 
   const onUnbondAll = (): void => {
     if (!validators.isSuccess) return;
@@ -73,77 +86,11 @@ const Unstake = (): JSX.Element => {
 
   const onSubmit = (e: FormEvent): void => {
     e.preventDefault();
-    invariant(
-      account,
-      "Extension is not connected or you don't have an account"
-    );
-    const changes = parseUpdatedAmounts();
-
-    if (!gasConfig.isSuccess) {
-      throw new Error("Gas config loading is still pending");
-    }
-
-    createUnbondTx({
-      changes,
-      account,
-      gasConfig: gasConfig.data,
-    });
+    performUnbond();
   };
-
-  const dispatchPendingNotification = (
-    data?: TransactionPair<UnbondMsgValue>
-  ): void => {
-    dispatchNotification({
-      id: createNotificationId(data?.encodedTxData.txs),
-      title: "Unstake transaction in progress",
-      description: (
-        <>
-          Your unstaking transaction of{" "}
-          <NamCurrency amount={totalUpdatedAmount} /> is being processed
-        </>
-      ),
-      type: "pending",
-    });
-  };
-
-  useEffect(() => {
-    if (isError) {
-      dispatchNotification({
-        id: createNotificationId(),
-        title: "Unstake transaction failed",
-        description: "",
-        details:
-          unstakeTxError instanceof Error ? unstakeTxError.message : undefined,
-        type: "error",
-      });
-    }
-  }, [isError]);
-
-  const dispatchUnbondingTransaction = (
-    tx: TransactionPair<UnbondProps>
-  ): void => {
-    tx.signedTxs.forEach((signedTx) => {
-      broadcastTx(
-        tx.encodedTxData,
-        signedTx,
-        tx.encodedTxData.meta?.props,
-        "Unbond"
-      );
-    });
-  };
-
-  useEffect(() => {
-    if (isSuccess) {
-      unbondTransactionData &&
-        dispatchUnbondingTransaction(unbondTransactionData);
-      dispatchPendingNotification(unbondTransactionData);
-      onCloseModal();
-    }
-  }, [isSuccess]);
 
   const validationMessage = ((): string => {
     if (totalStakedAmount.lt(totalUpdatedAmount)) return "Invalid amount";
-
     for (const address in updatedAmountByAddress) {
       if (stakedAmountByAddress[address].lt(updatedAmountByAddress[address])) {
         return "Invalid amount";
@@ -258,19 +205,17 @@ const Unstake = (): JSX.Element => {
               backgroundHoverColor="pink"
               className="mt-2 col-start-2"
               disabled={
-                !!validationMessage ||
-                isPerformingUnbond ||
-                totalUpdatedAmount.eq(0)
+                !!validationMessage || !isEnabled || totalUpdatedAmount.eq(0)
               }
             >
               {isPerformingUnbond ?
                 "Processing..."
               : validationMessage || "Unstake"}
             </ActionButton>
-            {gasConfig.isSuccess && (
+            {gasConfig && (
               <TransactionFees
                 className="justify-self-end px-4"
-                gasConfig={gasConfig.data}
+                gasConfig={gasConfig}
               />
             )}
           </div>

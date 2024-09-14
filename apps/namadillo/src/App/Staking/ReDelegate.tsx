@@ -3,24 +3,18 @@ import { RedelegateMsgValue } from "@namada/types";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { defaultAccountAtom } from "atoms/accounts";
-import { defaultGasConfigFamily } from "atoms/fees";
-import {
-  createNotificationId,
-  dispatchToastNotificationAtom,
-} from "atoms/notifications";
 import { createReDelegateTxAtom } from "atoms/staking";
 import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useStakeModule } from "hooks/useStakeModule";
-import invariant from "invariant";
-import { useAtomValue, useSetAtom } from "jotai";
-import { TransactionPair, broadcastTx } from "lib/query";
+import { useTransaction } from "hooks/useTransaction";
+import { useAtomValue } from "jotai";
 import { getAmountDistribution } from "lib/staking";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
-import { TxKind, Validator } from "types";
+import { AddressBalance, Validator } from "types";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { ReDelegateAssignStake } from "./ReDelegateAssignStake";
 import { ReDelegateRemoveStake } from "./ReDelegateRemoveStake";
@@ -28,14 +22,11 @@ import StakingRoutes from "./routes";
 
 export const ReDelegate = (): JSX.Element => {
   const [step, setStep] = useState<"remove" | "assign">("remove");
-  const [amountsToAssignByAddress, setAmountToAssignByAddress] = useState<
-    Record<string, BigNumber>
-  >({});
-
-  const navigate = useNavigate();
-  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
+  const [amountsToAssignByAddress, setAmountToAssignByAddress] =
+    useState<AddressBalance>({});
   const { data: account } = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(allValidatorsAtom);
+  const navigate = useNavigate();
 
   const {
     totalStakedAmount,
@@ -46,33 +37,42 @@ export const ReDelegate = (): JSX.Element => {
     myValidators,
   } = useStakeModule({ account });
 
-  const changes = getAmountDistribution(
-    amountsRemovedByAddress,
-    amountsToAssignByAddress
-  );
-
-  const gasConfig = useAtomValue(
-    defaultGasConfigFamily(Array<TxKind>(changes.length).fill("Redelegation"))
-  );
-
-  const {
-    mutate: createRedelegateTx,
-    isPending: isCreatingTx,
-    data: redelegateTxData,
-    isSuccess,
-    isError,
-    error: redelegateTxError,
-  } = useAtomValue(createReDelegateTxAtom);
-
-  useEffect(() => {
-    if (isSuccess) {
-      redelegateTxData && dispatchReDelegateTransaction(redelegateTxData);
-      dispatchPendingNotification(redelegateTxData);
-      onCloseModal();
-    }
-  }, [isSuccess]);
+  const parseRedelegateParams = (): RedelegateMsgValue[] => {
+    if (!account?.address) return [];
+    return getAmountDistribution(
+      amountsRemovedByAddress,
+      amountsToAssignByAddress
+    ).map(
+      (distribution) =>
+        ({
+          ...distribution,
+          owner: account?.address,
+        }) as RedelegateMsgValue
+    );
+  };
 
   const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
+
+  const {
+    execute: performRedelegate,
+    isPending: isCreatingTx,
+    gasConfig,
+  } = useTransaction({
+    createTxAtom: createReDelegateTxAtom,
+    eventType: "Redelegate",
+    params: parseRedelegateParams(),
+    parsePendingTxNotification: () => ({
+      title: "Staking redelegation in progress",
+      description: <>Your redelegation transaction is being processed</>,
+    }),
+    parseErrorTxNotification: () => ({
+      title: "Staking redelegation failed",
+      description: "",
+    }),
+    onSuccess: () => {
+      onCloseModal();
+    },
+  });
 
   const onAssignAmount = (
     validator: Validator,
@@ -88,63 +88,6 @@ export const ReDelegate = (): JSX.Element => {
         ...amounts,
         [validator.address]: amount,
       };
-    });
-  };
-
-  const dispatchPendingNotification = (
-    data?: TransactionPair<RedelegateMsgValue>
-  ): void => {
-    dispatchNotification({
-      id: createNotificationId(data?.encodedTxData.txs),
-      title: "Staking redelegation in progress",
-      description: <>Your redelegation transaction is being processed</>,
-      type: "pending",
-    });
-  };
-
-  useEffect(() => {
-    if (isError) {
-      dispatchNotification({
-        id: createNotificationId(),
-        title: "Staking redelegation failed",
-        description: "",
-        details:
-          redelegateTxError instanceof Error ?
-            redelegateTxError.message
-          : undefined,
-        type: "error",
-      });
-    }
-  }, [isError]);
-
-  const dispatchReDelegateTransaction = (
-    tx: TransactionPair<RedelegateMsgValue>
-  ): void => {
-    tx.signedTxs.forEach((signedTx) => {
-      broadcastTx(
-        tx.encodedTxData,
-        signedTx,
-        tx.encodedTxData.meta?.props,
-        "ReDelegate"
-      );
-    });
-  };
-
-  const performRedelegate = (): void => {
-    invariant(account, `Extension is connected but you don't have an account`);
-
-    if (changes.length === 0) {
-      throw new Error("No redelegation changes to make");
-    }
-
-    if (!gasConfig.isSuccess) {
-      throw new Error("Gas config loading is still pending");
-    }
-
-    createRedelegateTx({
-      changes,
-      gasConfig: gasConfig.data,
-      account,
     });
   };
 
@@ -254,7 +197,7 @@ export const ReDelegate = (): JSX.Element => {
                 totalAssignedAmounts={totalAssignedAmounts}
                 onChangeAssignedAmount={onAssignAmount}
                 isPerformingRedelegation={isCreatingTx}
-                redelegateChanges={changes}
+                redelegateChanges={parseRedelegateParams()}
                 gasConfig={gasConfig}
               />
             )}

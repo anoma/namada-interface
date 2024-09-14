@@ -10,8 +10,12 @@ module.exports = {
   modulePathIgnorePatterns: ["e2e-tests"],
   moduleDirectories: ["src", "node_modules"],
   verbose: true,
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
-    prefix: "<rootDir>/src/",
-  }),
+  moduleNameMapper: {
+    ...pathsToModuleNameMapper(compilerOptions.paths, {
+      prefix: "<rootDir>/src/",
+    }),
+    "^.+\\.svg$": "jest-transformer-svg",
+    "\\.css": "identity-obj-proxy",
+  },
   setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
 };

@@ -1,6 +1,7 @@
 import { TxType } from "@heliax/namada-sdk/web";
 import {
   BondProps,
+  ClaimRewardsProps,
   CommitmentDetailProps,
   RedelegateProps,
   RevealPkProps,
@@ -103,7 +104,12 @@ const renderContent = (tx: CommitmentDetailProps): ReactNode => {
         <>Reveal public key for address {formatAddress(revealTx.publicKey)}</>
       );
 
+    case TxType.ClaimRewards:
+      const claimTx = tx as ClaimRewardsProps;
+      return <>Claiming rewards from {formatAddress(claimTx.validator)}</>;
+
     // TODO: continue implementing other types in the next phases
+
     default:
       return <></>;
   }

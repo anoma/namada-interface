@@ -14,6 +14,8 @@ export const incrementBonding = (): RouteOutput =>
 export const redelegateBonding = (): RouteOutput =>
   routeOutput("/bonding/redelegate");
 
+export const claimRewards = (): RouteOutput => routeOutput("/claim-rewards");
+
 export const validatorDetails = (id: string | number): RouteOutput =>
   routeOutput(`/validator-details/${id}`);
 
@@ -32,5 +34,6 @@ export default {
   validatorDetailsOwner,
   incrementBonding,
   redelegateBonding,
+  claimRewards,
   unstake,
 };

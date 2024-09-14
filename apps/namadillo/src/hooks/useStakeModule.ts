@@ -4,7 +4,7 @@ import { myValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { AddressBalance, ChangeInStakingPosition, Validator } from "types";
+import { AddressBalance, Validator } from "types";
 
 type UseStakeModuleProps = {
   account: Account | undefined;
@@ -60,15 +60,6 @@ export const useStakeModule = ({ account }: UseStakeModuleProps) => {
     });
   };
 
-  const parseUpdatedAmounts = (): ChangeInStakingPosition[] => {
-    return Object.keys(updatedAmountByAddress)
-      .map((validatorAddress) => ({
-        validatorId: validatorAddress,
-        amount: updatedAmountByAddress[validatorAddress],
-      }))
-      .filter((entries) => entries.amount.gt(0));
-  };
-
   useEffect(() => {
     if (!myValidators.isSuccess || !account) return;
 
@@ -85,7 +76,6 @@ export const useStakeModule = ({ account }: UseStakeModuleProps) => {
     totalNamAfterStaking,
     totalStakedAmount,
     totalAmountToDelegate,
-    parseUpdatedAmounts,
     myValidators,
     stakedAmountByAddress,
     updatedAmountByAddress,

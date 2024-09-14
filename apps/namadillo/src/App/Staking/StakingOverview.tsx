@@ -16,8 +16,8 @@ export const StakingOverview = (): JSX.Element => {
   const myValidators = useAtomValue(myValidatorsAtom);
   const hasStaking = myValidators.data?.some((v) => v.stakedAmount?.gt(0));
   const hasUnbonded = myValidators.data?.some((v) => v.unbondedAmount?.gt(0));
-  const hasWithdraws = myValidators.data?.some(
-    (v) => v.withdrawableAmount?.gt(0)
+  const hasWithdraws = myValidators.data?.some((v) =>
+    v.withdrawableAmount?.gt(0)
   );
 
   return (

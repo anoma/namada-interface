@@ -21,7 +21,7 @@ export const txKindFromIndexer = (
     case GasLimitTableIndexer.Unbond:
       return "Unbond";
     case GasLimitTableIndexer.Redelegation:
-      return "Redelegation";
+      return "Redelegate";
     case GasLimitTableIndexer.Withdraw:
       return "Withdraw";
     case GasLimitTableIndexer.ClaimRewards:

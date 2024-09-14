@@ -14,6 +14,7 @@ export const SkeletonLoading = ({
   const { className, ...rest } = props;
   return (
     <span
+      role="progressbar"
       className={twMerge(
         "bg-neutral-800 animate-pulse block rounded-[2px]",
         className
