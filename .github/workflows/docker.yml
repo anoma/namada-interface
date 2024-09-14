@@ -9,6 +9,10 @@ on:
     branches:
       - main
     
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 env:
   GIT_LFS_SKIP_SMUDGE: 1
 
@@ -25,12 +29,12 @@ jobs:
       matrix:
         images:
           - path: "docker/namadillo/Dockerfile"
-            tag: "namadillo"
+            tag: "namadillo-main"
           - path: "docker/faucet/Dockerfile"
-            tag: "faucet-interface"
+            tag: "faucet-interface-main"
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -42,12 +46,19 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/namada-interface
+          tags: type=raw,value=${{ matrix.images.tag }}
       - name: Build and Push docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ${{ matrix.images.path }}
           push: ${{ github.ref == 'refs/heads/main' }}
-          tags: ${{ matrix.images.tag }}-latest, ${{ matrix.images.tag }}-main
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
