@@ -1,7 +1,6 @@
 import { SidebarMenuItem } from "App/Common/SidebarMenuItem";
 import GovernanceRoutes from "App/Governance/routes";
 import { MASPIcon } from "App/Icons/MASPIcon";
-import { SwapIcon } from "App/Icons/SwapIcon";
 import { AiFillHome } from "react-icons/ai";
 import { BsDiscord, BsTwitterX } from "react-icons/bs";
 import { FaVoteYea } from "react-icons/fa";
@@ -36,7 +35,7 @@ export const Navigation = (): JSX.Element => {
         <li>
           <SidebarMenuItem>
             <IoSwapHorizontal />
-            Transfer
+            IBC Transfer
           </SidebarMenuItem>
         </li>
         <li>
@@ -45,14 +44,6 @@ export const Navigation = (): JSX.Element => {
               <MASPIcon />
             </i>
             MASP
-          </SidebarMenuItem>
-        </li>
-        <li>
-          <SidebarMenuItem>
-            <i className="w-4">
-              <SwapIcon />
-            </i>
-            Swap
           </SidebarMenuItem>
         </li>
       </ul>
@@ -65,7 +56,7 @@ export const Navigation = (): JSX.Element => {
               target="_blank"
               rel="noreferrer"
             >
-              Help
+              Community Help
             </a>
           </li>
         </ul>
