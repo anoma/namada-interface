@@ -14,6 +14,8 @@ import { IndexerLoader } from "App/Setup/IndexerLoader";
 import { TomlConfigLoader } from "App/Setup/TomlConfigLoader";
 import "./tailwind.css";
 
+const { NAMADA_INTERFACE_PROXY: isProxy = "false" } = process.env;
+
 const router = getRouter();
 
 const container = document.getElementById("root");
@@ -42,9 +44,16 @@ if (container) {
 }
 
 if ("serviceWorker" in navigator) {
+  const swConfig: Record<string, string> = {
+    isProxy: isProxy,
+  };
+  const swUrl = `/sw/sw.js?${new URLSearchParams(swConfig).toString()}`;
+
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("/sw/sw.js", { scope: "/sw/" })
+      .register(swUrl, {
+        scope: "/sw/",
+      })
       .then((registration) => {
         console.log("Service Worker registered: ", registration);
       })

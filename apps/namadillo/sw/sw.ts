@@ -1,10 +1,11 @@
 importScripts("indexedDb.js");
 importScripts("constants.js");
-// const { NAMADA_INTERFACE_PROXY: isProxy = false } = process.env;
 
-const isProxy = true;
-const TRUSTED_SETUP_URL =
-  isProxy ?
+const urlParams = new URLSearchParams(location.search);
+const { isProxy } = Object.fromEntries(urlParams);
+
+const MASP_MPC_URL =
+  isProxy === "true" ?
     "http://localhost:8010/proxy"
     : "https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup";
 
@@ -15,8 +16,6 @@ const resetMaspParamStore = async (): Promise<void> => {
   store.set(MaspParam.Spend, null);
   store.set(MaspParam.Convert, null);
 };
-
-// resetMaspParamStore();
 
 const sha256Hash = async (msg: Uint8Array): Promise<string> => {
   const hashBuffer = await crypto.subtle.digest("SHA-256", msg);
@@ -35,7 +34,7 @@ const fetchMaspParam = async (
   onRead?: (value?: Uint8Array) => void,
   onComplete?: () => void
 ): Promise<MaspParamBytes> => {
-  return fetch([TRUSTED_SETUP_URL, maspParam].join("/"))
+  return fetch([MASP_MPC_URL, maspParam].join("/"))
     .then(async (response) => {
       if (response.ok) {
         const reader = response.body?.getReader();
