@@ -36,14 +36,15 @@ export const proposalIdToString = (proposalId: bigint): string =>
 
 export const useTransactionEventListener = <T extends keyof WindowEventMap>(
   event: T,
-  handler: (this: Window, ev: WindowEventMap[T]) => void
+  handler: (this: Window, ev: WindowEventMap[T]) => void,
+  deps: React.DependencyList = []
 ): void => {
   useEffect(() => {
     window.addEventListener(event, handler);
     return () => {
       window.removeEventListener(event, handler);
     };
-  }, []);
+  }, deps);
 };
 
 const secondsToDateTime = (seconds: bigint): DateTime =>

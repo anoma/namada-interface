@@ -12,6 +12,7 @@ import {
   WithdrawProps,
   WrapperTxProps,
 } from "@namada/types";
+import { queryClient } from "App/Common/QueryProvider";
 import { getSdkInstance } from "hooks";
 import { TransactionPair, buildTxPair } from "lib/query";
 import { Address, AddressBalance, ChainSettings, GasConfig } from "types";
@@ -158,4 +159,8 @@ export const createClaimAndStakeTx = async (
     buildClaimRewardsAndStake,
     account.address
   );
+};
+
+export const clearClaimRewards = (accountAddress: string): void => {
+  queryClient.setQueryData(["claim-rewards", accountAddress], () => ({}));
 };
