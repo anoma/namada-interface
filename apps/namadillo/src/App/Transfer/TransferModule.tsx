@@ -30,7 +30,7 @@ export const TransferModule = ({
       <Stack as="form">
         <TransferSource
           isConnected={isConnected}
-          onClickConnect={() => {}}
+          onConnectProvider={() => {}}
           selectedAsset={selectedAsset}
           sourceChain={sourceChain}
           onChangeSelectedAsset={onChangeSelectedAsset}
