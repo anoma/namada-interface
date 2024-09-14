@@ -1,9 +1,9 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { ChainSelectBox } from "App/Transfer/ChainSelectBox";
+import { SelectedChain } from "App/Transfer/SelectedChain";
 import { Chain } from "types";
 
-describe("Component: ChainSelectBox", () => {
+describe("Component: SelectedChain", () => {
   const mockChain: Chain = {
     chainId: "chain-id",
     name: "Ethereum",
@@ -11,14 +11,14 @@ describe("Component: ChainSelectBox", () => {
   };
 
   it("renders correctly with no chain selected", () => {
-    render(<ChainSelectBox />);
+    render(<SelectedChain />);
     const button = screen.getByRole("button");
     expect(button).toBeInTheDocument();
     expect(button.getAttribute("aria-description")).toMatch(/no chain/i);
   });
 
   it("renders correctly with chain selected", () => {
-    render(<ChainSelectBox chain={mockChain} />);
+    render(<SelectedChain chain={mockChain} />);
 
     const button = screen.getByRole("button");
     expect(button).toBeInTheDocument();
@@ -39,7 +39,7 @@ describe("Component: ChainSelectBox", () => {
 
   it("calls onClick when the component is clicked", () => {
     const handleClick = jest.fn();
-    render(<ChainSelectBox onClick={handleClick} />);
+    render(<SelectedChain onClick={handleClick} />);
 
     const button = screen.getByRole("button");
     fireEvent.click(button);

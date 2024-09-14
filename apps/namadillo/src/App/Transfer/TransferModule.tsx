@@ -23,17 +23,15 @@ export const TransferModule = ({
   selectedAsset,
   sourceChain,
   onChangeSourceChain,
-  onChangeSelectedAsset,
 }: TransferModuleProps): JSX.Element => {
   return (
-    <section role="widget">
+    <section className="max-w-[440px] mx-auto" role="widget">
       <Stack as="form">
         <TransferSource
           isConnected={isConnected}
           onConnectProvider={() => {}}
           selectedAsset={selectedAsset}
           sourceChain={sourceChain}
-          onChangeSelectedAsset={onChangeSelectedAsset}
           openChainSelector={onChangeSourceChain}
         />
       </Stack>

@@ -1,16 +1,17 @@
 import clsx from "clsx";
 import { GoChevronDown } from "react-icons/go";
 import { Chain } from "types";
+import { EmptyResourceIcon } from "./EmptyResourceIcon";
 
-type ChainSelectBoxProps = {
+type SelectedChainProps = {
   chain?: Chain;
   onClick?: () => void;
 };
 
-export const ChainSelectBox = ({
+export const SelectedChain = ({
   chain,
   onClick,
-}: ChainSelectBoxProps): JSX.Element => {
+}: SelectedChainProps): JSX.Element => {
   const selectorClassList = clsx(
     `flex items-center gap-2.5 text-white font-light cursor-pointer`
   );
@@ -26,18 +27,11 @@ export const ChainSelectBox = ({
     >
       {!chain && (
         <span className={selectorClassList}>
-          <i
-            className={clsx(
-              "flex items-center justify-center w-7 h-7 rounded-full bg-neutral-900 relative ",
-              "before:h-[55%] before:w-[55%] before:bg-neutral-700 before:rounded-full group-hover:before:bg-neutral-600",
-              "before:transition-colors before:duration-300"
-            )}
-          />
+          <EmptyResourceIcon className="w-7" />
           Select chain
           <GoChevronDown className="text-sm" />
         </span>
       )}
-
       {chain && (
         <span className={selectorClassList}>
           <img
