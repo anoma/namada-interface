@@ -25,8 +25,16 @@ const sha256Hash = async (msg: Uint8Array): Promise<string> => {
   return hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
 };
 
-const fetchAndStoreMaspParam = async (maspParam: MaspParam): Promise<void> => {
-  console.info(`Fetching ${maspParam}...`);
+type MaspParamBytes = {
+  param: MaspParam;
+  bytes: Uint8Array;
+};
+
+const fetchMaspParam = async (
+  maspParam: MaspParam,
+  onRead?: (value?: Uint8Array) => void,
+  onComplete?: () => void
+): Promise<MaspParamBytes> => {
   return fetch([TRUSTED_SETUP_URL, maspParam].join("/"))
     .then(async (response) => {
       if (response.ok) {
@@ -39,9 +47,13 @@ const fetchAndStoreMaspParam = async (maspParam: MaspParam): Promise<void> => {
             return pump();
             function pump() {
               return reader?.read().then(({ done, value }) => {
+                // Invoke callback if provided
+                if (onRead && value) onRead(value);
                 // When no more data needs to be consumed, close the stream
                 if (done) {
                   controller.close();
+                  // Invoke callback if provided
+                  if (onComplete) onComplete();
                   return;
                 }
                 // Enqueue the next data chunk into our target stream
@@ -57,45 +69,91 @@ const fetchAndStoreMaspParam = async (maspParam: MaspParam): Promise<void> => {
     .then((response) => response.blob())
     .then(async (blob) => {
       const arrayBuffer = await blob.arrayBuffer();
-      const data = new Uint8Array(arrayBuffer);
-      const { length, sha256sum } = MASP_PARAM_LEN[maspParam];
-
-      // Reject if invalid length (incomplete download or invalid)
-      console.log("Validating data length...");
-
-      if (length !== data.length) {
-        return Promise.reject(
-          `Invalid data length! Expected ${length}, received ${data.length}!`
-        );
-      }
-
-      // Reject if invalid hash (otherwise invalid data)
-      console.log("Validating sha256sum...");
-      const hash = await sha256Hash(data);
-
-      if (hash !== sha256sum) {
-        return Promise.reject(
-          `Invalid sha256sum! Expected ${sha256sum}, received ${hash}!`
-        );
-      }
-
-      console.info(`Storing ${maspParam} => `, data);
-      await store.set(maspParam, data);
-      console.info(`Successfully stored ${maspParam}`);
+      return {
+        param: maspParam,
+        bytes: new Uint8Array(arrayBuffer),
+      };
     });
 };
 
+const storeMaspParam = async ({
+  param,
+  bytes,
+}: MaspParamBytes): Promise<MaspParamBytes> => {
+  console.info(`Storing ${param} => `, bytes);
+  await store.set(param, bytes);
+  console.info(`Successfully stored ${param}`);
+
+  return {
+    param,
+    bytes,
+  };
+};
+
+const validateMaspParamBytes = async ({
+  param,
+  bytes,
+}: MaspParamBytes): Promise<MaspParamBytes> => {
+  const { length, sha256sum } = MASP_PARAM_LEN[param];
+
+  // Reject if invalid length (incomplete download or invalid)
+  console.log(`Validating data length for ${param}, expecting ${length}...`);
+
+  if (length !== bytes.length) {
+    return Promise.reject(
+      `Invalid data length! Expected ${length}, received ${bytes.length}!`
+    );
+  }
+
+  // Reject if invalid hash (otherwise invalid data)
+  console.log(`Validating sha256sum for ${param}, expecting ${sha256sum}...`);
+  const hash = await sha256Hash(bytes);
+
+  if (hash !== sha256sum) {
+    return Promise.reject(
+      `Invalid sha256sum! Expected ${sha256sum}, received ${hash}!`
+    );
+  }
+
+  return { param, bytes };
+};
+
+const logSuccess = ({ param, bytes }: MaspParamBytes): void => {
+  console.info(`Fetched and stored ${param}:`, bytes);
+};
+
+// MOVE TO INVOKE IN HANDLER
 (async () => {
-  const maspOutputParam = await store.get(MaspParam.Output);
-  console.log("Found output?: ", maspOutputParam);
+  const maspOutputParamBytes = await store.get(MaspParam.Output);
+  console.log("Found output?: ", maspOutputParamBytes);
 
-  const maspSpendParam = await store.get(MaspParam.Spend);
-  console.log("Found spend?: ", maspSpendParam);
+  const maspSpendParamBytes = await store.get(MaspParam.Spend);
+  console.log("Found spend?: ", maspSpendParamBytes);
 
-  const maspConvertParam = await store.get(MaspParam.Convert);
-  console.log("Found convert?", maspConvertParam);
+  const maspConvertParamBytes = await store.get(MaspParam.Convert);
+  console.log("Found convert?", maspConvertParamBytes);
 
-  if (!maspOutputParam) await fetchAndStoreMaspParam(MaspParam.Output);
-  if (!maspSpendParam) await fetchAndStoreMaspParam(MaspParam.Spend);
-  if (!maspConvertParam) await fetchAndStoreMaspParam(MaspParam.Convert);
+  if (!maspOutputParamBytes) {
+    await fetchMaspParam(MaspParam.Output)
+      .then(validateMaspParamBytes)
+      .then(storeMaspParam)
+      .then(logSuccess)
+      .catch((e) => console.error(e));
+  }
+
+  if (!maspSpendParamBytes) {
+    await fetchMaspParam(MaspParam.Spend)
+      .then(validateMaspParamBytes)
+      .then(storeMaspParam)
+      .then(logSuccess)
+      .catch((e) => console.error(e));
+  }
+
+  if (!maspConvertParamBytes) {
+    await fetchMaspParam(MaspParam.Convert)
+      .then(validateMaspParamBytes)
+      .then(storeMaspParam)
+      .then(logSuccess)
+      .catch((e) => console.error(e));
+  }
 })();
