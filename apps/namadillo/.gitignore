@@ -4,6 +4,7 @@
 .pnp.js
 /build
 /dist
+/public/sw
 .env
 /test-results/
 /playwright-report/
