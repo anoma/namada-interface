@@ -13,8 +13,8 @@ import { SelectedChain } from "./SelectedChain";
 type TransferSourceProps = {
   onConnectProvider: () => void;
   isConnected: boolean;
-  selectedAsset?: Asset;
-  sourceChain?: Chain;
+  asset?: Asset;
+  chain?: Chain;
   openChainSelector?: () => void;
   openAssetSelector?: () => void;
   amount?: BigNumber;
@@ -22,8 +22,8 @@ type TransferSourceProps = {
 };
 
 export const TransferSource = ({
-  sourceChain,
-  selectedAsset,
+  chain,
+  asset,
   openChainSelector,
   openAssetSelector,
   onConnectProvider,
@@ -33,9 +33,9 @@ export const TransferSource = ({
   return (
     <div className="relative bg-neutral-800 rounded-lg px-4 py-5">
       <header className="relative">
-        <SelectedChain onClick={openChainSelector} chain={sourceChain} />
+        <SelectedChain onClick={openChainSelector} chain={chain} />
         <ActionButton
-          className="inline-flex absolute top-0 right-0 w-auto"
+          className="inline-flex absolute top-0 right-0 w-auto text-xs px-2 py-px"
           onClick={onConnectProvider}
           size="xs"
           backgroundColor="white"
@@ -44,18 +44,18 @@ export const TransferSource = ({
         </ActionButton>
       </header>
       <hr className="mt-4 mb-5 mx-2 border-white opacity-[5%]" />
-      <div className="grid grid-cols-[max-content_auto] gap-5">
+      <div className="grid grid-cols-[max-content_auto] gap-5 mb-3">
         <SelectedAsset
-          chain={sourceChain}
-          asset={selectedAsset}
+          chain={chain}
+          asset={asset}
           onClick={openAssetSelector}
         />
         <AmountInput
           className={clsx(
             "text-right [&_input]:text-right [&_input]:text-3xl [&_input]:bg-transparent",
-            "[&_input]:!border-0"
+            "[&_input]:!border-0 [&_input]:px-0"
           )}
-          disabled={false && (!sourceChain || !selectedAsset)}
+          disabled={false && (!chain || !asset)}
           value={amount || new BigNumber(0)}
           onChange={onChangeAmount}
         />

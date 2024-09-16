@@ -19,7 +19,7 @@ describe("Component: AvailableAmountFooter", () => {
     );
     const amount = screen.getByText("1,234");
     const button = screen.getByRole("button");
-    expect(amount.parentNode?.textContent).toContain("1,234.456NAM");
+    expect(amount.parentNode?.textContent).toContain("1,234.456 NAM");
     expect(button).toBeEnabled();
     fireEvent.click(button);
     expect(callback).toHaveBeenCalledTimes(1);

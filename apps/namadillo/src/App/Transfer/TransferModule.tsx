@@ -1,6 +1,7 @@
 import { Stack } from "@namada/components";
 import BigNumber from "bignumber.js";
 import { Asset, Chain } from "types";
+import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
 
 type TransferModuleProps = {
@@ -30,10 +31,11 @@ export const TransferModule = ({
         <TransferSource
           isConnected={isConnected}
           onConnectProvider={() => {}}
-          selectedAsset={selectedAsset}
-          sourceChain={sourceChain}
+          asset={selectedAsset}
+          chain={sourceChain}
           openChainSelector={onChangeSourceChain}
         />
+        <TransferDestination />
       </Stack>
     </section>
   );

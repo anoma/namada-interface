@@ -1,6 +1,7 @@
-import { Currency } from "@namada/components";
+import { ActionButton, Currency } from "@namada/components";
 import { KnownCurrencies } from "@namada/utils";
 import BigNumber from "bignumber.js";
+import clsx from "clsx";
 
 type AvailableAmountFooterProps = {
   availableAmount?: BigNumber;
@@ -18,25 +19,36 @@ export const AvailableAmountFooter = ({
   }
 
   return (
-    <div className="flex justify-between">
-      <span className="flex gap-4">
-        Available
+    <div
+      className={clsx(
+        "flex justify-between items-center text-sm text-neutral-500 font-light"
+      )}
+    >
+      <span className="flex gap-2">
+        Available:
         <Currency
           amount={availableAmount}
           currency={currency}
+          spaceAroundSign={true}
           currencyPosition="right"
         />
       </span>
-      {onClickMax && (
-        <button
-          role="button"
-          disabled={availableAmount.eq(0)}
-          className="uppercase"
-          onClick={onClickMax}
-        >
-          Max
-        </button>
-      )}
+      <span>
+        {onClickMax && (
+          <ActionButton
+            type="button"
+            size="xs"
+            disabled={availableAmount.eq(0)}
+            onClick={onClickMax}
+            outlineColor="neutral"
+            className="text-neutral-500 text-xs py-0 px-3"
+            backgroundHoverColor="white"
+            backgroundColor="transparent"
+          >
+            Max
+          </ActionButton>
+        )}
+      </span>
     </div>
   );
 };
