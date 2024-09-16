@@ -5,6 +5,7 @@ import {
 } from "App/Transfer/__mocks__/chains";
 import { TransferDestination } from "App/Transfer/TransferDestination";
 import BigNumber from "bignumber.js";
+import { providerMock } from "../__mocks__/providers";
 
 describe("TransferDestination", () => {
   it("should render the component with the default props", () => {
@@ -41,12 +42,24 @@ describe("TransferDestination", () => {
   });
 
   it("should render correct chain name when shielded transfer is set", () => {
-    render(<TransferDestination isShielded={true} chain={namadaChainMock} />);
+    render(
+      <TransferDestination
+        isShielded={true}
+        chain={namadaChainMock}
+        provider={providerMock}
+      />
+    );
     expect(screen.getByText(/namada shielded/i)).toBeInTheDocument();
   });
 
   it("should render correct chain name when transparent transfer is set", () => {
-    render(<TransferDestination isShielded={false} chain={namadaChainMock} />);
+    render(
+      <TransferDestination
+        isShielded={false}
+        chain={namadaChainMock}
+        provider={providerMock}
+      />
+    );
     expect(screen.getByText(/namada transparent/i)).toBeInTheDocument();
   });
 

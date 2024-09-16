@@ -3,7 +3,7 @@ import { TabSelector } from "App/Common/TabSelector";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Chain } from "types";
+import { Chain, Provider } from "types";
 import namadaShieldedSvg from "./assets/namada-shielded.svg";
 import namadaTransparentSvg from "./assets/namada-transparent.svg";
 import { CustomAddressForm } from "./CustomAddressForm";
@@ -13,6 +13,7 @@ type TransferDestinationProps = {
   isShielded?: boolean;
   onChangeShielded?: (isShielded: boolean) => void;
   chain?: Chain;
+  provider?: Provider;
   className?: string;
   transactionFee?: BigNumber;
   customAddressActive?: boolean;
@@ -39,6 +40,7 @@ const parseChainInfo = (
 
 export const TransferDestination = ({
   chain,
+  provider,
   isShielded,
   onChangeShielded,
   transactionFee,
@@ -79,7 +81,10 @@ export const TransferDestination = ({
         />
       )}
 
-      <SelectedChain chain={parseChainInfo(chain, isShielded)} />
+      <SelectedChain
+        chain={parseChainInfo(chain, isShielded)}
+        provider={provider}
+      />
 
       {customAddressActive && (
         <CustomAddressForm

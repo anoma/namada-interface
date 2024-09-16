@@ -1,4 +1,5 @@
 import { Modal } from "@namada/components";
+import { SelectModal } from "App/Common/SelectModal";
 import clsx from "clsx";
 
 type SelectItemsModalProps = {
@@ -12,6 +13,7 @@ export const SelectItemsModal = ({
   title,
   content,
 }: SelectItemsModalProps): JSX.Element => {
+  return <SelectModal title="Select Source Modal"></SelectModal>;
   return (
     <Modal onClose={onClose}>
       <div

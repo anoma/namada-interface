@@ -2,7 +2,7 @@ import { Stack } from "@namada/components";
 import BigNumber from "bignumber.js";
 import { useState } from "react";
 import { Asset, Chain } from "types";
-import { ConnectToChainModal } from "./ConnectToChainModal";
+import { ConnectToProviderModal } from "./ConnectToProviderModal";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
 
@@ -31,6 +31,8 @@ export const TransferModule = ({
   onChangeShielded,
   enableCustomAddress,
 }: TransferModuleProps): JSX.Element => {
+  const [providerSelectorModalOpen, setProviderSelectorModalOpen] =
+    useState(false);
   const [chainSelectorModalOpen, setChainSelectorModalOpen] = useState(false);
   const [assetSelectorModalOpen, setAssetSelectorModalOpen] = useState(false);
   const [customAddressActive, setCustomAddressActive] = useState(false);
@@ -44,9 +46,9 @@ export const TransferModule = ({
         <Stack as="form">
           <TransferSource
             isConnected={isConnected}
-            onConnectProvider={() => {}}
             asset={selectedAsset}
             chain={sourceChain}
+            openProviderSelector={() => setProviderSelectorModalOpen(true)}
             openChainSelector={() => setChainSelectorModalOpen(true)}
             openAssetSelector={() => setAssetSelectorModalOpen(true)}
             amount={amount}
@@ -71,8 +73,15 @@ export const TransferModule = ({
           {assetSelectorModalOpen && <div />}
         </Stack>
       </section>
-      {chainSelectorModalOpen && (
-        <ConnectToChainModal
+      {providerSelectorModalOpen && (
+        <ConnectToProviderModal
+          providers={[{ name: "Keplr", iconUrl: "", connected: false }]}
+          onClose={() => setChainSelectorModalOpen(false)}
+          onConnect={() => {}}
+        />
+      )}
+      {providerSelectorModalOpen && (
+        <ConnectToProviderModal
           providers={[{ name: "Keplr", iconUrl: "", connected: false }]}
           onClose={() => setChainSelectorModalOpen(false)}
           onConnect={() => {}}

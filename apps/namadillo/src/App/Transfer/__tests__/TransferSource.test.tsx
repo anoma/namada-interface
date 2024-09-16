@@ -5,11 +5,12 @@ import {
 } from "App/Transfer/TransferSource";
 import BigNumber from "bignumber.js";
 import { namadaChainMock } from "../__mocks__/chains";
+import { providerConnectedMock } from "../__mocks__/providers";
 
 describe("Component: TransferSource", () => {
   it("should render the component with the default props", () => {
     render(
-      <TransferSource isConnected={false} onConnectProvider={jest.fn()} />
+      <TransferSource isConnected={false} openProviderSelector={jest.fn()} />
     );
     expect(screen.getByText("Connect Wallet")).toBeInTheDocument();
     expect(screen.getByText(/select chain/i)).toBeInTheDocument();
@@ -19,7 +20,7 @@ describe("Component: TransferSource", () => {
     render(
       <TransferSource
         isConnected={false}
-        onConnectProvider={jest.fn()}
+        openProviderSelector={jest.fn()}
         {...props}
       />
     );
@@ -35,15 +36,17 @@ describe("Component: TransferSource", () => {
 
   it("should call onConnectProvider when Connect Wallet button is clicked", () => {
     const onConnectProviderMock = jest.fn();
-    setup({ onConnectProvider: onConnectProviderMock });
+    setup({ openProviderSelector: onConnectProviderMock });
     fireEvent.click(screen.getByText("Connect Wallet"));
     expect(onConnectProviderMock).toHaveBeenCalled();
   });
 
   it("should call openChainSelector when the SelectedChain is clicked", () => {
     const openChainSelectorMock = jest.fn();
-    setup({ openChainSelector: openChainSelectorMock });
-
+    setup({
+      openChainSelector: openChainSelectorMock,
+      provider: providerConnectedMock,
+    });
     const chain = getEmptyChain();
     fireEvent.click(chain);
     expect(openChainSelectorMock).toHaveBeenCalled();

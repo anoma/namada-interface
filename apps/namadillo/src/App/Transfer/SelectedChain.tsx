@@ -1,15 +1,17 @@
 import clsx from "clsx";
 import { GoChevronDown } from "react-icons/go";
-import { Chain } from "types";
+import { Chain, Provider } from "types";
 import { EmptyResourceIcon } from "./EmptyResourceIcon";
 
 type SelectedChainProps = {
   chain?: Chain;
+  provider?: Provider;
   onClick?: () => void;
 };
 
 export const SelectedChain = ({
   chain,
+  provider,
   onClick,
 }: SelectedChainProps): JSX.Element => {
   const selectorClassList = clsx(
@@ -20,19 +22,22 @@ export const SelectedChain = ({
     <button
       type="button"
       className="block group"
+      disabled={!provider}
       onClick={onClick}
       aria-description={
-        chain ? `${chain.name} chain is selected` : `No chain selected`
+        provider && chain ?
+          `${chain.name} chain is selected`
+        : `No chain selected`
       }
     >
-      {!chain && (
+      {(!provider || !chain) && (
         <span className={selectorClassList}>
           <EmptyResourceIcon className="w-7" />
           Select chain
           <GoChevronDown className="text-sm" />
         </span>
       )}
-      {chain && (
+      {provider && chain && (
         <span className={selectorClassList}>
           <img
             className="w-7 h-7 object-cover object-center bg-neutral-800 rounded-full"

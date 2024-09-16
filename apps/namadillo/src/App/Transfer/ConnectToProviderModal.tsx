@@ -1,17 +1,17 @@
 import { SelectModal } from "App/Common/SelectModal";
 import { Provider } from "types";
 
-type ConnectToChainModalProps = {
+type ConnectToProviderModalProps = {
   onClose: () => void;
   providers: Provider[];
   onConnect: (provider: Provider) => void;
 };
 
-export const ConnectToChainModal = ({
+export const ConnectToProviderModal = ({
   onClose,
   onConnect,
   providers,
-}: ConnectToChainModalProps): JSX.Element => {
+}: ConnectToProviderModalProps): JSX.Element => {
   return (
     <SelectModal title="Source" onClose={onClose}>
       <ul>
