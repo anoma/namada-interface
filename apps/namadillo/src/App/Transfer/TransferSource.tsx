@@ -10,7 +10,7 @@ import { AvailableAmountFooter } from "./AvailableAmountFooter";
 import { SelectedAsset } from "./SelectedAsset";
 import { SelectedChain } from "./SelectedChain";
 
-type TransferSourceProps = {
+export type TransferSourceProps = {
   onConnectProvider: () => void;
   isConnected: boolean;
   asset?: Asset;
@@ -55,17 +55,13 @@ export const TransferSource = ({
             "text-right [&_input]:text-right [&_input]:text-3xl [&_input]:bg-transparent",
             "[&_input]:!border-0 [&_input]:px-0"
           )}
-          disabled={false && (!chain || !asset)}
+          disabled={!chain || !asset}
           value={amount || new BigNumber(0)}
           onChange={onChangeAmount}
         />
       </div>
       <footer>
-        <AvailableAmountFooter
-          onClickMax={() => {}}
-          currency="nam"
-          availableAmount={new BigNumber(100)}
-        />
+        <AvailableAmountFooter currency="nam" />
       </footer>
     </div>
   );

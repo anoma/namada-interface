@@ -1,19 +1,10 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import {
+  namadaChainMock,
+  randomChainMock,
+} from "App/Transfer/__mocks__/chains";
 import { TransferDestination } from "App/Transfer/TransferDestination";
 import BigNumber from "bignumber.js";
-import { Chain } from "types";
-
-const namadaChainMock: Chain = {
-  chainId: "test",
-  name: "Namada",
-  iconUrl: "namada-icon",
-};
-
-const randomChainMock: Chain = {
-  chainId: "test",
-  name: "TestChain",
-  iconUrl: "testchain-icon",
-};
 
 describe("TransferDestination", () => {
   it("should render the component with the default props", () => {
