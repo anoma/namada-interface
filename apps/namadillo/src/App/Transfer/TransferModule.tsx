@@ -2,7 +2,7 @@ import { Stack } from "@namada/components";
 import BigNumber from "bignumber.js";
 import { useState } from "react";
 import { Asset, Chain } from "types";
-import { ConnectToProviderModal } from "./ConnectToProviderModal";
+import { SelectProviderModal } from "./SelectProviderModal";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
 
@@ -74,16 +74,9 @@ export const TransferModule = ({
         </Stack>
       </section>
       {providerSelectorModalOpen && (
-        <ConnectToProviderModal
+        <SelectProviderModal
           providers={[{ name: "Keplr", iconUrl: "", connected: false }]}
-          onClose={() => setChainSelectorModalOpen(false)}
-          onConnect={() => {}}
-        />
-      )}
-      {providerSelectorModalOpen && (
-        <ConnectToProviderModal
-          providers={[{ name: "Keplr", iconUrl: "", connected: false }]}
-          onClose={() => setChainSelectorModalOpen(false)}
+          onClose={() => setProviderSelectorModalOpen(false)}
           onConnect={() => {}}
         />
       )}
