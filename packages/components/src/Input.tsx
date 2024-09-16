@@ -171,7 +171,11 @@ export const Input = ({
   return (
     <label
       data-testid={dataTestId}
-      className={classes.label({ class: className })}
+      className={classes.label({
+        class: clsx(className, {
+          "has-error": !!error,
+        }),
+      })}
     >
       {label && <span className={classes.labelText()}>{label}</span>}
       <div className={classes.inputWrapper()}>
@@ -181,7 +185,7 @@ export const Input = ({
         {!hideIcon && icon}
         {children}
       </div>
-      {<span className={classes.error()}>{error}</span>}
+      {<span className={clsx(classes.error())}>{error}</span>}
       {<div className={classes.hint()}>{hint}</div>}
     </label>
   );

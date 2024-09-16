@@ -25,7 +25,7 @@ export const TransferModule = ({
   onChangeSourceChain,
 }: TransferModuleProps): JSX.Element => {
   return (
-    <section className="max-w-[440px] mx-auto" role="widget">
+    <section className="max-w-[480px] mx-auto" role="widget">
       <Stack as="form">
         <TransferSource
           isConnected={isConnected}
