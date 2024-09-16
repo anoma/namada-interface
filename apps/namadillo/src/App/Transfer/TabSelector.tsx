@@ -1,7 +1,9 @@
 import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
 type TabSelectorItem = {
   text: React.ReactNode;
   id: string;
+  className?: string;
 };
 
 type TabSelectorProps = {
@@ -22,9 +24,12 @@ export const TabSelector = ({
           <li key={item.id} className="w-full">
             <button
               onClick={() => onChange(item)}
-              className={clsx(
-                "border border-current text-current rounded-sm bg-black",
-                { "border border-current": item.id === active }
+              className={twMerge(
+                clsx(
+                  "border border-current text-current rounded-sm bg-black opacity-70",
+                  { "border border-current opacity-100": item.id === active },
+                  item.className
+                )
               )}
             >
               {item.text}
