@@ -169,7 +169,8 @@ export type ToastNotificationEntryFilter = (
 
 export type Provider = {
   name: string;
-  icon: string;
+  iconUrl: string;
+  connected: boolean;
 };
 
 export type Chain = {

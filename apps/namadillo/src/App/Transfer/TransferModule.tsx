@@ -2,6 +2,7 @@ import { Stack } from "@namada/components";
 import BigNumber from "bignumber.js";
 import { useState } from "react";
 import { Asset, Chain } from "types";
+import { ConnectToChainModal } from "./ConnectToChainModal";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
 
@@ -38,34 +39,45 @@ export const TransferModule = ({
   const [amount, setAmount] = useState(new BigNumber(0));
 
   return (
-    <section className="max-w-[480px] mx-auto" role="widget">
-      <Stack as="form">
-        <TransferSource
-          isConnected={isConnected}
-          onConnectProvider={() => {}}
-          asset={selectedAsset}
-          chain={sourceChain}
-          openChainSelector={() => setChainSelectorModalOpen(true)}
-          openAssetSelector={() => setAssetSelectorModalOpen(true)}
-          amount={amount}
-          onChangeAmount={(e) => setAmount(e.target.value || new BigNumber(0))}
+    <>
+      <section className="max-w-[480px] mx-auto" role="widget">
+        <Stack as="form">
+          <TransferSource
+            isConnected={isConnected}
+            onConnectProvider={() => {}}
+            asset={selectedAsset}
+            chain={sourceChain}
+            openChainSelector={() => setChainSelectorModalOpen(true)}
+            openAssetSelector={() => setAssetSelectorModalOpen(true)}
+            amount={amount}
+            onChangeAmount={(e) =>
+              setAmount(e.target.value || new BigNumber(0))
+            }
+          />
+          <TransferDestination
+            chain={destinationChain}
+            isShielded={isShielded}
+            onChangeShielded={onChangeShielded}
+            address={customAddress}
+            onToggleCustomAddress={
+              enableCustomAddress ? setCustomAddressActive : undefined
+            }
+            customAddressActive={customAddressActive}
+            onChangeAddress={setCustomAddress}
+            memo={memo}
+            onChangeMemo={setMemo}
+          />
+          {chainSelectorModalOpen && <div />}
+          {assetSelectorModalOpen && <div />}
+        </Stack>
+      </section>
+      {chainSelectorModalOpen && (
+        <ConnectToChainModal
+          providers={[{ name: "Keplr", iconUrl: "", connected: false }]}
+          onClose={() => setChainSelectorModalOpen(false)}
+          onConnect={() => {}}
         />
-        <TransferDestination
-          chain={destinationChain}
-          isShielded={isShielded}
-          onChangeShielded={onChangeShielded}
-          address={customAddress}
-          onToggleCustomAddress={
-            enableCustomAddress ? setCustomAddressActive : undefined
-          }
-          customAddressActive={customAddressActive}
-          onChangeAddress={setCustomAddress}
-          memo={memo}
-          onChangeMemo={setMemo}
-        />
-        {chainSelectorModalOpen && <div />}
-        {assetSelectorModalOpen && <div />}
-      </Stack>
-    </section>
+      )}
+    </>
   );
 };

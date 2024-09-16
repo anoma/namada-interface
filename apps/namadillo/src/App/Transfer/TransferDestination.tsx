@@ -1,4 +1,5 @@
 import { NamCurrency } from "App/Common/NamCurrency";
+import { TabSelector } from "App/Common/TabSelector";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -7,7 +8,6 @@ import namadaShieldedSvg from "./assets/namada-shielded.svg";
 import namadaTransparentSvg from "./assets/namada-transparent.svg";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";
-import { TabSelector } from "./TabSelector";
 
 type TransferDestinationProps = {
   isShielded?: boolean;
