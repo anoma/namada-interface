@@ -33,7 +33,7 @@
 
 #### Defined in
 
-[tx/schema/redelegate.ts:19](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/redelegate.ts#L19)
+[tx/schema/redelegate.ts:19](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/redelegate.ts#L19)
 
 ## Properties
 
@@ -43,7 +43,7 @@
 
 #### Defined in
 
-[tx/schema/redelegate.ts:17](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/redelegate.ts#L17)
+[tx/schema/redelegate.ts:17](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/redelegate.ts#L17)
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 #### Defined in
 
-[tx/schema/redelegate.ts:14](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/redelegate.ts#L14)
+[tx/schema/redelegate.ts:14](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/redelegate.ts#L14)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 #### Defined in
 
-[tx/schema/redelegate.ts:8](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/redelegate.ts#L8)
+[tx/schema/redelegate.ts:8](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/redelegate.ts#L8)
 
 ___
 
@@ -73,4 +73,4 @@ ___
 
 #### Defined in
 
-[tx/schema/redelegate.ts:11](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/redelegate.ts#L11)
+[tx/schema/redelegate.ts:11](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/redelegate.ts#L11)

@@ -35,7 +35,7 @@
 
 #### Defined in
 
-[tx/schema/wrapperTx.ts:26](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/wrapperTx.ts#L26)
+[tx/schema/wrapperTx.ts:26](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/wrapperTx.ts#L26)
 
 ## Properties
 
@@ -45,7 +45,7 @@
 
 #### Defined in
 
-[tx/schema/wrapperTx.ts:18](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/wrapperTx.ts#L18)
+[tx/schema/wrapperTx.ts:18](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/wrapperTx.ts#L18)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 #### Defined in
 
-[tx/schema/wrapperTx.ts:12](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/wrapperTx.ts#L12)
+[tx/schema/wrapperTx.ts:12](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/wrapperTx.ts#L12)
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 #### Defined in
 
-[tx/schema/wrapperTx.ts:15](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/wrapperTx.ts#L15)
+[tx/schema/wrapperTx.ts:15](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/wrapperTx.ts#L15)
 
 ___
 
@@ -75,7 +75,7 @@ ___
 
 #### Defined in
 
-[tx/schema/wrapperTx.ts:24](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/wrapperTx.ts#L24)
+[tx/schema/wrapperTx.ts:24](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/wrapperTx.ts#L24)
 
 ___
 
@@ -85,7 +85,7 @@ ___
 
 #### Defined in
 
-[tx/schema/wrapperTx.ts:21](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/wrapperTx.ts#L21)
+[tx/schema/wrapperTx.ts:21](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/wrapperTx.ts#L21)
 
 ___
 
@@ -95,4 +95,4 @@ ___
 
 #### Defined in
 
-[tx/schema/wrapperTx.ts:9](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/wrapperTx.ts#L9)
+[tx/schema/wrapperTx.ts:9](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/wrapperTx.ts#L9)
