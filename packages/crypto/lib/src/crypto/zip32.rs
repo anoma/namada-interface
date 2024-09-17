@@ -124,11 +124,11 @@ mod tests {
             .expect("Deriving from ExtendedKeys should not fail");
 
         let payment_address: PaymentAddress =
-            borsh::BorshDeserialize::try_from_slice(&payment_address)
+            borsh::BorshDeserialize::try_from_slice(payment_address)
                 .expect("Should be able to deserialize payment address!");
-        let xsk: ExtendedSpendingKey = borsh::BorshDeserialize::try_from_slice(&xsk)
+        let xsk: ExtendedSpendingKey = borsh::BorshDeserialize::try_from_slice(xsk)
             .expect("Should be able to deserialize extended spending key!");
-        let xfvk: ExtendedFullViewingKey = borsh::BorshDeserialize::try_from_slice(&xfvk)
+        let xfvk: ExtendedFullViewingKey = borsh::BorshDeserialize::try_from_slice(xfvk)
             .expect("Should be able to deserialize full viewing key!");
 
         assert_eq!(payment_address.to_bytes().len(), 43);

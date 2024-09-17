@@ -15,20 +15,30 @@ use crate::utils::to_js_result;
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::address::Address;
 use namada_sdk::borsh::{self, BorshDeserialize};
+use namada_sdk::control_flow::ShutdownSignal;
 use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada_sdk::hash::Hash;
+use namada_sdk::io::DevNullProgressBar;
+use namada_sdk::io::NamadaIo;
 use namada_sdk::key::{common, ed25519, SigScheme};
-use namada_sdk::masp::ShieldedContext;
+use namada_sdk::masp::utils::RetryStrategy;
+use namada_sdk::masp::IndexerMaspClient;
+use namada_sdk::masp::{ShieldedContext, ShieldedSyncConfig};
+use namada_sdk::masp_primitives::sapling::ViewingKey;
+use namada_sdk::masp_primitives::zip32::ExtendedFullViewingKey;
 use namada_sdk::rpc::{query_epoch, InnerTxResult};
 use namada_sdk::signing::SigningTxData;
+use namada_sdk::state::BlockHeight;
 use namada_sdk::string_encoding::Format;
+use namada_sdk::task_env::{TaskEnvironment, TaskSpawner};
 use namada_sdk::tx::{
     build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
     build_reveal_pk, build_shielded_transfer, build_shielding_transfer, build_transparent_transfer,
     build_unbond, build_unshielding_transfer, build_vote_proposal, build_withdraw,
     data::compute_inner_tx_hash, either::Either, process_tx, ProcessTxResponse, Tx,
 };
-use namada_sdk::wallet::{Store, Wallet};
+use namada_sdk::wallet::{DatedKeypair, Store, Wallet};
+use namada_sdk::ExtendedViewingKey;
 use namada_sdk::{Namada, NamadaImpl};
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
@@ -56,7 +66,7 @@ impl Sdk {
         let namada = NamadaImpl::native_new(
             client,
             wallet,
-            shielded_ctx,
+            shielded_ctx.into(),
             WebIo,
             //NAM address
             Address::from_str(&native_token).unwrap(),
@@ -80,7 +90,7 @@ impl Sdk {
     pub async fn load_masp_params(&self, _db_name: JsValue) -> Result<(), JsValue> {
         // _dn_name is not used in the web version for a time being
         let params = get_masp_params().await?;
-        let params_iter = js_sys::try_iter(&params)?.ok_or_else(|| "Can't iterate over JsValue")?;
+        let params_iter = js_sys::try_iter(&params)?.ok_or("Can't iterate over JsValue")?;
         let mut params_bytes = params_iter.map(|p| to_bytes(p.unwrap()));
 
         let spend = params_bytes.next().unwrap();
@@ -91,7 +101,7 @@ impl Sdk {
         assert_eq!(params_bytes.next(), None);
 
         let mut shielded = self.namada.shielded_mut().await;
-        *shielded = masp::JSShieldedUtils::new(spend, output, convert).await?;
+        *shielded = ShieldedContext::new(masp::JSShieldedUtils::new(spend, output, convert).await?);
 
         Ok(())
     }
@@ -237,12 +247,10 @@ impl Sdk {
                 );
                 to_js_result(borsh::to_vec(&response)?)
             }
-            _ => {
-                return Err(JsError::new(&format!(
-                    "Tx not applied: {}",
-                    &wrapper_hash.unwrap().to_string()
-                )))
-            }
+            _ => Err(JsError::new(&format!(
+                "Tx not applied: {}",
+                &wrapper_hash.unwrap().to_string()
+            ))),
         }
     }
 
@@ -252,13 +260,13 @@ impl Sdk {
         let built_txs_bytes: Vec<Vec<u8>> = txs.into_serde().unwrap();
 
         for bytes in built_txs_bytes.iter() {
-            let tx: tx::Tx = borsh::from_slice(&bytes)?;
+            let tx: tx::Tx = borsh::from_slice(bytes)?;
             built_txs.push(tx);
         }
 
         // Get wrapper args
         let first_tx = built_txs
-            .get(0)
+            .first()
             .expect("At least one Tx is required for building batches!");
 
         let args = first_tx.args();
@@ -271,7 +279,7 @@ impl Sdk {
             let signing_tx_data = built_tx.signing_tx_data()?;
             let tx: Tx = Tx::try_from_slice(&tx_bytes)?;
             let first_signing_data = signing_tx_data
-                .get(0)
+                .first()
                 .expect("At least one signing data should be present on a Tx");
 
             txs.push((tx, first_signing_data.to_owned()));
@@ -299,7 +307,7 @@ impl Sdk {
             raw_signature,
             wrapper_indices,
             wrapper_signature,
-        } = signature::SignatureMsg::try_from_slice(&sig_msg_bytes)?;
+        } = signature::SignatureMsg::try_from_slice(sig_msg_bytes)?;
 
         let raw_sig_section =
             signature::construct_signature_section(&pubkey, &raw_indices, &raw_signature, &tx)?;
@@ -454,9 +462,9 @@ impl Sdk {
 
     // Sign arbitrary data with the provided signing key
     pub fn sign_arbitrary(&self, signing_key: String, data: String) -> Result<JsValue, JsError> {
-        let hash = Hash::sha256(&data);
+        let hash = Hash::sha256(data);
         let secret = common::SecretKey::Ed25519(ed25519::SecretKey::from_str(&signing_key)?);
-        let signature = common::SigScheme::sign(&secret, &hash);
+        let signature = common::SigScheme::sign(&secret, hash);
         let sig_bytes = signature.to_bytes();
 
         to_js_result((hash.to_string().to_lowercase(), hex::encode(sig_bytes)))
@@ -468,13 +476,12 @@ impl Sdk {
         public_key: String,
         signed_hash: String,
         signature: String,
-    ) -> Result<JsValue, JsError> {
+    ) -> Result<(), JsError> {
         let public_key = common::PublicKey::from_str(&public_key)?;
-        let sig = common::Signature::try_from_slice(&hex::decode(&signature)?)?;
+        let sig = common::Signature::try_from_slice(&hex::decode(signature)?)?;
         let signed_hash = Hash::from_str(&signed_hash)?;
-        let result = common::SigScheme::verify_signature(&public_key, &signed_hash, &sig)?;
 
-        to_js_result(result)
+        common::SigScheme::verify_signature(&public_key, &signed_hash, &sig).map_err(JsError::from)
     }
 
     fn serialize_tx_result(
@@ -485,6 +492,98 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let tx = tx::Tx::new(tx, wrapper_tx_msg, vec![signing_data])?;
         to_js_result(borsh::to_vec(&tx)?)
+    }
+
+    pub async fn shielded_sync(&self, owners: Box<[JsValue]>) -> Result<(), JsError> {
+        // TODO: Can this be re-enabled?
+        let owners: Vec<ViewingKey> = owners
+            .iter()
+            .filter_map(|owner| owner.as_string())
+            .map(|o| {
+                ExtendedFullViewingKey::from(ExtendedViewingKey::from_str(&o).unwrap())
+                    .fvk
+                    .vk
+            })
+            .collect();
+
+        let client = reqwest::Client::builder().build().unwrap();
+
+        let url: reqwest::Url = "http://localhost:5000".try_into().unwrap();
+
+        let client = IndexerMaspClient::new(client, url, true, 10);
+        let progress_bar = DevNullProgressBar;
+        let shutdown_signal_web_lol = ShutdownSignalWebLOL {};
+
+        let config = ShieldedSyncConfig::builder()
+            .client(client)
+            .scanned_tracker(progress_bar)
+            .fetched_tracker(progress_bar)
+            .applied_tracker(progress_bar)
+            .shutdown_signal(shutdown_signal_web_lol)
+            .wait_for_last_query_height(true)
+            .retry_strategy(RetryStrategy::Times(10))
+            .build();
+
+        // let env = MaspLocalTaskEnv::new(500)?;
+        let env = TaskEnvWebLOL {};
+        let mut shielded = self.namada.shielded_mut().await;
+        let dated_keypairs = owners
+            .into_iter()
+            .map(|vk| DatedKeypair {
+                key: vk,
+                birthday: BlockHeight::from(0),
+            })
+            .collect::<Vec<_>>();
+
+        shielded
+            .sync(env, config, None, &[], dated_keypairs.as_slice())
+            .await
+            // TODO: unwrap
+            .unwrap();
+
+        Ok(())
+    }
+}
+
+struct TaskSpawnerWebLOL {}
+
+impl TaskSpawner for TaskSpawnerWebLOL {
+    fn spawn_async<F>(&self, _fut: F)
+    where
+        F: std::future::Future<Output = ()> + 'static,
+    {
+        todo!()
+    }
+
+    fn spawn_sync<F>(&self, _job: F)
+    where
+        F: FnOnce() + Send + 'static,
+    {
+        todo!()
+    }
+}
+
+struct TaskEnvWebLOL {}
+
+impl TaskEnvironment for TaskEnvWebLOL {
+    type Spawner = TaskSpawnerWebLOL;
+
+    async fn run<M, F, R>(self, _main: M) -> R
+    where
+        M: FnOnce(Self::Spawner) -> F,
+        F: std::future::Future<Output = R>,
+    {
+        todo!()
+    }
+}
+
+struct ShutdownSignalWebLOL {}
+
+impl ShutdownSignal for ShutdownSignalWebLOL {
+    async fn wait_for_shutdown(&mut self) {}
+
+    fn received(&mut self) -> bool {
+        false
     }
 }
 

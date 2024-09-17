@@ -3,7 +3,6 @@ use std::{path::PathBuf, str::FromStr};
 use namada_sdk::borsh::{BorshDeserialize, BorshSerialize};
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::ibc::IbcShieldingData;
-use namada_sdk::masp::{ExtendedSpendingKey, PaymentAddress};
 use namada_sdk::tendermint_rpc;
 use namada_sdk::tx::data::GasLimit;
 use namada_sdk::{
@@ -12,9 +11,10 @@ use namada_sdk::{
     chain::ChainId,
     ethereum_events::EthAddress,
     key::common::PublicKey,
-    masp::TransferSource,
     token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
+    TransferSource,
 };
+use namada_sdk::{ExtendedSpendingKey, PaymentAddress};
 use wasm_bindgen::JsError;
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
@@ -548,6 +548,8 @@ pub fn shielded_transfer_tx_args(
         data: shielded_transfer_data,
         tx,
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
+        // TODO: false for now
+        disposable_signing_key: false,
         gas_spending_keys: gsk,
     };
 
@@ -685,6 +687,8 @@ pub fn unshielding_transfer_tx_args(
         source,
         tx,
         gas_spending_keys: gsk,
+        // TODO: false for now
+        disposable_signing_key: false,
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
     };
 
@@ -761,6 +765,8 @@ pub fn ibc_transfer_tx_args(
         channel_id,
         timeout_height,
         timeout_sec_offset,
+        // TODO: false for now
+        disposable_signing_key: false,
         tx_code_path: PathBuf::from("tx_ibc.wasm"),
         refund_target: None,
         // TODO: Implement?
@@ -869,7 +875,6 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         _ => None,
     };
 
-    let disposable_signing_key = false;
     let signing_keys: Vec<PublicKey> = match public_key {
         Some(v) => vec![v.clone()],
         _ => vec![],
@@ -884,7 +889,6 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
     let args = args::Tx {
         dry_run: false,
         dry_run_wrapper: false,
-        disposable_signing_key,
         dump_tx: false,
         force: false,
         broadcast_only: false,

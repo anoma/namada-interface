@@ -11,7 +11,7 @@ use namada_sdk::governance::utils::{
 };
 use namada_sdk::governance::{ProposalType, ProposalVote};
 use namada_sdk::hash::Hash;
-use namada_sdk::masp::ExtendedViewingKey;
+use namada_sdk::masp::shielded_wallet::ShieldedApi;
 use namada_sdk::masp::ShieldedContext;
 use namada_sdk::masp_primitives::asset_type::AssetType;
 use namada_sdk::masp_primitives::sapling::ViewingKey;
@@ -32,12 +32,13 @@ use namada_sdk::tx::{
     TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
 };
 use namada_sdk::uint::I256;
+use namada_sdk::ExtendedViewingKey;
 use std::collections::BTreeMap;
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
 
 use crate::rpc_client::HttpClient;
-use crate::sdk::{io::WebIo, masp};
+use crate::sdk::{io::WebIo, masp::JSShieldedUtils};
 use crate::types::query::{ProposalInfo, WasmHash};
 use crate::utils::{set_panic_hook, to_js_result};
 
@@ -115,7 +116,7 @@ impl Query {
         owner_addresses: Box<[JsValue]>,
     ) -> Result<JsValue, JsError> {
         let owner_addresses: Vec<Address> = owner_addresses
-            .into_iter()
+            .iter()
             .map(|address| {
                 //TODO: Handle errors(unwrap)
                 let address_str = &(address.as_string().unwrap()[..]);
@@ -180,7 +181,7 @@ impl Query {
         owner_addresses: Box<[JsValue]>,
     ) -> Result<JsValue, JsError> {
         let owner_addresses: Vec<Address> = owner_addresses
-            .into_iter()
+            .iter()
             .filter_map(|address| address.as_string())
             .filter_map(|address| Address::from_str(&address).ok())
             .collect();
@@ -249,7 +250,7 @@ impl Query {
         tokens: Box<[JsValue]>,
     ) -> Result<Vec<(Address, token::Amount)>, JsError> {
         let tokens: Vec<Address> = tokens
-            .into_iter()
+            .iter()
             .map(|address| {
                 let address_str = &(address.as_string().unwrap()[..]);
                 Address::from_str(address_str).unwrap()
@@ -258,7 +259,7 @@ impl Query {
 
         let mut result = vec![];
         for token in tokens {
-            let balances = get_token_balance(&self.client, &token, &owner).await?;
+            let balances = get_token_balance(&self.client, &token, &owner, None).await?;
             result.push((token, balances));
         }
 
@@ -268,7 +269,7 @@ impl Query {
     pub async fn shielded_sync(&self, owners: Box<[JsValue]>) -> Result<(), JsError> {
         // TODO: Can this be re-enabled?
         let _owners: Vec<ViewingKey> = owners
-            .into_iter()
+            .iter()
             .filter_map(|owner| owner.as_string())
             .map(|o| {
                 ExtendedFullViewingKey::from(ExtendedViewingKey::from_str(&o).unwrap())
@@ -277,17 +278,19 @@ impl Query {
             })
             .collect();
 
-        let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
+        let mut shielded: ShieldedContext<JSShieldedUtils> = ShieldedContext::default();
 
-        let _ = shielded.load().await?;
-        let _ = shielded
+        shielded.load().await?;
+        shielded
             .precompute_asset_types(
                 &self.client,
                 vec![&Address::from_str("tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e").unwrap()],
             )
-            .await?;
+            .await
+            // TODO:
+            .unwrap();
 
-        let _ = shielded.save().await?;
+        shielded.save().await?;
 
         // TODO: Can we still do the following? shielded.fetch() and DefaultLogger no longer exist:
         // shielded.
@@ -317,13 +320,15 @@ impl Query {
         let viewing_key = ExtendedFullViewingKey::from(xvk).fvk.vk;
 
         // We are recreating shielded context to avoid multiple mutable borrows
-        let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
+        let mut shielded: ShieldedContext<JSShieldedUtils> = ShieldedContext::default();
         shielded.load().await?;
 
         let epoch = query_masp_epoch(&self.client).await?;
         let balance = shielded
             .compute_exchanged_balance(&self.client, &WebIo, &viewing_key, epoch)
-            .await?;
+            .await
+            //TODO:;
+            .unwrap();
 
         let res = match balance {
             Some(balance) => {
@@ -369,10 +374,7 @@ impl Query {
         let addr = Address::from_str(address).map_err(JsError::from)?;
         let pk = get_public_key_at(&self.client, &addr, 0).await?;
 
-        let result = match pk {
-            Some(v) => Some(v.to_string()),
-            None => None,
-        };
+        let result = pk.map(|v| v.to_string());
 
         to_js_result(result)
     }
@@ -384,7 +386,7 @@ impl Query {
         let bridge_pool = query_signed_bridge_pool(&self.client, &WebIo).await?;
 
         let owner_addresses: Vec<Address> = owner_addresses
-            .into_iter()
+            .iter()
             .filter_map(|address| address.as_string())
             .filter_map(|address| Address::from_str(&address).ok())
             .collect();
@@ -430,7 +432,8 @@ impl Query {
         let is_steward = is_steward(&self.client, &proposal.author).await;
         let tally_type = proposal.get_tally_type(is_steward);
         let tally_type_string = match tally_type {
-            TallyType::TwoThirds => "two-thirds",
+            // TODO: Change in interface
+            TallyType::TwoFifths => "two-fifths",
             TallyType::OneHalfOverOneThird => "one-half-over-one-third",
             TallyType::LessOneHalfOverOneThirdNay => "less-one-half-over-one-third-nay",
         };
@@ -481,11 +484,10 @@ impl Query {
                     ProposalVote::Abstain => "abstain",
                 };
 
-                let voting_power = votes
+                let voting_power = *votes
                     .validator_voting_power
                     .get(address)
-                    .expect("validator has voting power entry")
-                    .clone();
+                    .expect("validator has voting power entry");
 
                 (address.clone(), String::from(vote), voting_power)
             }));
@@ -567,7 +569,7 @@ impl Query {
         epoch: Option<u64>,
     ) -> Result<JsValue, JsError> {
         let addresses: Vec<Address> = addresses
-            .into_iter()
+            .iter()
             .filter_map(|address| address.as_string())
             .filter_map(|address| Address::from_str(&address).ok())
             .collect();
@@ -660,8 +662,7 @@ impl Query {
             let hash = self.query_wasm_hash(&path).await;
 
             if hash.is_some() {
-                let hash = String::from(hash.unwrap());
-                let wasm_hash = WasmHash::new(path, hash);
+                let wasm_hash = WasmHash::new(path, hash.unwrap());
                 results.push(wasm_hash);
             }
         }

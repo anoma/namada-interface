@@ -8,7 +8,8 @@ use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::Response;
 
-use namada_sdk::queries::{Client, EncodedResponseQuery};
+use namada_sdk::io::Client;
+use namada_sdk::queries::EncodedResponseQuery;
 use namada_sdk::tendermint::{self, abci::Code};
 use namada_sdk::tendermint_rpc::{
     error::Error as TendermintRpcError, Response as RpcResponse, SimpleRequest,

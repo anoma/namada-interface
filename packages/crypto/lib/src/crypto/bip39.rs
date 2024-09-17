@@ -70,9 +70,8 @@ impl Mnemonic {
         let words: Vec<String> = self
             .mnemonic
             .phrase()
-            .clone()
             .split(' ')
-            .map(|word| String::from(word))
+            .map(String::from)
             .collect();
         Ok(new_vec_string_pointer(words))
     }
