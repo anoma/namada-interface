@@ -1,4 +1,4 @@
-import { useUntilIntegrationAttached } from "@namada/integrations";
+import { useProviderStatus } from "hooks/useProviderStatus";
 import { ReactNode } from "react";
 import { PageLoader } from "../Common/PageLoader";
 
@@ -7,8 +7,8 @@ export const ExtensionLoader = ({
 }: {
   children: ReactNode;
 }): JSX.Element => {
-  const extensionAttachStatus = useUntilIntegrationAttached();
-  const extensionReady = extensionAttachStatus !== "pending";
+  const status = useProviderStatus("namada");
+  const extensionReady = status !== "connecting";
 
   if (!extensionReady) {
     return <PageLoader />;

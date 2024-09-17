@@ -1,3 +1,4 @@
+import { ExtensionKey } from "@namada/types";
 import { CurrencyType, isUrlValid, sanitizeUrl } from "@namada/utils";
 import { indexerRpcUrlAtom } from "atoms/chain";
 import { Getter, Setter, atom, getDefaultStore } from "jotai";
@@ -8,7 +9,24 @@ import { fetchDefaultTomlConfig, isIndexerAlive, isRpcAlive } from "./services";
 
 export type ConnectStatus = "idle" | "connecting" | "connected" | "error";
 
-export const namadaExtensionConnectionStatus = atom<ConnectStatus>("idle");
+export const providerStatusAtom = atom<Record<ExtensionKey, ConnectStatus>>({
+  namada: "idle",
+  keplr: "idle",
+  metamask: "idle",
+});
+
+export const namadaExtensionConnectionStatus = atom(
+  (get) => {
+    return get(providerStatusAtom)["namada"];
+  },
+  (get, set, status: ConnectStatus) => {
+    const providerStatus = get(providerStatusAtom);
+    set(providerStatusAtom, {
+      ...providerStatus,
+      namada: status,
+    });
+  }
+);
 
 export const namadaExtensionConnectedAtom = atom<boolean>(
   (get) => get(namadaExtensionConnectionStatus) === "connected"

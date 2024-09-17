@@ -8,6 +8,7 @@ import {
   atomsAreLoaded,
   useNotifyOnAtomError,
 } from "atoms/utils";
+import { useUserHasAccount } from "hooks/useUserHasAccount";
 import { useAtomValue } from "jotai";
 import { AllProposalsTable } from "./AllProposalsTable";
 import { LiveGovernanceProposals } from "./LiveGovernanceProposals";
@@ -17,12 +18,13 @@ import { UpcomingProposals } from "./UpcomingProposals";
 
 export const GovernanceOverview: React.FC = () => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
+  const hasAccount = useUserHasAccount();
   const allProposals = useAtomValue(allProposalsAtom);
   const votedProposals = useAtomValue(votedProposalsAtom);
 
   // TODO: is there a better way than this to show that votedProposalIdsAtom
   // is dependent on isConnected?
-  const extensionAtoms = isConnected ? [votedProposals] : [];
+  const extensionAtoms = isConnected && hasAccount ? [votedProposals] : [];
   const activeAtoms = [allProposals, ...extensionAtoms];
 
   const liveProposals =
@@ -43,6 +45,9 @@ export const GovernanceOverview: React.FC = () => {
       <div className="flex flex-col gap-2">
         {!isConnected && (
           <ConnectBanner text="To vote please connect your account" />
+        )}
+        {hasAccount === false && (
+          <ConnectBanner text="To vote please create or import an account using Namada keychain" />
         )}
         <ProposalListPanel
           title="Live Proposals"

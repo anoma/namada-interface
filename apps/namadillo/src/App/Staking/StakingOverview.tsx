@@ -5,6 +5,7 @@ import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification"
 import { YourStakingDistribution } from "App/Sidebars/YourStakingDistribution";
 import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { myValidatorsAtom } from "atoms/validators";
+import { useUserHasAccount } from "hooks/useUserHasAccount";
 import { useAtomValue } from "jotai";
 import { AllValidatorsTable } from "./AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
@@ -13,6 +14,7 @@ import { UnbondingAmountsTable } from "./UnbondingAmountsTable";
 
 export const StakingOverview = (): JSX.Element => {
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
+  const hasAccount = useUserHasAccount();
   const myValidators = useAtomValue(myValidatorsAtom);
   const hasStaking = myValidators.data?.some((v) => v.stakedAmount?.gt(0));
   const hasUnbonded = myValidators.data?.some((v) => v.unbondedAmount?.gt(0));
@@ -26,7 +28,10 @@ export const StakingOverview = (): JSX.Element => {
         {!isConnected && (
           <ConnectBanner text="To stake please connect your account" />
         )}
-        {isConnected && <StakingSummary />}
+        {isConnected && hasAccount === false && (
+          <ConnectBanner text="To stake please create or import an account using Namada keychain" />
+        )}
+        {isConnected && hasAccount && <StakingSummary />}
         {hasStaking && (
           <Panel title="My Validators" className="relative grid">
             <MyValidatorsTable />

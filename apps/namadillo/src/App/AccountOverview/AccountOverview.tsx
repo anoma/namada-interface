@@ -8,6 +8,7 @@ import {
   applicationFeaturesAtom,
   namadaExtensionConnectedAtom,
 } from "atoms/settings";
+import { useUserHasAccount } from "hooks/useUserHasAccount";
 import { useAtomValue } from "jotai";
 import { twMerge } from "tailwind-merge";
 import { AccountBalanceContainer } from "./AccountBalanceContainer";
@@ -15,17 +16,19 @@ import { NamBalanceContainer } from "./NamBalanceContainer";
 import { NavigationFooter } from "./NavigationFooter";
 
 export const AccountOverview = (): JSX.Element => {
-  const isConnected = useAtomValue(namadaExtensionConnectedAtom);
+  const isConnectedToExtension = useAtomValue(namadaExtensionConnectedAtom);
+  const hasAccount = useUserHasAccount();
+
   const { claimRewardsEnabled, maspEnabled } = useAtomValue(
     applicationFeaturesAtom
   );
 
-  const showSidebar = isConnected;
+  const showSidebar = isConnectedToExtension && hasAccount !== undefined;
 
   return (
     <PageWithSidebar>
       <div className={twMerge("flex w-full", !showSidebar && "col-span-2")}>
-        {!isConnected && (
+        {(!isConnectedToExtension || hasAccount === false) && (
           <section className="flex rounded-sm items-center w-full bg-black">
             <div className="w-[420px] mx-auto">
               <Intro />
@@ -33,7 +36,7 @@ export const AccountOverview = (): JSX.Element => {
           </section>
         )}
 
-        {isConnected && !claimRewardsEnabled && (
+        {isConnectedToExtension && hasAccount && !claimRewardsEnabled && (
           <section className="flex items-center bg-black rounded-sm w-full">
             <Stack gap={5} className="my-auto min-w-[365px] mx-auto py-12">
               <AccountBalanceContainer />
@@ -42,7 +45,7 @@ export const AccountOverview = (): JSX.Element => {
           </section>
         )}
 
-        {isConnected && claimRewardsEnabled && (
+        {isConnectedToExtension && hasAccount && claimRewardsEnabled && (
           <section className="flex flex-col w-full rounded-sm min-h-full gap-2">
             <div className="grid grid-cols-[1.25fr_1fr] gap-2">
               <Panel className="pl-4 pr-6 py-5">

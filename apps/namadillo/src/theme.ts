@@ -3,7 +3,7 @@ export const colors = {
   balance: "#ffffff",
   unbond: "#DD1599",
   shielded: "#ffff00",
-  empty: "2F2F2F",
+  empty: "#2F2F2F",
 };
 
 export const keyframes = {
