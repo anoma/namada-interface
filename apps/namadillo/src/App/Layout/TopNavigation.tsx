@@ -22,14 +22,14 @@ export const TopNavigation = (): JSX.Element => {
 
   if (!isExtensionConnected) {
     return (
-      <span>
+      <div className="w-fit justify-self-end">
         <ConnectExtensionButton />
-      </span>
+      </div>
     );
   }
 
   return (
-    <div className="flex-1 flex items-center gap-6">
+    <div className="flex-1 flex items-center gap-4 sm:gap-6">
       <div className="hidden lg:flex gap-2">
         <ActionButton
           href={TransferRoutes.masp().url}
