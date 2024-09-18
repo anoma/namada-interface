@@ -1,6 +1,6 @@
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 
-export const InternalTransfer: React.FC = () => {
+export const NamTransfer: React.FC = () => {
   return (
     <PageWithSidebar>
       <div className="flex flex-col gap-2 text-yellow">

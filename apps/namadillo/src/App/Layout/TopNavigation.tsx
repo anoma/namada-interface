@@ -46,7 +46,7 @@ export const TopNavigation = (): JSX.Element => {
         )}
         {namTransfersEnabled && (
           <ActionButton
-            href={TransferRoutes.transfer().url}
+            href={TransferRoutes.namTransfer().url}
             size="sm"
             backgroundColor="white"
             className="w-[140px]"
