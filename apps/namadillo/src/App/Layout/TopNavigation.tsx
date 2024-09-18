@@ -32,7 +32,7 @@ export const TopNavigation = (): JSX.Element => {
     <div className="flex-1 flex items-center gap-4 sm:gap-6">
       <div className="hidden lg:flex gap-2">
         <ActionButton
-          href={TransferRoutes.masp().url}
+          href={TransferRoutes.shield().url}
           size="sm"
           className="w-[140px]"
         >

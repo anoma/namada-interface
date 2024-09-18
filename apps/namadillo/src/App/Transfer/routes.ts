@@ -8,7 +8,7 @@ export const overview = (): RouteOutput => routeOutput("/");
 
 export const transfer = (): RouteOutput => routeOutput("/transfer");
 
-export const masp = (): RouteOutput => routeOutput("/masp");
+export const shield = (): RouteOutput => routeOutput("/shield");
 
 export const shieldAll = (): RouteOutput => routeOutput("/shield-all");
 
@@ -16,6 +16,6 @@ export default {
   index,
   overview,
   transfer,
-  masp,
+  shield,
   shieldAll,
 };
