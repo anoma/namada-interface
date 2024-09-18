@@ -16,6 +16,6 @@ export default {
   index,
   overview,
   transfer,
-  shield: masp,
+  masp,
   shieldAll,
 };

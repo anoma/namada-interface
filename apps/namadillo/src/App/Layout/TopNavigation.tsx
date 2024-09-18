@@ -32,7 +32,7 @@ export const TopNavigation = (): JSX.Element => {
     <div className="flex-1 flex items-center gap-6">
       <div className="hidden lg:flex gap-2">
         <ActionButton
-          href={TransferRoutes.shield().url}
+          href={TransferRoutes.masp().url}
           size="sm"
           className="w-[140px]"
         >
@@ -60,8 +60,7 @@ export const TopNavigation = (): JSX.Element => {
       >
         <IoSettingsOutline />
       </button>
-
-      {!signArbitraryEnabled && (
+      {signArbitraryEnabled && (
         <button
           className="text-2xl text-yellow hover:text-cyan"
           title="Sign Message"

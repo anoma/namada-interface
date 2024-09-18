@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { Link } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { BurgerButton } from "./BurgerButton";
@@ -6,11 +6,11 @@ import { Logo } from "./Logo";
 import { Navigation } from "./Navigation";
 import { TopNavigation } from "./TopNavigation";
 
-type ContainerProps = {
-  children: JSX.Element;
-};
-
-export const AppLayout = ({ children }: ContainerProps): JSX.Element => {
+export const AppLayout = ({
+  children,
+}: {
+  children: ReactNode;
+}): JSX.Element => {
   const [displayNavigation, setDisplayNavigation] = useState(false);
 
   return (
