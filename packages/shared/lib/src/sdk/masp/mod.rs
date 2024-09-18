@@ -9,3 +9,5 @@ mod masp_node;
 
 #[cfg(feature = "nodejs")]
 pub use masp_node::NodeShieldedUtils as JSShieldedUtils;
+
+pub mod sync;

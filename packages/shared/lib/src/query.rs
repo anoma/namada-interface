@@ -11,8 +11,11 @@ use namada_sdk::governance::utils::{
 };
 use namada_sdk::governance::{ProposalType, ProposalVote};
 use namada_sdk::hash::Hash;
+use namada_sdk::io::DevNullProgressBar;
 use namada_sdk::masp::shielded_wallet::ShieldedApi;
-use namada_sdk::masp::ShieldedContext;
+use namada_sdk::masp::utils::RetryStrategy;
+use namada_sdk::masp::IndexerMaspClient;
+use namada_sdk::masp::{ShieldedContext, ShieldedSyncConfig};
 use namada_sdk::masp_primitives::asset_type::AssetType;
 use namada_sdk::masp_primitives::sapling::ViewingKey;
 use namada_sdk::masp_primitives::transaction::components::ValueSum;
@@ -25,6 +28,7 @@ use namada_sdk::rpc::{
     is_steward, query_epoch, query_masp_epoch, query_native_token, query_proposal_by_id,
     query_proposal_votes, query_storage_value,
 };
+use namada_sdk::state::BlockHeight;
 use namada_sdk::state::Key;
 use namada_sdk::token;
 use namada_sdk::tx::{
@@ -32,13 +36,18 @@ use namada_sdk::tx::{
     TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
 };
 use namada_sdk::uint::I256;
+use namada_sdk::wallet::DatedKeypair;
 use namada_sdk::ExtendedViewingKey;
 use std::collections::BTreeMap;
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsError;
 
 use crate::rpc_client::HttpClient;
-use crate::sdk::{io::WebIo, masp::JSShieldedUtils};
+use crate::sdk::{
+    io::WebIo,
+    masp::{sync, JSShieldedUtils},
+};
 use crate::types::query::{ProposalInfo, WasmHash};
 use crate::utils::{set_panic_hook, to_js_result};
 
@@ -118,9 +127,11 @@ impl Query {
         let owner_addresses: Vec<Address> = owner_addresses
             .iter()
             .map(|address| {
-                //TODO: Handle errors(unwrap)
-                let address_str = &(address.as_string().unwrap()[..]);
-                Address::from_str(address_str).unwrap()
+                address
+                    .as_string()
+                    .and_then(|address_str| Address::from_str(&address_str).ok())
+                    // TODO: we unwrap but we could also filter_map with warning or map to error
+                    .unwrap()
             })
             .collect();
 
@@ -247,16 +258,8 @@ impl Query {
     async fn query_transparent_balance(
         &self,
         owner: Address,
-        tokens: Box<[JsValue]>,
+        tokens: Vec<Address>,
     ) -> Result<Vec<(Address, token::Amount)>, JsError> {
-        let tokens: Vec<Address> = tokens
-            .iter()
-            .map(|address| {
-                let address_str = &(address.as_string().unwrap()[..]);
-                Address::from_str(address_str).unwrap()
-            })
-            .collect();
-
         let mut result = vec![];
         for token in tokens {
             let balances = get_token_balance(&self.client, &token, &owner, None).await?;
@@ -267,8 +270,7 @@ impl Query {
     }
 
     pub async fn shielded_sync(&self, owners: Box<[JsValue]>) -> Result<(), JsError> {
-        // TODO: Can this be re-enabled?
-        let _owners: Vec<ViewingKey> = owners
+        let owners: Vec<ViewingKey> = owners
             .iter()
             .filter_map(|owner| owner.as_string())
             .map(|o| {
@@ -277,33 +279,40 @@ impl Query {
                     .vk
             })
             .collect();
+        let client = reqwest::Client::builder().build()?;
 
-        let mut shielded: ShieldedContext<JSShieldedUtils> = ShieldedContext::default();
+        let url: reqwest::Url = "http://localhost:5001/api/v1".try_into()?;
 
-        shielded.load().await?;
-        shielded
-            .precompute_asset_types(
-                &self.client,
-                vec![&Address::from_str("tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e").unwrap()],
-            )
+        let client = IndexerMaspClient::new(client, url, true, 10);
+        let progress_bar = DevNullProgressBar;
+        let shutdown_signal_web = sync::ShutdownSignalWeb {};
+
+        let config = ShieldedSyncConfig::builder()
+            .client(client)
+            .scanned_tracker(progress_bar)
+            .fetched_tracker(progress_bar)
+            .applied_tracker(progress_bar)
+            .shutdown_signal(shutdown_signal_web)
+            .wait_for_last_query_height(true)
+            .retry_strategy(RetryStrategy::Times(10))
+            .build();
+
+        // let env = MaspLocalTaskEnv::new(500)?;
+        let env = sync::TaskEnvWeb {};
+        let dated_keypairs = owners
+            .into_iter()
+            .map(|vk| DatedKeypair {
+                key: vk,
+                birthday: BlockHeight::from(0),
+            })
+            .collect::<Vec<_>>();
+
+        let mut shielded_context: ShieldedContext<JSShieldedUtils> = ShieldedContext::default();
+
+        shielded_context
+            .sync(env, config, None, &[], dated_keypairs.as_slice())
             .await
-            // TODO:
-            .unwrap();
-
-        shielded.save().await?;
-
-        // TODO: Can we still do the following? shielded.fetch() and DefaultLogger no longer exist:
-        // shielded.
-        //     .fetch(
-        //         &self.client,
-        //         // &DefaultLogger::new(&WebIo),
-        //         None,
-        //         None,
-        //         1,
-        //         &[],
-        //         &owners,
-        //     )
-        //     .await?;
+            .map_err(|e| JsError::new(&format!("{:?}", e)))?;
 
         Ok(())
     }
@@ -316,19 +325,23 @@ impl Query {
     async fn query_shielded_balance(
         &self,
         xvk: ExtendedViewingKey,
+        tokens: Vec<Address>,
     ) -> Result<Vec<(Address, token::Amount)>, JsError> {
         let viewing_key = ExtendedFullViewingKey::from(xvk).fvk.vk;
 
         // We are recreating shielded context to avoid multiple mutable borrows
         let mut shielded: ShieldedContext<JSShieldedUtils> = ShieldedContext::default();
         shielded.load().await?;
+        shielded
+            .precompute_asset_types(&self.client, tokens.iter().collect())
+            .await
+            .map_err(|e| JsError::new(&format!("{:?}", e)))?;
 
         let epoch = query_masp_epoch(&self.client).await?;
         let balance = shielded
             .compute_exchanged_balance(&self.client, &WebIo, &viewing_key, epoch)
             .await
-            //TODO:;
-            .unwrap();
+            .map_err(|e| JsError::new(&format!("{:?}", e)))?;
 
         let res = match balance {
             Some(balance) => {
@@ -349,10 +362,18 @@ impl Query {
         owner: String,
         tokens: Box<[JsValue]>,
     ) -> Result<JsValue, JsError> {
+        let tokens: Vec<Address> = tokens
+            .iter()
+            .map(|address| {
+                let address_str = address.as_string().unwrap();
+                Address::from_str(&address_str).unwrap()
+            })
+            .collect();
+
         let result = match Address::from_str(&owner) {
             Ok(addr) => self.query_transparent_balance(addr, tokens).await,
             Err(e1) => match ExtendedViewingKey::from_str(&owner) {
-                Ok(xvk) => self.query_shielded_balance(xvk).await,
+                Ok(xvk) => self.query_shielded_balance(xvk, tokens).await,
                 Err(e2) => return Err(JsError::new(&format!("{} {}", e1, e2))),
             },
         }?;

@@ -15,30 +15,21 @@ use crate::utils::to_js_result;
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::address::Address;
 use namada_sdk::borsh::{self, BorshDeserialize};
-use namada_sdk::control_flow::ShutdownSignal;
 use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada_sdk::hash::Hash;
-use namada_sdk::io::DevNullProgressBar;
 use namada_sdk::io::NamadaIo;
 use namada_sdk::key::{common, ed25519, SigScheme};
-use namada_sdk::masp::utils::RetryStrategy;
-use namada_sdk::masp::IndexerMaspClient;
-use namada_sdk::masp::{ShieldedContext, ShieldedSyncConfig};
-use namada_sdk::masp_primitives::sapling::ViewingKey;
-use namada_sdk::masp_primitives::zip32::ExtendedFullViewingKey;
+use namada_sdk::masp::ShieldedContext;
 use namada_sdk::rpc::{query_epoch, InnerTxResult};
 use namada_sdk::signing::SigningTxData;
-use namada_sdk::state::BlockHeight;
 use namada_sdk::string_encoding::Format;
-use namada_sdk::task_env::{TaskEnvironment, TaskSpawner};
 use namada_sdk::tx::{
     build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
     build_reveal_pk, build_shielded_transfer, build_shielding_transfer, build_transparent_transfer,
     build_unbond, build_unshielding_transfer, build_vote_proposal, build_withdraw,
     data::compute_inner_tx_hash, either::Either, process_tx, ProcessTxResponse, Tx,
 };
-use namada_sdk::wallet::{DatedKeypair, Store, Wallet};
-use namada_sdk::ExtendedViewingKey;
+use namada_sdk::wallet::{Store, Wallet};
 use namada_sdk::{Namada, NamadaImpl};
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
@@ -492,98 +483,6 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let tx = tx::Tx::new(tx, wrapper_tx_msg, vec![signing_data])?;
         to_js_result(borsh::to_vec(&tx)?)
-    }
-
-    pub async fn shielded_sync(&self, owners: Box<[JsValue]>) -> Result<(), JsError> {
-        // TODO: Can this be re-enabled?
-        let owners: Vec<ViewingKey> = owners
-            .iter()
-            .filter_map(|owner| owner.as_string())
-            .map(|o| {
-                ExtendedFullViewingKey::from(ExtendedViewingKey::from_str(&o).unwrap())
-                    .fvk
-                    .vk
-            })
-            .collect();
-
-        let client = reqwest::Client::builder().build().unwrap();
-
-        let url: reqwest::Url = "http://localhost:5000".try_into().unwrap();
-
-        let client = IndexerMaspClient::new(client, url, true, 10);
-        let progress_bar = DevNullProgressBar;
-        let shutdown_signal_web_lol = ShutdownSignalWebLOL {};
-
-        let config = ShieldedSyncConfig::builder()
-            .client(client)
-            .scanned_tracker(progress_bar)
-            .fetched_tracker(progress_bar)
-            .applied_tracker(progress_bar)
-            .shutdown_signal(shutdown_signal_web_lol)
-            .wait_for_last_query_height(true)
-            .retry_strategy(RetryStrategy::Times(10))
-            .build();
-
-        // let env = MaspLocalTaskEnv::new(500)?;
-        let env = TaskEnvWebLOL {};
-        let mut shielded = self.namada.shielded_mut().await;
-        let dated_keypairs = owners
-            .into_iter()
-            .map(|vk| DatedKeypair {
-                key: vk,
-                birthday: BlockHeight::from(0),
-            })
-            .collect::<Vec<_>>();
-
-        shielded
-            .sync(env, config, None, &[], dated_keypairs.as_slice())
-            .await
-            // TODO: unwrap
-            .unwrap();
-
-        Ok(())
-    }
-}
-
-struct TaskSpawnerWebLOL {}
-
-impl TaskSpawner for TaskSpawnerWebLOL {
-    fn spawn_async<F>(&self, _fut: F)
-    where
-        F: std::future::Future<Output = ()> + 'static,
-    {
-        todo!()
-    }
-
-    fn spawn_sync<F>(&self, _job: F)
-    where
-        F: FnOnce() + Send + 'static,
-    {
-        todo!()
-    }
-}
-
-struct TaskEnvWebLOL {}
-
-impl TaskEnvironment for TaskEnvWebLOL {
-    type Spawner = TaskSpawnerWebLOL;
-
-    async fn run<M, F, R>(self, _main: M) -> R
-    where
-        M: FnOnce(Self::Spawner) -> F,
-        F: std::future::Future<Output = R>,
-    {
-        todo!()
-    }
-}
-
-struct ShutdownSignalWebLOL {}
-
-impl ShutdownSignal for ShutdownSignalWebLOL {
-    async fn wait_for_shutdown(&mut self) {}
-
-    fn received(&mut self) -> bool {
-        false
     }
 }
 
