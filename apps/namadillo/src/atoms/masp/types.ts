@@ -1,3 +1,5 @@
+import { MaspParam } from "types";
+
 const { NAMADA_INTERFACE_PROXY: isProxy } = process.env;
 
 const MASP_MPC_URL =
@@ -5,14 +7,6 @@ const MASP_MPC_URL =
 
 export const MASP_PARAMS_URL =
   isProxy === "true" ? "http://localhost:8010/proxy" : MASP_MPC_URL;
-
-export const STORAGE_PREFIX = "namadillo";
-
-export enum MaspParam {
-  Output = "masp-output.params",
-  Convert = "masp-convert.params",
-  Spend = "masp-spend.params",
-}
 
 export const MaspParamConfigs: Record<
   MaspParam,

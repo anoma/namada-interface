@@ -166,3 +166,11 @@ export type ToastNotification = {
 export type ToastNotificationEntryFilter = (
   notification: ToastNotification
 ) => boolean;
+
+export enum MaspParam {
+  Output = "masp-output.params",
+  Convert = "masp-convert.params",
+  Spend = "masp-spend.params",
+}
+
+export type MaspParamStorage = Record<MaspParam, string | null>;

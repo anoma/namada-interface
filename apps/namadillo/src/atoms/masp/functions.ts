@@ -1,7 +1,8 @@
 import { toBase64 } from "@cosmjs/encoding";
 import { IndexedDBKVStore } from "@namada/storage";
+import { MaspParam } from "types";
 import { sha256Hash } from "utils";
-import { MASP_PARAMS_URL, MaspParam, MaspParamConfigs } from "./types";
+import { MASP_PARAMS_URL, MaspParamConfigs } from "./types";
 
 export type MaspParamBytes = {
   param: MaspParam;
@@ -20,6 +21,9 @@ export type MaspParamBytesComplete = {
   progress: number;
 };
 
+/**
+ * Fetch a MASP Param, and stream the bytes, resolving to Uint8Array if successful
+ */
 export const fetchMaspParam = async (
   param: MaspParam,
   // Optional callback to track download progress
