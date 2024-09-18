@@ -3,7 +3,10 @@ import { Account } from "@namada/types";
 import { indexerApiAtom } from "atoms/api";
 import { nativeTokenAddressAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
-import { namadaExtensionConnectedAtom } from "atoms/settings";
+import {
+  namadaExtensionConnectedAtom,
+  namadaExtensionConnectionStatus,
+} from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
@@ -23,10 +26,10 @@ export const accountsAtom = atomWithQuery<readonly Account[]>((get) => {
 });
 
 export const defaultAccountAtom = atomWithQuery<Account | undefined>((get) => {
-  const isExtensionConnected = get(namadaExtensionConnectedAtom);
+  const extensionStatus = get(namadaExtensionConnectionStatus);
   return {
-    enabled: isExtensionConnected,
-    queryKey: ["default-account", isExtensionConnected],
+    enabled: extensionStatus !== "connecting",
+    queryKey: ["default-account", extensionStatus],
     queryFn: fetchDefaultAccount,
   };
 });

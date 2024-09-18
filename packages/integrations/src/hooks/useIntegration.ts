@@ -121,7 +121,7 @@ export const useUntilIntegrationAttached = (
         setAttachStatus((v) => ({ ...v, [extensionId]: "detached" })),
     },
     {
-      tries: 10,
+      tries: 5,
       ms: 100,
     },
     [integration]

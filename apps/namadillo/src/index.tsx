@@ -9,7 +9,6 @@ import { IntegrationsProvider } from "./services";
 
 import "@namada/components/src/base.css";
 import "@namada/utils/bigint-to-json-polyfill";
-import { AccountLoader } from "App/Setup/AccountLoader";
 import { ExtensionLoader } from "App/Setup/ExtensionLoader";
 import { IndexerLoader } from "App/Setup/IndexerLoader";
 import { TomlConfigLoader } from "App/Setup/TomlConfigLoader";
@@ -30,9 +29,7 @@ if (container) {
               <IndexerLoader>
                 <ExtensionLoader>
                   <SdkProvider>
-                    <AccountLoader>
-                      <RouterProvider router={router} />
-                    </AccountLoader>
+                    <RouterProvider router={router} />
                   </SdkProvider>
                 </ExtensionLoader>
               </IndexerLoader>
