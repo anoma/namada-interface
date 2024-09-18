@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "./sw",
+    "lib": ["esnext", "webworker"],
+    "noEmit": false,
+    "strict": false,
+    "outDir": "public/sw",
+    "target": "esnext",
+    "isolatedModules": false
+  },
+  "include": ["sw"]
+}
