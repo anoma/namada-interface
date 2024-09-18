@@ -45,7 +45,8 @@
     "@cosmjs/stargate": "^0.29.5",
     "@cosmjs/tendermint-rpc": "~0.29.5",
     "@keplr-wallet/types": "^0.10.19",
-    "@metamask/providers": "^10.2.1"
+    "@metamask/providers": "^10.2.1",
+    "ethers": "^6.7.1"
   },
   "files": [
     "dist"
