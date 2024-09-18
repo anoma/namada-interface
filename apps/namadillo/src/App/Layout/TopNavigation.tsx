@@ -3,6 +3,7 @@ import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
 import SettingsRoutes from "App/Settings/routes";
 import MessageRoutes from "App/SignMessages/routes";
 import {
+  applicationFeaturesAtom,
   namadaExtensionConnectedAtom,
   signArbitraryEnabledAtom,
 } from "atoms/settings";
@@ -17,6 +18,9 @@ import { SyncIndicator } from "./SyncIndicator";
 export const TopNavigation = (): JSX.Element => {
   const isExtensionConnected = useAtomValue(namadaExtensionConnectedAtom);
   const signArbitraryEnabled = useAtomValue(signArbitraryEnabledAtom);
+  const { maspEnabled, namTransfersEnabled } = useAtomValue(
+    applicationFeaturesAtom
+  );
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -31,21 +35,25 @@ export const TopNavigation = (): JSX.Element => {
   return (
     <div className="flex-1 flex items-center gap-4 sm:gap-6">
       <div className="hidden lg:flex gap-2">
-        <ActionButton
-          href={TransferRoutes.shield().url}
-          size="sm"
-          className="w-[140px]"
-        >
-          Shield assets
-        </ActionButton>
-        <ActionButton
-          href={TransferRoutes.transfer().url}
-          size="sm"
-          backgroundColor="white"
-          className="w-[140px]"
-        >
-          Transfer
-        </ActionButton>
+        {maspEnabled && (
+          <ActionButton
+            href={TransferRoutes.shield().url}
+            size="sm"
+            className="w-[140px]"
+          >
+            Shield assets
+          </ActionButton>
+        )}
+        {namTransfersEnabled && (
+          <ActionButton
+            href={TransferRoutes.transfer().url}
+            size="sm"
+            backgroundColor="white"
+            className="w-[140px]"
+          >
+            Transfer
+          </ActionButton>
+        )}
       </div>
 
       <div className="flex-1" />
