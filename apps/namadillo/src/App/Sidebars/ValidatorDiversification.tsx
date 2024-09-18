@@ -18,8 +18,9 @@ export const ValidatorDiversification = (): JSX.Element => {
         outlineColor="cyan"
         textHoverColor="black"
         backgroundHoverColor="cyan"
-        href="https://namada.net"
+        href="https://namada.net/blog/namada-cubic-proof-of-stake"
         target="_blank"
+        rel="nofollow noreferrer"
         size="xs"
       >
         Learn about CPoS

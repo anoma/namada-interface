@@ -51,25 +51,22 @@ const MainnetRoadmap = (): JSX.Element => {
         )}
         {renderPhase(
           "2",
-          <>
-            Proof of Stake Rewards
-            <br />
-            PGF Inflation
-          </>,
+          <>Staking Rewards</>,
           claimRewardsEnabled ? "opacity-100" : "opacity-25",
           claimRewardsEnabled
         )}
+        {renderPhase("2", <></>, "opacity-25")}
         {renderPhase(
           "3",
           <>
-            MASP Enabled
-            <br />
             IBC Transfers
+            <br />
+            MASP Enabled
           </>,
           "opacity-25"
         )}
-        {renderPhase("4", "Shielded Rewards", "opacity-25")}
-        {renderPhase("5", "NAM Transfers", "opacity-25")}
+        {renderPhase("4", "Shielding Rewards", "opacity-25")}
+        {renderPhase("5", "NAM Transfers enabled", "opacity-25")}
       </ul>
       <ActionButton
         className="max-w-40 mt-6"

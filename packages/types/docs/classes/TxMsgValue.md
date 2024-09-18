@@ -33,7 +33,7 @@
 
 #### Defined in
 
-[tx/schema/tx.ts:44](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/tx.ts#L44)
+[tx/schema/tx.ts:44](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/tx.ts#L44)
 
 ## Properties
 
@@ -43,7 +43,7 @@
 
 #### Defined in
 
-[tx/schema/tx.ts:33](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/tx.ts#L33)
+[tx/schema/tx.ts:33](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/tx.ts#L33)
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 #### Defined in
 
-[tx/schema/tx.ts:39](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/tx.ts#L39)
+[tx/schema/tx.ts:39](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/tx.ts#L39)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 #### Defined in
 
-[tx/schema/tx.ts:36](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/tx.ts#L36)
+[tx/schema/tx.ts:36](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/tx.ts#L36)
 
 ___
 
@@ -73,4 +73,4 @@ ___
 
 #### Defined in
 
-[tx/schema/tx.ts:42](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/tx.ts#L42)
+[tx/schema/tx.ts:42](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/tx.ts#L42)

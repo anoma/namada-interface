@@ -5,6 +5,10 @@ import {
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
   RedelegateMsgValue,
+  ShieldedTransferDataMsgValue,
+  ShieldedTransferMsgValue,
+  ShieldingTransferDataMsgValue,
+  ShieldingTransferMsgValue,
   SignatureMsgValue,
   SigningDataMsgValue,
   TransferMsgValue,
@@ -13,6 +17,8 @@ import {
   TxMsgValue,
   TxResponseMsgValue,
   UnbondMsgValue,
+  UnshieldingTransferDataMsgValue,
+  UnshieldingTransferMsgValue,
   VoteProposalMsgValue,
   WithdrawMsgValue,
   WrapperTxMsgValue,
@@ -25,6 +31,12 @@ export type EthBridgeTransferProps = EthBridgeTransferMsgValue;
 export type IbcTransferProps = IbcTransferMsgValue;
 export type RedelegateProps = RedelegateMsgValue;
 export type SignatureProps = SignatureMsgValue;
+export type ShieldedTransferProps = ShieldedTransferMsgValue;
+export type ShieldedTransferDataProps = ShieldedTransferDataMsgValue;
+export type ShieldingTransferProps = ShieldingTransferMsgValue;
+export type ShieldingTransferDataProps = ShieldingTransferDataMsgValue;
+export type UnshieldingTransferDataProps = UnshieldingTransferDataMsgValue;
+export type UnshieldingTransferProps = UnshieldingTransferMsgValue;
 export type TransferProps = TransferMsgValue;
 export type TransparentTransferProps = TransparentTransferMsgValue;
 export type TransparentTransferDataProps = TransparentTransferDataMsgValue;

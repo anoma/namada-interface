@@ -34,7 +34,7 @@
 
 #### Defined in
 
-[tx/schema/signature.ts:21](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/signature.ts#L21)
+[tx/schema/signature.ts:21](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/signature.ts#L21)
 
 ## Properties
 
@@ -44,7 +44,7 @@
 
 #### Defined in
 
-[tx/schema/signature.ts:7](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/signature.ts#L7)
+[tx/schema/signature.ts:7](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/signature.ts#L7)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 #### Defined in
 
-[tx/schema/signature.ts:10](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/signature.ts#L10)
+[tx/schema/signature.ts:10](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/signature.ts#L10)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 #### Defined in
 
-[tx/schema/signature.ts:13](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/signature.ts#L13)
+[tx/schema/signature.ts:13](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/signature.ts#L13)
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 #### Defined in
 
-[tx/schema/signature.ts:16](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/signature.ts#L16)
+[tx/schema/signature.ts:16](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/signature.ts#L16)
 
 ___
 
@@ -84,4 +84,4 @@ ___
 
 #### Defined in
 
-[tx/schema/signature.ts:19](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/signature.ts#L19)
+[tx/schema/signature.ts:19](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/signature.ts#L19)

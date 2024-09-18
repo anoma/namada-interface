@@ -32,7 +32,7 @@
 
 #### Defined in
 
-[tx/schema/bond.ts:17](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/bond.ts#L17)
+[tx/schema/bond.ts:17](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/bond.ts#L17)
 
 ## Properties
 
@@ -42,7 +42,7 @@
 
 #### Defined in
 
-[tx/schema/bond.ts:15](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/bond.ts#L15)
+[tx/schema/bond.ts:15](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/bond.ts#L15)
 
 ___
 
@@ -52,7 +52,7 @@ ___
 
 #### Defined in
 
-[tx/schema/bond.ts:9](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/bond.ts#L9)
+[tx/schema/bond.ts:9](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/bond.ts#L9)
 
 ___
 
@@ -62,4 +62,4 @@ ___
 
 #### Defined in
 
-[tx/schema/bond.ts:12](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/bond.ts#L12)
+[tx/schema/bond.ts:12](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/bond.ts#L12)

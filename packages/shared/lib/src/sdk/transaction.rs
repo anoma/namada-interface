@@ -1,3 +1,4 @@
+use namada_sdk::borsh::BorshSerializeExt;
 use namada_sdk::token::Transfer;
 use serde::Serialize;
 
@@ -136,9 +137,17 @@ impl TransactionKind {
                 let Transfer {
                     sources,
                     targets,
-                    // TODO: Implement
-                    shielded_section_hash: _,
+                    shielded_section_hash,
                 } = transfer;
+
+                let ssh = match shielded_section_hash {
+                    Some(masp_tx_id) => {
+                        // Serialize and return bytes
+                        let bytes = masp_tx_id.serialize_to_vec();
+                        Some(bytes)
+                    }
+                    None => None,
+                };
 
                 let mut sources_data: Vec<TransferDataMsg> = vec![];
                 let mut targets_data: Vec<TransferDataMsg> = vec![];
@@ -157,7 +166,7 @@ impl TransactionKind {
                     targets_data.push(TransferDataMsg::new(owner, token, amount))
                 }
 
-                borsh::to_vec(&TransferMsg::new(sources_data, targets_data, None))?
+                borsh::to_vec(&TransferMsg::new(sources_data, targets_data, ssh))?
             }
             TransactionKind::ProposalVote(vote_proposal) => {
                 let VoteProposalData { id, vote, voter } = vote_proposal;

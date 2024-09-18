@@ -38,7 +38,7 @@ export const proposalFamily = atomFamily((id: bigint) =>
 );
 
 export const proposalVoteFamily = atomFamily((id: bigint) =>
-  atomWithQuery<VoteType | undefined>((get) => {
+  atomWithQuery<VoteType | null>((get) => {
     const votedProposals = get(votedProposalsAtom);
     const enablePolling = get(shouldUpdateProposalAtom);
 
@@ -47,7 +47,9 @@ export const proposalVoteFamily = atomFamily((id: bigint) =>
       refetchInterval: enablePolling ? 1000 : false,
       queryKey: ["proposal-vote", id.toString()],
       ...queryDependentFn(async () => {
-        return votedProposals.data!.find((v) => v.proposalId === id)?.vote;
+        return (
+          votedProposals.data!.find((v) => v.proposalId === id)?.vote ?? null
+        );
       }, [votedProposals]),
     };
   })

@@ -9,6 +9,7 @@ import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { atomsAreLoading, atomsAreNotInitialized } from "atoms/utils";
 import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
+import { useUserHasAccount } from "hooks/useUserHasAccount";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
 import { useAtomValue } from "jotai";
@@ -33,6 +34,7 @@ export const AllValidatorsTable = ({
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const hasAccount = useUserHasAccount();
 
   const filteredValidators = useValidatorFilter({
     validators: validators.isSuccess ? validators.data : [],
@@ -117,7 +119,7 @@ export const AllValidatorsTable = ({
             onChange={(value: string) => setSearchTerm(value)}
             placeholder="Search Validator"
           />
-          {isConnected && (
+          {isConnected && hasAccount && (
             <ActionButton
               size="sm"
               backgroundColor="cyan"

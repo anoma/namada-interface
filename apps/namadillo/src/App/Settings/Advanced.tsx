@@ -1,11 +1,12 @@
 import { ActionButton, Input, Stack } from "@namada/components";
+import { chainParametersAtom } from "atoms/chain";
 import {
   indexerUrlAtom,
   rpcUrlAtom,
   updateIndexerUrlAtom,
   updateRpcUrlAtom,
 } from "atoms/settings";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -16,6 +17,7 @@ export const Advanced = (): JSX.Element => {
   const [rpcMutation] = useAtom(updateRpcUrlAtom);
   const [currentIndexer] = useAtom(indexerUrlAtom);
   const [indexerMutation] = useAtom(updateIndexerUrlAtom);
+  const { data: chainParameters } = useAtomValue(chainParametersAtom);
 
   const [rpc, setRpc] = useState(currentRpc);
   const [indexer, setIndexer] = useState(currentIndexer);
@@ -68,6 +70,14 @@ export const Advanced = (): JSX.Element => {
             rpcMutation.reset();
           }}
           required
+        />
+        <Input
+          type="text"
+          variant="ReadOnlyCopy"
+          value={chainParameters?.chainId}
+          label="Chain ID (provided by the Indexer)"
+          disabled={true}
+          className="[&_input]:border-neutral-800"
         />
       </Stack>
       <ActionButton

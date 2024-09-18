@@ -28,11 +28,11 @@
 
 ### shieldedSectionHash
 
-• `Optional` **shieldedSectionHash**: `string`
+• `Optional` **shieldedSectionHash**: `Uint8Array`
 
 #### Defined in
 
-[tx/schema/transfer.ts:60](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/transfer.ts#L60)
+[tx/schema/transfer.ts:183](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/transfer.ts#L183)
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 #### Defined in
 
-[tx/schema/transfer.ts:54](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/transfer.ts#L54)
+[tx/schema/transfer.ts:177](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/transfer.ts#L177)
 
 ___
 
@@ -52,4 +52,4 @@ ___
 
 #### Defined in
 
-[tx/schema/transfer.ts:57](https://github.com/anoma/namada-interface/blob/48e796bf/packages/types/src/tx/schema/transfer.ts#L57)
+[tx/schema/transfer.ts:180](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/types/src/tx/schema/transfer.ts#L180)

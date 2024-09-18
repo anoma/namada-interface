@@ -13,7 +13,7 @@ export const Intro = (): JSX.Element => {
             "uppercase text-center font-medium text-yellow leading-10 text-4xl"
           )}
         >
-          Your Gateway to Shielded Multichain
+          Your Gateway to the Shielded Multichain
         </h2>
       </div>
       <div className="flex gap-4 w-full">
@@ -25,7 +25,7 @@ export const Intro = (): JSX.Element => {
           size="sm"
           outlineColor="yellow"
         >
-          Help
+          Community Help
         </ActionButton>
       </div>
     </div>
