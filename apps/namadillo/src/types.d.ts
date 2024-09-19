@@ -166,3 +166,24 @@ export type ToastNotification = {
 export type ToastNotificationEntryFilter = (
   notification: ToastNotification
 ) => boolean;
+
+export type Provider = {
+  name: string;
+  iconUrl: string;
+  connected: boolean;
+};
+
+export type Chain = {
+  chainId: string;
+  name: string;
+  iconUrl: string;
+};
+
+export type Asset = {
+  chain: Chain;
+  name: string;
+  iconUrl: string;
+  denomination: string;
+  minimalDenomination: string;
+  decimals: number;
+};
