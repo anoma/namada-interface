@@ -2,8 +2,8 @@ import {
   ExtensionKVStore,
   IndexedDBKVStore,
   MemoryKVStore,
-  SessionKVStore,
 } from "@namada/storage";
+import { SessionKVStore } from "extension";
 import browser from "webextension-polyfill";
 
 // Needed to allow the background script to send messages containing bigints

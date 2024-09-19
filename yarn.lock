@@ -3728,7 +3728,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@namada/storage@workspace:packages/storage"
   dependencies:
-    "@types/firefox-webext-browser": "npm:^94.0.1"
     "@types/jest": "npm:^29.5.12"
     eslint: "npm:^8.57.0"
     eslint-config-prettier: "npm:^9.1.0"
@@ -3738,7 +3737,6 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^4.6.0"
     jest: "npm:^29.7.0"
     typescript: "npm:^5.5.4"
-    webextension-polyfill: "npm:^0.10.0"
   languageName: unknown
   linkType: soft
 

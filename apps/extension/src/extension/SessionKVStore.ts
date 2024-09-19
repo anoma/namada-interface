@@ -1,4 +1,4 @@
-import { KVStore } from "./types";
+import { KVStore } from "@namada/storage";
 import browser from "webextension-polyfill";
 
 export class SessionKVStore<T> implements KVStore<T[]> {

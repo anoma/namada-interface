@@ -1,9 +1,11 @@
+import { IndexedDBKVStore } from "@namada/storage";
 import {
   dismissToastNotificationAtom,
   dispatchToastNotificationAtom,
 } from "atoms/notifications";
 import { useSetAtom } from "jotai";
 import { AtomWithQueryResult } from "jotai-tanstack-query";
+import { atomWithStorage } from "jotai/utils";
 import { useEffect } from "react";
 import { ToastNotification } from "types";
 
@@ -92,3 +94,24 @@ export const useNotifyOnAtomError = (
     }
   }, deps);
 };
+
+// Atom using IndexedDBKVStore
+export function atomWithAsyncStorage<T>(key: string, initial: T): unknown {
+  const DB_PREFIX = "namadillo";
+  const store = new IndexedDBKVStore(DB_PREFIX);
+
+  return atomWithStorage<T>(key, initial, {
+    setItem: (key, newValue) => store.set(key, newValue),
+    getItem: (key) =>
+      store.get<T>(key).then((value) => {
+        if (value !== undefined) {
+          return value;
+        }
+        if (initial !== undefined) {
+          store.set(key, initial);
+        }
+        return initial;
+      }),
+    removeItem: (key) => store.set(key, null),
+  });
+}
