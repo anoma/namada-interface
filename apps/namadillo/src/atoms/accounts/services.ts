@@ -17,13 +17,12 @@ export const fetchDefaultAccount = async (): Promise<Account | undefined> => {
 export const fetchAccountBalance = async (
   api: DefaultApi,
   account: Account | undefined,
-  tokenAddress: string,
-  decimals: number
+  tokenAddress: string
 ): Promise<BigNumber> => {
   if (!account) return BigNumber(0);
   const balancesResponse = await api.apiV1AccountAddressGet(account.address);
 
-  const balance = balancesResponse.data
+  const balances = balancesResponse.data
     // TODO: add filter to the api call
     .filter(({ tokenAddress: ta }) => ta === tokenAddress)
     .map(({ tokenAddress, balance }) => {
@@ -31,10 +30,8 @@ export const fetchAccountBalance = async (
         token: tokenAddress,
         amount: balance,
       };
-    })
-    .at(0);
+    });
 
-  return balance ?
-      BigNumber(balance.amount).shiftedBy(-decimals)
-    : BigNumber(0);
+  if (balances.length === 0) return BigNumber(0);
+  return new BigNumber(balances[0].amount || 0);
 };
