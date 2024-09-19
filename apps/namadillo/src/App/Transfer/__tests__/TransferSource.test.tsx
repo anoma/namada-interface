@@ -5,7 +5,7 @@ import {
 } from "App/Transfer/TransferSource";
 import BigNumber from "bignumber.js";
 import { namadaChainMock } from "../__mocks__/chains";
-import { providerConnectedMock } from "../__mocks__/providers";
+import { walletMock } from "../__mocks__/providers";
 
 describe("Component: TransferSource", () => {
   it("should render the component with the default props", () => {
@@ -45,7 +45,7 @@ describe("Component: TransferSource", () => {
     const openChainSelectorMock = jest.fn();
     setup({
       openChainSelector: openChainSelectorMock,
-      provider: providerConnectedMock,
+      wallet: walletMock,
     });
     const chain = getEmptyChain();
     fireEvent.click(chain);

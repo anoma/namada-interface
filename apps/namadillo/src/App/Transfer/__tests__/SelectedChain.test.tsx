@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { SelectedChain } from "App/Transfer/SelectedChain";
 import { Chain } from "types";
-import { providerConnectedMock } from "../__mocks__/providers";
+import { walletMock } from "../__mocks__/providers";
 
 describe("Component: SelectedChain", () => {
   const mockChain: Chain = {
@@ -25,7 +25,7 @@ describe("Component: SelectedChain", () => {
   });
 
   it("renders correctly with no chain selected", () => {
-    render(<SelectedChain provider={providerConnectedMock} />);
+    render(<SelectedChain wallet={walletMock} />);
     const button = screen.getByRole("button");
     expect(button).toBeInTheDocument();
     expect(button).toBeEnabled();
@@ -33,9 +33,7 @@ describe("Component: SelectedChain", () => {
   });
 
   it("renders correctly with chain selected", () => {
-    render(
-      <SelectedChain chain={mockChain} provider={providerConnectedMock} />
-    );
+    render(<SelectedChain chain={mockChain} wallet={walletMock} />);
 
     const button = screen.getByRole("button");
     expect(button).toBeInTheDocument();
@@ -56,9 +54,7 @@ describe("Component: SelectedChain", () => {
 
   it("calls onClick when the component is clicked", () => {
     const handleClick = jest.fn();
-    render(
-      <SelectedChain onClick={handleClick} provider={providerConnectedMock} />
-    );
+    render(<SelectedChain onClick={handleClick} wallet={walletMock} />);
 
     const button = screen.getByRole("button");
     fireEvent.click(button);

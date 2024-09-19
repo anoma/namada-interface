@@ -2,7 +2,7 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { TabSelector } from "App/Common/TabSelector";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { Chain, Provider } from "types";
+import { Chain, WalletProvider } from "types";
 import namadaShieldedSvg from "./assets/namada-shielded.svg";
 import namadaTransparentSvg from "./assets/namada-transparent.svg";
 import { CustomAddressForm } from "./CustomAddressForm";
@@ -12,7 +12,7 @@ type TransferDestinationProps = {
   isShielded?: boolean;
   onChangeShielded?: (isShielded: boolean) => void;
   chain?: Chain;
-  provider?: Provider;
+  wallet?: WalletProvider;
   className?: string;
   transactionFee?: BigNumber;
   customAddressActive?: boolean;
@@ -39,7 +39,7 @@ const parseChainInfo = (
 
 export const TransferDestination = ({
   chain,
-  provider,
+  wallet,
   isShielded,
   onChangeShielded,
   transactionFee,
@@ -80,7 +80,7 @@ export const TransferDestination = ({
 
       <SelectedChain
         chain={parseChainInfo(chain, isShielded)}
-        provider={provider}
+        wallet={wallet}
       />
 
       {customAddressActive && (
