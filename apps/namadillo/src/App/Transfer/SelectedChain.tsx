@@ -18,11 +18,15 @@ export const SelectedChain = ({
     `flex items-center gap-2.5 text-white font-light cursor-pointer`
   );
 
+  const isDisabled = !provider;
+
   return (
     <button
       type="button"
-      className="block group"
-      disabled={!provider}
+      className={clsx("block group", {
+        "pointer-events-none opacity-30": isDisabled,
+      })}
+      disabled={isDisabled}
       onClick={onClick}
       aria-description={
         provider && chain ?

@@ -18,11 +18,15 @@ export const SelectedAsset = ({
     `flex items-center gap-2.5 text-lg text-white font-light cursor-pointer uppercase`
   );
 
+  const isDisabled = !chain;
+
   return (
     <button
       type="button"
-      className="block group"
-      disabled={!chain}
+      className={clsx("block group", {
+        "pointer-events-none opacity-30": isDisabled,
+      })}
+      disabled={isDisabled}
       onClick={onClick}
       aria-description={
         asset ? `${asset.name} is selected` : `No asset selected`
