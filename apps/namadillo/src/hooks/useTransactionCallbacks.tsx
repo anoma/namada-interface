@@ -29,7 +29,7 @@ export const useTransactionCallback = (): void => {
   useTransactionEventListener("Withdraw.Success", onBalanceUpdate);
   useTransactionEventListener("Redelegate.Success", onBalanceUpdate);
   useTransactionEventListener("ClaimRewards.Success", onBalanceUpdate, [
-    account,
+    account?.address,
   ]);
 
   const shouldUpdateProposal = useSetAtom(shouldUpdateProposalAtom);
