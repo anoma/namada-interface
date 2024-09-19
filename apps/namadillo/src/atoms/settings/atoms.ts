@@ -4,7 +4,12 @@ import { Getter, Setter, atom, getDefaultStore } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
 import { SettingsStorage } from "types";
-import { fetchDefaultTomlConfig, isIndexerAlive, isRpcAlive } from "./services";
+import {
+  fetchDefaultTomlConfig,
+  isIndexerAlive,
+  isMaspIndexerAlive,
+  isRpcAlive,
+} from "./services";
 
 export type ConnectStatus = "idle" | "connecting" | "connected" | "error";
 
@@ -65,18 +70,21 @@ const changeSettings =
 const changeSettingsUrl =
   (
     key: keyof SettingsStorage,
-    healthCheck: (url: string) => Promise<boolean>
+    healthCheck: (url: string) => Promise<boolean>,
+    allowEmpty = false
   ) =>
-  async (url: string) => {
-    const sanitizedUrl = sanitizeUrl(url);
-    if (!isUrlValid(sanitizedUrl)) {
+  async (inputUrl: string) => {
+    const allowedEmpty = allowEmpty && inputUrl.length === 0;
+    const url = allowedEmpty ? "" : sanitizeUrl(inputUrl);
+
+    if (!allowedEmpty && !isUrlValid(url)) {
       throw new Error(
         "Invalid URL. The URL should be valid starting with 'http', 'https', 'ws', or 'wss'."
       );
     }
-    if (await healthCheck(sanitizedUrl)) {
+    if (allowedEmpty || (await healthCheck(url))) {
       const { get, set } = getDefaultStore();
-      changeSettings(key)(get, set, sanitizedUrl);
+      changeSettings(key)(get, set, url);
     } else {
       throw new Error(
         "Couldn't reach the URL. Please provide a valid Namada URL service."
@@ -143,10 +151,27 @@ export const indexerUrlAtom = atom((get) => {
   return "";
 });
 
+export const maspIndexerUrlAtom = atom((get) => {
+  const customIndexerUrl = get(settingsAtom).maspIndexerUrl;
+  if (customIndexerUrl) return customIndexerUrl;
+
+  const tomlIndexerUrl = get(defaultServerConfigAtom).data?.masp_indexer_url;
+  if (tomlIndexerUrl) return tomlIndexerUrl;
+
+  return "";
+});
+
 export const updateIndexerUrlAtom = atomWithMutation(() => {
   return {
     mutationKey: ["update-indexer-url"],
     mutationFn: changeSettingsUrl("indexerUrl", isIndexerAlive),
+  };
+});
+
+export const updateMaspIndexerUrlAtom = atomWithMutation(() => {
+  return {
+    mutationKey: ["update-masp-indexer-url"],
+    mutationFn: changeSettingsUrl("maspIndexerUrl", isMaspIndexerAlive, true),
   };
 });
 

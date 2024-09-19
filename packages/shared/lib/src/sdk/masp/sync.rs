@@ -1,5 +1,6 @@
 use js_sys::Function;
 use namada_sdk::control_flow::ShutdownSignal;
+use namada_sdk::io::ProgressBar;
 use namada_sdk::task_env::{TaskEnvironment, TaskSpawner};
 use wasm_bindgen::prelude::Closure;
 use wasm_bindgen::JsCast;
@@ -63,5 +64,33 @@ impl ShutdownSignal for ShutdownSignalWeb {
 
     fn received(&mut self) -> bool {
         false
+    }
+}
+
+pub struct ProgressBarWeb {
+    pub total: usize,
+    pub current: usize,
+}
+
+impl ProgressBar for ProgressBarWeb {
+    fn upper_limit(&self) -> u64 {
+        self.total as u64
+    }
+
+    fn set_upper_limit(&mut self, limit: u64) {
+        self.total = limit as usize;
+    }
+
+    fn increment_by(&mut self, amount: u64) {
+        self.current += amount as usize;
+        web_sys::console::log_1(&format!("Progress: {}/{}", self.current, self.total).into());
+    }
+
+    fn message(&mut self, message: String) {
+        web_sys::console::log_1(&message.into());
+    }
+
+    fn finish(&mut self) {
+        web_sys::console::log_1(&"Finished".into());
     }
 }

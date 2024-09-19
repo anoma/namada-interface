@@ -11,10 +11,10 @@ use namada_sdk::governance::utils::{
 };
 use namada_sdk::governance::{ProposalType, ProposalVote};
 use namada_sdk::hash::Hash;
-use namada_sdk::io::DevNullProgressBar;
 use namada_sdk::masp::shielded_wallet::ShieldedApi;
+use namada_sdk::masp::utils::MaspClient as NamadaMaspClient;
 use namada_sdk::masp::utils::RetryStrategy;
-use namada_sdk::masp::IndexerMaspClient;
+use namada_sdk::masp::{IndexerMaspClient, LedgerMaspClient};
 use namada_sdk::masp::{ShieldedContext, ShieldedSyncConfig};
 use namada_sdk::masp_primitives::asset_type::AssetType;
 use namada_sdk::masp_primitives::sapling::ViewingKey;
@@ -51,19 +51,39 @@ use crate::sdk::{
 use crate::types::query::{ProposalInfo, WasmHash};
 use crate::utils::{set_panic_hook, to_js_result};
 
+enum MaspClient {
+    Ledger(LedgerMaspClient<HttpClient>),
+    Indexer(IndexerMaspClient),
+}
+
 #[wasm_bindgen]
 /// Represents an API for querying the ledger
 pub struct Query {
     client: HttpClient,
+    masp_client: MaspClient,
 }
 
 #[wasm_bindgen]
 impl Query {
     #[wasm_bindgen(constructor)]
-    pub fn new(url: String) -> Query {
+    pub fn new(url: String, masp_url: Option<String>) -> Query {
         set_panic_hook();
         let client = HttpClient::new(url);
-        Query { client }
+
+        let masp_client = if let Some(url) = masp_url {
+            let client = reqwest::Client::builder().build().unwrap();
+            // TODO: for now we just concatenate the v1 api path
+            let url = reqwest::Url::parse(&format!("{}/api/v1", url)).unwrap();
+
+            MaspClient::Indexer(IndexerMaspClient::new(client, url, true, 10))
+        } else {
+            MaspClient::Ledger(LedgerMaspClient::new(client.clone(), 10))
+        };
+
+        Query {
+            client,
+            masp_client,
+        }
     }
 
     /// Gets current epoch
@@ -279,26 +299,7 @@ impl Query {
                     .vk
             })
             .collect();
-        let client = reqwest::Client::builder().build()?;
 
-        let url: reqwest::Url = "http://localhost:5001/api/v1".try_into()?;
-
-        let client = IndexerMaspClient::new(client, url, true, 10);
-        let progress_bar = DevNullProgressBar;
-        let shutdown_signal_web = sync::ShutdownSignalWeb {};
-
-        let config = ShieldedSyncConfig::builder()
-            .client(client)
-            .scanned_tracker(progress_bar)
-            .fetched_tracker(progress_bar)
-            .applied_tracker(progress_bar)
-            .shutdown_signal(shutdown_signal_web)
-            .wait_for_last_query_height(true)
-            .retry_strategy(RetryStrategy::Times(10))
-            .build();
-
-        // let env = MaspLocalTaskEnv::new(500)?;
-        let env = sync::TaskEnvWeb {};
         let dated_keypairs = owners
             .into_iter()
             .map(|vk| DatedKeypair {
@@ -307,10 +308,64 @@ impl Query {
             })
             .collect::<Vec<_>>();
 
+        match &self.masp_client {
+            MaspClient::Indexer(client) => {
+                web_sys::console::log_1(&"Syncing using IndexerMaspClient".into());
+                self.sync(client.clone(), dated_keypairs).await?
+            }
+            MaspClient::Ledger(client) => {
+                web_sys::console::log_1(&"Syncing using LedgerMaspClient".into());
+                self.sync(client.clone(), dated_keypairs).await?
+            }
+        };
+
+        Ok(())
+    }
+
+    async fn sync<C>(
+        &self,
+        client: C,
+        dated_keypairs: Vec<DatedKeypair<ViewingKey>>,
+    ) -> Result<(), JsError>
+    where
+        C: NamadaMaspClient + Send + Sync + Unpin + 'static,
+    {
+        let progress_bar_1 = sync::ProgressBarWeb {
+            total: 0,
+            current: 0,
+        };
+        let progress_bar_2 = sync::ProgressBarWeb {
+            total: 0,
+            current: 0,
+        };
+        let progress_bar_3 = sync::ProgressBarWeb {
+            total: 0,
+            current: 0,
+        };
+        let shutdown_signal_web = sync::ShutdownSignalWeb {};
+
+        let config = ShieldedSyncConfig::builder()
+            .client(client)
+            .scanned_tracker(progress_bar_1)
+            .fetched_tracker(progress_bar_2)
+            .applied_tracker(progress_bar_3)
+            .shutdown_signal(shutdown_signal_web)
+            .wait_for_last_query_height(true)
+            .retry_strategy(RetryStrategy::Times(10))
+            .build();
+
+        let env = sync::TaskEnvWeb {};
+
         let mut shielded_context: ShieldedContext<JSShieldedUtils> = ShieldedContext::default();
 
         shielded_context
-            .sync(env, config, None, &[], dated_keypairs.as_slice())
+            .sync(
+                env,
+                config,
+                None,
+                &[],
+                dated_keypairs.as_slice(),
+            )
             .await
             .map_err(|e| JsError::new(&format!("{:?}", e)))?;
 

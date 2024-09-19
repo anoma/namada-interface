@@ -54,6 +54,7 @@ impl From<namada_sdk::tendermint_rpc::Error> for RpcError {
     }
 }
 
+#[derive(Clone)]
 pub struct HttpClient {
     url: String,
 }
