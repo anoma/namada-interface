@@ -96,21 +96,6 @@ export const createWithdrawTxAtomFamily = atomFamily((id: string) => {
   });
 });
 
-export const claimRewardsAtom = atomWithMutation((get) => {
-  const chain = get(chainAtom);
-  return {
-    mutationKey: ["create-claim-tx"],
-    enabled: chain.isSuccess,
-    mutationFn: async ({
-      params,
-      gasConfig,
-      account,
-    }: BuildTxAtomParams<ClaimRewardsMsgValue>) => {
-      return createClaimTx(chain.data!, account, params, gasConfig);
-    },
-  };
-});
-
 export const claimableRewardsAtom = atomWithQuery<AddressBalance>((get) => {
   const account = get(defaultAccountAtom);
   const chainParameters = get(chainParametersAtom);
@@ -131,6 +116,21 @@ export const claimableRewardsAtom = atomWithQuery<AddressBalance>((get) => {
         {}
       );
     }, [account, chainParameters]),
+  };
+});
+
+export const claimRewardsAtom = atomWithMutation((get) => {
+  const chain = get(chainAtom);
+  return {
+    mutationKey: ["create-claim-tx"],
+    enabled: chain.isSuccess,
+    mutationFn: async ({
+      params,
+      gasConfig,
+      account,
+    }: BuildTxAtomParams<ClaimRewardsMsgValue>) => {
+      return createClaimTx(chain.data!, account, params, gasConfig);
+    },
   };
 });
 
