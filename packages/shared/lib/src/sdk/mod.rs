@@ -102,7 +102,7 @@ impl Sdk {
         let context_dir = context_dir.as_string().unwrap();
 
         let mut shielded = self.namada.shielded_mut().await;
-        *shielded = masp::JSShieldedUtils::new(&context_dir).await;
+        *shielded = ShieldedContext::new(masp::JSShieldedUtils::new(&context_dir).await);
 
         Ok(())
     }

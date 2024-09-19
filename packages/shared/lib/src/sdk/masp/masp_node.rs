@@ -1,8 +1,9 @@
 use async_trait::async_trait;
 use namada_sdk::{
     borsh::{BorshDeserialize, BorshSerialize},
-    masp::{ContextSyncStatus, DispatcherCache, ShieldedContext, ShieldedUtils},
+    masp::{ContextSyncStatus, DispatcherCache, ShieldedUtils},
     masp_proofs::prover::LocalTxProver,
+    ShieldedWallet,
 };
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
@@ -21,6 +22,8 @@ const FILE_NAME: &str = "shielded.dat";
 const TMP_FILE_NAME: &str = "shielded.tmp";
 const SPECULATIVE_FILE_NAME: &str = "speculative_shielded.dat";
 const SPECULATIVE_TMP_FILE_NAME: &str = "speculative_shielded.tmp";
+const CACHE_FILE_NAME: &str = "shielded_sync.cache";
+const CACHE_FILE_TMP_PREFIX: &str = "shielded_sync.cache.tmp";
 
 /// Mostly copied from the Namada CLI
 
@@ -32,7 +35,7 @@ pub struct NodeShieldedUtils {
 }
 
 impl NodeShieldedUtils {
-    pub async fn new(context_dir: &str) -> ShieldedContext<Self> {
+    pub async fn new(context_dir: &str) -> ShieldedWallet<Self> {
         let context_dir = PathBuf::from(context_dir);
 
         let spend_path = context_dir.join(SPEND_NAME);
@@ -56,7 +59,7 @@ impl NodeShieldedUtils {
 
         let utils = Self { context_dir };
 
-        ShieldedContext {
+        ShieldedWallet {
             utils,
             sync_status,
             ..Default::default()
@@ -85,7 +88,7 @@ impl ShieldedUtils for NodeShieldedUtils {
 
     async fn load<U: ShieldedUtils>(
         &self,
-        ctx: &mut ShieldedContext<U>,
+        ctx: &mut ShieldedWallet<U>,
         force_confirmed: bool,
     ) -> std::io::Result<()> {
         let file_name = if force_confirmed {
@@ -101,14 +104,14 @@ impl ShieldedUtils for NodeShieldedUtils {
         //TODO: change to_bytes to sth more descripive, add "from_bytes"
         let bytes = to_bytes(read_file_sync(path).unwrap().into());
 
-        *ctx = ShieldedContext {
+        *ctx = ShieldedWallet {
             utils: ctx.utils.clone(),
-            ..ShieldedContext::<U>::deserialize(&mut &bytes[..])?
+            ..ShieldedWallet::<U>::deserialize(&mut &bytes[..])?
         };
         Ok(())
     }
 
-    async fn save<U: ShieldedUtils>(&self, ctx: &ShieldedContext<U>) -> std::io::Result<()> {
+    async fn save<U: ShieldedUtils>(&self, ctx: &ShieldedWallet<U>) -> std::io::Result<()> {
         let (tmp_file_name, file_name) = match ctx.sync_status {
             ContextSyncStatus::Confirmed => (TMP_FILE_NAME, FILE_NAME),
             ContextSyncStatus::Speculative => (SPECULATIVE_TMP_FILE_NAME, SPECULATIVE_FILE_NAME),
@@ -139,9 +142,20 @@ impl ShieldedUtils for NodeShieldedUtils {
 
     /// Save a cache of data as part of shielded sync if that
     /// process gets interrupted.
-    async fn cache_save(&self, _cache: &DispatcherCache) -> std::io::Result<()> {
-        // TODO:
-        todo!()
+    async fn cache_save(&self, cache: &DispatcherCache) -> std::io::Result<()> {
+        let tmp_path = path_buf_to_js_value(self.context_dir.join(CACHE_FILE_TMP_PREFIX));
+        {
+            let mut bytes = Vec::new();
+            cache.serialize(&mut bytes).expect("cannot serialize cache");
+            let uint8_array = js_sys::Uint8Array::from(&bytes[..]);
+
+            write_file_sync(tmp_path.clone(), uint8_array.into()).unwrap();
+        }
+
+        let new_path = path_buf_to_js_value(self.context_dir.join(CACHE_FILE_NAME));
+        renameSync(tmp_path, new_path).unwrap();
+
+        Ok(())
     }
 
     /// Load a cache of data as part of shielded sync if that
