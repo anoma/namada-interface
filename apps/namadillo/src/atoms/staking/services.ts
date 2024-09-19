@@ -162,5 +162,9 @@ export const createClaimAndStakeTx = async (
 };
 
 export const clearClaimRewards = (accountAddress: string): void => {
-  queryClient.setQueryData(["claim-rewards", accountAddress], () => ({}));
+  const emptyClaimRewards = {};
+  queryClient.setQueryData(
+    ["claim-rewards", accountAddress],
+    () => emptyClaimRewards
+  );
 };
