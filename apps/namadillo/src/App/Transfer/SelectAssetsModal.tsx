@@ -9,7 +9,7 @@ export const SelectAssetsModal = ({
 }: SelectItemsModalProps): JSX.Element => {
   return (
     <SelectModal onClose={onClose} title="Select Asset">
-      a
+      <></>
     </SelectModal>
   );
 };

@@ -2,7 +2,6 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { TabSelector } from "App/Common/TabSelector";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { twMerge } from "tailwind-merge";
 import { Chain, Provider } from "types";
 import namadaShieldedSvg from "./assets/namada-shielded.svg";
 import namadaTransparentSvg from "./assets/namada-transparent.svg";
@@ -53,11 +52,9 @@ export const TransferDestination = ({
 }: TransferDestinationProps): JSX.Element => {
   return (
     <div
-      className={twMerge(
-        clsx("relative bg-neutral-800 rounded-lg px-4 py-5", {
-          "border-yellow": isShielded,
-        })
-      )}
+      className={clsx("relative bg-neutral-800 rounded-lg px-4 py-5", {
+        "border-yellow": isShielded,
+      })}
     >
       {onChangeShielded && chain?.name === "Namada" && (
         <TabSelector
