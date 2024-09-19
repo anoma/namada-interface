@@ -167,10 +167,14 @@ export type ToastNotificationEntryFilter = (
   notification: ToastNotification
 ) => boolean;
 
-export type Provider = {
+export type WalletProvider = {
+  id: ExtensionKey;
   name: string;
   iconUrl: string;
-  connected: boolean;
+  downloadUrl: {
+    chrome: string;
+    firefox: string;
+  };
 };
 
 export type Chain = {

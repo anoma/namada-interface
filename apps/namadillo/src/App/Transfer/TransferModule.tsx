@@ -1,25 +1,26 @@
 import { Stack } from "@namada/components";
 import BigNumber from "bignumber.js";
 import { useState } from "react";
-import { Asset, Chain } from "types";
-import { SelectProviderModal } from "./SelectProviderModal";
+import { Asset, Chain, WalletProvider } from "types";
+import { SelectWalletModal } from "./SelectWalletModal";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
 
 type TransferModuleProps = {
   isConnected: boolean;
+  availableWallets: WalletProvider[];
+  onSubmitTransfer: () => void;
+  onChangeWallet?: (wallet: WalletProvider) => void;
+  selectedWallet?: WalletProvider;
   sourceChain?: Chain;
   onChangeSourceChain?: () => void;
   destinationChain?: Chain;
   onChangeDestinationChain?: (chain: Chain) => void;
   selectedAsset?: Asset;
   onChangeSelectedAsset?: (asset: Asset | undefined) => void;
-  amount?: BigNumber;
-  onChangeAmount?: (amount: BigNumber) => void;
   isShielded?: boolean;
   onChangeShielded?: (isShielded: boolean) => void;
   enableCustomAddress?: boolean;
-  onSubmitTransfer: () => void;
 };
 
 export const TransferModule = ({
@@ -30,6 +31,9 @@ export const TransferModule = ({
   isShielded,
   onChangeShielded,
   enableCustomAddress,
+  onChangeWallet,
+  availableWallets,
+  selectedWallet,
 }: TransferModuleProps): JSX.Element => {
   const [providerSelectorModalOpen, setProviderSelectorModalOpen] =
     useState(false);
@@ -48,6 +52,7 @@ export const TransferModule = ({
             isConnected={isConnected}
             asset={selectedAsset}
             chain={sourceChain}
+            wallet={selectedWallet}
             openProviderSelector={() => setProviderSelectorModalOpen(true)}
             openChainSelector={() => setChainSelectorModalOpen(true)}
             openAssetSelector={() => setAssetSelectorModalOpen(true)}
@@ -58,6 +63,7 @@ export const TransferModule = ({
           />
           <TransferDestination
             chain={destinationChain}
+            wallet={selectedWallet}
             isShielded={isShielded}
             onChangeShielded={onChangeShielded}
             address={customAddress}
@@ -69,17 +75,17 @@ export const TransferModule = ({
             memo={memo}
             onChangeMemo={setMemo}
           />
-          {chainSelectorModalOpen && <div />}
-          {assetSelectorModalOpen && <div />}
         </Stack>
       </section>
-      {providerSelectorModalOpen && (
-        <SelectProviderModal
-          providers={[{ name: "Keplr", iconUrl: "", connected: false }]}
+      {providerSelectorModalOpen && onChangeWallet && (
+        <SelectWalletModal
+          wallets={availableWallets}
           onClose={() => setProviderSelectorModalOpen(false)}
-          onConnect={() => {}}
+          onConnect={onChangeWallet}
         />
       )}
+      {chainSelectorModalOpen && <div />}
+      {assetSelectorModalOpen && <div />}
     </>
   );
 };

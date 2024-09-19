@@ -1,24 +1,24 @@
 import clsx from "clsx";
 import { GoChevronDown } from "react-icons/go";
-import { Chain, Provider } from "types";
+import { Chain, WalletProvider } from "types";
 import { EmptyResourceIcon } from "./EmptyResourceIcon";
 
 type SelectedChainProps = {
   chain?: Chain;
-  provider?: Provider;
+  wallet?: WalletProvider;
   onClick?: () => void;
 };
 
 export const SelectedChain = ({
   chain,
-  provider,
+  wallet,
   onClick,
 }: SelectedChainProps): JSX.Element => {
   const selectorClassList = clsx(
     `flex items-center gap-2.5 text-white font-light cursor-pointer`
   );
 
-  const isDisabled = !provider;
+  const isDisabled = !wallet;
 
   return (
     <button
@@ -29,19 +29,19 @@ export const SelectedChain = ({
       disabled={isDisabled}
       onClick={onClick}
       aria-description={
-        provider && chain ?
+        wallet && chain ?
           `${chain.name} chain is selected`
         : `No chain selected`
       }
     >
-      {(!provider || !chain) && (
+      {(!wallet || !chain) && (
         <span className={selectorClassList}>
           <EmptyResourceIcon className="w-7" />
           Select chain
           <GoChevronDown className="text-sm" />
         </span>
       )}
-      {provider && chain && (
+      {wallet && chain && (
         <span className={selectorClassList}>
           <img
             className="w-7 h-7 object-cover object-center bg-neutral-800 rounded-full"

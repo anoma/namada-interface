@@ -1,12 +1,11 @@
-import { Provider } from "types";
+import { WalletProvider } from "types";
 
-export const providerMock: Provider = {
+export const walletMock: WalletProvider = {
+  id: "keplr",
   name: "Keplr",
   iconUrl: "test.svg",
-  connected: false,
-};
-
-export const providerConnectedMock: Provider = {
-  ...providerMock,
-  connected: true,
+  downloadUrl: {
+    chrome: "https://google.com",
+    firefox: "https://mozilla.org",
+  },
 };
