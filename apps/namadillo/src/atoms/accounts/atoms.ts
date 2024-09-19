@@ -1,12 +1,13 @@
 import { getIntegration } from "@namada/integrations";
 import { Account } from "@namada/types";
 import { indexerApiAtom } from "atoms/api";
-import { chainConfigAtom, nativeTokenAddressAtom } from "atoms/chain";
+import { nativeTokenAddressAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
 import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
+import { chainConfigByName } from "registry";
 import {
   fetchAccountBalance,
   fetchAccounts,
@@ -50,7 +51,7 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
   const tokenAddress = get(nativeTokenAddressAtom);
   const enablePolling = get(shouldUpdateBalanceAtom);
   const api = get(indexerApiAtom);
-  const chainConfig = get(chainConfigAtom("namada"));
+  const chainConfig = chainConfigByName("namada");
 
   return {
     // TODO: subscribe to indexer events when it's done

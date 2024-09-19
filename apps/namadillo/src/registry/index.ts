@@ -3,6 +3,8 @@ import namada from "./namada.json";
 
 type MinimalDenom = string;
 type ConfigName = string;
+type ChainName = "cosmoshub" | "namada";
+type ChainMinDenom = "uatom" | "namnam";
 
 type Currency = {
   coinDecimals: number;
@@ -20,15 +22,20 @@ const loadedConfigs: ChainConfig[] = [];
 const minimalDenomMap: Map<string, number> = new Map();
 const nameMap: Map<string, number> = new Map();
 
-export function chainConfigByMinDenom(minDenom: string): ChainConfig {
-  // We assume that the map always has the key
-  const index = minimalDenomMap.get(minDenom)!;
+export function chainConfigByMinDenom(minDenom: ChainMinDenom): ChainConfig {
+  const index = minimalDenomMap.get(minDenom);
+  if (!index) {
+    throw new Error("Chain config not found");
+  }
+
   return loadedConfigs[index];
 }
 
-export function chainConfigByName(name: string): ChainConfig {
-  // We assume that the map always has the key
-  const index = nameMap.get(name)!;
+export function chainConfigByName(name: ChainName): ChainConfig {
+  const index = nameMap.get(name);
+  if (!index) {
+    throw new Error("Chain config not found");
+  }
   return loadedConfigs[index];
 }
 
