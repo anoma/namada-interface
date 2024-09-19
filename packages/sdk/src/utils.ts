@@ -31,8 +31,7 @@ export const makeBip44Path = (
 /**
  * Return a properly formatted Sapling path
  * @param coinType - SLIP-044 Coin designation
- * @param account - numbered from index 
- in sequentially increasing manner. Defined as in BIP 44
+ * @param account - numbered from index in sequentially increasing manner. Defined as in BIP 44
  * @returns Sapling path
  */
 export const makeSaplingPath = (coinType: number, account: number): string => {
@@ -42,8 +41,7 @@ export const makeSaplingPath = (coinType: number, account: number): string => {
 /**
  * Return a properly formatted Sapling path array
  * @param coinType - SLIP-044 Coin designation
- * @param account - numbered from index 
- in sequentially increasing manner. Defined as in BIP 44
+ * @param account - numbered from index in sequentially increasing manner. Defined as in BIP 44
  * @returns Sapling path array
  */
 export const makeSaplingPathArray = (

@@ -115,6 +115,24 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
+    fn can_restore_seed_from_phrase() {
+        let phrase = "caught pig embody hip goose like become worry face oval manual flame \
+                      pizza steel viable proud eternal speed chapter sunny boat because view bullet";
+        let seed_bytes = vec![
+            178, 64, 160, 168, 33, 68, 84, 63, 0, 137, 121, 29, 66, 47, 123, 36, 64, 38, 160, 236,
+            93, 38, 53, 157, 169, 119, 42, 153, 188, 80, 209, 149, 51, 92, 251, 168, 150, 220, 70,
+            78, 230, 16, 152, 160, 85, 248, 115, 82, 183, 126, 96, 112, 58, 238, 230, 63, 89, 239,
+            0, 250, 163, 169, 166, 174,
+        ];
+        let mnemonic = Mnemonic::from_phrase(phrase.into()).unwrap();
+        let seed = mnemonic
+            .to_seed(None)
+            .expect("Should return seed from mnemonic phrase");
+
+        assert_eq!(seed.vec, seed_bytes);
+    }
+
+    #[wasm_bindgen_test]
     fn invalid_phrase_should_panic() {
         let bad_phrase = "caught pig embody hip goose like become";
         let res = Mnemonic::from_phrase(bad_phrase.into());
