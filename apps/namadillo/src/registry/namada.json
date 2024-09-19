@@ -1,0 +1,22 @@
+{
+  "chainName": "Namada",
+  "currencies": [
+    {
+      "coinDecimals": 6,
+      "coinDenom": "NAM",
+      "coinMinimalDenom": "namnam"
+    }
+  ],
+  "feeCurrencies": [
+    {
+      "coinDecimals": 6,
+      "coinDenom": "NAM",
+      "coinMinimalDenom": "namnam"
+    }
+  ],
+  "stakeCurrency": {
+    "coinDecimals": 6,
+    "coinDenom": "NAM",
+    "coinMinimalDenom": "namnam"
+  }
+}
