@@ -24,7 +24,7 @@ const nameMap: Map<string, number> = new Map();
 
 export function chainConfigByMinDenom(minDenom: ChainMinDenom): ChainConfig {
   const index = minimalDenomMap.get(minDenom);
-  if (!index) {
+  if (typeof index === "undefined") {
     throw new Error("Chain config not found");
   }
 
@@ -33,7 +33,7 @@ export function chainConfigByMinDenom(minDenom: ChainMinDenom): ChainConfig {
 
 export function chainConfigByName(name: ChainName): ChainConfig {
   const index = nameMap.get(name);
-  if (!index) {
+  if (typeof index === "undefined") {
     throw new Error("Chain config not found");
   }
   return loadedConfigs[index];
