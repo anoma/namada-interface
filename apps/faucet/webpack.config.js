@@ -10,8 +10,6 @@ require("dotenv").config({ path: resolve(__dirname, ".env") });
 
 const { NODE_ENV } = process.env;
 
-const ASSET_PATH = "/";
-
 const createStyledComponentsTransformer =
   require("typescript-plugin-styled-components").default;
 
@@ -62,7 +60,7 @@ module.exports = {
     faucet: "./src",
   },
   output: {
-    publicPath: ASSET_PATH,
+    publicPath: "/",
     path: resolve(__dirname, `./build/`),
     filename: "[name].bundle.js",
   },

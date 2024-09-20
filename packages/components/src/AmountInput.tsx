@@ -9,9 +9,11 @@ export type BigNumberElement = Omit<HTMLInputElement, "value"> & {
   value?: BigNumber;
 };
 
+export type ChangeAmountEvent = ChangeEventHandler<BigNumberElement>;
+
 type Props = Omit<InputProps, "value" | "onChange" | "min" | "max"> & {
   value?: BigNumber;
-  onChange?: ChangeEventHandler<BigNumberElement>;
+  onChange?: ChangeAmountEvent;
   maxDecimalPlaces?: number;
   min?: string | number | BigNumber;
   max?: string | number | BigNumber;

@@ -63,7 +63,9 @@ export const AccountOverview = (): JSX.Element => {
 
       {showSidebar &&
         (maspEnabled ?
-          <ShieldAllBanner />
+          <aside>
+            <ShieldAllBanner />
+          </aside>
         : <aside className="bg-black rounded-sm">
             <MainnetRoadmap />
           </aside>)}

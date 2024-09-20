@@ -57,6 +57,7 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
     data: voteTxData,
     isError,
     error: voteTxError,
+    isPending: isPerformingTx,
   } = useAtomValue(createVoteTxAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
 
@@ -191,10 +192,12 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
             <ActionButton
               type="submit"
               disabled={
-                !canVote.data || typeof selectedVoteType === "undefined"
+                !canVote.data ||
+                typeof selectedVoteType === "undefined" ||
+                isPerformingTx
               }
             >
-              Confirm
+              {isPerformingTx ? "Processing..." : "Confirm"}
             </ActionButton>
           </Stack>
         )}

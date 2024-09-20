@@ -1,0 +1,22 @@
+{
+  "chainName": "Cosmos Hub",
+  "currencies": [
+    {
+      "coinDecimals": 6,
+      "coinDenom": "ATOM",
+      "coinMinimalDenom": "uatom"
+    }
+  ],
+  "feeCurrencies": [
+    {
+      "coinDecimals": 6,
+      "coinDenom": "ATOM",
+      "coinMinimalDenom": "uatom"
+    }
+  ],
+  "stakeCurrency": {
+    "coinDecimals": 6,
+    "coinDenom": "ATOM",
+    "coinMinimalDenom": "uatom"
+  }
+}
