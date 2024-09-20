@@ -4,8 +4,8 @@ import { defaultAccountAtom, disconnectAccountAtom } from "atoms/accounts";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useLocation, useNavigate } from "react-router-dom";
-import { DisconnectAccountIcon } from "../Icons/DisconnectAccountIcon";
-import { SwitchAccountIcon } from "../Icons/SwitchAccountIcon";
+import { DisconnectAccountIcon } from "./DisconnectAccountIcon";
+import { SwitchAccountIcon } from "./SwitchAccountIcon";
 
 export const ActiveAccount = (): JSX.Element => {
   const { data: account, isFetching } = useAtomValue(defaultAccountAtom);
