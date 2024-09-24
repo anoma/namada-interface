@@ -169,7 +169,7 @@ export const ReDelegate = (): JSX.Element => {
                 backgroundColor="white"
                 backgroundHoverColor="pink"
                 size="sm"
-                onClick={() => navigate(StakingRoutes.unstake().url)}
+                href={StakingRoutes.unstake().url}
               >
                 Unstake
               </ActionButton>

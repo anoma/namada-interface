@@ -8,12 +8,10 @@ import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { BalanceChart } from "App/Common/BalanceChart";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { useBalances } from "hooks/useBalances";
-import { useNavigate } from "react-router-dom";
 import StakingRoutes from "./routes";
 import { StakingRewardsPanel } from "./StakingRewardsPanel";
 
 export const StakingSummary = (): JSX.Element => {
-  const navigate = useNavigate();
   const {
     balanceQuery,
     stakeQuery,
@@ -74,7 +72,7 @@ export const StakingSummary = (): JSX.Element => {
                 className="px-8"
                 size="xs"
                 backgroundColor="cyan"
-                onClick={() => navigate(StakingRoutes.incrementBonding().url)}
+                href={StakingRoutes.incrementBonding().url}
               >
                 Stake
               </ActionButton>

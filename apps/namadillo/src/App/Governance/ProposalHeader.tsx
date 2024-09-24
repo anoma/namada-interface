@@ -120,14 +120,12 @@ const TypeLabel: React.FC<{
 const JsonButton: React.FC<{
   proposalId: bigint;
 }> = ({ proposalId }) => {
-  const navigate = useNavigate();
-
   return (
     <ActionButton
       className="px-3 py-2"
       size="xs"
       outlineColor="white"
-      onClick={() => navigate(GovernanceRoutes.viewJson(proposalId).url)}
+      href={GovernanceRoutes.viewJson(proposalId).url}
     >
       <span className="flex text-xs justify-between gap-2">
         <VscJson />
