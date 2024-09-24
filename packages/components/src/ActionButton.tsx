@@ -81,7 +81,7 @@ export type ActionButtonProps<HtmlTag extends keyof React.ReactHTML> = {
 } & React.ComponentPropsWithoutRef<HtmlTag> &
   Omit<ButtonTailwindVariantsProps, "noHover" | "outlined">;
 
-export const Button = ({
+const Button = ({
   icon,
   children,
   className,
