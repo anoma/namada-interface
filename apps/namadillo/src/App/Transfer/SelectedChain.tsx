@@ -1,6 +1,8 @@
+import { Chain } from "@chain-registry/types";
 import clsx from "clsx";
 import { GoChevronDown } from "react-icons/go";
-import { Chain, WalletProvider } from "types";
+import { WalletProvider } from "types";
+
 import { EmptyResourceIcon } from "./EmptyResourceIcon";
 
 type SelectedChainProps = {
@@ -30,7 +32,7 @@ export const SelectedChain = ({
       onClick={onClick}
       aria-description={
         wallet && chain ?
-          `${chain.name} chain is selected`
+          `${chain.pretty_name} chain is selected`
         : `No chain selected`
       }
     >
@@ -45,10 +47,10 @@ export const SelectedChain = ({
         <span className={selectorClassList}>
           <img
             className="w-7 h-7 object-cover object-center bg-neutral-800 rounded-full"
-            alt={`${chain.name} image`}
-            style={{ backgroundImage: `url(${chain.iconUrl})` }}
+            alt={`${chain.pretty_name} image`}
+            style={{ backgroundImage: `url(${chain.logo_URIs?.svg || ""})` }}
           />
-          {chain.name}
+          {chain.pretty_name}
           <GoChevronDown className="text-sm" />
         </span>
       )}

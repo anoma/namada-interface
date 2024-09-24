@@ -1,7 +1,8 @@
+import { Chain } from "@chain-registry/types";
 import { Stack } from "@namada/components";
 import BigNumber from "bignumber.js";
 import { useState } from "react";
-import { Asset, Chain, WalletProvider } from "types";
+import { Asset, WalletProvider } from "types";
 import { SelectWalletModal } from "./SelectWalletModal";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
@@ -21,6 +22,7 @@ type TransferModuleProps = {
   isShielded?: boolean;
   onChangeShielded?: (isShielded: boolean) => void;
   enableCustomAddress?: boolean;
+  availableChains?: Chain;
 };
 
 export const TransferModule = ({

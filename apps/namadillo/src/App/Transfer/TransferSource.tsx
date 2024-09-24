@@ -1,7 +1,8 @@
+import { Chain } from "@chain-registry/types";
 import { AmountInput, ChangeAmountEvent } from "@namada/components";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { Asset, Chain, WalletProvider } from "types";
+import { Asset, WalletProvider } from "types";
 import { AvailableAmountFooter } from "./AvailableAmountFooter";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { SelectedAsset } from "./SelectedAsset";

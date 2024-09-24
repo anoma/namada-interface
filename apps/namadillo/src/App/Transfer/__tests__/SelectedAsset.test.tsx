@@ -1,15 +1,11 @@
+import { Chain } from "@chain-registry/types";
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { SelectedAsset } from "App/Transfer/SelectedAsset"; // Adjust the path accordingly
-import { Asset, Chain } from "types"; // Adjust the path accordingly
+import { Asset } from "types"; // Adjust the path accordingly
+import { randomChainMock } from "../__mocks__/chains";
 
 describe("SelectedAsset", () => {
-  const mockChain: Chain = {
-    chainId: "1",
-    name: "Ethereum",
-    iconUrl: "https://example.com/ethereum-icon.png",
-  };
-
   const mockAsset: Partial<Asset> = {
     name: "Ethereum",
     denomination: "ETH",
@@ -24,7 +20,7 @@ describe("SelectedAsset", () => {
 
   it("renders with no asset selected", () => {
     const mockFn = jest.fn();
-    render(<SelectedAsset chain={mockChain} onClick={mockFn} />);
+    render(<SelectedAsset chain={randomChainMock as Chain} onClick={mockFn} />);
 
     const button = screen.getByRole("button");
     expect(button).toBeEnabled();
@@ -40,7 +36,7 @@ describe("SelectedAsset", () => {
     const handleClick = jest.fn();
     render(
       <SelectedAsset
-        chain={mockChain}
+        chain={randomChainMock as Chain}
         asset={mockAsset as Asset}
         onClick={handleClick}
       />
