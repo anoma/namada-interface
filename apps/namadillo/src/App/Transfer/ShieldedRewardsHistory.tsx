@@ -1,62 +1,57 @@
-import { ActionButton, AmountSummaryCard } from "@namada/components";
+import { SkeletonLoading, Stack } from "@namada/components";
+import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
-import StakingRoutes from "App/Staking/routes";
-import { applicationFeaturesAtom } from "atoms/settings";
-import { claimableRewardsAtom } from "atoms/staking";
-import BigNumber from "bignumber.js";
-import clsx from "clsx";
-import { useAtomValue } from "jotai";
-import { GoStack } from "react-icons/go";
-import { useLocation, useNavigate } from "react-router-dom";
-import { sumBigNumberArray } from "utils";
+import { useBalances } from "hooks/useBalances";
+import { twMerge } from "tailwind-merge";
 
 export const ShieldedRewardsHistory = (): JSX.Element => {
-  const { claimRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
-  const { data: rewards } = useAtomValue(claimableRewardsAtom);
-  const location = useLocation();
-  const navigate = useNavigate();
-  const availableRewards =
-    claimRewardsEnabled ?
-      sumBigNumberArray(Object.values(rewards || {}))
-    : new BigNumber(0);
-  const title =
-    claimRewardsEnabled ?
-      "Unclaimed Staking Rewards"
-    : "Staking Rewards will be enabled in phase 2";
+  const { isLoading, shieldedAmount } = useBalances();
 
   return (
-    <AmountSummaryCard
-      className={clsx({
-        "opacity-60 pointer-events-none select-none": !claimRewardsEnabled,
-      })}
-      logoElement={
-        <i className="text-4xl">
-          <GoStack />
-        </i>
-      }
-      title={title}
-      mainAmount={
-        <NamCurrency
-          amount={availableRewards}
-          className="block leading-none"
-          currencySignClassName="block mb-3 mt-0.5 text-sm"
-        />
-      }
-      callToAction={
-        <ActionButton
-          className="px-8"
-          size="xs"
-          backgroundColor="white"
-          disabled={!claimRewardsEnabled || availableRewards.eq(0)}
-          onClick={() =>
-            navigate(StakingRoutes.claimRewards().url, {
-              state: { backgroundLocation: location },
-            })
-          }
+    <AtomErrorBoundary
+      // TODO shieldedQuery
+      result={[]}
+      niceError="Unable to load available NAM balance"
+    >
+      <div className="flex flex-col gap-3">
+        <div
+          className={twMerge(
+            "text-sm text-center font-medium mb-2",
+            "flex items-center justify-center h-[70px]"
+          )}
         >
-          Claim
-        </ActionButton>
-      }
-    />
+          Total Shielded
+          <br />
+          rewards history
+        </div>
+
+        {isLoading ?
+          <Stack gap={2.5} className="h-[76px] items-center">
+            <SkeletonLoading height="26px" width="100px" />
+            <SkeletonLoading height="16px" width="50px" />
+          </Stack>
+        : <>
+            <NamCurrency
+              // TODO shieldedAmount
+              amount={shieldedAmount}
+              className="text-center text-3xl leading-none"
+              currencySignClassName="block text-xs"
+            />
+            <div
+              className={twMerge(
+                "flex flex-col items-center p-4 mt-4",
+                "mx-auto w-[90%] bg-neutral-900 rounded-sm"
+              )}
+            >
+              {/* TODO percent */}
+              <div className="text-2xl">0%</div>
+              <div className="text-xs text-center mt-1 leading-tight">
+                Lifetime rate
+              </div>
+            </div>
+          </>
+        }
+      </div>
+    </AtomErrorBoundary>
   );
 };

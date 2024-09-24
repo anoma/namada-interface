@@ -37,7 +37,7 @@ export const ShieldedNamBalance = (): JSX.Element => {
             <div
               className={twMerge(
                 "flex flex-col items-center p-4 mt-4",
-                "mx-auto max-w-[170px] bg-neutral-900 rounded-sm"
+                "mx-auto w-[90%] bg-neutral-900 rounded-sm"
               )}
             >
               {/* TODO percent */}
