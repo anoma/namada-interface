@@ -1,13 +1,47 @@
+import { Panel } from "@namada/components";
+import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
+import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
+import { namadaExtensionConnectedAtom } from "atoms/settings";
+import { useUserHasAccount } from "hooks/useUserHasAccount";
+import { useAtomValue } from "jotai";
+import { ShieldedBalanceChart } from "./ShieldedBalanceChart";
+import { ShieldedNamBalance } from "./ShieldedNamBalance";
+import { ShieldedOverviewTable } from "./ShieldedOverviewTable";
+import { ShieldedRewardsHistory } from "./ShieldedRewardsHistory";
 
 export const MaspOverview: React.FC = () => {
+  const hasAccount = useUserHasAccount();
+  const isConnected = useAtomValue(namadaExtensionConnectedAtom);
+
   return (
     <PageWithSidebar>
-      <div className="flex flex-col gap-2 text-yellow">
-        <div>MaspOverview (WIP)</div>
+      <div className="flex flex-col gap-2">
+        {!isConnected && (
+          <ConnectBanner text="To shield assets please connect your account" />
+        )}
+        {isConnected && hasAccount === false && (
+          <ConnectBanner text="To shield assets please create or import an account using Namada keychain" />
+        )}
+        {isConnected && hasAccount && (
+          <div className="flex flex-col sm:grid sm:grid-cols-[1.25fr_1fr_1fr] gap-2">
+            <Panel>
+              <ShieldedBalanceChart />
+            </Panel>
+            <Panel>
+              <ShieldedNamBalance />
+            </Panel>
+            <Panel>
+              <ShieldedRewardsHistory />
+            </Panel>
+          </div>
+        )}
+        <Panel className="relative pb-6" title="Shielded Overview">
+          <ShieldedOverviewTable />
+        </Panel>
       </div>
-      <aside className="flex flex-col gap-2 text-yellow">
-        <div>Sidebar (WIP)</div>
+      <aside className="w-full mt-2 flex flex-col sm:flex-row lg:mt-0 lg:flex-col gap-2">
+        <ShieldAllBanner />
       </aside>
     </PageWithSidebar>
   );
