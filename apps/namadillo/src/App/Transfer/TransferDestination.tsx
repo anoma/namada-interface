@@ -1,8 +1,9 @@
+import { Chain } from "@chain-registry/types";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TabSelector } from "App/Common/TabSelector";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { Chain, WalletProvider } from "types";
+import { WalletProvider } from "types";
 import namadaShieldedSvg from "./assets/namada-shielded.svg";
 import namadaTransparentSvg from "./assets/namada-transparent.svg";
 import { CustomAddressForm } from "./CustomAddressForm";
@@ -27,13 +28,16 @@ const parseChainInfo = (
   chain?: Chain,
   isShielded?: boolean
 ): Chain | undefined => {
-  if (chain?.name !== "Namada") {
+  if (chain?.chain_name !== "namada") {
     return chain;
   }
   return {
     ...chain,
-    name: isShielded ? "Namada Shielded" : "Namada Transparent",
-    iconUrl: isShielded ? namadaShieldedSvg : namadaTransparentSvg,
+    pretty_name: isShielded ? "Namada Shielded" : "Namada Transparent",
+    logo_URIs: {
+      ...chain.logo_URIs,
+      svg: isShielded ? namadaShieldedSvg : namadaTransparentSvg,
+    },
   };
 };
 
@@ -56,7 +60,7 @@ export const TransferDestination = ({
         "border-yellow": isShielded,
       })}
     >
-      {onChangeShielded && chain?.name === "Namada" && (
+      {onChangeShielded && chain?.chain_name === "namada" && (
         <TabSelector
           active={isShielded ? "shielded" : "transparent"}
           items={[

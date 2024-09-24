@@ -1,3 +1,4 @@
+import { Chain } from "@chain-registry/types";
 import { fireEvent, render, screen } from "@testing-library/react";
 import {
   TransferSource,
@@ -64,7 +65,10 @@ describe("Component: TransferSource", () => {
 
   it("should call openAssetSelector when the SelectedAsset is clicked", () => {
     const openAssetSelectorMock = jest.fn();
-    setup({ openAssetSelector: openAssetSelectorMock, chain: namadaChainMock });
+    setup({
+      openAssetSelector: openAssetSelectorMock,
+      chain: namadaChainMock as Chain,
+    });
     const assetControl = getEmptyAsset();
     fireEvent.click(assetControl);
     expect(openAssetSelectorMock).toHaveBeenCalled();

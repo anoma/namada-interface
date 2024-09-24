@@ -1,6 +1,7 @@
+import { Chain } from "@chain-registry/types";
 import clsx from "clsx";
 import { GoChevronDown } from "react-icons/go";
-import { Asset, Chain } from "types";
+import { Asset } from "types";
 import { EmptyResourceIcon } from "./EmptyResourceIcon";
 
 type SelectedAssetProps = {

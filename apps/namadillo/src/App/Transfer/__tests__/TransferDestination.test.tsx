@@ -1,3 +1,4 @@
+import { Chain } from "@chain-registry/types";
 import { fireEvent, render, screen } from "@testing-library/react";
 import {
   namadaChainMock,
@@ -18,7 +19,7 @@ describe("TransferDestination", () => {
       <TransferDestination
         isShielded={true}
         onChangeShielded={jest.fn()}
-        chain={namadaChainMock}
+        chain={namadaChainMock as Chain}
       />
     );
     expect(screen.getByText("Shielded")).toBeInTheDocument();
@@ -34,7 +35,7 @@ describe("TransferDestination", () => {
     render(
       <TransferDestination
         isShielded={true}
-        chain={randomChainMock}
+        chain={randomChainMock as Chain}
         onChangeShielded={jest.fn()}
       />
     );
@@ -45,7 +46,7 @@ describe("TransferDestination", () => {
     render(
       <TransferDestination
         isShielded={true}
-        chain={namadaChainMock}
+        chain={namadaChainMock as Chain}
         wallet={walletMock}
       />
     );
@@ -56,7 +57,7 @@ describe("TransferDestination", () => {
     render(
       <TransferDestination
         isShielded={false}
-        chain={namadaChainMock}
+        chain={namadaChainMock as Chain}
         wallet={walletMock}
       />
     );
@@ -68,7 +69,7 @@ describe("TransferDestination", () => {
     render(
       <TransferDestination
         isShielded={true}
-        chain={namadaChainMock}
+        chain={namadaChainMock as Chain}
         onChangeShielded={onChangeShieldedMock}
       />
     );
