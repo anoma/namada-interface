@@ -8,11 +8,13 @@ export async function hasMaspParams(): Promise<boolean> {
   );
 }
 
-export async function fetchAndStoreMaspParams(): Promise<[void, void, void]> {
+export async function fetchAndStoreMaspParams(
+  url?: string
+): Promise<[void, void, void]> {
   return Promise.all([
-    fetchAndStore("masp-spend.params"),
-    fetchAndStore("masp-output.params"),
-    fetchAndStore("masp-convert.params"),
+    fetchAndStore("masp-spend.params", url),
+    fetchAndStore("masp-output.params", url),
+    fetchAndStore("masp-convert.params", url),
   ]);
 }
 
@@ -24,17 +26,19 @@ export async function getMaspParams(): Promise<[unknown, unknown, unknown]> {
   ]);
 }
 
-export async function fetchAndStore(params: string): Promise<void> {
-  const data = await fetchParams(params);
+export async function fetchAndStore(
+  params: string,
+  url?: string
+): Promise<void> {
+  const data = await fetchParams(params, url);
   await set(params, data);
 }
 
-export async function fetchParams(params: string): Promise<Uint8Array> {
-  const path =
-    process.env.NAMADA_INTERFACE_MASP_PARAMS_PATH ||
-    "https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/";
-
-  return fetch(`${path}${params}`)
+export async function fetchParams(
+  params: string,
+  url: string = "https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/"
+): Promise<Uint8Array> {
+  return fetch(`${url}${params}`)
     .then((response) => response.arrayBuffer())
     .then((ab) => new Uint8Array(ab));
 }

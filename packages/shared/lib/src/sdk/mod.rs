@@ -71,8 +71,8 @@ impl Sdk {
         Ok(js_sys::Boolean::from(has.as_bool().unwrap()).into())
     }
 
-    pub async fn fetch_and_store_masp_params() -> Result<(), JsValue> {
-        fetch_and_store_masp_params().await?;
+    pub async fn fetch_and_store_masp_params(url: Option<String>) -> Result<(), JsValue> {
+        fetch_and_store_masp_params(url).await?;
         Ok(())
     }
 
@@ -495,5 +495,5 @@ extern "C" {
     #[wasm_bindgen(catch, js_name = "hasMaspParams")]
     async fn has_masp_params() -> Result<JsValue, JsValue>;
     #[wasm_bindgen(catch, js_name = "fetchAndStoreMaspParams")]
-    async fn fetch_and_store_masp_params() -> Result<JsValue, JsValue>;
+    async fn fetch_and_store_masp_params(url: Option<String>) -> Result<JsValue, JsValue>;
 }
