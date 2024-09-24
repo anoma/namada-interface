@@ -12,6 +12,7 @@ import { DISCORD_URL, TWITTER_URL } from "urls";
 
 import IbcRoutes from "App/Ibc/routes";
 import StakingRoutes from "App/Staking/routes";
+import TransferRoutes from "App/Transfer/routes";
 import { applicationFeaturesAtom } from "atoms/settings";
 
 export const Navigation = (): JSX.Element => {
@@ -35,11 +36,8 @@ export const Navigation = (): JSX.Element => {
     },
     {
       label: "MASP",
-      icon: (
-        <i className="w-4">
-          <MASPIcon />
-        </i>
-      ),
+      icon: <MASPIcon />,
+      url: features.maspEnabled ? TransferRoutes.masp().url : undefined,
     },
     {
       label: "IBC Transfer",
