@@ -44,4 +44,17 @@ describe("Component: SelectChainModal", () => {
     fireEvent.click(screen.getByText(mockChains[0].pretty_name!));
     expect(handleSelect).toHaveBeenCalledWith(mockChains[0]);
   });
+
+  it("should display warning message if no chains were provided", () => {
+    const handleSelect = jest.fn();
+    render(
+      <SelectChainModal
+        onClose={jest.fn()}
+        onSelect={handleSelect}
+        chains={[]}
+      />
+    );
+    expect(screen.getByText(/no available chains/i, { exact: false }))
+      .toBeInTheDocument;
+  });
 });
