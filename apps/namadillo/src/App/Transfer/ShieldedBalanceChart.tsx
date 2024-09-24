@@ -5,12 +5,12 @@ import { colors } from "theme";
 import { NamCurrency } from "../Common/NamCurrency";
 
 export const ShieldedBalanceChart = (): JSX.Element => {
-  const { balanceQuery, stakeQuery, isLoading, isSuccess, shieldedAmount } =
-    useBalances();
+  const { isLoading, isSuccess, shieldedAmount } = useBalances();
 
   return (
     <AtomErrorBoundary
-      result={[balanceQuery, stakeQuery]}
+      // TODO shieldedQuery
+      result={[]}
       niceError="Unable to load balance"
     >
       <div className="flex-1 w-full h-full">
@@ -34,9 +34,10 @@ export const ShieldedBalanceChart = (): JSX.Element => {
                 Shielded Balance
               </Heading>
               <NamCurrency
+                // TODO shieldedAmount
                 amount={shieldedAmount}
                 className="text-2xl"
-                currencySignClassName="block mb-1 text-xs ml-1"
+                currencySignClassName="block text-xs"
               />
             </div>
           </PieChart>
