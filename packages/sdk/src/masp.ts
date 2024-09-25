@@ -21,10 +21,11 @@ export class Masp {
   /**
    * Fetch MASP parameters and store them in SDK
    * @async
+   * @param [url] - optional URL to override the default
    * @returns void
    */
-  async fetchAndStoreMaspParams(): Promise<void> {
-    return await SdkWasm.fetch_and_store_masp_params();
+  async fetchAndStoreMaspParams(url?: string): Promise<void> {
+    return await SdkWasm.fetch_and_store_masp_params(url);
   }
 
   /**

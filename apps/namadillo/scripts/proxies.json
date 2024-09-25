@@ -1,0 +1,7 @@
+[
+  {
+    "alias": "MASP Params",
+    "url": "https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/",
+    "proxyPort": 8010
+  }
+]

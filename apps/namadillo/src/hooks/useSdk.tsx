@@ -11,8 +11,14 @@ import {
   useEffect,
   useState,
 } from "react";
+import Proxies from "../../scripts/proxies.json";
 
 export const SdkContext = createContext<Sdk | undefined>(undefined);
+
+const { VITE_PROXY: isProxied } = import.meta.env;
+
+const paramsUrl =
+  isProxied ? `http://localhost:${Proxies[0].proxyPort}/proxy/` : undefined;
 
 const initializeSdk = async (): Promise<Sdk> => {
   const { cryptoMemory } = await initSdk();
@@ -47,7 +53,19 @@ export const SdkProvider: FunctionComponent<PropsWithChildren> = ({
 
   useEffect(() => {
     if (nativeToken.data) {
-      getSdkInstance().then((sdk) => setSdk(sdk));
+      getSdkInstance().then((sdk) => {
+        setSdk(sdk);
+        const { masp } = sdk;
+        masp.hasMaspParams().then((hasMaspParams) => {
+          if (hasMaspParams) {
+            return masp.loadMaspParams("").catch((e) => console.error(`${e}`));
+          }
+          masp
+            .fetchAndStoreMaspParams(paramsUrl)
+            .then(() => masp.loadMaspParams(""))
+            .catch((e) => console.error(`${e}`));
+        });
+      });
     }
   }, [nativeToken.data]);
 
