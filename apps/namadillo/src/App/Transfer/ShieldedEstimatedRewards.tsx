@@ -5,7 +5,7 @@ import { useBalances } from "hooks/useBalances";
 import { GoInfo } from "react-icons/go";
 import { twMerge } from "tailwind-merge";
 
-export const ShieldedRewardsHistory = (): JSX.Element => {
+export const ShieldedEstimatedRewards = (): JSX.Element => {
   const { isLoading, shieldedAmount } = useBalances();
 
   return (

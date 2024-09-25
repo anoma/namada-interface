@@ -6,9 +6,9 @@ import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { useUserHasAccount } from "hooks/useUserHasAccount";
 import { useAtomValue } from "jotai";
 import { ShieldedBalanceChart } from "./ShieldedBalanceChart";
+import { ShieldedEstimatedRewards } from "./ShieldedEstimatedRewards";
 import { ShieldedNamBalance } from "./ShieldedNamBalance";
 import { ShieldedOverviewTable } from "./ShieldedOverviewTable";
-import { ShieldedRewardsHistory } from "./ShieldedRewardsHistory";
 
 export const MaspOverview: React.FC = () => {
   const hasAccount = useUserHasAccount();
@@ -32,7 +32,7 @@ export const MaspOverview: React.FC = () => {
               <ShieldedNamBalance />
             </Panel>
             <Panel>
-              <ShieldedRewardsHistory />
+              <ShieldedEstimatedRewards />
             </Panel>
           </div>
         )}
