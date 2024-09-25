@@ -86,6 +86,7 @@ impl ShieldedHDWallet {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::crypto::bip39;
     use masp_primitives::sapling::PaymentAddress;
     use wasm_bindgen_test::*;
 
@@ -109,7 +110,7 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
-    fn can_derive_child_to_serialized() {
+    fn can_derive_shielded_key_to_serialized() {
         let seed = JsValue::from(js_sys::Uint8Array::new_with_length(64));
         let shielded_wallet =
             ShieldedHDWallet::new(seed).expect("Instantiating ShieldedHDWallet should not fail");
@@ -133,5 +134,37 @@ mod tests {
         assert_eq!(payment_address.to_bytes().len(), 43);
         assert_eq!(xsk.expsk.to_bytes().len(), KEY_SIZE);
         assert_eq!(xfvk.fvk.to_bytes().len(), KEY_SIZE);
+    }
+
+    #[wasm_bindgen_test]
+    fn can_restore_shielded_keys_from_mnemonic() {
+        let phrase = "great sphere inmate december menu warrior adjust glass flat heavy act mail";
+        let mnemonic = bip39::Mnemonic::from_phrase(phrase.into()).unwrap();
+        let seed = mnemonic
+            .to_seed(None)
+            .expect("Should return seed from mnemonic phrase");
+
+        let shielded_wallet = ShieldedHDWallet::new(JsValue::from(seed))
+            .expect("Instantiating ShieldedHDWallet should not fail");
+
+        let shielded_account = shielded_wallet
+            .derive(vec![32, 877, 0], None)
+            .expect("Deriving from ExtendedKeys should not fail");
+
+        let payment_address = PaymentAddress::try_from_slice(&shielded_account.payment_address())
+            .expect("should instantiate from serialized bytes");
+        let xfvk = ExtendedFullViewingKey::try_from_slice(&shielded_account.xfvk())
+            .expect("should instantiate from serialized bytes");
+
+        assert_eq!(payment_address.to_string(), "0a918bd974d1abddcc2e15eddec2557abae385ed59fb3089ed4aff418819a63bf4a7890591ff107a2b7569");
+        assert_eq!(
+            xfvk.fvk.to_string(),
+            format!(
+                "{}{}{}",
+                "9f89bdaf176f8528f43303ae793ce128af3436902a39ebbe46509f6fef11eb",
+                "585270060da4c12f1a52b63c7c6906dddcabb0ecd00735e11b0d7cbee277342dd89a10e9c7",
+                "e69bca34b50a3c8525bbee96347a7cadfd6c32d3af5b92ad1ecf07da"
+            )
+        );
     }
 }
