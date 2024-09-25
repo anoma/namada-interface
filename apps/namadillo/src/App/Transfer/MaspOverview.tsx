@@ -8,7 +8,7 @@ import { useAtomValue } from "jotai";
 import { ShieldedBalanceChart } from "./ShieldedBalanceChart";
 import { ShieldedEstimatedRewards } from "./ShieldedEstimatedRewards";
 import { ShieldedNamBalance } from "./ShieldedNamBalance";
-import { ShieldedOverviewTable } from "./ShieldedOverviewTable";
+import { ShieldedOverviewPanel } from "./ShieldedOverviewPanel";
 
 export const MaspOverview: React.FC = () => {
   const hasAccount = useUserHasAccount();
@@ -37,7 +37,7 @@ export const MaspOverview: React.FC = () => {
           </div>
         )}
         <Panel className="relative pb-6" title="Shielded Overview">
-          <ShieldedOverviewTable />
+          <ShieldedOverviewPanel />
         </Panel>
       </div>
       <aside className="w-full mt-2 flex flex-col sm:flex-row lg:mt-0 lg:flex-col gap-2">
