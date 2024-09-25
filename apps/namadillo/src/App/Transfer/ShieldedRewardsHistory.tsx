@@ -1,7 +1,8 @@
-import { SkeletonLoading, Stack } from "@namada/components";
+import { SkeletonLoading, Stack, Tooltip } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { useBalances } from "hooks/useBalances";
+import { GoInfo } from "react-icons/go";
 import { twMerge } from "tailwind-merge";
 
 export const ShieldedRewardsHistory = (): JSX.Element => {
@@ -13,11 +14,18 @@ export const ShieldedRewardsHistory = (): JSX.Element => {
       result={[]}
       niceError="Unable to load Est. Rewards"
     >
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-4 relative">
+        <div className="absolute -top-3 -right-2 group/tooltip">
+          <GoInfo />
+          <Tooltip className="w-[300px]">
+            Estimated rewards you will receive aprox. every 6 hours based on the
+            amount of assets you hold in the shield pool
+          </Tooltip>
+        </div>
         <div
           className={twMerge(
             "text-sm text-center font-medium mb-2",
-            "flex items-center justify-center h-[75px]"
+            "flex items-center justify-center h-[70px]"
           )}
         >
           Est. Rewards per

@@ -1,7 +1,8 @@
-import { SkeletonLoading, Stack } from "@namada/components";
+import { SkeletonLoading, Stack, Tooltip } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { useBalances } from "hooks/useBalances";
+import { GoInfo } from "react-icons/go";
 import { ShieldedNamIcon } from "./ShieldedNamIcon";
 
 export const ShieldedNamBalance = (): JSX.Element => {
@@ -13,7 +14,15 @@ export const ShieldedNamBalance = (): JSX.Element => {
       result={[]}
       niceError="Unable to load shielded NAM balance"
     >
-      <div className="flex flex-col gap-4 text-yellow">
+      <div className="flex flex-col gap-4 relative text-yellow">
+        <div className="absolute -top-3 -right-2 group/tooltip">
+          <GoInfo />
+          <Tooltip className="w-[360px]">
+            Shielded rewards accrue each epoch and are added to your NAM
+            shielded balance automatically based on the amount of assets you
+            have shielded
+          </Tooltip>
+        </div>
         <div className="flex flex-col items-center gap-1 text-sm text-center font-medium">
           <div>
             <ShieldedNamIcon />
