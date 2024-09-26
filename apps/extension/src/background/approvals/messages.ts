@@ -147,13 +147,14 @@ export class ConnectInterfaceResponseMsg extends Message<void> {
 
   constructor(
     public readonly interfaceOrigin: string,
+    public readonly chainId: string,
     public readonly allowConnection: boolean
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["interfaceOrigin", "allowConnection"]);
+    validateProps(this, ["interfaceOrigin", "chainId", "allowConnection"]);
   }
 
   route(): string {

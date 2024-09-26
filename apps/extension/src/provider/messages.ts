@@ -96,12 +96,12 @@ export class IsConnectionApprovedMsg extends Message<boolean> {
     return MessageType.IsConnectionApproved;
   }
 
-  constructor() {
+  constructor(public readonly chainId: string) {
     super();
   }
 
   validate(): void {
-    return;
+    validateProps(this, ["chainId"]);
   }
 
   route(): string {
@@ -118,12 +118,12 @@ export class ApproveConnectInterfaceMsg extends Message<void> {
     return MessageType.ApproveConnectInterface;
   }
 
-  constructor() {
+  constructor(public readonly chainId: string) {
     super();
   }
 
   validate(): void {
-    return;
+    validateProps(this, ["chainId"]);
   }
 
   route(): string {
@@ -140,12 +140,15 @@ export class ApproveDisconnectInterfaceMsg extends Message<void> {
     return MessageType.ApproveDisconnectInterface;
   }
 
-  constructor(public readonly originToRevoke: string) {
+  constructor(
+    public readonly originToRevoke: string,
+    public readonly chainId: string
+  ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["originToRevoke"]);
+    validateProps(this, ["originToRevoke", "chainId"]);
   }
 
   route(): string {
