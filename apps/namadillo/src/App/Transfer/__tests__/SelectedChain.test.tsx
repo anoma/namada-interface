@@ -45,10 +45,7 @@ describe("Component: SelectedChain", () => {
       exact: false,
     });
     expect(chainImage).toBeInTheDocument();
-    expect(chainImage).toHaveAttribute(
-      "style",
-      `background-image: url(${randomChainMock.logo_URIs?.svg});`
-    );
+    expect(chainImage).toHaveAttribute("src", randomChainMock.logo_URIs?.svg);
   });
 
   it("calls onClick when the component is clicked", () => {

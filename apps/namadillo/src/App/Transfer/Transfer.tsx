@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import { IBCTransfers } from "./IBCTransfers";
+import { Example } from "./Example";
 import { NamTransfer } from "./NamTransfer";
 import { Shield } from "./Shield";
 import { ShieldAll } from "./ShieldAll";
@@ -17,10 +17,7 @@ export const Transfer: React.FC = () => (
         path={TransferRoutes.shieldAll().toString()}
         element={<ShieldAll />}
       />
-      <Route
-        path={TransferRoutes.ibcTransfer().toString()}
-        element={<IBCTransfers />}
-      />
+      <Route path={TransferRoutes.example().toString()} element={<Example />} />
     </Routes>
   </main>
 );

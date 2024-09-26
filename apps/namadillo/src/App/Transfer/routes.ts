@@ -12,7 +12,7 @@ export const shield = (): RouteOutput => routeOutput("/shield");
 
 export const shieldAll = (): RouteOutput => routeOutput(`/shield-all`);
 
-export const ibcTransfer = (): RouteOutput => routeOutput(`/ibc`);
+export const example = (): RouteOutput => routeOutput(`/example`);
 
 export default {
   index,
@@ -20,5 +20,5 @@ export default {
   namTransfer,
   shield,
   shieldAll,
-  ibcTransfer,
+  example,
 };
