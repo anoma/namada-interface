@@ -19,7 +19,12 @@ export const AssetCard = ({ asset }: AssetCardProps): JSX.Element => {
           alt={asset.name + ` logo`}
           className="w-full aspect-square"
         />
-      : <i className="bg-neutral-800 rounded-full aspect-square w-full" />}
+      : <img
+          className="bg-neutral-800 rounded-full aspect-square w-full"
+          alt="Logo not available"
+          role="img"
+        />
+      }
       <span className="text-left">{asset.name}</span>
     </span>
   );
