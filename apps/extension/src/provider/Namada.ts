@@ -30,28 +30,28 @@ export class Namada implements INamada {
     protected readonly requester?: MessageRequester
   ) {}
 
-  public async connect(): Promise<void> {
+  public async connect(chainId: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveConnectInterfaceMsg()
+      new ApproveConnectInterfaceMsg(chainId)
     );
   }
 
-  public async disconnect(): Promise<void> {
+  public async disconnect(chainId: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveDisconnectInterfaceMsg(location.origin)
+      new ApproveDisconnectInterfaceMsg(location.origin, chainId)
     );
   }
 
-  public async isConnected(): Promise<boolean> {
+  public async isConnected(chainId: string): Promise<boolean> {
     if (!this.requester) {
       throw new Error("no requester");
     }
 
     return await this.requester.sendMessage(
       Ports.Background,
-      new IsConnectionApprovedMsg()
+      new IsConnectionApprovedMsg(chainId)
     );
   }
 
