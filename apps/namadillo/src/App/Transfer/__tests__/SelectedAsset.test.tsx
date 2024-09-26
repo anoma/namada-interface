@@ -2,17 +2,10 @@ import { Asset, Chain } from "@chain-registry/types";
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { SelectedAsset } from "App/Transfer/SelectedAsset"; // Adjust the path accordingly
+import { assetMock } from "../__mocks__/assets";
 import { randomChainMock } from "../__mocks__/chains";
 
 describe("SelectedAsset", () => {
-  const mockAsset: Partial<Asset> = {
-    name: "Ethereum",
-    symbol: "ETH",
-    logo_URIs: {
-      svg: "https://example.com/eth-icon.png",
-    },
-  };
-
   it("renders with no chain and disables the button", () => {
     render(<SelectedAsset />);
     const button = screen.getByRole("button");
@@ -38,7 +31,7 @@ describe("SelectedAsset", () => {
     render(
       <SelectedAsset
         chain={randomChainMock as Chain}
-        asset={mockAsset as Asset}
+        asset={assetMock as Asset}
         onClick={handleClick}
       />
     );
@@ -46,11 +39,11 @@ describe("SelectedAsset", () => {
     const button = screen.getByRole("button");
     expect(button).toBeEnabled();
 
-    const assetDenomination = screen.getByText(mockAsset.symbol!);
+    const assetDenomination = screen.getByText(assetMock.symbol!);
     expect(assetDenomination).toBeInTheDocument();
 
-    const assetImage = screen.getByAltText(`${mockAsset.name} image`);
-    expect(assetImage).toHaveAttribute("src", mockAsset.logo_URIs?.svg);
+    const assetImage = screen.getByAltText(`${assetMock.name} image`);
+    expect(assetImage).toHaveAttribute("src", assetMock.logo_URIs?.svg);
 
     fireEvent.click(button);
     expect(handleClick).toHaveBeenCalledTimes(1);
