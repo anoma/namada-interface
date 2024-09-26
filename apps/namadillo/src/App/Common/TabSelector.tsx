@@ -18,25 +18,25 @@ export const TabSelector = ({
   onChange,
 }: TabSelectorProps): JSX.Element => {
   return (
-    <nav>
-      <ul className="flex">
-        {items.map((item) => (
-          <li key={item.id} className="w-full">
-            <button
-              onClick={() => onChange(item)}
-              className={twMerge(
-                clsx(
-                  "border border-current text-current rounded-sm bg-black opacity-70",
-                  { "border border-current opacity-100": item.id === active },
-                  item.className
-                )
-              )}
-            >
-              {item.text}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <ul className="flex">
+      {items.map((item) => (
+        <li key={item.id} className="w-full">
+          <button
+            type="button"
+            onClick={() => onChange(item)}
+            className={twMerge(
+              clsx(
+                "w-full text-current rounded-sm bg-black opacity-50 py-1",
+                "hover:opacity-80 transition-opacity duration-200",
+                { "border border-current opacity-100": item.id === active },
+                item.className
+              )
+            )}
+          >
+            {item.text}
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 };

@@ -9,15 +9,18 @@ type SelectedChainProps = {
   chain?: Chain;
   wallet?: WalletProvider;
   onClick?: () => void;
+  iconSize?: string;
 };
 
 export const SelectedChain = ({
   chain,
   wallet,
   onClick,
+  iconSize,
 }: SelectedChainProps): JSX.Element => {
   const selectorClassList = clsx(
-    `flex items-center gap-2.5 text-white font-light cursor-pointer`
+    `flex items-center gap-2.5 text-white font-light`,
+    { "cursor-auto": !onClick }
   );
 
   const isDisabled = !wallet;
@@ -46,12 +49,13 @@ export const SelectedChain = ({
       {wallet && chain && (
         <span className={selectorClassList}>
           <img
-            className="w-7 h-7 object-cover object-center bg-neutral-800 rounded-full"
+            className="aspect-square object-cover object-center bg-neutral-800 rounded-full select-none"
             alt={`${chain.pretty_name} image`}
-            style={{ backgroundImage: `url(${chain.logo_URIs?.svg || ""})` }}
+            src={chain.logo_URIs?.svg}
+            style={{ width: iconSize || "30px" }}
           />
           {chain.pretty_name}
-          <GoChevronDown className="text-sm" />
+          {onClick && <GoChevronDown className="text-sm" />}
         </span>
       )}
     </button>

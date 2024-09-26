@@ -26,18 +26,20 @@ export const SelectWalletModal = ({
   };
 
   return (
-    <SelectModal title="Source" onClose={onClose}>
+    <SelectModal title="Source" onClose={onClose} className="max-w-[400px]">
       <ul>
-        {wallets.map((wallet: WalletProvider, index) => (
-          <li key={index} className="px-5 text-sm">
-            <WalletCard
-              connected={isConnected(wallet)}
-              installed={isInstalled(wallet)}
-              wallet={wallet}
-              onConnect={() => onConnect(wallet)}
-            />
-          </li>
-        ))}
+        {wallets
+          .filter((wallet) => wallet.id !== "namada")
+          .map((wallet: WalletProvider, index) => (
+            <li key={index} className="text-sm">
+              <WalletCard
+                connected={isConnected(wallet)}
+                installed={isInstalled(wallet)}
+                wallet={wallet}
+                onConnect={() => onConnect(wallet)}
+              />
+            </li>
+          ))}
       </ul>
     </SelectModal>
   );

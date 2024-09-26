@@ -1,8 +1,8 @@
-import { Chain } from "@chain-registry/types";
-import { AmountInput, ChangeAmountEvent } from "@namada/components";
+import { Asset, Chain } from "@chain-registry/types";
+import { AmountInput } from "@namada/components";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { Asset, WalletProvider } from "types";
+import { WalletProvider } from "types";
 import { AvailableAmountFooter } from "./AvailableAmountFooter";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { SelectedAsset } from "./SelectedAsset";
@@ -18,7 +18,8 @@ export type TransferSourceProps = {
   openAssetSelector?: () => void;
   openProviderSelector?: () => void;
   amount?: BigNumber;
-  onChangeAmount?: ChangeAmountEvent;
+  availableAmount?: BigNumber;
+  onChangeAmount?: (amount: BigNumber | undefined) => void;
 };
 
 export const TransferSource = ({
@@ -29,6 +30,7 @@ export const TransferSource = ({
   openChainSelector,
   openAssetSelector,
   amount,
+  availableAmount,
   onChangeAmount,
 }: TransferSourceProps): JSX.Element => {
   return (
@@ -44,7 +46,7 @@ export const TransferSource = ({
           <SelectedWallet wallet={wallet} onClick={openProviderSelector} />
         )}
       </header>
-      <hr className="mt-4 mb-5 mx-2 border-white opacity-[5%]" />
+      <hr className="mt-4 mb-2.5 mx-2 border-white opacity-[5%]" />
       <div className="grid grid-cols-[max-content_auto] gap-5 mb-3">
         <SelectedAsset
           chain={chain}
@@ -58,12 +60,18 @@ export const TransferSource = ({
           )}
           disabled={!chain || !asset}
           value={amount || new BigNumber(0)}
-          onChange={onChangeAmount}
+          onChange={(e) => onChangeAmount && onChangeAmount(e.target.value)}
         />
       </div>
-      <footer>
-        <AvailableAmountFooter currency="nam" />
-      </footer>
+      {asset && availableAmount && (
+        <footer>
+          <AvailableAmountFooter
+            currency={asset?.symbol}
+            availableAmount={availableAmount}
+            onClickMax={() => onChangeAmount && onChangeAmount(availableAmount)}
+          />
+        </footer>
+      )}
     </div>
   );
 };

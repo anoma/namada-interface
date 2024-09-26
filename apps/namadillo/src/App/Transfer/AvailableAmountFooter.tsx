@@ -18,6 +18,7 @@ export const AvailableAmountFooter = ({
     return <></>;
   }
 
+  // TODO: Replace <Currency /> usage here
   return (
     <div
       className={clsx(
@@ -28,7 +29,7 @@ export const AvailableAmountFooter = ({
         Available:
         <Currency
           amount={availableAmount}
-          currency={currency}
+          currency="nam"
           spaceAroundSign={true}
           currencyPosition="right"
         />

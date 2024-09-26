@@ -1,5 +1,5 @@
 import cosmoshub from "./cosmoshub.json";
-import namada from "./namada.json";
+import namada from "./namada-temp.json";
 
 type MinimalDenom = string;
 type ConfigName = string;

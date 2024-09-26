@@ -1,7 +1,11 @@
 import { Chain, Chains } from "@chain-registry/types";
 import { Stack } from "@namada/components";
+import { Search } from "App/Common/Search";
 import { SelectModal } from "App/Common/SelectModal";
 import clsx from "clsx";
+import { useMemo, useState } from "react";
+import { twMerge } from "tailwind-merge";
+import { ChainCard } from "./ChainCard";
 
 type SelectChainModalProps = {
   onClose: () => void;
@@ -14,30 +18,44 @@ export const SelectChainModal = ({
   onSelect,
   chains,
 }: SelectChainModalProps): JSX.Element => {
+  const [filter, setFilter] = useState("");
+
+  const filteredChains = useMemo(() => {
+    return chains.filter((chain) => chain.pretty_name.indexOf(filter) >= 0);
+  }, [chains, filter]);
+
   return (
     <SelectModal title="Select Source Chain" onClose={onClose}>
-      {chains.length > 0 && (
-        <Stack as="ul">
-          {chains.map((chain) => (
+      <div className="mb-4">
+        <Search placeholder="Search chain" onChange={setFilter} />
+      </div>
+      {filteredChains.length > 0 && (
+        <Stack
+          as="ul"
+          gap={0}
+          className="max-h-[300px] overflow-auto dark-scrollbar pb-4 mr-[-0.5rem]"
+        >
+          {filteredChains.map((chain) => (
             <li key={chain.chain_id}>
               <button
-                onClick={() => onSelect(chain)}
-                className={clsx(
-                  "grid grid-cols-[30px_auto] w-full px-6 py-2.5 rounded-sm border",
-                  "hover:border-neutral-400"
+                onClick={() => {
+                  onSelect(chain);
+                  onClose();
+                }}
+                className={twMerge(
+                  clsx(
+                    "w-full rounded-sm border border-transparent",
+                    "hover:border-neutral-400 transition-colors duration-150"
+                  )
                 )}
               >
-                <img
-                  src={chain.logo_URIs?.svg}
-                  alt={chain.pretty_name + " logo"}
-                />
-                <span>{chain.pretty_name}</span>
+                <ChainCard chain={chain} />
               </button>
             </li>
           ))}
         </Stack>
       )}
-      {chains.length === 0 && <p>There are no available chains</p>}
+      {filteredChains.length === 0 && <p>There are no available chains</p>}
     </SelectModal>
   );
 };

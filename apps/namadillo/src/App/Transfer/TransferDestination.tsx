@@ -8,6 +8,7 @@ import namadaShieldedSvg from "./assets/namada-shielded.svg";
 import namadaTransparentSvg from "./assets/namada-transparent.svg";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";
+import { SelectedWallet } from "./SelectedWallet";
 
 type TransferDestinationProps = {
   isShielded?: boolean;
@@ -17,6 +18,7 @@ type TransferDestinationProps = {
   className?: string;
   transactionFee?: BigNumber;
   customAddressActive?: boolean;
+  openChainSelector?: () => void;
   onToggleCustomAddress?: (isActive: boolean) => void;
   onChangeAddress?: (address: string | undefined) => void;
   address?: string;
@@ -53,22 +55,31 @@ export const TransferDestination = ({
   onChangeAddress,
   memo,
   onChangeMemo,
+  openChainSelector,
 }: TransferDestinationProps): JSX.Element => {
   return (
     <div
-      className={clsx("relative bg-neutral-800 rounded-lg px-4 py-5", {
-        "border-yellow": isShielded,
+      className={clsx("relative bg-neutral-800 rounded-lg px-4 pt-8 pb-4", {
+        "border border-yellow transition-colors duration-200": isShielded,
+        "border border-white transition-colors duration-200":
+          chain?.chain_name === "namada" && !isShielded,
       })}
     >
       {onChangeShielded && chain?.chain_name === "namada" && (
-        <TabSelector
-          active={isShielded ? "shielded" : "transparent"}
-          items={[
-            { id: "shielded", text: "Shielded", className: "text-yellow" },
-            { id: "transparent", text: "Transparent", className: "text-white" },
-          ]}
-          onChange={() => onChangeShielded(!isShielded)}
-        />
+        <nav className="mb-6">
+          <TabSelector
+            active={isShielded ? "shielded" : "transparent"}
+            items={[
+              { id: "shielded", text: "Shielded", className: "text-yellow" },
+              {
+                id: "transparent",
+                text: "Transparent",
+                className: "text-white",
+              },
+            ]}
+            onChange={() => onChangeShielded(!isShielded)}
+          />
+        </nav>
       )}
 
       {onToggleCustomAddress && (
@@ -82,10 +93,15 @@ export const TransferDestination = ({
         />
       )}
 
-      <SelectedChain
-        chain={parseChainInfo(chain, isShielded)}
-        wallet={wallet}
-      />
+      <div className="flex justify-between items-center">
+        <SelectedChain
+          chain={parseChainInfo(chain, isShielded)}
+          wallet={wallet}
+          onClick={openChainSelector}
+          iconSize="42px"
+        />
+        {wallet && <SelectedWallet wallet={wallet} isShielded={isShielded} />}
+      </div>
 
       {customAddressActive && (
         <CustomAddressForm
@@ -97,7 +113,7 @@ export const TransferDestination = ({
       )}
 
       {transactionFee && (
-        <footer className="flex justify-between mt-12 text-sm">
+        <footer className="flex justify-between mt-12 text-sm text-neutral-300">
           <span className="underline">Transaction Fee</span>
           <NamCurrency amount={transactionFee} />
         </footer>
