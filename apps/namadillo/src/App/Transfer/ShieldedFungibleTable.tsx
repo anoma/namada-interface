@@ -83,6 +83,7 @@ export const ShieldedFungibleTable = (): JSX.Element => {
           key={`unshield-${token.name}`}
           size="xs"
           outlineColor="white"
+          className="w-fit mx-auto"
         >
           Unshield
         </ActionButton>,
@@ -115,6 +116,17 @@ export const ShieldedFungibleTable = (): JSX.Element => {
       niceError="Unable to load your validators list"
       containerProps={{ className: "pb-16" }}
     >
+      <ActionButton
+        size="xs"
+        outlineColor="white"
+        className="w-fit ml-auto mt-6"
+      >
+        Unshield ALL
+      </ActionButton>
+      <div className="text-sm font-medium">
+        <span className="text-yellow">{list.length} </span>
+        Tokens
+      </div>
       <TableWithPaginator
         id={"my-validators"}
         headers={headers.concat("")}

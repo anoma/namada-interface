@@ -36,7 +36,10 @@ export const MaspOverview: React.FC = () => {
             </Panel>
           </div>
         )}
-        <Panel className="relative pb-6" title="Shielded Overview">
+        <Panel
+          className="relative pb-6 border border-yellow"
+          title="Shielded Overview"
+        >
           <ShieldedOverviewPanel />
         </Panel>
       </div>
