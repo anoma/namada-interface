@@ -117,16 +117,16 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
 const handleIsConnectionApprovedMsg: (
   service: ApprovalsService
 ) => InternalHandler<IsConnectionApprovedMsg> = (service) => {
-  return async (_, { origin }) => {
-    return await service.isConnectionApproved(origin);
+  return async (_, { origin, chainId }) => {
+    return await service.isConnectionApproved(origin, chainId);
   };
 };
 
 const handleApproveConnectInterfaceMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveConnectInterfaceMsg> = (service) => {
-  return async (_, { origin }) => {
-    return await service.approveConnection(origin);
+  return async (_, { origin, chainId }) => {
+    return await service.approveConnection(origin, chainId);
   };
 };
 
@@ -148,8 +148,8 @@ const handleConnectInterfaceResponseMsg: (
 const handleApproveDisconnectInterfaceMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveDisconnectInterfaceMsg> = (service) => {
-  return async (_, { origin }) => {
-    return await service.approveDisconnection(origin);
+  return async (_, { origin, chainId }) => {
+    return await service.approveDisconnection(origin, chainId);
   };
 };
 
