@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { IBCTransfers } from "./IBCTransfers";
+import { MaspOverview } from "./MaspOverview";
 import { NamTransfer } from "./NamTransfer";
 import { Shield } from "./Shield";
 import { ShieldAll } from "./ShieldAll";
@@ -8,6 +9,10 @@ import TransferRoutes from "./routes";
 export const Transfer: React.FC = () => (
   <main className="w-full">
     <Routes>
+      <Route
+        path={TransferRoutes.masp().toString()}
+        element={<MaspOverview />}
+      />
       <Route
         path={TransferRoutes.namTransfer().toString()}
         element={<NamTransfer />}
