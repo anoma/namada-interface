@@ -222,6 +222,7 @@ export class ApprovalsService {
   async approveConnectionResponse(
     popupTabId: number,
     interfaceOrigin: string,
+    chainId: string,
     allowConnection: boolean
   ): Promise<void> {
     const resolvers = this.getResolver(popupTabId);
@@ -229,6 +230,8 @@ export class ApprovalsService {
     if (allowConnection) {
       try {
         await this.localStorage.addApprovedOrigin(interfaceOrigin);
+        // Enable signing for this chain
+        await this.chainService.updateChain(chainId);
       } catch (e) {
         resolvers.reject(e);
       }
