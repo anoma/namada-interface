@@ -7,14 +7,12 @@ import { myValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
 import { useAtomValue } from "jotai";
-import { useNavigate } from "react-router-dom";
 import { Address, MyValidator, Validator } from "types";
 import { ValidatorCard } from "./ValidatorCard";
 import { ValidatorsTable } from "./ValidatorsTable";
 import StakingRoutes from "./routes";
 
 export const MyValidatorsTable = (): JSX.Element => {
-  const navigate = useNavigate();
   const myValidators = useAtomValue(myValidatorsAtom);
 
   const validators =
@@ -110,7 +108,7 @@ export const MyValidatorsTable = (): JSX.Element => {
           className="basis-[content] py-1"
           backgroundColor="cyan"
           size="md"
-          onClick={() => navigate(StakingRoutes.incrementBonding().url)}
+          href={StakingRoutes.incrementBonding().url}
         >
           Stake
         </ActionButton>
@@ -118,7 +116,7 @@ export const MyValidatorsTable = (): JSX.Element => {
           className="basis-[content] py-1"
           backgroundColor="white"
           size="md"
-          onClick={() => navigate(StakingRoutes.redelegateBonding().url)}
+          href={StakingRoutes.redelegateBonding().url}
         >
           Redelegate
         </ActionButton>
@@ -130,7 +128,7 @@ export const MyValidatorsTable = (): JSX.Element => {
           textHoverColor="white"
           backgroundHoverColor="pink"
           size="md"
-          onClick={() => navigate(StakingRoutes.unstake().url)}
+          href={StakingRoutes.unstake().url}
         >
           Unstake
         </ActionButton>

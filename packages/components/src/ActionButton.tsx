@@ -2,6 +2,7 @@ import { Color } from "@namada/components/types";
 import { getDefaultColorString } from "@namada/components/utils";
 import clsx from "clsx";
 import { createElement, CSSProperties } from "react";
+import { Link } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { tv, type VariantProps } from "tailwind-variants";
 
@@ -80,7 +81,7 @@ export type ActionButtonProps<HtmlTag extends keyof React.ReactHTML> = {
 } & React.ComponentPropsWithoutRef<HtmlTag> &
   Omit<ButtonTailwindVariantsProps, "noHover" | "outlined">;
 
-export const ActionButton = ({
+const Button = ({
   icon,
   children,
   className,
@@ -92,7 +93,7 @@ export const ActionButton = ({
   backgroundColor: backgroundColorProp,
   backgroundHoverColor: backgroundHoverColorProp,
   textHoverColor: textHoverColorProp,
-  as,
+  as = "button",
   ...domProps
 }: ActionButtonProps<keyof React.ReactHTML>): JSX.Element => {
   const textColor = textColorProp || outlineColor || "black";
@@ -112,7 +113,7 @@ export const ActionButton = ({
     outlined ? getDefaultColorString(outlineColor) : undefined;
 
   return createElement(
-    as ?? ("href" in domProps ? "a" : "button"),
+    as,
     {
       className: twMerge(
         actionButtonShape({
@@ -148,4 +149,24 @@ export const ActionButton = ({
       />
     </>
   );
+};
+
+export const ActionButton = <HtmlTag extends keyof React.ReactHTML>(
+  props: ActionButtonProps<HtmlTag>
+): JSX.Element => {
+  if ("href" in props) {
+    const { href, ...otherProps } = props;
+    if (href) {
+      if (href.startsWith("http")) {
+        return <Button as="a" {...props} />;
+      }
+      return (
+        <Link to={href}>
+          <Button as="div" {...otherProps} />
+        </Link>
+      );
+    }
+  }
+
+  return <Button {...props} />;
 };

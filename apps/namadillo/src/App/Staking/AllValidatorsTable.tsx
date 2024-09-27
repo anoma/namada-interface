@@ -14,7 +14,6 @@ import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Validator } from "types";
 import { ValidatorAlias } from "./ValidatorAlias";
 import { ValidatorThumb } from "./ValidatorThumb";
@@ -32,7 +31,6 @@ export const AllValidatorsTable = ({
 }: AllValidatorsProps): JSX.Element => {
   const validators = useAtomValue(allValidatorsAtom);
   const isConnected = useAtomValue(namadaExtensionConnectedAtom);
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const hasAccount = useUserHasAccount();
 
@@ -123,7 +121,7 @@ export const AllValidatorsTable = ({
             <ActionButton
               size="sm"
               backgroundColor="cyan"
-              onClick={() => navigate(StakingRoutes.incrementBonding().url)}
+              href={StakingRoutes.incrementBonding().url}
             >
               Stake
             </ActionButton>
