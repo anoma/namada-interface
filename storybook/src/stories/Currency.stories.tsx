@@ -7,16 +7,16 @@ export default {
   argTypes: {},
 } as Meta;
 
-type Story = StoryObj<typeof Currency>;
+type Story = StoryObj;
 
 export const Default: Story = {
   args: {
-    currency: "nam",
+    currency: { symbol: "NAM" },
     amount: 1000.56,
-    spaceAroundSign: true,
+    spaceAroundSymbol: true,
     separator: "",
     currencyPosition: "right",
-    currencySignClassName: "text-xl font-light",
+    currencySymbolClassName: "text-xl font-light",
     baseAmountClassName: "text-3xl",
     fractionClassName: "text-sm opacity-20",
     className: "font-medium",

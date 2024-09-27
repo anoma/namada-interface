@@ -29,7 +29,7 @@ const NamBalanceListItem = ({
       <NamCurrency
         amount={amount}
         className="text-lg pl-3.5"
-        currencySignClassName="hidden"
+        currencySymbolClassName="hidden"
       />
     </li>
   );
@@ -50,7 +50,7 @@ export const NamBalanceContainer = (): JSX.Element => {
   } = useBalances();
 
   return (
-    <div className="flex gap-4 text-white">
+    <div className="flex gap-4 text-white pl-4 pr-6 py-5">
       <AtomErrorBoundary
         result={[balanceQuery, stakeQuery]}
         niceError="Unable to load balances"

@@ -3683,6 +3683,7 @@ __metadata:
     bignumber.js: "npm:^9.1.1"
     clsx: "npm:^2.1.1"
     crypto-browserify: "npm:^3.12.0"
+    currency-list: "npm:^1.0.8"
     dotenv: "npm:^16.0.3"
     eslint: "npm:^8.57.0"
     eslint-config-prettier: "npm:^9.1.0"
@@ -8957,6 +8958,13 @@ __metadata:
   version: 3.1.3
   resolution: "csstype@npm:3.1.3"
   checksum: 80c089d6f7e0c5b2bd83cf0539ab41474198579584fa10d86d0cafe0642202343cbc119e076a0b1aece191989477081415d66c9fefbf3c957fc2fc4b7009f248
+  languageName: node
+  linkType: hard
+
+"currency-list@npm:^1.0.8":
+  version: 1.0.8
+  resolution: "currency-list@npm:1.0.8"
+  checksum: 8563987ce681affb9b3d48a54df0565efa14cba75a1a8460d7ee6e0644c2161649438bf32791f33fd68f7c0d8b9fa7c9456a855837d7cda95222d2e506e63031
   languageName: node
   linkType: hard
 
