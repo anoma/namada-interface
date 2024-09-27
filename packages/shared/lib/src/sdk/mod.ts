@@ -1,10 +1,79 @@
 const PREFIX = "Namada::SDK";
+const MASP_MPC_RELEASE_URL =
+  "https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/";
+
+const sha256Hash = async (msg: Uint8Array): Promise<string> => {
+  const hashBuffer = await crypto.subtle.digest("SHA-256", msg);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  // Return hash as hex
+  return hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
+};
+
+enum MaspParam {
+  Output = "masp-output.params",
+  Convert = "masp-convert.params",
+  Spend = "masp-spend.params",
+}
+
+type MaspParamBytes = {
+  param: MaspParam;
+  bytes: Uint8Array;
+};
+
+const MASP_PARAM_ATTR: Record<
+  MaspParam,
+  { length: number; sha256sum: string }
+> = {
+  [MaspParam.Output]: {
+    length: 16398620,
+    sha256sum:
+      "ed8b5d354017d808cfaf7b31eca5c511936e65ef6d276770251f5234ec5328b8",
+  },
+  [MaspParam.Spend]: {
+    length: 49848572,
+    sha256sum:
+      "62b3c60ca54bd99eb390198e949660624612f7db7942db84595fa9f1b4a29fd8",
+  },
+  [MaspParam.Convert]: {
+    length: 22570940,
+    sha256sum:
+      "8e049c905e0e46f27662c7577a4e3480c0047ee1171f7f6d9c5b0de757bf71f1",
+  },
+};
+
+const validateMaspParamBytes = async ({
+  param,
+  bytes,
+}: MaspParamBytes): Promise<Uint8Array> => {
+  const { length, sha256sum } = MASP_PARAM_ATTR[param];
+
+  // Reject if invalid length (incomplete download or invalid)
+  console.info(`Validating data length for ${param}, expecting ${length}...`);
+
+  if (length !== bytes.length) {
+    return Promise.reject(
+      `[${param}]: Invalid data length! Expected ${length}, received ${bytes.length}!`
+    );
+  }
+
+  // Reject if invalid hash (otherwise invalid data)
+  console.info(`Validating sha256sum for ${param}, expecting ${sha256sum}...`);
+  const hash = await sha256Hash(bytes);
+
+  if (hash !== sha256sum) {
+    return Promise.reject(
+      `[${param}]: Invalid sha256sum! Expected ${sha256sum}, received ${hash}!`
+    );
+  }
+
+  return bytes;
+};
 
 export async function hasMaspParams(): Promise<boolean> {
   return (
-    (await has("masp-spend.params")) &&
-    (await has("masp-output.params")) &&
-    (await has("masp-convert.params"))
+    (await has(MaspParam.Spend)) &&
+    (await has(MaspParam.Output)) &&
+    (await has(MaspParam.Convert))
   );
 }
 
@@ -12,35 +81,41 @@ export async function fetchAndStoreMaspParams(
   url?: string
 ): Promise<[void, void, void]> {
   return Promise.all([
-    fetchAndStore("masp-spend.params", url),
-    fetchAndStore("masp-output.params", url),
-    fetchAndStore("masp-convert.params", url),
+    fetchAndStore(MaspParam.Spend, url),
+    fetchAndStore(MaspParam.Output, url),
+    fetchAndStore(MaspParam.Convert, url),
   ]);
 }
 
 export async function getMaspParams(): Promise<[unknown, unknown, unknown]> {
   return Promise.all([
-    get("masp-spend.params"),
-    get("masp-output.params"),
-    get("masp-convert.params"),
+    get(MaspParam.Spend),
+    get(MaspParam.Output),
+    get(MaspParam.Convert),
   ]);
 }
 
 export async function fetchAndStore(
-  params: string,
+  param: MaspParam,
   url?: string
 ): Promise<void> {
-  const data = await fetchParams(params, url);
-  await set(params, data);
+  return await fetchParams(param, url)
+    .then((data) => set(param, data))
+    .catch((e) => {
+      console.warn(`Encountered errors fetching ${param}: ${e}`);
+    });
 }
 
 export async function fetchParams(
-  params: string,
-  url: string = "https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/"
+  param: MaspParam,
+  url: string = MASP_MPC_RELEASE_URL
 ): Promise<Uint8Array> {
-  return fetch(`${url}${params}`)
+  return fetch(`${url}${param}`)
     .then((response) => response.arrayBuffer())
-    .then((ab) => new Uint8Array(ab));
+    .then((ab) => {
+      const bytes = new Uint8Array(ab);
+      return validateMaspParamBytes({ param, bytes });
+    });
 }
 
 function getDB(): Promise<IDBDatabase> {

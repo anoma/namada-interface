@@ -63,7 +63,7 @@ export const SdkProvider: FunctionComponent<PropsWithChildren> = ({
           masp
             .fetchAndStoreMaspParams(paramsUrl)
             .then(() => masp.loadMaspParams(""))
-            .catch((e) => console.error(`${e}`));
+            .catch((e) => console.error(`Error downloading MASP params ${e}`));
         });
       });
     }
