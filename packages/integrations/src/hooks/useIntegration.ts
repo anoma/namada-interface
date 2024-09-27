@@ -13,7 +13,8 @@ import { ChainKey, ExtensionKey } from "@namada/types";
 
 type ExtensionConnection<T, U> = (
   onSuccess: () => T,
-  onFail?: () => U
+  onFail?: () => U,
+  chainId?: string
 ) => Promise<void>;
 
 type IntegrationFromExtensionKey<K extends ExtensionKey> =
@@ -60,21 +61,22 @@ export const useIntegration = <K extends ChainKey>(
  * Tuple of integration, connection status and connection function.
  */
 export const useIntegrationConnection = <TSuccess, TFail, K extends ChainKey>(
-  chainKey: K
+  chainKey: K,
+  chainId?: string
 ): [
-  IntegrationFromChainKey<K>,
-  boolean,
-  ExtensionConnection<TSuccess, TFail>,
-] => {
+    IntegrationFromChainKey<K>,
+    boolean,
+    ExtensionConnection<TSuccess, TFail>,
+  ] => {
   const integration = useIntegration(chainKey);
   const [isConnectingToExtension, setIsConnectingToExtension] = useState(false);
 
   const connect: ExtensionConnection<TSuccess, TFail> = useCallback(
-    async (onSuccess, onFail) => {
+    async (onSuccess, onFail, chainId) => {
       setIsConnectingToExtension(true);
       try {
         if (integration.detect()) {
-          await integration.connect();
+          await integration.connect(chainId);
           await onSuccess();
         }
       } catch {
@@ -84,7 +86,7 @@ export const useIntegrationConnection = <TSuccess, TFail, K extends ChainKey>(
       }
       setIsConnectingToExtension(false);
     },
-    [chainKey]
+    [chainKey, chainId]
   );
 
   return [integration, isConnectingToExtension, connect];

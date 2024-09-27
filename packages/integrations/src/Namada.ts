@@ -28,8 +28,8 @@ export default class Namada implements Integration<Account, Signer> {
     return !!this._namada;
   }
 
-  public async connect(): Promise<void> {
-    await this._namada?.connect();
+  public async connect(chainId?: string): Promise<void> {
+    await this._namada?.connect(chainId);
   }
 
   public async disconnect(): Promise<void> {

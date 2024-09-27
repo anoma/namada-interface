@@ -118,7 +118,7 @@ export class ApproveConnectInterfaceMsg extends Message<void> {
     return MessageType.ApproveConnectInterface;
   }
 
-  constructor() {
+  constructor(public readonly chainId?: string) {
     super();
   }
 

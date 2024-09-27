@@ -30,10 +30,10 @@ export class Namada implements INamada {
     protected readonly requester?: MessageRequester
   ) {}
 
-  public async connect(): Promise<void> {
+  public async connect(chainId?: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveConnectInterfaceMsg()
+      new ApproveConnectInterfaceMsg(chainId)
     );
   }
 
