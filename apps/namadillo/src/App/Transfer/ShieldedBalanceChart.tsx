@@ -2,10 +2,9 @@ import { Heading, PieChart, SkeletonLoading } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { useBalances } from "hooks/useBalances";
 import { colors } from "theme";
-import { NamCurrency } from "../Common/NamCurrency";
 
 export const ShieldedBalanceChart = (): JSX.Element => {
-  const { isLoading, isSuccess, shieldedAmount } = useBalances();
+  const { isLoading, isSuccess } = useBalances();
 
   return (
     <AtomErrorBoundary
@@ -13,7 +12,7 @@ export const ShieldedBalanceChart = (): JSX.Element => {
       result={[]}
       niceError="Unable to load balance"
     >
-      <div className="flex-1 w-full h-full">
+      <div className="flex w-full h-[260px]">
         {isLoading && (
           <SkeletonLoading
             height="auto"
@@ -33,12 +32,7 @@ export const ShieldedBalanceChart = (): JSX.Element => {
               <Heading className="text-sm" level="h3">
                 Shielded Balance
               </Heading>
-              <NamCurrency
-                // TODO shieldedAmount
-                amount={shieldedAmount}
-                className="text-2xl"
-                currencySignClassName="block text-xs"
-              />
+              <div className="text-2xl sm:text-3xl">$9999.99</div>
             </div>
           </PieChart>
         )}

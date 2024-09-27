@@ -6,7 +6,6 @@ import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { useUserHasAccount } from "hooks/useUserHasAccount";
 import { useAtomValue } from "jotai";
 import { ShieldedBalanceChart } from "./ShieldedBalanceChart";
-import { ShieldedEstimatedRewards } from "./ShieldedEstimatedRewards";
 import { ShieldedNamBalance } from "./ShieldedNamBalance";
 import { ShieldedOverviewPanel } from "./ShieldedOverviewPanel";
 
@@ -24,15 +23,12 @@ export const MaspOverview: React.FC = () => {
           <ConnectBanner text="To shield assets please create or import an account using Namada keychain" />
         )}
         {isConnected && hasAccount && (
-          <div className="flex flex-col sm:grid sm:grid-cols-[1.25fr_1fr_1fr] gap-2">
+          <div className="flex flex-col sm:grid sm:grid-cols-[2fr_3fr] gap-2">
             <Panel>
               <ShieldedBalanceChart />
             </Panel>
             <Panel>
               <ShieldedNamBalance />
-            </Panel>
-            <Panel>
-              <ShieldedEstimatedRewards />
             </Panel>
           </div>
         )}
