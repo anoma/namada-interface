@@ -135,11 +135,12 @@ const handleConnectInterfaceResponseMsg: (
 ) => InternalHandler<ConnectInterfaceResponseMsg> = (service) => {
   return async (
     { senderTabId: popupTabId },
-    { interfaceOrigin, allowConnection }
+    { interfaceOrigin, chainId, allowConnection }
   ) => {
     return await service.approveConnectionResponse(
       popupTabId,
       interfaceOrigin,
+      chainId,
       allowConnection
     );
   };

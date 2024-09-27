@@ -301,6 +301,7 @@ describe("approvals service", () => {
   describe("approveConnectionResponse", () => {
     it("should approve connection response", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chainId";
       const popupTabId = 1;
       service["resolverMap"] = {
         [popupTabId]: {
@@ -313,6 +314,7 @@ describe("approvals service", () => {
       await service.approveConnectionResponse(
         popupTabId,
         interfaceOrigin,
+        chainId,
         true
       );
 
@@ -324,15 +326,22 @@ describe("approvals service", () => {
 
     it("should throw an error if resolvers are not found", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chainId";
       const popupTabId = 1;
 
       await expect(
-        service.approveConnectionResponse(popupTabId, interfaceOrigin, true)
+        service.approveConnectionResponse(
+          popupTabId,
+          interfaceOrigin,
+          chainId,
+          true
+        )
       ).rejects.toBeDefined();
     });
 
     it("should reject the connection if allowConnection is set to false", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chainId";
       const popupTabId = 1;
       service["resolverMap"] = {
         [popupTabId]: {
@@ -344,6 +353,7 @@ describe("approvals service", () => {
       await service.approveConnectionResponse(
         popupTabId,
         interfaceOrigin,
+        chainId,
         false
       );
 
@@ -414,6 +424,7 @@ describe("approvals service", () => {
 
     it("should reject the connection if revokeConnection is set to false", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chainId";
       const popupTabId = 1;
       service["resolverMap"] = {
         [popupTabId]: {
@@ -425,6 +436,7 @@ describe("approvals service", () => {
       await service.approveConnectionResponse(
         popupTabId,
         interfaceOrigin,
+        chainId,
         false
       );
 

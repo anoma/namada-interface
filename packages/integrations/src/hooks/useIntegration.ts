@@ -15,6 +15,7 @@ import {
 } from "../utils";
 
 type ExtensionConnection<T, U> = (
+  chainId: string,
   onSuccess: () => T,
   onFail?: () => U
 ) => Promise<void>;
@@ -57,11 +58,11 @@ export const useIntegrationConnection = <
   const [isConnectingToExtension, setIsConnectingToExtension] = useState(false);
 
   const connect: ExtensionConnection<TSuccess, TFail> = useCallback(
-    async (onSuccess, onFail) => {
+    async (chainId, onSuccess, onFail) => {
       setIsConnectingToExtension(true);
       try {
         if (integration.detect()) {
-          await integration.connect();
+          await integration.connect(chainId);
           await onSuccess();
         }
       } catch {
@@ -73,7 +74,6 @@ export const useIntegrationConnection = <
     },
     [extensionKey]
   );
-
   return [integration, isConnectingToExtension, connect];
 };
 

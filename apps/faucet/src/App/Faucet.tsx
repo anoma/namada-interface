@@ -242,7 +242,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
             throw new Error("Extension not installed!");
           }
 
-          await integration.connect();
+          await integration.connect("");
           const accounts = await integration.accounts();
           if (accounts) {
             setAccounts(accounts.filter((account) => !account.isShielded));
