@@ -13,7 +13,21 @@ import {
 } from "react";
 import Proxies from "../../scripts/proxies.json";
 
-export const SdkContext = createContext<Sdk | undefined>(undefined);
+export enum MaspParamsStatus {
+  Fetching = "fetching",
+  Loaded = "loaded",
+  Error = "error",
+}
+
+type SdkContext = {
+  sdk?: Sdk;
+  maspParamsStatus?: MaspParamsStatus;
+};
+
+export const SdkContext = createContext<SdkContext>({
+  sdk: undefined,
+  maspParamsStatus: undefined,
+});
 
 const { VITE_PROXY: isProxied } = import.meta.env;
 
@@ -49,6 +63,7 @@ export const SdkProvider: FunctionComponent<PropsWithChildren> = ({
   children,
 }) => {
   const [sdk, setSdk] = useState<Sdk>();
+  const [maspParamsStatus, setMaspParamsStatus] = useState<MaspParamsStatus>();
   const nativeToken = useAtomValue(nativeTokenAddressAtom);
 
   useEffect(() => {
@@ -58,12 +73,19 @@ export const SdkProvider: FunctionComponent<PropsWithChildren> = ({
         const { masp } = sdk;
         masp.hasMaspParams().then((hasMaspParams) => {
           if (hasMaspParams) {
-            return masp.loadMaspParams("").catch((e) => console.error(`${e}`));
+            return masp
+              .loadMaspParams("")
+              .then(() => setMaspParamsStatus(MaspParamsStatus.Loaded))
+              .catch((e) => console.error(`${e}`));
           }
+          setMaspParamsStatus(MaspParamsStatus.Fetching);
           masp
             .fetchAndStoreMaspParams(paramsUrl)
-            .then(() => masp.loadMaspParams(""))
-            .catch((e) => console.error(`Error downloading MASP params ${e}`));
+            .then(() => setMaspParamsStatus(MaspParamsStatus.Loaded))
+            .catch((e) => {
+              setMaspParamsStatus(MaspParamsStatus.Error);
+              console.error(`Error downloading MASP params ${e}`);
+            });
         });
       });
     }
@@ -71,17 +93,13 @@ export const SdkProvider: FunctionComponent<PropsWithChildren> = ({
 
   return (
     <>
-      <SdkContext.Provider value={sdk}> {children} </SdkContext.Provider>
+      <SdkContext.Provider value={{ sdk, maspParamsStatus }}>
+        {children}
+      </SdkContext.Provider>
     </>
   );
 };
 
-export const useSdk = (): Sdk => {
-  const sdkContext = useContext(SdkContext);
-
-  if (!sdkContext) {
-    throw new Error("sdkContext has to be used within <SdkContext.Provider>");
-  }
-
-  return sdkContext;
+export const useSdk = (): SdkContext => {
+  return useContext(SdkContext);
 };
