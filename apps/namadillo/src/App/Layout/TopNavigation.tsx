@@ -1,5 +1,6 @@
 import { ActionButton } from "@namada/components";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
+import { MaspRoutes } from "App/Masp/routes";
 import { SettingsRoutes } from "App/Settings/routes";
 import { MessageRoutes } from "App/SignMessages/routes";
 import {
@@ -37,7 +38,7 @@ export const TopNavigation = (): JSX.Element => {
       <div className="hidden lg:flex gap-2">
         {maspEnabled && (
           <ActionButton
-            href={TransferRoutes.shield().url}
+            href={MaspRoutes.shield().url}
             size="sm"
             className="w-[140px]"
           >
