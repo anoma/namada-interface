@@ -28,7 +28,7 @@ const AsyncNamCurrency = ({
     <NamCurrency
       amount={amount}
       className="block text-center text-3xl leading-none"
-      currencySignClassName="block text-xs mt-1"
+      currencySymbolClassName="block text-xs mt-1"
     />
   );
 };

@@ -8,9 +8,11 @@ type NamCurrencyProps = Omit<
 export const NamCurrency = ({ ...props }: NamCurrencyProps): JSX.Element => {
   return (
     <Currency
-      currency="nam"
+      currency={{
+        symbol: "NAM",
+      }}
       currencyPosition="right"
-      spaceAroundSign={true}
+      spaceAroundSymbol={true}
       {...props}
     />
   );

@@ -47,7 +47,7 @@ export const AccountBalanceContainer = (): JSX.Element => {
             <NamCurrency
               amount={totalBalance}
               className="text-4xl text-white font-medium"
-              currencySignClassName="text-xl ml-2"
+              currencySymbolClassName="text-xl ml-2"
             />
           )}
         </Stack>

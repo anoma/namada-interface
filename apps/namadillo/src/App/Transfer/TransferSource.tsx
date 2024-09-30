@@ -66,8 +66,8 @@ export const TransferSource = ({
       {asset && availableAmount && (
         <footer>
           <AvailableAmountFooter
-            currency={asset?.symbol}
             availableAmount={availableAmount}
+            asset={asset}
             onClickMax={() => onChangeAmount && onChangeAmount(availableAmount)}
           />
         </footer>

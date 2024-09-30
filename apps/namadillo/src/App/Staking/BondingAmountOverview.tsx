@@ -40,7 +40,7 @@ export const BondingAmountOverview = ({
             className={clsx("text-2xl", {
               [updatedValueClassList]: hasUpdatedValue,
             })}
-            currencySignClassName="text-lg"
+            currencySymbolClassName="text-lg"
           />
           {amountToDelegate && amountToDelegate.gt(0) && (
             <span className="text-success text-md font-light mt-1.5 ml-3">

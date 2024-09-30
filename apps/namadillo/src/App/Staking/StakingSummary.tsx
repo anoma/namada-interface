@@ -64,7 +64,7 @@ export const StakingSummary = (): JSX.Element => {
               <NamCurrency
                 amount={availableAmount ?? 0}
                 className="block leading-none"
-                currencySignClassName="block mb-3 mt-0.5 text-sm"
+                currencySymbolClassName="block mb-3 mt-0.5 text-sm"
               />
             }
             callToAction={
