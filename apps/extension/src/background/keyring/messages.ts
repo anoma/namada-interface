@@ -1,4 +1,4 @@
-import { PhraseSize } from "@heliax/namada-sdk/web";
+import { PhraseSize } from "@heliaxdev/namada-sdk/web";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Result } from "@namada/utils";
 import { ResponseSign } from "@zondax/ledger-namada";

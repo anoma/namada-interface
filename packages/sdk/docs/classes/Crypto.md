@@ -1,4 +1,4 @@
-[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / Crypto
+[@heliaxdev/namada-sdk](../README.md) / [Exports](../modules.md) / Crypto
 
 # Class: Crypto
 
@@ -40,7 +40,7 @@ Class Crypto handles AES encryption tasks
 
 #### Defined in
 
-[sdk/src/crypto/crypto.ts:20](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/crypto/crypto.ts#L20)
+[sdk/src/crypto/crypto.ts:20](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/crypto/crypto.ts#L20)
 
 ## Properties
 
@@ -52,7 +52,7 @@ WebAssembly Memory for crypto
 
 #### Defined in
 
-[sdk/src/crypto/crypto.ts:20](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/crypto/crypto.ts#L20)
+[sdk/src/crypto/crypto.ts:20](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/crypto/crypto.ts#L20)
 
 ## Methods
 
@@ -75,7 +75,7 @@ decrypted text
 
 #### Defined in
 
-[sdk/src/crypto/crypto.ts:115](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/crypto/crypto.ts#L115)
+[sdk/src/crypto/crypto.ts:115](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/crypto/crypto.ts#L115)
 
 ___
 
@@ -100,7 +100,7 @@ crypto record
 
 #### Defined in
 
-[sdk/src/crypto/crypto.ts:61](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/crypto/crypto.ts#L61)
+[sdk/src/crypto/crypto.ts:61](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/crypto/crypto.ts#L61)
 
 ___
 
@@ -126,7 +126,7 @@ array of encrypted bytes
 
 #### Defined in
 
-[sdk/src/crypto/crypto.ts:98](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/crypto/crypto.ts#L98)
+[sdk/src/crypto/crypto.ts:98](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/crypto/crypto.ts#L98)
 
 ___
 
@@ -153,7 +153,7 @@ crypto record used for storage
 
 #### Defined in
 
-[sdk/src/crypto/crypto.ts:30](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/crypto/crypto.ts#L30)
+[sdk/src/crypto/crypto.ts:30](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/crypto/crypto.ts#L30)
 
 ___
 
@@ -178,4 +178,4 @@ encryption parameters
 
 #### Defined in
 
-[sdk/src/crypto/crypto.ts:73](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/crypto/crypto.ts#L73)
+[sdk/src/crypto/crypto.ts:73](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/crypto/crypto.ts#L73)

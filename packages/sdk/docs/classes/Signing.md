@@ -1,4 +1,4 @@
-[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / Signing
+[@heliaxdev/namada-sdk](../README.md) / [Exports](../modules.md) / Signing
 
 # Class: Signing
 
@@ -40,7 +40,7 @@ Signing constructor
 
 #### Defined in
 
-[sdk/src/signing.ts:14](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/signing.ts#L14)
+[sdk/src/signing.ts:14](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/signing.ts#L14)
 
 ## Properties
 
@@ -52,7 +52,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/signing.ts:14](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/signing.ts#L14)
+[sdk/src/signing.ts:14](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/signing.ts#L14)
 
 ## Methods
 
@@ -78,7 +78,7 @@ signed tx bytes - Promise resolving to Uint8Array
 
 #### Defined in
 
-[sdk/src/signing.ts:23](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/signing.ts#L23)
+[sdk/src/signing.ts:23](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/signing.ts#L23)
 
 ___
 
@@ -103,7 +103,7 @@ hash and signature
 
 #### Defined in
 
-[sdk/src/signing.ts:41](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/signing.ts#L41)
+[sdk/src/signing.ts:41](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/signing.ts#L41)
 
 ___
 
@@ -129,4 +129,4 @@ void
 
 #### Defined in
 
-[sdk/src/signing.ts:52](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/signing.ts#L52)
+[sdk/src/signing.ts:52](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/signing.ts#L52)

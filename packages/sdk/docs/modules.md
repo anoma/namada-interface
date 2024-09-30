@@ -1,6 +1,6 @@
-[@heliax/namada-sdk](README.md) / Exports
+[@heliaxdev/namada-sdk](README.md) / Exports
 
-# @heliax/namada-sdk
+# @heliaxdev/namada-sdk
 
 ## Table of contents
 
@@ -69,7 +69,7 @@ Address and public key type
 
 #### Defined in
 
-[sdk/src/keys/types.ts:4](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/keys/types.ts#L4)
+[sdk/src/keys/types.ts:4](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/keys/types.ts#L4)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 #### Defined in
 
-[sdk/src/ledger.ts:16](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/ledger.ts#L16)
+[sdk/src/ledger.ts:16](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/ledger.ts#L16)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 #### Defined in
 
-[sdk/src/crypto/types.ts:23](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/crypto/types.ts#L23)
+[sdk/src/crypto/types.ts:23](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/crypto/types.ts#L23)
 
 ___
 
@@ -109,7 +109,7 @@ Balance
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:69](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/rpc/types.ts#L69)
+[sdk/src/rpc/types.ts:69](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/rpc/types.ts#L69)
 
 ___
 
@@ -128,7 +128,7 @@ ___
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:27](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/rpc/types.ts#L27)
+[sdk/src/rpc/types.ts:27](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/rpc/types.ts#L27)
 
 ___
 
@@ -156,7 +156,7 @@ ___
 
 #### Defined in
 
-[sdk/src/crypto/types.ts:42](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/crypto/types.ts#L42)
+[sdk/src/crypto/types.ts:42](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/crypto/types.ts#L42)
 
 ___
 
@@ -169,7 +169,7 @@ Record<address, totalDelegations>
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:51](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/rpc/types.ts#L51)
+[sdk/src/rpc/types.ts:51](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/rpc/types.ts#L51)
 
 ___
 
@@ -182,7 +182,7 @@ Record<address, boolean>
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:57](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/rpc/types.ts#L57)
+[sdk/src/rpc/types.ts:57](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/rpc/types.ts#L57)
 
 ___
 
@@ -201,7 +201,7 @@ ___
 
 #### Defined in
 
-[sdk/src/crypto/types.ts:30](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/crypto/types.ts#L30)
+[sdk/src/crypto/types.ts:30](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/crypto/types.ts#L30)
 
 ___
 
@@ -218,7 +218,7 @@ ___
 
 #### Defined in
 
-[sdk/src/ledger.ts:17](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/ledger.ts#L17)
+[sdk/src/ledger.ts:17](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/ledger.ts#L17)
 
 ___
 
@@ -238,7 +238,7 @@ Shielded keys and address
 
 #### Defined in
 
-[sdk/src/keys/types.ts:19](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/keys/types.ts#L19)
+[sdk/src/keys/types.ts:19](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/keys/types.ts#L19)
 
 ___
 
@@ -255,7 +255,7 @@ ___
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:42](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/rpc/types.ts#L42)
+[sdk/src/rpc/types.ts:42](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/rpc/types.ts#L42)
 
 ___
 
@@ -275,7 +275,7 @@ ___
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:19](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/rpc/types.ts#L19)
+[sdk/src/rpc/types.ts:19](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/rpc/types.ts#L19)
 
 ___
 
@@ -285,7 +285,7 @@ ___
 
 #### Defined in
 
-[shared/src/types.ts:3](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/shared/src/types.ts#L3)
+[shared/src/types.ts:3](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/shared/src/types.ts#L3)
 
 ___
 
@@ -297,7 +297,7 @@ Public and private keypair with address
 
 #### Defined in
 
-[sdk/src/keys/types.ts:12](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/keys/types.ts#L12)
+[sdk/src/keys/types.ts:12](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/keys/types.ts#L12)
 
 ___
 
@@ -317,7 +317,7 @@ ___
 
 #### Defined in
 
-[sdk/src/rpc/types.ts:34](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/rpc/types.ts#L34)
+[sdk/src/rpc/types.ts:34](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/rpc/types.ts#L34)
 
 ## Variables
 
@@ -335,7 +335,7 @@ ___
 
 #### Defined in
 
-[sdk/src/crypto/types.ts:3](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/crypto/types.ts#L3)
+[sdk/src/crypto/types.ts:3](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/crypto/types.ts#L3)
 
 ___
 
@@ -345,7 +345,7 @@ ___
 
 #### Defined in
 
-[sdk/src/ledger.ts:40](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/ledger.ts#L40)
+[sdk/src/ledger.ts:40](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/ledger.ts#L40)
 
 ___
 
@@ -355,7 +355,7 @@ ___
 
 #### Defined in
 
-[shared/src/types.ts:28](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/shared/src/types.ts#L28)
+[shared/src/types.ts:28](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/shared/src/types.ts#L28)
 
 ## Functions
 
@@ -375,7 +375,7 @@ Transport object
 
 #### Defined in
 
-[sdk/src/ledger.ts:36](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/ledger.ts#L36)
+[sdk/src/ledger.ts:36](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/ledger.ts#L36)
 
 ___
 
@@ -395,7 +395,7 @@ Transport object
 
 #### Defined in
 
-[sdk/src/ledger.ts:27](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/ledger.ts#L27)
+[sdk/src/ledger.ts:27](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/ledger.ts#L27)
 
 ___
 
@@ -415,4 +415,4 @@ ___
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:173](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/keys/keys.ts#L173)
+[sdk/src/keys/keys.ts:173](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/keys/keys.ts#L173)

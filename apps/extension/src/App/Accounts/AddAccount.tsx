@@ -2,7 +2,7 @@ import { LedgerError } from "@zondax/ledger-namada";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Ledger, makeBip44Path } from "@heliax/namada-sdk/web";
+import { Ledger, makeBip44Path } from "@heliaxdev/namada-sdk/web";
 import { chains } from "@namada/chains";
 import { ActionButton, Input, ToggleButton } from "@namada/components";
 import { AccountType, DerivedAccount } from "@namada/types";

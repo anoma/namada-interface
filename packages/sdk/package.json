@@ -1,5 +1,5 @@
 {
-  "name": "@heliax/namada-sdk",
+  "name": "@heliaxdev/namada-sdk",
   "version": "0.2.4",
   "description": "Namada SDK package",
   "exports": {
@@ -32,7 +32,7 @@
     "wasm:node:cp": "We need to copy wasm to the shared in dist folder, so it can be imported correctly in node"
   },
   "scripts": {
-    "prepublish": "yarn workspaces focus @heliax/namada-sdk && yarn build",
+    "prepublish": "yarn workspaces focus @heliaxdev/namada-sdk && yarn build",
     "release": "yarn prepublish && release-it --verbose --ci",
     "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
     "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish --ci",

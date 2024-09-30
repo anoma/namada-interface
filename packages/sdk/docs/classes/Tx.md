@@ -1,4 +1,4 @@
-[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / Tx
+[@heliaxdev/namada-sdk](../README.md) / [Exports](../modules.md) / Tx
 
 # Class: Tx
 
@@ -53,7 +53,7 @@ SDK functionality related to transactions
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:55](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L55)
+[sdk/src/tx/tx.ts:55](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L55)
 
 ## Properties
 
@@ -65,7 +65,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:55](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L55)
+[sdk/src/tx/tx.ts:55](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L55)
 
 ## Methods
 
@@ -90,7 +90,7 @@ Append signature for transactions signed by Ledger Hardware Wallet
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:371](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L371)
+[sdk/src/tx/tx.ts:371](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L371)
 
 ___
 
@@ -114,7 +114,7 @@ a serialized TxMsgValue type
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:354](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L354)
+[sdk/src/tx/tx.ts:354](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L354)
 
 ___
 
@@ -141,7 +141,7 @@ promise that resolves to an TxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:176](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L176)
+[sdk/src/tx/tx.ts:176](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L176)
 
 ___
 
@@ -168,7 +168,7 @@ promise that resolves to an TxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:333](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L333)
+[sdk/src/tx/tx.ts:333](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L333)
 
 ___
 
@@ -195,7 +195,7 @@ promise that resolves to an TxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:286](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L286)
+[sdk/src/tx/tx.ts:286](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L286)
 
 ___
 
@@ -222,7 +222,7 @@ promise that resolves to an TxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:263](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L263)
+[sdk/src/tx/tx.ts:263](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L263)
 
 ___
 
@@ -249,7 +249,7 @@ promise that resolves to an TxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:240](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L240)
+[sdk/src/tx/tx.ts:240](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L240)
 
 ___
 
@@ -275,7 +275,7 @@ promise that resolves to an TxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:163](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L163)
+[sdk/src/tx/tx.ts:163](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L163)
 
 ___
 
@@ -302,7 +302,7 @@ promise that resolves to an TxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:89](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L89)
+[sdk/src/tx/tx.ts:89](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L89)
 
 ___
 
@@ -329,7 +329,7 @@ promise that resolves to an TxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:114](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L114)
+[sdk/src/tx/tx.ts:114](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L114)
 
 ___
 
@@ -356,7 +356,7 @@ promise that resolves to an TxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:64](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L64)
+[sdk/src/tx/tx.ts:64](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L64)
 
 ___
 
@@ -383,7 +383,7 @@ promise that resolves to an TxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:197](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L197)
+[sdk/src/tx/tx.ts:197](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L197)
 
 ___
 
@@ -410,7 +410,7 @@ promise that resolves to an TxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:139](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L139)
+[sdk/src/tx/tx.ts:139](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L139)
 
 ___
 
@@ -437,7 +437,7 @@ promise that resolves to an TxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:309](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L309)
+[sdk/src/tx/tx.ts:309](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L309)
 
 ___
 
@@ -464,7 +464,7 @@ promise that resolves to an TxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:219](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L219)
+[sdk/src/tx/tx.ts:219](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L219)
 
 ___
 
@@ -489,7 +489,7 @@ a TxDetails object
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:424](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L424)
+[sdk/src/tx/tx.ts:424](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L424)
 
 ___
 
@@ -513,7 +513,7 @@ Serialized WrapperTxMsgValue
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:412](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L412)
+[sdk/src/tx/tx.ts:412](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L412)
 
 ___
 
@@ -537,4 +537,4 @@ array of inner Tx hashes
 
 #### Defined in
 
-[sdk/src/tx/tx.ts:480](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/tx/tx.ts#L480)
+[sdk/src/tx/tx.ts:480](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/tx/tx.ts#L480)

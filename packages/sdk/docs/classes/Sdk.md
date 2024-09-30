@@ -1,4 +1,4 @@
-[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / Sdk
+[@heliaxdev/namada-sdk](../README.md) / [Exports](../modules.md) / Sdk
 
 # Class: Sdk
 
@@ -62,7 +62,7 @@ API for interacting with Namada SDK
 
 #### Defined in
 
-[sdk/src/sdk.ts:23](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L23)
+[sdk/src/sdk.ts:23](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L23)
 
 ## Properties
 
@@ -74,7 +74,7 @@ Memory accessor for crypto lib
 
 #### Defined in
 
-[sdk/src/sdk.ts:26](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L26)
+[sdk/src/sdk.ts:26](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L26)
 
 ___
 
@@ -86,7 +86,7 @@ Address of chain's native token
 
 #### Defined in
 
-[sdk/src/sdk.ts:28](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L28)
+[sdk/src/sdk.ts:28](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L28)
 
 ___
 
@@ -98,7 +98,7 @@ Instance of Query struct from wasm lib
 
 #### Defined in
 
-[sdk/src/sdk.ts:25](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L25)
+[sdk/src/sdk.ts:25](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L25)
 
 ___
 
@@ -110,7 +110,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/sdk.ts:24](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L24)
+[sdk/src/sdk.ts:24](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L24)
 
 ___
 
@@ -122,7 +122,7 @@ RPC url
 
 #### Defined in
 
-[sdk/src/sdk.ts:27](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L27)
+[sdk/src/sdk.ts:27](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L27)
 
 ## Accessors
 
@@ -140,7 +140,7 @@ Utilities for encrypting and decrypting data
 
 #### Defined in
 
-[sdk/src/sdk.ts:166](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L166)
+[sdk/src/sdk.ts:166](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L166)
 
 ___
 
@@ -158,7 +158,7 @@ key-related functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:142](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L142)
+[sdk/src/sdk.ts:142](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L142)
 
 ___
 
@@ -176,7 +176,7 @@ Masp utilities for handling params
 
 #### Defined in
 
-[sdk/src/sdk.ts:158](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L158)
+[sdk/src/sdk.ts:158](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L158)
 
 ___
 
@@ -194,7 +194,7 @@ mnemonic-related functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:134](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L134)
+[sdk/src/sdk.ts:134](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L134)
 
 ___
 
@@ -212,7 +212,7 @@ rpc client
 
 #### Defined in
 
-[sdk/src/sdk.ts:118](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L118)
+[sdk/src/sdk.ts:118](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L118)
 
 ___
 
@@ -230,7 +230,7 @@ Non-Tx signing functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:150](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L150)
+[sdk/src/sdk.ts:150](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L150)
 
 ___
 
@@ -248,7 +248,7 @@ tx-related functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:126](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L126)
+[sdk/src/sdk.ts:126](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L126)
 
 ## Methods
 
@@ -266,7 +266,7 @@ Utilities for encrypting and decrypting data
 
 #### Defined in
 
-[sdk/src/sdk.ts:100](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L100)
+[sdk/src/sdk.ts:100](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L100)
 
 ___
 
@@ -284,7 +284,7 @@ key-related functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:76](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L76)
+[sdk/src/sdk.ts:76](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L76)
 
 ___
 
@@ -302,7 +302,7 @@ Masp utilities for handling params
 
 #### Defined in
 
-[sdk/src/sdk.ts:92](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L92)
+[sdk/src/sdk.ts:92](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L92)
 
 ___
 
@@ -320,7 +320,7 @@ mnemonic-related functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:68](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L68)
+[sdk/src/sdk.ts:68](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L68)
 
 ___
 
@@ -338,7 +338,7 @@ Namada RPC client
 
 #### Defined in
 
-[sdk/src/sdk.ts:52](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L52)
+[sdk/src/sdk.ts:52](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L52)
 
 ___
 
@@ -356,7 +356,7 @@ Non-Tx signing functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:84](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L84)
+[sdk/src/sdk.ts:84](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L84)
 
 ___
 
@@ -374,7 +374,7 @@ Tx-related functionality
 
 #### Defined in
 
-[sdk/src/sdk.ts:60](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L60)
+[sdk/src/sdk.ts:60](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L60)
 
 ___
 
@@ -400,7 +400,7 @@ Class for interacting with NamadaApp for Ledger Hardware Wallets
 
 #### Defined in
 
-[sdk/src/sdk.ts:110](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L110)
+[sdk/src/sdk.ts:110](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L110)
 
 ___
 
@@ -425,4 +425,4 @@ this instance of Sdk
 
 #### Defined in
 
-[sdk/src/sdk.ts:37](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/sdk.ts#L37)
+[sdk/src/sdk.ts:37](https://github.com/anoma/namada-interface/blob/94680966928a35de6fe585c6a3a29fe406ea8eea/packages/sdk/src/sdk.ts#L37)

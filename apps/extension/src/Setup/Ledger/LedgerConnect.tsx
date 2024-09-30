@@ -1,4 +1,4 @@
-import { Ledger as LedgerApp } from "@heliax/namada-sdk/web";
+import { Ledger as LedgerApp } from "@heliaxdev/namada-sdk/web";
 import { ActionButton, Alert, Image, Stack } from "@namada/components";
 import { LedgerError } from "@zondax/ledger-namada";
 import { LedgerStep } from "Setup/Common";

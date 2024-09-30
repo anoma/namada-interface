@@ -11,10 +11,10 @@ jest.mock("webextension-polyfill", () => ({}));
 
 // Because we run tests in node environment, we need to mock web-init as node-init
 jest.mock(
-  "@heliax/namada-sdk/web-init",
+  "@heliaxdev/namada-sdk/web-init",
   () => () =>
     Promise.resolve(
-      jest.requireActual("@heliax/namada-sdk/node-init").default()
+      jest.requireActual("@heliaxdev/namada-sdk/node-init").default()
     )
 );
 

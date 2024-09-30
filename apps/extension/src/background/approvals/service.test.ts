@@ -36,10 +36,10 @@ jest.mock("@namada/utils", () => {
 
 // Because we run tests in node environment, we need to mock web-init as node-init
 jest.mock(
-  "@heliax/namada-sdk/web-init",
+  "@heliaxdev/namada-sdk/web-init",
   () => () =>
     Promise.resolve(
-      jest.requireActual("@heliax/namada-sdk/node-init").default()
+      jest.requireActual("@heliaxdev/namada-sdk/node-init").default()
     )
 );
 
@@ -510,7 +510,7 @@ describe("approvals service", () => {
   describe("getResolver", () => {
     it("should get the related tab id resolver from resolverMap", async () => {
       const popupTabId = 1;
-      const resolver = { resolve: () => {}, reject: () => {} };
+      const resolver = { resolve: () => { }, reject: () => { } };
       service["resolverMap"] = {
         [popupTabId]: resolver,
       };
@@ -521,7 +521,7 @@ describe("approvals service", () => {
     it("should throw an error if there is no resolver for the tab id", async () => {
       const popupTabId = 1;
       service["resolverMap"] = {
-        [popupTabId]: { resolve: () => {}, reject: () => {} },
+        [popupTabId]: { resolve: () => { }, reject: () => { } },
       };
 
       expect(() => service["getResolver"](999)).toThrow();
@@ -532,7 +532,7 @@ describe("approvals service", () => {
     it("should remove related tab id resolver from resolverMap", async () => {
       const popupTabId = 1;
       service["resolverMap"] = {
-        [popupTabId]: { resolve: () => {}, reject: () => {} },
+        [popupTabId]: { resolve: () => { }, reject: () => { } },
       };
       service["removeResolver"](popupTabId);
 
