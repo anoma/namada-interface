@@ -1,4 +1,5 @@
 import { Router } from "@remix-run/router";
+import { applicationFeaturesAtom } from "atoms/settings";
 import { useAtomValue } from "jotai";
 import {
   Route,
@@ -10,21 +11,20 @@ import {
 } from "react-router-dom";
 import { AccountOverview } from "./AccountOverview";
 import { App } from "./App";
+import { NotFound } from "./Common/NotFound";
 import { RouteErrorBoundary } from "./Common/RouteErrorBoundary";
 import { Governance } from "./Governance";
-import { Ibc } from "./Ibc";
-import { SettingsPanel } from "./Settings/SettingsPanel";
-import { Staking } from "./Staking";
-import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
-
-import { applicationFeaturesAtom } from "atoms/settings";
 import { GovernanceRoutes } from "./Governance/routes";
+import { Ibc } from "./Ibc";
 import { IbcRoutes } from "./Ibc/routes";
+import { SettingsPanel } from "./Settings/SettingsPanel";
 import { SettingsRoutes } from "./Settings/routes";
 import { SignMessages } from "./SignMessages/SignMessages";
 import { MessageRoutes } from "./SignMessages/routes";
+import { Staking } from "./Staking";
 import { StakingRewards } from "./Staking/StakingRewards";
 import { StakingRoutes } from "./Staking/routes";
+import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
 import { SwitchAccountRoutes } from "./SwitchAccount/routes";
 import { Transfer } from "./Transfer/Transfer";
 import { TransferRoutes } from "./Transfer/routes";
@@ -54,6 +54,7 @@ export const MainRoutes = (): JSX.Element => {
           {features.ibcTransfersEnabled && (
             <Route path={`${IbcRoutes.index()}/*`} element={<Ibc />} />
           )}
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
       <Routes location={location} key={settingsAnimationKey}>
