@@ -17,6 +17,8 @@ import { Governance } from "./Governance";
 import { GovernanceRoutes } from "./Governance/routes";
 import { Ibc } from "./Ibc";
 import { IbcRoutes } from "./Ibc/routes";
+import { Masp } from "./Masp/Masp";
+import { MaspRoutes } from "./Masp/routes";
 import { SettingsPanel } from "./Settings/SettingsPanel";
 import { SettingsRoutes } from "./Settings/routes";
 import { SignMessages } from "./SignMessages/SignMessages";
@@ -50,6 +52,7 @@ export const MainRoutes = (): JSX.Element => {
             path={`${GovernanceRoutes.index()}/*`}
             element={<Governance />}
           />
+          <Route path={`${MaspRoutes.index()}/*`} element={<Masp />} />
           <Route path={`${TransferRoutes.index()}/*`} element={<Transfer />} />
           {features.ibcTransfersEnabled && (
             <Route path={`${IbcRoutes.index()}/*`} element={<Ibc />} />

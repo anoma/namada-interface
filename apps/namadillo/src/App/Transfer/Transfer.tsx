@@ -1,7 +1,6 @@
 import { NotFound } from "App/Common/NotFound";
 import { Route, Routes } from "react-router-dom";
 import { Example } from "./Example";
-import { MaspOverview } from "./MaspOverview";
 import { NamTransfer } from "./NamTransfer";
 import { Shield } from "./Shield";
 import { ShieldAll } from "./ShieldAll";
@@ -9,7 +8,6 @@ import { TransferRoutes } from "./routes";
 
 export const Transfer: React.FC = () => (
   <Routes>
-    <Route path={TransferRoutes.masp().toString()} element={<MaspOverview />} />
     <Route
       path={TransferRoutes.namTransfer().toString()}
       element={<NamTransfer />}

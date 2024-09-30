@@ -1,6 +1,10 @@
 import { SidebarMenuItem } from "App/Common/SidebarMenuItem";
 import { GovernanceRoutes } from "App/Governance/routes";
+import { IbcRoutes } from "App/Ibc/routes";
 import { MASPIcon } from "App/Icons/MASPIcon";
+import { MaspRoutes } from "App/Masp/routes";
+import { StakingRoutes } from "App/Staking/routes";
+import { applicationFeaturesAtom } from "atoms/settings";
 import { useAtomValue } from "jotai";
 import { AiFillHome } from "react-icons/ai";
 import { BsDiscord, BsTwitterX } from "react-icons/bs";
@@ -9,11 +13,6 @@ import { GoStack } from "react-icons/go";
 import { IoSwapHorizontal } from "react-icons/io5";
 import { TbVectorTriangle } from "react-icons/tb";
 import { DISCORD_URL, TWITTER_URL } from "urls";
-
-import { IbcRoutes } from "App/Ibc/routes";
-import { StakingRoutes } from "App/Staking/routes";
-import { TransferRoutes } from "App/Transfer/routes";
-import { applicationFeaturesAtom } from "atoms/settings";
 
 export const Navigation = (): JSX.Element => {
   const features = useAtomValue(applicationFeaturesAtom);
@@ -37,7 +36,7 @@ export const Navigation = (): JSX.Element => {
     {
       label: "MASP",
       icon: <MASPIcon />,
-      url: features.maspEnabled ? TransferRoutes.masp().url : undefined,
+      url: features.maspEnabled ? MaspRoutes.index() : undefined,
     },
     {
       label: "IBC Transfer",
