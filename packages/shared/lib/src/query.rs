@@ -359,13 +359,7 @@ impl Query {
         let mut shielded_context: ShieldedContext<JSShieldedUtils> = ShieldedContext::default();
 
         shielded_context
-            .sync(
-                env,
-                config,
-                None,
-                &[],
-                dated_keypairs.as_slice(),
-            )
+            .sync(env, config, None, &[], dated_keypairs.as_slice())
             .await
             .map_err(|e| JsError::new(&format!("{:?}", e)))?;
 
