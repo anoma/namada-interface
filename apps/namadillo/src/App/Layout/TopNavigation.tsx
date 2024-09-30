@@ -1,7 +1,7 @@
 import { ActionButton } from "@namada/components";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
-import SettingsRoutes from "App/Settings/routes";
-import MessageRoutes from "App/SignMessages/routes";
+import { SettingsRoutes } from "App/Settings/routes";
+import { MessageRoutes } from "App/SignMessages/routes";
 import {
   applicationFeaturesAtom,
   namadaExtensionConnectedAtom,
@@ -11,7 +11,7 @@ import { useAtomValue } from "jotai";
 import { AiOutlineMessage } from "react-icons/ai";
 import { IoSettingsOutline } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
-import TransferRoutes from "../Transfer/routes";
+import { TransferRoutes } from "../Transfer/routes";
 import { ActiveAccount } from "./ActiveAccount";
 import { SyncIndicator } from "./SyncIndicator";
 

@@ -1,5 +1,5 @@
 import { NamInput, NamInputProps } from "App/Common/NamInput";
-import StakingRoutes from "App/Staking/routes";
+import { StakingRoutes } from "App/Staking/routes";
 import clsx from "clsx";
 import { Link } from "react-router-dom";
 import { twMerge } from "tailwind-merge";

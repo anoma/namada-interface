@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useSanitizedParams } from "@namada/hooks";
-import GovernanceRoutes from "App/Governance/routes";
+import { GovernanceRoutes } from "App/Governance/routes";
 
 const parseProposalId = (asString: string | undefined): bigint | null => {
   if (typeof asString === "undefined") {

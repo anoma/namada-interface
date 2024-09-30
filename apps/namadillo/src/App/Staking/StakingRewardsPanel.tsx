@@ -1,6 +1,6 @@
 import { ActionButton, AmountSummaryCard } from "@namada/components";
 import { NamCurrency } from "App/Common/NamCurrency";
-import StakingRoutes from "App/Staking/routes";
+import { StakingRoutes } from "App/Staking/routes";
 import { applicationFeaturesAtom } from "atoms/settings";
 import { claimableRewardsAtom } from "atoms/staking";
 import BigNumber from "bignumber.js";

@@ -27,7 +27,7 @@ import {
   TypeLabel as TypeLabelComponent,
   VotedLabel as VotedLabelComponent,
 } from "./ProposalLabels";
-import GovernanceRoutes from "./routes";
+import { GovernanceRoutes } from "./routes";
 
 export const ProposalHeader: React.FC<{
   proposalId: bigint;

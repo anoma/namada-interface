@@ -1,6 +1,6 @@
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { ErrorBox } from "App/Common/ErrorBox";
-import SettingsRoutes from "App/Settings/routes";
+import { SettingsRoutes } from "App/Settings/routes";
 import { chainAtom } from "atoms/chain";
 import { useAtomValue } from "jotai";
 import { ReactNode } from "react";

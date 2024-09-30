@@ -4,7 +4,7 @@ import { MaspOverview } from "./MaspOverview";
 import { NamTransfer } from "./NamTransfer";
 import { Shield } from "./Shield";
 import { ShieldAll } from "./ShieldAll";
-import TransferRoutes from "./routes";
+import { TransferRoutes } from "./routes";
 
 export const Transfer: React.FC = () => (
   <main className="w-full">

@@ -18,16 +18,16 @@ import { Staking } from "./Staking";
 import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
 
 import { applicationFeaturesAtom } from "atoms/settings";
-import GovernanceRoutes from "./Governance/routes";
-import IbcRoutes from "./Ibc/routes";
-import SettingsRoutes from "./Settings/routes";
+import { GovernanceRoutes } from "./Governance/routes";
+import { IbcRoutes } from "./Ibc/routes";
+import { SettingsRoutes } from "./Settings/routes";
 import { SignMessages } from "./SignMessages/SignMessages";
-import MessageRoutes from "./SignMessages/routes";
+import { MessageRoutes } from "./SignMessages/routes";
 import { StakingRewards } from "./Staking/StakingRewards";
-import StakingRoutes from "./Staking/routes";
-import SwitchAccountRoutes from "./SwitchAccount/routes";
+import { StakingRoutes } from "./Staking/routes";
+import { SwitchAccountRoutes } from "./SwitchAccount/routes";
 import { Transfer } from "./Transfer/Transfer";
-import TransferRoutes from "./Transfer/routes";
+import { TransferRoutes } from "./Transfer/routes";
 
 export const MainRoutes = (): JSX.Element => {
   const location = useLocation();

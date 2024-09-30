@@ -1,6 +1,6 @@
 import { version } from "../../../package.json";
 import { SettingsPanelMenuItem } from "./SettingsPanelMenuItem";
-import SettingsRoutes from "./routes";
+import { SettingsRoutes } from "./routes";
 
 export const SettingsMain = (): JSX.Element => {
   return (

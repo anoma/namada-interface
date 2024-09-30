@@ -18,7 +18,7 @@ import { Validator } from "types";
 import { ValidatorAlias } from "./ValidatorAlias";
 import { ValidatorThumb } from "./ValidatorThumb";
 import { ValidatorsTable } from "./ValidatorsTable";
-import StakingRoutes from "./routes";
+import { StakingRoutes } from "./routes";
 
 type AllValidatorsProps = {
   resultsPerPage?: number;

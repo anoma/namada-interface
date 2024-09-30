@@ -18,7 +18,7 @@ import { AddressBalance, Validator } from "types";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { ReDelegateAssignStake } from "./ReDelegateAssignStake";
 import { ReDelegateRemoveStake } from "./ReDelegateRemoveStake";
-import StakingRoutes from "./routes";
+import { StakingRoutes } from "./routes";
 
 export const ReDelegate = (): JSX.Element => {
   const [step, setStep] = useState<"remove" | "assign">("remove");

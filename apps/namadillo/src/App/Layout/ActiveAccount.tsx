@@ -1,5 +1,5 @@
 import { CopyToClipboardControl, Tooltip } from "@namada/components";
-import SwitchAccountRoutes from "App/SwitchAccount/routes";
+import { SwitchAccountRoutes } from "App/SwitchAccount/routes";
 import { defaultAccountAtom, disconnectAccountAtom } from "atoms/accounts";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";

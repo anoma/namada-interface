@@ -1,5 +1,5 @@
 export const index = (): string => `/ibc`;
 
-export default {
+export const IbcRoutes = {
   index,
 };

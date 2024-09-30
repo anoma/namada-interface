@@ -1,6 +1,6 @@
 import { ActionButton } from "@namada/components";
 import svgImg from "App/Assets/ShieldedParty.svg";
-import TransferRoutes from "App/Transfer/routes";
+import { TransferRoutes } from "App/Transfer/routes";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { twMerge } from "tailwind-merge";

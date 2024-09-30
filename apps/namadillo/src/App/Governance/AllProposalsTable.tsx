@@ -17,7 +17,7 @@ import {
   secondsToTimeString,
 } from "utils";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
-import GovernanceRoutes from "./routes";
+import { GovernanceRoutes } from "./routes";
 
 const Table: React.FC<
   {

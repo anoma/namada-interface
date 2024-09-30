@@ -9,7 +9,7 @@ import { Advanced } from "./Advanced";
 import { EnableFeatures } from "./EnableFeatures";
 import { SettingsMain } from "./SettingsMain";
 import { SettingsSignArbitrary } from "./SettingsSignArbitrary";
-import SettingsRoutes from "./routes";
+import { SettingsRoutes } from "./routes";
 
 export const SettingsPanel = (): JSX.Element => {
   const location = useLocation();

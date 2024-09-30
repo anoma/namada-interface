@@ -23,7 +23,7 @@ import { ValidatorFilterOptions } from "types";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { IncrementBondingTable } from "./IncrementBondingTable";
 import { ValidatorFilterNav } from "./ValidatorFilterNav";
-import StakingRoutes from "./routes";
+import { StakingRoutes } from "./routes";
 
 const IncrementBonding = (): JSX.Element => {
   const [filter, setFilter] = useState<string>("");

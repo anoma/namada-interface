@@ -3,7 +3,7 @@ mockReactRouterDom("/");
 mockJotai();
 
 import { fireEvent, render, screen } from "@testing-library/react";
-import StakingRoutes from "App/Staking/routes";
+import { StakingRoutes } from "App/Staking/routes";
 import { StakingRewardsPanel } from "App/Staking/StakingRewardsPanel";
 import { applicationFeaturesAtom } from "atoms/settings";
 import { claimableRewardsAtom } from "atoms/staking";

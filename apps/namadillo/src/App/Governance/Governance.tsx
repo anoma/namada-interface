@@ -3,7 +3,7 @@ import { GovernanceOverview } from "./GovernanceOverview";
 import { ProposalAndVote } from "./ProposalAndVote";
 import { SubmitVote } from "./SubmitVote";
 import { ViewJson } from "./ViewJson";
-import GovernanceRoutes from "./routes";
+import { GovernanceRoutes } from "./routes";
 
 export const Governance: React.FC = () => (
   <main className="w-full">

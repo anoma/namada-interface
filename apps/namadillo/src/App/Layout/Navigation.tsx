@@ -1,5 +1,5 @@
 import { SidebarMenuItem } from "App/Common/SidebarMenuItem";
-import GovernanceRoutes from "App/Governance/routes";
+import { GovernanceRoutes } from "App/Governance/routes";
 import { MASPIcon } from "App/Icons/MASPIcon";
 import { useAtomValue } from "jotai";
 import { AiFillHome } from "react-icons/ai";
@@ -10,9 +10,9 @@ import { IoSwapHorizontal } from "react-icons/io5";
 import { TbVectorTriangle } from "react-icons/tb";
 import { DISCORD_URL, TWITTER_URL } from "urls";
 
-import IbcRoutes from "App/Ibc/routes";
-import StakingRoutes from "App/Staking/routes";
-import TransferRoutes from "App/Transfer/routes";
+import { IbcRoutes } from "App/Ibc/routes";
+import { StakingRoutes } from "App/Staking/routes";
+import { TransferRoutes } from "App/Transfer/routes";
 import { applicationFeaturesAtom } from "atoms/settings";
 
 export const Navigation = (): JSX.Element => {

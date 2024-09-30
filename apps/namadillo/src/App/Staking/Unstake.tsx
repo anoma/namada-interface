@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { MyValidator } from "types";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { UnstakeBondingTable } from "./UnstakeBondingTable";
-import StakingRoutes from "./routes";
+import { StakingRoutes } from "./routes";
 
 const Unstake = (): JSX.Element => {
   const navigate = useNavigate();

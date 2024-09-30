@@ -12,4 +12,10 @@ export const features = (): RouteOutput => routeOutput("/features");
 
 export const signArbitrary = (): RouteOutput => routeOutput("/sign-arbitrary");
 
-export default { index, currencySelection, advanced, signArbitrary, features };
+export const SettingsRoutes = {
+  index,
+  currencySelection,
+  advanced,
+  signArbitrary,
+  features,
+};

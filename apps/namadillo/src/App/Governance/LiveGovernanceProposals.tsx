@@ -6,7 +6,7 @@ import { GoInfo } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { secondsToDateTimeString } from "utils";
 import { StatusLabel, TypeLabel, VotedLabel } from "./ProposalLabels";
-import GovernanceRoutes from "./routes";
+import { GovernanceRoutes } from "./routes";
 import { colors } from "./types";
 
 const ProposalListItem: React.FC<{
@@ -85,8 +85,9 @@ export const LiveGovernanceProposals: React.FC<
         className="dark-scrollbar overscroll-contain overflow-x-auto"
       >
         {proposals.map((proposal) => {
-          const vote = votedProposals.find((v) => v.proposalId === proposal.id)
-            ?.vote;
+          const vote = votedProposals.find(
+            (v) => v.proposalId === proposal.id
+          )?.vote;
           return (
             <ProposalListItem
               proposal={proposal}

@@ -1,5 +1,5 @@
 import { SegmentedBar, Stack } from "@namada/components";
-import GovernanceRoutes from "./routes";
+import { GovernanceRoutes } from "./routes";
 
 import { Proposal } from "@namada/types";
 import clsx from "clsx";

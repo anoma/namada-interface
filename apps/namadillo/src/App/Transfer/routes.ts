@@ -16,7 +16,7 @@ export const shieldAll = (): RouteOutput => routeOutput(`/shield-all`);
 
 export const example = (): RouteOutput => routeOutput(`/example`);
 
-export default {
+export const TransferRoutes = {
   index,
   overview,
   masp,

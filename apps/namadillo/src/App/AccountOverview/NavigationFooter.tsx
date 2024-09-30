@@ -1,6 +1,6 @@
 import { ActionButton, Heading, Stack } from "@namada/components";
-import GovernanceRoutes from "App/Governance/routes";
-import StakingRoutes from "App/Staking/routes";
+import { GovernanceRoutes } from "App/Governance/routes";
+import { StakingRoutes } from "App/Staking/routes";
 
 export const NavigationFooter = (): JSX.Element => {
   return (

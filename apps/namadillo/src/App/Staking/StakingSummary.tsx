@@ -8,7 +8,7 @@ import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { BalanceChart } from "App/Common/BalanceChart";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { useBalances } from "hooks/useBalances";
-import StakingRoutes from "./routes";
+import { StakingRoutes } from "./routes";
 import { StakingRewardsPanel } from "./StakingRewardsPanel";
 
 export const StakingSummary = (): JSX.Element => {

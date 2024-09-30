@@ -10,7 +10,7 @@ import clsx from "clsx";
 import { useProposalIdParam } from "hooks";
 import { useState } from "react";
 import { GoCheck, GoCopy } from "react-icons/go";
-import GovernanceRoutes from "./routes";
+import { GovernanceRoutes } from "./routes";
 
 type DefaultData = Uint8Array;
 

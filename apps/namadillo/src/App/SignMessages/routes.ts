@@ -1,4 +1,5 @@
 export const index = (): string => `/sign-messages`;
-export default {
+
+export const MessageRoutes = {
   index,
 };

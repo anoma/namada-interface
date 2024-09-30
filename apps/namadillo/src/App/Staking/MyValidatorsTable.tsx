@@ -10,7 +10,7 @@ import { useAtomValue } from "jotai";
 import { Address, MyValidator, Validator } from "types";
 import { ValidatorCard } from "./ValidatorCard";
 import { ValidatorsTable } from "./ValidatorsTable";
-import StakingRoutes from "./routes";
+import { StakingRoutes } from "./routes";
 
 export const MyValidatorsTable = (): JSX.Element => {
   const myValidators = useAtomValue(myValidatorsAtom);

@@ -26,7 +26,7 @@ export const validatorDetailsOwner = (
 
 export const unstake = (): RouteOutput => routeOutput("/bonding/unstake");
 
-export default {
+export const StakingRoutes = {
   index,
   manage,
   overview,

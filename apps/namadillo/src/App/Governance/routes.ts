@@ -18,7 +18,7 @@ export const viewJson = (proposalId?: bigint): RouteOutput =>
 const proposalIdString = (proposalId?: bigint): string =>
   typeof proposalId === "undefined" ? ":proposalId" : proposalId.toString();
 
-export default {
+export const GovernanceRoutes = {
   index,
   overview,
   proposal,
