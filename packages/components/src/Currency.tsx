@@ -1,14 +1,20 @@
-import { KnownCurrencies } from "@namada/utils";
 import BigNumber from "bignumber.js";
+
+export type CurrencyObject = {
+  symbol: string;
+  singular?: string;
+  plural?: string;
+  fraction?: string;
+};
 
 export type CurrencyProps = {
   amount: number | BigNumber;
   hideBalances?: boolean;
-  currency: keyof typeof KnownCurrencies;
+  currency: CurrencyObject;
   separator?: "." | "," | "";
-  spaceAroundSign?: boolean;
+  spaceAroundSymbol?: boolean;
   currencyPosition?: "left" | "right";
-  currencySignClassName?: string;
+  currencySymbolClassName?: string;
   baseAmountClassName?: string;
   fractionClassName?: string;
 } & React.ComponentPropsWithoutRef<"span">;
@@ -20,23 +26,22 @@ export const Currency = ({
   currencyPosition = "left",
   separator = ".",
   className = "",
-  spaceAroundSign = false,
-  currencySignClassName = "",
+  spaceAroundSymbol = false,
+  currencySymbolClassName = "",
   baseAmountClassName = "",
   fractionClassName = "",
   ...containerRest
 }: CurrencyProps): JSX.Element => {
-  const currencyObj = KnownCurrencies[currency];
   const amountParts = BigNumber(amount).toFormat().split(".");
   const baseAmount = hideBalances ? "✳✳✳✳" : amountParts[0] || "0";
   const fraction =
     amountParts.length > 1 && !hideBalances ? amountParts[1] : "";
 
   const currencyHtml = (
-    <span className={currencySignClassName}>
-      {spaceAroundSign && currencyPosition === "right" ? " " : null}
-      {currencyObj.sign}
-      {spaceAroundSign && currencyPosition === "left" ? " " : null}
+    <span className={currencySymbolClassName}>
+      {spaceAroundSymbol && currencyPosition === "right" ? " " : null}
+      {currency.symbol}
+      {spaceAroundSymbol && currencyPosition === "left" ? " " : null}
     </span>
   );
 
@@ -49,10 +54,11 @@ export const Currency = ({
   );
 
   const amountText =
-    BigNumber(baseAmount).eq(1) ? currencyObj.singular : currencyObj.plural;
+    (BigNumber(baseAmount).eq(1) ? currency.singular : currency.plural) ||
+    currency.symbol;
 
   const centsText =
-    BigNumber(fraction).gt(0) ? ` and ${fraction} ${currencyObj.fraction}` : "";
+    BigNumber(fraction).gt(0) ? ` and ${fraction} ${currency.fraction}` : "";
 
   const screenReaderText = `${baseAmount} ${amountText}${centsText}`;
 

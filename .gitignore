@@ -16,6 +16,7 @@ docker/namadillo.config.toml
 debug/
 target/
 # misc
+.notes
 .DS_Store
 .env.local
 .env.development.local

@@ -1,4 +1,4 @@
-import { CurrencyType, isUrlValid, sanitizeUrl } from "@namada/utils";
+import { isUrlValid, sanitizeUrl } from "@namada/utils";
 import { indexerRpcUrlAtom } from "atoms/chain";
 import { Getter, Setter, atom, getDefaultStore } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
@@ -83,11 +83,6 @@ const changeSettingsUrl =
       );
     }
   };
-
-export const selectedCurrencyAtom = atom(
-  (get) => get(settingsAtom).fiat,
-  changeSettings<CurrencyType>("fiat")
-);
 
 /**
  * Returns RPC Url.

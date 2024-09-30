@@ -63,7 +63,7 @@ export const BalanceChart = ({
         <NamCurrency
           amount={balance}
           className="text-2xl"
-          currencySignClassName="block mb-1 text-xs ml-1"
+          currencySymbolClassName="block mb-1 text-xs ml-1"
         />
       </div>
     );

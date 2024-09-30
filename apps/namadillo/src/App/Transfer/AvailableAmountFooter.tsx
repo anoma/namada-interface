@@ -1,24 +1,24 @@
-import { ActionButton, Currency } from "@namada/components";
-import { KnownCurrencies } from "@namada/utils";
+import { Asset } from "@chain-registry/types";
+import { ActionButton } from "@namada/components";
+import { TokenCurrency } from "App/Common/TokenCurrency";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 
 type AvailableAmountFooterProps = {
   availableAmount?: BigNumber;
-  currency?: keyof typeof KnownCurrencies;
+  asset?: Asset;
   onClickMax?: () => void;
 };
 
 export const AvailableAmountFooter = ({
   availableAmount,
-  currency,
+  asset,
   onClickMax,
 }: AvailableAmountFooterProps): JSX.Element => {
-  if (!currency || availableAmount === undefined) {
+  if (availableAmount === undefined || !asset) {
     return <></>;
   }
 
-  // TODO: Replace <Currency /> usage here
   return (
     <div
       className={clsx(
@@ -27,12 +27,7 @@ export const AvailableAmountFooter = ({
     >
       <span className="flex gap-2">
         Available:
-        <Currency
-          amount={availableAmount}
-          currency="nam"
-          spaceAroundSign={true}
-          currencyPosition="right"
-        />
+        <TokenCurrency amount={availableAmount} asset={asset} />
       </span>
       <span>
         {onClickMax && (

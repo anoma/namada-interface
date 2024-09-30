@@ -1,4 +1,6 @@
+import { Asset } from "@chain-registry/types";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { assetMock } from "App/Transfer/__mocks__/assets";
 import BigNumber from "bignumber.js";
 import { AvailableAmountFooter } from "../AvailableAmountFooter";
 
@@ -12,14 +14,14 @@ describe("Component: AvailableAmountFooter", () => {
     const callback = jest.fn();
     render(
       <AvailableAmountFooter
-        currency="nam"
         availableAmount={new BigNumber(1234.456)}
+        asset={assetMock as Asset}
         onClickMax={callback}
       />
     );
     const amount = screen.getByText("1,234");
     const button = screen.getByRole("button");
-    expect(amount.parentNode?.textContent).toContain("1,234.456 NAM");
+    expect(amount.parentNode?.textContent).toContain("1,234.456 ETH");
     expect(button).toBeEnabled();
     fireEvent.click(button);
     expect(callback).toHaveBeenCalledTimes(1);
@@ -29,7 +31,7 @@ describe("Component: AvailableAmountFooter", () => {
     render(
       <AvailableAmountFooter
         availableAmount={new BigNumber(100)}
-        currency="nam"
+        asset={assetMock as Asset}
       />
     );
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
@@ -40,7 +42,7 @@ describe("Component: AvailableAmountFooter", () => {
     render(
       <AvailableAmountFooter
         availableAmount={new BigNumber(0)}
-        currency="nam"
+        asset={assetMock as Asset}
         onClickMax={callback}
       />
     );
