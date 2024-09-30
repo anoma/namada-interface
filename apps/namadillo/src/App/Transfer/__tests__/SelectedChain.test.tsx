@@ -1,16 +1,11 @@
+import { Chain } from "@chain-registry/types";
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { SelectedChain } from "App/Transfer/SelectedChain";
-import { Chain } from "types";
-import { providerConnectedMock } from "../__mocks__/providers";
+import { randomChainMock } from "../__mocks__/chains";
+import { walletMock } from "../__mocks__/providers";
 
 describe("Component: SelectedChain", () => {
-  const mockChain: Chain = {
-    chainId: "chain-id",
-    name: "Ethereum",
-    iconUrl: "https://example.com/ethereum-icon.png",
-  };
-
   it("renders disabled with no provider selected", () => {
     render(<SelectedChain />);
     const button = screen.getByRole("button");
@@ -18,14 +13,14 @@ describe("Component: SelectedChain", () => {
   });
 
   it("renders empty when chain is passed, but provider is disconnected", () => {
-    render(<SelectedChain chain={mockChain} />);
+    render(<SelectedChain chain={randomChainMock as Chain} />);
     const button = screen.getByRole("button");
     expect(button).toBeDisabled();
     expect(button.getAttribute("aria-description")).toMatch(/no chain/i);
   });
 
   it("renders correctly with no chain selected", () => {
-    render(<SelectedChain provider={providerConnectedMock} />);
+    render(<SelectedChain wallet={walletMock} />);
     const button = screen.getByRole("button");
     expect(button).toBeInTheDocument();
     expect(button).toBeEnabled();
@@ -34,31 +29,28 @@ describe("Component: SelectedChain", () => {
 
   it("renders correctly with chain selected", () => {
     render(
-      <SelectedChain chain={mockChain} provider={providerConnectedMock} />
+      <SelectedChain chain={randomChainMock as Chain} wallet={walletMock} />
     );
 
     const button = screen.getByRole("button");
     expect(button).toBeInTheDocument();
-    expect(button.getAttribute("aria-description")).toContain(mockChain.name);
+    expect(button.getAttribute("aria-description")).toContain(
+      randomChainMock.pretty_name
+    );
 
-    const chainName = screen.getByText(mockChain.name);
+    const chainName = screen.getByText(randomChainMock.pretty_name!);
     expect(chainName).toBeInTheDocument();
 
-    const chainImage = screen.getByAltText(`${mockChain.name}`, {
+    const chainImage = screen.getByAltText(`${randomChainMock.pretty_name}`, {
       exact: false,
     });
     expect(chainImage).toBeInTheDocument();
-    expect(chainImage).toHaveAttribute(
-      "style",
-      `background-image: url(${mockChain.iconUrl});`
-    );
+    expect(chainImage).toHaveAttribute("src", randomChainMock.logo_URIs?.svg);
   });
 
   it("calls onClick when the component is clicked", () => {
     const handleClick = jest.fn();
-    render(
-      <SelectedChain onClick={handleClick} provider={providerConnectedMock} />
-    );
+    render(<SelectedChain onClick={handleClick} wallet={walletMock} />);
 
     const button = screen.getByRole("button");
     fireEvent.click(button);

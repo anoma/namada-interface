@@ -1,3 +1,4 @@
+import { Chain } from "@chain-registry/types";
 import { fireEvent, render, screen } from "@testing-library/react";
 import {
   TransferSource,
@@ -5,7 +6,7 @@ import {
 } from "App/Transfer/TransferSource";
 import BigNumber from "bignumber.js";
 import { namadaChainMock } from "../__mocks__/chains";
-import { providerConnectedMock } from "../__mocks__/providers";
+import { walletMock } from "../__mocks__/providers";
 
 describe("Component: TransferSource", () => {
   it("should render the component with the default props", () => {
@@ -45,7 +46,7 @@ describe("Component: TransferSource", () => {
     const openChainSelectorMock = jest.fn();
     setup({
       openChainSelector: openChainSelectorMock,
-      provider: providerConnectedMock,
+      wallet: walletMock,
     });
     const chain = getEmptyChain();
     fireEvent.click(chain);
@@ -64,7 +65,10 @@ describe("Component: TransferSource", () => {
 
   it("should call openAssetSelector when the SelectedAsset is clicked", () => {
     const openAssetSelectorMock = jest.fn();
-    setup({ openAssetSelector: openAssetSelectorMock, chain: namadaChainMock });
+    setup({
+      openAssetSelector: openAssetSelectorMock,
+      chain: namadaChainMock as Chain,
+    });
     const assetControl = getEmptyAsset();
     fireEvent.click(assetControl);
     expect(openAssetSelectorMock).toHaveBeenCalled();

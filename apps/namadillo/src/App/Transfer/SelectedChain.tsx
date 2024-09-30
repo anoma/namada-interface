@@ -1,51 +1,61 @@
+import { Chain } from "@chain-registry/types";
 import clsx from "clsx";
 import { GoChevronDown } from "react-icons/go";
-import { Chain, Provider } from "types";
+import { WalletProvider } from "types";
+
 import { EmptyResourceIcon } from "./EmptyResourceIcon";
 
 type SelectedChainProps = {
   chain?: Chain;
-  provider?: Provider;
+  wallet?: WalletProvider;
   onClick?: () => void;
+  iconSize?: string;
 };
 
 export const SelectedChain = ({
   chain,
-  provider,
+  wallet,
   onClick,
+  iconSize,
 }: SelectedChainProps): JSX.Element => {
   const selectorClassList = clsx(
-    `flex items-center gap-2.5 text-white font-light cursor-pointer`
+    `flex items-center gap-2.5 text-white font-light`,
+    { "cursor-auto": !onClick }
   );
+
+  const isDisabled = !wallet;
 
   return (
     <button
       type="button"
-      className="block group"
-      disabled={!provider}
+      className={clsx("block group", {
+        "pointer-events-none opacity-30": isDisabled,
+      })}
+      disabled={isDisabled}
       onClick={onClick}
       aria-description={
-        provider && chain ?
-          `${chain.name} chain is selected`
+        wallet && chain ?
+          `${chain.pretty_name} chain is selected`
         : `No chain selected`
       }
     >
-      {(!provider || !chain) && (
+      {(!wallet || !chain) && (
         <span className={selectorClassList}>
           <EmptyResourceIcon className="w-7" />
           Select chain
           <GoChevronDown className="text-sm" />
         </span>
       )}
-      {provider && chain && (
+      {wallet && chain && (
         <span className={selectorClassList}>
           <img
-            className="w-7 h-7 object-cover object-center bg-neutral-800 rounded-full"
-            alt={`${chain.name} image`}
-            style={{ backgroundImage: `url(${chain.iconUrl})` }}
+            className="aspect-square object-cover object-center bg-neutral-800 rounded-full select-none"
+            alt={`${chain.pretty_name} image`}
+            src={chain.logo_URIs?.svg}
+            style={{ width: iconSize || "30px" }}
           />
-          {chain.name}
-          <GoChevronDown className="text-sm" />
+          {chain.pretty_name}
+          {onClick && <GoChevronDown className="text-sm" />}
         </span>
       )}
     </button>

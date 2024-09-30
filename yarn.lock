@@ -1588,6 +1588,36 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@chain-registry/client@npm:^1.48.80":
+  version: 1.48.80
+  resolution: "@chain-registry/client@npm:1.48.80"
+  dependencies:
+    "@chain-registry/types": "npm:^0.45.80"
+    "@chain-registry/utils": "npm:^1.46.80"
+    bfs-path: "npm:^1.0.2"
+    cross-fetch: "npm:^3.1.5"
+  checksum: 63a8b398add4547145740b2ab40977a6305cd8b5c7f9c6339c46a36a28a52c476eb3a263328611db0fc986bcd24ea0e8a9fe54688acf38c8086988ce4b370ae0
+  languageName: node
+  linkType: hard
+
+"@chain-registry/types@npm:^0.45.80":
+  version: 0.45.80
+  resolution: "@chain-registry/types@npm:0.45.80"
+  checksum: 5ec1901865f00beda568683ca715984e0052f4c9d387a527df00538417d0bc9acaddcf8ce8d3faf8048edae66777b719b6b16d91eae030793b085c66eee71e7b
+  languageName: node
+  linkType: hard
+
+"@chain-registry/utils@npm:^1.46.80":
+  version: 1.46.80
+  resolution: "@chain-registry/utils@npm:1.46.80"
+  dependencies:
+    "@chain-registry/types": "npm:^0.45.80"
+    bignumber.js: "npm:9.1.2"
+    sha.js: "npm:^2.4.11"
+  checksum: 096b47bc36b275ee100bb9a1dd9ce3fca6e1079230ccccbf663159376d39e743278f56bf95a2e9037a289cb6f19d1f48434f58d55c45e4ea09610d065cdf387b
+  languageName: node
+  linkType: hard
+
 "@confio/ics23@npm:^0.6.8":
   version: 0.6.8
   resolution: "@confio/ics23@npm:0.6.8"
@@ -3625,6 +3655,7 @@ __metadata:
   resolution: "@namada/namadillo@workspace:apps/namadillo"
   dependencies:
     "@anomaorg/namada-indexer-client": "npm:0.0.23"
+    "@chain-registry/client": "npm:^1.48.80"
     "@cosmjs/encoding": "npm:^0.32.3"
     "@eslint/js": "npm:^9.9.1"
     "@playwright/test": "npm:^1.24.1"
@@ -7025,6 +7056,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bfs-path@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "bfs-path@npm:1.0.2"
+  checksum: 776cd5cf823d0767bab64d9c029bcf3336a5ee3a3e15f8ef9186772885fa2a3dd2bf4e3a5a5e7a96d02805a85d983a51d0aff76712a5b5c0b331db37578d0b79
+  languageName: node
+  linkType: hard
+
 "big.js@npm:^5.2.2":
   version: 5.2.2
   resolution: "big.js@npm:5.2.2"
@@ -7032,7 +7070,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bignumber.js@npm:^9.1.1":
+"bignumber.js@npm:9.1.2, bignumber.js@npm:^9.1.1":
   version: 9.1.2
   resolution: "bignumber.js@npm:9.1.2"
   checksum: e17786545433f3110b868725c449fa9625366a6e675cd70eb39b60938d6adbd0158cb4b3ad4f306ce817165d37e63f4aa3098ba4110db1d9a3b9f66abfbaf10d
@@ -7558,6 +7596,15 @@ __metadata:
   version: 0.12.0
   resolution: "caseless@npm:0.12.0"
   checksum: ccf64bcb6c0232cdc5b7bd91ddd06e23a4b541f138336d4725233ac538041fb2f29c2e86c3c4a7a61ef990b665348db23a047060b9414c3a6603e9fa61ad4626
+  languageName: node
+  linkType: hard
+
+"chain-registry@npm:^1.63.100":
+  version: 1.63.100
+  resolution: "chain-registry@npm:1.63.100"
+  dependencies:
+    "@chain-registry/types": "npm:^0.45.80"
+  checksum: 9ba5f5bdfe36891bcf94ce3e95506fb36dc953dd05e8c4664a527cad08b294e4beaabd68f409e6384cd21e44f88991475b75bc0461ba29da9fdc503d87dd05c0
   languageName: node
   linkType: hard
 
@@ -8625,7 +8672,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-fetch@npm:^3.0.4":
+"cross-fetch@npm:^3.0.4, cross-fetch@npm:^3.1.5":
   version: 3.1.8
   resolution: "cross-fetch@npm:3.1.8"
   dependencies:
@@ -15736,9 +15783,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "namada@workspace:."
   dependencies:
+    "@chain-registry/types": "npm:^0.45.80"
     "@release-it/conventional-changelog": "npm:^8.0.1"
     "@typescript-eslint/eslint-plugin": "npm:^8.4.0"
     "@typescript-eslint/parser": "npm:^8.4.0"
+    chain-registry: "npm:^1.63.100"
     eslint: "npm:^8.57.0"
     git-commit-msg-linter: "npm:^5.0.6"
     husky: "npm:^8.0.3"

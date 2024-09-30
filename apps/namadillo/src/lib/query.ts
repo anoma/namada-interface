@@ -2,6 +2,7 @@ import { getIntegration } from "@namada/integrations";
 import {
   Account,
   AccountType,
+  ExtensionKey,
   Signer,
   TxMsgValue,
   TxProps,
@@ -138,11 +139,11 @@ export const buildTx = async <T>(
  * Asynchronously signs an encoded batch transaction using Namada extension.
  */
 export const signTx = async <T>(
-  chain: ChainSettings,
+  wallet: ExtensionKey,
   typedEncodedTx: EncodedTxData<T>,
   owner: string
 ): Promise<Uint8Array[]> => {
-  const integration = getIntegration(chain.id);
+  const integration = getIntegration(wallet);
   const signingClient = integration.signer() as Signer;
 
   const store = getDefaultStore();
@@ -190,7 +191,7 @@ export const buildTxPair = async <T>(
     queryProps,
     txFn
   );
-  const signedTxs = await signTx<T>(chain, encodedTxData, owner);
+  const signedTxs = await signTx<T>(chain.extensionId, encodedTxData, owner);
   return {
     signedTxs,
     encodedTxData,

@@ -1,6 +1,6 @@
+import { Asset, Chain } from "@chain-registry/types";
 import clsx from "clsx";
 import { GoChevronDown } from "react-icons/go";
-import { Asset, Chain } from "types";
 import { EmptyResourceIcon } from "./EmptyResourceIcon";
 
 type SelectedAssetProps = {
@@ -15,14 +15,18 @@ export const SelectedAsset = ({
   onClick,
 }: SelectedAssetProps): JSX.Element => {
   const selectorClassList = clsx(
-    `flex items-center gap-2.5 text-lg text-white font-light cursor-pointer uppercase`
+    `flex items-center gap-4 text-xl text-white font-light cursor-pointer uppercase`
   );
+
+  const isDisabled = !chain;
 
   return (
     <button
       type="button"
-      className="block group"
-      disabled={!chain}
+      className={clsx("block group", {
+        "pointer-events-none opacity-30": isDisabled,
+      })}
+      disabled={isDisabled}
       onClick={onClick}
       aria-description={
         asset ? `${asset.name} is selected` : `No asset selected`
@@ -30,20 +34,30 @@ export const SelectedAsset = ({
     >
       {!asset && (
         <span className={selectorClassList}>
-          <EmptyResourceIcon className="w-15" />
+          <EmptyResourceIcon className="w-12" />
           Asset
           <GoChevronDown className="text-sm" />
         </span>
       )}
       {asset && (
-        <span className={selectorClassList}>
+        <span
+          className={selectorClassList}
+          style={{ backgroundColor: asset.logo_URIs?.theme }}
+        >
           <img
-            className="w-7 h-7 object-cover object-center bg-neutral-800 rounded-full"
+            className={clsx(
+              "w-15 aspect-square object-cover select-none",
+              "object-center bg-neutral-800 rounded-full"
+            )}
             alt={`${asset.name} image`}
-            style={{ backgroundImage: `url(${asset.iconUrl})` }}
+            src={asset.logo_URIs?.svg}
           />
-          {asset.denomination}
-          <GoChevronDown />
+          <span className="flex items-center gap-1">
+            {asset.symbol}
+            <i className="text-sm">
+              <GoChevronDown />
+            </i>
+          </span>
         </span>
       )}
     </button>

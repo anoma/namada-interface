@@ -1,21 +1,11 @@
+import { Asset, Chain } from "@chain-registry/types";
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { SelectedAsset } from "App/Transfer/SelectedAsset"; // Adjust the path accordingly
-import { Asset, Chain } from "types"; // Adjust the path accordingly
+import { assetMock } from "../__mocks__/assets";
+import { randomChainMock } from "../__mocks__/chains";
 
 describe("SelectedAsset", () => {
-  const mockChain: Chain = {
-    chainId: "1",
-    name: "Ethereum",
-    iconUrl: "https://example.com/ethereum-icon.png",
-  };
-
-  const mockAsset: Partial<Asset> = {
-    name: "Ethereum",
-    denomination: "ETH",
-    iconUrl: "https://example.com/eth-icon.png",
-  };
-
   it("renders with no chain and disables the button", () => {
     render(<SelectedAsset />);
     const button = screen.getByRole("button");
@@ -24,7 +14,7 @@ describe("SelectedAsset", () => {
 
   it("renders with no asset selected", () => {
     const mockFn = jest.fn();
-    render(<SelectedAsset chain={mockChain} onClick={mockFn} />);
+    render(<SelectedAsset chain={randomChainMock as Chain} onClick={mockFn} />);
 
     const button = screen.getByRole("button");
     expect(button).toBeEnabled();
@@ -40,8 +30,8 @@ describe("SelectedAsset", () => {
     const handleClick = jest.fn();
     render(
       <SelectedAsset
-        chain={mockChain}
-        asset={mockAsset as Asset}
+        chain={randomChainMock as Chain}
+        asset={assetMock as Asset}
         onClick={handleClick}
       />
     );
@@ -49,13 +39,11 @@ describe("SelectedAsset", () => {
     const button = screen.getByRole("button");
     expect(button).toBeEnabled();
 
-    const assetDenomination = screen.getByText(mockAsset.denomination!);
+    const assetDenomination = screen.getByText(assetMock.symbol!);
     expect(assetDenomination).toBeInTheDocument();
 
-    const assetImage = screen.getByAltText(`${mockAsset.name} image`);
-    expect(assetImage).toHaveStyle(
-      `background-image: url(${mockAsset.iconUrl})`
-    );
+    const assetImage = screen.getByAltText(`${assetMock.name} image`);
+    expect(assetImage).toHaveAttribute("src", assetMock.logo_URIs?.svg);
 
     fireEvent.click(button);
     expect(handleClick).toHaveBeenCalledTimes(1);

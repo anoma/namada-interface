@@ -1,3 +1,4 @@
+import { Chain } from "@chain-registry/types";
 import { fireEvent, render, screen } from "@testing-library/react";
 import {
   namadaChainMock,
@@ -5,7 +6,7 @@ import {
 } from "App/Transfer/__mocks__/chains";
 import { TransferDestination } from "App/Transfer/TransferDestination";
 import BigNumber from "bignumber.js";
-import { providerMock } from "../__mocks__/providers";
+import { walletMock } from "../__mocks__/providers";
 
 describe("TransferDestination", () => {
   it("should render the component with the default props", () => {
@@ -18,7 +19,7 @@ describe("TransferDestination", () => {
       <TransferDestination
         isShielded={true}
         onChangeShielded={jest.fn()}
-        chain={namadaChainMock}
+        chain={namadaChainMock as Chain}
       />
     );
     expect(screen.getByText("Shielded")).toBeInTheDocument();
@@ -34,7 +35,7 @@ describe("TransferDestination", () => {
     render(
       <TransferDestination
         isShielded={true}
-        chain={randomChainMock}
+        chain={randomChainMock as Chain}
         onChangeShielded={jest.fn()}
       />
     );
@@ -45,8 +46,8 @@ describe("TransferDestination", () => {
     render(
       <TransferDestination
         isShielded={true}
-        chain={namadaChainMock}
-        provider={providerMock}
+        chain={namadaChainMock as Chain}
+        wallet={walletMock}
       />
     );
     expect(screen.getByText(/namada shielded/i)).toBeInTheDocument();
@@ -56,8 +57,8 @@ describe("TransferDestination", () => {
     render(
       <TransferDestination
         isShielded={false}
-        chain={namadaChainMock}
-        provider={providerMock}
+        chain={namadaChainMock as Chain}
+        wallet={walletMock}
       />
     );
     expect(screen.getByText(/namada transparent/i)).toBeInTheDocument();
@@ -68,7 +69,7 @@ describe("TransferDestination", () => {
     render(
       <TransferDestination
         isShielded={true}
-        chain={namadaChainMock}
+        chain={namadaChainMock as Chain}
         onChangeShielded={onChangeShieldedMock}
       />
     );

@@ -1,21 +1,24 @@
+import { Chain } from "@chain-registry/types";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TabSelector } from "App/Common/TabSelector";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { Chain, Provider } from "types";
+import { WalletProvider } from "types";
 import namadaShieldedSvg from "./assets/namada-shielded.svg";
 import namadaTransparentSvg from "./assets/namada-transparent.svg";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";
+import { SelectedWallet } from "./SelectedWallet";
 
 type TransferDestinationProps = {
   isShielded?: boolean;
   onChangeShielded?: (isShielded: boolean) => void;
   chain?: Chain;
-  provider?: Provider;
+  wallet?: WalletProvider;
   className?: string;
   transactionFee?: BigNumber;
   customAddressActive?: boolean;
+  openChainSelector?: () => void;
   onToggleCustomAddress?: (isActive: boolean) => void;
   onChangeAddress?: (address: string | undefined) => void;
   address?: string;
@@ -27,19 +30,22 @@ const parseChainInfo = (
   chain?: Chain,
   isShielded?: boolean
 ): Chain | undefined => {
-  if (chain?.name !== "Namada") {
+  if (chain?.chain_name !== "namada") {
     return chain;
   }
   return {
     ...chain,
-    name: isShielded ? "Namada Shielded" : "Namada Transparent",
-    iconUrl: isShielded ? namadaShieldedSvg : namadaTransparentSvg,
+    pretty_name: isShielded ? "Namada Shielded" : "Namada Transparent",
+    logo_URIs: {
+      ...chain.logo_URIs,
+      svg: isShielded ? namadaShieldedSvg : namadaTransparentSvg,
+    },
   };
 };
 
 export const TransferDestination = ({
   chain,
-  provider,
+  wallet,
   isShielded,
   onChangeShielded,
   transactionFee,
@@ -49,22 +55,31 @@ export const TransferDestination = ({
   onChangeAddress,
   memo,
   onChangeMemo,
+  openChainSelector,
 }: TransferDestinationProps): JSX.Element => {
   return (
     <div
-      className={clsx("relative bg-neutral-800 rounded-lg px-4 py-5", {
-        "border-yellow": isShielded,
+      className={clsx("relative bg-neutral-800 rounded-lg px-4 pt-8 pb-4", {
+        "border border-yellow transition-colors duration-200": isShielded,
+        "border border-white transition-colors duration-200":
+          chain?.chain_name === "namada" && !isShielded,
       })}
     >
-      {onChangeShielded && chain?.name === "Namada" && (
-        <TabSelector
-          active={isShielded ? "shielded" : "transparent"}
-          items={[
-            { id: "shielded", text: "Shielded", className: "text-yellow" },
-            { id: "transparent", text: "Transparent", className: "text-white" },
-          ]}
-          onChange={() => onChangeShielded(!isShielded)}
-        />
+      {onChangeShielded && chain?.chain_name === "namada" && (
+        <nav className="mb-6">
+          <TabSelector
+            active={isShielded ? "shielded" : "transparent"}
+            items={[
+              { id: "shielded", text: "Shielded", className: "text-yellow" },
+              {
+                id: "transparent",
+                text: "Transparent",
+                className: "text-white",
+              },
+            ]}
+            onChange={() => onChangeShielded(!isShielded)}
+          />
+        </nav>
       )}
 
       {onToggleCustomAddress && (
@@ -78,10 +93,15 @@ export const TransferDestination = ({
         />
       )}
 
-      <SelectedChain
-        chain={parseChainInfo(chain, isShielded)}
-        provider={provider}
-      />
+      <div className="flex justify-between items-center">
+        <SelectedChain
+          chain={parseChainInfo(chain, isShielded)}
+          wallet={wallet}
+          onClick={openChainSelector}
+          iconSize="42px"
+        />
+        {wallet && <SelectedWallet wallet={wallet} isShielded={isShielded} />}
+      </div>
 
       {customAddressActive && (
         <CustomAddressForm
@@ -93,7 +113,7 @@ export const TransferDestination = ({
       )}
 
       {transactionFee && (
-        <footer className="flex justify-between mt-12 text-sm">
+        <footer className="flex justify-between mt-12 text-sm text-neutral-300">
           <span className="underline">Transaction Fee</span>
           <NamCurrency amount={transactionFee} />
         </footer>
