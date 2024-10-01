@@ -3,12 +3,11 @@ import { formatPercentage } from "@namada/utils";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
-import { IbcRoutes } from "App/Ibc/routes";
+import { routes } from "App/routes";
 import BigNumber from "bignumber.js";
 import { AtomWithQueryResult } from "jotai-tanstack-query";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { MaspRoutes } from "./routes";
 
 type MockedToken = {
   name: string;
@@ -86,11 +85,7 @@ export const ShieldedFungibleTable = (): JSX.Element => {
           size="xs"
           outlineColor="white"
           className="w-fit mx-auto"
-          href={
-            token.name === "NAM" ?
-              MaspRoutes.unshield().url
-            : IbcRoutes.withdraw().url
-          }
+          href={token.name === "NAM" ? routes.maspUnshield : routes.ibcWithdraw}
         >
           Unshield
         </ActionButton>,

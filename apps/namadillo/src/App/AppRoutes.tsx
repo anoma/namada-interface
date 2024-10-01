@@ -15,10 +15,14 @@ import { NotFound } from "./Common/NotFound";
 import { RouteErrorBoundary } from "./Common/RouteErrorBoundary";
 import { Governance } from "./Governance";
 import { GovernanceRoutes } from "./Governance/routes";
-import { Ibc } from "./Ibc";
-import { IbcRoutes } from "./Ibc/routes";
-import { Masp } from "./Masp/Masp";
-import { MaspRoutes } from "./Masp/routes";
+import { IbcLayout } from "./Ibc/IbcLayout";
+import { IbcShieldAll } from "./Ibc/IbcShieldAll";
+import { IbcTransfer } from "./Ibc/IbcTransfer";
+import { IbcWithdraw } from "./Ibc/IbcWithdraw";
+import { MaspLayout } from "./Masp/MaspLayout";
+import { MaspOverview } from "./Masp/MaspOverview";
+import { MaspShield } from "./Masp/MaspShield";
+import { MaspUnshield } from "./Masp/MaspUnshield";
 import { SettingsPanel } from "./Settings/SettingsPanel";
 import { SettingsRoutes } from "./Settings/routes";
 import { SignMessages } from "./SignMessages/SignMessages";
@@ -28,8 +32,9 @@ import { StakingRewards } from "./Staking/StakingRewards";
 import { StakingRoutes } from "./Staking/routes";
 import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
 import { SwitchAccountRoutes } from "./SwitchAccount/routes";
-import { Transfer } from "./Transfer/Transfer";
-import { TransferRoutes } from "./Transfer/routes";
+import { NamTransfer } from "./Transfer/NamTransfer";
+import { TransferLayout } from "./Transfer/TransferLayout";
+import { routes } from "./routes";
 
 export const MainRoutes = (): JSX.Element => {
   const location = useLocation();
@@ -53,16 +58,23 @@ export const MainRoutes = (): JSX.Element => {
             element={<Governance />}
           />
           {features.maspEnabled && (
-            <Route path={`${MaspRoutes.index()}/*`} element={<Masp />} />
+            <Route element={<MaspLayout />}>
+              <Route path={routes.masp} element={<MaspOverview />} />
+              <Route path={routes.maspShield} element={<MaspShield />} />
+              <Route path={routes.maspUnshield} element={<MaspUnshield />} />
+            </Route>
           )}
           {features.ibcTransfersEnabled && (
-            <Route path={`${IbcRoutes.index()}/*`} element={<Ibc />} />
+            <Route element={<IbcLayout />}>
+              <Route path={routes.ibc} element={<IbcTransfer />} />
+              <Route path={routes.ibcWithdraw} element={<IbcWithdraw />} />
+              <Route path={routes.ibcShieldAll} element={<IbcShieldAll />} />
+            </Route>
           )}
           {features.namTransfersEnabled && (
-            <Route
-              path={`${TransferRoutes.index()}/*`}
-              element={<Transfer />}
-            />
+            <Route element={<TransferLayout />}>
+              <Route path={routes.transfer} element={<NamTransfer />} />
+            </Route>
           )}
           <Route path="*" element={<NotFound />} />
         </Route>

@@ -1,6 +1,6 @@
 import { ActionButton } from "@namada/components";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
-import { MaspRoutes } from "App/Masp/routes";
+import { routes } from "App/routes";
 import { SettingsRoutes } from "App/Settings/routes";
 import { MessageRoutes } from "App/SignMessages/routes";
 import {
@@ -12,7 +12,6 @@ import { useAtomValue } from "jotai";
 import { AiOutlineMessage } from "react-icons/ai";
 import { IoSettingsOutline } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
-import { TransferRoutes } from "../Transfer/routes";
 import { ActiveAccount } from "./ActiveAccount";
 import { SyncIndicator } from "./SyncIndicator";
 
@@ -38,7 +37,7 @@ export const TopNavigation = (): JSX.Element => {
       <div className="hidden lg:flex gap-2">
         {maspEnabled && (
           <ActionButton
-            href={MaspRoutes.shield().url}
+            href={routes.maspShield}
             size="sm"
             className="w-[140px]"
           >
@@ -47,7 +46,7 @@ export const TopNavigation = (): JSX.Element => {
         )}
         {namTransfersEnabled && (
           <ActionButton
-            href={TransferRoutes.namTransfer().url}
+            href={routes.transfer}
             size="sm"
             backgroundColor="white"
             className="w-[140px]"

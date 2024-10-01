@@ -1,16 +1,11 @@
-import { PageWithSidebar } from "App/Common/PageWithSidebar";
+import { Panel } from "@namada/components";
 import { Example } from "./Example";
 
 export const NamTransfer: React.FC = () => {
   return (
-    <PageWithSidebar>
-      <div className="flex flex-col gap-2 text-yellow">
-        <div>Transfer: Nam Transfer (WIP)</div>
-        <Example />
-      </div>
-      <aside className="flex flex-col gap-2 text-yellow">
-        <div>Sidebar (WIP)</div>
-      </aside>
-    </PageWithSidebar>
+    <Panel>
+      <div className="text-yellow">Transfer: Nam Transfer (WIP)</div>
+      <Example />
+    </Panel>
   );
 };
