@@ -7,6 +7,7 @@ import {
 import { TransferDestination } from "App/Transfer/TransferDestination";
 import BigNumber from "bignumber.js";
 import { walletMock } from "../__mocks__/providers";
+import { parseChainInfo } from "../common";
 
 describe("TransferDestination", () => {
   it("should render the component with the default props", () => {
@@ -19,7 +20,7 @@ describe("TransferDestination", () => {
       <TransferDestination
         isShielded={true}
         onChangeShielded={jest.fn()}
-        chain={namadaChainMock as Chain}
+        chain={parseChainInfo(namadaChainMock as Chain, true)}
       />
     );
     expect(screen.getByText("Shielded")).toBeInTheDocument();
@@ -35,7 +36,7 @@ describe("TransferDestination", () => {
     render(
       <TransferDestination
         isShielded={true}
-        chain={randomChainMock as Chain}
+        chain={parseChainInfo(randomChainMock as Chain, true)}
         onChangeShielded={jest.fn()}
       />
     );
@@ -46,7 +47,7 @@ describe("TransferDestination", () => {
     render(
       <TransferDestination
         isShielded={true}
-        chain={namadaChainMock as Chain}
+        chain={parseChainInfo(namadaChainMock as Chain, true)}
         wallet={walletMock}
       />
     );
@@ -57,7 +58,7 @@ describe("TransferDestination", () => {
     render(
       <TransferDestination
         isShielded={false}
-        chain={namadaChainMock as Chain}
+        chain={parseChainInfo(namadaChainMock as Chain, false)}
         wallet={walletMock}
       />
     );
@@ -69,7 +70,7 @@ describe("TransferDestination", () => {
     render(
       <TransferDestination
         isShielded={true}
-        chain={namadaChainMock as Chain}
+        chain={parseChainInfo(namadaChainMock as Chain, true)}
         onChangeShielded={onChangeShieldedMock}
       />
     );

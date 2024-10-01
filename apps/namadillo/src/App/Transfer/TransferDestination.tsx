@@ -1,11 +1,10 @@
 import { Chain } from "@chain-registry/types";
+import { Stack } from "@namada/components";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TabSelector } from "App/Common/TabSelector";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { WalletProvider } from "types";
-import namadaShieldedSvg from "./assets/namada-shielded.svg";
-import namadaTransparentSvg from "./assets/namada-transparent.svg";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";
 import { SelectedWallet } from "./SelectedWallet";
@@ -24,23 +23,6 @@ type TransferDestinationProps = {
   address?: string;
   memo?: string;
   onChangeMemo?: (address: string) => void;
-};
-
-const parseChainInfo = (
-  chain?: Chain,
-  isShielded?: boolean
-): Chain | undefined => {
-  if (chain?.chain_name !== "namada") {
-    return chain;
-  }
-  return {
-    ...chain,
-    pretty_name: isShielded ? "Namada Shielded" : "Namada Transparent",
-    logo_URIs: {
-      ...chain.logo_URIs,
-      svg: isShielded ? namadaShieldedSvg : namadaTransparentSvg,
-    },
-  };
 };
 
 export const TransferDestination = ({
@@ -83,33 +65,45 @@ export const TransferDestination = ({
       )}
 
       {onToggleCustomAddress && (
-        <TabSelector
-          active={customAddressActive ? "custom" : "my-address"}
-          onChange={() => onToggleCustomAddress(!customAddressActive)}
-          items={[
-            { id: "my-address", text: "My Address", className: "text-white" },
-            { id: "custom", text: "Custom Address", className: "text-white" },
-          ]}
-        />
+        <nav className="mb-6">
+          <TabSelector
+            active={customAddressActive ? "custom" : "my-address"}
+            onChange={() => onToggleCustomAddress(!customAddressActive)}
+            items={[
+              { id: "my-address", text: "My Address", className: "text-white" },
+              { id: "custom", text: "Custom Address", className: "text-white" },
+            ]}
+          />
+        </nav>
       )}
 
-      <div className="flex justify-between items-center">
-        <SelectedChain
-          chain={parseChainInfo(chain, isShielded)}
-          wallet={wallet}
-          onClick={openChainSelector}
-          iconSize="42px"
-        />
-        {wallet && <SelectedWallet wallet={wallet} isShielded={isShielded} />}
-      </div>
+      {!customAddressActive && (
+        <div className="flex justify-between items-center">
+          <SelectedChain
+            chain={chain}
+            wallet={wallet}
+            onClick={openChainSelector}
+            iconSize="42px"
+          />
+          {wallet && <SelectedWallet wallet={wallet} isShielded={isShielded} />}
+        </div>
+      )}
 
       {customAddressActive && (
-        <CustomAddressForm
-          memo={memo}
-          onChangeMemo={onChangeMemo}
-          customAddress={address}
-          onChangeAddress={onChangeAddress}
-        />
+        <Stack gap={8}>
+          <SelectedChain
+            chain={chain}
+            wallet={wallet}
+            onClick={openChainSelector}
+            iconSize="42px"
+          />
+          <CustomAddressForm
+            memo={memo}
+            onChangeMemo={onChangeMemo}
+            customAddress={address}
+            onChangeAddress={onChangeAddress}
+          />
+        </Stack>
       )}
 
       {transactionFee && (

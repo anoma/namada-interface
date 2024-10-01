@@ -9,6 +9,7 @@ import { SelectWalletModal } from "./SelectWalletModal";
 import { TransferArrow } from "./TransferArrow";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
+import { parseChainInfo } from "./common";
 
 export type TransferModuleConfig = {
   wallet?: WalletProvider;
@@ -81,21 +82,33 @@ export const TransferModule = ({
           <TransferSource
             isConnected={Boolean(source.connected)}
             asset={source.selectedAsset}
-            chain={source.chain}
+            chain={parseChainInfo(source.chain, source.isShielded)}
             wallet={source.wallet}
             availableAmount={source.availableAmount}
             amount={amount}
-            openProviderSelector={() => setProviderSelectorModalOpen(true)}
-            openChainSelector={() => setSourceChainModalOpen(true)}
-            openAssetSelector={() => setAssetSelectorModalOpen(true)}
+            openProviderSelector={
+              source.onChangeWallet ?
+                () => setProviderSelectorModalOpen(true)
+              : undefined
+            }
+            openChainSelector={
+              source.onChangeChain ?
+                () => setSourceChainModalOpen(true)
+              : undefined
+            }
+            openAssetSelector={
+              source.onChangeSelectedAsset ?
+                () => setAssetSelectorModalOpen(true)
+              : undefined
+            }
             onChangeAmount={setAmount}
           />
           <i className="flex items-center justify-center w-11 mx-auto -my-8 relative z-10">
             <TransferArrow color={destination.isShielded ? "#FF0" : "#FFF"} />
           </i>
           <TransferDestination
-            chain={destination.chain}
             wallet={destination.wallet}
+            chain={parseChainInfo(destination.chain, destination.isShielded)}
             isShielded={destination.isShielded}
             onChangeShielded={destination.onChangeShielded}
             address={customAddress}
