@@ -4,6 +4,7 @@ import { IbcRoutes } from "App/Ibc/routes";
 import { MASPIcon } from "App/Icons/MASPIcon";
 import { MaspRoutes } from "App/Masp/routes";
 import { StakingRoutes } from "App/Staking/routes";
+import { TransferRoutes } from "App/Transfer/routes";
 import { applicationFeaturesAtom } from "atoms/settings";
 import { useAtomValue } from "jotai";
 import { AiFillHome } from "react-icons/ai";
@@ -46,6 +47,7 @@ export const Navigation = (): JSX.Element => {
     {
       label: "Transfer",
       icon: <IoSwapHorizontal />,
+      url: features.namTransfersEnabled ? TransferRoutes.index() : undefined,
     },
   ];
 

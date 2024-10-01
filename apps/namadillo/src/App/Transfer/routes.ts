@@ -4,15 +4,9 @@ export const index = (): string => `/transfer`;
 
 const routeOutput = createRouteOutput(index);
 
-export const overview = (): RouteOutput => routeOutput("/");
-
-export const namTransfer = (): RouteOutput => routeOutput("/nam");
-
-export const example = (): RouteOutput => routeOutput(`/example`);
+export const namTransfer = (): RouteOutput => routeOutput("/");
 
 export const TransferRoutes = {
   index,
-  overview,
   namTransfer,
-  example,
 };

@@ -1,6 +1,5 @@
 import { NotFound } from "App/Common/NotFound";
 import { Route, Routes } from "react-router-dom";
-import { Example } from "./Example";
 import { NamTransfer } from "./NamTransfer";
 import { TransferRoutes } from "./routes";
 
@@ -10,7 +9,6 @@ export const Transfer: React.FC = () => (
       path={TransferRoutes.namTransfer().toString()}
       element={<NamTransfer />}
     />
-    <Route path={TransferRoutes.example().toString()} element={<Example />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
