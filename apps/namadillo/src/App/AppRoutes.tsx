@@ -52,10 +52,17 @@ export const MainRoutes = (): JSX.Element => {
             path={`${GovernanceRoutes.index()}/*`}
             element={<Governance />}
           />
-          <Route path={`${MaspRoutes.index()}/*`} element={<Masp />} />
-          <Route path={`${TransferRoutes.index()}/*`} element={<Transfer />} />
+          {features.maspEnabled && (
+            <Route path={`${MaspRoutes.index()}/*`} element={<Masp />} />
+          )}
           {features.ibcTransfersEnabled && (
             <Route path={`${IbcRoutes.index()}/*`} element={<Ibc />} />
+          )}
+          {features.namTransfersEnabled && (
+            <Route
+              path={`${TransferRoutes.index()}/*`}
+              element={<Transfer />}
+            />
           )}
           <Route path="*" element={<NotFound />} />
         </Route>
