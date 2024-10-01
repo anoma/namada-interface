@@ -18,7 +18,7 @@ export const Navigation = (): JSX.Element => {
     {
       label: "Overview",
       icon: <AiFillHome />,
-      url: "/",
+      url: routes.root,
     },
     {
       label: "Staking",

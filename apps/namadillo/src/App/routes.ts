@@ -1,4 +1,6 @@
 export const routes = {
+  root: "/",
+
   // Staking
   staking: "/staking",
   stakingBondingIncrement: "/staking/bonding/increment",

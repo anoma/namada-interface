@@ -55,7 +55,11 @@ export const MainRoutes = (): JSX.Element => {
   return (
     <>
       <Routes location={state?.backgroundLocation || location}>
-        <Route path="/" element={<App />} errorElement={<RouteErrorBoundary />}>
+        <Route
+          path={routes.root}
+          element={<App />}
+          errorElement={<RouteErrorBoundary />}
+        >
           {/* Home */}
           <Route index element={<AccountOverview />} />
 
