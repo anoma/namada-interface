@@ -10,48 +10,39 @@ import { TransferArrow } from "./TransferArrow";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
 
-type TransferModuleProps = {
-  isConnected: boolean;
-  availableAmount?: BigNumber;
+export type TransferModuleConfig = {
+  wallet?: WalletProvider;
   availableWallets: WalletProvider[];
-  onSubmitTransfer: () => void;
   onChangeWallet?: (wallet: WalletProvider) => void;
-  sourceWallet?: WalletProvider;
-  availableSourceChains?: Chains;
-  sourceChain?: Chain;
-  onChangeSourceChain?: (chain: Chain) => void;
-  availableDestinationChains?: Chains;
-  destinationChain?: Chain;
-  destinationWallet?: WalletProvider;
-  onChangeDestinationChain?: (chain: Chain) => void;
-  selectedAsset?: Asset;
-  availableAssets?: Asset[];
-  onChangeSelectedAsset?: (asset: Asset | undefined) => void;
+  connected?: boolean;
+  availableChains?: Chains;
+  chain?: Chain;
+  onChangeChain?: (chain: Chain) => void;
   isShielded?: boolean;
-  onChangeShielded?: (isShielded: boolean) => void;
+};
+
+export type TransferSourceProps = TransferModuleConfig & {
+  availableAssets?: Asset[];
+  selectedAsset?: Asset;
+  availableAmount?: BigNumber;
+  onChangeSelectedAsset?: (asset: Asset | undefined) => void;
+};
+
+type TransferDestinationProps = TransferModuleConfig & {
   enableCustomAddress?: boolean;
+  onChangeShielded?: (shielded: boolean) => void;
+};
+
+type TransferModuleProps = {
+  source: TransferSourceProps;
+  destination: TransferDestinationProps;
   transactionFee?: BigNumber;
+  onSubmitTransfer: () => void;
 };
 
 export const TransferModule = ({
-  isConnected,
-  selectedAsset,
-  availableAssets,
-  onChangeSelectedAsset,
-  availableSourceChains,
-  sourceChain,
-  onChangeSourceChain,
-  availableDestinationChains,
-  destinationChain,
-  destinationWallet,
-  onChangeDestinationChain,
-  isShielded,
-  onChangeShielded,
-  enableCustomAddress,
-  onChangeWallet,
-  availableWallets,
-  sourceWallet,
-  availableAmount,
+  source,
+  destination,
   transactionFee,
 }: TransferModuleProps): JSX.Element => {
   const [providerSelectorModalOpen, setProviderSelectorModalOpen] =
@@ -67,11 +58,11 @@ export const TransferModule = ({
 
   const validateTransfer = (): boolean => {
     if (!amount || amount.eq(0)) return false;
-    if (!sourceWallet || !sourceChain || !selectedAsset) return false;
-    if (!destinationWallet || !destinationChain) return false;
+    if (!source.wallet || !source.chain || !source.selectedAsset) return false;
+    if (!destination.wallet || !destination.chain) return false;
     if (
-      !availableAmount ||
-      availableAmount.lt(amount.plus(transactionFee || 0))
+      !source.availableAmount ||
+      source.availableAmount.lt(amount.plus(transactionFee || 0))
     ) {
       return false;
     }
@@ -88,28 +79,30 @@ export const TransferModule = ({
       <section className="max-w-[480px] mx-auto" role="widget">
         <Stack as="form" onSubmit={onSubmit}>
           <TransferSource
-            isConnected={isConnected}
-            asset={selectedAsset}
-            chain={sourceChain}
-            wallet={sourceWallet}
+            isConnected={Boolean(source.connected)}
+            asset={source.selectedAsset}
+            chain={source.chain}
+            wallet={source.wallet}
+            availableAmount={source.availableAmount}
+            amount={amount}
             openProviderSelector={() => setProviderSelectorModalOpen(true)}
             openChainSelector={() => setSourceChainModalOpen(true)}
             openAssetSelector={() => setAssetSelectorModalOpen(true)}
-            amount={amount}
-            availableAmount={availableAmount}
             onChangeAmount={setAmount}
           />
           <i className="flex items-center justify-center w-11 mx-auto -my-8 relative z-10">
-            <TransferArrow color={isShielded ? "#FF0" : "#FFF"} />
+            <TransferArrow color={destination.isShielded ? "#FF0" : "#FFF"} />
           </i>
           <TransferDestination
-            chain={destinationChain}
-            wallet={destinationWallet}
-            isShielded={isShielded}
-            onChangeShielded={onChangeShielded}
+            chain={destination.chain}
+            wallet={destination.wallet}
+            isShielded={destination.isShielded}
+            onChangeShielded={destination.onChangeShielded}
             address={customAddress}
             onToggleCustomAddress={
-              enableCustomAddress ? setCustomAddressActive : undefined
+              destination.enableCustomAddress ?
+                setCustomAddressActive
+              : undefined
             }
             customAddressActive={customAddressActive}
             onChangeAddress={setCustomAddress}
@@ -118,43 +111,61 @@ export const TransferModule = ({
             transactionFee={transactionFee}
           />
           <ActionButton
-            backgroundColor={isShielded ? "yellow" : "white"}
-            disabled={!sourceWallet || !validateTransfer()}
+            backgroundColor={
+              destination.isShielded || source.isShielded ? "yellow" : "white"
+            }
+            disabled={!source.wallet || !validateTransfer()}
           >
-            {sourceWallet ? "Submit" : "Select Wallet"}
+            {source.wallet ? "Submit" : "Select Wallet"}
           </ActionButton>
         </Stack>
       </section>
-      {providerSelectorModalOpen && onChangeWallet && (
+
+      {providerSelectorModalOpen && source.onChangeWallet && (
         <SelectWalletModal
-          wallets={availableWallets}
+          wallets={source.availableWallets}
           onClose={() => setProviderSelectorModalOpen(false)}
-          onConnect={onChangeWallet}
+          onConnect={source.onChangeWallet}
         />
       )}
-      {sourceChainModalOpen && onChangeSourceChain && sourceWallet && (
-        <SelectChainModal
-          onClose={() => setSourceChainModalOpen(false)}
-          chains={availableSourceChains || []}
-          onSelect={onChangeSourceChain}
-        />
-      )}
-      {destinationChainModalOpen &&
-        onChangeDestinationChain &&
-        destinationWallet && (
-          <SelectChainModal
-            onClose={() => setDestinationChainModalOpen(false)}
-            chains={availableDestinationChains || []}
-            onSelect={onChangeDestinationChain}
+
+      {assetSelectorModalOpen &&
+        source.onChangeSelectedAsset &&
+        source.wallet && (
+          <SelectAssetModal
+            onClose={() => setAssetSelectorModalOpen(false)}
+            assets={source.availableAssets || []}
+            onSelect={source.onChangeSelectedAsset}
           />
         )}
-      {assetSelectorModalOpen && onChangeSelectedAsset && sourceWallet && (
-        <SelectAssetModal
-          onClose={() => setAssetSelectorModalOpen(false)}
-          assets={availableAssets || []}
-          onSelect={onChangeSelectedAsset}
+
+      {sourceChainModalOpen && source.onChangeChain && source.wallet && (
+        <SelectChainModal
+          onClose={() => setSourceChainModalOpen(false)}
+          chains={source.availableChains || []}
+          onSelect={source.onChangeChain}
         />
       )}
+
+      {destinationChainModalOpen &&
+        destination.onChangeChain &&
+        destination.wallet && (
+          <SelectChainModal
+            onClose={() => setDestinationChainModalOpen(false)}
+            chains={destination.availableChains || []}
+            onSelect={destination.onChangeChain}
+          />
+        )}
+
+      {assetSelectorModalOpen &&
+        source.onChangeSelectedAsset &&
+        source.wallet && (
+          <SelectAssetModal
+            onClose={() => setAssetSelectorModalOpen(false)}
+            assets={source.availableAssets || []}
+            onSelect={source.onChangeSelectedAsset}
+          />
+        )}
     </>
   );
 };

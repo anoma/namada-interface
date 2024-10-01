@@ -64,7 +64,7 @@ export const Example = (): JSX.Element => {
     }, {});
   }, []);
 
-  const sourceAssetList: Asset[] | undefined = useMemo(() => {
+  const availableAssets: Asset[] | undefined = useMemo(() => {
     if (!chainId) return;
     const config = sourceChainConfig.find(
       (config) => config[0].chain_id === chainId
@@ -87,38 +87,44 @@ export const Example = (): JSX.Element => {
     }
   }, [chainId]);
 
+  const onChangeWallet = async (wallet: WalletProvider): Promise<void> => {
+    try {
+      await integrations[wallet.id].connect();
+      setWallet(wallet.id);
+      if (!chainId) {
+        setChainId(cosmos.chain_id);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <Panel className="py-20">
       <TransferModule
-        isConnected={false}
-        onSubmitTransfer={() => {}}
-        availableWallets={Object.values(wallets)}
-        sourceWallet={selectedWallet ? wallets[selectedWallet] : undefined}
-        onChangeWallet={async (wallet: WalletProvider) => {
-          try {
-            await integrations[wallet.id].connect();
-            setWallet(wallet.id);
-            if (!chainId) {
-              setChainId(cosmos.chain_id);
-            }
-          } catch (err) {
-            console.error(err);
-          }
+        source={{
+          connected: true,
+          wallet: selectedWallet ? wallets[selectedWallet] : undefined,
+          onChangeWallet,
+          availableWallets: Object.values(wallets),
+          onChangeChain: (chain) => setChainId(chain.chain_id),
+          onChangeSelectedAsset: setSelectedAsset,
+          availableChains: Object.values(sourceChains),
+          availableAmount: new BigNumber(100),
+          chain: selectedSourceChain,
+          availableAssets,
+          selectedAsset,
         }}
-        onChangeSourceChain={(chain) => {
-          setChainId(chain.chain_id);
+        destination={{
+          connected: true,
+          chain: namadaChain as Chain,
+          availableWallets: [wallets.namada!],
+          wallet: wallets.namada,
+          isShielded,
+          onChangeShielded: setShielded,
         }}
-        onChangeSelectedAsset={setSelectedAsset}
-        availableSourceChains={Object.values(sourceChains)}
-        availableAssets={sourceAssetList}
-        selectedAsset={selectedAsset}
-        sourceChain={selectedSourceChain}
-        destinationChain={namadaChain as Chain}
-        destinationWallet={wallets.namada}
-        isShielded={isShielded}
-        onChangeShielded={setShielded}
-        availableAmount={new BigNumber(100) /* Change this */}
         transactionFee={new BigNumber(0.01)}
+        onSubmitTransfer={console.log}
       />
     </Panel>
   );
