@@ -1,5 +1,6 @@
 import initSdk from "@heliax/namada-sdk/inline-init";
 import { getSdk, Sdk } from "@heliax/namada-sdk/web";
+import { QueryStatus, useQuery } from "@tanstack/react-query";
 import { nativeTokenAddressAtom } from "atoms/chain";
 import { rpcUrlAtom } from "atoms/settings";
 import { getDefaultStore, useAtomValue } from "jotai";
@@ -13,20 +14,14 @@ import {
 } from "react";
 import Proxies from "../../scripts/proxies.json";
 
-export enum MaspParamsStatus {
-  Fetching = "fetching",
-  Loaded = "loaded",
-  Error = "error",
-}
-
 type SdkContext = {
   sdk?: Sdk;
-  maspParamsStatus?: MaspParamsStatus;
+  maspParamsStatus: QueryStatus;
 };
 
 export const SdkContext = createContext<SdkContext>({
   sdk: undefined,
-  maspParamsStatus: undefined,
+  maspParamsStatus: "pending",
 });
 
 const { VITE_PROXY: isProxied } = import.meta.env;
@@ -63,30 +58,38 @@ export const SdkProvider: FunctionComponent<PropsWithChildren> = ({
   children,
 }) => {
   const [sdk, setSdk] = useState<Sdk>();
-  const [maspParamsStatus, setMaspParamsStatus] = useState<MaspParamsStatus>();
   const nativeToken = useAtomValue(nativeTokenAddressAtom);
+
+  // fetchAndStoreMaspParams() returns nothing,
+  // so we return boolean on success for the query to succeed:
+  const fetchMaspParams = async (): Promise<boolean | void> => {
+    const { masp } = sdk!;
+
+    return masp.hasMaspParams().then(async (hasMaspParams) => {
+      if (hasMaspParams) {
+        await masp.loadMaspParams("").catch((e) => Promise.reject(e));
+        return true;
+      }
+      return masp
+        .fetchAndStoreMaspParams(paramsUrl)
+        .then(() => masp.loadMaspParams("").then(() => true))
+        .catch((e) => {
+          throw new Error(e);
+        });
+    });
+  };
+
+  const { status: maspParamsStatus } = useQuery({
+    queryKey: ["sdk"],
+    queryFn: fetchMaspParams,
+    retry: 3,
+    retryDelay: 3000,
+  });
 
   useEffect(() => {
     if (nativeToken.data) {
       getSdkInstance().then((sdk) => {
         setSdk(sdk);
-        const { masp } = sdk;
-        masp.hasMaspParams().then((hasMaspParams) => {
-          if (hasMaspParams) {
-            return masp
-              .loadMaspParams("")
-              .then(() => setMaspParamsStatus(MaspParamsStatus.Loaded))
-              .catch((e) => console.error(`${e}`));
-          }
-          setMaspParamsStatus(MaspParamsStatus.Fetching);
-          masp
-            .fetchAndStoreMaspParams(paramsUrl)
-            .then(() => setMaspParamsStatus(MaspParamsStatus.Loaded))
-            .catch((e) => {
-              setMaspParamsStatus(MaspParamsStatus.Error);
-              console.error(`Error downloading MASP params ${e}`);
-            });
-        });
       });
     }
   }, [nativeToken.data]);

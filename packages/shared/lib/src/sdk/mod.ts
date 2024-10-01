@@ -20,6 +20,32 @@ type MaspParamBytes = {
   bytes: Uint8Array;
 };
 
+/**
+ * The following sha256 digests where produced by downloading the following:
+ * https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/masp-convert.params
+ * https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/masp-spend.params
+ * https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/masp-output.params
+ *
+ * And running "sha256sum" against each file:
+ *
+ * > sha256sum masp-convert.params
+ * 8e049c905e0e46f27662c7577a4e3480c0047ee1171f7f6d9c5b0de757bf71f1  masp-convert.params
+ *
+ * > sha256sum masp-spend.params
+ * 62b3c60ca54bd99eb390198e949660624612f7db7942db84595fa9f1b4a29fd8  masp-spend.params
+ *
+ * > sha256sum masp-output.params
+ * ed8b5d354017d808cfaf7b31eca5c511936e65ef6d276770251f5234ec5328b8  masp-output.params
+ *
+ * Length is specified in bytes, and can be retrieved with:
+ *
+ * > wc -c < masp-convert.params
+ * 22570940
+ * > wc -c < masp-spend.params
+ * 49848572
+ * > wc -c < masp-output.params
+ * 16398620
+ */
 const MASP_PARAM_ATTR: Record<
   MaspParam,
   { length: number; sha256sum: string }
@@ -102,7 +128,7 @@ export async function fetchAndStore(
   return await fetchParams(param, url)
     .then((data) => set(param, data))
     .catch((e) => {
-      console.warn(`Encountered errors fetching ${param}: ${e}`);
+      return Promise.reject(`Encountered errors fetching ${param}: ${e}`);
     });
 }
 
