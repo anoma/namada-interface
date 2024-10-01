@@ -13,8 +13,10 @@ import { AccountOverview } from "./AccountOverview";
 import { App } from "./App";
 import { NotFound } from "./Common/NotFound";
 import { RouteErrorBoundary } from "./Common/RouteErrorBoundary";
-import { Governance } from "./Governance";
-import { GovernanceRoutes } from "./Governance/routes";
+import { GovernanceOverview } from "./Governance/GovernanceOverview";
+import { ProposalAndVote } from "./Governance/ProposalAndVote";
+import { SubmitVote } from "./Governance/SubmitVote";
+import { ViewJson } from "./Governance/ViewJson";
 import { IbcLayout } from "./Ibc/IbcLayout";
 import { IbcShieldAll } from "./Ibc/IbcShieldAll";
 import { IbcTransfer } from "./Ibc/IbcTransfer";
@@ -27,9 +29,11 @@ import { SettingsPanel } from "./Settings/SettingsPanel";
 import { SettingsRoutes } from "./Settings/routes";
 import { SignMessages } from "./SignMessages/SignMessages";
 import { MessageRoutes } from "./SignMessages/routes";
-import { Staking } from "./Staking";
+import IncrementBonding from "./Staking/IncrementBonding";
+import { ReDelegate } from "./Staking/ReDelegate";
+import { StakingOverview } from "./Staking/StakingOverview";
 import { StakingRewards } from "./Staking/StakingRewards";
-import { StakingRoutes } from "./Staking/routes";
+import { Unstake } from "./Staking/Unstake";
 import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
 import { SwitchAccountRoutes } from "./SwitchAccount/routes";
 import { NamTransfer } from "./Transfer/NamTransfer";
@@ -52,11 +56,23 @@ export const MainRoutes = (): JSX.Element => {
       <Routes location={state?.backgroundLocation || location}>
         <Route path="/" element={<App />} errorElement={<RouteErrorBoundary />}>
           <Route index element={<AccountOverview />} />
-          <Route path={`${StakingRoutes.index()}/*`} element={<Staking />} />
+          <Route path={routes.staking} element={<StakingOverview />} />
           <Route
-            path={`${GovernanceRoutes.index()}/*`}
-            element={<Governance />}
+            path={routes.stakingBondingIncrement}
+            element={<IncrementBonding />}
           />
+          <Route path={routes.stakingBondingUnstake} element={<Unstake />} />
+          <Route
+            path={routes.stakingBondingRedelegate}
+            element={<ReDelegate />}
+          />
+          <Route path={routes.governance} element={<GovernanceOverview />} />
+          <Route
+            path={routes.governanceProposal}
+            element={<ProposalAndVote />}
+          />
+          <Route path={routes.governanceSubmitVote} element={<SubmitVote />} />
+          <Route path={routes.governanceJson} element={<ViewJson />} />
           {features.maspEnabled && (
             <Route element={<MaspLayout />}>
               <Route path={routes.masp} element={<MaspOverview />} />
@@ -95,10 +111,7 @@ export const MainRoutes = (): JSX.Element => {
           element={<SignMessages />}
           errorElement={<RouteErrorBoundary />}
         />
-        <Route
-          path={`${StakingRoutes.claimRewards().url}`}
-          element={<StakingRewards />}
-        />
+        <Route path={routes.stakingClaimRewards} element={<StakingRewards />} />
       </Routes>
       <ScrollRestoration />
     </>

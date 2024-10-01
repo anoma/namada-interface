@@ -4,6 +4,7 @@ import {
   Stack,
 } from "@namada/components";
 import { Proposal, VoteType } from "@namada/types";
+import { routes } from "App/routes";
 import {
   canVoteAtom,
   proposalFamily,
@@ -16,7 +17,7 @@ import { AtomWithQueryResult } from "jotai-tanstack-query";
 import { FaChevronLeft } from "react-icons/fa";
 import { SiWebassembly } from "react-icons/si";
 import { VscJson } from "react-icons/vsc";
-import { Link, useNavigate } from "react-router-dom";
+import { generatePath, Link, useNavigate } from "react-router-dom";
 import {
   proposalIdToString,
   secondsToDateTimeString,
@@ -27,7 +28,6 @@ import {
   TypeLabel as TypeLabelComponent,
   VotedLabel as VotedLabelComponent,
 } from "./ProposalLabels";
-import { GovernanceRoutes } from "./routes";
 
 export const ProposalHeader: React.FC<{
   proposalId: bigint;
@@ -78,16 +78,15 @@ const Title: React.FC<{
 
 const Breadcrumbs: React.FC<{ proposalId: bigint }> = ({ proposalId }) => (
   <div className="text-xxs text-neutral-500">
-    <Link
-      className="transition-colors hover:text-white"
-      to={GovernanceRoutes.index()}
-    >
+    <Link className="transition-colors hover:text-white" to={routes.governance}>
       Governance
     </Link>{" "}
     /&nbsp;
     <Link
       className="transition-colors hover:text-white"
-      to={GovernanceRoutes.proposal(proposalId).url}
+      to={generatePath(routes.governanceProposal, {
+        proposalId: proposalId.toString(),
+      })}
     >
       Proposal {proposalIdToString(proposalId)}
     </Link>
@@ -96,7 +95,7 @@ const Breadcrumbs: React.FC<{ proposalId: bigint }> = ({ proposalId }) => (
 
 const BackButton: React.FC = () => (
   <Link
-    to={GovernanceRoutes.index()}
+    to={routes.governance}
     className={clsx(
       "inline-flex items-center text-xxs gap-1",
       "text-neutral-200 bg-neutral-900 my-2 px-2 py-0.5 rounded-sm",
@@ -125,7 +124,9 @@ const JsonButton: React.FC<{
       className="px-3 py-2"
       size="xs"
       outlineColor="white"
-      href={GovernanceRoutes.viewJson(proposalId).url}
+      href={generatePath(routes.governanceJson, {
+        proposalId: proposalId.toString(),
+      })}
     >
       <span className="flex text-xs justify-between gap-2">
         <VscJson />
@@ -320,7 +321,12 @@ const VoteButton: React.FC<{
 
       return {
         disabled,
-        onClick: () => navigate(GovernanceRoutes.submitVote(proposalId).url),
+        onClick: () =>
+          navigate(
+            generatePath(routes.governanceSubmitVote, {
+              proposalId: proposalId.toString(),
+            })
+          ),
         text,
       };
     }

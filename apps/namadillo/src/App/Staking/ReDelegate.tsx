@@ -2,6 +2,7 @@ import { ActionButton, Alert, Modal, Panel } from "@namada/components";
 import { RedelegateMsgValue } from "@namada/types";
 import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
+import { routes } from "App/routes";
 import { defaultAccountAtom } from "atoms/accounts";
 import { createReDelegateTxAtom } from "atoms/staking";
 import { allValidatorsAtom } from "atoms/validators";
@@ -18,7 +19,6 @@ import { AddressBalance, Validator } from "types";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { ReDelegateAssignStake } from "./ReDelegateAssignStake";
 import { ReDelegateRemoveStake } from "./ReDelegateRemoveStake";
-import { StakingRoutes } from "./routes";
 
 export const ReDelegate = (): JSX.Element => {
   const [step, setStep] = useState<"remove" | "assign">("remove");
@@ -51,7 +51,7 @@ export const ReDelegate = (): JSX.Element => {
     );
   };
 
-  const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
+  const onCloseModal = (): void => navigate(routes.staking);
 
   const {
     execute: performRedelegate,
@@ -169,7 +169,7 @@ export const ReDelegate = (): JSX.Element => {
                 backgroundColor="white"
                 backgroundHoverColor="pink"
                 size="sm"
-                href={StakingRoutes.unstake().url}
+                href={routes.stakingBondingUnstake}
               >
                 Unstake
               </ActionButton>

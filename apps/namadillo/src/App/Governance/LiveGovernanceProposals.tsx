@@ -1,12 +1,12 @@
 import { SegmentedBar, Stack } from "@namada/components";
 import { Proposal, VoteType, voteTypes } from "@namada/types";
+import { routes } from "App/routes";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { GoInfo } from "react-icons/go";
-import { useNavigate } from "react-router-dom";
+import { generatePath, useNavigate } from "react-router-dom";
 import { secondsToDateTimeString } from "utils";
 import { StatusLabel, TypeLabel, VotedLabel } from "./ProposalLabels";
-import { GovernanceRoutes } from "./routes";
 import { colors } from "./types";
 
 const ProposalListItem: React.FC<{
@@ -33,7 +33,13 @@ const ProposalListItem: React.FC<{
     <Stack
       as="li"
       gap={3}
-      onClick={() => navigate(GovernanceRoutes.proposal(proposal.id).url)}
+      onClick={() =>
+        navigate(
+          generatePath(routes.governanceProposal, {
+            proposalId: proposal.id.toString(),
+          })
+        )
+      }
       className={clsx(
         "group/proposal cursor-pointer text-sm",
         "rounded-md bg-[#191919] p-4"

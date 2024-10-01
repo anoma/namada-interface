@@ -20,9 +20,8 @@ import { useNavigate } from "react-router-dom";
 import { MyValidator } from "types";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { UnstakeBondingTable } from "./UnstakeBondingTable";
-import { StakingRoutes } from "./routes";
 
-const Unstake = (): JSX.Element => {
+export const Unstake = (): JSX.Element => {
   const navigate = useNavigate();
   const { data: account } = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(myValidatorsAtom);
@@ -45,7 +44,7 @@ const Unstake = (): JSX.Element => {
     }));
   };
 
-  const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
+  const onCloseModal = (): void => navigate(routes.staking);
 
   const {
     execute: performUnbond,
@@ -224,5 +223,3 @@ const Unstake = (): JSX.Element => {
     </Modal>
   );
 };
-
-export default Unstake;

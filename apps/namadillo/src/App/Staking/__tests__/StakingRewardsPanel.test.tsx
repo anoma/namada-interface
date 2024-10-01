@@ -3,7 +3,7 @@ mockReactRouterDom("/");
 mockJotai();
 
 import { fireEvent, render, screen } from "@testing-library/react";
-import { StakingRoutes } from "App/Staking/routes";
+import { routes } from "App/routes";
 import { StakingRewardsPanel } from "App/Staking/StakingRewardsPanel";
 import { applicationFeaturesAtom } from "atoms/settings";
 import { claimableRewardsAtom } from "atoms/staking";
@@ -82,11 +82,8 @@ describe("Component: StakingRewardsPanel", () => {
     const claimButton = getClaimButton();
     expect(claimButton).not.toBeDisabled();
     fireEvent.click(claimButton);
-    expect(mockNavigate).toHaveBeenCalledWith(
-      StakingRoutes.claimRewards().url,
-      {
-        state: { backgroundLocation: { pathname: "/" } },
-      }
-    );
+    expect(mockNavigate).toHaveBeenCalledWith(routes.stakingClaimRewards, {
+      state: { backgroundLocation: { pathname: "/" } },
+    });
   });
 });

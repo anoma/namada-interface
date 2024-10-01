@@ -4,12 +4,13 @@ import { Proposal, isProposalStatus, proposalStatuses } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import { Search } from "App/Common/Search";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
+import { routes } from "App/routes";
 import { paginatedProposalsFamily } from "atoms/proposals";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { GoCheckCircleFill, GoInfo } from "react-icons/go";
-import { useNavigate } from "react-router-dom";
+import { generatePath, useNavigate } from "react-router-dom";
 import {
   proposalStatusToString,
   proposalTypeStringToString,
@@ -17,7 +18,6 @@ import {
   secondsToTimeString,
 } from "utils";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
-import { GovernanceRoutes } from "./routes";
 
 const Table: React.FC<
   {
@@ -50,7 +50,11 @@ const Table: React.FC<
       "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md"
     ),
     onClick: () => {
-      navigate(GovernanceRoutes.proposal(proposal.id).url);
+      navigate(
+        generatePath(routes.governanceProposal, {
+          proposalId: proposal.id.toString(),
+        })
+      );
     },
     cells: [
       // ID

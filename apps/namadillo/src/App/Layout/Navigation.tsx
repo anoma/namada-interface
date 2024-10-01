@@ -1,8 +1,6 @@
 import { SidebarMenuItem } from "App/Common/SidebarMenuItem";
-import { GovernanceRoutes } from "App/Governance/routes";
 import { MASPIcon } from "App/Icons/MASPIcon";
 import { routes } from "App/routes";
-import { StakingRoutes } from "App/Staking/routes";
 import { applicationFeaturesAtom } from "atoms/settings";
 import { useAtomValue } from "jotai";
 import { AiFillHome } from "react-icons/ai";
@@ -25,12 +23,12 @@ export const Navigation = (): JSX.Element => {
     {
       label: "Staking",
       icon: <GoStack />,
-      url: StakingRoutes.index(),
+      url: routes.staking,
     },
     {
       label: "Governance",
       icon: <FaVoteYea />,
-      url: GovernanceRoutes.index(),
+      url: routes.governance,
     },
     {
       label: "MASP",
