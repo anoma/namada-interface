@@ -1,6 +1,6 @@
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { ErrorBox } from "App/Common/ErrorBox";
-import { SettingsRoutes } from "App/Settings/routes";
+import { routes } from "App/routes";
 import { chainAtom } from "atoms/chain";
 import { useAtomValue } from "jotai";
 import { ReactNode } from "react";
@@ -15,7 +15,7 @@ const UpdateSettingsButton = (): JSX.Element => {
     <button
       className="text-yellow hover:text-cyan"
       onClick={() => {
-        navigate(SettingsRoutes.advanced().url, {
+        navigate(routes.settingsAdvanced, {
           state: { backgroundLocation: location },
         });
       }}

@@ -1,8 +1,6 @@
 import { ActionButton } from "@namada/components";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
 import { routes } from "App/routes";
-import { SettingsRoutes } from "App/Settings/routes";
-import { MessageRoutes } from "App/SignMessages/routes";
 import {
   applicationFeaturesAtom,
   namadaExtensionConnectedAtom,
@@ -61,7 +59,7 @@ export const TopNavigation = (): JSX.Element => {
       <button
         className="text-2xl text-yellow hover:text-cyan"
         onClick={() =>
-          navigate(SettingsRoutes.index(), {
+          navigate(routes.settings, {
             state: { backgroundLocation: location },
           })
         }
@@ -73,7 +71,7 @@ export const TopNavigation = (): JSX.Element => {
           className="text-2xl text-yellow hover:text-cyan"
           title="Sign Message"
           onClick={() =>
-            navigate(MessageRoutes.index(), {
+            navigate(routes.signMessages, {
               state: { backgroundLocation: location },
             })
           }

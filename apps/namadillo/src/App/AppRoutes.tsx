@@ -25,17 +25,18 @@ import { MaspLayout } from "./Masp/MaspLayout";
 import { MaspOverview } from "./Masp/MaspOverview";
 import { MaspShield } from "./Masp/MaspShield";
 import { MaspUnshield } from "./Masp/MaspUnshield";
+import { Advanced } from "./Settings/Advanced";
+import { EnableFeatures } from "./Settings/EnableFeatures";
+import { SettingsMain } from "./Settings/SettingsMain";
 import { SettingsPanel } from "./Settings/SettingsPanel";
-import { SettingsRoutes } from "./Settings/routes";
+import { SettingsSignArbitrary } from "./Settings/SettingsSignArbitrary";
 import { SignMessages } from "./SignMessages/SignMessages";
-import { MessageRoutes } from "./SignMessages/routes";
 import IncrementBonding from "./Staking/IncrementBonding";
 import { ReDelegate } from "./Staking/ReDelegate";
 import { StakingOverview } from "./Staking/StakingOverview";
 import { StakingRewards } from "./Staking/StakingRewards";
 import { Unstake } from "./Staking/Unstake";
 import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
-import { SwitchAccountRoutes } from "./SwitchAccount/routes";
 import { NamTransfer } from "./Transfer/NamTransfer";
 import { TransferLayout } from "./Transfer/TransferLayout";
 import { routes } from "./routes";
@@ -47,7 +48,7 @@ export const MainRoutes = (): JSX.Element => {
 
   // Avoid animation being fired twice when navigating inside settings modal routes
   const settingsAnimationKey =
-    location.pathname.indexOf(SettingsRoutes.index()) > -1 ?
+    location.pathname.indexOf(routes.settings) > -1 ?
       "settings-modal"
     : location.pathname;
 
@@ -55,7 +56,10 @@ export const MainRoutes = (): JSX.Element => {
     <>
       <Routes location={state?.backgroundLocation || location}>
         <Route path="/" element={<App />} errorElement={<RouteErrorBoundary />}>
+          {/* Home */}
           <Route index element={<AccountOverview />} />
+
+          {/* Staking */}
           <Route path={routes.staking} element={<StakingOverview />} />
           <Route
             path={routes.stakingBondingIncrement}
@@ -66,6 +70,8 @@ export const MainRoutes = (): JSX.Element => {
             path={routes.stakingBondingRedelegate}
             element={<ReDelegate />}
           />
+
+          {/* Governance */}
           <Route path={routes.governance} element={<GovernanceOverview />} />
           <Route
             path={routes.governanceProposal}
@@ -73,6 +79,8 @@ export const MainRoutes = (): JSX.Element => {
           />
           <Route path={routes.governanceSubmitVote} element={<SubmitVote />} />
           <Route path={routes.governanceJson} element={<ViewJson />} />
+
+          {/* Masp */}
           {features.maspEnabled && (
             <Route element={<MaspLayout />}>
               <Route path={routes.masp} element={<MaspOverview />} />
@@ -80,6 +88,8 @@ export const MainRoutes = (): JSX.Element => {
               <Route path={routes.maspUnshield} element={<MaspUnshield />} />
             </Route>
           )}
+
+          {/* Ibc */}
           {features.ibcTransfersEnabled && (
             <Route element={<IbcLayout />}>
               <Route path={routes.ibc} element={<IbcTransfer />} />
@@ -87,31 +97,44 @@ export const MainRoutes = (): JSX.Element => {
               <Route path={routes.ibcShieldAll} element={<IbcShieldAll />} />
             </Route>
           )}
+
+          {/* Transfer */}
           {features.namTransfersEnabled && (
             <Route element={<TransferLayout />}>
               <Route path={routes.transfer} element={<NamTransfer />} />
             </Route>
           )}
+
+          {/* Other */}
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+
+      {/* Modals */}
       <Routes location={location} key={settingsAnimationKey}>
-        <Route
-          path={`${SettingsRoutes.index()}/*`}
-          element={<SettingsPanel />}
-          errorElement={<RouteErrorBoundary />}
-        />
-        <Route
-          path={`${SwitchAccountRoutes.index()}/*`}
-          element={<SwitchAccountPanel />}
-          errorElement={<RouteErrorBoundary />}
-        />
-        <Route
-          path={`${MessageRoutes.index()}/*`}
-          element={<SignMessages />}
-          errorElement={<RouteErrorBoundary />}
-        />
-        <Route path={routes.stakingClaimRewards} element={<StakingRewards />} />
+        <Route errorElement={<RouteErrorBoundary />}>
+          {/* Settings */}
+          <Route element={<SettingsPanel />}>
+            <Route path={routes.settings} element={<SettingsMain />} />
+            <Route path={routes.settingsAdvanced} element={<Advanced />} />
+            <Route
+              path={routes.settingsSignArbitrary}
+              element={<SettingsSignArbitrary />}
+            />
+            <Route
+              path={routes.settingsFeatures}
+              element={<EnableFeatures />}
+            />
+          </Route>
+
+          {/* Other Modals */}
+          <Route path={routes.switchAccount} element={<SwitchAccountPanel />} />
+          <Route path={routes.signMessages} element={<SignMessages />} />
+          <Route
+            path={routes.stakingClaimRewards}
+            element={<StakingRewards />}
+          />
+        </Route>
       </Routes>
       <ScrollRestoration />
     </>

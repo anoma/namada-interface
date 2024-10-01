@@ -6,6 +6,7 @@ import { ModalContainer } from "App/Common/ModalContainer";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { TransactionFees } from "App/Common/TransactionFees";
+import { routes } from "App/routes";
 import { defaultAccountAtom } from "atoms/accounts";
 import { chainParametersAtom } from "atoms/chain";
 import { createUnbondTxAtom } from "atoms/staking";

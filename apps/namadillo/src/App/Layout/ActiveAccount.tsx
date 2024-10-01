@@ -1,5 +1,5 @@
 import { CopyToClipboardControl, Tooltip } from "@namada/components";
-import { SwitchAccountRoutes } from "App/SwitchAccount/routes";
+import { routes } from "App/routes";
 import { defaultAccountAtom, disconnectAccountAtom } from "atoms/accounts";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
@@ -39,7 +39,7 @@ export const ActiveAccount = (): JSX.Element => {
         <button
           className={buttonClassName}
           onClick={() => {
-            navigate(SwitchAccountRoutes.index(), {
+            navigate(routes.switchAccount, {
               state: { backgroundLocation: location },
             });
           }}
