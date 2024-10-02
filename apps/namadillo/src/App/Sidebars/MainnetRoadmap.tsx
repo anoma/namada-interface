@@ -33,7 +33,7 @@ const MainnetRoadmap = (): JSX.Element => {
   };
 
   return (
-    <div className="flex flex-col items-center w-[240px] py-10 px-6 mx-auto">
+    <div className="bg-black rounded-sm flex flex-col items-center w-[240px] py-10 px-6 mx-auto">
       <Image styleOverrides={{ width: "50px" }} imageName="LogoMinimal" />
       <h2 className="text-yellow text-center uppercase text-xl leading-6 font-medium mt-2.5">
         Namada Mainnet Roadmap

@@ -10,6 +10,7 @@ import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { Panel } from "@namada/components";
 import { DerivedAccount, WindowWithNamada } from "@namada/types";
+import { ConnectGate } from "App/Common/ConnectGate";
 import { useState } from "react";
 
 const keplr = (window as KeplrWindow).keplr!;
@@ -66,86 +67,94 @@ export const IbcTransfer: React.FC = () => {
   );
 
   return (
-    <Panel title="IBC" className="mb-2 bg-[#999999] text-black">
-      {/* Error */}
-      <p className="text-[#ff0000]">{error}</p>
+    <ConnectGate
+      disconnectedText="To IBC Transfer please connect your account"
+      missingAccountText="To IBC Transfer please create or import an account using Namada keychain"
+    >
+      <Panel title="IBC" className="mb-2 bg-[#999999] text-black">
+        {/* Error */}
+        <p className="text-[#ff0000]">{error}</p>
 
-      <hr />
+        <hr />
 
-      {/* Keplr addresses */}
-      <h3>Keplr addresses</h3>
-      <button className={buttonStyles} onClick={getAddress}>
-        get address
-      </button>
-      <p>
-        {alias} {address}
-      </p>
+        {/* Keplr addresses */}
+        <h3>Keplr addresses</h3>
+        <button className={buttonStyles} onClick={getAddress}>
+          get address
+        </button>
+        <p>
+          {alias} {address}
+        </p>
 
-      <hr />
+        <hr />
 
-      {/* Balances */}
-      <h3>Balances</h3>
-      <button className={buttonStyles} onClick={getBalances}>
-        get balances
-      </button>
-      {balances?.map(({ denom, amount }) => (
-        <div key={denom}>
-          <label>
-            <input
-              type="radio"
-              name="token"
-              value={denom}
-              checked={token === denom}
-              onChange={(e) => setToken(e.target.value)}
-            />
-            {denom} {amount}
-          </label>
-        </div>
-      ))}
+        {/* Balances */}
+        <h3>Balances</h3>
+        <button className={buttonStyles} onClick={getBalances}>
+          get balances
+        </button>
+        {balances?.map(({ denom, amount }) => (
+          <div key={denom}>
+            <label>
+              <input
+                type="radio"
+                name="token"
+                value={denom}
+                checked={token === denom}
+                onChange={(e) => setToken(e.target.value)}
+              />
+              {denom} {amount}
+            </label>
+          </div>
+        ))}
 
-      <hr />
+        <hr />
 
-      {/* Namada accounts */}
-      <h3>Namada accounts</h3>
-      <button className={buttonStyles} onClick={getNamadaAccounts}>
-        get namada accounts
-      </button>
+        {/* Namada accounts */}
+        <h3>Namada accounts</h3>
+        <button className={buttonStyles} onClick={getNamadaAccounts}>
+          get namada accounts
+        </button>
 
-      {namadaAccounts?.map(({ alias, address }) => (
-        <div key={address}>
-          <label>
-            <input
-              type="radio"
-              name="target"
-              value={address}
-              checked={target === address}
-              onChange={(e) => setTarget(e.target.value)}
-            />
-            {alias} {address}
-          </label>
-        </div>
-      ))}
+        {namadaAccounts?.map(({ alias, address }) => (
+          <div key={address}>
+            <label>
+              <input
+                type="radio"
+                name="target"
+                value={address}
+                checked={target === address}
+                onChange={(e) => setTarget(e.target.value)}
+              />
+              {alias} {address}
+            </label>
+          </div>
+        ))}
 
-      <hr />
+        <hr />
 
-      {/* Amount to send */}
-      <h3>Amount to send</h3>
-      <input value={amount} onChange={(e) => setAmount(e.target.value)} />
+        {/* Amount to send */}
+        <h3>Amount to send</h3>
+        <input value={amount} onChange={(e) => setAmount(e.target.value)} />
 
-      <hr />
+        <hr />
 
-      {/* Channel ID */}
-      <h3>Channel ID</h3>
-      <input value={channelId} onChange={(e) => setChannelId(e.target.value)} />
+        {/* Channel ID */}
+        <h3>Channel ID</h3>
+        <input
+          value={channelId}
+          onChange={(e) => setChannelId(e.target.value)}
+        />
 
-      <hr />
+        <hr />
 
-      {/* Submit IBC transfer */}
-      <h3>Submit IBC transfer</h3>
-      <button className={buttonStyles} onClick={submitIbcTransfer}>
-        submit IBC transfer
-      </button>
-    </Panel>
+        {/* Submit IBC transfer */}
+        <h3>Submit IBC transfer</h3>
+        <button className={buttonStyles} onClick={submitIbcTransfer}>
+          submit IBC transfer
+        </button>
+      </Panel>
+    </ConnectGate>
   );
 };
 
