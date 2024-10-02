@@ -354,7 +354,7 @@ impl Query {
             .retry_strategy(RetryStrategy::Times(10))
             .build();
 
-        let env = sync::TaskEnvWeb {};
+        let env = sync::TaskEnvWeb::new();
 
         let mut shielded_context: ShieldedContext<JSShieldedUtils> = ShieldedContext::default();
 

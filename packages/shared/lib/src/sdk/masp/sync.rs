@@ -1,38 +1,76 @@
 use namada_sdk::control_flow::ShutdownSignal;
 use namada_sdk::io::ProgressBar;
 use namada_sdk::task_env::{TaskEnvironment, TaskSpawner};
-use wasm_bindgen_futures::spawn_local;
+use tokio::task::LocalSet;
 
-pub struct TaskSpawnerWeb {}
+#[cfg(not(feature = "multicore"))]
+mod spawner {
+    use super::*;
+    pub struct TaskSpawnerWeb {}
 
-impl TaskSpawner for TaskSpawnerWeb {
-    fn spawn_async<F>(&self, fut: F)
-    where
-        F: std::future::Future<Output = ()> + 'static,
-    {
-        // In browsers we use `spawn_local` which runs the future in the WebAssembly context.
-        spawn_local(fut);
+    impl TaskSpawner for TaskSpawnerWeb {
+        fn spawn_async<F>(&self, fut: F)
+        where
+            F: std::future::Future<Output = ()> + 'static,
+        {
+            tokio::task::spawn_local(fut);
+        }
+
+        fn spawn_sync<F>(&self, job: F)
+        where
+            F: FnOnce() + Send + 'static,
+        {
+            job();
+        }
     }
+}
 
-    fn spawn_sync<F>(&self, job: F)
-    where
-        F: FnOnce() + Send + 'static,
-    {
-        job();
+#[cfg(feature = "multicore")]
+mod spawner {
+    use super::*;
+    use rayon;
+    use std::future::Future;
+
+    pub struct TaskSpawnerWeb {}
+
+    impl TaskSpawner for TaskSpawnerWeb {
+        #[inline]
+        fn spawn_async<F>(&self, fut: F)
+        where
+            F: Future<Output = ()> + 'static,
+        {
+            tokio::task::spawn_local(fut);
+        }
+
+        #[inline]
+        fn spawn_sync<F>(&self, job: F)
+        where
+            F: FnOnce() + Send + 'static,
+        {
+            rayon::spawn(job);
+        }
     }
 }
 
 pub struct TaskEnvWeb {}
 
+impl TaskEnvWeb {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
 impl TaskEnvironment for TaskEnvWeb {
-    type Spawner = TaskSpawnerWeb;
+    type Spawner = spawner::TaskSpawnerWeb;
 
     async fn run<M, F, R>(self, main: M) -> R
     where
         M: FnOnce(Self::Spawner) -> F,
         F: std::future::Future<Output = R>,
     {
-        main(TaskSpawnerWeb {}).await
+        LocalSet::new()
+            .run_until(main(spawner::TaskSpawnerWeb {}))
+            .await
     }
 }
 
