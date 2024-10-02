@@ -1,11 +1,7 @@
-use js_sys::Function;
 use namada_sdk::control_flow::ShutdownSignal;
 use namada_sdk::io::ProgressBar;
 use namada_sdk::task_env::{TaskEnvironment, TaskSpawner};
-use wasm_bindgen::prelude::Closure;
-use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::spawn_local;
-use web_sys::window;
 
 pub struct TaskSpawnerWeb {}
 
@@ -22,23 +18,7 @@ impl TaskSpawner for TaskSpawnerWeb {
     where
         F: FnOnce() + Send + 'static,
     {
-        // To synchronize in the browser environment, we use `setTimeout`.
-        let job_box = Box::new(job) as Box<dyn FnOnce()>;
-
-        // We create a `Closure` that will be called by `setTimeout`.
-        let closure = Closure::once_into_js(move || {
-            job_box();
-        });
-
-        // We call `setTimeout` with a timeout of 0ms, which will run the closure as soon as possible.
-        // TODO: this might not work outside of the browser application(in web/service worker)
-        window()
-            .expect("no global `window` exists")
-            .set_timeout_with_callback_and_timeout_and_arguments_0(
-                closure.as_ref().unchecked_ref::<Function>(),
-                0,
-            )
-            .expect("setTimeout failed");
+        job();
     }
 }
 
