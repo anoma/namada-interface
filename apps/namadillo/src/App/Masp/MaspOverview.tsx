@@ -19,22 +19,15 @@ export const MaspOverview: React.FC = () => {
       {isConnected && hasAccount === false && (
         <ConnectBanner text="To shield assets please create or import an account using Namada keychain" />
       )}
-      {isConnected && hasAccount && (
-        <div className="flex flex-col sm:grid sm:grid-cols-[2fr_3fr] gap-2">
-          <Panel>
-            <ShieldedBalanceChart />
-          </Panel>
-          <Panel>
-            <ShieldedNamBalance />
-          </Panel>
-        </div>
-      )}
-      <Panel
-        className="relative pb-6 border border-yellow"
-        title="Shielded Overview"
-      >
-        <ShieldedOverviewPanel />
-      </Panel>
+      <div className="flex flex-col sm:grid sm:grid-cols-[2fr_3fr] gap-2">
+        <Panel>
+          <ShieldedBalanceChart />
+        </Panel>
+        <Panel>
+          <ShieldedNamBalance />
+        </Panel>
+      </div>
+      <ShieldedOverviewPanel />
     </div>
   );
 };

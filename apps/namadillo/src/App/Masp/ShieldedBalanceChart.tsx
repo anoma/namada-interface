@@ -4,7 +4,7 @@ import { useBalances } from "hooks/useBalances";
 import { colors } from "theme";
 
 export const ShieldedBalanceChart = (): JSX.Element => {
-  const { isLoading, isSuccess } = useBalances();
+  const { isLoading } = useBalances();
 
   return (
     <AtomErrorBoundary
@@ -13,15 +13,13 @@ export const ShieldedBalanceChart = (): JSX.Element => {
       niceError="Unable to load balance"
     >
       <div className="flex w-full h-[260px]">
-        {isLoading && (
+        {isLoading ?
           <SkeletonLoading
             height="auto"
             width="80%"
             className="rounded-full aspect-square mx-auto border-neutral-800 border-[22px] bg-transparent"
           />
-        )}
-        {isSuccess && (
-          <PieChart
+        : <PieChart
             id="balance-chart"
             className="xl:max-w-[85%] mx-auto"
             data={[{ value: 100, color: colors.shielded }]}
@@ -35,7 +33,7 @@ export const ShieldedBalanceChart = (): JSX.Element => {
               <div className="text-2xl sm:text-3xl">$9999.99</div>
             </div>
           </PieChart>
-        )}
+        }
       </div>
     </AtomErrorBoundary>
   );
