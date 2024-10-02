@@ -32,19 +32,16 @@ import namadaChain from "registry/namada.json";
 
 import { Asset, Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
-import { integrations } from "@namada/integrations";
 import { selectedIBCChainAtom, selectedIBCWallet } from "atoms/integrations";
 import { wallets } from "integrations";
 import { useAtom } from "jotai";
 import { useMemo } from "react";
-import { WalletProvider } from "types";
 import { TransferModule } from "./TransferModule";
 
-export const Example = (): JSX.Element => {
-  const [selectedWallet, setWallet] = useAtom(selectedIBCWallet);
-  const [chainId, setChainId] = useAtom(selectedIBCChainAtom);
+export const ExampleFromNamada = (): JSX.Element => {
+  const [selectedWallet] = useAtom(selectedIBCWallet);
   const [selectedAsset, setSelectedAsset] = useState<Asset>();
-  const [isShielded, setShielded] = useState(true);
+  const [chainId] = useAtom(selectedIBCChainAtom);
 
   const sourceChainConfig: [Chain, Asset[]][] = [
     [cosmos, cosmosAssets.assets],
@@ -74,7 +71,7 @@ export const Example = (): JSX.Element => {
     }
   }, [chainId]);
 
-  const selectedSourceChain =
+  const selectedChain =
     chainId && chainId in sourceChains ? sourceChains[chainId] : undefined;
 
   useEffect(() => {
@@ -87,41 +84,27 @@ export const Example = (): JSX.Element => {
     }
   }, [chainId]);
 
-  const onChangeWallet = async (wallet: WalletProvider): Promise<void> => {
-    try {
-      await integrations[wallet.id].connect();
-      setWallet(wallet.id);
-      if (!chainId) {
-        setChainId(cosmos.chain_id);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   return (
     <Panel className="py-20">
       <TransferModule
         source={{
           connected: true,
-          wallet: selectedWallet ? wallets[selectedWallet] : undefined,
-          onChangeWallet,
-          availableWallets: Object.values(wallets),
-          onChangeChain: (chain) => setChainId(chain.chain_id),
+          wallet: wallets.namada!,
+          availableWallets: [],
           onChangeSelectedAsset: setSelectedAsset,
           availableChains: Object.values(sourceChains),
           availableAmount: new BigNumber(100),
-          chain: selectedSourceChain,
+          chain: namadaChain as Chain,
           availableAssets,
           selectedAsset,
         }}
         destination={{
           connected: true,
-          chain: namadaChain as Chain,
-          availableWallets: [wallets.namada!],
-          wallet: wallets.namada,
-          isShielded,
-          onChangeShielded: setShielded,
+          wallet: selectedWallet ? wallets[selectedWallet] : undefined,
+          chain: selectedChain,
+          availableWallets: Object.values(wallets),
+          enableCustomAddress: true,
+          isShielded: true,
         }}
         transactionFee={new BigNumber(0.01)}
         onSubmitTransfer={console.log}

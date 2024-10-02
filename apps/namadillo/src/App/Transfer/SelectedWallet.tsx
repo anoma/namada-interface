@@ -46,7 +46,7 @@ export const SelectedWallet = ({
       className={clsx(
         "flex justify-between items-center gap-2 text-sm text-neutral-500",
         "font-light text-right transition-colors",
-        { "hover:text-neutral-400": Boolean(onClick) }
+        { "hover:text-neutral-400": Boolean(onClick), "cursor-auto": !onClick }
       )}
       onClick={onClick}
     >
