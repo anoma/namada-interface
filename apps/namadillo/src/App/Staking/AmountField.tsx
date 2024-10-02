@@ -1,5 +1,5 @@
 import { NamInput, NamInputProps } from "App/Common/NamInput";
-import StakingRoutes from "App/Staking/routes";
+import { routes } from "App/routes";
 import clsx from "clsx";
 import { Link } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
@@ -68,10 +68,7 @@ export const AmountField = ({
         {isInactive && hasStakedAmounts && (
           <p>
             Validator is inactive please{" "}
-            <Link
-              to={StakingRoutes.redelegateBonding().url}
-              className="underline"
-            >
+            <Link to={routes.stakingBondingRedelegate} className="underline">
               redelegate
             </Link>{" "}
             your stake

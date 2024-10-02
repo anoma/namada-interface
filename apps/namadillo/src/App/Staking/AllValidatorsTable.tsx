@@ -5,6 +5,7 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { Search } from "App/Common/Search";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { WalletAddress } from "App/Common/WalletAddress";
+import { routes } from "App/routes";
 import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { atomsAreLoading, atomsAreNotInitialized } from "atoms/utils";
 import { allValidatorsAtom } from "atoms/validators";
@@ -18,7 +19,6 @@ import { Validator } from "types";
 import { ValidatorAlias } from "./ValidatorAlias";
 import { ValidatorThumb } from "./ValidatorThumb";
 import { ValidatorsTable } from "./ValidatorsTable";
-import StakingRoutes from "./routes";
 
 type AllValidatorsProps = {
   resultsPerPage?: number;
@@ -121,7 +121,7 @@ export const AllValidatorsTable = ({
             <ActionButton
               size="sm"
               backgroundColor="cyan"
-              href={StakingRoutes.incrementBonding().url}
+              href={routes.stakingBondingIncrement}
             >
               Stake
             </ActionButton>

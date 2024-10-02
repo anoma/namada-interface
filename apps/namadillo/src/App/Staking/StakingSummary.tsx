@@ -7,8 +7,8 @@ import {
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { BalanceChart } from "App/Common/BalanceChart";
 import { NamCurrency } from "App/Common/NamCurrency";
+import { routes } from "App/routes";
 import { useBalances } from "hooks/useBalances";
-import StakingRoutes from "./routes";
 import { StakingRewardsPanel } from "./StakingRewardsPanel";
 
 export const StakingSummary = (): JSX.Element => {
@@ -72,7 +72,7 @@ export const StakingSummary = (): JSX.Element => {
                 className="px-8"
                 size="xs"
                 backgroundColor="cyan"
-                href={StakingRoutes.incrementBonding().url}
+                href={routes.stakingBondingIncrement}
               >
                 Stake
               </ActionButton>

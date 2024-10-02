@@ -1,6 +1,6 @@
 import { ActionButton, AmountSummaryCard } from "@namada/components";
 import { NamCurrency } from "App/Common/NamCurrency";
-import StakingRoutes from "App/Staking/routes";
+import { routes } from "App/routes";
 import { applicationFeaturesAtom } from "atoms/settings";
 import { claimableRewardsAtom } from "atoms/staking";
 import BigNumber from "bignumber.js";
@@ -49,7 +49,7 @@ export const StakingRewardsPanel = (): JSX.Element => {
           backgroundColor="white"
           disabled={!claimRewardsEnabled || availableRewards.eq(0)}
           onClick={() =>
-            navigate(StakingRoutes.claimRewards().url, {
+            navigate(routes.stakingClaimRewards, {
               state: { backgroundLocation: location },
             })
           }

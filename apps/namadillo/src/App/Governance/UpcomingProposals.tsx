@@ -1,9 +1,9 @@
 import { SegmentedBar, Stack } from "@namada/components";
-import GovernanceRoutes from "./routes";
 
 import { Proposal } from "@namada/types";
+import { routes } from "App/routes";
 import clsx from "clsx";
-import { useNavigate } from "react-router-dom";
+import { generatePath, useNavigate } from "react-router-dom";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
 
 const ProposalListItem: React.FC<{
@@ -22,7 +22,13 @@ const ProposalListItem: React.FC<{
     <Stack
       as="li"
       gap={3}
-      onClick={() => navigate(GovernanceRoutes.proposal(proposal.id).url)}
+      onClick={() =>
+        navigate(
+          generatePath(routes.governanceProposal, {
+            proposalId: proposal.id.toString(),
+          })
+        )
+      }
       className={clsx(
         "group/proposal cursor-pointer text-sm",
         "rounded-md bg-[#191919] p-4"

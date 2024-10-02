@@ -1,4 +1,5 @@
 import { Router } from "@remix-run/router";
+import { applicationFeaturesAtom } from "atoms/settings";
 import { useAtomValue } from "jotai";
 import {
   Route,
@@ -10,24 +11,35 @@ import {
 } from "react-router-dom";
 import { AccountOverview } from "./AccountOverview";
 import { App } from "./App";
+import { NotFound } from "./Common/NotFound";
 import { RouteErrorBoundary } from "./Common/RouteErrorBoundary";
-import { Governance } from "./Governance";
-import { Ibc } from "./Ibc";
+import { GovernanceOverview } from "./Governance/GovernanceOverview";
+import { ProposalAndVote } from "./Governance/ProposalAndVote";
+import { SubmitVote } from "./Governance/SubmitVote";
+import { ViewJson } from "./Governance/ViewJson";
+import { IbcLayout } from "./Ibc/IbcLayout";
+import { IbcShieldAll } from "./Ibc/IbcShieldAll";
+import { IbcTransfer } from "./Ibc/IbcTransfer";
+import { IbcWithdraw } from "./Ibc/IbcWithdraw";
+import { MaspLayout } from "./Masp/MaspLayout";
+import { MaspOverview } from "./Masp/MaspOverview";
+import { MaspShield } from "./Masp/MaspShield";
+import { MaspUnshield } from "./Masp/MaspUnshield";
+import { Advanced } from "./Settings/Advanced";
+import { EnableFeatures } from "./Settings/EnableFeatures";
+import { SettingsMain } from "./Settings/SettingsMain";
 import { SettingsPanel } from "./Settings/SettingsPanel";
-import { Staking } from "./Staking";
-import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
-
-import { applicationFeaturesAtom } from "atoms/settings";
-import GovernanceRoutes from "./Governance/routes";
-import IbcRoutes from "./Ibc/routes";
-import SettingsRoutes from "./Settings/routes";
+import { SettingsSignArbitrary } from "./Settings/SettingsSignArbitrary";
 import { SignMessages } from "./SignMessages/SignMessages";
-import MessageRoutes from "./SignMessages/routes";
+import IncrementBonding from "./Staking/IncrementBonding";
+import { ReDelegate } from "./Staking/ReDelegate";
+import { StakingOverview } from "./Staking/StakingOverview";
 import { StakingRewards } from "./Staking/StakingRewards";
-import StakingRoutes from "./Staking/routes";
-import SwitchAccountRoutes from "./SwitchAccount/routes";
-import { Transfer } from "./Transfer/Transfer";
-import TransferRoutes from "./Transfer/routes";
+import { Unstake } from "./Staking/Unstake";
+import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
+import { NamTransfer } from "./Transfer/NamTransfer";
+import { TransferLayout } from "./Transfer/TransferLayout";
+import { routes } from "./routes";
 
 export const MainRoutes = (): JSX.Element => {
   const location = useLocation();
@@ -36,46 +48,97 @@ export const MainRoutes = (): JSX.Element => {
 
   // Avoid animation being fired twice when navigating inside settings modal routes
   const settingsAnimationKey =
-    location.pathname.indexOf(SettingsRoutes.index()) > -1 ?
+    location.pathname.indexOf(routes.settings) > -1 ?
       "settings-modal"
     : location.pathname;
 
   return (
     <>
       <Routes location={state?.backgroundLocation || location}>
-        <Route path="/" element={<App />} errorElement={<RouteErrorBoundary />}>
+        <Route
+          path={routes.root}
+          element={<App />}
+          errorElement={<RouteErrorBoundary />}
+        >
+          {/* Home */}
           <Route index element={<AccountOverview />} />
-          <Route path={`${StakingRoutes.index()}/*`} element={<Staking />} />
+
+          {/* Staking */}
+          <Route path={routes.staking} element={<StakingOverview />} />
           <Route
-            path={`${GovernanceRoutes.index()}/*`}
-            element={<Governance />}
+            path={routes.stakingBondingIncrement}
+            element={<IncrementBonding />}
           />
-          <Route path={`${TransferRoutes.index()}/*`} element={<Transfer />} />
-          {features.ibcTransfersEnabled && (
-            <Route path={`${IbcRoutes.index()}/*`} element={<Ibc />} />
+          <Route path={routes.stakingBondingUnstake} element={<Unstake />} />
+          <Route
+            path={routes.stakingBondingRedelegate}
+            element={<ReDelegate />}
+          />
+
+          {/* Governance */}
+          <Route path={routes.governance} element={<GovernanceOverview />} />
+          <Route
+            path={routes.governanceProposal}
+            element={<ProposalAndVote />}
+          />
+          <Route path={routes.governanceSubmitVote} element={<SubmitVote />} />
+          <Route path={routes.governanceJson} element={<ViewJson />} />
+
+          {/* Masp */}
+          {features.maspEnabled && (
+            <Route element={<MaspLayout />}>
+              <Route path={routes.masp} element={<MaspOverview />} />
+              <Route path={routes.maspShield} element={<MaspShield />} />
+              <Route path={routes.maspUnshield} element={<MaspUnshield />} />
+            </Route>
           )}
+
+          {/* Ibc */}
+          {features.ibcTransfersEnabled && (
+            <Route element={<IbcLayout />}>
+              <Route path={routes.ibc} element={<IbcTransfer />} />
+              <Route path={routes.ibcWithdraw} element={<IbcWithdraw />} />
+              <Route path={routes.ibcShieldAll} element={<IbcShieldAll />} />
+            </Route>
+          )}
+
+          {/* Transfer */}
+          {features.namTransfersEnabled && (
+            <Route element={<TransferLayout />}>
+              <Route path={routes.transfer} element={<NamTransfer />} />
+            </Route>
+          )}
+
+          {/* Other */}
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+
+      {/* Modals */}
       <Routes location={location} key={settingsAnimationKey}>
-        <Route
-          path={`${SettingsRoutes.index()}/*`}
-          element={<SettingsPanel />}
-          errorElement={<RouteErrorBoundary />}
-        />
-        <Route
-          path={`${SwitchAccountRoutes.index()}/*`}
-          element={<SwitchAccountPanel />}
-          errorElement={<RouteErrorBoundary />}
-        />
-        <Route
-          path={`${MessageRoutes.index()}/*`}
-          element={<SignMessages />}
-          errorElement={<RouteErrorBoundary />}
-        />
-        <Route
-          path={`${StakingRoutes.claimRewards().url}`}
-          element={<StakingRewards />}
-        />
+        <Route errorElement={<RouteErrorBoundary />}>
+          {/* Settings */}
+          <Route element={<SettingsPanel />}>
+            <Route path={routes.settings} element={<SettingsMain />} />
+            <Route path={routes.settingsAdvanced} element={<Advanced />} />
+            <Route
+              path={routes.settingsSignArbitrary}
+              element={<SettingsSignArbitrary />}
+            />
+            <Route
+              path={routes.settingsFeatures}
+              element={<EnableFeatures />}
+            />
+          </Route>
+
+          {/* Other Modals */}
+          <Route path={routes.switchAccount} element={<SwitchAccountPanel />} />
+          <Route path={routes.signMessages} element={<SignMessages />} />
+          <Route
+            path={routes.stakingClaimRewards}
+            element={<StakingRewards />}
+          />
+        </Route>
       </Routes>
       <ScrollRestoration />
     </>

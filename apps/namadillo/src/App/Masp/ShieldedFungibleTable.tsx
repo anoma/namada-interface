@@ -3,6 +3,7 @@ import { formatPercentage } from "@namada/utils";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
+import { routes } from "App/routes";
 import BigNumber from "bignumber.js";
 import { AtomWithQueryResult } from "jotai-tanstack-query";
 import { useEffect, useState } from "react";
@@ -84,6 +85,7 @@ export const ShieldedFungibleTable = (): JSX.Element => {
           size="xs"
           outlineColor="white"
           className="w-fit mx-auto"
+          href={token.name === "NAM" ? routes.maspUnshield : routes.ibcWithdraw}
         >
           Unshield
         </ActionButton>,
@@ -116,14 +118,7 @@ export const ShieldedFungibleTable = (): JSX.Element => {
       niceError="Unable to load your validators list"
       containerProps={{ className: "pb-16" }}
     >
-      <ActionButton
-        size="xs"
-        outlineColor="white"
-        className="w-fit ml-auto mt-6"
-      >
-        Unshield ALL
-      </ActionButton>
-      <div className="text-sm font-medium">
+      <div className="text-sm font-medium mt-6">
         <span className="text-yellow">{list.length} </span>
         Tokens
       </div>

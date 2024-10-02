@@ -3,6 +3,7 @@ import { formatPercentage } from "@namada/utils";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { WalletAddress } from "App/Common/WalletAddress";
+import { routes } from "App/routes";
 import { myValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
@@ -10,7 +11,6 @@ import { useAtomValue } from "jotai";
 import { Address, MyValidator, Validator } from "types";
 import { ValidatorCard } from "./ValidatorCard";
 import { ValidatorsTable } from "./ValidatorsTable";
-import StakingRoutes from "./routes";
 
 export const MyValidatorsTable = (): JSX.Element => {
   const myValidators = useAtomValue(myValidatorsAtom);
@@ -108,7 +108,7 @@ export const MyValidatorsTable = (): JSX.Element => {
           className="basis-[content] py-1"
           backgroundColor="cyan"
           size="md"
-          href={StakingRoutes.incrementBonding().url}
+          href={routes.stakingBondingIncrement}
         >
           Stake
         </ActionButton>
@@ -116,7 +116,7 @@ export const MyValidatorsTable = (): JSX.Element => {
           className="basis-[content] py-1"
           backgroundColor="white"
           size="md"
-          href={StakingRoutes.redelegateBonding().url}
+          href={routes.stakingBondingRedelegate}
         >
           Redelegate
         </ActionButton>
@@ -128,7 +128,7 @@ export const MyValidatorsTable = (): JSX.Element => {
           textHoverColor="white"
           backgroundHoverColor="pink"
           size="md"
-          href={StakingRoutes.unstake().url}
+          href={routes.stakingBondingUnstake}
         >
           Unstake
         </ActionButton>

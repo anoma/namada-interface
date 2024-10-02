@@ -20,7 +20,7 @@ const rpc = "https://rpc-t.cosmos.nodestake.top";
 
 const buttonStyles = "bg-white my-2 p-2 block";
 
-export const Ibc: React.FC = () => {
+export const IbcTransfer: React.FC = () => {
   const [error, setError] = useState("");
   const [address, setAddress] = useState("");
   const [alias, setAlias] = useState("");

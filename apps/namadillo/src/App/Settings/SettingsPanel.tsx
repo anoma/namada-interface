@@ -1,15 +1,11 @@
 import { Modal } from "@namada/components";
 import { ModalTransition } from "App/Common/ModalTransition";
+import { routes } from "App/routes";
 import clsx from "clsx";
 import { useModalCloseEvent } from "hooks/useModalCloseEvent";
 import { FaChevronLeft } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
-import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { Advanced } from "./Advanced";
-import { EnableFeatures } from "./EnableFeatures";
-import { SettingsMain } from "./SettingsMain";
-import { SettingsSignArbitrary } from "./SettingsSignArbitrary";
-import SettingsRoutes from "./routes";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 export const SettingsPanel = (): JSX.Element => {
   const location = useLocation();
@@ -17,7 +13,7 @@ export const SettingsPanel = (): JSX.Element => {
   const { onCloseModal } = useModalCloseEvent();
 
   const onClickBack = (): void => {
-    navigate(SettingsRoutes.index(), { state: location.state });
+    navigate(routes.settings, { state: location.state });
   };
 
   return (
@@ -44,7 +40,7 @@ export const SettingsPanel = (): JSX.Element => {
             >
               <IoClose />
             </button>
-            {location.pathname !== SettingsRoutes.index() && (
+            {location.pathname !== routes.settings && (
               <button
                 className="absolute left-0 top-0 flex items-center h-full text-lg hover:text-yellow"
                 onClick={onClickBack}
@@ -54,21 +50,7 @@ export const SettingsPanel = (): JSX.Element => {
             )}
           </header>
           <div className="flex flex-1 overflow-auto dark-scrollbar">
-            <Routes>
-              <Route index element={<SettingsMain />} />
-              <Route
-                path={`${SettingsRoutes.signArbitrary()}`}
-                element={<SettingsSignArbitrary />}
-              />
-              <Route
-                path={`${SettingsRoutes.advanced()}`}
-                element={<Advanced />}
-              />
-              <Route
-                path={`${SettingsRoutes.features()}`}
-                element={<EnableFeatures />}
-              />
-            </Routes>
+            <Outlet />
           </div>
         </div>
       </ModalTransition>

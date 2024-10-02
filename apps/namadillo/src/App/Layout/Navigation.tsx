@@ -1,6 +1,7 @@
 import { SidebarMenuItem } from "App/Common/SidebarMenuItem";
-import GovernanceRoutes from "App/Governance/routes";
 import { MASPIcon } from "App/Icons/MASPIcon";
+import { routes } from "App/routes";
+import { applicationFeaturesAtom } from "atoms/settings";
 import { useAtomValue } from "jotai";
 import { AiFillHome } from "react-icons/ai";
 import { BsDiscord, BsTwitterX } from "react-icons/bs";
@@ -10,11 +11,6 @@ import { IoSwapHorizontal } from "react-icons/io5";
 import { TbVectorTriangle } from "react-icons/tb";
 import { DISCORD_URL, TWITTER_URL } from "urls";
 
-import IbcRoutes from "App/Ibc/routes";
-import StakingRoutes from "App/Staking/routes";
-import TransferRoutes from "App/Transfer/routes";
-import { applicationFeaturesAtom } from "atoms/settings";
-
 export const Navigation = (): JSX.Element => {
   const features = useAtomValue(applicationFeaturesAtom);
 
@@ -22,31 +18,32 @@ export const Navigation = (): JSX.Element => {
     {
       label: "Overview",
       icon: <AiFillHome />,
-      url: "/",
+      url: routes.root,
     },
     {
       label: "Staking",
       icon: <GoStack />,
-      url: StakingRoutes.index(),
+      url: routes.staking,
     },
     {
       label: "Governance",
       icon: <FaVoteYea />,
-      url: GovernanceRoutes.index(),
+      url: routes.governance,
     },
     {
       label: "MASP",
       icon: <MASPIcon />,
-      url: features.maspEnabled ? TransferRoutes.masp().url : undefined,
+      url: features.maspEnabled ? routes.masp : undefined,
     },
     {
       label: "IBC Transfer",
       icon: <TbVectorTriangle />,
-      url: features.ibcTransfersEnabled ? IbcRoutes.index() : undefined,
+      url: features.ibcTransfersEnabled ? routes.ibc : undefined,
     },
     {
       label: "Transfer",
       icon: <IoSwapHorizontal />,
+      url: features.namTransfersEnabled ? routes.transfer : undefined,
     },
   ];
 

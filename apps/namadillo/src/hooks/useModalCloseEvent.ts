@@ -1,3 +1,4 @@
+import { routes } from "App/routes";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type useModalCloseEventProps = {
@@ -14,7 +15,7 @@ export const useModalCloseEvent = (): useModalCloseEventProps => {
         replace: true,
       });
     } else {
-      navigate("/", { replace: true });
+      navigate(routes.root, { replace: true });
     }
   };
 

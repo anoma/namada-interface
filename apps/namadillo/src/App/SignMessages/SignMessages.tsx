@@ -1,5 +1,6 @@
 import { ActionButton, Input, Modal, Stack } from "@namada/components";
 import { ModalContainer } from "App/Common/ModalContainer";
+import { routes } from "App/routes";
 import { arbitraryMessagesAtom } from "atoms/arbitraryMessages";
 import { signArbitraryEnabledAtom } from "atoms/settings";
 import { useModalCloseEvent } from "hooks/useModalCloseEvent";
@@ -23,7 +24,7 @@ export const SignMessages = (): JSX.Element => {
 
   useEffect(() => {
     if (!signArbitraryEnabled) {
-      navigate("/", { replace: true });
+      navigate(routes.root, { replace: true });
     }
   }, [signArbitraryEnabled]);
 

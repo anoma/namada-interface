@@ -1,16 +1,16 @@
 import { useAtomValue } from "jotai";
-import { useNavigate } from "react-router-dom";
+import { generatePath, useNavigate } from "react-router-dom";
 
 import { Modal } from "@namada/components";
 import { PgfTarget, Proposal } from "@namada/types";
 import { assertNever, copyToClipboard } from "@namada/utils";
 import { ModalContainer } from "App/Common/ModalContainer";
+import { routes } from "App/routes";
 import { proposalFamily } from "atoms/proposals";
 import clsx from "clsx";
 import { useProposalIdParam } from "hooks";
 import { useState } from "react";
 import { GoCheck, GoCopy } from "react-icons/go";
-import GovernanceRoutes from "./routes";
 
 type DefaultData = Uint8Array;
 
@@ -142,7 +142,11 @@ export const ViewJson: React.FC = () => {
   }
 
   const onCloseModal = (): void =>
-    navigate(GovernanceRoutes.proposal(proposalId).url);
+    navigate(
+      generatePath(routes.governanceProposal, {
+        proposalId: proposalId.toString(),
+      })
+    );
 
   return (
     <Modal onClose={onCloseModal}>

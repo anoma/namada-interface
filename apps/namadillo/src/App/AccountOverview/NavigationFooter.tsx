@@ -1,6 +1,5 @@
 import { ActionButton, Heading, Stack } from "@namada/components";
-import GovernanceRoutes from "App/Governance/routes";
-import StakingRoutes from "App/Staking/routes";
+import { routes } from "App/routes";
 
 export const NavigationFooter = (): JSX.Element => {
   return (
@@ -11,7 +10,7 @@ export const NavigationFooter = (): JSX.Element => {
       <Stack gap={3} direction="horizontal">
         <ActionButton
           className="border uppercase"
-          href={StakingRoutes.overview().url}
+          href={routes.staking}
           size="sm"
           backgroundColor="cyan"
           outlineColor="cyan"
@@ -23,7 +22,7 @@ export const NavigationFooter = (): JSX.Element => {
         </ActionButton>
         <ActionButton
           size="sm"
-          href={GovernanceRoutes.index()}
+          href={routes.governance}
           outlineColor="yellow"
           className="uppercase"
           backgroundColor="transparent"

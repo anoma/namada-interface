@@ -1,6 +1,6 @@
 import { ActionButton } from "@namada/components";
 import svgImg from "App/Assets/ShieldedParty.svg";
-import TransferRoutes from "App/Transfer/routes";
+import { routes } from "App/routes";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
@@ -24,7 +24,7 @@ export const ShieldAllBanner = (): JSX.Element => {
         src={`${svgImg}${isAnimating ? "#hover " : ""}`}
       />
       <Link
-        to={TransferRoutes.shieldAll().url}
+        to={routes.ibcShieldAll}
         onMouseEnter={() => setIsAnimating(true)}
         onMouseLeave={() => setIsAnimating(false)}
       >

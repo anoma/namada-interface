@@ -6,6 +6,7 @@ import { ModalContainer } from "App/Common/ModalContainer";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { TransactionFees } from "App/Common/TransactionFees";
+import { routes } from "App/routes";
 import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
 import { chainParametersAtom } from "atoms/chain";
 import { createBondTxAtom } from "atoms/staking";
@@ -23,7 +24,6 @@ import { ValidatorFilterOptions } from "types";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { IncrementBondingTable } from "./IncrementBondingTable";
 import { ValidatorFilterNav } from "./ValidatorFilterNav";
-import StakingRoutes from "./routes";
 
 const IncrementBonding = (): JSX.Element => {
   const [filter, setFilter] = useState<string>("");
@@ -60,7 +60,7 @@ const IncrementBonding = (): JSX.Element => {
       .filter((entries) => entries.amount.gt(0));
   };
 
-  const onCloseModal = (): void => navigate(StakingRoutes.overview().url);
+  const onCloseModal = (): void => navigate(routes.staking);
 
   const {
     execute: performBonding,

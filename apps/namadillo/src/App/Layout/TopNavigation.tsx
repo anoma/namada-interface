@@ -1,7 +1,6 @@
 import { ActionButton } from "@namada/components";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
-import SettingsRoutes from "App/Settings/routes";
-import MessageRoutes from "App/SignMessages/routes";
+import { routes } from "App/routes";
 import {
   applicationFeaturesAtom,
   namadaExtensionConnectedAtom,
@@ -11,7 +10,6 @@ import { useAtomValue } from "jotai";
 import { AiOutlineMessage } from "react-icons/ai";
 import { IoSettingsOutline } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
-import TransferRoutes from "../Transfer/routes";
 import { ActiveAccount } from "./ActiveAccount";
 import { SyncIndicator } from "./SyncIndicator";
 
@@ -37,7 +35,7 @@ export const TopNavigation = (): JSX.Element => {
       <div className="hidden lg:flex gap-2">
         {maspEnabled && (
           <ActionButton
-            href={TransferRoutes.shield().url}
+            href={routes.maspShield}
             size="sm"
             className="w-[140px]"
           >
@@ -46,7 +44,7 @@ export const TopNavigation = (): JSX.Element => {
         )}
         {namTransfersEnabled && (
           <ActionButton
-            href={TransferRoutes.namTransfer().url}
+            href={routes.transfer}
             size="sm"
             backgroundColor="white"
             className="w-[140px]"
@@ -61,7 +59,7 @@ export const TopNavigation = (): JSX.Element => {
       <button
         className="text-2xl text-yellow hover:text-cyan"
         onClick={() =>
-          navigate(SettingsRoutes.index(), {
+          navigate(routes.settings, {
             state: { backgroundLocation: location },
           })
         }
@@ -73,7 +71,7 @@ export const TopNavigation = (): JSX.Element => {
           className="text-2xl text-yellow hover:text-cyan"
           title="Sign Message"
           onClick={() =>
-            navigate(MessageRoutes.index(), {
+            navigate(routes.signMessages, {
               state: { backgroundLocation: location },
             })
           }
