@@ -43,12 +43,10 @@ export const GovernanceOverview: React.FC = () => {
   return (
     <PageWithSidebar>
       <div className="flex flex-col gap-2">
-        {!isConnected && (
-          <ConnectBanner text="To vote please connect your account" />
-        )}
-        {isConnected && hasAccount === false && (
-          <ConnectBanner text="To vote please create or import an account using Namada keychain" />
-        )}
+        <ConnectBanner
+          disconnectedText="To vote please connect your account"
+          missingAccountText="To vote please create or import an account using Namada keychain"
+        />
         <ProposalListPanel
           title="Live Proposals"
           errorText="Unable to load live governance proposals"

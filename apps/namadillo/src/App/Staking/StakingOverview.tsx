@@ -25,12 +25,10 @@ export const StakingOverview = (): JSX.Element => {
   return (
     <PageWithSidebar>
       <div className="flex flex-col gap-2">
-        {!isConnected && (
-          <ConnectBanner text="To stake please connect your account" />
-        )}
-        {isConnected && hasAccount === false && (
-          <ConnectBanner text="To stake please create or import an account using Namada keychain" />
-        )}
+        <ConnectBanner
+          disconnectedText="To stake please connect your account"
+          missingAccountText="To stake please create or import an account using Namada keychain"
+        />
         {isConnected && hasAccount && <StakingSummary />}
         {hasStaking && (
           <Panel title="My Validators" className="relative grid">
