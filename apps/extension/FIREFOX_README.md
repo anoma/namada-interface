@@ -37,11 +37,13 @@ nvm install v20.9.0
 These instructions should work for the default reviewer build environment.
 
 ```bash
-sudo apt install protobuf-compiler build-essential
+sudo apt install protobuf-compiler build-essential curl pkg-config libssl-dev binaryen
 curl https://sh.rustup.rs -sSf | sh
 
+# Proceed with standard installation when prompted
+
 # Make sure to pull cargo into your current environment:
-source ~/.bashrc
+. "$HOME/.cargo/env"
 
 npm install -g yarn
 export PUPPETEER_SKIP_DOWNLOAD=true
