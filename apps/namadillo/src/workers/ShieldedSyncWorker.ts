@@ -5,7 +5,7 @@ import { getSdk } from "@heliax/namada-sdk/web";
 export type ShiededSyncPayload = {
   vks: string[];
   rpcUrl: string;
-  maspIndexerUrl: string;
+  maspIndexerUrl?: string;
 };
 
 export type ShieldedSyncMulticore = {
@@ -56,10 +56,10 @@ async function shieldedSync(
   const sdk = getSdk(
     cryptoMemory,
     rpcUrl,
-    maspIndexerUrl,
+    maspIndexerUrl || "",
     "",
-    // TODO: not really used, but required by the SDK, as long as it's valid address it's fine
-    "tnam1q9k4a0a7cgprwdj8epn28kmv9s5ntu098c3ua875"
+    // Not really used, but required by the SDK, as long as it's valid address it's fine
+    "tnam1qxfj3sf6a0meahdu9t6znp05g8zx4dkjtgyn9gfu"
   );
   await sdk.rpc.shieldedSync(payload.vks);
 }
