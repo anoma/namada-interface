@@ -12,7 +12,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import Proxies from "../../scripts/proxies.json";
 
 type SdkContext = {
   sdk?: Sdk;
@@ -24,10 +23,7 @@ export const SdkContext = createContext<SdkContext>({
   maspParamsStatus: "pending",
 });
 
-const { VITE_PROXY: isProxied } = import.meta.env;
-
-const paramsUrl =
-  isProxied ? `http://localhost:${Proxies[0].proxyPort}/proxy/` : undefined;
+const paramsUrl = "/params/";
 
 const initializeSdk = async (): Promise<Sdk> => {
   const { cryptoMemory } = await initSdk();
