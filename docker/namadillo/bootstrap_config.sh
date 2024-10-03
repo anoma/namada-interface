@@ -13,6 +13,9 @@ if [ ! -f $CONFIG_PATH ]; then
     if [[ -n $RPC_URL ]]; then
         echo "rpc_url = \"${RPC_URL}\"" >> $CONFIG_PATH
     fi
+    if [[ -n $MASP_INDEXER_URL ]]; then
+        echo "masp_indexer_url = \"${MASP_INDEXER_URL}\"" >> $CONFIG_PATH
+    fi
 else
     echo "Using configuration file at $CONFIG_PATH"
     if [[ -n $INDEXER_URL ]]; then
@@ -21,5 +24,8 @@ else
     if [[ -n $RPC_URL ]]; then
         sed -r -i "s~#?rpc_url = .*~rpc_url = \"${RPC_URL}\"~g" $CONFIG_PATH
     fi
-    cat $CONFIG_PATH
+    if [[ -n $MASP_INDEXER_URL ]]; then
+        sed -r -i "s~#?masp_indexer_url = .*~masp_indexer_url = \"${MASP_INDEXER_URL}\"~g" $CONFIG_PATH
+    fi
 fi
+cat $CONFIG_PATH
