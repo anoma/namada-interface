@@ -1,14 +1,20 @@
+import { ConnectPanel } from "App/Common/ConnectPanel";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
 import { Outlet } from "react-router-dom";
 
 export const IbcLayout: React.FC = () => {
   return (
-    <PageWithSidebar>
-      <Outlet />
-      <aside className="w-full mt-2 flex flex-col sm:flex-row lg:mt-0 lg:flex-col gap-2">
-        <ShieldAllBanner />
-      </aside>
-    </PageWithSidebar>
+    <ConnectPanel
+      disconnectedText="To IBC Transfer please connect your account"
+      missingAccountText="To IBC Transfer please create or import an account using Namada keychain"
+    >
+      <PageWithSidebar>
+        <Outlet />
+        <aside className="w-full mt-2 flex flex-col sm:flex-row lg:mt-0 lg:flex-col gap-2">
+          <ShieldAllBanner />
+        </aside>
+      </PageWithSidebar>
+    </ConnectPanel>
   );
 };
