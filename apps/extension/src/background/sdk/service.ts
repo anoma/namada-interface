@@ -8,6 +8,9 @@ const {
     defaultTokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
+// Extension does not care about the MASP indexer - this will map to None in Rust
+const MASP_INDEXER_URL = "";
+
 export class SdkService {
   private constructor(
     private rpc: string,
@@ -27,6 +30,12 @@ export class SdkService {
   }
 
   getSdk(): Sdk {
-    return getSdk(this.cryptoMemory, this.rpc, "NOT USED DB NAME", this.token);
+    return getSdk(
+      this.cryptoMemory,
+      this.rpc,
+      MASP_INDEXER_URL,
+      "NOT USED DB NAME",
+      this.token
+    );
   }
 }

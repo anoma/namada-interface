@@ -17,6 +17,18 @@ export const isIndexerAlive = async (url: string): Promise<boolean> => {
   }
 };
 
+export const isMaspIndexerAlive = async (url: string): Promise<boolean> => {
+  if (!isUrlValid(url)) {
+    return false;
+  }
+  try {
+    const response = await fetch(`${url}/health`);
+    return response.ok && response.status === 200;
+  } catch {
+    return false;
+  }
+};
+
 export const isRpcAlive = async (url: string): Promise<boolean> => {
   if (!isUrlValid(url)) {
     return false;

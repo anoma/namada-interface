@@ -27,7 +27,7 @@ describe("Signing", () => {
       validSignature.signature
     );
 
-    expect(result).toBe(null);
+    expect(result).toBeUndefined();
   });
 
   it("should throw error when validating an invalid signature", () => {
@@ -40,6 +40,6 @@ describe("Signing", () => {
         invalidSignature.signature
       );
 
-    expect(verify).toThrowError();
+    expect(verify).toThrow();
   });
 });

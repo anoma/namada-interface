@@ -17,6 +17,7 @@ use namada_sdk::address::Address;
 use namada_sdk::borsh::{self, BorshDeserialize};
 use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada_sdk::hash::Hash;
+use namada_sdk::io::NamadaIo;
 use namada_sdk::key::{common, ed25519, SigScheme};
 use namada_sdk::masp::ShieldedContext;
 use namada_sdk::rpc::{query_epoch, InnerTxResult};
@@ -56,7 +57,7 @@ impl Sdk {
         let namada = NamadaImpl::native_new(
             client,
             wallet,
-            shielded_ctx,
+            shielded_ctx.into(),
             WebIo,
             //NAM address
             Address::from_str(&native_token).unwrap(),
@@ -80,7 +81,7 @@ impl Sdk {
     pub async fn load_masp_params(&self, _db_name: JsValue) -> Result<(), JsValue> {
         // _dn_name is not used in the web version for a time being
         let params = get_masp_params().await?;
-        let params_iter = js_sys::try_iter(&params)?.ok_or_else(|| "Can't iterate over JsValue")?;
+        let params_iter = js_sys::try_iter(&params)?.ok_or("Can't iterate over JsValue")?;
         let mut params_bytes = params_iter.map(|p| to_bytes(p.unwrap()));
 
         let spend = params_bytes.next().unwrap();
@@ -91,7 +92,7 @@ impl Sdk {
         assert_eq!(params_bytes.next(), None);
 
         let mut shielded = self.namada.shielded_mut().await;
-        *shielded = masp::JSShieldedUtils::new(spend, output, convert).await?;
+        *shielded = ShieldedContext::new(masp::JSShieldedUtils::new(spend, output, convert).await?);
 
         Ok(())
     }
@@ -101,7 +102,7 @@ impl Sdk {
         let context_dir = context_dir.as_string().unwrap();
 
         let mut shielded = self.namada.shielded_mut().await;
-        *shielded = masp::JSShieldedUtils::new(&context_dir).await;
+        *shielded = ShieldedContext::new(masp::JSShieldedUtils::new(&context_dir).await);
 
         Ok(())
     }
@@ -237,12 +238,10 @@ impl Sdk {
                 );
                 to_js_result(borsh::to_vec(&response)?)
             }
-            _ => {
-                return Err(JsError::new(&format!(
-                    "Tx not applied: {}",
-                    &wrapper_hash.unwrap().to_string()
-                )))
-            }
+            _ => Err(JsError::new(&format!(
+                "Tx not applied: {}",
+                &wrapper_hash.unwrap().to_string()
+            ))),
         }
     }
 
@@ -252,13 +251,13 @@ impl Sdk {
         let built_txs_bytes: Vec<Vec<u8>> = txs.into_serde().unwrap();
 
         for bytes in built_txs_bytes.iter() {
-            let tx: tx::Tx = borsh::from_slice(&bytes)?;
+            let tx: tx::Tx = borsh::from_slice(bytes)?;
             built_txs.push(tx);
         }
 
         // Get wrapper args
         let first_tx = built_txs
-            .get(0)
+            .first()
             .expect("At least one Tx is required for building batches!");
 
         let args = first_tx.args();
@@ -271,7 +270,7 @@ impl Sdk {
             let signing_tx_data = built_tx.signing_tx_data()?;
             let tx: Tx = Tx::try_from_slice(&tx_bytes)?;
             let first_signing_data = signing_tx_data
-                .get(0)
+                .first()
                 .expect("At least one signing data should be present on a Tx");
 
             txs.push((tx, first_signing_data.to_owned()));
@@ -299,7 +298,7 @@ impl Sdk {
             raw_signature,
             wrapper_indices,
             wrapper_signature,
-        } = signature::SignatureMsg::try_from_slice(&sig_msg_bytes)?;
+        } = signature::SignatureMsg::try_from_slice(sig_msg_bytes)?;
 
         let raw_sig_section =
             signature::construct_signature_section(&pubkey, &raw_indices, &raw_signature, &tx)?;
@@ -454,9 +453,9 @@ impl Sdk {
 
     // Sign arbitrary data with the provided signing key
     pub fn sign_arbitrary(&self, signing_key: String, data: String) -> Result<JsValue, JsError> {
-        let hash = Hash::sha256(&data);
+        let hash = Hash::sha256(data);
         let secret = common::SecretKey::Ed25519(ed25519::SecretKey::from_str(&signing_key)?);
-        let signature = common::SigScheme::sign(&secret, &hash);
+        let signature = common::SigScheme::sign(&secret, hash);
         let sig_bytes = signature.to_bytes();
 
         to_js_result((hash.to_string().to_lowercase(), hex::encode(sig_bytes)))
@@ -468,13 +467,12 @@ impl Sdk {
         public_key: String,
         signed_hash: String,
         signature: String,
-    ) -> Result<JsValue, JsError> {
+    ) -> Result<(), JsError> {
         let public_key = common::PublicKey::from_str(&public_key)?;
-        let sig = common::Signature::try_from_slice(&hex::decode(&signature)?)?;
+        let sig = common::Signature::try_from_slice(&hex::decode(signature)?)?;
         let signed_hash = Hash::from_str(&signed_hash)?;
-        let result = common::SigScheme::verify_signature(&public_key, &signed_hash, &sig)?;
 
-        to_js_result(result)
+        common::SigScheme::verify_signature(&public_key, &signed_hash, &sig).map_err(JsError::from)
     }
 
     fn serialize_tx_result(

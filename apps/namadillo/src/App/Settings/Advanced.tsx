@@ -2,8 +2,10 @@ import { ActionButton, Input, Stack } from "@namada/components";
 import { chainParametersAtom } from "atoms/chain";
 import {
   indexerUrlAtom,
+  maspIndexerUrlAtom,
   rpcUrlAtom,
   updateIndexerUrlAtom,
+  updateMaspIndexerUrlAtom,
   updateRpcUrlAtom,
 } from "atoms/settings";
 import { useAtom, useAtomValue } from "jotai";
@@ -16,11 +18,14 @@ export const Advanced = (): JSX.Element => {
   const [currentRpc] = useAtom(rpcUrlAtom);
   const [rpcMutation] = useAtom(updateRpcUrlAtom);
   const [currentIndexer] = useAtom(indexerUrlAtom);
+  const [currentMaspIndexer] = useAtom(maspIndexerUrlAtom);
   const [indexerMutation] = useAtom(updateIndexerUrlAtom);
+  const [maspIndexerMutation] = useAtom(updateMaspIndexerUrlAtom);
   const { data: chainParameters } = useAtomValue(chainParametersAtom);
 
   const [rpc, setRpc] = useState(currentRpc);
   const [indexer, setIndexer] = useState(currentIndexer);
+  const [maspIndexer, setMaspIndexer] = useState(currentMaspIndexer);
 
   const onSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -28,13 +33,17 @@ export const Advanced = (): JSX.Element => {
       await Promise.all([
         rpcMutation.mutateAsync(rpc),
         indexerMutation.mutateAsync(indexer),
+        maspIndexerMutation.mutateAsync(maspIndexer),
       ]);
       document.location.href =
         location.state.backgroundLocation.pathname ?? location.pathname;
     } catch {}
   };
 
-  const isPending = rpcMutation.isPending || indexerMutation.isPending;
+  const isPending =
+    rpcMutation.isPending ||
+    indexerMutation.isPending ||
+    maspIndexerMutation.isPending;
 
   return (
     <form
@@ -70,6 +79,21 @@ export const Advanced = (): JSX.Element => {
             rpcMutation.reset();
           }}
           required
+        />
+        <Input
+          type="text"
+          placeholder="Optional"
+          value={maspIndexer}
+          error={
+            maspIndexerMutation.error instanceof Error &&
+            maspIndexerMutation.error.message
+          }
+          label="MASP Indexer URL"
+          className="[&_input]:border-neutral-300"
+          onChange={(e) => {
+            setMaspIndexer(e.currentTarget.value);
+            maspIndexerMutation.reset();
+          }}
         />
         <Input
           type="text"

@@ -2,7 +2,7 @@ import initSdk from "@heliax/namada-sdk/inline-init";
 import { getSdk, Sdk } from "@heliax/namada-sdk/web";
 import { QueryStatus, useQuery } from "@tanstack/react-query";
 import { nativeTokenAddressAtom } from "atoms/chain";
-import { rpcUrlAtom } from "atoms/settings";
+import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { getDefaultStore, useAtomValue } from "jotai";
 import {
   createContext,
@@ -33,13 +33,20 @@ const initializeSdk = async (): Promise<Sdk> => {
   const { cryptoMemory } = await initSdk();
   const store = getDefaultStore();
   const rpcUrl = store.get(rpcUrlAtom);
+  const maspIndexerUrl = store.get(maspIndexerUrlAtom);
   const nativeToken = store.get(nativeTokenAddressAtom);
 
   if (!nativeToken.isSuccess) {
     throw "Native token not loaded";
   }
 
-  const sdk = getSdk(cryptoMemory, rpcUrl, "", nativeToken.data);
+  const sdk = getSdk(
+    cryptoMemory,
+    rpcUrl,
+    maspIndexerUrl,
+    "",
+    nativeToken.data
+  );
   return sdk;
 };
 

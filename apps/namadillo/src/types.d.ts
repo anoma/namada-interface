@@ -45,6 +45,7 @@ export type ChainSettings = {
 
 export type SettingsTomlOptions = {
   indexer_url?: string;
+  masp_indexer_url?: string;
   rpc_url?: string;
 };
 
@@ -61,6 +62,7 @@ export type SettingsStorage = {
   fiat: CurrencyType;
   rpcUrl?: string;
   indexerUrl: string;
+  maspIndexerUrl?: string;
   signArbitraryEnabled: boolean;
 };
 

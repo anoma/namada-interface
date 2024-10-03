@@ -1,7 +1,7 @@
 //! PaymentAddress - Provide wasm_bindgen bindings for shielded addresses
 //! See @namada/crypto for zip32 HD wallet functionality.
 use namada_sdk::borsh::BorshDeserialize;
-use namada_sdk::masp;
+use namada_sdk::{ExtendedViewingKey as NamadaExtendedViewingKey, ExtendedSpendingKey as NamadaExtendedSpendingKey, PaymentAddress as NamadaPaymentAddress};
 use namada_sdk::masp_primitives::{sapling, zip32};
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
@@ -14,9 +14,9 @@ pub enum MaspError {
     BorshDeserialize,
 }
 
-/// Wrap masp::ExtendedViewingKey
+/// Wrap ExtendedViewingKey
 #[wasm_bindgen]
-pub struct ExtendedViewingKey(pub(crate) masp::ExtendedViewingKey);
+pub struct ExtendedViewingKey(pub(crate) NamadaExtendedViewingKey);
 
 /// wasm_bindgen bindings for ExtendedViewingKey
 #[wasm_bindgen]
@@ -27,7 +27,7 @@ impl ExtendedViewingKey {
         let xfvk: zip32::ExtendedFullViewingKey = BorshDeserialize::try_from_slice(key)
             .map_err(|err| format!("{}: {:?}", MaspError::BorshDeserialize, err))?;
 
-        let vk = masp::ExtendedViewingKey::from(xfvk);
+        let vk = NamadaExtendedViewingKey::from(xfvk);
 
         Ok(ExtendedViewingKey(vk))
     }
@@ -38,9 +38,9 @@ impl ExtendedViewingKey {
     }
 }
 
-/// Wrap masp::ExtendedSpendingKey
+/// Wrap ExtendedSpendingKey
 #[wasm_bindgen]
-pub struct ExtendedSpendingKey(pub(crate) masp::ExtendedSpendingKey);
+pub struct ExtendedSpendingKey(pub(crate) NamadaExtendedSpendingKey);
 
 /// wasm_bindgen bindings for ExtendedViewingKey
 #[wasm_bindgen]
@@ -51,7 +51,7 @@ impl ExtendedSpendingKey {
         let xsk: zip32::ExtendedSpendingKey = BorshDeserialize::try_from_slice(key)
             .map_err(|err| format!("{}: {:?}", MaspError::BorshDeserialize, err))?;
 
-        let xsk = masp::ExtendedSpendingKey::from(xsk);
+        let xsk = NamadaExtendedSpendingKey::from(xsk);
 
         Ok(ExtendedSpendingKey(xsk))
     }
@@ -62,9 +62,9 @@ impl ExtendedSpendingKey {
     }
 }
 
-/// Wrap masp::PaymentAddress
+/// Wrap PaymentAddress
 #[wasm_bindgen]
-pub struct PaymentAddress(pub(crate) masp::PaymentAddress);
+pub struct PaymentAddress(pub(crate) NamadaPaymentAddress);
 
 /// wasm_bindgen bindings for PaymentAddress
 #[wasm_bindgen]
@@ -74,7 +74,7 @@ impl PaymentAddress {
     pub fn new(address: &[u8]) -> Result<PaymentAddress, String> {
         let payment_address: sapling::PaymentAddress = BorshDeserialize::try_from_slice(address)
             .map_err(|err| format!("{}: {:?}", MaspError::BorshDeserialize, err))?;
-        let payment_address = masp::PaymentAddress::from(payment_address);
+        let payment_address = NamadaPaymentAddress::from(payment_address);
         Ok(PaymentAddress(payment_address))
     }
 
