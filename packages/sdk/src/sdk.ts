@@ -1,5 +1,6 @@
 import Transport from "@ledgerhq/hw-transport";
 import { Query as QueryWasm, Sdk as SdkWasm } from "@namada/shared";
+import { version } from "../package.json";
 import { Crypto } from "./crypto";
 import { Keys } from "./keys";
 import { Ledger } from "./ledger";
@@ -112,6 +113,13 @@ export class Sdk {
   }
 
   /**
+   * Return SDK Package version
+   */
+  getVersion(): string {
+    return version;
+  }
+
+  /**
    * Define rpc getter to use with destructuring assignment
    * @returns rpc client
    */
@@ -165,5 +173,13 @@ export class Sdk {
    */
   get crypto(): Crypto {
     return this.getCrypto();
+  }
+
+  /**
+   * Define version getter for use with destructuring assignment
+   * @returns Version from package.json
+   */
+  get version(): string {
+    return this.getVersion();
   }
 }

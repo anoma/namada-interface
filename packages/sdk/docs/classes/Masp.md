@@ -41,7 +41,7 @@ Class representing utilities related to MASP
 
 #### Defined in
 
-[sdk/src/masp.ts:10](https://github.com/anoma/namada-interface/blob/274de167f98eee0c6109fe1c209a8a1e3e9d3690/packages/sdk/src/masp.ts#L10)
+[sdk/src/masp.ts:10](https://github.com/anoma/namada-interface/blob/1d4f58032bec9e5a3a9d37d9972c35c7fcd31151/packages/sdk/src/masp.ts#L10)
 
 ## Properties
 
@@ -53,7 +53,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/masp.ts:10](https://github.com/anoma/namada-interface/blob/274de167f98eee0c6109fe1c209a8a1e3e9d3690/packages/sdk/src/masp.ts#L10)
+[sdk/src/masp.ts:10](https://github.com/anoma/namada-interface/blob/1d4f58032bec9e5a3a9d37d9972c35c7fcd31151/packages/sdk/src/masp.ts#L10)
 
 ## Methods
 
@@ -80,7 +80,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp.ts:70](https://github.com/anoma/namada-interface/blob/274de167f98eee0c6109fe1c209a8a1e3e9d3690/packages/sdk/src/masp.ts#L70)
+[sdk/src/masp.ts:70](https://github.com/anoma/namada-interface/blob/1d4f58032bec9e5a3a9d37d9972c35c7fcd31151/packages/sdk/src/masp.ts#L70)
 
 ___
 
@@ -107,7 +107,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp.ts:48](https://github.com/anoma/namada-interface/blob/274de167f98eee0c6109fe1c209a8a1e3e9d3690/packages/sdk/src/masp.ts#L48)
+[sdk/src/masp.ts:48](https://github.com/anoma/namada-interface/blob/1d4f58032bec9e5a3a9d37d9972c35c7fcd31151/packages/sdk/src/masp.ts#L48)
 
 ___
 
@@ -134,7 +134,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp.ts:59](https://github.com/anoma/namada-interface/blob/274de167f98eee0c6109fe1c209a8a1e3e9d3690/packages/sdk/src/masp.ts#L59)
+[sdk/src/masp.ts:59](https://github.com/anoma/namada-interface/blob/1d4f58032bec9e5a3a9d37d9972c35c7fcd31151/packages/sdk/src/masp.ts#L59)
 
 ___
 
@@ -160,7 +160,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp.ts:27](https://github.com/anoma/namada-interface/blob/274de167f98eee0c6109fe1c209a8a1e3e9d3690/packages/sdk/src/masp.ts#L27)
+[sdk/src/masp.ts:27](https://github.com/anoma/namada-interface/blob/1d4f58032bec9e5a3a9d37d9972c35c7fcd31151/packages/sdk/src/masp.ts#L27)
 
 ___
 
@@ -180,7 +180,7 @@ True if MASP parameters are loaded
 
 #### Defined in
 
-[sdk/src/masp.ts:17](https://github.com/anoma/namada-interface/blob/274de167f98eee0c6109fe1c209a8a1e3e9d3690/packages/sdk/src/masp.ts#L17)
+[sdk/src/masp.ts:17](https://github.com/anoma/namada-interface/blob/1d4f58032bec9e5a3a9d37d9972c35c7fcd31151/packages/sdk/src/masp.ts#L17)
 
 ___
 
@@ -206,4 +206,4 @@ void
 
 #### Defined in
 
-[sdk/src/masp.ts:37](https://github.com/anoma/namada-interface/blob/274de167f98eee0c6109fe1c209a8a1e3e9d3690/packages/sdk/src/masp.ts#L37)
+[sdk/src/masp.ts:37](https://github.com/anoma/namada-interface/blob/1d4f58032bec9e5a3a9d37d9972c35c7fcd31151/packages/sdk/src/masp.ts#L37)
