@@ -3,9 +3,9 @@ import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
 import { routes } from "App/routes";
 import {
   applicationFeaturesAtom,
-  namadaExtensionConnectedAtom,
   signArbitraryEnabledAtom,
 } from "atoms/settings";
+import { useAuthenticatedStatus } from "hooks/useAuthenticatedStatus";
 import { useAtomValue } from "jotai";
 import { AiOutlineMessage } from "react-icons/ai";
 import { IoSettingsOutline } from "react-icons/io5";
@@ -14,7 +14,7 @@ import { ActiveAccount } from "./ActiveAccount";
 import { SyncIndicator } from "./SyncIndicator";
 
 export const TopNavigation = (): JSX.Element => {
-  const isExtensionConnected = useAtomValue(namadaExtensionConnectedAtom);
+  const { isAuthenticated } = useAuthenticatedStatus();
   const signArbitraryEnabled = useAtomValue(signArbitraryEnabledAtom);
   const { maspEnabled, namTransfersEnabled } = useAtomValue(
     applicationFeaturesAtom
@@ -22,7 +22,7 @@ export const TopNavigation = (): JSX.Element => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  if (!isExtensionConnected) {
+  if (!isAuthenticated) {
     return (
       <div className="w-fit justify-self-end">
         <ConnectExtensionButton />

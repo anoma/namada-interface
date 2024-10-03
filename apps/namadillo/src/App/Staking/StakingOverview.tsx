@@ -4,7 +4,7 @@ import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification";
 import { YourStakingDistribution } from "App/Sidebars/YourStakingDistribution";
 import { myValidatorsAtom } from "atoms/validators";
-import { useIsAuthenticated } from "hooks/useIsAuthenticated";
+import { useAuthenticatedStatus } from "hooks/useAuthenticatedStatus";
 import { useAtomValue } from "jotai";
 import { AllValidatorsTable } from "./AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
@@ -12,7 +12,7 @@ import { StakingSummary } from "./StakingSummary";
 import { UnbondingAmountsTable } from "./UnbondingAmountsTable";
 
 export const StakingOverview = (): JSX.Element => {
-  const isAuthenticated = useIsAuthenticated();
+  const { isAuthenticated } = useAuthenticatedStatus();
   const myValidators = useAtomValue(myValidatorsAtom);
   const hasStaking = myValidators.data?.some((v) => v.stakedAmount?.gt(0));
   const hasUnbonded = myValidators.data?.some((v) => v.unbondedAmount?.gt(0));

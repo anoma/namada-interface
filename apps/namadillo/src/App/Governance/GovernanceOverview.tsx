@@ -7,7 +7,7 @@ import {
   atomsAreLoaded,
   useNotifyOnAtomError,
 } from "atoms/utils";
-import { useIsAuthenticated } from "hooks/useIsAuthenticated";
+import { useAuthenticatedStatus } from "hooks/useAuthenticatedStatus";
 import { useAtomValue } from "jotai";
 import { AllProposalsTable } from "./AllProposalsTable";
 import { LiveGovernanceProposals } from "./LiveGovernanceProposals";
@@ -18,7 +18,7 @@ import { UpcomingProposals } from "./UpcomingProposals";
 export const GovernanceOverview: React.FC = () => {
   const allProposals = useAtomValue(allProposalsAtom);
   const votedProposals = useAtomValue(votedProposalsAtom);
-  const isAuthenticated = useIsAuthenticated();
+  const { isAuthenticated } = useAuthenticatedStatus();
 
   // TODO: is there a better way than this to show that votedProposalIdsAtom
   // is dependent on isConnected?

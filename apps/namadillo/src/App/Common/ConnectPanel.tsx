@@ -1,8 +1,6 @@
 import { ActionButton, Image, Panel } from "@namada/components";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
-import { defaultAccountAtom } from "atoms/accounts";
-import { namadaExtensionConnectedAtom } from "atoms/settings";
-import { useAtomValue } from "jotai";
+import { useAuthenticatedStatus } from "hooks/useAuthenticatedStatus";
 import { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 import { DISCORD_URL } from "urls";
@@ -16,12 +14,9 @@ export const ConnectPanel = ({
   missingAccountText?: string;
   children?: ReactNode;
 }): JSX.Element => {
-  const isConnected = useAtomValue(namadaExtensionConnectedAtom);
-  const account = useAtomValue(defaultAccountAtom);
+  const { isExtensionConnected, hasDefaultAccount } = useAuthenticatedStatus();
 
-  const missingAccount = !account.isPending && Boolean(account.data) === false;
-
-  if (!isConnected || missingAccount) {
+  if (!isExtensionConnected || !hasDefaultAccount) {
     return (
       <Panel
         className={twMerge(
@@ -36,9 +31,9 @@ export const ConnectPanel = ({
             "max-w-[500px] uppercase text-center font-medium text-yellow leading-10 text-4xl"
           }
         >
-          {!isConnected ?
+          {!isExtensionConnected ?
             disconnectedText
-          : missingAccount ?
+          : !hasDefaultAccount ?
             missingAccountText
           : ""}
         </h2>

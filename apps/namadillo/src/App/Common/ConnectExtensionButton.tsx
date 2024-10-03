@@ -9,6 +9,9 @@ export const ConnectExtensionButton = (): JSX.Element => {
   const isExtensionConnected = useAtomValue(namadaExtensionConnectedAtom);
   const { connect } = useExtensionConnect();
 
+  // TODO create an action button when the extension is connected
+  // but the account is missing, like on ConnectPanel and ConnectBanner
+
   return (
     <>
       {extensionAttachStatus === "attached" && !isExtensionConnected && (
