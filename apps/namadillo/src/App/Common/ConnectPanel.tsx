@@ -7,7 +7,7 @@ import { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 import { DISCORD_URL } from "urls";
 
-export const ConnectGate = ({
+export const ConnectPanel = ({
   disconnectedText,
   missingAccountText,
   children,

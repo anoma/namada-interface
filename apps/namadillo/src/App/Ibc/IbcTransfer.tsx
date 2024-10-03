@@ -10,7 +10,7 @@ import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { Panel } from "@namada/components";
 import { DerivedAccount, WindowWithNamada } from "@namada/types";
-import { ConnectGate } from "App/Common/ConnectGate";
+import { ConnectPanel } from "App/Common/ConnectPanel";
 import { useState } from "react";
 
 const keplr = (window as KeplrWindow).keplr!;
@@ -67,7 +67,7 @@ export const IbcTransfer: React.FC = () => {
   );
 
   return (
-    <ConnectGate
+    <ConnectPanel
       disconnectedText="To IBC Transfer please connect your account"
       missingAccountText="To IBC Transfer please create or import an account using Namada keychain"
     >
@@ -154,7 +154,7 @@ export const IbcTransfer: React.FC = () => {
           submit IBC transfer
         </button>
       </Panel>
-    </ConnectGate>
+    </ConnectPanel>
   );
 };
 

@@ -1,5 +1,5 @@
 import { Panel, Stack } from "@namada/components";
-import { ConnectGate } from "App/Common/ConnectGate";
+import { ConnectPanel } from "App/Common/ConnectPanel";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
@@ -15,7 +15,7 @@ export const AccountOverview = (): JSX.Element => {
   const { claimRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
 
   return (
-    <ConnectGate
+    <ConnectPanel
       disconnectedText="Your Gateway to the Shielded Multichain"
       missingAccountText="Please create or import an account using Namada keychain"
     >
@@ -49,6 +49,6 @@ export const AccountOverview = (): JSX.Element => {
           <MainnetRoadmap />
         </aside>
       </PageWithSidebar>
-    </ConnectGate>
+    </ConnectPanel>
   );
 };
