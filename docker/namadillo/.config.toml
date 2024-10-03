@@ -2,3 +2,4 @@
 # Rename this file to namadillo.config.toml (removing the initial dot) in order to copy it into the Docker container
 #indexer_url = ""
 #rpc_url = ""
+#masp_indexer_url = ""

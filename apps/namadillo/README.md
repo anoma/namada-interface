@@ -64,6 +64,7 @@ Example:
 ```toml
 indexer_url = "http://localhost:5000"
 rpc_url = "http://localhost:27657"
+masp_indexer_url = "http://localhost:5001"
 ```
 
 For more details on setting up your local environment for integration between the interface and the extension, see the [README.md](../../README.md) at the root of this repo.

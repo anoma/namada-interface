@@ -28,7 +28,7 @@ WORKDIR /app
 
 COPY --from=builder /app/apps/namadillo/dist /usr/share/nginx/html
 COPY ./docker/namadillo/nginx.conf /etc/nginx/conf.d/default.conf
-# COPY ./docker/namadillo/config.tom[l] /usr/share/nginx/html/config.toml
+
 COPY --chmod=0755 ./docker/namadillo/bootstrap_config.sh /docker-entrypoint.d/bootstrap_config.sh
 
 RUN chown nginx:nginx /docker-entrypoint.d/bootstrap_config.sh
