@@ -8,7 +8,7 @@ export const ConnectExtensionButton = (): JSX.Element => {
   const { connect, isConnected } = useExtensionConnect();
 
   // TODO create an action button when the extension is connected
-  // but the account is missing, like on ConnectPanel and ConnectBanner
+  // but the account is missing, like on useConnectText
 
   return (
     <>
