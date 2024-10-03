@@ -136,7 +136,7 @@ export async function fetchParams(
   param: MaspParam,
   url: string = MASP_MPC_RELEASE_URL
 ): Promise<Uint8Array> {
-  return fetch(new URL(url, param))
+  return fetch(`${url}${param}`)
     .then((response) => response.arrayBuffer())
     .then((ab) => {
       const bytes = new Uint8Array(ab);
