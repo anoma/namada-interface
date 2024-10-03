@@ -1,20 +1,18 @@
 import { ActionButton } from "@namada/components";
-import { useUntilIntegrationAttached } from "@namada/integrations";
-import { namadaExtensionConnectedAtom } from "atoms/settings";
+import { namadaExtensionAttachStatus } from "atoms/settings";
 import { useExtensionConnect } from "hooks/useExtensionConnect";
 import { useAtomValue } from "jotai";
 
 export const ConnectExtensionButton = (): JSX.Element => {
-  const extensionAttachStatus = useUntilIntegrationAttached();
-  const isExtensionConnected = useAtomValue(namadaExtensionConnectedAtom);
-  const { connect } = useExtensionConnect();
+  const extensionAttachStatus = useAtomValue(namadaExtensionAttachStatus);
+  const { connect, isConnected } = useExtensionConnect();
 
   // TODO create an action button when the extension is connected
   // but the account is missing, like on ConnectPanel and ConnectBanner
 
   return (
     <>
-      {extensionAttachStatus === "attached" && !isExtensionConnected && (
+      {extensionAttachStatus === "attached" && !isConnected && (
         <ActionButton backgroundColor="yellow" size="sm" onClick={connect}>
           Connect Keychain
         </ActionButton>

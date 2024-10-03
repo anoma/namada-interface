@@ -6,8 +6,10 @@ import { atomWithStorage } from "jotai/utils";
 import { SettingsStorage } from "types";
 import { fetchDefaultTomlConfig, isIndexerAlive, isRpcAlive } from "./services";
 
+export type AttachStatus = "pending" | "attached" | "detached";
 export type ConnectStatus = "idle" | "connecting" | "connected" | "error";
 
+export const namadaExtensionAttachStatus = atom<AttachStatus>("pending");
 export const namadaExtensionConnectionStatus = atom<ConnectStatus>("idle");
 
 export const namadaExtensionConnectedAtom = atom<boolean>(

@@ -1,5 +1,5 @@
 import { defaultAccountAtom } from "atoms/accounts";
-import { namadaExtensionConnectedAtom } from "atoms/settings";
+import { namadaExtensionConnectionStatus } from "atoms/settings";
 import { useAtomValue } from "jotai";
 
 export const useAuthenticatedStatus = (): {
@@ -7,7 +7,8 @@ export const useAuthenticatedStatus = (): {
   isExtensionConnected: boolean;
   hasDefaultAccount: boolean;
 } => {
-  const isExtensionConnected = useAtomValue(namadaExtensionConnectedAtom);
+  const isExtensionConnected =
+    useAtomValue(namadaExtensionConnectionStatus) === "connected";
 
   const account = useAtomValue(defaultAccountAtom);
   const hasDefaultAccount = !!account.data;
