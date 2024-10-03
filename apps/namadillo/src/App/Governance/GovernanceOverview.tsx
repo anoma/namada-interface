@@ -7,7 +7,7 @@ import {
   atomsAreLoaded,
   useNotifyOnAtomError,
 } from "atoms/utils";
-import { useAuthenticatedStatus } from "hooks/useAuthenticatedStatus";
+import { useIsAuthenticated } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { AllProposalsTable } from "./AllProposalsTable";
 import { LiveGovernanceProposals } from "./LiveGovernanceProposals";
@@ -18,7 +18,7 @@ import { UpcomingProposals } from "./UpcomingProposals";
 export const GovernanceOverview: React.FC = () => {
   const allProposals = useAtomValue(allProposalsAtom);
   const votedProposals = useAtomValue(votedProposalsAtom);
-  const { isAuthenticated } = useAuthenticatedStatus();
+  const isAuthenticated = useIsAuthenticated();
 
   // TODO: is there a better way than this to show that votedProposalIdsAtom
   // is dependent on isConnected?
@@ -41,10 +41,7 @@ export const GovernanceOverview: React.FC = () => {
   return (
     <PageWithSidebar>
       <div className="flex flex-col gap-2">
-        <ConnectBanner
-          disconnectedText="To vote please connect your account"
-          missingAccountText="To vote please create or import an account using Namada keychain"
-        />
+        {!isAuthenticated && <ConnectBanner actionText="To vote" />}
         <ProposalListPanel
           title="Live Proposals"
           errorText="Unable to load live governance proposals"

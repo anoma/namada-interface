@@ -5,7 +5,7 @@ import {
   applicationFeaturesAtom,
   signArbitraryEnabledAtom,
 } from "atoms/settings";
-import { useAuthenticatedStatus } from "hooks/useAuthenticatedStatus";
+import { useIsAuthenticated } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { AiOutlineMessage } from "react-icons/ai";
 import { IoSettingsOutline } from "react-icons/io5";
@@ -14,7 +14,7 @@ import { ActiveAccount } from "./ActiveAccount";
 import { SyncIndicator } from "./SyncIndicator";
 
 export const TopNavigation = (): JSX.Element => {
-  const { isAuthenticated } = useAuthenticatedStatus();
+  const isAuthenticated = useIsAuthenticated();
   const signArbitraryEnabled = useAtomValue(signArbitraryEnabledAtom);
   const { maspEnabled, namTransfersEnabled } = useAtomValue(
     applicationFeaturesAtom

@@ -1,32 +1,22 @@
 import { Panel } from "@namada/components";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
-import { useAuthenticatedStatus } from "hooks/useAuthenticatedStatus";
+import { useConnectText } from "hooks/useConnectText";
 
 export const ConnectBanner = ({
-  disconnectedText,
-  missingAccountText,
+  actionText,
 }: {
-  disconnectedText: string;
-  missingAccountText: string;
+  actionText?: string;
 }): JSX.Element => {
-  const { isExtensionConnected, hasDefaultAccount } = useAuthenticatedStatus();
+  const connectText = useConnectText();
 
-  if (!isExtensionConnected || !hasDefaultAccount) {
-    return (
-      <Panel className="border border-yellow py-3">
-        <div className="grid grid-cols-[auto_max-content] items-center pl-15">
-          <div className="w-full text-yellow text-xl">
-            {!isExtensionConnected ?
-              disconnectedText
-            : !hasDefaultAccount ?
-              missingAccountText
-            : ""}
-          </div>
-          <ConnectExtensionButton />
+  return (
+    <Panel className="border border-yellow py-3">
+      <div className="grid grid-cols-[auto_max-content] items-center">
+        <div className="w-full text-yellow text-xl">
+          {actionText} {connectText}
         </div>
-      </Panel>
-    );
-  }
-
-  return <></>;
+        <ConnectExtensionButton />
+      </div>
+    </Panel>
+  );
 };
