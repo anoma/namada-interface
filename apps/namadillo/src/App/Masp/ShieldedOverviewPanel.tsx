@@ -1,7 +1,6 @@
 import { ActionButton, Panel } from "@namada/components";
 import { routes } from "App/routes";
-import { namadaExtensionConnectedAtom } from "atoms/settings";
-import { useAtomValue } from "jotai";
+import { useIsAuthenticated } from "hooks/useIsAuthenticated";
 import { useState } from "react";
 import { ShieldedFungibleTable } from "./ShieldedFungibleTable";
 import { ShieldedNFTTable } from "./ShieldedNFTTable";
@@ -61,14 +60,14 @@ const AssetTable = (): JSX.Element => {
 };
 
 export const ShieldedOverviewPanel: React.FC = () => {
-  const isConnected = useAtomValue(namadaExtensionConnectedAtom);
+  const isAuthenticated = useIsAuthenticated();
 
   return (
     <Panel
       className="relative pb-6 border border-yellow min-h-[500px] flex flex-col"
-      title={isConnected ? "Shielded Overview" : undefined}
+      title={isAuthenticated ? "Shielded Overview" : undefined}
     >
-      {isConnected ?
+      {isAuthenticated ?
         <AssetTable />
       : <ShieldAssetCta />}
     </Panel>

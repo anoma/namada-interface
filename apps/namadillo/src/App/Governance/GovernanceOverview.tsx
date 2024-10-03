@@ -2,13 +2,12 @@ import { Panel, SkeletonLoading } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals";
-import { namadaExtensionConnectedAtom } from "atoms/settings";
 import {
   atomsAreFetching,
   atomsAreLoaded,
   useNotifyOnAtomError,
 } from "atoms/utils";
-import { useUserHasAccount } from "hooks/useUserHasAccount";
+import { useIsAuthenticated } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { AllProposalsTable } from "./AllProposalsTable";
 import { LiveGovernanceProposals } from "./LiveGovernanceProposals";
@@ -17,14 +16,13 @@ import { ProposalsSummary } from "./ProposalsSummary";
 import { UpcomingProposals } from "./UpcomingProposals";
 
 export const GovernanceOverview: React.FC = () => {
-  const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const allProposals = useAtomValue(allProposalsAtom);
   const votedProposals = useAtomValue(votedProposalsAtom);
-  const hasAccount = useUserHasAccount();
+  const isAuthenticated = useIsAuthenticated();
 
   // TODO: is there a better way than this to show that votedProposalIdsAtom
   // is dependent on isConnected?
-  const extensionAtoms = isConnected && hasAccount ? [votedProposals] : [];
+  const extensionAtoms = isAuthenticated ? [votedProposals] : [];
   const activeAtoms = [allProposals, ...extensionAtoms];
 
   const liveProposals =
