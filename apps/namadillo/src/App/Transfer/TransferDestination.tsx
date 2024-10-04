@@ -14,6 +14,7 @@ type TransferDestinationProps = {
   onChangeShielded?: (isShielded: boolean) => void;
   chain?: Chain;
   wallet?: WalletProvider;
+  walletAddress?: string;
   className?: string;
   transactionFee?: BigNumber;
   customAddressActive?: boolean;
@@ -28,6 +29,7 @@ type TransferDestinationProps = {
 export const TransferDestination = ({
   chain,
   wallet,
+  walletAddress,
   isShielded,
   onChangeShielded,
   transactionFee,
@@ -85,7 +87,9 @@ export const TransferDestination = ({
             onClick={openChainSelector}
             iconSize="42px"
           />
-          {wallet && <SelectedWallet wallet={wallet} isShielded={isShielded} />}
+          {wallet && walletAddress && (
+            <SelectedWallet wallet={wallet} address={walletAddress} />
+          )}
         </div>
       )}
 
