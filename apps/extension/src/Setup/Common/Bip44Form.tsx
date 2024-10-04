@@ -10,7 +10,10 @@ type Props = {
 };
 
 const Bip44Form: React.FC<Props> = ({ path, setPath }) => {
-  const [customPath, setCustomPath] = useState(path);
+  const [customPath, setCustomPath] = useState({
+    ...path,
+    index: 1,
+  });
   const { coinType } = chains.namada.bip44;
 
   const handleNumericChange = (
@@ -20,7 +23,7 @@ const Bip44Form: React.FC<Props> = ({ path, setPath }) => {
     const result = e.target.value.replace(/\D/g, "") || "0";
     setCustomPath({
       ...customPath,
-      [key]: result,
+      [key]: parseInt(result),
     });
   };
 
