@@ -43,6 +43,7 @@ import {
   WrapperTxProps,
 } from "@namada/types";
 import { ResponseSign } from "@zondax/ledger-namada";
+import BigNumber from "bignumber.js";
 import { WasmHash } from "../rpc";
 
 /**
@@ -471,6 +472,30 @@ export class Tx {
         })
       ),
     };
+  }
+
+  /**
+   * Generate the memo needed for performing an IBC transfer to a Namada shielded
+   * address.
+   * @async
+   * @param target - the Namada shielded address to send tokens to
+   * @param token - the token to transfer
+   * @param amount - the amount to transfer
+   * @param channelId - the IBC channel ID on the Namada side
+   * @returns promise that resolves to the shielding memo
+   */
+  generateIbcShieldingMemo(
+    target: string,
+    token: string,
+    amount: BigNumber,
+    channelId: string
+  ): Promise<string> {
+    return this.sdk.generate_ibc_shielding_memo(
+      target,
+      token,
+      amount.toString(),
+      channelId
+    );
   }
 
   /**

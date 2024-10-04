@@ -70,4 +70,13 @@ export class Masp {
   async addDefaultPaymentAddress(xvk: string, alias: string): Promise<void> {
     return await this.sdk.add_default_payment_address(xvk, alias);
   }
+
+  /**
+   * Returns the MASP address used as the receiving address in IBC transfers to
+   * shielded accounts
+   * @returns the MASP address
+   */
+  maspAddress(): string {
+    return this.sdk.masp_address();
+  }
 }

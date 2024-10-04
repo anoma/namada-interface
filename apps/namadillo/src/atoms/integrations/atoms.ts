@@ -7,14 +7,14 @@ import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
 import { getKnownChains, mapCoinsToAssets } from "./functions";
 import {
-  IBCTransferParams,
+  IbcTransferParams,
   queryAndStoreRpc,
   queryAssetBalances,
   submitIbcTransfer,
 } from "./services";
 
 type IBCTransferAtomParams = {
-  transferParams: IBCTransferParams;
+  transferParams: IbcTransferParams;
   chain: Chain;
 };
 
