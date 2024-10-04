@@ -13,7 +13,8 @@ import { parseChainInfo } from "./common";
 
 export type TransferModuleConfig = {
   wallet?: WalletProvider;
-  availableWallets: WalletProvider[];
+  walletAddress?: string;
+  availableWallets?: WalletProvider[];
   onChangeWallet?: (wallet: WalletProvider) => void;
   connected?: boolean;
   availableChains?: Chains;
@@ -81,9 +82,10 @@ export const TransferModule = ({
         <Stack as="form" onSubmit={onSubmit}>
           <TransferSource
             isConnected={Boolean(source.connected)}
+            wallet={source.wallet}
+            walletAddress={source.walletAddress}
             asset={source.selectedAsset}
             chain={parseChainInfo(source.chain, source.isShielded)}
-            wallet={source.wallet}
             availableAmount={source.availableAmount}
             amount={amount}
             openProviderSelector={
@@ -108,6 +110,7 @@ export const TransferModule = ({
           </i>
           <TransferDestination
             wallet={destination.wallet}
+            walletAddress={destination.walletAddress}
             chain={parseChainInfo(destination.chain, destination.isShielded)}
             isShielded={destination.isShielded}
             onChangeShielded={destination.onChangeShielded}
@@ -134,17 +137,20 @@ export const TransferModule = ({
         </Stack>
       </section>
 
-      {providerSelectorModalOpen && source.onChangeWallet && (
-        <SelectWalletModal
-          wallets={source.availableWallets}
-          onClose={() => setProviderSelectorModalOpen(false)}
-          onConnect={source.onChangeWallet}
-        />
-      )}
+      {providerSelectorModalOpen &&
+        source.onChangeWallet &&
+        source.availableWallets && (
+          <SelectWalletModal
+            availableWallets={source.availableWallets}
+            onClose={() => setProviderSelectorModalOpen(false)}
+            onConnect={source.onChangeWallet}
+          />
+        )}
 
       {assetSelectorModalOpen &&
         source.onChangeSelectedAsset &&
-        source.wallet && (
+        source.wallet &&
+        source.walletAddress && (
           <SelectAssetModal
             onClose={() => setAssetSelectorModalOpen(false)}
             assets={source.availableAssets || []}
@@ -152,17 +158,21 @@ export const TransferModule = ({
           />
         )}
 
-      {sourceChainModalOpen && source.onChangeChain && source.wallet && (
-        <SelectChainModal
-          onClose={() => setSourceChainModalOpen(false)}
-          chains={source.availableChains || []}
-          onSelect={source.onChangeChain}
-        />
-      )}
+      {sourceChainModalOpen &&
+        source.onChangeChain &&
+        source.wallet &&
+        source.walletAddress && (
+          <SelectChainModal
+            onClose={() => setSourceChainModalOpen(false)}
+            chains={source.availableChains || []}
+            onSelect={source.onChangeChain}
+          />
+        )}
 
       {destinationChainModalOpen &&
         destination.onChangeChain &&
-        destination.wallet && (
+        destination.wallet &&
+        destination.walletAddress && (
           <SelectChainModal
             onClose={() => setDestinationChainModalOpen(false)}
             chains={destination.availableChains || []}
@@ -172,7 +182,8 @@ export const TransferModule = ({
 
       {assetSelectorModalOpen &&
         source.onChangeSelectedAsset &&
-        source.wallet && (
+        source.wallet &&
+        source.walletAddress && (
           <SelectAssetModal
             onClose={() => setAssetSelectorModalOpen(false)}
             assets={source.availableAssets || []}
