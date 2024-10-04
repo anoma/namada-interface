@@ -1,9 +1,12 @@
+import { BinaryReader, BinaryWriter } from "@dao-xyz/borsh";
 import BigNumber from "bignumber.js";
-import { BinaryWriter, BinaryReader } from "@dao-xyz/borsh";
 
 export const BigNumberSerializer = {
   serialize: (value: BigNumber, writer: BinaryWriter) => {
-    writer.string(value.toString());
+    console.log("BN", value);
+    const asd = Object.setPrototypeOf(value, BigNumber.prototype);
+    console.log("BN2", asd);
+    writer.string(asd.toString());
   },
   deserialize: (reader: BinaryReader): BigNumber => {
     const valueString = reader.string();

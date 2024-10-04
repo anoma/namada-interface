@@ -115,9 +115,12 @@ export class Tx {
     wrapperTxProps: WrapperTxProps,
     shieldingTransferProps: ShieldingTransferProps
   ): Promise<TxMsgValue> {
+    console.log("Shielding Transfer Props: ", shieldingTransferProps);
     const shieldingTransferMsg = new Message<ShieldingTransferMsgValue>();
+    console.log("Shielding Transfer Msg: ", shieldingTransferMsg);
 
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
+
     const encodedTransfer = shieldingTransferMsg.encode(
       new ShieldingTransferMsgValue(shieldingTransferProps)
     );
@@ -162,7 +165,9 @@ export class Tx {
    */
   async buildRevealPk(wrapperTxProps: WrapperTxProps): Promise<TxMsgValue> {
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
+    console.log("Encoded Wrapper Args: ", encodedWrapperArgs);
     const serializedTx = await this.sdk.build_reveal_pk(encodedWrapperArgs);
+    console.log("Serialized Tx: ", serializedTx);
     return deserialize(Buffer.from(serializedTx), TxMsgValue);
   }
 
@@ -412,6 +417,7 @@ export class Tx {
   encodeTxArgs(wrapperTxProps: WrapperTxProps): Uint8Array {
     const wrapperTxMsgValue = new WrapperTxMsgValue(wrapperTxProps);
     const msg = new Message<WrapperTxMsgValue>();
+    console.log("msg: ", msg);
     return msg.encode(wrapperTxMsgValue);
   }
 

@@ -10,11 +10,11 @@ import {
 } from "@namada/types";
 import { getIndexerApi } from "atoms/api";
 import { chainParametersAtom } from "atoms/chain";
-import { getSdkInstance } from "hooks";
 import invariant from "invariant";
 import { getDefaultStore } from "jotai";
 import { Address, ChainSettings, GasConfig } from "types";
 import { TransactionEventsClasses } from "types/events";
+import { getSdkInstance } from "utils/sdk";
 
 export type TransactionPair<T> = {
   encodedTxData: EncodedTxData<T>;
