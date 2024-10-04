@@ -46,6 +46,7 @@ export const TransferModule = ({
   source,
   destination,
   transactionFee,
+  onSubmitTransfer,
 }: TransferModuleProps): JSX.Element => {
   const [providerSelectorModalOpen, setProviderSelectorModalOpen] =
     useState(false);
@@ -74,6 +75,7 @@ export const TransferModule = ({
   const onSubmit = (e: React.FormEvent): void => {
     // TODO: implement submit
     e.preventDefault();
+    onSubmitTransfer?.();
   };
 
   return (

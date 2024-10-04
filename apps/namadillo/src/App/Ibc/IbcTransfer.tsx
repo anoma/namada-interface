@@ -9,147 +9,228 @@ import {
 import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { Panel } from "@namada/components";
-import { DerivedAccount, WindowWithNamada } from "@namada/types";
-import { useState } from "react";
+import { mapUndefined } from "@namada/utils";
+import { TransferModule } from "App/Transfer/TransferModule";
+import BigNumber from "bignumber.js";
+import { wallets } from "integrations";
+import { useEffect, useState } from "react";
+import { WalletProvider } from "types";
+
+import * as celestia from "chain-registry/mainnet/celestia";
+import * as cosmos from "chain-registry/mainnet/cosmoshub";
+import * as dydx from "chain-registry/mainnet/dydx";
+import * as osmosis from "chain-registry/mainnet/osmosis";
+import * as stargaze from "chain-registry/mainnet/stargaze";
+
+import * as celestiaTestnet from "chain-registry/testnet/celestiatestnet3";
+import * as cosmosTestnet from "chain-registry/testnet/cosmoshubtestnet";
+import * as dydxTestnet from "chain-registry/testnet/dydxtestnet";
+import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet4";
+import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
+
+import { defaultAccountAtom } from "atoms/accounts";
+
+import { useAtomValue } from "jotai";
+import namadaChain from "registry/namada.json";
+
+import { Asset, Chain } from "@chain-registry/types";
 
 const keplr = (window as KeplrWindow).keplr!;
-const namada = (window as WindowWithNamada).namada!;
 
-const chain = "theta-testnet-001";
-const rpc = "https://rpc-t.cosmos.nodestake.top";
+const knownChains = {
+  [celestia.chain.chain_id]: celestia,
+  [celestiaTestnet.chain.chain_id]: celestiaTestnet,
+  [cosmos.chain.chain_id]: cosmos,
+  [cosmosTestnet.chain.chain_id]: cosmosTestnet,
+  [dydx.chain.chain_id]: dydx,
+  [dydxTestnet.chain.chain_id]: dydxTestnet,
+  [osmosis.chain.chain_id]: osmosis,
+  [osmosisTestnet.chain.chain_id]: osmosisTestnet,
+  [stargaze.chain.chain_id]: stargaze,
+  [stargazeTestnet.chain.chain_id]: stargazeTestnet,
+};
 
-const buttonStyles = "bg-white my-2 p-2 block";
+type AssetWithBalance = {
+  asset: Asset;
+  balance?: BigNumber;
+};
 
 export const IbcTransfer: React.FC = () => {
-  const [error, setError] = useState("");
-  const [address, setAddress] = useState("");
-  const [alias, setAlias] = useState("");
-  const [balances, setBalances] = useState<Coin[] | undefined>();
-  const [namadaAccounts, setNamadaAccounts] = useState<DerivedAccount[]>();
-  const [token, setToken] = useState("");
-  const [target, setTarget] = useState("");
-  const [amount, setAmount] = useState("");
-  const [channelId, setChannelId] = useState("");
+  const [address, setAddress] = useState<string | undefined>();
+  const [chainId, setChainId] = useState<string | undefined>();
+  const [shielded, setShielded] = useState<boolean>(true);
+  const [availableChains, setAvailableChains] = useState<Chain[]>([]);
+  const [assetsWithBalances, setAssetsWithBalances] = useState<
+    AssetWithBalance[]
+  >([]);
+  const [selectedAsset, setSelectedAsset] = useState<Asset>();
+  const [sourceChannelId, setSourceChannelId] = useState<string>("");
 
-  const withErrorReporting =
-    (fn: () => Promise<void>): (() => Promise<void>) =>
-    async () => {
-      try {
-        await fn();
-        setError("");
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(e);
-        setError(e instanceof Error ? e.message : "unknown error");
+  const defaultAccount = useAtomValue(defaultAccountAtom);
+
+  const onChangeWallet = async (wallet: WalletProvider): Promise<void> => {
+    if (wallet.id === "keplr") {
+      const keplrChainIds: string[] =
+        // TODO: bump the keplr package so i don't have to cast
+        (
+          (await // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (keplr as any).getChainInfosWithoutEndpoints()) as {
+            chainId: string;
+          }[]
+        ).map((chain) => chain.chainId);
+
+      const knownChainsWithKeplrInfo = Object.entries(knownChains)
+        .filter(([chainId]) => keplrChainIds.includes(chainId))
+        .map(([_, { chain }]) => chain);
+
+      await keplr.enable(
+        knownChainsWithKeplrInfo.map((chain) => chain.chain_id)
+      );
+
+      const firstChain = knownChainsWithKeplrInfo[0];
+
+      setAvailableChains(knownChainsWithKeplrInfo);
+      setChainId(firstChain.chain_id);
+    }
+  };
+
+  const updateAddress = async (): Promise<void> => {
+    if (typeof chainId !== "undefined") {
+      const keplrKey = await keplr.getKey(chainId);
+      setAddress(keplrKey.bech32Address);
+    }
+  };
+
+  const updateAssets = async (): Promise<void> => {
+    if (typeof chainId !== "undefined" && typeof address !== "undefined") {
+      const { chain, assets: assetInfo } = knownChains[chainId];
+
+      const rpc = chain.apis?.rpc?.[0]?.address;
+
+      if (typeof rpc === "undefined") {
+        throw new Error("no RPC info for " + chainId);
       }
-    };
 
-  const getAddress = withErrorReporting(async () => {
-    const key = await keplr.getKey(chain);
-    setAddress(key.bech32Address);
-    setAlias(key.name);
-  });
+      const balances = await queryBalances(address, rpc);
 
-  const getBalances = withErrorReporting(async () => {
-    setBalances(undefined);
-    const balances = await queryBalances(address);
-    setBalances(balances);
-  });
+      const assets: AssetWithBalance[] = balances.flatMap(
+        ({ denom, amount }) => {
+          const maybeBigNumberAmount = BigNumber(amount);
+          const bigNumberAmount =
+            maybeBigNumberAmount.isNaN() ? undefined : maybeBigNumberAmount;
 
-  const getNamadaAccounts = withErrorReporting(async () => {
-    const accounts = await namada.accounts();
-    setNamadaAccounts(accounts);
-  });
+          const maybeAsset = assetInfo.assets.find(
+            (asset) => asset.base === denom
+          );
 
-  const submitIbcTransfer = withErrorReporting(async () =>
-    submitBridgeTransfer(rpc, chain, address, target, token, amount, channelId)
-  );
+          if (typeof maybeAsset !== "undefined") {
+            return [
+              {
+                asset: maybeAsset,
+                balance: bigNumberAmount,
+              },
+            ];
+          } else {
+            // TODO: we might want to show assets that we don't have configs for anyway
+            return [];
+          }
+        }
+      );
+
+      setAssetsWithBalances(assets);
+      setSelectedAsset(assets[0]?.asset);
+    }
+  };
+
+  useEffect(() => {
+    updateAddress();
+  }, [chainId]);
+
+  useEffect(() => {
+    updateAssets();
+  }, [address]);
+
+  const onSubmitTransfer = (): void => {
+    if (typeof address === "undefined") {
+      throw new Error("Source address is not defined");
+    }
+
+    if (
+      !defaultAccount.isSuccess ||
+      typeof defaultAccount.data === "undefined"
+    ) {
+      throw new Error("Namada account is not loaded");
+    }
+
+    if (typeof chainId === "undefined") {
+      throw new Error("chain ID is undefined");
+    }
+
+    const rpc = knownChains[chainId]?.chain.apis?.rpc?.[0]?.address;
+
+    if (typeof rpc === "undefined") {
+      throw new Error("no RPC info for " + chainId);
+    }
+
+    if (typeof selectedAsset === "undefined") {
+      throw new Error("no asset is selected");
+    }
+
+    submitIbcTransfer(
+      rpc,
+      chainId,
+      address,
+      defaultAccount.data.address, // TODO: get shielded account if shielded selected
+      selectedAsset.base,
+      "1", // TODO: how do I get the amount out of TransferModule?
+      sourceChannelId
+    );
+  };
 
   return (
-    <Panel title="IBC" className="mb-2 bg-[#999999] text-black">
-      {/* Error */}
-      <p className="text-[#ff0000]">{error}</p>
+    <Panel>
+      <header className="text-center mb-4">
+        <h2>IBC Transfer to Namada</h2>
+      </header>
 
-      <hr />
+      <input
+        className="text-black"
+        type="text"
+        placeholder="source channel id"
+        value={sourceChannelId}
+        onChange={(e) => setSourceChannelId(e.target.value)}
+      />
 
-      {/* Keplr addresses */}
-      <h3>Keplr addresses</h3>
-      <button className={buttonStyles} onClick={getAddress}>
-        get address
-      </button>
-      <p>
-        {alias} {address}
-      </p>
-
-      <hr />
-
-      {/* Balances */}
-      <h3>Balances</h3>
-      <button className={buttonStyles} onClick={getBalances}>
-        get balances
-      </button>
-      {balances?.map(({ denom, amount }) => (
-        <div key={denom}>
-          <label>
-            <input
-              type="radio"
-              name="token"
-              value={denom}
-              checked={token === denom}
-              onChange={(e) => setToken(e.target.value)}
-            />
-            {denom} {amount}
-          </label>
-        </div>
-      ))}
-
-      <hr />
-
-      {/* Namada accounts */}
-      <h3>Namada accounts</h3>
-      <button className={buttonStyles} onClick={getNamadaAccounts}>
-        get namada accounts
-      </button>
-
-      {namadaAccounts?.map(({ alias, address }) => (
-        <div key={address}>
-          <label>
-            <input
-              type="radio"
-              name="target"
-              value={address}
-              checked={target === address}
-              onChange={(e) => setTarget(e.target.value)}
-            />
-            {alias} {address}
-          </label>
-        </div>
-      ))}
-
-      <hr />
-
-      {/* Amount to send */}
-      <h3>Amount to send</h3>
-      <input value={amount} onChange={(e) => setAmount(e.target.value)} />
-
-      <hr />
-
-      {/* Channel ID */}
-      <h3>Channel ID</h3>
-      <input value={channelId} onChange={(e) => setChannelId(e.target.value)} />
-
-      <hr />
-
-      {/* Submit IBC transfer */}
-      <h3>Submit IBC transfer</h3>
-      <button className={buttonStyles} onClick={submitIbcTransfer}>
-        submit IBC transfer
-      </button>
+      <TransferModule
+        source={{
+          selectedAsset,
+          availableAssets: assetsWithBalances.map(({ asset }) => asset),
+          availableAmount: assetsWithBalances.find(
+            ({ asset }) => asset === selectedAsset
+          )?.balance,
+          onChangeSelectedAsset: setSelectedAsset,
+          availableChains,
+          wallet: wallets.keplr,
+          availableWallets: [wallets.keplr!],
+          onChangeChain: (chain) => setChainId(chain.chain_id),
+          onChangeWallet,
+          chain: mapUndefined((id) => knownChains[id].chain, chainId),
+          walletAddress: address,
+        }}
+        destination={{
+          chain: namadaChain as Chain,
+          availableWallets: [wallets.namada!],
+          wallet: wallets.namada,
+          isShielded: shielded,
+          onChangeShielded: setShielded,
+        }}
+        onSubmitTransfer={onSubmitTransfer}
+      />
     </Panel>
   );
 };
 
-const queryBalances = async (owner: string): Promise<Coin[]> => {
+const queryBalances = async (owner: string, rpc: string): Promise<Coin[]> => {
   const client = await StargateClient.connect(rpc);
   const balances = (await client.getAllBalances(owner)) || [];
 
@@ -158,7 +239,7 @@ const queryBalances = async (owner: string): Promise<Coin[]> => {
     balances.map(async (coin: any) => {
       // any becuse of annoying readonly
       if (coin.denom.startsWith("ibc/")) {
-        coin.denom = await ibcAddressToDenom(coin.denom);
+        coin.denom = await ibcAddressToDenom(coin.denom, rpc);
       }
     })
   );
@@ -166,7 +247,10 @@ const queryBalances = async (owner: string): Promise<Coin[]> => {
   return [...balances];
 };
 
-const ibcAddressToDenom = async (address: string): Promise<string> => {
+const ibcAddressToDenom = async (
+  address: string,
+  rpc: string
+): Promise<string> => {
   const tmClient = await Tendermint34Client.connect(rpc);
   const queryClient = new QueryClient(tmClient);
   const ibcExtension = setupIbcExtension(queryClient);
@@ -182,7 +266,7 @@ const ibcAddressToDenom = async (address: string): Promise<string> => {
   return baseDenom;
 };
 
-const submitBridgeTransfer = async (
+const submitIbcTransfer = async (
   rpc: string,
   sourceChainId: string,
   source: string,
