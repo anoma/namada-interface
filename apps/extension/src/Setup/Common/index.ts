@@ -1,4 +1,5 @@
 export * from "./AccountAlias";
+export * from "./Bip44Form";
 export * from "./Completion";
 export * from "./ContainerHeader";
 export * from "./LedgerStep";
