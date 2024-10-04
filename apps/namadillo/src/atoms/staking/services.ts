@@ -6,6 +6,8 @@ import {
   ClaimRewardsMsgValue,
   ClaimRewardsProps,
   RedelegateMsgValue,
+  ShieldingTransferMsgValue,
+  ShieldingTransferProps,
   TxMsgValue,
   UnbondMsgValue,
   WithdrawMsgValue,
@@ -39,6 +41,24 @@ export const createBondTx = async (
     bondProps,
     tx.buildBond,
     bondProps[0].source
+  );
+  return transactionPairs;
+};
+
+export const createShieldingTx = async (
+  chain: ChainSettings,
+  account: Account,
+  shiedlingProps: ShieldingTransferMsgValue[],
+  gasConfig: GasConfig
+): Promise<TransactionPair<ShieldingTransferProps> | undefined> => {
+  const { tx } = await getSdkInstance();
+  const transactionPairs = await buildTxPair(
+    account,
+    gasConfig,
+    chain,
+    shiedlingProps,
+    tx.buildShieldingTransfer,
+    shiedlingProps[0].data[0].source
   );
   return transactionPairs;
 };

@@ -228,6 +228,7 @@ export class Rpc {
     const msg = new Message<WrapperTxMsgValue>();
     const encodedArgs = msg.encode(wrapperTxMsgValue);
 
+    await this.sdk.load_masp_params("");
     const response = await this.sdk.process_tx(signedTxBytes, encodedArgs);
     return deserialize(Buffer.from(response), TxResponseMsgValue);
   }
