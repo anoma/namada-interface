@@ -23,9 +23,6 @@ import { basicConvertToKeplrChain } from "utils/integration";
 
 const keplr = (window as KeplrWindow).keplr!;
 
-//TODO: we need to find a good way to manage IBC channels
-const namadaChannelId = "channel-4353";
-
 export const IbcTransfer: React.FC = () => {
   const knownChains = useAtomValue(knownChainsAtom);
   const [chainId, setChainId] = useAtom(selectedIBCChainAtom);
@@ -33,6 +30,8 @@ export const IbcTransfer: React.FC = () => {
   const [sourceAddress, setSourceAddress] = useState<string | undefined>();
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAsset, setSelectedAsset] = useState<Asset>();
+  const [sourceChannelId, setSourceChannelId] = useState<string>("");
+  const [destinationChannelId, setDestinationChannelId] = useState<string>("");
   const performIbcTransfer = useAtomValue(ibcTransferAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
 
@@ -140,7 +139,15 @@ export const IbcTransfer: React.FC = () => {
         destinationAddress,
         amount,
         token: selectedAsset.base,
-        channelId: namadaChannelId,
+        sourceChannelId,
+        ...(shielded ?
+          {
+            isShielded: true,
+            destinationChannelId,
+          }
+        : {
+            isShielded: false,
+          }),
       },
     });
   };
@@ -161,6 +168,23 @@ export const IbcTransfer: React.FC = () => {
       <header className="text-center mb-4">
         <h2>IBC Transfer to Namada</h2>
       </header>
+      <div className="flex flex-col gap-2">
+        <input
+          className="text-black"
+          type="text"
+          placeholder="source channel id"
+          value={sourceChannelId}
+          onChange={(e) => setSourceChannelId(e.target.value)}
+        />
+
+        <input
+          className="text-black"
+          type="text"
+          placeholder="destination channel id"
+          value={destinationChannelId}
+          onChange={(e) => setDestinationChannelId(e.target.value)}
+        />
+      </div>
       <TransferModule
         source={{
           isLoadingAssets: isLoadingBalances,
