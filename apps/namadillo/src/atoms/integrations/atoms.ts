@@ -3,10 +3,10 @@ import { ExtensionKey } from "@namada/types";
 import { queryAndStoreRpc } from "atoms/registry";
 import { atomWithMutation } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
-import { IBCTransferParams, submitIbcTransfer } from "./services";
+import { IbcTransferParams, submitIbcTransfer } from "./services";
 
 type IBCTransferAtomParams = {
-  transferParams: IBCTransferParams;
+  transferParams: IbcTransferParams;
   chain: Chain;
 };
 

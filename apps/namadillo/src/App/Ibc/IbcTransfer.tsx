@@ -60,6 +60,7 @@ export const IbcTransfer: React.FC = () => {
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAsset, setSelectedAsset] = useState<Asset>();
   const [sourceChannelId, setSourceChannelId] = useState<string>("");
+  const [destinationChannelId, setDestinationChannelId] = useState<string>("");
   const [assetsBalances, setAssetsBalances] = useState<
     Record<string, AssetWithBalance>
   >({});
@@ -161,7 +162,15 @@ export const IbcTransfer: React.FC = () => {
         destinationAddress,
         amount,
         token: selectedAsset.base,
-        channelId: sourceChannelId,
+        sourceChannelId,
+        ...(shielded ?
+          {
+            isShielded: true,
+            destinationChannelId,
+          }
+        : {
+            isShielded: false,
+          }),
       },
     });
   };
@@ -172,13 +181,23 @@ export const IbcTransfer: React.FC = () => {
         <h2>IBC Transfer to Namada</h2>
       </header>
 
-      <input
-        className="text-black"
-        type="text"
-        placeholder="source channel id"
-        value={sourceChannelId}
-        onChange={(e) => setSourceChannelId(e.target.value)}
-      />
+      <div className="flex flex-col gap-2">
+        <input
+          className="text-black"
+          type="text"
+          placeholder="source channel id"
+          value={sourceChannelId}
+          onChange={(e) => setSourceChannelId(e.target.value)}
+        />
+
+        <input
+          className="text-black"
+          type="text"
+          placeholder="destination channel id"
+          value={destinationChannelId}
+          onChange={(e) => setDestinationChannelId(e.target.value)}
+        />
+      </div>
 
       <TransferModule
         source={{
