@@ -1,6 +1,7 @@
 import { Coin } from "@cosmjs/launchpad";
 import { coin, coins } from "@cosmjs/proto-signing";
 import {
+  MsgTransferEncodeObject,
   QueryClient,
   SigningStargateClient,
   StargateClient,
@@ -289,14 +290,26 @@ const submitIbcTransfer = async (
     gas: "222000",
   };
 
-  const response = await client.sendIbcTokens(
+  const timeoutTimestampNanoseconds =
+    BigInt(Math.floor(Date.now() / 1000) + 60) * BigInt(1_000_000_000);
+
+  const transferMsg: MsgTransferEncodeObject = {
+    typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
+    value: {
+      sourcePort: "transfer",
+      sourceChannel: channelId,
+      sender: source,
+      receiver: target,
+      token: coin(amount, token),
+      timeoutHeight: undefined,
+      timeoutTimestamp: timeoutTimestampNanoseconds,
+      memo,
+    },
+  };
+
+  const response = await client.signAndBroadcast(
     source,
-    target,
-    coin(amount, token),
-    "transfer",
-    channelId,
-    undefined, // timeout height
-    Math.floor(Date.now() / 1000) + 60, // timeout timestamp
+    [transferMsg],
     fee,
     `${sourceChainId}->Namada`
   );
