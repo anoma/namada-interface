@@ -29,8 +29,8 @@ import { TransactionPair, buildTxPair } from "lib/query";
 import { GasConfig } from "types";
 
 import { fromHex } from "@cosmjs/encoding";
-import { getSdkInstance } from "hooks";
 import { ChainSettings } from "types";
+import { getSdkInstance } from "utils/sdk";
 
 // TODO: this function is way too big
 const decodeProposalType = (

@@ -3,7 +3,6 @@ import {
   BondMsgValue,
   ClaimRewardsMsgValue,
   RedelegateMsgValue,
-  ShieldingTransferMsgValue,
   UnbondMsgValue,
   WithdrawMsgValue,
 } from "@namada/types";
@@ -22,7 +21,6 @@ import {
   createClaimAndStakeTx,
   createClaimTx,
   createReDelegateTx,
-  createShieldingTx,
   createUnbondTx,
   createWithdrawTx,
   fetchClaimableRewards,
@@ -37,20 +35,6 @@ export const getStakingTotalAtom = atomWithQuery<StakingTotals>((get) => {
         toStakingTotal(myValidators.data || []),
       [myValidators]
     ),
-  };
-});
-
-export const createShieldingTxAtom = atomWithMutation((get) => {
-  const chain = get(chainAtom);
-  return {
-    mutationKey: ["create-shielding-tx"],
-    enabled: chain.isSuccess,
-    mutationFn: async ({
-      params,
-      gasConfig,
-      account,
-    }: BuildTxAtomParams<ShieldingTransferMsgValue>) =>
-      createShieldingTx(chain.data!, account, params, gasConfig),
   };
 });
 

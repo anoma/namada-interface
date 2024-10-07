@@ -3,7 +3,7 @@ import { initMulticore } from "@heliax/namada-sdk/inline-init";
 import { getSdk } from "@heliax/namada-sdk/web";
 import { Account, ShieldingTransferMsgValue } from "@namada/types";
 import BigNumber from "bignumber.js";
-import { buildTx2, EncodedTxData } from "lib/build";
+import { buildTx, EncodedTxData } from "lib/query";
 import { ChainSettings } from "types";
 
 export type ShieldPayload = {
@@ -51,7 +51,6 @@ async function shield(
   cryptoMemory: WebAssembly.Memory,
   payload: ShieldPayload
 ): Promise<void> {
-  console.log("payload", payload);
   const { rpcUrl, token, account, gasConfig, chain, shieldingProps } = payload;
   const www = {
     target: shieldingProps[0].target,
@@ -71,10 +70,9 @@ async function shield(
     // Not really used, but required by the SDK, as long as it's valid address it's fine
     token
   );
-  console.log("sdk", sdk);
 
   await sdk.masp.loadMaspParams("");
-  const encodedTxData = await buildTx2<ShieldingTransferMsgValue>(
+  const encodedTxData = await buildTx<ShieldingTransferMsgValue>(
     sdk,
     account,
     // TODO: focking prototype xddd

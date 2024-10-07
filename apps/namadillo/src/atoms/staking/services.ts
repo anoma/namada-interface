@@ -6,8 +6,6 @@ import {
   ClaimRewardsMsgValue,
   ClaimRewardsProps,
   RedelegateMsgValue,
-  ShieldingTransferMsgValue,
-  ShieldingTransferProps,
   TxMsgValue,
   UnbondMsgValue,
   WithdrawMsgValue,
@@ -15,9 +13,9 @@ import {
   WrapperTxProps,
 } from "@namada/types";
 import { queryClient } from "App/Common/QueryProvider";
-import { getSdkInstance } from "hooks";
 import { TransactionPair, buildTxPair } from "lib/query";
 import { Address, AddressBalance, ChainSettings, GasConfig } from "types";
+import { getSdkInstance } from "utils/sdk";
 
 export const fetchClaimableRewards = async (
   api: DefaultApi,
@@ -41,24 +39,6 @@ export const createBondTx = async (
     bondProps,
     tx.buildBond,
     bondProps[0].source
-  );
-  return transactionPairs;
-};
-
-export const createShieldingTx = async (
-  chain: ChainSettings,
-  account: Account,
-  shiedlingProps: ShieldingTransferMsgValue[],
-  gasConfig: GasConfig
-): Promise<TransactionPair<ShieldingTransferProps> | undefined> => {
-  const { tx } = await getSdkInstance();
-  const transactionPairs = await buildTxPair(
-    account,
-    gasConfig,
-    chain,
-    shiedlingProps,
-    tx.buildShieldingTransfer,
-    shiedlingProps[0].data[0].source
   );
   return transactionPairs;
 };

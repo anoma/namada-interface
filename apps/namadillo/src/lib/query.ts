@@ -1,4 +1,5 @@
-import { getIntegration } from "@namada/integrations";
+import { Sdk } from "@heliax/namada-sdk/web";
+import { getIntegration } from "@namada/integrations/utils";
 import {
   Account,
   AccountType,
@@ -85,13 +86,14 @@ export const isPublicKeyRevealed = async (
  * @param {(WrapperTxProps, T) => Promise<TxMsgValue>} txFn - Function to build each transaction.
  */
 export const buildTx = async <T>(
+  sdk: Sdk,
   account: Account,
   gasConfig: GasConfig,
   chain: ChainSettings,
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>
 ): Promise<EncodedTxData<T>> => {
-  const { tx } = await getSdkInstance();
+  const { tx } = sdk;
   const wrapperTxProps = getTxProps(account, gasConfig, chain);
   const txs: TxMsgValue[] = [];
   const txProps: TxProps[] = [];
@@ -115,7 +117,6 @@ export const buildTx = async <T>(
     txProps.push(tx.buildBatch(txs));
   }
 
-  const sdk = await getSdkInstance();
   return {
     txs: txProps.map(({ args, hash, bytes, signingData }) => {
       const innerTxHashes = sdk.tx.getInnerTxHashes(bytes);
@@ -184,7 +185,9 @@ export const buildTxPair = async <T>(
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>,
   owner: string
 ): Promise<TransactionPair<T>> => {
+  const sdk = await getSdkInstance();
   const encodedTxData = await buildTx<T>(
+    sdk,
     account,
     gasConfig,
     chain,
