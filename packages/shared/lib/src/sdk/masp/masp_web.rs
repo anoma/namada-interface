@@ -144,7 +144,6 @@ impl ShieldedUtils for WebShieldedUtils {
         ctx: &mut ShieldedWallet<U>,
         force_confirmed: bool,
     ) -> std::io::Result<()> {
-        web_sys::console::log_1(&JsValue::from_str("Loading shielded context"));
         let db = Self::build_database().await.map_err(Self::to_io_err)?;
         let confirmed = force_confirmed || get_confirmed(&ctx.sync_status);
 

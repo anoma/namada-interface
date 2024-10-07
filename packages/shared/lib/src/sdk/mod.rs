@@ -79,7 +79,6 @@ impl Sdk {
 
     #[cfg(feature = "web")]
     pub async fn load_masp_params(&self, _db_name: JsValue) -> Result<(), JsValue> {
-        web_sys::console::log_1(&JsValue::from_str("Loading masp params"));
         // _dn_name is not used in the web version for a time being
         let params = get_masp_params().await?;
         let params_iter = js_sys::try_iter(&params)?.ok_or("Can't iterate over JsValue")?;
