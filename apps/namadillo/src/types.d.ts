@@ -62,6 +62,7 @@ export type SettingsStorage = {
   rpcUrl?: string;
   indexerUrl: string;
   signArbitraryEnabled: boolean;
+  enableTestnets?: boolean;
 };
 
 export type Validator = Unique & {

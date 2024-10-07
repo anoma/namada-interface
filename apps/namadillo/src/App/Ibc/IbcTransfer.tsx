@@ -34,19 +34,23 @@ import { useAtomValue } from "jotai";
 import namadaChain from "registry/namada.json";
 
 import { Asset, Chain } from "@chain-registry/types";
+import { settingsAtom } from "atoms/settings";
 
 const keplr = (window as KeplrWindow).keplr!;
 
-const knownChains = {
+const mainnetChains = {
   [celestia.chain.chain_id]: celestia,
-  [celestiaTestnet.chain.chain_id]: celestiaTestnet,
   [cosmos.chain.chain_id]: cosmos,
-  [cosmosTestnet.chain.chain_id]: cosmosTestnet,
   [dydx.chain.chain_id]: dydx,
-  [dydxTestnet.chain.chain_id]: dydxTestnet,
   [osmosis.chain.chain_id]: osmosis,
-  [osmosisTestnet.chain.chain_id]: osmosisTestnet,
   [stargaze.chain.chain_id]: stargaze,
+};
+
+const testnetChains = {
+  [cosmosTestnet.chain.chain_id]: cosmosTestnet,
+  [celestiaTestnet.chain.chain_id]: celestiaTestnet,
+  [dydxTestnet.chain.chain_id]: dydxTestnet,
+  [osmosisTestnet.chain.chain_id]: osmosisTestnet,
   [stargazeTestnet.chain.chain_id]: stargazeTestnet,
 };
 
@@ -56,6 +60,7 @@ type AssetWithBalance = {
 };
 
 export const IbcTransfer: React.FC = () => {
+  const settings = useAtomValue(settingsAtom);
   const [address, setAddress] = useState<string | undefined>();
   const [chainId, setChainId] = useState<string | undefined>();
   const [shielded, setShielded] = useState<boolean>(true);
@@ -67,6 +72,11 @@ export const IbcTransfer: React.FC = () => {
   const [sourceChannelId, setSourceChannelId] = useState<string>("");
 
   const defaultAccount = useAtomValue(defaultAccountAtom);
+
+  const knownChains =
+    settings.enableTestnets ?
+      { ...mainnetChains, ...testnetChains }
+    : mainnetChains;
 
   const onChangeWallet = async (wallet: WalletProvider): Promise<void> => {
     if (wallet.id === "keplr") {
@@ -211,7 +221,6 @@ export const IbcTransfer: React.FC = () => {
           onChangeSelectedAsset: setSelectedAsset,
           availableChains,
           wallet: wallets.keplr,
-          availableWallets: [wallets.keplr!],
           onChangeChain: (chain) => setChainId(chain.chain_id),
           onChangeWallet,
           chain: mapUndefined((id) => knownChains[id].chain, chainId),

@@ -48,8 +48,7 @@ export const TransferModule = ({
   transactionFee,
   onSubmitTransfer,
 }: TransferModuleProps): JSX.Element => {
-  const [providerSelectorModalOpen, setProviderSelectorModalOpen] =
-    useState(false);
+  const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
   const [sourceChainModalOpen, setSourceChainModalOpen] = useState(false);
   const [destinationChainModalOpen, setDestinationChainModalOpen] =
     useState(false);
@@ -78,6 +77,39 @@ export const TransferModule = ({
     onSubmitTransfer?.();
   };
 
+  const onChangeWallet = (config: TransferModuleConfig) => (): void => {
+    // No callback available, do nothing
+    if (!config.onChangeWallet) return;
+
+    // User may choose between multiple options
+    if ((config.availableWallets || []).length > 1) {
+      setWalletSelectorModalOpen(true);
+      return;
+    }
+
+    // Fallback to default wallet prop
+    if (!config.availableWallets && config.wallet) {
+      config.onChangeWallet(config.wallet);
+      return;
+    }
+
+    // Do nothing if no alternatives are provided
+    if (!config.availableWallets) {
+      return;
+    }
+
+    // Do nothing if wallet address is set, and no other wallet is available
+    if (config.walletAddress && config.availableWallets.length <= 1) {
+      return;
+    }
+
+    // Don't need to show the modal, connects directly
+    if (!config.walletAddress && config.availableWallets.length === 1) {
+      config.onChangeWallet(config.availableWallets[0]);
+      return;
+    }
+  };
+
   return (
     <>
       <section className="max-w-[480px] mx-auto" role="widget">
@@ -90,11 +122,7 @@ export const TransferModule = ({
             chain={parseChainInfo(source.chain, source.isShielded)}
             availableAmount={source.availableAmount}
             amount={amount}
-            openProviderSelector={
-              source.onChangeWallet ?
-                () => setProviderSelectorModalOpen(true)
-              : undefined
-            }
+            openProviderSelector={onChangeWallet(source)}
             openChainSelector={
               source.onChangeChain ?
                 () => setSourceChainModalOpen(true)
@@ -139,12 +167,12 @@ export const TransferModule = ({
         </Stack>
       </section>
 
-      {providerSelectorModalOpen &&
+      {walletSelectorModalOpen &&
         source.onChangeWallet &&
         source.availableWallets && (
           <SelectWalletModal
             availableWallets={source.availableWallets}
-            onClose={() => setProviderSelectorModalOpen(false)}
+            onClose={() => setWalletSelectorModalOpen(false)}
             onConnect={source.onChangeWallet}
           />
         )}
