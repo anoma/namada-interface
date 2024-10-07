@@ -4,7 +4,6 @@ import { nativeTokenAddressAtom } from "atoms/chain";
 import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { getDefaultStore } from "jotai";
 
-// TODO: temp import fix
 const initializeSdk = async (): Promise<Sdk> => {
   const { cryptoMemory } = await initSdk();
   const store = getDefaultStore();
