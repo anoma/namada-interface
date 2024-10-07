@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 
 import { ActionButton, Alert, Loading, ViewKeys } from "@namada/components";
-import { AccountType } from "@namada/types";
+import { AccountType, Bip44Path } from "@namada/types";
 import { assertNever } from "@namada/utils";
 import {
   AccountSecret,
@@ -20,6 +20,7 @@ type Props = {
   accountSecret?: AccountSecret;
   password?: string;
   passwordRequired: boolean | undefined;
+  path: Bip44Path;
 };
 
 enum Status {
@@ -29,7 +30,7 @@ enum Status {
 }
 
 export const Completion: React.FC<Props> = (props) => {
-  const { alias, accountSecret, password, passwordRequired } = props;
+  const { alias, accountSecret, password, passwordRequired, path } = props;
 
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
   const [statusInfo, setStatusInfo] = useState<string>("");
@@ -78,7 +79,7 @@ export const Completion: React.FC<Props> = (props) => {
         setStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
         const account = (await requester.sendMessage<SaveAccountSecretMsg>(
           Ports.Background,
-          new SaveAccountSecretMsg(accountSecret, alias)
+          new SaveAccountSecretMsg(accountSecret, alias, path)
         )) as AccountStore;
 
         if (!account) {
@@ -92,11 +93,7 @@ export const Completion: React.FC<Props> = (props) => {
           setStatusInfo("Generating Shielded Account");
           const shieldedAccount = await requester.sendMessage<DeriveAccountMsg>(
             Ports.Background,
-            new DeriveAccountMsg(
-              account.path,
-              AccountType.ShieldedKeys,
-              account.alias
-            )
+            new DeriveAccountMsg(path, AccountType.ShieldedKeys, account.alias)
           );
           setShieldedAccountAddress(shieldedAccount.address);
         }
