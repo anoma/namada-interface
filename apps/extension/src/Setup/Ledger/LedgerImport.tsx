@@ -1,4 +1,5 @@
 import { ActionButton, Alert, Loading, Stack } from "@namada/components";
+import { Bip44Path } from "@namada/types";
 import { AccountAlias, Password } from "Setup/Common";
 import routes from "Setup/routes";
 import { AddLedgerAccountMsg } from "background/keyring";
@@ -15,9 +16,11 @@ type LedgerImportLocationState = {
 
 type LedgerProps = {
   passwordRequired: boolean;
+  path: Bip44Path;
 };
 
 export const LedgerImport = ({
+  path,
   passwordRequired,
 }: LedgerProps): JSX.Element => {
   const location = useLocation();
@@ -59,11 +62,7 @@ export const LedgerImport = ({
             keysName,
             locationState.address,
             locationState.publicKey,
-            {
-              account: 0,
-              change: 0,
-              index: 0,
-            }
+            path
           )
         );
         navigate(routes.ledgerComplete(), {

@@ -19,6 +19,8 @@ import { fillArray, filterPrivateKeyPrefix, validatePrivateKey } from "utils";
 
 type Props = {
   onConfirm: (accountSecret: AccountSecret) => void;
+  path: Bip44Path;
+  setPath: (path: Bip44Path) => void;
 };
 
 const SHORT_PHRASE_COUNT = 12;
@@ -30,16 +32,15 @@ enum SecretType {
   MnemonicTwentyFourWords = LONG_PHRASE_COUNT,
 }
 
-export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
+export const SeedPhraseImport: React.FC<Props> = ({
+  onConfirm,
+  path,
+  setPath,
+}) => {
   const requester = useRequester();
   const [privateKey, setPrivateKey] = useState("");
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [passphrase, setPassphrase] = useState("");
-  const [path, setPath] = useState<Bip44Path>({
-    account: 0,
-    change: 0,
-    index: 0,
-  });
   const [bip39Passphrase, setBip39Passphrase] = useState("");
   const [invalidWordIndex, setInvalidWordIndex] = useState<number>();
   const [mnemonicType, setMnemonicType] = useState<SecretType>(
