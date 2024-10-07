@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import { chains } from "@namada/chains";
 import { Input } from "@namada/components";
@@ -10,10 +10,6 @@ type Props = {
 };
 
 const Bip44Form: React.FC<Props> = ({ path, setPath }) => {
-  const [customPath, setCustomPath] = useState({
-    ...path,
-    index: 1,
-  });
   const { coinType } = chains.namada.bip44;
 
   const handleNumericChange = (
@@ -21,15 +17,11 @@ const Bip44Form: React.FC<Props> = ({ path, setPath }) => {
     key: keyof Bip44Path
   ): void => {
     const result = e.target.value.replace(/\D/g, "") || "0";
-    setCustomPath({
-      ...customPath,
+    setPath({
+      ...path,
       [key]: parseInt(result),
     });
   };
-
-  useEffect(() => {
-    setPath(customPath);
-  }, [customPath]);
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
@@ -41,6 +33,7 @@ const Bip44Form: React.FC<Props> = ({ path, setPath }) => {
       <div className="mb-2 [&_input]:w-[92%]">
         <div className="my-3">
           <label className="text-base font-medium text-neutral-300">
+            HD Derivation Path
             <div className="flex w-full justify-start items-center">
               <span className="h-px px-1 text-xs text-neutral-300">
                 {parentDerivationPath}
@@ -48,7 +41,7 @@ const Bip44Form: React.FC<Props> = ({ path, setPath }) => {
               <Input
                 type="number"
                 min="0"
-                value={customPath.account}
+                value={path.account}
                 onChange={(e) => handleNumericChange(e, "account")}
                 onFocus={handleFocus}
               />
@@ -57,7 +50,7 @@ const Bip44Form: React.FC<Props> = ({ path, setPath }) => {
                 type="number"
                 min="0"
                 max="1"
-                value={customPath.change}
+                value={path.change}
                 onChange={(e) => handleNumericChange(e, "change")}
                 onFocus={handleFocus}
               />
@@ -65,7 +58,7 @@ const Bip44Form: React.FC<Props> = ({ path, setPath }) => {
               <Input
                 type="number"
                 min="0"
-                value={customPath.index}
+                value={path.index}
                 onChange={(e) => handleNumericChange(e, "index")}
                 onFocus={handleFocus}
               />

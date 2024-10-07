@@ -130,7 +130,8 @@ export class SaveAccountSecretMsg extends Message<AccountStore | false> {
 
   constructor(
     public readonly accountSecret: AccountSecret,
-    public readonly alias: string
+    public readonly alias: string,
+    public readonly path?: Bip44Path
   ) {
     super();
   }
