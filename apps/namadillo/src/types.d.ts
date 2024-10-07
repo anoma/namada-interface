@@ -64,6 +64,7 @@ export type SettingsStorage = {
   indexerUrl: string;
   maspIndexerUrl?: string;
   signArbitraryEnabled: boolean;
+  enableTestnets?: boolean;
 };
 
 export type Validator = Unique & {

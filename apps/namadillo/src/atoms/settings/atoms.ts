@@ -51,6 +51,7 @@ export const defaultLocalStorageProps = {
   fiat: "usd",
   indexerUrl: "",
   signArbitraryEnabled: false,
+  testnetsEnabled: false,
 };
 
 export const settingsAtom = atomWithStorage<SettingsStorage>(
@@ -91,6 +92,22 @@ const changeSettingsUrl =
       );
     }
   };
+
+export const updateSettingsProps = atomWithMutation(() => {
+  return {
+    mutationKey: ["update-settings-prop"],
+    mutationFn: async ({
+      key,
+      value,
+    }: {
+      key: keyof SettingsStorage;
+      value: string | boolean;
+    }) => {
+      const { get, set } = getDefaultStore();
+      changeSettings(key)(get, set, value);
+    },
+  };
+});
 
 /**
  * Returns RPC Url.
