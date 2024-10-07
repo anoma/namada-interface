@@ -1,3 +1,4 @@
+import { Configuration, DefaultApi } from "@anomaorg/namada-indexer-client";
 import { initMulticore } from "@heliax/namada-sdk/inline-init";
 
 import { getSdk } from "@heliax/namada-sdk/web";
@@ -9,11 +10,12 @@ import { ChainSettings } from "types";
 export type ShieldPayload = {
   account: Account;
   gasConfig: {
-    gasLimit: number;
-    gasPrice: number;
+    gasLimit: BigNumber;
+    gasPrice: BigNumber;
   };
   shieldingProps: ShieldingTransferMsgValue[];
   rpcUrl: string;
+  indexerUrl: string;
   token: string;
   chain: ChainSettings;
 };
@@ -51,16 +53,21 @@ async function shield(
   cryptoMemory: WebAssembly.Memory,
   payload: ShieldPayload
 ): Promise<void> {
-  const { rpcUrl, token, account, gasConfig, chain, shieldingProps } = payload;
-  const www = {
-    target: shieldingProps[0].target,
-    data: [
-      {
-        ...shieldingProps[0].data[0],
-        amount: new BigNumber(shieldingProps[0].data[0].amount),
-      },
-    ],
-  };
+  const {
+    rpcUrl,
+    indexerUrl,
+    token,
+    account,
+    gasConfig,
+    chain,
+    shieldingProps,
+  } = payload;
+
+  const configuration = new Configuration({ basePath: indexerUrl });
+  const api = new DefaultApi(configuration);
+  const publicKeyRevealed = (
+    await api.apiV1RevealedPublicKeyAddressGet(account.address)
+  ).data.publicKey;
 
   const sdk = getSdk(
     cryptoMemory,
@@ -75,14 +82,11 @@ async function shield(
   const encodedTxData = await buildTx<ShieldingTransferMsgValue>(
     sdk,
     account,
-    // TODO: focking prototype xddd
-    {
-      gasLimit: BigNumber(gasConfig.gasLimit),
-      gasPrice: BigNumber(gasConfig.gasPrice),
-    },
+    gasConfig,
     chain,
-    [www],
-    sdk.tx.buildShieldingTransfer
+    shieldingProps,
+    sdk.tx.buildShieldingTransfer,
+    Boolean(publicKeyRevealed)
   );
 
   const event: EncodedShieldTransferEvent = {

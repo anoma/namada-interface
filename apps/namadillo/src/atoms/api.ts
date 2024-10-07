@@ -14,8 +14,6 @@ export const getIndexerApi = (): DefaultApi => {
 // Helper function to use outside of hooks
 const getApi = (get: <Value>(atom: Atom<Value>) => Value): DefaultApi => {
   const indexerUrl = get(indexerUrlAtom);
-  console.log("indexerUrl", indexerUrl, typeof indexerUrl);
-  //TODO: this returns "" sometimes
   const configuration = new Configuration({ basePath: indexerUrl });
 
   return new DefaultApi(configuration);

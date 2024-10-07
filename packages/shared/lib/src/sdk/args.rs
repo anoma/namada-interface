@@ -862,7 +862,6 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
     } = tx_msg;
 
     let token = Address::from_str(&token)?;
-    web_sys::console::log_1(&format!("Fee amount: {}", fee_amount).into());
 
     let fee_amount = DenominatedAmount::from_str(&fee_amount)
         .expect(format!("Fee amount has to be valid. Received {}", fee_amount).as_str());
