@@ -10,7 +10,8 @@ import { useExtensionEvents } from "hooks/useExtensionEvents";
 import { useTransactionCallback } from "hooks/useTransactionCallbacks";
 import { useTransactionNotifications } from "hooks/useTransactionNotifications";
 import { useAtomValue } from "jotai";
-import { broadcastTx, EncodedTxData, signTx } from "lib/query";
+import { EncodedTxData, signTx } from "lib/query";
+import PromiseWorker from "promise-worker";
 import { Outlet } from "react-router-dom";
 import { ShieldMessageType } from "workers/ShieldWorker";
 import ShieldWorker from "workers/ShieldWorker?worker";
@@ -25,7 +26,7 @@ export function App(): JSX.Element {
 
   const rpcUrl = useAtomValue(rpcUrlAtom);
 
-  const shieldWorker = new ShieldWorker();
+  const shieldWorker = new PromiseWorker(new ShieldWorker());
   const { data: account } = useAtomValue(defaultAccountAtom);
   const { data: chain } = useAtomValue(chainAtom);
   const { data: token } = useAtomValue(nativeTokenAddressAtom);
@@ -43,7 +44,15 @@ export function App(): JSX.Element {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).buildShieldlingTx = () => {
+  (window as any).buildShieldlingTx = async () => {
+    await shieldWorker.postMessage({
+      type: "init",
+      payload: {
+        rpcUrl,
+        token: token!,
+      },
+    });
+
     const msg: ShieldMessageType = {
       type: "shield",
       payload: {
@@ -53,30 +62,28 @@ export function App(): JSX.Element {
           gasPrice: BigNumber(0.000001),
         },
         shieldingProps: [shiedlingMsgValue],
-        rpcUrl,
         indexerUrl,
-        token: token!,
         chain: chain!,
       },
     };
 
-    shieldWorker.postMessage(msg);
-  };
+    const encodedTx =
+      await shieldWorker.postMessage<
+        Promise<EncodedTxData<ShieldingTransferMsgValue>>
+      >(msg);
 
-  shieldWorker.onmessage = async (e) => {
-    const encodedTx = e.data
-      .payload as EncodedTxData<ShieldingTransferMsgValue>;
     const signedTxs = await signTx("namada", encodedTx, account?.address || "");
 
-    signedTxs.forEach((_tx) => {
-      signedTxs.forEach((signedTx) => {
-        broadcastTx(
-          encodedTx,
-          signedTx,
-          encodedTx.meta?.props
-          // TODO: event type
-        );
-      });
+    await shieldWorker.postMessage({
+      type: "broadcast",
+      payload: {
+        sdkInit: {
+          rpcUrl,
+          token: token!,
+        },
+        encodedTx,
+        signedTxs,
+      },
     });
   };
 

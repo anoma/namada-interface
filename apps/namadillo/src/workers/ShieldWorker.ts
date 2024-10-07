@@ -1,11 +1,17 @@
 import { Configuration, DefaultApi } from "@anomaorg/namada-indexer-client";
 import { initMulticore } from "@heliax/namada-sdk/inline-init";
 
-import { getSdk } from "@heliax/namada-sdk/web";
+import { getSdk, Sdk } from "@heliax/namada-sdk/web";
 import { Account, ShieldingTransferMsgValue } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { buildTx, EncodedTxData } from "lib/query";
+import registerPromiseWorker from "promise-worker/register";
 import { ChainSettings } from "types";
+
+export type InitPayload = {
+  rpcUrl: string;
+  token: string;
+};
 
 export type ShieldPayload = {
   account: Account;
@@ -14,10 +20,18 @@ export type ShieldPayload = {
     gasPrice: BigNumber;
   };
   shieldingProps: ShieldingTransferMsgValue[];
-  rpcUrl: string;
-  indexerUrl: string;
-  token: string;
   chain: ChainSettings;
+  indexerUrl: string;
+};
+
+export type BroadcastPayload = {
+  encodedTx: EncodedTxData<ShieldingTransferMsgValue>;
+  signedTxs: Uint8Array[];
+};
+
+export type Init = {
+  type: "init";
+  payload: InitPayload;
 };
 
 export type Shield = {
@@ -25,58 +39,54 @@ export type Shield = {
   payload: ShieldPayload;
 };
 
-export type ShieldMessageType = Shield;
-
-export type EncodedShieldTransferEvent = {
-  type: "encoded-shield-transfer";
-  payload: EncodedTxData<ShieldingTransferMsgValue>;
+export type Broadcast = {
+  type: "broadcast";
+  payload: BroadcastPayload;
 };
 
-export type ShieldEvent = EncodedShieldTransferEvent;
+export type ShieldMessageType = Shield | Broadcast | Init;
 
-self.onmessage = async (e: MessageEvent<Shield>) => {
-  const { type, payload } = e.data;
+let sdk: Sdk | undefined;
+
+registerPromiseWorker(async (m: ShieldMessageType) => {
+  const { type, payload } = m;
 
   switch (type) {
-    case "shield": {
+    case "init": {
       const { cryptoMemory } = await initMulticore();
-      await shield(cryptoMemory, payload);
+      sdk = newSdk(cryptoMemory, payload);
+      break;
+    }
+    case "shield": {
+      if (!sdk) {
+        throw new Error("SDK is not initialized");
+      }
+      return await shield(sdk, payload);
+    }
+    case "broadcast": {
+      if (!sdk) {
+        throw new Error("SDK is not initialized");
+      }
+      await broadcast(sdk, payload);
       break;
     }
 
     default:
       throw new Error(`Unknown message type: ${type}`);
   }
-};
+});
 
 async function shield(
-  cryptoMemory: WebAssembly.Memory,
+  sdk: Sdk,
   payload: ShieldPayload
-): Promise<void> {
-  const {
-    rpcUrl,
-    indexerUrl,
-    token,
-    account,
-    gasConfig,
-    chain,
-    shieldingProps,
-  } = payload;
+): Promise<EncodedTxData<ShieldingTransferMsgValue>> {
+  const { indexerUrl, account, gasConfig, chain, shieldingProps } = payload;
 
   const configuration = new Configuration({ basePath: indexerUrl });
   const api = new DefaultApi(configuration);
   const publicKeyRevealed = (
     await api.apiV1RevealedPublicKeyAddressGet(account.address)
   ).data.publicKey;
-
-  const sdk = getSdk(
-    cryptoMemory,
-    rpcUrl,
-    "",
-    "",
-    // Not really used, but required by the SDK, as long as it's valid address it's fine
-    token
-  );
 
   await sdk.masp.loadMaspParams("");
   const encodedTxData = await buildTx<ShieldingTransferMsgValue>(
@@ -89,10 +99,24 @@ async function shield(
     Boolean(publicKeyRevealed)
   );
 
-  const event: EncodedShieldTransferEvent = {
-    type: "encoded-shield-transfer",
-    payload: encodedTxData,
-  };
+  return encodedTxData;
+}
 
-  postMessage(event);
+// TODO: We will probably move this to the separate worker
+async function broadcast(sdk: Sdk, payload: BroadcastPayload): Promise<void> {
+  const { encodedTx, signedTxs } = payload;
+
+  signedTxs.forEach(async (signedTx) => {
+    encodedTx.txs.forEach(async () => {
+      const _response = await sdk.rpc.broadcastTx(
+        signedTx,
+        encodedTx.wrapperTxProps
+      );
+    });
+  });
+}
+
+function newSdk(cryptoMemory: WebAssembly.Memory, payload: InitPayload): Sdk {
+  const { rpcUrl, token } = payload;
+  return getSdk(cryptoMemory, rpcUrl, "", "", token);
 }
