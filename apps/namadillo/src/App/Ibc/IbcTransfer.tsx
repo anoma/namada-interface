@@ -1,9 +1,7 @@
-import { Coin } from "@cosmjs/launchpad";
 import { coin, coins } from "@cosmjs/proto-signing";
 import {
   QueryClient,
   SigningStargateClient,
-  StargateClient,
   setupIbcExtension,
 } from "@cosmjs/stargate";
 import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
@@ -13,8 +11,8 @@ import { mapUndefined } from "@namada/utils";
 import { TransferModule } from "App/Transfer/TransferModule";
 import BigNumber from "bignumber.js";
 import { wallets } from "integrations";
-import { useEffect, useState } from "react";
-import { WalletProvider } from "types";
+import { useEffect, useMemo, useState } from "react";
+import { ChainRegistryEntry, WalletProvider } from "types";
 
 import * as celestia from "chain-registry/mainnet/celestia";
 import * as cosmos from "chain-registry/mainnet/cosmoshub";
@@ -34,11 +32,17 @@ import { useAtomValue } from "jotai";
 import namadaChain from "registry/namada.json";
 
 import { Asset, Chain } from "@chain-registry/types";
+import { useQuery } from "@tanstack/react-query";
+import {
+  getRandomRpcAddress,
+  mapCoinsToAssets,
+  queryAssetBalances,
+} from "atoms/registry";
 import { settingsAtom } from "atoms/settings";
 
 const keplr = (window as KeplrWindow).keplr!;
 
-const mainnetChains = {
+const mainnetChains: Record<string, ChainRegistryEntry> = {
   [celestia.chain.chain_id]: celestia,
   [cosmos.chain.chain_id]: cosmos,
   [dydx.chain.chain_id]: dydx,
@@ -46,7 +50,7 @@ const mainnetChains = {
   [stargaze.chain.chain_id]: stargaze,
 };
 
-const testnetChains = {
+const testnetChains: Record<string, ChainRegistryEntry> = {
   [cosmosTestnet.chain.chain_id]: cosmosTestnet,
   [celestiaTestnet.chain.chain_id]: celestiaTestnet,
   [dydxTestnet.chain.chain_id]: dydxTestnet,
@@ -54,53 +58,51 @@ const testnetChains = {
   [stargazeTestnet.chain.chain_id]: stargazeTestnet,
 };
 
-type AssetWithBalance = {
-  asset: Asset;
-  balance?: BigNumber;
-};
-
 export const IbcTransfer: React.FC = () => {
   const settings = useAtomValue(settingsAtom);
   const [address, setAddress] = useState<string | undefined>();
   const [chainId, setChainId] = useState<string | undefined>();
   const [shielded, setShielded] = useState<boolean>(true);
-  const [availableChains, setAvailableChains] = useState<Chain[]>([]);
-  const [assetsWithBalances, setAssetsWithBalances] = useState<
-    AssetWithBalance[]
-  >([]);
   const [selectedAsset, setSelectedAsset] = useState<Asset>();
   const [sourceChannelId, setSourceChannelId] = useState<string>("");
 
   const defaultAccount = useAtomValue(defaultAccountAtom);
 
-  const knownChains =
+  const knownChains: Record<string, ChainRegistryEntry> =
     settings.enableTestnets ?
       { ...mainnetChains, ...testnetChains }
     : mainnetChains;
 
+  const registry = useMemo(() => {
+    if (!chainId) return;
+    const entry = Object.values(knownChains).find(
+      (registry: ChainRegistryEntry) => registry.chain.chain_id === chainId
+    );
+    return entry;
+  }, [chainId]);
+
+  // Note: I think we should put this somewhere, but not sure if we need an atom for that :/
+  // If we create an atom, we will need an atom family that requires two arguments, address and chain (or rpc).
+  // atomFamily only accepts one argument, so we would need to create a ref with an object to keep the same reference
+  // on each re-render. Not sure if this overhead is better than breaking
+  const assetBalanceQuery = useQuery({
+    enabled: Boolean(address && registry?.chain),
+    queryKey: ["assets", address, registry?.chain?.chain_id],
+    queryFn: async () => {
+      return mapCoinsToAssets(
+        await queryAssetBalances(
+          address!,
+          getRandomRpcAddress(registry?.chain)
+        ),
+        registry!.assets
+      );
+    },
+  });
+
   const onChangeWallet = async (wallet: WalletProvider): Promise<void> => {
     if (wallet.id === "keplr") {
-      const keplrChainIds: string[] =
-        // TODO: bump the keplr package so i don't have to cast
-        (
-          (await // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (keplr as any).getChainInfosWithoutEndpoints()) as {
-            chainId: string;
-          }[]
-        ).map((chain) => chain.chainId);
-
-      const knownChainsWithKeplrInfo = Object.entries(knownChains)
-        .filter(([chainId]) => keplrChainIds.includes(chainId))
-        .map(([_, { chain }]) => chain);
-
-      await keplr.enable(
-        knownChainsWithKeplrInfo.map((chain) => chain.chain_id)
-      );
-
-      const firstChain = knownChainsWithKeplrInfo[0];
-
-      setAvailableChains(knownChainsWithKeplrInfo);
-      setChainId(firstChain.chain_id);
+      await keplr.enable(chainId || Object.keys(knownChains)[0]);
+      setChainId(chainId || Object.keys(knownChains)[0]);
     }
   };
 
@@ -111,54 +113,9 @@ export const IbcTransfer: React.FC = () => {
     }
   };
 
-  const updateAssets = async (): Promise<void> => {
-    if (typeof chainId !== "undefined" && typeof address !== "undefined") {
-      const { chain, assets: assetInfo } = knownChains[chainId];
-
-      const rpc = chain.apis?.rpc?.[0]?.address;
-
-      if (typeof rpc === "undefined") {
-        throw new Error("no RPC info for " + chainId);
-      }
-
-      const balances = await queryBalances(address, rpc);
-
-      const assets: AssetWithBalance[] = balances.flatMap(
-        ({ denom, amount }) => {
-          const maybeBigNumberAmount = BigNumber(amount);
-          const bigNumberAmount =
-            maybeBigNumberAmount.isNaN() ? undefined : maybeBigNumberAmount;
-
-          const maybeAsset = assetInfo.assets.find(
-            (asset) => asset.base === denom
-          );
-
-          if (typeof maybeAsset !== "undefined") {
-            return [
-              {
-                asset: maybeAsset,
-                balance: bigNumberAmount,
-              },
-            ];
-          } else {
-            // TODO: we might want to show assets that we don't have configs for anyway
-            return [];
-          }
-        }
-      );
-
-      setAssetsWithBalances(assets);
-      setSelectedAsset(assets[0]?.asset);
-    }
-  };
-
   useEffect(() => {
     updateAddress();
   }, [chainId]);
-
-  useEffect(() => {
-    updateAssets();
-  }, [address]);
 
   const onSubmitTransfer = (): void => {
     if (typeof address === "undefined") {
@@ -214,13 +171,14 @@ export const IbcTransfer: React.FC = () => {
       <TransferModule
         source={{
           selectedAsset,
-          availableAssets: assetsWithBalances.map(({ asset }) => asset),
-          availableAmount: assetsWithBalances.find(
-            ({ asset }) => asset === selectedAsset
-          )?.balance,
+          availableAssets: assetBalanceQuery.data?.map((el) => el.asset) || [],
+          availableAmount: new BigNumber(0),
           onChangeSelectedAsset: setSelectedAsset,
-          availableChains,
+          availableChains: Object.values(knownChains).map(
+            (entry) => entry.chain
+          ),
           wallet: wallets.keplr,
+          availableWallets: [wallets.keplr!],
           onChangeChain: (chain) => setChainId(chain.chain_id),
           onChangeWallet,
           chain: mapUndefined((id) => knownChains[id].chain, chainId),
@@ -237,23 +195,6 @@ export const IbcTransfer: React.FC = () => {
       />
     </Panel>
   );
-};
-
-const queryBalances = async (owner: string, rpc: string): Promise<Coin[]> => {
-  const client = await StargateClient.connect(rpc);
-  const balances = (await client.getAllBalances(owner)) || [];
-
-  await Promise.all(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    balances.map(async (coin: any) => {
-      // any becuse of annoying readonly
-      if (coin.denom.startsWith("ibc/")) {
-        coin.denom = await ibcAddressToDenom(coin.denom, rpc);
-      }
-    })
-  );
-
-  return [...balances];
 };
 
 const ibcAddressToDenom = async (

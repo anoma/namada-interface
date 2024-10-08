@@ -3,6 +3,7 @@ import {
   Unbond as IndexerUnbond,
   ValidatorStatus,
 } from "@anomaorg/namada-indexer-client";
+import { AssetList, IBCInfo } from "@chain-registry/types";
 import { ChainKey, ClaimRewardsMsgValue, ExtensionKey } from "@namada/types";
 import BigNumber from "bignumber.js";
 
@@ -180,17 +181,8 @@ export type WalletProvider = {
   };
 };
 
-export type Chain = {
-  chainId: string;
-  name: string;
-  iconUrl: string;
-};
-
-export type Asset = {
+export type ChainRegistryEntry = {
+  assets: AssetList;
   chain: Chain;
-  name: string;
-  iconUrl: string;
-  denomination: string;
-  minimalDenomination: string;
-  decimals: number;
+  ibc: IBCInfo[];
 };
