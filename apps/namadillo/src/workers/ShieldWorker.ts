@@ -9,19 +9,21 @@ import {
   Broadcast,
   BroadcastDone,
   Init,
+  InitDone,
   Shield,
   ShieldDone,
 } from "./ShieldMessages";
 import { registerBNTransferHandler } from "./utils";
 
-// TODO: replace with Class
-const worker = {
-  sdk: undefined as Sdk | undefined,
-  async init(m: Init) {
+export class Worker {
+  private sdk: Sdk | undefined;
+
+  async init(m: Init): Promise<InitDone> {
     const { cryptoMemory } = await initMulticore();
     this.sdk = newSdk(cryptoMemory, m.payload);
     return { type: "init-done", payload: null };
-  },
+  }
+
   async shield(m: Shield): Promise<ShieldDone> {
     if (!this.sdk) {
       throw new Error("SDK is not initialized");
@@ -30,15 +32,16 @@ const worker = {
       type: "shield-done",
       payload: await shield(this.sdk, m.payload),
     };
-  },
+  }
+
   async broadcast(m: Broadcast): Promise<BroadcastDone> {
     if (!this.sdk) {
       throw new Error("SDK is not initialized");
     }
     await broadcast(this.sdk, m.payload);
     return { type: "broadcast-done", payload: null };
-  },
-};
+  }
+}
 
 async function shield(
   sdk: Sdk,
@@ -97,7 +100,5 @@ export const registerTransferHandlers = (): void => {
   registerBNTransferHandler<Broadcast>("broadcast");
 };
 
-export type ShieldWorkerApi = typeof worker;
-
 registerTransferHandlers();
-Comlink.expose(worker);
+Comlink.expose(new Worker());
