@@ -10,7 +10,7 @@ export const makeBip44PathArray = (
   coinType: number,
   path: Bip44Path
 ): Uint32Array => {
-  const { account, change, index } = path;
+  const { account, change = 0, index = 0 } = path;
   return new Uint32Array([44, coinType, account, change, index]);
 };
 
@@ -24,29 +24,40 @@ export const makeBip44Path = (
   coinType: number,
   bip44Path: Bip44Path
 ): string => {
-  const { account, change, index } = bip44Path;
+  const { account, change = 0, index = 0 } = bip44Path;
   return `m/44'/${coinType}'/${account}'/${change}'/${index}'`;
 };
 
 /**
- * Return a properly formatted Sapling path
+ * Return a properly formatted Sapling path (Zip32)
  * @param coinType - SLIP-044 Coin designation
- * @param account - numbered from index in sequentially increasing manner. Defined as in BIP 44
+ * @param account - numbered from index 0 in sequentially increasing manner. Defined as in BIP 44
+ * @param [index] - optional index for additional keys under account. Defined as in BIP 44
  * @returns Sapling path
  */
-export const makeSaplingPath = (coinType: number, account: number): string => {
-  return `m/32'/${coinType}'/${account}'`;
+export const makeSaplingPath = (
+  coinType: number,
+  account: number,
+  index?: number
+): string => {
+  let path = `m/32'/${coinType}'/${account}'`;
+  if (typeof index === "number") path += `/${index}`;
+  return path;
 };
 
 /**
- * Return a properly formatted Sapling path array
+ * Return a properly formatted Sapling path array (Zip32)
  * @param coinType - SLIP-044 Coin designation
- * @param account - numbered from index in sequentially increasing manner. Defined as in BIP 44
+ * @param account - numbered from index 0 in sequentially increasing manner. Defined as in BIP 44
+ * @param [index] - optional index for additional keys under account. Defined as in BIP 44
  * @returns Sapling path array
  */
 export const makeSaplingPathArray = (
   coinType: number,
-  account: number
+  account: number,
+  index?: number
 ): Uint32Array => {
-  return new Uint32Array([32, coinType, account]);
+  const pathArray = [32, coinType, account];
+  if (typeof index === "number") pathArray.push(index);
+  return new Uint32Array(pathArray);
 };

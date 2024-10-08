@@ -77,23 +77,31 @@ export const Completion: React.FC<Props> = (props) => {
           : assertNever(accountSecret);
 
         setStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
-        const account = (await requester.sendMessage<SaveAccountSecretMsg>(
-          Ports.Background,
-          new SaveAccountSecretMsg(accountSecret, alias, path)
-        )) as AccountStore;
+        const storedAccount =
+          (await requester.sendMessage<SaveAccountSecretMsg>(
+            Ports.Background,
+            new SaveAccountSecretMsg(accountSecret, alias, path)
+          )) as AccountStore;
 
-        if (!account) {
+        if (!storedAccount) {
           throw new Error("Background returned failure when creating account");
         }
 
-        setPublicKeyAddress(account.publicKey ?? "");
-        setTransparentAccountAddress(account.address);
+        setPublicKeyAddress(storedAccount.publicKey ?? "");
+        setTransparentAccountAddress(storedAccount.address);
 
-        if (accountSecret.t !== "PrivateKey") {
+        // Do not derive shielded if this is an imported private key, and
+        // ignore accounts with a non-zero 'change' path component:
+        if (accountSecret.t !== "PrivateKey" && path.change === 0) {
           setStatusInfo("Generating Shielded Account");
+          const { account, index } = path;
           const shieldedAccount = await requester.sendMessage<DeriveAccountMsg>(
             Ports.Background,
-            new DeriveAccountMsg(path, AccountType.ShieldedKeys, account.alias)
+            new DeriveAccountMsg(
+              { account, index },
+              AccountType.ShieldedKeys,
+              storedAccount.alias
+            )
           );
           setShieldedAccountAddress(shieldedAccount.address);
         }

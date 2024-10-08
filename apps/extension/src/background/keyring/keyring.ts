@@ -201,8 +201,8 @@ export class KeyRing {
       alias,
       address,
       path.account,
-      path.change,
-      path.index,
+      path.change || 0,
+      path.index || 0,
       await this.vaultService.getLength(KEYSTORE_KEY)
     );
 
@@ -235,7 +235,7 @@ export class KeyRing {
     const keysNs = this.sdkService.getSdk().getKeys();
     const { address, privateKey } = keysNs.deriveFromSeed(seed, path);
 
-    const { account, change, index } = path;
+    const { account, change = 0, index = 0 } = path;
     const id = generateId(
       UUID_NAMESPACE,
       "account",
@@ -258,12 +258,13 @@ export class KeyRing {
     path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
-    const { account } = path;
+    const { account, index } = path;
     const id = generateId(
       UUID_NAMESPACE,
       "shielded-account",
       parentId,
-      account
+      account,
+      index || 0
     );
     const keysNs = this.sdkService.getSdk().getKeys();
     const { address, viewingKey, spendingKey } = keysNs.deriveShieldedFromSeed(
