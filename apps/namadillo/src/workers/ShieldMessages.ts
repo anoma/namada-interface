@@ -10,6 +10,9 @@ type InitPayload = {
   token: string;
 };
 
+export type Init = WebWorkerMessage<"init", InitPayload>;
+export type InitDone = WebWorkerMessage<"init-done", null>;
+
 type ShieldPayload = {
   account: Account;
   gasConfig: {
@@ -20,21 +23,16 @@ type ShieldPayload = {
   chain: ChainSettings;
   indexerUrl: string;
 };
-
-type BroadcastPayload = {
-  encodedTx: EncodedTxData<ShieldingTransferMsgValue>;
-  signedTxs: Uint8Array[];
-};
-
-export type Init = WebWorkerMessage<"init", InitPayload>;
-export type InitDone = WebWorkerMessage<"init-done", null>;
-
 export type Shield = WebWorkerMessage<"shield", ShieldPayload>;
 export type ShieldDone = WebWorkerMessage<
   "shield-done",
   EncodedTxData<ShieldingTransferMsgValue>
 >;
 
+type BroadcastPayload = {
+  encodedTx: EncodedTxData<ShieldingTransferMsgValue>;
+  signedTxs: Uint8Array[];
+};
 export type Broadcast = WebWorkerMessage<"broadcast", BroadcastPayload>;
 export type BroadcastDone = WebWorkerMessage<"broadcast-done", null>;
 
