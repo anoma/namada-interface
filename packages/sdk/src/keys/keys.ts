@@ -133,20 +133,23 @@ export class Keys {
    * Derive shielded keys and address from a seed and path
    * @param seed - Seed
    * @param [path] - Bip44 path object
+   * @param [diversifier] - Diversifier bytes
    * @returns Shielded keys and address
    */
   deriveShieldedFromSeed(
     seed: Uint8Array,
-    path: Bip44Path = DEFAULT_PATH
+    path: Bip44Path = DEFAULT_PATH,
+    diversifier?: Uint8Array
   ): ShieldedKeys {
     const zip32 = new ShieldedHDWallet(seed);
-    const derivationPath = makeSaplingPathArray(877, path.account);
-    const account = zip32.derive(derivationPath);
+    const { account, index } = path;
+    const derivationPath = makeSaplingPathArray(877, account, index);
+    const derivedAccount = zip32.derive(derivationPath, diversifier);
 
     // Retrieve serialized types from wasm
-    const xsk = account.xsk();
-    const xfvk = account.xfvk();
-    const paymentAddress = account.payment_address();
+    const xsk = derivedAccount.xsk();
+    const xfvk = derivedAccount.xfvk();
+    const paymentAddress = derivedAccount.payment_address();
 
     // Deserialize and encode keys and address
     const extendedSpendingKey = new ExtendedSpendingKey(xsk);
@@ -157,7 +160,7 @@ export class Keys {
 
     // Clear wasm resources from memory
     zip32.free();
-    account.free();
+    derivedAccount.free();
     extendedViewingKey.free();
     extendedSpendingKey.free();
 
