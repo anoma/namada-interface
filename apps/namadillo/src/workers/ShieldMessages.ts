@@ -1,6 +1,10 @@
 import BigNumber from "bignumber.js";
 
-import { Account, ShieldingTransferMsgValue } from "@namada/types";
+import {
+  Account,
+  ShieldingTransferMsgValue,
+  TxResponseMsgValue,
+} from "@namada/types";
 import { EncodedTxData } from "lib/query";
 import { ChainSettings } from "types";
 import { WebWorkerMessage } from "./utils";
@@ -34,7 +38,10 @@ type BroadcastPayload = {
   signedTxs: Uint8Array[];
 };
 export type Broadcast = WebWorkerMessage<"broadcast", BroadcastPayload>;
-export type BroadcastDone = WebWorkerMessage<"broadcast-done", null>;
+export type BroadcastDone = WebWorkerMessage<
+  "broadcast-done",
+  TxResponseMsgValue[]
+>;
 
 export type ShieldMessageIn = Shield | Broadcast | Init;
 export type ShieldMessageOut = ShieldDone | BroadcastDone | InitDone;

@@ -3,7 +3,7 @@ import { initMulticore } from "@heliax/namada-sdk/inline-init";
 import * as Comlink from "comlink";
 
 import { getSdk, Sdk } from "@heliax/namada-sdk/web";
-import { ShieldingTransferMsgValue } from "@namada/types";
+import { ShieldingTransferMsgValue, TxResponseMsgValue } from "@namada/types";
 import { buildTx, EncodedTxData } from "lib/query";
 import {
   Broadcast,
@@ -38,8 +38,10 @@ export class Worker {
     if (!this.sdk) {
       throw new Error("SDK is not initialized");
     }
-    await broadcast(this.sdk, m.payload);
-    return { type: "broadcast-done", payload: null };
+
+    const res = await broadcast(this.sdk, m.payload);
+
+    return { type: "broadcast-done", payload: res };
   }
 }
 
@@ -73,17 +75,21 @@ async function shield(
 async function broadcast(
   sdk: Sdk,
   payload: Broadcast["payload"]
-): Promise<void> {
+): Promise<TxResponseMsgValue[]> {
   const { encodedTx, signedTxs } = payload;
 
-  signedTxs.forEach(async (signedTx) => {
-    encodedTx.txs.forEach(async () => {
-      const _response = await sdk.rpc.broadcastTx(
+  const result: TxResponseMsgValue[] = [];
+
+  for await (const signedTx of signedTxs) {
+    for await (const _ of encodedTx.txs) {
+      const response = await sdk.rpc.broadcastTx(
         signedTx,
         encodedTx.wrapperTxProps
       );
-    });
-  });
+      result.push(response);
+    }
+  }
+  return result;
 }
 
 function newSdk(
