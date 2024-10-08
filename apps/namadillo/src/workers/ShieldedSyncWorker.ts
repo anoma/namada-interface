@@ -22,6 +22,7 @@ export type ShieldedSyncMessageType =
   | ShieldedSyncMulticore
   | ShieldedSyncSinglecore;
 
+// TODO: replace with comlink
 self.onmessage = async (e: MessageEvent<ShieldedSyncMessageType>) => {
   const { type, payload } = e.data;
 
