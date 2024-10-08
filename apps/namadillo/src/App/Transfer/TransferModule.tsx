@@ -25,6 +25,7 @@ export type TransferModuleConfig = {
 
 export type TransferSourceProps = TransferModuleConfig & {
   availableAssets?: Asset[];
+  isLoadingAssets?: boolean;
   selectedAsset?: Asset;
   availableAmount?: BigNumber;
   onChangeSelectedAsset?: (asset: Asset | undefined) => void;
@@ -119,6 +120,7 @@ export const TransferModule = ({
             wallet={source.wallet}
             walletAddress={source.walletAddress}
             asset={source.selectedAsset}
+            isLoadingAssets={source.isLoadingAssets}
             chain={parseChainInfo(source.chain, source.isShielded)}
             availableAmount={source.availableAmount}
             amount={amount}

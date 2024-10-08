@@ -6,6 +6,7 @@ import { EmptyResourceIcon } from "./EmptyResourceIcon";
 type SelectedAssetProps = {
   chain?: Chain;
   asset?: Asset;
+  isLoading?: boolean;
   onClick?: () => void;
 };
 

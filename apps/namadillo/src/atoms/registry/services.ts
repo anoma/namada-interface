@@ -3,7 +3,7 @@ import { Coin } from "@cosmjs/launchpad";
 import { StargateClient } from "@cosmjs/stargate";
 import BigNumber from "bignumber.js";
 
-type AssetWithBalance = {
+export type AssetWithBalance = {
   asset: Asset;
   balance?: BigNumber;
 };
@@ -20,13 +20,18 @@ export const queryAssetBalances = async (
 export const mapCoinsToAssets = (
   coins: Coin[],
   assetList: AssetList
-): AssetWithBalance[] => {
-  const assetsWithBalances = coins.map(({ denom, amount }) => {
-    const asset = assetList.assets.find((asset) => asset.base === denom);
+): Record<string, AssetWithBalance> => {
+  return coins.reduce((prev, current) => {
+    const asset = assetList.assets.find(
+      (asset) => asset.base === current.denom
+    );
+    if (!asset) return prev;
     return {
-      asset,
-      balance: new BigNumber(amount || 0),
+      ...prev,
+      [asset.base]: {
+        asset,
+        balance: new BigNumber(current.amount || 0),
+      },
     };
-  });
-  return assetsWithBalances.filter((a) => !!a.asset) as AssetWithBalance[];
+  }, {});
 };

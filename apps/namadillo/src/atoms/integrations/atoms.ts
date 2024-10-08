@@ -11,3 +11,8 @@ export const selectedIBCChainAtom = atomWithStorage<string | undefined>(
   "namadillo:ibc:chainId",
   undefined
 );
+
+export const workingRpcAtoms = atomWithStorage<Record<string, string>>(
+  "namadillo:rpcs",
+  {}
+);
