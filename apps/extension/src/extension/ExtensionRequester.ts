@@ -1,6 +1,6 @@
-import BigNumber from "bignumber.js";
 import browser from "webextension-polyfill";
 
+import { deserializeBigNumbers } from "@namada/utils";
 import { Message } from "../router";
 import { Messenger } from "./ExtensionMessenger";
 
@@ -40,7 +40,7 @@ export class ExtensionRequester {
       throw error;
     }
 
-    return fixBigNumbers(result.return);
+    return deserializeBigNumbers(result.return);
   }
 
   async sendMessageToTab<M extends Message<unknown>>(
@@ -94,39 +94,3 @@ export class ExtensionRequester {
     return tabs.map((tab) => tab.id || browser.tabs.TAB_ID_NONE);
   }
 }
-
-/**
- * Searches through an object and creates BigNumbers from any object with
- * the _isBigNumber property. This is needed because BigNumbers lose their
- * prototype when sent between extension scripts in Firefox.
- *
- * Returns the object with the BigNumbers reconstructed.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const fixBigNumbers = (result: any): any => {
-  if (typeof result !== "object" || result === null) {
-    return result;
-  }
-
-  if (result["_isBigNumber"]) {
-    return BigNumber(result as BigNumber.Value);
-  }
-
-  const unseenValues = [result];
-
-  while (unseenValues.length !== 0) {
-    const obj = unseenValues.pop();
-    Object.entries(obj).forEach(([key, value]) => {
-      if (typeof value === "object" && value !== null) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((value as any)["_isBigNumber"]) {
-          obj[key] = BigNumber(value as BigNumber.Value);
-        } else {
-          unseenValues.push(value);
-        }
-      }
-    });
-  }
-
-  return result;
-};

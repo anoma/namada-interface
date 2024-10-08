@@ -1,84 +1,48 @@
 import { Configuration, DefaultApi } from "@anomaorg/namada-indexer-client";
 import { initMulticore } from "@heliax/namada-sdk/inline-init";
+import * as Comlink from "comlink";
 
 import { getSdk, Sdk } from "@heliax/namada-sdk/web";
-import { Account, ShieldingTransferMsgValue } from "@namada/types";
-import BigNumber from "bignumber.js";
+import { ShieldingTransferMsgValue } from "@namada/types";
 import { buildTx, EncodedTxData } from "lib/query";
-import registerPromiseWorker from "promise-worker/register";
-import { ChainSettings } from "types";
+import {
+  Broadcast,
+  BroadcastDone,
+  Init,
+  Shield,
+  ShieldDone,
+} from "./ShieldMessages";
+import { registerBNTransferHandler } from "./utils";
 
-export type InitPayload = {
-  rpcUrl: string;
-  token: string;
-};
-
-export type ShieldPayload = {
-  account: Account;
-  gasConfig: {
-    gasLimit: BigNumber;
-    gasPrice: BigNumber;
-  };
-  shieldingProps: ShieldingTransferMsgValue[];
-  chain: ChainSettings;
-  indexerUrl: string;
-};
-
-export type BroadcastPayload = {
-  encodedTx: EncodedTxData<ShieldingTransferMsgValue>;
-  signedTxs: Uint8Array[];
-};
-
-export type Init = {
-  type: "init";
-  payload: InitPayload;
-};
-
-export type Shield = {
-  type: "shield";
-  payload: ShieldPayload;
-};
-
-export type Broadcast = {
-  type: "broadcast";
-  payload: BroadcastPayload;
-};
-
-export type ShieldMessageType = Shield | Broadcast | Init;
-
-let sdk: Sdk | undefined;
-
-registerPromiseWorker(async (m: ShieldMessageType) => {
-  const { type, payload } = m;
-
-  switch (type) {
-    case "init": {
-      const { cryptoMemory } = await initMulticore();
-      sdk = newSdk(cryptoMemory, payload);
-      break;
+// TODO: replace with Class
+const worker = {
+  sdk: undefined as Sdk | undefined,
+  async init(m: Init) {
+    const { cryptoMemory } = await initMulticore();
+    this.sdk = newSdk(cryptoMemory, m.payload);
+    return { type: "init-done", payload: null };
+  },
+  async shield(m: Shield): Promise<ShieldDone> {
+    if (!this.sdk) {
+      throw new Error("SDK is not initialized");
     }
-    case "shield": {
-      if (!sdk) {
-        throw new Error("SDK is not initialized");
-      }
-      return await shield(sdk, payload);
+    return {
+      type: "shield-done",
+      payload: await shield(this.sdk, m.payload),
+    };
+  },
+  async broadcast(m: Broadcast): Promise<BroadcastDone> {
+    if (!this.sdk) {
+      throw new Error("SDK is not initialized");
     }
-    case "broadcast": {
-      if (!sdk) {
-        throw new Error("SDK is not initialized");
-      }
-      await broadcast(sdk, payload);
-      break;
-    }
-
-    default:
-      throw new Error(`Unknown message type: ${type}`);
-  }
-});
+    await broadcast(this.sdk, m.payload);
+    return { type: "broadcast-done", payload: null };
+  },
+};
 
 async function shield(
   sdk: Sdk,
-  payload: ShieldPayload
+  payload: Shield["payload"]
 ): Promise<EncodedTxData<ShieldingTransferMsgValue>> {
   const { indexerUrl, account, gasConfig, chain, shieldingProps } = payload;
 
@@ -103,7 +67,10 @@ async function shield(
 }
 
 // TODO: We will probably move this to the separate worker
-async function broadcast(sdk: Sdk, payload: BroadcastPayload): Promise<void> {
+async function broadcast(
+  sdk: Sdk,
+  payload: Broadcast["payload"]
+): Promise<void> {
   const { encodedTx, signedTxs } = payload;
 
   signedTxs.forEach(async (signedTx) => {
@@ -116,7 +83,21 @@ async function broadcast(sdk: Sdk, payload: BroadcastPayload): Promise<void> {
   });
 }
 
-function newSdk(cryptoMemory: WebAssembly.Memory, payload: InitPayload): Sdk {
+function newSdk(
+  cryptoMemory: WebAssembly.Memory,
+  payload: Init["payload"]
+): Sdk {
   const { rpcUrl, token } = payload;
   return getSdk(cryptoMemory, rpcUrl, "", "", token);
 }
+
+export const registerTransferHandlers = (): void => {
+  registerBNTransferHandler<ShieldDone>("shield-done");
+  registerBNTransferHandler<Shield>("shield");
+  registerBNTransferHandler<Broadcast>("broadcast");
+};
+
+export type ShieldWorkerApi = typeof worker;
+
+registerTransferHandlers();
+Comlink.expose(worker);

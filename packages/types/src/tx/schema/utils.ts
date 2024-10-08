@@ -3,10 +3,7 @@ import BigNumber from "bignumber.js";
 
 export const BigNumberSerializer = {
   serialize: (value: BigNumber, writer: BinaryWriter) => {
-    //eslint-disable-next-line
-    console.log("TODO: hacky hack hack");
-    const asd = Object.setPrototypeOf(value, BigNumber.prototype);
-    writer.string(asd.toString());
+    writer.string(value.toString());
   },
   deserialize: (reader: BinaryReader): BigNumber => {
     const valueString = reader.string();

@@ -1,3 +1,5 @@
+import * as Comlink from "comlink";
+
 import { ShieldingTransferMsgValue } from "@namada/types";
 import { Toasts } from "App/Common/Toast";
 import { AppLayout } from "App/Layout/AppLayout";
@@ -10,10 +12,13 @@ import { useExtensionEvents } from "hooks/useExtensionEvents";
 import { useTransactionCallback } from "hooks/useTransactionCallbacks";
 import { useTransactionNotifications } from "hooks/useTransactionNotifications";
 import { useAtomValue } from "jotai";
-import { EncodedTxData, signTx } from "lib/query";
-import PromiseWorker from "promise-worker";
+import { signTx } from "lib/query";
 import { Outlet } from "react-router-dom";
-import { ShieldMessageType } from "workers/ShieldWorker";
+import { Shield } from "workers/ShieldMessages";
+import {
+  registerTransferHandlers,
+  ShieldWorkerApi,
+} from "workers/ShieldWorker";
 import ShieldWorker from "workers/ShieldWorker?worker";
 import { ChainLoader } from "./Setup/ChainLoader";
 
@@ -26,26 +31,27 @@ export function App(): JSX.Element {
 
   const rpcUrl = useAtomValue(rpcUrlAtom);
 
-  const shieldWorker = new PromiseWorker(new ShieldWorker());
+  registerTransferHandlers();
+  const shieldWorker = Comlink.wrap<ShieldWorkerApi>(new ShieldWorker());
   const { data: account } = useAtomValue(defaultAccountAtom);
   const { data: chain } = useAtomValue(chainAtom);
   const { data: token } = useAtomValue(nativeTokenAddressAtom);
   const indexerUrl = useAtomValue(indexerUrlAtom);
-  const shiedlingMsgValue = {
+  const shiedlingMsgValue = new ShieldingTransferMsgValue({
     target:
       "znam1vue386rsee5c65qsvlm9tgj5lqetz6ejkln3j57utc44w2n8upty57z7lh07myrj3clfxyl9lvn",
     data: [
       {
         source: account?.address || "",
         token: token!,
-        amount: 100 as unknown as BigNumber,
+        amount: BigNumber(100),
       },
     ],
-  };
+  });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).buildShieldlingTx = async () => {
-    await shieldWorker.postMessage({
+    await shieldWorker.init({
       type: "init",
       payload: {
         rpcUrl,
@@ -53,7 +59,7 @@ export function App(): JSX.Element {
       },
     });
 
-    const msg: ShieldMessageType = {
+    const msg: Shield = {
       type: "shield",
       payload: {
         account: account!,
@@ -67,20 +73,13 @@ export function App(): JSX.Element {
       },
     };
 
-    const encodedTx =
-      await shieldWorker.postMessage<
-        Promise<EncodedTxData<ShieldingTransferMsgValue>>
-      >(msg);
+    const { payload: encodedTx } = await shieldWorker.shield(msg);
 
     const signedTxs = await signTx("namada", encodedTx, account?.address || "");
 
-    await shieldWorker.postMessage({
+    await shieldWorker.broadcast({
       type: "broadcast",
       payload: {
-        sdkInit: {
-          rpcUrl,
-          token: token!,
-        },
         encodedTx,
         signedTxs,
       },
