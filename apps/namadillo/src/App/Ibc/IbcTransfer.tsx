@@ -9,7 +9,6 @@ import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { Panel } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { TransferModule } from "App/Transfer/TransferModule";
-import BigNumber from "bignumber.js";
 import { wallets } from "integrations";
 import { useEffect, useMemo, useState } from "react";
 import { ChainRegistryEntry, WalletProvider } from "types";
@@ -28,14 +27,16 @@ import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
 
 import { defaultAccountAtom } from "atoms/accounts";
 
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import namadaChain from "registry/namada.json";
 
 import { Asset, Chain } from "@chain-registry/types";
 import { useQuery } from "@tanstack/react-query";
+import { selectedIBCChainAtom } from "atoms/integrations";
 import {
-  getRandomRpcAddress,
+  AssetWithBalance,
   mapCoinsToAssets,
+  queryAndStoreRpc,
   queryAssetBalances,
 } from "atoms/registry";
 import { settingsAtom } from "atoms/settings";
@@ -60,11 +61,14 @@ const testnetChains: Record<string, ChainRegistryEntry> = {
 
 export const IbcTransfer: React.FC = () => {
   const settings = useAtomValue(settingsAtom);
+  const [chainId, setChainId] = useAtom(selectedIBCChainAtom);
   const [address, setAddress] = useState<string | undefined>();
-  const [chainId, setChainId] = useState<string | undefined>();
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAsset, setSelectedAsset] = useState<Asset>();
   const [sourceChannelId, setSourceChannelId] = useState<string>("");
+  const [assetsBalances, setAssetsBalances] = useState<
+    Record<string, AssetWithBalance>
+  >({});
 
   const defaultAccount = useAtomValue(defaultAccountAtom);
 
@@ -89,13 +93,14 @@ export const IbcTransfer: React.FC = () => {
     enabled: Boolean(address && registry?.chain),
     queryKey: ["assets", address, registry?.chain?.chain_id],
     queryFn: async () => {
-      return mapCoinsToAssets(
-        await queryAssetBalances(
-          address!,
-          getRandomRpcAddress(registry?.chain)
-        ),
-        registry!.assets
+      const assetsBalances = await queryAndStoreRpc(
+        registry!.chain,
+        async (rpc: string) => {
+          return await queryAssetBalances(address!, rpc);
+        }
       );
+      const coinsToAssets = mapCoinsToAssets(assetsBalances, registry!.assets);
+      setAssetsBalances(coinsToAssets);
     },
   });
 
@@ -170,19 +175,24 @@ export const IbcTransfer: React.FC = () => {
 
       <TransferModule
         source={{
+          isLoadingAssets: assetBalanceQuery.isFetching,
+          availableAssets:
+            Object.values(assetsBalances).map((el) => el.asset) || [],
           selectedAsset,
-          availableAssets: assetBalanceQuery.data?.map((el) => el.asset) || [],
-          availableAmount: new BigNumber(0),
           onChangeSelectedAsset: setSelectedAsset,
+          availableAmount:
+            selectedAsset && selectedAsset.base in assetsBalances ?
+              assetsBalances[selectedAsset.base].balance
+            : undefined,
           availableChains: Object.values(knownChains).map(
             (entry) => entry.chain
           ),
-          wallet: wallets.keplr,
-          availableWallets: [wallets.keplr!],
           onChangeChain: (chain) => setChainId(chain.chain_id),
-          onChangeWallet,
           chain: mapUndefined((id) => knownChains[id].chain, chainId),
+          availableWallets: [wallets.keplr!],
+          wallet: wallets.keplr,
           walletAddress: address,
+          onChangeWallet,
         }}
         destination={{
           chain: namadaChain as Chain,
