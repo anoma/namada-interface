@@ -5,6 +5,7 @@ import {
   Bip44Path,
   DerivedAccount,
   SignArbitraryResponse,
+  TransferMsgValue,
   TxProps,
 } from "@namada/types";
 import { Result, assertNever, truncateInMiddle } from "@namada/utils";
@@ -20,8 +21,10 @@ import {
   UtilityStore,
 } from "./types";
 
+import { deserialize } from "@dao-xyz/borsh";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
+import { SpendingKey } from "background/web-workers/types";
 import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
 import { generateId } from "utils";
 
@@ -591,5 +594,37 @@ export class KeyRing {
       return;
     }
     return account.public;
+  }
+
+  async generateProof(
+    transferMsg: Uint8Array,
+    generate: (spendingKey: SpendingKey) => Promise<void>
+  ): Promise<void> {
+    await this.vaultService.assertIsUnlocked();
+
+    // We need to get the source address to find the spending key
+    const { sources } = deserialize(Buffer.from(transferMsg), TransferMsgValue);
+    const source = sources[0];
+
+    const account = await this.vaultStorage.findOneOrFail(
+      KeyStore,
+      "address",
+      source.owner
+    );
+    const sensitiveProps =
+      await this.vaultService.reveal<SensitiveAccountStoreData>(
+        account.sensitive
+      );
+
+    if (!sensitiveProps) {
+      throw new Error("Error decrypting AccountStore data");
+    }
+
+    if (account.public.type === AccountType.ShieldedKeys) {
+      const xsk = JSON.parse(sensitiveProps.text).spendingKey;
+      await generate(xsk);
+    } else {
+      throw new Error("Invalid account! Cannot generate proofs");
+    }
   }
 }

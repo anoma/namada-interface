@@ -3485,7 +3485,7 @@ __metadata:
     "@ledgerhq/hw-transport-webhid": "npm:^6.28.0"
     "@ledgerhq/hw-transport-webusb": "npm:^6.28.0"
     "@svgr/webpack": "npm:^6.3.1"
-    "@types/chrome": "npm:^0.0.237"
+    "@types/chrome": "npm:^0.0.277"
     "@types/dompurify": "npm:^3.0.5"
     "@types/firefox-webext-browser": "npm:^94.0.1"
     "@types/jest": "npm:^29.5.12"
@@ -4895,13 +4895,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chrome@npm:^0.0.237":
-  version: 0.0.237
-  resolution: "@types/chrome@npm:0.0.237"
+"@types/chrome@npm:^0.0.277":
+  version: 0.0.277
+  resolution: "@types/chrome@npm:0.0.277"
   dependencies:
     "@types/filesystem": "npm:*"
     "@types/har-format": "npm:*"
-  checksum: 1e28700c935d019c31bd556986a10384b855ee0b02fb3520966d49945ce223fcca6cf9c1b93ae21cb624c8c6fbc54ea0e78e07a6e52d33aaf84d987008825bdf
+  checksum: 2874eba7da827fbb18f60e2103cb20d7ebeea6ca44bee8f9853db3cdb3c2abb59798b5ab348bfd247339ec9c3e330b314694ec726c693e51a1cee6518f07c1da
   languageName: node
   linkType: hard
 

@@ -9,10 +9,23 @@ import {
 } from "@namada/types";
 import { Result, truncateInMiddle } from "@namada/utils";
 
+import { fromBase64 } from "@cosmjs/encoding";
 import { ChainsService } from "background/chains";
+import {
+  createOffscreenWithProofWorker,
+  GENERATE_PROOF_MSG_TYPE,
+  hasOffscreenDocument,
+  OFFSCREEN_TARGET,
+} from "background/offscreen";
 import { SdkService } from "background/sdk/service";
 import { VaultService } from "background/vault";
-import { ExtensionBroadcaster, ExtensionRequester } from "extension";
+import { init as initProofWorker } from "background/web-workers";
+import { SpendingKey } from "background/web-workers/types";
+import {
+  ExtensionBroadcaster,
+  ExtensionRequester,
+  getNamadaRouterId,
+} from "extension";
 import { KeyStore, LocalStorage, VaultStorage } from "storage";
 import { KeyRing } from "./keyring";
 import {
@@ -198,5 +211,110 @@ export class KeyRingService {
     address: string
   ): Promise<DerivedAccount | undefined> {
     return this._keyRing.queryAccountDetails(address);
+  }
+
+  async generateProof(
+    proofMsg: string,
+    txMsg: string,
+    msgId: string
+  ): Promise<void> {
+    // Passing generate handler simplifies worker code when using Firefox
+    const generateHandler = async (spendingKey: SpendingKey): Promise<void> => {
+      const { TARGET } = process.env;
+      if (TARGET === "chrome") {
+        await this.generateProofChrome(proofMsg, txMsg, msgId, spendingKey);
+      } else if (TARGET === "firefox") {
+        await this.generateProofFirefox(proofMsg, txMsg, msgId, spendingKey);
+      } else {
+        console.warn("Generating proofs is not supported with your browser.");
+      }
+    };
+
+    // await this.broadcaster.startTx(msgId, TxType.Transfer);
+    try {
+      await this._keyRing.generateProof(
+        fromBase64(proofMsg),
+        generateHandler.bind(this)
+      );
+      // await this.broadcaster.updateBalance();
+    } catch (e) {
+      console.warn(e);
+      throw new Error(`Unable to generate a proof! ${e}`);
+    }
+  }
+
+  private async generateProofChrome(
+    proofMsg: string,
+    txMsg: string,
+    msgId: string,
+    spendingKey: SpendingKey
+  ): Promise<void> {
+    const offscreenDocumentPath = "offscreen.html";
+    const routerId = await getNamadaRouterId(this.localStorage);
+    const {
+      currency: { address: nativeToken },
+    } = await this.chainsService.getChain();
+
+    if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
+      await createOffscreenWithProofWorker(offscreenDocumentPath);
+    }
+
+    const result = await chrome.runtime.sendMessage({
+      type: GENERATE_PROOF_MSG_TYPE,
+      target: OFFSCREEN_TARGET,
+      routerId,
+      data: { proofMsg, txMsg, msgId, spendingKey, rpc: "", nativeToken },
+    });
+
+    if (result?.error) {
+      const error = new Error(result.error?.message || "Error in web worker");
+      error.stack = result.error.stack;
+      throw error;
+    }
+  }
+
+  private async generateProofFirefox(
+    transferMsg: string,
+    txMsg: string,
+    msgId: string,
+    spendingKey: SpendingKey
+  ): Promise<void> {
+    const {
+      currency: { address: nativeToken = "" },
+    } = await this.chainsService.getChain();
+
+    initProofWorker(
+      {
+        transferMsg,
+        txMsg,
+        msgId,
+        spendingKey,
+        rpc: "",
+        nativeToken,
+      },
+      this.handleGenerateProofCompleted.bind(this)
+    );
+  }
+
+  async handleGenerateProofCompleted(
+    msgId: string,
+    success: boolean,
+    payload?: string
+  ): Promise<void> {
+    console.log("Proof generated!");
+    if (success) {
+      console.log({ msgId, success, payload });
+      // this.broadcaster.sendMsgToTabs(new ProofCompletedMsg(payload))
+    }
+  }
+
+  closeOffscreenDocument(): Promise<void> {
+    if (chrome) {
+      return chrome.offscreen.closeDocument();
+    } else {
+      return Promise.reject(
+        "Trying to close offscreen document for nor supported browser"
+      );
+    }
   }
 }
