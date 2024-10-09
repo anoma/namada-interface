@@ -19,7 +19,7 @@ export const StakingSummary = (): JSX.Element => {
     isSuccess,
     availableAmount,
     bondedAmount,
-    totalShieldedAmount,
+    shieldedAmount,
     unbondedAmount,
     withdrawableAmount,
     totalAmount,
@@ -38,7 +38,7 @@ export const StakingSummary = (): JSX.Element => {
             isSuccess={isSuccess}
             availableAmount={availableAmount}
             bondedAmount={bondedAmount}
-            shieldedAmount={totalShieldedAmount}
+            shieldedAmount={shieldedAmount}
             unbondedAmount={unbondedAmount}
             withdrawableAmount={withdrawableAmount}
             totalAmount={totalAmount}
