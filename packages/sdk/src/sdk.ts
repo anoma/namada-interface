@@ -1,6 +1,6 @@
 import Transport from "@ledgerhq/hw-transport";
 import { Query as QueryWasm, Sdk as SdkWasm } from "@namada/shared";
-import { version } from "../package.json";
+import packageJson from "../package.json";
 import { Crypto } from "./crypto";
 import { Keys } from "./keys";
 import { Ledger } from "./ledger";
@@ -116,7 +116,7 @@ export class Sdk {
    * Return SDK Package version
    */
   getVersion(): string {
-    return version;
+    return packageJson.version;
   }
 
   /**
