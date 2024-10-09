@@ -15,7 +15,6 @@ export function App(): JSX.Element {
   useOnNamadaExtensionAttached();
   useTransactionNotifications();
   useTransactionCallback();
-
   return (
     <>
       <Toasts />
