@@ -14,7 +14,7 @@ import { colors } from "theme";
 
 export const ShieldedBalanceChart = (): JSX.Element => {
   const shieldedBalanceQuery = useAtomValue(shieldedBalanceAtom);
-  const totalShieldedBalanceQuery = useAtomValue(totalShieldedBalanceAtom);
+  const { data } = useAtomValue(totalShieldedBalanceAtom);
 
   return (
     <AtomErrorBoundary
@@ -22,7 +22,7 @@ export const ShieldedBalanceChart = (): JSX.Element => {
       niceError="Unable to load balance"
     >
       <div className="flex items-center justify-center w-full h-[260px]">
-        {totalShieldedBalanceQuery.data ?
+        {data ?
           <PieChart
             id="balance-chart"
             className="xl:max-w-[85%] mx-auto"
@@ -35,10 +35,7 @@ export const ShieldedBalanceChart = (): JSX.Element => {
                 Shielded Balance
               </Heading>
               <div className="text-2xl sm:text-3xl">
-                <Currency
-                  currency={{ symbol: "$" }}
-                  amount={totalShieldedBalanceQuery.data}
-                />
+                <Currency currency={{ symbol: "$" }} amount={data} />
               </div>
             </div>
           </PieChart>

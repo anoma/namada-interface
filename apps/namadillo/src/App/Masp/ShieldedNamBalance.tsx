@@ -1,7 +1,7 @@
 import { SkeletonLoading, Stack, Tooltip } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
-import { namShieldedBalanceAtom } from "atoms/masp/atoms";
+import { namShieldedBalanceAtom, shieldedBalanceAtom } from "atoms/masp/atoms";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { GoInfo } from "react-icons/go";
@@ -29,12 +29,12 @@ const AsyncNamCurrency = ({ amount }: { amount?: BigNumber }): JSX.Element => {
 };
 
 export const ShieldedNamBalance = (): JSX.Element => {
+  const shieldedBalanceQuery = useAtomValue(shieldedBalanceAtom);
   const { data: namAmount } = useAtomValue(namShieldedBalanceAtom);
 
   return (
     <AtomErrorBoundary
-      // TODO shieldedQuery
-      result={[]}
+      result={shieldedBalanceQuery}
       niceError="Unable to load shielded NAM balance"
     >
       <div className="flex flex-col sm:grid sm:grid-cols-[1fr_1fr] gap-2 min-h-full text-yellow">
