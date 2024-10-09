@@ -63,7 +63,7 @@ export function WorkerTest(): JSX.Element {
       },
     });
 
-    const shiedlingMsgValue = new ShieldingTransferMsgValue({
+    const shieldingMsgValue = new ShieldingTransferMsgValue({
       target,
       data: [
         {
@@ -82,7 +82,7 @@ export function WorkerTest(): JSX.Element {
           gasLimit: BigNumber(250000),
           gasPrice: BigNumber(0.000001),
         },
-        shieldingProps: [shiedlingMsgValue],
+        shieldingProps: [shieldingMsgValue],
         indexerUrl,
         chain: chain!,
       },
