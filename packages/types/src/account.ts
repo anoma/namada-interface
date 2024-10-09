@@ -34,6 +34,7 @@ export type Account = Pick<
   "address" | "alias" | "type" | "publicKey"
 > & {
   chainId: string;
-  isShielded: boolean;
   chainKey: ChainKey;
+  isShielded: boolean;
+  viewingKey?: string;
 };

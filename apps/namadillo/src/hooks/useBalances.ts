@@ -1,4 +1,5 @@
 import { accountBalanceAtom } from "atoms/accounts";
+import { totalShieldedBalanceAtom } from "atoms/masp/atoms";
 import { getStakingTotalAtom } from "atoms/staking";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
@@ -20,6 +21,7 @@ export type useBalancesOutput = {
 export const useBalances = (): useBalancesOutput => {
   const totalStakedBalance = useAtomValue(getStakingTotalAtom);
   const totalAccountBalance = useAtomValue(accountBalanceAtom);
+  const totalShieldedBalance = useAtomValue(totalShieldedBalanceAtom);
 
   const {
     data: balance,
@@ -39,7 +41,8 @@ export const useBalances = (): useBalancesOutput => {
   const withdrawableAmount = new BigNumber(
     stakeBalance?.totalWithdrawable || 0
   );
-  const shieldedAmount = new BigNumber(0);
+  // TODO rename to totalShieldedBalance and apply to the UI
+  const shieldedAmount = new BigNumber(totalShieldedBalance.data || 0);
   const totalAmount = BigNumber.sum(
     availableAmount,
     bondedAmount,

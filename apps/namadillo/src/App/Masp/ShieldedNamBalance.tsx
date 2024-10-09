@@ -1,21 +1,16 @@
 import { SkeletonLoading, Stack, Tooltip } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
+import { namShieldedBalanceAtom } from "atoms/masp/atoms";
 import BigNumber from "bignumber.js";
-import { useBalances } from "hooks/useBalances";
+import { useAtomValue } from "jotai";
 import { GoInfo } from "react-icons/go";
 import { twMerge } from "tailwind-merge";
 import namBalanceIcon from "./assets/nam-balance-icon.png";
 import namadaShieldedSvg from "./assets/namada-shielded.svg";
 
-const AsyncNamCurrency = ({
-  isLoading,
-  amount,
-}: {
-  isLoading: boolean;
-  amount: BigNumber;
-}): JSX.Element => {
-  if (isLoading) {
+const AsyncNamCurrency = ({ amount }: { amount?: BigNumber }): JSX.Element => {
+  if (amount === undefined) {
     return (
       <Stack gap={2.5} className="h-[76px] items-center">
         <SkeletonLoading height="26px" width="100px" />
@@ -34,7 +29,7 @@ const AsyncNamCurrency = ({
 };
 
 export const ShieldedNamBalance = (): JSX.Element => {
-  const { isLoading } = useBalances();
+  const { data: namAmount } = useAtomValue(namShieldedBalanceAtom);
 
   return (
     <AtomErrorBoundary
@@ -63,10 +58,7 @@ export const ShieldedNamBalance = (): JSX.Element => {
               />
             </div>
           </div>
-          <AsyncNamCurrency
-            isLoading={isLoading}
-            amount={new BigNumber(9999)}
-          />
+          <AsyncNamCurrency amount={namAmount} />
           <div
             className={twMerge(
               "py-2 max-w-[160px] mx-auto mt-4 mb-3",
@@ -101,10 +93,7 @@ export const ShieldedNamBalance = (): JSX.Element => {
             <br />
             rewards per Epoch
           </div>
-          <AsyncNamCurrency
-            isLoading={isLoading}
-            amount={new BigNumber(9999)}
-          />
+          <AsyncNamCurrency amount={new BigNumber(9999)} />
           <div
             className={twMerge(
               "border border-white rounded-md py-2 max-w-[200px] mx-auto mt-4",

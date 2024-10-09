@@ -13,9 +13,10 @@ export class Signer implements ISigner {
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts())?.map(
-      ({ alias, address, type, publicKey }) => ({
+      ({ alias, address, type, publicKey, owner }) => ({
         alias,
         address,
+        viewingKey: owner,
         chainId: chains.namada.chainId,
         type,
         publicKey,
