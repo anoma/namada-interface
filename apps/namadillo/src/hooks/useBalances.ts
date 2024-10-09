@@ -14,7 +14,7 @@ export type useBalancesOutput = {
   availableAmount: BigNumber;
   unbondedAmount: BigNumber;
   withdrawableAmount: BigNumber;
-  shieldedAmount: BigNumber;
+  totalShieldedAmount: BigNumber;
   totalAmount: BigNumber;
 };
 
@@ -42,13 +42,13 @@ export const useBalances = (): useBalancesOutput => {
     stakeBalance?.totalWithdrawable || 0
   );
   // TODO rename to totalShieldedBalance and apply to the UI
-  const shieldedAmount = new BigNumber(totalShieldedBalance.data || 0);
+  const totalShieldedAmount = new BigNumber(totalShieldedBalance.data || 0);
   const totalAmount = BigNumber.sum(
     availableAmount,
     bondedAmount,
     unbondedAmount,
     withdrawableAmount,
-    shieldedAmount
+    totalShieldedAmount
   );
 
   return {
@@ -60,7 +60,7 @@ export const useBalances = (): useBalancesOutput => {
     bondedAmount,
     unbondedAmount,
     withdrawableAmount,
-    shieldedAmount,
+    totalShieldedAmount,
     totalAmount,
   };
 };

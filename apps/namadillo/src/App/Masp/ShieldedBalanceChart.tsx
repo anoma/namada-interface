@@ -4,7 +4,7 @@ import { useBalances } from "hooks/useBalances";
 import { colors } from "theme";
 
 export const ShieldedBalanceChart = (): JSX.Element => {
-  const { isLoading, isSuccess } = useBalances();
+  const { isLoading, isSuccess, totalShieldedAmount } = useBalances();
 
   return (
     <AtomErrorBoundary
@@ -32,7 +32,9 @@ export const ShieldedBalanceChart = (): JSX.Element => {
               <Heading className="text-sm" level="h3">
                 Shielded Balance
               </Heading>
-              <div className="text-2xl sm:text-3xl">$9999.99</div>
+              <div className="text-2xl sm:text-3xl">
+                {totalShieldedAmount.toString()}
+              </div>
             </div>
           </PieChart>
         )}

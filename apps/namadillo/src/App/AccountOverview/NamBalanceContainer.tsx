@@ -43,7 +43,7 @@ export const NamBalanceContainer = (): JSX.Element => {
     isSuccess,
     availableAmount,
     bondedAmount,
-    shieldedAmount,
+    totalShieldedAmount,
     unbondedAmount,
     withdrawableAmount,
     totalAmount,
@@ -62,7 +62,7 @@ export const NamBalanceContainer = (): JSX.Element => {
             isSuccess={isSuccess}
             availableAmount={availableAmount}
             bondedAmount={bondedAmount}
-            shieldedAmount={shieldedAmount}
+            shieldedAmount={totalShieldedAmount}
             unbondedAmount={unbondedAmount}
             withdrawableAmount={withdrawableAmount}
             totalAmount={totalAmount}
