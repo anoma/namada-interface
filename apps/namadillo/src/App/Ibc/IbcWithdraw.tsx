@@ -2,7 +2,6 @@ import { Key as KeplrKey, Window as KeplrWindow } from "@keplr-wallet/types";
 import { Panel } from "@namada/components";
 import { WindowWithNamada } from "@namada/types";
 import BigNumber from "bignumber.js";
-import { getSdkInstance } from "hooks";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 
@@ -11,6 +10,7 @@ import { NamInput } from "App/Common/NamInput";
 import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
 import { chainAtom, chainParametersAtom } from "atoms/chain";
 import { getFirstError } from "atoms/utils";
+import { getSdkInstance } from "utils/sdk";
 
 const keplr = (window as KeplrWindow).keplr!;
 const namada = (window as WindowWithNamada).namada!;
