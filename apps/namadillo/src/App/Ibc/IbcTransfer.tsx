@@ -1,14 +1,10 @@
-import { coin, coins } from "@cosmjs/proto-signing";
-import {
-  QueryClient,
-  SigningStargateClient,
-  setupIbcExtension,
-} from "@cosmjs/stargate";
+import { QueryClient, setupIbcExtension } from "@cosmjs/stargate";
 import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { Panel } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { TransferModule } from "App/Transfer/TransferModule";
+import BigNumber from "bignumber.js";
 import { wallets } from "integrations";
 import { useEffect, useMemo, useState } from "react";
 import { ChainRegistryEntry, WalletProvider } from "types";
@@ -25,14 +21,14 @@ import * as dydxTestnet from "chain-registry/testnet/dydxtestnet";
 import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet4";
 import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
 
-import { defaultAccountAtom } from "atoms/accounts";
+import { allDefaultAccountsAtom } from "atoms/accounts";
 
 import { useAtom, useAtomValue } from "jotai";
 import namadaChain from "registry/namada.json";
 
 import { Asset, Chain } from "@chain-registry/types";
 import { useQuery } from "@tanstack/react-query";
-import { selectedIBCChainAtom } from "atoms/integrations";
+import { ibcTransferAtom, selectedIBCChainAtom } from "atoms/integrations";
 import {
   AssetWithBalance,
   mapCoinsToAssets,
@@ -62,7 +58,7 @@ const testnetChains: Record<string, ChainRegistryEntry> = {
 export const IbcTransfer: React.FC = () => {
   const settings = useAtomValue(settingsAtom);
   const [chainId, setChainId] = useAtom(selectedIBCChainAtom);
-  const [address, setAddress] = useState<string | undefined>();
+  const [sourceAddress, setSourceAddress] = useState<string | undefined>();
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAsset, setSelectedAsset] = useState<Asset>();
   const [sourceChannelId, setSourceChannelId] = useState<string>("");
@@ -70,7 +66,9 @@ export const IbcTransfer: React.FC = () => {
     Record<string, AssetWithBalance>
   >({});
 
-  const defaultAccount = useAtomValue(defaultAccountAtom);
+  const performIbcTransfer = useAtomValue(ibcTransferAtom);
+
+  const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
 
   const knownChains: Record<string, ChainRegistryEntry> =
     settings.enableTestnets ?
@@ -85,18 +83,28 @@ export const IbcTransfer: React.FC = () => {
     return entry;
   }, [chainId]);
 
+  const namadaAddress = useMemo(() => {
+    if (!defaultAccounts.data || defaultAccounts.data.length === 0) {
+      return "";
+    }
+    return (
+      defaultAccounts.data.find((account) => account.isShielded === shielded)
+        ?.address || ""
+    );
+  }, [defaultAccounts, shielded]);
+
   // Note: I think we should put this somewhere, but not sure if we need an atom for that :/
   // If we create an atom, we will need an atom family that requires two arguments, address and chain (or rpc).
   // atomFamily only accepts one argument, so we would need to create a ref with an object to keep the same reference
   // on each re-render. Not sure if this overhead is better than breaking
   const assetBalanceQuery = useQuery({
-    enabled: Boolean(address && registry?.chain),
-    queryKey: ["assets", address, registry?.chain?.chain_id],
+    enabled: Boolean(sourceAddress && registry?.chain),
+    queryKey: ["assets", sourceAddress, registry?.chain?.chain_id],
     queryFn: async () => {
       const assetsBalances = await queryAndStoreRpc(
         registry!.chain,
         async (rpc: string) => {
-          return await queryAssetBalances(address!, rpc);
+          return await queryAssetBalances(sourceAddress!, rpc);
         }
       );
       const coinsToAssets = mapCoinsToAssets(assetsBalances, registry!.assets);
@@ -114,7 +122,7 @@ export const IbcTransfer: React.FC = () => {
   const updateAddress = async (): Promise<void> => {
     if (typeof chainId !== "undefined") {
       const keplrKey = await keplr.getKey(chainId);
-      setAddress(keplrKey.bech32Address);
+      setSourceAddress(keplrKey.bech32Address);
     }
   };
 
@@ -122,41 +130,42 @@ export const IbcTransfer: React.FC = () => {
     updateAddress();
   }, [chainId]);
 
-  const onSubmitTransfer = (): void => {
-    if (typeof address === "undefined") {
+  const onSubmitTransfer = (
+    amount: BigNumber,
+    destinationAddress: string
+  ): void => {
+    if (typeof sourceAddress === "undefined") {
       throw new Error("Source address is not defined");
     }
 
-    if (
-      !defaultAccount.isSuccess ||
-      typeof defaultAccount.data === "undefined"
-    ) {
-      throw new Error("Namada account is not loaded");
-    }
-
-    if (typeof chainId === "undefined") {
+    if (!chainId) {
       throw new Error("chain ID is undefined");
     }
 
     const rpc = knownChains[chainId]?.chain.apis?.rpc?.[0]?.address;
-
     if (typeof rpc === "undefined") {
       throw new Error("no RPC info for " + chainId);
     }
 
-    if (typeof selectedAsset === "undefined") {
+    if (!selectedAsset) {
       throw new Error("no asset is selected");
     }
 
-    submitIbcTransfer(
-      rpc,
-      chainId,
-      address,
-      defaultAccount.data.address, // TODO: get shielded account if shielded selected
-      selectedAsset.base,
-      "1", // TODO: how do I get the amount out of TransferModule?
-      sourceChannelId
-    );
+    if (!registry) {
+      throw new Error("Invalid chain");
+    }
+
+    performIbcTransfer.mutateAsync({
+      chain: registry.chain,
+      transferParams: {
+        signer: keplr.getOfflineSigner(registry.chain.chain_id),
+        sourceAddress,
+        destinationAddress,
+        amount,
+        token: selectedAsset.base,
+        channelId: sourceChannelId,
+      },
+    });
   };
 
   return (
@@ -191,16 +200,18 @@ export const IbcTransfer: React.FC = () => {
           chain: mapUndefined((id) => knownChains[id].chain, chainId),
           availableWallets: [wallets.keplr!],
           wallet: wallets.keplr,
-          walletAddress: address,
+          walletAddress: sourceAddress,
           onChangeWallet,
         }}
         destination={{
           chain: namadaChain as Chain,
           availableWallets: [wallets.namada!],
           wallet: wallets.namada,
+          walletAddress: namadaAddress,
           isShielded: shielded,
           onChangeShielded: setShielded,
         }}
+        transactionFee={new BigNumber(0.0001) /*TODO: fix this*/}
         onSubmitTransfer={onSubmitTransfer}
       />
     </Panel>
@@ -224,44 +235,4 @@ const ibcAddressToDenom = async (
   }
 
   return baseDenom;
-};
-
-const submitIbcTransfer = async (
-  rpc: string,
-  sourceChainId: string,
-  source: string,
-  target: string,
-  token: string,
-  amount: string,
-  channelId: string
-): Promise<void> => {
-  const client = await SigningStargateClient.connectWithSigner(
-    rpc,
-    keplr.getOfflineSigner(sourceChainId),
-    {
-      broadcastPollIntervalMs: 300,
-      broadcastTimeoutMs: 8_000,
-    }
-  );
-
-  const fee = {
-    amount: coins("0", token),
-    gas: "222000",
-  };
-
-  const response = await client.sendIbcTokens(
-    source,
-    target,
-    coin(amount, token),
-    "transfer",
-    channelId,
-    undefined, // timeout height
-    Math.floor(Date.now() / 1000) + 60, // timeout timestamp
-    fee,
-    `${sourceChainId}->Namada`
-  );
-
-  if (response.code !== 0) {
-    throw new Error(response.code + " " + response.rawLog);
-  }
 };

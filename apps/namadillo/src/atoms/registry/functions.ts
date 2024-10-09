@@ -1,5 +1,5 @@
 import { Chain } from "@chain-registry/types";
-import { workingRpcAtoms } from "atoms/integrations";
+import { workingRpcsAtom } from "atoms/integrations";
 import { getDefaultStore } from "jotai";
 
 export const getRandomRpcAddress = (chain: Chain): string => {
@@ -23,7 +23,7 @@ export const queryAndStoreRpc = async <T>(
   queryFn: QueryFn<T>
 ): Promise<T> => {
   const { get, set } = getDefaultStore();
-  const workingRpcs = get(workingRpcAtoms);
+  const workingRpcs = get(workingRpcsAtom);
   const rpcAddress =
     chain.chain_id in workingRpcs ?
       workingRpcs[chain.chain_id]
@@ -31,7 +31,7 @@ export const queryAndStoreRpc = async <T>(
 
   try {
     const output = await queryFn(rpcAddress);
-    set(workingRpcAtoms, {
+    set(workingRpcsAtom, {
       ...workingRpcs,
       [chain.chain_id]: rpcAddress,
     });
@@ -39,7 +39,7 @@ export const queryAndStoreRpc = async <T>(
   } catch (err) {
     if (chain.chain_id in workingRpcs) {
       delete workingRpcs[chain.chain_id];
-      set(workingRpcAtoms, { ...workingRpcs });
+      set(workingRpcsAtom, { ...workingRpcs });
     }
     throw err;
   }

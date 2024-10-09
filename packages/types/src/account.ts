@@ -31,7 +31,7 @@ export type DerivedAccount = {
 
 export type Account = Pick<
   DerivedAccount,
-  "address" | "alias" | "type" | "publicKey"
+  "address" | "alias" | "type" | "publicKey" | "owner"
 > & {
   chainId: string;
   isShielded: boolean;

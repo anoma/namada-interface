@@ -1,3 +1,4 @@
+import { Asset } from "@chain-registry/types";
 import { ProposalStatus, ProposalTypeString } from "@namada/types";
 import BigNumber from "bignumber.js";
 import * as fns from "date-fns";
@@ -95,4 +96,16 @@ export const secondsToTimeRemainingString = (
     .replace("day", "Day")
     .replace("hour", "Hr")
     .replace("minute", "Min");
+};
+
+export const formatDisplayValue = (
+  asset: Asset,
+  amount: BigNumber
+): BigNumber => {
+  const { display, denom_units } = asset;
+  const displayUnit = denom_units.find((unit) => unit.denom === display);
+  if (!displayUnit) {
+    return amount;
+  }
+  return amount.shiftedBy(-displayUnit.exponent);
 };

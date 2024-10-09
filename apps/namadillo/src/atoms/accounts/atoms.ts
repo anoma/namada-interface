@@ -32,6 +32,39 @@ export const defaultAccountAtom = atomWithQuery<Account | undefined>((get) => {
   };
 });
 
+export const allDefaultAccountsAtom = atomWithQuery<Account[]>((get) => {
+  const defaultAccount = get(defaultAccountAtom);
+  const accounts = get(accountsAtom);
+  return {
+    queryKey: ["all-default-accounts", accounts.data, defaultAccount.data],
+    ...queryDependentFn(async () => {
+      if (!accounts.data) {
+        return [];
+      }
+
+      const transparentAccountIdx = accounts.data.findIndex(
+        (account) => account.address === defaultAccount.data?.address
+      );
+
+      // namada.accounts() returns a plain array of accounts, composed by the transparent
+      // account followed by its shielded accounts.
+      if (transparentAccountIdx === -1) {
+        return [];
+      }
+
+      const defaultAccounts = [accounts.data[transparentAccountIdx]];
+      for (let i = transparentAccountIdx + 1; i < accounts.data.length; i++) {
+        if (!accounts.data[i].isShielded) {
+          break;
+        }
+        defaultAccounts.push(accounts.data[i]);
+      }
+
+      return defaultAccounts;
+    }, [accounts, defaultAccount]),
+  };
+});
+
 export const updateDefaultAccountAtom = atomWithMutation(() => {
   const integration = getIntegration("namada");
   return {

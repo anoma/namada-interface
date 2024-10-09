@@ -3,6 +3,7 @@ import { ActionButton, Stack } from "@namada/components";
 import BigNumber from "bignumber.js";
 import { useState } from "react";
 import { WalletProvider } from "types";
+import { formatDisplayValue } from "utils";
 import { SelectAssetModal } from "./SelectAssetModal";
 import { SelectChainModal } from "./SelectChainModal";
 import { SelectWalletModal } from "./SelectWalletModal";
@@ -40,7 +41,11 @@ type TransferModuleProps = {
   source: TransferSourceProps;
   destination: TransferDestinationProps;
   transactionFee?: BigNumber;
-  onSubmitTransfer: () => void;
+  onSubmitTransfer: (
+    amount: BigNumber,
+    destinationAddress: string,
+    memo?: string
+  ) => void;
 };
 
 export const TransferModule = ({
@@ -59,23 +64,36 @@ export const TransferModule = ({
   const [customAddress, setCustomAddress] = useState<undefined | string>("");
   const [amount, setAmount] = useState<BigNumber | undefined>(new BigNumber(0));
 
+  const availableAmount =
+    source.selectedAsset ?
+      formatDisplayValue(
+        source.selectedAsset,
+        new BigNumber(source.availableAmount || 0)
+      )
+    : undefined;
+
   const validateTransfer = (): boolean => {
     if (!amount || amount.eq(0)) return false;
     if (!source.wallet || !source.chain || !source.selectedAsset) return false;
     if (!destination.wallet || !destination.chain) return false;
-    if (
-      !source.availableAmount ||
-      source.availableAmount.lt(amount.plus(transactionFee || 0))
-    ) {
+    if (!availableAmount || availableAmount.lt(amount)) {
       return false;
     }
     return true;
   };
 
   const onSubmit = (e: React.FormEvent): void => {
-    // TODO: implement submit
     e.preventDefault();
-    onSubmitTransfer?.();
+    const address = customAddress || destination.walletAddress;
+    if (!amount) {
+      throw new Error("Amount is not valid");
+    }
+
+    if (!address) {
+      throw new Error("Address is not provided");
+    }
+
+    onSubmitTransfer?.(amount, address, memo);
   };
 
   const onChangeWallet = (config: TransferModuleConfig) => (): void => {
@@ -122,7 +140,7 @@ export const TransferModule = ({
             asset={source.selectedAsset}
             isLoadingAssets={source.isLoadingAssets}
             chain={parseChainInfo(source.chain, source.isShielded)}
-            availableAmount={source.availableAmount}
+            availableAmount={availableAmount}
             amount={amount}
             openProviderSelector={onChangeWallet(source)}
             openChainSelector={
