@@ -41,7 +41,6 @@ export const useBalances = (): useBalancesOutput => {
   const withdrawableAmount = new BigNumber(
     stakeBalance?.totalWithdrawable || 0
   );
-  // TODO rename to totalShieldedBalance and apply to the UI
   const totalShieldedAmount = new BigNumber(totalShieldedBalance.data || 0);
   const totalAmount = BigNumber.sum(
     availableAmount,

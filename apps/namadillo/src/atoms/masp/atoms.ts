@@ -55,6 +55,7 @@ export const totalShieldedBalanceAtom = atomWithQuery<BigNumber>((get) => {
       if (!shieldedBalanceQuery.data) {
         return new BigNumber(0);
       }
+      // TODO convert to fiat values
       return BigNumber.sum(...shieldedBalanceQuery.data.map((b) => b[1]));
     }, [shieldedBalanceQuery]),
   };
