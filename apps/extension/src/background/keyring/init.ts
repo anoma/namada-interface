@@ -9,9 +9,11 @@ import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
 import {
   AddLedgerAccountMsg,
+  CloseOffscreenDocumentMsg,
   DeleteAccountMsg,
   DeriveAccountMsg,
   GenerateMnemonicMsg,
+  GenerateProofCompletedEvent,
   GetActiveAccountMsg,
   QueryAccountDetailsMsg,
   QueryParentAccountsMsg,
@@ -40,6 +42,8 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(RevealAccountMnemonicMsg);
   router.registerMessage(RenameAccountMsg);
   router.registerMessage(VerifyArbitraryMsg);
+  router.registerMessage(CloseOffscreenDocumentMsg);
+  router.registerMessage(GenerateProofCompletedEvent);
 
   router.addHandler(ROUTE, getHandler(service));
 }
