@@ -140,11 +140,11 @@ export class KeyRing {
   // Store validated mnemonic or private key
   public async storeAccountSecret(
     accountSecret: AccountSecret,
-    alias: string
+    alias: string,
+    path: Bip44Path = { account: 0, change: 0, index: 0 }
   ): Promise<AccountStore> {
     await this.vaultService.assertIsUnlocked();
 
-    const path = { account: 0, change: 0, index: 0 };
     const keys = this.sdkService.getSdk().getKeys();
 
     const { sk, text, passphrase, accountType } = ((): {
@@ -198,6 +198,11 @@ export class KeyRing {
     const id = generateId(
       UUID_NAMESPACE,
       text,
+      alias,
+      address,
+      path.account,
+      path.change || 0,
+      path.index || 0,
       await this.vaultService.getLength(KEYSTORE_KEY)
     );
 
@@ -230,7 +235,7 @@ export class KeyRing {
     const keysNs = this.sdkService.getSdk().getKeys();
     const { address, privateKey } = keysNs.deriveFromSeed(seed, path);
 
-    const { account, change, index } = path;
+    const { account, change = 0, index = 0 } = path;
     const id = generateId(
       UUID_NAMESPACE,
       "account",
@@ -253,8 +258,14 @@ export class KeyRing {
     path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
-    const { index } = path;
-    const id = generateId(UUID_NAMESPACE, "shielded-account", parentId, index);
+    const { account, index } = path;
+    const id = generateId(
+      UUID_NAMESPACE,
+      "shielded-account",
+      parentId,
+      account,
+      index || 0
+    );
     const keysNs = this.sdkService.getSdk().getKeys();
     const { address, viewingKey, spendingKey } = keysNs.deriveShieldedFromSeed(
       seed,
