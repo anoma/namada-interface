@@ -16,23 +16,19 @@ const mockIntegration = {
 })();
 
 import { shortenAddress } from "@namada/utils";
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { SelectedWallet } from "App/Transfer/SelectedWallet";
 
 describe("Component: SelectedWallet", () => {
+  const tempAddress = "tnam1qzwew8hve4u2620a78n6lmqz0qdc9xwj9vyjpqha";
+
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it("should render the wallet icon", async () => {
     await act(async () => {
-      render(<SelectedWallet wallet={walletMock} />);
+      render(<SelectedWallet wallet={walletMock} address={tempAddress} />);
     });
     const walletIcon = screen.getByAltText(/logo/i, { exact: false });
     expect(walletIcon).toBeInTheDocument();
@@ -40,43 +36,26 @@ describe("Component: SelectedWallet", () => {
   });
 
   it("should display the shortened wallet address after loading accounts", async () => {
-    render(<SelectedWallet wallet={walletMock} />);
-
-    // Wait for the address to be loaded
-    await waitFor(() => {
-      expect(mockIntegration.connect).toHaveBeenCalled();
-      expect(mockIntegration.accounts).toHaveBeenCalled();
-    });
+    render(<SelectedWallet wallet={walletMock} address={tempAddress} />);
 
     // Check if the address is correctly shortened
-    const shortenedAddress = shortenAddress(testWalletAddress, 8, 6);
+    const shortenedAddress = shortenAddress(tempAddress, 8, 6);
     expect(screen.getByText(shortenedAddress)).toBeInTheDocument();
   });
 
   it("should trigger the onClick function when clicked", async () => {
     const onClickMock = jest.fn();
     await act(async () => {
-      render(<SelectedWallet wallet={walletMock} onClick={onClickMock} />);
+      render(
+        <SelectedWallet
+          wallet={walletMock}
+          address={tempAddress}
+          onClick={onClickMock}
+        />
+      );
     });
     const walletButton = screen.getByRole("button");
     fireEvent.click(walletButton);
     expect(onClickMock).toHaveBeenCalled();
-  });
-
-  it("should handle missing wallet address gracefully", async () => {
-    //Mock integration to return no accounts
-    mockIntegration.accounts.mockResolvedValue([]);
-
-    await act(async () => {
-      render(<SelectedWallet wallet={walletMock} />);
-    });
-
-    // Wait for the component to try loading accounts
-    await waitFor(() => {
-      expect(mockIntegration.accounts).toHaveBeenCalled();
-    });
-
-    // Check that no address is displayed
-    expect(screen.queryByText(/0x/i)).toBeNull();
   });
 });

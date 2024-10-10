@@ -2,6 +2,7 @@ import { Chain } from "@chain-registry/types";
 import clsx from "clsx";
 import { GoChevronDown } from "react-icons/go";
 import { WalletProvider } from "types";
+import genericAsset from "./assets/generic-asset.svg";
 
 import { EmptyResourceIcon } from "./EmptyResourceIcon";
 
@@ -24,6 +25,8 @@ export const SelectedChain = ({
   );
 
   const isDisabled = !wallet;
+  const logoUrl =
+    chain ? chain.logo_URIs?.svg || chain.logo_URIs?.png || genericAsset : "";
 
   return (
     <button
@@ -49,12 +52,14 @@ export const SelectedChain = ({
       {wallet && chain && (
         <span className={selectorClassList}>
           <img
-            className="aspect-square object-cover object-center bg-neutral-800 rounded-full select-none"
+            className="aspect-square object-center bg-neutral-800 rounded-full select-none"
             alt={`${chain.pretty_name} image`}
-            src={chain.logo_URIs?.svg}
+            src={logoUrl}
             style={{ width: iconSize || "30px" }}
           />
-          {chain.pretty_name}
+          <span className="whitespace-nowrap overflow-ellipsis max-w-[200px] overflow-hidden">
+            {chain.pretty_name}
+          </span>
           {onClick && <GoChevronDown className="text-sm" />}
         </span>
       )}
