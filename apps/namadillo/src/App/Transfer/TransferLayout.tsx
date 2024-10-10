@@ -1,8 +1,16 @@
+import { ConnectPanel } from "App/Common/ConnectPanel";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
+import { useIsAuthenticated } from "hooks/useIsAuthenticated";
 import { Outlet } from "react-router-dom";
 
 export const TransferLayout: React.FC = () => {
+  const isAuthenticated = useIsAuthenticated();
+
+  if (!isAuthenticated) {
+    return <ConnectPanel actionText="To transfer assets" />;
+  }
+
   return (
     <PageWithSidebar>
       <Outlet />

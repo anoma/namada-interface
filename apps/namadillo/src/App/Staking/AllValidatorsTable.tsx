@@ -6,11 +6,10 @@ import { Search } from "App/Common/Search";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { WalletAddress } from "App/Common/WalletAddress";
 import { routes } from "App/routes";
-import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { atomsAreLoading, atomsAreNotInitialized } from "atoms/utils";
 import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
-import { useUserHasAccount } from "hooks/useUserHasAccount";
+import { useIsAuthenticated } from "hooks/useIsAuthenticated";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
 import { useAtomValue } from "jotai";
@@ -30,9 +29,8 @@ export const AllValidatorsTable = ({
   initialPage = 0,
 }: AllValidatorsProps): JSX.Element => {
   const validators = useAtomValue(allValidatorsAtom);
-  const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const [searchTerm, setSearchTerm] = useState("");
-  const hasAccount = useUserHasAccount();
+  const isAuthenticated = useIsAuthenticated();
 
   const filteredValidators = useValidatorFilter({
     validators: validators.isSuccess ? validators.data : [],
@@ -117,7 +115,7 @@ export const AllValidatorsTable = ({
             onChange={(value: string) => setSearchTerm(value)}
             placeholder="Search Validator"
           />
-          {isConnected && hasAccount && (
+          {isAuthenticated && (
             <ActionButton
               size="sm"
               backgroundColor="cyan"

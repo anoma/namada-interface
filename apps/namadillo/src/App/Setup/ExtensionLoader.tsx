@@ -1,5 +1,10 @@
-import { useUntilIntegrationAttached } from "@namada/integrations";
-import { ReactNode } from "react";
+import { useIntegration } from "@namada/integrations";
+import {
+  namadaExtensionAttachStatus,
+  namadaExtensionConnectionStatus,
+} from "atoms/settings";
+import { useAtom, useSetAtom } from "jotai";
+import { ReactNode, useEffect } from "react";
 import { PageLoader } from "../Common/PageLoader";
 
 export const ExtensionLoader = ({
@@ -7,10 +12,21 @@ export const ExtensionLoader = ({
 }: {
   children: ReactNode;
 }): JSX.Element => {
-  const extensionAttachStatus = useUntilIntegrationAttached();
-  const extensionReady = extensionAttachStatus !== "pending";
+  const [attachStatus, setAttachStatus] = useAtom(namadaExtensionAttachStatus);
+  const setConnectionStatus = useSetAtom(namadaExtensionConnectionStatus);
+  const integration = useIntegration("namada");
 
-  if (!extensionReady) {
+  useEffect(() => {
+    setAttachStatus(integration.detect() ? "attached" : "detached");
+
+    integration.isConnected().then((isConnected) => {
+      if (isConnected) {
+        setConnectionStatus("connected");
+      }
+    });
+  }, [integration]);
+
+  if (attachStatus === "pending") {
     return <PageLoader />;
   }
 

@@ -1,12 +1,19 @@
 import { ActionButton } from "@namada/components";
 import svgImg from "App/Assets/ShieldedParty.svg";
 import { routes } from "App/routes";
+import { applicationFeaturesAtom } from "atoms/settings";
+import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 
 export const ShieldAllBanner = (): JSX.Element => {
+  const { maspEnabled } = useAtomValue(applicationFeaturesAtom);
   const [isAnimating, setIsAnimating] = useState(false);
+
+  if (!maspEnabled) {
+    return <></>;
+  }
 
   return (
     <div
