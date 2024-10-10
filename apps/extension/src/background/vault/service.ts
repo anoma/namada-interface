@@ -1,4 +1,4 @@
-import { CryptoRecord } from "@heliax/namada-sdk/web";
+import { CryptoRecord } from "@heliaxdev/namada-sdk/web";
 import { KVStore } from "@namada/storage";
 import { Result } from "@namada/utils";
 import { SdkService } from "background/sdk";

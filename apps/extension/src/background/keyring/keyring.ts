@@ -1,4 +1,4 @@
-import { PhraseSize } from "@heliax/namada-sdk/web";
+import { PhraseSize } from "@heliaxdev/namada-sdk/web";
 import { KVStore } from "@namada/storage";
 import {
   AccountType,

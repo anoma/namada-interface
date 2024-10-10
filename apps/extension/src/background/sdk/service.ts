@@ -1,5 +1,5 @@
-import { Sdk, getSdk } from "@heliax/namada-sdk/web";
-import sdkInit from "@heliax/namada-sdk/web-init";
+import { Sdk, getSdk } from "@heliaxdev/namada-sdk/web";
+import sdkInit from "@heliaxdev/namada-sdk/web-init";
 import { chains } from "@namada/chains";
 import { LocalStorage } from "storage";
 

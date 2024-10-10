@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
-import { Ledger, makeBip44Path } from "@heliax/namada-sdk/web";
+import { Ledger, makeBip44Path } from "@heliaxdev/namada-sdk/web";
 import { ActionButton, Stack } from "@namada/components";
 import { LedgerError, ResponseSign } from "@zondax/ledger-namada";
 
