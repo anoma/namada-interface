@@ -13,9 +13,9 @@ import {
   WrapperTxProps,
 } from "@namada/types";
 import { queryClient } from "App/Common/QueryProvider";
-import { getSdkInstance } from "hooks";
 import { TransactionPair, buildTxPair } from "lib/query";
 import { Address, AddressBalance, ChainSettings, GasConfig } from "types";
+import { getSdkInstance } from "utils/sdk";
 
 export const fetchClaimableRewards = async (
   api: DefaultApi,

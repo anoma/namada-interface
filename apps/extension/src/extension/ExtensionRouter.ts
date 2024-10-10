@@ -1,4 +1,4 @@
-import BigNumber from "bignumber.js";
+import { serializeBigNumbers } from "@namada/utils/helpers";
 import {
   EnvProducer,
   MessageSender,
@@ -61,7 +61,7 @@ export class ExtensionRouter extends Router {
   ): Promise<Result> {
     try {
       const result = await this.handleMessage(message, sender);
-      fixBigNumbers(result);
+      serializeBigNumbers(result);
       return {
         return: result,
       };
@@ -77,28 +77,3 @@ export class ExtensionRouter extends Router {
     }
   }
 }
-
-/**
- * Searches through an object and adds the _isBigNumber key to any BigNumber
- * values. This key is used by the BigNumber constructor to reconstruct a
- * BigNumber from a plain object, and is needed because BigNumbers lose their
- * prototype when sent between extension scripts in Firefox.
- *
- * Fixes object in place and returns void.
- */
-const fixBigNumbers = (result: unknown): void => {
-  const unseenValues = [result];
-
-  while (unseenValues.length !== 0) {
-    const value = unseenValues.pop();
-
-    if (typeof value === "object" && value !== null) {
-      if (BigNumber.isBigNumber(value)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (value as any)["_isBigNumber"] = true;
-      } else {
-        unseenValues.push(...Object.values(value));
-      }
-    }
-  }
-};

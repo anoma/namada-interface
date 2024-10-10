@@ -105,11 +105,15 @@ export class ShieldingTransferDataMsgValue {
 }
 
 export class ShieldingTransferMsgValue {
+  @field({ type: "string" })
+  target!: string;
+
   @field({ type: vec(ShieldingTransferDataMsgValue) })
   data!: ShieldingTransferDataMsgValue[];
 
-  constructor({ data }: ShieldingTransferProps) {
+  constructor({ data, target }: ShieldingTransferProps) {
     Object.assign(this, {
+      target,
       data: data.map(
         (shieldingTransferDataProps) =>
           new ShieldingTransferDataMsgValue(shieldingTransferDataProps)

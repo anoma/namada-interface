@@ -6,6 +6,7 @@ import { useOnNamadaExtensionAttached } from "hooks/useOnNamadaExtensionAttached
 import { useTransactionCallback } from "hooks/useTransactionCallbacks";
 import { useTransactionNotifications } from "hooks/useTransactionNotifications";
 import { Outlet } from "react-router-dom";
+
 import { ChainLoader } from "./Setup/ChainLoader";
 
 export const history = createBrowserHistory({ window });
@@ -15,6 +16,7 @@ export function App(): JSX.Element {
   useOnNamadaExtensionAttached();
   useTransactionNotifications();
   useTransactionCallback();
+
   return (
     <>
       <Toasts />
