@@ -12,9 +12,6 @@ use wasm_bindgen::prelude::*;
 use zeroize::{Zeroize, ZeroizeOnDrop};
 
 #[wasm_bindgen]
-pub struct ExtSpendingKey(pub(crate) ExtendedSpendingKey);
-
-#[wasm_bindgen]
 #[derive(Zeroize)]
 pub struct DerivationResult {
     xsk: Vec<u8>,

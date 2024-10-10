@@ -1,6 +1,6 @@
-import init, { initMulticore } from "@heliax/namada-sdk/inline-init";
+import init, { initMulticore } from "@heliaxdev/namada-sdk/inline-init";
 
-import { getSdk } from "@heliax/namada-sdk/web";
+import { getSdk } from "@heliaxdev/namada-sdk/web";
 
 export type ShiededSyncPayload = {
   vks: string[];
