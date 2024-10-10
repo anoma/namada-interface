@@ -1,11 +1,12 @@
 import { getIntegration } from "@namada/integrations";
 import { Account } from "@namada/types";
 import { indexerApiAtom } from "atoms/api";
-import { nativeTokenAddressAtom } from "atoms/chain";
+import { chainParametersAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
 import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
+import { getDefaultStore } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { chainConfigByName } from "registry";
 import {
@@ -41,8 +42,10 @@ export const updateDefaultAccountAtom = atomWithMutation(() => {
 
 export const disconnectAccountAtom = atomWithMutation(() => {
   const integration = getIntegration("namada");
+  const store = getDefaultStore();
+  const { chainId } = store.get(chainParametersAtom).data!;
   return {
-    mutationFn: () => integration.disconnect(),
+    mutationFn: () => integration.disconnect(chainId),
   };
 });
 

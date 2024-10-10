@@ -1,6 +1,8 @@
 import { integrations } from "@namada/integrations";
 import { shortenAddress } from "@namada/utils";
+import { chainParametersAtom } from "atoms/chain";
 import clsx from "clsx";
+import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { WalletProvider } from "types";
 
@@ -16,12 +18,14 @@ export const SelectedWallet = ({
   isShielded,
 }: SelectedWalletProps): JSX.Element => {
   const [walletAddress, setWalletAddress] = useState("");
+  const { data: chain } = useAtomValue(chainParametersAtom);
 
   const loadAccounts = async (): Promise<void> => {
     try {
       const integration = integrations[wallet.id];
       integration.detect();
-      await integration.connect();
+      // TODO: This likely isn't correct:
+      await integration.connect(chain!.chainId);
       const accounts = await integration.accounts();
 
       if (accounts && accounts.length > 0) {
