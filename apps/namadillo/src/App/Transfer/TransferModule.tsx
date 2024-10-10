@@ -3,7 +3,7 @@ import { ActionButton, Stack } from "@namada/components";
 import BigNumber from "bignumber.js";
 import { useState } from "react";
 import { WalletProvider } from "types";
-import { formatDisplayValue } from "utils";
+import { toBaseAmount, toDisplayAmount } from "utils";
 import { SelectAssetModal } from "./SelectAssetModal";
 import { SelectChainModal } from "./SelectChainModal";
 import { SelectWalletModal } from "./SelectWalletModal";
@@ -66,7 +66,7 @@ export const TransferModule = ({
 
   const availableAmount =
     source.selectedAsset ?
-      formatDisplayValue(
+      toDisplayAmount(
         source.selectedAsset,
         new BigNumber(source.availableAmount || 0)
       )
@@ -93,7 +93,15 @@ export const TransferModule = ({
       throw new Error("Address is not provided");
     }
 
-    onSubmitTransfer?.(amount, address, memo);
+    if (!source.selectedAsset) {
+      throw new Error("Asset is not selected");
+    }
+
+    onSubmitTransfer?.(
+      toBaseAmount(source.selectedAsset, amount),
+      address,
+      memo
+    );
   };
 
   const onChangeWallet = (config: TransferModuleConfig) => (): void => {
