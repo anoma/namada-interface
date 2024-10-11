@@ -8,7 +8,7 @@ use namada_sdk::tx::data::compute_inner_tx_hash;
 use namada_sdk::tx::either::Either;
 use namada_sdk::tx::{
     self, TX_BOND_WASM, TX_CLAIM_REWARDS_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSFER_WASM,
-    TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
+    TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM, TX_IBC_WASM,
 };
 use namada_sdk::uint::Uint;
 use namada_sdk::{address::Address, key::common::PublicKey};
@@ -182,6 +182,7 @@ pub fn wasm_hash_to_tx_type(wasm_hash: &str, wasm_hashes: &Vec<WasmHash>) -> Opt
         (TX_CLAIM_REWARDS_WASM.to_string(), TxType::ClaimRewards),
         (TX_REVEAL_PK.to_string(), TxType::RevealPK),
         (TX_VOTE_PROPOSAL.to_string(), TxType::VoteProposal),
+        (TX_IBC_WASM.to_string(), TxType::IBCTransfer),
     ]);
 
     for wh in wasm_hashes {

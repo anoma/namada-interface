@@ -1,6 +1,5 @@
 use namada_sdk::borsh::BorshSerializeExt;
 use namada_sdk::token::Transfer;
-use serde::Serialize;
 
 use namada_sdk::governance::VoteProposalData;
 use namada_sdk::tx::data::pos::{Bond, ClaimRewards, Redelegation, Unbond, Withdraw};
@@ -8,18 +7,19 @@ use namada_sdk::{
     borsh::{self, BorshDeserialize},
     key::common::PublicKey,
 };
+use namada_sdk::ibc::MsgTransfer;
+use namada_sdk::ibc::core::channel::types::timeout::TimeoutHeight;
 use wasm_bindgen::JsError;
 
 use crate::sdk::{
     args::{
         BondMsg, ClaimRewardsMsg, RedelegateMsg, RevealPkMsg, TransferDataMsg, TransferMsg,
-        UnbondMsg, VoteProposalMsg, WithdrawMsg,
+        UnbondMsg, VoteProposalMsg, WithdrawMsg, IbcTransferMsg
     },
     tx::TxType,
 };
 
-#[derive(Serialize, Debug, Clone)]
-#[serde(untagged)]
+#[derive(Debug, Clone)]
 pub enum TransactionKind {
     Transfer(Transfer),
     Bond(Bond),
@@ -29,6 +29,7 @@ pub enum TransactionKind {
     ProposalVote(VoteProposalData),
     ClaimRewards(ClaimRewards),
     RevealPk(PublicKey),
+    IbcTransfer(MsgTransfer<Transfer>),
     Unknown,
 }
 
@@ -58,6 +59,9 @@ impl TransactionKind {
             ),
             TxType::RevealPK => TransactionKind::RevealPk(
                 PublicKey::try_from_slice(data).expect("Cannot deserialize PublicKey"),
+            ),
+            TxType::IBCTransfer => TransactionKind::IbcTransfer(
+                MsgTransfer::try_from_slice(data).expect("Cannot deserialize MsgTransfer"),
             ),
             _ => TransactionKind::Unknown,
         }
@@ -181,6 +185,28 @@ impl TransactionKind {
                 );
                 borsh::to_vec(&claim_rewards)?
             }
+            TransactionKind::IbcTransfer(msg_transfer) => {
+                let MsgTransfer { message, .. } = msg_transfer;
+
+                let timeout_height = match message.timeout_height_on_b {
+                    TimeoutHeight::At(height) => Some(height.revision_height()),
+                    TimeoutHeight::Never => None
+                };
+
+                let ibc_transfer_msg = IbcTransferMsg::new(
+                    message.packet_data.sender.to_string(),
+                    message.packet_data.receiver.to_string(),
+                    message.packet_data.token.denom.base_denom.to_string(),
+                    message.packet_data.token.amount.to_string(),
+                    message.port_id_on_a.to_string(),
+                    message.chan_id_on_a.to_string(),
+                    timeout_height,
+                    None,
+                    Some(message.packet_data.memo.to_string()),
+                    None
+                );
+                borsh::to_vec(&ibc_transfer_msg)?
+            },
             _ => panic!("Unsupported Tx provided, cannot serialize"),
         };
 

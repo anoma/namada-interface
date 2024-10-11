@@ -455,6 +455,8 @@ export class Tx {
           return deserialize(data, TransferMsgValue);
         case TxType.RevealPK:
           return deserialize(data, RevealPkMsgValue);
+        case TxType.IBCTransfer:
+          return deserialize(data, IbcTransferMsgValue);
         default:
           throw "Unsupported Tx type!";
       }
