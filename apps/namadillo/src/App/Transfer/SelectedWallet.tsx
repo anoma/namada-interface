@@ -1,45 +1,19 @@
-import { integrations } from "@namada/integrations";
 import { shortenAddress } from "@namada/utils";
 import clsx from "clsx";
-import { useEffect, useState } from "react";
 import { WalletProvider } from "types";
 
 type SelectedWalletProps = {
   wallet: WalletProvider;
+  address?: string;
   onClick?: () => void;
-  isShielded?: boolean;
 };
 
 export const SelectedWallet = ({
   wallet,
   onClick,
-  isShielded,
+  address,
 }: SelectedWalletProps): JSX.Element => {
-  const [walletAddress, setWalletAddress] = useState("");
-
-  const loadAccounts = async (): Promise<void> => {
-    try {
-      const integration = integrations[wallet.id];
-      integration.detect();
-      await integration.connect();
-      const accounts = await integration.accounts();
-
-      if (accounts && accounts.length > 0) {
-        if (wallet.id === "namada" && isShielded && accounts.length > 1) {
-          setWalletAddress(accounts[1].address);
-          return;
-        }
-        setWalletAddress(accounts[0].address);
-      }
-    } catch {
-      // TODO: handle error catching
-    }
-  };
-
-  useEffect(() => {
-    loadAccounts();
-  }, [isShielded]);
-
+  if (!address) return <></>;
   return (
     <div
       role="button"
@@ -50,7 +24,7 @@ export const SelectedWallet = ({
       )}
       onClick={onClick}
     >
-      {walletAddress && shortenAddress(walletAddress, 8, 6)}
+      {address && shortenAddress(address, 8, 6)}
       <img
         src={wallet.iconUrl}
         alt={wallet.name + " Logo"}

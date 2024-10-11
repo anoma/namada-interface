@@ -12,6 +12,7 @@ import { SelectedWallet } from "./SelectedWallet";
 export type TransferSourceProps = {
   isConnected: boolean;
   wallet?: WalletProvider;
+  walletAddress?: string;
   asset?: Asset;
   chain?: Chain;
   openChainSelector?: () => void;
@@ -26,6 +27,7 @@ export const TransferSource = ({
   chain,
   asset,
   wallet,
+  walletAddress,
   openProviderSelector,
   openChainSelector,
   openAssetSelector,
@@ -41,9 +43,15 @@ export const TransferSource = ({
           chain={chain}
           wallet={wallet}
         />
-        {!wallet && <ConnectProviderButton onClick={openProviderSelector} />}
-        {wallet && (
-          <SelectedWallet wallet={wallet} onClick={openProviderSelector} />
+        {!walletAddress && (
+          <ConnectProviderButton onClick={openProviderSelector} />
+        )}
+        {walletAddress && wallet && (
+          <SelectedWallet
+            wallet={wallet}
+            address={walletAddress}
+            onClick={openProviderSelector}
+          />
         )}
       </header>
       <hr className="mt-4 mb-2.5 mx-2 border-white opacity-[5%]" />
