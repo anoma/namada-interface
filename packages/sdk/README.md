@@ -15,7 +15,7 @@ yarn add @heliaxdev/namada-sdk
 
 ### Initializing the SDK
 
-As this package depends on Wasm compiled from Rust to integrate with Namada, this must be loaded asyncronously when
+As this package depends on Wasm compiled from Rust to integrate with Namada, this must be loaded asynchronously when
 developing for the Web. The following is a quick overview of some of the features of the SDK package:
 
 ```typescript
@@ -38,7 +38,7 @@ const init = async (): Promise => {
   const sdk = getSdk(rpcUrl, tokenAddress, cryptoMemory);
 
   // Access various modules of the SDK
-  const { keys, mnemonic, rpc, signing, tx } = sdk; // Alternatively, invoke getters direclty, e.g., sdk.getRpc(), etc.
+  const { keys, mnemonic, rpc, signing, tx } = sdk; // Alternatively, invoke getters directly, e.g., sdk.getRpc(), etc.
 
   // Examples:
 
@@ -95,8 +95,8 @@ Explore the generated type docs here: [modules.md](./docs/modules.md)
 
 ## Development
 
-In order to compile the required Rust library locally, issue one of the following, depending on the environment
-you are developing for:
+In order to compile the required Rust libraries locally (`@namada/crypto` and `@namada/shared`), issue one
+of the following commands, depending on the environment you are targeting:
 
 ```bash
 # Build wasm for single core, release mode
