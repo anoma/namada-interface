@@ -41,6 +41,7 @@ type TransferModuleProps = {
   source: TransferSourceProps;
   destination: TransferDestinationProps;
   transactionFee?: BigNumber;
+  isSubmitting?: boolean;
   onSubmitTransfer: (
     amount: BigNumber,
     destinationAddress: string,
@@ -52,6 +53,7 @@ export const TransferModule = ({
   source,
   destination,
   transactionFee,
+  isSubmitting,
   onSubmitTransfer,
 }: TransferModuleProps): JSX.Element => {
   const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
@@ -188,9 +190,10 @@ export const TransferModule = ({
             backgroundColor={
               destination.isShielded || source.isShielded ? "yellow" : "white"
             }
-            disabled={!source.wallet || !validateTransfer()}
+            disabled={!source.wallet || !validateTransfer() || isSubmitting}
           >
-            {source.wallet ? "Submit" : "Select Wallet"}
+            {isSubmitting && "Submitting..."}
+            {!isSubmitting && (source.wallet ? "Submit" : "Select Wallet")}
           </ActionButton>
         </Stack>
       </section>

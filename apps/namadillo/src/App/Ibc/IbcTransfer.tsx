@@ -210,6 +210,7 @@ export const IbcTransfer: React.FC = () => {
           onChangeShielded: setShielded,
         }}
         transactionFee={new BigNumber(0.0001) /*TODO: fix this*/}
+        isSubmitting={performIbcTransfer.isPending}
         onSubmitTransfer={onSubmitTransfer}
       />
     </Panel>
