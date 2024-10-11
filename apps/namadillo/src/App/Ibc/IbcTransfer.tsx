@@ -1,5 +1,3 @@
-import { QueryClient, setupIbcExtension } from "@cosmjs/stargate";
-import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { Panel } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
@@ -216,23 +214,4 @@ export const IbcTransfer: React.FC = () => {
       />
     </Panel>
   );
-};
-
-const ibcAddressToDenom = async (
-  address: string,
-  rpc: string
-): Promise<string> => {
-  const tmClient = await Tendermint34Client.connect(rpc);
-  const queryClient = new QueryClient(tmClient);
-  const ibcExtension = setupIbcExtension(queryClient);
-
-  const ibcHash = address.replace("ibc/", "");
-  const { denomTrace } = await ibcExtension.ibc.transfer.denomTrace(ibcHash);
-  const baseDenom = denomTrace?.baseDenom;
-
-  if (typeof baseDenom === "undefined") {
-    throw new Error("couldn't get denom from ibc address");
-  }
-
-  return baseDenom;
 };
