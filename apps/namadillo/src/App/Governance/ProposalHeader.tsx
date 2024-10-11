@@ -11,7 +11,7 @@ import {
   proposalVoteFamily,
 } from "atoms/proposals";
 import clsx from "clsx";
-import { useIsAuthenticated } from "hooks/useIsAuthenticated";
+import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { AtomWithQueryResult } from "jotai-tanstack-query";
 import { FaChevronLeft } from "react-icons/fa";
@@ -294,12 +294,12 @@ const VoteButton: React.FC<{
   proposalId: bigint;
 }> = ({ proposal, vote, proposalId }) => {
   const navigate = useNavigate();
-  const isAuthenticated = useIsAuthenticated();
+  const userHasAccount = useUserHasAccount();
   const canVote = useAtomValue(
     canVoteAtom(proposal.data?.startEpoch || BigInt(-1))
   );
 
-  if (!isAuthenticated) {
+  if (!userHasAccount) {
     return null;
   }
 
@@ -313,8 +313,7 @@ const VoteButton: React.FC<{
     } else {
       const { status } = proposal.data;
 
-      const disabled =
-        !isAuthenticated || !canVote.data || status !== "ongoing";
+      const disabled = !userHasAccount || !canVote.data || status !== "ongoing";
 
       const voted = vote.data !== null;
       const text = voted ? "Edit Vote" : "Vote";

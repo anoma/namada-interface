@@ -9,7 +9,7 @@ import { routes } from "App/routes";
 import { atomsAreLoading, atomsAreNotInitialized } from "atoms/utils";
 import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
-import { useIsAuthenticated } from "hooks/useIsAuthenticated";
+import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
 import { useAtomValue } from "jotai";
@@ -30,7 +30,7 @@ export const AllValidatorsTable = ({
 }: AllValidatorsProps): JSX.Element => {
   const validators = useAtomValue(allValidatorsAtom);
   const [searchTerm, setSearchTerm] = useState("");
-  const isAuthenticated = useIsAuthenticated();
+  const userHasAccount = useUserHasAccount();
 
   const filteredValidators = useValidatorFilter({
     validators: validators.isSuccess ? validators.data : [],
@@ -115,7 +115,7 @@ export const AllValidatorsTable = ({
             onChange={(value: string) => setSearchTerm(value)}
             placeholder="Search Validator"
           />
-          {isAuthenticated && (
+          {userHasAccount && (
             <ActionButton
               size="sm"
               backgroundColor="cyan"

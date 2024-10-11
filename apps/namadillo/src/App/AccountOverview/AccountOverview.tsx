@@ -5,7 +5,7 @@ import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
 import { StakingRewardsPanel } from "App/Staking/StakingRewardsPanel";
 import { applicationFeaturesAtom } from "atoms/settings";
-import { useIsAuthenticated } from "hooks/useIsAuthenticated";
+import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { twMerge } from "tailwind-merge";
 import { AccountBalanceContainer } from "./AccountBalanceContainer";
@@ -13,10 +13,10 @@ import { NamBalanceContainer } from "./NamBalanceContainer";
 import { NavigationFooter } from "./NavigationFooter";
 
 export const AccountOverview = (): JSX.Element => {
-  const isAuthenticated = useIsAuthenticated();
+  const userHasAccount = useUserHasAccount();
   const { claimRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
 
-  if (!isAuthenticated) {
+  if (!userHasAccount) {
     return (
       <ConnectPanel>
         <div className="mb-6">Your Gateway to the Shielded Multichain</div>

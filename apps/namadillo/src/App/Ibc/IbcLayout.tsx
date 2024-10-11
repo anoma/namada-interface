@@ -1,13 +1,13 @@
 import { ConnectPanel } from "App/Common/ConnectPanel";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
-import { useIsAuthenticated } from "hooks/useIsAuthenticated";
+import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { Outlet } from "react-router-dom";
 
 export const IbcLayout: React.FC = () => {
-  const isAuthenticated = useIsAuthenticated();
+  const userHasAccount = useUserHasAccount();
 
-  if (!isAuthenticated) {
+  if (!userHasAccount) {
     return <ConnectPanel actionText="To IBC Transfer" />;
   }
 

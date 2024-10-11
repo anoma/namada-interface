@@ -1,6 +1,6 @@
 import { ActionButton, Panel } from "@namada/components";
 import { routes } from "App/routes";
-import { useIsAuthenticated } from "hooks/useIsAuthenticated";
+import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useState } from "react";
 import { ShieldedFungibleTable } from "./ShieldedFungibleTable";
 import { ShieldedNFTTable } from "./ShieldedNFTTable";
@@ -60,14 +60,14 @@ const AssetTable = (): JSX.Element => {
 };
 
 export const ShieldedOverviewPanel: React.FC = () => {
-  const isAuthenticated = useIsAuthenticated();
+  const userHasAccount = useUserHasAccount();
 
   return (
     <Panel
       className="relative pb-6 border border-yellow min-h-[500px] flex flex-col"
-      title={isAuthenticated ? "Shielded Overview" : undefined}
+      title={userHasAccount ? "Shielded Overview" : undefined}
     >
-      {isAuthenticated ?
+      {userHasAccount ?
         <AssetTable />
       : <ShieldAssetCta />}
     </Panel>

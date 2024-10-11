@@ -4,7 +4,7 @@ import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification";
 import { YourStakingDistribution } from "App/Sidebars/YourStakingDistribution";
 import { myValidatorsAtom } from "atoms/validators";
-import { useIsAuthenticated } from "hooks/useIsAuthenticated";
+import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { AllValidatorsTable } from "./AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
@@ -12,7 +12,7 @@ import { StakingSummary } from "./StakingSummary";
 import { UnbondingAmountsTable } from "./UnbondingAmountsTable";
 
 export const StakingOverview = (): JSX.Element => {
-  const isAuthenticated = useIsAuthenticated();
+  const userHasAccount = useUserHasAccount();
   const myValidators = useAtomValue(myValidatorsAtom);
   const hasStaking = myValidators.data?.some((v) => v.stakedAmount?.gt(0));
   const hasUnbonded = myValidators.data?.some((v) => v.unbondedAmount?.gt(0));
@@ -23,8 +23,8 @@ export const StakingOverview = (): JSX.Element => {
   return (
     <PageWithSidebar>
       <div className="flex flex-col gap-2">
-        {!isAuthenticated && <ConnectBanner actionText="To stake" />}
-        {isAuthenticated && <StakingSummary />}
+        {!userHasAccount && <ConnectBanner actionText="To stake" />}
+        {userHasAccount && <StakingSummary />}
         {hasStaking && (
           <Panel title="My Validators" className="relative grid">
             <MyValidatorsTable />
