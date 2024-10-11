@@ -19,11 +19,10 @@ export class Mnemonic {
 
   /**
    * Generate a new 12 or 24 word mnemonic
-   * @async
    * @param [size] Mnemonic length
-   * @returns Promise that resolves to array of words
+   * @returns An array of words
    */
-  async generate(size: PhraseSize = PhraseSize.N12): Promise<string[]> {
+  generate(size: PhraseSize = PhraseSize.N12): string[] {
     const mnemonic = new MnemonicWasm(size);
 
     const vecStringPointer = mnemonic.to_words();
@@ -44,9 +43,9 @@ export class Mnemonic {
   toSeed(phrase: string, passphrase?: string): Uint8Array {
     const mnemonic = MnemonicWasm.from_phrase(phrase);
     const passphrasePtr =
-      typeof passphrase === "string"
-        ? new StringPointer(passphrase)
-        : undefined;
+      typeof passphrase === "string" ?
+        new StringPointer(passphrase)
+      : undefined;
 
     const seedPtr = mnemonic.to_seed(passphrasePtr);
 
