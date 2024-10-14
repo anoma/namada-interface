@@ -2,6 +2,7 @@ import { ActionButton, GapPatterns, Input, Stack } from "@namada/components";
 
 import { shortenAddress } from "@namada/utils";
 import clsx from "clsx";
+import { useState } from "react";
 
 type ViewKeysProps = {
   publicKeyAddress?: string;
@@ -20,6 +21,7 @@ export const ViewKeys = ({
   footer,
   trimCharacters = 16,
 }: ViewKeysProps): JSX.Element => {
+  const [seeViewingKey, setSeeViewingKey] = useState(false);
   return (
     <Stack
       className="flex-1 justify-center"
@@ -61,14 +63,25 @@ export const ViewKeys = ({
             theme={"secondary"}
           />
         )}
-        {viewingKeys && (
-          <div className="text-white flex flex-col text-base font-medium gap-3 text-center">
-            Viewing keys of shielded account
-            <ActionButton size="md" backgroundColor="cyan">
-              Download
-            </ActionButton>
-          </div>
-        )}
+        {viewingKeys &&
+          (seeViewingKey ?
+            <Input
+              label="Viewing Key"
+              variant="ReadOnlyCopy"
+              readOnly={true}
+              valueToDisplay={shortenAddress(viewingKeys, trimCharacters)}
+              value={viewingKeys}
+              theme={"secondary"}
+            />
+          : <div className="text-white flex flex-col text-base font-medium gap-3">
+              <ActionButton
+                size="md"
+                backgroundColor="cyan"
+                onClick={() => setSeeViewingKey(true)}
+              >
+                See Viewing Key
+              </ActionButton>
+            </div>)}
       </Stack>
       {(viewingKeys || footer) && (
         <Stack as="footer" gap={4}>
