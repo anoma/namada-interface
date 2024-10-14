@@ -3,9 +3,8 @@ import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification";
 import { YourStakingDistribution } from "App/Sidebars/YourStakingDistribution";
-import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { myValidatorsAtom } from "atoms/validators";
-import { useUserHasAccount } from "hooks/useUserHasAccount";
+import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { AllValidatorsTable } from "./AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
@@ -13,8 +12,7 @@ import { StakingSummary } from "./StakingSummary";
 import { UnbondingAmountsTable } from "./UnbondingAmountsTable";
 
 export const StakingOverview = (): JSX.Element => {
-  const hasAccount = useUserHasAccount();
-  const isConnected = useAtomValue(namadaExtensionConnectedAtom);
+  const userHasAccount = useUserHasAccount();
   const myValidators = useAtomValue(myValidatorsAtom);
   const hasStaking = myValidators.data?.some((v) => v.stakedAmount?.gt(0));
   const hasUnbonded = myValidators.data?.some((v) => v.unbondedAmount?.gt(0));
@@ -25,13 +23,8 @@ export const StakingOverview = (): JSX.Element => {
   return (
     <PageWithSidebar>
       <div className="flex flex-col gap-2">
-        {!isConnected && (
-          <ConnectBanner text="To stake please connect your account" />
-        )}
-        {isConnected && hasAccount === false && (
-          <ConnectBanner text="To stake please create or import an account using Namada keychain" />
-        )}
-        {isConnected && hasAccount && <StakingSummary />}
+        {!userHasAccount && <ConnectBanner actionText="To stake" />}
+        {userHasAccount && <StakingSummary />}
         {hasStaking && (
           <Panel title="My Validators" className="relative grid">
             <MyValidatorsTable />

@@ -2,13 +2,12 @@ import { Panel, SkeletonLoading } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals";
-import { namadaExtensionConnectedAtom } from "atoms/settings";
 import {
   atomsAreFetching,
   atomsAreLoaded,
   useNotifyOnAtomError,
 } from "atoms/utils";
-import { useUserHasAccount } from "hooks/useUserHasAccount";
+import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { AllProposalsTable } from "./AllProposalsTable";
 import { LiveGovernanceProposals } from "./LiveGovernanceProposals";
@@ -17,14 +16,13 @@ import { ProposalsSummary } from "./ProposalsSummary";
 import { UpcomingProposals } from "./UpcomingProposals";
 
 export const GovernanceOverview: React.FC = () => {
-  const isConnected = useAtomValue(namadaExtensionConnectedAtom);
   const allProposals = useAtomValue(allProposalsAtom);
   const votedProposals = useAtomValue(votedProposalsAtom);
-  const hasAccount = useUserHasAccount();
+  const userHasAccount = useUserHasAccount();
 
   // TODO: is there a better way than this to show that votedProposalIdsAtom
   // is dependent on isConnected?
-  const extensionAtoms = isConnected && hasAccount ? [votedProposals] : [];
+  const extensionAtoms = userHasAccount ? [votedProposals] : [];
   const activeAtoms = [allProposals, ...extensionAtoms];
 
   const liveProposals =
@@ -43,12 +41,7 @@ export const GovernanceOverview: React.FC = () => {
   return (
     <PageWithSidebar>
       <div className="flex flex-col gap-2">
-        {!isConnected && (
-          <ConnectBanner text="To vote please connect your account" />
-        )}
-        {isConnected && hasAccount === false && (
-          <ConnectBanner text="To vote please create or import an account using Namada keychain" />
-        )}
+        {!userHasAccount && <ConnectBanner actionText="To vote" />}
         <ProposalListPanel
           title="Live Proposals"
           errorText="Unable to load live governance proposals"

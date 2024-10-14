@@ -10,8 +10,8 @@ import {
   proposalFamily,
   proposalVoteFamily,
 } from "atoms/proposals";
-import { namadaExtensionConnectedAtom } from "atoms/settings";
 import clsx from "clsx";
+import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { AtomWithQueryResult } from "jotai-tanstack-query";
 import { FaChevronLeft } from "react-icons/fa";
@@ -294,12 +294,12 @@ const VoteButton: React.FC<{
   proposalId: bigint;
 }> = ({ proposal, vote, proposalId }) => {
   const navigate = useNavigate();
-  const isExtensionConnected = useAtomValue(namadaExtensionConnectedAtom);
+  const userHasAccount = useUserHasAccount();
   const canVote = useAtomValue(
     canVoteAtom(proposal.data?.startEpoch || BigInt(-1))
   );
 
-  if (!isExtensionConnected) {
+  if (!userHasAccount) {
     return null;
   }
 
@@ -313,8 +313,7 @@ const VoteButton: React.FC<{
     } else {
       const { status } = proposal.data;
 
-      const disabled =
-        !isExtensionConnected || !canVote.data || status !== "ongoing";
+      const disabled = !userHasAccount || !canVote.data || status !== "ongoing";
 
       const voted = vote.data !== null;
       const text = voted ? "Edit Vote" : "Vote";
