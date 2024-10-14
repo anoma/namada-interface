@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "@anomaorg/namada-indexer-client": "0.0.23",
+    "@anomaorg/namada-indexer-client": "0.0.27",
     "@chain-registry/client": "^1.48.80",
     "@cosmjs/encoding": "^0.32.3",
     "@tailwindcss/container-queries": "^0.1.1",

@@ -5,8 +5,7 @@ export const calculateUnbondingPeriod = (parameters: Parameters): string => {
   const unbondingPeriodInEpochs =
     Number(parameters.unbondingLength) +
     Number(parameters.pipelineLength) +
-    // + 1 because we unbonding period starts from the next epoch
-    1;
+    Number(parameters.cubicSlashingWindowLength);
   const minEpochDuration = Number(parameters.minDuration);
   const maxBlockTime = Number(parameters.maxBlockTime);
   const epochSwitchBlocksDelay = Number(parameters.epochSwitchBlocksDelay);
