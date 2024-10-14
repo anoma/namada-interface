@@ -16,6 +16,7 @@ export const ViewAccount = (): JSX.Element => {
   const [parentAccount, setParentAccount] = useState<DerivedAccount>();
   const [transparentAddress, setTransparentAddress] = useState("");
   const [shieldedAddress, setShieldedAddress] = useState("");
+  const [viewingKey, setViewingKey] = useState("");
   const navigate = useNavigate();
 
   const searchParentAccount = (
@@ -41,9 +42,12 @@ export const ViewAccount = (): JSX.Element => {
       setTransparentAddress(parentAccount?.address);
     }
 
-    const shieldedKey = searchShieldedKey(accountId);
-    if (shieldedKey) {
-      setShieldedAddress(shieldedKey.address);
+    const shieldedAccount = searchShieldedKey(accountId);
+    if (shieldedAccount) {
+      setShieldedAddress(shieldedAccount.address);
+      if (shieldedAccount.owner) {
+        setViewingKey(shieldedAccount.owner);
+      }
     }
   }, [accountId]);
 
@@ -61,6 +65,7 @@ export const ViewAccount = (): JSX.Element => {
               publicKeyAddress={parentAccount.publicKey ?? ""}
               transparentAccountAddress={transparentAddress}
               shieldedAccountAddress={shieldedAddress}
+              viewingKeys={viewingKey}
               trimCharacters={21}
             />
           </Stack>
