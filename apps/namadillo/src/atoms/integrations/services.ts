@@ -4,6 +4,7 @@ import { coin, coins } from "@cosmjs/proto-signing";
 import { SigningStargateClient, StargateClient } from "@cosmjs/stargate";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
+import Long from "long";
 import { workingRpcsAtom } from "./atoms";
 import { getRandomRpcAddress } from "./functions";
 
@@ -56,20 +57,31 @@ export const submitIbcTransfer =
       gas: "222000",
     };
 
-    const response = await client.sendIbcTokens(
+    const timeoutTimestampNanoseconds = Long.fromNumber(
+      Math.floor(Date.now() / 1000) + 60
+    ).multiply(1_000_000_000);
+
+    const transferMsg = {
+      typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
+      value: {
+        sourcePort: "transfer",
+        sourceChannel: channelId,
+        sender: sourceAddress,
+        receiver: destinationAddress,
+        token: coin(amount.toString(), token),
+        timeoutTimestamp: timeoutTimestampNanoseconds,
+      },
+    };
+
+    const response = await client.signAndBroadcast(
       sourceAddress,
-      destinationAddress,
-      coin(amount.toString(), token),
-      "transfer",
-      channelId,
-      undefined, // timeout height
-      Math.floor(Date.now() / 1000) + 60, // timeout timestamp
+      [transferMsg],
       fee,
       memo
     );
 
     if (response.code !== 0) {
-      throw new Error(response.code + " " + response.rawLog);
+      throw new Error(response.code + " " + response.transactionHash);
     }
   };
 

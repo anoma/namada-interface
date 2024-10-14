@@ -136,7 +136,7 @@ export const IbcTransfer: React.FC = () => {
       throw new Error("Invalid chain");
     }
 
-    const namadaChannelId = "channel-84380";
+    const namadaChannelId = "channel-4353";
 
     performIbcTransfer.mutateAsync({
       chain: registry.chain,
