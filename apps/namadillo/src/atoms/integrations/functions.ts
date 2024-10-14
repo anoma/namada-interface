@@ -1,21 +1,7 @@
-import { Asset, AssetList } from "@chain-registry/types";
+import { AssetList, Chain } from "@chain-registry/types";
 import { Coin } from "@cosmjs/launchpad";
-import { StargateClient } from "@cosmjs/stargate";
 import BigNumber from "bignumber.js";
-
-export type AssetWithBalance = {
-  asset: Asset;
-  balance?: BigNumber;
-};
-
-export const queryAssetBalances = async (
-  owner: string,
-  rpc: string
-): Promise<Coin[]> => {
-  const client = await StargateClient.connect(rpc);
-  const balances = (await client.getAllBalances(owner)) || [];
-  return balances as Coin[];
-};
+import { AssetWithBalance } from "./services";
 
 export const mapCoinsToAssets = (
   coins: Coin[],
@@ -34,4 +20,14 @@ export const mapCoinsToAssets = (
       },
     };
   }, {});
+};
+
+export const getRandomRpcAddress = (chain: Chain): string => {
+  const availableRpcs = chain.apis?.rpc;
+  if (!availableRpcs) {
+    throw new Error("There are no available RPCs for " + chain.chain_name);
+  }
+  const randomRpc =
+    availableRpcs[Math.floor(Math.random() * availableRpcs.length)];
+  return randomRpc.address;
 };

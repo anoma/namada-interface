@@ -25,14 +25,11 @@ import { useAtom, useAtomValue } from "jotai";
 import namadaChain from "registry/namada.json";
 
 import { Asset, Chain } from "@chain-registry/types";
-import { useQuery } from "@tanstack/react-query";
-import { ibcTransferAtom, selectedIBCChainAtom } from "atoms/integrations";
 import {
-  AssetWithBalance,
-  mapCoinsToAssets,
-  queryAndStoreRpc,
-  queryAssetBalances,
-} from "atoms/registry";
+  assetBalanceAtomFamily,
+  ibcTransferAtom,
+  selectedIBCChainAtom,
+} from "atoms/integrations";
 import { settingsAtom } from "atoms/settings";
 
 const keplr = (window as KeplrWindow).keplr!;
@@ -59,13 +56,7 @@ export const IbcTransfer: React.FC = () => {
   const [sourceAddress, setSourceAddress] = useState<string | undefined>();
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAsset, setSelectedAsset] = useState<Asset>();
-  const [sourceChannelId, setSourceChannelId] = useState<string>("");
-  const [assetsBalances, setAssetsBalances] = useState<
-    Record<string, AssetWithBalance>
-  >({});
-
   const performIbcTransfer = useAtomValue(ibcTransferAtom);
-
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
 
   const knownChains: Record<string, ChainRegistryEntry> =
@@ -91,24 +82,16 @@ export const IbcTransfer: React.FC = () => {
     );
   }, [defaultAccounts, shielded]);
 
-  // Note: I think we should put this somewhere, but not sure if we need an atom for that :/
-  // If we create an atom, we will need an atom family that requires two arguments, address and chain (or rpc).
-  // atomFamily only accepts one argument, so we would need to create a ref with an object to keep the same reference
-  // on each re-render. Not sure if this overhead is better than breaking
-  const assetBalanceQuery = useQuery({
-    enabled: Boolean(sourceAddress && registry?.chain),
-    queryKey: ["assets", sourceAddress, registry?.chain?.chain_id],
-    queryFn: async () => {
-      const assetsBalances = await queryAndStoreRpc(
-        registry!.chain,
-        async (rpc: string) => {
-          return await queryAssetBalances(sourceAddress!, rpc);
-        }
-      );
-      const coinsToAssets = mapCoinsToAssets(assetsBalances, registry!.assets);
-      setAssetsBalances(coinsToAssets);
-    },
-  });
+  const { data: assetsBalancesData, isFetching: isFetchingBalances } =
+    useAtomValue(
+      assetBalanceAtomFamily({
+        chain: registry?.chain,
+        assets: registry?.assets,
+        sourceAddress,
+      })
+    );
+
+  const assetsBalances = assetsBalancesData || {};
 
   const onChangeWallet = async (wallet: WalletProvider): Promise<void> => {
     if (wallet.id === "keplr") {
@@ -153,6 +136,8 @@ export const IbcTransfer: React.FC = () => {
       throw new Error("Invalid chain");
     }
 
+    const namadaChannelId = "channel-84380";
+
     performIbcTransfer.mutateAsync({
       chain: registry.chain,
       transferParams: {
@@ -161,7 +146,7 @@ export const IbcTransfer: React.FC = () => {
         destinationAddress,
         amount,
         token: selectedAsset.base,
-        channelId: sourceChannelId,
+        channelId: namadaChannelId,
       },
     });
   };
@@ -171,18 +156,9 @@ export const IbcTransfer: React.FC = () => {
       <header className="text-center mb-4">
         <h2>IBC Transfer to Namada</h2>
       </header>
-
-      <input
-        className="text-black"
-        type="text"
-        placeholder="source channel id"
-        value={sourceChannelId}
-        onChange={(e) => setSourceChannelId(e.target.value)}
-      />
-
       <TransferModule
         source={{
-          isLoadingAssets: assetBalanceQuery.isFetching,
+          isLoadingAssets: isFetchingBalances,
           availableAssets:
             Object.values(assetsBalances).map((el) => el.asset) || [],
           selectedAsset,

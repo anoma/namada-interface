@@ -1,7 +1,11 @@
-import { OfflineSigner } from "@cosmjs/launchpad";
+import { Asset, Chain } from "@chain-registry/types";
+import { Coin, OfflineSigner } from "@cosmjs/launchpad";
 import { coin, coins } from "@cosmjs/proto-signing";
-import { SigningStargateClient } from "@cosmjs/stargate";
+import { SigningStargateClient, StargateClient } from "@cosmjs/stargate";
 import BigNumber from "bignumber.js";
+import { getDefaultStore } from "jotai";
+import { workingRpcsAtom } from "./atoms";
+import { getRandomRpcAddress } from "./functions";
 
 export type IBCTransferParams = {
   signer: OfflineSigner;
@@ -11,6 +15,22 @@ export type IBCTransferParams = {
   token: string;
   channelId: string;
   memo?: string;
+};
+
+export type AssetWithBalance = {
+  asset: Asset;
+  balance?: BigNumber;
+};
+
+type QueryFn<T> = (rpc: string) => Promise<T>;
+
+export const queryAssetBalances = async (
+  owner: string,
+  rpc: string
+): Promise<Coin[]> => {
+  const client = await StargateClient.connect(rpc);
+  const balances = (await client.getAllBalances(owner)) || [];
+  return balances as Coin[];
 };
 
 export const submitIbcTransfer =
@@ -52,3 +72,30 @@ export const submitIbcTransfer =
       throw new Error(response.code + " " + response.rawLog);
     }
   };
+
+export const queryAndStoreRpc = async <T>(
+  chain: Chain,
+  queryFn: QueryFn<T>
+): Promise<T> => {
+  const { get, set } = getDefaultStore();
+  const workingRpcs = get(workingRpcsAtom);
+  const rpcAddress =
+    chain.chain_id in workingRpcs ?
+      workingRpcs[chain.chain_id]
+    : getRandomRpcAddress(chain);
+
+  try {
+    const output = await queryFn(rpcAddress);
+    set(workingRpcsAtom, {
+      ...workingRpcs,
+      [chain.chain_id]: rpcAddress,
+    });
+    return output;
+  } catch (err) {
+    if (chain.chain_id in workingRpcs) {
+      delete workingRpcs[chain.chain_id];
+      set(workingRpcsAtom, { ...workingRpcs });
+    }
+    throw err;
+  }
+};

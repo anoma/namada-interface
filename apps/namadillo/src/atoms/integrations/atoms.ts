@@ -1,13 +1,25 @@
-import { Chain } from "@chain-registry/types";
+import { AssetList, Chain } from "@chain-registry/types";
 import { ExtensionKey } from "@namada/types";
-import { queryAndStoreRpc } from "atoms/registry";
-import { atomWithMutation } from "jotai-tanstack-query";
-import { atomWithStorage } from "jotai/utils";
-import { IBCTransferParams, submitIbcTransfer } from "./services";
+import { queryDependentFn } from "atoms/utils";
+import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
+import { atomFamily, atomWithStorage } from "jotai/utils";
+import { mapCoinsToAssets } from "./functions";
+import {
+  IBCTransferParams,
+  queryAndStoreRpc,
+  queryAssetBalances,
+  submitIbcTransfer,
+} from "./services";
 
 type IBCTransferAtomParams = {
   transferParams: IBCTransferParams;
   chain: Chain;
+};
+
+type AssetBalanceAtomParams = {
+  chain?: Chain;
+  assets?: AssetList;
+  sourceAddress?: string;
 };
 
 // Currently we're just integrating with Keplr, but in the future we might use different wallets
@@ -37,3 +49,27 @@ export const ibcTransferAtom = atomWithMutation(() => {
     },
   };
 });
+
+export const assetBalanceAtomFamily = atomFamily(
+  ({ chain, sourceAddress, assets }: AssetBalanceAtomParams) => {
+    return atomWithQuery(() => ({
+      queryKey: ["assets", sourceAddress, chain?.chain_id, assets],
+      ...queryDependentFn(async () => {
+        const assetsBalances = await queryAndStoreRpc(
+          chain!,
+          async (rpc: string) => {
+            return await queryAssetBalances(sourceAddress!, rpc);
+          }
+        );
+        return mapCoinsToAssets(assetsBalances, assets!);
+      }, [!!sourceAddress, !!chain]),
+    }));
+  },
+  (prev, current) =>
+    Boolean(
+      prev.chain &&
+        current.chain &&
+        prev.chain.chain_id === current.chain?.chain_id &&
+        prev.sourceAddress === current.sourceAddress
+    )
+);
