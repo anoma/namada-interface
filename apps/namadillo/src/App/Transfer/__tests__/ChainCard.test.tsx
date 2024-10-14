@@ -15,4 +15,15 @@ describe("Component: ChainCard", () => {
     expect(logo).toBeInTheDocument();
     expect(logo).toHaveAttribute("src", randomChainMock.logo_URIs?.svg);
   });
+
+  it("renders the chain's logo in png when svg is not defined", () => {
+    const chainWithoutSvg = {
+      ...randomChainMock,
+      logo_URIs: { png: "png-image.png" },
+    };
+    render(<ChainCard chain={chainWithoutSvg as Chain} />);
+    const logo = screen.getByAltText(`${randomChainMock.pretty_name!} logo`);
+    expect(logo).toBeInTheDocument();
+    expect(logo).toHaveAttribute("src", randomChainMock.logo_URIs?.png);
+  });
 });

@@ -1,4 +1,4 @@
-[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / Mnemonic
+[@heliaxdev/namada-sdk](../README.md) / [Exports](../modules.md) / Mnemonic
 
 # Class: Mnemonic
 
@@ -38,7 +38,7 @@ Class for accessing mnemonic functionality from wasm
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:18](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/mnemonic.ts#L18)
+[sdk/src/mnemonic.ts:18](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/mnemonic.ts#L18)
 
 ## Properties
 
@@ -50,13 +50,13 @@ Memory accessor for crypto lib
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:18](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/mnemonic.ts#L18)
+[sdk/src/mnemonic.ts:18](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/mnemonic.ts#L18)
 
 ## Methods
 
 ### generate
 
-▸ **generate**(`size?`): `Promise`\<`string`[]\>
+▸ **generate**(`size?`): `string`[]
 
 Generate a new 12 or 24 word mnemonic
 
@@ -68,15 +68,13 @@ Generate a new 12 or 24 word mnemonic
 
 #### Returns
 
-`Promise`\<`string`[]\>
+`string`[]
 
-Promise that resolves to array of words
-
-**`Async`**
+An array of words
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:26](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/mnemonic.ts#L26)
+[sdk/src/mnemonic.ts:25](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/mnemonic.ts#L25)
 
 ___
 
@@ -101,7 +99,7 @@ Seed bytes
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:44](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/mnemonic.ts#L44)
+[sdk/src/mnemonic.ts:43](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/mnemonic.ts#L43)
 
 ___
 
@@ -131,4 +129,4 @@ Object with validation result and error message if invalid
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:62](https://github.com/anoma/namada-interface/blob/fed376fb8f8e78431a4124d1835f659952e931ac/packages/sdk/src/mnemonic.ts#L62)
+[sdk/src/mnemonic.ts:61](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/mnemonic.ts#L61)

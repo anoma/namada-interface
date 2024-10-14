@@ -1,5 +1,5 @@
-import initSdk from "@heliax/namada-sdk/inline-init";
-import { getSdk, Sdk } from "@heliax/namada-sdk/web";
+import initSdk from "@heliaxdev/namada-sdk/inline-init";
+import { getSdk, Sdk } from "@heliaxdev/namada-sdk/web";
 import { QueryStatus, useQuery } from "@tanstack/react-query";
 import { nativeTokenAddressAtom } from "atoms/chain";
 import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";

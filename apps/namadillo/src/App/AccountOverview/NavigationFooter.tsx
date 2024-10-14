@@ -7,7 +7,7 @@ export const NavigationFooter = (): JSX.Element => {
       <Heading level="h3" className="uppercase text-4xl text-yellow mb-2">
         Stake & Vote Now
       </Heading>
-      <Stack gap={3} direction="horizontal">
+      <Stack gap={3} direction="horizontal" className="justify-center">
         <ActionButton
           className="border uppercase"
           href={routes.staking}

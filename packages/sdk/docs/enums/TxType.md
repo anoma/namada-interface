@@ -1,4 +1,4 @@
-[@heliax/namada-sdk](../README.md) / [Exports](../modules.md) / TxType
+[@heliaxdev/namada-sdk](../README.md) / [Exports](../modules.md) / TxType
 
 # Enumeration: TxType
 

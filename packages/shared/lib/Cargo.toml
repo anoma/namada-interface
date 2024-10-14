@@ -13,7 +13,7 @@ crate-type = ["cdylib", "rlib"]
 [features]
 default = []
 dev = []
-multicore = ["wasm-bindgen-rayon", "namada_sdk/multicore"]
+multicore = ["rayon", "wasm-bindgen-rayon", "namada_sdk/multicore"]
 nodejs = []
 web = []
 
@@ -26,10 +26,12 @@ gloo-utils = { version = "0.1.5", features = ["serde"] }
 js-sys = "0.3.60"
 namada_sdk = { git = "https://github.com/anoma/namada", rev = "4093f0bb98e1fdb72ae0552f371807749f986937", default-features = false }
 rand = "0.8.5"
+rayon = { version = "1.5.3", optional = true }
 rexie = "0.5"
 serde = "^1.0.181"
 serde_json = "1.0"
 tendermint-config = "0.34.0"
+tokio = {version = "1.8.2", features = ["rt"]}
 thiserror = "^1"
 wasm-bindgen = "0.2.86"
 wasm-bindgen-futures = "0.4.33"
