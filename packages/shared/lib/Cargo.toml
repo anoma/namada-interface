@@ -24,7 +24,7 @@ chrono = "0.4.22"
 getrandom = { version = "0.2.7", features = ["js"] }
 gloo-utils = { version = "0.1.5", features = ["serde"] }
 js-sys = "0.3.60"
-namada_sdk = { git = "https://github.com/anoma/namada", rev = "4093f0bb98e1fdb72ae0552f371807749f986937", default-features = false }
+namada_sdk = { git = "https://github.com/anoma/namada", tag="v0.44.1", default-features = false }
 rand = "0.8.5"
 rayon = { version = "1.5.3", optional = true }
 rexie = "0.5"
