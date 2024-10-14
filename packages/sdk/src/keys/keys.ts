@@ -17,10 +17,14 @@ import { Bip44Path } from "@namada/types";
 import { makeBip44PathArray, makeSaplingPathArray } from "../utils";
 import { Address, ShieldedKeys, TransparentKeys } from "./types";
 
-const DEFAULT_PATH: Bip44Path = {
+const DEFAULT_BIP44_PATH: Bip44Path = {
   account: 0,
   change: 0,
   index: 0,
+};
+
+const DEFAULT_ZIP32_PATH: Bip44Path = {
+  account: 0,
 };
 
 /**
@@ -69,7 +73,7 @@ export class Keys {
    */
   deriveFromMnemonic(
     phrase: string,
-    path: Bip44Path = DEFAULT_PATH,
+    path: Bip44Path = DEFAULT_BIP44_PATH,
     passphrase?: string
   ): TransparentKeys {
     const mnemonic = MnemonicWasm.from_phrase(phrase);
@@ -107,7 +111,7 @@ export class Keys {
    */
   deriveFromSeed(
     seed: Uint8Array,
-    path: Bip44Path = DEFAULT_PATH
+    path: Bip44Path = DEFAULT_BIP44_PATH
   ): TransparentKeys {
     const hdWallet = HDWallet.from_seed(seed);
     const bip44Path = makeBip44PathArray(chains.namada.bip44.coinType, path);
@@ -138,7 +142,7 @@ export class Keys {
    */
   deriveShieldedFromSeed(
     seed: Uint8Array,
-    path: Bip44Path = DEFAULT_PATH,
+    path: Bip44Path = DEFAULT_ZIP32_PATH,
     diversifier?: Uint8Array
   ): ShieldedKeys {
     const zip32 = new ShieldedHDWallet(seed);
