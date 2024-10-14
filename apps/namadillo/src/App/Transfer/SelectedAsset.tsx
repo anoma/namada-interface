@@ -1,4 +1,5 @@
 import { Asset, Chain } from "@chain-registry/types";
+import { SkeletonLoading } from "@namada/components";
 import clsx from "clsx";
 import { GoChevronDown } from "react-icons/go";
 import { EmptyResourceIcon } from "./EmptyResourceIcon";
@@ -13,6 +14,7 @@ type SelectedAssetProps = {
 export const SelectedAsset = ({
   chain,
   asset,
+  isLoading,
   onClick,
 }: SelectedAssetProps): JSX.Element => {
   const selectorClassList = clsx(
@@ -25,7 +27,7 @@ export const SelectedAsset = ({
     <button
       type="button"
       className={clsx("block group", {
-        "pointer-events-none opacity-30": isDisabled,
+        "pointer-events-none opacity-30": isDisabled || isLoading,
       })}
       disabled={isDisabled}
       onClick={onClick}
@@ -36,8 +38,19 @@ export const SelectedAsset = ({
       {!asset && (
         <span className={selectorClassList}>
           <EmptyResourceIcon className="w-12" />
-          Asset
-          <GoChevronDown className="text-sm" />
+          {isLoading && (
+            <SkeletonLoading
+              className="bg-neutral-700"
+              height="1em"
+              width="70px"
+            />
+          )}
+          {!isLoading && (
+            <>
+              Asset
+              <GoChevronDown className="text-sm" />
+            </>
+          )}
         </span>
       )}
       {asset && (
