@@ -73,8 +73,8 @@ export const Completion: React.FC<Props> = (props) => {
 
         const prettyAccountSecret =
           accountSecret.t === "Mnemonic" ? "mnemonic"
-          : accountSecret.t === "PrivateKey" ? "private key"
-          : assertNever(accountSecret);
+            : accountSecret.t === "PrivateKey" ? "private key"
+              : assertNever(accountSecret);
 
         setStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
         const storedAccount =
@@ -97,8 +97,13 @@ export const Completion: React.FC<Props> = (props) => {
           const { account, index } = path;
           const shieldedAccount = await requester.sendMessage<DeriveAccountMsg>(
             Ports.Background,
+            // If this is a default path, don't use zip32 index
+            // TODO: Should we include index of 0 on default path?
             new DeriveAccountMsg(
-              { account, index },
+              {
+                account,
+                index: index === 0 && account === 0 ? undefined : index,
+              },
               AccountType.ShieldedKeys,
               storedAccount.alias
             )
