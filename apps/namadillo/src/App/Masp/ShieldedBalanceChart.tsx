@@ -22,7 +22,7 @@ export const ShieldedBalanceChart = (): JSX.Element => {
       niceError="Unable to load balance"
     >
       <div className="flex items-center justify-center w-full h-[260px]">
-        {data ?
+        {data !== undefined ?
           <PieChart
             id="balance-chart"
             className="xl:max-w-[85%] mx-auto"
