@@ -685,8 +685,10 @@ pub fn unshielding_transfer_tx_args(
         let gas_spending_key = PseudoExtendedKey::try_from_slice(&sk)?;
         gsk.push(gas_spending_key);
     }
+    web_sys::console::log_1(&format!("gsk: {:?}", gsk).into());
 
-    let tx = tx_msg_into_args(tx_msg)?;
+    let mut tx = tx_msg_into_args(tx_msg)?;
+    tx.signing_keys = vec![];
 
     let args = args::TxUnshieldingTransfer {
         data: unshielding_transfer_data,
@@ -694,7 +696,7 @@ pub fn unshielding_transfer_tx_args(
         tx,
         gas_spending_keys: gsk,
         // TODO: false for now
-        disposable_signing_key: false,
+        disposable_signing_key: true,
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
     };
 

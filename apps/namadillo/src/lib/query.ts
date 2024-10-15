@@ -25,9 +25,9 @@ export type TransactionPair<T> = {
 export type EncodedTxData<T> = {
   type: string;
   txs: TxProps[] &
-    {
-      innerTxHashes: string[];
-    }[];
+  {
+    innerTxHashes: string[];
+  }[];
   wrapperTxProps: WrapperTxProps;
   meta?: {
     props: T[];
@@ -47,7 +47,7 @@ export type PreparedTransaction<T> = {
 
 export const revealPublicKeyType = "revealPublicKey";
 
-const getTxProps = (
+export const getTxProps = (
   account: Account,
   gasConfig: GasConfig,
   chain: ChainSettings
@@ -75,7 +75,7 @@ export const isPublicKeyRevealed = async (
   try {
     publicKey = (await api.apiV1RevealedPublicKeyAddressGet(address)).data
       ?.publicKey;
-  } catch {}
+  } catch { }
   return Boolean(publicKey);
 };
 
