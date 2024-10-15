@@ -39,7 +39,7 @@ describe("SelectAssetModal", () => {
       />
     );
     fireEvent.change(screen.getByPlaceholderText(/search/i, { exact: false }), {
-      target: { value: "Bit" },
+      target: { value: "bit" },
     });
 
     // Event is debounced
