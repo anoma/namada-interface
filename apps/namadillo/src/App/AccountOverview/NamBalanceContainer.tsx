@@ -1,4 +1,4 @@
-import { Stack } from "@namada/components";
+import { SkeletonLoading, Stack } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { BalanceChart } from "App/Common/BalanceChart";
 import { NamCurrency } from "App/Common/NamCurrency";
@@ -12,12 +12,14 @@ type NamBalanceListItemProps = {
   title: string;
   color: string;
   amount: BigNumber;
+  isLoading: boolean;
 };
 
 const NamBalanceListItem = ({
   title,
   color,
   amount,
+  isLoading,
 }: NamBalanceListItemProps): JSX.Element => {
   return (
     <li
@@ -28,11 +30,14 @@ const NamBalanceListItem = ({
         <i className="w-2 h-2 rounded-full" style={{ background: color }} />
         {title}
       </span>
-      <NamCurrency
-        amount={amount}
-        className="text-lg pl-3.5"
-        currencySymbolClassName="hidden"
-      />
+      {isLoading ?
+        <SkeletonLoading height="22px" width="100px" />
+      : <NamCurrency
+          amount={amount}
+          className="text-lg pl-3.5"
+          currencySymbolClassName="hidden"
+        />
+      }
     </li>
   );
 };
@@ -74,22 +79,26 @@ export const NamBalanceContainer = (): JSX.Element => {
                 title="Shielded Assets"
                 color={colors.shielded}
                 amount={shieldedAmount}
+                isLoading={isLoading}
               />
             )}
             <NamBalanceListItem
               title="Available NAM"
               color={colors.balance}
               amount={availableAmount}
+              isLoading={isLoading}
             />
             <NamBalanceListItem
               title="Staked NAM"
               color={colors.bond}
               amount={bondedAmount}
+              isLoading={isLoading}
             />
             <NamBalanceListItem
               title="Unbonded NAM"
               color={colors.unbond}
               amount={unbondedAmount.plus(withdrawableAmount)}
+              isLoading={isLoading}
             />
           </Stack>
         </div>
