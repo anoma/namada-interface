@@ -21,6 +21,7 @@ import {
   IsConnectionApprovedMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
+  SpendingKeyMsg,
   VerifyArbitraryMsg,
 } from "./messages";
 
@@ -28,7 +29,7 @@ export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) {}
+  ) { }
 
   public async connect(): Promise<void> {
     return await this.requester?.sendMessage(
@@ -73,6 +74,18 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new ApproveUpdateDefaultAccountMsg(address)
+    );
+  }
+
+  public async spendingKey(
+    publicKey: number[]
+  ): Promise<
+    [Array<number>, Array<number>, Array<number>, Array<number>] | undefined
+  > {
+    console.log("publicKey2232", publicKey);
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new SpendingKeyMsg(publicKey)
     );
   }
 

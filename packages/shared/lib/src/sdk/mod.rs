@@ -15,30 +15,34 @@ use crate::utils::to_js_result;
 use args::generate_masp_build_params;
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::address::{Address, MASP};
-use namada_sdk::borsh::{self, BorshDeserialize};
+use namada_sdk::args::{GenIbcShieldingTransfer, InputAmount, Query, TxExpiration};
+use namada_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use namada_sdk::collections::HashSet;
 use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada_sdk::hash::Hash;
+use namada_sdk::ibc::convert_masp_tx_to_ibc_memo;
+use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::io::NamadaIo;
+use namada_sdk::key::common::PublicKey;
 use namada_sdk::key::{common, ed25519, SigScheme};
-use namada_sdk::masp::ShieldedContext;
+use namada_sdk::masp::{MaspFeeData, MaspTransferData, ShieldedContext, ShieldedTransfer};
 use namada_sdk::rpc::{query_epoch, InnerTxResult};
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::string_encoding::Format;
+use namada_sdk::tendermint_rpc::Url;
+use namada_sdk::token::{DenominatedAmount, Transfer};
 use namada_sdk::tx::{
     build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
     build_reveal_pk, build_shielded_transfer, build_shielding_transfer, build_transparent_transfer,
     build_unbond, build_unshielding_transfer, build_vote_proposal, build_withdraw,
-    data::compute_inner_tx_hash, either::Either, process_tx, ProcessTxResponse,
-    Tx, gen_ibc_shielding_transfer
+    data::compute_inner_tx_hash, either::Either, gen_ibc_shielding_transfer, process_tx,
+    ProcessTxResponse, Tx,
 };
+use namada_sdk::wallet::alias::Alias;
 use namada_sdk::wallet::{Store, Wallet};
 use namada_sdk::{Namada, NamadaImpl, PaymentAddress, TransferTarget};
-use namada_sdk::args::{InputAmount, GenIbcShieldingTransfer, Query, TxExpiration};
-use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
-use namada_sdk::ibc::convert_masp_tx_to_ibc_memo;
-use namada_sdk::token::DenominatedAmount;
-use namada_sdk::tendermint_rpc::Url;
 use std::str::FromStr;
+use wallet::JSWalletUtils;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
 // Maximum number of spend description randomness parameters that can be
@@ -61,7 +65,7 @@ const MAX_HW_OUTPUT: usize = 15;
 #[wasm_bindgen]
 pub struct Sdk {
     namada: NamadaImpl<HttpClient, wallet::JSWalletUtils, masp::JSShieldedUtils, WebIo>,
-    rpc_url: String
+    rpc_url: String,
 }
 
 #[wasm_bindgen]
@@ -89,7 +93,7 @@ impl Sdk {
 
         Sdk {
             namada,
-            rpc_url: url
+            rpc_url: url,
         }
     }
 
@@ -379,10 +383,149 @@ impl Sdk {
         let mut bparams =
             generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
                 .await?;
+
+        let _ = &self
+            .namada
+            .wallet_mut()
+            .await
+            .insert_address(
+                "asdasd",
+                Address::from_str("tnam1q9k4a0a7cgprwdj8epn28kmv9s5ntu098c3ua875").unwrap(),
+                false,
+            )
+            .unwrap();
+        let _ = &self.namada.shielded_mut().await.load().await?;
+
         let (tx, signing_data) =
             build_unshielding_transfer(&self.namada, &mut args, &mut bparams).await?;
+
         self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
+
+    //     pub async fn build_unshielding_transfer_pre(
+    //         &self,
+    //         unshielding_transfer_msg: &[u8],
+    //         wrapper_tx_msg: &[u8],
+    //     ) -> Result<JsValue, JsError> {
+    //         let mut args =
+    //             args::unshielding_transfer_tx_args(unshielding_transfer_msg, wrapper_tx_msg)?;
+
+    //         web_sys::console::log_1(&"Building unshielding transfer".into());
+    //         let signing_data = namada_sdk::tx_unshield::signing_data(&self.namada, &mut args).await?;
+
+    //         web_sys::console::log_1(&"Signing data".into());
+
+    //         let transfer_data = vec![];
+    //         let data = namada_sdk::token::Transfer::default();
+    //         web_sys::console::log_1(&"Transfer data 0".into());
+
+    //         let (data, transfer_data) = namada_sdk::tx_unshield::add_transfer_data(
+    //             &self.namada,
+    //             &mut args,
+    //             data,
+    //             transfer_data,
+    //         )
+    //         .await?;
+    //         web_sys::console::log_1(&"Transfer data".into());
+
+    //         // Shielded fee payment
+    //         let (fee_per_gas_unit, masp_fee_data) =
+    //             namada_sdk::tx_unshield::fee_data(&self.namada, &mut args, &signing_data).await?;
+    //         web_sys::console::log_1(&"Fee data".into());
+    //         let data = namada_sdk::tx_unshield::add_fee_data(&masp_fee_data, data)?;
+    //         web_sys::console::log_1(&"Fee data added".into());
+
+    //         let asd = Part1Data(
+    //             transfer_data,
+    //             masp_fee_data,
+    //             fee_per_gas_unit,
+    //             data,
+    //             signing_data,
+    //         );
+
+    //         to_js_result(borsh::to_vec(&asd)?)
+
+    //         // let (tx, signing_data) = build_unshielding_transfer(&self.namada, &mut args).await?;
+    //         // self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+    //     }
+
+    //     pub async fn build_unshielding_transfer_shielded_parts(
+    //         &self,
+    //         unshielding_transfer_msg: &[u8],
+    //         wrapper_tx_msg: &[u8],
+    //         part_1_data: &[u8],
+    //     ) -> Result<JsValue, JsError> {
+    //         let args = args::unshielding_transfer_tx_args(unshielding_transfer_msg, wrapper_tx_msg)?;
+    //         web_sys::console::log_1(&format!("args: {:?}", args).into());
+    //         let part_1_data = Part1Data::try_from_slice(part_1_data)?;
+    //         let transfer_data = part_1_data.0;
+    //         let masp_fee_data = part_1_data.1;
+
+    //         // TODO: temp fix as construct_shielded_parts uses wallet to get tokens :|
+    //         let _ = &self
+    //             .namada
+    //             .wallet_mut()
+    //             .await
+    //             .insert_address(
+    //                 "asdasd",
+    //                 Address::from_str("tnam1q9k4a0a7cgprwdj8epn28kmv9s5ntu098c3ua875").unwrap(),
+    //                 false,
+    //             )
+    //             .unwrap();
+    //         web_sys::console::log_1(&"Shielded parts1".into());
+    //         let _ = &self.namada.shielded_mut().await.load().await?;
+
+    //         let shielded_parts = namada_sdk::tx_unshield::construct_shielded_parts(
+    //             &self.namada,
+    //             transfer_data,
+    //             masp_fee_data,
+    //             !(args.tx.dry_run || args.tx.dry_run_wrapper),
+    //             args.tx.expiration.to_datetime(),
+    //         )
+    //         .await?
+    //         .expect("Shielding transfer must have shielded parts");
+
+    //         web_sys::console::log_1(&"Shielded parts2".into());
+
+    //         let shielded_parts = ShieldedParts(shielded_parts.0, shielded_parts.1);
+
+    //         to_js_result(borsh::to_vec(&shielded_parts)?)
+    //     }
+
+    //     pub async fn build_unshielding_transfer_post(
+    //         &self,
+    //         unshielding_transfer_msg: &[u8],
+    //         wrapper_tx_msg: &[u8],
+    //         shielded_parts: &[u8],
+    //         part_1_data: &[u8],
+    //     ) -> Result<JsValue, JsError> {
+    //         let args = args::unshielding_transfer_tx_args(unshielding_transfer_msg, wrapper_tx_msg)?;
+    //         let part_1_data = Part1Data::try_from_slice(part_1_data)?;
+
+    //         let shielded_parts = ShieldedParts::try_from_slice(shielded_parts)?;
+
+    //         let add_shielded_parts =
+    //             namada_sdk::tx_unshield::add_shielded_parts_fn((shielded_parts.0, shielded_parts.1));
+
+    //         let data = part_1_data.3;
+
+    //         let signing_data = part_1_data.4;
+
+    //         let fee_per_gas_unit = part_1_data.2;
+
+    //         let tx = namada_sdk::tx::build(
+    //             &self.namada,
+    //             &args.tx,
+    //             args.tx_code_path.clone(),
+    //             data,
+    //             add_shielded_parts,
+    //             fee_per_gas_unit,
+    //             &signing_data.fee_payer
+    //         )
+    //         .await?;
+
+    //         self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+    //     }
 
     pub async fn build_shielding_transfer(
         &self,
@@ -522,15 +665,14 @@ impl Sdk {
         target: &str,
         token: String,
         amount: &str,
-        channel_id: &str
+        channel_id: &str,
     ) -> Result<JsValue, JsError> {
         let ledger_address = Url::from_str(&self.rpc_url).expect("RPC URL is a valid URL");
         let target = TransferTarget::PaymentAddress(
-            PaymentAddress::from_str(target).expect("target is a valid shielded address")
+            PaymentAddress::from_str(target).expect("target is a valid shielded address"),
         );
-        let amount = InputAmount::Unvalidated(
-            DenominatedAmount::from_str(amount).expect("amount is valid")
-        );
+        let amount =
+            InputAmount::Unvalidated(DenominatedAmount::from_str(amount).expect("amount is valid"));
         let channel_id = ChannelId::from_str(channel_id).expect("channel ID is valid");
 
         let args = GenIbcShieldingTransfer {
@@ -541,14 +683,16 @@ impl Sdk {
             amount,
             port_id: PortId::transfer(),
             channel_id,
-            expiration: TxExpiration::Default
+            expiration: TxExpiration::Default,
         };
 
         if let Some(masp_tx) = gen_ibc_shielding_transfer(&self.namada, args).await? {
             let memo = convert_masp_tx_to_ibc_memo(&masp_tx);
             to_js_result(memo)
         } else {
-            Err(JsError::new("Generating ibc shielding transfer generated nothing"))
+            Err(JsError::new(
+                "Generating ibc shielding transfer generated nothing",
+            ))
         }
     }
 

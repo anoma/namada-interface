@@ -2,11 +2,11 @@ import { Message } from "./Message";
 import { RoutedMessage } from "./types";
 
 export class MessageRegistry {
-  private registeredMsgType: Map<string, { new (): Message<unknown> }> =
+  private registeredMsgType: Map<string, { new(): Message<unknown> }> =
     new Map();
 
   registerMessage<T = unknown>(
-    msgCls: { new (...args: T[]): Message<unknown> } & { type(): string }
+    msgCls: { new(...args: T[]): Message<unknown> } & { type(): string }
   ): void {
     if (this.registeredMsgType.has(msgCls.type())) {
       throw new Error(`Already registered type ${msgCls.type()}`);
@@ -15,6 +15,7 @@ export class MessageRegistry {
   }
 
   parseMessage(message: RoutedMessage): Message<unknown> {
+    console.log("message", message);
     if (!message.type) {
       throw new Error("Null type");
     }

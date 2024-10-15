@@ -25,12 +25,18 @@ masp_primitives = { git = "https://github.com/anoma/masp", tag = "v1.1.0" }
 orion = "0.16.0"
 password-hash = "0.4.2"
 serde = { version = "1.0.145", features = ["derive"] }
+serde_json = "1.0"
 thiserror = "1.0.30"
 rand = {version = "0.7", features = ["wasm-bindgen"]}
 wasm-bindgen = "0.2.86"
 zeroize = "1.6.0"
 tiny-bip39 = { git = "https://github.com/anoma/tiny-bip39", rev = "743d537349c8deab14409ce726b868dcde90fd8e" }
 slip10_ed25519 = "0.1.3"
+x25519-dalek = { version = "2.0.1", features = ["getrandom", "serde"] }
+aes = "0.8.4"
+hkdf = "0.12"            # For HKDF key derivation
+sha2 = "0.10"            # For SHA-256 hash (used in HKDF)
+console_error_panic_hook = "0.1.6"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"

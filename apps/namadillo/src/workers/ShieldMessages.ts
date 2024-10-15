@@ -4,6 +4,7 @@ import {
   Account,
   ShieldingTransferMsgValue,
   TxResponseMsgValue,
+  UnshieldingTransferMsgValue,
 } from "@namada/types";
 import { EncodedTxData } from "lib/query";
 import { ChainSettings } from "types";
@@ -33,8 +34,22 @@ export type ShieldDone = WebWorkerMessage<
   EncodedTxData<ShieldingTransferMsgValue>
 >;
 
+type UnshieldPayload = {
+  account: Account;
+  gasConfig: {
+    gasLimit: BigNumber;
+    gasPrice: BigNumber;
+  };
+  shieldingProps: UnshieldingTransferMsgValue[];
+  chain: ChainSettings;
+  indexerUrl: string;
+  vks: string[];
+};
+export type Unshield = WebWorkerMessage<"unshield", UnshieldPayload>;
+export type UnshieldDone = WebWorkerMessage<"unshield-done", void>;
+
 type BroadcastPayload = {
-  encodedTx: EncodedTxData<ShieldingTransferMsgValue>;
+  encodedTx: EncodedTxData<unknown>;
   signedTxs: Uint8Array[];
 };
 export type Broadcast = WebWorkerMessage<"broadcast", BroadcastPayload>;
