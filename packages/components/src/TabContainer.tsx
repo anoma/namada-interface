@@ -1,6 +1,5 @@
 import { ActionButton, ActionButtonProps } from "@namada/components";
 import clsx from "clsx";
-import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 type TabContents = {
@@ -11,16 +10,19 @@ type TabContents = {
 type TabContainerProps = {
   id: string;
   title: string;
+  activeTabIndex: number;
+  onChangeActiveTab: (index: number) => void;
   tabs: TabContents[];
 } & ActionButtonProps<"button">;
 
 export const TabContainer = ({
   id,
   title,
+  activeTabIndex,
+  onChangeActiveTab,
   tabs,
   ...buttonProps
 }: TabContainerProps): JSX.Element => {
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
   return (
     <div>
       <div role="tablist" aria-label={title} className="flex">
@@ -32,9 +34,9 @@ export const TabContainer = ({
             aria-selected={activeTabIndex === index}
             aria-controls={`tabpanel-${id}-${index}`}
             tabIndex={activeTabIndex === index ? 0 : -1} // Only the active tab is focusable
-            onClick={() => setActiveTabIndex(index)}
+            onClick={() => onChangeActiveTab(index)}
             size="md"
-            backgroundColor="rblack"
+            backgroundColor="black"
             textHoverColor="white"
             {...buttonProps}
             className={twMerge(
