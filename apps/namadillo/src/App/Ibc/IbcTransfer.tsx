@@ -1,10 +1,9 @@
 import { Window as KeplrWindow } from "@keplr-wallet/types";
-import { Panel } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { TransferModule } from "App/Transfer/TransferModule";
 import BigNumber from "bignumber.js";
 import { wallets } from "integrations";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ChainRegistryEntry, WalletProvider } from "types";
 
 import { allDefaultAccountsAtom } from "atoms/accounts";
@@ -20,6 +19,7 @@ import {
   selectedIBCChainAtom,
 } from "atoms/integrations";
 import { basicConvertToKeplrChain } from "utils/integration";
+import { IbcTopHeader } from "./IbcTopHeader";
 
 const keplr = (window as KeplrWindow).keplr!;
 
@@ -34,11 +34,6 @@ export const IbcTransfer: React.FC = () => {
   const [destinationChannelId, setDestinationChannelId] = useState<string>("");
   const performIbcTransfer = useAtomValue(ibcTransferAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
-
-  useEffect(() => {
-    setSelectedAsset(undefined);
-    chainId && connectToChainId(chainId);
-  }, [chainId]);
 
   const { data: assetsBalances, isLoading: isLoadingBalances } = useAtomValue(
     assetBalanceAtomFamily({
@@ -164,8 +159,9 @@ export const IbcTransfer: React.FC = () => {
   }, [selectedAsset, assetsBalances]);
 
   return (
-    <Panel>
-      <header className="text-center mb-4">
+    <>
+      <header className="flex flex-col items-center text-center mb-3 gap-6">
+        <IbcTopHeader type="ibcToNam" isShielded={shielded} />
         <h2>IBC Transfer to Namada</h2>
       </header>
       <div className="flex flex-col gap-2">
@@ -213,6 +209,6 @@ export const IbcTransfer: React.FC = () => {
         isSubmitting={performIbcTransfer.isPending}
         onSubmitTransfer={onSubmitTransfer}
       />
-    </Panel>
+    </>
   );
 };
