@@ -118,6 +118,7 @@ export class Tx {
     const shieldingTransferMsg = new Message<ShieldingTransferMsgValue>();
 
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);
+
     const encodedTransfer = shieldingTransferMsg.encode(
       new ShieldingTransferMsgValue(shieldingTransferProps)
     );

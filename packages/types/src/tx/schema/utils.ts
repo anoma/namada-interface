@@ -1,5 +1,5 @@
+import { BinaryReader, BinaryWriter } from "@dao-xyz/borsh";
 import BigNumber from "bignumber.js";
-import { BinaryWriter, BinaryReader } from "@dao-xyz/borsh";
 
 export const BigNumberSerializer = {
   serialize: (value: BigNumber, writer: BinaryWriter) => {

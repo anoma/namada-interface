@@ -1,4 +1,5 @@
-import { getIntegration } from "@namada/integrations";
+import { Sdk } from "@heliaxdev/namada-sdk/web";
+import { getIntegration } from "@namada/integrations/utils";
 import {
   Account,
   AccountType,
@@ -10,11 +11,11 @@ import {
 } from "@namada/types";
 import { getIndexerApi } from "atoms/api";
 import { chainParametersAtom } from "atoms/chain";
-import { getSdkInstance } from "hooks";
 import invariant from "invariant";
 import { getDefaultStore } from "jotai";
 import { Address, ChainSettings, GasConfig } from "types";
 import { TransactionEventsClasses } from "types/events";
+import { getSdkInstance } from "utils/sdk";
 
 export type TransactionPair<T> = {
   encodedTxData: EncodedTxData<T>;
@@ -85,19 +86,20 @@ export const isPublicKeyRevealed = async (
  * @param {(WrapperTxProps, T) => Promise<TxMsgValue>} txFn - Function to build each transaction.
  */
 export const buildTx = async <T>(
+  sdk: Sdk,
   account: Account,
   gasConfig: GasConfig,
   chain: ChainSettings,
   queryProps: T[],
-  txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>
+  txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>,
+  publicKeyRevealed: boolean
 ): Promise<EncodedTxData<T>> => {
-  const { tx } = await getSdkInstance();
+  const { tx } = sdk;
   const wrapperTxProps = getTxProps(account, gasConfig, chain);
   const txs: TxMsgValue[] = [];
   const txProps: TxProps[] = [];
 
   // Determine if RevealPK is needed:
-  const publicKeyRevealed = await isPublicKeyRevealed(account.address);
   if (!publicKeyRevealed) {
     const revealPkTx = await tx.buildRevealPk(wrapperTxProps);
     txs.push(revealPkTx);
@@ -115,7 +117,6 @@ export const buildTx = async <T>(
     txProps.push(tx.buildBatch(txs));
   }
 
-  const sdk = await getSdkInstance();
   return {
     txs: txProps.map(({ args, hash, bytes, signingData }) => {
       const innerTxHashes = sdk.tx.getInnerTxHashes(bytes);
@@ -184,12 +185,16 @@ export const buildTxPair = async <T>(
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>,
   owner: string
 ): Promise<TransactionPair<T>> => {
+  const sdk = await getSdkInstance();
+  const publicKeyRevealed = await isPublicKeyRevealed(account.address);
   const encodedTxData = await buildTx<T>(
+    sdk,
     account,
     gasConfig,
     chain,
     queryProps,
-    txFn
+    txFn,
+    publicKeyRevealed
   );
   const signedTxs = await signTx<T>(chain.extensionId, encodedTxData, owner);
   return {

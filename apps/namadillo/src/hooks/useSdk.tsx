@@ -1,9 +1,7 @@
-import initSdk from "@heliaxdev/namada-sdk/inline-init";
-import { getSdk, Sdk } from "@heliaxdev/namada-sdk/web";
+import { Sdk } from "@heliaxdev/namada-sdk/web";
 import { QueryStatus, useQuery } from "@tanstack/react-query";
 import { nativeTokenAddressAtom } from "atoms/chain";
-import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
-import { getDefaultStore, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import {
   createContext,
   FunctionComponent,
@@ -12,6 +10,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { getSdkInstance } from "utils/sdk";
 
 type SdkContext = {
   sdk?: Sdk;
@@ -24,38 +23,6 @@ export const SdkContext = createContext<SdkContext>({
 });
 
 const paramsUrl = "/params/";
-
-const initializeSdk = async (): Promise<Sdk> => {
-  const { cryptoMemory } = await initSdk();
-  const store = getDefaultStore();
-  const rpcUrl = store.get(rpcUrlAtom);
-  const maspIndexerUrl = store.get(maspIndexerUrlAtom);
-  const nativeToken = store.get(nativeTokenAddressAtom);
-
-  if (!nativeToken.isSuccess) {
-    throw "Native token not loaded";
-  }
-
-  const sdk = getSdk(
-    cryptoMemory,
-    rpcUrl,
-    maspIndexerUrl,
-    "",
-    nativeToken.data
-  );
-  return sdk;
-};
-
-// Global instance of initialized SDK
-let sdkInstance: Promise<Sdk>;
-
-// Helper to access SDK instance
-export const getSdkInstance = async (): Promise<Sdk> => {
-  if (!sdkInstance) {
-    sdkInstance = initializeSdk();
-  }
-  return sdkInstance;
-};
 
 export const SdkProvider: FunctionComponent<PropsWithChildren> = ({
   children,

@@ -6,31 +6,18 @@ import {
   useState,
 } from "react";
 
-import { chains } from "@namada/chains";
 import { useUntil } from "@namada/hooks";
-import { Keplr, Metamask, Namada } from "@namada/integrations";
 import { ExtensionKey } from "@namada/types";
+import {
+  IntegrationFromExtensionKey,
+  integrations,
+  Integrations,
+} from "../utils";
 
 type ExtensionConnection<T, U> = (
   onSuccess: () => T,
   onFail?: () => U
 ) => Promise<void>;
-
-type IntegrationFromExtensionKey<K extends ExtensionKey> =
-  K extends "namada" ? Namada
-  : K extends "keplr" ? Keplr
-  : K extends "metamask" ? Metamask
-  : never;
-
-type Integrations = {
-  [K in ExtensionKey]: IntegrationFromExtensionKey<K>;
-};
-
-export const integrations: Integrations = {
-  namada: new Namada(chains.namada),
-  keplr: new Keplr(chains.cosmos),
-  metamask: new Metamask(chains.ethereum),
-};
 
 export const IntegrationsContext = createContext<Integrations>(integrations);
 
@@ -136,16 +123,4 @@ export const useUntilIntegrationAttached = (
  */
 export const getIntegrations = (): Integrations => {
   return integrations;
-};
-
-/**
- * Returns integration by chainId. To be used outside react components.
- *
- * @param {ExtensionKey} extensionKey - Key of the wallet
- * @returns {InstanceType<Integration>} Integration API
- */
-export const getIntegration = <K extends ExtensionKey>(
-  extensionKey: K
-): IntegrationFromExtensionKey<K> => {
-  return integrations[extensionKey];
 };
