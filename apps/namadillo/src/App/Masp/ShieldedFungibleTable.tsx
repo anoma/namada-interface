@@ -1,50 +1,40 @@
+import { Balance } from "@heliaxdev/namada-sdk/web";
 import { ActionButton, TableRow } from "@namada/components";
-import { formatPercentage } from "@namada/utils";
-import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
+import { formatCurrency, formatPercentage } from "@namada/utils";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { routes } from "App/routes";
 import BigNumber from "bignumber.js";
-import { AtomWithQueryResult } from "jotai-tanstack-query";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
-type MockedToken = {
+type TokenRow = {
   name: string;
-  balance: number;
-  dollar: number;
-  ssrRate: number;
+  balance: BigNumber;
+  dollar: BigNumber;
+  ssrRate: BigNumber;
 };
 
-const mockData = (): AtomWithQueryResult<MockedToken[]> =>
-  ({
-    data: [
-      {
-        name: "NAM",
-        balance: 9999.99,
-        dollar: 9999.99,
-        ssrRate: 0.99,
-      },
-      {
-        name: "ATOM",
-        balance: 9999.99,
-        dollar: 9999.99,
-        ssrRate: 0.99,
-      },
-    ],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }) as any;
+const tempTokenMap: Record<string, string> = {
+  tnam1qy440ynh9fwrx8aewjvvmu38zxqgukgc259fzp6h: "NAM",
+};
 
 const resultsPerPage = 100;
 const initialPage = 0;
 
-export const ShieldedFungibleTable = (): JSX.Element => {
+export const ShieldedFungibleTable = ({
+  data,
+}: {
+  data: Balance;
+}): JSX.Element => {
   const [page, setPage] = useState(initialPage);
 
-  // TODO
-  const query = mockData();
-
-  const list = query.data ?? [];
+  const list: TokenRow[] = data.map(([address, amount]) => ({
+    name: tempTokenMap[address] ?? address, // TODO use the implementation from TransferModule
+    balance: new BigNumber(amount),
+    dollar: new BigNumber(0), // TODO
+    ssrRate: new BigNumber(0), // TODO
+  }));
 
   const headers = [
     "Token",
@@ -58,27 +48,27 @@ export const ShieldedFungibleTable = (): JSX.Element => {
     },
   ];
 
-  const renderRow = (token: MockedToken): TableRow => {
+  const renderRow = (token: TokenRow): TableRow => {
     return {
       cells: [
         <div key={`token-${token.name}`} className="flex items-center gap-4">
-          <div
-            className={"aspect-square w-8 rounded-full border border-yellow"}
-          />
+          <div className="aspect-square w-8 rounded-full border border-yellow" />
           {token.name}
         </div>,
         <div
           key={`balance-${token.name}`}
           className="flex flex-col text-right leading-tight"
         >
-          <NamCurrency amount={9999.99} />
-          <span className="text-neutral-600 text-sm">$9999</span>
+          <NamCurrency amount={token.balance} />
+          <span className="text-neutral-600 text-sm">
+            {formatCurrency("USD", token.dollar)}
+          </span>
         </div>,
         <div
           key={`ssr-rate-${token.name}`}
           className="text-right leading-tight"
         >
-          {formatPercentage(new BigNumber(0.99))}
+          {formatPercentage(token.ssrRate)}
         </div>,
         <ActionButton
           key={`unshield-${token.name}`}
@@ -113,11 +103,7 @@ export const ShieldedFungibleTable = (): JSX.Element => {
   const pageCount = Math.ceil(list.length / resultsPerPage);
 
   return (
-    <AtomErrorBoundary
-      result={query}
-      niceError="Unable to load your validators list"
-      containerProps={{ className: "pb-16" }}
-    >
+    <>
       <div className="text-sm font-medium mt-6">
         <span className="text-yellow">{list.length} </span>
         Tokens
@@ -140,6 +126,6 @@ export const ShieldedFungibleTable = (): JSX.Element => {
         }}
         headProps={{ className: "text-neutral-500" }}
       />
-    </AtomErrorBoundary>
+    </>
   );
 };

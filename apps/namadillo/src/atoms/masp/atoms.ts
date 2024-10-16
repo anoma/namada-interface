@@ -7,7 +7,7 @@ import BigNumber from "bignumber.js";
 import { getSdkInstance } from "hooks/useSdk";
 import { atomWithQuery } from "jotai-tanstack-query";
 
-export const viewingKeyAtom = atomWithQuery<string | undefined>((get) => {
+export const viewingKeyAtom = atomWithQuery<string>((get) => {
   const accountsQuery = get(accountsAtom);
   const defaultAccountQuery = get(defaultAccountAtom);
 
@@ -17,7 +17,7 @@ export const viewingKeyAtom = atomWithQuery<string | undefined>((get) => {
       const shieldedAccount = accountsQuery.data?.find(
         (a) => a.isShielded && a.alias === defaultAccountQuery.data?.alias
       );
-      return shieldedAccount?.viewingKey;
+      return shieldedAccount?.viewingKey ?? "";
     }, [accountsQuery, defaultAccountQuery]),
   };
 });

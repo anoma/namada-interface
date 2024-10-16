@@ -1,6 +1,9 @@
-import { ActionButton, Panel } from "@namada/components";
+import { ActionButton, Panel, SkeletonLoading } from "@namada/components";
+import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { routes } from "App/routes";
+import { shieldedBalanceAtom } from "atoms/masp/atoms";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
+import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { ShieldedFungibleTable } from "./ShieldedFungibleTable";
 import { ShieldedNFTTable } from "./ShieldedNFTTable";
@@ -19,11 +22,13 @@ const ShieldAssetCta = (): JSX.Element => {
 
 const AssetTable = (): JSX.Element => {
   const [tab, setTab] = useState(tabs[0]);
+  const query = useAtomValue(shieldedBalanceAtom);
 
-  // TODO
-  const isEmpty = true;
+  if (query.data === undefined) {
+    return <SkeletonLoading height="100%" width="100%" />;
+  }
 
-  if (isEmpty) {
+  if (!query.data.length) {
     return (
       <>
         <div className="bg-gray p-6 rounded-sm text-center font-medium">
@@ -35,7 +40,11 @@ const AssetTable = (): JSX.Element => {
   }
 
   return (
-    <>
+    <AtomErrorBoundary
+      result={query}
+      niceError="Unable to load your shielded balance"
+      containerProps={{ className: "pb-16" }}
+    >
       <div className="flex">
         {tabs.map((name) => {
           const selected = name == tab;
@@ -53,9 +62,9 @@ const AssetTable = (): JSX.Element => {
           );
         })}
       </div>
-      {tab === "Fungible" && <ShieldedFungibleTable />}
+      {tab === "Fungible" && <ShieldedFungibleTable data={query.data} />}
       {tab === "NFT" && <ShieldedNFTTable />}
-    </>
+    </AtomErrorBoundary>
   );
 };
 
