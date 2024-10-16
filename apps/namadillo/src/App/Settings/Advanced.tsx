@@ -1,12 +1,12 @@
-import { ActionButton, Input, Stack } from "@namada/components";
+import { ActionButton, Checkbox, Input, Stack } from "@namada/components";
 import { chainParametersAtom } from "atoms/chain";
 import {
-  indexerUrlAtom,
   maspIndexerUrlAtom,
-  rpcUrlAtom,
+  settingsAtom,
   updateIndexerUrlAtom,
   updateMaspIndexerUrlAtom,
   updateRpcUrlAtom,
+  updateSettingsProps,
 } from "atoms/settings";
 import { useAtom, useAtomValue } from "jotai";
 import { useState } from "react";
@@ -15,16 +15,19 @@ import { useLocation } from "react-router-dom";
 export const Advanced = (): JSX.Element => {
   const location = useLocation();
 
-  const [currentRpc] = useAtom(rpcUrlAtom);
-  const [rpcMutation] = useAtom(updateRpcUrlAtom);
-  const [currentIndexer] = useAtom(indexerUrlAtom);
+  const settings = useAtomValue(settingsAtom);
+  const settingsMutation = useAtomValue(updateSettingsProps);
+  const rpcMutation = useAtomValue(updateRpcUrlAtom);
+  const indexerMutation = useAtomValue(updateIndexerUrlAtom);
   const [currentMaspIndexer] = useAtom(maspIndexerUrlAtom);
-  const [indexerMutation] = useAtom(updateIndexerUrlAtom);
   const [maspIndexerMutation] = useAtom(updateMaspIndexerUrlAtom);
   const { data: chainParameters } = useAtomValue(chainParametersAtom);
 
-  const [rpc, setRpc] = useState(currentRpc);
-  const [indexer, setIndexer] = useState(currentIndexer);
+  const [rpc, setRpc] = useState(settings.rpcUrl || "");
+  const [indexer, setIndexer] = useState(settings.indexerUrl);
+  const [enableTestnets, setTestnetsEnabled] = useState<boolean>(
+    settings.enableTestnets || false
+  );
   const [maspIndexer, setMaspIndexer] = useState(currentMaspIndexer);
 
   const onSubmit = async (e: React.FormEvent): Promise<void> => {
@@ -33,6 +36,10 @@ export const Advanced = (): JSX.Element => {
       await Promise.all([
         rpcMutation.mutateAsync(rpc),
         indexerMutation.mutateAsync(indexer),
+        settingsMutation.mutateAsync({
+          key: "enableTestnets",
+          value: enableTestnets,
+        }),
         maspIndexerMutation.mutateAsync(maspIndexer),
       ]);
       document.location.href =
@@ -103,6 +110,16 @@ export const Advanced = (): JSX.Element => {
           disabled={true}
           className="[&_input]:border-neutral-800"
         />
+        <div className="flex gap-3 items-center">
+          <Checkbox
+            id="testnets-enabled"
+            checked={enableTestnets}
+            onChange={(e) => setTestnetsEnabled(e.target.checked)}
+          />
+          <label htmlFor="testnets-enabled" className="cursor-pointer">
+            Enable Testnets
+          </label>
+        </div>
       </Stack>
       <ActionButton
         className="shrink-0"
