@@ -69,7 +69,7 @@ export const IbcTransfer: React.FC = () => {
     chainId && connectToChainId(chainId);
   }, [chainId]);
 
-  const { data: assetsBalances, isFetching: isFetchingBalances } = useAtomValue(
+  const { data: assetsBalances, isLoading: isLoadingBalances } = useAtomValue(
     assetBalanceAtomFamily({
       chain: registry?.chain,
       assets: registry?.assets,
@@ -189,7 +189,7 @@ export const IbcTransfer: React.FC = () => {
       </header>
       <TransferModule
         source={{
-          isLoadingAssets: isFetchingBalances,
+          isLoadingAssets: isLoadingBalances,
           availableAssets:
             Object.values(assetsBalances || {}).map((el) => el.asset) || [],
           selectedAsset,
