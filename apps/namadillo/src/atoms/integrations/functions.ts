@@ -31,3 +31,13 @@ export const getRandomRpcAddress = (chain: Chain): string => {
     availableRpcs[Math.floor(Math.random() * availableRpcs.length)];
   return randomRpc.address;
 };
+
+export const getRandomRestApiAddress = (chain: Chain): string => {
+  const availableRestApis = chain.apis?.rest;
+  if (!availableRestApis) {
+    throw new Error("There are no available Rest APIs for " + chain.chain_name);
+  }
+  const randomRestApi =
+    availableRestApis[Math.floor(Math.random() * availableRestApis.length)];
+  return randomRestApi.address;
+};

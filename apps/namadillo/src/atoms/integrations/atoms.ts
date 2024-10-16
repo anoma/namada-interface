@@ -65,11 +65,12 @@ export const assetBalanceAtomFamily = atomFamily(
       }, [!!sourceAddress, !!chain]),
     }));
   },
-  (prev, current) =>
-    Boolean(
-      prev.chain &&
-        current.chain &&
-        prev.chain.chain_id === current.chain?.chain_id &&
-        prev.sourceAddress === current.sourceAddress
-    )
+  (prev, current) => {
+    return Boolean(
+      !current.chain ||
+        !current.sourceAddress ||
+        (prev.chain?.chain_id === current.chain?.chain_id &&
+          prev.sourceAddress === current.sourceAddress)
+    );
+  }
 );

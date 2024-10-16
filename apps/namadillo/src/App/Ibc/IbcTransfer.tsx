@@ -31,8 +31,12 @@ import {
   selectedIBCChainAtom,
 } from "atoms/integrations";
 import { settingsAtom } from "atoms/settings";
+import { basicConvertToKeplrChain } from "utils/integration";
 
 const keplr = (window as KeplrWindow).keplr!;
+
+//TODO: we need to find a good way to manage IBC channels
+const namadaChannelId = "channel-4353";
 
 const mainnetChains: Record<string, ChainRegistryEntry> = {
   [celestia.chain.chain_id]: celestia,
@@ -53,63 +57,80 @@ const testnetChains: Record<string, ChainRegistryEntry> = {
 export const IbcTransfer: React.FC = () => {
   const settings = useAtomValue(settingsAtom);
   const [chainId, setChainId] = useAtom(selectedIBCChainAtom);
+  const [registry, setRegistry] = useState<ChainRegistryEntry>();
   const [sourceAddress, setSourceAddress] = useState<string | undefined>();
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAsset, setSelectedAsset] = useState<Asset>();
   const performIbcTransfer = useAtomValue(ibcTransferAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
 
-  const knownChains: Record<string, ChainRegistryEntry> =
-    settings.enableTestnets ?
-      { ...mainnetChains, ...testnetChains }
-    : mainnetChains;
-
-  const registry = useMemo(() => {
-    if (!chainId) return;
-    const entry = Object.values(knownChains).find(
-      (registry: ChainRegistryEntry) => registry.chain.chain_id === chainId
-    );
-    return entry;
+  useEffect(() => {
+    chainId && connectToChainId(chainId);
   }, [chainId]);
 
+  const { data: assetsBalances, isFetching: isFetchingBalances } = useAtomValue(
+    assetBalanceAtomFamily({
+      chain: registry?.chain,
+      assets: registry?.assets,
+      sourceAddress,
+    })
+  );
+
+  const knownChains = useMemo(() => {
+    return settings.enableTestnets ?
+        { ...mainnetChains, ...testnetChains }
+      : mainnetChains;
+  }, [settings.enableTestnets]);
+
   const namadaAddress = useMemo(() => {
-    if (!defaultAccounts.data || defaultAccounts.data.length === 0) {
-      return "";
-    }
     return (
-      defaultAccounts.data.find((account) => account.isShielded === shielded)
+      defaultAccounts.data?.find((account) => account.isShielded === shielded)
         ?.address || ""
     );
   }, [defaultAccounts, shielded]);
 
-  const { data: assetsBalancesData, isFetching: isFetchingBalances } =
-    useAtomValue(
-      assetBalanceAtomFamily({
-        chain: registry?.chain,
-        assets: registry?.assets,
-        sourceAddress,
-      })
-    );
-
-  const assetsBalances = assetsBalancesData || {};
-
   const onChangeWallet = async (wallet: WalletProvider): Promise<void> => {
     if (wallet.id === "keplr") {
-      await keplr.enable(chainId || Object.keys(knownChains)[0]);
-      setChainId(chainId || Object.keys(knownChains)[0]);
+      connectToChainId(chainId || "cosmoshub-4");
+    }
+  };
+
+  const findRegistryByChainId = (
+    chainId: string
+  ): ChainRegistryEntry | undefined => {
+    return Object.values(knownChains).find(
+      (registry: ChainRegistryEntry) => registry.chain.chain_id === chainId
+    );
+  };
+
+  const connectToChainId = async (chainId: string): Promise<void> => {
+    const registry = findRegistryByChainId(chainId);
+    if (registry) {
+      try {
+        await keplr.experimentalSuggestChain(
+          basicConvertToKeplrChain(registry.chain, registry.assets.assets)
+        );
+        await updateAddress();
+        setChainId(registry.chain.chain_id);
+        setRegistry(registry);
+      } catch {
+        // TODO: replace this by an error warning in the component
+        alert("Error connecting to chain");
+      }
     }
   };
 
   const updateAddress = async (): Promise<void> => {
     if (typeof chainId !== "undefined") {
-      const keplrKey = await keplr.getKey(chainId);
-      setSourceAddress(keplrKey.bech32Address);
+      try {
+        const keplrKey = await keplr.getKey(chainId);
+        setSourceAddress(keplrKey.bech32Address);
+      } catch {
+        // TODO: replace this alert by an error warning in the component
+        alert("Error updating address");
+      }
     }
   };
-
-  useEffect(() => {
-    updateAddress();
-  }, [chainId]);
 
   const onSubmitTransfer = (
     amount: BigNumber,
@@ -136,8 +157,6 @@ export const IbcTransfer: React.FC = () => {
       throw new Error("Invalid chain");
     }
 
-    const namadaChannelId = "channel-4353";
-
     performIbcTransfer.mutateAsync({
       chain: registry.chain,
       transferParams: {
@@ -151,6 +170,17 @@ export const IbcTransfer: React.FC = () => {
     });
   };
 
+  const availableAmount = useMemo(() => {
+    if (
+      !selectedAsset ||
+      !assetsBalances ||
+      !(selectedAsset.base in assetsBalances)
+    ) {
+      return undefined;
+    }
+    return assetsBalances[selectedAsset.base].balance;
+  }, [selectedAsset, assetsBalances]);
+
   return (
     <Panel>
       <header className="text-center mb-4">
@@ -160,17 +190,14 @@ export const IbcTransfer: React.FC = () => {
         source={{
           isLoadingAssets: isFetchingBalances,
           availableAssets:
-            Object.values(assetsBalances).map((el) => el.asset) || [],
+            Object.values(assetsBalances || {}).map((el) => el.asset) || [],
           selectedAsset,
           onChangeSelectedAsset: setSelectedAsset,
-          availableAmount:
-            selectedAsset && selectedAsset.base in assetsBalances ?
-              assetsBalances[selectedAsset.base].balance
-            : undefined,
+          availableAmount,
           availableChains: Object.values(knownChains).map(
             (entry) => entry.chain
           ),
-          onChangeChain: (chain) => setChainId(chain.chain_id),
+          onChangeChain: (chain: Chain) => connectToChainId(chain.chain_id),
           chain: mapUndefined((id) => knownChains[id].chain, chainId),
           availableWallets: [wallets.keplr!],
           wallet: wallets.keplr,
