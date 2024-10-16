@@ -6,7 +6,7 @@ import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
 import Long from "long";
 import { workingRpcsAtom } from "./atoms";
-import { getRandomRpcAddress } from "./functions";
+import { getRpcByIndex } from "./functions";
 
 export type IBCTransferParams = {
   signer: OfflineSigner;
@@ -87,14 +87,15 @@ export const submitIbcTransfer =
 
 export const queryAndStoreRpc = async <T>(
   chain: Chain,
-  queryFn: QueryFn<T>
+  queryFn: QueryFn<T>,
+  rpcIndex = 0
 ): Promise<T> => {
   const { get, set } = getDefaultStore();
   const workingRpcs = get(workingRpcsAtom);
   const rpcAddress =
     chain.chain_id in workingRpcs ?
       workingRpcs[chain.chain_id]
-    : getRandomRpcAddress(chain);
+    : getRpcByIndex(chain, rpcIndex);
 
   try {
     const output = await queryFn(rpcAddress);

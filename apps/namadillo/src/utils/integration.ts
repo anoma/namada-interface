@@ -1,9 +1,6 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { Bech32Config, ChainInfo, Currency } from "@keplr-wallet/types";
-import {
-  getRandomRestApiAddress,
-  getRandomRpcAddress,
-} from "atoms/integrations";
+import { getRestApiAddressByIndex, getRpcByIndex } from "atoms/integrations";
 
 type GasPriceStep = {
   low: number;
@@ -50,6 +47,7 @@ const generateBech32Config = (prefix: string): Bech32Config => {
     bech32PrefixConsPub: `${prefix}valconspub`,
   };
 };
+
 // Based on https://github.com/cosmology-tech/chain-registry/tree/main/v2/packages/keplr
 // Following the structure described in https://docs.keplr.app/api/suggest-chain.html
 export const basicConvertToKeplrChain = (
@@ -96,8 +94,8 @@ export const basicConvertToKeplrChain = (
       };
     });
 
-  const rpc = getRandomRpcAddress(chain);
-  const rest = getRandomRestApiAddress(chain);
+  const rpc = getRpcByIndex(chain, 0);
+  const rest = getRestApiAddressByIndex(chain, 0);
   return {
     chainId: chain.chain_id,
     chainName: chain.chain_name,
