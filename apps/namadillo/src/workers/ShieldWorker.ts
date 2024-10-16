@@ -1,9 +1,8 @@
 import { Configuration, DefaultApi } from "@anomaorg/namada-indexer-client";
-import { initMulticore } from "@heliax/namada-sdk/inline-init";
-import * as Comlink from "comlink";
-
-import { getSdk, Sdk } from "@heliax/namada-sdk/web";
+import { initMulticore } from "@heliaxdev/namada-sdk/inline-init";
+import { getSdk, Sdk } from "@heliaxdev/namada-sdk/web";
 import { ShieldingTransferMsgValue, TxResponseMsgValue } from "@namada/types";
+import * as Comlink from "comlink";
 import { buildTx, EncodedTxData } from "lib/query";
 import {
   Broadcast,

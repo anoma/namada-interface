@@ -4,8 +4,8 @@ import { nativeTokenAddressAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
-import { getSdkInstance } from "hooks/useSdk";
 import { atomWithQuery } from "jotai-tanstack-query";
+import { getSdkInstance } from "utils/sdk";
 
 export const viewingKeyAtom = atomWithQuery<string | undefined>((get) => {
   const accountsQuery = get(accountsAtom);

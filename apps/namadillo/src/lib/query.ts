@@ -1,4 +1,4 @@
-import { Sdk } from "@heliax/namada-sdk/web";
+import { Sdk } from "@heliaxdev/namada-sdk/web";
 import { getIntegration } from "@namada/integrations/utils";
 import {
   Account,
