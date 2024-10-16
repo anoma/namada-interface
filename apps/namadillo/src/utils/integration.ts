@@ -10,6 +10,10 @@ type GasPriceStep = {
 
 type GasPriceByDenom = Record<string, GasPriceStep>;
 
+type CurrencyWithGasPriceStep = Currency & {
+  gasPriceStep?: GasPriceStep;
+};
+
 export const assetsToKeplrCurrencies = (assets: Asset[]): Currency[] => {
   return assets.map((asset) => ({
     coinDenom: asset.symbol,
@@ -22,20 +26,18 @@ export const assetsToKeplrCurrencies = (assets: Asset[]): Currency[] => {
   }));
 };
 
-const mapGasPriceByDenom = (chain: Chain): GasPriceByDenom => {
-  return (
-    chain.fees?.fee_tokens?.reduce((m, feeToken) => {
-      return {
-        ...m,
-        [feeToken.denom]: {
-          low: feeToken.low_gas_price ?? 0.01,
-          average: feeToken.average_gas_price ?? 0.025,
-          high: feeToken.high_gas_price ?? 0.04,
-        },
-      };
-    }, {} as GasPriceByDenom) || {}
-  );
-};
+const mapGasPriceByDenom = ({ fees }: Chain): GasPriceByDenom =>
+  fees?.fee_tokens?.reduce(
+    (acc, { denom, low_gas_price, average_gas_price, high_gas_price }) => ({
+      ...acc,
+      [denom]: {
+        low: low_gas_price ?? 0.01,
+        average: average_gas_price ?? 0.025,
+        high: high_gas_price ?? 0.04,
+      },
+    }),
+    {} as GasPriceByDenom
+  ) || {};
 
 const generateBech32Config = (prefix: string): Bech32Config => {
   return {
@@ -48,6 +50,22 @@ const generateBech32Config = (prefix: string): Bech32Config => {
   };
 };
 
+const getRelevantCurrencies = (
+  currencies: Currency[],
+  denoms: string[]
+): Currency[] =>
+  currencies.filter(({ coinMinimalDenom }) =>
+    denoms.includes(coinMinimalDenom)
+  );
+
+const enhanceCurrencyWithGas = (
+  gasPriceSteps: GasPriceByDenom,
+  currency: Currency
+): CurrencyWithGasPriceStep => {
+  const gasPriceStep = gasPriceSteps[currency.coinMinimalDenom];
+  return gasPriceStep ? { ...currency, gasPriceStep } : currency;
+};
+
 // Based on https://github.com/cosmology-tech/chain-registry/tree/main/v2/packages/keplr
 // Following the structure described in https://docs.keplr.app/api/suggest-chain.html
 export const basicConvertToKeplrChain = (
@@ -55,59 +73,37 @@ export const basicConvertToKeplrChain = (
   assets: Asset[]
 ): ChainInfo => {
   const currencies = assetsToKeplrCurrencies(assets);
-  const gasPriceSteps: GasPriceByDenom = mapGasPriceByDenom(chain);
-  const stakingDenoms =
-    chain.staking?.staking_tokens.map((stakingToken) => stakingToken.denom) ||
-    [];
+  const gasPriceSteps = mapGasPriceByDenom(chain);
 
-  const feeDenoms: string[] =
-    chain.fees?.fee_tokens.map((feeToken) => feeToken.denom) || [];
+  const feeTokens = chain.fees?.fee_tokens.map(({ denom }) => denom) || [];
+
+  const stakingTokens =
+    chain.staking?.staking_tokens.map(({ denom }) => denom) || [];
 
   const stakeCurrency =
-    currencies.find((currency) => stakingDenoms.includes(currency.coinDenom)) ??
+    currencies.find(({ coinDenom }) => stakingTokens.includes(coinDenom)) ||
     currencies[0];
 
-  const feeCurrencies: Currency[] = currencies
-    .filter((currency) => feeDenoms.includes(currency.coinMinimalDenom))
-    .map((feeCurrency) => {
-      if (!(feeCurrency.coinMinimalDenom in gasPriceSteps)) {
-        return feeCurrency;
-      }
-      const gasPriceStep = gasPriceSteps[feeCurrency.coinMinimalDenom];
-      return {
-        ...feeCurrency,
-        gasPriceStep,
-      };
-    });
+  const feeCurrencies = getRelevantCurrencies(currencies, feeTokens).map(
+    (currency) => enhanceCurrencyWithGas(gasPriceSteps, currency)
+  );
 
-  const feeCurrenciesDefault: Currency[] = currencies
-    .filter((currency) => stakeCurrency.coinDenom === currency.coinDenom)
-    .map((feeCurrency) => {
-      if (!(feeCurrency.coinMinimalDenom in gasPriceSteps)) {
-        return feeCurrency;
-      }
-      // has gas
-      const gasPriceStep = gasPriceSteps[feeCurrency.coinMinimalDenom];
-      return {
-        ...feeCurrency,
-        gasPriceStep,
-      };
-    });
+  const defaultFeeCurrencies = [stakeCurrency].map((currency) =>
+    enhanceCurrencyWithGas(gasPriceSteps, currency)
+  );
 
   const rpc = getRpcByIndex(chain, 0);
   const rest = getRestApiAddressByIndex(chain, 0);
+
   return {
     chainId: chain.chain_id,
     chainName: chain.chain_name,
     rpc,
     rest,
-    bip44: {
-      coinType: chain.slip44,
-    },
+    bip44: { coinType: chain.slip44 },
     bech32Config: generateBech32Config(chain.bech32_prefix),
     currencies,
     stakeCurrency,
-    feeCurrencies:
-      feeCurrencies.length !== 0 ? feeCurrencies : feeCurrenciesDefault,
+    feeCurrencies: feeCurrencies.length ? feeCurrencies : defaultFeeCurrencies,
   };
 };
