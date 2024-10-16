@@ -29,8 +29,8 @@ export const AccountOverview = (): JSX.Element => {
       <div className={twMerge("flex w-full")}>
         {claimRewardsEnabled ?
           <section className="flex flex-col w-full rounded-sm min-h-full gap-2">
-            <div className="grid grid-cols-[1.25fr_1fr] gap-2">
-              <Panel className="pl-4 pr-6 py-5">
+            <div className="grid sm:grid-cols-[1.25fr_1fr] gap-2">
+              <Panel>
                 <NamBalanceContainer />
               </Panel>
               <Panel>

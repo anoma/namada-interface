@@ -2,6 +2,7 @@ import { SkeletonLoading, Stack, Tooltip } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { namShieldedBalanceAtom, shieldedBalanceAtom } from "atoms/masp/atoms";
+import { applicationFeaturesAtom } from "atoms/settings/atoms";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { GoInfo } from "react-icons/go";
@@ -31,6 +32,7 @@ const AsyncNamCurrency = ({ amount }: { amount?: BigNumber }): JSX.Element => {
 export const ShieldedNamBalance = (): JSX.Element => {
   const shieldedBalanceQuery = useAtomValue(shieldedBalanceAtom);
   const { data: namAmount } = useAtomValue(namShieldedBalanceAtom);
+  const { shieldingRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
 
   return (
     <AtomErrorBoundary
@@ -73,7 +75,9 @@ export const ShieldedNamBalance = (): JSX.Element => {
           className={twMerge(
             "relative",
             "flex flex-col gap-4 justify-between",
-            "rounded-sm bg-neutral-900 p-4 "
+            "rounded-sm bg-neutral-900 p-4",
+            !shieldingRewardsEnabled &&
+              "opacity-25 pointer-events-none select-none"
           )}
         >
           <div className="absolute top-2 right-2 group/tooltip">
@@ -93,14 +97,18 @@ export const ShieldedNamBalance = (): JSX.Element => {
             <br />
             rewards per Epoch
           </div>
-          <AsyncNamCurrency amount={new BigNumber(9999)} />
+          {shieldingRewardsEnabled ?
+            <AsyncNamCurrency amount={new BigNumber(0)} />
+          : <div className="block text-center text-3xl">--</div>}
           <div
             className={twMerge(
               "border border-white rounded-md py-2 max-w-[200px] mx-auto mt-4",
               "text-white text-xs text-center"
             )}
           >
-            Shielding more assets will increase your rewards
+            {shieldingRewardsEnabled ?
+              "Shielding more assets will increase your rewards"
+            : "Shielding Rewards will be enabled in phase 4"}
           </div>
         </div>
       </div>

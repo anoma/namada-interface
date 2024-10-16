@@ -52,7 +52,7 @@ export const totalShieldedBalanceAtom = atomWithQuery<BigNumber>((get) => {
     refetchInterval: enablePolling ? 1000 : false,
     queryKey: ["total-shielded-balance"],
     ...queryDependentFn(async () => {
-      if (!shieldedBalanceQuery.data) {
+      if (!shieldedBalanceQuery.data?.length) {
         return new BigNumber(0);
       }
       // TODO convert to fiat values
@@ -71,7 +71,7 @@ export const namShieldedBalanceAtom = atomWithQuery<BigNumber>((get) => {
     queryKey: ["nam-shielded-balance"],
     ...queryDependentFn(async () => {
       const namTokenAddress = namTokenAddressQuery.data;
-      if (!shieldedBalanceQuery.data || !namTokenAddress) {
+      if (!shieldedBalanceQuery.data?.length || !namTokenAddress) {
         return new BigNumber(0);
       }
       return BigNumber.sum(
