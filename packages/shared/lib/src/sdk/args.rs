@@ -710,6 +710,34 @@ pub struct IbcTransferMsg {
     shielding_data: Option<Vec<u8>>,
 }
 
+impl IbcTransferMsg {
+    pub fn new(
+        source: String,
+        receiver: String,
+        token: String,
+        amount: String,
+        port_id: String,
+        channel_id: String,
+        timeout_height: Option<u64>,
+        timeout_sec_offset: Option<u64>,
+        memo: Option<String>,
+        shielding_data: Option<Vec<u8>>,
+    ) -> IbcTransferMsg {
+        IbcTransferMsg {
+            source,
+            receiver,
+            token,
+            amount,
+            port_id,
+            channel_id,
+            timeout_height,
+            timeout_sec_offset,
+            memo,
+            shielding_data,
+        }
+    }
+}
+
 /// Maps serialized tx_msg into IbcTransferTx args.
 ///
 /// # Arguments
