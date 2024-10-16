@@ -3261,6 +3261,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@keplr-wallet/types@npm:^0.12.136":
+  version: 0.12.136
+  resolution: "@keplr-wallet/types@npm:0.12.136"
+  dependencies:
+    long: "npm:^4.0.0"
+  peerDependencies:
+    starknet: ^6
+  checksum: a2e38b2969eb4115fb0702a240261b845aeed04a3d830213d906d259f61d9c1e69e04c98886d7f9d40e8e73757d8079bd29d2650034c738669c0f2c09c7d2ac1
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/devices@npm:^8.4.2":
   version: 8.4.2
   resolution: "@ledgerhq/devices@npm:8.4.2"
@@ -3658,6 +3669,7 @@ __metadata:
     "@chain-registry/client": "npm:^1.48.80"
     "@cosmjs/encoding": "npm:^0.32.3"
     "@eslint/js": "npm:^9.9.1"
+    "@keplr-wallet/types": "npm:^0.12.136"
     "@playwright/test": "npm:^1.24.1"
     "@release-it/keep-a-changelog": "npm:^5.0.0"
     "@svgr/webpack": "npm:^6.5.1"

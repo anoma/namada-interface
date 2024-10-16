@@ -21,7 +21,10 @@ export const SelectChainModal = ({
   const [filter, setFilter] = useState("");
 
   const filteredChains = useMemo(() => {
-    return chains.filter((chain) => chain.pretty_name.indexOf(filter) >= 0);
+    return chains.filter(
+      (chain) =>
+        chain.pretty_name.toLowerCase().indexOf(filter.toLowerCase()) >= 0
+    );
   }, [chains, filter]);
 
   return (
@@ -55,7 +58,9 @@ export const SelectChainModal = ({
           ))}
         </Stack>
       )}
-      {filteredChains.length === 0 && <p>There are no available chains</p>}
+      {filteredChains.length === 0 && (
+        <p className="py-2 font-light">There are no available chains</p>
+      )}
     </SelectModal>
   );
 };
