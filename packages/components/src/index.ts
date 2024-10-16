@@ -35,6 +35,7 @@ export * from "./StyledSelectBox";
 export * from "./StyledTable";
 export * from "./StyledTableHead";
 export * from "./StyledTableRow";
+export * from "./TabContainer";
 export * from "./Text";
 export * from "./TickedRadioList";
 export * from "./ToggleButton";

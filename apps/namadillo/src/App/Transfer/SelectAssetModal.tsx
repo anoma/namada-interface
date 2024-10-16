@@ -23,7 +23,8 @@ export const SelectAssetModal = ({
   const filteredAssets = useMemo(() => {
     return assets.filter(
       (asset) =>
-        asset.name.indexOf(filter) >= 0 || asset.symbol.indexOf(filter) >= 0
+        asset.name.toLowerCase().indexOf(filter.toLowerCase()) >= 0 ||
+        asset.symbol.toLowerCase().indexOf(filter.toLowerCase()) >= 0
     );
   }, [assets, filter]);
 
@@ -55,6 +56,9 @@ export const SelectAssetModal = ({
             </button>
           </li>
         ))}
+        {filteredAssets.length === 0 && (
+          <p className="py-2 font-light">There are no available assets</p>
+        )}
       </Stack>
     </SelectModal>
   );

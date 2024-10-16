@@ -352,3 +352,64 @@ export const sanitizeUrl = (url: string): string => {
   const trimmedUrl = url.trim();
   return trimmedUrl.endsWith("/") ? trimmedUrl.slice(0, -1) : url;
 };
+
+/**
+ * Searches through an object and creates BigNumbers from any object with
+ * the _isBigNumber property. This is needed because BigNumbers lose their
+ * prototype when sent between extension scripts in Firefox.
+ *
+ * Returns the object with the BigNumbers reconstructed.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const deserializeBigNumbers = (result: any): any => {
+  if (typeof result !== "object" || result === null) {
+    return result;
+  }
+
+  if (result["_isBigNumber"]) {
+    return BigNumber(result as BigNumber.Value);
+  }
+
+  const unseenValues = [result];
+
+  while (unseenValues.length !== 0) {
+    const obj = unseenValues.pop();
+    Object.entries(obj).forEach(([key, value]) => {
+      if (typeof value === "object" && value !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((value as any)["_isBigNumber"]) {
+          obj[key] = BigNumber(value as BigNumber.Value);
+        } else {
+          unseenValues.push(value);
+        }
+      }
+    });
+  }
+
+  return result;
+};
+
+/**
+ * Searches through an object and adds the _isBigNumber key to any BigNumber
+ * values. This key is used by the BigNumber constructor to reconstruct a
+ * BigNumber from a plain object, and is needed because BigNumbers lose their
+ * prototype when sent between extension scripts in Firefox.
+ *
+ * Fixes object in place and returns void.
+ */
+export const serializeBigNumbers = (result: unknown): void => {
+  const unseenValues = [result];
+
+  while (unseenValues.length !== 0) {
+    const value = unseenValues.pop();
+
+    if (typeof value === "object" && value !== null) {
+      if (BigNumber.isBigNumber(value)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (value as any)["_isBigNumber"] = true;
+      } else {
+        unseenValues.push(...Object.values(value));
+      }
+    }
+  }
+};

@@ -1,65 +1,37 @@
-import init, { initMulticore } from "@heliaxdev/namada-sdk/inline-init";
+import { initMulticore } from "@heliaxdev/namada-sdk/inline-init";
+import { getSdk, Sdk } from "@heliaxdev/namada-sdk/web";
+import * as Comlink from "comlink";
+import { Init, InitDone, Sync, SyncDone } from "./ShieldedSyncMessages";
 
-import { getSdk } from "@heliaxdev/namada-sdk/web";
+export class Worker {
+  private sdk: Sdk | undefined;
 
-export type ShiededSyncPayload = {
-  vks: string[];
-  rpcUrl: string;
-  maspIndexerUrl?: string;
-};
-
-export type ShieldedSyncMulticore = {
-  type: "shielded-sync-multicore";
-  payload: ShiededSyncPayload;
-};
-
-export type ShieldedSyncSinglecore = {
-  type: "shielded-sync-singlecore";
-  payload: ShiededSyncPayload;
-};
-
-export type ShieldedSyncMessageType =
-  | ShieldedSyncMulticore
-  | ShieldedSyncSinglecore;
-
-self.onmessage = async (e: MessageEvent<ShieldedSyncMessageType>) => {
-  const { type, payload } = e.data;
-
-  switch (type) {
-    case "shielded-sync-singlecore": {
-      const { cryptoMemory } = await init();
-      //eslint-disable-next-line
-      console.log("Syncing with single core");
-      await shieldedSync(cryptoMemory, payload);
-      break;
-    }
-
-    case "shielded-sync-multicore": {
-      const { cryptoMemory } = await initMulticore();
-      //eslint-disable-next-line
-      console.log("Syncing with multicore");
-      await shieldedSync(cryptoMemory, payload);
-      break;
-    }
-
-    default:
-      throw new Error(`Unknown message type: ${type}`);
+  async init(m: Init): Promise<InitDone> {
+    const { cryptoMemory } = await initMulticore();
+    this.sdk = newSdk(cryptoMemory, m.payload);
+    return { type: "init-done", payload: null };
   }
-};
 
-async function shieldedSync(
+  async sync(m: Sync): Promise<SyncDone> {
+    if (!this.sdk) {
+      throw new Error("SDK is not initialized");
+    }
+
+    await shieldedSync(this.sdk, m.payload);
+    return { type: "sync-done", payload: null };
+  }
+}
+
+function newSdk(
   cryptoMemory: WebAssembly.Memory,
-  payload: ShiededSyncPayload
-): Promise<void> {
-  const { rpcUrl, maspIndexerUrl } = payload;
+  payload: Init["payload"]
+): Sdk {
+  const { rpcUrl, token, maspIndexerUrl } = payload;
+  return getSdk(cryptoMemory, rpcUrl, maspIndexerUrl || "", "", token);
+}
 
-  const sdk = getSdk(
-    cryptoMemory,
-    rpcUrl,
-    maspIndexerUrl || "",
-    "",
-    // Not really used, but required by the SDK, as long as it's valid address it's fine
-    "tnam1qxfj3sf6a0meahdu9t6znp05g8zx4dkjtgyn9gfu"
-  );
+async function shieldedSync(sdk: Sdk, payload: Sync["payload"]): Promise<void> {
   await sdk.rpc.shieldedSync(payload.vks);
 }
+
+Comlink.expose(new Worker());

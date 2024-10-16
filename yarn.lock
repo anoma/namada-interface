@@ -3261,6 +3261,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@keplr-wallet/types@npm:^0.12.136":
+  version: 0.12.136
+  resolution: "@keplr-wallet/types@npm:0.12.136"
+  dependencies:
+    long: "npm:^4.0.0"
+  peerDependencies:
+    starknet: ^6
+  checksum: a2e38b2969eb4115fb0702a240261b845aeed04a3d830213d906d259f61d9c1e69e04c98886d7f9d40e8e73757d8079bd29d2650034c738669c0f2c09c7d2ac1
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/devices@npm:^8.4.2":
   version: 8.4.2
   resolution: "@ledgerhq/devices@npm:8.4.2"
@@ -3658,6 +3669,7 @@ __metadata:
     "@chain-registry/client": "npm:^1.48.80"
     "@cosmjs/encoding": "npm:^0.32.3"
     "@eslint/js": "npm:^9.9.1"
+    "@keplr-wallet/types": "npm:^0.12.136"
     "@playwright/test": "npm:^1.24.1"
     "@release-it/keep-a-changelog": "npm:^5.0.0"
     "@svgr/webpack": "npm:^6.5.1"
@@ -3682,6 +3694,7 @@ __metadata:
     autoprefixer: "npm:^10.4.16"
     bignumber.js: "npm:^9.1.1"
     clsx: "npm:^2.1.1"
+    comlink: "npm:^4.4.1"
     crypto-browserify: "npm:^3.12.0"
     dotenv: "npm:^16.0.3"
     eslint: "npm:^8.57.0"
@@ -8008,6 +8021,13 @@ __metadata:
   dependencies:
     delayed-stream: "npm:~1.0.0"
   checksum: 0dbb829577e1b1e839fa82b40c07ffaf7de8a09b935cadd355a73652ae70a88b4320db322f6634a4ad93424292fa80973ac6480986247f1734a1137debf271d5
+  languageName: node
+  linkType: hard
+
+"comlink@npm:^4.4.1":
+  version: 4.4.1
+  resolution: "comlink@npm:4.4.1"
+  checksum: a7a2004030768d13ec9373f780aa0edae57616095cb453ec8950d9f97e5fa654c0e84030ac87173b818843a04a5fa9ce9749d48b6bd453cfbfb5e6a9ebb6b2ff
   languageName: node
   linkType: hard
 

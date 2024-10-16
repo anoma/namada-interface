@@ -14,6 +14,7 @@ export type TransferSourceProps = {
   wallet?: WalletProvider;
   walletAddress?: string;
   asset?: Asset;
+  isLoadingAssets?: boolean;
   chain?: Chain;
   openChainSelector?: () => void;
   openAssetSelector?: () => void;
@@ -26,6 +27,7 @@ export type TransferSourceProps = {
 export const TransferSource = ({
   chain,
   asset,
+  isLoadingAssets,
   wallet,
   walletAddress,
   openProviderSelector,
@@ -59,6 +61,7 @@ export const TransferSource = ({
         <SelectedAsset
           chain={chain}
           asset={asset}
+          isLoading={isLoadingAssets}
           onClick={openAssetSelector}
         />
         <AmountInput
