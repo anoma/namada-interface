@@ -65,6 +65,7 @@ export const IbcTransfer: React.FC = () => {
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
 
   useEffect(() => {
+    setSelectedAsset(undefined);
     chainId && connectToChainId(chainId);
   }, [chainId]);
 
