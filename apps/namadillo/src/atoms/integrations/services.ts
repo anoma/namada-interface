@@ -3,10 +3,14 @@ import { Coin, OfflineSigner } from "@cosmjs/launchpad";
 import { coin, coins } from "@cosmjs/proto-signing";
 import {
   MsgTransferEncodeObject,
+  QueryClient,
   SigningStargateClient,
   StargateClient,
+  setupIbcExtension,
 } from "@cosmjs/stargate";
+import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import BigNumber from "bignumber.js";
+import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 import { getDefaultStore } from "jotai";
 import { getSdkInstance } from "utils/sdk";
 import { workingRpcsAtom } from "./atoms";
@@ -63,7 +67,33 @@ export const queryAssetBalances = async (
 ): Promise<Coin[]> => {
   const client = await StargateClient.connect(rpc);
   const balances = (await client.getAllBalances(owner)) || [];
-  return balances as Coin[];
+  return await Promise.all(
+    balances.map(async (coin: Coin) => {
+      if (coin.denom.startsWith("ibc/")) {
+        return { ...coin, denom: await ibcAddressToDenom(rpc, coin.denom) };
+      }
+      return coin;
+    })
+  );
+};
+
+const ibcAddressToDenom = async (
+  rpc: string,
+  address: string
+): Promise<string> => {
+  const tmClient = await Tendermint34Client.connect(rpc);
+  const queryClient = new QueryClient(tmClient);
+  const ibcExtension = setupIbcExtension(queryClient);
+  const ibcHash = address.replace("ibc/", "");
+
+  const { denomTrace } = await ibcExtension.ibc.transfer.denomTrace(ibcHash);
+  const baseDenom = denomTrace?.baseDenom;
+
+  if (typeof baseDenom === "undefined") {
+    throw new Error("Couldn't get denom from ibc address");
+  }
+
+  return baseDenom;
 };
 
 export const submitIbcTransfer =
@@ -104,7 +134,7 @@ export const submitIbcTransfer =
 
     const transferMsg: MsgTransferEncodeObject = {
       typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
-      value: {
+      value: MsgTransfer.fromPartial({
         sourcePort: "transfer",
         sourceChannel: sourceChannelId,
         sender: sourceAddress,
@@ -113,7 +143,7 @@ export const submitIbcTransfer =
         timeoutHeight: undefined,
         timeoutTimestamp: timeoutTimestampNanoseconds,
         memo,
-      },
+      }),
     };
 
     const response = await client.signAndBroadcast(
