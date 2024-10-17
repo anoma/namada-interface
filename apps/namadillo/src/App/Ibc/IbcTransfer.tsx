@@ -1,25 +1,26 @@
+import { Asset, Chain } from "@chain-registry/types";
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { mapUndefined } from "@namada/utils";
+import { TransactionTimeline } from "App/Common/TransactionTimeline";
 import { TransferModule } from "App/Transfer/TransferModule";
-import BigNumber from "bignumber.js";
-import { wallets } from "integrations";
-import { useMemo, useState } from "react";
-import { ChainRegistryEntry, WalletProvider } from "types";
-
 import { allDefaultAccountsAtom } from "atoms/accounts";
-
-import { useAtom, useAtomValue } from "jotai";
-import namadaChain from "registry/namada.json";
-
-import { Asset, Chain } from "@chain-registry/types";
 import {
   assetBalanceAtomFamily,
   ibcTransferAtom,
   knownChainsAtom,
   selectedIBCChainAtom,
 } from "atoms/integrations";
+import BigNumber from "bignumber.js";
+import { AnimatePresence, motion } from "framer-motion";
+import { wallets } from "integrations";
+import { useAtom, useAtomValue } from "jotai";
+import { useMemo, useState } from "react";
+import namadaChain from "registry/namada.json";
+import { ChainRegistryEntry, WalletProvider } from "types";
 import { basicConvertToKeplrChain } from "utils/integration";
 import { IbcTopHeader } from "./IbcTopHeader";
+
+import * as cosmos from "chain-registry/mainnet/cosmoshub";
 
 const keplr = (window as KeplrWindow).keplr!;
 
@@ -32,6 +33,7 @@ export const IbcTransfer: React.FC = () => {
   const [selectedAsset, setSelectedAsset] = useState<Asset>();
   const [sourceChannelId, setSourceChannelId] = useState<string>("");
   const [destinationChannelId, setDestinationChannelId] = useState<string>("");
+  const [currentStep, setCurrentStep] = useState(0);
   const performIbcTransfer = useAtomValue(ibcTransferAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
 
@@ -101,50 +103,58 @@ export const IbcTransfer: React.FC = () => {
     }
   };
 
-  const onSubmitTransfer = (
+  const onSubmitTransfer = async (
     amount: BigNumber,
     destinationAddress: string
-  ): void => {
-    if (typeof sourceAddress === "undefined") {
-      throw new Error("Source address is not defined");
-    }
+  ): Promise<void> => {
+    try {
+      setCurrentStep(1);
 
-    if (!chainId) {
-      throw new Error("chain ID is undefined");
-    }
+      if (typeof sourceAddress === "undefined") {
+        throw new Error("Source address is not defined");
+      }
 
-    const rpc = knownChainsMap[chainId]?.chain.apis?.rpc?.[0]?.address;
-    if (typeof rpc === "undefined") {
-      throw new Error("no RPC info for " + chainId);
-    }
+      if (!chainId) {
+        throw new Error("chain ID is undefined");
+      }
 
-    if (!selectedAsset) {
-      throw new Error("no asset is selected");
-    }
+      const rpc = knownChainsMap[chainId]?.chain.apis?.rpc?.[0]?.address;
+      if (typeof rpc === "undefined") {
+        throw new Error("no RPC info for " + chainId);
+      }
 
-    if (!registry) {
-      throw new Error("Invalid chain");
-    }
+      if (!selectedAsset) {
+        throw new Error("no asset is selected");
+      }
 
-    performIbcTransfer.mutateAsync({
-      chain: registry.chain,
-      transferParams: {
-        signer: keplr.getOfflineSigner(registry.chain.chain_id),
-        sourceAddress,
-        destinationAddress,
-        amount,
-        token: selectedAsset.base,
-        sourceChannelId,
-        ...(shielded ?
-          {
-            isShielded: true,
-            destinationChannelId,
-          }
-        : {
-            isShielded: false,
-          }),
-      },
-    });
+      if (!registry) {
+        throw new Error("Invalid chain");
+      }
+
+      const signer = keplr.getOfflineSigner(registry.chain.chain_id);
+      performIbcTransfer.mutateAsync({
+        chain: registry.chain,
+        transferParams: {
+          signer,
+          sourceAddress,
+          destinationAddress,
+          amount,
+          token: selectedAsset.base,
+          sourceChannelId,
+          ...(shielded ?
+            {
+              isShielded: true,
+              destinationChannelId,
+            }
+          : {
+              isShielded: false,
+            }),
+        },
+      });
+      setCurrentStep(2);
+    } catch {
+      setCurrentStep(0);
+    }
   };
 
   const availableAmount = useMemo(() => {
@@ -172,7 +182,6 @@ export const IbcTransfer: React.FC = () => {
           value={sourceChannelId}
           onChange={(e) => setSourceChannelId(e.target.value)}
         />
-
         <input
           className="text-black"
           type="text"
@@ -181,34 +190,79 @@ export const IbcTransfer: React.FC = () => {
           onChange={(e) => setDestinationChannelId(e.target.value)}
         />
       </div>
-      <TransferModule
-        source={{
-          isLoadingAssets: isLoadingBalances,
-          availableAssets:
-            Object.values(assetsBalances || {}).map((el) => el.asset) || [],
-          selectedAsset,
-          onChangeSelectedAsset: setSelectedAsset,
-          availableAmount,
-          availableChains: knownChains.map((entry) => entry.chain),
-          onChangeChain: (chain: Chain) => connectToChainId(chain.chain_id),
-          chain: mapUndefined((id) => knownChainsMap[id].chain, chainId),
-          availableWallets: [wallets.keplr!],
-          wallet: wallets.keplr,
-          walletAddress: sourceAddress,
-          onChangeWallet,
-        }}
-        destination={{
-          chain: namadaChain as Chain,
-          availableWallets: [wallets.namada!],
-          wallet: wallets.namada,
-          walletAddress: namadaAddress,
-          isShielded: shielded,
-          onChangeShielded: setShielded,
-        }}
-        transactionFee={new BigNumber(0.0001) /*TODO: fix this*/}
-        isSubmitting={performIbcTransfer.isPending}
-        onSubmitTransfer={onSubmitTransfer}
-      />
+      <AnimatePresence>
+        {currentStep === 0 && (
+          <motion.div
+            key="transfer"
+            exit={{ opacity: 0 }}
+            className="min-h-[600px]"
+          >
+            <TransferModule
+              source={{
+                isLoadingAssets: isLoadingBalances,
+                availableAssets:
+                  Object.values(assetsBalances || {}).map((el) => el.asset) ||
+                  [],
+                selectedAsset,
+                onChangeSelectedAsset: setSelectedAsset,
+                availableAmount,
+                availableChains: knownChains.map((entry) => entry.chain),
+                onChangeChain: (chain: Chain) =>
+                  connectToChainId(chain.chain_id),
+                chain: mapUndefined((id) => knownChainsMap[id].chain, chainId),
+                availableWallets: [wallets.keplr!],
+                wallet: wallets.keplr,
+                walletAddress: sourceAddress,
+                onChangeWallet,
+              }}
+              destination={{
+                chain: namadaChain as Chain,
+                availableWallets: [wallets.namada!],
+                wallet: wallets.namada,
+                walletAddress: namadaAddress,
+                isShielded: shielded,
+                onChangeShielded: setShielded,
+              }}
+              transactionFee={new BigNumber(0.0001) /*TODO: fix this*/}
+              isSubmitting={performIbcTransfer.isPending}
+              onSubmitTransfer={onSubmitTransfer}
+            />
+          </motion.div>
+        )}
+        {currentStep > 0 && (
+          <motion.div
+            className="my-12"
+            key="progress"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+          >
+            <TransactionTimeline
+              currentStepIndex={currentStep}
+              steps={[
+                {
+                  children: (
+                    <img src={cosmos.chain.logo_URIs?.svg} className="w-14" />
+                  ),
+                },
+                { children: "Signature Required", bullet: true },
+                { children: "IBC Transfer to Namada", bullet: true },
+                {
+                  children: (
+                    <>
+                      <img
+                        src={cosmos.chain.logo_URIs?.svg}
+                        className="w-14 mb-2"
+                      />
+                      Unshielded Transfer Complete
+                    </>
+                  ),
+                },
+              ]}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
