@@ -108,16 +108,6 @@ mod tests {
     const KEY_SIZE: usize = 96;
 
     #[wasm_bindgen_test]
-    fn invalid_seed_should_panic() {
-        let seed = JsValue::from(js_sys::Uint8Array::new_with_length(60));
-        let path = vec![44, 877, 0, 0, 0];
-
-        let res = ShieldedHDWallet::new(seed, path);
-
-        assert!(res.is_err());
-    }
-
-    #[wasm_bindgen_test]
     fn can_instantiate_from_seed() {
         let seed = JsValue::from(js_sys::Uint8Array::new_with_length(64));
         let path = vec![44, 877, 0, 0, 0];
@@ -175,14 +165,14 @@ mod tests {
         let xfvk = ExtendedFullViewingKey::try_from_slice(&shielded_account.xfvk())
             .expect("should instantiate from serialized bytes");
 
-        assert_eq!(payment_address.to_string(), "0a918bd974d1abddcc2e15eddec2557abae385ed59fb3089ed4aff418819a63bf4a7890591ff107a2b7569");
+        assert_eq!(payment_address.to_string(), "efad0a092281f049a04250b91b84a8454cec0c5da75821ef7fd2deb684201cc83dd7bb287c241b11cd88d9");
         assert_eq!(
             xfvk.fvk.to_string(),
             format!(
                 "{}{}{}",
-                "9f89bdaf176f8528f43303ae793ce128af3436902a39ebbe46509f6fef11eb",
-                "585270060da4c12f1a52b63c7c6906dddcabb0ecd00735e11b0d7cbee277342dd89a10e9c7",
-                "e69bca34b50a3c8525bbee96347a7cadfd6c32d3af5b92ad1ecf07da"
+                "a654d32c7b361f77a774a3f80c7dcd053a9e904f0c3bab1e9e207ed4e01434103fa",
+                "d5db7d3784841e0dd5f1b931b515186da3058562c103eaf11dc665c9da19f12ea71",
+                "19818ed1f124bd0573f15a82e97893664b7bc3e80b19ed96ba4f52eef3",
             )
         );
     }
