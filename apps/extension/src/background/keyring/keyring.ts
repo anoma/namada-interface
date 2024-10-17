@@ -201,8 +201,8 @@ export class KeyRing {
       alias,
       address,
       path.account,
-      path.change || 0,
-      path.index || 0,
+      path.change,
+      path.index,
       await this.vaultService.getLength(KEYSTORE_KEY)
     );
 
@@ -235,7 +235,7 @@ export class KeyRing {
     const keysNs = this.sdkService.getSdk().getKeys();
     const { address, privateKey } = keysNs.deriveFromSeed(seed, path);
 
-    const { account, change = 0, index = 0 } = path;
+    const { account, change, index } = path;
     const id = generateId(
       UUID_NAMESPACE,
       "account",
