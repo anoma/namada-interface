@@ -10,6 +10,7 @@ import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import namadaShieldedSvg from "./assets/namada-shielded.svg";
 
 type TokenRow = {
   name: string;
@@ -31,7 +32,7 @@ const namadaAsset: Asset = {
     { denom: "unam", exponent: 0 },
     { denom: "nam", exponent: 0 },
   ],
-  logo_URIs: { svg: "" },
+  logo_URIs: { svg: namadaShieldedSvg },
 };
 
 const traceToDenom = (trace: string): string =>
@@ -125,14 +126,6 @@ export const ShieldedFungibleTable = ({
         >
           Unshield
         </ActionButton>,
-        <div
-          key={`my-validator-currency-${token.name}`}
-          className="text-right leading-tight"
-        >
-          <div
-            className={"aspect-square w-8 rounded-full border border-white"}
-          />
-        </div>,
       ],
     };
   };
