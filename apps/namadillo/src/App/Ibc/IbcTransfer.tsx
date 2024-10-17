@@ -49,6 +49,14 @@ export const IbcTransfer: React.FC = () => {
     })
   );
 
+  const knownChainsMap = useMemo(() => {
+    const map: Record<string, ChainRegistryEntry> = {};
+    knownChains.forEach((chain) => {
+      map[chain.chain.chain_id] = chain;
+    });
+    return map;
+  }, [knownChains]);
+
   const namadaAddress = useMemo(() => {
     return (
       defaultAccounts.data?.find((account) => account.isShielded === shielded)
@@ -65,7 +73,7 @@ export const IbcTransfer: React.FC = () => {
   const findRegistryByChainId = (
     chainId: string
   ): ChainRegistryEntry | undefined => {
-    return Object.values(knownChains).find(
+    return knownChains.find(
       (registry: ChainRegistryEntry) => registry.chain.chain_id === chainId
     );
   };
@@ -111,7 +119,7 @@ export const IbcTransfer: React.FC = () => {
       throw new Error("chain ID is undefined");
     }
 
-    const rpc = knownChains[chainId]?.chain.apis?.rpc?.[0]?.address;
+    const rpc = knownChainsMap[chainId]?.chain.apis?.rpc?.[0]?.address;
     if (typeof rpc === "undefined") {
       throw new Error("no RPC info for " + chainId);
     }
@@ -161,11 +169,9 @@ export const IbcTransfer: React.FC = () => {
           selectedAsset,
           onChangeSelectedAsset: setSelectedAsset,
           availableAmount,
-          availableChains: Object.values(knownChains).map(
-            (entry) => entry.chain
-          ),
+          availableChains: knownChains.map((entry) => entry.chain),
           onChangeChain: (chain: Chain) => connectToChainId(chain.chain_id),
-          chain: mapUndefined((id) => knownChains[id].chain, chainId),
+          chain: mapUndefined((id) => knownChainsMap[id].chain, chainId),
           availableWallets: [wallets.keplr!],
           wallet: wallets.keplr,
           walletAddress: sourceAddress,

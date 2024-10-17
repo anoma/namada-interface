@@ -14,28 +14,28 @@ import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
 import { ChainRegistryEntry } from "types";
 import { AssetWithBalance } from "./services";
 
-const mainnetChains: Record<string, ChainRegistryEntry> = {
-  [celestia.chain.chain_id]: celestia,
-  [cosmos.chain.chain_id]: cosmos,
-  [dydx.chain.chain_id]: dydx,
-  [osmosis.chain.chain_id]: osmosis,
-  [stargaze.chain.chain_id]: stargaze,
-};
+const mainnetChains: ChainRegistryEntry[] = [
+  celestia,
+  cosmos,
+  dydx,
+  osmosis,
+  stargaze,
+];
 
-const testnetChains: Record<string, ChainRegistryEntry> = {
-  [cosmosTestnet.chain.chain_id]: cosmosTestnet,
-  [celestiaTestnet.chain.chain_id]: celestiaTestnet,
-  [dydxTestnet.chain.chain_id]: dydxTestnet,
-  [osmosisTestnet.chain.chain_id]: osmosisTestnet,
-  [stargazeTestnet.chain.chain_id]: stargazeTestnet,
-};
+const testnetChains: ChainRegistryEntry[] = [
+  cosmosTestnet,
+  celestiaTestnet,
+  dydxTestnet,
+  osmosisTestnet,
+  stargazeTestnet,
+];
+
+const mainnetAndTestnetChains = [...mainnetChains, ...testnetChains];
 
 export const getKnownChains = (
   includeTestnets?: boolean
-): Record<string, ChainRegistryEntry> => {
-  return includeTestnets ?
-      { ...mainnetChains, ...testnetChains }
-    : mainnetChains;
+): ChainRegistryEntry[] => {
+  return includeTestnets ? mainnetAndTestnetChains : mainnetChains;
 };
 
 export const mapCoinsToAssets = (

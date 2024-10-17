@@ -58,7 +58,7 @@ export const ShieldedFungibleTable = ({
       // TODO namadaAsset should be returned from knownChains
       nam: namadaAsset,
     };
-    Object.values(knownChains).forEach((chain) => {
+    knownChains.forEach((chain) => {
       chain.assets.assets.forEach((asset) => {
         asset.denom_units.forEach((unit) => {
           denomToAsset[unit.denom] = asset;
