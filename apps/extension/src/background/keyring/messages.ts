@@ -28,6 +28,8 @@ enum MessageType {
   RenameAccount = "rename-account",
   QueryAccountDetails = "query-account-details",
   AppendLedgerSignature = "append-ledger-signature",
+  CloseOffscreenDocument = "close-offscreen-document",
+  GenerateProofCompletedEvent = "generate-proof-completed-event",
 }
 
 export class GenerateMnemonicMsg extends Message<string[]> {
@@ -408,5 +410,55 @@ export class AppendLedgerSignatureMsg extends Message<Uint8Array> {
 
   type(): string {
     return AppendLedgerSignatureMsg.type();
+  }
+}
+
+export class CloseOffscreenDocumentMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.CloseOffscreenDocument;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return CloseOffscreenDocumentMsg.type();
+  }
+}
+
+export class GenerateProofCompletedEvent extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.GenerateProofCompletedEvent;
+  }
+
+  constructor(
+    public readonly success: boolean,
+    public readonly msgId: string,
+    public readonly payload?: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (this.success === undefined) {
+      throw new Error("Success is undefined");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GenerateProofCompletedEvent.type();
   }
 }
