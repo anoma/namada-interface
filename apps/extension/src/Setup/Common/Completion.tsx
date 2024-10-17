@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 
 import { ActionButton, Alert, Loading, ViewKeys } from "@namada/components";
-import { AccountType } from "@namada/types";
+import { AccountType, Bip44Path } from "@namada/types";
 import { assertNever } from "@namada/utils";
 import {
   AccountSecret,
@@ -20,6 +20,7 @@ type Props = {
   accountSecret?: AccountSecret;
   password?: string;
   passwordRequired: boolean | undefined;
+  path: Bip44Path;
 };
 
 enum Status {
@@ -29,7 +30,7 @@ enum Status {
 }
 
 export const Completion: React.FC<Props> = (props) => {
-  const { alias, accountSecret, password, passwordRequired } = props;
+  const { alias, accountSecret, password, passwordRequired, path } = props;
 
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
   const [statusInfo, setStatusInfo] = useState<string>("");
@@ -76,26 +77,31 @@ export const Completion: React.FC<Props> = (props) => {
           : assertNever(accountSecret);
 
         setStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
-        const account = (await requester.sendMessage<SaveAccountSecretMsg>(
-          Ports.Background,
-          new SaveAccountSecretMsg(accountSecret, alias)
-        )) as AccountStore;
+        const storedAccount =
+          (await requester.sendMessage<SaveAccountSecretMsg>(
+            Ports.Background,
+            new SaveAccountSecretMsg(accountSecret, alias, path)
+          )) as AccountStore;
 
-        if (!account) {
+        if (!storedAccount) {
           throw new Error("Background returned failure when creating account");
         }
 
-        setPublicKeyAddress(account.publicKey ?? "");
-        setTransparentAccountAddress(account.address);
+        setPublicKeyAddress(storedAccount.publicKey ?? "");
+        setTransparentAccountAddress(storedAccount.address);
 
-        if (accountSecret.t !== "PrivateKey") {
+        // Do not derive shielded if this is an imported private key, and
+        // ignore accounts with a non-zero 'change' path component:
+        if (accountSecret.t !== "PrivateKey" && path.change === 0) {
           setStatusInfo("Generating Shielded Account");
           const shieldedAccount = await requester.sendMessage<DeriveAccountMsg>(
             Ports.Background,
+            // If this is a default path, don't use zip32 index
+            // TODO: Should we include index of 0 on default path?
             new DeriveAccountMsg(
-              account.path,
+              path,
               AccountType.ShieldedKeys,
-              account.alias
+              storedAccount.alias
             )
           );
           setShieldedAccountAddress(shieldedAccount.address);
