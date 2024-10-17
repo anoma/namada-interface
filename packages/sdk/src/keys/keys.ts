@@ -23,10 +23,6 @@ const DEFAULT_BIP44_PATH: Bip44Path = {
   index: 0,
 };
 
-const DEFAULT_ZIP32_PATH: Bip44Path = {
-  account: 0,
-};
-
 /**
  * Namespace for key related functions
  */
@@ -142,13 +138,17 @@ export class Keys {
    */
   deriveShieldedFromSeed(
     seed: Uint8Array,
-    path: Bip44Path = DEFAULT_ZIP32_PATH,
+    path: Bip44Path = DEFAULT_BIP44_PATH,
     diversifier?: Uint8Array
   ): ShieldedKeys {
-    const zip32 = new ShieldedHDWallet(seed);
+    const shieldedHdWallet = new ShieldedHDWallet(
+      seed,
+      makeBip44PathArray(chains.namada.bip44.coinType, path)
+    );
+    // Zip32 path components
     const { account, index } = path;
-    const derivationPath = makeSaplingPathArray(877, account, index);
-    const derivedAccount = zip32.derive(derivationPath, diversifier);
+    const saplingPath = makeSaplingPathArray(877, account, index);
+    const derivedAccount = shieldedHdWallet.derive(saplingPath, diversifier);
 
     // Retrieve serialized types from wasm
     const xsk = derivedAccount.xsk();
@@ -163,7 +163,7 @@ export class Keys {
     const viewingKey = extendedViewingKey.encode();
 
     // Clear wasm resources from memory
-    zip32.free();
+    shieldedHdWallet.free();
     derivedAccount.free();
     extendedViewingKey.free();
     extendedSpendingKey.free();
