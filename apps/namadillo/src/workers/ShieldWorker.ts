@@ -1,7 +1,11 @@
 import { Configuration, DefaultApi } from "@anomaorg/namada-indexer-client";
 import { initMulticore } from "@heliaxdev/namada-sdk/inline-init";
 import { getSdk, Sdk } from "@heliaxdev/namada-sdk/web";
-import { ShieldingTransferMsgValue, TxResponseMsgValue } from "@namada/types";
+import {
+  ShieldingTransferMsgValue,
+  TxResponseMsgValue,
+  UnshieldingTransferMsgValue,
+} from "@namada/types";
 import * as Comlink from "comlink";
 import { buildTx, EncodedTxData } from "lib/query";
 import {
@@ -11,6 +15,8 @@ import {
   InitDone,
   Shield,
   ShieldDone,
+  Unshield,
+  UnshieldDone,
 } from "./ShieldMessages";
 import { registerBNTransferHandler } from "./utils";
 
@@ -30,6 +36,16 @@ export class Worker {
     return {
       type: "shield-done",
       payload: await shield(this.sdk, m.payload),
+    };
+  }
+
+  async unshield(m: Unshield): Promise<UnshieldDone> {
+    if (!this.sdk) {
+      throw new Error("SDK is not initialized");
+    }
+    return {
+      type: "unshield-done",
+      payload: await unshield(this.sdk, m.payload),
     };
   }
 
@@ -70,6 +86,31 @@ async function shield(
   return encodedTxData;
 }
 
+async function unshield(sdk: Sdk, payload: Unshield["payload"]): Promise<void> {
+  const { indexerUrl, account, gasConfig, chain, shieldingProps } = payload;
+
+  await sdk.masp.loadMaspParams("");
+
+  await sdk.rpc.shieldedSync(payload.vks, [payload.shieldingProps[0].source]);
+  const configuration = new Configuration({ basePath: indexerUrl });
+  const api = new DefaultApi(configuration);
+  const publicKeyRevealed = (
+    await api.apiV1RevealedPublicKeyAddressGet(account.address)
+  ).data.publicKey;
+
+  const encodedTxData = await buildTx<UnshieldingTransferMsgValue>(
+    sdk,
+    account,
+    gasConfig,
+    chain,
+    shieldingProps,
+    sdk.tx.buildUnshieldingTransfer,
+    Boolean(publicKeyRevealed)
+  );
+
+  console.log("encodedTxData", encodedTxData);
+}
+
 // TODO: We will probably move this to the separate worker
 async function broadcast(
   sdk: Sdk,
@@ -102,6 +143,8 @@ function newSdk(
 export const registerTransferHandlers = (): void => {
   registerBNTransferHandler<ShieldDone>("shield-done");
   registerBNTransferHandler<Shield>("shield");
+  registerBNTransferHandler<UnshieldDone>("unshield-done");
+  registerBNTransferHandler<Unshield>("unshield");
   registerBNTransferHandler<Broadcast>("broadcast");
 };
 

@@ -38,6 +38,7 @@ use namada_sdk::tx::{
 use namada_sdk::uint::I256;
 use namada_sdk::wallet::DatedKeypair;
 use namada_sdk::ExtendedViewingKey;
+use namada_sdk::{ExtendedSpendingKey, PaymentAddress};
 use std::collections::BTreeMap;
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
@@ -289,7 +290,11 @@ impl Query {
         Ok(result)
     }
 
-    pub async fn shielded_sync(&self, owners: Box<[JsValue]>) -> Result<(), JsError> {
+    pub async fn shielded_sync(
+        &self,
+        owners: Box<[JsValue]>,
+        sks: Box<[JsValue]>,
+    ) -> Result<(), JsError> {
         let owners: Vec<ViewingKey> = owners
             .iter()
             .filter_map(|owner| owner.as_string())
@@ -300,6 +305,12 @@ impl Query {
             })
             .collect();
 
+        let sks = sks
+            .iter()
+            .filter_map(|owner| owner.as_string())
+            .map(|sk| ExtendedSpendingKey::from_str(&sk).unwrap())
+            .collect::<Vec<_>>();
+
         let dated_keypairs = owners
             .into_iter()
             .map(|vk| DatedKeypair {
@@ -308,14 +319,22 @@ impl Query {
             })
             .collect::<Vec<_>>();
 
+        let dated_sks = sks
+            .into_iter()
+            .map(|sk| DatedKeypair {
+                key: sk,
+                birthday: BlockHeight::from(0),
+            })
+            .collect::<Vec<_>>();
+
         match &self.masp_client {
             MaspClient::Indexer(client) => {
                 web_sys::console::log_1(&"Syncing using IndexerMaspClient".into());
-                self.sync(client.clone(), dated_keypairs).await?
+                self.sync(client.clone(), dated_keypairs, dated_sks).await?
             }
             MaspClient::Ledger(client) => {
                 web_sys::console::log_1(&"Syncing using LedgerMaspClient".into());
-                self.sync(client.clone(), dated_keypairs).await?
+                self.sync(client.clone(), dated_keypairs, dated_sks).await?
             }
         };
 
@@ -326,10 +345,14 @@ impl Query {
         &self,
         client: C,
         dated_keypairs: Vec<DatedKeypair<ViewingKey>>,
+        dated_sks: Vec<DatedKeypair<ExtendedSpendingKey>>,
     ) -> Result<(), JsError>
     where
         C: NamadaMaspClient + Send + Sync + Unpin + 'static,
     {
+        web_sys::console::log_1(&format!("dated_keypairs: {:?}", dated_keypairs).into());
+        web_sys::console::log_1(&format!("dated_sk: {:?}", dated_sks).into());
+
         let progress_bar_1 = sync::ProgressBarWeb {
             total: 0,
             current: 0,
@@ -359,7 +382,13 @@ impl Query {
         let mut shielded_context: ShieldedContext<JSShieldedUtils> = ShieldedContext::default();
 
         shielded_context
-            .sync(env, config, None, &[], dated_keypairs.as_slice())
+            .sync(
+                env,
+                config,
+                None,
+                dated_sks.as_slice(),
+                dated_keypairs.as_slice(),
+            )
             .await
             .map_err(|e| JsError::new(&format!("{:?}", e)))?;
 

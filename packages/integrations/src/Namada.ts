@@ -11,7 +11,7 @@ import { Integration } from "./types/Integration";
 export default class Namada implements Integration<Account, Signer> {
   private _namada: WindowWithNamada["namada"] | undefined;
 
-  constructor(public readonly chain: Chain) {}
+  constructor(public readonly chain: Chain) { }
 
   public get instance(): INamada | undefined {
     return this._namada;
@@ -58,6 +58,10 @@ export default class Namada implements Integration<Account, Signer> {
 
   public async updateDefaultAccount(address: string): Promise<void> {
     return await this._namada?.updateDefaultAccount(address);
+  }
+
+  public async spendingKey(publicKey: number[]): Promise<[Array<number>, Array<number>, Array<number>, Array<number>] | undefined> {
+    return await this._namada?.spendingKey(publicKey);
   }
 
   public signer(): Signer | undefined {

@@ -20,6 +20,7 @@ import {
   UtilityStore,
 } from "./types";
 
+import { SecureMessage } from "@namada/crypto";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
@@ -50,7 +51,7 @@ export class KeyRing {
     protected readonly vaultStorage: VaultStorage,
     protected readonly sdkService: SdkService,
     protected readonly utilityStore: KVStore<UtilityStore>
-  ) {}
+  ) { }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -352,7 +353,7 @@ export class KeyRing {
     const deriveFn = (
       type === AccountType.PrivateKey ?
         this.deriveTransparentAccount
-      : this.deriveShieldedAccount).bind(this);
+        : this.deriveShieldedAccount).bind(this);
 
     const { seed, parentId } = await this.getParentSeed();
     const info = deriveFn(seed, path, parentId);
@@ -455,6 +456,64 @@ export class KeyRing {
         AccountType.Mnemonic
       )) || [];
     return accounts.map((account) => account.public as AccountStore);
+  }
+
+  async www(
+    publicKey: number[]
+  ): Promise<
+    [Array<number>, Array<number>, Array<number>, Array<number>] | undefined
+  > {
+    console.log("publicKey", publicKey);
+    await this.vaultService.assertIsUnlocked();
+    const activeAccount = await this.queryDefaultAccount();
+    console.log("Active account", activeAccount);
+
+    const account = await this.vaultStorage.findOne(
+      KeyStore,
+      "address",
+      activeAccount?.address
+    );
+
+    const accountStore = (await this.queryAllAccounts()).find(
+      (account) => account.address === activeAccount?.address
+    );
+
+    const sensitiveProps =
+      await this.vaultService.reveal<SensitiveAccountStoreData>(
+        account!.sensitive
+      );
+
+    console.log("Sensitive props", sensitiveProps);
+
+    const { text: secret, passphrase } = sensitiveProps!;
+
+    let encryptedSpendingKey;
+
+    if (account!.public.type === AccountType.PrivateKey) {
+      throw new Error("Not supported");
+    } else {
+      const sdk = this.sdkService.getSdk();
+      const mnemonic = sdk.getMnemonic();
+      const seed = mnemonic.toSeed(secret, passphrase);
+
+      const keys = this.sdkService.getSdk().getKeys();
+      const { spendingKey } = keys.deriveShieldedFromSeed(
+        seed,
+        accountStore?.path
+      );
+
+      const sm = new SecureMessage();
+
+      encryptedSpendingKey = sm.encrypt_message(
+        publicKey,
+        new TextEncoder().encode(
+          "zsknam1qwvmw7exqqqqpqpplyzce8st3y5rmcr6c3qjwvka8pp79epj7sfs0tqsk8dnqdtsyagxufsgpcej0ezhhdrlq5auyyd7vpt2305zrdh2l9lygancgd9s0vujvq02r869snefnayuhdawhhy42tax2jezle99prj6wppp9asqtt32me8rq2n3e78dsttxdp486q6wafl2ndfucz4md4uersxhyq7h85zsw35da3zrqul3c8rthsgnhed4chcx3nsjjcslau9e0gad5sqlswxxy"
+        )
+        // new TextEncoder().encode(spendingKey)
+      );
+    }
+
+    return encryptedSpendingKey;
   }
 
   /**

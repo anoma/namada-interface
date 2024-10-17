@@ -168,6 +168,14 @@ export class KeyRingService {
     return await this._keyRing.renameAccount(accountId, alias);
   }
 
+  async spendingKey(
+    publicKey: number[]
+  ): Promise<
+    [Array<number>, Array<number>, Array<number>, Array<number>] | undefined
+  > {
+    return await this._keyRing.www(publicKey);
+  }
+
   async checkDurability(): Promise<boolean> {
     return await IndexedDBKVStore.durabilityCheck();
   }
