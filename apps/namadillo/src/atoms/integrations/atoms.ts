@@ -1,9 +1,11 @@
 import { AssetList, Chain } from "@chain-registry/types";
 import { ExtensionKey } from "@namada/types";
+import { settingsAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
+import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
-import { mapCoinsToAssets } from "./functions";
+import { getKnownChains, mapCoinsToAssets } from "./functions";
 import {
   IBCTransferParams,
   queryAndStoreRpc,
@@ -74,3 +76,8 @@ export const assetBalanceAtomFamily = atomFamily(
     );
   }
 );
+
+export const knownChainsAtom = atom((get) => {
+  const settings = get(settingsAtom);
+  return getKnownChains(settings.enableTestnets);
+});
