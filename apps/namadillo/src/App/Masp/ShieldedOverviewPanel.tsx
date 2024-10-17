@@ -62,7 +62,16 @@ const AssetTable = (): JSX.Element => {
           );
         })}
       </div>
-      {tab === "Fungible" && <ShieldedFungibleTable data={query.data} />}
+      {tab === "Fungible" && (
+        <ShieldedFungibleTable
+          data={[
+            ...query.data,
+            // TODO mock
+            ["tnam1p5nnjnasjtfwen2kzg78fumwfs0eycqpecuc2jwz", "9999.99"],
+            ["unknown", "123.456"],
+          ]}
+        />
+      )}
       {tab === "NFT" && <ShieldedNFTTable />}
     </AtomErrorBoundary>
   );

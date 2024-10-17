@@ -1,26 +1,41 @@
+import { Asset } from "@chain-registry/types";
 import { Balance } from "@heliaxdev/namada-sdk/web";
-import { ActionButton, TableRow } from "@namada/components";
+import { ActionButton, Currency, TableRow } from "@namada/components";
 import { formatCurrency, formatPercentage } from "@namada/utils";
-import { NamCurrency } from "App/Common/NamCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { routes } from "App/routes";
+import { chainTokensAtom } from "atoms/chain";
+import { knownChainsAtom } from "atoms/integrations/atoms";
 import BigNumber from "bignumber.js";
-import { useEffect, useState } from "react";
+import { useAtomValue } from "jotai";
+import { useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 type TokenRow = {
   name: string;
+  icon?: string;
   balance: BigNumber;
   dollar: BigNumber;
   ssrRate: BigNumber;
 };
 
-const tempTokenMap: Record<string, string> = {
-  tnam1qy440ynh9fwrx8aewjvvmu38zxqgukgc259fzp6h: "NAM",
-};
-
 const resultsPerPage = 100;
 const initialPage = 0;
+
+const namadaAsset: Asset = {
+  name: "Namada",
+  base: "unam",
+  display: "nam",
+  symbol: "NAM",
+  denom_units: [
+    { denom: "unam", exponent: 0 },
+    { denom: "nam", exponent: 0 },
+  ],
+  logo_URIs: { svg: "" },
+};
+
+const traceToDenom = (trace: string): string =>
+  trace.split("/").at(-1) ?? trace;
 
 export const ShieldedFungibleTable = ({
   data,
@@ -28,38 +43,69 @@ export const ShieldedFungibleTable = ({
   data: Balance;
 }): JSX.Element => {
   const [page, setPage] = useState(initialPage);
+  const { data: chainTokens } = useAtomValue(chainTokensAtom);
+  const knownChains = useAtomValue(knownChainsAtom);
 
-  const list: TokenRow[] = data.map(([address, amount]) => ({
-    name: tempTokenMap[address] ?? address, // TODO use the implementation from TransferModule
-    balance: new BigNumber(amount),
-    dollar: new BigNumber(0), // TODO
-    ssrRate: new BigNumber(0), // TODO
-  }));
+  const list = useMemo(() => {
+    const addressToDenom: Record<string, string> = {};
+    chainTokens?.forEach((token) => {
+      addressToDenom[token.address] =
+        "trace" in token ? traceToDenom(token.trace) : "nam";
+    });
+
+    const denomToAsset: Record<string, Asset> = {
+      // TODO namadaAsset should be returned from knownChains
+      nam: namadaAsset,
+    };
+    Object.values(knownChains).forEach((chain) => {
+      chain.assets.assets.forEach((asset) => {
+        asset.denom_units.forEach((unit) => {
+          denomToAsset[unit.denom] = asset;
+        });
+      });
+    });
+
+    return data.map(([address, amount]) => {
+      const denom = addressToDenom[address];
+      const asset = denomToAsset[denom];
+      return {
+        name: asset?.symbol ?? "?",
+        icon: asset?.logo_URIs?.svg ?? asset?.logo_URIs?.png,
+        balance: new BigNumber(amount),
+        dollar: new BigNumber(0), // TODO
+        ssrRate: new BigNumber(0), // TODO
+      };
+    });
+  }, [data, chainTokens, knownChains]);
 
   const headers = [
     "Token",
-    {
-      children: "Balance",
-      className: "text-right",
-    },
-    {
-      children: "SSR Rate",
-      className: "text-right",
-    },
+    { children: "Balance", className: "text-right" },
+    { children: "SSR Rate", className: "text-right" },
   ];
 
   const renderRow = (token: TokenRow): TableRow => {
     return {
       cells: [
         <div key={`token-${token.name}`} className="flex items-center gap-4">
-          <div className="aspect-square w-8 rounded-full border border-yellow" />
+          <div className="aspect-square w-8 h-8">
+            {token.icon ?
+              <img src={token.icon} />
+            : <div className="rounded-full h-full border border-white" />}
+          </div>
           {token.name}
         </div>,
         <div
           key={`balance-${token.name}`}
           className="flex flex-col text-right leading-tight"
         >
-          <NamCurrency amount={token.balance} />
+          <Currency
+            amount={token.balance}
+            currency={{ symbol: token.name }}
+            currencyPosition="right"
+            spaceAroundSymbol={true}
+            hideBalances={false}
+          />
           <span className="text-neutral-600 text-sm">
             {formatCurrency("USD", token.dollar)}
           </span>
