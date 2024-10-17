@@ -10,7 +10,11 @@ import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { ChainParameters, ChainSettings } from "types";
 import { calculateUnbondingPeriod } from "./functions";
-import { fetchChainParameters, fetchRpcUrlFromIndexer } from "./services";
+import {
+  fetchChainParameters,
+  fetchChainTokens,
+  fetchRpcUrlFromIndexer,
+} from "./services";
 
 export const chainAtom = atomWithQuery<ChainSettings>((get) => {
   const chainParameters = get(chainParametersAtom);
@@ -48,6 +52,17 @@ export const nativeTokenAddressAtom = atomWithQuery<string>((get) => {
     queryFn: async () => {
       return chain.data!.nativeTokenAddress;
     },
+  };
+});
+
+export const chainTokensAtom = atomWithQuery((get) => {
+  const indexerUrl = get(indexerUrlAtom);
+  const api = get(indexerApiAtom);
+  return {
+    queryKey: ["token-addresses", indexerUrl],
+    staleTime: Infinity,
+    enabled: !!indexerUrl,
+    queryFn: () => fetchChainTokens(api),
   };
 });
 

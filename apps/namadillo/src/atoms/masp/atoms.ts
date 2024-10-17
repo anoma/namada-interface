@@ -1,6 +1,6 @@
 import { Balance } from "@heliaxdev/namada-sdk/web";
 import { accountsAtom, defaultAccountAtom } from "atoms/accounts/atoms";
-import { nativeTokenAddressAtom } from "atoms/chain";
+import { chainTokensAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
@@ -23,24 +23,25 @@ export const viewingKeyAtom = atomWithQuery<string>((get) => {
 });
 
 export const shieldedBalanceAtom = atomWithQuery<Balance>((get) => {
-  const namTokenAddressQuery = get(nativeTokenAddressAtom);
   const viewingKeyQuery = get(viewingKeyAtom);
+  const chainTokensQuery = get(chainTokensAtom);
 
   return {
     queryKey: ["shielded-balance", viewingKeyQuery.data],
     ...queryDependentFn(async () => {
       const viewingKey = viewingKeyQuery.data;
-      const namTokenAddress = namTokenAddressQuery.data;
-      if (!viewingKey || !namTokenAddress) {
+      const chainTokens = chainTokensQuery.data;
+      if (!viewingKey || !chainTokens) {
         return [];
       }
+
       const sdk = await getSdkInstance();
       await sdk.rpc.shieldedSync([viewingKey]);
-      return await sdk.rpc.queryBalance(viewingKey, [
-        // TODO add all token addresses that could be shielded
-        namTokenAddress,
-      ]);
-    }, [namTokenAddressQuery, viewingKeyQuery]),
+      return await sdk.rpc.queryBalance(
+        viewingKey,
+        chainTokens.map((t) => t.address)
+      );
+    }, [viewingKeyQuery, chainTokensQuery]),
   };
 });
 
