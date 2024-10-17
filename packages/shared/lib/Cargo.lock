@@ -2783,6 +2783,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "masp_note_encryption"
+version = "1.0.0"
+source = "git+https://github.com/anoma/masp?rev=2914e6ff9a922bae8f1cb63a79d796a69af3d8aa#2914e6ff9a922bae8f1cb63a79d796a69af3d8aa"
+dependencies = [
+ "borsh",
+ "chacha20",
+ "chacha20poly1305",
+ "cipher",
+ "rand_core 0.6.4",
+ "subtle",
+]
+
+[[package]]
 name = "masp_primitives"
 version = "1.0.0"
 source = "git+https://github.com/anoma/masp?rev=12ed8b060b295c06502a2ff8468e4a941cb7cca4#12ed8b060b295c06502a2ff8468e4a941cb7cca4"
@@ -2802,7 +2815,38 @@ dependencies = [
  "incrementalmerkletree",
  "jubjub 0.10.0 (git+https://github.com/heliaxdev/jubjub.git?rev=a373686962f4e9d0edb3b4716f86ff6bbd9aa86c)",
  "lazy_static",
- "masp_note_encryption",
+ "masp_note_encryption 1.0.0 (git+https://github.com/anoma/masp?rev=12ed8b060b295c06502a2ff8468e4a941cb7cca4)",
+ "memuse",
+ "nonempty",
+ "num-traits 0.2.19 (git+https://github.com/heliaxdev/num-traits?rev=3f3657caa34b8e116fdf3f8a3519c4ac29f012fe)",
+ "rand 0.8.5",
+ "rand_core 0.6.4",
+ "sha2 0.10.8",
+ "subtle",
+ "zcash_encoding",
+]
+
+[[package]]
+name = "masp_primitives"
+version = "1.0.0"
+source = "git+https://github.com/anoma/masp?rev=2914e6ff9a922bae8f1cb63a79d796a69af3d8aa#2914e6ff9a922bae8f1cb63a79d796a69af3d8aa"
+dependencies = [
+ "aes",
+ "bip0039",
+ "bitvec",
+ "blake2b_simd",
+ "blake2s_simd",
+ "bls12_381 0.8.0 (git+https://github.com/heliaxdev/bls12_381.git?rev=d3ebe9dd6488fac1923db120a7498079e55dd838)",
+ "borsh",
+ "byteorder",
+ "ff",
+ "fpe",
+ "group",
+ "hex",
+ "incrementalmerkletree",
+ "jubjub 0.10.0 (git+https://github.com/heliaxdev/jubjub.git?rev=a373686962f4e9d0edb3b4716f86ff6bbd9aa86c)",
+ "lazy_static",
+ "masp_note_encryption 1.0.0 (git+https://github.com/anoma/masp?rev=2914e6ff9a922bae8f1cb63a79d796a69af3d8aa)",
  "memuse",
  "nonempty",
  "num-traits 0.2.19 (git+https://github.com/heliaxdev/num-traits?rev=3f3657caa34b8e116fdf3f8a3519c4ac29f012fe)",
@@ -2816,7 +2860,7 @@ dependencies = [
 [[package]]
 name = "masp_proofs"
 version = "1.0.0"
-source = "git+https://github.com/anoma/masp?rev=12ed8b060b295c06502a2ff8468e4a941cb7cca4#12ed8b060b295c06502a2ff8468e4a941cb7cca4"
+source = "git+https://github.com/anoma/masp?rev=2914e6ff9a922bae8f1cb63a79d796a69af3d8aa#2914e6ff9a922bae8f1cb63a79d796a69af3d8aa"
 dependencies = [
  "bellman",
  "blake2b_simd",
@@ -2827,7 +2871,7 @@ dependencies = [
  "itertools 0.11.0",
  "jubjub 0.10.0 (git+https://github.com/heliaxdev/jubjub.git?rev=a373686962f4e9d0edb3b4716f86ff6bbd9aa86c)",
  "lazy_static",
- "masp_primitives",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=2914e6ff9a922bae8f1cb63a79d796a69af3d8aa)",
  "rand_core 0.6.4",
  "redjubjub",
  "tracing",
@@ -2889,30 +2933,30 @@ version = "0.46.0"
 source = "git+https://github.com/anoma/namada?tag=v0.46.0#cc531ec513b8ade85b221dd0a6c11818927fd247"
 dependencies = [
  "borsh",
- "namada_core 0.46.0",
- "namada_macros 0.46.0",
- "namada_storage 0.46.0",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
+ "namada_storage 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
  "serde",
 ]
 
 [[package]]
 name = "namada_account"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "borsh",
- "namada_core 0.46.1",
- "namada_macros 0.46.1",
- "namada_storage 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_storage 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "serde",
 ]
 
 [[package]]
 name = "namada_controller"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
- "namada_core 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "smooth-operator",
  "thiserror",
 ]
@@ -2937,8 +2981,8 @@ dependencies = [
  "index-set",
  "indexmap 2.2.4",
  "k256",
- "masp_primitives",
- "namada_macros 0.46.0",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=12ed8b060b295c06502a2ff8468e4a941cb7cca4)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
  "num-integer",
  "num-rational",
  "num-traits 0.2.19 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2964,8 +3008,8 @@ dependencies = [
 
 [[package]]
 name = "namada_core"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "bech32 0.8.1",
  "borsh",
@@ -2983,8 +3027,8 @@ dependencies = [
  "indexmap 2.2.4",
  "k256",
  "lazy_static",
- "masp_primitives",
- "namada_macros 0.46.1",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=2914e6ff9a922bae8f1cb63a79d796a69af3d8aa)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "num-integer",
  "num-rational",
  "num-traits 0.2.19 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -3014,24 +3058,24 @@ dependencies = [
 
 [[package]]
 name = "namada_ethereum_bridge"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "borsh",
  "ethers",
  "eyre",
  "itertools 0.12.1",
  "konst",
- "namada_core 0.46.1",
- "namada_events 0.46.1",
- "namada_macros 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_parameters",
  "namada_proof_of_stake",
  "namada_state",
- "namada_storage 0.46.1",
+ "namada_storage 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_systems",
  "namada_trans_token",
- "namada_tx 0.46.1",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_vote_ext",
  "namada_vp_env",
  "serde",
@@ -3046,8 +3090,8 @@ version = "0.46.0"
 source = "git+https://github.com/anoma/namada?tag=v0.46.0#cc531ec513b8ade85b221dd0a6c11818927fd247"
 dependencies = [
  "borsh",
- "namada_core 0.46.0",
- "namada_macros 0.46.0",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
  "serde",
  "serde_json",
  "thiserror",
@@ -3056,12 +3100,12 @@ dependencies = [
 
 [[package]]
 name = "namada_events"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "borsh",
- "namada_core 0.46.1",
- "namada_macros 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "serde",
  "serde_json",
  "thiserror",
@@ -3074,41 +3118,41 @@ version = "0.46.0"
 source = "git+https://github.com/anoma/namada?tag=v0.46.0#cc531ec513b8ade85b221dd0a6c11818927fd247"
 dependencies = [
  "borsh",
- "namada_core 0.46.0",
- "namada_events 0.46.0",
- "namada_macros 0.46.0",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
  "serde",
  "thiserror",
 ]
 
 [[package]]
 name = "namada_gas"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "borsh",
- "namada_core 0.46.1",
- "namada_events 0.46.1",
- "namada_macros 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "serde",
  "thiserror",
 ]
 
 [[package]]
 name = "namada_governance"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "borsh",
  "itertools 0.12.1",
  "konst",
- "namada_account 0.46.1",
- "namada_core 0.46.1",
- "namada_events 0.46.1",
- "namada_macros 0.46.1",
+ "namada_account 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_state",
  "namada_systems",
- "namada_tx 0.46.1",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_vp_env",
  "serde",
  "serde_json",
@@ -3119,8 +3163,8 @@ dependencies = [
 
 [[package]]
 name = "namada_ibc"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "borsh",
  "data-encoding",
@@ -3128,14 +3172,14 @@ dependencies = [
  "ibc-derive",
  "ics23",
  "konst",
- "masp_primitives",
- "namada_core 0.46.1",
- "namada_events 0.46.1",
- "namada_gas 0.46.1",
- "namada_macros 0.46.1",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=2914e6ff9a922bae8f1cb63a79d796a69af3d8aa)",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_gas 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_state",
  "namada_systems",
- "namada_tx 0.46.1",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_vp",
  "primitive-types",
  "prost 0.13.2",
@@ -3149,12 +3193,12 @@ dependencies = [
 
 [[package]]
 name = "namada_io"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "async-trait",
  "kdam",
- "namada_core 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "tendermint-rpc",
  "thiserror",
  "tokio",
@@ -3174,8 +3218,8 @@ dependencies = [
 
 [[package]]
 name = "namada_macros"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "data-encoding",
  "proc-macro2",
@@ -3192,8 +3236,8 @@ dependencies = [
  "borsh",
  "eyre",
  "ics23",
- "namada_core 0.46.0",
- "namada_macros 0.46.0",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
  "prost 0.13.2",
  "sparse-merkle-tree",
  "thiserror",
@@ -3201,14 +3245,14 @@ dependencies = [
 
 [[package]]
 name = "namada_merkle_tree"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "borsh",
  "eyre",
  "ics23",
- "namada_core 0.46.1",
- "namada_macros 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "prost 0.13.2",
  "sparse-merkle-tree",
  "thiserror",
@@ -3216,14 +3260,14 @@ dependencies = [
 
 [[package]]
 name = "namada_parameters"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
- "namada_core 0.46.1",
- "namada_macros 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_state",
  "namada_systems",
- "namada_tx 0.46.1",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_vp_env",
  "smooth-operator",
  "thiserror",
@@ -3231,20 +3275,20 @@ dependencies = [
 
 [[package]]
 name = "namada_proof_of_stake"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "borsh",
  "itertools 0.12.1",
  "konst",
- "namada_account 0.46.1",
+ "namada_account 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_controller",
- "namada_core 0.46.1",
- "namada_events 0.46.1",
- "namada_macros 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_state",
  "namada_systems",
- "namada_tx 0.46.1",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_vp_env",
  "once_cell",
  "serde",
@@ -3258,21 +3302,21 @@ name = "namada_replay_protection"
 version = "0.46.0"
 source = "git+https://github.com/anoma/namada?tag=v0.46.0#cc531ec513b8ade85b221dd0a6c11818927fd247"
 dependencies = [
- "namada_core 0.46.0",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
 ]
 
 [[package]]
 name = "namada_replay_protection"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
- "namada_core 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
 ]
 
 [[package]]
 name = "namada_sdk"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "async-trait",
  "bimap",
@@ -3290,23 +3334,23 @@ dependencies = [
  "init-once",
  "itertools 0.12.1",
  "lazy_static",
- "masp_primitives",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=2914e6ff9a922bae8f1cb63a79d796a69af3d8aa)",
  "masp_proofs",
- "namada_account 0.46.1",
- "namada_core 0.46.1",
+ "namada_account 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_ethereum_bridge",
- "namada_events 0.46.1",
- "namada_gas 0.46.1",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_gas 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_governance",
  "namada_ibc",
  "namada_io",
- "namada_macros 0.46.1",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_parameters",
  "namada_proof_of_stake",
  "namada_state",
- "namada_storage 0.46.1",
+ "namada_storage 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_token",
- "namada_tx 0.46.1",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_vm",
  "namada_vote_ext",
  "namada_vp",
@@ -3340,8 +3384,8 @@ dependencies = [
 
 [[package]]
 name = "namada_shielded_token"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "async-trait",
  "borsh",
@@ -3350,18 +3394,18 @@ dependencies = [
  "futures",
  "itertools 0.12.1",
  "lazy_static",
- "masp_primitives",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=2914e6ff9a922bae8f1cb63a79d796a69af3d8aa)",
  "masp_proofs",
- "namada_account 0.46.1",
+ "namada_account 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_controller",
- "namada_core 0.46.1",
- "namada_events 0.46.1",
- "namada_gas 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_gas 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_io",
- "namada_macros 0.46.1",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_state",
  "namada_systems",
- "namada_tx 0.46.1",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_vp_env",
  "namada_wallet",
  "rand 0.8.5",
@@ -3381,21 +3425,21 @@ dependencies = [
 
 [[package]]
 name = "namada_state"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "borsh",
  "clru",
  "itertools 0.12.1",
- "namada_core 0.46.1",
- "namada_events 0.46.1",
- "namada_gas 0.46.1",
- "namada_macros 0.46.1",
- "namada_merkle_tree 0.46.1",
- "namada_replay_protection 0.46.1",
- "namada_storage 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_gas 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_merkle_tree 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_replay_protection 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_storage 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_systems",
- "namada_tx 0.46.1",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "patricia_tree",
  "smooth-operator",
  "thiserror",
@@ -3409,11 +3453,11 @@ source = "git+https://github.com/anoma/namada?tag=v0.46.0#cc531ec513b8ade85b221d
 dependencies = [
  "borsh",
  "itertools 0.12.1",
- "namada_core 0.46.0",
- "namada_gas 0.46.0",
- "namada_macros 0.46.0",
- "namada_merkle_tree 0.46.0",
- "namada_replay_protection 0.46.0",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
+ "namada_gas 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
+ "namada_merkle_tree 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
+ "namada_replay_protection 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
  "regex",
  "serde",
  "smooth-operator",
@@ -3423,16 +3467,16 @@ dependencies = [
 
 [[package]]
 name = "namada_storage"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "borsh",
  "itertools 0.12.1",
- "namada_core 0.46.1",
- "namada_gas 0.46.1",
- "namada_macros 0.46.1",
- "namada_merkle_tree 0.46.1",
- "namada_replay_protection 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_gas 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_merkle_tree 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_replay_protection 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "regex",
  "serde",
  "smooth-operator",
@@ -3442,43 +3486,43 @@ dependencies = [
 
 [[package]]
 name = "namada_systems"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
- "namada_core 0.46.1",
- "namada_events 0.46.1",
- "namada_storage 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_storage 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
 ]
 
 [[package]]
 name = "namada_token"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "borsh",
- "namada_core 0.46.1",
- "namada_events 0.46.1",
- "namada_macros 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_shielded_token",
- "namada_storage 0.46.1",
+ "namada_storage 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_systems",
  "namada_trans_token",
- "namada_tx 0.46.1",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_tx_env",
  "serde",
 ]
 
 [[package]]
 name = "namada_trans_token"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "konst",
- "namada_core 0.46.1",
- "namada_events 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_state",
  "namada_systems",
- "namada_tx 0.46.1",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_tx_env",
  "namada_vp_env",
  "thiserror",
@@ -3496,12 +3540,12 @@ dependencies = [
  "data-encoding",
  "either",
  "konst",
- "masp_primitives",
- "namada_account 0.46.0",
- "namada_core 0.46.0",
- "namada_events 0.46.0",
- "namada_gas 0.46.0",
- "namada_macros 0.46.0",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=12ed8b060b295c06502a2ff8468e4a941cb7cca4)",
+ "namada_account 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
+ "namada_gas 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
  "num-derive 0.4.2",
  "num-traits 0.2.19 (registry+https://github.com/rust-lang/crates.io-index)",
  "prost 0.13.2",
@@ -3516,8 +3560,8 @@ dependencies = [
 
 [[package]]
 name = "namada_tx"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "ark-bls12-381",
  "bitflags 2.5.0",
@@ -3525,12 +3569,12 @@ dependencies = [
  "data-encoding",
  "either",
  "konst",
- "masp_primitives",
- "namada_account 0.46.1",
- "namada_core 0.46.1",
- "namada_events 0.46.1",
- "namada_gas 0.46.1",
- "namada_macros 0.46.1",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=2914e6ff9a922bae8f1cb63a79d796a69af3d8aa)",
+ "namada_account 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_gas 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "num-derive 0.4.2",
  "num-traits 0.2.19 (registry+https://github.com/rust-lang/crates.io-index)",
  "prost 0.13.2",
@@ -3545,29 +3589,29 @@ dependencies = [
 
 [[package]]
 name = "namada_tx_env"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
- "namada_core 0.46.1",
- "namada_events 0.46.1",
- "namada_storage 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_storage 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
 ]
 
 [[package]]
 name = "namada_vm"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "borsh",
  "clru",
- "namada_account 0.46.1",
- "namada_core 0.46.1",
- "namada_events 0.46.1",
- "namada_gas 0.46.1",
+ "namada_account 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_gas 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_parameters",
  "namada_state",
  "namada_token",
- "namada_tx 0.46.1",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_vp",
  "smooth-operator",
  "thiserror",
@@ -3577,26 +3621,26 @@ dependencies = [
 
 [[package]]
 name = "namada_vote_ext"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "borsh",
- "namada_core 0.46.1",
- "namada_macros 0.46.1",
- "namada_tx 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "serde",
 ]
 
 [[package]]
 name = "namada_vp"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
- "namada_core 0.46.1",
- "namada_events 0.46.1",
- "namada_gas 0.46.1",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_gas 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_state",
- "namada_tx 0.46.1",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_vp_env",
  "smooth-operator",
  "thiserror",
@@ -3605,23 +3649,23 @@ dependencies = [
 
 [[package]]
 name = "namada_vp_env"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "derivative",
- "masp_primitives",
- "namada_core 0.46.1",
- "namada_events 0.46.1",
- "namada_gas 0.46.1",
- "namada_storage 0.46.1",
- "namada_tx 0.46.1",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=2914e6ff9a922bae8f1cb63a79d796a69af3d8aa)",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_events 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_gas 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_storage 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "smooth-operator",
 ]
 
 [[package]]
 name = "namada_wallet"
-version = "0.46.1"
-source = "git+https://github.com/anoma/namada?tag=v0.46.1#b24938efd948cb43fc996a729138cb099abcadc0"
+version = "0.46.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp#79106c5a2632700eda207756df3765c38379f928"
 dependencies = [
  "bimap",
  "borsh",
@@ -3629,10 +3673,10 @@ dependencies = [
  "data-encoding",
  "derivation-path",
  "itertools 0.12.1",
- "masp_primitives",
- "namada_core 0.46.1",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=2914e6ff9a922bae8f1cb63a79d796a69af3d8aa)",
+ "namada_core 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "namada_ibc",
- "namada_macros 0.46.1",
+ "namada_macros 0.46.0 (git+https://github.com/anoma/namada?branch=murisi/integrate-hw-masp)",
  "orion",
  "rand 0.8.5",
  "rand_core 0.6.4",
@@ -5097,7 +5141,7 @@ dependencies = [
  "hex",
  "js-sys",
  "namada_sdk",
- "namada_tx 0.46.0",
+ "namada_tx 0.46.0 (git+https://github.com/anoma/namada?tag=v0.46.0)",
  "rand 0.8.5",
  "rayon",
  "reqwest",

@@ -13,6 +13,7 @@ use crate::utils::set_panic_hook;
 #[cfg(feature = "web")]
 use crate::utils::to_bytes;
 use crate::utils::to_js_result;
+use args::generate_masp_build_params;
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::address::{Address, MASP};
 use namada_sdk::args::{GenIbcShieldingTransfer, InputAmount, Query, TxExpiration};
@@ -40,6 +41,22 @@ use namada_sdk::wallet::{Store, Wallet};
 use namada_sdk::{Namada, NamadaImpl, PaymentAddress, TransferTarget};
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
+
+// Maximum number of spend description randomness parameters that can be
+// generated on the hardware wallet. It is hard to compute the exact required
+// number because a given MASP source could be distributed amongst several
+// notes.
+const MAX_HW_SPEND: usize = 15;
+// Maximum number of convert description randomness parameters that can be
+// generated on the hardware wallet. It is hard to compute the exact required
+// number because the number of conversions that are used depends on the
+// protocol's current state.
+const MAX_HW_CONVERT: usize = 15;
+// Maximum number of output description randomness parameters that can be
+// generated on the hardware wallet. It is hard to compute the exact required
+// number because the number of outputs depends on the number of dummy outputs
+// introduced.
+const MAX_HW_OUTPUT: usize = 15;
 
 /// Represents the Sdk public API.
 #[wasm_bindgen]
@@ -344,7 +361,12 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
         let mut args = args::shielded_transfer_tx_args(shielded_transfer_msg, wrapper_tx_msg)?;
-        let (tx, signing_data) = build_shielded_transfer(&self.namada, &mut args).await?;
+        let mut bparams =
+            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
+                .await?;
+        let (tx, signing_data) =
+            build_shielded_transfer(&self.namada, &mut args, &mut bparams).await?;
+
         self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 
@@ -355,7 +377,11 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let mut args =
             args::unshielding_transfer_tx_args(unshielding_transfer_msg, wrapper_tx_msg)?;
-        let (tx, signing_data) = build_unshielding_transfer(&self.namada, &mut args).await?;
+        let mut bparams =
+            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
+                .await?;
+        let (tx, signing_data) =
+            build_unshielding_transfer(&self.namada, &mut args, &mut bparams).await?;
         self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 
@@ -365,8 +391,11 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
         let mut args = args::shielding_transfer_tx_args(shielding_transfer_msg, wrapper_tx_msg)?;
+        let mut bparams =
+            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
+                .await?;
         let (tx, signing_data, _masp_epoch) =
-            build_shielding_transfer(&self.namada, &mut args).await?;
+            build_shielding_transfer(&self.namada, &mut args, &mut bparams).await?;
         self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 
@@ -376,7 +405,10 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
         let args = args::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg)?;
-        let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args).await?;
+        let mut bparams =
+            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
+                .await?;
+        let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
         self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 
