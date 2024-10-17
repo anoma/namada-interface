@@ -1,4 +1,9 @@
-import { DefaultApi, Parameters } from "@anomaorg/namada-indexer-client";
+import {
+  DefaultApi,
+  IbcToken,
+  NativeToken,
+  Parameters,
+} from "@anomaorg/namada-indexer-client";
 
 export const fetchRpcUrlFromIndexer = async (
   api: DefaultApi
@@ -12,4 +17,10 @@ export const fetchChainParameters = async (
 ): Promise<Parameters> => {
   const parametersResponse = await api.apiV1ChainParametersGet();
   return parametersResponse.data;
+};
+
+export const fetchChainTokens = async (
+  api: DefaultApi
+): Promise<(NativeToken | IbcToken)[]> => {
+  return (await api.apiV1ChainTokenGet()).data;
 };
