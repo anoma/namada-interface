@@ -59,7 +59,7 @@ export const chainTokensAtom = atomWithQuery((get) => {
   const indexerUrl = get(indexerUrlAtom);
   const api = get(indexerApiAtom);
   return {
-    queryKey: ["token-addresses", indexerUrl],
+    queryKey: ["chain-tokens", indexerUrl],
     staleTime: Infinity,
     enabled: !!indexerUrl,
     queryFn: () => fetchChainTokens(api),
