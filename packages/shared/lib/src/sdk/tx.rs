@@ -101,6 +101,7 @@ impl SigningData {
             fee_payer,
             threshold,
             account_public_keys_map,
+            shielded_hash: None,
         })
     }
 }

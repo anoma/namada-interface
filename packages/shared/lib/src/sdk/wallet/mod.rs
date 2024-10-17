@@ -48,7 +48,7 @@ pub fn add_viewing_key<U: WalletIo>(wallet: &mut Wallet<U>, xvk: String, alias: 
 
     if wallet
         .store_mut()
-        .insert_viewing_key::<U>(alias.clone(), xvk, None, true)
+        .insert_viewing_key::<U>(alias.clone(), xvk, None, None, true)
         .is_none()
     {
         panic!("Action cancelled, no changes persisted.");

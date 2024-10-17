@@ -3,8 +3,12 @@ use std::{path::PathBuf, str::FromStr};
 use namada_sdk::borsh::{BorshDeserialize, BorshSerialize};
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::ibc::IbcShieldingData;
-use namada_sdk::tendermint_rpc;
+use namada_sdk::masp_primitives::transaction::components::sapling::builder::{
+    BuildParams, RngBuildParams,
+};
+use namada_sdk::masp_primitives::zip32::PseudoExtendedKey;
 use namada_sdk::tx::data::GasLimit;
+use namada_sdk::PaymentAddress;
 use namada_sdk::{
     address::Address,
     args::{self, InputAmount, TxExpiration},
@@ -14,7 +18,8 @@ use namada_sdk::{
     token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
     TransferSource,
 };
-use namada_sdk::{ExtendedSpendingKey, PaymentAddress};
+use namada_sdk::{error, tendermint_rpc};
+use rand::rngs::OsRng;
 use wasm_bindgen::JsError;
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
@@ -484,7 +489,7 @@ pub fn transparent_transfer_tx_args(
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 #[borsh(crate = "namada_sdk::borsh")]
 pub struct ShieldedTransferDataMsg {
-    source: String,
+    source: Vec<u8>,
     target: String,
     token: String,
     amount: String,
@@ -494,7 +499,7 @@ pub struct ShieldedTransferDataMsg {
 #[borsh(crate = "namada_sdk::borsh")]
 pub struct ShieldedTransferMsg {
     data: Vec<ShieldedTransferDataMsg>,
-    gas_spending_keys: Vec<String>,
+    gas_spending_keys: Vec<Vec<u8>>,
 }
 
 /// Maps serialized tx_msg into TxShieldedTransfer args.
@@ -521,7 +526,7 @@ pub fn shielded_transfer_tx_args(
     let mut shielded_transfer_data: Vec<args::TxShieldedTransferData> = vec![];
 
     for shielded_transfer in data {
-        let source = ExtendedSpendingKey::from_str(&shielded_transfer.source)?;
+        let source = PseudoExtendedKey::try_from_slice(&shielded_transfer.source)?;
         let target = PaymentAddress::from_str(&shielded_transfer.target)?;
         let token = Address::from_str(&shielded_transfer.token)?;
         let denom_amount =
@@ -537,10 +542,10 @@ pub fn shielded_transfer_tx_args(
     }
 
     let tx = tx_msg_into_args(tx_msg)?;
-    let mut gsk: Vec<ExtendedSpendingKey> = vec![];
+    let mut gsk: Vec<PseudoExtendedKey> = vec![];
 
     for sk in gas_spending_keys {
-        let gas_spending_key = ExtendedSpendingKey::from_str(&sk)?;
+        let gas_spending_key = PseudoExtendedKey::try_from_slice(&sk)?;
         gsk.push(gas_spending_key);
     }
 
@@ -629,9 +634,9 @@ pub struct UnshieldingTransferDataMsg {
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 #[borsh(crate = "namada_sdk::borsh")]
 pub struct UnshieldingTransferMsg {
-    source: String,
+    source: Vec<u8>,
     data: Vec<UnshieldingTransferDataMsg>,
-    gas_spending_keys: Vec<String>,
+    gas_spending_keys: Vec<Vec<u8>>,
 }
 
 /// Maps serialized tx_msg into TxUnshieldingTransfer args.
@@ -656,7 +661,7 @@ pub fn unshielding_transfer_tx_args(
         data,
         gas_spending_keys,
     } = unshielding_transfer_msg;
-    let source = ExtendedSpendingKey::from_str(&source)?;
+    let source = PseudoExtendedKey::try_from_slice(&source)?;
 
     let mut unshielding_transfer_data: Vec<args::TxUnshieldingTransferData> = vec![];
 
@@ -674,9 +679,10 @@ pub fn unshielding_transfer_tx_args(
         });
     }
 
-    let mut gsk: Vec<ExtendedSpendingKey> = vec![];
+    let mut gsk: Vec<PseudoExtendedKey> = vec![];
+
     for sk in gas_spending_keys {
-        let gas_spending_key = ExtendedSpendingKey::from_str(&sk)?;
+        let gas_spending_key = PseudoExtendedKey::try_from_slice(&sk)?;
         gsk.push(gas_spending_key);
     }
 
@@ -940,4 +946,21 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
     };
 
     Ok(args)
+}
+
+pub async fn generate_masp_build_params(
+    // TODO: those will be needed for HD Wallet support
+    _spend_len: usize,
+    _convert_len: usize,
+    _output_len: usize,
+    args: &args::Tx,
+) -> Result<Box<dyn BuildParams>, error::Error> {
+    // Construct the build parameters that parameterized the Transaction
+    // authorizations
+    if args.use_device {
+        // HD Wallet support
+        Err(error::Error::Other("Device not supported".into()))
+    } else {
+        Ok(Box::new(RngBuildParams::new(OsRng)))
+    }
 }
