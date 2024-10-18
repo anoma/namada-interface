@@ -1,102 +1,117 @@
+import { Asset } from "@chain-registry/types";
+import { Balance } from "@heliaxdev/namada-sdk/web";
 import { ActionButton, TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
-import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
-import { NamCurrency } from "App/Common/NamCurrency";
+import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
+import { TokenCurrency } from "App/Common/TokenCurrency";
 import { routes } from "App/routes";
+import { chainTokensAtom } from "atoms/chain";
+import { knownChainsAtom } from "atoms/integrations/atoms";
 import BigNumber from "bignumber.js";
-import { AtomWithQueryResult } from "jotai-tanstack-query";
-import { useEffect, useState } from "react";
+import { useAtomValue } from "jotai";
+import { useEffect, useMemo, useState } from "react";
+import { namadaAsset } from "registry/namadaAsset";
+import { unknownAsset } from "registry/unknownAsset";
 import { twMerge } from "tailwind-merge";
 
-type MockedToken = {
+type TokenRow = {
   name: string;
-  balance: number;
-  dollar: number;
-  ssrRate: number;
+  icon?: string;
+  asset: Asset;
+  balance: BigNumber;
+  dollar: BigNumber;
+  ssrRate: BigNumber;
 };
-
-const mockData = (): AtomWithQueryResult<MockedToken[]> =>
-  ({
-    data: [
-      {
-        name: "NAM",
-        balance: 9999.99,
-        dollar: 9999.99,
-        ssrRate: 0.99,
-      },
-      {
-        name: "ATOM",
-        balance: 9999.99,
-        dollar: 9999.99,
-        ssrRate: 0.99,
-      },
-    ],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }) as any;
 
 const resultsPerPage = 100;
 const initialPage = 0;
 
-export const ShieldedFungibleTable = (): JSX.Element => {
+const traceToDenom = (trace: string): string =>
+  trace.split("/").at(-1) ?? trace;
+
+export const ShieldedFungibleTable = ({
+  data,
+}: {
+  data: Balance;
+}): JSX.Element => {
   const [page, setPage] = useState(initialPage);
+  const { data: chainTokens } = useAtomValue(chainTokensAtom);
+  const knownChains = useAtomValue(knownChainsAtom);
 
-  // TODO
-  const query = mockData();
+  const list = useMemo(() => {
+    const addressToDenom: Record<string, string> = {};
+    chainTokens?.forEach((token) => {
+      addressToDenom[token.address] =
+        "trace" in token ? traceToDenom(token.trace) : "nam";
+    });
 
-  const list = query.data ?? [];
+    const denomToAsset: Record<string, Asset> = {
+      // TODO namadaAsset should be returned from knownChains
+      nam: namadaAsset,
+    };
+    knownChains.forEach((chain) => {
+      chain.assets.assets.forEach((asset) => {
+        asset.denom_units.forEach((unit) => {
+          denomToAsset[unit.denom] = asset;
+        });
+      });
+    });
+
+    return data.map(([address, amount]) => {
+      const denom = addressToDenom[address];
+      const asset = denomToAsset[denom] ?? unknownAsset;
+      return {
+        name: asset?.symbol ?? denom ?? "?",
+        icon: asset?.logo_URIs?.svg ?? asset?.logo_URIs?.png,
+        asset,
+        balance: new BigNumber(amount),
+        dollar: new BigNumber(0), // TODO
+        ssrRate: new BigNumber(0), // TODO
+      };
+    });
+  }, [data, chainTokens, knownChains]);
 
   const headers = [
     "Token",
-    {
-      children: "Balance",
-      className: "text-right",
-    },
-    {
-      children: "SSR Rate",
-      className: "text-right",
-    },
+    { children: "Balance", className: "text-right" },
+    { children: "SSR Rate", className: "text-right" },
   ];
 
-  const renderRow = (token: MockedToken): TableRow => {
+  const renderRow = (row: TokenRow): TableRow => {
+    const icon = row.asset.logo_URIs?.svg ?? row.asset.logo_URIs?.png;
     return {
       cells: [
-        <div key={`token-${token.name}`} className="flex items-center gap-4">
-          <div
-            className={"aspect-square w-8 rounded-full border border-yellow"}
-          />
-          {token.name}
+        <div key={`token-${row.name}`} className="flex items-center gap-4">
+          <div className="aspect-square w-8 h-8">
+            {icon ?
+              <img src={icon} />
+            : <div className="rounded-full h-full border border-white" />}
+          </div>
+          {row.name}
         </div>,
         <div
-          key={`balance-${token.name}`}
+          key={`balance-${row.name}`}
           className="flex flex-col text-right leading-tight"
         >
-          <NamCurrency amount={9999.99} />
-          <span className="text-neutral-600 text-sm">$9999</span>
+          <TokenCurrency asset={row.asset} amount={row.balance} />
+          <FiatCurrency
+            className="text-neutral-600 text-sm"
+            amount={row.dollar}
+          />
         </div>,
-        <div
-          key={`ssr-rate-${token.name}`}
-          className="text-right leading-tight"
-        >
-          {formatPercentage(new BigNumber(0.99))}
+        <div key={`ssr-rate-${row.name}`} className="text-right leading-tight">
+          {formatPercentage(row.ssrRate)}
         </div>,
         <ActionButton
-          key={`unshield-${token.name}`}
+          key={`unshield-${row.name}`}
           size="xs"
           outlineColor="white"
           className="w-fit mx-auto"
-          href={token.name === "NAM" ? routes.maspUnshield : routes.ibcWithdraw}
+          href={row.name === "NAM" ? routes.maspUnshield : routes.ibcWithdraw}
         >
           Unshield
         </ActionButton>,
-        <div
-          key={`my-validator-currency-${token.name}`}
-          className="text-right leading-tight"
-        >
-          <div
-            className={"aspect-square w-8 rounded-full border border-white"}
-          />
-        </div>,
       ],
     };
   };
@@ -113,11 +128,7 @@ export const ShieldedFungibleTable = (): JSX.Element => {
   const pageCount = Math.ceil(list.length / resultsPerPage);
 
   return (
-    <AtomErrorBoundary
-      result={query}
-      niceError="Unable to load your validators list"
-      containerProps={{ className: "pb-16" }}
-    >
+    <>
       <div className="text-sm font-medium mt-6">
         <span className="text-yellow">{list.length} </span>
         Tokens
@@ -140,6 +151,6 @@ export const ShieldedFungibleTable = (): JSX.Element => {
         }}
         headProps={{ className: "text-neutral-500" }}
       />
-    </AtomErrorBoundary>
+    </>
   );
 };
