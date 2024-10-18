@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
 import arrowImage from "./assets/arrow.svg";
 import ibcImage from "./assets/ibc.png";
 import shieldedNamImage from "./assets/shielded-account.png";
@@ -22,13 +23,23 @@ export const IbcTopHeader = ({
 
   return (
     <span className={"flex items-center gap-3 h-10"}>
-      <img src={images[0]} alt="" className="w-5" />
+      <img
+        src={images[0]}
+        alt=""
+        className={twMerge(
+          clsx("w-5", {
+            "w-9 -mx-2": isShielded && type === "namToIbc",
+          })
+        )}
+      />
       <img src={arrowImage} alt="" />
-      <img src={images[1]} alt="" className="w-7" />
+      <img src={images[1]} alt="" className="w-10" />
       <img src={arrowImage} alt="" />
       <img
         src={images[2]}
-        className={clsx({ "w-9 -mx-2": isShielded, "w-5": !isShielded })}
+        className={twMerge(
+          clsx("w-5", { "w-9 -mx-2": isShielded && type === "ibcToNam" })
+        )}
         alt=""
       />
     </span>

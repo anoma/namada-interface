@@ -1,6 +1,7 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { Bech32Config, ChainInfo, Currency } from "@keplr-wallet/types";
 import { getRestApiAddressByIndex, getRpcByIndex } from "atoms/integrations";
+import { ChainRegistryEntry } from "types";
 
 type GasPriceStep = {
   low: number;
@@ -12,6 +13,15 @@ type GasPriceByDenom = Record<string, GasPriceStep>;
 
 type CurrencyWithGasPriceStep = Currency & {
   gasPriceStep?: GasPriceStep;
+};
+
+export const findRegistryByChainId = (
+  knownChains: Record<string, ChainRegistryEntry>,
+  chainId: string
+): ChainRegistryEntry | undefined => {
+  return Object.values(knownChains).find(
+    (registry: ChainRegistryEntry) => registry.chain.chain_id === chainId
+  );
 };
 
 export const assetsToKeplrCurrencies = (assets: Asset[]): Currency[] => {
