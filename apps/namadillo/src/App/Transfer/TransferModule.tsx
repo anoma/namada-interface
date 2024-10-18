@@ -181,6 +181,7 @@ export const TransferModule = ({
               : undefined
             }
             customAddressActive={customAddressActive}
+            openProviderSelector={onChangeWallet(destination)}
             onChangeAddress={setCustomAddress}
             memo={memo}
             onChangeMemo={setMemo}

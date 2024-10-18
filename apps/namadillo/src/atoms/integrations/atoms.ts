@@ -21,7 +21,7 @@ type IBCTransferAtomParams = {
 type AssetBalanceAtomParams = {
   chain?: Chain;
   assets?: AssetList;
-  sourceAddress?: string;
+  walletAddress?: string;
 };
 
 // Currently we're just integrating with Keplr, but in the future we might use different wallets
@@ -53,26 +53,26 @@ export const ibcTransferAtom = atomWithMutation(() => {
 });
 
 export const assetBalanceAtomFamily = atomFamily(
-  ({ chain, sourceAddress, assets }: AssetBalanceAtomParams) => {
+  ({ chain, walletAddress, assets }: AssetBalanceAtomParams) => {
     return atomWithQuery(() => ({
-      queryKey: ["assets", sourceAddress, chain?.chain_id, assets],
+      queryKey: ["assets", walletAddress, chain?.chain_id, assets],
       ...queryDependentFn(async () => {
         const assetsBalances = await queryAndStoreRpc(
           chain!,
           async (rpc: string) => {
-            return await queryAssetBalances(sourceAddress!, rpc);
+            return await queryAssetBalances(walletAddress!, rpc);
           }
         );
         return mapCoinsToAssets(assetsBalances, assets!);
-      }, [!!sourceAddress, !!chain]),
+      }, [!!walletAddress, !!chain]),
     }));
   },
   (prev, current) => {
     return Boolean(
       !current.chain ||
-        !current.sourceAddress ||
+        !current.walletAddress ||
         (prev.chain?.chain_id === current.chain?.chain_id &&
-          prev.sourceAddress === current.sourceAddress)
+          prev.walletAddress === current.walletAddress)
     );
   }
 );
