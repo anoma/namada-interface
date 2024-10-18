@@ -14,7 +14,11 @@ const Bip39PassphraseForm: React.FC<Props> = ({
   return (
     <div className="mb-2 [&_input]:w-[92%]">
       <div className="my-3">
-        <Alert type={"warning"} title={"Please note"} className="mb-3">
+        <Alert
+          type={"info"}
+          title={"Please note"}
+          className="mb-3 [&_strong]:normal-case"
+        >
           <Stack gap={6}>
             <p className="text-[13px] leading-[1.25] text-white">
               This import option is only users who have created a Namada account
