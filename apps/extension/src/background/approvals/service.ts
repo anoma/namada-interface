@@ -184,19 +184,34 @@ export class ApprovalsService {
     resolvers.reject(new Error("Sign Tx rejected"));
   }
 
-  async isConnectionApproved(interfaceOrigin: string): Promise<boolean> {
+  async isConnectionApproved(
+    interfaceOrigin: string,
+    chainId: string
+  ): Promise<boolean> {
     const approvedOrigins =
       (await this.localStorage.getApprovedOrigins()) || [];
+
+    const chain = await this.chainService.getChain();
+    if (chain.chainId !== chainId) {
+      return false;
+    }
 
     return approvedOrigins.includes(interfaceOrigin);
   }
 
-  async approveConnection(interfaceOrigin: string): Promise<void> {
-    const alreadyApproved = await this.isConnectionApproved(interfaceOrigin);
+  async approveConnection(
+    interfaceOrigin: string,
+    chainId: string
+  ): Promise<void> {
+    const alreadyApproved = await this.isConnectionApproved(
+      interfaceOrigin,
+      chainId
+    );
 
     if (!alreadyApproved) {
       return this.launchApprovalPopup(TopLevelRoute.ApproveConnection, {
         interfaceOrigin,
+        chainId,
       });
     }
 
@@ -207,6 +222,7 @@ export class ApprovalsService {
   async approveConnectionResponse(
     popupTabId: number,
     interfaceOrigin: string,
+    chainId: string,
     allowConnection: boolean
   ): Promise<void> {
     const resolvers = this.getResolver(popupTabId);
@@ -214,6 +230,8 @@ export class ApprovalsService {
     if (allowConnection) {
       try {
         await this.localStorage.addApprovedOrigin(interfaceOrigin);
+        // Enable signing for this chain
+        await this.chainService.updateChain(chainId);
       } catch (e) {
         resolvers.reject(e);
       }
@@ -223,8 +241,14 @@ export class ApprovalsService {
     }
   }
 
-  async approveDisconnection(interfaceOrigin: string): Promise<void> {
-    const isConnected = await this.isConnectionApproved(interfaceOrigin);
+  async approveDisconnection(
+    interfaceOrigin: string,
+    chainId: string
+  ): Promise<void> {
+    const isConnected = await this.isConnectionApproved(
+      interfaceOrigin,
+      chainId
+    );
 
     if (isConnected) {
       return this.launchApprovalPopup(TopLevelRoute.ApproveDisconnection, {

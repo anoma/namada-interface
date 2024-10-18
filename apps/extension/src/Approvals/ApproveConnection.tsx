@@ -10,12 +10,17 @@ export const ApproveConnection: React.FC = () => {
   const requester = useRequester();
   const params = useQuery();
   const interfaceOrigin = params.get("interfaceOrigin");
+  const chainId = params.get("chainId")!;
 
   const handleResponse = async (allowConnection: boolean): Promise<void> => {
     if (interfaceOrigin) {
       await requester.sendMessage(
         Ports.Background,
-        new ConnectInterfaceResponseMsg(interfaceOrigin, allowConnection)
+        new ConnectInterfaceResponseMsg(
+          interfaceOrigin,
+          chainId,
+          allowConnection
+        )
       );
       await closeCurrentTab();
     }
@@ -26,7 +31,8 @@ export const ApproveConnection: React.FC = () => {
       <PageHeader title="Approve Request" />
       <Stack full className="justify-between" gap={12}>
         <Alert type="warning">
-          Approve connection for <strong>{interfaceOrigin}</strong>?
+          Approve connection for <strong>{interfaceOrigin}</strong> and enable
+          signing for <strong>{chainId}</strong>?
         </Alert>
         <Stack gap={2}>
           <ActionButton onClick={() => handleResponse(true)}>
