@@ -1,6 +1,8 @@
-import { LinkButton, Stack } from "@namada/components";
+import { Alert, LinkButton, Stack } from "@namada/components";
 import { Bip44Path } from "@namada/types";
+import clsx from "clsx";
 import React, { useState } from "react";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Bip39PassphraseForm from "./Bip39PassphraseForm";
 import Bip44Form from "./Bip44Form";
 
@@ -24,6 +26,15 @@ export const AdvancedOptionsMenu: React.FC<Props> = ({
   setPath,
 }) => {
   const [option, setOption] = useState(Option.Menu);
+  const menuText: Record<Option, string> = {
+    [Option.Menu]: "",
+    [Option.Path]: "Set Custom Derivation Path",
+    [Option.Passphrase]: "Import with BIP39 Passphrase",
+  };
+
+  const menuItemStyle =
+    "relative flex flex-row p-4 pb-4 rounded-md bg-gray text-white block";
+
   return (
     <>
       {option === Option.Menu && (
@@ -31,37 +42,57 @@ export const AdvancedOptionsMenu: React.FC<Props> = ({
           as="ul"
           gap={2}
           direction="vertical"
-          className="[&_li]:text-white"
+          className="[&_button]:text-white [&_button]:w-full [&_div]:w-full"
         >
-          <li onClick={() => setOption(Option.Path)}>
-            Set Custom Derivation Path
+          <li className={menuItemStyle}>
+            <LinkButton
+              onClick={() => setOption(Option.Path)}
+              className="flex items-center"
+            >
+              {menuText[Option.Path]}
+              <FaChevronRight className="absolute right-0" />
+            </LinkButton>
           </li>
-          <li onClick={() => setOption(Option.Passphrase)}>
-            Import with BIP39 Passphrase
+          <li className={menuItemStyle}>
+            <LinkButton
+              onClick={() => setOption(Option.Passphrase)}
+              className="flex items-center"
+            >
+              {menuText[Option.Passphrase]}
+              <FaChevronRight className="absolute right-0" />
+            </LinkButton>
           </li>
         </Stack>
       )}
-      <div>
-        {option !== Option.Menu && (
-          <LinkButton
-            className="text-white"
-            onClick={(e) => {
-              e.preventDefault();
-              setOption(Option.Menu);
-            }}
-            role="link"
-          >
-            &lt; Back
-          </LinkButton>
-        )}
-        {option === Option.Path && <Bip44Form path={path} setPath={setPath} />}
-        {option === Option.Passphrase && (
-          <Bip39PassphraseForm
-            passphrase={passphrase}
-            setPassphrase={setPassphrase}
-          />
-        )}
-      </div>
+      {option !== Option.Menu && (
+        <Alert type="info">
+          <div className="relative flex items-center">
+            <i
+              className={clsx(
+                "flex absolute items-center text-white cursor-pointer",
+                "top-0 left-0 text-[22px] transition-colors hover:text-yellow active:top-px"
+              )}
+              onClick={() => {
+                setOption(Option.Menu);
+              }}
+            >
+              <FaChevronLeft />
+            </i>
+            <div className="text-white w-full text-center">
+              {menuText[option]}
+            </div>
+          </div>
+          {option === Option.Path && (
+            <Bip44Form path={path} setPath={setPath} />
+          )}
+          {option === Option.Passphrase && (
+            <Bip39PassphraseForm
+              passphrase={passphrase}
+              setPassphrase={setPassphrase}
+            />
+          )}
+        </Alert>
+      )}
     </>
   );
 };
