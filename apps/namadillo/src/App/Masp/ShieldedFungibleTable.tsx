@@ -1,20 +1,24 @@
 import { Asset } from "@chain-registry/types";
 import { Balance } from "@heliaxdev/namada-sdk/web";
-import { ActionButton, Currency, TableRow } from "@namada/components";
-import { formatCurrency, formatPercentage } from "@namada/utils";
+import { ActionButton, TableRow } from "@namada/components";
+import { formatPercentage } from "@namada/utils";
+import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
+import { TokenCurrency } from "App/Common/TokenCurrency";
 import { routes } from "App/routes";
 import { chainTokensAtom } from "atoms/chain";
 import { knownChainsAtom } from "atoms/integrations/atoms";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
+import { namadaAsset } from "registry/namadaAsset";
+import { unknownAsset } from "registry/unknownAsset";
 import { twMerge } from "tailwind-merge";
-import namadaShieldedSvg from "./assets/namada-shielded.svg";
 
 type TokenRow = {
   name: string;
   icon?: string;
+  asset: Asset;
   balance: BigNumber;
   dollar: BigNumber;
   ssrRate: BigNumber;
@@ -22,18 +26,6 @@ type TokenRow = {
 
 const resultsPerPage = 100;
 const initialPage = 0;
-
-const namadaAsset: Asset = {
-  name: "Namada",
-  base: "unam",
-  display: "nam",
-  symbol: "NAM",
-  denom_units: [
-    { denom: "unam", exponent: 0 },
-    { denom: "nam", exponent: 0 },
-  ],
-  logo_URIs: { svg: namadaShieldedSvg },
-};
 
 const traceToDenom = (trace: string): string =>
   trace.split("/").at(-1) ?? trace;
@@ -68,10 +60,11 @@ export const ShieldedFungibleTable = ({
 
     return data.map(([address, amount]) => {
       const denom = addressToDenom[address];
-      const asset = denomToAsset[denom];
+      const asset = denomToAsset[denom] ?? unknownAsset;
       return {
-        name: asset?.symbol ?? "?",
+        name: asset?.symbol ?? denom ?? "?",
         icon: asset?.logo_URIs?.svg ?? asset?.logo_URIs?.png,
+        asset,
         balance: new BigNumber(amount),
         dollar: new BigNumber(0), // TODO
         ssrRate: new BigNumber(0), // TODO
@@ -85,44 +78,37 @@ export const ShieldedFungibleTable = ({
     { children: "SSR Rate", className: "text-right" },
   ];
 
-  const renderRow = (token: TokenRow): TableRow => {
+  const renderRow = (row: TokenRow): TableRow => {
+    const icon = row.asset.logo_URIs?.svg ?? row.asset.logo_URIs?.png;
     return {
       cells: [
-        <div key={`token-${token.name}`} className="flex items-center gap-4">
+        <div key={`token-${row.name}`} className="flex items-center gap-4">
           <div className="aspect-square w-8 h-8">
-            {token.icon ?
-              <img src={token.icon} />
+            {icon ?
+              <img src={icon} />
             : <div className="rounded-full h-full border border-white" />}
           </div>
-          {token.name}
+          {row.name}
         </div>,
         <div
-          key={`balance-${token.name}`}
+          key={`balance-${row.name}`}
           className="flex flex-col text-right leading-tight"
         >
-          <Currency
-            amount={token.balance}
-            currency={{ symbol: token.name }}
-            currencyPosition="right"
-            spaceAroundSymbol={true}
-            hideBalances={false}
+          <TokenCurrency asset={row.asset} amount={row.balance} />
+          <FiatCurrency
+            className="text-neutral-600 text-sm"
+            amount={row.dollar}
           />
-          <span className="text-neutral-600 text-sm">
-            {formatCurrency("USD", token.dollar)}
-          </span>
         </div>,
-        <div
-          key={`ssr-rate-${token.name}`}
-          className="text-right leading-tight"
-        >
-          {formatPercentage(token.ssrRate)}
+        <div key={`ssr-rate-${row.name}`} className="text-right leading-tight">
+          {formatPercentage(row.ssrRate)}
         </div>,
         <ActionButton
-          key={`unshield-${token.name}`}
+          key={`unshield-${row.name}`}
           size="xs"
           outlineColor="white"
           className="w-fit mx-auto"
-          href={token.name === "NAM" ? routes.maspUnshield : routes.ibcWithdraw}
+          href={row.name === "NAM" ? routes.maspUnshield : routes.ibcWithdraw}
         >
           Unshield
         </ActionButton>,
