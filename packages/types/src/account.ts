@@ -1,5 +1,6 @@
 import { ChainKey } from "./chain";
 
+// The Bip44Path should contain at the minimum an account index
 export type Bip44Path = {
   account: number;
   change: number;

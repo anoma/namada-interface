@@ -17,7 +17,7 @@ import { Bip44Path } from "@namada/types";
 import { makeBip44PathArray, makeSaplingPathArray } from "../utils";
 import { Address, ShieldedKeys, TransparentKeys } from "./types";
 
-const DEFAULT_PATH: Bip44Path = {
+const DEFAULT_BIP44_PATH: Bip44Path = {
   account: 0,
   change: 0,
   index: 0,
@@ -69,7 +69,7 @@ export class Keys {
    */
   deriveFromMnemonic(
     phrase: string,
-    path: Bip44Path = DEFAULT_PATH,
+    path: Bip44Path = DEFAULT_BIP44_PATH,
     passphrase?: string
   ): TransparentKeys {
     const mnemonic = MnemonicWasm.from_phrase(phrase);
@@ -107,7 +107,7 @@ export class Keys {
    */
   deriveFromSeed(
     seed: Uint8Array,
-    path: Bip44Path = DEFAULT_PATH
+    path: Bip44Path = DEFAULT_BIP44_PATH
   ): TransparentKeys {
     const hdWallet = HDWallet.from_seed(seed);
     const bip44Path = makeBip44PathArray(chains.namada.bip44.coinType, path);
@@ -133,20 +133,27 @@ export class Keys {
    * Derive shielded keys and address from a seed and path
    * @param seed - Seed
    * @param [path] - Bip44 path object
+   * @param [diversifier] - Diversifier bytes
    * @returns Shielded keys and address
    */
   deriveShieldedFromSeed(
     seed: Uint8Array,
-    path: Bip44Path = DEFAULT_PATH
+    path: Bip44Path = DEFAULT_BIP44_PATH,
+    diversifier?: Uint8Array
   ): ShieldedKeys {
-    const zip32 = new ShieldedHDWallet(seed);
-    const derivationPath = makeSaplingPathArray(877, path.account);
-    const account = zip32.derive(derivationPath);
+    const shieldedHdWallet = new ShieldedHDWallet(
+      seed,
+      makeBip44PathArray(chains.namada.bip44.coinType, path)
+    );
+    // Zip32 path components
+    const { account, index } = path;
+    const saplingPath = makeSaplingPathArray(877, account, index);
+    const derivedAccount = shieldedHdWallet.derive(saplingPath, diversifier);
 
     // Retrieve serialized types from wasm
-    const xsk = account.xsk();
-    const xfvk = account.xfvk();
-    const paymentAddress = account.payment_address();
+    const xsk = derivedAccount.xsk();
+    const xfvk = derivedAccount.xfvk();
+    const paymentAddress = derivedAccount.payment_address();
 
     // Deserialize and encode keys and address
     const extendedSpendingKey = new ExtendedSpendingKey(xsk);
@@ -156,8 +163,8 @@ export class Keys {
     const viewingKey = extendedViewingKey.encode();
 
     // Clear wasm resources from memory
-    zip32.free();
-    account.free();
+    shieldedHdWallet.free();
+    derivedAccount.free();
     extendedViewingKey.free();
     extendedSpendingKey.free();
 

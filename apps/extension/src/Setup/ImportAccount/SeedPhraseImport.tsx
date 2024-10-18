@@ -4,39 +4,47 @@ import {
   ActionButton,
   Alert,
   Input,
-  LinkButton,
   RadioGroup,
   Stack,
 } from "@namada/components";
+import { Bip44Path } from "@namada/types";
 import { assertNever } from "@namada/utils";
-import { SeedPhraseList } from "Setup/Common";
 import { AccountSecret, ValidateMnemonicMsg } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
-import { GoX } from "react-icons/go";
 import { Ports } from "router";
+import { SeedPhraseList } from "Setup/Common";
+import { AdvancedOptions } from "Setup/Common/AdvancedOptions";
+import { AdvancedOptionsMenu } from "Setup/Common/AdvancedOptionsMenu";
 import { fillArray, filterPrivateKeyPrefix, validatePrivateKey } from "utils";
 
 type Props = {
   onConfirm: (accountSecret: AccountSecret) => void;
+  path: Bip44Path;
+  setPath: (path: Bip44Path) => void;
 };
 
 const SHORT_PHRASE_COUNT = 12;
 const LONG_PHRASE_COUNT = 24;
 
-enum MnemonicTypes {
+enum SecretType {
   PrivateKey = 1,
-  TwelveWords = SHORT_PHRASE_COUNT,
-  TwentyFourWords = LONG_PHRASE_COUNT,
+  MnemonicTwelveWords = SHORT_PHRASE_COUNT,
+  MnemonicTwentyFourWords = LONG_PHRASE_COUNT,
 }
 
-export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
+export const SeedPhraseImport: React.FC<Props> = ({
+  onConfirm,
+  path,
+  setPath,
+}) => {
   const requester = useRequester();
   const [privateKey, setPrivateKey] = useState("");
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [passphrase, setPassphrase] = useState("");
+  const [bip39Passphrase, setBip39Passphrase] = useState("");
   const [invalidWordIndex, setInvalidWordIndex] = useState<number>();
-  const [showPassphrase, setShowPassphrase] = useState(false);
-  const [mnemonicType, setMnemonicType] = useState<MnemonicTypes>(
-    MnemonicTypes.TwelveWords
+  const [mnemonicType, setMnemonicType] = useState<SecretType>(
+    SecretType.MnemonicTwelveWords
   );
   const [mnemonicError, setMnemonicError] = useState<string>();
 
@@ -66,9 +74,9 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   })();
 
   const isSubmitButtonDisabled =
-    mnemonicType === MnemonicTypes.PrivateKey ?
+    mnemonicType === SecretType.PrivateKey ?
       privateKey === "" || privateKeyError !== ""
-    : mnemonics.slice(0, mnemonicType).some((mnemonic) => !mnemonic);
+      : mnemonics.slice(0, mnemonicType).some((mnemonic) => !mnemonic);
 
   const onPaste = useCallback(
     (index: number, e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -82,8 +90,8 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
 
       // If pasted text has more than SHORT_PHRASE_COUNT words, we automatically toggle words count
       if (pastedMnemonicsLength > SHORT_PHRASE_COUNT) {
-        setMnemonicType(MnemonicTypes.TwentyFourWords);
-        currentLength = MnemonicTypes.TwentyFourWords;
+        setMnemonicType(SecretType.MnemonicTwentyFourWords);
+        currentLength = SecretType.MnemonicTwentyFourWords;
       }
 
       // If pasted text is exactly the same length as the mnemonic length, we want to replace all inputs
@@ -118,7 +126,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   );
 
   const onSubmit = useCallback(async () => {
-    if (mnemonicType === MnemonicTypes.PrivateKey) {
+    if (mnemonicType === SecretType.PrivateKey) {
       // TODO: validate here
       onConfirm({
         t: "PrivateKey",
@@ -146,31 +154,13 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
           setInvalidWordIndex(invalidWordIndex);
           typeof invalidWordIndex === "number" ?
             setMnemonicError(`Word #${invalidWordIndex + 1} is invalid!`)
-          : setMnemonicError(error);
+            : setMnemonicError(error);
         } else {
           setMnemonicError(error);
         }
       }
     }
-  }, [mnemonics, mnemonicType, privateKey, passphrase, showPassphrase]);
-
-  const onPassphraseChange = useCallback(
-    (value: string) => {
-      setPassphrase(value);
-    },
-    [passphrase]
-  );
-
-  const onShowPassphraseChange = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      if (!showPassphrase) {
-        setPassphrase("");
-      }
-      setShowPassphrase(!showPassphrase);
-    },
-    [showPassphrase]
-  );
+  }, [mnemonics, mnemonicType, privateKey, passphrase, showAdvancedOptions]);
 
   return (
     <>
@@ -202,38 +192,40 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
             options={[
               {
                 text: "12 words",
-                value: MnemonicTypes.TwelveWords.toString(),
+                value: SecretType.MnemonicTwelveWords.toString(),
               },
               {
                 text: "24 words",
-                value: MnemonicTypes.TwentyFourWords.toString(),
+                value: SecretType.MnemonicTwentyFourWords.toString(),
               },
               {
                 text: "Private Key",
-                value: MnemonicTypes.PrivateKey.toString(),
+                value: SecretType.PrivateKey.toString(),
               },
             ]}
             onChange={(value: string) => {
-              if (Number(value) === MnemonicTypes.PrivateKey) {
-                setShowPassphrase(false);
+              if (Number(value) === SecretType.PrivateKey) {
+                setShowAdvancedOptions(false);
                 setPassphrase("");
               }
               setMnemonicType(Number(value));
             }}
           />
 
-          {mnemonicType !== MnemonicTypes.PrivateKey && (
+          {mnemonicType !== SecretType.PrivateKey && (
             <SeedPhraseList
               invalidWordIndex={invalidWordIndex}
               sensitive={false}
-              columns={mnemonicType === MnemonicTypes.TwentyFourWords ? 4 : 3}
+              columns={
+                mnemonicType === SecretType.MnemonicTwentyFourWords ? 4 : 3
+              }
               words={fillArray(mnemonics.slice(0, mnemonicType), mnemonicType)}
               onChange={onInputChange}
               onPaste={onPaste}
             />
           )}
 
-          {mnemonicType === MnemonicTypes.PrivateKey && (
+          {mnemonicType === SecretType.PrivateKey && (
             <Input
               className="w-full"
               label="Private key"
@@ -246,42 +238,15 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
           )}
         </Stack>
         <Stack direction="vertical" gap={4}>
-          {showPassphrase && (
-            <div className="relative">
-              <div onClick={onShowPassphraseChange}>
-                <i className="block text-lg absolute top-5 right-4 text-white cursor-pointer">
-                  <GoX />
-                </i>
-              </div>
-              <Alert type={"warning"} title={"Please note"} className="mb-3">
-                <Stack gap={6}>
-                  <p className="text-[13px] leading-[1.25] text-white">
-                    This import option is only users who have created a Namada
-                    account using the Namada protocol CLI v.0.17.0 or older, and
-                    used a BIP39 passphrase. Do not input your Namada extension
-                    password
-                  </p>
-                  <Input
-                    data-testid="setup-import-keys-passphrase-input"
-                    label="Enter your passphrase"
-                    placeholder="Optional passphrase for your seed phrase."
-                    hideIcon={true}
-                    onChange={(e) => onPassphraseChange(e.target.value)}
-                    value={passphrase}
-                  />
-                </Stack>
-              </Alert>
-            </div>
-          )}
-          {!showPassphrase && mnemonicType !== MnemonicTypes.PrivateKey && (
-            <LinkButton
-              data-testid="setup-import-keys-use-passphrase-button"
-              className="text-xs !text-neutral-400"
-              onClick={onShowPassphraseChange}
-              type="button" // makes enter key ignore this and submit form
-            >
-              Import with BIP39 Passphrase
-            </LinkButton>
+          {mnemonicType !== SecretType.PrivateKey && (
+            <AdvancedOptions>
+              <AdvancedOptionsMenu
+                path={path}
+                setPath={setPath}
+                passphrase={bip39Passphrase}
+                setPassphrase={setBip39Passphrase}
+              />
+            </AdvancedOptions>
           )}
           <ActionButton
             size="lg"
