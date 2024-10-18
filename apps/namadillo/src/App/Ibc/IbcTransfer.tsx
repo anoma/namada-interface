@@ -13,13 +13,18 @@ import { KeplrWalletManager } from "integrations/Keplr";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import namadaChain from "registry/namada.json";
-import { ChainRegistryEntry } from "types";
 import { IbcTopHeader } from "./IbcTopHeader";
 
 import * as cosmos from "chain-registry/mainnet/cosmoshub";
 
+<<<<<<< HEAD
 const keplr = new KeplrWalletManager();
+=======
+//TODO: we need to find a good way to manage IBC channels
+const namadaChannelId = "channel-4353";
+>>>>>>> 896988f4 (refactor: returning a map instead of a list from knownChainAtom)
 const defaultChainId = "cosmoshub-4";
+const keplr = new KeplrWalletManager();
 
 export const IbcTransfer: React.FC = () => {
   const knownChains = useAtomValue(knownChainsAtom);
@@ -30,15 +35,6 @@ export const IbcTransfer: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const performIbcTransfer = useAtomValue(ibcTransferAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
-
-  const knownChainsMap = useMemo(() => {
-    const map: Record<string, ChainRegistryEntry> = {};
-    knownChains.forEach((chain) => {
-      map[chain.chain.chain_id] = chain;
-    });
-    return map;
-  }, [knownChains]);
-
   const {
     registry,
     walletAddress: sourceAddress,
@@ -46,7 +42,6 @@ export const IbcTransfer: React.FC = () => {
     chainId,
   } = useWalletManager({
     wallet: keplr,
-    knownChains: knownChainsMap,
   });
 
   const {
@@ -83,11 +78,6 @@ export const IbcTransfer: React.FC = () => {
 
       if (!chainId) {
         throw new Error("chain ID is undefined");
-      }
-
-      const rpc = knownChainsMap[chainId]?.chain.apis?.rpc?.[0]?.address;
-      if (typeof rpc === "undefined") {
-        throw new Error("no RPC info for " + chainId);
       }
 
       if (!selectedAsset) {
@@ -131,6 +121,11 @@ export const IbcTransfer: React.FC = () => {
     connectToChainId(chain.chain_id);
   };
 
+  const availableChains = useMemo(
+    () => Object.values(knownChains).map((entry) => entry.chain),
+    [knownChains]
+  );
+
   return (
     <>
       <header className="flex flex-col items-center text-center mb-3 gap-6">
@@ -166,9 +161,9 @@ export const IbcTransfer: React.FC = () => {
                 availableAssets,
                 selectedAsset,
                 availableAmount,
-                availableChains: knownChains.map((entry) => entry.chain),
+                availableChains,
                 onChangeChain,
-                chain: mapUndefined((id) => knownChainsMap[id].chain, chainId),
+                chain: mapUndefined((id) => knownChains[id].chain, chainId),
                 availableWallets: [wallets.keplr!],
                 wallet: wallets.keplr,
                 walletAddress: sourceAddress,

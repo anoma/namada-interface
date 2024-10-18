@@ -1,13 +1,12 @@
-import { selectedIBCChainAtom } from "atoms/integrations";
+import { knownChainsAtom, selectedIBCChainAtom } from "atoms/integrations";
 import { WalletInterface } from "integrations/types";
 import { findRegistryByChainId } from "integrations/utils";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { ChainRegistryEntry } from "types";
 
 type UseWalletUtilsProps = {
   wallet: WalletInterface;
-  knownChains: Record<string, ChainRegistryEntry>;
 };
 
 type UseWalletOutput = {
@@ -21,8 +20,8 @@ type UseWalletOutput = {
 
 export const useWalletManager = ({
   wallet,
-  knownChains,
 }: UseWalletUtilsProps): UseWalletOutput => {
+  const knownChains = useAtomValue(knownChainsAtom);
   const [walletAddress, setWalletAddress] = useState<string | undefined>();
   const [chainId, setChainId] = useAtom(selectedIBCChainAtom);
   const [registry, setRegistry] = useState<ChainRegistryEntry>();

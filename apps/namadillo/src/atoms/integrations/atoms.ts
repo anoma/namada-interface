@@ -5,6 +5,7 @@ import { queryDependentFn } from "atoms/utils";
 import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
+import { ChainRegistryEntry } from "types";
 import { getKnownChains, mapCoinsToAssets } from "./functions";
 import {
   IbcTransferParams,
@@ -79,5 +80,10 @@ export const assetBalanceAtomFamily = atomFamily(
 
 export const knownChainsAtom = atom((get) => {
   const settings = get(settingsAtom);
-  return getKnownChains(settings.enableTestnets);
+  const knownChains = getKnownChains(settings.enableTestnets);
+  const map: Record<string, ChainRegistryEntry> = {};
+  knownChains.forEach((chain) => {
+    map[chain.chain.chain_id] = chain;
+  });
+  return map;
 });
