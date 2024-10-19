@@ -11,7 +11,7 @@ export const MaspOverview: React.FC = () => {
   return (
     <div className="flex flex-col gap-2">
       {!userHasAccount && <ConnectBanner actionText="To shield assets" />}
-      <div className="flex flex-col sm:grid sm:grid-cols-[2fr_3fr] gap-2">
+      <div className="grid sm:grid-cols-[2fr_3fr] gap-2">
         <Panel>
           <ShieldedBalanceChart />
         </Panel>
