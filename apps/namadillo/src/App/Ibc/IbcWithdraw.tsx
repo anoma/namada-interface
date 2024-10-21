@@ -1,72 +1,47 @@
-import { Key as KeplrKey, Window as KeplrWindow } from "@keplr-wallet/types";
+import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
 import { WindowWithNamada } from "@namada/types";
-import BigNumber from "bignumber.js";
-import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
-
-import { Chain } from "@chain-registry/types";
-import { NamCurrency } from "App/Common/NamCurrency";
-import { NamInput } from "App/Common/NamInput";
+import { mapUndefined } from "@namada/utils";
 import { TransferModule } from "App/Transfer/TransferModule";
-import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
+import { defaultAccountAtom } from "atoms/accounts";
 import { chainAtom, chainParametersAtom } from "atoms/chain";
-import { getFirstError } from "atoms/utils";
+import { knownChainsAtom } from "atoms/integrations";
+import BigNumber from "bignumber.js";
+import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
+import { KeplrWalletManager } from "integrations/Keplr";
+import { useAtomValue } from "jotai";
+import { useMemo, useState } from "react";
 import namadaChainRegistry from "registry/namada.json";
-import { WalletProvider } from "types";
 import { getSdkInstance } from "utils/sdk";
 import { IbcTopHeader } from "./IbcTopHeader";
 
-const keplr = (window as KeplrWindow).keplr!;
+const defaultChainId = "cosmoshub-4";
+const keplr = new KeplrWalletManager();
 const namada = (window as WindowWithNamada).namada!;
 
-const keplrChain = "theta-testnet-001";
-
-const buttonStyles = "bg-white my-2 p-2 block";
-
 export const IbcWithdraw: React.FC = () => {
-  const [error, setError] = useState("");
-  const [keplrAccount, setKeplrAccount] = useState<KeplrKey>();
-  const [amount, setAmount] = useState<BigNumber>();
   const [channel, setChannel] = useState("");
-  const [shielded, setShielded] = useState<boolean>(true);
   const namadaAccount = useAtomValue(defaultAccountAtom);
-  const balance = useAtomValue(accountBalanceAtom);
+  const knownChains = useAtomValue(knownChainsAtom);
   const namadaChainParams = useAtomValue(chainParametersAtom);
   const namadaChain = useAtomValue(chainAtom);
 
-  useEffect(() => {
-    const error = getFirstError(namadaAccount, balance, namadaChainParams);
-    setError(error ? error.message : "");
-  }, [
-    namadaAccount.isError,
-    balance.isError,
-    namadaChain.isError,
-    namadaChainParams.isError,
-  ]);
+  const {
+    walletAddress: keplrAddress,
+    connectToChainId,
+    chainId,
+  } = useWalletManager(keplr);
 
-  const withErrorReporting =
-    (fn: () => Promise<void>): (() => Promise<void>) =>
-    async () => {
-      try {
-        await fn();
-        setError("");
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(e);
-        setError(e instanceof Error ? e.message : "unknown error");
-      }
-    };
+  const onChangeWallet = (): void => {
+    connectToChainId(chainId || defaultChainId);
+  };
 
-  const getKeplrAccount = withErrorReporting(async () => {
-    const key = await keplr.getKey(keplrChain);
-    setKeplrAccount(key);
-  });
-
-  const onChangeWallet = (wallet: WalletProvider): void => {};
-
-  const submitIbcTransfer = withErrorReporting(async () => {
+  const submitIbcTransfer = async (
+    amount: BigNumber,
+    destinationAddress: string,
+    memo: string = ""
+  ): Promise<void> => {
     const wrapperTxProps = {
       token: namadaChain.data!.nativeTokenAddress,
       feeAmount: BigNumber(0),
@@ -74,11 +49,10 @@ export const IbcWithdraw: React.FC = () => {
       chainId: namadaChain.data!.chainId,
       publicKey: namadaAccount.data!.publicKey,
     };
-
     const sdk = await getSdkInstance();
     const tx = await sdk.tx.buildIbcTransfer(wrapperTxProps, {
       source: namadaAccount.data!.address,
-      receiver: keplrAccount!.bech32Address,
+      receiver: destinationAddress,
       token: namadaChain.data!.nativeTokenAddress,
       amount: amount!,
       portId: "transfer",
@@ -86,6 +60,7 @@ export const IbcWithdraw: React.FC = () => {
       timeoutHeight: undefined,
       timeoutSecOffset: undefined,
       shieldingData: undefined,
+      memo,
     });
 
     const signedTxBytes = await namada.sign({
@@ -95,12 +70,21 @@ export const IbcWithdraw: React.FC = () => {
     });
 
     await sdk.rpc.broadcastTx(signedTxBytes![0], wrapperTxProps);
-  });
+  };
+
+  const onChangeChain = (chain: Chain): void => {
+    connectToChainId(chain.chain_id);
+  };
+
+  const availableChains = useMemo(
+    () => Object.values(knownChains || {}).map((entry) => entry.chain),
+    [knownChains]
+  );
 
   return (
     <>
       <header className="flex flex-col items-center text-center mb-3 gap-6">
-        <IbcTopHeader type="namToIbc" isShielded={shielded} />
+        <IbcTopHeader type="namToIbc" isShielded={false} />
         <div className="max-w-[360px] mx-auto mb-3">
           <h2 className="mb-1 text-lg font-light">
             Withdraw assets from Namada via IBC
@@ -116,62 +100,25 @@ export const IbcWithdraw: React.FC = () => {
           wallet: wallets.namada,
           walletAddress: namadaAccount.data?.address,
           chain: namadaChainRegistry as Chain,
-          isShielded: shielded,
+          isShielded: false,
         }}
         destination={{
           wallet: wallets.keplr,
+          walletAddress: keplrAddress,
           availableWallets: [wallets.keplr!],
-          isShielded: shielded,
+          availableChains,
           enableCustomAddress: true,
+          chain: mapUndefined((id) => knownChains[id].chain, chainId),
           onChangeWallet,
+          onChangeChain,
+          isShielded: false,
         }}
-        onSubmitTransfer={() => {}}
+        onSubmitTransfer={submitIbcTransfer}
       />
-
       <Panel
         title="IBC Namada -> Cosmos"
         className="mb-2 bg-[#999999] text-black"
       >
-        {/* Error */}
-        <p className="text-[#ff0000]">{error}</p>
-        <hr />
-        {/* Namada account */}
-        <h3>Namada account</h3>
-        {namadaAccount.isSuccess &&
-          typeof namadaAccount.data !== "undefined" && (
-            <p>
-              {namadaAccount.data.alias} {namadaAccount.data.address}
-            </p>
-          )}
-
-        <hr />
-
-        {/* Balance */}
-        <h3>Balance</h3>
-        {balance.isSuccess && <NamCurrency amount={balance.data} />}
-
-        <hr />
-
-        {/* Keplr address */}
-        <h3>Keplr address</h3>
-        <button className={buttonStyles} onClick={getKeplrAccount}>
-          get address
-        </button>
-
-        {keplrAccount && (
-          <p>
-            {keplrAccount.name} {keplrAccount.bech32Address}
-          </p>
-        )}
-
-        <hr />
-
-        {/* Amount */}
-        <h3>Amount to send</h3>
-        <NamInput value={amount} onChange={(e) => setAmount(e.target.value)} />
-
-        <hr />
-
         {/* Channel */}
         <h3>Channel</h3>
         <input
@@ -179,14 +126,6 @@ export const IbcWithdraw: React.FC = () => {
           value={channel}
           onChange={(e) => setChannel(e.target.value)}
         />
-
-        <hr />
-
-        {/* Submit IBC transfer */}
-        <h3>Submit IBC transfer</h3>
-        <button className={buttonStyles} onClick={submitIbcTransfer}>
-          submit IBC transfer
-        </button>
       </Panel>
     </>
   );

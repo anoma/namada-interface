@@ -40,9 +40,7 @@ export const IbcTransfer: React.FC = () => {
     walletAddress: sourceAddress,
     connectToChainId,
     chainId,
-  } = useWalletManager({
-    wallet: keplr,
-  });
+  } = useWalletManager(keplr);
 
   const {
     balance: availableAmount,
@@ -64,6 +62,11 @@ export const IbcTransfer: React.FC = () => {
         ?.address || ""
     );
   }, [defaultAccounts, shielded]);
+
+  const availableChains = useMemo(
+    () => Object.values(knownChains).map((entry) => entry.chain),
+    [knownChains]
+  );
 
   const onSubmitTransfer = async (
     amount: BigNumber,
@@ -120,11 +123,6 @@ export const IbcTransfer: React.FC = () => {
   const onChangeChain = (chain: Chain): void => {
     connectToChainId(chain.chain_id);
   };
-
-  const availableChains = useMemo(
-    () => Object.values(knownChains).map((entry) => entry.chain),
-    [knownChains]
-  );
 
   return (
     <>
@@ -186,8 +184,8 @@ export const IbcTransfer: React.FC = () => {
         )}
         {currentStep > 0 && (
           <motion.div
-            className="my-12"
             key="progress"
+            className="my-12"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}

@@ -5,10 +5,6 @@ import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { ChainRegistryEntry } from "types";
 
-type UseWalletUtilsProps = {
-  wallet: WalletInterface;
-};
-
 type UseWalletOutput = {
   registry?: ChainRegistryEntry;
   chainId?: string;
@@ -18,9 +14,7 @@ type UseWalletOutput = {
   loadWalletAddress: (chainId: string) => Promise<string>;
 };
 
-export const useWalletManager = ({
-  wallet,
-}: UseWalletUtilsProps): UseWalletOutput => {
+export const useWalletManager = (wallet: WalletInterface): UseWalletOutput => {
   const knownChains = useAtomValue(knownChainsAtom);
   const [walletAddress, setWalletAddress] = useState<string | undefined>();
   const [chainId, setChainId] = useAtom(selectedIBCChainAtom);

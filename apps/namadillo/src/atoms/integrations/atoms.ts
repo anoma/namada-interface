@@ -78,12 +78,14 @@ export const assetBalanceAtomFamily = atomFamily(
   }
 );
 
-export const knownChainsAtom = atom((get) => {
-  const settings = get(settingsAtom);
-  const knownChains = getKnownChains(settings.enableTestnets);
-  const map: Record<string, ChainRegistryEntry> = {};
-  knownChains.forEach((chain) => {
-    map[chain.chain.chain_id] = chain;
-  });
-  return map;
-});
+export const knownChainsAtom = atom<Record<string, ChainRegistryEntry>>(
+  (get) => {
+    const settings = get(settingsAtom);
+    const knownChains = getKnownChains(settings.enableTestnets);
+    const map: Record<string, ChainRegistryEntry> = {};
+    knownChains.forEach((chain) => {
+      map[chain.chain.chain_id] = chain;
+    });
+    return map;
+  }
+);
