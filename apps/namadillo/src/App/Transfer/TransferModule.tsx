@@ -4,13 +4,14 @@ import BigNumber from "bignumber.js";
 import { useState } from "react";
 import { WalletProvider } from "types";
 import { toBaseAmount, toDisplayAmount } from "utils";
+import { parseChainInfo } from "./common";
+import { IbcChannels } from "./IbcChannels";
 import { SelectAssetModal } from "./SelectAssetModal";
 import { SelectChainModal } from "./SelectChainModal";
 import { SelectWalletModal } from "./SelectWalletModal";
 import { TransferArrow } from "./TransferArrow";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
-import { parseChainInfo } from "./common";
 
 export type TransferModuleConfig = {
   wallet?: WalletProvider;
@@ -32,21 +33,30 @@ export type TransferSourceProps = TransferModuleConfig & {
   onChangeSelectedAsset?: (asset: Asset | undefined) => void;
 };
 
-type TransferDestinationProps = TransferModuleConfig & {
+export type IbcOptions = {
+  destinationChannel: string;
+  sourceChannel: string;
+};
+
+export type TransferDestinationProps = TransferModuleConfig & {
   enableCustomAddress?: boolean;
   onChangeShielded?: (shielded: boolean) => void;
 };
 
-type TransferModuleProps = {
+export type OnSubmitTransferParams = {
+  amount: BigNumber;
+  destinationAddress: string;
+  memo?: string;
+  ibcOptions?: IbcOptions;
+};
+
+export type TransferModuleProps = {
   source: TransferSourceProps;
   destination: TransferDestinationProps;
   transactionFee?: BigNumber;
   isSubmitting?: boolean;
-  onSubmitTransfer: (
-    amount: BigNumber,
-    destinationAddress: string,
-    memo?: string
-  ) => void;
+  requiresIbcChannels?: boolean;
+  onSubmitTransfer: (params: OnSubmitTransferParams) => void;
 };
 
 export const TransferModule = ({
@@ -54,6 +64,7 @@ export const TransferModule = ({
   destination,
   transactionFee,
   isSubmitting,
+  requiresIbcChannels,
   onSubmitTransfer,
 }: TransferModuleProps): JSX.Element => {
   const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
@@ -65,6 +76,8 @@ export const TransferModule = ({
   const [memo, setMemo] = useState<undefined | string>("");
   const [customAddress, setCustomAddress] = useState<undefined | string>("");
   const [amount, setAmount] = useState<BigNumber | undefined>(new BigNumber(0));
+  const [sourceIbcChannel, setSourceIbcChannel] = useState("");
+  const [destinationIbcChannel, setDestinationIbcChannel] = useState("");
 
   const availableAmount =
     source.selectedAsset ?
@@ -99,11 +112,20 @@ export const TransferModule = ({
       throw new Error("Asset is not selected");
     }
 
-    onSubmitTransfer?.(
-      toBaseAmount(source.selectedAsset, amount),
-      address,
-      memo
-    );
+    const params: OnSubmitTransferParams = {
+      amount: toBaseAmount(source.selectedAsset, amount),
+      destinationAddress: address,
+      memo,
+    };
+
+    if (requiresIbcChannels) {
+      params.ibcOptions = {
+        sourceChannel: sourceIbcChannel,
+        destinationChannel: destinationIbcChannel,
+      };
+    }
+
+    onSubmitTransfer?.(params);
   };
 
   const onChangeWallet = (config: TransferModuleConfig) => (): void => {
@@ -192,6 +214,15 @@ export const TransferModule = ({
             onChangeMemo={setMemo}
             transactionFee={transactionFee}
           />
+          {requiresIbcChannels && (
+            <IbcChannels
+              isShielded={Boolean(source.isShielded || destination.isShielded)}
+              sourceChannel={sourceIbcChannel}
+              onChangeSource={setSourceIbcChannel}
+              destinationChannel={destinationIbcChannel}
+              onChangeDestination={setDestinationIbcChannel}
+            />
+          )}
           <ActionButton
             backgroundColor={
               destination.isShielded || source.isShielded ? "yellow" : "white"

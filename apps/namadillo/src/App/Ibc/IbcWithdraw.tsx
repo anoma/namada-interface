@@ -1,8 +1,10 @@
 import { Chain } from "@chain-registry/types";
-import { Panel } from "@namada/components";
 import { WindowWithNamada } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
-import { TransferModule } from "App/Transfer/TransferModule";
+import {
+  OnSubmitTransferParams,
+  TransferModule,
+} from "App/Transfer/TransferModule";
 import { defaultAccountAtom } from "atoms/accounts";
 import { chainAtom, chainParametersAtom } from "atoms/chain";
 import { knownChainsAtom } from "atoms/integrations";
@@ -11,7 +13,7 @@ import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
 import { KeplrWalletManager } from "integrations/Keplr";
 import { useAtomValue } from "jotai";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import namadaChainRegistry from "registry/namada.json";
 import { getSdkInstance } from "utils/sdk";
 import { IbcTopHeader } from "./IbcTopHeader";
@@ -21,7 +23,6 @@ const keplr = new KeplrWalletManager();
 const namada = (window as WindowWithNamada).namada!;
 
 export const IbcWithdraw: React.FC = () => {
-  const [channel, setChannel] = useState("");
   const namadaAccount = useAtomValue(defaultAccountAtom);
   const knownChains = useAtomValue(knownChainsAtom);
   const namadaChainParams = useAtomValue(chainParametersAtom);
@@ -37,11 +38,12 @@ export const IbcWithdraw: React.FC = () => {
     connectToChainId(chainId || defaultChainId);
   };
 
-  const submitIbcTransfer = async (
-    amount: BigNumber,
-    destinationAddress: string,
-    memo: string = ""
-  ): Promise<void> => {
+  const submitIbcTransfer = async ({
+    amount,
+    destinationAddress,
+    ibcOptions,
+    memo,
+  }: OnSubmitTransferParams): Promise<void> => {
     const wrapperTxProps = {
       token: namadaChain.data!.nativeTokenAddress,
       feeAmount: BigNumber(0),
@@ -56,7 +58,7 @@ export const IbcWithdraw: React.FC = () => {
       token: namadaChain.data!.nativeTokenAddress,
       amount: amount!,
       portId: "transfer",
-      channelId: channel,
+      channelId: ibcOptions?.sourceChannel || "",
       timeoutHeight: undefined,
       timeoutSecOffset: undefined,
       shieldingData: undefined,
@@ -113,20 +115,9 @@ export const IbcWithdraw: React.FC = () => {
           onChangeChain,
           isShielded: false,
         }}
+        requiresIbcChannels={true}
         onSubmitTransfer={submitIbcTransfer}
       />
-      <Panel
-        title="IBC Namada -> Cosmos"
-        className="mb-2 bg-[#999999] text-black"
-      >
-        {/* Channel */}
-        <h3>Channel</h3>
-        <input
-          type="text"
-          value={channel}
-          onChange={(e) => setChannel(e.target.value)}
-        />
-      </Panel>
     </>
   );
 };

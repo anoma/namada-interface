@@ -1,7 +1,10 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { mapUndefined } from "@namada/utils";
 import { TransactionTimeline } from "App/Common/TransactionTimeline";
-import { TransferModule } from "App/Transfer/TransferModule";
+import {
+  OnSubmitTransferParams,
+  TransferModule,
+} from "App/Transfer/TransferModule";
 import { allDefaultAccountsAtom } from "atoms/accounts";
 import { ibcTransferAtom, knownChainsAtom } from "atoms/integrations";
 import BigNumber from "bignumber.js";
@@ -17,14 +20,8 @@ import { IbcTopHeader } from "./IbcTopHeader";
 
 import * as cosmos from "chain-registry/mainnet/cosmoshub";
 
-<<<<<<< HEAD
 const keplr = new KeplrWalletManager();
-=======
-//TODO: we need to find a good way to manage IBC channels
-const namadaChannelId = "channel-4353";
->>>>>>> 896988f4 (refactor: returning a map instead of a list from knownChainAtom)
 const defaultChainId = "cosmoshub-4";
-const keplr = new KeplrWalletManager();
 
 export const IbcTransfer: React.FC = () => {
   const knownChains = useAtomValue(knownChainsAtom);
@@ -68,10 +65,11 @@ export const IbcTransfer: React.FC = () => {
     [knownChains]
   );
 
-  const onSubmitTransfer = async (
-    amount: BigNumber,
-    destinationAddress: string
-  ): Promise<void> => {
+  const onSubmitTransfer = async ({
+    amount,
+    destinationAddress,
+    ibcOptions,
+  }: OnSubmitTransferParams): Promise<void> => {
     try {
       setCurrentStep(1);
 
@@ -91,6 +89,14 @@ export const IbcTransfer: React.FC = () => {
         throw new Error("Invalid chain");
       }
 
+      if (!ibcOptions?.sourceChannel) {
+        throw new Error("Invalid IBC source channel");
+      }
+
+      if (shielded && !ibcOptions.destinationChannel) {
+        throw new Error("Invalid IBC destination channel");
+      }
+
       await performIbcTransfer.mutateAsync({
         chain: registry.chain,
         transferParams: {
@@ -99,11 +105,11 @@ export const IbcTransfer: React.FC = () => {
           destinationAddress,
           amount,
           token: selectedAsset.base,
-          sourceChannelId,
+          sourceChannelId: ibcOptions.sourceChannel,
           ...(shielded ?
             {
               isShielded: true,
-              destinationChannelId,
+              destinationChannelId: ibcOptions.destinationChannel,
             }
           : {
               isShielded: false,
@@ -178,6 +184,7 @@ export const IbcTransfer: React.FC = () => {
               }}
               transactionFee={new BigNumber(0.0001) /*TODO: fix this*/}
               isSubmitting={performIbcTransfer.isPending}
+              requiresIbcChannels={true}
               onSubmitTransfer={onSubmitTransfer}
             />
           </motion.div>
