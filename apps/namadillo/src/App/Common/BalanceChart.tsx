@@ -17,7 +17,6 @@ type BalanceChartProps = {
   shieldedAmount: BigNumber;
   totalAmount: BigNumber;
   isLoading: boolean;
-  isSuccess: boolean;
 };
 
 export const BalanceChart = ({
@@ -29,7 +28,6 @@ export const BalanceChart = ({
   shieldedAmount,
   totalAmount,
   isLoading,
-  isSuccess,
 }: BalanceChartProps): JSX.Element => {
   const getPiechartData = (): Array<PieChartData> => {
     if (isLoading) {
@@ -70,27 +68,25 @@ export const BalanceChart = ({
   };
 
   return (
-    <div className="flex-1 w-full h-full">
-      {isLoading && (
+    <div className="h-[250px] w-[250px]">
+      {isLoading ?
         <SkeletonLoading
-          height="auto"
-          width="80%"
-          className="rounded-full aspect-square mx-auto border-neutral-800 border-[22px] bg-transparent"
+          height="100%"
+          width="100%"
+          className="rounded-full border-neutral-800 border-[24px] bg-transparent"
         />
-      )}
-      {isSuccess && (
-        <PieChart
+      : <PieChart
           id="balance-chart"
-          className="xl:max-w-[85%] mx-auto"
           data={getPiechartData()}
-          strokeWidth={7}
+          strokeWidth={24}
+          radius={125}
           segmentMargin={0}
         >
           {view === "stake" &&
             renderTextSummary("Total Staked Balance", bondedAmount)}
           {view === "total" && renderTextSummary("Total Balance", totalAmount)}
         </PieChart>
-      )}
+      }
     </div>
   );
 };

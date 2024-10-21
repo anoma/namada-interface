@@ -35,11 +35,9 @@ export const useBalances = (): useBalancesOutput => {
     isSuccess: isStakedBalanceLoaded,
   } = totalStakedBalance;
 
-  const {
-    data: shieldedBalance,
-    isLoading: isFetchingShieldedBalance,
-    isSuccess: isShieldedBalanceLoaded,
-  } = totalShieldedBalance;
+  const { data: shieldedBalance } = totalShieldedBalance;
+  const isFetchingShieldedBalance = shieldedBalance === undefined;
+  const isShieldedBalanceLoaded = !isFetchingShieldedBalance;
 
   const availableAmount = new BigNumber(balance || 0);
   const bondedAmount = new BigNumber(stakeBalance?.totalBonded || 0);

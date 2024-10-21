@@ -16,7 +16,6 @@ export const StakingSummary = (): JSX.Element => {
     balanceQuery,
     stakeQuery,
     isLoading,
-    isSuccess,
     availableAmount,
     bondedAmount,
     shieldedAmount,
@@ -26,8 +25,8 @@ export const StakingSummary = (): JSX.Element => {
   } = useBalances();
 
   return (
-    <ul className="flex flex-col sm:grid sm:grid-cols-[1.25fr_1fr_1fr] gap-2">
-      <Panel as="li" className="flex items-center">
+    <ul className="grid sm:grid-cols-[1.25fr_1fr_1fr] gap-2">
+      <Panel as="li" className="flex items-center justify-center h-full w-full">
         <AtomErrorBoundary
           result={[balanceQuery, stakeQuery]}
           niceError="Unable to load balance"
@@ -35,7 +34,6 @@ export const StakingSummary = (): JSX.Element => {
           <BalanceChart
             view="stake"
             isLoading={isLoading}
-            isSuccess={isSuccess}
             availableAmount={availableAmount}
             bondedAmount={bondedAmount}
             shieldedAmount={shieldedAmount}

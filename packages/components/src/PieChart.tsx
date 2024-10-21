@@ -35,7 +35,7 @@ export const PieChart = ({
   onMouseLeave,
   ...svgProps
 }: PieChartProps): JSX.Element => {
-  const length = 2 * Math.PI * (radius - strokeWidth);
+  const length = 2 * Math.PI * (radius - strokeWidth / 2);
   const indexedData = data.map((dataItem, index) => ({
     ...dataItem,
     originalIndex: index, // needed to preserve index when some values are 0
@@ -68,7 +68,7 @@ export const PieChart = ({
           strokeWidth={strokeWidth}
           strokeDashoffset={offset}
           strokeDasharray={`${segmentLength} ${length}`}
-          r={radius - strokeWidth}
+          r={radius - strokeWidth / 2}
           stroke={dataItem.color}
           aria-label={dataItem.label || ""}
           onMouseEnter={
