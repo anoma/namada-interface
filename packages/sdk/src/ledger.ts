@@ -151,20 +151,22 @@ export class Ledger {
    * Throw exception if app is not initialized.
    * @async
    * @param [path] Bip44 path for deriving key
+   * @param [promptUser] boolean to determine whether to display on Ledger device and require approval
    * @returns ShieldedKeys
    */
-  public async showShieldedKeys(
-    path: string = DEFAULT_LEDGER_BIP44_PATH
+  public async getShieldedKeys(
+    path: string = DEFAULT_LEDGER_BIP44_PATH,
+    promptUser = true
   ): Promise<LedgerShieldedKeys> {
     try {
       const { viewKey, ivk, ovk }: ResponseViewKey =
-        await this.namadaApp.retrieveKeys(path, NamadaKeys.ViewKey, true);
+        await this.namadaApp.retrieveKeys(path, NamadaKeys.ViewKey, promptUser);
 
       const { ak, nsk }: ResponseProofGenKey =
         await this.namadaApp.retrieveKeys(
           path,
           NamadaKeys.ProofGenerationKey,
-          true
+          promptUser
         );
 
       return {

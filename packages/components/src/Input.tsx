@@ -70,7 +70,8 @@ type InputVariants =
   | "PasswordOnBlur"
   | "Text"
   | "Textarea"
-  | "ReadOnlyCopy";
+  | "ReadOnlyCopy"
+  | "ReadOnlyCopyText";
 
 export type InputProps = {
   label?: string | React.ReactNode;
@@ -128,6 +129,14 @@ export const Input = ({
         />
       );
     },
+    ReadOnlyCopyText: () => {
+      icon = (
+        <CopyToClipboardControl
+          className={classes.icon()}
+          value={props.value?.toString() || ""}
+        />
+      );
+    },
   };
 
   const inputElementMap: Partial<Record<InputVariants, () => void>> = {
@@ -136,6 +145,10 @@ export const Input = ({
     },
     ReadOnlyCopy: () => {
       inputElement["readOnly"] = true;
+    },
+    ReadOnlyCopyText: () => {
+      inputElement["readOnly"] = true;
+      inputElement["rows"] = rows;
     },
     PasswordOnBlur: () => {
       inputElement["type"] = passwordShown ? "text" : "password";
@@ -164,8 +177,15 @@ export const Input = ({
     inputElement["value"] = valueToDisplay || props.value || "";
   }
 
-  const htmlTag = variant === "Textarea" ? "textarea" : "input";
-  const elementChildren = variant === "Textarea" ? props.value : null;
+  const htmlTag =
+    variant === "Textarea" || variant === "ReadOnlyCopyText" ?
+      "textarea"
+    : "input";
+  const elementChildren =
+    variant === "Textarea" || variant === "ReadOnlyCopyText" ?
+      props.value
+    : null;
+
   const element = createElement(htmlTag, { ...inputElement }, elementChildren);
 
   return (
