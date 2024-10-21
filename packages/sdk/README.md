@@ -31,7 +31,7 @@ import BigNumber from "bignumber.js";
 // Define the following values:
 const rpcUrl = "https://rpc.example.net";
 const tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e"; // bech32m encoded NAM address
-const chainId = "namada-testnet-1":
+const chainId = "namada-testnet-1";
 
 const init = async (): Promise<void> => {
   const { cryptoMemory } = await sdkInit();
