@@ -1,11 +1,13 @@
 import { Asset, Chain } from "@chain-registry/types";
-import { Coin, OfflineSigner } from "@cosmjs/launchpad";
+import { Coin } from "@cosmjs/launchpad";
 import { coin, coins } from "@cosmjs/proto-signing";
 import {
   MsgTransferEncodeObject,
   SigningStargateClient,
   StargateClient,
 } from "@cosmjs/stargate";
+import { Keplr } from "@keplr-wallet/types";
+import { TransactionFee } from "App/Transfer/TransferModule";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
 import { getSdkInstance } from "utils/sdk";
@@ -13,12 +15,14 @@ import { workingRpcsAtom } from "./atoms";
 import { getRpcByIndex } from "./functions";
 
 type CommonParams = {
-  signer: OfflineSigner;
+  keplr: Keplr;
+  sourceChainId: string;
   sourceAddress: string;
   destinationAddress: string;
   amount: BigNumber;
   token: string;
   sourceChannelId: string;
+  transactionFee: TransactionFee;
 };
 
 type TransparentParams = CommonParams & { isShielded: false };
@@ -70,14 +74,18 @@ export const submitIbcTransfer =
   (transferParams: IbcTransferParams) =>
   async (rpc: string): Promise<void> => {
     const {
-      signer,
+      keplr,
+      sourceChainId,
       sourceAddress,
       destinationAddress,
       amount,
       token,
       sourceChannelId,
       isShielded,
+      transactionFee,
     } = transferParams;
+
+    const signer = keplr.getOfflineSigner(sourceChainId);
 
     const client = await SigningStargateClient.connectWithSigner(rpc, signer, {
       broadcastPollIntervalMs: 300,
@@ -85,8 +93,11 @@ export const submitIbcTransfer =
     });
 
     const fee = {
-      amount: coins("0", token),
-      gas: "222000",
+      amount: coins(
+        transactionFee.amount.toString(),
+        transactionFee.token.base
+      ),
+      gas: "222000", // TODO: what should this be?
     };
 
     const timeoutTimestampNanoseconds =
@@ -116,14 +127,27 @@ export const submitIbcTransfer =
       },
     };
 
-    const response = await client.signAndBroadcast(
-      sourceAddress,
-      [transferMsg],
-      fee
-    );
+    // Set Keplr option to allow Namadillo to set the transaction fee
+    const savedKeplrOptions = keplr.defaultOptions;
+    keplr.defaultOptions = {
+      sign: {
+        preferNoSetFee: true,
+      },
+    };
 
-    if (response.code !== 0) {
-      throw new Error(response.code + " " + response.transactionHash);
+    try {
+      const response = await client.signAndBroadcast(
+        sourceAddress,
+        [transferMsg],
+        fee
+      );
+
+      if (response.code !== 0) {
+        throw new Error(response.code + " " + response.transactionHash);
+      }
+    } finally {
+      // Restore Keplr options to avoid mutating state
+      keplr.defaultOptions = savedKeplrOptions;
     }
   };
 
