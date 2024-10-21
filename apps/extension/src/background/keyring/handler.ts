@@ -7,9 +7,11 @@ import {
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
   AddLedgerAccountMsg,
+  CloseOffscreenDocumentMsg,
   DeleteAccountMsg,
   DeriveAccountMsg,
   GenerateMnemonicMsg,
+  GenerateProofCompletedEvent,
   GetActiveAccountMsg,
   QueryAccountDetailsMsg,
   QueryParentAccountsMsg,
@@ -88,6 +90,16 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleQueryAccountDetails(service)(
           env,
           msg as QueryAccountDetailsMsg
+        );
+      case CloseOffscreenDocumentMsg:
+        return handleCloseOffscreenDocumentMsg(service)(
+          env,
+          msg as CloseOffscreenDocumentMsg
+        );
+      case GenerateProofCompletedEvent:
+        return handleGenerateProofCompletedEvent(service)(
+          env,
+          msg as GenerateProofCompletedEvent
         );
       default:
         throw new Error("Unknown msg type");
@@ -235,5 +247,22 @@ const handleQueryAccountDetails: (
 ) => InternalHandler<QueryAccountDetailsMsg> = (service) => {
   return async (_, { address }) => {
     return await service.queryAccountDetails(address);
+  };
+};
+
+const handleCloseOffscreenDocumentMsg: (
+  service: KeyRingService
+) => InternalHandler<CloseOffscreenDocumentMsg> = (service) => {
+  return async () => {
+    return await service.closeOffscreenDocument();
+  };
+};
+
+const handleGenerateProofCompletedEvent: (
+  service: KeyRingService
+) => InternalHandler<GenerateProofCompletedEvent> = (service) => {
+  return async (_, msg) => {
+    const { msgId, success, payload } = msg;
+    return await service.handleGenerateProofCompleted(msgId, success, payload);
   };
 };
