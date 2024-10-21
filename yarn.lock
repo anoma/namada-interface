@@ -3507,7 +3507,7 @@ __metadata:
     "@types/w3c-web-usb": "npm:^1.0.10"
     "@types/webextension-polyfill": "npm:^0.10.6"
     "@types/zxcvbn": "npm:^4.4.1"
-    "@zondax/ledger-namada": "npm:^0.0.6"
+    "@zondax/ledger-namada": "npm:^1.0.0"
     bignumber.js: "npm:^9.1.1"
     buffer: "npm:^6.0.3"
     copy-webpack-plugin: "npm:^11.0.0"
@@ -6010,6 +6010,15 @@ __metadata:
   dependencies:
     "@ledgerhq/hw-transport": "npm:^6.30.6"
   checksum: 39aabba4be347e5329413be53de82e6519ff9b8e44473d6753cd096b733d075891528d12353108bf653071cbcd6804a9b826703753061428a7f93861607bce80
+  languageName: node
+  linkType: hard
+
+"@zondax/ledger-namada@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@zondax/ledger-namada@npm:1.0.0"
+  dependencies:
+    "@ledgerhq/hw-transport": "npm:^6.30.6"
+  checksum: f7490964ccd41f9a63f2bc8d89ea9f01e7d6a58be796db0b454a3f1455dcc8dc8dd578a8642aa0f0799c93f838e8e3afd69f59f7e9947816b9471338c2b9dd63
   languageName: node
   linkType: hard
 
