@@ -12,6 +12,11 @@ import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
 import { parseChainInfo } from "./common";
 
+export type TransactionFee = {
+  token: Asset;
+  amount: BigNumber;
+};
+
 export type TransferModuleConfig = {
   wallet?: WalletProvider;
   walletAddress?: string;
@@ -40,7 +45,7 @@ type TransferDestinationProps = TransferModuleConfig & {
 type TransferModuleProps = {
   source: TransferSourceProps;
   destination: TransferDestinationProps;
-  transactionFee?: BigNumber;
+  transactionFee?: TransactionFee;
   isSubmitting?: boolean;
   onSubmitTransfer: (
     amount: BigNumber,

@@ -1,21 +1,57 @@
 import { Asset, Chain } from "@chain-registry/types";
-import { Coin, OfflineSigner } from "@cosmjs/launchpad";
+import { Coin } from "@cosmjs/launchpad";
 import { coin, coins } from "@cosmjs/proto-signing";
-import { SigningStargateClient, StargateClient } from "@cosmjs/stargate";
+import {
+  MsgTransferEncodeObject,
+  SigningStargateClient,
+  StargateClient,
+} from "@cosmjs/stargate";
+import { Keplr } from "@keplr-wallet/types";
+import { TransactionFee } from "App/Transfer/TransferModule";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
-import Long from "long";
+import { getSdkInstance } from "utils/sdk";
 import { workingRpcsAtom } from "./atoms";
 import { getRpcByIndex } from "./functions";
 
-export type IBCTransferParams = {
-  signer: OfflineSigner;
+type CommonParams = {
+  keplr: Keplr;
+  sourceChainId: string;
   sourceAddress: string;
   destinationAddress: string;
   amount: BigNumber;
   token: string;
-  channelId: string;
-  memo?: string;
+  sourceChannelId: string;
+  transactionFee: TransactionFee;
+};
+
+type TransparentParams = CommonParams & { isShielded: false };
+type ShieldedParams = CommonParams & {
+  isShielded: true;
+  destinationChannelId: string;
+};
+
+export type IbcTransferParams = TransparentParams | ShieldedParams;
+
+const getShieldedArgs = async (
+  target: string,
+  token: string,
+  amount: BigNumber,
+  destinationChannelId: string
+): Promise<{ receiver: string; memo: string }> => {
+  const sdk = await getSdkInstance();
+
+  const memo = await sdk.tx.generateIbcShieldingMemo(
+    target,
+    token,
+    amount,
+    destinationChannelId
+  );
+
+  return {
+    receiver: sdk.masp.maspAddress(),
+    memo,
+  };
 };
 
 export type AssetWithBalance = {
@@ -35,17 +71,21 @@ export const queryAssetBalances = async (
 };
 
 export const submitIbcTransfer =
-  (transferParams: IBCTransferParams) =>
+  (transferParams: IbcTransferParams) =>
   async (rpc: string): Promise<void> => {
     const {
-      signer,
+      keplr,
+      sourceChainId,
       sourceAddress,
       destinationAddress,
       amount,
       token,
-      channelId,
-      memo,
+      sourceChannelId,
+      isShielded,
+      transactionFee,
     } = transferParams;
+
+    const signer = keplr.getOfflineSigner(sourceChainId);
 
     const client = await SigningStargateClient.connectWithSigner(rpc, signer, {
       broadcastPollIntervalMs: 300,
@@ -53,35 +93,61 @@ export const submitIbcTransfer =
     });
 
     const fee = {
-      amount: coins("0", token),
-      gas: "222000",
+      amount: coins(
+        transactionFee.amount.toString(),
+        transactionFee.token.base
+      ),
+      gas: "222000", // TODO: what should this be?
     };
 
-    const timeoutTimestampNanoseconds = Long.fromNumber(
-      Math.floor(Date.now() / 1000) + 60
-    ).multiply(1_000_000_000);
+    const timeoutTimestampNanoseconds =
+      BigInt(Math.floor(Date.now() / 1000) + 60) * BigInt(1_000_000_000);
 
-    const transferMsg = {
+    const { receiver, memo }: { receiver: string; memo?: string } =
+      isShielded ?
+        await getShieldedArgs(
+          destinationAddress,
+          token,
+          amount,
+          transferParams.destinationChannelId
+        )
+      : { receiver: destinationAddress };
+
+    const transferMsg: MsgTransferEncodeObject = {
       typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
       value: {
         sourcePort: "transfer",
-        sourceChannel: channelId,
+        sourceChannel: sourceChannelId,
         sender: sourceAddress,
-        receiver: destinationAddress,
+        receiver,
         token: coin(amount.toString(), token),
+        timeoutHeight: undefined,
         timeoutTimestamp: timeoutTimestampNanoseconds,
+        memo,
       },
     };
 
-    const response = await client.signAndBroadcast(
-      sourceAddress,
-      [transferMsg],
-      fee,
-      memo
-    );
+    // Set Keplr option to allow Namadillo to set the transaction fee
+    const savedKeplrOptions = keplr.defaultOptions;
+    keplr.defaultOptions = {
+      sign: {
+        preferNoSetFee: true,
+      },
+    };
 
-    if (response.code !== 0) {
-      throw new Error(response.code + " " + response.transactionHash);
+    try {
+      const response = await client.signAndBroadcast(
+        sourceAddress,
+        [transferMsg],
+        fee
+      );
+
+      if (response.code !== 0) {
+        throw new Error(response.code + " " + response.transactionHash);
+      }
+    } finally {
+      // Restore Keplr options to avoid mutating state
+      keplr.defaultOptions = savedKeplrOptions;
     }
   };
 

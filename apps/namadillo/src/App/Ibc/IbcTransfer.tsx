@@ -23,9 +23,6 @@ import { basicConvertToKeplrChain } from "utils/integration";
 
 const keplr = (window as KeplrWindow).keplr!;
 
-//TODO: we need to find a good way to manage IBC channels
-const namadaChannelId = "channel-4353";
-
 export const IbcTransfer: React.FC = () => {
   const knownChains = useAtomValue(knownChainsAtom);
   const [chainId, setChainId] = useAtom(selectedIBCChainAtom);
@@ -33,8 +30,33 @@ export const IbcTransfer: React.FC = () => {
   const [sourceAddress, setSourceAddress] = useState<string | undefined>();
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAsset, setSelectedAsset] = useState<Asset>();
+  const [sourceChannelId, setSourceChannelId] = useState<string>("");
+  const [destinationChannelId, setDestinationChannelId] = useState<string>("");
   const performIbcTransfer = useAtomValue(ibcTransferAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
+
+  const transactionFee = useMemo(() => {
+    if (typeof registry !== "undefined") {
+      // TODO: can we get a better type for registry to avoid optional chaining?
+      // TODO: some chains support multiple fee tokens - what should we do?
+      const feeToken = registry.chain?.fees?.fee_tokens?.[0];
+
+      if (typeof feeToken !== "undefined") {
+        const asset = registry.assets.assets.find(
+          (asset) => asset.base === feeToken.denom
+        );
+
+        if (typeof asset !== "undefined") {
+          return {
+            amount: BigNumber(1), // TODO: remove hardcoding
+            token: asset,
+          };
+        }
+      }
+    }
+
+    return undefined;
+  }, [registry]);
 
   useEffect(() => {
     setSelectedAsset(undefined);
@@ -132,15 +154,29 @@ export const IbcTransfer: React.FC = () => {
       throw new Error("Invalid chain");
     }
 
+    if (typeof transactionFee === "undefined") {
+      throw new Error("No transaction fee is set");
+    }
+
     performIbcTransfer.mutateAsync({
       chain: registry.chain,
       transferParams: {
-        signer: keplr.getOfflineSigner(registry.chain.chain_id),
+        keplr,
+        sourceChainId: chainId,
         sourceAddress,
         destinationAddress,
         amount,
         token: selectedAsset.base,
-        channelId: namadaChannelId,
+        transactionFee,
+        sourceChannelId,
+        ...(shielded ?
+          {
+            isShielded: true,
+            destinationChannelId,
+          }
+        : {
+            isShielded: false,
+          }),
       },
     });
   };
@@ -149,11 +185,22 @@ export const IbcTransfer: React.FC = () => {
     if (
       !selectedAsset ||
       !assetsBalances ||
-      !(selectedAsset.base in assetsBalances)
+      !(selectedAsset.base in assetsBalances) ||
+      typeof transactionFee === "undefined"
     ) {
       return undefined;
     }
-    return assetsBalances[selectedAsset.base].balance;
+
+    const totalAmount = assetsBalances[selectedAsset.base].balance;
+
+    if (
+      typeof totalAmount !== "undefined" &&
+      selectedAsset.base === transactionFee.token.base
+    ) {
+      return totalAmount.minus(transactionFee.amount);
+    } else {
+      return totalAmount;
+    }
   }, [selectedAsset, assetsBalances]);
 
   return (
@@ -161,6 +208,23 @@ export const IbcTransfer: React.FC = () => {
       <header className="text-center mb-4">
         <h2>IBC Transfer to Namada</h2>
       </header>
+      <div className="flex flex-col gap-2">
+        <input
+          className="text-black"
+          type="text"
+          placeholder="source channel id"
+          value={sourceChannelId}
+          onChange={(e) => setSourceChannelId(e.target.value)}
+        />
+
+        <input
+          className="text-black"
+          type="text"
+          placeholder="destination channel id"
+          value={destinationChannelId}
+          onChange={(e) => setDestinationChannelId(e.target.value)}
+        />
+      </div>
       <TransferModule
         source={{
           isLoadingAssets: isLoadingBalances,
@@ -185,7 +249,7 @@ export const IbcTransfer: React.FC = () => {
           isShielded: shielded,
           onChangeShielded: setShielded,
         }}
-        transactionFee={new BigNumber(0.0001) /*TODO: fix this*/}
+        transactionFee={transactionFee}
         isSubmitting={performIbcTransfer.isPending}
         onSubmitTransfer={onSubmitTransfer}
       />
