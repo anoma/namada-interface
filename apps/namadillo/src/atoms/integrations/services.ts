@@ -1,21 +1,53 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { Coin, OfflineSigner } from "@cosmjs/launchpad";
 import { coin, coins } from "@cosmjs/proto-signing";
-import { SigningStargateClient, StargateClient } from "@cosmjs/stargate";
+import {
+  MsgTransferEncodeObject,
+  SigningStargateClient,
+  StargateClient,
+} from "@cosmjs/stargate";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
-import Long from "long";
+import { getSdkInstance } from "utils/sdk";
 import { workingRpcsAtom } from "./atoms";
 import { getRpcByIndex } from "./functions";
 
-export type IBCTransferParams = {
+type CommonParams = {
   signer: OfflineSigner;
   sourceAddress: string;
   destinationAddress: string;
   amount: BigNumber;
   token: string;
-  channelId: string;
-  memo?: string;
+  sourceChannelId: string;
+};
+
+type TransparentParams = CommonParams & { isShielded: false };
+type ShieldedParams = CommonParams & {
+  isShielded: true;
+  destinationChannelId: string;
+};
+
+export type IbcTransferParams = TransparentParams | ShieldedParams;
+
+const getShieldedArgs = async (
+  target: string,
+  token: string,
+  amount: BigNumber,
+  destinationChannelId: string
+): Promise<{ receiver: string; memo: string }> => {
+  const sdk = await getSdkInstance();
+
+  const memo = await sdk.tx.generateIbcShieldingMemo(
+    target,
+    token,
+    amount,
+    destinationChannelId
+  );
+
+  return {
+    receiver: sdk.masp.maspAddress(),
+    memo,
+  };
 };
 
 export type AssetWithBalance = {
@@ -35,7 +67,7 @@ export const queryAssetBalances = async (
 };
 
 export const submitIbcTransfer =
-  (transferParams: IBCTransferParams) =>
+  (transferParams: IbcTransferParams) =>
   async (rpc: string): Promise<void> => {
     const {
       signer,
@@ -43,8 +75,8 @@ export const submitIbcTransfer =
       destinationAddress,
       amount,
       token,
-      channelId,
-      memo,
+      sourceChannelId,
+      isShielded,
     } = transferParams;
 
     const client = await SigningStargateClient.connectWithSigner(rpc, signer, {
@@ -57,27 +89,37 @@ export const submitIbcTransfer =
       gas: "222000",
     };
 
-    const timeoutTimestampNanoseconds = Long.fromNumber(
-      Math.floor(Date.now() / 1000) + 60
-    ).multiply(1_000_000_000);
+    const timeoutTimestampNanoseconds =
+      BigInt(Math.floor(Date.now() / 1000) + 60) * BigInt(1_000_000_000);
 
-    const transferMsg = {
+    const { receiver, memo }: { receiver: string; memo?: string } =
+      isShielded ?
+        await getShieldedArgs(
+          destinationAddress,
+          token,
+          amount,
+          transferParams.destinationChannelId
+        )
+      : { receiver: destinationAddress };
+
+    const transferMsg: MsgTransferEncodeObject = {
       typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
       value: {
         sourcePort: "transfer",
-        sourceChannel: channelId,
+        sourceChannel: sourceChannelId,
         sender: sourceAddress,
-        receiver: destinationAddress,
+        receiver,
         token: coin(amount.toString(), token),
+        timeoutHeight: undefined,
         timeoutTimestamp: timeoutTimestampNanoseconds,
+        memo,
       },
     };
 
     const response = await client.signAndBroadcast(
       sourceAddress,
       [transferMsg],
-      fee,
-      memo
+      fee
     );
 
     if (response.code !== 0) {
