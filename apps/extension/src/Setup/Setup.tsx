@@ -11,6 +11,7 @@ import {
   Container,
   LifecycleExecutionWrapper as Wrapper,
 } from "@namada/components";
+import { Bip44Path } from "@namada/types";
 import { AccountSecret } from "background/keyring";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCloseTabOnExtensionLock } from "hooks/useCloseTabOnExtensionLock";
@@ -64,6 +65,11 @@ export const Setup: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [totalSteps, setTotalSteps] = useState(0);
   const [currentPageTitle, setCurrentPageTitle] = useState("");
+  const [path, setPath] = useState<Bip44Path>({
+    account: 0,
+    change: 0,
+    index: 0,
+  });
 
   const seedPhrase =
     accountSecret?.t === "Mnemonic" ? accountSecret.seedPhrase : undefined;
@@ -201,6 +207,7 @@ export const Setup: React.FC = () => {
                       alias={accountCreationDetails.alias || ""}
                       accountSecret={selectedAccountSecret}
                       password={accountCreationDetails.password || ""}
+                      path={path}
                     />
                   </Wrapper>
                 }
@@ -221,6 +228,8 @@ export const Setup: React.FC = () => {
                 element={
                   <Wrapper onLoad={setCurrentPage("Import Existing Keys", 1)}>
                     <SeedPhraseImport
+                      path={path}
+                      setPath={setPath}
                       onConfirm={(accountSecret: AccountSecret) => {
                         setAccountSecret(accountSecret);
                         navigate(routes.accountImportCreate());
@@ -263,6 +272,7 @@ export const Setup: React.FC = () => {
                       alias={accountCreationDetails.alias || ""}
                       accountSecret={selectedAccountSecret}
                       password={accountCreationDetails.password || ""}
+                      path={path}
                     />
                   </Wrapper>
                 }
@@ -283,7 +293,7 @@ export const Setup: React.FC = () => {
                   <Wrapper
                     onLoad={setCurrentPage("Connect Your Ledger Hardware", 1)}
                   >
-                    <LedgerConnect />
+                    <LedgerConnect path={path} setPath={setPath} />
                   </Wrapper>
                 }
               />
@@ -296,7 +306,10 @@ export const Setup: React.FC = () => {
                       2
                     )}
                   >
-                    <LedgerImport passwordRequired={!passwordInitialized} />
+                    <LedgerImport
+                      path={path}
+                      passwordRequired={!passwordInitialized}
+                    />
                   </Wrapper>
                 }
               />

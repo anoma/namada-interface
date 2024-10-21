@@ -132,9 +132,9 @@ const handleSaveAccountSecretMsg: (
   service: KeyRingService
 ) => InternalHandler<SaveAccountSecretMsg> = (service) => {
   return async (_, msg) => {
-    const { accountSecret, alias } = msg;
+    const { accountSecret, alias, path } = msg;
     if (accountSecret) {
-      return await service.saveAccountSecret(accountSecret, alias);
+      return await service.saveAccountSecret(accountSecret, alias, path);
     }
     return false;
   };
