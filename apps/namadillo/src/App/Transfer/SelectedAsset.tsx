@@ -32,7 +32,7 @@ export const SelectedAsset = ({
       disabled={isDisabled}
       onClick={onClick}
       aria-description={
-        asset ? `${asset.name} is selected` : `No asset selected`
+        asset ? `${asset.symbol} is selected` : `No asset selected`
       }
     >
       {!asset && (
@@ -63,7 +63,7 @@ export const SelectedAsset = ({
               "w-15 aspect-square object-cover select-none",
               "object-center bg-neutral-800 rounded-full"
             )}
-            alt={`${asset.name} image`}
+            alt={`${asset.symbol} image`}
             src={asset.logo_URIs?.svg}
           />
           <span className="flex items-center gap-1">

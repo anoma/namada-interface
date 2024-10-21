@@ -16,7 +16,7 @@ export const AssetCard = ({ asset }: AssetCardProps): JSX.Element => {
       {image ?
         <img
           src={image}
-          alt={asset.name + ` logo`}
+          alt={asset.symbol + ` logo`}
           className="w-full aspect-square"
         />
       : <img
@@ -25,7 +25,7 @@ export const AssetCard = ({ asset }: AssetCardProps): JSX.Element => {
           role="img"
         />
       }
-      <span className="text-left">{asset.name}</span>
+      <span className="text-left">{asset.symbol}</span>
     </span>
   );
 };
