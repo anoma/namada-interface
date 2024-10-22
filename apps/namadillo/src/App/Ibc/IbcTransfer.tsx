@@ -27,8 +27,6 @@ export const IbcTransfer: React.FC = () => {
   const knownChains = useAtomValue(knownChainsAtom);
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAsset, setSelectedAsset] = useState<Asset>();
-  const [sourceChannelId, setSourceChannelId] = useState<string>("");
-  const [destinationChannelId, setDestinationChannelId] = useState<string>("");
   const [currentStep, setCurrentStep] = useState(0);
   const performIbcTransfer = useAtomValue(ibcTransferAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
@@ -136,22 +134,6 @@ export const IbcTransfer: React.FC = () => {
         <IbcTopHeader type="ibcToNam" isShielded={shielded} />
         <h2 className="text-lg">IBC Transfer to Namada</h2>
       </header>
-      <div className="flex flex-col gap-2">
-        <input
-          className="text-black"
-          type="text"
-          placeholder="source channel id"
-          value={sourceChannelId}
-          onChange={(e) => setSourceChannelId(e.target.value)}
-        />
-        <input
-          className="text-black"
-          type="text"
-          placeholder="destination channel id"
-          value={destinationChannelId}
-          onChange={(e) => setDestinationChannelId(e.target.value)}
-        />
-      </div>
       <AnimatePresence>
         {currentStep === 0 && (
           <motion.div
