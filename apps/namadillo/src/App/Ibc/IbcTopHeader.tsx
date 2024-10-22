@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 import arrowImage from "./assets/arrow.svg";
 import ibcImage from "./assets/ibc.png";
 import shieldedNamImage from "./assets/shielded-account.png";
-import tokenImage from "./assets/token.png";
+import tokenImage from "./assets/token.svg";
 import transparentNamImage from "./assets/transparent-account.png";
 
 type IbcTopHeaderProps = {
