@@ -7,7 +7,7 @@ import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { routes } from "App/routes";
 import { chainTokensAtom } from "atoms/chain";
-import { knownChainsAtom } from "atoms/integrations/atoms";
+import { chainRegistryAtom } from "atoms/integrations/atoms";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
@@ -37,7 +37,7 @@ export const ShieldedFungibleTable = ({
 }): JSX.Element => {
   const [page, setPage] = useState(initialPage);
   const { data: chainTokens } = useAtomValue(chainTokensAtom);
-  const knownChains = useAtomValue(knownChainsAtom);
+  const chainRegistry = useAtomValue(chainRegistryAtom);
 
   const list = useMemo(() => {
     const addressToDenom: Record<string, string> = {};
@@ -50,7 +50,8 @@ export const ShieldedFungibleTable = ({
       // TODO namadaAsset should be returned from knownChains
       nam: namadaAsset,
     };
-    Object.values(knownChains).forEach((chain) => {
+
+    Object.values(chainRegistry).forEach((chain) => {
       chain.assets.assets.forEach((asset) => {
         asset.denom_units.forEach((unit) => {
           denomToAsset[unit.denom] = asset;
@@ -70,7 +71,7 @@ export const ShieldedFungibleTable = ({
         ssrRate: new BigNumber(0), // TODO
       };
     });
-  }, [data, chainTokens, knownChains]);
+  }, [data, chainTokens, chainRegistry]);
 
   const headers = [
     "Token",

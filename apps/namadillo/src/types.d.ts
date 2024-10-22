@@ -19,6 +19,8 @@ type Unique = {
 
 export type Address = string;
 
+export type ChainId = string;
+
 export type GasLimit = BigNumber;
 
 export type GasPrice = BigNumber;

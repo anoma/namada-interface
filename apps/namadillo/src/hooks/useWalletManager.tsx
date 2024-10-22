@@ -1,4 +1,4 @@
-import { knownChainsAtom, selectedIBCChainAtom } from "atoms/integrations";
+import { chainRegistryAtom, selectedIBCChainAtom } from "atoms/integrations";
 import { WalletInterface } from "integrations/types";
 import { findRegistryByChainId } from "integrations/utils";
 import { useAtom, useAtomValue } from "jotai";
@@ -15,7 +15,7 @@ type UseWalletOutput = {
 };
 
 export const useWalletManager = (wallet: WalletInterface): UseWalletOutput => {
-  const knownChains = useAtomValue(knownChainsAtom);
+  const chainRegistry = useAtomValue(chainRegistryAtom);
   const [walletAddress, setWalletAddress] = useState<string | undefined>();
   const [chainId, setChainId] = useAtom(selectedIBCChainAtom);
   const [registry, setRegistry] = useState<ChainRegistryEntry>();
@@ -26,7 +26,7 @@ export const useWalletManager = (wallet: WalletInterface): UseWalletOutput => {
       return;
     }
 
-    const registry = findRegistryByChainId(knownChains, chainId);
+    const registry = findRegistryByChainId(chainRegistry, chainId);
     if (registry) {
       connectToChainId(chainId);
       setRegistry(registry);
@@ -34,7 +34,7 @@ export const useWalletManager = (wallet: WalletInterface): UseWalletOutput => {
   }, [chainId]);
 
   const connectToChainId = async (chainId: string): Promise<void> => {
-    const registry = findRegistryByChainId(knownChains, chainId);
+    const registry = findRegistryByChainId(chainRegistry, chainId);
     if (!registry) {
       throw "Unknown registry. Tried to search for " + chainId;
     }

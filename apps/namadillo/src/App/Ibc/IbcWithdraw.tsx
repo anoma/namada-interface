@@ -7,13 +7,12 @@ import {
 } from "App/Transfer/TransferModule";
 import { defaultAccountAtom } from "atoms/accounts";
 import { chainAtom, chainParametersAtom } from "atoms/chain";
-import { knownChainsAtom } from "atoms/integrations";
+import { availableChainsAtom, chainRegistryAtom } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
 import { KeplrWalletManager } from "integrations/Keplr";
 import { useAtomValue } from "jotai";
-import { useMemo } from "react";
 import namadaChainRegistry from "registry/namada.json";
 import { getSdkInstance } from "utils/sdk";
 import { IbcTopHeader } from "./IbcTopHeader";
@@ -24,7 +23,8 @@ const namada = (window as WindowWithNamada).namada!;
 
 export const IbcWithdraw: React.FC = () => {
   const namadaAccount = useAtomValue(defaultAccountAtom);
-  const knownChains = useAtomValue(knownChainsAtom);
+  const chainRegistry = useAtomValue(chainRegistryAtom);
+  const availableChains = useAtomValue(availableChainsAtom);
   const namadaChainParams = useAtomValue(chainParametersAtom);
   const namadaChain = useAtomValue(chainAtom);
 
@@ -78,11 +78,6 @@ export const IbcWithdraw: React.FC = () => {
     connectToChainId(chain.chain_id);
   };
 
-  const availableChains = useMemo(
-    () => Object.values(knownChains || {}).map((entry) => entry.chain),
-    [knownChains]
-  );
-
   return (
     <>
       <header className="flex flex-col items-center text-center mb-3 gap-6">
@@ -110,7 +105,7 @@ export const IbcWithdraw: React.FC = () => {
           availableWallets: [wallets.keplr!],
           availableChains,
           enableCustomAddress: true,
-          chain: mapUndefined((id) => knownChains[id].chain, chainId),
+          chain: mapUndefined((id) => chainRegistry[id].chain, chainId),
           onChangeWallet,
           onChangeChain,
           isShielded: false,

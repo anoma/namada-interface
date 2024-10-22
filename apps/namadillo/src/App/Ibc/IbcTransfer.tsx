@@ -6,7 +6,11 @@ import {
   TransferModule,
 } from "App/Transfer/TransferModule";
 import { allDefaultAccountsAtom } from "atoms/accounts";
-import { ibcTransferAtom, knownChainsAtom } from "atoms/integrations";
+import {
+  availableChainsAtom,
+  chainRegistryAtom,
+  ibcTransferAtom,
+} from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAssetAmount } from "hooks/useAssetAmount";
@@ -24,7 +28,8 @@ const keplr = new KeplrWalletManager();
 const defaultChainId = "cosmoshub-4";
 
 export const IbcTransfer: React.FC = () => {
-  const knownChains = useAtomValue(knownChainsAtom);
+  const chainRegistry = useAtomValue(chainRegistryAtom);
+  const availableChains = useAtomValue(availableChainsAtom);
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAsset, setSelectedAsset] = useState<Asset>();
   const [currentStep, setCurrentStep] = useState(0);
@@ -57,11 +62,6 @@ export const IbcTransfer: React.FC = () => {
         ?.address || ""
     );
   }, [defaultAccounts, shielded]);
-
-  const availableChains = useMemo(
-    () => Object.values(knownChains).map((entry) => entry.chain),
-    [knownChains]
-  );
 
   const onSubmitTransfer = async ({
     amount,
@@ -149,7 +149,7 @@ export const IbcTransfer: React.FC = () => {
                 availableAmount,
                 availableChains,
                 onChangeChain,
-                chain: mapUndefined((id) => knownChains[id].chain, chainId),
+                chain: mapUndefined((id) => chainRegistry[id].chain, chainId),
                 availableWallets: [wallets.keplr!],
                 wallet: wallets.keplr,
                 walletAddress: sourceAddress,
