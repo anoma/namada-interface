@@ -114,14 +114,14 @@ export const TransferModule = ({
 
     const params: OnSubmitTransferParams = {
       amount: toBaseAmount(source.selectedAsset, amount),
-      destinationAddress: address,
+      destinationAddress: address.trim(),
       memo,
     };
 
     if (requiresIbcChannels) {
       params.ibcOptions = {
-        sourceChannel: sourceIbcChannel,
-        destinationChannel: destinationIbcChannel,
+        sourceChannel: sourceIbcChannel.trim(),
+        destinationChannel: destinationIbcChannel.trim(),
       };
     }
 

@@ -18,7 +18,7 @@ export const IbcChannels = ({
 }: IbcChannelsProps): JSX.Element => {
   return (
     <div className={clsx("relative bg-neutral-800 rounded-lg px-4 pt-6 pb-4")}>
-      <fieldset className="flex flex-col gap-1">
+      <fieldset className="flex flex-col gap-4">
         <Input
           placeholder="Source IBC Channel (ex: channel-4353)"
           label="Source IBC Channel"
