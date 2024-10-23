@@ -1,7 +1,7 @@
 import { ChainRegistryEntry } from "types";
 
-export interface WalletInterface {
+export interface WalletConnector {
   connect(registry: ChainRegistryEntry): Promise<void>;
-  loadWalletAddress(chainId: string): Promise<string>;
+  getAddress(chainId: string): Promise<string>;
   getSigner(chainId: string): unknown | undefined;
 }

@@ -1,5 +1,5 @@
 import { chainRegistryAtom, selectedIBCChainAtom } from "atoms/integrations";
-import { WalletInterface } from "integrations/types";
+import { WalletConnector } from "integrations/types";
 import { findRegistryByChainId } from "integrations/utils";
 import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
@@ -14,7 +14,7 @@ type UseWalletOutput = {
   loadWalletAddress: (chainId: string) => Promise<string>;
 };
 
-export const useWalletManager = (wallet: WalletInterface): UseWalletOutput => {
+export const useWalletManager = (wallet: WalletConnector): UseWalletOutput => {
   const chainRegistry = useAtomValue(chainRegistryAtom);
   const [walletAddress, setWalletAddress] = useState<string | undefined>();
   const [chainId, setChainId] = useAtom(selectedIBCChainAtom);
@@ -46,7 +46,7 @@ export const useWalletManager = (wallet: WalletInterface): UseWalletOutput => {
   };
 
   const loadWalletAddress = async (chainId: string): Promise<string> => {
-    const address = await wallet.loadWalletAddress(chainId);
+    const address = await wallet.getAddress(chainId);
     setWalletAddress(address);
     return address;
   };
