@@ -3,6 +3,7 @@ import { chains } from "@namada/chains";
 import { WrapperTxMsgValue } from "@namada/types";
 import { ChainsService } from "background/chains";
 import { KeyRingService } from "background/keyring";
+import { PermissionsService } from "background/permissions";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import BigNumber from "bignumber.js";
@@ -49,6 +50,7 @@ describe("approvals service", () => {
   let sdkService: jest.Mocked<SdkService>;
   let keyRingService: jest.Mocked<KeyRingService>;
   let chainService: jest.Mocked<ChainsService>;
+  let permissionsService: jest.Mocked<PermissionsService>;
   let dataStore: KVStoreMock<string>;
   let txStore: KVStoreMock<PendingTx>;
   let localStorage: LocalStorage;
@@ -78,6 +80,7 @@ describe("approvals service", () => {
       keyRingService,
       vaultService,
       chainService,
+      permissionsService,
       broadcaster
     );
   });
@@ -530,7 +533,7 @@ describe("approvals service", () => {
   describe("getResolver", () => {
     it("should get the related tab id resolver from resolverMap", async () => {
       const popupTabId = 1;
-      const resolver = { resolve: () => { }, reject: () => { } };
+      const resolver = { resolve: () => {}, reject: () => {} };
       service["resolverMap"] = {
         [popupTabId]: resolver,
       };
@@ -541,7 +544,7 @@ describe("approvals service", () => {
     it("should throw an error if there is no resolver for the tab id", async () => {
       const popupTabId = 1;
       service["resolverMap"] = {
-        [popupTabId]: { resolve: () => { }, reject: () => { } },
+        [popupTabId]: { resolve: () => {}, reject: () => {} },
       };
 
       expect(() => service["getResolver"](999)).toThrow();
@@ -552,7 +555,7 @@ describe("approvals service", () => {
     it("should remove related tab id resolver from resolverMap", async () => {
       const popupTabId = 1;
       service["resolverMap"] = {
-        [popupTabId]: { resolve: () => { }, reject: () => { } },
+        [popupTabId]: { resolve: () => {}, reject: () => {} },
       };
       service["removeResolver"](popupTabId);
 

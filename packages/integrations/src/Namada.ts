@@ -28,15 +28,24 @@ export default class Namada implements Integration<Account, Signer> {
     return !!this._namada;
   }
 
-  public async connect(chainId: string): Promise<void> {
+  public async connect(chainId?: string): Promise<void> {
+    if (!chainId) {
+      throw new Error("The Namada Keychain integration requires a chainId!");
+    }
     await this._namada?.connect(chainId);
   }
 
-  public async disconnect(chainId: string): Promise<void> {
+  public async disconnect(chainId?: string): Promise<void> {
+    if (!chainId) {
+      throw new Error("The Namada Keychain integration requires a chainId!");
+    }
     await this._namada?.disconnect(chainId);
   }
 
-  public async isConnected(chainId: string): Promise<boolean | undefined> {
+  public async isConnected(chainId?: string): Promise<boolean | undefined> {
+    if (!chainId) {
+      throw new Error("The Namada Keychain integration requires a chainId!");
+    }
     return await this._namada?.isConnected(chainId);
   }
 

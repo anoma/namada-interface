@@ -23,6 +23,7 @@ export enum KVPrefix {
   RevealedPK = "Namada::RevealedPK",
   SessionStorage = "Namada::SessionStorage",
   WasmHashesStorage = "Namada::WasmHashesStorage",
+  Permissions = "Namada::Permissions",
 }
 
 export enum KVKeys {

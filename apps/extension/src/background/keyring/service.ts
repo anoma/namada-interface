@@ -10,6 +10,7 @@ import {
 import { Result, truncateInMiddle } from "@namada/utils";
 
 import { ChainsService } from "background/chains";
+import { PermissionsService } from "background/permissions";
 import { SdkService } from "background/sdk/service";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster, ExtensionRequester } from "extension";
@@ -32,6 +33,7 @@ export class KeyRingService {
     protected readonly vaultService: VaultService,
     protected readonly sdkService: SdkService,
     protected readonly chainsService: ChainsService,
+    protected readonly permissionsService: PermissionsService,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly localStorage: LocalStorage,
     protected readonly vaultStorage: VaultStorage,
