@@ -10,7 +10,6 @@ import {
 } from "@cosmjs/stargate";
 import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import BigNumber from "bignumber.js";
-import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 import { getDefaultStore } from "jotai";
 import { getSdkInstance } from "utils/sdk";
 import { workingRpcsAtom } from "./atoms";
@@ -134,7 +133,7 @@ export const submitIbcTransfer =
 
     const transferMsg: MsgTransferEncodeObject = {
       typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
-      value: MsgTransfer.fromPartial({
+      value: {
         sourcePort: "transfer",
         sourceChannel: sourceChannelId,
         sender: sourceAddress,
@@ -143,7 +142,7 @@ export const submitIbcTransfer =
         timeoutHeight: undefined,
         timeoutTimestamp: timeoutTimestampNanoseconds,
         memo,
-      }),
+      },
     };
 
     const response = await client.signAndBroadcast(
