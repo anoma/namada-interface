@@ -93,6 +93,6 @@ export const chainRegistryAtom = atom<Record<ChainId, ChainRegistryEntry>>(
 
 // Lists only the available chain list
 export const availableChainsAtom = atom((get) => {
-  const registry = get(chainRegistryAtom);
-  return Object.values(registry).map(({ chain }) => chain);
+  const settings = get(settingsAtom);
+  return getKnownChains(settings.enableTestnets).map(({ chain }) => chain);
 });
