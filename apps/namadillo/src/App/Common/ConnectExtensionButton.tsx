@@ -1,10 +1,13 @@
 import { ActionButton } from "@namada/components";
+import { chainParametersAtom } from "atoms/chain";
 import { namadaExtensionAttachStatus } from "atoms/settings";
 import { useExtensionConnect } from "hooks/useExtensionConnect";
 import { useAtomValue } from "jotai";
 
 export const ConnectExtensionButton = (): JSX.Element => {
   const extensionAttachStatus = useAtomValue(namadaExtensionAttachStatus);
+  const { data: chain } = useAtomValue(chainParametersAtom);
+  const chainId = chain?.chainId;
   const { connect, isConnected } = useExtensionConnect();
 
   // TODO create an action button when the extension is connected
@@ -13,7 +16,11 @@ export const ConnectExtensionButton = (): JSX.Element => {
   return (
     <>
       {extensionAttachStatus === "attached" && !isConnected && (
-        <ActionButton backgroundColor="yellow" size="sm" onClick={connect}>
+        <ActionButton
+          backgroundColor="yellow"
+          size="sm"
+          onClick={() => (chainId ? connect(chainId) : undefined)}
+        >
           Connect Keychain
         </ActionButton>
       )}

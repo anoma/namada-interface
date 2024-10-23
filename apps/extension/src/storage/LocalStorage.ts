@@ -53,9 +53,40 @@ const Chain = t.intersection([
 ]);
 type ChainType = t.TypeOf<typeof Chain>;
 
+// TODO: Remove the folllowing once NamadaKeychainPermissions is working!
 const NamadaExtensionApprovedOrigins = t.array(t.string);
 type NamadaExtensionApprovedOriginsType = t.TypeOf<
   typeof NamadaExtensionApprovedOrigins
+>;
+
+export type PermissionKind = "accounts" | "signing" | "proofGenKeys";
+
+export const KeychainPermissions: Record<
+  PermissionKind,
+  { description: string }
+> = {
+  accounts: {
+    description: "Allow approved clients to read account public data",
+  },
+  signing: { description: "Allow approved clients to sign transactions" },
+  proofGenKeys: {
+    description:
+      "Allow approved clients to request proof generation keys for shielded accounts",
+  },
+};
+export type AllowedPermissions = (keyof typeof KeychainPermissions)[];
+
+// Define keychain permissions schema
+const PermissionDomain = t.string;
+const PermissionChainId = t.string;
+const NamadaKeychainPermissions = t.record(
+  PermissionDomain,
+  t.record(PermissionChainId, t.array(t.keyof(KeychainPermissions)))
+);
+
+// Export keychain permissions type
+export type NamadaKeychainPermissionsType = t.TypeOf<
+  typeof NamadaKeychainPermissions
 >;
 
 const NamadaExtensionRouterId = t.number;
@@ -69,18 +100,21 @@ type LocalStorageTypes =
 type LocalStorageSchemas =
   | typeof Chain
   | typeof NamadaExtensionApprovedOrigins
-  | typeof NamadaExtensionRouterId;
+  | typeof NamadaExtensionRouterId
+  | typeof NamadaKeychainPermissions;
 
 export type LocalStorageKeys =
   | "chains"
   | "namadaExtensionApprovedOrigins"
   | "namadaExtensionRouterId"
+  | "namadaKeychainPermissions"
   | "tabs";
 
 const schemasMap = new Map<LocalStorageSchemas, LocalStorageKeys>([
   [Chain, "chains"],
   [NamadaExtensionApprovedOrigins, "namadaExtensionApprovedOrigins"],
   [NamadaExtensionRouterId, "namadaExtensionRouterId"],
+  [NamadaKeychainPermissions, "namadaKeychainPermissions"],
 ]);
 
 export class LocalStorage extends ExtStorage {
@@ -153,6 +187,34 @@ export class LocalStorage extends ExtStorage {
     origins: NamadaExtensionApprovedOriginsType
   ): Promise<void> {
     await this.setRaw(this.getKey(NamadaExtensionApprovedOrigins), origins);
+  }
+
+  async getPermissions(): Promise<NamadaKeychainPermissionsType | undefined> {
+    const data = await this.getRaw(this.getKey(NamadaKeychainPermissions));
+    const Schema = t.union([NamadaKeychainPermissions, t.undefined]);
+    const decodedData = Schema.decode(data);
+
+    if (E.isLeft(decodedData)) {
+      throw new Error("");
+    }
+    return decodedData.right;
+  }
+
+  async setPermissions(
+    permissions: NamadaKeychainPermissionsType
+  ): Promise<void> {
+    // Validate permissions against schema
+    const Schema = t.union([NamadaKeychainPermissions, t.undefined]);
+    const decodedData = Schema.decode(permissions);
+
+    if (E.isLeft(decodedData)) {
+      throw new Error("Invalid permissions data!");
+    }
+
+    await this.setRaw(
+      this.getKey(NamadaKeychainPermissions),
+      decodedData.right
+    );
   }
 
   private getKey<S extends LocalStorageSchemas>(schema: S): LocalStorageKeys {

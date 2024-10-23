@@ -24,6 +24,7 @@ import { LocalStorage, VaultStorage } from "storage";
 import { ApprovalsService, init as initApprovals } from "./approvals";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, UtilityStore, init as initKeyRing } from "./keyring";
+import { PermissionsService } from "./permissions";
 import { SdkService } from "./sdk/service";
 import { VaultService, init as initVault } from "./vault";
 
@@ -69,10 +70,12 @@ const init = new Promise<void>(async (resolve) => {
     localStorage,
     broadcaster
   );
+  const permissionsService = new PermissionsService(localStorage);
   const keyRingService = new KeyRingService(
     vaultService,
     sdkService,
     chainsService,
+    permissionsService,
     utilityStore,
     localStorage,
     vaultStorage,
@@ -87,6 +90,7 @@ const init = new Promise<void>(async (resolve) => {
     keyRingService,
     vaultService,
     chainsService,
+    permissionsService,
     broadcaster
   );
 
