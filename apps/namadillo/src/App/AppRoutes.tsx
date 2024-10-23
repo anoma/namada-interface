@@ -20,6 +20,7 @@ import { ViewJson } from "./Governance/ViewJson";
 import { IbcLayout } from "./Ibc/IbcLayout";
 import { IbcShieldAll } from "./Ibc/IbcShieldAll";
 import { IbcTransfer } from "./Ibc/IbcTransfer";
+import { IbcTransfersLayout } from "./Ibc/IbcTransfersLayout";
 import { IbcWithdraw } from "./Ibc/IbcWithdraw";
 import { MaspLayout } from "./Masp/MaspLayout";
 import { MaspOverview } from "./Masp/MaspOverview";
@@ -93,11 +94,16 @@ export const MainRoutes = (): JSX.Element => {
             </Route>
           )}
 
-          {/* Ibc */}
+          {/* Ibc Transfers */}
           {features.ibcTransfersEnabled && (
-            <Route element={<IbcLayout />}>
+            <Route element={<IbcTransfersLayout />}>
               <Route path={routes.ibc} element={<IbcTransfer />} />
               <Route path={routes.ibcWithdraw} element={<IbcWithdraw />} />
+            </Route>
+          )}
+
+          {features.ibcTransfersEnabled && (
+            <Route element={<IbcLayout />}>
               <Route path={routes.ibcShieldAll} element={<IbcShieldAll />} />
             </Route>
           )}

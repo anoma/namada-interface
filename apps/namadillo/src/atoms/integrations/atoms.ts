@@ -5,6 +5,7 @@ import { queryDependentFn } from "atoms/utils";
 import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
+import { ChainId, ChainRegistryEntry } from "types";
 import { getKnownChains, mapCoinsToAssets } from "./functions";
 import {
   IbcTransferParams,
@@ -21,7 +22,7 @@ type IBCTransferAtomParams = {
 type AssetBalanceAtomParams = {
   chain?: Chain;
   assets?: AssetList;
-  sourceAddress?: string;
+  walletAddress?: string;
 };
 
 // Currently we're just integrating with Keplr, but in the future we might use different wallets
@@ -53,31 +54,45 @@ export const ibcTransferAtom = atomWithMutation(() => {
 });
 
 export const assetBalanceAtomFamily = atomFamily(
-  ({ chain, sourceAddress, assets }: AssetBalanceAtomParams) => {
+  ({ chain, walletAddress, assets }: AssetBalanceAtomParams) => {
     return atomWithQuery(() => ({
-      queryKey: ["assets", sourceAddress, chain?.chain_id, assets],
+      queryKey: ["assets", walletAddress, chain?.chain_id, assets],
       ...queryDependentFn(async () => {
         const assetsBalances = await queryAndStoreRpc(
           chain!,
           async (rpc: string) => {
-            return await queryAssetBalances(sourceAddress!, rpc);
+            return await queryAssetBalances(walletAddress!, rpc);
           }
         );
         return mapCoinsToAssets(assetsBalances, assets!);
-      }, [!!sourceAddress, !!chain]),
+      }, [!!walletAddress, !!chain]),
     }));
   },
   (prev, current) => {
     return Boolean(
       !current.chain ||
-        !current.sourceAddress ||
+        !current.walletAddress ||
         (prev.chain?.chain_id === current.chain?.chain_id &&
-          prev.sourceAddress === current.sourceAddress)
+          prev.walletAddress === current.walletAddress)
     );
   }
 );
 
-export const knownChainsAtom = atom((get) => {
+// Every entry contains information about the chain, available assets and IBC channels
+export const chainRegistryAtom = atom<Record<ChainId, ChainRegistryEntry>>(
+  (get) => {
+    const settings = get(settingsAtom);
+    const knownChains = getKnownChains(settings.enableTestnets);
+    const map: Record<ChainId, ChainRegistryEntry> = {};
+    knownChains.forEach((chain) => {
+      map[chain.chain.chain_id] = chain;
+    });
+    return map;
+  }
+);
+
+// Lists only the available chain list
+export const availableChainsAtom = atom((get) => {
   const settings = get(settingsAtom);
-  return getKnownChains(settings.enableTestnets);
+  return getKnownChains(settings.enableTestnets).map(({ chain }) => chain);
 });
