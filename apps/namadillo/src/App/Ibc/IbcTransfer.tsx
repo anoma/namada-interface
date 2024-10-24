@@ -94,6 +94,7 @@ export const IbcTransfer: React.FC = () => {
     ibcOptions,
   }: OnSubmitTransferParams): Promise<void> => {
     try {
+      setGeneralErrorMessage("");
       setCurrentStep(1);
 
       if (typeof sourceAddress === "undefined") {
