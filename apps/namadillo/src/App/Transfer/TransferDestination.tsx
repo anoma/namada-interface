@@ -1,14 +1,15 @@
 import { Chain } from "@chain-registry/types";
 import { Stack } from "@namada/components";
-import { NamCurrency } from "App/Common/NamCurrency";
 import { TabSelector } from "App/Common/TabSelector";
-import BigNumber from "bignumber.js";
+import { TokenCurrency } from "App/Common/TokenCurrency";
 import clsx from "clsx";
 import { WalletProvider } from "types";
 import { ConnectProviderButton } from "./ConnectProviderButton";
+import { toDisplayAmount } from "utils";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";
 import { SelectedWallet } from "./SelectedWallet";
+import { TransactionFee } from "./TransferModule";
 
 type TransferDestinationProps = {
   isShielded?: boolean;
@@ -17,7 +18,7 @@ type TransferDestinationProps = {
   wallet?: WalletProvider;
   walletAddress?: string;
   className?: string;
-  transactionFee?: BigNumber;
+  transactionFee?: TransactionFee;
   customAddressActive?: boolean;
   openChainSelector?: () => void;
   openProviderSelector?: () => void;
@@ -119,7 +120,13 @@ export const TransferDestination = ({
       {transactionFee && (
         <footer className="flex justify-between mt-12 text-sm text-neutral-300">
           <span className="underline">Transaction Fee</span>
-          <NamCurrency amount={transactionFee} />
+          <TokenCurrency
+            amount={toDisplayAmount(
+              transactionFee.token,
+              transactionFee.amount
+            )}
+            asset={transactionFee.token}
+          />
         </footer>
       )}
     </div>

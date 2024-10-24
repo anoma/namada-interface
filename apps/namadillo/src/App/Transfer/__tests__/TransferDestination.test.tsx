@@ -1,4 +1,4 @@
-import { Chain } from "@chain-registry/types";
+import { Asset, Chain } from "@chain-registry/types";
 import { fireEvent, render, screen } from "@testing-library/react";
 import {
   namadaChainMock,
@@ -8,6 +8,24 @@ import { TransferDestination } from "App/Transfer/TransferDestination";
 import BigNumber from "bignumber.js";
 import { walletMock } from "../__mocks__/providers";
 import { parseChainInfo } from "../common";
+
+// TODO: we probably want to put this somewhere else for IBC withdraws
+const namAsset: Asset = {
+  name: "Namada",
+  base: "namnam",
+  display: "nam",
+  symbol: "NAM",
+  denom_units: [
+    {
+      denom: "namnam",
+      exponent: 0,
+    },
+    {
+      denom: "nam",
+      exponent: 6,
+    },
+  ],
+};
 
 describe("TransferDestination", () => {
   it("should render the component with the default props", () => {
@@ -93,10 +111,12 @@ describe("TransferDestination", () => {
   });
 
   it("should display the transaction fee if provided", () => {
-    const fee = new BigNumber(0.01);
-    render(<TransferDestination transactionFee={fee} />);
+    const fee = BigNumber(1);
+    render(
+      <TransferDestination transactionFee={{ amount: fee, token: namAsset }} />
+    );
     const transactionFee = screen.getByText("Transaction Fee");
     expect(transactionFee).toBeInTheDocument();
-    expect(transactionFee.parentNode?.textContent).toContain("0.01");
+    expect(transactionFee.parentNode?.textContent).toContain("0.000001");
   });
 });

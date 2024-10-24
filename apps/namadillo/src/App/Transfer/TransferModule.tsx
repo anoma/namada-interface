@@ -13,6 +13,11 @@ import { TransferArrow } from "./TransferArrow";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
 
+export type TransactionFee = {
+  token: Asset;
+  amount: BigNumber;
+};
+
 export type TransferModuleConfig = {
   wallet?: WalletProvider;
   walletAddress?: string;
@@ -53,7 +58,7 @@ export type OnSubmitTransferParams = {
 export type TransferModuleProps = {
   source: TransferSourceProps;
   destination: TransferDestinationProps;
-  transactionFee?: BigNumber;
+  transactionFee?: TransactionFee;
   isSubmitting?: boolean;
   requiresIbcChannels?: boolean;
   onSubmitTransfer: (params: OnSubmitTransferParams) => void;

@@ -9,6 +9,7 @@ import {
   setupIbcExtension,
 } from "@cosmjs/stargate";
 import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
+import { TransactionFee } from "App/Transfer/TransferModule";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
 import { getSdkInstance } from "utils/sdk";
@@ -22,6 +23,7 @@ type CommonParams = {
   amount: BigNumber;
   token: string;
   sourceChannelId: string;
+  transactionFee: TransactionFee;
 };
 
 type TransparentParams = CommonParams & { isShielded: false };
@@ -106,6 +108,7 @@ export const submitIbcTransfer =
       token,
       sourceChannelId,
       isShielded,
+      transactionFee,
     } = transferParams;
 
     const client = await SigningStargateClient.connectWithSigner(rpc, signer, {
@@ -114,8 +117,11 @@ export const submitIbcTransfer =
     });
 
     const fee = {
-      amount: coins("0", token),
-      gas: "222000",
+      amount: coins(
+        transactionFee.amount.toString(),
+        transactionFee.token.base
+      ),
+      gas: "222000", // TODO: what should this be?
     };
 
     const timeoutTimestampNanoseconds =
