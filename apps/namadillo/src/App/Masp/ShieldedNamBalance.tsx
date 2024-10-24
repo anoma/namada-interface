@@ -33,9 +33,13 @@ export const ShieldedNamBalance = (): JSX.Element => {
   const shieldedBalanceQuery = useAtomValue(shieldedBalanceAtom);
   const { shieldingRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
 
-  const namAmount = shieldedBalanceQuery.data?.find(
-    ({ denom }) => denom === "nam"
-  )?.amount;
+  let namAmount: string | undefined;
+  if (shieldedBalanceQuery.data) {
+    const namBalance = shieldedBalanceQuery.data.find(
+      ({ denom }) => denom === "nam"
+    );
+    namAmount = namBalance ? namBalance.amount : "0";
+  }
 
   return (
     <AtomErrorBoundary
@@ -101,7 +105,8 @@ export const ShieldedNamBalance = (): JSX.Element => {
             rewards per Epoch
           </div>
           {shieldingRewardsEnabled ?
-            <AsyncNamCurrency amount={new BigNumber(0)} />
+            // TODO shielding rewards
+            <AsyncNamCurrency amount={"0"} />
           : <div className="block text-center text-3xl">--</div>}
           <div
             className={twMerge(
