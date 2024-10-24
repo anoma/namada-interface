@@ -321,7 +321,7 @@ describe("approvals service", () => {
         popupTabId,
         interfaceOrigin,
         chainId,
-        true
+        ["accounts", "signing"]
       );
 
       expect(service["resolverMap"][popupTabId].resolve).toHaveBeenCalled();
@@ -341,7 +341,7 @@ describe("approvals service", () => {
           popupTabId,
           interfaceOrigin,
           chainId,
-          true
+          ["accounts", "signing"]
         )
       ).rejects.toBeDefined();
     });
@@ -361,7 +361,7 @@ describe("approvals service", () => {
         popupTabId,
         interfaceOrigin,
         chainId,
-        false
+        []
       );
 
       expect(service["resolverMap"][popupTabId].reject).toHaveBeenCalled();
@@ -447,7 +447,7 @@ describe("approvals service", () => {
         popupTabId,
         interfaceOrigin,
         chainId,
-        false
+        []
       );
 
       expect(service["resolverMap"][popupTabId].reject).toHaveBeenCalled();

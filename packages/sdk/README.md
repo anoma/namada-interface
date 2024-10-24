@@ -7,10 +7,10 @@ The Namada SDK package
 ### Installation
 
 ```bash
-npm install @heliaxdev/namada-sdk
+npm install @namada/sdk
 
 # Or, via yarn
-yarn add @heliaxdev/namada-sdk
+yarn add @namada/sdk
 ```
 
 ### Initializing the SDK
@@ -19,8 +19,8 @@ As this package depends on Wasm compiled from Rust to integrate with Namada, thi
 developing for the Web. The following is a quick overview of some of the features of the SDK package:
 
 ```typescript
-import { Sdk, getSdk } from "@heliaxdev/namada-sdk/web";
-import sdkInit from "@heliaxdev/namada-sdk/web-init";
+import { Sdk, getSdk } from "@namada/sdk/web";
+import sdkInit from "@namada/sdk/web-init";
 
 // Load Tx props from types package
 import { BondProps, WrapperTxProps } from "@namada/types";
