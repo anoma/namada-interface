@@ -60,7 +60,7 @@ export type TransferModuleProps = {
   destination: TransferDestinationProps;
   transactionFee?: TransactionFee;
   isSubmitting?: boolean;
-  requiresIbcChannels?: boolean;
+  isIbcTransfer?: boolean;
   onSubmitTransfer: (params: OnSubmitTransferParams) => void;
 };
 
@@ -69,7 +69,7 @@ export const TransferModule = ({
   destination,
   transactionFee,
   isSubmitting,
-  requiresIbcChannels,
+  isIbcTransfer,
   onSubmitTransfer,
 }: TransferModuleProps): JSX.Element => {
   const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
@@ -123,7 +123,7 @@ export const TransferModule = ({
       memo,
     };
 
-    if (requiresIbcChannels) {
+    if (isIbcTransfer) {
       params.ibcOptions = {
         sourceChannel: sourceIbcChannel.trim(),
         destinationChannel: destinationIbcChannel.trim(),
@@ -200,6 +200,7 @@ export const TransferModule = ({
             walletAddress={destination.walletAddress}
             chain={parseChainInfo(destination.chain, destination.isShielded)}
             isShielded={destination.isShielded}
+            isIbcTransfer={isIbcTransfer}
             onChangeShielded={destination.onChangeShielded}
             address={customAddress}
             onToggleCustomAddress={
@@ -219,7 +220,7 @@ export const TransferModule = ({
             onChangeMemo={setMemo}
             transactionFee={transactionFee}
           />
-          {requiresIbcChannels && (
+          {isIbcTransfer && (
             <IbcChannels
               isShielded={Boolean(source.isShielded || destination.isShielded)}
               sourceChannel={sourceIbcChannel}
@@ -258,6 +259,8 @@ export const TransferModule = ({
             onClose={() => setAssetSelectorModalOpen(false)}
             assets={source.availableAssets || []}
             onSelect={source.onChangeSelectedAsset}
+            wallet={source.wallet}
+            walletAddress={source.walletAddress}
           />
         )}
 
@@ -269,6 +272,8 @@ export const TransferModule = ({
             onClose={() => setSourceChainModalOpen(false)}
             chains={source.availableChains || []}
             onSelect={source.onChangeChain}
+            wallet={source.wallet}
+            walletAddress={source.walletAddress}
           />
         )}
 
@@ -280,17 +285,8 @@ export const TransferModule = ({
             onClose={() => setDestinationChainModalOpen(false)}
             chains={destination.availableChains || []}
             onSelect={destination.onChangeChain}
-          />
-        )}
-
-      {assetSelectorModalOpen &&
-        source.onChangeSelectedAsset &&
-        source.wallet &&
-        source.walletAddress && (
-          <SelectAssetModal
-            onClose={() => setAssetSelectorModalOpen(false)}
-            assets={source.availableAssets || []}
-            onSelect={source.onChangeSelectedAsset}
+            wallet={destination.wallet}
+            walletAddress={destination.walletAddress}
           />
         )}
     </>

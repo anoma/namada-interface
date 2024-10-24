@@ -2,10 +2,12 @@ import { Asset } from "@chain-registry/types";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { SelectAssetModal } from "App/Transfer/SelectAssetModal";
 import { assetMockList } from "../__mocks__/assets";
+import { walletMock } from "../__mocks__/providers";
 
 describe("SelectAssetModal", () => {
   const onCloseMock = jest.fn();
   const onSelectMock = jest.fn();
+  const mockAddress = "cosmos1xnu3p06fkke8hnl7t83hzhggrca59syf0wjqgh";
 
   it("should render the modal title", () => {
     render(
@@ -13,6 +15,8 @@ describe("SelectAssetModal", () => {
         onClose={onCloseMock}
         onSelect={onSelectMock}
         assets={assetMockList as Asset[]}
+        wallet={walletMock}
+        walletAddress={mockAddress}
       />
     );
     expect(screen.getByText("Select Asset")).toBeInTheDocument();
@@ -24,6 +28,8 @@ describe("SelectAssetModal", () => {
         onClose={onCloseMock}
         onSelect={onSelectMock}
         assets={assetMockList as Asset[]}
+        wallet={walletMock}
+        walletAddress={mockAddress}
       />
     );
     expect(screen.getByText("Bitcoin")).toBeInTheDocument();
@@ -36,6 +42,8 @@ describe("SelectAssetModal", () => {
         onClose={onCloseMock}
         onSelect={onSelectMock}
         assets={assetMockList as Asset[]}
+        wallet={walletMock}
+        walletAddress={mockAddress}
       />
     );
     fireEvent.change(screen.getByPlaceholderText(/search/i, { exact: false }), {
@@ -55,6 +63,8 @@ describe("SelectAssetModal", () => {
         onClose={onCloseMock}
         onSelect={onSelectMock}
         assets={assetMockList as Asset[]}
+        wallet={walletMock}
+        walletAddress={mockAddress}
       />
     );
     fireEvent.click(screen.getByText("Bitcoin"));
