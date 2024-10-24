@@ -3,6 +3,7 @@ import { ROUTE } from "./constants";
 
 import { TxDetails } from "@namada/types";
 import { ResponseSign } from "@zondax/ledger-namada";
+import { AllowedPermissions } from "storage";
 import { validateProps } from "utils";
 
 export enum MessageType {
@@ -147,13 +148,14 @@ export class ConnectInterfaceResponseMsg extends Message<void> {
 
   constructor(
     public readonly interfaceOrigin: string,
-    public readonly allowConnection: boolean
+    public readonly chainId: string,
+    public readonly permissions: AllowedPermissions
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["interfaceOrigin", "allowConnection"]);
+    validateProps(this, ["interfaceOrigin", "chainId", "permissions"]);
   }
 
   route(): string {
@@ -172,13 +174,14 @@ export class DisconnectInterfaceResponseMsg extends Message<void> {
 
   constructor(
     public readonly interfaceOrigin: string,
+    public readonly chainId: string,
     public readonly revokeConnection: boolean
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["interfaceOrigin", "revokeConnection"]);
+    validateProps(this, ["interfaceOrigin", "chainId", "revokeConnection"]);
   }
 
   route(): string {

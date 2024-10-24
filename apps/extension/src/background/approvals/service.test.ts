@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { chains } from "@namada/chains";
 import { WrapperTxMsgValue } from "@namada/types";
 import { ChainsService } from "background/chains";
 import { KeyRingService } from "background/keyring";
+import { PermissionsService } from "background/permissions";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import BigNumber from "bignumber.js";
@@ -48,6 +50,7 @@ describe("approvals service", () => {
   let sdkService: jest.Mocked<SdkService>;
   let keyRingService: jest.Mocked<KeyRingService>;
   let chainService: jest.Mocked<ChainsService>;
+  let permissionsService: jest.Mocked<PermissionsService>;
   let dataStore: KVStoreMock<string>;
   let txStore: KVStoreMock<PendingTx>;
   let localStorage: LocalStorage;
@@ -60,10 +63,11 @@ describe("approvals service", () => {
     jest.clearAllMocks();
     txStore = new KVStoreMock<PendingTx>("PendingTx");
     dataStore = new KVStoreMock<string>("DataStore");
-    keyRingService = createMockInstance(KeyRingService as any);
+    keyRingService = createMockInstance(KeyRingService);
     const vaultService: jest.Mocked<VaultService> = createMockInstance(
       VaultService as any
     );
+    chainService = createMockInstance(ChainsService);
     const broadcaster: jest.Mocked<ExtensionBroadcaster> =
       createMockInstance(ExtensionBroadcaster);
     localStorage = new LocalStorage(new KVStoreMock("LocalStorage"));
@@ -76,6 +80,7 @@ describe("approvals service", () => {
       keyRingService,
       vaultService,
       chainService,
+      permissionsService,
       broadcaster
     );
   });
@@ -264,13 +269,14 @@ describe("approvals service", () => {
   describe("approveConnection", () => {
     it("should approve connection if it's not already approved", async () => {
       const interfaceOrigin = "origin";
+      const chainId = chains.namada.chainId;
       const tabId = 1;
 
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(false);
       jest.spyOn(service as any, "launchApprovalPopup");
       service["resolverMap"] = {};
 
-      const promise = service.approveConnection(interfaceOrigin);
+      const promise = service.approveConnection(interfaceOrigin, chainId);
       await new Promise<void>((r) =>
         setTimeout(() => {
           r();
@@ -280,20 +286,22 @@ describe("approvals service", () => {
 
       expect(service["launchApprovalPopup"]).toHaveBeenCalledWith(
         "/approve-connection",
-        { interfaceOrigin }
+        { interfaceOrigin, chainId }
       );
       expect(service.isConnectionApproved).toHaveBeenCalledWith(
-        interfaceOrigin
+        interfaceOrigin,
+        chainId
       );
       await expect(promise).resolves.toBeDefined();
     });
 
     it("should not approve connection if it was already approved", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chainId";
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(true);
 
       await expect(
-        service.approveConnection(interfaceOrigin)
+        service.approveConnection(interfaceOrigin, chainId)
       ).resolves.toBeUndefined();
     });
   });
@@ -301,6 +309,7 @@ describe("approvals service", () => {
   describe("approveConnectionResponse", () => {
     it("should approve connection response", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chainId";
       const popupTabId = 1;
       service["resolverMap"] = {
         [popupTabId]: {
@@ -308,31 +317,40 @@ describe("approvals service", () => {
           reject: jest.fn(),
         },
       };
-      jest.spyOn(localStorage, "addApprovedOrigin").mockResolvedValue();
+      jest.spyOn(permissionsService, "enablePermissions").mockResolvedValue();
 
       await service.approveConnectionResponse(
         popupTabId,
         interfaceOrigin,
-        true
+        chainId,
+        ["accounts", "signing"]
       );
 
       expect(service["resolverMap"][popupTabId].resolve).toHaveBeenCalled();
-      expect(localStorage.addApprovedOrigin).toHaveBeenCalledWith(
-        interfaceOrigin
+      expect(permissionsService.enablePermissions).toHaveBeenCalledWith(
+        interfaceOrigin,
+        chainId
       );
     });
 
     it("should throw an error if resolvers are not found", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chainId";
       const popupTabId = 1;
 
       await expect(
-        service.approveConnectionResponse(popupTabId, interfaceOrigin, true)
+        service.approveConnectionResponse(
+          popupTabId,
+          interfaceOrigin,
+          chainId,
+          ["accounts", "signing"]
+        )
       ).rejects.toBeDefined();
     });
 
     it("should reject the connection if allowConnection is set to false", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chainId";
       const popupTabId = 1;
       service["resolverMap"] = {
         [popupTabId]: {
@@ -344,7 +362,8 @@ describe("approvals service", () => {
       await service.approveConnectionResponse(
         popupTabId,
         interfaceOrigin,
-        false
+        chainId,
+        []
       );
 
       expect(service["resolverMap"][popupTabId].reject).toHaveBeenCalled();
@@ -354,13 +373,14 @@ describe("approvals service", () => {
   describe("approveDisconnection", () => {
     it("should approve disconnection if there is a connection already approved", async () => {
       const interfaceOrigin = "origin";
+      const chainId = chains.namada.chainId;
       const tabId = 1;
 
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(true);
       jest.spyOn(service as any, "launchApprovalPopup");
       service["resolverMap"] = {};
 
-      const promise = service.approveDisconnection(interfaceOrigin);
+      const promise = service.approveDisconnection(interfaceOrigin, chainId);
       await new Promise<void>((r) =>
         setTimeout(() => {
           r();
@@ -373,17 +393,19 @@ describe("approvals service", () => {
         { interfaceOrigin }
       );
       expect(service.isConnectionApproved).toHaveBeenCalledWith(
-        interfaceOrigin
+        interfaceOrigin,
+        chainId
       );
       await expect(promise).resolves.toBeDefined();
     });
 
     it("should not approve disconnection if it is NOT already approved", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chainId";
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(false);
 
       await expect(
-        service.approveDisconnection(interfaceOrigin)
+        service.approveDisconnection(interfaceOrigin, chainId)
       ).resolves.toBeUndefined();
     });
   });
@@ -391,6 +413,7 @@ describe("approvals service", () => {
   describe("approveDisconnectionResponse", () => {
     it("should approve disconnection response", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chainId";
       const popupTabId = 1;
       service["resolverMap"] = {
         [popupTabId]: {
@@ -403,6 +426,7 @@ describe("approvals service", () => {
       await service.approveDisconnectionResponse(
         popupTabId,
         interfaceOrigin,
+        chainId,
         true
       );
 
@@ -412,6 +436,7 @@ describe("approvals service", () => {
 
     it("should reject the connection if revokeConnection is set to false", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chainId";
       const popupTabId = 1;
       service["resolverMap"] = {
         [popupTabId]: {
@@ -423,7 +448,8 @@ describe("approvals service", () => {
       await service.approveConnectionResponse(
         popupTabId,
         interfaceOrigin,
-        false
+        chainId,
+        []
       );
 
       expect(service["resolverMap"][popupTabId].reject).toHaveBeenCalled();
@@ -434,10 +460,12 @@ describe("approvals service", () => {
     it("should reject connection response", async () => {
       const originToRevoke = "origin";
 
-      jest.spyOn(localStorage, "removeApprovedOrigin").mockResolvedValue();
+      jest
+        .spyOn(permissionsService, "revokeDomainPermissions")
+        .mockResolvedValue();
       await service.revokeConnection(originToRevoke);
 
-      expect(localStorage.removeApprovedOrigin).toHaveBeenCalledWith(
+      expect(permissionsService.revokeDomainPermissions).toHaveBeenCalledWith(
         originToRevoke
       );
     });
@@ -510,7 +538,7 @@ describe("approvals service", () => {
   describe("getResolver", () => {
     it("should get the related tab id resolver from resolverMap", async () => {
       const popupTabId = 1;
-      const resolver = { resolve: () => { }, reject: () => { } };
+      const resolver = { resolve: () => {}, reject: () => {} };
       service["resolverMap"] = {
         [popupTabId]: resolver,
       };
@@ -521,7 +549,7 @@ describe("approvals service", () => {
     it("should throw an error if there is no resolver for the tab id", async () => {
       const popupTabId = 1;
       service["resolverMap"] = {
-        [popupTabId]: { resolve: () => { }, reject: () => { } },
+        [popupTabId]: { resolve: () => {}, reject: () => {} },
       };
 
       expect(() => service["getResolver"](999)).toThrow();
@@ -532,7 +560,7 @@ describe("approvals service", () => {
     it("should remove related tab id resolver from resolverMap", async () => {
       const popupTabId = 1;
       service["resolverMap"] = {
-        [popupTabId]: { resolve: () => { }, reject: () => { } },
+        [popupTabId]: { resolve: () => {}, reject: () => {} },
       };
       service["removeResolver"](popupTabId);
 
@@ -543,27 +571,41 @@ describe("approvals service", () => {
   describe("isConnectionApproved", () => {
     it("should return true if origin is approved", async () => {
       const origin = "origin";
+      const chainId = chains.namada.chainId;
+      jest.spyOn(chainService, "getChain").mockResolvedValue(chains.namada);
       jest
-        .spyOn(localStorage, "getApprovedOrigins")
+        .spyOn(permissionsService, "getApprovedOrigins")
         .mockResolvedValue([origin]);
 
-      await expect(service.isConnectionApproved(origin)).resolves.toBe(true);
+      await expect(service.isConnectionApproved(origin, chainId)).resolves.toBe(
+        true
+      );
     });
 
     it("should return false if origin is not approved", async () => {
       const origin = "origin";
-      jest.spyOn(localStorage, "getApprovedOrigins").mockResolvedValue([]);
+      const chainId = "chainId";
+      jest.spyOn(chainService, "getChain").mockResolvedValue(chains.namada);
+      jest
+        .spyOn(permissionsService, "getApprovedOrigins")
+        .mockResolvedValue([]);
 
-      await expect(service.isConnectionApproved(origin)).resolves.toBe(false);
+      await expect(service.isConnectionApproved(origin, chainId)).resolves.toBe(
+        false
+      );
     });
 
     it("should return false if there are no origins in store", async () => {
       const origin = "origin";
+      const chainId = "chainId";
+      jest.spyOn(chainService, "getChain").mockResolvedValue(chains.namada);
       jest
-        .spyOn(localStorage, "getApprovedOrigins")
+        .spyOn(permissionsService, "getApprovedOrigins")
         .mockResolvedValue(undefined);
 
-      await expect(service.isConnectionApproved(origin)).resolves.toBe(false);
+      await expect(service.isConnectionApproved(origin, chainId)).resolves.toBe(
+        false
+      );
     });
   });
 });

@@ -23,6 +23,7 @@ import {
 } from "../background/approvals";
 
 import { ChainsService } from "background/chains";
+import { PermissionsService } from "background/permissions";
 import { SdkService } from "background/sdk";
 import { Namada } from "provider";
 import { LocalStorage, VaultStorage } from "storage";
@@ -82,6 +83,7 @@ export const init = async (): Promise<{
   );
 
   const sdkService = await SdkService.init(localStorage);
+  const permissionsService = new PermissionsService(localStorage);
 
   const vaultService = new VaultService(vaultStorage, sessionStore, sdkService);
   await vaultService.initialize();
@@ -96,6 +98,7 @@ export const init = async (): Promise<{
     vaultService,
     sdkService,
     chainsService,
+    permissionsService,
     utilityStore,
     localStorage,
     vaultStorage,
@@ -111,6 +114,7 @@ export const init = async (): Promise<{
     keyRingService,
     vaultService,
     chainsService,
+    permissionsService,
     broadcaster
   );
 

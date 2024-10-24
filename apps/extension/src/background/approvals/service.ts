@@ -10,10 +10,11 @@ import { ResponseSign } from "@zondax/ledger-namada";
 import { TopLevelRoute } from "Approvals/types";
 import { ChainsService } from "background/chains";
 import { KeyRingService } from "background/keyring";
+import { PermissionsService } from "background/permissions";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
-import { LocalStorage } from "storage";
+import { AllowedPermissions, LocalStorage } from "storage";
 import { fromEncodedTx } from "utils";
 import { EncodedTxData, PendingTx } from "./types";
 
@@ -36,6 +37,7 @@ export class ApprovalsService {
     protected readonly keyRingService: KeyRingService,
     protected readonly vaultService: VaultService,
     protected readonly chainService: ChainsService,
+    protected readonly permissionsService: PermissionsService,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
     browser.tabs.onRemoved.addListener((tabId) => {
@@ -184,19 +186,33 @@ export class ApprovalsService {
     resolvers.reject(new Error("Sign Tx rejected"));
   }
 
-  async isConnectionApproved(interfaceOrigin: string): Promise<boolean> {
-    const approvedOrigins =
-      (await this.localStorage.getApprovedOrigins()) || [];
-
-    return approvedOrigins.includes(interfaceOrigin);
+  async isConnectionApproved(
+    interfaceOrigin: string,
+    chainId: string
+  ): Promise<boolean> {
+    const permission = await this.permissionsService.permissionsByChain(
+      interfaceOrigin,
+      chainId
+    );
+    if (!permission || !permission.length) {
+      return false;
+    }
+    return true;
   }
 
-  async approveConnection(interfaceOrigin: string): Promise<void> {
-    const alreadyApproved = await this.isConnectionApproved(interfaceOrigin);
+  async approveConnection(
+    interfaceOrigin: string,
+    chainId: string
+  ): Promise<void> {
+    const alreadyApproved = await this.isConnectionApproved(
+      interfaceOrigin,
+      chainId
+    );
 
     if (!alreadyApproved) {
       return this.launchApprovalPopup(TopLevelRoute.ApproveConnection, {
         interfaceOrigin,
+        chainId,
       });
     }
 
@@ -207,13 +223,20 @@ export class ApprovalsService {
   async approveConnectionResponse(
     popupTabId: number,
     interfaceOrigin: string,
-    allowConnection: boolean
+    chainId: string,
+    permissions: AllowedPermissions
   ): Promise<void> {
     const resolvers = this.getResolver(popupTabId);
 
-    if (allowConnection) {
+    if (permissions.length) {
       try {
-        await this.localStorage.addApprovedOrigin(interfaceOrigin);
+        await this.permissionsService.enablePermissions(
+          interfaceOrigin,
+          chainId,
+          permissions
+        );
+        // Enable signing for this chain
+        await this.chainService.updateChain(chainId);
       } catch (e) {
         resolvers.reject(e);
       }
@@ -223,12 +246,19 @@ export class ApprovalsService {
     }
   }
 
-  async approveDisconnection(interfaceOrigin: string): Promise<void> {
-    const isConnected = await this.isConnectionApproved(interfaceOrigin);
+  async approveDisconnection(
+    interfaceOrigin: string,
+    chainId: string
+  ): Promise<void> {
+    const isConnected = await this.isConnectionApproved(
+      interfaceOrigin,
+      chainId
+    );
 
     if (isConnected) {
       return this.launchApprovalPopup(TopLevelRoute.ApproveDisconnection, {
         interfaceOrigin,
+        chainId,
       });
     }
 
@@ -239,13 +269,17 @@ export class ApprovalsService {
   async approveDisconnectionResponse(
     popupTabId: number,
     interfaceOrigin: string,
+    chainId: string,
     revokeConnection: boolean
   ): Promise<void> {
     const resolvers = this.getResolver(popupTabId);
 
     if (revokeConnection) {
       try {
-        await this.revokeConnection(interfaceOrigin);
+        await this.permissionsService.revokeChainPermissions(
+          interfaceOrigin,
+          chainId
+        );
       } catch (e) {
         resolvers.reject(e);
       }
@@ -256,7 +290,7 @@ export class ApprovalsService {
   }
 
   async revokeConnection(originToRevoke: string): Promise<void> {
-    await this.localStorage.removeApprovedOrigin(originToRevoke);
+    await this.permissionsService.revokeDomainPermissions(originToRevoke);
     await this.broadcaster.revokeConnection();
   }
 

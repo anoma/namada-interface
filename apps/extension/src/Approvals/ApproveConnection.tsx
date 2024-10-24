@@ -4,18 +4,22 @@ import { ConnectInterfaceResponseMsg } from "background/approvals";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
+import { AllowedPermissions } from "storage";
 import { closeCurrentTab } from "utils";
 
 export const ApproveConnection: React.FC = () => {
   const requester = useRequester();
   const params = useQuery();
   const interfaceOrigin = params.get("interfaceOrigin");
+  const chainId = params.get("chainId")!;
 
-  const handleResponse = async (allowConnection: boolean): Promise<void> => {
+  const handleResponse = async (
+    permissions: AllowedPermissions
+  ): Promise<void> => {
     if (interfaceOrigin) {
       await requester.sendMessage(
         Ports.Background,
-        new ConnectInterfaceResponseMsg(interfaceOrigin, allowConnection)
+        new ConnectInterfaceResponseMsg(interfaceOrigin, chainId, permissions)
       );
       await closeCurrentTab();
     }
@@ -26,15 +30,23 @@ export const ApproveConnection: React.FC = () => {
       <PageHeader title="Approve Request" />
       <Stack full className="justify-between" gap={12}>
         <Alert type="warning">
-          Approve connection for <strong>{interfaceOrigin}</strong>?
+          Approve connection for <strong>{interfaceOrigin}</strong> and enable
+          signing for <strong>{chainId}</strong>?
         </Alert>
         <Stack gap={2}>
-          <ActionButton onClick={() => handleResponse(true)}>
+          <ActionButton
+            onClick={() =>
+              // NOTE: In the future we may want the user to have
+              // granular control over what access the extension may
+              // have for any particular domain
+              handleResponse(["accounts", "proofGenKeys", "signing"])
+            }
+          >
             Approve
           </ActionButton>
           <ActionButton
             outlineColor="yellow"
-            onClick={() => handleResponse(false)}
+            onClick={() => handleResponse([])}
           >
             Reject
           </ActionButton>

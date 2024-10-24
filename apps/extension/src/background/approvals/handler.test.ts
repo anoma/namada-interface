@@ -38,6 +38,7 @@ describe("approvals handler", () => {
   });
 
   test("handlers switch", () => {
+    const chainId = "";
     const service: jest.Mocked<ApprovalsService> = createMockInstance(
       ApprovalsService as any
     );
@@ -72,23 +73,25 @@ describe("approvals handler", () => {
     handler(env, rejectTxMsg);
     expect(service.rejectSignTx).toBeCalled();
 
-    const isConnectionApprovedMsg = new IsConnectionApprovedMsg();
+    const isConnectionApprovedMsg = new IsConnectionApprovedMsg(chainId);
     handler(env, isConnectionApprovedMsg);
     expect(service.isConnectionApproved).toBeCalled();
 
-    const approveConnectInterfaceMsg = new ApproveConnectInterfaceMsg();
+    const approveConnectInterfaceMsg = new ApproveConnectInterfaceMsg(chainId);
     handler(env, approveConnectInterfaceMsg);
     expect(service.approveConnection).toBeCalled();
 
     const connectInterfaceResponseMsg = new ConnectInterfaceResponseMsg(
       "",
-      true
+      chainId,
+      ["accounts", "signing"]
     );
     handler(env, connectInterfaceResponseMsg);
     expect(service.approveConnectionResponse).toBeCalled();
 
     const disconnectInterfaceResponseMsg = new DisconnectInterfaceResponseMsg(
       "",
+      "chainId",
       true
     );
     handler(env, disconnectInterfaceResponseMsg);
