@@ -1,7 +1,13 @@
 import { Configuration, DefaultApi } from "@anomaorg/namada-indexer-client";
 import { initMulticore } from "@heliaxdev/namada-sdk/inline-init";
 import { getSdk, Sdk } from "@heliaxdev/namada-sdk/web";
-import { ShieldingTransferMsgValue, TxResponseMsgValue } from "@namada/types";
+import { PseudoExtendedKey } from "@namada/shared";
+import {
+  ShieldedTransferMsgValue,
+  ShieldingTransferMsgValue,
+  TxResponseMsgValue,
+  UnshieldingTransferMsgValue,
+} from "@namada/types";
 import * as Comlink from "comlink";
 import { buildTx, EncodedTxData } from "lib/query";
 import {
@@ -11,6 +17,10 @@ import {
   InitDone,
   Shield,
   ShieldDone,
+  ShieldedTransfer,
+  ShieldedTransferDone,
+  Unshield,
+  UnshieldDone,
 } from "./ShieldMessages";
 import { registerBNTransferHandler } from "./utils";
 
@@ -30,6 +40,26 @@ export class Worker {
     return {
       type: "shield-done",
       payload: await shield(this.sdk, m.payload),
+    };
+  }
+
+  async unshield(m: Unshield): Promise<UnshieldDone> {
+    if (!this.sdk) {
+      throw new Error("SDK is not initialized");
+    }
+    return {
+      type: "unshield-done",
+      payload: await unshield(this.sdk, m.payload),
+    };
+  }
+
+  async shieldedTransfer(m: ShieldedTransfer): Promise<ShieldedTransferDone> {
+    if (!this.sdk) {
+      throw new Error("SDK is not initialized");
+    }
+    return {
+      type: "shielded-transfer-done",
+      payload: await shieldedTransfer(this.sdk, m.payload),
     };
   }
 
@@ -70,6 +100,61 @@ async function shield(
   return encodedTxData;
 }
 
+async function unshield(
+  sdk: Sdk,
+  payload: Unshield["payload"]
+): Promise<EncodedTxData<UnshieldingTransferMsgValue>> {
+  const { indexerUrl, account, gasConfig, chain, shieldingProps } = payload;
+
+  await sdk.masp.loadMaspParams("");
+  console.log("shieldingprops", shieldingProps);
+
+  const pex = new PseudoExtendedKey(shieldingProps[0].source);
+  const xvk = pex.viewing_key();
+  console.log("xvk", xvk);
+
+  await sdk.rpc.shieldedSync([xvk], []);
+  console.log("account", account);
+
+  const encodedTxData = await buildTx<UnshieldingTransferMsgValue>(
+    sdk,
+    account,
+    gasConfig,
+    chain,
+    shieldingProps,
+    sdk.tx.buildUnshieldingTransfer,
+    true
+  );
+
+  return encodedTxData;
+}
+
+async function shieldedTransfer(
+  sdk: Sdk,
+  payload: ShieldedTransfer["payload"]
+): Promise<EncodedTxData<ShieldedTransferMsgValue>> {
+  const { account, gasConfig, chain, shieldingProps } = payload;
+
+  await sdk.masp.loadMaspParams("");
+
+  const pex = new PseudoExtendedKey(shieldingProps[0].data[0].source);
+  const xvk = pex.viewing_key();
+
+  await sdk.rpc.shieldedSync([xvk], []);
+
+  const encodedTxData = await buildTx<ShieldedTransferMsgValue>(
+    sdk,
+    account,
+    gasConfig,
+    chain,
+    shieldingProps,
+    sdk.tx.buildShieldedTransfer,
+    true
+  );
+
+  return encodedTxData;
+}
+
 // TODO: We will probably move this to the separate worker
 async function broadcast(
   sdk: Sdk,
@@ -102,6 +187,10 @@ function newSdk(
 export const registerTransferHandlers = (): void => {
   registerBNTransferHandler<ShieldDone>("shield-done");
   registerBNTransferHandler<Shield>("shield");
+  registerBNTransferHandler<ShieldedTransferDone>("shielded-transfer-done");
+  registerBNTransferHandler<ShieldedTransfer>("shielded-transfer");
+  registerBNTransferHandler<UnshieldDone>("unshield-done");
+  registerBNTransferHandler<Unshield>("unshield");
   registerBNTransferHandler<Broadcast>("broadcast");
 };
 

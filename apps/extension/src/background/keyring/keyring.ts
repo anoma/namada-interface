@@ -7,7 +7,7 @@ import {
   SignArbitraryResponse,
   TxProps,
 } from "@namada/types";
-import { Result, assertNever, truncateInMiddle } from "@namada/utils";
+import { assertNever, Result, truncateInMiddle } from "@namada/utils";
 
 import {
   AccountSecret,
@@ -50,7 +50,7 @@ export class KeyRing {
     protected readonly vaultStorage: VaultStorage,
     protected readonly sdkService: SdkService,
     protected readonly utilityStore: KVStore<UtilityStore>
-  ) {}
+  ) { }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -352,7 +352,7 @@ export class KeyRing {
     const deriveFn = (
       type === AccountType.PrivateKey ?
         this.deriveTransparentAccount
-      : this.deriveShieldedAccount).bind(this);
+        : this.deriveShieldedAccount).bind(this);
 
     const { seed, parentId } = await this.getParentSeed();
     const info = deriveFn(seed, path, parentId);
@@ -455,6 +455,44 @@ export class KeyRing {
         AccountType.Mnemonic
       )) || [];
     return accounts.map((account) => account.public as AccountStore);
+  }
+
+  async www(publicKey: number[]): Promise<Uint8Array | undefined> {
+    await this.vaultService.assertIsUnlocked();
+    const activeAccount = await this.queryDefaultAccount();
+
+    const account = await this.vaultStorage.findOne(
+      KeyStore,
+      "address",
+      activeAccount?.address
+    );
+
+    const accountStore = (await this.queryAllAccounts()).find(
+      (account) => account.address === activeAccount?.address
+    );
+
+    const sensitiveProps =
+      await this.vaultService.reveal<SensitiveAccountStoreData>(
+        account!.sensitive
+      );
+
+    const { text: secret, passphrase } = sensitiveProps!;
+    let pseudoSpendingKey;
+
+    if (account!.public.type === AccountType.PrivateKey) {
+      throw new Error("Not supported");
+    } else {
+      const sdk = this.sdkService.getSdk();
+      const mnemonic = sdk.getMnemonic();
+      const seed = mnemonic.toSeed(secret, passphrase);
+
+      const keys = this.sdkService.getSdk().getKeys();
+      const { pseudoSpendingKey: psk, spendingKey } =
+        keys.deriveShieldedFromSeed(seed, accountStore?.path);
+      pseudoSpendingKey = psk;
+    }
+
+    return pseudoSpendingKey;
   }
 
   /**

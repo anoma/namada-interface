@@ -37,18 +37,22 @@ impl DerivationResult {
 #[wasm_bindgen]
 #[derive(ZeroizeOnDrop)]
 pub struct ShieldedHDWallet {
-    seed: [u8; 64],
+    seed: [u8; 32],
 }
 
 #[wasm_bindgen]
 impl ShieldedHDWallet {
     #[wasm_bindgen(constructor)]
-    pub fn new(seed: JsValue) -> Result<ShieldedHDWallet, String> {
+    pub fn new(seed: JsValue, path: Vec<u32>) -> Result<ShieldedHDWallet, String> {
         let seed = js_sys::Uint8Array::from(seed).to_vec();
 
-        Ok(ShieldedHDWallet {
-            seed: seed.try_into().map_err(|_| "Invalid seed length")?,
-        })
+        let sk = slip10_ed25519::derive_ed25519_private_key(&seed, &path);
+
+        Ok(ShieldedHDWallet { seed: sk })
+    }
+
+    pub fn get_seed(&self) -> Vec<u8> {
+        self.seed.to_vec()
     }
 
     pub fn derive(
@@ -57,8 +61,12 @@ impl ShieldedHDWallet {
         diversifier: Option<Vec<u8>>,
     ) -> Result<DerivationResult, String> {
         let master_spend_key = sapling::ExtendedSpendingKey::master(&self.seed);
+        web_sys::console::log_1(
+            &format!("Master spend key: {:?}", master_spend_key.to_bytes()).into(),
+        );
 
         let zip32_path: Vec<ChildIndex> = path.iter().map(|i| ChildIndex::Hardened(*i)).collect();
+        web_sys::console::log_1(&format!("Zip32 path: {:?}", zip32_path).into());
         let xsk: ExtendedSpendingKey =
             ExtendedSpendingKey::from_path(&master_spend_key, &zip32_path);
         let xfvk = ExtendedFullViewingKey::from(&xsk);

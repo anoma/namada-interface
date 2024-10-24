@@ -12,27 +12,37 @@ use crate::utils::set_panic_hook;
 #[cfg(feature = "web")]
 use crate::utils::to_bytes;
 use crate::utils::to_js_result;
-use args::generate_masp_build_params;
+use args::{generate_masp_build_params, masp_sign};
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::address::Address;
-use namada_sdk::borsh::{self, BorshDeserialize};
+use namada_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use namada_sdk::collections::HashSet;
 use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada_sdk::hash::Hash;
 use namada_sdk::io::NamadaIo;
+use namada_sdk::key::common::PublicKey;
 use namada_sdk::key::{common, ed25519, SigScheme};
-use namada_sdk::masp::ShieldedContext;
+use namada_sdk::masp::{MaspFeeData, MaspTransferData, ShieldedContext, ShieldedTransfer};
+use namada_sdk::masp_primitives::constants::SPENDING_KEY_GENERATOR;
+use namada_sdk::masp_primitives::sapling::redjubjub::PrivateKey;
+use namada_sdk::masp_primitives::sapling::ProofGenerationKey;
+use namada_sdk::masp_primitives::zip32::ExtendedKey;
+use namada_sdk::masp_proofs::jubjub;
 use namada_sdk::rpc::{query_epoch, InnerTxResult};
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::string_encoding::Format;
+use namada_sdk::token::{DenominatedAmount, Transfer};
 use namada_sdk::tx::{
     build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
     build_reveal_pk, build_shielded_transfer, build_shielding_transfer, build_transparent_transfer,
     build_unbond, build_unshielding_transfer, build_vote_proposal, build_withdraw,
     data::compute_inner_tx_hash, either::Either, process_tx, ProcessTxResponse, Tx,
 };
+use namada_sdk::wallet::alias::Alias;
 use namada_sdk::wallet::{Store, Wallet};
-use namada_sdk::{Namada, NamadaImpl};
+use namada_sdk::{masp_primitives, Namada, NamadaImpl};
 use std::str::FromStr;
+use wallet::JSWalletUtils;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
 // Maximum number of spend description randomness parameters that can be
@@ -353,6 +363,20 @@ impl Sdk {
         let mut bparams =
             generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
                 .await?;
+
+        let _ = &self
+            .namada
+            .wallet_mut()
+            .await
+            .insert_address(
+                "asdasd",
+                Address::from_str("tnam1q9k4a0a7cgprwdj8epn28kmv9s5ntu098c3ua875").unwrap(),
+                false,
+            )
+            .unwrap();
+
+        let _ = &self.namada.shielded_mut().await.load().await?;
+
         let (tx, signing_data) =
             build_shielded_transfer(&self.namada, &mut args, &mut bparams).await?;
 
@@ -369,8 +393,26 @@ impl Sdk {
         let mut bparams =
             generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
                 .await?;
-        let (tx, signing_data) =
+
+        let _ = &self
+            .namada
+            .wallet_mut()
+            .await
+            .insert_address(
+                "asdasd",
+                Address::from_str("tnam1q9k4a0a7cgprwdj8epn28kmv9s5ntu098c3ua875").unwrap(),
+                false,
+            )
+            .unwrap();
+
+        let _ = &self.namada.shielded_mut().await.load().await?;
+
+        let (mut tx, signing_data) =
             build_unshielding_transfer(&self.namada, &mut args, &mut bparams).await?;
+
+
+        masp_sign(&mut tx, &signing_data, &mut bparams).await?;
+
         self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
     }
 

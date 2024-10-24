@@ -1,13 +1,17 @@
 import * as Comlink from "comlink";
 
-import { ShieldingTransferMsgValue } from "@namada/types";
+import {
+  ShieldedTransferMsgValue,
+  ShieldingTransferMsgValue,
+  UnshieldingTransferMsgValue,
+} from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
 import { chainAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { indexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { signTx } from "lib/query";
-import { Shield } from "workers/ShieldMessages";
+import { Shield, ShieldedTransfer, Unshield } from "workers/ShieldMessages";
 import {
   registerTransferHandlers,
   Worker as ShieldWorkerApi,
@@ -64,7 +68,8 @@ export function WorkerTest(): JSX.Element {
     });
 
     const shieldingMsgValue = new ShieldingTransferMsgValue({
-      target,
+      target:
+        "znam1dvvhxnqwzna3s2l7senslzvx50869myqy9009yd84arsrpay6y434gauw5tk4qfu67mw25zdscz",
       data: [
         {
           source: account?.address || "",
@@ -90,6 +95,131 @@ export function WorkerTest(): JSX.Element {
 
     const { payload: encodedTx } = await shieldWorker.shield(msg);
 
+    const signedTxs = await signTx("namada", encodedTx, account?.address || "");
+
+    await shieldWorker.broadcast({
+      type: "broadcast",
+      payload: {
+        encodedTx,
+        signedTxs,
+      },
+    });
+
+    worker.terminate();
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).unshield = async (target: string, amount: number) => {
+    registerTransferHandlers();
+    const worker = new ShieldWorker();
+    const shieldWorker = Comlink.wrap<ShieldWorkerApi>(worker);
+
+    const asd =
+      await // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).namada.spendingKey("");
+    console.log("ASD", asd);
+
+    const pseudoExtendedKeyBytes = new Uint8Array(Object.values(asd));
+    console.log("PEX", pseudoExtendedKeyBytes);
+
+    await shieldWorker.init({
+      type: "init",
+      payload: {
+        rpcUrl,
+        token: token!,
+      },
+    });
+
+    const shieldingMsgValue = new UnshieldingTransferMsgValue({
+      source: pseudoExtendedKeyBytes,
+      gasSpendingKeys: [pseudoExtendedKeyBytes],
+      data: [
+        {
+          target,
+          token: token!,
+          amount: BigNumber(amount),
+        },
+      ],
+    });
+
+    const msg: Unshield = {
+      type: "unshield",
+      payload: {
+        account: account!,
+        gasConfig: {
+          gasLimit: BigNumber(250000),
+          gasPrice: BigNumber(0.000001),
+        },
+        shieldingProps: [shieldingMsgValue],
+        indexerUrl,
+        chain: chain!,
+        vks: [],
+      },
+    };
+
+    const { payload: encodedTx } = await shieldWorker.unshield(msg);
+    console.log("ENCODED TX", encodedTx);
+    const signedTxs = await signTx("namada", encodedTx, account?.address || "");
+
+    await shieldWorker.broadcast({
+      type: "broadcast",
+      payload: {
+        encodedTx,
+        signedTxs,
+      },
+    });
+
+    worker.terminate();
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).shieldedTx = async (target: string, amount: number) => {
+    registerTransferHandlers();
+    const worker = new ShieldWorker();
+    const shieldWorker = Comlink.wrap<ShieldWorkerApi>(worker);
+
+    const asd =
+      await // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).namada.spendingKey("");
+
+    const pseudoExtendedKeyBytes = new Uint8Array(Object.values(asd));
+
+    await shieldWorker.init({
+      type: "init",
+      payload: {
+        rpcUrl,
+        token: token!,
+      },
+    });
+
+    const shieldingMsgValue = new ShieldedTransferMsgValue({
+      gasSpendingKeys: [],
+      data: [
+        {
+          source: pseudoExtendedKeyBytes,
+          target,
+          token: token!,
+          amount: BigNumber(amount),
+        },
+      ],
+    });
+
+    const msg: ShieldedTransfer = {
+      type: "shielded-transfer",
+      payload: {
+        account: account!,
+        gasConfig: {
+          gasLimit: BigNumber(250000),
+          gasPrice: BigNumber(0.000001),
+        },
+        shieldingProps: [shieldingMsgValue],
+        indexerUrl,
+        chain: chain!,
+        vks: [],
+      },
+    };
+
+    const { payload: encodedTx } = await shieldWorker.shieldedTransfer(msg);
     const signedTxs = await signTx("namada", encodedTx, account?.address || "");
 
     await shieldWorker.broadcast({
