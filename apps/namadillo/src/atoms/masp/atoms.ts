@@ -8,6 +8,7 @@ import BigNumber from "bignumber.js";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { namadaAsset } from "registry/namadaAsset";
+import { unknownAsset } from "registry/unknownAsset";
 import { getSdkInstance } from "utils/sdk";
 import { fetchCoinPrices } from "./services";
 
@@ -15,6 +16,11 @@ export type TokenBalance = {
   denom: string;
   address: string;
   amount: string;
+};
+
+export type TokenBalanceWithFiat = TokenBalance & {
+  asset?: Asset;
+  dollar?: BigNumber;
 };
 
 export const viewingKeyAtom = atomWithQuery<string>((get) => {
@@ -64,7 +70,7 @@ export const shieldedBalanceAtom = atomWithQuery<TokenBalance[]>((get) => {
       // TODO mock
       // response.push(["tnam1qy440ynh9fwrx8aewjvvmu38zxqgukgc259fzp6h", "100"]); // 100 nam
       // response.push(["tnam1p5nnjnasjtfwen2kzg78fumwfs0eycqpecuc2jwz", "10"]); // 10 atom
-      response.push(["unknown", "1"]); // 1 unknown token
+      // response.push(["unknown", "1"]); // 1 unknown token
 
       const addressToDenom = {
         [namTokenAddress]: "nam",
@@ -126,13 +132,63 @@ export const fiatPriceMapAtom = atomWithQuery((get) => {
         }
       });
       const pricesById = await fetchCoinPrices(ids);
-      const pricesByDenom: Record<string, number> = {};
+      const pricesByDenom: Record<string, number> = {
+        // TODO define how to get the nam's price
+        // nam: 1,
+      };
       Object.entries(pricesById).forEach(([id, { usd }]) => {
         const denom = denomById[id];
         pricesByDenom[denom] = usd;
       });
       return pricesByDenom;
     }, [shieldedBalanceQuery]),
+  };
+});
+
+export const shieldedBalanceWithFiatAtom = atomWithQuery<
+  TokenBalanceWithFiat[]
+>((get) => {
+  const shieldedBalanceQuery = get(shieldedBalanceAtom);
+  const assetsByDenom = get(assetsByDenomAtom);
+  const fiatPriceMapQuery = get(fiatPriceMapAtom);
+
+  return {
+    queryKey: [
+      "shielded-balance",
+      shieldedBalanceQuery.data,
+      fiatPriceMapQuery.data,
+    ],
+    ...queryDependentFn(async () => {
+      const findExpoent = (asset: Asset, denom: string): number =>
+        asset.denom_units.find(
+          (unit) => unit.denom === denom || unit.aliases?.includes(denom)
+        )?.exponent ?? 0;
+
+      return (
+        shieldedBalanceQuery.data?.map((item) => {
+          const { denom, amount } = item;
+          const asset = assetsByDenom[denom] ?? unknownAsset;
+          const display = asset.display;
+
+          const expoentInput = findExpoent(asset, denom);
+          const expoentOutput = findExpoent(asset, display);
+          const expoent = expoentOutput - expoentInput;
+
+          const balance = new BigNumber(amount).dividedBy(
+            Math.pow(10, expoent)
+          );
+
+          const fiatValue = fiatPriceMapQuery.data?.[denom];
+          const dollar =
+            fiatValue ? balance.multipliedBy(fiatValue) : undefined;
+
+          return {
+            ...item,
+            dollar,
+          };
+        }) ?? []
+      );
+    }, [shieldedBalanceQuery, fiatPriceMapQuery]),
   };
 });
 
