@@ -63,7 +63,10 @@ describe("approvals messages", () => {
   });
 
   test("valid ConnectInterfaceResponseMsg", () => {
-    const msg = new ConnectInterfaceResponseMsg("interface", "chainId", true);
+    const msg = new ConnectInterfaceResponseMsg("interface", "chainId", [
+      "accounts",
+      "signing",
+    ]);
 
     expect(msg.type()).toBe(MessageType.ConnectInterfaceResponse);
     expect(msg.route()).toBe(ROUTE);
@@ -71,12 +74,18 @@ describe("approvals messages", () => {
   });
 
   test("invalid ConnectInterfaceResponseMsg", () => {
-    const msg = new ConnectInterfaceResponseMsg("interface", "chainId", true);
+    const msg = new ConnectInterfaceResponseMsg("interface", "chainId", [
+      "accounts",
+      "signing",
+    ]);
     (msg as any).interfaceOrigin = undefined;
 
     expect(() => msg.validate()).toThrow();
 
-    const msg2 = new ConnectInterfaceResponseMsg("interface", "chainId", true);
+    const msg2 = new ConnectInterfaceResponseMsg("interface", "chainId", [
+      "accounts",
+      "signing",
+    ]);
     (msg2 as any).allowConnection = undefined;
 
     expect(() => msg2.validate()).toThrow();

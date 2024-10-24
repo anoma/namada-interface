@@ -14,7 +14,7 @@ import { PermissionsService } from "background/permissions";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
-import { LocalStorage } from "storage";
+import { AllowedPermissions, LocalStorage } from "storage";
 import { fromEncodedTx } from "utils";
 import { EncodedTxData, PendingTx } from "./types";
 
@@ -224,16 +224,16 @@ export class ApprovalsService {
     popupTabId: number,
     interfaceOrigin: string,
     chainId: string,
-    allowConnection: boolean
+    permissions: AllowedPermissions
   ): Promise<void> {
     const resolvers = this.getResolver(popupTabId);
 
-    if (allowConnection) {
+    if (permissions.length) {
       try {
         await this.permissionsService.enablePermissions(
           interfaceOrigin,
           chainId,
-          ["accounts", "proofGenKeys", "signing"]
+          permissions
         );
         // Enable signing for this chain
         await this.chainService.updateChain(chainId);

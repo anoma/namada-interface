@@ -84,7 +84,7 @@ describe("approvals handler", () => {
     const connectInterfaceResponseMsg = new ConnectInterfaceResponseMsg(
       "",
       chainId,
-      true
+      ["accounts", "signing"]
     );
     handler(env, connectInterfaceResponseMsg);
     expect(service.approveConnectionResponse).toBeCalled();
