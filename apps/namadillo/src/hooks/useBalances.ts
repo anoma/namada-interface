@@ -1,5 +1,5 @@
 import { accountBalanceAtom } from "atoms/accounts";
-import { totalShieldedBalanceAtom } from "atoms/masp/atoms";
+import { shieldedDollarsAmountAtom } from "atoms/masp/atoms";
 import { getStakingTotalAtom } from "atoms/staking";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
@@ -14,14 +14,14 @@ export type useBalancesOutput = {
   availableAmount: BigNumber;
   unbondedAmount: BigNumber;
   withdrawableAmount: BigNumber;
-  shieldedAmount: BigNumber;
+  shieldedAmount: BigNumber | null;
   totalAmount: BigNumber;
 };
 
 export const useBalances = (): useBalancesOutput => {
   const totalStakedBalance = useAtomValue(getStakingTotalAtom);
   const totalAccountBalance = useAtomValue(accountBalanceAtom);
-  const totalShieldedBalance = useAtomValue(totalShieldedBalanceAtom);
+  const shieldedDollarsAmountQuery = useAtomValue(shieldedDollarsAmountAtom);
 
   const {
     data: balance,
@@ -35,9 +35,11 @@ export const useBalances = (): useBalancesOutput => {
     isSuccess: isStakedBalanceLoaded,
   } = totalStakedBalance;
 
-  const { data: shieldedBalance } = totalShieldedBalance;
-  const isFetchingShieldedBalance = shieldedBalance === undefined;
-  const isShieldedBalanceLoaded = !isFetchingShieldedBalance;
+  const {
+    data: shieldedDollars,
+    isLoading: isLoadingShieldedDollars,
+    isSuccess: isSuccessShieldedDollars,
+  } = shieldedDollarsAmountQuery;
 
   const availableAmount = new BigNumber(balance || 0);
   const bondedAmount = new BigNumber(stakeBalance?.totalBonded || 0);
@@ -45,20 +47,20 @@ export const useBalances = (): useBalancesOutput => {
   const withdrawableAmount = new BigNumber(
     stakeBalance?.totalWithdrawable || 0
   );
-  const shieldedAmount = new BigNumber(shieldedBalance || 0);
+  const shieldedAmount = shieldedDollars === undefined ? null : shieldedDollars;
   const totalAmount = BigNumber.sum(
     availableAmount,
     bondedAmount,
     unbondedAmount,
     withdrawableAmount,
-    shieldedAmount
+    shieldedDollars || 0
   );
 
   return {
     isLoading:
-      isFetchingStaking || isFetchingBalance || isFetchingShieldedBalance,
+      isFetchingStaking || isFetchingBalance || isLoadingShieldedDollars,
     isSuccess:
-      isBalanceLoaded && isStakedBalanceLoaded && isShieldedBalanceLoaded,
+      isBalanceLoaded && isStakedBalanceLoaded && isSuccessShieldedDollars,
     stakeQuery: totalStakedBalance,
     balanceQuery: totalAccountBalance,
     availableAmount,

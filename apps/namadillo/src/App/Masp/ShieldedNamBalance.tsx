@@ -1,7 +1,7 @@
 import { SkeletonLoading, Stack, Tooltip } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
-import { namShieldedBalanceAtom, shieldedBalanceAtom } from "atoms/masp/atoms";
+import { shieldedNamAmountAtom } from "atoms/masp/atoms";
 import { applicationFeaturesAtom } from "atoms/settings/atoms";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
@@ -22,7 +22,7 @@ const AsyncNamCurrency = ({ amount }: { amount?: BigNumber }): JSX.Element => {
 
   return (
     <NamCurrency
-      amount={amount}
+      amount={new BigNumber(amount)}
       className="block text-center text-3xl leading-none"
       currencySymbolClassName="block text-xs mt-1"
     />
@@ -30,13 +30,12 @@ const AsyncNamCurrency = ({ amount }: { amount?: BigNumber }): JSX.Element => {
 };
 
 export const ShieldedNamBalance = (): JSX.Element => {
-  const shieldedBalanceQuery = useAtomValue(shieldedBalanceAtom);
-  const { data: namAmount } = useAtomValue(namShieldedBalanceAtom);
+  const shieldedNamAmountQuery = useAtomValue(shieldedNamAmountAtom);
   const { shieldingRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
 
   return (
     <AtomErrorBoundary
-      result={shieldedBalanceQuery}
+      result={shieldedNamAmountQuery}
       niceError="Unable to load shielded NAM balance"
     >
       <div className="flex flex-col sm:grid sm:grid-cols-[1fr_1fr] gap-2 min-h-full text-yellow">
@@ -60,7 +59,7 @@ export const ShieldedNamBalance = (): JSX.Element => {
               />
             </div>
           </div>
-          <AsyncNamCurrency amount={namAmount} />
+          <AsyncNamCurrency amount={shieldedNamAmountQuery.data} />
           <div
             className={twMerge(
               "py-2 max-w-[160px] mx-auto mt-4 mb-3",
@@ -98,6 +97,7 @@ export const ShieldedNamBalance = (): JSX.Element => {
             rewards per Epoch
           </div>
           {shieldingRewardsEnabled ?
+            // TODO shielding rewards
             <AsyncNamCurrency amount={new BigNumber(0)} />
           : <div className="block text-center text-3xl">--</div>}
           <div

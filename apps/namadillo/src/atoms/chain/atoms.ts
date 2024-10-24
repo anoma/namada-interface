@@ -55,7 +55,7 @@ export const nativeTokenAddressAtom = atomWithQuery<string>((get) => {
   };
 });
 
-export const chainTokensAtom = atomWithQuery((get) => {
+export const tokenAddressesAtom = atomWithQuery((get) => {
   const indexerUrl = get(indexerUrlAtom);
   const api = get(indexerApiAtom);
   return {
