@@ -1,7 +1,7 @@
 import { SkeletonLoading, Stack, Tooltip } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
-import { namShieldedBalanceAtom, shieldedBalanceAtom } from "atoms/masp/atoms";
+import { shieldedBalanceAtom } from "atoms/masp/atoms";
 import { applicationFeaturesAtom } from "atoms/settings/atoms";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
@@ -10,7 +10,7 @@ import { twMerge } from "tailwind-merge";
 import namBalanceIcon from "./assets/nam-balance-icon.png";
 import namadaShieldedSvg from "./assets/namada-shielded.svg";
 
-const AsyncNamCurrency = ({ amount }: { amount?: BigNumber }): JSX.Element => {
+const AsyncNamCurrency = ({ amount }: { amount?: string }): JSX.Element => {
   if (amount === undefined) {
     return (
       <Stack gap={2.5} className="h-[76px] items-center">
@@ -22,7 +22,7 @@ const AsyncNamCurrency = ({ amount }: { amount?: BigNumber }): JSX.Element => {
 
   return (
     <NamCurrency
-      amount={amount}
+      amount={new BigNumber(amount)}
       className="block text-center text-3xl leading-none"
       currencySymbolClassName="block text-xs mt-1"
     />
@@ -31,8 +31,11 @@ const AsyncNamCurrency = ({ amount }: { amount?: BigNumber }): JSX.Element => {
 
 export const ShieldedNamBalance = (): JSX.Element => {
   const shieldedBalanceQuery = useAtomValue(shieldedBalanceAtom);
-  const { data: namAmount } = useAtomValue(namShieldedBalanceAtom);
   const { shieldingRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
+
+  const namAmount = shieldedBalanceQuery.data?.find(
+    ({ denom }) => denom === "nam"
+  )?.amount;
 
   return (
     <AtomErrorBoundary

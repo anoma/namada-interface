@@ -145,25 +145,3 @@ export const totalShieldedBalanceAtom = atomWithQuery<BigNumber>((get) => {
     }, [shieldedBalanceQuery]),
   };
 });
-
-export const namShieldedBalanceAtom = atomWithQuery<BigNumber>((get) => {
-  const namTokenAddressQuery = get(nativeTokenAddressAtom);
-  const enablePolling = get(shouldUpdateBalanceAtom);
-  const shieldedBalanceQuery = get(shieldedBalanceAtom);
-
-  return {
-    refetchInterval: enablePolling ? 1000 : false,
-    queryKey: ["nam-shielded-balance"],
-    ...queryDependentFn(async () => {
-      const namTokenAddress = namTokenAddressQuery.data;
-      if (!shieldedBalanceQuery.data?.length || !namTokenAddress) {
-        return new BigNumber(0);
-      }
-      return BigNumber.sum(
-        ...shieldedBalanceQuery.data
-          .filter(({ denom }) => denom === "nam")
-          .map(({ amount }) => amount)
-      );
-    }, [shieldedBalanceQuery]),
-  };
-});

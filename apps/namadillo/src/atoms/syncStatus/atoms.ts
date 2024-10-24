@@ -1,8 +1,5 @@
 import { accountBalanceAtom } from "atoms/accounts/atoms";
-import {
-  namShieldedBalanceAtom,
-  totalShieldedBalanceAtom,
-} from "atoms/masp/atoms";
+import { shieldedBalanceAtom } from "atoms/masp/atoms";
 import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals/atoms";
 import { indexerHeartbeatAtom, rpcHeartbeatAtom } from "atoms/settings/atoms";
 import { allValidatorsAtom, myValidatorsAtom } from "atoms/validators/atoms";
@@ -24,8 +21,7 @@ export const syncStatusAtom = atom((get) => {
     get(votedProposalsAtom),
 
     // Masp
-    get(totalShieldedBalanceAtom),
-    get(namShieldedBalanceAtom),
+    get(shieldedBalanceAtom),
   ];
 
   const isSyncing = queries.some((q) => q.isFetching);
