@@ -12,6 +12,8 @@ export default {
     `/accounts/mnemonic/${accountId}`,
   viewAccount: (accountId: string = ":accountId") =>
     `/accounts/view/${accountId}`,
+  viewViewingKey: (viewingKey: string = ":viewingKey") =>
+    `/accounts/view/viewingKey/${viewingKey}`,
   deleteAccount: (accountId: string = ":accountId") =>
     `/accounts/delete/${accountId}`,
   renameAccount: (accountId: string = ":accountId") =>

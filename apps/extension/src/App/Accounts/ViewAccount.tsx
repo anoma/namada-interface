@@ -16,6 +16,7 @@ export const ViewAccount = (): JSX.Element => {
   const [parentAccount, setParentAccount] = useState<DerivedAccount>();
   const [transparentAddress, setTransparentAddress] = useState("");
   const [shieldedAddress, setShieldedAddress] = useState("");
+  const [viewingKey, setViewingKey] = useState("");
   const navigate = useNavigate();
 
   const searchParentAccount = (
@@ -41,9 +42,12 @@ export const ViewAccount = (): JSX.Element => {
       setTransparentAddress(parentAccount?.address);
     }
 
-    const shieldedKey = searchShieldedKey(accountId);
-    if (shieldedKey) {
-      setShieldedAddress(shieldedKey.address);
+    const shieldedAccount = searchShieldedKey(accountId);
+    if (shieldedAccount) {
+      setShieldedAddress(shieldedAccount.address);
+      if (shieldedAccount.owner) {
+        setViewingKey(shieldedAccount.owner);
+      }
     }
   }, [accountId]);
 
@@ -63,6 +67,15 @@ export const ViewAccount = (): JSX.Element => {
               shieldedAccountAddress={shieldedAddress}
               trimCharacters={21}
             />
+            {viewingKey && (
+              <ActionButton
+                outlineColor="yellow"
+                size="sm"
+                onClick={() => navigate(routes.viewViewingKey(viewingKey))}
+              >
+                Access Viewing Key
+              </ActionButton>
+            )}
           </Stack>
           <ActionButton size="md" onClick={() => navigate(-1)}>
             Back
