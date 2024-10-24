@@ -1,11 +1,17 @@
 import { ActionButton, Panel, SkeletonLoading } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { routes } from "App/routes";
-import { shieldedBalanceAtom } from "atoms/masp/atoms";
+import {
+  assetsByDenomAtom,
+  fiatPriceMapAtom,
+  shieldedBalanceAtom,
+} from "atoms/masp/atoms";
+import BigNumber from "bignumber.js";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
-import { useState } from "react";
-import { ShieldedFungibleTable } from "./ShieldedFungibleTable";
+import { useMemo, useState } from "react";
+import { unknownAsset } from "registry/unknownAsset";
+import { ShieldedFungibleTable, TokenRow } from "./ShieldedFungibleTable";
 import { ShieldedNFTTable } from "./ShieldedNFTTable";
 
 const tabs = ["Fungible", "NFT"];
@@ -22,13 +28,29 @@ const ShieldAssetCta = (): JSX.Element => {
 
 const AssetTable = (): JSX.Element => {
   const [tab, setTab] = useState(tabs[0]);
-  const query = useAtomValue(shieldedBalanceAtom);
+  const shieldedBalanceQuery = useAtomValue(shieldedBalanceAtom);
+  const assetsByDenom = useAtomValue(assetsByDenomAtom);
+  const fiatPriceMap = useAtomValue(fiatPriceMapAtom);
 
-  if (query.data === undefined) {
+  const data: TokenRow[] | undefined = useMemo(() => {
+    return shieldedBalanceQuery.data?.map(({ denom, amount }) => {
+      const asset = assetsByDenom[denom] ?? unknownAsset;
+      const fiatValue = fiatPriceMap.data?.[denom];
+      return {
+        asset,
+        balance: new BigNumber(amount),
+        dollar:
+          fiatValue ? new BigNumber(amount).multipliedBy(fiatValue) : undefined,
+        ssrRate: undefined, // TODO
+      };
+    });
+  }, [shieldedBalanceQuery.data, fiatPriceMap.data]);
+
+  if (data === undefined) {
     return <SkeletonLoading height="100%" width="100%" />;
   }
 
-  if (!query.data.length) {
+  if (!data.length) {
     return (
       <>
         <div className="bg-gray p-6 rounded-sm text-center font-medium">
@@ -41,7 +63,7 @@ const AssetTable = (): JSX.Element => {
 
   return (
     <AtomErrorBoundary
-      result={query}
+      result={shieldedBalanceQuery}
       niceError="Unable to load your shielded balance"
       containerProps={{ className: "pb-16" }}
     >
@@ -62,16 +84,7 @@ const AssetTable = (): JSX.Element => {
           );
         })}
       </div>
-      {tab === "Fungible" && (
-        <ShieldedFungibleTable
-          data={[
-            ...query.data,
-            // TODO mock
-            ["tnam1p5nnjnasjtfwen2kzg78fumwfs0eycqpecuc2jwz", "9999.99"],
-            ["unknown", "123.456"],
-          ]}
-        />
-      )}
+      {tab === "Fungible" && <ShieldedFungibleTable data={data} />}
       {tab === "NFT" && <ShieldedNFTTable />}
     </AtomErrorBoundary>
   );

@@ -1,11 +1,20 @@
-import { Balance } from "@heliaxdev/namada-sdk/web";
+import { Asset } from "@chain-registry/types";
 import { accountsAtom, defaultAccountAtom } from "atoms/accounts/atoms";
-import { chainTokensAtom, nativeTokenAddressAtom } from "atoms/chain";
+import { nativeTokenAddressAtom, tokenAddressesAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
+import { availableAssetsAtom } from "atoms/integrations";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
+import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
+import { namadaAsset } from "registry/namadaAsset";
 import { getSdkInstance } from "utils/sdk";
+import { fetchCoinPrices } from "./services";
+
+export type TokenBalance = {
+  denom: string;
+  amount: string;
+};
 
 export const viewingKeyAtom = atomWithQuery<string>((get) => {
   const accountsQuery = get(accountsAtom);
@@ -22,26 +31,99 @@ export const viewingKeyAtom = atomWithQuery<string>((get) => {
   };
 });
 
-export const shieldedBalanceAtom = atomWithQuery<Balance>((get) => {
+export const shieldedBalanceAtom = atomWithQuery<TokenBalance[]>((get) => {
   const viewingKeyQuery = get(viewingKeyAtom);
-  const chainTokensQuery = get(chainTokensAtom);
+  const tokenAddressesQuery = get(tokenAddressesAtom);
+  const namTokenAddressQuery = get(nativeTokenAddressAtom);
 
   return {
-    queryKey: ["shielded-balance", viewingKeyQuery.data],
+    queryKey: [
+      "shielded-balance",
+      viewingKeyQuery.data,
+      tokenAddressesQuery.data,
+      namTokenAddressQuery.data,
+    ],
     ...queryDependentFn(async () => {
       const viewingKey = viewingKeyQuery.data;
-      const chainTokens = chainTokensQuery.data;
-      if (!viewingKey || !chainTokens) {
+      const tokenAddresses = tokenAddressesQuery.data;
+      const namTokenAddress = namTokenAddressQuery.data;
+      if (!viewingKey || !tokenAddresses || !namTokenAddress) {
         return [];
       }
 
       const sdk = await getSdkInstance();
       await sdk.rpc.shieldedSync([viewingKey]);
-      return await sdk.rpc.queryBalance(
+      const response = await sdk.rpc.queryBalance(
         viewingKey,
-        chainTokens.map((t) => t.address)
+        tokenAddresses.map((t) => t.address)
       );
-    }, [viewingKeyQuery, chainTokensQuery]),
+
+      // TODO mock
+      response.push(["tnam1p5nnjnasjtfwen2kzg78fumwfs0eycqpecuc2jwz", "1"]); // 1 atom
+      response.push(["unknown", "1"]);
+
+      const addressToDenom = {
+        [namTokenAddress]: "nam",
+      };
+      tokenAddresses.forEach((token) => {
+        if ("trace" in token) {
+          const denom = token.trace.split("/").at(-1) ?? token.trace;
+          addressToDenom[token.address] = denom;
+        }
+      });
+      const balance = response.map(([address, amount]) => ({
+        denom: addressToDenom[address] ?? address,
+        amount,
+      }));
+      return balance;
+    }, [viewingKeyQuery, tokenAddressesQuery, namTokenAddressQuery]),
+  };
+});
+
+export const assetsByDenomAtom = atom((get) => {
+  const availableAssets = get(availableAssetsAtom);
+  const assetsByDenom: Record<string, Asset> = {
+    // TODO namAsset should be returned from availableAssetsAtom
+    nam: namadaAsset,
+  };
+  availableAssets.forEach((assets) => {
+    assets.assets.forEach((asset) => {
+      asset.denom_units.forEach((unit) => {
+        // only set the asset if it doesn't exists
+        // otherwise the testnet will override the mainnet
+        if (!assetsByDenom[unit.denom]) {
+          assetsByDenom[unit.denom] = asset;
+        }
+      });
+    });
+  });
+  return assetsByDenom;
+});
+
+export const fiatPriceMapAtom = atomWithQuery((get) => {
+  const shieldedBalanceQuery = get(shieldedBalanceAtom);
+  const assetsByDenom = get(assetsByDenomAtom);
+
+  return {
+    queryKey: ["fiat-price-map", shieldedBalanceQuery.data],
+    ...queryDependentFn(async () => {
+      const denomById: Record<string, string> = {};
+      const ids: string[] = [];
+      shieldedBalanceQuery.data?.forEach(({ denom }) => {
+        const id = assetsByDenom[denom]?.coingecko_id;
+        if (id) {
+          denomById[id] = denom;
+          ids.push(id);
+        }
+      });
+      const pricesById = await fetchCoinPrices(ids);
+      const pricesByDenom: Record<string, number> = {};
+      Object.entries(pricesById).forEach(([id, { usd }]) => {
+        const denom = denomById[id];
+        pricesByDenom[denom] = usd;
+      });
+      return pricesByDenom;
+    }, [shieldedBalanceQuery]),
   };
 });
 
@@ -57,7 +139,9 @@ export const totalShieldedBalanceAtom = atomWithQuery<BigNumber>((get) => {
         return new BigNumber(0);
       }
       // TODO convert to fiat values
-      return BigNumber.sum(...shieldedBalanceQuery.data.map((b) => b[1]));
+      return BigNumber.sum(
+        ...shieldedBalanceQuery.data.map(({ amount }) => amount)
+      );
     }, [shieldedBalanceQuery]),
   };
 });
@@ -77,8 +161,8 @@ export const namShieldedBalanceAtom = atomWithQuery<BigNumber>((get) => {
       }
       return BigNumber.sum(
         ...shieldedBalanceQuery.data
-          .filter((b) => b[0] === namTokenAddress)
-          .map((b) => b[1])
+          .filter(({ denom }) => denom === "nam")
+          .map(({ amount }) => amount)
       );
     }, [shieldedBalanceQuery]),
   };
