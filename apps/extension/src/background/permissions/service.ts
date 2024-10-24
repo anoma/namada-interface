@@ -37,6 +37,15 @@ export class PermissionsService {
     await this.localStorage.setPermissions(updatedPermissions);
   }
 
+  async revokeDomainPermissions(domain: string): Promise<void> {
+    const updatedPermissions = await this.localStorage.getPermissions();
+    if (!updatedPermissions || !updatedPermissions[domain]) {
+      return;
+    }
+    delete updatedPermissions[domain];
+    await this.localStorage.setPermissions(updatedPermissions);
+  }
+
   async permissionsByDomain(
     domain: string
   ): Promise<Record<string, AllowedPermissions> | undefined> {
@@ -55,5 +64,9 @@ export class PermissionsService {
     if (permissions && permissions[domain] && permissions[domain][chainId]) {
       return permissions[domain][chainId];
     }
+  }
+
+  async getApprovedOrigins(): Promise<string[] | undefined> {
+    return await this.localStorage.getApprovedOrigins();
   }
 }

@@ -159,11 +159,12 @@ const handleDisconnectInterfaceResponseMsg: (
 ) => InternalHandler<DisconnectInterfaceResponseMsg> = (service) => {
   return async (
     { senderTabId: popupTabId },
-    { interfaceOrigin, revokeConnection }
+    { interfaceOrigin, chainId, revokeConnection }
   ) => {
     return await service.approveDisconnectionResponse(
       popupTabId,
       interfaceOrigin,
+      chainId,
       revokeConnection
     );
   };

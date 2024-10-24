@@ -91,6 +91,7 @@ describe("approvals handler", () => {
 
     const disconnectInterfaceResponseMsg = new DisconnectInterfaceResponseMsg(
       "",
+      "chainId",
       true
     );
     handler(env, disconnectInterfaceResponseMsg);

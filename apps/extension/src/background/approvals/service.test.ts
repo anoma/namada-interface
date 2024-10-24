@@ -315,7 +315,7 @@ describe("approvals service", () => {
           reject: jest.fn(),
         },
       };
-      jest.spyOn(localStorage, "addApprovedOrigin").mockResolvedValue();
+      jest.spyOn(permissionsService, "enablePermissions").mockResolvedValue();
 
       await service.approveConnectionResponse(
         popupTabId,
@@ -325,8 +325,9 @@ describe("approvals service", () => {
       );
 
       expect(service["resolverMap"][popupTabId].resolve).toHaveBeenCalled();
-      expect(localStorage.addApprovedOrigin).toHaveBeenCalledWith(
-        interfaceOrigin
+      expect(permissionsService.enablePermissions).toHaveBeenCalledWith(
+        interfaceOrigin,
+        chainId
       );
     });
 
@@ -410,6 +411,7 @@ describe("approvals service", () => {
   describe("approveDisconnectionResponse", () => {
     it("should approve disconnection response", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chainId";
       const popupTabId = 1;
       service["resolverMap"] = {
         [popupTabId]: {
@@ -422,6 +424,7 @@ describe("approvals service", () => {
       await service.approveDisconnectionResponse(
         popupTabId,
         interfaceOrigin,
+        chainId,
         true
       );
 
@@ -455,10 +458,12 @@ describe("approvals service", () => {
     it("should reject connection response", async () => {
       const originToRevoke = "origin";
 
-      jest.spyOn(localStorage, "removeApprovedOrigin").mockResolvedValue();
+      jest
+        .spyOn(permissionsService, "revokeDomainPermissions")
+        .mockResolvedValue();
       await service.revokeConnection(originToRevoke);
 
-      expect(localStorage.removeApprovedOrigin).toHaveBeenCalledWith(
+      expect(permissionsService.revokeDomainPermissions).toHaveBeenCalledWith(
         originToRevoke
       );
     });
@@ -567,7 +572,7 @@ describe("approvals service", () => {
       const chainId = chains.namada.chainId;
       jest.spyOn(chainService, "getChain").mockResolvedValue(chains.namada);
       jest
-        .spyOn(localStorage, "getApprovedOrigins")
+        .spyOn(permissionsService, "getApprovedOrigins")
         .mockResolvedValue([origin]);
 
       await expect(service.isConnectionApproved(origin, chainId)).resolves.toBe(
@@ -579,7 +584,9 @@ describe("approvals service", () => {
       const origin = "origin";
       const chainId = "chainId";
       jest.spyOn(chainService, "getChain").mockResolvedValue(chains.namada);
-      jest.spyOn(localStorage, "getApprovedOrigins").mockResolvedValue([]);
+      jest
+        .spyOn(permissionsService, "getApprovedOrigins")
+        .mockResolvedValue([]);
 
       await expect(service.isConnectionApproved(origin, chainId)).resolves.toBe(
         false
@@ -591,7 +598,7 @@ describe("approvals service", () => {
       const chainId = "chainId";
       jest.spyOn(chainService, "getChain").mockResolvedValue(chains.namada);
       jest
-        .spyOn(localStorage, "getApprovedOrigins")
+        .spyOn(permissionsService, "getApprovedOrigins")
         .mockResolvedValue(undefined);
 
       await expect(service.isConnectionApproved(origin, chainId)).resolves.toBe(
