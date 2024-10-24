@@ -5,18 +5,24 @@ import { SelectModal } from "App/Common/SelectModal";
 import clsx from "clsx";
 import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { WalletProvider } from "types";
 import { AssetCard } from "./AssetCard";
+import { ConnectedWalletInfo } from "./ConnectedWalletInfo";
 
 type SelectWalletModalProps = {
   onClose: () => void;
   onSelect: (asset: Asset) => void;
   assets: Asset[];
+  wallet: WalletProvider;
+  walletAddress: string;
 };
 
 export const SelectAssetModal = ({
   onClose,
   onSelect,
   assets,
+  wallet,
+  walletAddress,
 }: SelectWalletModalProps): JSX.Element => {
   const [filter, setFilter] = useState("");
 
@@ -30,8 +36,9 @@ export const SelectAssetModal = ({
 
   return (
     <SelectModal title="Select Asset" onClose={onClose}>
-      <div className="mb-4">
-        <Search placeholder="Search chain" onChange={setFilter} />
+      <ConnectedWalletInfo wallet={wallet} walletAddress={walletAddress} />
+      <div className="my-4">
+        <Search placeholder="Search asset" onChange={setFilter} />
       </div>
       <Stack
         as="ul"

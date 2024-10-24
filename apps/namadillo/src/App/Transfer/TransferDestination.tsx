@@ -1,14 +1,16 @@
 import { Chain } from "@chain-registry/types";
 import { Stack } from "@namada/components";
-import { NamCurrency } from "App/Common/NamCurrency";
 import { TabSelector } from "App/Common/TabSelector";
-import BigNumber from "bignumber.js";
+import { TokenCurrency } from "App/Common/TokenCurrency";
 import clsx from "clsx";
 import { WalletProvider } from "types";
+import { toDisplayAmount } from "utils";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";
 import { SelectedWallet } from "./SelectedWallet";
+import { TransactionFee } from "./TransferModule";
+import ibcTransferImage from "./assets/ibc-transfer.png";
 
 type TransferDestinationProps = {
   isShielded?: boolean;
@@ -17,8 +19,9 @@ type TransferDestinationProps = {
   wallet?: WalletProvider;
   walletAddress?: string;
   className?: string;
-  transactionFee?: BigNumber;
+  transactionFee?: TransactionFee;
   customAddressActive?: boolean;
+  isIbcTransfer?: boolean;
   openChainSelector?: () => void;
   openProviderSelector?: () => void;
   onToggleCustomAddress?: (isActive: boolean) => void;
@@ -33,6 +36,7 @@ export const TransferDestination = ({
   wallet,
   walletAddress,
   isShielded,
+  isIbcTransfer,
   onChangeShielded,
   transactionFee,
   customAddressActive,
@@ -117,9 +121,20 @@ export const TransferDestination = ({
       )}
 
       {transactionFee && (
-        <footer className="flex justify-between mt-12 text-sm text-neutral-300">
+        <footer className="flex justify-between items-center mt-12 text-sm text-neutral-300">
           <span className="underline">Transaction Fee</span>
-          <NamCurrency amount={transactionFee} />
+          {isIbcTransfer && (
+            <span className="w-20">
+              <img src={ibcTransferImage} />
+            </span>
+          )}
+          <TokenCurrency
+            amount={toDisplayAmount(
+              transactionFee.token,
+              transactionFee.amount
+            )}
+            asset={transactionFee.token}
+          />
         </footer>
       )}
     </div>

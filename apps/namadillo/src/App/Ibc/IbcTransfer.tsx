@@ -1,4 +1,5 @@
 import { Asset, Chain } from "@chain-registry/types";
+import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { mapUndefined } from "@namada/utils";
 import { TransactionTimeline } from "App/Common/TransactionTimeline";
 import {
@@ -43,7 +44,7 @@ export const IbcTransfer: React.FC = () => {
   } = useWalletManager(keplr);
 
   const {
-    balance: availableAmount,
+    balance: totalAvailableAmount,
     availableAssets,
     isLoading: isLoadingBalances,
   } = useAssetAmount({
@@ -51,6 +52,29 @@ export const IbcTransfer: React.FC = () => {
     asset: selectedAsset,
     walletAddress: sourceAddress,
   });
+
+  const transactionFee = useMemo(() => {
+    if (typeof registry !== "undefined") {
+      // TODO: can we get a better type for registry to avoid optional chaining?
+      // TODO: some chains support multiple fee tokens - what should we do?
+      const feeToken = registry.chain?.fees?.fee_tokens?.[0];
+
+      if (typeof feeToken !== "undefined") {
+        const asset = registry.assets.assets.find(
+          (asset) => asset.base === feeToken.denom
+        );
+
+        if (typeof asset !== "undefined") {
+          return {
+            amount: BigNumber(1), // TODO: remove hardcoding
+            token: asset,
+          };
+        }
+      }
+    }
+
+    return undefined;
+  }, [registry]);
 
   useEffect(() => {
     setSelectedAsset(undefined);
@@ -95,25 +119,50 @@ export const IbcTransfer: React.FC = () => {
         throw new Error("Invalid IBC destination channel");
       }
 
-      await performIbcTransfer.mutateAsync({
-        chain: registry.chain,
-        transferParams: {
-          signer: keplr.getSigner(chainId),
-          sourceAddress,
-          destinationAddress,
-          amount,
-          token: selectedAsset.base,
-          sourceChannelId: ibcOptions.sourceChannel,
-          ...(shielded ?
-            {
-              isShielded: true,
-              destinationChannelId: ibcOptions.destinationChannel,
-            }
-          : {
-              isShielded: false,
-            }),
+      if (typeof transactionFee === "undefined") {
+        throw new Error("No transaction fee is set");
+      }
+
+      const baseKeplr = (window as KeplrWindow).keplr;
+
+      if (typeof baseKeplr === "undefined") {
+        throw new Error("No Keplr instance");
+      }
+
+      // Set Keplr option to allow Namadillo to set the transaction fee
+      const savedKeplrOptions = baseKeplr.defaultOptions;
+      baseKeplr.defaultOptions = {
+        sign: {
+          preferNoSetFee: true,
         },
-      });
+      };
+
+      try {
+        await performIbcTransfer.mutateAsync({
+          chain: registry.chain,
+          transferParams: {
+            signer: keplr.getSigner(chainId),
+            sourceAddress,
+            destinationAddress,
+            amount,
+            token: selectedAsset.base,
+            transactionFee,
+            sourceChannelId: ibcOptions.sourceChannel,
+            ...(shielded ?
+              {
+                isShielded: true,
+                destinationChannelId: ibcOptions.destinationChannel,
+              }
+            : {
+                isShielded: false,
+              }),
+          },
+        });
+      } finally {
+        // Restore Keplr options to avoid mutating state
+        baseKeplr.defaultOptions = savedKeplrOptions;
+      }
+
       setCurrentStep(2);
     } catch {
       setCurrentStep(0);
@@ -127,6 +176,22 @@ export const IbcTransfer: React.FC = () => {
   const onChangeChain = (chain: Chain): void => {
     connectToChainId(chain.chain_id);
   };
+
+  const availableAmountMinusFees = useMemo(() => {
+    if (
+      typeof totalAvailableAmount === "undefined" ||
+      typeof transactionFee === "undefined" ||
+      typeof selectedAsset === "undefined"
+    ) {
+      return undefined;
+    }
+
+    if (selectedAsset.base === transactionFee.token.base) {
+      return totalAvailableAmount.minus(transactionFee.amount);
+    } else {
+      return totalAvailableAmount;
+    }
+  }, [totalAvailableAmount, selectedAsset, transactionFee]);
 
   return (
     <>
@@ -146,7 +211,7 @@ export const IbcTransfer: React.FC = () => {
                 isLoadingAssets: isLoadingBalances,
                 availableAssets,
                 selectedAsset,
-                availableAmount,
+                availableAmount: availableAmountMinusFees,
                 availableChains,
                 onChangeChain,
                 chain: mapUndefined((id) => chainRegistry[id].chain, chainId),
@@ -164,9 +229,9 @@ export const IbcTransfer: React.FC = () => {
                 isShielded: shielded,
                 onChangeShielded: setShielded,
               }}
-              transactionFee={new BigNumber(0.0001) /*TODO: fix this*/}
+              transactionFee={transactionFee}
               isSubmitting={performIbcTransfer.isPending}
-              requiresIbcChannels={true}
+              isIbcTransfer={true}
               onSubmitTransfer={onSubmitTransfer}
             />
           </motion.div>
