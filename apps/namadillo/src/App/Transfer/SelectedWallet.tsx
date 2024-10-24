@@ -1,10 +1,12 @@
 import { shortenAddress } from "@namada/utils";
 import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
 import { WalletProvider } from "types";
 
 type SelectedWalletProps = {
   wallet: WalletProvider;
   address?: string;
+  className?: string;
   onClick?: () => void;
 };
 
@@ -12,15 +14,22 @@ export const SelectedWallet = ({
   wallet,
   onClick,
   address,
+  className = "",
 }: SelectedWalletProps): JSX.Element => {
   if (!address) return <></>;
   return (
     <div
       role="button"
-      className={clsx(
-        "flex justify-between items-center gap-2 text-sm text-neutral-500",
-        "font-light text-right transition-colors",
-        { "hover:text-neutral-400": Boolean(onClick), "cursor-auto": !onClick }
+      className={twMerge(
+        clsx(
+          "flex justify-between items-center gap-2.5 text-sm text-neutral-500",
+          "font-light text-right transition-colors",
+          {
+            "hover:text-neutral-400": Boolean(onClick),
+            "cursor-auto": !onClick,
+          },
+          className
+        )
       )}
       onClick={onClick}
     >

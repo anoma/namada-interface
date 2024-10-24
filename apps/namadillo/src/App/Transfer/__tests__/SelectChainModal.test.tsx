@@ -5,9 +5,11 @@ import {
   randomChainMock,
 } from "App/Transfer/__mocks__/chains";
 import { SelectChainModal } from "App/Transfer/SelectChainModal";
+import { walletMock } from "../__mocks__/providers";
 
 describe("Component: SelectChainModal", () => {
   const mockChains = [randomChainMock, namadaChainMock];
+  const mockAddress = "cosmos1xnu3p06fkke8hnl7t83hzhggrca59syf0wjqgh";
 
   it("should render component and list of chains correctly", () => {
     render(
@@ -15,11 +17,17 @@ describe("Component: SelectChainModal", () => {
         chains={mockChains as Chains}
         onClose={jest.fn()}
         onSelect={jest.fn()}
+        wallet={walletMock}
+        walletAddress={mockAddress}
       />
     );
     expect(screen.getByText("Namada")).toBeInTheDocument();
     expect(screen.getByText("TestChain")).toBeInTheDocument();
-    //
+
+    // Beginning and end of wallet address
+    expect(screen.getByText("cosmos1x", { exact: false })).toBeInTheDocument();
+    expect(screen.getByText("jqgh", { exact: false })).toBeInTheDocument();
+
     // Check for modal title
     expect(screen.getByText("Select Source Chain")).toBeInTheDocument();
 
@@ -39,6 +47,8 @@ describe("Component: SelectChainModal", () => {
         onClose={jest.fn()}
         onSelect={handleSelect}
         chains={mockChains as Chains}
+        wallet={walletMock}
+        walletAddress={mockAddress}
       />
     );
     fireEvent.click(screen.getByText(mockChains[0].pretty_name!));
@@ -52,6 +62,8 @@ describe("Component: SelectChainModal", () => {
         onClose={jest.fn()}
         onSelect={handleSelect}
         chains={[]}
+        wallet={walletMock}
+        walletAddress={mockAddress}
       />
     );
     expect(screen.getByText(/no available chains/i, { exact: false }))

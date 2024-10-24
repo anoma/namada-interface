@@ -110,7 +110,7 @@ export const IbcWithdraw: React.FC = () => {
           onChangeChain,
           isShielded: false,
         }}
-        requiresIbcChannels={true}
+        isIbcTransfer={true}
         onSubmitTransfer={submitIbcTransfer}
       />
     </>
