@@ -68,13 +68,13 @@ export const NamBalanceContainer = (): JSX.Element => {
             isLoading={isLoading}
             availableAmount={availableAmount}
             bondedAmount={bondedAmount}
-            shieldedAmount={shieldedAmount}
+            shieldedAmount={shieldedAmount || new BigNumber(0)}
             unbondedAmount={unbondedAmount}
             withdrawableAmount={withdrawableAmount}
             totalAmount={totalAmount}
           />
           <Stack gap={2} as="ul">
-            {features.maspEnabled && (
+            {features.maspEnabled && shieldedAmount && (
               <NamBalanceListItem
                 title="Shielded Assets"
                 color={colors.shielded}

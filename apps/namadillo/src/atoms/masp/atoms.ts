@@ -1,4 +1,5 @@
 import { Asset } from "@chain-registry/types";
+import { Balance } from "@heliaxdev/namada-sdk/web";
 import { accountsAtom, defaultAccountAtom } from "atoms/accounts/atoms";
 import { nativeTokenAddressAtom, tokenAddressesAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
@@ -10,25 +11,26 @@ import { atomWithQuery } from "jotai-tanstack-query";
 import { namadaAsset } from "registry/namadaAsset";
 import { unknownAsset } from "registry/unknownAsset";
 import { getSdkInstance } from "utils/sdk";
+import { findExpoent, sumDollars } from "./functions";
 import { fetchCoinPrices } from "./services";
 
 export type TokenBalance = {
-  denom: string;
   address: string;
   amount: string;
-};
-
-export type TokenBalanceWithFiat = TokenBalance & {
-  asset?: Asset;
+  denom: string;
+  asset: Asset;
+  balance: BigNumber;
   dollar?: BigNumber;
 };
+
+const NAM_DENOM = "nam";
 
 export const viewingKeyAtom = atomWithQuery<string>((get) => {
   const accountsQuery = get(accountsAtom);
   const defaultAccountQuery = get(defaultAccountAtom);
 
   return {
-    queryKey: ["viewing-key"],
+    queryKey: ["viewing-key", accountsQuery.data, defaultAccountQuery.data],
     ...queryDependentFn(async () => {
       const shieldedAccount = accountsQuery.data?.find(
         (a) => a.isShielded && a.alias === defaultAccountQuery.data?.alias
@@ -38,11 +40,10 @@ export const viewingKeyAtom = atomWithQuery<string>((get) => {
   };
 });
 
-export const shieldedBalanceAtom = atomWithQuery<TokenBalance[]>((get) => {
+export const shieldedBalanceAtom = atomWithQuery<Balance>((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
   const viewingKeyQuery = get(viewingKeyAtom);
   const tokenAddressesQuery = get(tokenAddressesAtom);
-  const namTokenAddressQuery = get(nativeTokenAddressAtom);
 
   return {
     refetchInterval: enablePolling ? 1000 : false,
@@ -50,13 +51,11 @@ export const shieldedBalanceAtom = atomWithQuery<TokenBalance[]>((get) => {
       "shielded-balance",
       viewingKeyQuery.data,
       tokenAddressesQuery.data,
-      namTokenAddressQuery.data,
     ],
     ...queryDependentFn(async () => {
       const viewingKey = viewingKeyQuery.data;
       const tokenAddresses = tokenAddressesQuery.data;
-      const namTokenAddress = namTokenAddressQuery.data;
-      if (!viewingKey || !tokenAddresses || !namTokenAddress) {
+      if (!viewingKey || !tokenAddresses) {
         return [];
       }
 
@@ -66,27 +65,38 @@ export const shieldedBalanceAtom = atomWithQuery<TokenBalance[]>((get) => {
         viewingKey,
         tokenAddresses.map((t) => t.address)
       );
-
       // TODO mock
       // response.push(["tnam1qy440ynh9fwrx8aewjvvmu38zxqgukgc259fzp6h", "100"]); // 100 nam
-      // response.push(["tnam1p5nnjnasjtfwen2kzg78fumwfs0eycqpecuc2jwz", "10"]); // 10 atom
+      // response.push(["tnam1p5nnjnasjtfwen2kzg78fumwfs0eycqpecuc2jwz", "10"]); // 10 uatom
       // response.push(["unknown", "1"]); // 1 unknown token
+      return response;
+    }, [viewingKeyQuery, tokenAddressesQuery]),
+  };
+});
 
-      const addressToDenom = {
-        [namTokenAddress]: "nam",
-      };
-      tokenAddresses.forEach((token) => {
+export const denomByAddressAtom = atomWithQuery((get) => {
+  const tokenAddressesQuery = get(tokenAddressesAtom);
+  const namTokenAddressQuery = get(nativeTokenAddressAtom);
+
+  return {
+    queryKey: [
+      "denom-by-address",
+      tokenAddressesQuery.data,
+      namTokenAddressQuery.data,
+    ],
+    ...queryDependentFn(async () => {
+      const addressToDenom: Record<string, string> = {};
+      if (namTokenAddressQuery.data) {
+        addressToDenom[namTokenAddressQuery.data] = NAM_DENOM;
+      }
+      tokenAddressesQuery.data?.forEach((token) => {
         if ("trace" in token) {
           const denom = token.trace.split("/").at(-1) ?? token.trace;
           addressToDenom[token.address] = denom;
         }
       });
-      return response.map(([address, amount]) => ({
-        denom: addressToDenom[address] ?? address,
-        address,
-        amount,
-      }));
-    }, [viewingKeyQuery, tokenAddressesQuery, namTokenAddressQuery]),
+      return addressToDenom;
+    }, [tokenAddressesQuery, namTokenAddressQuery]),
   };
 });
 
@@ -94,7 +104,7 @@ export const assetsByDenomAtom = atom((get) => {
   const availableAssets = get(availableAssetsAtom);
   const assetsByDenom: Record<string, Asset> = {
     // TODO namAsset should be returned from availableAssetsAtom
-    nam: namadaAsset,
+    [NAM_DENOM]: namadaAsset,
   };
   availableAssets.forEach((assets) => {
     assets.assets.forEach((asset) => {
@@ -115,17 +125,23 @@ export const assetsByDenomAtom = atom((get) => {
   return assetsByDenom;
 });
 
-export const fiatPriceMapAtom = atomWithQuery((get) => {
+export const tokenPriceAtom = atomWithQuery((get) => {
   const shieldedBalanceQuery = get(shieldedBalanceAtom);
+  const denomByAddressQuery = get(denomByAddressAtom);
   const assetsByDenom = get(assetsByDenomAtom);
 
   return {
-    queryKey: ["fiat-price-map", shieldedBalanceQuery.data],
+    queryKey: [
+      "token-price",
+      shieldedBalanceQuery.data,
+      denomByAddressQuery.data,
+    ],
     ...queryDependentFn(async () => {
       const denomById: Record<string, string> = {};
       const ids: string[] = [];
-      shieldedBalanceQuery.data?.forEach(({ denom }) => {
-        const id = assetsByDenom[denom]?.coingecko_id;
+      shieldedBalanceQuery.data?.forEach(([address]) => {
+        const denom = denomByAddressQuery.data?.[address];
+        const id = denom && assetsByDenom[denom]?.coingecko_id;
         if (id) {
           denomById[id] = denom;
           ids.push(id);
@@ -141,72 +157,81 @@ export const fiatPriceMapAtom = atomWithQuery((get) => {
         pricesByDenom[denom] = usd;
       });
       return pricesByDenom;
-    }, [shieldedBalanceQuery]),
+    }, [shieldedBalanceQuery, denomByAddressQuery]),
   };
 });
 
-export const shieldedBalanceWithFiatAtom = atomWithQuery<
-  TokenBalanceWithFiat[]
->((get) => {
+export const shieldedTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
   const shieldedBalanceQuery = get(shieldedBalanceAtom);
+  const denomByAddressQuery = get(denomByAddressAtom);
   const assetsByDenom = get(assetsByDenomAtom);
-  const fiatPriceMapQuery = get(fiatPriceMapAtom);
+  const tokenPriceQuery = get(tokenPriceAtom);
 
   return {
     queryKey: [
-      "shielded-balance",
+      "shielded-tokens",
       shieldedBalanceQuery.data,
-      fiatPriceMapQuery.data,
+      denomByAddressQuery.data,
+      tokenPriceQuery.data,
     ],
     ...queryDependentFn(async () => {
-      const findExpoent = (asset: Asset, denom: string): number =>
-        asset.denom_units.find(
-          (unit) => unit.denom === denom || unit.aliases?.includes(denom)
-        )?.exponent ?? 0;
+      if (!shieldedBalanceQuery.data || !denomByAddressQuery.data) {
+        return [];
+      }
+      return shieldedBalanceQuery.data.map(([address, amount]) => {
+        const denom = denomByAddressQuery.data[address] ?? unknownAsset.display;
+        const asset = assetsByDenom[denom] ?? unknownAsset;
+        const display = asset.display;
 
-      return (
-        shieldedBalanceQuery.data?.map((item) => {
-          const { denom, amount } = item;
-          const asset = assetsByDenom[denom] ?? unknownAsset;
-          const display = asset.display;
+        const expoentInput = findExpoent(asset, denom);
+        const expoentOutput = findExpoent(asset, display);
+        const expoent = expoentOutput - expoentInput;
 
-          const expoentInput = findExpoent(asset, denom);
-          const expoentOutput = findExpoent(asset, display);
-          const expoent = expoentOutput - expoentInput;
+        const balance = new BigNumber(amount).dividedBy(Math.pow(10, expoent));
 
-          const balance = new BigNumber(amount).dividedBy(
-            Math.pow(10, expoent)
-          );
+        const tokenPrice = tokenPriceQuery.data?.[denom];
+        const dollar =
+          tokenPrice ? balance.multipliedBy(tokenPrice) : undefined;
 
-          const fiatValue = fiatPriceMapQuery.data?.[denom];
-          const dollar =
-            fiatValue ? balance.multipliedBy(fiatValue) : undefined;
-
-          return {
-            ...item,
-            dollar,
-          };
-        }) ?? []
-      );
-    }, [shieldedBalanceQuery, fiatPriceMapQuery]),
+        return {
+          address,
+          amount,
+          denom,
+          asset,
+          balance,
+          dollar,
+        };
+      });
+    }, [shieldedBalanceQuery, tokenPriceQuery, denomByAddressQuery]),
   };
 });
 
-export const totalShieldedBalanceAtom = atomWithQuery<BigNumber>((get) => {
-  const enablePolling = get(shouldUpdateBalanceAtom);
-  const shieldedBalanceQuery = get(shieldedBalanceAtom);
+export const shieldedDollarsAmountAtom = atomWithQuery((get) => {
+  const shieldedTokensQuery = get(shieldedTokensAtom);
 
   return {
-    refetchInterval: enablePolling ? 1000 : false,
-    queryKey: ["total-shielded-balance"],
+    queryKey: ["shielded-dollars-amount", shieldedTokensQuery.data],
     ...queryDependentFn(async () => {
-      if (!shieldedBalanceQuery.data?.length) {
-        return new BigNumber(0);
-      }
-      // TODO convert to fiat values
-      return BigNumber.sum(
-        ...shieldedBalanceQuery.data.map(({ amount }) => amount)
-      );
-    }, [shieldedBalanceQuery]),
+      return sumDollars(shieldedTokensQuery.data) ?? null;
+    }, [shieldedTokensQuery]),
+  };
+});
+
+export const shieldedNamAmountAtom = atomWithQuery((get) => {
+  const shieldedBalanceQuery = get(shieldedBalanceAtom);
+  const namTokenAddressQuery = get(nativeTokenAddressAtom);
+
+  return {
+    queryKey: [
+      "shielded-nam-amount",
+      shieldedBalanceQuery.data,
+      namTokenAddressQuery.data,
+    ],
+    ...queryDependentFn(async () => {
+      const amount = shieldedBalanceQuery.data?.find(
+        ([address]) => address === namTokenAddressQuery.data
+      )?.[1];
+      return new BigNumber(amount ?? 0);
+    }, [shieldedBalanceQuery, namTokenAddressQuery]),
   };
 });

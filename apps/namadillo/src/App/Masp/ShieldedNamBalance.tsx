@@ -1,7 +1,7 @@
 import { SkeletonLoading, Stack, Tooltip } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
-import { shieldedBalanceAtom } from "atoms/masp/atoms";
+import { shieldedNamAmountAtom } from "atoms/masp/atoms";
 import { applicationFeaturesAtom } from "atoms/settings/atoms";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
@@ -10,7 +10,7 @@ import { twMerge } from "tailwind-merge";
 import namBalanceIcon from "./assets/nam-balance-icon.png";
 import namadaShieldedSvg from "./assets/namada-shielded.svg";
 
-const AsyncNamCurrency = ({ amount }: { amount?: string }): JSX.Element => {
+const AsyncNamCurrency = ({ amount }: { amount?: BigNumber }): JSX.Element => {
   if (amount === undefined) {
     return (
       <Stack gap={2.5} className="h-[76px] items-center">
@@ -30,20 +30,12 @@ const AsyncNamCurrency = ({ amount }: { amount?: string }): JSX.Element => {
 };
 
 export const ShieldedNamBalance = (): JSX.Element => {
-  const shieldedBalanceQuery = useAtomValue(shieldedBalanceAtom);
+  const shieldedNamAmountQuery = useAtomValue(shieldedNamAmountAtom);
   const { shieldingRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
-
-  let namAmount: string | undefined;
-  if (shieldedBalanceQuery.data) {
-    const namBalance = shieldedBalanceQuery.data.find(
-      ({ denom }) => denom === "nam"
-    );
-    namAmount = namBalance ? namBalance.amount : "0";
-  }
 
   return (
     <AtomErrorBoundary
-      result={shieldedBalanceQuery}
+      result={shieldedNamAmountQuery}
       niceError="Unable to load shielded NAM balance"
     >
       <div className="flex flex-col sm:grid sm:grid-cols-[1fr_1fr] gap-2 min-h-full text-yellow">
@@ -67,7 +59,7 @@ export const ShieldedNamBalance = (): JSX.Element => {
               />
             </div>
           </div>
-          <AsyncNamCurrency amount={namAmount} />
+          <AsyncNamCurrency amount={shieldedNamAmountQuery.data} />
           <div
             className={twMerge(
               "py-2 max-w-[160px] mx-auto mt-4 mb-3",
@@ -106,7 +98,7 @@ export const ShieldedNamBalance = (): JSX.Element => {
           </div>
           {shieldingRewardsEnabled ?
             // TODO shielding rewards
-            <AsyncNamCurrency amount={"0"} />
+            <AsyncNamCurrency amount={new BigNumber(0)} />
           : <div className="block text-center text-3xl">--</div>}
           <div
             className={twMerge(

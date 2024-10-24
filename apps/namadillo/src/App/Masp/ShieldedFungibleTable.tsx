@@ -1,45 +1,21 @@
-import { Asset } from "@chain-registry/types";
 import { ActionButton, TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { routes } from "App/routes";
-import {
-  assetsByDenomAtom,
-  fiatPriceMapAtom,
-  TokenBalance,
-} from "atoms/masp/atoms";
-import BigNumber from "bignumber.js";
-import { useAtomValue } from "jotai";
+import { TokenBalance } from "atoms/masp/atoms";
 import { useEffect, useState } from "react";
-import { unknownAsset } from "registry/unknownAsset";
 import { twMerge } from "tailwind-merge";
-
-export type TokenRow = {
-  asset: Asset;
-  denom: string;
-  balance: BigNumber;
-  dollar?: BigNumber;
-  ssrRate?: BigNumber;
-};
 
 const resultsPerPage = 100;
 const initialPage = 0;
-
-const findExpoent = (asset: Asset, denom: string): number =>
-  asset.denom_units.find(
-    (unit) => unit.denom === denom || unit.aliases?.includes(denom)
-  )?.exponent ?? 0;
 
 export const ShieldedFungibleTable = ({
   data,
 }: {
   data: TokenBalance[];
 }): JSX.Element => {
-  const assetsByDenom = useAtomValue(assetsByDenomAtom);
-  const { data: fiatPriceMap } = useAtomValue(fiatPriceMapAtom);
-
   const [page, setPage] = useState(initialPage);
 
   const headers = [
@@ -48,19 +24,9 @@ export const ShieldedFungibleTable = ({
     { children: "SSR Rate", className: "text-right" },
   ];
 
-  const renderRow = ({ denom, amount }: TokenBalance): TableRow => {
-    const asset = assetsByDenom[denom] ?? unknownAsset;
-
+  const renderRow = ({ asset, balance, dollar }: TokenBalance): TableRow => {
     const display = asset.display;
     const icon = asset.logo_URIs?.svg ?? asset.logo_URIs?.png;
-
-    const expoentInput = findExpoent(asset, denom);
-    const expoentOutput = findExpoent(asset, display);
-    const expoent = expoentOutput - expoentInput;
-    const balance = new BigNumber(amount).dividedBy(Math.pow(10, expoent));
-
-    const fiatValue = fiatPriceMap?.[denom];
-    const dollar = fiatValue ? balance.multipliedBy(fiatValue) : undefined;
 
     // TODO
     const ssrRate = undefined;
