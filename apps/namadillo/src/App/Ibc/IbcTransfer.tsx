@@ -67,7 +67,7 @@ export const IbcTransfer: React.FC = () => {
 
         if (typeof asset !== "undefined") {
           return {
-            amount: BigNumber(1), // TODO: remove hardcoding
+            amount: BigNumber(3000), // TODO: remove hardcoding
             token: asset,
           };
         }

@@ -58,13 +58,10 @@ export const assetBalanceAtomFamily = atomFamily(
     return atomWithQuery(() => ({
       queryKey: ["assets", walletAddress, chain?.chain_id, assets],
       ...queryDependentFn(async () => {
-        const assetsBalances = await queryAndStoreRpc(
-          chain!,
-          async (rpc: string) => {
-            return await queryAssetBalances(walletAddress!, rpc);
-          }
-        );
-        return mapCoinsToAssets(assetsBalances, assets!);
+        return await queryAndStoreRpc(chain!, async (rpc: string) => {
+          const assetsBalances = await queryAssetBalances(walletAddress!, rpc);
+          return await mapCoinsToAssets(assetsBalances, assets!, rpc);
+        });
       }, [!!walletAddress, !!chain]),
     }));
   },

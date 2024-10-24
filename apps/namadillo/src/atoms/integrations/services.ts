@@ -3,12 +3,9 @@ import { Coin, OfflineSigner } from "@cosmjs/launchpad";
 import { coin, coins } from "@cosmjs/proto-signing";
 import {
   MsgTransferEncodeObject,
-  QueryClient,
   SigningStargateClient,
   StargateClient,
-  setupIbcExtension,
 } from "@cosmjs/stargate";
-import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import { TransactionFee } from "App/Transfer/TransferModule";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
@@ -67,34 +64,7 @@ export const queryAssetBalances = async (
   rpc: string
 ): Promise<Coin[]> => {
   const client = await StargateClient.connect(rpc);
-  const balances = (await client.getAllBalances(owner)) || [];
-  return await Promise.all(
-    balances.map(async (coin: Coin) => {
-      if (coin.denom.startsWith("ibc/")) {
-        return { ...coin, denom: await ibcAddressToDenom(rpc, coin.denom) };
-      }
-      return coin;
-    })
-  );
-};
-
-const ibcAddressToDenom = async (
-  rpc: string,
-  address: string
-): Promise<string> => {
-  const tmClient = await Tendermint34Client.connect(rpc);
-  const queryClient = new QueryClient(tmClient);
-  const ibcExtension = setupIbcExtension(queryClient);
-  const ibcHash = address.replace("ibc/", "");
-
-  const { denomTrace } = await ibcExtension.ibc.transfer.denomTrace(ibcHash);
-  const baseDenom = denomTrace?.baseDenom;
-
-  if (typeof baseDenom === "undefined") {
-    throw new Error("Couldn't get denom from ibc address");
-  }
-
-  return baseDenom;
+  return ((await client.getAllBalances(owner)) as Coin[]) || [];
 };
 
 export const submitIbcTransfer =
