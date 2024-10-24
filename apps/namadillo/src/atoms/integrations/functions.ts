@@ -1,5 +1,7 @@
-import { AssetList, Chain } from "@chain-registry/types";
+import { Asset, AssetList, Chain } from "@chain-registry/types";
 import { Coin } from "@cosmjs/launchpad";
+import { QueryClient, setupIbcExtension } from "@cosmjs/stargate";
+import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import BigNumber from "bignumber.js";
 import * as celestia from "chain-registry/mainnet/celestia";
 import * as cosmos from "chain-registry/mainnet/cosmoshub";
@@ -38,23 +40,70 @@ export const getKnownChains = (
   return includeTestnets ? mainnetAndTestnetChains : mainnetChains;
 };
 
-export const mapCoinsToAssets = (
+const ibcAddressToDenom = async (
+  rpc: string,
+  address: string
+): Promise<string> => {
+  const tmClient = await Tendermint34Client.connect(rpc);
+  const queryClient = new QueryClient(tmClient);
+  const ibcExtension = setupIbcExtension(queryClient);
+  const ibcHash = address.replace("ibc/", "");
+
+  const { denomTrace } = await ibcExtension.ibc.transfer.denomTrace(ibcHash);
+
+  if (typeof denomTrace === "undefined") {
+    throw new Error("Couldn't get denom trace from IBC address");
+  }
+
+  return denomTrace.path + "/" + denomTrace.baseDenom;
+};
+
+export const mapCoinsToAssets = async (
   coins: Coin[],
-  assetList: AssetList
-): Record<string, AssetWithBalance> => {
-  return coins.reduce((prev, current) => {
-    const asset = assetList.assets.find(
-      (asset) => asset.base === current.denom
+  assetList: AssetList,
+  rpc: string
+): Promise<Record<string, AssetWithBalance>> => {
+  const coinToAsset = async ({ denom }: Coin): Promise<Asset> => {
+    const registryAsset = assetList.assets.find(
+      (asset) => asset.base === denom
     );
-    if (!asset) return prev;
+
+    if (registryAsset) {
+      return registryAsset;
+    }
+
+    const decodedDenom =
+      denom.startsWith("ibc/") ? await ibcAddressToDenom(rpc, denom) : denom;
+
     return {
-      ...prev,
-      [asset.base]: {
-        asset,
-        balance: new BigNumber(current.amount || 0),
-      },
+      denom_units: [
+        {
+          denom,
+          exponent: 0,
+        },
+      ],
+      base: denom,
+      name: decodedDenom,
+      display: denom,
+      symbol: decodedDenom,
     };
-  }, {});
+  };
+
+  const assets = coins.map(
+    async (coin): Promise<[string, AssetWithBalance]> => {
+      const asset = await coinToAsset(coin);
+
+      return [
+        asset.base,
+        {
+          asset,
+          balance: BigNumber(coin.amount || 0),
+        },
+      ];
+    }
+  );
+
+  return Object.fromEntries(await Promise.all(assets));
 };
 
 export const getRpcByIndex = (chain: Chain, index = 0): string => {
