@@ -4,12 +4,13 @@ import { TabSelector } from "App/Common/TabSelector";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import clsx from "clsx";
 import { WalletProvider } from "types";
-import { ConnectProviderButton } from "./ConnectProviderButton";
 import { toDisplayAmount } from "utils";
+import { ConnectProviderButton } from "./ConnectProviderButton";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";
 import { SelectedWallet } from "./SelectedWallet";
 import { TransactionFee } from "./TransferModule";
+import ibcTransferImage from "./assets/ibc-transfer.png";
 
 type TransferDestinationProps = {
   isShielded?: boolean;
@@ -20,6 +21,7 @@ type TransferDestinationProps = {
   className?: string;
   transactionFee?: TransactionFee;
   customAddressActive?: boolean;
+  isIbcTransfer?: boolean;
   openChainSelector?: () => void;
   openProviderSelector?: () => void;
   onToggleCustomAddress?: (isActive: boolean) => void;
@@ -34,6 +36,7 @@ export const TransferDestination = ({
   wallet,
   walletAddress,
   isShielded,
+  isIbcTransfer,
   onChangeShielded,
   transactionFee,
   customAddressActive,
@@ -118,8 +121,13 @@ export const TransferDestination = ({
       )}
 
       {transactionFee && (
-        <footer className="flex justify-between mt-12 text-sm text-neutral-300">
+        <footer className="flex justify-between items-center mt-12 text-sm text-neutral-300">
           <span className="underline">Transaction Fee</span>
+          {isIbcTransfer && (
+            <span className="w-20">
+              <img src={ibcTransferImage} />
+            </span>
+          )}
           <TokenCurrency
             amount={toDisplayAmount(
               transactionFee.token,

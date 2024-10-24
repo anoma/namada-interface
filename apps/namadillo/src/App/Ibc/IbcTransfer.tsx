@@ -231,7 +231,7 @@ export const IbcTransfer: React.FC = () => {
               }}
               transactionFee={transactionFee}
               isSubmitting={performIbcTransfer.isPending}
-              requiresIbcChannels={true}
+              isIbcTransfer={true}
               onSubmitTransfer={onSubmitTransfer}
             />
           </motion.div>
