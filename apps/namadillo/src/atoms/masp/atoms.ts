@@ -13,6 +13,7 @@ import { fetchCoinPrices } from "./services";
 
 export type TokenBalance = {
   denom: string;
+  address: string;
   amount: string;
 };
 
@@ -32,11 +33,13 @@ export const viewingKeyAtom = atomWithQuery<string>((get) => {
 });
 
 export const shieldedBalanceAtom = atomWithQuery<TokenBalance[]>((get) => {
+  const enablePolling = get(shouldUpdateBalanceAtom);
   const viewingKeyQuery = get(viewingKeyAtom);
   const tokenAddressesQuery = get(tokenAddressesAtom);
   const namTokenAddressQuery = get(nativeTokenAddressAtom);
 
   return {
+    refetchInterval: enablePolling ? 1000 : false,
     queryKey: [
       "shielded-balance",
       viewingKeyQuery.data,
@@ -59,8 +62,9 @@ export const shieldedBalanceAtom = atomWithQuery<TokenBalance[]>((get) => {
       );
 
       // TODO mock
-      response.push(["tnam1p5nnjnasjtfwen2kzg78fumwfs0eycqpecuc2jwz", "1"]); // 1 atom
-      response.push(["unknown", "1"]);
+      // response.push(["tnam1qy440ynh9fwrx8aewjvvmu38zxqgukgc259fzp6h", "100"]); // 100 nam
+      // response.push(["tnam1p5nnjnasjtfwen2kzg78fumwfs0eycqpecuc2jwz", "10"]); // 10 atom
+      response.push(["unknown", "1"]); // 1 unknown token
 
       const addressToDenom = {
         [namTokenAddress]: "nam",
@@ -71,11 +75,11 @@ export const shieldedBalanceAtom = atomWithQuery<TokenBalance[]>((get) => {
           addressToDenom[token.address] = denom;
         }
       });
-      const balance = response.map(([address, amount]) => ({
+      return response.map(([address, amount]) => ({
         denom: addressToDenom[address] ?? address,
+        address,
         amount,
       }));
-      return balance;
     }, [viewingKeyQuery, tokenAddressesQuery, namTokenAddressQuery]),
   };
 });
@@ -94,6 +98,11 @@ export const assetsByDenomAtom = atom((get) => {
         if (!assetsByDenom[unit.denom]) {
           assetsByDenom[unit.denom] = asset;
         }
+        unit.aliases?.forEach((alias) => {
+          if (!assetsByDenom[alias]) {
+            assetsByDenom[alias] = asset;
+          }
+        });
       });
     });
   });

@@ -5,12 +5,20 @@ import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { routes } from "App/routes";
+import {
+  assetsByDenomAtom,
+  fiatPriceMapAtom,
+  TokenBalance,
+} from "atoms/masp/atoms";
 import BigNumber from "bignumber.js";
+import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
+import { unknownAsset } from "registry/unknownAsset";
 import { twMerge } from "tailwind-merge";
 
 export type TokenRow = {
   asset: Asset;
+  denom: string;
   balance: BigNumber;
   dollar?: BigNumber;
   ssrRate?: BigNumber;
@@ -19,11 +27,19 @@ export type TokenRow = {
 const resultsPerPage = 100;
 const initialPage = 0;
 
+const findExpoent = (asset: Asset, denom: string): number =>
+  asset.denom_units.find(
+    (unit) => unit.denom === denom || unit.aliases?.includes(denom)
+  )?.exponent ?? 0;
+
 export const ShieldedFungibleTable = ({
   data,
 }: {
-  data: TokenRow[];
+  data: TokenBalance[];
 }): JSX.Element => {
+  const assetsByDenom = useAtomValue(assetsByDenomAtom);
+  const { data: fiatPriceMap } = useAtomValue(fiatPriceMapAtom);
+
   const [page, setPage] = useState(initialPage);
 
   const headers = [
@@ -32,40 +48,54 @@ export const ShieldedFungibleTable = ({
     { children: "SSR Rate", className: "text-right" },
   ];
 
-  const renderRow = (row: TokenRow): TableRow => {
-    const symbol = row.asset.symbol;
-    const icon = row.asset.logo_URIs?.svg ?? row.asset.logo_URIs?.png;
+  const renderRow = ({ denom, amount }: TokenBalance): TableRow => {
+    const asset = assetsByDenom[denom] ?? unknownAsset;
+
+    const display = asset.display;
+    const icon = asset.logo_URIs?.svg ?? asset.logo_URIs?.png;
+
+    const expoentInput = findExpoent(asset, denom);
+    const expoentOutput = findExpoent(asset, display);
+    const expoent = expoentOutput - expoentInput;
+    const balance = new BigNumber(amount).dividedBy(Math.pow(10, expoent));
+
+    const fiatValue = fiatPriceMap?.[denom];
+    const dollar = fiatValue ? balance.multipliedBy(fiatValue) : undefined;
+
+    // TODO
+    const ssrRate = undefined;
+
     return {
       cells: [
-        <div key={`token-${symbol}`} className="flex items-center gap-4">
+        <div key={`token-${display}`} className="flex items-center gap-4">
           <div className="aspect-square w-8 h-8">
             {icon ?
               <img src={icon} />
             : <div className="rounded-full h-full border border-white" />}
           </div>
-          {symbol}
+          {display.toUpperCase()}
         </div>,
         <div
-          key={`balance-${symbol}`}
+          key={`balance-${display}`}
           className="flex flex-col text-right leading-tight"
         >
-          <TokenCurrency asset={row.asset} amount={row.balance} />
-          {row.dollar && (
+          <TokenCurrency asset={asset} amount={balance} />
+          {dollar && (
             <FiatCurrency
               className="text-neutral-600 text-sm"
-              amount={row.dollar}
+              amount={dollar}
             />
           )}
         </div>,
-        <div key={`ssr-rate-${symbol}`} className="text-right leading-tight">
-          {row.ssrRate && formatPercentage(row.ssrRate)}
+        <div key={`ssr-rate-${display}`} className="text-right leading-tight">
+          {ssrRate && formatPercentage(ssrRate)}
         </div>,
         <ActionButton
-          key={`unshield-${symbol}`}
+          key={`unshield-${display}`}
           size="xs"
           outlineColor="white"
           className="w-fit mx-auto"
-          href={symbol === "NAM" ? routes.maspUnshield : routes.ibcWithdraw}
+          href={display === "NAM" ? routes.maspUnshield : routes.ibcWithdraw}
         >
           Unshield
         </ActionButton>,

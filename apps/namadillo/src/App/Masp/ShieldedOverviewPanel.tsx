@@ -1,17 +1,11 @@
 import { ActionButton, Panel, SkeletonLoading } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { routes } from "App/routes";
-import {
-  assetsByDenomAtom,
-  fiatPriceMapAtom,
-  shieldedBalanceAtom,
-} from "atoms/masp/atoms";
-import BigNumber from "bignumber.js";
+import { shieldedBalanceAtom } from "atoms/masp/atoms";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
-import { useMemo, useState } from "react";
-import { unknownAsset } from "registry/unknownAsset";
-import { ShieldedFungibleTable, TokenRow } from "./ShieldedFungibleTable";
+import { useState } from "react";
+import { ShieldedFungibleTable } from "./ShieldedFungibleTable";
 import { ShieldedNFTTable } from "./ShieldedNFTTable";
 
 const tabs = ["Fungible", "NFT"];
@@ -29,28 +23,12 @@ const ShieldAssetCta = (): JSX.Element => {
 const AssetTable = (): JSX.Element => {
   const [tab, setTab] = useState(tabs[0]);
   const shieldedBalanceQuery = useAtomValue(shieldedBalanceAtom);
-  const assetsByDenom = useAtomValue(assetsByDenomAtom);
-  const fiatPriceMap = useAtomValue(fiatPriceMapAtom);
 
-  const data: TokenRow[] | undefined = useMemo(() => {
-    return shieldedBalanceQuery.data?.map(({ denom, amount }) => {
-      const asset = assetsByDenom[denom] ?? unknownAsset;
-      const fiatValue = fiatPriceMap.data?.[denom];
-      return {
-        asset,
-        balance: new BigNumber(amount),
-        dollar:
-          fiatValue ? new BigNumber(amount).multipliedBy(fiatValue) : undefined,
-        ssrRate: undefined, // TODO
-      };
-    });
-  }, [shieldedBalanceQuery.data, fiatPriceMap.data]);
-
-  if (data === undefined) {
+  if (shieldedBalanceQuery.data === undefined) {
     return <SkeletonLoading height="100%" width="100%" />;
   }
 
-  if (!data.length) {
+  if (!shieldedBalanceQuery.data.length) {
     return (
       <>
         <div className="bg-gray p-6 rounded-sm text-center font-medium">
@@ -84,7 +62,9 @@ const AssetTable = (): JSX.Element => {
           );
         })}
       </div>
-      {tab === "Fungible" && <ShieldedFungibleTable data={data} />}
+      {tab === "Fungible" && (
+        <ShieldedFungibleTable data={shieldedBalanceQuery.data} />
+      )}
       {tab === "NFT" && <ShieldedNFTTable />}
     </AtomErrorBoundary>
   );
