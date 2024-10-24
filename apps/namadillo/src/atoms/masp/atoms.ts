@@ -58,18 +58,18 @@ export const shieldedBalanceAtom = atomWithQuery<Balance>((get) => {
       if (!viewingKey || !tokenAddresses) {
         return [];
       }
-
+      // TODO mock
+      // return [
+      //   ["tnam1qy440ynh9fwrx8aewjvvmu38zxqgukgc259fzp6h", "37"], // nam
+      //   ["tnam1p5nnjnasjtfwen2kzg78fumwfs0eycqpecuc2jwz", "4"], // uatom
+      //   ["unknown", "1"], // 1 unknown token
+      // ];
       const sdk = await getSdkInstance();
       await sdk.rpc.shieldedSync([viewingKey]);
-      const response = await sdk.rpc.queryBalance(
+      return await sdk.rpc.queryBalance(
         viewingKey,
         tokenAddresses.map((t) => t.address)
       );
-      // TODO mock
-      // response.push(["tnam1qy440ynh9fwrx8aewjvvmu38zxqgukgc259fzp6h", "100"]); // 100 nam
-      // response.push(["tnam1p5nnjnasjtfwen2kzg78fumwfs0eycqpecuc2jwz", "10"]); // 10 uatom
-      // response.push(["unknown", "1"]); // 1 unknown token
-      return response;
     }, [viewingKeyQuery, tokenAddressesQuery]),
   };
 });
