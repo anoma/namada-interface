@@ -53,12 +53,6 @@ const Chain = t.intersection([
 ]);
 type ChainType = t.TypeOf<typeof Chain>;
 
-// TODO: Remove the folllowing once NamadaKeychainPermissions is working!
-const NamadaExtensionApprovedOrigins = t.array(t.string);
-type NamadaExtensionApprovedOriginsType = t.TypeOf<
-  typeof NamadaExtensionApprovedOrigins
->;
-
 export type PermissionKind = "accounts" | "signing" | "proofGenKeys";
 
 export const KeychainPermissions: Record<
@@ -94,12 +88,11 @@ type NamadaExtensionRouterIdType = t.TypeOf<typeof NamadaExtensionRouterId>;
 
 type LocalStorageTypes =
   | ChainType
-  | NamadaExtensionApprovedOriginsType
+  | NamadaKeychainPermissionsType
   | NamadaExtensionRouterIdType;
 
 type LocalStorageSchemas =
   | typeof Chain
-  | typeof NamadaExtensionApprovedOrigins
   | typeof NamadaExtensionRouterId
   | typeof NamadaKeychainPermissions;
 
@@ -112,7 +105,6 @@ export type LocalStorageKeys =
 
 const schemasMap = new Map<LocalStorageSchemas, LocalStorageKeys>([
   [Chain, "chains"],
-  [NamadaExtensionApprovedOrigins, "namadaExtensionApprovedOrigins"],
   [NamadaExtensionRouterId, "namadaExtensionRouterId"],
   [NamadaKeychainPermissions, "namadaKeychainPermissions"],
 ]);
@@ -139,33 +131,6 @@ export class LocalStorage extends ExtStorage {
     await this.setRaw(this.getKey(Chain), chain);
   }
 
-  async getApprovedOrigins(): Promise<
-    NamadaExtensionApprovedOriginsType | undefined
-  > {
-    const data = await this.getRaw(this.getKey(NamadaExtensionApprovedOrigins));
-
-    const Schema = t.union([NamadaExtensionApprovedOrigins, t.undefined]);
-    const decodedData = Schema.decode(data);
-
-    if (E.isLeft(decodedData)) {
-      throw new Error("Approved Origins are not valid");
-    }
-
-    return decodedData.right;
-  }
-
-  async addApprovedOrigin(originToAdd: string): Promise<void> {
-    const data = (await this.getApprovedOrigins()) || [];
-    await this.setApprovedOrigins([...data, originToAdd]);
-  }
-
-  async removeApprovedOrigin(originToRemove: string): Promise<void> {
-    const data = (await this.getApprovedOrigins()) || [];
-    await this.setApprovedOrigins(
-      data.filter((origin) => origin !== originToRemove)
-    );
-  }
-
   async getRouterId(): Promise<NamadaExtensionRouterIdType | undefined> {
     const data = await this.getRaw(this.getKey(NamadaExtensionRouterId));
 
@@ -181,12 +146,6 @@ export class LocalStorage extends ExtStorage {
 
   async setRouterId(id: NamadaExtensionRouterIdType): Promise<void> {
     await this.setRaw(this.getKey(NamadaExtensionRouterId), id);
-  }
-
-  private async setApprovedOrigins(
-    origins: NamadaExtensionApprovedOriginsType
-  ): Promise<void> {
-    await this.setRaw(this.getKey(NamadaExtensionApprovedOrigins), origins);
   }
 
   async getPermissions(): Promise<NamadaKeychainPermissionsType | undefined> {
@@ -215,6 +174,19 @@ export class LocalStorage extends ExtStorage {
       this.getKey(NamadaKeychainPermissions),
       decodedData.right
     );
+  }
+
+  async getApprovedOrigins(): Promise<string[] | undefined> {
+    const data = await this.getRaw(this.getKey(NamadaKeychainPermissions));
+
+    const Schema = t.union([NamadaKeychainPermissions, t.undefined]);
+    const decodedData = Schema.decode(data);
+
+    if (E.isLeft(decodedData)) {
+      throw new Error("Stored Keychain permissions are not valid!");
+    }
+
+    return Object.keys(decodedData.right || {});
   }
 
   private getKey<S extends LocalStorageSchemas>(schema: S): LocalStorageKeys {

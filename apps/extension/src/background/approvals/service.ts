@@ -190,15 +190,14 @@ export class ApprovalsService {
     interfaceOrigin: string,
     chainId: string
   ): Promise<boolean> {
-    const approvedOrigins =
-      (await this.localStorage.getApprovedOrigins()) || [];
-
-    const chain = await this.chainService.getChain();
-    if (chain.chainId !== chainId) {
+    const permission = await this.permissionsService.permissionsByChain(
+      interfaceOrigin,
+      chainId
+    );
+    if (!permission || !permission.length) {
       return false;
     }
-
-    return approvedOrigins.includes(interfaceOrigin);
+    return true;
   }
 
   async approveConnection(
@@ -231,7 +230,11 @@ export class ApprovalsService {
 
     if (allowConnection) {
       try {
-        await this.localStorage.addApprovedOrigin(interfaceOrigin);
+        await this.permissionsService.enablePermissions(
+          interfaceOrigin,
+          chainId,
+          ["accounts", "proofGenKeys", "signing"]
+        );
         // Enable signing for this chain
         await this.chainService.updateChain(chainId);
       } catch (e) {
@@ -255,6 +258,7 @@ export class ApprovalsService {
     if (isConnected) {
       return this.launchApprovalPopup(TopLevelRoute.ApproveDisconnection, {
         interfaceOrigin,
+        chainId,
       });
     }
 
@@ -265,13 +269,17 @@ export class ApprovalsService {
   async approveDisconnectionResponse(
     popupTabId: number,
     interfaceOrigin: string,
+    chainId: string,
     revokeConnection: boolean
   ): Promise<void> {
     const resolvers = this.getResolver(popupTabId);
 
     if (revokeConnection) {
       try {
-        await this.revokeConnection(interfaceOrigin);
+        await this.permissionsService.revokeChainPermissions(
+          interfaceOrigin,
+          chainId
+        );
       } catch (e) {
         resolvers.reject(e);
       }
@@ -282,7 +290,7 @@ export class ApprovalsService {
   }
 
   async revokeConnection(originToRevoke: string): Promise<void> {
-    await this.localStorage.removeApprovedOrigin(originToRevoke);
+    await this.permissionsService.revokeDomainPermissions(originToRevoke);
     await this.broadcaster.revokeConnection();
   }
 

@@ -173,13 +173,14 @@ export class DisconnectInterfaceResponseMsg extends Message<void> {
 
   constructor(
     public readonly interfaceOrigin: string,
+    public readonly chainId: string,
     public readonly revokeConnection: boolean
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["interfaceOrigin", "revokeConnection"]);
+    validateProps(this, ["interfaceOrigin", "chainId", "revokeConnection"]);
   }
 
   route(): string {
