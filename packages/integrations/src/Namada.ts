@@ -60,7 +60,7 @@ export default class Namada implements Integration<Account, Signer> {
     return await this._namada?.updateDefaultAccount(address);
   }
 
-  public async spendingKey(publicKey: number[]): Promise<[Array<number>, Array<number>, Array<number>, Array<number>] | undefined> {
+  public async spendingKey(publicKey: number[]): Promise<Uint8Array | undefined> {
     return await this._namada?.spendingKey(publicKey);
   }
 

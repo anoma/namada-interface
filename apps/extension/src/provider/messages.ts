@@ -254,9 +254,7 @@ export class ApproveUpdateDefaultAccountMsg extends Message<void> {
   }
 }
 
-export class SpendingKeyMsg extends Message<
-  [Array<number>, Array<number>, Array<number>, Array<number>] | undefined
-> {
+export class SpendingKeyMsg extends Message<Uint8Array | undefined> {
   public static type(): MessageType {
     return MessageType.SpendingKey;
   }

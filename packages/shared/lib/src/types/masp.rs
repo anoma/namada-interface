@@ -1,8 +1,17 @@
 //! PaymentAddress - Provide wasm_bindgen bindings for shielded addresses
 //! See @namada/crypto for zip32 HD wallet functionality.
-use namada_sdk::borsh::BorshDeserialize;
-use namada_sdk::{ExtendedViewingKey as NamadaExtendedViewingKey, ExtendedSpendingKey as NamadaExtendedSpendingKey, PaymentAddress as NamadaPaymentAddress};
+use js_sys::{JsString, Uint8Array};
+use namada_sdk::borsh::{BorshDeserialize, BorshSerializeExt};
+use namada_sdk::masp_primitives::sapling::redjubjub::PrivateKey;
+use namada_sdk::masp_primitives::zip32::{
+    ExtendedKey, PseudoExtendedKey as NamadaPseudoExtendedKey,
+};
 use namada_sdk::masp_primitives::{sapling, zip32};
+use namada_sdk::masp_proofs::jubjub;
+use namada_sdk::{
+    ExtendedSpendingKey as NamadaExtendedSpendingKey,
+    ExtendedViewingKey as NamadaExtendedViewingKey, PaymentAddress as NamadaPaymentAddress,
+};
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
 
@@ -40,6 +49,40 @@ impl ExtendedViewingKey {
 
 /// Wrap ExtendedSpendingKey
 #[wasm_bindgen]
+pub struct PseudoExtendedKey(NamadaPseudoExtendedKey);
+
+#[wasm_bindgen]
+impl PseudoExtendedKey {
+    #[wasm_bindgen(constructor)]
+    pub fn new(key: Uint8Array) -> Result<PseudoExtendedKey, String> {
+        let pxk: zip32::PseudoExtendedKey =
+            BorshDeserialize::try_from_slice(key.to_vec().as_slice())
+                .map_err(|err| format!("{}: {:?}", MaspError::BorshDeserialize, err))?;
+
+        Ok(PseudoExtendedKey(pxk))
+    }
+
+    pub fn spending_key(&self) -> JsString {
+        let xsk = self
+            .0
+            .to_spending_key()
+            .expect("PseudoExtendedKey to spending key should not fail!");
+
+        let xsk = NamadaExtendedSpendingKey::from(xsk);
+
+        xsk.to_string().into()
+    }
+
+    pub fn viewing_key(&self) -> JsString {
+        let xvk = self.0.to_viewing_key();
+        let xvk = NamadaExtendedViewingKey::from(xvk);
+
+        xvk.to_string().into()
+    }
+}
+
+/// Wrap ExtendedSpendingKey
+#[wasm_bindgen]
 pub struct ExtendedSpendingKey(pub(crate) NamadaExtendedSpendingKey);
 
 /// wasm_bindgen bindings for ExtendedViewingKey
@@ -47,13 +90,30 @@ pub struct ExtendedSpendingKey(pub(crate) NamadaExtendedSpendingKey);
 impl ExtendedSpendingKey {
     /// Instantiate ExtendedSpendingKey from serialized vector
     #[wasm_bindgen(constructor)]
-    pub fn new(key: &[u8]) -> Result<ExtendedSpendingKey, String> {
-        let xsk: zip32::ExtendedSpendingKey = BorshDeserialize::try_from_slice(key)
-            .map_err(|err| format!("{}: {:?}", MaspError::BorshDeserialize, err))?;
+    pub fn new(key: Uint8Array) -> Result<ExtendedSpendingKey, String> {
+        let xsk: zip32::ExtendedSpendingKey =
+            BorshDeserialize::try_from_slice(key.to_vec().as_slice())
+                .map_err(|err| format!("{}: {:?}", MaspError::BorshDeserialize, err))?;
 
         let xsk = NamadaExtendedSpendingKey::from(xsk);
 
         Ok(ExtendedSpendingKey(xsk))
+    }
+
+    pub fn derive_pseudo_spending_key(&self) -> Uint8Array {
+        let xsk = zip32::ExtendedSpendingKey::from(self.0);
+        let xfvk = zip32::ExtendedFullViewingKey::from(&xsk);
+        let pgk = xsk.expsk.proof_generation_key();
+
+        let mut pseudo_spending_key = NamadaPseudoExtendedKey::from(xfvk);
+        pseudo_spending_key
+            .augment_proof_generation_key(pgk)
+            .expect("Augmenting proof generation key should not fail!");
+
+        pseudo_spending_key
+            .augment_spend_authorizing_key_unchecked(PrivateKey(jubjub::Fr::default()));
+
+        Uint8Array::from(pseudo_spending_key.serialize_to_vec().as_slice())
     }
 
     /// Return ExtendedSpendingKey as Bech32-encoded String

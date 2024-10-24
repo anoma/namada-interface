@@ -145,60 +145,60 @@ impl ShieldedUtils for WebShieldedUtils {
         ctx: &mut ShieldedWallet<U>,
         force_confirmed: bool,
     ) -> std::io::Result<()> {
-        web_sys::console::log_1(&"loading shielded context 1234".into());
+        // web_sys::console::log_1(&"loading shielded context 1234".into());
 
-        web_sys::console::log_1(&format!("tree {:?}", ctx.tree).into());
-        web_sys::console::log_1(&format!("vk_heights {:?}", ctx.vk_heights).into());
-        web_sys::console::log_1(&format!("pos map {:?}", ctx.pos_map).into());
-        web_sys::console::log_1(&format!("nf map{:?}", ctx.nf_map).into());
-        web_sys::console::log_1(&format!("note map {:?}", ctx.note_map).into());
-        web_sys::console::log_1(&format!("div_map {:?}", ctx.div_map).into());
-        web_sys::console::log_1(&format!("witness_map {:?}", ctx.witness_map).into());
-        web_sys::console::log_1(&format!("spents {:?}", ctx.spents).into());
-        web_sys::console::log_1(&format!("asset_types {:?}", ctx.asset_types).into());
-        web_sys::console::log_1(&format!("vk_map {:?}", ctx.vk_map).into());
-        web_sys::console::log_1(&format!("note_index {:?}", ctx.note_index).into());
-        web_sys::console::log_1(&format!("sync_status {:?}", ctx.sync_status).into());
+        // web_sys::console::log_1(&format!("tree {:?}", ctx.tree).into());
+        // web_sys::console::log_1(&format!("vk_heights {:?}", ctx.vk_heights).into());
+        // web_sys::console::log_1(&format!("pos map {:?}", ctx.pos_map).into());
+        // web_sys::console::log_1(&format!("nf map{:?}", ctx.nf_map).into());
+        // web_sys::console::log_1(&format!("note map {:?}", ctx.note_map).into());
+        // web_sys::console::log_1(&format!("div_map {:?}", ctx.div_map).into());
+        // web_sys::console::log_1(&format!("witness_map {:?}", ctx.witness_map).into());
+        // web_sys::console::log_1(&format!("spents {:?}", ctx.spents).into());
+        // web_sys::console::log_1(&format!("asset_types {:?}", ctx.asset_types).into());
+        // web_sys::console::log_1(&format!("vk_map {:?}", ctx.vk_map).into());
+        // web_sys::console::log_1(&format!("note_index {:?}", ctx.note_index).into());
+        // web_sys::console::log_1(&format!("sync_status {:?}", ctx.sync_status).into());
 
         let db = Self::build_database().await.map_err(Self::to_io_err)?;
         let confirmed = force_confirmed || get_confirmed(&ctx.sync_status);
-        web_sys::console::log_1(&format!("confirmed {:?}", confirmed).into());
+        // web_sys::console::log_1(&format!("confirmed {:?}", confirmed).into());
 
         let stored_ctx = Self::get_context(&db, confirmed, false)
             .await
             .map_err(Self::to_io_err)?;
         let stored_ctx_bytes = to_bytes(stored_ctx);
-        web_sys::console::log_1(&format!("stored_ctx_bytes {:?}", stored_ctx_bytes).into());
+        // web_sys::console::log_1(&format!("stored_ctx_bytes {:?}", stored_ctx_bytes).into());
 
         let stored_ctx2 = Self::get_context(&db, true, false)
             .await
             .map_err(Self::to_io_err)?;
-        web_sys::console::log_1(&format!("stored_ctx_bytes2 {:?}", to_bytes(stored_ctx2)).into());
+        // web_sys::console::log_1(&format!("stored_ctx_bytes2 {:?}", to_bytes(stored_ctx2)).into());
 
         let context: ShieldedWallet<U> = if stored_ctx_bytes.is_empty() {
             ShieldedWallet::default()
         } else {
             ShieldedWallet::deserialize(&mut &stored_ctx_bytes[..])?
         };
-        web_sys::console::log_1(&"loading shielded context 5678".into());
+        // web_sys::console::log_1(&"loading shielded context 5678".into());
 
         *ctx = ShieldedWallet {
             utils: ctx.utils.clone(),
             ..context
         };
 
-        web_sys::console::log_1(&format!("tree {:?}", ctx.tree).into());
-        web_sys::console::log_1(&format!("vk_heights {:?}", ctx.vk_heights).into());
-        web_sys::console::log_1(&format!("pos map {:?}", ctx.pos_map).into());
-        web_sys::console::log_1(&format!("nf map{:?}", ctx.nf_map).into());
-        web_sys::console::log_1(&format!("note map {:?}", ctx.note_map).into());
-        web_sys::console::log_1(&format!("div_map {:?}", ctx.div_map).into());
-        web_sys::console::log_1(&format!("witness_map {:?}", ctx.witness_map).into());
-        web_sys::console::log_1(&format!("spents {:?}", ctx.spents).into());
-        web_sys::console::log_1(&format!("asset_types {:?}", ctx.asset_types).into());
-        web_sys::console::log_1(&format!("vk_map {:?}", ctx.vk_map).into());
-        web_sys::console::log_1(&format!("note_index {:?}", ctx.note_index).into());
-        web_sys::console::log_1(&format!("sync_status {:?}", ctx.sync_status).into());
+        // web_sys::console::log_1(&format!("tree {:?}", ctx.tree).into());
+        // web_sys::console::log_1(&format!("vk_heights {:?}", ctx.vk_heights).into());
+        // web_sys::console::log_1(&format!("pos map {:?}", ctx.pos_map).into());
+        // web_sys::console::log_1(&format!("nf map{:?}", ctx.nf_map).into());
+        // web_sys::console::log_1(&format!("note map {:?}", ctx.note_map).into());
+        // web_sys::console::log_1(&format!("div_map {:?}", ctx.div_map).into());
+        // web_sys::console::log_1(&format!("witness_map {:?}", ctx.witness_map).into());
+        // web_sys::console::log_1(&format!("spents {:?}", ctx.spents).into());
+        // web_sys::console::log_1(&format!("asset_types {:?}", ctx.asset_types).into());
+        // web_sys::console::log_1(&format!("vk_map {:?}", ctx.vk_map).into());
+        // web_sys::console::log_1(&format!("note_index {:?}", ctx.note_index).into());
+        // web_sys::console::log_1(&format!("sync_status {:?}", ctx.sync_status).into());
 
         Ok(())
     }

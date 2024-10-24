@@ -51,8 +51,8 @@ export class TransparentTransferMsgValue {
  * Shielded Transfer schemas
  */
 export class ShieldedTransferDataMsgValue {
-  @field({ type: "string" })
-  source!: string;
+  @field({ type: vec("u8") })
+  source!: Uint8Array;
 
   @field({ type: "string" })
   target!: string;
@@ -72,8 +72,8 @@ export class ShieldedTransferMsgValue {
   @field({ type: vec(ShieldedTransferDataMsgValue) })
   data!: ShieldedTransferDataMsgValue[];
 
-  @field({ type: vec("string") })
-  gasSpendingKeys!: string[];
+  @field({ type: vec(vec("u8")) })
+  gasSpendingKeys!: Uint8Array[];
 
   constructor({ data, gasSpendingKeys }: ShieldedTransferProps) {
     Object.assign(this, {
@@ -141,14 +141,14 @@ export class UnshieldingTransferDataMsgValue {
 }
 
 export class UnshieldingTransferMsgValue {
-  @field({ type: "string" })
-  source!: string;
+  @field({ type: vec("u8") })
+  source!: Uint8Array;
 
   @field({ type: vec(UnshieldingTransferDataMsgValue) })
   data!: UnshieldingTransferDataMsgValue[];
 
-  @field({ type: vec("string") })
-  gasSpendingKeys!: string[];
+  @field({ type: vec(vec("u8")) })
+  gasSpendingKeys!: Uint8Array[];
 
   constructor({ source, data, gasSpendingKeys }: UnshieldingTransferProps) {
     Object.assign(this, {

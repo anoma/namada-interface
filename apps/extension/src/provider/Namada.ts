@@ -79,10 +79,7 @@ export class Namada implements INamada {
 
   public async spendingKey(
     publicKey: number[]
-  ): Promise<
-    [Array<number>, Array<number>, Array<number>, Array<number>] | undefined
-  > {
-    console.log("publicKey2232", publicKey);
+  ): Promise<Uint8Array | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new SpendingKeyMsg(publicKey)

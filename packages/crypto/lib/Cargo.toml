@@ -11,6 +11,7 @@ license = "MIT"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+web-sys = { version = "0.3.4", features = ["console"] }
 aes-gcm = "0.10.1"
 argon2 = "0.4.1"
 base64 = "0.13.0"
