@@ -14,12 +14,16 @@ import { TransferArrow } from "./TransferArrow";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
 
+<<<<<<< HEAD
 export type TransactionFee = {
   token: Asset;
   amount: BigNumber;
 };
 
 export type TransferModuleConfig = {
+=======
+type TransferModuleConfig = {
+>>>>>>> 3537d80c (refactor: removing unused props and export)
   wallet?: WalletProvider;
   walletAddress?: string;
   availableWallets?: WalletProvider[];
@@ -29,7 +33,6 @@ export type TransferModuleConfig = {
   chain?: Chain;
   onChangeChain?: (chain: Chain) => void;
   isShielded?: boolean;
-  errorMessage?: string;
 };
 
 export type TransferSourceProps = TransferModuleConfig & {
