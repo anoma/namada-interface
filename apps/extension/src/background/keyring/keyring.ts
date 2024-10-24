@@ -7,7 +7,7 @@ import {
   SignArbitraryResponse,
   TxProps,
 } from "@namada/types";
-import { Result, assertNever, truncateInMiddle } from "@namada/utils";
+import { assertNever, Result, truncateInMiddle } from "@namada/utils";
 
 import {
   AccountSecret,
@@ -20,7 +20,6 @@ import {
   UtilityStore,
 } from "./types";
 
-import { SecureMessage } from "@namada/crypto";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
@@ -458,15 +457,9 @@ export class KeyRing {
     return accounts.map((account) => account.public as AccountStore);
   }
 
-  async www(
-    publicKey: number[]
-  ): Promise<
-    [Array<number>, Array<number>, Array<number>, Array<number>] | undefined
-  > {
-    console.log("publicKey", publicKey);
+  async www(publicKey: number[]): Promise<Uint8Array | undefined> {
     await this.vaultService.assertIsUnlocked();
     const activeAccount = await this.queryDefaultAccount();
-    console.log("Active account", activeAccount);
 
     const account = await this.vaultStorage.findOne(
       KeyStore,
@@ -483,11 +476,8 @@ export class KeyRing {
         account!.sensitive
       );
 
-    console.log("Sensitive props", sensitiveProps);
-
     const { text: secret, passphrase } = sensitiveProps!;
-
-    let encryptedSpendingKey;
+    let pseudoSpendingKey;
 
     if (account!.public.type === AccountType.PrivateKey) {
       throw new Error("Not supported");
@@ -497,23 +487,12 @@ export class KeyRing {
       const seed = mnemonic.toSeed(secret, passphrase);
 
       const keys = this.sdkService.getSdk().getKeys();
-      const { spendingKey } = keys.deriveShieldedFromSeed(
-        seed,
-        accountStore?.path
-      );
-
-      const sm = new SecureMessage();
-
-      encryptedSpendingKey = sm.encrypt_message(
-        publicKey,
-        new TextEncoder().encode(
-          "zsknam1qwvmw7exqqqqpqpplyzce8st3y5rmcr6c3qjwvka8pp79epj7sfs0tqsk8dnqdtsyagxufsgpcej0ezhhdrlq5auyyd7vpt2305zrdh2l9lygancgd9s0vujvq02r869snefnayuhdawhhy42tax2jezle99prj6wppp9asqtt32me8rq2n3e78dsttxdp486q6wafl2ndfucz4md4uersxhyq7h85zsw35da3zrqul3c8rthsgnhed4chcx3nsjjcslau9e0gad5sqlswxxy"
-        )
-        // new TextEncoder().encode(spendingKey)
-      );
+      const { pseudoSpendingKey: psk, spendingKey } =
+        keys.deriveShieldedFromSeed(seed, accountStore?.path);
+      pseudoSpendingKey = psk;
     }
 
-    return encryptedSpendingKey;
+    return pseudoSpendingKey;
   }
 
   /**

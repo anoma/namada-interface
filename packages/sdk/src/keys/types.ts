@@ -20,4 +20,5 @@ export type ShieldedKeys = {
   address: string;
   viewingKey: string;
   spendingKey: string;
+  pseudoSpendingKey: Uint8Array;
 };

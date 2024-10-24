@@ -168,11 +168,7 @@ export class KeyRingService {
     return await this._keyRing.renameAccount(accountId, alias);
   }
 
-  async spendingKey(
-    publicKey: number[]
-  ): Promise<
-    [Array<number>, Array<number>, Array<number>, Array<number>] | undefined
-  > {
+  async spendingKey(publicKey: number[]): Promise<Uint8Array | undefined> {
     return await this._keyRing.www(publicKey);
   }
 

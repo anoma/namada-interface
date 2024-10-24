@@ -2,6 +2,7 @@ import BigNumber from "bignumber.js";
 
 import {
   Account,
+  ShieldedTransferMsgValue,
   ShieldingTransferMsgValue,
   TxResponseMsgValue,
   UnshieldingTransferMsgValue,
@@ -46,7 +47,30 @@ type UnshieldPayload = {
   vks: string[];
 };
 export type Unshield = WebWorkerMessage<"unshield", UnshieldPayload>;
-export type UnshieldDone = WebWorkerMessage<"unshield-done", void>;
+export type UnshieldDone = WebWorkerMessage<
+  "unshield-done",
+  EncodedTxData<UnshieldingTransferMsgValue>
+>;
+
+type ShieldedTransferPayload = {
+  account: Account;
+  gasConfig: {
+    gasLimit: BigNumber;
+    gasPrice: BigNumber;
+  };
+  shieldingProps: ShieldedTransferMsgValue[];
+  chain: ChainSettings;
+  indexerUrl: string;
+  vks: string[];
+};
+export type ShieldedTransfer = WebWorkerMessage<
+  "shielded-transfer",
+  ShieldedTransferPayload
+>;
+export type ShieldedTransferDone = WebWorkerMessage<
+  "shielded-transfer-done",
+  EncodedTxData<ShieldedTransferMsgValue>
+>;
 
 type BroadcastPayload = {
   encodedTx: EncodedTxData<unknown>;
@@ -58,5 +82,9 @@ export type BroadcastDone = WebWorkerMessage<
   TxResponseMsgValue[]
 >;
 
-export type ShieldMessageIn = Shield | Broadcast | Init;
-export type ShieldMessageOut = ShieldDone | BroadcastDone | InitDone;
+export type ShieldMessageIn = Shield | ShieldedTransfer | Broadcast | Init;
+export type ShieldMessageOut =
+  | ShieldDone
+  | ShieldedTransferDone
+  | BroadcastDone
+  | InitDone;

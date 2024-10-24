@@ -1,7 +1,7 @@
 import * as Comlink from "comlink";
 
-import { SecureMessage } from "@namada/crypto";
 import {
+  ShieldedTransferMsgValue,
   ShieldingTransferMsgValue,
   UnshieldingTransferMsgValue,
 } from "@namada/types";
@@ -11,7 +11,7 @@ import { indexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { signTx } from "lib/query";
-import { Shield, Unshield } from "workers/ShieldMessages";
+import { Shield, ShieldedTransfer, Unshield } from "workers/ShieldMessages";
 import {
   registerTransferHandlers,
   Worker as ShieldWorkerApi,
@@ -114,17 +114,13 @@ export function WorkerTest(): JSX.Element {
     const worker = new ShieldWorker();
     const shieldWorker = Comlink.wrap<ShieldWorkerApi>(worker);
 
-    const sm = new SecureMessage();
-    const pk = sm.get_public_key();
-
-    const [ciphertext, iv, otherPk, salt] =
+    const asd =
       await // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (window as any).namada.spendingKey(pk);
-    const spendingKeyBytes = sm.decrypt_message(ciphertext, iv, otherPk, salt);
+        (window as any).namada.spendingKey("");
+    console.log("ASD", asd);
 
-    const spendingKey = new TextDecoder().decode(
-      new Uint8Array(spendingKeyBytes)
-    );
+    const pseudoExtendedKeyBytes = new Uint8Array(Object.values(asd));
+    console.log("PEX", pseudoExtendedKeyBytes);
 
     await shieldWorker.init({
       type: "init",
@@ -135,8 +131,8 @@ export function WorkerTest(): JSX.Element {
     });
 
     const shieldingMsgValue = new UnshieldingTransferMsgValue({
-      source: spendingKey,
-      gasSpendingKeys: [],
+      source: pseudoExtendedKeyBytes,
+      gasSpendingKeys: [pseudoExtendedKeyBytes],
       data: [
         {
           target,
@@ -162,7 +158,77 @@ export function WorkerTest(): JSX.Element {
     };
 
     const { payload: encodedTx } = await shieldWorker.unshield(msg);
-    console.log(encodedTx);
+    console.log("ENCODED TX", encodedTx);
+    const signedTxs = await signTx("namada", encodedTx, account?.address || "");
+
+    await shieldWorker.broadcast({
+      type: "broadcast",
+      payload: {
+        encodedTx,
+        signedTxs,
+      },
+    });
+
+    worker.terminate();
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).shieldedTx = async (target: string, amount: number) => {
+    registerTransferHandlers();
+    const worker = new ShieldWorker();
+    const shieldWorker = Comlink.wrap<ShieldWorkerApi>(worker);
+
+    const asd =
+      await // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).namada.spendingKey("");
+
+    const pseudoExtendedKeyBytes = new Uint8Array(Object.values(asd));
+
+    await shieldWorker.init({
+      type: "init",
+      payload: {
+        rpcUrl,
+        token: token!,
+      },
+    });
+
+    const shieldingMsgValue = new ShieldedTransferMsgValue({
+      gasSpendingKeys: [],
+      data: [
+        {
+          source: pseudoExtendedKeyBytes,
+          target,
+          token: token!,
+          amount: BigNumber(amount),
+        },
+      ],
+    });
+
+    const msg: ShieldedTransfer = {
+      type: "shielded-transfer",
+      payload: {
+        account: account!,
+        gasConfig: {
+          gasLimit: BigNumber(250000),
+          gasPrice: BigNumber(0.000001),
+        },
+        shieldingProps: [shieldingMsgValue],
+        indexerUrl,
+        chain: chain!,
+        vks: [],
+      },
+    };
+
+    const { payload: encodedTx } = await shieldWorker.shieldedTransfer(msg);
+    const signedTxs = await signTx("namada", encodedTx, account?.address || "");
+
+    await shieldWorker.broadcast({
+      type: "broadcast",
+      payload: {
+        encodedTx,
+        signedTxs,
+      },
+    });
 
     worker.terminate();
   };

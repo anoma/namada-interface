@@ -30,7 +30,7 @@ export class Keys {
   /**
    * @param cryptoMemory - Memory accessor for crypto lib
    */
-  constructor(protected readonly cryptoMemory: WebAssembly.Memory) {}
+  constructor(protected readonly cryptoMemory: WebAssembly.Memory) { }
 
   /**
    * Get address and public key from private key
@@ -76,7 +76,7 @@ export class Keys {
     const passphrasePtr =
       typeof passphrase === "string" ?
         new StringPointer(passphrase)
-      : undefined;
+        : undefined;
     const seedPtr = mnemonic.to_seed(passphrasePtr);
     const hdWallet = new HDWallet(seedPtr);
     const bip44Path = makeBip44PathArray(chains.namada.bip44.coinType, path);
@@ -139,7 +139,13 @@ export class Keys {
     seed: Uint8Array,
     path: Bip44Path = DEFAULT_PATH
   ): ShieldedKeys {
-    const zip32 = new ShieldedHDWallet(seed);
+    const p = {
+      account: 0,
+      change: 0,
+      index: 0,
+    };
+    const zip32derivationPath = makeBip44PathArray(877, p);
+    const zip32 = new ShieldedHDWallet(seed, zip32derivationPath);
     const derivationPath = makeSaplingPathArray(877, path.account);
     const account = zip32.derive(derivationPath);
 
@@ -150,6 +156,7 @@ export class Keys {
 
     // Deserialize and encode keys and address
     const extendedSpendingKey = new ExtendedSpendingKey(xsk);
+    const pseudoSpendingKey = extendedSpendingKey.derive_pseudo_spending_key();
     const extendedViewingKey = new ExtendedViewingKey(xfvk);
     const address = new PaymentAddress(paymentAddress).encode();
     const spendingKey = extendedSpendingKey.encode();
@@ -165,6 +172,7 @@ export class Keys {
       address,
       spendingKey,
       viewingKey,
+      pseudoSpendingKey,
     };
   }
 }
