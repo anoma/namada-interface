@@ -99,7 +99,11 @@ export const TransferModule = ({
     if (!amount || amount.eq(0)) return false;
     if (!source.wallet || !source.chain || !source.selectedAsset) return false;
     if (!destination.wallet || !destination.chain) return false;
-    if (!availableAmount || availableAmount.lt(amount)) {
+    if (!transactionFee) return false;
+    if (
+      !availableAmount ||
+      availableAmount.lt(amount.plus(transactionFee.amount))
+    ) {
       return false;
     }
     return true;
@@ -191,7 +195,17 @@ export const TransferModule = ({
       return "Define an amount to transfer";
     }
 
-    // TODO: amount + fee < available amount
+    if (!availableAmount) {
+      return "Wallet amount not available";
+    }
+
+    if (!transactionFee) {
+      return "No transaction fee is set";
+    }
+
+    if (amount.plus(transactionFee.amount).gt(availableAmount)) {
+      return "Not enough balance";
+    }
 
     return "Submit";
   };
