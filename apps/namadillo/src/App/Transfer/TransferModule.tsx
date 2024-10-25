@@ -1,5 +1,6 @@
 import { Asset, Chain, Chains } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
+import { InlineError } from "App/Common/InlineError";
 import BigNumber from "bignumber.js";
 import { useMemo, useState } from "react";
 import { WalletProvider } from "types";
@@ -18,7 +19,7 @@ export type TransactionFee = {
   amount: BigNumber;
 };
 
-export type TransferModuleConfig = {
+type TransferModuleConfig = {
   wallet?: WalletProvider;
   walletAddress?: string;
   availableWallets?: WalletProvider[];
@@ -61,6 +62,7 @@ export type TransferModuleProps = {
   transactionFee?: TransactionFee;
   isSubmitting?: boolean;
   isIbcTransfer?: boolean;
+  errorMessage?: string;
   onSubmitTransfer: (params: OnSubmitTransferParams) => void;
 };
 
@@ -71,6 +73,7 @@ export const TransferModule = ({
   isSubmitting,
   isIbcTransfer,
   onSubmitTransfer,
+  errorMessage,
 }: TransferModuleProps): JSX.Element => {
   const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
   const [sourceChainModalOpen, setSourceChainModalOpen] = useState(false);
@@ -106,7 +109,11 @@ export const TransferModule = ({
     if (!amount || amount.eq(0)) return false;
     if (!source.wallet || !source.chain || !source.selectedAsset) return false;
     if (!destination.wallet || !destination.chain) return false;
-    if (!availableAmount || availableAmount.lt(amount)) {
+    if (!transactionFee) return false;
+    if (
+      !availableAmount ||
+      availableAmount.lt(amount.plus(transactionFee.amount))
+    ) {
       return false;
     }
     return true;
@@ -176,6 +183,43 @@ export const TransferModule = ({
     }
   };
 
+  const getButtonText = (): string => {
+    if (isSubmitting) {
+      return "Submitting...";
+    }
+
+    if (!source.wallet) {
+      return "Select Wallet";
+    }
+
+    if (!source.chain || !destination.chain) {
+      return "Select Chain";
+    }
+
+    if (!source.selectedAsset && source.onChangeSelectedAsset) {
+      return "Select Asset";
+    }
+
+    // TODO: this should be updated for nfts
+    if (!amount || amount.eq(0)) {
+      return "Define an amount to transfer";
+    }
+
+    if (!availableAmount) {
+      return "Wallet amount not available";
+    }
+
+    if (!transactionFee) {
+      return "No transaction fee is set";
+    }
+
+    if (amount.plus(transactionFee.amount).gt(availableAmount)) {
+      return "Not enough balance";
+    }
+
+    return "Submit";
+  };
+
   return (
     <>
       <section className="max-w-[480px] mx-auto" role="widget">
@@ -239,14 +283,14 @@ export const TransferModule = ({
               onChangeDestination={setDestinationIbcChannel}
             />
           )}
+          <InlineError errorMessage={errorMessage} />
           <ActionButton
             backgroundColor={
               destination.isShielded || source.isShielded ? "yellow" : "white"
             }
             disabled={!source.wallet || !validateTransfer() || isSubmitting}
           >
-            {isSubmitting && "Submitting..."}
-            {!isSubmitting && (source.wallet ? "Submit" : "Select Wallet")}
+            {getButtonText()}
           </ActionButton>
         </Stack>
       </section>
