@@ -1,6 +1,6 @@
 jest.mock("../assets/ibc-transfer.png", () => "ibc-transfer.png");
 
-import { Asset, Chain } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { fireEvent, render, screen } from "@testing-library/react";
 import {
   namadaChainMock,
@@ -8,26 +8,9 @@ import {
 } from "App/Transfer/__mocks__/chains";
 import { TransferDestination } from "App/Transfer/TransferDestination";
 import BigNumber from "bignumber.js";
+import { namadaAsset } from "registry/namadaAsset";
 import { walletMock } from "../__mocks__/providers";
 import { parseChainInfo } from "../common";
-
-// TODO: we probably want to put this somewhere else for IBC withdraws
-const namAsset: Asset = {
-  name: "Namada",
-  base: "namnam",
-  display: "nam",
-  symbol: "NAM",
-  denom_units: [
-    {
-      denom: "namnam",
-      exponent: 0,
-    },
-    {
-      denom: "nam",
-      exponent: 6,
-    },
-  ],
-};
 
 describe("TransferDestination", () => {
   it("should render the component with the default props", () => {
@@ -115,7 +98,9 @@ describe("TransferDestination", () => {
   it("should display the transaction fee if provided", () => {
     const fee = BigNumber(1);
     render(
-      <TransferDestination transactionFee={{ amount: fee, token: namAsset }} />
+      <TransferDestination
+        transactionFee={{ amount: fee, token: namadaAsset }}
+      />
     );
     const transactionFee = screen.getByText("Transaction Fee");
     expect(transactionFee).toBeInTheDocument();
