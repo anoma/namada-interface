@@ -1,11 +1,11 @@
-import { Chain } from "@chain-registry/types";
+import { Asset, Chain } from "@chain-registry/types";
 import { WindowWithNamada } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import {
   OnSubmitTransferParams,
   TransferModule,
 } from "App/Transfer/TransferModule";
-import { defaultAccountAtom } from "atoms/accounts";
+import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
 import { chainAtom, chainParametersAtom } from "atoms/chain";
 import { availableChainsAtom, chainRegistryAtom } from "atoms/integrations";
 import BigNumber from "bignumber.js";
@@ -13,7 +13,9 @@ import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
 import { KeplrWalletManager } from "integrations/Keplr";
 import { useAtomValue } from "jotai";
+import { useState } from "react";
 import namadaChainRegistry from "registry/namada.json";
+import { namadaAsset } from "registry/namadaAsset";
 import { getSdkInstance } from "utils/sdk";
 import { IbcTopHeader } from "./IbcTopHeader";
 
@@ -28,6 +30,25 @@ export const IbcWithdraw: React.FC = () => {
   const namadaChainParams = useAtomValue(chainParametersAtom);
   const namadaChain = useAtomValue(chainAtom);
 
+  const [selectedAsset, setSelectedAsset] = useState<Asset>();
+
+  const namBalance = useAtomValue(accountBalanceAtom).data;
+
+  // TODO: remove hardcoding and display assets other than NAM
+  const availableAssets = [namadaAsset];
+  // TODO: TransferModule expects amounts in namnam, but Namada SDK expects
+  // amounts in NAM. We should figure out how to deal with this properly.
+  const availableAmount = namBalance?.shiftedBy(6);
+
+  const GAS_PRICE = BigNumber(0.000001); // 0.000001 NAM
+  const GAS_LIMIT = BigNumber(1_000_000);
+  const transactionFee = {
+    token: namadaAsset,
+    // TODO: TransferModule expects amounts in namnam, but Namada SDK expects
+    // amounts in NAM. We should figure out how to deal with this properly.
+    amount: GAS_PRICE.multipliedBy(GAS_LIMIT).shiftedBy(6),
+  };
+
   const {
     walletAddress: keplrAddress,
     connectToChainId,
@@ -39,15 +60,19 @@ export const IbcWithdraw: React.FC = () => {
   };
 
   const submitIbcTransfer = async ({
-    amount,
+    amount: namnamAmount,
     destinationAddress,
     ibcOptions,
     memo,
   }: OnSubmitTransferParams): Promise<void> => {
+    // TODO: TransferModule expects amounts in namnam, but Namada SDK expects
+    // amounts in NAM. We should figure out how to deal with this properly.
+    const amount = namnamAmount.shiftedBy(-6);
+
     const wrapperTxProps = {
       token: namadaChain.data!.nativeTokenAddress,
-      feeAmount: BigNumber(0),
-      gasLimit: BigNumber(1_000_000),
+      feeAmount: GAS_PRICE,
+      gasLimit: GAS_LIMIT,
       chainId: namadaChain.data!.chainId,
       publicKey: namadaAccount.data!.publicKey,
     };
@@ -98,6 +123,10 @@ export const IbcWithdraw: React.FC = () => {
           walletAddress: namadaAccount.data?.address,
           chain: namadaChainRegistry as Chain,
           isShielded: false,
+          availableAssets,
+          availableAmount,
+          selectedAsset,
+          onChangeSelectedAsset: setSelectedAsset,
         }}
         destination={{
           wallet: wallets.keplr,
@@ -112,6 +141,7 @@ export const IbcWithdraw: React.FC = () => {
         }}
         isIbcTransfer={true}
         onSubmitTransfer={submitIbcTransfer}
+        transactionFee={transactionFee}
       />
     </>
   );

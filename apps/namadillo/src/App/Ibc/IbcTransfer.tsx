@@ -44,7 +44,7 @@ export const IbcTransfer: React.FC = () => {
   } = useWalletManager(keplr);
 
   const {
-    balance: totalAvailableAmount,
+    balance: availableAmount,
     availableAssets,
     isLoading: isLoadingBalances,
   } = useAssetAmount({
@@ -177,22 +177,6 @@ export const IbcTransfer: React.FC = () => {
     connectToChainId(chain.chain_id);
   };
 
-  const availableAmountMinusFees = useMemo(() => {
-    if (
-      typeof totalAvailableAmount === "undefined" ||
-      typeof transactionFee === "undefined" ||
-      typeof selectedAsset === "undefined"
-    ) {
-      return undefined;
-    }
-
-    if (selectedAsset.base === transactionFee.token.base) {
-      return totalAvailableAmount.minus(transactionFee.amount);
-    } else {
-      return totalAvailableAmount;
-    }
-  }, [totalAvailableAmount, selectedAsset, transactionFee]);
-
   return (
     <>
       <header className="flex flex-col items-center text-center mb-3 gap-6">
@@ -211,7 +195,7 @@ export const IbcTransfer: React.FC = () => {
                 isLoadingAssets: isLoadingBalances,
                 availableAssets,
                 selectedAsset,
-                availableAmount: availableAmountMinusFees,
+                availableAmount,
                 availableChains,
                 onChangeChain,
                 chain: mapUndefined((id) => chainRegistry[id].chain, chainId),

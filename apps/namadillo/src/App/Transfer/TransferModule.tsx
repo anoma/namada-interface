@@ -1,7 +1,7 @@
 import { Asset, Chain, Chains } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
 import BigNumber from "bignumber.js";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { WalletProvider } from "types";
 import { toBaseAmount, toDisplayAmount } from "utils";
 import { parseChainInfo } from "./common";
@@ -84,13 +84,23 @@ export const TransferModule = ({
   const [sourceIbcChannel, setSourceIbcChannel] = useState("");
   const [destinationIbcChannel, setDestinationIbcChannel] = useState("");
 
-  const availableAmount =
-    source.selectedAsset ?
-      toDisplayAmount(
-        source.selectedAsset,
-        new BigNumber(source.availableAmount || 0)
-      )
-    : undefined;
+  const availableAmount = useMemo(() => {
+    const { selectedAsset, availableAmount } = source;
+
+    if (
+      typeof selectedAsset === "undefined" ||
+      typeof availableAmount === "undefined"
+    ) {
+      return undefined;
+    }
+
+    const availableAmountMinusFees =
+      transactionFee && selectedAsset.base === transactionFee.token.base ?
+        availableAmount.minus(transactionFee.amount)
+      : availableAmount;
+
+    return toDisplayAmount(selectedAsset, availableAmountMinusFees);
+  }, [source.selectedAsset, source.availableAmount, transactionFee]);
 
   const validateTransfer = (): boolean => {
     if (!amount || amount.eq(0)) return false;
