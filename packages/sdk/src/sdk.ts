@@ -10,6 +10,12 @@ import { Rpc } from "./rpc";
 import { Signing } from "./signing";
 import { Tx } from "./tx";
 
+export enum SdkEvents {
+  ProgressBarStarted = "namada_sdk::progress_bar::started",
+  ProgressBarIncremented = "namada_sdk::progress_bar::incremented",
+  ProgressBarFinished = "namada_sdk::progress_bar::finished",
+}
+
 /**
  * API for interacting with Namada SDK
  */
