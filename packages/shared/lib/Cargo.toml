@@ -46,6 +46,11 @@ subtle-encoding = "0.5.1"
 version = "0.3.4"
 features = [
   'console',
+  'Document',
+  'Event',
+  'EventTarget',
+  'CustomEvent',
+  'CustomEventInit',
   'Headers',
   'Request',
   'RequestInit',

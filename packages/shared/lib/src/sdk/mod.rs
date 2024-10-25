@@ -1,4 +1,5 @@
 mod args;
+pub mod events;
 pub mod io;
 pub mod masp;
 mod signature;
@@ -14,29 +15,29 @@ use crate::utils::to_bytes;
 use crate::utils::to_js_result;
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::address::{Address, MASP};
+use namada_sdk::args::{GenIbcShieldingTransfer, InputAmount, Query, TxExpiration};
 use namada_sdk::borsh::{self, BorshDeserialize};
 use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada_sdk::hash::Hash;
+use namada_sdk::ibc::convert_masp_tx_to_ibc_memo;
+use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::io::NamadaIo;
 use namada_sdk::key::{common, ed25519, SigScheme};
 use namada_sdk::masp::ShieldedContext;
 use namada_sdk::rpc::{query_epoch, InnerTxResult};
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::string_encoding::Format;
+use namada_sdk::tendermint_rpc::Url;
+use namada_sdk::token::DenominatedAmount;
 use namada_sdk::tx::{
     build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
     build_reveal_pk, build_shielded_transfer, build_shielding_transfer, build_transparent_transfer,
     build_unbond, build_unshielding_transfer, build_vote_proposal, build_withdraw,
-    data::compute_inner_tx_hash, either::Either, process_tx, ProcessTxResponse,
-    Tx, gen_ibc_shielding_transfer
+    data::compute_inner_tx_hash, either::Either, gen_ibc_shielding_transfer, process_tx,
+    ProcessTxResponse, Tx,
 };
 use namada_sdk::wallet::{Store, Wallet};
 use namada_sdk::{Namada, NamadaImpl, PaymentAddress, TransferTarget};
-use namada_sdk::args::{InputAmount, GenIbcShieldingTransfer, Query, TxExpiration};
-use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
-use namada_sdk::ibc::convert_masp_tx_to_ibc_memo;
-use namada_sdk::token::DenominatedAmount;
-use namada_sdk::tendermint_rpc::Url;
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
@@ -44,7 +45,7 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 #[wasm_bindgen]
 pub struct Sdk {
     namada: NamadaImpl<HttpClient, wallet::JSWalletUtils, masp::JSShieldedUtils, WebIo>,
-    rpc_url: String
+    rpc_url: String,
 }
 
 #[wasm_bindgen]
@@ -72,7 +73,7 @@ impl Sdk {
 
         Sdk {
             namada,
-            rpc_url: url
+            rpc_url: url,
         }
     }
 
@@ -490,15 +491,14 @@ impl Sdk {
         target: &str,
         token: String,
         amount: &str,
-        channel_id: &str
+        channel_id: &str,
     ) -> Result<JsValue, JsError> {
         let ledger_address = Url::from_str(&self.rpc_url).expect("RPC URL is a valid URL");
         let target = TransferTarget::PaymentAddress(
-            PaymentAddress::from_str(target).expect("target is a valid shielded address")
+            PaymentAddress::from_str(target).expect("target is a valid shielded address"),
         );
-        let amount = InputAmount::Unvalidated(
-            DenominatedAmount::from_str(amount).expect("amount is valid")
-        );
+        let amount =
+            InputAmount::Unvalidated(DenominatedAmount::from_str(amount).expect("amount is valid"));
         let channel_id = ChannelId::from_str(channel_id).expect("channel ID is valid");
 
         let args = GenIbcShieldingTransfer {
@@ -509,14 +509,16 @@ impl Sdk {
             amount,
             port_id: PortId::transfer(),
             channel_id,
-            expiration: TxExpiration::Default
+            expiration: TxExpiration::Default,
         };
 
         if let Some(masp_tx) = gen_ibc_shielding_transfer(&self.namada, args).await? {
             let memo = convert_masp_tx_to_ibc_memo(&masp_tx);
             to_js_result(memo)
         } else {
-            Err(JsError::new("Generating ibc shielding transfer generated nothing"))
+            Err(JsError::new(
+                "Generating ibc shielding transfer generated nothing",
+            ))
         }
     }
 

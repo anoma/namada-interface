@@ -1,3 +1,4 @@
+use crate::sdk::events::EventDispatcher;
 use namada_sdk::control_flow::ShutdownSignal;
 use namada_sdk::io::ProgressBar;
 use namada_sdk::task_env::{TaskEnvironment, TaskSpawner};
@@ -97,10 +98,14 @@ impl ProgressBar for ProgressBarWeb {
 
     fn set_upper_limit(&mut self, limit: u64) {
         self.total = limit as usize;
+        let _ = EventDispatcher::new().progress_bar_started().is_ok();
     }
 
     fn increment_by(&mut self, amount: u64) {
         self.current += amount as usize;
+        let _ = EventDispatcher::new()
+            .progress_bar_incremented(self.current, self.total)
+            .is_ok();
         web_sys::console::log_1(&format!("Progress: {}/{}", self.current, self.total).into());
     }
 
@@ -109,6 +114,7 @@ impl ProgressBar for ProgressBarWeb {
     }
 
     fn finish(&mut self) {
+        let _ = EventDispatcher::new().progress_bar_finished().is_ok();
         web_sys::console::log_1(&"Finished".into());
     }
 }
