@@ -5,7 +5,11 @@ import {
   OnSubmitTransferParams,
   TransferModule,
 } from "App/Transfer/TransferModule";
-import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
+import {
+  accountAssetsAtom,
+  accountNamBalanceAtom,
+  defaultAccountAtom,
+} from "atoms/accounts";
 import { chainAtom, chainParametersAtom } from "atoms/chain";
 import { availableChainsAtom, chainRegistryAtom } from "atoms/integrations";
 import BigNumber from "bignumber.js";
@@ -30,14 +34,16 @@ export const IbcWithdraw: React.FC = () => {
   const namadaChainParams = useAtomValue(chainParametersAtom);
   const namadaChain = useAtomValue(chainAtom);
 
+  const assets = useAtomValue(accountAssetsAtom).data;
+
   const [selectedAsset, setSelectedAsset] = useState<Asset>();
 
-  const namBalance = useAtomValue(accountBalanceAtom).data;
+  const namBalance = useAtomValue(accountNamBalanceAtom).data;
 
-  // TODO: remove hardcoding and display assets other than NAM
-  const availableAssets = [namadaAsset];
-  // TODO: TransferModule expects amounts in namnam, but Namada SDK expects
-  // amounts in NAM. We should figure out how to deal with this properly.
+  const availableAssets = mapUndefined(
+    (a) => Object.values(a).map(({ asset }) => asset),
+    assets
+  );
   const availableAmount = namBalance?.shiftedBy(6);
 
   const GAS_PRICE = BigNumber(0.000001); // 0.000001 NAM

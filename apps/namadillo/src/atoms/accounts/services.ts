@@ -14,27 +14,29 @@ export const fetchDefaultAccount = async (): Promise<Account | undefined> => {
   return await namada.defaultAccount();
 };
 
-export const fetchAccountBalance = async (
+export const fetchAccountBalances = async (
   api: DefaultApi,
-  account: Account | undefined,
-  tokenAddress: string,
-  decimals: number
-): Promise<BigNumber> => {
-  if (!account) return BigNumber(0);
+  account: Account | undefined
+): Promise<{ [token: string]: BigNumber | undefined }> => {
+  if (!account) {
+    return {};
+  }
+
   const balancesResponse = await api.apiV1AccountAddressGet(account.address);
 
-  const balance = balancesResponse.data
-    // TODO: add filter to the api call
-    .filter(({ tokenAddress: ta }) => ta === tokenAddress)
-    .map(({ tokenAddress, balance }) => {
-      return {
-        token: tokenAddress,
-        amount: balance,
-      };
-    })
-    .at(0);
+  return balancesResponse.data.reduce((acc, { tokenAddress, balance }) => {
+    if (tokenAddress in acc) {
+      throw new Error(`duplicate entries for ${tokenAddress}`);
+    }
 
-  return balance ?
-      BigNumber(balance.amount).shiftedBy(-decimals)
-    : BigNumber(0);
+    const balanceAsBigNumber = BigNumber(balance);
+    if (balanceAsBigNumber.isNaN()) {
+      throw new Error(`amount is NaN, got ${balance}`);
+    }
+
+    return {
+      ...acc,
+      [tokenAddress]: balanceAsBigNumber,
+    };
+  }, {});
 };

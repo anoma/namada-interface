@@ -1,4 +1,4 @@
-import { accountBalanceAtom } from "atoms/accounts/atoms";
+import { accountNamBalanceAtom } from "atoms/accounts/atoms";
 import {
   namShieldedBalanceAtom,
   totalShieldedBalanceAtom,
@@ -15,7 +15,7 @@ export const syncStatusAtom = atom((get) => {
     get(rpcHeartbeatAtom),
 
     // Staking
-    get(accountBalanceAtom),
+    get(accountNamBalanceAtom),
     get(myValidatorsAtom),
     get(allValidatorsAtom),
 

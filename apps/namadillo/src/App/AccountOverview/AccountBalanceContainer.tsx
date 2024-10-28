@@ -1,13 +1,13 @@
 import { Heading, Stack } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
-import { accountBalanceAtom } from "atoms/accounts";
+import { accountNamBalanceAtom } from "atoms/accounts";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { twMerge } from "tailwind-merge";
 
 export const AccountBalanceContainer = (): JSX.Element => {
-  const accountBalance = useAtomValue(accountBalanceAtom);
+  const accountBalance = useAtomValue(accountNamBalanceAtom);
   const { data: totalBalance, isSuccess: balanceHasLoaded } = accountBalance;
 
   return (

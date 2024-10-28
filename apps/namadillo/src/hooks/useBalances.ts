@@ -1,4 +1,4 @@
-import { accountBalanceAtom } from "atoms/accounts";
+import { accountNamBalanceAtom } from "atoms/accounts";
 import { totalShieldedBalanceAtom } from "atoms/masp/atoms";
 import { getStakingTotalAtom } from "atoms/staking";
 import BigNumber from "bignumber.js";
@@ -20,7 +20,7 @@ export type useBalancesOutput = {
 
 export const useBalances = (): useBalancesOutput => {
   const totalStakedBalance = useAtomValue(getStakingTotalAtom);
-  const totalAccountBalance = useAtomValue(accountBalanceAtom);
+  const totalAccountBalance = useAtomValue(accountNamBalanceAtom);
   const totalShieldedBalance = useAtomValue(totalShieldedBalanceAtom);
 
   const {

@@ -7,7 +7,7 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { TransactionFees } from "App/Common/TransactionFees";
 import { routes } from "App/routes";
-import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
+import { accountNamBalanceAtom, defaultAccountAtom } from "atoms/accounts";
 import { chainParametersAtom } from "atoms/chain";
 import { createBondTxAtom } from "atoms/staking";
 import { allValidatorsAtom } from "atoms/validators";
@@ -31,7 +31,7 @@ const IncrementBonding = (): JSX.Element => {
   const [validatorFilter, setValidatorFilter] =
     useState<ValidatorFilterOptions>("all");
   const navigate = useNavigate();
-  const accountBalance = useAtomValue(accountBalanceAtom);
+  const accountBalance = useAtomValue(accountNamBalanceAtom);
   const seed = useRef(Math.random());
 
   const { data: chainParameters } = useAtomValue(chainParametersAtom);

@@ -1,11 +1,11 @@
-import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
+import { accountNamBalanceAtom, defaultAccountAtom } from "atoms/accounts";
 import { shouldUpdateBalanceAtom, shouldUpdateProposalAtom } from "atoms/etc";
 import { claimableRewardsAtom, clearClaimRewards } from "atoms/staking";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useTransactionEventListener } from "utils";
 
 export const useTransactionCallback = (): void => {
-  const { refetch: refetchBalances } = useAtomValue(accountBalanceAtom);
+  const { refetch: refetchBalances } = useAtomValue(accountNamBalanceAtom);
   const { refetch: refetchRewards } = useAtomValue(claimableRewardsAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
   const shouldUpdateBalance = useSetAtom(shouldUpdateBalanceAtom);

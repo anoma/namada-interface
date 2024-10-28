@@ -1,5 +1,5 @@
 import { Account } from "@namada/types";
-import { accountBalanceAtom } from "atoms/accounts";
+import { accountNamBalanceAtom } from "atoms/accounts";
 import { myValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
@@ -12,7 +12,7 @@ type UseStakeModuleProps = {
 
 //eslint-disable-next-line
 export const useStakeModule = ({ account }: UseStakeModuleProps) => {
-  const totalNam = useAtomValue(accountBalanceAtom).data || BigNumber(0);
+  const totalNam = useAtomValue(accountNamBalanceAtom).data || BigNumber(0);
   const myValidators = useAtomValue(myValidatorsAtom);
 
   const [stakedAmountByAddress, setStakedAmountsByAddress] =
