@@ -192,15 +192,16 @@ impl Sdk {
         for signing_data in tx.signing_data() {
             if let Some(masp_signing_data) = signing_data.masp() {
                 let masp_signing_data =
-                    borsh::from_slice::<Option<MaspSigningData>>(&masp_signing_data)?
-                        .ok_or_err_msg("Masp signing data is missing")?;
+                    borsh::from_slice::<Option<MaspSigningData>>(&masp_signing_data)?;
 
-                let signing_tx_data = signing_data.to_signing_tx_data()?;
-                let bparams = masp_signing_data.bparams();
+                if let Some(masp_signing_data) = masp_signing_data {
+                    let signing_tx_data = signing_data.to_signing_tx_data()?;
+                    let bparams = masp_signing_data.bparams();
 
-                for xfvk in masp_signing_data.xfvks() {
-                    let xsk = keys_map.get(&xfvk).ok_or_err_msg("Can't map xfvk to xsk")?;
-                    masp_sign(&mut namada_tx, &signing_tx_data, bparams.clone(), *xsk).await?;
+                    for xfvk in masp_signing_data.xfvks() {
+                        let xsk = keys_map.get(&xfvk).ok_or_err_msg("Can't map xfvk to xsk")?;
+                        masp_sign(&mut namada_tx, &signing_tx_data, bparams.clone(), *xsk).await?;
+                    }
                 }
             }
         }

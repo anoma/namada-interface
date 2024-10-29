@@ -53,7 +53,7 @@ export class Tx {
   /**
    * @param sdk - Instance of Sdk struct from wasm lib
    */
-  constructor(protected readonly sdk: SdkWasm) { }
+  constructor(protected readonly sdk: SdkWasm) {}
 
   /**
    * Build Transparent Transfer Tx
@@ -142,8 +142,6 @@ export class Tx {
     wrapperTxProps: WrapperTxProps,
     unshieldingTransferProps: UnshieldingTransferProps
   ): Promise<TxMsgValue> {
-    console.log("unshieldingTransferProps", unshieldingTransferProps);
-    console.log("wrapperTxProps3333", wrapperTxProps);
     const shieldingTransferMsg = new Message<UnshieldingTransferMsgValue>();
 
     const encodedWrapperArgs = this.encodeTxArgs(wrapperTxProps);

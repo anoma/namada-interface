@@ -31,6 +31,9 @@ export function WorkerTest(): JSX.Element {
   const shieldedAccount = accounts?.find(
     (a) => a.isShielded && a.alias === account?.alias
   );
+  const vks = accounts
+    ?.filter((acc) => acc.type === "shielded-keys")
+    .map((a) => a.owner!);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).shieldedSync = async (vk: string) => {
@@ -72,8 +75,7 @@ export function WorkerTest(): JSX.Element {
     });
 
     const shieldingMsgValue = new ShieldingTransferMsgValue({
-      target:
-        "znam1dvvhxnqwzna3s2l7senslzvx50869myqy9009yd84arsrpay6y434gauw5tk4qfu67mw25zdscz",
+      target,
       data: [
         {
           source: account?.address || "",
@@ -149,13 +151,12 @@ export function WorkerTest(): JSX.Element {
         shieldingProps: [shieldingMsgValue],
         indexerUrl,
         chain: chain!,
-        vks: [],
+        vks: vks!,
       },
     };
 
     const { payload: encodedTx } = await shieldWorker.unshield(msg);
     const signedTxs = await signTx("namada", encodedTx, account?.address || "");
-    console.log(signedTxs);
 
     await shieldWorker.broadcast({
       type: "broadcast",
@@ -176,7 +177,7 @@ export function WorkerTest(): JSX.Element {
 
     const asd =
       await // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (window as any).namada.spendingKey("");
+      (window as any).namada.spendingKey("");
 
     const pseudoExtendedKeyBytes = new Uint8Array(Object.values(asd));
 
@@ -211,7 +212,7 @@ export function WorkerTest(): JSX.Element {
         shieldingProps: [shieldingMsgValue],
         indexerUrl,
         chain: chain!,
-        vks: [],
+        vks: vks!,
       },
     };
 

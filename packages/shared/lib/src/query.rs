@@ -292,10 +292,10 @@ impl Query {
 
     pub async fn shielded_sync(
         &self,
-        owners: Box<[JsValue]>,
+        vks: Box<[JsValue]>,
         sks: Box<[JsValue]>,
     ) -> Result<(), JsError> {
-        let owners: Vec<ViewingKey> = owners
+        let vks: Vec<ViewingKey> = vks
             .iter()
             .filter_map(|owner| owner.as_string())
             .map(|o| {
@@ -311,7 +311,7 @@ impl Query {
             .map(|sk| ExtendedSpendingKey::from_str(&sk).unwrap())
             .collect::<Vec<_>>();
 
-        let dated_keypairs = owners
+        let dated_keypairs = vks
             .into_iter()
             .map(|vk| DatedKeypair {
                 key: vk,
