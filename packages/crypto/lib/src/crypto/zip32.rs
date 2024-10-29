@@ -61,12 +61,7 @@ impl ShieldedHDWallet {
         diversifier: Option<Vec<u8>>,
     ) -> Result<DerivationResult, String> {
         let master_spend_key = sapling::ExtendedSpendingKey::master(&self.seed);
-        web_sys::console::log_1(
-            &format!("Master spend key: {:?}", master_spend_key.to_bytes()).into(),
-        );
-
         let zip32_path: Vec<ChildIndex> = path.iter().map(|i| ChildIndex::Hardened(*i)).collect();
-        web_sys::console::log_1(&format!("Zip32 path: {:?}", zip32_path).into());
         let xsk: ExtendedSpendingKey =
             ExtendedSpendingKey::from_path(&master_spend_key, &zip32_path);
         let xfvk = ExtendedFullViewingKey::from(&xsk);

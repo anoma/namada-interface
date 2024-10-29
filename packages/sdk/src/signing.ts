@@ -11,7 +11,7 @@ export class Signing {
    * Signing constructor
    * @param sdk - Instance of Sdk struct from wasm lib
    */
-  constructor(protected readonly sdk: SdkWasm) { }
+  constructor(protected readonly sdk: SdkWasm) {}
 
   /**
    * Sign Namada transaction
@@ -30,24 +30,10 @@ export class Signing {
     const txMsgValue = new TxMsgValue(txProps);
     const msg = new Message<TxMsgValue>();
     const txBytes = msg.encode(txMsgValue);
+    const txBytesFinal =
+      xsks.length > 0 ? await this.sdk.sign_masp(xsks, txBytes) : txBytes;
 
-    const txBytes2 = await this.sdk.sign_masp(xsks, txBytes);
-
-    return await this.sdk.sign_tx(txBytes2, signingKey, chainId);
-  }
-
-  /**
-   * Replace masp section with the one with proper signatures
-   * @param txProps - TxProps
-   * @param xsks - extended spending keys
-   * @returns built tx bytes with replaced MASP section
-   */
-  async signMasp(txProps: TxProps, xsks: string[]): Promise<TxMsgValue> {
-    const txMsgValue = new TxMsgValue(txProps);
-    const msg = new Message<TxMsgValue>();
-    const txBytes = msg.encode(txMsgValue);
-
-    return await this.sdk.sign_masp(xsks, txBytes);
+    return await this.sdk.sign_tx(txBytesFinal, signingKey, chainId);
   }
 
   /**

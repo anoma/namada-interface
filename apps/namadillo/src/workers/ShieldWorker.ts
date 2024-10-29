@@ -128,7 +128,6 @@ async function shieldedTransfer(
 
   await sdk.masp.loadMaspParams("");
 
-  // TODO: pass viewig keys
   await sdk.rpc.shieldedSync([], []);
 
   const encodedTxData = await buildTx<ShieldedTransferMsgValue>(

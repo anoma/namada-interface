@@ -1,7 +1,7 @@
 use std::ops::Deref;
 use std::{path::PathBuf, str::FromStr};
 
-use namada_sdk::borsh::{BorshDeserialize, BorshSerialize, BorshSerializeExt};
+use namada_sdk::borsh::{BorshDeserialize, BorshSerialize};
 use namada_sdk::collections::HashMap;
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::ibc::IbcShieldingData;
@@ -541,7 +541,6 @@ pub fn shielded_transfer_tx_args(
     for shielded_transfer in data {
         let mut source = zip32::PseudoExtendedKey::try_from_slice(&shielded_transfer.source)?;
         source.augment_spend_authorizing_key_unchecked(PrivateKey(jubjub::Fr::default()));
-        web_sys::console::log_1(&format!("source: {:?}", source).into());
 
         let target = PaymentAddress::from_str(&shielded_transfer.target)?;
         let token = Address::from_str(&shielded_transfer.token)?;
@@ -907,7 +906,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
     let token = Address::from_str(&token)?;
 
     let fee_amount = DenominatedAmount::from_str(&fee_amount)
-        .expect(format!("Fee amount has to be valid. Received {}", fee_amount).as_str());
+        .unwrap_or_else(|_| panic!("Fee amount has to be valid. Received {}", fee_amount));
     let fee_input_amount = InputAmount::Unvalidated(fee_amount);
 
     let public_key = match public_key {
@@ -944,7 +943,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         wrapper_fee_payer: None,
         output_folder: None,
         expiration: TxExpiration::Default,
-        chain_id: Some(ChainId(String::from(chain_id))),
+        chain_id: Some(ChainId(chain_id)),
         signatures: vec![],
         signing_keys,
         tx_reveal_code_path: PathBuf::from("tx_reveal_pk.wasm"),
@@ -959,6 +958,8 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
 
 pub enum BuildParams {
     RngBuildParams(RngBuildParams<OsRng>),
+    // TODO: HD Wallet support
+    #[allow(dead_code)]
     StoredBuildParams(StoredBuildParams),
 }
 

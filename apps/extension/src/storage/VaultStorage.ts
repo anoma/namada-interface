@@ -96,7 +96,7 @@ const Vault = t.intersection([
   }),
 ]);
 
-type VaultType = t.TypeOf<typeof Vault>;
+export type VaultType = t.TypeOf<typeof Vault>;
 
 export type VaultTypes = KeyStoreType;
 

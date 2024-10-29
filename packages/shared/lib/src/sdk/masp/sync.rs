@@ -54,6 +54,12 @@ mod spawner {
 
 pub struct TaskEnvWeb {}
 
+impl Default for TaskEnvWeb {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TaskEnvWeb {
     pub fn new() -> Self {
         Self {}

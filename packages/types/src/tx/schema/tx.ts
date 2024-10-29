@@ -3,18 +3,6 @@ import { field, option, vec } from "@dao-xyz/borsh";
 import { SigningDataProps, TxProps } from "../types";
 import { WrapperTxMsgValue } from "./wrapperTx";
 
-// export class MaspSigningDataMsgValue {
-//   @field({ type: vec("u8") })
-//   bparams!: Uint8Array;
-
-//   @field({ type: vec("u8") })
-//   xfvks!: Uint8Array;
-
-//   constructor(data: MaspSigningDataMsgValue) {
-//     Object.assign(this, data);
-//   }
-// }
-
 export class SigningDataMsgValue {
   @field({ type: option("string") })
   owner?: string;

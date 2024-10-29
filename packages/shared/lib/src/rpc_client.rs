@@ -114,9 +114,8 @@ impl Client for HttpClient {
             )
             .await?;
         let response = response.clone();
-        let code = Code::from(response.code);
 
-        match code {
+        match response.code {
             Code::Ok => Ok(EncodedResponseQuery {
                 data: response.value,
                 info: response.info,

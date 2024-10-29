@@ -37,8 +37,8 @@ use namada_sdk::tx::{
 };
 use namada_sdk::uint::I256;
 use namada_sdk::wallet::DatedKeypair;
+use namada_sdk::ExtendedSpendingKey;
 use namada_sdk::ExtendedViewingKey;
-use namada_sdk::{ExtendedSpendingKey, PaymentAddress};
 use std::collections::BTreeMap;
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
@@ -350,9 +350,6 @@ impl Query {
     where
         C: NamadaMaspClient + Send + Sync + Unpin + 'static,
     {
-        web_sys::console::log_1(&format!("dated_keypairs: {:?}", dated_keypairs).into());
-        web_sys::console::log_1(&format!("dated_sk: {:?}", dated_sks).into());
-
         let progress_bar_1 = sync::ProgressBarWeb {
             total: 0,
             current: 0,
@@ -568,6 +565,7 @@ impl Query {
         Ok(Uint8Array::from(writer.as_slice()))
     }
 
+    #[allow(clippy::type_complexity)]
     pub async fn query_proposal_votes(
         &self,
         proposal_id: u64,
@@ -591,6 +589,7 @@ impl Query {
                 (address.clone(), String::from(vote), voting_power)
             }));
 
+        // TODO: refactor this to fix type_complexity clippy warning
         let delegator_votes: Vec<(Address, String, Vec<(Address, token::Amount)>)> =
             Vec::from_iter(votes.delegators_vote.iter().map(|(address, vote)| {
                 let vote = match vote {

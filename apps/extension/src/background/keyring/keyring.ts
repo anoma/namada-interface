@@ -51,7 +51,7 @@ export class KeyRing {
     protected readonly vaultStorage: VaultStorage,
     protected readonly sdkService: SdkService,
     protected readonly utilityStore: KVStore<UtilityStore>
-  ) { }
+  ) {}
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -353,7 +353,7 @@ export class KeyRing {
     const deriveFn = (
       type === AccountType.PrivateKey ?
         this.deriveTransparentAccount
-        : this.deriveShieldedAccount).bind(this);
+      : this.deriveShieldedAccount).bind(this);
 
     const { seed, parentId } = await this.getParentSeed();
     const info = deriveFn(seed, path, parentId);
@@ -458,7 +458,6 @@ export class KeyRing {
     return accounts.map((account) => account.public as AccountStore);
   }
 
-  // TODO: not sure if worth doing separately from getting siging key
   private async getSpendingKey(address: string): Promise<string> {
     const transparentAccount = await this.vaultStorage.findOne(
       KeyStore,
@@ -598,18 +597,6 @@ export class KeyRing {
     return Result.ok(null);
   }
 
-  async signMasp(txProps: TxProps, shieldedAddress: string): Promise<TxProps> {
-    if (!txProps.signingData[0]?.shieldedHash) {
-      throw new Error("Masp signing requires bparams");
-    }
-    await this.vaultService.assertIsUnlocked();
-    // TODO: instead get all keys based on viewing keys from maspSigningData
-    const key = await this.getSpendingKey(shieldedAddress);
-    const { signing } = this.sdkService.getSdk();
-
-    return await signing.signMasp(txProps, [key]);
-  }
-
   async sign(
     txProps: TxProps,
     signer: string,
@@ -617,10 +604,16 @@ export class KeyRing {
   ): Promise<Uint8Array> {
     await this.vaultService.assertIsUnlocked();
     const key = await this.getSigningKey(signer);
-    const spendingKey = await this.getSpendingKey(signer);
+
+    const isMasp = txProps.signingData.reduce(
+      (isMasp, sd) => isMasp || !!sd.shieldedHash,
+      false
+    );
+    // TODO: we need to get spending keys based on passed vks
+    const spendingKeys = isMasp ? [await this.getSpendingKey(signer)] : [];
     const { signing } = this.sdkService.getSdk();
 
-    return await signing.sign(txProps, key, [spendingKey], chainId);
+    return await signing.sign(txProps, key, spendingKeys, chainId);
   }
 
   async signArbitrary(

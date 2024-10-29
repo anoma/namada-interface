@@ -177,10 +177,6 @@ export class KeyRingService {
     return await this._keyRing.sign(txProps, signer, chainId);
   }
 
-  async signMasp(txProps: TxProps, signer: string): Promise<TxProps> {
-    return await this._keyRing.signMasp(txProps, signer);
-  }
-
   async signArbitrary(
     signer: string,
     data: string
