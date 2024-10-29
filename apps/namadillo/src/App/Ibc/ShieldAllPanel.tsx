@@ -122,6 +122,7 @@ export const ShieldAllPanel = ({
             <TransferTransactionFee
               transactionFee={transactionFee}
               isIbcTransfer={true}
+              textColor="black"
             />
           )}
           <ActionButton
