@@ -12,6 +12,7 @@ import {
   chainRegistryAtom,
   ibcTransferAtom,
 } from "atoms/integrations";
+import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAssetAmount } from "hooks/useAssetAmount";
 import { useWalletManager } from "hooks/useWalletManager";
@@ -211,7 +212,7 @@ export const IbcTransfer: React.FC = () => {
         {currentStep > 0 && (
           <motion.div
             key="progress"
-            className="my-12"
+            className={clsx("my-12", { "text-yellow": shielded })}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}

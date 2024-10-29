@@ -7,6 +7,7 @@ import { KeplrWalletManager } from "integrations/Keplr";
 import { useState } from "react";
 import { ShieldAllIntro } from "./ShieldAllIntro";
 import { ShieldAllPanel } from "./ShieldAllPanel";
+import { ShieldAllProgress } from "./ShieldAllProgress";
 
 const keplr = new KeplrWalletManager();
 
@@ -28,10 +29,16 @@ export const IbcShieldAll: React.FC = () => {
   };
 
   const connected = chainSelected && registry && walletAddress;
+
+  // TODO: this should be true when the form is submitted
+  const isSuccess = false;
+
   return (
     <Panel className="flex items-center">
-      {!connected && <ShieldAllIntro onSelectChain={onSelectChain} />}
-      {connected && (
+      {!connected && !isSuccess && (
+        <ShieldAllIntro onSelectChain={onSelectChain} />
+      )}
+      {connected && !isSuccess && (
         <ShieldAllPanel
           registry={registry}
           wallet={wallets.keplr!}
@@ -41,6 +48,7 @@ export const IbcShieldAll: React.FC = () => {
           onShieldAll={onShieldAll}
         />
       )}
+      {isSuccess && <ShieldAllProgress />}
     </Panel>
   );
 };
