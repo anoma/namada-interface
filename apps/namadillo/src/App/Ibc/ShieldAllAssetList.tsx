@@ -4,15 +4,16 @@ import { TokenCurrency } from "App/Common/TokenCurrency";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { getAssetImageUrl } from "integrations/utils";
-import { AssetWithBalance } from "types";
+import { AssetWithBalanceAndIbcInfo } from "types";
 import { toDisplayAmount } from "utils";
 
-export type SelectableAssetWithBalance = AssetWithBalance & {
-  checked: boolean;
-};
+export type SelectableAssetWithBalanceAndIbcInfo =
+  AssetWithBalanceAndIbcInfo & {
+    checked: boolean;
+  };
 
 type ShieldAllAssetListProps = {
-  assets: SelectableAssetWithBalance[];
+  assets: SelectableAssetWithBalanceAndIbcInfo[];
   onToggleAsset: (asset: Asset) => void;
 };
 
@@ -23,7 +24,10 @@ export const ShieldAllAssetList = ({
   return (
     <ul className="max-h-[200px] dark-scrollbar -mr-2">
       {assets.map(
-        (assetWithBalance: SelectableAssetWithBalance, idx: number) => {
+        (
+          assetWithBalance: SelectableAssetWithBalanceAndIbcInfo,
+          idx: number
+        ) => {
           const image = getAssetImageUrl(assetWithBalance.asset);
           return (
             <li

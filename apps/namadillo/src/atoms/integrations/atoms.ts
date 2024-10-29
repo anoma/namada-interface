@@ -60,7 +60,7 @@ export const assetBalanceAtomFamily = atomFamily(
       ...queryDependentFn(async () => {
         return await queryAndStoreRpc(chain!, async (rpc: string) => {
           const assetsBalances = await queryAssetBalances(walletAddress!, rpc);
-          return await mapCoinsToAssets(assetsBalances, assets!, rpc);
+          return await mapCoinsToAssets(assetsBalances, chain!.chain_name, rpc);
         });
       }, [!!walletAddress, !!chain]),
     }));

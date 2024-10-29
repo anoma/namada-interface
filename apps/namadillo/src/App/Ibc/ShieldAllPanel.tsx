@@ -10,9 +10,13 @@ import { SelectedWallet } from "App/Transfer/SelectedWallet";
 import { TransferTransactionFee } from "App/Transfer/TransferTransactionFee";
 import { getTransactionFee } from "integrations/utils";
 import { useEffect, useMemo, useState } from "react";
-import { AssetWithBalance, ChainRegistryEntry, WalletProvider } from "types";
 import {
-  SelectableAssetWithBalance,
+  AssetWithBalanceAndIbcInfo,
+  ChainRegistryEntry,
+  WalletProvider,
+} from "types";
+import {
+  SelectableAssetWithBalanceAndIbcInfo,
   ShieldAllAssetList,
 } from "./ShieldAllAssetList";
 import { ShieldAllContainer } from "./ShieldAllContainer";
@@ -22,7 +26,7 @@ type ShieldAllPanelProps = {
   wallet: WalletProvider;
   walletAddress: string;
   isLoading: boolean;
-  assetList: AssetWithBalance[];
+  assetList: AssetWithBalanceAndIbcInfo[];
   onShieldAll: (assets: Asset[]) => void;
 };
 
@@ -35,7 +39,7 @@ export const ShieldAllPanel = ({
   onShieldAll,
 }: ShieldAllPanelProps): JSX.Element => {
   const [selectableAssets, setSelectableAssets] = useState<
-    SelectableAssetWithBalance[]
+    SelectableAssetWithBalanceAndIbcInfo[]
   >([]);
 
   useEffect(() => {
