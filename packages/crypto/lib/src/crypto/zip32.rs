@@ -50,6 +50,15 @@ impl ShieldedHDWallet {
         Ok(ShieldedHDWallet { seed: sk })
     }
 
+    pub fn new_from_sk(sk_bytes: Vec<u8>) -> Result<ShieldedHDWallet, String> {
+        let sk: [u8; 32] = match sk_bytes.try_into() {
+            Ok(bytes) => bytes,
+            Err(err) => return Err(format!("Invalid Private Key! {:?}", err)),
+        };
+
+        Ok(ShieldedHDWallet { seed: sk })
+    }
+
     pub fn derive(
         &self,
         path: Vec<u32>,
@@ -61,38 +70,35 @@ impl ShieldedHDWallet {
         let coin_type = path.get(1).expect("zip32 coin_type is required!");
         let account = path.get(2).expect("zip32 account is required!");
 
-        // Optional address
+        // Optional address index
         let address_index = path.get(3);
 
-        let zip32_path: Vec<ChildIndex> = vec![purpose, coin_type, account]
+        let mut zip32_path: Vec<ChildIndex> = vec![purpose, coin_type, account]
             .iter()
             .map(|i| ChildIndex::Hardened(**i))
             .collect();
+
+        if address_index.is_some() {
+            zip32_path.push(ChildIndex::NonHardened(*address_index.unwrap()));
+        }
+
         let xsk: ExtendedSpendingKey =
             ExtendedSpendingKey::from_path(&master_spend_key, &zip32_path);
 
         let xfvk = ExtendedFullViewingKey::from(&xsk);
 
-        // If address_index is passed, derive non-hardened child
-        let xfvk_child = match address_index {
-            Some(index) => xfvk
-                .derive_child(ChildIndex::NonHardened(*index))
-                .expect("Could not derive child"),
-            None => xfvk,
-        };
-
         // We either use passed diversifier or the default payment_address
         let payment_address: PaymentAddress = match diversifier {
             Some(d) => {
                 let diversifier = BorshDeserialize::try_from_slice(&d).unwrap();
-                xfvk_child.fvk.vk.to_payment_address(diversifier).unwrap()
+                xfvk.fvk.vk.to_payment_address(diversifier).unwrap()
             }
-            None => xfvk_child.default_address().1,
+            None => xfvk.default_address().1,
         };
 
         Ok(DerivationResult {
             xsk: xsk.serialize_to_vec(),
-            xfvk: xfvk_child.serialize_to_vec(),
+            xfvk: xfvk.serialize_to_vec(),
             payment_address: payment_address.serialize_to_vec(),
         })
     }

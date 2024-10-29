@@ -4,6 +4,7 @@ import {
   AccountType,
   Bip44Path,
   DerivedAccount,
+  Path,
   SignArbitraryResponse,
   TxProps,
 } from "@namada/types";
@@ -37,6 +38,17 @@ type DerivedAccountInfo = {
   id: string;
   text: string;
   owner: string;
+};
+
+// Generate either BIP44 or ZIP32 path from BIP44 based on account type
+const makeStoredPath = (accountType: AccountType, path: Bip44Path): Path => {
+  const { account, change, index } = path;
+  return accountType === AccountType.ShieldedKeys ?
+      // If this is a custom address (non-default account or index in the BIP44 path),
+      // specify index for shielded keys. In Namada CLI, the default ZIP32 path only
+      // specifies "account"
+      { account, index: account + index > 0 ? index : undefined }
+    : { account, change, index };
 };
 
 /**
@@ -255,21 +267,29 @@ export class KeyRing {
 
   public deriveShieldedAccount(
     seed: Uint8Array,
-    path: Bip44Path,
+    bip44Path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
-    const { account, index } = path;
+    const storedPath = makeStoredPath(AccountType.ShieldedKeys, bip44Path);
     const id = generateId(
       UUID_NAMESPACE,
       "shielded-account",
       parentId,
-      account,
-      index || 0
+      // Specify unique identifiers for parent derived account
+      bip44Path.account,
+      bip44Path.change,
+      bip44Path.index,
+      // Specify unique identifiers for shielded account
+      storedPath.account,
+      storedPath.index || "none"
     );
     const keysNs = this.sdkService.getSdk().getKeys();
     const { address, viewingKey, spendingKey } = keysNs.deriveShieldedFromSeed(
       seed,
-      path
+      bip44Path,
+      // Derives default shielded keys account from bip44Path.account
+      // TODO: Expose function to accept { account, index }
+      { account: bip44Path.account }
     );
 
     return {
@@ -322,7 +342,7 @@ export class KeyRing {
   }
 
   private async persistAccount(
-    path: Bip44Path,
+    path: Path,
     parentId: string,
     type: AccountType,
     alias: string,
@@ -349,12 +369,17 @@ export class KeyRing {
     return account;
   }
 
+  /**
+   * Derive both shielded and transparent accounts from BIP44 Path
+   */
   public async deriveAccount(
-    path: Bip44Path,
+    bip44Path: Bip44Path,
     type: AccountType,
     alias: string
   ): Promise<DerivedAccount> {
     await this.vaultService.assertIsUnlocked();
+    // Prepare path for either BIP44 or ZIP32 stored value
+    const path = makeStoredPath(type, bip44Path);
 
     if (type !== AccountType.PrivateKey && type !== AccountType.ShieldedKeys) {
       throw new Error("Unsupported account type");
@@ -366,7 +391,8 @@ export class KeyRing {
       : this.deriveShieldedAccount).bind(this);
 
     const { seed, parentId } = await this.getParentSeed();
-    const info = deriveFn(seed, path, parentId);
+
+    const info = deriveFn(seed, bip44Path, parentId);
 
     // Check whether keys already exist for this account
     const existingAccount = await this.queryAccountByAddress(info.address);
@@ -506,9 +532,14 @@ export class KeyRing {
       const sdk = this.sdkService.getSdk();
       const mnemonic = sdk.getMnemonic();
       const seed = mnemonic.toSeed(secret, passphrase);
+      const bip44Path = {
+        account: path.account,
+        change: path.change || 0,
+        index: path.index || 0,
+      };
 
       const keys = this.sdkService.getSdk().getKeys();
-      privateKey = keys.deriveFromSeed(seed, path).privateKey;
+      privateKey = keys.deriveFromSeed(seed, bip44Path).privateKey;
     }
 
     return privateKey;

@@ -13,7 +13,7 @@ import {
   PaymentAddress,
   public_key_to_bech32,
 } from "@namada/shared";
-import { Bip44Path } from "@namada/types";
+import { Bip44Path, Zip32Path } from "@namada/types";
 import { makeBip44PathArray, makeSaplingPathArray } from "../utils";
 import { Address, ShieldedKeys, TransparentKeys } from "./types";
 
@@ -21,6 +21,10 @@ const DEFAULT_BIP44_PATH: Bip44Path = {
   account: 0,
   change: 0,
   index: 0,
+};
+
+const DEFAULT_ZIP32_PATH: Zip32Path = {
+  account: 0,
 };
 
 /**
@@ -132,20 +136,49 @@ export class Keys {
   /**
    * Derive shielded keys and address from a seed and path
    * @param seed - Seed
-   * @param [path] - Bip44 path object
+   * @param [bip44Path] - Bip44 path object to derive private key to seed the shielded keys
+   * @param [zip32Path] - Zip32 path object to derive the shielded keys
    * @param [diversifier] - Diversifier bytes
    * @returns Shielded keys and address
    */
   deriveShieldedFromSeed(
     seed: Uint8Array,
-    path: Bip44Path = DEFAULT_BIP44_PATH,
+    bip44Path: Bip44Path = DEFAULT_BIP44_PATH,
+    zip32Path: Zip32Path = DEFAULT_ZIP32_PATH,
     diversifier?: Uint8Array
   ): ShieldedKeys {
     const shieldedHdWallet = new ShieldedHDWallet(
       seed,
-      makeBip44PathArray(chains.namada.bip44.coinType, path)
+      makeBip44PathArray(chains.namada.bip44.coinType, bip44Path)
     );
-    // Zip32 path components
+    return this.deriveFromShieldedWallet(
+      shieldedHdWallet,
+      zip32Path,
+      diversifier
+    );
+  }
+
+  /**
+   * Derive shielded keys and address from private key bytes
+   * @param seed - Seed
+   * @param [path] - Zip32 path object
+   * @param [diversifier] - Diversifier bytes
+   * @returns Shielded keys and address
+   */
+  deriveShieldedFromPrivateKey(
+    privateKeyBytes: Uint8Array,
+    path: Zip32Path = DEFAULT_ZIP32_PATH,
+    diversifier?: Uint8Array
+  ): ShieldedKeys {
+    const shieldedHdWallet = ShieldedHDWallet.new_from_sk(privateKeyBytes);
+    return this.deriveFromShieldedWallet(shieldedHdWallet, path, diversifier);
+  }
+
+  private deriveFromShieldedWallet(
+    shieldedHdWallet: ShieldedHDWallet,
+    path: Zip32Path,
+    diversifier?: Uint8Array
+  ): ShieldedKeys {
     const { account, index } = path;
     const saplingPath = makeSaplingPathArray(877, account, index);
     const derivedAccount = shieldedHdWallet.derive(saplingPath, diversifier);
