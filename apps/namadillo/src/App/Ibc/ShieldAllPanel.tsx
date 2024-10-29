@@ -1,5 +1,10 @@
 import { Asset } from "@chain-registry/types";
-import { ActionButton, Heading, Stack } from "@namada/components";
+import {
+  ActionButton,
+  Heading,
+  SkeletonLoading,
+  Stack,
+} from "@namada/components";
 import svgImg from "App/Assets/ShieldedParty.svg";
 import { SelectedWallet } from "App/Transfer/SelectedWallet";
 import { TransferTransactionFee } from "App/Transfer/TransferTransactionFee";
@@ -99,11 +104,18 @@ export const ShieldAllPanel = ({
             className="text-black px-2 py-1.5 border rounded-sm"
             displayShortenedAddress={false}
           />
-          <ShieldAllAssetList
-            assets={assetList}
-            checked={selectedAssets || {}}
-            onToggleAsset={onToggleAsset}
-          />
+          {isLoading ?
+            <SkeletonLoading
+              width="100%"
+              height="70px"
+              className="bg-yellow-600"
+            />
+          : <ShieldAllAssetList
+              assets={assetList}
+              checked={selectedAssets || {}}
+              onToggleAsset={onToggleAsset}
+            />
+          }
         </Stack>
         <Stack as="footer" gap={4}>
           {transactionFee && (
