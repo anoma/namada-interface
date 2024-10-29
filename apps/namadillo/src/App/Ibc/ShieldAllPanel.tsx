@@ -16,6 +16,7 @@ type ShieldAllPanelProps = {
   walletAddress: string;
   isLoading: boolean;
   assetList: AssetWithBalance[];
+  onShieldAll: (assets: Asset[]) => void;
 };
 
 export const ShieldAllPanel = ({
@@ -24,6 +25,7 @@ export const ShieldAllPanel = ({
   walletAddress,
   isLoading,
   assetList,
+  onShieldAll,
 }: ShieldAllPanelProps): JSX.Element => {
   const [selectedAssets, setSelectedAssets] =
     useState<Record<string, boolean>>();
@@ -48,6 +50,19 @@ export const ShieldAllPanel = ({
     });
   };
 
+  const getSelectedAssets = (): Asset[] => {
+    return assetList
+      .filter((assetWithBalance) =>
+        selectedAssets ? selectedAssets[assetWithBalance.asset.symbol] : false
+      )
+      .map((assetWithBalance) => assetWithBalance.asset);
+  };
+
+  const onSubmit = (e: React.FormEvent): void => {
+    e.preventDefault();
+    onShieldAll(getSelectedAssets());
+  };
+
   const hasAssetsSelected = useMemo(
     () => Object.values(selectedAssets || {}).some(Boolean),
     [selectedAssets]
@@ -62,7 +77,10 @@ export const ShieldAllPanel = ({
         "w-full max-w-[590px] min-h-[600px] mx-auto rounded-md"
       )}
     >
-      <div className="flex flex-col flex-1 justify-between">
+      <form
+        className="flex flex-col flex-1 justify-between"
+        onSubmit={onSubmit}
+      >
         <Stack gap={3} className="text-center h-full">
           <img
             className="w-[120px] mx-auto select-none"
@@ -105,7 +123,7 @@ export const ShieldAllPanel = ({
             Shield all my Assets
           </ActionButton>
         </Stack>
-      </div>
+      </form>
     </section>
   );
 };

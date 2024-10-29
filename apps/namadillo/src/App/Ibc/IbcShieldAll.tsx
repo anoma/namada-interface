@@ -1,4 +1,4 @@
-import { Chain } from "@chain-registry/types";
+import { Asset, Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
 import { useAssetAmount } from "hooks/useAssetAmount";
 import { useWalletManager } from "hooks/useWalletManager";
@@ -23,6 +23,10 @@ export const IbcShieldAll: React.FC = () => {
     setChainSelected(true);
   };
 
+  const onShieldAll = async (_assets: Asset[]): Promise<void> => {
+    //TODO: not implemented
+  };
+
   const connected = chainSelected && registry && walletAddress;
   return (
     <Panel className="flex items-center">
@@ -34,6 +38,7 @@ export const IbcShieldAll: React.FC = () => {
           walletAddress={walletAddress}
           assetList={Object.values(assetsBalances || [])}
           isLoading={isLoadingBalances}
+          onShieldAll={onShieldAll}
         />
       )}
     </Panel>
