@@ -3,10 +3,10 @@ import { ActionButton, Heading, Stack } from "@namada/components";
 import svgImg from "App/Assets/ShieldedParty.svg";
 import { SelectChainModal } from "App/Transfer/SelectChainModal";
 import { availableChainsAtom } from "atoms/integrations";
-import clsx from "clsx";
 import { wallets } from "integrations";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
+import { ShieldAllContainer } from "./ShieldAllContainer";
 
 type ShieldAllIntroProps = {
   onSelectChain: (chain: Chain) => void;
@@ -20,12 +20,7 @@ export const ShieldAllIntro = ({
 
   return (
     <>
-      <section
-        className={clsx(
-          "bg-yellow text-black pt-8 pb-20 px-12",
-          "w-full max-w-[590px] mx-auto rounded-md"
-        )}
-      >
+      <ShieldAllContainer>
         <Stack gap={3} className="text-center">
           <img className="w-[280px] mx-auto" src={`${svgImg}`} />
           <Heading className="text-black uppercase text-5xl" level="h2">
@@ -46,7 +41,7 @@ export const ShieldAllIntro = ({
             Connect Wallet
           </ActionButton>
         </Stack>
-      </section>
+      </ShieldAllContainer>
       {displayChainModal && (
         <SelectChainModal
           chains={chainList}

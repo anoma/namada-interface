@@ -9,11 +9,11 @@ import svgImg from "App/Assets/ShieldedParty.svg";
 import { SelectedWallet } from "App/Transfer/SelectedWallet";
 import { TransferTransactionFee } from "App/Transfer/TransferTransactionFee";
 import { AssetWithBalance } from "atoms/integrations";
-import clsx from "clsx";
 import { getTransactionFee } from "integrations/utils";
 import { useEffect, useMemo, useState } from "react";
 import { ChainRegistryEntry, WalletProvider } from "types";
 import { ShieldAllAssetList } from "./ShieldAllAssetList";
+import { ShieldAllContainer } from "./ShieldAllContainer";
 
 type ShieldAllPanelProps = {
   registry: ChainRegistryEntry;
@@ -76,12 +76,7 @@ export const ShieldAllPanel = ({
   const transactionFee = getTransactionFee(registry);
 
   return (
-    <section
-      className={clsx(
-        "flex flex-col bg-yellow text-black pt-8 pb-6 px-12",
-        "w-full max-w-[590px] min-h-[600px] mx-auto rounded-md"
-      )}
-    >
+    <ShieldAllContainer>
       <form
         className="flex flex-col flex-1 justify-between"
         onSubmit={onSubmit}
@@ -137,6 +132,6 @@ export const ShieldAllPanel = ({
           </ActionButton>
         </Stack>
       </form>
-    </section>
+    </ShieldAllContainer>
   );
 };
