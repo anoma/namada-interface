@@ -5,7 +5,7 @@ import {
   ShieldingTransferMsgValue,
   UnshieldingTransferMsgValue,
 } from "@namada/types";
-import { defaultAccountAtom } from "atoms/accounts";
+import { accountsAtom, defaultAccountAtom } from "atoms/accounts";
 import { chainAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { indexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
@@ -24,9 +24,13 @@ export function WorkerTest(): JSX.Element {
   const rpcUrl = useAtomValue(rpcUrlAtom);
 
   const { data: account } = useAtomValue(defaultAccountAtom);
+  const { data: accounts } = useAtomValue(accountsAtom);
   const { data: chain } = useAtomValue(chainAtom);
   const { data: token } = useAtomValue(nativeTokenAddressAtom);
   const indexerUrl = useAtomValue(indexerUrlAtom);
+  const shieldedAccount = accounts?.find(
+    (a) => a.isShielded && a.alias === account?.alias
+  );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).shieldedSync = async (vk: string) => {
@@ -114,14 +118,6 @@ export function WorkerTest(): JSX.Element {
     const worker = new ShieldWorker();
     const shieldWorker = Comlink.wrap<ShieldWorkerApi>(worker);
 
-    const asd =
-      await // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (window as any).namada.spendingKey("");
-    console.log("ASD", asd);
-
-    const pseudoExtendedKeyBytes = new Uint8Array(Object.values(asd));
-    console.log("PEX", pseudoExtendedKeyBytes);
-
     await shieldWorker.init({
       type: "init",
       payload: {
@@ -131,8 +127,8 @@ export function WorkerTest(): JSX.Element {
     });
 
     const shieldingMsgValue = new UnshieldingTransferMsgValue({
-      source: pseudoExtendedKeyBytes,
-      gasSpendingKeys: [pseudoExtendedKeyBytes],
+      source: shieldedAccount!.pseudoExtendedKey!,
+      gasSpendingKeys: [],
       data: [
         {
           target,
@@ -158,8 +154,8 @@ export function WorkerTest(): JSX.Element {
     };
 
     const { payload: encodedTx } = await shieldWorker.unshield(msg);
-    console.log("ENCODED TX", encodedTx);
     const signedTxs = await signTx("namada", encodedTx, account?.address || "");
+    console.log(signedTxs);
 
     await shieldWorker.broadcast({
       type: "broadcast",

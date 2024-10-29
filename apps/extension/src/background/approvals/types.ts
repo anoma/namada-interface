@@ -16,6 +16,8 @@ export type EncodedSigningData = Pick<
   "publicKeys" | "threshold" | "feePayer" | "owner"
 > & {
   accountPublicKeysMap?: string;
+  shieldedHash?: string;
+  masp?: string;
 };
 
 export type EncodedTxData = Pick<TxProps, "args" | "hash"> & {

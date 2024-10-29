@@ -21,7 +21,6 @@ import {
   IsConnectionApprovedMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
-  SpendingKeyMsg,
   VerifyArbitraryMsg,
 } from "./messages";
 
@@ -74,15 +73,6 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new ApproveUpdateDefaultAccountMsg(address)
-    );
-  }
-
-  public async spendingKey(
-    publicKey: number[]
-  ): Promise<Uint8Array | undefined> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new SpendingKeyMsg(publicKey)
     );
   }
 

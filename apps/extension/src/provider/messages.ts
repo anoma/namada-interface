@@ -27,7 +27,6 @@ enum MessageType {
   EncodeRevealPublicKey = "encode-reveal-public-key",
   GetChain = "get-chain",
   GetChains = "get-chains",
-  SpendingKey = "spending-key",
   ApproveEthBridgeTransfer = "approve-eth-bridge-transfer",
   CheckDurability = "check-durability",
   VerifyArbitrary = "verify-arbitrary",
@@ -251,28 +250,6 @@ export class ApproveUpdateDefaultAccountMsg extends Message<void> {
 
   type(): string {
     return ApproveUpdateDefaultAccountMsg.type();
-  }
-}
-
-export class SpendingKeyMsg extends Message<Uint8Array | undefined> {
-  public static type(): MessageType {
-    return MessageType.SpendingKey;
-  }
-
-  constructor(public readonly publicKey: number[]) {
-    super();
-  }
-
-  validate(): void {
-    validateProps(this, ["publicKey"]);
-  }
-
-  route(): string {
-    return Route.KeyRing;
-  }
-
-  type(): string {
-    return SpendingKeyMsg.type();
   }
 }
 

@@ -168,10 +168,6 @@ export class KeyRingService {
     return await this._keyRing.renameAccount(accountId, alias);
   }
 
-  async spendingKey(publicKey: number[]): Promise<Uint8Array | undefined> {
-    return await this._keyRing.www(publicKey);
-  }
-
   async checkDurability(): Promise<boolean> {
     return await IndexedDBKVStore.durabilityCheck();
   }
@@ -179,6 +175,10 @@ export class KeyRingService {
   async sign(txProps: TxProps, signer: string): Promise<Uint8Array> {
     const { chainId } = await this.chainsService.getChain();
     return await this._keyRing.sign(txProps, signer, chainId);
+  }
+
+  async signMasp(txProps: TxProps, signer: string): Promise<TxProps> {
+    return await this._keyRing.signMasp(txProps, signer);
   }
 
   async signArbitrary(

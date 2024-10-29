@@ -45,13 +45,6 @@ export class InjectedNamada implements INamada {
     );
   }
 
-  public async spendingKey(publicKey: number[]): Promise<Uint8Array> {
-    return await InjectedProxy.requestMethod<number[], Promise<Uint8Array>>(
-      "spendingKey",
-      publicKey
-    );
-  }
-
   public async sign(props: SignProps): Promise<Uint8Array[]> {
     return await InjectedProxy.requestMethod<SignProps, Uint8Array[]>(
       "sign",

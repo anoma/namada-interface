@@ -3,6 +3,8 @@ use std::str::FromStr;
 
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use namada_sdk::masp_primitives::transaction::components::sapling::builder::StoredBuildParams;
+use namada_sdk::masp_primitives::zip32::ExtendedFullViewingKey;
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::tx::data::compute_inner_tx_hash;
 use namada_sdk::tx::either::Either;
@@ -43,11 +45,16 @@ pub struct SigningData {
     threshold: u8,
     account_public_keys_map: Option<Vec<u8>>,
     fee_payer: String,
+    shielded_hash: Option<Vec<u8>>,
+    pub masp: Option<Vec<u8>>,
 }
 
 impl SigningData {
     // Create serializable struct from Namada type
-    pub fn from_signing_tx_data(signing_tx_data: SigningTxData) -> Result<SigningData, JsError> {
+    pub fn from_signing_tx_data(
+        signing_tx_data: SigningTxData,
+        masp_signing_data: Option<MaspSigningData>,
+    ) -> Result<SigningData, JsError> {
         let owner: Option<String> = match signing_tx_data.owner {
             Some(addr) => Some(addr.to_string()),
             None => None,
@@ -65,6 +72,10 @@ impl SigningData {
 
         let fee_payer = signing_tx_data.fee_payer.to_string();
         let threshold = signing_tx_data.threshold;
+        let shielded_hash = match signing_tx_data.shielded_hash {
+            Some(v) => Some(borsh::to_vec(&v)?),
+            None => None,
+        };
 
         Ok(SigningData {
             owner,
@@ -72,6 +83,8 @@ impl SigningData {
             threshold,
             account_public_keys_map,
             fee_payer,
+            shielded_hash,
+            masp: Some(borsh::to_vec(&masp_signing_data)?),
         })
     }
 
@@ -94,6 +107,10 @@ impl SigningData {
             Some(pk_map) => Some(borsh::from_slice(&pk_map)?),
             None => None,
         };
+        let shielded_hash = match &self.shielded_hash {
+            Some(v) => Some(borsh::from_slice(&v)?),
+            None => None,
+        };
 
         Ok(SigningTxData {
             owner,
@@ -101,8 +118,33 @@ impl SigningData {
             fee_payer,
             threshold,
             account_public_keys_map,
-            shielded_hash: None,
+            shielded_hash,
         })
+    }
+
+    pub fn masp(&self) -> Option<Vec<u8>> {
+        self.masp.clone()
+    }
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct MaspSigningData {
+    pub bparams: StoredBuildParams,
+    pub xfvks: Vec<ExtendedFullViewingKey>,
+}
+
+impl MaspSigningData {
+    pub fn new(bparams: StoredBuildParams, xfvks: Vec<ExtendedFullViewingKey>) -> MaspSigningData {
+        MaspSigningData { bparams, xfvks }
+    }
+
+    pub fn xfvks(&self) -> Vec<ExtendedFullViewingKey> {
+        self.xfvks.clone()
+    }
+
+    pub fn bparams(&self) -> StoredBuildParams {
+        self.bparams.clone()
     }
 }
 
@@ -113,19 +155,19 @@ pub struct Tx {
     args: WrapperTxMsg,
     hash: String,
     bytes: Vec<u8>,
-    signing_data: Vec<SigningData>,
+    pub signing_data: Vec<SigningData>,
 }
 
 impl Tx {
     pub fn new(
         tx: tx::Tx,
         args: &[u8],
-        signing_tx_data: Vec<SigningTxData>,
+        signing_tx_data: Vec<(SigningTxData, Option<MaspSigningData>)>,
     ) -> Result<Tx, JsError> {
         let args: WrapperTxMsg = borsh::from_slice(&args)?;
         let mut signing_data: Vec<SigningData> = vec![];
-        for sd in signing_tx_data.into_iter() {
-            let sd = SigningData::from_signing_tx_data(sd)?;
+        for (sd, msd) in signing_tx_data.into_iter() {
+            let sd = SigningData::from_signing_tx_data(sd, msd)?;
             signing_data.push(sd);
         }
         let hash = tx.wrapper_hash();
@@ -150,6 +192,10 @@ impl Tx {
         }
 
         Ok(signing_tx_data)
+    }
+
+    pub fn signing_data(&self) -> Vec<SigningData> {
+        self.signing_data.clone()
     }
 
     pub fn args(&self) -> WrapperTxMsg {

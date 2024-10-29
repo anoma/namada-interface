@@ -1,11 +1,9 @@
 //! PaymentAddress - Provide wasm_bindgen bindings for shielded addresses
 //! See @namada/crypto for zip32 HD wallet functionality.
-use js_sys::{JsString, Uint8Array};
-use namada_sdk::borsh::{BorshDeserialize, BorshSerializeExt};
-use namada_sdk::masp_primitives::sapling::redjubjub::PrivateKey;
-use namada_sdk::masp_primitives::zip32::{
-    ExtendedKey, PseudoExtendedKey as NamadaPseudoExtendedKey,
-};
+use js_sys::Uint8Array;
+use namada_sdk::borsh::{self, BorshDeserialize};
+
+use namada_sdk::masp_primitives::zip32::ExtendedKey;
 use namada_sdk::masp_primitives::{sapling, zip32};
 use namada_sdk::masp_proofs::jubjub;
 use namada_sdk::{
@@ -47,37 +45,42 @@ impl ExtendedViewingKey {
     }
 }
 
+#[wasm_bindgen]
+pub struct ProofGenerationKey(pub(crate) sapling::ProofGenerationKey);
+
+#[wasm_bindgen]
+impl ProofGenerationKey {
+    pub fn encode(&self) -> String {
+        hex::encode(
+            borsh::to_vec(&self.0).expect("Serializing ProofGenerationKey should not fail!"),
+        )
+    }
+    pub fn decode(encoded: String) -> ProofGenerationKey {
+        let decoded = hex::decode(encoded).expect("Decoding ProofGenerationKey should not fail!");
+
+        ProofGenerationKey(
+            sapling::ProofGenerationKey::try_from_slice(decoded.as_slice())
+                .expect("Deserializing ProofGenerationKey should not fail!"),
+        )
+    }
+}
+
 /// Wrap ExtendedSpendingKey
 #[wasm_bindgen]
-pub struct PseudoExtendedKey(NamadaPseudoExtendedKey);
+pub struct PseudoExtendedKey(pub(crate) zip32::PseudoExtendedKey);
 
 #[wasm_bindgen]
 impl PseudoExtendedKey {
-    #[wasm_bindgen(constructor)]
-    pub fn new(key: Uint8Array) -> Result<PseudoExtendedKey, String> {
-        let pxk: zip32::PseudoExtendedKey =
-            BorshDeserialize::try_from_slice(key.to_vec().as_slice())
-                .map_err(|err| format!("{}: {:?}", MaspError::BorshDeserialize, err))?;
-
-        Ok(PseudoExtendedKey(pxk))
+    pub fn encode(&self) -> String {
+        hex::encode(borsh::to_vec(&self.0).expect("Serializing PseudoExtendedKey should not fail!"))
     }
+    pub fn decode(encoded: String) -> PseudoExtendedKey {
+        let decoded = hex::decode(encoded).expect("Decoding PsuedoExtendedKey should not fail!");
 
-    pub fn spending_key(&self) -> JsString {
-        let xsk = self
-            .0
-            .to_spending_key()
-            .expect("PseudoExtendedKey to spending key should not fail!");
-
-        let xsk = NamadaExtendedSpendingKey::from(xsk);
-
-        xsk.to_string().into()
-    }
-
-    pub fn viewing_key(&self) -> JsString {
-        let xvk = self.0.to_viewing_key();
-        let xvk = NamadaExtendedViewingKey::from(xvk);
-
-        xvk.to_string().into()
+        PseudoExtendedKey(
+            zip32::PseudoExtendedKey::try_from_slice(decoded.as_slice())
+                .expect("Deserializing ProofGenerationKey should not fail!"),
+        )
     }
 }
 
@@ -100,20 +103,23 @@ impl ExtendedSpendingKey {
         Ok(ExtendedSpendingKey(xsk))
     }
 
-    pub fn derive_pseudo_spending_key(&self) -> Uint8Array {
+    pub fn to_proof_generation_key(&self) -> ProofGenerationKey {
         let xsk = zip32::ExtendedSpendingKey::from(self.0);
-        let xfvk = zip32::ExtendedFullViewingKey::from(&xsk);
-        let pgk = xsk.expsk.proof_generation_key();
+        let pgk = xsk
+            .to_proof_generation_key()
+            .expect("Converting to proof generation key should not fail!");
 
-        let mut pseudo_spending_key = NamadaPseudoExtendedKey::from(xfvk);
-        pseudo_spending_key
-            .augment_proof_generation_key(pgk)
-            .expect("Augmenting proof generation key should not fail!");
+        ProofGenerationKey(pgk)
+    }
 
-        pseudo_spending_key
-            .augment_spend_authorizing_key_unchecked(PrivateKey(jubjub::Fr::default()));
+    pub fn to_pseudo_extended_key(&self) -> PseudoExtendedKey {
+        let xsk = zip32::ExtendedSpendingKey::from(self.0);
+        let mut pxk = zip32::PseudoExtendedKey::from(xsk);
+        pxk.augment_spend_authorizing_key_unchecked(sapling::redjubjub::PrivateKey(
+            jubjub::Fr::default(),
+        ));
 
-        Uint8Array::from(pseudo_spending_key.serialize_to_vec().as_slice())
+        PseudoExtendedKey(pxk)
     }
 
     /// Return ExtendedSpendingKey as Bech32-encoded String

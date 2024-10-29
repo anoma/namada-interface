@@ -9,11 +9,11 @@ import {
 } from "@namada/types";
 
 export class Signer implements ISigner {
-  constructor(private readonly _namada: Namada) {}
+  constructor(private readonly _namada: Namada) { }
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts())?.map(
-      ({ alias, address, type, publicKey, owner }) => ({
+      ({ alias, address, type, publicKey, owner, pseudoExtendedKey }) => ({
         alias,
         address,
         viewingKey: owner,
@@ -21,6 +21,7 @@ export class Signer implements ISigner {
         type,
         publicKey,
         isShielded: type === AccountType.ShieldedKeys,
+        pseudoExtendedKey,
         chainKey: "namada",
       })
     );

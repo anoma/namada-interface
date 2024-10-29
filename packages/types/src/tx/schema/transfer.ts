@@ -141,8 +141,8 @@ export class UnshieldingTransferDataMsgValue {
 }
 
 export class UnshieldingTransferMsgValue {
-  @field({ type: vec("u8") })
-  source!: Uint8Array;
+  @field({ type: "string" })
+  source!: string;
 
   @field({ type: vec(UnshieldingTransferDataMsgValue) })
   data!: UnshieldingTransferDataMsgValue[];

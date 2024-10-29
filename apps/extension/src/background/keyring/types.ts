@@ -9,6 +9,7 @@ export interface AccountStore extends StoredRecord {
   publicKey?: string;
   path: Bip44Path;
   parentId?: string;
+  pseudoExtendedKey?: string;
   type: AccountType;
 }
 

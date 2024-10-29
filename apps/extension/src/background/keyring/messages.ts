@@ -26,7 +26,6 @@ enum MessageType {
   AddLedgerAccount = "add-ledger-account",
   RevealAccountMnemonic = "reveal-account-mnemonic",
   RenameAccount = "rename-account",
-  SpendingKey = "dupa123",
   QueryAccountDetails = "query-account-details",
   AppendLedgerSignature = "append-ledger-signature",
 }

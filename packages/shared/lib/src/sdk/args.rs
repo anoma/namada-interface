@@ -1,4 +1,3 @@
-use std::hash::Hash;
 use std::ops::Deref;
 use std::{path::PathBuf, str::FromStr};
 
@@ -7,17 +6,15 @@ use namada_sdk::collections::HashMap;
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::ibc::IbcShieldingData;
 use namada_sdk::masp::partial_deauthorize;
-use namada_sdk::masp_primitives::constants::SPENDING_KEY_GENERATOR;
 use namada_sdk::masp_primitives::sapling::redjubjub::PrivateKey;
 use namada_sdk::masp_primitives::sapling::spend_sig;
 use namada_sdk::masp_primitives::transaction::components::sapling;
 use namada_sdk::masp_primitives::transaction::components::sapling::builder::{
-    BuildParams, RngBuildParams,
+    BuildParams as BuildParamsTrait, RngBuildParams, StoredBuildParams,
 };
 use namada_sdk::masp_primitives::transaction::sighash::{signature_hash, SignableInput};
 use namada_sdk::masp_primitives::transaction::txid::TxIdDigester;
-use namada_sdk::masp_primitives::zip32::PseudoExtendedKey;
-use namada_sdk::masp_proofs::group::GroupEncoding;
+use namada_sdk::masp_primitives::zip32;
 use namada_sdk::masp_proofs::jubjub;
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::tx::data::GasLimit;
@@ -32,9 +29,11 @@ use namada_sdk::{
     TransferSource,
 };
 use namada_sdk::{error, masp_primitives, tendermint_rpc};
-use namada_sdk::{ExtendedViewingKey, PaymentAddress};
+use namada_sdk::{ExtendedSpendingKey, PaymentAddress};
 use rand::rngs::OsRng;
 use wasm_bindgen::JsError;
+
+use crate::types::masp::PseudoExtendedKey;
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 #[borsh(crate = "namada_sdk::borsh")]
@@ -540,7 +539,7 @@ pub fn shielded_transfer_tx_args(
     let mut shielded_transfer_data: Vec<args::TxShieldedTransferData> = vec![];
 
     for shielded_transfer in data {
-        let mut source = PseudoExtendedKey::try_from_slice(&shielded_transfer.source)?;
+        let mut source = zip32::PseudoExtendedKey::try_from_slice(&shielded_transfer.source)?;
         source.augment_spend_authorizing_key_unchecked(PrivateKey(jubjub::Fr::default()));
         web_sys::console::log_1(&format!("source: {:?}", source).into());
 
@@ -559,10 +558,10 @@ pub fn shielded_transfer_tx_args(
     }
 
     let tx = tx_msg_into_args(tx_msg)?;
-    let mut gsk: Vec<PseudoExtendedKey> = vec![];
+    let mut gsk: Vec<zip32::PseudoExtendedKey> = vec![];
 
     for sk in gas_spending_keys {
-        let gas_spending_key = PseudoExtendedKey::try_from_slice(&sk)?;
+        let gas_spending_key = zip32::PseudoExtendedKey::try_from_slice(&sk)?;
         gsk.push(gas_spending_key);
     }
 
@@ -651,7 +650,7 @@ pub struct UnshieldingTransferDataMsg {
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 #[borsh(crate = "namada_sdk::borsh")]
 pub struct UnshieldingTransferMsg {
-    source: Vec<u8>,
+    source: String,
     data: Vec<UnshieldingTransferDataMsg>,
     gas_spending_keys: Vec<Vec<u8>>,
 }
@@ -676,9 +675,9 @@ pub fn unshielding_transfer_tx_args(
     let UnshieldingTransferMsg {
         source,
         data,
-        gas_spending_keys,
+        gas_spending_keys: _,
     } = unshielding_transfer_msg;
-    let source = PseudoExtendedKey::try_from_slice(&source)?;
+    let source = PseudoExtendedKey::decode(source).0;
 
     let mut unshielding_transfer_data: Vec<args::TxUnshieldingTransferData> = vec![];
 
@@ -958,31 +957,40 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
     Ok(args)
 }
 
+pub enum BuildParams {
+    RngBuildParams(RngBuildParams<OsRng>),
+    StoredBuildParams(StoredBuildParams),
+}
+
 pub async fn generate_masp_build_params(
     // TODO: those will be needed for HD Wallet support
     _spend_len: usize,
     _convert_len: usize,
     _output_len: usize,
     args: &args::Tx,
-) -> Result<Box<dyn BuildParams>, error::Error> {
+) -> Result<BuildParams, error::Error> {
     // Construct the build parameters that parameterized the Transaction
     // authorizations
     if args.use_device {
         // HD Wallet support
         Err(error::Error::Other("Device not supported".into()))
     } else {
-        Ok(Box::new(RngBuildParams::new(OsRng)))
+        Ok(BuildParams::RngBuildParams(RngBuildParams::new(OsRng)))
     }
 }
 
 // Sign the given transaction's MASP component using signatures produced by the
 // hardware wallet. This function takes the list of spending keys that are
 // hosted on the hardware wallet.
-pub async fn masp_sign(
+pub async fn masp_sign<T>(
     tx: &mut Tx,
     signing_data: &SigningTxData,
-    bparams: &mut dyn BuildParams,
-) -> Result<(), error::Error> {
+    mut bparams: T,
+    xsk: ExtendedSpendingKey,
+) -> Result<(), error::Error>
+where
+    T: BuildParamsTrait,
+{
     // Get the MASP section that is the target of our signing
     if let Some(shielded_hash) = signing_data.shielded_hash {
         let mut masp_tx = tx
@@ -1012,31 +1020,15 @@ pub async fn masp_sign(
         let txid_parts = unauth_tx_data.digest(TxIdDigester);
         let sighash = signature_hash(&unauth_tx_data, &SignableInput::Shielded, &txid_parts);
 
-        // This we just get frpm extension
-        let xsk = "zsknam1q00j7ewuqqqqpq8gz8yvtpx226gg7nhw9vrmyvp3ay2gnjtp3xg86lsvtc7ng9nsk9lrjlutm77ghgsewqhrxu32ns054sthl4qeprppxahze0pmthmqzjqa2pmzp0xy9hnqmnkwswygf875ra4ksllyp63r6rjze2n8cwsy355fhc2lq0hyfsa2ehsflrumwkx5tqkq992g8p0af4zw7cx94mdntgvkacrs9r3j45fdsjc209f7p79lzz6mr5vdk3fqt4jkkjlckmc3ckwpk";
-        let xsk = namada_sdk::ExtendedSpendingKey::from_str(xsk).unwrap();
-        web_sys::console::log_1(&format!("xsk zzzzzawdasd: {:?}", xsk).into());
-
         let mut authorizations = HashMap::new();
         for (tx_pos, _) in descriptor_map.iter().enumerate() {
-            let pk = PrivateKey(
-                namada_sdk::masp_primitives::zip32::ExtendedSpendingKey::from(xsk)
-                    .expsk
-                    .ask,
-            );
+            let pk = PrivateKey(zip32::ExtendedSpendingKey::from(xsk).expsk.ask);
             let mut rng = OsRng;
 
             let sig = spend_sig(pk, bparams.spend_alpha(tx_pos), sighash.as_ref(), &mut rng);
 
             authorizations.insert(tx_pos, sig);
         }
-
-        tx.sections.iter().for_each(|section| match section {
-            Section::MaspTx(d) => {
-                web_sys::console::log_1(&format!("masp_tx oldddd: {:?}", d).into());
-            }
-            _ => {}
-        });
 
         masp_tx = (*masp_tx)
             .clone()

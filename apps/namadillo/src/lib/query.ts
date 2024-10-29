@@ -99,15 +99,18 @@ export const buildTx = async <T>(
   const txs: TxMsgValue[] = [];
   const txProps: TxProps[] = [];
 
+  console.log("publicKeyRevealed", publicKeyRevealed);
   // Determine if RevealPK is needed:
   if (!publicKeyRevealed) {
     const revealPkTx = await tx.buildRevealPk(wrapperTxProps);
     txs.push(revealPkTx);
   }
 
+  console.log("txFn", txFn.name);
   const encodedTxs = await Promise.all(
     queryProps.map((props) => txFn.apply(tx, [wrapperTxProps, props]))
   );
+  console.log("encodedTxs", encodedTxs);
 
   txs.push(...encodedTxs);
 
@@ -152,12 +155,14 @@ export const signTx = async <T>(
   const checksums = chainParameters?.checksums;
 
   try {
+    console.log("typedEncodedTx", typedEncodedTx);
     // Sign txs
     const signedTxBytes = await signingClient.sign(
       typedEncodedTx.txs,
       owner,
       checksums
     );
+    console.log("signedTxBytes", signedTxBytes);
 
     if (!signedTxBytes) {
       throw new Error("Signing batch Tx failed");

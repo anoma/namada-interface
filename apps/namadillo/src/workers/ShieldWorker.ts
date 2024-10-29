@@ -1,7 +1,6 @@
 import { Configuration, DefaultApi } from "@anomaorg/namada-indexer-client";
 import { initMulticore } from "@heliaxdev/namada-sdk/inline-init";
 import { getSdk, Sdk } from "@heliaxdev/namada-sdk/web";
-import { PseudoExtendedKey } from "@namada/shared";
 import {
   ShieldedTransferMsgValue,
   ShieldingTransferMsgValue,
@@ -104,17 +103,9 @@ async function unshield(
   sdk: Sdk,
   payload: Unshield["payload"]
 ): Promise<EncodedTxData<UnshieldingTransferMsgValue>> {
-  const { indexerUrl, account, gasConfig, chain, shieldingProps } = payload;
+  const { account, gasConfig, chain, shieldingProps } = payload;
 
   await sdk.masp.loadMaspParams("");
-  console.log("shieldingprops", shieldingProps);
-
-  const pex = new PseudoExtendedKey(shieldingProps[0].source);
-  const xvk = pex.viewing_key();
-  console.log("xvk", xvk);
-
-  await sdk.rpc.shieldedSync([xvk], []);
-  console.log("account", account);
 
   const encodedTxData = await buildTx<UnshieldingTransferMsgValue>(
     sdk,
@@ -137,10 +128,8 @@ async function shieldedTransfer(
 
   await sdk.masp.loadMaspParams("");
 
-  const pex = new PseudoExtendedKey(shieldingProps[0].data[0].source);
-  const xvk = pex.viewing_key();
-
-  await sdk.rpc.shieldedSync([xvk], []);
+  // TODO: pass viewig keys
+  await sdk.rpc.shieldedSync([], []);
 
   const encodedTxData = await buildTx<ShieldedTransferMsgValue>(
     sdk,

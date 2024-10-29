@@ -98,6 +98,7 @@ export class ApprovalsService {
   ): Promise<void> {
     const pendingTx = (await this.txStore.get(msgId)) as PendingTx;
     const resolvers = this.getResolver(popupTabId);
+    console.log("submitting approved sign tx");
 
     if (!pendingTx) {
       throw new Error(`Signing data for ${msgId} not found!`);

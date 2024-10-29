@@ -63,14 +63,14 @@ export const validatePrivateKey = (
 ): Result<null, PrivateKeyError> =>
   privateKey.length > PRIVATE_KEY_MAX_LENGTH ?
     Result.err({ t: "TooLong", maxLength: PRIVATE_KEY_MAX_LENGTH })
-  : !/^[0-9a-f]*$/.test(privateKey) ? Result.err({ t: "BadCharacter" })
-  : Result.ok(null);
+    : !/^[0-9a-f]*$/.test(privateKey) ? Result.err({ t: "BadCharacter" })
+      : Result.ok(null);
 
 // Remove prefix from private key, which may be present when exporting keys from CLI
 export const filterPrivateKeyPrefix = (privateKey: string): string =>
   privateKey.length === PRIVATE_KEY_MAX_LENGTH + 2 ?
     privateKey.replace(/^00/, "")
-  : privateKey;
+    : privateKey;
 
 // Convert any Uint8Arrays in TxProps to string, and construct EncodedTxData
 export const toEncodedTx = (txProps: TxProps): EncodedTxData => ({
@@ -78,6 +78,8 @@ export const toEncodedTx = (txProps: TxProps): EncodedTxData => ({
   bytes: toBase64(txProps.bytes),
   signingData: txProps.signingData.map((sd) => ({
     ...sd,
+    masp: sd.masp ? toBase64(sd.masp) : undefined,
+    shieldedHash: sd.shieldedHash ? toBase64(sd.shieldedHash) : undefined,
     accountPublicKeysMap:
       sd.accountPublicKeysMap ? toBase64(sd.accountPublicKeysMap) : undefined,
   })),
@@ -89,6 +91,8 @@ export const fromEncodedTx = (encodedTxData: EncodedTxData): TxProps => ({
   bytes: fromBase64(encodedTxData.bytes),
   signingData: encodedTxData.signingData.map((sd) => ({
     ...sd,
+    masp: sd.masp ? fromBase64(sd.masp) : undefined,
+    shieldedHash: sd.shieldedHash ? fromBase64(sd.shieldedHash) : undefined,
     accountPublicKeysMap:
       sd.accountPublicKeysMap ? fromBase64(sd.accountPublicKeysMap) : undefined,
   })),

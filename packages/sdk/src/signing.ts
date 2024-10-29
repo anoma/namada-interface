@@ -11,25 +11,43 @@ export class Signing {
    * Signing constructor
    * @param sdk - Instance of Sdk struct from wasm lib
    */
-  constructor(protected readonly sdk: SdkWasm) {}
+  constructor(protected readonly sdk: SdkWasm) { }
 
   /**
    * Sign Namada transaction
    * @param txProps - TxProps
    * @param signingKey - private key
+   * @param xsks - spending keys
    * @param [chainId] - optional chain ID, will enforce validation if present
    * @returns signed tx bytes - Promise resolving to Uint8Array
    */
   async sign(
     txProps: TxProps,
     signingKey: string,
+    xsks: string[],
     chainId?: string
   ): Promise<Uint8Array> {
     const txMsgValue = new TxMsgValue(txProps);
     const msg = new Message<TxMsgValue>();
     const txBytes = msg.encode(txMsgValue);
 
-    return await this.sdk.sign_tx(txBytes, signingKey, chainId);
+    const txBytes2 = await this.sdk.sign_masp(xsks, txBytes);
+
+    return await this.sdk.sign_tx(txBytes2, signingKey, chainId);
+  }
+
+  /**
+   * Replace masp section with the one with proper signatures
+   * @param txProps - TxProps
+   * @param xsks - extended spending keys
+   * @returns built tx bytes with replaced MASP section
+   */
+  async signMasp(txProps: TxProps, xsks: string[]): Promise<TxMsgValue> {
+    const txMsgValue = new TxMsgValue(txProps);
+    const msg = new Message<TxMsgValue>();
+    const txBytes = msg.encode(txMsgValue);
+
+    return await this.sdk.sign_masp(xsks, txBytes);
   }
 
   /**

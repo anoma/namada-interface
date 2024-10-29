@@ -2,7 +2,6 @@ import {
   CheckDurabilityMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
-  SpendingKeyMsg,
   VerifyArbitraryMsg,
 } from "provider/messages";
 import { Env, Handler, InternalHandler, Message } from "router";
@@ -71,8 +70,6 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         );
       case RenameAccountMsg:
         return handleRenameAccountMsg(service)(env, msg as RenameAccountMsg);
-      case SpendingKeyMsg:
-        return handleSpendingKeyMsg(service)(env, msg as SpendingKeyMsg);
       case DeleteAccountMsg:
         return handleDeleteAccountMsg(service)(env, msg as DeleteAccountMsg);
       case CheckDurabilityMsg:
@@ -149,14 +146,6 @@ const handleRenameAccountMsg: (
   return async (_, msg) => {
     const { accountId, alias } = msg;
     return await service.renameAccount(accountId, alias);
-  };
-};
-
-const handleSpendingKeyMsg: (
-  service: KeyRingService
-) => InternalHandler<SpendingKeyMsg> = (service) => {
-  return async (_, msg) => {
-    return await service.spendingKey(msg.publicKey);
   };
 };
 

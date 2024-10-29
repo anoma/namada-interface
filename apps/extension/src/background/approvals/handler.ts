@@ -212,6 +212,7 @@ const handleSubmitApprovedSignTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<SubmitApprovedSignTxMsg> = (service) => {
   return async ({ senderTabId: popupTabId }, { msgId, signer }) => {
+    console.log("submitting approved sign tx");
     return await service.submitSignTx(popupTabId, msgId, signer);
   };
 };

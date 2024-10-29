@@ -27,11 +27,12 @@ export type DerivedAccount = {
   parentId?: string;
   path: Bip44Path;
   type: AccountType;
+  pseudoExtendedKey?: string;
 };
 
 export type Account = Pick<
   DerivedAccount,
-  "address" | "alias" | "type" | "publicKey" | "owner"
+  "address" | "alias" | "type" | "publicKey" | "owner" | "pseudoExtendedKey"
 > & {
   chainId: string;
   chainKey: ChainKey;

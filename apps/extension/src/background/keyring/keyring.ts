@@ -37,6 +37,7 @@ type DerivedAccountInfo = {
   id: string;
   text: string;
   owner: string;
+  pseudoExtendedKey?: string;
 };
 
 /**
@@ -256,16 +257,15 @@ export class KeyRing {
     const { index } = path;
     const id = generateId(UUID_NAMESPACE, "shielded-account", parentId, index);
     const keysNs = this.sdkService.getSdk().getKeys();
-    const { address, viewingKey, spendingKey } = keysNs.deriveShieldedFromSeed(
-      seed,
-      path
-    );
+    const { address, viewingKey, spendingKey, pseudoExtendedKey } =
+      keysNs.deriveShieldedFromSeed(seed, path);
 
     return {
       address,
       id,
       owner: viewingKey,
       text: JSON.stringify({ spendingKey }),
+      pseudoExtendedKey,
     };
   }
 
@@ -317,7 +317,7 @@ export class KeyRing {
     alias: string,
     derivedAccountInfo: DerivedAccountInfo
   ): Promise<DerivedAccount> {
-    const { address, id, text, owner } = derivedAccountInfo;
+    const { address, id, text, owner, pseudoExtendedKey } = derivedAccountInfo;
     const account: AccountStore = {
       id,
       address,
@@ -326,6 +326,7 @@ export class KeyRing {
       path,
       type,
       owner,
+      pseudoExtendedKey,
     };
     const sensitive = await this.vaultService.encryptSensitiveData({
       text,
@@ -457,42 +458,46 @@ export class KeyRing {
     return accounts.map((account) => account.public as AccountStore);
   }
 
-  async www(publicKey: number[]): Promise<Uint8Array | undefined> {
-    await this.vaultService.assertIsUnlocked();
-    const activeAccount = await this.queryDefaultAccount();
-
-    const account = await this.vaultStorage.findOne(
+  // TODO: not sure if worth doing separately from getting siging key
+  private async getSpendingKey(address: string): Promise<string> {
+    const transparentAccount = await this.vaultStorage.findOne(
       KeyStore,
       "address",
-      activeAccount?.address
+      address
+    );
+    const account = await this.vaultStorage.findOne(
+      KeyStore,
+      "alias",
+      transparentAccount?.public.alias
+    );
+    if (!account) {
+      throw new Error(`Account for ${address} not found!`);
+    }
+    const accountStore = (await this.queryAllAccounts()).find(
+      (account) => account.address === address
     );
 
-    const accountStore = (await this.queryAllAccounts()).find(
-      (account) => account.address === activeAccount?.address
-    );
+    if (!accountStore) {
+      throw new Error(`Account for ${address} not found!`);
+    }
+    const { path } = accountStore;
 
     const sensitiveProps =
       await this.vaultService.reveal<SensitiveAccountStoreData>(
-        account!.sensitive
+        account.sensitive
       );
-
-    const { text: secret, passphrase } = sensitiveProps!;
-    let pseudoSpendingKey;
-
-    if (account!.public.type === AccountType.PrivateKey) {
-      throw new Error("Not supported");
-    } else {
-      const sdk = this.sdkService.getSdk();
-      const mnemonic = sdk.getMnemonic();
-      const seed = mnemonic.toSeed(secret, passphrase);
-
-      const keys = this.sdkService.getSdk().getKeys();
-      const { pseudoSpendingKey: psk, spendingKey } =
-        keys.deriveShieldedFromSeed(seed, accountStore?.path);
-      pseudoSpendingKey = psk;
+    if (!sensitiveProps) {
+      throw new Error(`Signing key for ${address} not found!`);
     }
+    const { text: secret, passphrase } = sensitiveProps;
 
-    return pseudoSpendingKey;
+    const sdk = this.sdkService.getSdk();
+    const mnemonic = sdk.getMnemonic();
+    const seed = mnemonic.toSeed(secret, passphrase);
+
+    const keys = this.sdkService.getSdk().getKeys();
+
+    return keys.deriveShieldedFromSeed(seed, path).spendingKey;
   }
 
   /**
@@ -593,6 +598,18 @@ export class KeyRing {
     return Result.ok(null);
   }
 
+  async signMasp(txProps: TxProps, shieldedAddress: string): Promise<TxProps> {
+    if (!txProps.signingData[0]?.shieldedHash) {
+      throw new Error("Masp signing requires bparams");
+    }
+    await this.vaultService.assertIsUnlocked();
+    // TODO: instead get all keys based on viewing keys from maspSigningData
+    const key = await this.getSpendingKey(shieldedAddress);
+    const { signing } = this.sdkService.getSdk();
+
+    return await signing.signMasp(txProps, [key]);
+  }
+
   async sign(
     txProps: TxProps,
     signer: string,
@@ -600,8 +617,10 @@ export class KeyRing {
   ): Promise<Uint8Array> {
     await this.vaultService.assertIsUnlocked();
     const key = await this.getSigningKey(signer);
+    const spendingKey = await this.getSpendingKey(signer);
     const { signing } = this.sdkService.getSdk();
-    return await signing.sign(txProps, key, chainId);
+
+    return await signing.sign(txProps, key, [spendingKey], chainId);
   }
 
   async signArbitrary(

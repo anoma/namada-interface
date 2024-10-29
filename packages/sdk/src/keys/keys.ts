@@ -139,12 +139,12 @@ export class Keys {
     seed: Uint8Array,
     path: Bip44Path = DEFAULT_PATH
   ): ShieldedKeys {
-    const p = {
+    const zip32path = {
       account: 0,
       change: 0,
       index: 0,
     };
-    const zip32derivationPath = makeBip44PathArray(877, p);
+    const zip32derivationPath = makeBip44PathArray(877, zip32path);
     const zip32 = new ShieldedHDWallet(seed, zip32derivationPath);
     const derivationPath = makeSaplingPathArray(877, path.account);
     const account = zip32.derive(derivationPath);
@@ -156,11 +156,13 @@ export class Keys {
 
     // Deserialize and encode keys and address
     const extendedSpendingKey = new ExtendedSpendingKey(xsk);
-    const pseudoSpendingKey = extendedSpendingKey.derive_pseudo_spending_key();
     const extendedViewingKey = new ExtendedViewingKey(xfvk);
     const address = new PaymentAddress(paymentAddress).encode();
     const spendingKey = extendedSpendingKey.encode();
     const viewingKey = extendedViewingKey.encode();
+    const pseudoExtendedKey = extendedSpendingKey
+      .to_pseudo_extended_key()
+      .encode();
 
     // Clear wasm resources from memory
     zip32.free();
@@ -172,7 +174,7 @@ export class Keys {
       address,
       spendingKey,
       viewingKey,
-      pseudoSpendingKey,
+      pseudoExtendedKey,
     };
   }
 }
