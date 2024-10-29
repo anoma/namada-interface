@@ -8,6 +8,7 @@ type SelectedWalletProps = {
   address?: string;
   className?: string;
   onClick?: () => void;
+  displayShortenedAddress?: boolean;
 };
 
 export const SelectedWallet = ({
@@ -15,6 +16,7 @@ export const SelectedWallet = ({
   onClick,
   address,
   className = "",
+  displayShortenedAddress = true,
 }: SelectedWalletProps): JSX.Element => {
   if (!address) return <></>;
   return (
@@ -33,7 +35,9 @@ export const SelectedWallet = ({
       )}
       onClick={onClick}
     >
-      {address && shortenAddress(address, 8, 6)}
+      {address && displayShortenedAddress ?
+        shortenAddress(address, 8, 6)
+      : address}
       <img
         src={wallet.iconUrl}
         alt={wallet.name + " Logo"}

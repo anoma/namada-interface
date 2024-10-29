@@ -12,7 +12,6 @@ import {
   chainRegistryAtom,
   ibcTransferAtom,
 } from "atoms/integrations";
-import BigNumber from "bignumber.js";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAssetAmount } from "hooks/useAssetAmount";
 import { useWalletManager } from "hooks/useWalletManager";
@@ -24,6 +23,7 @@ import namadaChain from "registry/namada.json";
 import { IbcTopHeader } from "./IbcTopHeader";
 
 import * as cosmos from "chain-registry/mainnet/cosmoshub";
+import { getTransactionFee } from "integrations/utils";
 
 const keplr = new KeplrWalletManager();
 const defaultChainId = "cosmoshub-4";
@@ -56,24 +56,8 @@ export const IbcTransfer: React.FC = () => {
 
   const transactionFee = useMemo(() => {
     if (typeof registry !== "undefined") {
-      // TODO: can we get a better type for registry to avoid optional chaining?
-      // TODO: some chains support multiple fee tokens - what should we do?
-      const feeToken = registry.chain?.fees?.fee_tokens?.[0];
-
-      if (typeof feeToken !== "undefined") {
-        const asset = registry.assets.assets.find(
-          (asset) => asset.base === feeToken.denom
-        );
-
-        if (typeof asset !== "undefined") {
-          return {
-            amount: BigNumber(3000), // TODO: remove hardcoding
-            token: asset,
-          };
-        }
-      }
+      return getTransactionFee(registry);
     }
-
     return undefined;
   }, [registry]);
 

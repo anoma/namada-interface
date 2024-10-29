@@ -1,9 +1,41 @@
+import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
+import { useAssetAmount } from "hooks/useAssetAmount";
+import { useWalletManager } from "hooks/useWalletManager";
+import { wallets } from "integrations";
+import { KeplrWalletManager } from "integrations/Keplr";
+import { useState } from "react";
+import { ShieldAllIntro } from "./ShieldAllIntro";
+import { ShieldAllPanel } from "./ShieldAllPanel";
+
+const keplr = new KeplrWalletManager();
 
 export const IbcShieldAll: React.FC = () => {
+  const [chainSelected, setChainSelected] = useState(false);
+  const { registry, walletAddress, connectToChainId } = useWalletManager(keplr);
+  const { assetsBalances, isLoading: isLoadingBalances } = useAssetAmount({
+    registry,
+    walletAddress,
+  });
+
+  const onSelectChain = (chain: Chain): void => {
+    connectToChainId(chain.chain_id);
+    setChainSelected(true);
+  };
+
+  const connected = chainSelected && registry && walletAddress;
   return (
-    <Panel>
-      <div className="text-yellow">IBC: ShieldAll (WIP)</div>
+    <Panel className="flex items-center">
+      {!connected && <ShieldAllIntro onSelectChain={onSelectChain} />}
+      {connected && (
+        <ShieldAllPanel
+          registry={registry}
+          wallet={wallets.keplr!}
+          walletAddress={walletAddress}
+          assetList={Object.values(assetsBalances || [])}
+          isLoading={isLoadingBalances}
+        />
+      )}
     </Panel>
   );
 };

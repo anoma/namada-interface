@@ -1,5 +1,5 @@
 import { Asset } from "@chain-registry/types";
-import { assetBalanceAtomFamily } from "atoms/integrations";
+import { assetBalanceAtomFamily, AssetWithBalance } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
@@ -14,7 +14,8 @@ type useAmountTransferProps = {
 type UseAmountTransferOutput = {
   isLoading: boolean;
   balance: BigNumber | undefined;
-  availableAssets: Asset[];
+  availableAssets?: Asset[];
+  assetsBalances?: Record<string, AssetWithBalance>;
 };
 
 export const useAssetAmount = ({
@@ -44,6 +45,7 @@ export const useAssetAmount = ({
   return {
     isLoading,
     balance,
+    assetsBalances,
     availableAssets,
   };
 };

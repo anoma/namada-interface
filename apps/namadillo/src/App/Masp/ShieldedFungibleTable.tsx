@@ -9,6 +9,7 @@ import { routes } from "App/routes";
 import { chainTokensAtom } from "atoms/chain";
 import { chainRegistryAtom } from "atoms/integrations/atoms";
 import BigNumber from "bignumber.js";
+import { getAssetImageUrl } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { namadaAsset } from "registry/namadaAsset";
@@ -80,7 +81,7 @@ export const ShieldedFungibleTable = ({
   ];
 
   const renderRow = (row: TokenRow): TableRow => {
-    const icon = row.asset.logo_URIs?.svg ?? row.asset.logo_URIs?.png;
+    const icon = getAssetImageUrl(row.asset);
     return {
       cells: [
         <div key={`token-${row.name}`} className="flex items-center gap-4">
