@@ -13,7 +13,11 @@ import * as cosmosTestnet from "chain-registry/testnet/cosmoshubtestnet";
 import * as dydxTestnet from "chain-registry/testnet/dydxtestnet";
 import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet4";
 import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
-import { AssetWithBalanceMap, ChainRegistryEntry } from "types";
+import {
+  AssetWithBalance,
+  AssetWithBalanceMap,
+  ChainRegistryEntry,
+} from "types";
 
 const mainnetChains: ChainRegistryEntry[] = [
   celestia,
