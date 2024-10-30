@@ -23,6 +23,7 @@ export type TokenBalance = {
   dollar?: BigNumber;
 };
 
+// TODO import from namada-chain-registry
 const NAM_DENOM = "nam";
 
 export const viewingKeyAtom = atomWithQuery<string>((get) => {
