@@ -100,7 +100,7 @@ export const secondsToTimeRemainingString = (
 
 const findDisplayUnit = (asset: Asset): AssetDenomUnit | undefined => {
   const { display, denom_units } = asset;
-  return denom_units?.find((unit) => unit.denom === display);
+  return denom_units.find((unit) => unit.denom === display);
 };
 
 export const toDisplayAmount = (asset: Asset, amount: BigNumber): BigNumber => {
