@@ -13,8 +13,7 @@ import * as cosmosTestnet from "chain-registry/testnet/cosmoshubtestnet";
 import * as dydxTestnet from "chain-registry/testnet/dydxtestnet";
 import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet4";
 import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
-import { ChainRegistryEntry } from "types";
-import { AssetWithBalance } from "./services";
+import { AssetWithBalanceMap, ChainRegistryEntry } from "types";
 
 const mainnetChains: ChainRegistryEntry[] = [
   celestia,
@@ -62,7 +61,7 @@ export const mapCoinsToAssets = async (
   coins: Coin[],
   assetList: AssetList,
   rpc: string
-): Promise<Record<string, AssetWithBalance>> => {
+): Promise<AssetWithBalanceMap> => {
   const coinToAsset = async ({ denom }: Coin): Promise<Asset> => {
     const registryAsset = assetList.assets.find(
       (asset) => asset.base === denom

@@ -8,10 +8,9 @@ import {
 import svgImg from "App/Assets/ShieldedParty.svg";
 import { SelectedWallet } from "App/Transfer/SelectedWallet";
 import { TransferTransactionFee } from "App/Transfer/TransferTransactionFee";
-import { AssetWithBalance } from "atoms/integrations";
 import { getTransactionFee } from "integrations/utils";
 import { useEffect, useMemo, useState } from "react";
-import { ChainRegistryEntry, WalletProvider } from "types";
+import { AssetWithBalance, ChainRegistryEntry, WalletProvider } from "types";
 import { ShieldAllAssetList } from "./ShieldAllAssetList";
 import { ShieldAllContainer } from "./ShieldAllContainer";
 

@@ -1,9 +1,9 @@
 import { Asset } from "@chain-registry/types";
-import { assetBalanceAtomFamily, AssetWithBalance } from "atoms/integrations";
+import { assetBalanceAtomFamily } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
-import { ChainRegistryEntry } from "types";
+import { AssetWithBalance, ChainRegistryEntry } from "types";
 
 type useAmountTransferProps = {
   registry?: ChainRegistryEntry;
