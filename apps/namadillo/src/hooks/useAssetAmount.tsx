@@ -38,8 +38,9 @@ export const useAssetAmount = ({
     return assetsBalances[asset.base].balance;
   }, [asset, assetsBalances]);
 
-  const availableAssets = useMemo<Asset[]>(() => {
-    return Object.values(assetsBalances || {}).map((el) => el.asset) || [];
+  const availableAssets = useMemo<Asset[] | undefined>(() => {
+    if (!assetsBalances) return undefined;
+    return Object.values(assetsBalances).map((el) => el.asset) || [];
   }, [assetsBalances]);
 
   return {
