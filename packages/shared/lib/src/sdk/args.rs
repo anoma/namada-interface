@@ -15,7 +15,6 @@ use namada_sdk::masp_primitives::transaction::components::sapling::builder::{
 use namada_sdk::masp_primitives::transaction::sighash::{signature_hash, SignableInput};
 use namada_sdk::masp_primitives::transaction::txid::TxIdDigester;
 use namada_sdk::masp_primitives::zip32;
-use namada_sdk::masp_proofs::jubjub;
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::tx::data::GasLimit;
 use namada_sdk::tx::{Section, Tx};
@@ -502,7 +501,7 @@ pub fn transparent_transfer_tx_args(
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 #[borsh(crate = "namada_sdk::borsh")]
 pub struct ShieldedTransferDataMsg {
-    source: Vec<u8>,
+    source: String,
     target: String,
     token: String,
     amount: String,
@@ -533,15 +532,13 @@ pub fn shielded_transfer_tx_args(
     let shielded_transfer_msg = ShieldedTransferMsg::try_from_slice(shielded_transfer_msg)?;
     let ShieldedTransferMsg {
         data,
-        gas_spending_keys,
+        gas_spending_keys: _,
     } = shielded_transfer_msg;
 
     let mut shielded_transfer_data: Vec<args::TxShieldedTransferData> = vec![];
 
     for shielded_transfer in data {
-        let mut source = zip32::PseudoExtendedKey::try_from_slice(&shielded_transfer.source)?;
-        source.augment_spend_authorizing_key_unchecked(PrivateKey(jubjub::Fr::default()));
-
+        let source = PseudoExtendedKey::decode(shielded_transfer.source).0;
         let target = PaymentAddress::from_str(&shielded_transfer.target)?;
         let token = Address::from_str(&shielded_transfer.token)?;
         let denom_amount =
@@ -557,12 +554,6 @@ pub fn shielded_transfer_tx_args(
     }
 
     let tx = tx_msg_into_args(tx_msg)?;
-    let mut gsk: Vec<zip32::PseudoExtendedKey> = vec![];
-
-    for sk in gas_spending_keys {
-        let gas_spending_key = zip32::PseudoExtendedKey::try_from_slice(&sk)?;
-        gsk.push(gas_spending_key);
-    }
 
     let args = args::TxShieldedTransfer {
         data: shielded_transfer_data,
@@ -570,7 +561,7 @@ pub fn shielded_transfer_tx_args(
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
         // TODO: false for now
         disposable_signing_key: false,
-        gas_spending_keys: gsk,
+        gas_spending_keys: vec![],
     };
 
     Ok(args)

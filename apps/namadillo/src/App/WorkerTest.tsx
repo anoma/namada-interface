@@ -31,9 +31,6 @@ export function WorkerTest(): JSX.Element {
   const shieldedAccount = accounts?.find(
     (a) => a.isShielded && a.alias === account?.alias
   );
-  const vks = accounts
-    ?.filter((acc) => acc.type === "shielded-keys")
-    .map((a) => a.owner!);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).shieldedSync = async (vk: string) => {
@@ -58,10 +55,7 @@ export function WorkerTest(): JSX.Element {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).buildShieldlingTx = async (
-    target: string,
-    amount: number
-  ) => {
+  (window as any).shield = async (target: string, amount: number) => {
     registerTransferHandlers();
     const worker = new ShieldWorker();
     const shieldWorker = Comlink.wrap<ShieldWorkerApi>(worker);
@@ -140,6 +134,10 @@ export function WorkerTest(): JSX.Element {
       ],
     });
 
+    const vks = accounts
+      ?.filter((acc) => acc.type === "shielded-keys")
+      .map((a) => a.viewingKey!);
+
     const msg: Unshield = {
       type: "unshield",
       payload: {
@@ -170,16 +168,10 @@ export function WorkerTest(): JSX.Element {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).shieldedTx = async (target: string, amount: number) => {
+  (window as any).shielded = async (target: string, amount: number) => {
     registerTransferHandlers();
     const worker = new ShieldWorker();
     const shieldWorker = Comlink.wrap<ShieldWorkerApi>(worker);
-
-    const asd =
-      await // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).namada.spendingKey("");
-
-    const pseudoExtendedKeyBytes = new Uint8Array(Object.values(asd));
 
     await shieldWorker.init({
       type: "init",
@@ -193,13 +185,17 @@ export function WorkerTest(): JSX.Element {
       gasSpendingKeys: [],
       data: [
         {
-          source: pseudoExtendedKeyBytes,
+          source: shieldedAccount!.pseudoExtendedKey!,
           target,
           token: token!,
           amount: BigNumber(amount),
         },
       ],
     });
+
+    const vks = accounts
+      ?.filter((acc) => acc.type === "shielded-keys")
+      .map((a) => a.viewingKey!);
 
     const msg: ShieldedTransfer = {
       type: "shielded-transfer",

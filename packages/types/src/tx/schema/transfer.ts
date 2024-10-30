@@ -51,8 +51,8 @@ export class TransparentTransferMsgValue {
  * Shielded Transfer schemas
  */
 export class ShieldedTransferDataMsgValue {
-  @field({ type: vec("u8") })
-  source!: Uint8Array;
+  @field({ type: "string" })
+  source!: string;
 
   @field({ type: "string" })
   target!: string;
