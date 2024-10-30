@@ -4922,7 +4922,6 @@ dependencies = [
 name = "shared"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "async-trait",
  "chrono",
  "console_error_panic_hook",

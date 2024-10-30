@@ -971,9 +971,7 @@ pub async fn generate_masp_build_params(
     }
 }
 
-// Sign the given transaction's MASP component using signatures produced by the
-// hardware wallet. This function takes the list of spending keys that are
-// hosted on the hardware wallet.
+// Sign the given transaction's MASP component using real signatures
 pub async fn masp_sign<T>(
     tx: &mut Tx,
     signing_data: &SigningTxData,

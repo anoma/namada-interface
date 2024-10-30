@@ -22,7 +22,6 @@ use namada_sdk::ibc::convert_masp_tx_to_ibc_memo;
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::io::NamadaIo;
 use namada_sdk::key::{common, ed25519, SigScheme};
-use namada_sdk::masp::shielded_wallet::ShieldedApi;
 use namada_sdk::masp::ShieldedContext;
 use namada_sdk::masp_primitives::transaction::components::sapling::fees::InputView;
 use namada_sdk::masp_primitives::zip32::{ExtendedFullViewingKey, ExtendedKey};
@@ -193,7 +192,7 @@ impl Sdk {
         for signing_data in tx.signing_data() {
             if let Some(masp_signing_data) = signing_data.masp() {
                 let masp_signing_data =
-                    borsh::from_slice::<Option<MaspSigningData>>(&masp_signing_data)?;
+                    borsh::from_slice::<MaspSigningData>(&masp_signing_data).ok();
 
                 if let Some(masp_signing_data) = masp_signing_data {
                     let signing_tx_data = signing_data.to_signing_tx_data()?;
@@ -351,14 +350,11 @@ impl Sdk {
             let signing_tx_data = first_signing_data.to_signing_tx_data()?;
 
             if let Some(sh) = signing_tx_data.shielded_hash {
-                let masp_signing_data = first_signing_data
-                    .masp()
-                    .ok_or_err_msg("Expected masp signing data for provided shielded hash")?;
-                let masp_signing_data =
-                    <Option<MaspSigningData>>::try_from_slice(&masp_signing_data)?;
+                let masp_signing_data = first_signing_data.masp();
 
                 // We do not need to insert masp_signing_data when we shield
                 if let Some(masp_signing_data) = masp_signing_data {
+                    let masp_signing_data = <MaspSigningData>::try_from_slice(&masp_signing_data)?;
                     masp_map.insert(sh, masp_signing_data);
                 }
             }
@@ -441,22 +437,7 @@ impl Sdk {
             generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
                 .await?;
 
-        let token = Address::from_str("tnam1q9k4a0a7cgprwdj8epn28kmv9s5ntu098c3ua875").unwrap();
-        let _ = &self
-            .namada
-            .wallet_mut()
-            .await
-            .insert_address("asdasd", token.clone(), true)
-            .unwrap();
-
         let _ = &self.namada.shielded_mut().await.load().await?;
-
-        // let _ = &self
-        //     .namada
-        //     .shielded_mut()
-        //     .await
-        //     .precompute_asset_types(self.namada.client(), vec![&token])
-        //     .await;
 
         let xfvks = args
             .data
@@ -498,22 +479,7 @@ impl Sdk {
             generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
                 .await?;
 
-        let token = Address::from_str("tnam1q9k4a0a7cgprwdj8epn28kmv9s5ntu098c3ua875").unwrap();
-        let _ = &self
-            .namada
-            .wallet_mut()
-            .await
-            .insert_address("asdasd", token.clone(), true)
-            .unwrap();
-
         let _ = &self.namada.shielded_mut().await.load().await?;
-
-        // let _ = &self
-        //     .namada
-        //     .shielded_mut()
-        //     .await
-        //     .precompute_asset_types(self.namada.client(), vec![&token])
-        //     .await;
 
         let xfvks = vec![args.source.to_viewing_key()];
 

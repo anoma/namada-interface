@@ -115,7 +115,6 @@ async function unshield(
 
   await sdk.rpc.shieldedSync(vks);
   await sdk.masp.loadMaspParams("");
-  // console.log("vks", vks);
 
   const encodedTxData = await buildTx<UnshieldingTransferMsgValue>(
     sdk,
@@ -146,7 +145,6 @@ async function shieldedTransfer(
 
   await sdk.rpc.shieldedSync(vks);
   await sdk.masp.loadMaspParams("");
-  // console.log("vks", vks);
 
   const encodedTxData = await buildTx<ShieldedTransferMsgValue>(
     sdk,

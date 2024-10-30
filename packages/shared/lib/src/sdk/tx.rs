@@ -73,6 +73,10 @@ impl SigningData {
             Some(v) => Some(borsh::to_vec(&v)?),
             None => None,
         };
+        let masp_signing_data = match masp_signing_data {
+            Some(v) => Some(borsh::to_vec(&v)?),
+            None => None,
+        };
 
         Ok(SigningData {
             owner,
@@ -81,7 +85,7 @@ impl SigningData {
             account_public_keys_map,
             fee_payer,
             shielded_hash,
-            masp: Some(borsh::to_vec(&masp_signing_data)?),
+            masp: masp_signing_data,
         })
     }
 
