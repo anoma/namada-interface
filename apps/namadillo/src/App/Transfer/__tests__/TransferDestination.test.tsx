@@ -1,4 +1,5 @@
-jest.mock("../assets/ibc-transfer.png", () => "ibc-transfer.png");
+jest.mock("../assets/ibc-transfer-white.png", () => "ibc-transfer-white.png");
+jest.mock("../assets/ibc-transfer-black.png", () => "ibc-transfer-black.png");
 
 import { Chain } from "@chain-registry/types";
 import { fireEvent, render, screen } from "@testing-library/react";

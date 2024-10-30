@@ -8,13 +8,11 @@ type TransasctionStep = {
 type TransactionTimelineProps = {
   steps: TransasctionStep[];
   currentStepIndex: number;
-  isShielded?: boolean;
 };
 
 export const TransactionTimeline = ({
   steps,
   currentStepIndex,
-  isShielded,
 }: TransactionTimelineProps): JSX.Element => {
   return (
     <div>
@@ -27,12 +25,11 @@ export const TransactionTimeline = ({
                 "flex flex-col gap-1 items-center text-center transition-all duration-150",
                 {
                   "opacity-20": index > currentStepIndex,
-                  "text-white": !isShielded,
                 }
               )
             )}
           >
-            {index > 0 && <i className="h-12 w-px bg-white mb-3" />}
+            {index > 0 && <i className="h-10 w-px bg-current mb-3" />}
             {step.bullet && (
               <i className="w-4 aspect-square rounded-full bg-current" />
             )}

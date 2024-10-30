@@ -188,3 +188,10 @@ export type ChainRegistryEntry = {
   chain: Chain;
   ibc: IBCInfo[];
 };
+
+export type AssetWithBalance = {
+  asset: Asset;
+  balance?: BigNumber;
+};
+
+export type AssetWithBalanceMap = Record<string, AssetWithBalance>;

@@ -1,4 +1,4 @@
-import { Asset, Chain } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { Coin, OfflineSigner } from "@cosmjs/launchpad";
 import { coin, coins } from "@cosmjs/proto-signing";
 import {
@@ -50,11 +50,6 @@ const getShieldedArgs = async (
     receiver: sdk.masp.maspAddress(),
     memo,
   };
-};
-
-export type AssetWithBalance = {
-  asset: Asset;
-  balance?: BigNumber;
 };
 
 type QueryFn<T> = (rpc: string) => Promise<T>;
