@@ -12,10 +12,9 @@ export const AdvancedOptions: React.FC<Props> = ({ children }) => {
       className={`flex flex-col w-full p-4 rounded-md ${showOptions && "bg-black"}`}
     >
       <LinkButton
-        data-testid="setup-import-keys-use-passphrase-button"
         className="text-xs !text-neutral-400"
         onClick={() => setShowOptions(!showOptions)}
-        type="button" // makes enter key ignore this and submit form
+        type="button"
       >
         Advanced
       </LinkButton>

@@ -57,6 +57,7 @@ export const AdvancedOptionsMenu: React.FC<Props> = ({
             <LinkButton
               onClick={() => setOption(Option.Passphrase)}
               className="flex items-center"
+              data-testid="setup-import-keys-use-passphrase-button"
             >
               {menuText[Option.Passphrase]}
               <FaChevronRight className="absolute right-0" />
