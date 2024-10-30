@@ -11,7 +11,10 @@ import { TransferTransactionFee } from "App/Transfer/TransferTransactionFee";
 import { getTransactionFee } from "integrations/utils";
 import { useEffect, useMemo, useState } from "react";
 import { AssetWithBalance, ChainRegistryEntry, WalletProvider } from "types";
-import { ShieldAllAssetList } from "./ShieldAllAssetList";
+import {
+  SelectableAssetWithBalance,
+  ShieldAllAssetList,
+} from "./ShieldAllAssetList";
 import { ShieldAllContainer } from "./ShieldAllContainer";
 
 type ShieldAllPanelProps = {
@@ -31,35 +34,32 @@ export const ShieldAllPanel = ({
   assetList,
   onShieldAll,
 }: ShieldAllPanelProps): JSX.Element => {
-  const [selectedAssets, setSelectedAssets] =
-    useState<Record<string, boolean>>();
+  const [selectableAssets, setSelectableAssets] = useState<
+    SelectableAssetWithBalance[]
+  >([]);
 
   useEffect(() => {
-    if (!isLoading && !selectedAssets) {
-      const allChecked = assetList.reduce(
-        (acc, current) => ({ ...acc, [current.asset.symbol]: true }),
-        {}
+    if (!isLoading && selectableAssets.length === 0) {
+      setSelectableAssets(
+        assetList.map((asset) => ({ ...asset, checked: true }))
       );
-      setSelectedAssets(allChecked);
     }
   }, [isLoading, assetList]);
 
   const onToggleAsset = (asset: Asset): void => {
-    setSelectedAssets((assets) => {
-      if (!assets) return;
-      return {
-        ...assets,
-        [asset.symbol]: !assets[asset.symbol],
-      };
+    setSelectableAssets((selectableAssets) => {
+      return selectableAssets.map((current) =>
+        current.asset === asset ?
+          { ...current, checked: !current.checked }
+        : current
+      );
     });
   };
 
   const getSelectedAssets = (): Asset[] => {
-    return assetList
-      .filter((assetWithBalance) =>
-        selectedAssets ? selectedAssets[assetWithBalance.asset.symbol] : false
-      )
-      .map((assetWithBalance) => assetWithBalance.asset);
+    return selectableAssets
+      .filter((current) => current.checked)
+      .map((current) => current.asset);
   };
 
   const onSubmit = (e: React.FormEvent): void => {
@@ -68,8 +68,8 @@ export const ShieldAllPanel = ({
   };
 
   const hasAssetsSelected = useMemo(
-    () => Object.values(selectedAssets || {}).some(Boolean),
-    [selectedAssets]
+    () => selectableAssets.some((current) => current.checked),
+    [selectableAssets]
   );
 
   const transactionFee = getTransactionFee(registry);
@@ -105,8 +105,7 @@ export const ShieldAllPanel = ({
               className="bg-yellow-600"
             />
           : <ShieldAllAssetList
-              assets={assetList}
-              checked={selectedAssets || {}}
+              assets={selectableAssets}
               onToggleAsset={onToggleAsset}
             />
           }
