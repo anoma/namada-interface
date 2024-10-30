@@ -1,7 +1,9 @@
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
-type ShieldAllContainerProps = React.PropsWithChildren &
-  React.ComponentPropsWithoutRef<"div">;
+
+type ShieldAllContainerProps = React.PropsWithChildren<
+  React.ComponentPropsWithoutRef<"div">
+>;
 
 export const ShieldAllContainer = ({
   children,
