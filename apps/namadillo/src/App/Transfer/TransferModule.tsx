@@ -97,7 +97,7 @@ export const TransferModule = ({
   const [sourceIbcChannel, setSourceIbcChannel] = useState("");
   const [destinationIbcChannel, setDestinationIbcChannel] = useState("");
 
-  const availableAmount = useMemo(() => {
+  const availableAmountMinusFees = useMemo(() => {
     const { selectedAsset, availableAmount } = source;
 
     if (
@@ -107,9 +107,12 @@ export const TransferModule = ({
       return undefined;
     }
 
-    return transactionFee && selectedAsset.base === transactionFee.token.base ?
+    const minusFees =
+      transactionFee && selectedAsset.base === transactionFee.token.base ?
         availableAmount.minus(transactionFee.amount)
       : availableAmount;
+
+    return BigNumber.max(minusFees, 0);
   }, [source.selectedAsset, source.availableAmount, transactionFee]);
 
   const validationResult = useMemo((): ValidationResult => {
@@ -126,8 +129,8 @@ export const TransferModule = ({
     } else if (!transactionFee) {
       return "NoTransactionFee";
     } else if (
-      !availableAmount ||
-      availableAmount.lt(amount.plus(transactionFee.amount))
+      !availableAmountMinusFees ||
+      amount.gt(availableAmountMinusFees)
     ) {
       return "NotEnoughBalance";
     } else if (!destination.wallet) {
@@ -135,7 +138,7 @@ export const TransferModule = ({
     } else {
       return "Ok";
     }
-  }, [amount, source, destination, transactionFee, availableAmount]);
+  }, [amount, source, destination, transactionFee, availableAmountMinusFees]);
 
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
@@ -229,7 +232,7 @@ export const TransferModule = ({
       return "Define an amount to transfer";
     }
 
-    if (!availableAmount) {
+    if (!availableAmountMinusFees) {
       return "Wallet amount not available";
     }
 
@@ -255,7 +258,7 @@ export const TransferModule = ({
             asset={source.selectedAsset}
             isLoadingAssets={source.isLoadingAssets}
             chain={parseChainInfo(source.chain, source.isShielded)}
-            availableAmount={availableAmount}
+            availableAmount={availableAmountMinusFees}
             amount={amount}
             openProviderSelector={onChangeWallet(source)}
             openChainSelector={
