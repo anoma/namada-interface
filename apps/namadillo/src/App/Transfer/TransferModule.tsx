@@ -66,6 +66,17 @@ export type TransferModuleProps = {
   onSubmitTransfer: (params: OnSubmitTransferParams) => void;
 };
 
+type ValidationResult =
+  | "NoAmount"
+  | "NoSourceWallet"
+  | "NoSourceChain"
+  | "NoSelectedAsset"
+  | "NoDestinationWallet"
+  | "NoDestinationChain"
+  | "NoTransactionFee"
+  | "NotEnoughBalance"
+  | "Ok";
+
 export const TransferModule = ({
   source,
   destination,
@@ -105,19 +116,30 @@ export const TransferModule = ({
     return toDisplayAmount(selectedAsset, availableAmountMinusFees);
   }, [source.selectedAsset, source.availableAmount, transactionFee]);
 
-  const validateTransfer = (): boolean => {
-    if (!amount || amount.eq(0)) return false;
-    if (!source.wallet || !source.chain || !source.selectedAsset) return false;
-    if (!destination.wallet || !destination.chain) return false;
-    if (!transactionFee) return false;
-    if (
+  const validationResult = useMemo((): ValidationResult => {
+    if (!source.wallet) {
+      return "NoSourceWallet";
+    } else if (!source.chain) {
+      return "NoSourceChain";
+    } else if (!destination.chain) {
+      return "NoDestinationChain";
+    } else if (!source.selectedAsset) {
+      return "NoSelectedAsset";
+    } else if (!amount || amount.eq(0)) {
+      return "NoAmount";
+    } else if (!transactionFee) {
+      return "NoTransactionFee";
+    } else if (
       !availableAmount ||
       availableAmount.lt(amount.plus(transactionFee.amount))
     ) {
-      return false;
+      return "NotEnoughBalance";
+    } else if (!destination.wallet) {
+      return "NoDestinationWallet";
+    } else {
+      return "Ok";
     }
-    return true;
-  };
+  }, [amount, source, destination, transactionFee, availableAmount]);
 
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
@@ -188,20 +210,26 @@ export const TransferModule = ({
       return "Submitting...";
     }
 
-    if (!source.wallet) {
+    if (validationResult === "NoSourceWallet") {
       return "Select Wallet";
     }
 
-    if (!source.chain || !destination.chain) {
+    if (
+      validationResult === "NoSourceChain" ||
+      validationResult === "NoDestinationChain"
+    ) {
       return "Select Chain";
     }
 
-    if (!source.selectedAsset && source.onChangeSelectedAsset) {
+    if (
+      validationResult === "NoSelectedAsset" &&
+      source.onChangeSelectedAsset
+    ) {
       return "Select Asset";
     }
 
     // TODO: this should be updated for nfts
-    if (!amount || amount.eq(0)) {
+    if (validationResult === "NoAmount") {
       return "Define an amount to transfer";
     }
 
@@ -209,11 +237,11 @@ export const TransferModule = ({
       return "Wallet amount not available";
     }
 
-    if (!transactionFee) {
+    if (validationResult === "NoTransactionFee") {
       return "No transaction fee is set";
     }
 
-    if (amount.plus(transactionFee.amount).gt(availableAmount)) {
+    if (validationResult === "NotEnoughBalance") {
       return "Not enough balance";
     }
 
@@ -288,7 +316,7 @@ export const TransferModule = ({
             backgroundColor={
               destination.isShielded || source.isShielded ? "yellow" : "white"
             }
-            disabled={!source.wallet || !validateTransfer() || isSubmitting}
+            disabled={validationResult !== "Ok" || isSubmitting}
           >
             {getButtonText()}
           </ActionButton>
