@@ -32,21 +32,15 @@ export const IbcWithdraw: React.FC = () => {
 
   const [selectedAsset, setSelectedAsset] = useState<Asset>();
 
-  const namBalance = useAtomValue(accountBalanceAtom).data;
-
   // TODO: remove hardcoding and display assets other than NAM
+  const availableAmount = useAtomValue(accountBalanceAtom).data;
   const availableAssets = [namadaAsset];
-  // TODO: TransferModule expects amounts in namnam, but Namada SDK expects
-  // amounts in NAM. We should figure out how to deal with this properly.
-  const availableAmount = namBalance?.shiftedBy(6);
 
   const GAS_PRICE = BigNumber(0.000001); // 0.000001 NAM
   const GAS_LIMIT = BigNumber(1_000_000);
   const transactionFee = {
     token: namadaAsset,
-    // TODO: TransferModule expects amounts in namnam, but Namada SDK expects
-    // amounts in NAM. We should figure out how to deal with this properly.
-    amount: GAS_PRICE.multipliedBy(GAS_LIMIT).shiftedBy(6),
+    amount: GAS_PRICE.multipliedBy(GAS_LIMIT),
   };
 
   const {
@@ -60,15 +54,11 @@ export const IbcWithdraw: React.FC = () => {
   };
 
   const submitIbcTransfer = async ({
-    amount: namnamAmount,
+    amount,
     destinationAddress,
     ibcOptions,
     memo,
   }: OnSubmitTransferParams): Promise<void> => {
-    // TODO: TransferModule expects amounts in namnam, but Namada SDK expects
-    // amounts in NAM. We should figure out how to deal with this properly.
-    const amount = namnamAmount.shiftedBy(-6);
-
     const wrapperTxProps = {
       token: namadaChain.data!.nativeTokenAddress,
       feeAmount: GAS_PRICE,

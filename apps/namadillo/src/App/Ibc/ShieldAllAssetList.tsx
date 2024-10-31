@@ -5,7 +5,6 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { getAssetImageUrl } from "integrations/utils";
 import { AssetWithBalanceAndIbcInfo } from "types";
-import { toDisplayAmount } from "utils";
 
 export type SelectableAssetWithBalanceAndIbcInfo =
   AssetWithBalanceAndIbcInfo & {
@@ -56,10 +55,7 @@ export const ShieldAllAssetList = ({
                 <TokenCurrency
                   currencySymbolClassName="hidden"
                   asset={assetWithBalance.asset}
-                  amount={toDisplayAmount(
-                    assetWithBalance.asset,
-                    assetWithBalance.balance || new BigNumber(0)
-                  )}
+                  amount={assetWithBalance.balance || new BigNumber(0)}
                 />
               </span>
             </li>

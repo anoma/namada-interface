@@ -43,7 +43,7 @@ export const getTransactionFee = (
 
     if (typeof asset !== "undefined") {
       return {
-        amount: BigNumber(3000), // TODO: remove hardcoding
+        amount: BigNumber(0.003), // TODO: remove hardcoding
         token: asset,
       };
     }

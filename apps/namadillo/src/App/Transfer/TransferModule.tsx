@@ -4,7 +4,6 @@ import { InlineError } from "App/Common/InlineError";
 import BigNumber from "bignumber.js";
 import { useMemo, useState } from "react";
 import { WalletProvider } from "types";
-import { toBaseAmount, toDisplayAmount } from "utils";
 import { parseChainInfo } from "./common";
 import { IbcChannels } from "./IbcChannels";
 import { SelectAssetModal } from "./SelectAssetModal";
@@ -108,12 +107,9 @@ export const TransferModule = ({
       return undefined;
     }
 
-    const availableAmountMinusFees =
-      transactionFee && selectedAsset.base === transactionFee.token.base ?
+    return transactionFee && selectedAsset.base === transactionFee.token.base ?
         availableAmount.minus(transactionFee.amount)
       : availableAmount;
-
-    return toDisplayAmount(selectedAsset, availableAmountMinusFees);
   }, [source.selectedAsset, source.availableAmount, transactionFee]);
 
   const validationResult = useMemo((): ValidationResult => {
@@ -157,7 +153,7 @@ export const TransferModule = ({
     }
 
     const params: OnSubmitTransferParams = {
-      amount: toBaseAmount(source.selectedAsset, amount),
+      amount,
       destinationAddress: address.trim(),
       memo,
     };
