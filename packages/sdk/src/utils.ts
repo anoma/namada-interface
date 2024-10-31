@@ -1,4 +1,4 @@
-import { Bip44Path } from "@namada/types";
+import { Bip44Path, Zip32Path } from "@namada/types";
 
 /**
  * Return a properly formatted BIP-044 path array
@@ -18,31 +18,37 @@ export const makeBip44PathArray = (
  * Return a properly formatted BIP-044 path
  * @param coinType - SLIP-044 Coin designation
  * @param bip44Path - path object
+ * @param [fullPath] - boolean to determine whether to show full path or just path components
  * @returns BIP-044 path
  */
 export const makeBip44Path = (
   coinType: number,
-  bip44Path: Bip44Path
+  bip44Path: Bip44Path,
+  fullPath = true
 ): string => {
+  const prefix = `m/44'/${coinType}'`;
   const { account, change = 0, index = 0 } = bip44Path;
-  return `m/44'/${coinType}'/${account}'/${change}'/${index}'`;
+  const path = `/${account}'/${change}'/${index}'`;
+  return fullPath ? `${prefix}${path}` : `${path}`;
 };
 
 /**
  * Return a properly formatted Sapling path (Zip32)
  * @param coinType - SLIP-044 Coin designation
- * @param account - numbered from index 0 in sequentially increasing manner. Defined as in BIP 44
- * @param [index] - optional index for additional keys under account. Defined as in BIP 44
+ * @param zip32Path - zip32 path object
+ * @param [fullPath] - boolean to determine whether to show full path or just path components
  * @returns Sapling path
  */
 export const makeSaplingPath = (
   coinType: number,
-  account: number,
-  index?: number
+  zip32Path: Zip32Path,
+  fullPath = true
 ): string => {
-  let path = `m/32'/${coinType}'/${account}'`;
+  const { account, index } = zip32Path;
+  const prefix = `m/32'/${coinType}'`;
+  let path = `/${account}'`;
   if (typeof index === "number") path += `/${index}`;
-  return path;
+  return fullPath ? `${prefix}${path}` : path;
 };
 
 /**

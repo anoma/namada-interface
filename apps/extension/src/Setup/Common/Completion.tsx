@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 
+import { makeBip44Path, makeSaplingPath } from "@heliaxdev/namada-sdk/web";
+import { chains } from "@namada/chains";
 import { ActionButton, Alert, Loading, ViewKeys } from "@namada/components";
 import { AccountType, Bip44Path } from "@namada/types";
 import { assertNever } from "@namada/utils";
@@ -14,6 +16,7 @@ import { CreatePasswordMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { useNavigate } from "react-router-dom";
 import { Ports } from "router";
+import { isCustomPath, makeStoredPath } from "utils";
 
 type Props = {
   alias: string;
@@ -42,6 +45,17 @@ export const Completion: React.FC<Props> = (props) => {
 
   const requester = useRequester();
   const navigate = useNavigate();
+
+  const transparentAccountPath =
+    isCustomPath(path) ?
+      makeBip44Path(chains.namada.bip44.coinType, path)
+    : undefined;
+
+  const zip32Path = makeStoredPath(AccountType.ShieldedKeys, path);
+  const shieldedAccountPath =
+    isCustomPath(path) ?
+      makeSaplingPath(chains.namada.bip44.coinType, zip32Path)
+    : undefined;
 
   const closeCurrentTab = async (): Promise<void> => {
     const tab = await browser.tabs.getCurrent();
@@ -139,7 +153,9 @@ export const Completion: React.FC<Props> = (props) => {
           <ViewKeys
             publicKeyAddress={publicKeyAddress}
             transparentAccountAddress={transparentAccountAddress}
+            transparentAccountPath={transparentAccountPath}
             shieldedAccountAddress={shieldedAccountAddress}
+            shieldedAccountPath={shieldedAccountPath}
             trimCharacters={35}
             footer={
               <ActionButton

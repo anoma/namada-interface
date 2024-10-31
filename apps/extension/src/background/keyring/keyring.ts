@@ -24,7 +24,7 @@ import {
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
-import { generateId } from "utils";
+import { generateId, makeStoredPath } from "utils";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -38,17 +38,6 @@ type DerivedAccountInfo = {
   id: string;
   text: string;
   owner: string;
-};
-
-// Generate either BIP44 or ZIP32 path from BIP44 based on account type
-const makeStoredPath = (accountType: AccountType, path: Bip44Path): Path => {
-  const { account, change, index } = path;
-  return accountType === AccountType.ShieldedKeys ?
-      // If this is a custom address (non-default account or index in the BIP44 path),
-      // specify index for shielded keys. In Namada CLI, the default ZIP32 path only
-      // specifies "account"
-      { account, index: account + index > 0 ? index : undefined }
-    : { account, change, index };
 };
 
 /**

@@ -7,16 +7,24 @@ import { useState } from "react";
 type ViewKeysProps = {
   publicKeyAddress?: string;
   transparentAccountAddress?: string;
+  transparentAccountPath?: string;
   shieldedAccountAddress?: string;
+  shieldedAccountPath?: string;
   viewingKeys?: string;
   footer?: React.ReactNode;
   trimCharacters?: number;
 };
 
+const Path = ({ path }: { path: string }): React.ReactNode => (
+  <p className="text-white text-xs p-0 ml-2">{path}</p>
+);
+
 export const ViewKeys = ({
   publicKeyAddress,
   transparentAccountAddress,
+  transparentAccountPath,
   shieldedAccountAddress,
+  shieldedAccountPath,
   viewingKeys,
   footer,
   trimCharacters = 16,
@@ -30,16 +38,19 @@ export const ViewKeys = ({
     >
       <Stack gap={GapPatterns.FormFields}>
         {transparentAccountAddress && (
-          <Input
-            label="Your Transparent Address"
-            variant="ReadOnlyCopy"
-            valueToDisplay={shortenAddress(
-              transparentAccountAddress,
-              trimCharacters
-            )}
-            value={transparentAccountAddress}
-            theme={"primary"}
-          />
+          <div>
+            <Input
+              label="Your Transparent Address"
+              variant="ReadOnlyCopy"
+              valueToDisplay={shortenAddress(
+                transparentAccountAddress,
+                trimCharacters
+              )}
+              value={transparentAccountAddress}
+              theme={"primary"}
+            />
+            {transparentAccountPath && <Path path={transparentAccountPath} />}
+          </div>
         )}
         {publicKeyAddress && (
           <Input
@@ -51,17 +62,20 @@ export const ViewKeys = ({
           />
         )}
         {shieldedAccountAddress && (
-          <Input
-            label="Your Shielded Address"
-            variant="ReadOnlyCopy"
-            readOnly={true}
-            valueToDisplay={shortenAddress(
-              shieldedAccountAddress,
-              trimCharacters
-            )}
-            value={shieldedAccountAddress}
-            theme={"secondary"}
-          />
+          <div>
+            <Input
+              label="Your Shielded Address"
+              variant="ReadOnlyCopy"
+              readOnly={true}
+              valueToDisplay={shortenAddress(
+                shieldedAccountAddress,
+                trimCharacters
+              )}
+              value={shieldedAccountAddress}
+              theme={"secondary"}
+            />
+            {shieldedAccountPath && <Path path={shieldedAccountPath} />}
+          </div>
         )}
         {viewingKeys &&
           (seeViewingKey ?
