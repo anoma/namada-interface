@@ -93,3 +93,9 @@ export const availableChainsAtom = atom((get) => {
   const settings = get(settingsAtom);
   return getKnownChains(settings.enableTestnets).map(({ chain }) => chain);
 });
+
+// Lists only the available assets list
+export const availableAssetsAtom = atom((get) => {
+  const settings = get(settingsAtom);
+  return getKnownChains(settings.enableTestnets).map(({ assets }) => assets);
+});

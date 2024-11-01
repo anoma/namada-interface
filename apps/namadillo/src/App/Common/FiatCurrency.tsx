@@ -1,12 +1,7 @@
-import { formatCurrency } from "@namada/utils";
-import BigNumber from "bignumber.js";
-import { ComponentProps } from "react";
+import { Currency, CurrencyProps } from "@namada/components";
 
-export const FiatCurrency = ({
-  amount,
-  ...props
-}: {
-  amount?: BigNumber;
-} & ComponentProps<"span">): JSX.Element => {
-  return <span {...props}>{formatCurrency("USD", amount)}</span>;
+type FiatCurrencyProps = Omit<CurrencyProps, "currency">;
+
+export const FiatCurrency = (props: FiatCurrencyProps): JSX.Element => {
+  return <Currency currency={{ symbol: "$", fraction: "cents" }} {...props} />;
 };

@@ -1,3 +1,4 @@
+import { Balance } from "@anomaorg/namada-indexer-client";
 import { getIntegration } from "@namada/integrations";
 import { Account } from "@namada/types";
 import { indexerApiAtom } from "atoms/api";
@@ -12,6 +13,7 @@ import {
   fetchAccountBalance,
   fetchAccounts,
   fetchDefaultAccount,
+  fetchNamAccountBalance,
 } from "./services";
 
 export const accountsAtom = atomWithQuery<readonly Account[]>((get) => {
@@ -91,7 +93,7 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
     refetchInterval: enablePolling ? 1000 : false,
     queryKey: ["balances", tokenAddress.data, defaultAccount.data],
     ...queryDependentFn(async (): Promise<BigNumber> => {
-      return await fetchAccountBalance(
+      return await fetchNamAccountBalance(
         api,
         defaultAccount.data,
         tokenAddress.data!,
@@ -100,5 +102,35 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
         chainConfig.currencies[0].coinDecimals
       );
     }, [tokenAddress, defaultAccount]),
+  };
+});
+
+// TODO combine the `accountBalanceAtom` with the `transparentBalanceAtom`
+// Then execute only once the `fetchAccountBalance`, deleting the `fetchNamAccountBalance`
+export const transparentBalanceAtom = atomWithQuery<Balance[]>((get) => {
+  const enablePolling = get(shouldUpdateBalanceAtom);
+  const api = get(indexerApiAtom);
+  const defaultAccountQuery = get(defaultAccountAtom);
+  const namTokenAddressQuery = get(nativeTokenAddressAtom);
+
+  return {
+    refetchInterval: enablePolling ? 1000 : false,
+    queryKey: [
+      "transparent-balance",
+      defaultAccountQuery.data,
+      namTokenAddressQuery.data,
+    ],
+    ...queryDependentFn(async () => {
+      const response = await fetchAccountBalance(api, defaultAccountQuery.data);
+      // TODO
+      // The indexer is returning as `namnam`, but the SDK is returning as `nam` for the same address.
+      // We need to define a common pattern here, so we can share the same atoms.
+      // For now, we are transforming the api returned value from `namnam` to `nam`.
+      return response.map((item) =>
+        item.tokenAddress === namTokenAddressQuery.data ?
+          { ...item, balance: BigNumber(item.balance).shiftedBy(-6).toString() }
+        : item
+      );
+    }, [defaultAccountQuery, namTokenAddressQuery]),
   };
 });

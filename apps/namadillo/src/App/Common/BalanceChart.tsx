@@ -14,7 +14,6 @@ type BalanceChartProps = {
   unbondedAmount: BigNumber;
   availableAmount: BigNumber;
   withdrawableAmount: BigNumber;
-  shieldedAmount: BigNumber;
   totalAmount: BigNumber;
   isLoading: boolean;
 };
@@ -25,7 +24,6 @@ export const BalanceChart = ({
   bondedAmount,
   unbondedAmount,
   withdrawableAmount,
-  shieldedAmount,
   totalAmount,
   isLoading,
 }: BalanceChartProps): JSX.Element => {
@@ -40,7 +38,6 @@ export const BalanceChart = ({
 
     return [
       { value: availableAmount, color: colors.balance },
-      { value: shieldedAmount, color: colors.shielded },
       { value: bondedAmount, color: colors.bond },
       {
         value: unbondedAmount.plus(withdrawableAmount),
