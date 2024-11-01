@@ -16,7 +16,7 @@ import { namadaAsset } from "registry/namadaAsset";
 import { unknownAsset } from "registry/unknownAsset";
 import { findExpoent } from "utils/registry";
 import { getSdkInstance } from "utils/sdk";
-import { fetchCoinPrices } from "./services";
+import { fetchTokenPrices } from "./services";
 
 export type TokenBalance = {
   denom: string;
@@ -129,47 +129,16 @@ export const assetsByDenomAtom = atom((get) => {
   return assetsByDenom;
 });
 
-export const tokenPricesAtom = atomWithQuery((get) => {
-  const shieldedBalanceQuery = get(shieldedBalanceAtom);
-  const transparentBalanceQuery = get(transparentBalanceAtom);
-  const denomByAddressQuery = get(denomByAddressAtom);
-  const assetsByDenom = get(assetsByDenomAtom);
-
-  // Get the list of addresses that exists on balances
-  const obj: Record<string, true> = {};
-  shieldedBalanceQuery.data?.forEach(([address]) => {
-    obj[address] = true;
-  });
-  transparentBalanceQuery.data?.forEach(({ tokenAddress }) => {
-    obj[tokenAddress] = true;
-  });
-  const addresses = Object.keys(obj);
-
+export const tokenPricesAtom = atomWithQuery(() => {
   return {
-    queryKey: ["token-price", addresses, denomByAddressQuery.data],
+    queryKey: ["token-price"],
     queryFn: async () => {
-      const denomById: Record<string, string> = {};
-      const ids: string[] = [];
-      addresses.forEach((address) => {
-        const denom = denomByAddressQuery.data?.[address];
-        const id = denom && assetsByDenom[denom]?.coingecko_id;
-        if (id) {
-          denomById[id] = denom;
-          ids.push(id);
-        }
+      const obj: Record<string, number> = {};
+      const response = await fetchTokenPrices();
+      response.forEach((token) => {
+        obj[token.symbol] = token.price;
       });
-
-      const pricesById = await fetchCoinPrices(ids);
-      const pricesByDenom: Record<string, number> = {
-        // TODO mock NAM price
-        // nam: 1,
-        // namnam: 1 / 1_000_000,
-      };
-      Object.entries(pricesById).forEach(([id, { usd }]) => {
-        const denom = denomById[id];
-        pricesByDenom[denom] = usd;
-      });
-      return pricesByDenom;
+      return obj;
     },
   };
 });
@@ -249,7 +218,7 @@ const formatTokenBalance = (
 
   const balance = new BigNumber(amount).dividedBy(Math.pow(10, expoent));
 
-  const tokenPrice = tokenPrices?.[denom];
+  const tokenPrice = tokenPrices?.[asset.symbol];
   const dollar = tokenPrice ? balance.multipliedBy(tokenPrice) : undefined;
 
   return {

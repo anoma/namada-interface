@@ -1,10 +1,18 @@
-const apiUrl = "https://api.coingecko.com/api/v3/";
-const apiKey = process.env.COIN_GECKO_API_KEY ?? "";
-const apiKeyParam = `x_cg_demo_api_key=${apiKey}`;
+const apiUrl = "https://api-osmosis.imperator.co";
 
-export const fetchCoinPrices = async (
-  ids: string[]
-): Promise<Record<string, { usd: number }>> =>
-  fetch(
-    `${apiUrl}/simple/price?ids=${ids}&vs_currencies=usd&${apiKeyParam}`
-  ).then((res) => res.json());
+type ImperatorToken = {
+  price: number;
+  denom: string;
+  symbol: string;
+  liquidity: number;
+  volume_24h: number;
+  volume_24h_change: number;
+  name: string;
+  price_24h_change: number;
+  price_7d_change: number;
+  exponent: number;
+  display: string;
+};
+
+export const fetchTokenPrices = async (): Promise<ImperatorToken[]> =>
+  fetch(`${apiUrl}/tokens/v2/all`).then((res) => res.json());
