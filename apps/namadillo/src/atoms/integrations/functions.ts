@@ -13,8 +13,10 @@ import * as celestiaTestnet from "chain-registry/testnet/celestiatestnet3";
 import * as cosmosTestnet from "chain-registry/testnet/cosmoshubtestnet";
 import * as dydxTestnet from "chain-registry/testnet/dydxtestnet";
 import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet";
+import * as elysTestnet from "chain-registry/testnet/elystestnet";
 import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
+import { namadaAsset } from "registry/namadaAsset";
 import {
   AssetWithBalanceAndIbcInfo,
   AssetWithBalanceAndIbcInfoMap,
@@ -56,24 +58,7 @@ cosmosRegistry.ibc.push({
 // TODO: remove once integrated with namada-chain-registry
 cosmosRegistry.assets.push({
   chain_name: "internal-devnet-44a.1bd3e6ca62",
-  assets: [
-    {
-      name: "Namada",
-      base: "unam",
-      display: "nam",
-      symbol: "NAM",
-      denom_units: [
-        {
-          denom: "unam",
-          exponent: 0,
-        },
-        {
-          denom: "nam",
-          exponent: 6,
-        },
-      ],
-    },
-  ],
+  assets: [namadaAsset],
 });
 
 const mainnetChains: ChainRegistryEntry[] = [
@@ -90,6 +75,8 @@ const testnetChains: ChainRegistryEntry[] = [
   dydxTestnet,
   osmosisTestnet,
   stargazeTestnet,
+  // TODO: Temporarily added as it has a live relayer to theta-testnet-001
+  elysTestnet,
 ];
 
 const mainnetAndTestnetChains = [...mainnetChains, ...testnetChains];
@@ -140,6 +127,45 @@ const tryCoinToRegistryAsset = (
   }
 };
 
+// For a given chain name with a given IBC channel, look up the counterpart
+// chain name that the channel corresponds to.
+// For example, transfer/channel-16 on elystestnet corresponds to
+// cosmoshubtestnet.
+const findCounterpartChainName = (
+  chainName: string,
+  portId: string,
+  channelId: string
+): string | undefined => {
+  return cosmosRegistry.ibc.reduce<string | undefined>((acc, curr) => {
+    if (typeof acc !== "undefined") {
+      return acc;
+    }
+
+    const tryFindSourceChainName = (
+      ourChainNumber: "chain_1" | "chain_2"
+    ): string | undefined => {
+      if (curr[ourChainNumber].chain_name === chainName) {
+        const match = curr.channels.some((channelEntry) => {
+          const { port_id, channel_id } = channelEntry[ourChainNumber];
+          return port_id === portId && channel_id === channelId;
+        });
+
+        if (match) {
+          const theirChainNumber =
+            ourChainNumber === "chain_1" ? "chain_2" : "chain_1";
+
+          return curr[theirChainNumber].chain_name;
+        }
+      }
+      return undefined;
+    };
+
+    return (
+      tryFindSourceChainName("chain_1") || tryFindSourceChainName("chain_2")
+    );
+  }, undefined);
+};
+
 const tryCoinToIbcAsset = async (
   coin: Coin,
   rpc: string,
@@ -158,50 +184,41 @@ const tryCoinToIbcAsset = async (
     denomTracePath: path,
   };
 
-  // TODO: check this is valid for tokens that have been transferred between
-  // more than one chain
-  const [portId, channelId] = path.split("/");
+  // denom trace path may be something like...
+  // transfer/channel-16/transfer/channel-4353
+  // ...so from here walk the path to find the original chain
+  const pathParts = path.split("/");
+  if (pathParts.length % 2 !== 0) {
+    throw new Error(`Can't decode IBC denom trace path, got ${path}`);
+  }
 
-  const sourceChainName = cosmosRegistry.ibc.reduce<string | undefined>(
-    (acc, curr) => {
-      if (typeof acc !== "undefined") {
-        return acc;
+  const ibcChannelTrail: { portId: string; channelId: string }[] = [];
+  for (let i = 0; i < pathParts.length; i += 2) {
+    ibcChannelTrail.push({
+      portId: pathParts[i],
+      channelId: pathParts[i + 1],
+    });
+  }
+
+  const originalChainName = ibcChannelTrail.reduce<string | undefined>(
+    (currentChainName, { portId, channelId }) => {
+      if (typeof currentChainName === "undefined") {
+        return undefined;
       }
 
-      const tryFindSourceChainName = (
-        ourChainNumber: "chain_1" | "chain_2"
-      ): string | undefined => {
-        if (curr[ourChainNumber].chain_name === chainName) {
-          const match = curr.channels.some((channelEntry) => {
-            const { port_id, channel_id } = channelEntry[ourChainNumber];
-            return port_id === portId && channel_id === channelId;
-          });
-
-          if (match) {
-            const theirChainNumber =
-              ourChainNumber === "chain_1" ? "chain_2" : "chain_1";
-
-            return curr[theirChainNumber].chain_name;
-          }
-        }
-        return undefined;
-      };
-
-      return (
-        tryFindSourceChainName("chain_1") || tryFindSourceChainName("chain_2")
-      );
+      return findCounterpartChainName(currentChainName, portId, channelId);
     },
-    undefined
+    chainName
   );
 
-  const sourceAssets = mapUndefined(assetLookup, sourceChainName);
+  const originalChainAssets = mapUndefined(assetLookup, originalChainName);
 
   // TODO: Special handling for Namada because NAM assets are named "tnam...",
   // and we need to decode this address. For now assuming that if the source
   // chain is the internal devnet, then the asset is NAM. This is not correct
   // and should be fixed.
-  if (sourceChainName === "internal-devnet-44a.1bd3e6ca62") {
-    const namAsset = sourceAssets?.[0];
+  if (originalChainName === "internal-devnet-44a.1bd3e6ca62") {
+    const namAsset = originalChainAssets?.[0];
     if (typeof namAsset === "undefined") {
       throw new Error(
         "No NAM asset for internal devnet. This should never happen."
@@ -214,13 +231,13 @@ const tryCoinToIbcAsset = async (
     };
   }
 
-  const sourceRegistryAsset = sourceAssets?.find(
+  const originalChainRegistryAsset = originalChainAssets?.find(
     (asset) => asset.base === baseDenom
   );
 
   const assetProp =
-    typeof sourceRegistryAsset !== "undefined" ?
-      { asset: sourceRegistryAsset }
+    typeof originalChainRegistryAsset !== "undefined" ?
+      { asset: originalChainRegistryAsset }
     : unknownAsset(path + "/" + baseDenom);
 
   return {
