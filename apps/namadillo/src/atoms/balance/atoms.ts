@@ -14,7 +14,7 @@ import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { namadaAsset } from "registry/namadaAsset";
 import { unknownAsset } from "registry/unknownAsset";
-import { findExpoent } from "utils/registry";
+import { findExponent } from "utils/registry";
 import { getSdkInstance } from "utils/sdk";
 import { fetchTokenPrices } from "./services";
 
@@ -212,11 +212,11 @@ const formatTokenBalance = (
   const asset = assetsByDenom?.[denom] ?? unknownAsset;
   const display = asset.display;
 
-  const expoentInput = findExpoent(asset, denom);
-  const expoentOutput = findExpoent(asset, display);
-  const expoent = expoentOutput - expoentInput;
+  const exponentInput = findExponent(asset, denom);
+  const exponentOutput = findExponent(asset, display);
+  const exponent = exponentOutput - exponentInput;
 
-  const balance = new BigNumber(amount).dividedBy(Math.pow(10, expoent));
+  const balance = new BigNumber(amount).dividedBy(Math.pow(10, exponent));
 
   const tokenPrice = tokenPrices?.[asset.symbol];
   const dollar = tokenPrice ? balance.multipliedBy(tokenPrice) : undefined;
