@@ -1,6 +1,6 @@
 import { Asset } from "@chain-registry/types";
-import { Balance } from "@heliaxdev/namada-sdk/web";
 import { ActionButton, TableRow } from "@namada/components";
+import { Balance } from "@namada/sdk/web";
 import { formatPercentage } from "@namada/utils";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";

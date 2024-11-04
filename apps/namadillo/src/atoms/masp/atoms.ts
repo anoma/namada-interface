@@ -1,4 +1,4 @@
-import { Balance } from "@heliaxdev/namada-sdk/web";
+import { Balance } from "@namada/sdk/web";
 import { accountsAtom, defaultAccountAtom } from "atoms/accounts/atoms";
 import { chainTokensAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";

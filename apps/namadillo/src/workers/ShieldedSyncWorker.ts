@@ -1,5 +1,5 @@
-import { initMulticore } from "@heliaxdev/namada-sdk/inline-init";
-import { getSdk, Sdk } from "@heliaxdev/namada-sdk/web";
+import { initMulticore } from "@namada/sdk/inline-init";
+import { getSdk, Sdk } from "@namada/sdk/web";
 import * as Comlink from "comlink";
 import { Init, InitDone, Sync, SyncDone } from "./ShieldedSyncMessages";
 

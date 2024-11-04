@@ -1,4 +1,4 @@
-import { TxType } from "@heliaxdev/namada-sdk/web";
+import { TxType } from "@namada/sdk/web";
 import {
   BondProps,
   ClaimRewardsProps,

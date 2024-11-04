@@ -31,18 +31,12 @@
       "@namada/utils": ["../../../packages/utils/src"],
       "@namada/utils/*": ["../../../packages/utils/src/*"],
 
-      "@heliaxdev/namada-sdk/web": ["../../../packages/sdk/src/indexWeb.ts"],
-      "@heliaxdev/namada-sdk/web-init": [
-        "../../../packages/sdk/src/initWeb.ts"
-      ],
-      "@heliaxdev/namada-sdk/inline-init": [
-        "../../../packages/sdk/src/initInline.ts"
-      ],
+      "@namada/sdk/web": ["../../../packages/sdk/src/indexWeb.ts"],
+      "@namada/sdk/web-init": ["../../../packages/sdk/src/initWeb.ts"],
+      "@namada/sdk/inline-init": ["../../../packages/sdk/src/initInline.ts"],
 
-      "@heliaxdev/namada-sdk/node": ["../../../packages/sdk/src/indexNode.ts"],
-      "@heliaxdev/namada-sdk/node-init": [
-        "../../../packages/sdk/src/initNode.ts"
-      ]
+      "@namada/sdk/node": ["../../../packages/sdk/src/indexNode.ts"],
+      "@namada/sdk/node-init": ["../../../packages/sdk/src/initNode.ts"]
     }
   }
 }

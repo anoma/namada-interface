@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 
-import { makeBip44Path, makeSaplingPath } from "@heliaxdev/namada-sdk/web";
 import { chains } from "@namada/chains";
 import { ActionButton, Alert, Loading, ViewKeys } from "@namada/components";
+import { makeBip44Path, makeSaplingPath } from "@namada/sdk/web";
 import { AccountType, Bip44Path } from "@namada/types";
 import { assertNever } from "@namada/utils";
 import {
