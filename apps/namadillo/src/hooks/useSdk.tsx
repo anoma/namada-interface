@@ -1,4 +1,4 @@
-import { Sdk } from "@heliaxdev/namada-sdk/web";
+import { Sdk } from "@namada/sdk/web";
 import { QueryStatus, useQuery } from "@tanstack/react-query";
 import { nativeTokenAddressAtom } from "atoms/chain";
 import { useAtomValue } from "jotai";

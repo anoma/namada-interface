@@ -36,11 +36,9 @@ jest.mock("@namada/utils", () => {
 
 // Because we run tests in node environment, we need to mock web-init as node-init
 jest.mock(
-  "@heliaxdev/namada-sdk/web-init",
+  "@namada/sdk/web-init",
   () => () =>
-    Promise.resolve(
-      jest.requireActual("@heliaxdev/namada-sdk/node-init").default()
-    )
+    Promise.resolve(jest.requireActual("@namada/sdk/node-init").default())
 );
 
 describe("approvals service", () => {

@@ -1,4 +1,4 @@
-[@heliaxdev/namada-sdk](../README.md) / [Exports](../modules.md) / Mnemonic
+[@namada/sdk](../README.md) / [Exports](../modules.md) / Mnemonic
 
 # Class: Mnemonic
 
@@ -38,7 +38,7 @@ Class for accessing mnemonic functionality from wasm
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:18](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/mnemonic.ts#L18)
+[sdk/src/mnemonic.ts:18](https://github.com/anoma/namada-interface/blob/f4c1ee3fc8f46d98479687b9b4b0b2ae8ecd87bd/packages/sdk/src/mnemonic.ts#L18)
 
 ## Properties
 
@@ -50,7 +50,7 @@ Memory accessor for crypto lib
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:18](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/mnemonic.ts#L18)
+[sdk/src/mnemonic.ts:18](https://github.com/anoma/namada-interface/blob/f4c1ee3fc8f46d98479687b9b4b0b2ae8ecd87bd/packages/sdk/src/mnemonic.ts#L18)
 
 ## Methods
 
@@ -74,7 +74,7 @@ An array of words
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:25](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/mnemonic.ts#L25)
+[sdk/src/mnemonic.ts:25](https://github.com/anoma/namada-interface/blob/f4c1ee3fc8f46d98479687b9b4b0b2ae8ecd87bd/packages/sdk/src/mnemonic.ts#L25)
 
 ___
 
@@ -99,7 +99,7 @@ Seed bytes
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:43](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/mnemonic.ts#L43)
+[sdk/src/mnemonic.ts:43](https://github.com/anoma/namada-interface/blob/f4c1ee3fc8f46d98479687b9b4b0b2ae8ecd87bd/packages/sdk/src/mnemonic.ts#L43)
 
 ___
 
@@ -129,4 +129,4 @@ Object with validation result and error message if invalid
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:61](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/mnemonic.ts#L61)
+[sdk/src/mnemonic.ts:61](https://github.com/anoma/namada-interface/blob/f4c1ee3fc8f46d98479687b9b4b0b2ae8ecd87bd/packages/sdk/src/mnemonic.ts#L61)

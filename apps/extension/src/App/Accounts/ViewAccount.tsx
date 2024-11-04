@@ -1,6 +1,6 @@
-import { makeBip44Path, makeSaplingPath } from "@heliaxdev/namada-sdk/web";
 import { chains } from "@namada/chains";
 import { ActionButton, GapPatterns, Stack, ViewKeys } from "@namada/components";
+import { makeBip44Path, makeSaplingPath } from "@namada/sdk/web";
 import { AccountType, DerivedAccount } from "@namada/types";
 import { PageHeader } from "App/Common";
 import routes from "App/routes";

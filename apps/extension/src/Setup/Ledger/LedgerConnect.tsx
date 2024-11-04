@@ -1,6 +1,6 @@
-import { Ledger as LedgerApp, makeBip44Path } from "@heliaxdev/namada-sdk/web";
 import { chains } from "@namada/chains";
 import { ActionButton, Alert, Image, Stack } from "@namada/components";
+import { Ledger as LedgerApp, makeBip44Path } from "@namada/sdk/web";
 import { Bip44Path } from "@namada/types";
 import { LedgerError } from "@zondax/ledger-namada";
 import { LedgerStep } from "Setup/Common";
