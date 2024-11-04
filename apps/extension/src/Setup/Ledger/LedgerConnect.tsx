@@ -1,12 +1,21 @@
-import { Ledger as LedgerApp } from "@heliaxdev/namada-sdk/web";
+import { Ledger as LedgerApp, makeBip44Path } from "@heliaxdev/namada-sdk/web";
+import { chains } from "@namada/chains";
 import { ActionButton, Alert, Image, Stack } from "@namada/components";
+import { Bip44Path } from "@namada/types";
 import { LedgerError } from "@zondax/ledger-namada";
 import { LedgerStep } from "Setup/Common";
+import { AdvancedOptions } from "Setup/Common/AdvancedOptions";
+import Bip44Form from "Setup/Common/Bip44Form";
 import routes from "Setup/routes";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export const LedgerConnect: React.FC = () => {
+type Props = {
+  path: Bip44Path;
+  setPath: (path: Bip44Path) => void;
+};
+
+export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>();
   const [isLedgerConnecting, setIsLedgerConnecting] = useState(false);
@@ -24,7 +33,9 @@ export const LedgerConnect: React.FC = () => {
       }
 
       setIsLedgerConnecting(true);
-      const { address, publicKey } = await ledger.showAddressAndPublicKey();
+      const { address, publicKey } = await ledger.showAddressAndPublicKey(
+        makeBip44Path(chains.namada.bip44.coinType, path)
+      );
       setIsLedgerConnecting(false);
       navigate(routes.ledgerImport(), {
         state: {
@@ -110,6 +121,10 @@ export const LedgerConnect: React.FC = () => {
             <Image styleOverrides={{ width: "100%" }} imageName="LogoMinimal" />
           }
         />
+
+        <AdvancedOptions>
+          <Bip44Form path={path} setPath={setPath} />
+        </AdvancedOptions>
       </Stack>
       <ActionButton size="lg" disabled={true}>
         Next

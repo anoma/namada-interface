@@ -6,6 +6,18 @@ export type Bip44Path = {
   index: number;
 };
 
+export type Zip32Path = {
+  account: number;
+  index?: number;
+};
+
+// Generic type for storing either Bip44 or Zip32 path
+export type Path = {
+  account: number;
+  change?: number;
+  index?: number;
+};
+
 // Type of account for storage
 export enum AccountType {
   // A stored mnemonic phrase
@@ -25,7 +37,7 @@ export type DerivedAccount = {
   publicKey?: string;
   alias: string;
   parentId?: string;
-  path: Bip44Path;
+  path: Path;
   type: AccountType;
 };
 

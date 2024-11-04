@@ -2,24 +2,34 @@ import { ActionButton, GapPatterns, Input, Stack } from "@namada/components";
 
 import { shortenAddress } from "@namada/utils";
 import clsx from "clsx";
+import { useState } from "react";
 
 type ViewKeysProps = {
   publicKeyAddress?: string;
   transparentAccountAddress?: string;
+  transparentAccountPath?: string;
   shieldedAccountAddress?: string;
+  shieldedAccountPath?: string;
   viewingKeys?: string;
   footer?: React.ReactNode;
   trimCharacters?: number;
 };
 
+const Path = ({ path }: { path: string }): React.ReactNode => (
+  <p className="text-white text-xs p-0 ml-2">{path}</p>
+);
+
 export const ViewKeys = ({
   publicKeyAddress,
   transparentAccountAddress,
+  transparentAccountPath,
   shieldedAccountAddress,
+  shieldedAccountPath,
   viewingKeys,
   footer,
   trimCharacters = 16,
 }: ViewKeysProps): JSX.Element => {
+  const [seeViewingKey, setSeeViewingKey] = useState(false);
   return (
     <Stack
       className="flex-1 justify-center"
@@ -28,16 +38,19 @@ export const ViewKeys = ({
     >
       <Stack gap={GapPatterns.FormFields}>
         {transparentAccountAddress && (
-          <Input
-            label="Your Transparent Address"
-            variant="ReadOnlyCopy"
-            valueToDisplay={shortenAddress(
-              transparentAccountAddress,
-              trimCharacters
-            )}
-            value={transparentAccountAddress}
-            theme={"primary"}
-          />
+          <div>
+            <Input
+              label="Your Transparent Address"
+              variant="ReadOnlyCopy"
+              valueToDisplay={shortenAddress(
+                transparentAccountAddress,
+                trimCharacters
+              )}
+              value={transparentAccountAddress}
+              theme={"primary"}
+            />
+            {transparentAccountPath && <Path path={transparentAccountPath} />}
+          </div>
         )}
         {publicKeyAddress && (
           <Input
@@ -49,26 +62,40 @@ export const ViewKeys = ({
           />
         )}
         {shieldedAccountAddress && (
-          <Input
-            label="Your Shielded Address"
-            variant="ReadOnlyCopy"
-            readOnly={true}
-            valueToDisplay={shortenAddress(
-              shieldedAccountAddress,
-              trimCharacters
-            )}
-            value={shieldedAccountAddress}
-            theme={"secondary"}
-          />
-        )}
-        {viewingKeys && (
-          <div className="text-white flex flex-col text-base font-medium gap-3 text-center">
-            Viewing keys of shielded account
-            <ActionButton size="md" backgroundColor="cyan">
-              Download
-            </ActionButton>
+          <div>
+            <Input
+              label="Your Shielded Address"
+              variant="ReadOnlyCopy"
+              readOnly={true}
+              valueToDisplay={shortenAddress(
+                shieldedAccountAddress,
+                trimCharacters
+              )}
+              value={shieldedAccountAddress}
+              theme={"secondary"}
+            />
+            {shieldedAccountPath && <Path path={shieldedAccountPath} />}
           </div>
         )}
+        {viewingKeys &&
+          (seeViewingKey ?
+            <Input
+              label="Viewing Key"
+              variant="ReadOnlyCopy"
+              readOnly={true}
+              valueToDisplay={shortenAddress(viewingKeys, trimCharacters)}
+              value={viewingKeys}
+              theme={"secondary"}
+            />
+          : <div className="text-white flex flex-col text-base font-medium gap-3">
+              <ActionButton
+                size="md"
+                backgroundColor="cyan"
+                onClick={() => setSeeViewingKey(true)}
+              >
+                See Viewing Key
+              </ActionButton>
+            </div>)}
       </Stack>
       {(viewingKeys || footer) && (
         <Stack as="footer" gap={4}>

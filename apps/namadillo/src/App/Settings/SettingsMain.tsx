@@ -1,4 +1,5 @@
 import { routes } from "App/routes";
+import { version as sdkVersion } from "../../../../../packages/sdk/package.json";
 import { version } from "../../../package.json";
 import { SettingsPanelMenuItem } from "./SettingsPanelMenuItem";
 
@@ -14,6 +15,7 @@ export const SettingsMain = (): JSX.Element => {
       </ul>
       <div className="text-xs">
         <div>Namadillo Version: {version}</div>
+        <div>SDK Version: {sdkVersion}</div>
       </div>
     </div>
   );

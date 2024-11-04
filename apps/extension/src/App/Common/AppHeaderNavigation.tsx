@@ -5,6 +5,8 @@ import { useVaultContext } from "context";
 import { FaDiscord, FaXTwitter } from "react-icons/fa6";
 import { GoAlert, GoQuestion } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
+import sdkPackage from "../../../../../packages/sdk/package.json";
+import extensionPackage from "../../../package.json";
 
 type AppHeaderNavigationProps = {
   open: boolean;
@@ -97,6 +99,21 @@ export const AppHeaderNavigation = ({
               Lock Wallet
             </li>
           </Stack>
+          <div className="relative h-full">
+            <Stack
+              as="ul"
+              gap={1}
+              direction="vertical"
+              className="absolute bottom-4"
+            >
+              <li>
+                Keychain Version: <strong>{extensionPackage.version}</strong>
+              </li>
+              <li>
+                SDK Version: <strong>{sdkPackage.version}</strong>
+              </li>
+            </Stack>
+          </div>
           <footer className="flex items-center justify-between text-yellow-950 text-2xl">
             <Stack
               as="ul"

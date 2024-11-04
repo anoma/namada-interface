@@ -5,15 +5,30 @@ import { chains } from "@namada/chains";
 import {
   LedgerError,
   NamadaApp,
+  NamadaKeys,
   ResponseAppInfo,
+  ResponseProofGenKey,
   ResponseSign,
   ResponseVersion,
+  ResponseViewKey,
 } from "@zondax/ledger-namada";
 import { makeBip44Path } from "./utils";
 
 const { coinType } = chains.namada.bip44;
 
-export type AddressAndPublicKey = { address: string; publicKey: string };
+export type LedgerAddressAndPublicKey = { address: string; publicKey: string };
+export type LedgerShieldedKeys = {
+  viewingKey: {
+    viewKey?: string;
+    ivk?: string;
+    ovk?: string;
+  };
+  proofGenerationKey: {
+    ak?: string;
+    nsk?: string;
+  };
+};
+
 export type LedgerStatus = {
   version: ResponseVersion;
   info: ResponseAppInfo;
@@ -95,7 +110,7 @@ export class Ledger {
    */
   public async getAddressAndPublicKey(
     path: string = DEFAULT_LEDGER_BIP44_PATH
-  ): Promise<AddressAndPublicKey> {
+  ): Promise<LedgerAddressAndPublicKey> {
     const { address, pubkey } = await this.namadaApp.getAddressAndPubKey(path);
 
     return {
@@ -115,7 +130,7 @@ export class Ledger {
    */
   public async showAddressAndPublicKey(
     path: string = DEFAULT_LEDGER_BIP44_PATH
-  ): Promise<AddressAndPublicKey> {
+  ): Promise<LedgerAddressAndPublicKey> {
     try {
       const { address, pubkey } =
         await this.namadaApp.showAddressAndPubKey(path);
@@ -128,6 +143,45 @@ export class Ledger {
       };
     } catch (e) {
       throw new Error(`Connect Ledger rejected by user: ${e}`);
+    }
+  }
+
+  /**
+   * Prompt user to get viewing and proof gen key associated with optional path, otherwise, use default path.
+   * Throw exception if app is not initialized.
+   * @async
+   * @param [path] Bip44 path for deriving key
+   * @param [promptUser] boolean to determine whether to display on Ledger device and require approval
+   * @returns ShieldedKeys
+   */
+  public async getShieldedKeys(
+    path: string = DEFAULT_LEDGER_BIP44_PATH,
+    promptUser = true
+  ): Promise<LedgerShieldedKeys> {
+    try {
+      const { viewKey, ivk, ovk }: ResponseViewKey =
+        await this.namadaApp.retrieveKeys(path, NamadaKeys.ViewKey, promptUser);
+
+      const { ak, nsk }: ResponseProofGenKey =
+        await this.namadaApp.retrieveKeys(
+          path,
+          NamadaKeys.ProofGenerationKey,
+          promptUser
+        );
+
+      return {
+        viewingKey: {
+          viewKey: viewKey?.toString(),
+          ivk: ivk?.toString(),
+          ovk: ovk?.toString(),
+        },
+        proofGenerationKey: {
+          ak: ak?.toString(),
+          nsk: nsk?.toString(),
+        },
+      };
+    } catch (e) {
+      throw new Error(`Could not retrieve Viewing Key`);
     }
   }
 
@@ -146,6 +200,23 @@ export class Ledger {
     const buffer = Buffer.from(tx);
 
     return await this.namadaApp.sign(path, buffer);
+  }
+
+  /**
+   * Sign a Masp tx with the shielded keys associated with the provided (or default) path.
+   * Throw exception if app is not initialized.
+   * @async
+   * @param tx - masp tx data blob to sign
+   * @param [path] Bip44 path for signing account
+   * @returns Response signature
+   */
+  public async signMasp(
+    tx: Uint8Array,
+    path: string = DEFAULT_LEDGER_BIP44_PATH
+  ): Promise<ResponseSign> {
+    const buffer = Buffer.from(tx);
+
+    return await this.namadaApp.signMasp(path, buffer);
   }
 
   /**
