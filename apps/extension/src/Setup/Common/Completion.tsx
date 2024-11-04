@@ -106,16 +106,16 @@ export const Completion: React.FC<Props> = (props) => {
 
         // Do not derive shielded if this is an imported private key, and
         // ignore accounts with a non-zero 'change' path component:
-        if (accountSecret.t !== "PrivateKey" && path.change === 0) {
+        if (path.change === 0) {
           setStatusInfo("Generating Shielded Account");
           const shieldedAccount = await requester.sendMessage<DeriveAccountMsg>(
             Ports.Background,
-            // If this is a default path, don't use zip32 index
-            // TODO: Should we include index of 0 on default path?
             new DeriveAccountMsg(
               path,
               AccountType.ShieldedKeys,
-              storedAccount.alias
+              storedAccount.alias,
+              // Set the parent ID of this shielded account to the transparent account above
+              storedAccount.id
             )
           );
           setShieldedAccountAddress(shieldedAccount.address);

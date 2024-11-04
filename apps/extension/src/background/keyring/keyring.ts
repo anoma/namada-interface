@@ -1,4 +1,4 @@
-import { PhraseSize } from "@namada/sdk/web";
+import { PhraseSize, ShieldedKeys } from "@namada/sdk/web";
 import { KVStore } from "@namada/storage";
 import {
   AccountType,
@@ -21,6 +21,7 @@ import {
   UtilityStore,
 } from "./types";
 
+import { fromHex } from "@cosmjs/encoding";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
@@ -255,9 +256,10 @@ export class KeyRing {
   }
 
   public deriveShieldedAccount(
-    seed: Uint8Array,
+    secret: Uint8Array,
     bip44Path: Bip44Path,
-    parentId: string
+    parentId: string,
+    parentType = AccountType.Mnemonic
   ): DerivedAccountInfo {
     const storedPath = makeStoredPath(AccountType.ShieldedKeys, bip44Path);
     const id = generateId(
@@ -273,13 +275,22 @@ export class KeyRing {
       storedPath.index || "none"
     );
     const keysNs = this.sdkService.getSdk().getKeys();
-    const { address, viewingKey, spendingKey } = keysNs.deriveShieldedFromSeed(
-      seed,
-      bip44Path,
-      // Derives default shielded keys account from bip44Path.account
-      // TODO: Expose function to accept { account, index }
-      { account: bip44Path.account }
-    );
+
+    let shieldedKeys: ShieldedKeys;
+
+    if (parentType === AccountType.Mnemonic) {
+      shieldedKeys = keysNs.deriveShieldedFromSeed(secret, bip44Path, {
+        account: bip44Path.account,
+      });
+    } else if (parentType === AccountType.PrivateKey) {
+      shieldedKeys = keysNs.deriveShieldedFromPrivateKey(secret, {
+        account: bip44Path.account,
+      });
+    } else {
+      throw new Error(`Invalid account type! ${parentType}`);
+    }
+
+    const { address, viewingKey, spendingKey } = shieldedKeys;
 
     return {
       address,
@@ -289,27 +300,25 @@ export class KeyRing {
     };
   }
 
-  private async getParentSeed(): Promise<{
-    parentId: string;
-    seed: Uint8Array;
+  private async getParentSecret(parentId: string): Promise<{
+    secret: Uint8Array;
   }> {
-    const activeAccount = await this.getActiveAccount();
+    const parentAccount = await this.queryAccountById(parentId);
 
-    if (!activeAccount) {
-      throw "No active account has been found";
+    if (!parentAccount) {
+      throw "No parent account has been found";
     }
 
-    const storedMnemonic = await this.vaultStorage.findOneOrFail(
+    const storedSecret = await this.vaultStorage.findOneOrFail(
       KeyStore,
       "id",
-      activeAccount.id
+      parentId
     );
 
-    const parentId = storedMnemonic.public.id;
     try {
       const sensitiveData =
         await this.vaultService.reveal<SensitiveAccountStoreData>(
-          storedMnemonic.sensitive
+          storedSecret.sensitive
         );
 
       if (!sensitiveData) {
@@ -320,10 +329,14 @@ export class KeyRing {
 
       const { text, passphrase } = sensitiveData;
 
-      const mnemonicSdk = this.sdkService.getSdk().getMnemonic();
-      const seed = mnemonicSdk.toSeed(text, passphrase);
+      if (parentAccount.type === AccountType.Mnemonic) {
+        const mnemonicSdk = this.sdkService.getSdk().getMnemonic();
+        const seed = mnemonicSdk.toSeed(text, passphrase);
 
-      return { parentId, seed };
+        return { secret: seed };
+      } else {
+        return { secret: fromHex(text) };
+      }
     } catch (e) {
       console.error(e);
       throw Error("Could not decrypt mnemonic using the provided password");
@@ -364,7 +377,8 @@ export class KeyRing {
   public async deriveAccount(
     bip44Path: Bip44Path,
     type: AccountType,
-    alias: string
+    alias: string,
+    parentId: string
   ): Promise<DerivedAccount> {
     await this.vaultService.assertIsUnlocked();
     // Prepare path for either BIP44 or ZIP32 stored value
@@ -379,9 +393,8 @@ export class KeyRing {
         this.deriveTransparentAccount
       : this.deriveShieldedAccount).bind(this);
 
-    const { seed, parentId } = await this.getParentSeed();
-
-    const info = deriveFn(seed, bip44Path, parentId);
+    const { secret } = await this.getParentSecret(parentId);
+    const info = deriveFn(secret, bip44Path, parentId);
 
     // Check whether keys already exist for this account
     const existingAccount = await this.queryAccountByAddress(info.address);
@@ -407,9 +420,19 @@ export class KeyRing {
   }
 
   /**
+   * Query single account by ID
+   */
+  public async queryAccountById(
+    accountId: string
+  ): Promise<DerivedAccount | undefined> {
+    return (await this.vaultStorage.findOneOrFail(KeyStore, "id", accountId))
+      ?.public;
+  }
+
+  /**
    * Query accounts from storage (active parent account + associated derived child accounts)
    */
-  public async queryAccountById(accountId: string): Promise<DerivedAccount[]> {
+  public async queryAccountsById(accountId: string): Promise<DerivedAccount[]> {
     const parentAccount = await this.vaultStorage.findOne(
       KeyStore,
       "id",
