@@ -4,7 +4,13 @@ import {
   Unbond as IndexerUnbond,
   ValidatorStatus,
 } from "@namada/namada-indexer-client";
-import { ChainKey, ClaimRewardsMsgValue, ExtensionKey } from "@namada/types";
+import {
+  Account,
+  ChainKey,
+  ClaimRewardsMsgValue,
+  ExtensionKey,
+} from "@namada/types";
+import { MutationStatus } from "@tanstack/query-core";
 import BigNumber from "bignumber.js";
 import { TxKind } from "types/txKind";
 
@@ -63,7 +69,6 @@ export type ChainParameters = {
 
 export type SettingsStorage = {
   version: string;
-  fiat: CurrencyType;
   rpcUrl?: string;
   indexerUrl: string;
   maspIndexerUrl?: string;
@@ -89,7 +94,7 @@ export type ValidatorFilterOptions = "all" | "active" | ValidatorStatus;
 
 export type UnbondEntry = Omit<
   | (IndexerUnbond & {
-      timeLeft: string;
+      timeLeft?: string;
     })
   | "validator"
 >;
@@ -193,3 +198,42 @@ export type AddressWithAssetAndAmountMap = Record<
   Address,
   AddressWithAssetAndAmount
 >;
+
+export type AssetWithBalanceMap = Record<string, AssetWithBalance>;
+
+export const TransferProgressSteps = {
+  TransparentToIbc: ["sign", "ibc-withdraw", "result"] as const,
+  IbcToShielded: ["sign", "zk-proof", "ibc-to-masp", "result"] as const,
+  IbcToTransparent: ["sign", "transfer", "result"] as const,
+  TransparentToShielded: [
+    "sign",
+    "zk-proof",
+    "tnam-to-masp",
+    "result",
+  ] as const,
+  ShieldedToTransparent: ["sign", "masp-to-tnam", "result"] as const,
+  ShieldedToShielded: ["sign", "masp-to-masp", "result"] as const,
+  TransparentToTransparent: ["sign", "tnam-to-tnam", "result"] as const,
+};
+
+export type TransferTxKind = keyof typeof TransferProgressSteps;
+
+export type TransferProgress = {
+  [P in TransferTxKind]: {
+    type: P;
+    progressStatus: (typeof TransferProgressSteps)[P][number];
+  };
+}[TransferTxKind];
+
+export type TransferTransactionData = TransferProgress & {
+  hash: string;
+  amount: BigNumber;
+  sourceChainId: string;
+  sourceCurrency: string;
+  destinationCurrency: string;
+  destinationAddress: string;
+  destinationChain: string;
+  status: MutationStatus;
+  createdAt: Date;
+  updatedAt: Date;
+};

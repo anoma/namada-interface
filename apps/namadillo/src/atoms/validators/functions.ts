@@ -7,7 +7,7 @@ import {
 } from "@namada/indexer-client";
 import { singleUnitDurationFromInterval } from "@namada/utils";
 import BigNumber from "bignumber.js";
-import { Address, MyValidator, UnbondEntry, Validator } from "types";
+import { Address, BondEntry, MyValidator, UnbondEntry, Validator } from "types";
 
 export const toValidator = (
   indexerValidator: IndexerValidator,
@@ -82,10 +82,9 @@ export const toMyValidators = (
   const addBondToAddress = (
     address: Address,
     key: "bondItems" | "unbondItems",
-    bond: IndexerBond | IndexerMergedBond | IndexerUnbond
+    bond: UnbondEntry | BondEntry
   ): void => {
-    const { validator: _, ...bondsWithoutValidator } = bond;
-    myValidators[address]![key].push(bondsWithoutValidator);
+    myValidators[address]![key].push({ ...bond });
   };
 
   const incrementAmount = (

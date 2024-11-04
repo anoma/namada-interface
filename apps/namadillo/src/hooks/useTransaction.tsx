@@ -113,7 +113,7 @@ export const useTransaction = <T,>({
       const tx = await buildTx({
         params,
         gasConfig: gasConfig.data!,
-        account,
+        account: account!,
       });
 
       if (!tx) throw "Error: invalid TX created by buildTx";

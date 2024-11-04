@@ -1,7 +1,7 @@
 import { Chain } from "@chain-registry/types";
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { mapUndefined } from "@namada/utils";
-import { TransactionTimeline } from "App/Common/TransactionTimeline";
+import { TransactionTimeline } from "App/Transactions/TransactionTimeline";
 import {
   OnSubmitTransferParams,
   TransferModule,

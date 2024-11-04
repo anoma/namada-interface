@@ -26,6 +26,7 @@ export const routes = {
 
   // Transfer
   transfer: "/transfer",
+  history: "/history",
 
   // Settings
   settings: "/settings",

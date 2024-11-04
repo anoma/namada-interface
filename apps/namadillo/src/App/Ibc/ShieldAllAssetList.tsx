@@ -5,6 +5,7 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { getAssetImageUrl } from "integrations/utils";
 import { AddressWithAssetAndAmount } from "types";
+import { toDisplayAmount } from "utils";
 
 export type SelectableAddressWithAssetAndAmount = AddressWithAssetAndAmount & {
   checked: boolean;
@@ -53,8 +54,11 @@ export const ShieldAllAssetList = ({
               <span className="text-xs">
                 <TokenCurrency
                   currencySymbolClassName="hidden"
-                  asset={assetWithBalance.asset}
-                  amount={assetWithBalance.amount || new BigNumber(0)}
+                  symbol={assetWithBalance.asset.symbol}
+                  amount={toDisplayAmount(
+                    assetWithBalance.asset,
+                    assetWithBalance.balance || new BigNumber(0)
+                  )}
                 />
               </span>
             </li>

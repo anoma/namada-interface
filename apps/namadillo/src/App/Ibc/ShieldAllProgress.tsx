@@ -1,6 +1,6 @@
 import { Stack } from "@namada/components";
 import svgImg from "App/Assets/ShieldedParty.svg";
-import { TransactionTimeline } from "App/Common/TransactionTimeline";
+import { TransactionTimeline } from "App/Transactions/TransactionTimeline";
 import ibcTransferBlack from "../Transfer/assets/ibc-transfer-black.png";
 import { ShieldAllContainer } from "./ShieldAllContainer";
 

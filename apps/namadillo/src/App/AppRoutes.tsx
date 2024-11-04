@@ -26,6 +26,7 @@ import { MaspLayout } from "./Masp/MaspLayout";
 import { MaspOverview } from "./Masp/MaspOverview";
 import { MaspShield } from "./Masp/MaspShield";
 import { MaspUnshield } from "./Masp/MaspUnshield";
+import { routes } from "./routes";
 import { Advanced } from "./Settings/Advanced";
 import { EnableFeatures } from "./Settings/EnableFeatures";
 import { SettingsMain } from "./Settings/SettingsMain";
@@ -38,9 +39,9 @@ import { StakingOverview } from "./Staking/StakingOverview";
 import { StakingRewards } from "./Staking/StakingRewards";
 import { Unstake } from "./Staking/Unstake";
 import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
+import { TransactionHistory } from "./Transactions/TransactionHistory";
 import { NamTransfer } from "./Transfer/NamTransfer";
 import { TransferLayout } from "./Transfer/TransferLayout";
-import { routes } from "./routes";
 
 export const MainRoutes = (): JSX.Element => {
   const location = useLocation();
@@ -112,6 +113,12 @@ export const MainRoutes = (): JSX.Element => {
           {features.namTransfersEnabled && (
             <Route element={<TransferLayout />}>
               <Route path={routes.transfer} element={<NamTransfer />} />
+            </Route>
+          )}
+
+          {(features.namTransfersEnabled || features.ibcTransfersEnabled) && (
+            <Route>
+              <Route path={routes.history} element={<TransactionHistory />} />
             </Route>
           )}
 
