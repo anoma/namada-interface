@@ -119,7 +119,7 @@ export const tokenPricesAtom = atomWithQuery((get) => {
   const addresses = Object.keys(obj);
 
   return {
-    queryKey: ["token-price", addresses, assetByAddressQuery.data],
+    queryKey: ["token-prices", addresses, assetByAddressQuery.data],
     queryFn: async () => {
       const addressByBase: Record<string, string> = {};
       addresses.forEach((address) => {
