@@ -12,7 +12,7 @@ import * as stargaze from "chain-registry/mainnet/stargaze";
 import * as celestiaTestnet from "chain-registry/testnet/celestiatestnet3";
 import * as cosmosTestnet from "chain-registry/testnet/cosmoshubtestnet";
 import * as dydxTestnet from "chain-registry/testnet/dydxtestnet";
-import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet4";
+import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet";
 import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
 import {
