@@ -1,9 +1,10 @@
-import { PhraseSize } from "@heliaxdev/namada-sdk/web";
+import { PhraseSize } from "@namada/sdk/web";
 import { KVStore } from "@namada/storage";
 import {
   AccountType,
   Bip44Path,
   DerivedAccount,
+  Path,
   SignArbitraryResponse,
   TxProps,
 } from "@namada/types";
@@ -23,7 +24,7 @@ import {
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
-import { generateId } from "utils";
+import { generateId, makeStoredPath } from "utils";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -140,11 +141,11 @@ export class KeyRing {
   // Store validated mnemonic or private key
   public async storeAccountSecret(
     accountSecret: AccountSecret,
-    alias: string
+    alias: string,
+    path: Bip44Path = { account: 0, change: 0, index: 0 }
   ): Promise<AccountStore> {
     await this.vaultService.assertIsUnlocked();
 
-    const path = { account: 0, change: 0, index: 0 };
     const keys = this.sdkService.getSdk().getKeys();
 
     const { sk, text, passphrase, accountType } = ((): {
@@ -198,6 +199,11 @@ export class KeyRing {
     const id = generateId(
       UUID_NAMESPACE,
       text,
+      alias,
+      address,
+      path.account,
+      path.change,
+      path.index,
       await this.vaultService.getLength(KEYSTORE_KEY)
     );
 
@@ -250,15 +256,29 @@ export class KeyRing {
 
   public deriveShieldedAccount(
     seed: Uint8Array,
-    path: Bip44Path,
+    bip44Path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
-    const { index } = path;
-    const id = generateId(UUID_NAMESPACE, "shielded-account", parentId, index);
+    const storedPath = makeStoredPath(AccountType.ShieldedKeys, bip44Path);
+    const id = generateId(
+      UUID_NAMESPACE,
+      "shielded-account",
+      parentId,
+      // Specify unique identifiers for parent derived account
+      bip44Path.account,
+      bip44Path.change,
+      bip44Path.index,
+      // Specify unique identifiers for shielded account
+      storedPath.account,
+      storedPath.index || "none"
+    );
     const keysNs = this.sdkService.getSdk().getKeys();
     const { address, viewingKey, spendingKey } = keysNs.deriveShieldedFromSeed(
       seed,
-      path
+      bip44Path,
+      // Derives default shielded keys account from bip44Path.account
+      // TODO: Expose function to accept { account, index }
+      { account: bip44Path.account }
     );
 
     return {
@@ -311,7 +331,7 @@ export class KeyRing {
   }
 
   private async persistAccount(
-    path: Bip44Path,
+    path: Path,
     parentId: string,
     type: AccountType,
     alias: string,
@@ -338,12 +358,17 @@ export class KeyRing {
     return account;
   }
 
+  /**
+   * Derive both shielded and transparent accounts from BIP44 Path
+   */
   public async deriveAccount(
-    path: Bip44Path,
+    bip44Path: Bip44Path,
     type: AccountType,
     alias: string
   ): Promise<DerivedAccount> {
     await this.vaultService.assertIsUnlocked();
+    // Prepare path for either BIP44 or ZIP32 stored value
+    const path = makeStoredPath(type, bip44Path);
 
     if (type !== AccountType.PrivateKey && type !== AccountType.ShieldedKeys) {
       throw new Error("Unsupported account type");
@@ -355,7 +380,8 @@ export class KeyRing {
       : this.deriveShieldedAccount).bind(this);
 
     const { seed, parentId } = await this.getParentSeed();
-    const info = deriveFn(seed, path, parentId);
+
+    const info = deriveFn(seed, bip44Path, parentId);
 
     // Check whether keys already exist for this account
     const existingAccount = await this.queryAccountByAddress(info.address);
@@ -495,9 +521,14 @@ export class KeyRing {
       const sdk = this.sdkService.getSdk();
       const mnemonic = sdk.getMnemonic();
       const seed = mnemonic.toSeed(secret, passphrase);
+      const bip44Path = {
+        account: path.account,
+        change: path.change || 0,
+        index: path.index || 0,
+      };
 
       const keys = this.sdkService.getSdk().getKeys();
-      privateKey = keys.deriveFromSeed(seed, path).privateKey;
+      privateKey = keys.deriveFromSeed(seed, bip44Path).privateKey;
     }
 
     return privateKey;

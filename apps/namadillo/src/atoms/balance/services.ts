@@ -1,4 +1,4 @@
-import { Balance } from "@heliaxdev/namada-sdk/web";
+import { Balance } from "@namada/sdk/web";
 import { getSdkInstance } from "utils/sdk";
 
 const sqsOsmosisApi = "https://sqs.osmosis.zone/";

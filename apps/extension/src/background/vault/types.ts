@@ -1,4 +1,4 @@
-import { CryptoRecord } from "@heliaxdev/namada-sdk/web";
+import { CryptoRecord } from "@namada/sdk/web";
 
 export enum ResetPasswordError {
   BadPassword,

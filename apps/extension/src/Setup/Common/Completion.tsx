@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 
+import { chains } from "@namada/chains";
 import { ActionButton, Alert, Loading, ViewKeys } from "@namada/components";
-import { AccountType } from "@namada/types";
+import { makeBip44Path, makeSaplingPath } from "@namada/sdk/web";
+import { AccountType, Bip44Path } from "@namada/types";
 import { assertNever } from "@namada/utils";
 import {
   AccountSecret,
@@ -14,12 +16,14 @@ import { CreatePasswordMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { useNavigate } from "react-router-dom";
 import { Ports } from "router";
+import { isCustomPath, makeStoredPath } from "utils";
 
 type Props = {
   alias: string;
   accountSecret?: AccountSecret;
   password?: string;
   passwordRequired: boolean | undefined;
+  path: Bip44Path;
 };
 
 enum Status {
@@ -29,7 +33,7 @@ enum Status {
 }
 
 export const Completion: React.FC<Props> = (props) => {
-  const { alias, accountSecret, password, passwordRequired } = props;
+  const { alias, accountSecret, password, passwordRequired, path } = props;
 
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
   const [statusInfo, setStatusInfo] = useState<string>("");
@@ -41,6 +45,17 @@ export const Completion: React.FC<Props> = (props) => {
 
   const requester = useRequester();
   const navigate = useNavigate();
+
+  const transparentAccountPath =
+    isCustomPath(path) ?
+      makeBip44Path(chains.namada.bip44.coinType, path)
+    : undefined;
+
+  const zip32Path = makeStoredPath(AccountType.ShieldedKeys, path);
+  const shieldedAccountPath =
+    isCustomPath(path) ?
+      makeSaplingPath(chains.namada.bip44.coinType, zip32Path)
+    : undefined;
 
   const closeCurrentTab = async (): Promise<void> => {
     const tab = await browser.tabs.getCurrent();
@@ -76,26 +91,31 @@ export const Completion: React.FC<Props> = (props) => {
           : assertNever(accountSecret);
 
         setStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
-        const account = (await requester.sendMessage<SaveAccountSecretMsg>(
-          Ports.Background,
-          new SaveAccountSecretMsg(accountSecret, alias)
-        )) as AccountStore;
+        const storedAccount =
+          (await requester.sendMessage<SaveAccountSecretMsg>(
+            Ports.Background,
+            new SaveAccountSecretMsg(accountSecret, alias, path)
+          )) as AccountStore;
 
-        if (!account) {
+        if (!storedAccount) {
           throw new Error("Background returned failure when creating account");
         }
 
-        setPublicKeyAddress(account.publicKey ?? "");
-        setTransparentAccountAddress(account.address);
+        setPublicKeyAddress(storedAccount.publicKey ?? "");
+        setTransparentAccountAddress(storedAccount.address);
 
-        if (accountSecret.t !== "PrivateKey") {
+        // Do not derive shielded if this is an imported private key, and
+        // ignore accounts with a non-zero 'change' path component:
+        if (accountSecret.t !== "PrivateKey" && path.change === 0) {
           setStatusInfo("Generating Shielded Account");
           const shieldedAccount = await requester.sendMessage<DeriveAccountMsg>(
             Ports.Background,
+            // If this is a default path, don't use zip32 index
+            // TODO: Should we include index of 0 on default path?
             new DeriveAccountMsg(
-              account.path,
+              path,
               AccountType.ShieldedKeys,
-              account.alias
+              storedAccount.alias
             )
           );
           setShieldedAccountAddress(shieldedAccount.address);
@@ -133,7 +153,9 @@ export const Completion: React.FC<Props> = (props) => {
           <ViewKeys
             publicKeyAddress={publicKeyAddress}
             transparentAccountAddress={transparentAccountAddress}
+            transparentAccountPath={transparentAccountPath}
             shieldedAccountAddress={shieldedAccountAddress}
+            shieldedAccountPath={shieldedAccountPath}
             trimCharacters={35}
             footer={
               <ActionButton

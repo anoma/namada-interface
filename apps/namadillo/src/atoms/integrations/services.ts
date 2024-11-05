@@ -1,4 +1,4 @@
-import { Chain } from "@chain-registry/types";
+import { Asset, Chain } from "@chain-registry/types";
 import { Coin, OfflineSigner } from "@cosmjs/launchpad";
 import { coin, coins } from "@cosmjs/proto-signing";
 import {
@@ -9,6 +9,7 @@ import {
 import { TransactionFee } from "App/Transfer/TransferModule";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
+import { toBaseAmount } from "utils";
 import { getSdkInstance } from "utils/sdk";
 import { workingRpcsAtom } from "./atoms";
 import { getRpcByIndex } from "./functions";
@@ -18,7 +19,7 @@ type CommonParams = {
   sourceAddress: string;
   destinationAddress: string;
   amount: BigNumber;
-  token: string;
+  asset: Asset;
   sourceChannelId: string;
   transactionFee: TransactionFee;
 };
@@ -69,8 +70,8 @@ export const submitIbcTransfer =
       signer,
       sourceAddress,
       destinationAddress,
-      amount,
-      token,
+      amount: displayAmount,
+      asset,
       sourceChannelId,
       isShielded,
       transactionFee,
@@ -81,23 +82,26 @@ export const submitIbcTransfer =
       broadcastTimeoutMs: 8_000,
     });
 
+    // cosmjs expects amounts to be represented in the base denom, so convert
+    const baseAmount = toBaseAmount(asset, displayAmount);
+    const baseFee = toBaseAmount(transactionFee.token, transactionFee.amount);
+
     const fee = {
-      amount: coins(
-        transactionFee.amount.toString(),
-        transactionFee.token.base
-      ),
+      amount: coins(baseFee.toString(), transactionFee.token.base),
       gas: "222000", // TODO: what should this be?
     };
 
     const timeoutTimestampNanoseconds =
       BigInt(Math.floor(Date.now() / 1000) + 60) * BigInt(1_000_000_000);
 
+    const token = asset.base;
+
     const { receiver, memo }: { receiver: string; memo?: string } =
       isShielded ?
         await getShieldedArgs(
           destinationAddress,
           token,
-          amount,
+          baseAmount,
           transferParams.destinationChannelId
         )
       : { receiver: destinationAddress };
@@ -109,7 +113,7 @@ export const submitIbcTransfer =
         sourceChannel: sourceChannelId,
         sender: sourceAddress,
         receiver,
-        token: coin(amount.toString(), token),
+        token: coin(baseAmount.toString(), token),
         timeoutHeight: undefined,
         timeoutTimestamp: timeoutTimestampNanoseconds,
         memo,

@@ -1,4 +1,4 @@
-import { PhraseSize } from "@heliaxdev/namada-sdk/web";
+import { PhraseSize } from "@namada/sdk/web";
 import { IndexedDBKVStore, KVStore } from "@namada/storage";
 import {
   AccountType,
@@ -60,11 +60,13 @@ export class KeyRingService {
 
   async saveAccountSecret(
     accountSecret: AccountSecret,
-    alias: string
+    alias: string,
+    path?: Bip44Path
   ): Promise<AccountStore> {
     const results = await this._keyRing.storeAccountSecret(
       accountSecret,
-      alias
+      alias,
+      path
     );
     await this.broadcaster.updateAccounts();
     return results;

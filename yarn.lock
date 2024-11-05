@@ -2766,55 +2766,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@heliaxdev/namada-sdk@workspace:packages/sdk":
-  version: 0.0.0-use.local
-  resolution: "@heliaxdev/namada-sdk@workspace:packages/sdk"
-  dependencies:
-    "@babel/cli": "npm:^7.23.9"
-    "@babel/core": "npm:^7.23.9"
-    "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
-    "@babel/plugin-proposal-object-rest-spread": "npm:^7.20.7"
-    "@babel/preset-env": "npm:^7.23.9"
-    "@babel/preset-typescript": "npm:^7.23.3"
-    "@cosmjs/encoding": "npm:^0.29.0"
-    "@dao-xyz/borsh": "npm:^5.1.5"
-    "@ledgerhq/hw-transport": "npm:^6.30.0"
-    "@ledgerhq/hw-transport-webhid": "npm:^6.28.0"
-    "@ledgerhq/hw-transport-webusb": "npm:^6.28.0"
-    "@release-it/conventional-changelog": "npm:^8.0.1"
-    "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.11.4"
-    "@zondax/ledger-namada": "npm:^0.0.6"
-    babel-jest: "npm:^29.0.3"
-    bignumber.js: "npm:^9.1.1"
-    buffer: "npm:^6.0.3"
-    eslint: "npm:^8.57.0"
-    eslint-config-prettier: "npm:^9.1.0"
-    eslint-import-resolver-typescript: "npm:^3.6.3"
-    eslint-plugin-import: "npm:^2.30.0"
-    eslint-plugin-jsdoc: "npm:^48.2.1"
-    eslint-plugin-react: "npm:^7.35.2"
-    eslint-plugin-react-hooks: "npm:^4.6.0"
-    jest: "npm:^29.7.0"
-    jest-create-mock-instance: "npm:^2.0.0"
-    jest-mock-server: "npm:^0.1.0"
-    jsdoc-babel: "npm:^0.5.0"
-    release-it: "npm:^17.0.1"
-    rimraf: "npm:^5.0.5"
-    slip44: "npm:^3.0.18"
-    ts-jest: "npm:^29.2.5"
-    ts-node: "npm:^10.9.1"
-    ts-patch: "npm:^3.1.2"
-    tsconfig-paths: "npm:^4.2.0"
-    typedoc: "npm:^0.25.12"
-    typedoc-plugin-markdown: "npm:^3.17.1"
-    typescript: "npm:^5.5.4"
-    typescript-transform-paths: "npm:^3.4.7"
-    webpack: "npm:^5.90.3"
-    webpack-cli: "npm:^5.1.4"
-  languageName: unknown
-  linkType: soft
-
 "@humanwhocodes/config-array@npm:^0.11.14":
   version: 0.11.14
   resolution: "@humanwhocodes/config-array@npm:0.11.14"
@@ -3507,7 +3458,7 @@ __metadata:
     "@types/w3c-web-usb": "npm:^1.0.10"
     "@types/webextension-polyfill": "npm:^0.10.6"
     "@types/zxcvbn": "npm:^4.4.1"
-    "@zondax/ledger-namada": "npm:^0.0.6"
+    "@zondax/ledger-namada": "npm:^1.0.0"
     bignumber.js: "npm:^9.1.1"
     buffer: "npm:^6.0.3"
     copy-webpack-plugin: "npm:^11.0.0"
@@ -3742,6 +3693,55 @@ __metadata:
     vite-tsconfig-paths: "npm:^5.0.1"
     web-vitals: "npm:^2.1.4"
     wonka: "npm:^6.3.4"
+  languageName: unknown
+  linkType: soft
+
+"@namada/sdk@workspace:packages/sdk":
+  version: 0.0.0-use.local
+  resolution: "@namada/sdk@workspace:packages/sdk"
+  dependencies:
+    "@babel/cli": "npm:^7.23.9"
+    "@babel/core": "npm:^7.23.9"
+    "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
+    "@babel/plugin-proposal-object-rest-spread": "npm:^7.20.7"
+    "@babel/preset-env": "npm:^7.23.9"
+    "@babel/preset-typescript": "npm:^7.23.3"
+    "@cosmjs/encoding": "npm:^0.29.0"
+    "@dao-xyz/borsh": "npm:^5.1.5"
+    "@ledgerhq/hw-transport": "npm:^6.30.0"
+    "@ledgerhq/hw-transport-webhid": "npm:^6.28.0"
+    "@ledgerhq/hw-transport-webusb": "npm:^6.28.0"
+    "@release-it/conventional-changelog": "npm:^8.0.1"
+    "@types/jest": "npm:^29.5.12"
+    "@types/node": "npm:^20.11.4"
+    "@zondax/ledger-namada": "npm:^0.0.6"
+    babel-jest: "npm:^29.0.3"
+    bignumber.js: "npm:^9.1.1"
+    buffer: "npm:^6.0.3"
+    eslint: "npm:^8.57.0"
+    eslint-config-prettier: "npm:^9.1.0"
+    eslint-import-resolver-typescript: "npm:^3.6.3"
+    eslint-plugin-import: "npm:^2.30.0"
+    eslint-plugin-jsdoc: "npm:^48.2.1"
+    eslint-plugin-react: "npm:^7.35.2"
+    eslint-plugin-react-hooks: "npm:^4.6.0"
+    jest: "npm:^29.7.0"
+    jest-create-mock-instance: "npm:^2.0.0"
+    jest-mock-server: "npm:^0.1.0"
+    jsdoc-babel: "npm:^0.5.0"
+    release-it: "npm:^17.0.1"
+    rimraf: "npm:^5.0.5"
+    slip44: "npm:^3.0.18"
+    ts-jest: "npm:^29.2.5"
+    ts-node: "npm:^10.9.1"
+    ts-patch: "npm:^3.1.2"
+    tsconfig-paths: "npm:^4.2.0"
+    typedoc: "npm:^0.25.12"
+    typedoc-plugin-markdown: "npm:^3.17.1"
+    typescript: "npm:^5.5.4"
+    typescript-transform-paths: "npm:^3.4.7"
+    webpack: "npm:^5.90.3"
+    webpack-cli: "npm:^5.1.4"
   languageName: unknown
   linkType: soft
 
@@ -6010,6 +6010,15 @@ __metadata:
   dependencies:
     "@ledgerhq/hw-transport": "npm:^6.30.6"
   checksum: 39aabba4be347e5329413be53de82e6519ff9b8e44473d6753cd096b733d075891528d12353108bf653071cbcd6804a9b826703753061428a7f93861607bce80
+  languageName: node
+  linkType: hard
+
+"@zondax/ledger-namada@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@zondax/ledger-namada@npm:1.0.0"
+  dependencies:
+    "@ledgerhq/hw-transport": "npm:^6.30.6"
+  checksum: f7490964ccd41f9a63f2bc8d89ea9f01e7d6a58be796db0b454a3f1455dcc8dc8dd578a8642aa0f0799c93f838e8e3afd69f59f7e9947816b9471338c2b9dd63
   languageName: node
   linkType: hard
 

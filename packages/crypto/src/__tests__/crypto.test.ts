@@ -112,15 +112,15 @@ describe("ShieldedHDWallet", () => {
   test("It should restore keys from a mnemonic and child indices", () => {
     const m = Mnemonic.from_phrase(MNEMONIC_WORDS.join(" "));
     const seed = m.to_seed();
-    const b = new ShieldedHDWallet(seed);
+    const b = new ShieldedHDWallet(seed, new Uint32Array([44, 877, 0, 0, 0]));
 
-    const account1 = b.derive(new Uint32Array([32, 877, 0]));
-    const account2 = b.derive(new Uint32Array([32, 877, 1]));
+    const account1 = b.derive(new Uint32Array([32, 877, 0, 0]));
+    const account2 = b.derive(new Uint32Array([32, 877, 0, 1]));
 
     expect(account1.xsk().length).toBe(SHIELDED_CHILD_KEY_LENGTH);
     expect(account1.xfvk().length).toBe(SHIELDED_CHILD_KEY_LENGTH);
-    expect(account1.xsk()).not.toEqual(account2.xsk());
     expect(account1.xfvk()).not.toEqual(account2.xfvk());
+    expect(account1.payment_address()).not.toEqual(account2.payment_address());
   });
 });
 

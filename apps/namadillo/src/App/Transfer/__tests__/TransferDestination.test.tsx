@@ -97,7 +97,7 @@ describe("TransferDestination", () => {
   });
 
   it("should display the transaction fee if provided", () => {
-    const fee = BigNumber(1);
+    const fee = BigNumber(0.000001);
     render(
       <TransferDestination
         transactionFee={{ amount: fee, token: namadaAsset }}

@@ -1,7 +1,6 @@
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
-import { toDisplayAmount } from "utils";
 import { TransactionFee } from "./TransferModule";
 import ibcTransferImageBlack from "./assets/ibc-transfer-black.png";
 import ibcTransferImageWhite from "./assets/ibc-transfer-white.png";
@@ -34,7 +33,7 @@ export const TransferTransactionFee = ({
         </span>
       )}
       <TokenCurrency
-        amount={toDisplayAmount(transactionFee.token, transactionFee.amount)}
+        amount={transactionFee.amount}
         asset={transactionFee.token}
       />
     </footer>

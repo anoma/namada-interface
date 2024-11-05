@@ -20,6 +20,7 @@ import {
   AssetWithBalanceAndIbcInfoMap,
   ChainRegistryEntry,
 } from "types";
+import { toDisplayAmount } from "utils";
 
 // TODO: this causes a big increase on bundle size. See #1224.
 import cosmosRegistry from "chain-registry";
@@ -263,19 +264,21 @@ export const mapCoinsToAssets = async (
 
   const results = await Promise.all(
     coins.map(async (coin: Coin): Promise<AssetWithBalanceAndIbcInfo> => {
-      const { amount } = coin;
-      const balance = BigNumber(amount);
-      if (balance.isNaN()) {
-        throw new Error(`Balance is invalid, got ${amount}`);
-      }
-
       const assetAndIbc =
         tryCoinToRegistryAsset(coin, assets) ||
         (await tryCoinToIbcAsset(coin, rpc, chainName)) ||
         unknownAsset(coin.denom);
 
+      const { amount } = coin;
+      const baseBalance = BigNumber(amount);
+      if (baseBalance.isNaN()) {
+        throw new Error(`Balance is invalid, got ${amount}`);
+      }
+      // We always represent amounts in their display denom, so convert here
+      const displayBalance = toDisplayAmount(assetAndIbc.asset, baseBalance);
+
       return {
-        balance,
+        balance: displayBalance,
         ...assetAndIbc,
       };
     })

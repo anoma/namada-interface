@@ -132,7 +132,7 @@ export const IbcTransfer: React.FC = () => {
             sourceAddress,
             destinationAddress,
             amount,
-            token: selectedAsset.base,
+            asset: selectedAsset,
             transactionFee,
             sourceChannelId: ibcOptions.sourceChannel,
             ...(shielded ?

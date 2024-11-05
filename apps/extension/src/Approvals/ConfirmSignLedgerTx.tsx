@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
-import { Ledger, makeBip44Path } from "@heliaxdev/namada-sdk/web";
 import { ActionButton, Stack } from "@namada/components";
+import { Ledger, makeBip44Path } from "@namada/sdk/web";
 import { LedgerError, ResponseSign } from "@zondax/ledger-namada";
 
 import { fromBase64 } from "@cosmjs/encoding";
@@ -125,10 +125,12 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
         if (!accountDetails) {
           throw new Error(`Failed to query account details for ${signer}`);
         }
-        const path = makeBip44Path(
-          chains.namada.bip44.coinType,
-          accountDetails.path
-        );
+        const path = {
+          account: accountDetails.path.account,
+          change: accountDetails.path.change || 0,
+          index: accountDetails.path.index || 0,
+        };
+        const bip44Path = makeBip44Path(chains.namada.bip44.coinType, path);
         const pendingTxs = await requester.sendMessage(
           Ports.Background,
           new QueryPendingTxBytesMsg(msgId)
@@ -143,7 +145,11 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
         const signatures: ResponseSign[] = [];
 
         for await (const tx of pendingTxs) {
-          const signature = await signLedgerTx(ledger, fromBase64(tx), path);
+          const signature = await signLedgerTx(
+            ledger,
+            fromBase64(tx),
+            bip44Path
+          );
           signatures.push(signature);
         }
 

@@ -1,5 +1,5 @@
-import { Sdk } from "@heliaxdev/namada-sdk/web";
 import { getIntegration } from "@namada/integrations/utils";
+import { Sdk } from "@namada/sdk/web";
 import {
   Account,
   AccountType,

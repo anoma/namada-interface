@@ -1,4 +1,4 @@
-import { PhraseSize } from "@heliaxdev/namada-sdk/web";
+import { PhraseSize } from "@namada/sdk/web";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Result } from "@namada/utils";
 import { ResponseSign } from "@zondax/ledger-namada";
@@ -130,7 +130,8 @@ export class SaveAccountSecretMsg extends Message<AccountStore | false> {
 
   constructor(
     public readonly accountSecret: AccountSecret,
-    public readonly alias: string
+    public readonly alias: string,
+    public readonly path?: Bip44Path
   ) {
     super();
   }
