@@ -229,11 +229,15 @@ export class KeyRing {
     return accountStore;
   }
 
-  public deriveTransparentAccount(
+  public async deriveTransparentAccount(
     seed: Uint8Array,
     path: Bip44Path,
     parentId: string
-  ): DerivedAccountInfo {
+  ): Promise<DerivedAccountInfo> {
+    if (!(await this.queryAccountById(parentId))) {
+      throw new Error(`Unable to query parent account: ${parentId}`);
+    }
+
     const keysNs = this.sdkService.getSdk().getKeys();
     const { address, privateKey } = keysNs.deriveFromSeed(seed, path);
 
@@ -255,12 +259,11 @@ export class KeyRing {
     };
   }
 
-  public deriveShieldedAccount(
+  public async deriveShieldedAccount(
     secret: Uint8Array,
     bip44Path: Bip44Path,
-    parentId: string,
-    parentType = AccountType.Mnemonic
-  ): DerivedAccountInfo {
+    parentId: string
+  ): Promise<DerivedAccountInfo> {
     const storedPath = makeStoredPath(AccountType.ShieldedKeys, bip44Path);
     const id = generateId(
       UUID_NAMESPACE,
@@ -277,6 +280,11 @@ export class KeyRing {
     const keysNs = this.sdkService.getSdk().getKeys();
 
     let shieldedKeys: ShieldedKeys;
+    const parentAccount = await this.queryAccountById(parentId);
+    if (!parentAccount) {
+      throw new Error(`Unable to query parent account: ${parentId}`);
+    }
+    const parentType = parentAccount.type;
 
     if (parentType === AccountType.Mnemonic) {
       shieldedKeys = keysNs.deriveShieldedFromSeed(secret, bip44Path, {
@@ -284,7 +292,8 @@ export class KeyRing {
       });
     } else if (parentType === AccountType.PrivateKey) {
       shieldedKeys = keysNs.deriveShieldedFromPrivateKey(secret, {
-        account: bip44Path.account,
+        // "account" should always be zero on a private key import!
+        account: 0,
       });
     } else {
       throw new Error(`Invalid account type! ${parentType}`);
@@ -394,7 +403,7 @@ export class KeyRing {
       : this.deriveShieldedAccount).bind(this);
 
     const { secret } = await this.getParentSecret(parentId);
-    const info = deriveFn(secret, bip44Path, parentId);
+    const info = await deriveFn(secret, bip44Path, parentId);
 
     // Check whether keys already exist for this account
     const existingAccount = await this.queryAccountByAddress(info.address);
