@@ -5,8 +5,8 @@ import { useExtensionEvents } from "hooks/useExtensionEvents";
 import { useRegistryFeatures } from "hooks/useRegistryFeatures";
 import { useTransactionCallback } from "hooks/useTransactionCallbacks";
 import { useTransactionNotifications } from "hooks/useTransactionNotifications";
+import { useTransactionWatcher } from "hooks/useTransactionWatcher";
 import { Outlet } from "react-router-dom";
-
 import { ChainLoader } from "./Setup/ChainLoader";
 
 export const history = createBrowserHistory({ window });
@@ -16,6 +16,7 @@ export function App(): JSX.Element {
   useTransactionNotifications();
   useTransactionCallback();
   useRegistryFeatures();
+  useTransactionWatcher();
 
   return (
     <>

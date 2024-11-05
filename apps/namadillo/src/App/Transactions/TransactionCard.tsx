@@ -2,17 +2,23 @@ import { TokenCurrency } from "App/Common/TokenCurrency";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
 import { TransferTransactionData } from "types";
+import { TransactionTransferTimeline } from "./TransactionTransferTimeline";
 
 type TransactionCardProps = {
   transaction: TransferTransactionData;
 };
 
-const getTitle = (transaction: TransferTransactionData): string => {
-  switch (transaction.type) {
-    case "Transfer":
+const getTitle = (transferTransaction: TransferTransactionData): string => {
+  switch (transferTransaction.type) {
+    case "TransparentToTransparent":
+    case "ShieldedToShielded":
+    case "TransparentToShielded":
+    case "ShieldedToTransparent":
       return "Transfer";
 
-    case "IbcTransfer":
+    case "IbcToTransparent":
+    case "IbcToShielded":
+    case "TransparentToIbc":
       return "Transfer IBC";
 
     default:
@@ -32,21 +38,24 @@ export const TransactionCard = ({
         )
       )}
     >
-      <i />
       <div>
-        <h3>{getTitle(transaction)}</h3>
-        <p>
-          <TokenCurrency
-            amount={transaction.amount}
-            symbol={transaction.sourceCurrency}
-          />
-          <span className="text-neutral-300">
-            to {transaction.destinationChain}
-            {transaction.destinationAddress}
-          </span>
-        </p>
+        <i />
+        <div>
+          <h3>{getTitle(transaction)}</h3>
+          <p>
+            <TokenCurrency
+              amount={transaction.amount}
+              symbol={transaction.sourceCurrency}
+            />
+            <span className="text-neutral-300">
+              to {transaction.destinationChain}
+              {transaction.destinationAddress}
+            </span>
+          </p>
+        </div>
+        <i />
       </div>
-      <i />
+      <TransactionTransferTimeline transaction={transaction} />
     </article>
   );
 };

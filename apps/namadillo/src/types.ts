@@ -16,6 +16,7 @@ import { TxKind } from "types/txKind";
 
 declare module "*.module.css" {
   const content: Record<string, string>;
+  //@ts-expect-error Ignoring duplicate name 'class' error
   export default content;
 }
 
@@ -92,14 +93,11 @@ export type Validator = Unique & {
 
 export type ValidatorFilterOptions = "all" | "active" | ValidatorStatus;
 
-export type UnbondEntry = Omit<
-  | (IndexerUnbond & {
-      timeLeft?: string;
-    })
-  | "validator"
->;
+export type UnbondEntry = Omit<IndexerUnbond, "validator"> & {
+  timeLeft?: string;
+};
 
-export type BondEntry = Omit<IndexerBond | "validator">;
+export type BondEntry = Omit<IndexerBond, "validator">;
 
 export type MyValidator = {
   stakedAmount?: BigNumber;
@@ -202,19 +200,20 @@ export type AddressWithAssetAndAmountMap = Record<
 export type AssetWithBalanceMap = Record<string, AssetWithBalance>;
 
 export const TransferProgressSteps = {
-  TransparentToIbc: ["sign", "ibc-withdraw", "result"] as const,
-  IbcToShielded: ["sign", "zk-proof", "ibc-to-masp", "result"] as const,
-  IbcToTransparent: ["sign", "transfer", "result"] as const,
-  TransparentToShielded: [
-    "sign",
-    "zk-proof",
-    "tnam-to-masp",
-    "result",
-  ] as const,
-  ShieldedToTransparent: ["sign", "masp-to-tnam", "result"] as const,
-  ShieldedToShielded: ["sign", "masp-to-masp", "result"] as const,
-  TransparentToTransparent: ["sign", "tnam-to-tnam", "result"] as const,
+  TransparentToIbc: ["sign", "ibc-withdraw"] as const,
+  IbcToShielded: ["sign", "zk-proof", "ibc-to-masp"] as const,
+  IbcToTransparent: ["sign", "ibc-to-namada"] as const,
+  TransparentToShielded: ["sign", "zk-proof", "tnam-to-masp"] as const,
+  ShieldedToTransparent: ["sign", "masp-to-tnam"] as const,
+  ShieldedToShielded: ["sign", "masp-to-masp"] as const,
+  TransparentToTransparent: ["sign", "tnam-to-tnam"] as const,
 };
+
+export const TransferProgressStepsEntry = [
+  ...new Set(Object.values(TransferProgressSteps).flat()),
+] as const;
+
+export type ProgressStepsOptions = (typeof TransferProgressStepsEntry)[number];
 
 export type TransferTxKind = keyof typeof TransferProgressSteps;
 
@@ -234,6 +233,7 @@ export type TransferTransactionData = TransferProgress & {
   destinationAddress: string;
   destinationChain: string;
   status: MutationStatus;
+  rpc: string;
   createdAt: Date;
   updatedAt: Date;
 };

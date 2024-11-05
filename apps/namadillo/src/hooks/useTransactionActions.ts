@@ -5,7 +5,7 @@ import { TransferTransactionData } from "types";
 type UseTransactionActionsOutput = {
   transactions: TransferTransactionData[];
   addTransaction: (tx: TransferTransactionData) => void;
-  updateTransaction: (
+  changeTransaction: (
     hash: string,
     updatedTx: Partial<TransferTransactionData>
   ) => void;
@@ -18,18 +18,22 @@ export const useTransactionActions = (): UseTransactionActionsOutput => {
     setTransactions((txs: TransferTransactionData[]) => txs.concat(tx));
   };
 
-  const updateTransaction = (
+  const changeTransaction = (
     hash: string,
     updatedTx: Partial<TransferTransactionData>
   ): void => {
     setTransactions((txs: TransferTransactionData[]) =>
-      txs.map((tx) => (tx.hash === hash ? { ...tx, ...updatedTx } : tx))
+      txs.map((tx) =>
+        tx.hash === hash ?
+          ({ ...tx, ...updatedTx } as TransferTransactionData)
+        : tx
+      )
     );
   };
 
   return {
     transactions,
     addTransaction,
-    updateTransaction,
+    changeTransaction,
   };
 };

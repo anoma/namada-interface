@@ -1,18 +1,18 @@
 import { Panel } from "@namada/components";
 import { transactionHistoryAtom } from "atoms/transactions/atoms";
+import {
+  filterCompleteTransactions,
+  filterPendingTransactions,
+} from "atoms/transactions/functions";
 import { useAtomValue } from "jotai";
 import { TransferTransactionData } from "types";
 import { TransactionCard } from "./TransactionCard";
 
 export const TransactionHistory = (): JSX.Element => {
   const transactions = useAtomValue(transactionHistoryAtom);
-  const pending = transactions.filter(
-    (t) => t.status === "pending" || t.status === "idle"
-  );
-  const complete = transactions.filter(
-    (t) => t.status === "success" || t.status === "error"
-  );
-  const noTransactionsFound = pending.length + complete.length === 0;
+  const pending = transactions.filter(filterPendingTransactions);
+  const complete = transactions.filter(filterCompleteTransactions);
+  const noTransactionsFound = transactions.length === 0;
 
   const renderList = (
     transactions: TransferTransactionData[]
