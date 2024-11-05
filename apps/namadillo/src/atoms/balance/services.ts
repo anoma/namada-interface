@@ -1,18 +1,9 @@
-const apiUrl = "https://api-osmosis.imperator.co";
+const apiUrl = "https://sqs.osmosis.zone/";
 
-type ImperatorToken = {
-  price: number;
-  denom: string;
-  symbol: string;
-  liquidity: number;
-  volume_24h: number;
-  volume_24h_change: number;
-  name: string;
-  price_24h_change: number;
-  price_7d_change: number;
-  exponent: number;
-  display: string;
-};
-
-export const fetchTokenPrices = async (): Promise<ImperatorToken[]> =>
-  fetch(`${apiUrl}/tokens/v2/all`).then((res) => res.json());
+// ref: https://sqs.osmosis.zone/swagger/index.html#/default/get_tokens_prices
+export const fetchCoinPrices = async (
+  assetBaseList: string[]
+): Promise<Record<string, { [usdcAddress: string]: string }>> =>
+  fetch(`${apiUrl}/tokens/prices?base=${assetBaseList.join(",")}`).then((res) =>
+    res.json()
+  );

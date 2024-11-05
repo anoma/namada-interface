@@ -10,23 +10,19 @@ import { shouldUpdateBalanceAtom } from "atoms/etc";
 import { availableAssetsAtom } from "atoms/integrations";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
-import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { namadaAsset } from "registry/namadaAsset";
 import { unknownAsset } from "registry/unknownAsset";
-import { findExponent } from "utils/registry";
+import { toDisplayAmount } from "utils";
 import { getSdkInstance } from "utils/sdk";
-import { fetchTokenPrices } from "./services";
+import { findAssetByToken } from "./functions";
+import { fetchCoinPrices } from "./services";
 
 export type TokenBalance = {
-  denom: string;
   asset: Asset;
   balance: BigNumber;
   dollar?: BigNumber;
 };
-
-// TODO import from namada-chain-registry
-export const NAM_DENOM = "nam";
 
 export const viewingKeyAtom = atomWithQuery<string>((get) => {
   const accountsQuery = get(accountsAtom);
@@ -61,7 +57,7 @@ export const shieldedBalanceAtom = atomWithQuery<Balance>((get) => {
       if (!viewingKey || !tokenAddresses) {
         return [];
       }
-      // TODO mock
+      // TODO mock shielded balance
       // await new Promise((r) => setTimeout(() => r(0), 500));
       // getSdkInstance().then((sdk) => sdk.rpc.shieldedSync([viewingKey]));
       // return [
@@ -78,82 +74,84 @@ export const shieldedBalanceAtom = atomWithQuery<Balance>((get) => {
   };
 });
 
-export const denomByAddressAtom = atomWithQuery((get) => {
+export const assetByAddressAtom = atomWithQuery((get) => {
   const tokenAddressesQuery = get(tokenAddressesAtom);
   const namTokenAddressQuery = get(nativeTokenAddressAtom);
+  const availableAssets = get(availableAssetsAtom);
 
   return {
     queryKey: [
-      "denom-by-address",
+      "asset-by-address",
       tokenAddressesQuery.data,
       namTokenAddressQuery.data,
     ],
     queryFn: () => {
-      const addressToDenom: Record<string, string> = {};
+      const assetByAddress: Record<string, Asset> = {};
       if (namTokenAddressQuery.data) {
-        addressToDenom[namTokenAddressQuery.data] = NAM_DENOM;
+        assetByAddress[namTokenAddressQuery.data] = namadaAsset;
       }
       tokenAddressesQuery.data?.forEach((token) => {
-        if ("trace" in token) {
-          const denom = token.trace.split("/").at(-1) ?? token.trace;
-          addressToDenom[token.address] = denom;
+        const asset = findAssetByToken(token, availableAssets);
+        if (asset) {
+          assetByAddress[token.address] = asset;
         }
       });
-      return addressToDenom;
+      return assetByAddress;
     },
   };
 });
 
-export const assetsByDenomAtom = atom((get) => {
-  const availableAssets = get(availableAssetsAtom);
-  const assetsByDenom: Record<string, Asset> = {
-    // TODO namAsset should be returned from availableAssetsAtom
-    [NAM_DENOM]: namadaAsset,
-  };
-  availableAssets.forEach((assets) => {
-    assets.assets.forEach((asset) => {
-      asset.denom_units.forEach((unit) => {
-        // only set the asset if it doesn't exists
-        // otherwise the testnet will override the mainnet
-        if (!assetsByDenom[unit.denom]) {
-          assetsByDenom[unit.denom] = asset;
-        }
-        unit.aliases?.forEach((alias) => {
-          if (!assetsByDenom[alias]) {
-            assetsByDenom[alias] = asset;
-          }
-        });
-      });
-    });
-  });
-  return assetsByDenom;
-});
+export const tokenPricesAtom = atomWithQuery((get) => {
+  const shieldedBalanceQuery = get(shieldedBalanceAtom);
+  const transparentBalanceQuery = get(transparentBalanceAtom);
+  const assetByAddressQuery = get(assetByAddressAtom);
 
-export const tokenPricesAtom = atomWithQuery(() => {
+  // Get the list of addresses that exists on balances
+  const obj: Record<string, true> = {};
+  shieldedBalanceQuery.data?.forEach(([address]) => {
+    obj[address] = true;
+  });
+  transparentBalanceQuery.data?.forEach(({ tokenAddress }) => {
+    obj[tokenAddress] = true;
+  });
+  const addresses = Object.keys(obj);
+
   return {
-    queryKey: ["token-price"],
+    queryKey: ["token-price", addresses, assetByAddressQuery.data],
     queryFn: async () => {
-      const obj: Record<string, number> = {};
-      const response = await fetchTokenPrices();
-      response.forEach((token) => {
-        obj[token.symbol] = token.price;
+      const addressByBase: Record<string, string> = {};
+      addresses.forEach((address) => {
+        const base = assetByAddressQuery.data?.[address]?.base;
+        if (base) {
+          addressByBase[base] = address;
+        }
       });
-      return obj;
+      const apiResponse = await fetchCoinPrices(Object.keys(addressByBase));
+      // TODO mock NAM price
+      // apiResponse[namadaAsset.base] = {
+      //   "ibc/498A0751C798A0D9A389AA3691123DADA57DAA4FE165D5C75894505B876BA6E4":
+      //     "1.000000000000000000000000000000000000",
+      // };
+      const tokenPrices: Record<string, BigNumber> = {};
+      Object.entries(apiResponse).forEach(([base, value]) => {
+        const address = addressByBase[base];
+        tokenPrices[address] = new BigNumber(Object.values(value)[0]);
+      });
+      return tokenPrices;
     },
   };
 });
 
 export const shieldedTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
   const shieldedBalanceQuery = get(shieldedBalanceAtom);
-  const denomByAddressQuery = get(denomByAddressAtom);
-  const assetsByDenom = get(assetsByDenomAtom);
+  const assetByAddressQuery = get(assetByAddressAtom);
   const tokenPricesQuery = get(tokenPricesAtom);
 
   return {
     queryKey: [
       "shielded-tokens",
       shieldedBalanceQuery.data,
-      denomByAddressQuery.data,
+      assetByAddressQuery.data,
       tokenPricesQuery.data,
     ],
     ...queryDependentFn(
@@ -162,27 +160,25 @@ export const shieldedTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
           formatTokenBalance(
             address,
             amount,
-            denomByAddressQuery.data,
-            assetsByDenom,
+            assetByAddressQuery.data,
             tokenPricesQuery.data
           )
         ) ?? [],
-      [shieldedBalanceQuery, tokenPricesQuery, denomByAddressQuery]
+      [shieldedBalanceQuery, tokenPricesQuery, assetByAddressQuery]
     ),
   };
 });
 
 export const transparentTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
   const transparentBalanceQuery = get(transparentBalanceAtom);
-  const denomByAddressQuery = get(denomByAddressAtom);
-  const assetsByDenom = get(assetsByDenomAtom);
+  const assetByAddressQuery = get(assetByAddressAtom);
   const tokenPricesQuery = get(tokenPricesAtom);
 
   return {
     queryKey: [
       "transparent-tokens",
       transparentBalanceQuery.data,
-      denomByAddressQuery.data,
+      assetByAddressQuery.data,
       tokenPricesQuery.data,
     ],
     ...queryDependentFn(
@@ -191,12 +187,11 @@ export const transparentTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
           formatTokenBalance(
             tokenAddress,
             balance,
-            denomByAddressQuery.data,
-            assetsByDenom,
+            assetByAddressQuery.data,
             tokenPricesQuery.data
           )
         ) ?? [],
-      [transparentBalanceQuery, tokenPricesQuery, denomByAddressQuery]
+      [transparentBalanceQuery, tokenPricesQuery, assetByAddressQuery]
     ),
   };
 });
@@ -204,25 +199,16 @@ export const transparentTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
 const formatTokenBalance = (
   address: string,
   amount: string,
-  denomByAddress?: Record<string, string>,
-  assetsByDenom?: Record<string, Asset>,
-  tokenPrices?: Record<string, number>
+  assetsByAddress?: Record<string, Asset>,
+  tokenPrices?: Record<string, BigNumber>
 ): TokenBalance => {
-  const denom = denomByAddress?.[address] ?? unknownAsset.display;
-  const asset = assetsByDenom?.[denom] ?? unknownAsset;
-  const display = asset.display;
+  const asset = assetsByAddress?.[address] ?? unknownAsset;
+  const balance = toDisplayAmount(asset, new BigNumber(amount));
 
-  const exponentInput = findExponent(asset, denom);
-  const exponentOutput = findExponent(asset, display);
-  const exponent = exponentOutput - exponentInput;
-
-  const balance = new BigNumber(amount).dividedBy(Math.pow(10, exponent));
-
-  const tokenPrice = tokenPrices?.[asset.symbol];
+  const tokenPrice = tokenPrices?.[address];
   const dollar = tokenPrice ? balance.multipliedBy(tokenPrice) : undefined;
 
   return {
-    denom,
     asset,
     balance,
     dollar,
