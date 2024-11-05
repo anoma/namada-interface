@@ -34,7 +34,10 @@ export const ShieldedNamBalance = (): JSX.Element => {
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
   const { shieldingRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
 
-  const shieldedNam = getTotalNam(shieldedTokensQuery.data);
+  const shieldedNam =
+    shieldedTokensQuery.isPending ? undefined : (
+      getTotalNam(shieldedTokensQuery.data)
+    );
 
   return (
     <AtomErrorBoundary
