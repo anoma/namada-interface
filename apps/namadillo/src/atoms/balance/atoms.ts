@@ -1,5 +1,4 @@
 import { Asset } from "@chain-registry/types";
-import { Balance } from "@heliaxdev/namada-sdk/web";
 import {
   accountsAtom,
   defaultAccountAtom,
@@ -14,9 +13,8 @@ import { atomWithQuery } from "jotai-tanstack-query";
 import { namadaAsset } from "registry/namadaAsset";
 import { unknownAsset } from "registry/unknownAsset";
 import { toDisplayAmount } from "utils";
-import { getSdkInstance } from "utils/sdk";
 import { findAssetByToken } from "./functions";
-import { fetchCoinPrices } from "./services";
+import { fetchCoinPrices, fetchShieldedBalance } from "./services";
 
 export type TokenBalance = {
   asset: Asset;
@@ -39,10 +37,13 @@ export const viewingKeyAtom = atomWithQuery<string>((get) => {
   };
 });
 
-export const shieldedBalanceAtom = atomWithQuery<Balance>((get) => {
+export const shieldedBalanceAtom = atomWithQuery<
+  { address: string; amount: BigNumber }[]
+>((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
   const viewingKeyQuery = get(viewingKeyAtom);
   const tokenAddressesQuery = get(tokenAddressesAtom);
+  const namTokenAddressQuery = get(nativeTokenAddressAtom);
 
   return {
     refetchInterval: enablePolling ? 1000 : false,
@@ -50,6 +51,7 @@ export const shieldedBalanceAtom = atomWithQuery<Balance>((get) => {
       "shielded-balance",
       viewingKeyQuery.data,
       tokenAddressesQuery.data,
+      namTokenAddressQuery.data,
     ],
     ...queryDependentFn(async () => {
       const viewingKey = viewingKeyQuery.data;
@@ -57,20 +59,20 @@ export const shieldedBalanceAtom = atomWithQuery<Balance>((get) => {
       if (!viewingKey || !tokenAddresses) {
         return [];
       }
-      // TODO mock shielded balance
-      // await new Promise((r) => setTimeout(() => r(0), 500));
-      // getSdkInstance().then((sdk) => sdk.rpc.shieldedSync([viewingKey]));
-      // return [
-      //   ["tnam1qy440ynh9fwrx8aewjvvmu38zxqgukgc259fzp6h", "37"], // nam
-      //   ["tnam1p5nnjnasjtfwen2kzg78fumwfs0eycqpecuc2jwz", "1"], // uatom
-      // ];
-      const sdk = await getSdkInstance();
-      await sdk.rpc.shieldedSync([viewingKey]);
-      return await sdk.rpc.queryBalance(
+      const response = await fetchShieldedBalance(
         viewingKey,
         tokenAddresses.map((t) => t.address)
       );
-    }, [viewingKeyQuery, tokenAddressesQuery]),
+      const shieldedBalance = response.map(([address, amount]) => ({
+        address,
+        amount:
+          // Sdk returns the nam amount as `nam` instead of `namnam`
+          namTokenAddressQuery.data === address ?
+            new BigNumber(amount).shiftedBy(6)
+          : new BigNumber(amount),
+      }));
+      return shieldedBalance;
+    }, [viewingKeyQuery, tokenAddressesQuery, namTokenAddressQuery]),
   };
 });
 
@@ -108,11 +110,11 @@ export const tokenPricesAtom = atomWithQuery((get) => {
 
   // Get the list of addresses that exists on balances
   const obj: Record<string, true> = {};
-  shieldedBalanceQuery.data?.forEach(([address]) => {
+  shieldedBalanceQuery.data?.forEach(({ address }) => {
     obj[address] = true;
   });
-  transparentBalanceQuery.data?.forEach(({ tokenAddress }) => {
-    obj[tokenAddress] = true;
+  transparentBalanceQuery.data?.forEach(({ address }) => {
+    obj[address] = true;
   });
   const addresses = Object.keys(obj);
 
@@ -126,7 +128,11 @@ export const tokenPricesAtom = atomWithQuery((get) => {
           addressByBase[base] = address;
         }
       });
-      const apiResponse = await fetchCoinPrices(Object.keys(addressByBase));
+      const assetBaseList = Object.keys(addressByBase);
+      const apiResponse =
+        assetBaseList.length ?
+          await fetchCoinPrices(Object.keys(addressByBase))
+        : [];
       // TODO mock NAM price
       // apiResponse[namadaAsset.base] = {
       //   "ibc/498A0751C798A0D9A389AA3691123DADA57DAA4FE165D5C75894505B876BA6E4":
@@ -156,7 +162,7 @@ export const shieldedTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
     ],
     ...queryDependentFn(
       async () =>
-        shieldedBalanceQuery.data?.map(([address, amount]) =>
+        shieldedBalanceQuery.data?.map(({ address, amount }) =>
           formatTokenBalance(
             address,
             amount,
@@ -183,10 +189,10 @@ export const transparentTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
     ],
     ...queryDependentFn(
       async () =>
-        transparentBalanceQuery.data?.map(({ tokenAddress, balance }) =>
+        transparentBalanceQuery.data?.map(({ address, amount }) =>
           formatTokenBalance(
-            tokenAddress,
-            balance,
+            address,
+            amount,
             assetByAddressQuery.data,
             tokenPricesQuery.data
           )
@@ -198,12 +204,12 @@ export const transparentTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
 
 const formatTokenBalance = (
   address: string,
-  amount: string,
+  amount: BigNumber,
   assetsByAddress?: Record<string, Asset>,
   tokenPrices?: Record<string, BigNumber>
 ): TokenBalance => {
   const asset = assetsByAddress?.[address] ?? unknownAsset;
-  const balance = toDisplayAmount(asset, new BigNumber(amount));
+  const balance = toDisplayAmount(asset, amount);
 
   const tokenPrice = tokenPrices?.[address];
   const dollar = tokenPrice ? balance.multipliedBy(tokenPrice) : undefined;
