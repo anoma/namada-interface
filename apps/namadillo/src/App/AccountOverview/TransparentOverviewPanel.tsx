@@ -10,9 +10,11 @@ import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { routes } from "App/routes";
 import { TokenBalance, transparentTokensAtom } from "atoms/balance/atoms";
+import { getTotalDollar } from "atoms/balance/functions";
 import { getAssetImageUrl } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
+import { namadaAsset } from "registry/namadaAsset";
 import { twMerge } from "tailwind-merge";
 
 const resultsPerPage = 100;
@@ -60,7 +62,7 @@ const TransparentTokensTable = ({
           <ActionButton size="xs" href={routes.maspShield}>
             Shield
           </ActionButton>
-          {display === "nam" && (
+          {display === namadaAsset.display && (
             <ActionButton
               size="xs"
               className="w-fit mx-auto"
@@ -118,11 +120,71 @@ const TransparentTokensTable = ({
   );
 };
 
+const PanelContent = ({ data }: { data: TokenBalance[] }): JSX.Element => {
+  const namBalance = data.find((i) => i.asset.base === namadaAsset.base);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="grid md:grid-cols-2 gap-2">
+        {[
+          {
+            title: "Total Transparent Asset Balance",
+            amount: getTotalDollar(data),
+            button: (
+              <ActionButton size="xs" href={routes.ibcShieldAll}>
+                Shield All
+              </ActionButton>
+            ),
+          },
+          {
+            title: "Transparent NAM Balance",
+            amount: namBalance?.dollar,
+            namAmount: namBalance?.balance,
+            button: (
+              <ActionButton
+                size="xs"
+                backgroundColor="cyan"
+                outlineColor="cyan"
+                textColor="black"
+                textHoverColor="cyan"
+                backgroundHoverColor="transparent"
+                href={routes.stakingBondingIncrement}
+              >
+                Stake
+              </ActionButton>
+            ),
+          },
+        ].map(({ title, amount, namAmount, button }) => (
+          <div key={title} className="bg-gray px-6 py-3 rounded-sm flex gap-2">
+            <div className="flex-1 overflow-auto">
+              <div className="text-sm">{title}</div>
+              <div className="text-2xl sm:text-3xl whitespace-nowrap overflow-auto">
+                {amount ?
+                  <FiatCurrency amount={amount} />
+                : "N/A"}
+              </div>
+              {namAmount && namBalance && (
+                <TokenCurrency
+                  amount={namAmount}
+                  asset={namBalance.asset}
+                  className="text-neutral-400 text-sm"
+                />
+              )}
+            </div>
+            <div className="self-center">{button}</div>
+          </div>
+        ))}
+      </div>
+      <TransparentTokensTable data={data} />
+    </div>
+  );
+};
+
 export const TransparentOverviewPanel = (): JSX.Element => {
   const transparentTokensQuery = useAtomValue(transparentTokensAtom);
 
   return (
-    <Panel className="min-h-[350px]" title="Transparent Overview">
+    <Panel className="min-h-[300px] flex flex-col" title="Transparent Overview">
       {transparentTokensQuery.isPending ?
         <SkeletonLoading height="100%" width="100%" />
       : <AtomErrorBoundary
@@ -130,34 +192,14 @@ export const TransparentOverviewPanel = (): JSX.Element => {
           niceError="Unable to load your transparent balance"
           containerProps={{ className: "pb-16" }}
         >
-          <div className="flex flex-col gap-2">
-            <div className="grid sm:grid-cols-2 gap-2">
-              {[
-                {
-                  title: "Total Transparent Asset Balance",
-                  amount: 0,
-                },
-                {
-                  title: "Transparent NAM Balance",
-                  amount: 0,
-                },
-              ].map(({ title, amount }) => (
-                <div key={title} className="bg-gray px-6 py-3 rounded-sm">
-                  <div className="text-sm">{title}</div>
-                  <FiatCurrency
-                    className="text-2xl sm:text-3xl whitespace-nowrap"
-                    amount={amount}
-                  />
-                </div>
-              ))}
+          {transparentTokensQuery.data?.length ?
+            <>
+              <PanelContent data={transparentTokensQuery.data} />
+            </>
+          : <div className="bg-neutral-900 p-6 rounded-sm text-center font-medium my-14">
+              You currently hold no assets in your unshielded account
             </div>
-            {transparentTokensQuery.data?.length ?
-              <TransparentTokensTable data={transparentTokensQuery.data} />
-            : <div className="bg-neutral-900 p-6 rounded-sm text-center font-medium mt-10">
-                You currently hold no assets in your unshielded account
-              </div>
-            }
-          </div>
+          }
         </AtomErrorBoundary>
       }
     </Panel>
