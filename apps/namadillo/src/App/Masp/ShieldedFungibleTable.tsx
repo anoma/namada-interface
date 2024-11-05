@@ -62,7 +62,7 @@ export const ShieldedFungibleTable = ({
           size="xs"
           outlineColor="white"
           className="w-fit mx-auto"
-          href={display === "NAM" ? routes.maspUnshield : routes.ibcWithdraw}
+          href={routes.maspUnshield}
         >
           Unshield
         </ActionButton>,
@@ -88,7 +88,7 @@ export const ShieldedFungibleTable = ({
         Tokens
       </div>
       <TableWithPaginator
-        id={"my-validators"}
+        id={"shielded-tokens"}
         headers={headers.concat("")}
         renderRow={renderRow}
         itemList={paginatedItems}
