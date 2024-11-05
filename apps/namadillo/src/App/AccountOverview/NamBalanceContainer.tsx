@@ -2,10 +2,8 @@ import { SkeletonLoading, Stack } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { BalanceChart } from "App/Common/BalanceChart";
 import { NamCurrency } from "App/Common/NamCurrency";
-import { applicationFeaturesAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { useBalances } from "hooks/useBalances";
-import { useAtomValue } from "jotai";
 import { colors } from "theme";
 
 type NamBalanceListItemProps = {
@@ -43,14 +41,12 @@ const NamBalanceListItem = ({
 };
 
 export const NamBalanceContainer = (): JSX.Element => {
-  const features = useAtomValue(applicationFeaturesAtom);
   const {
     balanceQuery,
     stakeQuery,
     isLoading,
     availableAmount,
     bondedAmount,
-    shieldedAmount,
     unbondedAmount,
     withdrawableAmount,
     totalAmount,
@@ -68,20 +64,11 @@ export const NamBalanceContainer = (): JSX.Element => {
             isLoading={isLoading}
             availableAmount={availableAmount}
             bondedAmount={bondedAmount}
-            shieldedAmount={shieldedAmount}
             unbondedAmount={unbondedAmount}
             withdrawableAmount={withdrawableAmount}
             totalAmount={totalAmount}
           />
           <Stack gap={2} as="ul">
-            {features.maspEnabled && (
-              <NamBalanceListItem
-                title="Shielded Assets"
-                color={colors.shielded}
-                amount={shieldedAmount}
-                isLoading={isLoading}
-              />
-            )}
             <NamBalanceListItem
               title="Available NAM"
               color={colors.balance}

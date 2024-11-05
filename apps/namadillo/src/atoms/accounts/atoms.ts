@@ -12,6 +12,7 @@ import {
   fetchAccountBalance,
   fetchAccounts,
   fetchDefaultAccount,
+  fetchNamAccountBalance,
 } from "./services";
 
 export const accountsAtom = atomWithQuery<readonly Account[]>((get) => {
@@ -91,7 +92,7 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
     refetchInterval: enablePolling ? 1000 : false,
     queryKey: ["balances", tokenAddress.data, defaultAccount.data],
     ...queryDependentFn(async (): Promise<BigNumber> => {
-      return await fetchAccountBalance(
+      return await fetchNamAccountBalance(
         api,
         defaultAccount.data,
         tokenAddress.data!,
@@ -100,5 +101,27 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
         chainConfig.currencies[0].coinDecimals
       );
     }, [tokenAddress, defaultAccount]),
+  };
+});
+
+// TODO combine the `accountBalanceAtom` with the `transparentBalanceAtom`
+// Then execute only once the `fetchAccountBalance`, deleting the `fetchNamAccountBalance`
+export const transparentBalanceAtom = atomWithQuery<
+  { address: string; amount: BigNumber }[]
+>((get) => {
+  const enablePolling = get(shouldUpdateBalanceAtom);
+  const api = get(indexerApiAtom);
+  const defaultAccountQuery = get(defaultAccountAtom);
+
+  return {
+    refetchInterval: enablePolling ? 1000 : false,
+    queryKey: ["transparent-balance", defaultAccountQuery.data],
+    ...queryDependentFn(async () => {
+      const response = await fetchAccountBalance(api, defaultAccountQuery.data);
+      return response.map((item) => ({
+        address: item.tokenAddress,
+        amount: new BigNumber(item.balance),
+      }));
+    }, [defaultAccountQuery]),
   };
 });

@@ -9,12 +9,15 @@ import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { twMerge } from "tailwind-merge";
 import { AccountBalanceContainer } from "./AccountBalanceContainer";
+import { BalanceContainer } from "./BalanceContainer";
 import { NamBalanceContainer } from "./NamBalanceContainer";
 import { NavigationFooter } from "./NavigationFooter";
 
 export const AccountOverview = (): JSX.Element => {
   const userHasAccount = useUserHasAccount();
-  const { claimRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
+  const { claimRewardsEnabled, maspEnabled } = useAtomValue(
+    applicationFeaturesAtom
+  );
 
   if (!userHasAccount) {
     return (
@@ -31,7 +34,9 @@ export const AccountOverview = (): JSX.Element => {
           <section className="flex flex-col w-full rounded-sm min-h-full gap-2">
             <div className="grid sm:grid-cols-[1.25fr_1fr] gap-2">
               <Panel>
-                <NamBalanceContainer />
+                {maspEnabled ?
+                  <BalanceContainer />
+                : <NamBalanceContainer />}
               </Panel>
               <Panel>
                 <StakingRewardsPanel />

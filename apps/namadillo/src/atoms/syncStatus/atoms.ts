@@ -1,8 +1,8 @@
-import { accountBalanceAtom } from "atoms/accounts/atoms";
 import {
-  namShieldedBalanceAtom,
-  totalShieldedBalanceAtom,
-} from "atoms/masp/atoms";
+  accountBalanceAtom,
+  transparentBalanceAtom,
+} from "atoms/accounts/atoms";
+import { shieldedBalanceAtom } from "atoms/balance/atoms";
 import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals/atoms";
 import { indexerHeartbeatAtom, rpcHeartbeatAtom } from "atoms/settings/atoms";
 import { allValidatorsAtom, myValidatorsAtom } from "atoms/validators/atoms";
@@ -14,6 +14,10 @@ export const syncStatusAtom = atom((get) => {
     get(indexerHeartbeatAtom),
     get(rpcHeartbeatAtom),
 
+    // Account Overview
+    get(shieldedBalanceAtom),
+    get(transparentBalanceAtom),
+
     // Staking
     get(accountBalanceAtom),
     get(myValidatorsAtom),
@@ -22,10 +26,6 @@ export const syncStatusAtom = atom((get) => {
     // Governance
     get(allProposalsAtom),
     get(votedProposalsAtom),
-
-    // Masp
-    get(totalShieldedBalanceAtom),
-    get(namShieldedBalanceAtom),
   ];
 
   const isSyncing = queries.some((q) => q.isFetching);

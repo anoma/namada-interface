@@ -1,4 +1,4 @@
-import { DefaultApi } from "@anomaorg/namada-indexer-client";
+import { Balance, DefaultApi } from "@anomaorg/namada-indexer-client";
 import { getIntegration } from "@namada/integrations";
 import { Account } from "@namada/types";
 import BigNumber from "bignumber.js";
@@ -14,7 +14,7 @@ export const fetchDefaultAccount = async (): Promise<Account | undefined> => {
   return await namada.defaultAccount();
 };
 
-export const fetchAccountBalance = async (
+export const fetchNamAccountBalance = async (
   api: DefaultApi,
   account: Account | undefined,
   tokenAddress: string,
@@ -37,4 +37,13 @@ export const fetchAccountBalance = async (
   return balance ?
       BigNumber(balance.amount).shiftedBy(-decimals)
     : BigNumber(0);
+};
+
+export const fetchAccountBalance = async (
+  api: DefaultApi,
+  account: Account | undefined
+): Promise<Balance[]> => {
+  if (!account) return [];
+  const balancesResponse = await api.apiV1AccountAddressGet(account.address);
+  return balancesResponse.data;
 };
