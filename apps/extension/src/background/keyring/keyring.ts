@@ -229,15 +229,11 @@ export class KeyRing {
     return accountStore;
   }
 
-  public async deriveTransparentAccount(
+  public deriveTransparentAccount(
     seed: Uint8Array,
     path: Bip44Path,
-    parentId: string
-  ): Promise<DerivedAccountInfo> {
-    if (!(await this.queryAccountById(parentId))) {
-      throw new Error(`Unable to query parent account: ${parentId}`);
-    }
-
+    parentAccount: DerivedAccount
+  ): DerivedAccountInfo {
     const keysNs = this.sdkService.getSdk().getKeys();
     const { address, privateKey } = keysNs.deriveFromSeed(seed, path);
 
@@ -245,7 +241,7 @@ export class KeyRing {
     const id = generateId(
       UUID_NAMESPACE,
       "account",
-      parentId,
+      parentAccount.id,
       account,
       change,
       index
@@ -259,42 +255,37 @@ export class KeyRing {
     };
   }
 
-  public async deriveShieldedAccount(
+  public deriveShieldedAccount(
     secret: Uint8Array,
     bip44Path: Bip44Path,
-    parentId: string
-  ): Promise<DerivedAccountInfo> {
-    const storedPath = makeStoredPath(AccountType.ShieldedKeys, bip44Path);
+    parentAccount: DerivedAccount
+  ): DerivedAccountInfo {
+    const zip32Path = makeStoredPath(AccountType.ShieldedKeys, bip44Path);
     const id = generateId(
       UUID_NAMESPACE,
       "shielded-account",
-      parentId,
+      parentAccount.id,
       // Specify unique identifiers for parent derived account
       bip44Path.account,
       bip44Path.change,
       bip44Path.index,
       // Specify unique identifiers for shielded account
-      storedPath.account,
-      storedPath.index || "none"
+      zip32Path.account,
+      zip32Path.index || "none"
     );
     const keysNs = this.sdkService.getSdk().getKeys();
 
     let shieldedKeys: ShieldedKeys;
-    const parentAccount = await this.queryAccountById(parentId);
-    if (!parentAccount) {
-      throw new Error(`Unable to query parent account: ${parentId}`);
-    }
     const parentType = parentAccount.type;
 
     if (parentType === AccountType.Mnemonic) {
-      shieldedKeys = keysNs.deriveShieldedFromSeed(secret, bip44Path, {
-        account: bip44Path.account,
-      });
+      shieldedKeys = keysNs.deriveShieldedFromSeed(
+        secret,
+        bip44Path,
+        zip32Path
+      );
     } else if (parentType === AccountType.PrivateKey) {
-      shieldedKeys = keysNs.deriveShieldedFromPrivateKey(secret, {
-        // "account" should always be zero on a private key import!
-        account: 0,
-      });
+      shieldedKeys = keysNs.deriveShieldedFromPrivateKey(secret, zip32Path);
     } else {
       throw new Error(`Invalid account type! ${parentType}`);
     }
@@ -390,12 +381,24 @@ export class KeyRing {
     parentId: string
   ): Promise<DerivedAccount> {
     await this.vaultService.assertIsUnlocked();
-    // Prepare path for either BIP44 or ZIP32 stored value
-    const path = makeStoredPath(type, bip44Path);
 
     if (type !== AccountType.PrivateKey && type !== AccountType.ShieldedKeys) {
       throw new Error("Unsupported account type");
     }
+
+    const parentAccount = await this.queryAccountById(parentId);
+    if (!parentAccount) {
+      throw new Error(`Parent account not found: ${parentId}`);
+    }
+
+    let derivationPath = bip44Path;
+    if (parentAccount.type === AccountType.PrivateKey) {
+      // Parent accounts that are imported private keys can not
+      // contain custom paths, so ensure that we use the default:
+      derivationPath = { account: 0, change: 0, index: 0 };
+    }
+    // Convert to zip32 path if necessary
+    const path = makeStoredPath(type, derivationPath);
 
     const deriveFn = (
       type === AccountType.PrivateKey ?
@@ -403,7 +406,7 @@ export class KeyRing {
       : this.deriveShieldedAccount).bind(this);
 
     const { secret } = await this.getParentSecret(parentId);
-    const info = await deriveFn(secret, bip44Path, parentId);
+    const info = deriveFn(secret, derivationPath, parentAccount);
 
     // Check whether keys already exist for this account
     const existingAccount = await this.queryAccountByAddress(info.address);
