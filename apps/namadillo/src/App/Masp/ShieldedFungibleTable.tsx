@@ -88,7 +88,7 @@ export const ShieldedFungibleTable = ({
         Tokens
       </div>
       <TableWithPaginator
-        id={"shielded-tokens"}
+        id="shielded-tokens"
         headers={headers.concat("")}
         renderRow={renderRow}
         itemList={paginatedItems}

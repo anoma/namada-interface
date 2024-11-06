@@ -95,7 +95,7 @@ const TransparentTokensTable = ({
         Tokens
       </div>
       <TableWithPaginator
-        id={"transparent-tokens"}
+        id="transparent-tokens"
         headers={headers.concat("")}
         renderRow={renderRow}
         itemList={paginatedItems}
