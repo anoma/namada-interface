@@ -33,6 +33,7 @@ const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
 export const KEYSTORE_KEY = "key-store";
 export const PARENT_ACCOUNT_ID_KEY = "parent-account-id";
 export const AUTHKEY_KEY = "auth-key-store";
+export const DEFAULT_BIP44_PATH = { account: 0, change: 0, index: 0 };
 
 type DerivedAccountInfo = {
   address: string;
@@ -260,7 +261,12 @@ export class KeyRing {
     bip44Path: Bip44Path,
     parentAccount: DerivedAccount
   ): DerivedAccountInfo {
-    const zip32Path = makeStoredPath(AccountType.ShieldedKeys, bip44Path);
+    // As this is derived from a parent account, our initial default account
+    // should have a default path
+    const zip32Path = makeStoredPath(
+      AccountType.ShieldedKeys,
+      DEFAULT_BIP44_PATH
+    );
     const id = generateId(
       UUID_NAMESPACE,
       "shielded-account",
@@ -268,10 +274,7 @@ export class KeyRing {
       // Specify unique identifiers for parent derived account
       bip44Path.account,
       bip44Path.change,
-      bip44Path.index,
-      // Specify unique identifiers for shielded account
-      zip32Path.account,
-      zip32Path.index || "none"
+      bip44Path.index
     );
     const keysNs = this.sdkService.getSdk().getKeys();
 
@@ -393,12 +396,17 @@ export class KeyRing {
 
     let derivationPath = bip44Path;
     if (parentAccount.type === AccountType.PrivateKey) {
-      // Parent accounts that are imported private keys can not
-      // contain custom paths, so ensure that we use the default:
-      derivationPath = { account: 0, change: 0, index: 0 };
+      // Parent accounts that are imported private keys cannot
+      // contain custom paths, so ensure that we use the default here
+      derivationPath = DEFAULT_BIP44_PATH;
     }
-    // Convert to zip32 path if necessary
-    const path = makeStoredPath(type, derivationPath);
+
+    // We create a default zip32 path here as shielded keys will
+    // be derived from a private key that was derived with BIP44
+    const zip32Path = makeStoredPath(
+      AccountType.ShieldedKeys,
+      DEFAULT_BIP44_PATH
+    );
 
     const deriveFn = (
       type === AccountType.PrivateKey ?
@@ -417,7 +425,7 @@ export class KeyRing {
     }
 
     const derivedAccount = await this.persistAccount(
-      path,
+      type === AccountType.ShieldedKeys ? zip32Path : derivationPath,
       parentId,
       type,
       alias,
@@ -434,11 +442,9 @@ export class KeyRing {
   /**
    * Query single account by ID
    */
-  public async queryAccountById(
-    accountId: string
-  ): Promise<DerivedAccount | undefined> {
+  public async queryAccountById(accountId: string): Promise<DerivedAccount> {
     return (await this.vaultStorage.findOneOrFail(KeyStore, "id", accountId))
-      ?.public;
+      .public;
   }
 
   /**

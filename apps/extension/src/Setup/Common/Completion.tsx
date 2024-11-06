@@ -3,12 +3,13 @@ import browser from "webextension-polyfill";
 
 import { chains } from "@namada/chains";
 import { ActionButton, Alert, Loading, ViewKeys } from "@namada/components";
-import { makeBip44Path, makeSaplingPath } from "@namada/sdk/web";
+import { makeBip44Path } from "@namada/sdk/web";
 import { AccountType, Bip44Path } from "@namada/types";
 import { assertNever } from "@namada/utils";
 import {
   AccountSecret,
   AccountStore,
+  DEFAULT_BIP44_PATH,
   DeriveAccountMsg,
   SaveAccountSecretMsg,
 } from "background/keyring";
@@ -16,7 +17,7 @@ import { CreatePasswordMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { useNavigate } from "react-router-dom";
 import { Ports } from "router";
-import { isCustomPath, makeStoredPath } from "utils";
+import { isCustomPath } from "utils";
 
 type Props = {
   alias: string;
@@ -47,19 +48,11 @@ export const Completion: React.FC<Props> = (props) => {
   const navigate = useNavigate();
 
   const derivationPath =
-    accountSecret?.t === "PrivateKey" ?
-      { account: 0, change: 0, index: 0 }
-    : path;
+    accountSecret?.t === "PrivateKey" ? DEFAULT_BIP44_PATH : path;
 
   const transparentAccountPath =
     isCustomPath(derivationPath) ?
       makeBip44Path(chains.namada.bip44.coinType, derivationPath)
-    : undefined;
-
-  const zip32Path = makeStoredPath(AccountType.ShieldedKeys, derivationPath);
-  const shieldedAccountPath =
-    isCustomPath(derivationPath) ?
-      makeSaplingPath(chains.namada.bip44.coinType, zip32Path)
     : undefined;
 
   const closeCurrentTab = async (): Promise<void> => {
@@ -109,22 +102,18 @@ export const Completion: React.FC<Props> = (props) => {
         setPublicKeyAddress(storedAccount.publicKey ?? "");
         setTransparentAccountAddress(storedAccount.address);
 
-        // Do not derive shielded if this is an imported private key, and
-        // ignore accounts with a non-zero 'change' path component:
-        if (derivationPath.change === 0) {
-          setStatusInfo("Generating Shielded Account");
-          const shieldedAccount = await requester.sendMessage<DeriveAccountMsg>(
-            Ports.Background,
-            new DeriveAccountMsg(
-              derivationPath,
-              AccountType.ShieldedKeys,
-              storedAccount.alias,
-              // Set the parent ID of this shielded account to the transparent account above
-              storedAccount.id
-            )
-          );
-          setShieldedAccountAddress(shieldedAccount.address);
-        }
+        setStatusInfo("Generating Shielded Account");
+        const shieldedAccount = await requester.sendMessage<DeriveAccountMsg>(
+          Ports.Background,
+          new DeriveAccountMsg(
+            derivationPath,
+            AccountType.ShieldedKeys,
+            storedAccount.alias,
+            // Set the parent ID of this shielded account to the transparent account above
+            storedAccount.id
+          )
+        );
+        setShieldedAccountAddress(shieldedAccount.address);
 
         setMnemonicStatus(Status.Completed);
         setStatusInfo("Done!");
@@ -160,7 +149,6 @@ export const Completion: React.FC<Props> = (props) => {
             transparentAccountAddress={transparentAccountAddress}
             transparentAccountPath={transparentAccountPath}
             shieldedAccountAddress={shieldedAccountAddress}
-            shieldedAccountPath={shieldedAccountPath}
             trimCharacters={35}
             footer={
               <ActionButton
