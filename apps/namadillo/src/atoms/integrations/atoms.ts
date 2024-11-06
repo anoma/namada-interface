@@ -6,7 +6,11 @@ import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
 import { ChainId, ChainRegistryEntry } from "types";
-import { getKnownChains, mapCoinsToAssets } from "./functions";
+import {
+  getKnownChains,
+  ibcAddressToDenomTrace,
+  mapCoinsToAssets,
+} from "./functions";
 import {
   IbcTransferParams,
   queryAndStoreRpc,
@@ -60,7 +64,11 @@ export const assetBalanceAtomFamily = atomFamily(
       ...queryDependentFn(async () => {
         return await queryAndStoreRpc(chain!, async (rpc: string) => {
           const assetsBalances = await queryAssetBalances(walletAddress!, rpc);
-          return await mapCoinsToAssets(assetsBalances, chain!.chain_name, rpc);
+          return await mapCoinsToAssets(
+            assetsBalances,
+            chain!.chain_name,
+            ibcAddressToDenomTrace(rpc)
+          );
         });
       }, [!!walletAddress, !!chain]),
     }));

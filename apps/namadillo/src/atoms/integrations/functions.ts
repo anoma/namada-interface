@@ -12,14 +12,14 @@ import * as stargaze from "chain-registry/mainnet/stargaze";
 import * as celestiaTestnet from "chain-registry/testnet/celestiatestnet3";
 import * as cosmosTestnet from "chain-registry/testnet/cosmoshubtestnet";
 import * as dydxTestnet from "chain-registry/testnet/dydxtestnet";
-import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet";
 import * as elysTestnet from "chain-registry/testnet/elystestnet";
+import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet";
 import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
 import { namadaAsset } from "registry/namadaAsset";
 import {
-  AssetWithBalanceAndIbcInfo,
-  AssetWithBalanceAndIbcInfoMap,
+  AddressWithAssetAndBalance,
+  AddressWithAssetAndBalanceMap,
   ChainRegistryEntry,
 } from "types";
 import { toDisplayAmount } from "utils";
@@ -87,45 +87,35 @@ export const getKnownChains = (
   return includeTestnets ? mainnetAndTestnetChains : mainnetChains;
 };
 
-const ibcAddressToDenomTrace = async (
-  rpc: string,
-  address: string
-): Promise<DenomTrace> => {
-  const tmClient = await Tendermint34Client.connect(rpc);
-  const queryClient = new QueryClient(tmClient);
-  const ibcExtension = setupIbcExtension(queryClient);
-  const ibcHash = address.replace("ibc/", "");
+export const ibcAddressToDenomTrace =
+  (rpc: string) =>
+  async (address: string): Promise<DenomTrace | undefined> => {
+    if (!address.startsWith("ibc/")) {
+      return undefined;
+    }
 
-  const { denomTrace } = await ibcExtension.ibc.transfer.denomTrace(ibcHash);
+    const tmClient = await Tendermint34Client.connect(rpc);
+    const queryClient = new QueryClient(tmClient);
+    const ibcExtension = setupIbcExtension(queryClient);
+    const ibcHash = address.replace("ibc/", "");
 
-  if (typeof denomTrace === "undefined") {
-    throw new Error("Couldn't get denom trace from IBC address");
-  }
+    const { denomTrace } = await ibcExtension.ibc.transfer.denomTrace(ibcHash);
 
-  return denomTrace;
-};
+    if (typeof denomTrace === "undefined") {
+      throw new Error("Couldn't get denom trace from IBC address");
+    }
+
+    return denomTrace;
+  };
 
 const assetLookup = (chainName: string): Asset[] | undefined =>
   cosmosRegistry.assets.find((chain) => chain.chain_name === chainName)?.assets;
 
-type AssetAndIbc = Pick<AssetWithBalanceAndIbcInfo, "asset" | "ibc">;
-
 const tryCoinToRegistryAsset = (
   coin: Coin,
   registryAssets: Asset[]
-): AssetAndIbc | undefined => {
-  const registryAsset = registryAssets.find(
-    (asset) => asset.base === coin.denom
-  );
-
-  if (typeof registryAsset !== "undefined") {
-    return {
-      asset: registryAsset,
-    };
-  } else {
-    return undefined;
-  }
-};
+): Asset | undefined =>
+  registryAssets.find((asset) => asset.base === coin.denom);
 
 // For a given chain name with a given IBC channel, look up the counterpart
 // chain name that the channel corresponds to.
@@ -168,28 +158,24 @@ const findCounterpartChainName = (
 
 const tryCoinToIbcAsset = async (
   coin: Coin,
-  rpc: string,
+  ibcAddressToDenomTrace: (address: string) => Promise<DenomTrace | undefined>,
   chainName: string
-): Promise<AssetAndIbc | undefined> => {
+): Promise<Asset | undefined> => {
   const { denom } = coin;
 
-  if (!denom.startsWith("ibc/")) {
+  const denomTrace = await ibcAddressToDenomTrace(denom);
+  if (typeof denomTrace === "undefined") {
     return undefined;
   }
 
-  const { path, baseDenom } = await ibcAddressToDenomTrace(rpc, denom);
-
-  const ibcProps = {
-    ibcAddress: denom,
-    denomTracePath: path,
-  };
+  const { path, baseDenom } = denomTrace;
 
   // denom trace path may be something like...
   // transfer/channel-16/transfer/channel-4353
   // ...so from here walk the path to find the original chain
   const pathParts = path.split("/");
   if (pathParts.length % 2 !== 0) {
-    throw new Error(`Can't decode IBC denom trace path, got ${path}`);
+    return undefined;
   }
 
   const ibcChannelTrail: { portId: string; channelId: string }[] = [];
@@ -213,97 +199,69 @@ const tryCoinToIbcAsset = async (
 
   const originalChainAssets = mapUndefined(assetLookup, originalChainName);
 
-  // TODO: Special handling for Namada because NAM assets are named "tnam...",
-  // and we need to decode this address. For now assuming that if the source
-  // chain is the internal devnet, then the asset is NAM. This is not correct
-  // and should be fixed.
-  if (originalChainName === "internal-devnet-44a.1bd3e6ca62") {
-    const namAsset = originalChainAssets?.[0];
-    if (typeof namAsset === "undefined") {
-      throw new Error(
-        "No NAM asset for internal devnet. This should never happen."
-      );
-    }
-
-    return {
-      asset: namAsset,
-      ...ibcProps,
-    };
-  }
-
   const originalChainRegistryAsset = originalChainAssets?.find(
     (asset) => asset.base === baseDenom
   );
 
-  const assetProp =
-    typeof originalChainRegistryAsset !== "undefined" ?
-      { asset: originalChainRegistryAsset }
-    : unknownAsset(path + "/" + baseDenom);
-
-  return {
-    ...assetProp,
-    ...ibcProps,
-  };
+  return originalChainRegistryAsset || unknownAsset(path + "/" + baseDenom);
 };
 
-const unknownAsset = (denom: string): AssetAndIbc => ({
-  asset: {
-    denom_units: [
-      {
-        denom,
-        exponent: 0,
-      },
-    ],
-    base: denom,
-    name: denom,
-    display: denom,
-    symbol: denom,
-  },
+const unknownAsset = (denom: string): Asset => ({
+  denom_units: [
+    {
+      denom,
+      exponent: 0,
+    },
+  ],
+  base: denom,
+  name: denom,
+  display: denom,
+  symbol: denom,
 });
 
 export const mapCoinsToAssets = async (
   coins: Coin[],
   chainName: string,
-  rpc: string
-): Promise<AssetWithBalanceAndIbcInfoMap> => {
-  const chain = cosmosRegistry.chains.find(
-    (chain) => chain.chain_name === chainName
-  );
-
-  if (typeof chain === "undefined") {
-    throw new Error(`No chain info found for ${chainName} in chain registry`);
-  }
-
+  ibcAddressToDenomTrace: (address: string) => Promise<DenomTrace | undefined>
+): Promise<AddressWithAssetAndBalanceMap> => {
   const assets = assetLookup(chainName);
-  if (typeof assets === "undefined") {
-    throw new Error(`No asset info found for ${chainName} in chain registry`);
-  }
 
-  const results = await Promise.all(
-    coins.map(async (coin: Coin): Promise<AssetWithBalanceAndIbcInfo> => {
-      const assetAndIbc =
-        tryCoinToRegistryAsset(coin, assets) ||
-        (await tryCoinToIbcAsset(coin, rpc, chainName)) ||
-        unknownAsset(coin.denom);
+  const results = await Promise.allSettled(
+    coins.map(async (coin: Coin): Promise<AddressWithAssetAndBalance> => {
+      const asset =
+        typeof assets === "undefined" ?
+          unknownAsset(coin.denom)
+        : tryCoinToRegistryAsset(coin, assets) ||
+          (await tryCoinToIbcAsset(coin, ibcAddressToDenomTrace, chainName)) ||
+          unknownAsset(coin.denom);
 
-      const { amount } = coin;
+      const { amount, denom } = coin;
       const baseBalance = BigNumber(amount);
       if (baseBalance.isNaN()) {
         throw new Error(`Balance is invalid, got ${amount}`);
       }
       // We always represent amounts in their display denom, so convert here
-      const displayBalance = toDisplayAmount(assetAndIbc.asset, baseBalance);
+      const displayBalance = toDisplayAmount(asset, baseBalance);
 
       return {
+        address: denom,
         balance: displayBalance,
-        ...assetAndIbc,
+        asset,
       };
     })
   );
 
+  const successfulResults = results.reduce<AddressWithAssetAndBalance[]>(
+    (acc, curr) => (curr.status === "fulfilled" ? [...acc, curr.value] : acc),
+    []
+  );
+
   // TODO: keying by asset base isn't going to work when there are multiple
   // assets with the same base from different chains. Fix this.
-  return Object.fromEntries(results.map((asset) => [asset.asset.base, asset]));
+  // We can actually fix this now by keying by address.
+  return Object.fromEntries(
+    successfulResults.map((asset) => [asset.asset.base, asset])
+  );
 };
 
 export const getRpcByIndex = (chain: Chain, index = 0): string => {

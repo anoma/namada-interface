@@ -189,17 +189,13 @@ export type ChainRegistryEntry = {
   ibc: IBCInfo[];
 };
 
-export type AssetWithBalanceAndIbcInfo = {
+export type AddressWithAssetAndBalance = {
+  address: string;
   asset: Asset;
-  balance?: BigNumber;
-  ibc?: {
-    // undefined for non-IBC assets
-    ibcAddress: string;
-    denomTracePath: string;
-  };
+  balance: BigNumber;
 };
 
-export type AssetWithBalanceAndIbcInfoMap = Record<
+export type AddressWithAssetAndBalanceMap = Record<
   string,
-  AssetWithBalanceAndIbcInfo
+  AddressWithAssetAndBalance
 >;
