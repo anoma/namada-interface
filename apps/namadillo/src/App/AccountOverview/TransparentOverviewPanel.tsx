@@ -67,10 +67,6 @@ const TransparentTokensTable = ({
               size="xs"
               className="w-fit mx-auto"
               backgroundColor="cyan"
-              outlineColor="cyan"
-              textColor="black"
-              textHoverColor="cyan"
-              backgroundHoverColor="transparent"
               href={routes.stakingBondingIncrement}
             >
               Stake
@@ -144,10 +140,6 @@ const PanelContent = ({ data }: { data: TokenBalance[] }): JSX.Element => {
               <ActionButton
                 size="xs"
                 backgroundColor="cyan"
-                outlineColor="cyan"
-                textColor="black"
-                textHoverColor="cyan"
-                backgroundHoverColor="transparent"
                 href={routes.stakingBondingIncrement}
               >
                 Stake
@@ -155,7 +147,7 @@ const PanelContent = ({ data }: { data: TokenBalance[] }): JSX.Element => {
             ),
           },
         ].map(({ title, amount, namAmount, button }) => (
-          <div key={title} className="bg-gray px-6 py-3 rounded-sm flex gap-2">
+          <div key={title} className="bg-gray px-6 py-3 rounded-sm flex gap-6">
             <div className="flex-1 overflow-auto">
               <div className="text-sm">{title}</div>
               <div className="text-2xl sm:text-3xl whitespace-nowrap overflow-auto">

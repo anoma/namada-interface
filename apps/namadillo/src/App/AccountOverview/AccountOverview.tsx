@@ -10,6 +10,7 @@ import { useAtomValue } from "jotai";
 import { twMerge } from "tailwind-merge";
 import { AccountBalanceContainer } from "./AccountBalanceContainer";
 import { BalanceContainer } from "./BalanceContainer";
+import { MaspBanner } from "./MaspBanner";
 import { NamBalanceContainer } from "./NamBalanceContainer";
 import { NavigationFooter } from "./NavigationFooter";
 import { TransparentOverviewPanel } from "./TransparentOverviewPanel";
@@ -45,8 +46,7 @@ export const AccountOverview = (): JSX.Element => {
             </div>
             {maspEnabled && (
               <>
-                {/* TODO */}
-                {/* <TotalShieldedPanel /> */}
+                <MaspBanner />
                 <TransparentOverviewPanel />
               </>
             )}
