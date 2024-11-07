@@ -1,4 +1,9 @@
-import { Chain, DerivedAccount, SignArbitraryResponse } from "@namada/types";
+import {
+  Chain,
+  DerivedAccount,
+  GenDisposableSignerResponse,
+  SignArbitraryResponse,
+} from "@namada/types";
 import { EncodedTxData } from "background/approvals";
 import { Message } from "router";
 import { validateProps } from "utils";
@@ -30,6 +35,7 @@ enum MessageType {
   ApproveEthBridgeTransfer = "approve-eth-bridge-transfer",
   CheckDurability = "check-durability",
   VerifyArbitrary = "verify-arbitrary",
+  GenDisposableSigner = "gen-disposable-signer",
 }
 
 export class ApproveSignTxMsg extends Message<Uint8Array[]> {
@@ -166,7 +172,7 @@ export class GetChainMsg extends Message<Chain> {
     super();
   }
 
-  validate(): void { }
+  validate(): void {}
 
   route(): string {
     return Route.Chains;
@@ -293,5 +299,27 @@ export class VerifyArbitraryMsg extends Message<void> {
 
   type(): string {
     return VerifyArbitraryMsg.type();
+  }
+}
+
+export class GenDisposableSignerMsg extends Message<
+  GenDisposableSignerResponse | undefined
+> {
+  public static type(): MessageType {
+    return MessageType.GenDisposableSigner;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {}
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return GenDisposableSignerMsg.type();
   }
 }

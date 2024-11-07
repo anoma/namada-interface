@@ -40,6 +40,7 @@ const utilityStore = new IndexedDBKVStore<UtilityStore>(KVPrefix.Utility);
 const sessionStore = new SessionKVStore(KVPrefix.SessionStorage);
 const txStore = new MemoryKVStore(KVPrefix.Memory);
 const dataStore = new MemoryKVStore(KVPrefix.Memory);
+const disposableSignerStore = new MemoryKVStore(KVPrefix.Memory);
 
 const messenger = new ExtensionMessenger();
 const router = new ExtensionRouter(
@@ -76,6 +77,7 @@ const init = new Promise<void>(async (resolve) => {
     utilityStore,
     localStorage,
     vaultStorage,
+    disposableSignerStore,
     requester,
     broadcaster
   );
@@ -83,6 +85,7 @@ const init = new Promise<void>(async (resolve) => {
     txStore,
     dataStore,
     localStorage,
+    disposableSignerStore,
     sdkService,
     keyRingService,
     vaultService,

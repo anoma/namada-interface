@@ -30,7 +30,7 @@ export class Keys {
   /**
    * @param cryptoMemory - Memory accessor for crypto lib
    */
-  constructor(protected readonly cryptoMemory: WebAssembly.Memory) { }
+  constructor(protected readonly cryptoMemory: WebAssembly.Memory) {}
 
   /**
    * Get address and public key from private key
@@ -76,7 +76,7 @@ export class Keys {
     const passphrasePtr =
       typeof passphrase === "string" ?
         new StringPointer(passphrase)
-        : undefined;
+      : undefined;
     const seedPtr = mnemonic.to_seed(passphrasePtr);
     const hdWallet = new HDWallet(seedPtr);
     const bip44Path = makeBip44PathArray(chains.namada.bip44.coinType, path);
@@ -175,6 +175,27 @@ export class Keys {
       spendingKey,
       viewingKey,
       pseudoExtendedKey,
+    };
+  }
+
+  /**
+   * Generate a disposable transparent keypair
+   * @returns Keys and address
+   */
+  genDisposableKeypair(): TransparentKeys {
+    const key = HDWallet.disposable_keypair();
+    const privateKeyStringPtr = key.to_hex();
+    const privateKey = readStringPointer(
+      privateKeyStringPtr,
+      this.cryptoMemory
+    );
+
+    key.free();
+    privateKeyStringPtr.free();
+
+    return {
+      ...this.getAddress(privateKey),
+      privateKey,
     };
   }
 }

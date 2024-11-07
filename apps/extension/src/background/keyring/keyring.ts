@@ -4,6 +4,7 @@ import {
   AccountType,
   Bip44Path,
   DerivedAccount,
+  GenDisposableSignerResponse,
   SignArbitraryResponse,
   TxProps,
 } from "@namada/types";
@@ -14,6 +15,7 @@ import {
   AccountStore,
   ActiveAccountStore,
   DeleteAccountError,
+  DisposableSignerStore,
   KeyRingStatus,
   MnemonicValidationResponse,
   SensitiveAccountStoreData,
@@ -31,6 +33,7 @@ const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
 export const KEYSTORE_KEY = "key-store";
 export const PARENT_ACCOUNT_ID_KEY = "parent-account-id";
 export const AUTHKEY_KEY = "auth-key-store";
+export const DISPOSABLE_SIGNER_KEY = "disposable-signer";
 
 type DerivedAccountInfo = {
   address: string;
@@ -50,7 +53,8 @@ export class KeyRing {
     protected readonly vaultService: VaultService,
     protected readonly vaultStorage: VaultStorage,
     protected readonly sdkService: SdkService,
-    protected readonly utilityStore: KVStore<UtilityStore>
+    protected readonly utilityStore: KVStore<UtilityStore>,
+    protected readonly disposableSignerStore: KVStore<DisposableSignerStore>
   ) {}
 
   public get status(): KeyRingStatus {
@@ -603,14 +607,21 @@ export class KeyRing {
     chainId: string
   ): Promise<Uint8Array> {
     await this.vaultService.assertIsUnlocked();
-    const key = await this.getSigningKey(signer);
 
-    const isMasp = txProps.signingData.reduce(
-      (isMasp, sd) => isMasp || !!sd.shieldedHash,
-      false
-    );
-    // TODO: we need to get spending keys based on passed vks
-    const spendingKeys = isMasp ? [await this.getSpendingKey(signer)] : [];
+    const disposableKey = await this.disposableSignerStore.get(signer);
+
+    // If disposable key is provided, use it for signing
+    const key =
+      disposableKey ?
+        disposableKey.privateKey
+      : await this.getSigningKey(signer);
+
+    // If disposable key is provided, use it to map real address to spending key
+    const spendingKeys =
+      disposableKey ?
+        [await this.getSpendingKey(disposableKey.realAddress)]
+      : [];
+
     const { signing } = this.sdkService.getSdk();
 
     return await signing.sign(txProps, key, spendingKeys, chainId);
@@ -641,5 +652,24 @@ export class KeyRing {
       return;
     }
     return account.public;
+  }
+
+  async genDisposableSigner(): Promise<
+    GenDisposableSignerResponse | undefined
+  > {
+    const sdk = this.sdkService.getSdk();
+    const { privateKey, publicKey, address } = sdk.keys.genDisposableKeypair();
+
+    const defaultAccount = await this.queryDefaultAccount();
+    if (!defaultAccount) {
+      throw new Error("No default account found");
+    }
+
+    await this.disposableSignerStore.set(address, {
+      privateKey,
+      realAddress: defaultAccount.address,
+    });
+
+    return { publicKey, address };
   }
 }

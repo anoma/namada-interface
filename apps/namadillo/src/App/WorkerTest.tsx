@@ -5,11 +5,15 @@ import {
   ShieldingTransferMsgValue,
   UnshieldingTransferMsgValue,
 } from "@namada/types";
-import { accountsAtom, defaultAccountAtom } from "atoms/accounts";
+import {
+  accountsAtom,
+  defaultAccountAtom,
+  disposableSignerAtom,
+} from "atoms/accounts";
 import { chainAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { indexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { signTx } from "lib/query";
 import { Shield, ShieldedTransfer, Unshield } from "workers/ShieldMessages";
 import {
@@ -24,6 +28,7 @@ export function WorkerTest(): JSX.Element {
   const rpcUrl = useAtomValue(rpcUrlAtom);
 
   const { data: account } = useAtomValue(defaultAccountAtom);
+  const [{ refetch }] = useAtom(disposableSignerAtom);
   const { data: accounts } = useAtomValue(accountsAtom);
   const { data: chain } = useAtomValue(chainAtom);
   const { data: token } = useAtomValue(nativeTokenAddressAtom);
@@ -124,7 +129,7 @@ export function WorkerTest(): JSX.Element {
 
     const shieldingMsgValue = new UnshieldingTransferMsgValue({
       source: shieldedAccount!.pseudoExtendedKey!,
-      gasSpendingKeys: [],
+      gasSpendingKeys: [shieldedAccount!.pseudoExtendedKey!],
       data: [
         {
           target,
@@ -138,12 +143,17 @@ export function WorkerTest(): JSX.Element {
       ?.filter((acc) => acc.type === "shielded-keys")
       .map((a) => a.viewingKey!);
 
+    const disposableSigner = (await refetch()).data;
+
     const msg: Unshield = {
       type: "unshield",
       payload: {
-        account: account!,
+        account: {
+          ...account!,
+          publicKey: disposableSigner!.publicKey,
+        },
         gasConfig: {
-          gasLimit: BigNumber(250000),
+          gasLimit: BigNumber(2500000),
           gasPrice: BigNumber(0.000001),
         },
         shieldingProps: [shieldingMsgValue],
@@ -154,7 +164,11 @@ export function WorkerTest(): JSX.Element {
     };
 
     const { payload: encodedTx } = await shieldWorker.unshield(msg);
-    const signedTxs = await signTx("namada", encodedTx, account?.address || "");
+    const signedTxs = await signTx(
+      "namada",
+      encodedTx,
+      disposableSigner?.address || ""
+    );
 
     await shieldWorker.broadcast({
       type: "broadcast",
@@ -197,10 +211,15 @@ export function WorkerTest(): JSX.Element {
       ?.filter((acc) => acc.type === "shielded-keys")
       .map((a) => a.viewingKey!);
 
+    const disposableSigner = (await refetch()).data;
+
     const msg: ShieldedTransfer = {
       type: "shielded-transfer",
       payload: {
-        account: account!,
+        account: {
+          ...account!,
+          publicKey: disposableSigner!.publicKey,
+        },
         gasConfig: {
           gasLimit: BigNumber(250000),
           gasPrice: BigNumber(0.000001),
@@ -213,7 +232,11 @@ export function WorkerTest(): JSX.Element {
     };
 
     const { payload: encodedTx } = await shieldWorker.shieldedTransfer(msg);
-    const signedTxs = await signTx("namada", encodedTx, account?.address || "");
+    const signedTxs = await signTx(
+      "namada",
+      encodedTx,
+      disposableSigner?.address || ""
+    );
 
     await shieldWorker.broadcast({
       type: "broadcast",

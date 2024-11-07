@@ -2,6 +2,7 @@ import { chains } from "@namada/chains";
 import {
   Account,
   AccountType,
+  GenDisposableSignerResponse,
   Signer as ISigner,
   Namada,
   SignArbitraryResponse,
@@ -9,7 +10,7 @@ import {
 } from "@namada/types";
 
 export class Signer implements ISigner {
-  constructor(private readonly _namada: Namada) { }
+  constructor(private readonly _namada: Namada) {}
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts())?.map(
@@ -71,5 +72,11 @@ export class Signer implements ISigner {
     signature: string
   ): Promise<void> {
     return await this._namada.verify({ publicKey, hash, signature });
+  }
+
+  public async genDisposableKeypair(): Promise<
+    GenDisposableSignerResponse | undefined
+  > {
+    return await this._namada.genDisposableKeypair();
   }
 }

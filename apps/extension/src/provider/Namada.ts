@@ -1,6 +1,7 @@
 import {
   Chain,
   DerivedAccount,
+  GenDisposableSignerResponse,
   Namada as INamada,
   SignArbitraryProps,
   SignArbitraryResponse,
@@ -17,6 +18,7 @@ import {
   ApproveSignTxMsg,
   ApproveUpdateDefaultAccountMsg,
   CheckDurabilityMsg,
+  GenDisposableSignerMsg,
   GetChainMsg,
   IsConnectionApprovedMsg,
   QueryAccountsMsg,
@@ -28,7 +30,7 @@ export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) { }
+  ) {}
 
   public async connect(): Promise<void> {
     return await this.requester?.sendMessage(
@@ -96,6 +98,15 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new ApproveSignArbitraryMsg(signer, data)
+    );
+  }
+
+  public async genDisposableKeypair(): Promise<
+    GenDisposableSignerResponse | undefined
+  > {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new GenDisposableSignerMsg()
     );
   }
 

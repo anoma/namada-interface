@@ -1,5 +1,5 @@
 import { getIntegration } from "@namada/integrations";
-import { Account } from "@namada/types";
+import { Account, GenDisposableSignerResponse } from "@namada/types";
 import { indexerApiAtom } from "atoms/api";
 import { nativeTokenAddressAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
@@ -102,3 +102,23 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
     }, [tokenAddress, defaultAccount]),
   };
 });
+
+export const disposableSignerAtom = atomWithQuery<GenDisposableSignerResponse>(
+  (get) => {
+    const isExtensionConnected = get(namadaExtensionConnectedAtom);
+    return {
+      // As this generates new keypair each time, we have to refetch it manually
+      enabled: false,
+      queryKey: ["disposable-signer", isExtensionConnected],
+      queryFn: async () => {
+        const namada = getIntegration("namada");
+        const res = await namada.signer()?.genDisposableKeypair();
+        if (!res) {
+          throw new Error("Failed to generate disposable signer");
+        }
+
+        return res;
+      },
+    };
+  }
+);

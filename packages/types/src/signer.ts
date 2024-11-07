@@ -6,6 +6,11 @@ export type SignArbitraryResponse = {
   signature: string;
 };
 
+export type GenDisposableSignerResponse = {
+  publicKey: string;
+  address: string;
+};
+
 export interface Signer {
   accounts: (chainId?: string) => Promise<Account[] | undefined>;
   defaultAccount: (chainId?: string) => Promise<Account | undefined>;
@@ -19,4 +24,5 @@ export interface Signer {
     data: string
   ) => Promise<SignArbitraryResponse | undefined>;
   verify: (publicKey: string, hash: string, signature: string) => Promise<void>;
+  genDisposableKeypair: () => Promise<GenDisposableSignerResponse | undefined>;
 }
