@@ -47,13 +47,6 @@ export type DurablityStore = {
 
 export type SensitiveAccountStoreData = { text: string; passphrase?: string };
 
-export type DisposableSignerStore = {
-  privateKey: string;
-  // Address of the account that was used during disposable signer generation
-  // It's used to map the disposable signer to the spending key
-  realAddress: string;
-};
-
 export type UtilityStore = ActiveAccountStore | { [id: string]: CryptoRecord };
 
 export type RevealedPKStore = { [id: string]: string };

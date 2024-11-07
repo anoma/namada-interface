@@ -67,7 +67,6 @@ export const init = async (): Promise<{
   const requester = new ExtensionRequester(messenger, namadaRouterId);
   const txStore = new KVStoreMock<PendingTx>(KVPrefix.LocalStorage);
   const dataStore = new KVStoreMock<string>(KVPrefix.LocalStorage);
-  const disposableSignerStore = new KVStoreMock(KVPrefix.Memory);
   const broadcaster = new ExtensionBroadcaster(localStorage, requester);
 
   const router = new ExtensionRouter(
@@ -100,7 +99,6 @@ export const init = async (): Promise<{
     utilityStore,
     localStorage,
     vaultStorage,
-    disposableSignerStore,
     requester,
     broadcaster
   );
@@ -109,7 +107,6 @@ export const init = async (): Promise<{
     txStore,
     dataStore,
     localStorage,
-    disposableSignerStore,
     sdkService,
     keyRingService,
     vaultService,

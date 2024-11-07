@@ -15,7 +15,6 @@ import {
   AccountStore,
   ActiveAccountStore,
   DeleteAccountError,
-  DisposableSignerStore,
   KeyRingStatus,
   MnemonicValidationResponse,
   SensitiveAccountStoreData,
@@ -24,7 +23,13 @@ import {
 
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
-import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
+import {
+  KeyStore,
+  KeyStoreType,
+  LocalStorage,
+  SensitiveType,
+  VaultStorage,
+} from "storage";
 import { generateId } from "utils";
 
 // Generated UUID namespace for uuid v5
@@ -54,7 +59,7 @@ export class KeyRing {
     protected readonly vaultStorage: VaultStorage,
     protected readonly sdkService: SdkService,
     protected readonly utilityStore: KVStore<UtilityStore>,
-    protected readonly disposableSignerStore: KVStore<DisposableSignerStore>
+    protected readonly localStorage: LocalStorage
   ) {}
 
   public get status(): KeyRingStatus {
@@ -608,7 +613,7 @@ export class KeyRing {
   ): Promise<Uint8Array> {
     await this.vaultService.assertIsUnlocked();
 
-    const disposableKey = await this.disposableSignerStore.get(signer);
+    const disposableKey = await this.localStorage.getDisposableSigner(signer);
 
     // If disposable key is provided, use it for signing
     const key =
@@ -665,10 +670,11 @@ export class KeyRing {
       throw new Error("No default account found");
     }
 
-    await this.disposableSignerStore.set(address, {
+    await this.localStorage.addDisposableSigner(
+      address,
       privateKey,
-      realAddress: defaultAccount.address,
-    });
+      defaultAccount.address
+    );
 
     return { publicKey, address };
   }

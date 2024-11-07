@@ -9,7 +9,7 @@ import { paramsToUrl } from "@namada/utils";
 import { ResponseSign } from "@zondax/ledger-namada";
 import { TopLevelRoute } from "Approvals/types";
 import { ChainsService } from "background/chains";
-import { DisposableSignerStore, KeyRingService } from "background/keyring";
+import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
@@ -32,7 +32,6 @@ export class ApprovalsService {
     protected readonly txStore: KVStore<PendingTx>,
     protected readonly dataStore: KVStore<string>,
     protected readonly localStorage: LocalStorage,
-    protected readonly disposableSignerStore: KVStore<DisposableSignerStore>,
     protected readonly sdkService: SdkService,
     protected readonly keyRingService: KeyRingService,
     protected readonly vaultService: VaultService,
@@ -62,7 +61,8 @@ export class ApprovalsService {
 
     // If the signer is a disposable signer, get the real address
     const realAddress =
-      (await this.disposableSignerStore.get(signer))?.realAddress || signer;
+      (await this.localStorage.getDisposableSigner(signer))?.realAddress ||
+      signer;
 
     // We use the real address to query the account details
     const details = await this.keyRingService.queryAccountDetails(realAddress);

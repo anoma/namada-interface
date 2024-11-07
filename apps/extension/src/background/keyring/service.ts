@@ -21,7 +21,6 @@ import {
   AccountStore,
   ActiveAccountStore,
   DeleteAccountError,
-  DisposableSignerStore,
   MnemonicValidationResponse,
   ParentAccount,
   UtilityStore,
@@ -37,7 +36,6 @@ export class KeyRingService {
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly localStorage: LocalStorage,
     protected readonly vaultStorage: VaultStorage,
-    protected readonly disposableSignerStore: KVStore<DisposableSignerStore>,
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
@@ -46,7 +44,7 @@ export class KeyRingService {
       vaultStorage,
       sdkService,
       utilityStore,
-      disposableSignerStore
+      localStorage
     );
   }
 

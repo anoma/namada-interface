@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { WrapperTxMsgValue } from "@namada/types";
 import { ChainsService } from "background/chains";
-import { DisposableSignerStore, KeyRingService } from "background/keyring";
+import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import BigNumber from "bignumber.js";
@@ -51,7 +51,6 @@ describe("approvals service", () => {
   let dataStore: KVStoreMock<string>;
   let txStore: KVStoreMock<PendingTx>;
   let localStorage: LocalStorage;
-  let disposableSignerStore: KVStoreMock<DisposableSignerStore>;
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -68,13 +67,11 @@ describe("approvals service", () => {
     const broadcaster: jest.Mocked<ExtensionBroadcaster> =
       createMockInstance(ExtensionBroadcaster);
     localStorage = new LocalStorage(new KVStoreMock("LocalStorage"));
-    disposableSignerStore = new KVStoreMock("DisposableSignerStore");
 
     service = new ApprovalsService(
       txStore,
       dataStore,
       localStorage,
-      disposableSignerStore,
       sdkService,
       keyRingService,
       vaultService,
