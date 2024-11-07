@@ -99,15 +99,21 @@ export class KeyRingService {
   async deriveAccount(
     path: Bip44Path,
     type: AccountType,
-    alias: string
+    alias: string,
+    parentId: string
   ): Promise<DerivedAccount> {
-    const account = await this._keyRing.deriveAccount(path, type, alias);
+    const account = await this._keyRing.deriveAccount(
+      path,
+      type,
+      alias,
+      parentId
+    );
     await this.broadcaster.updateAccounts();
     return account;
   }
 
   async queryAccountById(id: string): Promise<DerivedAccount[]> {
-    return await this._keyRing.queryAccountById(id);
+    return await this._keyRing.queryAccountsById(id);
   }
 
   async queryAccounts(): Promise<DerivedAccount[]> {

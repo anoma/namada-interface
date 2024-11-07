@@ -15,7 +15,7 @@ export const ViewingKey = (): JSX.Element => {
         <PageHeader title="Viewing Key" />
         <p className="text-white">
           Your viewing key grants the holder access to all your balances and
-          transadction data. Please keep it secure to protect your data.
+          transaction data. Please keep it secure to protect your data.
         </p>
         <Input
           label="Viewing Key"

@@ -153,8 +153,8 @@ const handleDeriveAccountMsg: (
   service: KeyRingService
 ) => InternalHandler<DeriveAccountMsg> = (service) => {
   return async (_, msg) => {
-    const { path, accountType, alias } = msg;
-    return await service.deriveAccount(path, accountType, alias);
+    const { path, accountType, alias, parentId } = msg;
+    return await service.deriveAccount(path, accountType, alias, parentId);
   };
 };
 
