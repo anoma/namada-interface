@@ -13,6 +13,7 @@ import { WebWorkerMessage } from "./utils";
 
 type InitPayload = {
   rpcUrl: string;
+  maspIndexerUrl: string;
   token: string;
 };
 
@@ -43,7 +44,6 @@ type UnshieldPayload = {
   };
   shieldingProps: UnshieldingTransferMsgValue[];
   chain: ChainSettings;
-  indexerUrl: string;
   vks: string[];
 };
 export type Unshield = WebWorkerMessage<"unshield", UnshieldPayload>;
@@ -60,7 +60,6 @@ type ShieldedTransferPayload = {
   };
   shieldingProps: ShieldedTransferMsgValue[];
   chain: ChainSettings;
-  indexerUrl: string;
   vks: string[];
 };
 export type ShieldedTransfer = WebWorkerMessage<

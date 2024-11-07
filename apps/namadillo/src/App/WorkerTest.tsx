@@ -11,7 +11,7 @@ import {
   disposableSignerAtom,
 } from "atoms/accounts";
 import { chainAtom, nativeTokenAddressAtom } from "atoms/chain";
-import { indexerUrlAtom, rpcUrlAtom } from "atoms/settings";
+import { indexerUrlAtom, maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { useAtom, useAtomValue } from "jotai";
 import { signTx } from "lib/query";
@@ -33,6 +33,7 @@ export function WorkerTest(): JSX.Element {
   const { data: chain } = useAtomValue(chainAtom);
   const { data: token } = useAtomValue(nativeTokenAddressAtom);
   const indexerUrl = useAtomValue(indexerUrlAtom);
+  const maspIndexerUrl = useAtomValue(maspIndexerUrlAtom);
   const shieldedAccount = accounts?.find(
     (a) => a.isShielded && a.alias === account?.alias
   );
@@ -70,6 +71,7 @@ export function WorkerTest(): JSX.Element {
       payload: {
         rpcUrl,
         token: token!,
+        maspIndexerUrl,
       },
     });
 
@@ -124,6 +126,7 @@ export function WorkerTest(): JSX.Element {
       payload: {
         rpcUrl,
         token: token!,
+        maspIndexerUrl,
       },
     });
 
@@ -157,7 +160,6 @@ export function WorkerTest(): JSX.Element {
           gasPrice: BigNumber(0.000001),
         },
         shieldingProps: [shieldingMsgValue],
-        indexerUrl,
         chain: chain!,
         vks: vks!,
       },
@@ -192,6 +194,7 @@ export function WorkerTest(): JSX.Element {
       payload: {
         rpcUrl,
         token: token!,
+        maspIndexerUrl,
       },
     });
 
@@ -225,7 +228,6 @@ export function WorkerTest(): JSX.Element {
           gasPrice: BigNumber(0.000001),
         },
         shieldingProps: [shieldingMsgValue],
-        indexerUrl,
         chain: chain!,
         vks: vks!,
       },

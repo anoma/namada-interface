@@ -103,15 +103,7 @@ async function unshield(
   sdk: Sdk,
   payload: Unshield["payload"]
 ): Promise<EncodedTxData<UnshieldingTransferMsgValue>> {
-  const { indexerUrl, account, gasConfig, chain, shieldingProps, vks } =
-    payload;
-
-  const configuration = new Configuration({ basePath: indexerUrl });
-  const api = new DefaultApi(configuration);
-
-  const publicKeyRevealed = (
-    await api.apiV1RevealedPublicKeyAddressGet(account.address)
-  ).data.publicKey;
+  const { account, gasConfig, chain, shieldingProps, vks } = payload;
 
   await sdk.rpc.shieldedSync(vks);
   await sdk.masp.loadMaspParams("");
@@ -123,7 +115,7 @@ async function unshield(
     chain,
     shieldingProps,
     sdk.tx.buildUnshieldingTransfer,
-    Boolean(publicKeyRevealed)
+    true
   );
 
   return encodedTxData;
@@ -133,15 +125,7 @@ async function shieldedTransfer(
   sdk: Sdk,
   payload: ShieldedTransfer["payload"]
 ): Promise<EncodedTxData<ShieldedTransferMsgValue>> {
-  const { indexerUrl, account, gasConfig, chain, shieldingProps, vks } =
-    payload;
-
-  const configuration = new Configuration({ basePath: indexerUrl });
-  const api = new DefaultApi(configuration);
-
-  const publicKeyRevealed = (
-    await api.apiV1RevealedPublicKeyAddressGet(account.address)
-  ).data.publicKey;
+  const { account, gasConfig, chain, shieldingProps, vks } = payload;
 
   await sdk.rpc.shieldedSync(vks);
   await sdk.masp.loadMaspParams("");
@@ -153,7 +137,7 @@ async function shieldedTransfer(
     chain,
     shieldingProps,
     sdk.tx.buildShieldedTransfer,
-    Boolean(publicKeyRevealed)
+    true
   );
 
   return encodedTxData;
@@ -184,8 +168,8 @@ function newSdk(
   cryptoMemory: WebAssembly.Memory,
   payload: Init["payload"]
 ): Sdk {
-  const { rpcUrl, token } = payload;
-  return getSdk(cryptoMemory, rpcUrl, "", "", token);
+  const { rpcUrl, token, maspIndexerUrl } = payload;
+  return getSdk(cryptoMemory, rpcUrl, maspIndexerUrl, "", token);
 }
 
 export const registerTransferHandlers = (): void => {
