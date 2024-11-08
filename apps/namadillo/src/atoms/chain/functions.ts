@@ -1,4 +1,4 @@
-import { Parameters } from "@anomaorg/namada-indexer-client";
+import { Parameters } from "@namada/indexer-client";
 import { singleUnitDurationFromInterval } from "@namada/utils/helpers";
 
 export const calculateUnbondingPeriod = (parameters: Parameters): string => {

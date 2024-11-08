@@ -1,4 +1,4 @@
-import { Configuration, DefaultApi } from "@anomaorg/namada-indexer-client";
+import { Configuration, DefaultApi } from "@namada/indexer-client";
 import { initMulticore } from "@namada/sdk/inline-init";
 import { getSdk, Sdk } from "@namada/sdk/web";
 import { ShieldingTransferMsgValue, TxResponseMsgValue } from "@namada/types";
