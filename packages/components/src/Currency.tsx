@@ -9,6 +9,7 @@ export type CurrencyObject = {
 
 export type CurrencyProps = {
   amount: number | BigNumber;
+  decimalPlaces?: number;
   hideBalances?: boolean;
   currency: CurrencyObject;
   separator?: "." | "," | "";
@@ -21,6 +22,7 @@ export type CurrencyProps = {
 
 export const Currency = ({
   amount,
+  decimalPlaces,
   currency,
   hideBalances = false,
   currencyPosition = "left",
@@ -32,7 +34,7 @@ export const Currency = ({
   fractionClassName = "",
   ...containerRest
 }: CurrencyProps): JSX.Element => {
-  const amountParts = BigNumber(amount).toFormat().split(".");
+  const amountParts = BigNumber(amount).toFormat(decimalPlaces).split(".");
   const baseAmount = hideBalances ? "✳✳✳✳" : amountParts[0] || "0";
   const fraction =
     amountParts.length > 1 && !hideBalances ? amountParts[1] : "";

@@ -40,7 +40,7 @@ export const ShieldedFungibleTable = ({
               <img src={icon} />
             : <div className="rounded-full h-full border border-white" />}
           </div>
-          {display.toUpperCase()}
+          {asset.symbol}
         </div>,
         <div
           key={`balance-${display}`}

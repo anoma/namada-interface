@@ -41,7 +41,7 @@ const TransparentTokensTable = ({
               <img src={icon} />
             : <div className="rounded-full h-full border border-white" />}
           </div>
-          {display.toUpperCase()}
+          {asset.symbol}
         </div>,
         <div
           key={`balance-${display}`}
@@ -185,9 +185,7 @@ export const TransparentOverviewPanel = (): JSX.Element => {
           containerProps={{ className: "pb-16" }}
         >
           {transparentTokensQuery.data?.length ?
-            <>
-              <PanelContent data={transparentTokensQuery.data} />
-            </>
+            <PanelContent data={transparentTokensQuery.data} />
           : <div className="bg-neutral-900 p-6 rounded-sm text-center font-medium my-14">
               You currently hold no assets in your unshielded account
             </div>
