@@ -56,7 +56,6 @@ const MainnetRoadmap = (): JSX.Element => {
             claimRewardsEnabled ? "opacity-100" : "opacity-25",
             claimRewardsEnabled
           )}
-          {renderPhase("2", <></>, "opacity-25")}
           {renderPhase(
             "3",
             <>
