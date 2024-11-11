@@ -3,7 +3,7 @@ import {
   Unbond as IndexerUnbond,
   ValidatorStatus,
 } from "@anomaorg/namada-indexer-client";
-import { AssetList, Chain, IBCInfo } from "@chain-registry/types";
+import { Asset, AssetList, Chain, IBCInfo } from "@chain-registry/types";
 import { ChainKey, ClaimRewardsMsgValue, ExtensionKey } from "@namada/types";
 import BigNumber from "bignumber.js";
 

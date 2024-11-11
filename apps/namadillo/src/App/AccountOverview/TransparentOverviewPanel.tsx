@@ -59,7 +59,10 @@ const TransparentTokensTable = ({
           key={`buttons-${display}`}
           className="flex items-center justify-end gap-1"
         >
-          <ActionButton size="xs" href={routes.maspShield}>
+          <ActionButton
+            size="xs"
+            href={`${routes.maspShield}?token=${asset.base}`}
+          >
             Shield
           </ActionButton>
           {display === namadaAsset.display && (

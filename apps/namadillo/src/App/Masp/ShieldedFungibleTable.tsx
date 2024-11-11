@@ -62,7 +62,7 @@ export const ShieldedFungibleTable = ({
           size="xs"
           outlineColor="white"
           className="w-fit mx-auto"
-          href={routes.maspUnshield}
+          href={`${routes.maspUnshield}?token=${asset.base}`}
         >
           Unshield
         </ActionButton>,
