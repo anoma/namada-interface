@@ -1,5 +1,6 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { Bech32Config, ChainInfo, Currency } from "@keplr-wallet/types";
+import tokenImage from "App/Common/assets/token.svg";
 import { TransactionFee } from "App/Transfer/TransferModule";
 import { getRestApiAddressByIndex, getRpcByIndex } from "atoms/integrations";
 import BigNumber from "bignumber.js";
@@ -27,8 +28,17 @@ export const findRegistryByChainId = (
   return undefined;
 };
 
-export const getAssetImageUrl = (asset: Asset): string =>
-  asset.logo_URIs?.svg || asset.logo_URIs?.png || "";
+export const findAssetByDenom = (
+  registry: ChainRegistryEntry,
+  denom: string
+): Asset | undefined => {
+  return registry.assets.assets.find((asset) => asset.base === denom);
+};
+
+export const getAssetImageUrl = (asset?: Asset): string => {
+  if (!asset) return tokenImage;
+  return asset.logo_URIs?.svg || asset.logo_URIs?.png || tokenImage;
+};
 
 export const getTransactionFee = (
   registry: ChainRegistryEntry

@@ -1,5 +1,5 @@
 import { Panel } from "@namada/components";
-import { transactionHistoryAtom } from "atoms/transactions/atoms";
+import { myTransactionHistoryAtom } from "atoms/transactions/atoms";
 import {
   filterCompleteTransactions,
   filterPendingTransactions,
@@ -9,7 +9,7 @@ import { TransferTransactionData } from "types";
 import { TransactionCard } from "./TransactionCard";
 
 export const TransactionHistory = (): JSX.Element => {
-  const transactions = useAtomValue(transactionHistoryAtom);
+  const transactions = useAtomValue(myTransactionHistoryAtom);
   const pending = transactions.filter(filterPendingTransactions);
   const complete = transactions.filter(filterCompleteTransactions);
   const noTransactionsFound = transactions.length === 0;
@@ -18,7 +18,7 @@ export const TransactionHistory = (): JSX.Element => {
     transactions: TransferTransactionData[]
   ): React.ReactNode => {
     return (
-      <ul>
+      <ul className="flex flex-col gap-2">
         {transactions.map((tx) => (
           <li key={tx.hash}>
             <TransactionCard transaction={tx} />
@@ -30,16 +30,16 @@ export const TransactionHistory = (): JSX.Element => {
 
   return (
     <Panel className="flex-1 h-full">
-      <h2 className="mb-4">Transfers</h2>
+      <h2 className="mb-7">Transfers made by this device</h2>
       {pending.length > 0 && (
         <section>
-          <h2>In Progress</h2>
+          <h2 className="text-sm mb-3">In Progress</h2>
           {renderList(pending)}
         </section>
       )}
-      {pending.length > 0 && (
+      {complete.length > 0 && (
         <section>
-          <h2>History</h2>
+          <h2 className="text-sm mb-3">History</h2>
           {renderList(complete)}
         </section>
       )}

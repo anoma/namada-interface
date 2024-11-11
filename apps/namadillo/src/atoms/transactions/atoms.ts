@@ -1,21 +1,31 @@
+import { defaultAccountAtom } from "atoms/accounts";
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { TransferTransactionData } from "types";
+import { Address, TransferTransactionData } from "types";
 import {
   filterCompleteTransactions,
   filterPendingTransactions,
 } from "./functions";
 
 export const transactionHistoryAtom = atomWithStorage<
-  TransferTransactionData[]
->("namadillo:transactions", []);
+  Record<Address, TransferTransactionData[]>
+>("namadillo:transactions", {});
+
+export const myTransactionHistoryAtom = atom<TransferTransactionData[]>(
+  (get) => {
+    const transactions = get(transactionHistoryAtom);
+    const account = get(defaultAccountAtom);
+    if (!account || !account.data?.address) return [];
+    return transactions[account.data.address] || [];
+  }
+);
 
 export const pendingTransactionsHistoryAtom = atom((get) => {
-  const transactions = get(transactionHistoryAtom);
-  return transactions.filter(filterPendingTransactions);
+  const myTransactions = get(myTransactionHistoryAtom);
+  return myTransactions.filter(filterPendingTransactions);
 });
 
 export const completeTransactionsHistoryAtom = atom((get) => {
-  const transactions = get(transactionHistoryAtom);
-  return transactions.filter(filterCompleteTransactions);
+  const myTransactions = get(myTransactionHistoryAtom);
+  return myTransactions.filter(filterCompleteTransactions);
 });

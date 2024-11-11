@@ -1,16 +1,16 @@
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
-type TransasctionStep = {
+export type TransactionStep = {
   children: React.ReactNode;
   bullet?: boolean;
 };
 
 type TransactionTimelineProps = {
-  steps: TransasctionStep[];
+  steps: TransactionStep[];
   currentStepIndex: number;
 };
 
-export const TransactionTimeline = ({
+export const Timeline = ({
   steps,
   currentStepIndex,
 }: TransactionTimelineProps): JSX.Element => {

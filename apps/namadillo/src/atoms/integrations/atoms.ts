@@ -9,11 +9,13 @@ import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
 import { TransactionPair } from "lib/query";
+import { createTransferDataFromIbc } from "lib/transactions";
 import {
   AddressWithAsset,
   ChainId,
   ChainRegistryEntry,
   GasConfig,
+  TransferTransactionData,
 } from "types";
 import {
   createIbcTx,
@@ -61,8 +63,19 @@ export const ibcTransferAtom = atomWithMutation(() => {
     mutationFn: async ({
       transferParams,
       chain,
-    }: IBCTransferAtomParams): Promise<void> => {
-      await queryAndStoreRpc(chain, submitIbcTransfer(transferParams));
+    }: IBCTransferAtomParams): Promise<TransferTransactionData> => {
+      return await queryAndStoreRpc(chain, async (rpc: string) => {
+        const txResponse = await submitIbcTransfer(rpc, transferParams);
+        return createTransferDataFromIbc(
+          txResponse,
+          rpc,
+          transferParams.chainId,
+          transferParams.symbol,
+          transferParams.isShielded ?
+            { type: "IbcToShielded", progressStatus: "zk-proof" }
+          : { type: "IbcToTransparent", progressStatus: "ibc-to-namada" }
+        );
+      });
     },
   };
 });

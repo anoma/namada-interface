@@ -1,14 +1,17 @@
 import { StargateClient } from "@cosmjs/stargate";
 import { useQuery } from "@tanstack/react-query";
-import { transactionHistoryAtom } from "atoms/transactions/atoms";
+import { queryForAck, queryForIbcTimeout } from "atoms/transactions";
+import { myTransactionHistoryAtom } from "atoms/transactions/atoms";
 import { filterPendingTransactions } from "atoms/transactions/functions";
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { useMemo } from "react";
+import { IbcTransferTransactionData } from "types";
+import { useTransactionActions } from "./useTransactionActions";
 
 export const useTransactionWatcher = (): void => {
-  const [transactionHistory, _setTransactionHistory] = useAtom(
-    transactionHistoryAtom
-  );
+  const { changeTransaction } = useTransactionActions();
+
+  const transactionHistory = useAtomValue(myTransactionHistoryAtom);
 
   const pendingTransactions = useMemo(() => {
     return transactionHistory.filter(filterPendingTransactions);
@@ -16,12 +19,37 @@ export const useTransactionWatcher = (): void => {
 
   useQuery({
     queryKey: ["transaction-status", pendingTransactions],
+    enabled: pendingTransactions.length > 0,
     queryFn: async () => {
       for (const tx of pendingTransactions) {
         const client = await StargateClient.connect(tx.rpc);
-        const _info = await client.getTx(tx.hash);
+        const ibcTx = tx as IbcTransferTransactionData;
+        const successQueries = await queryForAck(client, ibcTx);
+
+        if (successQueries.length > 0) {
+          changeTransaction(ibcTx.hash, {
+            status: "success",
+            progressStatus: "complete",
+            resultTxHash: successQueries[0].hash,
+          });
+          continue;
+        }
+
+        const timeoutQuery = await queryForIbcTimeout(
+          client,
+          tx as IbcTransferTransactionData
+        );
+
+        if (timeoutQuery.length > 0) {
+          changeTransaction(ibcTx.hash, {
+            status: "error",
+            errorMessage: "Transaction timed out",
+            resultTxHash: timeoutQuery[0].hash,
+          });
+          continue;
+        }
       }
     },
-    refetchInterval: 1000,
+    refetchInterval: 50000,
   });
 };

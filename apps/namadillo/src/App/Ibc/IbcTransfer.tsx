@@ -1,7 +1,7 @@
 import { Chain } from "@chain-registry/types";
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { mapUndefined } from "@namada/utils";
-import { TransactionTimeline } from "App/Transactions/TransactionTimeline";
+import { Timeline } from "App/Common/Timeline";
 import {
   OnSubmitTransferParams,
   TransferModule,
@@ -25,6 +25,7 @@ import { Address } from "types";
 import { IbcTopHeader } from "./IbcTopHeader";
 
 import * as cosmos from "chain-registry/mainnet/cosmoshub";
+import { useTransactionActions } from "hooks/useTransactionActions";
 import { getTransactionFee } from "integrations/utils";
 
 const keplr = new KeplrWalletManager();
@@ -57,6 +58,8 @@ export const IbcTransfer: React.FC = () => {
     (address) => availableAssets?.[address]?.amount,
     selectedAssetAddress
   );
+
+  const { storeTransaction } = useTransactionActions();
 
   const transactionFee = useMemo(() => {
     if (typeof registry !== "undefined") {
@@ -133,14 +136,16 @@ export const IbcTransfer: React.FC = () => {
       };
 
       try {
-        await performIbcTransfer.mutateAsync({
+        const tx = await performIbcTransfer.mutateAsync({
           chain: registry.chain,
           transferParams: {
             signer: keplr.getSigner(chainId),
+            chainId,
             sourceAddress,
             destinationAddress,
             amount,
-            asset: selectedAsset,
+            symbol: selectedAsset.symbol,
+            denom: selectedAsset.base,
             transactionFee,
             sourceChannelId: ibcOptions.sourceChannel,
             ...(shielded ?
@@ -153,6 +158,7 @@ export const IbcTransfer: React.FC = () => {
               }),
           },
         });
+        storeTransaction(tx);
       } finally {
         // Restore Keplr options to avoid mutating state
         baseKeplr.defaultOptions = savedKeplrOptions;
@@ -225,7 +231,7 @@ export const IbcTransfer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
           >
-            <TransactionTimeline
+            <Timeline
               currentStepIndex={currentStep}
               steps={[
                 {
