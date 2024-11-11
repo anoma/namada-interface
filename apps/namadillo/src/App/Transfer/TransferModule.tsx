@@ -1,9 +1,15 @@
-import { Asset, Chain, Chains } from "@chain-registry/types";
+import { Chain, Chains } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
+import { mapUndefined } from "@namada/utils";
 import { InlineError } from "App/Common/InlineError";
 import BigNumber from "bignumber.js";
 import { useMemo, useState } from "react";
-import { WalletProvider } from "types";
+import {
+  Address,
+  AddressWithAssetAndAmount,
+  AddressWithAssetAndAmountMap,
+  WalletProvider,
+} from "types";
 import { parseChainInfo } from "./common";
 import { IbcChannels } from "./IbcChannels";
 import { SelectAssetModal } from "./SelectAssetModal";
@@ -13,10 +19,7 @@ import { TransferArrow } from "./TransferArrow";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
 
-export type TransactionFee = {
-  token: Asset;
-  amount: BigNumber;
-};
+export type TransactionFee = AddressWithAssetAndAmount;
 
 type TransferModuleConfig = {
   wallet?: WalletProvider;
@@ -31,11 +34,11 @@ type TransferModuleConfig = {
 };
 
 export type TransferSourceProps = TransferModuleConfig & {
-  availableAssets?: Asset[];
+  availableAssets?: AddressWithAssetAndAmountMap;
   isLoadingAssets?: boolean;
-  selectedAsset?: Asset;
+  selectedAssetAddress?: Address;
   availableAmount?: BigNumber;
-  onChangeSelectedAsset?: (asset: Asset | undefined) => void;
+  onChangeSelectedAsset?: (address: Address | undefined) => void;
 };
 
 export type IbcOptions = {
@@ -50,7 +53,7 @@ export type TransferDestinationProps = TransferModuleConfig & {
 
 export type OnSubmitTransferParams = {
   amount: BigNumber;
-  destinationAddress: string;
+  destinationAddress: Address;
   memo?: string;
   ibcOptions?: IbcOptions;
 };
@@ -97,23 +100,31 @@ export const TransferModule = ({
   const [sourceIbcChannel, setSourceIbcChannel] = useState("");
   const [destinationIbcChannel, setDestinationIbcChannel] = useState("");
 
+  const selectedAsset = mapUndefined(
+    (address) => source.availableAssets?.[address],
+    source.selectedAssetAddress
+  );
+
   const availableAmountMinusFees = useMemo(() => {
-    const { selectedAsset, availableAmount } = source;
+    const { selectedAssetAddress, availableAmount } = source;
 
     if (
-      typeof selectedAsset === "undefined" ||
+      typeof selectedAssetAddress === "undefined" ||
       typeof availableAmount === "undefined"
     ) {
       return undefined;
     }
 
     const minusFees =
-      transactionFee && selectedAsset.base === transactionFee.token.base ?
+      (
+        transactionFee &&
+        selectedAssetAddress === transactionFee.originalAddress
+      ) ?
         availableAmount.minus(transactionFee.amount)
       : availableAmount;
 
     return BigNumber.max(minusFees, 0);
-  }, [source.selectedAsset, source.availableAmount, transactionFee]);
+  }, [source.selectedAssetAddress, source.availableAmount, transactionFee]);
 
   const validationResult = useMemo((): ValidationResult => {
     if (!source.wallet) {
@@ -122,7 +133,7 @@ export const TransferModule = ({
       return "NoSourceChain";
     } else if (!destination.chain) {
       return "NoDestinationChain";
-    } else if (!source.selectedAsset) {
+    } else if (!source.selectedAssetAddress) {
       return "NoSelectedAsset";
     } else if (!amount || amount.eq(0)) {
       return "NoAmount";
@@ -151,7 +162,7 @@ export const TransferModule = ({
       throw new Error("Address is not provided");
     }
 
-    if (!source.selectedAsset) {
+    if (!source.selectedAssetAddress) {
       throw new Error("Asset is not selected");
     }
 
@@ -255,7 +266,7 @@ export const TransferModule = ({
             isConnected={Boolean(source.connected)}
             wallet={source.wallet}
             walletAddress={source.walletAddress}
-            asset={source.selectedAsset}
+            asset={selectedAsset?.asset}
             isLoadingAssets={source.isLoadingAssets}
             chain={parseChainInfo(source.chain, source.isShielded)}
             availableAmount={availableAmountMinusFees}
@@ -338,7 +349,7 @@ export const TransferModule = ({
         source.walletAddress && (
           <SelectAssetModal
             onClose={() => setAssetSelectorModalOpen(false)}
-            assets={source.availableAssets || []}
+            assets={Object.values(source.availableAssets || {})}
             onSelect={source.onChangeSelectedAsset}
             wallet={source.wallet}
             walletAddress={source.walletAddress}

@@ -15,7 +15,7 @@ import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { namadaAsset } from "registry/namadaAsset";
-import { AddressWithAssetAndBalance } from "types";
+import { AddressWithAsset } from "types";
 import {
   findAssetByToken,
   mapNamadaAddressesToAssets,
@@ -23,7 +23,8 @@ import {
 } from "./functions";
 import { fetchCoinPrices, fetchShieldedBalance } from "./services";
 
-export type TokenBalance = AddressWithAssetAndBalance & {
+export type TokenBalance = AddressWithAsset & {
+  balance: BigNumber;
   dollar?: BigNumber;
 };
 

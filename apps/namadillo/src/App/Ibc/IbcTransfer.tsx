@@ -1,4 +1,4 @@
-import { Asset, Chain } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { mapUndefined } from "@namada/utils";
 import { TransactionTimeline } from "App/Common/TransactionTimeline";
@@ -8,19 +8,20 @@ import {
 } from "App/Transfer/TransferModule";
 import { allDefaultAccountsAtom } from "atoms/accounts";
 import {
+  assetBalanceAtomFamily,
   availableChainsAtom,
   chainRegistryAtom,
   ibcTransferAtom,
 } from "atoms/integrations";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { useAssetAmount } from "hooks/useAssetAmount";
 import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
 import { KeplrWalletManager } from "integrations/Keplr";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import namadaChain from "registry/namada.json";
+import { Address } from "types";
 import { IbcTopHeader } from "./IbcTopHeader";
 
 import * as cosmos from "chain-registry/mainnet/cosmoshub";
@@ -33,7 +34,7 @@ export const IbcTransfer: React.FC = () => {
   const chainRegistry = useAtomValue(chainRegistryAtom);
   const availableChains = useAtomValue(availableChainsAtom);
   const [shielded, setShielded] = useState<boolean>(true);
-  const [selectedAsset, setSelectedAsset] = useState<Asset>();
+  const [selectedAssetAddress, setSelectedAssetAddress] = useState<Address>();
   const [currentStep, setCurrentStep] = useState(0);
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
   const performIbcTransfer = useAtomValue(ibcTransferAtom);
@@ -45,15 +46,17 @@ export const IbcTransfer: React.FC = () => {
     chainId,
   } = useWalletManager(keplr);
 
-  const {
-    balance: availableAmount,
-    availableAssets,
-    isLoading: isLoadingBalances,
-  } = useAssetAmount({
-    registry,
-    asset: selectedAsset,
-    walletAddress: sourceAddress,
-  });
+  const { data: availableAssets, isLoading: isLoadingBalances } = useAtomValue(
+    assetBalanceAtomFamily({
+      chain: registry?.chain,
+      walletAddress: sourceAddress,
+    })
+  );
+
+  const availableAmount = mapUndefined(
+    (address) => availableAssets?.[address]?.amount,
+    selectedAssetAddress
+  );
 
   const transactionFee = useMemo(() => {
     if (typeof registry !== "undefined") {
@@ -63,7 +66,7 @@ export const IbcTransfer: React.FC = () => {
   }, [registry]);
 
   useEffect(() => {
-    setSelectedAsset(undefined);
+    setSelectedAssetAddress(undefined);
   }, [registry]);
 
   const namadaAddress = useMemo(() => {
@@ -89,6 +92,11 @@ export const IbcTransfer: React.FC = () => {
       if (!chainId) {
         throw new Error("Chain ID is undefined");
       }
+
+      const selectedAsset = mapUndefined(
+        (address) => availableAssets?.[address],
+        selectedAssetAddress
+      );
 
       if (!selectedAsset) {
         throw new Error("No asset is selected");
@@ -182,7 +190,7 @@ export const IbcTransfer: React.FC = () => {
               source={{
                 isLoadingAssets: isLoadingBalances,
                 availableAssets,
-                selectedAsset,
+                selectedAssetAddress,
                 availableAmount,
                 availableChains,
                 onChangeChain,
@@ -191,7 +199,7 @@ export const IbcTransfer: React.FC = () => {
                 wallet: wallets.keplr,
                 walletAddress: sourceAddress,
                 onChangeWallet,
-                onChangeSelectedAsset: setSelectedAsset,
+                onChangeSelectedAsset: setSelectedAssetAddress,
               }}
               destination={{
                 chain: namadaChain as Chain,

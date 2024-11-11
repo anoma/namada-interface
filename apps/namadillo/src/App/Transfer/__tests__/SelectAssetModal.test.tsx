@@ -1,4 +1,3 @@
-import { Asset } from "@chain-registry/types";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { SelectAssetModal } from "App/Transfer/SelectAssetModal";
 import { assetMockList } from "../__mocks__/assets";
@@ -14,7 +13,7 @@ describe("SelectAssetModal", () => {
       <SelectAssetModal
         onClose={onCloseMock}
         onSelect={onSelectMock}
-        assets={assetMockList as Asset[]}
+        assets={assetMockList}
         wallet={walletMock}
         walletAddress={mockAddress}
       />
@@ -27,7 +26,7 @@ describe("SelectAssetModal", () => {
       <SelectAssetModal
         onClose={onCloseMock}
         onSelect={onSelectMock}
-        assets={assetMockList as Asset[]}
+        assets={assetMockList}
         wallet={walletMock}
         walletAddress={mockAddress}
       />
@@ -41,7 +40,7 @@ describe("SelectAssetModal", () => {
       <SelectAssetModal
         onClose={onCloseMock}
         onSelect={onSelectMock}
-        assets={assetMockList as Asset[]}
+        assets={assetMockList}
         wallet={walletMock}
         walletAddress={mockAddress}
       />
@@ -62,13 +61,13 @@ describe("SelectAssetModal", () => {
       <SelectAssetModal
         onClose={onCloseMock}
         onSelect={onSelectMock}
-        assets={assetMockList as Asset[]}
+        assets={assetMockList}
         wallet={walletMock}
         walletAddress={mockAddress}
       />
     );
     fireEvent.click(screen.getByText("Bitcoin"));
-    expect(onSelectMock).toHaveBeenCalledWith(assetMockList[1]);
+    expect(onSelectMock).toHaveBeenCalledWith(assetMockList[1].originalAddress);
     expect(onCloseMock).toHaveBeenCalled();
   });
 });

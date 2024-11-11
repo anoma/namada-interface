@@ -66,7 +66,7 @@ export const assetBalanceAtomFamily = atomFamily(
           const assetsBalances = await queryAssetBalances(walletAddress!, rpc);
           return await mapCoinsToAssets(
             assetsBalances,
-            chain!.chain_name,
+            chain!.chain_id,
             ibcAddressToDenomTrace(rpc)
           );
         });

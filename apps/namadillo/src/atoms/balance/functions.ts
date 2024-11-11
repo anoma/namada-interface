@@ -4,7 +4,7 @@ import { mapCoinsToAssets } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
 import { namadaAsset } from "registry/namadaAsset";
-import { AddressWithAssetAndBalanceMap } from "types";
+import { AddressWithAssetAndAmountMap } from "types";
 import { TokenBalance } from "./atoms";
 
 // TODO upgrade this function to be as smart as possible
@@ -88,29 +88,31 @@ const tnamAddressToDenomTrace = (
 export const mapNamadaAddressesToAssets = async (
   balances: { address: string; amount: BigNumber }[],
   tokenAddresses: (NativeToken | IbcToken)[],
-  chainName: string
-): Promise<AddressWithAssetAndBalanceMap> => {
+  chainId: string
+): Promise<AddressWithAssetAndAmountMap> => {
   const coins = balances.map(({ address, amount }) => ({
     denom: address,
     amount: amount.toString(), // TODO: don't convert back to string
   }));
 
-  return await mapCoinsToAssets(coins, chainName, (tnamAddress) =>
+  return await mapCoinsToAssets(coins, chainId, (tnamAddress) =>
     Promise.resolve(tnamAddressToDenomTrace(tnamAddress, tokenAddresses))
   );
 };
 
 export const mapNamadaAssetsToTokenBalances = (
-  assets: AddressWithAssetAndBalanceMap,
+  assets: AddressWithAssetAndAmountMap,
   tokenPrices: Record<string, BigNumber>
 ): TokenBalance[] => {
   return Object.values(assets).map((assetEntry) => {
-    const tokenPrice = tokenPrices[assetEntry.address];
-    const dollar =
-      tokenPrice ? assetEntry.balance.multipliedBy(tokenPrice) : undefined;
+    const { originalAddress, asset, amount } = assetEntry;
+    const tokenPrice = tokenPrices[originalAddress];
+    const dollar = tokenPrice ? amount.multipliedBy(tokenPrice) : undefined;
 
     return {
-      ...assetEntry,
+      originalAddress,
+      asset,
+      balance: amount,
       dollar,
     };
   });
