@@ -1,4 +1,4 @@
-import { Configuration, DefaultApi } from "@anomaorg/namada-indexer-client";
+import { Configuration, DefaultApi } from "@namada/indexer-client";
 import { isUrlValid } from "@namada/utils";
 import toml from "toml";
 import { SettingsTomlOptions } from "types";

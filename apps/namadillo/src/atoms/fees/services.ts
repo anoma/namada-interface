@@ -1,4 +1,4 @@
-import { DefaultApi } from "@anomaorg/namada-indexer-client";
+import { DefaultApi } from "@namada/indexer-client";
 import BigNumber from "bignumber.js";
 import invariant from "invariant";
 import { GasTable } from "types";

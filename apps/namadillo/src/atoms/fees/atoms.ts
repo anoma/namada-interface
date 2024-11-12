@@ -1,4 +1,4 @@
-import { GasLimitTableInnerTxKindEnum as GasLimitTableIndexer } from "@anomaorg/namada-indexer-client";
+import { GasLimitTableInnerTxKindEnum as GasLimitTableIndexer } from "@namada/indexer-client";
 import { defaultAccountAtom } from "atoms/accounts";
 import { indexerApiAtom } from "atoms/api";
 import { nativeTokenAddressAtom } from "atoms/chain";

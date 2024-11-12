@@ -1,4 +1,4 @@
-import { Reward } from "@anomaorg/namada-indexer-client";
+import { Reward } from "@namada/indexer-client";
 import {
   BondMsgValue,
   ClaimRewardsMsgValue,

@@ -1,5 +1,5 @@
-import { IbcToken, NativeToken } from "@anomaorg/namada-indexer-client";
 import { Asset, AssetList } from "@chain-registry/types";
+import { IbcToken, NativeToken } from "@namada/indexer-client";
 import { mapCoinsToAssets } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";

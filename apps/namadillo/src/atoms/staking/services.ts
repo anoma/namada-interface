@@ -1,4 +1,4 @@
-import { DefaultApi, Reward } from "@anomaorg/namada-indexer-client";
+import { DefaultApi, Reward } from "@namada/indexer-client";
 import {
   Account,
   BondMsgValue,
