@@ -53,7 +53,7 @@ export const ShieldedFungibleTable = ({
           key={`balance-${originalAddress}`}
           className="flex flex-col text-right leading-tight"
         >
-          <TokenCurrency asset={asset} amount={amount} />
+          <TokenCurrency symbol={asset.symbol} amount={balance} />
           {dollar && (
             <FiatCurrency
               className="text-neutral-600 text-sm"
