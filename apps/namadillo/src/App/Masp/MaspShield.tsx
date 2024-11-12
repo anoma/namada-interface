@@ -26,7 +26,9 @@ export const MaspShield: React.FC = () => {
 
   const chainParameters = useAtomValue(chainParametersAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
-  const namadaTransparentAssets = useAtomValue(namadaTransparentAssetsAtom);
+  const { data: availableAssets, isLoading: isLoadingBalances } = useAtomValue(
+    namadaTransparentAssetsAtom
+  );
 
   const [currentStep, setCurrentStep] = useState(0);
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
@@ -40,13 +42,9 @@ export const MaspShield: React.FC = () => {
     (account) => account.isShielded
   )?.address;
 
-  const isLoadingBalances = namadaTransparentAssets.isLoading;
-
   const selectedAssetAddress = searchParams.get(params.asset) || undefined;
   const selectedAsset =
-    selectedAssetAddress ?
-      namadaTransparentAssets.data?.[selectedAssetAddress]
-    : undefined;
+    selectedAssetAddress ? availableAssets?.[selectedAssetAddress] : undefined;
 
   const transactionFee =
     selectedAsset ?
@@ -124,7 +122,7 @@ export const MaspShield: React.FC = () => {
             <TransferModule
               source={{
                 isLoadingAssets: isLoadingBalances,
-                availableAssets: namadaTransparentAssets.data,
+                availableAssets,
                 selectedAssetAddress,
                 availableAmount: selectedAsset?.amount,
                 chain: namadaChain as Chain,
