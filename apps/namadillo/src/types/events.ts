@@ -6,7 +6,8 @@ import {
   VoteProposalProps,
   WithdrawProps,
 } from "@namada/types";
-import { ClaimRewardsProps, TxKind } from "types";
+import { ClaimRewardsProps } from "types";
+import { TxKind } from "types/txKind";
 
 export type TransactionEventsClasses = Partial<TxKind>;
 

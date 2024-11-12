@@ -6,6 +6,7 @@ import {
 } from "@namada/indexer-client";
 import { ChainKey, ClaimRewardsMsgValue, ExtensionKey } from "@namada/types";
 import BigNumber from "bignumber.js";
+import { TxKind } from "types/txKind";
 
 declare module "*.module.css" {
   const content: Record<string, string>;
@@ -144,16 +145,6 @@ export type BuildTxAtomParams<T> = {
   params: T[];
   gasConfig: GasConfig;
 };
-
-export type TxKind =
-  | "Bond"
-  | "Unbond"
-  | "Redelegate"
-  | "Withdraw"
-  | "ClaimRewards"
-  | "VoteProposal"
-  | "RevealPk"
-  | "Unknown";
 
 export type SortOptions = "asc" | "desc" | undefined;
 

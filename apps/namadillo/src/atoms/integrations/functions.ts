@@ -2,6 +2,7 @@ import { Asset, Chain } from "@chain-registry/types";
 import { Coin } from "@cosmjs/launchpad";
 import { QueryClient, setupIbcExtension } from "@cosmjs/stargate";
 import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
+import { Account, IbcTransferProps } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import * as celestia from "chain-registry/mainnet/celestia";
@@ -16,12 +17,17 @@ import * as elysTestnet from "chain-registry/testnet/elystestnet";
 import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet";
 import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
+import { TransactionPair, buildTxPair } from "lib/query";
 import {
+  AddressWithAsset,
   AddressWithAssetAndAmount,
   AddressWithAssetAndAmountMap,
   ChainRegistryEntry,
+  ChainSettings,
+  GasConfig,
 } from "types";
-import { toDisplayAmount } from "utils";
+import { toBaseAmount, toDisplayAmount } from "utils";
+import { getSdkInstance } from "utils/sdk";
 
 import housefireAssets from "namada-chain-registry/namadahousefire/assetlist.json";
 import housefireChain from "namada-chain-registry/namadahousefire/chain.json";
@@ -275,4 +281,41 @@ export const getRestApiAddressByIndex = (chain: Chain, index = 0): string => {
   const randomRestApi =
     availableRestApis[Math.min(index, availableRestApis.length - 1)];
   return randomRestApi.address;
+};
+
+export const createIbcTx = async (
+  account: Account,
+  destinationAddress: string,
+  token: AddressWithAsset,
+  amount: BigNumber,
+  portId: string,
+  channelId: string,
+  gasConfig: GasConfig,
+  chain: ChainSettings,
+  memo?: string
+): Promise<TransactionPair<IbcTransferProps>> => {
+  const { tx } = await getSdkInstance();
+
+  // SDK expects IBC amounts in base denom
+  const amountInBaseDenom = toBaseAmount(token.asset, amount);
+
+  const ibcTransferProps = {
+    source: account.address,
+    receiver: destinationAddress,
+    token: token.originalAddress,
+    amountInBaseDenom,
+    portId,
+    channelId,
+    memo,
+  };
+
+  const transactionPair = await buildTxPair(
+    account,
+    gasConfig,
+    chain,
+    [ibcTransferProps],
+    tx.buildIbcTransfer,
+    account.address
+  );
+  return transactionPair;
 };

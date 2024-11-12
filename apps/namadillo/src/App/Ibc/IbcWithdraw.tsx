@@ -1,58 +1,57 @@
 import { Chain } from "@chain-registry/types";
-import { WindowWithNamada } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import {
   OnSubmitTransferParams,
   TransferModule,
 } from "App/Transfer/TransferModule";
-import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
-import { chainAtom, chainParametersAtom } from "atoms/chain";
-import { availableChainsAtom, chainRegistryAtom } from "atoms/integrations";
-import BigNumber from "bignumber.js";
+import { defaultAccountAtom } from "atoms/accounts";
+import { namadaTransparentAssetsAtom } from "atoms/balance";
+import { defaultGasConfigFamily } from "atoms/fees";
+import {
+  availableChainsAtom,
+  chainRegistryAtom,
+  createIbcTxAtom,
+} from "atoms/integrations";
 import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
 import { KeplrWalletManager } from "integrations/Keplr";
 import { useAtomValue } from "jotai";
-import { useState } from "react";
+import { broadcastTx } from "lib/query";
+import { useEffect, useState } from "react";
 import namadaChainRegistry from "registry/namada.json";
 import { namadaAsset } from "registry/namadaAsset";
-import { Address, AddressWithAssetAndAmountMap } from "types";
-import { getSdkInstance } from "utils/sdk";
+import { Address } from "types";
 import { IbcTopHeader } from "./IbcTopHeader";
 
 const defaultChainId = "cosmoshub-4";
 const keplr = new KeplrWalletManager();
-const namada = (window as WindowWithNamada).namada!;
 
 export const IbcWithdraw: React.FC = () => {
   const namadaAccount = useAtomValue(defaultAccountAtom);
   const chainRegistry = useAtomValue(chainRegistryAtom);
   const availableChains = useAtomValue(availableChainsAtom);
-  const namadaChainParams = useAtomValue(chainParametersAtom);
-  const namadaChain = useAtomValue(chainAtom);
 
   const [selectedAssetAddress, setSelectedAssetAddress] = useState<Address>();
 
-  // TODO: remove hardcoding and display assets other than NAM
-  const availableAmount = useAtomValue(accountBalanceAtom).data;
-  const availableAssets: AddressWithAssetAndAmountMap =
-    availableAmount ?
-      {
-        [namadaAsset.address]: {
-          asset: namadaAsset,
-          originalAddress: namadaAsset.address,
-          amount: availableAmount,
-        },
-      }
-    : {};
+  const { data: availableAssets } = useAtomValue(namadaTransparentAssetsAtom);
 
-  const GAS_PRICE = BigNumber(0.000001); // 0.000001 NAM
-  const GAS_LIMIT = BigNumber(1_000_000);
-  const transactionFee = {
-    originalAddress: namadaAsset.address,
-    asset: namadaAsset,
-    amount: GAS_PRICE.multipliedBy(GAS_LIMIT),
-  };
+  const availableAmount = mapUndefined(
+    (address) => availableAssets?.[address]?.amount,
+    selectedAssetAddress
+  );
+
+  const { data: gasConfig } = useAtomValue(
+    defaultGasConfigFamily(["IbcTransfer"])
+  );
+
+  const transactionFee = mapUndefined(
+    ({ gasLimit, gasPrice }) => ({
+      originalAddress: namadaAsset.address,
+      asset: namadaAsset,
+      amount: gasPrice.multipliedBy(gasLimit),
+    }),
+    gasConfig
+  );
 
   const {
     walletAddress: keplrAddress,
@@ -64,40 +63,68 @@ export const IbcWithdraw: React.FC = () => {
     connectToChainId(chainId || defaultChainId);
   };
 
+  const {
+    mutate: createIbcTx,
+    isSuccess,
+    isError,
+    error: ibcTxError,
+    data: ibcTxData,
+  } = useAtomValue(createIbcTxAtom);
+
+  // TODO: properly notify the user on error
+  useEffect(() => {
+    if (isError) {
+      console.error(ibcTxError);
+    }
+  }, [isError]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      const { encodedTxData, signedTxs } = ibcTxData;
+      signedTxs.forEach((signedTx) =>
+        broadcastTx(
+          encodedTxData,
+          signedTx,
+          encodedTxData.meta?.props,
+          "IbcTransfer"
+        )
+      );
+    }
+  }, [isSuccess]);
+
   const submitIbcTransfer = async ({
     amount,
     destinationAddress,
     ibcOptions,
     memo,
   }: OnSubmitTransferParams): Promise<void> => {
-    const wrapperTxProps = {
-      token: namadaChain.data!.nativeTokenAddress,
-      feeAmount: GAS_PRICE,
-      gasLimit: GAS_LIMIT,
-      chainId: namadaChain.data!.chainId,
-      publicKey: namadaAccount.data!.publicKey,
-    };
-    const sdk = await getSdkInstance();
-    const tx = await sdk.tx.buildIbcTransfer(wrapperTxProps, {
-      source: namadaAccount.data!.address,
-      receiver: destinationAddress,
-      token: namadaChain.data!.nativeTokenAddress,
-      amount: amount!,
+    const selectedAsset = mapUndefined(
+      (address) => availableAssets?.[address],
+      selectedAssetAddress
+    );
+
+    if (typeof selectedAsset === "undefined") {
+      throw new Error("No selected asset");
+    }
+
+    const channelId = ibcOptions?.sourceChannel;
+    if (typeof channelId === "undefined") {
+      throw new Error("No channel ID is set");
+    }
+
+    if (typeof gasConfig === "undefined") {
+      throw new Error("No gas config");
+    }
+
+    createIbcTx({
+      destinationAddress,
+      token: selectedAsset,
+      amount,
       portId: "transfer",
-      channelId: ibcOptions?.sourceChannel || "",
-      timeoutHeight: undefined,
-      timeoutSecOffset: undefined,
-      shieldingData: undefined,
+      channelId,
+      gasConfig,
       memo,
     });
-
-    const signedTxBytes = await namada.sign({
-      signer: namadaAccount.data!.address,
-      txs: [tx],
-      checksums: namadaChainParams.data!.checksums,
-    });
-
-    await sdk.rpc.broadcastTx(signedTxBytes![0], wrapperTxProps);
   };
 
   const onChangeChain = (chain: Chain): void => {

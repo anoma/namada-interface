@@ -1,12 +1,22 @@
 import { AssetList, Chain } from "@chain-registry/types";
-import { ExtensionKey } from "@namada/types";
+import { ExtensionKey, IbcTransferProps } from "@namada/types";
+import { defaultAccountAtom } from "atoms/accounts";
+import { chainAtom } from "atoms/chain";
 import { settingsAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
+import BigNumber from "bignumber.js";
 import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
-import { ChainId, ChainRegistryEntry } from "types";
+import { TransactionPair } from "lib/query";
 import {
+  AddressWithAsset,
+  ChainId,
+  ChainRegistryEntry,
+  GasConfig,
+} from "types";
+import {
+  createIbcTx,
   getKnownChains,
   ibcAddressToDenomTrace,
   mapCoinsToAssets,
@@ -106,4 +116,48 @@ export const availableChainsAtom = atom((get) => {
 export const availableAssetsAtom = atom((get) => {
   const settings = get(settingsAtom);
   return getKnownChains(settings.enableTestnets).map(({ assets }) => assets);
+});
+
+type CreateIbcTxArgs = {
+  destinationAddress: string;
+  token: AddressWithAsset;
+  amount: BigNumber;
+  portId: string;
+  channelId: string;
+  memo?: string;
+  gasConfig: GasConfig;
+};
+
+export const createIbcTxAtom = atomWithMutation((get) => {
+  const account = get(defaultAccountAtom);
+  const chain = get(chainAtom);
+
+  return {
+    enabled: account.isSuccess && chain.isSuccess,
+    mutationKey: ["create-ibc-tx"],
+    mutationFn: async ({
+      destinationAddress,
+      token,
+      amount,
+      portId,
+      channelId,
+      memo,
+      gasConfig,
+    }: CreateIbcTxArgs): Promise<TransactionPair<IbcTransferProps>> => {
+      if (typeof account.data === "undefined") {
+        throw new Error("no account");
+      }
+      return createIbcTx(
+        account.data,
+        destinationAddress,
+        token,
+        amount,
+        portId,
+        channelId,
+        gasConfig,
+        chain.data!,
+        memo
+      );
+    },
+  };
 });
