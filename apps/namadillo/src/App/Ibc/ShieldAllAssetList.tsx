@@ -57,7 +57,7 @@ export const ShieldAllAssetList = ({
                   symbol={assetWithBalance.asset.symbol}
                   amount={toDisplayAmount(
                     assetWithBalance.asset,
-                    assetWithBalance.balance || new BigNumber(0)
+                    assetWithBalance.amount || new BigNumber(0)
                   )}
                 />
               </span>

@@ -66,66 +66,67 @@ export const queryAssetBalances = async (
   return ((await client.getAllBalances(owner)) as Coin[]) || [];
 };
 
-export const submitIbcTransfer =
-  (transferParams: IbcTransferParams) =>
-  async (rpc: string): Promise<DeliverTxResponse> => {
-    const {
-      signer,
-      sourceAddress,
-      destinationAddress,
-      amount: displayAmount,
-      asset,
-      sourceChannelId,
-      isShielded,
-      transactionFee,
-    } = transferParams;
+export const submitIbcTransfer = async (
+  rpc: string,
+  transferParams: IbcTransferParams
+): Promise<DeliverTxResponse> => {
+  const {
+    signer,
+    sourceAddress,
+    destinationAddress,
+    amount: displayAmount,
+    asset,
+    sourceChannelId,
+    isShielded,
+    transactionFee,
+  } = transferParams;
 
-    const client = await SigningStargateClient.connectWithSigner(rpc, signer, {
-      broadcastPollIntervalMs: 300,
-      broadcastTimeoutMs: 8_000,
-    });
+  const client = await SigningStargateClient.connectWithSigner(rpc, signer, {
+    broadcastPollIntervalMs: 300,
+    broadcastTimeoutMs: 8_000,
+  });
 
-    // cosmjs expects amounts to be represented in the base denom, so convert
-    const baseAmount = toBaseAmount(asset.asset, displayAmount);
-    const baseFee = toBaseAmount(transactionFee.asset, transactionFee.amount);
+  // cosmjs expects amounts to be represented in the base denom, so convert
+  const baseAmount = toBaseAmount(asset.asset, displayAmount);
+  const baseFee = toBaseAmount(transactionFee.asset, transactionFee.amount);
 
-    const fee = {
-      amount: coins(baseFee.toString(), transactionFee.originalAddress),
-      gas: "222000", // TODO: what should this be?
-    };
-
-    const token = asset.originalAddress;
-    const { receiver, memo }: { receiver: string; memo?: string } =
-      isShielded ?
-        await getShieldedArgs(
-          destinationAddress,
-          token,
-          baseAmount,
-          transferParams.destinationChannelId
-        )
-      : { receiver: destinationAddress };
-
-    const transferMsg = createIbcTransferMessage(
-      sourceChannelId,
-      sourceAddress,
-      receiver,
-      baseAmount,
-      asset.asset.base,
-      memo
-    );
-
-    const response = await client.signAndBroadcast(
-      sourceAddress,
-      [transferMsg],
-      fee
-    );
-
-    if (response.code !== 0) {
-      throw new Error(response.code + " " + response.transactionHash);
-    }
-
-    return response;
+  const fee = {
+    amount: coins(baseFee.toString(), transactionFee.originalAddress),
+    gas: "222000", // TODO: what should this be?
   };
+
+  const token = asset.originalAddress;
+  const { receiver, memo }: { receiver: string; memo?: string } =
+    isShielded ?
+      await getShieldedArgs(
+        destinationAddress,
+        token,
+        baseAmount,
+        transferParams.destinationChannelId
+      )
+    : { receiver: destinationAddress };
+
+  const transferMsg = createIbcTransferMessage(
+    sourceChannelId,
+    sourceAddress,
+    receiver,
+    baseAmount,
+    asset.asset.base,
+    memo
+  );
+
+  const response = await client.signAndBroadcast(
+    sourceAddress,
+    [transferMsg],
+    fee
+  );
+
+  if (response.code !== 0) {
+    throw new Error(response.code + " " + response.transactionHash);
+  }
+
+  return response;
+};
 
 export const queryAndStoreRpc = async <T>(
   chain: Chain,

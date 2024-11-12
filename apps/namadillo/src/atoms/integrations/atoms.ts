@@ -12,6 +12,7 @@ import { TransactionPair } from "lib/query";
 import { createTransferDataFromIbc } from "lib/transactions";
 import {
   AddressWithAsset,
+  AddressWithAssetAndAmountMap,
   ChainId,
   ChainRegistryEntry,
   GasConfig,
@@ -70,7 +71,7 @@ export const ibcTransferAtom = atomWithMutation(() => {
           txResponse,
           rpc,
           transferParams.chainId,
-          transferParams.symbol,
+          transferParams.asset.asset.symbol,
           transferParams.isShielded ?
             { type: "IbcToShielded", progressStatus: "zk-proof" }
           : { type: "IbcToTransparent", progressStatus: "ibc-to-namada" }
@@ -82,7 +83,7 @@ export const ibcTransferAtom = atomWithMutation(() => {
 
 export const assetBalanceAtomFamily = atomFamily(
   ({ chain, walletAddress, assets }: AssetBalanceAtomParams) => {
-    return atomWithQuery(() => ({
+    return atomWithQuery<AddressWithAssetAndAmountMap>(() => ({
       queryKey: ["assets", walletAddress, chain?.chain_id, assets],
       ...queryDependentFn(async () => {
         return await queryAndStoreRpc(chain!, async (rpc: string) => {
