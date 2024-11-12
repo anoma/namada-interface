@@ -103,12 +103,15 @@ const findDisplayUnit = (asset: Asset): AssetDenomUnit | undefined => {
   return denom_units.find((unit) => unit.denom === display);
 };
 
-export const toDisplayAmount = (asset: Asset, amount: BigNumber): BigNumber => {
+export const toDisplayAmount = (
+  asset: Asset,
+  baseAmount: BigNumber
+): BigNumber => {
   const displayUnit = findDisplayUnit(asset);
   if (!displayUnit) {
-    return amount;
+    return baseAmount;
   }
-  return amount.shiftedBy(-displayUnit.exponent);
+  return baseAmount.shiftedBy(-displayUnit.exponent);
 };
 
 export const toBaseAmount = (asset: Asset, amount: BigNumber): BigNumber => {

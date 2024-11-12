@@ -192,14 +192,11 @@ export type AddressWithAssetAndAmount = AddressWithAsset & {
   amount: BigNumber;
 };
 
-<<<<<<< HEAD
 export type AddressWithAssetAndAmountMap = Record<
   Address,
   AddressWithAssetAndAmount
 >;
 
-=======
->>>>>>> 0a3a39b5 (refactor: fixing merging conflicts)
 export const NamadaTransferProgressSteps = {
   TransparentToShielded: [
     "sign",

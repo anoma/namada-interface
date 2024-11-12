@@ -43,7 +43,7 @@ export const getAssetImageUrl = (asset?: Asset): string => {
 export const getTransactionFee = (
   registry: ChainRegistryEntry
 ): TransactionFee | undefined => {
-  // TODO: can we get a better type for registry to avoid optional chaining?
+  // TODO: we get a better type for registry to avoid optional chaining?
   // TODO: some chains support multiple fee tokens - what should we do?
   const feeToken = registry.chain.fees?.fee_tokens?.[0];
   if (typeof feeToken !== "undefined") {

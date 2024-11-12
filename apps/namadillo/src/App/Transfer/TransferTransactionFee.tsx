@@ -34,7 +34,10 @@ export const TransferTransactionFee = ({
         </span>
       )}
       <TokenCurrency
-        amount={toDisplayAmount(transactionFee.token, transactionFee.amount)}
+        amount={toDisplayAmount(
+          transactionFee.token,
+          transactionFee.baseAmount
+        )}
         symbol={transactionFee.token.symbol}
       />
     </footer>
