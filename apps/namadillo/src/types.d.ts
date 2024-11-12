@@ -1,9 +1,9 @@
+import { Asset, AssetList, Chain, IBCInfo } from "@chain-registry/types";
 import {
   Bond as IndexerBond,
   Unbond as IndexerUnbond,
   ValidatorStatus,
-} from "@anomaorg/namada-indexer-client";
-import { Asset, AssetList, Chain, IBCInfo } from "@chain-registry/types";
+} from "@namada/namada-indexer-client";
 import { ChainKey, ClaimRewardsMsgValue, ExtensionKey } from "@namada/types";
 import BigNumber from "bignumber.js";
 
@@ -189,13 +189,16 @@ export type ChainRegistryEntry = {
   ibc: IBCInfo[];
 };
 
-export type AddressWithAssetAndBalance = {
-  address: string;
+export type AddressWithAsset = {
+  originalAddress: Address;
   asset: Asset;
-  balance: BigNumber;
 };
 
-export type AddressWithAssetAndBalanceMap = Record<
-  string,
-  AddressWithAssetAndBalance
+export type AddressWithAssetAndAmount = AddressWithAsset & {
+  amount: BigNumber;
+};
+
+export type AddressWithAssetAndAmountMap = Record<
+  Address,
+  AddressWithAssetAndAmount
 >;

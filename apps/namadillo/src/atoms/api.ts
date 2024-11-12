@@ -1,4 +1,4 @@
-import { Configuration, DefaultApi } from "@anomaorg/namada-indexer-client";
+import { Configuration, DefaultApi } from "@namada/indexer-client";
 import { Atom, atom, getDefaultStore } from "jotai";
 import { indexerUrlAtom } from "./settings";
 

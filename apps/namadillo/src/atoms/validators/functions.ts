@@ -4,7 +4,7 @@ import {
   Unbond as IndexerUnbond,
   Validator as IndexerValidator,
   VotingPower as IndexerVotingPower,
-} from "@anomaorg/namada-indexer-client";
+} from "@namada/indexer-client";
 import { singleUnitDurationFromInterval } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import { Address, MyValidator, UnbondEntry, Validator } from "types";

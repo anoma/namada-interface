@@ -1,4 +1,4 @@
-import { Asset, Chain } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { WindowWithNamada } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import {
@@ -16,6 +16,7 @@ import { useAtomValue } from "jotai";
 import { useState } from "react";
 import namadaChainRegistry from "registry/namada.json";
 import { namadaAsset } from "registry/namadaAsset";
+import { Address, AddressWithAssetAndAmountMap } from "types";
 import { getSdkInstance } from "utils/sdk";
 import { IbcTopHeader } from "./IbcTopHeader";
 
@@ -30,16 +31,26 @@ export const IbcWithdraw: React.FC = () => {
   const namadaChainParams = useAtomValue(chainParametersAtom);
   const namadaChain = useAtomValue(chainAtom);
 
-  const [selectedAsset, setSelectedAsset] = useState<Asset>();
+  const [selectedAssetAddress, setSelectedAssetAddress] = useState<Address>();
 
   // TODO: remove hardcoding and display assets other than NAM
   const availableAmount = useAtomValue(accountBalanceAtom).data;
-  const availableAssets = [namadaAsset];
+  const availableAssets: AddressWithAssetAndAmountMap =
+    availableAmount ?
+      {
+        [namadaAsset.address]: {
+          asset: namadaAsset,
+          originalAddress: namadaAsset.address,
+          amount: availableAmount,
+        },
+      }
+    : {};
 
   const GAS_PRICE = BigNumber(0.000001); // 0.000001 NAM
   const GAS_LIMIT = BigNumber(1_000_000);
   const transactionFee = {
-    token: namadaAsset,
+    originalAddress: namadaAsset.address,
+    asset: namadaAsset,
     amount: GAS_PRICE.multipliedBy(GAS_LIMIT),
   };
 
@@ -115,8 +126,8 @@ export const IbcWithdraw: React.FC = () => {
           isShielded: false,
           availableAssets,
           availableAmount,
-          selectedAsset,
-          onChangeSelectedAsset: setSelectedAsset,
+          selectedAssetAddress,
+          onChangeSelectedAsset: setSelectedAssetAddress,
         }}
         destination={{
           wallet: wallets.keplr,

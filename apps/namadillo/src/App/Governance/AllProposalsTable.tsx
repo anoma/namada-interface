@@ -1,5 +1,5 @@
-import { Pagination } from "@anomaorg/namada-indexer-client";
 import { Stack, StyledSelectBox, TableRow } from "@namada/components";
+import { Pagination } from "@namada/indexer-client";
 import { Proposal, isProposalStatus, proposalStatuses } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import { Search } from "App/Common/Search";

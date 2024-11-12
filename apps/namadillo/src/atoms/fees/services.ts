@@ -1,11 +1,11 @@
-import { DefaultApi } from "@anomaorg/namada-indexer-client";
+import { DefaultApi } from "@namada/indexer-client";
 import BigNumber from "bignumber.js";
 import invariant from "invariant";
 import { GasTable } from "types";
 import { txKindFromIndexer } from "./atoms";
 
 export const fetchGasLimit = async (api: DefaultApi): Promise<GasTable> => {
-  const gasTableResponse = await api.apiV1GasTokenGet("native");
+  const gasTableResponse = await api.apiV1GasGet();
   const gasTable = gasTableResponse.data.reduce(
     (acc, { gasLimit, txKind: indexerTxKind }) => {
       const txKind = txKindFromIndexer(indexerTxKind);

@@ -100,7 +100,11 @@ describe("TransferDestination", () => {
     const fee = BigNumber(0.000001);
     render(
       <TransferDestination
-        transactionFee={{ amount: fee, token: namadaAsset }}
+        transactionFee={{
+          amount: fee,
+          asset: namadaAsset,
+          originalAddress: namadaAsset.address,
+        }}
       />
     );
     const transactionFee = screen.getByText("Transaction Fee");

@@ -43,15 +43,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anomaorg/namada-indexer-client@npm:0.0.27":
-  version: 0.0.27
-  resolution: "@anomaorg/namada-indexer-client@npm:0.0.27"
-  dependencies:
-    axios: "npm:^1.6.1"
-  checksum: cb491385c8da879d8be953039b2a9e58b520080e4e0035476ff828864a387ff9cbe6068de6e7ded63a9e39c3fe9fdb4ca6ed932ffcfb1028fe23342a7c8da952
-  languageName: node
-  linkType: hard
-
 "@babel/cli@npm:^7.23.9":
   version: 7.25.6
   resolution: "@babel/cli@npm:7.25.6"
@@ -3590,6 +3581,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@namada/indexer-client@npm:0.0.29":
+  version: 0.0.29
+  resolution: "@namada/indexer-client@npm:0.0.29"
+  dependencies:
+    axios: "npm:^1.6.1"
+  checksum: 8250750315221e961a72e07b83e29a6bcce0b63f442302e2eb61a3c6f7151724cc09690397fd4c79c22068f886019f487196f22eafcd3261b5a6b128712d455e
+  languageName: node
+  linkType: hard
+
 "@namada/integrations@workspace:packages/integrations":
   version: 0.0.0-use.local
   resolution: "@namada/integrations@workspace:packages/integrations"
@@ -3623,11 +3623,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@namada/namadillo@workspace:apps/namadillo"
   dependencies:
-    "@anomaorg/namada-indexer-client": "npm:0.0.27"
     "@chain-registry/client": "npm:^1.53.5"
     "@cosmjs/encoding": "npm:^0.32.3"
     "@eslint/js": "npm:^9.9.1"
     "@keplr-wallet/types": "npm:^0.12.136"
+    "@namada/indexer-client": "npm:0.0.29"
     "@playwright/test": "npm:^1.24.1"
     "@release-it/keep-a-changelog": "npm:^5.0.0"
     "@svgr/webpack": "npm:^6.5.1"
@@ -3678,6 +3678,7 @@ __metadata:
     jotai-tanstack-query: "npm:^0.8.5"
     local-cors-proxy: "npm:^1.1.0"
     lodash.debounce: "npm:^4.0.8"
+    namada-chain-registry: "https://github.com/anoma/namada-chain-registry"
     postcss: "npm:^8.4.32"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
@@ -15812,6 +15813,13 @@ __metadata:
     object-assign: "npm:^4.0.1"
     thenify-all: "npm:^1.0.0"
   checksum: 103114e93f87362f0b56ab5b2e7245051ad0276b646e3902c98397d18bb8f4a77f2ea4a2c9d3ad516034ea3a56553b60d3f5f78220001ca4c404bd711bd0af39
+  languageName: node
+  linkType: hard
+
+"namada-chain-registry@https://github.com/anoma/namada-chain-registry":
+  version: 0.0.1
+  resolution: "namada-chain-registry@https://github.com/anoma/namada-chain-registry.git#commit=ca1d841d75f105fe91a907c678a4fe3077d0f1e8"
+  checksum: f9223374efee6af23f9485a82074d2fa34f4a38f5592bd947ee3be845bdfe648d692980805a03f15ada6b077585f6ef0e05baf0542e2ec6fc33dd4d683064f78
   languageName: node
   linkType: hard
 

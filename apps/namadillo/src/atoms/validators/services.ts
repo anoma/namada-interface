@@ -5,7 +5,7 @@ import {
   MergedBond,
   Unbond,
   VotingPower,
-} from "@anomaorg/namada-indexer-client";
+} from "@namada/indexer-client";
 import { Account } from "@namada/types";
 import { ChainParameters, Validator } from "types";
 import { toValidator } from "./functions";

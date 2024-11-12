@@ -16,50 +16,34 @@ import * as elysTestnet from "chain-registry/testnet/elystestnet";
 import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet";
 import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
-import { namadaAsset } from "registry/namadaAsset";
 import {
-  AddressWithAssetAndBalance,
-  AddressWithAssetAndBalanceMap,
+  AddressWithAssetAndAmount,
+  AddressWithAssetAndAmountMap,
   ChainRegistryEntry,
 } from "types";
 import { toDisplayAmount } from "utils";
 
+import housefireAssets from "namada-chain-registry/namadahousefire/assetlist.json";
+import housefireChain from "namada-chain-registry/namadahousefire/chain.json";
+import internalDevnetAssets from "namada-chain-registry/namadainternaldevnet/assetlist.json";
+import internalDevnetChain from "namada-chain-registry/namadainternaldevnet/chain.json";
+
+import housefireCosmosTestnetIbc from "namada-chain-registry/_IBC/namadahousefire-cosmoshubtestnet.json";
+import housefireOsmosisTestnetIbc from "namada-chain-registry/_IBC/namadahousefire-osmosistestnet.json";
+import internalDevnetCosmosTestnetIbc from "namada-chain-registry/_IBC/namadainternaldevnet-cosmoshubtestnet.json";
+
 // TODO: this causes a big increase on bundle size. See #1224.
 import cosmosRegistry from "chain-registry";
 
-// TODO: remove once integrated with namada-chain-registry
-cosmosRegistry.ibc.push({
-  chain_1: {
-    chain_name: "cosmoshubtestnet",
-    client_id: "07-tendermint-3792",
-    connection_id: "connection-3832",
-  },
-  chain_2: {
-    chain_name: "internal-devnet-44a.1bd3e6ca62",
-    client_id: "07-tendermint-0",
-    connection_id: "connection-0",
-  },
-  channels: [
-    {
-      chain_1: {
-        channel_id: "channel-4353",
-        port_id: "transfer",
-      },
-      chain_2: {
-        channel_id: "channel-0",
-        port_id: "transfer",
-      },
-      ordering: "unordered",
-      version: "ics20-1",
-    },
-  ],
-});
+cosmosRegistry.chains.push(internalDevnetChain, housefireChain);
 
-// TODO: remove once integrated with namada-chain-registry
-cosmosRegistry.assets.push({
-  chain_name: "internal-devnet-44a.1bd3e6ca62",
-  assets: [namadaAsset],
-});
+cosmosRegistry.assets.push(internalDevnetAssets, housefireAssets);
+
+cosmosRegistry.ibc.push(
+  internalDevnetCosmosTestnetIbc,
+  housefireCosmosTestnetIbc,
+  housefireOsmosisTestnetIbc
+);
 
 const mainnetChains: ChainRegistryEntry[] = [
   celestia,
@@ -111,11 +95,18 @@ export const ibcAddressToDenomTrace =
 const assetLookup = (chainName: string): Asset[] | undefined =>
   cosmosRegistry.assets.find((chain) => chain.chain_name === chainName)?.assets;
 
-const tryCoinToRegistryAsset = (
-  coin: Coin,
+const tryDenomToRegistryAsset = (
+  denom: string,
   registryAssets: Asset[]
 ): Asset | undefined =>
-  registryAssets.find((asset) => asset.base === coin.denom);
+  registryAssets.find((asset) => {
+    const { base, address } = asset;
+    const aliases =
+      asset.denom_units.find((denomUnit) => denomUnit.denom === base)
+        ?.aliases || [];
+
+    return [base, address, ...aliases].includes(denom);
+  });
 
 // For a given chain name with a given IBC channel, look up the counterpart
 // chain name that the channel corresponds to.
@@ -156,13 +147,11 @@ const findCounterpartChainName = (
   }, undefined);
 };
 
-const tryCoinToIbcAsset = async (
-  coin: Coin,
+const tryDenomToIbcAsset = async (
+  denom: string,
   ibcAddressToDenomTrace: (address: string) => Promise<DenomTrace | undefined>,
   chainName: string
 ): Promise<Asset | undefined> => {
-  const { denom } = coin;
-
   const denomTrace = await ibcAddressToDenomTrace(denom);
   if (typeof denomTrace === "undefined") {
     return undefined;
@@ -199,9 +188,9 @@ const tryCoinToIbcAsset = async (
 
   const originalChainAssets = mapUndefined(assetLookup, originalChainName);
 
-  const originalChainRegistryAsset = originalChainAssets?.find(
-    (asset) => asset.base === baseDenom
-  );
+  const originalChainRegistryAsset =
+    originalChainAssets &&
+    tryDenomToRegistryAsset(baseDenom, originalChainAssets);
 
   return originalChainRegistryAsset || unknownAsset(path + "/" + baseDenom);
 };
@@ -221,21 +210,29 @@ const unknownAsset = (denom: string): Asset => ({
 
 export const mapCoinsToAssets = async (
   coins: Coin[],
-  chainName: string,
+  chainId: string,
   ibcAddressToDenomTrace: (address: string) => Promise<DenomTrace | undefined>
-): Promise<AddressWithAssetAndBalanceMap> => {
-  const assets = assetLookup(chainName);
+): Promise<AddressWithAssetAndAmountMap> => {
+  const chainName = cosmosRegistry.chains.find(
+    (chain) => chain.chain_id === chainId
+  )?.chain_name;
+  const assets = mapUndefined(assetLookup, chainName);
 
   const results = await Promise.allSettled(
-    coins.map(async (coin: Coin): Promise<AddressWithAssetAndBalance> => {
-      const asset =
-        typeof assets === "undefined" ?
-          unknownAsset(coin.denom)
-        : tryCoinToRegistryAsset(coin, assets) ||
-          (await tryCoinToIbcAsset(coin, ibcAddressToDenomTrace, chainName)) ||
-          unknownAsset(coin.denom);
-
+    coins.map(async (coin: Coin): Promise<AddressWithAssetAndAmount> => {
       const { amount, denom } = coin;
+
+      const asset =
+        typeof chainName === "undefined" || typeof assets === "undefined" ?
+          unknownAsset(denom)
+        : tryDenomToRegistryAsset(denom, assets) ||
+          (await tryDenomToIbcAsset(
+            denom,
+            ibcAddressToDenomTrace,
+            chainName
+          )) ||
+          unknownAsset(denom);
+
       const baseBalance = BigNumber(amount);
       if (baseBalance.isNaN()) {
         throw new Error(`Balance is invalid, got ${amount}`);
@@ -244,23 +241,20 @@ export const mapCoinsToAssets = async (
       const displayBalance = toDisplayAmount(asset, baseBalance);
 
       return {
-        address: denom,
-        balance: displayBalance,
+        originalAddress: denom,
+        amount: displayBalance,
         asset,
       };
     })
   );
 
-  const successfulResults = results.reduce<AddressWithAssetAndBalance[]>(
+  const successfulResults = results.reduce<AddressWithAssetAndAmount[]>(
     (acc, curr) => (curr.status === "fulfilled" ? [...acc, curr.value] : acc),
     []
   );
 
-  // TODO: keying by asset base isn't going to work when there are multiple
-  // assets with the same base from different chains. Fix this.
-  // We can actually fix this now by keying by address.
   return Object.fromEntries(
-    successfulResults.map((asset) => [asset.asset.base, asset])
+    successfulResults.map((asset) => [asset.originalAddress, asset])
   );
 };
 

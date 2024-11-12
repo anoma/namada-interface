@@ -1,4 +1,4 @@
-import { Balance, DefaultApi } from "@anomaorg/namada-indexer-client";
+import { Balance, DefaultApi } from "@namada/indexer-client";
 import { getIntegration } from "@namada/integrations";
 import { Account } from "@namada/types";
 import BigNumber from "bignumber.js";
