@@ -3,7 +3,7 @@ import { formatPercentage } from "@namada/utils";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCurrency } from "App/Common/TokenCurrency";
-import { routes } from "App/routes";
+import { params, routes } from "App/routes";
 import { TokenBalance } from "atoms/balance/atoms";
 import { getAssetImageUrl } from "integrations/utils";
 import { useEffect, useState } from "react";
@@ -25,8 +25,12 @@ export const ShieldedFungibleTable = ({
     { children: "SSR Rate", className: "text-right" },
   ];
 
-  const renderRow = ({ asset, balance, dollar }: TokenBalance): TableRow => {
-    const display = asset.display;
+  const renderRow = ({
+    originalAddress,
+    asset,
+    amount,
+    dollar,
+  }: TokenBalance): TableRow => {
     const icon = getAssetImageUrl(asset);
 
     // TODO
@@ -34,7 +38,10 @@ export const ShieldedFungibleTable = ({
 
     return {
       cells: [
-        <div key={`token-${display}`} className="flex items-center gap-4">
+        <div
+          key={`token-${originalAddress}`}
+          className="flex items-center gap-4"
+        >
           <div className="aspect-square w-8 h-8">
             {icon ?
               <img src={icon} />
@@ -43,10 +50,10 @@ export const ShieldedFungibleTable = ({
           {asset.symbol}
         </div>,
         <div
-          key={`balance-${display}`}
+          key={`balance-${originalAddress}`}
           className="flex flex-col text-right leading-tight"
         >
-          <TokenCurrency asset={asset} amount={balance} />
+          <TokenCurrency asset={asset} amount={amount} />
           {dollar && (
             <FiatCurrency
               className="text-neutral-600 text-sm"
@@ -54,15 +61,18 @@ export const ShieldedFungibleTable = ({
             />
           )}
         </div>,
-        <div key={`ssr-rate-${display}`} className="text-right leading-tight">
+        <div
+          key={`ssr-rate-${originalAddress}`}
+          className="text-right leading-tight"
+        >
           {ssrRate && formatPercentage(ssrRate)}
         </div>,
         <ActionButton
-          key={`unshield-${display}`}
+          key={`unshield-${originalAddress}`}
           size="xs"
           outlineColor="white"
           className="w-fit mx-auto"
-          href={`${routes.maspUnshield}?token=${asset.base}`}
+          href={`${routes.maspUnshield}?${params.asset}=${originalAddress}`}
         >
           Unshield
         </ActionButton>,

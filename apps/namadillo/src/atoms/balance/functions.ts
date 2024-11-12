@@ -57,7 +57,7 @@ export const getTotalDollar = (list?: TokenBalance[]): BigNumber | undefined =>
   sumDollars(list ?? []);
 
 export const getTotalNam = (list?: TokenBalance[]): BigNumber =>
-  list?.find((i) => i.asset.base === namadaAsset.base)?.balance ??
+  list?.find((i) => i.asset.base === namadaAsset.base)?.amount ??
   new BigNumber(0);
 
 const tnamAddressToDenomTrace = (
@@ -112,7 +112,7 @@ export const mapNamadaAssetsToTokenBalances = (
     return {
       originalAddress,
       asset,
-      balance: amount,
+      amount,
       dollar,
     };
   });

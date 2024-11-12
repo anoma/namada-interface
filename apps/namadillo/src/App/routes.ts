@@ -37,3 +37,7 @@ export const routes = {
   switchAccount: "/switch-account",
   signMessages: "/sign-messages",
 } as const;
+
+export const params = {
+  asset: "asset",
+} as const;

@@ -1,12 +1,13 @@
-import { Asset, Chain } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
 import { TransactionTimeline } from "App/Common/TransactionTimeline";
+import { params } from "App/routes";
 import {
   OnSubmitTransferParams,
   TransferModule,
 } from "App/Transfer/TransferModule";
 import { allDefaultAccountsAtom } from "atoms/accounts";
-import { transparentTokensAtom } from "atoms/balance/atoms";
+import { namadaTransparentAssetsAtom } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -17,18 +18,20 @@ import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import namadaChain from "registry/namada.json";
+import { Address } from "types";
 import { MaspTopHeader } from "./MaspTopHeader";
-
-const queryParam = "token";
 
 export const MaspShield: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const chainParameters = useAtomValue(chainParametersAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
-  const transparentTokens = useAtomValue(transparentTokensAtom);
+  const namadaTransparentAssets = useAtomValue(namadaTransparentAssetsAtom);
+
   const [currentStep, setCurrentStep] = useState(0);
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
+
+  const chainId = chainParameters.data?.chainId;
 
   const sourceAddress = defaultAccounts.data?.find(
     (account) => !account.isShielded
@@ -37,36 +40,30 @@ export const MaspShield: React.FC = () => {
     (account) => account.isShielded
   )?.address;
 
-  const tokenParam = searchParams.get(queryParam);
-  const selectedAsset = transparentTokens.data?.find(
-    (i) => i.asset.base === tokenParam
-  )?.asset;
+  const isLoadingBalances = namadaTransparentAssets.isLoading;
 
-  const isLoadingBalances = transparentTokens.isLoading;
-  const availableAmount = transparentTokens.data?.find(
-    (token) => token.asset.base === selectedAsset?.base
-  )?.balance;
-
-  const chainId = chainParameters.data?.chainId;
+  const selectedAssetAddress = searchParams.get(params.asset) || undefined;
+  const selectedAsset =
+    selectedAssetAddress ?
+      namadaTransparentAssets.data?.[selectedAssetAddress]
+    : undefined;
 
   const transactionFee =
     selectedAsset ?
-      {
-        amount: BigNumber(0.03), // TODO: remove hardcoding
-        token: selectedAsset,
-      }
+      // TODO: remove hardcoding
+      { ...selectedAsset, amount: BigNumber(0.03) }
     : undefined;
 
-  const assetImage = selectedAsset ? getAssetImageUrl(selectedAsset) : "";
+  const assetImage = selectedAsset ? getAssetImageUrl(selectedAsset.asset) : "";
 
-  const onChangeSelectedAsset = (asset?: Asset): void => {
+  const onChangeSelectedAsset = (address?: Address): void => {
     setSearchParams(
-      (params) => {
-        const newParams = new URLSearchParams(params);
-        if (asset) {
-          newParams.set(queryParam, asset?.base);
+      (currentParams) => {
+        const newParams = new URLSearchParams(currentParams);
+        if (address) {
+          newParams.set(params.asset, address);
         } else {
-          newParams.delete(queryParam);
+          newParams.delete(params.asset);
         }
         return newParams;
       },
@@ -127,10 +124,9 @@ export const MaspShield: React.FC = () => {
             <TransferModule
               source={{
                 isLoadingAssets: isLoadingBalances,
-                availableAssets:
-                  transparentTokens.data?.map((i) => i.asset) ?? [],
-                selectedAsset,
-                availableAmount,
+                availableAssets: namadaTransparentAssets.data,
+                selectedAssetAddress,
+                availableAmount: selectedAsset?.amount,
                 chain: namadaChain as Chain,
                 availableWallets: [wallets.namada!],
                 wallet: wallets.namada,
@@ -146,7 +142,7 @@ export const MaspShield: React.FC = () => {
               }}
               transactionFee={transactionFee}
               // TODO
-              // isSubmitting={performIbcTransfer.isPending}
+              // isSubmitting={something.isPending}
               errorMessage={generalErrorMessage}
               onSubmitTransfer={onSubmitTransfer}
             />
