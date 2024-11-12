@@ -84,7 +84,12 @@ export const toMyValidators = (
     key: "bondItems" | "unbondItems",
     bond: UnbondEntry | BondEntry
   ): void => {
-    myValidators[address]![key].push({ ...bond });
+    if (key === "bondItems") {
+      myValidators[address]![key].push({ ...(bond as BondEntry) });
+      return;
+    }
+
+    myValidators[address]![key].push({ ...(bond as UnbondEntry) });
   };
 
   const incrementAmount = (
@@ -102,7 +107,7 @@ export const toMyValidators = (
     const { address } = bond.validator;
     createEntryIfDoesntExist(bond.validator);
     incrementAmount(address, "stakedAmount", bond.amount);
-    addBondToAddress(address, "bondItems", { ...bond });
+    addBondToAddress(address, "bondItems", { ...bond } as BondEntry);
   }
 
   for (const unbond of indexerUnbonds) {
