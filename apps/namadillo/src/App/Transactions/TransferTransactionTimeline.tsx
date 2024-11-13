@@ -8,26 +8,26 @@ import { findAssetByDenom, findRegistryByChainId } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import {
   ChainRegistryEntry,
-  MinimalTransferTransactionData,
-  ProgressStepsOptions,
-  transferProgressSteps,
+  PartialTransferTransactionData,
+  TransferStep,
+  allTransferStages,
   transparentTransferTypes,
 } from "types";
 import { TransferTimelineErrorEntry } from "./TransferTimelineErrorEntry";
 
 type TransactionTransferTimelineProps = {
-  transaction: MinimalTransferTransactionData;
+  transaction: PartialTransferTransactionData;
 };
 
-const stepDescription: Record<ProgressStepsOptions, string> = {
+const stepDescription: Record<TransferStep, string> = {
   sign: "Signature required",
-  "ibc-to-masp": "IBC Transfer to Namada MASP",
+  "ibc-to-shielded": "IBC Transfer to Namada MASP",
   "zk-proof": "Generating ZK Proof",
-  "ibc-to-namada": "IBC Transfer to Namada",
-  "masp-to-masp": "Transfer to Namada Shielded",
-  "tnam-to-masp": "Transfer to Namada Shielded",
-  "tnam-to-tnam": "Transfer to Namada Transparent",
-  "masp-to-tnam": "Transfer to Namada Transparent",
+  "ibc-to-transparent": "IBC Transfer to Namada",
+  "shielded-to-shielded": "Transfer to Namada Shielded",
+  "transparent-to-shielded": "Transfer to Namada Shielded",
+  "transparent-to-transparent": "Transfer to Namada Transparent",
+  "shielded-to-transparent": "Transfer to Namada Transparent",
   "ibc-withdraw": "Transfer from Namada",
   complete: "Transfer Complete",
 };
@@ -44,7 +44,7 @@ const getAsset = (
 export const TransferTransactionTimeline = ({
   transaction,
 }: TransactionTransferTimelineProps): JSX.Element => {
-  const textSteps = transferProgressSteps[transaction.type];
+  const textSteps = allTransferStages[transaction.type];
   const registryMap = useAtomValue(chainRegistryAtom);
   const asset = getAsset(registryMap, transaction.chainId, transaction.denom);
 

@@ -11,7 +11,11 @@ import { queryForAck, queryForIbcTimeout } from "atoms/transactions";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
 import { createIbcTransferMessage } from "lib/transactions";
-import { AddressWithAsset, IbcTransferTransactionData } from "types";
+import {
+  AddressWithAsset,
+  IbcTransferTransactionData,
+  TransferStep,
+} from "types";
 import { toBaseAmount } from "utils";
 import { getSdkInstance } from "utils/sdk";
 import { workingRpcsAtom } from "./atoms";
@@ -170,7 +174,7 @@ export const updateIbcTransactionStatus = async (
   if (successQueries.length > 0 && tx.hash) {
     changeTransaction(tx.hash, {
       status: "success",
-      currentStep: "complete",
+      currentStep: TransferStep.Complete,
       resultTxHash: successQueries[0].hash,
     });
     return;

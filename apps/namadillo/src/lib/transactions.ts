@@ -8,7 +8,7 @@ import namada from "@namada/chains/chains/namada";
 import BigNumber from "bignumber.js";
 
 import {
-  IbcTransferProgress,
+  IbcTransferStage,
   IbcTransferTransactionData,
   TransferTransactionData,
 } from "types";
@@ -87,7 +87,7 @@ export const createTransferDataFromIbc = (
   rpc: string,
   sourceChainId: string,
   tokenSymbol: string,
-  details: IbcTransferProgress
+  details: IbcTransferStage
 ): TransferTransactionData => {
   const transferAttributes = getEventAttribute(tx, "ibc_transfer");
   const packetAttributes = getEventAttribute(tx, "send_packet");

@@ -197,71 +197,111 @@ export type AddressWithAssetAndAmountMap = Record<
   AddressWithAssetAndAmount
 >;
 
-export const namadaTransferProgressSteps = {
+export enum TransferStep {
+  Sign = "sign",
+  ZkProof = "zk-proof",
+  TransparentToShielded = "transparent-to-shielded",
+  ShieldedToTransparent = "shielded-to-transparent",
+  TransparentToTransparent = "transparent-to-transparent",
+  ShieldedToShielded = "shielded-to-shielded",
+  IbcWithdraw = "ibc-withdraw",
+  IbcToShielded = "ibc-to-shielded",
+  IbcToTransparent = "ibc-to-transparent",
+  Complete = "complete",
+}
+
+// Defines the steps in the Namada <> Namada transfer progress for tracking transaction stages.
+export const namadaTransferStages = {
   TransparentToShielded: [
-    "sign",
-    "zk-proof",
-    "tnam-to-masp",
-    "complete",
+    TransferStep.Sign,
+    TransferStep.ZkProof,
+    TransferStep.TransparentToShielded,
+    TransferStep.Complete,
   ] as const,
-  ShieldedToTransparent: ["sign", "masp-to-tnam", "complete"] as const,
-  ShieldedToShielded: ["sign", "masp-to-masp", "complete"] as const,
-  TransparentToTransparent: ["sign", "tnam-to-tnam", "complete"] as const,
+  ShieldedToTransparent: [
+    TransferStep.Sign,
+    TransferStep.ShieldedToTransparent,
+    TransferStep.Complete,
+  ] as const,
+  ShieldedToShielded: [
+    TransferStep.Sign,
+    TransferStep.ShieldedToShielded,
+    TransferStep.Complete,
+  ] as const,
+  TransparentToTransparent: [
+    TransferStep.Sign,
+    TransferStep.TransparentToTransparent,
+    TransferStep.Complete,
+  ] as const,
 };
 
-export const ibcTransferProgressSteps = {
-  TransparentToIbc: ["sign", "ibc-withdraw", "complete"] as const,
-  IbcToShielded: ["sign", "zk-proof", "ibc-to-masp", "complete"] as const,
-  IbcToTransparent: ["sign", "ibc-to-namada", "complete"] as const,
+// Defines the steps in the IBC <> Namada transfer progress for tracking transaction stages.
+export const ibcTransferStages = {
+  TransparentToIbc: [
+    TransferStep.Sign,
+    TransferStep.IbcWithdraw,
+    TransferStep.Complete,
+  ] as const,
+  IbcToShielded: [
+    TransferStep.Sign,
+    TransferStep.ZkProof,
+    TransferStep.IbcToShielded,
+    TransferStep.Complete,
+  ] as const,
+  IbcToTransparent: [
+    TransferStep.Sign,
+    TransferStep.IbcToTransparent,
+    TransferStep.Complete,
+  ] as const,
 };
 
-export const transferProgressSteps = {
-  ...namadaTransferProgressSteps,
-  ...ibcTransferProgressSteps,
+export const allTransferStages = {
+  ...namadaTransferStages,
+  ...ibcTransferStages,
 };
 
-export const transparentTransferTypes: Array<
-  keyof typeof transferProgressSteps
-> = [
+export const transferPossibleStages = [
+  ...new Set(Object.values(allTransferStages).flat()),
+] as const;
+
+export const transparentTransferTypes: Array<keyof AllTransferStages> = [
   "ShieldedToTransparent",
   "TransparentToIbc",
   "TransparentToTransparent",
   "IbcToTransparent",
-];
+] as const;
 
-export const ibcTransferTypes: Array<keyof typeof transferProgressSteps> = [
+export const ibcTransferTypes: Array<keyof AllTransferStages> = [
   "IbcToTransparent",
   "TransparentToIbc",
   "IbcToShielded",
-];
-
-export const transferProgressStepsEntry = [
-  ...new Set(Object.values(transferProgressSteps).flat()),
 ] as const;
 
-export type ProgressStepsOptions = (typeof transferProgressStepsEntry)[number];
+type NamadaTransferStages = typeof namadaTransferStages;
+type IbcTransferStages = typeof ibcTransferStages;
+type AllTransferStages = typeof allTransferStages;
 
-export type NamadaTransferTxKind = keyof typeof namadaTransferProgressSteps;
+export type NamadaTransferTxKind = keyof NamadaTransferStages;
 
-export type IbcTransferTxKind = keyof typeof ibcTransferProgressSteps;
+export type IbcTransferTxKind = keyof IbcTransferStages;
 
-export type NamadaTransferProgress = {
+export type NamadaTransferStage = {
   [P in NamadaTransferTxKind]: {
     type: P;
-    currentStep: (typeof namadaTransferProgressSteps)[P][number];
+    currentStep: NamadaTransferStages[P][number];
   };
 }[NamadaTransferTxKind];
 
-export type IbcTransferProgress = {
+export type IbcTransferStage = {
   [P in IbcTransferTxKind]: {
     type: P;
-    currentStep: (typeof ibcTransferProgressSteps)[P][number];
+    currentStep: IbcTransferStages[P][number];
   };
 }[IbcTransferTxKind];
 
-export type TransferProgress = IbcTransferProgress | NamadaTransferProgress;
+export type TransferStage = IbcTransferStage | NamadaTransferStage;
 
-export type TransferTransactionBase = TransferProgress & {
+export type BaseTransferTransaction = TransferStage & {
   rpc: string;
   hash?: string;
   amount: BigNumber;
@@ -280,7 +320,7 @@ export type TransferTransactionBase = TransferProgress & {
   updatedAt: Date;
 };
 
-export type IbcTransferTransactionData = TransferTransactionBase & {
+export type IbcTransferTransactionData = BaseTransferTransaction & {
   type: IbcTransferTxKind;
   sequence: BigNumber;
   sourceChannel: string;
@@ -290,8 +330,8 @@ export type IbcTransferTransactionData = TransferTransactionBase & {
 };
 
 export type TransferTransactionData =
-  | TransferTransactionBase
+  | BaseTransferTransaction
   | IbcTransferTransactionData;
 
-export type MinimalTransferTransactionData = Partial<TransferTransactionData> &
+export type PartialTransferTransactionData = Partial<TransferTransactionData> &
   Pick<TransferTransactionData, "type" | "chainId" | "denom">;

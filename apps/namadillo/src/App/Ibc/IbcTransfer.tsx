@@ -19,7 +19,7 @@ import { KeplrWalletManager } from "integrations/Keplr";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import namadaChain from "registry/namada.json";
-import { Address, MinimalTransferTransactionData } from "types";
+import { Address, PartialTransferTransactionData, TransferStep } from "types";
 import { IbcTopHeader } from "./IbcTopHeader";
 
 import { TransferTransactionTimeline } from "App/Transactions/TransferTransactionTimeline";
@@ -45,7 +45,7 @@ export const IbcTransfer: React.FC = () => {
   } = useWalletManager(keplr);
 
   const [transaction, setTransaction] =
-    useState<MinimalTransferTransactionData>();
+    useState<PartialTransferTransactionData>();
 
   const {
     transactions: myTransactions,
@@ -152,7 +152,7 @@ export const IbcTransfer: React.FC = () => {
           type: shielded ? "IbcToShielded" : "IbcToTransparent",
           denom: selectedAsset.asset.base,
           chainId,
-          currentStep: "sign",
+          currentStep: TransferStep.Sign,
         });
 
         const tx = await performIbcTransfer.mutateAsync({

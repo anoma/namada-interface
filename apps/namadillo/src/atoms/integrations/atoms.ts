@@ -16,6 +16,7 @@ import {
   ChainId,
   ChainRegistryEntry,
   GasConfig,
+  TransferStep,
   TransferTransactionData,
 } from "types";
 import {
@@ -73,8 +74,11 @@ export const ibcTransferAtom = atomWithMutation(() => {
           transferParams.chainId,
           transferParams.asset.asset.symbol,
           transferParams.isShielded ?
-            { type: "IbcToShielded", currentStep: "zk-proof" }
-          : { type: "IbcToTransparent", currentStep: "ibc-to-namada" }
+            { type: "IbcToShielded", currentStep: TransferStep.ZkProof }
+          : {
+              type: "IbcToTransparent",
+              currentStep: TransferStep.IbcToTransparent,
+            }
         );
       });
     },
