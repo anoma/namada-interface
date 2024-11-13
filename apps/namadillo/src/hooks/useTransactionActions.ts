@@ -26,10 +26,9 @@ export const useTransactionActions = (): UseTransactionActionsOutput => {
     setTransactions((txs) => {
       if (!account) return txs;
       const obj = txs[account.address] || [];
-      obj.push({ ...tx });
       return {
         ...txs,
-        [account.address]: [...obj],
+        [account.address]: [...obj, { ...tx }],
       };
     });
   };
