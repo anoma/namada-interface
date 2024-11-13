@@ -44,10 +44,8 @@ export const WithdrawalButton = ({
       description: (
         <>
           The withdrawal of{" "}
-          <NamCurrency
-            amount={new BigNumber(unbondingEntry.amount) || new BigNumber(0)}
-          />{" "}
-          is being processed
+          <NamCurrency amount={new BigNumber(unbondingEntry.amount)} /> is being
+          processed
         </>
       ),
     }),
