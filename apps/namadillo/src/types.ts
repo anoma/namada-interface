@@ -245,8 +245,6 @@ export type NamadaTransferTxKind = keyof typeof NamadaTransferProgressSteps;
 
 export type IbcTransferTxKind = keyof typeof IbcTransferProgressSteps;
 
-export type TransferTxKind = NamadaTransferTxKind & IbcTransferTxKind;
-
 export type NamadaTransferProgress = {
   [P in NamadaTransferTxKind]: {
     type: P;
