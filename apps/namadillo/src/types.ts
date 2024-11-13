@@ -197,7 +197,7 @@ export type AddressWithAssetAndAmountMap = Record<
   AddressWithAssetAndAmount
 >;
 
-export const NamadaTransferProgressSteps = {
+export const namadaTransferProgressSteps = {
   TransparentToShielded: [
     "sign",
     "zk-proof",
@@ -209,19 +209,19 @@ export const NamadaTransferProgressSteps = {
   TransparentToTransparent: ["sign", "tnam-to-tnam", "complete"] as const,
 };
 
-export const IbcTransferProgressSteps = {
+export const ibcTransferProgressSteps = {
   TransparentToIbc: ["sign", "ibc-withdraw", "complete"] as const,
   IbcToShielded: ["sign", "zk-proof", "ibc-to-masp", "complete"] as const,
   IbcToTransparent: ["sign", "ibc-to-namada", "complete"] as const,
 };
 
-export const TransferProgressSteps = {
-  ...NamadaTransferProgressSteps,
-  ...IbcTransferProgressSteps,
+export const transferProgressSteps = {
+  ...namadaTransferProgressSteps,
+  ...ibcTransferProgressSteps,
 };
 
-export const TransparentTransferTypes: Array<
-  keyof typeof TransferProgressSteps
+export const transparentTransferTypes: Array<
+  keyof typeof transferProgressSteps
 > = [
   "ShieldedToTransparent",
   "TransparentToIbc",
@@ -229,33 +229,33 @@ export const TransparentTransferTypes: Array<
   "IbcToTransparent",
 ];
 
-export const IbcTransferTypes: Array<keyof typeof TransferProgressSteps> = [
+export const ibcTransferTypes: Array<keyof typeof transferProgressSteps> = [
   "IbcToTransparent",
   "TransparentToIbc",
   "IbcToShielded",
 ];
 
-export const TransferProgressStepsEntry = [
-  ...new Set(Object.values(TransferProgressSteps).flat()),
+export const transferProgressStepsEntry = [
+  ...new Set(Object.values(transferProgressSteps).flat()),
 ] as const;
 
-export type ProgressStepsOptions = (typeof TransferProgressStepsEntry)[number];
+export type ProgressStepsOptions = (typeof transferProgressStepsEntry)[number];
 
-export type NamadaTransferTxKind = keyof typeof NamadaTransferProgressSteps;
+export type NamadaTransferTxKind = keyof typeof namadaTransferProgressSteps;
 
-export type IbcTransferTxKind = keyof typeof IbcTransferProgressSteps;
+export type IbcTransferTxKind = keyof typeof ibcTransferProgressSteps;
 
 export type NamadaTransferProgress = {
   [P in NamadaTransferTxKind]: {
     type: P;
-    currentStep: (typeof NamadaTransferProgressSteps)[P][number];
+    currentStep: (typeof namadaTransferProgressSteps)[P][number];
   };
 }[NamadaTransferTxKind];
 
 export type IbcTransferProgress = {
   [P in IbcTransferTxKind]: {
     type: P;
-    currentStep: (typeof IbcTransferProgressSteps)[P][number];
+    currentStep: (typeof ibcTransferProgressSteps)[P][number];
   };
 }[IbcTransferTxKind];
 

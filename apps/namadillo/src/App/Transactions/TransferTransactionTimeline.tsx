@@ -10,8 +10,8 @@ import {
   ChainRegistryEntry,
   MinimalTransferTransactionData,
   ProgressStepsOptions,
-  TransferProgressSteps,
-  TransparentTransferTypes,
+  transferProgressSteps,
+  transparentTransferTypes,
 } from "types";
 import { TransferTimelineErrorEntry } from "./TransferTimelineErrorEntry";
 
@@ -44,7 +44,7 @@ const getAsset = (
 export const TransferTransactionTimeline = ({
   transaction,
 }: TransactionTransferTimelineProps): JSX.Element => {
-  const textSteps = TransferProgressSteps[transaction.type];
+  const textSteps = transferProgressSteps[transaction.type];
   const registryMap = useAtomValue(chainRegistryAtom);
   const asset = getAsset(registryMap, transaction.chainId, transaction.denom);
 
@@ -52,14 +52,14 @@ export const TransferTransactionTimeline = ({
     transaction.type === "IbcToTransparent" ||
     transaction.type === "IbcToShielded";
 
-  const transferCompleteMessage =
-    TransparentTransferTypes.includes(transaction.type) ?
-      "Transparent Transfer Complete"
-    : "Shielded Transfer Complete";
-
-  const isTransparentTransfer = TransparentTransferTypes.includes(
+  const isTransparentTransfer = transparentTransferTypes.includes(
     transaction.type
   );
+
+  const transferCompleteMessage =
+    isTransparentTransfer ?
+      "Transparent Transfer Complete"
+    : "Shielded Transfer Complete";
 
   const hasError = transaction.status === "error";
 

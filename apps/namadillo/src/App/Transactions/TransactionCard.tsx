@@ -9,9 +9,9 @@ import { ImCheckmark } from "react-icons/im";
 import { generatePath, useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import {
-  IbcTransferProgressSteps,
+  ibcTransferProgressSteps,
   IbcTransferTransactionData,
-  NamadaTransferProgressSteps,
+  namadaTransferProgressSteps,
   TransferTransactionData,
 } from "types";
 
@@ -22,11 +22,11 @@ type TransactionCardProps = {
 const getTitle = (transferTransaction: TransferTransactionData): string => {
   const { type } = transferTransaction;
 
-  if (Object.keys(NamadaTransferProgressSteps).includes(type)) {
+  if (Object.keys(namadaTransferProgressSteps).includes(type)) {
     return "Transfer";
   }
 
-  if (Object.keys(IbcTransferProgressSteps).includes(type)) {
+  if (Object.keys(ibcTransferProgressSteps).includes(type)) {
     return "Transfer IBC";
   }
 
@@ -38,7 +38,7 @@ export const TransactionCard = ({
 }: TransactionCardProps): JSX.Element => {
   const navigate = useNavigate();
   const availableChains = useAtomValue(chainRegistryAtom);
-  const isIbc = Object.keys(IbcTransferProgressSteps).includes(
+  const isIbc = Object.keys(ibcTransferProgressSteps).includes(
     transaction.type
   );
 
