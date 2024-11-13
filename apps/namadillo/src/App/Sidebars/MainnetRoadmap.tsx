@@ -5,7 +5,8 @@ import { useAtomValue } from "jotai";
 import { FaCircleCheck } from "react-icons/fa6";
 
 const MainnetRoadmap = (): JSX.Element => {
-  const { claimRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
+  const { data: enabledFeatures } = useAtomValue(applicationFeaturesAtom);
+  const { claimRewardsEnabled } = enabledFeatures || {};
 
   const renderPhase = (
     phaseNumber: string,

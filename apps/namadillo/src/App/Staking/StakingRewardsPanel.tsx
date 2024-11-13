@@ -11,7 +11,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { sumBigNumberArray } from "utils";
 
 export const StakingRewardsPanel = (): JSX.Element => {
-  const { claimRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
+  const { data: enabledFeatures } = useAtomValue(applicationFeaturesAtom);
+  const { claimRewardsEnabled } = enabledFeatures || {};
   const { data: rewards } = useAtomValue(claimableRewardsAtom);
   const location = useLocation();
   const navigate = useNavigate();

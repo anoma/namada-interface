@@ -32,7 +32,8 @@ const AsyncNamCurrency = ({ amount }: { amount?: BigNumber }): JSX.Element => {
 
 export const ShieldedNamBalance = (): JSX.Element => {
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
-  const { shieldingRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
+  const { data: enabledFeatures } = useAtomValue(applicationFeaturesAtom);
+  const { shieldingRewardsEnabled } = enabledFeatures || {};
 
   const shieldedNam =
     shieldedTokensQuery.isPending ? undefined : (

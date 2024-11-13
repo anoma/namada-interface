@@ -17,9 +17,8 @@ import { TransparentOverviewPanel } from "./TransparentOverviewPanel";
 
 export const AccountOverview = (): JSX.Element => {
   const userHasAccount = useUserHasAccount();
-  const { claimRewardsEnabled, maspEnabled } = useAtomValue(
-    applicationFeaturesAtom
-  );
+  const { data: enabledFeatures } = useAtomValue(applicationFeaturesAtom);
+  const { claimRewardsEnabled, maspEnabled } = enabledFeatures || {};
 
   if (!userHasAccount) {
     return (

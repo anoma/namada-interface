@@ -8,7 +8,8 @@ import { Link } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 
 export const ShieldAllBanner = (): JSX.Element => {
-  const { maspEnabled } = useAtomValue(applicationFeaturesAtom);
+  const { data: enabledFeatures } = useAtomValue(applicationFeaturesAtom);
+  const { maspEnabled } = enabledFeatures || {};
   const [isAnimating, setIsAnimating] = useState(false);
 
   if (!maspEnabled) {

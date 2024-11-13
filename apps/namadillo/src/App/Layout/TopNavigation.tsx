@@ -16,9 +16,9 @@ import { SyncIndicator } from "./SyncIndicator";
 export const TopNavigation = (): JSX.Element => {
   const userHasAccount = useUserHasAccount();
   const signArbitraryEnabled = useAtomValue(signArbitraryEnabledAtom);
-  const { maspEnabled, namTransfersEnabled } = useAtomValue(
-    applicationFeaturesAtom
-  );
+  const { data: enabledFeatures } = useAtomValue(applicationFeaturesAtom);
+  const { maspEnabled, namTransfersEnabled } = enabledFeatures || {};
+
   const location = useLocation();
   const navigate = useNavigate();
 
