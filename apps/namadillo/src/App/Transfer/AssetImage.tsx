@@ -12,16 +12,13 @@ export const AssetImage = ({
   isShielded,
 }: AssetImageProps): JSX.Element => {
   const image = getAssetImageUrl(asset);
+  const hasImage = asset?.logo_URIs?.svg || asset?.logo_URIs?.png;
+  const assetName = asset?.name || "";
+  const altText = hasImage ? `${assetName} logo` : `Logo not available`;
+
   return (
     <span className="relative w-full aspect-square select-none">
-      {asset ?
-        <img src={image} alt={asset.symbol + ` logo`} className="w-full" />
-      : <img
-          className="bg-neutral-800 rounded-full aspect-square w-full"
-          alt="Logo not available"
-          role="img"
-        />
-      }
+      <img src={image} alt={altText} className="w-full" />
       {isShielded !== undefined && (
         <span className="absolute -bottom-1 -right-1 w-4 aspect-square">
           <AssetImage asset={namadaAsset} />

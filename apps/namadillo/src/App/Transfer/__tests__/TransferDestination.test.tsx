@@ -13,7 +13,7 @@ import { namadaAsset } from "registry/namadaAsset";
 import { walletMock } from "../__mocks__/providers";
 import { parseChainInfo } from "../common";
 
-describe("TransferDestination", () => {
+describe("Component: TransferDestination", () => {
   it("should render the component with the default props", () => {
     render(<TransferDestination />);
     expect(screen.getByText(/select chain/i)).toBeInTheDocument();
@@ -97,11 +97,11 @@ describe("TransferDestination", () => {
   });
 
   it("should display the transaction fee if provided", () => {
-    const fee = BigNumber(0.000001);
+    const fee = BigNumber(1);
     render(
       <TransferDestination
         transactionFee={{
-          amount: fee,
+          amount: fee, //TODO: replace by baseAmount
           asset: namadaAsset,
           originalAddress: namadaAsset.address,
         }}
