@@ -248,14 +248,14 @@ export type IbcTransferTxKind = keyof typeof IbcTransferProgressSteps;
 export type NamadaTransferProgress = {
   [P in NamadaTransferTxKind]: {
     type: P;
-    progressStatus: (typeof NamadaTransferProgressSteps)[P][number];
+    currentStep: (typeof NamadaTransferProgressSteps)[P][number];
   };
 }[NamadaTransferTxKind];
 
 export type IbcTransferProgress = {
   [P in IbcTransferTxKind]: {
     type: P;
-    progressStatus: (typeof IbcTransferProgressSteps)[P][number];
+    currentStep: (typeof IbcTransferProgressSteps)[P][number];
   };
 }[IbcTransferTxKind];
 

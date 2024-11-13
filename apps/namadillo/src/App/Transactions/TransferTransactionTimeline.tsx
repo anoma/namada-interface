@@ -84,7 +84,7 @@ export const TransferTransactionTimeline = ({
   const additionalSteps = [{ children: initialImage, bullet: false }];
 
   const currentStepIndex =
-    textSteps.findIndex((step) => step === transaction.progressStatus) || 0;
+    textSteps.findIndex((step) => step === transaction.currentStep) || 0;
 
   const stepsWithDescription = textSteps.map((step, index) => {
     if (index === currentStepIndex && hasError) {
@@ -117,7 +117,7 @@ export const TransferTransactionTimeline = ({
     <div>
       <header className="mb-8">
         <h2 className="text-center text-xl">
-          {stepDescription[transaction.progressStatus || "sign"]}
+          {stepDescription[transaction.currentStep || "sign"]}
         </h2>
         {transaction.hash && (
           <span className="text-xs text-center block text-neutral-600">

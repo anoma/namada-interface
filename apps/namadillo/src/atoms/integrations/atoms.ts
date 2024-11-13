@@ -73,8 +73,8 @@ export const ibcTransferAtom = atomWithMutation(() => {
           transferParams.chainId,
           transferParams.asset.asset.symbol,
           transferParams.isShielded ?
-            { type: "IbcToShielded", progressStatus: "zk-proof" }
-          : { type: "IbcToTransparent", progressStatus: "ibc-to-namada" }
+            { type: "IbcToShielded", currentStep: "zk-proof" }
+          : { type: "IbcToTransparent", currentStep: "ibc-to-namada" }
         );
       });
     },

@@ -170,7 +170,7 @@ export const updateIbcTransactionStatus = async (
   if (successQueries.length > 0 && tx.hash) {
     changeTransaction(tx.hash, {
       status: "success",
-      progressStatus: "complete",
+      currentStep: "complete",
       resultTxHash: successQueries[0].hash,
     });
     return;

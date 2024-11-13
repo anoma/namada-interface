@@ -149,7 +149,7 @@ export const IbcTransfer: React.FC = () => {
           type: shielded ? "IbcToShielded" : "IbcToTransparent",
           denom: selectedAsset.asset.base,
           chainId,
-          progressStatus: "sign",
+          currentStep: "sign",
         });
 
         const tx = await performIbcTransfer.mutateAsync({
