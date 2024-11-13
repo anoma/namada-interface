@@ -1,15 +1,14 @@
 import { Panel } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
-import { myTransactionHistoryAtom } from "atoms/transactions";
-import { useAtomValue } from "jotai";
+import { useTransactionActions } from "hooks/useTransactionActions";
 import { TransactionNotFoundPanel } from "./TransactionNotFoundPanel";
 import { TransferTransactionTimeline } from "./TransferTransactionTimeline";
 
 export const TransactionDetails = (): JSX.Element => {
   const { hash } = useSanitizedParams();
-  const transactionList = useAtomValue(myTransactionHistoryAtom);
-  const transaction = transactionList.find((tx) => tx.hash === hash);
+  const { findByHash } = useTransactionActions();
 
+  const transaction = findByHash(hash || "");
   if (!transaction) {
     return <TransactionNotFoundPanel hash={hash || ""} />;
   }
