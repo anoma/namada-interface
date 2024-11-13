@@ -181,8 +181,8 @@ const decodeProposalType = (
 
 const toTally = (tallyType: IndexerProposalTallyTypeEnum): TallyType => {
   switch (tallyType) {
-    case IndexerProposalTallyTypeEnum.TwoThirds:
-      return "two-thirds";
+    case IndexerProposalTallyTypeEnum.TwoFifths:
+      return "two-fifths";
     case IndexerProposalTallyTypeEnum.OneHalfOverOneThird:
       return "one-half-over-one-third";
     case IndexerProposalTallyTypeEnum.LessOneHalfOverOneThirdNay:
