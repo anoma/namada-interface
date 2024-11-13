@@ -92,7 +92,7 @@ export const isDelegatorVote = (vote: Vote): vote is DelegatorVote =>
 export type Vote = DelegatorVote | ValidatorVote;
 
 export const tallyTypes = [
-  "two-thirds",
+  "two-fifths",
   "one-half-over-one-third",
   "less-one-half-over-one-third-nay",
 ] as const;

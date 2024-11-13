@@ -11,7 +11,7 @@
 ### Properties
 
 - [data](UnshieldingTransferMsgValue.md#data)
-- [gasSpendingKeys](UnshieldingTransferMsgValue.md#gasspendingkeys)
+- [gasSpendingKey](UnshieldingTransferMsgValue.md#gasspendingkey)
 - [source](UnshieldingTransferMsgValue.md#source)
 
 ## Constructors
@@ -32,7 +32,7 @@
 
 #### Defined in
 
-[tx/schema/transfer.ts:149](https://github.com/anoma/namada-interface/blob/274de167f98eee0c6109fe1c209a8a1e3e9d3690/packages/types/src/tx/schema/transfer.ts#L149)
+[tx/schema/transfer.ts:153](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/tx/schema/transfer.ts#L153)
 
 ## Properties
 
@@ -42,17 +42,17 @@
 
 #### Defined in
 
-[tx/schema/transfer.ts:144](https://github.com/anoma/namada-interface/blob/274de167f98eee0c6109fe1c209a8a1e3e9d3690/packages/types/src/tx/schema/transfer.ts#L144)
+[tx/schema/transfer.ts:148](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/tx/schema/transfer.ts#L148)
 
 ___
 
-### gasSpendingKeys
+### gasSpendingKey
 
-• **gasSpendingKeys**: `string`[]
+• `Optional` **gasSpendingKey**: `string`[]
 
 #### Defined in
 
-[tx/schema/transfer.ts:147](https://github.com/anoma/namada-interface/blob/274de167f98eee0c6109fe1c209a8a1e3e9d3690/packages/types/src/tx/schema/transfer.ts#L147)
+[tx/schema/transfer.ts:151](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/tx/schema/transfer.ts#L151)
 
 ___
 
@@ -62,4 +62,4 @@ ___
 
 #### Defined in
 
-[tx/schema/transfer.ts:141](https://github.com/anoma/namada-interface/blob/274de167f98eee0c6109fe1c209a8a1e3e9d3690/packages/types/src/tx/schema/transfer.ts#L141)
+[tx/schema/transfer.ts:145](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/tx/schema/transfer.ts#L145)
