@@ -29,18 +29,18 @@ export const TransactionHistory = (): JSX.Element => {
   };
 
   return (
-    <Panel className="flex-1 h-full">
+    <Panel className="flex flex-col gap-6 flex-1 h-full">
       <h2 className="mb-7">Transfers made by this device</h2>
       {pending.length > 0 && (
         <section>
           <h2 className="text-sm mb-3">In Progress</h2>
-          {renderList(pending)}
+          {renderList(pending.toReversed())}
         </section>
       )}
       {complete.length > 0 && (
         <section>
           <h2 className="text-sm mb-3">History</h2>
-          {renderList(complete)}
+          {renderList(complete.toReversed())}
         </section>
       )}
       {noTransactionsFound && (

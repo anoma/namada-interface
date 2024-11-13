@@ -6,15 +6,15 @@ import { chainRegistryAtom } from "atoms/integrations";
 import { findAssetByDenom, findRegistryByChainId } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import {
+  MinimalTransferTransactionData,
   ProgressStepsOptions,
   TransferProgressSteps,
-  TransferTransactionData,
   TransparentTransferTypes,
 } from "types";
 import { TransferTimelineErrorEntry } from "./TransferTimelineErrorEntry";
 
 type TransactionTransferTimelineProps = {
-  transaction: TransferTransactionData;
+  transaction: MinimalTransferTransactionData;
 };
 
 const completeText = "Transfer Complete";
@@ -32,7 +32,7 @@ const stepDescription: Record<ProgressStepsOptions, string> = {
   complete: completeText,
 };
 
-export const TransactionTransferTimeline = ({
+export const TransferTransactionTimeline = ({
   transaction,
 }: TransactionTransferTimelineProps): JSX.Element => {
   const textSteps = TransferProgressSteps[transaction.type];
@@ -44,6 +44,11 @@ export const TransactionTransferTimeline = ({
     transaction.type === "IbcToTransparent" ||
     transaction.type === "IbcToShielded";
 
+  const transferCompleteMessage =
+    TransparentTransferTypes.includes(transaction.type) ?
+      "Transparent Transfer Complete"
+    : "Shielded Transfer Complete";
+
   const isTransparentTransfer = TransparentTransferTypes.includes(
     transaction.type
   );
@@ -51,7 +56,7 @@ export const TransactionTransferTimeline = ({
   const hasError = transaction.status === "error";
 
   const initialImage = (
-    <span className="w-12">
+    <span className="w-12 block mx-auto">
       <AssetImage
         asset={asset}
         isShielded={fromIbcChain ? undefined : !isTransparentTransfer}
@@ -60,9 +65,12 @@ export const TransactionTransferTimeline = ({
   );
 
   const completeStep = (
-    <span className="w-12">
-      <AssetImage asset={asset} isShielded={isTransparentTransfer} />
-    </span>
+    <>
+      <span className="w-12 mb-2 block mx-auto">
+        <AssetImage asset={asset} isShielded={isTransparentTransfer} />
+      </span>
+      <p>{transferCompleteMessage}</p>
+    </>
   );
 
   const additionalSteps = [{ children: initialImage, bullet: false }];
@@ -74,7 +82,9 @@ export const TransactionTransferTimeline = ({
     if (index === currentStepIndex && hasError) {
       return {
         children: (
-          <TransferTimelineErrorEntry transaction={transaction}>
+          <TransferTimelineErrorEntry
+            errorMessage={transaction.errorMessage || ""}
+          >
             {stepDescription[step]}
           </TransferTimelineErrorEntry>
         ),
@@ -99,7 +109,7 @@ export const TransactionTransferTimeline = ({
     <div>
       <header className="mb-8">
         <h2 className="text-center text-xl">
-          {stepDescription[transaction.progressStatus]}
+          {stepDescription[transaction.progressStatus || "sign"]}
         </h2>
         {transaction.hash && (
           <span className="text-xs text-center block text-neutral-600">
@@ -114,6 +124,7 @@ export const TransactionTransferTimeline = ({
       <Timeline
         steps={[...additionalSteps, ...stepsWithDescription]}
         currentStepIndex={additionalSteps.length + currentStepIndex}
+        hasError={transaction.status === "error"}
       />
     </div>
   );

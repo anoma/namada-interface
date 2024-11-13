@@ -63,6 +63,7 @@ export const TransactionCard = ({
         )
       )}
       onClick={() =>
+        transaction.hash &&
         navigate(generatePath(routes.transaction, { hash: transaction.hash }))
       }
     >

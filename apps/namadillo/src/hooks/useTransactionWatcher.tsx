@@ -26,7 +26,7 @@ export const useTransactionWatcher = (): void => {
         const ibcTx = tx as IbcTransferTransactionData;
         const successQueries = await queryForAck(client, ibcTx);
 
-        if (successQueries.length > 0) {
+        if (successQueries.length > 0 && ibcTx.hash) {
           changeTransaction(ibcTx.hash, {
             status: "success",
             progressStatus: "complete",
@@ -40,7 +40,7 @@ export const useTransactionWatcher = (): void => {
           tx as IbcTransferTransactionData
         );
 
-        if (timeoutQuery.length > 0) {
+        if (timeoutQuery.length > 0 && ibcTx.hash) {
           changeTransaction(ibcTx.hash, {
             status: "error",
             errorMessage: "Transaction timed out",

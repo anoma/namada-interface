@@ -264,16 +264,16 @@ export type IbcTransferProgress = {
 export type TransferProgress = IbcTransferProgress | NamadaTransferProgress;
 
 export type TransferTransactionBase = TransferProgress & {
-  hash: string;
   rpc: string;
+  hash?: string;
   amount: BigNumber;
   denom: string;
   tokenSymbol: string;
-  feePaid: BigNumber;
-  tipPaid: BigNumber;
   chainId: string;
   sourceAddress: string;
   destinationAddress: string;
+  feePaid?: BigNumber;
+  tipPaid?: BigNumber;
   resultTxHash?: string;
   errorMessage?: string;
   status: MutationStatus;
@@ -294,3 +294,6 @@ export type IbcTransferTransactionData = TransferTransactionBase & {
 export type TransferTransactionData =
   | TransferTransactionBase
   | IbcTransferTransactionData;
+
+export type MinimalTransferTransactionData = Partial<TransferTransactionData> &
+  Pick<TransferTransactionData, "type" | "chainId" | "denom">;
