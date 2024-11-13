@@ -97,11 +97,11 @@ describe("Component: TransferDestination", () => {
   });
 
   it("should display the transaction fee if provided", () => {
-    const fee = BigNumber(1);
+    const fee = BigNumber(0.000001);
     render(
       <TransferDestination
         transactionFee={{
-          amount: fee, //TODO: replace by baseAmount
+          amount: fee,
           asset: namadaAsset,
           originalAddress: namadaAsset.address,
         }}
