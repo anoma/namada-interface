@@ -10,7 +10,7 @@ type UseTransactionActionsOutput = {
   transactions: TransferTransactionData[];
   findByHash: (hash: string) => TransferTransactionData | undefined;
   storeTransaction: (tx: TransferTransactionData) => void;
-
+  clearMyCompleteTransactions: () => void;
   changeTransaction: (
     hash: string,
     updatedTx: Partial<TransferTransactionData>
@@ -59,10 +59,21 @@ export const useTransactionActions = (): UseTransactionActionsOutput => {
     return transactions.find((t) => t.hash === hash);
   };
 
+  const clearMyCompleteTransactions = (): void => {
+    if (!account) return;
+    setTransactions((txs) => {
+      return {
+        ...txs,
+        [account.address]: [],
+      };
+    });
+  };
+
   return {
     transactions,
     findByHash,
     storeTransaction,
     changeTransaction,
+    clearMyCompleteTransactions,
   };
 };
