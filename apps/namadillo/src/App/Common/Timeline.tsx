@@ -10,6 +10,48 @@ type TransactionTimelineProps = {
   hasError?: boolean;
 };
 
+type DisabledProps = {
+  disabled: boolean;
+};
+
+const StepConnector = ({ disabled }: DisabledProps): JSX.Element => (
+  <i
+    className={clsx(
+      "h-10 w-px bg-current mb-3",
+      clsx({ "opacity-20": disabled })
+    )}
+  />
+);
+
+const StepBullet = ({ disabled }: DisabledProps): JSX.Element => (
+  <i
+    className={clsx(
+      "w-4 aspect-square rounded-full bg-current",
+      clsx({ "opacity-20": disabled })
+    )}
+  />
+);
+
+const StepContent = ({
+  children,
+  isNextStep,
+  hasError,
+  disabled,
+}: React.PropsWithChildren & {
+  isNextStep: boolean;
+  hasError: boolean;
+  disabled: boolean;
+}): JSX.Element => (
+  <div
+    className={clsx("text-center", {
+      "animate-pulse": isNextStep && !hasError,
+      "opacity-20": disabled,
+    })}
+  >
+    {children}
+  </div>
+);
+
 export const Timeline = ({
   steps,
   currentStepIndex,
@@ -19,43 +61,29 @@ export const Timeline = ({
     <div>
       <ul className="flex flex-col items-center gap-3">
         {steps.map((step, index: number) => {
-          const disabledClassName = clsx({
-            "opacity-20": index > currentStepIndex,
-          });
-
           return (
             <li
               key={index}
               className={twMerge(
                 clsx(
-                  "flex flex-col gap-1 items-center text-center transition-all duration-150"
+                  "flex flex-col gap-1 items-center",
+                  "text-center transition-all duration-150"
                 )
               )}
             >
               {index > 0 && (
-                <i
-                  className={clsx(
-                    "h-10 w-px bg-current mb-3",
-                    disabledClassName
-                  )}
-                />
+                <StepConnector disabled={index > currentStepIndex} />
               )}
               {step.bullet && (
-                <i
-                  className={clsx(
-                    "w-4 aspect-square rounded-full bg-current",
-                    disabledClassName
-                  )}
-                />
+                <StepBullet disabled={index > currentStepIndex} />
               )}
-              <div
-                className={clsx("text-center", {
-                  "animate-pulse": index === currentStepIndex + 1 && !hasError,
-                  "opacity-20": hasError && index > currentStepIndex,
-                })}
+              <StepContent
+                isNextStep={index === currentStepIndex + 1 && !hasError}
+                disabled={index > currentStepIndex}
+                hasError={Boolean(hasError)}
               >
                 {step.children}
-              </div>
+              </StepContent>
             </li>
           );
         })}

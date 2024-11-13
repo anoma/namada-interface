@@ -7,10 +7,11 @@ import {
   StargateClient,
 } from "@cosmjs/stargate";
 import { TransactionFee } from "App/Transfer/TransferModule";
+import { queryForAck, queryForIbcTimeout } from "atoms/transactions";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
 import { createIbcTransferMessage } from "lib/transactions";
-import { AddressWithAsset } from "types";
+import { AddressWithAsset, IbcTransferTransactionData } from "types";
 import { toBaseAmount } from "utils";
 import { getSdkInstance } from "utils/sdk";
 import { workingRpcsAtom } from "./atoms";
@@ -153,5 +154,34 @@ export const queryAndStoreRpc = async <T>(
       set(workingRpcsAtom, { ...workingRpcs });
     }
     throw err;
+  }
+};
+
+export const updateIbcTransactionStatus = async (
+  rpc: string,
+  tx: IbcTransferTransactionData,
+  changeTransaction: (
+    hash: string,
+    update: Partial<IbcTransferTransactionData>
+  ) => void
+): Promise<void> => {
+  const client = await StargateClient.connect(rpc);
+  const successQueries = await queryForAck(client, tx);
+  if (successQueries.length > 0 && tx.hash) {
+    changeTransaction(tx.hash, {
+      status: "success",
+      progressStatus: "complete",
+      resultTxHash: successQueries[0].hash,
+    });
+    return;
+  }
+
+  const timeoutQuery = await queryForIbcTimeout(client, tx);
+  if (timeoutQuery.length > 0 && tx.hash) {
+    changeTransaction(tx.hash, {
+      status: "error",
+      errorMessage: "Transaction timed out",
+      resultTxHash: timeoutQuery[0].hash,
+    });
   }
 };

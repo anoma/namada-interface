@@ -1,3 +1,4 @@
+import { Asset } from "@chain-registry/types";
 import { Tooltip } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { Timeline } from "App/Common/Timeline";
@@ -6,6 +7,7 @@ import { chainRegistryAtom } from "atoms/integrations";
 import { findAssetByDenom, findRegistryByChainId } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import {
+  ChainRegistryEntry,
   MinimalTransferTransactionData,
   ProgressStepsOptions,
   TransferProgressSteps,
@@ -17,8 +19,6 @@ type TransactionTransferTimelineProps = {
   transaction: MinimalTransferTransactionData;
 };
 
-const completeText = "Transfer Complete";
-
 const stepDescription: Record<ProgressStepsOptions, string> = {
   sign: "Signature required",
   "ibc-to-masp": "IBC Transfer to Namada MASP",
@@ -29,7 +29,16 @@ const stepDescription: Record<ProgressStepsOptions, string> = {
   "tnam-to-tnam": "Transfer to Namada Transparent",
   "masp-to-tnam": "Transfer to Namada Transparent",
   "ibc-withdraw": "Transfer from Namada",
-  complete: completeText,
+  complete: "Transfer Complete",
+};
+
+const getAsset = (
+  registryMap: Record<string, ChainRegistryEntry>,
+  chainId: string,
+  denom: string
+): Asset | undefined => {
+  const registry = findRegistryByChainId(registryMap, chainId);
+  return registry ? findAssetByDenom(registry, denom) : undefined;
 };
 
 export const TransferTransactionTimeline = ({
@@ -37,8 +46,7 @@ export const TransferTransactionTimeline = ({
 }: TransactionTransferTimelineProps): JSX.Element => {
   const textSteps = TransferProgressSteps[transaction.type];
   const registryMap = useAtomValue(chainRegistryAtom);
-  const registry = findRegistryByChainId(registryMap, transaction.chainId);
-  const asset = registry && findAssetByDenom(registry, transaction.denom);
+  const asset = getAsset(registryMap, transaction.chainId, transaction.denom);
 
   const fromIbcChain =
     transaction.type === "IbcToTransparent" ||
@@ -124,7 +132,7 @@ export const TransferTransactionTimeline = ({
       <Timeline
         steps={[...additionalSteps, ...stepsWithDescription]}
         currentStepIndex={additionalSteps.length + currentStepIndex}
-        hasError={transaction.status === "error"}
+        hasError={hasError}
       />
     </div>
   );

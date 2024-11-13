@@ -64,7 +64,9 @@ export const useTransactionActions = (): UseTransactionActionsOutput => {
     setTransactions((txs) => {
       return {
         ...txs,
-        [account.address]: [],
+        [account.address]: txs[account.address].filter(
+          (tx) => tx.status !== "pending"
+        ),
       };
     });
   };
