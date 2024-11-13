@@ -46,7 +46,12 @@ export const IbcTransfer: React.FC = () => {
 
   const [transaction, setTransaction] =
     useState<MinimalTransferTransactionData>();
-  const { transactions: myTransactions, findByHash } = useTransactionActions();
+
+  const {
+    transactions: myTransactions,
+    findByHash,
+    storeTransaction,
+  } = useTransactionActions();
 
   const { data: availableAssets, isLoading: isLoadingBalances } = useAtomValue(
     assetBalanceAtomFamily({
@@ -59,8 +64,6 @@ export const IbcTransfer: React.FC = () => {
     (address) => availableAssets?.[address]?.amount,
     selectedAssetAddress
   );
-
-  const { storeTransaction } = useTransactionActions();
 
   const transactionFee = useMemo(() => {
     if (typeof registry !== "undefined") {
