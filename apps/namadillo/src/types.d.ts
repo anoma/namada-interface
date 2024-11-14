@@ -1,9 +1,9 @@
-import { AssetList, Chain, IBCInfo } from "@chain-registry/types";
+import { Asset, AssetList, Chain, IBCInfo } from "@chain-registry/types";
 import {
   Bond as IndexerBond,
   Unbond as IndexerUnbond,
   ValidatorStatus,
-} from "@namada/indexer-client";
+} from "@namada/namada-indexer-client";
 import { ChainKey, ClaimRewardsMsgValue, ExtensionKey } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { TxKind } from "types/txKind";

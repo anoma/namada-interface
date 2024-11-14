@@ -8,7 +8,7 @@ import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCurrency } from "App/Common/TokenCurrency";
-import { routes } from "App/routes";
+import { params, routes } from "App/routes";
 import { TokenBalance, transparentTokensAtom } from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
 import { getAssetImageUrl } from "integrations/utils";
@@ -29,13 +29,20 @@ const TransparentTokensTable = ({
 
   const headers = ["Token", { children: "Balance", className: "text-right" }];
 
-  const renderRow = ({ asset, balance, dollar }: TokenBalance): TableRow => {
-    const display = asset.display;
+  const renderRow = ({
+    originalAddress,
+    asset,
+    amount,
+    dollar,
+  }: TokenBalance): TableRow => {
     const icon = getAssetImageUrl(asset);
 
     return {
       cells: [
-        <div key={`token-${display}`} className="flex items-center gap-4">
+        <div
+          key={`token-${originalAddress}`}
+          className="flex items-center gap-4"
+        >
           <div className="aspect-square w-8 h-8">
             {icon ?
               <img src={icon} />
@@ -44,10 +51,10 @@ const TransparentTokensTable = ({
           {asset.symbol}
         </div>,
         <div
-          key={`balance-${display}`}
+          key={`balance-${originalAddress}`}
           className="flex flex-col text-right leading-tight"
         >
-          <TokenCurrency asset={asset} amount={balance} />
+          <TokenCurrency asset={asset} amount={amount} />
           {dollar && (
             <FiatCurrency
               className="text-neutral-600 text-sm"
@@ -56,13 +63,16 @@ const TransparentTokensTable = ({
           )}
         </div>,
         <div
-          key={`buttons-${display}`}
+          key={`buttons-${originalAddress}`}
           className="flex items-center justify-end gap-1"
         >
-          <ActionButton size="xs" href={routes.maspShield}>
+          <ActionButton
+            size="xs"
+            href={`${routes.maspShield}?${params.asset}=${originalAddress}`}
+          >
             Shield
           </ActionButton>
-          {display === namadaAsset.display && (
+          {originalAddress === namadaAsset.address && (
             <ActionButton
               size="xs"
               className="w-fit mx-auto"
@@ -135,7 +145,7 @@ const PanelContent = ({ data }: { data: TokenBalance[] }): JSX.Element => {
           {
             title: "Transparent NAM Balance",
             amount: namBalance?.dollar,
-            namAmount: namBalance?.balance,
+            namAmount: namBalance?.amount,
             button: (
               <ActionButton
                 size="xs"

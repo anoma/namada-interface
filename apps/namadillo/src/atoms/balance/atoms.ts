@@ -24,7 +24,7 @@ import {
 import { fetchCoinPrices, fetchShieldedBalance } from "./services";
 
 export type TokenBalance = AddressWithAsset & {
-  balance: BigNumber;
+  amount: BigNumber;
   dollar?: BigNumber;
 };
 
