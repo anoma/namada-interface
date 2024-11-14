@@ -18,13 +18,15 @@ export const useTransactionWatcher = (): void => {
     queryKey: ["transaction-status", pendingTransactions],
     enabled: pendingTransactions.length > 0,
     queryFn: async () => {
-      for (const tx of pendingTransactions) {
-        await updateIbcTransactionStatus(
-          tx.rpc,
-          tx as IbcTransferTransactionData,
-          changeTransaction
-        );
-      }
+      return Promise.allSettled(
+        pendingTransactions.map(async (tx) => {
+          await updateIbcTransactionStatus(
+            tx.rpc,
+            tx as IbcTransferTransactionData,
+            changeTransaction
+          );
+        })
+      );
     },
     refetchInterval: 50000,
   });
