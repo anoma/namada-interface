@@ -1,6 +1,6 @@
 import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
-import { TransactionTimeline } from "App/Common/TransactionTimeline";
+import { Timeline } from "App/Common/Timeline";
 import { params } from "App/routes";
 import {
   OnSubmitTransferParams,
@@ -155,7 +155,7 @@ export const MaspUnshield: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
           >
-            <TransactionTimeline
+            <Timeline
               currentStepIndex={currentStep}
               steps={[
                 {

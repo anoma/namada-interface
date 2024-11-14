@@ -1,19 +1,18 @@
-import { Asset } from "@chain-registry/types";
 import { Currency, CurrencyProps } from "@namada/components";
 
 type TokenCurrencyProps = Omit<
   CurrencyProps,
   "currency" | "currencyPosition" | "spaceAroundSign"
-> & { asset: Asset };
+> & { symbol: string };
 
 export const TokenCurrency = ({
-  asset,
+  symbol,
   ...props
 }: TokenCurrencyProps): JSX.Element => {
   return (
     <Currency
       currency={{
-        symbol: asset.symbol,
+        symbol,
       }}
       currencyPosition="right"
       spaceAroundSymbol={true}

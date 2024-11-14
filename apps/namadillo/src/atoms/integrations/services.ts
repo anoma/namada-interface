@@ -1,15 +1,21 @@
 import { Chain } from "@chain-registry/types";
 import { Coin, OfflineSigner } from "@cosmjs/launchpad";
-import { coin, coins } from "@cosmjs/proto-signing";
+import { coins } from "@cosmjs/proto-signing";
 import {
-  MsgTransferEncodeObject,
+  DeliverTxResponse,
   SigningStargateClient,
   StargateClient,
 } from "@cosmjs/stargate";
 import { TransactionFee } from "App/Transfer/TransferModule";
+import { queryForAck, queryForIbcTimeout } from "atoms/transactions";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
-import { AddressWithAsset } from "types";
+import { createIbcTransferMessage } from "lib/transactions";
+import {
+  AddressWithAsset,
+  IbcTransferTransactionData,
+  TransferStep,
+} from "types";
 import { toBaseAmount } from "utils";
 import { getSdkInstance } from "utils/sdk";
 import { workingRpcsAtom } from "./atoms";
@@ -17,6 +23,7 @@ import { getRpcByIndex } from "./functions";
 
 type CommonParams = {
   signer: OfflineSigner;
+  chainId: string;
   sourceAddress: string;
   destinationAddress: string;
   amount: BigNumber;
@@ -64,73 +71,67 @@ export const queryAssetBalances = async (
   return ((await client.getAllBalances(owner)) as Coin[]) || [];
 };
 
-export const submitIbcTransfer =
-  (transferParams: IbcTransferParams) =>
-  async (rpc: string): Promise<void> => {
-    const {
-      signer,
-      sourceAddress,
-      destinationAddress,
-      amount: displayAmount,
-      asset,
-      sourceChannelId,
-      isShielded,
-      transactionFee,
-    } = transferParams;
+export const submitIbcTransfer = async (
+  rpc: string,
+  transferParams: IbcTransferParams
+): Promise<DeliverTxResponse> => {
+  const {
+    signer,
+    sourceAddress,
+    destinationAddress,
+    amount: displayAmount,
+    asset,
+    sourceChannelId,
+    isShielded,
+    transactionFee,
+  } = transferParams;
 
-    const client = await SigningStargateClient.connectWithSigner(rpc, signer, {
-      broadcastPollIntervalMs: 300,
-      broadcastTimeoutMs: 8_000,
-    });
+  const client = await SigningStargateClient.connectWithSigner(rpc, signer, {
+    broadcastPollIntervalMs: 300,
+    broadcastTimeoutMs: 8_000,
+  });
 
-    // cosmjs expects amounts to be represented in the base denom, so convert
-    const baseAmount = toBaseAmount(asset.asset, displayAmount);
-    const baseFee = toBaseAmount(transactionFee.asset, transactionFee.amount);
+  // cosmjs expects amounts to be represented in the base denom, so convert
+  const baseAmount = toBaseAmount(asset.asset, displayAmount);
+  const baseFee = toBaseAmount(transactionFee.asset, transactionFee.amount);
 
-    const fee = {
-      amount: coins(baseFee.toString(), transactionFee.originalAddress),
-      gas: "222000", // TODO: what should this be?
-    };
-
-    const timeoutTimestampNanoseconds =
-      BigInt(Math.floor(Date.now() / 1000) + 60) * BigInt(1_000_000_000);
-
-    const token = asset.originalAddress;
-
-    const { receiver, memo }: { receiver: string; memo?: string } =
-      isShielded ?
-        await getShieldedArgs(
-          destinationAddress,
-          token,
-          baseAmount,
-          transferParams.destinationChannelId
-        )
-      : { receiver: destinationAddress };
-
-    const transferMsg: MsgTransferEncodeObject = {
-      typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
-      value: {
-        sourcePort: "transfer",
-        sourceChannel: sourceChannelId,
-        sender: sourceAddress,
-        receiver,
-        token: coin(baseAmount.toString(), token),
-        timeoutHeight: undefined,
-        timeoutTimestamp: timeoutTimestampNanoseconds,
-        memo,
-      },
-    };
-
-    const response = await client.signAndBroadcast(
-      sourceAddress,
-      [transferMsg],
-      fee
-    );
-
-    if (response.code !== 0) {
-      throw new Error(response.code + " " + response.transactionHash);
-    }
+  const fee = {
+    amount: coins(baseFee.toString(), transactionFee.originalAddress),
+    gas: "222000", // TODO: what should this be?
   };
+
+  const token = asset.originalAddress;
+  const { receiver, memo }: { receiver: string; memo?: string } =
+    isShielded ?
+      await getShieldedArgs(
+        destinationAddress,
+        token,
+        baseAmount,
+        transferParams.destinationChannelId
+      )
+    : { receiver: destinationAddress };
+
+  const transferMsg = createIbcTransferMessage(
+    sourceChannelId,
+    sourceAddress,
+    receiver,
+    baseAmount,
+    asset.asset.base,
+    memo
+  );
+
+  const response = await client.signAndBroadcast(
+    sourceAddress,
+    [transferMsg],
+    fee
+  );
+
+  if (response.code !== 0) {
+    throw new Error(response.code + " " + response.transactionHash);
+  }
+
+  return response;
+};
 
 export const queryAndStoreRpc = async <T>(
   chain: Chain,
@@ -157,5 +158,34 @@ export const queryAndStoreRpc = async <T>(
       set(workingRpcsAtom, { ...workingRpcs });
     }
     throw err;
+  }
+};
+
+export const updateIbcTransactionStatus = async (
+  rpc: string,
+  tx: IbcTransferTransactionData,
+  changeTransaction: (
+    hash: string,
+    update: Partial<IbcTransferTransactionData>
+  ) => void
+): Promise<void> => {
+  const client = await StargateClient.connect(rpc);
+  const successQueries = await queryForAck(client, tx);
+  if (successQueries.length > 0 && tx.hash) {
+    changeTransaction(tx.hash, {
+      status: "success",
+      currentStep: TransferStep.Complete,
+      resultTxHash: successQueries[0].hash,
+    });
+    return;
+  }
+
+  const timeoutQuery = await queryForIbcTimeout(client, tx);
+  if (timeoutQuery.length > 0 && tx.hash) {
+    changeTransaction(tx.hash, {
+      status: "error",
+      errorMessage: "Transaction timed out",
+      resultTxHash: timeoutQuery[0].hash,
+    });
   }
 };

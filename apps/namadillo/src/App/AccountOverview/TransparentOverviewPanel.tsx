@@ -54,7 +54,7 @@ const TransparentTokensTable = ({
           key={`balance-${originalAddress}`}
           className="flex flex-col text-right leading-tight"
         >
-          <TokenCurrency asset={asset} amount={amount} />
+          <TokenCurrency symbol={asset.symbol} amount={amount} />
           {dollar && (
             <FiatCurrency
               className="text-neutral-600 text-sm"
@@ -168,7 +168,7 @@ const PanelContent = ({ data }: { data: TokenBalance[] }): JSX.Element => {
               {namAmount && namBalance && (
                 <TokenCurrency
                   amount={namAmount}
-                  asset={namBalance.asset}
+                  symbol={namBalance.asset.symbol}
                   className="text-neutral-400 text-sm"
                 />
               )}

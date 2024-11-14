@@ -53,7 +53,7 @@ export const ShieldAllAssetList = ({
               <span className="text-xs">
                 <TokenCurrency
                   currencySymbolClassName="hidden"
-                  asset={assetWithBalance.asset}
+                  symbol={assetWithBalance.asset.symbol}
                   amount={assetWithBalance.amount || new BigNumber(0)}
                 />
               </span>

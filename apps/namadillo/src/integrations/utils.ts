@@ -1,5 +1,6 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { Bech32Config, ChainInfo, Currency } from "@keplr-wallet/types";
+import tokenImage from "App/Common/assets/token.svg";
 import { TransactionFee } from "App/Transfer/TransferModule";
 import { getRestApiAddressByIndex, getRpcByIndex } from "atoms/integrations";
 import BigNumber from "bignumber.js";
@@ -27,13 +28,22 @@ export const findRegistryByChainId = (
   return undefined;
 };
 
-export const getAssetImageUrl = (asset: Asset): string =>
-  asset.logo_URIs?.svg || asset.logo_URIs?.png || "";
+export const findAssetByDenom = (
+  registry: ChainRegistryEntry,
+  denom: string
+): Asset | undefined => {
+  return registry.assets.assets.find((asset) => asset.base === denom);
+};
+
+export const getAssetImageUrl = (asset?: Asset): string => {
+  if (!asset) return tokenImage;
+  return asset.logo_URIs?.svg || asset.logo_URIs?.png || tokenImage;
+};
 
 export const getTransactionFee = (
   registry: ChainRegistryEntry
 ): TransactionFee | undefined => {
-  // TODO: can we get a better type for registry to avoid optional chaining?
+  // TODO: we get a better type for registry to avoid optional chaining?
   // TODO: some chains support multiple fee tokens - what should we do?
   const feeToken = registry.chain.fees?.fee_tokens?.[0];
   if (typeof feeToken !== "undefined") {

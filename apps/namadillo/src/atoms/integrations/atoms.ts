@@ -9,11 +9,15 @@ import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
 import { TransactionPair } from "lib/query";
+import { createTransferDataFromIbc } from "lib/transactions";
 import {
   AddressWithAsset,
+  AddressWithAssetAndAmountMap,
   ChainId,
   ChainRegistryEntry,
   GasConfig,
+  TransferStep,
+  TransferTransactionData,
 } from "types";
 import {
   createIbcTx,
@@ -61,15 +65,29 @@ export const ibcTransferAtom = atomWithMutation(() => {
     mutationFn: async ({
       transferParams,
       chain,
-    }: IBCTransferAtomParams): Promise<void> => {
-      await queryAndStoreRpc(chain, submitIbcTransfer(transferParams));
+    }: IBCTransferAtomParams): Promise<TransferTransactionData> => {
+      return await queryAndStoreRpc(chain, async (rpc: string) => {
+        const txResponse = await submitIbcTransfer(rpc, transferParams);
+        return createTransferDataFromIbc(
+          txResponse,
+          rpc,
+          transferParams.asset.asset,
+          transferParams.chainId,
+          transferParams.isShielded ?
+            { type: "IbcToShielded", currentStep: TransferStep.ZkProof }
+          : {
+              type: "IbcToTransparent",
+              currentStep: TransferStep.IbcToTransparent,
+            }
+        );
+      });
     },
   };
 });
 
 export const assetBalanceAtomFamily = atomFamily(
   ({ chain, walletAddress, assets }: AssetBalanceAtomParams) => {
-    return atomWithQuery(() => ({
+    return atomWithQuery<AddressWithAssetAndAmountMap>(() => ({
       queryKey: ["assets", walletAddress, chain?.chain_id, assets],
       ...queryDependentFn(async () => {
         return await queryAndStoreRpc(chain!, async (rpc: string) => {

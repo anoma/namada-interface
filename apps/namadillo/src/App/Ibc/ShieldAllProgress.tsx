@@ -1,6 +1,6 @@
 import { Stack } from "@namada/components";
 import svgImg from "App/Assets/ShieldedParty.svg";
-import { TransactionTimeline } from "App/Common/TransactionTimeline";
+import { Timeline } from "App/Common/Timeline";
 import ibcTransferBlack from "../Transfer/assets/ibc-transfer-black.png";
 import { ShieldAllContainer } from "./ShieldAllContainer";
 
@@ -9,7 +9,7 @@ export const ShieldAllProgress = (): JSX.Element => {
   return (
     <ShieldAllContainer>
       <div className="flex-1 text-black mt-4">
-        <TransactionTimeline
+        <Timeline
           currentStepIndex={currentStep}
           steps={[
             { bullet: true, children: "Signature Required" },

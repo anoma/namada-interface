@@ -33,8 +33,8 @@ export const TransferTransactionFee = ({
         </span>
       )}
       <TokenCurrency
-        amount={transactionFee.amount}
-        asset={transactionFee.asset}
+        amount={(transactionFee.asset, transactionFee.amount)}
+        symbol={transactionFee.asset.symbol}
       />
     </footer>
   );

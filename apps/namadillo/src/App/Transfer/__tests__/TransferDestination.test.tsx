@@ -13,7 +13,7 @@ import { namadaAsset } from "registry/namadaAsset";
 import { walletMock } from "../__mocks__/providers";
 import { parseChainInfo } from "../common";
 
-describe("TransferDestination", () => {
+describe("Component: TransferDestination", () => {
   it("should render the component with the default props", () => {
     render(<TransferDestination />);
     expect(screen.getByText(/select chain/i)).toBeInTheDocument();
