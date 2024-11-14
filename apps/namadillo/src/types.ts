@@ -3,7 +3,7 @@ import {
   Bond as IndexerBond,
   Unbond as IndexerUnbond,
   ValidatorStatus,
-} from "@namada/namada-indexer-client";
+} from "@namada/indexer-client";
 import {
   Account,
   ChainKey,

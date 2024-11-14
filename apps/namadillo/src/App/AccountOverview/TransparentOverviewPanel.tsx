@@ -54,7 +54,7 @@ const TransparentTokensTable = ({
           key={`balance-${originalAddress}`}
           className="flex flex-col text-right leading-tight"
         >
-          <TokenCurrency symbol={asset.symbol} amount={balance} />
+          <TokenCurrency symbol={asset.symbol} amount={amount} />
           {dollar && (
             <FiatCurrency
               className="text-neutral-600 text-sm"
