@@ -283,6 +283,53 @@ export const getRestApiAddressByIndex = (chain: Chain, index = 0): string => {
   return randomRestApi.address;
 };
 
+export type IbcChannels = {
+  namadaChannelId: string;
+  cosmosChannelId: string;
+};
+
+export const getIbcChannels = (
+  namadaChainId: string,
+  cosmosChainName: string
+): IbcChannels | undefined => {
+  const namadaChainName = cosmosRegistry.chains.find(
+    (chain) => chain.chain_id === namadaChainId
+  )?.chain_name;
+
+  if (typeof namadaChainName === "undefined") {
+    return undefined;
+  }
+
+  for (const ibcEntry of cosmosRegistry.ibc) {
+    const { chain_1, chain_2, channels } = ibcEntry;
+    const channelEntry = channels[0];
+
+    if (typeof channelEntry === "undefined") {
+      continue;
+    }
+
+    if (
+      chain_1.chain_name === namadaChainName &&
+      chain_2.chain_name === cosmosChainName
+    ) {
+      return {
+        namadaChannelId: channelEntry.chain_1.channel_id,
+        cosmosChannelId: channelEntry.chain_2.channel_id,
+      };
+    }
+
+    if (
+      chain_1.chain_name === cosmosChainName &&
+      chain_2.chain_name === namadaChainName
+    ) {
+      return {
+        cosmosChannelId: channelEntry.chain_1.channel_id,
+        namadaChannelId: channelEntry.chain_2.channel_id,
+      };
+    }
+  }
+};
+
 export const createIbcTx = async (
   account: Account,
   destinationAddress: string,

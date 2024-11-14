@@ -42,8 +42,10 @@ export type TransferSourceProps = TransferModuleConfig & {
 };
 
 export type IbcOptions = {
-  destinationChannel: string;
   sourceChannel: string;
+  onChangeSourceChannel: (channel: string) => void;
+  destinationChannel?: string;
+  onChangeDestinationChannel?: (channel: string) => void;
 };
 
 export type TransferDestinationProps = TransferModuleConfig & {
@@ -55,7 +57,6 @@ export type OnSubmitTransferParams = {
   amount: BigNumber;
   destinationAddress: Address;
   memo?: string;
-  ibcOptions?: IbcOptions;
 };
 
 export type TransferModuleProps = {
@@ -63,10 +64,12 @@ export type TransferModuleProps = {
   destination: TransferDestinationProps;
   transactionFee?: TransactionFee;
   isSubmitting?: boolean;
-  isIbcTransfer?: boolean;
   errorMessage?: string;
   onSubmitTransfer: (params: OnSubmitTransferParams) => void;
-};
+} & (
+  | { isIbcTransfer?: false; ibcOptions?: undefined }
+  | { isIbcTransfer: true; ibcOptions: IbcOptions }
+);
 
 type ValidationResult =
   | "NoAmount"
@@ -85,6 +88,7 @@ export const TransferModule = ({
   transactionFee,
   isSubmitting,
   isIbcTransfer,
+  ibcOptions,
   onSubmitTransfer,
   errorMessage,
 }: TransferModuleProps): JSX.Element => {
@@ -97,8 +101,6 @@ export const TransferModule = ({
   const [memo, setMemo] = useState<undefined | string>("");
   const [customAddress, setCustomAddress] = useState<undefined | string>("");
   const [amount, setAmount] = useState<BigNumber | undefined>(new BigNumber(0));
-  const [sourceIbcChannel, setSourceIbcChannel] = useState("");
-  const [destinationIbcChannel, setDestinationIbcChannel] = useState("");
 
   const selectedAsset = mapUndefined(
     (address) => source.availableAssets?.[address],
@@ -171,13 +173,6 @@ export const TransferModule = ({
       destinationAddress: address.trim(),
       memo,
     };
-
-    if (isIbcTransfer) {
-      params.ibcOptions = {
-        sourceChannel: sourceIbcChannel.trim(),
-        destinationChannel: destinationIbcChannel.trim(),
-      };
-    }
 
     onSubmitTransfer?.(params);
   };
@@ -315,10 +310,10 @@ export const TransferModule = ({
           {isIbcTransfer && (
             <IbcChannels
               isShielded={Boolean(source.isShielded || destination.isShielded)}
-              sourceChannel={sourceIbcChannel}
-              onChangeSource={setSourceIbcChannel}
-              destinationChannel={destinationIbcChannel}
-              onChangeDestination={setDestinationIbcChannel}
+              sourceChannel={ibcOptions.sourceChannel}
+              onChangeSource={ibcOptions.onChangeSourceChannel}
+              destinationChannel={ibcOptions.destinationChannel}
+              onChangeDestination={ibcOptions.onChangeDestinationChannel}
             />
           )}
           <InlineError errorMessage={errorMessage} />
