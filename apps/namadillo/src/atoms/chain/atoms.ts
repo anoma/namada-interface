@@ -50,7 +50,6 @@ export const nativeTokenAddressAtom = atomWithQuery<string>((get) => {
     queryKey: ["native-token-address"],
     enabled: chain.isSuccess,
     queryFn: async () => {
-      console.log("native token", chain.data!.nativeTokenAddress);
       return chain.data!.nativeTokenAddress;
     },
   };

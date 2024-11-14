@@ -51,7 +51,7 @@ export const MainRoutes = (): JSX.Element => {
   const settingsAnimationKey =
     location.pathname.indexOf(routes.settings) > -1 ?
       "settings-modal"
-      : location.pathname;
+    : location.pathname;
 
   return (
     <>

@@ -43,7 +43,6 @@ export const applicationFeaturesAtom = atomWithQuery((get) => {
       const chainId = chainParameters.data?.chainId;
       if (chainId) {
         const features = await fetchEnabledFeatures(chainId);
-        console.log("FEATURES", features);
         return features;
       }
       return defaultApplicationFeatures;
