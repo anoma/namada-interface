@@ -1,6 +1,7 @@
 import { Chain } from "@chain-registry/types";
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { mapUndefined } from "@namada/utils";
+import { TransferTransactionTimeline } from "App/Transactions/TransferTransactionTimeline";
 import {
   OnSubmitTransferParams,
   TransferModule,
@@ -13,18 +14,16 @@ import {
   ibcTransferAtom,
 } from "atoms/integrations";
 import clsx from "clsx";
+import { useTransactionActions } from "hooks/useTransactionActions";
 import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
 import { KeplrWalletManager } from "integrations/Keplr";
+import { getTransactionFee } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import namadaChain from "registry/namada.json";
 import { Address, PartialTransferTransactionData, TransferStep } from "types";
 import { IbcTopHeader } from "./IbcTopHeader";
-
-import { TransferTransactionTimeline } from "App/Transactions/TransferTransactionTimeline";
-import { useTransactionActions } from "hooks/useTransactionActions";
-import { getTransactionFee } from "integrations/utils";
 
 const keplr = new KeplrWalletManager();
 const defaultChainId = "cosmoshub-4";
@@ -150,7 +149,7 @@ export const IbcTransfer: React.FC = () => {
       try {
         setTransaction({
           type: shielded ? "IbcToShielded" : "IbcToTransparent",
-          denom: selectedAsset.asset.base,
+          asset: selectedAsset.asset,
           chainId,
           currentStep: TransferStep.Sign,
         });

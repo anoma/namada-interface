@@ -71,8 +71,8 @@ export const ibcTransferAtom = atomWithMutation(() => {
         return createTransferDataFromIbc(
           txResponse,
           rpc,
+          transferParams.asset.asset,
           transferParams.chainId,
-          transferParams.asset.asset.symbol,
           transferParams.isShielded ?
             { type: "IbcToShielded", currentStep: TransferStep.ZkProof }
           : {

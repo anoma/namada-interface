@@ -1,3 +1,4 @@
+import { Asset } from "@chain-registry/types";
 import { coin } from "@cosmjs/proto-signing";
 import {
   Attribute,
@@ -12,6 +13,7 @@ import {
   IbcTransferTransactionData,
   TransferTransactionData,
 } from "types";
+import { toDisplayAmount } from "utils";
 
 export const getEventAttribute = (
   tx: DeliverTxResponse,
@@ -85,41 +87,51 @@ export const createIbcTransferMessage = (
 export const createTransferDataFromIbc = (
   tx: DeliverTxResponse,
   rpc: string,
+  asset: Asset,
   sourceChainId: string,
-  tokenSymbol: string,
   details: IbcTransferStage
 ): TransferTransactionData => {
   const transferAttributes = getEventAttribute(tx, "ibc_transfer");
   const packetAttributes = getEventAttribute(tx, "send_packet");
   const feeAttributes = getEventAttribute(tx, "fee_pay");
   const tipAttributes = getEventAttribute(tx, "tip_pay");
-  const denom = getAttributeValue(transferAttributes, "denom");
-  const timeoutInNanoseconds = parseInt(
-    getAttributeValue(packetAttributes, "packet_timeout_timestamp")
+  const baseDenom = asset.base;
+
+  const transferAmount = toDisplayAmount(
+    asset,
+    getAmountAttributeValue(transferAttributes, "amount", baseDenom)
+  );
+
+  const tipPaid = toDisplayAmount(
+    asset,
+    getAmountAttributeValue(tipAttributes, "tip", baseDenom)
+  );
+
+  const feePaid = toDisplayAmount(
+    asset,
+    getAmountAttributeValue(feeAttributes, "fee", baseDenom)
   );
 
   const transferTx: IbcTransferTransactionData = {
     ...details,
     hash: tx.transactionHash,
     rpc,
-    denom,
-    tokenSymbol,
-    chainId: sourceChainId,
-    amount: getAmountAttributeValue(transferAttributes, "amount", denom),
-    feePaid: getAmountAttributeValue(feeAttributes, "fee", denom),
-    tipPaid: getAmountAttributeValue(tipAttributes, "tip", denom),
-    sourceAddress: getAttributeValue(transferAttributes, "sender"),
-    destinationAddress: getAttributeValue(transferAttributes, "receiver"),
+    asset,
+    feePaid,
+    tipPaid,
+    amount: transferAmount,
     status: "pending",
     sourcePort: "transfer",
+    chainId: sourceChainId,
+    destinationChainId: namada.chainId, //TODO: integrate with registry,
+    sourceAddress: getAttributeValue(transferAttributes, "sender"),
+    destinationAddress: getAttributeValue(transferAttributes, "receiver"),
     sequence: getNumberAttributeValue(packetAttributes, "packet_sequence"),
     sourceChannel: getAttributeValue(packetAttributes, "packet_src_channel"),
     destinationChannel: getAttributeValue(
       packetAttributes,
       "packet_dst_channel"
     ),
-    destinationChainId: namada.chainId, //TODO: integrate with registry,
-    timeoutAt: new Date(timeoutInNanoseconds / 1000000),
     createdAt: new Date(),
     updatedAt: new Date(),
   };

@@ -1,13 +1,8 @@
-import { Asset } from "@chain-registry/types";
 import { Tooltip } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { Timeline } from "App/Common/Timeline";
 import { AssetImage } from "App/Transfer/AssetImage";
-import { chainRegistryAtom } from "atoms/integrations";
-import { findAssetByDenom, findRegistryByChainId } from "integrations/utils";
-import { useAtomValue } from "jotai";
 import {
-  ChainRegistryEntry,
   PartialTransferTransactionData,
   TransferStep,
   allTransferStages,
@@ -32,22 +27,10 @@ const stepDescription: Record<TransferStep, string> = {
   complete: "Transfer Complete",
 };
 
-const getAsset = (
-  registryMap: Record<string, ChainRegistryEntry>,
-  chainId: string,
-  denom: string
-): Asset | undefined => {
-  const registry = findRegistryByChainId(registryMap, chainId);
-  return registry ? findAssetByDenom(registry, denom) : undefined;
-};
-
 export const TransferTransactionTimeline = ({
   transaction,
 }: TransactionTransferTimelineProps): JSX.Element => {
   const textSteps = allTransferStages[transaction.type];
-  const registryMap = useAtomValue(chainRegistryAtom);
-  const asset = getAsset(registryMap, transaction.chainId, transaction.denom);
-
   const fromIbcChain =
     transaction.type === "IbcToTransparent" ||
     transaction.type === "IbcToShielded";
@@ -66,7 +49,7 @@ export const TransferTransactionTimeline = ({
   const initialImage = (
     <span className="w-12 block mx-auto">
       <AssetImage
-        asset={asset}
+        asset={transaction.asset}
         isShielded={fromIbcChain ? undefined : !isTransparentTransfer}
       />
     </span>
@@ -75,7 +58,10 @@ export const TransferTransactionTimeline = ({
   const completeStep = (
     <>
       <span className="w-12 mb-2 block mx-auto">
-        <AssetImage asset={asset} isShielded={isTransparentTransfer} />
+        <AssetImage
+          asset={transaction.asset}
+          isShielded={isTransparentTransfer}
+        />
       </span>
       <p>{transferCompleteMessage}</p>
     </>

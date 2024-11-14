@@ -82,7 +82,7 @@ export const TransactionCard = ({
           <TokenCurrency
             className="text-white"
             amount={transaction.amount}
-            symbol={transaction.tokenSymbol}
+            symbol={transaction.asset.symbol}
           />{" "}
           to {chainName} {transaction.destinationAddress}
         </p>

@@ -303,10 +303,9 @@ export type TransferStage = IbcTransferStage | NamadaTransferStage;
 
 export type BaseTransferTransaction = TransferStage & {
   rpc: string;
+  asset: Asset;
   hash?: string;
   amount: BigNumber;
-  denom: string;
-  tokenSymbol: string;
   chainId: string;
   sourceAddress: string;
   destinationAddress: string;
@@ -315,7 +314,6 @@ export type BaseTransferTransaction = TransferStage & {
   resultTxHash?: string;
   errorMessage?: string;
   status: MutationStatus;
-  timeoutAt: Date;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -334,4 +332,4 @@ export type TransferTransactionData =
   | IbcTransferTransactionData;
 
 export type PartialTransferTransactionData = Partial<TransferTransactionData> &
-  Pick<TransferTransactionData, "type" | "chainId" | "denom">;
+  Pick<TransferTransactionData, "type" | "chainId" | "asset">;
