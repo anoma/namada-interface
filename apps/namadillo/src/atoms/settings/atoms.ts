@@ -1,12 +1,11 @@
 import { isUrlValid, sanitizeUrl } from "@namada/utils";
-import { chainParametersAtom, indexerRpcUrlAtom } from "atoms/chain";
+import { indexerRpcUrlAtom } from "atoms/chain";
 import { Getter, Setter, atom, getDefaultStore } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
 import { SettingsStorage } from "types";
 import {
   fetchDefaultTomlConfig,
-  fetchEnabledFeatures,
   isIndexerAlive,
   isMaspIndexerAlive,
   isRpcAlive,
@@ -33,22 +32,12 @@ export const defaultApplicationFeatures = {
 
 export type ApplicationFeatures = typeof defaultApplicationFeatures;
 
-export const applicationFeaturesAtom = atomWithQuery((get) => {
-  const chainParameters = get(chainParametersAtom);
-  return {
-    queryKey: [chainParameters.data?.chainId],
-    staleTime: Infinity,
-    retry: false,
-    queryFn: async () => {
-      const chainId = chainParameters.data?.chainId;
-      if (chainId) {
-        const features = await fetchEnabledFeatures(chainId);
-        return features;
-      }
-      return defaultApplicationFeatures;
-    },
-  };
-});
+export const applicationFeaturesAtom = atomWithStorage(
+  "namadillo:features",
+  defaultApplicationFeatures,
+  undefined,
+  { getOnInit: true }
+);
 
 export const defaultServerConfigAtom = atomWithQuery((_get) => {
   return {

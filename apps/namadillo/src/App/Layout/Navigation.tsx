@@ -12,7 +12,7 @@ import { TbVectorTriangle } from "react-icons/tb";
 import { DISCORD_URL, TWITTER_URL } from "urls";
 
 export const Navigation = (): JSX.Element => {
-  const { data: features } = useAtomValue(applicationFeaturesAtom);
+  const features = useAtomValue(applicationFeaturesAtom);
 
   const menuItems: { label: string; icon: React.ReactNode; url?: string }[] = [
     {
@@ -33,17 +33,17 @@ export const Navigation = (): JSX.Element => {
     {
       label: "MASP",
       icon: <MASPIcon />,
-      url: features?.maspEnabled ? routes.masp : undefined,
+      url: features.maspEnabled ? routes.masp : undefined,
     },
     {
       label: "IBC Transfer",
       icon: <TbVectorTriangle />,
-      url: features?.ibcTransfersEnabled ? routes.ibc : undefined,
+      url: features.ibcTransfersEnabled ? routes.ibc : undefined,
     },
     {
       label: "Transfer",
       icon: <IoSwapHorizontal />,
-      url: features?.namTransfersEnabled ? routes.transfer : undefined,
+      url: features.namTransfersEnabled ? routes.transfer : undefined,
     },
   ];
 

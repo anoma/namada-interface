@@ -45,7 +45,7 @@ import { routes } from "./routes";
 export const MainRoutes = (): JSX.Element => {
   const location = useLocation();
   const state = location.state as { backgroundLocation?: Location };
-  const { data: features } = useAtomValue(applicationFeaturesAtom);
+  const features = useAtomValue(applicationFeaturesAtom);
 
   // Avoid animation being fired twice when navigating inside settings modal routes
   const settingsAnimationKey =
@@ -86,7 +86,7 @@ export const MainRoutes = (): JSX.Element => {
           <Route path={routes.governanceJson} element={<ViewJson />} />
 
           {/* Masp */}
-          {features?.maspEnabled && (
+          {features.maspEnabled && (
             <Route element={<MaspLayout />}>
               <Route path={routes.masp} element={<MaspOverview />} />
               <Route path={routes.maspShield} element={<MaspShield />} />
@@ -95,23 +95,22 @@ export const MainRoutes = (): JSX.Element => {
           )}
 
           {/* Ibc Transfers */}
-          {features?.ibcTransfersEnabled && (
+          {features.ibcTransfersEnabled && (
             <Route element={<IbcTransfersLayout />}>
               <Route path={routes.ibc} element={<IbcTransfer />} />
               <Route path={routes.ibcWithdraw} element={<IbcWithdraw />} />
             </Route>
           )}
 
-          {features?.ibcTransfersEnabled && (
+          {features.ibcTransfersEnabled && (
             <Route element={<IbcLayout />}>
               <Route path={routes.ibcShieldAll} element={<IbcShieldAll />} />
             </Route>
           )}
 
           {/* Transfer */}
-          {features?.namTransfersEnabled && (
+          {features.namTransfersEnabled && (
             <Route element={<TransferLayout />}>
-              {" "}
               <Route path={routes.transfer} element={<NamTransfer />} />
             </Route>
           )}

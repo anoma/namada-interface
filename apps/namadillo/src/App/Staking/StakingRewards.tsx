@@ -23,8 +23,7 @@ import claimRewardsSvg from "./assets/claim-rewards.svg";
 
 export const StakingRewards = (): JSX.Element => {
   const { data: account } = useAtomValue(defaultAccountAtom);
-  const { data: enabledFeatures } = useAtomValue(applicationFeaturesAtom);
-  const { claimRewardsEnabled } = enabledFeatures || {};
+  const { claimRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
   const {
     isLoading: isLoadingRewards,
     isSuccess,
