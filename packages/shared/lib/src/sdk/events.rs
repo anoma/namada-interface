@@ -1,11 +1,38 @@
 use crate::utils::to_js_result;
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
-use web_sys::{CustomEvent, CustomEventInit, Document, Event};
+use web_sys::{CustomEvent, CustomEventInit, Document, Event, WorkerGlobalScope};
+
+#[wasm_bindgen]
+#[derive(Debug, Serialize)]
+pub struct ProgressStart {
+    name: String,
+}
+
+impl ProgressStart {
+    pub fn to_json(&self) -> JsValue {
+        let json = serde_json::to_value(&self).unwrap();
+        JsValue::from_str(&json.to_string())
+    }
+}
+
+#[wasm_bindgen]
+#[derive(Debug, Serialize)]
+pub struct ProgressFinish {
+    name: String,
+}
+
+impl ProgressFinish {
+    pub fn to_json(&self) -> JsValue {
+        let json = serde_json::to_value(&self).unwrap();
+        JsValue::from_str(&json.to_string())
+    }
+}
 
 #[wasm_bindgen]
 #[derive(Debug, Serialize)]
 pub struct ProgressIncrement {
+    name: String,
     current: usize,
     total: usize,
 }
@@ -23,19 +50,22 @@ const SDK_EVENT_PROGRESS_BAR_INCREMENTED: &str = "namada_sdk::progress_bar::incr
 const SDK_EVENT_PROGRESS_BAR_FINISHED: &str = "namada_sdk::progress_bar::finished";
 
 pub struct EventDispatcher {
-    document: Document,
+    scope: WorkerGlobalScope,
 }
 
 impl EventDispatcher {
     pub fn new() -> Self {
+        let global = js_sys::global();
+        let scope = global.unchecked_into::<WorkerGlobalScope>();
+
         Self {
-            document: web_sys::window().unwrap().document().unwrap(),
+            scope
         }
     }
 
     fn dispatch(&self, event: Event) -> Result<JsValue, JsError> {
         to_js_result(
-            self.document
+            self.scope
                 .dispatch_event(&event)
                 .map_err(|err| JsError::new(&format!("Error dispatching event: {:?}", err)))?,
         )
@@ -43,31 +73,34 @@ impl EventDispatcher {
 
     fn dispatch_custom_event(&self, custom_event: CustomEvent) -> Result<JsValue, JsError> {
         to_js_result(
-            self.document
+            self.scope
                 .dispatch_event(&custom_event)
                 .map_err(|err| JsError::new(&format!("Error dispatching: {:?}", err)))?,
         )
     }
 
-    pub fn progress_bar_started(&self) -> Result<JsValue, JsError> {
-        // let event = Event::new(SDK_EVENT_PROGRESS_BAR_STARTED).unwrap();
-        let event = self.document.create_event("Event").unwrap();
-        event.init_event(SDK_EVENT_PROGRESS_BAR_STARTED);
-        self.dispatch(event)
+    pub fn progress_bar_started(&self, name: String) -> Result<JsValue, JsError> {
+        let start = ProgressStart { name };
+        let mut options = CustomEventInit::new();
+        options.detail(&start.to_json());
+
+        let event =
+            CustomEvent::new_with_event_init_dict(SDK_EVENT_PROGRESS_BAR_STARTED, &options)
+                .unwrap();
+
+        self.dispatch_custom_event(event)
     }
 
     pub fn progress_bar_incremented(
         &self,
+        name: String,
         current: usize,
         total: usize,
     ) -> Result<JsValue, JsError> {
-        let increment = ProgressIncrement { current, total };
-
-        let data = &increment.to_json();
-
+        let increment = ProgressIncrement { name, current, total };
         let mut options = CustomEventInit::new();
 
-        options.detail(data);
+        options.detail(&increment.to_json());
         options.bubbles(true);
         options.cancelable(false);
         options.composed(true);
@@ -79,8 +112,15 @@ impl EventDispatcher {
         self.dispatch_custom_event(event)
     }
 
-    pub fn progress_bar_finished(&self) -> Result<JsValue, JsError> {
-        let event = Event::new(SDK_EVENT_PROGRESS_BAR_FINISHED).unwrap();
-        self.dispatch(event)
+    pub fn progress_bar_finished(&self, name: String) -> Result<JsValue, JsError> {
+        let finish = ProgressFinish { name };
+        let mut options = CustomEventInit::new();
+        options.detail(&finish.to_json());
+
+        let event =
+            CustomEvent::new_with_event_init_dict(SDK_EVENT_PROGRESS_BAR_FINISHED, &options)
+                .unwrap();
+
+        self.dispatch_custom_event(event)
     }
 }
