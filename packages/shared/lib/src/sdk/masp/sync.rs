@@ -87,34 +87,44 @@ impl ShutdownSignal for ShutdownSignalWeb {
 }
 
 pub struct ProgressBarWeb {
+    pub name: String,
     pub total: usize,
     pub current: usize,
 }
 
+impl ProgressBarWeb {
+    pub fn new(name: String) -> Self {
+        Self {
+            name,
+            total: 0,
+            current: 0,
+        }
+    }
+}
+
 impl ProgressBar for ProgressBarWeb {
+
     fn upper_limit(&self) -> u64 {
         self.total as u64
     }
 
     fn set_upper_limit(&mut self, limit: u64) {
         self.total = limit as usize;
-        let _ = EventDispatcher::new().progress_bar_started().is_ok();
+        let _ = EventDispatcher::new().progress_bar_started(self.name.clone()).is_ok();
     }
 
     fn increment_by(&mut self, amount: u64) {
         self.current += amount as usize;
         let _ = EventDispatcher::new()
-            .progress_bar_incremented(self.current, self.total)
+            .progress_bar_incremented(self.name.clone(), self.current, self.total)
             .is_ok();
-        web_sys::console::log_1(&format!("Progress: {}/{}", self.current, self.total).into());
+
     }
 
     fn message(&mut self, message: String) {
-        web_sys::console::log_1(&message.into());
     }
 
     fn finish(&mut self) {
-        let _ = EventDispatcher::new().progress_bar_finished().is_ok();
-        web_sys::console::log_1(&"Finished".into());
+        let _ = EventDispatcher::new().progress_bar_finished(self.name.clone()).is_ok();
     }
 }

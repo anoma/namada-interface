@@ -10,10 +10,13 @@ import {
   tokenAddressesAtom,
 } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
+import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import * as osmosis from "chain-registry/mainnet/osmosis";
+import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
+import { atomFamily } from "jotai/utils";
 import semver from "semver";
 import { AddressWithAsset } from "types";
 import {
@@ -21,24 +24,36 @@ import {
   mapNamadaAddressesToAssets,
   mapNamadaAssetsToTokenBalances,
 } from "./functions";
-import { fetchCoinPrices, fetchShieldedBalance } from "./services";
+import {
+  fetchCoinPrices,
+  fetchShieldedBalance,
+  shieldedSync,
+} from "./services";
 
 export type TokenBalance = AddressWithAsset & {
   amount: BigNumber;
   dollar?: BigNumber;
 };
 
-const DEPRECATED_getViewingKey = async (): Promise<string | undefined> => {
+const DEPRECATED_getViewingKey = async (): Promise<
+  [string, string[]] | undefined
+> => {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const namada: Namada | undefined = (window as any).namada;
     if (namada && semver.lt(namada.version(), "0.3.3")) {
       const accounts = await namada.accounts();
       const defaultAccount = await namada.defaultAccount();
-      const shieldedAccount = accounts?.find(
-        (a) => a.type === "shielded-keys" && a.alias === defaultAccount?.alias
+      const shieldedAccounts = accounts?.filter(
+        (a) => a.type === "shielded-keys"
       );
-      return shieldedAccount?.owner;
+      const defaultShieldedAccount = shieldedAccounts?.find(
+        (a) => a.alias === defaultAccount?.alias
+      );
+      const defaultViewingKey = defaultShieldedAccount?.owner ?? "";
+      const viewingKeys = shieldedAccounts?.map((a) => a.owner ?? "") ?? [];
+
+      return [defaultViewingKey, viewingKeys];
     }
   } catch {
     // do nothing
@@ -46,47 +61,71 @@ const DEPRECATED_getViewingKey = async (): Promise<string | undefined> => {
   return undefined;
 };
 
-export const viewingKeyAtom = atomWithQuery<string>((get) => {
+export const viewingKeysAtom = atomWithQuery<[string, string[]]>((get) => {
   const accountsQuery = get(accountsAtom);
   const defaultAccountQuery = get(defaultAccountAtom);
 
   return {
-    queryKey: ["viewing-key", accountsQuery.data, defaultAccountQuery.data],
+    queryKey: ["viewing-keys", accountsQuery.data, defaultAccountQuery.data],
     ...queryDependentFn(async () => {
       const deprecatedViewingKey = await DEPRECATED_getViewingKey();
       if (deprecatedViewingKey) {
         return deprecatedViewingKey;
       }
-      const shieldedAccount = accountsQuery.data?.find(
-        (a) => a.isShielded && a.alias === defaultAccountQuery.data?.alias
+      const shieldedAccounts = accountsQuery.data?.filter((a) => a.isShielded);
+      const defaultShieldedAccount = shieldedAccounts?.find(
+        (a) => a.alias === defaultAccountQuery.data?.alias
       );
-      return shieldedAccount?.viewingKey ?? "";
+      const defaultViewingKey = defaultShieldedAccount?.viewingKey ?? "";
+      const viewingKeys =
+        shieldedAccounts?.map((a) => a.viewingKey ?? "") ?? [];
+
+      return [defaultViewingKey, viewingKeys];
     }, [accountsQuery, defaultAccountQuery]),
   };
 });
+
+export const shieldedSyncProgressAtom = atomFamily((_name: string) =>
+  // total is 0 so we do not get NaN
+  atom({ status: "pending", current: 0, total: 0 })
+);
 
 export const shieldedBalanceAtom = atomWithQuery<
   { address: string; amount: BigNumber }[]
 >((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
-  const viewingKeyQuery = get(viewingKeyAtom);
+  const viewingKeysQuery = get(viewingKeysAtom);
   const tokenAddressesQuery = get(tokenAddressesAtom);
   const namTokenAddressQuery = get(nativeTokenAddressAtom);
+  const rpcUrl = get(rpcUrlAtom);
+  const maspIndexerUrl = get(maspIndexerUrlAtom);
 
   return {
     refetchInterval: enablePolling ? 1000 : false,
     queryKey: [
       "shielded-balance",
-      viewingKeyQuery.data,
+      viewingKeysQuery.data,
       tokenAddressesQuery.data,
       namTokenAddressQuery.data,
+      rpcUrl,
+      maspIndexerUrl,
     ],
     ...queryDependentFn(async () => {
-      const viewingKey = viewingKeyQuery.data;
+      const viewingKeys = viewingKeysQuery.data;
       const tokenAddresses = tokenAddressesQuery.data;
-      if (!viewingKey || !tokenAddresses) {
+      if (!viewingKeys || !tokenAddresses) {
         return [];
       }
+      const namTokenAddress = namTokenAddressQuery.data;
+      const [viewingKey, allViewingKeys] = viewingKeys;
+
+      await shieldedSync(
+        rpcUrl,
+        maspIndexerUrl,
+        namTokenAddress!,
+        allViewingKeys
+      );
+
       const response = await fetchShieldedBalance(
         viewingKey,
         tokenAddresses.map((t) => t.address)
@@ -100,7 +139,7 @@ export const shieldedBalanceAtom = atomWithQuery<
           : new BigNumber(amount),
       }));
       return shieldedBalance;
-    }, [viewingKeyQuery, tokenAddressesQuery, namTokenAddressQuery]),
+    }, [viewingKeysQuery, tokenAddressesQuery, namTokenAddressQuery]),
   };
 });
 

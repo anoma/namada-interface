@@ -1,5 +1,12 @@
-import { Balance } from "@namada/sdk/web";
+import * as Comlink from "comlink";
+
+import { Balance, SdkEvents } from "@namada/sdk/web";
+import { getDefaultStore } from "jotai";
 import { getSdkInstance } from "utils/sdk";
+import { Worker as ShieldedSyncWorkerApi } from "workers/ShieldedSyncWorker";
+import ShieldedSyncWorker from "workers/ShieldedSyncWorker?worker";
+// TODO: circular dependency
+import { shieldedSyncProgressAtom } from "./atoms";
 
 const sqsOsmosisApi = "https://sqs.osmosis.zone";
 
@@ -13,6 +20,61 @@ export const fetchCoinPrices = async (
     ).then((res) => res.json())
   : [];
 
+export const shieldedSync = async (
+  rpcUrl: string,
+  maspIndexerUrl: string,
+  token: string,
+  viewingKeys: string[]
+): Promise<void> => {
+  const worker = new ShieldedSyncWorker();
+  const shieldedSyncWorker = Comlink.wrap<ShieldedSyncWorkerApi>(worker);
+
+  worker.onmessage = (event) => {
+    const store = getDefaultStore();
+    const { data } = event;
+
+    if (SdkEvents.ProgressBarStarted === data.type) {
+      store.set(shieldedSyncProgressAtom(data.payload.name), {
+        status: "loading",
+        current: 0,
+        total: 0,
+      });
+    } else if (SdkEvents.ProgressBarIncremented === data.type) {
+      const { name, current, total } = data.payload;
+
+      store.set(shieldedSyncProgressAtom(name), {
+        status: "loading",
+        current,
+        total,
+      });
+    } else if (SdkEvents.ProgressBarFinished === data.type) {
+      store.set(shieldedSyncProgressAtom(data.payload.name), {
+        status: "success",
+        current: 0,
+        total: 0,
+      });
+    }
+  };
+
+  await shieldedSyncWorker.init({
+    type: "init",
+    payload: {
+      rpcUrl,
+      maspIndexerUrl,
+      token,
+    },
+  });
+
+  await shieldedSyncWorker.sync({
+    type: "sync",
+    payload: {
+      vks: viewingKeys,
+    },
+  });
+
+  worker.terminate();
+};
+
 export const fetchShieldedBalance = async (
   viewingKey: string,
   addresses: string[]
@@ -21,7 +83,6 @@ export const fetchShieldedBalance = async (
   // return await mockShieldedBalance(viewingKey);
 
   const sdk = await getSdkInstance();
-  await sdk.rpc.shieldedSync([viewingKey]);
   return await sdk.rpc.queryBalance(viewingKey, addresses);
 };
 

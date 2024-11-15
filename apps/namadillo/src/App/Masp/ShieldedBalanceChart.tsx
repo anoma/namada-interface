@@ -1,14 +1,23 @@
 import { Heading, PieChart, SkeletonLoading } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
-import { shieldedTokensAtom } from "atoms/balance/atoms";
+import {
+  shieldedSyncProgressAtom,
+  shieldedTokensAtom,
+} from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
 import { useAtomValue } from "jotai";
 import { colors } from "theme";
 
 export const ShieldedBalanceChart = (): JSX.Element => {
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
-
+  const shieledSyncProgress = useAtomValue(shieldedSyncProgressAtom("scanned"));
+  const shieledSyncProgress2 = useAtomValue(
+    shieldedSyncProgressAtom("fetched")
+  );
+  const shieledSyncProgress3 = useAtomValue(
+    shieldedSyncProgressAtom("applied")
+  );
   const shieldedDollars = getTotalDollar(shieldedTokensQuery.data);
 
   return (
@@ -48,12 +57,44 @@ export const ShieldedBalanceChart = (): JSX.Element => {
                 </div>
               </PieChart>
               <div className="absolute -bottom-4 -left-2 text-[10px]">
-                *Balances exclude NAM until phase 5
+                *Balances exclude NAM until phase 5{" "}
               </div>
             </>
           }
+          <div className="absolute top-0 right-0 text-right">
+            Shieled sync progress: <br />
+            <Progress name="Scanned" {...shieledSyncProgress} />
+            <Progress name="Fetched" {...shieledSyncProgress2} />
+            <Progress name="Applied" {...shieledSyncProgress3} />
+          </div>
         </AtomErrorBoundary>
       </div>
+    </div>
+  );
+};
+
+const Progress = ({
+  name,
+  status,
+  current,
+  total,
+}: {
+  name: string;
+  status: string;
+  current: number;
+  total: number;
+}): JSX.Element => {
+  const perc = current === 0 && total === 0 ? 0 : (current / total) * 100;
+  return (
+    <div>
+      {name}:
+      {status === "pending" ?
+        <div>-</div>
+      : status === "loading" ?
+        <div>{Math.floor(perc)}%</div>
+      : status === "success" ?
+        <div>100%</div>
+      : <div>error</div>}
     </div>
   );
 };
