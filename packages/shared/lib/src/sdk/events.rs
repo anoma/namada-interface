@@ -2,6 +2,7 @@ use crate::utils::to_js_result;
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
 use web_sys::{CustomEvent, CustomEventInit, Document, Event, WorkerGlobalScope};
+use js_sys::Object;
 
 #[wasm_bindgen]
 #[derive(Debug, Serialize)]
@@ -45,9 +46,33 @@ impl ProgressIncrement {
 }
 
 /// Event constants for use in Rust
-const SDK_EVENT_PROGRESS_BAR_STARTED: &str = "namada_sdk::progress_bar::started";
-const SDK_EVENT_PROGRESS_BAR_INCREMENTED: &str = "namada_sdk::progress_bar::incremented";
-const SDK_EVENT_PROGRESS_BAR_FINISHED: &str = "namada_sdk::progress_bar::finished";
+pub const SDK_EVENT_PROGRESS_BAR_STARTED: &str = "namada_sdk::progress_bar::started";
+pub const SDK_EVENT_PROGRESS_BAR_INCREMENTED: &str = "namada_sdk::progress_bar::incremented";
+pub const SDK_EVENT_PROGRESS_BAR_FINISHED: &str = "namada_sdk::progress_bar::finished";
+
+#[wasm_bindgen]
+pub struct SdkEvents {}
+
+#[wasm_bindgen]
+impl SdkEvents {
+    #[allow(non_snake_case)]
+    #[wasm_bindgen(getter)]
+    pub fn ProgressBarStarted() -> String {
+        SDK_EVENT_PROGRESS_BAR_STARTED.to_string()
+    }
+
+    #[allow(non_snake_case)]
+    #[wasm_bindgen(getter)]
+    pub fn ProgressBarIncremented() -> String {
+        SDK_EVENT_PROGRESS_BAR_INCREMENTED.to_string()
+    }
+
+    #[allow(non_snake_case)]
+    #[wasm_bindgen(getter)]
+    pub fn ProgressBarFinished() -> String {
+        SDK_EVENT_PROGRESS_BAR_FINISHED.to_string()
+    }
+}
 
 pub struct EventDispatcher {
     scope: WorkerGlobalScope,
