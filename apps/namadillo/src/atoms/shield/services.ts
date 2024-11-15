@@ -6,7 +6,7 @@ import {
 import BigNumber from "bignumber.js";
 import * as Comlink from "comlink";
 import { EncodedTxData, signTx } from "lib/query";
-import { Address, ChainSettings } from "types";
+import { Address, ChainSettings, GasConfig } from "types";
 import { Shield } from "workers/ShieldMessages";
 import {
   registerTransferHandlers as shieldRegisterTransferHandlers,
@@ -25,6 +25,7 @@ export type ShieldTransferParams = {
   destinationAddress: Address;
   tokenAddress: Address;
   amount: BigNumber;
+  gasConfig: GasConfig;
 };
 
 export type UnshieldTransferParams = {
@@ -32,6 +33,7 @@ export type UnshieldTransferParams = {
   destinationAddress: Address;
   tokenAddress: Address;
   amount: BigNumber;
+  gasConfig: GasConfig;
 };
 
 export const submitShieldTx = async (
@@ -49,6 +51,7 @@ export const submitShieldTx = async (
     destinationAddress: target,
     tokenAddress: token,
     amount,
+    gasConfig,
   } = params;
 
   shieldRegisterTransferHandlers();
@@ -65,11 +68,7 @@ export const submitShieldTx = async (
     type: "shield",
     payload: {
       account,
-      // TODO
-      gasConfig: {
-        gasLimit: BigNumber(250000),
-        gasPrice: BigNumber(0.000001),
-      },
+      gasConfig,
       shieldingProps: [shieldingMsgValue],
       chain,
       indexerUrl,
@@ -108,6 +107,7 @@ export const submitUnshieldTx = async (
     destinationAddress: target,
     tokenAddress: token,
     amount,
+    gasConfig,
   } = params;
 
   unshieldRegisterTransferHandlers();
@@ -124,11 +124,7 @@ export const submitUnshieldTx = async (
     type: "unshield",
     payload: {
       account,
-      // TODO
-      gasConfig: {
-        gasLimit: BigNumber(250000),
-        gasPrice: BigNumber(0.000001),
-      },
+      gasConfig,
       unshieldingProps: [unshieldingMsgValue],
       chain,
       indexerUrl,

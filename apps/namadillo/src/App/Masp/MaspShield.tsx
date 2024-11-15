@@ -4,13 +4,14 @@ import { Timeline } from "App/Common/Timeline";
 import { params } from "App/routes";
 import {
   OnSubmitTransferParams,
+  TransactionFee,
   TransferModule,
 } from "App/Transfer/TransferModule";
 import { allDefaultAccountsAtom } from "atoms/accounts";
 import { namadaTransparentAssetsAtom } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
+import { defaultGasConfigFamily } from "atoms/fees/atoms";
 import { shieldTxAtom } from "atoms/shield/atoms";
-import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTransactionActions } from "hooks/useTransactionActions";
@@ -63,10 +64,15 @@ export const MaspShield: React.FC = () => {
   const selectedAsset =
     selectedAssetAddress ? availableAssets?.[selectedAssetAddress] : undefined;
 
-  const transactionFee =
-    selectedAsset ?
-      // TODO: remove hardcoding
-      { ...selectedAsset, amount: BigNumber(0.03) }
+  const { data: gasConfig } = useAtomValue(defaultGasConfigFamily(["Shield"]));
+
+  const transactionFee: TransactionFee | undefined =
+    selectedAsset && gasConfig ?
+      {
+        originalAddress: selectedAsset.originalAddress,
+        asset: selectedAsset.asset,
+        amount: gasConfig.gasPrice.multipliedBy(gasConfig.gasLimit),
+      }
     : undefined;
 
   const assetImage = selectedAsset ? getAssetImageUrl(selectedAsset.asset) : "";
@@ -115,8 +121,8 @@ export const MaspShield: React.FC = () => {
         throw new Error("No asset is selected");
       }
 
-      if (typeof transactionFee === "undefined") {
-        throw new Error("No transaction fee is set");
+      if (typeof gasConfig === "undefined") {
+        throw new Error("No gas config");
       }
 
       setTransaction({
@@ -131,6 +137,7 @@ export const MaspShield: React.FC = () => {
         destinationAddress,
         tokenAddress: selectedAsset.originalAddress,
         amount,
+        gasConfig,
       });
 
       // TODO review and improve this data to be more precise and full of details
