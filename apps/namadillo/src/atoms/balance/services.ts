@@ -3,7 +3,12 @@ import * as Comlink from "comlink";
 import { Balance, SdkEvents } from "@namada/sdk/web";
 import { getDefaultStore } from "jotai";
 import { getSdkInstance } from "utils/sdk";
-import { Worker as ShieldedSyncWorkerApi } from "workers/ShieldedSyncWorker";
+import {
+  Events,
+  ProgressBarIncremented,
+  ProgressBarStarted,
+  Worker as ShieldedSyncWorkerApi,
+} from "workers/ShieldedSyncWorker";
 import ShieldedSyncWorker from "workers/ShieldedSyncWorker?worker";
 // TODO: circular dependency
 import { shieldedSyncProgressAtom } from "./atoms";
@@ -20,6 +25,18 @@ export const fetchCoinPrices = async (
     ).then((res) => res.json())
   : [];
 
+const isStarted = (event: Events): event is ProgressBarStarted => {
+  return event.type === SdkEvents.ProgressBarStarted;
+};
+
+const isIncremented = (event: Events): event is ProgressBarIncremented => {
+  return event.type === SdkEvents.ProgressBarIncremented;
+};
+
+const isFinished = (event: Events): event is ProgressBarStarted => {
+  return event.type === SdkEvents.ProgressBarFinished;
+};
+
 export const shieldedSync = async (
   rpcUrl: string,
   maspIndexerUrl: string,
@@ -29,17 +46,18 @@ export const shieldedSync = async (
   const worker = new ShieldedSyncWorker();
   const shieldedSyncWorker = Comlink.wrap<ShieldedSyncWorkerApi>(worker);
 
-  worker.onmessage = (event) => {
+  worker.onmessage = (event: MessageEvent<Events>) => {
     const store = getDefaultStore();
     const { data } = event;
 
-    if (SdkEvents.ProgressBarStarted === data.type) {
+    if (isStarted(data)) {
       store.set(shieldedSyncProgressAtom(data.payload.name), {
         status: "loading",
         current: 0,
         total: 0,
       });
-    } else if (SdkEvents.ProgressBarIncremented === data.type) {
+    }
+    if (isIncremented(data)) {
       const { name, current, total } = data.payload;
 
       store.set(shieldedSyncProgressAtom(name), {
@@ -47,7 +65,8 @@ export const shieldedSync = async (
         current,
         total,
       });
-    } else if (SdkEvents.ProgressBarFinished === data.type) {
+    }
+    if (isFinished(data)) {
       store.set(shieldedSyncProgressAtom(data.payload.name), {
         status: "success",
         current: 0,

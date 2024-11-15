@@ -1,4 +1,5 @@
 import { Heading, PieChart, SkeletonLoading } from "@namada/components";
+import { ProgressBarNames } from "@namada/shared";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import {
@@ -11,12 +12,14 @@ import { colors } from "theme";
 
 export const ShieldedBalanceChart = (): JSX.Element => {
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
-  const shieledSyncProgress = useAtomValue(shieldedSyncProgressAtom("scanned"));
-  const shieledSyncProgress2 = useAtomValue(
-    shieldedSyncProgressAtom("fetched")
+  const shieledSyncProgressScanned = useAtomValue(
+    shieldedSyncProgressAtom(ProgressBarNames.Scanned)
   );
-  const shieledSyncProgress3 = useAtomValue(
-    shieldedSyncProgressAtom("applied")
+  const shieledSyncProgressFetched = useAtomValue(
+    shieldedSyncProgressAtom(ProgressBarNames.Fetched)
+  );
+  const shieledSyncProgressApplied = useAtomValue(
+    shieldedSyncProgressAtom(ProgressBarNames.Applied)
   );
   const shieldedDollars = getTotalDollar(shieldedTokensQuery.data);
 
@@ -63,9 +66,9 @@ export const ShieldedBalanceChart = (): JSX.Element => {
           }
           <div className="absolute top-0 right-0 text-right">
             Shieled sync progress: <br />
-            <Progress name="Scanned" {...shieledSyncProgress} />
-            <Progress name="Fetched" {...shieledSyncProgress2} />
-            <Progress name="Applied" {...shieledSyncProgress3} />
+            <Progress name="Scanned" {...shieledSyncProgressScanned} />
+            <Progress name="Fetched" {...shieledSyncProgressFetched} />
+            <Progress name="Applied" {...shieledSyncProgressApplied} />
           </div>
         </AtomErrorBoundary>
       </div>

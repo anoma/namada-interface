@@ -86,8 +86,11 @@ export const viewingKeysAtom = atomWithQuery<[string, string[]]>((get) => {
 });
 
 export const shieldedSyncProgressAtom = atomFamily((_name: string) =>
-  // total is 0 so we do not get NaN
-  atom({ status: "pending", current: 0, total: 0 })
+  atom<{
+    status: "pending" | "loading" | "success";
+    current: number;
+    total: number;
+  }>({ status: "pending", current: 0, total: 0 })
 );
 
 export const shieldedBalanceAtom = atomWithQuery<

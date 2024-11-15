@@ -3,13 +3,16 @@ import { getSdk, Sdk, SdkEvents } from "@namada/sdk/web";
 import * as Comlink from "comlink";
 import { Init, InitDone, Sync, SyncDone } from "./ShieldedSyncMessages";
 
+export type ProgressBarStarted = { type: string; payload: { name: string } };
+export type ProgressBarIncremented = {
+  type: string;
+  payload: { name: string; current: number; total: number };
+};
+export type ProgressBarFinished = { type: string; payload: { name: string } };
 export type Events =
-  | { type: SdkEvents.ProgressBarStarted; payload: { name: string } }
-  | {
-      type: SdkEvents.ProgressBarIncremented;
-      payload: { name: string; current: number; total: number };
-    }
-  | { type: SdkEvents.ProgressBarFinished; payload: { name: string } };
+  | ProgressBarStarted
+  | ProgressBarIncremented
+  | ProgressBarFinished;
 
 export class Worker {
   private sdk: Sdk | undefined;

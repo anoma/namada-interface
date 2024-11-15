@@ -52,6 +52,35 @@ use crate::sdk::{
 use crate::types::query::{ProposalInfo, WasmHash};
 use crate::utils::{set_panic_hook, to_js_result};
 
+/// Progress bar names
+pub const SDK_SCANNED_PROGRESS_BAR: &str = "namada_sdk::progress_bar::scanned";
+pub const SDK_FETCHED_PROGRESS_BAR: &str = "namada_sdk::progress_bar::fetched";
+pub const SDK_APPLIED_PROGRESS_BAR: &str = "namada_sdk::progress_bar::applied";
+
+#[wasm_bindgen]
+pub struct ProgressBarNames {}
+
+#[wasm_bindgen]
+impl ProgressBarNames {
+    #[allow(non_snake_case)]
+    #[wasm_bindgen(getter)]
+    pub fn Scanned() -> String {
+        SDK_SCANNED_PROGRESS_BAR.to_string()
+    }
+
+    #[allow(non_snake_case)]
+    #[wasm_bindgen(getter)]
+    pub fn Fetched() -> String {
+        SDK_FETCHED_PROGRESS_BAR.to_string()
+    }
+
+    #[allow(non_snake_case)]
+    #[wasm_bindgen(getter)]
+    pub fn Applied() -> String {
+        SDK_APPLIED_PROGRESS_BAR.to_string()
+    }
+}
+
 enum MaspClient {
     Ledger(LedgerMaspClient<HttpClient>),
     Indexer(IndexerMaspClient),
@@ -337,9 +366,9 @@ impl Query {
     where
         C: NamadaMaspClient + Send + Sync + Unpin + 'static,
     {
-        let progress_bar_scanned = sync::ProgressBarWeb::new("scanned".to_string());
-        let progress_bar_fetched = sync::ProgressBarWeb::new("fetched".to_string());
-        let progress_bar_applied = sync::ProgressBarWeb::new("applied".to_string());
+        let progress_bar_scanned = sync::ProgressBarWeb::new(SDK_SCANNED_PROGRESS_BAR);
+        let progress_bar_fetched = sync::ProgressBarWeb::new(SDK_FETCHED_PROGRESS_BAR);
+        let progress_bar_applied = sync::ProgressBarWeb::new(SDK_APPLIED_PROGRESS_BAR);
         let shutdown_signal_web = sync::ShutdownSignalWeb {};
 
         let config = ShieldedSyncConfig::builder()
