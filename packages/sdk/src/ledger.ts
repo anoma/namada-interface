@@ -1,3 +1,4 @@
+import { toHex } from "@cosmjs/encoding";
 import Transport from "@ledgerhq/hw-transport";
 import TransportHID from "@ledgerhq/hw-transport-webhid";
 import TransportUSB from "@ledgerhq/hw-transport-webusb";
@@ -162,6 +163,7 @@ export class Ledger {
       const { viewKey, ivk, ovk }: ResponseViewKey =
         await this.namadaApp.retrieveKeys(path, NamadaKeys.ViewKey, promptUser);
 
+      // NOTE: If promptUser is false, the proof generation keys will not be defined
       const { ak, nsk }: ResponseProofGenKey =
         await this.namadaApp.retrieveKeys(
           path,
@@ -171,13 +173,13 @@ export class Ledger {
 
       return {
         viewingKey: {
-          viewKey: viewKey?.toString(),
-          ivk: ivk?.toString(),
-          ovk: ovk?.toString(),
+          viewKey: viewKey ? toHex(viewKey) : undefined,
+          ivk: ivk ? toHex(ivk) : undefined,
+          ovk: ovk ? toHex(ovk) : undefined,
         },
         proofGenerationKey: {
-          ak: ak?.toString(),
-          nsk: nsk?.toString(),
+          ak: ak ? toHex(ak) : undefined,
+          nsk: nsk ? toHex(nsk) : undefined,
         },
       };
     } catch (e) {

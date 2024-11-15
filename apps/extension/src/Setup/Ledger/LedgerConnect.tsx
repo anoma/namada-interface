@@ -36,6 +36,12 @@ export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
       const { address, publicKey } = await ledger.showAddressAndPublicKey(
         makeBip44Path(chains.namada.bip44.coinType, path)
       );
+
+      const response = await ledger.getShieldedKeys(
+        makeBip44Path(chains.namada.bip44.coinType, path),
+        true
+      );
+      console.log({ shieldedResponse: response });
       setIsLedgerConnecting(false);
       navigate(routes.ledgerImport(), {
         state: {
