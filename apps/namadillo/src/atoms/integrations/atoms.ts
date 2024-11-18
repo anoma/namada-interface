@@ -1,7 +1,7 @@
 import { AssetList, Chain } from "@chain-registry/types";
 import { ExtensionKey, IbcTransferProps } from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
-import { chainAtom } from "atoms/chain";
+import { chainAtom, chainParametersAtom } from "atoms/chain";
 import { settingsAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
@@ -21,8 +21,10 @@ import {
 } from "types";
 import {
   createIbcTx,
+  getIbcChannels,
   getKnownChains,
   ibcAddressToDenomTrace,
+  IbcChannels,
   mapCoinsToAssets,
 } from "./functions";
 import {
@@ -135,6 +137,23 @@ export const availableAssetsAtom = atom((get) => {
   const settings = get(settingsAtom);
   return getKnownChains(settings.enableTestnets).map(({ assets }) => assets);
 });
+
+export const ibcChannelsFamily = atomFamily((cosmosChainName?: string) =>
+  atomWithQuery<IbcChannels | undefined>((get) => {
+    const chainParameters = get(chainParametersAtom);
+
+    return {
+      queryKey: ["ibc-channel", cosmosChainName, chainParameters.data!.chainId],
+      ...queryDependentFn(
+        () =>
+          Promise.resolve(
+            getIbcChannels(chainParameters.data!.chainId, cosmosChainName!)
+          ),
+        [typeof cosmosChainName !== "undefined", chainParameters]
+      ),
+    };
+  })
+);
 
 type CreateIbcTxArgs = {
   destinationAddress: string;

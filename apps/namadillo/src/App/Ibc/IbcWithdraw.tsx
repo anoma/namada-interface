@@ -11,6 +11,7 @@ import {
   availableChainsAtom,
   chainRegistryAtom,
   createIbcTxAtom,
+  ibcChannelsFamily,
 } from "atoms/integrations";
 import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
@@ -32,6 +33,7 @@ export const IbcWithdraw: React.FC = () => {
   const availableChains = useAtomValue(availableChainsAtom);
 
   const [selectedAssetAddress, setSelectedAssetAddress] = useState<Address>();
+  const [sourceChannel, setSourceChannel] = useState("");
 
   const { data: availableAssets } = useAtomValue(namadaTransparentAssetsAtom);
 
@@ -57,11 +59,20 @@ export const IbcWithdraw: React.FC = () => {
     walletAddress: keplrAddress,
     connectToChainId,
     chainId,
+    registry,
   } = useWalletManager(keplr);
 
   const onChangeWallet = (): void => {
     connectToChainId(chainId || defaultChainId);
   };
+
+  const { data: ibcChannels } = useAtomValue(
+    ibcChannelsFamily(registry?.chain.chain_name)
+  );
+
+  useEffect(() => {
+    setSourceChannel(ibcChannels?.namadaChannelId || "");
+  }, [ibcChannels]);
 
   const {
     mutate: createIbcTx,
@@ -95,7 +106,6 @@ export const IbcWithdraw: React.FC = () => {
   const submitIbcTransfer = async ({
     amount,
     destinationAddress,
-    ibcOptions,
     memo,
   }: OnSubmitTransferParams): Promise<void> => {
     const selectedAsset = mapUndefined(
@@ -107,8 +117,7 @@ export const IbcWithdraw: React.FC = () => {
       throw new Error("No selected asset");
     }
 
-    const channelId = ibcOptions?.sourceChannel;
-    if (typeof channelId === "undefined") {
+    if (typeof sourceChannel === "undefined") {
       throw new Error("No channel ID is set");
     }
 
@@ -121,7 +130,7 @@ export const IbcWithdraw: React.FC = () => {
       token: selectedAsset,
       amount,
       portId: "transfer",
-      channelId,
+      channelId: sourceChannel.trim(),
       gasConfig,
       memo,
     });
@@ -168,6 +177,10 @@ export const IbcWithdraw: React.FC = () => {
           isShielded: false,
         }}
         isIbcTransfer={true}
+        ibcOptions={{
+          sourceChannel,
+          onChangeSourceChannel: setSourceChannel,
+        }}
         onSubmitTransfer={submitIbcTransfer}
         transactionFee={transactionFee}
       />

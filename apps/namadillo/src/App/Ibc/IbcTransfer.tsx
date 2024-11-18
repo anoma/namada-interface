@@ -11,6 +11,7 @@ import {
   assetBalanceAtomFamily,
   availableChainsAtom,
   chainRegistryAtom,
+  ibcChannelsFamily,
   ibcTransferAtom,
 } from "atoms/integrations";
 import clsx from "clsx";
@@ -34,6 +35,9 @@ export const IbcTransfer: React.FC = () => {
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAssetAddress, setSelectedAssetAddress] = useState<Address>();
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
+  const [sourceChannel, setSourceChannel] = useState("");
+  const [destinationChannel, setDestinationChannel] = useState("");
+
   const performIbcTransfer = useAtomValue(ibcTransferAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
   const {
@@ -91,10 +95,18 @@ export const IbcTransfer: React.FC = () => {
     );
   }, [defaultAccounts, shielded]);
 
+  const { data: ibcChannels } = useAtomValue(
+    ibcChannelsFamily(registry?.chain.chain_name)
+  );
+
+  useEffect(() => {
+    setSourceChannel(ibcChannels?.cosmosChannelId || "");
+    setDestinationChannel(ibcChannels?.namadaChannelId || "");
+  }, [ibcChannels]);
+
   const onSubmitTransfer = async ({
     amount,
     destinationAddress,
-    ibcOptions,
   }: OnSubmitTransferParams): Promise<void> => {
     try {
       setGeneralErrorMessage("");
@@ -120,11 +132,11 @@ export const IbcTransfer: React.FC = () => {
         throw new Error("Invalid chain");
       }
 
-      if (!ibcOptions?.sourceChannel) {
+      if (!sourceChannel) {
         throw new Error("Invalid IBC source channel");
       }
 
-      if (shielded && !ibcOptions.destinationChannel) {
+      if (shielded && !destinationChannel) {
         throw new Error("Invalid IBC destination channel");
       }
 
@@ -164,11 +176,11 @@ export const IbcTransfer: React.FC = () => {
             amount,
             asset: selectedAsset,
             transactionFee,
-            sourceChannelId: ibcOptions.sourceChannel,
+            sourceChannelId: sourceChannel.trim(),
             ...(shielded ?
               {
                 isShielded: true,
-                destinationChannelId: ibcOptions.destinationChannel,
+                destinationChannelId: destinationChannel.trim(),
               }
             : {
                 isShielded: false,
@@ -235,6 +247,12 @@ export const IbcTransfer: React.FC = () => {
               transactionFee={transactionFee}
               isSubmitting={performIbcTransfer.isPending}
               isIbcTransfer={true}
+              ibcOptions={{
+                sourceChannel,
+                onChangeSourceChannel: setSourceChannel,
+                destinationChannel,
+                onChangeDestinationChannel: setDestinationChannel,
+              }}
               errorMessage={generalErrorMessage}
               onSubmitTransfer={onSubmitTransfer}
             />
