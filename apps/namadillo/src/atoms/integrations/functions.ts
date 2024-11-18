@@ -29,11 +29,14 @@ import {
 import { toBaseAmount, toDisplayAmount } from "utils";
 import { getSdkInstance } from "utils/sdk";
 
+import dryrunAssets from "namada-chain-registry/namadadryrun/assetlist.json";
+import dryrunChain from "namada-chain-registry/namadadryrun/chain.json";
 import housefireAssets from "namada-chain-registry/namadahousefire/assetlist.json";
 import housefireChain from "namada-chain-registry/namadahousefire/chain.json";
 import internalDevnetAssets from "namada-chain-registry/namadainternaldevnet/assetlist.json";
 import internalDevnetChain from "namada-chain-registry/namadainternaldevnet/chain.json";
 
+import dryrunOsmosis from "namada-chain-registry/_IBC/namadadryrun-osmosis.json";
 import housefireCosmosTestnetIbc from "namada-chain-registry/_IBC/namadahousefire-cosmoshubtestnet.json";
 import housefireOsmosisTestnetIbc from "namada-chain-registry/_IBC/namadahousefire-osmosistestnet.json";
 import internalDevnetCosmosTestnetIbc from "namada-chain-registry/_IBC/namadainternaldevnet-cosmoshubtestnet.json";
@@ -41,14 +44,15 @@ import internalDevnetCosmosTestnetIbc from "namada-chain-registry/_IBC/namadaint
 // TODO: this causes a big increase on bundle size. See #1224.
 import cosmosRegistry from "chain-registry";
 
-cosmosRegistry.chains.push(internalDevnetChain, housefireChain);
+cosmosRegistry.chains.push(internalDevnetChain, housefireChain, dryrunChain);
 
-cosmosRegistry.assets.push(internalDevnetAssets, housefireAssets);
+cosmosRegistry.assets.push(internalDevnetAssets, housefireAssets, dryrunAssets);
 
 cosmosRegistry.ibc.push(
   internalDevnetCosmosTestnetIbc,
   housefireCosmosTestnetIbc,
-  housefireOsmosisTestnetIbc
+  housefireOsmosisTestnetIbc,
+  dryrunOsmosis
 );
 
 const mainnetChains: ChainRegistryEntry[] = [
