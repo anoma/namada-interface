@@ -11,7 +11,7 @@ import * as dydx from "chain-registry/mainnet/dydx";
 import * as osmosis from "chain-registry/mainnet/osmosis";
 import * as stargaze from "chain-registry/mainnet/stargaze";
 import * as celestiaTestnet from "chain-registry/testnet/celestiatestnet3";
-import * as cosmosTestnet from "chain-registry/testnet/cosmoshubtestnet";
+import * as cosmosTestnet from "chain-registry/testnet/cosmosicsprovidertestnet";
 import * as dydxTestnet from "chain-registry/testnet/dydxtestnet";
 import * as elysTestnet from "chain-registry/testnet/elystestnet";
 import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet";

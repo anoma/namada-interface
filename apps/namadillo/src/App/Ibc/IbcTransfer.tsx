@@ -188,7 +188,12 @@ export const IbcTransfer: React.FC = () => {
   };
 
   const onChangeWallet = (): void => {
-    connectToChainId(chainId || defaultChainId);
+    if (chainId && chainId in chainRegistry) {
+      connectToChainId(chainId);
+      return;
+    }
+
+    connectToChainId(defaultChainId);
   };
 
   const onChangeChain = (chain: Chain): void => {
@@ -212,7 +217,7 @@ export const IbcTransfer: React.FC = () => {
                 availableAmount,
                 availableChains,
                 onChangeChain,
-                chain: mapUndefined((id) => chainRegistry[id].chain, chainId),
+                chain: mapUndefined((id) => chainRegistry[id]?.chain, chainId),
                 availableWallets: [wallets.keplr!],
                 wallet: wallets.keplr,
                 walletAddress: sourceAddress,

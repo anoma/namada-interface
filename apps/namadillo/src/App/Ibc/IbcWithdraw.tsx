@@ -162,7 +162,7 @@ export const IbcWithdraw: React.FC = () => {
           availableWallets: [wallets.keplr!],
           availableChains,
           enableCustomAddress: true,
-          chain: mapUndefined((id) => chainRegistry[id].chain, chainId),
+          chain: mapUndefined((id) => chainRegistry[id]?.chain, chainId),
           onChangeWallet,
           onChangeChain,
           isShielded: false,
