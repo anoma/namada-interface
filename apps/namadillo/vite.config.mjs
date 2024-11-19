@@ -25,6 +25,9 @@ export default defineConfig(() => {
         overlay: { initialIsOpen: false },
       }),
     ],
+    worker: {
+      plugins: () => [tsconfigPaths()],
+    },
     optimizeDeps: {
       esbuildOptions: {
         // Node.js global to browser globalThis
