@@ -26,6 +26,7 @@ import { MaspLayout } from "./Masp/MaspLayout";
 import { MaspOverview } from "./Masp/MaspOverview";
 import { MaspShield } from "./Masp/MaspShield";
 import { MaspUnshield } from "./Masp/MaspUnshield";
+import { NamadaTransfer } from "./NamadaTransfer/NamadaTransfer";
 import { routes } from "./routes";
 import { Advanced } from "./Settings/Advanced";
 import { EnableFeatures } from "./Settings/EnableFeatures";
@@ -41,7 +42,6 @@ import { Unstake } from "./Staking/Unstake";
 import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
 import { TransactionDetails } from "./Transactions/TransactionDetails";
 import { TransactionHistory } from "./Transactions/TransactionHistory";
-import { NamTransfer } from "./Transfer/NamTransfer";
 import { TransferLayout } from "./Transfer/TransferLayout";
 
 export const MainRoutes = (): JSX.Element => {
@@ -113,7 +113,7 @@ export const MainRoutes = (): JSX.Element => {
           {/* Transfer */}
           {features.namTransfersEnabled && (
             <Route element={<TransferLayout />}>
-              <Route path={routes.transfer} element={<NamTransfer />} />
+              <Route path={routes.transfer} element={<NamadaTransfer />} />
             </Route>
           )}
 
