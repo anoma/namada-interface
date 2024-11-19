@@ -103,14 +103,15 @@ impl ProgressBarWeb {
 }
 
 impl ProgressBar for ProgressBarWeb {
-
     fn upper_limit(&self) -> u64 {
         self.total as u64
     }
 
     fn set_upper_limit(&mut self, limit: u64) {
         self.total = limit as usize;
-        let _ = EventDispatcher::new().progress_bar_started(self.name.clone()).is_ok();
+        let _ = EventDispatcher::new()
+            .progress_bar_started(self.name.clone())
+            .is_ok();
     }
 
     fn increment_by(&mut self, amount: u64) {
@@ -118,13 +119,15 @@ impl ProgressBar for ProgressBarWeb {
         let _ = EventDispatcher::new()
             .progress_bar_incremented(self.name.clone(), self.current, self.total)
             .is_ok();
-
     }
 
     fn message(&mut self, message: String) {
+        web_sys::console::log_1(&message.into());
     }
 
     fn finish(&mut self) {
-        let _ = EventDispatcher::new().progress_bar_finished(self.name.clone()).is_ok();
+        let _ = EventDispatcher::new()
+            .progress_bar_finished(self.name.clone())
+            .is_ok();
     }
 }

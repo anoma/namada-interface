@@ -377,6 +377,7 @@ impl Query {
             .fetched_tracker(progress_bar_fetched)
             .applied_tracker(progress_bar_applied)
             .shutdown_signal(shutdown_signal_web)
+            .block_batch_size(100)
             .wait_for_last_query_height(true)
             .retry_strategy(RetryStrategy::Times(10))
             .build();

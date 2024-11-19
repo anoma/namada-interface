@@ -7,8 +7,8 @@ use namada_sdk::signing::SigningTxData;
 use namada_sdk::tx::data::compute_inner_tx_hash;
 use namada_sdk::tx::either::Either;
 use namada_sdk::tx::{
-    self, TX_BOND_WASM, TX_CLAIM_REWARDS_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSFER_WASM,
-    TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM, TX_IBC_WASM,
+    self, TX_BOND_WASM, TX_CLAIM_REWARDS_WASM, TX_IBC_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK,
+    TX_TRANSFER_WASM, TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
 };
 use namada_sdk::uint::Uint;
 use namada_sdk::{address::Address, key::common::PublicKey};

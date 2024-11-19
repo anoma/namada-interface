@@ -537,7 +537,9 @@ pub fn shielded_transfer_tx_args(
     }
 
     let tx = tx_msg_into_args(tx_msg)?;
-    let gas_spending_key = gas_spending_key.map(|v| ExtendedSpendingKey::from_str(&v)).transpose()?;
+    let gas_spending_key = gas_spending_key
+        .map(|v| ExtendedSpendingKey::from_str(&v))
+        .transpose()?;
 
     let args = args::TxShieldedTransfer {
         data: shielded_transfer_data,
@@ -669,7 +671,9 @@ pub fn unshielding_transfer_tx_args(
         });
     }
 
-    let gas_spending_key = gas_spending_key.map(|v| ExtendedSpendingKey::from_str(&v)).transpose()?;
+    let gas_spending_key = gas_spending_key
+        .map(|v| ExtendedSpendingKey::from_str(&v))
+        .transpose()?;
     let tx = tx_msg_into_args(tx_msg)?;
 
     let args = args::TxUnshieldingTransfer {
@@ -760,10 +764,7 @@ pub fn ibc_transfer_tx_args(
     let source_address = Address::from_str(&source)?;
     let source = TransferSource::Address(source_address);
     let token = Address::from_str(&token)?;
-    let amount = Amount::from_str(
-        &amount_in_base_denom,
-        0u8
-    ).expect("Amount to be valid.");
+    let amount = Amount::from_str(&amount_in_base_denom, 0u8).expect("Amount to be valid.");
     // Using InputAmount::Validated because the amount is already in the base
     // denom. If Unvalidated is used, the SDK will change the denom based on the
     // token address, which complicates knowing which amount to pass to this function.
@@ -794,7 +795,7 @@ pub fn ibc_transfer_tx_args(
         tx_code_path: PathBuf::from("tx_ibc.wasm"),
         refund_target: None,
         // We do not support ibc unshielding for now
-        gas_spending_key: None
+        gas_spending_key: None,
     };
 
     Ok(args)

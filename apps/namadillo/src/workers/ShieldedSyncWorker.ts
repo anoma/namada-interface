@@ -3,12 +3,15 @@ import { getSdk, Sdk, SdkEvents } from "@namada/sdk/web";
 import * as Comlink from "comlink";
 import { Init, InitDone, Sync, SyncDone } from "./ShieldedSyncMessages";
 
-export type ProgressBarStarted = { type: string; payload: { name: string } };
+export type ProgressBarStarted = { type: string; name: string };
 export type ProgressBarIncremented = {
   type: string;
-  payload: { name: string; current: number; total: number };
+  name: string;
+  current: number;
+  total: number;
 };
-export type ProgressBarFinished = { type: string; payload: { name: string } };
+
+export type ProgressBarFinished = { type: string; name: string };
 export type Events =
   | ProgressBarStarted
   | ProgressBarIncremented
@@ -21,22 +24,23 @@ export class Worker {
     const { cryptoMemory } = await initMulticore();
     this.sdk = newSdk(cryptoMemory, m.payload);
 
-    addEventListener(SdkEvents.ProgressBarStarted, (data) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const payload = JSON.parse((data as any).detail);
-      postMessage({ type: SdkEvents.ProgressBarStarted, payload });
+    // TODO: this can be reduced to one event listener
+    addEventListener(SdkEvents.ProgressBarStarted, (e) => {
+      const event = e as CustomEvent<string>;
+      const payload = JSON.parse(event.detail);
+      postMessage({ ...payload, type: SdkEvents.ProgressBarStarted });
     });
 
-    addEventListener(SdkEvents.ProgressBarIncremented, (data) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const payload = JSON.parse((data as any).detail);
-      postMessage({ type: SdkEvents.ProgressBarIncremented, payload });
+    addEventListener(SdkEvents.ProgressBarIncremented, (e) => {
+      const event = e as CustomEvent<string>;
+      const payload = JSON.parse(event.detail);
+      postMessage({ ...payload, type: SdkEvents.ProgressBarIncremented });
     });
 
-    addEventListener(SdkEvents.ProgressBarFinished, (data) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const payload = JSON.parse((data as any).detail);
-      postMessage({ type: SdkEvents.ProgressBarFinished, payload });
+    addEventListener(SdkEvents.ProgressBarFinished, (e) => {
+      const event = e as CustomEvent<string>;
+      const payload = JSON.parse(event.detail);
+      postMessage({ ...payload, type: SdkEvents.ProgressBarFinished });
     });
 
     return { type: "init-done", payload: null };

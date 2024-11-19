@@ -1,17 +1,16 @@
 import * as Comlink from "comlink";
+import { EventEmitter } from "events";
 
-import { Balance, SdkEvents } from "@namada/sdk/web";
-import { getDefaultStore } from "jotai";
+import { Balance } from "@namada/sdk/web";
 import { getSdkInstance } from "utils/sdk";
 import {
   Events,
+  ProgressBarFinished,
   ProgressBarIncremented,
   ProgressBarStarted,
   Worker as ShieldedSyncWorkerApi,
 } from "workers/ShieldedSyncWorker";
 import ShieldedSyncWorker from "workers/ShieldedSyncWorker?worker";
-// TODO: circular dependency
-import { shieldedSyncProgressAtom } from "./atoms";
 
 const sqsOsmosisApi = "https://sqs.osmosis.zone";
 
@@ -25,74 +24,41 @@ export const fetchCoinPrices = async (
     ).then((res) => res.json())
   : [];
 
-const isStarted = (event: Events): event is ProgressBarStarted => {
-  return event.type === SdkEvents.ProgressBarStarted;
-};
+export type ShieldedSyncEventMap = Record<
+  string,
+  (ProgressBarStarted | ProgressBarIncremented | ProgressBarFinished)[]
+>;
 
-const isIncremented = (event: Events): event is ProgressBarIncremented => {
-  return event.type === SdkEvents.ProgressBarIncremented;
-};
-
-const isFinished = (event: Events): event is ProgressBarStarted => {
-  return event.type === SdkEvents.ProgressBarFinished;
-};
-
-export const shieldedSync = async (
+export function shieldedSync(
   rpcUrl: string,
   maspIndexerUrl: string,
   token: string,
   viewingKeys: string[]
-): Promise<void> => {
+): EventEmitter<ShieldedSyncEventMap> {
   const worker = new ShieldedSyncWorker();
   const shieldedSyncWorker = Comlink.wrap<ShieldedSyncWorkerApi>(worker);
+  const emitter = new EventEmitter<ShieldedSyncEventMap>();
 
   worker.onmessage = (event: MessageEvent<Events>) => {
-    const store = getDefaultStore();
-    const { data } = event;
-
-    if (isStarted(data)) {
-      store.set(shieldedSyncProgressAtom(data.payload.name), {
-        status: "loading",
-        current: 0,
-        total: 0,
-      });
-    }
-    if (isIncremented(data)) {
-      const { name, current, total } = data.payload;
-
-      store.set(shieldedSyncProgressAtom(name), {
-        status: "loading",
-        current,
-        total,
-      });
-    }
-    if (isFinished(data)) {
-      store.set(shieldedSyncProgressAtom(data.payload.name), {
-        status: "success",
-        current: 0,
-        total: 0,
-      });
-    }
+    emitter.emit(event.data.type, event.data);
   };
 
-  await shieldedSyncWorker.init({
-    type: "init",
-    payload: {
-      rpcUrl,
-      maspIndexerUrl,
-      token,
-    },
-  });
+  (async () => {
+    await shieldedSyncWorker.init({
+      type: "init",
+      payload: { rpcUrl, maspIndexerUrl, token },
+    });
 
-  await shieldedSyncWorker.sync({
-    type: "sync",
-    payload: {
-      vks: viewingKeys,
-    },
-  });
+    await shieldedSyncWorker.sync({
+      type: "sync",
+      payload: { vks: viewingKeys },
+    });
 
-  worker.terminate();
-};
+    worker.terminate();
+  })();
+
+  return emitter;
+}
 
 export const fetchShieldedBalance = async (
   viewingKey: string,
