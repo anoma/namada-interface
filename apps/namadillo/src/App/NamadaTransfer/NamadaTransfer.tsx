@@ -11,6 +11,7 @@ import {
 import { allDefaultAccountsAtom } from "atoms/accounts";
 import { namadaTransparentAssetsAtom } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
+import { applicationFeaturesAtom } from "atoms/settings";
 import {
   createShieldedTransferAtom,
   createShieldingTransferAtom,
@@ -24,9 +25,10 @@ import { useTransactionActions } from "hooks/useTransactionActions";
 import { wallets } from "integrations";
 import { getAssetImageUrl } from "integrations/utils";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import namadaChain from "registry/namada.json";
+import { namadaAsset } from "registry/namadaAsset";
 import { twMerge } from "tailwind-merge";
 import {
   Address,
@@ -42,11 +44,20 @@ import transparentAccountImage from "./assets/transparent-account.svg";
 export const NamadaTransfer: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const features = useAtomValue(applicationFeaturesAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
-  const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
-    namadaTransparentAssetsAtom
-  );
+  const { data: availableAssetsData, isLoading: isLoadingAssets } =
+    useAtomValue(namadaTransparentAssetsAtom);
+
+  const availableAssets = useMemo(() => {
+    if (features.namTransfersEnabled) {
+      return availableAssetsData;
+    }
+    const assetsMap = { ...availableAssetsData };
+    delete assetsMap[namadaAsset.address]; // NAM will be available only on phase 5
+    return assetsMap;
+  }, [availableAssetsData]);
 
   const [amount, setAmount] = useState<BigNumber | undefined>();
   const [shielded, setShielded] = useState<boolean>(true);

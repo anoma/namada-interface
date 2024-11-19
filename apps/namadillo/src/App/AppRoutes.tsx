@@ -111,7 +111,7 @@ export const MainRoutes = (): JSX.Element => {
           )}
 
           {/* Transfer */}
-          {features.namTransfersEnabled && (
+          {(features.maspEnabled || features.namTransfersEnabled) && (
             <Route element={<TransferLayout />}>
               <Route path={routes.transfer} element={<NamadaTransfer />} />
             </Route>
