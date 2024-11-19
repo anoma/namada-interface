@@ -1,8 +1,7 @@
 use crate::utils::to_js_result;
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
-use web_sys::{CustomEvent, CustomEventInit, Document, Event, WorkerGlobalScope};
-use js_sys::Object;
+use web_sys::{CustomEvent, CustomEventInit, WorkerGlobalScope};
 
 #[wasm_bindgen]
 #[derive(Debug, Serialize)]
@@ -81,19 +80,10 @@ pub struct EventDispatcher {
 impl EventDispatcher {
     pub fn new() -> Self {
         let global = js_sys::global();
+        // We assume that the scope is always worker global scope
         let scope = global.unchecked_into::<WorkerGlobalScope>();
 
-        Self {
-            scope
-        }
-    }
-
-    fn dispatch(&self, event: Event) -> Result<JsValue, JsError> {
-        to_js_result(
-            self.scope
-                .dispatch_event(&event)
-                .map_err(|err| JsError::new(&format!("Error dispatching event: {:?}", err)))?,
-        )
+        Self { scope }
     }
 
     fn dispatch_custom_event(&self, custom_event: CustomEvent) -> Result<JsValue, JsError> {
@@ -109,9 +99,8 @@ impl EventDispatcher {
         let mut options = CustomEventInit::new();
         options.detail(&start.to_json());
 
-        let event =
-            CustomEvent::new_with_event_init_dict(SDK_EVENT_PROGRESS_BAR_STARTED, &options)
-                .unwrap();
+        let event = CustomEvent::new_with_event_init_dict(SDK_EVENT_PROGRESS_BAR_STARTED, &options)
+            .unwrap();
 
         self.dispatch_custom_event(event)
     }
@@ -122,13 +111,13 @@ impl EventDispatcher {
         current: usize,
         total: usize,
     ) -> Result<JsValue, JsError> {
-        let increment = ProgressIncrement { name, current, total };
+        let increment = ProgressIncrement {
+            name,
+            current,
+            total,
+        };
         let mut options = CustomEventInit::new();
-
         options.detail(&increment.to_json());
-        options.bubbles(true);
-        options.cancelable(false);
-        options.composed(true);
 
         let event =
             CustomEvent::new_with_event_init_dict(SDK_EVENT_PROGRESS_BAR_INCREMENTED, &options)

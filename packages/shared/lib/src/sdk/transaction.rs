@@ -2,19 +2,19 @@ use namada_sdk::borsh::BorshSerializeExt;
 use namada_sdk::token::Transfer;
 
 use namada_sdk::governance::VoteProposalData;
+use namada_sdk::ibc::core::channel::types::timeout::TimeoutHeight;
+use namada_sdk::ibc::MsgTransfer;
 use namada_sdk::tx::data::pos::{Bond, ClaimRewards, Redelegation, Unbond, Withdraw};
 use namada_sdk::{
     borsh::{self, BorshDeserialize},
     key::common::PublicKey,
 };
-use namada_sdk::ibc::MsgTransfer;
-use namada_sdk::ibc::core::channel::types::timeout::TimeoutHeight;
 use wasm_bindgen::JsError;
 
 use crate::sdk::{
     args::{
-        BondMsg, ClaimRewardsMsg, RedelegateMsg, RevealPkMsg, TransferDataMsg, TransferMsg,
-        UnbondMsg, VoteProposalMsg, WithdrawMsg, IbcTransferMsg
+        BondMsg, ClaimRewardsMsg, IbcTransferMsg, RedelegateMsg, RevealPkMsg, TransferDataMsg,
+        TransferMsg, UnbondMsg, VoteProposalMsg, WithdrawMsg,
     },
     tx::TxType,
 };
@@ -190,7 +190,7 @@ impl TransactionKind {
 
                 let timeout_height = match message.timeout_height_on_b {
                     TimeoutHeight::At(height) => Some(height.revision_height()),
-                    TimeoutHeight::Never => None
+                    TimeoutHeight::Never => None,
                 };
 
                 let ibc_transfer_msg = IbcTransferMsg::new(
@@ -203,10 +203,10 @@ impl TransactionKind {
                     timeout_height,
                     None,
                     Some(message.packet_data.memo.to_string()),
-                    None
+                    None,
                 );
                 borsh::to_vec(&ibc_transfer_msg)?
-            },
+            }
             _ => panic!("Unsupported Tx provided, cannot serialize"),
         };
 

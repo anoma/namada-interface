@@ -1,26 +1,48 @@
 import { Heading, PieChart, SkeletonLoading } from "@namada/components";
-import { ProgressBarNames } from "@namada/shared";
+import { ProgressBarNames, SdkEvents } from "@namada/shared";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
-import {
-  shieldedSyncProgressAtom,
-  shieldedTokensAtom,
-} from "atoms/balance/atoms";
+import { shieldedSyncAtom, shieldedTokensAtom } from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
 import { useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
 import { colors } from "theme";
 
 export const ShieldedBalanceChart = (): JSX.Element => {
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
-  const shieledSyncProgressScanned = useAtomValue(
-    shieldedSyncProgressAtom(ProgressBarNames.Scanned)
-  );
-  const shieledSyncProgressFetched = useAtomValue(
-    shieldedSyncProgressAtom(ProgressBarNames.Fetched)
-  );
-  const shieledSyncProgressApplied = useAtomValue(
-    shieldedSyncProgressAtom(ProgressBarNames.Applied)
-  );
+  const shieldedSyncProgress = useAtomValue(shieldedSyncAtom);
+
+  const [progress, setProgress] = useState({
+    [ProgressBarNames.Scanned]: 0,
+    [ProgressBarNames.Fetched]: 0,
+    [ProgressBarNames.Applied]: 0,
+  });
+
+  useEffect(() => {
+    shieldedSyncProgress &&
+      shieldedSyncProgress.on(
+        SdkEvents.ProgressBarIncremented,
+        ({ name, current, total }) => {
+          const perc =
+            total === 0 ? 0 : (
+              Math.min(Math.floor((current / total) * 100), 100)
+            );
+          setProgress((prev) => ({
+            ...prev,
+            [name]: perc,
+          }));
+        }
+      );
+
+    shieldedSyncProgress &&
+      shieldedSyncProgress.on(SdkEvents.ProgressBarFinished, ({ name }) => {
+        setProgress((prev) => ({
+          ...prev,
+          [name]: 100,
+        }));
+      });
+  }, [shieldedSyncProgress]);
+
   const shieldedDollars = getTotalDollar(shieldedTokensQuery.data);
 
   return (
@@ -66,38 +88,12 @@ export const ShieldedBalanceChart = (): JSX.Element => {
           }
           <div className="absolute top-0 right-0 text-right">
             Shieled sync progress: <br />
-            <Progress name="Scanned" {...shieledSyncProgressScanned} />
-            <Progress name="Fetched" {...shieledSyncProgressFetched} />
-            <Progress name="Applied" {...shieledSyncProgressApplied} />
+            Scanned: {progress[ProgressBarNames.Scanned]}% <br />
+            Fetched: {progress[ProgressBarNames.Fetched]}% <br />
+            Applied: {progress[ProgressBarNames.Applied]}%
           </div>
         </AtomErrorBoundary>
       </div>
-    </div>
-  );
-};
-
-const Progress = ({
-  name,
-  status,
-  current,
-  total,
-}: {
-  name: string;
-  status: string;
-  current: number;
-  total: number;
-}): JSX.Element => {
-  const perc = current === 0 && total === 0 ? 0 : (current / total) * 100;
-  return (
-    <div>
-      {name}:
-      {status === "pending" ?
-        <div>-</div>
-      : status === "loading" ?
-        <div>{Math.floor(perc)}%</div>
-      : status === "success" ?
-        <div>100%</div>
-      : <div>error</div>}
     </div>
   );
 };

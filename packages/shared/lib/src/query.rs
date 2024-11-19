@@ -32,8 +32,8 @@ use namada_sdk::state::BlockHeight;
 use namada_sdk::state::Key;
 use namada_sdk::token;
 use namada_sdk::tx::{
-    TX_BOND_WASM, TX_CLAIM_REWARDS_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSFER_WASM,
-    TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM, TX_IBC_WASM,
+    TX_BOND_WASM, TX_CLAIM_REWARDS_WASM, TX_IBC_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK,
+    TX_TRANSFER_WASM, TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
 };
 use namada_sdk::uint::I256;
 use namada_sdk::wallet::DatedKeypair;
@@ -370,6 +370,7 @@ impl Query {
             .fetched_tracker(progress_bar_fetched)
             .applied_tracker(progress_bar_applied)
             .shutdown_signal(shutdown_signal_web)
+            .block_batch_size(100)
             .wait_for_last_query_height(true)
             .retry_strategy(RetryStrategy::Times(10))
             .build();
