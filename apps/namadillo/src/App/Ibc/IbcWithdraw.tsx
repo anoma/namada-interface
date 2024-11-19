@@ -78,11 +78,10 @@ export const IbcWithdraw: React.FC = () => {
   }, [ibcChannels]);
 
   const {
-    mutate: createIbcTx,
+    mutateAsync: createIbcTx,
     isSuccess,
     isError,
     error: ibcTxError,
-    data: ibcTxData,
   } = useAtomValue(createIbcTxAtom);
 
   // TODO: properly notify the user on error
@@ -94,15 +93,6 @@ export const IbcWithdraw: React.FC = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      const { encodedTxData, signedTxs } = ibcTxData;
-      signedTxs.forEach((signedTx) =>
-        broadcastTx(
-          encodedTxData,
-          signedTx,
-          encodedTxData.meta?.props,
-          "IbcTransfer"
-        )
-      );
     }
   }, [isSuccess]);
 
@@ -128,7 +118,7 @@ export const IbcWithdraw: React.FC = () => {
       throw new Error("No gas config");
     }
 
-    createIbcTx({
+    const { encodedTxData, signedTxs } = await createIbcTx({
       destinationAddress,
       token: selectedAsset,
       amount,
@@ -137,6 +127,17 @@ export const IbcWithdraw: React.FC = () => {
       gasConfig,
       memo,
     });
+
+    await Promise.allSettled(
+      signedTxs.map((signedTx) =>
+        broadcastTx(
+          encodedTxData,
+          signedTx,
+          encodedTxData.meta?.props,
+          "IbcTransfer"
+        )
+      )
+    );
   };
 
   const onChangeChain = (chain: Chain): void => {
