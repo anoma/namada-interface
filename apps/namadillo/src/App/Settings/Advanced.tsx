@@ -1,7 +1,9 @@
 import { ActionButton, Checkbox, Input, Stack } from "@namada/components";
 import { chainParametersAtom } from "atoms/chain";
 import {
+  indexerUrlAtom,
   maspIndexerUrlAtom,
+  rpcUrlAtom,
   settingsAtom,
   updateIndexerUrlAtom,
   updateMaspIndexerUrlAtom,
@@ -20,11 +22,13 @@ export const Advanced = (): JSX.Element => {
   const rpcMutation = useAtomValue(updateRpcUrlAtom);
   const indexerMutation = useAtomValue(updateIndexerUrlAtom);
   const [currentMaspIndexer] = useAtom(maspIndexerUrlAtom);
+  const [currentRpcUrl] = useAtom(rpcUrlAtom);
+  const [currentIndexerUrl] = useAtom(indexerUrlAtom);
   const [maspIndexerMutation] = useAtom(updateMaspIndexerUrlAtom);
   const { data: chainParameters } = useAtomValue(chainParametersAtom);
 
-  const [rpc, setRpc] = useState(settings.rpcUrl || "");
-  const [indexer, setIndexer] = useState(settings.indexerUrl);
+  const [rpc, setRpc] = useState(currentRpcUrl);
+  const [indexer, setIndexer] = useState(currentIndexerUrl);
   const [enableTestnets, setTestnetsEnabled] = useState<boolean>(
     settings.enableTestnets || false
   );
