@@ -87,6 +87,7 @@ export const NamadaTransfer: React.FC = () => {
   const token = selectedAsset?.originalAddress ?? "";
   const source = sourceAddress ?? "";
   const target = customAddress ?? "";
+  const txAmount = amount ?? new BigNumber(0);
 
   const commomProps = {
     parsePendingTxNotification: () => ({
@@ -102,28 +103,28 @@ export const NamadaTransfer: React.FC = () => {
   const transparentTransaction = useTransaction({
     eventType: "TransparentTransfer",
     createTxAtom: createTransparentTransferAtom,
-    params: [{ data: [{ source, target, token, amount }] }],
+    params: [{ data: [{ source, target, token, amount: txAmount }] }],
     ...commomProps,
   });
 
   const shieldedTransaction = useTransaction({
     eventType: "ShieldedTransfer",
     createTxAtom: createShieldedTransferAtom,
-    params: [{ data: [{ source, target, token, amount }] }],
+    params: [{ data: [{ source, target, token, amount: txAmount }] }],
     ...commomProps,
   });
 
   const shieldingTransaction = useTransaction({
     eventType: "ShieldingTransfer",
     createTxAtom: createShieldingTransferAtom,
-    params: [{ target, data: [{ source, token, amount }] }],
+    params: [{ target, data: [{ source, token, amount: txAmount }] }],
     ...commomProps,
   });
 
   const unshieldingTransaction = useTransaction({
     eventType: "UnshieldingTransfer",
     createTxAtom: createUnshieldingTransferAtom,
-    params: [{ source, data: [{ target, token, amount }] }],
+    params: [{ source, data: [{ target, token, amount: txAmount }] }],
     ...commomProps,
   });
 
