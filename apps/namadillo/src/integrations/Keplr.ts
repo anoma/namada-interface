@@ -11,14 +11,14 @@ import { basicConvertToKeplrChain } from "./utils";
 type Signer = OfflineAminoSigner & OfflineDirectSigner;
 
 export class KeplrWalletManager implements WalletConnector {
+  install(): void {
+    console.warn("Keplr is not available. Redirecting to the Keplr download page...");
+    window.open("https://www.keplr.app/get", "_blank");
+  }
+  
   get(): Keplr {
     const keplr = (window as KeplrWindow).keplr;
-
-    if (!keplr) {
-      console.warn("Keplr is not available. Redirecting to the Keplr download page...");
-      window.open("https://www.keplr.app/get", "_blank");
-    }
-
+    if (!keplr) this.install();
     return keplr!;
   }
 
