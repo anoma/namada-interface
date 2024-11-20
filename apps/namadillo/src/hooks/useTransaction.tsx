@@ -106,13 +106,11 @@ export const useTransaction = <T,>({
     });
   };
 
-  const execute = async (
-    extraParams?: T[]
-  ): Promise<TransactionPair<T> | void> => {
+  const execute = async (): Promise<TransactionPair<T> | void> => {
     try {
       validate();
       const tx = await buildTx({
-        params: extraParams ? [...params, ...extraParams] : params,
+        params,
         gasConfig: gasConfig.data!,
         account: account!,
       });
