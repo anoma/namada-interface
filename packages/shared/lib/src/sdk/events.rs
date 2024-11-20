@@ -49,6 +49,17 @@ pub const SDK_EVENT_PROGRESS_BAR_STARTED: &str = "namada_sdk::progress_bar::star
 pub const SDK_EVENT_PROGRESS_BAR_INCREMENTED: &str = "namada_sdk::progress_bar::incremented";
 pub const SDK_EVENT_PROGRESS_BAR_FINISHED: &str = "namada_sdk::progress_bar::finished";
 
+// This will generate proper enum in TypeScript, the downisde is that we need to copy the values.
+// Unfortunately we can't use macros here.
+#[wasm_bindgen(typescript_custom_section)]
+const SDK_EVENTS: &'static str = r#"
+export enum SdkEvents {
+    ProgressBarStarted = "namada_sdk::progress_bar::started",
+    ProgressBarIncremented = "namada_sdk::progress_bar::incremented",
+    ProgressBarFinished = "namada_sdk::progress_bar::finished",
+}
+"#;
+
 #[wasm_bindgen]
 pub struct SdkEvents {}
 

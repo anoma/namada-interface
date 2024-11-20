@@ -1,13 +1,10 @@
 import * as Comlink from "comlink";
 import { EventEmitter } from "events";
 
-import { Balance } from "@namada/sdk/web";
+import { Balance, SdkEvents } from "@namada/sdk/web";
 import { getSdkInstance } from "utils/sdk";
 import {
   Events,
-  ProgressBarFinished,
-  ProgressBarIncremented,
-  ProgressBarStarted,
   Worker as ShieldedSyncWorkerApi,
 } from "workers/ShieldedSyncWorker";
 import ShieldedSyncWorker from "workers/ShieldedSyncWorker?worker";
@@ -24,9 +21,11 @@ export const fetchCoinPrices = async (
     ).then((res) => res.json())
   : [];
 
-export type ShieldedSyncEventMap = Record<
-  string,
-  (ProgressBarStarted | ProgressBarIncremented | ProgressBarFinished)[]
+type ShieldedSyncEventMap = Record<
+  | SdkEvents.ProgressBarStarted
+  | SdkEvents.ProgressBarIncremented
+  | SdkEvents.ProgressBarFinished,
+  Events[]
 >;
 
 export function shieldedSync(
