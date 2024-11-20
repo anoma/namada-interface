@@ -30,6 +30,7 @@ export const MaspShield: React.FC = () => {
     namadaTransparentAssetsAtom
   );
 
+  const [amount, setAmount] = useState<BigNumber | undefined>();
   const [currentStep, setCurrentStep] = useState(0);
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
 
@@ -130,6 +131,8 @@ export const MaspShield: React.FC = () => {
                 wallet: wallets.namada,
                 walletAddress: sourceAddress,
                 onChangeSelectedAsset,
+                amount,
+                onChangeAmount: setAmount,
               }}
               destination={{
                 chain: namadaChain as Chain,

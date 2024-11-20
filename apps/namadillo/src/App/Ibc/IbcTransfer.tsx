@@ -14,6 +14,7 @@ import {
   ibcChannelsFamily,
   ibcTransferAtom,
 } from "atoms/integrations";
+import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useWalletManager } from "hooks/useWalletManager";
@@ -34,6 +35,7 @@ export const IbcTransfer: React.FC = () => {
   const availableChains = useAtomValue(availableChainsAtom);
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAssetAddress, setSelectedAssetAddress] = useState<Address>();
+  const [amount, setAmount] = useState<BigNumber | undefined>();
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
   const [sourceChannel, setSourceChannel] = useState("");
   const [destinationChannel, setDestinationChannel] = useState("");
@@ -235,6 +237,8 @@ export const IbcTransfer: React.FC = () => {
                 walletAddress: sourceAddress,
                 onChangeWallet,
                 onChangeSelectedAsset: setSelectedAssetAddress,
+                amount,
+                onChangeAmount: setAmount,
               }}
               destination={{
                 chain: namadaChain as Chain,

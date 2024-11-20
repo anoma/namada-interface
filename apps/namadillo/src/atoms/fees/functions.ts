@@ -20,6 +20,14 @@ export const txKindToIndexer = (txKind: TxKind): GasLimitTableIndexer => {
       return GasLimitTableIndexer.RevealPk;
     case "IbcTransfer":
       return GasLimitTableIndexer.IbcMsgTransfer;
+    case "TransparentTransfer":
+      return GasLimitTableIndexer.TransparentTransfer;
+    case "ShieldedTransfer":
+      return GasLimitTableIndexer.ShieldedTransfer;
+    case "ShieldingTransfer":
+      return GasLimitTableIndexer.ShieldingTransfer;
+    case "UnshieldingTransfer":
+      return GasLimitTableIndexer.UnshieldingTransfer;
     case "Unknown":
       return GasLimitTableIndexer.Unknown;
     default:

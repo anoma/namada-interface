@@ -7,6 +7,10 @@ export const txKinds = [
   "VoteProposal",
   "RevealPk",
   "IbcTransfer",
+  "TransparentTransfer",
+  "ShieldedTransfer",
+  "ShieldingTransfer",
+  "UnshieldingTransfer",
   "Unknown",
 ] as const;
 

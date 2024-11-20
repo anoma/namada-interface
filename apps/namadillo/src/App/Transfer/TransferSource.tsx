@@ -1,5 +1,6 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { AmountInput } from "@namada/components";
+import { TabSelector } from "App/Common/TabSelector";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { WalletProvider } from "types";
@@ -22,6 +23,8 @@ export type TransferSourceProps = {
   amount?: BigNumber;
   availableAmount?: BigNumber;
   onChangeAmount?: (amount: BigNumber | undefined) => void;
+  isShielded?: boolean;
+  onChangeShielded?: (isShielded: boolean) => void;
 };
 
 export const TransferSource = ({
@@ -36,9 +39,27 @@ export const TransferSource = ({
   amount,
   availableAmount,
   onChangeAmount,
+  isShielded,
+  onChangeShielded,
 }: TransferSourceProps): JSX.Element => {
   return (
     <div className="relative bg-neutral-800 rounded-lg px-4 py-5">
+      {onChangeShielded && chain?.chain_name === "namada" && (
+        <nav className="mb-6">
+          <TabSelector
+            active={isShielded ? "shielded" : "transparent"}
+            items={[
+              { id: "shielded", text: "Shielded", className: "text-yellow" },
+              {
+                id: "transparent",
+                text: "Transparent",
+                className: "text-white",
+              },
+            ]}
+            onChange={() => onChangeShielded(!isShielded)}
+          />
+        </nav>
+      )}
       <header className="relative flex justify-between">
         <SelectedChain
           onClick={openChainSelector}

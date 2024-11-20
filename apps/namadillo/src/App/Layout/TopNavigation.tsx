@@ -42,7 +42,7 @@ export const TopNavigation = (): JSX.Element => {
             Shield assets
           </ActionButton>
         )}
-        {namTransfersEnabled && (
+        {(maspEnabled || namTransfersEnabled) && (
           <ActionButton
             href={routes.transfer}
             size="sm"

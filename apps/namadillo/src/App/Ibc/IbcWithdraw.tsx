@@ -13,6 +13,7 @@ import {
   createIbcTxAtom,
   ibcChannelsFamily,
 } from "atoms/integrations";
+import BigNumber from "bignumber.js";
 import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
 import { KeplrWalletManager } from "integrations/Keplr";
@@ -33,6 +34,8 @@ export const IbcWithdraw: React.FC = () => {
   const availableChains = useAtomValue(availableChainsAtom);
 
   const [selectedAssetAddress, setSelectedAssetAddress] = useState<Address>();
+  const [amount, setAmount] = useState<BigNumber | undefined>();
+  const [customAddress, setCustomAddress] = useState<string>("");
   const [sourceChannel, setSourceChannel] = useState("");
 
   const { data: availableAssets } = useAtomValue(namadaTransparentAssetsAtom);
@@ -164,6 +167,8 @@ export const IbcWithdraw: React.FC = () => {
           availableAmount,
           selectedAssetAddress,
           onChangeSelectedAsset: setSelectedAssetAddress,
+          amount,
+          onChangeAmount: setAmount,
         }}
         destination={{
           wallet: wallets.keplr,
@@ -171,6 +176,8 @@ export const IbcWithdraw: React.FC = () => {
           availableWallets: [wallets.keplr!],
           availableChains,
           enableCustomAddress: true,
+          customAddress,
+          onChangeCustomAddress: setCustomAddress,
           chain: mapUndefined((id) => chainRegistry[id]?.chain, chainId),
           onChangeWallet,
           onChangeChain,
