@@ -15,9 +15,30 @@ export class KeplrWalletManager implements WalletConnector {
     console.warn("Keplr is not available. Redirecting to the Keplr download page...");
     window.open("https://www.keplr.app/get", "_blank");
   }
+  
+  private async _get(): Promise<Keplr | undefined> {
+    if ((window as KeplrWindow).keplr) {
+      return (window as KeplrWindow).keplr;
+    }
 
+    if (document.readyState === "complete") {
+      return (window as KeplrWindow).keplr;
+    }
+
+    return new Promise<Keplr | undefined>((resolve) => {
+      const documentStateChange = (event: Event): void => {
+        if (event.target && (event.target as Document).readyState === "complete") {
+          resolve((window as KeplrWindow).keplr);
+          document.removeEventListener("readystatechange", documentStateChange);
+        }
+      };
+      
+      document.addEventListener("readystatechange", documentStateChange);
+    });
+  }
+  
   async get(): Promise<Keplr> {
-    const keplr = await this._getKeplr();
+    const keplr = await this._get();
     if(!keplr) this.install();
     return keplr!;
   }
@@ -38,26 +59,5 @@ export class KeplrWalletManager implements WalletConnector {
   async getSigner(chainId: string): Promise<Signer> {
     const keplr = await this.get();
     return keplr.getOfflineSigner(chainId);
-  }
-  
-  private async _getKeplr(): Promise<Keplr | undefined> {
-    if ((window as KeplrWindow).keplr) {
-      return (window as KeplrWindow).keplr;
-    }
-
-    if (document.readyState === "complete") {
-      return (window as KeplrWindow).keplr;
-    }
-
-    return new Promise<Keplr | undefined>((resolve) => {
-      const documentStateChange = (event: Event): void => {
-        if (event.target && (event.target as Document).readyState === "complete") {
-          resolve((window as KeplrWindow).keplr);
-          document.removeEventListener("readystatechange", documentStateChange);
-        }
-      };
-      
-      document.addEventListener("readystatechange", documentStateChange);
-    });
   }
 }
