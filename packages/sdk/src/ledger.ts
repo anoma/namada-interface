@@ -18,16 +18,15 @@ import { makeBip44Path } from "./utils";
 const { coinType } = chains.namada.bip44;
 
 export type LedgerAddressAndPublicKey = { address: string; publicKey: string };
-export type LedgerShieldedKeys = {
-  viewingKey: {
-    viewKey?: string;
-    ivk?: string;
-    ovk?: string;
-  };
-  proofGenerationKey: {
-    ak?: string;
-    nsk?: string;
-  };
+// TODO: This should be xfvk, awaiting an updated version!
+export type LedgerViewingKey = {
+  viewKey?: string;
+  ivk?: string;
+  ovk?: string;
+};
+export type LedgerProofGenerationKey = {
+  ak?: string;
+  nsk?: string;
 };
 
 export type LedgerStatus = {
@@ -148,42 +147,56 @@ export class Ledger {
   }
 
   /**
-   * Prompt user to get viewing and proof gen key associated with optional path, otherwise, use default path.
+   * Prompt user to get viewing key associated with optional path, otherwise, use default path.
    * Throw exception if app is not initialized.
    * @async
    * @param [path] Bip44 path for deriving key
    * @param [promptUser] boolean to determine whether to display on Ledger device and require approval
-   * @returns ShieldedKeys
+   * @returns LedgerViewingKey
    */
-  public async getShieldedKeys(
+  public async getViewingKey(
     path: string = DEFAULT_LEDGER_BIP44_PATH,
     promptUser = true
-  ): Promise<LedgerShieldedKeys> {
+  ): Promise<LedgerViewingKey> {
     try {
       const { viewKey, ivk, ovk }: ResponseViewKey =
         await this.namadaApp.retrieveKeys(path, NamadaKeys.ViewKey, promptUser);
 
-      // NOTE: If promptUser is false, the proof generation keys will not be defined
+      return {
+        viewKey: viewKey ? toHex(new Uint8Array(viewKey)) : undefined,
+        ivk: ivk ? toHex(new Uint8Array(ivk)) : undefined,
+        ovk: ovk ? toHex(new Uint8Array(ovk)) : undefined,
+      };
+    } catch (e) {
+      throw new Error(`Could not retrieve Viewing Key: ${e}`);
+    }
+  }
+
+  /**
+   * Prompt user to get proof generation keys associated with optional path, otherwise, use default path.
+   * Throw exception if app is not initialized.
+   * @async
+   * @param [path] Bip44 path for deriving key
+   * @returns LedgerProofGenerationKey
+   */
+  public async getProofGenerationKeys(
+    path: string = DEFAULT_LEDGER_BIP44_PATH
+  ): Promise<LedgerProofGenerationKey> {
+    try {
       const { ak, nsk }: ResponseProofGenKey =
         await this.namadaApp.retrieveKeys(
           path,
           NamadaKeys.ProofGenerationKey,
-          promptUser
+          // NOTE: Setting this to false will result in undefined values
+          true
         );
 
       return {
-        viewingKey: {
-          viewKey: viewKey ? toHex(viewKey) : undefined,
-          ivk: ivk ? toHex(ivk) : undefined,
-          ovk: ovk ? toHex(ovk) : undefined,
-        },
-        proofGenerationKey: {
-          ak: ak ? toHex(ak) : undefined,
-          nsk: nsk ? toHex(nsk) : undefined,
-        },
+        ak: ak ? toHex(new Uint8Array(ak)) : undefined,
+        nsk: nsk ? toHex(new Uint8Array(nsk)) : undefined,
       };
     } catch (e) {
-      throw new Error(`Could not retrieve Viewing Key`);
+      throw new Error(`Could not retrive Proof Generation Keys: ${e}`);
     }
   }
 

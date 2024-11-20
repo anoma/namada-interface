@@ -6,8 +6,8 @@ export {
 } from "./ledger";
 export type {
   LedgerAddressAndPublicKey,
-  LedgerShieldedKeys,
   LedgerStatus,
+  LedgerViewingKey,
 } from "./ledger";
 
 // Export types
