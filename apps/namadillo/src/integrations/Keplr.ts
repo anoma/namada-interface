@@ -1,4 +1,5 @@
 import {
+  Keplr,
   Window as KeplrWindow,
   OfflineAminoSigner,
   OfflineDirectSigner,
@@ -8,21 +9,31 @@ import { WalletConnector } from "./types";
 import { basicConvertToKeplrChain } from "./utils";
 
 type Signer = OfflineAminoSigner & OfflineDirectSigner;
-const keplr = (window as KeplrWindow).keplr!;
 
 export class KeplrWalletManager implements WalletConnector {
+  get(): Keplr {
+    const keplr = (window as KeplrWindow).keplr;
+
+    if (!keplr) {
+      console.warn("Keplr is not available. Redirecting to the Keplr download page...");
+      window.open("https://www.keplr.app/get", "_blank");
+    }
+
+    return keplr!;
+  }
+
   async connect(registry: ChainRegistryEntry): Promise<void> {
-    await keplr.experimentalSuggestChain(
+    await this.get().experimentalSuggestChain(
       basicConvertToKeplrChain(registry.chain, registry.assets.assets)
     );
   }
 
   async getAddress(chainId: string): Promise<string> {
-    const keplrKey = await keplr.getKey(chainId);
+    const keplrKey = await this.get().getKey(chainId);
     return keplrKey.bech32Address;
   }
 
   getSigner(chainId: string): Signer {
-    return keplr.getOfflineSigner(chainId);
+    return this.get().getOfflineSigner(chainId);
   }
 }
