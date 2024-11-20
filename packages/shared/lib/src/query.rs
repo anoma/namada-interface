@@ -370,6 +370,12 @@ impl Query {
         let progress_bar_fetched = sync::ProgressBarWeb::new(SDK_FETCHED_PROGRESS_BAR);
         let progress_bar_applied = sync::ProgressBarWeb::new(SDK_APPLIED_PROGRESS_BAR);
         let shutdown_signal_web = sync::ShutdownSignalWeb {};
+        // batch size does not matter for masp ledger client, and if we set to sth else than 1 it breaks
+        // progress bar
+        let batch_size = match self.masp_client {
+            MaspClient::Ledger(_) => 1,
+            MaspClient::Indexer(_) => 100,
+        };
 
         let config = ShieldedSyncConfig::builder()
             .client(client)
@@ -377,7 +383,7 @@ impl Query {
             .fetched_tracker(progress_bar_fetched)
             .applied_tracker(progress_bar_applied)
             .shutdown_signal(shutdown_signal_web)
-            .block_batch_size(100)
+            .block_batch_size(batch_size)
             .wait_for_last_query_height(true)
             .retry_strategy(RetryStrategy::Times(10))
             .build();
