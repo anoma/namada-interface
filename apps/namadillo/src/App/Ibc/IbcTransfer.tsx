@@ -171,7 +171,7 @@ export const IbcTransfer: React.FC = () => {
         const tx = await performIbcTransfer.mutateAsync({
           chain: registry.chain,
           transferParams: {
-            signer: keplr.getSigner(chainId),
+            signer: await keplr.getSigner(chainId),
             chainId,
             sourceAddress,
             destinationAddress,
