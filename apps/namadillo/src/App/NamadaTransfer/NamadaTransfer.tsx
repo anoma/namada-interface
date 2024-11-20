@@ -36,6 +36,7 @@ import {
   TransferStep,
   TransferTransactionData,
 } from "types";
+import { toBaseAmount } from "utils";
 import arrowImage from "./assets/arrow.svg";
 import shieldedAccountImage from "./assets/shielded-account.svg";
 import transparentAccountImage from "./assets/transparent-account.svg";
@@ -91,7 +92,10 @@ export const NamadaTransfer: React.FC = () => {
   const token = selectedAsset?.originalAddress ?? "";
   const source = sourceAddress ?? "";
   const target = customAddress ?? "";
-  const txAmount = amount ?? new BigNumber(0);
+  const txAmount =
+    selectedAsset && amount ?
+      toBaseAmount(selectedAsset.asset, amount)
+    : new BigNumber(0);
 
   const commomProps = {
     parsePendingTxNotification: () => ({
