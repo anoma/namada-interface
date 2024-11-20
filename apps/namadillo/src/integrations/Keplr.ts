@@ -39,7 +39,6 @@ export class KeplrWalletManager implements WalletConnector {
   
   async get(): Promise<Keplr> {
     const keplr = await this._get();
-    if(!keplr) this.install();
     return keplr!;
   }
 
