@@ -27,6 +27,17 @@ export type TransferSourceProps = {
   onChangeShielded?: (isShielded: boolean) => void;
 };
 
+const amountMaxDecimalPlaces = (asset?: Asset): number | undefined => {
+  if (typeof asset !== "undefined") {
+    for (const { denom, exponent } of asset.denom_units) {
+      if (denom === asset.display) {
+        return exponent;
+      }
+    }
+  }
+  return undefined;
+};
+
 export const TransferSource = ({
   chain,
   asset,
@@ -91,8 +102,10 @@ export const TransferSource = ({
             "[&_input]:!border-0 [&_input]:px-0"
           )}
           disabled={!chain || !asset}
-          value={amount || new BigNumber(0)}
-          onChange={(e) => onChangeAmount && onChangeAmount(e.target.value)}
+          value={amount}
+          onChange={(e) => onChangeAmount?.(e.target.value)}
+          placeholder="Amount"
+          maxDecimalPlaces={amountMaxDecimalPlaces(asset)}
         />
       </div>
       {asset && availableAmount && (

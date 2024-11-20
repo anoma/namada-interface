@@ -59,7 +59,7 @@ describe("Component: TransferSource", () => {
     const assetControl = getEmptyAsset();
     fireEvent.click(assetControl);
     expect(openAssetSelectorMock).not.toHaveBeenCalled();
-    const amountInput = screen.getByDisplayValue("0");
+    const amountInput = screen.getByPlaceholderText("Amount");
     expect(amountInput).toBeDisabled();
   });
 
