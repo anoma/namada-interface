@@ -3,15 +3,21 @@ import { getSdk, Sdk, SdkEvents } from "@namada/sdk/web";
 import * as Comlink from "comlink";
 import { Init, InitDone, Sync, SyncDone } from "./ShieldedSyncMessages";
 
-export type ProgressBarStarted = { type: string; name: string };
+export type ProgressBarStarted = {
+  type: SdkEvents.ProgressBarStarted;
+  name: string;
+};
 export type ProgressBarIncremented = {
-  type: string;
+  type: SdkEvents.ProgressBarIncremented;
   name: string;
   current: number;
   total: number;
 };
 
-export type ProgressBarFinished = { type: string; name: string };
+export type ProgressBarFinished = {
+  type: SdkEvents.ProgressBarFinished;
+  name: string;
+};
 export type Events =
   | ProgressBarStarted
   | ProgressBarIncremented
