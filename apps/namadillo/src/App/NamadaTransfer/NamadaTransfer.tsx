@@ -28,7 +28,6 @@ import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import namadaChain from "registry/namada.json";
-import { namadaAsset } from "registry/namadaAsset";
 import { twMerge } from "tailwind-merge";
 import {
   Address,
@@ -55,7 +54,12 @@ export const NamadaTransfer: React.FC = () => {
       return availableAssetsData;
     }
     const assetsMap = { ...availableAssetsData };
-    delete assetsMap[namadaAsset.address]; // NAM will be available only on phase 5
+    const namadaAsset = Object.values(availableAssetsData ?? {}).find(
+      (a) => a.asset.display === "nam"
+    );
+    if (namadaAsset?.originalAddress) {
+      delete assetsMap[namadaAsset?.originalAddress]; // NAM will be available only on phase 5
+    }
     return assetsMap;
   }, [availableAssetsData]);
 
