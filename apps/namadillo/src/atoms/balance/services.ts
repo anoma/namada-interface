@@ -1,15 +1,17 @@
 import { Balance } from "@namada/sdk/web";
 import { getSdkInstance } from "utils/sdk";
 
-const sqsOsmosisApi = "https://sqs.osmosis.zone/";
+const sqsOsmosisApi = "https://sqs.osmosis.zone";
 
 // ref: https://sqs.osmosis.zone/swagger/index.html#/default/get_tokens_prices
 export const fetchCoinPrices = async (
   assetBaseList: string[]
 ): Promise<Record<string, { [usdcAddress: string]: string }>> =>
-  fetch(
-    `${sqsOsmosisApi}/tokens/prices?base=${assetBaseList.sort((a, b) => a.localeCompare(b)).join(",")}`
-  ).then((res) => res.json());
+  assetBaseList.length ?
+    fetch(
+      `${sqsOsmosisApi}/tokens/prices?base=${assetBaseList.sort((a, b) => a.localeCompare(b)).join(",")}`
+    ).then((res) => res.json())
+  : [];
 
 export const fetchShieldedBalance = async (
   viewingKey: string,
