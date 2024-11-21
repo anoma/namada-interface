@@ -12,6 +12,7 @@ import { namadaShieldedAssetsAtom } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
 import { defaultGasConfigFamily } from "atoms/fees/atoms";
 import { unshieldTxAtom } from "atoms/shield/atoms";
+import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTransactionActions } from "hooks/useTransactionActions";
@@ -66,7 +67,7 @@ export const MaspUnshield: React.FC = () => {
     selectedAssetAddress ? availableAssets?.[selectedAssetAddress] : undefined;
 
   const { data: gasConfig } = useAtomValue(
-    defaultGasConfigFamily(["Unshield"])
+    defaultGasConfigFamily(["UnshieldingTransfer"])
   );
 
   const transactionFee: TransactionFee | undefined =
