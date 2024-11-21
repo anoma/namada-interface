@@ -12,10 +12,12 @@ type Signer = OfflineAminoSigner & OfflineDirectSigner;
 
 export class KeplrWalletManager implements WalletConnector {
   install(): void {
-    console.warn("Keplr is not available. Redirecting to the Keplr download page...");
+    console.warn(
+      "Keplr is not available. Redirecting to the Keplr download page..."
+    );
     window.open("https://www.keplr.app/get", "_blank");
   }
-  
+
   private async _get(): Promise<Keplr | undefined> {
     if ((window as KeplrWindow).keplr) {
       return (window as KeplrWindow).keplr;
@@ -27,16 +29,19 @@ export class KeplrWalletManager implements WalletConnector {
 
     return new Promise<Keplr | undefined>((resolve) => {
       const documentStateChange = (event: Event): void => {
-        if (event.target && (event.target as Document).readyState === "complete") {
+        if (
+          event.target &&
+          (event.target as Document).readyState === "complete"
+        ) {
           resolve((window as KeplrWindow).keplr);
           document.removeEventListener("readystatechange", documentStateChange);
         }
       };
-      
+
       document.addEventListener("readystatechange", documentStateChange);
     });
   }
-  
+
   async get(): Promise<Keplr> {
     const keplr = await this._get();
     return keplr!;
