@@ -1,5 +1,5 @@
 import {
-  DerivedAccount,
+  Account,
   Namada as INamada,
   SignArbitraryProps,
   SignArbitraryResponse,
@@ -8,7 +8,7 @@ import {
 } from "@namada/types";
 import { MessageRequester, Ports } from "router";
 
-import { toEncodedTx } from "utils";
+import { toEncodedTx, toPublicAccount } from "utils";
 import {
   ApproveConnectInterfaceMsg,
   ApproveDisconnectInterfaceMsg,
@@ -53,18 +53,23 @@ export class Namada implements INamada {
     );
   }
 
-  public async accounts(): Promise<DerivedAccount[] | undefined> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new QueryAccountsMsg()
-    );
+  public async accounts(): Promise<Account[] | undefined> {
+    return (
+      await this.requester?.sendMessage(
+        Ports.Background,
+        new QueryAccountsMsg()
+      )
+    )?.map(toPublicAccount);
   }
 
-  public async defaultAccount(): Promise<DerivedAccount | undefined> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new QueryDefaultAccountMsg()
-    );
+  public async defaultAccount(): Promise<Account | undefined> {
+    return await this.requester
+      ?.sendMessage(Ports.Background, new QueryDefaultAccountMsg())
+      .then((defaultAccount) => {
+        if (defaultAccount) {
+          return toPublicAccount(defaultAccount);
+        }
+      });
   }
 
   public async updateDefaultAccount(address: string): Promise<void> {

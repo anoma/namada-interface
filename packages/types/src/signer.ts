@@ -1,4 +1,3 @@
-import { Account } from "./account";
 import { TxProps } from "./tx";
 
 export type SignArbitraryResponse = {
@@ -7,8 +6,6 @@ export type SignArbitraryResponse = {
 };
 
 export interface Signer {
-  accounts: (chainId?: string) => Promise<Account[] | undefined>;
-  defaultAccount: (chainId?: string) => Promise<Account | undefined>;
   sign: (
     tx: TxProps | TxProps[],
     signer: string,

@@ -1,5 +1,3 @@
-import { ChainKey } from "./chain";
-
 export type Bip44Path = {
   account: number;
   change: number;
@@ -43,10 +41,8 @@ export type DerivedAccount = {
 
 export type Account = Pick<
   DerivedAccount,
-  "address" | "alias" | "type" | "publicKey" | "owner"
+  "address" | "alias" | "type" | "publicKey"
 > & {
-  chainId: string;
-  chainKey: ChainKey;
   isShielded: boolean;
   viewingKey?: string;
 };

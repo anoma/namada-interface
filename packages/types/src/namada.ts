@@ -1,4 +1,4 @@
-import { DerivedAccount } from "./account";
+import { Account } from "./account";
 import { SignArbitraryResponse, Signer } from "./signer";
 import { TxProps } from "./tx";
 
@@ -25,11 +25,11 @@ export type BalancesProps = {
 };
 
 export interface Namada {
-  accounts(chainId?: string): Promise<DerivedAccount[] | undefined>;
-  connect(): Promise<void>;
-  disconnect(): Promise<void>;
-  isConnected(): Promise<boolean | undefined>;
-  defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
+  accounts(chainId?: string): Promise<Account[] | undefined>;
+  connect(chainId?: string): Promise<void>;
+  disconnect(chainId?: string): Promise<void>;
+  isConnected(chainId?: string): Promise<boolean | undefined>;
+  defaultAccount(chainId?: string): Promise<Account | undefined>;
   updateDefaultAccount(address: string): Promise<void>;
   sign(props: SignProps): Promise<Uint8Array[] | undefined>;
   signArbitrary(

@@ -1,7 +1,9 @@
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import {
+  Account,
   AccountType,
   Bip44Path,
+  DerivedAccount,
   Path,
   TransferProps,
   TxProps,
@@ -156,4 +158,26 @@ export const parseTransferType = (
     target,
     type,
   };
+};
+
+/**
+ * Accepts a derived account, returns only values needed for Account
+ * @param derivedAccount - Derived account type returned from keyring
+ * @returns Account type for public API
+ */
+export const toPublicAccount = (derivedAccount: DerivedAccount): Account => {
+  const { alias, address, type, publicKey, owner } = derivedAccount;
+  const isShielded = type === AccountType.ShieldedKeys;
+  const account: Account = {
+    alias,
+    address,
+    type,
+    isShielded,
+  };
+  if (isShielded) {
+    account.viewingKey = owner;
+  } else {
+    account.publicKey = publicKey;
+  }
+  return account;
 };

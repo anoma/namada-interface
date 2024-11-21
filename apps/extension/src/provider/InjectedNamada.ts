@@ -1,5 +1,5 @@
 import {
-  DerivedAccount,
+  Account,
   Namada as INamada,
   Signer as ISigner,
   SignArbitraryProps,
@@ -25,16 +25,12 @@ export class InjectedNamada implements INamada {
     return await InjectedProxy.requestMethod<string, boolean>("isConnected");
   }
 
-  public async accounts(): Promise<DerivedAccount[]> {
-    return await InjectedProxy.requestMethod<string, DerivedAccount[]>(
-      "accounts"
-    );
+  public async accounts(): Promise<Account[]> {
+    return await InjectedProxy.requestMethod<string, Account[]>("accounts");
   }
 
-  public async defaultAccount(): Promise<DerivedAccount> {
-    return await InjectedProxy.requestMethod<string, DerivedAccount>(
-      "defaultAccount"
-    );
+  public async defaultAccount(): Promise<Account> {
+    return await InjectedProxy.requestMethod<string, Account>("defaultAccount");
   }
 
   public async updateDefaultAccount(address: string): Promise<void> {
