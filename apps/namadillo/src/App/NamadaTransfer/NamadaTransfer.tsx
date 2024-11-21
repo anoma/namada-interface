@@ -11,7 +11,7 @@ import {
 import { allDefaultAccountsAtom } from "atoms/accounts";
 import { namadaTransparentAssetsAtom } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
-import { applicationFeaturesAtom } from "atoms/settings";
+import { applicationFeaturesAtom, rpcUrlAtom } from "atoms/settings";
 import {
   createShieldedTransferAtom,
   createShieldingTransferAtom,
@@ -19,7 +19,6 @@ import {
   createUnshieldingTransferAtom,
 } from "atoms/transfer/atoms";
 import BigNumber from "bignumber.js";
-import { AnimatePresence, motion } from "framer-motion";
 import { useTransaction } from "hooks/useTransaction";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { wallets } from "integrations";
@@ -36,14 +35,13 @@ import {
   TransferStep,
   TransferTransactionData,
 } from "types";
-import { toBaseAmount } from "utils";
-import arrowImage from "./assets/arrow.svg";
-import shieldedAccountImage from "./assets/shielded-account.svg";
-import transparentAccountImage from "./assets/transparent-account.svg";
+import { toBaseAmount, useTransactionEventListListener } from "utils";
+import { NamadaTransferTopHeader } from "./NamadaTransferTopHeader";
 
 export const NamadaTransfer: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const rpcUrl = useAtomValue(rpcUrlAtom);
   const features = useAtomValue(applicationFeaturesAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
@@ -64,15 +62,13 @@ export const NamadaTransfer: React.FC = () => {
     return assetsMap;
   }, [availableAssetsData]);
 
-  const [amount, setAmount] = useState<BigNumber | undefined>();
+  const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
   const [shielded, setShielded] = useState<boolean>(true);
   const [customAddress, setCustomAddress] = useState<string>("");
   const [currentStep, setCurrentStep] = useState(0);
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
-
   const [transaction, setTransaction] =
     useState<PartialTransferTransactionData>();
-
   const {
     transactions: myTransactions,
     findByHash,
@@ -93,8 +89,8 @@ export const NamadaTransfer: React.FC = () => {
   const source = sourceAddress ?? "";
   const target = customAddress ?? "";
   const txAmount =
-    selectedAsset && amount ?
-      toBaseAmount(selectedAsset.asset, amount)
+    selectedAsset && displayAmount ?
+      toBaseAmount(selectedAsset?.asset, displayAmount)
     : new BigNumber(0);
 
   const commomProps = {
@@ -106,7 +102,22 @@ export const NamadaTransfer: React.FC = () => {
       title: "Transfer transaction failed",
       description: "",
     }),
+    onSigned: () => {
+      setCurrentStep(1);
+    },
   };
+
+  useTransactionEventListListener(
+    [
+      "TransparentTransfer.Success",
+      "ShieldedTransfer.Success",
+      "ShieldingTransfer.Success",
+      "UnshieldingTransfer.Success",
+    ],
+    () => {
+      setCurrentStep(3);
+    }
+  );
 
   const transparentTransaction = useTransaction({
     eventType: "TransparentTransfer",
@@ -201,7 +212,7 @@ export const NamadaTransfer: React.FC = () => {
   }: OnSubmitTransferParams): Promise<void> => {
     try {
       setGeneralErrorMessage("");
-      setCurrentStep(1);
+      setCurrentStep(0);
 
       if (typeof sourceAddress === "undefined") {
         throw new Error("Source address is not defined");
@@ -229,6 +240,8 @@ export const NamadaTransfer: React.FC = () => {
       const txResponse = await performTransfer();
 
       // TODO review and improve this data to be more precise and full of details
+      // TODO: the transaction here is not complete yet. We should move this to the tx success event
+      // and handle errors for them
       const tx: TransferTransactionData = {
         type: txKind,
         currentStep: TransferStep.Complete,
@@ -236,7 +249,7 @@ export const NamadaTransfer: React.FC = () => {
         destinationAddress,
         asset: selectedAsset.asset,
         amount,
-        rpc: "", // TODO
+        rpc: rpcUrl,
         chainId: txResponse?.encodedTxData.txs[0]?.args.chainId ?? "",
         hash: txResponse?.encodedTxData.txs[0].hash,
         feePaid: txResponse?.encodedTxData.txs[0].args.feeAmount,
@@ -247,11 +260,11 @@ export const NamadaTransfer: React.FC = () => {
       };
       setTransaction(tx);
       storeTransaction(tx);
-
       setCurrentStep(2);
     } catch (err) {
       setGeneralErrorMessage(err + "");
       setCurrentStep(0);
+      setTransaction(undefined);
     }
   };
 
@@ -261,107 +274,90 @@ export const NamadaTransfer: React.FC = () => {
         <h1 className={twMerge("text-lg", isSourceShielded && "text-yellow")}>
           Transfer
         </h1>
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-          <img
-            src={shielded ? shieldedAccountImage : transparentAccountImage}
-            alt=""
-            className="flex-1 h-[35px] w-[35px]"
-          />
-          <img src={arrowImage} alt="" className="flex-1 w-[72px]" />
-          <div />
-        </div>
+        <NamadaTransferTopHeader
+          isSourceShielded={isSourceShielded}
+          isDestinationShielded={target ? isTargetShielded : undefined}
+        />
       </header>
-      <AnimatePresence>
-        {currentStep === 0 && (
-          <motion.div
-            key="transfer"
-            exit={{ opacity: 0 }}
-            className="min-h-[600px]"
-          >
-            <TransferModule
-              source={{
-                isLoadingAssets,
-                availableAssets,
-                availableAmount: selectedAsset?.amount,
-                chain: namadaChain as Chain,
-                availableWallets: [wallets.namada!],
-                wallet: wallets.namada,
-                walletAddress: sourceAddress,
-                selectedAssetAddress,
-                onChangeSelectedAsset,
-                isShielded: shielded,
-                onChangeShielded: setShielded,
-                amount,
-                onChangeAmount: setAmount,
-              }}
-              destination={{
-                chain: namadaChain as Chain,
-                enableCustomAddress: true,
-                customAddress,
-                onChangeCustomAddress: setCustomAddress,
-              }}
-              transactionFee={transactionFee}
-              isSubmitting={isPerformingTransfer}
-              errorMessage={generalErrorMessage}
-              onSubmitTransfer={onSubmitTransfer}
-            />
-          </motion.div>
-        )}
-        {currentStep > 0 && (
-          <motion.div
-            key="progress"
-            className={twMerge("my-12", isSourceShielded && "text-yellow")}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-          >
-            <Timeline
-              currentStepIndex={currentStep}
-              steps={[
-                {
-                  children: <img src={assetImage} className="w-14" />,
-                },
-                {
-                  children: (
-                    <div className={twMerge(isSourceShielded && "text-yellow")}>
-                      Signature Required
+      {!transaction && (
+        <div className="min-h-[600px]">
+          <TransferModule
+            source={{
+              isLoadingAssets,
+              availableAssets,
+              availableAmount: selectedAsset?.amount,
+              chain: namadaChain as Chain,
+              availableWallets: [wallets.namada!],
+              wallet: wallets.namada,
+              walletAddress: sourceAddress,
+              selectedAssetAddress,
+              onChangeSelectedAsset,
+              isShielded: shielded,
+              onChangeShielded: setShielded,
+              amount: displayAmount,
+              onChangeAmount: setDisplayAmount,
+            }}
+            destination={{
+              chain: namadaChain as Chain,
+              enableCustomAddress: true,
+              customAddress,
+              onChangeCustomAddress: setCustomAddress,
+            }}
+            transactionFee={transactionFee}
+            isSubmitting={isPerformingTransfer}
+            errorMessage={generalErrorMessage}
+            onSubmitTransfer={onSubmitTransfer}
+          />
+        </div>
+      )}
+      {transaction && (
+        <div className={twMerge("my-12", isSourceShielded && "text-yellow")}>
+          <Timeline
+            currentStepIndex={currentStep}
+            steps={[
+              {
+                children: <img src={assetImage} className="w-14" />,
+              },
+              {
+                children: (
+                  <div className={twMerge(isSourceShielded && "text-yellow")}>
+                    Signature Required
+                  </div>
+                ),
+                bullet: true,
+              },
+              {
+                children: (
+                  <>
+                    <div>
+                      Transfer to{" "}
+                      {isTargetShielded ?
+                        "Namada Shielded"
+                      : "Namada Transparent"}
                     </div>
-                  ),
-                  bullet: true,
-                },
-                {
-                  children: (
-                    <>
-                      <div>
-                        Transfer to{" "}
-                        {isTargetShielded ?
-                          "Namada Shielded"
-                        : "Namada Transparent"}
-                      </div>
-                      <div className="text-xs">{target}</div>
-                    </>
-                  ),
-                  bullet: true,
-                },
-                {
-                  // TODO
-                  children: (
-                    <div
-                      className={twMerge(
-                        "flex flex-col items-center",
-                        isTargetShielded && "text-yellow"
-                      )}
-                    >
-                      <img src={assetImage} className="w-14 mb-2" />
-                      Transfer Complete
-                    </div>
-                  ),
-                },
-              ]}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+                    <div className="text-xs">{target}</div>
+                  </>
+                ),
+                bullet: true,
+              },
+              {
+                // TODO
+                children: (
+                  <div
+                    className={twMerge(
+                      "flex flex-col items-center",
+                      isTargetShielded && "text-yellow"
+                    )}
+                  >
+                    <img src={assetImage} className="w-14 mb-2" />
+                    Transfer Complete
+                  </div>
+                ),
+              },
+            ]}
+          />
+        </div>
+      )}
     </Panel>
   );
 };
