@@ -1,4 +1,3 @@
-import { Asset } from "@chain-registry/types";
 import {
   accountsAtom,
   defaultAccountAtom,
@@ -10,11 +9,10 @@ import {
   tokenAddressesAtom,
 } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
-import { availableAssetsAtom } from "atoms/integrations";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
+import * as osmosis from "chain-registry/mainnet/osmosis";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { namadaAsset } from "registry/namadaAsset";
 import { AddressWithAsset } from "types";
 import {
   findAssetByToken,
@@ -82,37 +80,11 @@ export const shieldedBalanceAtom = atomWithQuery<
   };
 });
 
-export const assetByAddressAtom = atomWithQuery((get) => {
-  const tokenAddressesQuery = get(tokenAddressesAtom);
-  const namTokenAddressQuery = get(nativeTokenAddressAtom);
-  const availableAssets = get(availableAssetsAtom);
-
-  return {
-    queryKey: [
-      "asset-by-address",
-      tokenAddressesQuery.data,
-      namTokenAddressQuery.data,
-    ],
-    queryFn: () => {
-      const assetByAddress: Record<string, Asset> = {};
-      if (namTokenAddressQuery.data) {
-        assetByAddress[namTokenAddressQuery.data] = namadaAsset;
-      }
-      tokenAddressesQuery.data?.forEach((token) => {
-        const asset = findAssetByToken(token, availableAssets);
-        if (asset) {
-          assetByAddress[token.address] = asset;
-        }
-      });
-      return assetByAddress;
-    },
-  };
-});
-
 export const tokenPricesAtom = atomWithQuery((get) => {
   const shieldedBalanceQuery = get(shieldedBalanceAtom);
   const transparentBalanceQuery = get(transparentBalanceAtom);
-  const assetByAddressQuery = get(assetByAddressAtom);
+  const namTokenAddressQuery = get(nativeTokenAddressAtom);
+  const tokenAddressesQuery = get(tokenAddressesAtom);
 
   // Get the list of addresses that exists on balances
   const obj: Record<string, true> = {};
@@ -123,32 +95,37 @@ export const tokenPricesAtom = atomWithQuery((get) => {
     obj[address] = true;
   });
   const addresses = Object.keys(obj);
+  const namAddress = namTokenAddressQuery.data;
+  const tokens = tokenAddressesQuery.data;
 
   return {
-    queryKey: ["token-prices", addresses, assetByAddressQuery.data],
+    queryKey: ["token-prices", addresses, tokens, namAddress],
     queryFn: async () => {
-      const addressByBase: Record<string, string> = {};
+      const baseMap: Record<string, string> = {};
       addresses.forEach((address) => {
-        const base = assetByAddressQuery.data?.[address]?.base;
-        if (base) {
-          addressByBase[base] = address;
+        const token = tokens?.find((t) => t.address === address);
+        if (token) {
+          const asset = findAssetByToken(token, osmosis.assets);
+          if (asset) {
+            baseMap[asset.base] = address;
+          }
         }
       });
-      const assetBaseList = Object.keys(addressByBase);
-      const apiResponse =
-        assetBaseList.length ?
-          await fetchCoinPrices(Object.keys(addressByBase))
-        : [];
-      // TODO mock NAM price
-      // apiResponse[namadaAsset.base] = {
-      //   "ibc/498A0751C798A0D9A389AA3691123DADA57DAA4FE165D5C75894505B876BA6E4":
-      //     "1.000000000000000000000000000000000000",
-      // };
+      const baseList = Object.keys(baseMap);
+      const apiResponse = await fetchCoinPrices(baseList);
+
       const tokenPrices: Record<string, BigNumber> = {};
       Object.entries(apiResponse).forEach(([base, value]) => {
-        const address = addressByBase[base];
-        tokenPrices[address] = new BigNumber(Object.values(value)[0]);
+        const address = baseMap[base];
+        const dollar = Object.values(value)[0];
+        if (dollar) {
+          tokenPrices[address] = new BigNumber(dollar);
+        }
       });
+      // TODO mock NAM price while it's not available on api
+      if (namAddress) {
+        tokenPrices[namAddress] = new BigNumber(0);
+      }
       return tokenPrices;
     },
   };

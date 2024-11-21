@@ -11,14 +11,19 @@ import { TokenBalance } from "./atoms";
 // please refer to `tryCoinToIbcAsset` and how we could combine both
 export const findAssetByToken = (
   token: NativeToken | IbcToken,
-  chains: AssetList[]
+  assetList: AssetList
 ): Asset | undefined => {
   if ("trace" in token) {
-    const baseDenom = token.trace.split("/").at(-1);
-    for (let i = 0; i < chains.length; i++) {
-      for (let j = 0; j < chains[i].assets.length; j++) {
-        const asset = chains[i].assets[j];
-        if (asset.base === baseDenom) {
+    const traceDenom = token.trace.split("/").at(-1);
+    if (traceDenom) {
+      for (let i = 0; i < assetList.assets.length; i++) {
+        const asset = assetList.assets[i];
+        if (
+          asset.base === traceDenom ||
+          asset.denom_units.find(
+            (u) => u.denom === traceDenom || u.aliases?.includes(traceDenom)
+          )
+        ) {
           return asset;
         }
       }
