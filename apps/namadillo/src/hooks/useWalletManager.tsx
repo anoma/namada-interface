@@ -21,16 +21,16 @@ export const useWalletManager = (wallet: WalletConnector): UseWalletOutput => {
   const [registry, setRegistry] = useState<ChainRegistryEntry>();
 
   useEffect(() => {
-    if (!chainId) {
-      setRegistry(undefined);
-      return;
+    if (chainId) {
+      const registry = findRegistryByChainId(chainRegistry, chainId);
+      if (registry) {
+        connectToChainId(chainId);
+        setRegistry(registry);
+        return;
+      }
     }
 
-    const registry = findRegistryByChainId(chainRegistry, chainId);
-    if (registry) {
-      connectToChainId(chainId);
-      setRegistry(registry);
-    }
+    setRegistry(undefined);
   }, [chainId]);
 
   const connectToChainId = async (chainId: string): Promise<void> => {

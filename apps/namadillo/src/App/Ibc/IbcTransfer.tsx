@@ -11,8 +11,10 @@ import {
   assetBalanceAtomFamily,
   availableChainsAtom,
   chainRegistryAtom,
+  ibcChannelsFamily,
   ibcTransferAtom,
 } from "atoms/integrations";
+import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useWalletManager } from "hooks/useWalletManager";
@@ -33,7 +35,11 @@ export const IbcTransfer: React.FC = () => {
   const availableChains = useAtomValue(availableChainsAtom);
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAssetAddress, setSelectedAssetAddress] = useState<Address>();
+  const [amount, setAmount] = useState<BigNumber | undefined>();
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
+  const [sourceChannel, setSourceChannel] = useState("");
+  const [destinationChannel, setDestinationChannel] = useState("");
+
   const performIbcTransfer = useAtomValue(ibcTransferAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
   const {
@@ -91,10 +97,18 @@ export const IbcTransfer: React.FC = () => {
     );
   }, [defaultAccounts, shielded]);
 
+  const { data: ibcChannels } = useAtomValue(
+    ibcChannelsFamily(registry?.chain.chain_name)
+  );
+
+  useEffect(() => {
+    setSourceChannel(ibcChannels?.cosmosChannelId || "");
+    setDestinationChannel(ibcChannels?.namadaChannelId || "");
+  }, [ibcChannels]);
+
   const onSubmitTransfer = async ({
     amount,
     destinationAddress,
-    ibcOptions,
   }: OnSubmitTransferParams): Promise<void> => {
     try {
       setGeneralErrorMessage("");
@@ -120,11 +134,11 @@ export const IbcTransfer: React.FC = () => {
         throw new Error("Invalid chain");
       }
 
-      if (!ibcOptions?.sourceChannel) {
+      if (!sourceChannel) {
         throw new Error("Invalid IBC source channel");
       }
 
-      if (shielded && !ibcOptions.destinationChannel) {
+      if (shielded && !destinationChannel) {
         throw new Error("Invalid IBC destination channel");
       }
 
@@ -157,18 +171,18 @@ export const IbcTransfer: React.FC = () => {
         const tx = await performIbcTransfer.mutateAsync({
           chain: registry.chain,
           transferParams: {
-            signer: keplr.getSigner(chainId),
+            signer: await keplr.getSigner(chainId),
             chainId,
             sourceAddress,
             destinationAddress,
             amount,
             asset: selectedAsset,
             transactionFee,
-            sourceChannelId: ibcOptions.sourceChannel,
+            sourceChannelId: sourceChannel.trim(),
             ...(shielded ?
               {
                 isShielded: true,
-                destinationChannelId: ibcOptions.destinationChannel,
+                destinationChannelId: destinationChannel.trim(),
               }
             : {
                 isShielded: false,
@@ -188,7 +202,12 @@ export const IbcTransfer: React.FC = () => {
   };
 
   const onChangeWallet = (): void => {
-    connectToChainId(chainId || defaultChainId);
+    if (chainId && chainId in chainRegistry) {
+      connectToChainId(chainId);
+      return;
+    }
+
+    connectToChainId(defaultChainId);
   };
 
   const onChangeChain = (chain: Chain): void => {
@@ -212,12 +231,14 @@ export const IbcTransfer: React.FC = () => {
                 availableAmount,
                 availableChains,
                 onChangeChain,
-                chain: mapUndefined((id) => chainRegistry[id].chain, chainId),
+                chain: mapUndefined((id) => chainRegistry[id]?.chain, chainId),
                 availableWallets: [wallets.keplr!],
                 wallet: wallets.keplr,
                 walletAddress: sourceAddress,
                 onChangeWallet,
                 onChangeSelectedAsset: setSelectedAssetAddress,
+                amount,
+                onChangeAmount: setAmount,
               }}
               destination={{
                 chain: namadaChain as Chain,
@@ -230,6 +251,12 @@ export const IbcTransfer: React.FC = () => {
               transactionFee={transactionFee}
               isSubmitting={performIbcTransfer.isPending}
               isIbcTransfer={true}
+              ibcOptions={{
+                sourceChannel,
+                onChangeSourceChannel: setSourceChannel,
+                destinationChannel,
+                onChangeDestinationChannel: setDestinationChannel,
+              }}
               errorMessage={generalErrorMessage}
               onSubmitTransfer={onSubmitTransfer}
             />

@@ -11,7 +11,7 @@ import * as dydx from "chain-registry/mainnet/dydx";
 import * as osmosis from "chain-registry/mainnet/osmosis";
 import * as stargaze from "chain-registry/mainnet/stargaze";
 import * as celestiaTestnet from "chain-registry/testnet/celestiatestnet3";
-import * as cosmosTestnet from "chain-registry/testnet/cosmoshubtestnet";
+import * as cosmosTestnet from "chain-registry/testnet/cosmosicsprovidertestnet";
 import * as dydxTestnet from "chain-registry/testnet/dydxtestnet";
 import * as elysTestnet from "chain-registry/testnet/elystestnet";
 import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet";
@@ -29,11 +29,14 @@ import {
 import { toBaseAmount, toDisplayAmount } from "utils";
 import { getSdkInstance } from "utils/sdk";
 
+import dryrunAssets from "namada-chain-registry/namadadryrun/assetlist.json";
+import dryrunChain from "namada-chain-registry/namadadryrun/chain.json";
 import housefireAssets from "namada-chain-registry/namadahousefire/assetlist.json";
 import housefireChain from "namada-chain-registry/namadahousefire/chain.json";
 import internalDevnetAssets from "namada-chain-registry/namadainternaldevnet/assetlist.json";
 import internalDevnetChain from "namada-chain-registry/namadainternaldevnet/chain.json";
 
+import dryrunOsmosis from "namada-chain-registry/_IBC/namadadryrun-osmosis.json";
 import housefireCosmosTestnetIbc from "namada-chain-registry/_IBC/namadahousefire-cosmoshubtestnet.json";
 import housefireOsmosisTestnetIbc from "namada-chain-registry/_IBC/namadahousefire-osmosistestnet.json";
 import internalDevnetCosmosTestnetIbc from "namada-chain-registry/_IBC/namadainternaldevnet-cosmoshubtestnet.json";
@@ -41,14 +44,15 @@ import internalDevnetCosmosTestnetIbc from "namada-chain-registry/_IBC/namadaint
 // TODO: this causes a big increase on bundle size. See #1224.
 import cosmosRegistry from "chain-registry";
 
-cosmosRegistry.chains.push(internalDevnetChain, housefireChain);
+cosmosRegistry.chains.push(internalDevnetChain, housefireChain, dryrunChain);
 
-cosmosRegistry.assets.push(internalDevnetAssets, housefireAssets);
+cosmosRegistry.assets.push(internalDevnetAssets, housefireAssets, dryrunAssets);
 
 cosmosRegistry.ibc.push(
   internalDevnetCosmosTestnetIbc,
   housefireCosmosTestnetIbc,
-  housefireOsmosisTestnetIbc
+  housefireOsmosisTestnetIbc,
+  dryrunOsmosis
 );
 
 const mainnetChains: ChainRegistryEntry[] = [
@@ -281,6 +285,53 @@ export const getRestApiAddressByIndex = (chain: Chain, index = 0): string => {
   const randomRestApi =
     availableRestApis[Math.min(index, availableRestApis.length - 1)];
   return randomRestApi.address;
+};
+
+export type IbcChannels = {
+  namadaChannelId: string;
+  cosmosChannelId: string;
+};
+
+export const getIbcChannels = (
+  namadaChainId: string,
+  cosmosChainName: string
+): IbcChannels | undefined => {
+  const namadaChainName = cosmosRegistry.chains.find(
+    (chain) => chain.chain_id === namadaChainId
+  )?.chain_name;
+
+  if (typeof namadaChainName === "undefined") {
+    return undefined;
+  }
+
+  for (const ibcEntry of cosmosRegistry.ibc) {
+    const { chain_1, chain_2, channels } = ibcEntry;
+    const channelEntry = channels[0];
+
+    if (typeof channelEntry === "undefined") {
+      continue;
+    }
+
+    if (
+      chain_1.chain_name === namadaChainName &&
+      chain_2.chain_name === cosmosChainName
+    ) {
+      return {
+        namadaChannelId: channelEntry.chain_1.channel_id,
+        cosmosChannelId: channelEntry.chain_2.channel_id,
+      };
+    }
+
+    if (
+      chain_1.chain_name === cosmosChainName &&
+      chain_2.chain_name === namadaChainName
+    ) {
+      return {
+        cosmosChannelId: channelEntry.chain_1.channel_id,
+        namadaChannelId: channelEntry.chain_2.channel_id,
+      };
+    }
+  }
 };
 
 export const createIbcTx = async (

@@ -1,8 +1,12 @@
 import {
   BondProps,
   RedelegateProps,
+  ShieldedTransferProps,
+  ShieldingTransferProps,
+  TransparentTransferProps,
   TxProps,
   UnbondProps,
+  UnshieldingTransferProps,
   VoteProposalProps,
   WithdrawProps,
 } from "@namada/types";
@@ -54,5 +58,9 @@ declare global {
     "ClaimRewards.Error": EventData<ClaimRewardsProps>;
     "VoteProposal.Success": EventData<VoteProposalProps>;
     "VoteProposal.Error": EventData<VoteProposalProps>;
+    "TransparentTransfer.Success": EventData<TransparentTransferProps>;
+    "ShieldedTransfer.Success": EventData<ShieldedTransferProps>;
+    "ShieldingTransfer.Success": EventData<ShieldingTransferProps>;
+    "UnshieldingTransfer.Success": EventData<UnshieldingTransferProps>;
   }
 }

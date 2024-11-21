@@ -6,7 +6,7 @@ import namadaShieldedSvg from "./assets/namada-shielded.svg";
 import namadaTransparentSvg from "./assets/namada-transparent.svg";
 
 type CustomAddressFormProps = {
-  onChangeAddress?: (address: string | undefined) => void;
+  onChangeAddress?: (address: string) => void;
   customAddress?: string;
   memo?: string;
   onChangeMemo?: (address: string) => void;

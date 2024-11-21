@@ -4,8 +4,10 @@ import { twMerge } from "tailwind-merge";
 import { SkeletonLoading } from "@namada/components";
 import { AddRemove, PgfActions, Proposal } from "@namada/types";
 
+import { sha256Hash } from "@namada/utils";
 import { proposalFamily } from "atoms/proposals";
 import { useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
 import { secondsToDateTimeString } from "utils";
 
 const InfoCard: React.FC<
@@ -114,6 +116,19 @@ const LoadingCard: React.FC<{ className?: string }> = ({ className }) => (
 const Loaded: React.FC<{
   proposal: Proposal;
 }> = ({ proposal }) => {
+  const [dataHash, setDataHash] = useState<string>();
+
+  useEffect(() => {
+    if (
+      proposal.proposalType.type === "default_with_wasm" &&
+      proposal.proposalType.data.length > 0
+    ) {
+      sha256Hash(proposal.proposalType.data).then((hash) =>
+        setDataHash(hash.toUpperCase())
+      );
+    }
+  }, [proposal.proposalType]);
+
   return (
     <>
       <InfoCard
@@ -136,6 +151,13 @@ const Loaded: React.FC<{
         content={proposal.author}
         className="col-span-full"
       />
+      {dataHash && (
+        <InfoCard
+          title="Data Hash"
+          content={dataHash}
+          className="col-span-full"
+        />
+      )}
       {proposal.proposalType.type === "pgf_steward" && (
         <PgfStewardInfoCards addRemove={proposal.proposalType.data} />
       )}

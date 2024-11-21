@@ -340,4 +340,40 @@ export const useTransactionNotifications = (): void => {
       type: "success",
     });
   });
+
+  const handleTransferNotification = (
+    tx: TxProps,
+    data: TxWithAmount[]
+  ): void => {
+    const { id, total } = parseTxsData(tx, data);
+    clearPendingNotifications(id);
+    dispatchNotification({
+      id,
+      title: "Transfer transaction succeeded",
+      description: (
+        <>
+          Your transfer transaction of <NamCurrency amount={total} /> has
+          succeeded
+        </>
+      ),
+      // details, // TODO
+      type: "success",
+    });
+  };
+
+  useTransactionEventListener("TransparentTransfer.Success", (e) => {
+    handleTransferNotification(e.detail.tx, e.detail.data[0].data);
+  });
+
+  useTransactionEventListener("ShieldedTransfer.Success", (e) => {
+    handleTransferNotification(e.detail.tx, e.detail.data[0].data);
+  });
+
+  useTransactionEventListener("ShieldingTransfer.Success", (e) => {
+    handleTransferNotification(e.detail.tx, e.detail.data[0].data);
+  });
+
+  useTransactionEventListener("UnshieldingTransfer.Success", (e) => {
+    handleTransferNotification(e.detail.tx, e.detail.data[0].data);
+  });
 };

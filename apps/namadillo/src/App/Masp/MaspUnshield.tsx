@@ -39,6 +39,7 @@ export const MaspUnshield: React.FC = () => {
   );
   const performUnshieldTransfer = useAtomValue(unshieldTxAtom);
 
+  const [amount, setAmount] = useState<BigNumber | undefined>();
   const [currentStep, setCurrentStep] = useState(0);
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
 
@@ -195,6 +196,8 @@ export const MaspUnshield: React.FC = () => {
                 walletAddress: sourceAddress,
                 isShielded: true,
                 onChangeSelectedAsset,
+                amount,
+                onChangeAmount: setAmount,
               }}
               destination={{
                 chain: namadaChain as Chain,

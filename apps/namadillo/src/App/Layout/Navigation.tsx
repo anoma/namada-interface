@@ -43,7 +43,10 @@ export const Navigation = (): JSX.Element => {
     {
       label: "Transfer",
       icon: <IoSwapHorizontal />,
-      url: features.namTransfersEnabled ? routes.transfer : undefined,
+      url:
+        features.maspEnabled || features.namTransfersEnabled ?
+          routes.transfer
+        : undefined,
     },
     {
       label: "History",

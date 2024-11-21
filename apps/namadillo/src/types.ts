@@ -180,7 +180,7 @@ export type WalletProvider = {
 export type ChainRegistryEntry = {
   assets: AssetList;
   chain: Chain;
-  ibc: IBCInfo[];
+  ibc?: IBCInfo[];
 };
 
 export type AddressWithAsset = {

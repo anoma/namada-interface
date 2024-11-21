@@ -31,6 +31,7 @@ export const TransferTransactionTimeline = ({
   transaction,
 }: TransactionTransferTimelineProps): JSX.Element => {
   const textSteps = allTransferStages[transaction.type];
+
   const fromIbcChain =
     transaction.type === "IbcToTransparent" ||
     transaction.type === "IbcToShielded";
