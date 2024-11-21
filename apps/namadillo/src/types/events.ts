@@ -1,5 +1,6 @@
 import {
   BondProps,
+  IbcTransferProps,
   RedelegateProps,
   ShieldedTransferProps,
   ShieldingTransferProps,
@@ -62,5 +63,7 @@ declare global {
     "ShieldedTransfer.Success": EventData<ShieldedTransferProps>;
     "ShieldingTransfer.Success": EventData<ShieldingTransferProps>;
     "UnshieldingTransfer.Success": EventData<UnshieldingTransferProps>;
+    "IbcTransfer.Success": EventData<IbcTransferProps>;
+    "IbcTransfer.Error": EventData<IbcTransferProps>;
   }
 }

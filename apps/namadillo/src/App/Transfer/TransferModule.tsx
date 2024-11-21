@@ -113,6 +113,11 @@ export const TransferModule = ({
     source.selectedAssetAddress
   );
 
+  const requiresIbcChannels =
+    isIbcTransfer &&
+    (!ibcOptions?.sourceChannel ||
+      (destination.isShielded && !ibcOptions.destinationChannel));
+
   const availableAmountMinusFees = useMemo(() => {
     const { selectedAssetAddress, availableAmount } = source;
 
@@ -315,7 +320,7 @@ export const TransferModule = ({
             onChangeMemo={setMemo}
             transactionFee={transactionFee}
           />
-          {isIbcTransfer && (
+          {isIbcTransfer && requiresIbcChannels && (
             <IbcChannels
               isShielded={Boolean(source.isShielded || destination.isShielded)}
               sourceChannel={ibcOptions.sourceChannel}
