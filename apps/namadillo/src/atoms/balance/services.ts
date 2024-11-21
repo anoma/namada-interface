@@ -1,7 +1,7 @@
 import { Balance } from "@namada/sdk/web";
 import { getSdkInstance } from "utils/sdk";
 
-const sqsOsmosisApi = "https://sqs.osmosis.zone/";
+const sqsOsmosisApi = "https://sqs.osmosis.zone";
 
 // ref: https://sqs.osmosis.zone/swagger/index.html#/default/get_tokens_prices
 export const fetchCoinPrices = async (

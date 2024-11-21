@@ -14,21 +14,12 @@ export const findAssetByToken = (
   chains: AssetList[]
 ): Asset | undefined => {
   if ("trace" in token) {
+    const baseDenom = token.trace.split("/").at(-1);
     for (let i = 0; i < chains.length; i++) {
       for (let j = 0; j < chains[i].assets.length; j++) {
         const asset = chains[i].assets[j];
-        if (asset.traces) {
-          for (let k = 0; k < asset.traces.length; k++) {
-            const trace = asset.traces[k];
-            if (
-              "chain" in trace &&
-              trace.chain &&
-              "path" in trace.chain &&
-              trace.chain.path === token.trace
-            ) {
-              return asset;
-            }
-          }
+        if (asset.base === baseDenom) {
+          return asset;
         }
       }
     }
