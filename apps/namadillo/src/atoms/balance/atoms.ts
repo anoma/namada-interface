@@ -123,7 +123,7 @@ export const tokenPricesAtom = atomWithQuery((get) => {
         }
       });
       // TODO mock NAM price while it's not available on api
-      if (namAddress) {
+      if (namAddress && !tokenPrices[namAddress]) {
         tokenPrices[namAddress] = new BigNumber(0);
       }
       return tokenPrices;
