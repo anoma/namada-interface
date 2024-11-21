@@ -4,6 +4,7 @@ import BigNumber from "bignumber.js";
 import * as fns from "date-fns";
 import { DateTime } from "luxon";
 import { useEffect } from "react";
+import { namadaAsset } from "registry/namadaAsset";
 
 export const proposalStatusToString = (status: ProposalStatus): string => {
   const statusText: Record<ProposalStatus, string> = {
@@ -44,6 +45,23 @@ export const useTransactionEventListener = <T extends keyof WindowEventMap>(
     window.addEventListener(event, handler);
     return () => {
       window.removeEventListener(event, handler);
+    };
+  }, deps);
+};
+
+export const useTransactionEventListListener = <T extends keyof WindowEventMap>(
+  events: T[],
+  handler: (this: Window, ev: WindowEventMap[T]) => void,
+  deps: React.DependencyList = []
+): void => {
+  useEffect(() => {
+    events.forEach((event) => {
+      window.addEventListener(event, handler);
+    });
+    return () => {
+      events.forEach((event) => {
+        window.removeEventListener(event, handler);
+      });
     };
   }, deps);
 };
@@ -103,6 +121,9 @@ const findDisplayUnit = (asset: Asset): AssetDenomUnit | undefined => {
   return denom_units.find((unit) => unit.denom === display);
 };
 
+const isNamAsset = (asset: Asset): boolean =>
+  asset.symbol === namadaAsset.symbol;
+
 export const toDisplayAmount = (
   asset: Asset,
   baseAmount: BigNumber
@@ -114,10 +135,14 @@ export const toDisplayAmount = (
   return baseAmount.shiftedBy(-displayUnit.exponent);
 };
 
-export const toBaseAmount = (asset: Asset, amount: BigNumber): BigNumber => {
+export const toBaseAmount = (
+  asset: Asset,
+  displayAmount: BigNumber
+): BigNumber => {
+  if (isNamAsset(asset)) return displayAmount;
   const displayUnit = findDisplayUnit(asset);
   if (!displayUnit) {
-    return amount;
+    return displayAmount;
   }
-  return amount.shiftedBy(displayUnit.exponent);
+  return displayAmount.shiftedBy(displayUnit.exponent);
 };

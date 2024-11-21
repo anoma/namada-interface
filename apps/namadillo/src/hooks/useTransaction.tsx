@@ -49,6 +49,7 @@ export const useTransaction = <T,>({
   parseErrorTxNotification,
   onSuccess,
   onError,
+  onSigned,
 }: useTransactionProps<T>): useTransactionOutput<T> => {
   const { data: account } = useAtomValue(defaultAccountAtom);
   const {
@@ -116,6 +117,10 @@ export const useTransaction = <T,>({
       });
 
       if (!tx) throw "Error: invalid TX created by buildTx";
+      if (onSigned) {
+        onSigned(tx);
+      }
+
       await broadcast(tx);
 
       if (parsePendingTxNotification) {
@@ -134,6 +139,8 @@ export const useTransaction = <T,>({
 
       if (onError) {
         onError(err);
+      } else {
+        throw err;
       }
     }
   };
