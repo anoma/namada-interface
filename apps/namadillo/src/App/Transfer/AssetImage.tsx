@@ -21,7 +21,7 @@ export const AssetImage = ({
       <img src={image} alt={altText} className="w-full" />
       {isShielded !== undefined && (
         <span className="absolute -bottom-1 -right-1 w-4 aspect-square">
-          <AssetImage asset={namadaAsset} />
+          <AssetImage asset={namadaAsset()} />
         </span>
       )}
     </span>

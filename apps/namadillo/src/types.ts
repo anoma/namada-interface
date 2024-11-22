@@ -342,3 +342,9 @@ export type ChainStatus = {
   height: number;
   epoch: number;
 };
+
+export type LocalnetToml = {
+  enabled: boolean;
+  chain_id: string;
+  token_address: string;
+};
