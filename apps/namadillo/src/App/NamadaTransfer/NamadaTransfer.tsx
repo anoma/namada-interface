@@ -1,5 +1,6 @@
 import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
+import { AccountType } from "@namada/types";
 import { Timeline } from "App/Common/Timeline";
 import { params } from "App/routes";
 import { isShieldedAddress } from "App/Transfer/common";
@@ -82,7 +83,9 @@ export const NamadaTransfer: React.FC = () => {
 
   const chainId = chainParameters.data?.chainId;
   const sourceAddress = defaultAccounts.data?.find((account) =>
-    shielded ? account.isShielded : !account.isShielded
+    shielded ?
+      account.type === AccountType.ShieldedKeys
+    : account.type !== AccountType.ShieldedKeys
   )?.address;
   const selectedAssetAddress = searchParams.get(params.asset) || undefined;
   const selectedAsset =

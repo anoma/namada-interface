@@ -1,5 +1,5 @@
 import { getIntegration } from "@namada/integrations";
-import { Account } from "@namada/types";
+import { Account, AccountType } from "@namada/types";
 import { indexerApiAtom } from "atoms/api";
 import { nativeTokenAddressAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
@@ -55,7 +55,7 @@ export const allDefaultAccountsAtom = atomWithQuery<Account[]>((get) => {
 
       const defaultAccounts = [accounts.data[transparentAccountIdx]];
       for (let i = transparentAccountIdx + 1; i < accounts.data.length; i++) {
-        if (!accounts.data[i].isShielded) {
+        if (accounts.data[i].type !== AccountType.ShieldedKeys) {
           break;
         }
         defaultAccounts.push(accounts.data[i]);

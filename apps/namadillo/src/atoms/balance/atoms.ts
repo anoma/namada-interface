@@ -1,5 +1,5 @@
 import { SdkEvents } from "@namada/sdk/web";
-import { Namada } from "@namada/types";
+import { AccountType } from "@namada/types";
 import {
   accountsAtom,
   defaultAccountAtom,
@@ -16,7 +16,6 @@ import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import * as osmosis from "chain-registry/mainnet/osmosis";
 import { atomWithQuery } from "jotai-tanstack-query";
-import semver from "semver";
 import { AddressWithAsset } from "types";
 import {
   findAssetByToken,
@@ -35,32 +34,6 @@ export type TokenBalance = AddressWithAsset & {
   dollar?: BigNumber;
 };
 
-const DEPRECATED_getViewingKey = async (): Promise<
-  [string, string[]] | undefined
-> => {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const namada: Namada | undefined = (window as any).namada;
-    if (namada && semver.lt(namada.version(), "0.3.3")) {
-      const accounts = await namada.accounts();
-      const defaultAccount = await namada.defaultAccount();
-      const shieldedAccounts = accounts?.filter(
-        (a) => a.type === "shielded-keys"
-      );
-      const defaultShieldedAccount = shieldedAccounts?.find(
-        (a) => a.alias === defaultAccount?.alias
-      );
-      const defaultViewingKey = defaultShieldedAccount?.owner ?? "";
-      const viewingKeys = shieldedAccounts?.map((a) => a.owner ?? "") ?? [];
-
-      return [defaultViewingKey, viewingKeys];
-    }
-  } catch {
-    // do nothing
-  }
-  return undefined;
-};
-
 export const viewingKeysAtom = atomWithQuery<[string, string[]]>((get) => {
   const accountsQuery = get(accountsAtom);
   const defaultAccountQuery = get(defaultAccountAtom);
@@ -68,11 +41,9 @@ export const viewingKeysAtom = atomWithQuery<[string, string[]]>((get) => {
   return {
     queryKey: ["viewing-keys", accountsQuery.data, defaultAccountQuery.data],
     ...queryDependentFn(async () => {
-      const deprecatedViewingKey = await DEPRECATED_getViewingKey();
-      if (deprecatedViewingKey) {
-        return deprecatedViewingKey;
-      }
-      const shieldedAccounts = accountsQuery.data?.filter((a) => a.isShielded);
+      const shieldedAccounts = accountsQuery.data?.filter(
+        (a) => a.type === AccountType.ShieldedKeys
+      );
       const defaultShieldedAccount = shieldedAccounts?.find(
         (a) => a.alias === defaultAccountQuery.data?.alias
       );

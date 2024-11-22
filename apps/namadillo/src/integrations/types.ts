@@ -1,7 +1,7 @@
 import { WindowWithNamada } from "@namada/types";
 import { ChainRegistryEntry } from "types";
 
-export type Namada = WindowWithNamada["namada"];
+export type NamadaKeychain = WindowWithNamada["namada"];
 
 export interface WalletConnector {
   install(): void;

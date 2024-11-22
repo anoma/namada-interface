@@ -1,6 +1,6 @@
 import { Signer, WindowWithNamada } from "@namada/types";
 import { ChainRegistryEntry } from "types";
-import { Namada, WalletConnector } from "./types";
+import { NamadaKeychain, WalletConnector } from "./types";
 
 export class NamadaWalletManager implements WalletConnector {
   install(): void {
@@ -10,7 +10,7 @@ export class NamadaWalletManager implements WalletConnector {
     window.open("https://www.namada.net/extension", "_blank");
   }
 
-  private async _get(): Promise<Namada | undefined> {
+  private async _get(): Promise<NamadaKeychain | undefined> {
     if ((window as WindowWithNamada).namada) {
       return (window as WindowWithNamada).namada;
     }
@@ -19,7 +19,7 @@ export class NamadaWalletManager implements WalletConnector {
       return (window as WindowWithNamada).namada;
     }
 
-    return new Promise<Namada | undefined>((resolve) => {
+    return new Promise<NamadaKeychain | undefined>((resolve) => {
       const documentStateChange = (event: Event): void => {
         if (
           event.target &&
@@ -34,7 +34,7 @@ export class NamadaWalletManager implements WalletConnector {
     });
   }
 
-  async get(): Promise<Namada> {
+  async get(): Promise<NamadaKeychain> {
     const namada = await this._get();
     return namada!;
   }

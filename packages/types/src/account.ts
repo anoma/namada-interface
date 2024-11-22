@@ -43,6 +43,5 @@ export type Account = Pick<
   DerivedAccount,
   "address" | "alias" | "type" | "publicKey"
 > & {
-  isShielded: boolean;
   viewingKey?: string;
 };

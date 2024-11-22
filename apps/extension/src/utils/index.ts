@@ -172,7 +172,6 @@ export const toPublicAccount = (derivedAccount: DerivedAccount): Account => {
     alias,
     address,
     type,
-    isShielded,
   };
   if (isShielded) {
     account.viewingKey = owner;
