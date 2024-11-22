@@ -1,3 +1,4 @@
+import { Namada } from "@namada/types";
 import {
   accountsAtom,
   defaultAccountAtom,
@@ -26,6 +27,24 @@ export type TokenBalance = AddressWithAsset & {
   dollar?: BigNumber;
 };
 
+const getViewingKeyFromExtension032 = async (): Promise<string | undefined> => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const namada: Namada | undefined = (window as any).namada;
+    if (namada?.version() === "0.3.2") {
+      const accounts = await namada.accounts();
+      const defaultAccount = await namada.defaultAccount();
+      const shieldedAccount = accounts?.find(
+        (a) => a.type === "shielded-keys" && a.alias === defaultAccount?.alias
+      );
+      return shieldedAccount?.owner;
+    }
+  } catch {
+    // do nothing
+  }
+  return undefined;
+};
+
 export const viewingKeyAtom = atomWithQuery<string>((get) => {
   const accountsQuery = get(accountsAtom);
   const defaultAccountQuery = get(defaultAccountAtom);
@@ -33,6 +52,10 @@ export const viewingKeyAtom = atomWithQuery<string>((get) => {
   return {
     queryKey: ["viewing-key", accountsQuery.data, defaultAccountQuery.data],
     ...queryDependentFn(async () => {
+      const deprecatedViewingKey = await getViewingKeyFromExtension032();
+      if (deprecatedViewingKey) {
+        return deprecatedViewingKey;
+      }
       const shieldedAccount = accountsQuery.data?.find(
         (a) => a.isShielded && a.alias === defaultAccountQuery.data?.alias
       );
