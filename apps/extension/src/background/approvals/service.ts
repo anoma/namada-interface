@@ -185,15 +185,24 @@ export class ApprovalsService {
     resolvers.reject(new Error("Sign Tx rejected"));
   }
 
-  async isConnectionApproved(interfaceOrigin: string): Promise<boolean> {
+  async isConnectionApproved(
+    interfaceOrigin: string,
+    _chainId?: string
+  ): Promise<boolean> {
     const approvedOrigins =
       (await this.localStorage.getApprovedOrigins()) || [];
 
     return approvedOrigins.includes(interfaceOrigin);
   }
 
-  async approveConnection(interfaceOrigin: string): Promise<void> {
-    const alreadyApproved = await this.isConnectionApproved(interfaceOrigin);
+  async approveConnection(
+    interfaceOrigin: string,
+    chainId?: string
+  ): Promise<void> {
+    const alreadyApproved = await this.isConnectionApproved(
+      interfaceOrigin,
+      chainId
+    );
 
     if (!alreadyApproved) {
       return this.launchApprovalPopup(TopLevelRoute.ApproveConnection, {
@@ -224,8 +233,14 @@ export class ApprovalsService {
     }
   }
 
-  async approveDisconnection(interfaceOrigin: string): Promise<void> {
-    const isConnected = await this.isConnectionApproved(interfaceOrigin);
+  async approveDisconnection(
+    interfaceOrigin: string,
+    chainId?: string
+  ): Promise<void> {
+    const isConnected = await this.isConnectionApproved(
+      interfaceOrigin,
+      chainId
+    );
 
     if (isConnected) {
       return this.launchApprovalPopup(TopLevelRoute.ApproveDisconnection, {

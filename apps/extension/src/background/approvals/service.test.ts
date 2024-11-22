@@ -263,12 +263,13 @@ describe("approvals service", () => {
     it("should approve connection if it's not already approved", async () => {
       const interfaceOrigin = "origin";
       const tabId = 1;
+      const chainId = "chain-id";
 
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(false);
       jest.spyOn(service as any, "launchApprovalPopup");
       service["resolverMap"] = {};
 
-      const promise = service.approveConnection(interfaceOrigin);
+      const promise = service.approveConnection(interfaceOrigin, chainId);
       await new Promise<void>((r) =>
         setTimeout(() => {
           r();
@@ -281,17 +282,19 @@ describe("approvals service", () => {
         { interfaceOrigin }
       );
       expect(service.isConnectionApproved).toHaveBeenCalledWith(
-        interfaceOrigin
+        interfaceOrigin,
+        chainId
       );
       await expect(promise).resolves.toBeDefined();
     });
 
     it("should not approve connection if it was already approved", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chain-id";
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(true);
 
       await expect(
-        service.approveConnection(interfaceOrigin)
+        service.approveConnection(interfaceOrigin, chainId)
       ).resolves.toBeUndefined();
     });
   });
@@ -352,13 +355,14 @@ describe("approvals service", () => {
   describe("approveDisconnection", () => {
     it("should approve disconnection if there is a connection already approved", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chain-id";
       const tabId = 1;
 
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(true);
       jest.spyOn(service as any, "launchApprovalPopup");
       service["resolverMap"] = {};
 
-      const promise = service.approveDisconnection(interfaceOrigin);
+      const promise = service.approveDisconnection(interfaceOrigin, chainId);
       await new Promise<void>((r) =>
         setTimeout(() => {
           r();
@@ -371,17 +375,19 @@ describe("approvals service", () => {
         { interfaceOrigin }
       );
       expect(service.isConnectionApproved).toHaveBeenCalledWith(
-        interfaceOrigin
+        interfaceOrigin,
+        chainId
       );
       await expect(promise).resolves.toBeDefined();
     });
 
     it("should not approve disconnection if it is NOT already approved", async () => {
       const interfaceOrigin = "origin";
+      const chainId = "chain-id";
       jest.spyOn(service, "isConnectionApproved").mockResolvedValue(false);
 
       await expect(
-        service.approveDisconnection(interfaceOrigin)
+        service.approveDisconnection(interfaceOrigin, chainId)
       ).resolves.toBeUndefined();
     });
   });
@@ -541,27 +547,36 @@ describe("approvals service", () => {
   describe("isConnectionApproved", () => {
     it("should return true if origin is approved", async () => {
       const origin = "origin";
+      const chainId = "chain-id";
       jest
         .spyOn(localStorage, "getApprovedOrigins")
         .mockResolvedValue([origin]);
 
-      await expect(service.isConnectionApproved(origin)).resolves.toBe(true);
+      await expect(service.isConnectionApproved(origin, chainId)).resolves.toBe(
+        true
+      );
     });
 
     it("should return false if origin is not approved", async () => {
       const origin = "origin";
+      const chainId = "chain-id";
       jest.spyOn(localStorage, "getApprovedOrigins").mockResolvedValue([]);
 
-      await expect(service.isConnectionApproved(origin)).resolves.toBe(false);
+      await expect(service.isConnectionApproved(origin, chainId)).resolves.toBe(
+        false
+      );
     });
 
     it("should return false if there are no origins in store", async () => {
       const origin = "origin";
+      const chainId = "chain-id";
       jest
         .spyOn(localStorage, "getApprovedOrigins")
         .mockResolvedValue(undefined);
 
-      await expect(service.isConnectionApproved(origin)).resolves.toBe(false);
+      await expect(service.isConnectionApproved(origin, chainId)).resolves.toBe(
+        false
+      );
     });
   });
 });

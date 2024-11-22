@@ -69,12 +69,7 @@ export class ApproveSignArbitraryMsg extends Message<SignArbitraryResponse> {
   }
 
   validate(): void {
-    if (!this.signer) {
-      throw new Error("A signer address is required!");
-    }
-    if (!this.data) {
-      throw new Error("Signing data is required!");
-    }
+    validateProps(this, ["signer", "data"]);
   }
 
   route(): string {
@@ -94,7 +89,7 @@ export class IsConnectionApprovedMsg extends Message<boolean> {
     return MessageType.IsConnectionApproved;
   }
 
-  constructor() {
+  constructor(public readonly chainId?: string) {
     super();
   }
 
@@ -116,7 +111,7 @@ export class ApproveConnectInterfaceMsg extends Message<void> {
     return MessageType.ApproveConnectInterface;
   }
 
-  constructor() {
+  constructor(public readonly chainId?: string) {
     super();
   }
 
@@ -138,7 +133,10 @@ export class ApproveDisconnectInterfaceMsg extends Message<void> {
     return MessageType.ApproveDisconnectInterface;
   }
 
-  constructor(public readonly originToRevoke: string) {
+  constructor(
+    public readonly originToRevoke: string,
+    public readonly chainId?: string
+  ) {
     super();
   }
 
