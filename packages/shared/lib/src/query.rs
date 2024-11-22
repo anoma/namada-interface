@@ -32,14 +32,15 @@ use namada_sdk::state::BlockHeight;
 use namada_sdk::state::Key;
 use namada_sdk::token;
 use namada_sdk::tx::{
-    TX_BOND_WASM, TX_CLAIM_REWARDS_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK, TX_TRANSFER_WASM,
-    TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM, TX_IBC_WASM,
+    TX_BOND_WASM, TX_CLAIM_REWARDS_WASM, TX_IBC_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK,
+    TX_TRANSFER_WASM, TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
 };
 use namada_sdk::uint::I256;
 use namada_sdk::wallet::DatedKeypair;
 use namada_sdk::ExtendedViewingKey;
 use std::collections::BTreeMap;
 use std::str::FromStr;
+use std::time::Duration;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsError;
 
@@ -63,6 +64,8 @@ pub struct Query {
     masp_client: MaspClient,
 }
 
+const MAX_CONCURRENT_FETCHES: usize = 10;
+
 #[wasm_bindgen]
 impl Query {
     #[wasm_bindgen(constructor)]
@@ -77,7 +80,11 @@ impl Query {
 
             MaspClient::Indexer(IndexerMaspClient::new(client, url, true, 10))
         } else {
-            MaspClient::Ledger(LedgerMaspClient::new(client.clone(), 10))
+            MaspClient::Ledger(LedgerMaspClient::new(
+                client.clone(),
+                MAX_CONCURRENT_FETCHES,
+                Duration::from_millis(5),
+            ))
         };
 
         Query {
