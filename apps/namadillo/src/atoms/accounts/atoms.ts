@@ -7,7 +7,6 @@ import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
-import { chainConfigByName } from "registry";
 import {
   fetchAccountBalance,
   fetchAccounts,
@@ -85,7 +84,6 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
   const tokenAddress = get(nativeTokenAddressAtom);
   const enablePolling = get(shouldUpdateBalanceAtom);
   const api = get(indexerApiAtom);
-  const chainConfig = chainConfigByName("namada");
 
   return {
     // TODO: subscribe to indexer events when it's done
@@ -95,10 +93,7 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
       return await fetchNamAccountBalance(
         api,
         defaultAccount.data,
-        tokenAddress.data!,
-        // As this is a nam balance specific atom, we can safely assume that the
-        // first currency is the native token
-        chainConfig.currencies[0].coinDecimals
+        tokenAddress.data!
       );
     }, [tokenAddress, defaultAccount]),
   };

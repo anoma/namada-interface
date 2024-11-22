@@ -3691,6 +3691,7 @@ __metadata:
     toml: "npm:^3.0.0"
     traverse: "npm:^0.6.9"
     ts-jest: "npm:^29.2.5"
+    ts-jest-mock-import-meta: "npm:^1.2.1"
     ts-node: "npm:^10.9.1"
     tsconfig-paths-webpack-plugin: "npm:^4.1.0"
     typescript: "npm:^5.5.4"
@@ -20862,6 +20863,15 @@ __metadata:
   version: 0.1.13
   resolution: "ts-interface-checker@npm:0.1.13"
   checksum: 232509f1b84192d07b81d1e9b9677088e590ac1303436da1e92b296e9be8e31ea042e3e1fd3d29b1742ad2c959e95afe30f63117b8f1bc3a3850070a5142fea7
+  languageName: node
+  linkType: hard
+
+"ts-jest-mock-import-meta@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "ts-jest-mock-import-meta@npm:1.2.1"
+  peerDependencies:
+    ts-jest: ">=20.0.0"
+  checksum: 86eb214916bfbf0934eadde56c8c4562f98b0bd5d03d24baa2b636746f248b4d96d5b489a4e0b25b5aec33f9d7d93ef289c9def47d848b46f6a456e9a8f9e2cd
   languageName: node
   linkType: hard
 

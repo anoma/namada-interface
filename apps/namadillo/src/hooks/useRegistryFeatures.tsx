@@ -7,7 +7,7 @@ import {
 import { useAtom, useAtomValue } from "jotai";
 import { useEffect } from "react";
 
-const { VITE_PROXY } = process.env;
+const { VITE_PROXY } = import.meta.env;
 
 const namadaChainRegistryUrl =
   VITE_PROXY ?
