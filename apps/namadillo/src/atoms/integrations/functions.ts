@@ -43,6 +43,13 @@ import internalDevnetCosmosTestnetIbc from "namada-chain-registry/_IBC/namadaint
 
 // TODO: this causes a big increase on bundle size. See #1224.
 import cosmosRegistry from "chain-registry";
+import { namadaLocal, namadaLocalAsset } from "registry/namada-local";
+
+const {
+  VITE_LOCALNET: localnet = false,
+  VITE_LOCALNET_CHAIN_ID: localChainId,
+  VITE_LOCALNET_NAM_TOKEN: localToken,
+} = import.meta.env;
 
 cosmosRegistry.chains.push(internalDevnetChain, housefireChain, dryrunChain);
 
@@ -74,6 +81,18 @@ const testnetChains: ChainRegistryEntry[] = [
 ];
 
 const mainnetAndTestnetChains = [...mainnetChains, ...testnetChains];
+
+if (localnet && localChainId && localToken) {
+  const localChain: ChainRegistryEntry = {
+    chain: namadaLocal(localChainId),
+    assets: namadaLocalAsset(localToken),
+  };
+
+  cosmosRegistry.chains.push(localChain.chain);
+  cosmosRegistry.assets.push(localChain.assets);
+
+  mainnetChains.push(localChain);
+}
 
 export const getKnownChains = (
   includeTestnets?: boolean
