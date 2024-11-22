@@ -25,20 +25,20 @@ describe("Component: AssetImage", () => {
 
   it("renders the shielded badge when isShielded is true", () => {
     render(<AssetImage asset={assetMock} isShielded={true} />);
-    const badgeElement = screen.getByAltText(/Namada logo/i);
+    const badgeElement = screen.getByAltText(/Nam logo/i);
     expect(badgeElement).toBeInTheDocument();
     expect(badgeElement).toHaveAttribute("src", "mock-url/NAM");
   });
 
   it("renders the shielded badge when isShielded is false", () => {
     render(<AssetImage asset={assetMock} isShielded={false} />);
-    const badgeElement = screen.getByAltText(/Namada logo/i);
+    const badgeElement = screen.getByAltText(/Nam logo/i);
     expect(badgeElement).toBeInTheDocument();
   });
 
   it("don't render the shielded badge when isShielded is undefined", () => {
     render(<AssetImage asset={assetMock} />);
-    const badgeElement = screen.queryByAltText(/Namada logo/i);
+    const badgeElement = screen.queryByAltText(/Nam logo/i);
     expect(badgeElement).not.toBeInTheDocument();
   });
 });
