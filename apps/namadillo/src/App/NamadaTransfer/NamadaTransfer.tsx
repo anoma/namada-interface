@@ -207,8 +207,8 @@ export const NamadaTransfer: React.FC = () => {
   };
 
   const onSubmitTransfer = async ({
-    amount,
     destinationAddress,
+    memo,
   }: OnSubmitTransferParams): Promise<void> => {
     try {
       setGeneralErrorMessage("");
@@ -237,7 +237,7 @@ export const NamadaTransfer: React.FC = () => {
         chainId,
       });
 
-      const txResponse = await performTransfer();
+      const txResponse = await performTransfer({ memo });
 
       // TODO review and improve this data to be more precise and full of details
       // TODO: the transaction here is not complete yet. We should move this to the tx success event
@@ -248,13 +248,14 @@ export const NamadaTransfer: React.FC = () => {
         sourceAddress: source,
         destinationAddress,
         asset: selectedAsset.asset,
-        amount,
+        amount: txAmount,
         rpc: rpcUrl,
         chainId: txResponse?.encodedTxData.txs[0]?.args.chainId ?? "",
         hash: txResponse?.encodedTxData.txs[0].hash,
         feePaid: txResponse?.encodedTxData.txs[0].args.feeAmount,
         resultTxHash: txResponse?.encodedTxData.txs[0].hash,
         status: "success",
+        memo,
         createdAt: new Date(),
         updatedAt: new Date(),
       };

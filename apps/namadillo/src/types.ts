@@ -147,6 +147,7 @@ export type BuildTxAtomParams<T> = {
   account: Account;
   params: T[];
   gasConfig: GasConfig;
+  memo?: string;
 };
 
 export type SortOptions = "asc" | "desc" | undefined;
@@ -313,6 +314,7 @@ export type BaseTransferTransaction = TransferStage & {
   tipPaid?: BigNumber;
   resultTxHash?: string;
   errorMessage?: string;
+  memo?: string;
   status: MutationStatus;
   createdAt: Date;
   updatedAt: Date;
