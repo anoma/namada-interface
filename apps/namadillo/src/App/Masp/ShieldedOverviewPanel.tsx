@@ -13,7 +13,7 @@ const tabs = ["Fungible", "NFT"];
 const ShieldAssetCta = (): JSX.Element => {
   return (
     <div className="flex-1 flex items-center justify-center">
-      <ActionButton href={routes.ibc} className="w-fit uppercase">
+      <ActionButton href={routes.maspShield} className="w-fit uppercase">
         Shield your first assets
       </ActionButton>
     </div>
