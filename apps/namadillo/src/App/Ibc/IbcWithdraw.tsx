@@ -23,8 +23,8 @@ import { useAtomValue } from "jotai";
 import { broadcastTx } from "lib/query";
 import { useEffect, useState } from "react";
 import namadaChainRegistry from "registry/namada.json";
-import { namadaAsset } from "registry/namadaAsset";
 import { Address, PartialTransferTransactionData, TransferStep } from "types";
+import { namadaAsset } from "utils";
 import { IbcTopHeader } from "./IbcTopHeader";
 
 const defaultChainId = "cosmoshub-4";
