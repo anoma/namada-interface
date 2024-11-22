@@ -20,6 +20,7 @@ import {
   TransferTransactionData,
 } from "types";
 import {
+  addLocalnetToRegistry,
   createIbcTx,
   getIbcChannels,
   getKnownChains,
@@ -28,6 +29,7 @@ import {
   mapCoinsToAssets,
 } from "./functions";
 import {
+  fetchLocalnetTomlConfig,
   IbcTransferParams,
   queryAndStoreRpc,
   queryAssetBalances,
@@ -195,6 +197,30 @@ export const createIbcTxAtom = atomWithMutation((get) => {
         chain.data!,
         memo
       );
+    },
+  };
+});
+
+export const localnetConfigAtom = atomWithQuery((_get) => {
+  return {
+    queryKey: ["localnet-config"],
+    staleTime: Infinity,
+    retry: false,
+
+    queryFn: async () => {
+      try {
+        const { enabled, chain_id, token_address } =
+          await fetchLocalnetTomlConfig();
+
+        if (enabled && chain_id && token_address) {
+          addLocalnetToRegistry(chain_id, token_address);
+        }
+
+        return { chainId: chain_id, tokenAddress: token_address };
+      } catch (_) {
+        // If file not found just ignore
+        return null;
+      }
     },
   };
 });

@@ -122,7 +122,7 @@ const findDisplayUnit = (asset: Asset): AssetDenomUnit | undefined => {
 };
 
 const isNamAsset = (asset: Asset): boolean =>
-  asset.symbol === namadaAsset.symbol;
+  asset.symbol === namadaAsset().symbol;
 
 export const toDisplayAmount = (
   asset: Asset,

@@ -2,6 +2,7 @@ import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { ErrorBox } from "App/Common/ErrorBox";
 import { routes } from "App/routes";
 import { chainAtom } from "atoms/chain";
+import { localnetConfigAtom } from "atoms/integrations";
 import { useAtomValue } from "jotai";
 import { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -31,6 +32,8 @@ export const ChainLoader = ({
   children: ReactNode;
 }): JSX.Element => {
   const chain = useAtomValue(chainAtom);
+  useAtomValue(localnetConfigAtom);
+
   const errorContainerProps = {
     className: "bg-black max-w-full rounded-sm w-full text-white min-h-full",
   };

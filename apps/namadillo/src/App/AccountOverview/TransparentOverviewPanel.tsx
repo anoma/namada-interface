@@ -72,7 +72,7 @@ const TransparentTokensTable = ({
           >
             Shield
           </ActionButton>
-          {originalAddress === namadaAsset.address && (
+          {originalAddress === namadaAsset().address && (
             <ActionButton
               size="xs"
               className="w-fit mx-auto"
@@ -127,7 +127,7 @@ const TransparentTokensTable = ({
 };
 
 const PanelContent = ({ data }: { data: TokenBalance[] }): JSX.Element => {
-  const namBalance = data.find((i) => i.asset.base === namadaAsset.base);
+  const namBalance = data.find((i) => i.asset.base === namadaAsset().base);
 
   return (
     <div className="flex flex-col gap-2">

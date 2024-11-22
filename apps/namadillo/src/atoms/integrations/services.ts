@@ -11,9 +11,11 @@ import { queryForAck, queryForIbcTimeout } from "atoms/transactions";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
 import { createIbcTransferMessage } from "lib/transactions";
+import toml from "toml";
 import {
   AddressWithAsset,
   IbcTransferTransactionData,
+  LocalnetToml,
   TransferStep,
 } from "types";
 import { toBaseAmount } from "utils";
@@ -188,4 +190,9 @@ export const updateIbcTransactionStatus = async (
       resultTxHash: timeoutQuery[0].hash,
     });
   }
+};
+
+export const fetchLocalnetTomlConfig = async (): Promise<LocalnetToml> => {
+  const response = await fetch("/localnet-config.toml");
+  return toml.parse(await response.text()) as LocalnetToml;
 };

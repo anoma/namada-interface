@@ -102,8 +102,8 @@ describe("Component: TransferDestination", () => {
       <TransferDestination
         transactionFee={{
           amount: fee,
-          asset: namadaAsset,
-          originalAddress: namadaAsset.address,
+          asset: namadaAsset(),
+          originalAddress: namadaAsset().address,
         }}
       />
     );

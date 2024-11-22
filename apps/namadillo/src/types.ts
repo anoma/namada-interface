@@ -333,3 +333,9 @@ export type TransferTransactionData =
 
 export type PartialTransferTransactionData = Partial<TransferTransactionData> &
   Pick<TransferTransactionData, "type" | "chainId" | "asset">;
+
+export type LocalnetToml = {
+  enabled: boolean;
+  chain_id: string;
+  token_address: string;
+};
