@@ -1,28 +1,9 @@
-import { pathsToModuleNameMapper } from "ts-jest";
+import { createDefaultPreset, pathsToModuleNameMapper } from "ts-jest";
 import { compilerOptions } from "../../tsconfig.base.json";
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
-  transform: {
-    "^.+\\.tsx?$": [
-      "ts-jest",
-      {
-        diagnostics: {
-          ignoreCodes: [1343],
-        },
-        astTransformers: {
-          before: [
-            {
-              path: "../../node_modules/ts-jest-mock-import-meta",
-              options: {
-                metaObjectReplacement: { env: {} },
-              },
-            },
-          ],
-        },
-      },
-    ],
-  },
+  ...createDefaultPreset(),
   roots: ["src"],
   displayName: "Namadillo",
   testEnvironment: "jsdom",
