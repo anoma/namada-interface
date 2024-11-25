@@ -1,4 +1,4 @@
-import { init as initShared } from "@namada/shared/src/init-inline";
+import init from "@namada/sdk/inline-init";
 import { QueryProvider } from "App/Common/QueryProvider";
 import { SdkProvider } from "hooks/useSdk";
 import React from "react";
@@ -20,7 +20,7 @@ const container = document.getElementById("root");
 
 if (container) {
   const root = createRoot(container);
-  initShared().then(() => {
+  init().then(() => {
     root.render(
       <React.StrictMode>
         <QueryProvider>

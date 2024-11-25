@@ -199,6 +199,7 @@ export class ApprovalsService {
     interfaceOrigin: string,
     chainId?: string
   ): Promise<void> {
+    console.log("approveConnection", { interfaceOrigin, chainId });
     const alreadyApproved = await this.isConnectionApproved(
       interfaceOrigin,
       chainId

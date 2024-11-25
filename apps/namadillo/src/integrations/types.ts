@@ -1,8 +1,5 @@
 import { ChainRegistryEntry } from "types";
 
-export type AttachStatus = "pending" | "attached" | "detached";
-export type ConnectStatus = "idle" | "connecting" | "connected" | "error";
-
 // Generic wallet functionality
 export interface Wallet {
   install(): void;

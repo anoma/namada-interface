@@ -1,12 +1,21 @@
 import { WindowWithNamada } from "@namada/types";
 import { chainParametersAtom } from "atoms/chain";
-import { AttachStatus, ConnectStatus, Wallet } from "integrations/types";
-import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
+import {
+  namadaExtensionAttachStatus,
+  namadaExtensionConnectionStatus,
+} from "atoms/settings";
+import { Wallet } from "integrations/types";
+import { useAtom, useAtomValue } from "jotai";
+import { useCallback, useState } from "react";
 
 export type InjectedNamada = WindowWithNamada["namada"];
 
 export class NamadaKeychain implements Wallet {
+  static detect(): boolean {
+    return Boolean((window as WindowWithNamada).namada);
+  }
+
+  // TODO: Should we use this, or keep our existing download buttons?
   install(): void {
     console.warn(
       "Namada is not available. Redirecting to the Namada download page..."
@@ -49,60 +58,37 @@ export class NamadaKeychain implements Wallet {
   }
 }
 
-export const useNamadaKeychain = (): [
-  attachStatus: AttachStatus,
-  connectStatus: ConnectStatus,
-  connect: () => Promise<void>,
-  namada: NamadaKeychain,
-  error?: string,
-] => {
-  const [attachStatus, setAttachStatus] = useState<AttachStatus>("detached");
-  const [connectStatus, setConnectStatus] = useState<ConnectStatus>("idle");
-  const [connectError, setConnectError] = useState<string>();
+export const useNamadaKeychain = (): {
+  connect: () => Promise<void>;
+  namadaKeychain: NamadaKeychain;
+  error?: string;
+} => {
+  const [connectStatus, setConnectStatus] = useAtom(
+    namadaExtensionConnectionStatus
+  );
+  const [attachStatus] = useAtom(namadaExtensionAttachStatus);
+  const [error, setError] = useState<string>();
   const { data: chain } = useAtomValue(chainParametersAtom);
   const namadaKeychain = new NamadaKeychain();
+  const chainId = chain?.chainId;
 
-  const connect = async (): Promise<void> => {
-    if (!chain) {
+  const connect = useCallback(async (): Promise<void> => {
+    if (
+      !chainId ||
+      attachStatus !== "attached" ||
+      connectStatus === "connected"
+    ) {
       return;
     }
     setConnectStatus("connecting");
     namadaKeychain
-      .connect(chain.chainId)
-      .then(() => {
-        console.info(`Connected to keychain with ${chain.chainId}`);
-        setConnectStatus("connected");
-      })
+      .connect(chainId)
+      .then(() => setConnectStatus("connected"))
       .catch((e) => {
-        console.error(e);
         setConnectStatus("error");
-        setConnectError(e);
+        setError(e);
       });
-  };
+  }, [chainId, attachStatus, connectStatus]);
 
-  useEffect(() => {
-    setAttachStatus("pending");
-    namadaKeychain
-      .get()
-      .then(() => setAttachStatus("attached"))
-      .catch(() => setAttachStatus("detached"));
-  }, []);
-
-  useEffect(() => {
-    if (attachStatus === "attached") {
-      if (chain?.chainId) {
-        namadaKeychain
-          .get()
-          .then((namada) =>
-            namada
-              .isConnected(chain.chainId)
-              .then(() =>
-                console.info(`Connected to keychain with ${chain.chainId}`)
-              )
-          );
-      }
-    }
-  }, [chain]);
-
-  return [attachStatus, connectStatus, connect, namadaKeychain, connectError];
+  return { connect, namadaKeychain, error };
 };
