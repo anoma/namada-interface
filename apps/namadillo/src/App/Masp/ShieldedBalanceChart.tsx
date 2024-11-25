@@ -4,13 +4,18 @@ import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { shieldedSyncAtom, shieldedTokensAtom } from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { colors } from "theme";
+import {
+  ProgressBarFinished,
+  ProgressBarIncremented,
+} from "workers/ShieldedSyncWorker";
 
 export const ShieldedBalanceChart = (): JSX.Element => {
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
-  const shieldedSyncProgress = useAtomValue(shieldedSyncAtom);
+  const [{ data: shieldedSyncProgress, refetch: shieledSync }] =
+    useAtom(shieldedSyncAtom);
 
   const [progress, setProgress] = useState({
     [ProgressBarNames.Scanned]: 0,
@@ -19,29 +24,54 @@ export const ShieldedBalanceChart = (): JSX.Element => {
   });
 
   useEffect(() => {
-    shieldedSyncProgress &&
-      shieldedSyncProgress.on(
-        SdkEvents.ProgressBarIncremented,
-        ({ name, current, total }) => {
-          const perc =
-            total === 0 ? 0 : (
-              Math.min(Math.floor((current / total) * 100), 100)
-            );
-          setProgress((prev) => ({
-            ...prev,
-            [name]: perc,
-          }));
-        }
-      );
+    if (!shieldedSyncProgress) return;
 
-    shieldedSyncProgress &&
-      shieldedSyncProgress.on(SdkEvents.ProgressBarFinished, ({ name }) => {
-        setProgress((prev) => ({
-          ...prev,
-          [name]: 100,
-        }));
-      });
+    const onProgressBarIncremented = ({
+      name,
+      current,
+      total,
+    }: ProgressBarIncremented): void => {
+      const perc =
+        total === 0 ? 0 : Math.min(Math.floor((current / total) * 100), 100);
+
+      setProgress((prev) => ({
+        ...prev,
+        [name]: perc,
+      }));
+    };
+
+    const onProgressBarFinished = ({ name }: ProgressBarFinished): void => {
+      setProgress((prev) => ({
+        ...prev,
+        [name]: 100,
+      }));
+    };
+
+    shieldedSyncProgress.on(
+      SdkEvents.ProgressBarIncremented,
+      onProgressBarIncremented
+    );
+
+    shieldedSyncProgress.on(
+      SdkEvents.ProgressBarFinished,
+      onProgressBarFinished
+    );
+
+    return () => {
+      shieldedSyncProgress.off(
+        SdkEvents.ProgressBarIncremented,
+        onProgressBarIncremented
+      );
+      shieldedSyncProgress.off(
+        SdkEvents.ProgressBarFinished,
+        onProgressBarFinished
+      );
+    };
   }, [shieldedSyncProgress]);
+
+  useEffect(() => {
+    shieledSync();
+  }, []);
 
   const shieldedDollars = getTotalDollar(shieldedTokensQuery.data);
 
