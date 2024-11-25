@@ -1,5 +1,6 @@
 import { isUrlValid, sanitizeUrl } from "@namada/utils";
 import { indexerRpcUrlAtom } from "atoms/chain";
+import { AttachStatus, ConnectStatus } from "integrations/types";
 import { Getter, Setter, atom, getDefaultStore } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
@@ -10,9 +11,6 @@ import {
   isMaspIndexerAlive,
   isRpcAlive,
 } from "./services";
-
-export type AttachStatus = "pending" | "attached" | "detached";
-export type ConnectStatus = "idle" | "connecting" | "connected" | "error";
 
 export const namadaExtensionAttachStatus = atom<AttachStatus>("pending");
 export const namadaExtensionConnectionStatus = atom<ConnectStatus>("idle");

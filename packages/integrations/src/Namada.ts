@@ -46,8 +46,8 @@ export default class Namada implements Integration<Account, Signer> {
     return await this._namada?.accounts(chainId);
   }
 
-  public async defaultAccount(chainId?: string): Promise<Account | undefined> {
-    return await this._namada?.defaultAccount(chainId);
+  public async defaultAccount(): Promise<Account | undefined> {
+    return await this._namada?.defaultAccount();
   }
 
   public async updateDefaultAccount(address: string): Promise<void> {

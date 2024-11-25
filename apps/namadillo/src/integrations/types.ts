@@ -1,11 +1,17 @@
-import { WindowWithNamada } from "@namada/types";
 import { ChainRegistryEntry } from "types";
 
-export type NamadaKeychain = WindowWithNamada["namada"];
+export type AttachStatus = "pending" | "attached" | "detached";
+export type ConnectStatus = "idle" | "connecting" | "connected" | "error";
 
-export interface WalletConnector {
+// Generic wallet functionality
+export interface Wallet {
   install(): void;
   get(): unknown;
+  connect(chainId: string): Promise<void>;
+}
+
+// For use with useWalletManager
+export interface WalletConnector extends Omit<Wallet, "connect"> {
   connect(registry: ChainRegistryEntry): Promise<void>;
   getAddress(chainId: string): Promise<string>;
   getSigner(chainId: string): unknown | undefined;

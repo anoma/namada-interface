@@ -29,7 +29,7 @@ export interface Namada {
   connect(chainId?: string): Promise<void>;
   disconnect(chainId?: string): Promise<void>;
   isConnected(chainId?: string): Promise<boolean | undefined>;
-  defaultAccount(chainId?: string): Promise<Account | undefined>;
+  defaultAccount(): Promise<Account | undefined>;
   updateDefaultAccount(address: string): Promise<void>;
   sign(props: SignProps): Promise<Uint8Array[] | undefined>;
   signArbitrary(

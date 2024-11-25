@@ -1,6 +1,7 @@
 import { useIntegrationConnection } from "@namada/integrations";
 import { ExtensionKey } from "@namada/types";
-import { ConnectStatus, namadaExtensionConnectionStatus } from "atoms/settings";
+import { namadaExtensionConnectionStatus } from "atoms/settings";
+import { ConnectStatus } from "integrations/types";
 import { useAtom } from "jotai";
 import { useEffect } from "react";
 
