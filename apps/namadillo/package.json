@@ -121,7 +121,6 @@
     "release-it": "^17.0.1",
     "tailwindcss": "^3.4.0",
     "ts-jest": "^29.2.5",
-    "ts-jest-mock-import-meta": "^1.2.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths-webpack-plugin": "^4.1.0",
     "typescript": "^5.5.4",
