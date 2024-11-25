@@ -24,6 +24,7 @@ import { useTransactionActions } from "hooks/useTransactionActions";
 import { wallets } from "integrations";
 import { getAssetImageUrl } from "integrations/utils";
 import { useAtomValue } from "jotai";
+import { createTransferDataFromNamada } from "lib/transactions";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import namadaChain from "registry/namada.json";
@@ -33,20 +34,33 @@ import {
   NamadaTransferTxKind,
   PartialTransferTransactionData,
   TransferStep,
-  TransferTransactionData,
 } from "types";
 import { toBaseAmount, useTransactionEventListListener } from "utils";
 import { NamadaTransferTopHeader } from "./NamadaTransferTopHeader";
 
 export const NamadaTransfer: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
+  const [shielded, setShielded] = useState<boolean>(true);
+  const [customAddress, setCustomAddress] = useState<string>("");
+  const [currentStep, setCurrentStep] = useState(0);
+  const [generalErrorMessage, setGeneralErrorMessage] = useState("");
+  const [transaction, setTransaction] =
+    useState<PartialTransferTransactionData>();
 
   const rpcUrl = useAtomValue(rpcUrlAtom);
   const features = useAtomValue(applicationFeaturesAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
+
   const { data: availableAssetsData, isLoading: isLoadingAssets } =
     useAtomValue(namadaTransparentAssetsAtom);
+
+  const {
+    transactions: myTransactions,
+    findByHash,
+    storeTransaction,
+  } = useTransactionActions();
 
   const availableAssets = useMemo(() => {
     if (features.namTransfersEnabled) {
@@ -62,29 +76,13 @@ export const NamadaTransfer: React.FC = () => {
     return assetsMap;
   }, [availableAssetsData]);
 
-  const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
-  const [shielded, setShielded] = useState<boolean>(true);
-  const [customAddress, setCustomAddress] = useState<string>("");
-  const [currentStep, setCurrentStep] = useState(0);
-  const [generalErrorMessage, setGeneralErrorMessage] = useState("");
-  const [transaction, setTransaction] =
-    useState<PartialTransferTransactionData>();
-  const {
-    transactions: myTransactions,
-    findByHash,
-    storeTransaction,
-  } = useTransactionActions();
-
   const chainId = chainParameters.data?.chainId;
-
   const sourceAddress = defaultAccounts.data?.find((account) =>
     shielded ? account.isShielded : !account.isShielded
   )?.address;
-
   const selectedAssetAddress = searchParams.get(params.asset) || undefined;
   const selectedAsset =
     selectedAssetAddress ? availableAssets?.[selectedAssetAddress] : undefined;
-
   const token = selectedAsset?.originalAddress ?? "";
   const source = sourceAddress ?? "";
   const target = customAddress ?? "";
@@ -106,18 +104,6 @@ export const NamadaTransfer: React.FC = () => {
       setCurrentStep(1);
     },
   };
-
-  useTransactionEventListListener(
-    [
-      "TransparentTransfer.Success",
-      "ShieldedTransfer.Success",
-      "ShieldingTransfer.Success",
-      "UnshieldingTransfer.Success",
-    ],
-    () => {
-      setCurrentStep(3);
-    }
-  );
 
   const transparentTransaction = useTransaction({
     eventType: "TransparentTransfer",
@@ -150,7 +136,8 @@ export const NamadaTransfer: React.FC = () => {
   const getAddressKind = (address: Address): "Shielded" | "Transparent" =>
     isShieldedAddress(address) ? "Shielded" : "Transparent";
 
-  const txKind: NamadaTransferTxKind = `${getAddressKind(source)}To${getAddressKind(target)}`;
+  const txKind: NamadaTransferTxKind =
+    `${getAddressKind(source)}To${getAddressKind(target)}` as const;
 
   const {
     execute: performTransfer,
@@ -191,6 +178,18 @@ export const NamadaTransfer: React.FC = () => {
     }
   }, [myTransactions]);
 
+  useTransactionEventListListener(
+    [
+      "TransparentTransfer.Success",
+      "ShieldedTransfer.Success",
+      "ShieldingTransfer.Success",
+      "UnshieldingTransfer.Success",
+    ],
+    () => {
+      setCurrentStep(3);
+    }
+  );
+
   const onChangeSelectedAsset = (address?: Address): void => {
     setSearchParams(
       (currentParams) => {
@@ -207,7 +206,6 @@ export const NamadaTransfer: React.FC = () => {
   };
 
   const onSubmitTransfer = async ({
-    destinationAddress,
     memo,
   }: OnSubmitTransferParams): Promise<void> => {
     try {
@@ -238,30 +236,27 @@ export const NamadaTransfer: React.FC = () => {
       });
 
       const txResponse = await performTransfer({ memo });
+      if (txResponse) {
+        const txList = createTransferDataFromNamada(
+          txKind,
+          selectedAsset.asset,
+          rpcUrl,
+          txResponse,
+          memo
+        );
 
-      // TODO review and improve this data to be more precise and full of details
-      // TODO: the transaction here is not complete yet. We should move this to the tx success event
-      // and handle errors for them
-      const tx: TransferTransactionData = {
-        type: txKind,
-        currentStep: TransferStep.Complete,
-        sourceAddress: source,
-        destinationAddress,
-        asset: selectedAsset.asset,
-        amount: txAmount,
-        rpc: rpcUrl,
-        chainId: txResponse?.encodedTxData.txs[0]?.args.chainId ?? "",
-        hash: txResponse?.encodedTxData.txs[0].hash,
-        feePaid: txResponse?.encodedTxData.txs[0].args.feeAmount,
-        resultTxHash: txResponse?.encodedTxData.txs[0].hash,
-        status: "success",
-        memo,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      setTransaction(tx);
-      storeTransaction(tx);
-      setCurrentStep(2);
+        // Currently we don't have the option of batching transfer transactions
+        if (txList.length === 0) {
+          throw "Couldn't create TransferData object ";
+        }
+
+        const tx = txList[0];
+        setTransaction(tx);
+        storeTransaction(tx);
+        setCurrentStep(2);
+      } else {
+        throw "Invalid transaction response";
+      }
     } catch (err) {
       setGeneralErrorMessage(err + "");
       setCurrentStep(0);

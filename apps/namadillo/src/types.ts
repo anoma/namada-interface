@@ -280,23 +280,25 @@ export const ibcTransferTypes: Array<keyof AllTransferStages> = [
 
 type NamadaTransferStages = typeof namadaTransferStages;
 type IbcTransferStages = typeof ibcTransferStages;
-type AllTransferStages = typeof allTransferStages;
+export type AllTransferStages = typeof allTransferStages;
 
 export type NamadaTransferTxKind = keyof NamadaTransferStages;
 
 export type IbcTransferTxKind = keyof IbcTransferStages;
 
+export type AllTransferTxKind = NamadaTransferTxKind | IbcTransferTxKind;
+
 export type NamadaTransferStage = {
   [P in NamadaTransferTxKind]: {
     type: P;
-    currentStep: NamadaTransferStages[P][number];
+    currentStep: TransferStep;
   };
 }[NamadaTransferTxKind];
 
 export type IbcTransferStage = {
   [P in IbcTransferTxKind]: {
     type: P;
-    currentStep: IbcTransferStages[P][number];
+    currentStep: TransferStep;
   };
 }[IbcTransferTxKind];
 
