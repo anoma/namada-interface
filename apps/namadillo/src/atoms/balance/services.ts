@@ -5,6 +5,9 @@ import { Balance, SdkEvents } from "@namada/sdk/web";
 import { getSdkInstance } from "utils/sdk";
 import {
   Events,
+  ProgressBarFinished,
+  ProgressBarIncremented,
+  ProgressBarStarted,
   Worker as ShieldedSyncWorkerApi,
 } from "workers/ShieldedSyncWorker";
 import ShieldedSyncWorker from "workers/ShieldedSyncWorker?worker";
@@ -21,12 +24,11 @@ export const fetchCoinPrices = async (
     ).then((res) => res.json())
   : [];
 
-type ShieldedSyncEventMap = Record<
-  | SdkEvents.ProgressBarStarted
-  | SdkEvents.ProgressBarIncremented
-  | SdkEvents.ProgressBarFinished,
-  Events[]
->;
+export type ShieldedSyncEventMap = {
+  [SdkEvents.ProgressBarStarted]: ProgressBarStarted[];
+  [SdkEvents.ProgressBarIncremented]: ProgressBarIncremented[];
+  [SdkEvents.ProgressBarFinished]: ProgressBarFinished[];
+};
 
 export function shieldedSync(
   rpcUrl: string,
@@ -39,7 +41,15 @@ export function shieldedSync(
   const emitter = new EventEmitter<ShieldedSyncEventMap>();
 
   worker.onmessage = (event: MessageEvent<Events>) => {
-    emitter.emit(event.data.type, event.data);
+    if (event.data.type === SdkEvents.ProgressBarStarted) {
+      emitter.emit(event.data.type, event.data);
+    }
+    if (event.data.type === SdkEvents.ProgressBarIncremented) {
+      emitter.emit(event.data.type, event.data);
+    }
+    if (event.data.type === SdkEvents.ProgressBarFinished) {
+      emitter.emit(event.data.type, event.data);
+    }
   };
 
   (async () => {

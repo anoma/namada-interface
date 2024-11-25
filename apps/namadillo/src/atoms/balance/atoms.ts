@@ -16,7 +16,6 @@ import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import * as osmosis from "chain-registry/mainnet/osmosis";
 import EventEmitter from "events";
-import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import semver from "semver";
 import { AddressWithAsset } from "types";
@@ -29,6 +28,7 @@ import {
   fetchCoinPrices,
   fetchShieldedBalance,
   shieldedSync,
+  ShieldedSyncEventMap,
 } from "./services";
 
 export type TokenBalance = AddressWithAsset & {
@@ -86,27 +86,35 @@ export const viewingKeysAtom = atomWithQuery<[string, string[]]>((get) => {
   };
 });
 
-export const shieldedSyncAtom = atom<EventEmitter | undefined>((get) => {
+export const shieldedSyncAtom = atomWithQuery<
+  EventEmitter<ShieldedSyncEventMap> | undefined
+>((get) => {
   const viewingKeysQuery = get(viewingKeysAtom);
   const namTokenAddressQuery = get(nativeTokenAddressAtom);
   const rpcUrl = get(rpcUrlAtom);
   const maspIndexerUrl = get(maspIndexerUrlAtom);
 
-  const viewingKeys = viewingKeysQuery.data;
-  if (!viewingKeys) {
-    return;
-  }
-  const namTokenAddress = namTokenAddressQuery.data;
-  const [_, allViewingKeys] = viewingKeys!;
+  return {
+    queryKey: [
+      "shielded-sync",
+      viewingKeysQuery.data,
+      namTokenAddressQuery.data,
+      rpcUrl,
+    ],
+    disable: true,
+    queryFn: async () => {
+      const viewingKeys = viewingKeysQuery.data;
+      const namTokenAddress = namTokenAddressQuery.data;
+      const [_, allViewingKeys] = viewingKeys!;
 
-  const emitter = shieldedSync(
-    rpcUrl,
-    maspIndexerUrl,
-    namTokenAddress!,
-    allViewingKeys
-  );
-
-  return emitter;
+      return shieldedSync(
+        rpcUrl,
+        maspIndexerUrl,
+        namTokenAddress!,
+        allViewingKeys
+      );
+    },
+  };
 });
 
 export const shieldedBalanceAtom = atomWithQuery<
@@ -127,9 +135,9 @@ export const shieldedBalanceAtom = atomWithQuery<
       viewingKeysQuery.data,
       tokenAddressesQuery.data,
       namTokenAddressQuery.data,
+      shieldedSync.data,
       rpcUrl,
       maspIndexerUrl,
-      shieldedSync,
     ],
     ...queryDependentFn(async () => {
       const viewingKeys = viewingKeysQuery.data;
@@ -140,7 +148,7 @@ export const shieldedBalanceAtom = atomWithQuery<
       const [viewingKey] = viewingKeys;
 
       await new Promise<void>((resolve) => {
-        shieldedSync!.once(SdkEvents.ProgressBarFinished, () => resolve());
+        shieldedSync.data!.once(SdkEvents.ProgressBarFinished, () => resolve());
       });
 
       const response = await fetchShieldedBalance(
