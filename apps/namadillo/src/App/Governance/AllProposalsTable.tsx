@@ -291,7 +291,7 @@ const TableSelect = <T extends string>(
 type CellProps = { proposal: Proposal };
 
 const Title: React.FC<CellProps> = ({ proposal }) => (
-  <div className="w-full overflow-x-hidden whitespace-nowrap text-ellipsis">
+  <div className="w-full overflow-x-hidden whitespace-nowrap text-ellipsis text-sm">
     {proposal.content.title}
   </div>
 );

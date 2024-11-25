@@ -41,7 +41,7 @@ export const ProposalHeader: React.FC<{
         <div className="w-full">
           <Breadcrumbs proposalId={proposalId} />
           <BackButton />
-          <Stack gap={2.5}>
+          <Stack gap={2.5} className="mt-4">
             <TypeLabel proposal={proposal} />
             <Title proposal={proposal} proposalId={proposalId} />
           </Stack>
@@ -77,7 +77,7 @@ const Title: React.FC<{
 );
 
 const Breadcrumbs: React.FC<{ proposalId: bigint }> = ({ proposalId }) => (
-  <div className="text-xxs text-neutral-500">
+  <div className="text-sm text-neutral-500">
     <Link className="transition-colors hover:text-white" to={routes.governance}>
       Governance
     </Link>{" "}
@@ -97,7 +97,7 @@ const BackButton: React.FC = () => (
   <Link
     to={routes.governance}
     className={clsx(
-      "inline-flex items-center text-xxs gap-1",
+      "inline-flex items-center text-xs gap-1",
       "text-neutral-200 bg-neutral-900 my-2 px-2 py-0.5 rounded-sm",
       "hover:text-yellow"
     )}

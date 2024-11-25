@@ -137,8 +137,8 @@ const PanelContent = ({ data }: { data: TokenBalance[] }): JSX.Element => {
             title: "Total Transparent Asset Balance",
             amount: getTotalDollar(data),
             button: (
-              <ActionButton size="xs" href={routes.ibcShieldAll}>
-                Shield All
+              <ActionButton size="xs" href={routes.maspShield}>
+                Shield
               </ActionButton>
             ),
           },
