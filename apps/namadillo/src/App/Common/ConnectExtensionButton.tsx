@@ -21,7 +21,7 @@ export const ConnectExtensionButton = (): JSX.Element => {
           <ActionButton backgroundColor="yellow" size="sm" onClick={connect}>
             {connectStatus === "connecting" ?
               "Connecting..."
-              : "Connect Keychain"}
+            : "Connect Keychain"}
           </ActionButton>
         )}
       {extensionAttachStatus === "detached" && (

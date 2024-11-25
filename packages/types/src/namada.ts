@@ -25,7 +25,7 @@ export type BalancesProps = {
 };
 
 export interface Namada {
-  accounts(chainId?: string): Promise<Account[] | undefined>;
+  accounts(chainId?: string): Promise<readonly Account[] | undefined>;
   connect(chainId?: string): Promise<void>;
   disconnect(chainId?: string): Promise<void>;
   isConnected(chainId?: string): Promise<boolean | undefined>;

@@ -11,10 +11,6 @@ import { useCallback, useState } from "react";
 export type InjectedNamada = WindowWithNamada["namada"];
 
 export class NamadaKeychain implements Wallet {
-  static detect(): boolean {
-    return Boolean((window as WindowWithNamada).namada);
-  }
-
   // TODO: Should we use this, or keep our existing download buttons?
   install(): void {
     console.warn(
@@ -66,9 +62,10 @@ export const useNamadaKeychain = (): {
   const [connectStatus, setConnectStatus] = useAtom(
     namadaExtensionConnectionStatus
   );
-  const [attachStatus] = useAtom(namadaExtensionAttachStatus);
-  const [error, setError] = useState<string>();
+  const attachStatus = useAtomValue(namadaExtensionAttachStatus);
   const { data: chain } = useAtomValue(chainParametersAtom);
+
+  const [error, setError] = useState<string>();
   const namadaKeychain = new NamadaKeychain();
   const chainId = chain?.chainId;
 

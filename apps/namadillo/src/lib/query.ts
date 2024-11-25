@@ -1,9 +1,7 @@
-import { getIntegration } from "@namada/integrations/utils";
 import { Sdk } from "@namada/sdk/web";
 import {
   Account,
   AccountType,
-  ExtensionKey,
   Signer,
   TxMsgValue,
   TxProps,
@@ -11,6 +9,7 @@ import {
 } from "@namada/types";
 import { getIndexerApi } from "atoms/api";
 import { chainParametersAtom } from "atoms/chain";
+import { NamadaKeychain } from "hooks/useNamadaKeychain";
 import invariant from "invariant";
 import { getDefaultStore } from "jotai";
 import { Address, ChainSettings, GasConfig } from "types";
@@ -142,12 +141,11 @@ export const buildTx = async <T>(
  * Asynchronously signs an encoded batch transaction using Namada extension.
  */
 export const signTx = async <T>(
-  wallet: ExtensionKey,
   typedEncodedTx: EncodedTxData<T>,
   owner: string
 ): Promise<Uint8Array[]> => {
-  const integration = getIntegration(wallet);
-  const signingClient = integration.signer() as Signer;
+  const namada = await new NamadaKeychain().get();
+  const signingClient = namada.getSigner() as Signer;
 
   const store = getDefaultStore();
   const { data: chainParameters } = store.get(chainParametersAtom);
@@ -200,7 +198,7 @@ export const buildTxPair = async <T>(
     publicKeyRevealed,
     memo
   );
-  const signedTxs = await signTx<T>(chain.extensionId, encodedTxData, owner);
+  const signedTxs = await signTx<T>(encodedTxData, owner);
   return {
     signedTxs,
     encodedTxData,

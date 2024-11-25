@@ -1,9 +1,10 @@
-import { useIntegration } from "@namada/integrations";
+import { chainParametersAtom } from "atoms/chain";
 import {
   namadaExtensionAttachStatus,
   namadaExtensionConnectionStatus,
 } from "atoms/settings";
-import { useAtom, useSetAtom } from "jotai";
+import { useNamadaKeychain } from "hooks/useNamadaKeychain";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { ReactNode, useEffect } from "react";
 import { PageLoader } from "../Common/PageLoader";
 
@@ -12,19 +13,34 @@ export const ExtensionLoader = ({
 }: {
   children: ReactNode;
 }): JSX.Element => {
+  const { namadaKeychain } = useNamadaKeychain();
   const [attachStatus, setAttachStatus] = useAtom(namadaExtensionAttachStatus);
+  const { data: chain } = useAtomValue(chainParametersAtom);
   const setConnectionStatus = useSetAtom(namadaExtensionConnectionStatus);
-  const integration = useIntegration("namada");
+
+  const chainId = chain?.chainId;
+  const keychainPromise = namadaKeychain.get();
 
   useEffect(() => {
-    setAttachStatus(integration.detect() ? "attached" : "detached");
-
-    integration.isConnected().then((isConnected) => {
-      if (isConnected) {
-        setConnectionStatus("connected");
+    keychainPromise.then((injectedNamada) => {
+      if (injectedNamada) {
+        return setAttachStatus("attached");
       }
+      setAttachStatus("detached");
     });
-  }, [integration]);
+  }, []);
+
+  useEffect(() => {
+    if (chainId && attachStatus === "attached") {
+      keychainPromise.then((injectedNamada) => {
+        injectedNamada.isConnected(chainId).then((isConnected) => {
+          if (isConnected) {
+            setConnectionStatus("connected");
+          }
+        });
+      });
+    }
+  }, [attachStatus, chainId]);
 
   if (attachStatus === "pending") {
     return <PageLoader />;
