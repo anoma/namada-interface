@@ -54,36 +54,37 @@ export const viewingKeysAtom = atomWithQuery<[string, string[]]>((get) => {
   };
 });
 
-export const shieldedSyncAtom = atomWithQuery<
-  EventEmitter<ShieldedSyncEventMap> | undefined
->((get) => {
-  const viewingKeysQuery = get(viewingKeysAtom);
-  const namTokenAddressQuery = get(nativeTokenAddressAtom);
-  const rpcUrl = get(rpcUrlAtom);
-  const maspIndexerUrl = get(maspIndexerUrlAtom);
+export const shieldedSyncAtom =
+  atomWithQuery<EventEmitter<ShieldedSyncEventMap> | null>((get) => {
+    const viewingKeysQuery = get(viewingKeysAtom);
+    const namTokenAddressQuery = get(nativeTokenAddressAtom);
+    const rpcUrl = get(rpcUrlAtom);
+    const maspIndexerUrl = get(maspIndexerUrlAtom);
 
-  return {
-    queryKey: [
-      "shielded-sync",
-      viewingKeysQuery.data,
-      namTokenAddressQuery.data,
-      rpcUrl,
-    ],
-    disable: true,
-    queryFn: async () => {
-      const viewingKeys = viewingKeysQuery.data;
-      const namTokenAddress = namTokenAddressQuery.data;
-      const [_, allViewingKeys] = viewingKeys!;
-
-      return shieldedSync(
+    return {
+      queryKey: [
+        "shielded-sync",
+        viewingKeysQuery.data,
+        namTokenAddressQuery.data,
         rpcUrl,
         maspIndexerUrl,
-        namTokenAddress!,
-        allViewingKeys
-      );
-    },
-  };
-});
+      ],
+      ...queryDependentFn(async () => {
+        const viewingKeys = viewingKeysQuery.data;
+        const namTokenAddress = namTokenAddressQuery.data;
+        if (!namTokenAddress || !viewingKeys) {
+          return null;
+        }
+        const [_, allViewingKeys] = viewingKeys;
+        return shieldedSync(
+          rpcUrl,
+          maspIndexerUrl,
+          namTokenAddress,
+          allViewingKeys
+        );
+      }, [viewingKeysQuery, namTokenAddressQuery]),
+    };
+  });
 
 export const shieldedBalanceAtom = atomWithQuery<
   { address: string; amount: BigNumber }[]
@@ -110,13 +111,14 @@ export const shieldedBalanceAtom = atomWithQuery<
     ...queryDependentFn(async () => {
       const viewingKeys = viewingKeysQuery.data;
       const tokenAddresses = tokenAddressesQuery.data;
-      if (!viewingKeys || !tokenAddresses) {
+      const syncEmitter = shieldedSync.data;
+      if (!viewingKeys || !tokenAddresses || !syncEmitter) {
         return [];
       }
       const [viewingKey] = viewingKeys;
 
       await new Promise<void>((resolve) => {
-        shieldedSync.data!.once(SdkEvents.ProgressBarFinished, () => resolve());
+        syncEmitter.once(SdkEvents.ProgressBarFinished, () => resolve());
       });
 
       const response = await fetchShieldedBalance(

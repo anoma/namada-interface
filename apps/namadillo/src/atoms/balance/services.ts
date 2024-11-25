@@ -30,43 +30,53 @@ export type ShieldedSyncEventMap = {
   [SdkEvents.ProgressBarFinished]: ProgressBarFinished[];
 };
 
+let shieldedSyncEmitter: EventEmitter<ShieldedSyncEventMap> | undefined;
 export function shieldedSync(
   rpcUrl: string,
   maspIndexerUrl: string,
   token: string,
   viewingKeys: string[]
 ): EventEmitter<ShieldedSyncEventMap> {
+  if (shieldedSyncEmitter) {
+    return shieldedSyncEmitter;
+  }
+
   const worker = new ShieldedSyncWorker();
   const shieldedSyncWorker = Comlink.wrap<ShieldedSyncWorkerApi>(worker);
-  const emitter = new EventEmitter<ShieldedSyncEventMap>();
+  shieldedSyncEmitter = new EventEmitter<ShieldedSyncEventMap>();
 
   worker.onmessage = (event: MessageEvent<Events>) => {
+    if (!shieldedSyncEmitter) {
+      return;
+    }
     if (event.data.type === SdkEvents.ProgressBarStarted) {
-      emitter.emit(event.data.type, event.data);
+      shieldedSyncEmitter.emit(event.data.type, event.data);
     }
     if (event.data.type === SdkEvents.ProgressBarIncremented) {
-      emitter.emit(event.data.type, event.data);
+      shieldedSyncEmitter.emit(event.data.type, event.data);
     }
     if (event.data.type === SdkEvents.ProgressBarFinished) {
-      emitter.emit(event.data.type, event.data);
+      shieldedSyncEmitter.emit(event.data.type, event.data);
     }
   };
 
   (async () => {
-    await shieldedSyncWorker.init({
-      type: "init",
-      payload: { rpcUrl, maspIndexerUrl, token },
-    });
-
-    await shieldedSyncWorker.sync({
-      type: "sync",
-      payload: { vks: viewingKeys },
-    });
-
-    worker.terminate();
+    try {
+      await shieldedSyncWorker.init({
+        type: "init",
+        payload: { rpcUrl, maspIndexerUrl, token },
+      });
+      await shieldedSyncWorker.sync({
+        type: "sync",
+        payload: { vks: viewingKeys },
+      });
+    } finally {
+      worker.terminate();
+      shieldedSyncEmitter = undefined;
+    }
   })();
 
-  return emitter;
+  return shieldedSyncEmitter;
 }
 
 export const fetchShieldedBalance = async (
