@@ -30,7 +30,10 @@ export type ShieldedSyncEventMap = {
   [SdkEvents.ProgressBarFinished]: ProgressBarFinished[];
 };
 
-let shieldedSyncEmitter: EventEmitter<ShieldedSyncEventMap> | undefined;
+export type ShieldedSyncEmitter = EventEmitter<ShieldedSyncEventMap>;
+
+let shieldedSyncEmitter: ShieldedSyncEmitter | undefined;
+
 export function shieldedSync(
   rpcUrl: string,
   maspIndexerUrl: string,

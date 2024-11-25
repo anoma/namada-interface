@@ -14,7 +14,6 @@ import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import * as osmosis from "chain-registry/mainnet/osmosis";
-import EventEmitter from "events";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { AddressWithAsset } from "types";
 import {
@@ -26,7 +25,7 @@ import {
   fetchCoinPrices,
   fetchShieldedBalance,
   shieldedSync,
-  ShieldedSyncEventMap,
+  ShieldedSyncEmitter,
 } from "./services";
 
 export type TokenBalance = AddressWithAsset & {
@@ -54,8 +53,8 @@ export const viewingKeysAtom = atomWithQuery<[string, string[]]>((get) => {
   };
 });
 
-export const shieldedSyncAtom =
-  atomWithQuery<EventEmitter<ShieldedSyncEventMap> | null>((get) => {
+export const shieldedSyncAtom = atomWithQuery<ShieldedSyncEmitter | null>(
+  (get) => {
     const viewingKeysQuery = get(viewingKeysAtom);
     const namTokenAddressQuery = get(nativeTokenAddressAtom);
     const rpcUrl = get(rpcUrlAtom);
@@ -84,7 +83,8 @@ export const shieldedSyncAtom =
         );
       }, [viewingKeysQuery, namTokenAddressQuery]),
     };
-  });
+  }
+);
 
 export const shieldedBalanceAtom = atomWithQuery<
   { address: string; amount: BigNumber }[]
