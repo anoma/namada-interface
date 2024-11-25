@@ -34,7 +34,9 @@ export type useTransactionProps<T> = {
 };
 
 type useTransactionOutput<T> = {
-  execute: () => Promise<TransactionPair<T> | void>;
+  execute: (
+    additionalParms?: Partial<BuildTxAtomParams<T>>
+  ) => Promise<TransactionPair<T> | void>;
   isEnabled: boolean;
   isPending: boolean;
   isSuccess: boolean;
@@ -107,13 +109,16 @@ export const useTransaction = <T,>({
     });
   };
 
-  const execute = async (): Promise<TransactionPair<T> | void> => {
+  const execute = async (
+    txAdditionalParams: Partial<BuildTxAtomParams<T>> = {}
+  ): Promise<TransactionPair<T> | void> => {
     try {
       validate();
       const tx = await buildTx({
         params,
         gasConfig: gasConfig.data!,
         account: account!,
+        ...txAdditionalParams,
       });
 
       if (!tx) throw "Error: invalid TX created by buildTx";

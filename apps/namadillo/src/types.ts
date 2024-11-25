@@ -147,6 +147,7 @@ export type BuildTxAtomParams<T> = {
   account: Account;
   params: T[];
   gasConfig: GasConfig;
+  memo?: string;
 };
 
 export type SortOptions = "asc" | "desc" | undefined;
@@ -279,23 +280,25 @@ export const ibcTransferTypes: Array<keyof AllTransferStages> = [
 
 type NamadaTransferStages = typeof namadaTransferStages;
 type IbcTransferStages = typeof ibcTransferStages;
-type AllTransferStages = typeof allTransferStages;
+export type AllTransferStages = typeof allTransferStages;
 
 export type NamadaTransferTxKind = keyof NamadaTransferStages;
 
 export type IbcTransferTxKind = keyof IbcTransferStages;
 
+export type AllTransferTxKind = NamadaTransferTxKind | IbcTransferTxKind;
+
 export type NamadaTransferStage = {
   [P in NamadaTransferTxKind]: {
     type: P;
-    currentStep: NamadaTransferStages[P][number];
+    currentStep: TransferStep;
   };
 }[NamadaTransferTxKind];
 
 export type IbcTransferStage = {
   [P in IbcTransferTxKind]: {
     type: P;
-    currentStep: IbcTransferStages[P][number];
+    currentStep: TransferStep;
   };
 }[IbcTransferTxKind];
 
@@ -313,6 +316,7 @@ export type BaseTransferTransaction = TransferStage & {
   tipPaid?: BigNumber;
   resultTxHash?: string;
   errorMessage?: string;
+  memo?: string;
   status: MutationStatus;
   createdAt: Date;
   updatedAt: Date;

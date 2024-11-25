@@ -50,7 +50,8 @@ export const revealPublicKeyType = "revealPublicKey";
 const getTxProps = (
   account: Account,
   gasConfig: GasConfig,
-  chain: ChainSettings
+  chain: ChainSettings,
+  memo: string = ""
 ): WrapperTxProps => {
   invariant(
     !!account.publicKey,
@@ -63,7 +64,7 @@ const getTxProps = (
     gasLimit: gasConfig.gasLimit,
     chainId: chain.chainId,
     publicKey: account.publicKey!,
-    memo: "",
+    memo,
   };
 };
 
@@ -92,10 +93,11 @@ export const buildTx = async <T>(
   chain: ChainSettings,
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>,
-  publicKeyRevealed: boolean
+  publicKeyRevealed: boolean,
+  memo = ""
 ): Promise<EncodedTxData<T>> => {
   const { tx } = sdk;
-  const wrapperTxProps = getTxProps(account, gasConfig, chain);
+  const wrapperTxProps = getTxProps(account, gasConfig, chain, memo);
   const txs: TxMsgValue[] = [];
   const txProps: TxProps[] = [];
 
@@ -183,7 +185,8 @@ export const buildTxPair = async <T>(
   chain: ChainSettings,
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>,
-  owner: string
+  owner: string,
+  memo = ""
 ): Promise<TransactionPair<T>> => {
   const sdk = await getSdkInstance();
   const publicKeyRevealed = await isPublicKeyRevealed(account.address);
@@ -194,7 +197,8 @@ export const buildTxPair = async <T>(
     chain,
     queryProps,
     txFn,
-    publicKeyRevealed
+    publicKeyRevealed,
+    memo
   );
   const signedTxs = await signTx<T>(chain.extensionId, encodedTxData, owner);
   return {

@@ -4,7 +4,7 @@ import {
   transactionHistoryAtom,
 } from "atoms/transactions/atoms";
 import { useAtomValue, useSetAtom } from "jotai";
-import { TransferTransactionData } from "types";
+import { Address, TransferTransactionData } from "types";
 
 type UseTransactionActionsOutput = {
   transactions: TransferTransactionData[];
@@ -13,7 +13,8 @@ type UseTransactionActionsOutput = {
   clearMyCompleteTransactions: () => void;
   changeTransaction: (
     hash: string,
-    updatedTx: Partial<TransferTransactionData>
+    updatedTx: Partial<TransferTransactionData>,
+    sourceAddress?: Address
   ) => void;
 };
 
@@ -35,17 +36,19 @@ export const useTransactionActions = (): UseTransactionActionsOutput => {
 
   const changeTransaction = (
     hash: string,
-    updatedTx: Partial<TransferTransactionData>
+    updatedTx: Partial<TransferTransactionData>,
+    sourceAccountAddress?: Address
   ): void => {
     setTransactions((txByAccount) => {
-      if (!account) return txByAccount;
+      const sourceAddress = sourceAccountAddress || account?.address;
+      if (!sourceAddress) return txByAccount;
 
-      const txs = txByAccount[account.address] || [];
+      const txs = txByAccount[sourceAddress] || [];
       if (!txs) return txByAccount;
 
       return {
         ...txByAccount,
-        [account.address]: txs.map((tx) =>
+        [sourceAddress]: txs.map((tx) =>
           tx.hash === hash ?
             ({ ...tx, ...updatedTx } as TransferTransactionData)
           : tx
