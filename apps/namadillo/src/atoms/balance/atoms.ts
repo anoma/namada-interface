@@ -14,6 +14,7 @@ import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import * as osmosis from "chain-registry/mainnet/osmosis";
 import { atomWithQuery } from "jotai-tanstack-query";
+import semver from "semver";
 import { AddressWithAsset } from "types";
 import {
   findAssetByToken,
@@ -27,11 +28,11 @@ export type TokenBalance = AddressWithAsset & {
   dollar?: BigNumber;
 };
 
-const getViewingKeyFromExtension032 = async (): Promise<string | undefined> => {
+const DEPRECATED_getViewingKey = async (): Promise<string | undefined> => {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const namada: Namada | undefined = (window as any).namada;
-    if (namada?.version() === "0.3.2") {
+    if (namada && semver.lt(namada.version(), "0.3.3")) {
       const accounts = await namada.accounts();
       const defaultAccount = await namada.defaultAccount();
       const shieldedAccount = accounts?.find(
@@ -52,7 +53,7 @@ export const viewingKeyAtom = atomWithQuery<string>((get) => {
   return {
     queryKey: ["viewing-key", accountsQuery.data, defaultAccountQuery.data],
     ...queryDependentFn(async () => {
-      const deprecatedViewingKey = await getViewingKeyFromExtension032();
+      const deprecatedViewingKey = await DEPRECATED_getViewingKey();
       if (deprecatedViewingKey) {
         return deprecatedViewingKey;
       }
