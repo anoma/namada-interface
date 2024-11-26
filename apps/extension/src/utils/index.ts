@@ -123,6 +123,16 @@ export const isCustomPath = (path: Path): boolean => {
   return false;
 };
 
+export const ShieldedPoolLabel = "the shielded pool";
+
+/**
+ * Simply determine if an address looks like the shielded pool address
+ */
+export const isShieldedPoolAddress = (address: string): boolean => {
+  const shieldedPoolAddressPrefix = "tnam1pcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq";
+  return address.startsWith(shieldedPoolAddressPrefix);
+};
+
 /**
  * Create label to indicate specific type of Transfer
  * @param tx TransferProps
@@ -134,10 +144,6 @@ export const parseTransferType = (
   const { sources, targets } = tx;
   const source = sources[0].owner;
   const target = targets[0].owner;
-
-  const shieldedPoolAddress = "tnam1pcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzmefah";
-  const isShieldedPoolAddress = (address: string): boolean =>
-    address === shieldedPoolAddress;
 
   let type: TransferType = "Transparent";
 
@@ -151,7 +157,7 @@ export const parseTransferType = (
 
   return {
     source,
-    target: isShieldedPoolAddress(target) ? "MASP" : target,
+    target,
     type,
   };
 };
