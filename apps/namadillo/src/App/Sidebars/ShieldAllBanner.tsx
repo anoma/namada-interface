@@ -31,7 +31,7 @@ export const ShieldAllBanner = (): JSX.Element => {
         src={`${svgImg}${isAnimating ? "#hover " : ""}`}
       />
       <Link
-        to={routes.ibcShieldAll}
+        to={routes.maspShield}
         onMouseEnter={() => setIsAnimating(true)}
         onMouseLeave={() => setIsAnimating(false)}
       >
@@ -43,7 +43,7 @@ export const ShieldAllBanner = (): JSX.Element => {
           textColor="yellow"
           backgroundHoverColor="yellow"
         >
-          Shield All Assets
+          Shield Assets
         </ActionButton>
       </Link>
     </div>

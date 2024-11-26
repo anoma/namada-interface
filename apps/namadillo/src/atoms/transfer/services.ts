@@ -17,7 +17,8 @@ export const createTransparentTransferTx = async (
   chain: ChainSettings,
   account: Account,
   props: TransparentTransferMsgValue[],
-  gasConfig: GasConfig
+  gasConfig: GasConfig,
+  memo = ""
 ): Promise<TransactionPair<TransparentTransferProps> | undefined> => {
   const { tx } = await getSdkInstance();
   const transactionPairs = await buildTxPair(
@@ -26,7 +27,8 @@ export const createTransparentTransferTx = async (
     chain,
     props,
     tx.buildTransparentTransfer,
-    props[0]?.data[0]?.source
+    props[0]?.data[0]?.source,
+    memo
   );
   return transactionPairs;
 };
@@ -35,7 +37,8 @@ export const createShieldedTransferTx = async (
   chain: ChainSettings,
   account: Account,
   props: ShieldedTransferMsgValue[],
-  gasConfig: GasConfig
+  gasConfig: GasConfig,
+  memo = ""
 ): Promise<TransactionPair<ShieldedTransferProps> | undefined> => {
   const { tx } = await getSdkInstance();
   const transactionPairs = await buildTxPair(
@@ -44,7 +47,8 @@ export const createShieldedTransferTx = async (
     chain,
     props,
     tx.buildShieldedTransfer,
-    props[0]?.data[0]?.source
+    props[0]?.data[0]?.source,
+    memo
   );
   return transactionPairs;
 };
@@ -53,7 +57,8 @@ export const createShieldingTransferTx = async (
   chain: ChainSettings,
   account: Account,
   props: ShieldingTransferMsgValue[],
-  gasConfig: GasConfig
+  gasConfig: GasConfig,
+  memo = ""
 ): Promise<TransactionPair<ShieldingTransferProps> | undefined> => {
   const { tx } = await getSdkInstance();
   const transactionPairs = await buildTxPair(
@@ -62,7 +67,8 @@ export const createShieldingTransferTx = async (
     chain,
     props,
     tx.buildShieldingTransfer,
-    props[0]?.data[0]?.source
+    props[0]?.data[0]?.source,
+    memo
   );
   return transactionPairs;
 };
@@ -71,7 +77,8 @@ export const createUnshieldingTransferTx = async (
   chain: ChainSettings,
   account: Account,
   props: UnshieldingTransferMsgValue[],
-  gasConfig: GasConfig
+  gasConfig: GasConfig,
+  memo = ""
 ): Promise<TransactionPair<UnshieldingTransferProps> | undefined> => {
   const { tx } = await getSdkInstance();
   const transactionPairs = await buildTxPair(
@@ -80,7 +87,8 @@ export const createUnshieldingTransferTx = async (
     chain,
     props,
     tx.buildUnshieldingTransfer,
-    props[0]?.source
+    props[0]?.source,
+    memo
   );
   return transactionPairs;
 };

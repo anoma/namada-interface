@@ -49,9 +49,9 @@ export const CopyToClipboardControl = ({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
         >
-          <GoCheckCircle />
+          <GoCheckCircle className="w-[18px] h-[18px]" />
         </motion.div>
-      : <GoCopy />}
+      : <GoCopy className="w-[18px] h-[18px]" />}
     </div>
   );
 };

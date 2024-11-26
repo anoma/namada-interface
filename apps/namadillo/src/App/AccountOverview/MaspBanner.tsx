@@ -33,7 +33,7 @@ export const MaspBanner = (): JSX.Element => {
       </div>
       <ActionButton
         size="md"
-        href={routes.ibcShieldAll}
+        href={routes.masp}
         className="self-end justify-end"
       >
         Manage your shielded assets

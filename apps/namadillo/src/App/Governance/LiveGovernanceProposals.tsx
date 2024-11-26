@@ -41,7 +41,7 @@ const ProposalListItem: React.FC<{
         )
       }
       className={clsx(
-        "group/proposal cursor-pointer text-sm",
+        "group/proposal cursor-pointer",
         "rounded-md bg-[#191919] p-4"
       )}
     >
@@ -52,8 +52,8 @@ const ProposalListItem: React.FC<{
         </div>
       </div>
       <div className="flex items-center justify-between gap-4">
-        <div className="min-w-[6ch]">#{proposal.id.toString()}</div>
-        <div className="flex-1">{proposal.content.title}</div>
+        <div className="min-w-[6ch] text-sm">#{proposal.id.toString()}</div>
+        <div className="flex-1 leading-tight">{proposal.content.title}</div>
         <TypeLabel proposalType={proposal.proposalType} color="dark" />
         <div className="min-w-20">
           {typeof vote !== "undefined" && (

@@ -158,7 +158,7 @@ const Loaded: React.FC<{
 
   const highestVoteType: VoteType | undefined =
     zeroVotes ? undefined : (
-      voteTypes.reduce((a, b) => (props[a] > props[b] ? a : b))
+      voteTypes.reduce((a, b) => (props[a].gt(props[b]) ? a : b))
     );
 
   const [hoveredVoteType, setHoveredVoteType] = useState<VoteType | undefined>(
