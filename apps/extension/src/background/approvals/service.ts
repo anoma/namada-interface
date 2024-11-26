@@ -187,10 +187,17 @@ export class ApprovalsService {
 
   async isConnectionApproved(
     interfaceOrigin: string,
-    _chainId?: string
+    chainId?: string
   ): Promise<boolean> {
     const approvedOrigins =
       (await this.localStorage.getApprovedOrigins()) || [];
+
+    if (chainId) {
+      const { chainId: currentChainId } = await this.chainService.getChain();
+      if (chainId !== currentChainId) {
+        return false;
+      }
+    }
 
     return approvedOrigins.includes(interfaceOrigin);
   }
@@ -199,16 +206,27 @@ export class ApprovalsService {
     interfaceOrigin: string,
     chainId?: string
   ): Promise<void> {
-    console.log("approveConnection", { interfaceOrigin, chainId });
     const alreadyApproved = await this.isConnectionApproved(
       interfaceOrigin,
       chainId
     );
 
+    const approveConnectionPopupProps: {
+      interfaceOrigin: string;
+      chainId?: string;
+    } = {
+      interfaceOrigin,
+    };
+
+    if (chainId) {
+      approveConnectionPopupProps["chainId"] = chainId;
+    }
+
     if (!alreadyApproved) {
-      return this.launchApprovalPopup(TopLevelRoute.ApproveConnection, {
-        interfaceOrigin,
-      });
+      return this.launchApprovalPopup(
+        TopLevelRoute.ApproveConnection,
+        approveConnectionPopupProps
+      );
     }
 
     // A resolved promise is implicitly returned here if the origin had
@@ -218,13 +236,26 @@ export class ApprovalsService {
   async approveConnectionResponse(
     popupTabId: number,
     interfaceOrigin: string,
-    allowConnection: boolean
+    allowConnection: boolean,
+    chainId?: string
   ): Promise<void> {
     const resolvers = this.getResolver(popupTabId);
 
     if (allowConnection) {
       try {
-        await this.localStorage.addApprovedOrigin(interfaceOrigin);
+        if (
+          !(await this.localStorage.getApprovedOrigins())?.includes(
+            interfaceOrigin
+          )
+        ) {
+          // Add approved origin if it hasn't been added
+          await this.localStorage.addApprovedOrigin(interfaceOrigin);
+        }
+
+        if (chainId) {
+          // Set approved signing chainId
+          await this.chainService.updateChain(chainId);
+        }
       } catch (e) {
         resolvers.reject(e);
       }

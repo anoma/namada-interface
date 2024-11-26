@@ -4,7 +4,7 @@ import {
   namadaExtensionConnectionStatus,
 } from "atoms/settings";
 import { useNamadaKeychain } from "hooks/useNamadaKeychain";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { ReactNode, useEffect } from "react";
 import { PageLoader } from "../Common/PageLoader";
 
@@ -16,7 +16,9 @@ export const ExtensionLoader = ({
   const { namadaKeychain } = useNamadaKeychain();
   const [attachStatus, setAttachStatus] = useAtom(namadaExtensionAttachStatus);
   const { data: chain } = useAtomValue(chainParametersAtom);
-  const setConnectionStatus = useSetAtom(namadaExtensionConnectionStatus);
+  const [connectStatus, setConnectionStatus] = useAtom(
+    namadaExtensionConnectionStatus
+  );
 
   const chainId = chain?.chainId;
   const keychainPromise = namadaKeychain.get();
@@ -35,7 +37,13 @@ export const ExtensionLoader = ({
       keychainPromise.then((injectedNamada) => {
         injectedNamada.isConnected(chainId).then((isConnected) => {
           if (isConnected) {
-            setConnectionStatus("connected");
+            return setConnectionStatus("connected");
+          }
+
+          // If extension is currently connected, but there is a mismatch in chain IDs,
+          // prompt for re-approval
+          if (connectStatus === "connected") {
+            injectedNamada.connect(chainId);
           }
         });
       });
