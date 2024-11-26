@@ -106,6 +106,7 @@ const plugins = [
       env: JSON.stringify(
         getProcessEnv("NAMADA_INTERFACE", [
           "TARGET",
+          "REVISION",
           "NODE_ENV",
           "npm_package_version",
         ])

@@ -3646,6 +3646,7 @@ __metadata:
     "@types/react": "npm:^18.3.5"
     "@types/react-dom": "npm:^18.3.0"
     "@types/react-paginate": "npm:^7.1.2"
+    "@types/semver": "npm:^7.5.8"
     "@types/styled-components": "npm:^5.1.22"
     "@types/traverse": "npm:^0.6.36"
     "@vitejs/plugin-react": "npm:^4.3.1"
@@ -3686,6 +3687,7 @@ __metadata:
     react-paginate: "npm:^8.2.0"
     react-router-dom: "npm:^6.26.1"
     release-it: "npm:^17.0.1"
+    semver: "npm:^7.6.3"
     tailwind-merge: "npm:^2.3.0"
     tailwindcss: "npm:^3.4.0"
     toml: "npm:^3.0.0"
@@ -5412,6 +5414,13 @@ __metadata:
   version: 0.12.0
   resolution: "@types/retry@npm:0.12.0"
   checksum: 7c5c9086369826f569b83a4683661557cab1361bac0897a1cefa1a915ff739acd10ca0d62b01071046fe3f5a3f7f2aec80785fe283b75602dc6726781ea3e328
+  languageName: node
+  linkType: hard
+
+"@types/semver@npm:^7.5.8":
+  version: 7.5.8
+  resolution: "@types/semver@npm:7.5.8"
+  checksum: 8663ff927234d1c5fcc04b33062cb2b9fcfbe0f5f351ed26c4d1e1581657deebd506b41ff7fdf89e787e3d33ce05854bc01686379b89e9c49b564c4cfa988efa
   languageName: node
   linkType: hard
 

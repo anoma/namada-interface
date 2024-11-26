@@ -2,12 +2,19 @@ import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
 import { shouldUpdateBalanceAtom, shouldUpdateProposalAtom } from "atoms/etc";
 import { claimableRewardsAtom, clearClaimRewards } from "atoms/staking";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useTransactionEventListener } from "utils";
+import { TransferStep } from "types";
+import {
+  useTransactionEventListener,
+  useTransactionEventListListener,
+} from "utils";
+import { useTransactionActions } from "./useTransactionActions";
 
 export const useTransactionCallback = (): void => {
   const { refetch: refetchBalances } = useAtomValue(accountBalanceAtom);
   const { refetch: refetchRewards } = useAtomValue(claimableRewardsAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
+  const { changeTransaction } = useTransactionActions();
+  const shouldUpdateProposal = useSetAtom(shouldUpdateProposalAtom);
   const shouldUpdateBalance = useSetAtom(shouldUpdateBalanceAtom);
 
   const onBalanceUpdate = (): void => {
@@ -32,8 +39,6 @@ export const useTransactionCallback = (): void => {
     account?.address,
   ]);
 
-  const shouldUpdateProposal = useSetAtom(shouldUpdateProposalAtom);
-
   useTransactionEventListener("VoteProposal.Success", () => {
     shouldUpdateProposal(true);
 
@@ -42,4 +47,29 @@ export const useTransactionCallback = (): void => {
     const timePolling = 12 * 1000;
     setTimeout(() => shouldUpdateProposal(false), timePolling);
   });
+
+  useTransactionEventListListener(
+    [
+      "TransparentTransfer.Success",
+      "ShieldedTransfer.Success",
+      "ShieldingTransfer.Success",
+      "UnshieldingTransfer.Success",
+    ],
+    (e) => {
+      e.detail.data.forEach((dataList) => {
+        dataList.data.forEach((props) => {
+          const sourceAddress = "source" in props ? props.source : "";
+          sourceAddress &&
+            changeTransaction(
+              e.detail.tx.hash,
+              {
+                status: "success",
+                currentStep: TransferStep.Complete,
+              },
+              sourceAddress
+            );
+        });
+      });
+    }
+  );
 };

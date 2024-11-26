@@ -23,8 +23,15 @@ export const createTransparentTransferAtom = atomWithMutation((get) => {
       params,
       gasConfig,
       account,
+      memo,
     }: BuildTxAtomParams<TransparentTransferMsgValue>) =>
-      createTransparentTransferTx(chain.data!, account, params, gasConfig),
+      createTransparentTransferTx(
+        chain.data!,
+        account,
+        params,
+        gasConfig,
+        memo
+      ),
   };
 });
 
@@ -37,8 +44,9 @@ export const createShieldedTransferAtom = atomWithMutation((get) => {
       params,
       gasConfig,
       account,
+      memo = "",
     }: BuildTxAtomParams<ShieldedTransferMsgValue>) =>
-      createShieldedTransferTx(chain.data!, account, params, gasConfig),
+      createShieldedTransferTx(chain.data!, account, params, gasConfig, memo),
   };
 });
 
@@ -51,8 +59,9 @@ export const createShieldingTransferAtom = atomWithMutation((get) => {
       params,
       gasConfig,
       account,
+      memo = "",
     }: BuildTxAtomParams<ShieldingTransferMsgValue>) =>
-      createShieldingTransferTx(chain.data!, account, params, gasConfig),
+      createShieldingTransferTx(chain.data!, account, params, gasConfig, memo),
   };
 });
 
@@ -65,7 +74,14 @@ export const createUnshieldingTransferAtom = atomWithMutation((get) => {
       params,
       gasConfig,
       account,
+      memo = "",
     }: BuildTxAtomParams<UnshieldingTransferMsgValue>) =>
-      createUnshieldingTransferTx(chain.data!, account, params, gasConfig),
+      createUnshieldingTransferTx(
+        chain.data!,
+        account,
+        params,
+        gasConfig,
+        memo
+      ),
   };
 });
