@@ -36,7 +36,7 @@ import {
   TransferStep,
 } from "types";
 import {
-  isNamAsset,
+  isNamadaAsset,
   toBaseAmount,
   useTransactionEventListListener,
 } from "utils";
@@ -72,7 +72,7 @@ export const NamadaTransfer: React.FC = () => {
     }
     const assetsMap = { ...availableAssetsData };
     const namadaAsset = Object.values(availableAssetsData ?? {}).find((a) =>
-      isNamAsset(a.asset)
+      isNamadaAsset(a.asset)
     );
     if (namadaAsset?.originalAddress) {
       delete assetsMap[namadaAsset?.originalAddress]; // NAM will be available only on phase 5

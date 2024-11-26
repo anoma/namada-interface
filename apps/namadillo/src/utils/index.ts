@@ -124,7 +124,7 @@ const findDisplayUnit = (asset: Asset): AssetDenomUnit | undefined => {
 // TODO update to mainnet asset
 export const namadaAsset = internalDevnetAssets.assets[0];
 
-export const isNamAsset = (asset: Asset): boolean =>
+export const isNamadaAsset = (asset: Asset): boolean =>
   asset.symbol === namadaAsset.symbol;
 
 export const toDisplayAmount = (
@@ -142,7 +142,7 @@ export const toBaseAmount = (
   asset: Asset,
   displayAmount: BigNumber
 ): BigNumber => {
-  if (isNamAsset(asset)) return displayAmount;
+  if (isNamadaAsset(asset)) return displayAmount;
   const displayUnit = findDisplayUnit(asset);
   if (!displayUnit) {
     return displayAmount;
