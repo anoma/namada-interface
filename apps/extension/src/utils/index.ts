@@ -1,9 +1,16 @@
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
-import { AccountType, Bip44Path, Path, TxProps } from "@namada/types";
+import {
+  AccountType,
+  Bip44Path,
+  Path,
+  TransferProps,
+  TxProps,
+} from "@namada/types";
 import { v5 as uuid } from "uuid";
 import browser from "webextension-polyfill";
 
 import { Result } from "@namada/utils";
+import { TransferType } from "Approvals/types";
 import { EncodedTxData } from "background/approvals";
 
 /**
@@ -114,4 +121,39 @@ export const isCustomPath = (path: Path): boolean => {
     return true;
   }
   return false;
+};
+
+export const ShieldedPoolLabel = "the shielded pool";
+export const hasShieldedSection = (tx: TransferProps): boolean => {
+  return Boolean(tx.shieldedSectionHash);
+};
+
+/**
+ * Create label to indicate specific type of Transfer
+ * @param tx TransferProps
+ * @returns string label
+ */
+export const parseTransferType = (
+  tx: TransferProps
+): { source: string; target: string; type: TransferType } => {
+  const { sources, targets } = tx;
+  const source = sources[0].owner;
+  const target = targets[0].owner;
+
+  let type: TransferType = "Transparent";
+  const txHasShieldedSection = hasShieldedSection(tx);
+
+  if (source.startsWith("tnam") && txHasShieldedSection) {
+    type = "Shielding";
+  } else if (source.startsWith("znam") && txHasShieldedSection) {
+    type = "Shielded";
+  } else if (source.startsWith("znam") && target.startsWith("tnam")) {
+    type = "Unshielding";
+  }
+
+  return {
+    source,
+    target,
+    type,
+  };
 };

@@ -5,6 +5,7 @@ import {
   CommitmentDetailProps,
   RedelegateProps,
   RevealPkProps,
+  TransferProps,
   UnbondProps,
   VoteProposalProps,
   WithdrawProps,
@@ -16,6 +17,11 @@ import { FaVoteYea } from "react-icons/fa";
 import { FaRegEye, FaWallet } from "react-icons/fa6";
 import { GoStack } from "react-icons/go";
 import { PiDotsNineBold } from "react-icons/pi";
+import {
+  hasShieldedSection,
+  parseTransferType,
+  ShieldedPoolLabel,
+} from "utils";
 import { TransactionCard } from "./TransactionCard";
 
 type CommitmentProps = {
@@ -108,8 +114,19 @@ const renderContent = (tx: CommitmentDetailProps): ReactNode => {
       const claimTx = tx as ClaimRewardsProps;
       return <>Claiming rewards from {formatAddress(claimTx.validator)}</>;
 
-    // TODO: continue implementing other types in the next phases
+    case TxType.Transfer:
+      const transferTx = tx as TransferProps;
+      const { source, target } = parseTransferType(transferTx);
+      return (
+        <>
+          Transfer from {formatAddress(source)} to{" "}
+          {hasShieldedSection(transferTx) ?
+            ShieldedPoolLabel
+          : formatAddress(target)}
+        </>
+      );
 
+    // TODO: continue implementing other types in the next phases
     default:
       return <></>;
   }
@@ -117,9 +134,17 @@ const renderContent = (tx: CommitmentDetailProps): ReactNode => {
 
 export const Commitment = ({ commitment }: CommitmentProps): JSX.Element => {
   const txType: TxType = commitment.txType as TxType;
+  let title = TitleMap[txType];
+
+  if (commitment.txType === TxType.Transfer) {
+    // Determine specific transfer type
+    const { type } = parseTransferType(commitment as TransferProps);
+    title = `${type} ${title}`;
+  }
+
   return (
     <TransactionCard
-      title={TitleMap[txType]}
+      title={title}
       content={renderContent(commitment)}
       icon={IconMap[txType]}
     />

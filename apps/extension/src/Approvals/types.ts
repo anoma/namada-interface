@@ -26,3 +26,9 @@ export type ApproveMsg = new (
   msgId: string,
   password: string
 ) => unknown & Message<void>;
+
+export type TransferType =
+  | "Transparent"
+  | "Shielding"
+  | "Shielded"
+  | "Unshielding";
