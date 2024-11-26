@@ -124,13 +124,8 @@ export const isCustomPath = (path: Path): boolean => {
 };
 
 export const ShieldedPoolLabel = "the shielded pool";
-
-/**
- * Simply determine if an address looks like the shielded pool address
- */
-export const isShieldedPoolAddress = (address: string): boolean => {
-  const shieldedPoolAddressPrefix = "tnam1pcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq";
-  return address.startsWith(shieldedPoolAddressPrefix);
+export const hasShieldedSection = (tx: TransferProps): boolean => {
+  return Boolean(tx.shieldedSectionHash);
 };
 
 /**
@@ -146,10 +141,11 @@ export const parseTransferType = (
   const target = targets[0].owner;
 
   let type: TransferType = "Transparent";
+  const txHasShieldedSection = hasShieldedSection(tx);
 
-  if (source.startsWith("tnam") && isShieldedPoolAddress(target)) {
+  if (source.startsWith("tnam") && txHasShieldedSection) {
     type = "Shielding";
-  } else if (source.startsWith("znam") && isShieldedPoolAddress(target)) {
+  } else if (source.startsWith("znam") && txHasShieldedSection) {
     type = "Shielded";
   } else if (source.startsWith("znam") && target.startsWith("tnam")) {
     type = "Unshielding";

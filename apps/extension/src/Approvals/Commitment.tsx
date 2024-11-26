@@ -18,7 +18,7 @@ import { FaRegEye, FaWallet } from "react-icons/fa6";
 import { GoStack } from "react-icons/go";
 import { PiDotsNineBold } from "react-icons/pi";
 import {
-  isShieldedPoolAddress,
+  hasShieldedSection,
   parseTransferType,
   ShieldedPoolLabel,
 } from "utils";
@@ -120,7 +120,7 @@ const renderContent = (tx: CommitmentDetailProps): ReactNode => {
       return (
         <>
           Transfer from {formatAddress(source)} to{" "}
-          {isShieldedPoolAddress(target) ?
+          {hasShieldedSection(transferTx) ?
             ShieldedPoolLabel
           : formatAddress(target)}
         </>
