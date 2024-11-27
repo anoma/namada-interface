@@ -176,7 +176,12 @@ const decodeProposalType = (
               ],
             };
           } else {
-            const { target, amount } = curr.Retro.Ibc;
+            const {
+              target,
+              amount,
+              channel_id: channelId,
+              port_id: portId,
+            } = curr.Retro.Ibc;
             const amountAsBigNumber = BigNumber(amount);
 
             if (amountAsBigNumber.isNaN()) {
@@ -189,7 +194,14 @@ const decodeProposalType = (
               ...acc,
               retro: [
                 ...acc.retro,
-                { internal: { amount: amountAsBigNumber, target } },
+                {
+                  ibc: {
+                    amount: amountAsBigNumber,
+                    target,
+                    channelId,
+                    portId,
+                  },
+                },
               ],
             };
           }

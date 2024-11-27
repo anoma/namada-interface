@@ -44,11 +44,11 @@ export type PgfTarget = {
 };
 
 export type PgfIbcTarget = {
-  internal: {
+  ibc: {
     amount: BigNumber;
     target: string;
-    channel_id: string;
-    port_id: string;
+    channelId: string;
+    portId: string;
   };
 };
 
@@ -57,7 +57,7 @@ export type PgfActions = {
     add: PgfTarget[];
     remove: PgfTarget[];
   };
-  retro: PgfTarget[] | PgfIbcTarget[];
+  retro: (PgfTarget | PgfIbcTarget)[];
 };
 
 export type Default = { type: "default" };

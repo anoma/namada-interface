@@ -2,7 +2,7 @@ import { useAtomValue } from "jotai";
 import { generatePath, useNavigate } from "react-router-dom";
 
 import { Modal } from "@namada/components";
-import { PgfTarget, Proposal } from "@namada/types";
+import { PgfIbcTarget, PgfTarget, Proposal } from "@namada/types";
 import { assertNever, copyToClipboard } from "@namada/utils";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { routes } from "App/routes";
@@ -19,7 +19,6 @@ type PgfStewardData = {
   remove: string[];
 };
 
-// TODO: add IBC target
 type PgfTargetJson = {
   internal: {
     target: string;
@@ -27,9 +26,18 @@ type PgfTargetJson = {
   };
 };
 
+type PgfIbcTargetJson = {
+  ibc: {
+    target: string;
+    amount: string;
+    channel_id: string;
+    port_id: string;
+  };
+};
+
 type PgfPaymentData = {
   continuous: PgfTargetJson[];
-  retro: PgfTargetJson[];
+  retro: (PgfTargetJson | PgfIbcTargetJson)[];
 };
 
 type DataJson = DefaultData | PgfStewardData | PgfPaymentData | undefined;
@@ -50,6 +58,15 @@ const formatPgfTarget = (value: PgfTarget): PgfTargetJson => ({
   internal: {
     target: value.internal.target,
     amount: value.internal.amount.toString(),
+  },
+});
+
+const formatIbcPgfTarget = (value: PgfIbcTarget): PgfIbcTargetJson => ({
+  ibc: {
+    target: value.ibc.target,
+    amount: value.ibc.amount.toString(),
+    channel_id: value.ibc.channelId,
+    port_id: value.ibc.portId,
   },
 });
 
@@ -78,7 +95,13 @@ const formatData = (proposal: Proposal): DataJson => {
         ...pgfActions.continuous.remove,
       ].map(formatPgfTarget);
 
-      const retro = pgfActions.retro.map(formatPgfTarget);
+      const retro = pgfActions.retro.map((retroItem) => {
+        if ("internal" in retroItem) {
+          return formatPgfTarget(retroItem);
+        } else {
+          return formatIbcPgfTarget(retroItem);
+        }
+      });
 
       // deliberately specify keys to ensure no unwanted data is printed
       return { continuous, retro };
