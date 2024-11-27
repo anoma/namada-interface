@@ -34,6 +34,7 @@ export const ApproveConnection: React.FC = () => {
           Approve connection for <strong>{interfaceOrigin}</strong>
           {chainId && (
             <>
+              {" "}
               and enable signing for <strong>{chainId}</strong>
             </>
           )}

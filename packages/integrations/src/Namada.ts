@@ -40,10 +40,8 @@ export default class Namada implements Integration<Account, Signer> {
     return await this._namada?.isConnected();
   }
 
-  public async accounts(
-    chainId?: string
-  ): Promise<readonly Account[] | undefined> {
-    return await this._namada?.accounts(chainId);
+  public async accounts(): Promise<readonly Account[] | undefined> {
+    return await this._namada?.accounts();
   }
 
   public async defaultAccount(): Promise<Account | undefined> {

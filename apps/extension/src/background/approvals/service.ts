@@ -193,7 +193,7 @@ export class ApprovalsService {
       (await this.localStorage.getApprovedOrigins()) || [];
 
     if (chainId) {
-      const { chainId: currentChainId } = await this.chainService.getChain();
+      const currentChainId = await this.chainService.getChain();
       if (chainId !== currentChainId) {
         return false;
       }
