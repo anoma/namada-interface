@@ -36,11 +36,19 @@ export type AddRemove = {
   remove: string[];
 };
 
-// TODO: add IBC target
 export type PgfTarget = {
   internal: {
     amount: BigNumber;
     target: string;
+  };
+};
+
+export type PgfIbcTarget = {
+  internal: {
+    amount: BigNumber;
+    target: string;
+    channel_id: string;
+    port_id: string;
   };
 };
 
@@ -49,7 +57,7 @@ export type PgfActions = {
     add: PgfTarget[];
     remove: PgfTarget[];
   };
-  retro: PgfTarget[];
+  retro: PgfTarget[] | PgfIbcTarget[];
 };
 
 export type Default = { type: "default" };

@@ -89,11 +89,19 @@ const decodeProposalType = (
         throw new Error("data was undefined for pgf_payment proposal");
       }
 
-      // TODO: add IBC target
       const pgfTargetSchema = t.type({
         Internal: t.type({
           target: t.string,
           amount: t.string,
+        }),
+      });
+
+      const pgfIbcTargetSchema = t.type({
+        Ibc: t.type({
+          target: t.string,
+          amount: t.string,
+          channel_id: t.string,
+          port_id: t.string,
         }),
       });
 
@@ -106,7 +114,7 @@ const decodeProposalType = (
             ]),
           }),
           t.type({
-            Retro: pgfTargetSchema,
+            Retro: t.union([pgfTargetSchema, pgfIbcTargetSchema]),
           }),
         ])
       );
@@ -114,6 +122,7 @@ const decodeProposalType = (
       const pgfActionsDecoded = pgfActionsSchema.decode(JSON.parse(data));
 
       if (E.isLeft(pgfActionsDecoded)) {
+        console.warn("ERROR", { data: JSON.parse(data) });
         throw new Error("pgf_payment data is not valid");
       }
 
@@ -149,8 +158,25 @@ const decodeProposalType = (
                 ],
               },
             };
-          } else {
+          } else if ("Internal" in curr.Retro) {
             const { target, amount } = curr.Retro.Internal;
+            const amountAsBigNumber = BigNumber(amount);
+
+            if (amountAsBigNumber.isNaN()) {
+              throw new Error(
+                `couldn't parse amount to BigNumber, got ${amount}`
+              );
+            }
+
+            return {
+              ...acc,
+              retro: [
+                ...acc.retro,
+                { internal: { amount: amountAsBigNumber, target } },
+              ],
+            };
+          } else {
+            const { target, amount } = curr.Retro.Ibc;
             const amountAsBigNumber = BigNumber(amount);
 
             if (amountAsBigNumber.isNaN()) {
