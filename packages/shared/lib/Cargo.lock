@@ -4930,6 +4930,7 @@ dependencies = [
  "hex",
  "js-sys",
  "namada_sdk",
+ "namada_tx",
  "rand 0.8.5",
  "rayon",
  "reqwest",

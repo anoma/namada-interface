@@ -18,7 +18,7 @@ nodejs = []
 web = []
 
 [build-dependencies]
-namada_tx = { git = "https://github.com/anoma/namada", tag = "v0.45.1" }
+namada_tx = { git = "https://github.com/anoma/namada", tag = "v0.46.0" }
 
 [dependencies]
 async-trait = {version = "0.1.51"}
