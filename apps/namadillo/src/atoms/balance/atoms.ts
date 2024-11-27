@@ -1,4 +1,4 @@
-import { SdkEvents } from "@namada/shared";
+import { SdkEvents } from "@namada/sdk/web";
 import { Namada } from "@namada/types";
 import {
   accountsAtom,

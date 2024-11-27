@@ -1,5 +1,5 @@
 import { Heading, PieChart, SkeletonLoading } from "@namada/components";
-import { ProgressBarNames, SdkEvents } from "@namada/shared";
+import { ProgressBarNames, SdkEvents } from "@namada/sdk/web";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { shieldedSyncAtom, shieldedTokensAtom } from "atoms/balance/atoms";

@@ -10,7 +10,7 @@ import { Rpc } from "./rpc";
 import { Signing } from "./signing";
 import { Tx } from "./tx";
 
-export { SdkEvents } from "@namada/shared";
+export { ProgressBarNames, SdkEvents } from "@namada/shared";
 
 /**
  * API for interacting with Namada SDK
