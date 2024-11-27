@@ -89,11 +89,19 @@ const decodeProposalType = (
         throw new Error("data was undefined for pgf_payment proposal");
       }
 
-      // TODO: add IBC target
       const pgfTargetSchema = t.type({
         Internal: t.type({
           target: t.string,
           amount: t.string,
+        }),
+      });
+
+      const pgfIbcTargetSchema = t.type({
+        Ibc: t.type({
+          target: t.string,
+          amount: t.string,
+          channel_id: t.string,
+          port_id: t.string,
         }),
       });
 
@@ -106,7 +114,7 @@ const decodeProposalType = (
             ]),
           }),
           t.type({
-            Retro: pgfTargetSchema,
+            Retro: t.union([pgfTargetSchema, pgfIbcTargetSchema]),
           }),
         ])
       );
@@ -149,7 +157,7 @@ const decodeProposalType = (
                 ],
               },
             };
-          } else {
+          } else if ("Internal" in curr.Retro) {
             const { target, amount } = curr.Retro.Internal;
             const amountAsBigNumber = BigNumber(amount);
 
@@ -164,6 +172,35 @@ const decodeProposalType = (
               retro: [
                 ...acc.retro,
                 { internal: { amount: amountAsBigNumber, target } },
+              ],
+            };
+          } else {
+            const {
+              target,
+              amount,
+              channel_id: channelId,
+              port_id: portId,
+            } = curr.Retro.Ibc;
+            const amountAsBigNumber = BigNumber(amount);
+
+            if (amountAsBigNumber.isNaN()) {
+              throw new Error(
+                `couldn't parse amount to BigNumber, got ${amount}`
+              );
+            }
+
+            return {
+              ...acc,
+              retro: [
+                ...acc.retro,
+                {
+                  ibc: {
+                    amount: amountAsBigNumber,
+                    target,
+                    channelId,
+                    portId,
+                  },
+                },
               ],
             };
           }

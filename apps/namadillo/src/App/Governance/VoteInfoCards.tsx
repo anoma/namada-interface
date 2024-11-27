@@ -6,6 +6,7 @@ import { AddRemove, PgfActions, Proposal } from "@namada/types";
 
 import { sha256Hash } from "@namada/utils";
 import { proposalFamily } from "atoms/proposals";
+import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { secondsToDateTimeString } from "utils";
@@ -76,11 +77,29 @@ const PgfPaymentInfoCards: React.FC<{
       <InfoCard
         title="Retro"
         className="col-span-full"
-        content={pgfActions.retro.map(({ internal: { amount, target } }) => (
-          <span key={`info-card-retro-${target}`}>
-            {target} <NamCurrency amount={amount} />
-          </span>
-        ))}
+        content={pgfActions.retro.map((retro) => {
+          let target: string;
+          let amount: BigNumber;
+          let channelId: string | undefined;
+          let portId: string | undefined;
+
+          if ("internal" in retro) {
+            target = retro.internal.target;
+            amount = retro.internal.amount;
+          } else {
+            target = retro.ibc.target;
+            amount = retro.ibc.amount;
+            channelId = retro.ibc.channelId;
+            portId = retro.ibc.portId;
+          }
+
+          return (
+            <span key={`info-card-retro-${target}`}>
+              {target} <NamCurrency amount={amount} />
+              {"ibc" in retro ? ` ${channelId} ${portId}` : ""}
+            </span>
+          );
+        })}
       />
     </>
   );
