@@ -14,8 +14,8 @@ import { getTotalDollar } from "atoms/balance/functions";
 import { getAssetImageUrl } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { namadaAsset } from "registry/namadaAsset";
 import { twMerge } from "tailwind-merge";
+import { isNamadaAsset } from "utils";
 
 const resultsPerPage = 100;
 const initialPage = 0;
@@ -72,7 +72,7 @@ const TransparentTokensTable = ({
           >
             Shield
           </ActionButton>
-          {originalAddress === namadaAsset.address && (
+          {isNamadaAsset(asset) && (
             <ActionButton
               size="xs"
               className="w-fit mx-auto"
@@ -127,7 +127,7 @@ const TransparentTokensTable = ({
 };
 
 const PanelContent = ({ data }: { data: TokenBalance[] }): JSX.Element => {
-  const namBalance = data.find((i) => i.asset.base === namadaAsset.base);
+  const namBalance = data.find((i) => isNamadaAsset(i.asset));
 
   return (
     <div className="flex flex-col gap-2">

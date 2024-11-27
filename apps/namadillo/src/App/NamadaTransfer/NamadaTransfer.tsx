@@ -35,7 +35,11 @@ import {
   PartialTransferTransactionData,
   TransferStep,
 } from "types";
-import { toBaseAmount, useTransactionEventListListener } from "utils";
+import {
+  isNamadaAsset,
+  toBaseAmount,
+  useTransactionEventListListener,
+} from "utils";
 import { NamadaTransferTopHeader } from "./NamadaTransferTopHeader";
 
 export const NamadaTransfer: React.FC = () => {
@@ -67,8 +71,8 @@ export const NamadaTransfer: React.FC = () => {
       return availableAssetsData;
     }
     const assetsMap = { ...availableAssetsData };
-    const namadaAsset = Object.values(availableAssetsData ?? {}).find(
-      (a) => a.asset.display === "nam"
+    const namadaAsset = Object.values(availableAssetsData ?? {}).find((a) =>
+      isNamadaAsset(a.asset)
     );
     if (namadaAsset?.originalAddress) {
       delete assetsMap[namadaAsset?.originalAddress]; // NAM will be available only on phase 5

@@ -1,6 +1,6 @@
 import { Asset } from "@chain-registry/types";
 import { getAssetImageUrl } from "integrations/utils";
-import { namadaAsset } from "registry/namadaAsset";
+import { namadaAsset } from "utils";
 
 type AssetImageProps = {
   asset?: Asset;

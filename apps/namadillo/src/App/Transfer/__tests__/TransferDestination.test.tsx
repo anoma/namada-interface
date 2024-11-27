@@ -9,7 +9,7 @@ import {
 } from "App/Transfer/__mocks__/chains";
 import { TransferDestination } from "App/Transfer/TransferDestination";
 import BigNumber from "bignumber.js";
-import { namadaAsset } from "registry/namadaAsset";
+import { namadaAsset } from "utils";
 import { walletMock } from "../__mocks__/providers";
 import { parseChainInfo } from "../common";
 

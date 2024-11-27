@@ -3,8 +3,8 @@ import { ProposalStatus, ProposalTypeString } from "@namada/types";
 import BigNumber from "bignumber.js";
 import * as fns from "date-fns";
 import { DateTime } from "luxon";
+import internalDevnetAssets from "namada-chain-registry/namadainternaldevnet/assetlist.json";
 import { useEffect } from "react";
-import { namadaAsset } from "registry/namadaAsset";
 
 export const proposalStatusToString = (status: ProposalStatus): string => {
   const statusText: Record<ProposalStatus, string> = {
@@ -121,7 +121,10 @@ const findDisplayUnit = (asset: Asset): AssetDenomUnit | undefined => {
   return denom_units.find((unit) => unit.denom === display);
 };
 
-const isNamAsset = (asset: Asset): boolean =>
+// TODO update to mainnet asset
+export const namadaAsset = internalDevnetAssets.assets[0];
+
+export const isNamadaAsset = (asset: Asset): boolean =>
   asset.symbol === namadaAsset.symbol;
 
 export const toDisplayAmount = (
@@ -139,7 +142,7 @@ export const toBaseAmount = (
   asset: Asset,
   displayAmount: BigNumber
 ): BigNumber => {
-  if (isNamAsset(asset)) return displayAmount;
+  if (isNamadaAsset(asset)) return displayAmount;
   const displayUnit = findDisplayUnit(asset);
   if (!displayUnit) {
     return displayAmount;

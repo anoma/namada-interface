@@ -3,8 +3,8 @@ import { IbcToken, NativeToken } from "@namada/indexer-client";
 import { mapCoinsToAssets } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
-import { namadaAsset } from "registry/namadaAsset";
 import { AddressWithAssetAndAmountMap } from "types";
+import { isNamadaAsset } from "utils";
 import { TokenBalance } from "./atoms";
 
 // TODO upgrade this function to be as smart as possible
@@ -53,8 +53,7 @@ export const getTotalDollar = (list?: TokenBalance[]): BigNumber | undefined =>
   sumDollars(list ?? []);
 
 export const getTotalNam = (list?: TokenBalance[]): BigNumber =>
-  list?.find((i) => i.asset.base === namadaAsset.base)?.amount ??
-  new BigNumber(0);
+  list?.find((i) => isNamadaAsset(i.asset))?.amount ?? new BigNumber(0);
 
 const tnamAddressToDenomTrace = (
   address: string,
