@@ -33,7 +33,7 @@ export type {
 export { TxType, TxTypeLabel } from "./tx";
 export type { SupportedTx } from "./tx";
 
-export { Sdk } from "./sdk";
+export { Sdk, SdkEvents } from "./sdk";
 
 export { publicKeyToBech32 } from "./keys";
 

@@ -1,5 +1,16 @@
-import { Balance } from "@namada/sdk/web";
+import * as Comlink from "comlink";
+import { EventEmitter } from "events";
+
+import { Balance, SdkEvents } from "@namada/sdk/web";
 import { getSdkInstance } from "utils/sdk";
+import {
+  Events,
+  ProgressBarFinished,
+  ProgressBarIncremented,
+  ProgressBarStarted,
+  Worker as ShieldedSyncWorkerApi,
+} from "workers/ShieldedSyncWorker";
+import ShieldedSyncWorker from "workers/ShieldedSyncWorker?worker";
 
 const sqsOsmosisApi = "https://sqs.osmosis.zone";
 
@@ -13,6 +24,64 @@ export const fetchCoinPrices = async (
     ).then((res) => res.json())
   : [];
 
+export type ShieldedSyncEventMap = {
+  [SdkEvents.ProgressBarStarted]: ProgressBarStarted[];
+  [SdkEvents.ProgressBarIncremented]: ProgressBarIncremented[];
+  [SdkEvents.ProgressBarFinished]: ProgressBarFinished[];
+};
+
+export type ShieldedSyncEmitter = EventEmitter<ShieldedSyncEventMap>;
+
+let shieldedSyncEmitter: ShieldedSyncEmitter | undefined;
+
+export function shieldedSync(
+  rpcUrl: string,
+  maspIndexerUrl: string,
+  token: string,
+  viewingKeys: string[]
+): EventEmitter<ShieldedSyncEventMap> {
+  if (shieldedSyncEmitter) {
+    return shieldedSyncEmitter;
+  }
+
+  const worker = new ShieldedSyncWorker();
+  const shieldedSyncWorker = Comlink.wrap<ShieldedSyncWorkerApi>(worker);
+  shieldedSyncEmitter = new EventEmitter<ShieldedSyncEventMap>();
+
+  worker.onmessage = (event: MessageEvent<Events>) => {
+    if (!shieldedSyncEmitter) {
+      return;
+    }
+    if (event.data.type === SdkEvents.ProgressBarStarted) {
+      shieldedSyncEmitter.emit(event.data.type, event.data);
+    }
+    if (event.data.type === SdkEvents.ProgressBarIncremented) {
+      shieldedSyncEmitter.emit(event.data.type, event.data);
+    }
+    if (event.data.type === SdkEvents.ProgressBarFinished) {
+      shieldedSyncEmitter.emit(event.data.type, event.data);
+    }
+  };
+
+  (async () => {
+    try {
+      await shieldedSyncWorker.init({
+        type: "init",
+        payload: { rpcUrl, maspIndexerUrl, token },
+      });
+      await shieldedSyncWorker.sync({
+        type: "sync",
+        payload: { vks: viewingKeys },
+      });
+    } finally {
+      worker.terminate();
+      shieldedSyncEmitter = undefined;
+    }
+  })();
+
+  return shieldedSyncEmitter;
+}
+
 export const fetchShieldedBalance = async (
   viewingKey: string,
   addresses: string[]
@@ -21,7 +90,6 @@ export const fetchShieldedBalance = async (
   // return await mockShieldedBalance(viewingKey);
 
   const sdk = await getSdkInstance();
-  await sdk.rpc.shieldedSync([viewingKey]);
   return await sdk.rpc.queryBalance(viewingKey, addresses);
 };
 

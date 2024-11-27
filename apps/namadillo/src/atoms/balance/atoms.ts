@@ -1,3 +1,4 @@
+import { SdkEvents } from "@namada/shared";
 import { Namada } from "@namada/types";
 import {
   accountsAtom,
@@ -10,6 +11,7 @@ import {
   tokenAddressesAtom,
 } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
+import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import * as osmosis from "chain-registry/mainnet/osmosis";
@@ -21,24 +23,37 @@ import {
   mapNamadaAddressesToAssets,
   mapNamadaAssetsToTokenBalances,
 } from "./functions";
-import { fetchCoinPrices, fetchShieldedBalance } from "./services";
+import {
+  fetchCoinPrices,
+  fetchShieldedBalance,
+  shieldedSync,
+  ShieldedSyncEmitter,
+} from "./services";
 
 export type TokenBalance = AddressWithAsset & {
   amount: BigNumber;
   dollar?: BigNumber;
 };
 
-const DEPRECATED_getViewingKey = async (): Promise<string | undefined> => {
+const DEPRECATED_getViewingKey = async (): Promise<
+  [string, string[]] | undefined
+> => {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const namada: Namada | undefined = (window as any).namada;
     if (namada && semver.lt(namada.version(), "0.3.3")) {
       const accounts = await namada.accounts();
       const defaultAccount = await namada.defaultAccount();
-      const shieldedAccount = accounts?.find(
-        (a) => a.type === "shielded-keys" && a.alias === defaultAccount?.alias
+      const shieldedAccounts = accounts?.filter(
+        (a) => a.type === "shielded-keys"
       );
-      return shieldedAccount?.owner;
+      const defaultShieldedAccount = shieldedAccounts?.find(
+        (a) => a.alias === defaultAccount?.alias
+      );
+      const defaultViewingKey = defaultShieldedAccount?.owner ?? "";
+      const viewingKeys = shieldedAccounts?.map((a) => a.owner ?? "") ?? [];
+
+      return [defaultViewingKey, viewingKeys];
     }
   } catch {
     // do nothing
@@ -46,47 +61,98 @@ const DEPRECATED_getViewingKey = async (): Promise<string | undefined> => {
   return undefined;
 };
 
-export const viewingKeyAtom = atomWithQuery<string>((get) => {
+export const viewingKeysAtom = atomWithQuery<[string, string[]]>((get) => {
   const accountsQuery = get(accountsAtom);
   const defaultAccountQuery = get(defaultAccountAtom);
 
   return {
-    queryKey: ["viewing-key", accountsQuery.data, defaultAccountQuery.data],
+    queryKey: ["viewing-keys", accountsQuery.data, defaultAccountQuery.data],
     ...queryDependentFn(async () => {
       const deprecatedViewingKey = await DEPRECATED_getViewingKey();
       if (deprecatedViewingKey) {
         return deprecatedViewingKey;
       }
-      const shieldedAccount = accountsQuery.data?.find(
-        (a) => a.isShielded && a.alias === defaultAccountQuery.data?.alias
+      const shieldedAccounts = accountsQuery.data?.filter((a) => a.isShielded);
+      const defaultShieldedAccount = shieldedAccounts?.find(
+        (a) => a.alias === defaultAccountQuery.data?.alias
       );
-      return shieldedAccount?.viewingKey ?? "";
+      const defaultViewingKey = defaultShieldedAccount?.viewingKey ?? "";
+      const viewingKeys =
+        shieldedAccounts?.map((a) => a.viewingKey ?? "") ?? [];
+
+      return [defaultViewingKey, viewingKeys];
     }, [accountsQuery, defaultAccountQuery]),
   };
 });
+
+export const shieldedSyncAtom = atomWithQuery<ShieldedSyncEmitter | null>(
+  (get) => {
+    const viewingKeysQuery = get(viewingKeysAtom);
+    const namTokenAddressQuery = get(nativeTokenAddressAtom);
+    const rpcUrl = get(rpcUrlAtom);
+    const maspIndexerUrl = get(maspIndexerUrlAtom);
+
+    return {
+      queryKey: [
+        "shielded-sync",
+        viewingKeysQuery.data,
+        namTokenAddressQuery.data,
+        rpcUrl,
+        maspIndexerUrl,
+      ],
+      ...queryDependentFn(async () => {
+        const viewingKeys = viewingKeysQuery.data;
+        const namTokenAddress = namTokenAddressQuery.data;
+        if (!namTokenAddress || !viewingKeys) {
+          return null;
+        }
+        const [_, allViewingKeys] = viewingKeys;
+        return shieldedSync(
+          rpcUrl,
+          maspIndexerUrl,
+          namTokenAddress,
+          allViewingKeys
+        );
+      }, [viewingKeysQuery, namTokenAddressQuery]),
+    };
+  }
+);
 
 export const shieldedBalanceAtom = atomWithQuery<
   { address: string; amount: BigNumber }[]
 >((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
-  const viewingKeyQuery = get(viewingKeyAtom);
+  const viewingKeysQuery = get(viewingKeysAtom);
   const tokenAddressesQuery = get(tokenAddressesAtom);
   const namTokenAddressQuery = get(nativeTokenAddressAtom);
+  const rpcUrl = get(rpcUrlAtom);
+  const maspIndexerUrl = get(maspIndexerUrlAtom);
+  const shieldedSync = get(shieldedSyncAtom);
 
   return {
     refetchInterval: enablePolling ? 1000 : false,
     queryKey: [
       "shielded-balance",
-      viewingKeyQuery.data,
+      viewingKeysQuery.data,
       tokenAddressesQuery.data,
       namTokenAddressQuery.data,
+      shieldedSync.data,
+      rpcUrl,
+      maspIndexerUrl,
     ],
     ...queryDependentFn(async () => {
-      const viewingKey = viewingKeyQuery.data;
+      const viewingKeys = viewingKeysQuery.data;
       const tokenAddresses = tokenAddressesQuery.data;
-      if (!viewingKey || !tokenAddresses) {
+      const syncEmitter = shieldedSync.data;
+      if (!viewingKeys || !tokenAddresses || !syncEmitter) {
         return [];
       }
+      const [viewingKey] = viewingKeys;
+
+      await new Promise<void>((resolve) => {
+        syncEmitter.once(SdkEvents.ProgressBarFinished, () => resolve());
+      });
+
       const response = await fetchShieldedBalance(
         viewingKey,
         tokenAddresses.map((t) => t.address)
@@ -100,7 +166,7 @@ export const shieldedBalanceAtom = atomWithQuery<
           : new BigNumber(amount),
       }));
       return shieldedBalance;
-    }, [viewingKeyQuery, tokenAddressesQuery, namTokenAddressQuery]),
+    }, [viewingKeysQuery, tokenAddressesQuery, namTokenAddressQuery]),
   };
 });
 

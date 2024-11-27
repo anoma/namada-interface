@@ -7,6 +7,7 @@ import { useTransactionCallback } from "hooks/useTransactionCallbacks";
 import { useTransactionNotifications } from "hooks/useTransactionNotifications";
 import { useTransactionWatcher } from "hooks/useTransactionWatcher";
 import { Outlet } from "react-router-dom";
+
 import { ChainLoader } from "./Setup/ChainLoader";
 
 export const history = createBrowserHistory({ window });

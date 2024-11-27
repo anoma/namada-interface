@@ -1,3 +1,4 @@
+use crate::sdk::events::EventDispatcher;
 use namada_sdk::control_flow::ShutdownSignal;
 use namada_sdk::io::ProgressBar;
 use namada_sdk::task_env::{TaskEnvironment, TaskSpawner};
@@ -86,8 +87,19 @@ impl ShutdownSignal for ShutdownSignalWeb {
 }
 
 pub struct ProgressBarWeb {
+    pub name: String,
     pub total: usize,
     pub current: usize,
+}
+
+impl ProgressBarWeb {
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            total: 0,
+            current: 0,
+        }
+    }
 }
 
 impl ProgressBar for ProgressBarWeb {
@@ -97,11 +109,16 @@ impl ProgressBar for ProgressBarWeb {
 
     fn set_upper_limit(&mut self, limit: u64) {
         self.total = limit as usize;
+        let _ = EventDispatcher::new()
+            .progress_bar_started(self.name.clone())
+            .is_ok();
     }
 
     fn increment_by(&mut self, amount: u64) {
         self.current += amount as usize;
-        web_sys::console::log_1(&format!("Progress: {}/{}", self.current, self.total).into());
+        let _ = EventDispatcher::new()
+            .progress_bar_incremented(self.name.clone(), self.current, self.total)
+            .is_ok();
     }
 
     fn message(&mut self, message: String) {
@@ -109,6 +126,8 @@ impl ProgressBar for ProgressBarWeb {
     }
 
     fn finish(&mut self) {
-        web_sys::console::log_1(&"Finished".into());
+        let _ = EventDispatcher::new()
+            .progress_bar_finished(self.name.clone())
+            .is_ok();
     }
 }

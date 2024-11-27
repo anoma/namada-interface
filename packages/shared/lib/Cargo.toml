@@ -17,6 +17,9 @@ multicore = ["rayon", "wasm-bindgen-rayon", "namada_sdk/multicore"]
 nodejs = []
 web = []
 
+[build-dependencies]
+namada_tx = { git = "https://github.com/anoma/namada", tag = "v0.45.1" }
+
 [dependencies]
 async-trait = {version = "0.1.51"}
 tiny-bip39 = "0.8.2"
@@ -46,6 +49,11 @@ subtle-encoding = "0.5.1"
 version = "0.3.4"
 features = [
   'console',
+  'Document',
+  'Event',
+  'EventTarget',
+  'CustomEvent',
+  'CustomEventInit',
   'Headers',
   'Request',
   'RequestInit',

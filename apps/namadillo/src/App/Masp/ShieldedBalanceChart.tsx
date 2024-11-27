@@ -1,13 +1,77 @@
 import { Heading, PieChart, SkeletonLoading } from "@namada/components";
+import { ProgressBarNames, SdkEvents } from "@namada/shared";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
-import { shieldedTokensAtom } from "atoms/balance/atoms";
+import { shieldedSyncAtom, shieldedTokensAtom } from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
 import { colors } from "theme";
+import {
+  ProgressBarFinished,
+  ProgressBarIncremented,
+} from "workers/ShieldedSyncWorker";
 
 export const ShieldedBalanceChart = (): JSX.Element => {
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
+  const [{ data: shieldedSyncProgress, refetch: shieledSync }] =
+    useAtom(shieldedSyncAtom);
+
+  const [progress, setProgress] = useState({
+    [ProgressBarNames.Scanned]: 0,
+    [ProgressBarNames.Fetched]: 0,
+    [ProgressBarNames.Applied]: 0,
+  });
+
+  useEffect(() => {
+    if (!shieldedSyncProgress) return;
+
+    const onProgressBarIncremented = ({
+      name,
+      current,
+      total,
+    }: ProgressBarIncremented): void => {
+      const perc =
+        total === 0 ? 0 : Math.min(Math.floor((current / total) * 100), 100);
+
+      setProgress((prev) => ({
+        ...prev,
+        [name]: perc,
+      }));
+    };
+
+    const onProgressBarFinished = ({ name }: ProgressBarFinished): void => {
+      setProgress((prev) => ({
+        ...prev,
+        [name]: 100,
+      }));
+    };
+
+    shieldedSyncProgress.on(
+      SdkEvents.ProgressBarIncremented,
+      onProgressBarIncremented
+    );
+
+    shieldedSyncProgress.on(
+      SdkEvents.ProgressBarFinished,
+      onProgressBarFinished
+    );
+
+    return () => {
+      shieldedSyncProgress.off(
+        SdkEvents.ProgressBarIncremented,
+        onProgressBarIncremented
+      );
+      shieldedSyncProgress.off(
+        SdkEvents.ProgressBarFinished,
+        onProgressBarFinished
+      );
+    };
+  }, [shieldedSyncProgress]);
+
+  useEffect(() => {
+    shieledSync();
+  }, []);
 
   const shieldedDollars = getTotalDollar(shieldedTokensQuery.data);
 
@@ -48,10 +112,16 @@ export const ShieldedBalanceChart = (): JSX.Element => {
                 </div>
               </PieChart>
               <div className="absolute -bottom-4 -left-2 text-[10px]">
-                *Balances exclude NAM until phase 5
+                *Balances exclude NAM until phase 5{" "}
               </div>
             </>
           }
+          <div className="absolute top-0 right-0 text-right">
+            Shieled sync progress: <br />
+            Scanned: {progress[ProgressBarNames.Scanned]}% <br />
+            Fetched: {progress[ProgressBarNames.Fetched]}% <br />
+            Applied: {progress[ProgressBarNames.Applied]}%
+          </div>
         </AtomErrorBoundary>
       </div>
     </div>
