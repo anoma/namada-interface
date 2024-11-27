@@ -7,9 +7,11 @@ import {
   filterPendingTransactions,
 } from "./functions";
 
+export const transactionStorageKey = "namadillo:transactions";
+
 export const transactionHistoryAtom = atomWithStorage<
   Record<Address, TransferTransactionData[]>
->("namadillo:transactions", {});
+>(transactionStorageKey, {});
 
 export const myTransactionHistoryAtom = atom<TransferTransactionData[]>(
   (get) => {

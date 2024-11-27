@@ -2,11 +2,13 @@ import { Stack } from "@namada/components";
 import { RedelegateMsgValue, TxProps } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { NamCurrency } from "App/Common/NamCurrency";
+import { TokenCurrency } from "App/Common/TokenCurrency";
 import {
   createNotificationId,
   dispatchToastNotificationAtom,
   filterToastNotificationsAtom,
 } from "atoms/notifications";
+import { searchAllStoredTxByHash } from "atoms/transactions";
 import BigNumber from "bignumber.js";
 import { useSetAtom } from "jotai";
 import { useTransactionEventListener } from "utils";
@@ -345,20 +347,26 @@ export const useTransactionNotifications = (): void => {
     tx: TxProps,
     data: TxWithAmount[]
   ): void => {
-    const { id, total } = parseTxsData(tx, data);
+    const { id } = parseTxsData(tx, data);
     clearPendingNotifications(id);
-    dispatchNotification({
-      id,
-      title: "Transfer transaction succeeded",
-      description: (
-        <>
-          Your transfer transaction of <NamCurrency amount={total} /> has
-          succeeded
-        </>
-      ),
-      // details, // TODO
-      type: "success",
-    });
+    const storedTx = searchAllStoredTxByHash(tx.hash);
+    if (storedTx) {
+      dispatchNotification({
+        id,
+        title: "Transfer transaction succeeded",
+        description: (
+          <>
+            Your transfer transaction of{" "}
+            <TokenCurrency
+              symbol={storedTx.asset.symbol}
+              amount={storedTx.amount}
+            />{" "}
+            to {shortenAddress(storedTx.destinationAddress, 8, 8)} has succeeded
+          </>
+        ),
+        type: "success",
+      });
+    }
   };
 
   useTransactionEventListener("TransparentTransfer.Success", (e) => {

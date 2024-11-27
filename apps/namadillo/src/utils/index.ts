@@ -131,6 +131,7 @@ export const toDisplayAmount = (
   asset: Asset,
   baseAmount: BigNumber
 ): BigNumber => {
+  if (isNamAsset(asset)) return baseAmount;
   const displayUnit = findDisplayUnit(asset);
   if (!displayUnit) {
     return baseAmount;

@@ -191,7 +191,7 @@ export const createTransferDataFromNamada = (
           sourceAddress,
           destinationAddress,
           asset,
-          amount,
+          amount: toDisplayAmount(asset, amount),
           memo,
           rpc: rpcUrl,
           chainId: txResponse?.encodedTxData.txs[0]?.args.chainId ?? "",
