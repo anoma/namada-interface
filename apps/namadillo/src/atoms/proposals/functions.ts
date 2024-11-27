@@ -122,7 +122,6 @@ const decodeProposalType = (
       const pgfActionsDecoded = pgfActionsSchema.decode(JSON.parse(data));
 
       if (E.isLeft(pgfActionsDecoded)) {
-        console.warn("ERROR", { data: JSON.parse(data) });
         throw new Error("pgf_payment data is not valid");
       }
 
