@@ -6,6 +6,7 @@ import { shieldedSyncAtom, shieldedTokensAtom } from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
 import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
+import { twMerge } from "tailwind-merge";
 import { colors } from "theme";
 import {
   ProgressBarFinished,
@@ -17,6 +18,7 @@ export const ShieldedBalanceChart = (): JSX.Element => {
   const [{ data: shieldedSyncProgress, refetch: shieledSync }] =
     useAtom(shieldedSyncAtom);
 
+  const [showSyncProgress, setShowSyncProgress] = useState(false);
   const [progress, setProgress] = useState({
     [ProgressBarNames.Scanned]: 0,
     [ProgressBarNames.Fetched]: 0,
@@ -71,6 +73,13 @@ export const ShieldedBalanceChart = (): JSX.Element => {
 
   useEffect(() => {
     shieledSync();
+
+    const timeoutId = setTimeout(() => {
+      setShowSyncProgress(true);
+    }, 3000);
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const shieldedDollars = getTotalDollar(shieldedTokensQuery.data);
@@ -86,8 +95,15 @@ export const ShieldedBalanceChart = (): JSX.Element => {
             <SkeletonLoading
               height="100%"
               width="100%"
-              className="rounded-full border-neutral-800 border-[24px] bg-transparent"
-            />
+              className={twMerge(
+                "rounded-full border-neutral-800 border-[24px] bg-transparent",
+                "flex items-center justify-center"
+              )}
+            >
+              {showSyncProgress && (
+                <div>{progress[ProgressBarNames.Fetched]}%</div>
+              )}
+            </SkeletonLoading>
           : <>
               <PieChart
                 id="balance-chart"
@@ -116,12 +132,6 @@ export const ShieldedBalanceChart = (): JSX.Element => {
               </div>
             </>
           }
-          <div className="absolute top-0 right-0 text-right">
-            Shieled sync progress: <br />
-            Scanned: {progress[ProgressBarNames.Scanned]}% <br />
-            Fetched: {progress[ProgressBarNames.Fetched]}% <br />
-            Applied: {progress[ProgressBarNames.Applied]}%
-          </div>
         </AtomErrorBoundary>
       </div>
     </div>
