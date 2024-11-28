@@ -23,7 +23,7 @@ import {
   TransferStep,
   TransferTransactionData,
 } from "types";
-import { toDisplayAmount } from "utils";
+import { isNamadaAsset, toDisplayAmount } from "utils";
 import { TransactionPair } from "./query";
 
 export const getEventAttribute = (
@@ -139,7 +139,7 @@ export const createTransferDataFromIbc = (
     asset,
     feePaid,
     tipPaid,
-    amount: transferAmount,
+    displayAmount: transferAmount,
     status: "pending",
     sourcePort: "transfer",
     chainId: sourceChainId,
@@ -191,7 +191,8 @@ export const createTransferDataFromNamada = (
           sourceAddress,
           destinationAddress,
           asset,
-          amount,
+          displayAmount:
+            isNamadaAsset(asset) ? amount : toDisplayAmount(asset, amount),
           memo,
           rpc: rpcUrl,
           chainId: txResponse?.encodedTxData.txs[0]?.args.chainId ?? "",

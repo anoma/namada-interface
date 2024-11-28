@@ -107,7 +107,7 @@ export const IbcTransfer: React.FC = () => {
   }, [ibcChannels]);
 
   const onSubmitTransfer = async ({
-    amount,
+    displayAmount,
     destinationAddress,
   }: OnSubmitTransferParams): Promise<void> => {
     try {
@@ -175,7 +175,7 @@ export const IbcTransfer: React.FC = () => {
             chainId,
             sourceAddress,
             destinationAddress,
-            amount,
+            amount: displayAmount,
             asset: selectedAsset,
             transactionFee,
             sourceChannelId: sourceChannel.trim(),

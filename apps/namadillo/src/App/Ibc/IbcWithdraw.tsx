@@ -95,7 +95,7 @@ export const IbcWithdraw: React.FC = () => {
   }, [isError]);
 
   const submitIbcTransfer = async ({
-    amount,
+    displayAmount,
     destinationAddress,
     memo,
   }: OnSubmitTransferParams): Promise<void> => {
@@ -120,7 +120,7 @@ export const IbcWithdraw: React.FC = () => {
       const { encodedTxData, signedTxs } = await createIbcTx({
         destinationAddress,
         token: selectedAsset,
-        amount,
+        amount: displayAmount,
         portId: "transfer",
         channelId: sourceChannel.trim(),
         gasConfig,
