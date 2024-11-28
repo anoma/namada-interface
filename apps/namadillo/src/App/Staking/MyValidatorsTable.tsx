@@ -78,6 +78,7 @@ export const MyValidatorsTable = (): JSX.Element => {
             amount={
               stakedAmountByAddress[validator.address] || new BigNumber(0)
             }
+            decimalPlaces={2}
           />
         </div>,
         <div
@@ -85,7 +86,10 @@ export const MyValidatorsTable = (): JSX.Element => {
           key={`my-validator-voting-power-${validator.address}`}
         >
           {validator.votingPowerInNAM && (
-            <NamCurrency amount={validator.votingPowerInNAM} />
+            <NamCurrency
+              amount={validator.votingPowerInNAM}
+              decimalPlaces={2}
+            />
           )}
           <span className="text-neutral-600 text-sm">
             {formatPercentage(BigNumber(validator.votingPowerPercentage || 0))}

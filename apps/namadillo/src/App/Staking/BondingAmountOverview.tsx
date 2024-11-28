@@ -41,6 +41,7 @@ export const BondingAmountOverview = ({
               [updatedValueClassList]: hasUpdatedValue,
             })}
             currencySymbolClassName="text-lg"
+            decimalPlaces={2}
           />
           {amountToDelegate && amountToDelegate.gt(0) && (
             <span className="text-success text-md font-light mt-1.5 ml-3">

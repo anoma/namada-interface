@@ -59,6 +59,7 @@ export const BalanceChart = ({
           amount={balance}
           className="text-2xl"
           currencySymbolClassName="block mb-1 text-xs ml-1"
+          decimalPlaces={2}
         />
       </div>
     );

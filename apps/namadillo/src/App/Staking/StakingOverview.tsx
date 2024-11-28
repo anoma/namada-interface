@@ -35,7 +35,7 @@ export const StakingOverview = (): JSX.Element => {
             <UnbondingAmountsTable />
           </Panel>
         )}
-        <Panel className="relative pb-6" title="All Validators">
+        <Panel className="relative pb-6 overflow-hidden" title="All Validators">
           <AllValidatorsTable />
         </Panel>
       </div>
