@@ -61,6 +61,7 @@ export const StakingSummary = (): JSX.Element => {
                 amount={availableAmount ?? 0}
                 className="block leading-none"
                 currencySymbolClassName="block mb-3 mt-0.5 text-sm"
+                decimalPlaces={2}
               />
             }
             callToAction={
