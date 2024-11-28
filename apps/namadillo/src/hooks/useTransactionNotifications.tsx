@@ -1,6 +1,6 @@
 import { Stack } from "@namada/components";
 import { RedelegateMsgValue, TxProps } from "@namada/types";
-import { shortenAddress } from "@namada/utils";
+import { mapUndefined, shortenAddress } from "@namada/utils";
 import { NamCurrency } from "App/Common/NamCurrency";
 import {
   createNotificationId,
@@ -314,7 +314,8 @@ export const useTransactionNotifications = (): void => {
       id,
       title: "Claim Rewards",
       description: `An error occurred while trying to claim your rewards.`,
-      type: "success",
+      type: "error",
+      details: mapUndefined(failureDetails, e.detail.error?.message),
     });
   });
 
