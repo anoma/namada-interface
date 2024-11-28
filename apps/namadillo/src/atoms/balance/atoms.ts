@@ -159,7 +159,11 @@ export const shieldedBalanceAtom = atomWithQuery<
       );
       const shieldedBalance = response.map(([address, amount]) => ({
         address,
-        amount: new BigNumber(amount),
+        amount:
+          // Sdk returns the nam amount as `nam` instead of `namnam`
+          namTokenAddressQuery.data === address ?
+            new BigNumber(amount).shiftedBy(6)
+          : new BigNumber(amount),
       }));
       return shieldedBalance;
     }, [viewingKeysQuery, tokenAddressesQuery, namTokenAddressQuery]),
