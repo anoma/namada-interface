@@ -308,7 +308,7 @@ export type BaseTransferTransaction = TransferStage & {
   rpc: string;
   asset: Asset;
   hash?: string;
-  amount: BigNumber;
+  displayAmount: BigNumber;
   chainId: string;
   sourceAddress: string;
   destinationAddress: string;

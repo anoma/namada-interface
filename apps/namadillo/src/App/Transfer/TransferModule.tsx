@@ -59,7 +59,7 @@ export type TransferDestinationProps = TransferModuleConfig & {
 };
 
 export type OnSubmitTransferParams = {
-  amount: BigNumber;
+  displayAmount: BigNumber;
   destinationAddress: Address;
   memo?: string;
 };
@@ -180,7 +180,7 @@ export const TransferModule = ({
     }
 
     const params: OnSubmitTransferParams = {
-      amount: source.amount,
+      displayAmount: source.amount,
       destinationAddress: address.trim(),
       memo,
     };

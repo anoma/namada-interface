@@ -106,7 +106,7 @@ export const MaspShield: React.FC = () => {
   };
 
   const onSubmitTransfer = async ({
-    amount,
+    displayAmount,
     destinationAddress,
   }: OnSubmitTransferParams): Promise<void> => {
     try {
@@ -140,7 +140,7 @@ export const MaspShield: React.FC = () => {
         sourceAddress,
         destinationAddress,
         tokenAddress: selectedAsset.originalAddress,
-        amount,
+        amount: displayAmount,
         gasConfig,
       });
 
@@ -151,7 +151,7 @@ export const MaspShield: React.FC = () => {
         sourceAddress,
         destinationAddress,
         asset: selectedAsset.asset,
-        amount,
+        displayAmount,
         rpc: txResponse.msg.payload.chain.rpcUrl,
         chainId: txResponse.msg.payload.chain.chainId,
         hash: txResponse.encodedTx.txs[0]?.hash,

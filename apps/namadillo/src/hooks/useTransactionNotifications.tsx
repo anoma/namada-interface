@@ -359,7 +359,7 @@ export const useTransactionNotifications = (): void => {
             Your transfer transaction of{" "}
             <TokenCurrency
               symbol={storedTx.asset.symbol}
-              amount={storedTx.amount}
+              amount={storedTx.displayAmount}
             />{" "}
             to {shortenAddress(storedTx.destinationAddress, 8, 8)} has succeeded
           </>
