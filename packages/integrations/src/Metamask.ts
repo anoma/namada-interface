@@ -83,10 +83,6 @@ class Metamask implements Integration<Account, unknown> {
     }
   }
 
-  public async getChain(): Promise<Chain> {
-    return this.chain;
-  }
-
   private async syncChainId(): Promise<void> {
     const { chainId } = this.chain;
 

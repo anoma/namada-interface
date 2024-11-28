@@ -3,9 +3,8 @@ import { validateProps } from "utils";
 import { ROUTE } from "./constants";
 
 enum MessageType {
+  GetChain = "get-chain",
   UpdateChain = "update-chain",
-  AddTxWasmHashes = "add-tx-wasm-hashes",
-  GetTxWasmHashes = "get-tx-wasm-hashes",
 }
 
 export class UpdateChainMsg extends Message<void> {
@@ -27,5 +26,25 @@ export class UpdateChainMsg extends Message<void> {
 
   type(): string {
     return UpdateChainMsg.type();
+  }
+}
+
+export class GetChainMsg extends Message<string> {
+  public static type(): MessageType {
+    return MessageType.GetChain;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): MessageType {
+    return GetChainMsg.type();
   }
 }

@@ -8,7 +8,7 @@ import { paramsToUrl } from "@namada/utils";
 
 import { ResponseSign } from "@zondax/ledger-namada";
 import { TopLevelRoute } from "Approvals/types";
-import { ChainsService } from "background/chains";
+import { ChainService } from "background/chain";
 import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
@@ -35,7 +35,8 @@ export class ApprovalsService {
     protected readonly sdkService: SdkService,
     protected readonly keyRingService: KeyRingService,
     protected readonly vaultService: VaultService,
-    protected readonly chainService: ChainsService,
+    // TODO: This is not used here until #1298 is merged!
+    protected readonly chainService: ChainService,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
     browser.tabs.onRemoved.addListener((tabId) => {

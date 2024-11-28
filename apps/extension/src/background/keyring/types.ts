@@ -48,8 +48,6 @@ export type SensitiveAccountStoreData = { text: string; passphrase?: string };
 
 export type UtilityStore = ActiveAccountStore | { [id: string]: CryptoRecord };
 
-export type RevealedPKStore = { [id: string]: string };
-
 export enum DeleteAccountError {
   BadPassword,
   KeyStoreError,

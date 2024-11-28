@@ -1,7 +1,5 @@
-import { chains } from "@namada/chains";
 import { Sdk, getSdk } from "@namada/sdk/web";
 import sdkInit from "@namada/sdk/web-init";
-import { LocalStorage } from "storage";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
@@ -10,29 +8,24 @@ const {
 
 // Extension does not care about the MASP indexer - this will map to None in Rust
 const MASP_INDEXER_URL = "";
+// Extension does not use RPC URL
+const RPC_URL = "";
 
 export class SdkService {
   private constructor(
-    private rpc: string,
     private readonly token: string,
     private readonly cryptoMemory: WebAssembly.Memory
   ) {}
 
-  static async init(localStorage: LocalStorage): Promise<SdkService> {
-    // Get stored chain
-    const chain = await localStorage.getChain();
-    // If chain is not stored, use default chain information
-    const rpc = chain?.rpc || chains.namada.rpc;
-
+  static async init(): Promise<SdkService> {
     const { cryptoMemory } = await sdkInit();
-
-    return new SdkService(rpc, defaultTokenAddress, cryptoMemory);
+    return new SdkService(defaultTokenAddress, cryptoMemory);
   }
 
   getSdk(): Sdk {
     return getSdk(
       this.cryptoMemory,
-      this.rpc,
+      RPC_URL,
       MASP_INDEXER_URL,
       "NOT USED DB NAME",
       this.token
