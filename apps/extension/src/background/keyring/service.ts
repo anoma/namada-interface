@@ -9,7 +9,7 @@ import {
 } from "@namada/types";
 import { Result, truncateInMiddle } from "@namada/utils";
 
-import { ChainsService } from "background/chains";
+import { ChainService } from "background/chain";
 import { SdkService } from "background/sdk/service";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster, ExtensionRequester } from "extension";
@@ -31,7 +31,7 @@ export class KeyRingService {
   constructor(
     protected readonly vaultService: VaultService,
     protected readonly sdkService: SdkService,
-    protected readonly chainsService: ChainsService,
+    protected readonly chainService: ChainService,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly localStorage: LocalStorage,
     protected readonly vaultStorage: VaultStorage,
@@ -181,7 +181,7 @@ export class KeyRingService {
   }
 
   async sign(txProps: TxProps, signer: string): Promise<Uint8Array> {
-    const { chainId } = await this.chainsService.getChain();
+    const chainId = await this.chainService.getChain();
     return await this._keyRing.sign(txProps, signer, chainId);
   }
 

@@ -1,7 +1,6 @@
 import { chains } from "@namada/chains";
 import { Sdk, getSdk } from "@namada/sdk/web";
 import sdkInit from "@namada/sdk/web-init";
-import { LocalStorage } from "storage";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
@@ -18,14 +17,10 @@ export class SdkService {
     private readonly cryptoMemory: WebAssembly.Memory
   ) {}
 
-  static async init(localStorage: LocalStorage): Promise<SdkService> {
-    // Get stored chain
-    const chain = await localStorage.getChain();
-    // If chain is not stored, use default chain information
-    const rpc = chain?.rpc || chains.namada.rpc;
-
+  static async init(): Promise<SdkService> {
+    // Use fake RPC, the extension does not actually issue RPC requests:
+    const rpc = chains.namada.rpc;
     const { cryptoMemory } = await sdkInit();
-
     return new SdkService(rpc, defaultTokenAddress, cryptoMemory);
   }
 

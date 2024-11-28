@@ -1,4 +1,4 @@
-import { Chain, DerivedAccount, SignArbitraryResponse } from "@namada/types";
+import { DerivedAccount, SignArbitraryResponse } from "@namada/types";
 import { EncodedTxData } from "background/approvals";
 import { Message } from "router";
 import { validateProps } from "utils";
@@ -25,8 +25,6 @@ enum MessageType {
   QueryDefaultAccount = "query-default-account",
   ApproveUpdateDefaultAccount = "approve-update-default-account",
   EncodeRevealPublicKey = "encode-reveal-public-key",
-  GetChain = "get-chain",
-  GetChains = "get-chains",
   ApproveEthBridgeTransfer = "approve-eth-bridge-transfer",
   CheckDurability = "check-durability",
   VerifyArbitrary = "verify-arbitrary",
@@ -154,26 +152,6 @@ export class ApproveDisconnectInterfaceMsg extends Message<void> {
 
   type(): string {
     return ApproveDisconnectInterfaceMsg.type();
-  }
-}
-
-export class GetChainMsg extends Message<Chain> {
-  public static type(): MessageType {
-    return MessageType.GetChain;
-  }
-
-  constructor() {
-    super();
-  }
-
-  validate(): void {}
-
-  route(): string {
-    return Route.Chains;
-  }
-
-  type(): MessageType {
-    return GetChainMsg.type();
   }
 }
 

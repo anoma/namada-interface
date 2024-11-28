@@ -1,5 +1,4 @@
 import {
-  Chain,
   DerivedAccount,
   Namada as INamada,
   SignArbitraryProps,
@@ -17,7 +16,6 @@ import {
   ApproveSignTxMsg,
   ApproveUpdateDefaultAccountMsg,
   CheckDurabilityMsg,
-  GetChainMsg,
   IsConnectionApprovedMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
@@ -104,13 +102,6 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new VerifyArbitraryMsg(publicKey, hash, signature)
-    );
-  }
-
-  public async getChain(): Promise<Chain | undefined> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new GetChainMsg()
     );
   }
 

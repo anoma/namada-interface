@@ -1,57 +1,11 @@
+import { chains } from "@namada/chains";
 import { KVStore } from "@namada/storage";
 import * as E from "fp-ts/Either";
 import * as t from "io-ts";
 import { ExtStorage } from "./Storage";
 
-enum BridgeType {
-  IBC = "ibc",
-  Ethereum = "ethereum-bridge",
-}
-
-const Chain = t.intersection([
-  t.type({
-    alias: t.string,
-    bech32Prefix: t.string,
-    bip44: t.type({
-      coinType: t.number,
-    }),
-    bridgeType: t.array(
-      t.keyof({ [BridgeType.IBC]: null, [BridgeType.Ethereum]: null })
-    ),
-    chainId: t.string,
-    currency: t.intersection([
-      t.type({
-        symbol: t.string,
-        token: t.string,
-      }),
-      t.partial({
-        address: t.string,
-        gasPriceStep: t.type({
-          average: t.number,
-          high: t.number,
-          low: t.number,
-        }),
-      }),
-    ]),
-    extension: t.type({
-      alias: t.string,
-      id: t.keyof({ namada: null, keplr: null, metamask: null }),
-      url: t.string,
-    }),
-    id: t.keyof({
-      namada: null,
-      cosmos: null,
-      ethereum: null,
-    }),
-    rpc: t.string,
-  }),
-  t.partial({
-    ibc: t.type({
-      portId: t.string,
-    }),
-  }),
-]);
-type ChainType = t.TypeOf<typeof Chain>;
+const ChainId = t.string;
+type ChainIdType = t.TypeOf<typeof ChainId>;
 
 const NamadaExtensionApprovedOrigins = t.array(t.string);
 type NamadaExtensionApprovedOriginsType = t.TypeOf<
@@ -62,23 +16,23 @@ const NamadaExtensionRouterId = t.number;
 type NamadaExtensionRouterIdType = t.TypeOf<typeof NamadaExtensionRouterId>;
 
 type LocalStorageTypes =
-  | ChainType
+  | ChainIdType
   | NamadaExtensionApprovedOriginsType
   | NamadaExtensionRouterIdType;
 
 type LocalStorageSchemas =
-  | typeof Chain
+  | typeof ChainId
   | typeof NamadaExtensionApprovedOrigins
   | typeof NamadaExtensionRouterId;
 
 export type LocalStorageKeys =
-  | "chains"
+  | "chainId"
   | "namadaExtensionApprovedOrigins"
   | "namadaExtensionRouterId"
   | "tabs";
 
 const schemasMap = new Map<LocalStorageSchemas, LocalStorageKeys>([
-  [Chain, "chains"],
+  [ChainId, "chainId"],
   [NamadaExtensionApprovedOrigins, "namadaExtensionApprovedOrigins"],
   [NamadaExtensionRouterId, "namadaExtensionRouterId"],
 ]);
@@ -88,21 +42,23 @@ export class LocalStorage extends ExtStorage {
     super(provider);
   }
 
-  async getChain(): Promise<ChainType | undefined> {
-    const data = await this.getRaw(this.getKey(Chain));
+  async getChainId(): Promise<ChainIdType | undefined> {
+    const data = await this.getRaw(this.getKey(ChainId));
 
-    const Schema = t.union([Chain, t.undefined]);
+    const Schema = t.union([ChainId, t.undefined]);
     const decodedData = Schema.decode(data);
 
     if (E.isLeft(decodedData)) {
-      throw new Error("Chain is not valid");
+      // Return default chainId if invalid. Validation should not prevent this from
+      // returning a value
+      return chains.namada.chainId;
     }
 
     return decodedData.right;
   }
 
-  async setChain(chain: ChainType): Promise<void> {
-    await this.setRaw(this.getKey(Chain), chain);
+  async setChainId(chainId: ChainIdType): Promise<void> {
+    await this.setRaw(this.getKey(ChainId), chainId);
   }
 
   async getApprovedOrigins(): Promise<

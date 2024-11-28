@@ -1,5 +1,4 @@
 import { DerivedAccount } from "./account";
-import { Chain } from "./chain";
 import { SignArbitraryResponse, Signer } from "./signer";
 import { TxProps } from "./tx";
 
@@ -37,7 +36,6 @@ export interface Namada {
     props: SignArbitraryProps
   ): Promise<SignArbitraryResponse | undefined>;
   verify(props: VerifyArbitraryProps): Promise<void>;
-  getChain: () => Promise<Chain | undefined>;
   version: () => string;
 }
 

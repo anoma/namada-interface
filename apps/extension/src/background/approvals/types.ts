@@ -22,3 +22,7 @@ export type EncodedTxData = Pick<TxProps, "args" | "hash"> & {
   bytes: string;
   signingData: EncodedSigningData[];
 };
+
+export type ApprovedSigningChainStore = {
+  chainId: string;
+};

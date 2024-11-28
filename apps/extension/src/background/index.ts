@@ -22,7 +22,7 @@ import {
 import { KVPrefix, Ports } from "router";
 import { LocalStorage, VaultStorage } from "storage";
 import { ApprovalsService, init as initApprovals } from "./approvals";
-import { ChainsService, init as initChains } from "./chains";
+import { ChainService, init as initChain } from "./chain";
 import { KeyRingService, UtilityStore, init as initKeyRing } from "./keyring";
 import { SdkService } from "./sdk/service";
 import { VaultService, init as initVault } from "./vault";
@@ -55,7 +55,7 @@ const init = new Promise<void>(async (resolve) => {
   const routerId = await getNamadaRouterId(localStorage);
   const requester = new ExtensionRequester(messenger, routerId);
   const broadcaster = new ExtensionBroadcaster(localStorage, requester);
-  const sdkService = await SdkService.init(localStorage);
+  const sdkService = await SdkService.init();
 
   const vaultService = new VaultService(
     vaultStorage,
@@ -64,15 +64,11 @@ const init = new Promise<void>(async (resolve) => {
     broadcaster
   );
   await vaultService.initialize();
-  const chainsService = new ChainsService(
-    sdkService,
-    localStorage,
-    broadcaster
-  );
+  const chainService = new ChainService(sdkService, localStorage, broadcaster);
   const keyRingService = new KeyRingService(
     vaultService,
     sdkService,
-    chainsService,
+    chainService,
     utilityStore,
     localStorage,
     vaultStorage,
@@ -86,13 +82,13 @@ const init = new Promise<void>(async (resolve) => {
     sdkService,
     keyRingService,
     vaultService,
-    chainsService,
+    chainService,
     broadcaster
   );
 
   // Initialize messages and handlers
   initApprovals(router, approvalsService);
-  initChains(router, chainsService);
+  initChain(router, chainService);
   initKeyRing(router, keyRingService);
   initVault(router, vaultService);
   resolve();

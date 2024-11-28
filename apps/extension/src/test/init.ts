@@ -22,7 +22,7 @@ import {
   init as initApprovals,
 } from "../background/approvals";
 
-import { ChainsService } from "background/chains";
+import { ChainService } from "background/chain";
 import { SdkService } from "background/sdk";
 import { Namada } from "provider";
 import { LocalStorage, VaultStorage } from "storage";
@@ -81,16 +81,12 @@ export const init = async (): Promise<{
     localStorage
   );
 
-  const sdkService = await SdkService.init(localStorage);
+  const sdkService = await SdkService.init();
 
   const vaultService = new VaultService(vaultStorage, sessionStore, sdkService);
   await vaultService.initialize();
 
-  const chainsService = new ChainsService(
-    sdkService,
-    localStorage,
-    broadcaster
-  );
+  const chainsService = new ChainService(sdkService, localStorage, broadcaster);
 
   const keyRingService = new KeyRingService(
     vaultService,

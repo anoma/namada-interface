@@ -1,9 +1,8 @@
-import { GetChainMsg } from "provider/messages";
 import { Env, Handler, InternalHandler, Message } from "router";
-import { UpdateChainMsg } from "./messages";
-import { ChainsService } from "./service";
+import { GetChainMsg, UpdateChainMsg } from "./messages";
+import { ChainService } from "./service";
 
-export const getHandler: (service: ChainsService) => Handler = (service) => {
+export const getHandler: (service: ChainService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {
     switch (msg.constructor) {
       case GetChainMsg:
@@ -17,7 +16,7 @@ export const getHandler: (service: ChainsService) => Handler = (service) => {
 };
 
 const handleGetChainMsg: (
-  service: ChainsService
+  service: ChainService
 ) => InternalHandler<GetChainMsg> = (service) => {
   return async () => {
     return await service.getChain();
@@ -25,7 +24,7 @@ const handleGetChainMsg: (
 };
 
 const handleUpdateChainMsg: (
-  service: ChainsService
+  service: ChainService
 ) => InternalHandler<UpdateChainMsg> = (service) => {
   return async (_, { chainId }) => {
     return await service.updateChain(chainId);
