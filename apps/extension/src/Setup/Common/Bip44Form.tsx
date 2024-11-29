@@ -63,7 +63,7 @@ const Bip44Form: React.FC<Props> = ({ path, setPath }) => {
             </ul>
             <label className="text-base font-medium text-neutral-300">
               HD Derivation Path
-              <div className="flex w-full justify-start items-center">
+              <div className="flex w-full justify-start items-center pt-2">
                 <span className="h-px px-1 text-xs text-neutral-300">
                   {parentDerivationPath}
                 </span>

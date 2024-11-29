@@ -21,11 +21,11 @@ export const ViewingKey = (): JSX.Element => {
           label="Viewing Key"
           variant="ReadOnlyCopyText"
           readOnly={true}
-          rows={9}
+          rows={10}
           valueToDisplay={viewingKey}
           value={viewingKey}
           theme="secondary"
-          className="pb-20"
+          className="pb-20 [&_textarea]:py-2"
         />
       </Stack>
       <ActionButton size="md" onClick={() => navigate(-1)}>

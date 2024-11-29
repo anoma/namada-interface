@@ -72,7 +72,7 @@ export const ViewMnemonic = (): JSX.Element => {
       {!passwordChecked && (
         <>
           <Stack className="mt-12" full gap={GapPatterns.FormFields}>
-            <Alert type="info" className="max-w-84">
+            <Alert type="info">
               Please provide your password in order to view your seed phrase
             </Alert>
             <Input
@@ -94,7 +94,7 @@ export const ViewMnemonic = (): JSX.Element => {
       {passwordChecked && (
         <>
           <Stack className="flex-1 justify-center" full gap={1}>
-            <div className="text-sm -mt-1.5 max-w-84">
+            <div className="text-sm -mt-1.5">
               <SeedPhraseInstructions />
             </div>
             <Input

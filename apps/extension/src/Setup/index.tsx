@@ -5,6 +5,7 @@ import { RequesterProvider } from "services";
 import { Setup } from "./Setup";
 
 import "@namada/components/src/base.css";
+import "../global.css";
 import "../tailwind.css";
 
 export default ((): void => {
