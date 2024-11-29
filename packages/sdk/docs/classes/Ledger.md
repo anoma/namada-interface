@@ -44,7 +44,7 @@ Functionality for interacting with NamadaApp for Ledger Hardware Wallets
 
 #### Defined in
 
-[sdk/src/ledger.ts:68](https://github.com/anoma/namada-interface/blob/401d05c2b27f843316f882bbde6378581bdf06a9/packages/sdk/src/ledger.ts#L68)
+[sdk/src/ledger.ts:68](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L68)
 
 ## Properties
 
@@ -56,7 +56,7 @@ Inititalized NamadaApp class from Zondax package
 
 #### Defined in
 
-[sdk/src/ledger.ts:68](https://github.com/anoma/namada-interface/blob/401d05c2b27f843316f882bbde6378581bdf06a9/packages/sdk/src/ledger.ts#L68)
+[sdk/src/ledger.ts:68](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L68)
 
 ## Methods
 
@@ -77,7 +77,7 @@ void
 
 #### Defined in
 
-[sdk/src/ledger.ts:245](https://github.com/anoma/namada-interface/blob/401d05c2b27f843316f882bbde6378581bdf06a9/packages/sdk/src/ledger.ts#L245)
+[sdk/src/ledger.ts:245](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L245)
 
 ___
 
@@ -104,7 +104,7 @@ Address and public key
 
 #### Defined in
 
-[sdk/src/ledger.ts:111](https://github.com/anoma/namada-interface/blob/401d05c2b27f843316f882bbde6378581bdf06a9/packages/sdk/src/ledger.ts#L111)
+[sdk/src/ledger.ts:111](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L111)
 
 ___
 
@@ -132,7 +132,7 @@ ShieldedKeys
 
 #### Defined in
 
-[sdk/src/ledger.ts:157](https://github.com/anoma/namada-interface/blob/401d05c2b27f843316f882bbde6378581bdf06a9/packages/sdk/src/ledger.ts#L157)
+[sdk/src/ledger.ts:157](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L157)
 
 ___
 
@@ -153,7 +153,7 @@ Error message if error is found
 
 #### Defined in
 
-[sdk/src/ledger.ts:228](https://github.com/anoma/namada-interface/blob/401d05c2b27f843316f882bbde6378581bdf06a9/packages/sdk/src/ledger.ts#L228)
+[sdk/src/ledger.ts:228](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L228)
 
 ___
 
@@ -180,7 +180,7 @@ Address and public key
 
 #### Defined in
 
-[sdk/src/ledger.ts:131](https://github.com/anoma/namada-interface/blob/401d05c2b27f843316f882bbde6378581bdf06a9/packages/sdk/src/ledger.ts#L131)
+[sdk/src/ledger.ts:131](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L131)
 
 ___
 
@@ -208,7 +208,7 @@ Response signature
 
 #### Defined in
 
-[sdk/src/ledger.ts:196](https://github.com/anoma/namada-interface/blob/401d05c2b27f843316f882bbde6378581bdf06a9/packages/sdk/src/ledger.ts#L196)
+[sdk/src/ledger.ts:196](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L196)
 
 ___
 
@@ -236,7 +236,7 @@ Response signature
 
 #### Defined in
 
-[sdk/src/ledger.ts:213](https://github.com/anoma/namada-interface/blob/401d05c2b27f843316f882bbde6378581bdf06a9/packages/sdk/src/ledger.ts#L213)
+[sdk/src/ledger.ts:213](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L213)
 
 ___
 
@@ -257,7 +257,7 @@ Version and info of NamadaApp
 
 #### Defined in
 
-[sdk/src/ledger.ts:94](https://github.com/anoma/namada-interface/blob/401d05c2b27f843316f882bbde6378581bdf06a9/packages/sdk/src/ledger.ts#L94)
+[sdk/src/ledger.ts:94](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L94)
 
 ___
 
@@ -283,4 +283,4 @@ Ledger class instance
 
 #### Defined in
 
-[sdk/src/ledger.ts:76](https://github.com/anoma/namada-interface/blob/401d05c2b27f843316f882bbde6378581bdf06a9/packages/sdk/src/ledger.ts#L76)
+[sdk/src/ledger.ts:76](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L76)
