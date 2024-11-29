@@ -98,6 +98,10 @@ export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
           <Alert type="warning">Review on your Ledger</Alert>
         )}
 
+        <AdvancedOptions>
+          <Bip44Form path={path} setPath={setPath} />
+        </AdvancedOptions>
+
         <LedgerStep
           title="Step 1"
           text="Connect and unlock your ledger Hardware Wallet"
@@ -121,10 +125,6 @@ export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
             <Image styleOverrides={{ width: "100%" }} imageName="LogoMinimal" />
           }
         />
-
-        <AdvancedOptions>
-          <Bip44Form path={path} setPath={setPath} />
-        </AdvancedOptions>
       </Stack>
       <ActionButton size="lg" disabled={true}>
         Next
