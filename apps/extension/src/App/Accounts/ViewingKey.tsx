@@ -13,7 +13,7 @@ export const ViewingKey = (): JSX.Element => {
     <>
       <Stack full gap={GapPatterns.TitleContent}>
         <PageHeader title="Viewing Key" />
-        <p className="text-white max-w-84">
+        <p className="text-white">
           Your viewing key grants the holder access to all your balances and
           transaction data. Please keep it secure to protect your data.
         </p>

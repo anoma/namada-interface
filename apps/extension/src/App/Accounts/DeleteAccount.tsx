@@ -94,7 +94,7 @@ export const DeleteAccount = (): JSX.Element => {
       >
         <Stack className="flex-1 justify-center" gap={4} full>
           <Stack as="header" gap={4}>
-            <Alert type="warning" title="Alert!" className="max-w-84">
+            <Alert type="warning" title="Alert!">
               <p className="mb-4">
                 Make sure that you&apos;ve backed up your seed phrase and
                 private key.
@@ -109,7 +109,7 @@ export const DeleteAccount = (): JSX.Element => {
               </LinkButton>
             </Alert>
           </Stack>
-          <p className="text-white leading-5 text-sm px-2 font-medium mb-10 max-w-84">
+          <p className="text-white leading-5 text-sm px-2 font-medium mb-10">
             After deletion, you will be required to import your seed phrase to
             restore your access to it
           </p>

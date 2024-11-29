@@ -12,7 +12,7 @@ export const Warnings = ({ warnings }: Props): JSX.Element => {
       <Stack className="justify-top" full gap={GapPatterns.FormFields}>
         {warnings &&
           warnings.map((warning, i) => (
-            <Alert key={i} type="warning" className="max-w-84">
+            <Alert key={i} type="warning">
               {warning}
             </Alert>
           ))}
