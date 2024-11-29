@@ -17,3 +17,17 @@ body::-webkit-scrollbar-thumb {
   @apply bg-neutral-500;
   outline: 0;
 }
+
+/* Hide number input arrow buttons */
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide number input arrow buttons */
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}

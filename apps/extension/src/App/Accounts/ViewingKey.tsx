@@ -13,7 +13,7 @@ export const ViewingKey = (): JSX.Element => {
     <>
       <Stack full gap={GapPatterns.TitleContent}>
         <PageHeader title="Viewing Key" />
-        <p className="text-white">
+        <p className="text-white max-w-84">
           Your viewing key grants the holder access to all your balances and
           transaction data. Please keep it secure to protect your data.
         </p>
@@ -21,11 +21,11 @@ export const ViewingKey = (): JSX.Element => {
           label="Viewing Key"
           variant="ReadOnlyCopyText"
           readOnly={true}
-          rows={9}
+          rows={10}
           valueToDisplay={viewingKey}
           value={viewingKey}
           theme="secondary"
-          className="pb-20"
+          className="pb-20 [&_textarea]:py-2"
         />
       </Stack>
       <ActionButton size="md" onClick={() => navigate(-1)}>
