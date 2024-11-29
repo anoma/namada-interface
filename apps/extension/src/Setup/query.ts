@@ -1,6 +1,7 @@
 import { AccountType, DerivedAccount } from "@namada/types";
 import {
   AccountStore,
+  AddLedgerAccountMsg,
   DEFAULT_BIP44_PATH,
   DeriveAccountMsg,
   SaveAccountSecretMsg,
@@ -8,73 +9,88 @@ import {
 import { CreatePasswordMsg } from "background/vault";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import { DeriveAccountDetails } from "./types";
+import { DeriveAccountDetails, LedgerAccountDetails } from "./types";
 
-/**
- * Set password for the extension
- * @async
- * @param requester - Extension Requester
- * @param password - user password
- * @returns void
- */
-export const savePassword = async (
-  requester: ExtensionRequester,
-  password: string
-): Promise<void> => {
-  await requester.sendMessage<CreatePasswordMsg>(
-    Ports.Background,
-    new CreatePasswordMsg(password || "")
-  );
-};
+// Wrap account management calls with extension requester instance
+export class AccountManager {
+  constructor(private readonly requester: ExtensionRequester) {}
 
-/**
- * Store account secret, which can be a mnemonic or private key
- * @async
- * @param requester - Extension Requester
- * @param details - account parameters
- * @returns AccountStore type
- */
-export const saveAccountSecret = async (
-  requester: ExtensionRequester,
-  details: DeriveAccountDetails
-): Promise<AccountStore> => {
-  const { accountSecret, alias, path } = details;
-  const derivationPath =
-    accountSecret?.t === "PrivateKey" ? DEFAULT_BIP44_PATH : path;
+  /**
+   * Set password for the extension
+   * @async
+   * @param password - user password
+   * @returns void
+   */
+  async savePassword(password: string): Promise<void> {
+    await this.requester.sendMessage<CreatePasswordMsg>(
+      Ports.Background,
+      new CreatePasswordMsg(password)
+    );
+  }
 
-  const parentAccountStore = await requester.sendMessage<SaveAccountSecretMsg>(
-    Ports.Background,
-    new SaveAccountSecretMsg(accountSecret, alias, derivationPath)
-  );
+  /**
+   *
+   * Store account secret, which can be a mnemonic or private key
+   * @async
+   * @param details - account parameters
+   * @returns AccountStore type
+   */
+  async saveAccountSecret(
+    details: DeriveAccountDetails
+  ): Promise<AccountStore> {
+    const { accountSecret, alias, path } = details;
+    const derivationPath =
+      accountSecret?.t === "PrivateKey" ? DEFAULT_BIP44_PATH : path;
 
-  return parentAccountStore as AccountStore;
-};
+    const parentAccountStore =
+      await this.requester.sendMessage<SaveAccountSecretMsg>(
+        Ports.Background,
+        new SaveAccountSecretMsg(accountSecret, alias, derivationPath)
+      );
 
-/**
- * Save shielded keys based on parent account
- * @async
- * @param requester - Extension requester
- * @param details - parent account parameters
- * @param parentAccount - stored parent account
- */
-export const saveShieldedAccount = async (
-  requester: ExtensionRequester,
-  details: DeriveAccountDetails,
-  parentAccount: AccountStore
-): Promise<DerivedAccount | undefined> => {
-  const { path, accountSecret } = details;
-  const derivationPath =
-    accountSecret?.t === "PrivateKey" ? DEFAULT_BIP44_PATH : path;
+    return parentAccountStore as AccountStore;
+  }
 
-  const { alias, id } = parentAccount;
-  return await requester.sendMessage<DeriveAccountMsg>(
-    Ports.Background,
-    new DeriveAccountMsg(
-      derivationPath,
-      AccountType.ShieldedKeys,
-      alias,
-      // Sets the parent ID of this shielded account
-      id
-    )
-  );
-};
+  /**
+   * Save shielded keys based on parent account
+   * @async
+   * @param details - parent account parameters
+   * @param parentAccount - stored parent account
+   */
+  async saveShieldedAccount(
+    details: DeriveAccountDetails,
+    parentAccount: AccountStore
+  ): Promise<DerivedAccount | undefined> {
+    const { path, accountSecret } = details;
+    const derivationPath =
+      accountSecret?.t === "PrivateKey" ? DEFAULT_BIP44_PATH : path;
+
+    const { alias, id } = parentAccount;
+    return await this.requester.sendMessage<DeriveAccountMsg>(
+      Ports.Background,
+      new DeriveAccountMsg(
+        derivationPath,
+        AccountType.ShieldedKeys,
+        alias,
+        // Sets the parent ID of this shielded account
+        id
+      )
+    );
+  }
+
+  /**
+   * Save imported Ledger account
+   * @async
+   * @param details - Ledger account params
+   * @returns AccountStore type
+   */
+  async saveLedgerAccount(
+    details: LedgerAccountDetails
+  ): Promise<AccountStore> {
+    const { alias, address, publicKey, path } = details;
+    return (await this.requester.sendMessage(
+      Ports.Background,
+      new AddLedgerAccountMsg(alias, address, publicKey, path)
+    )) as AccountStore;
+  }
+}

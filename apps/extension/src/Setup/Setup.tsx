@@ -25,7 +25,7 @@ import CreateKeyForm from "./Common/CreateKeyForm";
 import { SeedPhraseImport } from "./ImportAccount";
 import { LedgerConfirmation, LedgerConnect, LedgerImport } from "./Ledger";
 import { Start } from "./Start";
-import { saveAccountSecret, savePassword, saveShieldedAccount } from "./query";
+import { AccountManager } from "./query";
 import routes from "./routes";
 import { AccountDetails, DeriveAccountDetails } from "./types";
 
@@ -97,6 +97,7 @@ export const Setup: React.FC = () => {
     setCompletionStatus(CompletionStatus.Pending);
     const { accountSecret, passwordRequired, password } = details;
     setCompletionStatusInfo("Setting a password for the extension.");
+    const accountManager = new AccountManager(requester);
 
     try {
       if (passwordRequired && !password) {
@@ -104,7 +105,7 @@ export const Setup: React.FC = () => {
       }
 
       if (password) {
-        await savePassword(requester, password);
+        await accountManager.savePassword(password);
       }
 
       const prettyAccountSecret =
@@ -114,7 +115,7 @@ export const Setup: React.FC = () => {
       setCompletionStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
 
       // Create parent account
-      const parentAccount = await saveAccountSecret(requester, details);
+      const parentAccount = await accountManager.saveAccountSecret(details);
       if (!parentAccount) {
         throw new Error("Background returned failure when creating account");
       }
@@ -122,8 +123,7 @@ export const Setup: React.FC = () => {
 
       // Create shielded account
       setCompletionStatusInfo("Generating Shielded Account");
-      const shieldedAccount = await saveShieldedAccount(
-        requester,
+      const shieldedAccount = await accountManager.saveShieldedAccount(
         details,
         parentAccount
       );

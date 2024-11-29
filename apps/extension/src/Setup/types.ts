@@ -12,3 +12,10 @@ export type DeriveAccountDetails = AccountDetails & {
   path: Bip44Path;
   passwordRequired?: boolean;
 };
+
+export type LedgerAccountDetails = {
+  alias: string;
+  path: Bip44Path;
+  address: string;
+  publicKey: string;
+};
