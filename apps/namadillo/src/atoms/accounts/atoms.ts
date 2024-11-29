@@ -106,7 +106,7 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
 // TODO combine the `accountBalanceAtom` with the `transparentBalanceAtom`
 // Then execute only once the `fetchAccountBalance`, deleting the `fetchNamAccountBalance`
 export const transparentBalanceAtom = atomWithQuery<
-  { address: string; amount: BigNumber }[]
+  { address: string; minDenomAmount: BigNumber }[]
 >((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
   const api = get(indexerApiAtom);
@@ -119,7 +119,7 @@ export const transparentBalanceAtom = atomWithQuery<
       const response = await fetchAccountBalance(api, defaultAccountQuery.data);
       return response.map((item) => ({
         address: item.tokenAddress,
-        amount: new BigNumber(item.balance),
+        minDenomAmount: BigNumber(item.minDenomAmount),
       }));
     }, [defaultAccountQuery]),
   };

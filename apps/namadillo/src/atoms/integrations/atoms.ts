@@ -209,14 +209,16 @@ export const localnetConfigAtom = atomWithQuery((_get) => {
 
     queryFn: async () => {
       try {
-        const { enabled, chain_id, token_address } =
-          await fetchLocalnetTomlConfig();
+        const config = await fetchLocalnetTomlConfig();
 
-        if (enabled && chain_id && token_address) {
-          addLocalnetToRegistry(chain_id, token_address);
+        if (config.enabled) {
+          addLocalnetToRegistry(config);
         }
 
-        return { chainId: chain_id, tokenAddress: token_address };
+        return {
+          chainId: config.chain_id,
+          tokenAddress: config.token_address,
+        };
       } catch (_) {
         // If file not found just ignore
         return null;

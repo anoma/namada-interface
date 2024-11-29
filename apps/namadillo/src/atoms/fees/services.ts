@@ -4,6 +4,7 @@ import BigNumber from "bignumber.js";
 import invariant from "invariant";
 import { GasTable } from "types";
 import { txKinds } from "types/txKind";
+import { namadaAsset, toDisplayAmount } from "utils";
 import { txKindToIndexer } from "./functions";
 
 export const fetchGasLimit = async (api: DefaultApi): Promise<GasTable> => {
@@ -33,7 +34,10 @@ export const fetchMinimumGasPrice = async (
     ({ token }) => token === nativeToken
   );
   invariant(!!nativeTokenCost, "Error querying minimum gas price");
-  const asBigNumber = new BigNumber(nativeTokenCost.amount);
+  const asBigNumber = toDisplayAmount(
+    namadaAsset(),
+    BigNumber(nativeTokenCost.minDenomAmount)
+  );
   invariant(
     !asBigNumber.isNaN(),
     "Error converting minimum gas price to BigNumber"

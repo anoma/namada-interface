@@ -1,7 +1,9 @@
 import { Asset, AssetDenomUnit } from "@chain-registry/types";
 import { ProposalStatus, ProposalTypeString } from "@namada/types";
+import { localnetConfigAtom } from "atoms/integrations/atoms";
 import BigNumber from "bignumber.js";
 import * as fns from "date-fns";
+import { getDefaultStore } from "jotai";
 import { DateTime } from "luxon";
 import internalDevnetAssets from "namada-chain-registry/namadainternaldevnet/assetlist.json";
 import { useEffect } from "react";
@@ -122,10 +124,26 @@ const findDisplayUnit = (asset: Asset): AssetDenomUnit | undefined => {
 };
 
 // TODO update to mainnet asset
-export const namadaAsset = internalDevnetAssets.assets[0];
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export const namadaAsset = () => {
+  const store = getDefaultStore();
+  const config = store.get(localnetConfigAtom);
+
+  const configTokenAddress = config.data?.tokenAddress;
+  const registryAsset = internalDevnetAssets.assets[0];
+  const asset =
+    configTokenAddress ?
+      {
+        ...registryAsset,
+        address: configTokenAddress,
+      }
+    : registryAsset;
+
+  return asset satisfies Asset;
+};
 
 export const isNamadaAsset = (asset: Asset): boolean =>
-  asset.symbol === namadaAsset.symbol;
+  asset.symbol === namadaAsset().symbol;
 
 export const toDisplayAmount = (
   asset: Asset,

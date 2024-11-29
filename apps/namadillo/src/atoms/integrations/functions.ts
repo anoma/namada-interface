@@ -1,5 +1,4 @@
-import { Asset, AssetList, Chain } from "@chain-registry/types";
-import { Coin } from "@cosmjs/launchpad";
+import { Asset, AssetList, Chain, IBCInfo } from "@chain-registry/types";
 import { QueryClient, setupIbcExtension } from "@cosmjs/stargate";
 import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import { Account, IbcTransferProps } from "@namada/types";
@@ -24,7 +23,9 @@ import {
   AddressWithAssetAndAmountMap,
   ChainRegistryEntry,
   ChainSettings,
+  Coin,
   GasConfig,
+  LocalnetToml,
 } from "types";
 import { toBaseAmount, toDisplayAmount } from "utils";
 import { getSdkInstance } from "utils/sdk";
@@ -230,7 +231,7 @@ export const mapCoinsToAssets = async (
 
   const results = await Promise.allSettled(
     coins.map(async (coin: Coin): Promise<AddressWithAssetAndAmount> => {
-      const { amount, denom } = coin;
+      const { minDenomAmount, denom } = coin;
 
       const asset =
         typeof chainName === "undefined" || typeof assets === "undefined" ?
@@ -243,9 +244,9 @@ export const mapCoinsToAssets = async (
           )) ||
           unknownAsset(denom);
 
-      const baseBalance = BigNumber(amount);
+      const baseBalance = BigNumber(minDenomAmount);
       if (baseBalance.isNaN()) {
-        throw new Error(`Balance is invalid, got ${amount}`);
+        throw new Error(`Balance is invalid, got ${minDenomAmount}`);
       }
       // We always represent amounts in their display denom, so convert here
       const displayBalance = toDisplayAmount(asset, baseBalance);
@@ -381,7 +382,7 @@ export const namadaLocalAsset = (tokenAddress: string): AssetList => ({
   ...internalDevnetAssets,
   chain_name: "localnet",
   assets: internalDevnetAssets.assets.map((asset) =>
-    asset.name === "NAM" ?
+    asset.symbol === "NAM" ?
       {
         ...asset,
         address: tokenAddress,
@@ -390,17 +391,46 @@ export const namadaLocalAsset = (tokenAddress: string): AssetList => ({
   ),
 });
 
-export const addLocalnetToRegistry = (
-  chainId: string,
-  tokenAddress: string
-): void => {
+export const namadaLocalRelayer = (
+  chain1Channel: string,
+  chain2Channel: string
+): IBCInfo => ({
+  ...internalDevnetCosmosTestnetIbc,
+  chain_1: {
+    ...internalDevnetCosmosTestnetIbc.chain_1,
+    chain_name: "localnet",
+  },
+  chain_2: {
+    ...internalDevnetCosmosTestnetIbc.chain_2,
+    chain_name: "cosmosicsprovidertestnet",
+  },
+  channels: [
+    {
+      ...internalDevnetCosmosTestnetIbc.channels[0],
+      chain_1: {
+        ...internalDevnetCosmosTestnetIbc.channels[0].chain_1,
+        channel_id: chain1Channel,
+      },
+      chain_2: {
+        ...internalDevnetCosmosTestnetIbc.channels[0].chain_2,
+        channel_id: chain2Channel,
+      },
+    },
+  ],
+});
+
+export const addLocalnetToRegistry = (config: LocalnetToml): void => {
+  const { chain_id, token_address, chain_1_channel, chain_2_channel } = config;
+
   const localChain: ChainRegistryEntry = {
-    chain: namadaLocal(chainId),
-    assets: namadaLocalAsset(tokenAddress),
+    chain: namadaLocal(chain_id),
+    assets: namadaLocalAsset(token_address),
+    ibc: [namadaLocalRelayer(chain_1_channel, chain_2_channel)],
   };
 
   cosmosRegistry.chains.push(localChain.chain);
   cosmosRegistry.assets.push(localChain.assets);
+  cosmosRegistry.ibc.push(...localChain.ibc!);
 
   mainnetChains.push(localChain);
 };

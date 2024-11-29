@@ -24,7 +24,7 @@ use namada_sdk::parameters::storage;
 use namada_sdk::proof_of_stake::Epoch;
 use namada_sdk::queries::RPC;
 use namada_sdk::rpc::{
-    self, format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
+    self, get_public_key_at, get_token_balance, get_total_staked_tokens,
     is_steward, query_epoch, query_masp_epoch, query_native_token, query_proposal_by_id,
     query_proposal_votes, query_storage_value,
 };
@@ -465,9 +465,7 @@ impl Query {
         for (token, amount) in result {
             mapped_result.push((
                 token.clone(),
-                format_denominated_amount(&self.client, &WebIo, &token, amount)
-                    .await
-                    .clone(),
+                amount.to_string()
             ))
         }
 

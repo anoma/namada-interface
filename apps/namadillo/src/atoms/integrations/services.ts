@@ -1,5 +1,5 @@
 import { Chain } from "@chain-registry/types";
-import { Coin, OfflineSigner } from "@cosmjs/launchpad";
+import { OfflineSigner } from "@cosmjs/launchpad";
 import { coins } from "@cosmjs/proto-signing";
 import {
   DeliverTxResponse,
@@ -14,6 +14,7 @@ import { createIbcTransferMessage } from "lib/transactions";
 import toml from "toml";
 import {
   AddressWithAsset,
+  Coin,
   IbcTransferTransactionData,
   LocalnetToml,
   TransferStep,
@@ -70,7 +71,12 @@ export const queryAssetBalances = async (
   rpc: string
 ): Promise<Coin[]> => {
   const client = await StargateClient.connect(rpc);
-  return ((await client.getAllBalances(owner)) as Coin[]) || [];
+  const balances = (await client.getAllBalances(owner)) || [];
+
+  return balances.map((balance) => ({
+    denom: balance.denom,
+    minDenomAmount: balance.amount,
+  }));
 };
 
 export const submitIbcTransfer = async (
@@ -118,7 +124,7 @@ export const submitIbcTransfer = async (
     sourceAddress,
     receiver,
     baseAmount,
-    asset.asset.base,
+    asset.originalAddress,
     memo
   );
 
