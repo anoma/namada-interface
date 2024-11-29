@@ -98,7 +98,7 @@ export const ShieldedNamBalance = (): JSX.Element => {
               "flex items-center justify-center py-4"
             )}
           >
-            Your Est. Shielded
+            Your Est. Shielding
             <br />
             rewards per Epoch
           </div>
