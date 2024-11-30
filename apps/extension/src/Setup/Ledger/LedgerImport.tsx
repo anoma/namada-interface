@@ -1,13 +1,11 @@
 import { ActionButton, Alert, Loading, Stack } from "@namada/components";
 import { Bip44Path } from "@namada/types";
 import { AccountAlias, Password } from "Setup/Common";
+import { AccountManager } from "Setup/query";
 import routes from "Setup/routes";
-import { AddLedgerAccountMsg } from "background/keyring";
-import { CreatePasswordMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Ports } from "router";
 
 type LedgerImportLocationState = {
   address: string;
@@ -29,7 +27,7 @@ export const LedgerImport = ({
   const locationState = location.state as LedgerImportLocationState;
 
   const [password, setPassword] = useState<string | undefined>();
-  const [keysName, setKeysName] = useState("");
+  const [alias, setAlias] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -41,6 +39,7 @@ export const LedgerImport = ({
 
   const onSubmit = useCallback(
     async (e: React.FormEvent): Promise<void> => {
+      const accountManager = new AccountManager(requester);
       try {
         e.preventDefault();
         setLoading(true);
@@ -50,21 +49,20 @@ export const LedgerImport = ({
         }
 
         if (passwordRequired) {
-          await requester.sendMessage<CreatePasswordMsg>(
-            Ports.Background,
-            new CreatePasswordMsg(password || "")
-          );
+          if (!password) {
+            throw new Error("Password is required!");
+          }
+          await accountManager.savePassword(password);
         }
 
-        const account = await requester.sendMessage(
-          Ports.Background,
-          new AddLedgerAccountMsg(
-            keysName,
-            locationState.address,
-            locationState.publicKey,
-            path
-          )
-        );
+        const { address, publicKey } = locationState;
+        const account = await accountManager.saveLedgerAccount({
+          alias,
+          address,
+          publicKey,
+          path,
+        });
+
         navigate(routes.ledgerComplete(), {
           state: { account: { ...account } },
         });
@@ -75,7 +73,7 @@ export const LedgerImport = ({
         setLoading(false);
       }
     },
-    [keysName, password, locationState]
+    [alias, password, locationState]
   );
 
   return (
@@ -88,13 +86,13 @@ export const LedgerImport = ({
       />
       <Stack as="form" onSubmit={onSubmit} gap={5} className="h-[440px]">
         <Stack className="flex-1 justify-center" gap={6}>
-          <AccountAlias value={keysName} onChange={setKeysName} />
+          <AccountAlias value={alias} onChange={setAlias} />
           {passwordRequired && <Password onValidPassword={setPassword} />}
           {error && <Alert type="error">{error}</Alert>}
         </Stack>
         <ActionButton
           size="lg"
-          disabled={(passwordRequired && !password) || !keysName}
+          disabled={(passwordRequired && !password) || !alias}
         >
           Next
         </ActionButton>
