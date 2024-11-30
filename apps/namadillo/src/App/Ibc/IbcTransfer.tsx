@@ -1,5 +1,6 @@
 import { Chain } from "@chain-registry/types";
 import { Window as KeplrWindow } from "@keplr-wallet/types";
+import { AccountType } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import { TransferTransactionTimeline } from "App/Transactions/TransferTransactionTimeline";
 import {
@@ -92,8 +93,9 @@ export const IbcTransfer: React.FC = () => {
 
   const namadaAddress = useMemo(() => {
     return (
-      defaultAccounts.data?.find((account) => account.isShielded === shielded)
-        ?.address || ""
+      defaultAccounts.data?.find(
+        (account) => (account.type === AccountType.ShieldedKeys) === shielded
+      )?.address || ""
     );
   }, [defaultAccounts, shielded]);
 

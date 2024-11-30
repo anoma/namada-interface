@@ -7,6 +7,7 @@ import { VaultService } from "background/vault";
 import * as utils from "extension/utils";
 import { VaultStorage } from "storage";
 import { KVStoreMock, init } from "test/init";
+import { toPublicAccount } from "utils";
 import { ACTIVE_ACCOUNT, keyStore, password } from "./data.mock";
 
 // Needed for now as utils import webextension-polyfill directly
@@ -60,6 +61,8 @@ describe("Namada", () => {
     await utilityStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT);
     const storedKeyStore = keyStore.map((store) => store.public);
     const storedAccounts = await namada.accounts();
-    expect(storedAccounts).toEqual(storedKeyStore);
+    expect(storedAccounts).toEqual(
+      storedKeyStore.map((derivedAccount) => toPublicAccount(derivedAccount))
+    );
   });
 });

@@ -90,7 +90,7 @@ export function WorkerTest(): JSX.Element {
 
     const { payload: encodedTx } = await shieldWorker.shield(msg);
 
-    const signedTxs = await signTx("namada", encodedTx, account?.address || "");
+    const signedTxs = await signTx(encodedTx, account?.address || "");
 
     await shieldWorker.broadcast({
       type: "broadcast",

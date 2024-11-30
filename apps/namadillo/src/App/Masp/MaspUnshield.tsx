@@ -1,5 +1,6 @@
 import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
+import { AccountType } from "@namada/types";
 import { Timeline } from "App/Common/Timeline";
 import { params } from "App/routes";
 import {
@@ -56,10 +57,10 @@ export const MaspUnshield: React.FC = () => {
   const chainId = chainParameters.data?.chainId;
 
   const sourceAddress = defaultAccounts.data?.find(
-    (account) => account.isShielded
+    (account) => account.type === AccountType.ShieldedKeys
   )?.address;
   const destinationAddress = defaultAccounts.data?.find(
-    (account) => !account.isShielded
+    (account) => account.type !== AccountType.ShieldedKeys
   )?.address;
 
   const selectedAssetAddress = searchParams.get(params.asset) || undefined;

@@ -77,7 +77,7 @@ export const submitShieldTx = async (
 
   const { payload: encodedTx } = await shieldWorker.shield(msg);
 
-  const signedTxs = await signTx("namada", encodedTx, source);
+  const signedTxs = await signTx(encodedTx, source);
 
   await shieldWorker.broadcast({
     type: "broadcast",
@@ -133,7 +133,7 @@ export const submitUnshieldTx = async (
 
   const { payload: encodedTx } = await unshieldWorker.unshield(msg);
 
-  const signedTxs = await signTx("namada", encodedTx, source);
+  const signedTxs = await signTx(encodedTx, source);
 
   await unshieldWorker.broadcast({
     type: "broadcast",

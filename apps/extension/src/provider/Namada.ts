@@ -1,5 +1,5 @@
 import {
-  DerivedAccount,
+  Account,
   Namada as INamada,
   SignArbitraryProps,
   SignArbitraryResponse,
@@ -8,7 +8,7 @@ import {
 } from "@namada/types";
 import { MessageRequester, Ports } from "router";
 
-import { toEncodedTx } from "utils";
+import { toEncodedTx, toPublicAccount } from "utils";
 import {
   ApproveConnectInterfaceMsg,
   ApproveDisconnectInterfaceMsg,
@@ -28,43 +28,48 @@ export class Namada implements INamada {
     protected readonly requester?: MessageRequester
   ) {}
 
-  public async connect(): Promise<void> {
+  public async connect(chainId?: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveConnectInterfaceMsg()
+      new ApproveConnectInterfaceMsg(chainId)
     );
   }
 
-  public async disconnect(): Promise<void> {
+  public async disconnect(chainId?: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveDisconnectInterfaceMsg(location.origin)
+      new ApproveDisconnectInterfaceMsg(location.origin, chainId)
     );
   }
 
-  public async isConnected(): Promise<boolean> {
+  public async isConnected(chainId?: string): Promise<boolean> {
     if (!this.requester) {
       throw new Error("no requester");
     }
 
     return await this.requester.sendMessage(
       Ports.Background,
-      new IsConnectionApprovedMsg()
+      new IsConnectionApprovedMsg(chainId)
     );
   }
 
-  public async accounts(): Promise<DerivedAccount[] | undefined> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new QueryAccountsMsg()
-    );
+  public async accounts(): Promise<Account[] | undefined> {
+    return (
+      await this.requester?.sendMessage(
+        Ports.Background,
+        new QueryAccountsMsg()
+      )
+    )?.map(toPublicAccount);
   }
 
-  public async defaultAccount(): Promise<DerivedAccount | undefined> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new QueryDefaultAccountMsg()
-    );
+  public async defaultAccount(): Promise<Account | undefined> {
+    return await this.requester
+      ?.sendMessage(Ports.Background, new QueryDefaultAccountMsg())
+      .then((defaultAccount) => {
+        if (defaultAccount) {
+          return toPublicAccount(defaultAccount);
+        }
+      });
   }
 
   public async updateDefaultAccount(address: string): Promise<void> {

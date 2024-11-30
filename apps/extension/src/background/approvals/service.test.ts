@@ -281,7 +281,8 @@ describe("approvals service", () => {
         { interfaceOrigin }
       );
       expect(service.isConnectionApproved).toHaveBeenCalledWith(
-        interfaceOrigin
+        interfaceOrigin,
+        undefined
       );
       await expect(promise).resolves.toBeDefined();
     });
@@ -371,7 +372,8 @@ describe("approvals service", () => {
         { interfaceOrigin }
       );
       expect(service.isConnectionApproved).toHaveBeenCalledWith(
-        interfaceOrigin
+        interfaceOrigin,
+        undefined
       );
       await expect(promise).resolves.toBeDefined();
     });

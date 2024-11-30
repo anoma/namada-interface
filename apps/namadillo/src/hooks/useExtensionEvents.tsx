@@ -1,14 +1,14 @@
 import { useEventListenerOnce } from "@namada/hooks";
-import { useIntegration } from "@namada/integrations";
 import { Events } from "@namada/types";
 import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
 import { namadaExtensionConnectionStatus } from "atoms/settings";
 import { useAtomValue, useSetAtom } from "jotai";
+import { useNamadaKeychain } from "./useNamadaKeychain";
 
 export const useExtensionEvents = (): void => {
   const defaultAccount = useAtomValue(defaultAccountAtom);
   const balances = useAtomValue(accountBalanceAtom);
-  const integration = useIntegration("namada");
+  const { namadaKeychain } = useNamadaKeychain();
 
   const setNamadaExtensionConnected = useSetAtom(
     namadaExtensionConnectionStatus
@@ -21,8 +21,9 @@ export const useExtensionEvents = (): void => {
   });
 
   useEventListenerOnce(Events.ConnectionRevoked, async () => {
+    const injectedNamada = await namadaKeychain.get();
     setNamadaExtensionConnected(
-      (await integration.isConnected()) ? "connected" : "idle"
+      (await injectedNamada?.isConnected()) ? "connected" : "idle"
     );
   });
 };
