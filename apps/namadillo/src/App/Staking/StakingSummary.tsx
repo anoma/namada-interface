@@ -20,7 +20,7 @@ export const StakingSummary = (): JSX.Element => {
     bondedAmount,
     unbondedAmount,
     withdrawableAmount,
-    totalAmount,
+    totalTransparentAmount: totalAmount,
   } = useBalances();
 
   return (

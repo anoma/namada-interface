@@ -105,7 +105,6 @@ export const BalanceContainer = (): JSX.Element => {
               nam={shieldedNam}
               isLoading={shieldedTokensQuery.isPending}
             />
-
             <DollarItem
               title="Transparent Assets"
               color={colors.balance}
@@ -126,7 +125,7 @@ export const BalanceContainer = (): JSX.Element => {
               isLoading={stakingTotalQuery.isPending}
             />
             <NamItem
-              title="Unbonded NAM"
+              title="Unbonding NAM"
               color={colors.unbond}
               nam={
                 unbondedAmount && withdrawableAmount ?

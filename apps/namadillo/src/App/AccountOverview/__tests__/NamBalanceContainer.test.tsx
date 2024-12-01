@@ -42,7 +42,7 @@ describe("Component: NamBalanceContainer", () => {
       bondedAmount: new BigNumber(50),
       unbondedAmount: new BigNumber(30),
       withdrawableAmount: new BigNumber(25),
-      totalAmount: new BigNumber(200),
+      totalTransparentAmount: new BigNumber(200),
     });
 
     render(<NamBalanceContainer />);
