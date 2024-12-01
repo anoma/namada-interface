@@ -7,8 +7,9 @@ import {
 } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
+import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { ChainParameters, ChainSettings } from "types";
+import { ChainParameters, ChainSettings, ChainStatus } from "types";
 import { calculateUnbondingPeriod } from "./functions";
 import {
   fetchChainParameters,
@@ -96,3 +97,5 @@ export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
     },
   };
 });
+
+export const chainStatusAtom = atom<ChainStatus | undefined>();

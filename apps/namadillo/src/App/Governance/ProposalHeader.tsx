@@ -251,7 +251,16 @@ const ProgressStartEnd: React.FC<{
   <div className={className}>
     {proposal.status === "pending" || proposal.status === "error" ?
       "..."
-    : secondsToDateTimeString(proposal.data[timeKey])}
+    : <div className="leading-tight">
+        {secondsToDateTimeString(proposal.data[timeKey])}
+        <div className="text-xs text-neutral-500">
+          Epoch&nbsp;
+          {proposal.data[
+            timeKey === "startTime" ? "startEpoch" : "endEpoch"
+          ].toString()}
+        </div>
+      </div>
+    }
   </div>
 );
 

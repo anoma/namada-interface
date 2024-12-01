@@ -48,7 +48,8 @@ const ProposalListItem: React.FC<{
       <div className="flex items-center justify-between gap-4">
         <StatusLabel className="text-[10px] min-w-38" status={status} />
         <div className="text-xs text-neutral-400">
-          Voting End on {secondsToDateTimeString(proposal.endTime)}
+          Voting End on {secondsToDateTimeString(proposal.endTime)}&nbsp;&mdash;
+          Epoch {proposal.endEpoch.toString()}
         </div>
       </div>
       <div className="flex items-center justify-between gap-4">
