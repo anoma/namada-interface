@@ -54,7 +54,11 @@ export const Approvals: React.FC = () => {
       <Routes>
         <Route
           path={`${TopLevelRoute.ApproveSignTx}/:msgId/:accountType/:signer`}
-          element={<ApproveSignTx details={details} setDetails={setDetails} />}
+          element={
+            <WithAuth>
+              <ApproveSignTx details={details} setDetails={setDetails} />
+            </WithAuth>
+          }
         />
         <Route
           path={TopLevelRoute.ConfirmSignTx}
@@ -74,18 +78,28 @@ export const Approvals: React.FC = () => {
         />
         <Route
           path={TopLevelRoute.ApproveDisconnection}
-          element={<ApproveDisconnection />}
+          element={
+            <WithAuth>
+              <ApproveDisconnection />
+            </WithAuth>
+          }
         />
         <Route
           path={TopLevelRoute.ApproveUpdateDefaultAccount}
-          element={<ApproveUpdateDefaultAccount />}
+          element={
+            <WithAuth>
+              <ApproveUpdateDefaultAccount />
+            </WithAuth>
+          }
         />
         <Route
           path={`${TopLevelRoute.ApproveSignArbitrary}/:signer`}
           element={
-            <ApproveSignArbitrary
-              setSignArbitraryDetails={setSignArbitraryDetails}
-            />
+            <WithAuth>
+              <ApproveSignArbitrary
+                setSignArbitraryDetails={setSignArbitraryDetails}
+              />
+            </WithAuth>
           }
         />
         <Route

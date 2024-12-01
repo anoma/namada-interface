@@ -232,7 +232,7 @@ describe("approvals service", () => {
         },
       ]);
 
-      jest.spyOn(service as any, "_clearPendingTx");
+      jest.spyOn(service as any, "clearPendingTx");
 
       (webextensionPolyfill.windows.create as any).mockResolvedValue({
         tabs: [{ id: tabId }],
@@ -248,7 +248,7 @@ describe("approvals service", () => {
       await service.rejectSignTx(tabId, "msgId");
 
       // rejectSignTx should clear promise resolver for that msgId
-      expect((service as any)._clearPendingTx).toHaveBeenCalledWith("msgId");
+      expect((service as any).clearPendingTx).toHaveBeenCalledWith("msgId");
 
       await expect(signaturePromise).rejects.toBeDefined();
     });

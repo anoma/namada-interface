@@ -17,21 +17,19 @@ export const WithAuth: React.FC<Props> = ({ children }) => {
       .sendMessage(Ports.Background, new CheckIsLockedMsg())
       .then((isLocked) => {
         setIsLocked(isLocked);
-      });
+      })
+      .catch(() => setIsLocked(true));
   }, []);
 
   const handleOnLogin = async (password: string): Promise<boolean> => {
     try {
-      await requester
-        .sendMessage(Ports.Background, new UnlockVaultMsg(password))
-        .then((response) => console.warn(response));
-      const isLocked = await requester.sendMessage(
+      const isUnlocked = await requester.sendMessage(
         Ports.Background,
-        new CheckIsLockedMsg()
+        new UnlockVaultMsg(password)
       );
-      setIsLocked(isLocked);
-      return !isLocked;
-    } catch (e) {
+      setIsLocked(!isUnlocked);
+      return isUnlocked;
+    } catch (_) {
       setIsLocked(true);
     }
     return false;

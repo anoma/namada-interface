@@ -186,6 +186,20 @@ export class ApprovalsService {
     resolvers.reject(new Error("Sign Tx rejected"));
   }
 
+  private async isSigningChainApproved(chainId: string): Promise<boolean> {
+    const currentChainId = await this.chainService.getChain();
+    if (chainId !== currentChainId) {
+      return false;
+    }
+    return true;
+  }
+
+  private async isDomainApproved(interfaceOrigin: string): Promise<boolean> {
+    const approvedOrigins =
+      (await this.localStorage.getApprovedOrigins()) || [];
+    return approvedOrigins.includes(interfaceOrigin);
+  }
+
   async isConnectionApproved(
     interfaceOrigin: string,
     chainId?: string
@@ -194,27 +208,24 @@ export class ApprovalsService {
       return false;
     }
 
-    const approvedOrigins =
-      (await this.localStorage.getApprovedOrigins()) || [];
-
     if (chainId) {
-      const currentChainId = await this.chainService.getChain();
-      if (chainId !== currentChainId) {
-        return false;
-      }
+      const isChainApproved = await this.isSigningChainApproved(chainId);
+      if (!isChainApproved) return false;
     }
 
-    return approvedOrigins.includes(interfaceOrigin);
+    return this.isDomainApproved(interfaceOrigin);
   }
 
   async approveConnection(
     interfaceOrigin: string,
     chainId?: string
   ): Promise<void> {
-    const alreadyApproved = await this.isConnectionApproved(
-      interfaceOrigin,
-      chainId
-    );
+    const isLocked = await this.isLocked();
+    const isDomainApproved = await this.isDomainApproved(interfaceOrigin);
+    const isChainApproved =
+      chainId ? await this.isSigningChainApproved(chainId) : true;
+    const needsApproval = !isChainApproved || !isDomainApproved;
+
     const approveConnectionPopupProps: {
       interfaceOrigin: string;
       chainId?: string;
@@ -226,15 +237,15 @@ export class ApprovalsService {
       approveConnectionPopupProps["chainId"] = chainId;
     }
 
-    if (!alreadyApproved) {
+    if (needsApproval || isLocked) {
       return this.launchApprovalPopup(
         TopLevelRoute.ApproveConnection,
         approveConnectionPopupProps
       );
     }
 
-    // A resolved promise is implicitly returned here if the origin had
-    // previously been approved.
+    // A resolved promise is implicitly returned here if launching
+    // popup is not needed
   }
 
   async approveConnectionResponse(
