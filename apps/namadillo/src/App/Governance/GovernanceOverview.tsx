@@ -1,6 +1,7 @@
 import { Panel, SkeletonLoading } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
+import { EpochInformation } from "App/Sidebars/EpochInformation";
 import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals";
 import {
   atomsAreFetching,
@@ -76,6 +77,7 @@ export const GovernanceOverview: React.FC = () => {
         </ProposalListPanel>
       </div>
       <aside className="flex flex-col gap-2 mt-1.5 lg:mt-0">
+        <EpochInformation />
         <Panel>
           {atomsAreFetching(allProposals) && (
             <SkeletonLoading height="150px" width="100%" />

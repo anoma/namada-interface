@@ -337,3 +337,8 @@ export type TransferTransactionData =
 
 export type PartialTransferTransactionData = Partial<TransferTransactionData> &
   Pick<TransferTransactionData, "type" | "chainId" | "asset">;
+
+export type ChainStatus = {
+  height: number;
+  epoch: number;
+};

@@ -1,6 +1,7 @@
 import { Panel, Stack } from "@namada/components";
 import { ConnectPanel } from "App/Common/ConnectPanel";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
+import { EpochInformation } from "App/Sidebars/EpochInformation";
 import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
 import { StakingRewardsPanel } from "App/Staking/StakingRewardsPanel";
@@ -64,6 +65,7 @@ export const AccountOverview = (): JSX.Element => {
       </div>
 
       <aside className="flex flex-col gap-2">
+        <EpochInformation />
         <ShieldAllBanner />
         <MainnetRoadmap />
       </aside>
