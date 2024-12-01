@@ -35,7 +35,6 @@ export class ApprovalsService {
     protected readonly sdkService: SdkService,
     protected readonly keyRingService: KeyRingService,
     protected readonly vaultService: VaultService,
-    // TODO: This is not used here until #1298 is merged!
     protected readonly chainService: ChainService,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
@@ -58,6 +57,9 @@ export class ApprovalsService {
     txs: EncodedTxData[],
     checksums?: Record<string, string>
   ): Promise<Uint8Array[]> {
+    if (await this.isLocked()) {
+      throw new Error("Extension is locked!");
+    }
     const msgId = uuid();
 
     const details = await this.keyRingService.queryAccountDetails(signer);
@@ -114,7 +116,7 @@ export class ApprovalsService {
       resolvers.reject(e);
     }
 
-    await this._clearPendingSignature(msgId);
+    await this.clearPendingSignature(msgId);
   }
 
   async submitSignLedgerTx(
@@ -144,7 +146,7 @@ export class ApprovalsService {
       resolvers.reject(e);
     }
 
-    await this._clearPendingSignature(msgId);
+    await this.clearPendingSignature(msgId);
   }
 
   async submitSignArbitrary(
@@ -158,7 +160,6 @@ export class ApprovalsService {
     if (!data) {
       throw new Error(`Signing data for ${msgId} not found!`);
     }
-    //TODO: Shouldn't we _clearPendingSignature when throwing?
 
     try {
       const signature = await this.keyRingService.signArbitrary(signer, data);
@@ -167,13 +168,13 @@ export class ApprovalsService {
       resolvers.reject(e);
     }
 
-    await this._clearPendingSignature(msgId);
+    await this.clearPendingSignature(msgId);
   }
 
   async rejectSignArbitrary(popupTabId: number, msgId: string): Promise<void> {
     const resolvers = this.getResolver(popupTabId);
 
-    await this._clearPendingSignature(msgId);
+    await this.clearPendingSignature(msgId);
     resolvers.reject(new Error("Sign arbitrary rejected"));
   }
 
@@ -181,7 +182,7 @@ export class ApprovalsService {
   async rejectSignTx(popupTabId: number, msgId: string): Promise<void> {
     const resolvers = this.getResolver(popupTabId);
 
-    await this._clearPendingTx(msgId);
+    await this.clearPendingTx(msgId);
     resolvers.reject(new Error("Sign Tx rejected"));
   }
 
@@ -189,6 +190,10 @@ export class ApprovalsService {
     interfaceOrigin: string,
     chainId?: string
   ): Promise<boolean> {
+    if (await this.isLocked()) {
+      return false;
+    }
+
     const approvedOrigins =
       (await this.localStorage.getApprovedOrigins()) || [];
 
@@ -210,7 +215,6 @@ export class ApprovalsService {
       interfaceOrigin,
       chainId
     );
-
     const approveConnectionPopupProps: {
       interfaceOrigin: string;
       chainId?: string;
@@ -366,11 +370,11 @@ export class ApprovalsService {
     return pendingSignArbitrary;
   }
 
-  private async _clearPendingTx(msgId: string): Promise<void> {
+  private async clearPendingTx(msgId: string): Promise<void> {
     return await this.txStore.set(msgId, null);
   }
 
-  private async _clearPendingSignature(msgId: string): Promise<void> {
+  private async clearPendingSignature(msgId: string): Promise<void> {
     return await this.dataStore.set(msgId, null);
   }
 
@@ -432,5 +436,9 @@ export class ApprovalsService {
 
   private removeResolver = (popupTabId: number): void => {
     delete this.resolverMap[popupTabId];
+  };
+
+  private isLocked = async (): Promise<boolean> => {
+    return await this.vaultService.isLocked();
   };
 }

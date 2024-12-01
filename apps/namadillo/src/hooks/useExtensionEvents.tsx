@@ -26,4 +26,8 @@ export const useExtensionEvents = (): void => {
       (await injectedNamada?.isConnected()) ? "connected" : "idle"
     );
   });
+
+  useEventListenerOnce(Events.ExtensionLocked, async () => {
+    setNamadaExtensionConnected("idle");
+  });
 };

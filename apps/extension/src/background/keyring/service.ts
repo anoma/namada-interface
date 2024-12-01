@@ -113,14 +113,23 @@ export class KeyRingService {
   }
 
   async queryAccountById(id: string): Promise<DerivedAccount[]> {
+    if (await this.vaultService.isLocked()) {
+      return [];
+    }
     return await this._keyRing.queryAccountsById(id);
   }
 
   async queryAccounts(): Promise<DerivedAccount[]> {
+    if (await this.vaultService.isLocked()) {
+      return [];
+    }
     return await this._keyRing.queryAllAccounts();
   }
 
   async queryDefaultAccount(): Promise<DerivedAccount | undefined> {
+    if (await this.vaultService.isLocked()) {
+      return;
+    }
     return await this._keyRing.queryDefaultAccount();
   }
 
@@ -130,6 +139,9 @@ export class KeyRingService {
   }
 
   async queryParentAccounts(): Promise<DerivedAccount[]> {
+    if (await this.vaultService.isLocked()) {
+      return [];
+    }
     return [...(await this._keyRing.queryParentAccounts())];
   }
 
@@ -205,6 +217,9 @@ export class KeyRingService {
   async queryAccountDetails(
     address: string
   ): Promise<DerivedAccount | undefined> {
+    if (await this.vaultService.isLocked()) {
+      return;
+    }
     return this._keyRing.queryAccountDetails(address);
   }
 }

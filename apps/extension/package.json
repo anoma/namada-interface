@@ -47,6 +47,7 @@
     "bignumber.js": "^9.1.1",
     "buffer": "^6.0.3",
     "dompurify": "^3.0.2",
+    "fp-ts": "^2.16.1",
     "framer-motion": "^11.3.28",
     "io-ts": "^2.2.21",
     "js-sha256": "^0.10.1",

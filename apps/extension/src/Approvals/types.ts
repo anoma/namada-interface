@@ -20,6 +20,9 @@ export enum TopLevelRoute {
   ApproveSignArbitrary = "/approve-sign-arbitrary",
   ApproveSignArbitraryDetails = "/approve-sign-arbitrary-details",
   ConfirmSignArbitrary = "/confirm-sign-arbitrary",
+
+  // Unlock keychain redirect
+  UnlockKeychain = "/unlock-keychain",
 }
 
 export type ApproveMsg = new (

@@ -14,6 +14,7 @@ import { ApproveUpdateDefaultAccount } from "./ApproveUpdateDefaultAccount";
 import { ConfirmSignature } from "./ConfirmSignArbitrary";
 import { ConfirmSignLedgerTx } from "./ConfirmSignLedgerTx";
 import { ConfirmSignTx } from "./ConfirmSignTx";
+import { UnlockKeychain } from "./UnlockKeychain";
 
 export enum Status {
   Completed,
@@ -51,6 +52,10 @@ export const Approvals: React.FC = () => {
       }
     >
       <Routes>
+        <Route
+          path={TopLevelRoute.UnlockKeychain}
+          element={<UnlockKeychain />}
+        />
         <Route
           path={`${TopLevelRoute.ApproveSignTx}/:msgId/:accountType/:signer`}
           element={<ApproveSignTx details={details} setDetails={setDetails} />}
