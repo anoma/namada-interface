@@ -14,8 +14,7 @@ import { generatePath, useNavigate } from "react-router-dom";
 import {
   proposalStatusToString,
   proposalTypeStringToString,
-  secondsToDateString,
-  secondsToTimeString,
+  secondsToDateTimeString,
 } from "utils";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
 
@@ -99,11 +98,11 @@ const Table: React.FC<
         className: clsx(
           "w-full text-xs [&_td]:px-2 [&_th]:px-2 table-fixed",
           "[&_th:nth-child(1)]:w-[10%]", // ID
-          "[&_th:nth-child(3)]:w-[20%]", // Type
-          "[&_th:nth-child(4)]:w-[15%]", // Status
-          "[&_th:nth-child(5)]:w-[5%]", // Voted
-          "[&_th:nth-child(6)]:w-[10%]", // Voting End
-          "[&_th:nth-child(7)]:w-[5%]" // Info button
+          "[&_th:nth-child(3)]:w-[170px]", // Type
+          "[&_th:nth-child(4)]:w-[130px]", // Status
+          "[&_th:nth-child(5)]:w-[40px]", // Voted
+          "[&_th:nth-child(6)]:w-[130px]", // Voting End
+          "[&_th:nth-child(7)]:w-[45px]" // Info button
         ),
       }}
       page={props.page}
@@ -308,9 +307,11 @@ const Status: React.FC<CellProps> = ({ proposal }) => (
   <StatusLabel status={proposal.status} className="ml-auto" />
 );
 
-const VotingEnd: React.FC<CellProps> = ({ proposal: { endTime } }) => (
-  <div className="text-right">
-    <div>{secondsToTimeString(endTime)}</div>
-    <div className="text-neutral-450">{secondsToDateString(endTime)}</div>
+const VotingEnd: React.FC<CellProps> = ({
+  proposal: { endTime, endEpoch },
+}) => (
+  <div className="text-right leading-tight">
+    <div className="text-neutral-450">{secondsToDateTimeString(endTime)}</div>
+    <div className="text-xs text-neutral-500">Epoch {endEpoch.toString()}</div>
   </div>
 );
