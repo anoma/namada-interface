@@ -54,7 +54,16 @@ export const BalanceOverviewChart = (): JSX.Element => {
     }
 
     if (!maspEnabled) {
-      return [{ value: 1, color: colors.shielded }];
+      return [
+        {
+          value: 1,
+          color: totalTransparentAmount.gt(0) ? colors.shielded : colors.empty,
+        },
+      ];
+    }
+
+    if (totalAmountInDollars.eq(0)) {
+      return [{ value: 1, color: colors.empty }];
     }
 
     return [
