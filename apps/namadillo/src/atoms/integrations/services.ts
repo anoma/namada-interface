@@ -5,6 +5,7 @@ import {
   DeliverTxResponse,
   SigningStargateClient,
   StargateClient,
+  assertIsDeliverTxSuccess,
 } from "@cosmjs/stargate";
 import { TransactionFee } from "App/Transfer/TransferModule";
 import { queryForAck, queryForIbcTimeout } from "atoms/transactions";
@@ -134,10 +135,7 @@ export const submitIbcTransfer = async (
     fee
   );
 
-  if (response.code !== 0) {
-    throw new Error(response.code + " " + response.transactionHash);
-  }
-
+  assertIsDeliverTxSuccess(response);
   return response;
 };
 

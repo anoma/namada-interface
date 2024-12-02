@@ -1,6 +1,5 @@
 import clsx from "clsx";
 import React from "react";
-import { GoXCircle } from "react-icons/go";
 
 type InlineErrorProps = {
   errorMessage?: React.ReactNode;
@@ -13,10 +12,10 @@ export const InlineError = ({
   return (
     <div
       className={clsx(
-        "text-fail text-sm flex items-center gap-1.5 selection:bg-fail selection:text-black"
+        "text-fail text-sm items-center gap-1.5 selection:bg-fail selection:text-black",
+        "break-words"
       )}
     >
-      <GoXCircle />
       {errorMessage}
     </div>
   );
