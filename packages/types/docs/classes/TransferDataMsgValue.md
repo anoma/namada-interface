@@ -34,7 +34,7 @@ General Transfer schema used for displaying details
 
 #### Defined in
 
-[tx/schema/transfer.ts:176](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/tx/schema/transfer.ts#L176)
+[tx/schema/transfer.ts:176](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/tx/schema/transfer.ts#L176)
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 #### Defined in
 
-[tx/schema/transfer.ts:170](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/tx/schema/transfer.ts#L170)
+[tx/schema/transfer.ts:170](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/tx/schema/transfer.ts#L170)
 
 ___
 
@@ -54,4 +54,4 @@ ___
 
 #### Defined in
 
-[tx/schema/transfer.ts:173](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/tx/schema/transfer.ts#L173)
+[tx/schema/transfer.ts:173](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/tx/schema/transfer.ts#L173)

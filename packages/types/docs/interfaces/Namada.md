@@ -6,7 +6,6 @@
 
 ### Properties
 
-- [getChain](Namada.md#getchain)
 - [version](Namada.md#version)
 
 ### Methods
@@ -23,24 +22,6 @@
 
 ## Properties
 
-### getChain
-
-• **getChain**: () => `Promise`\<`undefined` \| [`Chain`](../modules.md#chain)\>
-
-#### Type declaration
-
-▸ (): `Promise`\<`undefined` \| [`Chain`](../modules.md#chain)\>
-
-##### Returns
-
-`Promise`\<`undefined` \| [`Chain`](../modules.md#chain)\>
-
-#### Defined in
-
-[namada.ts:40](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/namada.ts#L40)
-
-___
-
 ### version
 
 • **version**: () => `string`
@@ -55,47 +36,27 @@ ___
 
 #### Defined in
 
-[namada.ts:41](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/namada.ts#L41)
+[namada.ts:39](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L39)
 
 ## Methods
 
 ### accounts
 
-▸ **accounts**(`chainId?`): `Promise`\<`undefined` \| [`DerivedAccount`](../modules.md#derivedaccount)[]\>
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `chainId?` | `string` |
+▸ **accounts**(): `Promise`\<`undefined` \| readonly [`Account`](../modules.md#account)[]\>
 
 #### Returns
 
-`Promise`\<`undefined` \| [`DerivedAccount`](../modules.md#derivedaccount)[]\>
+`Promise`\<`undefined` \| readonly [`Account`](../modules.md#account)[]\>
 
 #### Defined in
 
-[namada.ts:29](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/namada.ts#L29)
+[namada.ts:28](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L28)
 
 ___
 
 ### connect
 
-▸ **connect**(): `Promise`\<`void`\>
-
-#### Returns
-
-`Promise`\<`void`\>
-
-#### Defined in
-
-[namada.ts:30](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/namada.ts#L30)
-
-___
-
-### defaultAccount
-
-▸ **defaultAccount**(`chainId?`): `Promise`\<`undefined` \| [`DerivedAccount`](../modules.md#derivedaccount)\>
+▸ **connect**(`chainId?`): `Promise`\<`void`\>
 
 #### Parameters
 
@@ -105,17 +66,37 @@ ___
 
 #### Returns
 
-`Promise`\<`undefined` \| [`DerivedAccount`](../modules.md#derivedaccount)\>
+`Promise`\<`void`\>
 
 #### Defined in
 
-[namada.ts:33](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/namada.ts#L33)
+[namada.ts:29](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L29)
+
+___
+
+### defaultAccount
+
+▸ **defaultAccount**(): `Promise`\<`undefined` \| [`Account`](../modules.md#account)\>
+
+#### Returns
+
+`Promise`\<`undefined` \| [`Account`](../modules.md#account)\>
+
+#### Defined in
+
+[namada.ts:32](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L32)
 
 ___
 
 ### disconnect
 
-▸ **disconnect**(): `Promise`\<`void`\>
+▸ **disconnect**(`chainId?`): `Promise`\<`void`\>
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `chainId?` | `string` |
 
 #### Returns
 
@@ -123,13 +104,19 @@ ___
 
 #### Defined in
 
-[namada.ts:31](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/namada.ts#L31)
+[namada.ts:30](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L30)
 
 ___
 
 ### isConnected
 
-▸ **isConnected**(): `Promise`\<`undefined` \| `boolean`\>
+▸ **isConnected**(`chainId?`): `Promise`\<`undefined` \| `boolean`\>
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `chainId?` | `string` |
 
 #### Returns
 
@@ -137,7 +124,7 @@ ___
 
 #### Defined in
 
-[namada.ts:32](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/namada.ts#L32)
+[namada.ts:31](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L31)
 
 ___
 
@@ -157,7 +144,7 @@ ___
 
 #### Defined in
 
-[namada.ts:35](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/namada.ts#L35)
+[namada.ts:34](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L34)
 
 ___
 
@@ -177,7 +164,7 @@ ___
 
 #### Defined in
 
-[namada.ts:36](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/namada.ts#L36)
+[namada.ts:35](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L35)
 
 ___
 
@@ -197,7 +184,7 @@ ___
 
 #### Defined in
 
-[namada.ts:34](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/namada.ts#L34)
+[namada.ts:33](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L33)
 
 ___
 
@@ -217,4 +204,4 @@ ___
 
 #### Defined in
 
-[namada.ts:39](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/namada.ts#L39)
+[namada.ts:38](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L38)
