@@ -24,9 +24,9 @@ use namada_sdk::parameters::storage;
 use namada_sdk::proof_of_stake::Epoch;
 use namada_sdk::queries::RPC;
 use namada_sdk::rpc::{
-    self, get_public_key_at, get_token_balance, get_total_staked_tokens,
-    is_steward, query_epoch, query_masp_epoch, query_native_token, query_proposal_by_id,
-    query_proposal_votes, query_storage_value,
+    self, get_public_key_at, get_token_balance, get_total_staked_tokens, is_steward, query_epoch,
+    query_masp_epoch, query_native_token, query_proposal_by_id, query_proposal_votes,
+    query_storage_value,
 };
 use namada_sdk::state::BlockHeight;
 use namada_sdk::state::Key;
@@ -94,8 +94,6 @@ pub struct Query {
     masp_client: MaspClient,
 }
 
-const MAX_CONCURRENT_FETCHES: usize = 10;
-
 #[wasm_bindgen]
 impl Query {
     #[wasm_bindgen(constructor)]
@@ -112,6 +110,7 @@ impl Query {
         } else {
             MaspClient::Ledger(LedgerMaspClient::new(
                 client.clone(),
+                // Using one does not break the progress indicators
                 1,
                 Duration::from_millis(5),
             ))
@@ -489,10 +488,7 @@ impl Query {
 
         let mut mapped_result: Vec<(Address, String)> = vec![];
         for (token, amount) in result {
-            mapped_result.push((
-                token.clone(),
-                amount.to_string()
-            ))
+            mapped_result.push((token.clone(), amount.to_string()))
         }
 
         to_js_result(mapped_result)

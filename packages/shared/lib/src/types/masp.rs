@@ -174,7 +174,7 @@ mod tests {
             112, 25, 36, 51, 226, 228, 45, 242, 201, 220, 212, 220, 58, 92, 127, 47, 214, 59, 174,
             182, 74, 90, 65, 229, 187, 76, 65, 246, 34, 237, 107, 208, 178, 243,
         ];
-        let xsk = ExtendedSpendingKey::new(encoded_xsk)
+        let xsk = ExtendedSpendingKey::new(encoded_xsk.into())
             .expect("Instantiating ExtendedSpendingKey struct should not fail!");
 
         let key = xsk.encode();
