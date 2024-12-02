@@ -227,30 +227,36 @@ export const mapCoinsToAssets = async (
   const chainName = cosmosRegistry.chains.find(
     (chain) => chain.chain_id === chainId
   )?.chain_name;
+
   const assets = mapUndefined(assetLookup, chainName);
 
   const results = await Promise.allSettled(
-    coins.map(async (coin: Coin): Promise<AddressWithAssetAndAmount> => {
+    coins.map(async (coin): Promise<AddressWithAssetAndAmount> => {
       const { minDenomAmount, denom } = coin;
+      let asset;
 
-      const asset =
-        typeof chainName === "undefined" || typeof assets === "undefined" ?
-          unknownAsset(denom)
-        : tryDenomToRegistryAsset(denom, assets) ||
-          (await tryDenomToIbcAsset(
-            denom,
-            ibcAddressToDenomTrace,
-            chainName
-          )) ||
-          unknownAsset(denom);
+      if (assets) {
+        asset = tryDenomToRegistryAsset(denom, assets);
+      }
+
+      if (!asset && chainName) {
+        asset = await tryDenomToIbcAsset(
+          denom,
+          ibcAddressToDenomTrace,
+          chainName
+        );
+      }
+
+      if (!asset) {
+        asset = unknownAsset(denom);
+      }
 
       const baseBalance = BigNumber(minDenomAmount);
       if (baseBalance.isNaN()) {
-        throw new Error(`Balance is invalid, got ${minDenomAmount}`);
+        throw new Error(`Invalid balance: ${minDenomAmount}`);
       }
-      // We always represent amounts in their display denom, so convert here
-      const displayBalance = toDisplayAmount(asset, baseBalance);
 
+      const displayBalance = toDisplayAmount(asset, baseBalance);
       return {
         originalAddress: denom,
         amount: displayBalance,
