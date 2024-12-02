@@ -41,6 +41,7 @@ use namada_sdk::ExtendedSpendingKey;
 use namada_sdk::ExtendedViewingKey;
 use std::collections::BTreeMap;
 use std::str::FromStr;
+use std::time::Duration;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsError;
 
@@ -78,7 +79,11 @@ impl Query {
 
             MaspClient::Indexer(IndexerMaspClient::new(client, url, true, 10))
         } else {
-            MaspClient::Ledger(LedgerMaspClient::new(client.clone(), 10))
+            MaspClient::Ledger(LedgerMaspClient::new(
+                client.clone(),
+                10,
+                Duration::from_millis(5),
+            ))
         };
 
         Query {

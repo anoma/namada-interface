@@ -24,7 +24,7 @@ chrono = "0.4.22"
 getrandom = { version = "0.2.7", features = ["js"] }
 gloo-utils = { version = "0.1.5", features = ["serde"] }
 js-sys = "0.3.60"
-namada_sdk = { git = "https://github.com/anoma/namada", branch="murisi/integrate-hw-masp", default-features = false }
+namada_sdk = { git = "https://github.com/anoma/namada", branch="murisi/masp-for-namadillo", default-features = false }
 rand = "0.8.5"
 rayon = { version = "1.5.3", optional = true }
 rexie = "0.5"

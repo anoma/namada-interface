@@ -511,7 +511,7 @@ pub struct ShieldedTransferDataMsg {
 #[borsh(crate = "namada_sdk::borsh")]
 pub struct ShieldedTransferMsg {
     data: Vec<ShieldedTransferDataMsg>,
-    gas_spending_keys: Vec<String>,
+    gas_spending_key: Option<String>,
 }
 
 /// Maps serialized tx_msg into TxShieldedTransfer args.
@@ -532,14 +532,10 @@ pub fn shielded_transfer_tx_args(
     let shielded_transfer_msg = ShieldedTransferMsg::try_from_slice(shielded_transfer_msg)?;
     let ShieldedTransferMsg {
         data,
-        gas_spending_keys,
+        gas_spending_key,
     } = shielded_transfer_msg;
 
-    let gas_spending_keys = gas_spending_keys
-        .iter()
-        .cloned()
-        .map(|v| PseudoExtendedKey::decode(v).0)
-        .collect();
+    let gas_spending_key = gas_spending_key.map(|v| PseudoExtendedKey::decode(v).0);
 
     let mut shielded_transfer_data: Vec<args::TxShieldedTransferData> = vec![];
 
@@ -567,7 +563,7 @@ pub fn shielded_transfer_tx_args(
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
         // false, we do this manually
         disposable_signing_key: false,
-        gas_spending_keys,
+        gas_spending_key,
     };
 
     Ok(args)
@@ -648,7 +644,7 @@ pub struct UnshieldingTransferDataMsg {
 pub struct UnshieldingTransferMsg {
     source: String,
     data: Vec<UnshieldingTransferDataMsg>,
-    gas_spending_keys: Vec<String>,
+    gas_spending_key: Option<String>,
 }
 
 /// Maps serialized tx_msg into TxUnshieldingTransfer args.
@@ -671,15 +667,10 @@ pub fn unshielding_transfer_tx_args(
     let UnshieldingTransferMsg {
         source,
         data,
-        gas_spending_keys,
+        gas_spending_key,
     } = unshielding_transfer_msg;
     let source = PseudoExtendedKey::decode(source).0;
-    let gas_spending_keys = gas_spending_keys
-        .iter()
-        .cloned()
-        .map(|v| PseudoExtendedKey::decode(v).0)
-        .collect();
-
+    let gas_spending_key = gas_spending_key.map(|v| PseudoExtendedKey::decode(v).0);
     let mut unshielding_transfer_data: Vec<args::TxUnshieldingTransferData> = vec![];
 
     for unshielding_transfer in data {
@@ -702,7 +693,7 @@ pub fn unshielding_transfer_tx_args(
         data: unshielding_transfer_data,
         source,
         tx,
-        gas_spending_keys,
+        gas_spending_key,
         // false, we do this manually
         disposable_signing_key: false,
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
@@ -814,7 +805,7 @@ pub fn ibc_transfer_tx_args(
         tx_code_path: PathBuf::from("tx_ibc.wasm"),
         refund_target: None,
         // TODO: Implement?
-        gas_spending_keys: vec![],
+        gas_spending_key: None,
     };
 
     Ok(args)
@@ -953,6 +944,8 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         password: None,
         memo,
         device_transport: Default::default(),
+        dump_wrapper_tx: false,
+        wrapper_signature: None,
     };
 
     Ok(args)
