@@ -36,11 +36,7 @@ import {
   PartialTransferTransactionData,
   TransferStep,
 } from "types";
-import {
-  isNamadaAsset,
-  toBaseAmount,
-  useTransactionEventListListener,
-} from "utils";
+import { isNamadaAsset, useTransactionEventListListener } from "utils";
 import { NamadaTransferTopHeader } from "./NamadaTransferTopHeader";
 
 export const NamadaTransfer: React.FC = () => {
@@ -93,10 +89,7 @@ export const NamadaTransfer: React.FC = () => {
   const token = selectedAsset?.originalAddress ?? "";
   const source = sourceAddress ?? "";
   const target = customAddress ?? "";
-  const txAmount =
-    selectedAsset && displayAmount ?
-      toBaseAmount(selectedAsset?.asset, displayAmount)
-    : new BigNumber(0);
+  const txAmount = displayAmount || new BigNumber(0);
 
   const commomProps = {
     parsePendingTxNotification: () => ({

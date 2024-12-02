@@ -23,7 +23,7 @@ import {
   TransferStep,
   TransferTransactionData,
 } from "types";
-import { isNamadaAsset, toDisplayAmount } from "utils";
+import { toDisplayAmount } from "utils";
 import { TransactionPair } from "./query";
 
 export const getEventAttribute = (
@@ -191,10 +191,9 @@ export const createTransferDataFromNamada = (
           sourceAddress,
           destinationAddress,
           asset,
-          displayAmount:
-            isNamadaAsset(asset) ? amount : toDisplayAmount(asset, amount),
           memo,
           rpc: rpcUrl,
+          displayAmount: amount,
           chainId: txResponse?.encodedTxData.txs[0]?.args.chainId ?? "",
           hash: txResponse?.encodedTxData.txs[0].hash,
           feePaid: txResponse?.encodedTxData.txs[0].args.feeAmount,
