@@ -54,6 +54,7 @@ export type SettingsTomlOptions = {
   indexer_url?: string;
   masp_indexer_url?: string;
   rpc_url?: string;
+  localnet_enabled?: boolean;
 };
 
 export type ChainParameters = {
@@ -351,7 +352,6 @@ export type ChainStatus = {
 };
 
 export type LocalnetToml = {
-  enabled: boolean;
   chain_id: string;
   token_address: string;
   chain_1_channel: string;
