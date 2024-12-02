@@ -58,7 +58,7 @@ export const Approvals: React.FC = () => {
       .then((isLocked) => {
         setIsUnlocked!(!isLocked);
       })
-      .catch(() => setIsUnlocked!(true));
+      .catch(() => setIsUnlocked!(false));
   }, []);
 
   return (

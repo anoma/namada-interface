@@ -189,7 +189,7 @@ export class ApprovalsService {
     resolvers.reject(new Error("Sign Tx rejected"));
   }
 
-  private async isSigningChainApproved(chainId: string): Promise<boolean> {
+  async isSigningChainApproved(chainId: string): Promise<boolean> {
     const currentChainId = await this.chainService.getChain();
     if (chainId !== currentChainId) {
       return false;
@@ -197,7 +197,7 @@ export class ApprovalsService {
     return true;
   }
 
-  private async isDomainApproved(interfaceOrigin: string): Promise<boolean> {
+  async isDomainApproved(interfaceOrigin: string): Promise<boolean> {
     const approvedOrigins =
       (await this.localStorage.getApprovedOrigins()) || [];
     return approvedOrigins.includes(interfaceOrigin);
@@ -224,10 +224,10 @@ export class ApprovalsService {
     chainId?: string
   ): Promise<void> {
     const isLocked = await this.isLocked();
-    const isDomainApproved = await this.isDomainApproved(interfaceOrigin);
-    const isChainApproved =
-      chainId ? await this.isSigningChainApproved(chainId) : true;
-    const needsApproval = !isChainApproved || !isDomainApproved;
+    const needsApproval = !(await this.isConnectionApproved(
+      interfaceOrigin,
+      chainId
+    ));
 
     const approveConnectionPopupProps: {
       interfaceOrigin: string;

@@ -18,20 +18,27 @@ export const ApproveConnection: React.FC = () => {
   const chainId = params.get("chainId")!;
   const { isUnlocked } = useContext(ExtensionLockContext);
 
+  const checkIsApproved = async (): Promise<void> => {
+    requester
+      .sendMessage(
+        Ports.Background,
+        new CheckIsApprovedSiteMsg(interfaceOrigin, chainId)
+      )
+      .then((isApproved) => {
+        if (isApproved) {
+          // Go ahead and connect as this domain is already approved
+          void handleResponse(true);
+        }
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  };
+
   useEffect(() => {
     if (isUnlocked) {
       // Test to see if domain is already approved
-      requester
-        .sendMessage(
-          Ports.Background,
-          new CheckIsApprovedSiteMsg(interfaceOrigin, chainId)
-        )
-        .then((isApproved) => {
-          if (isApproved) {
-            // Go ahead and connect as this domain is already approved
-            handleResponse(true);
-          }
-        });
+      void checkIsApproved();
     }
   }, [isUnlocked]);
 
