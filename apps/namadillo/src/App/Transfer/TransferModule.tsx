@@ -67,6 +67,7 @@ export type OnSubmitTransferParams = {
 export type TransferModuleProps = {
   source: TransferSourceProps;
   destination: TransferDestinationProps;
+  requiresIbcChannels?: boolean;
   transactionFee?: TransactionFee;
   isSubmitting?: boolean;
   errorMessage?: string;
@@ -94,6 +95,7 @@ export const TransferModule = ({
   isSubmitting,
   isIbcTransfer,
   ibcOptions,
+  requiresIbcChannels,
   onSubmitTransfer,
   errorMessage,
 }: TransferModuleProps): JSX.Element => {
@@ -112,11 +114,6 @@ export const TransferModule = ({
     (address) => source.availableAssets?.[address],
     source.selectedAssetAddress
   );
-
-  const requiresIbcChannels =
-    isIbcTransfer &&
-    (!ibcOptions?.sourceChannel ||
-      (destination.isShielded && !ibcOptions.destinationChannel));
 
   const availableAmountMinusFees = useMemo(() => {
     const { selectedAssetAddress, availableAmount } = source;
