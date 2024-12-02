@@ -3797,7 +3797,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@namada/types@npm:0.2.1, @namada/types@workspace:packages/types":
+"@namada/types@npm:0.2.1":
+  version: 0.2.1
+  resolution: "@namada/types@npm:0.2.1"
+  dependencies:
+    "@dao-xyz/borsh": "npm:^5.1.5"
+    bignumber.js: "npm:^9.1.1"
+    slip44: "npm:^3.0.11"
+  checksum: 33218d96948a08b6d51c851152272bec52479c56363f2d14813ab71300c46eb41059317add511afa0853cff1ad6b8f85ee0bc5f82a411a6ed421b4f40bafc057
+  languageName: node
+  linkType: hard
+
+"@namada/types@workspace:packages/types":
   version: 0.0.0-use.local
   resolution: "@namada/types@workspace:packages/types"
   dependencies:
