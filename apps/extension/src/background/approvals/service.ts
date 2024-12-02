@@ -15,7 +15,7 @@ import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
 import { fromEncodedTx } from "utils";
-import { EncodedTxData, PendingTx } from "./types";
+import { ApprovalErrors, EncodedTxData, PendingTx } from "./types";
 
 type Resolver = {
   // TODO: there should be better typing for this
@@ -58,13 +58,13 @@ export class ApprovalsService {
     checksums?: Record<string, string>
   ): Promise<Uint8Array[]> {
     if (await this.isLocked()) {
-      throw new Error("Extension is locked!");
+      throw new Error(ApprovalErrors.KeychainLocked());
     }
     const msgId = uuid();
 
     const details = await this.keyRingService.queryAccountDetails(signer);
     if (!details) {
-      throw new Error(`Could not find account for ${signer}`);
+      throw new Error(ApprovalErrors.AccountNotFound(signer));
     }
 
     const pendingTx: PendingTx = {
@@ -84,6 +84,9 @@ export class ApprovalsService {
     signer: string,
     data: string
   ): Promise<SignArbitraryResponse> {
+    if (await this.isLocked()) {
+      throw new Error(ApprovalErrors.KeychainLocked());
+    }
     const msgId = uuid();
 
     await this.dataStore.set(msgId, data);
@@ -103,7 +106,7 @@ export class ApprovalsService {
     const resolvers = this.getResolver(popupTabId);
 
     if (!pendingTx) {
-      throw new Error(`Signing data for ${msgId} not found!`);
+      throw new Error(ApprovalErrors.PendingSigningDataNotFound(msgId));
     }
 
     try {
@@ -128,11 +131,11 @@ export class ApprovalsService {
     const resolvers = this.getResolver(popupTabId);
 
     if (!pendingTx || !pendingTx.txs) {
-      throw new Error(`Transaction data for ${msgId} not found!`);
+      throw new Error(ApprovalErrors.TransactionDataNotFound(msgId));
     }
 
     if (pendingTx.txs.length !== responseSign.length) {
-      throw new Error(`Did not receive correct signatures for tx ${msgId}`);
+      throw new Error(ApprovalErrors.InvalidLedgerSignature(msgId));
     }
 
     const { tx } = this.sdkService.getSdk();
@@ -158,7 +161,7 @@ export class ApprovalsService {
     const resolvers = this.getResolver(popupTabId);
 
     if (!data) {
-      throw new Error(`Signing data for ${msgId} not found!`);
+      throw new Error(ApprovalErrors.PendingSigningDataNotFound(msgId));
     }
 
     try {
@@ -350,7 +353,7 @@ export class ApprovalsService {
     const pendingTx = await this.txStore.get(msgId);
 
     if (!pendingTx) {
-      throw new Error(`No transaction found for ${msgId}`);
+      throw new Error(ApprovalErrors.TransactionDataNotFound(msgId));
     }
 
     const { tx } = this.sdkService.getSdk();
@@ -363,7 +366,7 @@ export class ApprovalsService {
     const pendingTx = await this.txStore.get(msgId);
 
     if (!pendingTx) {
-      throw new Error(`Tx not found for ${msgId}`);
+      throw new Error(ApprovalErrors.TransactionDataNotFound(msgId));
     }
 
     if (pendingTx.txs) {
@@ -375,7 +378,7 @@ export class ApprovalsService {
     const pendingSignArbitrary = await this.dataStore.get(msgId);
 
     if (!pendingSignArbitrary) {
-      throw new Error(`No pending sign-arbitrary data found for ${msgId}`);
+      throw new Error(ApprovalErrors.PendingSignArbitaryDataNotFound(msgId));
     }
 
     return pendingSignArbitrary;

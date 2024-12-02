@@ -9,6 +9,7 @@ import {
 } from "@namada/types";
 import { Result, truncateInMiddle } from "@namada/utils";
 
+import { ApprovalErrors } from "background/approvals";
 import { ChainService } from "background/chain";
 import { SdkService } from "background/sdk/service";
 import { VaultService } from "background/vault";
@@ -112,23 +113,23 @@ export class KeyRingService {
     return account;
   }
 
-  async queryAccountById(id: string): Promise<DerivedAccount[]> {
+  async queryAccountsByParentId(id: string): Promise<DerivedAccount[]> {
     if (await this.vaultService.isLocked()) {
-      return [];
+      throw new Error(ApprovalErrors.KeychainLocked());
     }
-    return await this._keyRing.queryAccountsById(id);
+    return await this._keyRing.queryAccountsByParentId(id);
   }
 
   async queryAccounts(): Promise<DerivedAccount[]> {
     if (await this.vaultService.isLocked()) {
-      return [];
+      throw new Error(ApprovalErrors.KeychainLocked());
     }
     return await this._keyRing.queryAllAccounts();
   }
 
   async queryDefaultAccount(): Promise<DerivedAccount | undefined> {
     if (await this.vaultService.isLocked()) {
-      return;
+      throw new Error(ApprovalErrors.KeychainLocked());
     }
     return await this._keyRing.queryDefaultAccount();
   }
@@ -140,6 +141,9 @@ export class KeyRingService {
 
   async queryParentAccounts(): Promise<DerivedAccount[]> {
     if (await this.vaultService.isLocked()) {
+      throw new Error(ApprovalErrors.KeychainLocked());
+    }
+    if (await this.vaultService.isLocked()) {
       return [];
     }
     return [...(await this._keyRing.queryParentAccounts())];
@@ -148,6 +152,9 @@ export class KeyRingService {
   async findParentByPublicKey(
     publicKey: string
   ): Promise<DerivedAccount | null> {
+    if (await this.vaultService.isLocked()) {
+      throw new Error(ApprovalErrors.KeychainLocked());
+    }
     const accounts = await this.vaultStorage.findAll(
       KeyStore,
       "publicKey",
@@ -218,7 +225,7 @@ export class KeyRingService {
     address: string
   ): Promise<DerivedAccount | undefined> {
     if (await this.vaultService.isLocked()) {
-      return;
+      throw new Error(ApprovalErrors.KeychainLocked());
     }
     return this._keyRing.queryAccountDetails(address);
   }
