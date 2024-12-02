@@ -1,4 +1,6 @@
 import { accountBalanceAtom } from "atoms/accounts";
+import { shieldedTokensAtom } from "atoms/balance";
+import { getTotalNam } from "atoms/balance/functions";
 import { getStakingTotalAtom } from "atoms/staking";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
@@ -9,28 +11,33 @@ export type useBalancesOutput = {
   isSuccess: boolean;
   stakeQuery: AtomWithQueryResult;
   balanceQuery: AtomWithQueryResult;
+  shieldedAmountQuery: AtomWithQueryResult;
   bondedAmount: BigNumber;
   availableAmount: BigNumber;
   unbondedAmount: BigNumber;
   withdrawableAmount: BigNumber;
-  totalAmount: BigNumber;
+  shieldedNamAmount: BigNumber;
+  totalTransparentAmount: BigNumber;
 };
 
 export const useBalances = (): useBalancesOutput => {
-  const totalStakedBalance = useAtomValue(getStakingTotalAtom);
-  const totalAccountBalance = useAtomValue(accountBalanceAtom);
+  const totalStakedBalanceQuery = useAtomValue(getStakingTotalAtom);
+  const totalAccountBalanceQuery = useAtomValue(accountBalanceAtom);
+  const shieldedNamQuery = useAtomValue(shieldedTokensAtom);
 
   const {
     data: balance,
     isLoading: isFetchingBalance,
     isSuccess: isBalanceLoaded,
-  } = totalAccountBalance;
+  } = totalAccountBalanceQuery;
 
   const {
     data: stakeBalance,
     isLoading: isFetchingStaking,
     isSuccess: isStakedBalanceLoaded,
-  } = totalStakedBalance;
+  } = totalStakedBalanceQuery;
+
+  const { data: shieldedNamAmount } = shieldedNamQuery;
 
   const availableAmount = new BigNumber(balance || 0);
   const bondedAmount = new BigNumber(stakeBalance?.totalBonded || 0);
@@ -38,7 +45,8 @@ export const useBalances = (): useBalancesOutput => {
   const withdrawableAmount = new BigNumber(
     stakeBalance?.totalWithdrawable || 0
   );
-  const totalAmount = BigNumber.sum(
+
+  const totalTransparentAmount = BigNumber.sum(
     availableAmount,
     bondedAmount,
     unbondedAmount,
@@ -48,12 +56,14 @@ export const useBalances = (): useBalancesOutput => {
   return {
     isLoading: isFetchingStaking || isFetchingBalance,
     isSuccess: isBalanceLoaded && isStakedBalanceLoaded,
-    stakeQuery: totalStakedBalance,
-    balanceQuery: totalAccountBalance,
+    stakeQuery: totalStakedBalanceQuery,
+    balanceQuery: totalAccountBalanceQuery,
+    shieldedAmountQuery: shieldedNamQuery,
     availableAmount,
     bondedAmount,
     unbondedAmount,
     withdrawableAmount,
-    totalAmount,
+    shieldedNamAmount: getTotalNam(shieldedNamAmount),
+    totalTransparentAmount: totalTransparentAmount,
   };
 };
