@@ -33,8 +33,10 @@ export type useTransactionProps<T> = {
   onSuccess?: (tx: TransactionPair<T>) => void;
 };
 
-type useTransactionOutput = {
-  execute: () => void;
+type useTransactionOutput<T> = {
+  execute: (
+    additionalParms?: Partial<BuildTxAtomParams<T>>
+  ) => Promise<TransactionPair<T> | void>;
   isEnabled: boolean;
   isPending: boolean;
   isSuccess: boolean;
@@ -49,7 +51,8 @@ export const useTransaction = <T,>({
   parseErrorTxNotification,
   onSuccess,
   onError,
-}: useTransactionProps<T>): useTransactionOutput => {
+  onSigned,
+}: useTransactionProps<T>): useTransactionOutput<T> => {
   const { data: account } = useAtomValue(defaultAccountAtom);
   const {
     mutateAsync: buildTx,
@@ -60,9 +63,7 @@ export const useTransaction = <T,>({
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
 
   const gasConfig = useAtomValue(
-    defaultGasConfigFamily(
-      Array(Object.keys(params || {}).length).fill(eventType)
-    )
+    defaultGasConfigFamily(new Array(params.length).fill(eventType))
   );
 
   const validate = (): void => {
@@ -73,16 +74,17 @@ export const useTransaction = <T,>({
     );
   };
 
-  const broadcast = (tx: TransactionPair<T>): void => {
-    tx.signedTxs.forEach((signedTx) => {
-      broadcastTx(
-        tx.encodedTxData,
-        signedTx,
-        tx.encodedTxData.meta?.props,
-        eventType
-      );
-    });
-  };
+  const broadcast = (tx: TransactionPair<T>): Promise<void[]> =>
+    Promise.all(
+      tx.signedTxs.map((signedTx) =>
+        broadcastTx(
+          tx.encodedTxData,
+          signedTx,
+          tx.encodedTxData.meta?.props,
+          eventType
+        )
+      )
+    );
 
   const dispatchPendingTxNotification = (
     tx: TransactionPair<T>,
@@ -107,17 +109,24 @@ export const useTransaction = <T,>({
     });
   };
 
-  const execute = async (): Promise<void> => {
+  const execute = async (
+    txAdditionalParams: Partial<BuildTxAtomParams<T>> = {}
+  ): Promise<TransactionPair<T> | void> => {
     try {
       validate();
       const tx = await buildTx({
         params,
         gasConfig: gasConfig.data!,
-        account,
+        account: account!,
+        ...txAdditionalParams,
       });
 
       if (!tx) throw "Error: invalid TX created by buildTx";
-      broadcast(tx);
+      if (onSigned) {
+        onSigned(tx);
+      }
+
+      await broadcast(tx);
 
       if (parsePendingTxNotification) {
         dispatchPendingTxNotification(tx, parsePendingTxNotification(tx));
@@ -126,6 +135,8 @@ export const useTransaction = <T,>({
       if (onSuccess) {
         onSuccess(tx);
       }
+
+      return tx;
     } catch (err) {
       if (parseErrorTxNotification) {
         dispatchErrorNotification(err, parseErrorTxNotification());
@@ -133,6 +144,8 @@ export const useTransaction = <T,>({
 
       if (onError) {
         onError(err);
+      } else {
+        throw err;
       }
     }
   };

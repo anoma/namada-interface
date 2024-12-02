@@ -1,5 +1,4 @@
 import {
-  Chain,
   DerivedAccount,
   GenDisposableSignerResponse,
   SignArbitraryResponse,
@@ -30,8 +29,7 @@ enum MessageType {
   QueryDefaultAccount = "query-default-account",
   ApproveUpdateDefaultAccount = "approve-update-default-account",
   EncodeRevealPublicKey = "encode-reveal-public-key",
-  GetChain = "get-chain",
-  GetChains = "get-chains",
+  SpendingKey = "spending-key",
   ApproveEthBridgeTransfer = "approve-eth-bridge-transfer",
   CheckDurability = "check-durability",
   VerifyArbitrary = "verify-arbitrary",
@@ -77,12 +75,7 @@ export class ApproveSignArbitraryMsg extends Message<SignArbitraryResponse> {
   }
 
   validate(): void {
-    if (!this.signer) {
-      throw new Error("A signer address is required!");
-    }
-    if (!this.data) {
-      throw new Error("Signing data is required!");
-    }
+    validateProps(this, ["signer", "data"]);
   }
 
   route(): string {
@@ -102,7 +95,7 @@ export class IsConnectionApprovedMsg extends Message<boolean> {
     return MessageType.IsConnectionApproved;
   }
 
-  constructor() {
+  constructor(public readonly chainId?: string) {
     super();
   }
 
@@ -124,7 +117,7 @@ export class ApproveConnectInterfaceMsg extends Message<void> {
     return MessageType.ApproveConnectInterface;
   }
 
-  constructor() {
+  constructor(public readonly chainId?: string) {
     super();
   }
 
@@ -146,7 +139,10 @@ export class ApproveDisconnectInterfaceMsg extends Message<void> {
     return MessageType.ApproveDisconnectInterface;
   }
 
-  constructor(public readonly originToRevoke: string) {
+  constructor(
+    public readonly originToRevoke: string,
+    public readonly chainId?: string
+  ) {
     super();
   }
 
@@ -160,26 +156,6 @@ export class ApproveDisconnectInterfaceMsg extends Message<void> {
 
   type(): string {
     return ApproveDisconnectInterfaceMsg.type();
-  }
-}
-
-export class GetChainMsg extends Message<Chain> {
-  public static type(): MessageType {
-    return MessageType.GetChain;
-  }
-
-  constructor() {
-    super();
-  }
-
-  validate(): void {}
-
-  route(): string {
-    return Route.Chains;
-  }
-
-  type(): MessageType {
-    return GetChainMsg.type();
   }
 }
 
@@ -256,6 +232,30 @@ export class ApproveUpdateDefaultAccountMsg extends Message<void> {
 
   type(): string {
     return ApproveUpdateDefaultAccountMsg.type();
+  }
+}
+
+export class SpendingKeyMsg extends Message<
+  [Array<number>, Array<number>, Array<number>, Array<number>] | undefined
+> {
+  public static type(): MessageType {
+    return MessageType.SpendingKey;
+  }
+
+  constructor(public readonly publicKey: number[]) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["publicKey"]);
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return SpendingKeyMsg.type();
   }
 }
 

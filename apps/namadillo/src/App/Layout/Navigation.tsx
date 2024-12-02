@@ -6,7 +6,7 @@ import { useAtomValue } from "jotai";
 import { AiFillHome } from "react-icons/ai";
 import { BsDiscord, BsTwitterX } from "react-icons/bs";
 import { FaVoteYea } from "react-icons/fa";
-import { GoStack } from "react-icons/go";
+import { GoHistory, GoStack } from "react-icons/go";
 import { IoSwapHorizontal } from "react-icons/io5";
 import { TbVectorTriangle } from "react-icons/tb";
 import { DISCORD_URL, TWITTER_URL } from "urls";
@@ -43,7 +43,18 @@ export const Navigation = (): JSX.Element => {
     {
       label: "Transfer",
       icon: <IoSwapHorizontal />,
-      url: features.namTransfersEnabled ? routes.transfer : undefined,
+      url:
+        features.maspEnabled || features.namTransfersEnabled ?
+          routes.transfer
+        : undefined,
+    },
+    {
+      label: "History",
+      icon: <GoHistory />,
+      url:
+        features.namTransfersEnabled || features.ibcTransfersEnabled ?
+          routes.history
+        : undefined,
     },
   ];
 

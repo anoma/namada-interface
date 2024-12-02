@@ -1,4 +1,5 @@
-jest.mock("../assets/ibc-transfer.png", () => "ibc-transfer.png");
+jest.mock("../assets/ibc-transfer-white.png", () => "ibc-transfer-white.png");
+jest.mock("../assets/ibc-transfer-black.png", () => "ibc-transfer-black.png");
 
 import { Chain } from "@chain-registry/types";
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -8,11 +9,11 @@ import {
 } from "App/Transfer/__mocks__/chains";
 import { TransferDestination } from "App/Transfer/TransferDestination";
 import BigNumber from "bignumber.js";
-import { namadaAsset } from "registry/namadaAsset";
+import { namadaAsset } from "utils";
 import { walletMock } from "../__mocks__/providers";
 import { parseChainInfo } from "../common";
 
-describe("TransferDestination", () => {
+describe("Component: TransferDestination", () => {
   it("should render the component with the default props", () => {
     render(<TransferDestination />);
     expect(screen.getByText(/select chain/i)).toBeInTheDocument();
@@ -96,10 +97,14 @@ describe("TransferDestination", () => {
   });
 
   it("should display the transaction fee if provided", () => {
-    const fee = BigNumber(1);
+    const fee = BigNumber(0.000001);
     render(
       <TransferDestination
-        transactionFee={{ amount: fee, token: namadaAsset }}
+        transactionFee={{
+          amount: fee,
+          asset: namadaAsset(),
+          originalAddress: namadaAsset().address,
+        }}
       />
     );
     const transactionFee = screen.getByText("Transaction Fee");

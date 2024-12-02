@@ -101,10 +101,6 @@ class Keplr implements Integration<Account, OfflineSigner> {
     return Promise.reject(KEPLR_NOT_FOUND);
   }
 
-  public async getChain(): Promise<Chain> {
-    return this.chain;
-  }
-
   /**
    * Get key from Keplr for current chain
    * @returns {Promise<boolean>}
@@ -166,7 +162,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
         source,
         receiver,
         token,
-        amount,
+        amountInBaseDenom,
         portId = "transfer",
         channelId,
       } = props.ibcProps;
@@ -189,7 +185,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
         .sendIbcTokens(
           source,
           receiver,
-          coin(amount.toString(), minDenom),
+          coin(amountInBaseDenom.toString(), minDenom),
           portId,
           channelId,
           // TODO: Should we enable timeout height versus timestamp?

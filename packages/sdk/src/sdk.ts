@@ -10,6 +10,8 @@ import { Rpc } from "./rpc";
 import { Signing } from "./signing";
 import { Tx } from "./tx";
 
+export { ProgressBarNames, SdkEvents } from "@namada/shared";
+
 /**
  * API for interacting with Namada SDK
  */
@@ -114,6 +116,7 @@ export class Sdk {
 
   /**
    * Return SDK Package version
+   * @returns SDK version
    */
   getVersion(): string {
     return packageJson.version;

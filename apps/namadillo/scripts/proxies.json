@@ -1,7 +1,7 @@
 [
   {
-    "alias": "MASP Params",
-    "url": "https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/",
+    "alias": "Namada Chain Registry",
+    "url": "https://raw.githubusercontent.com/anoma/namada-chain-registry/refs/heads/main/",
     "proxyPort": 8010
   }
 ]

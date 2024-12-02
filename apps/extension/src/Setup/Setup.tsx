@@ -11,10 +11,13 @@ import {
   Container,
   LifecycleExecutionWrapper as Wrapper,
 } from "@namada/components";
-import { AccountSecret } from "background/keyring";
+import { Bip44Path, DerivedAccount } from "@namada/types";
+import { assertNever } from "@namada/utils";
+import { AccountSecret, AccountStore } from "background/keyring";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCloseTabOnExtensionLock } from "hooks/useCloseTabOnExtensionLock";
 import { usePasswordInitialized } from "hooks/usePasswordInitialized";
+import { useRequester } from "hooks/useRequester";
 import { SeedPhrase, SeedPhraseConfirmation } from "./AccountCreation";
 import { SeedPhraseWarning } from "./AccountCreation/SeedPhraseWarning";
 import { Completion, ContainerHeader } from "./Common";
@@ -22,14 +25,20 @@ import CreateKeyForm from "./Common/CreateKeyForm";
 import { SeedPhraseImport } from "./ImportAccount";
 import { LedgerConfirmation, LedgerConnect, LedgerImport } from "./Ledger";
 import { Start } from "./Start";
+import { AccountManager } from "./query";
 import routes from "./routes";
-import { AccountDetails } from "./types";
+import { AccountDetails, DeriveAccountDetails } from "./types";
 
 type AnimatedTransitionProps = {
   elementKey: string;
   children: JSX.Element;
 };
 
+export enum CompletionStatus {
+  Pending,
+  Completed,
+  Failed,
+}
 /**
  * This is a utility to animate transitions
  */
@@ -51,6 +60,7 @@ const AnimatedTransition: React.FC<AnimatedTransitionProps> = (props) => {
 export const Setup: React.FC = () => {
   useCloseTabOnExtensionLock();
 
+  const requester = useRequester();
   const passwordInitialized = usePasswordInitialized();
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,6 +74,16 @@ export const Setup: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [totalSteps, setTotalSteps] = useState(0);
   const [currentPageTitle, setCurrentPageTitle] = useState("");
+  const [path, setPath] = useState<Bip44Path>({
+    account: 0,
+    change: 0,
+    index: 0,
+  });
+
+  const [parentAccountStore, setParentAccountStore] = useState<AccountStore>();
+  const [shieldedAccount, setShieldedAccount] = useState<DerivedAccount>();
+  const [completionStatus, setCompletionStatus] = useState<CompletionStatus>();
+  const [completionStatusInfo, setCompletionStatusInfo] = useState<string>("");
 
   const seedPhrase =
     accountSecret?.t === "Mnemonic" ? accountSecret.seedPhrase : undefined;
@@ -71,6 +91,50 @@ export const Setup: React.FC = () => {
   const setCurrentPage = (pageTitle: string, step: number) => () => {
     setCurrentStep(step);
     setCurrentPageTitle(pageTitle);
+  };
+
+  const storeAccount = async (details: DeriveAccountDetails): Promise<void> => {
+    setCompletionStatus(CompletionStatus.Pending);
+    const { accountSecret, passwordRequired, password } = details;
+    setCompletionStatusInfo("Setting a password for the extension.");
+    const accountManager = new AccountManager(requester);
+
+    try {
+      if (passwordRequired && !password) {
+        throw new Error("Password is required and it was not provided");
+      }
+
+      if (password) {
+        await accountManager.savePassword(password);
+      }
+
+      const prettyAccountSecret =
+        accountSecret.t === "Mnemonic" ? "mnemonic"
+        : accountSecret.t === "PrivateKey" ? "private key"
+        : assertNever(accountSecret);
+      setCompletionStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
+
+      // Create parent account
+      const parentAccount = await accountManager.saveAccountSecret(details);
+      if (!parentAccount) {
+        throw new Error("Background returned failure when creating account");
+      }
+      setParentAccountStore(parentAccount);
+
+      // Create shielded account
+      setCompletionStatusInfo("Generating Shielded Account");
+      const shieldedAccount = await accountManager.saveShieldedAccount(
+        details,
+        parentAccount
+      );
+      setShieldedAccount(shieldedAccount);
+      setCompletionStatus(CompletionStatus.Completed);
+      setCompletionStatusInfo("Done!");
+    } catch (e) {
+      setCompletionStatusInfo((s) => `Failed while "${s}". ${e}`);
+      console.error(e);
+      setCompletionStatus(CompletionStatus.Failed);
+    }
   };
 
   return (
@@ -184,7 +248,14 @@ export const Setup: React.FC = () => {
                           passphrase: "",
                         });
                         setAccountSecret(undefined); // this also sets seedPhrase to undefined
-                        navigate(routes.accountCreationComplete());
+                        if (accountSecret) {
+                          void storeAccount({
+                            ...accountCreationDetails,
+                            path,
+                            accountSecret,
+                          });
+                          navigate(routes.accountCreationComplete());
+                        }
                       }}
                     />
                   </Wrapper>
@@ -201,6 +272,11 @@ export const Setup: React.FC = () => {
                       alias={accountCreationDetails.alias || ""}
                       accountSecret={selectedAccountSecret}
                       password={accountCreationDetails.password || ""}
+                      path={path}
+                      parentAccountStore={parentAccountStore}
+                      shieldedAccount={shieldedAccount}
+                      status={completionStatus}
+                      statusInfo={completionStatusInfo}
                     />
                   </Wrapper>
                 }
@@ -221,6 +297,8 @@ export const Setup: React.FC = () => {
                 element={
                   <Wrapper onLoad={setCurrentPage("Import Existing Keys", 1)}>
                     <SeedPhraseImport
+                      path={path}
+                      setPath={setPath}
                       onConfirm={(accountSecret: AccountSecret) => {
                         setAccountSecret(accountSecret);
                         navigate(routes.accountImportCreate());
@@ -246,7 +324,14 @@ export const Setup: React.FC = () => {
                         }
                         setSelectedAccountSecret(accountSecret);
                         setAccountCreationDetails(accountCreationDetails);
-                        navigate(routes.accountImportComplete());
+                        if (accountSecret) {
+                          void storeAccount({
+                            ...accountCreationDetails,
+                            path,
+                            accountSecret,
+                          });
+                          navigate(routes.accountImportComplete());
+                        }
                       }}
                     />
                   </Wrapper>
@@ -263,6 +348,11 @@ export const Setup: React.FC = () => {
                       alias={accountCreationDetails.alias || ""}
                       accountSecret={selectedAccountSecret}
                       password={accountCreationDetails.password || ""}
+                      path={path}
+                      parentAccountStore={parentAccountStore}
+                      shieldedAccount={shieldedAccount}
+                      status={completionStatus}
+                      statusInfo={completionStatusInfo}
                     />
                   </Wrapper>
                 }
@@ -283,7 +373,7 @@ export const Setup: React.FC = () => {
                   <Wrapper
                     onLoad={setCurrentPage("Connect Your Ledger Hardware", 1)}
                   >
-                    <LedgerConnect />
+                    <LedgerConnect path={path} setPath={setPath} />
                   </Wrapper>
                 }
               />
@@ -296,7 +386,10 @@ export const Setup: React.FC = () => {
                       2
                     )}
                   >
-                    <LedgerImport passwordRequired={!passwordInitialized} />
+                    <LedgerImport
+                      path={path}
+                      passwordRequired={!passwordInitialized}
+                    />
                   </Wrapper>
                 }
               />

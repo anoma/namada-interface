@@ -54,11 +54,15 @@ export const KeyStore = t.exact(
       alias: t.string,
       address: t.string,
       owner: t.string,
-      path: t.type({
-        account: t.number,
-        change: t.number,
-        index: t.number,
-      }),
+      path: t.intersection([
+        t.type({
+          account: t.number,
+        }),
+        t.partial({
+          change: t.number,
+          index: t.number,
+        }),
+      ]),
       type: t.keyof({
         [AccountType.Mnemonic]: null,
         [AccountType.PrivateKey]: null,

@@ -1,4 +1,4 @@
-[@heliaxdev/namada-sdk](../README.md) / [Exports](../modules.md) / Ledger
+[@namada/sdk](../README.md) / [Exports](../modules.md) / Ledger
 
 # Class: Ledger
 
@@ -18,9 +18,11 @@ Functionality for interacting with NamadaApp for Ledger Hardware Wallets
 
 - [closeTransport](Ledger.md#closetransport)
 - [getAddressAndPublicKey](Ledger.md#getaddressandpublickey)
+- [getShieldedKeys](Ledger.md#getshieldedkeys)
 - [queryErrors](Ledger.md#queryerrors)
 - [showAddressAndPublicKey](Ledger.md#showaddressandpublickey)
 - [sign](Ledger.md#sign)
+- [signMasp](Ledger.md#signmasp)
 - [status](Ledger.md#status)
 - [init](Ledger.md#init)
 
@@ -42,7 +44,7 @@ Functionality for interacting with NamadaApp for Ledger Hardware Wallets
 
 #### Defined in
 
-[sdk/src/ledger.ts:53](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/ledger.ts#L53)
+[sdk/src/ledger.ts:68](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L68)
 
 ## Properties
 
@@ -54,7 +56,7 @@ Inititalized NamadaApp class from Zondax package
 
 #### Defined in
 
-[sdk/src/ledger.ts:53](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/ledger.ts#L53)
+[sdk/src/ledger.ts:68](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L68)
 
 ## Methods
 
@@ -75,13 +77,13 @@ void
 
 #### Defined in
 
-[sdk/src/ledger.ts:174](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/ledger.ts#L174)
+[sdk/src/ledger.ts:245](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L245)
 
 ___
 
 ### getAddressAndPublicKey
 
-▸ **getAddressAndPublicKey**(`path?`): `Promise`\<[`AddressAndPublicKey`](../modules.md#addressandpublickey)\>
+▸ **getAddressAndPublicKey**(`path?`): `Promise`\<[`LedgerAddressAndPublicKey`](../modules.md#ledgeraddressandpublickey)\>
 
 Get address and public key associated with optional path, otherwise, use default path
 Throw exception if app is not initialized.
@@ -94,7 +96,7 @@ Throw exception if app is not initialized.
 
 #### Returns
 
-`Promise`\<[`AddressAndPublicKey`](../modules.md#addressandpublickey)\>
+`Promise`\<[`LedgerAddressAndPublicKey`](../modules.md#ledgeraddressandpublickey)\>
 
 Address and public key
 
@@ -102,7 +104,35 @@ Address and public key
 
 #### Defined in
 
-[sdk/src/ledger.ts:96](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/ledger.ts#L96)
+[sdk/src/ledger.ts:111](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L111)
+
+___
+
+### getShieldedKeys
+
+▸ **getShieldedKeys**(`path?`, `promptUser?`): `Promise`\<[`LedgerShieldedKeys`](../modules.md#ledgershieldedkeys)\>
+
+Prompt user to get viewing and proof gen key associated with optional path, otherwise, use default path.
+Throw exception if app is not initialized.
+
+#### Parameters
+
+| Name | Type | Default value | Description |
+| :------ | :------ | :------ | :------ |
+| `path?` | `string` | `DEFAULT_LEDGER_BIP44_PATH` | Bip44 path for deriving key |
+| `promptUser?` | `boolean` | `true` | boolean to determine whether to display on Ledger device and require approval |
+
+#### Returns
+
+`Promise`\<[`LedgerShieldedKeys`](../modules.md#ledgershieldedkeys)\>
+
+ShieldedKeys
+
+**`Async`**
+
+#### Defined in
+
+[sdk/src/ledger.ts:157](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L157)
 
 ___
 
@@ -123,13 +153,13 @@ Error message if error is found
 
 #### Defined in
 
-[sdk/src/ledger.ts:157](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/ledger.ts#L157)
+[sdk/src/ledger.ts:228](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L228)
 
 ___
 
 ### showAddressAndPublicKey
 
-▸ **showAddressAndPublicKey**(`path?`): `Promise`\<[`AddressAndPublicKey`](../modules.md#addressandpublickey)\>
+▸ **showAddressAndPublicKey**(`path?`): `Promise`\<[`LedgerAddressAndPublicKey`](../modules.md#ledgeraddressandpublickey)\>
 
 Prompt user to get address and public key associated with optional path, otherwise, use default path.
 Throw exception if app is not initialized.
@@ -142,7 +172,7 @@ Throw exception if app is not initialized.
 
 #### Returns
 
-`Promise`\<[`AddressAndPublicKey`](../modules.md#addressandpublickey)\>
+`Promise`\<[`LedgerAddressAndPublicKey`](../modules.md#ledgeraddressandpublickey)\>
 
 Address and public key
 
@@ -150,7 +180,7 @@ Address and public key
 
 #### Defined in
 
-[sdk/src/ledger.ts:116](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/ledger.ts#L116)
+[sdk/src/ledger.ts:131](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L131)
 
 ___
 
@@ -178,7 +208,35 @@ Response signature
 
 #### Defined in
 
-[sdk/src/ledger.ts:142](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/ledger.ts#L142)
+[sdk/src/ledger.ts:196](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L196)
+
+___
+
+### signMasp
+
+▸ **signMasp**(`tx`, `path?`): `Promise`\<`ResponseSign`\>
+
+Sign a Masp tx with the shielded keys associated with the provided (or default) path.
+Throw exception if app is not initialized.
+
+#### Parameters
+
+| Name | Type | Default value | Description |
+| :------ | :------ | :------ | :------ |
+| `tx` | `Uint8Array` | `undefined` | masp tx data blob to sign |
+| `path?` | `string` | `DEFAULT_LEDGER_BIP44_PATH` | Bip44 path for signing account |
+
+#### Returns
+
+`Promise`\<`ResponseSign`\>
+
+Response signature
+
+**`Async`**
+
+#### Defined in
+
+[sdk/src/ledger.ts:213](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L213)
 
 ___
 
@@ -199,7 +257,7 @@ Version and info of NamadaApp
 
 #### Defined in
 
-[sdk/src/ledger.ts:79](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/ledger.ts#L79)
+[sdk/src/ledger.ts:94](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L94)
 
 ___
 
@@ -225,4 +283,4 @@ Ledger class instance
 
 #### Defined in
 
-[sdk/src/ledger.ts:61](https://github.com/anoma/namada-interface/blob/fac55d872bf5cdde37f7f3e49eb78636bc327fc0/packages/sdk/src/ledger.ts#L61)
+[sdk/src/ledger.ts:76](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/ledger.ts#L76)

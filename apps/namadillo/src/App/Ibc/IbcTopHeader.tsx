@@ -1,9 +1,9 @@
+import tokenImage from "App/Common/assets/token.svg";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
 import arrowImage from "./assets/arrow.svg";
 import ibcImage from "./assets/ibc.png";
 import shieldedNamImage from "./assets/shielded-account.png";
-import tokenImage from "./assets/token.svg";
 import transparentNamImage from "./assets/transparent-account.png";
 
 type IbcTopHeaderProps = {

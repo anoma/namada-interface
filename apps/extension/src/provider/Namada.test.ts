@@ -7,6 +7,7 @@ import { VaultService } from "background/vault";
 import * as utils from "extension/utils";
 import { VaultStorage } from "storage";
 import { KVStoreMock, init } from "test/init";
+import { toPublicAccount } from "utils";
 import { ACTIVE_ACCOUNT, keyStore, password } from "./data.mock";
 
 // Needed for now as utils import webextension-polyfill directly
@@ -14,11 +15,9 @@ jest.mock("webextension-polyfill", () => ({}));
 
 // Because we run tests in node environment, we need to mock web-init as node-init
 jest.mock(
-  "@heliaxdev/namada-sdk/web-init",
+  "@namada/sdk/web-init",
   () => () =>
-    Promise.resolve(
-      jest.requireActual("@heliaxdev/namada-sdk/node-init").default()
-    )
+    Promise.resolve(jest.requireActual("@namada/sdk/node-init").default())
 );
 
 jest.mock("webextension-polyfill", () => ({
@@ -62,6 +61,8 @@ describe("Namada", () => {
     await utilityStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT);
     const storedKeyStore = keyStore.map((store) => store.public);
     const storedAccounts = await namada.accounts();
-    expect(storedAccounts).toEqual(storedKeyStore);
+    expect(storedAccounts).toEqual(
+      storedKeyStore.map((derivedAccount) => toPublicAccount(derivedAccount))
+    );
   });
 });

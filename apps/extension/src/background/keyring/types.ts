@@ -1,13 +1,13 @@
-import { CryptoRecord } from "@heliaxdev/namada-sdk/web";
+import { CryptoRecord } from "@namada/sdk/web";
 import { StoredRecord } from "@namada/storage";
-import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
+import { AccountType, DerivedAccount, Path } from "@namada/types";
 
 export interface AccountStore extends StoredRecord {
   alias: string;
   address: string;
   owner: string;
   publicKey?: string;
-  path: Bip44Path;
+  path: Path;
   parentId?: string;
   pseudoExtendedKey?: string;
   type: AccountType;
@@ -48,8 +48,6 @@ export type DurablityStore = {
 export type SensitiveAccountStoreData = { text: string; passphrase?: string };
 
 export type UtilityStore = ActiveAccountStore | { [id: string]: CryptoRecord };
-
-export type RevealedPKStore = { [id: string]: string };
 
 export enum DeleteAccountError {
   BadPassword,

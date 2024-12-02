@@ -18,10 +18,9 @@ export const StakingSummary = (): JSX.Element => {
     isLoading,
     availableAmount,
     bondedAmount,
-    shieldedAmount,
     unbondedAmount,
     withdrawableAmount,
-    totalAmount,
+    totalTransparentAmount: totalAmount,
   } = useBalances();
 
   return (
@@ -36,7 +35,6 @@ export const StakingSummary = (): JSX.Element => {
             isLoading={isLoading}
             availableAmount={availableAmount}
             bondedAmount={bondedAmount}
-            shieldedAmount={shieldedAmount}
             unbondedAmount={unbondedAmount}
             withdrawableAmount={withdrawableAmount}
             totalAmount={totalAmount}
@@ -63,6 +61,7 @@ export const StakingSummary = (): JSX.Element => {
                 amount={availableAmount ?? 0}
                 className="block leading-none"
                 currencySymbolClassName="block mb-3 mt-0.5 text-sm"
+                decimalPlaces={2}
               />
             }
             callToAction={

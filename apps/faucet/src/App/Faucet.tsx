@@ -10,7 +10,7 @@ import {
   Option,
   Select,
 } from "@namada/components";
-import { Account } from "@namada/types";
+import { Account, AccountType } from "@namada/types";
 import { bech32mValidation, shortenAddress } from "@namada/utils";
 
 import { chains } from "@namada/chains";
@@ -245,7 +245,11 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
           await integration.connect();
           const accounts = await integration.accounts();
           if (accounts) {
-            setAccounts(accounts.filter((account) => !account.isShielded));
+            setAccounts(
+              accounts.filter(
+                (account) => account.type !== AccountType.ShieldedKeys
+              )
+            );
           }
           setIsExtensionConnected(true);
         } catch (e) {

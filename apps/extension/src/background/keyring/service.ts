@@ -1,4 +1,4 @@
-import { PhraseSize } from "@heliaxdev/namada-sdk/web";
+import { PhraseSize } from "@namada/sdk/web";
 import { IndexedDBKVStore, KVStore } from "@namada/storage";
 import {
   AccountType,
@@ -10,7 +10,7 @@ import {
 } from "@namada/types";
 import { Result, truncateInMiddle } from "@namada/utils";
 
-import { ChainsService } from "background/chains";
+import { ChainService } from "background/chain";
 import { SdkService } from "background/sdk/service";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster, ExtensionRequester } from "extension";
@@ -32,7 +32,7 @@ export class KeyRingService {
   constructor(
     protected readonly vaultService: VaultService,
     protected readonly sdkService: SdkService,
-    protected readonly chainsService: ChainsService,
+    protected readonly chainService: ChainService,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly localStorage: LocalStorage,
     protected readonly vaultStorage: VaultStorage,
@@ -62,11 +62,13 @@ export class KeyRingService {
 
   async saveAccountSecret(
     accountSecret: AccountSecret,
-    alias: string
+    alias: string,
+    path?: Bip44Path
   ): Promise<AccountStore> {
     const results = await this._keyRing.storeAccountSecret(
       accountSecret,
-      alias
+      alias,
+      path
     );
     await this.broadcaster.updateAccounts();
     return results;
@@ -99,15 +101,21 @@ export class KeyRingService {
   async deriveAccount(
     path: Bip44Path,
     type: AccountType,
-    alias: string
+    alias: string,
+    parentId: string
   ): Promise<DerivedAccount> {
-    const account = await this._keyRing.deriveAccount(path, type, alias);
+    const account = await this._keyRing.deriveAccount(
+      path,
+      type,
+      alias,
+      parentId
+    );
     await this.broadcaster.updateAccounts();
     return account;
   }
 
   async queryAccountById(id: string): Promise<DerivedAccount[]> {
-    return await this._keyRing.queryAccountById(id);
+    return await this._keyRing.queryAccountsById(id);
   }
 
   async queryAccounts(): Promise<DerivedAccount[]> {
@@ -175,7 +183,7 @@ export class KeyRingService {
   }
 
   async sign(txProps: TxProps, signer: string): Promise<Uint8Array> {
-    const { chainId } = await this.chainsService.getChain();
+    const chainId = await this.chainService.getChain();
     return await this._keyRing.sign(txProps, signer, chainId);
   }
 

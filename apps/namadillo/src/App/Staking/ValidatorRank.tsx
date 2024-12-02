@@ -1,4 +1,4 @@
-import { ValidatorStatus } from "@anomaorg/namada-indexer-client";
+import { ValidatorStatus } from "@namada/indexer-client";
 import clsx from "clsx";
 
 type ValidatorRankProps = {

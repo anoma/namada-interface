@@ -1,16 +1,14 @@
 import { Chain } from "@chain-registry/types";
 import { Stack } from "@namada/components";
 import { TabSelector } from "App/Common/TabSelector";
-import { TokenCurrency } from "App/Common/TokenCurrency";
 import clsx from "clsx";
-import { WalletProvider } from "types";
-import { toDisplayAmount } from "utils";
+import { Address, WalletProvider } from "types";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";
 import { SelectedWallet } from "./SelectedWallet";
 import { TransactionFee } from "./TransferModule";
-import ibcTransferImage from "./assets/ibc-transfer.png";
+import { TransferTransactionFee } from "./TransferTransactionFee";
 
 type TransferDestinationProps = {
   isShielded?: boolean;
@@ -25,7 +23,7 @@ type TransferDestinationProps = {
   openChainSelector?: () => void;
   openProviderSelector?: () => void;
   onToggleCustomAddress?: (isActive: boolean) => void;
-  onChangeAddress?: (address: string | undefined) => void;
+  onChangeAddress?: (address: Address) => void;
   address?: string;
   memo?: string;
   onChangeMemo?: (address: string) => void;
@@ -105,12 +103,14 @@ export const TransferDestination = ({
 
       {customAddressActive && (
         <Stack gap={8}>
-          <SelectedChain
-            chain={chain}
-            wallet={wallet}
-            onClick={openChainSelector}
-            iconSize="42px"
-          />
+          {onToggleCustomAddress && (
+            <SelectedChain
+              chain={chain}
+              wallet={wallet}
+              onClick={openChainSelector}
+              iconSize="42px"
+            />
+          )}
           <CustomAddressForm
             memo={memo}
             onChangeMemo={onChangeMemo}
@@ -119,21 +119,11 @@ export const TransferDestination = ({
           />
         </Stack>
       )}
-
       {transactionFee && (
-        <footer className="flex justify-between items-center mt-12 text-sm text-neutral-300">
-          <span className="underline">Transaction Fee</span>
-          {isIbcTransfer && (
-            <span className="w-20">
-              <img src={ibcTransferImage} />
-            </span>
-          )}
-          <TokenCurrency
-            amount={toDisplayAmount(
-              transactionFee.token,
-              transactionFee.amount
-            )}
-            asset={transactionFee.token}
+        <footer className="text-neutral-300">
+          <TransferTransactionFee
+            transactionFee={transactionFee}
+            isIbcTransfer={isIbcTransfer}
           />
         </footer>
       )}

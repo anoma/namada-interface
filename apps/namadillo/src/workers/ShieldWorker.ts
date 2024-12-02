@@ -1,6 +1,6 @@
-import { Configuration, DefaultApi } from "@anomaorg/namada-indexer-client";
-import { initMulticore } from "@heliaxdev/namada-sdk/inline-init";
-import { getSdk, Sdk } from "@heliaxdev/namada-sdk/web";
+import { Configuration, DefaultApi } from "@namada/indexer-client";
+import { initMulticore } from "@namada/sdk/inline-init";
+import { getSdk, Sdk } from "@namada/sdk/web";
 import {
   ShieldedTransferMsgValue,
   ShieldingTransferMsgValue,

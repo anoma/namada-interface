@@ -15,7 +15,7 @@ export class IbcTransferMsgValue {
   token!: string;
 
   @field(BigNumberSerializer)
-  amount!: BigNumber;
+  amountInBaseDenom!: BigNumber;
 
   @field({ type: "string" })
   portId!: string;

@@ -4,8 +4,11 @@ import { twMerge } from "tailwind-merge";
 import { SkeletonLoading } from "@namada/components";
 import { AddRemove, PgfActions, Proposal } from "@namada/types";
 
+import { sha256Hash } from "@namada/utils";
 import { proposalFamily } from "atoms/proposals";
+import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
 import { secondsToDateTimeString } from "utils";
 
 const InfoCard: React.FC<
@@ -18,7 +21,7 @@ const InfoCard: React.FC<
     className={twMerge("bg-[#1B1B1B] rounded-sm px-3 py-2", className)}
     {...rest}
   >
-    <div className="text-xs text-[#8A8A8A]">{title}</div>
+    <div className="text-xs text-[#8A8A8A] mb-1">{title}</div>
     <div className="text-sm">{content}</div>
   </div>
 );
@@ -74,11 +77,29 @@ const PgfPaymentInfoCards: React.FC<{
       <InfoCard
         title="Retro"
         className="col-span-full"
-        content={pgfActions.retro.map(({ internal: { amount, target } }) => (
-          <span key={`info-card-retro-${target}`}>
-            {target} <NamCurrency amount={amount} />
-          </span>
-        ))}
+        content={pgfActions.retro.map((retro) => {
+          let target: string;
+          let amount: BigNumber;
+          let channelId: string | undefined;
+          let portId: string | undefined;
+
+          if ("internal" in retro) {
+            target = retro.internal.target;
+            amount = retro.internal.amount;
+          } else {
+            target = retro.ibc.target;
+            amount = retro.ibc.amount;
+            channelId = retro.ibc.channelId;
+            portId = retro.ibc.portId;
+          }
+
+          return (
+            <span key={`info-card-retro-${target}`}>
+              {target} <NamCurrency amount={amount} />
+              {"ibc" in retro ? ` ${channelId} ${portId}` : ""}
+            </span>
+          );
+        })}
       />
     </>
   );
@@ -111,24 +132,59 @@ const LoadingCard: React.FC<{ className?: string }> = ({ className }) => (
   />
 );
 
+const DateTimeEpoch: React.FC<{ date: bigint; epoch: bigint }> = ({
+  date,
+  epoch,
+}) => (
+  <div className="leading-tight">
+    {secondsToDateTimeString(date)}
+    <div className="text-xs text-neutral-500">Epoch {epoch.toString()}</div>
+  </div>
+);
+
 const Loaded: React.FC<{
   proposal: Proposal;
 }> = ({ proposal }) => {
+  const [dataHash, setDataHash] = useState<string>();
+
+  useEffect(() => {
+    if (
+      proposal.proposalType.type === "default_with_wasm" &&
+      proposal.proposalType.data.length > 0
+    ) {
+      sha256Hash(proposal.proposalType.data).then((hash) =>
+        setDataHash(hash.toUpperCase())
+      );
+    }
+  }, [proposal.proposalType]);
+
   return (
     <>
       <InfoCard
         title="Voting Start"
-        content={secondsToDateTimeString(proposal.startTime)}
+        content={
+          <DateTimeEpoch
+            date={proposal.startTime}
+            epoch={proposal.startEpoch}
+          />
+        }
         className="col-span-2"
       />
       <InfoCard
         title="Voting End"
-        content={secondsToDateTimeString(proposal.endTime)}
+        content={
+          <DateTimeEpoch date={proposal.endTime} epoch={proposal.endEpoch} />
+        }
         className="col-span-2"
       />
       <InfoCard
         title="Activation Time"
-        content={secondsToDateTimeString(proposal.activationTime)}
+        content={
+          <DateTimeEpoch
+            date={proposal.activationTime}
+            epoch={proposal.activationEpoch}
+          />
+        }
         className="col-span-2"
       />
       <InfoCard
@@ -136,6 +192,13 @@ const Loaded: React.FC<{
         content={proposal.author}
         className="col-span-full"
       />
+      {dataHash && (
+        <InfoCard
+          title="Data Hash"
+          content={dataHash}
+          className="col-span-full"
+        />
+      )}
       {proposal.proposalType.type === "pgf_steward" && (
         <PgfStewardInfoCards addRemove={proposal.proposalType.data} />
       )}

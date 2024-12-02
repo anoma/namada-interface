@@ -1,6 +1,6 @@
-import { TxType, TxTypeLabel } from "@heliaxdev/namada-sdk/web";
 import { ActionButton, GapPatterns, Stack } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
+import { TxType, TxTypeLabel } from "@namada/sdk/web";
 import { AccountType } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { PageHeader } from "App/Common/PageHeader";

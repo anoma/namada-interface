@@ -1,9 +1,9 @@
-import { PhraseSize } from "@heliaxdev/namada-sdk/web";
+import { PhraseSize } from "@namada/sdk/web";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Result } from "@namada/utils";
 import { ResponseSign } from "@zondax/ledger-namada";
 import { Message } from "router";
-import { validatePrivateKey } from "utils";
+import { validatePrivateKey, validateProps } from "utils";
 import { ROUTE } from "./constants";
 import {
   AccountSecret,
@@ -130,7 +130,8 @@ export class SaveAccountSecretMsg extends Message<AccountStore | false> {
 
   constructor(
     public readonly accountSecret: AccountSecret,
-    public readonly alias: string
+    public readonly alias: string,
+    public readonly path?: Bip44Path
   ) {
     super();
   }
@@ -220,18 +221,14 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
   constructor(
     public readonly path: Bip44Path,
     public readonly accountType: AccountType,
-    public readonly alias: string
+    public readonly alias: string,
+    public readonly parentId: string
   ) {
     super();
   }
 
   validate(): void {
-    if (!this.accountType) {
-      throw new Error("An account type is required!");
-    }
-    if (!this.path) {
-      throw new Error("A Bip44Path object must be provided!");
-    }
+    validateProps(this, ["path", "accountType", "alias", "parentId"]);
 
     const { account, change } = this.path;
 

@@ -1,18 +1,17 @@
-import { Asset } from "@chain-registry/types";
 import { Stack } from "@namada/components";
 import { Search } from "App/Common/Search";
 import { SelectModal } from "App/Common/SelectModal";
 import clsx from "clsx";
 import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { WalletProvider } from "types";
+import { Address, AddressWithAsset, WalletProvider } from "types";
 import { AssetCard } from "./AssetCard";
 import { ConnectedWalletInfo } from "./ConnectedWalletInfo";
 
 type SelectWalletModalProps = {
   onClose: () => void;
-  onSelect: (asset: Asset) => void;
-  assets: Asset[];
+  onSelect: (address: Address) => void;
+  assets: AddressWithAsset[];
   wallet: WalletProvider;
   walletAddress: string;
 };
@@ -28,7 +27,7 @@ export const SelectAssetModal = ({
 
   const filteredAssets = useMemo(() => {
     return assets.filter(
-      (asset) =>
+      ({ asset }) =>
         asset.name.toLowerCase().indexOf(filter.toLowerCase()) >= 0 ||
         asset.symbol.toLowerCase().indexOf(filter.toLowerCase()) >= 0
     );
@@ -45,11 +44,11 @@ export const SelectAssetModal = ({
         gap={0}
         className="max-h-[400px] overflow-auto dark-scrollbar pb-4 mr-[-0.5rem]"
       >
-        {filteredAssets.map((asset: Asset, index: number) => (
-          <li key={index} className="text-sm">
+        {filteredAssets.map(({ asset, originalAddress }) => (
+          <li key={originalAddress} className="text-sm">
             <button
               onClick={() => {
-                onSelect(asset);
+                onSelect(originalAddress);
                 onClose();
               }}
               className={twMerge(

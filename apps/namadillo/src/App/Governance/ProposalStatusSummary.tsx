@@ -14,7 +14,7 @@ import { colors } from "./types";
 
 // TODO: is this a good enough way to represent rational numbers?
 const quorumMap: Record<TallyType, BigNumber> = {
-  "two-thirds": BigNumber(2).dividedBy(3),
+  "two-fifths": BigNumber(2).dividedBy(5),
   "one-half-over-one-third": BigNumber(1).dividedBy(3),
   "less-one-half-over-one-third-nay": BigNumber(1).dividedBy(3),
 };
@@ -158,7 +158,7 @@ const Loaded: React.FC<{
 
   const highestVoteType: VoteType | undefined =
     zeroVotes ? undefined : (
-      voteTypes.reduce((a, b) => (props[a] > props[b] ? a : b))
+      voteTypes.reduce((a, b) => (props[a].gt(props[b]) ? a : b))
     );
 
   const [hoveredVoteType, setHoveredVoteType] = useState<VoteType | undefined>(

@@ -708,7 +708,7 @@ pub struct IbcTransferMsg {
     source: String,
     receiver: String,
     token: String,
-    amount: String,
+    amount_in_base_denom: String,
     port_id: String,
     channel_id: String,
     timeout_height: Option<u64>,
@@ -722,7 +722,7 @@ impl IbcTransferMsg {
         source: String,
         receiver: String,
         token: String,
-        amount: String,
+        amount_in_base_denom: String,
         port_id: String,
         channel_id: String,
         timeout_height: Option<u64>,
@@ -734,7 +734,7 @@ impl IbcTransferMsg {
             source,
             receiver,
             token,
-            amount,
+            amount_in_base_denom,
             port_id,
             channel_id,
             timeout_height,
@@ -765,7 +765,7 @@ pub fn ibc_transfer_tx_args(
         source,
         receiver,
         token,
-        amount,
+        amount_in_base_denom,
         port_id,
         channel_id,
         timeout_height,
@@ -777,8 +777,11 @@ pub fn ibc_transfer_tx_args(
     let source_address = Address::from_str(&source)?;
     let source = TransferSource::Address(source_address);
     let token = Address::from_str(&token)?;
-    let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
-    let amount = InputAmount::Unvalidated(denom_amount);
+    let amount = Amount::from_str(&amount_in_base_denom, 0u8).expect("Amount to be valid.");
+    // Using InputAmount::Validated because the amount is already in the base
+    // denom. If Unvalidated is used, the SDK will change the denom based on the
+    // token address, which complicates knowing which amount to pass to this function.
+    let amount = InputAmount::Validated(amount.into());
     let port_id = PortId::from_str(&port_id).expect("Port id to be valid");
     let channel_id = ChannelId::from_str(&channel_id).expect("Channel id to be valid");
     let ibc_shielding_data = match shielding_data {
@@ -804,7 +807,7 @@ pub fn ibc_transfer_tx_args(
         disposable_signing_key: false,
         tx_code_path: PathBuf::from("tx_ibc.wasm"),
         refund_target: None,
-        // TODO: Implement?
+        // We do not support ibc unshielding for now
         gas_spending_key: None,
     };
 
@@ -925,6 +928,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         dry_run: false,
         dry_run_wrapper: false,
         dump_tx: false,
+        dump_wrapper_tx: false,
         force: false,
         broadcast_only: false,
         ledger_address,
@@ -938,14 +942,13 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         expiration: TxExpiration::Default,
         chain_id: Some(ChainId(chain_id)),
         signatures: vec![],
+        wrapper_signature: None,
         signing_keys,
         tx_reveal_code_path: PathBuf::from("tx_reveal_pk.wasm"),
         use_device: false,
         password: None,
         memo,
         device_transport: Default::default(),
-        dump_wrapper_tx: false,
-        wrapper_signature: None,
     };
 
     Ok(args)

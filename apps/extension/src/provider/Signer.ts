@@ -1,7 +1,4 @@
-import { chains } from "@namada/chains";
 import {
-  Account,
-  AccountType,
   GenDisposableSignerResponse,
   Signer as ISigner,
   Namada,
@@ -11,40 +8,6 @@ import {
 
 export class Signer implements ISigner {
   constructor(private readonly _namada: Namada) {}
-
-  public async accounts(): Promise<Account[] | undefined> {
-    return (await this._namada.accounts())?.map(
-      ({ alias, address, type, publicKey, owner, pseudoExtendedKey }) => ({
-        alias,
-        address,
-        viewingKey: owner,
-        chainId: chains.namada.chainId,
-        type,
-        publicKey,
-        isShielded: type === AccountType.ShieldedKeys,
-        pseudoExtendedKey,
-        chainKey: "namada",
-      })
-    );
-  }
-
-  public async defaultAccount(): Promise<Account | undefined> {
-    const account = await this._namada.defaultAccount();
-
-    if (account) {
-      const { alias, address, type, publicKey } = account;
-
-      return {
-        alias,
-        address,
-        chainId: chains.namada.chainId,
-        type,
-        publicKey,
-        isShielded: type === AccountType.ShieldedKeys,
-        chainKey: "namada",
-      };
-    }
-  }
 
   public async sign(
     tx: TxProps | TxProps[],

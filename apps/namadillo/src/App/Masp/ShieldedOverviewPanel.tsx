@@ -1,7 +1,7 @@
 import { ActionButton, Panel, SkeletonLoading } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { routes } from "App/routes";
-import { shieldedBalanceAtom } from "atoms/masp/atoms";
+import { shieldedTokensAtom } from "atoms/balance/atoms";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
@@ -13,7 +13,7 @@ const tabs = ["Fungible", "NFT"];
 const ShieldAssetCta = (): JSX.Element => {
   return (
     <div className="flex-1 flex items-center justify-center">
-      <ActionButton href={routes.ibc} className="w-fit uppercase">
+      <ActionButton href={routes.maspShield} className="w-fit uppercase">
         Shield your first assets
       </ActionButton>
     </div>
@@ -22,13 +22,13 @@ const ShieldAssetCta = (): JSX.Element => {
 
 const AssetTable = (): JSX.Element => {
   const [tab, setTab] = useState(tabs[0]);
-  const query = useAtomValue(shieldedBalanceAtom);
+  const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
 
-  if (query.data === undefined) {
+  if (shieldedTokensQuery.data === undefined) {
     return <SkeletonLoading height="100%" width="100%" />;
   }
 
-  if (!query.data.length) {
+  if (!shieldedTokensQuery.data.length) {
     return (
       <>
         <div className="bg-gray p-6 rounded-sm text-center font-medium">
@@ -39,38 +39,36 @@ const AssetTable = (): JSX.Element => {
     );
   }
 
+  // TODO implement NFT balances
+  const isNftEnabled = false;
+
   return (
     <AtomErrorBoundary
-      result={query}
+      result={shieldedTokensQuery}
       niceError="Unable to load your shielded balance"
       containerProps={{ className: "pb-16" }}
     >
-      <div className="flex">
-        {tabs.map((name) => {
-          const selected = name == tab;
-          return (
-            <ActionButton
-              key={name}
-              backgroundColor={selected ? "black" : "gray"}
-              outlineColor={selected ? "yellow" : undefined}
-              textColor={selected ? "yellow" : "white"}
-              backgroundHoverColor="yellow"
-              onClick={() => setTab(name)}
-            >
-              {name}
-            </ActionButton>
-          );
-        })}
-      </div>
+      {isNftEnabled && (
+        <div className="flex mb-6">
+          {tabs.map((name) => {
+            const selected = name == tab;
+            return (
+              <ActionButton
+                key={name}
+                backgroundColor={selected ? "black" : "gray"}
+                outlineColor={selected ? "yellow" : undefined}
+                textColor={selected ? "yellow" : "white"}
+                backgroundHoverColor="yellow"
+                onClick={() => setTab(name)}
+              >
+                {name}
+              </ActionButton>
+            );
+          })}
+        </div>
+      )}
       {tab === "Fungible" && (
-        <ShieldedFungibleTable
-          data={[
-            ...query.data,
-            // TODO mock
-            ["tnam1p5nnjnasjtfwen2kzg78fumwfs0eycqpecuc2jwz", "9999.99"],
-            ["unknown", "123.456"],
-          ]}
-        />
+        <ShieldedFungibleTable data={shieldedTokensQuery.data} />
       )}
       {tab === "NFT" && <ShieldedNFTTable />}
     </AtomErrorBoundary>

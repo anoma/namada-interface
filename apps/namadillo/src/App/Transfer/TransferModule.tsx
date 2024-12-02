@@ -1,10 +1,15 @@
-import { Asset, Chain, Chains } from "@chain-registry/types";
+import { Chain, Chains } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
+import { mapUndefined } from "@namada/utils";
 import { InlineError } from "App/Common/InlineError";
 import BigNumber from "bignumber.js";
 import { useMemo, useState } from "react";
-import { WalletProvider } from "types";
-import { toBaseAmount, toDisplayAmount } from "utils";
+import {
+  Address,
+  AddressWithAssetAndAmount,
+  AddressWithAssetAndAmountMap,
+  WalletProvider,
+} from "types";
 import { parseChainInfo } from "./common";
 import { IbcChannels } from "./IbcChannels";
 import { SelectAssetModal } from "./SelectAssetModal";
@@ -14,10 +19,7 @@ import { TransferArrow } from "./TransferArrow";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
 
-export type TransactionFee = {
-  token: Asset;
-  amount: BigNumber;
-};
+export type TransactionFee = AddressWithAssetAndAmount;
 
 type TransferModuleConfig = {
   wallet?: WalletProvider;
@@ -29,31 +31,37 @@ type TransferModuleConfig = {
   chain?: Chain;
   onChangeChain?: (chain: Chain) => void;
   isShielded?: boolean;
+  onChangeShielded?: (isShielded: boolean) => void;
 };
 
 export type TransferSourceProps = TransferModuleConfig & {
-  availableAssets?: Asset[];
+  availableAssets?: AddressWithAssetAndAmountMap;
   isLoadingAssets?: boolean;
-  selectedAsset?: Asset;
+  selectedAssetAddress?: Address;
   availableAmount?: BigNumber;
-  onChangeSelectedAsset?: (asset: Asset | undefined) => void;
+  onChangeSelectedAsset?: (address: Address | undefined) => void;
+  amount?: BigNumber;
+  onChangeAmount?: (amount: BigNumber | undefined) => void;
 };
 
 export type IbcOptions = {
-  destinationChannel: string;
   sourceChannel: string;
+  onChangeSourceChannel: (channel: string) => void;
+  destinationChannel?: string;
+  onChangeDestinationChannel?: (channel: string) => void;
 };
 
 export type TransferDestinationProps = TransferModuleConfig & {
   enableCustomAddress?: boolean;
+  customAddress?: Address;
+  onChangeCustomAddress?: (address: Address) => void;
   onChangeShielded?: (shielded: boolean) => void;
 };
 
 export type OnSubmitTransferParams = {
-  amount: BigNumber;
-  destinationAddress: string;
+  displayAmount: BigNumber;
+  destinationAddress: Address;
   memo?: string;
-  ibcOptions?: IbcOptions;
 };
 
 export type TransferModuleProps = {
@@ -61,10 +69,23 @@ export type TransferModuleProps = {
   destination: TransferDestinationProps;
   transactionFee?: TransactionFee;
   isSubmitting?: boolean;
-  isIbcTransfer?: boolean;
   errorMessage?: string;
   onSubmitTransfer: (params: OnSubmitTransferParams) => void;
-};
+} & (
+  | { isIbcTransfer?: false; ibcOptions?: undefined }
+  | { isIbcTransfer: true; ibcOptions: IbcOptions }
+);
+
+type ValidationResult =
+  | "NoAmount"
+  | "NoSourceWallet"
+  | "NoSourceChain"
+  | "NoSelectedAsset"
+  | "NoDestinationWallet"
+  | "NoDestinationChain"
+  | "NoTransactionFee"
+  | "NotEnoughBalance"
+  | "Ok";
 
 export const TransferModule = ({
   source,
@@ -72,6 +93,7 @@ export const TransferModule = ({
   transactionFee,
   isSubmitting,
   isIbcTransfer,
+  ibcOptions,
   onSubmitTransfer,
   errorMessage,
 }: TransferModuleProps): JSX.Element => {
@@ -80,49 +102,72 @@ export const TransferModule = ({
   const [destinationChainModalOpen, setDestinationChainModalOpen] =
     useState(false);
   const [assetSelectorModalOpen, setAssetSelectorModalOpen] = useState(false);
-  const [customAddressActive, setCustomAddressActive] = useState(false);
-  const [memo, setMemo] = useState<undefined | string>("");
-  const [customAddress, setCustomAddress] = useState<undefined | string>("");
-  const [amount, setAmount] = useState<BigNumber | undefined>(new BigNumber(0));
-  const [sourceIbcChannel, setSourceIbcChannel] = useState("");
-  const [destinationIbcChannel, setDestinationIbcChannel] = useState("");
+  const [customAddressActive, setCustomAddressActive] = useState(
+    destination.enableCustomAddress && !destination.availableWallets
+  );
 
-  const availableAmount = useMemo(() => {
-    const { selectedAsset, availableAmount } = source;
+  const [memo, setMemo] = useState<undefined | string>("");
+
+  const selectedAsset = mapUndefined(
+    (address) => source.availableAssets?.[address],
+    source.selectedAssetAddress
+  );
+
+  const requiresIbcChannels =
+    isIbcTransfer &&
+    (!ibcOptions?.sourceChannel ||
+      (destination.isShielded && !ibcOptions.destinationChannel));
+
+  const availableAmountMinusFees = useMemo(() => {
+    const { selectedAssetAddress, availableAmount } = source;
 
     if (
-      typeof selectedAsset === "undefined" ||
+      typeof selectedAssetAddress === "undefined" ||
       typeof availableAmount === "undefined"
     ) {
       return undefined;
     }
 
-    const availableAmountMinusFees =
-      transactionFee && selectedAsset.base === transactionFee.token.base ?
+    const minusFees =
+      (
+        transactionFee &&
+        selectedAssetAddress === transactionFee.originalAddress
+      ) ?
         availableAmount.minus(transactionFee.amount)
       : availableAmount;
 
-    return toDisplayAmount(selectedAsset, availableAmountMinusFees);
-  }, [source.selectedAsset, source.availableAmount, transactionFee]);
+    return BigNumber.max(minusFees, 0);
+  }, [source.selectedAssetAddress, source.availableAmount, transactionFee]);
 
-  const validateTransfer = (): boolean => {
-    if (!amount || amount.eq(0)) return false;
-    if (!source.wallet || !source.chain || !source.selectedAsset) return false;
-    if (!destination.wallet || !destination.chain) return false;
-    if (!transactionFee) return false;
-    if (
-      !availableAmount ||
-      availableAmount.lt(amount.plus(transactionFee.amount))
+  const validationResult = useMemo((): ValidationResult => {
+    if (!source.wallet) {
+      return "NoSourceWallet";
+    } else if (!source.chain) {
+      return "NoSourceChain";
+    } else if (!destination.chain) {
+      return "NoDestinationChain";
+    } else if (!source.selectedAssetAddress) {
+      return "NoSelectedAsset";
+    } else if (!source.amount || source.amount.eq(0)) {
+      return "NoAmount";
+    } else if (!transactionFee) {
+      return "NoTransactionFee";
+    } else if (
+      !availableAmountMinusFees ||
+      source.amount.gt(availableAmountMinusFees)
     ) {
-      return false;
+      return "NotEnoughBalance";
+    } else if (!destination.wallet && !destination.customAddress) {
+      return "NoDestinationWallet";
+    } else {
+      return "Ok";
     }
-    return true;
-  };
+  }, [source, destination, transactionFee, availableAmountMinusFees]);
 
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
-    const address = customAddress || destination.walletAddress;
-    if (!amount) {
+    const address = destination.customAddress || destination.walletAddress;
+    if (!source.amount) {
       throw new Error("Amount is not valid");
     }
 
@@ -130,22 +175,15 @@ export const TransferModule = ({
       throw new Error("Address is not provided");
     }
 
-    if (!source.selectedAsset) {
+    if (!source.selectedAssetAddress) {
       throw new Error("Asset is not selected");
     }
 
     const params: OnSubmitTransferParams = {
-      amount: toBaseAmount(source.selectedAsset, amount),
+      displayAmount: source.amount,
       destinationAddress: address.trim(),
       memo,
     };
-
-    if (isIbcTransfer) {
-      params.ibcOptions = {
-        sourceChannel: sourceIbcChannel.trim(),
-        destinationChannel: destinationIbcChannel.trim(),
-      };
-    }
 
     onSubmitTransfer?.(params);
   };
@@ -188,32 +226,38 @@ export const TransferModule = ({
       return "Submitting...";
     }
 
-    if (!source.wallet) {
+    if (validationResult === "NoSourceWallet") {
       return "Select Wallet";
     }
 
-    if (!source.chain || !destination.chain) {
+    if (
+      validationResult === "NoSourceChain" ||
+      validationResult === "NoDestinationChain"
+    ) {
       return "Select Chain";
     }
 
-    if (!source.selectedAsset && source.onChangeSelectedAsset) {
+    if (
+      validationResult === "NoSelectedAsset" &&
+      source.onChangeSelectedAsset
+    ) {
       return "Select Asset";
     }
 
     // TODO: this should be updated for nfts
-    if (!amount || amount.eq(0)) {
+    if (validationResult === "NoAmount") {
       return "Define an amount to transfer";
     }
 
-    if (!availableAmount) {
+    if (!availableAmountMinusFees) {
       return "Wallet amount not available";
     }
 
-    if (!transactionFee) {
+    if (validationResult === "NoTransactionFee") {
       return "No transaction fee is set";
     }
 
-    if (amount.plus(transactionFee.amount).gt(availableAmount)) {
+    if (validationResult === "NotEnoughBalance") {
       return "Not enough balance";
     }
 
@@ -228,11 +272,11 @@ export const TransferModule = ({
             isConnected={Boolean(source.connected)}
             wallet={source.wallet}
             walletAddress={source.walletAddress}
-            asset={source.selectedAsset}
+            asset={selectedAsset?.asset}
             isLoadingAssets={source.isLoadingAssets}
             chain={parseChainInfo(source.chain, source.isShielded)}
-            availableAmount={availableAmount}
-            amount={amount}
+            availableAmount={availableAmountMinusFees}
+            amount={source.amount}
             openProviderSelector={onChangeWallet(source)}
             openChainSelector={
               source.onChangeChain ?
@@ -244,7 +288,9 @@ export const TransferModule = ({
                 () => setAssetSelectorModalOpen(true)
               : undefined
             }
-            onChangeAmount={setAmount}
+            onChangeAmount={source.onChangeAmount}
+            isShielded={source.isShielded}
+            onChangeShielded={source.onChangeShielded}
           />
           <i className="flex items-center justify-center w-11 mx-auto -my-8 relative z-10">
             <TransferArrow color={destination.isShielded ? "#FF0" : "#FFF"} />
@@ -256,9 +302,9 @@ export const TransferModule = ({
             isShielded={destination.isShielded}
             isIbcTransfer={isIbcTransfer}
             onChangeShielded={destination.onChangeShielded}
-            address={customAddress}
+            address={destination.customAddress}
             onToggleCustomAddress={
-              destination.enableCustomAddress ?
+              destination.enableCustomAddress && destination.availableWallets ?
                 setCustomAddressActive
               : undefined
             }
@@ -269,18 +315,18 @@ export const TransferModule = ({
                 () => setDestinationChainModalOpen(true)
               : undefined
             }
-            onChangeAddress={setCustomAddress}
+            onChangeAddress={destination.onChangeCustomAddress}
             memo={memo}
             onChangeMemo={setMemo}
             transactionFee={transactionFee}
           />
-          {isIbcTransfer && (
+          {isIbcTransfer && requiresIbcChannels && (
             <IbcChannels
               isShielded={Boolean(source.isShielded || destination.isShielded)}
-              sourceChannel={sourceIbcChannel}
-              onChangeSource={setSourceIbcChannel}
-              destinationChannel={destinationIbcChannel}
-              onChangeDestination={setDestinationIbcChannel}
+              sourceChannel={ibcOptions.sourceChannel}
+              onChangeSource={ibcOptions.onChangeSourceChannel}
+              destinationChannel={ibcOptions.destinationChannel}
+              onChangeDestination={ibcOptions.onChangeDestinationChannel}
             />
           )}
           <InlineError errorMessage={errorMessage} />
@@ -288,7 +334,7 @@ export const TransferModule = ({
             backgroundColor={
               destination.isShielded || source.isShielded ? "yellow" : "white"
             }
-            disabled={!source.wallet || !validateTransfer() || isSubmitting}
+            disabled={validationResult !== "Ok" || isSubmitting}
           >
             {getButtonText()}
           </ActionButton>
@@ -311,7 +357,7 @@ export const TransferModule = ({
         source.walletAddress && (
           <SelectAssetModal
             onClose={() => setAssetSelectorModalOpen(false)}
-            assets={source.availableAssets || []}
+            assets={Object.values(source.availableAssets || {})}
             onSelect={source.onChangeSelectedAsset}
             wallet={source.wallet}
             walletAddress={source.walletAddress}

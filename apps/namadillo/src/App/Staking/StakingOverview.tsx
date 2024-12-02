@@ -1,6 +1,7 @@
 import { Panel } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
+import { EpochInformation } from "App/Sidebars/EpochInformation";
 import { ValidatorDiversification } from "App/Sidebars/ValidatorDiversification";
 import { YourStakingDistribution } from "App/Sidebars/YourStakingDistribution";
 import { myValidatorsAtom } from "atoms/validators";
@@ -35,11 +36,12 @@ export const StakingOverview = (): JSX.Element => {
             <UnbondingAmountsTable />
           </Panel>
         )}
-        <Panel className="relative pb-6" title="All Validators">
+        <Panel className="relative pb-6 overflow-hidden" title="All Validators">
           <AllValidatorsTable />
         </Panel>
       </div>
       <aside className="w-full mt-2 flex flex-col sm:flex-row lg:mt-0 lg:flex-col gap-2">
+        <EpochInformation />
         {hasStaking && myValidators.isSuccess && (
           <Panel className="w-full @container">
             <YourStakingDistribution myValidators={myValidators.data!} />

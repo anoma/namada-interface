@@ -41,19 +41,20 @@ const ProposalListItem: React.FC<{
         )
       }
       className={clsx(
-        "group/proposal cursor-pointer text-sm",
+        "group/proposal cursor-pointer",
         "rounded-md bg-[#191919] p-4"
       )}
     >
       <div className="flex items-center justify-between gap-4">
         <StatusLabel className="text-[10px] min-w-38" status={status} />
         <div className="text-xs text-neutral-400">
-          Voting End on {secondsToDateTimeString(proposal.endTime)}
+          Voting End on {secondsToDateTimeString(proposal.endTime)}&nbsp;&mdash;
+          Epoch {proposal.endEpoch.toString()}
         </div>
       </div>
       <div className="flex items-center justify-between gap-4">
-        <div className="min-w-[6ch]">#{proposal.id.toString()}</div>
-        <div className="flex-1">{proposal.content.title}</div>
+        <div className="min-w-[6ch] text-sm">#{proposal.id.toString()}</div>
+        <div className="flex-1 leading-tight">{proposal.content.title}</div>
         <TypeLabel proposalType={proposal.proposalType} color="dark" />
         <div className="min-w-20">
           {typeof vote !== "undefined" && (

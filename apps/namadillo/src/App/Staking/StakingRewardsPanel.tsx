@@ -38,8 +38,9 @@ export const StakingRewardsPanel = (): JSX.Element => {
       mainAmount={
         <NamCurrency
           amount={availableRewards}
-          className="block leading-none"
+          className="block leading-none text-2xl"
           currencySymbolClassName="block mb-3 mt-0.5 text-sm"
+          decimalPlaces={2}
         />
       }
       callToAction={

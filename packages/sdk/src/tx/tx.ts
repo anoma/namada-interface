@@ -257,6 +257,8 @@ export class Tx {
 
   /**
    * Build Ibc Transfer Tx
+   * `ibcTransferProps.amountInBaseDenom` is the amount in the **base** denom
+   * e.g. the value of 1 NAM should be BigNumber(1_000_000), not BigNumber(1).
    * @async
    * @param wrapperTxProps - properties of the transaction
    * @param ibcTransferProps - properties of the ibc transfer tx

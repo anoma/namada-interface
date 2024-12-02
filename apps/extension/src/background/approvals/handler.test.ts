@@ -68,15 +68,16 @@ describe("approvals handler", () => {
     handler(env, approveTxMsg);
     expect(service.approveSignTx).toBeCalled();
 
+    const chainId = "chain-id";
     const rejectTxMsg = new RejectSignTxMsg("msgId");
     handler(env, rejectTxMsg);
     expect(service.rejectSignTx).toBeCalled();
 
-    const isConnectionApprovedMsg = new IsConnectionApprovedMsg();
+    const isConnectionApprovedMsg = new IsConnectionApprovedMsg(chainId);
     handler(env, isConnectionApprovedMsg);
     expect(service.isConnectionApproved).toBeCalled();
 
-    const approveConnectInterfaceMsg = new ApproveConnectInterfaceMsg();
+    const approveConnectInterfaceMsg = new ApproveConnectInterfaceMsg(chainId);
     handler(env, approveConnectInterfaceMsg);
     expect(service.approveConnection).toBeCalled();
 

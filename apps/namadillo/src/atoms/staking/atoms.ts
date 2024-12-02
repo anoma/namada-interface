@@ -1,4 +1,4 @@
-import { Reward } from "@anomaorg/namada-indexer-client";
+import { Reward } from "@namada/indexer-client";
 import {
   BondMsgValue,
   ClaimRewardsMsgValue,
@@ -15,6 +15,7 @@ import BigNumber from "bignumber.js";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
 import { AddressBalance, BuildTxAtomParams, StakingTotals } from "types";
+import { namadaAsset, toDisplayAmount } from "utils";
 import { toStakingTotal } from "./functions";
 import {
   createBondTx,
@@ -110,7 +111,10 @@ export const claimableRewardsAtom = atomWithQuery<AddressBalance>((get) => {
           if (!current.validator) return prev;
           return {
             ...prev,
-            [current.validator?.address]: new BigNumber(current.amount || 0),
+            [current.validator?.address]: toDisplayAmount(
+              namadaAsset(),
+              BigNumber(current.minDenomAmount || 0)
+            ),
           };
         },
         {}

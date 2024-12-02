@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { WrapperTxMsgValue } from "@namada/types";
-import { ChainsService } from "background/chains";
+import { ChainService } from "background/chain";
 import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
@@ -36,18 +36,16 @@ jest.mock("@namada/utils", () => {
 
 // Because we run tests in node environment, we need to mock web-init as node-init
 jest.mock(
-  "@heliaxdev/namada-sdk/web-init",
+  "@namada/sdk/web-init",
   () => () =>
-    Promise.resolve(
-      jest.requireActual("@heliaxdev/namada-sdk/node-init").default()
-    )
+    Promise.resolve(jest.requireActual("@namada/sdk/node-init").default())
 );
 
 describe("approvals service", () => {
   let service: ApprovalsService;
   let sdkService: jest.Mocked<SdkService>;
   let keyRingService: jest.Mocked<KeyRingService>;
-  let chainService: jest.Mocked<ChainsService>;
+  let chainService: jest.Mocked<ChainService>;
   let dataStore: KVStoreMock<string>;
   let txStore: KVStoreMock<PendingTx>;
   let localStorage: LocalStorage;
@@ -283,7 +281,8 @@ describe("approvals service", () => {
         { interfaceOrigin }
       );
       expect(service.isConnectionApproved).toHaveBeenCalledWith(
-        interfaceOrigin
+        interfaceOrigin,
+        undefined
       );
       await expect(promise).resolves.toBeDefined();
     });
@@ -373,7 +372,8 @@ describe("approvals service", () => {
         { interfaceOrigin }
       );
       expect(service.isConnectionApproved).toHaveBeenCalledWith(
-        interfaceOrigin
+        interfaceOrigin,
+        undefined
       );
       await expect(promise).resolves.toBeDefined();
     });

@@ -3,7 +3,7 @@ import { assetBalanceAtomFamily } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
-import { ChainRegistryEntry } from "types";
+import { AddressWithAssetAndAmount, ChainRegistryEntry } from "types";
 
 type useAmountTransferProps = {
   registry?: ChainRegistryEntry;
@@ -14,7 +14,8 @@ type useAmountTransferProps = {
 type UseAmountTransferOutput = {
   isLoading: boolean;
   balance: BigNumber | undefined;
-  availableAssets: Asset[];
+  availableAssets?: Asset[];
+  assetsBalances?: Record<string, AddressWithAssetAndAmount>;
 };
 
 export const useAssetAmount = ({
@@ -34,16 +35,18 @@ export const useAssetAmount = ({
     if (!asset || !assetsBalances) {
       return undefined;
     }
-    return assetsBalances[asset.base].balance;
+    return assetsBalances[asset.base].amount;
   }, [asset, assetsBalances]);
 
-  const availableAssets = useMemo<Asset[]>(() => {
-    return Object.values(assetsBalances || {}).map((el) => el.asset) || [];
+  const availableAssets = useMemo<Asset[] | undefined>(() => {
+    if (!assetsBalances) return undefined;
+    return Object.values(assetsBalances).map((el) => el.asset) || [];
   }, [assetsBalances]);
 
   return {
     isLoading,
     balance,
+    assetsBalances,
     availableAssets,
   };
 };

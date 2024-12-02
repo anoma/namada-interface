@@ -13,6 +13,7 @@ import {
   ViewMnemonic,
 } from "./Accounts";
 import { ParentAccounts } from "./Accounts/ParentAccounts";
+import { ViewingKey } from "./Accounts/ViewingKey";
 import { ChangePassword, ConnectedSites, Network } from "./Settings";
 import { Warnings } from "./Settings/Warnings";
 import { Setup } from "./Setup";
@@ -56,7 +57,7 @@ export const AppContent = ({ warnings }: Props): JSX.Element => {
   }, [accounts, passwordInitialized, accountLoadingStatus]);
 
   return (
-    <Stack className="py-5" full gap={6}>
+    <Stack className="py-5 max-w-84" full gap={6}>
       <Routes>
         <Route path={"/"} element={<></>} />
         <Route path={routes.setup()} element={<Setup />} />
@@ -79,6 +80,7 @@ export const AppContent = ({ warnings }: Props): JSX.Element => {
           <>
             <Route path={routes.deleteAccount()} element={<DeleteAccount />} />
             <Route path={routes.viewAccount()} element={<ViewAccount />} />
+            <Route path={routes.viewViewingKey()} element={<ViewingKey />} />
             <Route path={routes.renameAccount()} element={<RenameAccount />} />
             <Route
               path={routes.viewAccountMnemonic()}

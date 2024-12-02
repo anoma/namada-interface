@@ -1,9 +1,19 @@
-import { ChainKey } from "./chain";
-
 export type Bip44Path = {
   account: number;
   change: number;
   index: number;
+};
+
+export type Zip32Path = {
+  account: number;
+  index?: number;
+};
+
+// Generic type for storing either Bip44 or Zip32 path
+export type Path = {
+  account: number;
+  change?: number;
+  index?: number;
 };
 
 // Type of account for storage
@@ -25,7 +35,7 @@ export type DerivedAccount = {
   publicKey?: string;
   alias: string;
   parentId?: string;
-  path: Bip44Path;
+  path: Path;
   type: AccountType;
   pseudoExtendedKey?: string;
 };
@@ -34,8 +44,5 @@ export type Account = Pick<
   DerivedAccount,
   "address" | "alias" | "type" | "publicKey" | "owner" | "pseudoExtendedKey"
 > & {
-  chainId: string;
-  chainKey: ChainKey;
-  isShielded: boolean;
   viewingKey?: string;
 };

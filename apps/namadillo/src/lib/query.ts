@@ -1,9 +1,7 @@
-import { Sdk } from "@heliaxdev/namada-sdk/web";
-import { getIntegration } from "@namada/integrations/utils";
+import { Sdk } from "@namada/sdk/web";
 import {
   Account,
   AccountType,
-  ExtensionKey,
   Signer,
   TxMsgValue,
   TxProps,
@@ -11,6 +9,7 @@ import {
 } from "@namada/types";
 import { getIndexerApi } from "atoms/api";
 import { chainParametersAtom } from "atoms/chain";
+import { NamadaKeychain } from "hooks/useNamadaKeychain";
 import invariant from "invariant";
 import { getDefaultStore } from "jotai";
 import { Address, ChainSettings, GasConfig } from "types";
@@ -50,7 +49,8 @@ export const revealPublicKeyType = "revealPublicKey";
 const getTxProps = (
   account: Account,
   gasConfig: GasConfig,
-  chain: ChainSettings
+  chain: ChainSettings,
+  memo: string = ""
 ): WrapperTxProps => {
   invariant(
     !!account.publicKey,
@@ -63,7 +63,7 @@ const getTxProps = (
     gasLimit: gasConfig.gasLimit,
     chainId: chain.chainId,
     publicKey: account.publicKey!,
-    memo: "",
+    memo,
   };
 };
 
@@ -92,10 +92,11 @@ export const buildTx = async <T>(
   chain: ChainSettings,
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>,
-  publicKeyRevealed: boolean
+  publicKeyRevealed: boolean,
+  memo = ""
 ): Promise<EncodedTxData<T>> => {
   const { tx } = sdk;
-  const wrapperTxProps = getTxProps(account, gasConfig, chain);
+  const wrapperTxProps = getTxProps(account, gasConfig, chain, memo);
   const txs: TxMsgValue[] = [];
   const txProps: TxProps[] = [];
 
@@ -140,12 +141,11 @@ export const buildTx = async <T>(
  * Asynchronously signs an encoded batch transaction using Namada extension.
  */
 export const signTx = async <T>(
-  wallet: ExtensionKey,
   typedEncodedTx: EncodedTxData<T>,
   owner: string
 ): Promise<Uint8Array[]> => {
-  const integration = getIntegration(wallet);
-  const signingClient = integration.signer() as Signer;
+  const namada = await new NamadaKeychain().get();
+  const signingClient = namada.getSigner() as Signer;
 
   const store = getDefaultStore();
   const { data: chainParameters } = store.get(chainParametersAtom);
@@ -183,7 +183,8 @@ export const buildTxPair = async <T>(
   chain: ChainSettings,
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>,
-  owner: string
+  owner: string,
+  memo = ""
 ): Promise<TransactionPair<T>> => {
   const sdk = await getSdkInstance();
   const publicKeyRevealed = await isPublicKeyRevealed(account.address);
@@ -194,9 +195,10 @@ export const buildTxPair = async <T>(
     chain,
     queryProps,
     txFn,
-    publicKeyRevealed
+    publicKeyRevealed,
+    memo
   );
-  const signedTxs = await signTx<T>(chain.extensionId, encodedTxData, owner);
+  const signedTxs = await signTx<T>(encodedTxData, owner);
   return {
     signedTxs,
     encodedTxData,

@@ -157,7 +157,7 @@ export const ActionButton = <HtmlTag extends keyof React.ReactHTML>(
   if ("href" in props) {
     const { href, ...otherProps } = props;
     if (href) {
-      if (href.startsWith("http")) {
+      if (href.startsWith("http") || href.startsWith("blob:")) {
         return <Button as="a" {...props} />;
       }
       return (

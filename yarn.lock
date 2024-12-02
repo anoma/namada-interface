@@ -43,15 +43,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anomaorg/namada-indexer-client@npm:0.0.27":
-  version: 0.0.27
-  resolution: "@anomaorg/namada-indexer-client@npm:0.0.27"
-  dependencies:
-    axios: "npm:^1.6.1"
-  checksum: cb491385c8da879d8be953039b2a9e58b520080e4e0035476ff828864a387ff9cbe6068de6e7ded63a9e39c3fe9fdb4ca6ed932ffcfb1028fe23342a7c8da952
-  languageName: node
-  linkType: hard
-
 "@babel/cli@npm:^7.23.9":
   version: 7.25.6
   resolution: "@babel/cli@npm:7.25.6"
@@ -1588,15 +1579,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chain-registry/client@npm:^1.48.80":
-  version: 1.48.80
-  resolution: "@chain-registry/client@npm:1.48.80"
+"@chain-registry/client@npm:^1.53.5":
+  version: 1.53.5
+  resolution: "@chain-registry/client@npm:1.53.5"
   dependencies:
-    "@chain-registry/types": "npm:^0.45.80"
-    "@chain-registry/utils": "npm:^1.46.80"
+    "@chain-registry/types": "npm:^0.50.5"
+    "@chain-registry/utils": "npm:^1.51.5"
     bfs-path: "npm:^1.0.2"
     cross-fetch: "npm:^3.1.5"
-  checksum: 63a8b398add4547145740b2ab40977a6305cd8b5c7f9c6339c46a36a28a52c476eb3a263328611db0fc986bcd24ea0e8a9fe54688acf38c8086988ce4b370ae0
+  checksum: d4d50c1cfc6602b3203979497dbe93f443e012f7054cd8e1403e7380e3346cfe60166aa9dbb85f774dad30945408305d2d47e77b1b22da5f909b9050d595fcca
   languageName: node
   linkType: hard
 
@@ -1607,14 +1598,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chain-registry/utils@npm:^1.46.80":
-  version: 1.46.80
-  resolution: "@chain-registry/utils@npm:1.46.80"
+"@chain-registry/types@npm:^0.50.5":
+  version: 0.50.5
+  resolution: "@chain-registry/types@npm:0.50.5"
+  checksum: 99db1dbb1b31b26a9ae542228f0b6ddb866144f08e967f682328550f09a213ce39309169ce09772905bac087f1b9cf5f6a604d685559dc23106d871d427ef543
+  languageName: node
+  linkType: hard
+
+"@chain-registry/utils@npm:^1.51.5":
+  version: 1.51.5
+  resolution: "@chain-registry/utils@npm:1.51.5"
   dependencies:
-    "@chain-registry/types": "npm:^0.45.80"
+    "@chain-registry/types": "npm:^0.50.5"
     bignumber.js: "npm:9.1.2"
     sha.js: "npm:^2.4.11"
-  checksum: 096b47bc36b275ee100bb9a1dd9ce3fca6e1079230ccccbf663159376d39e743278f56bf95a2e9037a289cb6f19d1f48434f58d55c45e4ea09610d065cdf387b
+  checksum: 8a4acb0ff53c234ddd246c939b4f697f28959fa0083aa4ae50d8bc09206349443759a314b883a2165af96d0e7979d79ce7abe9716d11803a4609f05200407ebd
   languageName: node
   linkType: hard
 
@@ -2766,55 +2764,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@heliaxdev/namada-sdk@workspace:packages/sdk":
-  version: 0.0.0-use.local
-  resolution: "@heliaxdev/namada-sdk@workspace:packages/sdk"
-  dependencies:
-    "@babel/cli": "npm:^7.23.9"
-    "@babel/core": "npm:^7.23.9"
-    "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
-    "@babel/plugin-proposal-object-rest-spread": "npm:^7.20.7"
-    "@babel/preset-env": "npm:^7.23.9"
-    "@babel/preset-typescript": "npm:^7.23.3"
-    "@cosmjs/encoding": "npm:^0.29.0"
-    "@dao-xyz/borsh": "npm:^5.1.5"
-    "@ledgerhq/hw-transport": "npm:^6.30.0"
-    "@ledgerhq/hw-transport-webhid": "npm:^6.28.0"
-    "@ledgerhq/hw-transport-webusb": "npm:^6.28.0"
-    "@release-it/conventional-changelog": "npm:^8.0.1"
-    "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.11.4"
-    "@zondax/ledger-namada": "npm:^0.0.6"
-    babel-jest: "npm:^29.0.3"
-    bignumber.js: "npm:^9.1.1"
-    buffer: "npm:^6.0.3"
-    eslint: "npm:^8.57.0"
-    eslint-config-prettier: "npm:^9.1.0"
-    eslint-import-resolver-typescript: "npm:^3.6.3"
-    eslint-plugin-import: "npm:^2.30.0"
-    eslint-plugin-jsdoc: "npm:^48.2.1"
-    eslint-plugin-react: "npm:^7.35.2"
-    eslint-plugin-react-hooks: "npm:^4.6.0"
-    jest: "npm:^29.7.0"
-    jest-create-mock-instance: "npm:^2.0.0"
-    jest-mock-server: "npm:^0.1.0"
-    jsdoc-babel: "npm:^0.5.0"
-    release-it: "npm:^17.0.1"
-    rimraf: "npm:^5.0.5"
-    slip44: "npm:^3.0.18"
-    ts-jest: "npm:^29.2.5"
-    ts-node: "npm:^10.9.1"
-    ts-patch: "npm:^3.1.2"
-    tsconfig-paths: "npm:^4.2.0"
-    typedoc: "npm:^0.25.12"
-    typedoc-plugin-markdown: "npm:^3.17.1"
-    typescript: "npm:^5.5.4"
-    typescript-transform-paths: "npm:^3.4.7"
-    webpack: "npm:^5.90.3"
-    webpack-cli: "npm:^5.1.4"
-  languageName: unknown
-  linkType: soft
-
 "@humanwhocodes/config-array@npm:^0.11.14":
   version: 0.11.14
   resolution: "@humanwhocodes/config-array@npm:0.11.14"
@@ -3507,7 +3456,7 @@ __metadata:
     "@types/w3c-web-usb": "npm:^1.0.10"
     "@types/webextension-polyfill": "npm:^0.10.6"
     "@types/zxcvbn": "npm:^4.4.1"
-    "@zondax/ledger-namada": "npm:^0.0.6"
+    "@zondax/ledger-namada": "npm:^1.0.0"
     bignumber.js: "npm:^9.1.1"
     buffer: "npm:^6.0.3"
     copy-webpack-plugin: "npm:^11.0.0"
@@ -3632,6 +3581,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@namada/indexer-client@npm:0.0.31":
+  version: 0.0.31
+  resolution: "@namada/indexer-client@npm:0.0.31"
+  dependencies:
+    axios: "npm:^1.6.1"
+  checksum: 45bf4c05f590f3daee46aa217a5bcf7cd0ee08f3a0dcf8f6a89f8458786ffa99035d2cad8b87c7b28080aeca34e10cfd7b3eee905a2e26f740e43ca883c1252c
+  languageName: node
+  linkType: hard
+
 "@namada/integrations@workspace:packages/integrations":
   version: 0.0.0-use.local
   resolution: "@namada/integrations@workspace:packages/integrations"
@@ -3665,11 +3623,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@namada/namadillo@workspace:apps/namadillo"
   dependencies:
-    "@anomaorg/namada-indexer-client": "npm:0.0.27"
-    "@chain-registry/client": "npm:^1.48.80"
+    "@chain-registry/client": "npm:^1.53.5"
     "@cosmjs/encoding": "npm:^0.32.3"
     "@eslint/js": "npm:^9.9.1"
     "@keplr-wallet/types": "npm:^0.12.136"
+    "@namada/indexer-client": "npm:0.0.31"
     "@playwright/test": "npm:^1.24.1"
     "@release-it/keep-a-changelog": "npm:^5.0.0"
     "@svgr/webpack": "npm:^6.5.1"
@@ -3688,6 +3646,7 @@ __metadata:
     "@types/react": "npm:^18.3.5"
     "@types/react-dom": "npm:^18.3.0"
     "@types/react-paginate": "npm:^7.1.2"
+    "@types/semver": "npm:^7.5.8"
     "@types/styled-components": "npm:^5.1.22"
     "@types/traverse": "npm:^0.6.36"
     "@vitejs/plugin-react": "npm:^4.3.1"
@@ -3720,6 +3679,7 @@ __metadata:
     jotai-tanstack-query: "npm:^0.8.5"
     local-cors-proxy: "npm:^1.1.0"
     lodash.debounce: "npm:^4.0.8"
+    namada-chain-registry: "https://github.com/anoma/namada-chain-registry"
     postcss: "npm:^8.4.32"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
@@ -3727,6 +3687,7 @@ __metadata:
     react-paginate: "npm:^8.2.0"
     react-router-dom: "npm:^6.26.1"
     release-it: "npm:^17.0.1"
+    semver: "npm:^7.6.3"
     tailwind-merge: "npm:^2.3.0"
     tailwindcss: "npm:^3.4.0"
     toml: "npm:^3.0.0"
@@ -3742,6 +3703,55 @@ __metadata:
     vite-tsconfig-paths: "npm:^5.0.1"
     web-vitals: "npm:^2.1.4"
     wonka: "npm:^6.3.4"
+  languageName: unknown
+  linkType: soft
+
+"@namada/sdk@workspace:packages/sdk":
+  version: 0.0.0-use.local
+  resolution: "@namada/sdk@workspace:packages/sdk"
+  dependencies:
+    "@babel/cli": "npm:^7.23.9"
+    "@babel/core": "npm:^7.23.9"
+    "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
+    "@babel/plugin-proposal-object-rest-spread": "npm:^7.20.7"
+    "@babel/preset-env": "npm:^7.23.9"
+    "@babel/preset-typescript": "npm:^7.23.3"
+    "@cosmjs/encoding": "npm:^0.29.0"
+    "@dao-xyz/borsh": "npm:^5.1.5"
+    "@ledgerhq/hw-transport": "npm:^6.30.0"
+    "@ledgerhq/hw-transport-webhid": "npm:^6.28.0"
+    "@ledgerhq/hw-transport-webusb": "npm:^6.28.0"
+    "@release-it/conventional-changelog": "npm:^8.0.1"
+    "@types/jest": "npm:^29.5.12"
+    "@types/node": "npm:^20.11.4"
+    "@zondax/ledger-namada": "npm:^0.0.6"
+    babel-jest: "npm:^29.0.3"
+    bignumber.js: "npm:^9.1.1"
+    buffer: "npm:^6.0.3"
+    eslint: "npm:^8.57.0"
+    eslint-config-prettier: "npm:^9.1.0"
+    eslint-import-resolver-typescript: "npm:^3.6.3"
+    eslint-plugin-import: "npm:^2.30.0"
+    eslint-plugin-jsdoc: "npm:^48.2.1"
+    eslint-plugin-react: "npm:^7.35.2"
+    eslint-plugin-react-hooks: "npm:^4.6.0"
+    jest: "npm:^29.7.0"
+    jest-create-mock-instance: "npm:^2.0.0"
+    jest-mock-server: "npm:^0.1.0"
+    jsdoc-babel: "npm:^0.5.0"
+    release-it: "npm:^17.0.1"
+    rimraf: "npm:^5.0.5"
+    slip44: "npm:^3.0.18"
+    ts-jest: "npm:^29.2.5"
+    ts-node: "npm:^10.9.1"
+    ts-patch: "npm:^3.1.2"
+    tsconfig-paths: "npm:^4.2.0"
+    typedoc: "npm:^0.25.12"
+    typedoc-plugin-markdown: "npm:^3.17.1"
+    typescript: "npm:^5.5.4"
+    typescript-transform-paths: "npm:^3.4.7"
+    webpack: "npm:^5.90.3"
+    webpack-cli: "npm:^5.1.4"
   languageName: unknown
   linkType: soft
 
@@ -5407,6 +5417,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/semver@npm:^7.5.8":
+  version: 7.5.8
+  resolution: "@types/semver@npm:7.5.8"
+  checksum: 8663ff927234d1c5fcc04b33062cb2b9fcfbe0f5f351ed26c4d1e1581657deebd506b41ff7fdf89e787e3d33ce05854bc01686379b89e9c49b564c4cfa988efa
+  languageName: node
+  linkType: hard
+
 "@types/send@npm:*":
   version: 0.17.4
   resolution: "@types/send@npm:0.17.4"
@@ -6010,6 +6027,15 @@ __metadata:
   dependencies:
     "@ledgerhq/hw-transport": "npm:^6.30.6"
   checksum: 39aabba4be347e5329413be53de82e6519ff9b8e44473d6753cd096b733d075891528d12353108bf653071cbcd6804a9b826703753061428a7f93861607bce80
+  languageName: node
+  linkType: hard
+
+"@zondax/ledger-namada@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@zondax/ledger-namada@npm:1.0.0"
+  dependencies:
+    "@ledgerhq/hw-transport": "npm:^6.30.6"
+  checksum: f7490964ccd41f9a63f2bc8d89ea9f01e7d6a58be796db0b454a3f1455dcc8dc8dd578a8642aa0f0799c93f838e8e3afd69f59f7e9947816b9471338c2b9dd63
   languageName: node
   linkType: hard
 
@@ -15796,6 +15822,13 @@ __metadata:
     object-assign: "npm:^4.0.1"
     thenify-all: "npm:^1.0.0"
   checksum: 103114e93f87362f0b56ab5b2e7245051ad0276b646e3902c98397d18bb8f4a77f2ea4a2c9d3ad516034ea3a56553b60d3f5f78220001ca4c404bd711bd0af39
+  languageName: node
+  linkType: hard
+
+"namada-chain-registry@https://github.com/anoma/namada-chain-registry":
+  version: 0.0.1
+  resolution: "namada-chain-registry@https://github.com/anoma/namada-chain-registry.git#commit=aa3e4a524d4a8eed71c124272711de63bcded849"
+  checksum: 28855dec819a03d1d7411ccf0e878c4ce246abefa18caf768e4e1205f1f31aa89bc0daf2949e167055cea31afa09cf7b6f2f8a5340356d16339afcccbf81d8c5
   languageName: node
   linkType: hard
 

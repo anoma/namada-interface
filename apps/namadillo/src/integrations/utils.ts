@@ -1,6 +1,9 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { Bech32Config, ChainInfo, Currency } from "@keplr-wallet/types";
+import tokenImage from "App/Common/assets/token.svg";
+import { TransactionFee } from "App/Transfer/TransferModule";
 import { getRestApiAddressByIndex, getRpcByIndex } from "atoms/integrations";
+import BigNumber from "bignumber.js";
 import { ChainId, ChainRegistryEntry } from "types";
 
 type GasPriceStep = {
@@ -25,6 +28,40 @@ export const findRegistryByChainId = (
   return undefined;
 };
 
+export const findAssetByDenom = (
+  registry: ChainRegistryEntry,
+  denom: string
+): Asset | undefined => {
+  return registry.assets.assets.find((asset) => asset.base === denom);
+};
+
+export const getAssetImageUrl = (asset?: Asset): string => {
+  if (!asset) return tokenImage;
+  return asset.logo_URIs?.svg || asset.logo_URIs?.png || tokenImage;
+};
+
+export const getTransactionFee = (
+  registry: ChainRegistryEntry
+): TransactionFee | undefined => {
+  // TODO: we get a better type for registry to avoid optional chaining?
+  // TODO: some chains support multiple fee tokens - what should we do?
+  const feeToken = registry.chain.fees?.fee_tokens?.[0];
+  if (typeof feeToken !== "undefined") {
+    const asset = registry.assets.assets.find(
+      (asset) => asset.base === feeToken.denom
+    );
+
+    if (typeof asset !== "undefined") {
+      return {
+        amount: BigNumber(0.003), // TODO: remove hardcoding
+        asset,
+        originalAddress: asset.base,
+      };
+    }
+  }
+  return undefined;
+};
+
 export const assetsToKeplrCurrencies = (assets: Asset[]): Currency[] => {
   return assets.map((asset) => ({
     coinDenom: asset.symbol,
@@ -33,7 +70,7 @@ export const assetsToKeplrCurrencies = (assets: Asset[]): Currency[] => {
       (denomUnit: { denom: string }) => denomUnit.denom === asset.display
     )[0]?.exponent,
     coinGeckoId: asset.coingecko_id || undefined,
-    coinImageUrl: asset.logo_URIs?.svg ?? asset.logo_URIs?.png,
+    coinImageUrl: getAssetImageUrl(asset),
   }));
 };
 

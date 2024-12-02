@@ -3,7 +3,7 @@ import {
   IbcToken,
   NativeToken,
   Parameters,
-} from "@anomaorg/namada-indexer-client";
+} from "@namada/indexer-client";
 
 export const fetchRpcUrlFromIndexer = async (
   api: DefaultApi

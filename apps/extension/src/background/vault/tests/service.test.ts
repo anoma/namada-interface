@@ -2,7 +2,7 @@ import { AccountType } from "@namada/types";
 import { Result } from "@namada/utils";
 import { SdkService } from "background/sdk";
 import { KVPrefix } from "router";
-import { KeyStore, KeyStoreType, LocalStorage, VaultStorage } from "storage";
+import { KeyStore, KeyStoreType, VaultStorage } from "storage";
 import { KVStoreMock } from "test/init";
 import { VaultService } from "../service";
 import { SessionPassword } from "../types";
@@ -11,11 +11,9 @@ jest.mock("webextension-polyfill", () => ({}));
 
 // Because we run tests in node environment, we need to mock web-init as node-init
 jest.mock(
-  "@heliaxdev/namada-sdk/web-init",
+  "@namada/sdk/web-init",
   () => () =>
-    Promise.resolve(
-      jest.requireActual("@heliaxdev/namada-sdk/node-init").default()
-    )
+    Promise.resolve(jest.requireActual("@namada/sdk/node-init").default())
 );
 
 type VaultPublicObj = { id: string; alias: string };
@@ -47,10 +45,7 @@ describe("Testing untouched Vault Service", () => {
       KVPrefix.SessionStorage
     );
 
-    const localStorage = new LocalStorage(
-      new KVStoreMock(KVPrefix.LocalStorage)
-    );
-    const sdkService = await SdkService.init(localStorage);
+    const sdkService = await SdkService.init();
     service = new VaultService(storage, sessionStore, sdkService);
     await service.initialize();
     await service.createPassword(password);

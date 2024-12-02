@@ -20,7 +20,7 @@ import {
   fetchVotedProposalsByAccount,
 } from "./functions";
 
-import { Bond as NamadaIndexerBond } from "@anomaorg/namada-indexer-client";
+import { Bond as NamadaIndexerBond } from "@namada/indexer-client";
 import { shouldUpdateProposalAtom } from "atoms/etc";
 
 export const proposalFamily = atomFamily((id: bigint) =>

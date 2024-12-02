@@ -36,11 +36,19 @@ export type AddRemove = {
   remove: string[];
 };
 
-// TODO: add IBC target
 export type PgfTarget = {
   internal: {
     amount: BigNumber;
     target: string;
+  };
+};
+
+export type PgfIbcTarget = {
+  ibc: {
+    amount: BigNumber;
+    target: string;
+    channelId: string;
+    portId: string;
   };
 };
 
@@ -49,7 +57,7 @@ export type PgfActions = {
     add: PgfTarget[];
     remove: PgfTarget[];
   };
-  retro: PgfTarget[];
+  retro: (PgfTarget | PgfIbcTarget)[];
 };
 
 export type Default = { type: "default" };
@@ -92,7 +100,7 @@ export const isDelegatorVote = (vote: Vote): vote is DelegatorVote =>
 export type Vote = DelegatorVote | ValidatorVote;
 
 export const tallyTypes = [
-  "two-thirds",
+  "two-fifths",
   "one-half-over-one-third",
   "less-one-half-over-one-third-nay",
 ] as const;

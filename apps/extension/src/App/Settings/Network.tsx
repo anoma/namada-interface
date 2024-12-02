@@ -8,9 +8,8 @@ import {
   Stack,
 } from "@namada/components";
 import { PageHeader } from "App/Common";
-import { UpdateChainMsg } from "background/chains";
+import { GetChainMsg, UpdateChainMsg } from "background/chain";
 import { useRequester } from "hooks/useRequester";
-import { GetChainMsg } from "provider";
 import React, { useCallback, useEffect, useState } from "react";
 import { Ports } from "router";
 
@@ -32,14 +31,10 @@ export const Network = (): JSX.Element => {
   useEffect(() => {
     void (async () => {
       try {
-        const chain = await requester.sendMessage(
+        const chainId = await requester.sendMessage(
           Ports.Background,
           new GetChainMsg()
         );
-        if (!chain) {
-          throw new Error("Chain not found!");
-        }
-        const { chainId } = chain;
         const santizedChainId = sanitize(chainId);
         setChainId(santizedChainId);
       } catch (e) {

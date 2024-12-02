@@ -1,13 +1,35 @@
 import { AssetList, Chain } from "@chain-registry/types";
-import { ExtensionKey } from "@namada/types";
-import { settingsAtom } from "atoms/settings";
+import { ExtensionKey, IbcTransferProps } from "@namada/types";
+import { defaultAccountAtom } from "atoms/accounts";
+import { chainAtom, chainParametersAtom } from "atoms/chain";
+import { defaultServerConfigAtom, settingsAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
+import BigNumber from "bignumber.js";
 import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
-import { ChainId, ChainRegistryEntry } from "types";
-import { getKnownChains, mapCoinsToAssets } from "./functions";
+import { TransactionPair } from "lib/query";
+import { createTransferDataFromIbc } from "lib/transactions";
 import {
+  AddressWithAsset,
+  AddressWithAssetAndAmountMap,
+  ChainId,
+  ChainRegistryEntry,
+  GasConfig,
+  TransferStep,
+  TransferTransactionData,
+} from "types";
+import {
+  addLocalnetToRegistry,
+  createIbcTx,
+  getIbcChannels,
+  getKnownChains,
+  ibcAddressToDenomTrace,
+  IbcChannels,
+  mapCoinsToAssets,
+} from "./functions";
+import {
+  fetchLocalnetTomlConfig,
   IbcTransferParams,
   queryAndStoreRpc,
   queryAssetBalances,
@@ -47,20 +69,38 @@ export const ibcTransferAtom = atomWithMutation(() => {
     mutationFn: async ({
       transferParams,
       chain,
-    }: IBCTransferAtomParams): Promise<void> => {
-      await queryAndStoreRpc(chain, submitIbcTransfer(transferParams));
+    }: IBCTransferAtomParams): Promise<TransferTransactionData> => {
+      return await queryAndStoreRpc(chain, async (rpc: string) => {
+        const txResponse = await submitIbcTransfer(rpc, transferParams);
+        return createTransferDataFromIbc(
+          txResponse,
+          rpc,
+          transferParams.asset.asset,
+          transferParams.chainId,
+          transferParams.isShielded ?
+            { type: "IbcToShielded", currentStep: TransferStep.ZkProof }
+          : {
+              type: "IbcToTransparent",
+              currentStep: TransferStep.IbcToTransparent,
+            }
+        );
+      });
     },
   };
 });
 
 export const assetBalanceAtomFamily = atomFamily(
   ({ chain, walletAddress, assets }: AssetBalanceAtomParams) => {
-    return atomWithQuery(() => ({
+    return atomWithQuery<AddressWithAssetAndAmountMap>(() => ({
       queryKey: ["assets", walletAddress, chain?.chain_id, assets],
       ...queryDependentFn(async () => {
         return await queryAndStoreRpc(chain!, async (rpc: string) => {
           const assetsBalances = await queryAssetBalances(walletAddress!, rpc);
-          return await mapCoinsToAssets(assetsBalances, assets!, rpc);
+          return await mapCoinsToAssets(
+            assetsBalances,
+            chain!.chain_id,
+            ibcAddressToDenomTrace(rpc)
+          );
         });
       }, [!!walletAddress, !!chain]),
     }));
@@ -92,4 +132,96 @@ export const chainRegistryAtom = atom<Record<ChainId, ChainRegistryEntry>>(
 export const availableChainsAtom = atom((get) => {
   const settings = get(settingsAtom);
   return getKnownChains(settings.enableTestnets).map(({ chain }) => chain);
+});
+
+// Lists only the available assets list
+export const availableAssetsAtom = atom((get) => {
+  const settings = get(settingsAtom);
+  return getKnownChains(settings.enableTestnets).map(({ assets }) => assets);
+});
+
+export const ibcChannelsFamily = atomFamily((cosmosChainName?: string) =>
+  atomWithQuery<IbcChannels | undefined>((get) => {
+    const chainParameters = get(chainParametersAtom);
+
+    return {
+      queryKey: ["ibc-channel", cosmosChainName, chainParameters.data!.chainId],
+      ...queryDependentFn(
+        () =>
+          Promise.resolve(
+            getIbcChannels(chainParameters.data!.chainId, cosmosChainName!)
+          ),
+        [typeof cosmosChainName !== "undefined", chainParameters]
+      ),
+    };
+  })
+);
+
+type CreateIbcTxArgs = {
+  destinationAddress: string;
+  token: AddressWithAsset;
+  amount: BigNumber;
+  portId: string;
+  channelId: string;
+  memo?: string;
+  gasConfig: GasConfig;
+};
+
+export const createIbcTxAtom = atomWithMutation((get) => {
+  const account = get(defaultAccountAtom);
+  const chain = get(chainAtom);
+
+  return {
+    enabled: account.isSuccess && chain.isSuccess,
+    mutationKey: ["create-ibc-tx"],
+    mutationFn: async ({
+      destinationAddress,
+      token,
+      amount,
+      portId,
+      channelId,
+      memo,
+      gasConfig,
+    }: CreateIbcTxArgs): Promise<TransactionPair<IbcTransferProps>> => {
+      if (typeof account.data === "undefined") {
+        throw new Error("no account");
+      }
+      return createIbcTx(
+        account.data,
+        destinationAddress,
+        token,
+        amount,
+        portId,
+        channelId,
+        gasConfig,
+        chain.data!,
+        memo
+      );
+    },
+  };
+});
+
+export const localnetConfigAtom = atomWithQuery((get) => {
+  const config = get(defaultServerConfigAtom);
+
+  return {
+    queryKey: ["localnet-config", config],
+    staleTime: Infinity,
+    retry: false,
+
+    ...queryDependentFn(async () => {
+      try {
+        const localnetConfig = await fetchLocalnetTomlConfig();
+        addLocalnetToRegistry(localnetConfig);
+
+        return {
+          chainId: localnetConfig.chain_id,
+          tokenAddress: localnetConfig.token_address,
+        };
+      } catch (_) {
+        // If file not found just ignore
+        return null;
+      }
+    }, [Boolean(config.data?.localnet_enabled)]),
+  };
 });

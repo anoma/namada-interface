@@ -38,11 +38,13 @@ export const Unstake = (): JSX.Element => {
 
   const parseUnstakeParams = (): UnbondMsgValue[] => {
     if (!account?.address) return [];
-    return Object.keys(updatedAmountByAddress).map((validatorAddress) => ({
-      validator: validatorAddress,
-      source: account.address,
-      amount: updatedAmountByAddress[validatorAddress],
-    }));
+    return Object.keys(updatedAmountByAddress)
+      .map((validatorAddress) => ({
+        validator: validatorAddress,
+        source: account.address,
+        amount: updatedAmountByAddress[validatorAddress],
+      }))
+      .filter((item) => item.amount.gt(0));
   };
 
   const onCloseModal = (): void => navigate(routes.staking);

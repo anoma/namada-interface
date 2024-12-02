@@ -21,3 +21,7 @@ export const parseChainInfo = (
     },
   };
 };
+
+export const isShieldedAddress = (address: string): boolean => {
+  return address.startsWith("znam"); // TODO: integrate with registry
+};

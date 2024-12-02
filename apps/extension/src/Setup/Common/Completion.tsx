@@ -1,46 +1,53 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import browser from "webextension-polyfill";
 
+import { chains } from "@namada/chains";
 import { ActionButton, Alert, Loading, ViewKeys } from "@namada/components";
-import { AccountType } from "@namada/types";
-import { assertNever } from "@namada/utils";
+import { makeBip44Path } from "@namada/sdk/web";
+import { Bip44Path, DerivedAccount } from "@namada/types";
 import {
   AccountSecret,
   AccountStore,
-  DeriveAccountMsg,
-  SaveAccountSecretMsg,
+  DEFAULT_BIP44_PATH,
 } from "background/keyring";
-import { CreatePasswordMsg } from "background/vault";
-import { useRequester } from "hooks/useRequester";
 import { useNavigate } from "react-router-dom";
-import { Ports } from "router";
+import { CompletionStatus } from "Setup/Setup";
+import { isCustomPath } from "utils";
 
 type Props = {
   alias: string;
   accountSecret?: AccountSecret;
+  status?: CompletionStatus;
+  statusInfo: string;
+  parentAccountStore?: AccountStore;
+  shieldedAccount?: DerivedAccount;
   password?: string;
   passwordRequired: boolean | undefined;
+  path: Bip44Path;
 };
 
-enum Status {
-  Pending,
-  Completed,
-  Failed,
-}
-
 export const Completion: React.FC<Props> = (props) => {
-  const { alias, accountSecret, password, passwordRequired } = props;
+  const {
+    alias,
+    accountSecret,
+    password,
+    passwordRequired,
+    path,
+    parentAccountStore,
+    shieldedAccount,
+    status,
+    statusInfo,
+  } = props;
 
-  const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
-  const [statusInfo, setStatusInfo] = useState<string>("");
-  const [publicKeyAddress, setPublicKeyAddress] = useState("");
-  const [transparentAccountAddress, setTransparentAccountAddress] =
-    useState<string>("");
-  const [shieldedAccountAddress, setShieldedAccountAddress] =
-    useState<string>(); // undefined for private key accounts
-
-  const requester = useRequester();
   const navigate = useNavigate();
+
+  const derivationPath =
+    accountSecret?.t === "PrivateKey" ? DEFAULT_BIP44_PATH : path;
+
+  const transparentAccountPath =
+    isCustomPath(derivationPath) ?
+      makeBip44Path(chains.namada.bip44.coinType, derivationPath)
+    : undefined;
 
   const closeCurrentTab = async (): Promise<void> => {
     const tab = await browser.tabs.getCurrent();
@@ -54,63 +61,6 @@ export const Completion: React.FC<Props> = (props) => {
       navigate("/");
       return;
     }
-
-    const saveMnemonic = async (): Promise<void> => {
-      try {
-        setStatusInfo("Setting a password for the extension.");
-
-        if (passwordRequired && !password) {
-          throw new Error("Password is required and it was not provided");
-        }
-
-        if (passwordRequired) {
-          await requester.sendMessage<CreatePasswordMsg>(
-            Ports.Background,
-            new CreatePasswordMsg(password || "")
-          );
-        }
-
-        const prettyAccountSecret =
-          accountSecret.t === "Mnemonic" ? "mnemonic"
-          : accountSecret.t === "PrivateKey" ? "private key"
-          : assertNever(accountSecret);
-
-        setStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
-        const account = (await requester.sendMessage<SaveAccountSecretMsg>(
-          Ports.Background,
-          new SaveAccountSecretMsg(accountSecret, alias)
-        )) as AccountStore;
-
-        if (!account) {
-          throw new Error("Background returned failure when creating account");
-        }
-
-        setPublicKeyAddress(account.publicKey ?? "");
-        setTransparentAccountAddress(account.address);
-
-        if (accountSecret.t !== "PrivateKey") {
-          setStatusInfo("Generating Shielded Account");
-          const shieldedAccount = await requester.sendMessage<DeriveAccountMsg>(
-            Ports.Background,
-            new DeriveAccountMsg(
-              account.path,
-              AccountType.ShieldedKeys,
-              account.alias
-            )
-          );
-          setShieldedAccountAddress(shieldedAccount.address);
-        }
-
-        setMnemonicStatus(Status.Completed);
-        setStatusInfo("Done!");
-      } catch (e) {
-        setStatusInfo((s) => `Failed while "${s}". ${e}`);
-        console.error(e);
-        setMnemonicStatus(Status.Failed);
-      }
-    };
-
-    void saveMnemonic();
   }, []);
 
   return (
@@ -118,22 +68,23 @@ export const Completion: React.FC<Props> = (props) => {
       <Loading
         status={statusInfo}
         imageUrl="/assets/images/loading.gif"
-        visible={mnemonicStatus === Status.Pending}
+        visible={status === CompletionStatus.Pending}
       />
-      {mnemonicStatus === Status.Failed && (
+      {status === CompletionStatus.Failed && (
         <Alert data-testid="setup-error-alert" type="error">
           {statusInfo}
         </Alert>
       )}
-      {mnemonicStatus === Status.Completed && (
+      {status === CompletionStatus.Completed && (
         <>
           <p className="text-white text-center text-base w-full -mt-3 mb-8">
             Here are the accounts generated from your keys
           </p>
           <ViewKeys
-            publicKeyAddress={publicKeyAddress}
-            transparentAccountAddress={transparentAccountAddress}
-            shieldedAccountAddress={shieldedAccountAddress}
+            publicKeyAddress={parentAccountStore?.publicKey}
+            transparentAccountAddress={parentAccountStore?.address}
+            transparentAccountPath={transparentAccountPath}
+            shieldedAccountAddress={shieldedAccount?.address}
             trimCharacters={35}
             footer={
               <ActionButton

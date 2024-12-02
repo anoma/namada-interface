@@ -1,5 +1,6 @@
 import { accountBalanceAtom } from "atoms/accounts";
-import { totalShieldedBalanceAtom } from "atoms/masp/atoms";
+import { shieldedTokensAtom } from "atoms/balance";
+import { getTotalNam } from "atoms/balance/functions";
 import { getStakingTotalAtom } from "atoms/staking";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
@@ -10,34 +11,33 @@ export type useBalancesOutput = {
   isSuccess: boolean;
   stakeQuery: AtomWithQueryResult;
   balanceQuery: AtomWithQueryResult;
+  shieldedAmountQuery: AtomWithQueryResult;
   bondedAmount: BigNumber;
   availableAmount: BigNumber;
   unbondedAmount: BigNumber;
   withdrawableAmount: BigNumber;
-  shieldedAmount: BigNumber;
-  totalAmount: BigNumber;
+  shieldedNamAmount: BigNumber;
+  totalTransparentAmount: BigNumber;
 };
 
 export const useBalances = (): useBalancesOutput => {
-  const totalStakedBalance = useAtomValue(getStakingTotalAtom);
-  const totalAccountBalance = useAtomValue(accountBalanceAtom);
-  const totalShieldedBalance = useAtomValue(totalShieldedBalanceAtom);
+  const totalStakedBalanceQuery = useAtomValue(getStakingTotalAtom);
+  const totalAccountBalanceQuery = useAtomValue(accountBalanceAtom);
+  const shieldedNamQuery = useAtomValue(shieldedTokensAtom);
 
   const {
     data: balance,
     isLoading: isFetchingBalance,
     isSuccess: isBalanceLoaded,
-  } = totalAccountBalance;
+  } = totalAccountBalanceQuery;
 
   const {
     data: stakeBalance,
     isLoading: isFetchingStaking,
     isSuccess: isStakedBalanceLoaded,
-  } = totalStakedBalance;
+  } = totalStakedBalanceQuery;
 
-  const { data: shieldedBalance } = totalShieldedBalance;
-  const isFetchingShieldedBalance = shieldedBalance === undefined;
-  const isShieldedBalanceLoaded = !isFetchingShieldedBalance;
+  const { data: shieldedNamAmount } = shieldedNamQuery;
 
   const availableAmount = new BigNumber(balance || 0);
   const bondedAmount = new BigNumber(stakeBalance?.totalBonded || 0);
@@ -45,27 +45,25 @@ export const useBalances = (): useBalancesOutput => {
   const withdrawableAmount = new BigNumber(
     stakeBalance?.totalWithdrawable || 0
   );
-  const shieldedAmount = new BigNumber(shieldedBalance || 0);
-  const totalAmount = BigNumber.sum(
+
+  const totalTransparentAmount = BigNumber.sum(
     availableAmount,
     bondedAmount,
     unbondedAmount,
-    withdrawableAmount,
-    shieldedAmount
+    withdrawableAmount
   );
 
   return {
-    isLoading:
-      isFetchingStaking || isFetchingBalance || isFetchingShieldedBalance,
-    isSuccess:
-      isBalanceLoaded && isStakedBalanceLoaded && isShieldedBalanceLoaded,
-    stakeQuery: totalStakedBalance,
-    balanceQuery: totalAccountBalance,
+    isLoading: isFetchingStaking || isFetchingBalance,
+    isSuccess: isBalanceLoaded && isStakedBalanceLoaded,
+    stakeQuery: totalStakedBalanceQuery,
+    balanceQuery: totalAccountBalanceQuery,
+    shieldedAmountQuery: shieldedNamQuery,
     availableAmount,
     bondedAmount,
     unbondedAmount,
     withdrawableAmount,
-    shieldedAmount,
-    totalAmount,
+    shieldedNamAmount: getTotalNam(shieldedNamAmount),
+    totalTransparentAmount: totalTransparentAmount,
   };
 };

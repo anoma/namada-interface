@@ -1,4 +1,3 @@
-import { GasLimitTableInnerTxKindEnum as GasLimitTableIndexer } from "@anomaorg/namada-indexer-client";
 import { defaultAccountAtom } from "atoms/accounts";
 import { indexerApiAtom } from "atoms/api";
 import { nativeTokenAddressAtom } from "atoms/chain";
@@ -8,32 +7,9 @@ import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
 import { isPublicKeyRevealed } from "lib/query";
-import { GasConfig, GasTable, TxKind } from "types";
+import { GasConfig, GasTable } from "types";
+import { TxKind } from "types/txKind";
 import { fetchGasLimit, fetchMinimumGasPrice } from "./services";
-
-// TODO: I think we should find a better solution for this
-export const txKindFromIndexer = (
-  txKind: GasLimitTableIndexer
-): TxKind | undefined => {
-  switch (txKind) {
-    case GasLimitTableIndexer.Bond:
-      return "Bond";
-    case GasLimitTableIndexer.Unbond:
-      return "Unbond";
-    case GasLimitTableIndexer.Redelegation:
-      return "Redelegate";
-    case GasLimitTableIndexer.Withdraw:
-      return "Withdraw";
-    case GasLimitTableIndexer.ClaimRewards:
-      return "ClaimRewards";
-    case GasLimitTableIndexer.VoteProposal:
-      return "VoteProposal";
-    case GasLimitTableIndexer.RevealPk:
-      return "RevealPk";
-    default:
-      return undefined;
-  }
-};
 
 export const gasCostTxKindAtom = atom<TxKind | undefined>(undefined);
 

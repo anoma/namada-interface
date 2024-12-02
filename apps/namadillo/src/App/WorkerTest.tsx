@@ -1,6 +1,7 @@
 import * as Comlink from "comlink";
 
 import {
+  AccountType,
   ShieldedTransferMsgValue,
   ShieldingTransferMsgValue,
   UnshieldingTransferMsgValue,
@@ -35,9 +36,8 @@ export function WorkerTest(): JSX.Element {
   const indexerUrl = useAtomValue(indexerUrlAtom);
   const maspIndexerUrl = useAtomValue(maspIndexerUrlAtom);
   const shieldedAccount = accounts?.find(
-    (a) => a.isShielded && a.alias === account?.alias
+    (a) => a.type === AccountType.ShieldedKeys && a.alias === account?.alias
   );
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).shieldedSync = async (vk: string) => {
     const worker = new ShieldedSyncWorker();
@@ -91,8 +91,8 @@ export function WorkerTest(): JSX.Element {
       payload: {
         account: account!,
         gasConfig: {
-          gasLimit: BigNumber(250000),
-          gasPrice: BigNumber(0.000001),
+          gasLimit: BigNumber(50000),
+          gasPrice: BigNumber(0),
         },
         shieldingProps: [shieldingMsgValue],
         indexerUrl,
@@ -102,7 +102,7 @@ export function WorkerTest(): JSX.Element {
 
     const { payload: encodedTx } = await shieldWorker.shield(msg);
 
-    const signedTxs = await signTx("namada", encodedTx, account?.address || "");
+    const signedTxs = await signTx(encodedTx, account?.address || "");
 
     await shieldWorker.broadcast({
       type: "broadcast",
@@ -132,7 +132,7 @@ export function WorkerTest(): JSX.Element {
 
     const shieldingMsgValue = new UnshieldingTransferMsgValue({
       source: shieldedAccount!.pseudoExtendedKey!,
-      gasSpendingKeys: [shieldedAccount!.pseudoExtendedKey!],
+      gasSpendingKey: shieldedAccount!.pseudoExtendedKey!,
       data: [
         {
           target,
@@ -156,8 +156,8 @@ export function WorkerTest(): JSX.Element {
           publicKey: disposableSigner!.publicKey,
         },
         gasConfig: {
-          gasLimit: BigNumber(2500000),
-          gasPrice: BigNumber(0.000001),
+          gasLimit: BigNumber(100000),
+          gasPrice: BigNumber(0),
         },
         shieldingProps: [shieldingMsgValue],
         chain: chain!,
@@ -166,11 +166,7 @@ export function WorkerTest(): JSX.Element {
     };
 
     const { payload: encodedTx } = await shieldWorker.unshield(msg);
-    const signedTxs = await signTx(
-      "namada",
-      encodedTx,
-      disposableSigner?.address || ""
-    );
+    const signedTxs = await signTx(encodedTx, disposableSigner?.address || "");
 
     await shieldWorker.broadcast({
       type: "broadcast",
@@ -199,7 +195,7 @@ export function WorkerTest(): JSX.Element {
     });
 
     const shieldingMsgValue = new ShieldedTransferMsgValue({
-      gasSpendingKeys: [],
+      gasSpendingKey: shieldedAccount!.pseudoExtendedKey!,
       data: [
         {
           source: shieldedAccount!.pseudoExtendedKey!,
@@ -224,8 +220,8 @@ export function WorkerTest(): JSX.Element {
           publicKey: disposableSigner!.publicKey,
         },
         gasConfig: {
-          gasLimit: BigNumber(250000),
-          gasPrice: BigNumber(0.000001),
+          gasLimit: BigNumber(50000),
+          gasPrice: BigNumber(0),
         },
         shieldingProps: [shieldingMsgValue],
         chain: chain!,
@@ -234,11 +230,7 @@ export function WorkerTest(): JSX.Element {
     };
 
     const { payload: encodedTx } = await shieldWorker.shieldedTransfer(msg);
-    const signedTxs = await signTx(
-      "namada",
-      encodedTx,
-      disposableSigner?.address || ""
-    );
+    const signedTxs = await signTx(encodedTx, disposableSigner?.address || "");
 
     await shieldWorker.broadcast({
       type: "broadcast",

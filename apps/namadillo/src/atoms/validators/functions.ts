@@ -4,10 +4,11 @@ import {
   Unbond as IndexerUnbond,
   Validator as IndexerValidator,
   VotingPower as IndexerVotingPower,
-} from "@anomaorg/namada-indexer-client";
+} from "@namada/indexer-client";
 import { singleUnitDurationFromInterval } from "@namada/utils";
 import BigNumber from "bignumber.js";
-import { Address, MyValidator, UnbondEntry, Validator } from "types";
+import { Address, BondEntry, MyValidator, UnbondEntry, Validator } from "types";
+import { namadaAsset, toDisplayAmount } from "utils";
 
 export const toValidator = (
   indexerValidator: IndexerValidator,
@@ -82,10 +83,14 @@ export const toMyValidators = (
   const addBondToAddress = (
     address: Address,
     key: "bondItems" | "unbondItems",
-    bond: IndexerBond | IndexerMergedBond | IndexerUnbond
+    bond: UnbondEntry | BondEntry
   ): void => {
-    const { validator: _, ...bondsWithoutValidator } = bond;
-    myValidators[address]![key].push(bondsWithoutValidator);
+    if (key === "bondItems") {
+      myValidators[address]![key].push({ ...(bond as BondEntry) });
+      return;
+    }
+
+    myValidators[address]![key].push({ ...(bond as UnbondEntry) });
   };
 
   const incrementAmount = (
@@ -101,23 +106,37 @@ export const toMyValidators = (
 
   for (const bond of indexerBonds) {
     const { address } = bond.validator;
+    const amount = toDisplayAmount(
+      namadaAsset(),
+      BigNumber(bond.minDenomAmount)
+    );
     createEntryIfDoesntExist(bond.validator);
-    incrementAmount(address, "stakedAmount", bond.amount);
-    addBondToAddress(address, "bondItems", { ...bond });
+    incrementAmount(address, "stakedAmount", amount);
+    const bondEntry: BondEntry = {
+      amount,
+    };
+    addBondToAddress(address, "bondItems", bondEntry);
   }
 
   for (const unbond of indexerUnbonds) {
     const { address } = unbond.validator;
+    const amount = toDisplayAmount(
+      namadaAsset(),
+      BigNumber(unbond.minDenomAmount)
+    );
     createEntryIfDoesntExist(unbond.validator);
     const unbondingDetails: UnbondEntry = {
-      ...unbond,
+      amount,
+      withdrawEpoch: unbond.withdrawEpoch,
+      withdrawTime: unbond.withdrawTime,
+      canWithdraw: unbond.canWithdraw,
       timeLeft: calculateUnbondingTimeLeft(unbond),
     };
     addBondToAddress(address, "unbondItems", unbondingDetails);
     if (unbond.canWithdraw) {
-      incrementAmount(address, "withdrawableAmount", unbond.amount);
+      incrementAmount(address, "withdrawableAmount", amount);
     } else {
-      incrementAmount(address, "unbondedAmount", unbond.amount);
+      incrementAmount(address, "unbondedAmount", amount);
     }
   }
 

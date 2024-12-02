@@ -1,6 +1,7 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { SkeletonLoading } from "@namada/components";
 import clsx from "clsx";
+import { getAssetImageUrl } from "integrations/utils";
 import { GoChevronDown } from "react-icons/go";
 import { EmptyResourceIcon } from "./EmptyResourceIcon";
 
@@ -64,7 +65,7 @@ export const SelectedAsset = ({
               "object-center bg-neutral-800 rounded-full"
             )}
             alt={`${asset.name} image`}
-            src={asset.logo_URIs?.svg}
+            src={getAssetImageUrl(asset)}
           />
           <span className="flex items-center gap-1">
             {asset.symbol}

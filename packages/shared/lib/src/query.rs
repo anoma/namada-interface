@@ -24,7 +24,7 @@ use namada_sdk::parameters::storage;
 use namada_sdk::proof_of_stake::Epoch;
 use namada_sdk::queries::RPC;
 use namada_sdk::rpc::{
-    self, format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
+    self, get_public_key_at, get_token_balance, get_total_staked_tokens,
     is_steward, query_epoch, query_masp_epoch, query_native_token, query_proposal_by_id,
     query_proposal_votes, query_storage_value,
 };
@@ -53,6 +53,35 @@ use crate::sdk::{
 use crate::types::query::{ProposalInfo, WasmHash};
 use crate::utils::{set_panic_hook, to_js_result};
 
+/// Progress bar names
+pub const SDK_SCANNED_PROGRESS_BAR: &str = "namada_sdk::progress_bar::scanned";
+pub const SDK_FETCHED_PROGRESS_BAR: &str = "namada_sdk::progress_bar::fetched";
+pub const SDK_APPLIED_PROGRESS_BAR: &str = "namada_sdk::progress_bar::applied";
+
+#[wasm_bindgen]
+pub struct ProgressBarNames {}
+
+#[wasm_bindgen]
+impl ProgressBarNames {
+    #[allow(non_snake_case)]
+    #[wasm_bindgen(getter)]
+    pub fn Scanned() -> String {
+        SDK_SCANNED_PROGRESS_BAR.to_string()
+    }
+
+    #[allow(non_snake_case)]
+    #[wasm_bindgen(getter)]
+    pub fn Fetched() -> String {
+        SDK_FETCHED_PROGRESS_BAR.to_string()
+    }
+
+    #[allow(non_snake_case)]
+    #[wasm_bindgen(getter)]
+    pub fn Applied() -> String {
+        SDK_APPLIED_PROGRESS_BAR.to_string()
+    }
+}
+
 enum MaspClient {
     Ledger(LedgerMaspClient<HttpClient>),
     Indexer(IndexerMaspClient),
@@ -64,6 +93,8 @@ pub struct Query {
     client: HttpClient,
     masp_client: MaspClient,
 }
+
+const MAX_CONCURRENT_FETCHES: usize = 10;
 
 #[wasm_bindgen]
 impl Query {
@@ -81,7 +112,7 @@ impl Query {
         } else {
             MaspClient::Ledger(LedgerMaspClient::new(
                 client.clone(),
-                10,
+                1,
                 Duration::from_millis(5),
             ))
         };
@@ -355,26 +386,24 @@ impl Query {
     where
         C: NamadaMaspClient + Send + Sync + Unpin + 'static,
     {
-        let progress_bar_1 = sync::ProgressBarWeb {
-            total: 0,
-            current: 0,
-        };
-        let progress_bar_2 = sync::ProgressBarWeb {
-            total: 0,
-            current: 0,
-        };
-        let progress_bar_3 = sync::ProgressBarWeb {
-            total: 0,
-            current: 0,
-        };
+        let progress_bar_scanned = sync::ProgressBarWeb::new(SDK_SCANNED_PROGRESS_BAR);
+        let progress_bar_fetched = sync::ProgressBarWeb::new(SDK_FETCHED_PROGRESS_BAR);
+        let progress_bar_applied = sync::ProgressBarWeb::new(SDK_APPLIED_PROGRESS_BAR);
         let shutdown_signal_web = sync::ShutdownSignalWeb {};
+        // batch size does not matter for masp ledger client, and if we set to sth else than 1 it breaks
+        // progress bar
+        let batch_size = match self.masp_client {
+            MaspClient::Ledger(_) => 1,
+            MaspClient::Indexer(_) => 100,
+        };
 
         let config = ShieldedSyncConfig::builder()
             .client(client)
-            .scanned_tracker(progress_bar_1)
-            .fetched_tracker(progress_bar_2)
-            .applied_tracker(progress_bar_3)
+            .scanned_tracker(progress_bar_scanned)
+            .fetched_tracker(progress_bar_fetched)
+            .applied_tracker(progress_bar_applied)
             .shutdown_signal(shutdown_signal_web)
+            .block_batch_size(batch_size)
             .wait_for_last_query_height(true)
             .retry_strategy(RetryStrategy::Times(10))
             .build();
@@ -462,9 +491,7 @@ impl Query {
         for (token, amount) in result {
             mapped_result.push((
                 token.clone(),
-                format_denominated_amount(&self.client, &WebIo, &token, amount)
-                    .await
-                    .clone(),
+                amount.to_string()
             ))
         }
 

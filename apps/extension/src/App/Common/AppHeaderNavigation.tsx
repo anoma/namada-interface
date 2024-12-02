@@ -3,8 +3,12 @@ import routes from "App/routes";
 import clsx from "clsx";
 import { useVaultContext } from "context";
 import { FaDiscord, FaXTwitter } from "react-icons/fa6";
-import { GoAlert, GoQuestion } from "react-icons/go";
+import { GoAlert, GoLinkExternal, GoQuestion } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
+import sdkPackage from "../../../../../packages/sdk/package.json";
+import extensionPackage from "../../../package.json";
+
+const { REVISION: revision = "" } = process.env;
 
 type AppHeaderNavigationProps = {
   open: boolean;
@@ -97,6 +101,33 @@ export const AppHeaderNavigation = ({
               Lock Wallet
             </li>
           </Stack>
+          <div className="relative h-full">
+            <Stack
+              as="ul"
+              gap={1}
+              direction="vertical"
+              className="absolute bottom-4"
+            >
+              <li>
+                Keychain Version: <strong>{extensionPackage.version}</strong>
+              </li>
+              <li>
+                <span>Revision: </span>
+                <a
+                  href={`https://github.com/anoma/namada-interface/commit/${revision}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-bold hover:underline"
+                >
+                  {revision.substring(0, 8)}{" "}
+                  <GoLinkExternal className="inline h-2.5 w-2.5" />
+                </a>
+              </li>
+              <li>
+                SDK Version: <strong>{sdkPackage.version}</strong>
+              </li>
+            </Stack>
+          </div>
           <footer className="flex items-center justify-between text-yellow-950 text-2xl">
             <Stack
               as="ul"

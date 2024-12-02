@@ -1,12 +1,14 @@
 import { Stack } from "@namada/components";
 import { RedelegateMsgValue, TxProps } from "@namada/types";
-import { shortenAddress } from "@namada/utils";
+import { mapUndefined, shortenAddress } from "@namada/utils";
 import { NamCurrency } from "App/Common/NamCurrency";
+import { TokenCurrency } from "App/Common/TokenCurrency";
 import {
   createNotificationId,
   dispatchToastNotificationAtom,
   filterToastNotificationsAtom,
 } from "atoms/notifications";
+import { searchAllStoredTxByHash } from "atoms/transactions";
 import BigNumber from "bignumber.js";
 import { useSetAtom } from "jotai";
 import { useTransactionEventListener } from "utils";
@@ -314,7 +316,8 @@ export const useTransactionNotifications = (): void => {
       id,
       title: "Claim Rewards",
       description: `An error occurred while trying to claim your rewards.`,
-      type: "success",
+      type: "error",
+      details: mapUndefined(failureDetails, e.detail.error?.message),
     });
   });
 
@@ -339,5 +342,47 @@ export const useTransactionNotifications = (): void => {
       description: `Your vote transaction has succeeded`,
       type: "success",
     });
+  });
+
+  const handleTransferNotification = (
+    tx: TxProps,
+    data: TxWithAmount[]
+  ): void => {
+    const { id } = parseTxsData(tx, data);
+    clearPendingNotifications(id);
+    const storedTx = searchAllStoredTxByHash(tx.hash);
+    if (storedTx) {
+      dispatchNotification({
+        id,
+        title: "Transfer transaction succeeded",
+        description: (
+          <>
+            Your transfer transaction of{" "}
+            <TokenCurrency
+              symbol={storedTx.asset.symbol}
+              amount={storedTx.displayAmount}
+            />{" "}
+            to {shortenAddress(storedTx.destinationAddress, 8, 8)} has succeeded
+          </>
+        ),
+        type: "success",
+      });
+    }
+  };
+
+  useTransactionEventListener("TransparentTransfer.Success", (e) => {
+    handleTransferNotification(e.detail.tx, e.detail.data[0].data);
+  });
+
+  useTransactionEventListener("ShieldedTransfer.Success", (e) => {
+    handleTransferNotification(e.detail.tx, e.detail.data[0].data);
+  });
+
+  useTransactionEventListener("ShieldingTransfer.Success", (e) => {
+    handleTransferNotification(e.detail.tx, e.detail.data[0].data);
+  });
+
+  useTransactionEventListener("UnshieldingTransfer.Success", (e) => {
+    handleTransferNotification(e.detail.tx, e.detail.data[0].data);
   });
 };

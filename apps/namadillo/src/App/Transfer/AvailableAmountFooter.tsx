@@ -27,7 +27,7 @@ export const AvailableAmountFooter = ({
     >
       <span className="flex gap-2">
         Available:
-        <TokenCurrency amount={availableAmount} asset={asset} />
+        <TokenCurrency amount={availableAmount} symbol={asset.symbol} />
       </span>
       <span>
         {onClickMax && (

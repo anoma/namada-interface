@@ -1,77 +1,23 @@
-import { Asset } from "@chain-registry/types";
-import { Balance } from "@heliaxdev/namada-sdk/web";
 import { ActionButton, TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCurrency } from "App/Common/TokenCurrency";
-import { routes } from "App/routes";
-import { chainTokensAtom } from "atoms/chain";
-import { chainRegistryAtom } from "atoms/integrations/atoms";
-import BigNumber from "bignumber.js";
-import { useAtomValue } from "jotai";
-import { useEffect, useMemo, useState } from "react";
-import { namadaAsset } from "registry/namadaAsset";
-import { unknownAsset } from "registry/unknownAsset";
+import { params, routes } from "App/routes";
+import { TokenBalance } from "atoms/balance/atoms";
+import { getAssetImageUrl } from "integrations/utils";
+import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
-
-type TokenRow = {
-  name: string;
-  icon?: string;
-  asset: Asset;
-  balance: BigNumber;
-  dollar: BigNumber;
-  ssrRate: BigNumber;
-};
 
 const resultsPerPage = 100;
 const initialPage = 0;
 
-const traceToDenom = (trace: string): string =>
-  trace.split("/").at(-1) ?? trace;
-
 export const ShieldedFungibleTable = ({
   data,
 }: {
-  data: Balance;
+  data: TokenBalance[];
 }): JSX.Element => {
   const [page, setPage] = useState(initialPage);
-  const { data: chainTokens } = useAtomValue(chainTokensAtom);
-  const chainRegistry = useAtomValue(chainRegistryAtom);
-
-  const list = useMemo(() => {
-    const addressToDenom: Record<string, string> = {};
-    chainTokens?.forEach((token) => {
-      addressToDenom[token.address] =
-        "trace" in token ? traceToDenom(token.trace) : "nam";
-    });
-
-    const denomToAsset: Record<string, Asset> = {
-      // TODO namadaAsset should be returned from knownChains
-      nam: namadaAsset,
-    };
-
-    Object.values(chainRegistry).forEach((chain) => {
-      chain.assets.assets.forEach((asset) => {
-        asset.denom_units.forEach((unit) => {
-          denomToAsset[unit.denom] = asset;
-        });
-      });
-    });
-
-    return data.map(([address, amount]) => {
-      const denom = addressToDenom[address];
-      const asset = denomToAsset[denom] ?? unknownAsset;
-      return {
-        name: asset?.symbol ?? denom ?? "?",
-        icon: asset?.logo_URIs?.svg ?? asset?.logo_URIs?.png,
-        asset,
-        balance: new BigNumber(amount),
-        dollar: new BigNumber(0), // TODO
-        ssrRate: new BigNumber(0), // TODO
-      };
-    });
-  }, [data, chainTokens, chainRegistry]);
 
   const headers = [
     "Token",
@@ -79,37 +25,54 @@ export const ShieldedFungibleTable = ({
     { children: "SSR Rate", className: "text-right" },
   ];
 
-  const renderRow = (row: TokenRow): TableRow => {
-    const icon = row.asset.logo_URIs?.svg ?? row.asset.logo_URIs?.png;
+  const renderRow = ({
+    originalAddress,
+    asset,
+    amount,
+    dollar,
+  }: TokenBalance): TableRow => {
+    const icon = getAssetImageUrl(asset);
+
+    // TODO
+    const ssrRate = undefined;
+
     return {
       cells: [
-        <div key={`token-${row.name}`} className="flex items-center gap-4">
+        <div
+          key={`token-${originalAddress}`}
+          className="flex items-center gap-4"
+        >
           <div className="aspect-square w-8 h-8">
             {icon ?
               <img src={icon} />
             : <div className="rounded-full h-full border border-white" />}
           </div>
-          {row.name}
+          {asset.symbol}
         </div>,
         <div
-          key={`balance-${row.name}`}
+          key={`balance-${originalAddress}`}
           className="flex flex-col text-right leading-tight"
         >
-          <TokenCurrency asset={row.asset} amount={row.balance} />
-          <FiatCurrency
-            className="text-neutral-600 text-sm"
-            amount={row.dollar}
-          />
+          <TokenCurrency symbol={asset.symbol} amount={amount} />
+          {dollar && (
+            <FiatCurrency
+              className="text-neutral-600 text-sm"
+              amount={dollar}
+            />
+          )}
         </div>,
-        <div key={`ssr-rate-${row.name}`} className="text-right leading-tight">
-          {formatPercentage(row.ssrRate)}
+        <div
+          key={`ssr-rate-${originalAddress}`}
+          className="text-right leading-tight"
+        >
+          {ssrRate && formatPercentage(ssrRate)}
         </div>,
         <ActionButton
-          key={`unshield-${row.name}`}
+          key={`unshield-${originalAddress}`}
           size="xs"
           outlineColor="white"
           className="w-fit mx-auto"
-          href={row.name === "NAM" ? routes.maspUnshield : routes.ibcWithdraw}
+          href={`${routes.maspUnshield}?${params.asset}=${originalAddress}`}
         >
           Unshield
         </ActionButton>,
@@ -119,23 +82,23 @@ export const ShieldedFungibleTable = ({
 
   useEffect(() => {
     setPage(0);
-  }, [list]);
+  }, [data]);
 
-  const paginatedItems = list.slice(
+  const paginatedItems = data.slice(
     page * resultsPerPage,
     page * resultsPerPage + resultsPerPage
   );
 
-  const pageCount = Math.ceil(list.length / resultsPerPage);
+  const pageCount = Math.ceil(data.length / resultsPerPage);
 
   return (
     <>
-      <div className="text-sm font-medium mt-6">
-        <span className="text-yellow">{list.length} </span>
+      <div className="text-sm font-medium">
+        <span className="text-yellow">{data.length} </span>
         Tokens
       </div>
       <TableWithPaginator
-        id={"my-validators"}
+        id="shielded-tokens"
         headers={headers.concat("")}
         renderRow={renderRow}
         itemList={paginatedItems}

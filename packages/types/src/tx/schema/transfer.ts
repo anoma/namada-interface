@@ -72,16 +72,16 @@ export class ShieldedTransferMsgValue {
   @field({ type: vec(ShieldedTransferDataMsgValue) })
   data!: ShieldedTransferDataMsgValue[];
 
-  @field({ type: vec("string") })
-  gasSpendingKeys!: string[];
+  @field({ type: option("string") })
+  gasSpendingKey?: string;
 
-  constructor({ data, gasSpendingKeys }: ShieldedTransferProps) {
+  constructor({ data, gasSpendingKey }: ShieldedTransferProps) {
     Object.assign(this, {
       data: data.map(
         (shieldedTransferDataProps) =>
           new ShieldedTransferDataMsgValue(shieldedTransferDataProps)
       ),
-      gasSpendingKeys,
+      gasSpendingKey,
     });
   }
 }
@@ -147,17 +147,17 @@ export class UnshieldingTransferMsgValue {
   @field({ type: vec(UnshieldingTransferDataMsgValue) })
   data!: UnshieldingTransferDataMsgValue[];
 
-  @field({ type: vec("string") })
-  gasSpendingKeys!: string[];
+  @field({ type: option("string") })
+  gasSpendingKey?: string;
 
-  constructor({ source, data, gasSpendingKeys }: UnshieldingTransferProps) {
+  constructor({ source, data, gasSpendingKey }: UnshieldingTransferProps) {
     Object.assign(this, {
       source,
       data: data.map(
         (unshieldingTransferDataProps) =>
           new UnshieldingTransferDataMsgValue(unshieldingTransferDataProps)
       ),
-      gasSpendingKeys,
+      gasSpendingKey,
     });
   }
 }

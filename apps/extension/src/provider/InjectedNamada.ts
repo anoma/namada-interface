@@ -1,6 +1,5 @@
 import {
-  Chain,
-  DerivedAccount,
+  Account,
   GenDisposableSignerResponse,
   Namada as INamada,
   Signer as ISigner,
@@ -15,28 +14,30 @@ import { Signer } from "./Signer";
 export class InjectedNamada implements INamada {
   constructor(private readonly _version: string) {}
 
-  public async connect(): Promise<void> {
-    return await InjectedProxy.requestMethod<string, void>("connect");
+  public async connect(chainId?: string): Promise<void> {
+    return await InjectedProxy.requestMethod<string, void>("connect", chainId);
   }
 
-  public async disconnect(): Promise<void> {
-    return await InjectedProxy.requestMethod<string, void>("disconnect");
-  }
-
-  public async isConnected(): Promise<boolean> {
-    return await InjectedProxy.requestMethod<string, boolean>("isConnected");
-  }
-
-  public async accounts(): Promise<DerivedAccount[]> {
-    return await InjectedProxy.requestMethod<string, DerivedAccount[]>(
-      "accounts"
+  public async disconnect(chainId?: string): Promise<void> {
+    return await InjectedProxy.requestMethod<string, void>(
+      "disconnect",
+      chainId
     );
   }
 
-  public async defaultAccount(): Promise<DerivedAccount> {
-    return await InjectedProxy.requestMethod<string, DerivedAccount>(
-      "defaultAccount"
+  public async isConnected(chainId?: string): Promise<boolean> {
+    return await InjectedProxy.requestMethod<string, boolean>(
+      "isConnected",
+      chainId
     );
+  }
+
+  public async accounts(): Promise<Account[]> {
+    return await InjectedProxy.requestMethod<string, Account[]>("accounts");
+  }
+
+  public async defaultAccount(): Promise<Account> {
+    return await InjectedProxy.requestMethod<string, Account>("defaultAccount");
   }
 
   public async updateDefaultAccount(address: string): Promise<void> {
@@ -76,10 +77,6 @@ export class InjectedNamada implements INamada {
       void,
       GenDisposableSignerResponse | undefined
     >("genDisposableKeypair");
-  }
-
-  public async getChain(): Promise<Chain | undefined> {
-    return await InjectedProxy.requestMethod<void, Chain>("getChain");
   }
 
   public getSigner(): ISigner | undefined {

@@ -1,5 +1,6 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { AmountInput } from "@namada/components";
+import { TabSelector } from "App/Common/TabSelector";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { WalletProvider } from "types";
@@ -22,6 +23,19 @@ export type TransferSourceProps = {
   amount?: BigNumber;
   availableAmount?: BigNumber;
   onChangeAmount?: (amount: BigNumber | undefined) => void;
+  isShielded?: boolean;
+  onChangeShielded?: (isShielded: boolean) => void;
+};
+
+const amountMaxDecimalPlaces = (asset?: Asset): number | undefined => {
+  if (typeof asset !== "undefined") {
+    for (const { denom, exponent } of asset.denom_units) {
+      if (denom === asset.display) {
+        return exponent;
+      }
+    }
+  }
+  return undefined;
 };
 
 export const TransferSource = ({
@@ -36,9 +50,27 @@ export const TransferSource = ({
   amount,
   availableAmount,
   onChangeAmount,
+  isShielded,
+  onChangeShielded,
 }: TransferSourceProps): JSX.Element => {
   return (
     <div className="relative bg-neutral-800 rounded-lg px-4 py-5">
+      {onChangeShielded && chain?.chain_name === "namada" && (
+        <nav className="mb-6">
+          <TabSelector
+            active={isShielded ? "shielded" : "transparent"}
+            items={[
+              { id: "shielded", text: "Shielded", className: "text-yellow" },
+              {
+                id: "transparent",
+                text: "Transparent",
+                className: "text-white",
+              },
+            ]}
+            onChange={() => onChangeShielded(!isShielded)}
+          />
+        </nav>
+      )}
       <header className="relative flex justify-between">
         <SelectedChain
           onClick={openChainSelector}
@@ -70,8 +102,10 @@ export const TransferSource = ({
             "[&_input]:!border-0 [&_input]:px-0"
           )}
           disabled={!chain || !asset}
-          value={amount || new BigNumber(0)}
-          onChange={(e) => onChangeAmount && onChangeAmount(e.target.value)}
+          value={amount}
+          onChange={(e) => onChangeAmount?.(e.target.value)}
+          placeholder="Amount"
+          maxDecimalPlaces={amountMaxDecimalPlaces(asset)}
         />
       </div>
       {asset && availableAmount && (

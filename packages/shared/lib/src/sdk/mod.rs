@@ -1,4 +1,5 @@
 mod args;
+pub mod events;
 pub mod io;
 pub mod masp;
 mod signature;
@@ -14,12 +15,8 @@ use crate::utils::to_bytes;
 use crate::utils::to_js_result;
 use args::{generate_masp_build_params, masp_sign, BuildParams};
 use gloo_utils::format::JsValueSerdeExt;
-use namada_sdk::address::Address;
-use namada_sdk::address::MASP;
-use namada_sdk::args::GenIbcShieldingTransfer;
-use namada_sdk::args::InputAmount;
-use namada_sdk::args::Query;
-use namada_sdk::args::TxExpiration;
+use namada_sdk::address::{Address, MASP};
+use namada_sdk::args::{GenIbcShieldingTransfer, InputAmount, Query, TxExpiration};
 use namada_sdk::borsh::{self, BorshDeserialize};
 use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada_sdk::hash::Hash;
@@ -44,9 +41,7 @@ use namada_sdk::tx::{
     ProcessTxResponse, Tx,
 };
 use namada_sdk::wallet::{Store, Wallet};
-use namada_sdk::PaymentAddress;
-use namada_sdk::TransferTarget;
-use namada_sdk::{Namada, NamadaImpl};
+use namada_sdk::{Namada, NamadaImpl, PaymentAddress, TransferTarget};
 use std::collections::BTreeMap;
 use std::str::FromStr;
 use tx::MaspSigningData;

@@ -2,7 +2,6 @@
 //! See @namada/crypto for zip32 HD wallet functionality.
 use js_sys::Uint8Array;
 use namada_sdk::borsh::{self, BorshDeserialize};
-
 use namada_sdk::masp_primitives::zip32::ExtendedKey;
 use namada_sdk::masp_primitives::{sapling, zip32};
 use namada_sdk::masp_proofs::jubjub;

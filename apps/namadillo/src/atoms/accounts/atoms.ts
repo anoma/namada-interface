@@ -1,17 +1,21 @@
-import { getIntegration } from "@namada/integrations";
-import { Account, GenDisposableSignerResponse } from "@namada/types";
+import {
+  Account,
+  AccountType,
+  GenDisposableSignerResponse,
+} from "@namada/types";
 import { indexerApiAtom } from "atoms/api";
 import { nativeTokenAddressAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
 import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
+import { NamadaKeychain } from "hooks/useNamadaKeychain";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
-import { chainConfigByName } from "registry";
 import {
   fetchAccountBalance,
   fetchAccounts,
   fetchDefaultAccount,
+  fetchNamAccountBalance,
 } from "./services";
 
 export const accountsAtom = atomWithQuery<readonly Account[]>((get) => {
@@ -54,7 +58,7 @@ export const allDefaultAccountsAtom = atomWithQuery<Account[]>((get) => {
 
       const defaultAccounts = [accounts.data[transparentAccountIdx]];
       for (let i = transparentAccountIdx + 1; i < accounts.data.length; i++) {
-        if (!accounts.data[i].isShielded) {
+        if (accounts.data[i].type !== AccountType.ShieldedKeys) {
           break;
         }
         defaultAccounts.push(accounts.data[i]);
@@ -66,16 +70,20 @@ export const allDefaultAccountsAtom = atomWithQuery<Account[]>((get) => {
 });
 
 export const updateDefaultAccountAtom = atomWithMutation(() => {
-  const integration = getIntegration("namada");
+  const namadaPromise = new NamadaKeychain().get();
   return {
-    mutationFn: (address: string) => integration.updateDefaultAccount(address),
+    mutationFn: (address: string) =>
+      namadaPromise.then((injectedNamada) =>
+        injectedNamada.updateDefaultAccount(address)
+      ),
   };
 });
 
 export const disconnectAccountAtom = atomWithMutation(() => {
-  const integration = getIntegration("namada");
+  const namadaPromise = new NamadaKeychain().get();
   return {
-    mutationFn: () => integration.disconnect(),
+    mutationFn: () =>
+      namadaPromise.then((injectedNamada) => injectedNamada.disconnect()),
   };
 });
 
@@ -84,20 +92,16 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
   const tokenAddress = get(nativeTokenAddressAtom);
   const enablePolling = get(shouldUpdateBalanceAtom);
   const api = get(indexerApiAtom);
-  const chainConfig = chainConfigByName("namada");
 
   return {
     // TODO: subscribe to indexer events when it's done
     refetchInterval: enablePolling ? 1000 : false,
     queryKey: ["balances", tokenAddress.data, defaultAccount.data],
     ...queryDependentFn(async (): Promise<BigNumber> => {
-      return await fetchAccountBalance(
+      return await fetchNamAccountBalance(
         api,
         defaultAccount.data,
-        tokenAddress.data!,
-        // As this is a nam balance specific atom, we can safely assume that the
-        // first currency is the native token
-        chainConfig.currencies[0].coinDecimals
+        tokenAddress.data!
       );
     }, [tokenAddress, defaultAccount]),
   };
@@ -111,8 +115,8 @@ export const disposableSignerAtom = atomWithQuery<GenDisposableSignerResponse>(
       enabled: false,
       queryKey: ["disposable-signer", isExtensionConnected],
       queryFn: async () => {
-        const namada = getIntegration("namada");
-        const res = await namada.signer()?.genDisposableKeypair();
+        const namada = await new NamadaKeychain().get();
+        const res = await namada.genDisposableKeypair();
         if (!res) {
           throw new Error("Failed to generate disposable signer");
         }
@@ -122,3 +126,25 @@ export const disposableSignerAtom = atomWithQuery<GenDisposableSignerResponse>(
     };
   }
 );
+
+// TODO combine the `accountBalanceAtom` with the `transparentBalanceAtom`
+// Then execute only once the `fetchAccountBalance`, deleting the `fetchNamAccountBalance`
+export const transparentBalanceAtom = atomWithQuery<
+  { address: string; minDenomAmount: BigNumber }[]
+>((get) => {
+  const enablePolling = get(shouldUpdateBalanceAtom);
+  const api = get(indexerApiAtom);
+  const defaultAccountQuery = get(defaultAccountAtom);
+
+  return {
+    refetchInterval: enablePolling ? 1000 : false,
+    queryKey: ["transparent-balance", defaultAccountQuery.data],
+    ...queryDependentFn(async () => {
+      const response = await fetchAccountBalance(api, defaultAccountQuery.data);
+      return response.map((item) => ({
+        address: item.tokenAddress,
+        minDenomAmount: BigNumber(item.minDenomAmount),
+      }));
+    }, [defaultAccountQuery]),
+  };
+});

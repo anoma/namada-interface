@@ -8,7 +8,7 @@ import { paramsToUrl } from "@namada/utils";
 
 import { ResponseSign } from "@zondax/ledger-namada";
 import { TopLevelRoute } from "Approvals/types";
-import { ChainsService } from "background/chains";
+import { ChainService } from "background/chain";
 import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
@@ -35,7 +35,8 @@ export class ApprovalsService {
     protected readonly sdkService: SdkService,
     protected readonly keyRingService: KeyRingService,
     protected readonly vaultService: VaultService,
-    protected readonly chainService: ChainsService,
+    // TODO: This is not used here until #1298 is merged!
+    protected readonly chainService: ChainService,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
     browser.tabs.onRemoved.addListener((tabId) => {
@@ -190,20 +191,48 @@ export class ApprovalsService {
     resolvers.reject(new Error("Sign Tx rejected"));
   }
 
-  async isConnectionApproved(interfaceOrigin: string): Promise<boolean> {
+  async isConnectionApproved(
+    interfaceOrigin: string,
+    chainId?: string
+  ): Promise<boolean> {
     const approvedOrigins =
       (await this.localStorage.getApprovedOrigins()) || [];
+
+    if (chainId) {
+      const currentChainId = await this.chainService.getChain();
+      if (chainId !== currentChainId) {
+        return false;
+      }
+    }
 
     return approvedOrigins.includes(interfaceOrigin);
   }
 
-  async approveConnection(interfaceOrigin: string): Promise<void> {
-    const alreadyApproved = await this.isConnectionApproved(interfaceOrigin);
+  async approveConnection(
+    interfaceOrigin: string,
+    chainId?: string
+  ): Promise<void> {
+    const alreadyApproved = await this.isConnectionApproved(
+      interfaceOrigin,
+      chainId
+    );
+
+    const approveConnectionPopupProps: {
+      interfaceOrigin: string;
+      chainId?: string;
+    } = {
+      interfaceOrigin,
+    };
+
+    if (chainId) {
+      approveConnectionPopupProps["chainId"] = chainId;
+    }
 
     if (!alreadyApproved) {
-      return this.launchApprovalPopup(TopLevelRoute.ApproveConnection, {
-        interfaceOrigin,
-      });
+      return this.launchApprovalPopup(
+        TopLevelRoute.ApproveConnection,
+        approveConnectionPopupProps
+      );
     }
 
     // A resolved promise is implicitly returned here if the origin had
@@ -213,13 +242,26 @@ export class ApprovalsService {
   async approveConnectionResponse(
     popupTabId: number,
     interfaceOrigin: string,
-    allowConnection: boolean
+    allowConnection: boolean,
+    chainId?: string
   ): Promise<void> {
     const resolvers = this.getResolver(popupTabId);
 
     if (allowConnection) {
       try {
-        await this.localStorage.addApprovedOrigin(interfaceOrigin);
+        if (
+          !(await this.localStorage.getApprovedOrigins())?.includes(
+            interfaceOrigin
+          )
+        ) {
+          // Add approved origin if it hasn't been added
+          await this.localStorage.addApprovedOrigin(interfaceOrigin);
+        }
+
+        if (chainId) {
+          // Set approved signing chainId
+          await this.chainService.updateChain(chainId);
+        }
       } catch (e) {
         resolvers.reject(e);
       }
@@ -229,8 +271,14 @@ export class ApprovalsService {
     }
   }
 
-  async approveDisconnection(interfaceOrigin: string): Promise<void> {
-    const isConnected = await this.isConnectionApproved(interfaceOrigin);
+  async approveDisconnection(
+    interfaceOrigin: string,
+    chainId?: string
+  ): Promise<void> {
+    const isConnected = await this.isConnectionApproved(
+      interfaceOrigin,
+      chainId
+    );
 
     if (isConnected) {
       return this.launchApprovalPopup(TopLevelRoute.ApproveDisconnection, {

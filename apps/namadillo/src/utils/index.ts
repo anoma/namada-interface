@@ -1,8 +1,11 @@
 import { Asset, AssetDenomUnit } from "@chain-registry/types";
 import { ProposalStatus, ProposalTypeString } from "@namada/types";
+import { localnetConfigAtom } from "atoms/integrations/atoms";
 import BigNumber from "bignumber.js";
 import * as fns from "date-fns";
+import { getDefaultStore } from "jotai";
 import { DateTime } from "luxon";
+import internalDevnetAssets from "namada-chain-registry/namadainternaldevnet/assetlist.json";
 import { useEffect } from "react";
 
 export const proposalStatusToString = (status: ProposalStatus): string => {
@@ -44,6 +47,23 @@ export const useTransactionEventListener = <T extends keyof WindowEventMap>(
     window.addEventListener(event, handler);
     return () => {
       window.removeEventListener(event, handler);
+    };
+  }, deps);
+};
+
+export const useTransactionEventListListener = <T extends keyof WindowEventMap>(
+  events: T[],
+  handler: (this: Window, ev: WindowEventMap[T]) => void,
+  deps: React.DependencyList = []
+): void => {
+  useEffect(() => {
+    events.forEach((event) => {
+      window.addEventListener(event, handler);
+    });
+    return () => {
+      events.forEach((event) => {
+        window.removeEventListener(event, handler);
+      });
     };
   }, deps);
 };
@@ -103,18 +123,46 @@ const findDisplayUnit = (asset: Asset): AssetDenomUnit | undefined => {
   return denom_units.find((unit) => unit.denom === display);
 };
 
-export const toDisplayAmount = (asset: Asset, amount: BigNumber): BigNumber => {
-  const displayUnit = findDisplayUnit(asset);
-  if (!displayUnit) {
-    return amount;
-  }
-  return amount.shiftedBy(-displayUnit.exponent);
+// TODO update to mainnet asset
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export const namadaAsset = () => {
+  const store = getDefaultStore();
+  const config = store.get(localnetConfigAtom);
+
+  const configTokenAddress = config.data?.tokenAddress;
+  const registryAsset = internalDevnetAssets.assets[0];
+  const asset =
+    configTokenAddress ?
+      {
+        ...registryAsset,
+        address: configTokenAddress,
+      }
+    : registryAsset;
+
+  return asset satisfies Asset;
 };
 
-export const toBaseAmount = (asset: Asset, amount: BigNumber): BigNumber => {
+export const isNamadaAsset = (asset: Asset): boolean =>
+  asset.symbol === namadaAsset().symbol;
+
+export const toDisplayAmount = (
+  asset: Asset,
+  baseAmount: BigNumber
+): BigNumber => {
   const displayUnit = findDisplayUnit(asset);
   if (!displayUnit) {
-    return amount;
+    return baseAmount;
   }
-  return amount.shiftedBy(displayUnit.exponent);
+  return baseAmount.shiftedBy(-displayUnit.exponent);
+};
+
+export const toBaseAmount = (
+  asset: Asset,
+  displayAmount: BigNumber
+): BigNumber => {
+  const displayUnit = findDisplayUnit(asset);
+  if (!displayUnit) {
+    return displayAmount;
+  }
+  return displayAmount.shiftedBy(displayUnit.exponent);
 };

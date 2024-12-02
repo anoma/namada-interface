@@ -1,11 +1,10 @@
 import {
   DefaultApi,
-  ValidatorStatus as IndexerValidatorStatus,
   VotingPower as IndexerVotingPower,
   MergedBond,
   Unbond,
   VotingPower,
-} from "@anomaorg/namada-indexer-client";
+} from "@namada/indexer-client";
 import { Account } from "@namada/types";
 import { ChainParameters, Validator } from "types";
 import { toValidator } from "./functions";
@@ -23,10 +22,7 @@ export const fetchAllValidators = async (
   votingPower: IndexerVotingPower
 ): Promise<Validator[]> => {
   const nominalApr = chainParameters.apr;
-  const validatorsResponse = await api.apiV1PosValidatorAllGet([
-    IndexerValidatorStatus.Consensus,
-  ]);
-
+  const validatorsResponse = await api.apiV1PosValidatorAllGet();
   const validators = validatorsResponse.data;
   return validators.map((v) =>
     toValidator(v, votingPower, chainParameters.unbondingPeriod, nominalApr)
