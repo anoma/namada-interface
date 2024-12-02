@@ -450,15 +450,17 @@ export class KeyRing {
   /**
    * Query accounts from storage (active parent account + associated derived child accounts)
    */
-  public async queryAccountsById(accountId: string): Promise<DerivedAccount[]> {
+  public async queryAccountsByParentId(
+    parentId: string
+  ): Promise<DerivedAccount[]> {
     const parentAccount = await this.vaultStorage.findOne(
       KeyStore,
       "id",
-      accountId
+      parentId
     );
 
     const derivedAccounts =
-      (await this.vaultStorage.findAll(KeyStore, "parentId", accountId)) || [];
+      (await this.vaultStorage.findAll(KeyStore, "parentId", parentId)) || [];
 
     if (parentAccount) {
       const accounts = [parentAccount, ...derivedAccounts];

@@ -26,4 +26,15 @@ export const useExtensionEvents = (): void => {
       (await injectedNamada?.isConnected()) ? "connected" : "idle"
     );
   });
+
+  useEventListenerOnce(Events.ExtensionLocked, async () => {
+    setNamadaExtensionConnected("idle");
+  });
+
+  useEventListenerOnce(Events.ExtensionUnlocked, async () => {
+    const injectedNamada = await namadaKeychain.get();
+    setNamadaExtensionConnected(
+      (await injectedNamada?.isConnected()) ? "connected" : "idle"
+    );
+  });
 };

@@ -3471,6 +3471,7 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^4.6.0"
     fake-indexeddb: "npm:^4.0.1"
     file-loader: "npm:^6.2.0"
+    fp-ts: "npm:^2.16.1"
     framer-motion: "npm:^11.3.28"
     io-ts: "npm:^2.2.21"
     jest: "npm:^29.7.0"

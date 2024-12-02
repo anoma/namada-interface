@@ -3,6 +3,7 @@ import {
   ConnectionRevokedEventMsg,
   NetworkChangedEventMsg,
   VaultLockedEventMsg,
+  VaultUnlockedEventMsg,
 } from "content/events";
 import { ExtensionRequester } from "extension";
 import { Message, Ports } from "router";
@@ -24,6 +25,10 @@ export class ExtensionBroadcaster {
 
   async lockExtension(): Promise<void> {
     await this.sendMsgToTabs(new VaultLockedEventMsg());
+  }
+
+  async unlockExtension(): Promise<void> {
+    await this.sendMsgToTabs(new VaultUnlockedEventMsg());
   }
 
   async revokeConnection(): Promise<void> {

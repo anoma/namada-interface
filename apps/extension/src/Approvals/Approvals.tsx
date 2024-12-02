@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { Container } from "@namada/components";
@@ -6,6 +6,9 @@ import { AccountType, TxDetails } from "@namada/types";
 
 import { AppHeader } from "App/Common/AppHeader";
 import { TopLevelRoute } from "Approvals/types";
+import { CheckIsLockedMsg } from "background/vault";
+import { useRequester } from "hooks/useRequester";
+import { Ports } from "router";
 import { ApproveConnection } from "./ApproveConnection";
 import { ApproveDisconnection } from "./ApproveDisconnection";
 import { ApproveSignArbitrary } from "./ApproveSignArbitrary";
@@ -14,12 +17,20 @@ import { ApproveUpdateDefaultAccount } from "./ApproveUpdateDefaultAccount";
 import { ConfirmSignature } from "./ConfirmSignArbitrary";
 import { ConfirmSignLedgerTx } from "./ConfirmSignLedgerTx";
 import { ConfirmSignTx } from "./ConfirmSignTx";
+import { WithAuth } from "./WithAuth";
 
 export enum Status {
   Completed,
   Pending,
   Failed,
 }
+
+export type ExtensionLockContextType = {
+  isUnlocked?: boolean;
+  setIsUnlocked?: Dispatch<SetStateAction<boolean>>;
+};
+export const ExtensionLockContext =
+  React.createContext<ExtensionLockContextType>({});
 
 export type ApprovalDetails = {
   signer: string;
@@ -38,6 +49,17 @@ export const Approvals: React.FC = () => {
   const [details, setDetails] = useState<ApprovalDetails>();
   const [signArbitraryDetails, setSignArbitraryDetails] =
     useState<SignArbitraryDetails>();
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const requester = useRequester();
+
+  useEffect(() => {
+    requester
+      .sendMessage(Ports.Background, new CheckIsLockedMsg())
+      .then((isLocked) => {
+        setIsUnlocked!(!isLocked);
+      })
+      .catch(() => setIsUnlocked!(false));
+  }, []);
 
   return (
     <Container
@@ -50,48 +72,73 @@ export const Approvals: React.FC = () => {
         />
       }
     >
-      <Routes>
-        <Route
-          path={`${TopLevelRoute.ApproveSignTx}/:msgId/:accountType/:signer`}
-          element={<ApproveSignTx details={details} setDetails={setDetails} />}
-        />
-        <Route
-          path={TopLevelRoute.ConfirmSignTx}
-          element={details && <ConfirmSignTx details={details} />}
-        />
-        <Route
-          path={TopLevelRoute.ConfirmLedgerTx}
-          element={details && <ConfirmSignLedgerTx details={details} />}
-        />
-        <Route
-          path={TopLevelRoute.ApproveConnection}
-          element={<ApproveConnection />}
-        />
-        <Route
-          path={TopLevelRoute.ApproveDisconnection}
-          element={<ApproveDisconnection />}
-        />
-        <Route
-          path={TopLevelRoute.ApproveUpdateDefaultAccount}
-          element={<ApproveUpdateDefaultAccount />}
-        />
-        <Route
-          path={`${TopLevelRoute.ApproveSignArbitrary}/:signer`}
-          element={
-            <ApproveSignArbitrary
-              setSignArbitraryDetails={setSignArbitraryDetails}
-            />
-          }
-        />
-        <Route
-          path={TopLevelRoute.ConfirmSignArbitrary}
-          element={
-            signArbitraryDetails && (
-              <ConfirmSignature details={signArbitraryDetails} />
-            )
-          }
-        />
-      </Routes>
+      <ExtensionLockContext.Provider
+        value={{
+          isUnlocked,
+          setIsUnlocked,
+        }}
+      >
+        <Routes>
+          <Route
+            path={`${TopLevelRoute.ApproveSignTx}/:msgId/:accountType/:signer`}
+            element={
+              <WithAuth>
+                <ApproveSignTx details={details} setDetails={setDetails} />
+              </WithAuth>
+            }
+          />
+          <Route
+            path={TopLevelRoute.ConfirmSignTx}
+            element={details && <ConfirmSignTx details={details} />}
+          />
+          <Route
+            path={TopLevelRoute.ConfirmLedgerTx}
+            element={details && <ConfirmSignLedgerTx details={details} />}
+          />
+          <Route
+            path={TopLevelRoute.ApproveConnection}
+            element={
+              <WithAuth>
+                <ApproveConnection />
+              </WithAuth>
+            }
+          />
+          <Route
+            path={TopLevelRoute.ApproveDisconnection}
+            element={
+              <WithAuth>
+                <ApproveDisconnection />
+              </WithAuth>
+            }
+          />
+          <Route
+            path={TopLevelRoute.ApproveUpdateDefaultAccount}
+            element={
+              <WithAuth>
+                <ApproveUpdateDefaultAccount />
+              </WithAuth>
+            }
+          />
+          <Route
+            path={`${TopLevelRoute.ApproveSignArbitrary}/:signer`}
+            element={
+              <WithAuth>
+                <ApproveSignArbitrary
+                  setSignArbitraryDetails={setSignArbitraryDetails}
+                />
+              </WithAuth>
+            }
+          />
+          <Route
+            path={TopLevelRoute.ConfirmSignArbitrary}
+            element={
+              signArbitraryDetails && (
+                <ConfirmSignature details={signArbitraryDetails} />
+              )
+            }
+          />
+        </Routes>
+      </ExtensionLockContext.Provider>
     </Container>
   );
 };

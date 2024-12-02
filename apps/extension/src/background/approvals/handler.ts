@@ -8,6 +8,7 @@ import {
 } from "provider";
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
+  CheckIsApprovedSiteMsg,
   ConnectInterfaceResponseMsg,
   DisconnectInterfaceResponseMsg,
   QueryPendingTxBytesMsg,
@@ -40,6 +41,11 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleConnectInterfaceResponseMsg(service)(
           env,
           msg as ConnectInterfaceResponseMsg
+        );
+      case CheckIsApprovedSiteMsg:
+        return handleCheckIsApprovedSite(service)(
+          env,
+          msg as CheckIsApprovedSiteMsg
         );
       case ApproveDisconnectInterfaceMsg:
         return handleApproveDisconnectInterfaceMsg(service)(
@@ -270,5 +276,13 @@ const handleSubmitApprovedSignLedgerTxMsg: (
 ) => InternalHandler<SubmitApprovedSignLedgerTxMsg> = (service) => {
   return async ({ senderTabId: popupTabId }, { msgId, responseSign }) => {
     return await service.submitSignLedgerTx(popupTabId, msgId, responseSign);
+  };
+};
+
+const handleCheckIsApprovedSite: (
+  service: ApprovalsService
+) => InternalHandler<CheckIsApprovedSiteMsg> = (service) => {
+  return async (_, { interfaceOrigin, chainId }) => {
+    return await service.isConnectionApproved(interfaceOrigin, chainId);
   };
 };
