@@ -22,6 +22,7 @@ describe("Component: NamBalanceContainer", () => {
       mockUseBalances({
         balanceQuery: { isError: balanceQueryError } as AtomWithQueryResult,
         stakeQuery: { isError: stakeQueryError } as AtomWithQueryResult,
+        shieldedAmountQuery: {} as AtomWithQueryResult,
         isLoading: false,
         isSuccess: false,
       });
@@ -43,12 +44,13 @@ describe("Component: NamBalanceContainer", () => {
       unbondedAmount: new BigNumber(30),
       withdrawableAmount: new BigNumber(25),
       totalTransparentAmount: new BigNumber(200),
+      shieldedAmountQuery: { isLoading: false } as AtomWithQueryResult,
     });
 
     render(<NamBalanceContainer />);
 
     // Check if the list items for each balance type are rendered
-    expect(screen.getByText(/Available NAM/i)).toBeInTheDocument();
+    expect(screen.getByText(/Transparent NAM/i)).toBeInTheDocument();
     expect(screen.getByText(/Staked NAM/i)).toBeInTheDocument();
     expect(screen.getByText(/Unbonded NAM/i)).toBeInTheDocument();
 
