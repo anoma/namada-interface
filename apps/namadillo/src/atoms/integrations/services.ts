@@ -1,5 +1,5 @@
 import { Chain } from "@chain-registry/types";
-import { Coin, OfflineSigner } from "@cosmjs/launchpad";
+import { OfflineSigner } from "@cosmjs/launchpad";
 import { coins } from "@cosmjs/proto-signing";
 import {
   DeliverTxResponse,
@@ -11,9 +11,12 @@ import { queryForAck, queryForIbcTimeout } from "atoms/transactions";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
 import { createIbcTransferMessage } from "lib/transactions";
+import toml from "toml";
 import {
   AddressWithAsset,
+  Coin,
   IbcTransferTransactionData,
+  LocalnetToml,
   TransferStep,
 } from "types";
 import { toBaseAmount } from "utils";
@@ -68,7 +71,12 @@ export const queryAssetBalances = async (
   rpc: string
 ): Promise<Coin[]> => {
   const client = await StargateClient.connect(rpc);
-  return ((await client.getAllBalances(owner)) as Coin[]) || [];
+  const balances = (await client.getAllBalances(owner)) || [];
+
+  return balances.map((balance) => ({
+    denom: balance.denom,
+    minDenomAmount: balance.amount,
+  }));
 };
 
 export const submitIbcTransfer = async (
@@ -116,7 +124,7 @@ export const submitIbcTransfer = async (
     sourceAddress,
     receiver,
     baseAmount,
-    asset.asset.base,
+    asset.originalAddress,
     memo
   );
 
@@ -188,4 +196,9 @@ export const updateIbcTransactionStatus = async (
       resultTxHash: timeoutQuery[0].hash,
     });
   }
+};
+
+export const fetchLocalnetTomlConfig = async (): Promise<LocalnetToml> => {
+  const response = await fetch("/localnet-config.toml");
+  return toml.parse(await response.text()) as LocalnetToml;
 };

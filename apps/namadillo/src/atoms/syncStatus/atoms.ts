@@ -1,11 +1,8 @@
-import {
-  accountBalanceAtom,
-  transparentBalanceAtom,
-} from "atoms/accounts/atoms";
-import { shieldedBalanceAtom } from "atoms/balance/atoms";
-import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals/atoms";
+import { accountBalanceAtom, transparentBalanceAtom } from "atoms/accounts";
+import { shieldedBalanceAtom } from "atoms/balance";
+import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals";
 import { indexerHeartbeatAtom, rpcHeartbeatAtom } from "atoms/settings/atoms";
-import { allValidatorsAtom, myValidatorsAtom } from "atoms/validators/atoms";
+import { allValidatorsAtom, myValidatorsAtom } from "atoms/validators";
 import { atom } from "jotai";
 
 export const syncStatusAtom = atom((get) => {

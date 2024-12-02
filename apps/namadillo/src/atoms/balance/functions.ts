@@ -81,13 +81,13 @@ const tnamAddressToDenomTrace = (
 };
 
 export const mapNamadaAddressesToAssets = async (
-  balances: { address: string; amount: BigNumber }[],
+  balances: { address: string; minDenomAmount: BigNumber }[],
   tokenAddresses: (NativeToken | IbcToken)[],
   chainId: string
 ): Promise<AddressWithAssetAndAmountMap> => {
-  const coins = balances.map(({ address, amount }) => ({
+  const coins = balances.map(({ address, minDenomAmount }) => ({
     denom: address,
-    amount: amount.toString(), // TODO: don't convert back to string
+    minDenomAmount: minDenomAmount.toString(), // TODO: don't convert back to string
   }));
 
   return await mapCoinsToAssets(coins, chainId, (tnamAddress) =>

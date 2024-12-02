@@ -1,9 +1,5 @@
 import { Asset, AssetList, Chain, IBCInfo } from "@chain-registry/types";
-import {
-  Bond as IndexerBond,
-  Unbond as IndexerUnbond,
-  ValidatorStatus,
-} from "@namada/indexer-client";
+import { ValidatorStatus } from "@namada/indexer-client";
 import {
   Account,
   ChainKey,
@@ -58,6 +54,7 @@ export type SettingsTomlOptions = {
   indexer_url?: string;
   masp_indexer_url?: string;
   rpc_url?: string;
+  localnet_enabled?: boolean;
 };
 
 export type ChainParameters = {
@@ -93,11 +90,17 @@ export type Validator = Unique & {
 
 export type ValidatorFilterOptions = "all" | "active" | ValidatorStatus;
 
-export type UnbondEntry = Omit<IndexerUnbond, "validator"> & {
+export type UnbondEntry = {
+  amount: BigNumber;
+  withdrawEpoch: string;
+  withdrawTime: string;
+  canWithdraw: boolean;
   timeLeft?: string;
 };
 
-export type BondEntry = Omit<IndexerBond, "validator">;
+export type BondEntry = {
+  amount: BigNumber;
+};
 
 export type MyValidator = {
   stakedAmount?: BigNumber;
@@ -191,6 +194,11 @@ export type AddressWithAsset = {
 
 export type AddressWithAssetAndAmount = AddressWithAsset & {
   amount: BigNumber;
+};
+
+export type Coin = {
+  denom: string;
+  minDenomAmount: string;
 };
 
 export type AddressWithAssetAndAmountMap = Record<
@@ -341,4 +349,11 @@ export type PartialTransferTransactionData = Partial<TransferTransactionData> &
 export type ChainStatus = {
   height: number;
   epoch: number;
+};
+
+export type LocalnetToml = {
+  chain_id: string;
+  token_address: string;
+  chain_1_channel: string;
+  chain_2_channel: string;
 };

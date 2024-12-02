@@ -2,7 +2,7 @@ import { AssetList, Chain } from "@chain-registry/types";
 import { ExtensionKey, IbcTransferProps } from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
 import { chainAtom, chainParametersAtom } from "atoms/chain";
-import { settingsAtom } from "atoms/settings";
+import { defaultServerConfigAtom, settingsAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import { atom } from "jotai";
@@ -20,6 +20,7 @@ import {
   TransferTransactionData,
 } from "types";
 import {
+  addLocalnetToRegistry,
   createIbcTx,
   getIbcChannels,
   getKnownChains,
@@ -28,6 +29,7 @@ import {
   mapCoinsToAssets,
 } from "./functions";
 import {
+  fetchLocalnetTomlConfig,
   IbcTransferParams,
   queryAndStoreRpc,
   queryAssetBalances,
@@ -196,5 +198,30 @@ export const createIbcTxAtom = atomWithMutation((get) => {
         memo
       );
     },
+  };
+});
+
+export const localnetConfigAtom = atomWithQuery((get) => {
+  const config = get(defaultServerConfigAtom);
+
+  return {
+    queryKey: ["localnet-config", config],
+    staleTime: Infinity,
+    retry: false,
+
+    ...queryDependentFn(async () => {
+      try {
+        const localnetConfig = await fetchLocalnetTomlConfig();
+        addLocalnetToRegistry(localnetConfig);
+
+        return {
+          chainId: localnetConfig.chain_id,
+          tokenAddress: localnetConfig.token_address,
+        };
+      } catch (_) {
+        // If file not found just ignore
+        return null;
+      }
+    }, [Boolean(config.data?.localnet_enabled)]),
   };
 });

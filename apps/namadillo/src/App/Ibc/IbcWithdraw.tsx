@@ -55,8 +55,8 @@ export const IbcWithdraw: React.FC = () => {
 
   const transactionFee = mapUndefined(
     ({ gasLimit, gasPrice }) => ({
-      originalAddress: namadaAsset.address,
-      asset: namadaAsset,
+      originalAddress: namadaAsset().address,
+      asset: namadaAsset(),
       amount: gasPrice.multipliedBy(gasLimit),
     }),
     gasConfig

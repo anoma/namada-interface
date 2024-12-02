@@ -90,7 +90,7 @@ export const shieldedSyncAtom = atomWithQuery<ShieldedSyncEmitter | null>(
 );
 
 export const shieldedBalanceAtom = atomWithQuery<
-  { address: string; amount: BigNumber }[]
+  { address: string; minDenomAmount: BigNumber }[]
 >((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
   const viewingKeysQuery = get(viewingKeysAtom);
@@ -130,11 +130,7 @@ export const shieldedBalanceAtom = atomWithQuery<
       );
       const shieldedBalance = response.map(([address, amount]) => ({
         address,
-        amount:
-          // Sdk returns the nam amount as `nam` instead of `namnam`
-          namTokenAddressQuery.data === address ?
-            new BigNumber(amount).shiftedBy(6)
-          : new BigNumber(amount),
+        minDenomAmount: BigNumber(amount),
       }));
       return shieldedBalance;
     }, [viewingKeysQuery, tokenAddressesQuery, namTokenAddressQuery]),

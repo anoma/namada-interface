@@ -2,6 +2,7 @@ import { Balance, DefaultApi } from "@namada/indexer-client";
 import { Account } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { NamadaKeychain } from "hooks/useNamadaKeychain";
+import { namadaAsset, toDisplayAmount } from "utils";
 
 export const fetchAccounts = async (): Promise<readonly Account[]> => {
   const namada = await new NamadaKeychain().get();
@@ -17,26 +18,22 @@ export const fetchDefaultAccount = async (): Promise<Account | undefined> => {
 export const fetchNamAccountBalance = async (
   api: DefaultApi,
   account: Account | undefined,
-  tokenAddress: string,
-  decimals: number
+  tokenAddress: string
 ): Promise<BigNumber> => {
   if (!account) return BigNumber(0);
   const balancesResponse = await api.apiV1AccountAddressGet(account.address);
 
   const balance = balancesResponse.data
-    // TODO: add filter to the api call
     .filter(({ tokenAddress: ta }) => ta === tokenAddress)
-    .map(({ tokenAddress, balance }) => {
+    .map(({ tokenAddress, minDenomAmount }) => {
       return {
         token: tokenAddress,
-        amount: balance,
+        amount: toDisplayAmount(namadaAsset(), new BigNumber(minDenomAmount)),
       };
     })
     .at(0);
 
-  return balance ?
-      BigNumber(balance.amount).shiftedBy(-decimals)
-    : BigNumber(0);
+  return balance ? BigNumber(balance.amount) : BigNumber(0);
 };
 
 export const fetchAccountBalance = async (
