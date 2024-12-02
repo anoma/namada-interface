@@ -6,61 +6,11 @@
 
 ### Properties
 
-- [accounts](Signer.md#accounts)
-- [defaultAccount](Signer.md#defaultaccount)
 - [sign](Signer.md#sign)
 - [signArbitrary](Signer.md#signarbitrary)
 - [verify](Signer.md#verify)
 
 ## Properties
-
-### accounts
-
-• **accounts**: (`chainId?`: `string`) => `Promise`\<`undefined` \| [`Account`](../modules.md#account)[]\>
-
-#### Type declaration
-
-▸ (`chainId?`): `Promise`\<`undefined` \| [`Account`](../modules.md#account)[]\>
-
-##### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `chainId?` | `string` |
-
-##### Returns
-
-`Promise`\<`undefined` \| [`Account`](../modules.md#account)[]\>
-
-#### Defined in
-
-[signer.ts:10](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/signer.ts#L10)
-
-___
-
-### defaultAccount
-
-• **defaultAccount**: (`chainId?`: `string`) => `Promise`\<`undefined` \| [`Account`](../modules.md#account)\>
-
-#### Type declaration
-
-▸ (`chainId?`): `Promise`\<`undefined` \| [`Account`](../modules.md#account)\>
-
-##### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `chainId?` | `string` |
-
-##### Returns
-
-`Promise`\<`undefined` \| [`Account`](../modules.md#account)\>
-
-#### Defined in
-
-[signer.ts:11](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/signer.ts#L11)
-
-___
 
 ### sign
 
@@ -84,7 +34,7 @@ ___
 
 #### Defined in
 
-[signer.ts:12](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/signer.ts#L12)
+[signer.ts:9](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/signer.ts#L9)
 
 ___
 
@@ -109,7 +59,7 @@ ___
 
 #### Defined in
 
-[signer.ts:17](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/signer.ts#L17)
+[signer.ts:14](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/signer.ts#L14)
 
 ___
 
@@ -135,4 +85,4 @@ ___
 
 #### Defined in
 
-[signer.ts:21](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/signer.ts#L21)
+[signer.ts:18](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/signer.ts#L18)

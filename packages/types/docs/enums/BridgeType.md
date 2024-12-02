@@ -17,7 +17,7 @@
 
 #### Defined in
 
-[chain.ts:14](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/chain.ts#L14)
+[chain.ts:14](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/chain.ts#L14)
 
 ___
 
@@ -27,4 +27,4 @@ ___
 
 #### Defined in
 
-[chain.ts:13](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/chain.ts#L13)
+[chain.ts:13](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/chain.ts#L13)

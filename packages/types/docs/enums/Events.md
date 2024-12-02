@@ -9,6 +9,7 @@
 - [AccountChanged](Events.md#accountchanged)
 - [ConnectionRevoked](Events.md#connectionrevoked)
 - [ExtensionLocked](Events.md#extensionlocked)
+- [ExtensionUnlocked](Events.md#extensionunlocked)
 - [NetworkChanged](Events.md#networkchanged)
 
 ## Enumeration Members
@@ -19,7 +20,7 @@
 
 #### Defined in
 
-[events.ts:5](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/events.ts#L5)
+[events.ts:5](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/events.ts#L5)
 
 ___
 
@@ -29,7 +30,7 @@ ___
 
 #### Defined in
 
-[events.ts:8](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/events.ts#L8)
+[events.ts:9](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/events.ts#L9)
 
 ___
 
@@ -39,7 +40,17 @@ ___
 
 #### Defined in
 
-[events.ts:7](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/events.ts#L7)
+[events.ts:7](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/events.ts#L7)
+
+___
+
+### ExtensionUnlocked
+
+• **ExtensionUnlocked** = ``"namada-extension-unlocked"``
+
+#### Defined in
+
+[events.ts:8](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/events.ts#L8)
 
 ___
 
@@ -49,4 +60,4 @@ ___
 
 #### Defined in
 
-[events.ts:6](https://github.com/anoma/namada-interface/blob/3202c74b4d4cd4d051fc7dba37b10a0aedeec7a9/packages/types/src/events.ts#L6)
+[events.ts:6](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/events.ts#L6)
