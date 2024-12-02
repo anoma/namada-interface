@@ -18,6 +18,7 @@ export enum MessageType {
   QueryTxDetails = "query-tx-details",
   QuerySignArbitraryData = "query-sign-arbitrary-data",
   QueryPendingTxBytes = "query-pending-tx-bytes",
+  CheckIsApprovedSite = "check-is-approved-site",
 }
 
 export class SubmitApprovedSignTxMsg extends Message<void> {
@@ -298,5 +299,30 @@ export class QuerySignArbitraryDataMsg extends Message<string> {
 
   type(): string {
     return QuerySignArbitraryDataMsg.type();
+  }
+}
+
+export class CheckIsApprovedSiteMsg extends Message<boolean> {
+  public static type(): MessageType {
+    return MessageType.CheckIsApprovedSite;
+  }
+
+  constructor(
+    public readonly interfaceOrigin: string,
+    public readonly chainId: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["interfaceOrigin", "chainId"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return CheckIsApprovedSiteMsg.type();
   }
 }

@@ -1,8 +1,9 @@
 import { Login } from "App/Login";
-import { CheckIsLockedMsg, UnlockVaultMsg } from "background/vault";
+import { UnlockVaultMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
-import { useEffect, useState } from "react";
+import { useContext } from "react";
 import { Ports } from "router";
+import { ExtensionLockContext } from "./Approvals";
 
 type Props = {
   children: React.ReactNode;
@@ -10,16 +11,7 @@ type Props = {
 
 export const WithAuth: React.FC<Props> = ({ children }) => {
   const requester = useRequester();
-  const [isLocked, setIsLocked] = useState<boolean>();
-
-  useEffect(() => {
-    requester
-      .sendMessage(Ports.Background, new CheckIsLockedMsg())
-      .then((isLocked) => {
-        setIsLocked(isLocked);
-      })
-      .catch(() => setIsLocked(true));
-  }, []);
+  const { isUnlocked, setIsUnlocked } = useContext(ExtensionLockContext);
 
   const handleOnLogin = async (password: string): Promise<boolean> => {
     try {
@@ -27,19 +19,19 @@ export const WithAuth: React.FC<Props> = ({ children }) => {
         Ports.Background,
         new UnlockVaultMsg(password)
       );
-      setIsLocked(!isUnlocked);
+      setIsUnlocked!(isUnlocked);
       return isUnlocked;
     } catch (_) {
-      setIsLocked(true);
+      setIsUnlocked!(false);
     }
     return false;
   };
 
   return (
     <>
-      {isLocked ?
-        <Login onLogin={handleOnLogin} />
-      : <>{children}</>}
+      {isUnlocked ?
+        <>{children}</>
+      : <Login onLogin={handleOnLogin} />}
     </>
   );
 };
