@@ -5,7 +5,6 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { getRouter } from "./App/AppRoutes";
-import { IntegrationsProvider } from "./services";
 
 import "@namada/components/src/base.css";
 import "@namada/utils/bigint-to-json-polyfill";
@@ -24,17 +23,15 @@ if (container) {
     root.render(
       <React.StrictMode>
         <QueryProvider>
-          <IntegrationsProvider>
-            <TomlConfigLoader>
-              <IndexerLoader>
-                <ExtensionLoader>
-                  <SdkProvider>
-                    <RouterProvider router={router} />
-                  </SdkProvider>
-                </ExtensionLoader>
-              </IndexerLoader>
-            </TomlConfigLoader>
-          </IntegrationsProvider>
+          <TomlConfigLoader>
+            <IndexerLoader>
+              <ExtensionLoader>
+                <SdkProvider>
+                  <RouterProvider router={router} />
+                </SdkProvider>
+              </ExtensionLoader>
+            </IndexerLoader>
+          </TomlConfigLoader>
         </QueryProvider>
       </React.StrictMode>
     );

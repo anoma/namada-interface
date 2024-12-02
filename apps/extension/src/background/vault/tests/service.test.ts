@@ -61,9 +61,6 @@ describe("Testing untouched Vault Service", () => {
     await service.unlock(password);
     expect(await service.isLocked()).toBeFalsy();
     expect(await service.checkPassword(password)).toBeTruthy();
-    expect(await service.UNSAFE_getPassword()).toEqual(
-      await service.hashPassword(password)
-    );
   });
 
   it("Should encrypt and decrypt message correctly", async () => {

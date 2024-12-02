@@ -24,3 +24,16 @@ export type EncodedTxData = Pick<TxProps, "args" | "hash"> & {
   bytes: string;
   signingData: EncodedSigningData[];
 };
+
+export const ApprovalErrors = {
+  AccountNotFound: (address: string) => `Could not find account for ${address}`,
+  KeychainLocked: () => "Keychain is locked!",
+  PendingSigningDataNotFound: (msgId: string) =>
+    `Pending signing data not found for ${msgId}!`,
+  PendingSignArbitaryDataNotFound: (msgId: string) =>
+    `Pending sign arbitrary data not found for ${msgId}!`,
+  TransactionDataNotFound: (msgId: string) =>
+    `Transaction data not found for ${msgId}`,
+  InvalidLedgerSignature: (msgId: string) =>
+    `Did not receive correct signatures for tx ${msgId}`,
+};

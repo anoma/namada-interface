@@ -13,6 +13,7 @@ enum MessageType {
   CreatePassword = "create-password",
   Logout = "logout",
 }
+
 export class CheckPasswordInitializedMsg extends Message<boolean> {
   public static type(): MessageType {
     return MessageType.PasswordInitialized;

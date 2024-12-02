@@ -70,6 +70,26 @@ export class VaultLockedEventMsg extends Message<void> {
   }
 }
 
+export class VaultUnlockedEventMsg extends Message<void> {
+  public static type(): Events {
+    return Events.ExtensionUnlocked;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {}
+
+  route(): string {
+    return Routes.InteractionForeground;
+  }
+
+  type(): string {
+    return VaultUnlockedEventMsg.type();
+  }
+}
+
 export class ConnectionRevokedEventMsg extends Message<void> {
   public static type(): Events {
     return Events.ConnectionRevoked;
@@ -94,6 +114,7 @@ export function initEvents(router: Router, localStorage: LocalStorage): void {
   router.registerMessage(AccountChangedEventMsg);
   router.registerMessage(NetworkChangedEventMsg);
   router.registerMessage(VaultLockedEventMsg);
+  router.registerMessage(VaultUnlockedEventMsg);
   router.registerMessage(ConnectionRevokedEventMsg);
 
   router.addHandler(Routes.InteractionForeground, async (_, msg) => {
@@ -120,6 +141,9 @@ export function initEvents(router: Router, localStorage: LocalStorage): void {
         break;
       case VaultLockedEventMsg:
         window.dispatchEvent(new CustomEvent(Events.ExtensionLocked));
+        break;
+      case VaultUnlockedEventMsg:
+        window.dispatchEvent(new CustomEvent(Events.ExtensionUnlocked));
         break;
       case ConnectionRevokedEventMsg:
         window.dispatchEvent(new CustomEvent(Events.ConnectionRevoked));

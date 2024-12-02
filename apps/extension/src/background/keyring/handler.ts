@@ -172,7 +172,7 @@ const handleQueryAccountsMsg: (
 
     const output =
       query && query.accountId ?
-        await service.queryAccountById(query.accountId)
+        await service.queryAccountsByParentId(query.accountId)
       : await service.queryAccounts();
 
     return output;

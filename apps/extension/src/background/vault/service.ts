@@ -61,6 +61,9 @@ export class VaultService {
   public async unlock(password: string): Promise<boolean> {
     if (await this.checkPassword(password)) {
       await this.setPassword(password);
+      if (this.broadcaster) {
+        await this.broadcaster.unlockExtension();
+      }
       return true;
     }
     return false;
@@ -82,12 +85,6 @@ export class VaultService {
 
   protected async getPassword(): Promise<string> {
     return (await this.sessionStore.get("password")) || "";
-  }
-
-  // TODO: I think we shouldn't expose the password like this, but it's required
-  // for SDK methods. Use cautiously.
-  public async UNSAFE_getPassword(): Promise<string> {
-    return await this.getPassword();
   }
 
   public async checkPassword(password: string): Promise<boolean> {

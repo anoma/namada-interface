@@ -15,7 +15,7 @@ import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
 import { LocalStorage } from "storage";
 import { fromEncodedTx } from "utils";
-import { EncodedTxData, PendingTx } from "./types";
+import { ApprovalErrors, EncodedTxData, PendingTx } from "./types";
 
 type Resolver = {
   // TODO: there should be better typing for this
@@ -35,7 +35,6 @@ export class ApprovalsService {
     protected readonly sdkService: SdkService,
     protected readonly keyRingService: KeyRingService,
     protected readonly vaultService: VaultService,
-    // TODO: This is not used here until #1298 is merged!
     protected readonly chainService: ChainService,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
@@ -58,6 +57,9 @@ export class ApprovalsService {
     txs: EncodedTxData[],
     checksums?: Record<string, string>
   ): Promise<Uint8Array[]> {
+    if (await this.isLocked()) {
+      throw new Error(ApprovalErrors.KeychainLocked());
+    }
     const msgId = uuid();
 
     // If the signer is a disposable signer, get the real address
@@ -68,7 +70,7 @@ export class ApprovalsService {
     // We use the real address to query the account details
     const details = await this.keyRingService.queryAccountDetails(realAddress);
     if (!details) {
-      throw new Error(`Could not find account for ${realAddress}`);
+      throw new Error(ApprovalErrors.AccountNotFound(signer));
     }
 
     const pendingTx: PendingTx = {
@@ -88,6 +90,9 @@ export class ApprovalsService {
     signer: string,
     data: string
   ): Promise<SignArbitraryResponse> {
+    if (await this.isLocked()) {
+      throw new Error(ApprovalErrors.KeychainLocked());
+    }
     const msgId = uuid();
 
     await this.dataStore.set(msgId, data);
@@ -107,7 +112,7 @@ export class ApprovalsService {
     const resolvers = this.getResolver(popupTabId);
 
     if (!pendingTx) {
-      throw new Error(`Signing data for ${msgId} not found!`);
+      throw new Error(ApprovalErrors.PendingSigningDataNotFound(msgId));
     }
 
     try {
@@ -120,7 +125,7 @@ export class ApprovalsService {
       resolvers.reject(e);
     }
 
-    await this._clearPendingSignature(msgId);
+    await this.clearPendingSignature(msgId);
   }
 
   async submitSignLedgerTx(
@@ -132,11 +137,11 @@ export class ApprovalsService {
     const resolvers = this.getResolver(popupTabId);
 
     if (!pendingTx || !pendingTx.txs) {
-      throw new Error(`Transaction data for ${msgId} not found!`);
+      throw new Error(ApprovalErrors.TransactionDataNotFound(msgId));
     }
 
     if (pendingTx.txs.length !== responseSign.length) {
-      throw new Error(`Did not receive correct signatures for tx ${msgId}`);
+      throw new Error(ApprovalErrors.InvalidLedgerSignature(msgId));
     }
 
     const { tx } = this.sdkService.getSdk();
@@ -150,7 +155,7 @@ export class ApprovalsService {
       resolvers.reject(e);
     }
 
-    await this._clearPendingSignature(msgId);
+    await this.clearPendingSignature(msgId);
   }
 
   async submitSignArbitrary(
@@ -162,9 +167,8 @@ export class ApprovalsService {
     const resolvers = this.getResolver(popupTabId);
 
     if (!data) {
-      throw new Error(`Signing data for ${msgId} not found!`);
+      throw new Error(ApprovalErrors.PendingSigningDataNotFound(msgId));
     }
-    //TODO: Shouldn't we _clearPendingSignature when throwing?
 
     try {
       const signature = await this.keyRingService.signArbitrary(signer, data);
@@ -173,13 +177,13 @@ export class ApprovalsService {
       resolvers.reject(e);
     }
 
-    await this._clearPendingSignature(msgId);
+    await this.clearPendingSignature(msgId);
   }
 
   async rejectSignArbitrary(popupTabId: number, msgId: string): Promise<void> {
     const resolvers = this.getResolver(popupTabId);
 
-    await this._clearPendingSignature(msgId);
+    await this.clearPendingSignature(msgId);
     resolvers.reject(new Error("Sign arbitrary rejected"));
   }
 
@@ -187,35 +191,49 @@ export class ApprovalsService {
   async rejectSignTx(popupTabId: number, msgId: string): Promise<void> {
     const resolvers = this.getResolver(popupTabId);
 
-    await this._clearPendingTx(msgId);
+    await this.clearPendingTx(msgId);
     resolvers.reject(new Error("Sign Tx rejected"));
+  }
+
+  async isSigningChainApproved(chainId: string): Promise<boolean> {
+    const currentChainId = await this.chainService.getChain();
+    if (chainId !== currentChainId) {
+      return false;
+    }
+    return true;
+  }
+
+  async isDomainApproved(interfaceOrigin: string): Promise<boolean> {
+    const approvedOrigins =
+      (await this.localStorage.getApprovedOrigins()) || [];
+    return approvedOrigins.includes(interfaceOrigin);
   }
 
   async isConnectionApproved(
     interfaceOrigin: string,
     chainId?: string
   ): Promise<boolean> {
-    const approvedOrigins =
-      (await this.localStorage.getApprovedOrigins()) || [];
-
-    if (chainId) {
-      const currentChainId = await this.chainService.getChain();
-      if (chainId !== currentChainId) {
-        return false;
-      }
+    if (await this.isLocked()) {
+      return false;
     }
 
-    return approvedOrigins.includes(interfaceOrigin);
+    if (chainId) {
+      const isChainApproved = await this.isSigningChainApproved(chainId);
+      if (!isChainApproved) return false;
+    }
+
+    return this.isDomainApproved(interfaceOrigin);
   }
 
   async approveConnection(
     interfaceOrigin: string,
     chainId?: string
   ): Promise<void> {
-    const alreadyApproved = await this.isConnectionApproved(
+    const isLocked = await this.isLocked();
+    const needsApproval = !(await this.isConnectionApproved(
       interfaceOrigin,
       chainId
-    );
+    ));
 
     const approveConnectionPopupProps: {
       interfaceOrigin: string;
@@ -228,15 +246,15 @@ export class ApprovalsService {
       approveConnectionPopupProps["chainId"] = chainId;
     }
 
-    if (!alreadyApproved) {
+    if (needsApproval || isLocked) {
       return this.launchApprovalPopup(
         TopLevelRoute.ApproveConnection,
         approveConnectionPopupProps
       );
     }
 
-    // A resolved promise is implicitly returned here if the origin had
-    // previously been approved.
+    // A resolved promise is implicitly returned here if launching
+    // popup is not needed
   }
 
   async approveConnectionResponse(
@@ -341,7 +359,7 @@ export class ApprovalsService {
     const pendingTx = await this.txStore.get(msgId);
 
     if (!pendingTx) {
-      throw new Error(`No transaction found for ${msgId}`);
+      throw new Error(ApprovalErrors.TransactionDataNotFound(msgId));
     }
 
     const { tx } = this.sdkService.getSdk();
@@ -354,7 +372,7 @@ export class ApprovalsService {
     const pendingTx = await this.txStore.get(msgId);
 
     if (!pendingTx) {
-      throw new Error(`Tx not found for ${msgId}`);
+      throw new Error(ApprovalErrors.TransactionDataNotFound(msgId));
     }
 
     if (pendingTx.txs) {
@@ -366,17 +384,17 @@ export class ApprovalsService {
     const pendingSignArbitrary = await this.dataStore.get(msgId);
 
     if (!pendingSignArbitrary) {
-      throw new Error(`No pending sign-arbitrary data found for ${msgId}`);
+      throw new Error(ApprovalErrors.PendingSignArbitaryDataNotFound(msgId));
     }
 
     return pendingSignArbitrary;
   }
 
-  private async _clearPendingTx(msgId: string): Promise<void> {
+  private async clearPendingTx(msgId: string): Promise<void> {
     return await this.txStore.set(msgId, null);
   }
 
-  private async _clearPendingSignature(msgId: string): Promise<void> {
+  private async clearPendingSignature(msgId: string): Promise<void> {
     return await this.dataStore.set(msgId, null);
   }
 
@@ -438,5 +456,9 @@ export class ApprovalsService {
 
   private removeResolver = (popupTabId: number): void => {
     delete this.resolverMap[popupTabId];
+  };
+
+  private isLocked = async (): Promise<boolean> => {
+    return await this.vaultService.isLocked();
   };
 }
