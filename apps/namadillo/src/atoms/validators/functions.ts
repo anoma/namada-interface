@@ -106,23 +106,27 @@ export const toMyValidators = (
 
   for (const bond of indexerBonds) {
     const { address } = bond.validator;
-    createEntryIfDoesntExist(bond.validator);
-    incrementAmount(
-      address,
-      "stakedAmount",
-      toDisplayAmount(namadaAsset(), BigNumber(bond.minDenomAmount))
+    const amount = toDisplayAmount(
+      namadaAsset(),
+      BigNumber(bond.minDenomAmount)
     );
+    createEntryIfDoesntExist(bond.validator);
+    incrementAmount(address, "stakedAmount", amount);
     const bondEntry: BondEntry = {
-      amount: toDisplayAmount(namadaAsset(), BigNumber(bond.minDenomAmount)),
+      amount,
     };
     addBondToAddress(address, "bondItems", bondEntry);
   }
 
   for (const unbond of indexerUnbonds) {
     const { address } = unbond.validator;
+    const amount = toDisplayAmount(
+      namadaAsset(),
+      BigNumber(unbond.minDenomAmount)
+    );
     createEntryIfDoesntExist(unbond.validator);
     const unbondingDetails: UnbondEntry = {
-      amount: toDisplayAmount(namadaAsset(), BigNumber(unbond.minDenomAmount)),
+      amount,
       withdrawEpoch: unbond.withdrawEpoch,
       withdrawTime: unbond.withdrawTime,
       canWithdraw: unbond.canWithdraw,
@@ -130,17 +134,9 @@ export const toMyValidators = (
     };
     addBondToAddress(address, "unbondItems", unbondingDetails);
     if (unbond.canWithdraw) {
-      incrementAmount(
-        address,
-        "withdrawableAmount",
-        toDisplayAmount(namadaAsset(), BigNumber(unbond.minDenomAmount))
-      );
+      incrementAmount(address, "withdrawableAmount", amount);
     } else {
-      incrementAmount(
-        address,
-        "unbondedAmount",
-        toDisplayAmount(namadaAsset(), BigNumber(unbond.minDenomAmount))
-      );
+      incrementAmount(address, "unbondedAmount", amount);
     }
   }
 
