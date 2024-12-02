@@ -70,7 +70,7 @@ export const ValidatorInfoPanel = ({
         <dd>Namada</dd>
         <dt>Commission</dt>
         <dd>{formatPercentage(validator.commission)}</dd>
-        <dt>Expected APR (%)</dt>
+        <dt>Approximate APR (%)</dt>
         <dd>{formatPercentage(validator.expectedApr)}</dd>
         <dt>Voting Power</dt>
         <dd>
