@@ -61,6 +61,9 @@ export class VaultService {
   public async unlock(password: string): Promise<boolean> {
     if (await this.checkPassword(password)) {
       await this.setPassword(password);
+      if (this.broadcaster) {
+        await this.broadcaster.unlockExtension();
+      }
       return true;
     }
     return false;

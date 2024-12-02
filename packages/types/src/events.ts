@@ -5,6 +5,7 @@ export enum Events {
   AccountChanged = "namada-account-changed",
   NetworkChanged = "namada-network-changed",
   ExtensionLocked = "namada-extension-locked",
+  ExtensionUnlocked = "namada-extension-unlocked",
   ConnectionRevoked = "namada-connection-revoked",
 }
 
