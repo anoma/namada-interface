@@ -5,7 +5,7 @@ import BigNumber from "bignumber.js";
 import * as fns from "date-fns";
 import { getDefaultStore } from "jotai";
 import { DateTime } from "luxon";
-import internalDevnetAssets from "namada-chain-registry/namadainternaldevnet/assetlist.json";
+import internalDevnetAssets from "namada-chain-registry/_testnets/namadainternaldevnet/assetlist.json";
 import { useEffect } from "react";
 
 export const proposalStatusToString = (status: ProposalStatus): string => {

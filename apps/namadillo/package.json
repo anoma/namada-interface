@@ -27,7 +27,7 @@
     "jotai": "^2.6.3",
     "jotai-tanstack-query": "^0.8.5",
     "lodash.debounce": "^4.0.8",
-    "namada-chain-registry": "https://github.com/anoma/namada-chain-registry",
+    "namada-chain-registry": "https://github.com/anoma/namada-chain-registry#bae038a3bd666cd7cb8886fcfecb94623dd3d843",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.1.0",
