@@ -37,7 +37,7 @@ export const AvailableAmountFooter = ({
             disabled={availableAmount.eq(0)}
             onClick={onClickMax}
             outlineColor="neutral"
-            className="text-neutral-500 text-xs py-0 px-3"
+            className="text-neutral-500 text-xs py-0 px-3 disabled:text-neutral-700"
             backgroundHoverColor="white"
             backgroundColor="transparent"
           >

@@ -155,6 +155,8 @@ export const IbcWithdraw: React.FC = () => {
     connectToChainId(chain.chain_id);
   };
 
+  const requiresIbcChannels = !ibcChannels?.cosmosChannelId;
+
   return (
     <div className="relative min-h-[600px]">
       {!transaction && (
@@ -199,6 +201,7 @@ export const IbcWithdraw: React.FC = () => {
             }}
             isSubmitting={isPending}
             isIbcTransfer={true}
+            requiresIbcChannels={requiresIbcChannels}
             ibcOptions={{
               sourceChannel,
               onChangeSourceChannel: setSourceChannel,
@@ -210,11 +213,7 @@ export const IbcWithdraw: React.FC = () => {
         </>
       )}
       {transaction && (
-        <div
-          className={clsx(
-            "absolute z-50 py-12 left-0 top-0 w-full h-full bg-black"
-          )}
-        >
+        <div className={clsx("absolute z-50 py-12 left-0 top-0 w-full h-full")}>
           <TransferTransactionTimeline transaction={transaction} />
         </div>
       )}

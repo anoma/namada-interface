@@ -1,8 +1,8 @@
 import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
 import { AccountType } from "@namada/types";
-import { Timeline } from "App/Common/Timeline";
 import { params } from "App/routes";
+import { TransferTransactionTimeline } from "App/Transactions/TransferTransactionTimeline";
 import { isShieldedAddress } from "App/Transfer/common";
 import {
   OnSubmitTransferParams,
@@ -20,10 +20,10 @@ import {
   createUnshieldingTransferAtom,
 } from "atoms/transfer/atoms";
 import BigNumber from "bignumber.js";
+import clsx from "clsx";
 import { useTransaction } from "hooks/useTransaction";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { wallets } from "integrations";
-import { getAssetImageUrl } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
 import { useEffect, useMemo, useState } from "react";
@@ -36,7 +36,7 @@ import {
   PartialTransferTransactionData,
   TransferStep,
 } from "types";
-import { isNamadaAsset, useTransactionEventListListener } from "utils";
+import { isNamadaAsset } from "utils";
 import { NamadaTransferTopHeader } from "./NamadaTransferTopHeader";
 
 export const NamadaTransfer: React.FC = () => {
@@ -44,7 +44,6 @@ export const NamadaTransfer: React.FC = () => {
   const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
   const [shielded, setShielded] = useState<boolean>(true);
   const [customAddress, setCustomAddress] = useState<string>("");
-  const [currentStep, setCurrentStep] = useState(0);
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
   const [transaction, setTransaction] =
     useState<PartialTransferTransactionData>();
@@ -100,9 +99,6 @@ export const NamadaTransfer: React.FC = () => {
       title: "Transfer transaction failed",
       description: "",
     }),
-    onSigned: () => {
-      setCurrentStep(1);
-    },
   };
 
   const transparentTransaction = useTransaction({
@@ -167,7 +163,6 @@ export const NamadaTransfer: React.FC = () => {
 
   const isSourceShielded = isShieldedAddress(source);
   const isTargetShielded = isShieldedAddress(target);
-  const assetImage = selectedAsset ? getAssetImageUrl(selectedAsset.asset) : "";
 
   useEffect(() => {
     if (transaction?.hash) {
@@ -177,18 +172,6 @@ export const NamadaTransfer: React.FC = () => {
       }
     }
   }, [myTransactions]);
-
-  useTransactionEventListListener(
-    [
-      "TransparentTransfer.Success",
-      "ShieldedTransfer.Success",
-      "ShieldingTransfer.Success",
-      "UnshieldingTransfer.Success",
-    ],
-    () => {
-      setCurrentStep(3);
-    }
-  );
 
   const onChangeSelectedAsset = (address?: Address): void => {
     setSearchParams(
@@ -210,7 +193,6 @@ export const NamadaTransfer: React.FC = () => {
   }: OnSubmitTransferParams): Promise<void> => {
     try {
       setGeneralErrorMessage("");
-      setCurrentStep(0);
 
       if (typeof sourceAddress === "undefined") {
         throw new Error("Source address is not defined");
@@ -253,30 +235,30 @@ export const NamadaTransfer: React.FC = () => {
         const tx = txList[0];
         setTransaction(tx);
         storeTransaction(tx);
-        setCurrentStep(2);
       } else {
         throw "Invalid transaction response";
       }
     } catch (err) {
       setGeneralErrorMessage(err + "");
-      setCurrentStep(0);
       setTransaction(undefined);
     }
   };
 
   return (
-    <Panel className="pt-8 pb-20">
-      <header className="flex flex-col items-center text-center mb-8 gap-6">
-        <h1 className={twMerge("text-lg", isSourceShielded && "text-yellow")}>
-          Transfer
-        </h1>
-        <NamadaTransferTopHeader
-          isSourceShielded={isSourceShielded}
-          isDestinationShielded={target ? isTargetShielded : undefined}
-        />
-      </header>
+    <Panel className="relative pt-8 pb-20">
       {!transaction && (
         <div className="min-h-[600px]">
+          <header className="flex flex-col items-center text-center mb-8 gap-6">
+            <h1
+              className={twMerge("text-lg", isSourceShielded && "text-yellow")}
+            >
+              Transfer
+            </h1>
+            <NamadaTransferTopHeader
+              isSourceShielded={isSourceShielded}
+              isDestinationShielded={target ? isTargetShielded : undefined}
+            />
+          </header>
           <TransferModule
             source={{
               isLoadingAssets,
@@ -307,51 +289,12 @@ export const NamadaTransfer: React.FC = () => {
         </div>
       )}
       {transaction && (
-        <div className={twMerge("my-12", isSourceShielded && "text-yellow")}>
-          <Timeline
-            currentStepIndex={currentStep}
-            steps={[
-              {
-                children: <img src={assetImage} className="w-14" />,
-              },
-              {
-                children: (
-                  <div className={twMerge(isSourceShielded && "text-yellow")}>
-                    Signature Required
-                  </div>
-                ),
-                bullet: true,
-              },
-              {
-                children: (
-                  <>
-                    <div>
-                      Transfer to{" "}
-                      {isTargetShielded ?
-                        "Namada Shielded"
-                      : "Namada Transparent"}
-                    </div>
-                    <div className="text-xs">{target}</div>
-                  </>
-                ),
-                bullet: true,
-              },
-              {
-                // TODO
-                children: (
-                  <div
-                    className={twMerge(
-                      "flex flex-col items-center",
-                      isTargetShielded && "text-yellow"
-                    )}
-                  >
-                    <img src={assetImage} className="w-14 mb-2" />
-                    Transfer Complete
-                  </div>
-                ),
-              },
-            ]}
-          />
+        <div
+          className={clsx("absolute z-50 py-12 left-0 top-0 w-full h-full", {
+            "text-yellow": shielded,
+          })}
+        >
+          <TransferTransactionTimeline transaction={transaction} />
         </div>
       )}
     </Panel>

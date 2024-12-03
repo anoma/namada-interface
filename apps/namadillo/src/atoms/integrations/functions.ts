@@ -170,6 +170,15 @@ const tryDenomToIbcAsset = async (
 
   const { path, baseDenom } = denomTrace;
 
+  const assetOnRegistry = tryDenomToRegistryAsset(
+    baseDenom,
+    cosmosRegistry.assets.map((assetListEl) => assetListEl.assets).flat()
+  );
+
+  if (assetOnRegistry) {
+    return assetOnRegistry;
+  }
+
   // denom trace path may be something like...
   // transfer/channel-16/transfer/channel-4353
   // ...so from here walk the path to find the original chain
@@ -219,44 +228,61 @@ const unknownAsset = (denom: string): Asset => ({
   symbol: denom,
 });
 
+const findOriginalAsset = async (
+  coin: Coin,
+  assets: Asset[],
+  ibcAddressToDenomTrace: (address: string) => Promise<DenomTrace | undefined>,
+  chainName?: string
+): Promise<AddressWithAssetAndAmount> => {
+  const { minDenomAmount, denom } = coin;
+  let asset;
+
+  if (assets) {
+    asset = tryDenomToRegistryAsset(denom, assets);
+  }
+
+  if (!asset && chainName) {
+    asset = await tryDenomToIbcAsset(denom, ibcAddressToDenomTrace, chainName);
+  }
+
+  if (!asset) {
+    asset = unknownAsset(denom);
+  }
+
+  const baseBalance = BigNumber(minDenomAmount);
+  if (baseBalance.isNaN()) {
+    throw new Error(`Invalid balance: ${minDenomAmount}`);
+  }
+
+  const displayBalance = toDisplayAmount(asset, baseBalance);
+  return {
+    originalAddress: denom,
+    amount: displayBalance,
+    asset,
+  };
+};
+
+const findChainById = (chainId: string): Chain | undefined => {
+  return cosmosRegistry.chains.find((chain) => chain.chain_id === chainId);
+};
+
 export const mapCoinsToAssets = async (
   coins: Coin[],
   chainId: string,
   ibcAddressToDenomTrace: (address: string) => Promise<DenomTrace | undefined>
 ): Promise<AddressWithAssetAndAmountMap> => {
-  const chainName = cosmosRegistry.chains.find(
-    (chain) => chain.chain_id === chainId
-  )?.chain_name;
+  const chainName = findChainById(chainId)?.chain_name;
   const assets = mapUndefined(assetLookup, chainName);
-
   const results = await Promise.allSettled(
-    coins.map(async (coin: Coin): Promise<AddressWithAssetAndAmount> => {
-      const { minDenomAmount, denom } = coin;
-
-      const asset =
-        typeof chainName === "undefined" || typeof assets === "undefined" ?
-          unknownAsset(denom)
-        : tryDenomToRegistryAsset(denom, assets) ||
-          (await tryDenomToIbcAsset(
-            denom,
-            ibcAddressToDenomTrace,
-            chainName
-          )) ||
-          unknownAsset(denom);
-
-      const baseBalance = BigNumber(minDenomAmount);
-      if (baseBalance.isNaN()) {
-        throw new Error(`Balance is invalid, got ${minDenomAmount}`);
-      }
-      // We always represent amounts in their display denom, so convert here
-      const displayBalance = toDisplayAmount(asset, baseBalance);
-
-      return {
-        originalAddress: denom,
-        amount: displayBalance,
-        asset,
-      };
-    })
+    coins.map(
+      async (coin) =>
+        await findOriginalAsset(
+          coin,
+          assets || [],
+          ibcAddressToDenomTrace,
+          chainName
+        )
+    )
   );
 
   const successfulResults = results.reduce<AddressWithAssetAndAmount[]>(
