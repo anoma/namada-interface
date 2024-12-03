@@ -18,7 +18,7 @@ export const ValidatorDiversification = (): JSX.Element => {
         outlineColor="cyan"
         textHoverColor="black"
         backgroundHoverColor="cyan"
-        href="https://namada.net/blog/namada-cubic-proof-of-stake"
+        href="https://namada.net/staking"
         target="_blank"
         rel="nofollow noreferrer"
         size="xs"
