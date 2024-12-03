@@ -564,21 +564,28 @@ export class KeyRing {
     if (!sensitiveProps) {
       throw new Error(`Signing key for ${address} not found!`);
     }
-    const { text: secret, passphrase } = sensitiveProps;
-
-    const sdk = this.sdkService.getSdk();
-    const mnemonic = sdk.getMnemonic();
-    const seed = mnemonic.toSeed(secret, passphrase);
-
-    const keys = this.sdkService.getSdk().getKeys();
+    const { text, passphrase } = sensitiveProps;
 
     const bip44Path = {
       account: path.account,
       change: path.change || 0,
       index: path.index || 0,
     };
+    const accountType = accountStore.type;
+    let shieldedKeys: ShieldedKeys;
+    const keys = this.sdkService.getSdk().getKeys();
 
-    return keys.deriveShieldedFromSeed(seed, bip44Path).spendingKey;
+    if (accountType === AccountType.Mnemonic) {
+      const mnemonicSdk = this.sdkService.getSdk().getMnemonic();
+      const seed = mnemonicSdk.toSeed(text, passphrase);
+      shieldedKeys = keys.deriveShieldedFromSeed(seed, bip44Path);
+    } else if (accountType === AccountType.PrivateKey) {
+      shieldedKeys = keys.deriveShieldedFromPrivateKey(fromHex(text));
+    } else {
+      throw new Error(`Invalid account type! ${accountType}`);
+    }
+
+    return shieldedKeys.spendingKey;
   }
 
   /**
