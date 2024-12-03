@@ -23,6 +23,9 @@ export class WrapperTxMsgValue {
   @field({ type: option("string") })
   memo?: string;
 
+  @field({ type: option("bool") })
+  force?: boolean;
+
   constructor(data: WrapperTxProps) {
     Object.assign(this, data);
   }

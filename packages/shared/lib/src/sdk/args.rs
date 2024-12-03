@@ -38,6 +38,7 @@ pub struct WrapperTxMsg {
     chain_id: String,
     public_key: Option<String>,
     memo: Option<String>,
+    force: Option<bool>,
 }
 
 impl WrapperTxMsg {
@@ -48,6 +49,7 @@ impl WrapperTxMsg {
         chain_id: String,
         public_key: Option<String>,
         memo: Option<String>,
+        force: Option<bool>,
     ) -> WrapperTxMsg {
         WrapperTxMsg {
             token,
@@ -56,6 +58,7 @@ impl WrapperTxMsg {
             chain_id,
             public_key,
             memo,
+            force,
         }
     }
 }
@@ -884,6 +887,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         chain_id,
         public_key,
         memo,
+        force,
     } = tx_msg;
 
     let token = Address::from_str(&token)?;
@@ -911,12 +915,14 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
 
     let memo = memo.map(|v| v.as_bytes().to_vec());
 
+    let force = force.unwrap_or(false);
+
     let args = args::Tx {
         dry_run: false,
         dry_run_wrapper: false,
         dump_tx: false,
         dump_wrapper_tx: false,
-        force: false,
+        force,
         broadcast_only: false,
         ledger_address,
         wallet_alias_force: false,
