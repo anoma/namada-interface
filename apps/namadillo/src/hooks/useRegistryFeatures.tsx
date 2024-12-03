@@ -59,7 +59,7 @@ const fetchEnabledFeatures = async (
     features: Feature[];
   };
 
-  if (!enabledFeatures || enabledFeatures.length === 0) {
+  if (!enabledFeatures) {
     // Enable every feature for non-registry chains
     return allFeaturesEnabled;
   }
