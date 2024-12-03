@@ -15,9 +15,9 @@ const namadaChainRegistryUrl =
   : "https://raw.githubusercontent.com/anoma/namada-chain-registry/refs/heads/main";
 
 const namadaChainRegistryMap = new Map<string, string>([
-  ["namada-dryrun.abaaeaf7b78cb3ac", "namadadryrun"],
-  ["housefire-equal.130b1076e3250f", "namadahousefire"],
-  ["internal-devnet-44a.1bd3e6ca62", "namadainternaldevnet"],
+  ["namada.5f5de2dd1b88cba30586420", "namada"],
+  ["housefire-creek.76ed2d08793c14", "_testnets/namadahousefire"],
+  ["internal-devnet-45a.1881abcfec", "_testnets/namadainternaldevnet"],
 ]);
 
 type Feature =

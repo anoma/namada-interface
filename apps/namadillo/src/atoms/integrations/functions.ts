@@ -30,30 +30,28 @@ import {
 import { toBaseAmount, toDisplayAmount } from "utils";
 import { getSdkInstance } from "utils/sdk";
 
-import dryrunAssets from "namada-chain-registry/namadadryrun/assetlist.json";
-import dryrunChain from "namada-chain-registry/namadadryrun/chain.json";
-import housefireAssets from "namada-chain-registry/namadahousefire/assetlist.json";
-import housefireChain from "namada-chain-registry/namadahousefire/chain.json";
-import internalDevnetAssets from "namada-chain-registry/namadainternaldevnet/assetlist.json";
-import internalDevnetChain from "namada-chain-registry/namadainternaldevnet/chain.json";
+import housefireAssets from "namada-chain-registry/_testnets/namadahousefire/assetlist.json";
+import housefireChain from "namada-chain-registry/_testnets/namadahousefire/chain.json";
+import internalDevnetAssets from "namada-chain-registry/_testnets/namadainternaldevnet/assetlist.json";
+import internalDevnetChain from "namada-chain-registry/_testnets/namadainternaldevnet/chain.json";
+import namadaAssets from "namada-chain-registry/namada/assetlist.json";
+import namadaChain from "namada-chain-registry/namada/chain.json";
 
-import dryrunOsmosis from "namada-chain-registry/_IBC/namadadryrun-osmosis.json";
-import housefireCosmosTestnetIbc from "namada-chain-registry/_IBC/namadahousefire-cosmoshubtestnet.json";
-import housefireOsmosisTestnetIbc from "namada-chain-registry/_IBC/namadahousefire-osmosistestnet.json";
-import internalDevnetCosmosTestnetIbc from "namada-chain-registry/_IBC/namadainternaldevnet-cosmoshubtestnet.json";
+import housefireCosmosTestnetIbc from "namada-chain-registry/_testnets/_IBC/namadahousefire-cosmoshubtestnet.json";
+import housefireOsmosisTestnetIbc from "namada-chain-registry/_testnets/_IBC/namadahousefire-osmosistestnet.json";
+import internalDevnetCosmosTestnetIbc from "namada-chain-registry/_testnets/_IBC/namadainternaldevnet-cosmoshubtestnet.json";
 
 // TODO: this causes a big increase on bundle size. See #1224.
 import cosmosRegistry from "chain-registry";
 
-cosmosRegistry.chains.push(internalDevnetChain, housefireChain, dryrunChain);
+cosmosRegistry.chains.push(internalDevnetChain, housefireChain, namadaChain);
 
-cosmosRegistry.assets.push(internalDevnetAssets, housefireAssets, dryrunAssets);
+cosmosRegistry.assets.push(internalDevnetAssets, housefireAssets, namadaAssets);
 
 cosmosRegistry.ibc.push(
   internalDevnetCosmosTestnetIbc,
   housefireCosmosTestnetIbc,
-  housefireOsmosisTestnetIbc,
-  dryrunOsmosis
+  housefireOsmosisTestnetIbc
 );
 
 const mainnetChains: ChainRegistryEntry[] = [

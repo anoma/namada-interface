@@ -5,7 +5,7 @@ import BigNumber from "bignumber.js";
 import * as fns from "date-fns";
 import { getDefaultStore } from "jotai";
 import { DateTime } from "luxon";
-import internalDevnetAssets from "namada-chain-registry/namadainternaldevnet/assetlist.json";
+import namadaAssets from "namada-chain-registry/namada/assetlist.json";
 import { useEffect } from "react";
 
 export const proposalStatusToString = (status: ProposalStatus): string => {
@@ -123,14 +123,13 @@ const findDisplayUnit = (asset: Asset): AssetDenomUnit | undefined => {
   return denom_units.find((unit) => unit.denom === display);
 };
 
-// TODO update to mainnet asset
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const namadaAsset = () => {
   const store = getDefaultStore();
   const config = store.get(localnetConfigAtom);
 
   const configTokenAddress = config.data?.tokenAddress;
-  const registryAsset = internalDevnetAssets.assets[0];
+  const registryAsset = namadaAssets.assets[0];
   const asset =
     configTokenAddress ?
       {
