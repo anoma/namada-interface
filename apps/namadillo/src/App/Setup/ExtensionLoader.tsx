@@ -21,20 +21,24 @@ export const ExtensionLoader = ({
   );
 
   const chainId = chain?.chainId;
-  const keychainPromise = namadaKeychain.get();
 
   useEffect(() => {
-    keychainPromise.then((injectedNamada) => {
-      if (injectedNamada) {
-        return setAttachStatus("attached");
-      }
-      setAttachStatus("detached");
-    });
+    const getNamada = (): void => {
+      namadaKeychain.get().then((injectedNamada) => {
+        if (injectedNamada) {
+          setAttachStatus("attached");
+          return;
+        }
+        setAttachStatus("detached");
+        setTimeout(() => getNamada());
+      });
+    };
+    getNamada();
   }, []);
 
   useEffect(() => {
     if (chainId && attachStatus === "attached") {
-      keychainPromise.then((injectedNamada) => {
+      namadaKeychain.get().then((injectedNamada) => {
         injectedNamada.isConnected(chainId).then((isConnected) => {
           if (isConnected) {
             return setConnectionStatus("connected");
