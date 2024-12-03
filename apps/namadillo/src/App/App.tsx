@@ -9,7 +9,6 @@ import { useTransactionNotifications } from "hooks/useTransactionNotifications";
 import { useTransactionWatcher } from "hooks/useTransactionWatcher";
 import { Outlet } from "react-router-dom";
 import { ChainLoader } from "./Setup/ChainLoader";
-import { WorkerTest } from "./WorkerTest";
 
 export const history = createBrowserHistory({ window });
 
@@ -28,7 +27,6 @@ export function App(): JSX.Element {
     <>
       <Toasts />
       <AppLayout>
-        <WorkerTest></WorkerTest>
         <ChainLoader>
           <Outlet />
         </ChainLoader>
