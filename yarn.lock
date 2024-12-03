@@ -3680,7 +3680,7 @@ __metadata:
     jotai-tanstack-query: "npm:^0.8.5"
     local-cors-proxy: "npm:^1.1.0"
     lodash.debounce: "npm:^4.0.8"
-    namada-chain-registry: "https://github.com/anoma/namada-chain-registry"
+    namada-chain-registry: "https://github.com/anoma/namada-chain-registry#a22fad61b14c67d68d65b67bee71c88253a84aae"
     postcss: "npm:^8.4.32"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
@@ -15837,10 +15837,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"namada-chain-registry@https://github.com/anoma/namada-chain-registry":
+"namada-chain-registry@https://github.com/anoma/namada-chain-registry#a22fad61b14c67d68d65b67bee71c88253a84aae":
   version: 0.0.1
-  resolution: "namada-chain-registry@https://github.com/anoma/namada-chain-registry.git#commit=5531bd0c9fa08b9be53e1994ef998719dc618314"
-  checksum: 0b336e4bb5f7bd39b87828b5da3b90d69a3e8f629f567bf72a36d930c7d52431598ac6545f61aba4e11a4f4485830084971e8b65e3bba29078c22e2e2c98efe1
+  resolution: "namada-chain-registry@https://github.com/anoma/namada-chain-registry.git#commit=a22fad61b14c67d68d65b67bee71c88253a84aae"
+  checksum: f87159375f4e9308d0b47357a982411b8c83b427abf46bad28b65beb0eb489f3e2c25a2bbc7290d31090bd448ca1fa7f72ba1dfbf85241501cf2fa7d3a8904a5
   languageName: node
   linkType: hard
 
