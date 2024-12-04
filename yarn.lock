@@ -3725,7 +3725,7 @@ __metadata:
     "@release-it/conventional-changelog": "npm:^8.0.1"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.11.4"
-    "@zondax/ledger-namada": "npm:^0.0.6"
+    "@zondax/ledger-namada": "npm:^1.0.0"
     babel-jest: "npm:^29.0.3"
     bignumber.js: "npm:^9.1.1"
     buffer: "npm:^6.0.3"
@@ -6030,15 +6030,6 @@ __metadata:
   version: 4.2.2
   resolution: "@xtuc/long@npm:4.2.2"
   checksum: 8582cbc69c79ad2d31568c412129bf23d2b1210a1dfb60c82d5a1df93334da4ee51f3057051658569e2c196d8dc33bc05ae6b974a711d0d16e801e1d0647ccd1
-  languageName: node
-  linkType: hard
-
-"@zondax/ledger-namada@npm:^0.0.6":
-  version: 0.0.6
-  resolution: "@zondax/ledger-namada@npm:0.0.6"
-  dependencies:
-    "@ledgerhq/hw-transport": "npm:^6.30.6"
-  checksum: 39aabba4be347e5329413be53de82e6519ff9b8e44473d6753cd096b733d075891528d12353108bf653071cbcd6804a9b826703753061428a7f93861607bce80
   languageName: node
   linkType: hard
 
