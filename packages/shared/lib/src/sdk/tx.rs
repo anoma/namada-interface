@@ -211,8 +211,8 @@ pub struct Commitment {
     tx_type: TxType,
     hash: String,
     tx_code_id: String,
-    memo: Option<String>,
     data: Vec<u8>,
+    memo: Option<String>,
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -242,6 +242,7 @@ impl TxDetails {
                     let memo = tx
                         .memo(&cmt)
                         .map(|memo_bytes| String::from_utf8_lossy(&memo_bytes).to_string());
+
                     let hash = cmt.get_hash().to_string();
                     let tx_code_id = tx
                         .get_section(cmt.code_sechash())
@@ -265,8 +266,8 @@ impl TxDetails {
                                 tx_type,
                                 hash,
                                 tx_code_id,
-                                memo,
                                 data,
+                                memo,
                             });
                         }
                     }

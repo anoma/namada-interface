@@ -12,11 +12,11 @@ export class CommitmentMsgValue {
   @field({ type: "string" })
   txCodeId!: string;
 
-  @field({ type: option("string") })
-  memo?: string;
-
   @field({ type: vec("u8") })
   data!: Uint8Array;
+
+  @field({ type: option("string") })
+  memo?: string;
 }
 
 export class TxDetailsMsgValue {
