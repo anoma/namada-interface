@@ -21,6 +21,7 @@ import { atom, getDefaultStore } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
 import { Address, AddressWithAsset } from "types";
+import { namadaAsset, toDisplayAmount } from "utils";
 import {
   mapNamadaAddressesToAssets,
   mapNamadaAssetsToTokenBalances,
@@ -28,6 +29,7 @@ import {
 import {
   fetchBlockHeightByTimestamp,
   fetchShieldedBalance,
+  fetchShieldRewards,
   shieldedSync,
 } from "./services";
 
@@ -280,5 +282,21 @@ export const transparentTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
         ),
       [transparentAssets, tokenPrices]
     ),
+  };
+});
+
+export const shieldRewardsAtom = atomWithQuery((get) => {
+  const viewingKeysQuery = get(viewingKeysAtom);
+
+  return {
+    queryKey: ["shield-rewards", viewingKeysQuery.data],
+    ...queryDependentFn(async () => {
+      const [vk] = viewingKeysQuery.data!;
+      const minDenomAmount = await fetchShieldRewards(vk);
+
+      return {
+        amount: toDisplayAmount(namadaAsset(), BigNumber(minDenomAmount)),
+      };
+    }, [viewingKeysQuery]),
   };
 });

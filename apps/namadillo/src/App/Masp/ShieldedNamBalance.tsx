@@ -1,7 +1,7 @@
 import { SkeletonLoading, Stack, Tooltip } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
-import { shieldedTokensAtom } from "atoms/balance/atoms";
+import { shieldedTokensAtom, shieldRewardsAtom } from "atoms/balance/atoms";
 import { getTotalNam } from "atoms/balance/functions";
 import { applicationFeaturesAtom } from "atoms/settings/atoms";
 import BigNumber from "bignumber.js";
@@ -29,7 +29,7 @@ const AsyncNamCurrency = ({
 
   return (
     <NamCurrency
-      amount={new BigNumber(amount)}
+      amount={amount}
       className={twMerge("block text-center text-3xl leading-none", className)}
       currencySymbolClassName="block text-xs mt-1"
     />
@@ -39,6 +39,7 @@ const AsyncNamCurrency = ({
 export const ShieldedNamBalance = (): JSX.Element => {
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
   const { shieldingRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
+  const shieldRewards = useAtomValue(shieldRewardsAtom);
 
   const shieldedNam =
     shieldedTokensQuery.isPending ? undefined : (
@@ -88,7 +89,7 @@ export const ShieldedNamBalance = (): JSX.Element => {
             "flex flex-col gap-4 justify-between",
             "rounded-sm bg-neutral-900 p-4",
             !shieldingRewardsEnabled &&
-              "opacity-25 pointer-events-none select-none"
+            "opacity-25 pointer-events-none select-none"
           )}
         >
           <div className="absolute top-2 right-2 group/tooltip">
@@ -109,9 +110,8 @@ export const ShieldedNamBalance = (): JSX.Element => {
             rewards per Epoch
           </div>
           {shieldingRewardsEnabled ?
-            // TODO shielding rewards
-            <AsyncNamCurrency amount={new BigNumber(0)} />
-          : <div className="block text-center text-3xl">--</div>}
+            <AsyncNamCurrency amount={shieldRewards.data?.amount} />
+            : <div className="block text-center text-3xl">--</div>}
           <div
             className={twMerge(
               "border border-white rounded-md p-2 max-w-[200px] mx-auto mt-4",
@@ -120,7 +120,7 @@ export const ShieldedNamBalance = (): JSX.Element => {
           >
             {shieldingRewardsEnabled ?
               "Shielding more assets will increase your rewards"
-            : "Shielding Rewards will be enabled in phase 4"}
+              : "Shielding Rewards will be enabled in phase 4"}
           </div>
         </div>
       </div>
