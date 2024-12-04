@@ -50,7 +50,7 @@ const getTxProps = (
   account: Account,
   gasConfig: GasConfig,
   chain: ChainSettings,
-  memo: string = ""
+  memo?: string
 ): WrapperTxProps => {
   invariant(
     !!account.publicKey,
@@ -93,7 +93,7 @@ export const buildTx = async <T>(
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>,
   publicKeyRevealed: boolean,
-  memo = ""
+  memo?: string
 ): Promise<EncodedTxData<T>> => {
   const { tx } = sdk;
   const wrapperTxProps = getTxProps(account, gasConfig, chain, memo);
@@ -184,7 +184,7 @@ export const buildTxPair = async <T>(
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>,
   owner: string,
-  memo = ""
+  memo?: string
 ): Promise<TransactionPair<T>> => {
   const sdk = await getSdkInstance();
   const publicKeyRevealed = await isPublicKeyRevealed(account.address);
