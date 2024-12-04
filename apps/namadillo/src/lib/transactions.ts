@@ -85,7 +85,7 @@ export const createIbcTransferMessage = (
   receiverAddress: string,
   amount: BigNumber,
   token: string,
-  memo: string = ""
+  memo?: string
 ): MsgTransferEncodeObject => {
   const timeoutTimestampNanoseconds =
     BigInt(Math.floor(Date.now() / 1000) + 60) * BigInt(1_000_000_000);
