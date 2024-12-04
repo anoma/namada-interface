@@ -234,7 +234,7 @@ impl TxDetails {
                 let token = wrapper.fee.token.to_string();
 
                 let wrapper_tx =
-                    WrapperTxMsg::new(token, fee_amount, gas_limit, chain_id, None, None);
+                    WrapperTxMsg::new(token, fee_amount, gas_limit, chain_id, None, None, None);
                 let mut commitments: Vec<Commitment> = vec![];
                 let wasm_hashes: Vec<WasmHash> = wasm_hashes.into_serde().unwrap();
 
