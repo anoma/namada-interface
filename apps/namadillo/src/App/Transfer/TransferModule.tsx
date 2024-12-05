@@ -108,7 +108,7 @@ export const TransferModule = ({
     destination.enableCustomAddress && !destination.availableWallets
   );
 
-  const [memo, setMemo] = useState<undefined | string>("");
+  const [memo, setMemo] = useState<undefined | string>();
 
   const selectedAsset = mapUndefined(
     (address) => source.availableAssets?.[address],

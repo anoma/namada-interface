@@ -167,7 +167,7 @@ export const createTransferDataFromNamada = (
     | TransactionPair<ShieldedTransferMsgValue>
     | TransactionPair<ShieldingTransferMsgValue>
     | TransactionPair<UnshieldingTransferMsgValue>,
-  memo = ""
+  memo?: string
 ): TransferTransactionData[] => {
   if (!txResponse?.encodedTxData?.txs?.length) {
     throw "Invalid transaction response";

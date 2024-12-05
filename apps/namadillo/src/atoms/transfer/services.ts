@@ -18,7 +18,7 @@ export const createTransparentTransferTx = async (
   account: Account,
   props: TransparentTransferMsgValue[],
   gasConfig: GasConfig,
-  memo = ""
+  memo?: string
 ): Promise<TransactionPair<TransparentTransferProps> | undefined> => {
   const { tx } = await getSdkInstance();
   const transactionPairs = await buildTxPair(
@@ -38,7 +38,7 @@ export const createShieldedTransferTx = async (
   account: Account,
   props: ShieldedTransferMsgValue[],
   gasConfig: GasConfig,
-  memo = ""
+  memo?: string
 ): Promise<TransactionPair<ShieldedTransferProps> | undefined> => {
   const { tx } = await getSdkInstance();
   const transactionPairs = await buildTxPair(
@@ -58,7 +58,7 @@ export const createShieldingTransferTx = async (
   account: Account,
   props: ShieldingTransferMsgValue[],
   gasConfig: GasConfig,
-  memo = ""
+  memo?: string
 ): Promise<TransactionPair<ShieldingTransferProps> | undefined> => {
   const { tx } = await getSdkInstance();
   const transactionPairs = await buildTxPair(
@@ -78,7 +78,7 @@ export const createUnshieldingTransferTx = async (
   account: Account,
   props: UnshieldingTransferMsgValue[],
   gasConfig: GasConfig,
-  memo = ""
+  memo?: string
 ): Promise<TransactionPair<UnshieldingTransferProps> | undefined> => {
   const { tx } = await getSdkInstance();
   const transactionPairs = await buildTxPair(
