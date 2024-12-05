@@ -44,7 +44,7 @@ export const createShieldedTransferAtom = atomWithMutation((get) => {
       params,
       gasConfig,
       account,
-      memo = "",
+      memo,
     }: BuildTxAtomParams<ShieldedTransferMsgValue>) =>
       createShieldedTransferTx(chain.data!, account, params, gasConfig, memo),
   };
@@ -59,7 +59,7 @@ export const createShieldingTransferAtom = atomWithMutation((get) => {
       params,
       gasConfig,
       account,
-      memo = "",
+      memo,
     }: BuildTxAtomParams<ShieldingTransferMsgValue>) =>
       createShieldingTransferTx(chain.data!, account, params, gasConfig, memo),
   };
@@ -74,7 +74,7 @@ export const createUnshieldingTransferAtom = atomWithMutation((get) => {
       params,
       gasConfig,
       account,
-      memo = "",
+      memo,
     }: BuildTxAtomParams<UnshieldingTransferMsgValue>) =>
       createUnshieldingTransferTx(
         chain.data!,
