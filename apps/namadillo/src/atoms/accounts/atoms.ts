@@ -70,7 +70,7 @@ export const updateDefaultAccountAtom = atomWithMutation(() => {
   return {
     mutationFn: (address: string) =>
       namadaPromise.then((injectedNamada) =>
-        injectedNamada.updateDefaultAccount(address)
+        injectedNamada?.updateDefaultAccount(address)
       ),
   };
 });

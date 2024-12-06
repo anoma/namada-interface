@@ -39,7 +39,7 @@ export const ExtensionLoader = ({
   useEffect(() => {
     if (chainId && attachStatus === "attached") {
       namadaKeychain.get().then((injectedNamada) => {
-        injectedNamada.isConnected(chainId).then((isConnected) => {
+        injectedNamada?.isConnected(chainId).then((isConnected) => {
           if (isConnected) {
             return setConnectionStatus("connected");
           }

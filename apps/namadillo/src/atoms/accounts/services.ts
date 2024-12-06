@@ -6,13 +6,13 @@ import { namadaAsset, toDisplayAmount } from "utils";
 
 export const fetchAccounts = async (): Promise<readonly Account[]> => {
   const namada = await new NamadaKeychain().get();
-  const result = await namada.accounts();
+  const result = await namada?.accounts();
   return result || [];
 };
 
 export const fetchDefaultAccount = async (): Promise<Account | undefined> => {
   const namada = await new NamadaKeychain().get();
-  return await namada.defaultAccount();
+  return await namada?.defaultAccount();
 };
 
 export const fetchNamAccountBalance = async (
