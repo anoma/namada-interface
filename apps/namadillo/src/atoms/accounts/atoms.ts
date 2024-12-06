@@ -75,14 +75,6 @@ export const updateDefaultAccountAtom = atomWithMutation(() => {
   };
 });
 
-export const disconnectAccountAtom = atomWithMutation(() => {
-  const namadaPromise = new NamadaKeychain().get();
-  return {
-    mutationFn: () =>
-      namadaPromise.then((injectedNamada) => injectedNamada.disconnect()),
-  };
-});
-
 export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
   const defaultAccount = get(defaultAccountAtom);
   const tokenAddress = get(nativeTokenAddressAtom);

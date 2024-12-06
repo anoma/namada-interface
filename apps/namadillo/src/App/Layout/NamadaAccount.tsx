@@ -1,6 +1,7 @@
 import { CopyToClipboardControl, Tooltip } from "@namada/components";
 import { routes } from "App/routes";
-import { defaultAccountAtom, disconnectAccountAtom } from "atoms/accounts";
+import { defaultAccountAtom } from "atoms/accounts";
+import { NamadaKeychain } from "hooks/useNamadaKeychain";
 import { useAtomValue } from "jotai";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DisconnectAccountIcon } from "./DisconnectAccountIcon";
@@ -9,7 +10,6 @@ import NamadaWalletIcon from "./assets/namada-wallet-icon.svg";
 
 export const NamadaAccount = (): JSX.Element => {
   const { data: account, isFetching } = useAtomValue(defaultAccountAtom);
-  const { mutateAsync: disconnect } = useAtomValue(disconnectAccountAtom);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -18,6 +18,13 @@ export const NamadaAccount = (): JSX.Element => {
   }
 
   const buttonClassName = "p-1 opacity-80 transition-opacity hover:opacity-100";
+
+  const onClickDisconnect = async (): Promise<void> => {
+    const namada = await new NamadaKeychain().get();
+    if (namada) {
+      await namada.disconnect();
+    }
+  };
 
   return (
     <div className="flex items-center rounded-sm text-sm text-white bg-rblack px-1">
@@ -41,7 +48,7 @@ export const NamadaAccount = (): JSX.Element => {
       >
         <SwitchAccountIcon />
       </button>
-      <button className={buttonClassName} onClick={() => disconnect()}>
+      <button className={buttonClassName} onClick={onClickDisconnect}>
         <DisconnectAccountIcon />
       </button>
     </div>

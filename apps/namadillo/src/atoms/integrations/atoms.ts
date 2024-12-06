@@ -47,9 +47,13 @@ type AssetBalanceAtomParams = {
   walletAddress?: string;
 };
 
+export const connectedWalletsAtom = atomWithStorage<
+  Partial<Record<ExtensionKey, boolean>>
+>("namadillo:connectedWallets", {});
+
 // Currently we're just integrating with Keplr, but in the future we might use different wallets
-export const selectedIBCWallet = atomWithStorage<ExtensionKey | undefined>(
-  "namadillo:ibc:wallet",
+export const selectedWalletAtom = atomWithStorage<ExtensionKey | undefined>(
+  "namadillo:wallet",
   undefined
 );
 
