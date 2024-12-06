@@ -74,16 +74,12 @@ export const useTransaction = <T,>({
     );
   };
 
-  const broadcast = (tx: TransactionPair<T>): Promise<void[]> =>
-    Promise.all(
-      tx.signedTxs.map((signedTx) =>
-        broadcastTx(
-          tx.encodedTxData,
-          signedTx,
-          tx.encodedTxData.meta?.props,
-          eventType
-        )
-      )
+  const broadcast = (txPair: TransactionPair<T>): Promise<void> =>
+    broadcastTx(
+      txPair.encodedTxData,
+      txPair.signedTxs,
+      txPair.encodedTxData.meta?.props,
+      eventType
     );
 
   const dispatchPendingTxNotification = (
