@@ -67,12 +67,23 @@ const actionButtonText = tv({
   ),
 });
 
+const actionButtonIcon = tv({
+  base: "flex items-center justify-center absolute top-1/2 -translate-y-1/2 w-6 z-40",
+  variants: {
+    position: {
+      left: "left-3",
+      right: "right-3",
+    },
+  },
+});
+
 type ButtonTailwindVariantsProps = VariantProps<typeof actionButtonShape> &
   VariantProps<typeof actionButtonBackground>;
 
 export type ActionButtonProps<HtmlTag extends keyof React.ReactHTML> = {
   as?: HtmlTag;
   icon?: React.ReactNode;
+  iconPosition?: "left" | "right";
   backgroundColor?: Color;
   backgroundHoverColor?: Color;
   outlineColor?: Color;
@@ -83,6 +94,7 @@ export type ActionButtonProps<HtmlTag extends keyof React.ReactHTML> = {
 
 const Button = ({
   icon,
+  iconPosition = "left",
   children,
   className,
   size,
@@ -136,9 +148,7 @@ const Button = ({
     },
     <>
       {icon && (
-        <i className="flex items-center justify-center left-3 absolute top-1/2 -translate-y-1/2 w-6 z-40">
-          {icon}
-        </i>
+        <i className={actionButtonIcon({ position: iconPosition })}>{icon}</i>
       )}
       <span className={actionButtonText()}>{children}</span>
       <span

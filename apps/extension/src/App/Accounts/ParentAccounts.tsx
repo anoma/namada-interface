@@ -8,6 +8,7 @@ import {
   Stack,
 } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
+import { ParentAccountsFooter } from "App/Accounts/ParentAccountsFooter";
 import { PageHeader } from "App/Common";
 import routes from "App/routes";
 import { ParentAccount } from "background/keyring";
@@ -43,9 +44,13 @@ export const ParentAccounts = (): JSX.Element => {
   };
 
   return (
-    <Stack gap={GapPatterns.TitleContent}>
+    <Stack
+      gap={GapPatterns.TitleContent}
+      full
+      className="max-h-[calc(100vh-40px)]"
+    >
       <PageHeader title="Select Account" />
-      <Stack gap={4}>
+      <Stack gap={4} className="flex-1 overflow-auto">
         <nav className="grid items-end grid-cols-[auto_min-content]">
           <p className="text-white font-medium text-xs">Set default keys</p>
           <div className="w-26">
@@ -54,7 +59,7 @@ export const ParentAccounts = (): JSX.Element => {
             </ActionButton>
           </div>
         </nav>
-        <Stack as="ul" gap={3}>
+        <Stack as="ul" gap={3} className="flex-1 overflow-auto">
           {[...parentAccounts].reverse().map((account, idx) => (
             <KeyListItem
               key={`key-listitem-${account.id}`}
@@ -78,6 +83,7 @@ export const ParentAccounts = (): JSX.Element => {
             />
           ))}
         </Stack>
+        <ParentAccountsFooter />
       </Stack>
     </Stack>
   );
