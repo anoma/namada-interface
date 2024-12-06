@@ -361,18 +361,15 @@ export const TransferModule = ({
           />
         )}
 
-      {sourceChainModalOpen &&
-        source.onChangeChain &&
-        source.wallet &&
-        source.walletAddress && (
-          <SelectChainModal
-            onClose={() => setSourceChainModalOpen(false)}
-            chains={source.availableChains || []}
-            onSelect={source.onChangeChain}
-            wallet={source.wallet}
-            walletAddress={source.walletAddress}
-          />
-        )}
+      {sourceChainModalOpen && source.onChangeChain && source.wallet && (
+        <SelectChainModal
+          onClose={() => setSourceChainModalOpen(false)}
+          chains={source.availableChains || []}
+          onSelect={source.onChangeChain}
+          wallet={source.wallet}
+          walletAddress={source.walletAddress}
+        />
+      )}
 
       {destinationChainModalOpen &&
         destination.onChangeChain &&

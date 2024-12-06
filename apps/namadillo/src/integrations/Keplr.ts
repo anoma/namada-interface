@@ -4,13 +4,18 @@ import {
   OfflineAminoSigner,
   OfflineDirectSigner,
 } from "@keplr-wallet/types";
+import { ExtensionKey } from "@namada/types";
 import { ChainRegistryEntry } from "types";
 import { WalletConnector } from "./types";
 import { basicConvertToKeplrChain } from "./utils";
 
 type Signer = OfflineAminoSigner & OfflineDirectSigner;
 
+const notAvailableError = "Keplr is not available.";
+
 export class KeplrWalletManager implements WalletConnector {
+  key: ExtensionKey = "keplr";
+
   install(): void {
     console.warn(
       "Keplr is not available. Redirecting to the Keplr download page..."
@@ -42,13 +47,16 @@ export class KeplrWalletManager implements WalletConnector {
     });
   }
 
-  async get(): Promise<Keplr> {
+  async get(): Promise<Keplr | undefined> {
     const keplr = await this._get();
-    return keplr!;
+    return keplr;
   }
 
   async connect(registry: ChainRegistryEntry): Promise<void> {
     const keplr = await this.get();
+    if (!keplr) {
+      throw new Error(notAvailableError);
+    }
     await keplr.experimentalSuggestChain(
       basicConvertToKeplrChain(registry.chain, registry.assets.assets)
     );
@@ -56,12 +64,18 @@ export class KeplrWalletManager implements WalletConnector {
 
   async getAddress(chainId: string): Promise<string> {
     const keplr = await this.get();
+    if (!keplr) {
+      throw new Error(notAvailableError);
+    }
     const keplrKey = await keplr.getKey(chainId);
     return keplrKey.bech32Address;
   }
 
   async getSigner(chainId: string): Promise<Signer> {
     const keplr = await this.get();
+    if (!keplr) {
+      throw new Error(notAvailableError);
+    }
     return keplr.getOfflineSigner(chainId);
   }
 }

@@ -1,3 +1,4 @@
+import { ExtensionKey } from "@namada/types";
 import { ChainRegistryEntry } from "types";
 
 // Generic wallet functionality
@@ -9,6 +10,7 @@ export interface Wallet {
 
 // For use with useWalletManager
 export interface WalletConnector extends Omit<Wallet, "connect"> {
+  key: ExtensionKey;
   connect(registry: ChainRegistryEntry): Promise<void>;
   getAddress(chainId: string): Promise<string>;
   getSigner(chainId: string): unknown | undefined;
