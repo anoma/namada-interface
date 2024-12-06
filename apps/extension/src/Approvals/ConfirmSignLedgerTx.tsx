@@ -27,7 +27,7 @@ type Props = {
 
 const Step: React.FC<{
   title: string;
-  description: string;
+  description: React.ReactNode;
   icon: ReactNode;
   selected: boolean;
   disabled?: boolean;
@@ -60,7 +60,10 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
+  const [stepTwoDescription, setStepTwoDescription] =
+    useState<React.ReactNode>();
   const [isLedgerConnected, setIsLedgerConnected] = useState(false);
+  const [ledger, setLedger] = useState<Ledger>();
   const { msgId, signer } = details;
 
   useEffect(() => {
@@ -75,7 +78,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
     path: string
   ): Promise<ResponseSign> => {
     // Open ledger transport
-    setStatusInfo(`Review and approve transaction on your Ledger`);
+    setStatusInfo("Review and approve transaction on your Ledger");
 
     // Sign with Ledger
     const signature = await ledger.sign(bytes, path);
@@ -91,7 +94,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
     async (e: React.FormEvent): Promise<void> => {
       e.preventDefault();
       setIsLedgerConnected(false);
-      setStatusInfo(`Connecting Ledger...`);
+      setStatusInfo("Connecting Ledger...");
       setStatus(Status.Pending);
 
       const ledger = await Ledger.init().catch((e) => {
@@ -102,6 +105,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
       if (!ledger) {
         return;
       }
+      setLedger(ledger);
 
       const {
         version: { returnCode, errorMessage },
@@ -115,7 +119,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
       }
 
       setIsLedgerConnected(true);
-      setStatusInfo("Preparing transaction...");
+      setStepTwoDescription("Preparing transaction...");
 
       try {
         const accountDetails = await requester.sendMessage(
@@ -144,15 +148,34 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
 
         const signatures: ResponseSign[] = [];
 
+        let txIndex = 0;
+        const txCount = pendingTxs.length;
+        const stepTwoText = "Approve on your device";
+
+        if (txCount === 1) {
+          setStepTwoDescription(<p>{stepTwoText}</p>);
+        }
+
         for await (const tx of pendingTxs) {
+          if (txCount > 1) {
+            setStepTwoDescription(
+              <p>
+                {stepTwoText}
+                <br />
+                Tx {txIndex + 1} of {txCount}
+              </p>
+            );
+          }
           const signature = await signLedgerTx(
             ledger,
             fromBase64(tx),
             bip44Path
           );
           signatures.push(signature);
+          txIndex++;
         }
 
+        setStepTwoDescription(<p>Submitting...</p>);
         await requester.sendMessage(
           Ports.Background,
           new SubmitApprovedSignLedgerTxMsg(msgId, signatures)
@@ -170,6 +193,9 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
   );
 
   const handleRejectButton = useCallback(() => {
+    if (ledger) {
+      void ledger.closeTransport();
+    }
     void closeCurrentTab();
   }, []);
 
@@ -187,7 +213,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
         />
         <Step
           title="Step 2"
-          description="Review and approve transaction on your ledger"
+          description={stepTwoDescription}
           icon={<ApproveIcon />}
           selected={isLedgerConnected}
         />
