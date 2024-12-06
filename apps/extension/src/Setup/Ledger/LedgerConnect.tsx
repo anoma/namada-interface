@@ -15,10 +15,16 @@ type Props = {
   setPath: (path: Bip44Path) => void;
 };
 
+enum LedgerReviewPrompt {
+  AddressAndPublicKey = "address and public key",
+  ViewingKey = "viewing key",
+  ProofGenerationKeys = "proof generation keys",
+}
+
 export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>();
-  const [isLedgerConnecting, setIsLedgerConnecting] = useState(false);
+  const [reviewPrompt, setReviewPrompt] = useState<LedgerReviewPrompt>();
   const [ledger, setLedger] = useState<LedgerApp>();
 
   const queryLedger = async (ledger: LedgerApp): Promise<void> => {
@@ -32,11 +38,23 @@ export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
         throw new Error(errorMessage);
       }
 
-      setIsLedgerConnecting(true);
-      const { address, publicKey } = await ledger.showAddressAndPublicKey(
-        makeBip44Path(chains.namada.bip44.coinType, path)
-      );
-      setIsLedgerConnecting(false);
+      const bip44Path = makeBip44Path(chains.namada.bip44.coinType, path);
+
+      setReviewPrompt(LedgerReviewPrompt.AddressAndPublicKey);
+      const { address, publicKey } =
+        await ledger.showAddressAndPublicKey(bip44Path);
+
+      setReviewPrompt(LedgerReviewPrompt.ViewingKey);
+      const viewingKey = await ledger.getViewingKey(bip44Path, true);
+      console.log({ viewingKey });
+
+      setReviewPrompt(LedgerReviewPrompt.ProofGenerationKeys);
+      const proofGenerationKeys =
+        await ledger.getProofGenerationKeys(bip44Path);
+
+      console.log({ proofGenerationKeys });
+      setReviewPrompt(undefined);
+
       navigate(routes.ledgerImport(), {
         state: {
           address,
@@ -44,7 +62,7 @@ export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
         },
       });
     } catch (e) {
-      setIsLedgerConnecting(false);
+      setReviewPrompt(undefined);
       handleError(e);
     } finally {
       await ledger.closeTransport();
@@ -94,8 +112,8 @@ export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
           </Alert>
         )}
 
-        {isLedgerConnecting && (
-          <Alert type="warning">Review on your Ledger</Alert>
+        {reviewPrompt && (
+          <Alert type="warning">Review {reviewPrompt} on your Ledger</Alert>
         )}
 
         <AdvancedOptions>
@@ -120,7 +138,7 @@ export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
           active={!!ledger}
           complete={false}
           onClick={() => connectNamadaApp()}
-          buttonDisabled={!ledger || isLedgerConnecting}
+          buttonDisabled={!ledger || Boolean(reviewPrompt)}
           image={
             <Image styleOverrides={{ width: "100%" }} imageName="LogoMinimal" />
           }

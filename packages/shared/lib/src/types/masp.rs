@@ -26,13 +26,13 @@ pub struct ExtendedViewingKey(pub(crate) NamadaExtendedViewingKey);
 impl ExtendedViewingKey {
     /// Instantiate ExtendedViewingKey from serialized vector
     #[wasm_bindgen(constructor)]
-    pub fn new(key: &[u8]) -> Result<ExtendedViewingKey, String> {
-        let xfvk: zip32::ExtendedFullViewingKey = BorshDeserialize::try_from_slice(key)
+    pub fn new(xfvk_bytes: &[u8]) -> Result<ExtendedViewingKey, String> {
+        let xfvk: zip32::ExtendedFullViewingKey = BorshDeserialize::try_from_slice(xfvk_bytes)
             .map_err(|err| format!("{}: {:?}", MaspError::BorshDeserialize, err))?;
 
-        let vk = NamadaExtendedViewingKey::from(xfvk);
+        let xvk = NamadaExtendedViewingKey::from(xfvk);
 
-        Ok(ExtendedViewingKey(vk))
+        Ok(ExtendedViewingKey(xvk))
     }
 
     /// Return ExtendedViewingKey as Bech32-encoded String
@@ -50,8 +50,8 @@ pub struct ExtendedSpendingKey(pub(crate) NamadaExtendedSpendingKey);
 impl ExtendedSpendingKey {
     /// Instantiate ExtendedSpendingKey from serialized vector
     #[wasm_bindgen(constructor)]
-    pub fn new(key: &[u8]) -> Result<ExtendedSpendingKey, String> {
-        let xsk: zip32::ExtendedSpendingKey = BorshDeserialize::try_from_slice(key)
+    pub fn new(xsk_bytes: &[u8]) -> Result<ExtendedSpendingKey, String> {
+        let xsk: zip32::ExtendedSpendingKey = BorshDeserialize::try_from_slice(xsk_bytes)
             .map_err(|err| format!("{}: {:?}", MaspError::BorshDeserialize, err))?;
 
         let xsk = NamadaExtendedSpendingKey::from(xsk);
