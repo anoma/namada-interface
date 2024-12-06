@@ -57,7 +57,7 @@ export const AppContent = ({ warnings }: Props): JSX.Element => {
   }, [accounts, passwordInitialized, accountLoadingStatus]);
 
   return (
-    <Stack className="py-5 max-w-84" full gap={6}>
+    <Stack className="py-5" full gap={6}>
       <Routes>
         <Route path={"/"} element={<></>} />
         <Route path={routes.setup()} element={<Setup />} />

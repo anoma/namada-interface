@@ -3,18 +3,18 @@ import { GoArrowUpRight } from "react-icons/go";
 
 export const ParentAccountsFooter = (): JSX.Element => {
   return (
-    <div className="static bottom-5 w-full">
+    <div>
       <ActionButton
         href="https://namada.net/apps"
         target="_blank"
-        referrerPolicy="no-referrer"
-        className="font-8 relative w-full"
+        rel="noreferrer"
         outlineColor="yellow"
         textHoverColor="black"
         itemType="button"
+        icon={<GoArrowUpRight className="w-6 h-6" />}
+        iconPosition="right"
       >
-        <span>View Keychain compatible apps</span>
-        <GoArrowUpRight className="absolute right-0 top-0 w-12 h-12 m-0" />
+        View Keychain compatible apps
       </ActionButton>
     </div>
   );

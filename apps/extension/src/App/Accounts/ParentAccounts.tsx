@@ -44,9 +44,13 @@ export const ParentAccounts = (): JSX.Element => {
   };
 
   return (
-    <Stack gap={GapPatterns.TitleContent} className="h-full">
+    <Stack
+      gap={GapPatterns.TitleContent}
+      full
+      className="max-h-[calc(100vh-40px)]"
+    >
       <PageHeader title="Select Account" />
-      <Stack gap={4} className="h-full relative">
+      <Stack gap={4} className="flex-1 overflow-auto">
         <nav className="grid items-end grid-cols-[auto_min-content]">
           <p className="text-white font-medium text-xs">Set default keys</p>
           <div className="w-26">
@@ -55,7 +59,7 @@ export const ParentAccounts = (): JSX.Element => {
             </ActionButton>
           </div>
         </nav>
-        <Stack as="ul" gap={3} className="overflow-auto max-h-200">
+        <Stack as="ul" gap={3} full className="overflow-auto">
           {[...parentAccounts].reverse().map((account, idx) => (
             <KeyListItem
               key={`key-listitem-${account.id}`}
