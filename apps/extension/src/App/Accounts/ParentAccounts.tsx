@@ -59,7 +59,7 @@ export const ParentAccounts = (): JSX.Element => {
             </ActionButton>
           </div>
         </nav>
-        <Stack as="ul" gap={3} full className="overflow-auto">
+        <Stack as="ul" gap={3} className="flex-1 overflow-auto">
           {[...parentAccounts].reverse().map((account, idx) => (
             <KeyListItem
               key={`key-listitem-${account.id}`}
