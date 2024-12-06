@@ -238,7 +238,7 @@ export const IbcTransfer: React.FC = () => {
                 availableChains,
                 onChangeChain,
                 chain: mapUndefined((id) => chainRegistry[id]?.chain, chainId),
-                availableWallets: [wallets.keplr!],
+                availableWallets: [wallets.keplr],
                 wallet: wallets.keplr,
                 walletAddress: sourceAddress,
                 onChangeWallet,
@@ -248,7 +248,7 @@ export const IbcTransfer: React.FC = () => {
               }}
               destination={{
                 chain: namadaChain as Chain,
-                availableWallets: [wallets.namada!],
+                availableWallets: [wallets.namada],
                 wallet: wallets.namada,
                 walletAddress: namadaAddress,
                 isShielded: shielded,

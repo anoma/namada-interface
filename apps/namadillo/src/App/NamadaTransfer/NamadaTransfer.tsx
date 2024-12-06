@@ -265,7 +265,7 @@ export const NamadaTransfer: React.FC = () => {
               availableAssets,
               availableAmount: selectedAsset?.amount,
               chain: namadaChain as Chain,
-              availableWallets: [wallets.namada!],
+              availableWallets: [wallets.namada],
               wallet: wallets.namada,
               walletAddress: sourceAddress,
               selectedAssetAddress,

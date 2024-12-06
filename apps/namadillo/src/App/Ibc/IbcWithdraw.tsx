@@ -189,7 +189,7 @@ export const IbcWithdraw: React.FC = () => {
             destination={{
               wallet: wallets.keplr,
               walletAddress: keplrAddress,
-              availableWallets: [wallets.keplr!],
+              availableWallets: [wallets.keplr],
               availableChains,
               enableCustomAddress: true,
               customAddress,

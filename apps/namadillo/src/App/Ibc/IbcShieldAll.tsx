@@ -41,7 +41,7 @@ export const IbcShieldAll: React.FC = () => {
       {connected && !isSuccess && (
         <ShieldAllPanel
           registry={registry}
-          wallet={wallets.keplr!}
+          wallet={wallets.keplr}
           walletAddress={walletAddress}
           assetList={Object.values(assetsBalances || [])}
           isLoading={isLoadingBalances}

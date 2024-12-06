@@ -193,7 +193,7 @@ export const MaspUnshield: React.FC = () => {
                 selectedAssetAddress,
                 availableAmount: selectedAsset?.amount,
                 chain: namadaChain as Chain,
-                availableWallets: [wallets.namada!],
+                availableWallets: [wallets.namada],
                 wallet: wallets.namada,
                 walletAddress: sourceAddress,
                 isShielded: true,
@@ -203,7 +203,7 @@ export const MaspUnshield: React.FC = () => {
               }}
               destination={{
                 chain: namadaChain as Chain,
-                availableWallets: [wallets.namada!],
+                availableWallets: [wallets.namada],
                 wallet: wallets.namada,
                 walletAddress: destinationAddress,
                 isShielded: false,
