@@ -5,8 +5,8 @@ import { SelectedAsset } from "App/Transfer/SelectedAsset"; // Adjust the path a
 import { assetMock } from "../__mocks__/assets";
 
 describe("SelectedAsset", () => {
-  it("renders with no chain and disables the button", () => {
-    render(<SelectedAsset />);
+  it("renders disabled", () => {
+    render(<SelectedAsset isDisabled />);
     const button = screen.getByRole("button");
     expect(button).toBeDisabled();
   });
