@@ -2,6 +2,7 @@ import { Sdk } from "@namada/sdk/web";
 import {
   Account,
   AccountType,
+  BatchTxResultMsgValue,
   TxMsgValue,
   TxProps,
   TxResponseProps,
@@ -214,164 +215,105 @@ export const broadcastTx = async <T>(
   data?: T[],
   eventType?: TransactionEventsClasses
 ): Promise<void> => {
-  eventType &&
-    window.dispatchEvent(
-      new CustomEvent(`${eventType}.Pending`, {
-        detail: { tx: encodedTx.txs[0], data },
-      })
-    );
-
   if (encodedTx.txs.length !== signedTxs.length) {
     throw new Error("Did not receive enough signatures!");
   }
+  // We use the first Tx to construct toast ID in both pending and success/partial success/error
+  const tx = encodedTx.txs[0];
+  if (!tx) {
+    throw new Error("Did not receive any Tx");
+  }
 
-  const broadcastResults = await collectBroadcastResults(
-    encodedTx,
-    signedTxs,
-    data
+  eventType &&
+    window.dispatchEvent(
+      new CustomEvent(`${eventType}.Pending`, {
+        detail: { tx, data },
+      })
+    );
+
+  const hashes = encodedTx.txs.map((tx) => tx.hash);
+
+  eventType &&
+    window.dispatchEvent(
+      new CustomEvent(`${eventType}.Pending`, {
+        detail: { tx, data },
+      })
+    );
+
+  const broadcastResults = await collectBroadcastResults(encodedTx, signedTxs);
+
+  const commitments = broadcastResults.map((result) => result.commitments);
+  const flatCommitments = commitments.flat();
+  const { status, successData, failedData } = parseBroadcastResults(
+    flatCommitments,
+    hashes,
+    data!
   );
-  // PARTIAL SUCCESS
-  // eventType &&
-  // window.dispatchEvent(
-  //   new CustomEvent(`${eventType}.PartialSuccess`, {
-  //     detail: {
-  //       tx,
-  //       data,
-  //       successData,
-  //       failedData,
-  //     },
-  //   })
-  // );
 
-  // FAILED
-  // eventType &&
-  //   window.dispatchEvent(
-  //     new CustomEvent(`${eventType}.Error`, {
-  //       detail: { tx, data, failedData },
-  //     })
-  //   );
-
-  // SUCCESS
-  // eventType &&
-  //   window.dispatchEvent(
-  //     new CustomEvent(`${eventType}.Success`, {
-  //       detail: { tx, data },
-  //     })
-  //   );
-
-  // ERROR
-  // eventType &&
-  //   window.dispatchEvent(
-  //     new CustomEvent(`${eventType}.Error`, {
-  //       detail: { tx, data, error },
-  //     })
-  //   );
-  console.log({ broadcastResults });
+  // Notification
+  eventType &&
+    window.dispatchEvent(
+      new CustomEvent(`${eventType}.${status}`, {
+        detail: {
+          tx,
+          data,
+          successData,
+          failedData,
+        },
+      })
+    );
 };
 
 const collectBroadcastResults = async <T>(
   encodedTx: EncodedTxData<T>,
-  signedTxs: Uint8Array[],
-  data?: T[]
-): Promise<unknown> => {
+  signedTxs: Uint8Array[]
+): Promise<TxResponseProps[]> => {
   const { rpc } = await getSdkInstance();
   const results = await Promise.all(
-    encodedTx.txs.map(async (tx, i) => {
-      const { innerTxHashes } = tx as TxProps & { innerTxHashes: string[] };
-      const dataWithHash = data?.map((d, i) => ({
-        ...d,
-        hash: innerTxHashes[i],
-      }));
-
+    encodedTx.txs.map(async (_tx, i) => {
       try {
-        const response = await rpc.broadcastTx(
-          signedTxs[i],
-          encodedTx.wrapperTxProps
-        );
-
-        // Testing my new method:
-        const parsedCommitmentResults = parseCommitmentResults(
-          response,
-          innerTxHashes,
-          data!
-        );
-        console.log({ parsedCommitmentResults });
-
-        const commitmentErrors: string[] = [];
-        response.commitments.forEach(({ hash, isApplied }) => {
-          if (!isApplied) {
-            commitmentErrors.push(hash);
-          }
-        });
-
-        if (commitmentErrors.length) {
-          const successData = dataWithHash?.filter((data) => {
-            return !commitmentErrors.includes(data.hash);
-          });
-
-          const failedData = dataWithHash?.filter((data) => {
-            return commitmentErrors.includes(data.hash);
-          });
-
-          if (successData?.length) {
-            return {
-              status: "PartialSuccess",
-              tx,
-              data,
-              successData,
-              failedData,
-            };
-          } else {
-            return { status: "Error", tx, data, failedData };
-          }
-        }
-        return {
-          status: "Success",
-          tx,
-          data,
-        };
-      } catch (error) {
-        return {
-          status: "Error",
-          tx,
-          data,
-          error,
-        };
+        return await rpc.broadcastTx(signedTxs[i], encodedTx.wrapperTxProps);
+      } catch (e) {
+        throw new Error(`Failed to broadcast Tx! ${e}`);
       }
     })
   );
   return results;
 };
 
-// Parse commitments and group any errors
-const parseCommitmentResults = <T>(
-  txResponse: TxResponseProps,
-  innerTxHashes: string[],
-  data: T[]
-): {
+type BroadcastResults<T> = {
   status: TransactionEventsStatus;
   successData?: T[];
   failedData?: T[];
-} => {
+};
+
+// Given an array of broadcasted Tx results,
+// collect any errors
+const parseBroadcastResults = <T>(
+  results: BatchTxResultMsgValue[],
+  txHashes: string[],
+  data: T[]
+): BroadcastResults<T> => {
+  const txErrors: string[] = [];
   const dataWithHash = data?.map((d, i) => ({
     ...d,
-    hash: innerTxHashes[i],
+    hash: txHashes[i],
   }));
 
-  const commitmentErrors: string[] = [];
-  txResponse.commitments.forEach(({ hash, isApplied }) => {
+  results.forEach((result) => {
+    const { hash, isApplied } = result;
     if (!isApplied) {
-      commitmentErrors.push(hash);
+      txErrors.push(hash);
     }
   });
 
-  if (commitmentErrors.length) {
+  if (txErrors.length) {
     const successData = dataWithHash?.filter((data) => {
-      return !commitmentErrors.includes(data.hash);
+      return !txErrors.includes(data.hash);
     });
 
     const failedData = dataWithHash?.filter((data) => {
-      return commitmentErrors.includes(data.hash);
+      return txErrors.includes(data.hash);
     });
 
     if (successData?.length) {
@@ -384,5 +326,6 @@ const parseCommitmentResults = <T>(
       return { status: "Error", failedData };
     }
   }
+
   return { status: "Success" };
 };
