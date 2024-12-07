@@ -15,9 +15,9 @@ export const KeplrAccount = (): JSX.Element => {
   const onClickDisconnect = async (): Promise<void> => {
     const keplrWallet = new KeplrWalletManager();
     setConnectedWallets((obj) => ({ ...obj, [keplrWallet.key]: false }));
-    const keplrSdk = await keplrWallet.get();
-    if (keplrSdk) {
-      await keplrSdk.disable();
+    const keplrInstance = await keplrWallet.get();
+    if (keplrInstance) {
+      await keplrInstance.disable();
     }
   };
 
