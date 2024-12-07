@@ -5,6 +5,11 @@ export type SignArbitraryResponse = {
   signature: string;
 };
 
+export type GenDisposableSignerResponse = {
+  publicKey: string;
+  address: string;
+};
+
 export interface Signer {
   sign: (
     tx: TxProps | TxProps[],
@@ -16,4 +21,5 @@ export interface Signer {
     data: string
   ) => Promise<SignArbitraryResponse | undefined>;
   verify: (publicKey: string, hash: string, signature: string) => Promise<void>;
+  genDisposableKeypair: () => Promise<GenDisposableSignerResponse | undefined>;
 }

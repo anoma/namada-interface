@@ -1,6 +1,8 @@
 import { chains } from "@namada/chains";
 import { KVStore } from "@namada/storage";
 import * as E from "fp-ts/Either";
+import { pipe } from "fp-ts/function";
+import * as O from "fp-ts/Option";
 import * as t from "io-ts";
 import { ExtStorage } from "./Storage";
 
@@ -15,26 +17,40 @@ type NamadaExtensionApprovedOriginsType = t.TypeOf<
 const NamadaExtensionRouterId = t.number;
 type NamadaExtensionRouterIdType = t.TypeOf<typeof NamadaExtensionRouterId>;
 
+const DisposableSigners = t.record(
+  t.string,
+  t.type({
+    privateKey: t.string,
+    realAddress: t.string,
+    timestamp: t.number,
+  })
+);
+type DisposableSignersType = t.TypeOf<typeof DisposableSigners>;
+
 type LocalStorageTypes =
   | ChainIdType
   | NamadaExtensionApprovedOriginsType
-  | NamadaExtensionRouterIdType;
+  | NamadaExtensionRouterIdType
+  | DisposableSignersType;
 
 type LocalStorageSchemas =
   | typeof ChainId
   | typeof NamadaExtensionApprovedOrigins
-  | typeof NamadaExtensionRouterId;
+  | typeof NamadaExtensionRouterId
+  | typeof DisposableSigners;
 
 export type LocalStorageKeys =
   | "chainId"
   | "namadaExtensionApprovedOrigins"
   | "namadaExtensionRouterId"
-  | "tabs";
+  | "tabs"
+  | "namadaExtensionDisposableSigners";
 
 const schemasMap = new Map<LocalStorageSchemas, LocalStorageKeys>([
   [ChainId, "chainId"],
   [NamadaExtensionApprovedOrigins, "namadaExtensionApprovedOrigins"],
   [NamadaExtensionRouterId, "namadaExtensionRouterId"],
+  [DisposableSigners, "namadaExtensionDisposableSigners"],
 ]);
 
 export class LocalStorage extends ExtStorage {
@@ -103,6 +119,71 @@ export class LocalStorage extends ExtStorage {
 
   async setRouterId(id: NamadaExtensionRouterIdType): Promise<void> {
     await this.setRaw(this.getKey(NamadaExtensionRouterId), id);
+  }
+
+  async addDisposableSigner(
+    address: string,
+    privateKey: string,
+    realAddress: string
+  ): Promise<void> {
+    const data = (await this.getDisposableSigners()) || {};
+    await this.setDisposableSigners({
+      ...data,
+      [address]: { privateKey, realAddress, timestamp: Date.now() },
+    });
+  }
+
+  async getDisposableSigner(
+    address: string
+  ): Promise<{ privateKey: string; realAddress: string } | undefined> {
+    const data = await this.getDisposableSigners();
+    return data?.[address];
+  }
+
+  async clearOldDisposableSigners(): Promise<void> {
+    const data = O.fromNullable(await this.getDisposableSigners());
+    const currentTime = Date.now();
+
+    const newData = pipe(
+      data,
+      O.map((data) => {
+        const newData = Object.entries(data).reduce((acc, [key, value]) => {
+          // We clear the disposable signers after 2 minutes
+          if (currentTime - value.timestamp < 120000) {
+            acc[key] = value;
+          }
+
+          return acc;
+        }, {} as DisposableSignersType);
+
+        return newData;
+      })
+    );
+
+    if (O.isSome(newData)) {
+      await this.setDisposableSigners(newData.value);
+    }
+  }
+
+  private async getDisposableSigners(): Promise<
+    DisposableSignersType | undefined
+  > {
+    const data = await this.getRaw(this.getKey(DisposableSigners));
+
+    const Schema = t.union([DisposableSigners, t.undefined]);
+    const decodedData = Schema.decode(data);
+
+    if (E.isLeft(decodedData)) {
+      throw new Error("Disposable Signers are not valid");
+    }
+
+    return decodedData.right;
+  }
+
+  private async setDisposableSigners(
+    signers: DisposableSignersType
+  ): Promise<void> {
+    await this.setRaw(this.getKey(DisposableSigners), signers);
   }
 
   private async setApprovedOrigins(

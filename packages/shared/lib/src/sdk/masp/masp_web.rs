@@ -13,7 +13,7 @@ const DB_PREFIX: &str = "namada_sdk::MASP";
 const SHIELDED_CONTEXT_TABLE: &str = "ShieldedContext";
 const SHIELDED_CONTEXT_KEY_CONFIRMED: &str = "shielded-context-confirmed";
 const SHIELDED_CONTEXT_KEY_SPECULATIVE: &str = "shielded-context-speculative";
-const SHIELDED_CONTEXT_KEY_TEMP: &str = "shielded-context-speculative";
+const SHIELDED_CONTEXT_KEY_TEMP: &str = "shielded-context-temp";
 
 #[derive(Default, Debug, BorshSerialize, BorshDeserialize, Clone)]
 #[borsh(crate = "namada_sdk::borsh")]

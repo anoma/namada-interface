@@ -9,6 +9,7 @@ export interface AccountStore extends StoredRecord {
   publicKey?: string;
   path: Path;
   parentId?: string;
+  pseudoExtendedKey?: string;
   type: AccountType;
 }
 

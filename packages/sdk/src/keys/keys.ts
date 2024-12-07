@@ -160,9 +160,9 @@ export class Keys {
 
   /**
    * Derive shielded keys and address from private key bytes
-   * @param seed - Seed
-   * @param [path] - Zip32 path object
-   * @param [diversifier] - Diversifier bytes
+   * @param privateKeyBytes - secret
+   * @param path - Zip32 path object
+   * @param diversifier - Diversifier bytes
    * @returns Shielded keys and address
    */
   deriveShieldedFromPrivateKey(
@@ -174,6 +174,13 @@ export class Keys {
     return this.deriveFromShieldedWallet(shieldedHdWallet, path, diversifier);
   }
 
+  /**
+   *
+   * @param shieldedHdWallet - Shielded HD Wallet instance
+   * @param path - Zip32 path object
+   * @param diversifier - Diversifier bytes
+   * @returns Object representing MASP related keys
+   */
   private deriveFromShieldedWallet(
     shieldedHdWallet: ShieldedHDWallet,
     path: Zip32Path,
@@ -194,6 +201,9 @@ export class Keys {
     const address = new PaymentAddress(paymentAddress).encode();
     const spendingKey = extendedSpendingKey.encode();
     const viewingKey = extendedViewingKey.encode();
+    const pseudoExtendedKey = extendedSpendingKey
+      .to_pseudo_extended_key()
+      .encode();
 
     // Clear wasm resources from memory
     shieldedHdWallet.free();
@@ -205,6 +215,28 @@ export class Keys {
       address,
       spendingKey,
       viewingKey,
+      pseudoExtendedKey,
+    };
+  }
+
+  /**
+   * Generate a disposable transparent keypair
+   * @returns Keys and address
+   */
+  genDisposableKeypair(): TransparentKeys {
+    const key = HDWallet.disposable_keypair();
+    const privateKeyStringPtr = key.to_hex();
+    const privateKey = readStringPointer(
+      privateKeyStringPtr,
+      this.cryptoMemory
+    );
+
+    key.free();
+    privateKeyStringPtr.free();
+
+    return {
+      ...this.getAddress(privateKey),
+      privateKey,
     };
   }
 }

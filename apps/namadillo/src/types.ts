@@ -21,6 +21,8 @@ type Unique = {
   uuid: string;
 };
 
+export type PublicKey = string;
+
 export type Address = string;
 
 export type ChainId = string;

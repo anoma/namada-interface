@@ -87,6 +87,8 @@ export const toEncodedTx = (txProps: TxProps): EncodedTxData => ({
   bytes: toBase64(txProps.bytes),
   signingData: txProps.signingData.map((sd) => ({
     ...sd,
+    masp: sd.masp ? toBase64(sd.masp) : undefined,
+    shieldedHash: sd.shieldedHash ? toBase64(sd.shieldedHash) : undefined,
     accountPublicKeysMap:
       sd.accountPublicKeysMap ? toBase64(sd.accountPublicKeysMap) : undefined,
   })),
@@ -98,6 +100,8 @@ export const fromEncodedTx = (encodedTxData: EncodedTxData): TxProps => ({
   bytes: fromBase64(encodedTxData.bytes),
   signingData: encodedTxData.signingData.map((sd) => ({
     ...sd,
+    masp: sd.masp ? fromBase64(sd.masp) : undefined,
+    shieldedHash: sd.shieldedHash ? fromBase64(sd.shieldedHash) : undefined,
     accountPublicKeysMap:
       sd.accountPublicKeysMap ? fromBase64(sd.accountPublicKeysMap) : undefined,
   })),
@@ -166,12 +170,14 @@ export const parseTransferType = (
  * @returns Account type for public API
  */
 export const toPublicAccount = (derivedAccount: DerivedAccount): Account => {
-  const { alias, address, type, publicKey, owner } = derivedAccount;
+  const { alias, address, type, publicKey, owner, pseudoExtendedKey } =
+    derivedAccount;
   const isShielded = type === AccountType.ShieldedKeys;
   const account: Account = {
     alias,
     address,
     type,
+    pseudoExtendedKey,
   };
   if (isShielded) {
     account.viewingKey = owner;

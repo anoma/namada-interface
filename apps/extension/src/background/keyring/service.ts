@@ -4,6 +4,7 @@ import {
   AccountType,
   Bip44Path,
   DerivedAccount,
+  GenDisposableSignerResponse,
   SignArbitraryResponse,
   TxProps,
 } from "@namada/types";
@@ -43,7 +44,8 @@ export class KeyRingService {
       vaultService,
       vaultStorage,
       sdkService,
-      utilityStore
+      utilityStore,
+      localStorage
     );
   }
 
@@ -228,5 +230,11 @@ export class KeyRingService {
       throw new Error(ApprovalErrors.KeychainLocked());
     }
     return this._keyRing.queryAccountDetails(address);
+  }
+
+  async genDisposableSigner(): Promise<
+    GenDisposableSignerResponse | undefined
+  > {
+    return this._keyRing.genDisposableSigner();
   }
 }

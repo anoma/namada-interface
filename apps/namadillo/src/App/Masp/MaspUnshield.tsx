@@ -56,9 +56,10 @@ export const MaspUnshield: React.FC = () => {
 
   const chainId = chainParameters.data?.chainId;
 
-  const sourceAddress = defaultAccounts.data?.find(
+  const sourceAccount = defaultAccounts.data?.find(
     (account) => account.type === AccountType.ShieldedKeys
-  )?.address;
+  );
+  const sourceAddress = sourceAccount?.address;
   const destinationAddress = defaultAccounts.data?.find(
     (account) => account.type !== AccountType.ShieldedKeys
   )?.address;
@@ -114,6 +115,10 @@ export const MaspUnshield: React.FC = () => {
       setGeneralErrorMessage("");
       setCurrentStep(1);
 
+      if (typeof sourceAccount?.pseudoExtendedKey === "undefined") {
+        throw new Error("Pseudo extended key is not defined");
+      }
+
       if (typeof sourceAddress === "undefined") {
         throw new Error("Source address is not defined");
       }
@@ -138,7 +143,7 @@ export const MaspUnshield: React.FC = () => {
       });
 
       const txResponse = await performUnshieldTransfer.mutateAsync({
-        sourceAddress,
+        sourceAddress: sourceAccount.pseudoExtendedKey!,
         destinationAddress,
         tokenAddress: selectedAsset.originalAddress,
         amount: displayAmount,
@@ -149,7 +154,7 @@ export const MaspUnshield: React.FC = () => {
       const tx: TransferTransactionData = {
         type: "ShieldedToTransparent",
         currentStep: TransferStep.Complete,
-        sourceAddress,
+        sourceAddress: sourceAccount.pseudoExtendedKey!,
         destinationAddress,
         asset: selectedAsset.asset,
         displayAmount,

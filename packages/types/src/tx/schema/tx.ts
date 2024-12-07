@@ -23,6 +23,12 @@ export class SigningDataMsgValue {
   @field({ type: "string" })
   feePayer!: string;
 
+  @field({ type: option(vec("u8")) })
+  shieldedHash?: Uint8Array;
+
+  @field({ type: option(vec("u8")) })
+  masp?: Uint8Array;
+
   constructor(data: SigningDataProps) {
     Object.assign(this, data);
   }

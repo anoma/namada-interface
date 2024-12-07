@@ -1,4 +1,5 @@
 import {
+  GenDisposableSignerResponse,
   Signer as ISigner,
   Namada,
   SignArbitraryResponse,
@@ -34,5 +35,11 @@ export class Signer implements ISigner {
     signature: string
   ): Promise<void> {
     return await this._namada.verify({ publicKey, hash, signature });
+  }
+
+  public async genDisposableKeypair(): Promise<
+    GenDisposableSignerResponse | undefined
+  > {
+    return await this._namada.genDisposableKeypair();
   }
 }
