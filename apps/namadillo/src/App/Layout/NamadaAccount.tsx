@@ -4,6 +4,10 @@ import { defaultAccountAtom } from "atoms/accounts";
 import { NamadaKeychain } from "hooks/useNamadaKeychain";
 import { useAtomValue } from "jotai";
 import { useLocation, useNavigate } from "react-router-dom";
+import {
+  AccountIconButton,
+  accountIconButtonClassname,
+} from "./AccountIconButton";
 import { DisconnectAccountIcon } from "./DisconnectAccountIcon";
 import { SwitchAccountIcon } from "./SwitchAccountIcon";
 import NamadaWalletIcon from "./assets/namada-wallet-icon.svg";
@@ -17,8 +21,6 @@ export const NamadaAccount = (): JSX.Element => {
     return <></>;
   }
 
-  const buttonClassName = "p-1 opacity-80 transition-opacity hover:opacity-100";
-
   const onClickDisconnect = async (): Promise<void> => {
     const namada = await new NamadaKeychain().get();
     if (namada) {
@@ -30,7 +32,7 @@ export const NamadaAccount = (): JSX.Element => {
     <div className="flex items-center rounded-sm text-sm text-white bg-rblack px-1">
       <span className="flex items-center gap-2 relative group/tooltip">
         <CopyToClipboardControl
-          className={buttonClassName}
+          className={accountIconButtonClassname}
           value={account.address || ""}
         >
           <img src={NamadaWalletIcon} alt="Namada Wallet" className="w-6 h-6" />
@@ -38,8 +40,8 @@ export const NamadaAccount = (): JSX.Element => {
         </CopyToClipboardControl>
         <Tooltip position="left">{account.address}</Tooltip>
       </span>
-      <button
-        className={buttonClassName}
+
+      <AccountIconButton
         onClick={() => {
           navigate(routes.switchAccount, {
             state: { backgroundLocation: location },
@@ -47,10 +49,11 @@ export const NamadaAccount = (): JSX.Element => {
         }}
       >
         <SwitchAccountIcon />
-      </button>
-      <button className={buttonClassName} onClick={onClickDisconnect}>
+      </AccountIconButton>
+
+      <AccountIconButton onClick={onClickDisconnect}>
         <DisconnectAccountIcon />
-      </button>
+      </AccountIconButton>
     </div>
   );
 };

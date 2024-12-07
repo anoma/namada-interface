@@ -2,6 +2,7 @@ import { connectedWalletsAtom } from "atoms/integrations";
 import { wallets } from "integrations";
 import { KeplrWalletManager } from "integrations/Keplr";
 import { useAtom } from "jotai";
+import { AccountIconButton } from "./AccountIconButton";
 import { DisconnectAccountIcon } from "./DisconnectAccountIcon";
 
 export const KeplrAccount = (): JSX.Element => {
@@ -12,10 +13,11 @@ export const KeplrAccount = (): JSX.Element => {
   }
 
   const onClickDisconnect = async (): Promise<void> => {
-    setConnectedWallets((obj) => ({ ...obj, keplr: false }));
-    const keplr = await new KeplrWalletManager().get();
-    if (keplr) {
-      await keplr.disable();
+    const keplrWallet = new KeplrWalletManager();
+    setConnectedWallets((obj) => ({ ...obj, [keplrWallet.key]: false }));
+    const keplrSdk = await keplrWallet.get();
+    if (keplrSdk) {
+      await keplrSdk.disable();
     }
   };
 
@@ -26,12 +28,9 @@ export const KeplrAccount = (): JSX.Element => {
         alt="Namada Wallet"
         className="w-5 h-5"
       />
-      <button
-        className="p-1 opacity-80 transition-opacity hover:opacity-100"
-        onClick={onClickDisconnect}
-      >
+      <AccountIconButton onClick={onClickDisconnect}>
         <DisconnectAccountIcon />
-      </button>
+      </AccountIconButton>
     </div>
   );
 };
