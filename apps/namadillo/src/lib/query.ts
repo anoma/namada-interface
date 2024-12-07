@@ -5,7 +5,6 @@ import {
   BatchTxResultMsgValue,
   TxMsgValue,
   TxProps,
-  TxResponseProps,
   WrapperTxProps,
 } from "@namada/types";
 import { getIndexerApi } from "atoms/api";
@@ -215,70 +214,54 @@ export const broadcastTx = async <T>(
   data?: T[],
   eventType?: TransactionEventsClasses
 ): Promise<void> => {
+  const { rpc } = await getSdkInstance();
+
   if (encodedTx.txs.length !== signedTxs.length) {
     throw new Error("Did not receive enough signatures!");
   }
   // We use the first Tx to construct toast ID in both pending and success/partial success/error
-  const tx = encodedTx.txs[0];
-  if (!tx) {
-    throw new Error("Did not receive any Tx");
-  }
-
   eventType &&
     window.dispatchEvent(
       new CustomEvent(`${eventType}.Pending`, {
-        detail: { tx, data },
+        detail: { tx: encodedTx.txs, data },
       })
     );
 
-  const hashes = encodedTx.txs.map((tx) => tx.hash);
+  const hashes = encodedTx.txs
+    .map((tx) => (tx as TxProps & { innerTxHashes: string[] }).innerTxHashes)
+    .flat();
 
-  eventType &&
-    window.dispatchEvent(
-      new CustomEvent(`${eventType}.Pending`, {
-        detail: { tx, data },
-      })
-    );
-
-  const broadcastResults = await collectBroadcastResults(encodedTx, signedTxs);
-
-  const commitments = broadcastResults.map((result) => result.commitments);
-  const flatCommitments = commitments.flat();
-  const { status, successData, failedData } = parseBroadcastResults(
-    flatCommitments,
-    hashes,
-    data!
-  );
-
-  // Notification
-  eventType &&
-    window.dispatchEvent(
-      new CustomEvent(`${eventType}.${status}`, {
-        detail: {
-          tx,
-          data,
-          successData,
-          failedData,
-        },
-      })
-    );
-};
-
-const collectBroadcastResults = async <T>(
-  encodedTx: EncodedTxData<T>,
-  signedTxs: Uint8Array[]
-): Promise<TxResponseProps[]> => {
-  const { rpc } = await getSdkInstance();
-  const results = await Promise.all(
-    encodedTx.txs.map(async (_tx, i) => {
-      try {
-        return await rpc.broadcastTx(signedTxs[i], encodedTx.wrapperTxProps);
-      } catch (e) {
-        throw new Error(`Failed to broadcast Tx! ${e}`);
+  Promise.allSettled(
+    encodedTx.txs.map((_, i) =>
+      rpc.broadcastTx(signedTxs[i], encodedTx.wrapperTxProps)
+    )
+  ).then((results) => {
+    const commitments = results.map((result) => {
+      if (result.status === "fulfilled") {
+        return result.value.commitments;
       }
-    })
-  );
-  return results;
+      return [];
+    });
+    const { status, successData, failedData } = parseBroadcastResults(
+      commitments.flat(),
+      hashes,
+      data!
+    );
+
+    // Notification
+    eventType &&
+      window.dispatchEvent(
+        new CustomEvent(`${eventType}.${status}`, {
+          detail: {
+            tx: encodedTx.txs,
+            data,
+            successData,
+            failedData,
+          },
+        })
+      );
+  });
+  return;
 };
 
 type BroadcastResults<T> = {
