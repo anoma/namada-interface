@@ -236,32 +236,45 @@ export const broadcastTx = async <T>(
       rpc.broadcastTx(signedTxs[i], encodedTx.wrapperTxProps)
     )
   ).then((results) => {
-    const commitments = results.map((result) => {
-      if (result.status === "fulfilled") {
-        return result.value.commitments;
-      }
-      return [];
-    });
-    const { status, successData, failedData } = parseBroadcastResults(
-      commitments.flat(),
-      hashes,
-      data!
-    );
+    try {
+      const commitments = results.map((result) => {
+        if (result.status === "fulfilled") {
+          return result.value.commitments;
+        } else {
+          // Throw wrapper error if encountered
+          throw new Error(`Broadcast Tx failed! ${result.reason}`);
+        }
+      });
+      const { status, successData, failedData } = parseBroadcastResults(
+        commitments.flat(),
+        hashes,
+        data!
+      );
 
-    // Notification
-    eventType &&
+      // Notification
+      eventType &&
+        window.dispatchEvent(
+          new CustomEvent(`${eventType}.${status}`, {
+            detail: {
+              tx: encodedTx.txs,
+              data,
+              successData,
+              failedData,
+            },
+          })
+        );
+    } catch (error) {
       window.dispatchEvent(
-        new CustomEvent(`${eventType}.${status}`, {
+        new CustomEvent(`${eventType}.Error`, {
           detail: {
             tx: encodedTx.txs,
             data,
-            successData,
-            failedData,
+            error,
           },
         })
       );
+    }
   });
-  return;
 };
 
 type BroadcastResults<T> = {
