@@ -135,15 +135,11 @@ export const IbcWithdraw: React.FC = () => {
       };
 
       setTransaction(tx);
-      await Promise.allSettled(
-        signedTxs.map((signedTx) => {
-          return broadcastTx(
-            encodedTxData,
-            signedTx,
-            encodedTxData.meta?.props,
-            "IbcTransfer"
-          );
-        })
+      await broadcastTx(
+        encodedTxData,
+        signedTxs,
+        encodedTxData.meta?.props,
+        "IbcTransfer"
       );
     } catch (err) {
       setGeneralErrorMessage(err + "");
