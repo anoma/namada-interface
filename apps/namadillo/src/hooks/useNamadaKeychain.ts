@@ -10,6 +10,8 @@ import { useCallback, useState } from "react";
 
 export type InjectedNamada = WindowWithNamada["namada"];
 
+const notAvailableError = "Namada Keychain is not available.";
+
 export class NamadaKeychain implements Wallet {
   // TODO: Should we use this, or keep our existing download buttons?
   install(): void {
@@ -43,13 +45,16 @@ export class NamadaKeychain implements Wallet {
     });
   }
 
-  async get(): Promise<InjectedNamada> {
+  async get(): Promise<InjectedNamada | undefined> {
     const namada = await this._get();
-    return namada!;
+    return namada;
   }
 
   async connect(chainId: string): Promise<void> {
     const namada = await this.get();
+    if (!namada) {
+      throw new Error(notAvailableError);
+    }
     await namada.connect(chainId);
   }
 }

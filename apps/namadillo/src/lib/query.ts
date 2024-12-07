@@ -2,7 +2,6 @@ import { Sdk } from "@namada/sdk/web";
 import {
   Account,
   AccountType,
-  Signer,
   TxMsgValue,
   TxProps,
   WrapperTxProps,
@@ -145,7 +144,7 @@ export const signTx = async <T>(
   owner: string
 ): Promise<Uint8Array[]> => {
   const namada = await new NamadaKeychain().get();
-  const signingClient = namada.getSigner() as Signer;
+  const signingClient = namada?.getSigner();
 
   const store = getDefaultStore();
   const { data: chainParameters } = store.get(chainParametersAtom);
@@ -153,7 +152,7 @@ export const signTx = async <T>(
 
   try {
     // Sign txs
-    const signedTxBytes = await signingClient.sign(
+    const signedTxBytes = await signingClient?.sign(
       typedEncodedTx.txs,
       owner,
       checksums

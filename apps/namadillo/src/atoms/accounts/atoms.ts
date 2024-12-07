@@ -70,16 +70,8 @@ export const updateDefaultAccountAtom = atomWithMutation(() => {
   return {
     mutationFn: (address: string) =>
       namadaPromise.then((injectedNamada) =>
-        injectedNamada.updateDefaultAccount(address)
+        injectedNamada?.updateDefaultAccount(address)
       ),
-  };
-});
-
-export const disconnectAccountAtom = atomWithMutation(() => {
-  const namadaPromise = new NamadaKeychain().get();
-  return {
-    mutationFn: () =>
-      namadaPromise.then((injectedNamada) => injectedNamada.disconnect()),
   };
 });
 

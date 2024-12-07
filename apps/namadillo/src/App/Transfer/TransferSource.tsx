@@ -91,9 +91,9 @@ export const TransferSource = ({
       <hr className="mt-4 mb-2.5 mx-2 border-white opacity-[5%]" />
       <div className="grid grid-cols-[max-content_auto] gap-5 mb-3">
         <SelectedAsset
-          chain={chain}
           asset={asset}
           isLoading={isLoadingAssets}
+          isDisabled={!chain || !walletAddress}
           onClick={openAssetSelector}
         />
         <AmountInput

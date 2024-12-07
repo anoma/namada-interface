@@ -1,4 +1,8 @@
-import { chainRegistryAtom, selectedIBCChainAtom } from "atoms/integrations";
+import {
+  chainRegistryAtom,
+  connectedWalletsAtom,
+  selectedIBCChainAtom,
+} from "atoms/integrations";
 import { WalletConnector } from "integrations/types";
 import { findRegistryByChainId } from "integrations/utils";
 import { useAtom, useAtomValue } from "jotai";
@@ -18,20 +22,20 @@ export const useWalletManager = (wallet: WalletConnector): UseWalletOutput => {
   const chainRegistry = useAtomValue(chainRegistryAtom);
   const [walletAddress, setWalletAddress] = useState<string | undefined>();
   const [chainId, setChainId] = useAtom(selectedIBCChainAtom);
+  const [connectedWallets, setConnectedWallets] = useAtom(connectedWalletsAtom);
   const [registry, setRegistry] = useState<ChainRegistryEntry>();
 
-  useEffect(() => {
-    if (chainId) {
-      const registry = findRegistryByChainId(chainRegistry, chainId);
-      if (registry) {
-        connectToChainId(chainId);
-        setRegistry(registry);
-        return;
-      }
-    }
+  const walletKey = wallet.key;
+  const isConnected = connectedWallets[walletKey];
 
-    setRegistry(undefined);
-  }, [chainId]);
+  useEffect(() => {
+    if (isConnected && chainId) {
+      connectToChainId(chainId);
+    } else {
+      setWalletAddress(undefined);
+      setRegistry(undefined);
+    }
+  }, [isConnected, walletKey, chainId]);
 
   const connectToChainId = async (chainId: string): Promise<void> => {
     const registry = findRegistryByChainId(chainRegistry, chainId);
@@ -43,6 +47,7 @@ export const useWalletManager = (wallet: WalletConnector): UseWalletOutput => {
     await loadWalletAddress(chainId);
     setChainId(registry.chain.chain_id);
     setRegistry(registry);
+    setConnectedWallets((obj) => ({ ...obj, [walletKey]: true }));
   };
 
   const loadWalletAddress = async (chainId: string): Promise<string> => {

@@ -68,6 +68,7 @@ describe("Component: TransferSource", () => {
     setup({
       openAssetSelector: openAssetSelectorMock,
       chain: namadaChainMock as Chain,
+      walletAddress: "123",
     });
     const assetControl = getEmptyAsset();
     fireEvent.click(assetControl);

@@ -1,20 +1,19 @@
-import { Asset, Chain } from "@chain-registry/types";
+import { Asset } from "@chain-registry/types";
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { SelectedAsset } from "App/Transfer/SelectedAsset"; // Adjust the path accordingly
 import { assetMock } from "../__mocks__/assets";
-import { randomChainMock } from "../__mocks__/chains";
 
 describe("SelectedAsset", () => {
-  it("renders with no chain and disables the button", () => {
-    render(<SelectedAsset />);
+  it("renders disabled", () => {
+    render(<SelectedAsset isDisabled />);
     const button = screen.getByRole("button");
     expect(button).toBeDisabled();
   });
 
   it("renders with no asset selected", () => {
     const mockFn = jest.fn();
-    render(<SelectedAsset chain={randomChainMock as Chain} onClick={mockFn} />);
+    render(<SelectedAsset onClick={mockFn} />);
 
     const button = screen.getByRole("button");
     expect(button).toBeEnabled();
@@ -28,13 +27,7 @@ describe("SelectedAsset", () => {
 
   it("renders with asset selected", () => {
     const handleClick = jest.fn();
-    render(
-      <SelectedAsset
-        chain={randomChainMock as Chain}
-        asset={assetMock as Asset}
-        onClick={handleClick}
-      />
-    );
+    render(<SelectedAsset asset={assetMock as Asset} onClick={handleClick} />);
 
     const button = screen.getByRole("button");
     expect(button).toBeEnabled();
@@ -51,7 +44,7 @@ describe("SelectedAsset", () => {
 
   it("does not call onClick when the button is disabled", () => {
     const handleClick = jest.fn();
-    render(<SelectedAsset onClick={handleClick} />);
+    render(<SelectedAsset isDisabled onClick={handleClick} />);
     const button = screen.getByRole("button");
     fireEvent.click(button);
     expect(handleClick).not.toHaveBeenCalled();
