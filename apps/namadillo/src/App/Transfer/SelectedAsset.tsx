@@ -1,4 +1,4 @@
-import { Asset, Chain } from "@chain-registry/types";
+import { Asset } from "@chain-registry/types";
 import { SkeletonLoading } from "@namada/components";
 import clsx from "clsx";
 import { getAssetImageUrl } from "integrations/utils";
@@ -6,23 +6,21 @@ import { GoChevronDown } from "react-icons/go";
 import { EmptyResourceIcon } from "./EmptyResourceIcon";
 
 type SelectedAssetProps = {
-  chain?: Chain;
   asset?: Asset;
   isLoading?: boolean;
+  isDisabled?: boolean;
   onClick?: () => void;
 };
 
 export const SelectedAsset = ({
-  chain,
   asset,
   isLoading,
+  isDisabled,
   onClick,
 }: SelectedAssetProps): JSX.Element => {
   const selectorClassList = clsx(
     `flex items-center gap-4 text-xl text-white font-light cursor-pointer uppercase`
   );
-
-  const isDisabled = !chain;
 
   return (
     <button
