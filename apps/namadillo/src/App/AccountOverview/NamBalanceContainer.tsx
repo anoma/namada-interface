@@ -3,6 +3,7 @@ import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { ShieldedRewardsBox } from "App/Masp/ShieldedRewardsBox";
 import { applicationFeaturesAtom } from "atoms/settings";
+import { shieldRewardsAtom } from "atoms/shield/atoms";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useBalances } from "hooks/useBalances";
@@ -82,6 +83,7 @@ export const NamBalanceContainer = (): JSX.Element => {
   const { maspEnabled, shieldingRewardsEnabled } = useAtomValue(
     applicationFeaturesAtom
   );
+  const shieldRewards = useAtomValue(shieldRewardsAtom);
 
   const {
     balanceQuery,
@@ -139,7 +141,9 @@ export const NamBalanceContainer = (): JSX.Element => {
             isEnabled={shieldingRewardsEnabled}
             className="flex flex-1"
           >
-            <ShieldedRewardsBox />
+            <ShieldedRewardsBox
+              shieldedRewardsAmount={shieldRewards.data?.amount}
+            />
           </ListItemContainer>
         </Stack>
       </AtomErrorBoundary>

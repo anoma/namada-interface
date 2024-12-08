@@ -4,6 +4,7 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { shieldedTokensAtom } from "atoms/balance/atoms";
 import { getTotalNam } from "atoms/balance/functions";
 import { applicationFeaturesAtom } from "atoms/settings/atoms";
+import { shieldRewardsAtom } from "atoms/shield/atoms";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { GoInfo } from "react-icons/go";
@@ -23,7 +24,7 @@ const AsyncNamCurrency = ({ amount }: { amount?: BigNumber }): JSX.Element => {
 
   return (
     <NamCurrency
-      amount={new BigNumber(amount)}
+      amount={amount}
       className="block text-center text-3xl leading-none"
       currencySymbolClassName="block text-xs mt-1"
     />
@@ -33,6 +34,7 @@ const AsyncNamCurrency = ({ amount }: { amount?: BigNumber }): JSX.Element => {
 export const ShieldedNamBalance = (): JSX.Element => {
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
   const { shieldingRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
+  const shieldRewards = useAtomValue(shieldRewardsAtom);
 
   const shieldedNam =
     shieldedTokensQuery.isPending ? undefined : (
@@ -103,8 +105,7 @@ export const ShieldedNamBalance = (): JSX.Element => {
             rewards per Epoch
           </div>
           {shieldingRewardsEnabled ?
-            // TODO shielding rewards
-            <AsyncNamCurrency amount={new BigNumber(0)} />
+            <AsyncNamCurrency amount={shieldRewards.data?.amount} />
           : <div className="block text-center text-3xl">--</div>}
           <div
             className={twMerge(

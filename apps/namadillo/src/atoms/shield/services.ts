@@ -7,6 +7,7 @@ import BigNumber from "bignumber.js";
 import * as Comlink from "comlink";
 import { EncodedTxData, signTx } from "lib/query";
 import { Address, ChainSettings, GasConfig } from "types";
+import { getSdkInstance } from "utils/sdk";
 import { Shield } from "workers/ShieldMessages";
 import {
   registerTransferHandlers as shieldRegisterTransferHandlers,
@@ -146,4 +147,12 @@ export const submitUnshieldTx = async (
   worker.terminate();
 
   return { msg, encodedTx };
+};
+
+export const fetchShieldRewards = async (
+  viewingKey: string
+): Promise<string> => {
+  const sdk = await getSdkInstance();
+
+  return await sdk.rpc.shieldedRewards(viewingKey);
 };

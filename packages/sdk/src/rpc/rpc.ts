@@ -241,4 +241,14 @@ export class Rpc {
   async shieldedSync(vks: string[]): Promise<void> {
     await this.query.shielded_sync(vks);
   }
+
+  /**
+   * Return shielded rewards for specific owner
+   * @async
+   * @param owner - Viewing key of an owner
+   * @returns amount in base units
+   */
+  async shieldedRewards(owner: string): Promise<string> {
+    return await this.sdk.get_shielded_rewards(owner);
+  }
 }
