@@ -109,8 +109,10 @@ const decodeProposalType = (
         t.union([
           t.type({
             Continuous: t.union([
-              t.type({ Add: pgfTargetSchema }),
-              t.type({ Remove: pgfTargetSchema }),
+              t.type({ Add: t.union([pgfTargetSchema, pgfIbcTargetSchema]) }),
+              t.type({
+                Remove: t.union([pgfTargetSchema, pgfIbcTargetSchema]),
+              }),
             ]),
           }),
           t.type({
@@ -118,7 +120,6 @@ const decodeProposalType = (
           }),
         ])
       );
-
       const pgfActionsDecoded = pgfActionsSchema.decode(JSON.parse(data));
 
       if (E.isLeft(pgfActionsDecoded)) {
@@ -129,15 +130,13 @@ const decodeProposalType = (
         (acc, curr) => {
           if ("Continuous" in curr) {
             const continuous = curr.Continuous;
-            const [
-              {
-                Internal: { target, amount },
-              },
-              key,
-            ] =
+            const [kind, key] =
               "Add" in continuous ?
                 [continuous["Add"], "add" as const]
               : [continuous["Remove"], "remove" as const];
+
+            const { target, amount } =
+              "Internal" in kind ? kind.Internal : kind.Ibc;
 
             const amountAsBigNumber = BigNumber(amount);
 
