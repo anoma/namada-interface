@@ -4,11 +4,12 @@ import {
   AccountType,
   Bip44Path,
   DerivedAccount,
+  GenDisposableSignerResponse,
   Path,
   SignArbitraryResponse,
   TxProps,
 } from "@namada/types";
-import { Result, assertNever, truncateInMiddle } from "@namada/utils";
+import { assertNever, Result, truncateInMiddle } from "@namada/utils";
 
 import {
   AccountSecret,
@@ -24,7 +25,13 @@ import {
 import { fromHex } from "@cosmjs/encoding";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
-import { KeyStore, KeyStoreType, SensitiveType, VaultStorage } from "storage";
+import {
+  KeyStore,
+  KeyStoreType,
+  LocalStorage,
+  SensitiveType,
+  VaultStorage,
+} from "storage";
 import { generateId, makeStoredPath } from "utils";
 
 // Generated UUID namespace for uuid v5
@@ -33,6 +40,7 @@ const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
 export const KEYSTORE_KEY = "key-store";
 export const PARENT_ACCOUNT_ID_KEY = "parent-account-id";
 export const AUTHKEY_KEY = "auth-key-store";
+export const DISPOSABLE_SIGNER_KEY = "disposable-signer";
 export const DEFAULT_BIP44_PATH = { account: 0, change: 0, index: 0 };
 
 type DerivedAccountInfo = {
@@ -40,6 +48,7 @@ type DerivedAccountInfo = {
   id: string;
   text: string;
   owner: string;
+  pseudoExtendedKey?: string;
 };
 
 /**
@@ -52,7 +61,8 @@ export class KeyRing {
     protected readonly vaultService: VaultService,
     protected readonly vaultStorage: VaultStorage,
     protected readonly sdkService: SdkService,
-    protected readonly utilityStore: KVStore<UtilityStore>
+    protected readonly utilityStore: KVStore<UtilityStore>,
+    protected readonly localStorage: LocalStorage
   ) {}
 
   public get status(): KeyRingStatus {
@@ -293,13 +303,15 @@ export class KeyRing {
       throw new Error(`Invalid account type! ${parentType}`);
     }
 
-    const { address, viewingKey, spendingKey } = shieldedKeys;
+    const { address, viewingKey, spendingKey, pseudoExtendedKey } =
+      shieldedKeys;
 
     return {
       address,
       id,
       owner: viewingKey,
       text: JSON.stringify({ spendingKey }),
+      pseudoExtendedKey,
     };
   }
 
@@ -353,7 +365,7 @@ export class KeyRing {
     alias: string,
     derivedAccountInfo: DerivedAccountInfo
   ): Promise<DerivedAccount> {
-    const { address, id, text, owner } = derivedAccountInfo;
+    const { address, id, text, owner, pseudoExtendedKey } = derivedAccountInfo;
     const account: AccountStore = {
       id,
       address,
@@ -362,6 +374,7 @@ export class KeyRing {
       path,
       type,
       owner,
+      pseudoExtendedKey,
     };
     const sensitive = await this.vaultService.encryptSensitiveData({
       text,
@@ -526,6 +539,55 @@ export class KeyRing {
     return accounts.map((account) => account.public as AccountStore);
   }
 
+  private async getSpendingKey(address: string): Promise<string> {
+    const account = await this.vaultStorage.findOne(
+      KeyStore,
+      "address",
+      address
+    );
+    if (!account) {
+      throw new Error(`Account for ${address} not found!`);
+    }
+    const accountStore = (await this.queryAllAccounts()).find(
+      (account) => account.address === address
+    );
+
+    if (!accountStore) {
+      throw new Error(`Account for ${address} not found!`);
+    }
+    const { path } = accountStore;
+
+    const sensitiveProps =
+      await this.vaultService.reveal<SensitiveAccountStoreData>(
+        account.sensitive
+      );
+    if (!sensitiveProps) {
+      throw new Error(`Signing key for ${address} not found!`);
+    }
+    const { text, passphrase } = sensitiveProps;
+
+    const bip44Path = {
+      account: path.account,
+      change: path.change || 0,
+      index: path.index || 0,
+    };
+    const accountType = accountStore.type;
+    let shieldedKeys: ShieldedKeys;
+    const keys = this.sdkService.getSdk().getKeys();
+
+    if (accountType === AccountType.Mnemonic) {
+      const mnemonicSdk = this.sdkService.getSdk().getMnemonic();
+      const seed = mnemonicSdk.toSeed(text, passphrase);
+      shieldedKeys = keys.deriveShieldedFromSeed(seed, bip44Path);
+    } else if (accountType === AccountType.PrivateKey) {
+      shieldedKeys = keys.deriveShieldedFromPrivateKey(fromHex(text));
+    } else {
+      throw new Error(`Invalid account type! ${accountType}`);
+    }
+
+    return shieldedKeys.spendingKey;
+  }
+
   /**
    * For provided address, return associated private key
    */
@@ -635,9 +697,24 @@ export class KeyRing {
     chainId: string
   ): Promise<Uint8Array> {
     await this.vaultService.assertIsUnlocked();
-    const key = await this.getSigningKey(signer);
+
+    const disposableKey = await this.localStorage.getDisposableSigner(signer);
+
+    // If disposable key is provided, use it for signing
+    const key =
+      disposableKey ?
+        disposableKey.privateKey
+      : await this.getSigningKey(signer);
+
+    // If disposable key is provided, use it to map real address to spending key
+    const spendingKeys =
+      disposableKey ?
+        [await this.getSpendingKey(disposableKey.realAddress)]
+      : [];
+
     const { signing } = this.sdkService.getSdk();
-    return await signing.sign(txProps, key, chainId);
+
+    return await signing.sign(txProps, key, spendingKeys, chainId);
   }
 
   async signArbitrary(
@@ -665,5 +742,25 @@ export class KeyRing {
       return;
     }
     return account.public;
+  }
+
+  async genDisposableSigner(): Promise<
+    GenDisposableSignerResponse | undefined
+  > {
+    const sdk = this.sdkService.getSdk();
+    const { privateKey, publicKey, address } = sdk.keys.genDisposableKeypair();
+
+    const defaultAccount = await this.queryDefaultAccount();
+    if (!defaultAccount) {
+      throw new Error("No default account found");
+    }
+
+    await this.localStorage.addDisposableSigner(
+      address,
+      privateKey,
+      defaultAccount.address
+    );
+
+    return { publicKey, address };
   }
 }

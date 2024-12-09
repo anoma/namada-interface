@@ -3,6 +3,8 @@ use std::str::FromStr;
 
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use namada_sdk::masp_primitives::transaction::components::sapling::builder::StoredBuildParams;
+use namada_sdk::masp_primitives::zip32::ExtendedFullViewingKey;
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::tx::data::compute_inner_tx_hash;
 use namada_sdk::tx::either::Either;
@@ -43,15 +45,17 @@ pub struct SigningData {
     threshold: u8,
     account_public_keys_map: Option<Vec<u8>>,
     fee_payer: String,
+    shielded_hash: Option<Vec<u8>>,
+    masp: Option<Vec<u8>>,
 }
 
 impl SigningData {
     // Create serializable struct from Namada type
-    pub fn from_signing_tx_data(signing_tx_data: SigningTxData) -> Result<SigningData, JsError> {
-        let owner: Option<String> = match signing_tx_data.owner {
-            Some(addr) => Some(addr.to_string()),
-            None => None,
-        };
+    pub fn from_signing_tx_data(
+        signing_tx_data: SigningTxData,
+        masp_signing_data: Option<MaspSigningData>,
+    ) -> Result<SigningData, JsError> {
+        let owner: Option<String> = signing_tx_data.owner.map(|addr| addr.to_string());
         let public_keys = signing_tx_data
             .public_keys
             .into_iter()
@@ -65,6 +69,14 @@ impl SigningData {
 
         let fee_payer = signing_tx_data.fee_payer.to_string();
         let threshold = signing_tx_data.threshold;
+        let shielded_hash = match signing_tx_data.shielded_hash {
+            Some(v) => Some(borsh::to_vec(&v)?),
+            None => None,
+        };
+        let masp_signing_data = match masp_signing_data {
+            Some(v) => Some(borsh::to_vec(&v)?),
+            None => None,
+        };
 
         Ok(SigningData {
             owner,
@@ -72,13 +84,15 @@ impl SigningData {
             threshold,
             account_public_keys_map,
             fee_payer,
+            shielded_hash,
+            masp: masp_signing_data,
         })
     }
 
     // Create Namada type from this struct
     pub fn to_signing_tx_data(&self) -> Result<SigningTxData, JsError> {
         let owner: Option<Address> = match &self.owner {
-            Some(addr) => Some(Address::from_str(&addr)?),
+            Some(addr) => Some(Address::from_str(addr)?),
             None => None,
         };
 
@@ -91,7 +105,11 @@ impl SigningData {
         let fee_payer = PublicKey::from_str(&self.fee_payer)?;
         let threshold = self.threshold;
         let account_public_keys_map = match &self.account_public_keys_map {
-            Some(pk_map) => Some(borsh::from_slice(&pk_map)?),
+            Some(pk_map) => Some(borsh::from_slice(pk_map)?),
+            None => None,
+        };
+        let shielded_hash = match &self.shielded_hash {
+            Some(v) => Some(borsh::from_slice(v)?),
             None => None,
         };
 
@@ -101,7 +119,33 @@ impl SigningData {
             fee_payer,
             threshold,
             account_public_keys_map,
+            shielded_hash,
         })
+    }
+
+    pub fn masp(&self) -> Option<Vec<u8>> {
+        self.masp.clone()
+    }
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct MaspSigningData {
+    pub bparams: StoredBuildParams,
+    pub xfvks: Vec<ExtendedFullViewingKey>,
+}
+
+impl MaspSigningData {
+    pub fn new(bparams: StoredBuildParams, xfvks: Vec<ExtendedFullViewingKey>) -> MaspSigningData {
+        MaspSigningData { bparams, xfvks }
+    }
+
+    pub fn xfvks(&self) -> Vec<ExtendedFullViewingKey> {
+        self.xfvks.clone()
+    }
+
+    pub fn bparams(&self) -> StoredBuildParams {
+        self.bparams.clone()
     }
 }
 
@@ -112,19 +156,19 @@ pub struct Tx {
     args: WrapperTxMsg,
     hash: String,
     bytes: Vec<u8>,
-    signing_data: Vec<SigningData>,
+    pub signing_data: Vec<SigningData>,
 }
 
 impl Tx {
     pub fn new(
         tx: tx::Tx,
         args: &[u8],
-        signing_tx_data: Vec<SigningTxData>,
+        signing_tx_data: Vec<(SigningTxData, Option<MaspSigningData>)>,
     ) -> Result<Tx, JsError> {
-        let args: WrapperTxMsg = borsh::from_slice(&args)?;
+        let args: WrapperTxMsg = borsh::from_slice(args)?;
         let mut signing_data: Vec<SigningData> = vec![];
-        for sd in signing_tx_data.into_iter() {
-            let sd = SigningData::from_signing_tx_data(sd)?;
+        for (sd, msd) in signing_tx_data.into_iter() {
+            let sd = SigningData::from_signing_tx_data(sd, msd)?;
             signing_data.push(sd);
         }
         let hash = tx.wrapper_hash();
@@ -151,6 +195,10 @@ impl Tx {
         Ok(signing_tx_data)
     }
 
+    pub fn signing_data(&self) -> Vec<SigningData> {
+        self.signing_data.clone()
+    }
+
     pub fn args(&self) -> WrapperTxMsg {
         self.args.clone()
     }
@@ -165,7 +213,7 @@ pub fn get_inner_tx_hashes(tx_bytes: &[u8]) -> Result<Vec<String>, JsError> {
     let mut inner_tx_hashes: Vec<String> = vec![];
 
     for cmt in cmts {
-        let inner_tx_hash = compute_inner_tx_hash(hash.as_ref(), Either::Right(&cmt));
+        let inner_tx_hash = compute_inner_tx_hash(hash.as_ref(), Either::Right(cmt));
         inner_tx_hashes.push(inner_tx_hash.to_string());
     }
 
@@ -189,8 +237,8 @@ pub fn wasm_hash_to_tx_type(wasm_hash: &str, wasm_hashes: &Vec<WasmHash>) -> Opt
         if wh.hash() == wasm_hash {
             let tx_type = type_map.get(&wh.path());
 
-            if tx_type.is_some() {
-                return Some(*tx_type.unwrap());
+            if let Some(tx_type) = tx_type {
+                return Some(*tx_type);
             }
         }
     }
@@ -227,7 +275,7 @@ impl TxDetails {
         let tx: tx::Tx = borsh::from_slice(&tx_bytes)?;
         let chain_id = tx.header().chain_id.to_string();
 
-        let tx_details = match tx.header().tx_type {
+        match tx.header().tx_type {
             tx::data::TxType::Wrapper(wrapper) => {
                 let fee_amount = wrapper.fee.amount_per_gas_unit.to_string();
                 let gas_limit = Uint::from(wrapper.gas_limit).to_string();
@@ -240,7 +288,7 @@ impl TxDetails {
 
                 for cmt in tx.commitments() {
                     let memo = tx
-                        .memo(&cmt)
+                        .memo(cmt)
                         .map(|memo_bytes| String::from_utf8_lossy(&memo_bytes).to_string());
 
                     let hash = cmt.get_hash().to_string();
@@ -258,7 +306,7 @@ impl TxDetails {
 
                         if tx_type.is_some() {
                             let tx_type = tx_type.unwrap();
-                            let tx_data = tx.data(&cmt).unwrap_or_default();
+                            let tx_data = tx.data(cmt).unwrap_or_default();
                             let tx_kind = transaction::TransactionKind::from(tx_type, &tx_data);
                             let data = tx_kind.to_bytes()?;
 
@@ -279,9 +327,7 @@ impl TxDetails {
                 })
             }
             _ => Err(JsError::new("Invalid transaction type!")),
-        };
-
-        Ok(tx_details?)
+        }
     }
 }
 

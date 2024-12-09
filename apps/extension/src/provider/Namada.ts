@@ -1,5 +1,6 @@
 import {
   Account,
+  GenDisposableSignerResponse,
   Namada as INamada,
   SignArbitraryProps,
   SignArbitraryResponse,
@@ -16,6 +17,7 @@ import {
   ApproveSignTxMsg,
   ApproveUpdateDefaultAccountMsg,
   CheckDurabilityMsg,
+  GenDisposableSignerMsg,
   IsConnectionApprovedMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
@@ -99,6 +101,15 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new ApproveSignArbitraryMsg(signer, data)
+    );
+  }
+
+  public async genDisposableKeypair(): Promise<
+    GenDisposableSignerResponse | undefined
+  > {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new GenDisposableSignerMsg()
     );
   }
 
