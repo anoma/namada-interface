@@ -20,9 +20,6 @@ export function App(): JSX.Element {
   useTransactionWatcher();
   useServerSideEvents();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).spendingKey = async () => {};
-
   return (
     <>
       <Toasts />

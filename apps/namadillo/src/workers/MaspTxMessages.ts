@@ -42,8 +42,9 @@ type UnshieldPayload = {
     gasLimit: BigNumber;
     gasPrice: BigNumber;
   };
-  shieldingProps: UnshieldingTransferMsgValue[];
+  unshieldingProps: UnshieldingTransferMsgValue[];
   chain: ChainSettings;
+  indexerUrl: string;
   vks: string[];
 };
 export type Unshield = WebWorkerMessage<"unshield", UnshieldPayload>;

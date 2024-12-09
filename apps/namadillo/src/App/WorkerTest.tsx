@@ -16,12 +16,12 @@ import { indexerUrlAtom, maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { useAtom, useAtomValue } from "jotai";
 import { signTx } from "lib/query";
-import { Shield, ShieldedTransfer, Unshield } from "workers/ShieldMessages";
+import { Shield, ShieldedTransfer, Unshield } from "workers/MaspTxMessages";
 import {
+  Worker as MaspTxWorkerApi,
   registerTransferHandlers,
-  Worker as ShieldWorkerApi,
-} from "workers/ShieldWorker";
-import ShieldWorker from "workers/ShieldWorker?worker";
+} from "workers/MaspTxWorker";
+import MaspTxWorker from "workers/MaspTxWorker?worker";
 import { Worker as ShieldedSyncWorkerApi } from "workers/ShieldedSyncWorker";
 import ShieldedSyncWorker from "workers/ShieldedSyncWorker?worker";
 
@@ -63,8 +63,8 @@ export function WorkerTest(): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).shield = async (target: string, amount: number) => {
     registerTransferHandlers();
-    const worker = new ShieldWorker();
-    const shieldWorker = Comlink.wrap<ShieldWorkerApi>(worker);
+    const worker = new MaspTxWorker();
+    const shieldWorker = Comlink.wrap<MaspTxWorkerApi>(worker);
 
     await shieldWorker.init({
       type: "init",
@@ -118,8 +118,8 @@ export function WorkerTest(): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).unshield = async (target: string, amount: number) => {
     registerTransferHandlers();
-    const worker = new ShieldWorker();
-    const shieldWorker = Comlink.wrap<ShieldWorkerApi>(worker);
+    const worker = new MaspTxWorker();
+    const shieldWorker = Comlink.wrap<MaspTxWorkerApi>(worker);
 
     await shieldWorker.init({
       type: "init",
@@ -159,9 +159,10 @@ export function WorkerTest(): JSX.Element {
           gasLimit: BigNumber(100000),
           gasPrice: BigNumber(0),
         },
-        shieldingProps: [shieldingMsgValue],
+        unshieldingProps: [shieldingMsgValue],
         chain: chain!,
         vks: vks!,
+        indexerUrl,
       },
     };
 
@@ -182,8 +183,8 @@ export function WorkerTest(): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).shielded = async (target: string, amount: number) => {
     registerTransferHandlers();
-    const worker = new ShieldWorker();
-    const shieldWorker = Comlink.wrap<ShieldWorkerApi>(worker);
+    const worker = new MaspTxWorker();
+    const shieldWorker = Comlink.wrap<MaspTxWorkerApi>(worker);
 
     await shieldWorker.init({
       type: "init",

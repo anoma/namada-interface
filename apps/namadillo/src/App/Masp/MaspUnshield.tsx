@@ -143,7 +143,7 @@ export const MaspUnshield: React.FC = () => {
       });
 
       const txResponse = await performUnshieldTransfer.mutateAsync({
-        sourceAddress: sourceAccount.pseudoExtendedKey!,
+        sourceAddress: sourceAccount.pseudoExtendedKey,
         destinationAddress,
         tokenAddress: selectedAsset.originalAddress,
         amount: displayAmount,
@@ -154,7 +154,7 @@ export const MaspUnshield: React.FC = () => {
       const tx: TransferTransactionData = {
         type: "ShieldedToTransparent",
         currentStep: TransferStep.Complete,
-        sourceAddress: sourceAccount.pseudoExtendedKey!,
+        sourceAddress: sourceAccount.pseudoExtendedKey,
         destinationAddress,
         asset: selectedAsset.asset,
         displayAmount,
