@@ -54,8 +54,8 @@ export type PgfIbcTarget = {
 
 export type PgfActions = {
   continuous: {
-    add: PgfTarget[];
-    remove: PgfTarget[];
+    add: (PgfTarget | PgfIbcTarget)[];
+    remove: (PgfTarget | PgfIbcTarget)[];
   };
   retro: (PgfTarget | PgfIbcTarget)[];
 };
