@@ -2,6 +2,7 @@ import { Sdk } from "@namada/sdk/web";
 import {
   Account,
   AccountType,
+  BatchTxResultMsgValue,
   TxMsgValue,
   TxProps,
   WrapperTxProps,
@@ -12,7 +13,10 @@ import { NamadaKeychain } from "hooks/useNamadaKeychain";
 import invariant from "invariant";
 import { getDefaultStore } from "jotai";
 import { Address, ChainSettings, GasConfig } from "types";
-import { TransactionEventsClasses } from "types/events";
+import {
+  TransactionEventsClasses,
+  TransactionEventsStatus,
+} from "types/events";
 import { getSdkInstance } from "utils/sdk";
 
 export type TransactionPair<T> = {
@@ -206,84 +210,118 @@ export const buildTxPair = async <T>(
 
 export const broadcastTx = async <T>(
   encodedTx: EncodedTxData<T>,
-  signedTx: Uint8Array,
+  signedTxs: Uint8Array[],
   data?: T[],
   eventType?: TransactionEventsClasses
 ): Promise<void> => {
   const { rpc } = await getSdkInstance();
 
-  encodedTx.txs.forEach(async (tx) => {
-    const { innerTxHashes } = tx as TxProps & { innerTxHashes: string[] };
-    const dataWithHash = data?.map((d, i) => ({
-      ...d,
-      hash: innerTxHashes[i],
-    }));
+  if (encodedTx.txs.length !== signedTxs.length) {
+    throw new Error("Did not receive enough signatures!");
+  }
 
-    eventType &&
-      window.dispatchEvent(
-        new CustomEvent(`${eventType}.Pending`, {
-          detail: { tx, data },
-        })
-      );
+  eventType &&
+    window.dispatchEvent(
+      new CustomEvent(`${eventType}.Pending`, {
+        detail: { tx: encodedTx.txs, data },
+      })
+    );
+
+  const hashes = encodedTx.txs
+    .map((tx) => (tx as TxProps & { innerTxHashes: string[] }).innerTxHashes)
+    .flat();
+
+  Promise.allSettled(
+    encodedTx.txs.map((_, i) =>
+      rpc.broadcastTx(signedTxs[i], encodedTx.wrapperTxProps)
+    )
+  ).then((results) => {
     try {
-      const response = await rpc.broadcastTx(
-        signedTx,
-        encodedTx.wrapperTxProps
-      );
-
-      const commitmentErrors: string[] = [];
-      response.commitments.forEach(({ hash, isApplied }) => {
-        if (!isApplied) {
-          commitmentErrors.push(hash);
+      const commitments = results.map((result) => {
+        if (result.status === "fulfilled") {
+          return result.value.commitments;
+        } else {
+          // Throw wrapper error if encountered
+          throw new Error(`Broadcast Tx failed! ${result.reason}`);
         }
       });
+      const { status, successData, failedData } = parseTxAppliedErrors(
+        commitments.flat(),
+        hashes,
+        data!
+      );
 
-      if (commitmentErrors.length) {
-        const successData = dataWithHash?.filter((data) => {
-          return !commitmentErrors.includes(data.hash);
-        });
-
-        const failedData = dataWithHash?.filter((data) => {
-          return commitmentErrors.includes(data.hash);
-        });
-
-        if (successData?.length) {
-          eventType &&
-            window.dispatchEvent(
-              new CustomEvent(`${eventType}.PartialSuccess`, {
-                detail: {
-                  tx,
-                  data,
-                  successData,
-                  failedData,
-                },
-              })
-            );
-        } else {
-          eventType &&
-            window.dispatchEvent(
-              new CustomEvent(`${eventType}.Error`, {
-                detail: { tx, data, failedData },
-              })
-            );
-        }
-        return;
-      }
-
-      // If no errors were reported, display Success toast
+      // Notification
       eventType &&
         window.dispatchEvent(
-          new CustomEvent(`${eventType}.Success`, {
-            detail: { tx, data },
+          new CustomEvent(`${eventType}.${status}`, {
+            detail: {
+              tx: encodedTx.txs,
+              data,
+              successData,
+              failedData,
+            },
           })
         );
     } catch (error) {
-      eventType &&
-        window.dispatchEvent(
-          new CustomEvent(`${eventType}.Error`, {
-            detail: { tx, data, error },
-          })
-        );
+      window.dispatchEvent(
+        new CustomEvent(`${eventType}.Error`, {
+          detail: {
+            tx: encodedTx.txs,
+            data,
+            error,
+          },
+        })
+      );
     }
   });
+};
+
+type TxAppliedResults<T> = {
+  status: TransactionEventsStatus;
+  successData?: T[];
+  failedData?: T[];
+};
+
+// Given an array of broadcasted Tx results,
+// collect any errors
+const parseTxAppliedErrors = <T>(
+  results: BatchTxResultMsgValue[],
+  txHashes: string[],
+  data: T[]
+): TxAppliedResults<T> => {
+  const txErrors: string[] = [];
+  const dataWithHash = data?.map((d, i) => ({
+    ...d,
+    hash: txHashes[i],
+  }));
+
+  results.forEach((result) => {
+    const { hash, isApplied } = result;
+    if (!isApplied) {
+      txErrors.push(hash);
+    }
+  });
+
+  if (txErrors.length) {
+    const successData = dataWithHash?.filter((data) => {
+      return !txErrors.includes(data.hash);
+    });
+
+    const failedData = dataWithHash?.filter((data) => {
+      return txErrors.includes(data.hash);
+    });
+
+    if (successData?.length) {
+      return {
+        status: "PartialSuccess",
+        successData,
+        failedData,
+      };
+    } else {
+      return { status: "Error", failedData };
+    }
+  }
+
+  return { status: "Success" };
 };
