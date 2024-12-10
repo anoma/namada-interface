@@ -17,7 +17,7 @@ export class Crypto {
   /**
    * @param cryptoMemory - WebAssembly Memory for crypto
    */
-  constructor(protected readonly cryptoMemory: WebAssembly.Memory) {}
+  constructor(protected readonly cryptoMemory: WebAssembly.Memory) { }
 
   /**
    * Provide object for storing encrypted data

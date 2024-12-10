@@ -20,7 +20,7 @@ pub struct SignatureMsg {
 /// from Tx
 ///
 /// # Arguments
-////
+///
 /// * `pubkey` - Public key bytes
 /// * `sec_indices` - Indices indicating hash location
 /// * `signature` - Signature bytes
@@ -44,5 +44,5 @@ pub fn construct_signature_section(
         signatures,
     };
 
-    Ok(Section::Authorization(compressed_signature.expand(&tx)))
+    Ok(Section::Authorization(compressed_signature.expand(tx)))
 }

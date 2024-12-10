@@ -1,5 +1,6 @@
 import {
   CheckDurabilityMsg,
+  GenDisposableSignerMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
   VerifyArbitraryMsg,
@@ -40,6 +41,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(RevealAccountMnemonicMsg);
   router.registerMessage(RenameAccountMsg);
   router.registerMessage(VerifyArbitraryMsg);
+  router.registerMessage(GenDisposableSignerMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }

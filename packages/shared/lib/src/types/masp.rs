@@ -1,7 +1,10 @@
 //! PaymentAddress - Provide wasm_bindgen bindings for shielded addresses
 //! See @namada/crypto for zip32 HD wallet functionality.
-use namada_sdk::borsh::BorshDeserialize;
+use js_sys::Uint8Array;
+use namada_sdk::borsh::{self, BorshDeserialize};
+use namada_sdk::masp_primitives::zip32::ExtendedKey;
 use namada_sdk::masp_primitives::{sapling, zip32};
+use namada_sdk::masp_proofs::jubjub;
 use namada_sdk::{
     ExtendedSpendingKey as NamadaExtendedSpendingKey,
     ExtendedViewingKey as NamadaExtendedViewingKey, PaymentAddress as NamadaPaymentAddress,
@@ -41,6 +44,45 @@ impl ExtendedViewingKey {
     }
 }
 
+#[wasm_bindgen]
+pub struct ProofGenerationKey(pub(crate) sapling::ProofGenerationKey);
+
+#[wasm_bindgen]
+impl ProofGenerationKey {
+    pub fn encode(&self) -> String {
+        hex::encode(
+            borsh::to_vec(&self.0).expect("Serializing ProofGenerationKey should not fail!"),
+        )
+    }
+    pub fn decode(encoded: String) -> ProofGenerationKey {
+        let decoded = hex::decode(encoded).expect("Decoding ProofGenerationKey should not fail!");
+
+        ProofGenerationKey(
+            sapling::ProofGenerationKey::try_from_slice(decoded.as_slice())
+                .expect("Deserializing ProofGenerationKey should not fail!"),
+        )
+    }
+}
+
+/// Wrap ExtendedSpendingKey
+#[wasm_bindgen]
+pub struct PseudoExtendedKey(pub(crate) zip32::PseudoExtendedKey);
+
+#[wasm_bindgen]
+impl PseudoExtendedKey {
+    pub fn encode(&self) -> String {
+        hex::encode(borsh::to_vec(&self.0).expect("Serializing PseudoExtendedKey should not fail!"))
+    }
+    pub fn decode(encoded: String) -> PseudoExtendedKey {
+        let decoded = hex::decode(encoded).expect("Decoding PsuedoExtendedKey should not fail!");
+
+        PseudoExtendedKey(
+            zip32::PseudoExtendedKey::try_from_slice(decoded.as_slice())
+                .expect("Deserializing ProofGenerationKey should not fail!"),
+        )
+    }
+}
+
 /// Wrap ExtendedSpendingKey
 #[wasm_bindgen]
 pub struct ExtendedSpendingKey(pub(crate) NamadaExtendedSpendingKey);
@@ -50,13 +92,33 @@ pub struct ExtendedSpendingKey(pub(crate) NamadaExtendedSpendingKey);
 impl ExtendedSpendingKey {
     /// Instantiate ExtendedSpendingKey from serialized vector
     #[wasm_bindgen(constructor)]
-    pub fn new(key: &[u8]) -> Result<ExtendedSpendingKey, String> {
-        let xsk: zip32::ExtendedSpendingKey = BorshDeserialize::try_from_slice(key)
-            .map_err(|err| format!("{}: {:?}", MaspError::BorshDeserialize, err))?;
+    pub fn new(key: Uint8Array) -> Result<ExtendedSpendingKey, String> {
+        let xsk: zip32::ExtendedSpendingKey =
+            BorshDeserialize::try_from_slice(key.to_vec().as_slice())
+                .map_err(|err| format!("{}: {:?}", MaspError::BorshDeserialize, err))?;
 
         let xsk = NamadaExtendedSpendingKey::from(xsk);
 
         Ok(ExtendedSpendingKey(xsk))
+    }
+
+    pub fn to_proof_generation_key(&self) -> ProofGenerationKey {
+        let xsk = zip32::ExtendedSpendingKey::from(self.0);
+        let pgk = xsk
+            .to_proof_generation_key()
+            .expect("Converting to proof generation key should not fail!");
+
+        ProofGenerationKey(pgk)
+    }
+
+    pub fn to_pseudo_extended_key(&self) -> PseudoExtendedKey {
+        let xsk = zip32::ExtendedSpendingKey::from(self.0);
+        let mut pxk = zip32::PseudoExtendedKey::from(xsk);
+        pxk.augment_spend_authorizing_key_unchecked(sapling::redjubjub::PrivateKey(
+            jubjub::Fr::default(),
+        ));
+
+        PseudoExtendedKey(pxk)
     }
 
     /// Return ExtendedSpendingKey as Bech32-encoded String
@@ -112,7 +174,7 @@ mod tests {
             112, 25, 36, 51, 226, 228, 45, 242, 201, 220, 212, 220, 58, 92, 127, 47, 214, 59, 174,
             182, 74, 90, 65, 229, 187, 76, 65, 246, 34, 237, 107, 208, 178, 243,
         ];
-        let xsk = ExtendedSpendingKey::new(encoded_xsk)
+        let xsk = ExtendedSpendingKey::new(encoded_xsk.into())
             .expect("Instantiating ExtendedSpendingKey struct should not fail!");
 
         let key = xsk.encode();
