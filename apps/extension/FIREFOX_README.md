@@ -46,6 +46,7 @@ yarn wasm:build
 Then, issue the final build command for the Firefox add-on:
 
 ```bash
+export REVISION=487d2a1697f50f06e77677df8e081f868d2a5860
 yarn build:firefox
 ```
 
