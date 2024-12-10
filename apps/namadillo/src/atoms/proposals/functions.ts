@@ -12,6 +12,8 @@ import {
   Account,
   AddRemove,
   PgfActions,
+  PgfIbcTarget,
+  PgfTarget,
   Proposal,
   ProposalStatus,
   ProposalType,
@@ -31,6 +33,41 @@ import { GasConfig } from "types";
 import { fromHex } from "@cosmjs/encoding";
 import { ChainSettings } from "types";
 import { getSdkInstance } from "utils/sdk";
+
+const pgfTargetSchema = t.type({
+  Internal: t.type({
+    target: t.string,
+    amount: t.string,
+  }),
+});
+type PgfTargetJson = t.TypeOf<typeof pgfTargetSchema>;
+
+const pgfIbcTargetSchema = t.type({
+  Ibc: t.type({
+    target: t.string,
+    amount: t.string,
+    channel_id: t.string,
+    port_id: t.string,
+  }),
+});
+type PgfIbcTargetJson = t.TypeOf<typeof pgfIbcTargetSchema>;
+
+const pgfActionsSchema = t.array(
+  t.union([
+    t.type({
+      Continuous: t.union([
+        t.type({ Add: t.union([pgfTargetSchema, pgfIbcTargetSchema]) }),
+        t.type({
+          Remove: t.union([pgfTargetSchema, pgfIbcTargetSchema]),
+        }),
+      ]),
+    }),
+    t.type({
+      Retro: t.union([pgfTargetSchema, pgfIbcTargetSchema]),
+    }),
+  ])
+);
+type PgfActionsJson = t.TypeOf<typeof pgfActionsSchema>;
 
 // TODO: this function is way too big
 const decodeProposalType = (
@@ -89,126 +126,68 @@ const decodeProposalType = (
         throw new Error("data was undefined for pgf_payment proposal");
       }
 
-      const pgfTargetSchema = t.type({
-        Internal: t.type({
-          target: t.string,
-          amount: t.string,
-        }),
-      });
-
-      const pgfIbcTargetSchema = t.type({
-        Ibc: t.type({
-          target: t.string,
-          amount: t.string,
-          channel_id: t.string,
-          port_id: t.string,
-        }),
-      });
-
-      const pgfActionsSchema = t.array(
-        t.union([
-          t.type({
-            Continuous: t.union([
-              t.type({ Add: pgfTargetSchema }),
-              t.type({ Remove: pgfTargetSchema }),
-            ]),
-          }),
-          t.type({
-            Retro: t.union([pgfTargetSchema, pgfIbcTargetSchema]),
-          }),
-        ])
-      );
-
       const pgfActionsDecoded = pgfActionsSchema.decode(JSON.parse(data));
 
       if (E.isLeft(pgfActionsDecoded)) {
         throw new Error("pgf_payment data is not valid");
       }
 
-      const pgfActions = pgfActionsDecoded.right.reduce<PgfActions>(
-        (acc, curr) => {
-          if ("Continuous" in curr) {
-            const continuous = curr.Continuous;
-            const [
-              {
-                Internal: { target, amount },
-              },
-              key,
-            ] =
-              "Add" in continuous ?
-                [continuous["Add"], "add" as const]
-              : [continuous["Remove"], "remove" as const];
-
-            const amountAsBigNumber = BigNumber(amount);
-
-            if (amountAsBigNumber.isNaN()) {
-              throw new Error(
-                `couldn't parse amount to BigNumber, got ${amount}`
-              );
-            }
-
-            return {
-              ...acc,
-              continuous: {
-                ...acc.continuous,
-                [key]: [
-                  ...acc.continuous[key],
-                  { internal: { target, amount: amountAsBigNumber } },
-                ],
-              },
-            };
-          } else if ("Internal" in curr.Retro) {
-            const { target, amount } = curr.Retro.Internal;
-            const amountAsBigNumber = BigNumber(amount);
-
-            if (amountAsBigNumber.isNaN()) {
-              throw new Error(
-                `couldn't parse amount to BigNumber, got ${amount}`
-              );
-            }
-
-            return {
-              ...acc,
-              retro: [
-                ...acc.retro,
-                { internal: { amount: amountAsBigNumber, target } },
-              ],
-            };
-          } else {
-            const {
-              target,
-              amount,
-              channel_id: channelId,
-              port_id: portId,
-            } = curr.Retro.Ibc;
-            const amountAsBigNumber = BigNumber(amount);
-
-            if (amountAsBigNumber.isNaN()) {
-              throw new Error(
-                `couldn't parse amount to BigNumber, got ${amount}`
-              );
-            }
-
-            return {
-              ...acc,
-              retro: [
-                ...acc.retro,
-                {
-                  ibc: {
-                    amount: amountAsBigNumber,
-                    target,
-                    channelId,
-                    portId,
-                  },
-                },
-              ],
-            };
-          }
+      const toIbcTarget = ({
+        target,
+        amount,
+        channel_id,
+        port_id,
+      }: PgfIbcTargetJson["Ibc"]): PgfIbcTarget => ({
+        ibc: {
+          target,
+          amount: BigNumber(amount),
+          channelId: channel_id,
+          portId: port_id,
         },
-        { continuous: { add: [], remove: [] }, retro: [] }
-      );
+      });
 
-      return { type: "pgf_payment", data: pgfActions };
+      const toInternalTarget = ({
+        target,
+        amount,
+      }: PgfTargetJson["Internal"]): PgfTarget => ({
+        internal: { target, amount: BigNumber(amount) },
+      });
+
+      const toTarget = (
+        target: PgfTargetJson | PgfIbcTargetJson
+      ): PgfTarget | PgfIbcTarget => {
+        if ("Internal" in target) {
+          return toInternalTarget(target.Internal);
+        } else if ("Ibc" in target) {
+          return toIbcTarget(target.Ibc);
+        } else {
+          return assertNever(target);
+        }
+      };
+
+      const mapJson = (value: PgfActionsJson): PgfActions => {
+        const data: PgfActions = {
+          continuous: { add: [], remove: [] },
+          retro: [],
+        };
+
+        value.forEach((val) => {
+          if ("Continuous" in val) {
+            const continuous = val.Continuous;
+            if ("Add" in continuous) {
+              data.continuous.add.push(toTarget(continuous.Add));
+            } else {
+              data.continuous.remove.push(toTarget(continuous.Remove));
+            }
+          } else if ("Retro" in val) {
+            data.retro.push(toTarget(val.Retro));
+          }
+        });
+
+        return data;
+      };
+
+      return { type: "pgf_payment", data: mapJson(pgfActionsDecoded.right) };
     default:
       throw new Error(
         `unknown proposal type string, got ${indexerProposalType}`
