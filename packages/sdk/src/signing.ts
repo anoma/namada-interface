@@ -24,14 +24,16 @@ export class Signing {
   async sign(
     txProps: TxProps,
     signingKey: string,
-    xsks: string[],
+    xsks?: string[],
     chainId?: string
   ): Promise<Uint8Array> {
     const txMsgValue = new TxMsgValue(txProps);
     const msg = new Message<TxMsgValue>();
     const txBytes = msg.encode(txMsgValue);
     const txBytesFinal =
-      xsks.length > 0 ? await this.sdk.sign_masp(xsks, txBytes) : txBytes;
+      xsks && xsks.length > 0 ?
+        await this.sdk.sign_masp(xsks, txBytes)
+      : txBytes;
 
     return await this.sdk.sign_tx(txBytesFinal, signingKey, chainId);
   }
