@@ -219,7 +219,7 @@ export const broadcastTx = async <T>(
   if (encodedTx.txs.length !== signedTxs.length) {
     throw new Error("Did not receive enough signatures!");
   }
-  // We use the first Tx to construct toast ID in both pending and success/partial success/error
+
   eventType &&
     window.dispatchEvent(
       new CustomEvent(`${eventType}.Pending`, {
@@ -245,7 +245,7 @@ export const broadcastTx = async <T>(
           throw new Error(`Broadcast Tx failed! ${result.reason}`);
         }
       });
-      const { status, successData, failedData } = parseBroadcastResults(
+      const { status, successData, failedData } = parseTxAppliedErrors(
         commitments.flat(),
         hashes,
         data!
@@ -277,7 +277,7 @@ export const broadcastTx = async <T>(
   });
 };
 
-type BroadcastResults<T> = {
+type TxAppliedResults<T> = {
   status: TransactionEventsStatus;
   successData?: T[];
   failedData?: T[];
@@ -285,11 +285,11 @@ type BroadcastResults<T> = {
 
 // Given an array of broadcasted Tx results,
 // collect any errors
-const parseBroadcastResults = <T>(
+const parseTxAppliedErrors = <T>(
   results: BatchTxResultMsgValue[],
   txHashes: string[],
   data: T[]
-): BroadcastResults<T> => {
+): TxAppliedResults<T> => {
   const txErrors: string[] = [];
   const dataWithHash = data?.map((d, i) => ({
     ...d,
