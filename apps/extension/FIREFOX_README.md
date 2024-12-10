@@ -7,6 +7,7 @@ exactly as they are described below.
 
 - [Build Instructions](#build-instructions)
 - [Notes](#notes)
+  - [Environment](#environment)
   - [Setting up Node & NPM](#setting-up-node-and-npm)
   - [Source Code](#source-code)
 
@@ -53,6 +54,20 @@ The resulting extension is the ZIP file in `apps/extension/build/firefox`.
 [ [Table of Contents](#table-of-contents) ]
 
 ## Notes
+
+### Environment
+
+This build was produced using the following environment:
+
+- Ubuntu 24.04 LTS (Desktop edition)
+- 10GB of system memory (RAM)
+- 6 cores of vCPU
+- Node 22 LTS and npm 10
+- 35GB of storage
+
+Please ensure that this matches your environment!
+
+[ [Table of Contents](#table-of-contents) ]
 
 ### Setting up Node and NPM
 
