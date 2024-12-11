@@ -13,7 +13,12 @@ const { getProcessEnv } = require("@namada/config/webpack.js");
 // Load .env from namadillo:
 require("dotenv").config({ path: "./.env" });
 
-const { NODE_ENV, TARGET, BUNDLE_ANALYZE, BETA_RELEASE: isBeta } = process.env;
+const {
+  NODE_ENV,
+  TARGET,
+  BUNDLE_ANALYZE,
+  BETA_RELEASE: isBeta,
+} = process.env;
 
 const OUTPUT_PATH = resolve(__dirname, `./build/${TARGET}`);
 const MANIFEST_VERSION = TARGET === "firefox" ? "v2" : "v3";
@@ -106,7 +111,6 @@ const plugins = [
       env: JSON.stringify(
         getProcessEnv("NAMADA_INTERFACE", [
           "TARGET",
-          "REVISION",
           "NODE_ENV",
           "npm_package_version",
         ])

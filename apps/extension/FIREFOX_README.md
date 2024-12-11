@@ -21,7 +21,7 @@ If you don't already have Node v22 LTS and NPM v10, please follow these [instruc
 These instructions should work for the default reviewer build environment.
 
 ```bash
-sudo apt install protobuf-compiler build-essential curl pkg-config libssl-dev binaryen
+sudo apt install protobuf-compiler build-essential curl pkg-config libssl-dev binaryen -y
 curl https://sh.rustup.rs -sSf | sh
 
 # Proceed with standard installation when prompted
@@ -46,9 +46,6 @@ yarn wasm:build
 Then, issue the final build command for the Firefox add-on:
 
 ```bash
-# Specify REVISION to match commit in the submitted release build:
-export REVISION=487d2a1697f50f06e77677df8e081f868d2a5860
-
 # Build the addon:
 yarn build:firefox
 ```
