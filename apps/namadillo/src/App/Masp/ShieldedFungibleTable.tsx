@@ -44,7 +44,7 @@ export const ShieldedFungibleTable = ({
         >
           <div className="aspect-square w-8 h-8">
             {icon ?
-              <img src={icon} />
+              <img src={icon} className="w-full h-full" />
             : <div className="rounded-full h-full border border-white" />}
           </div>
           {asset.symbol}

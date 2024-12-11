@@ -2,7 +2,7 @@ import { Asset, AssetList, Chain, IBCInfo } from "@chain-registry/types";
 import { QueryClient, setupIbcExtension } from "@cosmjs/stargate";
 import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import { Account, IbcTransferProps } from "@namada/types";
-import { mapUndefined } from "@namada/utils";
+import { mapUndefined, shortenAddress } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import * as celestia from "chain-registry/mainnet/celestia";
 import * as cosmos from "chain-registry/mainnet/cosmoshub";
@@ -223,7 +223,7 @@ const unknownAsset = (denom: string): Asset => ({
   base: denom,
   name: denom,
   display: denom,
-  symbol: denom,
+  symbol: shortenAddress(denom, 4, 4),
 });
 
 const findOriginalAsset = async (
