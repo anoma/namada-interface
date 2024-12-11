@@ -763,7 +763,6 @@ impl Sdk {
         shielded.load().await?;
 
         let xvk = ExtendedViewingKey::from_str(&owner)?;
-
         let raw_balance = shielded
             .compute_shielded_balance(&xvk.as_viewing_key())
             .await
