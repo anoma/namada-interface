@@ -1,11 +1,16 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import BigNumber from "bignumber.js";
 import { mockUseBalances } from "hooks/__mocks__/mockUseBalance";
+import { atom } from "jotai";
 import { AtomWithQueryResult } from "jotai-tanstack-query";
 import { NamBalanceContainer } from "../NamBalanceContainer";
 
 jest.mock("hooks/useBalances", () => ({
   useBalances: jest.fn(),
+}));
+
+jest.mock("atoms/shield/atoms", () => ({
+  shieldRewardsAtom: atom({ data: undefined }),
 }));
 
 describe("Component: NamBalanceContainer", () => {
