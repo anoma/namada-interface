@@ -46,7 +46,10 @@ yarn wasm:build
 Then, issue the final build command for the Firefox add-on:
 
 ```bash
+# Specify REVISION to match commit in the submitted release build:
 export REVISION=487d2a1697f50f06e77677df8e081f868d2a5860
+
+# Build the addon:
 yarn build:firefox
 ```
 

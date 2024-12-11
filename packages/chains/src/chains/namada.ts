@@ -2,7 +2,7 @@ import { BridgeType, Chain, Extensions } from "@namada/types";
 import { ProxyMappings } from "../types";
 
 const DEFAULT_ALIAS = "Namada";
-const DEFAULT_CHAIN_ID = "public-testnet-15.0dacadb8d663";
+const DEFAULT_CHAIN_ID = "namada.5f5de2dd1b88cba30586420";
 const DEFAULT_RPC = "https://proxy.heliax.click/public-testnet-15.0dacadb8d663";
 const DEFAULT_BECH32_PREFIX = "tnam";
 
