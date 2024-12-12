@@ -8,6 +8,7 @@ export type AccountDetails = {
 };
 
 export type DeriveAccountDetails = AccountDetails & {
+  flow: "create" | "import";
   accountSecret: AccountSecret;
   path: Bip44Path;
   passwordRequired?: boolean;

@@ -36,7 +36,7 @@ export class Rpc {
   constructor(
     protected readonly sdk: SdkWasm,
     protected readonly query: QueryWasm
-  ) { }
+  ) {}
 
   /**
    * Query balances from chain
@@ -236,10 +236,9 @@ export class Rpc {
    * Sync the shielded context
    * @async
    * @param vks - Array of viewing keys
-   * @param sks - Array of spending keys
    * @returns
    */
-  async shieldedSync(vks: string[], sks: string[] = []): Promise<void> {
-    await this.query.shielded_sync(vks, sks);
+  async shieldedSync(vks: string[]): Promise<void> {
+    await this.query.shielded_sync(vks);
   }
 }

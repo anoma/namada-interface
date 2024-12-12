@@ -30,6 +30,8 @@ const getKeyStore = (id: string, alias: string): KeyStoreType => ({
     index: 0,
   },
   type: AccountType.Mnemonic,
+  source: "generated",
+  timestamp: 0,
 });
 
 describe("Testing untouched Vault Service", () => {

@@ -38,11 +38,20 @@ export type DerivedAccount = {
   path: Path;
   type: AccountType;
   pseudoExtendedKey?: string;
+  source?: "imported" | "generated";
+  timestamp?: number;
 };
 
 export type Account = Pick<
   DerivedAccount,
-  "address" | "alias" | "type" | "publicKey" | "owner" | "pseudoExtendedKey"
+  | "address"
+  | "alias"
+  | "type"
+  | "publicKey"
+  | "owner"
+  | "pseudoExtendedKey"
+  | "source"
+  | "timestamp"
 > & {
   viewingKey?: string;
 };

@@ -47,6 +47,8 @@ export const keyStore: Vault<VaultTypes>[] = [
       },
       publicKey: undefined,
       type: ACTIVE_ACCOUNT.type,
+      timestamp: 0,
+      source: "generated",
     },
     sensitive: {
       cipher: {
@@ -90,6 +92,8 @@ export const keyStore: Vault<VaultTypes>[] = [
       },
       publicKey: undefined,
       type: AccountType.PrivateKey,
+      timestamp: 0,
+      source: "generated",
     },
     sensitive: {
       cipher: {

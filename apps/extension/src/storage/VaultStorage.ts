@@ -69,6 +69,11 @@ export const KeyStore = t.exact(
         [AccountType.ShieldedKeys]: null,
         [AccountType.Ledger]: null,
       }),
+      source: t.keyof({
+        imported: null,
+        generated: null,
+      }),
+      timestamp: t.number,
     }),
     t.partial({
       publicKey: t.string,

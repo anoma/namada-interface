@@ -170,14 +170,24 @@ export const parseTransferType = (
  * @returns Account type for public API
  */
 export const toPublicAccount = (derivedAccount: DerivedAccount): Account => {
-  const { alias, address, type, publicKey, owner, pseudoExtendedKey } =
-    derivedAccount;
+  const {
+    alias,
+    address,
+    type,
+    publicKey,
+    owner,
+    pseudoExtendedKey,
+    source,
+    timestamp,
+  } = derivedAccount;
   const isShielded = type === AccountType.ShieldedKeys;
   const account: Account = {
     alias,
     address,
     type,
     pseudoExtendedKey,
+    source,
+    timestamp,
   };
   if (isShielded) {
     account.viewingKey = owner;

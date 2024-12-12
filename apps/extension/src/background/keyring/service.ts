@@ -64,11 +64,13 @@ export class KeyRingService {
   async saveAccountSecret(
     accountSecret: AccountSecret,
     alias: string,
+    flow: "create" | "import",
     path?: Bip44Path
   ): Promise<AccountStore> {
     const results = await this._keyRing.storeAccountSecret(
       accountSecret,
       alias,
+      flow,
       path
     );
     await this.broadcaster.updateAccounts();
@@ -103,13 +105,15 @@ export class KeyRingService {
     path: Bip44Path,
     type: AccountType,
     alias: string,
-    parentId: string
+    parentId: string,
+    source: "imported" | "generated"
   ): Promise<DerivedAccount> {
     const account = await this._keyRing.deriveAccount(
       path,
       type,
       alias,
-      parentId
+      parentId,
+      source
     );
     await this.broadcaster.updateAccounts();
     return account;

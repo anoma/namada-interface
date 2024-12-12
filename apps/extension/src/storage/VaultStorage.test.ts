@@ -49,6 +49,8 @@ const addNonSensitiveData = async (
             owner: `test-${id}`,
             path: { account: 0, change: 0, index: 0 },
             type: AccountType.Mnemonic,
+            source: "generated",
+            timestamp: 0,
           },
           sensitive: {} as any,
         },
