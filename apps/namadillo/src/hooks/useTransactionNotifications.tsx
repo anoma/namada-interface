@@ -327,8 +327,8 @@ export const useTransactionNotifications = (): void => {
     dispatchNotification({
       id,
       type: "error",
-      title: "Staking transaction failed",
-      description: <>Your vote transaction has failed.</>,
+      title: "Governance transaction failed",
+      description: <>Your governance transaction has failed.</>,
       details: e.detail.error?.message,
     });
   });
@@ -338,8 +338,8 @@ export const useTransactionNotifications = (): void => {
     clearPendingNotifications(id);
     dispatchNotification({
       id,
-      title: "Staking transaction succeeded",
-      description: `Your vote transaction has succeeded`,
+      title: "Governance transaction succeeded",
+      description: `Your governance transaction has succeeded`,
       type: "success",
     });
   });
