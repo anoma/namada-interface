@@ -36,7 +36,7 @@ type PgfIbcTargetJson = {
 };
 
 type PgfPaymentData = {
-  continuous: PgfTargetJson[];
+  continuous: (PgfTargetJson | PgfIbcTargetJson)[];
   retro: (PgfTargetJson | PgfIbcTargetJson)[];
 };
 
@@ -93,7 +93,13 @@ const formatData = (proposal: Proposal): DataJson => {
       const continuous = [
         ...pgfActions.continuous.add,
         ...pgfActions.continuous.remove,
-      ].map(formatPgfTarget);
+      ].map((item) => {
+        if ("internal" in item) {
+          return formatPgfTarget(item);
+        } else {
+          return formatIbcPgfTarget(item);
+        }
+      });
 
       const retro = pgfActions.retro.map((retroItem) => {
         if ("internal" in retroItem) {

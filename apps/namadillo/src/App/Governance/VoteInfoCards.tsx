@@ -2,7 +2,13 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { twMerge } from "tailwind-merge";
 
 import { SkeletonLoading } from "@namada/components";
-import { AddRemove, PgfActions, Proposal } from "@namada/types";
+import {
+  AddRemove,
+  PgfActions,
+  PgfIbcTarget,
+  PgfTarget,
+  Proposal,
+} from "@namada/types";
 
 import { sha256Hash } from "@namada/utils";
 import { proposalFamily } from "atoms/proposals";
@@ -47,6 +53,23 @@ const PgfStewardInfoCards: React.FC<{
   );
 };
 
+const extractPgfInfo = (
+  pgfTarget: PgfTarget | PgfIbcTarget
+): { target: string; amount: BigNumber } => {
+  let target: string;
+  let amount: BigNumber;
+
+  if ("internal" in pgfTarget) {
+    target = pgfTarget.internal.target;
+    amount = pgfTarget.internal.amount;
+  } else {
+    target = pgfTarget.ibc.target;
+    amount = pgfTarget.ibc.amount;
+  }
+
+  return { target, amount };
+};
+
 const PgfPaymentInfoCards: React.FC<{
   pgfActions: PgfActions;
 }> = ({ pgfActions }) => {
@@ -55,48 +78,47 @@ const PgfPaymentInfoCards: React.FC<{
       <InfoCard
         title="Continuous Add"
         className="col-span-full"
-        content={pgfActions.continuous.add.map(
-          ({ internal: { amount, target } }) => (
+        content={pgfActions.continuous.add.map((continuous) => {
+          const { target, amount } = extractPgfInfo(continuous);
+
+          return (
             <span key={`info-card-continuous-add-${target}`}>
               {target} <NamCurrency amount={amount} />
+              {"ibc" in continuous ?
+                ` ${continuous.ibc.channelId} ${continuous.ibc.portId}`
+              : ""}
             </span>
-          )
-        )}
+          );
+        })}
       />
       <InfoCard
         title="Continuous Remove"
         className="col-span-full"
-        content={pgfActions.continuous.remove.map(
-          ({ internal: { amount, target } }) => (
+        content={pgfActions.continuous.remove.map((continuous) => {
+          const { target, amount } = extractPgfInfo(continuous);
+
+          return (
             <span key={`info-card-continuous-remove-${target}`}>
               {target} <NamCurrency amount={amount} />
+              {"ibc" in continuous ?
+                ` ${continuous.ibc.channelId} ${continuous.ibc.portId}`
+              : ""}
             </span>
-          )
-        )}
+          );
+        })}
       />
       <InfoCard
         title="Retro"
         className="col-span-full"
         content={pgfActions.retro.map((retro) => {
-          let target: string;
-          let amount: BigNumber;
-          let channelId: string | undefined;
-          let portId: string | undefined;
-
-          if ("internal" in retro) {
-            target = retro.internal.target;
-            amount = retro.internal.amount;
-          } else {
-            target = retro.ibc.target;
-            amount = retro.ibc.amount;
-            channelId = retro.ibc.channelId;
-            portId = retro.ibc.portId;
-          }
+          const { target, amount } = extractPgfInfo(retro);
 
           return (
             <span key={`info-card-retro-${target}`}>
               {target} <NamCurrency amount={amount} />
-              {"ibc" in retro ? ` ${channelId} ${portId}` : ""}
+              {"ibc" in retro ?
+                ` ${retro.ibc.channelId} ${retro.ibc.portId}`
+              : ""}
             </span>
           );
         })}
