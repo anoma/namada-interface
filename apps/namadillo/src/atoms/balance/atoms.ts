@@ -1,5 +1,5 @@
 import { SdkEvents } from "@namada/sdk/web";
-import { AccountType } from "@namada/types";
+import { Account, AccountType, DatedViewingKey } from "@namada/types";
 import {
   accountsAtom,
   defaultAccountAtom,
@@ -32,22 +32,42 @@ export type TokenBalance = AddressWithAsset & {
   dollar?: BigNumber;
 };
 
-export const viewingKeysAtom = atomWithQuery<[string, string[]]>((get) => {
+const toViewingKey = ({
+  viewingKey,
+  source,
+  timestamp,
+}: Account): DatedViewingKey => {
+  if (!viewingKey) {
+    throw new Error("Viewing key not found");
+  }
+  return {
+    key: viewingKey,
+    birthday: source === "generated" ? timestamp : undefined,
+  };
+};
+
+export const viewingKeysAtom = atomWithQuery<
+  [DatedViewingKey, DatedViewingKey[]]
+>((get) => {
   const accountsQuery = get(accountsAtom);
   const defaultAccountQuery = get(defaultAccountAtom);
 
   return {
     queryKey: ["viewing-keys", accountsQuery.data, defaultAccountQuery.data],
     ...queryDependentFn(async () => {
-      const shieldedAccounts = accountsQuery.data?.filter(
+      const shieldedAccounts = accountsQuery.data!.filter(
         (a) => a.type === AccountType.ShieldedKeys
       );
-      const defaultShieldedAccount = shieldedAccounts?.find(
+      const defaultShieldedAccount = shieldedAccounts.find(
         (a) => a.alias === defaultAccountQuery.data?.alias
       );
-      const defaultViewingKey = defaultShieldedAccount?.viewingKey ?? "";
-      const viewingKeys =
-        shieldedAccounts?.map((a) => a.viewingKey ?? "") ?? [];
+
+      if (!defaultShieldedAccount) {
+        throw new Error("Default shielded account not found");
+      }
+
+      const defaultViewingKey = toViewingKey(defaultShieldedAccount);
+      const viewingKeys = shieldedAccounts.map(toViewingKey);
 
       return [defaultViewingKey, viewingKeys];
     }, [accountsQuery, defaultAccountQuery]),

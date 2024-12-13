@@ -11,6 +11,8 @@ import {
   Worker as ShieldedSyncWorkerApi,
 } from "workers/ShieldedSyncWorker";
 import ShieldedSyncWorker from "workers/ShieldedSyncWorker?worker";
+// TODO: move to @namada/types?
+import { DatedViewingKey } from "@namada/types";
 
 export type ShieldedSyncEventMap = {
   [SdkEvents.ProgressBarStarted]: ProgressBarStarted[];
@@ -26,7 +28,7 @@ export function shieldedSync(
   rpcUrl: string,
   maspIndexerUrl: string,
   token: string,
-  viewingKeys: string[]
+  viewingKeys: DatedViewingKey[]
 ): EventEmitter<ShieldedSyncEventMap> {
   if (shieldedSyncEmitter) {
     return shieldedSyncEmitter;
@@ -71,18 +73,20 @@ export function shieldedSync(
 }
 
 export const fetchShieldedBalance = async (
-  viewingKey: string,
+  viewingKey: DatedViewingKey,
   addresses: string[]
 ): Promise<Balance> => {
   // TODO mock shielded balance
   // return await mockShieldedBalance(viewingKey);
 
   const sdk = await getSdkInstance();
-  return await sdk.rpc.queryBalance(viewingKey, addresses);
+  return await sdk.rpc.queryBalance(viewingKey.key, addresses);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mockShieldedBalance = async (viewingKey: string): Promise<Balance> => {
+const mockShieldedBalance = async (
+  viewingKey: DatedViewingKey
+): Promise<Balance> => {
   await new Promise((r) => setTimeout(() => r(0), 500));
   getSdkInstance().then((sdk) => sdk.rpc.shieldedSync([viewingKey]));
   return [

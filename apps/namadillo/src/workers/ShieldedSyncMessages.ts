@@ -1,3 +1,4 @@
+import { DatedViewingKey } from "@namada/types";
 import { WebWorkerMessage } from "./utils";
 
 type InitPayload = {
@@ -9,7 +10,7 @@ export type Init = WebWorkerMessage<"init", InitPayload>;
 export type InitDone = WebWorkerMessage<"init-done", null>;
 
 type ShiededSyncPayload = {
-  vks: string[];
+  vks: DatedViewingKey[];
 };
 export type Sync = WebWorkerMessage<"sync", ShiededSyncPayload>;
 export type SyncDone = WebWorkerMessage<"sync-done", null>;

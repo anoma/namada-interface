@@ -5,6 +5,7 @@ import {
   TransferToEthereum,
 } from "@namada/shared";
 import {
+  DatedViewingKey,
   Message,
   TxResponseMsgValue,
   TxResponseProps,
@@ -235,10 +236,11 @@ export class Rpc {
   /**
    * Sync the shielded context
    * @async
-   * @param vks - Array of viewing keys
+   * @param vks - Array of dated viewing keys
    * @returns
    */
-  async shieldedSync(vks: string[]): Promise<void> {
+  async shieldedSync(vks: DatedViewingKey[]): Promise<void> {
+    // TODO: shieled_sync expects an array for strings atm
     await this.query.shielded_sync(vks);
   }
 }

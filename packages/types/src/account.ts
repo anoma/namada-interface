@@ -55,3 +55,11 @@ export type Account = Pick<
 > & {
   viewingKey?: string;
 };
+
+/**
+ * ViewingKey with optional birthday
+ */
+export type DatedViewingKey = {
+  key: string;
+  birthday?: number;
+};
