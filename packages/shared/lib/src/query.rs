@@ -24,9 +24,9 @@ use namada_sdk::parameters::storage;
 use namada_sdk::proof_of_stake::Epoch;
 use namada_sdk::queries::RPC;
 use namada_sdk::rpc::{
-    self, get_public_key_at, get_token_balance, get_total_staked_tokens,
-    is_steward, query_epoch, query_masp_epoch, query_native_token, query_proposal_by_id,
-    query_proposal_votes, query_storage_value,
+    self, get_public_key_at, get_token_balance, get_total_staked_tokens, is_steward, query_epoch,
+    query_masp_epoch, query_native_token, query_proposal_by_id, query_proposal_votes,
+    query_storage_value,
 };
 use namada_sdk::state::BlockHeight;
 use namada_sdk::state::Key;
@@ -37,6 +37,7 @@ use namada_sdk::tx::{
 };
 use namada_sdk::uint::I256;
 use namada_sdk::wallet::DatedKeypair;
+use namada_sdk::ExtendedSpendingKey;
 use namada_sdk::ExtendedViewingKey;
 use std::collections::BTreeMap;
 use std::str::FromStr;
@@ -93,8 +94,6 @@ pub struct Query {
     masp_client: MaspClient,
 }
 
-const MAX_CONCURRENT_FETCHES: usize = 10;
-
 #[wasm_bindgen]
 impl Query {
     #[wasm_bindgen(constructor)]
@@ -111,7 +110,8 @@ impl Query {
         } else {
             MaspClient::Ledger(LedgerMaspClient::new(
                 client.clone(),
-                MAX_CONCURRENT_FETCHES,
+                // Using one does not break the progress indicators
+                1,
                 Duration::from_millis(5),
             ))
         };
@@ -325,8 +325,12 @@ impl Query {
         Ok(result)
     }
 
-    pub async fn shielded_sync(&self, owners: Box<[JsValue]>) -> Result<(), JsError> {
-        let owners: Vec<ViewingKey> = owners
+    pub async fn shielded_sync(
+        &self,
+        vks: Box<[JsValue]>,
+        sks: Box<[JsValue]>,
+    ) -> Result<(), JsError> {
+        let vks: Vec<ViewingKey> = vks
             .iter()
             .filter_map(|owner| owner.as_string())
             .map(|o| {
@@ -336,7 +340,13 @@ impl Query {
             })
             .collect();
 
-        let dated_keypairs = owners
+        let sks = sks
+            .iter()
+            .filter_map(|owner| owner.as_string())
+            .map(|sk| ExtendedSpendingKey::from_str(&sk).unwrap())
+            .collect::<Vec<_>>();
+
+        let dated_keypairs = vks
             .into_iter()
             .map(|vk| DatedKeypair {
                 key: vk,
@@ -344,14 +354,22 @@ impl Query {
             })
             .collect::<Vec<_>>();
 
+        let dated_sks = sks
+            .into_iter()
+            .map(|sk| DatedKeypair {
+                key: sk,
+                birthday: BlockHeight::from(0),
+            })
+            .collect::<Vec<_>>();
+
         match &self.masp_client {
             MaspClient::Indexer(client) => {
                 web_sys::console::log_1(&"Syncing using IndexerMaspClient".into());
-                self.sync(client.clone(), dated_keypairs).await?
+                self.sync(client.clone(), dated_keypairs, dated_sks).await?
             }
             MaspClient::Ledger(client) => {
                 web_sys::console::log_1(&"Syncing using LedgerMaspClient".into());
-                self.sync(client.clone(), dated_keypairs).await?
+                self.sync(client.clone(), dated_keypairs, dated_sks).await?
             }
         };
 
@@ -362,6 +380,7 @@ impl Query {
         &self,
         client: C,
         dated_keypairs: Vec<DatedKeypair<ViewingKey>>,
+        dated_sks: Vec<DatedKeypair<ExtendedSpendingKey>>,
     ) -> Result<(), JsError>
     where
         C: NamadaMaspClient + Send + Sync + Unpin + 'static,
@@ -393,7 +412,13 @@ impl Query {
         let mut shielded_context: ShieldedContext<JSShieldedUtils> = ShieldedContext::default();
 
         shielded_context
-            .sync(env, config, None, &[], dated_keypairs.as_slice())
+            .sync(
+                env,
+                config,
+                None,
+                dated_sks.as_slice(),
+                dated_keypairs.as_slice(),
+            )
             .await
             .map_err(|e| JsError::new(&format!("{:?}", e)))?;
 
@@ -463,10 +488,7 @@ impl Query {
 
         let mut mapped_result: Vec<(Address, String)> = vec![];
         for (token, amount) in result {
-            mapped_result.push((
-                token.clone(),
-                amount.to_string()
-            ))
+            mapped_result.push((token.clone(), amount.to_string()))
         }
 
         to_js_result(mapped_result)
@@ -571,6 +593,7 @@ impl Query {
         Ok(Uint8Array::from(writer.as_slice()))
     }
 
+    #[allow(clippy::type_complexity)]
     pub async fn query_proposal_votes(
         &self,
         proposal_id: u64,
@@ -594,6 +617,7 @@ impl Query {
                 (address.clone(), String::from(vote), voting_power)
             }));
 
+        // TODO: refactor this to fix type_complexity clippy warning
         let delegator_votes: Vec<(Address, String, Vec<(Address, token::Amount)>)> =
             Vec::from_iter(votes.delegators_vote.iter().map(|(address, vote)| {
                 let vote = match vote {

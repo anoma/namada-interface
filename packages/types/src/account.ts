@@ -37,11 +37,12 @@ export type DerivedAccount = {
   parentId?: string;
   path: Path;
   type: AccountType;
+  pseudoExtendedKey?: string;
 };
 
 export type Account = Pick<
   DerivedAccount,
-  "address" | "alias" | "type" | "publicKey"
+  "address" | "alias" | "type" | "publicKey" | "owner" | "pseudoExtendedKey"
 > & {
   viewingKey?: string;
 };

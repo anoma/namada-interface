@@ -1,10 +1,23 @@
+use std::ops::Deref;
 use std::{path::PathBuf, str::FromStr};
 
 use namada_sdk::borsh::{BorshDeserialize, BorshSerialize};
+use namada_sdk::collections::HashMap;
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::ibc::IbcShieldingData;
-use namada_sdk::tendermint_rpc;
+use namada_sdk::masp::partial_deauthorize;
+use namada_sdk::masp_primitives::sapling::redjubjub::PrivateKey;
+use namada_sdk::masp_primitives::sapling::spend_sig;
+use namada_sdk::masp_primitives::transaction::components::sapling;
+use namada_sdk::masp_primitives::transaction::components::sapling::builder::{
+    BuildParams as BuildParamsTrait, RngBuildParams, StoredBuildParams,
+};
+use namada_sdk::masp_primitives::transaction::sighash::{signature_hash, SignableInput};
+use namada_sdk::masp_primitives::transaction::txid::TxIdDigester;
+use namada_sdk::masp_primitives::zip32;
+use namada_sdk::signing::SigningTxData;
 use namada_sdk::tx::data::GasLimit;
+use namada_sdk::tx::{Section, Tx};
 use namada_sdk::{
     address::Address,
     args::{self, InputAmount, TxExpiration},
@@ -14,8 +27,12 @@ use namada_sdk::{
     token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
     TransferSource,
 };
+use namada_sdk::{error, masp_primitives, tendermint_rpc};
 use namada_sdk::{ExtendedSpendingKey, PaymentAddress};
+use rand::rngs::OsRng;
 use wasm_bindgen::JsError;
+
+use crate::types::masp::PseudoExtendedKey;
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 #[borsh(crate = "namada_sdk::borsh")]
@@ -521,10 +538,12 @@ pub fn shielded_transfer_tx_args(
         gas_spending_key,
     } = shielded_transfer_msg;
 
+    let gas_spending_key = gas_spending_key.map(|v| PseudoExtendedKey::decode(v).0);
+
     let mut shielded_transfer_data: Vec<args::TxShieldedTransferData> = vec![];
 
     for shielded_transfer in data {
-        let source = ExtendedSpendingKey::from_str(&shielded_transfer.source)?;
+        let source = PseudoExtendedKey::decode(shielded_transfer.source).0;
         let target = PaymentAddress::from_str(&shielded_transfer.target)?;
         let token = Address::from_str(&shielded_transfer.token)?;
         let denom_amount =
@@ -540,15 +559,12 @@ pub fn shielded_transfer_tx_args(
     }
 
     let tx = tx_msg_into_args(tx_msg)?;
-    let gas_spending_key = gas_spending_key
-        .map(|v| ExtendedSpendingKey::from_str(&v))
-        .transpose()?;
 
     let args = args::TxShieldedTransfer {
         data: shielded_transfer_data,
         tx,
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
-        // TODO: false for now
+        // false, we do this manually
         disposable_signing_key: false,
         gas_spending_key,
     };
@@ -656,8 +672,8 @@ pub fn unshielding_transfer_tx_args(
         data,
         gas_spending_key,
     } = unshielding_transfer_msg;
-    let source = ExtendedSpendingKey::from_str(&source)?;
-
+    let source = PseudoExtendedKey::decode(source).0;
+    let gas_spending_key = gas_spending_key.map(|v| PseudoExtendedKey::decode(v).0);
     let mut unshielding_transfer_data: Vec<args::TxUnshieldingTransferData> = vec![];
 
     for unshielding_transfer in data {
@@ -674,9 +690,6 @@ pub fn unshielding_transfer_tx_args(
         });
     }
 
-    let gas_spending_key = gas_spending_key
-        .map(|v| ExtendedSpendingKey::from_str(&v))
-        .transpose()?;
     let tx = tx_msg_into_args(tx_msg)?;
 
     let args = args::TxUnshieldingTransfer {
@@ -684,7 +697,7 @@ pub fn unshielding_transfer_tx_args(
         source,
         tx,
         gas_spending_key,
-        // TODO: false for now
+        // false, we do this manually
         disposable_signing_key: false,
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
     };
@@ -893,7 +906,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
     let token = Address::from_str(&token)?;
 
     let fee_amount = DenominatedAmount::from_str(&fee_amount)
-        .expect(format!("Fee amount has to be valid. Received {}", fee_amount).as_str());
+        .unwrap_or_else(|_| panic!("Fee amount has to be valid. Received {}", fee_amount));
     let fee_input_amount = InputAmount::Unvalidated(fee_amount);
 
     let public_key = match public_key {
@@ -933,7 +946,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         wrapper_fee_payer: None,
         output_folder: None,
         expiration: TxExpiration::Default,
-        chain_id: Some(ChainId(String::from(chain_id))),
+        chain_id: Some(ChainId(chain_id)),
         signatures: vec![],
         wrapper_signature: None,
         signing_keys,
@@ -945,4 +958,116 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
     };
 
     Ok(args)
+}
+
+pub enum BuildParams {
+    RngBuildParams(RngBuildParams<OsRng>),
+    // TODO: HD Wallet support
+    #[allow(dead_code)]
+    StoredBuildParams(StoredBuildParams),
+}
+
+pub async fn generate_masp_build_params(
+    // TODO: those will be needed for HD Wallet support
+    _spend_len: usize,
+    _convert_len: usize,
+    _output_len: usize,
+    args: &args::Tx,
+) -> Result<BuildParams, error::Error> {
+    // Construct the build parameters that parameterized the Transaction
+    // authorizations
+    if args.use_device {
+        // HD Wallet support
+        Err(error::Error::Other("Device not supported".into()))
+    } else {
+        Ok(BuildParams::RngBuildParams(RngBuildParams::new(OsRng)))
+    }
+}
+
+// Sign the given transaction's MASP component using real signatures
+pub async fn masp_sign<T>(
+    tx: &mut Tx,
+    signing_data: &SigningTxData,
+    mut bparams: T,
+    xsk: ExtendedSpendingKey,
+) -> Result<(), error::Error>
+where
+    T: BuildParamsTrait,
+{
+    // Get the MASP section that is the target of our signing
+    if let Some(shielded_hash) = signing_data.shielded_hash {
+        let mut masp_tx = tx
+            .get_masp_section(&shielded_hash)
+            .expect("Expected to find the indicated MASP Transaction")
+            .clone();
+        let masp_builder = tx
+            .get_masp_builder(&shielded_hash)
+            .expect("Expected to find the indicated MASP Builder");
+
+        // Reverse the spend metadata to enable looking up construction
+        // material
+        let sapling_inputs = masp_builder.builder.sapling_inputs();
+        let mut descriptor_map = vec![0; sapling_inputs.len()];
+        for i in 0.. {
+            if let Some(pos) = masp_builder.metadata.spend_index(i) {
+                descriptor_map[pos] = i;
+            } else {
+                break;
+            };
+        }
+
+        let tx_data = masp_tx.deref();
+
+        let unauth_tx_data = partial_deauthorize(tx_data).unwrap();
+
+        let txid_parts = unauth_tx_data.digest(TxIdDigester);
+        let sighash = signature_hash(&unauth_tx_data, &SignableInput::Shielded, &txid_parts);
+
+        let mut authorizations = HashMap::new();
+        for (tx_pos, _) in descriptor_map.iter().enumerate() {
+            let pk = PrivateKey(zip32::ExtendedSpendingKey::from(xsk).expsk.ask);
+            let mut rng = OsRng;
+
+            let sig = spend_sig(pk, bparams.spend_alpha(tx_pos), sighash.as_ref(), &mut rng);
+
+            authorizations.insert(tx_pos, sig);
+        }
+
+        masp_tx = (*masp_tx)
+            .clone()
+            .map_authorization::<masp_primitives::transaction::Authorized>(
+                (),
+                MapSaplingSigAuth(authorizations),
+            )
+            .freeze()
+            .unwrap();
+
+        tx.remove_masp_section(&shielded_hash);
+        tx.add_section(Section::MaspTx(masp_tx));
+    }
+    Ok(())
+}
+
+struct MapSaplingSigAuth(HashMap<usize, <sapling::Authorized as sapling::Authorization>::AuthSig>);
+
+impl sapling::MapAuth<sapling::Authorized, sapling::Authorized> for MapSaplingSigAuth {
+    fn map_proof(
+        &self,
+        p: <sapling::Authorized as sapling::Authorization>::Proof,
+        _pos: usize,
+    ) -> <sapling::Authorized as sapling::Authorization>::Proof {
+        p
+    }
+
+    fn map_auth_sig(
+        &self,
+        s: <sapling::Authorized as sapling::Authorization>::AuthSig,
+        pos: usize,
+    ) -> <sapling::Authorized as sapling::Authorization>::AuthSig {
+        self.0.get(&pos).cloned().unwrap_or(s)
+    }
+
+    fn map_authorization(&self, a: sapling::Authorized) -> sapling::Authorized {
+        a
+    }
 }

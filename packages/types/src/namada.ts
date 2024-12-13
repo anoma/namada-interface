@@ -1,5 +1,9 @@
 import { Account } from "./account";
-import { SignArbitraryResponse, Signer } from "./signer";
+import {
+  GenDisposableSignerResponse,
+  SignArbitraryResponse,
+  Signer,
+} from "./signer";
 import { TxProps } from "./tx";
 
 export type SignArbitraryProps = {
@@ -36,6 +40,7 @@ export interface Namada {
     props: SignArbitraryProps
   ): Promise<SignArbitraryResponse | undefined>;
   verify(props: VerifyArbitraryProps): Promise<void>;
+  genDisposableKeypair(): Promise<GenDisposableSignerResponse | undefined>;
   version: () => string;
 }
 

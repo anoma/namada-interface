@@ -180,7 +180,7 @@ export class Ledger {
           nsk: nsk?.toString(),
         },
       };
-    } catch (e) {
+    } catch (_) {
       throw new Error(`Could not retrieve Viewing Key`);
     }
   }

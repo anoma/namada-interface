@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import sdkPackage from "../../../../../packages/sdk/package.json";
 import extensionPackage from "../../../package.json";
 
-const { REVISION: revision = "" } = process.env;
+const { NAMADA_INTERFACE_REVISION: revision = "" } = process.env;
 
 type AppHeaderNavigationProps = {
   open: boolean;

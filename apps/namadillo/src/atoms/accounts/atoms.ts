@@ -1,4 +1,8 @@
-import { Account, AccountType } from "@namada/types";
+import {
+  Account,
+  AccountType,
+  GenDisposableSignerResponse,
+} from "@namada/types";
 import { indexerApiAtom } from "atoms/api";
 import { nativeTokenAddressAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
@@ -94,6 +98,26 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
     }, [tokenAddress, defaultAccount]),
   };
 });
+
+export const disposableSignerAtom = atomWithQuery<GenDisposableSignerResponse>(
+  (get) => {
+    const isExtensionConnected = get(namadaExtensionConnectedAtom);
+    return {
+      // As this generates new keypair each time, we have to refetch it manually
+      enabled: false,
+      queryKey: ["disposable-signer", isExtensionConnected],
+      queryFn: async () => {
+        const namada = await new NamadaKeychain().get();
+        const res = await namada?.genDisposableKeypair();
+        if (!res) {
+          throw new Error("Failed to generate disposable signer");
+        }
+
+        return res;
+      },
+    };
+  }
+);
 
 // TODO combine the `accountBalanceAtom` with the `transparentBalanceAtom`
 // Then execute only once the `fetchAccountBalance`, deleting the `fetchNamAccountBalance`

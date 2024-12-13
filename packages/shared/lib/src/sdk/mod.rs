@@ -13,6 +13,7 @@ use crate::utils::set_panic_hook;
 #[cfg(feature = "web")]
 use crate::utils::to_bytes;
 use crate::utils::to_js_result;
+use args::{generate_masp_build_params, masp_sign, BuildParams};
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::address::{Address, MASP};
 use namada_sdk::args::{GenIbcShieldingTransfer, InputAmount, Query, TxExpiration};
@@ -24,11 +25,14 @@ use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::io::NamadaIo;
 use namada_sdk::key::{common, ed25519, SigScheme};
 use namada_sdk::masp::ShieldedContext;
+use namada_sdk::masp_primitives::transaction::components::sapling::fees::InputView;
+use namada_sdk::masp_primitives::zip32::{ExtendedFullViewingKey, ExtendedKey};
 use namada_sdk::rpc::{query_epoch, InnerTxResult};
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::string_encoding::Format;
 use namada_sdk::tendermint_rpc::Url;
 use namada_sdk::token::DenominatedAmount;
+use namada_sdk::token::{MaspTxId, OptionExt};
 use namada_sdk::tx::{
     build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
     build_reveal_pk, build_shielded_transfer, build_shielding_transfer, build_transparent_transfer,
@@ -38,8 +42,26 @@ use namada_sdk::tx::{
 };
 use namada_sdk::wallet::{Store, Wallet};
 use namada_sdk::{Namada, NamadaImpl, PaymentAddress, TransferTarget};
+use std::collections::BTreeMap;
 use std::str::FromStr;
+use tx::MaspSigningData;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
+
+// Maximum number of spend description randomness parameters that can be
+// generated on the hardware wallet. It is hard to compute the exact required
+// number because a given MASP source could be distributed amongst several
+// notes.
+const MAX_HW_SPEND: usize = 15;
+// Maximum number of convert description randomness parameters that can be
+// generated on the hardware wallet. It is hard to compute the exact required
+// number because the number of conversions that are used depends on the
+// protocol's current state.
+const MAX_HW_CONVERT: usize = 15;
+// Maximum number of output description randomness parameters that can be
+// generated on the hardware wallet. It is hard to compute the exact required
+// number because the number of outputs depends on the number of dummy outputs
+// introduced.
+const MAX_HW_OUTPUT: usize = 15;
 
 /// Represents the Sdk public API.
 #[wasm_bindgen]
@@ -155,6 +177,51 @@ impl Sdk {
         wallet.load().map_err(JsError::from)?;
 
         Ok(())
+    }
+
+    pub async fn sign_masp(&self, xsks: Box<[String]>, tx: Vec<u8>) -> Result<JsValue, JsError> {
+        let tx: tx::Tx = borsh::from_slice(&tx)?;
+        let mut namada_tx: Tx = borsh::from_slice(&tx.tx_bytes())?;
+
+        // Use keys_map to easily map xfvk to xsk
+        let mut keys_map = BTreeMap::new();
+        for xsk_s in xsks.iter() {
+            let xsk = namada_sdk::ExtendedSpendingKey::from_str(xsk_s)?;
+            let xvk = xsk.to_viewing_key();
+            let xfvk = ExtendedFullViewingKey::from(xvk);
+
+            keys_map.insert(xfvk, xsk);
+        }
+
+        for signing_data in tx.signing_data() {
+            if let Some(masp_signing_data) = signing_data.masp() {
+                let masp_signing_data =
+                    borsh::from_slice::<MaspSigningData>(&masp_signing_data).ok();
+
+                if let Some(masp_signing_data) = masp_signing_data {
+                    let signing_tx_data = signing_data.to_signing_tx_data()?;
+                    let bparams = masp_signing_data.bparams();
+
+                    for xfvk in masp_signing_data.xfvks() {
+                        let xsk = keys_map.get(&xfvk).ok_or_err_msg("Can't map xfvk to xsk")?;
+                        masp_sign(&mut namada_tx, &signing_tx_data, bparams.clone(), *xsk).await?;
+                    }
+                }
+            }
+        }
+
+        let signing_data = tx
+            .signing_tx_data()?
+            .iter()
+            .cloned()
+            .map(|std| (std, None))
+            .collect::<Vec<(SigningTxData, Option<MaspSigningData>)>>();
+
+        // Recreate the tx with the new signatures, we can pass None for masp_signing_data as it
+        // was already used
+        let tx = tx::Tx::new(namada_tx, &borsh::to_vec(&tx.args())?, signing_data)?;
+
+        to_js_result(borsh::to_vec(&tx)?)
     }
 
     pub async fn sign_tx(
@@ -274,20 +341,46 @@ impl Sdk {
         let args = first_tx.args();
 
         let mut txs: Vec<(Tx, SigningTxData)> = vec![];
+        let mut masp_map: BTreeMap<MaspTxId, MaspSigningData> = BTreeMap::new();
 
         // Iterate through provided tx::Tx and deserialize bytes to Namada Tx
         for built_tx in built_txs.into_iter() {
             let tx_bytes = built_tx.tx_bytes();
-            let signing_tx_data = built_tx.signing_tx_data()?;
-            let tx: Tx = Tx::try_from_slice(&tx_bytes)?;
-            let first_signing_data = signing_tx_data
+            let signing_data = built_tx.signing_data();
+            let first_signing_data = signing_data
                 .first()
                 .expect("At least one signing data should be present on a Tx");
 
-            txs.push((tx, first_signing_data.to_owned()));
+            let signing_tx_data = first_signing_data.to_signing_tx_data()?;
+
+            if let Some(sh) = signing_tx_data.shielded_hash {
+                let masp_signing_data = first_signing_data.masp();
+
+                // We do not need to insert masp_signing_data when we shield
+                if let Some(masp_signing_data) = masp_signing_data {
+                    let masp_signing_data = <MaspSigningData>::try_from_slice(&masp_signing_data)?;
+                    masp_map.insert(sh, masp_signing_data);
+                }
+            }
+
+            let tx: Tx = Tx::try_from_slice(&tx_bytes)?;
+
+            txs.push((tx, signing_tx_data.to_owned()));
         }
 
         let (tx, signing_data) = build_batch(txs.clone())?;
+
+        let signing_data = signing_data
+            .iter()
+            .cloned()
+            .map(|sd| {
+                if let Some(sh) = sd.shielded_hash {
+                    (sd, masp_map.get(&sh).cloned())
+                } else {
+                    (sd, None)
+                }
+            })
+            .collect::<Vec<_>>();
 
         to_js_result(borsh::to_vec(&tx::Tx::new(
             tx,
@@ -335,7 +428,7 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let mut args = args::transparent_transfer_tx_args(transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_transparent_transfer(&self.namada, &mut args).await?;
-        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, None)
     }
 
     pub async fn build_shielded_transfer(
@@ -344,8 +437,39 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
         let mut args = args::shielded_transfer_tx_args(shielded_transfer_msg, wrapper_tx_msg)?;
-        let (tx, signing_data) = build_shielded_transfer(&self.namada, &mut args).await?;
-        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+        let bparams =
+            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
+                .await?;
+
+        let _ = &self.namada.shielded_mut().await.load().await?;
+
+        let xfvks = args
+            .data
+            .iter()
+            .map(|data| data.source.to_viewing_key())
+            .collect::<Vec<_>>();
+
+        let ((tx, signing_data), masp_signing_data) = match bparams {
+            BuildParams::RngBuildParams(mut bparams) => {
+                let tx = build_shielded_transfer(&self.namada, &mut args, &mut bparams).await?;
+                let masp_signing_data = MaspSigningData::new(
+                    bparams
+                        .to_stored()
+                        .ok_or_err_msg("Cannot convert bparams to stored")?,
+                    xfvks,
+                );
+
+                (tx, masp_signing_data)
+            }
+            BuildParams::StoredBuildParams(mut bparams) => {
+                let tx = build_shielded_transfer(&self.namada, &mut args, &mut bparams).await?;
+                let masp_signing_data = MaspSigningData::new(bparams, xfvks);
+
+                (tx, masp_signing_data)
+            }
+        };
+
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, Some(masp_signing_data))
     }
 
     pub async fn build_unshielding_transfer(
@@ -355,8 +479,35 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let mut args =
             args::unshielding_transfer_tx_args(unshielding_transfer_msg, wrapper_tx_msg)?;
-        let (tx, signing_data) = build_unshielding_transfer(&self.namada, &mut args).await?;
-        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+        let bparams =
+            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
+                .await?;
+
+        let _ = &self.namada.shielded_mut().await.load().await?;
+
+        let xfvks = vec![args.source.to_viewing_key()];
+
+        let ((tx, signing_data), masp_signing_data) = match bparams {
+            BuildParams::RngBuildParams(mut bparams) => {
+                let tx = build_unshielding_transfer(&self.namada, &mut args, &mut bparams).await?;
+                let masp_signing_data = MaspSigningData::new(
+                    bparams
+                        .to_stored()
+                        .ok_or_err_msg("Cannot convert bparams to stored")?,
+                    xfvks,
+                );
+
+                (tx, masp_signing_data)
+            }
+            BuildParams::StoredBuildParams(mut bparams) => {
+                let tx = build_unshielding_transfer(&self.namada, &mut args, &mut bparams).await?;
+                let masp_signing_data = MaspSigningData::new(bparams, xfvks);
+
+                (tx, masp_signing_data)
+            }
+        };
+
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, Some(masp_signing_data))
     }
 
     pub async fn build_shielding_transfer(
@@ -365,9 +516,20 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
         let mut args = args::shielding_transfer_tx_args(shielding_transfer_msg, wrapper_tx_msg)?;
-        let (tx, signing_data, _masp_epoch) =
-            build_shielding_transfer(&self.namada, &mut args).await?;
-        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+        let bparams =
+            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
+                .await?;
+
+        let (tx, signing_data, _) = match bparams {
+            BuildParams::RngBuildParams(mut bparams) => {
+                build_shielding_transfer(&self.namada, &mut args, &mut bparams).await?
+            }
+            BuildParams::StoredBuildParams(mut bparams) => {
+                build_shielding_transfer(&self.namada, &mut args, &mut bparams).await?
+            }
+        };
+
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, None)
     }
 
     pub async fn build_ibc_transfer(
@@ -376,8 +538,48 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
         let args = args::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg)?;
-        let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args).await?;
-        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+        let bparams =
+            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
+                .await?;
+
+        let ((tx, signing_data, _), bparams) = match bparams {
+            BuildParams::RngBuildParams(mut bparams) => {
+                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
+                let bparams = bparams
+                    .to_stored()
+                    .ok_or_err_msg("Cannot convert bparams to stored")?;
+
+                (tx, bparams)
+            }
+            BuildParams::StoredBuildParams(mut bparams) => {
+                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
+
+                (tx, bparams)
+            }
+        };
+
+        // As we can't get ExtendedFullViewingKeys from the tx args we need to get them from the
+        // MASP Builder section of transaction
+        let masp_signing_data = if let Some(shielded_hash) = signing_data.shielded_hash {
+            let masp_builder = tx
+                .get_masp_builder(&shielded_hash)
+                .ok_or_err_msg("Expected to find the indicated MASP Builder")?;
+            let xfvks = masp_builder
+                .builder
+                .sapling_inputs()
+                .iter()
+                .map(|input| input.key())
+                .cloned()
+                .collect::<Vec<_>>();
+
+            let masp_signing_data = MaspSigningData::new(bparams, xfvks);
+
+            Some(masp_signing_data)
+        } else {
+            None
+        };
+
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, masp_signing_data)
     }
 
     pub async fn build_eth_bridge_transfer(
@@ -387,7 +589,7 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let args = args::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_bridge_pool_tx(&self.namada, args.clone()).await?;
-        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, None)
     }
 
     pub async fn build_vote_proposal(
@@ -400,7 +602,7 @@ impl Sdk {
         let (tx, signing_data) = build_vote_proposal(&self.namada, &args, epoch)
             .await
             .map_err(JsError::from)?;
-        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, None)
     }
 
     pub async fn build_claim_rewards(
@@ -412,7 +614,7 @@ impl Sdk {
         let (tx, signing_data) = build_claim_rewards(&self.namada, &args)
             .await
             .map_err(JsError::from)?;
-        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, None)
     }
 
     pub async fn build_bond(
@@ -422,7 +624,7 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let args = args::bond_tx_args(bond_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_bond(&self.namada, &args).await?;
-        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, None)
     }
 
     pub async fn build_unbond(
@@ -432,7 +634,7 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let args = args::unbond_tx_args(unbond_msg, wrapper_tx_msg)?;
         let (tx, signing_data, _) = build_unbond(&self.namada, &args).await?;
-        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, None)
     }
 
     pub async fn build_withdraw(
@@ -442,7 +644,7 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let args = args::withdraw_tx_args(withdraw_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_withdraw(&self.namada, &args).await?;
-        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, None)
     }
 
     pub async fn build_redelegate(
@@ -452,14 +654,14 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let args = args::redelegate_tx_args(redelegate_msg, wrapper_tx_msg)?;
         let (tx, signing_data) = build_redelegation(&self.namada, &args).await?;
-        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, None)
     }
 
     pub async fn build_reveal_pk(&self, wrapper_tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = args::tx_args_from_slice(wrapper_tx_msg)?;
         let public_key = args.signing_keys[0].clone();
         let (tx, signing_data) = build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
-        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data)
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, None)
     }
 
     // Sign arbitrary data with the provided signing key
@@ -531,8 +733,10 @@ impl Sdk {
         tx: Tx,
         wrapper_tx_msg: &[u8],
         signing_data: SigningTxData,
+        masp_signing_data: Option<MaspSigningData>,
     ) -> Result<JsValue, JsError> {
-        let tx = tx::Tx::new(tx, wrapper_tx_msg, vec![signing_data])?;
+        let tx = tx::Tx::new(tx, wrapper_tx_msg, vec![(signing_data, masp_signing_data)])?;
+
         to_js_result(borsh::to_vec(&tx)?)
     }
 }

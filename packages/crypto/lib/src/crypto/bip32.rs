@@ -1,4 +1,5 @@
 use crate::crypto::pointer_types::{StringPointer, VecU8Pointer};
+use rand::{rngs::OsRng, RngCore};
 use slip10_ed25519;
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
@@ -79,6 +80,16 @@ impl HDWallet {
             .map_err(|err| format!("{}: {:?}", HDWalletError::DerivationError, err))?;
 
         Ok(private)
+    }
+
+    pub fn disposable_keypair() -> Result<Key, String> {
+        let path = vec![44, 877, 0, 0, 0];
+        let mut key = [0u8; 32];
+        OsRng.fill_bytes(&mut key);
+
+        let key = slip10_ed25519::derive_ed25519_private_key(&key, &path);
+
+        Key::new(Vec::from(key))
     }
 }
 

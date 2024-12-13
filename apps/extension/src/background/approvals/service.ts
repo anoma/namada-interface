@@ -62,7 +62,13 @@ export class ApprovalsService {
     }
     const msgId = uuid();
 
-    const details = await this.keyRingService.queryAccountDetails(signer);
+    // If the signer is a disposable signer, get the real address
+    const realAddress =
+      (await this.localStorage.getDisposableSigner(signer))?.realAddress ||
+      signer;
+
+    // We use the real address to query the account details
+    const details = await this.keyRingService.queryAccountDetails(realAddress);
     if (!details) {
       throw new Error(ApprovalErrors.AccountNotFound(signer));
     }

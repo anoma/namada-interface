@@ -76,7 +76,7 @@ If you're interested in hosting Namadillo, a few options are available
 #### Docker
 
 In order to build the Docker image, you can run the following command in the **monorepo root**.
-`docker build . -f docker/namadillo.Dockerfile -t namadillo`
+`docker build . -f docker/namadillo/Dockerfile -t namadillo`
 
 **Note:** It might take some time to build all the necessary wasm files.
 

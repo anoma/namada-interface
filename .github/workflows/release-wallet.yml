@@ -6,15 +6,12 @@ on:
         required: true
         type: string
         default: "main"
-      NAMADA_INTERFACE_NAMADA_CHAIN_ID:
-        required: true
-        type: string
 
 env:
   CI: false
 jobs:
   setup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       VERSION: ${{ steps.set-environment-variables.outputs.VERSION }}
     steps:
@@ -37,7 +34,7 @@ jobs:
 
   build-extension-chrome:
     needs: setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -61,9 +58,7 @@ jobs:
 
       - name: Build the extension
         working-directory: ./apps/extension
-        run: yarn build:chrome
-        env:
-          NAMADA_INTERFACE_NAMADA_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_NAMADA_CHAIN_ID }}
+        run: REVISION=$SHA yarn build:chrome
 
       - uses: actions/upload-artifact@v3
         with:
@@ -72,7 +67,7 @@ jobs:
 
   build-extension-firefox:
     needs: setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -96,9 +91,7 @@ jobs:
 
       - name: Build the extension
         working-directory: ./apps/extension
-        run: yarn build:firefox
-        env:
-          NAMADA_INTERFACE_NAMADA_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_NAMADA_CHAIN_ID }}
+        run: REVISION=$SHA yarn build:firefox
 
       - uses: actions/upload-artifact@v3
         with:
@@ -107,7 +100,7 @@ jobs:
 
   release:
     needs: [setup, build-extension-chrome, build-extension-firefox]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Download Chrome extension build
         uses: actions/download-artifact@v3
@@ -129,9 +122,9 @@ jobs:
 
       - name: Make release body text
         run: |
-          echo "NAMADA_INTERFACE_NAMADA_CHAIN_ID: $NAMADA_INTERFACE_NAMADA_CHAIN_ID" >> RELEASE
+          echo "REVISION: $REVISION" >> RELEASE
         env:
-          NAMADA_INTERFACE_NAMADA_CHAIN_ID: ${{ inputs.NAMADA_INTERFACE_NAMADA_CHAIN_ID }}
+          REVISION: ${{ github.sha }}
 
       - name: Create release
         id: create-release

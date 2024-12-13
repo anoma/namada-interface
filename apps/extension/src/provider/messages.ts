@@ -1,4 +1,8 @@
-import { DerivedAccount, SignArbitraryResponse } from "@namada/types";
+import {
+  DerivedAccount,
+  GenDisposableSignerResponse,
+  SignArbitraryResponse,
+} from "@namada/types";
 import { EncodedTxData } from "background/approvals";
 import { Message } from "router";
 import { validateProps } from "utils";
@@ -25,9 +29,11 @@ enum MessageType {
   QueryDefaultAccount = "query-default-account",
   ApproveUpdateDefaultAccount = "approve-update-default-account",
   EncodeRevealPublicKey = "encode-reveal-public-key",
+  SpendingKey = "spending-key",
   ApproveEthBridgeTransfer = "approve-eth-bridge-transfer",
   CheckDurability = "check-durability",
   VerifyArbitrary = "verify-arbitrary",
+  GenDisposableSigner = "gen-disposable-signer",
 }
 
 export class ApproveSignTxMsg extends Message<Uint8Array[]> {
@@ -229,6 +235,30 @@ export class ApproveUpdateDefaultAccountMsg extends Message<void> {
   }
 }
 
+export class SpendingKeyMsg extends Message<
+  [Array<number>, Array<number>, Array<number>, Array<number>] | undefined
+> {
+  public static type(): MessageType {
+    return MessageType.SpendingKey;
+  }
+
+  constructor(public readonly publicKey: number[]) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["publicKey"]);
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return SpendingKeyMsg.type();
+  }
+}
+
 export class CheckDurabilityMsg extends Message<boolean> {
   public static type(): MessageType {
     return MessageType.CheckDurability;
@@ -269,5 +299,27 @@ export class VerifyArbitraryMsg extends Message<void> {
 
   type(): string {
     return VerifyArbitraryMsg.type();
+  }
+}
+
+export class GenDisposableSignerMsg extends Message<
+  GenDisposableSignerResponse | undefined
+> {
+  public static type(): MessageType {
+    return MessageType.GenDisposableSigner;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {}
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return GenDisposableSignerMsg.type();
   }
 }

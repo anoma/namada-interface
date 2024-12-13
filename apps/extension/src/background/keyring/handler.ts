@@ -1,5 +1,6 @@
 import {
   CheckDurabilityMsg,
+  GenDisposableSignerMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
   VerifyArbitraryMsg,
@@ -88,6 +89,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleQueryAccountDetails(service)(
           env,
           msg as QueryAccountDetailsMsg
+        );
+      case GenDisposableSignerMsg:
+        return handleGenDisposableSignerMsg(service)(
+          env,
+          msg as GenDisposableSignerMsg
         );
       default:
         throw new Error("Unknown msg type");
@@ -235,5 +241,13 @@ const handleQueryAccountDetails: (
 ) => InternalHandler<QueryAccountDetailsMsg> = (service) => {
   return async (_, { address }) => {
     return await service.queryAccountDetails(address);
+  };
+};
+
+const handleGenDisposableSignerMsg: (
+  service: KeyRingService
+) => InternalHandler<GenDisposableSignerMsg> = (service) => {
+  return async (_, _msg) => {
+    return await service.genDisposableSigner();
   };
 };
