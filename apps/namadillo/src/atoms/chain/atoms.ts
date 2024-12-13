@@ -2,6 +2,7 @@ import { Asset } from "@chain-registry/types";
 import namada from "@namada/chains/chains/namada";
 import { IbcToken, NativeToken } from "@namada/indexer-client";
 import { indexerApiAtom } from "atoms/api";
+import { findAssetByToken } from "atoms/balance/functions";
 import {
   defaultServerConfigAtom,
   indexerUrlAtom,
@@ -14,7 +15,7 @@ import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import namadaAssets from "namada-chain-registry/namada/assetlist.json";
 import { Address, ChainParameters, ChainSettings, ChainStatus } from "types";
-import { calculateUnbondingPeriod, findAssetByToken } from "./functions";
+import { calculateUnbondingPeriod } from "./functions";
 import {
   fetchChainParameters,
   fetchChainTokens,
@@ -74,13 +75,13 @@ export const chainTokensAtom = atomWithQuery<(NativeToken | IbcToken)[]>(
 );
 
 export const chainAssetsMapAtom = atom<Record<Address, Asset>>((get) => {
-  const chainTokens = get(chainTokensAtom);
+  const chainTokensQuery = get(chainTokensAtom);
   const chainAssetsMap: Record<Address, Asset> = {};
   // TODO
   // while we don't have all assets listed on namada-chain-registry,
   // merge the osmosis assets to guarantee the most common ones to be available
   const assetList: Asset[] = [...namadaAssets.assets, ...osmosis.assets.assets];
-  chainTokens.data?.forEach((token) => {
+  chainTokensQuery.data?.forEach((token) => {
     const asset = findAssetByToken(token, assetList);
     if (asset) {
       chainAssetsMap[token.address] = asset;

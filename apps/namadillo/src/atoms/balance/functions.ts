@@ -1,4 +1,4 @@
-import { Asset, AssetList } from "@chain-registry/types";
+import { Asset } from "@chain-registry/types";
 import { IbcToken, NativeToken } from "@namada/indexer-client";
 import { mapCoinsToAssets } from "atoms/integrations";
 import BigNumber from "bignumber.js";
@@ -13,13 +13,13 @@ import { fetchCoinPrices } from "./services";
 // please refer to `tryCoinToIbcAsset` and how we could combine both
 export const findAssetByToken = (
   token: NativeToken | IbcToken,
-  assetList: AssetList
+  assets: Asset[]
 ): Asset | undefined => {
   if ("trace" in token) {
     const traceDenom = token.trace.split("/").at(-1);
     if (traceDenom) {
-      for (let i = 0; i < assetList.assets.length; i++) {
-        const asset = assetList.assets[i];
+      for (let i = 0; i < assets.length; i++) {
+        const asset = assets[i];
         if (
           asset.base === traceDenom ||
           asset.denom_units.find(
@@ -43,7 +43,7 @@ export const fetchTokenPrices = async (
     const token = apiTokens?.find((t) => t.address === address);
     if (token) {
       // searching only on osmosis because these are the assets supported by fetchCoinPrices
-      const asset = findAssetByToken(token, osmosis.assets);
+      const asset = findAssetByToken(token, osmosis.assets.assets);
       if (asset) {
         baseMap[asset.base] = address;
       }

@@ -92,7 +92,7 @@ export const shieldedBalanceAtom = atomWithQuery<
 >((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
   const viewingKeysQuery = get(viewingKeysAtom);
-  const tokenAddressesQuery = get(chainTokensAtom);
+  const chainTokensQuery = get(chainTokensAtom);
   const namTokenAddressQuery = get(nativeTokenAddressAtom);
   const rpcUrl = get(rpcUrlAtom);
   const maspIndexerUrl = get(maspIndexerUrlAtom);
@@ -103,7 +103,7 @@ export const shieldedBalanceAtom = atomWithQuery<
     queryKey: [
       "shielded-balance",
       viewingKeysQuery.data,
-      tokenAddressesQuery.data,
+      chainTokensQuery.data,
       namTokenAddressQuery.data,
       shieldedSync.data,
       rpcUrl,
@@ -111,7 +111,7 @@ export const shieldedBalanceAtom = atomWithQuery<
     ],
     ...queryDependentFn(async () => {
       const viewingKeys = viewingKeysQuery.data;
-      const tokenAddresses = tokenAddressesQuery.data;
+      const tokenAddresses = chainTokensQuery.data;
       const syncEmitter = shieldedSync.data;
       if (!viewingKeys || !tokenAddresses || !syncEmitter) {
         return [];
@@ -131,7 +131,7 @@ export const shieldedBalanceAtom = atomWithQuery<
         minDenomAmount: BigNumber(amount),
       }));
       return shieldedBalance;
-    }, [viewingKeysQuery, tokenAddressesQuery, namTokenAddressQuery]),
+    }, [viewingKeysQuery, chainTokensQuery, namTokenAddressQuery]),
   };
 });
 
@@ -139,7 +139,7 @@ export const tokenPricesAtom = atomWithQuery((get) => {
   const shieldedBalanceQuery = get(shieldedBalanceAtom);
   const transparentBalanceQuery = get(transparentBalanceAtom);
   const namTokenAddressQuery = get(nativeTokenAddressAtom);
-  const tokenAddressesQuery = get(chainTokensAtom);
+  const chainTokensQuery = get(chainTokensAtom);
 
   // Get the list of addresses that exists on balances
   const obj: Record<string, true> = {};
@@ -151,7 +151,7 @@ export const tokenPricesAtom = atomWithQuery((get) => {
   });
   const addresses = Object.keys(obj);
   const namAddress = namTokenAddressQuery.data;
-  const tokens = tokenAddressesQuery.data;
+  const tokens = chainTokensQuery.data;
 
   return {
     queryKey: ["token-prices", addresses, tokens, namAddress],
@@ -168,48 +168,48 @@ export const tokenPricesAtom = atomWithQuery((get) => {
 
 export const namadaShieldedAssetsAtom = atomWithQuery((get) => {
   const shieldedBalances = get(shieldedBalanceAtom);
-  const tokenAddresses = get(chainTokensAtom);
+  const chainTokensQuery = get(chainTokensAtom);
   const chainParameters = get(chainParametersAtom);
 
   return {
     queryKey: [
       "namada-shielded-assets",
       shieldedBalances.data,
-      tokenAddresses.data,
+      chainTokensQuery.data,
       chainParameters.data!.chainId,
     ],
     ...queryDependentFn(
       async () =>
         await mapNamadaAddressesToAssets(
           shieldedBalances.data!,
-          tokenAddresses.data!,
+          chainTokensQuery.data!,
           chainParameters.data!.chainId
         ),
-      [shieldedBalances, tokenAddresses, chainParameters]
+      [shieldedBalances, chainTokensQuery, chainParameters]
     ),
   };
 });
 
 export const namadaTransparentAssetsAtom = atomWithQuery((get) => {
   const transparentBalances = get(transparentBalanceAtom);
-  const tokenAddresses = get(chainTokensAtom);
+  const chainTokensQuery = get(chainTokensAtom);
   const chainParameters = get(chainParametersAtom);
 
   return {
     queryKey: [
       "namada-transparent-assets",
       transparentBalances.data,
-      tokenAddresses.data,
+      chainTokensQuery.data,
       chainParameters.data!.chainId,
     ],
     ...queryDependentFn(
       async () =>
         await mapNamadaAddressesToAssets(
           transparentBalances.data!,
-          tokenAddresses.data!,
+          chainTokensQuery.data!,
           chainParameters.data!.chainId
         ),
-      [transparentBalances, tokenAddresses, chainParameters]
+      [transparentBalances, chainTokensQuery, chainParameters]
     ),
   };
 });
