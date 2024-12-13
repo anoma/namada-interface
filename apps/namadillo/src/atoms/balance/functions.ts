@@ -2,10 +2,12 @@ import { Asset, AssetList } from "@chain-registry/types";
 import { IbcToken, NativeToken } from "@namada/indexer-client";
 import { mapCoinsToAssets } from "atoms/integrations";
 import BigNumber from "bignumber.js";
+import * as osmosis from "chain-registry/mainnet/osmosis";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
-import { AddressWithAssetAndAmountMap } from "types";
+import { Address, AddressWithAssetAndAmountMap } from "types";
 import { isNamadaAsset } from "utils";
 import { TokenBalance } from "./atoms";
+import { fetchCoinPrices } from "./services";
 
 // TODO upgrade this function to be as smart as possible
 // please refer to `tryCoinToIbcAsset` and how we could combine both
@@ -30,6 +32,35 @@ export const findAssetByToken = (
     }
   }
   return undefined;
+};
+
+export const fetchTokenPrices = async (
+  tokenAddressToFetch: Address[],
+  apiTokens: (NativeToken | IbcToken)[]
+): Promise<Record<Address, BigNumber>> => {
+  const baseMap: Record<string, string> = {};
+  tokenAddressToFetch.forEach((address) => {
+    const token = apiTokens?.find((t) => t.address === address);
+    if (token) {
+      // searching only on osmosis because these are the assets supported by fetchCoinPrices
+      const asset = findAssetByToken(token, osmosis.assets);
+      if (asset) {
+        baseMap[asset.base] = address;
+      }
+    }
+  });
+  const baseList = Object.keys(baseMap);
+  const apiResponse = await fetchCoinPrices(baseList);
+
+  const tokenPrices: Record<string, BigNumber> = {};
+  Object.entries(apiResponse).forEach(([base, value]) => {
+    const address = baseMap[base];
+    const dollar = Object.values(value)[0];
+    if (dollar) {
+      tokenPrices[address] = new BigNumber(dollar);
+    }
+  });
+  return tokenPrices;
 };
 
 /**

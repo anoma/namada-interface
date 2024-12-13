@@ -213,7 +213,7 @@ const tryDenomToIbcAsset = async (
   return originalChainRegistryAsset || unknownAsset(path + "/" + baseDenom);
 };
 
-const unknownAsset = (denom: string): Asset => ({
+export const unknownAsset = (denom: string): Asset => ({
   denom_units: [
     {
       denom,

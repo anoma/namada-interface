@@ -1,17 +1,38 @@
+import { GasPriceTableInner } from "@namada/indexer-client";
 import { defaultAccountAtom } from "atoms/accounts";
 import { indexerApiAtom } from "atoms/api";
-import { nativeTokenAddressAtom } from "atoms/chain";
+import { fetchTokenPrices } from "atoms/balance/functions";
+import {
+  chainAssetsMapAtom,
+  chainTokensAtom,
+  nativeTokenAddressAtom,
+} from "atoms/chain";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
-import { atom } from "jotai";
+import invariant from "invariant";
+import { atom, getDefaultStore } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { atomFamily } from "jotai/utils";
+import { atomFamily, atomWithStorage, RESET } from "jotai/utils";
 import { isPublicKeyRevealed } from "lib/query";
-import { GasConfig, GasTable } from "types";
+import { Address, GasConfig, GasTable } from "types";
 import { TxKind } from "types/txKind";
-import { fetchGasLimit, fetchMinimumGasPrice } from "./services";
+import { namadaAsset, toDisplayAmount } from "utils";
+import {
+  fetchGasLimit,
+  fetchGasPriceForAllTokens,
+  fetchMinimumGasPrice,
+} from "./services";
 
-export const gasCostTxKindAtom = atom<TxKind | undefined>(undefined);
+export const storageGasTokenAtom = atomWithStorage<string | undefined>(
+  "namadillo:gasToken",
+  undefined
+);
+
+export const gasTokenAtom = atom<Address | undefined>((get) => {
+  const storageGasToken = get(storageGasTokenAtom);
+  const nativeTokenQuery = get(nativeTokenAddressAtom);
+  return storageGasToken ?? nativeTokenQuery.data;
+});
 
 export const gasLimitsAtom = atomWithQuery<GasTable>((get) => {
   const api = get(indexerApiAtom);
@@ -21,15 +42,65 @@ export const gasLimitsAtom = atomWithQuery<GasTable>((get) => {
   };
 });
 
+export const gasPriceForAllTokensAtom = atomWithQuery<GasPriceTableInner[]>(
+  (get) => {
+    const api = get(indexerApiAtom);
+    return {
+      queryKey: ["gas-price-for-all-tokens"],
+      queryFn: () => fetchGasPriceForAllTokens(api),
+    };
+  }
+);
+
+export const gasDollarMapAtom = atomWithQuery<Record<Address, BigNumber>>(
+  (get) => {
+    const gasPriceForAllTokens = get(gasPriceForAllTokensAtom);
+    const chainTokensQuery = get(chainTokensAtom);
+    const addresses = gasPriceForAllTokens.data?.map((item) => item.token);
+    const tokens = chainTokensQuery.data;
+    return {
+      queryKey: ["gas-dollar-map", addresses, tokens],
+      queryFn: () => fetchTokenPrices(addresses ?? [], tokens ?? []),
+    };
+  }
+);
+
 export const minimumGasPriceAtom = atomWithQuery<BigNumber>((get) => {
   const api = get(indexerApiAtom);
-  const nativeTokenQuery = get(nativeTokenAddressAtom);
+  const gasToken = get(gasTokenAtom);
+  const namTokenAddressQuery = get(nativeTokenAddressAtom);
+
   return {
-    queryKey: ["minimum-gas-price", nativeTokenQuery.data],
-    ...queryDependentFn(
-      async () => fetchMinimumGasPrice(api, nativeTokenQuery.data!),
-      [nativeTokenQuery]
-    ),
+    queryKey: ["minimum-gas-price", gasToken, namTokenAddressQuery.data],
+    queryFn: async () => {
+      try {
+        invariant(gasToken, "Cannot query minimum gas for undefined token");
+
+        const tokenCost = (await fetchMinimumGasPrice(api, gasToken))[0];
+        if (!tokenCost) {
+          // if the selected token is not available on the chain,
+          // reset the storage so we can use the default token as fallback
+          const { set } = getDefaultStore();
+          set(storageGasTokenAtom, RESET);
+        }
+        invariant(tokenCost, "Error querying minimum gas price");
+
+        const gasPrice = BigNumber(tokenCost.minDenomAmount);
+
+        // TODO we need to validate if toDisplayAmount is needed for other tokens
+        if (gasToken === namTokenAddressQuery.data) {
+          return toDisplayAmount(namadaAsset(), gasPrice);
+        } else {
+          return gasPrice;
+        }
+      } catch (e) {
+        // if something goes wrong when querying the gas price,
+        // reset the storage so we can use the default token as fallback
+        const { set } = getDefaultStore();
+        set(storageGasTokenAtom, RESET);
+        throw e;
+      }
+    },
   };
 });
 
@@ -39,6 +110,8 @@ export const defaultGasConfigFamily = atomFamily(
       const defaultAccount = get(defaultAccountAtom);
       const minimumGasPrice = get(minimumGasPriceAtom);
       const gasLimitsTable = get(gasLimitsAtom);
+      const gasToken = get(gasTokenAtom);
+      const chainAssetsMap = get(chainAssetsMapAtom);
 
       return {
         queryKey: [
@@ -46,23 +119,39 @@ export const defaultGasConfigFamily = atomFamily(
           defaultAccount.data?.address,
           minimumGasPrice.data,
           gasLimitsTable.data,
+          gasToken,
         ],
         ...queryDependentFn(async () => {
-          const publicKeyRevealed = await isPublicKeyRevealed(
-            defaultAccount.data!.address
+          invariant(
+            gasLimitsTable.data,
+            "Cannot create a gas config without a gas limit"
           );
+          invariant(
+            minimumGasPrice.data,
+            "Cannot create a gas config without a gas price"
+          );
+          invariant(gasToken, "Cannot create a gas config without a token");
+
+          const publicKeyRevealed =
+            defaultAccount.data?.address ?
+              await isPublicKeyRevealed(defaultAccount.data.address)
+            : false;
 
           const txKindsWithRevealPk =
             publicKeyRevealed ? txKinds : ["RevealPk" as const, ...txKinds];
 
           const gasLimit = txKindsWithRevealPk.reduce(
-            (total, kind) => total.plus(gasLimitsTable.data![kind].native),
+            (total, kind) => total.plus(gasLimitsTable.data[kind].native),
             BigNumber(0)
           );
 
+          invariant(gasToken, "Cannot create a gas config without a token");
+
           return {
             gasLimit,
-            gasPrice: minimumGasPrice.data!,
+            gasPrice: minimumGasPrice.data,
+            gasToken,
+            asset: chainAssetsMap[gasToken],
           };
         }, [defaultAccount, minimumGasPrice, gasLimitsTable]),
       };

@@ -31,11 +31,16 @@ export type GasLimit = BigNumber;
 
 export type GasPrice = BigNumber;
 
+// For Namada chain, it should be the address. For Ibc, it should be the base denom
+export type GasToken = Address | string;
+
 export type AddressBalance = Record<Address, BigNumber>;
 
 export type GasConfig = {
   gasLimit: GasLimit;
   gasPrice: GasPrice;
+  gasToken: GasToken;
+  asset?: Asset;
 };
 
 export type TxGas = Record<Address, GasLimit>;

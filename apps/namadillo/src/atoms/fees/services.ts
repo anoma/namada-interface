@@ -1,10 +1,8 @@
-import { DefaultApi } from "@namada/indexer-client";
+import { DefaultApi, GasPriceTableInner } from "@namada/indexer-client";
 import { mapUndefined } from "@namada/utils";
 import BigNumber from "bignumber.js";
-import invariant from "invariant";
-import { GasTable } from "types";
+import { Address, GasTable } from "types";
 import { txKinds } from "types/txKind";
-import { namadaAsset, toDisplayAmount } from "utils";
 import { txKindToIndexer } from "./functions";
 
 export const fetchGasLimit = async (api: DefaultApi): Promise<GasTable> => {
@@ -27,20 +25,13 @@ export const fetchGasLimit = async (api: DefaultApi): Promise<GasTable> => {
 
 export const fetchMinimumGasPrice = async (
   api: DefaultApi,
-  nativeToken: string
-): Promise<BigNumber> => {
-  const gasTableResponse = await api.apiV1GasPriceTokenGet(nativeToken);
-  const nativeTokenCost = gasTableResponse.data.find(
-    ({ token }) => token === nativeToken
-  );
-  invariant(!!nativeTokenCost, "Error querying minimum gas price");
-  const asBigNumber = toDisplayAmount(
-    namadaAsset(),
-    BigNumber(nativeTokenCost.minDenomAmount)
-  );
-  invariant(
-    !asBigNumber.isNaN(),
-    "Error converting minimum gas price to BigNumber"
-  );
-  return asBigNumber;
+  tokenAddress: Address
+): Promise<GasPriceTableInner[]> => {
+  return (await api.apiV1GasPriceTokenGet(tokenAddress)).data;
+};
+
+export const fetchGasPriceForAllTokens = async (
+  api: DefaultApi
+): Promise<GasPriceTableInner[]> => {
+  return (await api.apiV1GasPriceGet()).data;
 };

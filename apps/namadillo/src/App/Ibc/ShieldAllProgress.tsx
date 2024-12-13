@@ -1,7 +1,7 @@
 import { Stack } from "@namada/components";
 import svgImg from "App/Assets/ShieldedParty.svg";
 import { Timeline } from "App/Common/Timeline";
-import ibcTransferBlack from "../Transfer/assets/ibc-transfer-black.png";
+import ibcTransferBlack from "./assets/ibc-transfer-black.png";
 import { ShieldAllContainer } from "./ShieldAllContainer";
 
 export const ShieldAllProgress = (): JSX.Element => {

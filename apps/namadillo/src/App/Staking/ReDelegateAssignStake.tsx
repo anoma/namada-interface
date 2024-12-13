@@ -1,6 +1,6 @@
 import { ActionButton, Panel } from "@namada/components";
 import { NamCurrency } from "App/Common/NamCurrency";
-import { TransactionFees } from "App/Common/TransactionFees";
+import { TransactionFeeButton } from "App/Common/TransactionFeeButton";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
@@ -162,10 +162,9 @@ export const ReDelegateAssignStake = ({
           isPerformingRedelegation={isPerformingRedelegation}
         />
         {gasConfig && (
-          <TransactionFees
-            className="justify-self-end px-4"
-            gasConfig={gasConfig}
-          />
+          <div className="justify-self-end px-4">
+            <TransactionFeeButton gasConfig={gasConfig} />
+          </div>
         )}
       </div>
     </>

@@ -49,11 +49,9 @@ export const defaultServerConfigAtom = atomWithQuery((_get) => {
 
 export const defaultLocalStorageProps = {
   version: "0.1",
-  fiat: "usd",
   indexerUrl: "",
   signArbitraryEnabled: false,
-  testnetsEnabled: false,
-};
+} satisfies SettingsStorage;
 
 export const settingsAtom = atomWithStorage<SettingsStorage>(
   "namadillo:settings",

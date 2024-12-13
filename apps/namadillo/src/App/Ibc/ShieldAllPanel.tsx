@@ -6,9 +6,9 @@ import {
   Stack,
 } from "@namada/components";
 import svgImg from "App/Assets/ShieldedParty.svg";
+import { TransactionFee } from "App/Common/TransactionFee";
 import { SelectedWallet } from "App/Transfer/SelectedWallet";
-import { TransferTransactionFee } from "App/Transfer/TransferTransactionFee";
-import { getTransactionFee } from "integrations/utils";
+import { getIbcGasConfig } from "integrations/utils";
 import { useEffect, useMemo, useState } from "react";
 import {
   AddressWithAssetAndAmount,
@@ -20,6 +20,7 @@ import {
   ShieldAllAssetList,
 } from "./ShieldAllAssetList";
 import { ShieldAllContainer } from "./ShieldAllContainer";
+import ibcTransferImageBlack from "./assets/ibc-transfer-black.png";
 
 type ShieldAllPanelProps = {
   registry: ChainRegistryEntry;
@@ -76,7 +77,7 @@ export const ShieldAllPanel = ({
     [selectableAssets]
   );
 
-  const transactionFee = getTransactionFee(registry);
+  const gasConfig = getIbcGasConfig(registry);
 
   return (
     <ShieldAllContainer>
@@ -115,13 +116,10 @@ export const ShieldAllPanel = ({
           }
         </Stack>
         <Stack as="footer" gap={4}>
-          {transactionFee && (
-            <TransferTransactionFee
-              transactionFee={transactionFee}
-              isIbcTransfer={true}
-              textColor="black"
-            />
-          )}
+          <footer className="flex justify-between items-center">
+            <img src={ibcTransferImageBlack} className="w-20" />
+            {gasConfig && <TransactionFee gasConfig={gasConfig} />}
+          </footer>
           <ActionButton
             backgroundColor="black"
             backgroundHoverColor="cyan"

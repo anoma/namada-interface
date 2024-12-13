@@ -6,8 +6,8 @@ import BigNumber from "bignumber.js";
 import { useMemo, useState } from "react";
 import {
   Address,
-  AddressWithAssetAndAmount,
   AddressWithAssetAndAmountMap,
+  GasConfig,
   WalletProvider,
 } from "types";
 import { parseChainInfo } from "./common";
@@ -18,8 +18,6 @@ import { SelectWalletModal } from "./SelectWalletModal";
 import { TransferArrow } from "./TransferArrow";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
-
-export type TransactionFee = AddressWithAssetAndAmount;
 
 type TransferModuleConfig = {
   wallet?: WalletProvider;
@@ -68,7 +66,7 @@ export type TransferModuleProps = {
   source: TransferSourceProps;
   destination: TransferDestinationProps;
   requiresIbcChannels?: boolean;
-  transactionFee?: TransactionFee;
+  gasConfig?: GasConfig;
   isSubmitting?: boolean;
   errorMessage?: string;
   onSubmitTransfer: (params: OnSubmitTransferParams) => void;
@@ -91,7 +89,7 @@ type ValidationResult =
 export const TransferModule = ({
   source,
   destination,
-  transactionFee,
+  gasConfig,
   isSubmitting,
   isIbcTransfer,
   ibcOptions,
@@ -125,16 +123,14 @@ export const TransferModule = ({
       return undefined;
     }
 
-    const minusFees =
-      (
-        transactionFee &&
-        selectedAssetAddress === transactionFee.originalAddress
-      ) ?
-        availableAmount.minus(transactionFee.amount)
-      : availableAmount;
+    if (!gasConfig || gasConfig.gasToken !== selectedAssetAddress) {
+      return availableAmount;
+    }
 
-    return BigNumber.max(minusFees, 0);
-  }, [source.selectedAssetAddress, source.availableAmount, transactionFee]);
+    const totalFees = gasConfig.gasPrice.multipliedBy(gasConfig.gasLimit);
+    const amountMinusFees = availableAmount.minus(totalFees);
+    return BigNumber.max(amountMinusFees, 0);
+  }, [source.selectedAssetAddress, source.availableAmount, gasConfig]);
 
   const validationResult = useMemo((): ValidationResult => {
     if (!source.wallet) {
@@ -147,7 +143,7 @@ export const TransferModule = ({
       return "NoSelectedAsset";
     } else if (!source.amount || source.amount.eq(0)) {
       return "NoAmount";
-    } else if (!transactionFee) {
+    } else if (!gasConfig) {
       return "NoTransactionFee";
     } else if (
       !availableAmountMinusFees ||
@@ -159,7 +155,7 @@ export const TransferModule = ({
     } else {
       return "Ok";
     }
-  }, [source, destination, transactionFee, availableAmountMinusFees]);
+  }, [source, destination, gasConfig, availableAmountMinusFees]);
 
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
@@ -315,7 +311,7 @@ export const TransferModule = ({
             onChangeAddress={destination.onChangeCustomAddress}
             memo={memo}
             onChangeMemo={setMemo}
-            transactionFee={transactionFee}
+            gasConfig={gasConfig}
           />
           {isIbcTransfer && requiresIbcChannels && (
             <IbcChannels
@@ -373,8 +369,7 @@ export const TransferModule = ({
 
       {destinationChainModalOpen &&
         destination.onChangeChain &&
-        destination.wallet &&
-        destination.walletAddress && (
+        destination.wallet && (
           <SelectChainModal
             onClose={() => setDestinationChainModalOpen(false)}
             chains={destination.availableChains || []}

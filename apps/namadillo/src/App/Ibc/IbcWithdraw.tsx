@@ -24,7 +24,6 @@ import { broadcastTx } from "lib/query";
 import { useEffect, useState } from "react";
 import namadaChainRegistry from "registry/namada.json";
 import { Address, PartialTransferTransactionData, TransferStep } from "types";
-import { namadaAsset } from "utils";
 import { IbcTopHeader } from "./IbcTopHeader";
 
 const defaultChainId = "cosmoshub-4";
@@ -51,15 +50,6 @@ export const IbcWithdraw: React.FC = () => {
 
   const { data: gasConfig } = useAtomValue(
     defaultGasConfigFamily(["IbcTransfer"])
-  );
-
-  const transactionFee = mapUndefined(
-    ({ gasLimit, gasPrice }) => ({
-      originalAddress: namadaAsset().address,
-      asset: namadaAsset(),
-      amount: gasPrice.multipliedBy(gasLimit),
-    }),
-    gasConfig
   );
 
   const {
@@ -203,7 +193,7 @@ export const IbcWithdraw: React.FC = () => {
               onChangeSourceChannel: setSourceChannel,
             }}
             onSubmitTransfer={submitIbcTransfer}
-            transactionFee={transactionFee}
+            gasConfig={gasConfig}
             errorMessage={generalErrorMessage}
           />
         </>

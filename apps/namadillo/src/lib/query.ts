@@ -61,7 +61,7 @@ const getTxProps = (
   );
 
   return {
-    token: chain.nativeTokenAddress,
+    token: gasConfig.gasToken,
     feeAmount: gasConfig.gasPrice,
     gasLimit: gasConfig.gasLimit,
     chainId: chain.chainId,

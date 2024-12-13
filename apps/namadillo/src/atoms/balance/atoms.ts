@@ -7,23 +7,21 @@ import {
 } from "atoms/accounts/atoms";
 import {
   chainParametersAtom,
+  chainTokensAtom,
   nativeTokenAddressAtom,
-  tokenAddressesAtom,
 } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
 import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
-import * as osmosis from "chain-registry/mainnet/osmosis";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { AddressWithAsset } from "types";
 import {
-  findAssetByToken,
+  fetchTokenPrices,
   mapNamadaAddressesToAssets,
   mapNamadaAssetsToTokenBalances,
 } from "./functions";
 import {
-  fetchCoinPrices,
   fetchShieldedBalance,
   shieldedSync,
   ShieldedSyncEmitter,
@@ -94,7 +92,7 @@ export const shieldedBalanceAtom = atomWithQuery<
 >((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
   const viewingKeysQuery = get(viewingKeysAtom);
-  const tokenAddressesQuery = get(tokenAddressesAtom);
+  const tokenAddressesQuery = get(chainTokensAtom);
   const namTokenAddressQuery = get(nativeTokenAddressAtom);
   const rpcUrl = get(rpcUrlAtom);
   const maspIndexerUrl = get(maspIndexerUrlAtom);
@@ -141,7 +139,7 @@ export const tokenPricesAtom = atomWithQuery((get) => {
   const shieldedBalanceQuery = get(shieldedBalanceAtom);
   const transparentBalanceQuery = get(transparentBalanceAtom);
   const namTokenAddressQuery = get(nativeTokenAddressAtom);
-  const tokenAddressesQuery = get(tokenAddressesAtom);
+  const tokenAddressesQuery = get(chainTokensAtom);
 
   // Get the list of addresses that exists on balances
   const obj: Record<string, true> = {};
@@ -158,27 +156,7 @@ export const tokenPricesAtom = atomWithQuery((get) => {
   return {
     queryKey: ["token-prices", addresses, tokens, namAddress],
     queryFn: async () => {
-      const baseMap: Record<string, string> = {};
-      addresses.forEach((address) => {
-        const token = tokens?.find((t) => t.address === address);
-        if (token) {
-          const asset = findAssetByToken(token, osmosis.assets);
-          if (asset) {
-            baseMap[asset.base] = address;
-          }
-        }
-      });
-      const baseList = Object.keys(baseMap);
-      const apiResponse = await fetchCoinPrices(baseList);
-
-      const tokenPrices: Record<string, BigNumber> = {};
-      Object.entries(apiResponse).forEach(([base, value]) => {
-        const address = baseMap[base];
-        const dollar = Object.values(value)[0];
-        if (dollar) {
-          tokenPrices[address] = new BigNumber(dollar);
-        }
-      });
+      const tokenPrices = await fetchTokenPrices(addresses, tokens ?? []);
       // TODO mock NAM price while it's not available on api
       if (namAddress && !tokenPrices[namAddress]) {
         tokenPrices[namAddress] = new BigNumber(0);
@@ -190,7 +168,7 @@ export const tokenPricesAtom = atomWithQuery((get) => {
 
 export const namadaShieldedAssetsAtom = atomWithQuery((get) => {
   const shieldedBalances = get(shieldedBalanceAtom);
-  const tokenAddresses = get(tokenAddressesAtom);
+  const tokenAddresses = get(chainTokensAtom);
   const chainParameters = get(chainParametersAtom);
 
   return {
@@ -214,7 +192,7 @@ export const namadaShieldedAssetsAtom = atomWithQuery((get) => {
 
 export const namadaTransparentAssetsAtom = atomWithQuery((get) => {
   const transparentBalances = get(transparentBalanceAtom);
-  const tokenAddresses = get(tokenAddressesAtom);
+  const tokenAddresses = get(chainTokensAtom);
   const chainParameters = get(chainParametersAtom);
 
   return {

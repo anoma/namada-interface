@@ -15861,8 +15861,8 @@ __metadata:
 
 "namada-chain-registry@https://github.com/anoma/namada-chain-registry":
   version: 0.0.1
-  resolution: "namada-chain-registry@https://github.com/anoma/namada-chain-registry.git#commit=bbcc8535461ae2e939629740628ae455feca8225"
-  checksum: a4b2ab0789cb20dbb2299572fa3749e2c737eedd26823c1bfb9e4484dda701a1cb0a255d1f8944bd4bff1b6315f9cb494ec63482c3dcdd1c05d85deb59f9afeb
+  resolution: "namada-chain-registry@https://github.com/anoma/namada-chain-registry.git#commit=698a9f0f8b21280ebac644781592af0a6ada6dc3"
+  checksum: 0979dadaabfd06e29a3045273b076bc79040eb122530d23995eb74b3ee993669a81217ed80c06186d9c85b0ae40c98f4ac8e128d51475e8125d0aa3bfddeec88
   languageName: node
   linkType: hard
 
