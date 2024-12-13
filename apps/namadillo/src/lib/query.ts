@@ -17,6 +17,7 @@ import {
   TransactionEventsClasses,
   TransactionEventsStatus,
 } from "types/events";
+import { toDisplayAmount } from "utils";
 import { getSdkInstance } from "utils/sdk";
 
 export type TransactionPair<T> = {
@@ -62,7 +63,11 @@ const getTxProps = (
 
   return {
     token: gasConfig.gasToken,
-    feeAmount: gasConfig.gasPrice,
+    // TODO we need to validate this for all other tokens
+    feeAmount:
+      gasConfig.asset ?
+        toDisplayAmount(gasConfig.asset, gasConfig.gasPrice)
+      : gasConfig.gasPrice,
     gasLimit: gasConfig.gasLimit,
     chainId: chain.chainId,
     publicKey: account.publicKey!,

@@ -16,7 +16,6 @@ import { atomFamily, atomWithStorage, RESET } from "jotai/utils";
 import { isPublicKeyRevealed } from "lib/query";
 import { Address, GasConfig, GasTable } from "types";
 import { TxKind } from "types/txKind";
-import { namadaAsset, toDisplayAmount } from "utils";
 import {
   fetchGasLimit,
   fetchGasPriceForAllTokens,
@@ -85,14 +84,7 @@ export const minimumGasPriceAtom = atomWithQuery<BigNumber>((get) => {
         }
         invariant(tokenCost, "Error querying minimum gas price");
 
-        const gasPrice = BigNumber(tokenCost.minDenomAmount);
-
-        // TODO we need to validate if toDisplayAmount is needed for other tokens
-        if (gasToken === namTokenAddressQuery.data) {
-          return toDisplayAmount(namadaAsset(), gasPrice);
-        } else {
-          return gasPrice;
-        }
+        return BigNumber(tokenCost.minDenomAmount);
       } catch (e) {
         // if something goes wrong when querying the gas price,
         // reset the storage so we can use the default token as fallback

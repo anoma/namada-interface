@@ -86,6 +86,12 @@ export const chainAssetsMapAtom = atom<Record<Address, Asset>>((get) => {
     if (asset) {
       chainAssetsMap[token.address] = asset;
     }
+    // TODO if the token doesn't have the `trace`, it means it's the native token,
+    // then returns the first asset because it's always the native token asset.
+    // It should be fixed when we have a stable testnet with same native token address
+    else if (!("trace" in token)) {
+      chainAssetsMap[token.address] = namadaAssets.assets[0];
+    }
   });
   return chainAssetsMap;
 });
