@@ -1,4 +1,5 @@
 jest.mock("../assets/ibc-transfer-white.png", () => "ibc-transfer-white.png");
+jest.mock("../../Common/GasFeeModal", () => null);
 
 import { Chain } from "@chain-registry/types";
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -100,11 +101,11 @@ describe("Component: TransferDestination", () => {
         gasConfig={{
           gasPrice: BigNumber(0.000001),
           gasLimit: BigNumber(2),
-          gasToken: "tnam123",
+          gasToken: "tnam1",
         }}
       />
     );
-    const transactionFee = screen.getByText("Transaction Fee");
+    const transactionFee = screen.getByText("Transaction fee:");
     expect(transactionFee).toBeInTheDocument();
     expect(transactionFee.parentNode?.textContent).toContain("0.000002");
   });

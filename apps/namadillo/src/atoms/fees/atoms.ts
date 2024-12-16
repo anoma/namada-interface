@@ -1,12 +1,7 @@
 import { GasPriceTableInner } from "@namada/indexer-client";
 import { defaultAccountAtom } from "atoms/accounts";
 import { indexerApiAtom } from "atoms/api";
-import { fetchTokenPrices } from "atoms/balance/functions";
-import {
-  chainAssetsMapAtom,
-  chainTokensAtom,
-  nativeTokenAddressAtom,
-} from "atoms/chain";
+import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import invariant from "invariant";
@@ -47,19 +42,6 @@ export const gasPriceForAllTokensAtom = atomWithQuery<GasPriceTableInner[]>(
     return {
       queryKey: ["gas-price-for-all-tokens"],
       queryFn: () => fetchGasPriceForAllTokens(api),
-    };
-  }
-);
-
-export const gasDollarMapAtom = atomWithQuery<Record<Address, BigNumber>>(
-  (get) => {
-    const gasPriceForAllTokens = get(gasPriceForAllTokensAtom);
-    const chainTokensQuery = get(chainTokensAtom);
-    const addresses = gasPriceForAllTokens.data?.map((item) => item.token);
-    const tokens = chainTokensQuery.data;
-    return {
-      queryKey: ["gas-dollar-map", addresses, tokens],
-      queryFn: () => fetchTokenPrices(addresses ?? [], tokens ?? []),
     };
   }
 );

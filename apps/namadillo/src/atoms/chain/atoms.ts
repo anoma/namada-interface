@@ -2,7 +2,6 @@ import { Asset } from "@chain-registry/types";
 import namada from "@namada/chains/chains/namada";
 import { IbcToken, NativeToken } from "@namada/indexer-client";
 import { indexerApiAtom } from "atoms/api";
-import { findAssetByToken } from "atoms/balance/functions";
 import {
   defaultServerConfigAtom,
   indexerUrlAtom,
@@ -15,6 +14,7 @@ import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import namadaAssets from "namada-chain-registry/namada/assetlist.json";
 import { Address, ChainParameters, ChainSettings, ChainStatus } from "types";
+import { findAssetByToken } from "utils/assets";
 import { calculateUnbondingPeriod } from "./functions";
 import {
   fetchChainParameters,
@@ -75,8 +75,14 @@ export const chainTokensAtom = atomWithQuery<(NativeToken | IbcToken)[]>(
 );
 
 export const chainAssetsMapAtom = atom<Record<Address, Asset>>((get) => {
+  const nativeTokenAddress = get(nativeTokenAddressAtom);
   const chainTokensQuery = get(chainTokensAtom);
+
   const chainAssetsMap: Record<Address, Asset> = {};
+  if (nativeTokenAddress.data) {
+    // the first asset is the native token asset
+    chainAssetsMap[nativeTokenAddress.data] = namadaAssets.assets[0];
+  }
   // TODO
   // while we don't have all assets listed on namada-chain-registry,
   // merge the osmosis assets to guarantee the most common ones to be available
@@ -85,12 +91,6 @@ export const chainAssetsMapAtom = atom<Record<Address, Asset>>((get) => {
     const asset = findAssetByToken(token, assetList);
     if (asset) {
       chainAssetsMap[token.address] = asset;
-    }
-    // TODO if the token doesn't have the `trace`, it means it's the native token,
-    // then returns the first asset because it's always the native token asset.
-    // It should be fixed when we have a stable testnet with same native token address
-    else if (!("trace" in token)) {
-      chainAssetsMap[token.address] = namadaAssets.assets[0];
     }
   });
   return chainAssetsMap;

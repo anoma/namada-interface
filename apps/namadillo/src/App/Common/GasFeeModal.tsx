@@ -1,17 +1,17 @@
 import { Modal, SkeletonLoading } from "@namada/components";
 import { chainAssetsMapAtom } from "atoms/chain";
 import {
-  gasDollarMapAtom,
   gasPriceForAllTokensAtom,
   storageGasTokenAtom,
 } from "atoms/fees/atoms";
-import { unknownAsset } from "atoms/integrations";
+import { tokenPricesFamily } from "atoms/prices/atoms";
 import BigNumber from "bignumber.js";
 import { useAtomValue, useSetAtom } from "jotai";
 import { IoClose } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 import { GasConfig } from "types";
 import { toDisplayAmount } from "utils";
+import { unknownAsset } from "utils/assets";
 import { FiatCurrency } from "./FiatCurrency";
 import { TokenCurrency } from "./TokenCurrency";
 
@@ -24,8 +24,12 @@ export const GasFeeModal = ({
 }): JSX.Element => {
   const setStorageGasToken = useSetAtom(storageGasTokenAtom);
   const gasPriceForAllTokens = useAtomValue(gasPriceForAllTokensAtom);
-  const gasDollarMap = useAtomValue(gasDollarMapAtom);
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+
+  const data = gasPriceForAllTokens.data ?? [];
+
+  const tokenAddresses = data.map((item) => item.token);
+  const gasDollarMap = useAtomValue(tokenPricesFamily(tokenAddresses));
 
   return (
     <Modal onClose={onClose}>
@@ -51,9 +55,9 @@ export const GasFeeModal = ({
           </div>
         </div>
         <div className="flex flex-col mt-4 max-h-[60vh] overflow-auto">
-          {!gasPriceForAllTokens.data ?
+          {!data.length ?
             <SkeletonLoading height="100px" width="100%" />
-          : gasPriceForAllTokens.data.map(({ token, minDenomAmount }) => {
+          : data.map(({ token, minDenomAmount }) => {
               const asset = chainAssetsMap[token] ?? unknownAsset(token);
               const symbol = asset.symbol;
               const fee = toDisplayAmount(

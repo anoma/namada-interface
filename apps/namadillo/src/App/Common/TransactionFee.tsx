@@ -1,6 +1,6 @@
-import { unknownAsset } from "atoms/integrations/functions";
 import { GasConfig } from "types";
 import { toDisplayAmount } from "utils";
+import { unknownAsset } from "utils/assets";
 import { TokenCurrency } from "./TokenCurrency";
 
 export const TransactionFee = ({
