@@ -13,12 +13,7 @@ const { getProcessEnv } = require("@namada/config/webpack.js");
 // Load .env from namadillo:
 require("dotenv").config({ path: "./.env" });
 
-const {
-  NODE_ENV,
-  TARGET,
-  BUNDLE_ANALYZE,
-  BETA_RELEASE: isBeta,
-} = process.env;
+const { NODE_ENV, TARGET, BUNDLE_ANALYZE, BETA_RELEASE: isBeta } = process.env;
 
 const OUTPUT_PATH = resolve(__dirname, `./build/${TARGET}`);
 const MANIFEST_VERSION = TARGET === "firefox" ? "v2" : "v3";
@@ -225,5 +220,8 @@ module.exports = {
   stats: {
     // We want to ignore wasm-bindgen-rayon circular dependency warning
     warningsFilter: [/dependency between chunks.+wasm-bindgen-rayon/],
+  },
+  optimization: {
+    minimize: false,
   },
 };

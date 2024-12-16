@@ -80,7 +80,7 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 # Install v22 LTS
-nvm install v22.0.0
+nvm install v22.12
 ```
 
 [ [Table of Contents](#table-of-contents) ]
