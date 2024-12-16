@@ -127,7 +127,9 @@ export const canVoteAtom = atomFamily((proposalStartEpoch: bigint) =>
       enabled: account.isSuccess,
       queryFn: async () => {
         const all_bonds = await api.apiV1PosBondAddressGet(
-          account.data!.address
+          account.data!.address,
+          undefined,
+          Number(proposalStartEpoch)
         );
 
         return all_bonds.data.results.reduce(
