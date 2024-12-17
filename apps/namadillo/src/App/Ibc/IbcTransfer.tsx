@@ -1,5 +1,4 @@
 import { Chain } from "@chain-registry/types";
-import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { AccountType } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import { TransferTransactionTimeline } from "App/Transactions/TransferTransactionTimeline";
@@ -11,17 +10,15 @@ import { allDefaultAccountsAtom } from "atoms/accounts";
 import {
   assetBalanceAtomFamily,
   availableChainsAtom,
-  chainRegistryAtom,
   ibcChannelsFamily,
-  ibcTransferAtom,
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { useIbcTransaction } from "hooks/useIbcTransaction";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
 import { KeplrWalletManager } from "integrations/Keplr";
-import { getIbcGasConfig } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import namadaChain from "registry/namada.json";
@@ -31,65 +28,63 @@ import { IbcTopHeader } from "./IbcTopHeader";
 const keplr = new KeplrWalletManager();
 const defaultChainId = "cosmoshub-4";
 
-export const IbcTransfer: React.FC = () => {
-  const chainRegistry = useAtomValue(chainRegistryAtom);
+export const IbcTransfer = (): JSX.Element => {
+  // Global & Atom states
   const availableChains = useAtomValue(availableChainsAtom);
-  const [shielded, setShielded] = useState<boolean>(true);
-  const [selectedAssetAddress, setSelectedAssetAddress] = useState<Address>();
-  const [amount, setAmount] = useState<BigNumber | undefined>();
-  const [generalErrorMessage, setGeneralErrorMessage] = useState("");
-  const [sourceChannel, setSourceChannel] = useState("");
-  const [destinationChannel, setDestinationChannel] = useState("");
-
-  const performIbcTransfer = useAtomValue(ibcTransferAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
+
+  // Wallet & Registry
   const {
     registry,
     walletAddress: sourceAddress,
     connectToChainId,
-    chainId,
   } = useWalletManager(keplr);
 
-  const [transaction, setTransaction] =
-    useState<PartialTransferTransactionData>();
+  // IBC Channels & Balances
+  const { data: ibcChannels } = useAtomValue(
+    ibcChannelsFamily(registry?.chain.chain_name)
+  );
 
-  const {
-    transactions: myTransactions,
-    findByHash,
-    storeTransaction,
-  } = useTransactionActions();
-
-  const { data: availableAssets, isLoading: isLoadingBalances } = useAtomValue(
+  const { data: userAssets, isLoading: isLoadingBalances } = useAtomValue(
     assetBalanceAtomFamily({
       chain: registry?.chain,
       walletAddress: sourceAddress,
     })
   );
 
+  // Local State
+  const [shielded, setShielded] = useState<boolean>(true);
+  const [selectedAssetAddress, setSelectedAssetAddress] = useState<Address>();
+  const [amount, setAmount] = useState<BigNumber | undefined>();
+  const [generalErrorMessage, setGeneralErrorMessage] = useState("");
+  const [sourceChannel, setSourceChannel] = useState("");
+  const [destinationChannel, setDestinationChannel] = useState("");
+  const [transaction, setTransaction] =
+    useState<PartialTransferTransactionData>();
+
+  // Derived data
   const availableAmount = mapUndefined(
-    (address) => availableAssets?.[address]?.amount,
+    (address) => userAssets?.[address]?.amount,
     selectedAssetAddress
   );
 
-  const gasConfig = useMemo(() => {
-    if (typeof registry !== "undefined") {
-      return getIbcGasConfig(registry);
-    }
-    return undefined;
-  }, [registry]);
+  const selectedAsset = mapUndefined(
+    (address) => userAssets?.[address],
+    selectedAssetAddress
+  );
 
-  useEffect(() => {
-    setSelectedAssetAddress(undefined);
-  }, [registry]);
+  // Manage the history of transactions
+  const { findByHash, storeTransaction } = useTransactionActions();
 
-  useEffect(() => {
-    if (transaction?.hash) {
-      const tx = findByHash(transaction.hash);
-      if (tx) {
-        setTransaction(tx);
-      }
-    }
-  }, [myTransactions]);
+  // Utils for IBC transfers
+  const { transferToNamada, gasConfig } = useIbcTransaction({
+    registry,
+    sourceAddress,
+    sourceChannel,
+    destinationChannel,
+    shielded,
+    selectedAsset,
+  });
 
   const namadaAddress = useMemo(() => {
     return (
@@ -99,10 +94,21 @@ export const IbcTransfer: React.FC = () => {
     );
   }, [defaultAccounts, shielded]);
 
-  const { data: ibcChannels } = useAtomValue(
-    ibcChannelsFamily(registry?.chain.chain_name)
-  );
+  const requiresIbcChannels =
+    !ibcChannels?.cosmosChannelId ||
+    (shielded && !ibcChannels?.namadaChannelId);
 
+  useEffect(() => setSelectedAssetAddress(undefined), [registry]);
+
+  // Update transaction if its hash is known and it exists in stored transactions
+  useEffect(() => {
+    if (transaction?.hash) {
+      const tx = findByHash(transaction.hash);
+      tx && setTransaction(tx);
+    }
+  }, [transaction?.hash, findByHash]);
+
+  // Set source and destination channels based on IBC channels data
   useEffect(() => {
     setSourceChannel(ibcChannels?.cosmosChannelId || "");
     setDestinationChannel(ibcChannels?.namadaChannelId || "");
@@ -114,89 +120,16 @@ export const IbcTransfer: React.FC = () => {
   }: OnSubmitTransferParams): Promise<void> => {
     try {
       setGeneralErrorMessage("");
-
-      if (typeof sourceAddress === "undefined") {
-        throw new Error("Source address is not defined");
-      }
-
-      if (!chainId) {
-        throw new Error("Chain ID is undefined");
-      }
-
-      const selectedAsset = mapUndefined(
-        (address) => availableAssets?.[address],
-        selectedAssetAddress
-      );
-
-      if (!selectedAsset) {
-        throw new Error("No asset is selected");
-      }
-
-      if (!registry) {
-        throw new Error("Invalid chain");
-      }
-
-      if (!sourceChannel) {
-        throw new Error("Invalid IBC source channel");
-      }
-
-      if (shielded && !destinationChannel) {
-        throw new Error("Invalid IBC destination channel");
-      }
-
-      if (typeof gasConfig === "undefined") {
-        throw new Error("No transaction fee is set");
-      }
-
-      const baseKeplr = (window as KeplrWindow).keplr;
-
-      if (typeof baseKeplr === "undefined") {
-        throw new Error("No Keplr instance");
-      }
-
-      // Set Keplr option to allow Namadillo to set the transaction fee
-      const savedKeplrOptions = baseKeplr.defaultOptions;
-      baseKeplr.defaultOptions = {
-        sign: {
-          preferNoSetFee: true,
-        },
-      };
-
-      try {
-        setTransaction({
-          type: shielded ? "IbcToShielded" : "IbcToTransparent",
-          asset: selectedAsset.asset,
-          chainId,
-          currentStep: TransferStep.Sign,
-        });
-
-        const tx = await performIbcTransfer.mutateAsync({
-          chain: registry.chain,
-          transferParams: {
-            signer: await keplr.getSigner(chainId),
-            chainId,
-            sourceAddress,
-            destinationAddress,
-            amount: displayAmount,
-            asset: selectedAsset,
-            gasConfig,
-            sourceChannelId: sourceChannel.trim(),
-            ...(shielded ?
-              {
-                isShielded: true,
-                destinationChannelId: destinationChannel.trim(),
-              }
-            : {
-                isShielded: false,
-              }),
-          },
-        });
-        setTransaction(tx);
-        storeTransaction(tx);
-      } finally {
-        // Restore Keplr options to avoid mutating state
-        baseKeplr.defaultOptions = savedKeplrOptions;
-      }
+      const txPromise = transferToNamada(destinationAddress, displayAmount);
+      setTransaction({
+        type: shielded ? "IbcToShielded" : "IbcToTransparent",
+        asset: selectedAsset!.asset,
+        chainId: registry!.chain.chain_id,
+        currentStep: TransferStep.Sign,
+      });
+      const result = await txPromise;
+      setTransaction(result);
+      storeTransaction(result);
     } catch (err) {
       setGeneralErrorMessage(err + "");
       setTransaction(undefined);
@@ -204,21 +137,16 @@ export const IbcTransfer: React.FC = () => {
   };
 
   const onChangeWallet = (): void => {
-    if (chainId && chainId in chainRegistry) {
-      connectToChainId(chainId);
+    if (registry) {
+      connectToChainId(registry.chain.chain_id);
       return;
     }
-
     connectToChainId(defaultChainId);
   };
 
   const onChangeChain = (chain: Chain): void => {
     connectToChainId(chain.chain_id);
   };
-
-  const requiresIbcChannels =
-    !ibcChannels?.cosmosChannelId ||
-    (shielded && !ibcChannels?.namadaChannelId);
 
   return (
     <>
@@ -232,12 +160,12 @@ export const IbcTransfer: React.FC = () => {
             <TransferModule
               source={{
                 isLoadingAssets: isLoadingBalances,
-                availableAssets,
+                availableAssets: userAssets,
                 selectedAssetAddress,
                 availableAmount,
                 availableChains,
                 onChangeChain,
-                chain: mapUndefined((id) => chainRegistry[id]?.chain, chainId),
+                chain: registry?.chain,
                 availableWallets: [wallets.keplr],
                 wallet: wallets.keplr,
                 walletAddress: sourceAddress,
@@ -255,7 +183,7 @@ export const IbcTransfer: React.FC = () => {
                 onChangeShielded: setShielded,
               }}
               gasConfig={gasConfig}
-              isSubmitting={performIbcTransfer.isPending}
+              isSubmitting={transferStatus === "pending"}
               isIbcTransfer={true}
               requiresIbcChannels={requiresIbcChannels}
               ibcOptions={{
