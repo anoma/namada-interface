@@ -1,4 +1,4 @@
-FROM rust:1.79 AS builder
+FROM --platform=linux/amd64 rust:1.79 AS builder
 
 WORKDIR /app
 
