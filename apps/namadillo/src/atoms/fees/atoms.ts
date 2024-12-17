@@ -56,16 +56,8 @@ export const minimumGasPriceAtom = atomWithQuery<BigNumber>((get) => {
     queryFn: async () => {
       try {
         invariant(gasToken, "Cannot query minimum gas for undefined token");
-
         const tokenCost = (await fetchMinimumGasPrice(api, gasToken))[0];
-        if (!tokenCost) {
-          // if the selected token is not available on the chain,
-          // reset the storage so we can use the default token as fallback
-          const { set } = getDefaultStore();
-          set(storageGasTokenAtom, RESET);
-        }
         invariant(tokenCost, "Error querying minimum gas price");
-
         return BigNumber(tokenCost.minDenomAmount);
       } catch (e) {
         // if something goes wrong when querying the gas price,
