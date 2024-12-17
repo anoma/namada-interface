@@ -63,7 +63,7 @@ const getTxProps = (
 
   return {
     token: gasConfig.gasToken,
-    // TODO we need to validate this for all other tokens
+    // TODO should we do toDisplayAmount for all tokens or only NAM?
     feeAmount:
       gasConfig.asset ?
         toDisplayAmount(gasConfig.asset, gasConfig.gasPrice)
