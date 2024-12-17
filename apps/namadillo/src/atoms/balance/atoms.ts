@@ -1,3 +1,4 @@
+import { DefaultApi } from "@namada/indexer-client";
 import { SdkEvents } from "@namada/sdk/web";
 import { Account, AccountType, DatedViewingKey } from "@namada/types";
 import {
@@ -5,6 +6,7 @@ import {
   defaultAccountAtom,
   transparentBalanceAtom,
 } from "atoms/accounts/atoms";
+import { indexerApiAtom } from "atoms/api";
 import {
   chainParametersAtom,
   chainTokensAtom,
@@ -14,6 +16,7 @@ import { shouldUpdateBalanceAtom } from "atoms/etc";
 import { tokenPricesFamily } from "atoms/prices/atoms";
 import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
+import { isAxiosError } from "axios";
 import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { AddressWithAsset } from "types";
@@ -22,6 +25,7 @@ import {
   mapNamadaAssetsToTokenBalances,
 } from "./functions";
 import {
+  fetchBlockHeightByTimestamp,
   fetchShieldedBalance,
   shieldedSync,
   ShieldedSyncEmitter,
@@ -32,17 +36,37 @@ export type TokenBalance = AddressWithAsset & {
   dollar?: BigNumber;
 };
 
-const toViewingKey = ({
-  viewingKey,
-  source,
-  timestamp,
-}: Account): DatedViewingKey => {
+/**
+  Gets the viewing key and its birthday timestamp if it's a generated key
+ */
+const toDatedKeypair = async (
+  api: DefaultApi,
+  { viewingKey, source, timestamp }: Account
+): Promise<DatedViewingKey> => {
   if (!viewingKey) {
     throw new Error("Viewing key not found");
   }
+  if (!timestamp) {
+    throw new Error("Timestamp not found");
+  }
+  let height = 0;
+
+  if (source === "generated") {
+    try {
+      height = await fetchBlockHeightByTimestamp(api, timestamp);
+    } catch (e) {
+      if (isAxiosError(e) && e.status === 404) {
+        console.warn(
+          "Failed to fetch block height by timestamp, falling back to height 0",
+          e
+        );
+      }
+    }
+  }
+
   return {
     key: viewingKey,
-    birthday: source === "generated" ? timestamp : undefined,
+    birthday: height,
   };
 };
 
@@ -51,6 +75,7 @@ export const viewingKeysAtom = atomWithQuery<
 >((get) => {
   const accountsQuery = get(accountsAtom);
   const defaultAccountQuery = get(defaultAccountAtom);
+  const api = get(indexerApiAtom);
 
   return {
     queryKey: ["viewing-keys", accountsQuery.data, defaultAccountQuery.data],
@@ -66,8 +91,13 @@ export const viewingKeysAtom = atomWithQuery<
         throw new Error("Default shielded account not found");
       }
 
-      const defaultViewingKey = toViewingKey(defaultShieldedAccount);
-      const viewingKeys = shieldedAccounts.map(toViewingKey);
+      const defaultViewingKey = await toDatedKeypair(
+        api,
+        defaultShieldedAccount
+      );
+      const viewingKeys = await Promise.all(
+        shieldedAccounts.map(toDatedKeypair.bind(null, api))
+      );
 
       return [defaultViewingKey, viewingKeys];
     }, [accountsQuery, defaultAccountQuery]),

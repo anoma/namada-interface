@@ -1,5 +1,6 @@
 import { deserialize } from "@dao-xyz/borsh";
 import {
+  DatedViewingKey as DatedViewingKeyWasm,
   Query as QueryWasm,
   Sdk as SdkWasm,
   TransferToEthereum,
@@ -240,7 +241,11 @@ export class Rpc {
    * @returns
    */
   async shieldedSync(vks: DatedViewingKey[]): Promise<void> {
+    const datedViewingKeys = vks.map(
+      (vk) => new DatedViewingKeyWasm(vk.key, String(vk.birthday))
+    );
+
     // TODO: shieled_sync expects an array for strings atm
-    await this.query.shielded_sync(vks);
+    await this.query.shielded_sync(datedViewingKeys);
   }
 }

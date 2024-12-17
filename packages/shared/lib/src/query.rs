@@ -28,7 +28,6 @@ use namada_sdk::rpc::{
     query_masp_epoch, query_native_token, query_proposal_by_id, query_proposal_votes,
     query_storage_value,
 };
-use namada_sdk::state::BlockHeight;
 use namada_sdk::state::Key;
 use namada_sdk::token;
 use namada_sdk::tx::{
@@ -49,6 +48,7 @@ use crate::sdk::{
     io::WebIo,
     masp::{sync, JSShieldedUtils},
 };
+use crate::types::masp::DatedViewingKey;
 use crate::types::query::{ProposalInfo, WasmHash};
 use crate::utils::{set_panic_hook, to_js_result};
 
@@ -324,24 +324,8 @@ impl Query {
         Ok(result)
     }
 
-    pub async fn shielded_sync(&self, vks: Box<[JsValue]>) -> Result<(), JsError> {
-        let vks: Vec<ViewingKey> = vks
-            .iter()
-            .filter_map(|owner| owner.as_string())
-            .map(|o| {
-                ExtendedFullViewingKey::from(ExtendedViewingKey::from_str(&o).unwrap())
-                    .fvk
-                    .vk
-            })
-            .collect();
-
-        let dated_keypairs = vks
-            .into_iter()
-            .map(|vk| DatedKeypair {
-                key: vk,
-                birthday: BlockHeight::from(0),
-            })
-            .collect::<Vec<_>>();
+    pub async fn shielded_sync(&self, vks: Box<[DatedViewingKey]>) -> Result<(), JsError> {
+        let dated_keypairs = vks.iter().map(|vk| vk.0).collect::<Vec<_>>();
 
         match &self.masp_client {
             MaspClient::Indexer(client) => {

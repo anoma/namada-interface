@@ -61,5 +61,5 @@ export type Account = Pick<
  */
 export type DatedViewingKey = {
   key: string;
-  birthday?: number;
+  birthday: number;
 };

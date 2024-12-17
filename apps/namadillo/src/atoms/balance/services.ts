@@ -12,6 +12,7 @@ import {
 } from "workers/ShieldedSyncWorker";
 import ShieldedSyncWorker from "workers/ShieldedSyncWorker?worker";
 // TODO: move to @namada/types?
+import { DefaultApi } from "@namada/indexer-client";
 import { DatedViewingKey } from "@namada/types";
 
 export type ShieldedSyncEventMap = {
@@ -81,6 +82,15 @@ export const fetchShieldedBalance = async (
 
   const sdk = await getSdkInstance();
   return await sdk.rpc.queryBalance(viewingKey.key, addresses);
+};
+
+export const fetchBlockHeightByTimestamp = async (
+  api: DefaultApi,
+  timestamp: number
+): Promise<number> => {
+  const response = await api.apiV1BlockTimestampValueGet(timestamp);
+
+  return Number(response.data.height);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
