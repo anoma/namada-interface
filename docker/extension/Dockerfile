@@ -26,5 +26,11 @@ RUN yarn wasm:build
 # Building extension dist files
 COPY ./apps/extension .
 RUN yarn
-RUN yarn build
+
+FROM builder AS firefox
+RUN yarn build:firefox
+
+FROM builder AS chrome
+RUN yarn build:chrome
+
 

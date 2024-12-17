@@ -22,13 +22,13 @@ docker --version
 2. From the **repository root**, build the Docker image:
 
 ```bash
-docker build . -t namada-keychain -f docker/extension/Dockerfile
+docker build . --target firefox -t namada-keychain-firefox -f docker/extension/Dockerfile
 ```
 
 3. Wait for the build to complete, and then copy the files from the container by executing the following command in the **repository root**:
 
 ```bash
-docker run --rm -v ./apps/extension/build:/shared namada-keychain cp -r /app/apps/extension/build/. /shared/
+docker run --rm -v ./apps/extension/build:/shared namada-keychain-firefox cp -r /app/apps/extension/build/. /shared/
 ```
 
 4. The resulting extension is the ZIP file in `apps/extension/build/firefox`.
