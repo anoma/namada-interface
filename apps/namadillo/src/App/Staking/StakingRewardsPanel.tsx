@@ -47,7 +47,11 @@ export const StakingRewardsPanel = (): JSX.Element => {
         <ActionButton
           className="px-8"
           size="xs"
+          outlineColor="white"
           backgroundColor="white"
+          backgroundHoverColor="transparent"
+          textColor="black"
+          textHoverColor="white"
           disabled={!claimRewardsEnabled || availableRewards.eq(0)}
           onClick={() =>
             navigate(routes.stakingClaimRewards, {
