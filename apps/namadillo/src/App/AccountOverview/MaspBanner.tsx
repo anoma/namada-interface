@@ -35,6 +35,11 @@ export const MaspBanner = (): JSX.Element => {
         size="md"
         href={routes.masp}
         className="self-end justify-end"
+        outlineColor="yellow"
+        backgroundColor="yellow"
+        backgroundHoverColor="transparent"
+        textColor="black"
+        textHoverColor="yellow"
       >
         Manage your shielded assets
       </ActionButton>

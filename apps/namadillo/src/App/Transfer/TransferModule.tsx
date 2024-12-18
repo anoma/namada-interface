@@ -261,6 +261,9 @@ export const TransferModule = ({
     return "Submit";
   };
 
+  const buttonColor =
+    destination.isShielded || source.isShielded ? "yellow" : "white";
+
   return (
     <>
       <section className="max-w-[480px] mx-auto" role="widget">
@@ -328,9 +331,11 @@ export const TransferModule = ({
           )}
           <InlineError errorMessage={errorMessage} />
           <ActionButton
-            backgroundColor={
-              destination.isShielded || source.isShielded ? "yellow" : "white"
-            }
+            outlineColor={buttonColor}
+            backgroundColor={buttonColor}
+            backgroundHoverColor="transparent"
+            textColor="black"
+            textHoverColor={buttonColor}
             disabled={validationResult !== "Ok" || isSubmitting}
           >
             {getButtonText()}

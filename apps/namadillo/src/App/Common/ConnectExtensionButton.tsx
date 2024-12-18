@@ -18,7 +18,15 @@ export const ConnectExtensionButton = (): JSX.Element => {
     <>
       {extensionAttachStatus === "attached" &&
         connectStatus !== "connected" && (
-          <ActionButton backgroundColor="yellow" size="sm" onClick={connect}>
+          <ActionButton
+            outlineColor="yellow"
+            backgroundColor="yellow"
+            backgroundHoverColor="transparent"
+            textColor="black"
+            textHoverColor="yellow"
+            size="sm"
+            onClick={connect}
+          >
             {connectStatus === "connecting" ?
               "Connecting..."
             : "Connect Keychain"}
@@ -28,8 +36,12 @@ export const ConnectExtensionButton = (): JSX.Element => {
         <ActionButton
           href="https://namada.net/extension"
           target="_blank"
-          rel="nofollow noreferrer"
+          rel="noreferrer"
+          outlineColor="yellow"
           backgroundColor="yellow"
+          backgroundHoverColor="transparent"
+          textColor="black"
+          textHoverColor="yellow"
           size="sm"
         >
           Download Keychain
