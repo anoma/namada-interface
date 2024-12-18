@@ -5,7 +5,7 @@ import { Info } from "App/Common/Info";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
-import { TransactionFees } from "App/Common/TransactionFees";
+import { TransactionFeeButton } from "App/Common/TransactionFeeButton";
 import { routes } from "App/routes";
 import { defaultAccountAtom } from "atoms/accounts";
 import { chainParametersAtom } from "atoms/chain";
@@ -215,10 +215,9 @@ export const Unstake = (): JSX.Element => {
               : validationMessage || "Unstake"}
             </ActionButton>
             {gasConfig && (
-              <TransactionFees
-                className="justify-self-end px-4"
-                gasConfig={gasConfig}
-              />
+              <div className="justify-self-end px-4">
+                <TransactionFeeButton gasConfig={gasConfig} />
+              </div>
             )}
           </div>
         </form>

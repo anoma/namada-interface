@@ -1,14 +1,15 @@
 import { Chain } from "@chain-registry/types";
 import { Stack } from "@namada/components";
 import { TabSelector } from "App/Common/TabSelector";
+import { TransactionFee } from "App/Common/TransactionFee";
+import { TransactionFeeButton } from "App/Common/TransactionFeeButton";
 import clsx from "clsx";
-import { Address, WalletProvider } from "types";
+import { Address, GasConfig, WalletProvider } from "types";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";
 import { SelectedWallet } from "./SelectedWallet";
-import { TransactionFee } from "./TransferModule";
-import { TransferTransactionFee } from "./TransferTransactionFee";
+import ibcTransferImageWhite from "./assets/ibc-transfer-white.png";
 
 type TransferDestinationProps = {
   isShielded?: boolean;
@@ -17,7 +18,7 @@ type TransferDestinationProps = {
   wallet?: WalletProvider;
   walletAddress?: string;
   className?: string;
-  transactionFee?: TransactionFee;
+  gasConfig?: GasConfig;
   customAddressActive?: boolean;
   isIbcTransfer?: boolean;
   openChainSelector?: () => void;
@@ -36,7 +37,7 @@ export const TransferDestination = ({
   isShielded,
   isIbcTransfer,
   onChangeShielded,
-  transactionFee,
+  gasConfig,
   customAddressActive,
   onToggleCustomAddress,
   address,
@@ -119,12 +120,18 @@ export const TransferDestination = ({
           />
         </Stack>
       )}
-      {transactionFee && (
-        <footer className="text-neutral-300">
-          <TransferTransactionFee
-            transactionFee={transactionFee}
-            isIbcTransfer={isIbcTransfer}
-          />
+
+      {gasConfig && (
+        <footer className="mt-10">
+          {isIbcTransfer ?
+            <div className="flex justify-between items-center">
+              <img src={ibcTransferImageWhite} className="w-20" />
+              <TransactionFee gasConfig={gasConfig} />
+            </div>
+          : <div className="flex justify-end">
+              <TransactionFeeButton gasConfig={gasConfig} />
+            </div>
+          }
         </footer>
       )}
     </div>

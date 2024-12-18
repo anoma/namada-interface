@@ -17,6 +17,7 @@ import {
   TransactionEventsClasses,
   TransactionEventsStatus,
 } from "types/events";
+import { toDisplayAmount } from "utils";
 import { getSdkInstance } from "utils/sdk";
 
 export type TransactionPair<T> = {
@@ -61,8 +62,12 @@ const getTxProps = (
   );
 
   return {
-    token: chain.nativeTokenAddress,
-    feeAmount: gasConfig.gasPrice,
+    token: gasConfig.gasToken,
+    // TODO should we do toDisplayAmount for all tokens or only NAM?
+    feeAmount:
+      gasConfig.asset ?
+        toDisplayAmount(gasConfig.asset, gasConfig.gasPrice)
+      : gasConfig.gasPrice,
     gasLimit: gasConfig.gasLimit,
     chainId: chain.chainId,
     publicKey: account.publicKey!,
