@@ -3,7 +3,7 @@ import { KdfType } from "@namada/sdk/web";
 import { AccountType, BridgeType, Chain, Extensions } from "@namada/types";
 import { ActiveAccountStore } from "background/keyring";
 import { Vault } from "background/vault";
-import { VaultTypes } from "storage";
+import { KeyStoreType } from "storage";
 
 export const ACTIVE_ACCOUNT: ActiveAccountStore = {
   id: "324bfe0e-cb19-5f1a-9630-9daaaecadabe",
@@ -30,7 +30,7 @@ export const chain: Chain = {
   },
 };
 
-export const keyStore: Vault<VaultTypes>[] = [
+export const keyStore: Vault<KeyStoreType>[] = [
   {
     public: {
       alias: "Parent Account",
