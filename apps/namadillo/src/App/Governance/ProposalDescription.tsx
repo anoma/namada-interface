@@ -5,6 +5,7 @@ import { useAtomValue } from "jotai";
 import { useState } from "react";
 
 import { proposalFamily } from "atoms/proposals";
+import { twMerge } from "tailwind-merge";
 
 export const ProposalDescription: React.FC<{
   proposalId: bigint;
@@ -42,15 +43,18 @@ export const Loaded: React.FC<{
 
   return (
     <>
-      <section>{abstract}</section>
-
-      {expanded &&
-        formattedDetails.map(([key, value], i) => (
+      <Stack
+        gap={4}
+        className={twMerge("overflow-hidden", !expanded && "max-h-[350px]")}
+      >
+        <section>{abstract}</section>
+        {formattedDetails.map(([key, value], i) => (
           <section key={i}>
             <h3 className="text-[#8A8A8A]">{key}</h3>
             <p>{value}</p>
           </section>
         ))}
+      </Stack>
 
       <a
         className={clsx(
