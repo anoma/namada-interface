@@ -1,9 +1,14 @@
 import { defaultAccountAtom } from "atoms/accounts";
+import { viewingKeysAtom } from "atoms/balance";
 import { chainAtom } from "atoms/chain";
 import { indexerUrlAtom, rpcUrlAtom } from "atoms/settings";
+import { queryDependentFn } from "atoms/utils";
+import BigNumber from "bignumber.js";
 import { NamadaKeychain } from "hooks/useNamadaKeychain";
-import { atomWithMutation } from "jotai-tanstack-query";
+import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
+import { namadaAsset, toDisplayAmount } from "utils";
 import {
+  fetchShieldRewards,
   ShieldTransferParams,
   submitShieldTx,
   submitUnshieldTx,
@@ -48,5 +53,21 @@ export const unshieldTxAtom = atomWithMutation((get) => {
         disposableSigner
       );
     },
+  };
+});
+
+export const shieldRewardsAtom = atomWithQuery((get) => {
+  const viewingKeysQuery = get(viewingKeysAtom);
+
+  return {
+    queryKey: ["shield-rewards", viewingKeysQuery.data],
+    ...queryDependentFn(async () => {
+      const [vk] = viewingKeysQuery.data!;
+      const minDenomAmount = await fetchShieldRewards(vk);
+
+      return {
+        amount: toDisplayAmount(namadaAsset(), BigNumber(minDenomAmount)),
+      };
+    }, [viewingKeysQuery]),
   };
 });

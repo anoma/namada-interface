@@ -24,6 +24,7 @@ use namada_sdk::ibc::convert_masp_tx_to_ibc_memo;
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::io::NamadaIo;
 use namada_sdk::key::{common, ed25519, SigScheme};
+use namada_sdk::masp::shielded_wallet::ShieldedApi;
 use namada_sdk::masp::ShieldedContext;
 use namada_sdk::masp_primitives::transaction::components::sapling::fees::InputView;
 use namada_sdk::masp_primitives::zip32::{ExtendedFullViewingKey, ExtendedKey};
@@ -31,7 +32,7 @@ use namada_sdk::rpc::{query_epoch, InnerTxResult};
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::string_encoding::Format;
 use namada_sdk::tendermint_rpc::Url;
-use namada_sdk::token::DenominatedAmount;
+use namada_sdk::token::{Amount, DenominatedAmount};
 use namada_sdk::token::{MaspTxId, OptionExt};
 use namada_sdk::tx::{
     build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
@@ -41,7 +42,7 @@ use namada_sdk::tx::{
     ProcessTxResponse, Tx,
 };
 use namada_sdk::wallet::{Store, Wallet};
-use namada_sdk::{Namada, NamadaImpl, PaymentAddress, TransferTarget};
+use namada_sdk::{ExtendedViewingKey, Namada, NamadaImpl, PaymentAddress, TransferTarget};
 use std::collections::BTreeMap;
 use std::str::FromStr;
 use tx::MaspSigningData;
@@ -722,6 +723,28 @@ impl Sdk {
                 "Generating ibc shielding transfer generated nothing",
             ))
         }
+    }
+
+    // This should be a part of query.rs but we have to pass whole "namada" into estimate_next_epoch_rewards
+    pub async fn get_shielded_rewards(&self, owner: String) -> Result<JsValue, JsError> {
+        let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
+        shielded.load().await?;
+
+        let xvk = ExtendedViewingKey::from_str(&owner)?;
+        let raw_balance = shielded
+            .compute_shielded_balance(&xvk.as_viewing_key())
+            .await
+            .map_err(|e| JsError::new(&e.to_string()))?;
+
+        let denominated_amount = match raw_balance {
+            Some(raw_balance) => shielded
+                .estimate_next_epoch_rewards(&self.namada, &raw_balance)
+                .await
+                .map_err(|e| JsError::new(&e.to_string()))?,
+            None => DenominatedAmount::native(Amount::zero()),
+        };
+
+        to_js_result(denominated_amount.amount().to_string())
     }
 
     pub fn masp_address(&self) -> String {
