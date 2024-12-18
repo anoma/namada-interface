@@ -49,6 +49,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "aes-gcm"
+version = "0.10.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "831010a0f742e1209b3bcea8fab6a8e149051ba6099432c8cb2cc117dec3ead1"
+dependencies = [
+ "aead",
+ "aes",
+ "cipher",
+ "ctr",
+ "ghash",
+ "subtle",
+]
+
+[[package]]
 name = "aho-corasick"
 version = "1.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -83,6 +97,17 @@ name = "anyhow"
 version = "1.0.91"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c042108f3ed77fd83760a5fd79b53be043192bb3b9dba91d8c574c0ada7850c8"
+
+[[package]]
+name = "argon2"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "db4ce4441f99dbd377ca8a8f57b698c44d0d6e712d8329b5040da5a64aa1ce73"
+dependencies = [
+ "base64ct",
+ "blake2",
+ "password-hash 0.4.2",
+]
 
 [[package]]
 name = "ark-bls12-381"
@@ -267,9 +292,9 @@ checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 
 [[package]]
 name = "base64ct"
-version = "1.6.0"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c3c1a368f70d6cf7302d78f8f7093da241fb8e8807c05cc9e51a125895a6d5b"
+checksum = "8a32fd6af2b5827bce66c29053ba0e7c42b9dcab01835835058558c10851a46b"
 
 [[package]]
 name = "bech32"
@@ -311,6 +336,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "230c5f1ca6a325a32553f8640d31ac9b49f2411e901e427570154868b46da4f7"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "bip0039"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bef0f0152ec5cf17f49a5866afaa3439816207fd4f0a224c0211ffaf5e278426"
+dependencies = [
+ "hmac 0.12.1",
+ "pbkdf2 0.10.1",
+ "rand 0.8.5",
+ "sha2 0.10.8",
+ "unicode-normalization",
+ "zeroize",
 ]
 
 [[package]]
@@ -423,6 +462,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d7bc6d6292be3a19e6379786dac800f551e5865a5bb51ebbe3064ab80433f403"
 dependencies = [
  "ff",
+ "group",
+ "pairing",
  "rand_core 0.6.4",
  "subtle",
 ]
@@ -832,6 +873,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1bfb12502f3fc46cca1bb51ac28df9d618d813cdc3d2f25b9fe775a34af26bb3"
 dependencies = [
  "generic-array",
+ "rand_core 0.6.4",
  "typenum",
 ]
 
@@ -1695,6 +1737,16 @@ dependencies = [
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "ghash"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f0d8a4362ccb29cb0b265253fb0a2728f592895ee6854fd9bc13f2ffda266ff1"
+dependencies = [
+ "opaque-debug",
+ "polyval",
 ]
 
 [[package]]
@@ -2772,6 +2824,19 @@ checksum = "90ed8c1e510134f979dbc4f070f87d4313098b704861a105fe34231c70a3901c"
 [[package]]
 name = "masp_note_encryption"
 version = "1.0.0"
+source = "git+https://github.com/anoma/masp?tag=v1.1.0#f24691c0eb76909e3c15ae03aef294dccebd2df3"
+dependencies = [
+ "borsh",
+ "chacha20",
+ "chacha20poly1305",
+ "cipher",
+ "rand_core 0.6.4",
+ "subtle",
+]
+
+[[package]]
+name = "masp_note_encryption"
+version = "1.0.0"
 source = "git+https://github.com/anoma/masp?rev=0d0da3507a6f9ad135f00fd8201dc54c2f1d9efe#0d0da3507a6f9ad135f00fd8201dc54c2f1d9efe"
 dependencies = [
  "borsh",
@@ -2785,10 +2850,41 @@ dependencies = [
 [[package]]
 name = "masp_primitives"
 version = "1.0.0"
+source = "git+https://github.com/anoma/masp?tag=v1.1.0#f24691c0eb76909e3c15ae03aef294dccebd2df3"
+dependencies = [
+ "aes",
+ "bip0039 0.10.1",
+ "bitvec",
+ "blake2b_simd",
+ "blake2s_simd",
+ "bls12_381 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "borsh",
+ "byteorder",
+ "ff",
+ "fpe",
+ "group",
+ "hex",
+ "incrementalmerkletree",
+ "jubjub 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lazy_static",
+ "masp_note_encryption 1.0.0 (git+https://github.com/anoma/masp?tag=v1.1.0)",
+ "memuse",
+ "nonempty",
+ "num-traits 0.2.19 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rand 0.8.5",
+ "rand_core 0.6.4",
+ "sha2 0.10.8",
+ "subtle",
+ "zcash_encoding",
+]
+
+[[package]]
+name = "masp_primitives"
+version = "1.0.0"
 source = "git+https://github.com/anoma/masp?rev=0d0da3507a6f9ad135f00fd8201dc54c2f1d9efe#0d0da3507a6f9ad135f00fd8201dc54c2f1d9efe"
 dependencies = [
  "aes",
- "bip0039",
+ "bip0039 0.12.0",
  "bitvec",
  "blake2b_simd",
  "blake2s_simd",
@@ -2802,7 +2898,7 @@ dependencies = [
  "incrementalmerkletree",
  "jubjub 0.10.0 (git+https://github.com/heliaxdev/jubjub.git?rev=a373686962f4e9d0edb3b4716f86ff6bbd9aa86c)",
  "lazy_static",
- "masp_note_encryption",
+ "masp_note_encryption 1.0.0 (git+https://github.com/anoma/masp?rev=0d0da3507a6f9ad135f00fd8201dc54c2f1d9efe)",
  "memuse",
  "nonempty",
  "num-traits 0.2.19 (git+https://github.com/heliaxdev/num-traits?rev=3f3657caa34b8e116fdf3f8a3519c4ac29f012fe)",
@@ -2827,7 +2923,7 @@ dependencies = [
  "itertools 0.11.0",
  "jubjub 0.10.0 (git+https://github.com/heliaxdev/jubjub.git?rev=a373686962f4e9d0edb3b4716f86ff6bbd9aa86c)",
  "lazy_static",
- "masp_primitives",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=0d0da3507a6f9ad135f00fd8201dc54c2f1d9efe)",
  "rand_core 0.6.4",
  "redjubjub",
  "tracing",
@@ -2887,25 +2983,31 @@ checksum = "defc4c55412d89136f966bbb339008b474350e5e6e78d2714439c386b3137a03"
 name = "namada-sdk-wasm"
 version = "1.0.0"
 dependencies = [
+ "aes-gcm",
+ "argon2",
  "async-trait",
+ "borsh-ext",
  "chrono",
  "console_error_panic_hook",
  "getrandom 0.2.15",
  "gloo-utils",
  "hex",
  "js-sys",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?tag=v1.1.0)",
  "namada_sdk",
  "namada_tx",
+ "password-hash 0.3.2",
  "rand 0.8.5",
  "rayon",
  "reqwest",
  "rexie",
  "serde",
  "serde_json",
+ "slip10_ed25519",
  "subtle-encoding",
  "tendermint-config 0.34.1",
  "thiserror",
- "tiny-bip39 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tiny-bip39 1.0.0",
  "tokio",
  "wasm-bindgen",
  "wasm-bindgen-futures",
@@ -2958,7 +3060,7 @@ dependencies = [
  "indexmap 2.2.4",
  "k256",
  "lazy_static",
- "masp_primitives",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=0d0da3507a6f9ad135f00fd8201dc54c2f1d9efe)",
  "namada_macros",
  "num-integer",
  "num-rational",
@@ -3076,7 +3178,7 @@ dependencies = [
  "ibc-derive",
  "ics23",
  "konst",
- "masp_primitives",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=0d0da3507a6f9ad135f00fd8201dc54c2f1d9efe)",
  "namada_core",
  "namada_events",
  "namada_gas",
@@ -3203,7 +3305,7 @@ dependencies = [
  "init-once",
  "itertools 0.12.1",
  "lazy_static",
- "masp_primitives",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=0d0da3507a6f9ad135f00fd8201dc54c2f1d9efe)",
  "masp_proofs",
  "namada_account",
  "namada_core",
@@ -3243,7 +3345,7 @@ dependencies = [
  "tempfile",
  "tendermint-rpc",
  "thiserror",
- "tiny-bip39 0.8.2 (git+https://github.com/anoma/tiny-bip39.git?rev=bf0f6d8713589b83af7a917366ec31f5275c0e57)",
+ "tiny-bip39 0.8.2",
  "tokio",
  "toml 0.5.11",
  "tracing",
@@ -3263,7 +3365,7 @@ dependencies = [
  "futures",
  "itertools 0.12.1",
  "lazy_static",
- "masp_primitives",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=0d0da3507a6f9ad135f00fd8201dc54c2f1d9efe)",
  "masp_proofs",
  "namada_account",
  "namada_controller",
@@ -3390,7 +3492,7 @@ dependencies = [
  "data-encoding",
  "either",
  "konst",
- "masp_primitives",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=0d0da3507a6f9ad135f00fd8201dc54c2f1d9efe)",
  "namada_account",
  "namada_core",
  "namada_events",
@@ -3474,7 +3576,7 @@ version = "0.46.0"
 source = "git+https://github.com/anoma/namada?rev=49a4a5d3260423df19ead14df82d18a51fa9b157#49a4a5d3260423df19ead14df82d18a51fa9b157"
 dependencies = [
  "derivative",
- "masp_primitives",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=0d0da3507a6f9ad135f00fd8201dc54c2f1d9efe)",
  "namada_core",
  "namada_events",
  "namada_gas",
@@ -3494,7 +3596,7 @@ dependencies = [
  "data-encoding",
  "derivation-path",
  "itertools 0.12.1",
- "masp_primitives",
+ "masp_primitives 1.0.0 (git+https://github.com/anoma/masp?rev=0d0da3507a6f9ad135f00fd8201dc54c2f1d9efe)",
  "namada_core",
  "namada_ibc",
  "namada_macros",
@@ -3505,7 +3607,7 @@ dependencies = [
  "slip10_ed25519",
  "smooth-operator",
  "thiserror",
- "tiny-bip39 0.8.2 (git+https://github.com/anoma/tiny-bip39.git?rev=bf0f6d8713589b83af7a917366ec31f5275c0e57)",
+ "tiny-bip39 0.8.2",
  "tiny-hderive",
  "toml 0.5.11",
  "zeroize",
@@ -3867,6 +3969,28 @@ dependencies = [
 
 [[package]]
 name = "password-hash"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d791538a6dcc1e7cb7fe6f6b58aca40e7f79403c45b2bc274008b5e647af1d8"
+dependencies = [
+ "base64ct",
+ "rand_core 0.6.4",
+ "subtle",
+]
+
+[[package]]
+name = "password-hash"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7676374caaee8a325c9e7a2ae557f216c5563a171d6997b0ef8a65af35147700"
+dependencies = [
+ "base64ct",
+ "rand_core 0.6.4",
+ "subtle",
+]
+
+[[package]]
+name = "password-hash"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "346f04948ba92c43e8469c1ee6736c7563d71012b17d40745260fe106aac2166"
@@ -3915,6 +4039,16 @@ dependencies = [
 
 [[package]]
 name = "pbkdf2"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "271779f35b581956db91a3e55737327a03aa051e90b1c47aeb189508533adfd7"
+dependencies = [
+ "digest 0.10.7",
+ "password-hash 0.3.2",
+]
+
+[[package]]
+name = "pbkdf2"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "83a0692ec44e4cf1ef28ca317f14f8f07da2d95ec3fa01f86e4467b725e60917"
@@ -3930,7 +4064,7 @@ checksum = "f8ed6a7761f76e3b9f92dfb0a60a6a6477c61024b775147ff0973a02653abaf2"
 dependencies = [
  "digest 0.10.7",
  "hmac 0.12.1",
- "password-hash",
+ "password-hash 0.5.0",
 ]
 
 [[package]]
@@ -4060,6 +4194,18 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8159bd90725d2df49889a078b54f4f79e87f1f8a8444194cdca81d38f5393abf"
 dependencies = [
+ "cpufeatures",
+ "opaque-debug",
+ "universal-hash",
+]
+
+[[package]]
+name = "polyval"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9d1fe60d06143b2430aa532c94cfe9e29783047f06c0d7fd359a9a51b729fa25"
+dependencies = [
+ "cfg-if",
  "cpufeatures",
  "opaque-debug",
  "universal-hash",
@@ -5100,9 +5246,9 @@ dependencies = [
 
 [[package]]
 name = "subtle"
-version = "2.5.0"
+version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81cdd64d312baedb58e21336b31bc043b77e01cc99033ce76ef539f78e965ebc"
+checksum = "6bdef32e8150c2a081110b42772ffe7d7c9032b606bc226c8260fd97e0976601"
 
 [[package]]
 name = "subtle-encoding"
@@ -5426,8 +5572,7 @@ dependencies = [
 [[package]]
 name = "tiny-bip39"
 version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ffc59cb9dfc85bb312c3a78fd6aa8a8582e310b0fa885d5bb877f6dcc601839d"
+source = "git+https://github.com/anoma/tiny-bip39.git?rev=bf0f6d8713589b83af7a917366ec31f5275c0e57#bf0f6d8713589b83af7a917366ec31f5275c0e57"
 dependencies = [
  "anyhow",
  "hmac 0.8.1",
@@ -5444,16 +5589,16 @@ dependencies = [
 
 [[package]]
 name = "tiny-bip39"
-version = "0.8.2"
-source = "git+https://github.com/anoma/tiny-bip39.git?rev=bf0f6d8713589b83af7a917366ec31f5275c0e57#bf0f6d8713589b83af7a917366ec31f5275c0e57"
+version = "1.0.0"
+source = "git+https://github.com/anoma/tiny-bip39?rev=743d537349c8deab14409ce726b868dcde90fd8e#743d537349c8deab14409ce726b868dcde90fd8e"
 dependencies = [
  "anyhow",
- "hmac 0.8.1",
+ "hmac 0.12.1",
  "once_cell",
- "pbkdf2 0.4.0",
- "rand 0.7.3",
+ "pbkdf2 0.11.0",
+ "rand 0.8.5",
  "rustc-hash",
- "sha2 0.9.9",
+ "sha2 0.10.8",
  "thiserror",
  "unicode-normalization",
  "wasm-bindgen",
