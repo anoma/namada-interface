@@ -1,6 +1,6 @@
 import { GasConfig } from "types";
-import { toDisplayAmount } from "utils";
 import { unknownAsset } from "utils/assets";
+import { getDisplayGasFee } from "utils/gas";
 import { TokenCurrency } from "./TokenCurrency";
 
 export const TransactionFee = ({
@@ -10,10 +10,7 @@ export const TransactionFee = ({
 }): JSX.Element => {
   const asset = gasConfig.asset ?? unknownAsset(gasConfig.gasToken);
   const symbol = asset.symbol;
-  const fee = toDisplayAmount(
-    asset,
-    gasConfig.gasPrice.multipliedBy(gasConfig.gasLimit)
-  );
+  const fee = getDisplayGasFee(gasConfig);
 
   return (
     <div className="text-sm">

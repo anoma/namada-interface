@@ -10,7 +10,7 @@ import {
   GasConfig,
   WalletProvider,
 } from "types";
-import { toDisplayAmount } from "utils";
+import { getDisplayGasFee } from "utils/gas";
 import { parseChainInfo } from "./common";
 import { IbcChannels } from "./IbcChannels";
 import { SelectAssetModal } from "./SelectAssetModal";
@@ -128,10 +128,7 @@ export const TransferModule = ({
       return availableAmount;
     }
 
-    let totalFees = gasConfig.gasPrice.multipliedBy(gasConfig.gasLimit);
-    if (gasConfig.asset) {
-      totalFees = toDisplayAmount(gasConfig.asset, totalFees);
-    }
+    const totalFees = getDisplayGasFee(gasConfig);
     const amountMinusFees = availableAmount.minus(totalFees);
     return BigNumber.max(amountMinusFees, 0);
   }, [source.selectedAssetAddress, source.availableAmount, gasConfig]);

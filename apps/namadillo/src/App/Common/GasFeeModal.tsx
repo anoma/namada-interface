@@ -1,5 +1,5 @@
 import { Modal, SkeletonLoading } from "@namada/components";
-import { chainAssetsMapAtom } from "atoms/chain";
+import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
 import {
   gasPriceForAllTokensAtom,
   storageGasTokenAtom,
@@ -10,8 +10,8 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { IoClose } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 import { GasConfig } from "types";
-import { toDisplayAmount } from "utils";
 import { unknownAsset } from "utils/assets";
+import { getDisplayGasFee } from "utils/gas";
 import { FiatCurrency } from "./FiatCurrency";
 import { TokenCurrency } from "./TokenCurrency";
 
@@ -25,6 +25,7 @@ export const GasFeeModal = ({
   const setStorageGasToken = useSetAtom(storageGasTokenAtom);
   const gasPriceForAllTokens = useAtomValue(gasPriceForAllTokensAtom);
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+  const nativeTokenAddress = useAtomValue(nativeTokenAddressAtom).data;
 
   const data = gasPriceForAllTokens.data ?? [];
 
@@ -57,43 +58,51 @@ export const GasFeeModal = ({
         <div className="flex flex-col mt-4 max-h-[60vh] overflow-auto">
           {!data.length ?
             <SkeletonLoading height="100px" width="100%" />
-          : data.map(({ token, minDenomAmount }) => {
-              const asset = chainAssetsMap[token] ?? unknownAsset(token);
-              const symbol = asset.symbol;
-              const fee = toDisplayAmount(
-                asset,
-                BigNumber(minDenomAmount).multipliedBy(gasConfig.gasLimit)
-              );
-              const price = gasDollarMap.data?.[token];
-              const dollar = price ? fee.multipliedBy(price) : undefined;
+          : data
+              .sort((a, b) =>
+                a.token === nativeTokenAddress ? -1
+                : b.token === nativeTokenAddress ? 1
+                : 0
+              )
+              .map(({ token, minDenomAmount }) => {
+                const asset = chainAssetsMap[token] ?? unknownAsset(token);
+                const symbol = asset.symbol;
+                const fee = getDisplayGasFee({
+                  gasLimit: gasConfig.gasLimit,
+                  gasPrice: BigNumber(minDenomAmount),
+                  gasToken: token,
+                  asset,
+                });
+                const price = gasDollarMap.data?.[token];
+                const dollar = price ? fee.multipliedBy(price) : undefined;
 
-              const selected = token === gasConfig.gasToken;
+                const selected = token === gasConfig.gasToken;
 
-              return (
-                <button
-                  key={token}
-                  className={twMerge(
-                    "flex justify-between items-center",
-                    "bg-rblack rounded-sm px-5 min-h-[58px]",
-                    "hover:text-yellow hover:border-yellow transition-colors duration-300",
-                    selected ? "border border-white" : "m-px"
-                  )}
-                  type="button"
-                  onClick={() => {
-                    setStorageGasToken(token);
-                    onClose();
-                  }}
-                >
-                  <div>{symbol}</div>
-                  <div className="text-right">
-                    {dollar && <FiatCurrency amount={dollar} />}
-                    <div className="text-xs">
-                      <TokenCurrency amount={fee} symbol={symbol} />
+                return (
+                  <button
+                    key={token}
+                    className={twMerge(
+                      "flex justify-between items-center",
+                      "bg-rblack rounded-sm px-5 min-h-[58px]",
+                      "hover:text-yellow hover:border-yellow transition-colors duration-300",
+                      selected ? "border border-white" : "m-px"
+                    )}
+                    type="button"
+                    onClick={() => {
+                      setStorageGasToken(token);
+                      onClose();
+                    }}
+                  >
+                    <div>{symbol}</div>
+                    <div className="text-right">
+                      {dollar && <FiatCurrency amount={dollar} />}
+                      <div className="text-xs">
+                        <TokenCurrency amount={fee} symbol={symbol} />
+                      </div>
                     </div>
-                  </div>
-                </button>
-              );
-            })
+                  </button>
+                );
+              })
           }
         </div>
       </div>
