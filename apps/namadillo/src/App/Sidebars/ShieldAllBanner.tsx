@@ -39,9 +39,11 @@ export const ShieldAllBanner = (): JSX.Element => {
           as="div"
           className="max-w-[160px]"
           size="sm"
+          outlineColor="black"
           backgroundColor="black"
+          backgroundHoverColor="transparent"
           textColor="yellow"
-          backgroundHoverColor="yellow"
+          textHoverColor="black"
         >
           Shield Assets
         </ActionButton>
