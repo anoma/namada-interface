@@ -1,11 +1,21 @@
 import { SkeletonLoading, Stack } from "@namada/components";
 import { Proposal } from "@namada/types";
+import { proposalFamily } from "atoms/proposals";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { useState } from "react";
-
-import { proposalFamily } from "atoms/proposals";
+import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
+
+const formatLinks = (string: string): ReactNode => {
+  const regex = /(http.*)/;
+  return string.split(regex).map((part, index) =>
+    regex.test(part) ?
+      <a key={index} href={part} rel="noreferrer nofollow">
+        {part}
+      </a>
+    : part
+  );
+};
 
 export const ProposalDescription: React.FC<{
   proposalId: bigint;
@@ -45,13 +55,16 @@ export const Loaded: React.FC<{
     <>
       <Stack
         gap={4}
-        className={twMerge("overflow-hidden", !expanded && "max-h-[350px]")}
+        className={twMerge(
+          "overflow-hidden whitespace-pre-line [&_a]:underline [&_a:hover]:text-yellow",
+          !expanded && "max-h-[350px]"
+        )}
       >
         <section>{abstract}</section>
         {formattedDetails.map(([key, value], i) => (
           <section key={i}>
             <h3 className="text-[#8A8A8A]">{key}</h3>
-            <p>{value}</p>
+            <p>{formatLinks(value ?? "")}</p>
           </section>
         ))}
       </Stack>
