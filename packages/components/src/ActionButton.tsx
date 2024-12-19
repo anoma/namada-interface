@@ -28,7 +28,7 @@ const actionButtonShape = tv({
       lg: "rounded-lg before:rounded-lg",
     },
     disabled: {
-      true: "pointer-events-none cursor-auto opacity-25 active:top-0 text-white",
+      true: "pointer-events-none cursor-auto opacity-25 active:top-0 text-white before:!border-neutral-500",
     },
     outlined: {
       true: clsx(
