@@ -18,11 +18,12 @@ import { FaChevronLeft } from "react-icons/fa";
 import { SiWebassembly } from "react-icons/si";
 import { VscJson } from "react-icons/vsc";
 import { generatePath, Link, useNavigate } from "react-router-dom";
+import { proposalIdToString } from "utils";
 import {
-  proposalIdToString,
   secondsToDateTimeString,
+  secondsToFullDateTimeString,
   secondsToTimeRemainingString,
-} from "utils";
+} from "utils/dates";
 import {
   StatusLabel as StatusLabelComponent,
   TypeLabel as TypeLabelComponent,
@@ -251,7 +252,10 @@ const ProgressStartEnd: React.FC<{
   <div className={className}>
     {proposal.status === "pending" || proposal.status === "error" ?
       "..."
-    : <div className="leading-tight">
+    : <div
+        className="leading-tight"
+        title={secondsToFullDateTimeString(proposal.data[timeKey])}
+      >
         {secondsToDateTimeString(proposal.data[timeKey])}
         <div className="text-xs text-neutral-500">
           Epoch&nbsp;

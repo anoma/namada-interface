@@ -8,14 +8,15 @@ import { routes } from "App/routes";
 import { paginatedProposalsFamily } from "atoms/proposals";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
+import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { GoCheckCircleFill, GoInfo } from "react-icons/go";
 import { generatePath, useNavigate } from "react-router-dom";
+import { proposalStatusToString, proposalTypeStringToString } from "utils";
 import {
-  proposalStatusToString,
-  proposalTypeStringToString,
   secondsToDateTimeString,
-} from "utils";
+  secondsToFullDateTimeString,
+} from "utils/dates";
 import { StatusLabel, TypeLabel } from "./ProposalLabels";
 
 const Table: React.FC<
@@ -35,7 +36,7 @@ const Table: React.FC<
     "Status",
     "",
     {
-      children: "Voting end on UTC",
+      children: `Voting end on GMT${DateTime.now().toFormat("Z")}`,
       className: "text-right whitespace-nowrap rtl-grid",
       dir: "rtl",
     },
@@ -310,7 +311,10 @@ const Status: React.FC<CellProps> = ({ proposal }) => (
 const VotingEnd: React.FC<CellProps> = ({
   proposal: { endTime, endEpoch },
 }) => (
-  <div className="text-right leading-tight">
+  <div
+    className="text-right leading-tight whitespace-nowrap"
+    title={secondsToFullDateTimeString(endTime)}
+  >
     <div className="text-neutral-450">{secondsToDateTimeString(endTime)}</div>
     <div className="text-xs text-neutral-500">Epoch {endEpoch.toString()}</div>
   </div>
