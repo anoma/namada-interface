@@ -1,10 +1,12 @@
 import { deserialize } from "@dao-xyz/borsh";
 import {
+  DatedViewingKey as DatedViewingKeyWasm,
   Query as QueryWasm,
   Sdk as SdkWasm,
   TransferToEthereum,
 } from "@namada/shared";
 import {
+  DatedViewingKey,
   Message,
   TxResponseMsgValue,
   TxResponseProps,
@@ -36,7 +38,7 @@ export class Rpc {
   constructor(
     protected readonly sdk: SdkWasm,
     protected readonly query: QueryWasm
-  ) { }
+  ) {}
 
   /**
    * Query balances from chain
@@ -235,11 +237,15 @@ export class Rpc {
   /**
    * Sync the shielded context
    * @async
-   * @param vks - Array of viewing keys
-   * @param sks - Array of spending keys
+   * @param vks - Array of dated viewing keys
    * @returns
    */
-  async shieldedSync(vks: string[], sks: string[] = []): Promise<void> {
-    await this.query.shielded_sync(vks, sks);
+  async shieldedSync(vks: DatedViewingKey[]): Promise<void> {
+    const datedViewingKeys = vks.map(
+      (vk) => new DatedViewingKeyWasm(vk.key, String(vk.birthday))
+    );
+
+    // TODO: shieled_sync expects an array for strings atm
+    await this.query.shielded_sync(datedViewingKeys);
   }
 }

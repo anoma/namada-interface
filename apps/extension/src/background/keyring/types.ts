@@ -11,6 +11,8 @@ export interface AccountStore extends StoredRecord {
   parentId?: string;
   pseudoExtendedKey?: string;
   type: AccountType;
+  source: "imported" | "generated";
+  timestamp: number;
 }
 
 export type AccountState = DerivedAccount & {

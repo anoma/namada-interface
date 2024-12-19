@@ -18,9 +18,11 @@ export class VaultService {
   ) {}
 
   public async initialize(): Promise<void> {
-    const storage = await this.vaultStorage.get();
-    if (!storage) {
+    const exists = await this.vaultStorage.exists();
+    if (!exists) {
       await this.vaultStorage.reset();
+    } else {
+      await this.vaultStorage.migrate();
     }
   }
 

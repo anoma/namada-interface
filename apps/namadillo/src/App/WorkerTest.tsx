@@ -53,7 +53,7 @@ export function WorkerTest(): JSX.Element {
     await shieldedSyncWorker.sync({
       type: "sync",
       payload: {
-        vks: [vk],
+        vks: [{ key: vk, birthday: 0 }],
       },
     });
 
@@ -145,7 +145,7 @@ export function WorkerTest(): JSX.Element {
 
     const vks = accounts
       ?.filter((acc) => acc.type === "shielded-keys")
-      .map((a) => a.viewingKey!);
+      .map((a) => ({ key: a.viewingKey!, birthday: 0 }));
 
     const disposableSigner = (await refetch()).data;
 
@@ -211,7 +211,7 @@ export function WorkerTest(): JSX.Element {
 
     const vks = accounts
       ?.filter((acc) => acc.type === "shielded-keys")
-      .map((a) => a.viewingKey!);
+      .map((a) => ({ key: a.viewingKey!, birthday: 0 }));
 
     const disposableSigner = (await refetch()).data;
 
