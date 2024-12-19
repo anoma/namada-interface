@@ -23,6 +23,7 @@ export const secondsToTimeRemainingString = (
   startTimeInSeconds: bigint,
   endTimeInSeconds: bigint
 ): string | undefined => {
+  // TODO is this useful?
   return;
   if (endTimeInSeconds < startTimeInSeconds) {
     return undefined;
