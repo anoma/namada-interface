@@ -13,7 +13,8 @@ export const v1toV2 = (data: VaultV1Type): VaultV2Type => {
     data: {
       "key-store": data.data["key-store"].map((ks) => ({
         ...ks,
-        public: { ...ks.public, source: "generated", timestamp: 0 },
+        // we set source to "imported" because "generated" with timestamp 0 does not make sense
+        public: { ...ks.public, source: "imported", timestamp: 0 },
       })),
     },
   };

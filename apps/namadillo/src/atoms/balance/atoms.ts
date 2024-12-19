@@ -43,10 +43,10 @@ const toDatedKeypair = async (
   api: DefaultApi,
   { viewingKey, source, timestamp }: Account
 ): Promise<DatedViewingKey> => {
-  if (!viewingKey) {
+  if (typeof viewingKey === "undefined") {
     throw new Error("Viewing key not found");
   }
-  if (!timestamp) {
+  if (typeof timestamp === "undefined") {
     throw new Error("Timestamp not found");
   }
   let height = 0;

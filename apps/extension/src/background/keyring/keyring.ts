@@ -113,7 +113,7 @@ export class KeyRing {
       path: bip44Path,
       type: AccountType.Ledger,
       source: "imported",
-      timestamp: new Date().getTime(),
+      timestamp: 0,
     };
 
     const sensitive = await this.vaultService.encryptSensitiveData({
@@ -162,8 +162,8 @@ export class KeyRing {
     await this.vaultService.assertIsUnlocked();
 
     const keys = this.sdkService.getSdk().getKeys();
-    const timestamp = new Date().getTime();
     const source = flow === "create" ? "generated" : "imported";
+    const timestamp = source === "generated" ? new Date().getTime() : 0;
 
     const { sk, text, passphrase, accountType } = ((): {
       sk: string;
@@ -449,7 +449,7 @@ export class KeyRing {
       );
     }
 
-    const timestamp = new Date().getTime();
+    const timestamp = source === "generated" ? new Date().getTime() : 0;
     const derivedAccount = await this.persistAccount(
       type === AccountType.ShieldedKeys ? zip32Path : derivationPath,
       parentId,

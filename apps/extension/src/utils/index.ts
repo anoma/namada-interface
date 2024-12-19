@@ -185,12 +185,13 @@ export const toPublicAccount = (derivedAccount: DerivedAccount): Account => {
     alias,
     address,
     type,
-    pseudoExtendedKey,
     source,
-    timestamp,
   };
   if (isShielded) {
     account.viewingKey = owner;
+    account.pseudoExtendedKey = pseudoExtendedKey;
+    account.source = source;
+    account.timestamp = timestamp;
   } else {
     account.publicKey = publicKey;
   }
