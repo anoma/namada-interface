@@ -7,25 +7,31 @@ exactly as they are described below.
 
 - [Build Instructions](#build-instructions)
 - [Notes](#notes)
-  - [Environment](#environment)
-  - [Setting up Node & NPM](#setting-up-node-and-npm)
+  - [Installing Docker](#installing-docker)
   - [Source Code](#source-code)
 
 ## Build instructions
 
-1. Certify that Docker 27+ is installed in your system before proceeding with the build:
+**NOTE** The add-on submission was built in the following environment:
+
+- Ubuntu Server 24.04 LTS **x86_64** - Please ensure your environment matches this to produce an identical build!
+- Docker version 27.x
+
+Follow these instructions to build with Docker:
+
+1. Verify that Docker 27+ is installed in your system before proceeding with the build:
 
 ```bash
 docker --version
 ```
 
-2. From the **repository root**, build the Docker image:
+2. From the **source code root**, build the Docker image:
 
 ```bash
 docker build . --target firefox -t namada-keychain-firefox -f docker/extension/Dockerfile
 ```
 
-3. Wait for the build to complete, and then copy the files from the container by executing the following command in the **repository root**:
+3. Wait for the build to complete, and then copy the files from the container by executing the following command in the **source code root**:
 
 ```bash
 docker run --rm -v ./apps/extension/build:/shared namada-keychain-firefox cp -r /app/apps/extension/build/. /shared/
@@ -36,20 +42,6 @@ docker run --rm -v ./apps/extension/build:/shared namada-keychain-firefox cp -r 
 [ [Table of Contents](#table-of-contents) ]
 
 ## Notes
-
-### Environment
-
-This build was produced using the following environment:
-
-- Ubuntu 24.04 LTS (Desktop edition)
-- 10GB of system memory (RAM)
-- 6 cores of vCPU
-- 35GB of storage
-- Docker version 27+ installed and running
-
-Please ensure that this matches your environment!
-
-[ [Table of Contents](#table-of-contents) ]
 
 ### Installing Docker
 
