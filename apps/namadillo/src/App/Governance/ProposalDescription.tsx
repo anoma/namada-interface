@@ -10,7 +10,7 @@ const formatLinks = (string: string): ReactNode => {
   const regex = /(http.*)/;
   return string.split(regex).map((part, index) =>
     regex.test(part) ?
-      <a key={index} href={part} rel="noreferrer nofollow">
+      <a key={index} href={part} target="_blank" rel="noreferrer nofollow">
         {part}
       </a>
     : part
