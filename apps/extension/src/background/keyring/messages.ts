@@ -131,12 +131,17 @@ export class SaveAccountSecretMsg extends Message<AccountStore | false> {
   constructor(
     public readonly accountSecret: AccountSecret,
     public readonly alias: string,
+    public readonly flow: "create" | "import",
     public readonly path?: Bip44Path
   ) {
     super();
   }
 
   validate(): void {
+    if (!this.flow) {
+      throw new Error("Flow is required!");
+    }
+
     if (!this.accountSecret) {
       throw new Error("A wordlist or private key is required!");
     }
@@ -222,13 +227,14 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
     public readonly path: Bip44Path,
     public readonly accountType: AccountType,
     public readonly alias: string,
-    public readonly parentId: string
+    public readonly parentId: string,
+    public readonly source: "imported" | "generated"
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["path", "accountType", "alias", "parentId"]);
+    validateProps(this, ["path", "accountType", "alias", "parentId", "source"]);
 
     const { account, change } = this.path;
 

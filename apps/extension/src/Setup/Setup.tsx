@@ -253,6 +253,7 @@ export const Setup: React.FC = () => {
                             ...accountCreationDetails,
                             path,
                             accountSecret,
+                            flow: "create",
                           });
                           navigate(routes.accountCreationComplete());
                         }
@@ -329,6 +330,7 @@ export const Setup: React.FC = () => {
                             ...accountCreationDetails,
                             path,
                             accountSecret,
+                            flow: "import",
                           });
                           navigate(routes.accountImportComplete());
                         }
