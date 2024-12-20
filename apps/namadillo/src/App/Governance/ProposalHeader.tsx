@@ -234,7 +234,7 @@ const TimeRemaining: React.FC<{
           proposal.currentTime,
           proposal.endTime
         );
-        return timeRemaining ? `${timeRemaining} Remaining` : "";
+        return timeRemaining ? `${timeRemaining} remaining` : "";
       }
     }
 
