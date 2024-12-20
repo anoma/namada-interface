@@ -16,7 +16,8 @@ const namadaChainRegistryUrl =
 
 const namadaChainRegistryMap = new Map<string, string>([
   ["namada.5f5de2dd1b88cba30586420", "namada"],
-  ["housefire-creek.76ed2d08793c14", "_testnets/namadahousefire"],
+  ["housefire-alpaca.cc0d3e0c033be", "_testnets/namadahousefire"],
+  ["housefire-below.0b9e6c455af037", "_testnets/namadahousefireold"],
   ["internal-devnet-45a.1881abcfec", "_testnets/namadainternaldevnet"],
 ]);
 
