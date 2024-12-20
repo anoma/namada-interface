@@ -141,7 +141,6 @@ export const submitUnshieldTx = async (
       gasConfig,
       unshieldingProps: [unshieldingMsgValue],
       chain,
-      vks: [],
     },
   };
 
@@ -203,7 +202,6 @@ export const submitShieldedTx = async (
       gasConfig,
       props: [shieldedTransferMsgValue],
       chain,
-      vks: [],
     },
   };
 

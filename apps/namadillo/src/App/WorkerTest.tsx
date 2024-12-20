@@ -143,10 +143,6 @@ export function WorkerTest(): JSX.Element {
       ],
     });
 
-    const vks = accounts
-      ?.filter((acc) => acc.type === "shielded-keys")
-      .map((a) => ({ key: a.viewingKey!, birthday: 0 }));
-
     const disposableSigner = (await refetch()).data;
 
     const msg: Unshield = {
@@ -163,7 +159,6 @@ export function WorkerTest(): JSX.Element {
         },
         unshieldingProps: [shieldingMsgValue],
         chain: chain!,
-        vks: vks!,
       },
     };
 
@@ -208,10 +203,6 @@ export function WorkerTest(): JSX.Element {
       ],
     });
 
-    const vks = accounts
-      ?.filter((acc) => acc.type === "shielded-keys")
-      .map((a) => ({ key: a.viewingKey!, birthday: 0 }));
-
     const disposableSigner = (await refetch()).data;
 
     const msg: ShieldedTransfer = {
@@ -228,7 +219,6 @@ export function WorkerTest(): JSX.Element {
         },
         props: [shieldingMsgValue],
         chain: chain!,
-        vks: vks!,
       },
     };
 

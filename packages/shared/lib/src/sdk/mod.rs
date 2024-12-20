@@ -519,6 +519,7 @@ impl Sdk {
         let bparams =
             generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
                 .await?;
+        let _ = &self.namada.shielded_mut().await.load().await?;
 
         let (tx, signing_data, _) = match bparams {
             BuildParams::RngBuildParams(mut bparams) => {

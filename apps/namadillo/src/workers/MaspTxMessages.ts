@@ -1,6 +1,5 @@
 import {
   Account,
-  DatedViewingKey,
   ShieldedTransferMsgValue,
   ShieldingTransferMsgValue,
   TxResponseMsgValue,
@@ -37,7 +36,6 @@ type UnshieldPayload = {
   gasConfig: GasConfig;
   unshieldingProps: UnshieldingTransferMsgValue[];
   chain: ChainSettings;
-  vks: DatedViewingKey[];
 };
 export type Unshield = WebWorkerMessage<"unshield", UnshieldPayload>;
 export type UnshieldDone = WebWorkerMessage<
@@ -50,7 +48,6 @@ type ShieldedTransferPayload = {
   gasConfig: GasConfig;
   props: ShieldedTransferMsgValue[];
   chain: ChainSettings;
-  vks: DatedViewingKey[];
 };
 export type ShieldedTransfer = WebWorkerMessage<
   "shielded-transfer",
