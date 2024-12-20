@@ -4,7 +4,9 @@ import { indexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { NamadaKeychain } from "hooks/useNamadaKeychain";
 import { atomWithMutation } from "jotai-tanstack-query";
 import {
+  ShieldedTransferParams,
   ShieldTransferParams,
+  submitShieldedTx,
   submitShieldTx,
   submitUnshieldTx,
   UnshieldTransferParams,
@@ -28,7 +30,6 @@ export const unshieldTxAtom = atomWithMutation((get) => {
   const rpcUrl = get(rpcUrlAtom);
   const { data: account } = get(defaultAccountAtom);
   const { data: chain } = get(chainAtom);
-  const indexerUrl = get(indexerUrlAtom);
 
   return {
     mutationKey: ["unshield-tx"],
@@ -43,7 +44,31 @@ export const unshieldTxAtom = atomWithMutation((get) => {
         rpcUrl,
         account!,
         chain!,
-        indexerUrl,
+        params,
+        disposableSigner
+      );
+    },
+  };
+});
+
+export const shieldedTxAtom = atomWithMutation((get) => {
+  const rpcUrl = get(rpcUrlAtom);
+  const { data: account } = get(defaultAccountAtom);
+  const { data: chain } = get(chainAtom);
+
+  return {
+    mutationKey: ["shielded-tx"],
+    mutationFn: async (params: ShieldedTransferParams) => {
+      const namada = await new NamadaKeychain().get();
+      const disposableSigner = await namada?.genDisposableKeypair();
+      if (!disposableSigner) {
+        throw new Error("No signer available");
+      }
+
+      return submitShieldedTx(
+        rpcUrl,
+        account!,
+        chain!,
         params,
         disposableSigner
       );

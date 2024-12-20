@@ -1,6 +1,7 @@
 import {
   Account,
   GenDisposableSignerResponse,
+  ShieldedTransferMsgValue,
   ShieldingTransferMsgValue,
   UnshieldingTransferMsgValue,
 } from "@namada/types";
@@ -8,7 +9,7 @@ import BigNumber from "bignumber.js";
 import * as Comlink from "comlink";
 import { EncodedTxData, signTx } from "lib/query";
 import { Address, ChainSettings, GasConfig } from "types";
-import { Shield, Unshield } from "workers/MaspTxMessages";
+import { Shield, ShieldedTransfer, Unshield } from "workers/MaspTxMessages";
 import {
   Worker as MaspTxWorkerApi,
   registerTransferHandlers as maspTxRegisterTransferHandlers,
@@ -31,6 +32,14 @@ export type UnshieldTransferParams = {
   gasConfig: GasConfig;
 };
 
+export type ShieldedTransferParams = {
+  sourceAddress: Address;
+  destinationAddress: Address;
+  tokenAddress: Address;
+  amount: BigNumber;
+  gasConfig: GasConfig;
+};
+
 export const submitShieldTx = async (
   rpcUrl: string,
   account: Account,
@@ -39,7 +48,7 @@ export const submitShieldTx = async (
   params: ShieldTransferParams
 ): Promise<{
   msg: Shield;
-  encodedTx: EncodedTxData<ShieldingTransferMsgValue>;
+  encodedTxData: EncodedTxData<ShieldingTransferMsgValue>;
 }> => {
   const {
     sourceAddress: source,
@@ -87,19 +96,18 @@ export const submitShieldTx = async (
 
   worker.terminate();
 
-  return { msg, encodedTx };
+  return { msg, encodedTxData: encodedTx };
 };
 
 export const submitUnshieldTx = async (
   rpcUrl: string,
   account: Account,
   chain: ChainSettings,
-  indexerUrl: string,
   params: UnshieldTransferParams,
   disposableSigner: GenDisposableSignerResponse
 ): Promise<{
   msg: Unshield;
-  encodedTx: EncodedTxData<UnshieldingTransferMsgValue>;
+  encodedTxData: EncodedTxData<UnshieldingTransferMsgValue>;
 }> => {
   const {
     sourceAddress: source,
@@ -133,24 +141,83 @@ export const submitUnshieldTx = async (
       gasConfig,
       unshieldingProps: [unshieldingMsgValue],
       chain,
-      indexerUrl,
-      vks: [],
     },
   };
 
-  const { payload: encodedTx } = await unshieldWorker.unshield(msg);
+  const { payload: encodedTxData } = await unshieldWorker.unshield(msg);
 
-  const signedTxs = await signTx(encodedTx, disposableSigner.address);
+  const signedTxs = await signTx(encodedTxData, disposableSigner.address);
 
   await unshieldWorker.broadcast({
     type: "broadcast",
     payload: {
-      encodedTx,
+      encodedTx: encodedTxData,
       signedTxs,
     },
   });
 
   worker.terminate();
 
-  return { msg, encodedTx };
+  return { msg, encodedTxData };
+};
+
+export const submitShieldedTx = async (
+  rpcUrl: string,
+  account: Account,
+  chain: ChainSettings,
+  params: ShieldedTransferParams,
+  disposableSigner: GenDisposableSignerResponse
+): Promise<{
+  msg: ShieldedTransfer;
+  encodedTxData: EncodedTxData<ShieldedTransferMsgValue>;
+}> => {
+  const {
+    sourceAddress: source,
+    destinationAddress: target,
+    tokenAddress: token,
+    amount,
+    gasConfig,
+  } = params;
+
+  maspTxRegisterTransferHandlers();
+  const worker = new MaspTxWorker();
+  const workerApi = Comlink.wrap<MaspTxWorkerApi>(worker);
+  await workerApi.init({
+    type: "init",
+    payload: { rpcUrl, token, maspIndexerUrl: "" },
+  });
+
+  const shieldedTransferMsgValue = new ShieldedTransferMsgValue({
+    gasSpendingKey: source,
+    data: [{ source, target, token, amount }],
+  });
+
+  const msg: ShieldedTransfer = {
+    type: "shielded-transfer",
+    payload: {
+      account: {
+        ...account,
+        publicKey: disposableSigner.publicKey,
+      },
+      gasConfig,
+      props: [shieldedTransferMsgValue],
+      chain,
+    },
+  };
+
+  const { payload: encodedTxData } = await workerApi.shieldedTransfer(msg);
+
+  const signedTxs = await signTx(encodedTxData, disposableSigner.address);
+
+  await workerApi.broadcast({
+    type: "broadcast",
+    payload: {
+      encodedTx: encodedTxData,
+      signedTxs,
+    },
+  });
+
+  worker.terminate();
+
+  return { msg, encodedTxData };
 };
