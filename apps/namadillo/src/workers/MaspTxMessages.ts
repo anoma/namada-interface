@@ -36,7 +36,6 @@ type UnshieldPayload = {
   gasConfig: GasConfig;
   unshieldingProps: UnshieldingTransferMsgValue[];
   chain: ChainSettings;
-  vks: string[];
 };
 export type Unshield = WebWorkerMessage<"unshield", UnshieldPayload>;
 export type UnshieldDone = WebWorkerMessage<
@@ -49,7 +48,6 @@ type ShieldedTransferPayload = {
   gasConfig: GasConfig;
   props: ShieldedTransferMsgValue[];
   chain: ChainSettings;
-  vks: string[];
 };
 export type ShieldedTransfer = WebWorkerMessage<
   "shielded-transfer",
