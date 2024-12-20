@@ -38,14 +38,14 @@ export class AccountManager {
   async saveAccountSecret(
     details: DeriveAccountDetails
   ): Promise<AccountStore> {
-    const { accountSecret, alias, path } = details;
+    const { accountSecret, alias, path, flow } = details;
     const derivationPath =
       accountSecret?.t === "PrivateKey" ? DEFAULT_BIP44_PATH : path;
 
     const parentAccountStore =
       await this.requester.sendMessage<SaveAccountSecretMsg>(
         Ports.Background,
-        new SaveAccountSecretMsg(accountSecret, alias, derivationPath)
+        new SaveAccountSecretMsg(accountSecret, alias, flow, derivationPath)
       );
 
     return parentAccountStore as AccountStore;
@@ -65,7 +65,7 @@ export class AccountManager {
     const derivationPath =
       accountSecret?.t === "PrivateKey" ? DEFAULT_BIP44_PATH : path;
 
-    const { alias, id } = parentAccount;
+    const { alias, id, source } = parentAccount;
     return await this.requester.sendMessage<DeriveAccountMsg>(
       Ports.Background,
       new DeriveAccountMsg(
@@ -73,7 +73,8 @@ export class AccountManager {
         AccountType.ShieldedKeys,
         alias,
         // Sets the parent ID of this shielded account
-        id
+        id,
+        source
       )
     );
   }

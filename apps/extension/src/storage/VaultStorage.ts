@@ -2,111 +2,19 @@ import { KVStore } from "@namada/storage";
 import * as E from "fp-ts/Either";
 import * as t from "io-ts";
 import { ExtStorage } from "./Storage";
+import {
+  KeyStore,
+  KeyStoreType,
+  migrateVault,
+  SensitiveType,
+  Vault,
+  VaultType,
+} from "./schemas";
 
 export type PrimitiveType = string | number | boolean;
 
-const Uint8ArrayCodec = new t.Type<Uint8Array, Uint8Array, unknown>(
-  "Uint8Array",
-  (u): u is Uint8Array => u instanceof Uint8Array,
-  (u, c) => {
-    try {
-      const a = Array.from(u as Uint8Array);
-      return t.success(Uint8Array.from(a));
-    } catch {
-      return t.failure(u, c);
-    }
-  },
-  t.identity
-);
-
-enum KdfType {
-  Argon2 = "argon2",
-  Scrypt = "scrypt",
-}
-
-export const Sensitive = t.type({
-  cipher: t.type({
-    type: t.literal("aes-256-gcm"),
-    iv: Uint8ArrayCodec,
-    text: Uint8ArrayCodec,
-  }),
-  kdf: t.type({
-    type: t.keyof({
-      [KdfType.Argon2]: null,
-      [KdfType.Scrypt]: null,
-    }),
-    params: t.any,
-  }),
-});
-export type SensitiveType = t.TypeOf<typeof Sensitive>;
-
-enum AccountType {
-  Mnemonic = "mnemonic",
-  PrivateKey = "private-key",
-  ShieldedKeys = "shielded-keys",
-  Ledger = "ledger",
-}
-
-export const KeyStore = t.exact(
-  t.intersection([
-    t.type({
-      id: t.string,
-      alias: t.string,
-      address: t.string,
-      owner: t.string,
-      path: t.intersection([
-        t.type({
-          account: t.number,
-        }),
-        t.partial({
-          change: t.number,
-          index: t.number,
-        }),
-      ]),
-      type: t.keyof({
-        [AccountType.Mnemonic]: null,
-        [AccountType.PrivateKey]: null,
-        [AccountType.ShieldedKeys]: null,
-        [AccountType.Ledger]: null,
-      }),
-    }),
-    t.partial({
-      publicKey: t.string,
-      parentId: t.string,
-      pseudoExtendedKey: t.string,
-    }),
-  ])
-);
-export type KeyStoreType = t.TypeOf<typeof KeyStore>;
-
-const Vault = t.intersection([
-  t.type({
-    data: t.record(
-      t.string,
-      t.array(
-        t.intersection([
-          t.type({
-            public: KeyStore,
-          }),
-          t.partial({
-            sensitive: Sensitive,
-          }),
-        ])
-      )
-    ),
-  }),
-  t.partial({
-    password: Sensitive,
-  }),
-]);
-
-type VaultType = t.TypeOf<typeof Vault>;
-
-export type VaultTypes = KeyStoreType;
-
-export type VaultSchemas = typeof KeyStore;
-
 export type VaultKeys = "key-store";
+export type VaultSchemas = typeof KeyStore;
 
 export const schemasMap = new Map<VaultSchemas, VaultKeys>([
   [KeyStore, "key-store"],
@@ -115,6 +23,12 @@ export const schemasMap = new Map<VaultSchemas, VaultKeys>([
 export class VaultStorage extends ExtStorage {
   constructor(provider: KVStore<unknown>) {
     super(provider);
+  }
+
+  public async migrate(): Promise<void> {
+    const data = await this.getRaw("vault");
+    const newData = migrateVault(data);
+    await this.set(newData);
   }
 
   public validate(data: unknown): VaultType {
@@ -137,6 +51,11 @@ export class VaultStorage extends ExtStorage {
     }
 
     return decoded.right;
+  }
+
+  public async exists(): Promise<boolean> {
+    const data = await this.getRaw("vault");
+    return !this.isEmpty(data);
   }
 
   public async getOrFail(): Promise<VaultType> {
@@ -212,7 +131,7 @@ export class VaultStorage extends ExtStorage {
     schema: S,
     prop: keyof t.TypeOf<S>,
     value: string,
-    newProps: Partial<VaultTypes>
+    newProps: Partial<KeyStoreType>
   ): Promise<t.TypeOf<S>> {
     const accountIdx = await this.findIndexOrFail(schema, prop, value);
     const storedData = await this.getSpecificOrFail(schema);
@@ -225,7 +144,7 @@ export class VaultStorage extends ExtStorage {
 
   public async remove<S extends VaultSchemas>(
     schema: S,
-    prop: keyof VaultTypes,
+    prop: keyof KeyStoreType,
     value: PrimitiveType
   ): Promise<{ public: t.TypeOf<S> }[]> {
     const storedData = (await this.getSpecific(schema)) || [];
@@ -328,5 +247,10 @@ export class VaultStorage extends ExtStorage {
     }
 
     return key;
+  }
+
+  private isEmpty(data: unknown): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return Object.keys((data as any)?.data || {}).length === 0;
   }
 }

@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AccountType } from "@namada/types";
 import { KVStoreMock } from "test/init";
-import { KeyStore, VaultStorage } from "./VaultStorage";
+import { VaultStorage } from "./VaultStorage";
+import { KeyStore } from "./schemas";
 
 jest.mock("webextension-polyfill", () => ({}));
 
@@ -40,7 +41,7 @@ const addNonSensitiveData = async (
 ): Promise<void> => {
   await vaultStorage.set({
     data: {
-      test: [
+      "key-store": [
         {
           public: {
             id: `${id}`,
@@ -49,6 +50,8 @@ const addNonSensitiveData = async (
             owner: `test-${id}`,
             path: { account: 0, change: 0, index: 0 },
             type: AccountType.Mnemonic,
+            source: "generated",
+            timestamp: 0,
           },
           sensitive: {} as any,
         },

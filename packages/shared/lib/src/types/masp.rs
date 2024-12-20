@@ -1,10 +1,15 @@
 //! PaymentAddress - Provide wasm_bindgen bindings for shielded addresses
 //! See @namada/crypto for zip32 HD wallet functionality.
+use std::str::FromStr;
+
 use js_sys::Uint8Array;
 use namada_sdk::borsh::{self, BorshDeserialize};
+use namada_sdk::masp_primitives::sapling::ViewingKey;
 use namada_sdk::masp_primitives::zip32::ExtendedKey;
 use namada_sdk::masp_primitives::{sapling, zip32};
 use namada_sdk::masp_proofs::jubjub;
+use namada_sdk::state::BlockHeight;
+use namada_sdk::wallet::DatedKeypair;
 use namada_sdk::{
     ExtendedSpendingKey as NamadaExtendedSpendingKey,
     ExtendedViewingKey as NamadaExtendedViewingKey, PaymentAddress as NamadaPaymentAddress,
@@ -151,6 +156,28 @@ impl PaymentAddress {
     /// Return PaymentAddress as Bech32-encoded String
     pub fn encode(&self) -> String {
         self.0.to_string()
+    }
+}
+
+#[wasm_bindgen]
+pub struct DatedViewingKey(pub(crate) DatedKeypair<ViewingKey>);
+
+#[wasm_bindgen]
+impl DatedViewingKey {
+    #[wasm_bindgen(constructor)]
+    pub fn new(key: String, birthday: String) -> Result<DatedViewingKey, String> {
+        let xfvk = zip32::ExtendedFullViewingKey::from(
+            NamadaExtendedViewingKey::from_str(&key)
+                .expect("Parsing ExtendedViewingKey should not fail!"),
+        )
+        .fvk
+        .vk;
+        let birthday = BlockHeight::from_str(&birthday).expect("Parsing birthday should not fail!");
+
+        Ok(DatedViewingKey(DatedKeypair {
+            key: xfvk,
+            birthday,
+        }))
     }
 }
 
