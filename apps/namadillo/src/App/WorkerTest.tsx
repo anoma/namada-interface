@@ -164,7 +164,6 @@ export function WorkerTest(): JSX.Element {
         unshieldingProps: [shieldingMsgValue],
         chain: chain!,
         vks: vks!,
-        indexerUrl,
       },
     };
 
@@ -227,7 +226,7 @@ export function WorkerTest(): JSX.Element {
           gasPrice: BigNumber(0),
           gasToken: "tnam1",
         },
-        shieldingProps: [shieldingMsgValue],
+        props: [shieldingMsgValue],
         chain: chain!,
         vks: vks!,
       },

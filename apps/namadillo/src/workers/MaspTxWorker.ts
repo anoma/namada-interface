@@ -125,7 +125,7 @@ async function shieldedTransfer(
   sdk: Sdk,
   payload: ShieldedTransfer["payload"]
 ): Promise<EncodedTxData<ShieldedTransferMsgValue>> {
-  const { account, gasConfig, chain, shieldingProps, vks } = payload;
+  const { account, gasConfig, chain, props, vks } = payload;
 
   await sdk.rpc.shieldedSync(vks);
   await sdk.masp.loadMaspParams("");
@@ -135,7 +135,7 @@ async function shieldedTransfer(
     account,
     gasConfig,
     chain,
-    shieldingProps,
+    props,
     sdk.tx.buildShieldedTransfer,
     true
   );
