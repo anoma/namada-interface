@@ -1,5 +1,6 @@
 import { ActionButton } from "@namada/components";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
+import { IbcLogo } from "App/Ibc/assets/IbcLogo";
 import { routes } from "App/routes";
 import {
   applicationFeaturesAtom,
@@ -35,12 +36,10 @@ export const TopNavigation = (): JSX.Element => {
     <div className="flex-1 flex items-center gap-4 sm:gap-6">
       <div className="hidden lg:flex gap-2">
         {maspEnabled && (
-          <ActionButton
-            href={routes.maspShield}
-            size="sm"
-            className="w-[140px]"
-          >
-            Shield assets
+          <ActionButton href={routes.maspShield} size="sm" className="px-4">
+            <div className="flex items-center gap-1">
+              Shield Assets over <IbcLogo />
+            </div>
           </ActionButton>
         )}
         {(maspEnabled || namTransfersEnabled) && (
@@ -48,7 +47,7 @@ export const TopNavigation = (): JSX.Element => {
             href={routes.transfer}
             size="sm"
             backgroundColor="white"
-            className="w-[140px]"
+            className="min-w-[140px]"
           >
             Transfer
           </ActionButton>
