@@ -11,9 +11,13 @@ import { TokenCurrency } from "App/Common/TokenCurrency";
 import { params, routes } from "App/routes";
 import { TokenBalance, transparentTokensAtom } from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
+import { applicationFeaturesAtom } from "atoms/settings";
 import { getAssetImageUrl } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
+import { IoSwapHorizontal } from "react-icons/io5";
+import { TbVectorTriangle } from "react-icons/tb";
+import { Link } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { isNamadaAsset } from "utils";
 
@@ -26,6 +30,7 @@ const TransparentTokensTable = ({
   data: TokenBalance[];
 }): JSX.Element => {
   const [page, setPage] = useState(initialPage);
+  const { namTransfersEnabled } = useAtomValue(applicationFeaturesAtom);
 
   const headers = ["Token", { children: "Balance", className: "text-right" }];
 
@@ -36,6 +41,7 @@ const TransparentTokensTable = ({
     dollar,
   }: TokenBalance): TableRow => {
     const icon = getAssetImageUrl(asset);
+    const isNam = isNamadaAsset(asset);
 
     return {
       cells: [
@@ -72,7 +78,7 @@ const TransparentTokensTable = ({
           >
             Shield
           </ActionButton>
-          {isNamadaAsset(asset) && (
+          {isNam && (
             <ActionButton
               size="xs"
               className="w-fit mx-auto"
@@ -82,6 +88,34 @@ const TransparentTokensTable = ({
               Stake
             </ActionButton>
           )}
+          <div className="flex items-center gap-8 ml-8 text-neutral-450">
+            {isNam && !namTransfersEnabled ?
+              <span className="text-xs">NAM Transfer Locked</span>
+            : [
+                {
+                  url: `${routes.transfer}?${params.asset}=${originalAddress}`,
+                  icon: <IoSwapHorizontal className="h-[20px] w-[20px]" />,
+                },
+                {
+                  url: `${routes.ibc}?${params.asset}=${originalAddress}`,
+                  icon: (
+                    <TbVectorTriangle className="h-[20px] w-[20px] -mt-1" />
+                  ),
+                },
+              ].map(({ url, icon }) => (
+                <Link
+                  key={url}
+                  to={url}
+                  className={twMerge(
+                    "bg-black rounded-full w-10 h-10 flex items-center justify-center p-0",
+                    "hover:bg-white hover:text-black transition-all duration-300"
+                  )}
+                >
+                  {icon}
+                </Link>
+              ))
+            }
+          </div>
         </div>,
       ],
     };
