@@ -105,7 +105,7 @@ impl Query {
             // TODO: for now we just concatenate the v1 api path
             let url = reqwest::Url::parse(&format!("{}/api/v1", url)).unwrap();
 
-            MaspClient::Indexer(IndexerMaspClient::new(client, url, true, 10))
+            MaspClient::Indexer(IndexerMaspClient::new(client, url, true, 100))
         } else {
             MaspClient::Ledger(LedgerMaspClient::new(
                 client.clone(),

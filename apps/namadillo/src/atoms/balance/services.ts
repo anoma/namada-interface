@@ -31,6 +31,7 @@ export function shieldedSync(
   token: string,
   viewingKeys: DatedViewingKey[]
 ): EventEmitter<ShieldedSyncEventMap> {
+  // Only one sync process at a time
   if (shieldedSyncEmitter) {
     return shieldedSyncEmitter;
   }
