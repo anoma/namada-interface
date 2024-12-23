@@ -15,7 +15,10 @@ import { proposalFamily } from "atoms/proposals";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { secondsToDateTimeString } from "utils";
+import {
+  secondsToDateTimeString,
+  secondsToFullDateTimeString,
+} from "utils/dates";
 
 const InfoCard: React.FC<
   {
@@ -158,7 +161,7 @@ const DateTimeEpoch: React.FC<{ date: bigint; epoch: bigint }> = ({
   date,
   epoch,
 }) => (
-  <div className="leading-tight">
+  <div className="leading-tight" title={secondsToFullDateTimeString(date)}>
     {secondsToDateTimeString(date)}
     <div className="text-xs text-neutral-500">Epoch {epoch.toString()}</div>
   </div>
