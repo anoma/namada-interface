@@ -6,7 +6,6 @@ import { TransferTransactionTimeline } from "App/Transactions/TransferTransactio
 import { isShieldedAddress } from "App/Transfer/common";
 import {
   OnSubmitTransferParams,
-  TransactionFee,
   TransferModule,
 } from "App/Transfer/TransferModule";
 import { allDefaultAccountsAtom } from "atoms/accounts";
@@ -152,15 +151,6 @@ export const NamadaTransfer: React.FC = () => {
     }
   })();
 
-  const transactionFee: TransactionFee | undefined =
-    selectedAsset && gasConfig ?
-      {
-        originalAddress: selectedAsset.originalAddress,
-        asset: selectedAsset.asset,
-        amount: gasConfig.gasPrice.multipliedBy(gasConfig.gasLimit),
-      }
-    : undefined;
-
   const isSourceShielded = isShieldedAddress(source);
   const isTargetShielded = isShieldedAddress(target);
 
@@ -281,7 +271,7 @@ export const NamadaTransfer: React.FC = () => {
               customAddress,
               onChangeCustomAddress: setCustomAddress,
             }}
-            transactionFee={transactionFee}
+            gasConfig={gasConfig}
             isSubmitting={isPerformingTransfer}
             errorMessage={generalErrorMessage}
             onSubmitTransfer={onSubmitTransfer}

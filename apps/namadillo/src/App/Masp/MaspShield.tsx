@@ -5,7 +5,6 @@ import { Timeline } from "App/Common/Timeline";
 import { params } from "App/routes";
 import {
   OnSubmitTransferParams,
-  TransactionFee,
   TransferModule,
 } from "App/Transfer/TransferModule";
 import { allDefaultAccountsAtom } from "atoms/accounts";
@@ -70,15 +69,6 @@ export const MaspShield: React.FC = () => {
   const { data: gasConfig } = useAtomValue(
     defaultGasConfigFamily(["ShieldingTransfer"])
   );
-
-  const transactionFee: TransactionFee | undefined =
-    selectedAsset && gasConfig ?
-      {
-        originalAddress: selectedAsset.originalAddress,
-        asset: selectedAsset.asset,
-        amount: gasConfig.gasPrice.multipliedBy(gasConfig.gasLimit),
-      }
-    : undefined;
 
   const assetImage = selectedAsset ? getAssetImageUrl(selectedAsset.asset) : "";
 
@@ -207,7 +197,7 @@ export const MaspShield: React.FC = () => {
                 walletAddress: destinationAddress,
                 isShielded: true,
               }}
-              transactionFee={transactionFee}
+              gasConfig={gasConfig}
               isSubmitting={performShieldTransfer.isPending}
               errorMessage={generalErrorMessage}
               onSubmitTransfer={onSubmitTransfer}

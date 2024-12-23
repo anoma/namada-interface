@@ -93,6 +93,7 @@ export function WorkerTest(): JSX.Element {
         gasConfig: {
           gasLimit: BigNumber(50000),
           gasPrice: BigNumber(0),
+          gasToken: "tnam1",
         },
         shieldingProps: [shieldingMsgValue],
         indexerUrl,
@@ -158,6 +159,7 @@ export function WorkerTest(): JSX.Element {
         gasConfig: {
           gasLimit: BigNumber(100000),
           gasPrice: BigNumber(0),
+          gasToken: "tnam1",
         },
         unshieldingProps: [shieldingMsgValue],
         chain: chain!,
@@ -223,6 +225,7 @@ export function WorkerTest(): JSX.Element {
         gasConfig: {
           gasLimit: BigNumber(50000),
           gasPrice: BigNumber(0),
+          gasToken: "tnam1",
         },
         shieldingProps: [shieldingMsgValue],
         chain: chain!,

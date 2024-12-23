@@ -12,7 +12,7 @@ import {
   isVoteType,
   voteTypes,
 } from "@namada/types";
-import { TransactionFees } from "App/Common/TransactionFees";
+import { TransactionFeeButton } from "App/Common/TransactionFeeButton";
 import { defaultGasConfigFamily } from "atoms/fees";
 import {
   createNotificationId,
@@ -181,10 +181,9 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
             </Stack>
             <footer>
               {gasConfig.isSuccess && (
-                <TransactionFees
-                  className="flex justify-between"
-                  gasConfig={gasConfig.data}
-                />
+                <div className="justify-self-end">
+                  <TransactionFeeButton gasConfig={gasConfig.data} />
+                </div>
               )}
             </footer>
             <ActionButton

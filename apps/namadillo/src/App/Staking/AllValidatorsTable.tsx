@@ -118,7 +118,11 @@ export const AllValidatorsTable = ({
           {userHasAccount && (
             <ActionButton
               size="sm"
+              outlineColor="cyan"
               backgroundColor="cyan"
+              backgroundHoverColor="transparent"
+              textColor="black"
+              textHoverColor="cyan"
               href={routes.stakingBondingIncrement}
             >
               Stake

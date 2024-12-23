@@ -1,5 +1,5 @@
 jest.mock("../assets/ibc-transfer-white.png", () => "ibc-transfer-white.png");
-jest.mock("../assets/ibc-transfer-black.png", () => "ibc-transfer-black.png");
+jest.mock("../../Common/GasFeeModal", () => null);
 
 import { Chain } from "@chain-registry/types";
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -9,7 +9,6 @@ import {
 } from "App/Transfer/__mocks__/chains";
 import { TransferDestination } from "App/Transfer/TransferDestination";
 import BigNumber from "bignumber.js";
-import { namadaAsset } from "utils";
 import { walletMock } from "../__mocks__/providers";
 import { parseChainInfo } from "../common";
 
@@ -97,18 +96,17 @@ describe("Component: TransferDestination", () => {
   });
 
   it("should display the transaction fee if provided", () => {
-    const fee = BigNumber(0.000001);
     render(
       <TransferDestination
-        transactionFee={{
-          amount: fee,
-          asset: namadaAsset(),
-          originalAddress: namadaAsset().address,
+        gasConfig={{
+          gasPrice: BigNumber(0.000001),
+          gasLimit: BigNumber(2),
+          gasToken: "tnam1",
         }}
       />
     );
-    const transactionFee = screen.getByText("Transaction Fee");
+    const transactionFee = screen.getByText("Transaction fee:");
     expect(transactionFee).toBeInTheDocument();
-    expect(transactionFee.parentNode?.textContent).toContain("0.000001");
+    expect(transactionFee.parentNode?.textContent).toContain("0.000002");
   });
 });

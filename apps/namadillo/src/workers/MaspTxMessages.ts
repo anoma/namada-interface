@@ -1,5 +1,3 @@
-import BigNumber from "bignumber.js";
-
 import {
   Account,
   ShieldedTransferMsgValue,
@@ -8,7 +6,7 @@ import {
   UnshieldingTransferMsgValue,
 } from "@namada/types";
 import { EncodedTxData } from "lib/query";
-import { ChainSettings } from "types";
+import { ChainSettings, GasConfig } from "types";
 import { WebWorkerMessage } from "./utils";
 
 type InitPayload = {
@@ -22,10 +20,7 @@ export type InitDone = WebWorkerMessage<"init-done", null>;
 
 type ShieldPayload = {
   account: Account;
-  gasConfig: {
-    gasLimit: BigNumber;
-    gasPrice: BigNumber;
-  };
+  gasConfig: GasConfig;
   shieldingProps: ShieldingTransferMsgValue[];
   chain: ChainSettings;
   indexerUrl: string;
@@ -38,10 +33,7 @@ export type ShieldDone = WebWorkerMessage<
 
 type UnshieldPayload = {
   account: Account;
-  gasConfig: {
-    gasLimit: BigNumber;
-    gasPrice: BigNumber;
-  };
+  gasConfig: GasConfig;
   unshieldingProps: UnshieldingTransferMsgValue[];
   chain: ChainSettings;
   indexerUrl: string;
@@ -55,10 +47,7 @@ export type UnshieldDone = WebWorkerMessage<
 
 type ShieldedTransferPayload = {
   account: Account;
-  gasConfig: {
-    gasLimit: BigNumber;
-    gasPrice: BigNumber;
-  };
+  gasConfig: GasConfig;
   shieldingProps: ShieldedTransferMsgValue[];
   chain: ChainSettings;
   vks: string[];

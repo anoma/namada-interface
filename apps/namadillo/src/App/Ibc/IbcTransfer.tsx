@@ -21,7 +21,7 @@ import { useTransactionActions } from "hooks/useTransactionActions";
 import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
 import { KeplrWalletManager } from "integrations/Keplr";
-import { getTransactionFee } from "integrations/utils";
+import { getIbcGasConfig } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import namadaChain from "registry/namada.json";
@@ -71,9 +71,9 @@ export const IbcTransfer: React.FC = () => {
     selectedAssetAddress
   );
 
-  const transactionFee = useMemo(() => {
+  const gasConfig = useMemo(() => {
     if (typeof registry !== "undefined") {
-      return getTransactionFee(registry);
+      return getIbcGasConfig(registry);
     }
     return undefined;
   }, [registry]);
@@ -144,7 +144,7 @@ export const IbcTransfer: React.FC = () => {
         throw new Error("Invalid IBC destination channel");
       }
 
-      if (typeof transactionFee === "undefined") {
+      if (typeof gasConfig === "undefined") {
         throw new Error("No transaction fee is set");
       }
 
@@ -179,7 +179,7 @@ export const IbcTransfer: React.FC = () => {
             destinationAddress,
             amount: displayAmount,
             asset: selectedAsset,
-            transactionFee,
+            gasConfig,
             sourceChannelId: sourceChannel.trim(),
             ...(shielded ?
               {
@@ -254,7 +254,7 @@ export const IbcTransfer: React.FC = () => {
                 isShielded: shielded,
                 onChangeShielded: setShielded,
               }}
-              transactionFee={transactionFee}
+              gasConfig={gasConfig}
               isSubmitting={performIbcTransfer.isPending}
               isIbcTransfer={true}
               requiresIbcChannels={requiresIbcChannels}

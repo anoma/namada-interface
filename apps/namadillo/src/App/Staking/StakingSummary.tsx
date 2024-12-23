@@ -68,7 +68,11 @@ export const StakingSummary = (): JSX.Element => {
               <ActionButton
                 className="px-8"
                 size="xs"
+                outlineColor="cyan"
                 backgroundColor="cyan"
+                backgroundHoverColor="transparent"
+                textColor="black"
+                textHoverColor="cyan"
                 href={routes.stakingBondingIncrement}
               >
                 Stake

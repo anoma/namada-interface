@@ -2,7 +2,7 @@ import { Asset, AssetList, Chain, IBCInfo } from "@chain-registry/types";
 import { QueryClient, setupIbcExtension } from "@cosmjs/stargate";
 import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import { Account, IbcTransferProps } from "@namada/types";
-import { mapUndefined, shortenAddress } from "@namada/utils";
+import { mapUndefined } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import * as celestia from "chain-registry/mainnet/celestia";
 import * as cosmos from "chain-registry/mainnet/cosmoshub";
@@ -28,30 +28,43 @@ import {
   LocalnetToml,
 } from "types";
 import { toBaseAmount, toDisplayAmount } from "utils";
+import { unknownAsset } from "utils/assets";
 import { getSdkInstance } from "utils/sdk";
 
 import housefireAssets from "namada-chain-registry/_testnets/namadahousefire/assetlist.json";
 import housefireChain from "namada-chain-registry/_testnets/namadahousefire/chain.json";
+import housefireOldAssets from "namada-chain-registry/_testnets/namadahousefireold/assetlist.json";
+import housefireOldChain from "namada-chain-registry/_testnets/namadahousefireold/chain.json";
 import internalDevnetAssets from "namada-chain-registry/_testnets/namadainternaldevnet/assetlist.json";
 import internalDevnetChain from "namada-chain-registry/_testnets/namadainternaldevnet/chain.json";
 import namadaAssets from "namada-chain-registry/namada/assetlist.json";
 import namadaChain from "namada-chain-registry/namada/chain.json";
 
-import housefireCosmosTestnetIbc from "namada-chain-registry/_testnets/_IBC/namadahousefire-cosmoshubtestnet.json";
-import housefireOsmosisTestnetIbc from "namada-chain-registry/_testnets/_IBC/namadahousefire-osmosistestnet.json";
+import housefireOldCosmosTestnetIbc from "namada-chain-registry/_testnets/_IBC/namadahousefireold-cosmoshubtestnet.json";
+import housefireOldOsmosisTestnetIbc from "namada-chain-registry/_testnets/_IBC/namadahousefireold-osmosistestnet.json";
 import internalDevnetCosmosTestnetIbc from "namada-chain-registry/_testnets/_IBC/namadainternaldevnet-cosmoshubtestnet.json";
 
 // TODO: this causes a big increase on bundle size. See #1224.
 import cosmosRegistry from "chain-registry";
 
-cosmosRegistry.chains.push(internalDevnetChain, housefireChain, namadaChain);
+cosmosRegistry.chains.push(
+  internalDevnetChain,
+  housefireChain,
+  housefireOldChain,
+  namadaChain
+);
 
-cosmosRegistry.assets.push(internalDevnetAssets, housefireAssets, namadaAssets);
+cosmosRegistry.assets.push(
+  internalDevnetAssets,
+  housefireAssets,
+  housefireOldAssets,
+  namadaAssets
+);
 
 cosmosRegistry.ibc.push(
   internalDevnetCosmosTestnetIbc,
-  housefireCosmosTestnetIbc,
-  housefireOsmosisTestnetIbc
+  housefireOldCosmosTestnetIbc,
+  housefireOldOsmosisTestnetIbc
 );
 
 const mainnetChains: ChainRegistryEntry[] = [
@@ -212,19 +225,6 @@ const tryDenomToIbcAsset = async (
 
   return originalChainRegistryAsset || unknownAsset(path + "/" + baseDenom);
 };
-
-const unknownAsset = (denom: string): Asset => ({
-  denom_units: [
-    {
-      denom,
-      exponent: 0,
-    },
-  ],
-  base: denom,
-  name: denom,
-  display: denom,
-  symbol: shortenAddress(denom, 4, 4),
-});
 
 const findOriginalAsset = async (
   coin: Coin,

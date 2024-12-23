@@ -12,18 +12,6 @@ import {
 } from "workers/ShieldedSyncWorker";
 import ShieldedSyncWorker from "workers/ShieldedSyncWorker?worker";
 
-const sqsOsmosisApi = "https://sqs.osmosis.zone";
-
-// ref: https://sqs.osmosis.zone/swagger/index.html#/default/get_tokens_prices
-export const fetchCoinPrices = async (
-  assetBaseList: string[]
-): Promise<Record<string, { [usdcAddress: string]: string }>> =>
-  assetBaseList.length ?
-    fetch(
-      `${sqsOsmosisApi}/tokens/prices?base=${assetBaseList.sort((a, b) => a.localeCompare(b)).join(",")}`
-    ).then((res) => res.json())
-  : [];
-
 export type ShieldedSyncEventMap = {
   [SdkEvents.ProgressBarStarted]: ProgressBarStarted[];
   [SdkEvents.ProgressBarIncremented]: ProgressBarIncremented[];
@@ -100,5 +88,6 @@ const mockShieldedBalance = async (viewingKey: string): Promise<Balance> => {
   return [
     ["tnam1qy440ynh9fwrx8aewjvvmu38zxqgukgc259fzp6h", "37"], // nam
     ["tnam1p5nnjnasjtfwen2kzg78fumwfs0eycqpecuc2jwz", "1"], // uatom
+    ["tnam1p4rm6gy30xzeehj29qr8v0t33xmwdlsn5ye0ezf0", "2"], // uosmo
   ];
 };
