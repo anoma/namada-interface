@@ -64,9 +64,9 @@ export const mapNamadaAddressesToAssets = async (
     minDenomAmount: minDenomAmount.toString(), // TODO: don't convert back to string
   }));
 
-  return await mapCoinsToAssets(coins, chainId, (tnamAddress) =>
-    Promise.resolve(tnamAddressToDenomTrace(tnamAddress, chainTokens))
-  );
+  return await mapCoinsToAssets(coins, chainId, async (tnamAddress) => {
+    return tnamAddressToDenomTrace(tnamAddress, chainTokens);
+  });
 };
 
 export const mapNamadaAssetsToTokenBalances = (

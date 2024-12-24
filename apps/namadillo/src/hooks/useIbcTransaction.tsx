@@ -113,6 +113,7 @@ export const useIbcTransaction = ({
           amount: displayAmount,
           asset: selectedAsset!,
           gasConfig: gasConfig!,
+          sourceChannelId: sourceChannel!.trim(),
           ...(shielded ?
             {
               isShielded: true,

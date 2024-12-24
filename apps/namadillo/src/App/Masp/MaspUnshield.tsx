@@ -41,7 +41,7 @@ export const MaspUnshield: React.FC = () => {
   const performUnshieldTransfer = useAtomValue(unshieldTxAtom);
 
   const [amount, setAmount] = useState<BigNumber | undefined>();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
 
   const [transaction, setTransaction] =
@@ -103,7 +103,7 @@ export const MaspUnshield: React.FC = () => {
   }: OnSubmitTransferParams): Promise<void> => {
     try {
       setGeneralErrorMessage("");
-      setCurrentStep(1);
+      setCurrentStepIndex(1);
 
       if (typeof sourceAccount?.pseudoExtendedKey === "undefined") {
         throw new Error("Pseudo extended key is not defined");
@@ -143,7 +143,7 @@ export const MaspUnshield: React.FC = () => {
       // TODO review and improve this data to be more precise and full of details
       const tx: TransferTransactionData = {
         type: "ShieldedToTransparent",
-        currentStep: TransferStep.Complete,
+        currentStep: TransferStep.WaitingConfirmation,
         sourceAddress: sourceAccount.pseudoExtendedKey,
         destinationAddress,
         asset: selectedAsset.asset,
@@ -159,11 +159,10 @@ export const MaspUnshield: React.FC = () => {
       };
       setTransaction(tx);
       storeTransaction(tx);
-
-      setCurrentStep(2);
+      setCurrentStepIndex(2);
     } catch (err) {
       setGeneralErrorMessage(err + "");
-      setCurrentStep(0);
+      setCurrentStepIndex(0);
     }
   };
 
@@ -175,7 +174,7 @@ export const MaspUnshield: React.FC = () => {
         <h2 className="text-lg">Namada Shielded to Namada Transparent</h2>
       </header>
       <AnimatePresence>
-        {currentStep === 0 && (
+        {currentStepIndex === 0 && (
           <motion.div
             key="transfer"
             exit={{ opacity: 0 }}
@@ -210,7 +209,7 @@ export const MaspUnshield: React.FC = () => {
             />
           </motion.div>
         )}
-        {currentStep > 0 && (
+        {currentStepIndex > 0 && transaction?.currentStep && (
           <motion.div
             key="progress"
             className={clsx("my-12 ")}
@@ -219,7 +218,7 @@ export const MaspUnshield: React.FC = () => {
             exit={{ opacity: 0 }}
           >
             <Timeline
-              currentStepIndex={currentStep}
+              currentStepIndex={currentStepIndex}
               steps={[
                 {
                   children: <img src={assetImage} className="w-14" />,

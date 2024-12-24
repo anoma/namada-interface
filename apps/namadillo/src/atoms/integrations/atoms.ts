@@ -1,21 +1,23 @@
 import { AssetList, Chain } from "@chain-registry/types";
-import { ExtensionKey, IbcTransferProps } from "@namada/types";
+import {
+  ExtensionKey,
+  IbcTransferMsgValue,
+  IbcTransferProps,
+} from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
 import { chainAtom, chainParametersAtom } from "atoms/chain";
 import { defaultServerConfigAtom, settingsAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
-import BigNumber from "bignumber.js";
 import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
 import { TransactionPair } from "lib/query";
 import { createTransferDataFromIbc } from "lib/transactions";
 import {
-  AddressWithAsset,
   AddressWithAssetAndAmountMap,
+  BuildTxAtomParams,
   ChainId,
   ChainRegistryEntry,
-  GasConfig,
   TransferStep,
   TransferTransactionData,
 } from "types";
@@ -161,40 +163,41 @@ export const ibcChannelsFamily = atomFamily((cosmosChainName?: string) =>
   })
 );
 
-type CreateIbcTxArgs = {
-  destinationAddress: string;
-  token: AddressWithAsset;
-  amount: BigNumber;
-  portId: string;
-  channelId: string;
-  memo?: string;
-  gasConfig: GasConfig;
-};
-
 export const createIbcTxAtom = atomWithMutation((get) => {
   const account = get(defaultAccountAtom);
   const chain = get(chainAtom);
-
   return {
     enabled: account.isSuccess && chain.isSuccess,
     mutationKey: ["create-ibc-tx"],
     mutationFn: async ({
-      destinationAddress,
-      token,
-      amount,
-      portId,
-      channelId,
+      params,
       memo,
+      account,
       gasConfig,
-    }: CreateIbcTxArgs): Promise<TransactionPair<IbcTransferProps>> => {
-      if (typeof account.data === "undefined") {
+    }: BuildTxAtomParams<IbcTransferMsgValue>): Promise<
+      TransactionPair<IbcTransferProps> | undefined
+    > => {
+      if (typeof account === "undefined") {
         throw new Error("no account");
       }
-      return createIbcTx(
-        account.data,
+
+      if (params.length === 0) {
+        throw new Error("Invalid params");
+      }
+
+      const {
+        receiver: destinationAddress,
+        token,
+        amountInBaseDenom,
+        portId,
+        channelId,
+      } = params[0];
+
+      return await createIbcTx(
+        account,
         destinationAddress,
         token,
-        amount,
+        amountInBaseDenom,
         portId,
         channelId,
         gasConfig,

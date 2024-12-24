@@ -18,7 +18,7 @@ import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
 import { TransactionPair, buildTxPair } from "lib/query";
 import {
-  AddressWithAsset,
+  Address,
   AddressWithAssetAndAmount,
   AddressWithAssetAndAmountMap,
   ChainRegistryEntry,
@@ -27,7 +27,7 @@ import {
   GasConfig,
   LocalnetToml,
 } from "types";
-import { toBaseAmount, toDisplayAmount } from "utils";
+import { toDisplayAmount } from "utils";
 import { unknownAsset } from "utils/assets";
 import { getSdkInstance } from "utils/sdk";
 
@@ -362,8 +362,8 @@ export const getIbcChannels = (
 export const createIbcTx = async (
   account: Account,
   destinationAddress: string,
-  token: AddressWithAsset,
-  amount: BigNumber,
+  originalTokenAddress: Address,
+  amountInBaseDenom: BigNumber,
   portId: string,
   channelId: string,
   gasConfig: GasConfig,
@@ -372,13 +372,10 @@ export const createIbcTx = async (
 ): Promise<TransactionPair<IbcTransferProps>> => {
   const { tx } = await getSdkInstance();
 
-  // SDK expects IBC amounts in base denom
-  const amountInBaseDenom = toBaseAmount(token.asset, amount);
-
   const ibcTransferProps = {
     source: account.address,
     receiver: destinationAddress,
-    token: token.originalAddress,
+    token: originalTokenAddress,
     amountInBaseDenom,
     portId,
     channelId,
@@ -393,6 +390,7 @@ export const createIbcTx = async (
     tx.buildIbcTransfer,
     account.address
   );
+
   return transactionPair;
 };
 

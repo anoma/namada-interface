@@ -1,18 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { updateIbcTransactionStatus } from "atoms/integrations";
-import { myTransactionHistoryAtom } from "atoms/transactions/atoms";
-import { filterPendingTransactions } from "atoms/transactions/functions";
+import {
+  updateIbcTransferStatus,
+  updateIbcWithdrawalStatus,
+} from "atoms/integrations";
+import { pendingTransactionsHistoryAtom } from "atoms/transactions";
 import { useAtomValue } from "jotai";
-import { useMemo } from "react";
 import { IbcTransferTransactionData } from "types";
 import { useTransactionActions } from "./useTransactionActions";
 
 export const useTransactionWatcher = (): void => {
   const { changeTransaction } = useTransactionActions();
-  const transactionHistory = useAtomValue(myTransactionHistoryAtom);
-  const pendingTransactions = useMemo(() => {
-    return transactionHistory.filter(filterPendingTransactions);
-  }, [transactionHistory]);
+  const pendingTransactions = useAtomValue(pendingTransactionsHistoryAtom);
 
   useQuery({
     queryKey: ["transaction-status", pendingTransactions],
@@ -20,14 +18,25 @@ export const useTransactionWatcher = (): void => {
     queryFn: async () => {
       return Promise.allSettled(
         pendingTransactions.map(async (tx) => {
-          await updateIbcTransactionStatus(
-            tx.rpc,
-            tx as IbcTransferTransactionData,
-            changeTransaction
-          );
+          switch (tx.type) {
+            case "IbcToTransparent":
+            case "IbcToShielded":
+              await updateIbcTransferStatus(
+                tx.rpc,
+                tx as IbcTransferTransactionData,
+                changeTransaction
+              );
+              break;
+            case "TransparentToIbc":
+              await updateIbcWithdrawalStatus(
+                tx as IbcTransferTransactionData,
+                changeTransaction
+              );
+              break;
+          }
         })
       );
     },
-    refetchInterval: 50000,
+    refetchInterval: 5000,
   });
 };

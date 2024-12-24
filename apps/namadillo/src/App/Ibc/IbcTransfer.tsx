@@ -77,7 +77,7 @@ export const IbcTransfer = (): JSX.Element => {
   const { findByHash, storeTransaction } = useTransactionActions();
 
   // Utils for IBC transfers
-  const { transferToNamada, gasConfig } = useIbcTransaction({
+  const { transferToNamada, gasConfig, transferStatus } = useIbcTransaction({
     registry,
     sourceAddress,
     sourceChannel,

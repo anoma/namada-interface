@@ -1,6 +1,7 @@
+import { Asset } from "@chain-registry/types";
 import { Tooltip } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
-import { Timeline } from "App/Common/Timeline";
+import { Timeline, TransactionStep } from "App/Common/Timeline";
 import { AssetImage } from "App/Transfer/AssetImage";
 import {
   PartialTransferTransactionData,
@@ -14,6 +15,16 @@ type TransactionTransferTimelineProps = {
   transaction: PartialTransferTransactionData;
 };
 
+type ImageProps = {
+  asset: Asset;
+  isShielded: boolean;
+};
+
+type CompleteTextProps = {
+  transaction: PartialTransferTransactionData;
+  isShielded: boolean;
+};
+
 const stepDescription: Record<TransferStep, string> = {
   sign: "Signature required",
   "ibc-to-shielded": "IBC Transfer to Namada MASP",
@@ -24,56 +35,51 @@ const stepDescription: Record<TransferStep, string> = {
   "transparent-to-transparent": "Transfer to Namada Transparent",
   "shielded-to-transparent": "Transfer to Namada Transparent",
   "ibc-withdraw": "Transfer from Namada",
+  "waiting-confirmation": "Waiting for confirmation",
   complete: "Transfer Complete",
 };
 
-export const TransferTransactionTimeline = ({
+const AssetImageWrapper = ({ asset, isShielded }: ImageProps): JSX.Element => (
+  <span className="w-12 block mx-auto">
+    <AssetImage asset={asset} isShielded={isShielded} />
+  </span>
+);
+
+const CompleteText = ({
   transaction,
-}: TransactionTransferTimelineProps): JSX.Element => {
-  const textSteps = allTransferStages[transaction.type];
+  isShielded,
+}: CompleteTextProps): JSX.Element => (
+  <>
+    <AssetImageWrapper asset={transaction.asset} isShielded={isShielded} />
+    <p>
+      {isShielded ?
+        "Shielded Transfer Complete"
+      : "Transparent Transfer Complete"}
+    </p>
+  </>
+);
 
-  const fromIbcChain =
-    transaction.type === "IbcToTransparent" ||
-    transaction.type === "IbcToShielded";
-
-  const isTransparentTransfer = transparentTransferTypes.includes(
-    transaction.type
+const getCurrentIndex = (
+  steps: TransferStep[],
+  currentStep: TransferStep | undefined,
+  numberInitialSteps: number
+): number => {
+  const currentIdx = steps.findIndex((step) => step === currentStep) || 0;
+  const shouldWaitForConfirmation = steps.includes(
+    TransferStep.WaitingConfirmation
   );
 
-  const transferCompleteMessage =
-    isTransparentTransfer ?
-      "Transparent Transfer Complete"
-    : "Shielded Transfer Complete";
+  return currentIdx + numberInitialSteps + (shouldWaitForConfirmation ? -1 : 0);
+};
 
-  const hasError = transaction.status === "error";
-
-  const initialImage = (
-    <span className="w-12 block mx-auto">
-      <AssetImage
-        asset={transaction.asset}
-        isShielded={fromIbcChain ? undefined : !isTransparentTransfer}
-      />
-    </span>
-  );
-
-  const completeStep = (
-    <>
-      <span className="w-12 mb-2 block mx-auto">
-        <AssetImage
-          asset={transaction.asset}
-          isShielded={isTransparentTransfer}
-        />
-      </span>
-      <p>{transferCompleteMessage}</p>
-    </>
-  );
-
-  const additionalSteps = [{ children: initialImage, bullet: false }];
-
-  const currentStepIndex =
-    textSteps.findIndex((step) => step === transaction.currentStep) || 0;
-
-  const stepsWithDescription = textSteps.map((step, index) => {
+const buildStepEntries = (
+  textSteps: TransferStep[],
+  currentStepIndex: number,
+  hasError: boolean,
+  transaction: PartialTransferTransactionData,
+  isShielded: boolean
+): TransactionStep[] => {
+  return textSteps.map((step, index) => {
     if (index === currentStepIndex && hasError) {
       return {
         children: (
@@ -87,9 +93,15 @@ export const TransferTransactionTimeline = ({
       };
     }
 
-    if (step === "complete") {
+    if (step === TransferStep.WaitingConfirmation) {
+      return { children: null, bullet: false };
+    }
+
+    if (step === TransferStep.Complete) {
       return {
-        children: completeStep,
+        children: (
+          <CompleteText transaction={transaction} isShielded={isShielded} />
+        ),
         bullet: false,
       };
     }
@@ -99,6 +111,42 @@ export const TransferTransactionTimeline = ({
       bullet: true,
     };
   });
+};
+
+export const TransferTransactionTimeline = ({
+  transaction,
+}: TransactionTransferTimelineProps): JSX.Element => {
+  const textSteps = [...allTransferStages[transaction.type]];
+  const isTransparentTransfer = transparentTransferTypes.includes(
+    transaction.type
+  );
+  const hasError = transaction.status === "error";
+
+  const initialSteps = [
+    {
+      children: (
+        <AssetImageWrapper
+          asset={transaction.asset}
+          isShielded={!isTransparentTransfer}
+        />
+      ),
+      bullet: false,
+    },
+  ];
+
+  const currentStepIndex = getCurrentIndex(
+    textSteps,
+    transaction.currentStep,
+    initialSteps.length
+  );
+
+  const stepsWithDescription = buildStepEntries(
+    textSteps.filter((step) => step === TransferStep.WaitingConfirmation),
+    currentStepIndex,
+    hasError,
+    transaction,
+    !isTransparentTransfer
+  );
 
   return (
     <div>
@@ -116,11 +164,13 @@ export const TransferTransactionTimeline = ({
           </span>
         )}
       </header>
-      <Timeline
-        steps={[...additionalSteps, ...stepsWithDescription]}
-        currentStepIndex={additionalSteps.length + currentStepIndex}
-        hasError={hasError}
-      />
+      {transaction.currentStep && (
+        <Timeline
+          steps={[...initialSteps, ...stepsWithDescription]}
+          currentStepIndex={currentStepIndex}
+          hasError={hasError}
+        />
+      )}
     </div>
   );
 };

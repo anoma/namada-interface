@@ -223,6 +223,7 @@ export enum TransferStep {
   IbcWithdraw = "ibc-withdraw",
   IbcToShielded = "ibc-to-shielded",
   IbcToTransparent = "ibc-to-transparent",
+  WaitingConfirmation = "waiting-confirmation",
   Complete = "complete",
 }
 
@@ -256,17 +257,20 @@ export const ibcTransferStages = {
   TransparentToIbc: [
     TransferStep.Sign,
     TransferStep.IbcWithdraw,
+    TransferStep.WaitingConfirmation,
     TransferStep.Complete,
   ] as const,
   IbcToShielded: [
     TransferStep.Sign,
     TransferStep.ZkProof,
     TransferStep.IbcToShielded,
+    TransferStep.WaitingConfirmation,
     TransferStep.Complete,
   ] as const,
   IbcToTransparent: [
     TransferStep.Sign,
     TransferStep.IbcToTransparent,
+    TransferStep.WaitingConfirmation,
     TransferStep.Complete,
   ] as const,
 };

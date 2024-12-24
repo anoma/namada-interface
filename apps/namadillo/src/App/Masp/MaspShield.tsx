@@ -204,7 +204,7 @@ export const MaspShield: React.FC = () => {
             />
           </motion.div>
         )}
-        {currentStep > 0 && (
+        {currentStep > 0 && transaction?.currentStep && (
           <motion.div
             key="progress"
             className={clsx("my-12 text-yellow")}
