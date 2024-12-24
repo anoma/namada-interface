@@ -94,7 +94,7 @@ export const IbcWithdraw: React.FC = () => {
       const transactionData: IbcTransferTransactionData = {
         ...tempTransaction.current,
         hash: tx.encodedTxData.txs[0].innerTxHashes[0].toLowerCase(),
-        currentStep: TransferStep.IbcWithdraw,
+        currentStep: TransferStep.WaitingConfirmation,
       };
       storeTransaction(transactionData);
     },
@@ -113,10 +113,6 @@ export const IbcWithdraw: React.FC = () => {
       title: "IBC withdrawal failed",
       description: "",
     }),
-    onError: (err) => {
-      setGeneralErrorMessage(err + "");
-      setTransaction(undefined);
-    },
     onSuccess,
   });
 
@@ -170,7 +166,7 @@ export const IbcWithdraw: React.FC = () => {
         updatedAt: new Date(),
         currentStep: TransferStep.Sign,
       };
-      setTransaction(tx);
+      setTransaction({ ...tx });
       tempTransaction.current = { ...tx };
       await performWithdraw({
         params: [
@@ -185,6 +181,7 @@ export const IbcWithdraw: React.FC = () => {
           },
         ],
       });
+      setTransaction({ ...tx, currentStep: TransferStep.WaitingConfirmation });
     } catch (err) {
       setGeneralErrorMessage(err + "");
       setTransaction(undefined);

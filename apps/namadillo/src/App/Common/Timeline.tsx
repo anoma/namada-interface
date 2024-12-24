@@ -8,6 +8,7 @@ type TransactionTimelineProps = {
   steps: TransactionStep[];
   currentStepIndex: number;
   hasError?: boolean;
+  complete?: boolean;
 };
 
 type DisabledProps = {
@@ -56,6 +57,7 @@ export const Timeline = ({
   steps,
   currentStepIndex,
   hasError,
+  complete,
 }: TransactionTimelineProps): JSX.Element => {
   return (
     <div>
@@ -78,7 +80,9 @@ export const Timeline = ({
                 <StepBullet disabled={index > currentStepIndex} />
               )}
               <StepContent
-                isNextStep={index === currentStepIndex + 1 && !hasError}
+                isNextStep={
+                  index === currentStepIndex && !hasError && !complete
+                }
                 disabled={index > currentStepIndex}
                 hasError={Boolean(hasError)}
               >

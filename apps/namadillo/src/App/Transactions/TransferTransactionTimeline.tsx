@@ -51,7 +51,7 @@ const CompleteText = ({
 }: CompleteTextProps): JSX.Element => (
   <>
     <AssetImageWrapper asset={transaction.asset} isShielded={isShielded} />
-    <p>
+    <p className="mt-2">
       {isShielded ?
         "Shielded Transfer Complete"
       : "Transparent Transfer Complete"}
@@ -65,11 +65,7 @@ const getCurrentIndex = (
   numberInitialSteps: number
 ): number => {
   const currentIdx = steps.findIndex((step) => step === currentStep) || 0;
-  const shouldWaitForConfirmation = steps.includes(
-    TransferStep.WaitingConfirmation
-  );
-
-  return currentIdx + numberInitialSteps + (shouldWaitForConfirmation ? -1 : 0);
+  return currentIdx + numberInitialSteps;
 };
 
 const buildStepEntries = (
@@ -117,12 +113,13 @@ export const TransferTransactionTimeline = ({
   transaction,
 }: TransactionTransferTimelineProps): JSX.Element => {
   const textSteps = [...allTransferStages[transaction.type]];
+
+  const hasError = transaction.status === "error";
   const isTransparentTransfer = transparentTransferTypes.includes(
     transaction.type
   );
-  const hasError = transaction.status === "error";
 
-  const initialSteps = [
+  const initialImage = [
     {
       children: (
         <AssetImageWrapper
@@ -137,11 +134,11 @@ export const TransferTransactionTimeline = ({
   const currentStepIndex = getCurrentIndex(
     textSteps,
     transaction.currentStep,
-    initialSteps.length
+    initialImage.length
   );
 
   const stepsWithDescription = buildStepEntries(
-    textSteps.filter((step) => step === TransferStep.WaitingConfirmation),
+    textSteps.filter((step) => step !== TransferStep.WaitingConfirmation),
     currentStepIndex,
     hasError,
     transaction,
@@ -166,9 +163,10 @@ export const TransferTransactionTimeline = ({
       </header>
       {transaction.currentStep && (
         <Timeline
-          steps={[...initialSteps, ...stepsWithDescription]}
+          steps={[...initialImage, ...stepsWithDescription]}
           currentStepIndex={currentStepIndex}
           hasError={hasError}
+          complete={transaction.status === "success"}
         />
       )}
     </div>
