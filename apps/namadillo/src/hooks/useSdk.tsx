@@ -1,6 +1,6 @@
 import { Sdk } from "@namada/sdk/web";
 import { QueryStatus, useQuery } from "@tanstack/react-query";
-import { nativeTokenAddressAtom } from "atoms/chain";
+import { chainParametersAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { useAtomValue } from "jotai";
 import {
   createContext,
@@ -29,20 +29,21 @@ export const SdkProvider: FunctionComponent<PropsWithChildren> = ({
 }) => {
   const [sdk, setSdk] = useState<Sdk>();
   const nativeToken = useAtomValue(nativeTokenAddressAtom);
+  const parameters = useAtomValue(chainParametersAtom);
 
   // fetchAndStoreMaspParams() returns nothing,
   // so we return boolean on success for the query to succeed:
-  const fetchMaspParams = async (): Promise<boolean | void> => {
+  const fetchMaspParams = async (chainId: string): Promise<boolean | void> => {
     const { masp } = sdk!;
 
     return masp.hasMaspParams().then(async (hasMaspParams) => {
       if (hasMaspParams) {
-        await masp.loadMaspParams("").catch((e) => Promise.reject(e));
+        await masp.loadMaspParams("", chainId).catch((e) => Promise.reject(e));
         return true;
       }
       return masp
         .fetchAndStoreMaspParams(paramsUrl)
-        .then(() => masp.loadMaspParams("").then(() => true))
+        .then(() => masp.loadMaspParams("", chainId).then(() => true))
         .catch((e) => {
           throw new Error(e);
         });
@@ -51,7 +52,8 @@ export const SdkProvider: FunctionComponent<PropsWithChildren> = ({
 
   const { status: maspParamsStatus } = useQuery({
     queryKey: ["sdk"],
-    queryFn: fetchMaspParams,
+    enabled: Boolean(parameters.data),
+    queryFn: async () => await fetchMaspParams(parameters.data!.chainId),
     retry: 3,
     retryDelay: 3000,
   });

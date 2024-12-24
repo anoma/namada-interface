@@ -29,7 +29,8 @@ export function shieldedSync(
   rpcUrl: string,
   maspIndexerUrl: string,
   token: string,
-  viewingKeys: DatedViewingKey[]
+  viewingKeys: DatedViewingKey[],
+  chainId: string
 ): EventEmitter<ShieldedSyncEventMap> {
   // Only one sync process at a time
   if (shieldedSyncEmitter) {
@@ -63,7 +64,7 @@ export function shieldedSync(
       });
       await shieldedSyncWorker.sync({
         type: "sync",
-        payload: { vks: viewingKeys },
+        payload: { vks: viewingKeys, chainId },
       });
     } finally {
       worker.terminate();
@@ -76,13 +77,14 @@ export function shieldedSync(
 
 export const fetchShieldedBalance = async (
   viewingKey: DatedViewingKey,
-  addresses: string[]
+  addresses: string[],
+  chainId: string
 ): Promise<Balance> => {
   // TODO mock shielded balance
   // return await mockShieldedBalance(viewingKey);
 
   const sdk = await getSdkInstance();
-  return await sdk.rpc.queryBalance(viewingKey.key, addresses);
+  return await sdk.rpc.queryBalance(viewingKey.key, addresses, chainId);
 };
 
 export const fetchBlockHeightByTimestamp = async (
@@ -92,17 +94,4 @@ export const fetchBlockHeightByTimestamp = async (
   const response = await api.apiV1BlockTimestampValueGet(timestamp);
 
   return Number(response.data.height);
-};
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mockShieldedBalance = async (
-  viewingKey: DatedViewingKey
-): Promise<Balance> => {
-  await new Promise((r) => setTimeout(() => r(0), 500));
-  getSdkInstance().then((sdk) => sdk.rpc.shieldedSync([viewingKey]));
-  return [
-    ["tnam1qy440ynh9fwrx8aewjvvmu38zxqgukgc259fzp6h", "37"], // nam
-    ["tnam1p5nnjnasjtfwen2kzg78fumwfs0eycqpecuc2jwz", "1"], // uatom
-    ["tnam1p4rm6gy30xzeehj29qr8v0t33xmwdlsn5ye0ezf0", "2"], // uosmo
-  ];
 };

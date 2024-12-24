@@ -54,6 +54,7 @@ export function WorkerTest(): JSX.Element {
       type: "sync",
       payload: {
         vks: [{ key: vk, birthday: 0 }],
+        chainId: chain!.id,
       },
     });
 

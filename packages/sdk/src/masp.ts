@@ -31,11 +31,12 @@ export class Masp {
   /**
    * Load stored MASP params
    * @param pathOrDbName - Path to stored MASP params(nodejs) or name of the database(browser)
+   * @param chainId - Chain ID to read the MASP params for
    * @async
    * @returns void
    */
-  async loadMaspParams(pathOrDbName: string): Promise<void> {
-    return await this.sdk.load_masp_params(pathOrDbName);
+  async loadMaspParams(pathOrDbName: string, chainId: string): Promise<void> {
+    return await this.sdk.load_masp_params(pathOrDbName, chainId);
   }
 
   /**
@@ -78,5 +79,14 @@ export class Masp {
    */
   maspAddress(): string {
     return this.sdk.masp_address();
+  }
+
+  /**
+   * Clear shilded context
+   * @param chainId - Chain ID to clear the shielded context for
+   * @returns void
+   */
+  clearShieldedContext(chainId: string): Promise<void> {
+    return SdkWasm.clear_shielded_context(chainId);
   }
 }

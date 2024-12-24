@@ -324,17 +324,21 @@ impl Query {
         Ok(result)
     }
 
-    pub async fn shielded_sync(&self, vks: Box<[DatedViewingKey]>) -> Result<(), JsError> {
+    pub async fn shielded_sync(
+        &self,
+        vks: Box<[DatedViewingKey]>,
+        chain_id: String,
+    ) -> Result<(), JsError> {
         let dated_keypairs = vks.iter().map(|vk| vk.0).collect::<Vec<_>>();
 
         match &self.masp_client {
             MaspClient::Indexer(client) => {
                 web_sys::console::info_1(&"Syncing using IndexerMaspClient".into());
-                self.sync(client.clone(), dated_keypairs).await?
+                self.sync(client.clone(), dated_keypairs, chain_id).await?
             }
             MaspClient::Ledger(client) => {
                 web_sys::console::info_1(&"Syncing using LedgerMaspClient".into());
-                self.sync(client.clone(), dated_keypairs).await?
+                self.sync(client.clone(), dated_keypairs, chain_id).await?
             }
         };
 
@@ -345,6 +349,7 @@ impl Query {
         &self,
         client: C,
         dated_keypairs: Vec<DatedKeypair<ViewingKey>>,
+        chain_id: String,
     ) -> Result<(), JsError>
     where
         C: NamadaMaspClient + Send + Sync + Unpin + 'static,
@@ -374,6 +379,7 @@ impl Query {
         let env = sync::TaskEnvWeb::new();
 
         let mut shielded_context: ShieldedContext<JSShieldedUtils> = ShieldedContext::default();
+        shielded_context.utils.chain_id = chain_id.clone();
 
         shielded_context
             .sync(env, config, None, &[], dated_keypairs.as_slice())
@@ -392,11 +398,13 @@ impl Query {
         &self,
         xvk: ExtendedViewingKey,
         tokens: Vec<Address>,
+        chain_id: String,
     ) -> Result<Vec<(Address, token::Amount)>, JsError> {
         let viewing_key = ExtendedFullViewingKey::from(xvk).fvk.vk;
 
         // We are recreating shielded context to avoid multiple mutable borrows
         let mut shielded: ShieldedContext<JSShieldedUtils> = ShieldedContext::default();
+        shielded.utils.chain_id = chain_id.clone();
         shielded.load().await?;
         shielded
             .precompute_asset_types(&self.client, tokens.iter().collect())
@@ -427,6 +435,8 @@ impl Query {
         &self,
         owner: String,
         tokens: Box<[JsValue]>,
+        // We need to pass chain id to load correct context
+        chain_id: String,
     ) -> Result<JsValue, JsError> {
         let tokens: Vec<Address> = tokens
             .iter()
@@ -439,7 +449,7 @@ impl Query {
         let result = match Address::from_str(&owner) {
             Ok(addr) => self.query_transparent_balance(addr, tokens).await,
             Err(e1) => match ExtendedViewingKey::from_str(&owner) {
-                Ok(xvk) => self.query_shielded_balance(xvk, tokens).await,
+                Ok(xvk) => self.query_shielded_balance(xvk, tokens, chain_id).await,
                 Err(e2) => return Err(JsError::new(&format!("{} {}", e1, e2))),
             },
         }?;

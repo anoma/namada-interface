@@ -31,6 +31,7 @@ import { routes } from "./routes";
 import { Advanced } from "./Settings/Advanced";
 import { EnableFeatures } from "./Settings/EnableFeatures";
 import { SettingsMain } from "./Settings/SettingsMain";
+import { SettingsMASP } from "./Settings/SettingsMASP";
 import { SettingsPanel } from "./Settings/SettingsPanel";
 import { SettingsSignArbitrary } from "./Settings/SettingsSignArbitrary";
 import { SignMessages } from "./SignMessages/SignMessages";
@@ -144,6 +145,7 @@ export const MainRoutes = (): JSX.Element => {
               path={routes.settingsSignArbitrary}
               element={<SettingsSignArbitrary />}
             />
+            <Route path={routes.settingsMASP} element={<SettingsMASP />} />
             <Route
               path={routes.settingsFeatures}
               element={<EnableFeatures />}

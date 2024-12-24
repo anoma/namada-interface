@@ -22,7 +22,7 @@
     "test-wasm:ci": "yarn wasm:ts:node && cd ./lib && wasm-pack test --node -- --features nodejs",
     "wasm:build:node:multicore": "yarn wasm:ts:node && node ./scripts/build.js --target nodejs --release --multicore",
     "wasm:build:node:dev": "yarn wasm:ts:node && node ./scripts/build.js --target nodejs",
-    "wasm:build:node:dev:multicore": "yarn wasm:ts:node && node ./scripts/build.js --target node --multicore"
+    "wasm:build:node:dev:multicore": "yarn wasm:ts:node && node ./scripts/build.js --target nodejs --multicore"
   },
   "dependencies": {
     "@dao-xyz/borsh": "^5.1.5",

@@ -2,6 +2,7 @@ import { Configuration, DefaultApi } from "@namada/indexer-client";
 import { isUrlValid } from "@namada/utils";
 import toml from "toml";
 import { SettingsTomlOptions } from "types";
+import { getSdkInstance } from "utils/sdk";
 
 export const isIndexerAlive = async (url: string): Promise<boolean> => {
   if (!isUrlValid(url)) {
@@ -46,3 +47,8 @@ export const fetchDefaultTomlConfig =
     const response = await fetch("/config.toml");
     return toml.parse(await response.text()) as SettingsTomlOptions;
   };
+
+export const clearShieldedContext = async (chainId: string): Promise<void> => {
+  const sdk = await getSdkInstance();
+  await sdk.getMasp().clearShieldedContext(chainId);
+};

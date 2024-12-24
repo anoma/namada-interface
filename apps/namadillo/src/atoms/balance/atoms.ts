@@ -110,6 +110,7 @@ export const shieldedSyncAtom = atomWithQuery<ShieldedSyncEmitter | null>(
     const namTokenAddressQuery = get(nativeTokenAddressAtom);
     const rpcUrl = get(rpcUrlAtom);
     const maspIndexerUrl = get(maspIndexerUrlAtom);
+    const parametersQuery = get(chainParametersAtom);
 
     return {
       queryKey: [
@@ -122,7 +123,8 @@ export const shieldedSyncAtom = atomWithQuery<ShieldedSyncEmitter | null>(
       ...queryDependentFn(async () => {
         const viewingKeys = viewingKeysQuery.data;
         const namTokenAddress = namTokenAddressQuery.data;
-        if (!namTokenAddress || !viewingKeys) {
+        const parameters = parametersQuery.data;
+        if (!namTokenAddress || !viewingKeys || !parameters) {
           return null;
         }
         const [_, allViewingKeys] = viewingKeys;
@@ -130,9 +132,10 @@ export const shieldedSyncAtom = atomWithQuery<ShieldedSyncEmitter | null>(
           rpcUrl,
           maspIndexerUrl,
           namTokenAddress,
-          allViewingKeys
+          allViewingKeys,
+          parameters.chainId
         );
-      }, [viewingKeysQuery, namTokenAddressQuery]),
+      }, [viewingKeysQuery, namTokenAddressQuery, parametersQuery]),
     };
   }
 );
@@ -147,6 +150,7 @@ export const shieldedBalanceAtom = atomWithQuery<
   const rpcUrl = get(rpcUrlAtom);
   const maspIndexerUrl = get(maspIndexerUrlAtom);
   const shieldedSync = get(shieldedSyncAtom);
+  const chainParametersQuery = get(chainParametersAtom);
 
   return {
     refetchInterval: enablePolling ? 1000 : false,
@@ -163,7 +167,8 @@ export const shieldedBalanceAtom = atomWithQuery<
       const viewingKeys = viewingKeysQuery.data;
       const chainTokens = chainTokensQuery.data;
       const syncEmitter = shieldedSync.data;
-      if (!viewingKeys || !chainTokens || !syncEmitter) {
+      const chain = chainParametersQuery.data;
+      if (!viewingKeys || !chainTokens || !syncEmitter || !chain) {
         return [];
       }
       const [viewingKey] = viewingKeys;
@@ -174,14 +179,20 @@ export const shieldedBalanceAtom = atomWithQuery<
 
       const response = await fetchShieldedBalance(
         viewingKey,
-        chainTokens.map((t) => t.address)
+        chainTokens.map((t) => t.address),
+        chain.chainId
       );
       const shieldedBalance = response.map(([address, amount]) => ({
         address,
         minDenomAmount: BigNumber(amount),
       }));
       return shieldedBalance;
-    }, [viewingKeysQuery, chainTokensQuery, namTokenAddressQuery]),
+    }, [
+      viewingKeysQuery,
+      chainTokensQuery,
+      namTokenAddressQuery,
+      chainParametersQuery,
+    ]),
   };
 });
 

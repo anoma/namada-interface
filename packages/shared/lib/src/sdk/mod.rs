@@ -99,6 +99,12 @@ impl Sdk {
         }
     }
 
+    pub async fn clear_shielded_context(chain_id: String) -> Result<(), JsValue> {
+        masp::JSShieldedUtils::clear(&chain_id).await?;
+
+        Ok(())
+    }
+
     pub async fn has_masp_params() -> Result<JsValue, JsValue> {
         let has = has_masp_params().await?;
 
@@ -111,7 +117,11 @@ impl Sdk {
     }
 
     #[cfg(feature = "web")]
-    pub async fn load_masp_params(&self, _db_name: JsValue) -> Result<(), JsValue> {
+    pub async fn load_masp_params(
+        &self,
+        _db_name: JsValue,
+        chain_id: String,
+    ) -> Result<(), JsValue> {
         // _dn_name is not used in the web version for a time being
         let params = get_masp_params().await?;
         let params_iter = js_sys::try_iter(&params)?.ok_or("Can't iterate over JsValue")?;
@@ -125,17 +135,23 @@ impl Sdk {
         assert_eq!(params_bytes.next(), None);
 
         let mut shielded = self.namada.shielded_mut().await;
-        *shielded = ShieldedContext::new(masp::JSShieldedUtils::new(spend, output, convert).await?);
+        *shielded = ShieldedContext::new(
+            masp::JSShieldedUtils::new(spend, output, convert, chain_id).await?,
+        );
 
         Ok(())
     }
 
     #[cfg(feature = "nodejs")]
-    pub async fn load_masp_params(&self, context_dir: JsValue) -> Result<(), JsValue> {
+    pub async fn load_masp_params(
+        &self,
+        context_dir: JsValue,
+        chain_id: &str,
+    ) -> Result<(), JsValue> {
         let context_dir = context_dir.as_string().unwrap();
 
         let mut shielded = self.namada.shielded_mut().await;
-        *shielded = ShieldedContext::new(masp::JSShieldedUtils::new(&context_dir).await);
+        *shielded = ShieldedContext::new(masp::JSShieldedUtils::new(&context_dir, chain_id).await);
 
         Ok(())
     }
