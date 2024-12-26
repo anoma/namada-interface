@@ -21,6 +21,7 @@ import { QueryStatus } from "@tanstack/query-core";
 import { ibcTransferAtom } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { getIbcGasConfig } from "integrations/utils";
+import invariant from "invariant";
 import { useAtomValue } from "jotai";
 
 type useIbcTransactionOutput = {
@@ -30,7 +31,6 @@ type useIbcTransactionOutput = {
   ) => Promise<TransferTransactionData>;
   transferStatus: "idle" | QueryStatus;
   gasConfig: GasConfig | undefined;
-  assertValid: () => void;
 };
 
 export const useIbcTransaction = ({
@@ -58,37 +58,19 @@ export const useIbcTransaction = ({
     return wallet;
   };
 
-  const assertValid = (): void => {
-    if (typeof sourceAddress === "undefined") {
-      throw new Error("Source address is not defined");
-    }
-
-    if (!selectedAsset) {
-      throw new Error("No asset is selected");
-    }
-
-    if (!registry) {
-      throw new Error("Invalid chain");
-    }
-
-    if (!sourceChannel) {
-      throw new Error("Invalid IBC source channel");
-    }
-
-    if (shielded && !destinationChannel) {
-      throw new Error("Invalid IBC destination channel");
-    }
-
-    if (typeof gasConfig === "undefined") {
-      throw new Error("No transaction fee is set");
-    }
-  };
-
   const transferToNamada = async (
     destinationAddress: Address,
     displayAmount: BigNumber
   ): Promise<TransferTransactionData> => {
-    assertValid();
+    invariant(sourceAddress, "Source address is not defined");
+    invariant(selectedAsset, "No asset is selected");
+    invariant(registry, "Invalid chain");
+    invariant(sourceChannel, "Invalid IBC source channel");
+    invariant(
+      shielded && !destinationChannel,
+      "Invalid IBC destination channel"
+    );
+    invariant(gasConfig, "No transaction fee is set");
 
     // Set Keplr option to allow Namadillo to set the transaction fee
     const baseKeplr = getWallet();
@@ -108,11 +90,11 @@ export const useIbcTransaction = ({
         transferParams: {
           signer: baseKeplr.getOfflineSigner(chainId),
           chainId,
-          sourceAddress: sourceAddress!,
+          sourceAddress,
           destinationAddress,
           amount: displayAmount,
-          asset: selectedAsset!,
-          gasConfig: gasConfig!,
+          asset: selectedAsset,
+          gasConfig,
           sourceChannelId: sourceChannel!.trim(),
           ...(shielded ?
             {
@@ -135,7 +117,6 @@ export const useIbcTransaction = ({
 
   return {
     transferToNamada,
-    assertValid,
     gasConfig,
     transferStatus: performIbcTransfer.status,
   };

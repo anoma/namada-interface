@@ -41,7 +41,7 @@ export const MaspShield: React.FC = () => {
   const performShieldTransfer = useAtomValue(shieldTxAtom);
 
   const [amount, setAmount] = useState<BigNumber | undefined>();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
 
   const [transaction, setTransaction] =
@@ -102,7 +102,7 @@ export const MaspShield: React.FC = () => {
   }: OnSubmitTransferParams): Promise<void> => {
     try {
       setGeneralErrorMessage("");
-      setCurrentStep(1);
+      setCurrentStepIndex(1);
 
       if (typeof sourceAddress === "undefined") {
         throw new Error("Source address is not defined");
@@ -155,10 +155,10 @@ export const MaspShield: React.FC = () => {
       setTransaction(tx);
       storeTransaction(tx);
 
-      setCurrentStep(2);
+      setCurrentStepIndex(2);
     } catch (err) {
       setGeneralErrorMessage(err + "");
-      setCurrentStep(0);
+      setCurrentStepIndex(0);
     }
   };
 
@@ -170,7 +170,7 @@ export const MaspShield: React.FC = () => {
         <h2 className="text-lg">Namada Transparent to Namada Shielded</h2>
       </header>
       <AnimatePresence>
-        {currentStep === 0 && (
+        {currentStepIndex === 0 && (
           <motion.div
             key="transfer"
             exit={{ opacity: 0 }}
@@ -204,7 +204,7 @@ export const MaspShield: React.FC = () => {
             />
           </motion.div>
         )}
-        {currentStep > 0 && transaction?.currentStep && (
+        {currentStepIndex > 0 && transaction?.currentStep && (
           <motion.div
             key="progress"
             className={clsx("my-12 text-yellow")}
@@ -213,7 +213,7 @@ export const MaspShield: React.FC = () => {
             exit={{ opacity: 0 }}
           >
             <Timeline
-              currentStepIndex={currentStep}
+              currentStepIndex={currentStepIndex}
               steps={[
                 {
                   children: <img src={assetImage} className="w-14" />,
