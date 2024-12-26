@@ -8,6 +8,7 @@ import {
   assertIsDeliverTxSuccess,
   calculateFee,
 } from "@cosmjs/stargate";
+import { getIndexerApi } from "atoms/api";
 import { queryForAck, queryForIbcTimeout } from "atoms/transactions";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
@@ -167,7 +168,7 @@ export const queryAndStoreRpc = async <T>(
   }
 };
 
-export const updateIbcTransactionStatus = async (
+export const updateIbcTransferStatus = async (
   rpc: string,
   tx: IbcTransferTransactionData,
   changeTransaction: (
@@ -192,6 +193,36 @@ export const updateIbcTransactionStatus = async (
       status: "error",
       errorMessage: "Transaction timed out",
       resultTxHash: timeoutQuery[0].hash,
+    });
+  }
+};
+
+export const updateIbcWithdrawalStatus = async (
+  tx: IbcTransferTransactionData,
+  changeTransaction: (
+    hash: string,
+    update: Partial<IbcTransferTransactionData>
+  ) => void
+): Promise<void> => {
+  const api = getIndexerApi();
+  if (!tx.hash) throw "Transaction hash not defined";
+  const response = await api.apiV1IbcTxIdStatusGet(tx.hash);
+
+  //@ts-expect-error Indexer not providing correct type
+  const { status } = response.data;
+
+  if (status === "success") {
+    changeTransaction(tx.hash, {
+      status: "success",
+      currentStep: TransferStep.Complete,
+    });
+    return;
+  }
+
+  if (status === "fail" || status === "timeout") {
+    changeTransaction(tx.hash, {
+      status: "error",
+      errorMessage: "IBC Withdraw failed",
     });
   }
 };

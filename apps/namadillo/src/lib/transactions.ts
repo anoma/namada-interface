@@ -143,6 +143,7 @@ export const createTransferDataFromIbc = (
     status: "pending",
     sourcePort: "transfer",
     chainId: sourceChainId,
+    currentStep: TransferStep.WaitingConfirmation,
     destinationChainId: namada.chainId, //TODO: integrate with registry,
     sourceAddress: getAttributeValue(transferAttributes, "sender"),
     destinationAddress: getAttributeValue(transferAttributes, "receiver"),

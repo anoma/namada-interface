@@ -1,4 +1,5 @@
 import { Chain } from "@chain-registry/types";
+import { IbcTransferMsgValue } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import { TransferTransactionTimeline } from "App/Transactions/TransferTransactionTimeline";
 import {
@@ -16,14 +17,17 @@ import {
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { useTransaction } from "hooks/useTransaction";
+import { useTransactionActions } from "hooks/useTransactionActions";
 import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
 import { KeplrWalletManager } from "integrations/Keplr";
 import { useAtomValue } from "jotai";
-import { broadcastTx } from "lib/query";
-import { useEffect, useState } from "react";
+import { TransactionPair } from "lib/query";
+import { useCallback, useEffect, useRef, useState } from "react";
 import namadaChainRegistry from "registry/namada.json";
-import { Address, PartialTransferTransactionData, TransferStep } from "types";
+import { Address, IbcTransferTransactionData, TransferStep } from "types";
+import { toBaseAmount } from "utils";
 import { IbcTopHeader } from "./IbcTopHeader";
 
 const defaultChainId = "cosmoshub-4";
@@ -38,10 +42,13 @@ export const IbcWithdraw: React.FC = () => {
   const [amount, setAmount] = useState<BigNumber | undefined>();
   const [customAddress, setCustomAddress] = useState<string>("");
   const [sourceChannel, setSourceChannel] = useState("");
-  const [transaction, setTransaction] =
-    useState<PartialTransferTransactionData>();
+  const [transaction, setTransaction] = useState<IbcTransferTransactionData>();
+  const tempTransaction = useRef<IbcTransferTransactionData>();
 
   const { data: availableAssets } = useAtomValue(namadaTransparentAssetsAtom);
+
+  const { storeTransaction, findByHash, transactions } =
+    useTransactionActions();
 
   const availableAmount = mapUndefined(
     (address) => availableAssets?.[address]?.amount,
@@ -71,18 +78,43 @@ export const IbcWithdraw: React.FC = () => {
     setSourceChannel(ibcChannels?.namadaChannelId || "");
   }, [ibcChannels]);
 
-  const {
-    mutateAsync: createIbcTx,
-    isError,
-    error: ibcTxError,
-    isPending,
-  } = useAtomValue(createIbcTxAtom);
-
+  // Keep local transaction up to date with the stored transaction
   useEffect(() => {
-    if (isError) {
-      setGeneralErrorMessage(ibcTxError + "");
+    if (transaction?.hash) {
+      const storedTx = findByHash(transaction.hash);
+      if (storedTx) {
+        setTransaction(storedTx as IbcTransferTransactionData);
+      }
     }
-  }, [isError]);
+  }, [transactions]);
+
+  const onSuccess = useCallback(
+    (tx: TransactionPair<IbcTransferMsgValue>) => {
+      if (!tempTransaction.current) return;
+      const transactionData: IbcTransferTransactionData = {
+        ...tempTransaction.current,
+        hash: tx.encodedTxData.txs[0].innerTxHashes[0].toLowerCase(),
+        currentStep: TransferStep.WaitingConfirmation,
+      };
+      storeTransaction(transactionData);
+    },
+    [transaction]
+  );
+
+  const { execute: performWithdraw, isPending } = useTransaction({
+    eventType: "IbcTransfer",
+    createTxAtom: createIbcTxAtom,
+    params: [],
+    parsePendingTxNotification: () => ({
+      title: "IBC withdrawal transaction in progress",
+      description: "Your IBC transaction is being processed",
+    }),
+    parseErrorTxNotification: () => ({
+      title: "IBC withdrawal failed",
+      description: "",
+    }),
+    onSuccess,
+  });
 
   const submitIbcTransfer = async ({
     displayAmount,
@@ -107,30 +139,49 @@ export const IbcWithdraw: React.FC = () => {
         throw new Error("No gas config");
       }
 
-      const { encodedTxData, signedTxs } = await createIbcTx({
-        destinationAddress,
-        token: selectedAsset,
-        amount: displayAmount,
-        portId: "transfer",
-        channelId: sourceChannel.trim(),
-        gasConfig,
-        memo,
-      });
+      if (typeof keplrAddress === "undefined") {
+        throw new Error("No address selected");
+      }
 
-      const tx: PartialTransferTransactionData = {
+      const amountInBaseDenom = toBaseAmount(
+        selectedAsset.asset,
+        displayAmount
+      );
+
+      const tx: IbcTransferTransactionData = {
+        rpc: "",
         type: "TransparentToIbc",
         asset: selectedAsset.asset,
         chainId: namadaChainRegistry.chain_id,
+        sourcePort: "transfer",
+        sourceChannel: sourceChannel.trim(),
+        status: "pending",
+        memo,
+        displayAmount,
+        destinationChainId: chainId!,
+        sourceAddress: keplrAddress,
+        destinationAddress,
+        sequence: new BigNumber(0),
+        createdAt: new Date(),
+        updatedAt: new Date(),
         currentStep: TransferStep.Sign,
       };
-
-      setTransaction(tx);
-      await broadcastTx(
-        encodedTxData,
-        signedTxs,
-        encodedTxData.meta?.props,
-        "IbcTransfer"
-      );
+      setTransaction({ ...tx });
+      tempTransaction.current = { ...tx };
+      await performWithdraw({
+        params: [
+          {
+            amountInBaseDenom,
+            channelId: sourceChannel.trim(),
+            portId: "transfer",
+            token: selectedAsset.originalAddress,
+            source: keplrAddress,
+            receiver: destinationAddress,
+            memo,
+          },
+        ],
+      });
+      setTransaction({ ...tx, currentStep: TransferStep.WaitingConfirmation });
     } catch (err) {
       setGeneralErrorMessage(err + "");
       setTransaction(undefined);
@@ -142,7 +193,6 @@ export const IbcWithdraw: React.FC = () => {
   };
 
   const requiresIbcChannels = !ibcChannels?.cosmosChannelId;
-
   return (
     <div className="relative min-h-[600px]">
       {!transaction && (

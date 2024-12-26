@@ -7,7 +7,6 @@ import { KeplrWalletManager } from "integrations/Keplr";
 import { useState } from "react";
 import { ShieldAllIntro } from "./ShieldAllIntro";
 import { ShieldAllPanel } from "./ShieldAllPanel";
-import { ShieldAllProgress } from "./ShieldAllProgress";
 
 const keplr = new KeplrWalletManager();
 
@@ -48,7 +47,6 @@ export const IbcShieldAll: React.FC = () => {
           onShieldAll={onShieldAll}
         />
       )}
-      {isSuccess && <ShieldAllProgress />}
     </Panel>
   );
 };
