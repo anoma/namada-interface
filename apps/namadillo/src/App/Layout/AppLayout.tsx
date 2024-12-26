@@ -1,3 +1,4 @@
+import { FixedWarningBanner } from "App/Common/FixedWarningBanner";
 import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { AppHeader } from "./AppHeader";
@@ -42,6 +43,7 @@ export const AppLayout = ({
         </aside>
         <main className="min-h-full">{children}</main>
       </div>
+      <FixedWarningBanner />
     </div>
   );
 };

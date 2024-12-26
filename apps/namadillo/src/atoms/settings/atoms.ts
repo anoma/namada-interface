@@ -7,7 +7,7 @@ import { SettingsStorage } from "types";
 import {
   clearShieldedContext,
   fetchDefaultTomlConfig,
-  isIndexerAlive,
+  getIndexerHealth,
   isMaspIndexerAlive,
   isRpcAlive,
 } from "./services";
@@ -176,7 +176,10 @@ export const maspIndexerUrlAtom = atom((get) => {
 export const updateIndexerUrlAtom = atomWithMutation(() => {
   return {
     mutationKey: ["update-indexer-url"],
-    mutationFn: changeSettingsUrl("indexerUrl", isIndexerAlive),
+    mutationFn: changeSettingsUrl(
+      "indexerUrl",
+      async (url: string): Promise<boolean> => !!(await getIndexerHealth(url))
+    ),
   };
 });
 
@@ -201,9 +204,9 @@ export const indexerHeartbeatAtom = atomWithQuery((get) => {
     refetchOnWindowFocus: true,
     refetchInterval: 10_000,
     queryFn: async () => {
-      const valid = await isIndexerAlive(indexerUrl);
-      if (!valid) throw "Unable to verify indexer heartbeat";
-      return true;
+      const indexerInfo = await getIndexerHealth(indexerUrl);
+      if (!indexerInfo) throw "Unable to verify indexer heartbeat";
+      return indexerInfo;
     },
   };
 });
