@@ -1,9 +1,13 @@
 import { TableRow } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
+import { IconTooltip } from "App/Common/IconTooltip";
 import { NamCurrency } from "App/Common/NamCurrency";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
+import { getTopValidatorsAddresses } from "lib/staking";
+import { useMemo } from "react";
+import { FaExclamation } from "react-icons/fa6";
 import { Validator } from "types";
 import { AmountField } from "./AmountField";
 import { ValidatorCard } from "./ValidatorCard";
@@ -28,6 +32,10 @@ export const IncrementBondingTable = ({
     validators,
     stakedAmountByAddress,
   });
+
+  const topValidatorsByRank = useMemo(() => {
+    return getTopValidatorsAddresses(validators);
+  }, [validators]);
 
   const headers = [
     { children: "Validator" },
@@ -73,8 +81,18 @@ export const IncrementBondingTable = ({
         // Amount Text input
         <div
           key={`increment-bonding-new-amounts-${validator.address}`}
-          className="min-w-[24ch]"
+          className="min-w-[24ch] relative"
         >
+          {topValidatorsByRank.includes(validator.address) ?
+            <IconTooltip
+              className={clsx(
+                "hidden absolute -left-6 bg-fail text-black top-1/2 -translate-y-1/2 z-50",
+                { "inline-flex": updatedAmountByAddress[validator.address] }
+              )}
+              icon={<FaExclamation />}
+              text="Consider staking to validators outside of the top 10 to increase decentralization"
+            />
+          : null}
           <AmountField
             placeholder="Select to increase stake"
             value={updatedAmountByAddress[validator.address]}
