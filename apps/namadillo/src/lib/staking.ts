@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { RedelegateChange } from "types";
+import { RedelegateChange, Validator } from "types";
 
 export const getReducedAmounts = (
   stakedAmounts: Record<string, BigNumber>,
@@ -15,6 +15,20 @@ export const getReducedAmounts = (
     }
   }
   return reducedAmounts;
+};
+
+export const getTopValidatorsAddresses = (
+  validators: Validator[],
+  topNumber = 10
+): string[] => {
+  return validators
+    .sort((v1: Validator, v2: Validator): number => {
+      if (!v1.votingPowerInNAM) return -1;
+      if (!v2.votingPowerInNAM) return 1;
+      return v1.votingPowerInNAM.gt(v2.votingPowerInNAM) ? -1 : 1;
+    })
+    .slice(0, topNumber)
+    .map((validator) => validator.address);
 };
 
 export const getIncrementedAmounts = (
