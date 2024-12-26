@@ -2,9 +2,7 @@ import { Asset, AssetDenomUnit } from "@chain-registry/types";
 import { ProposalStatus, ProposalTypeString } from "@namada/types";
 import { localnetConfigAtom } from "atoms/integrations/atoms";
 import BigNumber from "bignumber.js";
-import * as fns from "date-fns";
 import { getDefaultStore } from "jotai";
-import { DateTime } from "luxon";
 import namadaAssets from "namada-chain-registry/namada/assetlist.json";
 import { useEffect } from "react";
 
@@ -68,54 +66,9 @@ export const useTransactionEventListListener = <T extends keyof WindowEventMap>(
   }, deps);
 };
 
-const secondsToDateTime = (seconds: bigint): DateTime =>
-  DateTime.fromSeconds(Number(seconds));
-
-export const secondsToTimeString = (seconds: bigint): string =>
-  secondsToDateTime(seconds).toLocaleString(DateTime.TIME_24_SIMPLE);
-
-export const secondsToDateString = (seconds: bigint): string =>
-  secondsToDateTime(seconds).toLocaleString(DateTime.DATE_MED);
-
-export const secondsToDateTimeString = (seconds: bigint): string =>
-  `${secondsToDateString(seconds)}, ${secondsToTimeString(seconds)}`;
-
 export const sumBigNumberArray = (numbers: BigNumber[]): BigNumber => {
   if (numbers.length === 0) return new BigNumber(0);
   return BigNumber.sum(...numbers);
-};
-
-export const secondsToTimeRemainingString = (
-  startTimeInSeconds: bigint,
-  endTimeInSeconds: bigint
-): string | undefined => {
-  return;
-  if (endTimeInSeconds < startTimeInSeconds) {
-    return undefined;
-  }
-
-  const toMilliNumber = (n: bigint): number =>
-    fns.secondsToMilliseconds(Number(n));
-  const interval = {
-    start: toMilliNumber(startTimeInSeconds),
-    end: toMilliNumber(endTimeInSeconds),
-  };
-  const format: fns.DurationUnit[] = ["days", "hours", "minutes"];
-  const timeLeft = fns.intervalToDuration(interval);
-  const formatted = fns.formatDuration(timeLeft, {
-    format,
-    zero: true,
-    delimiter: ": ",
-  });
-
-  if (formatted === "") {
-    return "< 1 Min";
-  }
-
-  return formatted
-    .replace("day", "Day")
-    .replace("hour", "Hr")
-    .replace("minute", "Min");
 };
 
 const findDisplayUnit = (asset: Asset): AssetDenomUnit | undefined => {
