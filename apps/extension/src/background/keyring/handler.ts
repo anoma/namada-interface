@@ -138,9 +138,9 @@ const handleSaveAccountSecretMsg: (
   service: KeyRingService
 ) => InternalHandler<SaveAccountSecretMsg> = (service) => {
   return async (_, msg) => {
-    const { accountSecret, alias, path } = msg;
+    const { accountSecret, alias, flow, path } = msg;
     if (accountSecret) {
-      return await service.saveAccountSecret(accountSecret, alias, path);
+      return await service.saveAccountSecret(accountSecret, alias, flow, path);
     }
     return false;
   };
@@ -159,8 +159,14 @@ const handleDeriveAccountMsg: (
   service: KeyRingService
 ) => InternalHandler<DeriveAccountMsg> = (service) => {
   return async (_, msg) => {
-    const { path, accountType, alias, parentId } = msg;
-    return await service.deriveAccount(path, accountType, alias, parentId);
+    const { path, accountType, alias, parentId, source } = msg;
+    return await service.deriveAccount(
+      path,
+      accountType,
+      alias,
+      parentId,
+      source
+    );
   };
 };
 

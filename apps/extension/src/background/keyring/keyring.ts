@@ -112,6 +112,8 @@ export class KeyRing {
       owner: address,
       path: bip44Path,
       type: AccountType.Ledger,
+      source: "imported",
+      timestamp: 0,
     };
 
     const sensitive = await this.vaultService.encryptSensitiveData({
@@ -154,11 +156,14 @@ export class KeyRing {
   public async storeAccountSecret(
     accountSecret: AccountSecret,
     alias: string,
+    flow: "create" | "import",
     path: Bip44Path = { account: 0, change: 0, index: 0 }
   ): Promise<AccountStore> {
     await this.vaultService.assertIsUnlocked();
 
     const keys = this.sdkService.getSdk().getKeys();
+    const source = flow === "create" ? "generated" : "imported";
+    const timestamp = source === "generated" ? new Date().getTime() : 0;
 
     const { sk, text, passphrase, accountType } = ((): {
       sk: string;
@@ -227,6 +232,8 @@ export class KeyRing {
       path,
       publicKey,
       type: accountType,
+      source,
+      timestamp,
     };
     const sensitiveData: SensitiveAccountStoreData = { text, passphrase };
     const sensitive =
@@ -363,7 +370,9 @@ export class KeyRing {
     parentId: string,
     type: AccountType,
     alias: string,
-    derivedAccountInfo: DerivedAccountInfo
+    derivedAccountInfo: DerivedAccountInfo,
+    source: "imported" | "generated",
+    timestamp: number
   ): Promise<DerivedAccount> {
     const { address, id, text, owner, pseudoExtendedKey } = derivedAccountInfo;
     const account: AccountStore = {
@@ -375,6 +384,8 @@ export class KeyRing {
       type,
       owner,
       pseudoExtendedKey,
+      source,
+      timestamp,
     };
     const sensitive = await this.vaultService.encryptSensitiveData({
       text,
@@ -394,7 +405,8 @@ export class KeyRing {
     bip44Path: Bip44Path,
     type: AccountType,
     alias: string,
-    parentId: string
+    parentId: string,
+    source: "imported" | "generated"
   ): Promise<DerivedAccount> {
     await this.vaultService.assertIsUnlocked();
 
@@ -437,12 +449,15 @@ export class KeyRing {
       );
     }
 
+    const timestamp = source === "generated" ? new Date().getTime() : 0;
     const derivedAccount = await this.persistAccount(
       type === AccountType.ShieldedKeys ? zip32Path : derivationPath,
       parentId,
       type,
       alias,
-      info
+      info,
+      source,
+      timestamp
     );
     return derivedAccount;
   }

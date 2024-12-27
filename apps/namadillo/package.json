@@ -103,6 +103,7 @@
     "@types/traverse": "^0.6.36",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.16",
+    "axios": "^1.7.9",
     "dotenv": "^16.0.3",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
