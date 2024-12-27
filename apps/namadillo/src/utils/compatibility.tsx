@@ -4,6 +4,13 @@ import { wallets } from "integrations";
 import { Link } from "react-router-dom";
 import semverSatisfies from "semver/functions/satisfies";
 import semverLtr from "semver/ranges/ltr";
+import { isFirefox } from "./etc";
+
+enum CompatibilityOutput {
+  IncompatibleVersion = -1,
+  Compatible = 0,
+  InterfaceOutdated = 1,
+}
 
 // Checks if the versions are compatible using semantic versioning (semver).
 // Returns true if the versions are compatible, -1 if the version is outdated,
@@ -11,11 +18,13 @@ import semverLtr from "semver/ranges/ltr";
 const checkVersionsCompatible = (
   currentVersion: string,
   requiredVersion: string
-): -1 | 1 | boolean => {
+): CompatibilityOutput => {
   if (semverSatisfies(currentVersion, requiredVersion)) {
-    return true;
+    return CompatibilityOutput.Compatible;
   }
-  return semverLtr(currentVersion, requiredVersion) ? -1 : 1;
+  return semverLtr(currentVersion, requiredVersion) ?
+      CompatibilityOutput.IncompatibleVersion
+    : CompatibilityOutput.InterfaceOutdated;
 };
 
 export const checkIndexerCompatibilityErrors = (
@@ -24,7 +33,7 @@ export const checkIndexerCompatibilityErrors = (
   const requiredVersion = compatibilty.indexer;
   const checkResult = checkVersionsCompatible(indexerVersion, requiredVersion);
 
-  if (checkResult === -1) {
+  if (checkResult === CompatibilityOutput.IncompatibleVersion) {
     return (
       <>
         You&apos;re using an outdated version of Namada Indexer. Please update
@@ -34,7 +43,7 @@ export const checkIndexerCompatibilityErrors = (
     );
   }
 
-  if (checkResult === 1) {
+  if (checkResult === CompatibilityOutput.InterfaceOutdated) {
     return (
       <>
         Your Namadillo version is not compatible with the current Namada
@@ -56,31 +65,32 @@ export const checkKeychainCompatibilityError = (
     targetKeychainVersion
   );
 
-  if (checkResult === -1) {
+  if (checkResult === CompatibilityOutput.IncompatibleVersion) {
     return (
       <>
         Your Namada Keychain version is outdated. Please upgrade it using{" "}
-        <a
-          href={wallets.namada.downloadUrl.chrome}
-          target="_blank"
-          rel="nofollow noreferrer"
-        >
-          Chrome store
-        </a>{" "}
-        or{" "}
-        <a
-          href={wallets.namada.downloadUrl.firefox}
-          target="_blank"
-          rel="nofollow noreferrer"
-        >
-          Firefox addons
-        </a>{" "}
-        websites.
+        {isFirefox() ?
+          <a
+            href={wallets.namada.downloadUrl.firefox}
+            target="_blank"
+            rel="nofollow noreferrer"
+          >
+            Firefox addons
+          </a>
+        : <a
+            href={wallets.namada.downloadUrl.chrome}
+            target="_blank"
+            rel="nofollow noreferrer"
+          >
+            Chrome store
+          </a>
+        }{" "}
+        or websites.
       </>
     );
   }
 
-  if (checkResult === 1) {
+  if (checkResult === CompatibilityOutput.InterfaceOutdated) {
     return (
       <>
         Your Namadillo version is not compatible with the keychain installed.
