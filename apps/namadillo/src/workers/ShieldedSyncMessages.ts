@@ -11,6 +11,7 @@ export type InitDone = WebWorkerMessage<"init-done", null>;
 
 type ShiededSyncPayload = {
   vks: DatedViewingKey[];
+  chainId: string;
 };
 export type Sync = WebWorkerMessage<"sync", ShiededSyncPayload>;
 export type SyncDone = WebWorkerMessage<"sync-done", null>;

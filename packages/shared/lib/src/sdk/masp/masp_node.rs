@@ -32,10 +32,11 @@ const CACHE_FILE_TMP_PREFIX: &str = "shielded_sync.cache.tmp";
 pub struct NodeShieldedUtils {
     #[borsh(skip)]
     context_dir: PathBuf,
+    pub chain_id: String,
 }
 
 impl NodeShieldedUtils {
-    pub async fn new(context_dir: &str) -> ShieldedWallet<Self> {
+    pub async fn new(context_dir: &str, chain_id: &str) -> ShieldedWallet<Self> {
         let context_dir = PathBuf::from(context_dir);
 
         let spend_path = context_dir.join(SPEND_NAME);
@@ -57,13 +58,21 @@ impl NodeShieldedUtils {
             ContextSyncStatus::Confirmed
         };
 
-        let utils = Self { context_dir };
+        let utils = Self {
+            context_dir,
+            chain_id: String::from(chain_id),
+        };
 
         ShieldedWallet {
             utils,
             sync_status,
             ..Default::default()
         }
+    }
+
+    //TODO: This should not be rexie:Error - it's added only to make the code compile
+    pub async fn clear(_chain_id: &str) -> Result<(), rexie::Error> {
+        todo!("Clear not implemented for NodeShieldedUtils");
     }
 
     async fn fetch_params(path: PathBuf, name: &str) {

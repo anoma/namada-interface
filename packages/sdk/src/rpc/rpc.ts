@@ -45,10 +45,15 @@ export class Rpc {
    * @async
    * @param owner - Owner address
    * @param tokens - Array of token addresses
+   * @param chainId - Chain id needed to load specific context
    * @returns [[tokenAddress, amount]]
    */
-  async queryBalance(owner: string, tokens: string[]): Promise<Balance> {
-    return await this.query.query_balance(owner, tokens);
+  async queryBalance(
+    owner: string,
+    tokens: string[],
+    chainId: string
+  ): Promise<Balance> {
+    return await this.query.query_balance(owner, tokens, chainId);
   }
 
   /**
@@ -238,14 +243,14 @@ export class Rpc {
    * Sync the shielded context
    * @async
    * @param vks - Array of dated viewing keys
+   * @param chainId - Chain ID to sync the shielded context for
    * @returns
    */
-  async shieldedSync(vks: DatedViewingKey[]): Promise<void> {
+  async shieldedSync(vks: DatedViewingKey[], chainId: string): Promise<void> {
     const datedViewingKeys = vks.map(
       (vk) => new DatedViewingKeyWasm(vk.key, String(vk.birthday))
     );
 
-    // TODO: shieled_sync expects an array for strings atm
-    await this.query.shielded_sync(datedViewingKeys);
+    await this.query.shielded_sync(datedViewingKeys, chainId);
   }
 }

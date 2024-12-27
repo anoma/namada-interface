@@ -71,7 +71,7 @@ function newSdk(
 }
 
 async function shieldedSync(sdk: Sdk, payload: Sync["payload"]): Promise<void> {
-  await sdk.rpc.shieldedSync(payload.vks);
+  await sdk.rpc.shieldedSync(payload.vks, payload.chainId);
 }
 
 Comlink.expose(new Worker());

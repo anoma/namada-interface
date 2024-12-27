@@ -13,3 +13,10 @@ jest.mock("atoms/integrations", () => ({
 jest.mock("atoms/integrations/atoms", () => ({
   localnetConfigAtom: atom({ data: undefined }),
 }));
+
+// Because we run tests in node environment, we need to mock inline-init as node-init
+jest.mock(
+  "@namada/sdk/inline-init",
+  () => () =>
+    Promise.resolve(jest.requireActual("@namada/sdk/node-init").default())
+);

@@ -9,8 +9,7 @@ use wasm_bindgen::{JsError, JsValue};
 
 use crate::utils::to_bytes;
 
-const DB_PREFIX: &str = "namada_sdk::MASP";
-const SHIELDED_CONTEXT_TABLE: &str = "ShieldedContext";
+const SHIELDED_CONTEXT_PREFIX: &str = "shielded-context";
 const SHIELDED_CONTEXT_KEY_CONFIRMED: &str = "shielded-context-confirmed";
 const SHIELDED_CONTEXT_KEY_SPECULATIVE: &str = "shielded-context-speculative";
 const SHIELDED_CONTEXT_KEY_TEMP: &str = "shielded-context-temp";
@@ -21,6 +20,7 @@ pub struct WebShieldedUtils {
     spend_param_bytes: Vec<u8>,
     output_param_bytes: Vec<u8>,
     convert_param_bytes: Vec<u8>,
+    pub chain_id: String,
 }
 
 impl WebShieldedUtils {
@@ -28,16 +28,21 @@ impl WebShieldedUtils {
         spend_param_bytes: Vec<u8>,
         output_param_bytes: Vec<u8>,
         convert_param_bytes: Vec<u8>,
+        chain_id: String,
     ) -> Result<ShieldedWallet<Self>, JsError> {
         let utils = Self {
             spend_param_bytes,
             output_param_bytes,
             convert_param_bytes,
+            chain_id: chain_id.clone(),
         };
 
-        let db = Self::build_database().await?;
+        let db = Self::build_database(&chain_id).await?;
 
-        let sync_status = if Self::get_context(&db, false, false).await.is_ok() {
+        let sync_status = if Self::get_context(&db, false, false, &chain_id)
+            .await
+            .is_ok()
+        {
             ContextSyncStatus::Speculative
         } else {
             ContextSyncStatus::Confirmed
@@ -50,14 +55,36 @@ impl WebShieldedUtils {
         })
     }
 
+    /// Clear all shielded context data from the database.
+    pub async fn clear(chain_id: &str) -> Result<(), Error> {
+        let db = Self::build_database(&chain_id).await?;
+        let entry = format!("{}-{}", SHIELDED_CONTEXT_PREFIX, chain_id);
+
+        db.transaction(&[entry.clone()], TransactionMode::ReadWrite)?
+            .store(&entry)?
+            .delete(&JsValue::from_str(SHIELDED_CONTEXT_KEY_SPECULATIVE))
+            .await?;
+        db.transaction(&[entry.clone()], TransactionMode::ReadWrite)?
+            .store(&entry)?
+            .delete(&JsValue::from_str(SHIELDED_CONTEXT_KEY_CONFIRMED))
+            .await?;
+        db.transaction(&[entry.clone()], TransactionMode::ReadWrite)?
+            .store(&entry)?
+            .delete(&JsValue::from_str(SHIELDED_CONTEXT_KEY_TEMP))
+            .await?;
+
+        Ok(())
+    }
+
     fn to_io_err(e: Error) -> std::io::Error {
         std::io::Error::new(std::io::ErrorKind::Other, e.to_string())
     }
 
-    pub async fn build_database() -> Result<Rexie, Error> {
-        let rexie = Rexie::builder(DB_PREFIX)
+    pub async fn build_database(chain_id: &str) -> Result<Rexie, Error> {
+        let entry = format!("{}-{}", SHIELDED_CONTEXT_PREFIX, chain_id);
+        let rexie = Rexie::builder(&entry)
             .version(1)
-            .add_object_store(ObjectStore::new(SHIELDED_CONTEXT_TABLE))
+            .add_object_store(ObjectStore::new(&entry))
             .build()
             .await?;
 
@@ -69,12 +96,13 @@ impl WebShieldedUtils {
         context: JsValue,
         confirmed: bool,
         cache: bool,
+        chain_id: &str,
     ) -> Result<(), Error> {
+        let entry = format!("{}-{}", SHIELDED_CONTEXT_PREFIX, chain_id);
         //TODO: add readwriteflush
-        let transaction =
-            rexie.transaction(&[SHIELDED_CONTEXT_TABLE], TransactionMode::ReadWrite)?;
+        let transaction = rexie.transaction(&[entry.clone()], TransactionMode::ReadWrite)?;
 
-        let context_store = transaction.store(SHIELDED_CONTEXT_TABLE)?;
+        let context_store = transaction.store(&entry)?;
 
         let key = Self::get_key(confirmed, cache);
 
@@ -85,11 +113,16 @@ impl WebShieldedUtils {
         Ok(())
     }
 
-    async fn get_context(rexie: &Rexie, confirmed: bool, cache: bool) -> Result<JsValue, Error> {
-        let transaction =
-            rexie.transaction(&[SHIELDED_CONTEXT_TABLE], TransactionMode::ReadOnly)?;
+    async fn get_context(
+        rexie: &Rexie,
+        confirmed: bool,
+        cache: bool,
+        chain_id: &str,
+    ) -> Result<JsValue, Error> {
+        let entry = format!("{}-{}", SHIELDED_CONTEXT_PREFIX, chain_id);
+        let transaction = rexie.transaction(&[entry.clone()], TransactionMode::ReadOnly)?;
 
-        let context_store = transaction.store(SHIELDED_CONTEXT_TABLE)?;
+        let context_store = transaction.store(&entry)?;
 
         let key = Self::get_key(confirmed, cache);
 
@@ -98,11 +131,11 @@ impl WebShieldedUtils {
         Ok(context)
     }
 
-    async fn remove_speculative_context(rexie: &Rexie) -> Result<(), Error> {
-        let transaction =
-            rexie.transaction(&[SHIELDED_CONTEXT_TABLE], TransactionMode::ReadWrite)?;
+    async fn remove_speculative_context(rexie: &Rexie, chain_id: &str) -> Result<(), Error> {
+        let entry = format!("{}-{}", SHIELDED_CONTEXT_PREFIX, chain_id);
+        let transaction = rexie.transaction(&[entry.clone()], TransactionMode::ReadWrite)?;
 
-        let context_store = transaction.store(SHIELDED_CONTEXT_TABLE)?;
+        let context_store = transaction.store(&entry)?;
 
         context_store
             .delete(&JsValue::from_str(SHIELDED_CONTEXT_KEY_SPECULATIVE))
@@ -144,10 +177,12 @@ impl ShieldedUtils for WebShieldedUtils {
         ctx: &mut ShieldedWallet<U>,
         force_confirmed: bool,
     ) -> std::io::Result<()> {
-        let db = Self::build_database().await.map_err(Self::to_io_err)?;
+        let db = Self::build_database(&self.chain_id)
+            .await
+            .map_err(Self::to_io_err)?;
         let confirmed = force_confirmed || get_confirmed(&ctx.sync_status);
 
-        let stored_ctx = Self::get_context(&db, confirmed, false)
+        let stored_ctx = Self::get_context(&db, confirmed, false, &self.chain_id)
             .await
             .map_err(Self::to_io_err)?;
         let stored_ctx_bytes = to_bytes(stored_ctx);
@@ -170,15 +205,24 @@ impl ShieldedUtils for WebShieldedUtils {
         let mut bytes = Vec::new();
         ctx.serialize(&mut bytes)
             .expect("cannot serialize shielded context");
-        let db = Self::build_database().await.map_err(Self::to_io_err)?;
-        let confirmed = get_confirmed(&ctx.sync_status);
 
-        Self::set_context(&db, JsValue::from_serde(&bytes).unwrap(), confirmed, false)
+        let db = Self::build_database(&self.chain_id)
             .await
             .map_err(Self::to_io_err)?;
+        let confirmed = get_confirmed(&ctx.sync_status);
+
+        Self::set_context(
+            &db,
+            JsValue::from_serde(&bytes).unwrap(),
+            confirmed,
+            false,
+            &self.chain_id,
+        )
+        .await
+        .map_err(Self::to_io_err)?;
 
         if let ContextSyncStatus::Confirmed = ctx.sync_status {
-            Self::remove_speculative_context(&db)
+            Self::remove_speculative_context(&db, &self.chain_id)
                 .await
                 .map_err(Self::to_io_err)?;
         }
@@ -192,18 +236,28 @@ impl ShieldedUtils for WebShieldedUtils {
         let mut bytes = Vec::new();
         cache.serialize(&mut bytes).expect("cannot serialize cache");
 
-        let db = Self::build_database().await.map_err(Self::to_io_err)?;
-        Self::set_context(&db, JsValue::from_serde(&bytes).unwrap(), false, true)
+        let db = Self::build_database(&self.chain_id)
             .await
-            .map_err(Self::to_io_err)
+            .map_err(Self::to_io_err)?;
+        Self::set_context(
+            &db,
+            JsValue::from_serde(&bytes).unwrap(),
+            false,
+            true,
+            &self.chain_id,
+        )
+        .await
+        .map_err(Self::to_io_err)
     }
 
     /// Load a cache of data as part of shielded sync if that
     /// process gets interrupted.
     async fn cache_load(&self) -> std::io::Result<DispatcherCache> {
-        let db = Self::build_database().await.map_err(Self::to_io_err)?;
+        let db = Self::build_database(&self.chain_id)
+            .await
+            .map_err(Self::to_io_err)?;
 
-        let stored_cache = Self::get_context(&db, false, true)
+        let stored_cache = Self::get_context(&db, false, true, &self.chain_id)
             .await
             .map_err(Self::to_io_err)?;
         let stored_cache_bytes = to_bytes(stored_cache);

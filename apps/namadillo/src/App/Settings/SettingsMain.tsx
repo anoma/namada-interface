@@ -15,6 +15,7 @@ export const SettingsMain = (): JSX.Element => {
           url={routes.settingsSignArbitrary}
           text="Sign Arbitrary"
         />
+        <SettingsPanelMenuItem url={routes.settingsMASP} text="MASP" />
       </ul>
       <div className="text-xs">
         <div>Namadillo Version: {version}</div>

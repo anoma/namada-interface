@@ -17,7 +17,6 @@ export const ShieldedBalanceChart = (): JSX.Element => {
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
   const [{ data: shieldedSyncProgress, refetch: shieledSync }] =
     useAtom(shieldedSyncAtom);
-
   const [showSyncProgress, setShowSyncProgress] = useState(false);
   const [progress, setProgress] = useState({
     [ProgressBarNames.Scanned]: 0,
@@ -27,26 +26,37 @@ export const ShieldedBalanceChart = (): JSX.Element => {
 
   useEffect(() => {
     if (!shieldedSyncProgress) return;
-
     const onProgressBarIncremented = ({
       name,
       current,
       total,
     }: ProgressBarIncremented): void => {
-      const perc =
-        total === 0 ? 0 : Math.min(Math.floor((current / total) * 100), 100);
+      if (name === ProgressBarNames.Fetched) {
+        // TODO: this maybe can be improved by passing total in ProgressBarStarted event
+        // If total is more than one batch of 100, show progress
+        if (total > 100) {
+          setShowSyncProgress(true);
+        }
 
-      setProgress((prev) => ({
-        ...prev,
-        [name]: perc,
-      }));
+        const perc =
+          total === 0 ? 0 : Math.min(Math.floor((current / total) * 100), 100);
+
+        setProgress((prev) => ({
+          ...prev,
+          [name]: perc,
+        }));
+      }
     };
 
     const onProgressBarFinished = ({ name }: ProgressBarFinished): void => {
-      setProgress((prev) => ({
-        ...prev,
-        [name]: 100,
-      }));
+      if (name === ProgressBarNames.Fetched) {
+        setProgress((prev) => ({
+          ...prev,
+          [name]: 100,
+        }));
+
+        setShowSyncProgress(false);
+      }
     };
 
     shieldedSyncProgress.on(
@@ -73,13 +83,6 @@ export const ShieldedBalanceChart = (): JSX.Element => {
 
   useEffect(() => {
     shieledSync();
-
-    const timeoutId = setTimeout(() => {
-      setShowSyncProgress(true);
-    }, 3000);
-    return () => {
-      clearTimeout(timeoutId);
-    };
   }, []);
 
   const shieldedDollars = getTotalDollar(shieldedTokensQuery.data);
@@ -91,7 +94,7 @@ export const ShieldedBalanceChart = (): JSX.Element => {
           result={shieldedTokensQuery}
           niceError="Unable to load balance"
         >
-          {shieldedTokensQuery.isPending ?
+          {shieldedTokensQuery.isPending || showSyncProgress ?
             <SkeletonLoading
               height="100%"
               width="100%"

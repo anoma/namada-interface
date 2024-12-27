@@ -1,10 +1,11 @@
 import { isUrlValid, sanitizeUrl } from "@namada/utils";
-import { indexerRpcUrlAtom } from "atoms/chain";
+import { chainParametersAtom, indexerRpcUrlAtom } from "atoms/chain";
 import { Getter, Setter, atom, getDefaultStore } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
 import { SettingsStorage } from "types";
 import {
+  clearShieldedContext,
   fetchDefaultTomlConfig,
   isIndexerAlive,
   isMaspIndexerAlive,
@@ -204,5 +205,17 @@ export const indexerHeartbeatAtom = atomWithQuery((get) => {
       if (!valid) throw "Unable to verify indexer heartbeat";
       return true;
     },
+  };
+});
+
+export const clearShieldedContextAtom = atomWithMutation((get) => {
+  const parameters = get(chainParametersAtom);
+  if (!parameters.data) {
+    throw new Error("Chain parameters not loaded");
+  }
+
+  return {
+    mutationKey: ["clear-shielded-context"],
+    mutationFn: () => clearShieldedContext(parameters.data.chainId),
   };
 });

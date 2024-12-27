@@ -4,6 +4,7 @@ import {
   NativeToken,
   Parameters,
 } from "@namada/indexer-client";
+import { getSdkInstance } from "utils/sdk";
 
 export const fetchRpcUrlFromIndexer = async (
   api: DefaultApi
@@ -23,4 +24,9 @@ export const fetchChainTokens = async (
   api: DefaultApi
 ): Promise<(NativeToken | IbcToken)[]> => {
   return (await api.apiV1ChainTokenGet()).data;
+};
+
+export const clearShieldedContext = async (chainId: string): Promise<void> => {
+  const sdk = await getSdkInstance();
+  await sdk.getMasp().clearShieldedContext(chainId);
 };
