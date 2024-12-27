@@ -1,13 +1,14 @@
-import { Chain } from "@chain-registry/types";
+import { Asset, Chain } from "@chain-registry/types";
 import { IbcTransferMsgValue } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
-import { TransferTransactionTimeline } from "App/Transactions/TransferTransactionTimeline";
+import { routes } from "App/routes";
 import {
   OnSubmitTransferParams,
   TransferModule,
 } from "App/Transfer/TransferModule";
 import { defaultAccountAtom } from "atoms/accounts";
 import { namadaTransparentAssetsAtom } from "atoms/balance";
+import { chainAtom } from "atoms/chain";
 import { defaultGasConfigFamily } from "atoms/fees";
 import {
   availableChainsAtom,
@@ -16,17 +17,23 @@ import {
   ibcChannelsFamily,
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
-import clsx from "clsx";
 import { useTransaction } from "hooks/useTransaction";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
 import { KeplrWalletManager } from "integrations/Keplr";
+import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { TransactionPair } from "lib/query";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { generatePath, useNavigate } from "react-router-dom";
 import namadaChainRegistry from "registry/namada.json";
-import { Address, IbcTransferTransactionData, TransferStep } from "types";
+import {
+  Address,
+  IbcTransferTransactionData,
+  TransferStep,
+  TransferTransactionData,
+} from "types";
 import { toBaseAmount } from "utils";
 import { IbcTopHeader } from "./IbcTopHeader";
 
@@ -37,18 +44,17 @@ export const IbcWithdraw: React.FC = () => {
   const namadaAccount = useAtomValue(defaultAccountAtom);
   const chainRegistry = useAtomValue(chainRegistryAtom);
   const availableChains = useAtomValue(availableChainsAtom);
+  const namadaChain = useAtomValue(chainAtom);
+
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
   const [selectedAssetAddress, setSelectedAssetAddress] = useState<Address>();
   const [amount, setAmount] = useState<BigNumber | undefined>();
   const [customAddress, setCustomAddress] = useState<string>("");
   const [sourceChannel, setSourceChannel] = useState("");
-  const [transaction, setTransaction] = useState<IbcTransferTransactionData>();
-  const tempTransaction = useRef<IbcTransferTransactionData>();
 
   const { data: availableAssets } = useAtomValue(namadaTransparentAssetsAtom);
-
-  const { storeTransaction, findByHash, transactions } =
-    useTransactionActions();
+  const { storeTransaction } = useTransactionActions();
+  const navigate = useNavigate();
 
   const availableAmount = mapUndefined(
     (address) => availableAssets?.[address]?.amount,
@@ -70,6 +76,10 @@ export const IbcWithdraw: React.FC = () => {
     connectToChainId(chainId || defaultChainId);
   };
 
+  const onChangeChain = (chain: Chain): void => {
+    connectToChainId(chain.chain_id);
+  };
+
   const { data: ibcChannels } = useAtomValue(
     ibcChannelsFamily(registry?.chain.chain_name)
   );
@@ -77,29 +87,6 @@ export const IbcWithdraw: React.FC = () => {
   useEffect(() => {
     setSourceChannel(ibcChannels?.namadaChannelId || "");
   }, [ibcChannels]);
-
-  // Keep local transaction up to date with the stored transaction
-  useEffect(() => {
-    if (transaction?.hash) {
-      const storedTx = findByHash(transaction.hash);
-      if (storedTx) {
-        setTransaction(storedTx as IbcTransferTransactionData);
-      }
-    }
-  }, [transactions]);
-
-  const onSuccess = useCallback(
-    (tx: TransactionPair<IbcTransferMsgValue>) => {
-      if (!tempTransaction.current) return;
-      const transactionData: IbcTransferTransactionData = {
-        ...tempTransaction.current,
-        hash: tx.encodedTxData.txs[0].innerTxHashes[0].toLowerCase(),
-        currentStep: TransferStep.WaitingConfirmation,
-      };
-      storeTransaction(transactionData);
-    },
-    [transaction]
-  );
 
   const { execute: performWithdraw, isPending } = useTransaction({
     eventType: "IbcTransfer",
@@ -113,8 +100,45 @@ export const IbcWithdraw: React.FC = () => {
       title: "IBC withdrawal failed",
       description: "",
     }),
-    onSuccess,
   });
+
+  const storeTransferTransaction = (
+    tx: TransactionPair<IbcTransferMsgValue>,
+    displayAmount: BigNumber,
+    destinationChainId: string,
+    asset: Asset
+  ): IbcTransferTransactionData => {
+    const props = tx.encodedTxData.meta?.props[0];
+    invariant(props, "Invalid transaction data");
+
+    const transferTransaction: IbcTransferTransactionData = {
+      hash: tx.encodedTxData.txs[0].innerTxHashes[0].toLowerCase(),
+      currentStep: TransferStep.WaitingConfirmation,
+      rpc: "",
+      type: "TransparentToIbc",
+      status: "pending",
+      sourcePort: "transfer",
+      asset,
+      chainId: namadaChain.data?.chainId || "",
+      destinationChainId,
+      memo: tx.encodedTxData.wrapperTxProps.memo || props.memo,
+      displayAmount,
+      sourceAddress: props.source,
+      sourceChannel: props.channelId,
+      destinationAddress: props.receiver,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      sequence: new BigNumber(0),
+    };
+
+    storeTransaction(transferTransaction);
+    return transferTransaction;
+  };
+
+  const redirectToTimeline = (tx: TransferTransactionData): void => {
+    invariant(tx.hash, "Invalid TX hash");
+    navigate(generatePath(routes.transaction, { hash: tx.hash }));
+  };
 
   const submitIbcTransfer = async ({
     displayAmount,
@@ -127,48 +151,18 @@ export const IbcWithdraw: React.FC = () => {
         selectedAssetAddress
       );
 
-      if (typeof selectedAsset === "undefined") {
-        throw new Error("No selected asset");
-      }
-
-      if (typeof sourceChannel === "undefined") {
-        throw new Error("No channel ID is set");
-      }
-
-      if (typeof gasConfig === "undefined") {
-        throw new Error("No gas config");
-      }
-
-      if (typeof keplrAddress === "undefined") {
-        throw new Error("No address selected");
-      }
+      invariant(selectedAsset, "No asset is selected");
+      invariant(sourceChannel, "No channel ID is set");
+      invariant(chainId, "No chain is selected");
+      invariant(gasConfig, "No gas config");
+      invariant(keplrAddress, "No address is selected");
 
       const amountInBaseDenom = toBaseAmount(
         selectedAsset.asset,
         displayAmount
       );
 
-      const tx: IbcTransferTransactionData = {
-        rpc: "",
-        type: "TransparentToIbc",
-        asset: selectedAsset.asset,
-        chainId: namadaChainRegistry.chain_id,
-        sourcePort: "transfer",
-        sourceChannel: sourceChannel.trim(),
-        status: "pending",
-        memo,
-        displayAmount,
-        destinationChainId: chainId!,
-        sourceAddress: keplrAddress,
-        destinationAddress,
-        sequence: new BigNumber(0),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        currentStep: TransferStep.Sign,
-      };
-      setTransaction({ ...tx });
-      tempTransaction.current = { ...tx };
-      await performWithdraw({
+      const tx = await performWithdraw({
         params: [
           {
             amountInBaseDenom,
@@ -181,78 +175,73 @@ export const IbcWithdraw: React.FC = () => {
           },
         ],
       });
-      setTransaction({ ...tx, currentStep: TransferStep.WaitingConfirmation });
-    } catch (err) {
-      setGeneralErrorMessage(err + "");
-      setTransaction(undefined);
-    }
-  };
 
-  const onChangeChain = (chain: Chain): void => {
-    connectToChainId(chain.chain_id);
+      if (tx) {
+        const transferTransaction = storeTransferTransaction(
+          tx,
+          displayAmount,
+          chainId,
+          selectedAsset.asset
+        );
+        redirectToTimeline(transferTransaction);
+      }
+    } catch (err) {
+      setGeneralErrorMessage(String(err));
+    }
   };
 
   const requiresIbcChannels = !ibcChannels?.cosmosChannelId;
   return (
     <div className="relative min-h-[600px]">
-      {!transaction && (
-        <>
-          <header className="flex flex-col items-center text-center mb-3 gap-6">
-            <IbcTopHeader type="namToIbc" isShielded={false} />
-            <div className="max-w-[360px] mx-auto mb-3">
-              <h2 className="mb-1 text-lg font-light">
-                Withdraw assets from Namada via IBC
-              </h2>
-              <p className="text-sm font-light leading-tight">
-                To withdraw shielded assets please unshield them to your
-                transparent account
-              </p>
-            </div>
-          </header>
-          <TransferModule
-            source={{
-              wallet: wallets.namada,
-              walletAddress: namadaAccount.data?.address,
-              chain: namadaChainRegistry as Chain,
-              isShielded: false,
-              availableAssets,
-              availableAmount,
-              selectedAssetAddress,
-              onChangeSelectedAsset: setSelectedAssetAddress,
-              amount,
-              onChangeAmount: setAmount,
-            }}
-            destination={{
-              wallet: wallets.keplr,
-              walletAddress: keplrAddress,
-              availableWallets: [wallets.keplr],
-              availableChains,
-              enableCustomAddress: true,
-              customAddress,
-              onChangeCustomAddress: setCustomAddress,
-              chain: mapUndefined((id) => chainRegistry[id]?.chain, chainId),
-              onChangeWallet,
-              onChangeChain,
-              isShielded: false,
-            }}
-            isSubmitting={isPending}
-            isIbcTransfer={true}
-            requiresIbcChannels={requiresIbcChannels}
-            ibcOptions={{
-              sourceChannel,
-              onChangeSourceChannel: setSourceChannel,
-            }}
-            onSubmitTransfer={submitIbcTransfer}
-            gasConfig={gasConfig}
-            errorMessage={generalErrorMessage}
-          />
-        </>
-      )}
-      {transaction && (
-        <div className={clsx("absolute z-50 py-12 left-0 top-0 w-full h-full")}>
-          <TransferTransactionTimeline transaction={transaction} />
+      <header className="flex flex-col items-center text-center mb-3 gap-6">
+        <IbcTopHeader type="namToIbc" isShielded={false} />
+        <div className="max-w-[360px] mx-auto mb-3">
+          <h2 className="mb-1 text-lg font-light">
+            Withdraw assets from Namada via IBC
+          </h2>
+          <p className="text-sm font-light leading-tight">
+            To withdraw shielded assets please unshield them to your transparent
+            account
+          </p>
         </div>
-      )}
+      </header>
+      <TransferModule
+        source={{
+          wallet: wallets.namada,
+          walletAddress: namadaAccount.data?.address,
+          chain: namadaChainRegistry as Chain,
+          isShielded: false,
+          availableAssets,
+          availableAmount,
+          selectedAssetAddress,
+          onChangeSelectedAsset: setSelectedAssetAddress,
+          amount,
+          onChangeAmount: setAmount,
+        }}
+        destination={{
+          wallet: wallets.keplr,
+          walletAddress: keplrAddress,
+          availableWallets: [wallets.keplr],
+          availableChains,
+          enableCustomAddress: true,
+          customAddress,
+          onChangeCustomAddress: setCustomAddress,
+          chain: mapUndefined((id) => chainRegistry[id]?.chain, chainId),
+          onChangeWallet,
+          onChangeChain,
+          isShielded: false,
+        }}
+        isSubmitting={isPending}
+        isIbcTransfer={true}
+        requiresIbcChannels={requiresIbcChannels}
+        ibcOptions={{
+          sourceChannel,
+          onChangeSourceChannel: setSourceChannel,
+        }}
+        onSubmitTransfer={submitIbcTransfer}
+        gasConfig={gasConfig}
+        errorMessage={generalErrorMessage}
+      />
     </div>
   );
 };
