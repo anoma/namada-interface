@@ -80,9 +80,6 @@ export const fetchShieldedBalance = async (
   addresses: string[],
   chainId: string
 ): Promise<Balance> => {
-  // TODO mock shielded balance
-  // return await mockShieldedBalance(viewingKey);
-
   const sdk = await getSdkInstance();
   return await sdk.rpc.queryBalance(viewingKey.key, addresses, chainId);
 };
