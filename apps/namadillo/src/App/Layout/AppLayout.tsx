@@ -1,3 +1,5 @@
+import { FixedWarningBanner } from "App/Common/FixedWarningBanner";
+import { useCompatibilityErrors } from "hooks/useCompatibilityErrors";
 import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { AppHeader } from "./AppHeader";
@@ -10,6 +12,7 @@ export const AppLayout = ({
   children: ReactNode;
 }): JSX.Element => {
   const [displayNavigation, setDisplayNavigation] = useState(false);
+  const compatibilityErrors = useCompatibilityErrors();
 
   return (
     <div className="custom-container pb-2">
@@ -42,6 +45,7 @@ export const AppLayout = ({
         </aside>
         <main className="min-h-full">{children}</main>
       </div>
+      <FixedWarningBanner errorMessage={compatibilityErrors} />
     </div>
   );
 };
