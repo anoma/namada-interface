@@ -44,6 +44,7 @@
   },
   "packageManager": "yarn@4.0.2",
   "dependencies": {
+    "animejs": "^3.2.2",
     "chain-registry": "^1.63.100"
   }
 }

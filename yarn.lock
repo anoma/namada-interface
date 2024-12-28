@@ -6360,6 +6360,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"animejs@npm:^3.2.2":
+  version: 3.2.2
+  resolution: "animejs@npm:3.2.2"
+  checksum: f43dfcc0c743a2774e76fbfcb16a22350da7104f413d9d1b85c48128b0c078090642809deb631e21dfa0a40651111be39d9d7f694c9c1b70d8637ce8b6d63116
+  languageName: node
+  linkType: hard
+
 "ansi-align@npm:^3.0.1":
   version: 3.0.1
   resolution: "ansi-align@npm:3.0.1"
@@ -15886,6 +15893,7 @@ __metadata:
     "@release-it/conventional-changelog": "npm:^8.0.1"
     "@typescript-eslint/eslint-plugin": "npm:^8.4.0"
     "@typescript-eslint/parser": "npm:^8.4.0"
+    animejs: "npm:^3.2.2"
     chain-registry: "npm:^1.63.100"
     eslint: "npm:^8.57.0"
     git-commit-msg-linter: "npm:^5.0.6"
