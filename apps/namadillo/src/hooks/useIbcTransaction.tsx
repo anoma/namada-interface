@@ -67,7 +67,7 @@ export const useIbcTransaction = ({
     invariant(registry, "Invalid chain");
     invariant(sourceChannel, "Invalid IBC source channel");
     invariant(
-      shielded && !destinationChannel,
+      !shielded || destinationChannel,
       "Invalid IBC destination channel"
     );
     invariant(gasConfig, "No transaction fee is set");
