@@ -1,7 +1,7 @@
 import anime from "animejs";
 import clsx from "clsx";
 import { useScope } from "hooks/useScope";
-import { useLayoutEffect, useRef } from "react";
+import { useRef } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { twMerge } from "tailwind-merge";
 export type TransactionStep = {
@@ -150,10 +150,6 @@ export const Timeline = ({
     containerRef,
     [complete]
   );
-
-  useLayoutEffect(() => {
-    if (!containerRef.current) return;
-  }, []);
 
   const renderRing = (className: string): JSX.Element => (
     <span
