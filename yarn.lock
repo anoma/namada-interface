@@ -4875,6 +4875,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/animejs@npm:^3.1.12":
+  version: 3.1.12
+  resolution: "@types/animejs@npm:3.1.12"
+  checksum: 21d10ed4fbaa99572e252b4d6e666b62a19089f63b13b0e9f8edf5fb0b708afc2b38c3055c52f6a4771bc71793d7a7aec83754c16d0e5606a0ad92b34778ba61
+  languageName: node
+  linkType: hard
+
 "@types/aria-query@npm:^5.0.1":
   version: 5.0.4
   resolution: "@types/aria-query@npm:5.0.4"
@@ -15891,6 +15898,7 @@ __metadata:
   dependencies:
     "@chain-registry/types": "npm:^0.45.80"
     "@release-it/conventional-changelog": "npm:^8.0.1"
+    "@types/animejs": "npm:^3.1.12"
     "@typescript-eslint/eslint-plugin": "npm:^8.4.0"
     "@typescript-eslint/parser": "npm:^8.4.0"
     animejs: "npm:^3.2.2"

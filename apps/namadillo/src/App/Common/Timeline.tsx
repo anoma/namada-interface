@@ -1,4 +1,8 @@
+import anime from "animejs";
 import clsx from "clsx";
+import { useScope } from "hooks/useScope";
+import { useLayoutEffect, useRef } from "react";
+import { FaCheckCircle } from "react-icons/fa";
 import { twMerge } from "tailwind-merge";
 export type TransactionStep = {
   bullet?: boolean;
@@ -59,8 +63,119 @@ export const Timeline = ({
   hasError,
   complete,
 }: TransactionTimelineProps): JSX.Element => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useScope(
+    (query, container) => {
+      const timeline = anime.timeline({
+        easing: "easeOutExpo",
+        duration: 1000,
+        loop: true,
+      });
+
+      const containerRect = container.getBoundingClientRect();
+      const items = Array.from(query("i,div"));
+      const hiding = items.slice(0, -1);
+      const lastItem = items.slice(-1)[0];
+      const lastItemText = lastItem.querySelector("p");
+      const rings = query('[data-animation="ring"]');
+      const preConfirmation = query('[data-animation="pre-confirmation"]');
+      const confirmation = query('[data-animation="confirmation"]');
+
+      const lastItemTextHeight =
+        lastItemText ? lastItemText.getBoundingClientRect().height : 0;
+      const marginTop = 4; // ?
+
+      const centerLastItemY =
+        -containerRect.height / 2 +
+        lastItem.getBoundingClientRect().height / 2 +
+        lastItemTextHeight / 2 +
+        marginTop;
+
+      // Hide items, except last one
+      timeline.add({
+        targets: hiding,
+        opacity: 0,
+        delay: anime.stagger(30),
+      });
+
+      // Move last item to the center of the screen
+      timeline.add(
+        {
+          targets: lastItem,
+          translateY: centerLastItemY,
+        },
+        "-=700"
+      );
+
+      // Try to hide any existing text contained on the last item, as soon
+      // as the item goes up
+      timeline.add(
+        {
+          targets: lastItem.querySelector("p"),
+          opacity: 0,
+          duration: 400,
+        },
+        "-=1000"
+      );
+
+      // Display concentric rings, one by one
+      timeline.add(
+        {
+          targets: rings,
+          opacity: [0, 1],
+          duration: 1200,
+          scale: [0, 1],
+          delay: anime.stagger(100),
+        },
+        "-=600"
+      );
+
+      // Sucks everything into the screen
+      timeline.add({
+        targets: [...rings, lastItem],
+        scale: 0,
+        duration: 300,
+      });
+
+      // Displays first confirmation (yellow circle)
+      timeline.add({
+        targets: preConfirmation,
+        duration: 1000,
+        keyframes: [
+          { scale: [0, 1], endDelay: 500, duration: 1000 },
+          { scale: [1, 0], duration: 300 },
+        ],
+      });
+
+      // Displays success box confirmation
+      timeline.add({
+        targets: confirmation,
+        duration: 1000,
+        scale: [0, 1],
+        opacity: [0, 1],
+      });
+    },
+    containerRef,
+    []
+  );
+
+  useLayoutEffect(() => {
+    if (!containerRef.current) return;
+  }, []);
+
+  const renderRing = (className: string): JSX.Element => (
+    <span
+      data-animation="ring"
+      className={clsx(
+        "absolute aspect-square border-2 border-yellow rounded-full",
+        className
+      )}
+    />
+  );
+
   return (
-    <div>
+    <div className="relative" ref={containerRef}>
       <ul className="flex flex-col items-center gap-3">
         {steps.map((step, index: number) => {
           return (
@@ -92,6 +207,32 @@ export const Timeline = ({
           );
         })}
       </ul>
+      <span
+        className={clsx(
+          "absolute w-full h-full circles bg-yellow/20 top-0 left-0",
+          "flex items-center justify-center pointer-events-none"
+        )}
+      >
+        {renderRing("h-30")}
+        {renderRing("h-50")}
+        {renderRing("h-70")}
+        <span
+          data-animation="pre-confirmation"
+          className={clsx(
+            "absolute bg-yellow w-12 aspect-square rounded-full opacity-90",
+            { "opacity-0": complete }
+          )}
+        />
+        <span
+          data-animation="confirmation"
+          className={clsx(
+            "absolute text-success text-[50px] aspect-square bg-white rounded-full",
+            { "opacity-0": complete }
+          )}
+        >
+          <FaCheckCircle />
+        </span>
+      </span>
     </div>
   );
 };
