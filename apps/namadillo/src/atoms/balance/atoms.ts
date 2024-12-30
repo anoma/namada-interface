@@ -1,6 +1,6 @@
 import { DefaultApi } from "@namada/indexer-client";
 import { SdkEvents } from "@namada/sdk/web";
-import { Account, AccountType, DatedViewingKey } from "@namada/types";
+import { Account, DatedViewingKey } from "@namada/types";
 import {
   accountsAtom,
   defaultAccountAtom,
@@ -18,8 +18,10 @@ import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import { isAxiosError } from "axios";
 import BigNumber from "bignumber.js";
+import invariant from "invariant";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { AddressWithAsset } from "types";
+import { filterShieldedAccounts, findAccountByAlias } from "lib/accounts";
+import { TokenBalance } from "types";
 import {
   mapNamadaAddressesToAssets,
   mapNamadaAssetsToTokenBalances,
@@ -31,11 +33,6 @@ import {
   ShieldedSyncEmitter,
 } from "./services";
 
-export type TokenBalance = AddressWithAsset & {
-  amount: BigNumber;
-  dollar?: BigNumber;
-};
-
 /**
   Gets the viewing key and its birthday timestamp if it's a generated key
  */
@@ -43,14 +40,10 @@ const toDatedKeypair = async (
   api: DefaultApi,
   { viewingKey, source, timestamp }: Account
 ): Promise<DatedViewingKey> => {
-  if (typeof viewingKey === "undefined") {
-    throw new Error("Viewing key not found");
-  }
-  if (typeof timestamp === "undefined") {
-    throw new Error("Timestamp not found");
-  }
-  let height = 0;
+  invariant(typeof viewingKey !== "undefined", "Viewing key not found");
+  invariant(typeof timestamp !== "undefined", "Timestamp not found");
 
+  let height = 0;
   if (source === "generated") {
     try {
       height = await fetchBlockHeightByTimestamp(api, timestamp);
@@ -80,21 +73,18 @@ export const viewingKeysAtom = atomWithQuery<
   return {
     queryKey: ["viewing-keys", accountsQuery.data, defaultAccountQuery.data],
     ...queryDependentFn(async () => {
-      const shieldedAccounts = accountsQuery.data!.filter(
-        (a) => a.type === AccountType.ShieldedKeys
-      );
-      const defaultShieldedAccount = shieldedAccounts.find(
-        (a) => a.alias === defaultAccountQuery.data?.alias
+      const shieldedAccounts = filterShieldedAccounts(accountsQuery.data!);
+      const defaultShieldedAccount = findAccountByAlias(
+        shieldedAccounts,
+        defaultAccountQuery.data?.alias
       );
 
-      if (!defaultShieldedAccount) {
-        throw new Error("Default shielded account not found");
-      }
-
+      invariant(defaultShieldedAccount, "Default shielded account not found");
       const defaultViewingKey = await toDatedKeypair(
         api,
         defaultShieldedAccount
       );
+
       const viewingKeys = await Promise.all(
         shieldedAccounts.map(toDatedKeypair.bind(null, api))
       );

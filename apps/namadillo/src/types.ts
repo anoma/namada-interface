@@ -213,6 +213,11 @@ export type AddressWithAssetAndAmountMap = Record<
   AddressWithAssetAndAmount
 >;
 
+export type TokenBalance = AddressWithAsset & {
+  amount: BigNumber;
+  dollar?: BigNumber;
+};
+
 export enum TransferStep {
   Sign = "sign",
   ZkProof = "zk-proof",

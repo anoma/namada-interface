@@ -1,18 +1,18 @@
 import { Balance, DefaultApi } from "@namada/indexer-client";
 import { Account } from "@namada/types";
 import BigNumber from "bignumber.js";
-import { NamadaKeychain } from "hooks/useNamadaKeychain";
-import { namadaAsset, toDisplayAmount } from "utils";
+import {
+  getDefaultTransparentAccount,
+  getKeychainAccounts,
+} from "lib/accounts";
+import { getNamTokenAmount } from "lib/tokens";
 
 export const fetchAccounts = async (): Promise<readonly Account[]> => {
-  const namada = await new NamadaKeychain().get();
-  const result = await namada?.accounts();
-  return result || [];
+  return await getKeychainAccounts();
 };
 
 export const fetchDefaultAccount = async (): Promise<Account | undefined> => {
-  const namada = await new NamadaKeychain().get();
-  return await namada?.defaultAccount();
+  return await getDefaultTransparentAccount();
 };
 
 export const fetchNamAccountBalance = async (
@@ -22,18 +22,7 @@ export const fetchNamAccountBalance = async (
 ): Promise<BigNumber> => {
   if (!account) return BigNumber(0);
   const balancesResponse = await api.apiV1AccountAddressGet(account.address);
-
-  const balance = balancesResponse.data
-    .filter(({ tokenAddress: ta }) => ta === tokenAddress)
-    .map(({ tokenAddress, minDenomAmount }) => {
-      return {
-        token: tokenAddress,
-        amount: toDisplayAmount(namadaAsset(), new BigNumber(minDenomAmount)),
-      };
-    })
-    .at(0);
-
-  return balance ? BigNumber(balance.amount) : BigNumber(0);
+  return getNamTokenAmount(balancesResponse.data, tokenAddress);
 };
 
 export const fetchAccountBalance = async (
