@@ -59,8 +59,6 @@ export const MaspShield: React.FC = () => {
   const selectedAssetAddress = searchParams.get(params.asset) || undefined;
   const selectedAsset =
     selectedAssetAddress ? availableAssets?.[selectedAssetAddress] : undefined;
-  const source = sourceAddress ?? "";
-  const target = destinationAddress ?? "";
 
   const {
     execute: performTransfer,
@@ -68,8 +66,8 @@ export const MaspShield: React.FC = () => {
     txKind,
     gasConfig,
   } = useTransfer({
-    source,
-    target,
+    source: sourceAddress ?? "",
+    target: destinationAddress ?? "",
     token: selectedAsset?.originalAddress ?? "",
     displayAmount: displayAmount ?? new BigNumber(0),
   });

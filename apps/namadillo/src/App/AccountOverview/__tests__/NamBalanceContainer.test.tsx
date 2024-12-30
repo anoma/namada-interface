@@ -8,10 +8,6 @@ jest.mock("hooks/useBalances", () => ({
   useBalances: jest.fn(),
 }));
 
-jest.mock("atoms/shield/atoms", () => ({
-  shieldRewardsAtom: jest.fn(),
-}));
-
 describe("Component: NamBalanceContainer", () => {
   beforeEach(() => {
     jest.clearAllMocks();
