@@ -33,7 +33,7 @@ export type useTransactionProps<T> = {
   onSuccess?: (tx: TransactionPair<T>) => void;
 };
 
-type useTransactionOutput<T> = {
+export type useTransactionOutput<T> = {
   execute: (
     additionalParms?: Partial<BuildTxAtomParams<T>>
   ) => Promise<TransactionPair<T> | void>;
@@ -65,14 +65,6 @@ export const useTransaction = <T,>({
   const gasConfig = useAtomValue(
     defaultGasConfigFamily(new Array(params.length).fill(eventType))
   );
-
-  const validate = (): void => {
-    invariant(gasConfig.data, "Gas config not loaded");
-    invariant(
-      account?.address,
-      "Extension not connected or no account is selected"
-    );
-  };
 
   const broadcast = (txPair: TransactionPair<T>): Promise<void> =>
     broadcastTx(
@@ -109,11 +101,16 @@ export const useTransaction = <T,>({
     txAdditionalParams: Partial<BuildTxAtomParams<T>> = {}
   ): Promise<TransactionPair<T> | void> => {
     try {
-      validate();
+      invariant(gasConfig.data, "Gas config not loaded");
+      invariant(
+        account?.address,
+        "Extension not connected or no account is selected"
+      );
+
       const tx = await buildTx({
         params,
-        gasConfig: gasConfig.data!,
-        account: account!,
+        gasConfig: gasConfig.data,
+        account: account,
         ...txAdditionalParams,
       });
 

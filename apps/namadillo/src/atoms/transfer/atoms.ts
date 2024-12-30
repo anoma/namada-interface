@@ -5,6 +5,7 @@ import {
   UnshieldingTransferMsgValue,
 } from "@namada/types";
 import { chainAtom } from "atoms/chain";
+import { indexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { atomWithMutation } from "jotai-tanstack-query";
 import { BuildTxAtomParams } from "types";
 import {
@@ -37,6 +38,7 @@ export const createTransparentTransferAtom = atomWithMutation((get) => {
 
 export const createShieldedTransferAtom = atomWithMutation((get) => {
   const chain = get(chainAtom);
+  const rpcUrl = get(rpcUrlAtom);
   return {
     mutationKey: ["create-shielded-transfer-tx"],
     enabled: chain.isSuccess,
@@ -46,12 +48,21 @@ export const createShieldedTransferAtom = atomWithMutation((get) => {
       account,
       memo,
     }: BuildTxAtomParams<ShieldedTransferMsgValue>) =>
-      createShieldedTransferTx(chain.data!, account, params, gasConfig, memo),
+      createShieldedTransferTx(
+        chain.data!,
+        account,
+        params,
+        gasConfig,
+        rpcUrl,
+        memo
+      ),
   };
 });
 
 export const createShieldingTransferAtom = atomWithMutation((get) => {
   const chain = get(chainAtom);
+  const rpcUrl = get(rpcUrlAtom);
+  const indexerUrl = get(indexerUrlAtom);
   return {
     mutationKey: ["create-shielding-transfer-tx"],
     enabled: chain.isSuccess,
@@ -61,12 +72,21 @@ export const createShieldingTransferAtom = atomWithMutation((get) => {
       account,
       memo,
     }: BuildTxAtomParams<ShieldingTransferMsgValue>) =>
-      createShieldingTransferTx(chain.data!, account, params, gasConfig, memo),
+      createShieldingTransferTx(
+        chain.data!,
+        account,
+        params,
+        gasConfig,
+        rpcUrl,
+        indexerUrl,
+        memo
+      ),
   };
 });
 
 export const createUnshieldingTransferAtom = atomWithMutation((get) => {
   const chain = get(chainAtom);
+  const rpcUrl = get(rpcUrlAtom);
   return {
     mutationKey: ["create-unshielding-transfer-tx"],
     enabled: chain.isSuccess,
@@ -81,6 +101,7 @@ export const createUnshieldingTransferAtom = atomWithMutation((get) => {
         account,
         params,
         gasConfig,
+        rpcUrl,
         memo
       ),
   };

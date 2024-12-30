@@ -5,7 +5,7 @@ import {
   TxResponseMsgValue,
   UnshieldingTransferMsgValue,
 } from "@namada/types";
-import { EncodedTxData } from "lib/query";
+import { EncodedTxData, TransactionPair } from "lib/query";
 import { ChainSettings, GasConfig } from "types";
 import { WebWorkerMessage } from "./utils";
 
@@ -21,9 +21,10 @@ export type InitDone = WebWorkerMessage<"init-done", null>;
 type ShieldPayload = {
   account: Account;
   gasConfig: GasConfig;
-  shieldingProps: ShieldingTransferMsgValue[];
+  props: ShieldingTransferMsgValue[];
   chain: ChainSettings;
   indexerUrl: string;
+  memo?: string;
 };
 export type Shield = WebWorkerMessage<"shield", ShieldPayload>;
 export type ShieldDone = WebWorkerMessage<
@@ -34,8 +35,9 @@ export type ShieldDone = WebWorkerMessage<
 type UnshieldPayload = {
   account: Account;
   gasConfig: GasConfig;
-  unshieldingProps: UnshieldingTransferMsgValue[];
+  props: UnshieldingTransferMsgValue[];
   chain: ChainSettings;
+  memo?: string;
 };
 export type Unshield = WebWorkerMessage<"unshield", UnshieldPayload>;
 export type UnshieldDone = WebWorkerMessage<
@@ -48,6 +50,7 @@ type ShieldedTransferPayload = {
   gasConfig: GasConfig;
   props: ShieldedTransferMsgValue[];
   chain: ChainSettings;
+  memo?: string;
 };
 export type ShieldedTransfer = WebWorkerMessage<
   "shielded-transfer",
@@ -58,10 +61,8 @@ export type ShieldedTransferDone = WebWorkerMessage<
   EncodedTxData<ShieldedTransferMsgValue>
 >;
 
-type BroadcastPayload = {
-  encodedTx: EncodedTxData<unknown>;
-  signedTxs: Uint8Array[];
-};
+type BroadcastPayload = TransactionPair<unknown>;
+
 export type Broadcast = WebWorkerMessage<"broadcast", BroadcastPayload>;
 export type BroadcastDone = WebWorkerMessage<
   "broadcast-done",

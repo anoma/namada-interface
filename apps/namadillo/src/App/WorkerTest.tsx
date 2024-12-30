@@ -96,7 +96,7 @@ export function WorkerTest(): JSX.Element {
           gasPrice: BigNumber(0),
           gasToken: "tnam1",
         },
-        shieldingProps: [shieldingMsgValue],
+        props: [shieldingMsgValue],
         indexerUrl,
         chain: chain!,
       },
@@ -109,7 +109,7 @@ export function WorkerTest(): JSX.Element {
     await shieldWorker.broadcast({
       type: "broadcast",
       payload: {
-        encodedTx,
+        encodedTxData: encodedTx,
         signedTxs,
       },
     });
@@ -158,7 +158,7 @@ export function WorkerTest(): JSX.Element {
           gasPrice: BigNumber(0),
           gasToken: "tnam1",
         },
-        unshieldingProps: [shieldingMsgValue],
+        props: [shieldingMsgValue],
         chain: chain!,
       },
     };
@@ -169,7 +169,7 @@ export function WorkerTest(): JSX.Element {
     await shieldWorker.broadcast({
       type: "broadcast",
       payload: {
-        encodedTx,
+        encodedTxData: encodedTx,
         signedTxs,
       },
     });
@@ -229,7 +229,7 @@ export function WorkerTest(): JSX.Element {
     await shieldWorker.broadcast({
       type: "broadcast",
       payload: {
-        encodedTx,
+        encodedTxData: encodedTx,
         signedTxs,
       },
     });

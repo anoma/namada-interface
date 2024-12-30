@@ -79,7 +79,7 @@ impl PseudoExtendedKey {
         hex::encode(borsh::to_vec(&self.0).expect("Serializing PseudoExtendedKey should not fail!"))
     }
     pub fn decode(encoded: String) -> PseudoExtendedKey {
-        let decoded = hex::decode(encoded).expect("Decoding PsuedoExtendedKey should not fail!");
+        let decoded = hex::decode(encoded).expect("Decoding PseudoExtendedKey should not fail!");
 
         PseudoExtendedKey(
             zip32::PseudoExtendedKey::try_from_slice(decoded.as_slice())

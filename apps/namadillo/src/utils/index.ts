@@ -76,8 +76,7 @@ const findDisplayUnit = (asset: Asset): AssetDenomUnit | undefined => {
   return denom_units.find((unit) => unit.denom === display);
 };
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const namadaAsset = () => {
+export const namadaAsset = (): Asset => {
   const store = getDefaultStore();
   const config = store.get(localnetConfigAtom);
 

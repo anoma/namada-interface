@@ -24,7 +24,7 @@ import {
   TransferTransactionData,
 } from "types";
 import { toDisplayAmount } from "utils";
-import { EncodedTxData, TransactionPair } from "./query";
+import { TransactionPair } from "./query";
 
 export const getEventAttribute = (
   tx: DeliverTxResponse,
@@ -167,13 +167,7 @@ export const createTransferDataFromNamada = (
     | TransactionPair<TransparentTransferMsgValue>
     | TransactionPair<ShieldedTransferMsgValue>
     | TransactionPair<ShieldingTransferMsgValue>
-    | TransactionPair<UnshieldingTransferMsgValue>
-    // TODO: remove this block after transfer logic unification
-    | { encodedTxData: EncodedTxData<UnshieldingTransferMsgValue> }
-    | { encodedTxData: EncodedTxData<ShieldingTransferMsgValue> }
-    | { encodedTxData: EncodedTxData<ShieldedTransferMsgValue> },
-  // end of block
-
+    | TransactionPair<UnshieldingTransferMsgValue>,
   memo?: string
 ): TransferTransactionData[] => {
   if (!txResponse?.encodedTxData?.txs?.length) {
