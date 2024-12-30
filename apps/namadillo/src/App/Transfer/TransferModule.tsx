@@ -208,11 +208,7 @@ export const TransferModule = ({
       return;
     }
 
-    // Don't need to show the modal, connects directly
-    if (!config.walletAddress && config.availableWallets.length === 1) {
-      config.onChangeWallet(config.availableWallets[0]);
-      return;
-    }
+    setWalletSelectorModalOpen(true);
   };
 
   const getButtonText = (): string => {
