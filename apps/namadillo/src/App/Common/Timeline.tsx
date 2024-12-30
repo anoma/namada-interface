@@ -67,10 +67,11 @@ export const Timeline = ({
 
   useScope(
     (query, container) => {
+      if (!complete) return;
+
       const timeline = anime.timeline({
         easing: "easeOutExpo",
         duration: 1000,
-        loop: true,
       });
 
       const containerRect = container.getBoundingClientRect();
@@ -84,6 +85,7 @@ export const Timeline = ({
 
       const lastItemTextHeight =
         lastItemText ? lastItemText.getBoundingClientRect().height : 0;
+
       const marginTop = 4; // ?
 
       const centerLastItemY =
@@ -124,7 +126,7 @@ export const Timeline = ({
         {
           targets: rings,
           opacity: [0, 1],
-          duration: 1200,
+          duration: 800,
           scale: [0, 1],
           delay: anime.stagger(100),
         },
@@ -143,7 +145,7 @@ export const Timeline = ({
         targets: preConfirmation,
         duration: 1000,
         keyframes: [
-          { scale: [0, 1], endDelay: 500, duration: 1000 },
+          { scale: [0, 1], endDelay: 200, duration: 1000 },
           { scale: [1, 0], duration: 300 },
         ],
       });
@@ -157,7 +159,7 @@ export const Timeline = ({
       });
     },
     containerRef,
-    []
+    [complete]
   );
 
   useLayoutEffect(() => {
@@ -209,13 +211,14 @@ export const Timeline = ({
       </ul>
       <span
         className={clsx(
-          "absolute w-full h-full circles bg-yellow/20 top-0 left-0",
-          "flex items-center justify-center pointer-events-none"
+          "absolute w-full h-full circles top-0 left-0",
+          "flex items-center justify-center pointer-events-none",
+          { hidden: !complete }
         )}
       >
         {renderRing("h-30")}
-        {renderRing("h-50")}
-        {renderRing("h-70")}
+        {renderRing("h-60")}
+        {renderRing("h-96")}
         <span
           data-animation="pre-confirmation"
           className={clsx(
@@ -226,7 +229,7 @@ export const Timeline = ({
         <span
           data-animation="confirmation"
           className={clsx(
-            "absolute text-success text-[50px] aspect-square bg-white rounded-full",
+            "absolute text-success text-[70px] aspect-square bg-white rounded-full",
             { "opacity-0": complete }
           )}
         >
