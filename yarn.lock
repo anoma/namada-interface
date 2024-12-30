@@ -3671,6 +3671,7 @@ __metadata:
     "@testing-library/jest-dom": "npm:^6.5.0"
     "@testing-library/react": "npm:^16.0.0"
     "@testing-library/user-event": "npm:^14.5.2"
+    "@types/animejs": "npm:^3.1.12"
     "@types/invariant": "npm:^2.2.37"
     "@types/jest": "npm:^29.5.12"
     "@types/lodash.debounce": "npm:^4.0.9"
@@ -3682,6 +3683,7 @@ __metadata:
     "@types/styled-components": "npm:^5.1.22"
     "@types/traverse": "npm:^0.6.36"
     "@vitejs/plugin-react": "npm:^4.3.1"
+    animejs: "npm:^3.2.2"
     autoprefixer: "npm:^10.4.16"
     axios: "npm:^1.7.9"
     bignumber.js: "npm:^9.1.1"
@@ -4872,6 +4874,13 @@ __metadata:
   dependencies:
     "@types/node": "npm:*"
   checksum: 7b21efc78b98ed57063ac31588f871f11501c080cd1201ca3743cf02ee0aee74bdb5a634183bc0987dc8dc582b26316789fd203650319ccc89a66cf88311d64f
+  languageName: node
+  linkType: hard
+
+"@types/animejs@npm:^3.1.12":
+  version: 3.1.12
+  resolution: "@types/animejs@npm:3.1.12"
+  checksum: 21d10ed4fbaa99572e252b4d6e666b62a19089f63b13b0e9f8edf5fb0b708afc2b38c3055c52f6a4771bc71793d7a7aec83754c16d0e5606a0ad92b34778ba61
   languageName: node
   linkType: hard
 
@@ -6357,6 +6366,13 @@ __metadata:
     json-schema-traverse: "npm:^1.0.0"
     require-from-string: "npm:^2.0.2"
   checksum: ec3ba10a573c6b60f94639ffc53526275917a2df6810e4ab5a6b959d87459f9ef3f00d5e7865b82677cb7d21590355b34da14d1d0b9c32d75f95a187e76fff35
+  languageName: node
+  linkType: hard
+
+"animejs@npm:^3.2.2":
+  version: 3.2.2
+  resolution: "animejs@npm:3.2.2"
+  checksum: f43dfcc0c743a2774e76fbfcb16a22350da7104f413d9d1b85c48128b0c078090642809deb631e21dfa0a40651111be39d9d7f694c9c1b70d8637ce8b6d63116
   languageName: node
   linkType: hard
 

@@ -11,10 +11,10 @@ export const TransferTimelineErrorEntry = ({
 }: TransferTimelineErrorEntryProps): JSX.Element => {
   return (
     <>
-      <i className="flex justify-center text-2xl mb-1 opacity-70 text-fail">
+      <i className="flex justify-center text-4xl mb-1 text-fail">
         <GoXCircle />
       </i>
-      <div className="opacity-70">{children}</div>
+      <div className="opacity-50 select-none line-through">{children}</div>
       <span
         className={clsx(
           "block text-sm text-fail selection:text-white selection:bg-fail"
