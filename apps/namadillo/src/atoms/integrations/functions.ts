@@ -31,6 +31,8 @@ import { toDisplayAmount } from "utils";
 import { unknownAsset } from "utils/assets";
 import { getSdkInstance } from "utils/sdk";
 
+import campfireAssets from "namada-chain-registry/_testnets/namadacampfire/assetlist.json";
+import campfireChain from "namada-chain-registry/_testnets/namadacampfire/chain.json";
 import housefireAssets from "namada-chain-registry/_testnets/namadahousefire/assetlist.json";
 import housefireChain from "namada-chain-registry/_testnets/namadahousefire/chain.json";
 import housefireOldAssets from "namada-chain-registry/_testnets/namadahousefireold/assetlist.json";
@@ -40,6 +42,7 @@ import internalDevnetChain from "namada-chain-registry/_testnets/namadainternald
 import namadaAssets from "namada-chain-registry/namada/assetlist.json";
 import namadaChain from "namada-chain-registry/namada/chain.json";
 
+import campfireOsmosisTestnetIbc from "namada-chain-registry/_testnets/_IBC/namadacampfire-osmosistestnet.json";
 import housefireOldCosmosTestnetIbc from "namada-chain-registry/_testnets/_IBC/namadahousefireold-cosmoshubtestnet.json";
 import housefireOldOsmosisTestnetIbc from "namada-chain-registry/_testnets/_IBC/namadahousefireold-osmosistestnet.json";
 import internalDevnetCosmosTestnetIbc from "namada-chain-registry/_testnets/_IBC/namadainternaldevnet-cosmoshubtestnet.json";
@@ -49,6 +52,7 @@ import cosmosRegistry from "chain-registry";
 
 cosmosRegistry.chains.push(
   internalDevnetChain,
+  campfireChain,
   housefireChain,
   housefireOldChain,
   namadaChain
@@ -56,12 +60,14 @@ cosmosRegistry.chains.push(
 
 cosmosRegistry.assets.push(
   internalDevnetAssets,
+  campfireAssets,
   housefireAssets,
   housefireOldAssets,
   namadaAssets
 );
 
 cosmosRegistry.ibc.push(
+  campfireOsmosisTestnetIbc,
   internalDevnetCosmosTestnetIbc,
   housefireOldCosmosTestnetIbc,
   housefireOldOsmosisTestnetIbc

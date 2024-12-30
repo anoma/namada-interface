@@ -12,34 +12,19 @@ import { allDefaultAccountsAtom } from "atoms/accounts";
 import { namadaTransparentAssetsAtom } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
 import { applicationFeaturesAtom, rpcUrlAtom } from "atoms/settings";
-import {
-  shieldedTxAtom,
-  shieldTxAtom,
-  unshieldTxAtom,
-} from "atoms/shield/atoms";
-import {
-  createShieldedTransferAtom,
-  createShieldingTransferAtom,
-  createTransparentTransferAtom,
-  createUnshieldingTransferAtom,
-} from "atoms/transfer/atoms";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { useTransaction } from "hooks/useTransaction";
 import { useTransactionActions } from "hooks/useTransactionActions";
+import { useTransfer } from "hooks/useTransfer";
 import { wallets } from "integrations";
+import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import namadaChain from "registry/namada.json";
 import { twMerge } from "tailwind-merge";
-import {
-  Address,
-  NamadaTransferTxKind,
-  PartialTransferTransactionData,
-  TransferStep,
-} from "types";
+import { Address, PartialTransferTransactionData, TransferStep } from "types";
 import { isNamadaAsset } from "utils";
 import { NamadaTransferTopHeader } from "./NamadaTransferTopHeader";
 
@@ -59,12 +44,6 @@ export const NamadaTransfer: React.FC = () => {
 
   const { data: availableAssetsData, isLoading: isLoadingAssets } =
     useAtomValue(namadaTransparentAssetsAtom);
-
-  // TODO: remove this block once transfer logic is unified
-  const { mutateAsync: performUnshieldTransfer } = useAtomValue(unshieldTxAtom);
-  const { mutateAsync: performShieldingTransfer } = useAtomValue(shieldTxAtom);
-  const { mutateAsync: performShieldedTransfer } = useAtomValue(shieldedTxAtom);
-  // end of block
 
   const {
     transactions: myTransactions,
@@ -96,72 +75,20 @@ export const NamadaTransfer: React.FC = () => {
   const selectedAssetAddress = searchParams.get(params.asset) || undefined;
   const selectedAsset =
     selectedAssetAddress ? availableAssets?.[selectedAssetAddress] : undefined;
-  const token = selectedAsset?.originalAddress ?? "";
   const source = sourceAddress ?? "";
   const target = customAddress ?? "";
-  const txAmount = displayAmount || new BigNumber(0);
-
-  const commomProps = {
-    parsePendingTxNotification: () => ({
-      title: "Transfer transaction in progress",
-      description: "Your transfer transaction is being processed",
-    }),
-    parseErrorTxNotification: () => ({
-      title: "Transfer transaction failed",
-      description: "",
-    }),
-  };
-
-  const transparentTransaction = useTransaction({
-    eventType: "TransparentTransfer",
-    createTxAtom: createTransparentTransferAtom,
-    params: [{ data: [{ source, target, token, amount: txAmount }] }],
-    ...commomProps,
-  });
-
-  const shieldedTransaction = useTransaction({
-    eventType: "ShieldedTransfer",
-    createTxAtom: createShieldedTransferAtom,
-    params: [{ data: [{ source, target, token, amount: txAmount }] }],
-    ...commomProps,
-  });
-
-  const shieldingTransaction = useTransaction({
-    eventType: "ShieldingTransfer",
-    createTxAtom: createShieldingTransferAtom,
-    params: [{ target, data: [{ source, token, amount: txAmount }] }],
-    ...commomProps,
-  });
-
-  const unshieldingTransaction = useTransaction({
-    eventType: "UnshieldingTransfer",
-    createTxAtom: createUnshieldingTransferAtom,
-    params: [{ source, data: [{ target, token, amount: txAmount }] }],
-    ...commomProps,
-  });
-
-  const getAddressKind = (address: Address): "Shielded" | "Transparent" =>
-    isShieldedAddress(address) ? "Shielded" : "Transparent";
-
-  const txKind: NamadaTransferTxKind =
-    `${getAddressKind(source)}To${getAddressKind(target)}` as const;
 
   const {
     execute: performTransfer,
-    gasConfig,
     isPending: isPerformingTransfer,
-  } = (() => {
-    switch (txKind) {
-      case "TransparentToTransparent":
-        return transparentTransaction;
-      case "TransparentToShielded":
-        return shieldingTransaction;
-      case "ShieldedToTransparent":
-        return unshieldingTransaction;
-      case "ShieldedToShielded":
-        return shieldedTransaction;
-    }
-  })();
+    txKind,
+    gasConfig,
+  } = useTransfer({
+    source,
+    target,
+    token: selectedAsset?.originalAddress ?? "",
+    displayAmount: displayAmount ?? new BigNumber(0),
+  });
 
   const isSourceShielded = isShieldedAddress(source);
   const isTargetShielded = isShieldedAddress(target);
@@ -196,21 +123,10 @@ export const NamadaTransfer: React.FC = () => {
     try {
       setGeneralErrorMessage("");
 
-      if (typeof sourceAddress === "undefined") {
-        throw new Error("Source address is not defined");
-      }
-
-      if (!chainId) {
-        throw new Error("Chain ID is undefined");
-      }
-
-      if (!selectedAsset) {
-        throw new Error("No asset is selected");
-      }
-
-      if (typeof gasConfig === "undefined") {
-        throw new Error("No gas config");
-      }
+      invariant(sourceAddress, "Source address is not defined");
+      invariant(chainId, "Chain ID is undefined");
+      invariant(selectedAsset, "No asset is selected");
+      invariant(gasConfig, "No gas config");
 
       setTransaction({
         type: txKind,
@@ -219,24 +135,7 @@ export const NamadaTransfer: React.FC = () => {
         chainId,
       });
 
-      // TODO: once transfer logic is unified, this block should be replaced by a single
-      // call to the performTransfer function
-      const shieldedTransferParams = {
-        sourceAddress: account!.pseudoExtendedKey || sourceAddress,
-        destinationAddress: target,
-        tokenAddress: selectedAsset.originalAddress,
-        amount: txAmount,
-        gasConfig,
-      };
-      const txResponse =
-        txKind === "ShieldedToTransparent" ?
-          await performUnshieldTransfer(shieldedTransferParams)
-        : txKind === "TransparentToShielded" ?
-          await performShieldingTransfer(shieldedTransferParams)
-        : txKind === "ShieldedToShielded" ?
-          await performShieldedTransfer(shieldedTransferParams)
-        : await performTransfer({ memo });
-      // end of block
+      const txResponse = await performTransfer({ memo });
 
       if (txResponse) {
         const txList = createTransferDataFromNamada(
