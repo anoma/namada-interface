@@ -1,8 +1,10 @@
 import { PieChart, PieChartData } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import BigNumber from "bignumber.js";
-import { AnimatePresence, motion } from "framer-motion";
+import clsx from "clsx";
+import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { twMerge } from "tailwind-merge";
 import { MyValidator } from "types";
 
 type YourStakingDistributionProps = {
@@ -62,29 +64,34 @@ export const YourStakingDistribution = ({
           setDisplayedValidator(myValidators[index]);
         }}
       >
-        <div className="max-w-[75%] mx-auto leading-tight">
+        <div className="relative flex items-center justify-center max-w-[75%] mx-auto leading-tight">
           <AnimatePresence>
-            {displayedValidator === undefined && (
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                Your Stake Distribution
-              </motion.span>
-            )}
-            {displayedValidator && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                {displayedValidator.validator.alias}
-                <span className="block text-neutral-500 text-sm">
-                  {getFormattedPercentage(displayedValidator)}
-                </span>
-              </motion.div>
-            )}
+            <span
+              className={twMerge(
+                clsx("absolute transition-opacity duration-300 opacity-100", {
+                  "opacity-0 pointer-events-none": displayedValidator,
+                })
+              )}
+            >
+              Your Stake Distribution
+            </span>
+            <span
+              className={twMerge(
+                clsx(
+                  "flex flex-col text-neutral-500 text-sm opacity-0 pointer-events-none",
+                  "transition-opacity duration-300",
+                  {
+                    "opacity-100 pointer-events-auto": displayedValidator,
+                  }
+                )
+              )}
+            >
+              {displayedValidator?.validator.alias}
+              <span className="block">
+                {displayedValidator &&
+                  getFormattedPercentage(displayedValidator)}
+              </span>
+            </span>
           </AnimatePresence>
         </div>
       </PieChart>
