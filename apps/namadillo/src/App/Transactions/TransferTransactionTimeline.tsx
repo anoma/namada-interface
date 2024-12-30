@@ -113,7 +113,6 @@ export const TransferTransactionTimeline = ({
   transaction,
 }: TransactionTransferTimelineProps): JSX.Element => {
   const textSteps = [...allTransferStages[transaction.type]];
-
   const hasError = transaction.status === "error";
   const isTransparentTransfer = transparentTransferTypes.includes(
     transaction.type
@@ -137,9 +136,13 @@ export const TransferTransactionTimeline = ({
     initialImage.length
   );
 
+  const filteredSteps = textSteps.filter(
+    (step) => step !== TransferStep.WaitingConfirmation
+  );
+
   const stepsWithDescription = buildStepEntries(
-    textSteps.filter((step) => step !== TransferStep.WaitingConfirmation),
-    currentStepIndex,
+    filteredSteps,
+    currentStepIndex + filteredSteps.length - textSteps.length,
     hasError,
     transaction,
     !isTransparentTransfer

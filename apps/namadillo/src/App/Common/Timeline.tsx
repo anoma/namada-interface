@@ -39,17 +39,17 @@ const StepBullet = ({ disabled }: DisabledProps): JSX.Element => (
 
 const StepContent = ({
   children,
-  isNextStep,
+  isCurrentStep,
   hasError,
   disabled,
 }: React.PropsWithChildren & {
-  isNextStep: boolean;
+  isCurrentStep: boolean;
   hasError: boolean;
   disabled: boolean;
 }): JSX.Element => (
   <div
     className={clsx("text-center", {
-      "animate-pulse": isNextStep && !hasError,
+      "animate-pulse": isCurrentStep && !hasError,
       "opacity-20": disabled,
     })}
   >
@@ -80,7 +80,6 @@ export const Timeline = ({
       const lastItem = items.slice(-1)[0];
       const lastItemText = lastItem.querySelector("p");
       const rings = query('[data-animation="ring"]');
-      const preConfirmation = query('[data-animation="pre-confirmation"]');
       const confirmation = query('[data-animation="confirmation"]');
 
       const lastItemTextHeight =
@@ -140,16 +139,6 @@ export const Timeline = ({
         duration: 300,
       });
 
-      // Displays first confirmation (yellow circle)
-      timeline.add({
-        targets: preConfirmation,
-        duration: 1000,
-        keyframes: [
-          { scale: [0, 1], endDelay: 200, duration: 1000 },
-          { scale: [1, 0], duration: 300 },
-        ],
-      });
-
       // Displays success box confirmation
       timeline.add({
         targets: confirmation,
@@ -177,7 +166,10 @@ export const Timeline = ({
   );
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div
+      className={clsx("relative", { "pointer-events-none": complete })}
+      ref={containerRef}
+    >
       <ul className="flex flex-col items-center gap-3">
         {steps.map((step, index: number) => {
           return (
@@ -197,11 +189,9 @@ export const Timeline = ({
                 <StepBullet disabled={index > currentStepIndex} />
               )}
               <StepContent
-                isNextStep={
-                  index === currentStepIndex && !hasError && !complete
-                }
+                isCurrentStep={index === currentStepIndex}
                 disabled={index > currentStepIndex}
-                hasError={Boolean(hasError)}
+                hasError={!!hasError}
               >
                 {step.children}
               </StepContent>
@@ -219,13 +209,6 @@ export const Timeline = ({
         {renderRing("h-30")}
         {renderRing("h-60")}
         {renderRing("h-96")}
-        <span
-          data-animation="pre-confirmation"
-          className={clsx(
-            "absolute bg-yellow w-12 aspect-square rounded-full opacity-90",
-            { "opacity-0": complete }
-          )}
-        />
         <span
           data-animation="confirmation"
           className={clsx(
