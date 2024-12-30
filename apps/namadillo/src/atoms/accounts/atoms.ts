@@ -11,12 +11,13 @@ import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import { NamadaKeychain } from "hooks/useNamadaKeychain";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
+import { getDisposableKeypair } from "lib/accounts";
 import {
   fetchAccountBalance,
   fetchAccounts,
   fetchDefaultAccount,
   fetchNamAccountBalance,
-} from "./services";
+} from "services/accounts";
 
 export const accountsAtom = atomWithQuery<readonly Account[]>((get) => {
   const isExtensionConnected = get(namadaExtensionConnectedAtom);
@@ -70,12 +71,11 @@ export const allDefaultAccountsAtom = atomWithQuery<Account[]>((get) => {
 });
 
 export const updateDefaultAccountAtom = atomWithMutation(() => {
-  const namadaPromise = new NamadaKeychain().get();
   return {
-    mutationFn: (address: string) =>
-      namadaPromise.then((injectedNamada) =>
-        injectedNamada?.updateDefaultAccount(address)
-      ),
+    mutationFn: async (address: string) => {
+      const namada = await new NamadaKeychain().get();
+      namada?.updateDefaultAccount(address);
+    },
   };
 });
 
@@ -107,13 +107,7 @@ export const disposableSignerAtom = atomWithQuery<GenDisposableSignerResponse>(
       enabled: false,
       queryKey: ["disposable-signer", isExtensionConnected],
       queryFn: async () => {
-        const namada = await new NamadaKeychain().get();
-        const res = await namada?.genDisposableKeypair();
-        if (!res) {
-          throw new Error("Failed to generate disposable signer");
-        }
-
-        return res;
+        return await getDisposableKeypair();
       },
     };
   }
