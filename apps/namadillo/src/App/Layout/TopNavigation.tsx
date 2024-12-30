@@ -1,5 +1,6 @@
 import { ActionButton } from "@namada/components";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
+import { TransactionInProgressSpinner } from "App/Common/TransactionInProgressSpinner";
 import { IbcLogo } from "App/Ibc/assets/IbcLogo";
 import { routes } from "App/routes";
 import {
@@ -80,8 +81,8 @@ export const TopNavigation = (): JSX.Element => {
         </button>
       )}
 
+      <TransactionInProgressSpinner />
       <SyncIndicator />
-
       <div className="h-[50px] flex gap-1">
         <NamadaAccount />
         <KeplrAccount />
