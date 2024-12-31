@@ -65,7 +65,7 @@
     "@ledgerhq/hw-transport": "^6.31.4",
     "@ledgerhq/hw-transport-webhid": "^6.29.4",
     "@ledgerhq/hw-transport-webusb": "^6.29.4",
-    "@zondax/ledger-namada": "^1.0.0",
+    "@zondax/ledger-namada": "^2.0.0",
     "bignumber.js": "^9.1.1",
     "buffer": "^6.0.3",
     "slip44": "^3.0.18"

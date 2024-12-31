@@ -186,7 +186,9 @@ export class AddLedgerAccountMsg extends Message<AccountStore | false> {
     public readonly address: string,
     public readonly publicKey: string,
     public readonly bip44Path: Bip44Path,
-    public readonly parentId?: string
+    public readonly extendedViewingKey: string,
+    public readonly pseudoExtendedKey: string,
+    public readonly paymentAddress: string
   ) {
     super();
   }
@@ -206,6 +208,18 @@ export class AddLedgerAccountMsg extends Message<AccountStore | false> {
 
     if (!this.bip44Path) {
       throw new Error("BIP44 Path was not provided!");
+    }
+
+    if (!this.pseudoExtendedKey) {
+      throw new Error("Pseudo extended key was not provided!");
+    }
+
+    if (!this.extendedViewingKey) {
+      throw new Error("Extended viewing key was not provided!");
+    }
+
+    if (!this.paymentAddress) {
+      throw new Error("Payment address was not provided!");
     }
   }
 

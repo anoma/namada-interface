@@ -110,8 +110,8 @@ export const Setup: React.FC = () => {
 
       const prettyAccountSecret =
         accountSecret.t === "Mnemonic" ? "mnemonic"
-        : accountSecret.t === "PrivateKey" ? "private key"
-        : assertNever(accountSecret);
+          : accountSecret.t === "PrivateKey" ? "private key"
+            : assertNever(accountSecret);
       setCompletionStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
 
       // Create parent account

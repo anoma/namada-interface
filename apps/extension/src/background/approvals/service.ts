@@ -67,8 +67,10 @@ export class ApprovalsService {
       (await this.localStorage.getDisposableSigner(signer))?.realAddress ||
       signer;
 
+    console.log("realAddress", realAddress);
     // We use the real address to query the account details
     const details = await this.keyRingService.queryAccountDetails(realAddress);
+    console.log("details", details);
     if (!details) {
       throw new Error(ApprovalErrors.AccountNotFound(signer));
     }
