@@ -63,7 +63,7 @@ export class KeyRing {
     protected readonly sdkService: SdkService,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly localStorage: LocalStorage
-  ) {}
+  ) { }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -463,7 +463,7 @@ export class KeyRing {
     const deriveFn = (
       type === AccountType.PrivateKey ?
         this.deriveTransparentAccount
-      : this.deriveShieldedAccount).bind(this);
+        : this.deriveShieldedAccount).bind(this);
 
     const { secret } = await this.getParentSecret(parentId);
     const info = deriveFn(secret, derivationPath, parentAccount);
@@ -746,13 +746,13 @@ export class KeyRing {
     const key =
       disposableKey ?
         disposableKey.privateKey
-      : await this.getSigningKey(signer);
+        : await this.getSigningKey(signer);
 
     // If disposable key is provided, use it to map real address to spending key
     const spendingKeys =
       disposableKey ?
         [await this.getSpendingKey(disposableKey.realAddress)]
-      : [];
+        : [];
 
     const { signing } = this.sdkService.getSdk();
 
