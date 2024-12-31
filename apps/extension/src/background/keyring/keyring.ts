@@ -63,7 +63,7 @@ export class KeyRing {
     protected readonly sdkService: SdkService,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly localStorage: LocalStorage
-  ) {}
+  ) { }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -101,7 +101,10 @@ export class KeyRing {
     alias: string,
     address: string,
     publicKey: string,
-    bip44Path: Bip44Path
+    bip44Path: Bip44Path,
+    pseudoExtendedKey: string,
+    extendedViewingKey: string,
+    paymentAddress: string
   ): Promise<AccountStore | false> {
     const id = generateId(UUID_NAMESPACE, alias, address);
     const accountStore: AccountStore = {
@@ -123,6 +126,30 @@ export class KeyRing {
     await this.vaultStorage.add(KeyStore, {
       public: accountStore,
       sensitive,
+    });
+
+    const shieldedId = generateId(UUID_NAMESPACE, alias, address);
+    const shieldedAccountStore: AccountStore = {
+      id: shieldedId,
+      alias,
+      address: paymentAddress,
+      publicKey,
+      owner: extendedViewingKey,
+      path: bip44Path,
+      pseudoExtendedKey,
+      parentId: id,
+      type: AccountType.ShieldedKeys,
+      source: "imported",
+      timestamp: 0,
+    };
+
+    const shieldedSensitive = await this.vaultService.encryptSensitiveData({
+      text: "",
+      passphrase: "",
+    });
+    await this.vaultStorage.add(KeyStore, {
+      public: shieldedAccountStore,
+      sensitive: shieldedSensitive,
     });
 
     await this.setActiveAccount(id, AccountType.Ledger);
@@ -436,7 +463,7 @@ export class KeyRing {
     const deriveFn = (
       type === AccountType.PrivateKey ?
         this.deriveTransparentAccount
-      : this.deriveShieldedAccount).bind(this);
+        : this.deriveShieldedAccount).bind(this);
 
     const { secret } = await this.getParentSecret(parentId);
     const info = deriveFn(secret, derivationPath, parentAccount);
@@ -719,13 +746,13 @@ export class KeyRing {
     const key =
       disposableKey ?
         disposableKey.privateKey
-      : await this.getSigningKey(signer);
+        : await this.getSigningKey(signer);
 
     // If disposable key is provided, use it to map real address to spending key
     const spendingKeys =
       disposableKey ?
         [await this.getSpendingKey(disposableKey.realAddress)]
-      : [];
+        : [];
 
     const { signing } = this.sdkService.getSdk();
 
@@ -748,6 +775,7 @@ export class KeyRing {
   async queryAccountDetails(
     address: string
   ): Promise<DerivedAccount | undefined> {
+    console.log("queryAccountDetails address", address);
     const account = await this.vaultStorage.findOneOrFail(
       KeyStore,
       "address",
@@ -769,6 +797,7 @@ export class KeyRing {
     if (!defaultAccount) {
       throw new Error("No default account found");
     }
+    console.log("defaultAccount", defaultAccount);
 
     await this.localStorage.addDisposableSigner(
       address,

@@ -90,7 +90,7 @@ export const NamadaTransfer: React.FC = () => {
   const account = defaultAccounts.data?.find((account) =>
     shielded ?
       account.type === AccountType.ShieldedKeys
-    : account.type !== AccountType.ShieldedKeys
+      : account.type !== AccountType.ShieldedKeys
   );
   const sourceAddress = account?.address;
   const selectedAssetAddress = searchParams.get(params.asset) || undefined;
@@ -231,11 +231,11 @@ export const NamadaTransfer: React.FC = () => {
       const txResponse =
         txKind === "ShieldedToTransparent" ?
           await performUnshieldTransfer(shieldedTransferParams)
-        : txKind === "TransparentToShielded" ?
-          await performShieldingTransfer(shieldedTransferParams)
-        : txKind === "ShieldedToShielded" ?
-          await performShieldedTransfer(shieldedTransferParams)
-        : await performTransfer({ memo });
+          : txKind === "TransparentToShielded" ?
+            await performShieldingTransfer(shieldedTransferParams)
+            : txKind === "ShieldedToShielded" ?
+              await performShieldedTransfer(shieldedTransferParams)
+              : await performTransfer({ memo });
       // end of block
 
       if (txResponse) {
