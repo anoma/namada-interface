@@ -62,7 +62,7 @@ export const NamadaTransfer: React.FC = () => {
   const account = defaultAccounts.data?.find((account) =>
     shielded ?
       account.type === AccountType.ShieldedKeys
-    : account.type !== AccountType.ShieldedKeys
+      : account.type !== AccountType.ShieldedKeys
   );
   const sourceAddress = account?.address;
   const selectedAssetAddress = searchParams.get(params.asset) || undefined;

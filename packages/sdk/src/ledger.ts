@@ -12,20 +12,17 @@ import {
   ResponseVersion,
   ResponseViewKey,
 } from "@zondax/ledger-namada";
-import { makeBip44Path } from "./utils";
+import { makeBip44Path, makeSaplingPath } from "./utils";
 
 const { coinType } = chains.namada.bip44;
 
 export type LedgerAddressAndPublicKey = { address: string; publicKey: string };
 export type LedgerShieldedKeys = {
-  viewingKey: {
-    viewKey?: string;
-    ivk?: string;
-    ovk?: string;
-  };
-  proofGenerationKey: {
-    ak?: string;
-    nsk?: string;
+  xfvk: Uint8Array;
+  // Proof Generation Key
+  pgk: {
+    ak: Uint8Array;
+    nsk: Uint8Array;
   };
 };
 
@@ -58,6 +55,9 @@ export const DEFAULT_LEDGER_BIP44_PATH = makeBip44Path(coinType, {
   index: 0,
 });
 
+export const DEFAULT_LEDGER_ZIP32_PATH = makeSaplingPath(coinType, {
+  account: 0,
+});
 /**
  * Functionality for interacting with NamadaApp for Ledger Hardware Wallets
  */
@@ -155,12 +155,19 @@ export class Ledger {
    * @returns ShieldedKeys
    */
   public async getShieldedKeys(
-    path: string = DEFAULT_LEDGER_BIP44_PATH,
+    path: string = DEFAULT_LEDGER_ZIP32_PATH,
     promptUser = true
   ): Promise<LedgerShieldedKeys> {
     try {
-      const { viewKey, ivk, ovk }: ResponseViewKey =
-        await this.namadaApp.retrieveKeys(path, NamadaKeys.ViewKey, promptUser);
+      const { xfvk }: ResponseViewKey = await this.namadaApp.retrieveKeys(
+        path,
+        NamadaKeys.ViewKey,
+        promptUser
+      );
+
+      if (!xfvk) {
+        throw new Error(`Could not retrieve Viewing Key`);
+      }
 
       const { ak, nsk }: ResponseProofGenKey =
         await this.namadaApp.retrieveKeys(
@@ -168,20 +175,20 @@ export class Ledger {
           NamadaKeys.ProofGenerationKey,
           promptUser
         );
+      if (!ak || !nsk) {
+        throw new Error(`Could not retrieve Proof Generation Key`);
+      }
 
       return {
-        viewingKey: {
-          viewKey: viewKey?.toString(),
-          ivk: ivk?.toString(),
-          ovk: ovk?.toString(),
-        },
-        proofGenerationKey: {
-          ak: ak?.toString(),
-          nsk: nsk?.toString(),
+        xfvk: new Uint8Array(xfvk),
+        pgk: {
+          ak: new Uint8Array(ak),
+          nsk: new Uint8Array(nsk),
         },
       };
-    } catch (_) {
-      throw new Error(`Could not retrieve Viewing Key`);
+    } catch (e) {
+      console.error(e);
+      throw new Error(`Could not retrieve shielded keys: ${e}`);
     }
   }
 

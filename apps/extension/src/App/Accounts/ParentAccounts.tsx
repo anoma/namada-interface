@@ -7,12 +7,13 @@ import {
   KeyListItem,
   Stack,
 } from "@namada/components";
-import { AccountType, DerivedAccount } from "@namada/types";
+import { DerivedAccount } from "@namada/types";
 import { ParentAccountsFooter } from "App/Accounts/ParentAccountsFooter";
 import { PageHeader } from "App/Common";
 import routes from "App/routes";
 import { ParentAccount } from "background/keyring";
 import { AccountContext } from "context";
+import invariant from "invariant";
 import { openSetupTab } from "utils";
 
 /**
@@ -26,20 +27,14 @@ export const ParentAccounts = (): JSX.Element => {
     accounts: allAccounts,
     changeActiveAccountId,
   } = useContext(AccountContext);
-
   // We check which accounts need to be re-imported
   const accounts = allAccounts
-    .filter(
-      (account) => account.parentId || account.type === AccountType.Ledger
-    )
+    .filter((account) => account.parentId)
     .map((account) => {
-      const outdated =
-        account.type !== AccountType.Ledger &&
-        typeof account.pseudoExtendedKey === "undefined";
+      const outdated = typeof account.pseudoExtendedKey === "undefined";
 
-      // The only account without a parent is the ledger account
-      const parent =
-        parentAccounts.find((pa) => pa.id === account.parentId) || account;
+      const parent = parentAccounts.find((pa) => pa.id === account.parentId);
+      invariant(parent, `Parent account not found for account ${account.id}`);
 
       return { ...parent, outdated };
     });

@@ -1,6 +1,12 @@
 import { chains } from "@namada/chains";
 import { ActionButton, Alert, Image, Stack } from "@namada/components";
 import { Ledger as LedgerApp, makeBip44Path } from "@namada/sdk/web";
+import sdkInit from "@namada/sdk/web-init";
+import {
+  ExtendedViewingKey,
+  ProofGenerationKey,
+  PseudoExtendedKey,
+} from "@namada/shared";
 import { Bip44Path } from "@namada/types";
 import { LedgerError } from "@zondax/ledger-namada";
 import { LedgerStep } from "Setup/Common";
@@ -33,14 +39,32 @@ export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
       }
 
       setIsLedgerConnecting(true);
+
+      await sdkInit();
+      const { xfvk, pgk } = await ledger.getShieldedKeys();
       const { address, publicKey } = await ledger.showAddressAndPublicKey(
         makeBip44Path(chains.namada.bip44.coinType, path)
       );
+      const extendedViewingKey = new ExtendedViewingKey(xfvk);
+      const encodedExtendedViewingKey = extendedViewingKey.encode();
+      const encodedPaymentAddress = extendedViewingKey
+        .default_payment_address()
+        .encode();
+      const proofGenerationKey = ProofGenerationKey.from_bytes(pgk.ak, pgk.nsk);
+      const pseudoExtendedKey = PseudoExtendedKey.from(
+        extendedViewingKey,
+        proofGenerationKey
+      );
+      const encodedPseudoExtendedKey = pseudoExtendedKey.encode();
+
       setIsLedgerConnecting(false);
       navigate(routes.ledgerImport(), {
         state: {
           address,
           publicKey,
+          extendedViewingKey: encodedExtendedViewingKey,
+          pseudoExtendedKey: encodedPseudoExtendedKey,
+          paymentAddress: encodedPaymentAddress,
         },
       });
     } catch (e) {
