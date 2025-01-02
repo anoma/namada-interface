@@ -60,9 +60,13 @@ declare global {
     "VoteProposal.Success": EventData<VoteProposalProps>;
     "VoteProposal.Error": EventData<VoteProposalProps>;
     "TransparentTransfer.Success": EventData<TransparentTransferProps>;
+    "TransparentTransfer.Error": EventData<TransparentTransferProps>;
     "ShieldedTransfer.Success": EventData<ShieldedTransferProps>;
+    "ShieldedTransfer.Error": EventData<ShieldedTransferProps>;
     "ShieldingTransfer.Success": EventData<ShieldingTransferProps>;
+    "ShieldingTransfer.Error": EventData<ShieldingTransferProps>;
     "UnshieldingTransfer.Success": EventData<UnshieldingTransferProps>;
+    "UnshieldingTransfer.Error": EventData<UnshieldingTransferProps>;
     "IbcTransfer.Success": EventData<IbcTransferProps>;
     "IbcTransfer.Error": EventData<IbcTransferProps>;
   }

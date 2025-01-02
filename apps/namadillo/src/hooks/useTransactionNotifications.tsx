@@ -11,7 +11,10 @@ import {
 import { searchAllStoredTxByHash } from "atoms/transactions";
 import BigNumber from "bignumber.js";
 import { useSetAtom } from "jotai";
-import { useTransactionEventListener } from "utils";
+import {
+  useTransactionEventListener,
+  useTransactionEventListListener,
+} from "utils";
 
 type TxWithAmount = { amount: BigNumber };
 
@@ -344,45 +347,70 @@ export const useTransactionNotifications = (): void => {
     });
   });
 
-  const handleTransferNotification = (
-    tx: TxProps,
-    data: TxWithAmount[]
-  ): void => {
-    const { id } = parseTxsData(tx, data);
-    clearPendingNotifications(id);
-    const storedTx = searchAllStoredTxByHash(tx.hash);
-    if (storedTx) {
+  useTransactionEventListListener(
+    [
+      "TransparentTransfer.Error",
+      "ShieldedTransfer.Error",
+      "ShieldingTransfer.Error",
+      "UnshieldingTransfer.Error",
+    ],
+    (e) => {
+      const tx = e.detail.tx;
+      const data: TxWithAmount[] = e.detail.data[0].data;
+      const { id } = parseTxsData(tx, data);
+      clearPendingNotifications(id);
+      const storedTx = searchAllStoredTxByHash(tx.hash);
+      dispatchNotification({
+        id,
+        type: "error",
+        title: "Transfer transaction failed",
+        description:
+          storedTx ?
+            <>
+              Your transfer transaction of{" "}
+              <TokenCurrency
+                symbol={storedTx.asset.symbol}
+                amount={storedTx.displayAmount}
+              />{" "}
+              to {shortenAddress(storedTx.destinationAddress, 8, 8)} has failed
+            </>
+          : "Your transfer transaction has failed",
+        details:
+          e.detail.error?.message && failureDetails(e.detail.error.message),
+      });
+    }
+  );
+
+  useTransactionEventListListener(
+    [
+      "TransparentTransfer.Success",
+      "ShieldedTransfer.Success",
+      "ShieldingTransfer.Success",
+      "UnshieldingTransfer.Success",
+    ],
+    (e) => {
+      const tx = e.detail.tx;
+      const data: TxWithAmount[] = e.detail.data[0].data;
+      const { id } = parseTxsData(tx, data);
+      clearPendingNotifications(id);
+      const storedTx = searchAllStoredTxByHash(tx.hash);
       dispatchNotification({
         id,
         title: "Transfer transaction succeeded",
-        description: (
-          <>
-            Your transfer transaction of{" "}
-            <TokenCurrency
-              symbol={storedTx.asset.symbol}
-              amount={storedTx.displayAmount}
-            />{" "}
-            to {shortenAddress(storedTx.destinationAddress, 8, 8)} has succeeded
-          </>
-        ),
+        description:
+          storedTx ?
+            <>
+              Your transfer transaction of{" "}
+              <TokenCurrency
+                symbol={storedTx.asset.symbol}
+                amount={storedTx.displayAmount}
+              />{" "}
+              to {shortenAddress(storedTx.destinationAddress, 8, 8)} has
+              succeeded
+            </>
+          : "Your transfer transaction has succeeded",
         type: "success",
       });
     }
-  };
-
-  useTransactionEventListener("TransparentTransfer.Success", (e) => {
-    handleTransferNotification(e.detail.tx, e.detail.data[0].data);
-  });
-
-  useTransactionEventListener("ShieldedTransfer.Success", (e) => {
-    handleTransferNotification(e.detail.tx, e.detail.data[0].data);
-  });
-
-  useTransactionEventListener("ShieldingTransfer.Success", (e) => {
-    handleTransferNotification(e.detail.tx, e.detail.data[0].data);
-  });
-
-  useTransactionEventListener("UnshieldingTransfer.Success", (e) => {
-    handleTransferNotification(e.detail.tx, e.detail.data[0].data);
-  });
+  );
 };
