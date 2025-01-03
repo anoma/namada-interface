@@ -37,7 +37,7 @@ export const TopNavigation = (): JSX.Element => {
     <div className="flex-1 flex items-center gap-4 sm:gap-6">
       <div className="hidden lg:flex gap-2">
         {maspEnabled && (
-          <ActionButton href={routes.maspShield} size="sm" className="px-4">
+          <ActionButton href={routes.ibc} size="sm" className="px-4">
             <div className="flex items-center gap-1">
               Shield Assets over <IbcLogo />
             </div>
