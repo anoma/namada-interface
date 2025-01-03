@@ -262,6 +262,7 @@ const handleQueryAccountDetails: (
   service: KeyRingService
 ) => InternalHandler<QueryAccountDetailsMsg> = (service) => {
   return async (_, { address }) => {
+    console.log("queryAccountDetails 2222");
     return await service.queryAccountDetails(address);
   };
 };

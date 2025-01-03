@@ -53,7 +53,7 @@ export class Tx {
   /**
    * @param sdk - Instance of Sdk struct from wasm lib
    */
-  constructor(protected readonly sdk: SdkWasm) {}
+  constructor(protected readonly sdk: SdkWasm) { }
 
   /**
    * Build Transparent Transfer Tx
@@ -364,6 +364,21 @@ export class Tx {
 
     const batch = SdkWasm.build_batch(encodedTxs.map((tx) => [...tx]));
     return deserialize(Buffer.from(batch), TxMsgValue);
+  }
+
+  /**
+   * TODO
+   * @param txBytes - [TODO:description]
+   * @param signingData - [TODO:description]
+   * @param signature - [TODO:description]
+   * @returns [TODO:description]
+   */
+  appendMaspSignature(
+    txBytes: Uint8Array,
+    signingData: Uint8Array[],
+    signature: Uint8Array
+  ): Uint8Array {
+    return this.sdk.sign_masp_ledger(txBytes, signingData, signature);
   }
 
   /**

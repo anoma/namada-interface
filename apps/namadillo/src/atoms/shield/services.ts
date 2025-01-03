@@ -9,6 +9,7 @@ import BigNumber from "bignumber.js";
 import * as Comlink from "comlink";
 import { EncodedTxData, signTx } from "lib/query";
 import { Address, ChainSettings, GasConfig } from "types";
+import { getSdkInstance } from "utils/sdk";
 import { Shield, ShieldedTransfer, Unshield } from "workers/MaspTxMessages";
 import {
   Worker as MaspTxWorkerApi,
@@ -117,6 +118,13 @@ export const submitUnshieldTx = async (
     gasConfig,
   } = params;
 
+  const sdk = await getSdkInstance();
+  const ledger = await sdk.initLedger();
+
+  const bparams = await ledger.getBparams();
+  ledger.closeTransport();
+  console.log("bparams closed", bparams);
+
   maspTxRegisterTransferHandlers();
   const worker = new MaspTxWorker();
   const unshieldWorker = Comlink.wrap<MaspTxWorkerApi>(worker);
@@ -127,8 +135,9 @@ export const submitUnshieldTx = async (
 
   const unshieldingMsgValue = new UnshieldingTransferMsgValue({
     source,
-    gasSpendingKey: source,
     data: [{ target, token, amount }],
+    gasSpendingKey: source,
+    bparams,
   });
 
   const msg: Unshield = {
@@ -136,7 +145,8 @@ export const submitUnshieldTx = async (
     payload: {
       account: {
         ...account,
-        publicKey: disposableSigner.publicKey,
+        // TODO:
+        // publicKey: disposableSigner.publicKey,
       },
       gasConfig,
       unshieldingProps: [unshieldingMsgValue],
@@ -146,7 +156,11 @@ export const submitUnshieldTx = async (
 
   const { payload: encodedTxData } = await unshieldWorker.unshield(msg);
 
-  const signedTxs = await signTx(encodedTxData, disposableSigner.address);
+  const signedTxs = await signTx(
+    encodedTxData,
+    // disposableSigner.address
+    account.address
+  );
 
   await unshieldWorker.broadcast({
     type: "broadcast",
