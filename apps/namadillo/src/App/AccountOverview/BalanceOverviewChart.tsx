@@ -30,7 +30,9 @@ const BalanceOverviewCaptionItem = ({
 };
 
 export const BalanceOverviewChart = (): JSX.Element => {
-  const { maspEnabled } = useAtomValue(applicationFeaturesAtom);
+  const { maspEnabled, namTransfersEnabled } = useAtomValue(
+    applicationFeaturesAtom
+  );
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
   const transparentTokensQuery = useAtomValue(transparentTokensAtom);
   const { totalTransparentAmount, isLoading: isLoadingTransparent } =
@@ -121,9 +123,11 @@ export const BalanceOverviewChart = (): JSX.Element => {
               Transparent Assets
             </BalanceOverviewCaptionItem>
           </ul>
-          <small className="text-xxs -mb-3 mt-3 block">
-            * Balances exclude NAM until phase 5
-          </small>
+          {!namTransfersEnabled && (
+            <small className="text-xxs -mb-3 mt-3 block">
+              * Balances exclude NAM until phase 5
+            </small>
+          )}
         </>
       )}
     </div>
