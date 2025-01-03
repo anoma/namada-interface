@@ -1,8 +1,7 @@
 import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
 import { AccountType } from "@namada/types";
-import { params } from "App/routes";
-import { TransferTransactionTimeline } from "App/Transactions/TransferTransactionTimeline";
+import { params, routes } from "App/routes";
 import { isShieldedAddress } from "App/Transfer/common";
 import {
   OnSubmitTransferParams,
@@ -13,29 +12,27 @@ import { namadaTransparentAssetsAtom } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
 import { applicationFeaturesAtom, rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
-import clsx from "clsx";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useTransfer } from "hooks/useTransfer";
 import { wallets } from "integrations";
 import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { generatePath, useNavigate, useSearchParams } from "react-router-dom";
 import namadaChain from "registry/namada.json";
 import { twMerge } from "tailwind-merge";
-import { Address, PartialTransferTransactionData, TransferStep } from "types";
+import { Address, TransferTransactionData } from "types";
 import { isNamadaAsset } from "utils";
 import { NamadaTransferTopHeader } from "./NamadaTransferTopHeader";
 
 export const NamadaTransfer: React.FC = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
   const [shielded, setShielded] = useState<boolean>(true);
   const [customAddress, setCustomAddress] = useState<string>("");
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
-  const [transaction, setTransaction] =
-    useState<PartialTransferTransactionData>();
 
   const rpcUrl = useAtomValue(rpcUrlAtom);
   const features = useAtomValue(applicationFeaturesAtom);
@@ -45,11 +42,7 @@ export const NamadaTransfer: React.FC = () => {
   const { data: availableAssetsData, isLoading: isLoadingAssets } =
     useAtomValue(namadaTransparentAssetsAtom);
 
-  const {
-    transactions: myTransactions,
-    findByHash,
-    storeTransaction,
-  } = useTransactionActions();
+  const { storeTransaction } = useTransactionActions();
 
   const availableAssets = useMemo(() => {
     if (features.namTransfersEnabled) {
@@ -93,15 +86,6 @@ export const NamadaTransfer: React.FC = () => {
   const isSourceShielded = isShieldedAddress(source);
   const isTargetShielded = isShieldedAddress(target);
 
-  useEffect(() => {
-    if (transaction?.hash) {
-      const tx = findByHash(transaction.hash);
-      if (tx) {
-        setTransaction(tx);
-      }
-    }
-  }, [myTransactions]);
-
   const onChangeSelectedAsset = (address?: Address): void => {
     setSearchParams(
       (currentParams) => {
@@ -117,6 +101,11 @@ export const NamadaTransfer: React.FC = () => {
     );
   };
 
+  const redirectToTimeline = (tx: TransferTransactionData): void => {
+    invariant(tx.hash, "Invalid TX hash");
+    navigate(generatePath(routes.transaction, { hash: tx.hash }));
+  };
+
   const onSubmitTransfer = async ({
     memo,
   }: OnSubmitTransferParams): Promise<void> => {
@@ -127,13 +116,6 @@ export const NamadaTransfer: React.FC = () => {
       invariant(chainId, "Chain ID is undefined");
       invariant(selectedAsset, "No asset is selected");
       invariant(gasConfig, "No gas config");
-
-      setTransaction({
-        type: txKind,
-        currentStep: TransferStep.Sign,
-        asset: selectedAsset.asset,
-        chainId,
-      });
 
       const txResponse = await performTransfer({ memo });
 
@@ -148,74 +130,60 @@ export const NamadaTransfer: React.FC = () => {
 
         // Currently we don't have the option of batching transfer transactions
         if (txList.length === 0) {
-          throw "Couldn't create TransferData object ";
+          throw "Couldn't create TransferData object";
         }
 
         const tx = txList[0];
-        setTransaction(tx);
         storeTransaction(tx);
+        redirectToTimeline(tx);
       } else {
         throw "Invalid transaction response";
       }
     } catch (err) {
       setGeneralErrorMessage(err + "");
-      setTransaction(undefined);
     }
   };
 
   return (
-    <Panel className="relative pt-8 pb-20">
-      {!transaction && (
-        <div className="min-h-[600px]">
-          <header className="flex flex-col items-center text-center mb-8 gap-6">
-            <h1
-              className={twMerge("text-lg", isSourceShielded && "text-yellow")}
-            >
-              Transfer
-            </h1>
-            <NamadaTransferTopHeader
-              isSourceShielded={isSourceShielded}
-              isDestinationShielded={target ? isTargetShielded : undefined}
-            />
-          </header>
-          <TransferModule
-            source={{
-              isLoadingAssets,
-              availableAssets,
-              availableAmount: selectedAsset?.amount,
-              chain: namadaChain as Chain,
-              availableWallets: [wallets.namada],
-              wallet: wallets.namada,
-              walletAddress: sourceAddress,
-              selectedAssetAddress,
-              onChangeSelectedAsset,
-              isShielded: shielded,
-              onChangeShielded: setShielded,
-              amount: displayAmount,
-              onChangeAmount: setDisplayAmount,
-            }}
-            destination={{
-              chain: namadaChain as Chain,
-              enableCustomAddress: true,
-              customAddress,
-              onChangeCustomAddress: setCustomAddress,
-            }}
-            gasConfig={gasConfig}
-            isSubmitting={isPerformingTransfer}
-            errorMessage={generalErrorMessage}
-            onSubmitTransfer={onSubmitTransfer}
-          />
-        </div>
-      )}
-      {transaction && (
-        <div
-          className={clsx("absolute z-50 py-12 left-0 top-0 w-full h-full", {
-            "text-yellow": shielded,
-          })}
+    <Panel className="relative min-h-[600px]">
+      <header className="flex flex-col items-center text-center mb-3 gap-6">
+        <h1
+          className={twMerge("mt-6 text-lg", isSourceShielded && "text-yellow")}
         >
-          <TransferTransactionTimeline transaction={transaction} />
-        </div>
-      )}
+          Transfer
+        </h1>
+        <NamadaTransferTopHeader
+          isSourceShielded={isSourceShielded}
+          isDestinationShielded={target ? isTargetShielded : undefined}
+        />
+      </header>
+      <TransferModule
+        source={{
+          isLoadingAssets,
+          availableAssets,
+          availableAmount: selectedAsset?.amount,
+          chain: namadaChain as Chain,
+          availableWallets: [wallets.namada],
+          wallet: wallets.namada,
+          walletAddress: sourceAddress,
+          selectedAssetAddress,
+          onChangeSelectedAsset,
+          isShielded: shielded,
+          onChangeShielded: setShielded,
+          amount: displayAmount,
+          onChangeAmount: setDisplayAmount,
+        }}
+        destination={{
+          chain: namadaChain as Chain,
+          enableCustomAddress: true,
+          customAddress,
+          onChangeCustomAddress: setCustomAddress,
+        }}
+        gasConfig={gasConfig}
+        isSubmitting={isPerformingTransfer}
+        errorMessage={generalErrorMessage}
+        onSubmitTransfer={onSubmitTransfer}
+      />
     </Panel>
   );
 };
