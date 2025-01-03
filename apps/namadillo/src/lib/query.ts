@@ -28,9 +28,9 @@ export type TransactionPair<T> = {
 export type EncodedTxData<T> = {
   type: string;
   txs: TxProps[] &
-    {
-      innerTxHashes: string[];
-    }[];
+  {
+    innerTxHashes: string[];
+  }[];
   wrapperTxProps: WrapperTxProps;
   meta?: {
     props: T[];
@@ -67,7 +67,7 @@ const getTxProps = (
     feeAmount:
       gasConfig.asset ?
         toDisplayAmount(gasConfig.asset, gasConfig.gasPrice)
-      : gasConfig.gasPrice,
+        : gasConfig.gasPrice,
     gasLimit: gasConfig.gasLimit,
     chainId: chain.chainId,
     publicKey: account.publicKey!,
@@ -83,7 +83,7 @@ export const isPublicKeyRevealed = async (
   try {
     publicKey = (await api.apiV1RevealedPublicKeyAddressGet(address)).data
       ?.publicKey;
-  } catch {}
+  } catch { }
   return Boolean(publicKey);
 };
 
@@ -166,6 +166,7 @@ export const signTx = async <T>(
       owner,
       checksums
     );
+    console.log("Signed txs", signedTxBytes);
 
     if (!signedTxBytes) {
       throw new Error("Signing batch Tx failed");

@@ -53,13 +53,14 @@ export class SubmitApprovedSignLedgerTxMsg extends Message<void> {
 
   constructor(
     public readonly msgId: string,
-    public readonly responseSign: ResponseSign[]
+    public readonly responseSign: ResponseSign[],
+    public readonly maspSignatures: number[][]
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["msgId", "responseSign"]);
+    validateProps(this, ["msgId", "responseSign", "maspSignatures"]);
   }
 
   route(): string {
@@ -258,7 +259,9 @@ export class QueryTxDetailsMsg extends Message<TxDetails[]> {
   }
 }
 
-export class QueryPendingTxBytesMsg extends Message<string[] | undefined> {
+export class QueryPendingTxBytesMsg extends Message<
+  { bytes: string; signingData: string[] }[] | undefined
+> {
   public static type(): MessageType {
     return MessageType.QueryPendingTxBytes;
   }

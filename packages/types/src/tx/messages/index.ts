@@ -10,6 +10,7 @@ export class Message<T extends Schema> implements IMessage<T> {
     try {
       return serialize(value);
     } catch (e) {
+      console.log("error", e);
       throw new Error(`Unable to serialize message: ${e}`);
     }
   }
