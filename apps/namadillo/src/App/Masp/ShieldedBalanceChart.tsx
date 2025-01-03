@@ -4,6 +4,7 @@ import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { shieldedSyncAtom, shieldedTokensAtom } from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
+import { applicationFeaturesAtom } from "atoms/settings";
 import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -14,6 +15,7 @@ import {
 } from "workers/ShieldedSyncWorker";
 
 export const ShieldedBalanceChart = (): JSX.Element => {
+  const { namTransfersEnabled } = useAtomValue(applicationFeaturesAtom);
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
   const [{ data: shieldedSyncProgress, refetch: shieledSync }] =
     useAtom(shieldedSyncAtom);
@@ -130,9 +132,11 @@ export const ShieldedBalanceChart = (): JSX.Element => {
                   }
                 </div>
               </PieChart>
-              <div className="absolute -bottom-4 -left-2 text-[10px]">
-                *Balances exclude NAM until phase 5{" "}
-              </div>
+              {!namTransfersEnabled && (
+                <div className="absolute -bottom-4 -left-2 text-[10px]">
+                  * Balances exclude NAM until phase 5
+                </div>
+              )}
             </>
           }
         </AtomErrorBoundary>
