@@ -72,6 +72,20 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
     }
   }, [status]);
 
+  const signMaspTx = async (
+    ledger: Ledger,
+    bytes: Uint8Array,
+    _path: string
+  ): Promise<{ sbar: Uint8Array; rbar: Uint8Array }> => {
+    const _response = await ledger.namadaApp.signMaspSpends(
+      // TODO:
+      "m/32'/877'/0'",
+      Buffer.from(bytes)
+    );
+    // TODO
+    return await ledger.namadaApp.getSpendSignature();
+  };
+
   const signLedgerTx = async (
     ledger: Ledger,
     bytes: Uint8Array,
@@ -122,6 +136,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
       setStepTwoDescription("Preparing transaction...");
 
       try {
+        console.log("Querying account details for", signer);
         const accountDetails = await requester.sendMessage(
           Ports.Background,
           new QueryAccountDetailsMsg(signer)
@@ -147,6 +162,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
         }
 
         const signatures: ResponseSign[] = [];
+        const maspSignatures: number[][] = [];
 
         let txIndex = 0;
         const txCount = pendingTxs.length;
@@ -156,7 +172,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
           setStepTwoDescription(<p>{stepTwoText}</p>);
         }
 
-        for await (const tx of pendingTxs) {
+        for await (const { bytes: tx } of pendingTxs) {
           if (txCount > 1) {
             setStepTwoDescription(
               <p>
@@ -166,6 +182,10 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
               </p>
             );
           }
+          const asd = await signMaspTx(ledger, fromBase64(tx), bip44Path);
+          const maspSignature = [...asd.rbar, ...asd.sbar];
+          maspSignatures.push(maspSignature);
+
           const signature = await signLedgerTx(
             ledger,
             fromBase64(tx),
@@ -178,7 +198,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
         setStepTwoDescription(<p>Submitting...</p>);
         await requester.sendMessage(
           Ports.Background,
-          new SubmitApprovedSignLedgerTxMsg(msgId, signatures)
+          new SubmitApprovedSignLedgerTxMsg(msgId, signatures, maspSignatures)
         );
 
         setStatus(Status.Completed);

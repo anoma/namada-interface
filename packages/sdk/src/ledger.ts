@@ -31,6 +31,20 @@ export type LedgerStatus = {
   info: ResponseAppInfo;
 };
 
+export type Bparams = {
+  spend: {
+    rcv: Uint8Array;
+    alpha: Uint8Array;
+  };
+  output: {
+    rcv: Uint8Array;
+    rcm: Uint8Array;
+  };
+  convert: {
+    rcv: Uint8Array;
+  };
+};
+
 /**
  * Initialize USB transport
  * @async
@@ -144,6 +158,45 @@ export class Ledger {
     } catch (e) {
       throw new Error(`Connect Ledger rejected by user: ${e}`);
     }
+  }
+
+  /**
+   * Get Bparams for masp transactions
+   * @async
+   * @returns bparams
+   */
+  public async getBparams(): Promise<Bparams[]> {
+    const results: Bparams[] = [];
+
+    // TODO: not sure why ledger sometimes returns errors, so we try to get 15 valid responses
+    while (results.length < 15) {
+      const spend_response = await this.namadaApp.getSpendRandomness();
+      const output_response = await this.namadaApp.getOutputRandomness();
+      const convert_response = await this.namadaApp.getConvertRandomness();
+      if (
+        spend_response.returnCode !== LedgerError.NoErrors ||
+        output_response.returnCode !== LedgerError.NoErrors ||
+        convert_response.returnCode !== LedgerError.NoErrors
+      ) {
+        continue;
+      }
+
+      results.push({
+        spend: {
+          rcv: spend_response.rcv,
+          alpha: spend_response.alpha,
+        },
+        output: {
+          rcv: output_response.rcv,
+          rcm: output_response.rcm,
+        },
+        convert: {
+          rcv: convert_response.rcv,
+        },
+      });
+    }
+
+    return results;
   }
 
   /**

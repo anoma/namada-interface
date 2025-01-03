@@ -3,7 +3,12 @@ import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
 
 import { KVStore } from "@namada/storage";
-import { SignArbitraryResponse, TxDetails } from "@namada/types";
+import {
+  Message,
+  SignArbitraryResponse,
+  SigningDataMsgValue,
+  TxDetails,
+} from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 
 import { ResponseSign } from "@zondax/ledger-namada";
@@ -131,7 +136,8 @@ export class ApprovalsService {
   async submitSignLedgerTx(
     popupTabId: number,
     msgId: string,
-    responseSign: ResponseSign[]
+    responseSign: ResponseSign[],
+    maspSignatures: number[][]
   ): Promise<void> {
     const pendingTx = await this.txStore.get(msgId);
     const resolvers = this.getResolver(popupTabId);
@@ -146,9 +152,19 @@ export class ApprovalsService {
 
     const { tx } = this.sdkService.getSdk();
 
+    console.log("maspSignatures", maspSignatures);
     try {
-      const signedTxs = pendingTx.txs.map(({ bytes }, i) => {
-        return tx.appendSignature(bytes, responseSign[i]);
+      const signedTxs = pendingTx.txs.map(({ bytes, signingData }, i) => {
+        const sd = signingData.map((sd) =>
+          new Message().encode(new SigningDataMsgValue(sd))
+        );
+        const wwww = new Uint8Array(maspSignatures[i]);
+
+        console.log("sd", sd, maspSignatures[i], i);
+        const asd = tx.appendMaspSignature(bytes, sd, wwww);
+        console.log("asd", asd);
+        // return tx.appendSignature(asd, responseSign[i]);
+        return asd;
       });
       resolvers.resolve(signedTxs);
     } catch (e) {
@@ -333,6 +349,7 @@ export class ApprovalsService {
   }
 
   async approveUpdateDefaultAccount(address: string): Promise<void> {
+    console.log("approveUpdateDefaultAccount");
     const account = await this.keyRingService.queryAccountDetails(address);
 
     return this.launchApprovalPopup(TopLevelRoute.ApproveUpdateDefaultAccount, {
@@ -368,7 +385,10 @@ export class ApprovalsService {
     );
   }
 
-  async queryPendingTxBytes(msgId: string): Promise<string[] | undefined> {
+  // TODO: all of this is not needed most likelyk
+  async queryPendingTxBytes(
+    msgId: string
+  ): Promise<{ bytes: string; signingData: string[] }[] | undefined> {
     const pendingTx = await this.txStore.get(msgId);
 
     if (!pendingTx) {
@@ -376,7 +396,18 @@ export class ApprovalsService {
     }
 
     if (pendingTx.txs) {
-      return pendingTx.txs.map(({ bytes }) => toBase64(bytes));
+      // TODO:
+      return pendingTx.txs.map(({ bytes, signingData }) => {
+        console.log("signingData223455", signingData);
+        const www = {
+          bytes: toBase64(bytes),
+          signingData: signingData.map((sd) =>
+            toBase64(new Message().encode(new SigningDataMsgValue(sd)))
+          ),
+        };
+        console.log("www", www.signingData);
+        return www;
+      });
     }
   }
 
