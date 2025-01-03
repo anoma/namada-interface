@@ -197,6 +197,14 @@ module.exports = {
           and: [/\.(ts|tsx|md)$/],
         },
       },
+      {
+        test: /\.(png|jpe?g|gif)$/i,
+        use: [
+          {
+            loader: require.resolve("file-loader"),
+          },
+        ],
+      },
     ],
   },
   resolve: {
