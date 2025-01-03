@@ -108,6 +108,7 @@ async function unshield(
 
   await sdk.masp.loadMaspParams("", chain.chainId);
 
+  console.log("Unshielding props", unshieldingProps);
   const encodedTxData = await buildTx<UnshieldingTransferMsgValue>(
     sdk,
     account,

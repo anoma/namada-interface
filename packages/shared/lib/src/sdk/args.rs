@@ -659,12 +659,40 @@ pub struct UnshieldingTransferDataMsg {
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 #[borsh(crate = "namada_sdk::borsh")]
+pub struct BparamsSpendMsg {
+    rcv: Vec<u8>,
+    alpha: Vec<u8>,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct BparamsOutputMsg {
+    rcv: Vec<u8>,
+    rcm: Vec<u8>,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct BparamsConvertMsg {
+    rcv: Vec<u8>,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct BparamsMsg {
+    spend: BparamsSpendMsg,
+    output: BparamsOutputMsg,
+    convert: BparamsConvertMsg,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct UnshieldingTransferMsg {
     source: String,
     data: Vec<UnshieldingTransferDataMsg>,
     gas_spending_key: Option<String>,
+    bparams: Option<Vec<BparamsMsg>>,
 }
-
 /// Maps serialized tx_msg into TxUnshieldingTransfer args.
 ///
 /// # Arguments
@@ -679,13 +707,14 @@ pub struct UnshieldingTransferMsg {
 pub fn unshielding_transfer_tx_args(
     unshielding_transfer_msg: &[u8],
     tx_msg: &[u8],
-) -> Result<args::TxUnshieldingTransfer, JsError> {
+) -> Result<(args::TxUnshieldingTransfer, Option<StoredBuildParams>), JsError> {
     let unshielding_transfer_msg =
         UnshieldingTransferMsg::try_from_slice(unshielding_transfer_msg)?;
     let UnshieldingTransferMsg {
         source,
         data,
         gas_spending_key,
+        bparams: bparams_msg,
     } = unshielding_transfer_msg;
     let source = PseudoExtendedKey::decode(source).0;
     let gas_spending_key = gas_spending_key.map(|v| PseudoExtendedKey::decode(v).0);
@@ -707,6 +736,45 @@ pub fn unshielding_transfer_tx_args(
 
     let tx = tx_msg_into_args(tx_msg)?;
 
+    let bparams = bparams_msg.map(|bparams_msg| {
+        let mut bparams = StoredBuildParams::default();
+        for bpm in bparams_msg {
+            bparams
+                .spend_params
+                .push(sapling::builder::SpendBuildParams {
+                    rcv: masp_primitives::jubjub::Fr::from_bytes(
+                        &bpm.spend.rcv.try_into().unwrap(),
+                    )
+                    .unwrap(),
+                    alpha: masp_primitives::jubjub::Fr::from_bytes(
+                        &bpm.spend.alpha.try_into().unwrap(),
+                    )
+                    .unwrap(),
+                });
+
+            bparams
+                .output_params
+                .push(sapling::builder::OutputBuildParams {
+                    rcv: masp_primitives::jubjub::Fr::from_bytes(
+                        &bpm.output.rcv.try_into().unwrap(),
+                    )
+                    .unwrap(),
+                    rseed: bpm.output.rcm.try_into().unwrap(),
+                    ..sapling::builder::OutputBuildParams::default()
+                });
+
+            bparams
+                .convert_params
+                .push(sapling::builder::ConvertBuildParams {
+                    rcv: masp_primitives::jubjub::Fr::from_bytes(
+                        &bpm.convert.rcv.try_into().unwrap(),
+                    )
+                    .unwrap(),
+                });
+        }
+        bparams
+    });
+
     let args = args::TxUnshieldingTransfer {
         data: unshielding_transfer_data,
         source,
@@ -717,7 +785,7 @@ pub fn unshielding_transfer_tx_args(
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
     };
 
-    Ok(args)
+    Ok((args, bparams))
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
@@ -1075,7 +1143,9 @@ where
     Ok(())
 }
 
-struct MapSaplingSigAuth(HashMap<usize, <sapling::Authorized as sapling::Authorization>::AuthSig>);
+pub struct MapSaplingSigAuth(
+    pub HashMap<usize, <sapling::Authorized as sapling::Authorization>::AuthSig>,
+);
 
 impl sapling::MapAuth<sapling::Authorized, sapling::Authorized> for MapSaplingSigAuth {
     fn map_proof(

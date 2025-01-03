@@ -274,8 +274,16 @@ const handleQuerySignArbitraryData: (
 const handleSubmitApprovedSignLedgerTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<SubmitApprovedSignLedgerTxMsg> = (service) => {
-  return async ({ senderTabId: popupTabId }, { msgId, responseSign }) => {
-    return await service.submitSignLedgerTx(popupTabId, msgId, responseSign);
+  return async (
+    { senderTabId: popupTabId },
+    { msgId, responseSign, maspSignatures }
+  ) => {
+    return await service.submitSignLedgerTx(
+      popupTabId,
+      msgId,
+      responseSign,
+      maspSignatures
+    );
   };
 };
 

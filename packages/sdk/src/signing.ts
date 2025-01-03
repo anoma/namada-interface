@@ -11,7 +11,7 @@ export class Signing {
    * Signing constructor
    * @param sdk - Instance of Sdk struct from wasm lib
    */
-  constructor(protected readonly sdk: SdkWasm) {}
+  constructor(protected readonly sdk: SdkWasm) { }
 
   /**
    * Sign Namada transaction
@@ -33,7 +33,7 @@ export class Signing {
     const txBytesFinal =
       xsks && xsks.length > 0 ?
         await this.sdk.sign_masp(xsks, txBytes)
-      : txBytes;
+        : txBytes;
 
 
     let signingKeys: string[] = [];
