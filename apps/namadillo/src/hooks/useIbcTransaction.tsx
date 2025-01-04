@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Address,
   AddressWithAssetAndAmount,
@@ -18,11 +18,16 @@ type useIbcTransactionProps = {
 
 import { Keplr, Window as KeplrWindow } from "@keplr-wallet/types";
 import { QueryStatus } from "@tanstack/query-core";
+import { TokenCurrency } from "App/Common/TokenCurrency";
 import { ibcTransferAtom } from "atoms/integrations";
+import {
+  createIbcNotificationId,
+  dispatchToastNotificationAtom,
+} from "atoms/notifications";
 import BigNumber from "bignumber.js";
 import { getIbcGasConfig } from "integrations/utils";
 import invariant from "invariant";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 
 type useIbcTransactionOutput = {
   transferToNamada: (
@@ -42,6 +47,35 @@ export const useIbcTransaction = ({
   destinationChannel,
 }: useIbcTransactionProps): useIbcTransactionOutput => {
   const performIbcTransfer = useAtomValue(ibcTransferAtom);
+  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
+  const [txHash, setTxHash] = useState<string | undefined>();
+
+  const dispatchPendingTxNotification = (tx: TransferTransactionData): void => {
+    invariant(tx.hash, "Error: Transaction hash not provided");
+    dispatchNotification({
+      id: createIbcNotificationId(tx.hash),
+      title: "IBC transfer transaction in progress",
+      description: (
+        <>
+          Your transfer transaction of{" "}
+          <TokenCurrency amount={tx.displayAmount} symbol={tx.asset.symbol} />{" "}
+          is being processed
+        </>
+      ),
+      type: "pending",
+    });
+  };
+
+  const dispatchErrorTxNotification = (error: unknown): void => {
+    if (!txHash) return;
+    dispatchNotification({
+      id: createIbcNotificationId(txHash),
+      title: "IBC transfer transaction failed",
+      description: "",
+      details: error instanceof Error ? error.message : undefined,
+      type: "error",
+    });
+  };
 
   const gasConfig = useMemo(() => {
     if (typeof registry !== "undefined") {
@@ -106,7 +140,10 @@ export const useIbcTransaction = ({
             }),
         },
       });
+      dispatchPendingTxNotification(tx);
+      setTxHash(tx.hash);
     } catch (err) {
+      dispatchErrorTxNotification(err);
       throw err;
     } finally {
       baseKeplr.defaultOptions = savedKeplrOptions;

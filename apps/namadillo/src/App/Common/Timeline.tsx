@@ -163,7 +163,9 @@ export const Timeline = ({
 
   return (
     <div
-      className={clsx("relative", { "pointer-events-none": complete })}
+      className={clsx("relative w-full", {
+        "pointer-events-none": complete,
+      })}
       ref={containerRef}
     >
       <ul className="flex flex-col items-center gap-3">
