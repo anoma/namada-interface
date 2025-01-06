@@ -1,5 +1,5 @@
 import { Asset } from "@chain-registry/types";
-import { Tooltip } from "@namada/components";
+import { CopyToClipboardControl } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { Timeline, TransactionStep } from "App/Common/Timeline";
 import { AssetImage } from "App/Transfer/AssetImage";
@@ -155,11 +155,11 @@ export const TransferTransactionTimeline = ({
           {stepDescription[transaction.currentStep || "sign"]}
         </h2>
         {transaction.hash && (
-          <span className="text-xs text-center block text-neutral-600">
+          <span className="my-1 text-sm text-center block text-neutral-600">
             Transaction hash:{" "}
-            <span className="relative group/tooltip">
+            <span className="inline-flex gap-1">
               {shortenAddress(transaction.hash, 8, 8)}
-              <Tooltip>{transaction.hash}</Tooltip>
+              <CopyToClipboardControl value={transaction.hash} />
             </span>
           </span>
         )}
