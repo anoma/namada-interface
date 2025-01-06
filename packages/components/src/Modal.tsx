@@ -41,14 +41,14 @@ export const Modal = ({
         transition={{ duration: 0 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed top-0 left-0 w-full h-full cursor-pointer backdrop-blur-lg z-[1000] bg-rblack/50"
+        className="fixed top-0 left-0 w-full h-full cursor-pointer backdrop-blur-lg z-[9998] bg-rblack/50"
       />
       <div
         {...props}
         role="dialog"
         className={twMerge(
           clsx(
-            "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 z-[1001]",
+            "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 z-[9999]",
             className
           )
         )}
