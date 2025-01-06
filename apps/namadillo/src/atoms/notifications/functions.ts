@@ -7,3 +7,7 @@ export const createNotificationId = (data?: TxProps | TxProps[]): string => {
   }
   return data.hash;
 };
+
+export const createIbcNotificationId = (hash: string): string => {
+  return `ibc-transfer-${hash}`;
+};

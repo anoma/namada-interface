@@ -4,12 +4,14 @@ import { mapUndefined, shortenAddress } from "@namada/utils";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import {
+  createIbcNotificationId,
   createNotificationId,
   dispatchToastNotificationAtom,
   filterToastNotificationsAtom,
 } from "atoms/notifications";
 import { searchAllStoredTxByHash } from "atoms/transactions";
 import BigNumber from "bignumber.js";
+import invariant from "invariant";
 import { useSetAtom } from "jotai";
 import {
   useTransactionEventListener,
@@ -413,4 +415,59 @@ export const useTransactionNotifications = (): void => {
       });
     }
   );
+
+  useTransactionEventListener("IbcTransfer.Success", (e) => {
+    invariant(e.detail.hash, "Notification error: Invalid Tx hash");
+    const id = createIbcNotificationId(e.detail.hash);
+    clearPendingNotifications(id);
+
+    const title =
+      e.detail.type === "TransparentToIbc" ?
+        "IBC withdraw transaction succeeded"
+      : "IBC transfer transaction succeeded";
+
+    dispatchNotification({
+      id,
+      title,
+      description: (
+        <>
+          Your transaction of{" "}
+          <TokenCurrency
+            amount={e.detail.displayAmount}
+            symbol={e.detail.asset.symbol}
+          />{" "}
+          has completed
+        </>
+      ),
+      type: "success",
+    });
+  });
+
+  useTransactionEventListener("IbcTransfer.Error", (e) => {
+    invariant(e.detail.hash, "Notification error: Invalid Tx provider");
+    const id = createIbcNotificationId(e.detail.hash);
+    clearPendingNotifications(id);
+
+    const title =
+      e.detail.type === "TransparentToIbc" ?
+        "IBC withdraw transaction failed"
+      : "IBC transfer transaction failed";
+
+    dispatchNotification({
+      id,
+      title,
+      description: (
+        <>
+          Your transaction of{" "}
+          <TokenCurrency
+            amount={e.detail.displayAmount}
+            symbol={e.detail.asset.symbol}
+          />{" "}
+          has failed.
+        </>
+      ),
+      details: e.detail.errorMessage,
+      type: "error",
+    });
+  });
 };
