@@ -1,6 +1,10 @@
 import { chains } from "@namada/chains";
 import { ActionButton, Alert, Image, Stack } from "@namada/components";
-import { Ledger as LedgerApp, makeBip44Path } from "@namada/sdk/web";
+import {
+  Ledger as LedgerApp,
+  makeBip44Path,
+  makeSaplingPath,
+} from "@namada/sdk/web";
 import { Bip44Path } from "@namada/types";
 import { LedgerError } from "@zondax/ledger-namada";
 import { LedgerStep } from "Setup/Common";
@@ -36,6 +40,10 @@ export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
       const { address, publicKey } = await ledger.showAddressAndPublicKey(
         makeBip44Path(chains.namada.bip44.coinType, path)
       );
+      const { viewingKey, proofGenerationKey } = await ledger.getShieldedKeys(
+        makeSaplingPath(chains.namada.bip44.coinType, path)
+      );
+      console.log("TODO", { viewingKey, proofGenerationKey });
       setIsLedgerConnecting(false);
       navigate(routes.ledgerImport(), {
         state: {

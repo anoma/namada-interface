@@ -1,5 +1,4 @@
 import Transport from "@ledgerhq/hw-transport";
-import TransportHID from "@ledgerhq/hw-transport-webhid";
 import TransportUSB from "@ledgerhq/hw-transport-webusb";
 import { chains } from "@namada/chains";
 import {
@@ -39,15 +38,6 @@ export type LedgerStatus = {
  */
 export const initLedgerUSBTransport = async (): Promise<Transport> => {
   return await TransportUSB.create();
-};
-
-/**
- * Initialize HID transport
- * @async
- * @returns Transport object
- */
-export const initLedgerHIDTransport = async (): Promise<Transport> => {
-  return await TransportHID.create();
 };
 
 export const DEFAULT_LEDGER_BIP44_PATH = makeBip44Path(coinType, {

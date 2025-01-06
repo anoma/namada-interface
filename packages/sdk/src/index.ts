@@ -1,9 +1,5 @@
 // Make Ledger available for direct-import as it is not dependent on Sdk initialization
-export {
-  Ledger,
-  initLedgerHIDTransport,
-  initLedgerUSBTransport,
-} from "./ledger";
+export { Ledger, initLedgerUSBTransport } from "./ledger";
 export type {
   LedgerAddressAndPublicKey,
   LedgerShieldedKeys,

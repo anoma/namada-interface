@@ -3209,7 +3209,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/devices@npm:8.4.4, @ledgerhq/devices@npm:^8.4.4":
+"@ledgerhq/devices@npm:^8.4.4":
   version: 8.4.4
   resolution: "@ledgerhq/devices@npm:8.4.4"
   dependencies:
@@ -3225,18 +3225,6 @@ __metadata:
   version: 6.19.1
   resolution: "@ledgerhq/errors@npm:6.19.1"
   checksum: 10c0/5cfbd5ff5e4316afc88c456a74d3dc0e0032dafd88f656e80a5cb5b297a75ba6701c53ce38ef3f38a84a8591c499b0b9248cdf352ff34c97a550440cdaddd8d2
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/hw-transport-webhid@npm:^6.30.0":
-  version: 6.30.0
-  resolution: "@ledgerhq/hw-transport-webhid@npm:6.30.0"
-  dependencies:
-    "@ledgerhq/devices": "npm:8.4.4"
-    "@ledgerhq/errors": "npm:^6.19.1"
-    "@ledgerhq/hw-transport": "npm:^6.31.4"
-    "@ledgerhq/logs": "npm:^6.12.0"
-  checksum: 10c0/1cb6ddb50127d6cb73d80259e10da687a2b7aa87ebbac8cc3e770ac5b95a3ef0001bdaf77109da0eb62509cb8668a9642858b59cb0ff355c1adb0fe2114c532c
   languageName: node
   linkType: hard
 
@@ -3430,7 +3418,6 @@ __metadata:
     "@cosmjs/encoding": "npm:^0.29.0"
     "@dao-xyz/borsh": "npm:^5.1.5"
     "@ledgerhq/hw-transport": "npm:^6.31.4"
-    "@ledgerhq/hw-transport-webhid": "npm:^6.30.0"
     "@ledgerhq/hw-transport-webusb": "npm:^6.29.4"
     "@svgr/webpack": "npm:^6.3.1"
     "@types/chrome": "npm:^0.0.237"
@@ -3707,7 +3694,6 @@ __metadata:
     "@cosmjs/encoding": "npm:^0.29.0"
     "@dao-xyz/borsh": "npm:^5.1.5"
     "@ledgerhq/hw-transport": "npm:^6.31.4"
-    "@ledgerhq/hw-transport-webhid": "npm:^6.30.0"
     "@ledgerhq/hw-transport-webusb": "npm:^6.29.4"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.11.4"

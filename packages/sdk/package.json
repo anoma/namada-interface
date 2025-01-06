@@ -60,7 +60,6 @@
     "@cosmjs/encoding": "^0.29.0",
     "@dao-xyz/borsh": "^5.1.5",
     "@ledgerhq/hw-transport": "^6.31.4",
-    "@ledgerhq/hw-transport-webhid": "^6.30.0",
     "@ledgerhq/hw-transport-webusb": "^6.29.4",
     "@zondax/ledger-namada": "^2.0.0",
     "bignumber.js": "^9.1.1",
