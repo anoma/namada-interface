@@ -3228,7 +3228,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/hw-transport-webhid@npm:^6.29.4":
+"@ledgerhq/hw-transport-webhid@npm:^6.30.0":
   version: 6.30.0
   resolution: "@ledgerhq/hw-transport-webhid@npm:6.30.0"
   dependencies:
@@ -3430,7 +3430,7 @@ __metadata:
     "@cosmjs/encoding": "npm:^0.29.0"
     "@dao-xyz/borsh": "npm:^5.1.5"
     "@ledgerhq/hw-transport": "npm:^6.31.4"
-    "@ledgerhq/hw-transport-webhid": "npm:^6.29.4"
+    "@ledgerhq/hw-transport-webhid": "npm:^6.30.0"
     "@ledgerhq/hw-transport-webusb": "npm:^6.29.4"
     "@svgr/webpack": "npm:^6.3.1"
     "@types/chrome": "npm:^0.0.237"
@@ -3443,7 +3443,7 @@ __metadata:
     "@types/w3c-web-usb": "npm:^1.0.10"
     "@types/webextension-polyfill": "npm:^0.10.6"
     "@types/zxcvbn": "npm:^4.4.1"
-    "@zondax/ledger-namada": "npm:^1.0.0"
+    "@zondax/ledger-namada": "npm:^2.0.0"
     bignumber.js: "npm:^9.1.1"
     buffer: "npm:^6.0.3"
     copy-webpack-plugin: "npm:^11.0.0"
@@ -3707,11 +3707,11 @@ __metadata:
     "@cosmjs/encoding": "npm:^0.29.0"
     "@dao-xyz/borsh": "npm:^5.1.5"
     "@ledgerhq/hw-transport": "npm:^6.31.4"
-    "@ledgerhq/hw-transport-webhid": "npm:^6.29.4"
+    "@ledgerhq/hw-transport-webhid": "npm:^6.30.0"
     "@ledgerhq/hw-transport-webusb": "npm:^6.29.4"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.11.4"
-    "@zondax/ledger-namada": "npm:^1.0.0"
+    "@zondax/ledger-namada": "npm:^2.0.0"
     babel-jest: "npm:^29.0.3"
     bignumber.js: "npm:^9.1.1"
     buffer: "npm:^6.0.3"
@@ -6072,12 +6072,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zondax/ledger-namada@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@zondax/ledger-namada@npm:1.0.0"
+"@zondax/ledger-namada@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@zondax/ledger-namada@npm:2.0.0"
   dependencies:
     "@ledgerhq/hw-transport": "npm:^6.30.6"
-  checksum: 10c0/f7490964ccd41f9a63f2bc8d89ea9f01e7d6a58be796db0b454a3f1455dcc8dc8dd578a8642aa0f0799c93f838e8e3afd69f59f7e9947816b9471338c2b9dd63
+  checksum: 10c0/1fa2a9a537bc42df01444332529a606ed77f608a2cc1dbb029915ed854ff447976930a4338c2d68d50d98869828cd76b1a4f4b5c2c989fd84af7b66d55dc51fc
   languageName: node
   linkType: hard
 

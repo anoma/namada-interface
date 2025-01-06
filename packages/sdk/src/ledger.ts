@@ -19,9 +19,7 @@ const { coinType } = chains.namada.bip44;
 export type LedgerAddressAndPublicKey = { address: string; publicKey: string };
 export type LedgerShieldedKeys = {
   viewingKey: {
-    viewKey?: string;
-    ivk?: string;
-    ovk?: string;
+    xfvk?: string;
   };
   proofGenerationKey: {
     ak?: string;
@@ -159,8 +157,11 @@ export class Ledger {
     promptUser = true
   ): Promise<LedgerShieldedKeys> {
     try {
-      const { viewKey, ivk, ovk }: ResponseViewKey =
-        await this.namadaApp.retrieveKeys(path, NamadaKeys.ViewKey, promptUser);
+      const { xfvk }: ResponseViewKey = await this.namadaApp.retrieveKeys(
+        path,
+        NamadaKeys.ViewKey,
+        promptUser
+      );
 
       const { ak, nsk }: ResponseProofGenKey =
         await this.namadaApp.retrieveKeys(
@@ -171,9 +172,7 @@ export class Ledger {
 
       return {
         viewingKey: {
-          viewKey: viewKey?.toString(),
-          ivk: ivk?.toString(),
-          ovk: ovk?.toString(),
+          xfvk: xfvk?.toString(),
         },
         proofGenerationKey: {
           ak: ak?.toString(),
