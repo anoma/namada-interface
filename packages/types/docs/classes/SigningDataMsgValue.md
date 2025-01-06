@@ -12,8 +12,10 @@
 
 - [accountPublicKeysMap](SigningDataMsgValue.md#accountpublickeysmap)
 - [feePayer](SigningDataMsgValue.md#feepayer)
+- [masp](SigningDataMsgValue.md#masp)
 - [owner](SigningDataMsgValue.md#owner)
 - [publicKeys](SigningDataMsgValue.md#publickeys)
+- [shieldedHash](SigningDataMsgValue.md#shieldedhash)
 - [threshold](SigningDataMsgValue.md#threshold)
 
 ## Constructors
@@ -34,7 +36,7 @@
 
 #### Defined in
 
-[tx/schema/tx.ts:26](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/tx/schema/tx.ts#L26)
+[tx/schema/tx.ts:32](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/tx/schema/tx.ts#L32)
 
 ## Properties
 
@@ -44,7 +46,7 @@
 
 #### Defined in
 
-[tx/schema/tx.ts:21](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/tx/schema/tx.ts#L21)
+[tx/schema/tx.ts:21](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/tx/schema/tx.ts#L21)
 
 ___
 
@@ -54,7 +56,17 @@ ___
 
 #### Defined in
 
-[tx/schema/tx.ts:24](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/tx/schema/tx.ts#L24)
+[tx/schema/tx.ts:24](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/tx/schema/tx.ts#L24)
+
+___
+
+### masp
+
+• `Optional` **masp**: `Uint8Array`
+
+#### Defined in
+
+[tx/schema/tx.ts:30](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/tx/schema/tx.ts#L30)
 
 ___
 
@@ -64,7 +76,7 @@ ___
 
 #### Defined in
 
-[tx/schema/tx.ts:8](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/tx/schema/tx.ts#L8)
+[tx/schema/tx.ts:8](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/tx/schema/tx.ts#L8)
 
 ___
 
@@ -74,7 +86,17 @@ ___
 
 #### Defined in
 
-[tx/schema/tx.ts:11](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/tx/schema/tx.ts#L11)
+[tx/schema/tx.ts:11](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/tx/schema/tx.ts#L11)
+
+___
+
+### shieldedHash
+
+• `Optional` **shieldedHash**: `Uint8Array`
+
+#### Defined in
+
+[tx/schema/tx.ts:27](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/tx/schema/tx.ts#L27)
 
 ___
 
@@ -84,4 +106,4 @@ ___
 
 #### Defined in
 
-[tx/schema/tx.ts:14](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/tx/schema/tx.ts#L14)
+[tx/schema/tx.ts:14](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/tx/schema/tx.ts#L14)

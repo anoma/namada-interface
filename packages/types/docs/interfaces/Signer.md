@@ -6,11 +6,30 @@
 
 ### Properties
 
+- [genDisposableKeypair](Signer.md#gendisposablekeypair)
 - [sign](Signer.md#sign)
 - [signArbitrary](Signer.md#signarbitrary)
 - [verify](Signer.md#verify)
 
 ## Properties
+
+### genDisposableKeypair
+
+• **genDisposableKeypair**: () => `Promise`\<`undefined` \| [`GenDisposableSignerResponse`](../modules.md#gendisposablesignerresponse)\>
+
+#### Type declaration
+
+▸ (): `Promise`\<`undefined` \| [`GenDisposableSignerResponse`](../modules.md#gendisposablesignerresponse)\>
+
+##### Returns
+
+`Promise`\<`undefined` \| [`GenDisposableSignerResponse`](../modules.md#gendisposablesignerresponse)\>
+
+#### Defined in
+
+[signer.ts:24](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/signer.ts#L24)
+
+___
 
 ### sign
 
@@ -34,7 +53,7 @@
 
 #### Defined in
 
-[signer.ts:9](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/signer.ts#L9)
+[signer.ts:14](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/signer.ts#L14)
 
 ___
 
@@ -59,7 +78,7 @@ ___
 
 #### Defined in
 
-[signer.ts:14](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/signer.ts#L14)
+[signer.ts:19](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/signer.ts#L19)
 
 ___
 
@@ -85,4 +104,4 @@ ___
 
 #### Defined in
 
-[signer.ts:18](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/signer.ts#L18)
+[signer.ts:23](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/signer.ts#L23)
