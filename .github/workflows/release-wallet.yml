@@ -58,7 +58,9 @@ jobs:
 
       - name: Build the extension
         working-directory: ./apps/extension
-        run: REVISION=$SHA yarn build:chrome
+        env:
+          SHA: ${{ github.sha }}
+        run: NAMADA_INTERFACE_REVISION=$SHA yarn build:chrome
 
       - uses: actions/upload-artifact@v3
         with:
@@ -91,7 +93,9 @@ jobs:
 
       - name: Build the extension
         working-directory: ./apps/extension
-        run: REVISION=$SHA yarn build:firefox
+        env:
+          SHA: ${{ github.sha }}
+        run: NAMADA_INTERFACE_REVISION=$SHA yarn build:firefox
 
       - uses: actions/upload-artifact@v3
         with:
@@ -122,9 +126,9 @@ jobs:
 
       - name: Make release body text
         run: |
-          echo "REVISION: $REVISION" >> RELEASE
+          echo "NAMADA_INTERFACE_REVISION: $SHA" >> RELEASE
         env:
-          REVISION: ${{ github.sha }}
+          SHA: ${{ github.sha }}
 
       - name: Create release
         id: create-release
