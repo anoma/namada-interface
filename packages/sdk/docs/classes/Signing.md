@@ -40,7 +40,7 @@ Signing constructor
 
 #### Defined in
 
-[sdk/src/signing.ts:14](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/signing.ts#L14)
+[sdk/src/signing.ts:14](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/signing.ts#L14)
 
 ## Properties
 
@@ -52,13 +52,13 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/signing.ts:14](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/signing.ts#L14)
+[sdk/src/signing.ts:14](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/signing.ts#L14)
 
 ## Methods
 
 ### sign
 
-▸ **sign**(`txProps`, `signingKey`, `chainId?`): `Promise`\<`Uint8Array`\>
+▸ **sign**(`txProps`, `signingKey`, `xsks?`, `chainId?`): `Promise`\<`Uint8Array`\>
 
 Sign Namada transaction
 
@@ -68,6 +68,7 @@ Sign Namada transaction
 | :------ | :------ | :------ |
 | `txProps` | `TxMsgValue` | TxProps |
 | `signingKey` | `string` | private key |
+| `xsks?` | `string`[] | spending keys |
 | `chainId?` | `string` | optional chain ID, will enforce validation if present |
 
 #### Returns
@@ -78,7 +79,7 @@ signed tx bytes - Promise resolving to Uint8Array
 
 #### Defined in
 
-[sdk/src/signing.ts:23](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/signing.ts#L23)
+[sdk/src/signing.ts:24](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/signing.ts#L24)
 
 ___
 
@@ -103,7 +104,7 @@ hash and signature
 
 #### Defined in
 
-[sdk/src/signing.ts:41](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/signing.ts#L41)
+[sdk/src/signing.ts:47](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/signing.ts#L47)
 
 ___
 
@@ -129,4 +130,4 @@ void
 
 #### Defined in
 
-[sdk/src/signing.ts:52](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/signing.ts#L52)
+[sdk/src/signing.ts:58](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/signing.ts#L58)

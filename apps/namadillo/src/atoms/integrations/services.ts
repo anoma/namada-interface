@@ -184,6 +184,15 @@ export const updateIbcTransferStatus = async (
       currentStep: TransferStep.Complete,
       resultTxHash: successQueries[0].hash,
     });
+
+    window.dispatchEvent(
+      new CustomEvent(`IbcTransfer.Success`, {
+        detail: {
+          ...(tx as IbcTransferTransactionData),
+        },
+      })
+    );
+
     return;
   }
 
@@ -194,6 +203,12 @@ export const updateIbcTransferStatus = async (
       errorMessage: "Transaction timed out",
       resultTxHash: timeoutQuery[0].hash,
     });
+
+    window.dispatchEvent(
+      new CustomEvent(`IbcTransfer.Error`, {
+        detail: { ...(tx as IbcTransferTransactionData) },
+      })
+    );
   }
 };
 
@@ -216,6 +231,11 @@ export const updateIbcWithdrawalStatus = async (
       status: "success",
       currentStep: TransferStep.Complete,
     });
+    window.dispatchEvent(
+      new CustomEvent(`IbcTransfer.Success`, {
+        detail: { ...(tx as IbcTransferTransactionData) },
+      })
+    );
     return;
   }
 
@@ -224,6 +244,11 @@ export const updateIbcWithdrawalStatus = async (
       status: "error",
       errorMessage: "IBC Withdraw failed",
     });
+    window.dispatchEvent(
+      new CustomEvent(`IbcTransfer.Error`, {
+        detail: { ...(tx as IbcTransferTransactionData) },
+      })
+    );
   }
 };
 

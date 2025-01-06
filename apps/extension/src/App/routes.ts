@@ -8,6 +8,7 @@ export default {
   network: (): string => `/network`,
   warnings: (): string => `/warnings`,
   viewAccountList: () => `/accounts/view`,
+  accountsUpdateRequired: () => `/accounts/view/update-required`,
   viewAccountMnemonic: (accountId: string = ":accountId") =>
     `/accounts/mnemonic/${accountId}`,
   viewAccount: (accountId: string = ":accountId") =>

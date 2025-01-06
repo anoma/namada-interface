@@ -30,7 +30,9 @@ const BalanceOverviewCaptionItem = ({
 };
 
 export const BalanceOverviewChart = (): JSX.Element => {
-  const { maspEnabled } = useAtomValue(applicationFeaturesAtom);
+  const { maspEnabled, namTransfersEnabled } = useAtomValue(
+    applicationFeaturesAtom
+  );
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
   const transparentTokensQuery = useAtomValue(transparentTokensAtom);
   const { totalTransparentAmount, isLoading: isLoadingTransparent } =
@@ -76,56 +78,60 @@ export const BalanceOverviewChart = (): JSX.Element => {
   };
 
   return (
-    <div>
-      <div className="h-[230px] w-[230px]">
-        {isLoading ?
-          <SkeletonLoading
-            height="100%"
-            width="100%"
-            className="rounded-full border-neutral-800 border-[24px] bg-transparent"
-          />
-        : <PieChart
-            id="balance-chart"
-            data={getPiechartData()}
-            strokeWidth={24}
-            radius={125}
-            segmentMargin={0}
-          >
-            <div className="flex flex-col gap-1 leading-tight">
-              <Heading className="text-sm" level="h3">
-                {maspEnabled ? "Total Balance" : "NAM Balance"}
-              </Heading>
-              <div className="text-2xl">
-                {maspEnabled ?
-                  <span>
-                    <FiatCurrency amount={totalAmountInDollars} />*
-                  </span>
-                : <NamCurrency
-                    amount={totalTransparentAmount}
-                    currencySymbolClassName="hidden"
-                    decimalPlaces={2}
-                  />
-                }
+    <>
+      <Heading className="text-sm mb-4" level="h3">
+        {maspEnabled ? "Total Non Native Balance" : "NAM Balance"}
+      </Heading>
+      <div className="flex flex-col items-center justify-center">
+        <div className="h-[230px] w-[230px]">
+          {isLoading ?
+            <SkeletonLoading
+              height="100%"
+              width="100%"
+              className="rounded-full border-neutral-800 border-[24px] bg-transparent"
+            />
+          : <PieChart
+              id="balance-chart"
+              data={getPiechartData()}
+              strokeWidth={24}
+              radius={125}
+              segmentMargin={0}
+            >
+              <div className="flex flex-col gap-1 leading-tight">
+                <div className="text-2xl">
+                  {maspEnabled ?
+                    <span>
+                      <FiatCurrency amount={totalAmountInDollars} />*
+                    </span>
+                  : <NamCurrency
+                      amount={totalTransparentAmount}
+                      currencySymbolClassName="hidden"
+                      decimalPlaces={2}
+                    />
+                  }
+                </div>
               </div>
-            </div>
-          </PieChart>
-        }
+            </PieChart>
+          }
+        </div>
+        {maspEnabled && (
+          <>
+            <ul className="mx-auto px-5 mt-3">
+              <BalanceOverviewCaptionItem color={colors.shielded}>
+                Shielded Assets
+              </BalanceOverviewCaptionItem>
+              <BalanceOverviewCaptionItem color={colors.balance}>
+                Transparent Assets
+              </BalanceOverviewCaptionItem>
+            </ul>
+            {!namTransfersEnabled && (
+              <small className="text-xxs -mb-3 mt-3 block">
+                * Balances exclude NAM until phase 5
+              </small>
+            )}
+          </>
+        )}
       </div>
-      {maspEnabled && (
-        <>
-          <ul className="mx-auto px-5 mt-3">
-            <BalanceOverviewCaptionItem color={colors.shielded}>
-              Shielded Assets
-            </BalanceOverviewCaptionItem>
-            <BalanceOverviewCaptionItem color={colors.balance}>
-              Transparent Assets
-            </BalanceOverviewCaptionItem>
-          </ul>
-          <small className="text-xxs -mb-3 mt-3 block">
-            * Balances exclude NAM until phase 5
-          </small>
-        </>
-      )}
-    </div>
+    </>
   );
 };

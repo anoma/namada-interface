@@ -2,6 +2,7 @@ import { Panel, TabContainer } from "@namada/components";
 import { ConnectPanel } from "App/Common/ConnectPanel";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { routes } from "App/routes";
+import { EpochInformation } from "App/Sidebars/EpochInformation";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -44,6 +45,7 @@ export const IbcTransfersLayout = (): JSX.Element => {
         />
       </div>
       <aside className="w-full mt-2 flex flex-col sm:flex-row lg:mt-0 lg:flex-col gap-2">
+        <EpochInformation />
         <ShieldAllBanner />
       </aside>
     </PageWithSidebar>

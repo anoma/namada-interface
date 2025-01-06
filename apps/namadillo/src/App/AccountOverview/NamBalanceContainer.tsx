@@ -1,4 +1,4 @@
-import { SkeletonLoading, Stack } from "@namada/components";
+import { Heading, SkeletonLoading, Stack } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { ShieldedRewardsBox } from "App/Masp/ShieldedRewardsBox";
@@ -96,53 +96,60 @@ export const NamBalanceContainer = (): JSX.Element => {
   } = useBalances();
 
   return (
-    <div className="flex gap-2 h-full w-full">
-      <AtomErrorBoundary
-        result={[balanceQuery, stakeQuery]}
-        niceError="Unable to load balances"
-      >
-        <Stack
-          as="ul"
-          gap={2}
-          className={clsx("w-full", {
-            "order-1": maspEnabled && shieldingRewardsEnabled,
-          })}
+    <>
+      {maspEnabled && (
+        <Heading className="text-sm mb-4" level="h3">
+          NAM Balance
+        </Heading>
+      )}
+      <div className="flex gap-2 h-full w-full">
+        <AtomErrorBoundary
+          result={[balanceQuery, stakeQuery]}
+          niceError="Unable to load balances"
         >
-          <NamBalanceListItem
-            title="Transparent NAM"
-            color={colors.balance}
-            amount={availableAmount}
-            isLoading={isLoading}
-          />
-          <NamBalanceListItem
-            title="Staked NAM"
-            color={colors.bond}
-            amount={bondedAmount}
-            isLoading={isLoading}
-          />
-          <NamBalanceListItem
-            title="Unbonded NAM"
-            color={colors.unbond}
-            amount={unbondedAmount.plus(withdrawableAmount)}
-            isLoading={isLoading}
-          />
-        </Stack>
-        <Stack className="w-full" gap={2}>
-          <NamBalanceListItem
-            title="Shielded NAM"
-            color={colors.shielded}
-            amount={maspEnabled ? shieldedNamAmount : new BigNumber(0)}
-            isLoading={shieldedAmountQuery.isLoading}
-            isEnabled={maspEnabled}
-          />
-          <ListItemContainer
-            isEnabled={shieldingRewardsEnabled}
-            className="flex flex-1"
+          <Stack
+            as="ul"
+            gap={2}
+            className={clsx("w-full", {
+              "order-1": maspEnabled && shieldingRewardsEnabled,
+            })}
           >
-            <ShieldedRewardsBox />
-          </ListItemContainer>
-        </Stack>
-      </AtomErrorBoundary>
-    </div>
+            <NamBalanceListItem
+              title="Transparent NAM"
+              color={colors.balance}
+              amount={availableAmount}
+              isLoading={isLoading}
+            />
+            <NamBalanceListItem
+              title="Staked NAM"
+              color={colors.bond}
+              amount={bondedAmount}
+              isLoading={isLoading}
+            />
+            <NamBalanceListItem
+              title="Unbonded NAM"
+              color={colors.unbond}
+              amount={unbondedAmount.plus(withdrawableAmount)}
+              isLoading={isLoading}
+            />
+          </Stack>
+          <Stack className="w-full" gap={2}>
+            <NamBalanceListItem
+              title="Shielded NAM"
+              color={colors.shielded}
+              amount={maspEnabled ? shieldedNamAmount : new BigNumber(0)}
+              isLoading={shieldedAmountQuery.isLoading}
+              isEnabled={maspEnabled}
+            />
+            <ListItemContainer
+              isEnabled={shieldingRewardsEnabled}
+              className="flex flex-1"
+            >
+              <ShieldedRewardsBox />
+            </ListItemContainer>
+          </Stack>
+        </AtomErrorBoundary>
+      </div>
+    </>
   );
 };

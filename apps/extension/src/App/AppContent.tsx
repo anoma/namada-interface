@@ -9,6 +9,7 @@ import { openSetupTab } from "utils";
 import {
   DeleteAccount,
   RenameAccount,
+  UpdateRequired,
   ViewAccount,
   ViewMnemonic,
 } from "./Accounts";
@@ -86,10 +87,12 @@ export const AppContent = ({ warnings }: Props): JSX.Element => {
               path={routes.viewAccountMnemonic()}
               element={<ViewMnemonic />}
             />
-            <Route
-              path={routes.viewAccountList()}
-              element={<ParentAccounts />}
-            />
+            <Route path={routes.viewAccountList()} element={<ParentAccounts />}>
+              <Route
+                path={routes.accountsUpdateRequired()}
+                element={<UpdateRequired />}
+              />
+            </Route>
           </>
         )}
       </Routes>
