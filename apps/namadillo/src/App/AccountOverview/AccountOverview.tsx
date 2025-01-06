@@ -32,7 +32,7 @@ export const AccountOverview = (): JSX.Element => {
       <div className={twMerge("flex w-full")}>
         <section className="flex flex-col w-full rounded-sm min-h-full gap-2">
           <div className="grid sm:grid-cols-[0.8fr_1.25fr_0.66fr] gap-2">
-            <Panel className="flex items-center justify-center">
+            <Panel>
               <BalanceOverviewChart />
             </Panel>
             <Panel>
