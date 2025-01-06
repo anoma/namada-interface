@@ -14,6 +14,7 @@
 - [connect](Namada.md#connect)
 - [defaultAccount](Namada.md#defaultaccount)
 - [disconnect](Namada.md#disconnect)
+- [genDisposableKeypair](Namada.md#gendisposablekeypair)
 - [isConnected](Namada.md#isconnected)
 - [sign](Namada.md#sign)
 - [signArbitrary](Namada.md#signarbitrary)
@@ -36,7 +37,7 @@
 
 #### Defined in
 
-[namada.ts:39](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L39)
+[namada.ts:44](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/namada.ts#L44)
 
 ## Methods
 
@@ -50,7 +51,7 @@
 
 #### Defined in
 
-[namada.ts:28](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L28)
+[namada.ts:32](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/namada.ts#L32)
 
 ___
 
@@ -70,7 +71,7 @@ ___
 
 #### Defined in
 
-[namada.ts:29](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L29)
+[namada.ts:33](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/namada.ts#L33)
 
 ___
 
@@ -84,7 +85,7 @@ ___
 
 #### Defined in
 
-[namada.ts:32](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L32)
+[namada.ts:36](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/namada.ts#L36)
 
 ___
 
@@ -104,7 +105,21 @@ ___
 
 #### Defined in
 
-[namada.ts:30](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L30)
+[namada.ts:34](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/namada.ts#L34)
+
+___
+
+### genDisposableKeypair
+
+▸ **genDisposableKeypair**(): `Promise`\<`undefined` \| [`GenDisposableSignerResponse`](../modules.md#gendisposablesignerresponse)\>
+
+#### Returns
+
+`Promise`\<`undefined` \| [`GenDisposableSignerResponse`](../modules.md#gendisposablesignerresponse)\>
+
+#### Defined in
+
+[namada.ts:43](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/namada.ts#L43)
 
 ___
 
@@ -124,7 +139,7 @@ ___
 
 #### Defined in
 
-[namada.ts:31](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L31)
+[namada.ts:35](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/namada.ts#L35)
 
 ___
 
@@ -144,7 +159,7 @@ ___
 
 #### Defined in
 
-[namada.ts:34](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L34)
+[namada.ts:38](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/namada.ts#L38)
 
 ___
 
@@ -164,7 +179,7 @@ ___
 
 #### Defined in
 
-[namada.ts:35](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L35)
+[namada.ts:39](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/namada.ts#L39)
 
 ___
 
@@ -184,7 +199,7 @@ ___
 
 #### Defined in
 
-[namada.ts:33](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L33)
+[namada.ts:37](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/namada.ts#L37)
 
 ___
 
@@ -204,4 +219,4 @@ ___
 
 #### Defined in
 
-[namada.ts:38](https://github.com/anoma/namada-interface/blob/be532c799367420fcc6a8d60ac3b6b3a194f2891/packages/types/src/namada.ts#L38)
+[namada.ts:42](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/namada.ts#L42)

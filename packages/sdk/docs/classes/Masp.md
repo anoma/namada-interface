@@ -19,6 +19,7 @@ Class representing utilities related to MASP
 - [addDefaultPaymentAddress](Masp.md#adddefaultpaymentaddress)
 - [addSpendingKey](Masp.md#addspendingkey)
 - [addViewingKey](Masp.md#addviewingkey)
+- [clearShieldedContext](Masp.md#clearshieldedcontext)
 - [fetchAndStoreMaspParams](Masp.md#fetchandstoremaspparams)
 - [hasMaspParams](Masp.md#hasmaspparams)
 - [loadMaspParams](Masp.md#loadmaspparams)
@@ -42,7 +43,7 @@ Class representing utilities related to MASP
 
 #### Defined in
 
-[sdk/src/masp.ts:10](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/masp.ts#L10)
+[sdk/src/masp.ts:10](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/masp.ts#L10)
 
 ## Properties
 
@@ -54,7 +55,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/masp.ts:10](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/masp.ts#L10)
+[sdk/src/masp.ts:10](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/masp.ts#L10)
 
 ## Methods
 
@@ -81,7 +82,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp.ts:70](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/masp.ts#L70)
+[sdk/src/masp.ts:71](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/masp.ts#L71)
 
 ___
 
@@ -108,7 +109,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp.ts:48](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/masp.ts#L48)
+[sdk/src/masp.ts:49](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/masp.ts#L49)
 
 ___
 
@@ -135,7 +136,31 @@ void
 
 #### Defined in
 
-[sdk/src/masp.ts:59](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/masp.ts#L59)
+[sdk/src/masp.ts:60](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/masp.ts#L60)
+
+___
+
+### clearShieldedContext
+
+▸ **clearShieldedContext**(`chainId`): `Promise`\<`void`\>
+
+Clear shilded context
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `chainId` | `string` | Chain ID to clear the shielded context for |
+
+#### Returns
+
+`Promise`\<`void`\>
+
+void
+
+#### Defined in
+
+[sdk/src/masp.ts:89](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/masp.ts#L89)
 
 ___
 
@@ -161,7 +186,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp.ts:27](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/masp.ts#L27)
+[sdk/src/masp.ts:27](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/masp.ts#L27)
 
 ___
 
@@ -181,13 +206,13 @@ True if MASP parameters are loaded
 
 #### Defined in
 
-[sdk/src/masp.ts:17](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/masp.ts#L17)
+[sdk/src/masp.ts:17](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/masp.ts#L17)
 
 ___
 
 ### loadMaspParams
 
-▸ **loadMaspParams**(`pathOrDbName`): `Promise`\<`void`\>
+▸ **loadMaspParams**(`pathOrDbName`, `chainId`): `Promise`\<`void`\>
 
 Load stored MASP params
 
@@ -196,6 +221,7 @@ Load stored MASP params
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `pathOrDbName` | `string` | Path to stored MASP params(nodejs) or name of the database(browser) |
+| `chainId` | `string` | Chain ID to read the MASP params for |
 
 #### Returns
 
@@ -207,7 +233,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp.ts:37](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/masp.ts#L37)
+[sdk/src/masp.ts:38](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/masp.ts#L38)
 
 ___
 
@@ -226,4 +252,4 @@ the MASP address
 
 #### Defined in
 
-[sdk/src/masp.ts:79](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/masp.ts#L79)
+[sdk/src/masp.ts:80](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/masp.ts#L80)

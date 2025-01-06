@@ -38,7 +38,7 @@ Class for accessing mnemonic functionality from wasm
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:18](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/mnemonic.ts#L18)
+[sdk/src/mnemonic.ts:18](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/mnemonic.ts#L18)
 
 ## Properties
 
@@ -50,7 +50,7 @@ Memory accessor for crypto lib
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:18](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/mnemonic.ts#L18)
+[sdk/src/mnemonic.ts:18](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/mnemonic.ts#L18)
 
 ## Methods
 
@@ -74,7 +74,7 @@ An array of words
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:25](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/mnemonic.ts#L25)
+[sdk/src/mnemonic.ts:25](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/mnemonic.ts#L25)
 
 ___
 
@@ -99,7 +99,7 @@ Seed bytes
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:43](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/mnemonic.ts#L43)
+[sdk/src/mnemonic.ts:43](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/mnemonic.ts#L43)
 
 ___
 
@@ -129,4 +129,4 @@ Object with validation result and error message if invalid
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:61](https://github.com/anoma/namada-interface/blob/5bb72cf800fa4254312ea7fd624843feeaa5abf0/packages/sdk/src/mnemonic.ts#L61)
+[sdk/src/mnemonic.ts:61](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/sdk/src/mnemonic.ts#L61)
