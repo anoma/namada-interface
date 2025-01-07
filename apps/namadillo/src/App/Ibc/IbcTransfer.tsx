@@ -62,6 +62,7 @@ export const IbcTransfer = (): JSX.Element => {
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
   const [sourceChannel, setSourceChannel] = useState("");
   const [destinationChannel, setDestinationChannel] = useState("");
+  const [currentProgress, setCurrentProgress] = useState<string>();
 
   // Derived data
   const availableAmount = mapUndefined(
@@ -115,14 +116,24 @@ export const IbcTransfer = (): JSX.Element => {
   const onSubmitTransfer = async ({
     displayAmount,
     destinationAddress,
+    memo,
   }: OnSubmitTransferParams): Promise<void> => {
     try {
+      invariant(selectedAsset?.originalAddress, "Error: Asset not selected");
+      invariant(registry?.chain, "Error: Chain not selected");
       setGeneralErrorMessage("");
-      const result = await transferToNamada(destinationAddress, displayAmount);
+      setCurrentProgress("Submitting...");
+      const result = await transferToNamada(
+        destinationAddress,
+        displayAmount,
+        memo,
+        setCurrentProgress
+      );
       storeTransaction(result);
       redirectToTimeline(result);
     } catch (err) {
       setGeneralErrorMessage(err + "");
+      setCurrentProgress(undefined);
     }
   };
 
@@ -170,7 +181,8 @@ export const IbcTransfer = (): JSX.Element => {
           onChangeShielded: setShielded,
         }}
         gasConfig={gasConfig}
-        isSubmitting={transferStatus === "pending"}
+        submittingText={currentProgress}
+        isSubmitting={transferStatus === "pending" || !!currentProgress}
         isIbcTransfer={true}
         requiresIbcChannels={requiresIbcChannels}
         ibcOptions={{

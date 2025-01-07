@@ -4,6 +4,8 @@ import {
   AddressWithAssetAndAmount,
   ChainRegistryEntry,
   GasConfig,
+  IbcTransferStage,
+  TransferStep,
   TransferTransactionData,
 } from "types";
 
@@ -16,10 +18,15 @@ type useIbcTransactionProps = {
   selectedAsset?: AddressWithAssetAndAmount;
 };
 
-import { Keplr, Window as KeplrWindow } from "@keplr-wallet/types";
 import { QueryStatus } from "@tanstack/query-core";
 import { TokenCurrency } from "App/Common/TokenCurrency";
-import { ibcTransferAtom } from "atoms/integrations";
+import {
+  broadcastIbcTransactionAtom,
+  createStargateClient,
+  getShieldedArgs,
+  getSignedMessage,
+  queryAndStoreRpc,
+} from "atoms/integrations";
 import {
   createIbcNotificationId,
   dispatchToastNotificationAtom,
@@ -28,11 +35,17 @@ import BigNumber from "bignumber.js";
 import { getIbcGasConfig } from "integrations/utils";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
+import { createTransferDataFromIbc } from "lib/transactions";
+import { toBaseAmount } from "utils";
+import { sanitizeAddress } from "utils/address";
+import { getKeplrWallet, sanitizeChannel } from "utils/ibc";
 
 type useIbcTransactionOutput = {
   transferToNamada: (
     destinationAddress: string,
-    displayAmount: BigNumber
+    displayAmount: BigNumber,
+    memo?: string,
+    onUpdateStatus?: (status: string) => void
   ) => Promise<TransferTransactionData>;
   transferStatus: "idle" | QueryStatus;
   gasConfig: GasConfig | undefined;
@@ -46,7 +59,7 @@ export const useIbcTransaction = ({
   shielded,
   destinationChannel,
 }: useIbcTransactionProps): useIbcTransactionOutput => {
-  const performIbcTransfer = useAtomValue(ibcTransferAtom);
+  const broadcastIbcTx = useAtomValue(broadcastIbcTransactionAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const [txHash, setTxHash] = useState<string | undefined>();
 
@@ -84,34 +97,33 @@ export const useIbcTransaction = ({
     return undefined;
   }, [registry]);
 
-  const getWallet = (): Keplr => {
-    const wallet = (window as KeplrWindow).keplr;
-    if (typeof wallet === "undefined") {
-      throw new Error("No Keplr instance");
-    }
-    return wallet;
+  const getIbcTransferStage = (shielded: boolean): IbcTransferStage => {
+    return shielded ?
+        { type: "IbcToShielded", currentStep: TransferStep.IbcToShielded }
+      : {
+          type: "IbcToTransparent",
+          currentStep: TransferStep.IbcToTransparent,
+        };
   };
 
   const transferToNamada = async (
     destinationAddress: Address,
-    displayAmount: BigNumber
+    displayAmount: BigNumber,
+    memo: string = "",
+    onUpdateStatus?: (status: string) => void
   ): Promise<TransferTransactionData> => {
-    invariant(sourceAddress, "Source address is not defined");
-    invariant(selectedAsset, "No asset is selected");
-    invariant(registry, "Invalid chain");
-    invariant(sourceChannel, "Invalid IBC source channel");
+    invariant(sourceAddress, "Error: Source address is not defined");
+    invariant(selectedAsset, "Error: No asset is selected");
+    invariant(registry, "Error: Invalid chain");
+    invariant(sourceChannel, "Error: Invalid IBC source channel");
+    invariant(gasConfig, "Error: No transaction fee is set");
     invariant(
       !shielded || destinationChannel,
-      "Invalid IBC destination channel"
+      "Error: Destination channel not provided"
     );
-    invariant(gasConfig, "No transaction fee is set");
 
-    // Set Keplr option to allow Namadillo to set the transaction fee
-    const baseKeplr = getWallet();
-    const chainId = registry!.chain.chain_id;
+    const baseKeplr = getKeplrWallet();
     const savedKeplrOptions = baseKeplr.defaultOptions;
-    let tx: TransferTransactionData;
-
     baseKeplr.defaultOptions = {
       sign: {
         preferNoSetFee: true,
@@ -119,42 +131,70 @@ export const useIbcTransaction = ({
     };
 
     try {
-      tx = await performIbcTransfer.mutateAsync({
-        chain: registry!.chain,
-        transferParams: {
+      const baseAmount = toBaseAmount(selectedAsset.asset, displayAmount);
+      const { memo: maspCompatibleMemo, receiver: maspCompatibleReceiver } =
+        shielded ?
+          await getShieldedArgs(
+            destinationAddress,
+            selectedAsset.originalAddress,
+            baseAmount,
+            destinationChannel!
+          )
+        : { memo, receiver: destinationAddress };
+
+      // Set Keplr option to allow Namadillo to set the transaction fee
+      const chainId = registry.chain.chain_id;
+
+      return await queryAndStoreRpc(registry.chain, async (rpc: string) => {
+        onUpdateStatus?.("Waiting for signature...");
+        const client = await createStargateClient(rpc, registry.chain);
+        const ibcTransferParams = {
           signer: baseKeplr.getOfflineSigner(chainId),
           chainId,
-          sourceAddress,
-          destinationAddress,
+          sourceAddress: sanitizeAddress(sourceAddress),
+          destinationAddress: sanitizeAddress(maspCompatibleReceiver),
           amount: displayAmount,
           asset: selectedAsset,
           gasConfig,
-          sourceChannelId: sourceChannel!.trim(),
-          ...(shielded ?
-            {
-              isShielded: true,
-              destinationChannelId: destinationChannel!.trim(),
-            }
-          : {
-              isShielded: false,
-            }),
-        },
+          sourceChannelId: sanitizeChannel(sourceChannel!),
+          destinationChannelId: sanitizeChannel(destinationChannel!) || "",
+          isShielded: !!shielded,
+        };
+
+        const signedMessage = await getSignedMessage(
+          client,
+          ibcTransferParams,
+          maspCompatibleMemo
+        );
+
+        onUpdateStatus?.("Broadcasting transaction...");
+        const txResponse = await broadcastIbcTx.mutateAsync({
+          client,
+          tx: signedMessage,
+        });
+
+        const tx = createTransferDataFromIbc(
+          txResponse,
+          rpc,
+          selectedAsset.asset,
+          chainId,
+          getIbcTransferStage(!!shielded)
+        );
+        dispatchPendingTxNotification(tx);
+        setTxHash(tx.hash);
+        return tx;
       });
-      dispatchPendingTxNotification(tx);
-      setTxHash(tx.hash);
     } catch (err) {
       dispatchErrorTxNotification(err);
       throw err;
     } finally {
       baseKeplr.defaultOptions = savedKeplrOptions;
     }
-
-    return tx;
   };
 
   return {
     transferToNamada,
     gasConfig,
-    transferStatus: performIbcTransfer.status,
+    transferStatus: broadcastIbcTx.status,
   };
 };

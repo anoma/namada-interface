@@ -8,6 +8,8 @@ import {
   assertIsDeliverTxSuccess,
   calculateFee,
 } from "@cosmjs/stargate";
+import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+
 import { getIndexerApi } from "atoms/api";
 import { queryForAck, queryForIbcTimeout } from "atoms/transactions";
 import BigNumber from "bignumber.js";
@@ -23,6 +25,7 @@ import {
   TransferStep,
 } from "types";
 import { toBaseAmount } from "utils";
+import { getKeplrWallet } from "utils/ibc";
 import { getSdkInstance } from "utils/sdk";
 import { rpcByChainAtom } from "./atoms";
 import { getRpcByIndex } from "./functions";
@@ -46,7 +49,7 @@ type ShieldedParams = CommonParams & {
 
 export type IbcTransferParams = TransparentParams | ShieldedParams;
 
-const getShieldedArgs = async (
+export const getShieldedArgs = async (
   target: string,
   token: string,
   amount: BigNumber,
@@ -82,25 +85,30 @@ export const queryAssetBalances = async (
   }));
 };
 
-export const submitIbcTransfer = async (
+export const createStargateClient = async (
   rpc: string,
-  transferParams: IbcTransferParams
-): Promise<DeliverTxResponse> => {
-  const {
-    signer,
-    sourceAddress,
-    destinationAddress,
-    amount: displayAmount,
-    asset,
-    sourceChannelId,
-    isShielded,
-    gasConfig,
-  } = transferParams;
-
-  const client = await SigningStargateClient.connectWithSigner(rpc, signer, {
+  chain: Chain
+): Promise<SigningStargateClient> => {
+  const keplr = getKeplrWallet();
+  const signer = keplr.getOfflineSigner(chain.chain_id);
+  return await SigningStargateClient.connectWithSigner(rpc, signer, {
     broadcastPollIntervalMs: 300,
     broadcastTimeoutMs: 8_000,
   });
+};
+
+export const getSignedMessage = async (
+  client: SigningStargateClient,
+  transferParams: IbcTransferParams,
+  maspCompatibleMemo: string = ""
+): Promise<TxRaw> => {
+  const {
+    sourceAddress,
+    amount: displayAmount,
+    asset,
+    sourceChannelId,
+    gasConfig,
+  } = transferParams;
 
   // cosmjs expects amounts to be represented in the base denom, so convert
   const baseAmount = toBaseAmount(asset.asset, displayAmount);
@@ -110,32 +118,24 @@ export const submitIbcTransfer = async (
     `${gasConfig.gasPrice.toString()}${gasConfig.gasToken}`
   );
 
-  const token = asset.originalAddress;
-  const { receiver, memo }: { receiver: string; memo?: string } =
-    isShielded ?
-      await getShieldedArgs(
-        destinationAddress,
-        token,
-        baseAmount,
-        transferParams.destinationChannelId
-      )
-    : { receiver: destinationAddress };
-
   const transferMsg = createIbcTransferMessage(
     sourceChannelId,
     sourceAddress,
-    receiver,
+    transferParams.destinationAddress,
     baseAmount,
     asset.originalAddress,
-    memo
+    maspCompatibleMemo
   );
 
-  const response = await client.signAndBroadcast(
-    sourceAddress,
-    [transferMsg],
-    fee
-  );
+  return await client.sign(sourceAddress, [transferMsg], fee, "");
+};
 
+export const broadcastIbcTransaction = async (
+  client: SigningStargateClient,
+  tx: TxRaw
+): Promise<DeliverTxResponse> => {
+  const txBytes = TxRaw.encode(tx).finish();
+  const response = await client.broadcastTx(txBytes);
   assertIsDeliverTxSuccess(response);
   return response;
 };
