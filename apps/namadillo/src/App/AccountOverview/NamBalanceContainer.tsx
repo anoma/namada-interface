@@ -102,7 +102,7 @@ export const NamBalanceContainer = (): JSX.Element => {
           NAM Balance
         </Heading>
       )}
-      <div className="flex gap-2 h-full w-full">
+      <div className="flex gap-2 w-full">
         <AtomErrorBoundary
           result={[balanceQuery, stakeQuery]}
           niceError="Unable to load balances"
