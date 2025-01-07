@@ -2,8 +2,9 @@
 export { Ledger, initLedgerUSBTransport } from "./ledger";
 export type {
   LedgerAddressAndPublicKey,
-  LedgerShieldedKeys,
+  LedgerProofGenerationKey,
   LedgerStatus,
+  LedgerViewingKey,
 } from "./ledger";
 
 // Export types

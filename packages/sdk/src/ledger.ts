@@ -11,19 +11,17 @@ import {
   ResponseVersion,
   ResponseViewKey,
 } from "@zondax/ledger-namada";
-import { makeBip44Path } from "./utils";
+import { makeBip44Path, makeSaplingPath } from "./utils";
 
 const { coinType } = chains.namada.bip44;
 
 export type LedgerAddressAndPublicKey = { address: string; publicKey: string };
-export type LedgerShieldedKeys = {
-  viewingKey: {
-    xfvk?: string;
-  };
-  proofGenerationKey: {
-    ak?: string;
-    nsk?: string;
-  };
+export type LedgerViewingKey = {
+  xfvk?: Uint8Array;
+};
+export type LedgerProofGenerationKey = {
+  ak?: Uint8Array;
+  nsk?: Uint8Array;
 };
 
 export type LedgerStatus = {
@@ -44,6 +42,10 @@ export const DEFAULT_LEDGER_BIP44_PATH = makeBip44Path(coinType, {
   account: 0,
   change: 0,
   index: 0,
+});
+
+export const DEFAULT_LEDGER_ZIP32_PATH = makeSaplingPath(coinType, {
+  account: 0,
 });
 
 /**
@@ -135,17 +137,17 @@ export class Ledger {
   }
 
   /**
-   * Prompt user to get viewing and proof gen key associated with optional path, otherwise, use default path.
+   * Prompt user to get viewing key associated with optional path, otherwise, use default path.
    * Throw exception if app is not initialized.
    * @async
-   * @param [path] Bip44 path for deriving key
+   * @param [path] Zip32 path for deriving key
    * @param [promptUser] boolean to determine whether to display on Ledger device and require approval
    * @returns ShieldedKeys
    */
-  public async getShieldedKeys(
-    path: string = DEFAULT_LEDGER_BIP44_PATH,
+  public async getViewingKey(
+    path: string = DEFAULT_LEDGER_ZIP32_PATH,
     promptUser = true
-  ): Promise<LedgerShieldedKeys> {
+  ): Promise<LedgerViewingKey> {
     try {
       const { xfvk }: ResponseViewKey = await this.namadaApp.retrieveKeys(
         path,
@@ -153,6 +155,27 @@ export class Ledger {
         promptUser
       );
 
+      return {
+        xfvk,
+      };
+    } catch (_) {
+      throw new Error(`Could not derive viewing key`);
+    }
+  }
+
+  /**
+   * Prompt user to get proof generation key associated with optional path, otherwise, use default path.
+   * Throw exception if app is not initialized.
+   * @async
+   * @param [path] Zip32 path for deriving key
+   * @param [promptUser] boolean to determine whether to display on Ledger device and require approval
+   * @returns ShieldedKeys
+   */
+  public async getProofGenerationKey(
+    path: string = DEFAULT_LEDGER_ZIP32_PATH,
+    promptUser = true
+  ): Promise<LedgerProofGenerationKey> {
+    try {
       const { ak, nsk }: ResponseProofGenKey =
         await this.namadaApp.retrieveKeys(
           path,
@@ -161,16 +184,11 @@ export class Ledger {
         );
 
       return {
-        viewingKey: {
-          xfvk: xfvk?.toString(),
-        },
-        proofGenerationKey: {
-          ak: ak?.toString(),
-          nsk: nsk?.toString(),
-        },
+        ak,
+        nsk,
       };
     } catch (_) {
-      throw new Error(`Could not retrieve Viewing Key`);
+      throw new Error(`Could not derive proof generation key`);
     }
   }
 

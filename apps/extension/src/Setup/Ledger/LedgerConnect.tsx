@@ -40,10 +40,15 @@ export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
       const { address, publicKey } = await ledger.showAddressAndPublicKey(
         makeBip44Path(chains.namada.bip44.coinType, path)
       );
-      const { viewingKey, proofGenerationKey } = await ledger.getShieldedKeys(
-        makeSaplingPath(chains.namada.bip44.coinType, path)
-      );
-      console.log("TODO", { viewingKey, proofGenerationKey });
+
+      // Shielded Keys
+      const zip32Path = makeSaplingPath(chains.namada.bip44.coinType, {
+        account: path.account,
+      });
+      const { xfvk } = await ledger.getViewingKey(zip32Path);
+      const { ak, nsk } = await ledger.getProofGenerationKey(zip32Path);
+
+      console.log("TODO", { zip32Path, xfvk, ak, nsk });
       setIsLedgerConnecting(false);
       navigate(routes.ledgerImport(), {
         state: {
