@@ -24,7 +24,7 @@ import {
 } from "types";
 import { toBaseAmount } from "utils";
 import { getSdkInstance } from "utils/sdk";
-import { workingRpcsAtom } from "./atoms";
+import { rpcByChainAtom } from "./atoms";
 import { getRpcByIndex } from "./functions";
 
 type CommonParams = {
@@ -142,28 +142,28 @@ export const submitIbcTransfer = async (
 
 export const queryAndStoreRpc = async <T>(
   chain: Chain,
-  queryFn: QueryFn<T>,
-  rpcIndex = 0
+  queryFn: QueryFn<T>
 ): Promise<T> => {
   const { get, set } = getDefaultStore();
-  const workingRpcs = get(workingRpcsAtom);
-  const rpcAddress =
-    chain.chain_id in workingRpcs ?
-      workingRpcs[chain.chain_id]
-    : getRpcByIndex(chain, rpcIndex);
+  const lastRpc = get(rpcByChainAtom) || {};
+  const rpc =
+    chain.chain_id in lastRpc ?
+      lastRpc[chain.chain_id]
+    : getRpcByIndex(chain, 0);
 
   try {
-    const output = await queryFn(rpcAddress);
-    set(workingRpcsAtom, {
-      ...workingRpcs,
-      [chain.chain_id]: rpcAddress,
+    const output = await queryFn(rpc.address);
+    set(rpcByChainAtom, {
+      ...lastRpc,
+      [chain.chain_id]: { ...rpc },
     });
     return output;
   } catch (err) {
-    if (chain.chain_id in workingRpcs) {
-      delete workingRpcs[chain.chain_id];
-      set(workingRpcsAtom, { ...workingRpcs });
-    }
+    // On error, saves the next available rpc
+    set(rpcByChainAtom, {
+      ...lastRpc,
+      [chain.chain_id]: getRpcByIndex(chain, rpc.index + 1),
+    });
     throw err;
   }
 };
