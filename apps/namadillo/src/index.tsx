@@ -8,6 +8,7 @@ import { getRouter } from "./App/AppRoutes";
 
 import "@namada/components/src/base.css";
 import "@namada/utils/bigint-to-json-polyfill";
+import { StorageProvider } from "App/Common/StorageProvider";
 import { ExtensionLoader } from "App/Setup/ExtensionLoader";
 import { IndexerLoader } from "App/Setup/IndexerLoader";
 import { TomlConfigLoader } from "App/Setup/TomlConfigLoader";
@@ -23,15 +24,17 @@ if (container) {
     root.render(
       <React.StrictMode>
         <QueryProvider>
-          <TomlConfigLoader>
-            <IndexerLoader>
-              <ExtensionLoader>
-                <SdkProvider>
-                  <RouterProvider router={router} />
-                </SdkProvider>
-              </ExtensionLoader>
-            </IndexerLoader>
-          </TomlConfigLoader>
+          <StorageProvider>
+            <TomlConfigLoader>
+              <IndexerLoader>
+                <ExtensionLoader>
+                  <SdkProvider>
+                    <RouterProvider router={router} />
+                  </SdkProvider>
+                </ExtensionLoader>
+              </IndexerLoader>
+            </TomlConfigLoader>
+          </StorageProvider>
         </QueryProvider>
       </React.StrictMode>
     );

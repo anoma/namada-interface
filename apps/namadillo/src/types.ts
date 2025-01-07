@@ -81,6 +81,11 @@ export type SettingsStorage = {
   enableTestnets?: boolean;
 };
 
+export type RpcStorage = {
+  address: string;
+  index: number;
+};
+
 export type Validator = Unique & {
   alias?: string;
   address: Address;

@@ -26,6 +26,7 @@ import {
   Coin,
   GasConfig,
   LocalnetToml,
+  RpcStorage,
 } from "types";
 import { toDisplayAmount } from "utils";
 import { unknownAsset } from "utils/assets";
@@ -299,13 +300,17 @@ export const mapCoinsToAssets = async (
   );
 };
 
-export const getRpcByIndex = (chain: Chain, index = 0): string => {
+export const getRpcByIndex = (chain: Chain, index = 0): RpcStorage => {
   const availableRpcs = chain.apis?.rpc;
   if (!availableRpcs) {
     throw new Error("There are no available RPCs for " + chain.chain_name);
   }
-  const randomRpc = availableRpcs[Math.min(index, availableRpcs.length - 1)];
-  return randomRpc.address;
+
+  const rpc = availableRpcs[Math.min(index, availableRpcs.length - 1)];
+  return {
+    address: rpc.address,
+    index,
+  };
 };
 
 export const getRestApiAddressByIndex = (chain: Chain, index = 0): string => {
