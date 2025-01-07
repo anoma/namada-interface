@@ -1,7 +1,7 @@
 import anime from "animejs";
 import clsx from "clsx";
 import { useScope } from "hooks/useScope";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { twMerge } from "tailwind-merge";
 export type TransactionStep = {
@@ -64,10 +64,40 @@ export const Timeline = ({
   complete,
 }: TransactionTimelineProps): JSX.Element => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [introFinished, setIntroFinished] = useState(false);
 
   useScope(
+    (query) => {
+      if (introFinished) return;
+      const items = Array.from(query("i,div"));
+      anime({
+        targets: query("ul"),
+        easing: "easeOutExpo",
+        opacity: [0, 1],
+        duration: 700,
+        complete: () => {
+          setIntroFinished(true);
+        },
+      });
+      anime({
+        targets: items,
+        opacity: [0.5, 1],
+        easing: "easeOutExpo",
+        duration: complete ? 200 : 1000,
+        delay: anime.stagger(50),
+        complete: () => {
+          setIntroFinished(true);
+        },
+      });
+    },
+    containerRef,
+    [complete]
+  );
+
+  // Animation when transaction is complete
+  useScope(
     (query, container) => {
-      if (!complete) return;
+      if (!complete || !introFinished) return;
 
       const timeline = anime.timeline({
         easing: "easeOutExpo",
@@ -148,7 +178,7 @@ export const Timeline = ({
       });
     },
     containerRef,
-    [complete]
+    [complete, introFinished]
   );
 
   const renderRing = (className: string): JSX.Element => (
@@ -201,7 +231,7 @@ export const Timeline = ({
         className={clsx(
           "absolute w-full h-full circles top-0 left-0",
           "flex items-center justify-center pointer-events-none",
-          { hidden: !complete }
+          { hidden: !complete || !introFinished }
         )}
       >
         {renderRing("h-30")}
