@@ -6,18 +6,22 @@ import clsx from "clsx";
 
 type AvailableAmountFooterProps = {
   availableAmount?: BigNumber;
+  availableAmountMinusFees?: BigNumber;
   asset?: Asset;
   onClickMax?: () => void;
 };
 
 export const AvailableAmountFooter = ({
   availableAmount,
+  availableAmountMinusFees,
   asset,
   onClickMax,
 }: AvailableAmountFooterProps): JSX.Element => {
-  if (availableAmount === undefined || !asset) {
+  if (availableAmountMinusFees === undefined || !asset) {
     return <></>;
   }
+
+  const isInsufficientBalance = availableAmountMinusFees.eq(0);
 
   return (
     <div
@@ -25,16 +29,32 @@ export const AvailableAmountFooter = ({
         "flex justify-between items-center text-sm text-neutral-500 font-light"
       )}
     >
-      <span className="flex gap-2">
-        Available:
-        <TokenCurrency amount={availableAmount} symbol={asset.symbol} />
-      </span>
+      <div>
+        <div>
+          Available:{" "}
+          <TokenCurrency
+            amount={availableAmountMinusFees}
+            symbol={asset.symbol}
+          />
+        </div>
+        {isInsufficientBalance && (
+          <div className="text-fail">
+            <div>Insufficient balance to cover the fee</div>
+            {availableAmount && (
+              <div>
+                Balance:{" "}
+                <TokenCurrency amount={availableAmount} symbol={asset.symbol} />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
       <span>
         {onClickMax && (
           <ActionButton
             type="button"
             size="xs"
-            disabled={availableAmount.eq(0)}
+            disabled={isInsufficientBalance}
             onClick={onClickMax}
             outlineColor="neutral"
             className="text-neutral-500 text-xs py-0 px-3 disabled:text-neutral-700"
