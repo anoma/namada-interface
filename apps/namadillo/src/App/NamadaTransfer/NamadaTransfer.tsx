@@ -8,7 +8,10 @@ import {
   TransferModule,
 } from "App/Transfer/TransferModule";
 import { allDefaultAccountsAtom } from "atoms/accounts";
-import { namadaTransparentAssetsAtom } from "atoms/balance/atoms";
+import {
+  namadaShieldedAssetsAtom,
+  namadaTransparentAssetsAtom,
+} from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
 import { applicationFeaturesAtom, rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
@@ -40,7 +43,9 @@ export const NamadaTransfer: React.FC = () => {
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
 
   const { data: availableAssetsData, isLoading: isLoadingAssets } =
-    useAtomValue(namadaTransparentAssetsAtom);
+    useAtomValue(
+      shielded ? namadaShieldedAssetsAtom : namadaTransparentAssetsAtom
+    );
 
   const { storeTransaction } = useTransactionActions();
 
