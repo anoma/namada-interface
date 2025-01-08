@@ -234,7 +234,6 @@ module.exports = {
     warningsFilter: [/dependency between chunks.+wasm-bindgen-rayon/],
   },
   optimization: {
-    minimize: false,
     moduleIds: "deterministic", // Ensures consistent module IDs
     chunkIds: "deterministic", // Ensures consistent chunk IDs
   },
