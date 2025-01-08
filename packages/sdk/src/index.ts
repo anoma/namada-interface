@@ -34,6 +34,11 @@ export { ProgressBarNames, Sdk, SdkEvents } from "./sdk";
 
 export { publicKeyToBech32 } from "./keys";
 
+export {
+  ExtendedViewingKey,
+  ProofGenerationKey,
+  PseudoExtendedKey,
+} from "./masp";
 export type { Masp } from "./masp";
 export { PhraseSize } from "./mnemonic";
 export type { Mnemonic } from "./mnemonic";

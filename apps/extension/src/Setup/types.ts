@@ -19,4 +19,7 @@ export type LedgerAccountDetails = {
   path: Bip44Path;
   address: string;
   publicKey: string;
+  extendedViewingKey: string;
+  pseudoExtendedKey: string;
+  paymentAddress: string;
 };

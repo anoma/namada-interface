@@ -17,11 +17,11 @@ const { coinType } = chains.namada.bip44;
 
 export type LedgerAddressAndPublicKey = { address: string; publicKey: string };
 export type LedgerViewingKey = {
-  xfvk?: Uint8Array;
+  xfvk: Uint8Array;
 };
 export type LedgerProofGenerationKey = {
-  ak?: Uint8Array;
-  nsk?: Uint8Array;
+  ak: Uint8Array;
+  nsk: Uint8Array;
 };
 
 export type LedgerStatus = {
@@ -155,11 +155,15 @@ export class Ledger {
         promptUser
       );
 
+      if (!xfvk) {
+        throw new Error("Did not receive viewing key!");
+      }
+
       return {
-        xfvk,
+        xfvk: new Uint8Array(xfvk),
       };
-    } catch (_) {
-      throw new Error(`Could not derive viewing key`);
+    } catch (e) {
+      throw new Error(`${e}`);
     }
   }
 
@@ -183,12 +187,16 @@ export class Ledger {
           promptUser
         );
 
+      if (!ak || !nsk) {
+        throw new Error("Did not receive proof generation key!");
+      }
+
       return {
-        ak,
-        nsk,
+        ak: new Uint8Array(ak),
+        nsk: new Uint8Array(nsk),
       };
-    } catch (_) {
-      throw new Error(`Could not derive proof generation key`);
+    } catch (e) {
+      throw new Error(`${e}`);
     }
   }
 

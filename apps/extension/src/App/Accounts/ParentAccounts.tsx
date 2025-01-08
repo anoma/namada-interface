@@ -1,3 +1,4 @@
+import invariant from "invariant";
 import { useContext, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
@@ -29,17 +30,14 @@ export const ParentAccounts = (): JSX.Element => {
 
   // We check which accounts need to be re-imported
   const accounts = allAccounts
-    .filter(
-      (account) => account.parentId || account.type === AccountType.Ledger
-    )
+    .filter((account) => account.parentId)
     .map((account) => {
       const outdated =
         account.type !== AccountType.Ledger &&
         typeof account.pseudoExtendedKey === "undefined";
 
-      // The only account without a parent is the ledger account
-      const parent =
-        parentAccounts.find((pa) => pa.id === account.parentId) || account;
+      const parent = parentAccounts.find((pa) => pa.id === account.parentId);
+      invariant(parent, `Parent account not found for account ${account.id}`);
 
       return { ...parent, outdated };
     });
