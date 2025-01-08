@@ -29,6 +29,7 @@
     "@chain-registry/types": "^0.45.80",
     "@release-it/conventional-changelog": "^8.0.1",
     "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.3",
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",
     "eslint": "^8.57.0",

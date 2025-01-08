@@ -4905,7 +4905,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@semantic-release/release-notes-generator@npm:^14.0.0-beta.1":
+"@semantic-release/release-notes-generator@npm:^14.0.0-beta.1, @semantic-release/release-notes-generator@npm:^14.0.3":
   version: 14.0.3
   resolution: "@semantic-release/release-notes-generator@npm:14.0.3"
   dependencies:
@@ -17398,6 +17398,7 @@ __metadata:
     "@chain-registry/types": "npm:^0.45.80"
     "@release-it/conventional-changelog": "npm:^8.0.1"
     "@semantic-release/commit-analyzer": "npm:^13.0.1"
+    "@semantic-release/release-notes-generator": "npm:^14.0.3"
     "@typescript-eslint/eslint-plugin": "npm:^8.4.0"
     "@typescript-eslint/parser": "npm:^8.4.0"
     chain-registry: "npm:^1.63.100"
