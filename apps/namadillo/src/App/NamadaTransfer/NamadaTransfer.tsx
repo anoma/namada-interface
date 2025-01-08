@@ -121,6 +121,10 @@ export const NamadaTransfer: React.FC = () => {
       invariant(chainId, "Chain ID is undefined");
       invariant(selectedAsset, "No asset is selected");
       invariant(gasConfig, "No gas config");
+      invariant(
+        sourceAddress !== customAddress,
+        "The recipient address must differ from the sender address"
+      );
 
       const txResponse = await performTransfer({ memo });
 
