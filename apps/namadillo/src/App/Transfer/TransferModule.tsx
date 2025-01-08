@@ -68,6 +68,7 @@ export type TransferModuleProps = {
   destination: TransferDestinationProps;
   requiresIbcChannels?: boolean;
   gasConfig?: GasConfig;
+  submittingText?: string;
   isSubmitting?: boolean;
   errorMessage?: string;
   onSubmitTransfer: (params: OnSubmitTransferParams) => void;
@@ -91,6 +92,7 @@ export const TransferModule = ({
   source,
   destination,
   gasConfig,
+  submittingText,
   isSubmitting,
   isIbcTransfer,
   ibcOptions,
@@ -213,7 +215,7 @@ export const TransferModule = ({
 
   const getButtonText = (): string => {
     if (isSubmitting) {
-      return "Submitting...";
+      return submittingText || "Submitting...";
     }
 
     if (validationResult === "NoSourceWallet") {
