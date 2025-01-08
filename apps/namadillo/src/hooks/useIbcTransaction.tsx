@@ -133,14 +133,17 @@ export const useIbcTransaction = ({
     try {
       const baseAmount = toBaseAmount(selectedAsset.asset, displayAmount);
       const { memo: maspCompatibleMemo, receiver: maspCompatibleReceiver } =
-        shielded ?
-          await getShieldedArgs(
-            destinationAddress,
-            selectedAsset.originalAddress,
-            baseAmount,
-            destinationChannel!
-          )
-        : { memo, receiver: destinationAddress };
+        await (async () => {
+          onUpdateStatus?.("Generating MASP parameters...");
+          return shielded ?
+              await getShieldedArgs(
+                destinationAddress,
+                selectedAsset.originalAddress,
+                baseAmount,
+                destinationChannel!
+              )
+            : { memo, receiver: destinationAddress };
+        })();
 
       // Set Keplr option to allow Namadillo to set the transaction fee
       const chainId = registry.chain.chain_id;
