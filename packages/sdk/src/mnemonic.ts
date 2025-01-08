@@ -1,12 +1,14 @@
 import {
   Mnemonic as MnemonicWasm,
-  PhraseSize,
   StringPointer,
   readVecStringPointer,
   readVecU8Pointer,
 } from "@namada/crypto";
 
-export { PhraseSize } from "@namada/crypto";
+export enum PhraseSize {
+  N12 = 12,
+  N24 = 24,
+}
 
 /**
  * Class for accessing mnemonic functionality from wasm
