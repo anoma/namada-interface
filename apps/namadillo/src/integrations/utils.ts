@@ -154,7 +154,7 @@ export const basicConvertToKeplrChain = (
   return {
     chainId: chain.chain_id,
     chainName: chain.chain_name,
-    rpc,
+    rpc: rpc.address,
     rest,
     bip44: { coinType: chain.slip44 },
     bech32Config: generateBech32Config(chain.bech32_prefix),

@@ -1,9 +1,9 @@
-FROM --platform=linux/amd64 rust:1.79 AS builder
+FROM --platform=linux/arm64 rust:1.79 AS builder
 
 WORKDIR /app
 
 # Installing required packages
-RUN apt update && apt install -y nodejs npm clang pkg-config libssl-dev protobuf-compiler curl
+RUN apt update && apt install -y nodejs npm clang pkg-config libssl-dev protobuf-compiler curl binaryen
 RUN npm install -g yarn
 RUN rustup target add wasm32-unknown-unknown
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh -s -- -y

@@ -18,6 +18,7 @@ import {
   BuildTxAtomParams,
   ChainId,
   ChainRegistryEntry,
+  RpcStorage,
   TransferStep,
   TransferTransactionData,
 } from "types";
@@ -64,10 +65,9 @@ export const selectedIBCChainAtom = atomWithStorage<string | undefined>(
   undefined
 );
 
-export const workingRpcsAtom = atomWithStorage<Record<string, string>>(
-  "namadillo:rpcs",
-  {}
-);
+export const rpcByChainAtom = atomWithStorage<
+  Record<string, RpcStorage> | undefined
+>("namadillo:rpc:active", undefined);
 
 export const ibcTransferAtom = atomWithMutation(() => {
   return {

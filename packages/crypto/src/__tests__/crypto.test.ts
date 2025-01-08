@@ -5,7 +5,6 @@ import {
   ByteSize,
   HDWallet,
   Mnemonic,
-  PhraseSize,
   Rng,
   Salt,
   ShieldedHDWallet,
@@ -41,20 +40,20 @@ const MNEMONIC_WORDS = [
 
 describe("Mnemonic", () => {
   test("It should return the correct number of words", () => {
-    let mnemonic = new Mnemonic(PhraseSize.N12);
+    let mnemonic = new Mnemonic(12);
     let words = readVecStringPointer(mnemonic?.to_words(), memory);
     expect(words.length).toBe(12);
 
-    mnemonic = new Mnemonic(PhraseSize.N24);
+    mnemonic = new Mnemonic(24);
     words = readVecStringPointer(mnemonic.to_words(), memory);
 
     expect(words.length).toBe(24);
   });
 
   test("It should return a seed with a valid length", () => {
-    const mnemonic12 = new Mnemonic(PhraseSize.N12);
+    const mnemonic12 = new Mnemonic(12);
     const seed = mnemonic12.to_seed();
-    const mnemonic24 = new Mnemonic(PhraseSize.N24);
+    const mnemonic24 = new Mnemonic(24);
     const seed2 = mnemonic24.to_seed();
 
     expect(seed.length).toBe(SEED_LENGTH);
