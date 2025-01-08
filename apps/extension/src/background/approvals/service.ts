@@ -1,4 +1,4 @@
-import { toBase64 } from "@cosmjs/encoding";
+import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
 
@@ -137,7 +137,7 @@ export class ApprovalsService {
     popupTabId: number,
     msgId: string,
     responseSign: ResponseSign[],
-    maspSignatures: number[][]
+    maspSignatures: string[]
   ): Promise<void> {
     const pendingTx = await this.txStore.get(msgId);
     const resolvers = this.getResolver(popupTabId);
@@ -152,19 +152,22 @@ export class ApprovalsService {
 
     const { tx } = this.sdkService.getSdk();
 
-    console.log("maspSignatures", maspSignatures);
     try {
-      const signedTxs = pendingTx.txs.map(({ bytes, signingData }, i) => {
-        const sd = signingData.map((sd) =>
-          new Message().encode(new SigningDataMsgValue(sd))
+      const signedTxs = pendingTx.txs.map((pendingTx, i) => {
+        const signingData = pendingTx.signingData.map((signingData) =>
+          new Message().encode(new SigningDataMsgValue(signingData))
         );
-        const wwww = new Uint8Array(maspSignatures[i]);
+        const maspSignature = fromBase64(maspSignatures[i]);
+        // TODO: consider improving this, explanation below:
+        // Because we read tx from the store we have to append masp signatures twice
+        // First time before ledger computes tx wrapper signature and second time now to submit proper tx
+        const txWithMasp = tx.appendMaspSignature(
+          pendingTx.bytes,
+          signingData,
+          maspSignature
+        );
 
-        console.log("sd", sd, maspSignatures[i], i);
-        const asd = tx.appendMaspSignature(bytes, sd, wwww);
-        console.log("asd", asd);
-        // return tx.appendSignature(asd, responseSign[i]);
-        return asd;
+        return tx.appendSignature(txWithMasp, responseSign[i]);
       });
       resolvers.resolve(signedTxs);
     } catch (e) {
@@ -172,6 +175,31 @@ export class ApprovalsService {
     }
 
     await this.clearPendingSignature(msgId);
+  }
+
+  async replaceMaspSignature(
+    msgId: string,
+    signature: string,
+    txIndex: number
+  ): Promise<string> {
+    const pendingTx = (await this.txStore.get(msgId))?.txs.at(txIndex);
+
+    if (!pendingTx) {
+      throw new Error(ApprovalErrors.TransactionDataNotFound(msgId));
+    }
+
+    const { tx } = this.sdkService.getSdk();
+
+    const signingData = pendingTx.signingData.map((signingData) =>
+      new Message().encode(new SigningDataMsgValue(signingData))
+    );
+    const txWithMasp = tx.appendMaspSignature(
+      pendingTx.bytes,
+      signingData,
+      fromBase64(signature)
+    );
+
+    return toBase64(txWithMasp);
   }
 
   async submitSignArbitrary(

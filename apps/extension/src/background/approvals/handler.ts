@@ -16,6 +16,7 @@ import {
   QueryTxDetailsMsg,
   RejectSignArbitraryMsg,
   RejectSignTxMsg,
+  ReplaceMaspSignatureMsg,
   RevokeConnectionMsg,
   SubmitApprovedSignArbitraryMsg,
   SubmitApprovedSignLedgerTxMsg,
@@ -112,6 +113,11 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleSubmitApprovedSignLedgerTxMsg(service)(
           env,
           msg as SubmitApprovedSignLedgerTxMsg
+        );
+      case ReplaceMaspSignatureMsg:
+        return handleReplaceMaspSignatureMsg(service)(
+          env,
+          msg as ReplaceMaspSignatureMsg
         );
 
       default:
@@ -284,6 +290,14 @@ const handleSubmitApprovedSignLedgerTxMsg: (
       responseSign,
       maspSignatures
     );
+  };
+};
+
+const handleReplaceMaspSignatureMsg: (
+  service: ApprovalsService
+) => InternalHandler<ReplaceMaspSignatureMsg> = (service) => {
+  return async (_, { msgId, signature, txIndex }) => {
+    return await service.replaceMaspSignature(msgId, signature, txIndex);
   };
 };
 

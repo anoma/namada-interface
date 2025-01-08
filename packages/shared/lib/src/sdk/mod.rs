@@ -596,22 +596,28 @@ impl Sdk {
                 (tx, masp_signing_data)
             }
             BuildParams::StoredBuildParams(mut bparams) => {
+                web_sys::console::log_1(&"StoredBuildParams".into());
                 let tx = build_unshielding_transfer(&self.namada, &mut args, &mut bparams).await?;
                 let masp_signing_data = MaspSigningData::new(bparams, xfvks);
 
                 (tx, masp_signing_data)
             }
         };
+        web_sys::console::log_1(&format!("signing_data owner: {:?}", signing_data.owner).into());
+        web_sys::console::log_1(
+            &format!("signing_data public_keys: {:?}", signing_data.public_keys).into(),
+        );
+        web_sys::console::log_1(&format!("signing_data fee: {:?}", signing_data.fee_payer).into());
 
-        if let Some(shielded_hash) = signing_data.shielded_hash {
-            web_sys::console::log_1(
-                &format!(
-                    "tx: {:?}",
-                    borsh::to_vec(tx.get_masp_section(&shielded_hash).unwrap())
-                )
-                .into(),
-            );
-        }
+        // if let Some(shielded_hash) = signing_data.shielded_hash {
+        //     web_sys::console::log_1(
+        //         &format!(
+        //             "tx: {:?}",
+        //             borsh::to_vec(tx.get_masp_section(&shielded_hash).unwrap())
+        //         )
+        //         .into(),
+        //     );
+        // }
 
         self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, Some(masp_signing_data))
     }

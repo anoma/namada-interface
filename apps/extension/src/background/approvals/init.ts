@@ -16,6 +16,7 @@ import {
   QueryTxDetailsMsg,
   RejectSignArbitraryMsg,
   RejectSignTxMsg,
+  ReplaceMaspSignatureMsg,
   RevokeConnectionMsg,
   SubmitApprovedSignArbitraryMsg,
   SubmitApprovedSignLedgerTxMsg,
@@ -36,6 +37,7 @@ export function init(router: Router, service: ApprovalsService): void {
   router.registerMessage(SubmitApprovedSignTxMsg);
   router.registerMessage(SubmitApprovedSignArbitraryMsg);
   router.registerMessage(SubmitApprovedSignLedgerTxMsg);
+  router.registerMessage(ReplaceMaspSignatureMsg);
   router.registerMessage(IsConnectionApprovedMsg);
   router.registerMessage(ApproveConnectInterfaceMsg);
   router.registerMessage(ConnectInterfaceResponseMsg);
