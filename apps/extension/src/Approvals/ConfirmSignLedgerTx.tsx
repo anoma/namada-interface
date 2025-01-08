@@ -2,15 +2,16 @@ import clsx from "clsx";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
 import { ActionButton, Stack } from "@namada/components";
-import { Ledger, makeBip44Path } from "@namada/sdk/web";
+import { Ledger, makeBip44Path, makeSaplingPath } from "@namada/sdk/web";
 import { LedgerError, ResponseSign } from "@zondax/ledger-namada";
 
-import { fromBase64 } from "@cosmjs/encoding";
+import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { chains } from "@namada/chains";
 import { PageHeader } from "App/Common";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {
   QueryPendingTxBytesMsg,
+  ReplaceMaspSignatureMsg,
   SubmitApprovedSignLedgerTxMsg,
 } from "background/approvals";
 import { QueryAccountDetailsMsg } from "background/keyring";
@@ -75,15 +76,27 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
   const signMaspTx = async (
     ledger: Ledger,
     bytes: Uint8Array,
-    _path: string
+    path: string
   ): Promise<{ sbar: Uint8Array; rbar: Uint8Array }> => {
-    const _response = await ledger.namadaApp.signMaspSpends(
-      // TODO:
-      "m/32'/877'/0'",
+    const signMaspSpendsResponse = await ledger.namadaApp.signMaspSpends(
+      path,
       Buffer.from(bytes)
     );
-    // TODO
-    return await ledger.namadaApp.getSpendSignature();
+
+    if (signMaspSpendsResponse.returnCode !== LedgerError.NoErrors) {
+      throw new Error(
+        `Signing masp spends error encountered: ${signMaspSpendsResponse.errorMessage}`
+      );
+    }
+
+    const spendSignatureResponse = await ledger.namadaApp.getSpendSignature();
+    if (spendSignatureResponse.returnCode !== LedgerError.NoErrors) {
+      throw new Error(
+        `Getting spends signature error encountered: ${signMaspSpendsResponse.errorMessage}`
+      );
+    }
+
+    return spendSignatureResponse;
   };
 
   const signLedgerTx = async (
@@ -150,6 +163,9 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
           index: accountDetails.path.index || 0,
         };
         const bip44Path = makeBip44Path(chains.namada.bip44.coinType, path);
+        const zip32Path = makeSaplingPath(chains.namada.bip44.coinType, {
+          account: path.account,
+        });
         const pendingTxs = await requester.sendMessage(
           Ports.Background,
           new QueryPendingTxBytesMsg(msgId)
@@ -162,7 +178,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
         }
 
         const signatures: ResponseSign[] = [];
-        const maspSignatures: number[][] = [];
+        const maspSignatures: string[] = [];
 
         let txIndex = 0;
         const txCount = pendingTxs.length;
@@ -182,13 +198,23 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
               </p>
             );
           }
-          const asd = await signMaspTx(ledger, fromBase64(tx), bip44Path);
-          const maspSignature = [...asd.rbar, ...asd.sbar];
+          const { sbar, rbar } = await signMaspTx(
+            ledger,
+            fromBase64(tx),
+            zip32Path
+          );
+          const maspSignature = toBase64(new Uint8Array([...rbar, ...sbar]));
           maspSignatures.push(maspSignature);
+
+          const txWithMaspSection = await requester.sendMessage(
+            Ports.Background,
+            new ReplaceMaspSignatureMsg(msgId, maspSignature, txIndex)
+          );
+          console.log("txWithMaspSection", txWithMaspSection);
 
           const signature = await signLedgerTx(
             ledger,
-            fromBase64(tx),
+            fromBase64(txWithMaspSection),
             bip44Path
           );
           signatures.push(signature);

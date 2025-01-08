@@ -196,22 +196,31 @@ export const createUnshieldingTransferTx = async (
   const token = props[0]?.data[0]?.token;
   const amount = props[0]?.data[0]?.amount;
 
+  const sdk = await getSdkInstance();
+  const ledger = await sdk.initLedger();
+
+  const bparams = await ledger.getBparams();
+  ledger.closeTransport();
+  console.log("bparams closed", bparams);
+
   return await workerBuildTxPair({
     rpcUrl,
     token,
-    signerAddress: disposableSigner.address,
+    signerAddress: account.address,
+    // signerAddress: disposableSigner.address,
     buildTxFn: async (workerLink) => {
       const msgValue = new UnshieldingTransferMsgValue({
         source,
         gasSpendingKey: source,
         data: [{ target: destination, token, amount }],
+        bparams,
       });
       const msg: Unshield = {
         type: "unshield",
         payload: {
           account: {
             ...account,
-            publicKey: disposableSigner.publicKey,
+            // publicKey: disposableSigner.publicKey,
           },
           gasConfig,
           props: [msgValue],

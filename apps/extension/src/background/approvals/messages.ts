@@ -10,6 +10,7 @@ export enum MessageType {
   SubmitApprovedSignTx = "submit-approved-sign-tx",
   SubmitApprovedSignArbitrary = "submit-approved-sign-arbitrary",
   SubmitApprovedSignLedgerTx = "submit-approved-sign-ledger-tx",
+  ReplaceMaspSignature = "replace-masp-signature",
   RejectSignArbitrary = "reject-sign-arbitrary",
   ConnectInterfaceResponse = "connect-interface-response",
   DisconnectInterfaceResponse = "disconnect-interface-response",
@@ -54,7 +55,8 @@ export class SubmitApprovedSignLedgerTxMsg extends Message<void> {
   constructor(
     public readonly msgId: string,
     public readonly responseSign: ResponseSign[],
-    public readonly maspSignatures: number[][]
+    //base64 encoded masp signatures
+    public readonly maspSignatures: string[]
   ) {
     super();
   }
@@ -69,6 +71,35 @@ export class SubmitApprovedSignLedgerTxMsg extends Message<void> {
 
   type(): string {
     return SubmitApprovedSignLedgerTxMsg.type();
+  }
+}
+
+// returns base64 encoded tx
+export class ReplaceMaspSignatureMsg extends Message<string> {
+  public static type(): MessageType {
+    return MessageType.ReplaceMaspSignature;
+  }
+
+  constructor(
+    public readonly msgId: string,
+    // base64 encoded
+    public readonly signature: string,
+    // pending tx index
+    public readonly txIndex: number
+  ) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["msgId", "signature", "txIndex"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return ReplaceMaspSignatureMsg.type();
   }
 }
 
