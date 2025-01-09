@@ -190,7 +190,7 @@ export const Timeline = ({
                 clsx(
                   "flex flex-col gap-1 items-center",
                   "text-center transition-all duration-150",
-                  { "opacity-20": index > currentStepIndex }
+                  { "opacity-20": index > currentStepIndex && !hasError }
                 )
               )}
             >
