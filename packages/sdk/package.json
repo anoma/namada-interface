@@ -64,6 +64,7 @@
     "@zondax/ledger-namada": "^2.0.0",
     "bignumber.js": "^9.1.1",
     "buffer": "^6.0.3",
+    "semver": "^7.6.3",
     "slip44": "^3.0.18"
   },
   "devDependencies": {

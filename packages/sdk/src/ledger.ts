@@ -11,6 +11,7 @@ import {
   ResponseVersion,
   ResponseViewKey,
 } from "@zondax/ledger-namada";
+import semver from "semver";
 import { makeBip44Path, makeSaplingPath } from "./utils";
 
 const { coinType } = chains.namada.bip44;
@@ -28,6 +29,8 @@ export type LedgerStatus = {
   version: ResponseVersion;
   info: ResponseAppInfo;
 };
+
+const LEDGER_MIN_VERSION_ZIP32 = "2.0.0";
 
 /**
  * Initialize USB transport
@@ -138,7 +141,7 @@ export class Ledger {
 
   /**
    * Prompt user to get viewing key associated with optional path, otherwise, use default path.
-   * Throw exception if app is not initialized.
+   * Throw exception if app is not initialized, zip32 is not supported, or key is not returned.
    * @async
    * @param [path] Zip32 path for deriving key
    * @param [promptUser] boolean to determine whether to display on Ledger device and require approval
@@ -149,6 +152,8 @@ export class Ledger {
     promptUser = true
   ): Promise<LedgerViewingKey> {
     try {
+      await this.validateVersionForZip32();
+
       const { xfvk }: ResponseViewKey = await this.namadaApp.retrieveKeys(
         path,
         NamadaKeys.ViewKey,
@@ -169,7 +174,7 @@ export class Ledger {
 
   /**
    * Prompt user to get proof generation key associated with optional path, otherwise, use default path.
-   * Throw exception if app is not initialized.
+   * Throw exception if app is not initialized, zip32 is not supported, or key is not returned.
    * @async
    * @param [path] Zip32 path for deriving key
    * @param [promptUser] boolean to determine whether to display on Ledger device and require approval
@@ -180,6 +185,8 @@ export class Ledger {
     promptUser = true
   ): Promise<LedgerProofGenerationKey> {
     try {
+      await this.validateVersionForZip32();
+
       const { ak, nsk }: ResponseProofGenKey =
         await this.namadaApp.retrieveKeys(
           path,
@@ -242,5 +249,36 @@ export class Ledger {
    */
   public async closeTransport(): Promise<void> {
     return await this.namadaApp.transport.close();
+  }
+
+  /**
+   * Check if Zip32 is supported by the installed app's version.
+   * Throws error if app is not initialized
+   * @async
+   * @retuns boolean
+   */
+  public async isZip32Supported(): Promise<boolean> {
+    const {
+      info: { appVersion },
+    } = await this.status();
+    return !semver.lt(appVersion, LEDGER_MIN_VERSION_ZIP32);
+  }
+
+  /**
+   * Validate the version against the minimum required version for Zip32 functionality.
+   * Throw error if it is unsupported or app is not initialized.
+   * @async
+   * @returns void
+   */
+  private async validateVersionForZip32(): Promise<void> {
+    if (!(await this.isZip32Supported())) {
+      const {
+        info: { appVersion },
+      } = await this.status();
+      throw new Error(
+        `This method requires Zip32 and is unsupported in ${appVersion}! ` +
+          `Please update to at least ${LEDGER_MIN_VERSION_ZIP32}!`
+      );
+    }
   }
 }
