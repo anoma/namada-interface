@@ -398,7 +398,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.ledgerComplete()}
                 element={
-                  <Wrapper onLoad={setCurrentPage("Namada Keys Imported", 3)}>
+                  <Wrapper onLoad={setCurrentPage("Ledger Keys Imported", 3)}>
                     <LedgerConfirmation />
                   </Wrapper>
                 }
