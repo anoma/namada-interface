@@ -15,42 +15,25 @@ type TransactionTimelineProps = {
   complete?: boolean;
 };
 
-type DisabledProps = {
-  disabled: boolean;
-};
-
-const StepConnector = ({ disabled }: DisabledProps): JSX.Element => (
-  <i
-    className={clsx(
-      "h-10 w-px bg-current mb-3",
-      clsx({ "opacity-20": disabled })
-    )}
-  />
+const StepConnector = (): JSX.Element => (
+  <i className="h-10 w-px bg-current mb-3" />
 );
 
-const StepBullet = ({ disabled }: DisabledProps): JSX.Element => (
-  <i
-    className={clsx(
-      "w-4 aspect-square rounded-full bg-current",
-      clsx({ "opacity-20": disabled })
-    )}
-  />
+const StepBullet = (): JSX.Element => (
+  <i className="w-4 aspect-square rounded-full bg-current" />
 );
 
 const StepContent = ({
   children,
   isCurrentStep,
   hasError,
-  disabled,
 }: React.PropsWithChildren & {
   isCurrentStep: boolean;
   hasError: boolean;
-  disabled: boolean;
 }): JSX.Element => (
   <div
     className={clsx("text-center", {
       "animate-pulse": isCurrentStep && !hasError,
-      "opacity-20": disabled,
     })}
   >
     {children}
@@ -206,19 +189,15 @@ export const Timeline = ({
               className={twMerge(
                 clsx(
                   "flex flex-col gap-1 items-center",
-                  "text-center transition-all duration-150"
+                  "text-center transition-all duration-150",
+                  { "opacity-20": index > currentStepIndex }
                 )
               )}
             >
-              {index > 0 && (
-                <StepConnector disabled={index > currentStepIndex} />
-              )}
-              {step.bullet && (
-                <StepBullet disabled={index > currentStepIndex} />
-              )}
+              {index > 0 && <StepConnector />}
+              {step.bullet && <StepBullet />}
               <StepContent
                 isCurrentStep={index === currentStepIndex}
-                disabled={index > currentStepIndex}
                 hasError={!!hasError}
               >
                 {step.children}

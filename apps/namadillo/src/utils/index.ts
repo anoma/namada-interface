@@ -3,8 +3,9 @@ import { ProposalStatus, ProposalTypeString } from "@namada/types";
 import { localnetConfigAtom } from "atoms/integrations/atoms";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
+import { isEqual } from "lodash";
 import namadaAssets from "namada-chain-registry/namada/assetlist.json";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export const proposalStatusToString = (status: ProposalStatus): string => {
   const statusText: Record<ProposalStatus, string> = {
@@ -38,32 +39,46 @@ export const proposalIdToString = (proposalId: bigint): string =>
 
 export const useTransactionEventListener = <T extends keyof WindowEventMap>(
   event: T,
-  handler: (this: Window, ev: WindowEventMap[T]) => void,
-  deps: React.DependencyList = []
+  handler: (event: WindowEventMap[T]) => void
 ): void => {
+  // `handlerRef` is useful to avoid recreating the listener every time
+  const handlerRef = useRef(handler);
+  handlerRef.current = handler;
+
   useEffect(() => {
-    window.addEventListener(event, handler);
+    const callback: typeof handler = (event) => handlerRef.current(event);
+    window.addEventListener(event, callback);
     return () => {
-      window.removeEventListener(event, handler);
+      window.removeEventListener(event, callback);
     };
-  }, deps);
+  }, [event]);
 };
 
 export const useTransactionEventListListener = <T extends keyof WindowEventMap>(
   events: T[],
-  handler: (this: Window, ev: WindowEventMap[T]) => void,
-  deps: React.DependencyList = []
+  handler: (event: WindowEventMap[T]) => void
 ): void => {
+  // `eventsRef` and `handlerRef` are useful to avoid recreating the listener every time
+  const eventsRef = useRef(events);
+  if (!isEqual(events, eventsRef.current)) {
+    eventsRef.current = events;
+  }
+  const eventsValue = eventsRef.current;
+
+  const handlerRef = useRef(handler);
+  handlerRef.current = handler;
+
   useEffect(() => {
-    events.forEach((event) => {
-      window.addEventListener(event, handler);
+    const callback: typeof handler = (event) => handlerRef.current(event);
+    eventsValue.forEach((event) => {
+      window.addEventListener(event, callback);
     });
     return () => {
-      events.forEach((event) => {
-        window.removeEventListener(event, handler);
+      eventsValue.forEach((event) => {
+        window.removeEventListener(event, callback);
       });
     };
-  }, deps);
+  }, [eventsValue]);
 };
 
 export const sumBigNumberArray = (numbers: BigNumber[]): BigNumber => {

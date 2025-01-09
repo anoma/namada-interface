@@ -35,9 +35,7 @@ export const useTransactionCallback = (): void => {
   useTransactionEventListener("Unbond.Success", onBalanceUpdate);
   useTransactionEventListener("Withdraw.Success", onBalanceUpdate);
   useTransactionEventListener("Redelegate.Success", onBalanceUpdate);
-  useTransactionEventListener("ClaimRewards.Success", onBalanceUpdate, [
-    account?.address,
-  ]);
+  useTransactionEventListener("ClaimRewards.Success", onBalanceUpdate);
 
   useTransactionEventListener("VoteProposal.Success", () => {
     shouldUpdateProposal(true);
@@ -56,18 +54,10 @@ export const useTransactionCallback = (): void => {
       "UnshieldingTransfer.Success",
     ],
     (e) => {
-      e.detail.data.forEach((dataList) => {
-        dataList.data.forEach((props) => {
-          const sourceAddress = "source" in props ? props.source : "";
-          sourceAddress &&
-            changeTransaction(
-              e.detail.tx.hash,
-              {
-                status: "success",
-                currentStep: TransferStep.Complete,
-              },
-              sourceAddress
-            );
+      e.detail.tx.forEach(({ hash }) => {
+        changeTransaction(hash, {
+          status: "success",
+          currentStep: TransferStep.Complete,
         });
       });
     }

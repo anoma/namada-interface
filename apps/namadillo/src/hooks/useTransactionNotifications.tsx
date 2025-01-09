@@ -28,7 +28,7 @@ const getTotalAmountFromTransactionList = (txs: TxWithAmount[]): BigNumber =>
   }, new BigNumber(0));
 
 const parseTxsData = <T extends TxWithAmount>(
-  tx: TxProps,
+  tx: TxProps | TxProps[],
   data: T[]
 ): { id: string; total: BigNumber } => {
   const id = createNotificationId(tx);
@@ -357,11 +357,9 @@ export const useTransactionNotifications = (): void => {
       "UnshieldingTransfer.Error",
     ],
     (e) => {
-      const tx = e.detail.tx;
-      const data: TxWithAmount[] = e.detail.data[0].data;
-      const { id } = parseTxsData(tx, data);
+      const id = createNotificationId(e.detail.tx);
       clearPendingNotifications(id);
-      const storedTx = searchAllStoredTxByHash(tx.hash);
+      const storedTx = searchAllStoredTxByHash(e.detail.tx[0].hash);
       dispatchNotification({
         id,
         type: "error",
@@ -391,11 +389,10 @@ export const useTransactionNotifications = (): void => {
       "UnshieldingTransfer.Success",
     ],
     (e) => {
-      const tx = e.detail.tx;
-      const data: TxWithAmount[] = e.detail.data[0].data;
-      const { id } = parseTxsData(tx, data);
+      const id = createNotificationId(e.detail.tx);
       clearPendingNotifications(id);
-      const storedTx = searchAllStoredTxByHash(tx.hash);
+      clearPendingNotifications(id);
+      const storedTx = searchAllStoredTxByHash(e.detail.tx[0].hash);
       dispatchNotification({
         id,
         title: "Transfer transaction succeeded",
