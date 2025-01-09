@@ -16,8 +16,8 @@ export function App(): JSX.Element {
   useExtensionEvents();
   useTransactionNotifications();
   useTransactionCallback();
-  useRegistryFeatures();
   useTransactionWatcher();
+  useRegistryFeatures();
   useServerSideEvents();
 
   return (
