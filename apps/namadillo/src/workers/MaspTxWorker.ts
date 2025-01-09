@@ -117,7 +117,6 @@ async function unshield(
     sdk.tx.buildUnshieldingTransfer,
     true
   );
-  console.log("encodedTxData", encodedTxData);
 
   return encodedTxData;
 }

@@ -40,7 +40,6 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
         if (!isAuthenticated) {
           throw new Error("Invalid password!");
         }
-        console.log("signer", signer);
 
         await requester.sendMessage(
           Ports.Background,

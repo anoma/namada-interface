@@ -149,7 +149,6 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
       setStepTwoDescription("Preparing transaction...");
 
       try {
-        console.log("Querying account details for", signer);
         const accountDetails = await requester.sendMessage(
           Ports.Background,
           new QueryAccountDetailsMsg(signer)
@@ -188,7 +187,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
           setStepTwoDescription(<p>{stepTwoText}</p>);
         }
 
-        for await (const { bytes: tx } of pendingTxs) {
+        for await (const tx of pendingTxs) {
           if (txCount > 1) {
             setStepTwoDescription(
               <p>
@@ -210,7 +209,6 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
             Ports.Background,
             new ReplaceMaspSignatureMsg(msgId, maspSignature, txIndex)
           );
-          console.log("txWithMaspSection", txWithMaspSection);
 
           const signature = await signLedgerTx(
             ledger,

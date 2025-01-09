@@ -159,6 +159,9 @@ export class Ledger {
    * @returns bparams
    */
   public async getBparams(): Promise<Bparams[]> {
+    // We need to clean the randomness buffers before getting randomness
+    // to ensure that the randomness is not reused
+    await this.namadaApp.cleanRandomnessBuffers();
     const results: Bparams[] = [];
 
     // TODO: not sure why ledger sometimes returns errors, so we try to get 15 valid responses

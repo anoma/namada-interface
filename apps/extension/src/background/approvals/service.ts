@@ -377,7 +377,6 @@ export class ApprovalsService {
   }
 
   async approveUpdateDefaultAccount(address: string): Promise<void> {
-    console.log("approveUpdateDefaultAccount");
     const account = await this.keyRingService.queryAccountDetails(address);
 
     return this.launchApprovalPopup(TopLevelRoute.ApproveUpdateDefaultAccount, {
@@ -413,10 +412,7 @@ export class ApprovalsService {
     );
   }
 
-  // TODO: all of this is not needed most likelyk
-  async queryPendingTxBytes(
-    msgId: string
-  ): Promise<{ bytes: string; signingData: string[] }[] | undefined> {
+  async queryPendingTxBytes(msgId: string): Promise<string[] | undefined> {
     const pendingTx = await this.txStore.get(msgId);
 
     if (!pendingTx) {
@@ -424,18 +420,7 @@ export class ApprovalsService {
     }
 
     if (pendingTx.txs) {
-      // TODO:
-      return pendingTx.txs.map(({ bytes, signingData }) => {
-        console.log("signingData223455", signingData);
-        const www = {
-          bytes: toBase64(bytes),
-          signingData: signingData.map((sd) =>
-            toBase64(new Message().encode(new SigningDataMsgValue(sd)))
-          ),
-        };
-        console.log("www", www.signingData);
-        return www;
-      });
+      return pendingTx.txs.map(({ bytes }) => toBase64(bytes));
     }
   }
 
