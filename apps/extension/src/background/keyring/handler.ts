@@ -195,7 +195,7 @@ const handleQueryAccountsMsg: (
     const output =
       query && query.accountId ?
         await service.queryAccountsByParentId(query.accountId)
-        : await service.queryAccounts();
+      : await service.queryAccounts();
 
     return output;
   };
@@ -262,7 +262,6 @@ const handleQueryAccountDetails: (
   service: KeyRingService
 ) => InternalHandler<QueryAccountDetailsMsg> = (service) => {
   return async (_, { address }) => {
-    console.log("queryAccountDetails 2222");
     return await service.queryAccountDetails(address);
   };
 };

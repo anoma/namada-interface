@@ -290,9 +290,7 @@ export class QueryTxDetailsMsg extends Message<TxDetails[]> {
   }
 }
 
-export class QueryPendingTxBytesMsg extends Message<
-  { bytes: string; signingData: string[] }[] | undefined
-> {
+export class QueryPendingTxBytesMsg extends Message<string[] | undefined> {
   public static type(): MessageType {
     return MessageType.QueryPendingTxBytes;
   }

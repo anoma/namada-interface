@@ -164,9 +164,7 @@ export function WorkerTest(): JSX.Element {
     };
 
     const { payload: encodedTx } = await shieldWorker.unshield(msg);
-    console.log("Encoded tx", encodedTx);
     const signedTxs = await signTx(encodedTx, disposableSigner?.address || "");
-    console.log("Signed txs", signedTxs);
 
     await shieldWorker.broadcast({
       type: "broadcast",

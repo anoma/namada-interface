@@ -53,7 +53,7 @@ export class Tx {
   /**
    * @param sdk - Instance of Sdk struct from wasm lib
    */
-  constructor(protected readonly sdk: SdkWasm) { }
+  constructor(protected readonly sdk: SdkWasm) {}
 
   /**
    * Build Transparent Transfer Tx
@@ -367,11 +367,11 @@ export class Tx {
   }
 
   /**
-   * TODO
-   * @param txBytes - [TODO:description]
-   * @param signingData - [TODO:description]
-   * @param signature - [TODO:description]
-   * @returns [TODO:description]
+   * Append signature for transactions signed by Ledger Hardware Wallet
+   * @param txBytes - bytes of the transaction
+   * @param signingData - signing data
+   * @param signature - masp signature
+   * @returns transaction bytes with signature appended
    */
   appendMaspSignature(
     txBytes: Uint8Array,

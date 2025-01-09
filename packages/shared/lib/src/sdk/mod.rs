@@ -243,15 +243,14 @@ impl Sdk {
         to_js_result(borsh::to_vec(&tx)?)
     }
 
+    // TODO: this should be unified with sign_masp somehow
     pub fn sign_masp_ledger(
         &self,
         tx: Vec<u8>,
         signing_data: Box<[Uint8Array]>,
         signature: Vec<u8>,
     ) -> Result<JsValue, JsError> {
-        web_sys::console::log_1(&"sign_masp_ledger".into());
         let mut namada_tx: Tx = borsh::from_slice(&tx)?;
-        web_sys::console::log_1(&format!("namada_tx: {:?}", namada_tx).into());
         let signing_data = signing_data
             .iter()
             .map(|sd| {
@@ -259,11 +258,7 @@ impl Sdk {
             })
             .collect::<Vec<tx::SigningData>>();
 
-        web_sys::console::log_1(&format!("signing_data: {:?}", signing_data).into());
-        // let signing_data = <Vec<tx::SigningData>>::try_from_slice(&signing_data)?;
-
         for signing_data in signing_data {
-            web_sys::console::log_1(&format!("signing_data222: {:?}", signing_data).into());
             let signing_tx_data = signing_data.to_signing_tx_data()?;
             if let Some(shielded_hash) = signing_tx_data.shielded_hash {
                 let mut masp_tx = namada_tx
@@ -276,28 +271,16 @@ impl Sdk {
                     .expect("Expected to find the indicated MASP Builder");
 
                 let sapling_inputs = masp_builder.builder.sapling_inputs();
-                // let mut descriptor_map = vec![0; sapling_inputs.len()];
-                // for i in 0.. {
-                //     if let Some(pos) = masp_builder.metadata.spend_index(i) {
-                //         descriptor_map[pos] = i;
-                //     } else {
-                //         break;
-                //     };
-                // }
-
-                web_sys::console::log_1(
-                    &format!("sapling_inputs len: {:?}", sapling_inputs.len()).into(),
-                );
                 let mut authorizations = HashMap::new();
 
-                web_sys::console::log_1(&format!("signature: {:?}", signature).into());
                 let signature =
                     namada_sdk::masp_primitives::sapling::redjubjub::Signature::try_from_slice(
                         &signature.to_vec(),
                     )?;
+                // TODO: this works only if we assume that we do one
+                // shielded transfer in the transaction
                 authorizations.insert(0_usize, signature);
 
-                web_sys::console::log_1(&format!("authorizations: {:?}", authorizations).into());
                 masp_tx = (*masp_tx)
                     .clone()
                     .map_authorization::<namada_sdk::masp_primitives::transaction::Authorized>(
@@ -312,7 +295,6 @@ impl Sdk {
             }
         }
 
-        web_sys::console::log_1(&format!("namada_tx: {:?}", namada_tx).into());
         to_js_result(borsh::to_vec(&namada_tx)?)
     }
 
@@ -596,28 +578,12 @@ impl Sdk {
                 (tx, masp_signing_data)
             }
             BuildParams::StoredBuildParams(mut bparams) => {
-                web_sys::console::log_1(&"StoredBuildParams".into());
                 let tx = build_unshielding_transfer(&self.namada, &mut args, &mut bparams).await?;
                 let masp_signing_data = MaspSigningData::new(bparams, xfvks);
 
                 (tx, masp_signing_data)
             }
         };
-        web_sys::console::log_1(&format!("signing_data owner: {:?}", signing_data.owner).into());
-        web_sys::console::log_1(
-            &format!("signing_data public_keys: {:?}", signing_data.public_keys).into(),
-        );
-        web_sys::console::log_1(&format!("signing_data fee: {:?}", signing_data.fee_payer).into());
-
-        // if let Some(shielded_hash) = signing_data.shielded_hash {
-        //     web_sys::console::log_1(
-        //         &format!(
-        //             "tx: {:?}",
-        //             borsh::to_vec(tx.get_masp_section(&shielded_hash).unwrap())
-        //         )
-        //         .into(),
-        //     );
-        // }
 
         self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, Some(masp_signing_data))
     }
