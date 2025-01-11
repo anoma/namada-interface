@@ -118,7 +118,7 @@ jobs:
 
       - name: build the site
         working-directory: ./apps/namadillo
-        run: yarn build:only
+        run: yarn build
         env:
           NAMADA_INTERFACE_NAMADA_ALIAS: "Namada Devnet"
           NAMADA_INTERFACE_NAMADA_CHAIN_ID: "internal-devnet-6be.86067e06a5"
