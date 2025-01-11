@@ -3340,7 +3340,7 @@ __metadata:
     eslint-plugin-import: "npm:^2.30.0"
     eslint-plugin-react: "npm:^7.35.2"
     eslint-plugin-react-hooks: "npm:^4.6.0"
-    typescript: "npm:^5.5.4"
+    typescript: "npm:5.5.4"
   languageName: unknown
   linkType: soft
 
@@ -3395,7 +3395,7 @@ __metadata:
     jest: "npm:^29.7.0"
     ts-jest: "npm:^29.2.5"
     ts-node: "npm:^10.9.1"
-    typescript: "npm:^5.5.4"
+    typescript: "npm:5.5.4"
     wasm-pack: "npm:^0.12.1"
   languageName: unknown
   linkType: soft
@@ -3483,7 +3483,7 @@ __metadata:
     ts-loader: "npm:^9.3.1"
     ts-node: "npm:^10.9.1"
     tsconfig-paths-webpack-plugin: "npm:^4.1.0"
-    typescript: "npm:^5.5.4"
+    typescript: "npm:5.5.4"
     uuid: "npm:^9.0.0"
     web-ext: "npm:^7.8.0"
     webextension-polyfill: "npm:^0.10.0"
@@ -3538,7 +3538,7 @@ __metadata:
     ts-loader: "npm:^9.3.1"
     ts-node: "npm:^10.9.1"
     tsconfig-paths-webpack-plugin: "npm:^4.1.0"
-    typescript: "npm:^5.5.4"
+    typescript: "npm:5.5.4"
     typescript-plugin-styled-components: "npm:^2.0.0"
     vm-browserify: "npm:^1.1.2"
     webpack: "npm:^5.9.4"
@@ -3604,7 +3604,7 @@ __metadata:
     rimraf: "npm:^5.0.5"
     ts-jest: "npm:^29.2.5"
     ts-node: "npm:^10.9.1"
-    typescript: "npm:^5.5.4"
+    typescript: "npm:5.5.4"
   languageName: unknown
   linkType: soft
 
@@ -3736,7 +3736,7 @@ __metadata:
     tsconfig-paths: "npm:^4.2.0"
     typedoc: "npm:^0.25.12"
     typedoc-plugin-markdown: "npm:^3.17.1"
-    typescript: "npm:^5.5.4"
+    typescript: "npm:5.5.4"
     typescript-transform-paths: "npm:^3.4.7"
     webpack: "npm:^5.90.3"
     webpack-cli: "npm:^5.1.4"
@@ -3759,7 +3759,7 @@ __metadata:
     rimraf: "npm:^5.0.5"
     ts-jest: "npm:^29.2.5"
     ts-node: "npm:^10.9.1"
-    typescript: "npm:^5.5.4"
+    typescript: "npm:5.5.4"
     wasm-pack: "npm:^0.12.1"
   languageName: unknown
   linkType: soft
@@ -3777,7 +3777,7 @@ __metadata:
     eslint-plugin-react: "npm:^7.35.2"
     eslint-plugin-react-hooks: "npm:^4.6.0"
     jest: "npm:^29.7.0"
-    typescript: "npm:^5.5.4"
+    typescript: "npm:5.5.4"
     webextension-polyfill: "npm:^0.10.0"
   languageName: unknown
   linkType: soft
@@ -3810,7 +3810,7 @@ __metadata:
     slip44: "npm:^3.0.11"
     typedoc: "npm:^0.25.12"
     typedoc-plugin-markdown: "npm:^3.17.1"
-    typescript: "npm:^5.5.4"
+    typescript: "npm:5.5.4"
   languageName: unknown
   linkType: soft
 
@@ -3841,7 +3841,7 @@ __metadata:
     react-dom: "npm:^18.3.1"
     sha.js: "npm:^2.4.11"
     styled-components: "npm:^5.3.5"
-    typescript: "npm:^5.5.4"
+    typescript: "npm:5.5.4"
   languageName: unknown
   linkType: soft
 
@@ -15407,7 +15407,7 @@ __metadata:
     prettier: "npm:^3.3.3"
     prettier-plugin-organize-imports: "npm:^3.2.4"
     stream-browserify: "npm:^3.0.0"
-    typescript: "npm:^5.5.4"
+    typescript: "npm:5.5.4"
     vite-plugin-checker: "npm:^0.6.4"
     wsrun: "npm:^5.2.4"
   languageName: unknown
@@ -20745,6 +20745,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typescript@npm:5.5.4":
+  version: 5.5.4
+  resolution: "typescript@npm:5.5.4"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10c0/422be60f89e661eab29ac488c974b6cc0a660fb2228003b297c3d10c32c90f3bcffc1009b43876a082515a3c376b1eefcce823d6e78982e6878408b9a923199c
+  languageName: node
+  linkType: hard
+
 "typescript@npm:^5.5.4":
   version: 5.7.3
   resolution: "typescript@npm:5.7.3"
@@ -20752,6 +20762,16 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10c0/b7580d716cf1824736cc6e628ab4cd8b51877408ba2be0869d2866da35ef8366dd6ae9eb9d0851470a39be17cbd61df1126f9e211d8799d764ea7431d5435afa
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>":
+  version: 5.5.4
+  resolution: "typescript@patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>::version=5.5.4&hash=379a07"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10c0/73409d7b9196a5a1217b3aaad929bf76294d3ce7d6e9766dd880ece296ee91cf7d7db6b16c6c6c630ee5096eccde726c0ef17c7dfa52b01a243e57ae1f09ef07
   languageName: node
   linkType: hard
 

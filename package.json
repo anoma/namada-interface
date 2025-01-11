@@ -32,11 +32,11 @@
     "prettier": "^3.3.3",
     "prettier-plugin-organize-imports": "^3.2.4",
     "stream-browserify": "^3.0.0",
-    "typescript": "^5.5.4",
+    "typescript": "5.5.4",
     "vite-plugin-checker": "^0.6.4",
     "wsrun": "^5.2.4"
   },
-  "packageManager": "yarn@4.0.2",
+  "packageManager": "yarn@4.6.0",
   "dependencies": {
     "chain-registry": "^1.63.100"
   }

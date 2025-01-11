@@ -34,7 +34,7 @@
     "rimraf": "^5.0.5",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.1",
-    "typescript": "^5.5.4"
+    "typescript": "5.5.4"
   },
   "dependencies": {
     "@cosmjs/launchpad": "^0.27.1",
