@@ -10,9 +10,6 @@
   "scripts": {
     "prepublish": "yarn && yarn build",
     "build": "yarn wasm:build && tsc --build",
-    "release": "yarn prepublish && release-it --verbose --ci",
-    "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
-    "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish --ci",
     "wasm:build": "./scripts/build.sh --release",
     "wasm:build:dev": "./scripts/build.sh",
     "wasm:build:node": "./scripts/build-node.sh --release",

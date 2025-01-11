@@ -11,9 +11,6 @@
     "bump": "yarn workspace namada run bump --target packages/components",
     "prepublish": "yarn && yarn build",
     "build": "npx rimraf ./dist && tsc --build",
-    "release": "yarn prepublish && release-it --verbose --ci",
-    "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
-    "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish --ci",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0"

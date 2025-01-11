@@ -23,7 +23,6 @@
   },
   "devDependencies": {
     "@chain-registry/types": "^0.45.80",
-    "@release-it/conventional-changelog": "^8.0.1",
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",
     "eslint": "^8.57.0",
@@ -32,7 +31,6 @@
     "lint-staged": "^15.2.0",
     "prettier": "^3.3.3",
     "prettier-plugin-organize-imports": "^3.2.4",
-    "release-it": "^17.0.1",
     "stream-browserify": "^3.0.0",
     "typescript": "^5.5.4",
     "vite-plugin-checker": "^0.6.4",
