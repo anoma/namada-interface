@@ -108,9 +108,17 @@ jobs:
       - name: Install yarn dependencies
         uses: ./.github/actions/yarn-cache
 
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
+        with:
+          cache-name: build
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
       - name: build the site
         working-directory: ./apps/namadillo
-        run: yarn build:only
+        run: yarn build
         env:
           NAMADA_INTERFACE_NAMADA_ALIAS: "Namada Devnet"
           NAMADA_INTERFACE_NAMADA_CHAIN_ID: "internal-devnet-6be.86067e06a5"
