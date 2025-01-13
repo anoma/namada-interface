@@ -1,0 +1,10 @@
+{
+  "include-component-in-tag": true,
+  "tag-separator": "@",
+  "release-type": "node",
+  "packages": {
+    "apps/namadillo": {},
+    "apps/extension": {}
+  },
+  "plugins": [{ "type": "node-workspace" }, { "type": "sentence-case" }]
+}

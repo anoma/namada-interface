@@ -1,0 +1,108 @@
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+name: release-please
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    outputs:
+      # Apps:
+      namadillo_tag: ${{ steps.release.outputs['apps/namadillo--tag_name'] }}
+      extension_tag: ${{ steps.release.outputs['apps/extension--tag_name'] }}
+
+      # Packages
+      #
+
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+
+  build-namadillo:
+    needs: [release-please]
+    if: ${{ needs.release-please.outputs.namadillo_tag }}
+    name: Release Namadillo
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG_NAME: ${{ needs.release-please.outputs.namadillo_tag }}
+      FILENAME: ${{ needs.release-please.outputs.namadillo_tag }}.zip
+    defaults:
+      run:
+        working-directory: ./apps/namadillo
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
+
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
+        with:
+          cache-name: build
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
+      - name: Build Namadillo
+        run: yarn build
+
+      - name: Upload artifact
+        working-directory: ./apps/namadillo/dist
+        run: |
+          zip -r ${{ env.FILENAME }} .
+          gh release upload ${{ env.TAG_NAME }} ${{ env.FILENAME }}
+
+  build-keychain:
+    needs: [release-please]
+    if: ${{ needs.release-please.outputs.extension_tag }}
+    runs-on: ubuntu-24.04
+    outputs:
+      VERSION: ${{ steps.set-environment-variables.outputs.VERSION }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set environment variables
+        id: set-environment-variables
+        run: |
+          COMMIT_HASH=$(git rev-parse --short $SHA)
+          BASE_VERSION=$(node -e 'console.log(require("./apps/extension/package.json").version)')
+          echo "VERSION=v$BASE_VERSION-$COMMIT_HASH" >> "$GITHUB_OUTPUT"
+        env:
+          SHA: ${{ github.sha }}
+
+      - name: Print workflow inputs
+        uses: ./.github/actions/print-workflow-inputs
+
+  build-keychain-chrome:
+    needs: [release-please, setup]
+    if: ${{ needs.release-please.outputs.extension_tag }}
+    needs: setup
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Build Chrome Extension
+        uses: ./.github/actions/build-extension
+        with:
+          browser: chrome
+          tag: ${{ needs.release-please.outputs.extension_tag }}
+
+  build-keychain-firefox:
+    needs: [release-please, setup]
+    if: ${{ needs.release-please.outputs.extension_tag }}
+    needs: setup
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Build Firefox Extension
+        uses: ./.github/actions/build-extension
+        with:
+          browser: firefox
+          tag: ${{ needs.release-please.outputs.extension_tag }}
