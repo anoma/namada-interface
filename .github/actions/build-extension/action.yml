@@ -16,7 +16,7 @@ runs:
     GH_TOKEN: ${{ github.token }}
   steps:
     - name: Install Dependencies
-      with: ./.github/actions/prepare-build
+      uses: ./.github/actions/prepare-build
 
     - name: Build WASM dependencies
       working-directory: ./apps/extension
@@ -28,6 +28,7 @@ runs:
         SHA: ${{ github.sha }}
       run: |
         NAMADA_INTERFACE_REVISION=$SHA yarn build:${{ inputs.browser }}
+
     - name: Upload ${{ inputs.browser }} Artifact
       run: |
         gh release upload ${{ inputs.tag }} \

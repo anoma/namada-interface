@@ -8,16 +8,10 @@ on:
       bundle_filename:
         required: true
         type: string
-      working_dir:
-        required: true
-        type: string
 
 runs:
   using: composite
   shell: bash
-  defaults:
-    run:
-      working-directory: ${{ inputs.working_dir }}
   steps:
     - name: Install Dependencies
       uses: ./.github/actions/prepare-build
@@ -26,7 +20,7 @@ runs:
       run: yarn build
 
     - name: Upload artifact
-      working-directory: ${{ inputs.working_dir }}/dist
       run: |
+        cd dist
         zip -r ${{ inputs.bundle_filename }} .
         gh release upload ${{ inputs.tag }} ${{ inputs.bundle_filename }}
