@@ -133,6 +133,10 @@ export const ShieldedPoolLabel = "the shielded pool";
 export const hasShieldedSection = (tx: TransferProps): boolean => {
   return Boolean(tx.shieldedSectionHash);
 };
+export const isShieldedPool = (address: string): boolean => {
+  const shieldedPoolRegex = /qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq/;
+  return Boolean(address.match(shieldedPoolRegex));
+};
 
 /**
  * Create label to indicate specific type of Transfer
@@ -149,12 +153,16 @@ export const parseTransferType = (
   let type: TransferType = "Transparent";
   const txHasShieldedSection = hasShieldedSection(tx);
 
-  if (source.startsWith("tnam") && txHasShieldedSection) {
-    type = "Shielding";
-  } else if (source.startsWith("znam") && txHasShieldedSection) {
-    type = "Shielded";
-  } else if (source.startsWith("znam") && target.startsWith("tnam")) {
-    type = "Unshielding";
+  if (txHasShieldedSection) {
+    if (isShieldedPool(source)) {
+      if (target.startsWith("znam")) {
+        type = "Shielded";
+      } else {
+        type = "Unshielding";
+      }
+    } else if (isShieldedPool(target)) {
+      type = "Shielding";
+    }
   }
 
   return {

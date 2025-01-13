@@ -17,11 +17,7 @@ import { FaVoteYea } from "react-icons/fa";
 import { FaRegEye, FaWallet } from "react-icons/fa6";
 import { GoStack } from "react-icons/go";
 import { PiDotsNineBold } from "react-icons/pi";
-import {
-  hasShieldedSection,
-  parseTransferType,
-  ShieldedPoolLabel,
-} from "utils";
+import { isShieldedPool, parseTransferType, ShieldedPoolLabel } from "utils";
 import { TransactionCard } from "./TransactionCard";
 
 type CommitmentProps = {
@@ -58,6 +54,9 @@ const TitleMap: Record<TxType, string> = {
 
 const formatAddress = (address: string): string =>
   shortenAddress(address, 6, 6);
+
+const formatTransferAddress = (address: string): string =>
+  isShieldedPool(address) ? ShieldedPoolLabel : formatAddress(address);
 
 const renderContent = (tx: CommitmentDetailProps): ReactNode => {
   switch (tx.txType) {
@@ -119,10 +118,8 @@ const renderContent = (tx: CommitmentDetailProps): ReactNode => {
       const { source, target } = parseTransferType(transferTx);
       return (
         <>
-          Transfer from {formatAddress(source)} to{" "}
-          {hasShieldedSection(transferTx) ?
-            ShieldedPoolLabel
-          : formatAddress(target)}
+          Transfer from {formatTransferAddress(source)} to{" "}
+          {formatTransferAddress(target)}
         </>
       );
 
