@@ -1,4 +1,5 @@
 name: release-project
+description: Upload the project artifact to the GitHub release
 on:
   workflow_call:
     inputs:

@@ -1,4 +1,5 @@
 name: build-extension
+description: Build the browser extension and upload to Github release
 on:
   workflow_call:
     inputs:

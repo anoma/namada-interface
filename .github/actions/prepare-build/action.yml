@@ -1,4 +1,5 @@
 name: prepare-build
+description: Prepare the build environment
 runs:
   using: composite
   steps:
