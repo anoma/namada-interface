@@ -42,6 +42,7 @@ jobs:
         with:
           tag: ${{ needs.release-please.outputs.namadillo_tag }}
           bundle_filename: ${{ needs.release-please.outputs.namadillo_tag }}.zip
+          working_dir: ./apps/namadillo
 
   build-sdk:
     needs: [release-please]
@@ -85,9 +86,6 @@ jobs:
     needs: release-please
     if: ${{ needs.release-please.outputs.extension_tag }}
     runs-on: ubuntu-24.04
-    defaults:
-      run:
-        working-directory: ./apps/extension
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -101,9 +99,6 @@ jobs:
     needs: release-please
     if: ${{ needs.release-please.outputs.extension_tag }}
     runs-on: ubuntu-24.04
-    defaults:
-      run:
-        working-directory: ./apps/extension
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
