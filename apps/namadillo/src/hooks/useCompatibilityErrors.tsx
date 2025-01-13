@@ -3,6 +3,7 @@ import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import {
   checkIndexerCompatibilityErrors,
+  checkInterfaceCompatibilityError,
   checkKeychainCompatibilityError,
 } from "utils/compatibility";
 import { useNamadaKeychain } from "./useNamadaKeychain";
@@ -35,6 +36,13 @@ export const useCompatibilityErrors = (): React.ReactNode | undefined => {
     }
   };
 
+  const verifyInterfaceVersion = async (): Promise<void> => {
+    const versionErrorMessage = await checkInterfaceCompatibilityError();
+    if (versionErrorMessage) {
+      setErrorMessage(versionErrorMessage);
+    }
+  };
+
   useEffect(() => {
     verifyKeychainVersion();
   }, [keychain]);
@@ -42,6 +50,10 @@ export const useCompatibilityErrors = (): React.ReactNode | undefined => {
   useEffect(() => {
     indexerHealth.isSuccess && verifyIndexerVersion();
   }, [indexerHealth]);
+
+  useEffect(() => {
+    verifyInterfaceVersion();
+  }, []);
 
   return errorMessage;
 };
