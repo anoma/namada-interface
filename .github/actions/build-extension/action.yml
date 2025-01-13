@@ -14,19 +14,8 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install yarn dependencies
-        uses: ./.github/actions/yarn-cache
-
-      - name: Restore Rust cache
-        uses: ./.github/actions/rust-cache
-        with:
-          cache-name: build
-
-      - name: Install protoc
-        run: sudo apt-get install -y protobuf-compiler
+      - name: Install Dependencies
+        with: ./.github/actions/prepare-build
 
       - name: Build WASM dependencies
         working-directory: ./apps/extension
