@@ -11,16 +11,17 @@ on:
 
 runs:
   using: composite
-  shell: bash
   steps:
     - name: Install Dependencies
       uses: ./.github/actions/prepare-build
 
     - name: Build Artifact
       run: yarn build
+      shell: bash
 
     - name: Upload artifact
       run: |
         cd dist
         zip -r ${{ inputs.bundle_filename }} .
         gh release upload ${{ inputs.tag }} ${{ inputs.bundle_filename }}
+      shell: bash

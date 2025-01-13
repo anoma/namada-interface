@@ -1,7 +1,6 @@
 name: prepare-build
 runs:
   using: composite
-  shell: bash
   steps:
     - name: Install yarn dependencies
       uses: ./.github/actions/yarn-cache
@@ -13,3 +12,4 @@ runs:
 
     - name: Install protoc
       run: sudo apt-get install -y protobuf-compiler
+      shell: bash

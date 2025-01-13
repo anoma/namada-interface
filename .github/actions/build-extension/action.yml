@@ -11,7 +11,6 @@ on:
 
 runs:
   using: composite
-  shell: bash
   env:
     GH_TOKEN: ${{ github.token }}
   steps:
@@ -21,6 +20,7 @@ runs:
     - name: Build WASM dependencies
       working-directory: ./apps/extension
       run: yarn wasm:build
+      shell: bash
 
     - name: Build ${{ inputs.browser }} extension
       working-directory: ./apps/extension
@@ -28,8 +28,10 @@ runs:
         SHA: ${{ github.sha }}
       run: |
         NAMADA_INTERFACE_REVISION=$SHA yarn build:${{ inputs.browser }}
+      shell: bash
 
     - name: Upload ${{ inputs.browser }} Artifact
       run: |
         gh release upload ${{ inputs.tag }} \
           ./apps/extension/build/${{ inputs.browser }}/namada_keychain-*.zip#$namada_keychain_${{ inputs.browser }}.zip
+      shell: bash
