@@ -1,18 +1,15 @@
 name: prepare-build
+runs:
+  using: composite
+  shell: bash
+  steps:
+    - name: Install yarn dependencies
+      uses: ./.github/actions/yarn-cache
 
-jobs:
-  build:
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    - name: Restore Rust cache
+      uses: ./.github/actions/rust-cache
+      with:
+        cache-name: build
 
-      - name: Install yarn dependencies
-        uses: ./.github/actions/yarn-cache
-
-      - name: Restore Rust cache
-        uses: ./.github/actions/rust-cache
-        with:
-          cache-name: build
-
-      - name: Install protoc
-        run: sudo apt-get install -y protobuf-compiler
+    - name: Install protoc
+      run: sudo apt-get install -y protobuf-compiler

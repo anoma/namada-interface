@@ -12,20 +12,21 @@ on:
         required: true
         type: string
 
-jobs:
-  release:
-    defaults:
-      run:
-        working-directory: ${{ inputs.working_dir }}
-    steps:
-      - name: Install Dependencies
-        uses: ./.github/actions/prepare-build
+runs:
+  using: composite
+  shell: bash
+  defaults:
+    run:
+      working-directory: ${{ inputs.working_dir }}
+  steps:
+    - name: Install Dependencies
+      uses: ./.github/actions/prepare-build
 
-      - name: Build Artifact
-        run: yarn build
+    - name: Build Artifact
+      run: yarn build
 
-      - name: Upload artifact
-        working-directory: ${{ inputs.working_dir }}/dist
-        run: |
-          zip -r ${{ inputs.bundle_filename }} .
-          gh release upload ${{ inputs.tag }} ${{ inputs.bundle_filename }}
+    - name: Upload artifact
+      working-directory: ${{ inputs.working_dir }}/dist
+      run: |
+        zip -r ${{ inputs.bundle_filename }} .
+        gh release upload ${{ inputs.tag }} ${{ inputs.bundle_filename }}

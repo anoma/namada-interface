@@ -31,6 +31,8 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - uses: ./.github/actions/release-project
         with:
           tag: ${{ needs.release-please.outputs.namadillo_tag }}
@@ -45,6 +47,8 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - uses: ./.github/actions/release-project
         with:
           tag: ${{ needs.release-please.outputs.sdk_tag }}
@@ -59,6 +63,8 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - uses: ./.github/actions/release-project
         with:
           tag: ${{ needs.release-please.outputs.types_tag }}
@@ -81,6 +87,8 @@ jobs:
     if: ${{ needs.release-please.outputs.extension_tag }}
     runs-on: ubuntu-24.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Build Firefox Extension
         uses: ./.github/actions/build-extension
         with:
