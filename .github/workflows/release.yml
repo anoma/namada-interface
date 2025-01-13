@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - main
+      - feat/release-please-test3
 
 permissions:
   contents: write
@@ -14,14 +14,16 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ github.token }}
     outputs:
-      namadillo_tag: ${{ steps.release.outputs["apps/namadillo--tag_name"] }}
-      extension_tag: ${{ steps.release.outputs["apps/extension--tag_name"] }}
-      types_tag: ${{ steps.release.outputs["packages/types--tag_name"] }}
-      sdk_tag: ${{ steps.release.outputs["packages/sdk--tag_name"] }}
+      namadillo_tag: ${{ steps.release.outputs['apps/namadillo--tag_name'] }}
+      extension_tag: ${{ steps.release.outputs['apps/extension--tag_name'] }}
+      types_tag: ${{ steps.release.outputs['packages/types--tag_name'] }}
+      sdk_tag: ${{ steps.release.outputs['packages/sdk--tag_name'] }}
 
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
+        with:
+          target-branch: feat/release-please-test3
 
   build-namadillo:
     needs: [release-please]
