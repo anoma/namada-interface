@@ -2,6 +2,7 @@
   "include-component-in-tag": true,
   "separate-pull-requests": true,
   "tag-separator": "@",
+  "draft": true,
   "release-type": "node",
   "packages": {
     "apps/namadillo": {},
