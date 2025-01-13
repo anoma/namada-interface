@@ -14,7 +14,7 @@ export const ParentAccountsFooter = (): JSX.Element => {
         icon={<GoArrowUpRight className="w-6 h-6" />}
         iconPosition="right"
       >
-        View Keychain compatible apps
+        View Keychain compatible apps (Test commit)
       </ActionButton>
     </div>
   );
