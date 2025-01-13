@@ -9,26 +9,26 @@ on:
         required: true
         type: string
 
-jobs:
-  build:
-    env:
-      GH_TOKEN: ${{ github.token }}
-    steps:
-      - name: Install Dependencies
-        with: ./.github/actions/prepare-build
+runs:
+  using: composite
+  env:
+    GH_TOKEN: ${{ github.token }}
+  steps:
+    - name: Install Dependencies
+      with: ./.github/actions/prepare-build
 
-      - name: Build WASM dependencies
-        working-directory: ./apps/extension
-        run: yarn wasm:build
+    - name: Build WASM dependencies
+      working-directory: ./apps/extension
+      run: yarn wasm:build
 
-      - name: Build ${{ inputs.browser }} extension
-        working-directory: ./apps/extension
-        env:
-          SHA: ${{ github.sha }}
-        run: |
-          NAMADA_INTERFACE_REVISION=$SHA yarn build:${{ inputs.browser }}
+    - name: Build ${{ inputs.browser }} extension
+      working-directory: ./apps/extension
+      env:
+        SHA: ${{ github.sha }}
+      run: |
+        NAMADA_INTERFACE_REVISION=$SHA yarn build:${{ inputs.browser }}
 
-      - name: Upload ${{ inputs.browser }} Artifact
-        run: |
-          gh release upload ${{ inputs.tag }} \
-            ./apps/extension/build/${{ inputs.browser }}/namada_keychain-*.zip#$namada_keychain_${{ inputs.browser }}.zip
+    - name: Upload ${{ inputs.browser }} Artifact
+      run: |
+        gh release upload ${{ inputs.tag }} \
+          ./apps/extension/build/${{ inputs.browser }}/namada_keychain-*.zip#$namada_keychain_${{ inputs.browser }}.zip
