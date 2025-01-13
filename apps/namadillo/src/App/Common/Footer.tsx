@@ -10,6 +10,7 @@ export const Footer = ({ className, ...props }: FooterProps): JSX.Element => {
       )}
       {...props}
     >
+      This is a test branch
       <a href="https://namada.net" target="_blank" rel="nofollow noreferrer">
         <svg
           className="w-[180px]"
