@@ -86,7 +86,6 @@ jobs:
   build-keychain-chrome:
     needs: [release-please, setup]
     if: ${{ needs.release-please.outputs.extension_tag }}
-    needs: setup
     runs-on: ubuntu-24.04
     steps:
       - name: Build Chrome Extension
@@ -98,7 +97,6 @@ jobs:
   build-keychain-firefox:
     needs: [release-please, setup]
     if: ${{ needs.release-please.outputs.extension_tag }}
-    needs: setup
     runs-on: ubuntu-24.04
     steps:
       - name: Build Firefox Extension
