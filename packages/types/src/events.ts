@@ -19,3 +19,5 @@ export enum MetamaskEvents {
   AccountChanged = "accountsChanged",
   BridgeTransferCompleted = "bridge-transfer-completed",
 }
+
+export type Temp = "temp";
