@@ -1,6 +1,7 @@
 # Changelog
 
-## [0.5.0](https://github.com/anoma/namada-interface/compare/extension-v0.4.0...extension@v0.5.0) (2025-01-13)
+
+## [0.7.0](https://github.com/anoma/namada-interface/compare/extension-v0.6.0...extension@v0.7.0) (2025-01-13)
 
 
 ### Features
@@ -46,7 +47,7 @@
 * Trim long strings on extension list items ([#1102](https://github.com/anoma/namada-interface/issues/1102)) ([2c0bc92](https://github.com/anoma/namada-interface/commit/2c0bc9209968c01275298d25cc2a8bb36e41b218))
 * Use correct .env to get chain ID in extension ([#953](https://github.com/anoma/namada-interface/issues/953)) ([1f83246](https://github.com/anoma/namada-interface/commit/1f83246ca371bce71e83dc3c1a5d6c1f1196be4a))
 
-## [0.4.0](https://github.com/anoma/namada-interface/compare/extension-v0.3.7...extension@v0.4.0) (2025-01-13)
+## [0.6.0](https://github.com/anoma/namada-interface/compare/extension-v0.5.0...extension@v0.6.0) (2025-01-13)
 
 
 ### Features
@@ -91,3 +92,4 @@
 * Support sending BigNumber messages in Firefox ([#954](https://github.com/anoma/namada-interface/issues/954)) ([905f24b](https://github.com/anoma/namada-interface/commit/905f24ba2a2d8f0e95638730a363971d4ff140da))
 * Trim long strings on extension list items ([#1102](https://github.com/anoma/namada-interface/issues/1102)) ([2c0bc92](https://github.com/anoma/namada-interface/commit/2c0bc9209968c01275298d25cc2a8bb36e41b218))
 * Use correct .env to get chain ID in extension ([#953](https://github.com/anoma/namada-interface/issues/953)) ([1f83246](https://github.com/anoma/namada-interface/commit/1f83246ca371bce71e83dc3c1a5d6c1f1196be4a))
+
