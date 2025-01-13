@@ -54,7 +54,7 @@ jobs:
       - uses: ./.github/actions/release-project
         with:
           tag: ${{ needs.release-please.outputs.sdk_tag }}
-          bundle_filename: ${{ needs.release-please.outputs.sdk_tag }}.zip
+          bundle_filename: namada-${{ needs.release-please.outputs.sdk_tag }}.zip
           working_dir: ./packages/sdk
 
   build-types:
@@ -70,7 +70,7 @@ jobs:
       - uses: ./.github/actions/release-project
         with:
           tag: ${{ needs.release-please.outputs.types_tag }}
-          bundle_filename: ${{ needs.release-please.outputs.types_tag }}.zip
+          bundle_filename: namada-${{ needs.release-please.outputs.types_tag }}.zip
           working_dir: ./packages/types
 
   build-keychain-chrome:

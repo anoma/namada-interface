@@ -32,6 +32,7 @@ runs:
     - name: Upload ${{ inputs.browser }} Artifact
       run: |
         BASE_VERSION=$(node -e 'console.log(require("./apps/extension/package.json").version)')
-        gh release upload ${{ inputs.tag }} \
-          ./apps/extension/build/${{ inputs.browser }}/namada_keychain-${BASE_VERSION}.zip#namada_keychain_${{ inputs.browser }}-${BASE_VERSION}.zip
+        FILENAME=namada-keychain-${{ inputs.browser }}-${BASE_VERSION}.zip
+        mv ./apps/extension/build/${{ inputs.browser }}/namada_keychain-${BASE_VERSION}.zip ${FILENAME}
+        gh release upload ${{ inputs.tag }} ${FILENAME}
       shell: bash
