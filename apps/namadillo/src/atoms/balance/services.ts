@@ -1,7 +1,6 @@
 import * as Comlink from "comlink";
-import { EventEmitter } from "events";
 
-import { Balance, SdkEvents } from "@namada/sdk/web";
+import { Balance, ProgressBarNames, SdkEvents } from "@namada/sdk/web";
 import { getSdkInstance } from "utils/sdk";
 import {
   Events,
@@ -21,43 +20,56 @@ export type ShieldedSyncEventMap = {
   [SdkEvents.ProgressBarFinished]: ProgressBarFinished[];
 };
 
-export type ShieldedSyncEmitter = EventEmitter<ShieldedSyncEventMap>;
+let runningShieldedSync: Promise<void> | undefined;
 
-let shieldedSyncEmitter: ShieldedSyncEmitter | undefined;
-
-export function shieldedSync(
-  rpcUrl: string,
-  maspIndexerUrl: string,
-  token: string,
-  viewingKeys: DatedViewingKey[],
-  chainId: string
-): EventEmitter<ShieldedSyncEventMap> {
-  // Only one sync process at a time
-  if (shieldedSyncEmitter) {
-    return shieldedSyncEmitter;
+export async function shieldedSync({
+  rpcUrl,
+  maspIndexerUrl,
+  token,
+  viewingKeys,
+  chainId,
+  onProgress,
+}: {
+  rpcUrl: string;
+  maspIndexerUrl: string;
+  token: string;
+  viewingKeys: DatedViewingKey[];
+  chainId: string;
+  onProgress?: (perc: number) => void;
+}): Promise<void> {
+  // If there is a sync running, wait until it is finished to run another.
+  // This is important because we could want to queue a new sync after
+  // a transaction is completed but there is already one sync in progress
+  if (runningShieldedSync) {
+    await runningShieldedSync;
   }
 
-  const worker = new ShieldedSyncWorker();
-  const shieldedSyncWorker = Comlink.wrap<ShieldedSyncWorkerApi>(worker);
-  shieldedSyncEmitter = new EventEmitter<ShieldedSyncEventMap>();
-
-  worker.onmessage = (event: MessageEvent<Events>) => {
-    if (!shieldedSyncEmitter) {
-      return;
-    }
-    if (event.data.type === SdkEvents.ProgressBarStarted) {
-      shieldedSyncEmitter.emit(event.data.type, event.data);
-    }
-    if (event.data.type === SdkEvents.ProgressBarIncremented) {
-      shieldedSyncEmitter.emit(event.data.type, event.data);
-    }
-    if (event.data.type === SdkEvents.ProgressBarFinished) {
-      shieldedSyncEmitter.emit(event.data.type, event.data);
-    }
-  };
-
-  (async () => {
+  const executeSync = async (): Promise<void> => {
+    const worker = new ShieldedSyncWorker();
+    worker.onmessage = ({ data }: MessageEvent<Events>) => {
+      if (!onProgress) {
+        return;
+      }
+      if (
+        data.type === SdkEvents.ProgressBarIncremented &&
+        data.name === ProgressBarNames.Fetched
+      ) {
+        if (onProgress) {
+          const { current, total } = data;
+          const perc =
+            total === 0 ? 0 : Math.max(0, Math.min(1, current / total));
+          onProgress(perc);
+        }
+      }
+      if (
+        data.type === SdkEvents.ProgressBarFinished &&
+        data.name === ProgressBarNames.Fetched
+      ) {
+        onProgress(1);
+      }
+    };
     try {
+      const shieldedSyncWorker = Comlink.wrap<ShieldedSyncWorkerApi>(worker);
       await shieldedSyncWorker.init({
         type: "init",
         payload: { rpcUrl, maspIndexerUrl, token },
@@ -68,11 +80,11 @@ export function shieldedSync(
       });
     } finally {
       worker.terminate();
-      shieldedSyncEmitter = undefined;
     }
-  })();
+  };
 
-  return shieldedSyncEmitter;
+  runningShieldedSync = executeSync();
+  return runningShieldedSync;
 }
 
 export const fetchShieldedBalance = async (

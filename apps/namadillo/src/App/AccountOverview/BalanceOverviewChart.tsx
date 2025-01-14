@@ -101,7 +101,8 @@ export const BalanceOverviewChart = (): JSX.Element => {
                 <div className="text-2xl">
                   {maspEnabled ?
                     <span>
-                      <FiatCurrency amount={totalAmountInDollars} />*
+                      <FiatCurrency amount={totalAmountInDollars} />
+                      {!namTransfersEnabled && "*"}
                     </span>
                   : <NamCurrency
                       amount={totalTransparentAmount}

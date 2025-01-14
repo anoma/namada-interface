@@ -1,19 +1,18 @@
 import { ActionButton, Stack } from "@namada/components";
 import { routes } from "App/routes";
-import { shieldedSyncAtom } from "atoms/balance";
+import { storageShieldedBalanceAtom } from "atoms/balance/atoms";
 import { clearShieldedContextAtom } from "atoms/settings";
-import { useAtom } from "jotai";
-import { useNavigate } from "react-router-dom";
+import { useAtom, useSetAtom } from "jotai";
+import { RESET } from "jotai/utils";
 
 export const SettingsMASP = (): JSX.Element => {
-  const navigate = useNavigate();
   const [clearShieldedContext] = useAtom(clearShieldedContextAtom);
-  const [{ refetch: shieldedSync }] = useAtom(shieldedSyncAtom);
+  const setStorageShieldedBalance = useSetAtom(storageShieldedBalanceAtom);
 
   const onInvalidateShieldedContext = async (): Promise<void> => {
     await clearShieldedContext.mutateAsync();
-    shieldedSync();
-    navigate(routes.masp);
+    setStorageShieldedBalance(RESET);
+    location.href = routes.root;
   };
 
   return (
