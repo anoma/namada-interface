@@ -235,22 +235,25 @@ export enum TransferStep {
 // Defines the steps in the Namada <> Namada transfer progress for tracking transaction stages.
 export const namadaTransferStages = {
   TransparentToShielded: [
-    TransferStep.Sign,
     TransferStep.ZkProof,
+    TransferStep.Sign,
     TransferStep.TransparentToShielded,
     TransferStep.Complete,
   ] as const,
   ShieldedToTransparent: [
+    TransferStep.ZkProof,
     TransferStep.Sign,
     TransferStep.ShieldedToTransparent,
     TransferStep.Complete,
   ] as const,
   ShieldedToShielded: [
+    TransferStep.ZkProof,
     TransferStep.Sign,
     TransferStep.ShieldedToShielded,
     TransferStep.Complete,
   ] as const,
   TransparentToTransparent: [
+    TransferStep.ZkProof,
     TransferStep.Sign,
     TransferStep.TransparentToTransparent,
     TransferStep.Complete,

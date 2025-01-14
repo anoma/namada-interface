@@ -1,4 +1,5 @@
 import { Modal } from "@namada/components";
+import { Fragment } from "react";
 import { AssetsModalCard } from "./AssetsModalCard";
 import { ModalContainer } from "./ModalContainer";
 
@@ -30,14 +31,14 @@ export const SelectOptionModal = ({
       >
         <ul className="grid grid-cols-[1fr_1px_1fr] gap-4 pt-1">
           {items.map((item, index) => (
-            <>
-              <li key={index}>
+            <Fragment key={index}>
+              <li>
                 <AssetsModalCard {...item}>{item.children}</AssetsModalCard>
               </li>
               {index + 1 < items.length && (
                 <li className="w-px bg-white -my-1" />
               )}
-            </>
+            </Fragment>
           ))}
         </ul>
       </ModalContainer>

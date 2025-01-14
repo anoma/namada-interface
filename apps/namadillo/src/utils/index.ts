@@ -4,7 +4,7 @@ import { localnetConfigAtom } from "atoms/integrations/atoms";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
 import namadaAssets from "namada-chain-registry/namada/assetlist.json";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export const proposalStatusToString = (status: ProposalStatus): string => {
   const statusText: Record<ProposalStatus, string> = {
@@ -38,32 +38,19 @@ export const proposalIdToString = (proposalId: bigint): string =>
 
 export const useTransactionEventListener = <T extends keyof WindowEventMap>(
   event: T,
-  handler: (this: Window, ev: WindowEventMap[T]) => void,
-  deps: React.DependencyList = []
+  handler: (event: WindowEventMap[T]) => void
 ): void => {
-  useEffect(() => {
-    window.addEventListener(event, handler);
-    return () => {
-      window.removeEventListener(event, handler);
-    };
-  }, deps);
-};
+  // `handlerRef` is useful to avoid recreating the listener every time
+  const handlerRef = useRef(handler);
+  handlerRef.current = handler;
 
-export const useTransactionEventListListener = <T extends keyof WindowEventMap>(
-  events: T[],
-  handler: (this: Window, ev: WindowEventMap[T]) => void,
-  deps: React.DependencyList = []
-): void => {
   useEffect(() => {
-    events.forEach((event) => {
-      window.addEventListener(event, handler);
-    });
+    const callback: typeof handler = (event) => handlerRef.current(event);
+    window.addEventListener(event, callback);
     return () => {
-      events.forEach((event) => {
-        window.removeEventListener(event, handler);
-      });
+      window.removeEventListener(event, callback);
     };
-  }, deps);
+  }, [event]);
 };
 
 export const sumBigNumberArray = (numbers: BigNumber[]): BigNumber => {

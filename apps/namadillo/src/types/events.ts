@@ -32,7 +32,7 @@ export type TransactionEventHandlers = {
 
 export interface EventData<T> extends CustomEvent {
   detail: {
-    tx: TxProps;
+    tx: TxProps[];
     data: T[];
     // If event is for PartialSuccess, use the following:
     successData?: T[];
