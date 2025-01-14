@@ -3,10 +3,8 @@ import { shouldUpdateBalanceAtom, shouldUpdateProposalAtom } from "atoms/etc";
 import { claimableRewardsAtom, clearClaimRewards } from "atoms/staking";
 import { useAtomValue, useSetAtom } from "jotai";
 import { TransferStep } from "types";
-import {
-  useTransactionEventListener,
-  useTransactionEventListListener,
-} from "utils";
+import { EventData } from "types/events";
+import { useTransactionEventListener } from "utils";
 import { useTransactionActions } from "./useTransactionActions";
 
 export const useTransactionCallback = (): void => {
@@ -46,20 +44,16 @@ export const useTransactionCallback = (): void => {
     setTimeout(() => shouldUpdateProposal(false), timePolling);
   });
 
-  useTransactionEventListListener(
-    [
-      "TransparentTransfer.Success",
-      "ShieldedTransfer.Success",
-      "ShieldingTransfer.Success",
-      "UnshieldingTransfer.Success",
-    ],
-    (e) => {
-      e.detail.tx.forEach(({ hash }) => {
-        changeTransaction(hash, {
-          status: "success",
-          currentStep: TransferStep.Complete,
-        });
+  const onTransferSuccess = (e: EventData<unknown>): void => {
+    e.detail.tx.forEach(({ hash }) => {
+      changeTransaction(hash, {
+        status: "success",
+        currentStep: TransferStep.Complete,
       });
-    }
-  );
+    });
+  };
+  useTransactionEventListener("TransparentTransfer.Success", onTransferSuccess);
+  useTransactionEventListener("ShieldedTransfer.Success", onTransferSuccess);
+  useTransactionEventListener("ShieldingTransfer.Success", onTransferSuccess);
+  useTransactionEventListener("UnshieldingTransfer.Success", onTransferSuccess);
 };

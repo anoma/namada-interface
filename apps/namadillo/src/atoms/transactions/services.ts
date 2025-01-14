@@ -1,6 +1,7 @@
 import { IndexedTx, StargateClient } from "@cosmjs/stargate";
 import { DefaultApi, WrapperTransaction } from "@namada/indexer-client";
 import { IbcTransferTransactionData } from "types";
+import { sanitizeAddress } from "utils/address";
 
 type SearchByTagsQuery = {
   key: string;
@@ -64,5 +65,5 @@ export const fetchTransaction = async (
   hash: string
 ): Promise<WrapperTransaction> => {
   // indexer only accepts the hash as lowercase
-  return (await api.apiV1ChainWrapperTxIdGet(hash.toLowerCase())).data;
+  return (await api.apiV1ChainWrapperTxIdGet(sanitizeAddress(hash))).data;
 };

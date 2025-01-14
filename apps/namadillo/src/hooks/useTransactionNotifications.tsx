@@ -13,10 +13,8 @@ import { searchAllStoredTxByHash } from "atoms/transactions";
 import BigNumber from "bignumber.js";
 import invariant from "invariant";
 import { useSetAtom } from "jotai";
-import {
-  useTransactionEventListener,
-  useTransactionEventListListener,
-} from "utils";
+import { EventData } from "types/events";
+import { useTransactionEventListener } from "utils";
 
 type TxWithAmount = { amount: BigNumber };
 
@@ -349,69 +347,59 @@ export const useTransactionNotifications = (): void => {
     });
   });
 
-  useTransactionEventListListener(
-    [
-      "TransparentTransfer.Error",
-      "ShieldedTransfer.Error",
-      "ShieldingTransfer.Error",
-      "UnshieldingTransfer.Error",
-    ],
-    (e) => {
-      const id = createNotificationId(e.detail.tx);
-      clearPendingNotifications(id);
-      const storedTx = searchAllStoredTxByHash(e.detail.tx[0].hash);
-      dispatchNotification({
-        id,
-        type: "error",
-        title: "Transfer transaction failed",
-        description:
-          storedTx ?
-            <>
-              Your transfer transaction of{" "}
-              <TokenCurrency
-                symbol={storedTx.asset.symbol}
-                amount={storedTx.displayAmount}
-              />{" "}
-              to {shortenAddress(storedTx.destinationAddress, 8, 8)} has failed
-            </>
-          : "Your transfer transaction has failed",
-        details:
-          e.detail.error?.message && failureDetails(e.detail.error.message),
-      });
-    }
-  );
+  const onTransferError = (e: EventData<unknown>): void => {
+    const id = createNotificationId(e.detail.tx);
+    clearPendingNotifications(id);
+    const storedTx = searchAllStoredTxByHash(e.detail.tx[0].hash);
+    dispatchNotification({
+      id,
+      type: "error",
+      title: "Transfer transaction failed",
+      description:
+        storedTx ?
+          <>
+            Your transfer transaction of{" "}
+            <TokenCurrency
+              symbol={storedTx.asset.symbol}
+              amount={storedTx.displayAmount}
+            />{" "}
+            to {shortenAddress(storedTx.destinationAddress, 8, 8)} has failed
+          </>
+        : "Your transfer transaction has failed",
+      details:
+        e.detail.error?.message && failureDetails(e.detail.error.message),
+    });
+  };
+  useTransactionEventListener("TransparentTransfer.Error", onTransferError);
+  useTransactionEventListener("ShieldedTransfer.Error", onTransferError);
+  useTransactionEventListener("ShieldingTransfer.Error", onTransferError);
+  useTransactionEventListener("UnshieldingTransfer.Error", onTransferError);
 
-  useTransactionEventListListener(
-    [
-      "TransparentTransfer.Success",
-      "ShieldedTransfer.Success",
-      "ShieldingTransfer.Success",
-      "UnshieldingTransfer.Success",
-    ],
-    (e) => {
-      const id = createNotificationId(e.detail.tx);
-      clearPendingNotifications(id);
-      clearPendingNotifications(id);
-      const storedTx = searchAllStoredTxByHash(e.detail.tx[0].hash);
-      dispatchNotification({
-        id,
-        title: "Transfer transaction succeeded",
-        description:
-          storedTx ?
-            <>
-              Your transfer transaction of{" "}
-              <TokenCurrency
-                symbol={storedTx.asset.symbol}
-                amount={storedTx.displayAmount}
-              />{" "}
-              to {shortenAddress(storedTx.destinationAddress, 8, 8)} has
-              succeeded
-            </>
-          : "Your transfer transaction has succeeded",
-        type: "success",
-      });
-    }
-  );
+  const onTransferSuccess = (e: EventData<unknown>): void => {
+    const id = createNotificationId(e.detail.tx);
+    clearPendingNotifications(id);
+    const storedTx = searchAllStoredTxByHash(e.detail.tx[0].hash);
+    dispatchNotification({
+      id,
+      title: "Transfer transaction succeeded",
+      description:
+        storedTx ?
+          <>
+            Your transfer transaction of{" "}
+            <TokenCurrency
+              symbol={storedTx.asset.symbol}
+              amount={storedTx.displayAmount}
+            />{" "}
+            to {shortenAddress(storedTx.destinationAddress, 8, 8)} has succeeded
+          </>
+        : "Your transfer transaction has succeeded",
+      type: "success",
+    });
+  };
+  useTransactionEventListener("TransparentTransfer.Success", onTransferSuccess);
+  useTransactionEventListener("ShieldedTransfer.Success", onTransferSuccess);
+  useTransactionEventListener("ShieldingTransfer.Success", onTransferSuccess);
+  useTransactionEventListener("UnshieldingTransfer.Success", onTransferSuccess);
 
   useTransactionEventListener("IbcTransfer.Success", (e) => {
     invariant(e.detail.hash, "Notification error: Invalid Tx hash");

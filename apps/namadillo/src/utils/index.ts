@@ -3,7 +3,6 @@ import { ProposalStatus, ProposalTypeString } from "@namada/types";
 import { localnetConfigAtom } from "atoms/integrations/atoms";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
-import { isEqual } from "lodash";
 import namadaAssets from "namada-chain-registry/namada/assetlist.json";
 import { useEffect, useRef } from "react";
 
@@ -52,33 +51,6 @@ export const useTransactionEventListener = <T extends keyof WindowEventMap>(
       window.removeEventListener(event, callback);
     };
   }, [event]);
-};
-
-export const useTransactionEventListListener = <T extends keyof WindowEventMap>(
-  events: T[],
-  handler: (event: WindowEventMap[T]) => void
-): void => {
-  // `eventsRef` and `handlerRef` are useful to avoid recreating the listener every time
-  const eventsRef = useRef(events);
-  if (!isEqual(events, eventsRef.current)) {
-    eventsRef.current = events;
-  }
-  const eventsValue = eventsRef.current;
-
-  const handlerRef = useRef(handler);
-  handlerRef.current = handler;
-
-  useEffect(() => {
-    const callback: typeof handler = (event) => handlerRef.current(event);
-    eventsValue.forEach((event) => {
-      window.addEventListener(event, callback);
-    });
-    return () => {
-      eventsValue.forEach((event) => {
-        window.removeEventListener(event, callback);
-      });
-    };
-  }, [eventsValue]);
 };
 
 export const sumBigNumberArray = (numbers: BigNumber[]): BigNumber => {
