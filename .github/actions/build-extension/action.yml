@@ -1,4 +1,5 @@
 name: build-extension
+description: Build the browser extension and upload to Github release
 on:
   workflow_call:
     inputs:
@@ -11,9 +12,6 @@ on:
 
 runs:
   using: composite
-  shell: bash
-  env:
-    GH_TOKEN: ${{ github.token }}
   steps:
     - name: Install Dependencies
       uses: ./.github/actions/prepare-build
@@ -21,6 +19,7 @@ runs:
     - name: Build WASM dependencies
       working-directory: ./apps/extension
       run: yarn wasm:build
+      shell: bash
 
     - name: Build ${{ inputs.browser }} extension
       working-directory: ./apps/extension
@@ -28,8 +27,12 @@ runs:
         SHA: ${{ github.sha }}
       run: |
         NAMADA_INTERFACE_REVISION=$SHA yarn build:${{ inputs.browser }}
+      shell: bash
 
     - name: Upload ${{ inputs.browser }} Artifact
       run: |
-        gh release upload ${{ inputs.tag }} \
-          ./apps/extension/build/${{ inputs.browser }}/namada_keychain-*.zip#$namada_keychain_${{ inputs.browser }}.zip
+        BASE_VERSION=$(node -e 'console.log(require("./apps/extension/package.json").version)')
+        FILENAME=namada-keychain-${{ inputs.browser }}-${BASE_VERSION}.zip
+        mv ./apps/extension/build/${{ inputs.browser }}/namada_keychain-${BASE_VERSION}.zip ${FILENAME}
+        gh release upload ${{ inputs.tag }} ${FILENAME}
+      shell: bash
