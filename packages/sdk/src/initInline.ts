@@ -1,4 +1,4 @@
-// We have to use relative imports here othewise ts-patch is getting confused and produces wrong paths after compialtion
+// We have to use relative imports here othewise ts-patch is getting confused and produces wrong paths after compilation
 import { init as initCrypto } from "../../crypto/src/init-inline";
 import { init as initShared } from "../../shared/src/init-inline";
 import { initThreadPool } from "../../shared/src/init-thread-pool";

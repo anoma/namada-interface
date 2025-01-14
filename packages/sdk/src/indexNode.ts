@@ -12,6 +12,7 @@ export * from "./utils";
  * @async
  * @param cryptoMemory - WebAssembly.Memory of crypto package
  * @param url - URL of the node
+ * @param maspIndexerUrl - optional URL of the MASP indexer
  * @param storagePath - Path to store wallet files
  * @param [token] - Native token of the chain
  * @throws {Error} - Unable to Query native token
@@ -20,11 +21,16 @@ export * from "./utils";
 export function getSdk(
   cryptoMemory: WebAssembly.Memory,
   url: string,
+  maspIndexerUrl: string,
   storagePath: string,
   token: string
 ): Sdk {
+  // We change empty string to undefined so it "maps" to the Option<String> in Rust
+  const maspIndexerUrlOpt =
+    maspIndexerUrl.length === 0 ? undefined : maspIndexerUrl;
+
   // Instantiate QueryWasm
-  const query = new QueryWasm(url);
+  const query = new QueryWasm(url, maspIndexerUrlOpt);
 
   // Instantiate SdkWasm
   const sdk = new SdkWasm(url, token, storagePath);
