@@ -10,10 +10,7 @@
     "e2e"
   ],
   "scripts": {
-    "bump": "node ./scripts/bump.js",
-    "release": "yarn workspaces foreach -Avt --exclude namada run release && release-it --ci",
-    "release:no-npm": "yarn workspaces foreach -Avt --exclude namada run release:no-npm && release-it",
-    "release:dry-run": "yarn workspaces foreach -Avt --exclude namada run release:dry-run && release-it --dry-run --ci",
+    "prepare": "husky install",
     "wasm:build-test": "./scripts/build-test.sh",
     "test": "wsrun --serial --exclude-missing -c test",
     "test:ci": "wsrun --serial --exclude-missing -c test:ci",
@@ -21,13 +18,11 @@
     "lint": "wsrun -l --exclude-missing -c lint",
     "lint:fix": "wsrun -l --exclude-missing -c lint:fix",
     "lint:ci": "wsrun -l --exclude-missing -c lint:ci",
-    "prepare": "husky install",
     "docker-build-faucet": "docker build -f docker/faucet/Dockerfile .",
     "docker-build-namadillo": "docker build -f docker/namadillo/Dockerfile ."
   },
   "devDependencies": {
     "@chain-registry/types": "^0.45.80",
-    "@release-it/conventional-changelog": "^8.0.1",
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",
     "eslint": "^8.57.0",
@@ -36,13 +31,12 @@
     "lint-staged": "^15.2.0",
     "prettier": "^3.3.3",
     "prettier-plugin-organize-imports": "^3.2.4",
-    "release-it": "^17.0.1",
     "stream-browserify": "^3.0.0",
-    "typescript": "^5.5.4",
+    "typescript": "5.5.4",
     "vite-plugin-checker": "^0.6.4",
     "wsrun": "^5.2.4"
   },
-  "packageManager": "yarn@4.0.2",
+  "packageManager": "yarn@4.6.0",
   "dependencies": {
     "chain-registry": "^1.63.100"
   }

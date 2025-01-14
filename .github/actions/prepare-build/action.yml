@@ -1,0 +1,16 @@
+name: prepare-build
+description: Prepare the build environment
+runs:
+  using: composite
+  steps:
+    - name: Install yarn dependencies
+      uses: ./.github/actions/yarn-cache
+
+    - name: Restore Rust cache
+      uses: ./.github/actions/rust-cache
+      with:
+        cache-name: build
+
+    - name: Install protoc
+      run: sudo apt-get install -y protobuf-compiler
+      shell: bash

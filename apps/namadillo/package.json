@@ -43,13 +43,9 @@
     "wonka": "^6.3.4"
   },
   "scripts": {
-    "bump": "yarn workspace namada run bump --target apps/namadillo",
-    "release": "release-it --verbose --ci",
-    "release:dry-run": "release-it --verbose --dry-run --ci",
-    "release:no-npm": "release-it --verbose --no-npm.publish --ci",
     "start:proxy": "node ./scripts/startProxies.js",
-    "dev": "VITE_REVISION=$(git rev-parse HEAD) vite",
     "preview": "vite preview",
+    "dev": "VITE_REVISION=$(git rev-parse HEAD) vite",
     "dev:local": "NODE_ENV=development NAMADA_INTERFACE_LOCAL=\"true\" yarn dev",
     "dev:proxy": "VITE_PROXY=true && ./scripts/start-proxies.sh && yarn dev:local",
     "build": "NODE_ENV=production && yarn wasm:build && VITE_REVISION=$(git rev-parse HEAD) vite build",
@@ -86,7 +82,6 @@
   "devDependencies": {
     "@eslint/js": "^9.9.1",
     "@playwright/test": "^1.24.1",
-    "@release-it/keep-a-changelog": "^5.0.0",
     "@svgr/webpack": "^6.5.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.5.0",
@@ -123,7 +118,6 @@
     "jest-transformer-svg": "^2.0.2",
     "local-cors-proxy": "^1.1.0",
     "postcss": "^8.4.32",
-    "release-it": "^17.0.1",
     "tailwindcss": "^3.4.0",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.1",
