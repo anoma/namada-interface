@@ -7,9 +7,34 @@ env:
   YARN_ENABLE_HARDENED_MODE: 0
 
 jobs:
+  # Running yarn install in hardened mode here makes it safe to run the other
+  # jobs without hardened mode, which is good because hardened mode is slow.
+  # https://yarnpkg.com/features/security#hardened-mode
+  check-yarn-lock-poisoning:
+    name: Check for yarn.lock poisoning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if yarn.lock changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            lockfile:
+              - "yarn.lock"
+
+      - name: Check yarn.lock for lockfile poisoning
+        if: steps.filter.outputs.lockfile == 'true'
+        uses: ./.github/actions/yarn-cache
+        env:
+          YARN_ENABLE_HARDENED_MODE: 1
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    needs: [check-yarn-lock-poisoning]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,6 +47,7 @@ jobs:
 
   unit-tests-js:
     name: JS unit tests
+    needs: [check-yarn-lock-poisoning]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -47,6 +73,7 @@ jobs:
 
   unit-tests-wasm:
     name: WASM unit tests
+    needs: [check-yarn-lock-poisoning]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -72,6 +99,7 @@ jobs:
 
   build-interface:
     name: Build Namadillo
+    needs: [check-yarn-lock-poisoning]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -96,8 +124,9 @@ jobs:
           NAMADA_INTERFACE_NAMADA_CHAIN_ID: "internal-devnet-6be.86067e06a5"
           NAMADA_INTERFACE_NAMADA_URL: "https://proxy.heliax.click/internal-devnet-6be.86067e06a5"
 
-  build-extension-chrome:
-    name: Build Chrome extension
+  build-extension:
+    name: Build Extension
+    needs: [check-yarn-lock-poisoning]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -121,32 +150,6 @@ jobs:
       - name: Build the extension
         working-directory: ./apps/extension
         run: yarn build:chrome
-
-  build-extension-firefox:
-    name: Build Firefox extension
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install yarn dependencies
-        uses: ./.github/actions/yarn-cache
-
-      - name: Restore Rust cache
-        uses: ./.github/actions/rust-cache
-        with:
-          cache-name: build
-
-      - name: Install protoc
-        run: sudo apt-get install -y protobuf-compiler
-
-      - name: Build WASM dependencies
-        working-directory: ./apps/extension
-        run: yarn wasm:build
-
-      - name: Build the extension
-        working-directory: ./apps/extension
-        run: yarn build:firefox
 
   E2E-tests:
     if: false
@@ -182,27 +185,3 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
-
-  # Running yarn install in hardened mode here makes it safe to run the other
-  # jobs without hardened mode, which is good because hardened mode is slow.
-  # https://yarnpkg.com/features/security#hardened-mode
-  check-yarn-lock-poisoning:
-    name: Check for yarn.lock poisoning
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check if yarn.lock changed
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            lockfile:
-              - "yarn.lock"
-
-      - name: Check yarn.lock for lockfile poisoning
-        if: steps.filter.outputs.lockfile == 'true'
-        uses: ./.github/actions/yarn-cache
-        env:
-          YARN_ENABLE_HARDENED_MODE: 1

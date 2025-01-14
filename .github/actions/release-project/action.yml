@@ -1,0 +1,32 @@
+name: release-project
+description: Upload the project artifact to the GitHub release
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+      bundle_filename:
+        required: true
+        type: string
+      working_dir:
+        required: true
+        type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Install Dependencies
+      uses: ./.github/actions/prepare-build
+
+    - name: Build Artifact
+      working-directory: ${{ inputs.working_dir }}
+      run: yarn build
+      shell: bash
+
+    - name: Upload artifact
+      working-directory: ${{ inputs.working_dir }}/dist
+      run: |
+        zip -r ${{ inputs.bundle_filename }} .
+        gh release upload ${{ inputs.tag }} ${{ inputs.bundle_filename }}
+      shell: bash

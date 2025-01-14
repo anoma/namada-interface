@@ -1,0 +1,104 @@
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+name: release-please
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    outputs:
+      namadillo_tag: ${{ steps.release.outputs['apps/namadillo--tag_name'] }}
+      extension_tag: ${{ steps.release.outputs['apps/extension--tag_name'] }}
+      types_tag: ${{ steps.release.outputs['packages/types--tag_name'] }}
+      sdk_tag: ${{ steps.release.outputs['packages/sdk--tag_name'] }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+
+  build-namadillo:
+    needs: [release-please]
+    if: ${{ needs.release-please.outputs.namadillo_tag }}
+    name: Release Namadillo
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build and Release Namadillo
+        uses: ./.github/actions/release-project
+        with:
+          tag: ${{ needs.release-please.outputs.namadillo_tag }}
+          bundle_filename: ${{ needs.release-please.outputs.namadillo_tag }}.zip
+          working_dir: ./apps/namadillo
+
+  build-sdk:
+    needs: [release-please]
+    if: ${{ needs.release-please.outputs.sdk_tag }}
+    name: Release SDK
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build and Release SDK
+        uses: ./.github/actions/release-project
+        with:
+          tag: ${{ needs.release-please.outputs.sdk_tag }}
+          bundle_filename: namada-${{ needs.release-please.outputs.sdk_tag }}.zip
+          working_dir: ./packages/sdk
+
+  build-types:
+    needs: [release-please]
+    if: ${{ needs.release-please.outputs.types_tag }}
+    name: Release Types
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build and Release Types
+        uses: ./.github/actions/release-project
+        with:
+          tag: ${{ needs.release-please.outputs.types_tag }}
+          bundle_filename: namada-${{ needs.release-please.outputs.types_tag }}.zip
+          working_dir: ./packages/types
+
+  build-keychain-chrome:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.extension_tag }}
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build Chrome Extension
+        uses: ./.github/actions/build-extension
+        with:
+          browser: chrome
+          tag: ${{ needs.release-please.outputs.extension_tag }}
+
+  build-keychain-firefox:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.extension_tag }}
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build Firefox Extension
+        uses: ./.github/actions/build-extension
+        with:
+          browser: firefox
+          tag: ${{ needs.release-please.outputs.extension_tag }}

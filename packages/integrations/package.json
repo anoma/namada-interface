@@ -12,9 +12,6 @@
     "bump": "yarn workspace namada run bump --target packages/integrations",
     "prepublish": "yarn && yarn build",
     "build": "npx rimraf ./dist && tsc --build",
-    "release": "yarn prepublish && release-it --verbose --ci",
-    "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
-    "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish --ci",
     "test": "jest",
     "test:watch": "jest --watchAll",
     "test:ci": "jest",
@@ -37,7 +34,7 @@
     "rimraf": "^5.0.5",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.1",
-    "typescript": "^5.5.4"
+    "typescript": "5.5.4"
   },
   "dependencies": {
     "@cosmjs/launchpad": "^0.27.1",

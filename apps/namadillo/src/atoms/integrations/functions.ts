@@ -146,7 +146,7 @@ const findCounterpartChainName = (
   portId: string,
   channelId: string
 ): string | undefined => {
-  return cosmosRegistry.ibc.reduce<string | undefined>((acc, curr) => {
+  return cosmosRegistry.ibc.reduce<string | undefined>((acc, curr: IBCInfo) => {
     if (typeof acc !== "undefined") {
       return acc;
     }
@@ -405,11 +405,14 @@ export const createIbcTx = async (
   return transactionPair;
 };
 
-export const namadaLocal = (chainId: string): Chain => ({
-  ...internalDevnetChain,
-  chain_name: "localnet",
-  chain_id: chainId,
-});
+export const namadaLocal = (chainId: string): Chain => {
+  // @ts-expect-error - we're adding localnet to the chain id
+  return {
+    ...internalDevnetChain,
+    chain_name: "localnet",
+    chain_id: chainId,
+  };
+};
 
 export const namadaLocalAsset = (tokenAddress: string): AssetList => ({
   ...internalDevnetAssets,

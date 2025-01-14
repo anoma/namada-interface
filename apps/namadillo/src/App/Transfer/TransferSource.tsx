@@ -22,6 +22,7 @@ export type TransferSourceProps = {
   openProviderSelector?: () => void;
   amount?: BigNumber;
   availableAmount?: BigNumber;
+  availableAmountMinusFees?: BigNumber;
   onChangeAmount?: (amount: BigNumber | undefined) => void;
   isShielded?: boolean;
   onChangeShielded?: (isShielded: boolean) => void;
@@ -47,8 +48,9 @@ export const TransferSource = ({
   openProviderSelector,
   openChainSelector,
   openAssetSelector,
-  amount,
   availableAmount,
+  availableAmountMinusFees,
+  amount,
   onChangeAmount,
   isShielded,
   onChangeShielded,
@@ -108,12 +110,15 @@ export const TransferSource = ({
           maxDecimalPlaces={amountMaxDecimalPlaces(asset)}
         />
       </div>
-      {asset && availableAmount && (
+      {asset && availableAmountMinusFees && (
         <footer>
           <AvailableAmountFooter
             availableAmount={availableAmount}
+            availableAmountMinusFees={availableAmountMinusFees}
             asset={asset}
-            onClickMax={() => onChangeAmount && onChangeAmount(availableAmount)}
+            onClickMax={() =>
+              onChangeAmount && onChangeAmount(availableAmountMinusFees)
+            }
           />
         </footer>
       )}

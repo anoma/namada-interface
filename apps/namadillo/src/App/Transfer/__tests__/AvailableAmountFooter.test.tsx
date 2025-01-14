@@ -14,7 +14,7 @@ describe("Component: AvailableAmountFooter", () => {
     const callback = jest.fn();
     render(
       <AvailableAmountFooter
-        availableAmount={new BigNumber(1234.456)}
+        availableAmountMinusFees={new BigNumber(1234.456)}
         asset={assetMock as Asset}
         onClickMax={callback}
       />
@@ -30,18 +30,19 @@ describe("Component: AvailableAmountFooter", () => {
   it("should not display MAX button when no callback was provided", () => {
     render(
       <AvailableAmountFooter
-        availableAmount={new BigNumber(100)}
+        availableAmountMinusFees={new BigNumber(100)}
         asset={assetMock as Asset}
       />
     );
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
-  it("should display disabled button when the amount is zero", () => {
+  it("should display the balance and the disabled button when the amount is zero", () => {
     const callback = jest.fn();
     render(
       <AvailableAmountFooter
-        availableAmount={new BigNumber(0)}
+        availableAmount={new BigNumber(1)}
+        availableAmountMinusFees={new BigNumber(0)}
         asset={assetMock as Asset}
         onClickMax={callback}
       />
@@ -50,5 +51,9 @@ describe("Component: AvailableAmountFooter", () => {
     expect(button).toBeDisabled();
     fireEvent.click(button);
     expect(callback).not.toHaveBeenCalled();
+    const warning = screen.getByText("Insufficient balance to cover the fee");
+    expect(warning).toBeVisible();
+    const balance = screen.getByText("1 ETH");
+    expect(balance).toBeVisible();
   });
 });
