@@ -2,6 +2,7 @@ import { routes } from "App/routes";
 import compatibility from "compatibility.json";
 import { wallets } from "integrations";
 import { Link } from "react-router-dom";
+import semver from "semver";
 import semverSatisfies from "semver/functions/satisfies";
 import semverLtr from "semver/ranges/ltr";
 import { version as interfaceVersion } from "../../package.json";
@@ -114,27 +115,28 @@ export const checkKeychainCompatibilityError = (
   return "";
 };
 
+const normalizeToMinor = (version: string): string => {
+  const parsed = semver.parse(version);
+  if (!parsed) return "";
+  return `${parsed.major}.${parsed.minor}.0`;
+};
+
 export const checkInterfaceCompatibilityError =
   async (): Promise<React.ReactNode> => {
     const requiredInterfaceVersion = await fetchRequiredInterfaceVersion();
-    const latestVersion = requiredInterfaceVersion;
+    const normalizedCurrent = normalizeToMinor(interfaceVersion);
+    const normalizedRequired = normalizeToMinor(requiredInterfaceVersion);
 
-    const [currentMajor, currentMinor] = interfaceVersion
-      .split(".")
-      .map(Number);
-    const [requiredMajor, requiredMinor] = requiredInterfaceVersion
-      .split(".")
-      .map(Number);
+    if (!normalizedCurrent || !normalizedRequired) {
+      return "";
+    }
 
-    if (
-      requiredMajor > currentMajor ||
-      (requiredMajor === currentMajor && requiredMinor > currentMinor)
-    ) {
+    if (semver.gt(normalizedRequired, normalizedCurrent)) {
       return (
         <>
           Namadillo is running an outdated version and some features may not
           work as intended. Please wait for the operator to update to{" "}
-          <strong>{latestVersion}</strong>. More on{" "}
+          <strong>{requiredInterfaceVersion}</strong>. More on{" "}
           <a href="https://namada.net/apps#interfaces">Namada Apps</a>.
         </>
       );
