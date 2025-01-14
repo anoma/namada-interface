@@ -18,7 +18,6 @@ jobs:
       extension_tag: ${{ steps.release.outputs['apps/extension--tag_name'] }}
       types_tag: ${{ steps.release.outputs['packages/types--tag_name'] }}
       sdk_tag: ${{ steps.release.outputs['packages/sdk--tag_name'] }}
-
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
@@ -35,7 +34,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - uses: ./.github/actions/release-project
+      - name: Build and Release Namadillo
+        uses: ./.github/actions/release-project
         with:
           tag: ${{ needs.release-please.outputs.namadillo_tag }}
           bundle_filename: ${{ needs.release-please.outputs.namadillo_tag }}.zip
@@ -51,7 +51,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - uses: ./.github/actions/release-project
+      - name: Build and Release SDK
+        uses: ./.github/actions/release-project
         with:
           tag: ${{ needs.release-please.outputs.sdk_tag }}
           bundle_filename: namada-${{ needs.release-please.outputs.sdk_tag }}.zip
@@ -67,7 +68,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - uses: ./.github/actions/release-project
+      - name: Build and Release Types
+        uses: ./.github/actions/release-project
         with:
           tag: ${{ needs.release-please.outputs.types_tag }}
           bundle_filename: namada-${{ needs.release-please.outputs.types_tag }}.zip
