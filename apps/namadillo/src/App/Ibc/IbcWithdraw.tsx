@@ -80,12 +80,14 @@ export const IbcWithdraw: React.FC = () => {
     connectToChainId(chain.chain_id);
   };
 
-  const { data: ibcChannels } = useAtomValue(
-    ibcChannelsFamily(registry?.chain.chain_name)
-  );
+  const {
+    data: ibcChannels,
+    isError: unknownIbcChannels,
+    isLoading: isLoadingIbcChannels,
+  } = useAtomValue(ibcChannelsFamily(registry?.chain.chain_name));
 
   useEffect(() => {
-    setSourceChannel(ibcChannels?.namadaChannelId || "");
+    setSourceChannel(ibcChannels?.namadaChannel || "");
   }, [ibcChannels]);
 
   const { execute: performWithdraw, isPending } = useTransaction({
@@ -190,7 +192,8 @@ export const IbcWithdraw: React.FC = () => {
     }
   };
 
-  const requiresIbcChannels = !ibcChannels?.cosmosChannelId;
+  const requiresIbcChannels = !isLoadingIbcChannels && unknownIbcChannels;
+
   return (
     <div className="relative min-h-[600px]">
       <header className="flex flex-col items-center text-center mb-3 gap-6">
