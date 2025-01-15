@@ -57,7 +57,7 @@ export const namadaTestnetChainList = [
   housefireOldChain,
 ] as Chain[];
 
-cosmosRegistry.chains.push(...namadaTestnetChainList, namadaChain);
+cosmosRegistry.chains.push(namadaChain, ...namadaTestnetChainList);
 
 cosmosRegistry.assets.push(
   internalDevnetAssets,
