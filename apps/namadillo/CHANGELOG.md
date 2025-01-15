@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.3.0...namadillo@v1.4.0) (2025-01-15)
+
+
+### Features
+
+* Add version warning banner (anoma[#1491](https://github.com/anoma/namada-interface/issues/1491)) ([#1534](https://github.com/anoma/namada-interface/issues/1534)) ([02cd5eb](https://github.com/anoma/namada-interface/commit/02cd5eb3413c64d18b62b93f94d1ba7c7187bddb))
+* Fetch shielded balances on transfer ([#1547](https://github.com/anoma/namada-interface/issues/1547)) ([61107fc](https://github.com/anoma/namada-interface/commit/61107fc46942021b657d675a3a4ee82b8c7124fb))
+* Fetching known ibc channels from github chain-registry repository ([#1545](https://github.com/anoma/namada-interface/issues/1545)) ([1e528c8](https://github.com/anoma/namada-interface/commit/1e528c815efb18659304e52f4f5dad228005f1bf))
+
+
+### Bug Fixes
+
+* Fix fee component on transfers ([#1548](https://github.com/anoma/namada-interface/issues/1548)) ([83228bf](https://github.com/anoma/namada-interface/commit/83228bfbcea6f4a35873791b5bc728116efe0f14))
+
 ## [1.3.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.2.0...namadillo@v1.3.0) (2025-01-14)
 
 
