@@ -6,10 +6,11 @@ import {
   IbcTransferProps,
 } from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
-import { chainAtom, chainParametersAtom } from "atoms/chain";
+import { chainAtom } from "atoms/chain";
 import { defaultServerConfigAtom, settingsAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import invariant from "invariant";
 import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
@@ -24,7 +25,6 @@ import {
 import {
   addLocalnetToRegistry,
   createIbcTx,
-  getIbcChannels,
   getKnownChains,
   ibcAddressToDenomTrace,
   IbcChannels,
@@ -32,6 +32,7 @@ import {
 } from "./functions";
 import {
   broadcastIbcTransaction,
+  fetchIbcChannelFromRegistry,
   fetchLocalnetTomlConfig,
   queryAndStoreRpc,
   queryAssetBalances,
@@ -130,19 +131,31 @@ export const availableAssetsAtom = atom((get) => {
   return getKnownChains(settings.enableTestnets).map(({ assets }) => assets);
 });
 
-export const ibcChannelsFamily = atomFamily((cosmosChainName?: string) =>
-  atomWithQuery<IbcChannels | undefined>((get) => {
-    const chainParameters = get(chainParametersAtom);
-
+export const ibcChannelsFamily = atomFamily((ibcChainName?: string) =>
+  atomWithQuery<IbcChannels | null>((get) => {
+    const chainSettings = get(chainAtom);
+    const config = get(defaultServerConfigAtom);
     return {
-      queryKey: ["ibc-channel", cosmosChainName, chainParameters.data!.chainId],
-      ...queryDependentFn(
-        () =>
-          Promise.resolve(
-            getIbcChannels(chainParameters.data!.chainId, cosmosChainName!)
-          ),
-        [typeof cosmosChainName !== "undefined", chainParameters]
-      ),
+      queryKey: ["known-channels", ibcChainName, chainSettings.data?.chainId],
+      retry: false,
+      ...queryDependentFn(async () => {
+        invariant(chainSettings.data, "No chain settings");
+        invariant(ibcChainName, "No IBC chain name");
+        invariant(
+          config.data?.github_chain_registry_base_url,
+          "No github_chain_registry_base_url was provided on config.toml"
+        );
+        return fetchIbcChannelFromRegistry(
+          chainSettings.data.chainId,
+          ibcChainName,
+          config.data?.github_chain_registry_base_url
+        );
+      }, [
+        chainSettings,
+        config,
+        !!ibcChainName,
+        !!config.data?.github_chain_registry_base_url,
+      ]),
     };
   })
 );

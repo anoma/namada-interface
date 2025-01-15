@@ -1,15 +1,16 @@
-import { Chain } from "@chain-registry/types";
+import { Chain, IBCInfo } from "@chain-registry/types";
 import { OfflineSigner } from "@cosmjs/launchpad";
 import {
+  assertIsDeliverTxSuccess,
+  calculateFee,
   DeliverTxResponse,
   SigningStargateClient,
   StargateClient,
   StdFee,
-  assertIsDeliverTxSuccess,
-  calculateFee,
 } from "@cosmjs/stargate";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
+import { sanitizeUrl } from "@namada/utils";
 import { getIndexerApi } from "atoms/api";
 import { queryForAck, queryForIbcTimeout } from "atoms/transactions";
 import BigNumber from "bignumber.js";
@@ -28,7 +29,12 @@ import { toBaseAmount } from "utils";
 import { getKeplrWallet } from "utils/ibc";
 import { getSdkInstance } from "utils/sdk";
 import { rpcByChainAtom } from "./atoms";
-import { getRpcByIndex } from "./functions";
+import {
+  getChainRegistryIbcFilePath,
+  getChannelFromIbcInfo,
+  getRpcByIndex,
+  IbcChannels,
+} from "./functions";
 
 type CommonParams = {
   signer: OfflineSigner;
@@ -255,4 +261,23 @@ export const updateIbcWithdrawalStatus = async (
 export const fetchLocalnetTomlConfig = async (): Promise<LocalnetToml> => {
   const response = await fetch("/localnet-config.toml");
   return toml.parse(await response.text()) as LocalnetToml;
+};
+
+export const fetchIbcChannelFromRegistry = async (
+  currentNamadaChainId: string,
+  ibcChainName: string,
+  namadaChainRegistryUrl: string
+): Promise<IbcChannels | null> => {
+  const ibcFilePath = getChainRegistryIbcFilePath(
+    currentNamadaChainId,
+    ibcChainName
+  );
+
+  const queryUrl = new URL(
+    ibcFilePath,
+    sanitizeUrl(namadaChainRegistryUrl) + "/"
+  );
+
+  const channelInfo: IBCInfo = await (await fetch(queryUrl.toString())).json();
+  return getChannelFromIbcInfo(ibcChainName, channelInfo) || null;
 };

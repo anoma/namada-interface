@@ -44,9 +44,11 @@ export const IbcTransfer = (): JSX.Element => {
   } = useWalletManager(keplr);
 
   // IBC Channels & Balances
-  const { data: ibcChannels } = useAtomValue(
-    ibcChannelsFamily(registry?.chain.chain_name)
-  );
+  const {
+    data: ibcChannels,
+    isError: unknownIbcChannels,
+    isLoading: isLoadingIbcChannels,
+  } = useAtomValue(ibcChannelsFamily(registry?.chain.chain_name));
 
   const { data: userAssets, isLoading: isLoadingBalances } = useAtomValue(
     assetBalanceAtomFamily({
@@ -101,16 +103,18 @@ export const IbcTransfer = (): JSX.Element => {
     );
   }, [defaultAccounts, shielded]);
 
-  const requiresIbcChannels =
-    !ibcChannels?.cosmosChannelId ||
-    (shielded && !ibcChannels?.namadaChannelId);
+  const requiresIbcChannels = Boolean(
+    !isLoadingIbcChannels &&
+      (unknownIbcChannels ||
+        (shielded && ibcChannels && !ibcChannels?.namadaChannel))
+  );
 
   useEffect(() => setSelectedAssetAddress(undefined), [registry]);
 
   // Set source and destination channels based on IBC channels data
   useEffect(() => {
-    setSourceChannel(ibcChannels?.cosmosChannelId || "");
-    setDestinationChannel(ibcChannels?.namadaChannelId || "");
+    setSourceChannel(ibcChannels?.ibcChannel || "");
+    setDestinationChannel(ibcChannels?.namadaChannel || "");
   }, [ibcChannels]);
 
   const onSubmitTransfer = async ({
