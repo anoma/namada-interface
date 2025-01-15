@@ -3434,7 +3434,6 @@ __metadata:
     "@ledgerhq/hw-transport-webusb": "npm:^6.29.4"
     "@svgr/webpack": "npm:^6.3.1"
     "@types/chrome": "npm:^0.0.237"
-    "@types/dompurify": "npm:^3.0.5"
     "@types/firefox-webext-browser": "npm:^94.0.1"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^22.5.4"
@@ -3449,7 +3448,6 @@ __metadata:
     buffer: "npm:^6.0.3"
     copy-webpack-plugin: "npm:^11.0.0"
     css-loader: "npm:^6.8.1"
-    dompurify: "npm:^3.0.5"
     dotenv: "npm:^16.0.3"
     eslint: "npm:^8.57.0"
     eslint-config-prettier: "npm:^9.1.0"
@@ -3462,6 +3460,7 @@ __metadata:
     fp-ts: "npm:^2.16.1"
     framer-motion: "npm:^11.3.28"
     io-ts: "npm:^2.2.21"
+    isomorphic-dompurify: "npm:^2.6.0"
     jest: "npm:^29.7.0"
     jest-create-mock-instance: "npm:^2.0.0"
     jest-environment-jsdom: "npm:^29.7.0"
@@ -3502,7 +3501,6 @@ __metadata:
     "@babel/plugin-transform-modules-commonjs": "npm:^7.20.11"
     "@cosmjs/encoding": "npm:^0.29.0"
     "@svgr/webpack": "npm:^6.3.1"
-    "@types/dompurify": "npm:^3.0.5"
     "@types/node": "npm:^22.5.4"
     "@types/node-forge": "npm:^1.3.6"
     "@types/react": "npm:^18.3.5"
@@ -3512,7 +3510,6 @@ __metadata:
     copy-webpack-plugin: "npm:^12.0.2"
     crypto-browserify: "npm:^3.12.0"
     css-loader: "npm:^7.1.2"
-    dompurify: "npm:^3.0.5"
     dotenv: "npm:^16.0.3"
     eslint: "npm:^8.57.0"
     eslint-config-prettier: "npm:^9.1.0"
@@ -3523,6 +3520,7 @@ __metadata:
     file-loader: "npm:^6.2.0"
     framer-motion: "npm:^11.5.4"
     html-webpack-plugin: "npm:^5.6.0"
+    isomorphic-dompurify: "npm:^2.6.0"
     local-cors-proxy: "npm:^1.1.0"
     node-forge: "npm:^1.3.1"
     path-browserify: "npm:^1.0.1"
@@ -4991,15 +4989,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dompurify@npm:^3.0.5":
-  version: 3.0.5
-  resolution: "@types/dompurify@npm:3.0.5"
-  dependencies:
-    "@types/trusted-types": "npm:*"
-  checksum: 10c0/a34dcc4498ca250815ccf9aecbe82df96ba5db247d0440cf266a876757d47c52519c240db3475e794d7deb0d6b1af23328e02879be368ad0e26b20c0f0865dba
-  languageName: node
-  linkType: hard
-
 "@types/eslint-scope@npm:^3.7.7":
   version: 3.7.7
   resolution: "@types/eslint-scope@npm:3.7.7"
@@ -5584,7 +5573,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/trusted-types@npm:*, @types/trusted-types@npm:^2.0.7":
+"@types/trusted-types@npm:^2.0.7":
   version: 2.0.7
   resolution: "@types/trusted-types@npm:2.0.7"
   checksum: 10c0/4c4855f10de7c6c135e0d32ce462419d8abbbc33713b31d294596c0cc34ae1fa6112a2f9da729c8f7a20707782b0d69da3b1f8df6645b0366d08825ca1522e0c
@@ -9397,7 +9386,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.0.5, dompurify@npm:^3.2.3":
+"dompurify@npm:^3.2.3":
   version: 3.2.3
   resolution: "dompurify@npm:3.2.3"
   dependencies:

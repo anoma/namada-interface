@@ -1,6 +1,6 @@
+import { sanitize } from "isomorphic-dompurify";
 import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
-import { sanitize } from "dompurify";
 
 interface SanitizedURLSearchParams {
   get(name: string): string | null;

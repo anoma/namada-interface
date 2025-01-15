@@ -1,4 +1,4 @@
-import { sanitize } from "dompurify";
+import { sanitize } from "isomorphic-dompurify";
 
 import {
   ActionButton,
