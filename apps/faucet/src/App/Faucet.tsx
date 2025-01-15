@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { sanitize } from "dompurify";
+import { sanitize } from "isomorphic-dompurify";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import {
