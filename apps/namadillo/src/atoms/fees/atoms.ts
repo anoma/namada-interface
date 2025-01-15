@@ -86,6 +86,7 @@ export const defaultGasConfigFamily = atomFamily(
           minimumGasPrice.data,
           gasLimitsTable.data,
           gasToken,
+          txKinds,
         ],
         ...queryDependentFn(async () => {
           invariant(

@@ -19,6 +19,7 @@ type TransferDestinationProps = {
   walletAddress?: string;
   className?: string;
   gasConfig?: GasConfig;
+  changeFeeEnabled?: boolean;
   customAddressActive?: boolean;
   isIbcTransfer?: boolean;
   openChainSelector?: () => void;
@@ -38,6 +39,7 @@ export const TransferDestination = ({
   isIbcTransfer,
   onChangeShielded,
   gasConfig,
+  changeFeeEnabled = true,
   customAddressActive,
   onToggleCustomAddress,
   address,
@@ -123,15 +125,14 @@ export const TransferDestination = ({
 
       {gasConfig && (
         <footer className="mt-10">
-          {isIbcTransfer ?
-            <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center">
+            {isIbcTransfer ?
               <img src={ibcTransferImageWhite} className="w-20" />
-              <TransactionFee gasConfig={gasConfig} />
-            </div>
-          : <div className="flex justify-end">
+            : <div />}
+            {changeFeeEnabled ?
               <TransactionFeeButton gasConfig={gasConfig} />
-            </div>
-          }
+            : <TransactionFee gasConfig={gasConfig} />}
+          </div>
         </footer>
       )}
     </div>

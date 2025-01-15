@@ -68,6 +68,7 @@ export type TransferModuleProps = {
   destination: TransferDestinationProps;
   requiresIbcChannels?: boolean;
   gasConfig?: GasConfig;
+  changeFeeEnabled?: boolean;
   submittingText?: string;
   isSubmitting?: boolean;
   errorMessage?: string;
@@ -92,6 +93,7 @@ export const TransferModule = ({
   source,
   destination,
   gasConfig,
+  changeFeeEnabled,
   submittingText,
   isSubmitting,
   isIbcTransfer,
@@ -315,6 +317,7 @@ export const TransferModule = ({
             memo={memo}
             onChangeMemo={setMemo}
             gasConfig={gasConfig}
+            changeFeeEnabled={changeFeeEnabled}
           />
           {isIbcTransfer && requiresIbcChannels && (
             <IbcChannels
