@@ -1,5 +1,4 @@
 import { DefaultApi } from "@namada/indexer-client";
-import { SdkEvents } from "@namada/sdk/web";
 import { Account, AccountType, DatedViewingKey } from "@namada/types";
 import {
   accountsAtom,
@@ -18,8 +17,10 @@ import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import { isAxiosError } from "axios";
 import BigNumber from "bignumber.js";
+import { atom, getDefaultStore } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { AddressWithAsset } from "types";
+import { atomWithStorage } from "jotai/utils";
+import { Address, AddressWithAsset } from "types";
 import {
   mapNamadaAddressesToAssets,
   mapNamadaAssetsToTokenBalances,
@@ -28,7 +29,6 @@ import {
   fetchBlockHeightByTimestamp,
   fetchShieldedBalance,
   shieldedSync,
-  ShieldedSyncEmitter,
 } from "./services";
 
 export type TokenBalance = AddressWithAsset & {
@@ -104,118 +104,103 @@ export const viewingKeysAtom = atomWithQuery<
   };
 });
 
-export const shieldedSyncAtom = atomWithQuery<ShieldedSyncEmitter | null>(
-  (get) => {
-    const viewingKeysQuery = get(viewingKeysAtom);
-    const namTokenAddressQuery = get(nativeTokenAddressAtom);
-    const rpcUrl = get(rpcUrlAtom);
-    const maspIndexerUrl = get(maspIndexerUrlAtom);
-    const parametersQuery = get(chainParametersAtom);
+export const storageShieldedBalanceAtom = atomWithStorage<
+  Record<Address, { address: string; minDenomAmount: BigNumber }[]>
+>("namadillo:shieldedBalance", {});
 
-    return {
-      queryKey: [
-        "shielded-sync",
-        viewingKeysQuery.data,
-        namTokenAddressQuery.data,
-        rpcUrl,
-        maspIndexerUrl,
-      ],
-      ...queryDependentFn(async () => {
-        const viewingKeys = viewingKeysQuery.data;
-        const namTokenAddress = namTokenAddressQuery.data;
-        const parameters = parametersQuery.data;
-        if (!namTokenAddress || !viewingKeys || !parameters) {
-          return null;
-        }
-        const [_, allViewingKeys] = viewingKeys;
-        return shieldedSync(
-          rpcUrl,
-          maspIndexerUrl,
-          namTokenAddress,
-          allViewingKeys,
-          parameters.chainId
-        );
-      }, [viewingKeysQuery, namTokenAddressQuery, parametersQuery]),
-    };
-  }
-);
+export const shieldedSyncProgress = atom(0);
 
-export const shieldedBalanceAtom = atomWithQuery<
-  { address: string; minDenomAmount: BigNumber }[]
->((get) => {
+export const shieldedBalanceAtom = atomWithQuery((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
   const viewingKeysQuery = get(viewingKeysAtom);
   const chainTokensQuery = get(chainTokensAtom);
+  const chainParametersQuery = get(chainParametersAtom);
   const namTokenAddressQuery = get(nativeTokenAddressAtom);
   const rpcUrl = get(rpcUrlAtom);
   const maspIndexerUrl = get(maspIndexerUrlAtom);
-  const shieldedSync = get(shieldedSyncAtom);
-  const chainParametersQuery = get(chainParametersAtom);
+
+  const [viewingKey, allViewingKeys] = viewingKeysQuery.data ?? [];
+  const chainTokens = chainTokensQuery.data?.map((t) => t.address);
+  const chainId = chainParametersQuery.data?.chainId;
+  const namTokenAddress = namTokenAddressQuery.data;
 
   return {
     refetchInterval: enablePolling ? 1000 : false,
-    queryKey: [
-      "shielded-balance",
-      viewingKeysQuery.data,
-      chainTokensQuery.data,
-      namTokenAddressQuery.data,
-      shieldedSync.data,
-      rpcUrl,
-      maspIndexerUrl,
-    ],
+    queryKey: ["shield-sync", viewingKey, chainTokens, chainId],
     ...queryDependentFn(async () => {
-      const viewingKeys = viewingKeysQuery.data;
-      const chainTokens = chainTokensQuery.data;
-      const syncEmitter = shieldedSync.data;
-      const chain = chainParametersQuery.data;
-      if (!viewingKeys || !chainTokens || !syncEmitter || !chain) {
+      if (
+        !viewingKey ||
+        !allViewingKeys ||
+        !chainTokens ||
+        !chainId ||
+        !namTokenAddress ||
+        !rpcUrl ||
+        !maspIndexerUrl
+      ) {
         return [];
       }
-      const [viewingKey] = viewingKeys;
+      const { set } = getDefaultStore();
 
-      await new Promise<void>((resolve) => {
-        syncEmitter.once(SdkEvents.ProgressBarFinished, () => resolve());
+      await shieldedSync({
+        rpcUrl,
+        maspIndexerUrl,
+        token: namTokenAddress,
+        viewingKeys: allViewingKeys,
+        chainId,
+        onProgress: (perc) => set(shieldedSyncProgress, perc),
       });
 
       const response = await fetchShieldedBalance(
         viewingKey,
-        chainTokens.map((t) => t.address),
-        chain.chainId
+        chainTokens,
+        chainId
       );
+
       const shieldedBalance = response.map(([address, amount]) => ({
         address,
         minDenomAmount: BigNumber(amount),
       }));
+
+      const storage = get(storageShieldedBalanceAtom);
+      set(storageShieldedBalanceAtom, {
+        ...storage,
+        [viewingKey.key]: shieldedBalance,
+      });
+
       return shieldedBalance;
     }, [
       viewingKeysQuery,
       chainTokensQuery,
-      namTokenAddressQuery,
       chainParametersQuery,
+      namTokenAddressQuery,
     ]),
   };
 });
 
 export const namadaShieldedAssetsAtom = atomWithQuery((get) => {
-  const shieldedBalances = get(shieldedBalanceAtom);
+  const storageShieldedBalance = get(storageShieldedBalanceAtom);
+  const viewingKeysQuery = get(viewingKeysAtom);
   const chainTokensQuery = get(chainTokensAtom);
   const chainParameters = get(chainParametersAtom);
+
+  const [viewingKey] = viewingKeysQuery.data ?? [];
+  const shieldedBalance = viewingKey && storageShieldedBalance[viewingKey.key];
 
   return {
     queryKey: [
       "namada-shielded-assets",
-      shieldedBalances.data,
+      shieldedBalance,
       chainTokensQuery.data,
       chainParameters.data!.chainId,
     ],
     ...queryDependentFn(
       async () =>
         await mapNamadaAddressesToAssets(
-          shieldedBalances.data!,
+          shieldedBalance ?? [],
           chainTokensQuery.data!,
           chainParameters.data!.chainId
         ),
-      [shieldedBalances, chainTokensQuery, chainParameters]
+      [chainTokensQuery, chainParameters]
     ),
   };
 });

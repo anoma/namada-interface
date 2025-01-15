@@ -8,9 +8,16 @@ import {
   fetchTransactionAtom,
   pendingTransactionsHistoryAtom,
 } from "atoms/transactions";
+import { differenceInHours } from "date-fns";
 import { useAtomValue } from "jotai";
 import { IbcTransferTransactionData, TransferStep } from "types";
 import { useTransactionActions } from "./useTransactionActions";
+
+// After 2h the pending status will be changed to timeout
+const pendingTimeout = 2;
+
+const isError404 = (e: unknown): boolean =>
+  typeof e === "object" && e !== null && "status" in e && e.status === 404;
 
 export const useTransactionWatcher = (): void => {
   const { changeTransaction } = useTransactionActions();
@@ -30,23 +37,33 @@ export const useTransactionWatcher = (): void => {
             case "ShieldedToShielded":
               {
                 const hash = tx.hash ?? "";
-                const response = await fetchTransaction(hash);
-                const hasRejectedTx = response.innerTransactions.find(
-                  ({ exitCode }) =>
-                    // indexer api is returning as "Rejected", but sdk type is "rejected"
-                    exitCode.toLowerCase() ===
-                    WrapperTransactionExitCodeEnum.Rejected.toLowerCase()
-                );
-                if (hasRejectedTx) {
-                  changeTransaction(hash, {
-                    status: "error",
-                    errorMessage: "Transaction rejected",
-                  });
-                } else {
-                  changeTransaction(hash, {
-                    status: "success",
-                    currentStep: TransferStep.Complete,
-                  });
+                try {
+                  const response = await fetchTransaction(hash);
+                  const hasRejectedTx = response.innerTransactions.find(
+                    ({ exitCode }) =>
+                      exitCode === WrapperTransactionExitCodeEnum.Rejected
+                  );
+                  if (hasRejectedTx) {
+                    changeTransaction(hash, {
+                      status: "error",
+                      errorMessage: "Transaction rejected",
+                    });
+                  } else {
+                    changeTransaction(hash, {
+                      status: "success",
+                      currentStep: TransferStep.Complete,
+                    });
+                  }
+                } catch (e) {
+                  if (
+                    isError404(e) &&
+                    differenceInHours(Date.now(), tx.createdAt) > pendingTimeout
+                  ) {
+                    changeTransaction(hash, {
+                      status: "error",
+                      errorMessage: "Transaction timed out",
+                    });
+                  }
                 }
               }
               break;
@@ -70,6 +87,6 @@ export const useTransactionWatcher = (): void => {
         })
       );
     },
-    refetchInterval: 5000,
+    refetchInterval: 2000,
   });
 };

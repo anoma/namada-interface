@@ -213,12 +213,13 @@ export const indexerHeartbeatAtom = atomWithQuery((get) => {
 
 export const clearShieldedContextAtom = atomWithMutation((get) => {
   const parameters = get(chainParametersAtom);
-  if (!parameters.data) {
-    throw new Error("Chain parameters not loaded");
-  }
-
   return {
     mutationKey: ["clear-shielded-context"],
-    mutationFn: () => clearShieldedContext(parameters.data.chainId),
+    mutationFn: () => {
+      if (!parameters.data) {
+        throw new Error("Chain parameters not loaded");
+      }
+      return clearShieldedContext(parameters.data.chainId);
+    },
   };
 });

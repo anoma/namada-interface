@@ -1,4 +1,5 @@
 import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
+import { shieldedBalanceAtom } from "atoms/balance/atoms";
 import { shouldUpdateBalanceAtom, shouldUpdateProposalAtom } from "atoms/etc";
 import { claimableRewardsAtom, clearClaimRewards } from "atoms/staking";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -9,7 +10,9 @@ import { useTransactionActions } from "./useTransactionActions";
 
 export const useTransactionCallback = (): void => {
   const { refetch: refetchBalances } = useAtomValue(accountBalanceAtom);
+  const { refetch: refetchShieldedBalance } = useAtomValue(shieldedBalanceAtom);
   const { refetch: refetchRewards } = useAtomValue(claimableRewardsAtom);
+
   const { data: account } = useAtomValue(defaultAccountAtom);
   const { changeTransaction } = useTransactionActions();
   const shouldUpdateProposal = useSetAtom(shouldUpdateProposalAtom);
@@ -51,6 +54,8 @@ export const useTransactionCallback = (): void => {
         currentStep: TransferStep.Complete,
       });
     });
+    refetchBalances();
+    refetchShieldedBalance();
   };
   useTransactionEventListener("TransparentTransfer.Success", onTransferSuccess);
   useTransactionEventListener("ShieldedTransfer.Success", onTransferSuccess);
