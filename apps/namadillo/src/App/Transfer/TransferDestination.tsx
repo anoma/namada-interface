@@ -47,6 +47,8 @@ export const TransferDestination = ({
   openChainSelector,
   openProviderSelector,
 }: TransferDestinationProps): JSX.Element => {
+  const isExternalDestination = !!openChainSelector;
+
   return (
     <div
       className={clsx("relative bg-neutral-800 rounded-lg px-4 pt-8 pb-4", {
@@ -126,7 +128,9 @@ export const TransferDestination = ({
           {isIbcTransfer ?
             <div className="flex justify-between items-center">
               <img src={ibcTransferImageWhite} className="w-20" />
-              <TransactionFee gasConfig={gasConfig} />
+              {isExternalDestination ?
+                <TransactionFeeButton gasConfig={gasConfig} />
+              : <TransactionFee gasConfig={gasConfig} />}
             </div>
           : <div className="flex justify-end">
               <TransactionFeeButton gasConfig={gasConfig} />
