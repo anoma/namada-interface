@@ -1,10 +1,25 @@
 import { routes } from "App/routes";
-import compatibilty from "compatibility.json";
+import compatibility from "compatibility.json";
 import { wallets } from "integrations";
 import { Link } from "react-router-dom";
+import semver from "semver";
 import semverSatisfies from "semver/functions/satisfies";
 import semverLtr from "semver/ranges/ltr";
+import { version as interfaceVersion } from "../../package.json";
 import { isFirefox } from "./etc";
+
+const fetchRequiredInterfaceVersion = async (): Promise<string> => {
+  try {
+    const response = await fetch(
+      "https://raw.githubusercontent.com/anoma/namada-interface/refs/heads/main/apps/namadillo/package.json"
+    );
+    const data = await response.json();
+    return data.version || "";
+  } catch (error) {
+    console.error("Failed to fetch required interface version:", error);
+    return "";
+  }
+};
 
 enum CompatibilityOutput {
   IncompatibleVersion = -1,
@@ -12,9 +27,6 @@ enum CompatibilityOutput {
   InterfaceOutdated = 1,
 }
 
-// Checks if the versions are compatible using semantic versioning (semver).
-// Returns true if the versions are compatible, -1 if the version is outdated,
-// or 1 if a required version is lower than the version provided.
 const checkVersionsCompatible = (
   currentVersion: string,
   requiredVersion: string
@@ -30,7 +42,7 @@ const checkVersionsCompatible = (
 export const checkIndexerCompatibilityErrors = (
   indexerVersion: string
 ): React.ReactNode => {
-  const requiredVersion = compatibilty.indexer;
+  const requiredVersion = compatibility.indexer;
   const checkResult = checkVersionsCompatible(indexerVersion, requiredVersion);
 
   if (checkResult === CompatibilityOutput.IncompatibleVersion) {
@@ -59,7 +71,7 @@ export const checkIndexerCompatibilityErrors = (
 export const checkKeychainCompatibilityError = (
   keychainVersion: string
 ): React.ReactNode => {
-  const targetKeychainVersion = compatibilty.keychain;
+  const targetKeychainVersion = compatibility.keychain;
   const checkResult = checkVersionsCompatible(
     keychainVersion,
     targetKeychainVersion
@@ -102,3 +114,33 @@ export const checkKeychainCompatibilityError = (
 
   return "";
 };
+
+const normalizeToMinor = (version: string): string => {
+  const parsed = semver.parse(version);
+  if (!parsed) return "";
+  return `${parsed.major}.${parsed.minor}.0`;
+};
+
+export const checkInterfaceCompatibilityError =
+  async (): Promise<React.ReactNode> => {
+    const requiredInterfaceVersion = await fetchRequiredInterfaceVersion();
+    const normalizedCurrent = normalizeToMinor(interfaceVersion);
+    const normalizedRequired = normalizeToMinor(requiredInterfaceVersion);
+
+    if (!normalizedCurrent || !normalizedRequired) {
+      return "";
+    }
+
+    if (semver.gt(normalizedRequired, normalizedCurrent)) {
+      return (
+        <>
+          Namadillo is running an outdated version and some features may not
+          work as intended. Please wait for the operator to update to{" "}
+          <strong>{requiredInterfaceVersion}</strong>. More on{" "}
+          <a href="https://namada.net/apps#interfaces">Namada Apps</a>.
+        </>
+      );
+    }
+
+    return "";
+  };
