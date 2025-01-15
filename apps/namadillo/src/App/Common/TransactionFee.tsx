@@ -14,7 +14,7 @@ export const TransactionFee = ({
 
   return (
     <div className="text-sm">
-      <span className="underline">Transaction fee:</span>{" "}
+      Transaction fee:{" "}
       <TokenCurrency symbol={symbol} amount={fee} className="font-medium " />
     </div>
   );

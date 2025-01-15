@@ -14,7 +14,7 @@ export const TransactionFeeButton = ({
     <>
       <button
         type="button"
-        className="hover:underline cursor-pointer"
+        className="underline hover:text-yellow transition-all cursor-pointer"
         onClick={() => setModalOpen(true)}
       >
         <TransactionFee gasConfig={gasConfig} />
