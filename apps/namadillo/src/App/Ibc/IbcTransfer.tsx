@@ -181,6 +181,7 @@ export const IbcTransfer = (): JSX.Element => {
           onChangeShielded: setShielded,
         }}
         gasConfig={gasConfig}
+        changeFeeEnabled={false}
         submittingText={currentProgress}
         isSubmitting={transferStatus === "pending" || !!currentProgress}
         isIbcTransfer={true}
