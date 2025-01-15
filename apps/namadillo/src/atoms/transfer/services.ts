@@ -196,7 +196,7 @@ export const createUnshieldingTransferTx = async (
 ): Promise<TransactionPair<UnshieldingTransferProps> | undefined> => {
   // For now we only support disposableSigner for non-ledger accounts
   const { address: signerAddress, publicKey: signerPublicKey } =
-    account.type === AccountType.Ledger ? account : await getDisposableSigner();
+    await getDisposableSigner();
 
   const source = props[0]?.source;
   const destination = props[0]?.data[0]?.target;

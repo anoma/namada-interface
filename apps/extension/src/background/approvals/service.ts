@@ -8,6 +8,7 @@ import {
   SignArbitraryResponse,
   SigningDataMsgValue,
   TxDetails,
+  TxProps,
 } from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 
@@ -136,8 +137,7 @@ export class ApprovalsService {
   async submitSignLedgerTx(
     popupTabId: number,
     msgId: string,
-    responseSign: ResponseSign[],
-    maspSignatures: string[]
+    responseSign: ResponseSign[]
   ): Promise<void> {
     const pendingTx = await this.txStore.get(msgId);
     const resolvers = this.getResolver(popupTabId);
@@ -154,20 +154,7 @@ export class ApprovalsService {
 
     try {
       const signedTxs = pendingTx.txs.map((pendingTx, i) => {
-        const signingData = pendingTx.signingData.map((signingData) =>
-          new Message().encode(new SigningDataMsgValue(signingData))
-        );
-        const maspSignature = fromBase64(maspSignatures[i]);
-        // TODO: consider improving this, explanation below:
-        // Because we read tx from the store we have to append masp signatures twice
-        // First time before ledger computes tx wrapper signature and second time now to submit proper tx
-        const txWithMasp = tx.appendMaspSignature(
-          pendingTx.bytes,
-          signingData,
-          maspSignature
-        );
-
-        return tx.appendSignature(txWithMasp, responseSign[i]);
+        return tx.appendSignature(pendingTx.bytes, responseSign[i]);
       });
       resolvers.resolve(signedTxs);
     } catch (e) {
@@ -177,29 +164,69 @@ export class ApprovalsService {
     await this.clearPendingSignature(msgId);
   }
 
-  async replaceMaspSignature(
-    msgId: string,
-    signature: string,
-    txIndex: number
-  ): Promise<string> {
-    const pendingTx = (await this.txStore.get(msgId))?.txs.at(txIndex);
+  /**
+   * Modifies pending transaction data by appending real MASP signatures
+   *
+   * @async
+   * @param {string} msgId - message ID
+   * @param {string} signer - signer
+   * @throws {Error} - if pending transaction data is not found
+   * @returns void
+   */
+  async signMasp(msgId: string, signer: string): Promise<void> {
+    const pendingTx = await this.txStore.get(msgId);
 
     if (!pendingTx) {
-      throw new Error(ApprovalErrors.TransactionDataNotFound(msgId));
+      throw new Error(ApprovalErrors.PendingSigningDataNotFound(msgId));
     }
 
-    const { tx } = this.sdkService.getSdk();
+    const txs: TxProps[] = [];
+    for await (const tx of pendingTx.txs) {
+      const bytes = await this.keyRingService.signMasp(tx, signer);
+      txs.push({
+        ...tx,
+        bytes,
+      });
+    }
 
-    const signingData = pendingTx.signingData.map((signingData) =>
-      new Message().encode(new SigningDataMsgValue(signingData))
-    );
-    const txWithMasp = tx.appendMaspSignature(
-      pendingTx.bytes,
-      signingData,
-      fromBase64(signature)
-    );
+    await this.txStore.set(msgId, { ...pendingTx, txs });
+  }
 
-    return toBase64(txWithMasp);
+  /**
+   * Modifies pending transaction data by replacing MASP signatures
+   *
+   * @async
+   * @param {string} msgId - message ID
+   * @param {string[]} signatures - MASP signatures
+   * @throws {Error} - if pending transaction data is not found
+   * @returns void
+   */
+  async replaceMaspSignatures(
+    msgId: string,
+    signatures: string[]
+  ): Promise<void> {
+    const pendingTx = await this.txStore.get(msgId);
+    if (!pendingTx) {
+      throw new Error(ApprovalErrors.PendingTxNotFound(msgId));
+    }
+
+    const { tx: sdkTx } = this.sdkService.getSdk();
+
+    const txsWithSignatures = signatures.map((signature, i) => {
+      const tx = pendingTx.txs[i];
+      const signingData = tx.signingData.map((signingData) =>
+        new Message().encode(new SigningDataMsgValue(signingData))
+      );
+      const txBytes = sdkTx.appendMaspSignature(
+        tx.bytes,
+        signingData,
+        fromBase64(signature)
+      );
+
+      return { ...tx, bytes: txBytes };
+    });
+
+    await this.txStore.set(msgId, { ...pendingTx, txs: txsWithSignatures });
   }
 
   async submitSignArbitrary(

@@ -230,18 +230,7 @@ impl Sdk {
             }
         }
 
-        let signing_data = tx
-            .signing_tx_data()?
-            .iter()
-            .cloned()
-            .map(|std| (std, None))
-            .collect::<Vec<(SigningTxData, Option<MaspSigningData>)>>();
-
-        // Recreate the tx with the new signatures, we can pass None for masp_signing_data as it
-        // was already used
-        let tx = tx::Tx::new(namada_tx, &borsh::to_vec(&tx.args())?, signing_data)?;
-
-        to_js_result(borsh::to_vec(&tx)?)
+        to_js_result(borsh::to_vec(&namada_tx)?)
     }
 
     // TODO: this should be unified with sign_masp somehow
@@ -267,11 +256,6 @@ impl Sdk {
                     .expect("Expected to find the indicated MASP Transaction")
                     .clone();
 
-                let masp_builder = namada_tx
-                    .get_masp_builder(&shielded_hash)
-                    .expect("Expected to find the indicated MASP Builder");
-
-                let sapling_inputs = masp_builder.builder.sapling_inputs();
                 let mut authorizations = HashMap::new();
 
                 let signature =

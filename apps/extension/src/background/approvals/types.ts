@@ -32,6 +32,7 @@ export const ApprovalErrors = {
     `Pending signing data not found for ${msgId}!`,
   PendingSignArbitaryDataNotFound: (msgId: string) =>
     `Pending sign arbitrary data not found for ${msgId}!`,
+  PendingTxNotFound: (msgId: string) => `Pending tx not found for ${msgId}`,
   TransactionDataNotFound: (msgId: string) =>
     `Transaction data not found for ${msgId}`,
   InvalidLedgerSignature: (msgId: string) =>

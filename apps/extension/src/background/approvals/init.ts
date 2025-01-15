@@ -16,8 +16,9 @@ import {
   QueryTxDetailsMsg,
   RejectSignArbitraryMsg,
   RejectSignTxMsg,
-  ReplaceMaspSignatureMsg,
+  ReplaceMaspSignaturesMsg,
   RevokeConnectionMsg,
+  SignMaspMsg,
   SubmitApprovedSignArbitraryMsg,
   SubmitApprovedSignLedgerTxMsg,
   SubmitApprovedSignTxMsg,
@@ -37,7 +38,7 @@ export function init(router: Router, service: ApprovalsService): void {
   router.registerMessage(SubmitApprovedSignTxMsg);
   router.registerMessage(SubmitApprovedSignArbitraryMsg);
   router.registerMessage(SubmitApprovedSignLedgerTxMsg);
-  router.registerMessage(ReplaceMaspSignatureMsg);
+  router.registerMessage(ReplaceMaspSignaturesMsg);
   router.registerMessage(IsConnectionApprovedMsg);
   router.registerMessage(ApproveConnectInterfaceMsg);
   router.registerMessage(ConnectInterfaceResponseMsg);
@@ -49,6 +50,7 @@ export function init(router: Router, service: ApprovalsService): void {
   router.registerMessage(QueryTxDetailsMsg);
   router.registerMessage(QuerySignArbitraryDataMsg);
   router.registerMessage(QueryPendingTxBytesMsg);
+  router.registerMessage(SignMaspMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }

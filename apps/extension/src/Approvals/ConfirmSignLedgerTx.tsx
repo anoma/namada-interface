@@ -11,8 +11,9 @@ import { PageHeader } from "App/Common";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {
   QueryPendingTxBytesMsg,
-  ReplaceMaspSignatureMsg,
+  ReplaceMaspSignaturesMsg,
   SubmitApprovedSignLedgerTxMsg,
+  SubmitApprovedSignTxMsg,
 } from "background/approvals";
 import { QueryAccountDetailsMsg } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
@@ -117,6 +118,37 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
     return signature;
   };
 
+  const handleMaspSignTx = useCallback(
+    async (
+      ledger: Ledger,
+      tx: string,
+      zip32Path: string,
+      signatures: string[]
+    ) => {
+      const { sbar, rbar } = await signMaspTx(
+        ledger,
+        fromBase64(tx),
+        zip32Path
+      );
+      const signature = toBase64(new Uint8Array([...rbar, ...sbar]));
+      signatures.push(signature);
+    },
+    []
+  );
+
+  const handleSignTx = useCallback(
+    async (
+      ledger: Ledger,
+      tx: string,
+      bip44Path: string,
+      signatures: ResponseSign[]
+    ) => {
+      const signature = await signLedgerTx(ledger, fromBase64(tx), bip44Path);
+      signatures.push(signature);
+    },
+    []
+  );
+
   const handleApproveLedgerSignTx = useCallback(
     async (e: React.FormEvent): Promise<void> => {
       e.preventDefault();
@@ -149,6 +181,9 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
       setStepTwoDescription("Preparing transaction...");
 
       try {
+        // TODO: we have to check if the signer is disposable or not
+        const isDisposableSigner = false;
+
         const accountDetails = await requester.sendMessage(
           Ports.Background,
           new QueryAccountDetailsMsg(signer)
@@ -161,10 +196,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
           change: accountDetails.path.change || 0,
           index: accountDetails.path.index || 0,
         };
-        const bip44Path = makeBip44Path(chains.namada.bip44.coinType, path);
-        const zip32Path = makeSaplingPath(chains.namada.bip44.coinType, {
-          account: path.account,
-        });
+
         const pendingTxs = await requester.sendMessage(
           Ports.Background,
           new QueryPendingTxBytesMsg(msgId)
@@ -176,9 +208,6 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
           );
         }
 
-        const signatures: ResponseSign[] = [];
-        const maspSignatures: string[] = [];
-
         let txIndex = 0;
         const txCount = pendingTxs.length;
         const stepTwoText = "Approve on your device";
@@ -186,6 +215,10 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
         if (txCount === 1) {
           setStepTwoDescription(<p>{stepTwoText}</p>);
         }
+
+        // Those collections are being mutated in the loop
+        const signatures: ResponseSign[] = [];
+        const maspSignatures: string[] = [];
 
         for await (const tx of pendingTxs) {
           if (txCount > 1) {
@@ -197,33 +230,39 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
               </p>
             );
           }
-          const { sbar, rbar } = await signMaspTx(
-            ledger,
-            fromBase64(tx),
-            zip32Path
-          );
-          const maspSignature = toBase64(new Uint8Array([...rbar, ...sbar]));
-          maspSignatures.push(maspSignature);
 
-          const txWithMaspSection = await requester.sendMessage(
-            Ports.Background,
-            new ReplaceMaspSignatureMsg(msgId, maspSignature, txIndex)
-          );
+          if (isDisposableSigner) {
+            const zip32Path = makeSaplingPath(chains.namada.bip44.coinType, {
+              account: path.account,
+            });
+            // Adds new signature to the collection
+            await handleMaspSignTx(ledger, tx, zip32Path, maspSignatures);
+          } else {
+            const bip44Path = makeBip44Path(chains.namada.bip44.coinType, path);
+            // Adds new signature to the collection
+            await handleSignTx(ledger, tx, bip44Path, signatures);
+          }
 
-          const signature = await signLedgerTx(
-            ledger,
-            fromBase64(txWithMaspSection),
-            bip44Path
-          );
-          signatures.push(signature);
           txIndex++;
         }
 
         setStepTwoDescription(<p>Submitting...</p>);
-        await requester.sendMessage(
-          Ports.Background,
-          new SubmitApprovedSignLedgerTxMsg(msgId, signatures, maspSignatures)
-        );
+
+        if (isDisposableSigner) {
+          await requester.sendMessage(
+            Ports.Background,
+            new ReplaceMaspSignaturesMsg(msgId, maspSignatures)
+          );
+          await requester.sendMessage(
+            Ports.Background,
+            new SubmitApprovedSignTxMsg(msgId, signer)
+          );
+        } else {
+          await requester.sendMessage(
+            Ports.Background,
+            new SubmitApprovedSignLedgerTxMsg(msgId, signatures)
+          );
+        }
 
         setStatus(Status.Completed);
       } catch (e) {
