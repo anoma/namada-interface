@@ -207,7 +207,7 @@ export class ApprovalsService {
   ): Promise<void> {
     const pendingTx = await this.txStore.get(msgId);
     if (!pendingTx) {
-      throw new Error(ApprovalErrors.PendingTxNotFound(msgId));
+      throw new Error(ApprovalErrors.TransactionDataNotFound(msgId));
     }
 
     const { tx: sdkTx } = this.sdkService.getSdk();

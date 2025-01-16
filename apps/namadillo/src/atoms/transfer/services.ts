@@ -110,13 +110,21 @@ export const createShieldedTransferTx = async (
   rpcUrl: string,
   memo?: string
 ): Promise<TransactionPair<ShieldedTransferProps> | undefined> => {
-  // For now we only support disposableSigner for non-ledger accounts
   const { address: signerAddress, publicKey: signerPublicKey } =
-    account.type === AccountType.Ledger ? account : await getDisposableSigner();
+    await getDisposableSigner();
   const source = props[0]?.data[0]?.source;
   const destination = props[0]?.data[0]?.target;
   const token = props[0]?.data[0]?.token;
   const amount = props[0]?.data[0]?.amount;
+
+  let bparams: BparamsMsgValue[] | undefined;
+
+  if (account.type === AccountType.Ledger) {
+    const sdk = await getSdkInstance();
+    const ledger = await sdk.initLedger();
+    bparams = await ledger.getBparams();
+    ledger.closeTransport();
+  }
 
   return await workerBuildTxPair({
     rpcUrl,
@@ -126,6 +134,7 @@ export const createShieldedTransferTx = async (
       const msgValue = new ShieldedTransferMsgValue({
         gasSpendingKey: source,
         data: [{ source, target: destination, token, amount }],
+        bparams,
       });
       const msg: ShieldedTransfer = {
         type: "shielded-transfer",
@@ -158,6 +167,15 @@ export const createShieldingTransferTx = async (
   const token = props[0]?.data[0]?.token;
   const amount = props[0]?.data[0]?.amount;
 
+  let bparams: BparamsMsgValue[] | undefined;
+
+  if (account.type === AccountType.Ledger) {
+    const sdk = await getSdkInstance();
+    const ledger = await sdk.initLedger();
+    bparams = await ledger.getBparams();
+    ledger.closeTransport();
+  }
+
   return await workerBuildTxPair({
     rpcUrl,
     token,
@@ -168,6 +186,7 @@ export const createShieldingTransferTx = async (
       const msgValue = new ShieldingTransferMsgValue({
         target: destination,
         data: [{ source, token, amount }],
+        bparams,
       });
       const msg: Shield = {
         type: "shield",
@@ -194,7 +213,6 @@ export const createUnshieldingTransferTx = async (
   rpcUrl: string,
   memo?: string
 ): Promise<TransactionPair<UnshieldingTransferProps> | undefined> => {
-  // For now we only support disposableSigner for non-ledger accounts
   const { address: signerAddress, publicKey: signerPublicKey } =
     await getDisposableSigner();
 

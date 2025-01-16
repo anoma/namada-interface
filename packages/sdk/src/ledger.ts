@@ -163,9 +163,18 @@ export class Ledger {
     // to ensure that the randomness is not reused
     await this.namadaApp.cleanRandomnessBuffers();
     const results: Bparams[] = [];
+    let tries = 0;
 
-    // TODO: not sure why ledger sometimes returns errors, so we try to get 15 valid responses
+    // This should not happen usually, but in case some of the responses are not valid, we will retry.
+    // 15 is a maximum number of spend/output/convert description randomness parameters that can be
+    // generated on the hardware wallet. This also means that ledger can sign maximum of 15 spend, output
+    // and convert descriptions in one tx.
     while (results.length < 15) {
+      tries++;
+      if (tries === 20) {
+        throw new Error("Could not get valid Bparams, too many tries");
+      }
+
       const spend_response = await this.namadaApp.getSpendRandomness();
       const output_response = await this.namadaApp.getOutputRandomness();
       const convert_response = await this.namadaApp.getConvertRandomness();

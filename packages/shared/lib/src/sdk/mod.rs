@@ -13,7 +13,7 @@ use crate::utils::set_panic_hook;
 #[cfg(feature = "web")]
 use crate::utils::to_bytes;
 use crate::utils::to_js_result;
-use args::{generate_masp_build_params, masp_sign, BuildParams, MapSaplingSigAuth};
+use args::{generate_rng_build_params, masp_sign, BuildParams, MapSaplingSigAuth};
 use gloo_utils::format::JsValueSerdeExt;
 use js_sys::Uint8Array;
 use namada_sdk::address::{Address, ImplicitAddress, MASP};
@@ -27,6 +27,7 @@ use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::io::NamadaIo;
 use namada_sdk::key::{common, ed25519, RefTo, SigScheme};
 use namada_sdk::masp::ShieldedContext;
+use namada_sdk::masp_primitives::transaction::components::sapling::builder::StoredBuildParams;
 use namada_sdk::masp_primitives::transaction::components::sapling::fees::InputView;
 use namada_sdk::masp_primitives::zip32::{ExtendedFullViewingKey, ExtendedKey};
 use namada_sdk::rpc::{query_epoch, InnerTxResult};
@@ -50,22 +51,6 @@ use std::collections::BTreeMap;
 use std::str::FromStr;
 use tx::MaspSigningData;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
-
-// Maximum number of spend description randomness parameters that can be
-// generated on the hardware wallet. It is hard to compute the exact required
-// number because a given MASP source could be distributed amongst several
-// notes.
-const MAX_HW_SPEND: usize = 15;
-// Maximum number of convert description randomness parameters that can be
-// generated on the hardware wallet. It is hard to compute the exact required
-// number because the number of conversions that are used depends on the
-// protocol's current state.
-const MAX_HW_CONVERT: usize = 15;
-// Maximum number of output description randomness parameters that can be
-// generated on the hardware wallet. It is hard to compute the exact required
-// number because the number of outputs depends on the number of dummy outputs
-// introduced.
-const MAX_HW_OUTPUT: usize = 15;
 
 /// Represents the Sdk public API.
 #[wasm_bindgen]
@@ -509,10 +494,14 @@ impl Sdk {
         shielded_transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
-        let mut args = args::shielded_transfer_tx_args(shielded_transfer_msg, wrapper_tx_msg)?;
-        let bparams =
-            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
-                .await?;
+        let (mut args, bparams) =
+            args::shielded_transfer_tx_args(shielded_transfer_msg, wrapper_tx_msg)?;
+
+        let bparams = if let Some(bparams) = bparams {
+            BuildParams::StoredBuildParams(bparams)
+        } else {
+            generate_rng_build_params()
+        };
 
         let _ = &self.namada.shielded_mut().await.load().await?;
 
@@ -556,8 +545,7 @@ impl Sdk {
         let bparams = if let Some(bparams) = bparams {
             BuildParams::StoredBuildParams(bparams)
         } else {
-            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
-                .await?
+            generate_rng_build_params()
         };
 
         let _ = &self.namada.shielded_mut().await.load().await?;
@@ -592,10 +580,13 @@ impl Sdk {
         shielding_transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
-        let mut args = args::shielding_transfer_tx_args(shielding_transfer_msg, wrapper_tx_msg)?;
-        let bparams =
-            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
-                .await?;
+        let (mut args, bparams) =
+            args::shielding_transfer_tx_args(shielding_transfer_msg, wrapper_tx_msg)?;
+        let bparams = if let Some(bparams) = bparams {
+            BuildParams::StoredBuildParams(bparams)
+        } else {
+            generate_rng_build_params()
+        };
         let _ = &self.namada.shielded_mut().await.load().await?;
 
         let (tx, signing_data, _) = match bparams {
@@ -616,27 +607,11 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
         let args = args::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg)?;
-        let bparams =
-            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
-                .await?;
+        // TODO: we do not support ibc unshielding yet
+        let mut bparams = StoredBuildParams::default();
+        let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
 
-        let ((tx, signing_data, _), bparams) = match bparams {
-            BuildParams::RngBuildParams(mut bparams) => {
-                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
-                let bparams = bparams
-                    .to_stored()
-                    .ok_or_err_msg("Cannot convert bparams to stored")?;
-
-                (tx, bparams)
-            }
-            BuildParams::StoredBuildParams(mut bparams) => {
-                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
-
-                (tx, bparams)
-            }
-        };
-
-        // As we can't get ExtendedFullViewingKeys from the tx args we need to get them from the
+        // As we can't get ExtendedFullViewingKeys from the tx args, we need to get them from the
         // MASP Builder section of transaction
         let masp_signing_data = if let Some(shielded_hash) = signing_data.shielded_hash {
             let masp_builder = tx

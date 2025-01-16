@@ -123,13 +123,24 @@ export class ShieldedTransferMsgValue {
   @field({ type: option("string") })
   gasSpendingKey?: string;
 
-  constructor({ data, gasSpendingKey }: ShieldedTransferProps) {
+  @field({ type: option(vec(BparamsMsgValue)) })
+  bparams?: BparamsMsgValue[];
+
+  constructor({ data, gasSpendingKey, bparams }: ShieldedTransferProps) {
     Object.assign(this, {
       data: data.map(
         (shieldedTransferDataProps) =>
           new ShieldedTransferDataMsgValue(shieldedTransferDataProps)
       ),
       gasSpendingKey,
+
+      bparams: bparams?.map((bparam) => {
+        return new BparamsMsgValue({
+          spend: new BparamsSpendMsgValue(bparam.spend),
+          output: new BparamsOutputMsgValue(bparam.output),
+          convert: new BparamsConvertMsgValue(bparam.convert),
+        });
+      }),
     });
   }
 }
@@ -158,6 +169,9 @@ export class ShieldingTransferMsgValue {
 
   @field({ type: vec(ShieldingTransferDataMsgValue) })
   data!: ShieldingTransferDataMsgValue[];
+
+  @field({ type: option(vec(BparamsMsgValue)) })
+  bparams?: BparamsMsgValue[];
 
   constructor({ data, target }: ShieldingTransferProps) {
     Object.assign(this, {

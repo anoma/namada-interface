@@ -518,147 +518,6 @@ pub fn transparent_transfer_tx_args(
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 #[borsh(crate = "namada_sdk::borsh")]
-pub struct ShieldedTransferDataMsg {
-    source: String,
-    target: String,
-    token: String,
-    amount: String,
-}
-
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-#[borsh(crate = "namada_sdk::borsh")]
-pub struct ShieldedTransferMsg {
-    data: Vec<ShieldedTransferDataMsg>,
-    gas_spending_key: Option<String>,
-}
-
-/// Maps serialized tx_msg into TxShieldedTransfer args.
-///
-/// # Arguments
-///
-/// * `shielding_transfer_msg` - Borsh serialized ShieldingTransferMsg.
-/// * `tx_msg` - Borsh serialized tx_msg.
-///
-/// # Errors
-///
-/// Returns JsError if the tx_msg can't be deserialized or
-/// Rust structs can't be created.
-pub fn shielded_transfer_tx_args(
-    shielded_transfer_msg: &[u8],
-    tx_msg: &[u8],
-) -> Result<args::TxShieldedTransfer, JsError> {
-    let shielded_transfer_msg = ShieldedTransferMsg::try_from_slice(shielded_transfer_msg)?;
-    let ShieldedTransferMsg {
-        data,
-        gas_spending_key,
-    } = shielded_transfer_msg;
-
-    let gas_spending_key = gas_spending_key.map(|v| PseudoExtendedKey::decode(v).0);
-
-    let mut shielded_transfer_data: Vec<args::TxShieldedTransferData> = vec![];
-
-    for shielded_transfer in data {
-        let source = PseudoExtendedKey::decode(shielded_transfer.source).0;
-        let target = PaymentAddress::from_str(&shielded_transfer.target)?;
-        let token = Address::from_str(&shielded_transfer.token)?;
-        let denom_amount =
-            DenominatedAmount::from_str(&shielded_transfer.amount).expect("Amount to be valid.");
-        let amount = InputAmount::Unvalidated(denom_amount);
-
-        shielded_transfer_data.push(args::TxShieldedTransferData {
-            source,
-            target,
-            token,
-            amount,
-        });
-    }
-
-    let tx = tx_msg_into_args(tx_msg)?;
-
-    let args = args::TxShieldedTransfer {
-        data: shielded_transfer_data,
-        tx,
-        tx_code_path: PathBuf::from("tx_transfer.wasm"),
-        // false, we do this manually
-        disposable_signing_key: false,
-        gas_spending_key,
-    };
-
-    Ok(args)
-}
-
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-#[borsh(crate = "namada_sdk::borsh")]
-pub struct ShieldingTransferDataMsg {
-    source: String,
-    token: String,
-    amount: String,
-}
-
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-#[borsh(crate = "namada_sdk::borsh")]
-pub struct ShieldingTransferMsg {
-    target: String,
-    data: Vec<ShieldingTransferDataMsg>,
-}
-
-/// Maps serialized tx_msg into TxShieldingTransfer args.
-///
-/// # Arguments
-///
-/// * `shielding_transfer_msg` - Borsh serialized ShieldingTransferMsg.
-/// * `tx_msg` - Borsh serialized tx_msg.
-///
-/// # Errors
-///
-/// Returns JsError if the tx_msg can't be deserialized or
-/// Rust structs can't be created.
-pub fn shielding_transfer_tx_args(
-    shielding_transfer_msg: &[u8],
-    tx_msg: &[u8],
-) -> Result<args::TxShieldingTransfer, JsError> {
-    let shielding_transfer_msg = ShieldingTransferMsg::try_from_slice(shielding_transfer_msg)?;
-    let ShieldingTransferMsg { target, data } = shielding_transfer_msg;
-    let target = PaymentAddress::from_str(&target)?;
-
-    let mut shielding_transfer_data: Vec<args::TxShieldingTransferData> = vec![];
-
-    for shielding_transfer in data {
-        let source = Address::from_str(&shielding_transfer.source)?;
-        let token = Address::from_str(&shielding_transfer.token)?;
-        let denom_amount =
-            DenominatedAmount::from_str(&shielding_transfer.amount).expect("Amount to be valid.");
-        let amount = InputAmount::Unvalidated(denom_amount);
-
-        shielding_transfer_data.push(args::TxShieldingTransferData {
-            source,
-            token,
-            amount,
-        });
-    }
-
-    let tx = tx_msg_into_args(tx_msg)?;
-
-    let args = args::TxShieldingTransfer {
-        data: shielding_transfer_data,
-        target,
-        tx,
-        tx_code_path: PathBuf::from("tx_transfer.wasm"),
-    };
-
-    Ok(args)
-}
-
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-#[borsh(crate = "namada_sdk::borsh")]
-pub struct UnshieldingTransferDataMsg {
-    target: String,
-    token: String,
-    amount: String,
-}
-
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-#[borsh(crate = "namada_sdk::borsh")]
 pub struct BparamsSpendMsg {
     rcv: Vec<u8>,
     alpha: Vec<u8>,
@@ -683,6 +542,156 @@ pub struct BparamsMsg {
     spend: BparamsSpendMsg,
     output: BparamsOutputMsg,
     convert: BparamsConvertMsg,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct ShieldedTransferDataMsg {
+    source: String,
+    target: String,
+    token: String,
+    amount: String,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct ShieldedTransferMsg {
+    data: Vec<ShieldedTransferDataMsg>,
+    gas_spending_key: Option<String>,
+    bparams: Option<Vec<BparamsMsg>>,
+}
+
+/// Maps serialized tx_msg into TxShieldedTransfer args.
+///
+/// # Arguments
+///
+/// * `shielding_transfer_msg` - Borsh serialized ShieldingTransferMsg.
+/// * `tx_msg` - Borsh serialized tx_msg.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
+pub fn shielded_transfer_tx_args(
+    shielded_transfer_msg: &[u8],
+    tx_msg: &[u8],
+) -> Result<(args::TxShieldedTransfer, Option<StoredBuildParams>), JsError> {
+    let shielded_transfer_msg = ShieldedTransferMsg::try_from_slice(shielded_transfer_msg)?;
+    let ShieldedTransferMsg {
+        data,
+        gas_spending_key,
+        bparams: bparams_msg,
+    } = shielded_transfer_msg;
+
+    let gas_spending_key = gas_spending_key.map(|v| PseudoExtendedKey::decode(v).0);
+
+    let mut shielded_transfer_data: Vec<args::TxShieldedTransferData> = vec![];
+
+    for shielded_transfer in data {
+        let source = PseudoExtendedKey::decode(shielded_transfer.source).0;
+        let target = PaymentAddress::from_str(&shielded_transfer.target)?;
+        let token = Address::from_str(&shielded_transfer.token)?;
+        let denom_amount =
+            DenominatedAmount::from_str(&shielded_transfer.amount).expect("Amount to be valid.");
+        let amount = InputAmount::Unvalidated(denom_amount);
+
+        shielded_transfer_data.push(args::TxShieldedTransferData {
+            source,
+            target,
+            token,
+            amount,
+        });
+    }
+
+    let tx = tx_msg_into_args(tx_msg)?;
+    let bparams = bparams_msg_into_bparams(bparams_msg);
+
+    let args = args::TxShieldedTransfer {
+        data: shielded_transfer_data,
+        tx,
+        tx_code_path: PathBuf::from("tx_transfer.wasm"),
+        // false, we do this manually
+        disposable_signing_key: false,
+        gas_spending_key,
+    };
+
+    Ok((args, bparams))
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct ShieldingTransferDataMsg {
+    source: String,
+    token: String,
+    amount: String,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct ShieldingTransferMsg {
+    target: String,
+    data: Vec<ShieldingTransferDataMsg>,
+    bparams: Option<Vec<BparamsMsg>>,
+}
+
+/// Maps serialized tx_msg into TxShieldingTransfer args.
+///
+/// # Arguments
+///
+/// * `shielding_transfer_msg` - Borsh serialized ShieldingTransferMsg.
+/// * `tx_msg` - Borsh serialized tx_msg.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
+pub fn shielding_transfer_tx_args(
+    shielding_transfer_msg: &[u8],
+    tx_msg: &[u8],
+) -> Result<(args::TxShieldingTransfer, Option<StoredBuildParams>), JsError> {
+    let shielding_transfer_msg = ShieldingTransferMsg::try_from_slice(shielding_transfer_msg)?;
+    let ShieldingTransferMsg {
+        target,
+        data,
+        bparams: bparams_msg,
+    } = shielding_transfer_msg;
+    let target = PaymentAddress::from_str(&target)?;
+
+    let mut shielding_transfer_data: Vec<args::TxShieldingTransferData> = vec![];
+
+    for shielding_transfer in data {
+        let source = Address::from_str(&shielding_transfer.source)?;
+        let token = Address::from_str(&shielding_transfer.token)?;
+        let denom_amount =
+            DenominatedAmount::from_str(&shielding_transfer.amount).expect("Amount to be valid.");
+        let amount = InputAmount::Unvalidated(denom_amount);
+
+        shielding_transfer_data.push(args::TxShieldingTransferData {
+            source,
+            token,
+            amount,
+        });
+    }
+
+    let tx = tx_msg_into_args(tx_msg)?;
+    let bparams = bparams_msg_into_bparams(bparams_msg);
+
+    let args = args::TxShieldingTransfer {
+        data: shielding_transfer_data,
+        target,
+        tx,
+        tx_code_path: PathBuf::from("tx_transfer.wasm"),
+    };
+
+    Ok((args, bparams))
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct UnshieldingTransferDataMsg {
+    target: String,
+    token: String,
+    amount: String,
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
@@ -735,45 +744,7 @@ pub fn unshielding_transfer_tx_args(
     }
 
     let tx = tx_msg_into_args(tx_msg)?;
-
-    let bparams = bparams_msg.map(|bparams_msg| {
-        let mut bparams = StoredBuildParams::default();
-        for bpm in bparams_msg {
-            bparams
-                .spend_params
-                .push(sapling::builder::SpendBuildParams {
-                    rcv: masp_primitives::jubjub::Fr::from_bytes(
-                        &bpm.spend.rcv.try_into().unwrap(),
-                    )
-                    .unwrap(),
-                    alpha: masp_primitives::jubjub::Fr::from_bytes(
-                        &bpm.spend.alpha.try_into().unwrap(),
-                    )
-                    .unwrap(),
-                });
-
-            bparams
-                .output_params
-                .push(sapling::builder::OutputBuildParams {
-                    rcv: masp_primitives::jubjub::Fr::from_bytes(
-                        &bpm.output.rcv.try_into().unwrap(),
-                    )
-                    .unwrap(),
-                    rseed: bpm.output.rcm.try_into().unwrap(),
-                    ..sapling::builder::OutputBuildParams::default()
-                });
-
-            bparams
-                .convert_params
-                .push(sapling::builder::ConvertBuildParams {
-                    rcv: masp_primitives::jubjub::Fr::from_bytes(
-                        &bpm.convert.rcv.try_into().unwrap(),
-                    )
-                    .unwrap(),
-                });
-        }
-        bparams
-    });
+    let bparams = bparams_msg_into_bparams(bparams_msg);
 
     let args = args::TxUnshieldingTransfer {
         data: unshielding_transfer_data,
@@ -1057,26 +1028,11 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
 
 pub enum BuildParams {
     RngBuildParams(RngBuildParams<OsRng>),
-    // TODO: HD Wallet support
-    #[allow(dead_code)]
     StoredBuildParams(StoredBuildParams),
 }
 
-pub async fn generate_masp_build_params(
-    // TODO: those will be needed for HD Wallet support
-    _spend_len: usize,
-    _convert_len: usize,
-    _output_len: usize,
-    args: &args::Tx,
-) -> Result<BuildParams, error::Error> {
-    // Construct the build parameters that parameterized the Transaction
-    // authorizations
-    if args.use_device {
-        // HD Wallet support
-        Err(error::Error::Other("Device not supported".into()))
-    } else {
-        Ok(BuildParams::RngBuildParams(RngBuildParams::new(OsRng)))
-    }
+pub fn generate_rng_build_params() -> BuildParams {
+    BuildParams::RngBuildParams(RngBuildParams::new(OsRng))
 }
 
 // Sign the given transaction's MASP component using real signatures
@@ -1141,6 +1097,47 @@ where
         tx.add_section(Section::MaspTx(masp_tx));
     }
     Ok(())
+}
+
+fn bparams_msg_into_bparams(bparams_msg: Option<Vec<BparamsMsg>>) -> Option<StoredBuildParams> {
+    bparams_msg.map(|bparams_msg| {
+        let mut bparams = StoredBuildParams::default();
+        for bpm in bparams_msg {
+            bparams
+                .spend_params
+                .push(sapling::builder::SpendBuildParams {
+                    rcv: masp_primitives::jubjub::Fr::from_bytes(
+                        &bpm.spend.rcv.try_into().unwrap(),
+                    )
+                    .unwrap(),
+                    alpha: masp_primitives::jubjub::Fr::from_bytes(
+                        &bpm.spend.alpha.try_into().unwrap(),
+                    )
+                    .unwrap(),
+                });
+
+            bparams
+                .output_params
+                .push(sapling::builder::OutputBuildParams {
+                    rcv: masp_primitives::jubjub::Fr::from_bytes(
+                        &bpm.output.rcv.try_into().unwrap(),
+                    )
+                    .unwrap(),
+                    rseed: bpm.output.rcm.try_into().unwrap(),
+                    ..sapling::builder::OutputBuildParams::default()
+                });
+
+            bparams
+                .convert_params
+                .push(sapling::builder::ConvertBuildParams {
+                    rcv: masp_primitives::jubjub::Fr::from_bytes(
+                        &bpm.convert.rcv.try_into().unwrap(),
+                    )
+                    .unwrap(),
+                });
+        }
+        bparams
+    })
 }
 
 pub struct MapSaplingSigAuth(
