@@ -91,7 +91,9 @@ export const toDisplayAmount = (
   if (!displayUnit) {
     return baseAmount;
   }
-  return baseAmount.shiftedBy(-displayUnit.exponent);
+  return baseAmount
+    .shiftedBy(-displayUnit.exponent)
+    .decimalPlaces(6, BigNumber.ROUND_DOWN);
 };
 
 export const toBaseAmount = (
