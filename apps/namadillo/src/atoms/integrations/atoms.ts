@@ -22,6 +22,7 @@ import {
   ChainRegistryEntry,
   RpcStorage,
 } from "types";
+import { githubNamadaChainRegistryBaseUrl } from "urls";
 import {
   addLocalnetToRegistry,
   createIbcTx,
@@ -141,21 +142,12 @@ export const ibcChannelsFamily = atomFamily((ibcChainName?: string) =>
       ...queryDependentFn(async () => {
         invariant(chainSettings.data, "No chain settings");
         invariant(ibcChainName, "No IBC chain name");
-        invariant(
-          config.data?.github_chain_registry_base_url,
-          "No github_chain_registry_base_url was provided on config.toml"
-        );
         return fetchIbcChannelFromRegistry(
           chainSettings.data.chainId,
           ibcChainName,
-          config.data?.github_chain_registry_base_url
+          githubNamadaChainRegistryBaseUrl
         );
-      }, [
-        chainSettings,
-        config,
-        !!ibcChainName,
-        !!config.data?.github_chain_registry_base_url,
-      ]),
+      }, [chainSettings, config, !!ibcChainName]),
     };
   })
 );

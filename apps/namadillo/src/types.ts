@@ -62,8 +62,6 @@ export type SettingsTomlOptions = {
   masp_indexer_url?: string;
   rpc_url?: string;
   localnet_enabled?: boolean;
-  github_chain_registry_base_url?: string;
-  github_namada_interface_url?: string;
 };
 
 export type ChainParameters = {
