@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.4.0...namadillo@v1.4.1) (2025-01-16)
+
+
+### Bug Fixes
+
+* Removing newly introduced config variables ([#1565](https://github.com/anoma/namada-interface/issues/1565)) ([cc5129c](https://github.com/anoma/namada-interface/commit/cc5129c6c789d6fff88e261092e54f220f024d76))
+
 ## [1.4.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.3.0...namadillo@v1.4.0) (2025-01-15)
 
 
