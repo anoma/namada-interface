@@ -56,6 +56,7 @@ pub struct WrapperTxMsg {
     public_key: Option<String>,
     memo: Option<String>,
     force: Option<bool>,
+    wrapper_fee_payer: Option<String>,
 }
 
 impl WrapperTxMsg {
@@ -67,6 +68,7 @@ impl WrapperTxMsg {
         public_key: Option<String>,
         memo: Option<String>,
         force: Option<bool>,
+        wrapper_fee_payer: Option<String>,
     ) -> WrapperTxMsg {
         WrapperTxMsg {
             token,
@@ -76,6 +78,7 @@ impl WrapperTxMsg {
             public_key,
             memo,
             force,
+            wrapper_fee_payer,
         }
     }
 }
@@ -901,6 +904,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         public_key,
         memo,
         force,
+        wrapper_fee_payer,
     } = tx_msg;
 
     let token = Address::from_str(&token)?;
@@ -908,6 +912,10 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
     let fee_amount = DenominatedAmount::from_str(&fee_amount)
         .unwrap_or_else(|_| panic!("Fee amount has to be valid. Received {}", fee_amount));
     let fee_input_amount = InputAmount::Unvalidated(fee_amount);
+    let wrapper_fee_payer = match wrapper_fee_payer {
+        Some(wfp) => Some(PublicKey::from_str(&wfp)?),
+        None => None,
+    };
 
     let public_key = match public_key {
         Some(v) => {
@@ -943,7 +951,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         fee_amount: Some(fee_input_amount),
         fee_token: token.clone(),
         gas_limit: GasLimit::from_str(&gas_limit).expect("Gas limit to be valid"),
-        wrapper_fee_payer: None,
+        wrapper_fee_payer,
         output_folder: None,
         expiration: TxExpiration::Default,
         chain_id: Some(ChainId(chain_id)),

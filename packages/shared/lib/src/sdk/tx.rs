@@ -280,9 +280,18 @@ impl TxDetails {
                 let fee_amount = wrapper.fee.amount_per_gas_unit.to_string();
                 let gas_limit = Uint::from(wrapper.gas_limit).to_string();
                 let token = wrapper.fee.token.to_string();
+                let wrapper_fee_payer = wrapper.fee_payer();
 
-                let wrapper_tx =
-                    WrapperTxMsg::new(token, fee_amount, gas_limit, chain_id, None, None, None);
+                let wrapper_tx = WrapperTxMsg::new(
+                    token,
+                    fee_amount,
+                    gas_limit,
+                    chain_id,
+                    None,
+                    None,
+                    None,
+                    Some(wrapper_fee_payer.to_string()),
+                );
                 let mut commitments: Vec<Commitment> = vec![];
                 let wasm_hashes: Vec<WasmHash> = wasm_hashes.into_serde().unwrap();
 
