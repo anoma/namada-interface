@@ -26,6 +26,9 @@ export class WrapperTxMsgValue {
   @field({ type: option("bool") })
   force?: boolean;
 
+  @field({ type: option("u64") })
+  expiration?: number;
+
   @field({ type: option("string") })
   wrapperFeePayer?: string;
 

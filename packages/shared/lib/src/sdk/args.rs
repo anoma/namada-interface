@@ -16,6 +16,7 @@ use namada_sdk::masp_primitives::transaction::sighash::{signature_hash, Signable
 use namada_sdk::masp_primitives::transaction::txid::TxIdDigester;
 use namada_sdk::masp_primitives::zip32;
 use namada_sdk::signing::SigningTxData;
+use namada_sdk::time::DateTimeUtc;
 use namada_sdk::tx::data::GasLimit;
 use namada_sdk::tx::{Section, Tx};
 use namada_sdk::{
@@ -56,6 +57,7 @@ pub struct WrapperTxMsg {
     public_key: Option<String>,
     memo: Option<String>,
     force: Option<bool>,
+    expiration: Option<u64>,
     wrapper_fee_payer: Option<String>,
 }
 
@@ -68,6 +70,7 @@ impl WrapperTxMsg {
         public_key: Option<String>,
         memo: Option<String>,
         force: Option<bool>,
+        expiration: Option<u64>,
         wrapper_fee_payer: Option<String>,
     ) -> WrapperTxMsg {
         WrapperTxMsg {
@@ -78,6 +81,7 @@ impl WrapperTxMsg {
             public_key,
             memo,
             force,
+            expiration,
             wrapper_fee_payer,
         }
     }
@@ -904,6 +908,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         public_key,
         memo,
         force,
+        expiration,
         wrapper_fee_payer,
     } = tx_msg;
 
@@ -938,6 +943,11 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
 
     let force = force.unwrap_or(false);
 
+    let expiration: TxExpiration = match expiration {
+        Some(e) => TxExpiration::Custom(DateTimeUtc::from_unix_timestamp(e as i64).unwrap()),
+        None => TxExpiration::Default,
+    };
+
     let args = args::Tx {
         dry_run: false,
         dry_run_wrapper: false,
@@ -953,7 +963,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         gas_limit: GasLimit::from_str(&gas_limit).expect("Gas limit to be valid"),
         wrapper_fee_payer,
         output_folder: None,
-        expiration: TxExpiration::Default,
+        expiration,
         chain_id: Some(ChainId(chain_id)),
         signatures: vec![],
         wrapper_signature: None,

@@ -274,6 +274,7 @@ impl TxDetails {
     pub fn from_bytes(tx_bytes: Vec<u8>, wasm_hashes: JsValue) -> Result<TxDetails, JsError> {
         let tx: tx::Tx = borsh::from_slice(&tx_bytes)?;
         let chain_id = tx.header().chain_id.to_string();
+        let expiration = tx.header().expiration;
 
         match tx.header().tx_type {
             tx::data::TxType::Wrapper(wrapper) => {
@@ -281,6 +282,11 @@ impl TxDetails {
                 let gas_limit = Uint::from(wrapper.gas_limit).to_string();
                 let token = wrapper.fee.token.to_string();
                 let wrapper_fee_payer = wrapper.fee_payer();
+
+                let expiration: Option<u64> = match expiration {
+                    Some(exp) => Some(exp.to_unix_timestamp() as u64),
+                    None => None,
+                };
 
                 let wrapper_tx = WrapperTxMsg::new(
                     token,
@@ -290,6 +296,7 @@ impl TxDetails {
                     None,
                     None,
                     None,
+                    expiration,
                     Some(wrapper_fee_payer.to_string()),
                 );
                 let mut commitments: Vec<Commitment> = vec![];
