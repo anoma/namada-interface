@@ -69,7 +69,7 @@ export const ReDelegate = (): JSX.Element => {
       title: "Staking redelegation failed",
       description: "",
     }),
-    onSuccess: () => {
+    onBroadcasted: () => {
       onCloseModal();
     },
   });

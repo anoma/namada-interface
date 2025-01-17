@@ -71,7 +71,7 @@ export const Unstake = (): JSX.Element => {
       title: "Unstake transaction failed",
       description: "",
     }),
-    onSuccess: () => {
+    onBroadcasted: () => {
       onCloseModal();
     },
   });

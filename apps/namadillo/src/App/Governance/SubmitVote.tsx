@@ -23,13 +23,13 @@ import clsx from "clsx";
 import { useProposalIdParam } from "hooks";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
-import { TransactionPair, broadcastTx } from "lib/query";
+import { TransactionPair, broadcastTxWithEvents } from "lib/query";
 import { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
 const dispatchVoteTx = (tx: TransactionPair<VoteProposalProps>): void => {
-  broadcastTx(
+  broadcastTxWithEvents(
     tx.encodedTxData,
     tx.signedTxs,
     tx.encodedTxData.meta?.props,

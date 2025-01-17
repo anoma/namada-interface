@@ -5,6 +5,7 @@ import {
   BatchTxResultMsgValue,
   TxMsgValue,
   TxProps,
+  TxResponseMsgValue,
   WrapperTxProps,
 } from "@namada/types";
 import { getIndexerApi } from "atoms/api";
@@ -213,14 +214,25 @@ export const buildTxPair = async <T>(
   };
 };
 
-export const broadcastTx = async <T>(
+export const broadcastTransaction = async <T>(
+  encodedTx: EncodedTxData<T>,
+  signedTxs: Uint8Array[]
+): Promise<PromiseSettledResult<TxResponseMsgValue>[]> => {
+  const { rpc } = await getSdkInstance();
+  const response = await Promise.allSettled(
+    encodedTx.txs.map((_, i) =>
+      rpc.broadcastTx(signedTxs[i], encodedTx.wrapperTxProps)
+    )
+  );
+  return response;
+};
+
+export const broadcastTxWithEvents = async <T>(
   encodedTx: EncodedTxData<T>,
   signedTxs: Uint8Array[],
   data?: T[],
   eventType?: TransactionEventsClasses
 ): Promise<void> => {
-  const { rpc } = await getSdkInstance();
-
   if (encodedTx.txs.length !== signedTxs.length) {
     throw new Error("Did not receive enough signatures!");
   }
@@ -232,54 +244,51 @@ export const broadcastTx = async <T>(
       })
     );
 
+  const results = await broadcastTransaction(encodedTx, signedTxs);
   const hashes = encodedTx.txs
     .map((tx) => (tx as TxProps & { innerTxHashes: string[] }).innerTxHashes)
     .flat();
 
-  Promise.allSettled(
-    encodedTx.txs.map((_, i) =>
-      rpc.broadcastTx(signedTxs[i], encodedTx.wrapperTxProps)
-    )
-  ).then((results) => {
-    try {
-      const commitments = results.map((result) => {
-        if (result.status === "fulfilled") {
-          return result.value.commitments;
-        } else {
-          // Throw wrapper error if encountered
-          throw new Error(`Broadcast Tx failed! ${result.reason}`);
-        }
-      });
-      const { status, successData, failedData } = parseTxAppliedErrors(
-        commitments.flat(),
-        hashes,
-        data!
-      );
+  try {
+    const commitments = results.map((result) => {
+      if (result.status === "fulfilled") {
+        return result.value.commitments;
+      } else {
+        // Throw wrapper error if encountered
+        throw new Error(`Broadcast Tx failed! ${result.reason}`);
+      }
+    });
 
-      // Notification
-      eventType &&
-        window.dispatchEvent(
-          new CustomEvent(`${eventType}.${status}`, {
-            detail: {
-              tx: encodedTx.txs,
-              data,
-              successData,
-              failedData,
-            },
-          })
-        );
-    } catch (error) {
+    const { status, successData, failedData } = parseTxAppliedErrors(
+      commitments.flat(),
+      hashes,
+      data!
+    );
+
+    // Notification
+    eventType &&
       window.dispatchEvent(
-        new CustomEvent(`${eventType}.Error`, {
+        new CustomEvent(`${eventType}.${status}`, {
           detail: {
             tx: encodedTx.txs,
             data,
-            error,
+            successData,
+            failedData,
           },
         })
       );
-    }
-  });
+  } catch (error) {
+    window.dispatchEvent(
+      new CustomEvent(`${eventType}.Error`, {
+        detail: {
+          tx: encodedTx.txs,
+          data,
+          error,
+        },
+      })
+    );
+    throw error;
+  }
 };
 
 type TxAppliedResults<T> = {
