@@ -243,7 +243,7 @@ impl Sdk {
     pub async fn sign_tx(
         &self,
         tx: Vec<u8>,
-        private_key: Option<String>,
+        private_keys: Option<Vec<String>>,
         chain_id: Option<String>,
     ) -> Result<JsValue, JsError> {
         let tx: tx::Tx = borsh::from_slice(&tx)?;
@@ -260,11 +260,17 @@ impl Sdk {
             }
         }
 
-        let signing_keys = match private_key.clone() {
-            Some(private_key) => vec![common::SecretKey::Ed25519(ed25519::SecretKey::from_str(
-                &private_key,
-            )?)],
-            // If no private key is provided, we assume masp source and return empty vec
+        let signing_keys = match private_keys {
+            Some(private_keys) => {
+                let mut sks: Vec<common::SecretKey> = vec![];
+                for private_key in private_keys.into_iter() {
+                    let signing_key =
+                        common::SecretKey::Ed25519(ed25519::SecretKey::from_str(&private_key)?);
+                    sks.push(signing_key);
+                }
+                sks
+            }
+            // If no private keys are provided, we assume masp source and return empty vec
             None => vec![],
         };
 
@@ -287,6 +293,7 @@ impl Sdk {
         let key = signing_keys[0].clone();
 
         // Sign the fee header
+        // TODO: Do we need to sign the wrapper with all keys?
         namada_tx.sign_wrapper(key);
 
         to_js_result(borsh::to_vec(&namada_tx)?)
