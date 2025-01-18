@@ -32,6 +32,7 @@ export type useTransactionProps<T> = {
   onError?: (err: unknown) => void;
   onSuccess?: (tx: TransactionPair<T>) => void;
   onBroadcasted?: () => void;
+  gasConfig?: GasConfig;
 };
 
 export type useTransactionOutput<T> = {
@@ -54,6 +55,7 @@ export const useTransaction = <T,>({
   onError,
   onSigned,
   onBroadcasted,
+  gasConfig,
 }: useTransactionProps<T>): useTransactionOutput<T> => {
   const { data: account } = useAtomValue(defaultAccountAtom);
   const {
@@ -64,9 +66,11 @@ export const useTransaction = <T,>({
 
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
 
-  const gasConfig = useAtomValue(
+  const autoGasConfig = useAtomValue(
     defaultGasConfigFamily(new Array(params.length).fill(eventType))
   );
+
+  const selectedGasConfig = gasConfig || autoGasConfig.data;
 
   const dispatchPendingTxNotification = (
     tx: TransactionPair<T>,
@@ -94,7 +98,7 @@ export const useTransaction = <T,>({
   const execute = async (
     txAdditionalParams: Partial<BuildTxAtomParams<T>> = {}
   ): Promise<TransactionPair<T> | void> => {
-    invariant(gasConfig.data, "Gas config not loaded");
+    invariant(selectedGasConfig, "Gas config not loaded");
     invariant(
       account?.address,
       "Extension not connected or no account is selected"
@@ -102,7 +106,7 @@ export const useTransaction = <T,>({
 
     const tx = await buildTx({
       params,
-      gasConfig: gasConfig.data,
+      gasConfig: selectedGasConfig,
       account,
       ...txAdditionalParams,
     });
@@ -145,11 +149,11 @@ export const useTransaction = <T,>({
     execute,
     isPending,
     isSuccess,
-    gasConfig: gasConfig.data,
+    gasConfig: selectedGasConfig,
     isEnabled: Boolean(
       !isPending &&
         !isSuccess &&
-        gasConfig?.data &&
+        selectedGasConfig &&
         account &&
         params.length > 0
     ),
