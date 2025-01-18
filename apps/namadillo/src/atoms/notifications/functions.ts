@@ -11,6 +11,3 @@ export const createNotificationId = (
   return data.hash;
 };
 
-export const createIbcNotificationId = (hash: string): string => {
-  return `ibc-transfer-${hash}`;
-};
