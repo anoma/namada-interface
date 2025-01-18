@@ -148,8 +148,6 @@ export const TransferModule = ({
       return "NoSelectedAsset";
     } else if (!source.amount || source.amount.eq(0)) {
       return "NoAmount";
-    } else if (!gasConfig) {
-      return "NoTransactionFee";
     } else if (
       !availableAmountMinusFees ||
       source.amount.gt(availableAmountMinusFees)

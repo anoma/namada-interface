@@ -429,7 +429,7 @@ export const useTransactionNotifications = (): void => {
   });
 
   useTransactionEventListener("IbcTransfer.Error", (e) => {
-    invariant(e.detail.hash, "Notification error: Invalid Tx provider");
+    invariant(e.detail.hash, "Notification error: hash was not provided");
     const id = createIbcNotificationId(e.detail.hash);
     clearPendingNotifications(id);
 
