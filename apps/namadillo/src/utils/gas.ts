@@ -8,5 +8,7 @@ export const getBaseGasFee = (gasConfig: GasConfig): BigNumber => {
 
 export const getDisplayGasFee = (gasConfig: GasConfig): BigNumber => {
   const baseFee = getBaseGasFee(gasConfig);
-  return gasConfig.asset ? toDisplayAmount(gasConfig.asset, baseFee) : baseFee;
+  return gasConfig.asset ?
+      toDisplayAmount(gasConfig.asset, baseFee).decimalPlaces(6)
+    : baseFee;
 };
