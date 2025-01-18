@@ -15,6 +15,7 @@ type useSimulateIbcTransferFeeProps = {
   isShieldedTransfer?: boolean;
   sourceAddress?: string;
   selectedAsset?: AddressWithAsset;
+  channel?: string;
 };
 
 export const useSimulateIbcTransferFee = ({
@@ -23,6 +24,7 @@ export const useSimulateIbcTransferFee = ({
   selectedAsset,
   isShieldedTransfer,
   sourceAddress,
+  channel,
 }: useSimulateIbcTransferFeeProps): UseQueryResult<GasConfig> => {
   return useQuery({
     queryKey: [
@@ -35,7 +37,7 @@ export const useSimulateIbcTransferFee = ({
     queryFn: async () => {
       const MASP_MEMO_LENGTH = 2356;
       const transferMsg = createIbcTransferMessage(
-        sanitizeChannel("channel-0"),
+        sanitizeChannel(channel!),
         // We can't mock sourceAddress because the simulate function requires
         // a valid address with funds
         sanitizeAddress(sourceAddress!),
@@ -55,6 +57,6 @@ export const useSimulateIbcTransferFee = ({
       invariant(gasConfig, "Error: invalid Gas config");
       return gasConfig;
     },
-    enabled: Boolean(registry && stargateClient && sourceAddress),
+    enabled: Boolean(registry && stargateClient && sourceAddress && channel),
   });
 };

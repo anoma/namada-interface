@@ -95,6 +95,7 @@ export const useIbcTransaction = ({
     selectedAsset,
     isShieldedTransfer: shielded,
     sourceAddress,
+    channel: sourceChannel,
   });
 
   const dispatchPendingTxNotification = (tx: TransferTransactionData): void => {
