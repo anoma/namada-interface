@@ -123,9 +123,7 @@ export const useTransaction = <T,>({
       eventType
     )
       .then(() => {
-        if (onSuccess) {
-          onSuccess(tx);
-        }
+        onSuccess?.(tx);
       })
       .catch((err) => {
         if (parseErrorTxNotification) {
