@@ -10,6 +10,7 @@ import {
 import { allDefaultAccountsAtom } from "atoms/accounts";
 import { namadaShieldedAssetsAtom } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
+import { ledgerStatusDataAtom } from "atoms/ledger/atoms";
 import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { useTransactionActions } from "hooks/useTransactionActions";
@@ -32,13 +33,17 @@ export const MaspUnshield: React.FC = () => {
   const rpcUrl = useAtomValue(rpcUrlAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
-
+  const ledgerStatus = useAtomValue(ledgerStatusDataAtom);
   const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
     namadaShieldedAssetsAtom
   );
 
   const { storeTransaction } = useTransactionActions();
 
+  const ledgerAccountInfo = ledgerStatus && {
+    deviceConnected: ledgerStatus.connected,
+    errorMessage: ledgerStatus.errorMessage,
+  };
   const chainId = chainParameters.data?.chainId;
   const account = defaultAccounts.data?.find(
     (account) => account.type === AccountType.ShieldedKeys
@@ -145,6 +150,7 @@ export const MaspUnshield: React.FC = () => {
           onChangeSelectedAsset,
           amount: displayAmount,
           onChangeAmount: setDisplayAmount,
+          ledgerAccountInfo,
         }}
         destination={{
           chain: namadaChain as Chain,

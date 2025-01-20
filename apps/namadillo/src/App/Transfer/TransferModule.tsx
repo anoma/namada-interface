@@ -8,6 +8,7 @@ import {
   Address,
   AddressWithAssetAndAmountMap,
   GasConfig,
+  LedgerAccountInfo,
   WalletProvider,
 } from "types";
 import { getDisplayGasFee } from "utils/gas";
@@ -31,6 +32,8 @@ type TransferModuleConfig = {
   onChangeChain?: (chain: Chain) => void;
   isShielded?: boolean;
   onChangeShielded?: (isShielded: boolean) => void;
+  // Additional information if selected account is a ledger
+  ledgerAccountInfo?: LedgerAccountInfo;
 };
 
 export type TransferSourceProps = TransferModuleConfig & {
@@ -87,6 +90,7 @@ type ValidationResult =
   | "NoDestinationChain"
   | "NoTransactionFee"
   | "NotEnoughBalance"
+  | "NoLedgerConnected"
   | "Ok";
 
 export const TransferModule = ({
@@ -155,6 +159,12 @@ export const TransferModule = ({
       return "NotEnoughBalance";
     } else if (!destination.wallet && !destination.customAddress) {
       return "NoDestinationWallet";
+    } else if (
+      (source.isShielded || destination.isShielded) &&
+      source.ledgerAccountInfo &&
+      !source.ledgerAccountInfo.deviceConnected
+    ) {
+      return "NoLedgerConnected";
     } else {
       return "Ok";
     }
@@ -234,6 +244,10 @@ export const TransferModule = ({
       source.onChangeSelectedAsset
     ) {
       return "Select Asset";
+    }
+
+    if (validationResult === "NoLedgerConnected") {
+      return "Connect your ledger and open the Namada App";
     }
 
     // TODO: this should be updated for nfts

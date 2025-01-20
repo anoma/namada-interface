@@ -10,6 +10,7 @@ import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import { NamadaKeychain } from "hooks/useNamadaKeychain";
+import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import {
   fetchAccountBalance,
@@ -67,6 +68,13 @@ export const allDefaultAccountsAtom = atomWithQuery<Account[]>((get) => {
       return defaultAccounts;
     }, [accounts, defaultAccount]),
   };
+});
+
+export const isLedgerAccountAtom = atom((get) => {
+  const defaultAccounts = get(allDefaultAccountsAtom);
+  return Boolean(
+    defaultAccounts.data?.find((account) => account.type === AccountType.Ledger)
+  );
 });
 
 export const updateDefaultAccountAtom = atomWithMutation(() => {

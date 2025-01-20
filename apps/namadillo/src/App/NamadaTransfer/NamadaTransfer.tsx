@@ -13,6 +13,7 @@ import {
   namadaTransparentAssetsAtom,
 } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
+import { ledgerStatusDataAtom } from "atoms/ledger";
 import { applicationFeaturesAtom, rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { useTransactionActions } from "hooks/useTransactionActions";
@@ -41,6 +42,7 @@ export const NamadaTransfer: React.FC = () => {
   const features = useAtomValue(applicationFeaturesAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
+  const ledgerStatus = useAtomValue(ledgerStatusDataAtom);
 
   const { data: availableAssetsData, isLoading: isLoadingAssets } =
     useAtomValue(
@@ -49,6 +51,10 @@ export const NamadaTransfer: React.FC = () => {
 
   const { storeTransaction } = useTransactionActions();
 
+  const ledgerAccountInfo = ledgerStatus && {
+    deviceConnected: ledgerStatus.connected,
+    errorMessage: ledgerStatus.errorMessage,
+  };
   const availableAssets = useMemo(() => {
     if (features.namTransfersEnabled) {
       return availableAssetsData;
@@ -181,12 +187,14 @@ export const NamadaTransfer: React.FC = () => {
           onChangeShielded: setShielded,
           amount: displayAmount,
           onChangeAmount: setDisplayAmount,
+          ledgerAccountInfo,
         }}
         destination={{
           chain: namadaChain as Chain,
           enableCustomAddress: true,
           customAddress,
           onChangeCustomAddress: setCustomAddress,
+          isShielded: isTargetShielded,
         }}
         gasConfig={gasConfig}
         isSubmitting={isPerformingTransfer}
