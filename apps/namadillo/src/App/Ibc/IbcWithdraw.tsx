@@ -95,7 +95,11 @@ export const IbcWithdraw: React.FC = () => {
     setSourceChannel(ibcChannels?.namadaChannel || "");
   }, [ibcChannels]);
 
-  const { execute: performWithdraw, isPending } = useTransaction({
+  const {
+    execute: performWithdraw,
+    isPending,
+    isSuccess,
+  } = useTransaction({
     eventType: "IbcTransfer",
     createTxAtom: createIbcTxAtom,
     params: [],
@@ -240,7 +244,10 @@ export const IbcWithdraw: React.FC = () => {
           onChangeChain,
           isShielded: false,
         }}
-        isSubmitting={isPending}
+        isSubmitting={
+          isPending ||
+          isSuccess /* should redirect to timeline to wait for confirmation */
+        }
         isIbcTransfer={true}
         requiresIbcChannels={requiresIbcChannels}
         ibcOptions={{
