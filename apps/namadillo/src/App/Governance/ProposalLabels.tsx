@@ -1,6 +1,12 @@
 import { InsetLabel, RoundedLabel } from "@namada/components";
-import { ProposalStatus, ProposalType, VoteType } from "@namada/types";
+import {
+  ProposalStatus,
+  ProposalType,
+  UnknownVoteType,
+  VoteType,
+} from "@namada/types";
 import { assertNever } from "@namada/utils";
+import { BsQuestionCircleFill } from "react-icons/bs";
 import { GoCheckCircleFill, GoSkipFill, GoXCircleFill } from "react-icons/go";
 import { twMerge } from "tailwind-merge";
 import { proposalStatusToString, proposalTypeStringToString } from "utils";
@@ -25,7 +31,7 @@ export const StatusLabel: React.FC<
 };
 
 type VotedLabelProps = {
-  vote: VoteType;
+  vote: VoteType | UnknownVoteType;
 } & React.ComponentProps<"div">;
 
 export const VotedLabel: React.FC<VotedLabelProps> = ({
@@ -35,13 +41,19 @@ export const VotedLabel: React.FC<VotedLabelProps> = ({
 }) => {
   const { icon, label, color } =
     vote === "yay" ?
-      { icon: <GoCheckCircleFill />, label: "yes", color: "text-yay" }
+      { icon: <GoCheckCircleFill />, label: "Voted yes", color: "text-yay" }
     : vote === "nay" ?
-      { icon: <GoXCircleFill />, label: "no", color: "text-nay" }
+      { icon: <GoXCircleFill />, label: "Voted no", color: "text-nay" }
     : vote === "abstain" ?
       {
         icon: <GoSkipFill className="rotate-45" />,
-        label: "abstain",
+        label: "Voted abstain",
+        color: "text-abstain",
+      }
+    : vote === "unknown" ?
+      {
+        icon: <BsQuestionCircleFill />,
+        label: "Vote unknown",
         color: "text-abstain",
       }
     : assertNever(vote);
@@ -51,7 +63,7 @@ export const VotedLabel: React.FC<VotedLabelProps> = ({
       {...props}
       className={twMerge("flex gap-1 py-1 px-2 items-center", color, className)}
     >
-      <div className="grow">Voted {label}</div>
+      <div className="grow">{label}</div>
       <i className="inline-flex text-lg">{icon}</i>
     </RoundedLabel>
   );

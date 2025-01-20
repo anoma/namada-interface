@@ -3,7 +3,7 @@ import {
   ProgressBar as ProgressBarComponent,
   Stack,
 } from "@namada/components";
-import { Proposal, VoteType } from "@namada/types";
+import { Proposal, UnknownVoteType, VoteType } from "@namada/types";
 import { routes } from "App/routes";
 import {
   canVoteAtom,
@@ -303,7 +303,7 @@ const ProgressBar: React.FC<{
 
 const VoteButton: React.FC<{
   proposal: AtomWithQueryResult<Proposal>;
-  vote: AtomWithQueryResult<VoteType | null>;
+  vote: AtomWithQueryResult<VoteType | UnknownVoteType | null>;
   proposalId: bigint;
 }> = ({ proposal, vote, proposalId }) => {
   const navigate = useNavigate();
@@ -360,7 +360,7 @@ const VoteButton: React.FC<{
 };
 
 const VotedLabel: React.FC<{
-  vote: AtomWithQueryResult<VoteType | null>;
+  vote: AtomWithQueryResult<VoteType | UnknownVoteType | null>;
 }> = ({ vote }) => {
   if (vote.isSuccess && vote.data !== null) {
     return (

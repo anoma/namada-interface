@@ -1,12 +1,16 @@
-import { Configuration, DefaultApi } from "@namada/indexer-client";
+import {
+  Configuration,
+  DefaultApi,
+  HealthGet200Response,
+} from "@namada/indexer-client";
 import { isUrlValid } from "@namada/utils";
 import toml from "toml";
-import { SettingsTomlOptions, TempIndexerHealthType } from "types";
+import { SettingsTomlOptions } from "types";
 import { getSdkInstance } from "utils/sdk";
 
 export const getIndexerHealth = async (
   url: string
-): Promise<TempIndexerHealthType | undefined> => {
+): Promise<HealthGet200Response | undefined> => {
   if (!isUrlValid(url)) {
     return;
   }
@@ -16,9 +20,7 @@ export const getIndexerHealth = async (
     const api = new DefaultApi(configuration);
     const response = await api.healthGet();
 
-    // TODO:update when indexer swagger is fixed
-    // @ts-expect-error Indexer swagger is out of date
-    return response.data as TempIndexerHealthType;
+    return response.data;
   } catch {
     return;
   }

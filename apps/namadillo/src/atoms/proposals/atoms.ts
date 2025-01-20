@@ -1,6 +1,7 @@
 import {
   ProposalStatus,
   ProposalTypeString,
+  UnknownVoteType,
   VoteProposalProps,
   VoteType,
 } from "@namada/types";
@@ -38,7 +39,7 @@ export const proposalFamily = atomFamily((id: bigint) =>
 );
 
 export const proposalVoteFamily = atomFamily((id: bigint) =>
-  atomWithQuery<VoteType | null>((get) => {
+  atomWithQuery<VoteType | UnknownVoteType | null>((get) => {
     const votedProposals = get(votedProposalsAtom);
     const enablePolling = get(shouldUpdateProposalAtom);
 

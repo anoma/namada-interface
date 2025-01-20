@@ -19,7 +19,7 @@ import {
   ProposalType,
   ProposalTypeString,
   TallyType,
-  Vote,
+  UnknownVoteType,
   VoteProposalProps,
   VoteType,
 } from "@namada/types";
@@ -353,31 +353,10 @@ export const fetchPaginatedProposals = async (
   };
 };
 
-export const fetchProposalVotes = async (
-  api: DefaultApi,
-  id: bigint
-): Promise<Vote[]> => {
-  const response = await api.apiV1GovProposalIdVotesGet(Number(id));
-
-  // TODO: This is only needed for votes breakdown, check if it's still relevant
-  const votingPower: [string, BigNumber][] = [
-    ["_", BigNumber(0)], // TODO: return voting power
-  ];
-
-  const votes: Vote[] = response.data.results.map((vote) => ({
-    address: vote.voterAddress,
-    voteType: vote.vote,
-    votingPower,
-    isValidator: false,
-  }));
-
-  return votes;
-};
-
 export const fetchVotedProposalsByAccount = async (
   api: DefaultApi,
   account: Account
-): Promise<{ proposalId: bigint; vote: VoteType }[]> => {
+): Promise<{ proposalId: bigint; vote: VoteType | UnknownVoteType }[]> => {
   const response = await api.apiV1GovVoterAddressVotesGet(account.address);
 
   return response.data.map(({ proposalId, vote }) => ({

@@ -207,7 +207,6 @@ export const updateIbcWithdrawalStatus = async (
   if (!tx.hash) throw "Transaction hash not defined";
   const response = await api.apiV1IbcTxIdStatusGet(tx.hash);
 
-  //@ts-expect-error Indexer not providing correct type
   const { status } = response.data;
 
   if (status === "success") {
