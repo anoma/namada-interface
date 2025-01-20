@@ -13,7 +13,13 @@ import {
 import BigNumber from "bignumber.js";
 import * as Comlink from "comlink";
 import { NamadaKeychain } from "hooks/useNamadaKeychain";
-import { buildTxPair, EncodedTxData, signTx, TransactionPair } from "lib/query";
+import {
+  buildTxPair,
+  EncodedTxData,
+  isPublicKeyRevealed,
+  signTx,
+  TransactionPair,
+} from "lib/query";
 import { Address, ChainSettings, GasConfig } from "types";
 import { getSdkInstance } from "utils/sdk";
 import { Shield, ShieldedTransfer, Unshield } from "workers/MaspTxMessages";
@@ -141,7 +147,6 @@ export const createShieldingTransferTx = async (
   props: ShieldingTransferMsgValue[],
   gasConfig: GasConfig,
   rpcUrl: string,
-  indexerUrl: string,
   memo?: string
 ): Promise<TransactionPair<ShieldingTransferProps> | undefined> => {
   const source = props[0]?.data[0]?.source;
@@ -154,6 +159,8 @@ export const createShieldingTransferTx = async (
     token,
     signerAddress: source,
     buildTxFn: async (workerLink) => {
+      const publicKeyRevealed = await isPublicKeyRevealed(account.address);
+
       const msgValue = new ShieldingTransferMsgValue({
         target: destination,
         data: [{ source, token, amount }],
@@ -165,10 +172,11 @@ export const createShieldingTransferTx = async (
           gasConfig,
           props: [msgValue],
           chain,
-          indexerUrl,
+          publicKeyRevealed,
           memo,
         },
       };
+
       return (await workerLink.shield(msg)).payload;
     },
   });

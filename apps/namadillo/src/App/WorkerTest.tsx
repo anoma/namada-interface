@@ -12,10 +12,10 @@ import {
   disposableSignerAtom,
 } from "atoms/accounts";
 import { chainAtom, nativeTokenAddressAtom } from "atoms/chain";
-import { indexerUrlAtom, maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
+import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { useAtom, useAtomValue } from "jotai";
-import { signTx } from "lib/query";
+import { isPublicKeyRevealed, signTx } from "lib/query";
 import { Shield, ShieldedTransfer, Unshield } from "workers/MaspTxMessages";
 import {
   Worker as MaspTxWorkerApi,
@@ -33,7 +33,6 @@ export function WorkerTest(): JSX.Element {
   const { data: accounts } = useAtomValue(accountsAtom);
   const { data: chain } = useAtomValue(chainAtom);
   const { data: token } = useAtomValue(nativeTokenAddressAtom);
-  const indexerUrl = useAtomValue(indexerUrlAtom);
   const maspIndexerUrl = useAtomValue(maspIndexerUrlAtom);
   const shieldedAccount = accounts?.find(
     (a) => a.type === AccountType.ShieldedKeys && a.alias === account?.alias
@@ -87,9 +86,11 @@ export function WorkerTest(): JSX.Element {
       ],
     });
 
+    const publicKeyRevealed = await isPublicKeyRevealed(account!.address);
     const msg: Shield = {
       type: "shield",
       payload: {
+        publicKeyRevealed,
         account: account!,
         gasConfig: {
           gasLimit: BigNumber(50000),
@@ -97,7 +98,6 @@ export function WorkerTest(): JSX.Element {
           gasToken: "tnam1",
         },
         props: [shieldingMsgValue],
-        indexerUrl,
         chain: chain!,
       },
     };

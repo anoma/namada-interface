@@ -1,23 +1,13 @@
-import {
-  Configuration,
-  DefaultApi,
-  HealthGet200Response,
-} from "@namada/indexer-client";
+import { DefaultApi, HealthGet200Response } from "@namada/indexer-client";
 import { isUrlValid } from "@namada/utils";
 import toml from "toml";
 import { SettingsTomlOptions } from "types";
 import { getSdkInstance } from "utils/sdk";
 
 export const getIndexerHealth = async (
-  url: string
+  api: DefaultApi
 ): Promise<HealthGet200Response | undefined> => {
-  if (!isUrlValid(url)) {
-    return;
-  }
-
   try {
-    const configuration = new Configuration({ basePath: url });
-    const api = new DefaultApi(configuration);
     const response = await api.healthGet();
 
     return response.data;

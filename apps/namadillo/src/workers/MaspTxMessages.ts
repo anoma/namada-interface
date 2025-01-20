@@ -23,7 +23,7 @@ type ShieldPayload = {
   gasConfig: GasConfig;
   props: ShieldingTransferMsgValue[];
   chain: ChainSettings;
-  indexerUrl: string;
+  publicKeyRevealed: boolean;
   memo?: string;
 };
 export type Shield = WebWorkerMessage<"shield", ShieldPayload>;

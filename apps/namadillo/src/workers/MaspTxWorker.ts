@@ -1,4 +1,3 @@
-import { Configuration, DefaultApi } from "@namada/indexer-client";
 import { initMulticore } from "@namada/sdk/inline-init";
 import { getSdk, Sdk } from "@namada/sdk/web";
 import {
@@ -78,19 +77,13 @@ async function shield(
   payload: Shield["payload"]
 ): Promise<EncodedTxData<ShieldingTransferMsgValue>> {
   const {
-    indexerUrl,
+    publicKeyRevealed,
     account,
     gasConfig,
     chain,
     props: shieldingProps,
     memo,
   } = payload;
-
-  const configuration = new Configuration({ basePath: indexerUrl });
-  const api = new DefaultApi(configuration);
-  const publicKeyRevealed = (
-    await api.apiV1RevealedPublicKeyAddressGet(account.address)
-  ).data.publicKey;
 
   await sdk.masp.loadMaspParams("", chain.chainId);
   const encodedTxData = await buildTx<ShieldingTransferMsgValue>(

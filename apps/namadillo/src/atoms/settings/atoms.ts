@@ -1,4 +1,5 @@
 import { isUrlValid, sanitizeUrl } from "@namada/utils";
+import { getCustomIndexerApi, indexerApiAtom } from "atoms/api";
 import { chainParametersAtom, indexerRpcUrlAtom } from "atoms/chain";
 import { Getter, Setter, atom, getDefaultStore } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
@@ -178,7 +179,8 @@ export const updateIndexerUrlAtom = atomWithMutation(() => {
     mutationKey: ["update-indexer-url"],
     mutationFn: changeSettingsUrl(
       "indexerUrl",
-      async (url: string): Promise<boolean> => !!(await getIndexerHealth(url))
+      async (url: string): Promise<boolean> =>
+        !!(await getIndexerHealth(getCustomIndexerApi(url)))
     ),
   };
 });
@@ -197,6 +199,7 @@ export const signArbitraryEnabledAtom = atom(
 
 export const indexerHeartbeatAtom = atomWithQuery((get) => {
   const indexerUrl = get(indexerUrlAtom);
+  const api = get(indexerApiAtom);
   return {
     queryKey: ["indexer-heartbeat", indexerUrl],
     enabled: !!indexerUrl,
@@ -204,7 +207,7 @@ export const indexerHeartbeatAtom = atomWithQuery((get) => {
     refetchOnWindowFocus: true,
     refetchInterval: 10_000,
     queryFn: async () => {
-      const indexerInfo = await getIndexerHealth(indexerUrl);
+      const indexerInfo = await getIndexerHealth(api);
       if (!indexerInfo) throw "Unable to verify indexer heartbeat";
       return indexerInfo;
     },

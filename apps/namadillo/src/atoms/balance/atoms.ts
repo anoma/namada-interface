@@ -134,8 +134,7 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
         !chainTokens ||
         !chainId ||
         !namTokenAddress ||
-        !rpcUrl ||
-        !maspIndexerUrl
+        !rpcUrl
       ) {
         return [];
       }
