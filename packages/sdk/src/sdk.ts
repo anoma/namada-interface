@@ -29,7 +29,7 @@ export class Sdk {
     public readonly cryptoMemory: WebAssembly.Memory,
     public readonly url: string,
     public readonly nativeToken: string
-  ) { }
+  ) {}
 
   /**
    * Re-initialize wasm instances and return this instance

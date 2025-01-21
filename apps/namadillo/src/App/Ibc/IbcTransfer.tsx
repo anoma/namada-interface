@@ -56,7 +56,6 @@ export const IbcTransfer = (): JSX.Element => {
       walletAddress: sourceAddress,
     })
   );
-  console.log("userAssets", userAssets);
 
   // Local State
   const [shielded, setShielded] = useState<boolean>(true);

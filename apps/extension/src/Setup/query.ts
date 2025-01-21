@@ -13,7 +13,7 @@ import { DeriveAccountDetails, LedgerAccountDetails } from "./types";
 
 // Wrap account management calls with extension requester instance
 export class AccountManager {
-  constructor(private readonly requester: ExtensionRequester) { }
+  constructor(private readonly requester: ExtensionRequester) {}
 
   /**
    * Set password for the extension

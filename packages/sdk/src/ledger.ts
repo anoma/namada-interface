@@ -58,7 +58,7 @@ export class Ledger {
   /**
    * @param namadaApp - Inititalized NamadaApp class from Zondax package
    */
-  private constructor(public readonly namadaApp: NamadaApp) { }
+  private constructor(public readonly namadaApp: NamadaApp) {}
 
   /**
    * Initialize and return Ledger class instance with initialized Transport
@@ -277,7 +277,7 @@ export class Ledger {
       } = await this.status();
       throw new Error(
         `This method requires Zip32 and is unsupported in ${appVersion}! ` +
-        `Please update to at least ${LEDGER_MIN_VERSION_ZIP32}!`
+          `Please update to at least ${LEDGER_MIN_VERSION_ZIP32}!`
       );
     }
   }
