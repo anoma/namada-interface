@@ -105,8 +105,24 @@ const handleAddLedgerAccountMsg: (
   service: KeyRingService
 ) => InternalHandler<AddLedgerAccountMsg> = (service) => {
   return async (_, msg) => {
-    const { alias, address, publicKey, bip44Path } = msg;
-    return await service.saveLedger(alias, address, publicKey, bip44Path);
+    const {
+      alias,
+      address,
+      publicKey,
+      bip44Path,
+      extendedViewingKey,
+      pseudoExtendedKey,
+      paymentAddress,
+    } = msg;
+    return await service.saveLedger(
+      alias,
+      address,
+      publicKey,
+      bip44Path,
+      extendedViewingKey,
+      pseudoExtendedKey,
+      paymentAddress
+    );
   };
 };
 

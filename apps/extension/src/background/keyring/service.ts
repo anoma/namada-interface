@@ -81,7 +81,10 @@ export class KeyRingService {
     alias: string,
     address: string,
     publicKey: string,
-    bip44Path: Bip44Path
+    bip44Path: Bip44Path,
+    extendedViewingKey: string,
+    pseudoExtendedKey: string,
+    paymentAddress: string
   ): Promise<AccountStore | false> {
     const account = await this._keyRing.queryAccountByAddress(address);
     if (account) {
@@ -94,7 +97,10 @@ export class KeyRingService {
       alias,
       address,
       publicKey,
-      bip44Path
+      bip44Path,
+      pseudoExtendedKey,
+      extendedViewingKey,
+      paymentAddress
     );
 
     await this.broadcaster.updateAccounts();

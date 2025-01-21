@@ -88,10 +88,26 @@ export class AccountManager {
   async saveLedgerAccount(
     details: LedgerAccountDetails
   ): Promise<AccountStore> {
-    const { alias, address, publicKey, path } = details;
+    const {
+      alias,
+      address,
+      publicKey,
+      path,
+      extendedViewingKey,
+      pseudoExtendedKey,
+      paymentAddress,
+    } = details;
     return (await this.requester.sendMessage(
       Ports.Background,
-      new AddLedgerAccountMsg(alias, address, publicKey, path)
+      new AddLedgerAccountMsg(
+        alias,
+        address,
+        publicKey,
+        path,
+        extendedViewingKey,
+        pseudoExtendedKey,
+        paymentAddress
+      )
     )) as AccountStore;
   }
 }

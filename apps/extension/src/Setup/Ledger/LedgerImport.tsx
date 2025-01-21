@@ -10,6 +10,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 type LedgerImportLocationState = {
   address: string;
   publicKey: string;
+  extendedViewingKey: string;
+  pseudoExtendedKey: string;
+  paymentAddress: string;
 };
 
 type LedgerProps = {
@@ -55,16 +58,25 @@ export const LedgerImport = ({
           await accountManager.savePassword(password);
         }
 
-        const { address, publicKey } = locationState;
+        const {
+          address,
+          publicKey,
+          extendedViewingKey,
+          paymentAddress,
+          pseudoExtendedKey,
+        } = locationState;
         const account = await accountManager.saveLedgerAccount({
           alias,
           address,
           publicKey,
           path,
+          paymentAddress,
+          extendedViewingKey,
+          pseudoExtendedKey,
         });
 
         navigate(routes.ledgerComplete(), {
-          state: { account: { ...account } },
+          state: { account: { ...account, paymentAddress } },
         });
       } catch (e) {
         console.warn(e);
