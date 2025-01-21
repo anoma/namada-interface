@@ -255,7 +255,7 @@ export class Ledger {
    * Check if Zip32 is supported by the installed app's version.
    * Throws error if app is not initialized
    * @async
-   * @retuns boolean
+   * @returns boolean
    */
   public async isZip32Supported(): Promise<boolean> {
     const {
