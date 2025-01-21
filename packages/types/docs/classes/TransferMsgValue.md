@@ -2,6 +2,8 @@
 
 # Class: TransferMsgValue
 
+Used only for serializing transfers during build
+
 ## Table of contents
 
 ### Constructors
@@ -32,7 +34,7 @@
 
 #### Defined in
 
-[tx/schema/transfer.ts:187](https://github.com/anoma/namada-interface/blob/b680393907f6826b1f65414a3a8402ca83227a37/packages/types/src/tx/schema/transfer.ts#L187)
+[tx/schema/transfer.ts:190](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/types/src/tx/schema/transfer.ts#L190)
 
 ___
 
@@ -42,7 +44,7 @@ ___
 
 #### Defined in
 
-[tx/schema/transfer.ts:181](https://github.com/anoma/namada-interface/blob/b680393907f6826b1f65414a3a8402ca83227a37/packages/types/src/tx/schema/transfer.ts#L181)
+[tx/schema/transfer.ts:184](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/types/src/tx/schema/transfer.ts#L184)
 
 ___
 
@@ -52,4 +54,4 @@ ___
 
 #### Defined in
 
-[tx/schema/transfer.ts:184](https://github.com/anoma/namada-interface/blob/b680393907f6826b1f65414a3a8402ca83227a37/packages/types/src/tx/schema/transfer.ts#L184)
+[tx/schema/transfer.ts:187](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/types/src/tx/schema/transfer.ts#L187)

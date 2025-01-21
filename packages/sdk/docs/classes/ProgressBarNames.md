@@ -36,7 +36,7 @@
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:152
+shared/src/shared/shared.d.ts:156
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:155
+shared/src/shared/shared.d.ts:159
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:158
+shared/src/shared/shared.d.ts:162
 
 ## Methods
 
@@ -70,4 +70,4 @@ shared/src/shared/shared.d.ts:158
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:149
+shared/src/shared/shared.d.ts:153
