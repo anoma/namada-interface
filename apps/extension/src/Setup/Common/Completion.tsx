@@ -4,7 +4,7 @@ import browser from "webextension-polyfill";
 import { chains } from "@namada/chains";
 import { ActionButton, Alert, Loading, ViewKeys } from "@namada/components";
 import { makeBip44Path } from "@namada/sdk/web";
-import { Bip44Path, DerivedAccount } from "@namada/types";
+import { Bip44Path } from "@namada/types";
 import {
   AccountSecret,
   AccountStore,
@@ -20,7 +20,7 @@ type Props = {
   status?: CompletionStatus;
   statusInfo: string;
   parentAccountStore?: AccountStore;
-  shieldedAccount?: DerivedAccount;
+  paymentAddress?: string;
   password?: string;
   passwordRequired: boolean | undefined;
   path: Bip44Path;
@@ -34,7 +34,7 @@ export const Completion: React.FC<Props> = (props) => {
     passwordRequired,
     path,
     parentAccountStore,
-    shieldedAccount,
+    paymentAddress,
     status,
     statusInfo,
   } = props;
@@ -84,7 +84,7 @@ export const Completion: React.FC<Props> = (props) => {
             publicKeyAddress={parentAccountStore?.publicKey}
             transparentAccountAddress={parentAccountStore?.address}
             transparentAccountPath={transparentAccountPath}
-            shieldedAccountAddress={shieldedAccount?.address}
+            shieldedAccountAddress={paymentAddress}
             trimCharacters={35}
             footer={
               <ActionButton

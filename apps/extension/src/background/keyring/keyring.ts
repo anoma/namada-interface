@@ -108,7 +108,10 @@ export class KeyRing {
     alias: string,
     address: string,
     publicKey: string,
-    bip44Path: Bip44Path
+    bip44Path: Bip44Path,
+    pseudoExtendedKey: string,
+    extendedViewingKey: string,
+    paymentAddress: string
   ): Promise<AccountStore | false> {
     const id = generateId(UUID_NAMESPACE, alias, address);
     const accountStore: AccountStore = {
@@ -130,6 +133,30 @@ export class KeyRing {
     await this.vaultStorage.add(KeyStore, {
       public: accountStore,
       sensitive,
+    });
+
+    const shieldedId = generateId(UUID_NAMESPACE, alias, paymentAddress);
+    const shieldedAccountStore: AccountStore = {
+      id: shieldedId,
+      alias,
+      address: paymentAddress,
+      publicKey,
+      owner: extendedViewingKey,
+      path: bip44Path,
+      pseudoExtendedKey,
+      parentId: id,
+      type: AccountType.ShieldedKeys,
+      source: "imported",
+      timestamp: 0,
+    };
+
+    const shieldedSensitive = await this.vaultService.encryptSensitiveData({
+      text: "",
+      passphrase: "",
+    });
+    await this.vaultStorage.add(KeyStore, {
+      public: shieldedAccountStore,
+      sensitive: shieldedSensitive,
     });
 
     await this.setActiveAccount(id, AccountType.Ledger);
