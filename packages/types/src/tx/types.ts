@@ -11,6 +11,7 @@ import {
   ShieldingTransferMsgValue,
   SignatureMsgValue,
   SigningDataMsgValue,
+  TransferDetailsMsgValue,
   TransferMsgValue,
   TransparentTransferDataMsgValue,
   TransparentTransferMsgValue,
@@ -38,6 +39,7 @@ export type ShieldingTransferDataProps = ShieldingTransferDataMsgValue;
 export type UnshieldingTransferDataProps = UnshieldingTransferDataMsgValue;
 export type UnshieldingTransferProps = UnshieldingTransferMsgValue;
 export type TransferProps = TransferMsgValue;
+export type TransferDetailsProps = TransferDetailsMsgValue;
 export type TransparentTransferProps = TransparentTransferMsgValue;
 export type TransparentTransferDataProps = TransparentTransferDataMsgValue;
 export type TxProps = TxMsgValue;
@@ -60,6 +62,7 @@ export type SupportedTxProps =
   | VoteProposalProps
   | ClaimRewardsProps
   | TransferProps
+  | TransferDetailsProps
   | RevealPkProps;
 
 export type CommitmentDetailProps = SupportedTxProps & {

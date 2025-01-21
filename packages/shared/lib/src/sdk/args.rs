@@ -432,13 +432,21 @@ pub struct TransferMsg {
     shielded_section_hash: Option<Vec<u8>>,
 }
 
-impl TransferMsg {
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct TransferDetailsMsg {
+    sources: Vec<TransferDataMsg>,
+    targets: Vec<TransferDataMsg>,
+    shielded_section_hash: Option<String>,
+}
+
+impl TransferDetailsMsg {
     pub fn new(
         sources: Vec<TransferDataMsg>,
         targets: Vec<TransferDataMsg>,
-        shielded_section_hash: Option<Vec<u8>>,
-    ) -> TransferMsg {
-        TransferMsg {
+        shielded_section_hash: Option<String>,
+    ) -> TransferDetailsMsg {
+        TransferDetailsMsg {
             sources,
             targets,
             shielded_section_hash,

@@ -30,6 +30,7 @@ import {
   ShieldingTransferDataMsgValue,
   ShieldingTransferMsgValue,
   TransferDataMsgValue,
+  TransferDetailsMsgValue,
   TransferMsgValue,
   TransparentTransferDataMsgValue,
   TransparentTransferMsgValue,
@@ -60,6 +61,7 @@ export type Schema =
   | ShieldingTransferDataMsgValue
   | SigningDataMsgValue
   | TransferMsgValue
+  | TransferDetailsMsgValue
   | TransferDataMsgValue
   | TransparentTransferMsgValue
   | TransparentTransferDataMsgValue

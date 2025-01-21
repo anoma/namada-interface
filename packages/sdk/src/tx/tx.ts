@@ -24,7 +24,7 @@ import {
   ShieldingTransferProps,
   SignatureMsgValue,
   SupportedTxProps,
-  TransferMsgValue,
+  TransferDetailsMsgValue,
   TransparentTransferMsgValue,
   TransparentTransferProps,
   TxDetails,
@@ -454,7 +454,7 @@ export class Tx {
         case TxType.ClaimRewards:
           return deserialize(data, ClaimRewardsMsgValue);
         case TxType.Transfer:
-          return deserialize(data, TransferMsgValue);
+          return deserialize(data, TransferDetailsMsgValue);
         case TxType.RevealPK:
           return deserialize(data, RevealPkMsgValue);
         case TxType.IBCTransfer:
