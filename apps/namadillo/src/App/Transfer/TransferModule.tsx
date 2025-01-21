@@ -73,6 +73,7 @@ export type TransferModuleProps = {
   isSubmitting?: boolean;
   errorMessage?: string;
   onSubmitTransfer: (params: OnSubmitTransferParams) => void;
+  buttonTextErrors?: Partial<Record<ValidationResult, string>>;
 } & (
   | { isIbcTransfer?: false; ibcOptions?: undefined }
   | { isIbcTransfer: true; ibcOptions: IbcOptions }
@@ -101,6 +102,7 @@ export const TransferModule = ({
   requiresIbcChannels,
   onSubmitTransfer,
   errorMessage,
+  buttonTextErrors = {},
 }: TransferModuleProps): JSX.Element => {
   const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
   const [sourceChainModalOpen, setSourceChainModalOpen] = useState(false);
@@ -213,44 +215,49 @@ export const TransferModule = ({
     setWalletSelectorModalOpen(true);
   };
 
+  const getButtonTextError = (
+    id: ValidationResult,
+    defaultText: string
+  ): string => {
+    if (buttonTextErrors.hasOwnProperty(id) && buttonTextErrors[id]) {
+      return buttonTextErrors[id];
+    }
+
+    return defaultText;
+  };
+
   const getButtonText = (): string => {
     if (isSubmitting) {
       return submittingText || "Submitting...";
     }
 
-    if (validationResult === "NoSourceWallet") {
-      return "Select Wallet";
-    }
+    const getText = getButtonTextError.bind(null, validationResult);
+    switch (validationResult) {
+      case "NoSourceWallet":
+        return getText("Select Wallet");
 
-    if (
-      validationResult === "NoSourceChain" ||
-      validationResult === "NoDestinationChain"
-    ) {
-      return "Select Chain";
-    }
+      case "NoSourceChain":
+      case "NoDestinationChain":
+        return getText("Select Chain");
 
-    if (
-      validationResult === "NoSelectedAsset" &&
-      source.onChangeSelectedAsset
-    ) {
-      return "Select Asset";
-    }
+      case "NoSelectedAsset":
+        return getText("Select Asset");
 
-    // TODO: this should be updated for nfts
-    if (validationResult === "NoAmount") {
-      return "Define an amount to transfer";
+      case "NoDestinationWallet":
+        return getText("Select Destination Wallet");
+
+      case "NoAmount":
+        return getText("Define an amount to transfer");
+
+      case "NoTransactionFee":
+        return getText("No transaction fee is set");
+
+      case "NotEnoughBalance":
+        return getText("Not enough balance");
     }
 
     if (!availableAmountMinusFees) {
-      return "Wallet amount not available";
-    }
-
-    if (validationResult === "NoTransactionFee") {
-      return "No transaction fee is set";
-    }
-
-    if (validationResult === "NotEnoughBalance") {
-      return "Not enough balance";
+      return getText("Wallet amount not available");
     }
 
     return "Submit";
