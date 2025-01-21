@@ -13,7 +13,9 @@ export const LedgerConfirmation = (): JSX.Element => {
     return <></>;
   }
 
-  const account = location.state.account as DerivedAccount;
+  const account = location.state.account as DerivedAccount & {
+    paymentAddress: string;
+  };
   return (
     <Stack gap={4} className="h-[470px]">
       <p className="text-white text-center text-base w-full -mt-3 mb-8">
@@ -22,6 +24,7 @@ export const LedgerConfirmation = (): JSX.Element => {
       <ViewKeys
         publicKeyAddress={account.publicKey}
         transparentAccountAddress={account.address}
+        shieldedAccountAddress={account.paymentAddress}
         trimCharacters={35}
       />
       <ActionButton size="lg" onClick={closeCurrentTab}>

@@ -11,7 +11,7 @@ import {
   Container,
   LifecycleExecutionWrapper as Wrapper,
 } from "@namada/components";
-import { Bip44Path, DerivedAccount, Zip32Path } from "@namada/types";
+import { Bip44Path, Zip32Path } from "@namada/types";
 import { assertNever } from "@namada/utils";
 import { AccountSecret, AccountStore } from "background/keyring";
 import { AnimatePresence, motion } from "framer-motion";
@@ -84,7 +84,7 @@ export const Setup: React.FC = () => {
   });
 
   const [parentAccountStore, setParentAccountStore] = useState<AccountStore>();
-  const [shieldedAccount, setShieldedAccount] = useState<DerivedAccount>();
+  const [paymentAddress, setPaymentAddress] = useState<string>();
   const [completionStatus, setCompletionStatus] = useState<CompletionStatus>();
   const [completionStatusInfo, setCompletionStatusInfo] = useState<string>("");
 
@@ -130,7 +130,7 @@ export const Setup: React.FC = () => {
         details,
         parentAccount
       );
-      setShieldedAccount(shieldedAccount);
+      setPaymentAddress(shieldedAccount?.address);
       setCompletionStatus(CompletionStatus.Completed);
       setCompletionStatusInfo("Done!");
     } catch (e) {
@@ -280,7 +280,7 @@ export const Setup: React.FC = () => {
                       path={bip44Path}
                       // TODO: Display custom zip32 path across apps!
                       parentAccountStore={parentAccountStore}
-                      shieldedAccount={shieldedAccount}
+                      paymentAddress={paymentAddress}
                       status={completionStatus}
                       statusInfo={completionStatusInfo}
                     />
@@ -361,7 +361,7 @@ export const Setup: React.FC = () => {
                       path={bip44Path}
                       // TODO: Pass zip32 path!
                       parentAccountStore={parentAccountStore}
-                      shieldedAccount={shieldedAccount}
+                      paymentAddress={paymentAddress}
                       status={completionStatus}
                       statusInfo={completionStatusInfo}
                     />
@@ -413,7 +413,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.ledgerComplete()}
                 element={
-                  <Wrapper onLoad={setCurrentPage("Namada Keys Imported", 3)}>
+                  <Wrapper onLoad={setCurrentPage("Ledger Keys Imported", 3)}>
                     <LedgerConfirmation />
                   </Wrapper>
                 }
