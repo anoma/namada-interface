@@ -9,7 +9,6 @@ import {
 import { defaultAccountAtom } from "atoms/accounts";
 import { namadaTransparentAssetsAtom } from "atoms/balance";
 import { chainAtom } from "atoms/chain";
-import { defaultGasConfigFamily } from "atoms/fees";
 import {
   availableChainsAtom,
   chainRegistryAtom,
@@ -66,10 +65,6 @@ export const IbcWithdraw: React.FC = () => {
     selectedAssetAddress
   );
 
-  const { data: gasConfig } = useAtomValue(
-    defaultGasConfigFamily(["IbcTransfer"])
-  );
-
   const {
     walletAddress: keplrAddress,
     connectToChainId,
@@ -97,13 +92,13 @@ export const IbcWithdraw: React.FC = () => {
 
   const {
     execute: performWithdraw,
+    feeProps,
     isPending,
     isSuccess,
   } = useTransaction({
     eventType: "IbcTransfer",
     createTxAtom: createIbcTxAtom,
     params: [],
-    gasConfig,
     parsePendingTxNotification: () => ({
       title: "IBC withdrawal transaction in progress",
       description: "Your IBC transaction is being processed",
@@ -183,7 +178,6 @@ export const IbcWithdraw: React.FC = () => {
     invariant(selectedAsset, "No asset is selected");
     invariant(sourceChannel, "No channel ID is set");
     invariant(chainId, "No chain is selected");
-    invariant(gasConfig, "No gas config");
     invariant(keplrAddress, "No address is selected");
 
     const amountInBaseDenom = toBaseAmount(selectedAsset.asset, displayAmount);
@@ -255,7 +249,7 @@ export const IbcWithdraw: React.FC = () => {
           onChangeSourceChannel: setSourceChannel,
         }}
         onSubmitTransfer={submitIbcTransfer}
-        gasConfig={gasConfig}
+        feeProps={feeProps}
         errorMessage={generalErrorMessage}
       />
     </div>

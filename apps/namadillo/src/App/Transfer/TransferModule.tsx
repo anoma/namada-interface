@@ -3,6 +3,7 @@ import { ActionButton, Stack } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { InlineError } from "App/Common/InlineError";
 import BigNumber from "bignumber.js";
+import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { useMemo, useState } from "react";
 import {
   Address,
@@ -68,6 +69,7 @@ export type TransferModuleProps = {
   destination: TransferDestinationProps;
   requiresIbcChannels?: boolean;
   gasConfig?: GasConfig;
+  feeProps?: TransactionFeeProps;
   changeFeeEnabled?: boolean;
   submittingText?: string;
   isSubmitting?: boolean;
@@ -93,7 +95,8 @@ type ValidationResult =
 export const TransferModule = ({
   source,
   destination,
-  gasConfig,
+  gasConfig: gasConfigProp,
+  feeProps,
   changeFeeEnabled,
   submittingText,
   isSubmitting,
@@ -104,6 +107,8 @@ export const TransferModule = ({
   errorMessage,
   buttonTextErrors = {},
 }: TransferModuleProps): JSX.Element => {
+  const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
+
   const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
   const [sourceChainModalOpen, setSourceChainModalOpen] = useState(false);
   const [destinationChainModalOpen, setDestinationChainModalOpen] =
@@ -322,6 +327,7 @@ export const TransferModule = ({
             memo={memo}
             onChangeMemo={setMemo}
             gasConfig={gasConfig}
+            feeProps={feeProps}
             changeFeeEnabled={changeFeeEnabled}
           />
           {isIbcTransfer && requiresIbcChannels && (

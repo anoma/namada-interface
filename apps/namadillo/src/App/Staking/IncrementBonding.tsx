@@ -64,7 +64,7 @@ const IncrementBonding = (): JSX.Element => {
 
   const {
     execute: performBonding,
-    gasConfig,
+    feeProps,
     isEnabled,
     isPending: isPerformingBonding,
   } = useTransaction({
@@ -227,11 +227,9 @@ const IncrementBonding = (): JSX.Element => {
             >
               {isPerformingBonding ? "Processing..." : errorMessage || "Stake"}
             </ActionButton>
-            {gasConfig && (
-              <div className="justify-self-end px-4">
-                <TransactionFeeButton gasConfig={gasConfig} />
-              </div>
-            )}
+            <div className="justify-self-end px-4">
+              <TransactionFeeButton feeProps={feeProps} />
+            </div>
           </div>
         </form>
       </ModalContainer>

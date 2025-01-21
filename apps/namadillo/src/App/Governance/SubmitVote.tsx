@@ -13,7 +13,6 @@ import {
   voteTypes,
 } from "@namada/types";
 import { TransactionFeeButton } from "App/Common/TransactionFeeButton";
-import { defaultGasConfigFamily } from "atoms/fees";
 import {
   createNotificationId,
   dispatchToastNotificationAtom,
@@ -21,6 +20,7 @@ import {
 import { canVoteAtom, createVoteTxAtom, proposalFamily } from "atoms/proposals";
 import clsx from "clsx";
 import { useProposalIdParam } from "hooks";
+import { useTransactionFee } from "hooks/useTransactionFee";
 import invariant from "invariant";
 import { useAtomValue, useSetAtom } from "jotai";
 import { TransactionPair, broadcastTxWithEvents } from "lib/query";
@@ -59,7 +59,7 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
   } = useAtomValue(createVoteTxAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
 
-  const gasConfig = useAtomValue(defaultGasConfigFamily(["VoteProposal"]));
+  const feeProps = useTransactionFee(["VoteProposal"]);
 
   useEffect(() => {
     if (isSuccess) {
@@ -108,13 +108,10 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
       typeof selectedVoteType !== "undefined",
       "There is no selected vote type"
     );
-    if (!gasConfig.isSuccess) {
-      throw new Error("Gas config is still pending");
-    }
     createVoteTx({
       proposalId,
       vote: selectedVoteType,
-      gasConfig: gasConfig.data,
+      gasConfig: feeProps.gasConfig,
     });
   };
 
@@ -180,11 +177,9 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
               />
             </Stack>
             <footer>
-              {gasConfig.isSuccess && (
-                <div className="justify-self-end">
-                  <TransactionFeeButton gasConfig={gasConfig.data} />
-                </div>
-              )}
+              <div className="justify-self-end">
+                <TransactionFeeButton feeProps={feeProps} />
+              </div>
             </footer>
             <ActionButton
               type="submit"

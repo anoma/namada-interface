@@ -3,16 +3,12 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { TransactionFeeButton } from "App/Common/TransactionFeeButton";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
 import { useValidatorSorting } from "hooks/useValidatorSorting";
 import { useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import {
-  GasConfig,
-  RedelegateChange,
-  Validator,
-  ValidatorFilterOptions,
-} from "types";
+import { RedelegateChange, Validator, ValidatorFilterOptions } from "types";
 import { ReDelegateTable } from "./ReDelegateTable";
 import { ValidatorFilterNav } from "./ValidatorFilterNav";
 
@@ -55,7 +51,7 @@ type ReDelegateAssignStakeProps = {
   ) => void;
   isPerformingRedelegation: boolean;
   redelegateChanges: RedelegateChange[];
-  gasConfig: GasConfig | undefined;
+  feeProps: TransactionFeeProps;
 };
 
 export const ReDelegateAssignStake = ({
@@ -68,7 +64,7 @@ export const ReDelegateAssignStake = ({
   onChangeAssignedAmount,
   isPerformingRedelegation,
   redelegateChanges,
-  gasConfig,
+  feeProps,
 }: ReDelegateAssignStakeProps): JSX.Element => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [validatorFilter, setValidatorFilter] =
@@ -161,11 +157,9 @@ export const ReDelegateAssignStake = ({
           validation={validation}
           isPerformingRedelegation={isPerformingRedelegation}
         />
-        {gasConfig && (
-          <div className="justify-self-end px-4">
-            <TransactionFeeButton gasConfig={gasConfig} />
-          </div>
-        )}
+        <div className="justify-self-end px-4">
+          <TransactionFeeButton feeProps={feeProps} />
+        </div>
       </div>
     </>
   );

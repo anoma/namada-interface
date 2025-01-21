@@ -16,7 +16,7 @@ export type SelectBoxProps<T extends string> = {
   containerProps?: React.ComponentPropsWithoutRef<"div">;
   listItemProps?: React.ComponentPropsWithoutRef<"li">;
   arrowContainerProps?: React.ComponentPropsWithoutRef<"i">;
-  defaultValue: React.ReactNode;
+  defaultValue?: React.ReactNode;
   options: SelectBoxOption<T>[];
 } & React.ComponentPropsWithRef<"input">;
 
@@ -33,15 +33,9 @@ export const StyledSelectBox = <T extends string = string>({
   defaultValue,
   ...props
 }: SelectBoxProps<T>): JSX.Element => {
-  const [selected, setSelected] = useState<SelectBoxOption<T> | null>(null);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    const defaultSelected = options.find((option) => option.id === value);
-    if (defaultSelected) {
-      setSelected(defaultSelected);
-    }
-  }, []);
+  const selected = options.find((option) => option.id === value);
 
   useEffect(() => {
     const close = (): void => setOpen(false);
@@ -77,7 +71,6 @@ export const StyledSelectBox = <T extends string = string>({
             checked={value === option.id}
             aria-label={option.ariaLabel}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setSelected(option);
               if (onChange) onChange(e);
             }}
             {...props}
@@ -137,7 +130,7 @@ export const StyledSelectBox = <T extends string = string>({
             >
               <label
                 className={twMerge(
-                  "grid grid-cols-[30px_max-content] cursor-pointer py-2",
+                  "block cursor-pointer py-2",
                   "group-hover/item:text-cyan transition-color duration-150"
                 )}
                 htmlFor={getElementId(option.id)}

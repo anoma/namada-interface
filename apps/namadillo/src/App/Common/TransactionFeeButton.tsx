@@ -1,12 +1,12 @@
+import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { useState } from "react";
-import { GasConfig } from "types";
 import { GasFeeModal } from "./GasFeeModal";
 import { TransactionFee } from "./TransactionFee";
 
 export const TransactionFeeButton = ({
-  gasConfig,
+  feeProps,
 }: {
-  gasConfig: GasConfig;
+  feeProps: TransactionFeeProps;
 }): JSX.Element => {
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -17,13 +17,10 @@ export const TransactionFeeButton = ({
         className="underline hover:text-yellow transition-all cursor-pointer"
         onClick={() => setModalOpen(true)}
       >
-        <TransactionFee gasConfig={gasConfig} />
+        <TransactionFee gasConfig={feeProps.gasConfig} />
       </button>
       {modalOpen && (
-        <GasFeeModal
-          gasConfig={gasConfig}
-          onClose={() => setModalOpen(false)}
-        />
+        <GasFeeModal feeProps={feeProps} onClose={() => setModalOpen(false)} />
       )}
     </>
   );

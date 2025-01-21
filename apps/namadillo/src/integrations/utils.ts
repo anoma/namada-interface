@@ -51,17 +51,13 @@ export const getIbcGasConfig = (
       feeToken.low_gas_price ??
       feeToken.fixed_min_gas_price ??
       feeToken.high_gas_price ??
+      feeToken.gas_costs?.ibc_transfer ??
+      feeToken.gas_costs?.cosmos_send ??
       0;
-
-    const asset = registry.assets.assets.find(
-      (asset) => asset.base === feeToken.denom
-    );
-
     return {
       gasPrice: BigNumber(gasPrice),
       gasLimit: BigNumber(gasLimit),
       gasToken: feeToken.denom,
-      asset,
     };
   }
   return undefined;

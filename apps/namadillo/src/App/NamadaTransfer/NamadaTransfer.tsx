@@ -80,7 +80,7 @@ export const NamadaTransfer: React.FC = () => {
     execute: performTransfer,
     isPending: isPerformingTransfer,
     txKind,
-    gasConfig,
+    feeProps,
   } = useTransfer({
     source,
     target,
@@ -120,7 +120,6 @@ export const NamadaTransfer: React.FC = () => {
       invariant(sourceAddress, "Source address is not defined");
       invariant(chainId, "Chain ID is undefined");
       invariant(selectedAsset, "No asset is selected");
-      invariant(gasConfig, "No gas config");
       invariant(
         sourceAddress !== customAddress,
         "The recipient address must differ from the sender address"
@@ -188,7 +187,7 @@ export const NamadaTransfer: React.FC = () => {
           customAddress,
           onChangeCustomAddress: setCustomAddress,
         }}
-        gasConfig={gasConfig}
+        feeProps={feeProps}
         isSubmitting={isPerformingTransfer}
         errorMessage={generalErrorMessage}
         onSubmitTransfer={onSubmitTransfer}

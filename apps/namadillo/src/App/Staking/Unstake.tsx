@@ -51,7 +51,7 @@ export const Unstake = (): JSX.Element => {
 
   const {
     execute: performUnbond,
-    gasConfig,
+    feeProps,
     isPending: isPerformingUnbond,
     isEnabled,
   } = useTransaction({
@@ -214,11 +214,9 @@ export const Unstake = (): JSX.Element => {
                 "Processing..."
               : validationMessage || "Unstake"}
             </ActionButton>
-            {gasConfig && (
-              <div className="justify-self-end px-4">
-                <TransactionFeeButton gasConfig={gasConfig} />
-              </div>
-            )}
+            <div className="justify-self-end px-4">
+              <TransactionFeeButton feeProps={feeProps} />
+            </div>
           </div>
         </form>
       </ModalContainer>

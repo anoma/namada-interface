@@ -183,6 +183,9 @@ export const shortenAddress = (
   suffixLength = 6,
   delimiter = "..."
 ): string => {
+  if (address.length <= prefixLength + suffixLength) {
+    return address;
+  }
   const prefix = address.substring(0, prefixLength);
   const suffix = address.substring(
     address.length - suffixLength,
