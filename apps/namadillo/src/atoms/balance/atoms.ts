@@ -2,7 +2,7 @@ import { DefaultApi } from "@namada/indexer-client";
 import { Account, AccountType, DatedViewingKey } from "@namada/types";
 import {
   accountsAtom,
-  defaultAccountAtom,
+  allDefaultAccountsAtom,
   transparentBalanceAtom,
 } from "atoms/accounts/atoms";
 import { indexerApiAtom } from "atoms/api";
@@ -74,17 +74,17 @@ export const viewingKeysAtom = atomWithQuery<
   [DatedViewingKey, DatedViewingKey[]]
 >((get) => {
   const accountsQuery = get(accountsAtom);
-  const defaultAccountQuery = get(defaultAccountAtom);
+  const defaultAccountsQuery = get(allDefaultAccountsAtom);
   const api = get(indexerApiAtom);
 
   return {
-    queryKey: ["viewing-keys", accountsQuery.data, defaultAccountQuery.data],
+    queryKey: ["viewing-keys", accountsQuery.data, defaultAccountsQuery.data],
     ...queryDependentFn(async () => {
       const shieldedAccounts = accountsQuery.data!.filter(
         (a) => a.type === AccountType.ShieldedKeys
       );
-      const defaultShieldedAccount = shieldedAccounts.find(
-        (a) => a.alias === defaultAccountQuery.data?.alias
+      const defaultShieldedAccount = defaultAccountsQuery.data?.find(
+        (account) => account.type === AccountType.ShieldedKeys
       );
 
       if (!defaultShieldedAccount) {
@@ -100,7 +100,7 @@ export const viewingKeysAtom = atomWithQuery<
       );
 
       return [defaultViewingKey, viewingKeys];
-    }, [accountsQuery, defaultAccountQuery]),
+    }, [accountsQuery, defaultAccountsQuery]),
   };
 });
 
