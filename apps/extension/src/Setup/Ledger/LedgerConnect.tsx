@@ -1,11 +1,20 @@
 import { chains } from "@namada/chains";
 import { ActionButton, Alert, Image, Stack } from "@namada/components";
-import { Ledger as LedgerApp, makeBip44Path } from "@namada/sdk/web";
+import {
+  ExtendedViewingKey,
+  Ledger as LedgerApp,
+  makeBip44Path,
+  makeSaplingPath,
+  ProofGenerationKey,
+  PseudoExtendedKey,
+} from "@namada/sdk/web";
+import initWasm from "@namada/sdk/web-init";
 import { Bip44Path, Zip32Path } from "@namada/types";
 import { LedgerError } from "@zondax/ledger-namada";
 import { LedgerStep } from "Setup/Common";
 import { AdvancedOptions } from "Setup/Common/AdvancedOptions";
 import Bip44Form from "Setup/Common/Bip44Form";
+import { LedgerApprovalStep } from "Setup/Common/LedgerApprovalStep";
 import routes from "Setup/routes";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +28,7 @@ type Props = {
 
 export const LedgerConnect: React.FC<Props> = ({
   bip44Path,
-  zip32Path: _zip32Path, // TODO
+  zip32Path, // TODO
   setBip44Path,
   setZip32Path: _setZip32Path, // TODO
 }) => {
@@ -27,6 +36,9 @@ export const LedgerConnect: React.FC<Props> = ({
   const [error, setError] = useState<string>();
   const [isLedgerConnecting, setIsLedgerConnecting] = useState(false);
   const [ledger, setLedger] = useState<LedgerApp>();
+
+  // Import keys steps (transparent, viewing key, proof-gen key)
+  const [currentApprovalStep, setCurrentApprovalStep] = useState(1);
 
   const queryLedger = async (ledger: LedgerApp): Promise<void> => {
     setError(undefined);
@@ -40,15 +52,47 @@ export const LedgerConnect: React.FC<Props> = ({
       }
 
       setIsLedgerConnecting(true);
+      setCurrentApprovalStep(1);
       const { address, publicKey } = await ledger.showAddressAndPublicKey(
         makeBip44Path(chains.namada.bip44.coinType, bip44Path)
       );
-      // TODO: Shielded import will be enabled in PR: https://github.com/anoma/namada-interface/pull/1575
+
+      // Shielded Keys
+      const path = makeSaplingPath(chains.namada.bip44.coinType, {
+        account: zip32Path.account,
+      });
+
+      setCurrentApprovalStep(2);
+      const { xfvk } = await ledger.getViewingKey(path);
+
+      setCurrentApprovalStep(3);
+      const { ak, nsk } = await ledger.getProofGenerationKey(path);
+
+      // SDK wasm init must be called
+      await initWasm();
+
+      const extendedViewingKey = new ExtendedViewingKey(xfvk);
+      const encodedExtendedViewingKey = extendedViewingKey.encode();
+      const encodedPaymentAddress = extendedViewingKey
+        .default_payment_address()
+        .encode();
+
+      const proofGenerationKey = ProofGenerationKey.from_bytes(ak, nsk);
+      const pseudoExtendedKey = PseudoExtendedKey.from(
+        extendedViewingKey,
+        proofGenerationKey
+      );
+      const encodedPseudoExtendedKey = pseudoExtendedKey.encode();
+
       setIsLedgerConnecting(false);
+
       navigate(routes.ledgerImport(), {
         state: {
           address,
           publicKey,
+          extendedViewingKey: encodedExtendedViewingKey,
+          paymentAddress: encodedPaymentAddress,
+          pseudoExtendedKey: encodedPseudoExtendedKey,
         },
       });
     } catch (e) {
@@ -91,11 +135,7 @@ export const LedgerConnect: React.FC<Props> = ({
 
   return (
     <Stack gap={6} className="justify-between min-h-[470px]">
-      <Stack
-        as="ol"
-        gap={4}
-        className="flex-1 justify-center mx-auto max-w-[400px]"
-      >
+      <Stack as="ol" gap={4} className="flex-1 justify-center mx-auto w-full">
         {error && (
           <Alert title="Error" type="error">
             {error}
@@ -103,38 +143,41 @@ export const LedgerConnect: React.FC<Props> = ({
         )}
 
         {isLedgerConnecting && (
-          <Alert type="warning">Review on your Ledger</Alert>
+          <LedgerApprovalStep currentApprovalStep={currentApprovalStep} />
         )}
 
-        <AdvancedOptions>
-          <Bip44Form path={bip44Path} setPath={setBip44Path} />
-          {/* TODO: Enable in https://github.com/anoma/namada-interface/pull/1575 */}
-          {/*<Zip32Form path={zip32Path} setPath={setZip32Path} />*/}
-        </AdvancedOptions>
-
-        <LedgerStep
-          title="Step 1"
-          text="Connect and unlock your ledger Hardware Wallet"
-          onClick={() => connectUSB()}
-          active={!ledger}
-          complete={!!ledger}
-          buttonDisabled={!!ledger}
-          image={
-            <Image styleOverrides={{ width: "100%" }} imageName="Ledger" />
-          }
-        />
-
-        <LedgerStep
-          title="Step 2"
-          text="Open the Namada App on your ledger device"
-          active={!!ledger}
-          complete={false}
-          onClick={() => connectNamadaApp()}
-          buttonDisabled={!ledger || isLedgerConnecting}
-          image={
-            <Image styleOverrides={{ width: "100%" }} imageName="LogoMinimal" />
-          }
-        />
+        {!isLedgerConnecting && (
+          <>
+            <AdvancedOptions>
+              <Bip44Form path={bip44Path} setPath={setBip44Path} />
+            </AdvancedOptions>
+            <LedgerStep
+              title="Step 1"
+              text="Connect and unlock your ledger Hardware Wallet"
+              onClick={() => connectUSB()}
+              active={!ledger}
+              complete={!!ledger}
+              buttonDisabled={!!ledger}
+              image={
+                <Image styleOverrides={{ width: "100%" }} imageName="Ledger" />
+              }
+            />
+            <LedgerStep
+              title="Step 2"
+              text="Open the Namada App on your ledger device"
+              active={!!ledger}
+              complete={false}
+              onClick={() => connectNamadaApp()}
+              buttonDisabled={!ledger || isLedgerConnecting}
+              image={
+                <Image
+                  styleOverrides={{ width: "100%" }}
+                  imageName="LogoMinimal"
+                />
+              }
+            />
+          </>
+        )}
       </Stack>
       <ActionButton size="lg" disabled={true}>
         Next

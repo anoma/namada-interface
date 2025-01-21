@@ -47,6 +47,13 @@ impl ExtendedViewingKey {
     pub fn encode(&self) -> String {
         self.0.to_string()
     }
+
+    pub fn default_payment_address(&self) -> PaymentAddress {
+        let xfvk = zip32::ExtendedFullViewingKey::from(self.0);
+        let (_, payment_address) = xfvk.default_address();
+
+        PaymentAddress(payment_address.into())
+    }
 }
 
 #[wasm_bindgen]
@@ -54,11 +61,20 @@ pub struct ProofGenerationKey(pub(crate) sapling::ProofGenerationKey);
 
 #[wasm_bindgen]
 impl ProofGenerationKey {
+    pub fn from_bytes(ak: Vec<u8>, nsk: Vec<u8>) -> ProofGenerationKey {
+        let concatenated: Vec<u8> = ak.iter().chain(nsk.iter()).cloned().collect();
+        let pgk = sapling::ProofGenerationKey::try_from_slice(concatenated.as_slice())
+            .expect("Deserializing ProofGenerationKey should not fail!");
+
+        ProofGenerationKey(pgk)
+    }
+
     pub fn encode(&self) -> String {
         hex::encode(
             borsh::to_vec(&self.0).expect("Serializing ProofGenerationKey should not fail!"),
         )
     }
+
     pub fn decode(encoded: String) -> ProofGenerationKey {
         let decoded = hex::decode(encoded).expect("Decoding ProofGenerationKey should not fail!");
 
@@ -78,6 +94,7 @@ impl PseudoExtendedKey {
     pub fn encode(&self) -> String {
         hex::encode(borsh::to_vec(&self.0).expect("Serializing PseudoExtendedKey should not fail!"))
     }
+
     pub fn decode(encoded: String) -> PseudoExtendedKey {
         let decoded = hex::decode(encoded).expect("Decoding PseudoExtendedKey should not fail!");
 
@@ -85,6 +102,18 @@ impl PseudoExtendedKey {
             zip32::PseudoExtendedKey::try_from_slice(decoded.as_slice())
                 .expect("Deserializing ProofGenerationKey should not fail!"),
         )
+    }
+
+    pub fn from(xvk: ExtendedViewingKey, pgk: ProofGenerationKey) -> Self {
+        let mut pxk = zip32::PseudoExtendedKey::from(zip32::ExtendedFullViewingKey::from(xvk.0));
+        pxk.augment_proof_generation_key(pgk.0)
+            .expect("Augmenting proof generation key should not fail!");
+
+        pxk.augment_spend_authorizing_key_unchecked(sapling::redjubjub::PrivateKey(
+            jubjub::Fr::default(),
+        ));
+
+        Self(pxk)
     }
 }
 
