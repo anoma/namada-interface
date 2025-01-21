@@ -8,7 +8,7 @@ import {
   KeyListItem,
   Stack,
 } from "@namada/components";
-import { AccountType, DerivedAccount } from "@namada/types";
+import { DerivedAccount } from "@namada/types";
 import { ParentAccountsFooter } from "App/Accounts/ParentAccountsFooter";
 import { PageHeader } from "App/Common";
 import routes from "App/routes";
@@ -27,14 +27,11 @@ export const ParentAccounts = (): JSX.Element => {
     accounts: allAccounts,
     changeActiveAccountId,
   } = useContext(AccountContext);
-
   // We check which accounts need to be re-imported
   const accounts = allAccounts
     .filter((account) => account.parentId)
     .map((account) => {
-      const outdated =
-        account.type !== AccountType.Ledger &&
-        typeof account.pseudoExtendedKey === "undefined";
+      const outdated = typeof account.pseudoExtendedKey === "undefined";
 
       const parent = parentAccounts.find((pa) => pa.id === account.parentId);
       invariant(parent, `Parent account not found for account ${account.id}`);
