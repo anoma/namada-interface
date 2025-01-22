@@ -48,7 +48,7 @@
     "dev": "VITE_REVISION=$(git rev-parse HEAD) vite",
     "dev:local": "NODE_ENV=development NAMADA_INTERFACE_LOCAL=\"true\" yarn dev",
     "dev:proxy": "VITE_PROXY=true && ./scripts/start-proxies.sh && yarn dev:local",
-    "build": "NODE_ENV=production && yarn wasm:build && VITE_REVISION=$(git rev-parse HEAD) vite build",
+    "build": "NODE_ENV=production && yarn wasm:build:multicore && VITE_REVISION=$(git rev-parse HEAD) vite build",
     "build:only": "NODE_ENV=production && VITE_REVISION=$(git rev-parse HEAD) vite build",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
