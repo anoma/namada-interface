@@ -1,5 +1,5 @@
 import * as crypto from "@namada/crypto";
-// We have to use relative improts here othewise ts-patch is getting confused and produces wrong paths after compialtion
+// We have to use relative imports here othewise ts-patch is getting confused and produces wrong paths after compialtion
 import { initThreadPool } from "../../shared/src/init-thread-pool";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -176,6 +176,9 @@ export class TransferDataMsgValue {
   amount!: BigNumber;
 }
 
+/**
+ * Used only for serializing transfers during build
+ */
 export class TransferMsgValue {
   @field({ type: vec(TransferDataMsgValue) })
   sources!: TransferDataMsgValue[];
@@ -185,4 +188,19 @@ export class TransferMsgValue {
 
   @field({ type: option(vec("u8")) })
   shieldedSectionHash?: Uint8Array;
+}
+
+/**
+ * When deserializing for Transfer Details, return version with
+ * shieldedSectionHash encoded as hex instead of Uint8Array
+ */
+export class TransferDetailsMsgValue {
+  @field({ type: vec(TransferDataMsgValue) })
+  sources!: TransferDataMsgValue[];
+
+  @field({ type: vec(TransferDataMsgValue) })
+  targets!: TransferDataMsgValue[];
+
+  @field({ type: option("string") })
+  shieldedSectionHash?: string;
 }

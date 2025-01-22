@@ -31,7 +31,7 @@
 
 #### Defined in
 
-[tx/schema/withdraw.ts:12](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/tx/schema/withdraw.ts#L12)
+[tx/schema/withdraw.ts:12](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/types/src/tx/schema/withdraw.ts#L12)
 
 ## Properties
 
@@ -41,7 +41,7 @@
 
 #### Defined in
 
-[tx/schema/withdraw.ts:7](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/tx/schema/withdraw.ts#L7)
+[tx/schema/withdraw.ts:7](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/types/src/tx/schema/withdraw.ts#L7)
 
 ___
 
@@ -51,4 +51,4 @@ ___
 
 #### Defined in
 
-[tx/schema/withdraw.ts:10](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/tx/schema/withdraw.ts#L10)
+[tx/schema/withdraw.ts:10](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/types/src/tx/schema/withdraw.ts#L10)

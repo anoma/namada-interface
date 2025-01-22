@@ -37,7 +37,7 @@ export const submitTransfer = async (
 
   try {
     const { cryptoMemory } = initSync();
-    const sdk = getSdk(cryptoMemory, nodeUrl, "storage path", nativeToken);
+    const sdk = getSdk(cryptoMemory, nodeUrl, "", "storage path", nativeToken);
 
     const encodedTx = await sdk.tx.buildTransparentTransfer(wrapperTxProps, {
       data: [transparentTransferMsgValue],

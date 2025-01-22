@@ -16,14 +16,14 @@ export class Signing {
   /**
    * Sign Namada transaction
    * @param txProps - TxProps
-   * @param signingKey - private key
+   * @param signingKey - private key(s)
    * @param xsks - spending keys
    * @param [chainId] - optional chain ID, will enforce validation if present
    * @returns signed tx bytes - Promise resolving to Uint8Array
    */
   async sign(
     txProps: TxProps,
-    signingKey: string,
+    signingKey: string | string[],
     xsks?: string[],
     chainId?: string
   ): Promise<Uint8Array> {
@@ -35,7 +35,15 @@ export class Signing {
         await this.sdk.sign_masp(xsks, txBytes)
       : txBytes;
 
-    return await this.sdk.sign_tx(txBytesFinal, signingKey, chainId);
+
+    let signingKeys: string[] = [];
+    if (signingKey instanceof Array) {
+      signingKeys = signingKey;
+    } else {
+      signingKeys.push(signingKey);
+    }
+
+    return await this.sdk.sign_tx(txBytesFinal, signingKeys, chainId);
   }
 
   /**

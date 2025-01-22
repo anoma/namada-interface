@@ -19,7 +19,7 @@
 
 #### Defined in
 
-[account.ts:28](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/account.ts#L28)
+[account.ts:28](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/types/src/account.ts#L28)
 
 ___
 
@@ -29,7 +29,7 @@ ___
 
 #### Defined in
 
-[account.ts:22](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/account.ts#L22)
+[account.ts:22](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/types/src/account.ts#L22)
 
 ___
 
@@ -39,7 +39,7 @@ ___
 
 #### Defined in
 
-[account.ts:24](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/account.ts#L24)
+[account.ts:24](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/types/src/account.ts#L24)
 
 ___
 
@@ -49,4 +49,4 @@ ___
 
 #### Defined in
 
-[account.ts:26](https://github.com/anoma/namada-interface/blob/9724dc7fb547e95a72df1eb06aecb9fed2c6a05b/packages/types/src/account.ts#L26)
+[account.ts:26](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/types/src/account.ts#L26)

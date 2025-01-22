@@ -14,7 +14,7 @@ use wasm_bindgen::JsError;
 use crate::sdk::{
     args::{
         BondMsg, ClaimRewardsMsg, IbcTransferMsg, RedelegateMsg, RevealPkMsg, TransferDataMsg,
-        TransferMsg, UnbondMsg, VoteProposalMsg, WithdrawMsg,
+        TransferDetailsMsg, UnbondMsg, VoteProposalMsg, WithdrawMsg,
     },
     tx::TxType,
 };
@@ -146,9 +146,11 @@ impl TransactionKind {
 
                 let ssh = match shielded_section_hash {
                     Some(masp_tx_id) => {
-                        // Serialize and return bytes
-                        let bytes = masp_tx_id.serialize_to_vec();
-                        Some(bytes)
+                        // Return hex-encoded string of shielded section hash
+                        // See https://github.com/anoma/masp/blob/0d0da3507a6f9ad135f00fd8201dc54c2f1d9efe/masp_primitives/src/transaction.rs#L85-L88
+                        let mut bytes = masp_tx_id.serialize_to_vec();
+                        bytes.reverse();
+                        Some(hex::encode(bytes).to_string())
                     }
                     None => None,
                 };
@@ -170,7 +172,7 @@ impl TransactionKind {
                     targets_data.push(TransferDataMsg::new(owner, token, amount))
                 }
 
-                borsh::to_vec(&TransferMsg::new(sources_data, targets_data, ssh))?
+                borsh::to_vec(&TransferDetailsMsg::new(sources_data, targets_data, ssh))?
             }
             TransactionKind::ProposalVote(vote_proposal) => {
                 let VoteProposalData { id, vote, voter } = vote_proposal;

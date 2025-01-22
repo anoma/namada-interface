@@ -18,7 +18,7 @@
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:44
+shared/src/shared/shared.d.ts:48
 
 ___
 
@@ -28,7 +28,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:43
+shared/src/shared/shared.d.ts:47
 
 ___
 
@@ -38,4 +38,4 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:42
+shared/src/shared/shared.d.ts:46

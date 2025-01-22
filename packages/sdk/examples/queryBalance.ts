@@ -16,7 +16,7 @@ export const queryBalance = async (
 ): Promise<void> => {
   try {
     const { cryptoMemory } = initSync();
-    const sdk = getSdk(cryptoMemory, nodeUrl, "storage path", nativeToken);
+    const sdk = getSdk(cryptoMemory, nodeUrl, "", "storage path", nativeToken);
     const [[t, a]] = await sdk.rpc.queryBalance(owner, [token], "chainId");
     console.log(`Balance for ${owner} - Token: ${t} - Amount: ${a}`);
   } catch (error) {
