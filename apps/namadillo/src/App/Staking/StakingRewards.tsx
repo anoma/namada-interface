@@ -54,7 +54,7 @@ export const StakingRewards = (): JSX.Element => {
       title: "Claim rewards transaction is in progress",
       description: <>Your rewards claim is being processed</>,
     }),
-    onSuccess: () => {
+    onBroadcasted: () => {
       onCloseModal();
     },
   });
@@ -76,7 +76,7 @@ export const StakingRewards = (): JSX.Element => {
         </>
       ),
     }),
-    onSuccess: () => {
+    onBroadcasted: () => {
       onCloseModal();
     },
   });

@@ -84,7 +84,7 @@ const IncrementBonding = (): JSX.Element => {
       title: "Staking transaction failed",
       description: "",
     }),
-    onSuccess: () => {
+    onBroadcasted: () => {
       onCloseModal();
     },
   });

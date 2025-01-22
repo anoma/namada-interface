@@ -4,7 +4,6 @@ import { mapUndefined, shortenAddress } from "@namada/utils";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import {
-  createIbcNotificationId,
   createNotificationId,
   dispatchToastNotificationAtom,
   filterToastNotificationsAtom,
@@ -403,7 +402,7 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("IbcTransfer.Success", (e) => {
     invariant(e.detail.hash, "Notification error: Invalid Tx hash");
-    const id = createIbcNotificationId(e.detail.hash);
+    const id = createNotificationId(e.detail.hash);
     clearPendingNotifications(id);
 
     const title =
@@ -429,8 +428,8 @@ export const useTransactionNotifications = (): void => {
   });
 
   useTransactionEventListener("IbcTransfer.Error", (e) => {
-    invariant(e.detail.hash, "Notification error: hash was not provided");
-    const id = createIbcNotificationId(e.detail.hash);
+    invariant(e.detail.hash, "Notification error: Invalid Tx provider");
+    const id = createNotificationId(e.detail.hash);
     clearPendingNotifications(id);
 
     const title =
