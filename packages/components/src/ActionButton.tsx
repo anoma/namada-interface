@@ -33,7 +33,7 @@ const actionButtonShape = tv({
     outlined: {
       true: clsx(
         "before:transition-colors before:border before:border-[var(--outline)] before:absolute",
-        "before:left-0 before:top-0 before:w-full before:h-full before:z-[1000]"
+        "before:left-0 before:top-0 before:w-full before:h-full before:z-50"
       ),
     },
   },
