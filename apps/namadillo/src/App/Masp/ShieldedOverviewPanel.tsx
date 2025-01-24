@@ -25,7 +25,7 @@ const AssetTable = (): JSX.Element => {
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
 
   if (shieldedTokensQuery.data === undefined) {
-    return <SkeletonLoading height="100%" width="100%" />;
+    return <SkeletonLoading height="125px" width="100%" />;
   }
 
   if (!shieldedTokensQuery.data.length) {

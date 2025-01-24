@@ -11,12 +11,18 @@ import { twMerge } from "tailwind-merge";
 import namBalanceIcon from "./assets/nam-balance-icon.png";
 import namadaShieldedSvg from "./assets/namada-shielded.svg";
 
-const AsyncNamCurrency = ({ amount }: { amount?: BigNumber }): JSX.Element => {
+const AsyncNamCurrency = ({
+  amount,
+  className = "",
+}: {
+  amount?: BigNumber;
+  className?: string;
+}): JSX.Element => {
   if (amount === undefined) {
     return (
-      <Stack gap={2.5} className="h-[76px] items-center">
-        <SkeletonLoading height="26px" width="100px" />
-        <SkeletonLoading height="16px" width="50px" />
+      <Stack gap={1.5} className="items-center">
+        <SkeletonLoading height="24px" width="100px" />
+        <SkeletonLoading height="18px" width="50px" />
       </Stack>
     );
   }
@@ -24,7 +30,7 @@ const AsyncNamCurrency = ({ amount }: { amount?: BigNumber }): JSX.Element => {
   return (
     <NamCurrency
       amount={new BigNumber(amount)}
-      className="block text-center text-3xl leading-none"
+      className={twMerge("block text-center text-3xl leading-none", className)}
       currencySymbolClassName="block text-xs mt-1"
     />
   );
