@@ -57,7 +57,7 @@ impl WebShieldedUtils {
 
     /// Clear all shielded context data from the database.
     pub async fn clear(chain_id: &str) -> Result<(), Error> {
-        let db = Self::build_database(&chain_id).await?;
+        let db = Self::build_database(chain_id).await?;
         let entry = format!("{}-{}", SHIELDED_CONTEXT_PREFIX, chain_id);
 
         db.transaction(&[entry.clone()], TransactionMode::ReadWrite)?

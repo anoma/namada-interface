@@ -736,6 +736,7 @@ pub struct IbcTransferMsg {
 }
 
 impl IbcTransferMsg {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         source: String,
         receiver: String,

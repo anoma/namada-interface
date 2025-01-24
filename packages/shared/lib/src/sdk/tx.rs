@@ -4,8 +4,10 @@ use std::str::FromStr;
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use namada_sdk::masp_primitives::transaction::components::sapling::builder::StoredBuildParams;
+use namada_sdk::masp_primitives::transaction::components::sapling::fees::{InputView, OutputView};
 use namada_sdk::masp_primitives::zip32::ExtendedFullViewingKey;
 use namada_sdk::signing::SigningTxData;
+use namada_sdk::token::{Amount, DenominatedAmount};
 use namada_sdk::tx::data::compute_inner_tx_hash;
 use namada_sdk::tx::either::Either;
 use namada_sdk::tx::{
@@ -14,6 +16,7 @@ use namada_sdk::tx::{
 };
 use namada_sdk::uint::Uint;
 use namada_sdk::{address::Address, key::common::PublicKey};
+use namada_sdk::{ExtendedViewingKey, PaymentAddress};
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
 use super::args::WrapperTxMsg;
@@ -255,12 +258,30 @@ pub fn deserialize_tx(tx_bytes: Vec<u8>, wasm_hashes: JsValue) -> Result<Vec<u8>
 
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada_sdk::borsh")]
+pub struct TxIn {
+    pub token: String,
+    pub value: String,
+    pub owner: String,
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada_sdk::borsh")]
+pub struct TxOut {
+    pub token: String,
+    pub value: String,
+    pub address: String,
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada_sdk::borsh")]
 pub struct Commitment {
     tx_type: TxType,
     hash: String,
     tx_code_id: String,
     data: Vec<u8>,
     memo: Option<String>,
+    masp_tx_in: Option<Vec<TxIn>>,
+    masp_tx_out: Option<Vec<TxOut>>,
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -326,12 +347,16 @@ impl TxDetails {
                             let tx_kind = transaction::TransactionKind::from(tx_type, &tx_data);
                             let data = tx_kind.to_bytes()?;
 
+                            let (inputs, outputs) = get_masp_details(&tx, &tx_kind);
+
                             commitments.push(Commitment {
                                 tx_type,
                                 hash,
                                 tx_code_id,
                                 data,
                                 memo,
+                                masp_tx_out: outputs,
+                                masp_tx_in: inputs,
                             });
                         }
                     }
@@ -344,6 +369,70 @@ impl TxDetails {
             }
             _ => Err(JsError::new("Invalid transaction type!")),
         }
+    }
+}
+
+fn get_masp_details(
+    tx: &tx::Tx,
+    tx_kind: &transaction::TransactionKind,
+) -> (Option<Vec<TxIn>>, Option<Vec<TxOut>>) {
+    match tx_kind {
+        transaction::TransactionKind::Transfer(transfer) => {
+            if let Some(shielded_hash) = transfer.shielded_section_hash {
+                let masp_builder = tx
+                    .get_masp_builder(&shielded_hash)
+                    .expect("Masp builder to exist");
+
+                let asset_types = &masp_builder.asset_types;
+
+                let inputs = masp_builder
+                    .builder
+                    .sapling_inputs()
+                    .iter()
+                    .map(|input| {
+                        let asset_data = asset_types
+                            .iter()
+                            .find(|ad| ad.encode().unwrap() == input.asset_type())
+                            .expect("Asset data to exist");
+
+                        let amount = Amount::from_u64(input.value());
+                        let denominated_amount = DenominatedAmount::new(amount, asset_data.denom);
+
+                        TxIn {
+                            token: asset_data.token.to_string(),
+                            value: denominated_amount.to_string(),
+                            owner: ExtendedViewingKey::from(*input.key()).to_string(),
+                        }
+                    })
+                    .collect::<Vec<_>>();
+
+                let outputs = masp_builder
+                    .builder
+                    .sapling_outputs()
+                    .iter()
+                    .map(|output| {
+                        let asset_data = asset_types
+                            .iter()
+                            .find(|ad| ad.encode().unwrap() == output.asset_type())
+                            .expect("Asset data to exist");
+
+                        let amount = Amount::from_u64(output.value());
+                        let denominated_amount = DenominatedAmount::new(amount, asset_data.denom);
+
+                        TxOut {
+                            token: { asset_data.token.to_string() },
+                            value: denominated_amount.to_string(),
+                            address: PaymentAddress::from(output.address()).to_string(),
+                        }
+                    })
+                    .collect::<Vec<_>>();
+
+                (Some(inputs), Some(outputs))
+            } else {
+                (None, None)
+            }
+        }
+        _ => (None, None),
     }
 }
 

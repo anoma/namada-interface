@@ -11,7 +11,7 @@ pub struct ProgressStart {
 
 impl ProgressStart {
     pub fn to_json(&self) -> JsValue {
-        let json = serde_json::to_value(&self).unwrap();
+        let json = serde_json::to_value(self).unwrap();
         JsValue::from_str(&json.to_string())
     }
 }
@@ -24,7 +24,7 @@ pub struct ProgressFinish {
 
 impl ProgressFinish {
     pub fn to_json(&self) -> JsValue {
-        let json = serde_json::to_value(&self).unwrap();
+        let json = serde_json::to_value(self).unwrap();
         JsValue::from_str(&json.to_string())
     }
 }
@@ -39,7 +39,7 @@ pub struct ProgressIncrement {
 
 impl ProgressIncrement {
     pub fn to_json(&self) -> JsValue {
-        let json = serde_json::to_value(&self).unwrap();
+        let json = serde_json::to_value(self).unwrap();
         JsValue::from_str(&json.to_string())
     }
 }
@@ -147,5 +147,11 @@ impl EventDispatcher {
                 .unwrap();
 
         self.dispatch_custom_event(event)
+    }
+}
+
+impl Default for EventDispatcher {
+    fn default() -> Self {
+        Self::new()
     }
 }

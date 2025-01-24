@@ -4,6 +4,8 @@ import {
   ClaimRewardsMsgValue,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
+  MaspTxIn,
+  MaspTxOut,
   RedelegateMsgValue,
   ShieldedTransferDataMsgValue,
   ShieldedTransferMsgValue,
@@ -39,6 +41,8 @@ export type ShieldingTransferDataProps = ShieldingTransferDataMsgValue;
 export type UnshieldingTransferDataProps = UnshieldingTransferDataMsgValue;
 export type UnshieldingTransferProps = UnshieldingTransferMsgValue;
 export type TransferProps = TransferMsgValue;
+export type MaspTxInProps = MaspTxIn;
+export type MaspTxOutProps = MaspTxOut;
 export type TransferDetailsProps = TransferDetailsMsgValue;
 export type TransparentTransferProps = TransparentTransferMsgValue;
 export type TransparentTransferDataProps = TransparentTransferDataMsgValue;
@@ -69,6 +73,8 @@ export type CommitmentDetailProps = SupportedTxProps & {
   txType: unknown;
   hash: string;
   memo?: string;
+  maspTxIn?: MaspTxIn[];
+  maspTxOut?: MaspTxOut[];
 };
 
 export type TxDetails = WrapperTxProps & {
