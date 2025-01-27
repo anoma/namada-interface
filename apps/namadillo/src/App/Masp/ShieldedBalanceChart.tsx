@@ -1,9 +1,10 @@
-import { Heading, PieChart } from "@namada/components";
+import { Heading, PieChart, SkeletonLoading } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { shieldedTokensAtom } from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
 import { applicationFeaturesAtom } from "atoms/settings";
+import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { twMerge } from "tailwind-merge";
 import { colors } from "theme";
@@ -23,25 +24,41 @@ export const ShieldedBalanceChart = (): JSX.Element => {
         >
           <PieChart
             id="balance-chart"
-            data={[{ value: 100, color: colors.shielded }]}
+            data={[
+              {
+                value: 100,
+                color:
+                  shieldedTokensQuery.isSuccess ?
+                    colors.shielded
+                  : colors.empty,
+              },
+            ]}
             strokeWidth={24}
             radius={125}
             segmentMargin={0}
+            className={clsx({ "animate-pulse": shieldedTokensQuery.isPending })}
           >
             <div className="flex flex-col gap-1 items-center leading-tight max-w-[180px]">
               {!shieldedDollars ?
                 "N/A"
               : <>
-                  <Heading className="text-sm" level="h3">
-                    Shielded Balance
-                  </Heading>
-                  <FiatCurrency
-                    className={twMerge(
-                      "text-2xl sm:text-3xl whitespace-nowrap",
-                      !namTransfersEnabled && "after:content-['*']"
-                    )}
-                    amount={shieldedDollars}
-                  />
+                  {shieldedTokensQuery.isPending && (
+                    <SkeletonLoading width="80px" height="40px" />
+                  )}
+                  {shieldedTokensQuery.isSuccess && (
+                    <>
+                      <Heading className="text-sm" level="h3">
+                        Shielded Balance
+                      </Heading>
+                      <FiatCurrency
+                        className={twMerge(
+                          "text-2xl sm:text-3xl whitespace-nowrap",
+                          !namTransfersEnabled && "after:content-['*']"
+                        )}
+                        amount={shieldedDollars}
+                      />
+                    </>
+                  )}
                 </>
               }
             </div>

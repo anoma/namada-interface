@@ -62,6 +62,7 @@ export const PieChart = ({
       const path = (
         <circle
           fill="none"
+          className="transition-all duration-200 ease-out"
           key={`pie-chart-${id}-${index}`}
           cx={radius}
           cy={radius}

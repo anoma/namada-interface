@@ -110,6 +110,15 @@ export const storageShieldedBalanceAtom = atomWithStorage<
 
 export const shieldedSyncProgress = atom(0);
 
+export const lastCompletedShieldedSyncAtom = atomWithStorage<Date | undefined>(
+  "namadillo:last-shielded-sync",
+  undefined
+);
+
+export const isShieldedSyncCompleteAtom = atom(
+  (get) => get(shieldedSyncProgress) === 1
+);
+
 export const shieldedBalanceAtom = atomWithQuery((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
   const viewingKeysQuery = get(viewingKeysAtom);
@@ -166,6 +175,8 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
         [viewingKey.key]: shieldedBalance,
       });
 
+      set(lastCompletedShieldedSyncAtom, new Date());
+
       return shieldedBalance;
     }, [
       viewingKeysQuery,
@@ -199,7 +210,7 @@ export const namadaShieldedAssetsAtom = atomWithQuery((get) => {
           chainTokensQuery.data!,
           chainParameters.data!.chainId
         ),
-      [chainTokensQuery, chainParameters]
+      [chainTokensQuery, chainParameters, viewingKeysQuery]
     ),
   };
 });
@@ -239,12 +250,10 @@ export const shieldedTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
   return {
     queryKey: ["shielded-tokens", shieldedAssets.data, tokenPrices.data],
     ...queryDependentFn(
-      () =>
-        Promise.resolve(
-          mapNamadaAssetsToTokenBalances(
-            shieldedAssets.data ?? {},
-            tokenPrices.data ?? {}
-          )
+      async () =>
+        mapNamadaAssetsToTokenBalances(
+          shieldedAssets.data ?? {},
+          tokenPrices.data ?? {}
         ),
       [shieldedAssets, tokenPrices]
     ),

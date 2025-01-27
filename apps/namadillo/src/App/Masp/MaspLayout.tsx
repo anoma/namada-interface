@@ -1,4 +1,5 @@
 import { ConnectPanel } from "App/Common/ConnectPanel";
+import { MaspContainer } from "App/Common/MaspContainer";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { routes } from "App/routes";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
@@ -25,7 +26,9 @@ export const MaspLayout: React.FC = () => {
 
   return (
     <PageWithSidebar>
-      <Outlet />
+      <MaspContainer>
+        <Outlet />
+      </MaspContainer>
       <aside className="w-full mt-2 flex flex-col sm:flex-row lg:mt-0 lg:flex-col gap-2">
         <ShieldedSyncProgress />
         <ShieldAllBanner />
