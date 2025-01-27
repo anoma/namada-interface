@@ -1,9 +1,9 @@
 import { Asset, AssetDenomUnit } from "@chain-registry/types";
+import namadaAssets from "@namada/chain-registry/namada/assetlist.json";
 import { ProposalStatus, ProposalTypeString } from "@namada/types";
 import { localnetConfigAtom } from "atoms/integrations/atoms";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
-import namadaAssets from "namada-chain-registry/namada/assetlist.json";
 import { useEffect, useRef } from "react";
 
 export const proposalStatusToString = (status: ProposalStatus): string => {

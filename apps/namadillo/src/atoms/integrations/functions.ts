@@ -1,6 +1,7 @@
 import { Asset, AssetList, Chain, IBCInfo } from "@chain-registry/types";
 import { QueryClient, setupIbcExtension } from "@cosmjs/stargate";
 import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
+import namadaMainnetChain from "@namada/chain-registry/namada/chain.json";
 import { Account, IbcTransferProps } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import BigNumber from "bignumber.js";
@@ -17,7 +18,6 @@ import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet";
 import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
 import { TransactionPair, buildTxPair } from "lib/query";
-import namadaMainnetChain from "namada-chain-registry/namada/chain.json";
 import {
   Address,
   AddressWithAssetAndAmount,
@@ -33,18 +33,18 @@ import { toDisplayAmount } from "utils";
 import { unknownAsset } from "utils/assets";
 import { getSdkInstance } from "utils/sdk";
 
-import campfireAssets from "namada-chain-registry/_testnets/namadacampfire/assetlist.json";
-import campfireChain from "namada-chain-registry/_testnets/namadacampfire/chain.json";
-import housefireAssets from "namada-chain-registry/_testnets/namadahousefire/assetlist.json";
-import housefireChain from "namada-chain-registry/_testnets/namadahousefire/chain.json";
-import housefireOldAssets from "namada-chain-registry/_testnets/namadahousefireold/assetlist.json";
-import housefireOldChain from "namada-chain-registry/_testnets/namadahousefireold/chain.json";
-import internalDevnetAssets from "namada-chain-registry/_testnets/namadainternaldevnet/assetlist.json";
-import internalDevnetChain from "namada-chain-registry/_testnets/namadainternaldevnet/chain.json";
-import namadaAssets from "namada-chain-registry/namada/assetlist.json";
-import namadaChain from "namada-chain-registry/namada/chain.json";
+import campfireAssets from "@namada/chain-registry/_testnets/namadacampfire/assetlist.json";
+import campfireChain from "@namada/chain-registry/_testnets/namadacampfire/chain.json";
+import housefireAssets from "@namada/chain-registry/_testnets/namadahousefire/assetlist.json";
+import housefireChain from "@namada/chain-registry/_testnets/namadahousefire/chain.json";
+import housefireOldAssets from "@namada/chain-registry/_testnets/namadahousefireold/assetlist.json";
+import housefireOldChain from "@namada/chain-registry/_testnets/namadahousefireold/chain.json";
+import internalDevnetAssets from "@namada/chain-registry/_testnets/namadainternaldevnet/assetlist.json";
+import internalDevnetChain from "@namada/chain-registry/_testnets/namadainternaldevnet/chain.json";
+import namadaAssets from "@namada/chain-registry/namada/assetlist.json";
+import namadaChain from "@namada/chain-registry/namada/chain.json";
 
-import internalDevnetCosmosTestnetIbc from "namada-chain-registry/_testnets/_IBC/namadainternaldevnet-cosmoshubtestnet.json";
+import internalDevnetCosmosTestnetIbc from "@namada/chain-registry/_testnets/_IBC/namadainternaldevnet-cosmoshubtestnet.json";
 
 // TODO: this causes a big increase on bundle size. See #1224.
 import cosmosRegistry from "chain-registry";
