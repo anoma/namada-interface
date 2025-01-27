@@ -22,7 +22,7 @@ import { TransactionCard } from "./TransactionCard";
 
 type CommitmentProps = {
   commitment: CommitmentDetailProps;
-  wrapperFeePayer?: string;
+  wrapperFeePayer: string;
 };
 
 const IconMap: Record<TxType, React.ReactNode> = {
@@ -61,7 +61,7 @@ const formatTransferAddress = (address: string): string =>
 
 const renderContent = (
   tx: CommitmentDetailProps,
-  wrapperFeePayer?: string
+  wrapperFeePayer: string
 ): ReactNode => {
   switch (tx.txType) {
     case TxType.Bond:

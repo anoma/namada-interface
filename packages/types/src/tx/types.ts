@@ -79,4 +79,6 @@ export type CommitmentDetailProps = SupportedTxProps & {
 
 export type TxDetails = WrapperTxProps & {
   commitments: CommitmentDetailProps[];
+  // We override wrapperFeePayer to be a string because it should always be defined at this point
+  wrapperFeePayer: string;
 };
