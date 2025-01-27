@@ -157,6 +157,9 @@ export const MaspUnshield: React.FC = () => {
         isSubmitting={isPerformingTransfer}
         errorMessage={generalErrorMessage}
         onSubmitTransfer={onSubmitTransfer}
+        buttonTextErrors={{
+          NoAmount: "Define an amount to unshield",
+        }}
       />
     </Panel>
   );
