@@ -2,11 +2,17 @@ import clsx from "clsx";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
 import { ActionButton, Stack } from "@namada/components";
-import { Ledger, makeBip44Path, makeSaplingPath } from "@namada/sdk/web";
+import {
+  Ledger,
+  makeBip44Path,
+  makeSaplingPath,
+  TxType,
+} from "@namada/sdk/web";
 import { LedgerError, ResponseSign } from "@zondax/ledger-namada";
 
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { chains } from "@namada/chains";
+import { TransferProps } from "@namada/types";
 import { PageHeader } from "App/Common";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {
@@ -18,7 +24,7 @@ import {
 import { QueryAccountDetailsMsg } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
-import { closeCurrentTab } from "utils";
+import { closeCurrentTab, parseTransferType } from "utils";
 import { ApproveIcon } from "./ApproveIcon";
 import { LedgerIcon } from "./LedgerIcon";
 import { StatusBox } from "./StatusBox";
@@ -66,7 +72,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
     useState<React.ReactNode>();
   const [isLedgerConnected, setIsLedgerConnected] = useState(false);
   const [ledger, setLedger] = useState<Ledger>();
-  const { msgId, signer } = details;
+  const { msgId, signer, txDetails } = details;
 
   useEffect(() => {
     if (status === Status.Completed) {
@@ -182,7 +188,6 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
 
       try {
         // TODO: we have to check if the signer is disposable or not
-        const isDisposableSigner = false;
 
         const accountDetails = await requester.sendMessage(
           Ports.Background,
@@ -220,6 +225,20 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
         const signatures: ResponseSign[] = [];
         const maspSignatures: string[] = [];
 
+        const transferTypes = txDetails.flatMap((details) =>
+          details.commitments
+            .filter((cmt) => cmt.txType === TxType.Transfer)
+            .map(
+              (cmt) =>
+                parseTransferType(cmt as TransferProps, details.wrapperFeePayer)
+                  .type
+            )
+        );
+        // For now we work under the assumption that we can't batch transfers from masp with other tx types
+        const fromMasp =
+          transferTypes.includes("Shielded") ||
+          transferTypes.includes("Unshielding");
+
         for await (const tx of pendingTxs) {
           if (txCount > 1) {
             setStepTwoDescription(
@@ -231,7 +250,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
             );
           }
 
-          if (isDisposableSigner) {
+          if (fromMasp) {
             const zip32Path = makeSaplingPath(chains.namada.bip44.coinType, {
               account: path.account,
             });
@@ -248,7 +267,7 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
 
         setStepTwoDescription(<p>Submitting...</p>);
 
-        if (isDisposableSigner) {
+        if (fromMasp) {
           await requester.sendMessage(
             Ports.Background,
             new ReplaceMaspSignaturesMsg(msgId, maspSignatures)

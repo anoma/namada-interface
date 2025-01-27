@@ -98,7 +98,6 @@ export class SubmitApprovedSignLedgerTxMsg extends Message<void> {
   }
 }
 
-// returns base64 encoded tx
 export class ReplaceMaspSignaturesMsg extends Message<void> {
   public static type(): MessageType {
     return MessageType.ReplaceMaspSignatures;
