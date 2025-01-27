@@ -98,6 +98,7 @@ describe("Component: TransferDestination", () => {
   it("should display the transaction fee if provided", () => {
     render(
       <TransferDestination
+        changeFeeEnabled={false}
         gasConfig={{
           gasPrice: BigNumber(0.000001),
           gasLimit: BigNumber(2),
