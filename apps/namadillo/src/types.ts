@@ -376,9 +376,3 @@ export type LocalnetToml = {
   chain_1_channel: string;
   chain_2_channel: string;
 };
-
-// TODO: remove this after indexer swagger gets fixed
-export type TempIndexerHealthType = {
-  version: string;
-  commit: string;
-};

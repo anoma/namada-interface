@@ -1,5 +1,5 @@
 import { SegmentedBar, Stack } from "@namada/components";
-import { Proposal, VoteType, voteTypes } from "@namada/types";
+import { Proposal, UnknownVoteType, VoteType, voteTypes } from "@namada/types";
 import { routes } from "App/routes";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -14,7 +14,7 @@ import { colors } from "./types";
 
 const ProposalListItem: React.FC<{
   proposal: Proposal;
-  vote?: VoteType;
+  vote?: VoteType | UnknownVoteType;
 }> = ({ proposal, vote }) => {
   const { status } = proposal;
 
@@ -84,7 +84,7 @@ const ProposalListItem: React.FC<{
 
 type LiveGovernanceProposalsProps = {
   proposals: Proposal[];
-  votedProposals: { proposalId: bigint; vote: VoteType }[];
+  votedProposals: { proposalId: bigint; vote: VoteType | UnknownVoteType }[];
 };
 
 export const LiveGovernanceProposals: React.FC<

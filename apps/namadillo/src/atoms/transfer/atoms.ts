@@ -5,7 +5,7 @@ import {
   UnshieldingTransferMsgValue,
 } from "@namada/types";
 import { chainAtom } from "atoms/chain";
-import { indexerUrlAtom, rpcUrlAtom } from "atoms/settings";
+import { rpcUrlAtom } from "atoms/settings";
 import { atomWithMutation } from "jotai-tanstack-query";
 import { BuildTxAtomParams } from "types";
 import {
@@ -62,7 +62,6 @@ export const createShieldedTransferAtom = atomWithMutation((get) => {
 export const createShieldingTransferAtom = atomWithMutation((get) => {
   const chain = get(chainAtom);
   const rpcUrl = get(rpcUrlAtom);
-  const indexerUrl = get(indexerUrlAtom);
   return {
     mutationKey: ["create-shielding-transfer-tx"],
     enabled: chain.isSuccess,
@@ -78,7 +77,6 @@ export const createShieldingTransferAtom = atomWithMutation((get) => {
         params,
         gasConfig,
         rpcUrl,
-        indexerUrl,
         memo
       ),
   };

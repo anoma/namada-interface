@@ -18,7 +18,7 @@ nodejs = []
 web = []
 
 [build-dependencies]
-namada_tx = { git = "https://github.com/anoma/namada", rev = "49a4a5d3260423df19ead14df82d18a51fa9b157" }
+namada_tx = { git = "https://github.com/anoma/namada", rev = "9eb747ce145d622fda5296475c1d35eb4c3e86a4" }
 
 [dependencies]
 async-trait = {version = "0.1.51"}
@@ -27,7 +27,7 @@ chrono = "0.4.22"
 getrandom = { version = "0.2.7", features = ["js"] }
 gloo-utils = { version = "0.1.5", features = ["serde"] }
 js-sys = "0.3.60"
-namada_sdk = { git = "https://github.com/anoma/namada", rev="49a4a5d3260423df19ead14df82d18a51fa9b157", default-features = false }
+namada_sdk = { git = "https://github.com/anoma/namada", rev="9eb747ce145d622fda5296475c1d35eb4c3e86a4", default-features = false }
 rand = "0.8.5"
 rayon = { version = "1.5.3", optional = true }
 rexie = "0.5"

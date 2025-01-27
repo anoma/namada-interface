@@ -70,6 +70,7 @@ export type ProposalTypeString = ProposalType["type"];
 
 export const voteTypes = ["yay", "nay", "abstain"] as const;
 export type VoteType = (typeof voteTypes)[number];
+export type UnknownVoteType = "unknown";
 
 export const isVoteType = (str: string): str is VoteType =>
   voteTypes.includes(str as VoteType);
