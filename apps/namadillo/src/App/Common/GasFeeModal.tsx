@@ -44,6 +44,7 @@ const useBuildGasOption = ({
   ): {
     option: GasConfig;
     selected: boolean;
+    disabled: boolean;
     symbol: string;
     displayAmount: BigNumber;
     dollar?: BigNumber;
@@ -58,9 +59,13 @@ const useBuildGasOption = ({
     const dollar = price ? price.multipliedBy(displayAmount) : undefined;
 
     const selected =
+      !gasConfig.gasLimit.isEqualTo(0) &&
       option.gasLimit.isEqualTo(gasConfig.gasLimit) &&
       option.gasPrice.isEqualTo(gasConfig.gasPrice) &&
       option.gasToken === gasConfig.gasToken;
+
+    const disabled =
+      gasConfig.gasLimit.isEqualTo(0) || gasConfig.gasPrice.isEqualTo(0);
 
     const asset =
       chainAssetsMap[option.gasToken] ?? unknownAsset(option.gasToken);
@@ -69,6 +74,7 @@ const useBuildGasOption = ({
     return {
       option,
       selected,
+      disabled,
       symbol,
       displayAmount,
       dollar,
@@ -124,13 +130,16 @@ export const GasFeeModal = ({
             { label: "Average", amount: gasEstimate?.avg ?? 0 },
             { label: "High", amount: gasEstimate?.max ?? 0 },
           ].map((item) => {
-            const { symbol, displayAmount, dollar, selected } = buildGasOption({
-              gasLimit: BigNumber(item.amount),
-            });
+            const { symbol, displayAmount, dollar, selected, disabled } =
+              buildGasOption({
+                gasLimit: BigNumber(item.amount),
+              });
+
             return (
               <button
                 key={item.label}
                 type="button"
+                disabled={disabled}
                 className={twMerge(
                   "flex flex-col justify-center items-center flex-1 py-5 leading-4",
                   "transition-colors duration-150 ease-out-quad",
