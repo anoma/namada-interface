@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.5.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.4.1...namadillo@v1.5.0) (2025-01-27)
+
+
+### Features
+
+* Add gas selector ([#1585](https://github.com/anoma/namada-interface/issues/1585)) ([8cacded](https://github.com/anoma/namada-interface/commit/8cacded71493cad31d91efb6773ab471350035e4))
+* Add the possibility of overriding button error texts ([#1584](https://github.com/anoma/namada-interface/issues/1584)) ([58bb84d](https://github.com/anoma/namada-interface/commit/58bb84de75e2e159e633e369ace87b48303fdaf5))
+* Fixing ibc transfers gas estimate ([#1567](https://github.com/anoma/namada-interface/issues/1567)) ([c231522](https://github.com/anoma/namada-interface/commit/c231522290019c657b50a1d4d0ae2a1100af624e))
+* Improvements on IBC withdrawal ([#1574](https://github.com/anoma/namada-interface/issues/1574)) ([ba94c23](https://github.com/anoma/namada-interface/commit/ba94c23aef5946e8e5110b5b46926dbc218244f1))
+* Improving masp loading states ([#1583](https://github.com/anoma/namada-interface/issues/1583)) ([9879db0](https://github.com/anoma/namada-interface/commit/9879db0c5fcfa304d4e5421bcf2f312634a33d17))
+
 ## [1.4.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.4.0...namadillo@v1.4.1) (2025-01-16)
 
 
