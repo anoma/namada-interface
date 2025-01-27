@@ -1,5 +1,4 @@
 import { defaultAccountAtom } from "atoms/accounts";
-import { defaultGasConfigFamily } from "atoms/fees";
 import {
   createNotificationId,
   dispatchToastNotificationAtom,
@@ -8,8 +7,9 @@ import invariant from "invariant";
 import { Atom, useAtomValue, useSetAtom } from "jotai";
 import { AtomWithMutationResult } from "jotai-tanstack-query";
 import { broadcastTxWithEvents, TransactionPair } from "lib/query";
-import { BuildTxAtomParams, GasConfig, ToastNotification } from "types";
+import { BuildTxAtomParams, ToastNotification } from "types";
 import { TransactionEventsClasses } from "types/events";
+import { TransactionFeeProps, useTransactionFee } from "./useTransactionFee";
 
 type AtomType<T> = Atom<
   AtomWithMutationResult<
@@ -32,7 +32,6 @@ export type useTransactionProps<T> = {
   onError?: (err: unknown) => void;
   onSuccess?: (tx: TransactionPair<T>) => void;
   onBroadcasted?: () => void;
-  gasConfig?: GasConfig;
 };
 
 export type useTransactionOutput<T> = {
@@ -42,7 +41,7 @@ export type useTransactionOutput<T> = {
   isEnabled: boolean;
   isPending: boolean;
   isSuccess: boolean;
-  gasConfig: GasConfig | undefined;
+  feeProps: TransactionFeeProps;
 };
 
 export const useTransaction = <T,>({
@@ -55,7 +54,6 @@ export const useTransaction = <T,>({
   onError,
   onSigned,
   onBroadcasted,
-  gasConfig,
 }: useTransactionProps<T>): useTransactionOutput<T> => {
   const { data: account } = useAtomValue(defaultAccountAtom);
   const {
@@ -66,11 +64,8 @@ export const useTransaction = <T,>({
 
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
 
-  const autoGasConfig = useAtomValue(
-    defaultGasConfigFamily(new Array(params.length).fill(eventType))
-  );
-
-  const selectedGasConfig = gasConfig || autoGasConfig.data;
+  const txKinds = new Array(params.length).fill(eventType);
+  const feeProps = useTransactionFee(txKinds);
 
   const dispatchPendingTxNotification = (
     tx: TransactionPair<T>,
@@ -98,7 +93,6 @@ export const useTransaction = <T,>({
   const execute = async (
     txAdditionalParams: Partial<BuildTxAtomParams<T>> = {}
   ): Promise<TransactionPair<T> | void> => {
-    invariant(selectedGasConfig, "Gas config not loaded");
     invariant(
       account?.address,
       "Extension not connected or no account is selected"
@@ -106,7 +100,7 @@ export const useTransaction = <T,>({
 
     const tx = await buildTx({
       params,
-      gasConfig: selectedGasConfig,
+      gasConfig: feeProps.gasConfig,
       account,
       ...txAdditionalParams,
     });
@@ -147,13 +141,13 @@ export const useTransaction = <T,>({
 
   return {
     execute,
+    feeProps,
     isPending,
     isSuccess,
-    gasConfig: selectedGasConfig,
     isEnabled: Boolean(
       !isPending &&
         !isSuccess &&
-        selectedGasConfig &&
+        !feeProps.isLoading &&
         account &&
         params.length > 0
     ),

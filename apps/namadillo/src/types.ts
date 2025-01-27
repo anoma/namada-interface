@@ -40,7 +40,6 @@ export type GasConfig = {
   gasLimit: GasLimit;
   gasPrice: GasPrice;
   gasToken: GasToken;
-  asset?: Asset;
 };
 
 export type TxGas = Record<Address, GasLimit>;

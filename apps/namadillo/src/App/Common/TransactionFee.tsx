@@ -1,3 +1,5 @@
+import { chainAssetsMapAtom } from "atoms/chain";
+import { useAtomValue } from "jotai";
 import { GasConfig } from "types";
 import { unknownAsset } from "utils/assets";
 import { getDisplayGasFee } from "utils/gas";
@@ -8,14 +10,21 @@ export const TransactionFee = ({
 }: {
   gasConfig: GasConfig;
 }): JSX.Element => {
-  const asset = gasConfig.asset ?? unknownAsset(gasConfig.gasToken);
-  const symbol = asset.symbol;
-  const fee = getDisplayGasFee(gasConfig);
+  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+
+  const { gasToken } = gasConfig;
+  const asset = chainAssetsMap[gasToken] ?? unknownAsset(gasToken);
+
+  const amount = getDisplayGasFee(gasConfig);
 
   return (
     <div className="text-sm">
       Transaction fee:{" "}
-      <TokenCurrency symbol={symbol} amount={fee} className="font-medium " />
+      <TokenCurrency
+        symbol={asset.symbol}
+        amount={amount}
+        className="font-medium"
+      />
     </div>
   );
 };

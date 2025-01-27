@@ -260,7 +260,7 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
 
 const TableSelectOption: React.FC<{
   children?: React.ReactNode;
-}> = ({ children }) => <span className="col-span-full w-fit">{children}</span>;
+}> = ({ children }) => <span className="whitespace-nowrap">{children}</span>;
 
 type TableSelectProps<T extends string> = Omit<
   React.ComponentProps<typeof StyledSelectBox<T>>,

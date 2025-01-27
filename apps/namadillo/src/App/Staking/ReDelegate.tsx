@@ -56,7 +56,7 @@ export const ReDelegate = (): JSX.Element => {
   const {
     execute: performRedelegate,
     isPending: isCreatingTx,
-    gasConfig,
+    feeProps,
   } = useTransaction({
     createTxAtom: createReDelegateTxAtom,
     eventType: "Redelegate",
@@ -198,7 +198,7 @@ export const ReDelegate = (): JSX.Element => {
                 onChangeAssignedAmount={onAssignAmount}
                 isPerformingRedelegation={isCreatingTx}
                 redelegateChanges={parseRedelegateParams()}
-                gasConfig={gasConfig}
+                feeProps={feeProps}
               />
             )}
         </form>

@@ -9,7 +9,6 @@ export const getIndexerHealth = async (
 ): Promise<HealthGet200Response | undefined> => {
   try {
     const response = await api.healthGet();
-
     return response.data;
   } catch {
     return;

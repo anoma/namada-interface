@@ -4,6 +4,7 @@ import { TabSelector } from "App/Common/TabSelector";
 import { TransactionFee } from "App/Common/TransactionFee";
 import { TransactionFeeButton } from "App/Common/TransactionFeeButton";
 import clsx from "clsx";
+import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { Address, GasConfig, WalletProvider } from "types";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { CustomAddressForm } from "./CustomAddressForm";
@@ -19,6 +20,7 @@ type TransferDestinationProps = {
   walletAddress?: string;
   className?: string;
   gasConfig?: GasConfig;
+  feeProps?: TransactionFeeProps;
   changeFeeEnabled?: boolean;
   customAddressActive?: boolean;
   isIbcTransfer?: boolean;
@@ -39,6 +41,7 @@ export const TransferDestination = ({
   isIbcTransfer,
   onChangeShielded,
   gasConfig,
+  feeProps,
   changeFeeEnabled = true,
   customAddressActive,
   onToggleCustomAddress,
@@ -123,18 +126,16 @@ export const TransferDestination = ({
         </Stack>
       )}
 
-      {gasConfig && (
-        <footer className="mt-10">
-          <div className="flex justify-between items-center">
-            {isIbcTransfer ?
-              <img src={ibcTransferImageWhite} className="w-20" />
-            : <div />}
-            {changeFeeEnabled ?
-              <TransactionFeeButton gasConfig={gasConfig} />
-            : <TransactionFee gasConfig={gasConfig} />}
-          </div>
-        </footer>
-      )}
+      <footer className="mt-10">
+        <div className="flex justify-between items-center">
+          {isIbcTransfer ?
+            <img src={ibcTransferImageWhite} className="w-20" />
+          : <div />}
+          {changeFeeEnabled ?
+            feeProps && <TransactionFeeButton feeProps={feeProps} />
+          : gasConfig && <TransactionFee gasConfig={gasConfig} />}
+        </div>
+      </footer>
     </div>
   );
 };

@@ -56,7 +56,7 @@ export const MaspUnshield: React.FC = () => {
     execute: performTransfer,
     isPending: isPerformingTransfer,
     txKind,
-    gasConfig,
+    feeProps,
   } = useTransfer({
     source: sourceAddress ?? "",
     target: destinationAddress ?? "",
@@ -93,7 +93,6 @@ export const MaspUnshield: React.FC = () => {
       invariant(sourceAddress, "Source address is not defined");
       invariant(chainId, "Chain ID is undefined");
       invariant(selectedAsset, "No asset is selected");
-      invariant(gasConfig, "No gas config");
 
       const txResponse = await performTransfer({ memo });
 
@@ -153,7 +152,7 @@ export const MaspUnshield: React.FC = () => {
           walletAddress: destinationAddress,
           isShielded: false,
         }}
-        gasConfig={gasConfig}
+        feeProps={feeProps}
         isSubmitting={isPerformingTransfer}
         errorMessage={generalErrorMessage}
         onSubmitTransfer={onSubmitTransfer}
