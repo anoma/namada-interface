@@ -37,7 +37,7 @@ impl TransactionKind {
     pub fn from(tx_type: TxType, data: &[u8]) -> Self {
         match tx_type {
             TxType::Transfer => TransactionKind::Transfer(
-                Transfer::try_from_slice(data).expect("Cannot deserialize TransparentTransfer"),
+                Transfer::try_from_slice(data).expect("Cannot deserialize Transfer"),
             ),
             TxType::Bond => {
                 TransactionKind::Bond(Bond::try_from_slice(data).expect("Cannot deserialize Bond"))

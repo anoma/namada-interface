@@ -118,10 +118,14 @@ export const ApproveSignTx: React.FC<Props> = ({ details, setDetails }) => {
           {!displayTransactionData && (
             <Stack gap={1}>
               {details?.txDetails?.map(
-                ({ commitments }) =>
+                ({ commitments, wrapperFeePayer }) =>
                   commitments?.length &&
                   commitments.map((tx, i) => (
-                    <Commitment key={`${tx.hash}-${i}`} commitment={tx} />
+                    <Commitment
+                      key={`${tx.hash}-${i}`}
+                      commitment={tx}
+                      wrapperFeePayer={wrapperFeePayer}
+                    />
                   ))
               )}
             </Stack>

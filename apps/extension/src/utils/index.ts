@@ -133,6 +133,10 @@ export const ShieldedPoolLabel = "the shielded pool";
 export const hasShieldedSection = (tx: TransferProps): boolean => {
   return Boolean(tx.shieldedSectionHash);
 };
+export const isShieldedPool = (address: string): boolean => {
+  const shieldedPoolRegex = /qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq/;
+  return Boolean(address.match(shieldedPoolRegex));
+};
 
 /**
  * Create label to indicate specific type of Transfer
@@ -140,21 +144,46 @@ export const hasShieldedSection = (tx: TransferProps): boolean => {
  * @returns string label
  */
 export const parseTransferType = (
-  tx: TransferProps
+  tx: TransferProps,
+  wrapperFeePayer?: string
 ): { source: string; target: string; type: TransferType } => {
   const { sources, targets } = tx;
   const source = sources[0].owner;
   const target = targets[0].owner;
+  const fromMasp = isShieldedPool(source);
+
+  const unshieldingToPayFees = Boolean(
+    fromMasp && targets.find((t) => t.owner === wrapperFeePayer)
+  );
+  const isUnshielding =
+    fromMasp && unshieldingToPayFees ?
+      // If we're unshielding to pay fees, we should have one more target
+      targets.length === sources.length + 1
+      // Otherwise, we should have the same number of targets as sources
+    : targets.length === sources.length;
+
+  const isShieldedTransfer =
+    fromMasp && unshieldingToPayFees ?
+      // If we're unshielding to pay fees, we should have exactly one source and one target
+      targets.length === 1 && sources.length === 1
+      // Otherwise, we should have no targets and no sources, as everything is in the shielded pool
+    : targets.length === 0 && sources.length === 0;
 
   let type: TransferType = "Transparent";
   const txHasShieldedSection = hasShieldedSection(tx);
 
-  if (source.startsWith("tnam") && txHasShieldedSection) {
-    type = "Shielding";
-  } else if (source.startsWith("znam") && txHasShieldedSection) {
-    type = "Shielded";
-  } else if (source.startsWith("znam") && target.startsWith("tnam")) {
-    type = "Unshielding";
+  if (txHasShieldedSection) {
+    if (isShieldedPool(source)) {
+      if (isShieldedTransfer) {
+        type = "Shielded";
+      } else if (isUnshielding) {
+        type = "Unshielding";
+      } else {
+        type = "Unknown";
+      }
+    } else if (isShieldedPool(target)) {
+      type = "Shielding";
+    }
   }
 
   return {

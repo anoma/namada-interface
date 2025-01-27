@@ -31,4 +31,5 @@ export type TransferType =
   | "Transparent"
   | "Shielding"
   | "Shielded"
-  | "Unshielding";
+  | "Unshielding"
+  | "Unknown";

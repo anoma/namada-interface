@@ -17,15 +17,12 @@ import { FaVoteYea } from "react-icons/fa";
 import { FaRegEye, FaWallet } from "react-icons/fa6";
 import { GoStack } from "react-icons/go";
 import { PiDotsNineBold } from "react-icons/pi";
-import {
-  hasShieldedSection,
-  parseTransferType,
-  ShieldedPoolLabel,
-} from "utils";
+import { isShieldedPool, parseTransferType, ShieldedPoolLabel } from "utils";
 import { TransactionCard } from "./TransactionCard";
 
 type CommitmentProps = {
   commitment: CommitmentDetailProps;
+  wrapperFeePayer: string;
 };
 
 const IconMap: Record<TxType, React.ReactNode> = {
@@ -59,7 +56,13 @@ const TitleMap: Record<TxType, string> = {
 const formatAddress = (address: string): string =>
   shortenAddress(address, 6, 6);
 
-const renderContent = (tx: CommitmentDetailProps): ReactNode => {
+const formatTransferAddress = (address: string): string =>
+  isShieldedPool(address) ? ShieldedPoolLabel : formatAddress(address);
+
+const renderContent = (
+  tx: CommitmentDetailProps,
+  wrapperFeePayer: string
+): ReactNode => {
   switch (tx.txType) {
     case TxType.Bond:
       const bondTx = tx as BondProps;
@@ -116,13 +119,11 @@ const renderContent = (tx: CommitmentDetailProps): ReactNode => {
 
     case TxType.Transfer:
       const transferTx = tx as TransferProps;
-      const { source, target } = parseTransferType(transferTx);
+      const { source, target } = parseTransferType(transferTx, wrapperFeePayer);
       return (
         <>
-          Transfer from {formatAddress(source)} to{" "}
-          {hasShieldedSection(transferTx) ?
-            ShieldedPoolLabel
-          : formatAddress(target)}
+          Transfer from {formatTransferAddress(source)} to{" "}
+          {formatTransferAddress(target)}
         </>
       );
 
@@ -132,20 +133,26 @@ const renderContent = (tx: CommitmentDetailProps): ReactNode => {
   }
 };
 
-export const Commitment = ({ commitment }: CommitmentProps): JSX.Element => {
+export const Commitment = ({
+  commitment,
+  wrapperFeePayer,
+}: CommitmentProps): JSX.Element => {
   const txType: TxType = commitment.txType as TxType;
   let title = TitleMap[txType];
 
   if (commitment.txType === TxType.Transfer) {
     // Determine specific transfer type
-    const { type } = parseTransferType(commitment as TransferProps);
+    const { type } = parseTransferType(
+      commitment as TransferProps,
+      wrapperFeePayer
+    );
     title = `${type} ${title}`;
   }
 
   return (
     <TransactionCard
       title={title}
-      content={renderContent(commitment)}
+      content={renderContent(commitment, wrapperFeePayer)}
       icon={IconMap[txType]}
     />
   );
