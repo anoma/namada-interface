@@ -41,7 +41,7 @@ export const useSimulateIbcTransferFee = ({
         // We can't mock sourceAddress because the simulate function requires
         // a valid address with funds
         sanitizeAddress(sourceAddress!),
-        sanitizeChannel(sourceAddress!),
+        sanitizeAddress(sourceAddress!),
         new BigNumber(1),
         selectedAsset?.asset.base || registry?.assets.assets[0].base || "",
         isShieldedTransfer ? "0".repeat(MASP_MEMO_LENGTH) : ""
