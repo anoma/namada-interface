@@ -9,8 +9,8 @@ jest.mock("hooks/useBalances", () => ({
   useBalances: jest.fn(),
 }));
 
-jest.mock("atoms/shield/atoms", () => ({
-  shieldRewardsAtom: atom({ data: undefined }),
+jest.mock("atoms/balance", () => ({
+  cachedShieldedRewardsAtom: atom({ data: undefined }),
 }));
 
 describe("Component: NamBalanceContainer", () => {
