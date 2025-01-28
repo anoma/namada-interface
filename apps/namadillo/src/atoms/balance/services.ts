@@ -106,9 +106,10 @@ export const fetchBlockHeightByTimestamp = async (
 };
 
 export const fetchShieldRewards = async (
-  viewingKey: DatedViewingKey
+  viewingKey: DatedViewingKey,
+  chainId: string
 ): Promise<string> => {
   const sdk = await getSdkInstance();
 
-  return await sdk.rpc.shieldedRewards(viewingKey.key);
+  return await sdk.rpc.shieldedRewards(viewingKey.key, chainId);
 };

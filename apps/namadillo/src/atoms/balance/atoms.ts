@@ -285,18 +285,48 @@ export const transparentTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
   };
 });
 
+export const storageShieldedRewardsAtom = atomWithStorage<
+  Record<Address, { minDenomAmount: string }>
+>("namadillo:shieldedRewards", {});
+
 export const shieldRewardsAtom = atomWithQuery((get) => {
   const viewingKeysQuery = get(viewingKeysAtom);
+  const chainParametersQuery = get(chainParametersAtom);
+  const { set } = getDefaultStore();
 
   return {
     queryKey: ["shield-rewards", viewingKeysQuery.data],
     ...queryDependentFn(async () => {
-      const [vk] = viewingKeysQuery.data!;
-      const minDenomAmount = await fetchShieldRewards(vk);
+      const [viewingKey] = viewingKeysQuery.data!;
+      const { chainId } = chainParametersQuery.data!;
+      const minDenomAmount = BigNumber(
+        await fetchShieldRewards(viewingKey, chainId)
+      );
 
-      return {
-        amount: toDisplayAmount(namadaAsset(), BigNumber(minDenomAmount)),
-      };
-    }, [viewingKeysQuery]),
+      const storage = get(storageShieldedRewardsAtom);
+      set(storageShieldedRewardsAtom, {
+        ...storage,
+        [viewingKey.key]: { minDenomAmount: minDenomAmount.toString() },
+      });
+
+      return { minDenomAmount };
+    }, [viewingKeysQuery, chainParametersQuery]),
+  };
+});
+
+export const cachedShieldedRewardsAtom = atom((get) => {
+  const viewingKeysQuery = get(viewingKeysAtom);
+  const storage = get(storageShieldedRewardsAtom);
+
+  if (!viewingKeysQuery.data || !storage) {
+    return { amount: BigNumber(0) };
+  }
+  const [viewingKey] = viewingKeysQuery.data;
+
+  const rewards = get(shieldRewardsAtom);
+  const data = rewards.isSuccess ? rewards.data : storage[viewingKey.key];
+
+  return {
+    amount: toDisplayAmount(namadaAsset(), BigNumber(data.minDenomAmount)),
   };
 });

@@ -758,8 +758,13 @@ impl Sdk {
     }
 
     // This should be a part of query.rs but we have to pass whole "namada" into estimate_next_epoch_rewards
-    pub async fn get_shielded_rewards(&self, owner: String) -> Result<JsValue, JsError> {
+    pub async fn get_shielded_rewards(
+        &self,
+        owner: String,
+        chain_id: String,
+    ) -> Result<JsValue, JsError> {
         let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
+        shielded.utils.chain_id = chain_id.clone();
         shielded.load().await?;
 
         let xvk = ExtendedViewingKey::from_str(&owner)?;
@@ -772,8 +777,9 @@ impl Sdk {
             Some(balance) => shielded
                 .estimate_next_epoch_rewards(&self.namada, &balance)
                 .await
+                .map(|r| r.amount())
                 .map_err(|e| JsError::new(&e.to_string()))?,
-            None => DenominatedAmount::native(Amount::zero()),
+            None => Amount::zero(),
         };
 
         to_js_result(rewards.to_string())

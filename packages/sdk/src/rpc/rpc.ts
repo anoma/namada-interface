@@ -258,9 +258,10 @@ export class Rpc {
    * Return shielded rewards for specific owner
    * @async
    * @param owner - Viewing key of an owner
+   * @param chainId - Chain ID to load the context for
    * @returns amount in base units
    */
-  async shieldedRewards(owner: string): Promise<string> {
-    return await this.sdk.get_shielded_rewards(owner);
+  async shieldedRewards(owner: string, chainId: string): Promise<string> {
+    return await this.sdk.get_shielded_rewards(owner, chainId);
   }
 }

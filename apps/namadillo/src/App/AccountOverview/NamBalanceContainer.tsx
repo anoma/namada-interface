@@ -2,7 +2,7 @@ import { Heading, SkeletonLoading, Stack } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { ShieldedRewardsBox } from "App/Masp/ShieldedRewardsBox";
-import { shieldRewardsAtom } from "atoms/balance";
+import { cachedShieldedRewardsAtom } from "atoms/balance";
 import { applicationFeaturesAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -68,7 +68,7 @@ const NamBalanceListItem = ({
       </span>
       {isLoading ?
         <SkeletonLoading height="22px" width="100px" />
-        : <NamCurrency
+      : <NamCurrency
           amount={amount}
           className="text-2xl pl-5 font-light"
           currencySymbolClassName="hidden"
@@ -83,7 +83,7 @@ export const NamBalanceContainer = (): JSX.Element => {
   const { maspEnabled, shieldingRewardsEnabled } = useAtomValue(
     applicationFeaturesAtom
   );
-  const shieldRewards = useAtomValue(shieldRewardsAtom);
+  const shieldedRewards = useAtomValue(cachedShieldedRewardsAtom);
 
   const {
     balanceQuery,
@@ -148,7 +148,7 @@ export const NamBalanceContainer = (): JSX.Element => {
               className="flex flex-1"
             >
               <ShieldedRewardsBox
-                shieldedRewardsAmount={shieldRewards.data?.amount}
+                shieldedRewardsAmount={shieldedRewards.amount}
               />
             </ListItemContainer>
           </Stack>
