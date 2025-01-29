@@ -148,8 +148,8 @@ export class LocalStorage extends ExtStorage {
       data,
       O.map((data) => {
         const newData = Object.entries(data).reduce((acc, [key, value]) => {
-          // We clear the disposable signers after 2 minutes
-          if (currentTime - value.timestamp < 120000) {
+          // We clear the disposable signers after 60 minutes
+          if (currentTime - value.timestamp < 3600000) {
             acc[key] = value;
           }
 
