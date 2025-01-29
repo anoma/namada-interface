@@ -64,7 +64,8 @@ export const useTransaction = <T,>({
 
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
 
-  const txKinds = new Array(params.length).fill(eventType);
+  // We don't want to display zeroed value when params are not set yet.
+  const txKinds = new Array(Math.max(1, params.length)).fill(eventType);
   const feeProps = useTransactionFee(txKinds);
 
   const dispatchPendingTxNotification = (
