@@ -1,4 +1,5 @@
 import { Asset } from "@chain-registry/types";
+import namadaAssets from "@namada/chain-registry/namada/assetlist.json";
 import namada from "@namada/chains/chains/namada";
 import { IbcToken, NativeToken } from "@namada/indexer-client";
 import { indexerApiAtom } from "atoms/api";
@@ -12,7 +13,6 @@ import BigNumber from "bignumber.js";
 import * as osmosis from "chain-registry/mainnet/osmosis";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
-import namadaAssets from "namada-chain-registry/namada/assetlist.json";
 import { Address, ChainParameters, ChainSettings, ChainStatus } from "types";
 import { findAssetByToken } from "utils/assets";
 import { calculateUnbondingPeriod } from "./functions";

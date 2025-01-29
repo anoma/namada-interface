@@ -3330,6 +3330,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@namada/chain-registry@npm:^1.0.0":
+  version: 1.1.0
+  resolution: "@namada/chain-registry@npm:1.1.0"
+  checksum: 10c0/5a9d94c1963cf6d9269281fba77a13fa2b3e3a1d8181b02ce628bae14e004a4ebb0ecf6fa901597d7f3e16b7136303d71447fa11ce19d1583d9208e43afd1ed4
+  languageName: node
+  linkType: hard
+
 "@namada/chains@npm:0.2.1, @namada/chains@workspace:packages/chains":
   version: 0.0.0-use.local
   resolution: "@namada/chains@workspace:packages/chains"
@@ -3614,6 +3621,7 @@ __metadata:
     "@cosmjs/encoding": "npm:^0.32.3"
     "@eslint/js": "npm:^9.9.1"
     "@keplr-wallet/types": "npm:^0.12.136"
+    "@namada/chain-registry": "npm:^1.0.0"
     "@namada/indexer-client": "npm:1.1.6"
     "@playwright/test": "npm:^1.24.1"
     "@svgr/webpack": "npm:^6.5.1"
@@ -3670,7 +3678,6 @@ __metadata:
     local-cors-proxy: "npm:^1.1.0"
     lodash.debounce: "npm:^4.0.8"
     lodash.isequal: "npm:^4.5.0"
-    namada-chain-registry: "https://github.com/anoma/namada-chain-registry"
     postcss: "npm:^8.4.32"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
@@ -15389,13 +15396,6 @@ __metadata:
     object-assign: "npm:^4.0.1"
     thenify-all: "npm:^1.0.0"
   checksum: 10c0/103114e93f87362f0b56ab5b2e7245051ad0276b646e3902c98397d18bb8f4a77f2ea4a2c9d3ad516034ea3a56553b60d3f5f78220001ca4c404bd711bd0af39
-  languageName: node
-  linkType: hard
-
-"namada-chain-registry@https://github.com/anoma/namada-chain-registry":
-  version: 0.0.1
-  resolution: "namada-chain-registry@https://github.com/anoma/namada-chain-registry.git#commit=e732cd0b238a50022b8d9d14c8b38149a4612a34"
-  checksum: 10c0/91f246faf7d57d2db88653ca2244c9c51313afda91a3c367538bc3fc80ec653e453eb1fec124913e7d4d2a3c9e0e520a1377c2bd98cd8de33e83168564723c3d
   languageName: node
   linkType: hard
 
