@@ -107,8 +107,6 @@ export const TransferModule = ({
   errorMessage,
   buttonTextErrors = {},
 }: TransferModuleProps): JSX.Element => {
-  const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
-
   const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
   const [sourceChainModalOpen, setSourceChainModalOpen] = useState(false);
   const [destinationChainModalOpen, setDestinationChainModalOpen] =
@@ -117,9 +115,9 @@ export const TransferModule = ({
   const [customAddressActive, setCustomAddressActive] = useState(
     destination.enableCustomAddress && !destination.availableWallets
   );
-
   const [memo, setMemo] = useState<undefined | string>();
 
+  const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
   const selectedAsset = mapUndefined(
     (address) => source.availableAssets?.[address],
     source.selectedAssetAddress
@@ -127,7 +125,6 @@ export const TransferModule = ({
 
   const availableAmountMinusFees = useMemo(() => {
     const { selectedAssetAddress, availableAmount } = source;
-
     if (
       typeof selectedAssetAddress === "undefined" ||
       typeof availableAmount === "undefined"
