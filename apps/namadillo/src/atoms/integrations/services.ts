@@ -9,10 +9,13 @@ import {
   StargateClient,
   StdFee,
 } from "@cosmjs/stargate";
+import * as Comlink from "comlink";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
 import { sanitizeUrl } from "@namada/utils";
 import { getIndexerApi } from "atoms/api";
+import { chainParametersAtom } from "atoms/chain";
+import { rpcUrlAtom } from "atoms/settings";
 import { queryForAck, queryForIbcTimeout } from "atoms/transactions";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
@@ -27,6 +30,9 @@ import {
 } from "types";
 import { getKeplrWallet } from "utils/ibc";
 import { getSdkInstance } from "utils/sdk";
+import { GenerateIbcShieldingMemo } from "workers/MaspTxMessages";
+import { Worker as MaspTxWorkerApi } from "workers/MaspTxWorker";
+import MaspTxWorker from "workers/MaspTxWorker?worker";
 import { rpcByChainAtom } from "./atoms";
 import {
   getChainRegistryIbcFilePath,
@@ -61,13 +67,31 @@ export const getShieldedArgs = async (
   destinationChannelId: string
 ): Promise<{ receiver: string; memo: string }> => {
   const sdk = await getSdkInstance();
+  const store = getDefaultStore();
+  const rpcUrl = store.get(rpcUrlAtom);
+  const chain = store.get(chainParametersAtom);
 
-  const memo = await sdk.tx.generateIbcShieldingMemo(
-    target,
-    token,
-    amount,
-    destinationChannelId
-  );
+  if (!chain.isSuccess) throw "Chain not loaded";
+
+  const worker = new MaspTxWorker();
+  const workerLink = Comlink.wrap<MaspTxWorkerApi>(worker);
+  await workerLink.init({
+    type: "init",
+    payload: { rpcUrl, token: sdk.nativeToken, maspIndexerUrl: "" },
+  });
+
+  const msg: GenerateIbcShieldingMemo = {
+    type: "generate-ibc-shielding-memo",
+    payload: {
+      target,
+      token,
+      amount,
+      destinationChannelId,
+      chainId: chain.data.chainId,
+    },
+  };
+
+  const memo = (await workerLink.generateIbcShieldingMemo(msg)).payload;
 
   return {
     receiver: sdk.masp.maspAddress(),

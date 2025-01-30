@@ -16,7 +16,9 @@ use crate::utils::to_js_result;
 use args::{generate_masp_build_params, masp_sign, BuildParams};
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::address::{Address, ImplicitAddress, MASP};
-use namada_sdk::args::{GenIbcShieldingTransfer, InputAmount, Query, TxExpiration};
+use namada_sdk::args::{
+    GenIbcShieldingTransfer, IbcShieldingTransferAsset, InputAmount, Query, TxExpiration,
+};
 use namada_sdk::borsh::{self, BorshDeserialize};
 use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada_sdk::hash::Hash;
@@ -739,11 +741,13 @@ impl Sdk {
             query: Query { ledger_address },
             output_folder: None,
             target,
-            token,
             amount,
-            port_id: PortId::transfer(),
-            channel_id,
             expiration: TxExpiration::Default,
+            asset: IbcShieldingTransferAsset::LookupNamadaAddress {
+                token,
+                port_id: PortId::transfer(),
+                channel_id,
+            },
         };
 
         if let Some(masp_tx) = gen_ibc_shielding_transfer(&self.namada, args).await? {
