@@ -14,7 +14,7 @@ import invariant from "invariant";
 import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
-import { TransactionPair } from "lib/query";
+import { EncodedTxData } from "lib/query";
 import {
   AddressWithAssetAndAmountMap,
   BuildTxAtomParams,
@@ -164,7 +164,7 @@ export const createIbcTxAtom = atomWithMutation((get) => {
       account,
       gasConfig,
     }: BuildTxAtomParams<IbcTransferMsgValue>): Promise<
-      TransactionPair<IbcTransferProps> | undefined
+      EncodedTxData<IbcTransferProps> | undefined
     > => {
       if (typeof account === "undefined") {
         throw new Error("no account");

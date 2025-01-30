@@ -96,22 +96,24 @@ export const buildTx = async <T>(
   chain: ChainSettings,
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>,
-  publicKeyRevealed: boolean,
-  memo?: string
+  memo?: string,
+  skipRevealPk?: boolean
 ): Promise<EncodedTxData<T>> => {
-  const { tx } = sdk;
   const wrapperTxProps = getTxProps(account, gasConfig, chain, memo);
   const txs: TxMsgValue[] = [];
   const txProps: TxProps[] = [];
 
   // Determine if RevealPK is needed:
-  if (!publicKeyRevealed) {
-    const revealPkTx = await tx.buildRevealPk(wrapperTxProps);
-    txs.push(revealPkTx);
+  if (!skipRevealPk) {
+    const publicKeyRevealed = await isPublicKeyRevealed(account.address);
+    if (!publicKeyRevealed) {
+      const revealPkTx = await sdk.tx.buildRevealPk(wrapperTxProps);
+      txs.push(revealPkTx);
+    }
   }
 
   const encodedTxs = await Promise.all(
-    queryProps.map((props) => txFn.apply(tx, [wrapperTxProps, props]))
+    queryProps.map((props) => txFn.apply(sdk.tx, [wrapperTxProps, props]))
   );
 
   txs.push(...encodedTxs);
@@ -119,7 +121,7 @@ export const buildTx = async <T>(
   if (account.type === AccountType.Ledger) {
     txProps.push(...txs);
   } else {
-    txProps.push(tx.buildBatch(txs));
+    txProps.push(sdk.tx.buildBatch(txs));
   }
 
   return {
@@ -180,28 +182,12 @@ export const signTx = async <T>(
  *
  * Encoded transaction data includes the transaction itself along with additional metadata
  * that holds the initial values used for its creation.
+ *
  */
-export const buildTxPair = async <T>(
-  account: Account,
-  gasConfig: GasConfig,
-  chain: ChainSettings,
-  queryProps: T[],
-  txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>,
-  owner: string,
-  memo?: string
+export const signEncodedTx = async <T>(
+  encodedTxData: EncodedTxData<T>,
+  owner: Address
 ): Promise<TransactionPair<T>> => {
-  const sdk = await getSdkInstance();
-  const publicKeyRevealed = await isPublicKeyRevealed(account.address);
-  const encodedTxData = await buildTx<T>(
-    sdk,
-    account,
-    gasConfig,
-    chain,
-    queryProps,
-    txFn,
-    publicKeyRevealed,
-    memo
-  );
   const signedTxs = await signTx<T>(encodedTxData, owner);
   return {
     signedTxs,

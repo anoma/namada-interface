@@ -17,7 +17,7 @@ import * as elysTestnet from "chain-registry/testnet/elystestnet";
 import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet";
 import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
-import { TransactionPair, buildTxPair } from "lib/query";
+import { EncodedTxData, buildTx } from "lib/query";
 import {
   Address,
   AddressWithAssetAndAmount,
@@ -365,9 +365,8 @@ export const createIbcTx = async (
   gasConfig: GasConfig,
   chain: ChainSettings,
   memo?: string
-): Promise<TransactionPair<IbcTransferProps>> => {
-  const { tx } = await getSdkInstance();
-
+): Promise<EncodedTxData<IbcTransferProps>> => {
+  const sdk = await getSdkInstance();
   const ibcTransferProps = {
     source: account.address,
     receiver: destinationAddress,
@@ -377,17 +376,15 @@ export const createIbcTx = async (
     channelId,
     memo,
   };
-
-  const transactionPair = await buildTxPair(
+  return await buildTx(
+    sdk,
     account,
     gasConfig,
     chain,
     [ibcTransferProps],
-    tx.buildIbcTransfer,
-    account.address
+    sdk.tx.buildIbcTransfer,
+    memo
   );
-
-  return transactionPair;
 };
 
 export const namadaLocal = (chainId: string): Chain => {

@@ -23,6 +23,7 @@ type useTransferParams = {
   target: Address;
   token: Address;
   displayAmount: BigNumber;
+  onUpdateStatus?: (status: string) => void;
 };
 
 type useTransferOutput = (
@@ -68,6 +69,7 @@ export const useTransfer = ({
     eventType: "ShieldedTransfer",
     createTxAtom: createShieldedTransferAtom,
     params: [{ data: [{ source: pseudoExtendedKey, target, token, amount }] }],
+    useDisposableSigner: true,
     ...commomProps,
   });
 
@@ -82,6 +84,7 @@ export const useTransfer = ({
     eventType: "UnshieldingTransfer",
     createTxAtom: createUnshieldingTransferAtom,
     params: [{ source: pseudoExtendedKey, data: [{ target, token, amount }] }],
+    useDisposableSigner: true,
     ...commomProps,
   });
 

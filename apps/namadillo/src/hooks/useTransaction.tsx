@@ -3,17 +3,23 @@ import {
   createNotificationId,
   dispatchToastNotificationAtom,
 } from "atoms/notifications";
+import { getDisposableSigner } from "atoms/transfer/services";
 import invariant from "invariant";
 import { Atom, useAtomValue, useSetAtom } from "jotai";
 import { AtomWithMutationResult } from "jotai-tanstack-query";
-import { broadcastTxWithEvents, TransactionPair } from "lib/query";
+import {
+  broadcastTxWithEvents,
+  EncodedTxData,
+  signTx,
+  TransactionPair,
+} from "lib/query";
 import { BuildTxAtomParams, ToastNotification } from "types";
 import { TransactionEventsClasses } from "types/events";
 import { TransactionFeeProps, useTransactionFee } from "./useTransactionFee";
 
 type AtomType<T> = Atom<
   AtomWithMutationResult<
-    TransactionPair<T> | undefined,
+    EncodedTxData<T> | undefined,
     unknown,
     BuildTxAtomParams<T>,
     unknown
@@ -22,17 +28,24 @@ type AtomType<T> = Atom<
 
 type PartialNotification = Pick<ToastNotification, "title" | "description">;
 
-export type useTransactionProps<T> = {
-  params: T[];
-  createTxAtom: AtomType<T>;
-  eventType: TransactionEventsClasses;
-  parsePendingTxNotification?: (tx: TransactionPair<T>) => PartialNotification;
-  parseErrorTxNotification?: () => PartialNotification;
+export type UseTransactionPropsEvents<T> = {
   onSigned?: (tx: TransactionPair<T>) => void;
   onError?: (err: unknown) => void;
   onSuccess?: (tx: TransactionPair<T>) => void;
+  onBeforeBuildTx?: () => void;
+  onBeforeSign?: (encodedTxData: EncodedTxData<T>) => void;
+  onBeforeBroadcast?: (tx: TransactionPair<T>) => void;
   onBroadcasted?: () => void;
 };
+
+export type useTransactionProps<T> = {
+  params: T[];
+  createTxAtom: AtomType<T>;
+  useDisposableSigner?: boolean;
+  eventType: TransactionEventsClasses;
+  parsePendingTxNotification?: (tx: TransactionPair<T>) => PartialNotification;
+  parseErrorTxNotification?: () => PartialNotification;
+} & UseTransactionPropsEvents<T>;
 
 export type useTransactionOutput<T> = {
   execute: (
@@ -47,17 +60,21 @@ export type useTransactionOutput<T> = {
 export const useTransaction = <T,>({
   params,
   createTxAtom,
+  useDisposableSigner,
   eventType,
   parsePendingTxNotification,
   parseErrorTxNotification,
   onSuccess,
   onError,
   onSigned,
+  onBeforeBuildTx,
+  onBeforeSign,
+  onBeforeBroadcast,
   onBroadcasted,
 }: useTransactionProps<T>): useTransactionOutput<T> => {
   const { data: account } = useAtomValue(defaultAccountAtom);
   const {
-    mutateAsync: buildTx,
+    mutateAsync: performBuildTx,
     isPending,
     isSuccess,
   } = useAtomValue(createTxAtom);
@@ -92,37 +109,64 @@ export const useTransaction = <T,>({
   };
 
   const execute = async (
-    txAdditionalParams: Partial<BuildTxAtomParams<T>> = {}
+    additionalParams: Partial<BuildTxAtomParams<T>> = {}
   ): Promise<TransactionPair<T> | void> => {
     invariant(
       account?.address,
       "Extension not connected or no account is selected"
     );
 
-    const tx = await buildTx({
+    const txAdditionalParams = { ...additionalParams };
+    if (useDisposableSigner) {
+      txAdditionalParams.signer = await getDisposableSigner();
+    }
+
+    onBeforeBuildTx?.();
+    const encodedTxData = await performBuildTx({
       params,
       gasConfig: feeProps.gasConfig,
       account,
       ...txAdditionalParams,
     });
 
-    if (!tx) throw "Error: invalid TX created by buildTx";
-    if (onSigned) {
-      onSigned(tx);
-    }
+    invariant(encodedTxData, "Error: invalid TX created by buildTx");
+    useDisposableSigner &&
+      invariant(
+        txAdditionalParams.signer?.address,
+        "Disposable signer could not be created"
+      );
 
+    const signerAddress =
+      useDisposableSigner ?
+        txAdditionalParams.signer?.address
+      : account.address;
+
+    invariant(signerAddress, "Signer address is required");
+
+    onBeforeSign?.(encodedTxData);
+    const signedTxs = await signTx(encodedTxData, signerAddress);
+    const transactionPair: TransactionPair<T> = {
+      signedTxs,
+      encodedTxData,
+    };
+
+    onSigned?.(transactionPair);
     if (parsePendingTxNotification) {
-      dispatchPendingTxNotification(tx, parsePendingTxNotification(tx));
+      dispatchPendingTxNotification(
+        transactionPair,
+        parsePendingTxNotification(transactionPair)
+      );
     }
 
+    onBeforeBroadcast?.(transactionPair);
     broadcastTxWithEvents(
-      tx.encodedTxData,
-      tx.signedTxs,
-      tx.encodedTxData.meta?.props,
+      transactionPair.encodedTxData,
+      transactionPair.signedTxs,
+      transactionPair.encodedTxData.meta?.props,
       eventType
     )
       .then(() => {
-        onSuccess?.(tx);
+        onSuccess?.(transactionPair);
       })
       .catch((err) => {
         if (parseErrorTxNotification) {
@@ -137,7 +181,7 @@ export const useTransaction = <T,>({
       });
 
     onBroadcasted?.();
-    return tx;
+    return transactionPair;
   };
 
   return {
