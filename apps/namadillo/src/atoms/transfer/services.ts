@@ -1,5 +1,7 @@
 import {
   Account,
+  AccountType,
+  BparamsMsgValue,
   GenDisposableSignerResponse,
   ShieldedTransferMsgValue,
   ShieldedTransferProps,
@@ -108,27 +110,38 @@ export const createShieldedTransferTx = async (
   rpcUrl: string,
   memo?: string
 ): Promise<TransactionPair<ShieldedTransferProps> | undefined> => {
-  const disposableSigner = await getDisposableSigner();
+  const { address: signerAddress, publicKey: signerPublicKey } =
+    await getDisposableSigner();
   const source = props[0]?.data[0]?.source;
   const destination = props[0]?.data[0]?.target;
   const token = props[0]?.data[0]?.token;
   const amount = props[0]?.data[0]?.amount;
 
+  let bparams: BparamsMsgValue[] | undefined;
+
+  if (account.type === AccountType.Ledger) {
+    const sdk = await getSdkInstance();
+    const ledger = await sdk.initLedger();
+    bparams = await ledger.getBparams();
+    ledger.closeTransport();
+  }
+
   return await workerBuildTxPair({
     rpcUrl,
     token,
-    signerAddress: disposableSigner.address,
+    signerAddress,
     buildTxFn: async (workerLink) => {
       const msgValue = new ShieldedTransferMsgValue({
         gasSpendingKey: source,
         data: [{ source, target: destination, token, amount }],
+        bparams,
       });
       const msg: ShieldedTransfer = {
         type: "shielded-transfer",
         payload: {
           account: {
             ...account,
-            publicKey: disposableSigner.publicKey,
+            publicKey: signerPublicKey,
           },
           gasConfig,
           props: [msgValue],
@@ -154,6 +167,15 @@ export const createShieldingTransferTx = async (
   const token = props[0]?.data[0]?.token;
   const amount = props[0]?.data[0]?.amount;
 
+  let bparams: BparamsMsgValue[] | undefined;
+
+  if (account.type === AccountType.Ledger) {
+    const sdk = await getSdkInstance();
+    const ledger = await sdk.initLedger();
+    bparams = await ledger.getBparams();
+    ledger.closeTransport();
+  }
+
   return await workerBuildTxPair({
     rpcUrl,
     token,
@@ -164,6 +186,7 @@ export const createShieldingTransferTx = async (
       const msgValue = new ShieldingTransferMsgValue({
         target: destination,
         data: [{ source, token, amount }],
+        bparams,
       });
       const msg: Shield = {
         type: "shield",
@@ -190,28 +213,40 @@ export const createUnshieldingTransferTx = async (
   rpcUrl: string,
   memo?: string
 ): Promise<TransactionPair<UnshieldingTransferProps> | undefined> => {
-  const disposableSigner = await getDisposableSigner();
+  const { address: signerAddress, publicKey: signerPublicKey } =
+    await getDisposableSigner();
+
   const source = props[0]?.source;
   const destination = props[0]?.data[0]?.target;
   const token = props[0]?.data[0]?.token;
   const amount = props[0]?.data[0]?.amount;
 
+  let bparams: BparamsMsgValue[] | undefined;
+
+  if (account.type === AccountType.Ledger) {
+    const sdk = await getSdkInstance();
+    const ledger = await sdk.initLedger();
+    bparams = await ledger.getBparams();
+    ledger.closeTransport();
+  }
+
   return await workerBuildTxPair({
     rpcUrl,
     token,
-    signerAddress: disposableSigner.address,
+    signerAddress,
     buildTxFn: async (workerLink) => {
       const msgValue = new UnshieldingTransferMsgValue({
         source,
         gasSpendingKey: source,
         data: [{ target: destination, token, amount }],
+        bparams,
       });
       const msg: Unshield = {
         type: "unshield",
         payload: {
           account: {
             ...account,
-            publicKey: disposableSigner.publicKey,
+            publicKey: signerPublicKey,
           },
           gasConfig,
           props: [msgValue],

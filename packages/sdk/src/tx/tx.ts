@@ -368,6 +368,21 @@ export class Tx {
 
   /**
    * Append signature for transactions signed by Ledger Hardware Wallet
+   * @param txBytes - bytes of the transaction
+   * @param signingData - signing data
+   * @param signature - masp signature
+   * @returns transaction bytes with signature appended
+   */
+  appendMaspSignature(
+    txBytes: Uint8Array,
+    signingData: Uint8Array[],
+    signature: Uint8Array
+  ): Uint8Array {
+    return this.sdk.sign_masp_ledger(txBytes, signingData, signature);
+  }
+
+  /**
+   * Append signature for transactions signed by Ledger Hardware Wallet
    * @param txBytes - Serialized transaction
    * @param ledgerSignatureResponse - Serialized signature as returned from Ledger
    * @returns - Serialized Tx bytes with signature appended
