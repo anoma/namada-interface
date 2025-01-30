@@ -47,6 +47,54 @@ export class TransparentTransferMsgValue {
   }
 }
 
+export class BparamsSpendMsgValue {
+  @field({ type: vec("u8") })
+  rcv!: Uint8Array;
+
+  @field({ type: vec("u8") })
+  alpha!: Uint8Array;
+
+  constructor(data: BparamsSpendMsgValue) {
+    Object.assign(this, data);
+  }
+}
+
+export class BparamsOutputMsgValue {
+  @field({ type: vec("u8") })
+  rcv!: Uint8Array;
+
+  @field({ type: vec("u8") })
+  rcm!: Uint8Array;
+
+  constructor(data: BparamsOutputMsgValue) {
+    Object.assign(this, data);
+  }
+}
+
+export class BparamsConvertMsgValue {
+  @field({ type: vec("u8") })
+  rcv!: Uint8Array;
+
+  constructor(data: BparamsConvertMsgValue) {
+    Object.assign(this, data);
+  }
+}
+
+export class BparamsMsgValue {
+  @field({ type: BparamsSpendMsgValue })
+  spend!: BparamsSpendMsgValue;
+
+  @field({ type: BparamsOutputMsgValue })
+  output!: BparamsOutputMsgValue;
+
+  @field({ type: BparamsConvertMsgValue })
+  convert!: BparamsConvertMsgValue;
+
+  constructor(data: BparamsMsgValue) {
+    Object.assign(this, data);
+  }
+}
+
 /**
  * Shielded Transfer schemas
  */
@@ -75,13 +123,24 @@ export class ShieldedTransferMsgValue {
   @field({ type: option("string") })
   gasSpendingKey?: string;
 
-  constructor({ data, gasSpendingKey }: ShieldedTransferProps) {
+  @field({ type: option(vec(BparamsMsgValue)) })
+  bparams?: BparamsMsgValue[];
+
+  constructor({ data, gasSpendingKey, bparams }: ShieldedTransferProps) {
     Object.assign(this, {
       data: data.map(
         (shieldedTransferDataProps) =>
           new ShieldedTransferDataMsgValue(shieldedTransferDataProps)
       ),
       gasSpendingKey,
+
+      bparams: bparams?.map((bparam) => {
+        return new BparamsMsgValue({
+          spend: new BparamsSpendMsgValue(bparam.spend),
+          output: new BparamsOutputMsgValue(bparam.output),
+          convert: new BparamsConvertMsgValue(bparam.convert),
+        });
+      }),
     });
   }
 }
@@ -110,6 +169,9 @@ export class ShieldingTransferMsgValue {
 
   @field({ type: vec(ShieldingTransferDataMsgValue) })
   data!: ShieldingTransferDataMsgValue[];
+
+  @field({ type: option(vec(BparamsMsgValue)) })
+  bparams?: BparamsMsgValue[];
 
   constructor({ data, target }: ShieldingTransferProps) {
     Object.assign(this, {
@@ -150,7 +212,15 @@ export class UnshieldingTransferMsgValue {
   @field({ type: option("string") })
   gasSpendingKey?: string;
 
-  constructor({ source, data, gasSpendingKey }: UnshieldingTransferProps) {
+  @field({ type: option(vec(BparamsMsgValue)) })
+  bparams?: BparamsMsgValue[];
+
+  constructor({
+    source,
+    data,
+    gasSpendingKey,
+    bparams,
+  }: UnshieldingTransferProps) {
     Object.assign(this, {
       source,
       data: data.map(
@@ -158,6 +228,13 @@ export class UnshieldingTransferMsgValue {
           new UnshieldingTransferDataMsgValue(unshieldingTransferDataProps)
       ),
       gasSpendingKey,
+      bparams: bparams?.map((bparam) => {
+        return new BparamsMsgValue({
+          spend: new BparamsSpendMsgValue(bparam.spend),
+          output: new BparamsOutputMsgValue(bparam.output),
+          convert: new BparamsConvertMsgValue(bparam.convert),
+        });
+      }),
     });
   }
 }
