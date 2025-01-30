@@ -32,6 +32,20 @@ export type LedgerStatus = {
 
 const LEDGER_MIN_VERSION_ZIP32 = "2.0.0";
 
+export type Bparams = {
+  spend: {
+    rcv: Uint8Array;
+    alpha: Uint8Array;
+  };
+  output: {
+    rcv: Uint8Array;
+    rcm: Uint8Array;
+  };
+  convert: {
+    rcv: Uint8Array;
+  };
+};
+
 /**
  * Initialize USB transport
  * @async
@@ -58,7 +72,7 @@ export class Ledger {
   /**
    * @param namadaApp - Inititalized NamadaApp class from Zondax package
    */
-  private constructor(public readonly namadaApp: NamadaApp) {}
+  private constructor(public readonly namadaApp: NamadaApp) { }
 
   /**
    * Initialize and return Ledger class instance with initialized Transport
@@ -137,6 +151,57 @@ export class Ledger {
     } catch (e) {
       throw new Error(`Connect Ledger rejected by user: ${e}`);
     }
+  }
+
+  /**
+   * Get Bparams for masp transactions
+   * @async
+   * @returns bparams
+   */
+  public async getBparams(): Promise<Bparams[]> {
+    // We need to clean the randomness buffers before getting randomness
+    // to ensure that the randomness is not reused
+    await this.namadaApp.cleanRandomnessBuffers();
+    const results: Bparams[] = [];
+    let tries = 0;
+
+    // This should not happen usually, but in case some of the responses are not valid, we will retry.
+    // 15 is a maximum number of spend/output/convert description randomness parameters that can be
+    // generated on the hardware wallet. This also means that ledger can sign maximum of 15 spend, output
+    // and convert descriptions in one tx.
+    while (results.length < 15) {
+      tries++;
+      if (tries === 20) {
+        throw new Error("Could not get valid Bparams, too many tries");
+      }
+
+      const spend_response = await this.namadaApp.getSpendRandomness();
+      const output_response = await this.namadaApp.getOutputRandomness();
+      const convert_response = await this.namadaApp.getConvertRandomness();
+      if (
+        spend_response.returnCode !== LedgerError.NoErrors ||
+        output_response.returnCode !== LedgerError.NoErrors ||
+        convert_response.returnCode !== LedgerError.NoErrors
+      ) {
+        continue;
+      }
+
+      results.push({
+        spend: {
+          rcv: spend_response.rcv,
+          alpha: spend_response.alpha,
+        },
+        output: {
+          rcv: output_response.rcv,
+          rcm: output_response.rcm,
+        },
+        convert: {
+          rcv: convert_response.rcv,
+        },
+      });
+    }
+
+    return results;
   }
 
   /**
@@ -277,7 +342,7 @@ export class Ledger {
       } = await this.status();
       throw new Error(
         `This method requires Zip32 and is unsupported in ${appVersion}! ` +
-          `Please update to at least ${LEDGER_MIN_VERSION_ZIP32}!`
+        `Please update to at least ${LEDGER_MIN_VERSION_ZIP32}!`
       );
     }
   }

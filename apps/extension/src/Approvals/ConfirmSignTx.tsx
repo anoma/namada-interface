@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ActionButton, Input, Stack } from "@namada/components";
 import { PageHeader } from "App/Common";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
-import { SubmitApprovedSignTxMsg } from "background/approvals";
+import { SignMaspMsg, SubmitApprovedSignTxMsg } from "background/approvals";
 import { UnlockVaultMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
@@ -40,6 +40,13 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
         if (!isAuthenticated) {
           throw new Error("Invalid password!");
         }
+
+        // TODO: ideally we should only calling this for Unshielding and Shielded Transfers,
+        // it should not break anything it's just unnecessary computation
+        await requester.sendMessage(
+          Ports.Background,
+          new SignMaspMsg(msgId, signer)
+        );
 
         await requester.sendMessage(
           Ports.Background,
