@@ -768,7 +768,6 @@ export class KeyRing {
     chainId: string
   ): Promise<Uint8Array> {
     await this.vaultService.assertIsUnlocked();
-
     const disposableKey = await this.localStorage.getDisposableSigner(signer);
 
     // If disposable key is provided, use it for signing
@@ -777,15 +776,23 @@ export class KeyRing {
         disposableKey.privateKey
       : await this.getSigningKey(signer);
 
+    const { signing } = this.sdkService.getSdk();
+
+    return await signing.sign(txProps, key, chainId);
+  }
+
+  async signMasp(txProps: TxProps, signer: string): Promise<Uint8Array> {
+    await this.vaultService.assertIsUnlocked();
+
+    const disposableKey = await this.localStorage.getDisposableSigner(signer);
+    const realAddress = disposableKey?.realAddress || signer;
+
     // If disposable key is provided, use it to map real address to spending key
-    const spendingKeys =
-      disposableKey ?
-        [await this.getSpendingKey(disposableKey.realAddress)]
-      : [];
+    const xsks = [await this.getSpendingKey(realAddress)];
 
     const { signing } = this.sdkService.getSdk();
 
-    return await signing.sign(txProps, key, spendingKeys, chainId);
+    return await signing.signMasp(txProps, xsks);
   }
 
   async signArbitrary(
@@ -804,10 +811,13 @@ export class KeyRing {
   async queryAccountDetails(
     address: string
   ): Promise<DerivedAccount | undefined> {
+    const disposableKey = await this.localStorage.getDisposableSigner(address);
+
     const account = await this.vaultStorage.findOneOrFail(
       KeyStore,
       "address",
-      address
+      // if we use disposable key, we want to get the real address
+      disposableKey?.realAddress || address
     );
     if (!account) {
       return;

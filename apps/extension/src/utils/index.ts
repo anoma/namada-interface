@@ -147,7 +147,7 @@ export const isShieldedPool = (address: string): boolean => {
  */
 export const parseTransferType = (
   tx: TransferProps,
-  wrapperFeePayer?: string
+  wrapperFeePayer: string
 ): { source: string; target: string; type: TransferType } => {
   const { sources, targets } = tx;
   const source = sources[0].owner;
