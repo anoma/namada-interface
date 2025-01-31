@@ -1,0 +1,161 @@
+name: Build Namada Keychain Demo
+on:
+  workflow_dispatch:
+    inputs:
+      REF:
+        required: true
+        type: string
+        default: "main"
+
+env:
+  CI: false
+jobs:
+  setup:
+    runs-on: ubuntu-24.04
+    outputs:
+      VERSION: ${{ steps.set-environment-variables.outputs.VERSION }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.REF }}
+
+      - name: Set environment variables
+        id: set-environment-variables
+        run: |
+          COMMIT_HASH=$(git rev-parse --short $SHA)
+          BASE_VERSION=$(node -e 'console.log(require("./apps/extension/package.json").version)')
+          echo "VERSION=v$BASE_VERSION-$COMMIT_HASH" >> "$GITHUB_OUTPUT"
+        env:
+          SHA: ${{ github.sha }}
+
+      - name: Print workflow inputs
+        uses: ./.github/actions/print-workflow-inputs
+
+  build-extension-chrome:
+    needs: setup
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.REF }}
+
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
+
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
+        with:
+          cache-name: build
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
+      - name: Build WASM dependencies
+        working-directory: ./apps/extension
+        run: yarn wasm:build
+
+      - name: Build the extension
+        working-directory: ./apps/extension
+        env:
+          SHA: ${{ github.sha }}
+        run: NAMADA_INTERFACE_REVISION=$SHA yarn build:chrome
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: namada-keychain-chrome
+          path: ./apps/extension/build/chrome/namada_keychain-*.zip
+
+  build-extension-firefox:
+    needs: setup
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.REF }}
+
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
+
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
+        with:
+          cache-name: build
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
+      - name: Build WASM dependencies
+        working-directory: ./apps/extension
+        run: yarn wasm:build
+
+      - name: Build the extension
+        working-directory: ./apps/extension
+        env:
+          SHA: ${{ github.sha }}
+        run: NAMADA_INTERFACE_REVISION=$SHA yarn build:firefox
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: namada-keychain-firefox
+          path: ./apps/extension/build/firefox/namada_keychain-*.zip
+
+  release:
+    needs: [setup, build-extension-chrome, build-extension-firefox]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download Chrome extension build
+        uses: actions/download-artifact@v3
+        with:
+          name: namada-keychain-chrome
+          path: ./namada-keychain-chrome
+
+      - name: Download Firefox extension build
+        uses: actions/download-artifact@v3
+        with:
+          name: namada-keychain-firefox
+          path: ./namada-keychain-firefox
+
+      - name: Get extension filenames
+        id: get-filenames
+        run: |
+          echo "CHROME_FILENAME=$(ls -1 ./namada-keychain-chrome)" >> "$GITHUB_OUTPUT"
+          echo "FIREFOX_FILENAME=$(ls -1 ./namada-keychain-firefox)" >> "$GITHUB_OUTPUT"
+
+      - name: Make release body text
+        run: |
+          echo "NAMADA_INTERFACE_REVISION: $SHA" >> RELEASE
+        env:
+          SHA: ${{ github.sha }}
+
+      - name: Create release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          release_name: ${{ needs.setup.outputs.VERSION }}
+          tag_name: ${{ needs.setup.outputs.VERSION }}
+          body_path: ./RELEASE
+
+      - name: Add Chrome extension to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./namada-keychain-chrome/${{ steps.get-filenames.outputs.CHROME_FILENAME }}
+          asset_name: namada-keychain-chrome_${{ needs.setup.outputs.VERSION }}.zip
+          asset_content_type: application/zip
+
+      - name: Add Firefox extension to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./namada-keychain-firefox/${{ steps.get-filenames.outputs.FIREFOX_FILENAME }}
+          asset_name: namada-keychain-firefox_${{ needs.setup.outputs.VERSION }}.zip
+          asset_content_type: application/zip
