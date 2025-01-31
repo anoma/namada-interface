@@ -20,7 +20,7 @@ import { useTransactionActions } from "hooks/useTransactionActions";
 import { useTransfer } from "hooks/useTransfer";
 import { wallets } from "integrations";
 import invariant from "invariant";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
 import { useMemo, useState } from "react";
 import { generatePath, useNavigate, useSearchParams } from "react-router-dom";
@@ -42,7 +42,7 @@ export const NamadaTransfer: React.FC = () => {
   const features = useAtomValue(applicationFeaturesAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
-  const ledgerStatus = useAtomValue(ledgerStatusDataAtom);
+  const [ledgerStatus, setLedgerStatusStop] = useAtom(ledgerStatusDataAtom);
 
   const { data: availableAssetsData, isLoading: isLoadingAssets } =
     useAtomValue(
@@ -158,6 +158,9 @@ export const NamadaTransfer: React.FC = () => {
       setGeneralErrorMessage(err + "");
     }
   };
+
+  // We stop the ledger status check when the transfer is in progress
+  setLedgerStatusStop(isPerformingTransfer);
 
   return (
     <Panel className="relative min-h-[600px]">

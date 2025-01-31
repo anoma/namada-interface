@@ -11,6 +11,8 @@ export type LedgerStatus = {
   errorMessage: string;
 };
 
+const ledgerStatusStopAtom = atom(false);
+
 export const ledgerStatusAtom = atomWithQuery<LedgerStatus | undefined>(() => {
   return {
     refetchInterval: 1000,
@@ -58,10 +60,16 @@ export const ledgerStatusAtom = atomWithQuery<LedgerStatus | undefined>(() => {
   };
 });
 
-export const ledgerStatusDataAtom = atom((get) => {
-  const isLedgerAccount = get(isLedgerAccountAtom);
+export const ledgerStatusDataAtom = atom(
+  (get) => {
+    const isLedgerAccount = get(isLedgerAccountAtom);
+    const ledgetStatusStop = get(ledgerStatusStopAtom);
 
-  if (isLedgerAccount) {
-    return get(ledgerStatusAtom).data;
+    if (isLedgerAccount && !ledgetStatusStop) {
+      return get(ledgerStatusAtom).data;
+    }
+  },
+  (_, set, stop: boolean) => {
+    set(ledgerStatusStopAtom, stop);
   }
-});
+);
