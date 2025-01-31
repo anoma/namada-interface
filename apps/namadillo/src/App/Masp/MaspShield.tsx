@@ -10,13 +10,14 @@ import {
 import { allDefaultAccountsAtom } from "atoms/accounts";
 import { namadaTransparentAssetsAtom } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
+import { ledgerStatusDataAtom } from "atoms/ledger";
 import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useTransfer } from "hooks/useTransfer";
 import { wallets } from "integrations";
 import invariant from "invariant";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -34,11 +35,14 @@ export const MaspShield: React.FC = () => {
   const rpcUrl = useAtomValue(rpcUrlAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
-
+  const [ledgerStatus, setLedgerStatusStop] = useAtom(ledgerStatusDataAtom);
   const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
     namadaTransparentAssetsAtom
   );
-
+  const ledgerAccountInfo = ledgerStatus && {
+    deviceConnected: ledgerStatus.connected,
+    errorMessage: ledgerStatus.errorMessage,
+  };
   const chainId = chainParameters.data?.chainId;
   const sourceAddress = defaultAccounts.data?.find(
     (account) => account.type !== AccountType.ShieldedKeys
@@ -135,6 +139,9 @@ export const MaspShield: React.FC = () => {
     }
   };
 
+  // We stop the ledger status check when the transfer is in progress
+  setLedgerStatusStop(isPerformingTransfer);
+
   return (
     <Panel className="relative min-h-[600px] flex-1">
       <header className="flex flex-col items-center text-center mb-3 gap-6">
@@ -158,6 +165,7 @@ export const MaspShield: React.FC = () => {
           onChangeSelectedAsset,
           amount: displayAmount,
           onChangeAmount: setDisplayAmount,
+          ledgerAccountInfo,
         }}
         destination={{
           chain: namadaChain as Chain,
