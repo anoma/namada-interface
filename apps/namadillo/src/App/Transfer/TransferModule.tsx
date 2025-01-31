@@ -14,6 +14,7 @@ import {
   AddressWithAssetAndAmount,
   AddressWithAssetAndAmountMap,
   GasConfig,
+  LedgerAccountInfo,
   WalletProvider,
 } from "types";
 import { getDisplayGasFee } from "utils/gas";
@@ -39,6 +40,8 @@ type TransferModuleConfig = {
   onChangeWallet?: (wallet: WalletProvider) => void;
   onChangeChain?: (chain: Chain) => void;
   onChangeShielded?: (isShielded: boolean) => void;
+  // Additional information if selected account is a ledger
+  ledgerAccountInfo?: LedgerAccountInfo;
 };
 
 export type TransferSourceProps = TransferModuleConfig & {
@@ -102,6 +105,7 @@ type ValidationResult =
   | "NoTransactionFee"
   | "NotEnoughBalance"
   | "NotEnoughBalanceForFees"
+  | "NoLedgerConnected"
   | "Ok";
 
 export const TransferModule = ({
@@ -191,6 +195,12 @@ export const TransferModule = ({
       return "NotEnoughBalance";
     } else if (!destination.wallet && !destination.customAddress) {
       return "NoDestinationWallet";
+    } else if (
+      (source.isShielded || destination.isShielded) &&
+      source.ledgerAccountInfo &&
+      !source.ledgerAccountInfo.deviceConnected
+    ) {
+      return "NoLedgerConnected";
     } else {
       return "Ok";
     }
@@ -338,7 +348,6 @@ export const TransferModule = ({
 
       case "NoSelectedAsset":
         return getText("Select Asset");
-
       case "NoDestinationWallet":
         return getText("Select Destination Wallet");
 
@@ -350,9 +359,10 @@ export const TransferModule = ({
 
       case "NotEnoughBalance":
         return getText("Not enough balance");
-
       case "NotEnoughBalanceForFees":
         return getText("Not enough balance to pay for transaction fees");
+      case "NoLedgerConnected":
+        return getText("Connect your ledger and open the Namada App");
     }
 
     if (!availableAmountMinusFees) {
