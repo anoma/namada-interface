@@ -1,3 +1,4 @@
+import { TxProps } from "@namada/types";
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { defaultAccountAtom } from "atoms/accounts";
 import {
@@ -9,6 +10,7 @@ import invariant from "invariant";
 import { Atom, useAtomValue, useSetAtom } from "jotai";
 import { AtomWithMutationResult } from "jotai-tanstack-query";
 import {
+  broadcastTransaction,
   broadcastTxWithEvents,
   EncodedTxData,
   signTx,
@@ -108,13 +110,15 @@ export const useTransaction = <T,>({
     });
   };
 
+  // Handles errors BEFORE or during broadcasting.
   const dispatchErrorNotification = (
     error: unknown,
-    notification: PartialNotification
+    notification: PartialNotification,
+    tx: TxProps | TxProps[]
   ): void => {
     dispatchNotification({
       ...notification,
-      id: createNotificationId(),
+      id: createNotificationId(tx),
       details: error instanceof Error ? error.message : undefined,
       type: "error",
     });
@@ -172,6 +176,10 @@ export const useTransaction = <T,>({
       }
 
       onBeforeBroadcast?.(transactionPair);
+      broadcastTransaction(
+        transactionPair.encodedTxData,
+        transactionPair.signedTxs
+      );
       broadcastTxWithEvents(
         transactionPair.encodedTxData,
         transactionPair.signedTxs,
@@ -183,9 +191,12 @@ export const useTransaction = <T,>({
         })
         .catch((err) => {
           if (parseErrorTxNotification) {
-            dispatchErrorNotification(err, parseErrorTxNotification());
+            dispatchErrorNotification(
+              err,
+              parseErrorTxNotification(),
+              encodedTxData.txs
+            );
           }
-
           if (onError) {
             onError(err);
           } else {

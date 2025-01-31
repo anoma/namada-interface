@@ -80,10 +80,6 @@ const IncrementBonding = (): JSX.Element => {
         </>
       ),
     }),
-    parseErrorTxNotification: () => ({
-      title: "Staking transaction failed",
-      description: "",
-    }),
     onBroadcasted: () => {
       onCloseModal();
     },

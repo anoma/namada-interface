@@ -67,10 +67,6 @@ export const Unstake = (): JSX.Element => {
         </>
       ),
     }),
-    parseErrorTxNotification: () => ({
-      title: "Unstake transaction failed",
-      description: "",
-    }),
     onBroadcasted: () => {
       onCloseModal();
     },

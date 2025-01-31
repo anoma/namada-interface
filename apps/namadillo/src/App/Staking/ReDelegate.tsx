@@ -65,10 +65,6 @@ export const ReDelegate = (): JSX.Element => {
       title: "Staking redelegation in progress",
       description: <>Your redelegation transaction is being processed</>,
     }),
-    parseErrorTxNotification: () => ({
-      title: "Staking redelegation failed",
-      description: "",
-    }),
     onBroadcasted: () => {
       onCloseModal();
     },
