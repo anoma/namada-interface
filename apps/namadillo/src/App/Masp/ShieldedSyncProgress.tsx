@@ -10,11 +10,15 @@ export const ShieldedSyncProgress = (): JSX.Element => {
   }
 
   return (
-    <div className={"bg-yellow rounded-sm text-xs font-medium py-2 px-3"}>
+    <div className="relative bg-black text-yellow rounded-sm overflow-hidden text-xs font-medium py-2 px-3">
       Shielded sync{" "}
       {syncProgress === 1 ?
         "converting..."
       : `progress: ${Math.min(Math.floor(syncProgress * 100), 100)}%`}
+      <div
+        className="absolute bg-yellow top-0 left-0 w-full h-full mix-blend-difference origin-left transition-all"
+        style={{ transform: `scaleX(${syncProgress * 100}%)` }}
+      />
     </div>
   );
 };
