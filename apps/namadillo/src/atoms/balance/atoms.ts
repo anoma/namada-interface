@@ -326,6 +326,10 @@ export const cachedShieldedRewardsAtom = atom((get) => {
   const rewards = get(shieldRewardsAtom);
   const data = rewards.isSuccess ? rewards.data : storage[viewingKey.key];
 
+  if (!data) {
+    return { amount: BigNumber(0) };
+  }
+
   return {
     amount: toDisplayAmount(namadaAsset(), BigNumber(data.minDenomAmount)),
   };
