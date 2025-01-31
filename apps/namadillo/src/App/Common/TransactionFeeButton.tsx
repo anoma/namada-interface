@@ -9,7 +9,6 @@ export const TransactionFeeButton = ({
   feeProps: TransactionFeeProps;
 }): JSX.Element => {
   const [modalOpen, setModalOpen] = useState(false);
-
   return (
     <>
       <button
