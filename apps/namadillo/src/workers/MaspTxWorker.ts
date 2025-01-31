@@ -11,6 +11,8 @@ import { buildTx, EncodedTxData } from "lib/query";
 import {
   Broadcast,
   BroadcastDone,
+  GenerateIbcShieldingMemo,
+  GenerateIbcShieldingMemoDone,
   Init,
   InitDone,
   Shield,
@@ -58,6 +60,18 @@ export class Worker {
     return {
       type: "shielded-transfer-done",
       payload: await shieldedTransfer(this.sdk, m.payload),
+    };
+  }
+
+  async generateIbcShieldingMemo(
+    m: GenerateIbcShieldingMemo
+  ): Promise<GenerateIbcShieldingMemoDone> {
+    if (!this.sdk) {
+      throw new Error("SDK is not initialized");
+    }
+    return {
+      type: "generate-ibc-shielding-memo-done",
+      payload: await generateIbcShieldingMemo(this.sdk, m.payload),
     };
   }
 
@@ -142,6 +156,23 @@ async function shieldedTransfer(
   return encodedTxData;
 }
 
+async function generateIbcShieldingMemo(
+  sdk: Sdk,
+  payload: GenerateIbcShieldingMemo["payload"]
+): Promise<string> {
+  const { target, token, amount, destinationChannelId, chainId } = payload;
+  await sdk.masp.loadMaspParams("", chainId);
+
+  const memo = await sdk.tx.generateIbcShieldingMemo(
+    target,
+    token,
+    amount,
+    destinationChannelId
+  );
+
+  return memo;
+}
+
 // TODO: We will probably move this to the separate worker
 async function broadcast(
   sdk: Sdk,
@@ -178,6 +209,9 @@ export const registerTransferHandlers = (): void => {
   registerBNTransferHandler<ShieldedTransfer>("shielded-transfer");
   registerBNTransferHandler<UnshieldDone>("unshield-done");
   registerBNTransferHandler<Unshield>("unshield");
+  registerBNTransferHandler<GenerateIbcShieldingMemo>(
+    "generate-ibc-shielding-memo"
+  );
   registerBNTransferHandler<Broadcast>("broadcast");
 };
 
