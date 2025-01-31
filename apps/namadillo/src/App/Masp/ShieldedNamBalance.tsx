@@ -1,7 +1,10 @@
 import { SkeletonLoading, Stack, Tooltip } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
-import { shieldedTokensAtom } from "atoms/balance/atoms";
+import {
+  cachedShieldedRewardsAtom,
+  shieldedTokensAtom,
+} from "atoms/balance/atoms";
 import { getTotalNam } from "atoms/balance/functions";
 import { applicationFeaturesAtom } from "atoms/settings/atoms";
 import BigNumber from "bignumber.js";
@@ -29,7 +32,7 @@ const AsyncNamCurrency = ({
 
   return (
     <NamCurrency
-      amount={new BigNumber(amount)}
+      amount={amount}
       className={twMerge("block text-center text-3xl leading-none", className)}
       currencySymbolClassName="block text-xs mt-1"
     />
@@ -39,6 +42,7 @@ const AsyncNamCurrency = ({
 export const ShieldedNamBalance = (): JSX.Element => {
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
   const { shieldingRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
+  const shieldedRewards = useAtomValue(cachedShieldedRewardsAtom);
 
   const shieldedNam =
     shieldedTokensQuery.isPending ? undefined : (
@@ -109,8 +113,7 @@ export const ShieldedNamBalance = (): JSX.Element => {
             rewards per Epoch
           </div>
           {shieldingRewardsEnabled ?
-            // TODO shielding rewards
-            <AsyncNamCurrency amount={new BigNumber(0)} />
+            <AsyncNamCurrency amount={shieldedRewards.amount} />
           : <div className="block text-center text-3xl">--</div>}
           <div
             className={twMerge(

@@ -253,4 +253,30 @@ export class Rpc {
 
     await this.query.shielded_sync(datedViewingKeys, chainId);
   }
+
+  /**
+   * Return shielded rewards for specific owner for next epoch
+   * @async
+   * @param owner - Viewing key of an owner
+   * @param chainId - Chain ID to load the context for
+   * @returns amount in base units
+   */
+  async shieldedRewards(owner: string, chainId: string): Promise<string> {
+    return await this.sdk.shielded_rewards(owner, chainId);
+  }
+
+  /**
+   * Simulate shielded rewards per token and amount in next epoch
+   * @param chainId - Chain ID to load the context for
+   * @param token - Token address
+   * @param amount - Denominated amount
+   * @returns amount in base units
+   */
+  async simulateShieldedRewards(
+    chainId: string,
+    token: string,
+    amount: string
+  ): Promise<string> {
+    return await this.sdk.simulate_shielded_rewards(chainId, token, amount);
+  }
 }

@@ -26,14 +26,18 @@ use namada_sdk::ibc::convert_masp_tx_to_ibc_memo;
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::io::NamadaIo;
 use namada_sdk::key::{common, ed25519, RefTo, SigScheme};
+use namada_sdk::masp::shielded_wallet::ShieldedApi;
 use namada_sdk::masp::ShieldedContext;
-use namada_sdk::masp_primitives::transaction::components::sapling::fees::InputView;
+use namada_sdk::masp_primitives::transaction::components::{
+    amount::I128Sum, sapling::fees::InputView,
+};
 use namada_sdk::masp_primitives::zip32::{ExtendedFullViewingKey, ExtendedKey};
+use namada_sdk::rpc::query_denom;
 use namada_sdk::rpc::{query_epoch, InnerTxResult};
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::string_encoding::Format;
 use namada_sdk::tendermint_rpc::Url;
-use namada_sdk::token::DenominatedAmount;
+use namada_sdk::token::{Amount, DenominatedAmount, MaspEpoch};
 use namada_sdk::token::{MaspTxId, OptionExt};
 use namada_sdk::tx::data::TxType;
 use namada_sdk::tx::{
@@ -44,7 +48,7 @@ use namada_sdk::tx::{
     ProcessTxResponse, Tx,
 };
 use namada_sdk::wallet::{Store, Wallet};
-use namada_sdk::{Namada, NamadaImpl, PaymentAddress, TransferTarget};
+use namada_sdk::{ExtendedViewingKey, Namada, NamadaImpl, PaymentAddress, TransferTarget};
 use std::collections::BTreeMap;
 use std::str::FromStr;
 use tx::MaspSigningData;
@@ -758,6 +762,74 @@ impl Sdk {
                 "Generating ibc shielding transfer generated nothing",
             ))
         }
+    }
+
+    // This should be a part of query.rs but we have to pass whole "namada" into estimate_next_epoch_rewards
+    pub async fn shielded_rewards(
+        &self,
+        owner: String,
+        chain_id: String,
+    ) -> Result<JsValue, JsError> {
+        let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
+        shielded.utils.chain_id = chain_id.clone();
+        shielded.load().await?;
+
+        let xvk = ExtendedViewingKey::from_str(&owner)?;
+        let raw_balance = shielded
+            .compute_shielded_balance(&xvk.as_viewing_key())
+            .await
+            .map_err(|e| JsError::new(&e.to_string()))?;
+
+        let rewards = match raw_balance {
+            Some(balance) => shielded
+                .estimate_next_epoch_rewards(&self.namada, &balance)
+                .await
+                .map(|r| r.amount())
+                .map_err(|e| JsError::new(&e.to_string()))?,
+            None => Amount::zero(),
+        };
+
+        to_js_result(rewards.to_string())
+    }
+
+    pub async fn simulate_shielded_rewards(
+        &self,
+        chain_id: String,
+        token: String,
+        amount: String,
+    ) -> Result<JsValue, JsError> {
+        let token = Address::from_str(&token)?;
+        // TODO: as an improvement we could pass the denom from the client
+        let denom = query_denom(&self.namada.client, &token)
+            .await
+            .ok_or(JsError::new(&format!(
+                "Denom for token {} not found",
+                token.to_string()
+            )))?;
+        let amount = DenominatedAmount::new(Amount::from_str(amount, denom)?, denom);
+
+        let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
+        shielded.utils.chain_id = chain_id.clone();
+        shielded.load().await?;
+
+        let (_, masp_value) = shielded
+            .convert_namada_amount_to_masp(
+                self.namada.client(),
+                // Masp epoch should not matter
+                MaspEpoch::zero(),
+                &token,
+                amount.denom(),
+                amount.amount(),
+            )
+            .await
+            .map_err(|e| JsError::new(&e.to_string()))?;
+
+        let reward = shielded
+            .estimate_next_epoch_rewards(&self.namada, &I128Sum::from_sum(masp_value.clone()))
+            .await
+            .map_err(|e| JsError::new(&e.to_string()))?;
+
+        to_js_result(reward)
     }
 
     pub fn masp_address(&self) -> String {

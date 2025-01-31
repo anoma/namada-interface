@@ -3,6 +3,7 @@ import { routes } from "App/routes";
 import {
   lastCompletedShieldedSyncAtom,
   storageShieldedBalanceAtom,
+  storageShieldedRewardsAtom,
 } from "atoms/balance/atoms";
 import { clearShieldedContextAtom } from "atoms/settings";
 import { useAtom, useSetAtom } from "jotai";
@@ -14,11 +15,13 @@ export const SettingsMASP = (): JSX.Element => {
   const setLastCompletedShieldedSync = useSetAtom(
     lastCompletedShieldedSyncAtom
   );
+  const setStorageShieldedRewards = useSetAtom(storageShieldedRewardsAtom);
 
   const onInvalidateShieldedContext = async (): Promise<void> => {
     await clearShieldedContext.mutateAsync();
     setStorageShieldedBalance(RESET);
     setLastCompletedShieldedSync(undefined);
+    setStorageShieldedRewards(RESET);
     location.href = routes.root;
   };
 
