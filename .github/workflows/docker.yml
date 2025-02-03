@@ -2,6 +2,8 @@ name: Docker 🐳
 
 on:
   workflow_dispatch:
+    release:
+      types: [published]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
