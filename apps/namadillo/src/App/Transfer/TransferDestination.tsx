@@ -26,6 +26,8 @@ type TransferDestinationProps = {
   changeFeeEnabled?: boolean;
   customAddressActive?: boolean;
   isIbcTransfer?: boolean;
+  isSubmitting?: boolean;
+  destinationAsset?: Asset;
   openChainSelector?: () => void;
   openProviderSelector?: () => void;
   onToggleCustomAddress?: (isActive: boolean) => void;
@@ -49,12 +51,15 @@ export const TransferDestination = ({
   customAddressActive,
   onToggleCustomAddress,
   address,
+  destinationAsset,
   onChangeAddress,
   memo,
   onChangeMemo,
   openChainSelector,
   openProviderSelector,
 }: TransferDestinationProps): JSX.Element => {
+  const isSubmitting = !!destinationAsset;
+
   return (
     <div
       className={clsx("relative bg-neutral-800 rounded-lg px-4 pt-8 pb-4", {
@@ -63,72 +68,100 @@ export const TransferDestination = ({
           chain?.chain_name === "namada" && !isShielded,
       })}
     >
-      {onChangeShielded && chain?.chain_name === "namada" && (
-        <nav className="mb-6">
-          <TabSelector
-            active={isShielded ? "shielded" : "transparent"}
-            items={[
-              { id: "shielded", text: "Shielded", className: "text-yellow" },
-              {
-                id: "transparent",
-                text: "Transparent",
-                className: "text-white",
-              },
-            ]}
-            onChange={() => onChangeShielded(!isShielded)}
-          />
-        </nav>
-      )}
-
-      {onToggleCustomAddress && (
-        <nav className="mb-6">
-          <TabSelector
-            active={customAddressActive ? "custom" : "my-address"}
-            onChange={() => onToggleCustomAddress(!customAddressActive)}
-            items={[
-              { id: "my-address", text: "My Address", className: "text-white" },
-              { id: "custom", text: "Custom Address", className: "text-white" },
-            ]}
-          />
-        </nav>
-      )}
-
-      {!customAddressActive && (
-        <div className="flex justify-between items-center">
-          <SelectedChain
-            chain={chain}
-            wallet={wallet}
-            onClick={openChainSelector}
-            iconSize="42px"
-          />
-          {!walletAddress && (
-            <ConnectProviderButton onClick={openProviderSelector} />
+      {!isSubmitting && (
+        <div>
+          {onChangeShielded && chain?.chain_name === "namada" && (
+            <nav className="mb-6">
+              <TabSelector
+                active={isShielded ? "shielded" : "transparent"}
+                items={[
+                  {
+                    id: "shielded",
+                    text: "Shielded",
+                    className: "text-yellow",
+                  },
+                  {
+                    id: "transparent",
+                    text: "Transparent",
+                    className: "text-white",
+                  },
+                ]}
+                onChange={() => onChangeShielded(!isShielded)}
+              />
+            </nav>
           )}
-          {wallet && walletAddress && (
-            <SelectedWallet wallet={wallet} address={walletAddress} />
+          {onToggleCustomAddress && (
+            <nav className="mb-6">
+              <TabSelector
+                active={customAddressActive ? "custom" : "my-address"}
+                onChange={() => onToggleCustomAddress(!customAddressActive)}
+                items={[
+                  {
+                    id: "my-address",
+                    text: "My Address",
+                    className: "text-white",
+                  },
+                  {
+                    id: "custom",
+                    text: "Custom Address",
+                    className: "text-white",
+                  },
+                ]}
+              />
+            </nav>
+          )}
+          {!customAddressActive && (
+            <div className="flex justify-between items-center">
+              <SelectedChain
+                chain={chain}
+                wallet={wallet}
+                onClick={openChainSelector}
+                iconSize="42px"
+              />
+              {!walletAddress && (
+                <ConnectProviderButton onClick={openProviderSelector} />
+              )}
+              {wallet && walletAddress && (
+                <SelectedWallet wallet={wallet} address={walletAddress} />
+              )}
+            </div>
+          )}
+          {customAddressActive && (
+            <Stack gap={8}>
+              {onToggleCustomAddress && (
+                <SelectedChain
+                  chain={chain}
+                  wallet={wallet}
+                  onClick={openChainSelector}
+                  iconSize="42px"
+                />
+              )}
+              <CustomAddressForm
+                memo={memo}
+                onChangeMemo={onChangeMemo}
+                customAddress={address}
+                onChangeAddress={onChangeAddress}
+              />
+            </Stack>
           )}
         </div>
       )}
-
-      {customAddressActive && (
-        <Stack gap={8}>
-          {onToggleCustomAddress && (
+      {isSubmitting && (
+        <footer>
+          <hr className="mt-4 mb-2.5 mx-2 border-white opacity-[5%]" />
+          <div>
             <SelectedChain
               chain={chain}
               wallet={wallet}
               onClick={openChainSelector}
-              iconSize="42px"
+              iconSize="36px"
             />
-          )}
-          <CustomAddressForm
-            memo={memo}
-            onChangeMemo={onChangeMemo}
-            customAddress={address}
-            onChangeAddress={onChangeAddress}
-          />
-        </Stack>
+            {wallet && walletAddress && (
+              <SelectedWallet wallet={wallet} address={walletAddress} />
+            )}
+          </div>
+        </footer>
       )}
-
       <footer className="mt-10">
         <div className="flex justify-between items-center">
           {isIbcTransfer ?
