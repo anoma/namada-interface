@@ -108,7 +108,7 @@ async function shield(
     shieldingProps,
     sdk.tx.buildShieldingTransfer,
     memo,
-    publicKeyRevealed
+    !publicKeyRevealed
   );
 
   return encodedTxData;
@@ -128,7 +128,7 @@ async function unshield(
     props,
     sdk.tx.buildUnshieldingTransfer,
     undefined,
-    true
+    false
   );
 
   return encodedTxData;
@@ -148,7 +148,7 @@ async function shieldedTransfer(
     props,
     sdk.tx.buildShieldedTransfer,
     undefined,
-    true
+    false
   );
 
   return encodedTxData;

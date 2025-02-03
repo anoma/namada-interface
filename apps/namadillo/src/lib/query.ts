@@ -97,14 +97,14 @@ export const buildTx = async <T>(
   queryProps: T[],
   txFn: (wrapperTxProps: WrapperTxProps, props: T) => Promise<TxMsgValue>,
   memo?: string,
-  skipRevealPk?: boolean
+  shouldRevealPk: boolean = true
 ): Promise<EncodedTxData<T>> => {
   const wrapperTxProps = getTxProps(account, gasConfig, chain, memo);
   const txs: TxMsgValue[] = [];
   const txProps: TxProps[] = [];
 
   // Determine if RevealPK is needed:
-  if (!skipRevealPk) {
+  if (shouldRevealPk) {
     const publicKeyRevealed = await isPublicKeyRevealed(account.address);
     if (!publicKeyRevealed) {
       const revealPkTx = await sdk.tx.buildRevealPk(wrapperTxProps);
