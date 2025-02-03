@@ -15,7 +15,7 @@ export const TokenAmountCard = ({
   amount,
 }: TokenAmountCardProps): JSX.Element => {
   return (
-    <div className="flex flex-col items-center gap-2.5">
+    <div className="flex flex-col items-center gap-2.5 animate-fade-in">
       <i>
         <img
           src={getAssetImageUrl(asset)}

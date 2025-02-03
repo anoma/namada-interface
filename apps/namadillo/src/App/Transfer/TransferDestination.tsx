@@ -7,11 +7,12 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { Address, WalletProvider } from "types";
+import ibcTransferImageWhite from "./assets/ibc-transfer-white.png";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";
 import { SelectedWallet } from "./SelectedWallet";
-import ibcTransferImageWhite from "./assets/ibc-transfer-white.png";
+import { TokenAmountCard } from "./TokenAmountCard";
 
 type TransferDestinationProps = {
   isShielded?: boolean;
@@ -28,6 +29,7 @@ type TransferDestinationProps = {
   isIbcTransfer?: boolean;
   isSubmitting?: boolean;
   destinationAsset?: Asset;
+  amount?: BigNumber;
   openChainSelector?: () => void;
   openProviderSelector?: () => void;
   onToggleCustomAddress?: (isActive: boolean) => void;
@@ -46,11 +48,13 @@ export const TransferDestination = ({
   onChangeShielded,
   gasDisplayAmount,
   gasAsset,
+  isSubmitting,
   feeProps,
   changeFeeEnabled = true,
   customAddressActive,
   onToggleCustomAddress,
   address,
+  amount,
   destinationAsset,
   onChangeAddress,
   memo,
@@ -58,8 +62,6 @@ export const TransferDestination = ({
   openChainSelector,
   openProviderSelector,
 }: TransferDestinationProps): JSX.Element => {
-  const isSubmitting = !!destinationAsset;
-
   return (
     <div
       className={clsx("relative bg-neutral-800 rounded-lg px-4 pt-8 pb-4", {
@@ -146,10 +148,17 @@ export const TransferDestination = ({
           )}
         </div>
       )}
+
+      {isSubmitting && amount && destinationAsset && (
+        <div>
+          <TokenAmountCard asset={destinationAsset} amount={amount} />
+        </div>
+      )}
+
       {isSubmitting && (
         <footer>
           <hr className="mt-4 mb-2.5 mx-2 border-white opacity-[5%]" />
-          <div>
+          <div className="flex justify-between items-center">
             <SelectedChain
               chain={chain}
               wallet={wallet}

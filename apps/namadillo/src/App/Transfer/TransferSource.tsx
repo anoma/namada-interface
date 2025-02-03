@@ -56,9 +56,8 @@ export const TransferSource = ({
   onChangeAmount,
   isShielded,
   onChangeShielded,
+  isSubmitting,
 }: TransferSourceProps): JSX.Element => {
-  const isSubmitting = !!asset && amount;
-
   return (
     <div className="relative bg-neutral-800 rounded-lg px-4 py-5">
       {/** Intro header - Ex: "IBC To Namada" */}

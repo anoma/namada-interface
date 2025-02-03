@@ -15,6 +15,7 @@ import {
 } from "types";
 import { getDisplayGasFee } from "utils/gas";
 import { isTransparentAddress, parseChainInfo } from "./common";
+import { CurrentStatus } from "./CurrentStatus";
 import { IbcChannels } from "./IbcChannels";
 import { SelectAssetModal } from "./SelectAssetModal";
 import { SelectChainModal } from "./SelectChainModal";
@@ -76,6 +77,7 @@ export type TransferModuleProps = {
   submittingText?: string;
   isSubmitting?: boolean;
   errorMessage?: string;
+  currentStatus?: string;
   onSubmitTransfer: (params: OnSubmitTransferParams) => void;
   buttonTextErrors?: Partial<Record<ValidationResult, string>>;
 } & (
@@ -107,6 +109,7 @@ export const TransferModule = ({
   requiresIbcChannels,
   onSubmitTransfer,
   errorMessage,
+  currentStatus,
   buttonTextErrors = {},
 }: TransferModuleProps): JSX.Element => {
   const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
@@ -345,6 +348,8 @@ export const TransferModule = ({
             changeFeeEnabled={changeFeeEnabled}
             gasDisplayAmount={displayGasFee?.totalDisplayAmount}
             gasAsset={displayGasFee?.asset}
+            destinationAsset={selectedAsset?.asset}
+            amount={source.amount}
           />
           {isIbcTransfer && requiresIbcChannels && (
             <IbcChannels
@@ -356,16 +361,21 @@ export const TransferModule = ({
             />
           )}
           <InlineError errorMessage={errorMessage} />
-          <ActionButton
-            outlineColor={buttonColor}
-            backgroundColor={buttonColor}
-            backgroundHoverColor="transparent"
-            textColor="black"
-            textHoverColor={buttonColor}
-            disabled={validationResult !== "Ok" || isSubmitting}
-          >
-            {getButtonText()}
-          </ActionButton>
+          {currentStatus && isSubmitting && (
+            <CurrentStatus status={currentStatus} />
+          )}
+          {!isSubmitting && (
+            <ActionButton
+              outlineColor={buttonColor}
+              backgroundColor={buttonColor}
+              backgroundHoverColor="transparent"
+              textColor="black"
+              textHoverColor={buttonColor}
+              disabled={validationResult !== "Ok" || isSubmitting}
+            >
+              {getButtonText()}
+            </ActionButton>
+          )}
         </Stack>
       </section>
 
