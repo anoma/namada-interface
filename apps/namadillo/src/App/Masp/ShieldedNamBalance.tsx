@@ -3,6 +3,7 @@ import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import {
   cachedShieldedRewardsAtom,
+  shieldedBalanceAtom,
   shieldedTokensAtom,
 } from "atoms/balance/atoms";
 import { getTotalNam } from "atoms/balance/functions";
@@ -16,9 +17,11 @@ import namadaShieldedSvg from "./assets/namada-shielded.svg";
 
 const AsyncNamCurrency = ({
   amount,
+  syncing,
   className = "",
 }: {
   amount?: BigNumber;
+  syncing?: boolean;
   className?: string;
 }): JSX.Element => {
   if (amount === undefined) {
@@ -33,13 +36,18 @@ const AsyncNamCurrency = ({
   return (
     <NamCurrency
       amount={amount}
-      className={twMerge("block text-center text-3xl leading-none", className)}
+      className={twMerge(
+        "block text-center text-3xl leading-none",
+        syncing && "animate-pulse",
+        className
+      )}
       currencySymbolClassName="block text-xs mt-1"
     />
   );
 };
 
 export const ShieldedNamBalance = (): JSX.Element => {
+  const { isFetching: isShieldSyncing } = useAtomValue(shieldedBalanceAtom);
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
   const { shieldingRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
   const shieldedRewards = useAtomValue(cachedShieldedRewardsAtom);
@@ -75,7 +83,7 @@ export const ShieldedNamBalance = (): JSX.Element => {
               />
             </div>
           </div>
-          <AsyncNamCurrency amount={shieldedNam} />
+          <AsyncNamCurrency amount={shieldedNam} syncing={isShieldSyncing} />
           <div
             className={twMerge(
               "py-2 max-w-[160px] mx-auto mt-4 mb-3",

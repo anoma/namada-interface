@@ -1,13 +1,14 @@
-import { ActionButton, Panel } from "@namada/components";
+import { ActionButton, Panel, SkeletonLoading } from "@namada/components";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { routes } from "App/routes";
-import { shieldedTokensAtom } from "atoms/balance/atoms";
+import { shieldedBalanceAtom, shieldedTokensAtom } from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
 import { useAtomValue } from "jotai";
 import { twMerge } from "tailwind-merge";
 import maspBg from "./assets/masp-bg.png";
 
 export const MaspBanner = (): JSX.Element => {
+  const { isFetching: isShieldSyncing } = useAtomValue(shieldedBalanceAtom);
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
   const total = getTotalDollar(shieldedTokensQuery.data);
 
@@ -24,12 +25,13 @@ export const MaspBanner = (): JSX.Element => {
         <div className="col-start-1 row-start-1 text-4xl">MASP</div>
       </div>
       <div className="flex-1">
-        {total && total.gt(0) && (
-          <>
-            <div className="text-sm">Total shielded balance</div>
-            <FiatCurrency className="text-4xl" amount={total} />
-          </>
-        )}
+        <div className="text-sm">Total shielded balance</div>
+        {total ?
+          <FiatCurrency
+            className={twMerge("text-4xl", isShieldSyncing && "animate-pulse")}
+            amount={total}
+          />
+        : <SkeletonLoading height="54px" width="120px" />}
       </div>
       <ActionButton
         size="md"
