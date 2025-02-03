@@ -82,23 +82,16 @@ export const useTransaction = <T,>({
 }: UseTransactionProps<T>): UseTransactionOutput<T> => {
   const { data: account } = useAtomValue(defaultAccountAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
-  const txKinds = new Array(params.length).fill(eventType);
-  const feeProps = useTransactionFee(txKinds);
   const {
     mutateAsync: performBuildTx,
     isPending,
     isSuccess,
   } = useAtomValue(createTxAtom);
 
-<<<<<<< HEAD
-  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
-
   // We don't want to display zeroed value when params are not set yet.
   const txKinds = new Array(Math.max(1, params.length)).fill(eventType);
   const feeProps = useTransactionFee(txKinds);
 
-=======
->>>>>>> a38dcd75 (feat: adding more stages to transaction button)
   const dispatchPendingTxNotification = (
     tx: TransactionPair<T>,
     notification: PartialNotification
