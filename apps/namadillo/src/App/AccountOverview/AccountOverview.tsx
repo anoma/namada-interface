@@ -1,8 +1,7 @@
 import { Panel } from "@namada/components";
 import { ConnectPanel } from "App/Common/ConnectPanel";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
-import { ShieldedSyncProgress } from "App/Masp/ShieldedSyncProgress";
-import { EpochInformation } from "App/Sidebars/EpochInformation";
+import { Sidebar } from "App/Layout/Sidebar";
 import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
 import { StakingRewardsPanel } from "App/Staking/StakingRewardsPanel";
@@ -54,12 +53,10 @@ export const AccountOverview = (): JSX.Element => {
           </Panel>
         </section>
       </div>
-      <aside className="flex flex-col gap-2">
-        <EpochInformation />
-        <ShieldedSyncProgress />
+      <Sidebar>
         <ShieldAllBanner />
         <MainnetRoadmap />
-      </aside>
+      </Sidebar>
     </PageWithSidebar>
   );
 };
