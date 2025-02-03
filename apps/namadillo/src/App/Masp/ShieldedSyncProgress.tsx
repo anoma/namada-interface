@@ -1,5 +1,6 @@
 import { shieldedBalanceAtom, shieldedSyncProgress } from "atoms/balance/atoms";
 import { useAtomValue } from "jotai";
+import { twMerge } from "tailwind-merge";
 
 export const ShieldedSyncProgress = (): JSX.Element => {
   const syncProgress = useAtomValue(shieldedSyncProgress);
@@ -16,7 +17,10 @@ export const ShieldedSyncProgress = (): JSX.Element => {
         "converting..."
       : `progress: ${Math.min(Math.floor(syncProgress * 100), 100)}%`}
       <div
-        className="absolute bg-yellow top-0 left-0 w-full h-full mix-blend-difference origin-left transition-all"
+        className={twMerge(
+          "absolute bg-yellow top-0 left-0 w-full h-full mix-blend-difference origin-left",
+          syncProgress > 0 && "transition-all"
+        )}
         style={{ transform: `scaleX(${syncProgress * 100}%)` }}
       />
     </div>
