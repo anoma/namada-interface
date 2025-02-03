@@ -219,6 +219,7 @@ export const broadcastTransaction = async <T>(
       rpc.broadcastTx(signedTxs[i], encodedTx.wrapperTxProps)
     )
   );
+
   return response;
 };
 
