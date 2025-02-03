@@ -235,7 +235,7 @@ const handleTransactionError = (
 const checkForIbcTransferTimeout = async (
   client: StargateClient,
   tx: IbcTransferTransactionData
-): Promise<[boolean, string]> => {
+): Promise<{ isTimeout: boolean; timeoutHash: string }> => {
   let isTimeout = isTransferLocalTimeout(tx);
   let timeoutHash = "";
 
@@ -245,7 +245,10 @@ const checkForIbcTransferTimeout = async (
     timeoutHash = timeoutQuery[0]?.hash || "";
   }
 
-  return [isTimeout, timeoutHash];
+  return {
+    isTimeout,
+    timeoutHash,
+  };
 };
 
 export const updateIbcTransferStatus = async (
@@ -269,7 +272,10 @@ export const updateIbcTransferStatus = async (
     return;
   }
 
-  const [isTimeout, timeoutHash] = await checkForIbcTransferTimeout(client, tx);
+  const { isTimeout, timeoutHash } = await checkForIbcTransferTimeout(
+    client,
+    tx
+  );
   if (isTimeout && tx.hash) {
     handleTransactionError(
       tx.hash,
