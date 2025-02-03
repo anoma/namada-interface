@@ -24,23 +24,22 @@ export type TransactionFeeProps = {
 export const useTransactionFee = (txKinds: TxKind[]): TransactionFeeProps => {
   const [gasLimitValue, setGasLimitValue] = useState<BigNumber | undefined>();
   const [gasTokenValue, setGasTokenValue] = useState<string | undefined>();
-
   const isPublicKeyRevealed = useAtomValue(isPublicKeyRevealedAtom);
 
   const { data: nativeToken, isLoading: isLoadingNativeToken } = useAtomValue(
     nativeTokenAddressAtom
   );
+
   const { data: gasEstimate, isLoading: isLoadingGasEstimate } = useAtomValue(
     gasEstimateFamily(isPublicKeyRevealed ? txKinds : ["RevealPk", ...txKinds])
   );
+
   const { data: gasPriceTable, isLoading: isLoadingGasPriceTable } =
     useAtomValue(gasPriceTableAtom);
 
   const averageGasLimit = gasEstimate && BigNumber(gasEstimate.avg);
   const gasLimit = gasLimitValue ?? averageGasLimit ?? BigNumber(0);
-
   const gasToken = gasTokenValue ?? nativeToken ?? "";
-
   const gasPrice =
     gasPriceTable?.find((i) => i.token === gasToken)?.gasPrice ?? BigNumber(0);
 

@@ -13,7 +13,7 @@ import {
   WrapperTxProps,
 } from "@namada/types";
 import { queryClient } from "App/Common/QueryProvider";
-import { TransactionPair, buildTxPair } from "lib/query";
+import { EncodedTxData, buildTx } from "lib/query";
 import { Address, AddressBalance, ChainSettings, GasConfig } from "types";
 import { getSdkInstance } from "utils/sdk";
 
@@ -30,17 +30,16 @@ export const createBondTx = async (
   account: Account,
   bondProps: BondMsgValue[],
   gasConfig: GasConfig
-): Promise<TransactionPair<BondProps> | undefined> => {
-  const { tx } = await getSdkInstance();
-  const transactionPairs = await buildTxPair(
+): Promise<EncodedTxData<BondProps> | undefined> => {
+  const sdk = await getSdkInstance();
+  return await buildTx(
+    sdk,
     account,
     gasConfig,
     chain,
     bondProps,
-    tx.buildBond,
-    bondProps[0].source
+    sdk.tx.buildBond
   );
-  return transactionPairs;
 };
 
 export const createUnbondTx = async (
@@ -48,17 +47,16 @@ export const createUnbondTx = async (
   account: Account,
   unbondProps: UnbondMsgValue[],
   gasConfig: GasConfig
-): Promise<TransactionPair<UnbondMsgValue>> => {
-  const { tx } = await getSdkInstance();
-  const transactionPairs = await buildTxPair(
+): Promise<EncodedTxData<UnbondMsgValue>> => {
+  const sdk = await getSdkInstance();
+  return await buildTx(
+    sdk,
     account,
     gasConfig,
     chain,
     unbondProps,
-    tx.buildUnbond,
-    unbondProps[0].source
+    sdk.tx.buildUnbond
   );
-  return transactionPairs;
 };
 
 export const createReDelegateTx = async (
@@ -66,17 +64,16 @@ export const createReDelegateTx = async (
   account: Account,
   redelegateProps: RedelegateMsgValue[],
   gasConfig: GasConfig
-): Promise<TransactionPair<RedelegateMsgValue>> => {
-  const { tx } = await getSdkInstance();
-  const transactionPairs = await buildTxPair(
+): Promise<EncodedTxData<RedelegateMsgValue>> => {
+  const sdk = await getSdkInstance();
+  return await buildTx(
+    sdk,
     account,
     gasConfig,
     chain,
     redelegateProps,
-    tx.buildRedelegate,
-    redelegateProps[0].owner
+    sdk.tx.buildRedelegate
   );
-  return transactionPairs;
 };
 
 export const createWithdrawTx = async (
@@ -84,17 +81,16 @@ export const createWithdrawTx = async (
   account: Account,
   withdrawProps: WithdrawMsgValue[],
   gasConfig: GasConfig
-): Promise<TransactionPair<WithdrawProps>> => {
-  const { tx } = await getSdkInstance();
-  const transactionPair = await buildTxPair(
+): Promise<EncodedTxData<WithdrawProps>> => {
+  const sdk = await getSdkInstance();
+  return await buildTx(
+    sdk,
     account,
     gasConfig,
     chain,
     withdrawProps,
-    tx.buildWithdraw,
-    withdrawProps[0].source
+    sdk.tx.buildWithdraw
   );
-  return transactionPair;
 };
 
 export const createClaimTx = async (
@@ -102,15 +98,15 @@ export const createClaimTx = async (
   account: Account,
   params: ClaimRewardsMsgValue[],
   gasConfig: GasConfig
-): Promise<TransactionPair<ClaimRewardsMsgValue>> => {
-  const { tx } = await getSdkInstance();
-  return await buildTxPair(
+): Promise<EncodedTxData<ClaimRewardsMsgValue>> => {
+  const sdk = await getSdkInstance();
+  return await buildTx(
+    sdk,
     account,
     gasConfig,
     chain,
     params,
-    tx.buildClaimRewards,
-    account.address
+    sdk.tx.buildClaimRewards
   );
 };
 
@@ -120,8 +116,8 @@ export const createClaimAndStakeTx = async (
   params: ClaimRewardsMsgValue[],
   claimableRewardsByValidator: AddressBalance,
   gasConfig: GasConfig
-): Promise<TransactionPair<ClaimRewardsMsgValue>> => {
-  const { tx } = await getSdkInstance();
+): Promise<EncodedTxData<ClaimRewardsMsgValue>> => {
+  const sdk = await getSdkInstance();
 
   // BuildTx wrapper to handle different commitment types
   const buildClaimRewardsAndStake = async (
@@ -132,9 +128,12 @@ export const createClaimAndStakeTx = async (
       // We have to force it in case: current balance < rewards to claim
       // This will still log the error msg in the terminal, unfortunately we can't do much about it
       wrapperTxProps.force = true;
-      return tx.buildBond(wrapperTxProps, props as BondProps);
+      return sdk.tx.buildBond(wrapperTxProps, props as BondProps);
     } else {
-      return tx.buildClaimRewards(wrapperTxProps, props as ClaimRewardsProps);
+      return sdk.tx.buildClaimRewards(
+        wrapperTxProps,
+        props as ClaimRewardsProps
+      );
     }
   };
 
@@ -154,13 +153,13 @@ export const createClaimAndStakeTx = async (
     }
   });
 
-  return await buildTxPair(
+  return await buildTx(
+    sdk,
     account,
     gasConfig,
     chain,
     claimAndStakingParams,
-    buildClaimRewardsAndStake,
-    account.address
+    buildClaimRewardsAndStake
   );
 };
 

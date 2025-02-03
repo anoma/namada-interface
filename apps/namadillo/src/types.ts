@@ -157,11 +157,17 @@ export type ClaimRewardsProps = {
   gasConfig: GasConfig;
 };
 
+export type Signer = {
+  publicKey: string;
+  address: string;
+};
+
 export type BuildTxAtomParams<T> = {
   account: Account;
   params: T[];
   gasConfig: GasConfig;
   memo?: string;
+  signer?: Signer;
 };
 
 export type SortOptions = "asc" | "desc" | undefined;

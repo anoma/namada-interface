@@ -27,7 +27,7 @@ import { assertNever, mapUndefined } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import * as E from "fp-ts/Either";
 import * as t from "io-ts";
-import { TransactionPair, buildTxPair } from "lib/query";
+import { TransactionPair, buildTx, signEncodedTx } from "lib/query";
 import { GasConfig } from "types";
 
 import { fromHex } from "@cosmjs/encoding";
@@ -373,23 +373,21 @@ export const createVoteProposalTx = async (
   chain: ChainSettings
 ): Promise<TransactionPair<VoteProposalProps>> => {
   try {
-    const { tx } = await getSdkInstance();
-
+    const sdk = await getSdkInstance();
     const voteProposalProps = {
       signer: account.address,
       proposalId,
       vote,
     };
-
-    const transactionPair = await buildTxPair(
+    const encodedTx = await buildTx(
+      sdk,
       account,
       gasConfig,
       chain,
       [voteProposalProps],
-      tx.buildVoteProposal,
-      account.address
+      sdk.tx.buildVoteProposal
     );
-    return transactionPair;
+    return await signEncodedTx(encodedTx, account.address);
   } catch (err) {
     console.error(err);
     throw err;

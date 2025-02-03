@@ -14,7 +14,7 @@ import {
   createUnshieldingTransferAtom,
 } from "atoms/transfer/atoms";
 import BigNumber from "bignumber.js";
-import { useTransaction, useTransactionOutput } from "hooks/useTransaction";
+import { useTransaction, UseTransactionOutput } from "hooks/useTransaction";
 import { useAtomValue } from "jotai";
 import { Address, NamadaTransferTxKind } from "types";
 
@@ -23,13 +23,14 @@ type useTransferParams = {
   target: Address;
   token: Address;
   displayAmount: BigNumber;
+  onUpdateStatus?: (status: string) => void;
 };
 
 type useTransferOutput = (
-  | useTransactionOutput<TransparentTransferMsgValue>
-  | useTransactionOutput<ShieldedTransferMsgValue>
-  | useTransactionOutput<ShieldingTransferMsgValue>
-  | useTransactionOutput<UnshieldingTransferMsgValue>
+  | UseTransactionOutput<TransparentTransferMsgValue>
+  | UseTransactionOutput<ShieldedTransferMsgValue>
+  | UseTransactionOutput<ShieldingTransferMsgValue>
+  | UseTransactionOutput<UnshieldingTransferMsgValue>
 ) & {
   txKind: NamadaTransferTxKind;
 };
@@ -39,6 +40,7 @@ export const useTransfer = ({
   target,
   token,
   displayAmount: amount,
+  onUpdateStatus,
 }: useTransferParams): useTransferOutput => {
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
   const shieldedAccount = defaultAccounts.data?.find(
@@ -68,6 +70,7 @@ export const useTransfer = ({
     eventType: "ShieldedTransfer",
     createTxAtom: createShieldedTransferAtom,
     params: [{ data: [{ source: pseudoExtendedKey, target, token, amount }] }],
+    useDisposableSigner: true,
     ...commomProps,
   });
 
@@ -75,6 +78,12 @@ export const useTransfer = ({
     eventType: "ShieldingTransfer",
     createTxAtom: createShieldingTransferAtom,
     params: [{ target, data: [{ source, token, amount }] }],
+    onBeforeCreateDisposableSigner: () =>
+      onUpdateStatus?.("Creating new disposable signer..."),
+    onBeforeBuildTx: () =>
+      onUpdateStatus?.("Generating MASP params and building transaction..."),
+    onBeforeSign: () => onUpdateStatus?.("Waiting for signature..."),
+    onBeforeBroadcast: () => onUpdateStatus?.("Broadcasting transaction..."),
     ...commomProps,
   });
 
@@ -82,6 +91,7 @@ export const useTransfer = ({
     eventType: "UnshieldingTransfer",
     createTxAtom: createUnshieldingTransferAtom,
     params: [{ source: pseudoExtendedKey, data: [{ target, token, amount }] }],
+    useDisposableSigner: true,
     ...commomProps,
   });
 

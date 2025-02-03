@@ -26,9 +26,10 @@ import { Address, TransferTransactionData } from "types";
 export const MaspShield: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { storeTransaction } = useTransactionActions();
   const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
-
+  const [currentStep, setCurrentStep] = useState("");
   const rpcUrl = useAtomValue(rpcUrlAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
@@ -36,8 +37,6 @@ export const MaspShield: React.FC = () => {
   const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
     namadaTransparentAssetsAtom
   );
-
-  const { storeTransaction } = useTransactionActions();
 
   const chainId = chainParameters.data?.chainId;
   const sourceAddress = defaultAccounts.data?.find(
@@ -61,6 +60,7 @@ export const MaspShield: React.FC = () => {
     target: destinationAddress ?? "",
     token: selectedAsset?.originalAddress ?? "",
     displayAmount: displayAmount ?? new BigNumber(0),
+    onUpdateStatus: setCurrentStep,
   });
 
   const onChangeSelectedAsset = (address?: Address): void => {
@@ -88,6 +88,7 @@ export const MaspShield: React.FC = () => {
   }: OnSubmitTransferParams): Promise<void> => {
     try {
       setGeneralErrorMessage("");
+      setCurrentStep("");
 
       invariant(sourceAddress, "Source address is not defined");
       invariant(chainId, "Chain ID is undefined");
@@ -120,7 +121,7 @@ export const MaspShield: React.FC = () => {
   };
 
   return (
-    <Panel className="relative min-h-[600px]">
+    <Panel className="relative min-h-[600px] flex-1">
       <header className="flex flex-col items-center text-center mb-3 gap-6">
         <h1 className="mt-6 text-lg text-yellow">Shield</h1>
         <NamadaTransferTopHeader
@@ -154,6 +155,7 @@ export const MaspShield: React.FC = () => {
         isSubmitting={isPerformingTransfer}
         errorMessage={generalErrorMessage}
         onSubmitTransfer={onSubmitTransfer}
+        submittingText={isPerformingTransfer ? currentStep : "Shield"}
         buttonTextErrors={{
           NoAmount: "Define an amount to shield",
         }}

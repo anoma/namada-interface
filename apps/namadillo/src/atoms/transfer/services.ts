@@ -13,13 +13,7 @@ import {
 import BigNumber from "bignumber.js";
 import * as Comlink from "comlink";
 import { NamadaKeychain } from "hooks/useNamadaKeychain";
-import {
-  buildTxPair,
-  EncodedTxData,
-  isPublicKeyRevealed,
-  signTx,
-  TransactionPair,
-} from "lib/query";
+import { buildTx, EncodedTxData, isPublicKeyRevealed } from "lib/query";
 import { Address, ChainSettings, GasConfig } from "types";
 import { getSdkInstance } from "utils/sdk";
 import { Shield, ShieldedTransfer, Unshield } from "workers/MaspTxMessages";
@@ -40,16 +34,14 @@ export type WorkerTransferParams = {
 const workerBuildTxPair = async <T>({
   rpcUrl,
   token,
-  signerAddress,
   buildTxFn,
 }: {
   rpcUrl: string;
   token: Address;
-  signerAddress: string;
   buildTxFn: (
     workerLink: Comlink.Remote<MaspTxWorkerApi>
   ) => Promise<EncodedTxData<T>>;
-}): Promise<TransactionPair<T>> => {
+}): Promise<EncodedTxData<T>> => {
   maspTxRegisterTransferHandlers();
   const worker = new MaspTxWorker();
   const workerLink = Comlink.wrap<MaspTxWorkerApi>(worker);
@@ -57,28 +49,20 @@ const workerBuildTxPair = async <T>({
     type: "init",
     payload: { rpcUrl, token, maspIndexerUrl: "" },
   });
-
   const encodedTxData = await buildTxFn(workerLink);
-  const signedTxs = await signTx(encodedTxData, signerAddress);
-
-  const transactionPair: TransactionPair<T> = {
-    signedTxs,
-    encodedTxData,
-  };
-
   worker.terminate();
-
-  return transactionPair;
+  return encodedTxData;
 };
 
-const getDisposableSigner = async (): Promise<GenDisposableSignerResponse> => {
-  const namada = await new NamadaKeychain().get();
-  const disposableSigner = await namada?.genDisposableKeypair();
-  if (!disposableSigner) {
-    throw new Error("No signer available");
-  }
-  return disposableSigner;
-};
+export const getDisposableSigner =
+  async (): Promise<GenDisposableSignerResponse> => {
+    const namada = await new NamadaKeychain().get();
+    const disposableSigner = await namada?.genDisposableKeypair();
+    if (!disposableSigner) {
+      throw new Error("No signer available");
+    }
+    return disposableSigner;
+  };
 
 export const createTransparentTransferTx = async (
   chain: ChainSettings,
@@ -86,29 +70,31 @@ export const createTransparentTransferTx = async (
   props: TransparentTransferMsgValue[],
   gasConfig: GasConfig,
   memo?: string
-): Promise<TransactionPair<TransparentTransferProps> | undefined> => {
-  const { tx } = await getSdkInstance();
-  const transactionPairs = await buildTxPair(
+): Promise<EncodedTxData<TransparentTransferProps> | undefined> => {
+  const sdk = await getSdkInstance();
+  return await buildTx(
+    sdk,
     account,
     gasConfig,
     chain,
     props,
-    tx.buildTransparentTransfer,
-    props[0]?.data[0]?.source,
+    sdk.tx.buildTransparentTransfer,
     memo
   );
-  return transactionPairs;
 };
 
+/**
+ * "Shielded transfer" refers to transfers between two shielded addresses.
+ */
 export const createShieldedTransferTx = async (
   chain: ChainSettings,
   account: Account,
   props: ShieldedTransferMsgValue[],
   gasConfig: GasConfig,
   rpcUrl: string,
+  disposableSigner: GenDisposableSignerResponse,
   memo?: string
-): Promise<TransactionPair<ShieldedTransferProps> | undefined> => {
-  const disposableSigner = await getDisposableSigner();
+): Promise<EncodedTxData<ShieldedTransferProps> | undefined> => {
   const source = props[0]?.data[0]?.source;
   const destination = props[0]?.data[0]?.target;
   const token = props[0]?.data[0]?.token;
@@ -117,7 +103,6 @@ export const createShieldedTransferTx = async (
   return await workerBuildTxPair({
     rpcUrl,
     token,
-    signerAddress: disposableSigner.address,
     buildTxFn: async (workerLink) => {
       const msgValue = new ShieldedTransferMsgValue({
         gasSpendingKey: source,
@@ -141,6 +126,9 @@ export const createShieldedTransferTx = async (
   });
 };
 
+/**
+ * "Shielding transfer" refers to transfers from a transparent address to a shielded address.
+ */
 export const createShieldingTransferTx = async (
   chain: ChainSettings,
   account: Account,
@@ -148,7 +136,7 @@ export const createShieldingTransferTx = async (
   gasConfig: GasConfig,
   rpcUrl: string,
   memo?: string
-): Promise<TransactionPair<ShieldingTransferProps> | undefined> => {
+): Promise<EncodedTxData<ShieldingTransferProps> | undefined> => {
   const source = props[0]?.data[0]?.source;
   const destination = props[0]?.target;
   const token = props[0]?.data[0]?.token;
@@ -157,10 +145,8 @@ export const createShieldingTransferTx = async (
   return await workerBuildTxPair({
     rpcUrl,
     token,
-    signerAddress: source,
     buildTxFn: async (workerLink) => {
       const publicKeyRevealed = await isPublicKeyRevealed(account.address);
-
       const msgValue = new ShieldingTransferMsgValue({
         target: destination,
         data: [{ source, token, amount }],
@@ -176,21 +162,23 @@ export const createShieldingTransferTx = async (
           memo,
         },
       };
-
       return (await workerLink.shield(msg)).payload;
     },
   });
 };
 
+/**
+ * "Unshielding transfer" refers to transfers from a shielded address to a transparent address.
+ */
 export const createUnshieldingTransferTx = async (
   chain: ChainSettings,
   account: Account,
   props: UnshieldingTransferMsgValue[],
   gasConfig: GasConfig,
   rpcUrl: string,
+  disposableSigner: GenDisposableSignerResponse,
   memo?: string
-): Promise<TransactionPair<UnshieldingTransferProps> | undefined> => {
-  const disposableSigner = await getDisposableSigner();
+): Promise<EncodedTxData<UnshieldingTransferProps> | undefined> => {
   const source = props[0]?.source;
   const destination = props[0]?.data[0]?.target;
   const token = props[0]?.data[0]?.token;
@@ -199,7 +187,6 @@ export const createUnshieldingTransferTx = async (
   return await workerBuildTxPair({
     rpcUrl,
     token,
-    signerAddress: disposableSigner.address,
     buildTxFn: async (workerLink) => {
       const msgValue = new UnshieldingTransferMsgValue({
         source,

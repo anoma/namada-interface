@@ -37,7 +37,8 @@ export const gasEstimateFamily = atomFamily(
           }
           const counter = (kind: TxKind): number | undefined =>
             txKinds.filter((i) => i === kind).length || undefined;
-          return fetchGasEstimate(api, [
+
+          const gasEstimate = await fetchGasEstimate(api, [
             counter("Bond"),
             counter("ClaimRewards"),
             counter("Unbond"),
@@ -51,6 +52,18 @@ export const gasEstimateFamily = atomFamily(
             counter("RevealPk"),
             counter("Redelegate"),
           ]);
+
+          // TODO: we need to improve this estimate API. Currently, gasEstimate.min returns
+          // the minimum gas limit ever used for a TX, and avg is failing in most of the transactions.
+          // So we estabilish the average value between gasEstimate.avg and gasEstimate.max as the min value.
+          // The other values derive from this one.
+          const newMin = Math.ceil((gasEstimate.avg + gasEstimate.max) / 2);
+          return {
+            min: newMin,
+            avg: Math.ceil(newMin * 1.25),
+            max: Math.ceil(newMin * 1.5),
+            totalEstimates: gasEstimate.totalEstimates,
+          };
         },
       };
     }),

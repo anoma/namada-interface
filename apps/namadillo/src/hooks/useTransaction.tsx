@@ -1,19 +1,28 @@
+import { TxProps } from "@namada/types";
+import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { defaultAccountAtom } from "atoms/accounts";
 import {
   createNotificationId,
   dispatchToastNotificationAtom,
 } from "atoms/notifications";
+import { getDisposableSigner } from "atoms/transfer/services";
 import invariant from "invariant";
 import { Atom, useAtomValue, useSetAtom } from "jotai";
 import { AtomWithMutationResult } from "jotai-tanstack-query";
-import { broadcastTxWithEvents, TransactionPair } from "lib/query";
+import {
+  broadcastTransaction,
+  broadcastTxWithEvents,
+  EncodedTxData,
+  signTx,
+  TransactionPair,
+} from "lib/query";
 import { BuildTxAtomParams, ToastNotification } from "types";
 import { TransactionEventsClasses } from "types/events";
 import { TransactionFeeProps, useTransactionFee } from "./useTransactionFee";
 
 type AtomType<T> = Atom<
   AtomWithMutationResult<
-    TransactionPair<T> | undefined,
+    EncodedTxData<T> | undefined,
     unknown,
     BuildTxAtomParams<T>,
     unknown
@@ -22,47 +31,62 @@ type AtomType<T> = Atom<
 
 type PartialNotification = Pick<ToastNotification, "title" | "description">;
 
-export type useTransactionProps<T> = {
-  params: T[];
-  createTxAtom: AtomType<T>;
-  eventType: TransactionEventsClasses;
-  parsePendingTxNotification?: (tx: TransactionPair<T>) => PartialNotification;
-  parseErrorTxNotification?: () => PartialNotification;
+export type UseTransactionPropsEvents<T> = {
   onSigned?: (tx: TransactionPair<T>) => void;
   onError?: (err: unknown) => void;
   onSuccess?: (tx: TransactionPair<T>) => void;
+  onBeforeCreateDisposableSigner?: () => void;
+  onBeforeBuildTx?: () => void;
+  onBeforeSign?: (encodedTxData: EncodedTxData<T>) => void;
+  onBeforeBroadcast?: (tx: TransactionPair<T>) => void;
   onBroadcasted?: () => void;
 };
 
-export type useTransactionOutput<T> = {
-  execute: (
-    additionalParms?: Partial<BuildTxAtomParams<T>>
-  ) => Promise<TransactionPair<T> | void>;
+export type UseTransactionProps<T> = {
+  params: T[];
+  createTxAtom: AtomType<T>;
+  useDisposableSigner?: boolean;
+  eventType: TransactionEventsClasses;
+  parsePendingTxNotification?: (tx: TransactionPair<T>) => PartialNotification;
+  parseErrorTxNotification?: () => PartialNotification;
+} & UseTransactionPropsEvents<T>;
+
+export type UseTransactionOutput<T> = {
   isEnabled: boolean;
-  isPending: boolean;
-  isSuccess: boolean;
   feeProps: TransactionFeeProps;
-};
+  execute: (
+    params?: Partial<BuildTxAtomParams<T>>
+  ) => Promise<TransactionPair<T>>;
+} & UseMutationResult<
+  TransactionPair<T>,
+  Error,
+  Partial<BuildTxAtomParams<T>> | undefined,
+  unknown
+>;
 
 export const useTransaction = <T,>({
   params,
   createTxAtom,
+  useDisposableSigner,
   eventType,
   parsePendingTxNotification,
   parseErrorTxNotification,
   onSuccess,
   onError,
   onSigned,
+  onBeforeCreateDisposableSigner,
+  onBeforeBuildTx,
+  onBeforeSign,
+  onBeforeBroadcast,
   onBroadcasted,
-}: useTransactionProps<T>): useTransactionOutput<T> => {
+}: UseTransactionProps<T>): UseTransactionOutput<T> => {
   const { data: account } = useAtomValue(defaultAccountAtom);
+  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const {
-    mutateAsync: buildTx,
+    mutateAsync: performBuildTx,
     isPending,
     isSuccess,
   } = useAtomValue(createTxAtom);
-
-  const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
 
   // We don't want to display zeroed value when params are not set yet.
   const txKinds = new Array(Math.max(1, params.length)).fill(eventType);
@@ -79,72 +103,109 @@ export const useTransaction = <T,>({
     });
   };
 
+  // Handles errors BEFORE or during broadcasting.
   const dispatchErrorNotification = (
     error: unknown,
-    notification: PartialNotification
+    notification: PartialNotification,
+    tx: TxProps | TxProps[]
   ): void => {
     dispatchNotification({
       ...notification,
-      id: createNotificationId(),
+      id: createNotificationId(tx),
       details: error instanceof Error ? error.message : undefined,
       type: "error",
     });
   };
 
-  const execute = async (
-    txAdditionalParams: Partial<BuildTxAtomParams<T>> = {}
-  ): Promise<TransactionPair<T> | void> => {
-    invariant(
-      account?.address,
-      "Extension not connected or no account is selected"
-    );
+  const transactionQuery = useMutation({
+    mutationFn: async (
+      additionalParams: Partial<BuildTxAtomParams<T>> = {}
+    ) => {
+      invariant(
+        account?.address,
+        "Extension not connected or no account is selected"
+      );
 
-    const tx = await buildTx({
-      params,
-      gasConfig: feeProps.gasConfig,
-      account,
-      ...txAdditionalParams,
-    });
+      const txAdditionalParams = { ...additionalParams };
+      if (useDisposableSigner) {
+        onBeforeCreateDisposableSigner?.();
+        txAdditionalParams.signer = await getDisposableSigner();
+      }
 
-    if (!tx) throw "Error: invalid TX created by buildTx";
-    if (onSigned) {
-      onSigned(tx);
-    }
-
-    if (parsePendingTxNotification) {
-      dispatchPendingTxNotification(tx, parsePendingTxNotification(tx));
-    }
-
-    broadcastTxWithEvents(
-      tx.encodedTxData,
-      tx.signedTxs,
-      tx.encodedTxData.meta?.props,
-      eventType
-    )
-      .then(() => {
-        onSuccess?.(tx);
-      })
-      .catch((err) => {
-        if (parseErrorTxNotification) {
-          dispatchErrorNotification(err, parseErrorTxNotification());
-        }
-
-        if (onError) {
-          onError(err);
-        } else {
-          throw err;
-        }
+      onBeforeBuildTx?.();
+      const encodedTxData = await performBuildTx({
+        params,
+        gasConfig: feeProps.gasConfig,
+        account,
+        ...txAdditionalParams,
       });
 
-    onBroadcasted?.();
-    return tx;
-  };
+      invariant(encodedTxData, "Error: invalid TX created by buildTx");
+      useDisposableSigner &&
+        invariant(
+          txAdditionalParams.signer?.address,
+          "Disposable signer could not be created"
+        );
+
+      const signerAddress =
+        useDisposableSigner ?
+          txAdditionalParams.signer?.address
+        : account.address;
+
+      invariant(signerAddress, "Signer address is required");
+      onBeforeSign?.(encodedTxData);
+      const signedTxs = await signTx(encodedTxData, signerAddress);
+      const transactionPair: TransactionPair<T> = {
+        signedTxs,
+        encodedTxData,
+      };
+
+      onSigned?.(transactionPair);
+      if (parsePendingTxNotification) {
+        dispatchPendingTxNotification(
+          transactionPair,
+          parsePendingTxNotification(transactionPair)
+        );
+      }
+
+      onBeforeBroadcast?.(transactionPair);
+      broadcastTransaction(
+        transactionPair.encodedTxData,
+        transactionPair.signedTxs
+      );
+      broadcastTxWithEvents(
+        transactionPair.encodedTxData,
+        transactionPair.signedTxs,
+        transactionPair.encodedTxData.meta?.props,
+        eventType
+      )
+        .then(() => {
+          onSuccess?.(transactionPair);
+        })
+        .catch((err) => {
+          if (parseErrorTxNotification) {
+            dispatchErrorNotification(
+              err,
+              parseErrorTxNotification(),
+              encodedTxData.txs
+            );
+          }
+          if (onError) {
+            onError(err);
+          } else {
+            throw err;
+          }
+        });
+
+      onBroadcasted?.();
+      return transactionPair;
+    },
+  });
 
   return {
-    execute,
+    ...transactionQuery,
     feeProps,
-    isPending,
-    isSuccess,
+    execute: transactionQuery.mutateAsync,
     isEnabled: Boolean(
       !isPending &&
         !isSuccess &&

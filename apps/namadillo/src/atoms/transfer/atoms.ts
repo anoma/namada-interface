@@ -6,6 +6,7 @@ import {
 } from "@namada/types";
 import { chainAtom } from "atoms/chain";
 import { rpcUrlAtom } from "atoms/settings";
+import invariant from "invariant";
 import { atomWithMutation } from "jotai-tanstack-query";
 import { BuildTxAtomParams } from "types";
 import {
@@ -25,20 +26,22 @@ export const createTransparentTransferAtom = atomWithMutation((get) => {
       gasConfig,
       account,
       memo,
-    }: BuildTxAtomParams<TransparentTransferMsgValue>) =>
-      createTransparentTransferTx(
+    }: BuildTxAtomParams<TransparentTransferMsgValue>) => {
+      return createTransparentTransferTx(
         chain.data!,
         account,
         params,
         gasConfig,
         memo
-      ),
+      );
+    },
   };
 });
 
 export const createShieldedTransferAtom = atomWithMutation((get) => {
   const chain = get(chainAtom);
   const rpcUrl = get(rpcUrlAtom);
+
   return {
     mutationKey: ["create-shielded-transfer-tx"],
     enabled: chain.isSuccess,
@@ -47,15 +50,19 @@ export const createShieldedTransferAtom = atomWithMutation((get) => {
       gasConfig,
       account,
       memo,
-    }: BuildTxAtomParams<ShieldedTransferMsgValue>) =>
-      createShieldedTransferTx(
+      signer,
+    }: BuildTxAtomParams<ShieldedTransferMsgValue>) => {
+      invariant(signer, "Disposable signer is required for shielded transfers");
+      return createShieldedTransferTx(
         chain.data!,
         account,
         params,
         gasConfig,
         rpcUrl,
+        signer,
         memo
-      ),
+      );
+    },
   };
 });
 
@@ -92,15 +99,22 @@ export const createUnshieldingTransferAtom = atomWithMutation((get) => {
       params,
       gasConfig,
       account,
+      signer,
       memo,
-    }: BuildTxAtomParams<UnshieldingTransferMsgValue>) =>
-      createUnshieldingTransferTx(
+    }: BuildTxAtomParams<UnshieldingTransferMsgValue>) => {
+      invariant(
+        signer,
+        "Disposable signer is required for unshielding transfers"
+      );
+      return createUnshieldingTransferTx(
         chain.data!,
         account,
         params,
         gasConfig,
         rpcUrl,
+        signer,
         memo
-      ),
+      );
+    },
   };
 });

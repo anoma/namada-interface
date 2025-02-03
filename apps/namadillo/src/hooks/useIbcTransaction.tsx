@@ -161,6 +161,16 @@ export const useIbcTransaction = ({
     };
 
     try {
+      // In case the first estimate has failed for some reason, we try to refetch
+      const gasConfig = await (async () => {
+        if (!gasConfigQuery.data) {
+          onUpdateStatus?.("Estimating required gas...");
+          return (await gasConfigQuery.refetch()).data;
+        }
+        return gasConfigQuery.data;
+      })();
+      invariant(gasConfig, "Error: Failed to estimate gas usage");
+
       const baseAmount = toBaseAmount(selectedAsset.asset, displayAmount);
 
       // This step might require a bit of time
@@ -186,16 +196,6 @@ export const useIbcTransaction = ({
         selectedAsset.originalAddress,
         maspCompatibleMemo
       );
-
-      // In case the first estimate has failed for some reason, we try to refetch
-      const gasConfig = await (async () => {
-        if (!gasConfigQuery.data) {
-          onUpdateStatus?.("Estimating required gas...");
-          return (await gasConfigQuery.refetch()).data;
-        }
-        return gasConfigQuery.data;
-      })();
-      invariant(gasConfig, "Error: Failed to estimate gas usage");
 
       onUpdateStatus?.("Waiting for signature...");
       const signedMessage = await getSignedMessage(
