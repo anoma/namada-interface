@@ -10,7 +10,6 @@ import invariant from "invariant";
 import { Atom, useAtomValue, useSetAtom } from "jotai";
 import { AtomWithMutationResult } from "jotai-tanstack-query";
 import {
-  broadcastTransaction,
   broadcastTxWithEvents,
   EncodedTxData,
   signTx,
@@ -169,10 +168,6 @@ export const useTransaction = <T,>({
       }
 
       onBeforeBroadcast?.(transactionPair);
-      broadcastTransaction(
-        transactionPair.encodedTxData,
-        transactionPair.signedTxs
-      );
       broadcastTxWithEvents(
         transactionPair.encodedTxData,
         transactionPair.signedTxs,
