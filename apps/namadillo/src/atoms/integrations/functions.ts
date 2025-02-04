@@ -47,7 +47,7 @@ import namadaChain from "@namada/chain-registry/namada/chain.json";
 import internalDevnetCosmosTestnetIbc from "@namada/chain-registry/_testnets/_IBC/namadainternaldevnet-cosmoshubtestnet.json";
 
 // TODO: this causes a big increase on bundle size. See #1224.
-import cosmosRegistry from "chain-registry";
+import registry from "chain-registry";
 import { searchNamadaTestnetByChainId } from "lib/chain";
 
 export const namadaTestnetChainList = [
@@ -57,9 +57,9 @@ export const namadaTestnetChainList = [
   housefireOldChain,
 ] as Chain[];
 
-cosmosRegistry.chains.push(namadaChain, ...namadaTestnetChainList);
+registry.chains.push(namadaChain, ...namadaTestnetChainList);
 
-cosmosRegistry.assets.push(
+registry.assets.push(
   internalDevnetAssets,
   campfireAssets,
   housefireAssets,
@@ -115,7 +115,7 @@ export const ibcAddressToDenomTrace =
   };
 
 const assetLookup = (chainName: string): Asset[] | undefined =>
-  cosmosRegistry.assets.find((chain) => chain.chain_name === chainName)?.assets;
+  registry.assets.find((chain) => chain.chain_name === chainName)?.assets;
 
 const tryDenomToRegistryAsset = (
   denom: string,
@@ -139,7 +139,7 @@ const findCounterpartChainName = (
   portId: string,
   channelId: string
 ): string | undefined => {
-  return cosmosRegistry.ibc.reduce<string | undefined>((acc, curr: IBCInfo) => {
+  return registry.ibc.reduce<string | undefined>((acc, curr: IBCInfo) => {
     if (typeof acc !== "undefined") {
       return acc;
     }
@@ -183,7 +183,7 @@ const tryDenomToIbcAsset = async (
 
   const assetOnRegistry = tryDenomToRegistryAsset(
     baseDenom,
-    cosmosRegistry.assets.map((assetListEl) => assetListEl.assets).flat()
+    registry.assets.map((assetListEl) => assetListEl.assets).flat()
   );
 
   if (assetOnRegistry) {
@@ -261,7 +261,7 @@ const findOriginalAsset = async (
 };
 
 const findChainById = (chainId: string): Chain | undefined => {
-  return cosmosRegistry.chains.find((chain) => chain.chain_id === chainId);
+  return registry.chains.find((chain) => chain.chain_id === chainId);
 };
 
 export const mapCoinsToAssets = async (
@@ -446,9 +446,9 @@ export const addLocalnetToRegistry = (config: LocalnetToml): void => {
     ibc: [namadaLocalRelayer(chain_1_channel, chain_2_channel)],
   };
 
-  cosmosRegistry.chains.push(localChain.chain);
-  cosmosRegistry.assets.push(localChain.assets);
-  cosmosRegistry.ibc.push(...localChain.ibc!);
+  registry.chains.push(localChain.chain);
+  registry.assets.push(localChain.assets);
+  registry.ibc.push(...localChain.ibc!);
 
   mainnetChains.push(localChain);
 };
