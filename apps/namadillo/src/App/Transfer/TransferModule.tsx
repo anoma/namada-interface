@@ -5,7 +5,6 @@ import { InlineError } from "App/Common/InlineError";
 import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
-import { findAssetByDenom } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import {
@@ -157,8 +156,7 @@ export const TransferModule = ({
       return availableAmount;
     }
 
-    const asset = findAssetByDenom;
-    const totalFees = getDisplayGasFee(asset, gasConfig);
+    const totalFees = getDisplayGasFee(gasConfig);
     const amountMinusFees = availableAmount.minus(totalFees);
     return BigNumber.max(amountMinusFees, 0);
   }, [source.selectedAssetAddress, source.availableAmount, displayGasFee]);

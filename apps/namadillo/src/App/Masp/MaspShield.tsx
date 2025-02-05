@@ -2,7 +2,7 @@ import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
 import { AccountType } from "@namada/types";
 import { NamadaTransferTopHeader } from "App/NamadaTransfer/NamadaTransferTopHeader";
-import { params, routes } from "App/routes";
+import { params } from "App/routes";
 import {
   OnSubmitTransferParams,
   TransferModule,
@@ -19,17 +19,18 @@ import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
 import { useState } from "react";
-import { generatePath, useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import namadaChain from "registry/namada.json";
-import { Address, TransferTransactionData } from "types";
+import { Address } from "types";
 
 export const MaspShield: React.FC = () => {
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { storeTransaction } = useTransactionActions();
   const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
-  const [currentStep, setCurrentStep] = useState("");
+  const [currentStatus, setCurrentStatus] = useState("");
+  const [currentStatusExplanation, setCurrentStatusExplanation] = useState("");
+
   const rpcUrl = useAtomValue(rpcUrlAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
@@ -60,7 +61,23 @@ export const MaspShield: React.FC = () => {
     target: destinationAddress ?? "",
     token: selectedAsset?.originalAddress ?? "",
     displayAmount: displayAmount ?? new BigNumber(0),
-    onUpdateStatus: setCurrentStep,
+    onUpdateStatus: setCurrentStatus,
+    onBeforeBuildTx: () => {
+      setCurrentStatus("Generating MASP Parameters...");
+      setCurrentStatusExplanation(
+        "Generating MASP parameters can take a few seconds. Please wait..."
+      );
+    },
+    onBeforeSign: () => {
+      setCurrentStatus("Waiting for signature...");
+    },
+    onBeforeBroadcast: () => {
+      setCurrentStatus("Broadcasting Shielding transaction...");
+    },
+    onError: () => {
+      setCurrentStatus("");
+      setCurrentStatusExplanation("");
+    },
   });
 
   const onChangeSelectedAsset = (address?: Address): void => {
@@ -78,17 +95,12 @@ export const MaspShield: React.FC = () => {
     );
   };
 
-  const redirectToTimeline = (tx: TransferTransactionData): void => {
-    invariant(tx.hash, "Invalid TX hash");
-    navigate(generatePath(routes.transaction, { hash: tx.hash }));
-  };
-
   const onSubmitTransfer = async ({
     memo,
   }: OnSubmitTransferParams): Promise<void> => {
     try {
       setGeneralErrorMessage("");
-      setCurrentStep("");
+      setCurrentStatus("");
 
       invariant(sourceAddress, "Source address is not defined");
       invariant(chainId, "Chain ID is undefined");
@@ -111,7 +123,6 @@ export const MaspShield: React.FC = () => {
         }
         const tx = txList[0];
         storeTransaction(tx);
-        redirectToTimeline(tx);
       } else {
         throw "Invalid transaction response";
       }
@@ -154,8 +165,9 @@ export const MaspShield: React.FC = () => {
         feeProps={feeProps}
         isSubmitting={isPerformingTransfer}
         errorMessage={generalErrorMessage}
+        currentStatus={currentStatus}
+        currentStatusExplanation={currentStatusExplanation}
         onSubmitTransfer={onSubmitTransfer}
-        submittingText={isPerformingTransfer ? currentStep : "Shield"}
         buttonTextErrors={{
           NoAmount: "Define an amount to shield",
         }}

@@ -199,6 +199,7 @@ export const NamadaTransfer: React.FC = () => {
           onChangeCustomAddress: setCustomAddress,
           wallet: wallets.namada,
           walletAddress: customAddress,
+          isShielded: isShieldedAddress(customAddress),
         }}
         feeProps={feeProps}
         currentStatus={currentStatus}
