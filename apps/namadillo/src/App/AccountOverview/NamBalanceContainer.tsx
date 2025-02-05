@@ -2,7 +2,7 @@ import { Heading, SkeletonLoading, Stack } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { ShieldedRewardsBox } from "App/Masp/ShieldedRewardsBox";
-import { cachedShieldedRewardsAtom } from "atoms/balance";
+import { cachedShieldedRewardsAtom, shieldedBalanceAtom } from "atoms/balance";
 import { applicationFeaturesAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -16,6 +16,7 @@ type NamBalanceListItemProps = {
   color: string;
   amount: BigNumber;
   isLoading: boolean;
+  isSyncing?: boolean;
   isEnabled?: boolean;
 };
 
@@ -52,6 +53,7 @@ const NamBalanceListItem = ({
   color,
   amount,
   isLoading,
+  isSyncing,
   isEnabled = true,
 }: NamBalanceListItemProps): JSX.Element => {
   return (
@@ -70,7 +72,10 @@ const NamBalanceListItem = ({
         <SkeletonLoading height="22px" width="100px" />
       : <NamCurrency
           amount={amount}
-          className="text-2xl pl-5 font-light"
+          className={twMerge(
+            "text-2xl pl-5 font-light",
+            isSyncing && "animate-pulse"
+          )}
           currencySymbolClassName="hidden"
           decimalPlaces={2}
         />
@@ -83,6 +88,7 @@ export const NamBalanceContainer = (): JSX.Element => {
   const { maspEnabled, shieldingRewardsEnabled } = useAtomValue(
     applicationFeaturesAtom
   );
+  const { isFetching: isShieldSyncing } = useAtomValue(shieldedBalanceAtom);
   const shieldedRewards = useAtomValue(cachedShieldedRewardsAtom);
 
   const {
@@ -121,18 +127,21 @@ export const NamBalanceContainer = (): JSX.Element => {
               color={colors.balance}
               amount={availableAmount}
               isLoading={isLoading}
+              isSyncing={balanceQuery.isFetching}
             />
             <NamBalanceListItem
               title="Staked NAM"
               color={colors.bond}
               amount={bondedAmount}
               isLoading={isLoading}
+              isSyncing={stakeQuery.isFetching}
             />
             <NamBalanceListItem
               title="Unbonded NAM"
               color={colors.unbond}
               amount={unbondedAmount.plus(withdrawableAmount)}
               isLoading={isLoading}
+              isSyncing={stakeQuery.isFetching}
             />
           </Stack>
           <Stack className="w-full" gap={2}>
@@ -141,6 +150,7 @@ export const NamBalanceContainer = (): JSX.Element => {
               color={colors.shielded}
               amount={maspEnabled ? shieldedNamAmount : new BigNumber(0)}
               isLoading={shieldedAmountQuery.isLoading}
+              isSyncing={isShieldSyncing}
               isEnabled={maspEnabled}
             />
             <ListItemContainer

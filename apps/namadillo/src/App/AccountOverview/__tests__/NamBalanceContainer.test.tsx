@@ -11,6 +11,7 @@ jest.mock("hooks/useBalances", () => ({
 
 jest.mock("atoms/balance", () => ({
   cachedShieldedRewardsAtom: atom({ data: undefined }),
+  shieldedBalanceAtom: atom({ isFetching: false }),
 }));
 
 describe("Component: NamBalanceContainer", () => {

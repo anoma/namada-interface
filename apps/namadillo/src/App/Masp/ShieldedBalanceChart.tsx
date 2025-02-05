@@ -1,7 +1,7 @@
 import { Heading, PieChart, SkeletonLoading } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
-import { shieldedTokensAtom } from "atoms/balance/atoms";
+import { shieldedBalanceAtom, shieldedTokensAtom } from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
 import { applicationFeaturesAtom } from "atoms/settings";
 import clsx from "clsx";
@@ -10,6 +10,7 @@ import { twMerge } from "tailwind-merge";
 import { colors } from "theme";
 
 export const ShieldedBalanceChart = (): JSX.Element => {
+  const { isFetching: isShieldSyncing } = useAtomValue(shieldedBalanceAtom);
   const { namTransfersEnabled } = useAtomValue(applicationFeaturesAtom);
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
 
@@ -53,7 +54,8 @@ export const ShieldedBalanceChart = (): JSX.Element => {
                       <FiatCurrency
                         className={twMerge(
                           "text-2xl sm:text-3xl whitespace-nowrap",
-                          !namTransfersEnabled && "after:content-['*']"
+                          !namTransfersEnabled && "after:content-['*']",
+                          isShieldSyncing && "animate-pulse"
                         )}
                         amount={shieldedDollars}
                       />
