@@ -74,8 +74,6 @@ export const ShieldAllPanel = ({
     [selectableAssets]
   );
 
-  //const gasConfig = getIbcGasConfig(registry);
-
   return (
     <ShieldAllContainer>
       <form
@@ -115,7 +113,7 @@ export const ShieldAllPanel = ({
         <Stack as="footer" gap={4}>
           <footer className="flex justify-between items-center">
             <img src={ibcTransferImageBlack} className="w-20" />
-            {/*gasConfig && <TransactionFee gasConfig={gasConfig} />*/}
+            {/* TODO: Add transaction fee */}
           </footer>
           <ActionButton
             backgroundColor="black"
