@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.6.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.5.0...namadillo@v1.6.0) (2025-02-05)
+
+
+### Features
+
+* Add shielded balance pulse animation ([#1604](https://github.com/anoma/namada-interface/issues/1604)) ([7fb9b0a](https://github.com/anoma/namada-interface/commit/7fb9b0acd363163483926c4ec4e0ff832edac322))
+* Check for ibc timeout if a response was not provided by the chain ([#1592](https://github.com/anoma/namada-interface/issues/1592)) ([9850a1c](https://github.com/anoma/namada-interface/commit/9850a1c16baacac06f89d060a2d8deeeb9af9231))
+* Improving masp transactions feedback for users and other gas estimation fixes ([#1594](https://github.com/anoma/namada-interface/issues/1594)) ([426dbd3](https://github.com/anoma/namada-interface/commit/426dbd364bafcfc8788fd76054104af8fb685f22))
+* Shielded rewards intergration ([#1378](https://github.com/anoma/namada-interface/issues/1378)) ([622044d](https://github.com/anoma/namada-interface/commit/622044de6a20cb673803eadf1330ccb18b9ae903))
+* Update shield sync indicator layout ([#1601](https://github.com/anoma/namada-interface/issues/1601)) ([9baea53](https://github.com/anoma/namada-interface/commit/9baea5329cbdad757e189a6a5dc4bb28246592e0))
+
+
+### Bug Fixes
+
+* Disposable gas payer timeout & ibc shielding with multicore ([#1593](https://github.com/anoma/namada-interface/issues/1593)) ([a1cb27a](https://github.com/anoma/namada-interface/commit/a1cb27a26c0bbad3e558c4bcec37305cf0602083))
+* Empty reward storage ([#1600](https://github.com/anoma/namada-interface/issues/1600)) ([f9074e9](https://github.com/anoma/namada-interface/commit/f9074e92d2411ca2f073395a03bdd37516b18b27))
+* Fix duplicated broadcast ([#1606](https://github.com/anoma/namada-interface/issues/1606)) ([897596c](https://github.com/anoma/namada-interface/commit/897596c1d05aaf8e7fba5c730a778b95fb7d0128))
+* Fixing gas estimate on IBC transfers ([#1607](https://github.com/anoma/namada-interface/issues/1607)) ([be1e7d7](https://github.com/anoma/namada-interface/commit/be1e7d7665d43ca81cc4eeefb62cf9fdc35552de))
+* Fixing remaining amount calculation if gas token is different ([#1610](https://github.com/anoma/namada-interface/issues/1610)) ([de6cfe3](https://github.com/anoma/namada-interface/commit/de6cfe39b3eb25bda8a02da4a732de35ad590106))
+
 ## [1.5.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.4.1...namadillo@v1.5.0) (2025-01-27)
 
 
