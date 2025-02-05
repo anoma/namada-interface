@@ -180,12 +180,19 @@ export const createTransferDataFromNamada = (
   }
 
   return propsList
-    .map(({ data }) => {
-      return data.map((props) => {
-        const sourceAddress = "source" in props ? (props.source as string) : "";
+    .map((wrapperProps) => {
+      return wrapperProps.data.map((innerProps) => {
+        const sourceAddress =
+          "source" in wrapperProps ? wrapperProps.source
+          : "source" in innerProps ? innerProps.source
+          : "";
         const destinationAddress =
-          "target" in props ? (props.target as string) : "";
-        const amount = "amount" in props ? props.amount : new BigNumber(0);
+          "target" in wrapperProps ? wrapperProps.target
+          : "target" in innerProps ? innerProps.target
+          : "";
+        const amount =
+          "amount" in innerProps ? innerProps.amount : new BigNumber(0);
+
         return {
           type: txKind,
           currentStep: getTxNextStep(txKind, TransferStep.Sign),
