@@ -61,7 +61,7 @@ export const TransferSource = ({
   return (
     <div className="relative bg-neutral-800 rounded-lg px-4 py-5">
       {/** Intro header - Ex: "IBC To Namada" */}
-      {onChangeShielded && chain?.chain_name === "namada" && (
+      {onChangeShielded && chain?.chain_name === "namada" && !isSubmitting && (
         <nav className="mb-6">
           <TabSelector
             active={isShielded ? "shielded" : "transparent"}

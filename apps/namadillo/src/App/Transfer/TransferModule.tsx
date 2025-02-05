@@ -5,6 +5,7 @@ import { InlineError } from "App/Common/InlineError";
 import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
+import { findAssetByDenom } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import {
@@ -78,6 +79,7 @@ export type TransferModuleProps = {
   isSubmitting?: boolean;
   errorMessage?: string;
   currentStatus?: string;
+  currentStatusExplanation?: string;
   onSubmitTransfer: (params: OnSubmitTransferParams) => void;
   buttonTextErrors?: Partial<Record<ValidationResult, string>>;
 } & (
@@ -110,6 +112,7 @@ export const TransferModule = ({
   onSubmitTransfer,
   errorMessage,
   currentStatus,
+  currentStatusExplanation,
   buttonTextErrors = {},
 }: TransferModuleProps): JSX.Element => {
   const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
@@ -123,7 +126,6 @@ export const TransferModule = ({
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
 
   const [memo, setMemo] = useState<undefined | string>();
-
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
 
   const displayGasFee = useMemo(() => {
@@ -155,10 +157,9 @@ export const TransferModule = ({
       return availableAmount;
     }
 
-    const amountMinusFees = availableAmount.minus(
-      displayGasFee.totalDisplayAmount
-    );
-
+    const asset = findAssetByDenom;
+    const totalFees = getDisplayGasFee(asset, gasConfig);
+    const amountMinusFees = availableAmount.minus(totalFees);
     return BigNumber.max(amountMinusFees, 0);
   }, [source.selectedAssetAddress, source.availableAmount, displayGasFee]);
 
@@ -317,6 +318,7 @@ export const TransferModule = ({
             onChangeAmount={source.onChangeAmount}
             isShielded={source.isShielded}
             onChangeShielded={source.onChangeShielded}
+            isSubmitting={isSubmitting}
           />
           <i className="flex items-center justify-center w-11 mx-auto -my-8 relative z-10">
             <TransferArrow color={destination.isShielded ? "#FF0" : "#FFF"} />
@@ -350,6 +352,7 @@ export const TransferModule = ({
             gasAsset={displayGasFee?.asset}
             destinationAsset={selectedAsset?.asset}
             amount={source.amount}
+            isSubmitting={isSubmitting}
           />
           {isIbcTransfer && requiresIbcChannels && (
             <IbcChannels
@@ -362,7 +365,10 @@ export const TransferModule = ({
           )}
           <InlineError errorMessage={errorMessage} />
           {currentStatus && isSubmitting && (
-            <CurrentStatus status={currentStatus} />
+            <CurrentStatus
+              status={currentStatus}
+              explanation={currentStatusExplanation}
+            />
           )}
           {!isSubmitting && (
             <ActionButton

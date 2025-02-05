@@ -186,9 +186,9 @@ export const IbcTransfer = (): JSX.Element => {
         }}
         gasConfig={gasConfig.data}
         changeFeeEnabled={false}
-        submittingText={currentProgress}
         isSubmitting={transferStatus === "pending" || !!currentProgress}
         isIbcTransfer={true}
+        currentStatus={currentProgress}
         requiresIbcChannels={requiresIbcChannels}
         ibcOptions={{
           sourceChannel,
