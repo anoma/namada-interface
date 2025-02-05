@@ -14,7 +14,7 @@ import {
   WalletProvider,
 } from "types";
 import { getDisplayGasFee } from "utils/gas";
-import { parseChainInfo } from "./common";
+import { isTransparentAddress, parseChainInfo } from "./common";
 import { IbcChannels } from "./IbcChannels";
 import { SelectAssetModal } from "./SelectAssetModal";
 import { SelectChainModal } from "./SelectChainModal";
@@ -141,7 +141,14 @@ export const TransferModule = ({
       return undefined;
     }
 
-    if (!displayGasFee || !displayGasFee.totalDisplayAmount) {
+    if (
+      !displayGasFee ||
+      !displayGasFee.totalDisplayAmount ||
+      // Don't subtract if the gas token is different than the selected asset:
+      (gasConfig?.gasToken &&
+        isTransparentAddress(gasConfig.gasToken) &&
+        gasConfig.gasToken !== selectedAssetAddress)
+    ) {
       return availableAmount;
     }
 
