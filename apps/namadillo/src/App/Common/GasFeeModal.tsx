@@ -4,7 +4,7 @@ import {
   Modal,
   StyledSelectBox,
 } from "@namada/components";
-import { nativeTokenAddressAtom } from "atoms/chain";
+import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { GasPriceTable, GasPriceTableItem } from "atoms/fees/atoms";
 import { tokenPricesFamily } from "atoms/prices/atoms";
 import BigNumber from "bignumber.js";
@@ -32,6 +32,8 @@ const useBuildGasOption = ({
   gasConfig: GasConfig;
   gasPriceTable: GasPriceTable | undefined;
 }) => {
+  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+
   const gasDollarMap =
     useAtomValue(
       tokenPricesFamily(gasPriceTable?.map((item) => item.token) ?? [])
@@ -52,7 +54,7 @@ const useBuildGasOption = ({
       ...override,
     };
 
-    const displayGasFee = getDisplayGasFee(option);
+    const displayGasFee = getDisplayGasFee(option, chainAssetsMap);
     const { totalDisplayAmount: displayAmount, asset } = displayGasFee;
     const { symbol } = asset;
 

@@ -2,8 +2,10 @@ import { Chain, Chains } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { InlineError } from "App/Common/InlineError";
+import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
+import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import {
   Address,
@@ -115,12 +117,14 @@ export const TransferModule = ({
   const [customAddressActive, setCustomAddressActive] = useState(
     destination.enableCustomAddress && !destination.availableWallets
   );
+  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+
   const [memo, setMemo] = useState<undefined | string>();
 
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
 
   const displayGasFee = useMemo(() => {
-    return gasConfig ? getDisplayGasFee(gasConfig) : undefined;
+    return gasConfig ? getDisplayGasFee(gasConfig, chainAssetsMap) : undefined;
   }, [gasConfig]);
 
   const selectedAsset = mapUndefined(
@@ -332,6 +336,8 @@ export const TransferModule = ({
             onChangeMemo={setMemo}
             feeProps={feeProps}
             changeFeeEnabled={changeFeeEnabled}
+            gasDisplayAmount={displayGasFee?.totalDisplayAmount}
+            gasAsset={displayGasFee?.asset}
           />
           {isIbcTransfer && requiresIbcChannels && (
             <IbcChannels

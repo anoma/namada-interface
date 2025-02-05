@@ -1,4 +1,6 @@
+import { chainAssetsMapAtom } from "atoms/chain";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
+import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { getDisplayGasFee } from "utils/gas";
 import { GasFeeModal } from "./GasFeeModal";
@@ -10,9 +12,9 @@ export const TransactionFeeButton = ({
   feeProps: TransactionFeeProps;
 }): JSX.Element => {
   const [modalOpen, setModalOpen] = useState(false);
-
+  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
   const gasDisplayAmount = useMemo(() => {
-    return getDisplayGasFee(feeProps.gasConfig);
+    return getDisplayGasFee(feeProps.gasConfig, chainAssetsMap);
   }, [feeProps]);
 
   return (
