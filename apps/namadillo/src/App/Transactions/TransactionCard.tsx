@@ -48,7 +48,7 @@ export const TransactionCard = ({
   const chainName =
     chainId in availableChains ?
       parseChainInfo(availableChains[chainId].chain)?.pretty_name
-    : "Unknown";
+    : chainId;
 
   return (
     <article
