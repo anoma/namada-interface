@@ -1,28 +1,21 @@
-import { chainAssetsMapAtom } from "atoms/chain";
-import { useAtomValue } from "jotai";
-import { GasConfig } from "types";
-import { unknownAsset } from "utils/assets";
-import { getDisplayGasFee } from "utils/gas";
+import BigNumber from "bignumber.js";
 import { TokenCurrency } from "./TokenCurrency";
 
+type TransactionFeeProps = {
+  displayAmount: BigNumber;
+  symbol: string;
+};
+
 export const TransactionFee = ({
-  gasConfig,
-}: {
-  gasConfig: GasConfig;
-}): JSX.Element => {
-  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
-
-  const { gasToken } = gasConfig;
-  const asset = chainAssetsMap[gasToken] ?? unknownAsset(gasToken);
-
-  const amount = getDisplayGasFee(gasConfig);
-
+  displayAmount,
+  symbol,
+}: TransactionFeeProps): JSX.Element => {
   return (
     <div className="text-sm">
       Transaction fee:{" "}
       <TokenCurrency
-        symbol={asset.symbol}
-        amount={amount}
+        symbol={symbol}
+        amount={displayAmount}
         className="font-medium"
       />
     </div>

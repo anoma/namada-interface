@@ -42,6 +42,11 @@ export type GasConfig = {
   gasToken: GasToken;
 };
 
+export type GasConfigToDisplay = {
+  totalDisplayAmount: BigNumber;
+  asset: Asset;
+};
+
 export type TxGas = Record<Address, GasLimit>;
 
 export type GasTable = Record<TxKind, TxGas>;

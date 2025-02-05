@@ -1,11 +1,12 @@
-import { Chain } from "@chain-registry/types";
+import { Asset, Chain } from "@chain-registry/types";
 import { Stack } from "@namada/components";
 import { TabSelector } from "App/Common/TabSelector";
 import { TransactionFee } from "App/Common/TransactionFee";
 import { TransactionFeeButton } from "App/Common/TransactionFeeButton";
+import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
-import { Address, GasConfig, WalletProvider } from "types";
+import { Address, WalletProvider } from "types";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";
@@ -19,7 +20,8 @@ type TransferDestinationProps = {
   wallet?: WalletProvider;
   walletAddress?: string;
   className?: string;
-  gasConfig?: GasConfig;
+  gasDisplayAmount?: BigNumber;
+  gasAsset?: Asset;
   feeProps?: TransactionFeeProps;
   changeFeeEnabled?: boolean;
   customAddressActive?: boolean;
@@ -40,7 +42,8 @@ export const TransferDestination = ({
   isShielded,
   isIbcTransfer,
   onChangeShielded,
-  gasConfig,
+  gasDisplayAmount,
+  gasAsset,
   feeProps,
   changeFeeEnabled = true,
   customAddressActive,
@@ -133,7 +136,14 @@ export const TransferDestination = ({
           : <div />}
           {changeFeeEnabled ?
             feeProps && <TransactionFeeButton feeProps={feeProps} />
-          : gasConfig && <TransactionFee gasConfig={gasConfig} />}
+          : gasDisplayAmount &&
+            gasAsset && (
+              <TransactionFee
+                displayAmount={gasDisplayAmount}
+                symbol={gasAsset.symbol}
+              />
+            )
+          }
         </div>
       </footer>
     </div>

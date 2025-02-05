@@ -118,6 +118,11 @@ export const TransferModule = ({
   const [memo, setMemo] = useState<undefined | string>();
 
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
+
+  const displayGasFee = useMemo(() => {
+    return gasConfig ? getDisplayGasFee(gasConfig) : undefined;
+  }, [gasConfig]);
+
   const selectedAsset = mapUndefined(
     (address) => source.availableAssets?.[address],
     source.selectedAssetAddress
@@ -132,14 +137,16 @@ export const TransferModule = ({
       return undefined;
     }
 
-    if (!gasConfig || gasConfig.gasToken !== selectedAssetAddress) {
+    if (!displayGasFee || !displayGasFee.totalDisplayAmount) {
       return availableAmount;
     }
 
-    const totalFees = getDisplayGasFee(gasConfig);
-    const amountMinusFees = availableAmount.minus(totalFees);
+    const amountMinusFees = availableAmount.minus(
+      displayGasFee.totalDisplayAmount
+    );
+
     return BigNumber.max(amountMinusFees, 0);
-  }, [source.selectedAssetAddress, source.availableAmount, gasConfig]);
+  }, [source.selectedAssetAddress, source.availableAmount, displayGasFee]);
 
   const validationResult = useMemo((): ValidationResult => {
     if (!source.wallet) {
@@ -323,7 +330,6 @@ export const TransferModule = ({
             onChangeAddress={destination.onChangeCustomAddress}
             memo={memo}
             onChangeMemo={setMemo}
-            gasConfig={gasConfig}
             feeProps={feeProps}
             changeFeeEnabled={changeFeeEnabled}
           />

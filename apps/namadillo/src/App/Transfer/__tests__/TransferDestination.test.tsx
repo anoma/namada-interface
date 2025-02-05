@@ -1,3 +1,4 @@
+import BigNumber from "bignumber.js";
 jest.mock("../assets/ibc-transfer-white.png", () => "ibc-transfer-white.png");
 jest.mock("../../Common/GasFeeModal", () => null);
 
@@ -8,7 +9,7 @@ import {
   randomChainMock,
 } from "App/Transfer/__mocks__/chains";
 import { TransferDestination } from "App/Transfer/TransferDestination";
-import BigNumber from "bignumber.js";
+import { namadaAsset } from "utils";
 import { walletMock } from "../__mocks__/providers";
 import { parseChainInfo } from "../common";
 
@@ -99,11 +100,8 @@ describe("Component: TransferDestination", () => {
     render(
       <TransferDestination
         changeFeeEnabled={false}
-        gasConfig={{
-          gasPrice: BigNumber(0.000001),
-          gasLimit: BigNumber(2),
-          gasToken: "tnam1",
-        }}
+        gasDisplayAmount={new BigNumber("0.000002")}
+        gasAsset={namadaAsset()}
       />
     );
     const transactionFee = screen.getByText("Transaction fee:");
