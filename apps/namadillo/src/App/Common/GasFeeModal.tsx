@@ -13,7 +13,6 @@ import { useAtomValue } from "jotai";
 import { IoClose } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 import { GasConfig } from "types";
-import { unknownAsset } from "utils/assets";
 import { getDisplayGasFee } from "utils/gas";
 import { FiatCurrency } from "./FiatCurrency";
 import { TokenCurrency } from "./TokenCurrency";
@@ -34,6 +33,7 @@ const useBuildGasOption = ({
   gasPriceTable: GasPriceTable | undefined;
 }) => {
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+
   const gasDollarMap =
     useAtomValue(
       tokenPricesFamily(gasPriceTable?.map((item) => item.token) ?? [])
@@ -54,10 +54,12 @@ const useBuildGasOption = ({
       ...override,
     };
 
-    const displayAmount = getDisplayGasFee(option);
+    const displayGasFee = getDisplayGasFee(option, chainAssetsMap);
+    const { totalDisplayAmount: displayAmount, asset } = displayGasFee;
+    const { symbol } = asset;
+
     const price = gasDollarMap[option.gasToken];
     const dollar = price ? price.multipliedBy(displayAmount) : undefined;
-
     const selected =
       !gasConfig.gasLimit.isEqualTo(0) &&
       option.gasLimit.isEqualTo(gasConfig.gasLimit) &&
@@ -66,10 +68,6 @@ const useBuildGasOption = ({
 
     const disabled =
       gasConfig.gasLimit.isEqualTo(0) || gasConfig.gasPrice.isEqualTo(0);
-
-    const asset =
-      chainAssetsMap[option.gasToken] ?? unknownAsset(option.gasToken);
-    const symbol = asset.symbol;
 
     return {
       option,

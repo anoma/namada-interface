@@ -2,8 +2,10 @@ import { Chain, Chains } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { InlineError } from "App/Common/InlineError";
+import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
+import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import {
   Address,
@@ -115,9 +117,16 @@ export const TransferModule = ({
   const [customAddressActive, setCustomAddressActive] = useState(
     destination.enableCustomAddress && !destination.availableWallets
   );
+  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+
   const [memo, setMemo] = useState<undefined | string>();
 
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
+
+  const displayGasFee = useMemo(() => {
+    return gasConfig ? getDisplayGasFee(gasConfig, chainAssetsMap) : undefined;
+  }, [gasConfig]);
+
   const selectedAsset = mapUndefined(
     (address) => source.availableAssets?.[address],
     source.selectedAssetAddress
@@ -132,14 +141,16 @@ export const TransferModule = ({
       return undefined;
     }
 
-    if (!gasConfig || gasConfig.gasToken !== selectedAssetAddress) {
+    if (!displayGasFee || !displayGasFee.totalDisplayAmount) {
       return availableAmount;
     }
 
-    const totalFees = getDisplayGasFee(gasConfig);
-    const amountMinusFees = availableAmount.minus(totalFees);
+    const amountMinusFees = availableAmount.minus(
+      displayGasFee.totalDisplayAmount
+    );
+
     return BigNumber.max(amountMinusFees, 0);
-  }, [source.selectedAssetAddress, source.availableAmount, gasConfig]);
+  }, [source.selectedAssetAddress, source.availableAmount, displayGasFee]);
 
   const validationResult = useMemo((): ValidationResult => {
     if (!source.wallet) {
@@ -323,9 +334,10 @@ export const TransferModule = ({
             onChangeAddress={destination.onChangeCustomAddress}
             memo={memo}
             onChangeMemo={setMemo}
-            gasConfig={gasConfig}
             feeProps={feeProps}
             changeFeeEnabled={changeFeeEnabled}
+            gasDisplayAmount={displayGasFee?.totalDisplayAmount}
+            gasAsset={displayGasFee?.asset}
           />
           {isIbcTransfer && requiresIbcChannels && (
             <IbcChannels

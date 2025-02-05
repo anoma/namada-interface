@@ -6,9 +6,7 @@ import {
   Stack,
 } from "@namada/components";
 import svgImg from "App/Assets/ShieldedParty.svg";
-import { TransactionFee } from "App/Common/TransactionFee";
 import { SelectedWallet } from "App/Transfer/SelectedWallet";
-import { getIbcGasConfig } from "integrations/utils";
 import { useEffect, useMemo, useState } from "react";
 import {
   AddressWithAssetAndAmount,
@@ -32,7 +30,6 @@ type ShieldAllPanelProps = {
 };
 
 export const ShieldAllPanel = ({
-  registry,
   wallet,
   walletAddress,
   isLoading,
@@ -77,7 +74,7 @@ export const ShieldAllPanel = ({
     [selectableAssets]
   );
 
-  const gasConfig = getIbcGasConfig(registry);
+  //const gasConfig = getIbcGasConfig(registry);
 
   return (
     <ShieldAllContainer>
@@ -118,7 +115,7 @@ export const ShieldAllPanel = ({
         <Stack as="footer" gap={4}>
           <footer className="flex justify-between items-center">
             <img src={ibcTransferImageBlack} className="w-20" />
-            {gasConfig && <TransactionFee gasConfig={gasConfig} />}
+            {/*gasConfig && <TransactionFee gasConfig={gasConfig} />*/}
           </footer>
           <ActionButton
             backgroundColor="black"
