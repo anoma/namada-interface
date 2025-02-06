@@ -156,8 +156,9 @@ export const TransferModule = ({
       return availableAmount;
     }
 
-    const totalFees = getDisplayGasFee(gasConfig);
-    const amountMinusFees = availableAmount.minus(totalFees);
+    const amountMinusFees = availableAmount.minus(
+      displayGasFee.totalDisplayAmount
+    );
     return BigNumber.max(amountMinusFees, 0);
   }, [source.selectedAssetAddress, source.availableAmount, displayGasFee]);
 
