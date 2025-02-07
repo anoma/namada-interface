@@ -17,6 +17,7 @@ import BigNumber from "bignumber.js";
 import { useTransaction, UseTransactionOutput } from "hooks/useTransaction";
 import { useAtomValue } from "jotai";
 import { Address, NamadaTransferTxKind } from "types";
+import { useOptimisticTransferUpdate } from "./useOptimisticTransferUpdate";
 
 type useTransferParams = {
   source: Address;
@@ -48,6 +49,8 @@ export const useTransfer = ({
   );
   const pseudoExtendedKey = shieldedAccount?.pseudoExtendedKey ?? "";
 
+  const optimisticTransferUpdate = useOptimisticTransferUpdate();
+
   const commomProps = {
     parsePendingTxNotification: () => ({
       title: "Transfer transaction in progress",
@@ -57,6 +60,14 @@ export const useTransfer = ({
       title: "Transfer transaction failed",
       description: "",
     }),
+    onSuccess: () => {
+      if (target === shieldedAccount?.address) {
+        optimisticTransferUpdate(token, amount);
+      }
+      if (source === shieldedAccount?.address) {
+        optimisticTransferUpdate(token, amount.multipliedBy(-1));
+      }
+    },
   };
 
   const transparentTransaction = useTransaction({
