@@ -107,7 +107,7 @@ export const viewingKeysAtom = atomWithQuery<
 });
 
 export const storageShieldedBalanceAtom = atomWithStorage<
-  Record<Address, { address: string; minDenomAmount: BigNumber }[]>
+  Record<Address, { address: Address; minDenomAmount: string }[]>
 >("namadillo:shieldedBalance", {});
 
 export const shieldedSyncProgress = atom(0);
@@ -168,7 +168,7 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
 
       const shieldedBalance = response.map(([address, amount]) => ({
         address,
-        minDenomAmount: BigNumber(amount),
+        minDenomAmount: amount,
       }));
 
       const storage = get(storageShieldedBalanceAtom);
@@ -208,7 +208,10 @@ export const namadaShieldedAssetsAtom = atomWithQuery((get) => {
     ...queryDependentFn(
       async () =>
         await mapNamadaAddressesToAssets(
-          shieldedBalance ?? [],
+          shieldedBalance?.map((i) => ({
+            ...i,
+            minDenomAmount: BigNumber(i.minDenomAmount),
+          })) ?? [],
           chainTokensQuery.data!,
           chainParameters.data!.chainId
         ),
