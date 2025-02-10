@@ -4,6 +4,7 @@ import { mapUndefined } from "@namada/utils";
 import { InlineError } from "App/Common/InlineError";
 import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
+import clsx from "clsx";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
@@ -20,6 +21,7 @@ import { IbcChannels } from "./IbcChannels";
 import { SelectAssetModal } from "./SelectAssetModal";
 import { SelectChainModal } from "./SelectChainModal";
 import { SelectWalletModal } from "./SelectWalletModal";
+import { SuccessAnimation } from "./SuccessAnimation";
 import { TransferArrow } from "./TransferArrow";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
@@ -70,6 +72,7 @@ export type OnSubmitTransferParams = {
 export type TransferModuleProps = {
   source: TransferSourceProps;
   destination: TransferDestinationProps;
+  onSubmitTransfer?: (params: OnSubmitTransferParams) => void;
   requiresIbcChannels?: boolean;
   gasConfig?: GasConfig;
   feeProps?: TransactionFeeProps;
@@ -79,8 +82,9 @@ export type TransferModuleProps = {
   errorMessage?: string;
   currentStatus?: string;
   currentStatusExplanation?: string;
-  onSubmitTransfer: (params: OnSubmitTransferParams) => void;
+  completedAt?: Date;
   buttonTextErrors?: Partial<Record<ValidationResult, string>>;
+  onComplete?: () => void;
 } & (
   | { isIbcTransfer?: false; ibcOptions?: undefined }
   | { isIbcTransfer: true; ibcOptions: IbcOptions }
@@ -112,6 +116,8 @@ export const TransferModule = ({
   errorMessage,
   currentStatus,
   currentStatusExplanation,
+  completedAt,
+  onComplete,
   buttonTextErrors = {},
 }: TransferModuleProps): JSX.Element => {
   const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
@@ -292,7 +298,14 @@ export const TransferModule = ({
   return (
     <>
       <section className="max-w-[480px] mx-auto" role="widget">
-        <Stack as="form" onSubmit={onSubmit}>
+        <Stack
+          className={clsx({
+            "opacity-0 transition-all duration-300 pointer-events-none":
+              completedAt,
+          })}
+          as="form"
+          onSubmit={onSubmit}
+        >
           <TransferSource
             isConnected={Boolean(source.connected)}
             wallet={source.wallet}
@@ -305,12 +318,12 @@ export const TransferModule = ({
             amount={source.amount}
             openProviderSelector={onChangeWallet(source)}
             openChainSelector={
-              source.onChangeChain ?
+              source.onChangeChain && !isSubmitting ?
                 () => setSourceChainModalOpen(true)
               : undefined
             }
             openAssetSelector={
-              source.onChangeSelectedAsset ?
+              source.onChangeSelectedAsset && !isSubmitting ?
                 () => setAssetSelectorModalOpen(true)
               : undefined
             }
@@ -320,7 +333,10 @@ export const TransferModule = ({
             isSubmitting={isSubmitting}
           />
           <i className="flex items-center justify-center w-11 mx-auto -my-8 relative z-10">
-            <TransferArrow color={destination.isShielded ? "#FF0" : "#FFF"} />
+            <TransferArrow
+              color={destination.isShielded ? "#FF0" : "#FFF"}
+              isAnimating={isSubmitting}
+            />
           </i>
           <TransferDestination
             wallet={destination.wallet}
@@ -338,7 +354,7 @@ export const TransferModule = ({
             customAddressActive={customAddressActive}
             openProviderSelector={onChangeWallet(destination)}
             openChainSelector={
-              destination.onChangeChain ?
+              destination.onChangeChain && !isSubmitting ?
                 () => setDestinationChainModalOpen(true)
               : undefined
             }
@@ -369,7 +385,7 @@ export const TransferModule = ({
               explanation={currentStatusExplanation}
             />
           )}
-          {!isSubmitting && (
+          {!isSubmitting && onSubmitTransfer && (
             <ActionButton
               outlineColor={buttonColor}
               backgroundColor={buttonColor}
@@ -382,6 +398,13 @@ export const TransferModule = ({
             </ActionButton>
           )}
         </Stack>
+        {completedAt && selectedAsset?.asset && source.amount && (
+          <SuccessAnimation
+            asset={selectedAsset.asset}
+            amount={source.amount}
+            onCompleteAnimation={onComplete}
+          />
+        )}
       </section>
 
       {walletSelectorModalOpen &&

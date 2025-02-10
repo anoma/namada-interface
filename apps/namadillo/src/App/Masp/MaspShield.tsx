@@ -113,6 +113,7 @@ export const MaspShield: React.FC = () => {
           txKind,
           selectedAsset.asset,
           rpcUrl,
+          true,
           txResponse,
           memo
         );

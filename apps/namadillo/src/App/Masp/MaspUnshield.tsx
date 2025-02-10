@@ -110,6 +110,7 @@ export const MaspUnshield: React.FC = () => {
           txKind,
           selectedAsset.asset,
           rpcUrl,
+          false,
           txResponse,
           memo
         );

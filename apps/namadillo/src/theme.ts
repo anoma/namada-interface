@@ -20,9 +20,20 @@ export const keyframes = {
       transform: "rotate(1turn)",
     },
   },
+  pulseFast: {
+    "0%": { opacity: 1 },
+    "50%": { opacity: 0.75 },
+  },
+  revealFromTop: {
+    "0%": { clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)" },
+    "50%": { clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" },
+    "100%": { clipPath: "polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)" },
+  },
 };
 
 export const animation = {
   niceSpin: "niceSpin 1s ease-out infinite 1s",
   loadingSpinner: "loading 1s ease infinite",
+  pulseFast: "pulseFast 1.25s infinite ease-in",
+  revealFromTop: "revealFromTop 0.75s linear infinite",
 };

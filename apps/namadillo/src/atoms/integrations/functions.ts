@@ -7,15 +7,11 @@ import { mapUndefined } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import * as celestia from "chain-registry/mainnet/celestia";
 import * as cosmos from "chain-registry/mainnet/cosmoshub";
-import * as dydx from "chain-registry/mainnet/dydx";
 import * as osmosis from "chain-registry/mainnet/osmosis";
-import * as stargaze from "chain-registry/mainnet/stargaze";
+import * as stride from "chain-registry/mainnet/stride";
 import * as celestiaTestnet from "chain-registry/testnet/celestiatestnet3";
 import * as cosmosTestnet from "chain-registry/testnet/cosmosicsprovidertestnet";
-import * as dydxTestnet from "chain-registry/testnet/dydxtestnet";
-import * as elysTestnet from "chain-registry/testnet/elystestnet";
 import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet";
-import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
 import { EncodedTxData, buildTx } from "lib/query";
 import {
@@ -58,7 +54,6 @@ export const namadaTestnetChainList = [
 ] as Chain[];
 
 registry.chains.push(namadaChain, ...namadaTestnetChainList);
-
 registry.assets.push(
   internalDevnetAssets,
   campfireAssets,
@@ -67,22 +62,11 @@ registry.assets.push(
   namadaAssets
 );
 
-const mainnetChains: ChainRegistryEntry[] = [
-  celestia,
-  cosmos,
-  dydx,
-  osmosis,
-  stargaze,
-];
-
+const mainnetChains: ChainRegistryEntry[] = [celestia, cosmos, osmosis, stride];
 const testnetChains: ChainRegistryEntry[] = [
   cosmosTestnet,
   celestiaTestnet,
-  dydxTestnet,
   osmosisTestnet,
-  stargazeTestnet,
-  // TODO: Temporarily added as it has a live relayer to theta-testnet-001
-  elysTestnet,
 ];
 
 const mainnetAndTestnetChains = [...mainnetChains, ...testnetChains];
@@ -260,7 +244,7 @@ const findOriginalAsset = async (
   };
 };
 
-const findChainById = (chainId: string): Chain | undefined => {
+export const findChainById = (chainId: string): Chain | undefined => {
   return registry.chains.find((chain) => chain.chain_id === chainId);
 };
 

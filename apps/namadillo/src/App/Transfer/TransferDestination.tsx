@@ -151,7 +151,7 @@ export const TransferDestination = ({
 
       {isSubmitting && amount && destinationAsset && (
         <div>
-          <TokenAmountCard asset={destinationAsset} amount={amount} />
+          <TokenAmountCard asset={destinationAsset} displayAmount={amount} />
         </div>
       )}
 
@@ -166,23 +166,26 @@ export const TransferDestination = ({
           </div>
         </footer>
       )}
-      <footer className="mt-10">
-        <div className="flex justify-between items-center">
-          {isIbcTransfer ?
-            <img src={ibcTransferImageWhite} className="w-20" />
-          : <div />}
-          {changeFeeEnabled ?
-            feeProps && <TransactionFeeButton feeProps={feeProps} />
-          : gasDisplayAmount &&
-            gasAsset && (
-              <TransactionFee
-                displayAmount={gasDisplayAmount}
-                symbol={gasAsset.symbol}
-              />
-            )
-          }
-        </div>
-      </footer>
+
+      {!isSubmitting && (
+        <footer className="mt-10">
+          <div className="flex justify-between items-center">
+            {isIbcTransfer ?
+              <img src={ibcTransferImageWhite} className="w-20" />
+            : <div />}
+            {changeFeeEnabled ?
+              feeProps && <TransactionFeeButton feeProps={feeProps} />
+            : gasDisplayAmount &&
+              gasAsset && (
+                <TransactionFee
+                  displayAmount={gasDisplayAmount}
+                  symbol={gasAsset.symbol}
+                />
+              )
+            }
+          </div>
+        </footer>
+      )}
     </div>
   );
 };

@@ -37,6 +37,7 @@ export const NamadaTransfer: React.FC = () => {
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
   const [currentStatus, setCurrentStatus] = useState("");
   const [currentStatusExplanation, setCurrentStatusExplanation] = useState("");
+  const [completedAt, setCompletedAt] = useState<Date | undefined>();
 
   const rpcUrl = useAtomValue(rpcUrlAtom);
   const features = useAtomValue(applicationFeaturesAtom);
@@ -80,6 +81,7 @@ export const NamadaTransfer: React.FC = () => {
   const {
     execute: performTransfer,
     isPending: isPerformingTransfer,
+    isSuccess: isTransferSuccessful,
     txKind,
     feeProps,
   } = useTransfer({
@@ -103,6 +105,9 @@ export const NamadaTransfer: React.FC = () => {
     onError: () => {
       setCurrentStatus("");
       setCurrentStatusExplanation("");
+    },
+    onSuccess: () => {
+      setCompletedAt(new Date());
     },
   });
 
@@ -143,6 +148,7 @@ export const NamadaTransfer: React.FC = () => {
           txKind,
           selectedAsset.asset,
           rpcUrl,
+          isTargetShielded,
           txResponse,
           memo
         );
@@ -154,7 +160,6 @@ export const NamadaTransfer: React.FC = () => {
 
         const tx = txList[0];
         storeTransaction(tx);
-        alert("yay");
       } else {
         throw "Invalid transaction response";
       }
@@ -203,8 +208,14 @@ export const NamadaTransfer: React.FC = () => {
         }}
         feeProps={feeProps}
         currentStatus={currentStatus}
+        completedAt={completedAt}
         currentStatusExplanation={currentStatusExplanation}
-        isSubmitting={isPerformingTransfer}
+        isSubmitting={
+          !!(displayAmount && selectedAsset) ||
+          isPerformingTransfer ||
+          isTransferSuccessful ||
+          Boolean(completedAt)
+        }
         errorMessage={generalErrorMessage}
         onSubmitTransfer={onSubmitTransfer}
       />

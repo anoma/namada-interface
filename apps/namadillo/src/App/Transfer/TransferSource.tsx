@@ -137,7 +137,7 @@ export const TransferSource = ({
 
       {isSubmitting && asset && amount && (
         <div className="pt-1.5 pb-3">
-          <TokenAmountCard asset={asset} amount={amount} />
+          <TokenAmountCard asset={asset} displayAmount={amount} />
         </div>
       )}
     </div>

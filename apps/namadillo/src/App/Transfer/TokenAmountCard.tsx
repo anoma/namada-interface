@@ -6,16 +6,19 @@ import { getAssetImageUrl } from "integrations/utils";
 
 type TokenAmountCardProps = {
   asset: Asset;
-  amount: BigNumber;
+  displayAmount: BigNumber;
   isShielded?: boolean;
 };
 
 export const TokenAmountCard = ({
   asset,
-  amount,
+  displayAmount,
 }: TokenAmountCardProps): JSX.Element => {
   return (
-    <div className="flex flex-col items-center gap-2.5 animate-fade-in">
+    <div
+      className="flex flex-col items-center gap-2.5 animate-fade-in"
+      data-animation="token-amount-card"
+    >
       <i>
         <img
           src={getAssetImageUrl(asset)}
@@ -26,9 +29,10 @@ export const TokenAmountCard = ({
         />
       </i>
       <TokenCurrency
-        amount={amount}
+        amount={displayAmount}
         symbol={asset.symbol}
         className="text-xl"
+        data-animation="token-amount-card-text"
       />
     </div>
   );

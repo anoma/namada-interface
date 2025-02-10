@@ -1,4 +1,4 @@
-import { shortenAddress } from "@namada/utils";
+import { WalletAddress } from "App/Common/WalletAddress";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
 import { WalletProvider } from "types";
@@ -8,7 +8,7 @@ type SelectedWalletProps = {
   address?: string;
   className?: string;
   onClick?: () => void;
-  displayShortenedAddress?: boolean;
+  displayFullAddress?: boolean;
 };
 
 export const SelectedWallet = ({
@@ -16,7 +16,7 @@ export const SelectedWallet = ({
   onClick,
   address,
   className = "",
-  displayShortenedAddress = true,
+  displayFullAddress = false,
 }: SelectedWalletProps): JSX.Element => {
   if (!address) return <></>;
   return (
@@ -35,9 +35,13 @@ export const SelectedWallet = ({
       )}
       onClick={onClick}
     >
-      {address && displayShortenedAddress ?
-        shortenAddress(address, 8, 6)
-      : address}
+      {address && (
+        <WalletAddress
+          address={address}
+          displayTooltip={false}
+          displayFullAddress={displayFullAddress}
+        />
+      )}
       <img
         src={wallet.iconUrl}
         alt={wallet.name + " Logo"}
