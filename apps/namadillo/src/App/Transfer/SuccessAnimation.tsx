@@ -63,6 +63,11 @@ export const SuccessAnimation = ({
     setTimeout(() => {
       const timeline = anime.timeline({
         easing: "easeOutExpo",
+        complete: () => {
+          setTimeout(() => {
+            onCompleteAnimation?.();
+          }, 1500);
+        },
       });
 
       // # Resetting elements to their initial values:
@@ -155,9 +160,6 @@ export const SuccessAnimation = ({
         top: "-=150px",
         opacity: [1, 0],
         duration: 500,
-        onComplete: () => {
-          onCompleteAnimation?.();
-        },
       });
     }, 1000);
   }, containerRef);
