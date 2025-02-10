@@ -25,6 +25,8 @@ export type PublicKey = string;
 
 export type Address = string;
 
+export type BaseDenom = string;
+
 export type ChainId = string;
 
 export type GasLimit = BigNumber;
@@ -32,7 +34,7 @@ export type GasLimit = BigNumber;
 export type GasPrice = BigNumber;
 
 // For Namada chain, it should be the address. For Ibc, it should be the base denom
-export type GasToken = Address | string;
+export type GasToken = Address | BaseDenom;
 
 export type AddressBalance = Record<Address, BigNumber>;
 
