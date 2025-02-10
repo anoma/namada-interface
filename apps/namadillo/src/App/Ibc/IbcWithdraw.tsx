@@ -173,6 +173,7 @@ export const IbcWithdraw: React.FC = () => {
       destinationChainId,
       memo: tx.encodedTxData.wrapperTxProps.memo || props.memo,
       displayAmount,
+      shielded: false,
       sourceAddress: props.source,
       sourceChannel: props.channelId,
       destinationAddress: props.receiver,

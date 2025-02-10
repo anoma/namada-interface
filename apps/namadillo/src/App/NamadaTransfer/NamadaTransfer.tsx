@@ -211,10 +211,7 @@ export const NamadaTransfer: React.FC = () => {
         completedAt={completedAt}
         currentStatusExplanation={currentStatusExplanation}
         isSubmitting={
-          !!(displayAmount && selectedAsset) ||
-          isPerformingTransfer ||
-          isTransferSuccessful ||
-          Boolean(completedAt)
+          isPerformingTransfer || isTransferSuccessful || Boolean(completedAt)
         }
         errorMessage={generalErrorMessage}
         onSubmitTransfer={onSubmitTransfer}

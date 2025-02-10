@@ -149,15 +149,15 @@ export const useIbcTransaction = ({
     memo = "",
     onUpdateStatus,
   }: IbcTransferProps): Promise<TransferTransactionData> => {
-    invariant(sourceAddress, "Error: Source address is not defined");
-    invariant(selectedAsset, "Error: No asset is selected");
-    invariant(registry, "Error: Invalid chain");
-    invariant(sourceChannel, "Error: Invalid IBC source channel");
-    invariant(stargateClient, "Error: Stargate client not initialized");
-    invariant(rpcUrl, "Error: RPC URL not initialized");
+    invariant(sourceAddress, "Source address is not defined");
+    invariant(selectedAsset, "No asset is selected");
+    invariant(registry, "Invalid chain");
+    invariant(sourceChannel, "Invalid IBC source channel");
+    invariant(stargateClient, "Stargate client not initialized");
+    invariant(rpcUrl, "RPC URL not initialized");
     invariant(
       !shielded || destinationChannel,
-      "Error: Destination channel not provided"
+      "Destination channel not provided"
     );
 
     // Set Keplr option to allow Namadillo to set the transaction fee
@@ -178,7 +178,12 @@ export const useIbcTransaction = ({
         }
         return gasConfigQuery.data;
       })();
-      invariant(gasConfig, "Error: Failed to estimate gas usage");
+
+      invariant(
+        gasConfig,
+        "Failed to simulate transaction and obtain gas usage." +
+          gasConfigQuery.error?.message
+      );
 
       const baseAmount = toBaseAmount(selectedAsset.asset, displayAmount);
 
