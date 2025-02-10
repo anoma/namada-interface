@@ -18,10 +18,10 @@ RUN yarn
 WORKDIR /app/apps/namadillo
 COPY ./apps/namadillo/scripts ./scripts
 
-RUN yarn wasm:build
+RUN yarn wasm:build:multicore
 
 COPY ./apps/namadillo .
-RUN yarn && yarn build
+RUN yarn && yarn build:only
 
 FROM nginx:alpine
 WORKDIR /app
