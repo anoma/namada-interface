@@ -1,6 +1,6 @@
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import { simulateIbcTransferFee } from "atoms/integrations";
+import { simulateIbcTransferGas } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { getIbcGasConfig } from "integrations/utils";
 import invariant from "invariant";
@@ -48,7 +48,7 @@ export const useSimulateIbcTransferFee = ({
           isShieldedTransfer ? "0".repeat(MASP_MEMO_LENGTH) : ""
         );
 
-        const estimatedGas = await simulateIbcTransferFee(
+        const estimatedGas = await simulateIbcTransferGas(
           stargateClient!,
           sourceAddress!,
           transferMsg

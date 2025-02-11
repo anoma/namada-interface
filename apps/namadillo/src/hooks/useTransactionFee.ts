@@ -45,7 +45,7 @@ export const useTransactionFee = (txKinds: TxKind[]): TransactionFeeProps => {
 
   const gasConfig: GasConfig = {
     gasLimit,
-    gasPrice,
+    gasPriceInMinDenom: gasPrice,
     gasToken,
   };
 

@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.7.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.6.0...namadillo@v1.7.0) (2025-02-11)
+
+
+### Features
+
+* Add dollar support for multiple channels ([#1609](https://github.com/anoma/namada-interface/issues/1609)) ([893f85e](https://github.com/anoma/namada-interface/commit/893f85ec646476b3a3851d5d250491f400aef595))
+* Add optimistic response for shielded transfers ([#1615](https://github.com/anoma/namada-interface/issues/1615)) ([a27e004](https://github.com/anoma/namada-interface/commit/a27e0042a11ac9b3325cd6b6bf42959c6dcc3284))
+* Render claim error ([#1626](https://github.com/anoma/namada-interface/issues/1626)) ([9f70e35](https://github.com/anoma/namada-interface/commit/9f70e358022feda17e300e0b79b7525893e20571))
+* Several improvements on Transfer Module and transaction receipts ([#1617](https://github.com/anoma/namada-interface/issues/1617)) ([1f0bda8](https://github.com/anoma/namada-interface/commit/1f0bda8fddaf998dc142458dfb9373fb6734b497))
+* Shielded sync before masp tx ([#1623](https://github.com/anoma/namada-interface/issues/1623)) ([56fbf56](https://github.com/anoma/namada-interface/commit/56fbf563c8654966cf4e5da90de5031130beb1ff))
+
+
+### Bug Fixes
+
+* Fixing ibc assets transfer fees ([#1625](https://github.com/anoma/namada-interface/issues/1625)) ([3185448](https://github.com/anoma/namada-interface/commit/3185448c538a57e58a07af37cdb91ba60e3d7a69))
+
 ## [1.6.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.5.0...namadillo@v1.6.0) (2025-02-05)
 
 

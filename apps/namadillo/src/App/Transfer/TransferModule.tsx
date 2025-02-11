@@ -6,6 +6,7 @@ import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
+import { wallets } from "integrations";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import {
@@ -15,7 +16,7 @@ import {
   WalletProvider,
 } from "types";
 import { getDisplayGasFee } from "utils/gas";
-import { isTransparentAddress, parseChainInfo } from "./common";
+import { parseChainInfo } from "./common";
 import { CurrentStatus } from "./CurrentStatus";
 import { IbcChannels } from "./IbcChannels";
 import { SelectAssetModal } from "./SelectAssetModal";
@@ -30,12 +31,12 @@ type TransferModuleConfig = {
   wallet?: WalletProvider;
   walletAddress?: string;
   availableWallets?: WalletProvider[];
-  onChangeWallet?: (wallet: WalletProvider) => void;
   connected?: boolean;
   availableChains?: Chains;
   chain?: Chain;
-  onChangeChain?: (chain: Chain) => void;
   isShielded?: boolean;
+  onChangeWallet?: (wallet: WalletProvider) => void;
+  onChangeChain?: (chain: Chain) => void;
   onChangeShielded?: (isShielded: boolean) => void;
 };
 
@@ -99,6 +100,7 @@ type ValidationResult =
   | "NoDestinationChain"
   | "NoTransactionFee"
   | "NotEnoughBalance"
+  | "NotEnoughBalanceForFees"
   | "Ok";
 
 export const TransferModule = ({
@@ -144,27 +146,27 @@ export const TransferModule = ({
 
   const availableAmountMinusFees = useMemo(() => {
     const { selectedAssetAddress, availableAmount } = source;
+
     if (
       typeof selectedAssetAddress === "undefined" ||
-      typeof availableAmount === "undefined"
+      typeof availableAmount === "undefined" ||
+      typeof source.availableAssets === "undefined"
     ) {
       return undefined;
     }
 
     if (
-      !displayGasFee ||
-      !displayGasFee.totalDisplayAmount ||
+      !displayGasFee?.totalDisplayAmount ||
       // Don't subtract if the gas token is different than the selected asset:
-      (gasConfig?.gasToken &&
-        isTransparentAddress(gasConfig.gasToken) &&
-        gasConfig.gasToken !== selectedAssetAddress)
+      gasConfig?.gasToken !== selectedAssetAddress
     ) {
       return availableAmount;
     }
 
-    const amountMinusFees = availableAmount.minus(
-      displayGasFee.totalDisplayAmount
-    );
+    const amountMinusFees = availableAmount
+      .minus(displayGasFee.totalDisplayAmount)
+      .decimalPlaces(6);
+
     return BigNumber.max(amountMinusFees, 0);
   }, [source.selectedAssetAddress, source.availableAmount, displayGasFee]);
 
@@ -177,6 +179,8 @@ export const TransferModule = ({
       return "NoDestinationChain";
     } else if (!source.selectedAssetAddress) {
       return "NoSelectedAsset";
+    } else if (!hasEnoughBalanceForFees()) {
+      return "NotEnoughBalanceForFees";
     } else if (!source.amount || source.amount.eq(0)) {
       return "NoAmount";
     } else if (
@@ -244,6 +248,30 @@ export const TransferModule = ({
     setWalletSelectorModalOpen(true);
   };
 
+  function hasEnoughBalanceForFees(): boolean {
+    // Skip if transaction fees will be handled by another wallet, like Keplr.
+    // (Ex: when users transfer from IBC to Namada)
+    if (source.wallet && source.wallet !== wallets.namada) {
+      return true;
+    }
+
+    if (!source.availableAssets || !gasConfig || !displayGasFee) {
+      return false;
+    }
+
+    // Find how much the user has in their account for the selected fee token
+    const feeTokenAddress = gasConfig.gasToken;
+
+    if (!source.availableAssets.hasOwnProperty(feeTokenAddress)) {
+      return false;
+    }
+
+    const assetDisplayAmount = source.availableAssets[feeTokenAddress].amount;
+    const feeDisplayAmount = displayGasFee?.totalDisplayAmount;
+
+    return assetDisplayAmount.gt(feeDisplayAmount);
+  }
+
   const getButtonTextError = (
     id: ValidationResult,
     defaultText: string
@@ -283,6 +311,9 @@ export const TransferModule = ({
 
       case "NotEnoughBalance":
         return getText("Not enough balance");
+
+      case "NotEnoughBalanceForFees":
+        return getText("Not enough balance to pay for transaction fees");
     }
 
     if (!availableAmountMinusFees) {

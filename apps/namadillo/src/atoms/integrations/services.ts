@@ -134,7 +134,7 @@ export const getSignedMessage = async (
 ): Promise<TxRaw> => {
   const fee: StdFee = calculateFee(
     Math.ceil(gasConfig.gasLimit.toNumber()),
-    `${gasConfig.gasPrice.toString()}${gasConfig.gasToken}`
+    `${gasConfig.gasPriceInMinDenom.toString()}${gasConfig.gasToken}`
   );
   return await client.sign(transferMsg.value.sender!, [transferMsg], fee, "");
 };
@@ -338,16 +338,20 @@ export const fetchIbcChannelFromRegistry = async (
   return getChannelFromIbcInfo(ibcChainName, channelInfo) || null;
 };
 
-export const simulateIbcTransferFee = async (
+export const simulateIbcTransferGas = async (
   stargateClient: SigningStargateClient,
   sourceAddress: string,
   transferMsg: MsgTransferEncodeObject,
   additionalPercentage: number = 0.05
 ): Promise<number> => {
-  const estimatedGas = await stargateClient.simulate(
-    sourceAddress!,
-    [transferMsg],
-    undefined
-  );
-  return estimatedGas * (1 + additionalPercentage);
+  try {
+    const estimatedGas = await stargateClient.simulate(
+      sourceAddress!,
+      [transferMsg],
+      undefined
+    );
+    return estimatedGas * (1 + additionalPercentage);
+  } catch (error) {
+    throw error;
+  }
 };
