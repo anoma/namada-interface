@@ -63,11 +63,12 @@ const useBuildGasOption = ({
     const selected =
       !gasConfig.gasLimit.isEqualTo(0) &&
       option.gasLimit.isEqualTo(gasConfig.gasLimit) &&
-      option.gasPrice.isEqualTo(gasConfig.gasPrice) &&
+      option.gasPriceInMinDenom.isEqualTo(gasConfig.gasPriceInMinDenom) &&
       option.gasToken === gasConfig.gasToken;
 
     const disabled =
-      gasConfig.gasLimit.isEqualTo(0) || gasConfig.gasPrice.isEqualTo(0);
+      gasConfig.gasLimit.isEqualTo(0) ||
+      gasConfig.gasPriceInMinDenom.isEqualTo(0);
 
     return {
       option,
@@ -171,17 +172,20 @@ export const GasFeeModal = ({
           containerProps={{
             className: twMerge(
               "text-sm w-full flex-1 border border-white rounded-sm",
-              "px-4 py-[9px]"
+              "px-4 py-[9px] "
             ),
           }}
           arrowContainerProps={{ className: "right-4" }}
-          listContainerProps={{ className: "w-full mt-2 border border-white" }}
+          listContainerProps={{
+            className:
+              "w-full mt-2 border border-white max-h-[300px] overflow-y-auto",
+          }}
           listItemProps={{ className: "border-0 px-2 -mx-2 rounded-sm" }}
           onChange={(e) => onChangeGasToken(e.target.value)}
           options={
             gasPriceTable?.sort(sortByNativeToken).map((item) => {
               const { symbol, displayAmount, dollar } = buildGasOption({
-                gasPrice: item.gasPrice,
+                gasPriceInMinDenom: item.gasPrice,
                 gasToken: item.token,
               });
               return {

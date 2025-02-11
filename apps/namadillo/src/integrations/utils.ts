@@ -54,8 +54,10 @@ export const getIbcGasConfig = (
 ): GasConfig | undefined => {
   // TODO: some chains support multiple fee tokens - what should we do?
   const feeToken = registry.chain.fees?.fee_tokens?.[0];
-  if (typeof feeToken !== "undefined") {
-    const gasPrice =
+  const feeAsset = feeToken && findAssetByDenom(feeToken.denom);
+
+  if (typeof feeToken !== "undefined" && feeAsset) {
+    const gasPriceInBaseDenom =
       feeToken.average_gas_price ??
       feeToken.low_gas_price ??
       feeToken.fixed_min_gas_price ??
@@ -63,8 +65,9 @@ export const getIbcGasConfig = (
       feeToken.gas_costs?.ibc_transfer ??
       feeToken.gas_costs?.cosmos_send ??
       0;
+
     return {
-      gasPrice: BigNumber(gasPrice),
+      gasPriceInMinDenom: BigNumber(gasPriceInBaseDenom),
       gasLimit: BigNumber(gasLimit),
       gasToken: feeToken.denom,
     };
