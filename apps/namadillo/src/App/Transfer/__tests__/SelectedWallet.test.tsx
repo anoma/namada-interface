@@ -39,7 +39,7 @@ describe("Component: SelectedWallet", () => {
     render(<SelectedWallet wallet={walletMock} address={tempAddress} />);
 
     // Check if the address is correctly shortened
-    const shortenedAddress = shortenAddress(tempAddress, 8, 6);
+    const shortenedAddress = shortenAddress(tempAddress, 8, 8);
     expect(screen.getByText(shortenedAddress)).toBeInTheDocument();
   });
 

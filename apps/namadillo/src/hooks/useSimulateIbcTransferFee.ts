@@ -35,27 +35,32 @@ export const useSimulateIbcTransferFee = ({
     ],
     retry: false,
     queryFn: async () => {
-      const MASP_MEMO_LENGTH = 2356;
-      const transferMsg = createIbcTransferMessage(
-        sanitizeChannel(channel!),
-        // We can't mock sourceAddress because the simulate function requires
-        // a valid address with funds
-        sanitizeAddress(sourceAddress!),
-        sanitizeAddress(sourceAddress!),
-        new BigNumber(1),
-        selectedAsset?.asset.base || registry?.assets.assets[0].base || "",
-        isShieldedTransfer ? "0".repeat(MASP_MEMO_LENGTH) : ""
-      );
+      try {
+        const MASP_MEMO_LENGTH = 2356;
+        const transferMsg = createIbcTransferMessage(
+          sanitizeChannel(channel!),
+          // We can't mock sourceAddress because the simulate function requires
+          // a valid address with funds
+          sanitizeAddress(sourceAddress!),
+          sanitizeAddress(sourceAddress!),
+          new BigNumber(1),
+          selectedAsset?.asset.base || registry?.assets.assets[0].base || "",
+          isShieldedTransfer ? "0".repeat(MASP_MEMO_LENGTH) : ""
+        );
 
-      const estimatedGas = await simulateIbcTransferFee(
-        stargateClient!,
-        sourceAddress!,
-        transferMsg
-      );
+        const estimatedGas = await simulateIbcTransferFee(
+          stargateClient!,
+          sourceAddress!,
+          transferMsg
+        );
 
-      const gasConfig = getIbcGasConfig(registry!, estimatedGas);
-      invariant(gasConfig, "Error: invalid Gas config");
-      return gasConfig;
+        const gasConfig = getIbcGasConfig(registry!, estimatedGas);
+        invariant(gasConfig, "Error: invalid Gas config");
+        return gasConfig;
+      } catch (err) {
+        console.error(err);
+        throw err;
+      }
     },
     enabled: Boolean(registry && stargateClient && sourceAddress && channel),
   });

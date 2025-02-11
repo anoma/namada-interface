@@ -23,7 +23,8 @@ import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 import namadaChain from "registry/namada.json";
-import { Address, TransferTransactionData } from "types";
+import { Address } from "types";
+import { useTransactionEventListener } from "utils";
 import { IbcTopHeader } from "./IbcTopHeader";
 
 const keplr = new KeplrWalletManager();
@@ -31,6 +32,7 @@ const defaultChainId = "cosmoshub-4";
 
 export const IbcTransfer = (): JSX.Element => {
   const navigate = useNavigate();
+  const [completedAt, setCompletedAt] = useState<Date | undefined>();
 
   // Global & Atom states
   const availableChains = useAtomValue(availableChainsAtom);
@@ -65,6 +67,7 @@ export const IbcTransfer = (): JSX.Element => {
   const [sourceChannel, setSourceChannel] = useState("");
   const [destinationChannel, setDestinationChannel] = useState("");
   const [currentProgress, setCurrentProgress] = useState<string>();
+  const [txHash, setTxHash] = useState<string | undefined>();
 
   // Derived data
   const availableAmount = mapUndefined(
@@ -81,7 +84,7 @@ export const IbcTransfer = (): JSX.Element => {
   const { storeTransaction } = useTransactionActions();
 
   // Utils for IBC transfers
-  const { transferToNamada, gasConfig, transferStatus } = useIbcTransaction({
+  const { transferToNamada, gasConfig } = useIbcTransaction({
     registry,
     sourceAddress,
     sourceChannel,
@@ -89,11 +92,6 @@ export const IbcTransfer = (): JSX.Element => {
     shielded,
     selectedAsset,
   });
-
-  const redirectToTimeline = (tx: TransferTransactionData): void => {
-    invariant(tx.hash, "Invalid TX hash");
-    navigate(generatePath(routes.transaction, { hash: tx.hash }));
-  };
 
   const namadaAddress = useMemo(() => {
     return (
@@ -117,6 +115,12 @@ export const IbcTransfer = (): JSX.Element => {
     setDestinationChannel(ibcChannels?.namadaChannel || "");
   }, [ibcChannels]);
 
+  useTransactionEventListener("IbcTransfer.Success", (e) => {
+    if (txHash && e.detail.hash === txHash) {
+      setCompletedAt(new Date());
+    }
+  });
+
   const onSubmitTransfer = async ({
     displayAmount,
     destinationAddress,
@@ -127,14 +131,14 @@ export const IbcTransfer = (): JSX.Element => {
       invariant(registry?.chain, "Error: Chain not selected");
       setGeneralErrorMessage("");
       setCurrentProgress("Submitting...");
-      const result = await transferToNamada(
+      const result = await transferToNamada.mutateAsync({
         destinationAddress,
         displayAmount,
         memo,
-        setCurrentProgress
-      );
+        onUpdateStatus: setCurrentProgress,
+      });
       storeTransaction(result);
-      redirectToTimeline(result);
+      setTxHash(result.hash);
     } catch (err) {
       setGeneralErrorMessage(err + "");
       setCurrentProgress(undefined);
@@ -186,9 +190,16 @@ export const IbcTransfer = (): JSX.Element => {
         }}
         gasConfig={gasConfig.data}
         changeFeeEnabled={false}
-        submittingText={currentProgress}
-        isSubmitting={transferStatus === "pending" || !!currentProgress}
+        isSubmitting={
+          transferToNamada.isPending ||
+          /* isSuccess means that the transaction has been broadcasted, but doesn't take
+           * in consideration if it was applied to Namada chain, or releayed successfully.
+           * In order to get this confirmation, we poll the RPC endpoint on useTransactionWatcher hook. */
+          transferToNamada.isSuccess
+        }
+        completedAt={completedAt}
         isIbcTransfer={true}
+        currentStatus={currentProgress}
         requiresIbcChannels={requiresIbcChannels}
         ibcOptions={{
           sourceChannel,
@@ -196,8 +207,12 @@ export const IbcTransfer = (): JSX.Element => {
           destinationChannel,
           onChangeDestinationChannel: setDestinationChannel,
         }}
-        errorMessage={generalErrorMessage}
+        errorMessage={generalErrorMessage || transferToNamada.error?.message}
         onSubmitTransfer={onSubmitTransfer}
+        onComplete={() => {
+          txHash &&
+            navigate(generatePath(routes.transaction, { hash: txHash }));
+        }}
       />
     </div>
   );

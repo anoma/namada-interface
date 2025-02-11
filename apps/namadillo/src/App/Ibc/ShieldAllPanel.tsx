@@ -98,7 +98,7 @@ export const ShieldAllPanel = ({
             wallet={wallet}
             address={walletAddress}
             className="text-black px-2 py-1.5 border rounded-sm"
-            displayShortenedAddress={false}
+            displayFullAddress={true}
           />
           {isLoading ?
             <SkeletonLoading

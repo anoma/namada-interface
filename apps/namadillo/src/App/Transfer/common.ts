@@ -22,10 +22,20 @@ export const parseChainInfo = (
   };
 };
 
+export const isMaspAddress = (address: string): boolean => {
+  return (
+    address.toLowerCase() === "tnam1pcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzmefah"
+  );
+};
+
 export const isShieldedAddress = (address: string): boolean => {
-  return address.startsWith("znam");
+  return address.startsWith("znam") || isMaspAddress(address);
 };
 
 export const isTransparentAddress = (address: string): boolean => {
   return address.startsWith("tnam");
+};
+
+export const isNamadaAddress = (address: string): boolean => {
+  return isShieldedAddress(address) || isTransparentAddress(address);
 };

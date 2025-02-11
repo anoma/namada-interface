@@ -7,15 +7,11 @@ import { mapUndefined } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import * as celestia from "chain-registry/mainnet/celestia";
 import * as cosmos from "chain-registry/mainnet/cosmoshub";
-import * as dydx from "chain-registry/mainnet/dydx";
 import * as osmosis from "chain-registry/mainnet/osmosis";
-import * as stargaze from "chain-registry/mainnet/stargaze";
+import * as stride from "chain-registry/mainnet/stride";
 import * as celestiaTestnet from "chain-registry/testnet/celestiatestnet3";
 import * as cosmosTestnet from "chain-registry/testnet/cosmosicsprovidertestnet";
-import * as dydxTestnet from "chain-registry/testnet/dydxtestnet";
-import * as elysTestnet from "chain-registry/testnet/elystestnet";
 import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet";
-import * as stargazeTestnet from "chain-registry/testnet/stargazetestnet";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
 import { EncodedTxData, buildTx } from "lib/query";
 import {
@@ -47,7 +43,7 @@ import namadaChain from "@namada/chain-registry/namada/chain.json";
 import internalDevnetCosmosTestnetIbc from "@namada/chain-registry/_testnets/_IBC/namadainternaldevnet-cosmoshubtestnet.json";
 
 // TODO: this causes a big increase on bundle size. See #1224.
-import cosmosRegistry from "chain-registry";
+import registry from "chain-registry";
 import { searchNamadaTestnetByChainId } from "lib/chain";
 
 export const namadaTestnetChainList = [
@@ -57,9 +53,8 @@ export const namadaTestnetChainList = [
   housefireOldChain,
 ] as Chain[];
 
-cosmosRegistry.chains.push(namadaChain, ...namadaTestnetChainList);
-
-cosmosRegistry.assets.push(
+registry.chains.push(namadaChain, ...namadaTestnetChainList);
+registry.assets.push(
   internalDevnetAssets,
   campfireAssets,
   housefireAssets,
@@ -67,22 +62,11 @@ cosmosRegistry.assets.push(
   namadaAssets
 );
 
-const mainnetChains: ChainRegistryEntry[] = [
-  celestia,
-  cosmos,
-  dydx,
-  osmosis,
-  stargaze,
-];
-
+const mainnetChains: ChainRegistryEntry[] = [celestia, cosmos, osmosis, stride];
 const testnetChains: ChainRegistryEntry[] = [
   cosmosTestnet,
   celestiaTestnet,
-  dydxTestnet,
   osmosisTestnet,
-  stargazeTestnet,
-  // TODO: Temporarily added as it has a live relayer to theta-testnet-001
-  elysTestnet,
 ];
 
 const mainnetAndTestnetChains = [...mainnetChains, ...testnetChains];
@@ -115,7 +99,7 @@ export const ibcAddressToDenomTrace =
   };
 
 const assetLookup = (chainName: string): Asset[] | undefined =>
-  cosmosRegistry.assets.find((chain) => chain.chain_name === chainName)?.assets;
+  registry.assets.find((chain) => chain.chain_name === chainName)?.assets;
 
 const tryDenomToRegistryAsset = (
   denom: string,
@@ -139,7 +123,7 @@ const findCounterpartChainName = (
   portId: string,
   channelId: string
 ): string | undefined => {
-  return cosmosRegistry.ibc.reduce<string | undefined>((acc, curr: IBCInfo) => {
+  return registry.ibc.reduce<string | undefined>((acc, curr: IBCInfo) => {
     if (typeof acc !== "undefined") {
       return acc;
     }
@@ -183,7 +167,7 @@ const tryDenomToIbcAsset = async (
 
   const assetOnRegistry = tryDenomToRegistryAsset(
     baseDenom,
-    cosmosRegistry.assets.map((assetListEl) => assetListEl.assets).flat()
+    registry.assets.map((assetListEl) => assetListEl.assets).flat()
   );
 
   if (assetOnRegistry) {
@@ -260,8 +244,8 @@ const findOriginalAsset = async (
   };
 };
 
-const findChainById = (chainId: string): Chain | undefined => {
-  return cosmosRegistry.chains.find((chain) => chain.chain_id === chainId);
+export const findChainById = (chainId: string): Chain | undefined => {
+  return registry.chains.find((chain) => chain.chain_id === chainId);
 };
 
 export const mapCoinsToAssets = async (
@@ -446,9 +430,9 @@ export const addLocalnetToRegistry = (config: LocalnetToml): void => {
     ibc: [namadaLocalRelayer(chain_1_channel, chain_2_channel)],
   };
 
-  cosmosRegistry.chains.push(localChain.chain);
-  cosmosRegistry.assets.push(localChain.assets);
-  cosmosRegistry.ibc.push(...localChain.ibc!);
+  registry.chains.push(localChain.chain);
+  registry.assets.push(localChain.assets);
+  registry.ibc.push(...localChain.ibc!);
 
   mainnetChains.push(localChain);
 };

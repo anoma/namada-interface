@@ -14,8 +14,13 @@ import {
   createUnshieldingTransferAtom,
 } from "atoms/transfer/atoms";
 import BigNumber from "bignumber.js";
-import { useTransaction, UseTransactionOutput } from "hooks/useTransaction";
+import {
+  useTransaction,
+  UseTransactionOutput,
+  UseTransactionPropsEvents,
+} from "hooks/useTransaction";
 import { useAtomValue } from "jotai";
+import { TransactionPair } from "lib/query";
 import { Address, NamadaTransferTxKind } from "types";
 import { useOptimisticTransferUpdate } from "./useOptimisticTransferUpdate";
 
@@ -25,7 +30,7 @@ type useTransferParams = {
   token: Address;
   displayAmount: BigNumber;
   onUpdateStatus?: (status: string) => void;
-};
+} & UseTransactionPropsEvents<unknown>;
 
 type useTransferOutput = (
   | UseTransactionOutput<TransparentTransferMsgValue>
@@ -42,6 +47,7 @@ export const useTransfer = ({
   token,
   displayAmount: amount,
   onUpdateStatus,
+  ...events
 }: useTransferParams): useTransferOutput => {
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
   const shieldedAccount = defaultAccounts.data?.find(
@@ -60,13 +66,15 @@ export const useTransfer = ({
       title: "Transfer transaction failed",
       description: "",
     }),
-    onSuccess: () => {
+    ...events,
+    onSuccess: (tx: TransactionPair<unknown>) => {
       if (target === shieldedAccount?.address) {
         optimisticTransferUpdate(token, amount);
       }
       if (source === shieldedAccount?.address) {
         optimisticTransferUpdate(token, amount.multipliedBy(-1));
       }
+      events.onSuccess?.(tx);
     },
   };
 

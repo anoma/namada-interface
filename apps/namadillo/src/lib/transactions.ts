@@ -109,7 +109,8 @@ export const createTransferDataFromIbc = (
   rpc: string,
   asset: Asset,
   sourceChainId: string,
-  details: IbcTransferStage
+  details: IbcTransferStage,
+  isShieldedTx: boolean
 ): TransferTransactionData => {
   const transferAttributes = getEventAttribute(tx, "ibc_transfer");
   const packetAttributes = getEventAttribute(tx, "send_packet");
@@ -143,6 +144,7 @@ export const createTransferDataFromIbc = (
     status: "pending",
     sourcePort: "transfer",
     chainId: sourceChainId,
+    shielded: isShieldedTx,
     currentStep: TransferStep.WaitingConfirmation,
     destinationChainId: namada.chainId, //TODO: integrate with registry,
     sourceAddress: getAttributeValue(transferAttributes, "sender"),
@@ -163,6 +165,7 @@ export const createTransferDataFromNamada = (
   txKind: NamadaTransferTxKind,
   asset: Asset,
   rpcUrl: string,
+  isShieldedTx: boolean,
   txResponse?:
     | TransactionPair<TransparentTransferMsgValue>
     | TransactionPair<ShieldedTransferMsgValue>
@@ -201,6 +204,7 @@ export const createTransferDataFromNamada = (
           asset,
           memo,
           rpc: rpcUrl,
+          shielded: isShieldedTx,
           displayAmount: amount,
           chainId: txResponse?.encodedTxData.txs[0]?.args.chainId ?? "",
           hash: txResponse?.encodedTxData.txs[0].hash,

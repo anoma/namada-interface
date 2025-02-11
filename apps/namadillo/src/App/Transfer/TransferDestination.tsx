@@ -7,11 +7,12 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { Address, WalletProvider } from "types";
+import ibcTransferImageWhite from "./assets/ibc-transfer-white.png";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";
 import { SelectedWallet } from "./SelectedWallet";
-import ibcTransferImageWhite from "./assets/ibc-transfer-white.png";
+import { TokenAmountCard } from "./TokenAmountCard";
 
 type TransferDestinationProps = {
   isShielded?: boolean;
@@ -26,6 +27,9 @@ type TransferDestinationProps = {
   changeFeeEnabled?: boolean;
   customAddressActive?: boolean;
   isIbcTransfer?: boolean;
+  isSubmitting?: boolean;
+  destinationAsset?: Asset;
+  amount?: BigNumber;
   openChainSelector?: () => void;
   openProviderSelector?: () => void;
   onToggleCustomAddress?: (isActive: boolean) => void;
@@ -44,11 +48,14 @@ export const TransferDestination = ({
   onChangeShielded,
   gasDisplayAmount,
   gasAsset,
+  isSubmitting,
   feeProps,
   changeFeeEnabled = true,
   customAddressActive,
   onToggleCustomAddress,
   address,
+  amount,
+  destinationAsset,
   onChangeAddress,
   memo,
   onChangeMemo,
@@ -63,89 +70,122 @@ export const TransferDestination = ({
           chain?.chain_name === "namada" && !isShielded,
       })}
     >
-      {onChangeShielded && chain?.chain_name === "namada" && (
-        <nav className="mb-6">
-          <TabSelector
-            active={isShielded ? "shielded" : "transparent"}
-            items={[
-              { id: "shielded", text: "Shielded", className: "text-yellow" },
-              {
-                id: "transparent",
-                text: "Transparent",
-                className: "text-white",
-              },
-            ]}
-            onChange={() => onChangeShielded(!isShielded)}
-          />
-        </nav>
-      )}
-
-      {onToggleCustomAddress && (
-        <nav className="mb-6">
-          <TabSelector
-            active={customAddressActive ? "custom" : "my-address"}
-            onChange={() => onToggleCustomAddress(!customAddressActive)}
-            items={[
-              { id: "my-address", text: "My Address", className: "text-white" },
-              { id: "custom", text: "Custom Address", className: "text-white" },
-            ]}
-          />
-        </nav>
-      )}
-
-      {!customAddressActive && (
-        <div className="flex justify-between items-center">
-          <SelectedChain
-            chain={chain}
-            wallet={wallet}
-            onClick={openChainSelector}
-            iconSize="42px"
-          />
-          {!walletAddress && (
-            <ConnectProviderButton onClick={openProviderSelector} />
-          )}
-          {wallet && walletAddress && (
-            <SelectedWallet wallet={wallet} address={walletAddress} />
-          )}
-        </div>
-      )}
-
-      {customAddressActive && (
-        <Stack gap={8}>
-          {onToggleCustomAddress && (
-            <SelectedChain
-              chain={chain}
-              wallet={wallet}
-              onClick={openChainSelector}
-              iconSize="42px"
-            />
-          )}
-          <CustomAddressForm
-            memo={memo}
-            onChangeMemo={onChangeMemo}
-            customAddress={address}
-            onChangeAddress={onChangeAddress}
-          />
-        </Stack>
-      )}
-
-      <footer className="mt-10">
-        <div className="flex justify-between items-center">
-          {isIbcTransfer ?
-            <img src={ibcTransferImageWhite} className="w-20" />
-          : <div />}
-          {changeFeeEnabled ?
-            feeProps && <TransactionFeeButton feeProps={feeProps} />
-          : gasDisplayAmount &&
-            gasAsset && (
-              <TransactionFee
-                displayAmount={gasDisplayAmount}
-                symbol={gasAsset.symbol}
+      {!isSubmitting && (
+        <div>
+          {onChangeShielded && chain?.chain_name === "namada" && (
+            <nav className="mb-6">
+              <TabSelector
+                active={isShielded ? "shielded" : "transparent"}
+                items={[
+                  {
+                    id: "shielded",
+                    text: "Shielded",
+                    className: "text-yellow",
+                  },
+                  {
+                    id: "transparent",
+                    text: "Transparent",
+                    className: "text-white",
+                  },
+                ]}
+                onChange={() => onChangeShielded(!isShielded)}
               />
-            )
-          }
+            </nav>
+          )}
+          {onToggleCustomAddress && (
+            <nav className="mb-6">
+              <TabSelector
+                active={customAddressActive ? "custom" : "my-address"}
+                onChange={() => onToggleCustomAddress(!customAddressActive)}
+                items={[
+                  {
+                    id: "my-address",
+                    text: "My Address",
+                    className: "text-white",
+                  },
+                  {
+                    id: "custom",
+                    text: "Custom Address",
+                    className: "text-white",
+                  },
+                ]}
+              />
+            </nav>
+          )}
+          {!customAddressActive && (
+            <div className="flex justify-between items-center">
+              <SelectedChain
+                chain={chain}
+                wallet={wallet}
+                onClick={openChainSelector}
+                iconSize="42px"
+              />
+              {!walletAddress && (
+                <ConnectProviderButton onClick={openProviderSelector} />
+              )}
+              {wallet && walletAddress && (
+                <SelectedWallet wallet={wallet} address={walletAddress} />
+              )}
+            </div>
+          )}
+          {customAddressActive && (
+            <Stack gap={8}>
+              {onToggleCustomAddress && (
+                <SelectedChain
+                  chain={chain}
+                  wallet={wallet}
+                  onClick={openChainSelector}
+                  iconSize="42px"
+                />
+              )}
+              <CustomAddressForm
+                memo={memo}
+                onChangeMemo={onChangeMemo}
+                customAddress={address}
+                onChangeAddress={onChangeAddress}
+              />
+            </Stack>
+          )}
         </div>
-      </footer>
+      )}
+
+      {isSubmitting && amount && destinationAsset && (
+        <div>
+          <TokenAmountCard asset={destinationAsset} displayAmount={amount} />
+        </div>
+      )}
+
+      {isSubmitting && (
+        <footer>
+          <hr className="mt-4 mb-2.5 mx-2 border-white opacity-[5%]" />
+          <div className="flex justify-between items-center">
+            <SelectedChain chain={chain} wallet={wallet} iconSize="36px" />
+            {wallet && walletAddress && (
+              <SelectedWallet wallet={wallet} address={walletAddress} />
+            )}
+          </div>
+        </footer>
+      )}
+
+      {!isSubmitting && (
+        <footer className="mt-10">
+          <div className="flex justify-between items-center">
+            {isIbcTransfer ?
+              <img src={ibcTransferImageWhite} className="w-20" />
+            : <div />}
+            {changeFeeEnabled ?
+              feeProps && <TransactionFeeButton feeProps={feeProps} />
+            : gasDisplayAmount &&
+              gasAsset && (
+                <TransactionFee
+                  displayAmount={gasDisplayAmount}
+                  symbol={gasAsset.symbol}
+                />
+              )
+            }
+          </div>
+        </footer>
+      )}
     </div>
   );
 };
