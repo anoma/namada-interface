@@ -172,7 +172,7 @@ export const GasFeeModal = ({
           containerProps={{
             className: twMerge(
               "text-sm w-full flex-1 border border-white rounded-sm",
-              "px-4 py-[9px] "
+              "px-4 py-[9px]"
             ),
           }}
           arrowContainerProps={{ className: "right-4" }}

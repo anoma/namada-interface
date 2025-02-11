@@ -76,6 +76,7 @@ export const MaspUnshield: React.FC = () => {
       setCurrentStatus("");
       setCurrentStatusExplanation("");
     },
+    asset: selectedAsset?.asset,
   });
 
   const onChangeSelectedAsset = (address?: Address): void => {
