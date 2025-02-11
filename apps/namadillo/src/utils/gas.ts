@@ -14,7 +14,7 @@ export const calculateGasFee = (gasConfig: GasConfig): BigNumber => {
 
 export const getDisplayGasFee = (
   gasConfig: GasConfig,
-  chainAssetsMap?: Record<Address, Asset>
+  chainAssetsMap?: Record<Address, Asset | undefined>
 ): GasConfigToDisplay => {
   const { gasToken } = gasConfig;
   let asset: Asset;
