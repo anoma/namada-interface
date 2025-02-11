@@ -73,13 +73,13 @@ impl ShieldedHDWallet {
         // Optional address index
         let address_index = path.get(3);
 
-        let mut zip32_path: Vec<ChildIndex> = vec![purpose, coin_type, account]
+        let mut zip32_path: Vec<ChildIndex> = [purpose, coin_type, account]
             .iter()
             .map(|i| ChildIndex::Hardened(**i))
             .collect();
 
-        if address_index.is_some() {
-            zip32_path.push(ChildIndex::NonHardened(*address_index.unwrap()));
+        if let Some(index) = address_index {
+            zip32_path.push(ChildIndex::NonHardened(*index));
         }
 
         let xsk: ExtendedSpendingKey =

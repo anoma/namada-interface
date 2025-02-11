@@ -1,4 +1,4 @@
-import { PhraseSize, ShieldedKeys } from "@namada/sdk/web";
+import { DEFAULT_ZIP32_PATH, PhraseSize, ShieldedKeys } from "@namada/sdk/web";
 import { KVStore } from "@namada/storage";
 import {
   AccountType,
@@ -32,7 +32,7 @@ import {
   SensitiveType,
   VaultStorage,
 } from "storage";
-import { generateId, makeStoredPath } from "utils";
+import { generateId } from "utils";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -280,10 +280,7 @@ export class KeyRing {
   ): DerivedAccountInfo {
     // As this is derived from a parent account, our initial default account
     // should have a default path
-    const zip32Path = makeStoredPath(
-      AccountType.ShieldedKeys,
-      DEFAULT_BIP44_PATH
-    );
+    const zip32Path = DEFAULT_ZIP32_PATH;
     const id = generateId(
       UUID_NAMESPACE,
       "shielded-account",
@@ -299,11 +296,7 @@ export class KeyRing {
     const parentType = parentAccount.type;
 
     if (parentType === AccountType.Mnemonic) {
-      shieldedKeys = keysNs.deriveShieldedFromSeed(
-        secret,
-        bip44Path,
-        zip32Path
-      );
+      shieldedKeys = keysNs.deriveShieldedFromSeed(secret, zip32Path);
     } else if (parentType === AccountType.PrivateKey) {
       shieldedKeys = keysNs.deriveShieldedFromPrivateKey(secret, zip32Path);
     } else {
@@ -426,13 +419,7 @@ export class KeyRing {
       derivationPath = DEFAULT_BIP44_PATH;
     }
 
-    // We create a default zip32 path here as shielded keys will
-    // be derived from a private key that was derived with BIP44
-    const zip32Path = makeStoredPath(
-      AccountType.ShieldedKeys,
-      DEFAULT_BIP44_PATH
-    );
-
+    const zip32Path = DEFAULT_ZIP32_PATH;
     const deriveFn = (
       type === AccountType.PrivateKey ?
         this.deriveTransparentAccount

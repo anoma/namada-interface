@@ -1,3 +1,5 @@
+import { Bip44Path, Zip32Path } from "@namada/types";
+
 /**
  * Address and public key type
  */
@@ -21,4 +23,20 @@ export type ShieldedKeys = {
   viewingKey: string;
   spendingKey: string;
   pseudoExtendedKey: string;
+};
+
+export const DEFAULT_BIP44_PATH: Bip44Path = {
+  account: 0,
+  change: 0,
+  index: 0,
+};
+
+export const MODIFIED_ZIP32_PATH: Bip44Path = {
+  account: 0,
+  change: 0,
+  index: 2147483647,
+};
+
+export const DEFAULT_ZIP32_PATH: Zip32Path = {
+  account: 0,
 };

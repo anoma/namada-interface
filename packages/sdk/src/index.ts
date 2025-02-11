@@ -35,7 +35,12 @@ export type { SupportedTx } from "./tx";
 
 export { ProgressBarNames, Sdk, SdkEvents } from "./sdk";
 
-export { publicKeyToBech32 } from "./keys";
+export {
+  DEFAULT_BIP44_PATH,
+  DEFAULT_ZIP32_PATH,
+  MODIFIED_ZIP32_PATH,
+  publicKeyToBech32,
+} from "./keys";
 
 export type { Masp } from "./masp";
 export { PhraseSize } from "./mnemonic";

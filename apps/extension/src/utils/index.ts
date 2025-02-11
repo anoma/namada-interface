@@ -2,7 +2,6 @@ import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import {
   Account,
   AccountType,
-  Bip44Path,
   DerivedAccount,
   Path,
   TransferProps,
@@ -106,20 +105,6 @@ export const fromEncodedTx = (encodedTxData: EncodedTxData): TxProps => ({
       sd.accountPublicKeysMap ? fromBase64(sd.accountPublicKeysMap) : undefined,
   })),
 });
-
-// Generate either BIP44 or ZIP32 path from BIP44 based on account type
-export const makeStoredPath = (
-  accountType: AccountType,
-  path: Bip44Path
-): Path => {
-  const { account, change, index } = path;
-  return accountType === AccountType.ShieldedKeys ?
-      // If this is a custom address (non-default account or index in the BIP44 path),
-      // specify index for shielded keys. In Namada CLI, the default ZIP32 path only
-      // specifies "account"
-      { account, index: account + index > 0 ? index : undefined }
-    : { account, change, index };
-};
 
 export const isCustomPath = (path: Path): boolean => {
   const { account, change = 0, index = 0 } = path;
