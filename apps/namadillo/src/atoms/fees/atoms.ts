@@ -10,7 +10,7 @@ import { isPublicKeyRevealed } from "lib/query";
 import isEqual from "lodash.isequal";
 import { Address } from "types";
 import { TxKind } from "types/txKind";
-import { toDisplayAmount } from "utils";
+import { isNamadaAsset, toDisplayAmount } from "utils";
 import { fetchGasEstimate, fetchTokensGasPrice } from "./services";
 
 export type GasPriceTableItem = {
@@ -83,8 +83,10 @@ export const gasPriceTableAtom = atomWithQuery<GasPriceTable>((get) => {
         const baseAmount = BigNumber(minDenomAmount);
         return {
           token,
-          // TODO should we run `toDisplayAmount` for all tokens or only NAM?
-          gasPrice: asset ? toDisplayAmount(asset, baseAmount) : baseAmount,
+          gasPrice:
+            asset && isNamadaAsset(asset) ?
+              toDisplayAmount(asset, baseAmount)
+            : baseAmount,
         };
       });
     }, []),

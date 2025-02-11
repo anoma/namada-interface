@@ -7,7 +7,9 @@ import { isNamadaAsset, toDisplayAmount } from "utils";
 import { unknownAsset } from "./assets";
 
 export const calculateGasFee = (gasConfig: GasConfig): BigNumber => {
-  return BigNumber(gasConfig.gasPrice).multipliedBy(gasConfig.gasLimit);
+  return BigNumber(gasConfig.gasPriceInMinDenom).multipliedBy(
+    gasConfig.gasLimit
+  );
 };
 
 export const getDisplayGasFee = (

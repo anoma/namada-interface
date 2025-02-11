@@ -94,7 +94,7 @@ export function WorkerTest(): JSX.Element {
         account: account!,
         gasConfig: {
           gasLimit: BigNumber(50000),
-          gasPrice: BigNumber(0),
+          gasPriceInMinDenom: BigNumber(0),
           gasToken: "tnam1",
         },
         props: [shieldingMsgValue],
@@ -155,7 +155,7 @@ export function WorkerTest(): JSX.Element {
         },
         gasConfig: {
           gasLimit: BigNumber(100000),
-          gasPrice: BigNumber(0),
+          gasPriceInMinDenom: BigNumber(0),
           gasToken: "tnam1",
         },
         props: [shieldingMsgValue],
@@ -215,7 +215,7 @@ export function WorkerTest(): JSX.Element {
         },
         gasConfig: {
           gasLimit: BigNumber(50000),
-          gasPrice: BigNumber(0),
+          gasPriceInMinDenom: BigNumber(0),
           gasToken: "tnam1",
         },
         props: [shieldingMsgValue],

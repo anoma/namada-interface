@@ -109,6 +109,7 @@ export const NamadaTransfer: React.FC = () => {
     onSuccess: () => {
       setCompletedAt(new Date());
     },
+    asset: selectedAsset?.asset,
   });
 
   const isSourceShielded = isShieldedAddress(source);
