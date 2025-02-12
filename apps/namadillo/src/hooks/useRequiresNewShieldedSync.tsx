@@ -1,3 +1,4 @@
+import { defaultAccountAtom } from "atoms/accounts";
 import {
   isShieldedSyncCompleteAtom,
   lastCompletedShieldedSyncAtom,
@@ -13,7 +14,14 @@ export const useRequiresNewShieldedSync = ({
   minutesToNextSync = 3,
 }: RequiresNewShieldedSyncProps = {}): boolean => {
   const isComplete = useAtomValue(isShieldedSyncCompleteAtom);
-  const lastSync = useAtomValue(lastCompletedShieldedSyncAtom);
+  const syncPerAccount = useAtomValue(lastCompletedShieldedSyncAtom);
+  const account = useAtomValue(defaultAccountAtom);
+
+  if (!account?.data) {
+    return false;
+  }
+
+  const lastSync = syncPerAccount[account.data.address];
   const requiresNewSync =
     lastSync === undefined ||
     (!isComplete &&

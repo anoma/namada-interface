@@ -20,7 +20,7 @@ export const SettingsMASP = (): JSX.Element => {
   const onInvalidateShieldedContext = async (): Promise<void> => {
     await clearShieldedContext.mutateAsync();
     setStorageShieldedBalance(RESET);
-    setLastCompletedShieldedSync(undefined);
+    setLastCompletedShieldedSync({});
     setStorageShieldedRewards(RESET);
     location.href = routes.root;
   };
