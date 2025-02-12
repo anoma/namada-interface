@@ -33,13 +33,22 @@ export const ParentAccounts = (): JSX.Element => {
       (account) => account.parentId || account.type === AccountType.Ledger
     )
     .map((account) => {
-      const outdated =
+      let outdated =
         account.type !== AccountType.Ledger &&
         typeof account.pseudoExtendedKey === "undefined";
 
       // The only account without a parent is the ledger account
       const parent =
         parentAccounts.find((pa) => pa.id === account.parentId) || account;
+
+      if (parent?.type === AccountType.Mnemonic) {
+        if (
+          account.type === AccountType.ShieldedKeys &&
+          !account.modifiedZip32Path
+        ) {
+          outdated = true;
+        }
+      }
 
       return { ...parent, outdated };
     });

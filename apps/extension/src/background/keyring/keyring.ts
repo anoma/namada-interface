@@ -1,4 +1,11 @@
-import { DEFAULT_ZIP32_PATH, PhraseSize, ShieldedKeys } from "@namada/sdk/web";
+import { chains } from "@namada/chains";
+import {
+  DEFAULT_ZIP32_PATH,
+  makeBip44Path,
+  MODIFIED_ZIP32_PATH,
+  PhraseSize,
+  ShieldedKeys,
+} from "@namada/sdk/web";
 import { KVStore } from "@namada/storage";
 import {
   AccountType,
@@ -368,6 +375,23 @@ export class KeyRing {
     timestamp: number
   ): Promise<DerivedAccount> {
     const { address, id, text, owner, pseudoExtendedKey } = derivedAccountInfo;
+
+    let modifiedZip32Path: string | undefined;
+
+    const parent = parentId ? await this.queryAccountById(parentId) : null;
+
+    if (parent) {
+      if (
+        type === AccountType.ShieldedKeys &&
+        parent.type === AccountType.Mnemonic
+      ) {
+        modifiedZip32Path = makeBip44Path(
+          chains.namada.bip44.coinType,
+          MODIFIED_ZIP32_PATH
+        );
+      }
+    }
+
     const account: AccountStore = {
       id,
       address,
@@ -375,6 +399,7 @@ export class KeyRing {
       parentId,
       path,
       type,
+      modifiedZip32Path,
       owner,
       pseudoExtendedKey,
       source,
