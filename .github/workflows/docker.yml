@@ -1,9 +1,8 @@
 name: Docker 🐳
 
 on:
-  workflow_dispatch:
-    release:
-      types: [published]
+  release:
+    types: [published]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -26,8 +25,6 @@ jobs:
         images:
           - path: "docker/namadillo/Dockerfile"
             tag: "namadillo-main"
-          - path: "docker/faucet/Dockerfile"
-            tag: "faucet-interface-main"
 
     steps:
       - name: Checkout repository
