@@ -7,7 +7,7 @@ import {
   RadioGroup,
   Stack,
 } from "@namada/components";
-import { Bip44Path } from "@namada/types";
+import { Bip44Path, Zip32Path } from "@namada/types";
 import { assertNever } from "@namada/utils";
 import { AccountSecret, ValidateMnemonicMsg } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
@@ -19,8 +19,10 @@ import { fillArray, filterPrivateKeyPrefix, validatePrivateKey } from "utils";
 
 type Props = {
   onConfirm: (accountSecret: AccountSecret) => void;
-  path: Bip44Path;
-  setPath: (path: Bip44Path) => void;
+  bip44Path: Bip44Path;
+  zip32Path: Zip32Path;
+  setBip44Path: (path: Bip44Path) => void;
+  setZip32Path: (path: Zip32Path) => void;
 };
 
 const SHORT_PHRASE_COUNT = 12;
@@ -34,8 +36,10 @@ enum SecretType {
 
 export const SeedPhraseImport: React.FC<Props> = ({
   onConfirm,
-  path,
-  setPath,
+  bip44Path,
+  zip32Path,
+  setBip44Path,
+  setZip32Path,
 }) => {
   const requester = useRequester();
   const [privateKey, setPrivateKey] = useState("");
@@ -241,8 +245,10 @@ export const SeedPhraseImport: React.FC<Props> = ({
           {mnemonicType !== SecretType.PrivateKey && (
             <AdvancedOptions>
               <AdvancedOptionsMenu
-                path={path}
-                setPath={setPath}
+                bip44Path={bip44Path}
+                zip32Path={zip32Path}
+                setBip44Path={setBip44Path}
+                setZip32Path={setZip32Path}
                 passphrase={bip39Passphrase}
                 setPassphrase={setBip39Passphrase}
               />

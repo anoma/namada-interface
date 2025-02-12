@@ -1,7 +1,7 @@
 import { chains } from "@namada/chains";
 import { ActionButton, Alert, Image, Stack } from "@namada/components";
 import { Ledger as LedgerApp, makeBip44Path } from "@namada/sdk/web";
-import { Bip44Path } from "@namada/types";
+import { Bip44Path, Zip32Path } from "@namada/types";
 import { LedgerError } from "@zondax/ledger-namada";
 import { LedgerStep } from "Setup/Common";
 import { AdvancedOptions } from "Setup/Common/AdvancedOptions";
@@ -11,11 +11,18 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
-  path: Bip44Path;
-  setPath: (path: Bip44Path) => void;
+  bip44Path: Bip44Path;
+  zip32Path: Zip32Path;
+  setBip44Path: (path: Bip44Path) => void;
+  setZip32Path: (path: Zip32Path) => void;
 };
 
-export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
+export const LedgerConnect: React.FC<Props> = ({
+  bip44Path,
+  zip32Path: _zip32Path, // TODO
+  setBip44Path,
+  setZip32Path: _setZip32Path, // TODO
+}) => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>();
   const [isLedgerConnecting, setIsLedgerConnecting] = useState(false);
@@ -34,8 +41,9 @@ export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
 
       setIsLedgerConnecting(true);
       const { address, publicKey } = await ledger.showAddressAndPublicKey(
-        makeBip44Path(chains.namada.bip44.coinType, path)
+        makeBip44Path(chains.namada.bip44.coinType, bip44Path)
       );
+      // TODO: Shielded import will be enabled in PR: https://github.com/anoma/namada-interface/pull/1575
       setIsLedgerConnecting(false);
       navigate(routes.ledgerImport(), {
         state: {
@@ -99,7 +107,9 @@ export const LedgerConnect: React.FC<Props> = ({ path, setPath }) => {
         )}
 
         <AdvancedOptions>
-          <Bip44Form path={path} setPath={setPath} />
+          <Bip44Form path={bip44Path} setPath={setBip44Path} />
+          {/* TODO: Enable in https://github.com/anoma/namada-interface/pull/1575 */}
+          {/*<Zip32Form path={zip32Path} setPath={setZip32Path} />*/}
         </AdvancedOptions>
 
         <LedgerStep
