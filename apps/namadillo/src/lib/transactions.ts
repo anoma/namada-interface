@@ -189,12 +189,16 @@ export const createTransferDataFromNamada = (
           "source" in wrapperProps ? wrapperProps.source
           : "source" in innerProps ? innerProps.source
           : "";
+
         const destinationAddress =
           "target" in wrapperProps ? wrapperProps.target
           : "target" in innerProps ? innerProps.target
           : "";
-        const amount =
+
+        const baseAmount =
           "amount" in innerProps ? innerProps.amount : new BigNumber(0);
+
+        const displayAmount = toDisplayAmount(asset, baseAmount, true);
 
         return {
           type: txKind,
@@ -205,7 +209,7 @@ export const createTransferDataFromNamada = (
           memo,
           rpc: rpcUrl,
           shielded: isShieldedTx,
-          displayAmount: amount,
+          displayAmount,
           chainId: txResponse?.encodedTxData.txs[0]?.args.chainId ?? "",
           hash: txResponse?.encodedTxData.txs[0].hash,
           feePaid: txResponse?.encodedTxData.txs[0].args.feeAmount,
