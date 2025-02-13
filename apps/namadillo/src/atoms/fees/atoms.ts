@@ -75,7 +75,7 @@ export const gasPriceTableAtom = atomWithQuery<GasPriceTable>((get) => {
   const chainAssetsMap = get(chainAssetsMapAtom);
 
   return {
-    queryKey: ["gas-price-table"],
+    queryKey: ["gas-price-table", chainAssetsMap],
     ...queryDependentFn(async () => {
       const response = await fetchTokensGasPrice(api);
       return response.map(({ token, minDenomAmount }) => {

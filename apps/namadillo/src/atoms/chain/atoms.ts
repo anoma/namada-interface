@@ -74,27 +74,32 @@ export const chainTokensAtom = atomWithQuery<(NativeToken | IbcToken)[]>(
   }
 );
 
-export const chainAssetsMapAtom = atom<Record<Address, Asset>>((get) => {
-  const nativeTokenAddress = get(nativeTokenAddressAtom);
-  const chainTokensQuery = get(chainTokensAtom);
+export const chainAssetsMapAtom = atom<Record<Address, Asset | undefined>>(
+  (get) => {
+    const nativeTokenAddress = get(nativeTokenAddressAtom);
+    const chainTokensQuery = get(chainTokensAtom);
 
-  const chainAssetsMap: Record<Address, Asset> = {};
-  if (nativeTokenAddress.data) {
-    // the first asset is the native token asset
-    chainAssetsMap[nativeTokenAddress.data] = namadaAssets.assets[0];
-  }
-  // TODO
-  // while we don't have all assets listed on namada-chain-registry,
-  // merge the osmosis assets to guarantee the most common ones to be available
-  const assetList: Asset[] = [...namadaAssets.assets, ...osmosis.assets.assets];
-  chainTokensQuery.data?.forEach((token) => {
-    const asset = findAssetByToken(token, assetList);
-    if (asset) {
-      chainAssetsMap[token.address] = asset;
+    const chainAssetsMap: Record<Address, Asset> = {};
+    if (nativeTokenAddress.data) {
+      // the first asset is the native token asset
+      chainAssetsMap[nativeTokenAddress.data] = namadaAssets.assets[0];
     }
-  });
-  return chainAssetsMap;
-});
+    // TODO
+    // while we don't have all assets listed on namada-chain-registry,
+    // merge the osmosis assets to guarantee the most common ones to be available
+    const assetList: Asset[] = [
+      ...namadaAssets.assets,
+      ...osmosis.assets.assets,
+    ];
+    chainTokensQuery.data?.forEach((token) => {
+      const asset = findAssetByToken(token, assetList);
+      if (asset) {
+        chainAssetsMap[token.address] = asset;
+      }
+    });
+    return chainAssetsMap;
+  }
+);
 
 // Prefer calling settings@rpcUrlAtom instead, because default rpc url might be
 // overrided by the user
