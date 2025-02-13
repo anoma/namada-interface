@@ -254,32 +254,6 @@ export class KeyRing {
     return accountStore;
   }
 
-  public deriveTransparentAccount(
-    seed: Uint8Array,
-    path: Bip44Path,
-    parentAccount: DerivedAccount
-  ): DerivedAccountInfo {
-    const keysNs = this.sdkService.getSdk().getKeys();
-    const { address, privateKey } = keysNs.deriveFromSeed(seed, path);
-
-    const { account, change, index } = path;
-    const id = generateId(
-      UUID_NAMESPACE,
-      "account",
-      parentAccount.id,
-      account,
-      change,
-      index
-    );
-
-    return {
-      address,
-      owner: address,
-      id,
-      text: privateKey,
-    };
-  }
-
   private async getParentSecret(parentId: string): Promise<{
     secret: Uint8Array;
   }> {

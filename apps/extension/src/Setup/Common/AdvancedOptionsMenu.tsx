@@ -4,8 +4,7 @@ import clsx from "clsx";
 import React, { useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Bip39PassphraseForm from "./Bip39PassphraseForm";
-import Bip44Form from "./Bip44Form";
-import Zip32Form from "./Zip32Form";
+import CustomPathForm from "./CustomPathForm";
 
 type Props = {
   passphrase: string;
@@ -90,8 +89,12 @@ export const AdvancedOptionsMenu: React.FC<Props> = ({
           </div>
           {option === Option.Path && (
             <>
-              <Bip44Form path={bip44Path} setPath={setBip44Path} />
-              <Zip32Form path={zip32Path} setPath={setZip32Path} />
+              <CustomPathForm
+                bip44Path={bip44Path}
+                zip32Path={zip32Path}
+                setBip44Path={setBip44Path}
+                setZip32Path={setZip32Path}
+              />
             </>
           )}
           {option === Option.Passphrase && (
