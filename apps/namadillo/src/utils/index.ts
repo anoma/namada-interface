@@ -91,6 +91,7 @@ export const toDisplayAmount = (
   if (!displayUnit) {
     return baseAmount;
   }
+
   return baseAmount.shiftedBy(-displayUnit.exponent);
 };
 

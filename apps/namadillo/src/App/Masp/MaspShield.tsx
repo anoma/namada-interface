@@ -54,6 +54,8 @@ export const MaspShield: React.FC = () => {
   const {
     execute: performTransfer,
     isPending: isPerformingTransfer,
+    isSuccess,
+    error,
     txKind,
     feeProps,
   } = useTransfer({
@@ -165,8 +167,8 @@ export const MaspShield: React.FC = () => {
           isShielded: true,
         }}
         feeProps={feeProps}
-        isSubmitting={isPerformingTransfer}
-        errorMessage={generalErrorMessage}
+        isSubmitting={isPerformingTransfer || isSuccess}
+        errorMessage={generalErrorMessage || error?.message}
         currentStatus={currentStatus}
         currentStatusExplanation={currentStatusExplanation}
         onSubmitTransfer={onSubmitTransfer}

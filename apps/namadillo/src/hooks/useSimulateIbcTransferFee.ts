@@ -48,11 +48,16 @@ export const useSimulateIbcTransferFee = ({
           isShieldedTransfer ? "0".repeat(MASP_MEMO_LENGTH) : ""
         );
 
-        const estimatedGas = await simulateIbcTransferGas(
-          stargateClient!,
-          sourceAddress!,
-          transferMsg
-        );
+        // We might need to tweak this value to get a more accurate gas estimation
+        // Also gas might vary before making the transaction, so we might check that.
+        const additionalPercentage = 1.1;
+
+        const estimatedGas =
+          (await simulateIbcTransferGas(
+            stargateClient!,
+            sourceAddress!,
+            transferMsg
+          )) * additionalPercentage;
 
         const gasConfig = getIbcGasConfig(registry!, estimatedGas);
         invariant(gasConfig, "Error: invalid Gas config");

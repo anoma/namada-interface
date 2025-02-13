@@ -3,6 +3,7 @@ import { Account, AccountType, DatedViewingKey } from "@namada/types";
 import {
   accountsAtom,
   allDefaultAccountsAtom,
+  defaultAccountAtom,
   transparentBalanceAtom,
 } from "atoms/accounts/atoms";
 import { indexerApiAtom } from "atoms/api";
@@ -112,10 +113,9 @@ export const storageShieldedBalanceAtom = atomWithStorage<
 
 export const shieldedSyncProgress = atom(0);
 
-export const lastCompletedShieldedSyncAtom = atomWithStorage<Date | undefined>(
-  "namadillo:last-shielded-sync",
-  undefined
-);
+export const lastCompletedShieldedSyncAtom = atomWithStorage<
+  Record<Address, Date | undefined>
+>("namadillo:last-shielded-sync", {});
 
 export const isShieldedSyncCompleteAtom = atom(
   (get) => get(shieldedSyncProgress) === 1
@@ -129,6 +129,7 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
   const namTokenAddressQuery = get(nativeTokenAddressAtom);
   const rpcUrl = get(rpcUrlAtom);
   const maspIndexerUrl = get(maspIndexerUrlAtom);
+  const defaultAccount = get(defaultAccountAtom);
 
   const [viewingKey, allViewingKeys] = viewingKeysQuery.data ?? [];
   const chainTokens = chainTokensQuery.data?.map((t) => t.address);
@@ -149,7 +150,7 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
       ) {
         return [];
       }
-      const { set } = getDefaultStore();
+      const { set, get } = getDefaultStore();
 
       await shieldedSync({
         rpcUrl,
@@ -177,7 +178,17 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
         [viewingKey.key]: shieldedBalance,
       });
 
-      set(lastCompletedShieldedSyncAtom, new Date());
+      if (defaultAccount.data) {
+        const lastCompleteSyncInfo = get(lastCompletedShieldedSyncAtom);
+        // Migration Previously we were storing sync info as a date string,
+        // now we store it as a map of transparent accounts
+        const syncInfo =
+          typeof lastCompleteSyncInfo === "object" ? lastCompleteSyncInfo : {};
+        set(lastCompletedShieldedSyncAtom, {
+          ...syncInfo,
+          [defaultAccount.data.address]: new Date(),
+        });
+      }
 
       return shieldedBalance;
     }, [
