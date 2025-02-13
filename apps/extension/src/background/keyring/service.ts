@@ -7,6 +7,7 @@ import {
   GenDisposableSignerResponse,
   SignArbitraryResponse,
   TxProps,
+  Zip32Path,
 } from "@namada/types";
 import { Result, truncateInMiddle } from "@namada/utils";
 
@@ -101,14 +102,14 @@ export class KeyRingService {
     return response;
   }
 
-  async deriveAccount(
-    path: Bip44Path,
+  async deriveShieldedAccount(
+    path: Zip32Path,
     type: AccountType,
     alias: string,
     parentId: string,
     source: "imported" | "generated"
   ): Promise<DerivedAccount> {
-    const account = await this._keyRing.deriveAccount(
+    const account = await this._keyRing.deriveShieldedAccount(
       path,
       type,
       alias,

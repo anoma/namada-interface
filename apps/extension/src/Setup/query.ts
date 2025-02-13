@@ -3,7 +3,7 @@ import {
   AccountStore,
   AddLedgerAccountMsg,
   DEFAULT_BIP44_PATH,
-  DeriveAccountMsg,
+  DeriveShieldedAccountMsg,
   SaveAccountSecretMsg,
 } from "background/keyring";
 import { CreatePasswordMsg } from "background/vault";
@@ -38,9 +38,10 @@ export class AccountManager {
   async saveAccountSecret(
     details: DeriveAccountDetails
   ): Promise<AccountStore> {
-    const { accountSecret, alias, path, flow } = details;
+    const { accountSecret, alias, bip44Path, flow } = details;
+    // On Private key imports, we don't know the derivation path, so just use default
     const derivationPath =
-      accountSecret?.t === "PrivateKey" ? DEFAULT_BIP44_PATH : path;
+      accountSecret?.t === "PrivateKey" ? DEFAULT_BIP44_PATH : bip44Path;
 
     const parentAccountStore =
       await this.requester.sendMessage<SaveAccountSecretMsg>(
@@ -61,15 +62,13 @@ export class AccountManager {
     details: DeriveAccountDetails,
     parentAccount: AccountStore
   ): Promise<DerivedAccount | undefined> {
-    const { path, accountSecret } = details;
-    const derivationPath =
-      accountSecret?.t === "PrivateKey" ? DEFAULT_BIP44_PATH : path;
+    const { zip32Path } = details;
 
     const { alias, id, source } = parentAccount;
-    return await this.requester.sendMessage<DeriveAccountMsg>(
+    return await this.requester.sendMessage<DeriveShieldedAccountMsg>(
       Ports.Background,
-      new DeriveAccountMsg(
-        derivationPath,
+      new DeriveShieldedAccountMsg(
+        zip32Path,
         AccountType.ShieldedKeys,
         alias,
         // Sets the parent ID of this shielded account
@@ -88,10 +87,11 @@ export class AccountManager {
   async saveLedgerAccount(
     details: LedgerAccountDetails
   ): Promise<AccountStore> {
-    const { alias, address, publicKey, path } = details;
+    // TODO: Support zip32 in upcoming PR!
+    const { alias, address, publicKey, bip44Path, zip32Path: _ } = details;
     return (await this.requester.sendMessage(
       Ports.Background,
-      new AddLedgerAccountMsg(alias, address, publicKey, path)
+      new AddLedgerAccountMsg(alias, address, publicKey, bip44Path)
     )) as AccountStore;
   }
 }

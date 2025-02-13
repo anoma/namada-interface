@@ -20,7 +20,7 @@ type LedgerProps = {
 
 export const LedgerImport = ({
   bip44Path,
-  zip32Path: _,
+  zip32Path,
   passwordRequired,
 }: LedgerProps): JSX.Element => {
   const location = useLocation();
@@ -62,7 +62,8 @@ export const LedgerImport = ({
           alias,
           address,
           publicKey,
-          path: bip44Path,
+          bip44Path,
+          zip32Path,
           // TODO: Enable shielded
         });
 

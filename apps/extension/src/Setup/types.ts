@@ -1,4 +1,4 @@
-import { Bip44Path } from "@namada/types";
+import { Bip44Path, Zip32Path } from "@namada/types";
 import { AccountSecret } from "background/keyring";
 
 // Alias and optional password (in the case of Ledger accounts)
@@ -10,13 +10,15 @@ export type AccountDetails = {
 export type DeriveAccountDetails = AccountDetails & {
   flow: "create" | "import";
   accountSecret: AccountSecret;
-  path: Bip44Path;
+  bip44Path: Bip44Path;
+  zip32Path: Zip32Path;
   passwordRequired?: boolean;
 };
 
 export type LedgerAccountDetails = {
   alias: string;
-  path: Bip44Path;
+  bip44Path: Bip44Path;
+  zip32Path: Zip32Path;
   address: string;
   publicKey: string;
 };

@@ -254,7 +254,8 @@ export const Setup: React.FC = () => {
                         if (accountSecret) {
                           void storeAccount({
                             ...accountCreationDetails,
-                            path: bip44Path,
+                            bip44Path,
+                            zip32Path,
                             accountSecret,
                             flow: "create",
                           });
@@ -334,7 +335,8 @@ export const Setup: React.FC = () => {
                         if (accountSecret) {
                           void storeAccount({
                             ...accountCreationDetails,
-                            path: bip44Path,
+                            bip44Path,
+                            zip32Path,
                             accountSecret,
                             flow: "import",
                           });
