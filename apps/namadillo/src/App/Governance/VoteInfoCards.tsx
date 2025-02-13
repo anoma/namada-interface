@@ -15,6 +15,7 @@ import { proposalFamily } from "atoms/proposals";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
+import { namadaAsset, toDisplayAmount } from "utils";
 import {
   secondsToDateTimeString,
   secondsToFullDateTimeString,
@@ -117,12 +118,13 @@ const PgfPaymentInfoCards: React.FC<{
           const { target, amount } = extractPgfInfo(retro);
 
           return (
-            <span key={`info-card-retro-${target}`}>
-              {target} <NamCurrency amount={amount} />
+            <div key={`info-card-retro-${target}`}>
+              {target}{" "}
+              <NamCurrency amount={toDisplayAmount(namadaAsset(), amount)} />
               {"ibc" in retro ?
                 ` ${retro.ibc.channelId} ${retro.ibc.portId}`
               : ""}
-            </span>
+            </div>
           );
         })}
       />
