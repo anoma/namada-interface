@@ -13,7 +13,7 @@ import {
   namadaTransparentAssetsAtom,
 } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
-import { applicationFeaturesAtom, rpcUrlAtom } from "atoms/settings";
+import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useTransfer } from "hooks/useTransfer";
@@ -21,12 +21,11 @@ import { wallets } from "integrations";
 import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import namadaChain from "registry/namada.json";
 import { twMerge } from "tailwind-merge";
 import { Address } from "types";
-import { isNamadaAsset } from "utils";
 import { NamadaTransferTopHeader } from "./NamadaTransferTopHeader";
 
 export const NamadaTransfer: React.FC = () => {
@@ -40,30 +39,14 @@ export const NamadaTransfer: React.FC = () => {
   const [completedAt, setCompletedAt] = useState<Date | undefined>();
 
   const rpcUrl = useAtomValue(rpcUrlAtom);
-  const features = useAtomValue(applicationFeaturesAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
 
-  const { data: availableAssetsData, isLoading: isLoadingAssets } =
-    useAtomValue(
-      shielded ? namadaShieldedAssetsAtom : namadaTransparentAssetsAtom
-    );
+  const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
+    shielded ? namadaShieldedAssetsAtom : namadaTransparentAssetsAtom
+  );
 
   const { storeTransaction } = useTransactionActions();
-
-  const availableAssets = useMemo(() => {
-    if (features.namTransfersEnabled) {
-      return availableAssetsData;
-    }
-    const assetsMap = { ...availableAssetsData };
-    const namadaAsset = Object.values(availableAssetsData ?? {}).find((a) =>
-      isNamadaAsset(a.asset)
-    );
-    if (namadaAsset?.originalAddress) {
-      delete assetsMap[namadaAsset?.originalAddress]; // NAM will be available only on phase 5
-    }
-    return assetsMap;
-  }, [availableAssetsData]);
 
   const chainId = chainParameters.data?.chainId;
   const account = defaultAccounts.data?.find((account) =>
