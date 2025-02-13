@@ -1,16 +1,12 @@
 import {
   BondProps,
   RedelegateProps,
-  ShieldedTransferProps,
-  ShieldingTransferProps,
-  TransparentTransferProps,
   TxProps,
   UnbondProps,
-  UnshieldingTransferProps,
   VoteProposalProps,
   WithdrawProps,
 } from "@namada/types";
-import { ClaimRewardsProps, IbcTransferTransactionData } from "types";
+import { ClaimRewardsProps, TransferTransactionData } from "types";
 import { TxKind } from "types/txKind";
 
 export type TransactionEventsClasses = Partial<TxKind>;
@@ -58,17 +54,17 @@ declare global {
     "ClaimRewards.Error": EventData<ClaimRewardsProps>;
     "VoteProposal.Success": EventData<VoteProposalProps>;
     "VoteProposal.Error": EventData<VoteProposalProps>;
-    "TransparentTransfer.Success": EventData<TransparentTransferProps>;
-    "TransparentTransfer.Error": EventData<TransparentTransferProps>;
-    "ShieldedTransfer.Success": EventData<ShieldedTransferProps>;
-    "ShieldedTransfer.Error": EventData<ShieldedTransferProps>;
-    "ShieldingTransfer.Success": EventData<ShieldingTransferProps>;
-    "ShieldingTransfer.Error": EventData<ShieldingTransferProps>;
-    "UnshieldingTransfer.Success": EventData<UnshieldingTransferProps>;
-    "UnshieldingTransfer.Error": EventData<UnshieldingTransferProps>;
-    "IbcTransfer.Success": CustomEvent<IbcTransferTransactionData>;
-    "IbcTransfer.Error": CustomEvent<IbcTransferTransactionData>;
-    "IbcWithdraw.Success": CustomEvent<IbcTransferTransactionData>;
-    "IbcWithdraw.Error": CustomEvent<IbcTransferTransactionData>;
+    "TransparentTransfer.Success": CustomEvent<TransferTransactionData>;
+    "TransparentTransfer.Error": CustomEvent<TransferTransactionData>;
+    "ShieldedTransfer.Success": CustomEvent<TransferTransactionData>;
+    "ShieldedTransfer.Error": CustomEvent<TransferTransactionData>;
+    "ShieldingTransfer.Success": CustomEvent<TransferTransactionData>;
+    "ShieldingTransfer.Error": CustomEvent<TransferTransactionData>;
+    "UnshieldingTransfer.Success": CustomEvent<TransferTransactionData>;
+    "UnshieldingTransfer.Error": CustomEvent<TransferTransactionData>;
+    "IbcTransfer.Success": CustomEvent<TransferTransactionData>;
+    "IbcTransfer.Error": CustomEvent<TransferTransactionData>;
+    "IbcWithdraw.Success": CustomEvent<TransferTransactionData>;
+    "IbcWithdraw.Error": CustomEvent<TransferTransactionData>;
   }
 }

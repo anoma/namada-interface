@@ -9,6 +9,10 @@ import {
   StargateClient,
   StdFee,
 } from "@cosmjs/stargate";
+import {
+  WrapperTransaction,
+  WrapperTransactionExitCodeEnum,
+} from "@namada/indexer-client";
 import { sanitizeUrl } from "@namada/utils";
 import { getIndexerApi } from "atoms/api";
 import { chainParametersAtom } from "atoms/chain";
@@ -17,7 +21,7 @@ import { queryForAck, queryForIbcTimeout } from "atoms/transactions";
 import BigNumber from "bignumber.js";
 import * as Comlink from "comlink";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import { differenceInMinutes } from "date-fns";
+import { differenceInHours, differenceInMinutes } from "date-fns";
 import { getDefaultStore } from "jotai";
 import toml from "toml";
 import {
@@ -29,6 +33,7 @@ import {
   TransferStep,
   TransferTransactionData,
 } from "types";
+import { isError404 } from "utils/http";
 import { getKeplrWallet } from "utils/ibc";
 import { getSdkInstance } from "utils/sdk";
 import { GenerateIbcShieldingMemo } from "workers/MaspTxMessages";
@@ -184,52 +189,33 @@ const isTransferLocalTimeout = (
   return differenceInMinutes(Date.now(), tx.createdAt) > timeoutInMinutes;
 };
 
-const dispatchTransactionEvent = (
-  eventName: string,
-  tx: IbcTransferTransactionData
-): void => {
-  window.dispatchEvent(
-    new CustomEvent(eventName, {
-      detail: { ...tx },
-    })
-  );
-};
-
-const handleTransactionSuccess = (
-  hash: string,
-  changeTransaction: (
-    hash: string,
-    update: Partial<IbcTransferTransactionData>
-  ) => void,
-  tx: IbcTransferTransactionData,
+const updateTxWithSuccess = <
+  T extends TransferTransactionData | IbcTransferTransactionData,
+>(
+  tx: T,
   resultTxHash?: string
-): void => {
-  const update: Partial<IbcTransferTransactionData> = {
+): T => {
+  return {
+    ...tx,
     status: "success",
     currentStep: TransferStep.Complete,
     ...(resultTxHash && { resultTxHash }),
   };
-  changeTransaction(hash, update);
-  dispatchTransactionEvent("IbcTransfer.Success", tx);
 };
 
-const handleTransactionError = (
-  hash: string,
-  changeTransaction: (
-    hash: string,
-    update: Partial<IbcTransferTransactionData>
-  ) => void,
-  tx: IbcTransferTransactionData,
+const updateTxWithError = <
+  T extends TransferTransactionData | IbcTransferTransactionData,
+>(
+  tx: T,
   errorMessage: string,
   resultTxHash?: string
-): void => {
-  const update: Partial<IbcTransferTransactionData> = {
+): T => {
+  return {
+    ...tx,
     status: "error",
     errorMessage,
     ...(resultTxHash && { resultTxHash }),
   };
-  changeTransaction(hash, update);
-  dispatchTransactionEvent("IbcTransfer.Error", tx);
 };
 
 const checkForIbcTransferTimeout = async (
@@ -252,48 +238,30 @@ const checkForIbcTransferTimeout = async (
 };
 
 export const updateIbcTransferStatus = async (
-  rpc: string,
-  tx: IbcTransferTransactionData,
-  changeTransaction: (
-    hash: string,
-    update: Partial<IbcTransferTransactionData>
-  ) => void
-): Promise<void> => {
-  const client = await StargateClient.connect(rpc);
+  tx: IbcTransferTransactionData
+): Promise<IbcTransferTransactionData> => {
+  const client = await StargateClient.connect(tx.rpc);
   const successQueries = await queryForAck(client, tx);
 
   if (successQueries.length > 0 && tx.hash) {
-    handleTransactionSuccess(
-      tx.hash,
-      changeTransaction,
-      tx,
-      successQueries[0].hash
-    );
-    return;
+    return updateTxWithSuccess(tx, successQueries[0].hash);
   }
 
   const { isTimeout, timeoutHash } = await checkForIbcTransferTimeout(
     client,
     tx
   );
+
   if (isTimeout && tx.hash) {
-    handleTransactionError(
-      tx.hash,
-      changeTransaction,
-      tx,
-      "Transaction timed out",
-      timeoutHash
-    );
+    return updateTxWithError(tx, "Transaction timed out", timeoutHash);
   }
+
+  return { ...tx };
 };
 
 export const updateIbcWithdrawalStatus = async (
-  tx: IbcTransferTransactionData,
-  changeTransaction: (
-    hash: string,
-    update: Partial<IbcTransferTransactionData>
-  ) => void
-): Promise<void> => {
+  tx: IbcTransferTransactionData
+): Promise<IbcTransferTransactionData> => {
   if (!tx.hash) throw new Error("Transaction hash not defined");
 
   const api = getIndexerApi();
@@ -301,8 +269,7 @@ export const updateIbcWithdrawalStatus = async (
   const { status } = response.data;
 
   if (status === "success") {
-    handleTransactionSuccess(tx.hash, changeTransaction, tx);
-    return;
+    return updateTxWithSuccess(tx);
   }
 
   const isTimeout = status === "timeout" || isTransferLocalTimeout(tx);
@@ -310,8 +277,39 @@ export const updateIbcWithdrawalStatus = async (
     const errorMessage =
       isTimeout ? "Transaction timed out" : "IBC Withdraw failed";
 
-    handleTransactionError(tx.hash, changeTransaction, tx, errorMessage);
+    return updateTxWithError(tx, errorMessage);
   }
+
+  return { ...tx };
+};
+
+export const handleStandardTransfer = (
+  tx: TransferTransactionData,
+  txResponse: WrapperTransaction
+): TransferTransactionData => {
+  // After 2h the pending status will be changed to timeout
+  const pendingTimeoutInHours = 2;
+
+  try {
+    const hasRejectedTx = txResponse.innerTransactions.some(
+      ({ exitCode }) => exitCode === WrapperTransactionExitCodeEnum.Rejected
+    );
+
+    if (hasRejectedTx) {
+      return updateTxWithError(tx, "Transaction rejected");
+    }
+
+    return updateTxWithSuccess(tx);
+  } catch (error) {
+    if (
+      isError404(error) &&
+      differenceInHours(Date.now(), tx.createdAt) > pendingTimeoutInHours
+    ) {
+      return updateTxWithError(tx, "Transaction timed out");
+    }
+  }
+
+  return { ...tx };
 };
 
 export const fetchLocalnetTomlConfig = async (): Promise<LocalnetToml> => {
@@ -353,5 +351,52 @@ export const simulateIbcTransferGas = async (
     return estimatedGas * (1 + additionalPercentage);
   } catch (error) {
     throw error;
+  }
+};
+
+export const dispatchTransferEvent = (
+  eventType: string,
+  tx: TransferTransactionData
+): void => {
+  if (tx.status === "success") {
+    window.dispatchEvent(
+      new CustomEvent(`${eventType}.Success`, {
+        detail: { ...tx },
+      })
+    );
+  }
+
+  if (tx.status === "error") {
+    window.dispatchEvent(
+      new CustomEvent(`${eventType}.Error`, {
+        detail: { ...tx },
+      })
+    );
+  }
+};
+
+// Check events name in types/events.ts
+export const transactionTypeToEventName = (
+  tx: TransferTransactionData
+): string => {
+  switch (tx.type) {
+    case "ShieldedToTransparent":
+      return "UnshieldingTransfer";
+
+    case "TransparentToShielded":
+      return "ShieldingTransfer";
+
+    case "ShieldedToShielded":
+      return "ShieldedTransfer";
+
+    case "TransparentToTransparent":
+      return "TransparentTransfer";
+
+    case "TransparentToIbc":
+      return "IbcWithdraw";
+
+    case "IbcToShielded":
+    case "IbcToTransparent":
+      return "IbcTransfer";
   }
 };

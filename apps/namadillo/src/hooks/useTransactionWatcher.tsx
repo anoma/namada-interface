@@ -1,6 +1,8 @@
-import { WrapperTransactionExitCodeEnum } from "@namada/indexer-client";
 import { useQuery } from "@tanstack/react-query";
 import {
+  dispatchTransferEvent,
+  handleStandardTransfer,
+  transactionTypeToEventName,
   updateIbcTransferStatus,
   updateIbcWithdrawalStatus,
 } from "atoms/integrations";
@@ -8,19 +10,10 @@ import {
   fetchTransactionAtom,
   pendingTransactionsHistoryAtom,
 } from "atoms/transactions";
-import { differenceInHours } from "date-fns";
 import { useAtomValue } from "jotai";
-import { IbcTransferTransactionData, TransferStep } from "types";
-import { useTransactionActions } from "./useTransactionActions";
-
-// After 2h the pending status will be changed to timeout
-const pendingTimeout = 2;
-
-const isError404 = (e: unknown): boolean =>
-  typeof e === "object" && e !== null && "status" in e && e.status === 404;
+import { IbcTransferTransactionData } from "types";
 
 export const useTransactionWatcher = (): void => {
-  const { changeTransaction } = useTransactionActions();
   const pendingTransactions = useAtomValue(pendingTransactionsHistoryAtom);
   const fetchTransaction = useAtomValue(fetchTransactionAtom);
 
@@ -34,55 +27,30 @@ export const useTransactionWatcher = (): void => {
             case "TransparentToTransparent":
             case "TransparentToShielded":
             case "ShieldedToTransparent":
-            case "ShieldedToShielded":
-              {
-                const hash = tx.hash ?? "";
-                try {
-                  const response = await fetchTransaction(hash);
-                  const hasRejectedTx = response.innerTransactions.find(
-                    ({ exitCode }) =>
-                      exitCode === WrapperTransactionExitCodeEnum.Rejected
-                  );
-                  if (hasRejectedTx) {
-                    changeTransaction(hash, {
-                      status: "error",
-                      errorMessage: "Transaction rejected",
-                    });
-                  } else {
-                    changeTransaction(hash, {
-                      status: "success",
-                      currentStep: TransferStep.Complete,
-                    });
-                  }
-                } catch (e) {
-                  if (
-                    isError404(e) &&
-                    differenceInHours(Date.now(), tx.createdAt) > pendingTimeout
-                  ) {
-                    changeTransaction(hash, {
-                      status: "error",
-                      errorMessage: "Transaction timed out",
-                    });
-                  }
-                }
-              }
+            case "ShieldedToShielded": {
+              const hash = tx.hash ?? "";
+              const response = await fetchTransaction(hash);
+              const newTx = handleStandardTransfer(tx, response);
+              dispatchTransferEvent(transactionTypeToEventName(tx), newTx);
               break;
+            }
 
             case "IbcToTransparent":
-            case "IbcToShielded":
-              await updateIbcTransferStatus(
-                tx.rpc,
-                tx as IbcTransferTransactionData,
-                changeTransaction
+            case "IbcToShielded": {
+              const newTx = await updateIbcTransferStatus(
+                tx as IbcTransferTransactionData
               );
+              dispatchTransferEvent(transactionTypeToEventName(tx), newTx);
               break;
+            }
 
-            case "TransparentToIbc":
-              await updateIbcWithdrawalStatus(
-                tx as IbcTransferTransactionData,
-                changeTransaction
+            case "TransparentToIbc": {
+              const newTx = await updateIbcWithdrawalStatus(
+                tx as IbcTransferTransactionData
               );
+              dispatchTransferEvent(transactionTypeToEventName(tx), newTx);
               break;
+            }
           }
         })
       );
