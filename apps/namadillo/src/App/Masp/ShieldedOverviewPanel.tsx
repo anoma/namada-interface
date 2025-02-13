@@ -1,8 +1,7 @@
 import { ActionButton, Panel, SkeletonLoading } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
-import { routes } from "App/routes";
+import { ShieldAssetsModal } from "App/Common/ShieldAssetsModal";
 import { shieldedTokensAtom } from "atoms/balance/atoms";
-import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { ShieldedFungibleTable } from "./ShieldedFungibleTable";
@@ -11,12 +10,22 @@ import { ShieldedNFTTable } from "./ShieldedNFTTable";
 const tabs = ["Fungible", "NFT"];
 
 const ShieldAssetCta = (): JSX.Element => {
+  const [shieldingModalOpen, setShieldingModalOpen] = useState(false);
+
   return (
-    <div className="flex-1 flex items-center justify-center">
-      <ActionButton href={routes.maspShield} className="w-fit uppercase">
-        Shield your first assets
-      </ActionButton>
-    </div>
+    <>
+      <div className="flex-1 flex items-center justify-center">
+        <ActionButton
+          onClick={() => setShieldingModalOpen(true)}
+          className="w-fit uppercase"
+        >
+          Shield your first assets
+        </ActionButton>
+      </div>
+      {shieldingModalOpen && (
+        <ShieldAssetsModal onClose={() => setShieldingModalOpen(false)} />
+      )}
+    </>
   );
 };
 
@@ -76,16 +85,12 @@ const AssetTable = (): JSX.Element => {
 };
 
 export const ShieldedOverviewPanel: React.FC = () => {
-  const userHasAccount = useUserHasAccount();
-
   return (
     <Panel
       className="relative pb-6 border border-yellow min-h-[500px] flex flex-col"
-      title={userHasAccount ? "Shielded Overview" : undefined}
+      title="Shielded Overview"
     >
-      {userHasAccount ?
-        <AssetTable />
-      : <ShieldAssetCta />}
+      <AssetTable />
     </Panel>
   );
 };

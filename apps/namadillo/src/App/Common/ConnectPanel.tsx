@@ -25,7 +25,7 @@ export const ConnectPanel = ({
       <Image styleOverrides={{ width: "203px" }} imageName="LogoMinimal" />
       <h2
         className={
-          "max-w-[500px] uppercase text-center font-medium text-yellow leading-10 text-4xl"
+          "max-w-[500px] uppercase text-center font-medium text-yellow selection:bg-yellow selection:text-black leading-10 text-4xl"
         }
       >
         {children}

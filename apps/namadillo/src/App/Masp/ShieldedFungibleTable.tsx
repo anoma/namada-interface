@@ -3,7 +3,7 @@ import { formatPercentage } from "@namada/utils";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCurrency } from "App/Common/TokenCurrency";
-import { params, routes } from "App/routes";
+import { UnshieldAssetsModal } from "App/Common/UnshieldAssetsModal";
 import { TokenBalance } from "atoms/balance/atoms";
 import { getAssetImageUrl } from "integrations/utils";
 import { useEffect, useState } from "react";
@@ -18,6 +18,8 @@ export const ShieldedFungibleTable = ({
   data: TokenBalance[];
 }): JSX.Element => {
   const [page, setPage] = useState(initialPage);
+  const [unshieldingModalOpen, setUnshieldingModalOpen] = useState(false);
+  const [assetAddress, setAssetAddress] = useState("");
 
   const headers = [
     "Token",
@@ -72,7 +74,10 @@ export const ShieldedFungibleTable = ({
           size="xs"
           outlineColor="white"
           className="w-fit mx-auto"
-          href={`${routes.maspUnshield}?${params.asset}=${originalAddress}`}
+          onClick={() => {
+            setUnshieldingModalOpen(true);
+            setAssetAddress(originalAddress);
+          }}
         >
           Unshield
         </ActionButton>,
@@ -115,6 +120,12 @@ export const ShieldedFungibleTable = ({
         }}
         headProps={{ className: "text-neutral-500" }}
       />
+      {unshieldingModalOpen && (
+        <UnshieldAssetsModal
+          assetAddress={assetAddress}
+          onClose={() => setUnshieldingModalOpen(false)}
+        />
+      )}
     </>
   );
 };
