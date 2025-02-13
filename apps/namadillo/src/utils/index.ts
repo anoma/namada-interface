@@ -85,13 +85,8 @@ export const isNamadaAsset = (asset: Asset): boolean =>
 
 export const toDisplayAmount = (
   asset: Asset,
-  baseAmount: BigNumber,
-  skipNamada = false
+  baseAmount: BigNumber
 ): BigNumber => {
-  if (skipNamada && isNamadaAsset(asset)) {
-    return baseAmount;
-  }
-
   const displayUnit = findDisplayUnit(asset);
   if (!displayUnit) {
     return baseAmount;

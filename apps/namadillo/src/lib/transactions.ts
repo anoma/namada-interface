@@ -23,7 +23,7 @@ import {
   TransferStep,
   TransferTransactionData,
 } from "types";
-import { toDisplayAmount } from "utils";
+import { isNamadaAsset, toDisplayAmount } from "utils";
 import { TransactionPair } from "./query";
 
 export const getEventAttribute = (
@@ -198,7 +198,10 @@ export const createTransferDataFromNamada = (
         const baseAmount =
           "amount" in innerProps ? innerProps.amount : new BigNumber(0);
 
-        const displayAmount = toDisplayAmount(asset, baseAmount, true);
+        const displayAmount =
+          isNamadaAsset(asset) ? baseAmount : (
+            toDisplayAmount(asset, baseAmount)
+          );
 
         return {
           type: txKind,
