@@ -15,6 +15,7 @@ import { ParentAccount } from "background/keyring";
 import { AccountContext } from "context";
 import { openSetupTab } from "utils";
 
+type Account = DerivedAccount & { outdated: boolean };
 /**
  * Represents the extension's settings page.
  */
@@ -27,34 +28,48 @@ export const ParentAccounts = (): JSX.Element => {
     changeActiveAccountId,
   } = useContext(AccountContext);
 
+  const allParentAccounts = parentAccounts.reduce(
+    (acc, account) => {
+      acc[account.id] = { ...account, outdated: false };
+      return acc;
+    },
+    {} as Record<string, Account>
+  );
+
   // We check which accounts need to be re-imported
-  const accounts = allAccounts
+  allAccounts
     .filter(
       (account) => account.parentId || account.type === AccountType.Ledger
     )
-    .map((account) => {
+    .forEach((account) => {
       let outdated =
         account.type !== AccountType.Ledger &&
         typeof account.pseudoExtendedKey === "undefined";
 
-      // The only account without a parent is the ledger account
-      const parent =
-        parentAccounts.find((pa) => pa.id === account.parentId) || account;
+      if (account) {
+        const parent = allParentAccounts[account.parentId!];
 
-      if (parent?.type === AccountType.Mnemonic) {
-        if (
-          account.type === AccountType.ShieldedKeys &&
-          !account.modifiedZip32Path
-        ) {
-          outdated = true;
+        if (parent) {
+          if (parent.type === AccountType.Mnemonic) {
+            if (
+              account.type === AccountType.ShieldedKeys &&
+              !account.modifiedZip32Path
+            ) {
+              outdated = true;
+            }
+          }
+
+          allParentAccounts[parent.id] = { ...parent, outdated };
         }
       }
-
-      return { ...parent, outdated };
     });
 
+  const accounts = Object.values(allParentAccounts);
+
   useEffect(() => {
-    const hasOutdatedAccounts = accounts.some((account) => account.outdated);
+    const hasOutdatedAccounts = accounts.some(
+      (account: Account) => account.outdated
+    );
     // If there are outdated accounts, we redirect to the update required page
     if (hasOutdatedAccounts) {
       navigate(routes.accountsUpdateRequired());
@@ -65,19 +80,19 @@ export const ParentAccounts = (): JSX.Element => {
     await openSetupTab();
   };
 
-  const goToViewAccount = (account: DerivedAccount): void => {
+  const goToViewAccount = (account: Account): void => {
     navigate(routes.viewAccount(account.id));
   };
 
-  const goToDeletePage = (account: DerivedAccount): void => {
+  const goToDeletePage = (account: Account): void => {
     navigate(routes.deleteAccount(account.id), { state: { account } });
   };
 
-  const goToViewRecoveryPhrase = (account: DerivedAccount): void => {
+  const goToViewRecoveryPhrase = (account: Account): void => {
     navigate(routes.viewAccountMnemonic(account.id));
   };
 
-  const goToRenameAccount = (account: DerivedAccount): void => {
+  const goToRenameAccount = (account: Account): void => {
     navigate(routes.renameAccount(account.id), { state: { account } });
   };
 
