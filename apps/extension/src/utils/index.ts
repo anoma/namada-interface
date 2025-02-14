@@ -210,3 +210,27 @@ export const toPublicAccount = (derivedAccount: DerivedAccount): Account => {
   }
   return account;
 };
+
+/**
+ * Determine if shielded account is outdated
+ * @param shieldedAccount - derived shielded account
+ * @param parentAccountType - type of parent account
+ * @returns boolean
+ */
+export const isOutdatedShieldedAccount = (
+  shieldedAccount: DerivedAccount,
+  parentAccountType: AccountType
+): boolean => {
+  let outdated = false;
+  // Rule #1: All shielded accounts must have pseudoExtendedKey
+  if (typeof shieldedAccount.pseudoExtendedKey === "undefined") {
+    return true;
+  }
+  // Rule #2: Shielded accounts from mnemonic must have modifiedZip32Path
+  if (parentAccountType === AccountType.Mnemonic) {
+    if (typeof shieldedAccount.modifiedZip32Path === "undefined") {
+      outdated = true;
+    }
+  }
+  return outdated;
+};

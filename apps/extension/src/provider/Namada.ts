@@ -1,5 +1,7 @@
 import {
   Account,
+  AccountType,
+  DerivedAccount,
   GenDisposableSignerResponse,
   Namada as INamada,
   SignArbitraryProps,
@@ -9,7 +11,7 @@ import {
 } from "@namada/types";
 import { MessageRequester, Ports } from "router";
 
-import { toEncodedTx, toPublicAccount } from "utils";
+import { isOutdatedShieldedAccount, toEncodedTx, toPublicAccount } from "utils";
 import {
   ApproveConnectInterfaceMsg,
   ApproveDisconnectInterfaceMsg,
@@ -56,12 +58,28 @@ export class Namada implements INamada {
   }
 
   public async accounts(): Promise<Account[] | undefined> {
-    return (
-      await this.requester?.sendMessage(
-        Ports.Background,
-        new QueryAccountsMsg()
-      )
-    )?.map(toPublicAccount);
+    const accounts: DerivedAccount[] = [];
+    const allAccounts = await this.requester?.sendMessage(
+      Ports.Background,
+      new QueryAccountsMsg()
+    );
+
+    allAccounts?.forEach((account) => {
+      if (typeof account.parentId === "undefined") {
+        accounts.push(account);
+        return;
+      }
+
+      if (account.parentId && account.type === AccountType.ShieldedKeys) {
+        const parent = allAccounts.find((acc) => acc.id === account.parentId);
+        // Don't return shielded keys if they are outdated!
+        if (parent && !isOutdatedShieldedAccount(account, parent.type)) {
+          accounts.push(account);
+        }
+      }
+    });
+
+    return accounts?.map(toPublicAccount);
   }
 
   public async defaultAccount(): Promise<Account | undefined> {

@@ -13,7 +13,7 @@ import { PageHeader } from "App/Common";
 import routes from "App/routes";
 import { ParentAccount } from "background/keyring";
 import { AccountContext } from "context";
-import { openSetupTab } from "utils";
+import { isOutdatedShieldedAccount, openSetupTab } from "utils";
 
 type Account = DerivedAccount & { outdated: boolean };
 /**
@@ -42,25 +42,10 @@ export const ParentAccounts = (): JSX.Element => {
       (account) => account.parentId || account.type === AccountType.Ledger
     )
     .forEach((account) => {
-      let outdated =
-        account.type !== AccountType.Ledger &&
-        typeof account.pseudoExtendedKey === "undefined";
-
-      if (account) {
-        const parent = allParentAccounts[account.parentId!];
-
-        if (parent) {
-          if (parent.type === AccountType.Mnemonic) {
-            if (
-              account.type === AccountType.ShieldedKeys &&
-              !account.modifiedZip32Path
-            ) {
-              outdated = true;
-            }
-          }
-
-          allParentAccounts[parent.id] = { ...parent, outdated };
-        }
+      const parent = allParentAccounts[account.parentId!];
+      if (parent) {
+        const outdated = isOutdatedShieldedAccount(account, parent.type);
+        allParentAccounts[parent.id] = { ...parent, outdated };
       }
     });
 
