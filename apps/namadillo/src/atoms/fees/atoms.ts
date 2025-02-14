@@ -55,9 +55,7 @@ export const gasEstimateFamily = atomFamily(
 
           // TODO: we need to improve this estimate API. Currently, gasEstimate.min returns
           // the minimum gas limit ever used for a TX, and avg is failing in most of the transactions.
-          // So we estabilish the average value between gasEstimate.avg and gasEstimate.max as the min value.
-          // The other values derive from this one.
-          const newMin = Math.ceil((gasEstimate.avg + gasEstimate.max) / 2);
+          const newMin = gasEstimate.max;
           return {
             min: newMin,
             avg: Math.ceil(newMin * 1.25),
