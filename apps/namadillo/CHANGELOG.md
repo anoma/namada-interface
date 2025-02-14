@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.8.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.7.0...namadillo@v1.8.0) (2025-02-13)
+
+
+### Features
+
+* Add shielded overview label ([#1635](https://github.com/anoma/namada-interface/issues/1635)) ([72260e8](https://github.com/anoma/namada-interface/commit/72260e85bbba8e2dac92e5a405e01ee2bfd6f33c))
+* Disable nam on asset selector ([#1627](https://github.com/anoma/namada-interface/issues/1627)) ([0ccdb65](https://github.com/anoma/namada-interface/commit/0ccdb653a698af392094a5ca166d021a2704194e))
+* Update shield/unshield navigation flow ([#1641](https://github.com/anoma/namada-interface/issues/1641)) ([fca8663](https://github.com/anoma/namada-interface/commit/fca86632236fe7a964c5a80562a32eef6a145ebf))
+
+
+### Bug Fixes
+
+* Fixing gas and transactions for 1.7.0 ([#1636](https://github.com/anoma/namada-interface/issues/1636)) ([9c2a1ea](https://github.com/anoma/namada-interface/commit/9c2a1ea654f418f3f0b031151046d396a9c2e98f))
+* Pgf retro denom ([#1640](https://github.com/anoma/namada-interface/issues/1640)) ([70c3e27](https://github.com/anoma/namada-interface/commit/70c3e27bcce53c4066623cacfb6b055ad951dbe3))
+* Rewards fee race condition ([#1628](https://github.com/anoma/namada-interface/issues/1628)) ([6c8e26b](https://github.com/anoma/namada-interface/commit/6c8e26bfbccdf263fc3075e441b0f610d1bbbd48))
+
 ## [1.7.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.6.0...namadillo@v1.7.0) (2025-02-11)
 
 
