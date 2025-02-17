@@ -44,7 +44,7 @@ export type UseTransactionPropsEvents<T> = {
 export type UseTransactionProps<T> = {
   params: T[];
   createTxAtom: AtomType<T>;
-  useDisposableSigner?: boolean;
+  canUseDisposableSigner?: boolean;
   eventType: TransactionEventsClasses;
   parsePendingTxNotification?: (tx: TransactionPair<T>) => PartialNotification;
   parseErrorTxNotification?: () => PartialNotification;
@@ -66,7 +66,7 @@ export type UseTransactionOutput<T> = {
 export const useTransaction = <T,>({
   params,
   createTxAtom,
-  useDisposableSigner,
+  canUseDisposableSigner,
   eventType,
   parsePendingTxNotification,
   parseErrorTxNotification,
@@ -126,6 +126,8 @@ export const useTransaction = <T,>({
       );
 
       const txAdditionalParams = { ...additionalParams };
+      const useDisposableSigner =
+        canUseDisposableSigner && feeProps.gasSource === "shielded";
       if (useDisposableSigner) {
         onBeforeCreateDisposableSigner?.();
         txAdditionalParams.signer = await getDisposableSigner();
