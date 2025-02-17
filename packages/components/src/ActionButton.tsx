@@ -33,7 +33,7 @@ const actionButtonShape = tv({
     outlined: {
       true: clsx(
         "before:transition-colors before:border before:border-[var(--outline)] before:absolute",
-        "before:left-0 before:top-0 before:w-full before:h-full before:z-50"
+        "before:left-0 before:top-0 before:w-full before:h-full before:z-20"
       ),
     },
   },
@@ -63,12 +63,12 @@ const actionButtonBackground = tv({
 const actionButtonText = tv({
   base: clsx(
     "relative transition-colors duration-100",
-    "z-40 h-full text-center w-full"
+    "z-20 h-full text-center w-full"
   ),
 });
 
 const actionButtonIcon = tv({
-  base: "flex items-center justify-center absolute top-1/2 -translate-y-1/2 w-6 z-40",
+  base: "flex items-center justify-center absolute top-1/2 -translate-y-1/2 w-6 z-20",
   variants: {
     position: {
       left: "left-3",
