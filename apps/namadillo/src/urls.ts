@@ -9,4 +9,4 @@ export const githubNamadaInterfaceBaseUrl =
 
 export const repositoryUrl = "https://github.com/anoma/namada-interface";
 export const bugReportUrl =
-  "https://github.com/anoma/namada-interface/issues/new";
+  "https://github.com/anoma/namada-interface/issues/new?template=namadillo.yml";
