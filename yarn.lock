@@ -2730,6 +2730,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fontsource-variable/space-grotesk@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "@fontsource-variable/space-grotesk@npm:5.1.1"
+  checksum: 10c0/a25682fb4768f8ad4161384aa225aa07daca9d62687c9e364eef9589925fb08feffb919665cbae5f6a8e53f51b899abfa592829bcd73214ddd4907ee59ab6e29
+  languageName: node
+  linkType: hard
+
 "@hapi/bourne@npm:^3.0.0":
   version: 3.0.0
   resolution: "@hapi/bourne@npm:3.0.0"
@@ -3355,6 +3362,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@namada/components@workspace:packages/components"
   dependencies:
+    "@fontsource-variable/space-grotesk": "npm:^5.1.1"
     "@namada/utils": "npm:0.2.1"
     "@types/react": "npm:^18.3.5"
     autoprefixer: "npm:^10.4.16"
