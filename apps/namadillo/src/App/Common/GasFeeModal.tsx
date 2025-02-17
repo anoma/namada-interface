@@ -3,7 +3,9 @@ import {
   ActionButton,
   AmountInput,
   Modal,
+  Stack,
   StyledSelectBox,
+  ToggleButton,
 } from "@namada/components";
 import { transparentBalanceAtom } from "atoms/accounts";
 import { shieldedBalanceAtom } from "atoms/balance";
@@ -105,8 +107,10 @@ export const GasFeeModal = ({
     gasConfig,
     gasEstimate,
     gasPriceTable,
+    gasSource,
     onChangeGasLimit,
     onChangeGasToken,
+    onChangeGasSource,
   } = feeProps;
 
   const sortByNativeToken = useSortByNativeToken();
@@ -207,6 +211,28 @@ export const GasFeeModal = ({
           <span className="text-xs text-neutral-500 text-right">Balance</span>
           <span className="text-xs text-neutral-500 text-right">Fee</span>
         </div>
+        <Stack
+          direction="horizontal"
+          className="justify-between align-middle mt-4 mb-1"
+        >
+          <div className="text-sm">Fee Token</div>
+          <ToggleButton
+            label={
+              gasSource === "shielded" ? "Shielded Balance" : (
+                "Transparent Balance"
+              )
+            }
+            color="white"
+            activeColor="yellow"
+            checked={gasSource === "shielded"}
+            onChange={() =>
+              onChangeGasSource(
+                gasSource === "shielded" ? "transparent" : "shielded"
+              )
+            }
+            containerProps={{ className: "gap-3 text-xs" }}
+          />
+        </Stack>
         <StyledSelectBox
           id="fee-token-select"
           value={gasConfig.gasToken}

@@ -20,8 +20,10 @@ export type TransactionFeeProps = {
   isLoading: boolean;
   gasEstimate: GasEstimate | undefined;
   gasPriceTable: GasPriceTable | undefined;
+  gasSource: "shielded" | "transparent";
   onChangeGasLimit: (value: BigNumber) => void;
   onChangeGasToken: (value: string) => void;
+  onChangeGasSource: (value: "shielded" | "transparent") => void;
 };
 
 export const useTransactionFee = (
@@ -32,6 +34,9 @@ export const useTransactionFee = (
   const [gasTokenValue, setGasTokenValue] = useState<string | undefined>();
   const userTransparentBalances = useAtomValue(transparentBalanceAtom);
   const userShieldedBalances = useAtomValue(shieldedBalanceAtom);
+  const [gasSource, setGasSource] = useState<"shielded" | "transparent">(
+    "shielded"
+  );
   const isPublicKeyRevealed = useAtomValue(isPublicKeyRevealedAtom);
 
   const { data: nativeToken, isLoading: isLoadingNativeToken } = useAtomValue(
@@ -149,7 +154,9 @@ export const useTransactionFee = (
     isLoading,
     gasEstimate,
     gasPriceTable,
+    gasSource,
     onChangeGasLimit: setGasLimitValue,
     onChangeGasToken: setGasTokenValue,
+    onChangeGasSource: setGasSource,
   };
 };

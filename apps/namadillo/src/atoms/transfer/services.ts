@@ -199,15 +199,15 @@ export const createUnshieldingTransferTx = async (
   props: UnshieldingTransferMsgValue[],
   gasConfig: GasConfig,
   rpcUrl: string,
-  disposableSigner: GenDisposableSignerResponse,
+  signer?: GenDisposableSignerResponse,
   memo?: string
 ): Promise<EncodedTxData<UnshieldingTransferProps> | undefined> => {
-  const { publicKey: signerPublicKey } = disposableSigner;
-
   const source = props[0]?.source;
   const destination = props[0]?.data[0]?.target;
   const token = props[0]?.data[0]?.token;
   const amount = props[0]?.data[0]?.amount;
+  const accountWithSigner =
+    signer ? { ...account, publicKey: signer.publicKey } : account;
 
   let bparams: BparamsMsgValue[] | undefined;
 
@@ -231,10 +231,7 @@ export const createUnshieldingTransferTx = async (
       const msg: Unshield = {
         type: "unshield",
         payload: {
-          account: {
-            ...account,
-            publicKey: signerPublicKey,
-          },
+          account: accountWithSigner,
           gasConfig,
           props: [msgValue],
           chain,
