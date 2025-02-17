@@ -31,7 +31,6 @@ body:
     attributes:
       label: Version
       description: What version of Namadillo are you running? (You can find the version in the "settings" panel)
-      default: 0
     validations:
       required: true
 
