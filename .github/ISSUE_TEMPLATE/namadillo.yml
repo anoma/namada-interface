@@ -1,5 +1,5 @@
-name: Bug Report
-description: File a bug report.
+name: Namadillo Bug Report
+description: File a bug report for Namadillo.
 title: "[Namadillo]: "
 labels: ["bug", "triage"]
 body:
