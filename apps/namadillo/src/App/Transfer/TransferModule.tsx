@@ -1,4 +1,4 @@
-import { Chain, Chains } from "@chain-registry/types";
+import { Asset, Chain, Chains } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { InlineError } from "App/Common/InlineError";
@@ -11,6 +11,7 @@ import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import {
   Address,
+  AddressWithAssetAndAmount,
   AddressWithAssetAndAmountMap,
   GasConfig,
   WalletProvider,
@@ -272,6 +273,44 @@ export const TransferModule = ({
     return assetDisplayAmount.gt(feeDisplayAmount);
   }
 
+  const findTokenFeeIndex = (chain: Chain, asset: Asset): number => {
+    if (!chain.fees) return -1;
+    return chain.fees.fee_tokens.findIndex((token) => {
+      const lastPart = token.denom.split("/").pop();
+      if (!lastPart) return false;
+      return lastPart.toLowerCase() === asset.base.toLowerCase();
+    });
+  };
+
+  const sortedAssets = useMemo(() => {
+    if (!source.availableAssets) {
+      return [];
+    }
+
+    return Object.values(source.availableAssets).sort(
+      (
+        asset1: AddressWithAssetAndAmount,
+        asset2: AddressWithAssetAndAmount
+      ) => {
+        if (!source.chain) {
+          return 0;
+        }
+
+        const asset1Index = findTokenFeeIndex(source.chain, asset1.asset);
+        const asset2Index = findTokenFeeIndex(source.chain, asset2.asset);
+
+        // No fee assets, so we sort them by the amounts owned by the user
+        if (asset1Index === -1 && asset2Index === -1)
+          return asset1.amount.gt(asset2.amount) ? -1 : 1;
+
+        if (asset1Index === -1) return 1;
+        if (asset2Index === -1) return -1;
+
+        return asset1Index - asset2Index;
+      }
+    );
+  }, [source.availableAssets, source.chain]);
+
   const getButtonTextError = (
     id: ValidationResult,
     defaultText: string
@@ -454,7 +493,7 @@ export const TransferModule = ({
         source.walletAddress && (
           <SelectAssetModal
             onClose={() => setAssetSelectorModalOpen(false)}
-            assets={Object.values(source.availableAssets || {})}
+            assets={sortedAssets}
             onSelect={source.onChangeSelectedAsset}
             wallet={source.wallet}
             walletAddress={source.walletAddress}
