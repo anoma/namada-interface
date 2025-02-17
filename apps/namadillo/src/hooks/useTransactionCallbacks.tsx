@@ -3,8 +3,7 @@ import { shieldedBalanceAtom } from "atoms/balance/atoms";
 import { shouldUpdateBalanceAtom, shouldUpdateProposalAtom } from "atoms/etc";
 import { claimableRewardsAtom, clearClaimRewards } from "atoms/staking";
 import { useAtomValue, useSetAtom } from "jotai";
-import { TransferStep } from "types";
-import { EventData } from "types/events";
+import { TransferStep, TransferTransactionData } from "types";
 import { useTransactionEventListener } from "utils";
 import { useTransactionActions } from "./useTransactionActions";
 
@@ -47,18 +46,36 @@ export const useTransactionCallback = (): void => {
     setTimeout(() => shouldUpdateProposal(false), timePolling);
   });
 
-  const onTransferSuccess = (e: EventData<unknown>): void => {
-    e.detail.tx.forEach(({ hash }) => {
-      changeTransaction(hash, {
-        status: "success",
-        currentStep: TransferStep.Complete,
-      });
+  const onTransferSuccess = (e: CustomEvent<TransferTransactionData>): void => {
+    if (!e.detail.hash) return;
+    changeTransaction(e.detail.hash, {
+      status: "success",
+      currentStep: TransferStep.Complete,
     });
     refetchBalances();
     refetchShieldedBalance();
   };
+
+  const onTransferError = (e: CustomEvent<TransferTransactionData>): void => {
+    if (!e.detail.hash) return;
+    changeTransaction(e.detail.hash, {
+      status: "error",
+      currentStep: TransferStep.Complete,
+      errorMessage: String(e.detail.errorMessage),
+    });
+  };
+
   useTransactionEventListener("TransparentTransfer.Success", onTransferSuccess);
   useTransactionEventListener("ShieldedTransfer.Success", onTransferSuccess);
   useTransactionEventListener("ShieldingTransfer.Success", onTransferSuccess);
   useTransactionEventListener("UnshieldingTransfer.Success", onTransferSuccess);
+  useTransactionEventListener("IbcTransfer.Success", onTransferSuccess);
+  useTransactionEventListener("IbcWithdraw.Success", onTransferSuccess);
+
+  useTransactionEventListener("TransparentTransfer.Error", onTransferError);
+  useTransactionEventListener("ShieldedTransfer.Error", onTransferError);
+  useTransactionEventListener("ShieldingTransfer.Error", onTransferError);
+  useTransactionEventListener("UnshieldingTransfer.Error", onTransferError);
+  useTransactionEventListener("IbcTransfer.Error", onTransferError);
+  useTransactionEventListener("IbcWithdraw.Error", onTransferError);
 };
