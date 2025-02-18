@@ -24,4 +24,4 @@ export const secondsToTimeRemainingString = (
 ): string =>
   secondsToDateTime(endTimeInSeconds)
     .diff(secondsToDateTime(startTimeInSeconds), ["days", "hours", "minutes"])
-    .toHuman();
+    .toHuman({ maximumFractionDigits: 0 });
