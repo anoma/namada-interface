@@ -4,6 +4,7 @@ import { FiatCurrency } from "App/Common/FiatCurrency";
 import { shieldedBalanceAtom, shieldedTokensAtom } from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
 import { applicationFeaturesAtom } from "atoms/settings";
+import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { twMerge } from "tailwind-merge";
@@ -40,29 +41,24 @@ export const ShieldedBalanceChart = (): JSX.Element => {
             className={clsx({ "animate-pulse": shieldedTokensQuery.isPending })}
           >
             <div className="flex flex-col gap-1 items-center leading-tight max-w-[180px]">
-              {!shieldedDollars ?
-                "N/A"
-              : <>
-                  {shieldedTokensQuery.isPending && (
-                    <SkeletonLoading width="80px" height="40px" />
-                  )}
-                  {shieldedTokensQuery.isSuccess && (
-                    <>
-                      <Heading className="text-sm" level="h3">
-                        Shielded Balance
-                      </Heading>
-                      <FiatCurrency
-                        className={twMerge(
-                          "text-2xl sm:text-3xl whitespace-nowrap",
-                          !namTransfersEnabled && "after:content-['*']",
-                          isShieldSyncing && "animate-pulse"
-                        )}
-                        amount={shieldedDollars}
-                      />
-                    </>
-                  )}
+              {shieldedTokensQuery.isPending && (
+                <SkeletonLoading width="80px" height="40px" />
+              )}
+              {shieldedTokensQuery.isSuccess && (
+                <>
+                  <Heading className="text-sm" level="h3">
+                    Shielded Value
+                  </Heading>
+                  <FiatCurrency
+                    className={twMerge(
+                      "text-2xl sm:text-3xl whitespace-nowrap",
+                      !namTransfersEnabled && "after:content-['*']",
+                      isShieldSyncing && "animate-pulse"
+                    )}
+                    amount={shieldedDollars ?? new BigNumber(0)}
+                  />
                 </>
-              }
+              )}
             </div>
           </PieChart>
           {!namTransfersEnabled && (

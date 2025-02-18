@@ -20,7 +20,7 @@ export const MaspBanner = (): JSX.Element => {
           <div className="col-start-1 row-start-1 text-4xl">MASP</div>
         </div>
         <div className="flex-1">
-          <div className="text-sm">Total shielded balance</div>
+          <div className="text-sm">Total Shielded Value</div>
           {total ?
             <FiatCurrency
               className={twMerge(
