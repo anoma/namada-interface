@@ -1,5 +1,10 @@
 import { PhraseSize } from "@namada/sdk/web";
-import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
+import {
+  AccountType,
+  Bip44Path,
+  DerivedAccount,
+  Zip32Path,
+} from "@namada/types";
 import { Result } from "@namada/utils";
 import { ResponseSign } from "@zondax/ledger-namada";
 import { Message } from "router";
@@ -14,7 +19,6 @@ import {
 } from "./types";
 
 enum MessageType {
-  DeriveAccount = "derive-account",
   DeriveShieldedAccount = "derive-shielded-account",
   GenerateMnemonic = "generate-mnemonic",
   GetActiveAccount = "get-active-account",
@@ -218,13 +222,13 @@ export class AddLedgerAccountMsg extends Message<AccountStore | false> {
   }
 }
 
-export class DeriveAccountMsg extends Message<DerivedAccount> {
+export class DeriveShieldedAccountMsg extends Message<DerivedAccount> {
   public static type(): MessageType {
-    return MessageType.DeriveAccount;
+    return MessageType.DeriveShieldedAccount;
   }
 
   constructor(
-    public readonly path: Bip44Path,
+    public readonly path: Zip32Path,
     public readonly accountType: AccountType,
     public readonly alias: string,
     public readonly parentId: string,
@@ -236,14 +240,10 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
   validate(): void {
     validateProps(this, ["path", "accountType", "alias", "parentId", "source"]);
 
-    const { account, change } = this.path;
+    const { account } = this.path;
 
     if (!`${account}`) {
-      throw new Error("A Bip44Path account path was not provided!");
-    }
-
-    if (!`${change}`) {
-      throw new Error("A Bip44Path change path was not provided!");
+      throw new Error("A Zip32Path account path was not provided!");
     }
   }
 
@@ -252,7 +252,7 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
   }
 
   type(): string {
-    return DeriveAccountMsg.type();
+    return DeriveShieldedAccountMsg.type();
   }
 }
 

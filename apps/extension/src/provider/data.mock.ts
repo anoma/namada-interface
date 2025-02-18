@@ -84,7 +84,6 @@ export const keyStore: Vault<KeyStoreType>[] = [
       owner:
         "atest1d9khqw36geprgd2yxgcyy3fnxymnzwf4xpprgdzxgccryvp489qn2wzyxcmrgd2xxdznvv2p8akmfs",
       id: "123e4567-e89b-12d3-a456-426614174000",
-      parentId: ACTIVE_ACCOUNT.id,
       path: {
         account: 0,
         change: 0,

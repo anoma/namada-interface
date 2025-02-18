@@ -5,6 +5,7 @@ import { AccountType, DerivedAccount, Path } from "@namada/types";
 export interface AccountStore extends StoredRecord {
   alias: string;
   address: string;
+  modifiedZip32Path?: string;
   owner: string;
   publicKey?: string;
   path: Path;

@@ -24,8 +24,10 @@ describe("Keys", () => {
     const seed = mnemonic.toSeed(mnemonic1);
     const seed2 = mnemonic.toSeed(mnemonic2);
 
-    const { address, viewingKey, spendingKey } =
-      keys.deriveShieldedFromSeed(seed);
+    const { address, viewingKey, spendingKey } = keys.deriveShieldedFromSeed(
+      seed,
+      shieldedAccount1.path
+    );
 
     expect(address).toBe(shieldedAccount1.paymentAddress);
     expect(viewingKey).toBe(shieldedAccount1.viewingKey);
@@ -35,7 +37,7 @@ describe("Keys", () => {
       address: address2,
       viewingKey: viewingKey2,
       spendingKey: spendingKey2,
-    } = keys.deriveShieldedFromSeed(seed2);
+    } = keys.deriveShieldedFromSeed(seed2, shieldedAccount2.path);
 
     expect(address2).toBe(shieldedAccount2.paymentAddress);
     expect(viewingKey2).toBe(shieldedAccount2.viewingKey);

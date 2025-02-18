@@ -1,16 +1,18 @@
 import { Alert, LinkButton, Stack } from "@namada/components";
-import { Bip44Path } from "@namada/types";
+import { Bip44Path, Zip32Path } from "@namada/types";
 import clsx from "clsx";
 import React, { useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Bip39PassphraseForm from "./Bip39PassphraseForm";
-import Bip44Form from "./Bip44Form";
+import CustomPathForm from "./CustomPathForm";
 
 type Props = {
   passphrase: string;
-  path: Bip44Path;
+  bip44Path: Bip44Path;
+  zip32Path: Zip32Path;
   setPassphrase: (passphrase: string) => void;
-  setPath: (path: Bip44Path) => void;
+  setBip44Path: (path: Bip44Path) => void;
+  setZip32Path: (path: Zip32Path) => void;
 };
 
 export enum Option {
@@ -21,9 +23,11 @@ export enum Option {
 
 export const AdvancedOptionsMenu: React.FC<Props> = ({
   passphrase,
-  path,
+  bip44Path,
+  zip32Path,
   setPassphrase,
-  setPath,
+  setBip44Path,
+  setZip32Path,
 }) => {
   const [option, setOption] = useState(Option.Menu);
   const menuText: Record<Option, string> = {
@@ -84,7 +88,14 @@ export const AdvancedOptionsMenu: React.FC<Props> = ({
             </div>
           </div>
           {option === Option.Path && (
-            <Bip44Form path={path} setPath={setPath} />
+            <>
+              <CustomPathForm
+                bip44Path={bip44Path}
+                zip32Path={zip32Path}
+                setBip44Path={setBip44Path}
+                setZip32Path={setZip32Path}
+              />
+            </>
           )}
           {option === Option.Passphrase && (
             <Bip39PassphraseForm

@@ -15,17 +15,14 @@ import {
 } from "@namada/shared";
 import { Bip44Path, Zip32Path } from "@namada/types";
 import { makeBip44PathArray, makeSaplingPathArray } from "../utils";
-import { Address, ShieldedKeys, TransparentKeys } from "./types";
-
-const DEFAULT_BIP44_PATH: Bip44Path = {
-  account: 0,
-  change: 0,
-  index: 0,
-};
-
-const DEFAULT_ZIP32_PATH: Zip32Path = {
-  account: 0,
-};
+import {
+  Address,
+  DEFAULT_BIP44_PATH,
+  DEFAULT_ZIP32_PATH,
+  MODIFIED_ZIP32_PATH,
+  ShieldedKeys,
+  TransparentKeys,
+} from "./types";
 
 /**
  * Namespace for key related functions
@@ -136,17 +133,16 @@ export class Keys {
   /**
    * Derive shielded keys and address from a seed and path
    * @param seed - Seed
-   * @param [bip44Path] - Bip44 path object to derive private key to seed the shielded keys
    * @param [zip32Path] - Zip32 path object to derive the shielded keys
    * @param [diversifier] - Diversifier bytes
    * @returns Shielded keys and address
    */
   deriveShieldedFromSeed(
     seed: Uint8Array,
-    bip44Path: Bip44Path = DEFAULT_BIP44_PATH,
     zip32Path: Zip32Path = DEFAULT_ZIP32_PATH,
     diversifier?: Uint8Array
   ): ShieldedKeys {
+    const bip44Path: Bip44Path = MODIFIED_ZIP32_PATH;
     const shieldedHdWallet = new ShieldedHDWallet(
       seed,
       makeBip44PathArray(chains.namada.bip44.coinType, bip44Path)

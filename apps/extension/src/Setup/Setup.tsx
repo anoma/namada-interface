@@ -11,7 +11,7 @@ import {
   Container,
   LifecycleExecutionWrapper as Wrapper,
 } from "@namada/components";
-import { Bip44Path, DerivedAccount } from "@namada/types";
+import { Bip44Path, DerivedAccount, Zip32Path } from "@namada/types";
 import { assertNever } from "@namada/utils";
 import { AccountSecret, AccountStore } from "background/keyring";
 import { AnimatePresence, motion } from "framer-motion";
@@ -74,10 +74,13 @@ export const Setup: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [totalSteps, setTotalSteps] = useState(0);
   const [currentPageTitle, setCurrentPageTitle] = useState("");
-  const [path, setPath] = useState<Bip44Path>({
+  const [bip44Path, setBip44Path] = useState<Bip44Path>({
     account: 0,
     change: 0,
     index: 0,
+  });
+  const [zip32Path, setZip32Path] = useState<Zip32Path>({
+    account: 0,
   });
 
   const [parentAccountStore, setParentAccountStore] = useState<AccountStore>();
@@ -251,7 +254,8 @@ export const Setup: React.FC = () => {
                         if (accountSecret) {
                           void storeAccount({
                             ...accountCreationDetails,
-                            path,
+                            bip44Path,
+                            zip32Path,
                             accountSecret,
                             flow: "create",
                           });
@@ -273,7 +277,8 @@ export const Setup: React.FC = () => {
                       alias={accountCreationDetails.alias || ""}
                       accountSecret={selectedAccountSecret}
                       password={accountCreationDetails.password || ""}
-                      path={path}
+                      path={bip44Path}
+                      // TODO: Display custom zip32 path across apps!
                       parentAccountStore={parentAccountStore}
                       shieldedAccount={shieldedAccount}
                       status={completionStatus}
@@ -298,8 +303,10 @@ export const Setup: React.FC = () => {
                 element={
                   <Wrapper onLoad={setCurrentPage("Import Existing Keys", 1)}>
                     <SeedPhraseImport
-                      path={path}
-                      setPath={setPath}
+                      bip44Path={bip44Path}
+                      zip32Path={zip32Path}
+                      setBip44Path={setBip44Path}
+                      setZip32Path={setZip32Path}
                       onConfirm={(accountSecret: AccountSecret) => {
                         setAccountSecret(accountSecret);
                         navigate(routes.accountImportCreate());
@@ -328,7 +335,8 @@ export const Setup: React.FC = () => {
                         if (accountSecret) {
                           void storeAccount({
                             ...accountCreationDetails,
-                            path,
+                            bip44Path,
+                            zip32Path,
                             accountSecret,
                             flow: "import",
                           });
@@ -350,7 +358,8 @@ export const Setup: React.FC = () => {
                       alias={accountCreationDetails.alias || ""}
                       accountSecret={selectedAccountSecret}
                       password={accountCreationDetails.password || ""}
-                      path={path}
+                      path={bip44Path}
+                      // TODO: Pass zip32 path!
                       parentAccountStore={parentAccountStore}
                       shieldedAccount={shieldedAccount}
                       status={completionStatus}
@@ -375,7 +384,12 @@ export const Setup: React.FC = () => {
                   <Wrapper
                     onLoad={setCurrentPage("Connect Your Ledger Hardware", 1)}
                   >
-                    <LedgerConnect path={path} setPath={setPath} />
+                    <LedgerConnect
+                      bip44Path={bip44Path}
+                      zip32Path={zip32Path}
+                      setBip44Path={setBip44Path}
+                      setZip32Path={setZip32Path}
+                    />
                   </Wrapper>
                 }
               />
@@ -389,7 +403,8 @@ export const Setup: React.FC = () => {
                     )}
                   >
                     <LedgerImport
-                      path={path}
+                      bip44Path={bip44Path}
+                      zip32Path={zip32Path}
                       passwordRequired={!passwordInitialized}
                     />
                   </Wrapper>

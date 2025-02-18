@@ -13,8 +13,9 @@ import { PageHeader } from "App/Common";
 import routes from "App/routes";
 import { ParentAccount } from "background/keyring";
 import { AccountContext } from "context";
-import { openSetupTab } from "utils";
+import { isOutdatedShieldedAccount, openSetupTab } from "utils";
 
+type Account = DerivedAccount & { outdated: boolean };
 /**
  * Represents the extension's settings page.
  */
@@ -27,25 +28,33 @@ export const ParentAccounts = (): JSX.Element => {
     changeActiveAccountId,
   } = useContext(AccountContext);
 
+  const allParentAccounts = parentAccounts.reduce(
+    (acc, account) => {
+      acc[account.id] = { ...account, outdated: false };
+      return acc;
+    },
+    {} as Record<string, Account>
+  );
+
   // We check which accounts need to be re-imported
-  const accounts = allAccounts
+  allAccounts
     .filter(
       (account) => account.parentId || account.type === AccountType.Ledger
     )
-    .map((account) => {
-      const outdated =
-        account.type !== AccountType.Ledger &&
-        typeof account.pseudoExtendedKey === "undefined";
-
-      // The only account without a parent is the ledger account
-      const parent =
-        parentAccounts.find((pa) => pa.id === account.parentId) || account;
-
-      return { ...parent, outdated };
+    .forEach((account) => {
+      const parent = allParentAccounts[account.parentId!];
+      if (parent) {
+        const outdated = isOutdatedShieldedAccount(account, parent.type);
+        allParentAccounts[parent.id] = { ...parent, outdated };
+      }
     });
 
+  const accounts = Object.values(allParentAccounts);
+
   useEffect(() => {
-    const hasOutdatedAccounts = accounts.some((account) => account.outdated);
+    const hasOutdatedAccounts = accounts.some(
+      (account: Account) => account.outdated
+    );
     // If there are outdated accounts, we redirect to the update required page
     if (hasOutdatedAccounts) {
       navigate(routes.accountsUpdateRequired());
@@ -56,19 +65,19 @@ export const ParentAccounts = (): JSX.Element => {
     await openSetupTab();
   };
 
-  const goToViewAccount = (account: DerivedAccount): void => {
+  const goToViewAccount = (account: Account): void => {
     navigate(routes.viewAccount(account.id));
   };
 
-  const goToDeletePage = (account: DerivedAccount): void => {
+  const goToDeletePage = (account: Account): void => {
     navigate(routes.deleteAccount(account.id), { state: { account } });
   };
 
-  const goToViewRecoveryPhrase = (account: DerivedAccount): void => {
+  const goToViewRecoveryPhrase = (account: Account): void => {
     navigate(routes.viewAccountMnemonic(account.id));
   };
 
-  const goToRenameAccount = (account: DerivedAccount): void => {
+  const goToRenameAccount = (account: Account): void => {
     navigate(routes.renameAccount(account.id), { state: { account } });
   };
 

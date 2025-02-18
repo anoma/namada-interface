@@ -52,6 +52,7 @@
     "wasm:build:node:dev:multicore": "node ./scripts/build.cjs --node --multicore",
     "build:docs": "typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts",
     "test": "yarn wasm:build:node:dev && yarn jest",
+    "test:only": "yarn jest",
     "test:cov": "yarn wasm:build:node:dev && yarn jest --coverage",
     "test:watch": "yarn wasm:build:node:dev && yarn jest --watchAll=true",
     "test:ci": "jest"

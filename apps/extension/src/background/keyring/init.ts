@@ -11,7 +11,7 @@ import { getHandler } from "./handler";
 import {
   AddLedgerAccountMsg,
   DeleteAccountMsg,
-  DeriveAccountMsg,
+  DeriveShieldedAccountMsg,
   GenerateMnemonicMsg,
   GetActiveAccountMsg,
   QueryAccountDetailsMsg,
@@ -25,7 +25,7 @@ import {
 import { KeyRingService } from "./service";
 
 export function init(router: Router, service: KeyRingService): void {
-  router.registerMessage(DeriveAccountMsg);
+  router.registerMessage(DeriveShieldedAccountMsg);
   router.registerMessage(GenerateMnemonicMsg);
   router.registerMessage(GetActiveAccountMsg);
   router.registerMessage(QueryAccountsMsg);

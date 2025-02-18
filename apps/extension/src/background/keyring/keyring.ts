@@ -1,4 +1,10 @@
-import { PhraseSize, ShieldedKeys } from "@namada/sdk/web";
+import { chains } from "@namada/chains";
+import {
+  makeBip44Path,
+  MODIFIED_ZIP32_PATH,
+  PhraseSize,
+  ShieldedKeys,
+} from "@namada/sdk/web";
 import { KVStore } from "@namada/storage";
 import {
   AccountType,
@@ -8,6 +14,7 @@ import {
   Path,
   SignArbitraryResponse,
   TxProps,
+  Zip32Path,
 } from "@namada/types";
 import { assertNever, Result, truncateInMiddle } from "@namada/utils";
 
@@ -32,7 +39,7 @@ import {
   SensitiveType,
   VaultStorage,
 } from "storage";
-import { generateId, makeStoredPath } from "utils";
+import { generateId } from "utils";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -247,81 +254,6 @@ export class KeyRing {
     return accountStore;
   }
 
-  public deriveTransparentAccount(
-    seed: Uint8Array,
-    path: Bip44Path,
-    parentAccount: DerivedAccount
-  ): DerivedAccountInfo {
-    const keysNs = this.sdkService.getSdk().getKeys();
-    const { address, privateKey } = keysNs.deriveFromSeed(seed, path);
-
-    const { account, change, index } = path;
-    const id = generateId(
-      UUID_NAMESPACE,
-      "account",
-      parentAccount.id,
-      account,
-      change,
-      index
-    );
-
-    return {
-      address,
-      owner: address,
-      id,
-      text: privateKey,
-    };
-  }
-
-  public deriveShieldedAccount(
-    secret: Uint8Array,
-    bip44Path: Bip44Path,
-    parentAccount: DerivedAccount
-  ): DerivedAccountInfo {
-    // As this is derived from a parent account, our initial default account
-    // should have a default path
-    const zip32Path = makeStoredPath(
-      AccountType.ShieldedKeys,
-      DEFAULT_BIP44_PATH
-    );
-    const id = generateId(
-      UUID_NAMESPACE,
-      "shielded-account",
-      parentAccount.id,
-      // Specify unique identifiers for parent derived account
-      bip44Path.account,
-      bip44Path.change,
-      bip44Path.index
-    );
-    const keysNs = this.sdkService.getSdk().getKeys();
-
-    let shieldedKeys: ShieldedKeys;
-    const parentType = parentAccount.type;
-
-    if (parentType === AccountType.Mnemonic) {
-      shieldedKeys = keysNs.deriveShieldedFromSeed(
-        secret,
-        bip44Path,
-        zip32Path
-      );
-    } else if (parentType === AccountType.PrivateKey) {
-      shieldedKeys = keysNs.deriveShieldedFromPrivateKey(secret, zip32Path);
-    } else {
-      throw new Error(`Invalid account type! ${parentType}`);
-    }
-
-    const { address, viewingKey, spendingKey, pseudoExtendedKey } =
-      shieldedKeys;
-
-    return {
-      address,
-      id,
-      owner: viewingKey,
-      text: JSON.stringify({ spendingKey }),
-      pseudoExtendedKey,
-    };
-  }
-
   private async getParentSecret(parentId: string): Promise<{
     secret: Uint8Array;
   }> {
@@ -375,6 +307,23 @@ export class KeyRing {
     timestamp: number
   ): Promise<DerivedAccount> {
     const { address, id, text, owner, pseudoExtendedKey } = derivedAccountInfo;
+
+    let modifiedZip32Path: string | undefined;
+
+    const parent = parentId ? await this.queryAccountById(parentId) : null;
+
+    if (parent) {
+      if (
+        type === AccountType.ShieldedKeys &&
+        parent.type === AccountType.Mnemonic
+      ) {
+        modifiedZip32Path = makeBip44Path(
+          chains.namada.bip44.coinType,
+          MODIFIED_ZIP32_PATH
+        );
+      }
+    }
+
     const account: AccountStore = {
       id,
       address,
@@ -382,6 +331,7 @@ export class KeyRing {
       parentId,
       path,
       type,
+      modifiedZip32Path,
       owner,
       pseudoExtendedKey,
       source,
@@ -398,11 +348,8 @@ export class KeyRing {
     return account;
   }
 
-  /**
-   * Derive both shielded and transparent accounts from BIP44 Path
-   */
-  public async deriveAccount(
-    bip44Path: Bip44Path,
+  public async deriveShieldedAccount(
+    path: Zip32Path,
     type: AccountType,
     alias: string,
     parentId: string,
@@ -419,27 +366,36 @@ export class KeyRing {
       throw new Error(`Parent account not found: ${parentId}`);
     }
 
-    let derivationPath = bip44Path;
-    if (parentAccount.type === AccountType.PrivateKey) {
-      // Parent accounts that are imported private keys cannot
-      // contain custom paths, so ensure that we use the default here
-      derivationPath = DEFAULT_BIP44_PATH;
+    const { secret } = await this.getParentSecret(parentId);
+    const id = generateId(
+      UUID_NAMESPACE,
+      "shielded-account",
+      parentAccount.id,
+      path.account
+    );
+    const keysNs = this.sdkService.getSdk().getKeys();
+
+    let shieldedKeys: ShieldedKeys;
+    const parentType = parentAccount.type;
+
+    if (parentType === AccountType.Mnemonic) {
+      shieldedKeys = keysNs.deriveShieldedFromSeed(secret, path);
+    } else if (parentType === AccountType.PrivateKey) {
+      shieldedKeys = keysNs.deriveShieldedFromPrivateKey(secret, path);
+    } else {
+      throw new Error(`Invalid account type! ${parentType}`);
     }
 
-    // We create a default zip32 path here as shielded keys will
-    // be derived from a private key that was derived with BIP44
-    const zip32Path = makeStoredPath(
-      AccountType.ShieldedKeys,
-      DEFAULT_BIP44_PATH
-    );
+    const { address, viewingKey, spendingKey, pseudoExtendedKey } =
+      shieldedKeys;
 
-    const deriveFn = (
-      type === AccountType.PrivateKey ?
-        this.deriveTransparentAccount
-      : this.deriveShieldedAccount).bind(this);
-
-    const { secret } = await this.getParentSecret(parentId);
-    const info = deriveFn(secret, derivationPath, parentAccount);
+    const info = {
+      address,
+      id,
+      owner: viewingKey,
+      text: JSON.stringify({ spendingKey }),
+      pseudoExtendedKey,
+    };
 
     // Check whether keys already exist for this account
     const existingAccount = await this.queryAccountByAddress(info.address);
@@ -450,8 +406,8 @@ export class KeyRing {
     }
 
     const timestamp = source === "generated" ? new Date().getTime() : 0;
-    const derivedAccount = await this.persistAccount(
-      type === AccountType.ShieldedKeys ? zip32Path : derivationPath,
+    const derivedShieldedAccount = await this.persistAccount(
+      path,
       parentId,
       type,
       alias,
@@ -459,7 +415,7 @@ export class KeyRing {
       source,
       timestamp
     );
-    return derivedAccount;
+    return derivedShieldedAccount;
   }
 
   public async queryAllAccounts(): Promise<DerivedAccount[]> {

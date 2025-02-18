@@ -37,6 +37,7 @@ export type DerivedAccount = {
   parentId?: string;
   path: Path;
   type: AccountType;
+  modifiedZip32Path?: string;
   pseudoExtendedKey?: string;
   source?: "imported" | "generated";
   timestamp?: number;

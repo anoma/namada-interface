@@ -2,7 +2,6 @@ import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import {
   Account,
   AccountType,
-  Bip44Path,
   DerivedAccount,
   Path,
   TransferProps,
@@ -107,20 +106,6 @@ export const fromEncodedTx = (encodedTxData: EncodedTxData): TxProps => ({
   })),
 });
 
-// Generate either BIP44 or ZIP32 path from BIP44 based on account type
-export const makeStoredPath = (
-  accountType: AccountType,
-  path: Bip44Path
-): Path => {
-  const { account, change, index } = path;
-  return accountType === AccountType.ShieldedKeys ?
-      // If this is a custom address (non-default account or index in the BIP44 path),
-      // specify index for shielded keys. In Namada CLI, the default ZIP32 path only
-      // specifies "account"
-      { account, index: account + index > 0 ? index : undefined }
-    : { account, change, index };
-};
-
 export const isCustomPath = (path: Path): boolean => {
   const { account, change = 0, index = 0 } = path;
   if (account + change + index > 0) {
@@ -224,4 +209,28 @@ export const toPublicAccount = (derivedAccount: DerivedAccount): Account => {
     account.publicKey = publicKey;
   }
   return account;
+};
+
+/**
+ * Determine if shielded account is outdated
+ * @param shieldedAccount - derived shielded account
+ * @param parentAccountType - type of parent account
+ * @returns boolean
+ */
+export const isOutdatedShieldedAccount = (
+  shieldedAccount: DerivedAccount,
+  parentAccountType: AccountType
+): boolean => {
+  let outdated = false;
+  // Rule #1: All shielded accounts must have pseudoExtendedKey
+  if (typeof shieldedAccount.pseudoExtendedKey === "undefined") {
+    return true;
+  }
+  // Rule #2: Shielded accounts from mnemonic must have modifiedZip32Path
+  if (parentAccountType === AccountType.Mnemonic) {
+    if (typeof shieldedAccount.modifiedZip32Path === "undefined") {
+      outdated = true;
+    }
+  }
+  return outdated;
 };

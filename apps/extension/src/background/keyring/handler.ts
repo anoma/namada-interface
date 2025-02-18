@@ -9,7 +9,7 @@ import { Env, Handler, InternalHandler, Message } from "router";
 import {
   AddLedgerAccountMsg,
   DeleteAccountMsg,
-  DeriveAccountMsg,
+  DeriveShieldedAccountMsg,
   GenerateMnemonicMsg,
   GetActiveAccountMsg,
   QueryAccountDetailsMsg,
@@ -45,8 +45,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as SaveAccountSecretMsg
         );
-      case DeriveAccountMsg:
-        return handleDeriveAccountMsg(service)(env, msg as DeriveAccountMsg);
+      case DeriveShieldedAccountMsg:
+        return handleDeriveShieldedAccountMsg(service)(
+          env,
+          msg as DeriveShieldedAccountMsg
+        );
       case QueryAccountsMsg:
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
       case SetActiveAccountMsg:
@@ -155,12 +158,12 @@ const handleRenameAccountMsg: (
   };
 };
 
-const handleDeriveAccountMsg: (
+const handleDeriveShieldedAccountMsg: (
   service: KeyRingService
-) => InternalHandler<DeriveAccountMsg> = (service) => {
+) => InternalHandler<DeriveShieldedAccountMsg> = (service) => {
   return async (_, msg) => {
     const { path, accountType, alias, parentId, source } = msg;
-    return await service.deriveAccount(
+    return await service.deriveShieldedAccount(
       path,
       accountType,
       alias,
