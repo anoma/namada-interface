@@ -410,6 +410,7 @@ impl Query {
             .precompute_asset_types(&self.client, tokens.iter().collect())
             .await
             .map_err(|e| JsError::new(&format!("{:?}", e)))?;
+        let _ = shielded.save().await;
 
         let epoch = query_masp_epoch(&self.client).await?;
         let balance = shielded

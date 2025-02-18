@@ -31,7 +31,7 @@ export async function shieldedSync({
   onProgress,
 }: {
   rpcUrl: string;
-  maspIndexerUrl: string;
+  maspIndexerUrl?: string;
   token: string;
   viewingKeys: DatedViewingKey[];
   chainId: string;

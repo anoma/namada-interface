@@ -187,7 +187,6 @@ const sync = async (
   invariant(chainId, "Chain ID is required for shielded sync");
   invariant(namTokenAddress, "NAM token address is required for shielded sync");
   invariant(rpcUrl, "RPC URL is required for shielded sync");
-  invariant(maspIndexerUrl, "Masp indexer URL is required for shielded sync");
 
   const { set } = getDefaultStore();
   await shieldedSync({
