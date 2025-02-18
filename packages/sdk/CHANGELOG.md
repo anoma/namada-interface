@@ -8,6 +8,14 @@
 
 - enable panic hook in Rust SDK ([6393b82](https://github.com/anoma/namada-interface/commit/6393b8263320e0f6d137f4e015b982f17f7e497e))
 
+## [0.16.0](https://github.com/anoma/namada-interface/compare/sdk@v0.15.0...sdk@v0.16.0) (2025-02-18)
+
+
+### Features
+
+* Shielded rewards intergration ([#1378](https://github.com/anoma/namada-interface/issues/1378)) ([622044d](https://github.com/anoma/namada-interface/commit/622044de6a20cb673803eadf1330ccb18b9ae903))
+* Update Keychain for new modified-zip32 ([#1624](https://github.com/anoma/namada-interface/issues/1624)) ([b19caae](https://github.com/anoma/namada-interface/commit/b19caae391b0411f51ee9b48325eeb62d421e7d3))
+
 ## 0.14.0 (2025-01-06)
 
 ### Features
