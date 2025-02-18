@@ -733,6 +733,8 @@ impl Sdk {
         amount: &str,
         channel_id: &str,
     ) -> Result<JsValue, JsError> {
+        let _ = &self.namada.shielded_mut().await.load().await?;
+
         let ledger_address = Url::from_str(&self.rpc_url).expect("RPC URL is a valid URL");
         let target = TransferTarget::PaymentAddress(
             PaymentAddress::from_str(target).expect("target is a valid shielded address"),
