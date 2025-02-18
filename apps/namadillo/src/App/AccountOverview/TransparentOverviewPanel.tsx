@@ -12,6 +12,7 @@ import { params, routes } from "App/routes";
 import { TokenBalance, transparentTokensAtom } from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
 import { applicationFeaturesAtom } from "atoms/settings";
+import BigNumber from "bignumber.js";
 import { getAssetImageUrl } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
@@ -169,7 +170,7 @@ const PanelContent = ({ data }: { data: TokenBalance[] }): JSX.Element => {
       <div className="grid md:grid-cols-2 gap-2">
         {[
           {
-            title: "Total Transparent Asset Balance",
+            title: "Total Transparent Asset Value",
             amount: getTotalDollar(data),
             button: (
               <ActionButton size="xs" href={routes.maspShield}>
@@ -178,7 +179,7 @@ const PanelContent = ({ data }: { data: TokenBalance[] }): JSX.Element => {
             ),
           },
           {
-            title: "Transparent NAM Balance",
+            title: "Transparent NAM Value",
             amount: namBalance?.dollar,
             namAmount: namBalance?.amount,
             button: (
@@ -196,9 +197,7 @@ const PanelContent = ({ data }: { data: TokenBalance[] }): JSX.Element => {
             <div className="flex-1 overflow-auto">
               <div className="text-sm">{title}</div>
               <div className="text-2xl sm:text-3xl whitespace-nowrap overflow-auto">
-                {amount ?
-                  <FiatCurrency amount={amount} />
-                : "N/A"}
+                <FiatCurrency amount={amount ?? new BigNumber(0)} />
               </div>
               {namAmount && namBalance && (
                 <TokenCurrency

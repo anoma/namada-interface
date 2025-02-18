@@ -80,7 +80,7 @@ export const BalanceOverviewChart = (): JSX.Element => {
   return (
     <>
       <Heading className="text-sm mb-4" level="h3">
-        {maspEnabled ? "Total Non Native Balance" : "NAM Balance"}
+        {maspEnabled ? "Total Non Native Value" : "NAM Balance"}
       </Heading>
       <div className="flex flex-col items-center justify-center">
         <div className="h-[230px] w-[230px]">
