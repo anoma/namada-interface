@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.9.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.8.0...namadillo@v1.9.0) (2025-02-18)
+
+
+### Features
+
+* Add token address as html title ([#1663](https://github.com/anoma/namada-interface/issues/1663)) ([b06a905](https://github.com/anoma/namada-interface/commit/b06a905f7d8a521225e7b91d67cefcbb41e9eb34))
+* Adding bug report button and template ([#1656](https://github.com/anoma/namada-interface/issues/1656)) ([0c39da1](https://github.com/anoma/namada-interface/commit/0c39da138fba035087757ad85f766edd005cbef6))
+* Service worker fetch cache ([#1644](https://github.com/anoma/namada-interface/issues/1644)) ([d8daa5b](https://github.com/anoma/namada-interface/commit/d8daa5b5352abe4c5d51e9fa378fc21f37c3ea55))
+* Sorting assets on transfer module ([#1658](https://github.com/anoma/namada-interface/issues/1658)) ([c3a77ce](https://github.com/anoma/namada-interface/commit/c3a77cec0999f6c8bc30f15ec98c824475a26206))
+
+
+### Bug Fixes
+
+* Fix time remaining fraction digits ([#1668](https://github.com/anoma/namada-interface/issues/1668)) ([ec726f1](https://github.com/anoma/namada-interface/commit/ec726f1983b7cba4843e62e7d6a864fd7a29e334))
+* Increasing gas usage based on max value provided by indexer ([#1647](https://github.com/anoma/namada-interface/issues/1647)) ([9ee4d08](https://github.com/anoma/namada-interface/commit/9ee4d08d6f053fd3fde63887db5f39bbeb342c8c))
+* Linking bug report button to the right url ([#1659](https://github.com/anoma/namada-interface/issues/1659)) ([cb36d95](https://github.com/anoma/namada-interface/commit/cb36d9536b55cd1121d097efbd198a2ac3e58a81))
+* Pending transactions ([#1662](https://github.com/anoma/namada-interface/issues/1662)) ([1918911](https://github.com/anoma/namada-interface/commit/191891108756bb2ac98c5897452851cd4d3a8481))
+* Rename balance to value ([#1669](https://github.com/anoma/namada-interface/issues/1669)) ([944fc33](https://github.com/anoma/namada-interface/commit/944fc336f645243b45af261a62e95c443dac0486))
+
 ## [1.8.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.7.0...namadillo@v1.8.0) (2025-02-13)
 
 
