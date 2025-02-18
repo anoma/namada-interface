@@ -191,7 +191,7 @@ const sync = async (
   const { set } = getDefaultStore();
   await shieldedSync({
     rpcUrl,
-    maspIndexerUrl: maspIndexerUrl || "",
+    maspIndexerUrl,
     token: namTokenAddress,
     viewingKeys: allViewingKeys,
     chainId,
