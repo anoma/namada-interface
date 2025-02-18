@@ -4,6 +4,7 @@ import {
   Modal,
   Stack,
   StyledSelectBox,
+  Text,
   ToggleButton,
 } from "@namada/components";
 import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
@@ -95,6 +96,7 @@ export const GasFeeModal = ({
     gasEstimate,
     gasPriceTable,
     gasSource,
+    gasSourceSwitch,
     onChangeGasLimit,
     onChangeGasToken,
     onChangeGasSource,
@@ -168,28 +170,38 @@ export const GasFeeModal = ({
             );
           })}
         </div>
-
+        {gasSourceSwitch && gasSource !== "shielded" && (
+          <Text className="text-red-600 text-sm">
+            Warning! Using fees from your transparent account will reveal data.
+            <br />
+            To keep your data protected we recommend moving assets to the
+            <br />
+            shield pool to pay fees.
+          </Text>
+        )}
         <Stack
           direction="horizontal"
           className="justify-between align-middle mt-4 mb-1"
         >
           <div className="text-sm">Fee Token</div>
-          <ToggleButton
-            label={
-              gasSource === "shielded" ? "Shielded Balance" : (
-                "Transparent Balance"
-              )
-            }
-            color="white"
-            activeColor="yellow"
-            checked={gasSource === "shielded"}
-            onChange={() =>
-              onChangeGasSource(
-                gasSource === "shielded" ? "transparent" : "shielded"
-              )
-            }
-            containerProps={{ className: "gap-3 text-xs" }}
-          />
+          {gasSourceSwitch && (
+            <ToggleButton
+              label={
+                gasSource === "shielded" ? "Shielded Balance" : (
+                  "Transparent Balance"
+                )
+              }
+              color="white"
+              activeColor="yellow"
+              checked={gasSource === "shielded"}
+              onChange={() =>
+                onChangeGasSource(
+                  gasSource === "shielded" ? "transparent" : "shielded"
+                )
+              }
+              containerProps={{ className: "gap-3 text-xs" }}
+            />
+          )}
         </Stack>
         <StyledSelectBox
           id="fee-token-select"
