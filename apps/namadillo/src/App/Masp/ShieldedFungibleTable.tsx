@@ -43,6 +43,7 @@ export const ShieldedFungibleTable = ({
         <div
           key={`token-${originalAddress}`}
           className="flex items-center gap-4"
+          title={originalAddress}
         >
           <div className="aspect-square w-8 h-8">
             {icon ?

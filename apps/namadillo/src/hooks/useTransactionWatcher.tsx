@@ -28,9 +28,7 @@ export const useTransactionWatcher = (): void => {
             case "TransparentToShielded":
             case "ShieldedToTransparent":
             case "ShieldedToShielded": {
-              const hash = tx.hash ?? "";
-              const response = await fetchTransaction(hash);
-              const newTx = handleStandardTransfer(tx, response);
+              const newTx = await handleStandardTransfer(tx, fetchTransaction);
               dispatchTransferEvent(transactionTypeToEventName(tx), newTx);
               break;
             }
