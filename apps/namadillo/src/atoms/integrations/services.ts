@@ -21,7 +21,7 @@ import { queryForAck, queryForIbcTimeout } from "atoms/transactions";
 import BigNumber from "bignumber.js";
 import * as Comlink from "comlink";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import { differenceInHours, differenceInMinutes } from "date-fns";
+import { differenceInMinutes } from "date-fns";
 import { getDefaultStore } from "jotai";
 import toml from "toml";
 import {
@@ -283,14 +283,15 @@ export const updateIbcWithdrawalStatus = async (
   return { ...tx };
 };
 
-export const handleStandardTransfer = (
+export const handleStandardTransfer = async (
   tx: TransferTransactionData,
-  txResponse: WrapperTransaction
-): TransferTransactionData => {
-  // After 2h the pending status will be changed to timeout
-  const pendingTimeoutInHours = 2;
+  fetchTx: (hash: string) => Promise<WrapperTransaction>
+): Promise<TransferTransactionData> => {
+  // After 30 minutes the pending status will be changed to timeout
+  const pendingTimeoutInMinutes = 30;
 
   try {
+    const txResponse = await fetchTx(tx.hash ?? "");
     const hasRejectedTx = txResponse.innerTransactions.some(
       ({ exitCode }) => exitCode === WrapperTransactionExitCodeEnum.Rejected
     );
@@ -303,7 +304,7 @@ export const handleStandardTransfer = (
   } catch (error) {
     if (
       isError404(error) &&
-      differenceInHours(Date.now(), tx.createdAt) > pendingTimeoutInHours
+      differenceInMinutes(Date.now(), tx.createdAt) > pendingTimeoutInMinutes
     ) {
       return updateTxWithError(tx, "Transaction timed out");
     }
