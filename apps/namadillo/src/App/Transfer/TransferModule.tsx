@@ -95,7 +95,6 @@ export type TransferModuleProps = {
   currentStatus?: string;
   currentStatusExplanation?: string;
   completedAt?: Date;
-  isShieldedTx?: boolean;
   buttonTextErrors?: Partial<Record<ValidationResult, string>>;
   onComplete?: () => void;
 } & (
@@ -135,7 +134,6 @@ export const TransferModule = ({
   completedAt,
   onComplete,
   buttonTextErrors = {},
-  isShieldedTx = false,
 }: TransferModuleProps): JSX.Element => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -470,7 +468,6 @@ export const TransferModule = ({
               destination.isShieldedAddress
             )}
             isShieldedAddress={destination.isShieldedAddress}
-            isShieldedTx={isShieldedTx}
             onChangeShielded={destination.onChangeShielded}
             address={destination.customAddress}
             onToggleCustomAddress={

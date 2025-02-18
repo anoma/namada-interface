@@ -202,7 +202,6 @@ export const NamadaTransfer: React.FC = () => {
         feeProps={feeProps}
         currentStatus={currentStatus}
         currentStatusExplanation={currentStatusExplanation}
-        isShieldedTx={isSourceShielded}
         isSubmitting={
           isPerformingTransfer || isTransferSuccessful || Boolean(completedAt)
         }
