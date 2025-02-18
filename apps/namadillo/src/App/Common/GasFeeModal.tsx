@@ -191,7 +191,10 @@ export const GasFeeModal = ({
               return {
                 id: item.token,
                 value: (
-                  <div className="flex items-center justify-between w-full min-h-[42px] mr-5">
+                  <div
+                    title={item.token}
+                    className="flex items-center justify-between w-full min-h-[42px] mr-5"
+                  >
                     <div className="text-base">{symbol}</div>
                     <div className="text-right">
                       {dollar && <FiatCurrency amount={dollar} />}
