@@ -5,6 +5,7 @@ import { InlineError } from "App/Common/InlineError";
 import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { useKeychainVersion } from "hooks/useKeychainVersion";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { wallets } from "integrations";
 import { useAtomValue } from "jotai";
@@ -16,6 +17,7 @@ import {
   GasConfig,
   WalletProvider,
 } from "types";
+import { checkKeychainCompatibleWithMasp } from "utils/compatibility";
 import { getDisplayGasFee } from "utils/gas";
 import { parseChainInfo } from "./common";
 import { CurrentStatus } from "./CurrentStatus";
@@ -102,6 +104,7 @@ type ValidationResult =
   | "NoTransactionFee"
   | "NotEnoughBalance"
   | "NotEnoughBalanceForFees"
+  | "KeychainNotCompatibleWithMasp"
   | "Ok";
 
 export const TransferModule = ({
@@ -132,6 +135,7 @@ export const TransferModule = ({
     destination.enableCustomAddress && !destination.availableWallets
   );
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+  const keychainVersion = useKeychainVersion();
 
   const [memo, setMemo] = useState<undefined | string>();
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
@@ -174,6 +178,12 @@ export const TransferModule = ({
   const validationResult = useMemo((): ValidationResult => {
     if (!source.wallet) {
       return "NoSourceWallet";
+    } else if (
+      (source.isShielded || destination.isShielded) &&
+      keychainVersion &&
+      !checkKeychainCompatibleWithMasp(keychainVersion)
+    ) {
+      return "KeychainNotCompatibleWithMasp";
     } else if (!source.chain) {
       return "NoSourceChain";
     } else if (!destination.chain) {
@@ -353,6 +363,9 @@ export const TransferModule = ({
 
       case "NotEnoughBalanceForFees":
         return getText("Not enough balance to pay for transaction fees");
+
+      case "KeychainNotCompatibleWithMasp":
+        return getText("Keychain is not compatible with MASP");
     }
 
     if (!availableAmountMinusFees) {
@@ -466,6 +479,12 @@ export const TransferModule = ({
             >
               {getButtonText()}
             </ActionButton>
+          )}
+          {validationResult === "KeychainNotCompatibleWithMasp" && (
+            <div className="text-center text-fail text-xs selection:bg-fail selection:text-white mb-12">
+              Please update your Namada Keychain in order to make shielded
+              transfers
+            </div>
           )}
         </Stack>
         {completedAt && selectedAsset?.asset && source.amount && (

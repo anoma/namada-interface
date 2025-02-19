@@ -144,3 +144,13 @@ export const checkInterfaceCompatibilityError =
 
     return "";
   };
+
+/**
+ * On keychain version 0.4.0, the keychain changed the way it generates shielded keys to
+ * support modified-zip32. This function checks if the keychain has a compatible version with this change.
+ */
+export const checkKeychainCompatibleWithMasp = (
+  keychainVersion: string
+): boolean =>
+  checkVersionsCompatible(keychainVersion, ">=0.4.0") ===
+  CompatibilityOutput.Compatible;
