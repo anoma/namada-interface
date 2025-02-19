@@ -1,8 +1,11 @@
 name: Docker 🐳
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - namadillo@v*
+    branches:
+      - main
 
 env:
   GIT_LFS_SKIP_SMUDGE: 1
@@ -20,7 +23,7 @@ jobs:
       matrix:
         images:
           - path: "docker/namadillo/Dockerfile"
-            tag: "namadillo-main"
+            tag: "namadillo"
 
     steps:
       - name: Checkout repository
@@ -35,19 +38,27 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Determine Image Tag
+        id: tag
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/namadillo@v* ]]; then
+            echo "image_tag=namadillo-${GITHUB_REF#refs/tags/namadillo@}" >> $GITHUB_ENV
+          else
+            echo "image_tag=namadillo-main" >> $GITHUB_ENV
+          fi
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
         with:
           images: ghcr.io/${{ github.repository_owner }}/namada-interface
-          tags: type=raw,value=${{ matrix.images.tag }}
+          tags: |
+            ${{ env.image_tag }}
       - name: Build and Push docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ${{ matrix.images.path }}
-          push: ${{ github.ref == 'refs/heads/main' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
