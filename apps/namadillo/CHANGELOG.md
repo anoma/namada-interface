@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.10.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.9.0...namadillo@v1.10.0) (2025-02-19)
+
+
+### Features
+
+* Blocking masp usage if extension is not compatible with modified-zip32 ([#1679](https://github.com/anoma/namada-interface/issues/1679)) ([a99f338](https://github.com/anoma/namada-interface/commit/a99f338773c007cd42b28d2ff9be31b18f3a7605))
+* Hide shield nam button until phase 5 ([#1671](https://github.com/anoma/namada-interface/issues/1671)) ([fe0a1a0](https://github.com/anoma/namada-interface/commit/fe0a1a09a31659c45bb6a2484ca02ddadd7ea8f8))
+
+
+### Bug Fixes
+
+* Bump keychain compatibility for Namadillo ([#1676](https://github.com/anoma/namada-interface/issues/1676)) ([688700a](https://github.com/anoma/namada-interface/commit/688700aaf5179d98e54bfc80782f3f94b715f1ec))
+* Revert keychain compatibility to 0.3.x ([#1680](https://github.com/anoma/namada-interface/issues/1680)) ([6d760a7](https://github.com/anoma/namada-interface/commit/6d760a7889997aa1c395b80877c362b932c2fbc5))
+
 ## [1.9.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.8.0...namadillo@v1.9.0) (2025-02-18)
 
 
