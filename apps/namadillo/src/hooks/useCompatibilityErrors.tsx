@@ -45,7 +45,7 @@ export const useCompatibilityErrors = (): React.ReactNode | undefined => {
 
   useEffect(() => {
     verifyKeychainVersion();
-  }, [keychain]);
+  }, []);
 
   useEffect(() => {
     indexerHealth.isSuccess && verifyIndexerVersion();
