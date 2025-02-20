@@ -7,7 +7,7 @@ RUN npm install -g yarn
 RUN rustup target add wasm32-unknown-unknown
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh -s -- -y
 
-COPY .yarnrc.yml tsconfig.base.json package.json yarn.lock .
+COPY .yarnrc.yml tsconfig.base.json package.json yarn.lock ./
 COPY ./.yarn ./.yarn
 COPY ./packages ./packages
 COPY ./scripts ./scripts
