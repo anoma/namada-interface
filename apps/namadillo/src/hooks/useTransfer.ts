@@ -111,7 +111,7 @@ export const useTransfer = ({
         ],
       },
     ],
-    useDisposableSigner: true,
+    canUseDisposableSigner: true,
     ...commomProps,
   });
 
@@ -137,7 +137,7 @@ export const useTransfer = ({
         data: [{ target, token, amount: baseDenomAmount }],
       },
     ],
-    useDisposableSigner: true,
+    canUseDisposableSigner: true,
     ...commomProps,
   });
 

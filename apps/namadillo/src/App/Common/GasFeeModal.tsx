@@ -2,7 +2,10 @@ import {
   ActionButton,
   AmountInput,
   Modal,
+  Stack,
   StyledSelectBox,
+  Text,
+  ToggleButton,
 } from "@namada/components";
 import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { GasPriceTable, GasPriceTableItem } from "atoms/fees/atoms";
@@ -92,8 +95,11 @@ export const GasFeeModal = ({
     gasConfig,
     gasEstimate,
     gasPriceTable,
+    gasSource,
+    gasSourceSwitch,
     onChangeGasLimit,
     onChangeGasToken,
+    onChangeGasSource,
   } = feeProps;
 
   const sortByNativeToken = useSortByNativeToken();
@@ -164,8 +170,39 @@ export const GasFeeModal = ({
             );
           })}
         </div>
-
-        <div className="text-sm mt-4 mb-1">Fee Token</div>
+        {gasSourceSwitch && gasSource !== "shielded" && (
+          <Text className="text-red-600 text-sm">
+            Warning! Using fees from your transparent account will reveal data.
+            <br />
+            To keep your data protected we recommend moving assets to the
+            <br />
+            shield pool to pay fees.
+          </Text>
+        )}
+        <Stack
+          direction="horizontal"
+          className="justify-between align-middle mt-4 mb-1"
+        >
+          <div className="text-sm">Fee Token</div>
+          {gasSourceSwitch && (
+            <ToggleButton
+              label={
+                gasSource === "shielded" ? "Shielded Balance" : (
+                  "Transparent Balance"
+                )
+              }
+              color="white"
+              activeColor="yellow"
+              checked={gasSource === "shielded"}
+              onChange={() =>
+                onChangeGasSource(
+                  gasSource === "shielded" ? "transparent" : "shielded"
+                )
+              }
+              containerProps={{ className: "gap-3 text-xs" }}
+            />
+          )}
+        </Stack>
         <StyledSelectBox
           id="fee-token-select"
           value={gasConfig.gasToken}

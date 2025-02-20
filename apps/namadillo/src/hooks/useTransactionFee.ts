@@ -17,13 +17,19 @@ export type TransactionFeeProps = {
   isLoading: boolean;
   gasEstimate: GasEstimate | undefined;
   gasPriceTable: GasPriceTable | undefined;
+  gasSource: "shielded" | "transparent";
+  gasSourceSwitch: boolean;
   onChangeGasLimit: (value: BigNumber) => void;
   onChangeGasToken: (value: string) => void;
+  onChangeGasSource: (value: "shielded" | "transparent") => void;
 };
 
 export const useTransactionFee = (txKinds: TxKind[]): TransactionFeeProps => {
   const [gasLimitValue, setGasLimitValue] = useState<BigNumber | undefined>();
   const [gasTokenValue, setGasTokenValue] = useState<string | undefined>();
+  const [gasSource, setGasSource] = useState<"shielded" | "transparent">(
+    "shielded"
+  );
   const isPublicKeyRevealed = useAtomValue(isPublicKeyRevealedAtom);
 
   const { data: nativeToken, isLoading: isLoadingNativeToken } = useAtomValue(
@@ -52,12 +58,19 @@ export const useTransactionFee = (txKinds: TxKind[]): TransactionFeeProps => {
   const isLoading =
     isLoadingNativeToken || isLoadingGasEstimate || isLoadingGasPriceTable;
 
+  const gasSourceSwitch =
+    txKinds.includes("ShieldedTransfer") ||
+    txKinds.includes("UnshieldingTransfer");
+
   return {
     gasConfig,
     isLoading,
     gasEstimate,
     gasPriceTable,
+    gasSource,
+    gasSourceSwitch,
     onChangeGasLimit: setGasLimitValue,
     onChangeGasToken: setGasTokenValue,
+    onChangeGasSource: setGasSource,
   };
 };
