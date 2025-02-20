@@ -3,18 +3,33 @@ import { Proposal } from "@namada/types";
 import { proposalFamily } from "atoms/proposals";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { ReactNode, useState } from "react";
+import { Fragment, ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
+
+const ExternalLink = ({ url }: { url: string }): JSX.Element => {
+  return (
+    <a href={url} target="_blank" rel="noreferrer nofollow">
+      {url}
+    </a>
+  );
+};
 
 const formatLinks = (string: string): ReactNode => {
   const regex = /(http.*)/;
-  return string.split(regex).map((part, index) =>
-    regex.test(part) ?
-      <a key={index} href={part} target="_blank" rel="noreferrer nofollow">
-        {part}
-      </a>
-    : part
-  );
+  return string.split(regex).map((part, index) => {
+    const isUrl = regex.test(part);
+    if (isUrl) {
+      if (part.endsWith(".")) {
+        return (
+          <Fragment key={index}>
+            <ExternalLink url={part.slice(0, -1)} />.
+          </Fragment>
+        );
+      }
+      return <ExternalLink key={index} url={part} />;
+    }
+    return part;
+  });
 };
 
 export const ProposalDescription: React.FC<{

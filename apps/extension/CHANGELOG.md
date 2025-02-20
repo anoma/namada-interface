@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/anoma/namada-interface/compare/extension@v0.4.0...extension@v0.4.1) (2025-02-20)
+
+
+### Bug Fixes
+
+* Pass proper path to deriveShieldedFromSeed ([#1690](https://github.com/anoma/namada-interface/issues/1690)) ([7b94f9e](https://github.com/anoma/namada-interface/commit/7b94f9e422a32620613f20b8fd349e630077a3fb))
+
 ## [0.4.0](https://github.com/anoma/namada-interface/compare/extension-v0.3.7...extension@v0.4.0) (2025-02-18)
 
 ### Features

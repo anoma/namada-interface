@@ -74,12 +74,14 @@ const TransparentTokensTable = ({
           key={`buttons-${originalAddress}`}
           className="flex items-center justify-end gap-1"
         >
-          <ActionButton
-            size="xs"
-            href={`${routes.maspShield}?${params.asset}=${originalAddress}`}
-          >
-            Shield
-          </ActionButton>
+          {(!isNam || namTransfersEnabled) && (
+            <ActionButton
+              size="xs"
+              href={`${routes.maspShield}?${params.asset}=${originalAddress}`}
+            >
+              Shield
+            </ActionButton>
+          )}
           {isNam && (
             <ActionButton
               size="xs"
