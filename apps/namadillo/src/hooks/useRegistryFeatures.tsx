@@ -69,16 +69,6 @@ const fetchEnabledFeatures = async (
     switch (enabledFeature) {
       case "claimRewards":
         registryFeatures.claimRewardsEnabled = true;
-        registryFeatures.maspEnabled = true;
-
-        registryFeatures.ibcTransfersEnabled = true;
-
-        registryFeatures.ibcShieldingEnabled = true;
-
-        registryFeatures.namTransfersEnabled = true;
-
-        registryFeatures.shieldingRewardsEnabled = true;
-
         break;
       case "masp":
         registryFeatures.maspEnabled = true;
