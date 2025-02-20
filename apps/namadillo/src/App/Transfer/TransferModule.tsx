@@ -9,6 +9,7 @@ import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { wallets } from "integrations";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
+import { registeredCoinTypes } from "slip44";
 import {
   Address,
   AddressWithAssetAndAmount,
@@ -17,7 +18,6 @@ import {
   WalletProvider,
 } from "types";
 import { getDisplayGasFee } from "utils/gas";
-import { registeredCoinTypes } from "utils/registeredCoinTypes";
 import { parseChainInfo } from "./common";
 import { CurrentStatus } from "./CurrentStatus";
 import { IbcChannels } from "./IbcChannels";
@@ -289,10 +289,10 @@ export const TransferModule = ({
         }
 
         const bip44Index1 = registeredCoinTypes.findIndex(
-          (item) => item.symbol === asset1.asset.symbol
+          ([coinType, derivPath, symbol]) => symbol === asset1.asset.symbol
         );
         const bip44Index2 = registeredCoinTypes.findIndex(
-          (item) => item.symbol === asset2.asset.symbol
+          ([coinType, derivPath, symbol]) => symbol === asset2.asset.symbol
         );
 
         // If either asset is in the list, sort based on its position.
