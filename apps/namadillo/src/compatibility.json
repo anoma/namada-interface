@@ -1,4 +1,4 @@
 {
-  "keychain": "0.3.x",
-  "indexer": ">=2.0.0"
+  "keychain": "0.4.x",
+  "indexer": "2.0.x"
 }
