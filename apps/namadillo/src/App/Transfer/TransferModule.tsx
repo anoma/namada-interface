@@ -9,7 +9,6 @@ import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { wallets } from "integrations";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
-import { registeredCoinTypes } from "slip44";
 import {
   Address,
   AddressWithAssetAndAmount,
@@ -132,9 +131,9 @@ export const TransferModule = ({
   const [customAddressActive, setCustomAddressActive] = useState(
     destination.enableCustomAddress && !destination.availableWallets
   );
-  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
-
   const [memo, setMemo] = useState<undefined | string>();
+  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+  const allUsersAssets = Object.values(chainAssetsMap) ?? [];
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
 
   const displayGasFee = useMemo(() => {
@@ -288,11 +287,11 @@ export const TransferModule = ({
           return 0;
         }
 
-        const bip44Index1 = registeredCoinTypes.findIndex(
-          ([coinType, derivPath, symbol]) => symbol === asset1.asset.symbol
+        const bip44Index1 = allUsersAssets.findIndex(
+          (asset) => asset?.symbol === asset1.asset?.symbol
         );
-        const bip44Index2 = registeredCoinTypes.findIndex(
-          ([coinType, derivPath, symbol]) => symbol === asset2.asset.symbol
+        const bip44Index2 = allUsersAssets.findIndex(
+          (asset) => asset?.symbol === asset2.asset?.symbol
         );
 
         // If either asset is in the list, sort based on its position.
