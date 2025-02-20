@@ -537,10 +537,8 @@ export class KeyRing {
     }
     const { text, passphrase } = sensitiveProps;
 
-    const bip44Path = {
+    const zip32Path = {
       account: path.account,
-      change: path.change || 0,
-      index: path.index || 0,
     };
     const accountType = accountStore.type;
     let shieldedKeys: ShieldedKeys;
@@ -549,7 +547,7 @@ export class KeyRing {
     if (accountType === AccountType.Mnemonic) {
       const mnemonicSdk = this.sdkService.getSdk().getMnemonic();
       const seed = mnemonicSdk.toSeed(text, passphrase);
-      shieldedKeys = keys.deriveShieldedFromSeed(seed, bip44Path);
+      shieldedKeys = keys.deriveShieldedFromSeed(seed, zip32Path);
     } else if (accountType === AccountType.PrivateKey) {
       shieldedKeys = keys.deriveShieldedFromPrivateKey(fromHex(text));
     } else {
