@@ -11,6 +11,7 @@ import { GoHistory, GoStack } from "react-icons/go";
 import { IoSwapHorizontal } from "react-icons/io5";
 import { TbVectorTriangle } from "react-icons/tb";
 import { bugReportUrl, DISCORD_URL, TWITTER_URL } from "urls";
+import { version } from "../../../package.json";
 
 export const Navigation = (): JSX.Element => {
   const features = useAtomValue(applicationFeaturesAtom);
@@ -73,6 +74,9 @@ export const Navigation = (): JSX.Element => {
       </ul>
       <footer className="flex flex-col gap-10">
         <ul className="flex flex-col gap-1 text-neutral-300 text-sm">
+          <li>
+            <div>Namadillo Version: {version}</div>
+          </li>
           <li>
             <a
               href={bugReportUrl}
