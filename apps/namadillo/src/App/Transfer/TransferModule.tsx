@@ -1,4 +1,4 @@
-import { Asset, Chain, Chains } from "@chain-registry/types";
+import { Chain, Chains } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { InlineError } from "App/Common/InlineError";
@@ -17,6 +17,7 @@ import {
   WalletProvider,
 } from "types";
 import { getDisplayGasFee } from "utils/gas";
+import { registeredCoinTypes } from "utils/registeredCoinTypes";
 import { parseChainInfo } from "./common";
 import { CurrentStatus } from "./CurrentStatus";
 import { IbcChannels } from "./IbcChannels";
@@ -273,15 +274,6 @@ export const TransferModule = ({
     return assetDisplayAmount.gt(feeDisplayAmount);
   }
 
-  const findTokenFeeIndex = (chain: Chain, asset: Asset): number => {
-    if (!chain.fees) return -1;
-    return chain.fees.fee_tokens.findIndex((token) => {
-      const lastPart = token.denom.split("/").pop();
-      if (!lastPart) return false;
-      return lastPart.toLowerCase() === asset.base.toLowerCase();
-    });
-  };
-
   const sortedAssets = useMemo(() => {
     if (!source.availableAssets) {
       return [];
@@ -296,17 +288,25 @@ export const TransferModule = ({
           return 0;
         }
 
-        const asset1Index = findTokenFeeIndex(source.chain, asset1.asset);
-        const asset2Index = findTokenFeeIndex(source.chain, asset2.asset);
+        const bip44Index1 = registeredCoinTypes.findIndex(
+          (item) => item.symbol === asset1.asset.symbol
+        );
+        const bip44Index2 = registeredCoinTypes.findIndex(
+          (item) => item.symbol === asset2.asset.symbol
+        );
 
-        // No fee assets, so we sort them by the amounts owned by the user
-        if (asset1Index === -1 && asset2Index === -1)
-          return asset1.amount.gt(asset2.amount) ? -1 : 1;
+        // If either asset is in the list, sort based on its position.
+        if (bip44Index1 !== -1 || bip44Index2 !== -1) {
+          // If both assets are in the list, sort by their order in registeredCoinTypes.
+          if (bip44Index1 !== -1 && bip44Index2 !== -1) {
+            return bip44Index1 - bip44Index2;
+          }
+          // If only one asset is in the list, that asset ranks higher.
+          return bip44Index1 !== -1 ? -1 : 1;
+        }
 
-        if (asset1Index === -1) return 1;
-        if (asset2Index === -1) return -1;
-
-        return asset1Index - asset2Index;
+        // If neither asset is in list sort by amount owned
+        return asset1.amount.gt(asset2.amount) ? -1 : 1;
       }
     );
   }, [source.availableAssets, source.chain]);
