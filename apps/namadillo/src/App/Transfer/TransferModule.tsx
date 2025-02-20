@@ -288,10 +288,12 @@ export const TransferModule = ({
         }
 
         const bip44Index1 = allUsersAssets.findIndex(
-          (asset) => asset?.symbol === asset1.asset?.symbol
+          (asset) =>
+            asset?.symbol.toLowerCase() === asset1.asset?.symbol.toLowerCase()
         );
         const bip44Index2 = allUsersAssets.findIndex(
-          (asset) => asset?.symbol === asset2.asset?.symbol
+          (asset) =>
+            asset?.symbol.toLowerCase() === asset2.asset?.symbol.toLowerCase()
         );
 
         // If either asset is in the list, sort based on its position.
