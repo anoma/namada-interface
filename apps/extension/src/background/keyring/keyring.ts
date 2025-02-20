@@ -519,14 +519,14 @@ export class KeyRing {
     if (!account) {
       throw new Error(`Account for ${address} not found!`);
     }
-    const accountStore = (await this.queryAllAccounts()).find(
+    const allAccounts = await this.queryAllAccounts();
+    const accountStore = allAccounts.find(
       (account) => account.address === address
     );
 
     if (!accountStore) {
       throw new Error(`Account for ${address} not found!`);
     }
-    const { path } = accountStore;
 
     const sensitiveProps =
       await this.vaultService.reveal<SensitiveAccountStoreData>(
@@ -537,11 +537,17 @@ export class KeyRing {
     }
     const { text, passphrase } = sensitiveProps;
 
-    const bip44Path = {
-      account: path.account,
-      change: path.change || 0,
-      index: path.index || 0,
+    const shieldedAccount = allAccounts.find(
+      (account) => account.parentId === accountStore.id
+    );
+
+    if (!shieldedAccount) {
+      throw new Error(`Shielded account for ${address} not found!`);
+    }
+    const zip32Path = {
+      account: shieldedAccount.path.account,
     };
+
     const accountType = accountStore.type;
     let shieldedKeys: ShieldedKeys;
     const keys = this.sdkService.getSdk().getKeys();
@@ -549,7 +555,7 @@ export class KeyRing {
     if (accountType === AccountType.Mnemonic) {
       const mnemonicSdk = this.sdkService.getSdk().getMnemonic();
       const seed = mnemonicSdk.toSeed(text, passphrase);
-      shieldedKeys = keys.deriveShieldedFromSeed(seed, bip44Path);
+      shieldedKeys = keys.deriveShieldedFromSeed(seed, zip32Path);
     } else if (accountType === AccountType.PrivateKey) {
       shieldedKeys = keys.deriveShieldedFromPrivateKey(fromHex(text));
     } else {
