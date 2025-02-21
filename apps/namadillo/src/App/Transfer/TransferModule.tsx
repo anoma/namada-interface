@@ -144,6 +144,19 @@ export const TransferModule = ({
     return gasConfig ? getDisplayGasFee(gasConfig, chainAssetsMap) : undefined;
   }, [gasConfig]);
 
+  const availableAssets: AddressWithAssetAndAmountMap = useMemo(() => {
+    if (!source.availableAssets) return [];
+    return Object.keys(source.availableAssets).reduce(
+      (previous, current): AddressWithAssetAndAmountMap => {
+        if (source.availableAssets![current].amount.gt(0)) {
+          return { ...previous, [current]: source.availableAssets![current] };
+        }
+        return previous;
+      },
+      {}
+    );
+  }, [source.availableAssets]);
+
   const selectedAsset = mapUndefined(
     (address) => source.availableAssets?.[address],
     source.selectedAssetAddress
@@ -155,7 +168,7 @@ export const TransferModule = ({
     if (
       typeof selectedAssetAddress === "undefined" ||
       typeof availableAmount === "undefined" ||
-      typeof source.availableAssets === "undefined"
+      typeof availableAssets === "undefined"
     ) {
       return undefined;
     }
@@ -266,18 +279,18 @@ export const TransferModule = ({
       return true;
     }
 
-    if (!source.availableAssets || !gasConfig || !displayGasFee) {
+    if (!availableAssets || !gasConfig || !displayGasFee) {
       return false;
     }
 
     // Find how much the user has in their account for the selected fee token
     const feeTokenAddress = gasConfig.gasToken;
 
-    if (!source.availableAssets.hasOwnProperty(feeTokenAddress)) {
+    if (!availableAssets.hasOwnProperty(feeTokenAddress)) {
       return false;
     }
 
-    const assetDisplayAmount = source.availableAssets[feeTokenAddress].amount;
+    const assetDisplayAmount = availableAssets[feeTokenAddress].amount;
     const feeDisplayAmount = displayGasFee?.totalDisplayAmount;
 
     return assetDisplayAmount.gt(feeDisplayAmount);
@@ -293,11 +306,11 @@ export const TransferModule = ({
   };
 
   const sortedAssets = useMemo(() => {
-    if (!source.availableAssets) {
+    if (!availableAssets) {
       return [];
     }
 
-    return Object.values(source.availableAssets).sort(
+    return Object.values(availableAssets).sort(
       (
         asset1: AddressWithAssetAndAmount,
         asset2: AddressWithAssetAndAmount
@@ -319,7 +332,7 @@ export const TransferModule = ({
         return asset1Index - asset2Index;
       }
     );
-  }, [source.availableAssets, source.chain]);
+  }, [availableAssets, source.chain]);
 
   const getButtonTextError = (
     id: ValidationResult,
