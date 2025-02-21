@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.11.0...namadillo@v1.11.1) (2025-02-21)
+
+
+### Bug Fixes
+
+* Bumping indexer version to 2.1.x ([#1708](https://github.com/anoma/namada-interface/issues/1708)) ([520e8ca](https://github.com/anoma/namada-interface/commit/520e8ca5e86a1abf7fcc514d09824fb679af5120))
+
 ## [1.11.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.10.2...namadillo@v1.11.0) (2025-02-21)
 
 
