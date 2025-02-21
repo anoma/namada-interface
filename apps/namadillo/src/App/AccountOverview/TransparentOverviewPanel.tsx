@@ -235,7 +235,7 @@ export const TransparentOverviewPanel = (): JSX.Element => {
           niceError="Unable to load your transparent balance"
           containerProps={{ className: "pb-16" }}
         >
-          {transparentTokensQuery.data?.length ?
+          {nonZeroTransparentTokens.length ?
             <PanelContent data={nonZeroTransparentTokens} />
           : <div className="bg-neutral-900 p-6 rounded-sm text-center font-medium my-14">
               You currently hold no assets in your unshielded account
