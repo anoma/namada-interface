@@ -11,6 +11,15 @@ import { useTransaction } from "hooks/useTransaction";
 import { useAtomValue } from "jotai";
 import { AddressBalance } from "types";
 
+jest.mock("utils/gas", () => ({
+  getDisplayGasFee: jest.fn().mockReturnValue({
+    totalDisplayAmount: new BigNumber(0),
+    asset: {
+      symbol: "tnam1",
+    },
+  }),
+}));
+
 jest.mock("hooks/useTransaction", () => ({
   useTransaction: jest.fn(),
 }));
@@ -58,6 +67,13 @@ const mockTransaction = (
       execute,
       isEnabled,
       isPending,
+      feeProps: {
+        gasConfig: {
+          gasLimit: BigInt(0),
+          gasPrice: BigInt(0),
+          gasToken: "tnam1",
+        },
+      },
     };
   });
 };
@@ -71,8 +87,15 @@ describe("Component: StakingRewards", () => {
     render(<StakingRewards />);
   };
 
-  const getButtons = (): HTMLElement[] => {
-    return screen.getAllByRole("button");
+  const getActionButtons = (): HTMLElement[] => {
+    // Get only the Claim & Stake and Claim buttons
+    return screen
+      .getAllByRole("button")
+      .filter(
+        (button) =>
+          button.textContent === "Claim & Stake" ||
+          button.textContent === "Claim"
+      );
   };
 
   it("should render modal correctly", () => {
@@ -80,7 +103,8 @@ describe("Component: StakingRewards", () => {
     mockTransaction();
     setup();
     expect(screen.getByText("Claimable Staking Rewards")).toBeInTheDocument();
-    expect(getButtons()).toHaveLength(2);
+    expect(screen.getAllByRole("button")).toHaveLength(3);
+    expect(getActionButtons()).toHaveLength(2);
   });
 
   it("should render loading skeleton when rewards are loading", () => {
@@ -89,7 +113,7 @@ describe("Component: StakingRewards", () => {
     render(<StakingRewards />);
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
 
-    const buttons = getButtons();
+    const buttons = getActionButtons();
     buttons.forEach((button) => expect(button).toBeDisabled());
   });
 
@@ -97,9 +121,14 @@ describe("Component: StakingRewards", () => {
     mockAtomValue({}, false, true);
     mockTransaction(jest.fn(), true, false);
     render(<StakingRewards />);
-    expect(screen.getByText("0")).toBeInTheDocument();
 
-    const buttons = getButtons();
+    // Look for the rewards amount specifically by finding the element with both "0" and "NAM"
+    const rewardsAmount = screen
+      .getAllByText("0")
+      .find((element) => element.parentElement?.textContent?.includes("NAM"));
+    expect(rewardsAmount).toBeInTheDocument();
+
+    const buttons = getActionButtons();
     buttons.forEach((button) => expect(button).toBeDisabled());
   });
 
@@ -127,7 +156,7 @@ describe("Component: StakingRewards", () => {
     );
     mockTransaction(jest.fn(), true, false);
     render(<StakingRewards />);
-    const buttons = getButtons();
+    const buttons = getActionButtons();
     buttons.forEach((button) => expect(button).toBeEnabled());
   });
 
@@ -142,7 +171,7 @@ describe("Component: StakingRewards", () => {
     );
     mockTransaction(jest.fn(), false, false);
     render(<StakingRewards />);
-    const buttons = getButtons();
+    const buttons = getActionButtons();
     buttons.forEach((button) => expect(button).not.toBeEnabled());
   });
 
@@ -156,7 +185,7 @@ describe("Component: StakingRewards", () => {
     );
     mockTransaction(jest.fn(), true, true);
     render(<StakingRewards />);
-    const buttons = getButtons();
+    const buttons = getActionButtons();
     buttons.forEach((button) => expect(button).not.toBeEnabled());
   });
 
@@ -171,7 +200,7 @@ describe("Component: StakingRewards", () => {
       true
     );
     render(<StakingRewards />);
-    const buttons = getButtons();
+    const buttons = getActionButtons();
     fireEvent.click(buttons[0]);
     expect(executeMock).toHaveBeenCalledTimes(1);
     fireEvent.click(buttons[1]);
