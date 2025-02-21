@@ -92,6 +92,7 @@ export class AccountManager {
       address,
       publicKey,
       bip44Path,
+      zip32Path,
       extendedViewingKey,
       pseudoExtendedKey,
       paymentAddress,
@@ -103,6 +104,7 @@ export class AccountManager {
         address,
         publicKey,
         bip44Path,
+        zip32Path,
         extendedViewingKey,
         pseudoExtendedKey,
         paymentAddress

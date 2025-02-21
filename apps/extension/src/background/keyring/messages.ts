@@ -190,23 +190,16 @@ export class AddLedgerAccountMsg extends Message<AccountStore | false> {
     public readonly address: string,
     public readonly publicKey: string,
     public readonly bip44Path: Bip44Path,
-    public readonly extendedViewingKey: string,
-    public readonly pseudoExtendedKey: string,
-    public readonly paymentAddress: string
+    public readonly zip32Path?: Zip32Path,
+    public readonly extendedViewingKey?: string,
+    public readonly pseudoExtendedKey?: string,
+    public readonly paymentAddress?: string
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, [
-      "alias",
-      "address",
-      "publicKey",
-      "bip44Path",
-      "extendedViewingKey",
-      "pseudoExtendedKey",
-      "paymentAddress",
-    ]);
+    validateProps(this, ["alias", "address", "publicKey", "bip44Path"]);
   }
 
   route(): string {

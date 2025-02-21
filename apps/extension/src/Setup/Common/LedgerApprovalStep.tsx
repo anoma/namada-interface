@@ -2,10 +2,12 @@ import { Heading, ProgressIndicator, Stack } from "@namada/components";
 
 type LedgerApprovalStepProps = {
   currentApprovalStep: number;
+  isZip32Supported: boolean;
 };
 
 export const LedgerApprovalStep = ({
   currentApprovalStep,
+  isZip32Supported,
 }: LedgerApprovalStepProps): JSX.Element => {
   const stepText = [
     "Deriving Bip44 public key...",
@@ -21,14 +23,20 @@ export const LedgerApprovalStep = ({
     <Stack gap={1} className="bg-black w-full p-4 rounded-md min-h-[240px]">
       <Stack direction="horizontal" className="flex">
         <span className="flex-none">
-          <ProgressIndicator
-            keyName="ledger-import"
-            totalSteps={totalSteps}
-            currentStep={currentStep}
-          />
+          {isZip32Supported && (
+            <ProgressIndicator
+              keyName="ledger-import"
+              totalSteps={totalSteps}
+              currentStep={currentStep}
+            />
+          )}
         </span>
         <span className="flex-1 text-white font-medium text-right">
-          Approval {currentStep}/{totalSteps}
+          {isZip32Supported && (
+            <>
+              Approval {currentStep}/{totalSteps}
+            </>
+          )}
         </span>
       </Stack>
       <Heading
