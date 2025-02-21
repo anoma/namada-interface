@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.11.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.10.2...namadillo@v1.11.0) (2025-02-21)
+
+
+### Features
+
+* Add transaction fee to claiming modal ([#1673](https://github.com/anoma/namada-interface/issues/1673)) ([d8b007e](https://github.com/anoma/namada-interface/commit/d8b007e873c9a18ff4b28dc3a3eb48a37adc452d))
+* Adding multicore as default option for Namadillo and publishing sdk packages automatically to npm ([#1582](https://github.com/anoma/namada-interface/issues/1582)) ([bdc90bd](https://github.com/anoma/namada-interface/commit/bdc90bdffd907f111d41840eef6c6e6df8077b7e))
+* Filtering assets with zero amount in it ([#1702](https://github.com/anoma/namada-interface/issues/1702)) ([2b4703b](https://github.com/anoma/namada-interface/commit/2b4703b03e7ffff6d2c04f9fef0f8a420f7fb532))
+* Filtering for non-zero transparent tokens ([#1705](https://github.com/anoma/namada-interface/issues/1705)) ([4b59091](https://github.com/anoma/namada-interface/commit/4b5909118932b92ddd96d1a8b40a9b25904084c2))
+
+
+### Bug Fixes
+
+* Fix duplicated notifications ([#1667](https://github.com/anoma/namada-interface/issues/1667)) ([7166417](https://github.com/anoma/namada-interface/commit/7166417f64253d2e000030d445f87e71de8a4025))
+* General fixes on IBC Withdrawal, notifications and TransferModule ([#1701](https://github.com/anoma/namada-interface/issues/1701)) ([669fc15](https://github.com/anoma/namada-interface/commit/669fc15cf80d6de8a276f4bdd05b6f43ed96774b))
+* Remove trailing period on urls ([#1684](https://github.com/anoma/namada-interface/issues/1684)) ([1cfb9ca](https://github.com/anoma/namada-interface/commit/1cfb9caf5b904ce42f303888a5bfcb1b9e6370b9))
+* Truncate long token names in Select Asset modal ([#1694](https://github.com/anoma/namada-interface/issues/1694)) ([cb7d2ae](https://github.com/anoma/namada-interface/commit/cb7d2ae7720e8aedf29851f80351c5d9f5471d4c))
+* Updating docker & nginx configs for multicore ([#1620](https://github.com/anoma/namada-interface/issues/1620)) ([0ca9c04](https://github.com/anoma/namada-interface/commit/0ca9c04ca6b2ca0130d1a5e51946fdab0bf02f8a))
+
 ## [1.10.2](https://github.com/anoma/namada-interface/compare/namadillo@v1.10.1...namadillo@v1.10.2) (2025-02-20)
 
 
