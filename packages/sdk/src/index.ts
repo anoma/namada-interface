@@ -1,5 +1,10 @@
 // Make Ledger available for direct-import as it is not dependent on Sdk initialization
-export { Ledger, initLedgerUSBTransport, ledgerUSBList } from "./ledger";
+export {
+  LEDGER_MIN_VERSION_ZIP32,
+  Ledger,
+  initLedgerUSBTransport,
+  ledgerUSBList,
+} from "./ledger";
 export type {
   LedgerAddressAndPublicKey,
   LedgerProofGenerationKey,

@@ -107,9 +107,10 @@ export class KeyRing {
     address: string,
     publicKey: string,
     bip44Path: Bip44Path,
-    pseudoExtendedKey: string,
-    extendedViewingKey: string,
-    paymentAddress: string
+    zip32Path?: Zip32Path,
+    pseudoExtendedKey?: string,
+    extendedViewingKey?: string,
+    paymentAddress?: string
   ): Promise<AccountStore | false> {
     const id = generateId(UUID_NAMESPACE, alias, address);
     const accountStore: AccountStore = {
@@ -133,29 +134,36 @@ export class KeyRing {
       sensitive,
     });
 
-    const shieldedId = generateId(UUID_NAMESPACE, alias, paymentAddress);
-    const shieldedAccountStore: AccountStore = {
-      id: shieldedId,
-      alias,
-      address: paymentAddress,
-      publicKey,
-      owner: extendedViewingKey,
-      path: bip44Path,
-      pseudoExtendedKey,
-      parentId: id,
-      type: AccountType.ShieldedKeys,
-      source: "imported",
-      timestamp: 0,
-    };
+    if (
+      zip32Path &&
+      pseudoExtendedKey &&
+      extendedViewingKey &&
+      paymentAddress
+    ) {
+      const shieldedId = generateId(UUID_NAMESPACE, alias, paymentAddress);
+      const shieldedAccountStore: AccountStore = {
+        id: shieldedId,
+        alias,
+        address: paymentAddress,
+        publicKey,
+        owner: extendedViewingKey,
+        path: zip32Path,
+        pseudoExtendedKey,
+        parentId: id,
+        type: AccountType.ShieldedKeys,
+        source: "imported",
+        timestamp: 0,
+      };
 
-    const shieldedSensitive = await this.vaultService.encryptSensitiveData({
-      text: "",
-      passphrase: "",
-    });
-    await this.vaultStorage.add(KeyStore, {
-      public: shieldedAccountStore,
-      sensitive: shieldedSensitive,
-    });
+      const shieldedSensitive = await this.vaultService.encryptSensitiveData({
+        text: "",
+        passphrase: "",
+      });
+      await this.vaultStorage.add(KeyStore, {
+        public: shieldedAccountStore,
+        sensitive: shieldedSensitive,
+      });
+    }
 
     await this.setActiveAccount(id, AccountType.Ledger);
     return accountStore;

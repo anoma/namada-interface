@@ -86,9 +86,10 @@ export class KeyRingService {
     address: string,
     publicKey: string,
     bip44Path: Bip44Path,
-    extendedViewingKey: string,
-    pseudoExtendedKey: string,
-    paymentAddress: string
+    zip32Path?: Zip32Path,
+    extendedViewingKey?: string,
+    pseudoExtendedKey?: string,
+    paymentAddress?: string
   ): Promise<AccountStore | false> {
     const account = await this._keyRing.queryAccountByAddress(address);
     if (account) {
@@ -102,6 +103,7 @@ export class KeyRingService {
       address,
       publicKey,
       bip44Path,
+      zip32Path,
       pseudoExtendedKey,
       extendedViewingKey,
       paymentAddress
