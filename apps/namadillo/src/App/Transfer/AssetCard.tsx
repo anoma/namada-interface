@@ -1,6 +1,8 @@
 import { Asset } from "@chain-registry/types";
+import { shortenAddress } from "@namada/utils";
 import clsx from "clsx";
 import { AssetImage } from "./AssetImage";
+import { isNamadaAddress } from "./common";
 
 type AssetCardProps = {
   asset: Asset;
@@ -16,7 +18,7 @@ export const AssetCard = ({ asset, disabled }: AssetCardProps): JSX.Element => {
     >
       <AssetImage asset={asset} />
       <span className="text-left">
-        {asset.name}
+        {isNamadaAddress(asset.name) ? shortenAddress(asset.name) : asset.name}
         {disabled && (
           <i className="text-red-500 ml-2">disabled until phase 5</i>
         )}
