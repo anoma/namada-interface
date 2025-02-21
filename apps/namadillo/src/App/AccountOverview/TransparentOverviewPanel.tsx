@@ -224,7 +224,7 @@ export const TransparentOverviewPanel = (): JSX.Element => {
   const nonZeroTransparentTokens = useMemo(() => {
     if (!transparentTokensQuery.data) return [];
     return transparentTokensQuery.data.filter((i) => i.amount.gt(0));
-  }, [transparentTokensAtom]);
+  }, [transparentTokensQuery.data]);
 
   return (
     <Panel className="min-h-[300px] flex flex-col" title="Transparent Overview">
