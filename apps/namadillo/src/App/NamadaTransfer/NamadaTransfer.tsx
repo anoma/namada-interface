@@ -89,7 +89,7 @@ export const NamadaTransfer: React.FC = () => {
       setCurrentStatus("");
       setCurrentStatusExplanation("");
     },
-    onSuccess: () => {
+    onBroadcasted: () => {
       setCompletedAt(new Date());
     },
     asset: selectedAsset?.asset,
