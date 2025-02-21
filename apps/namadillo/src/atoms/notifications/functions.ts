@@ -19,7 +19,5 @@ export const createNotificationId = (
       })
       .join(notificationIdSeparator);
   }
-  if (Array.isArray(data)) {
-  }
   return data.hash;
 };
