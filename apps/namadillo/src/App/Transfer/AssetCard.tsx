@@ -15,7 +15,7 @@ export const AssetCard = ({ asset, disabled }: AssetCardProps): JSX.Element => {
       )}
     >
       <AssetImage asset={asset} />
-      <span className="text-left">
+      <span className="text-left truncate">
         {asset.name}
         {disabled && (
           <i className="text-red-500 ml-2">disabled until phase 5</i>
