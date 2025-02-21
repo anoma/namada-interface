@@ -382,52 +382,58 @@ export const useTransactionNotifications = (): void => {
   useTransactionEventListener("ShieldingTransfer.Success", onTransferSuccess);
   useTransactionEventListener("UnshieldingTransfer.Success", onTransferSuccess);
 
-  useTransactionEventListener("IbcTransfer.Success", ({ detail: tx }) => {
-    if (!tx.hash) return;
-    invariant(tx.hash, "Notification error: Invalid Tx hash");
+  useTransactionEventListener(
+    ["IbcTransfer.Success", "IbcWithdraw.Success"],
+    ({ detail: tx }) => {
+      if (!tx.hash) return;
+      invariant(tx.hash, "Notification error: Invalid Tx hash");
 
-    const id = createNotificationId(tx.hash);
-    const title =
-      tx.type === "TransparentToIbc" ?
-        "IBC withdraw transaction succeeded"
-      : "IBC transfer transaction succeeded";
+      const id = createNotificationId(tx.hash);
+      const title =
+        tx.type === "TransparentToIbc" ?
+          "IBC withdraw transaction succeeded"
+        : "IBC transfer transaction succeeded";
 
-    dispatchNotification({
-      id,
-      title,
-      description: (
-        <>
-          Your transaction of{" "}
-          <TokenCurrency amount={tx.displayAmount} symbol={tx.asset.symbol} />{" "}
-          has completed
-        </>
-      ),
-      type: "success",
-    });
-  });
+      dispatchNotification({
+        id,
+        title,
+        description: (
+          <>
+            Your transaction of{" "}
+            <TokenCurrency amount={tx.displayAmount} symbol={tx.asset.symbol} />{" "}
+            has completed
+          </>
+        ),
+        type: "success",
+      });
+    }
+  );
 
-  useTransactionEventListener("IbcTransfer.Error", ({ detail: tx }) => {
-    if (!tx) return;
+  useTransactionEventListener(
+    ["IbcTransfer.Error", "IbcWithdraw.Error"],
+    ({ detail: tx }) => {
+      if (!tx) return;
 
-    invariant(tx.hash, "Notification error: Invalid Tx provider");
-    const id = createNotificationId(tx.hash);
-    const title =
-      tx.type === "TransparentToIbc" ?
-        "IBC withdraw transaction failed"
-      : "IBC transfer transaction failed";
+      invariant(tx.hash, "Notification error: Invalid Tx provider");
+      const id = createNotificationId(tx.hash);
+      const title =
+        tx.type === "TransparentToIbc" ?
+          "IBC withdraw transaction failed"
+        : "IBC transfer transaction failed";
 
-    dispatchNotification({
-      id,
-      title,
-      description: (
-        <>
-          Your transaction of{" "}
-          <TokenCurrency amount={tx.displayAmount} symbol={tx.asset.symbol} />{" "}
-          has failed.
-        </>
-      ),
-      details: tx.errorMessage,
-      type: "error",
-    });
-  });
+      dispatchNotification({
+        id,
+        title,
+        description: (
+          <>
+            Your transaction of{" "}
+            <TokenCurrency amount={tx.displayAmount} symbol={tx.asset.symbol} />{" "}
+            has failed.
+          </>
+        ),
+        details: tx.errorMessage,
+        type: "error",
+      });
+    }
+  );
 };

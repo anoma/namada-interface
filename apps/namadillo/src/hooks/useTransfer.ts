@@ -90,7 +90,7 @@ export const useTransfer = ({
       if (source === shieldedAccount?.address) {
         optimisticTransferUpdate(token, baseDenomAmount.multipliedBy(-1));
       }
-      events.onSuccess?.(tx);
+      events.onBroadcasted?.(tx);
     },
   };
 

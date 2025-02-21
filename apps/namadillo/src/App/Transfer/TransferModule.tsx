@@ -461,7 +461,7 @@ export const TransferModule = ({
               onChangeDestination={ibcOptions.onChangeDestinationChannel}
             />
           )}
-          <InlineError errorMessage={errorMessage} />
+          {!isSubmitting && <InlineError errorMessage={errorMessage} />}
           {currentStatus && isSubmitting && (
             <CurrentStatus
               status={currentStatus}
