@@ -12,7 +12,9 @@ export const dispatchToastNotificationAtom = atom(
   (get, set, data: ToastNotification) => {
     const notifications = get(toastNotificationsBaseAtom);
     const filteredNotifications =
-      data.id ? notifications.filter((n) => n.id !== data.id) : notifications;
+      data.id ?
+        notifications.filter((n) => data.id.split(",").includes(n.id))
+      : notifications;
     set(toastNotificationsBaseAtom, [...filteredNotifications, { ...data }]);
   }
 );
