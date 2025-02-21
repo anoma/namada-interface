@@ -45,7 +45,6 @@ export const LedgerConnect: React.FC<Props> = ({
 
   const queryLedger = async (ledger: LedgerApp): Promise<void> => {
     setError(undefined);
-    setIsZip32Supported(await ledger.isZip32Supported());
 
     let encodedExtendedViewingKey: string | undefined;
     let encodedPaymentAddress: string | undefined;
@@ -59,6 +58,8 @@ export const LedgerConnect: React.FC<Props> = ({
       if (returnCode !== LedgerError.NoErrors) {
         throw new Error(errorMessage);
       }
+      const canImportShielded = await ledger?.isZip32Supported();
+      setIsZip32Supported(canImportShielded);
 
       setIsLedgerConnecting(true);
       setCurrentApprovalStep(1);
@@ -66,7 +67,7 @@ export const LedgerConnect: React.FC<Props> = ({
         makeBip44Path(chains.namada.bip44.coinType, bip44Path)
       );
 
-      if (isZip32Supported) {
+      if (canImportShielded) {
         // Import Shielded Keys
         const path = makeSaplingPath(chains.namada.bip44.coinType, {
           account: zip32Path.account,
@@ -94,6 +95,7 @@ export const LedgerConnect: React.FC<Props> = ({
         );
         encodedPseudoExtendedKey = pseudoExtendedKey.encode();
       }
+
       setIsLedgerConnecting(false);
 
       navigate(routes.ledgerImport(), {
@@ -153,24 +155,29 @@ export const LedgerConnect: React.FC<Props> = ({
         )}
 
         {isLedgerConnecting && !isZip32Supported && (
-          <Alert title="Warning" type="warning">
+          <Alert type="warning">
             Shielded key import will be enabled in NamadaApp v
             {LEDGER_MIN_VERSION_ZIP32}
           </Alert>
         )}
 
         {isLedgerConnecting && (
-          <LedgerApprovalStep currentApprovalStep={currentApprovalStep} />
+          <LedgerApprovalStep
+            currentApprovalStep={currentApprovalStep}
+            isZip32Supported={isZip32Supported}
+          />
         )}
 
         {!isLedgerConnecting && (
           <>
             <AdvancedOptions>
               <Bip44Form path={bip44Path} setPath={setBip44Path} />
-
-              {isZip32Supported && (
-                <Zip32Form path={zip32Path} setPath={setZip32Path} />
-              )}
+              {/*
+                NOTE: I don't think we can conditionally show/hide the zip32 form, because the version check needs
+                to happen after the Ledger is connected, but user must first choose to initiate that connection.
+                This should be fine, as eventually (soon) everyone will be on the supported version.
+              */}
+              <Zip32Form path={zip32Path} setPath={setZip32Path} />
             </AdvancedOptions>
             <LedgerStep
               title="Step 1"

@@ -30,7 +30,7 @@ export type LedgerStatus = {
   info: ResponseAppInfo;
 };
 
-export const LEDGER_MIN_VERSION_ZIP32 = "3.0.1";
+export const LEDGER_MIN_VERSION_ZIP32 = "3.0.0";
 
 export type Bparams = {
   spend: {
