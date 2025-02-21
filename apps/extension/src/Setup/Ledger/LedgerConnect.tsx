@@ -2,6 +2,7 @@ import { chains } from "@namada/chains";
 import { ActionButton, Alert, Image, Stack } from "@namada/components";
 import {
   ExtendedViewingKey,
+  LEDGER_MIN_VERSION_ZIP32,
   Ledger as LedgerApp,
   makeBip44Path,
   makeSaplingPath,
@@ -15,6 +16,7 @@ import { LedgerStep } from "Setup/Common";
 import { AdvancedOptions } from "Setup/Common/AdvancedOptions";
 import Bip44Form from "Setup/Common/Bip44Form";
 import { LedgerApprovalStep } from "Setup/Common/LedgerApprovalStep";
+import Zip32Form from "Setup/Common/Zip32Form";
 import routes from "Setup/routes";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -28,20 +30,27 @@ type Props = {
 
 export const LedgerConnect: React.FC<Props> = ({
   bip44Path,
-  zip32Path, // TODO
+  zip32Path,
   setBip44Path,
-  setZip32Path: _setZip32Path, // TODO
+  setZip32Path,
 }) => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>();
   const [isLedgerConnecting, setIsLedgerConnecting] = useState(false);
   const [ledger, setLedger] = useState<LedgerApp>();
+  const [isZip32Supported, setIsZip32Supported] = useState(true);
 
   // Import keys steps (transparent, viewing key, proof-gen key)
   const [currentApprovalStep, setCurrentApprovalStep] = useState(1);
 
   const queryLedger = async (ledger: LedgerApp): Promise<void> => {
     setError(undefined);
+    setIsZip32Supported(await ledger.isZip32Supported());
+
+    let encodedExtendedViewingKey: string | undefined;
+    let encodedPaymentAddress: string | undefined;
+    let encodedPseudoExtendedKey: string | undefined;
+
     try {
       const {
         version: { errorMessage, returnCode },
@@ -57,33 +66,34 @@ export const LedgerConnect: React.FC<Props> = ({
         makeBip44Path(chains.namada.bip44.coinType, bip44Path)
       );
 
-      // Shielded Keys
-      const path = makeSaplingPath(chains.namada.bip44.coinType, {
-        account: zip32Path.account,
-      });
+      if (isZip32Supported) {
+        // Import Shielded Keys
+        const path = makeSaplingPath(chains.namada.bip44.coinType, {
+          account: zip32Path.account,
+        });
 
-      setCurrentApprovalStep(2);
-      const { xfvk } = await ledger.getViewingKey(path);
+        setCurrentApprovalStep(2);
+        const { xfvk } = await ledger.getViewingKey(path);
 
-      setCurrentApprovalStep(3);
-      const { ak, nsk } = await ledger.getProofGenerationKey(path);
+        setCurrentApprovalStep(3);
+        const { ak, nsk } = await ledger.getProofGenerationKey(path);
 
-      // SDK wasm init must be called
-      await initWasm();
+        // SDK wasm init must be called
+        await initWasm();
 
-      const extendedViewingKey = new ExtendedViewingKey(xfvk);
-      const encodedExtendedViewingKey = extendedViewingKey.encode();
-      const encodedPaymentAddress = extendedViewingKey
-        .default_payment_address()
-        .encode();
+        const extendedViewingKey = new ExtendedViewingKey(xfvk);
+        encodedExtendedViewingKey = extendedViewingKey.encode();
+        encodedPaymentAddress = extendedViewingKey
+          .default_payment_address()
+          .encode();
 
-      const proofGenerationKey = ProofGenerationKey.from_bytes(ak, nsk);
-      const pseudoExtendedKey = PseudoExtendedKey.from(
-        extendedViewingKey,
-        proofGenerationKey
-      );
-      const encodedPseudoExtendedKey = pseudoExtendedKey.encode();
-
+        const proofGenerationKey = ProofGenerationKey.from_bytes(ak, nsk);
+        const pseudoExtendedKey = PseudoExtendedKey.from(
+          extendedViewingKey,
+          proofGenerationKey
+        );
+        encodedPseudoExtendedKey = pseudoExtendedKey.encode();
+      }
       setIsLedgerConnecting(false);
 
       navigate(routes.ledgerImport(), {
@@ -142,6 +152,13 @@ export const LedgerConnect: React.FC<Props> = ({
           </Alert>
         )}
 
+        {isLedgerConnecting && !isZip32Supported && (
+          <Alert title="Warning" type="warning">
+            Shielded key import will be enabled in NamadaApp v
+            {LEDGER_MIN_VERSION_ZIP32}
+          </Alert>
+        )}
+
         {isLedgerConnecting && (
           <LedgerApprovalStep currentApprovalStep={currentApprovalStep} />
         )}
@@ -150,6 +167,10 @@ export const LedgerConnect: React.FC<Props> = ({
           <>
             <AdvancedOptions>
               <Bip44Form path={bip44Path} setPath={setBip44Path} />
+
+              {isZip32Supported && (
+                <Zip32Form path={zip32Path} setPath={setZip32Path} />
+              )}
             </AdvancedOptions>
             <LedgerStep
               title="Step 1"
