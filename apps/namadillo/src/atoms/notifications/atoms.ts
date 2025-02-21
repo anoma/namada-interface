@@ -1,5 +1,6 @@
 import { atom } from "jotai";
 import { ToastNotification } from "types";
+import { notificationIdSeparator } from "./functions";
 
 const toastNotificationsBaseAtom = atom<ToastNotification[]>([]);
 
@@ -13,7 +14,12 @@ export const dispatchToastNotificationAtom = atom(
     const notifications = get(toastNotificationsBaseAtom);
     const filteredNotifications =
       data.id ?
-        notifications.filter((n) => data.id.split(",").includes(n.id))
+        notifications.filter((n) => {
+          return !n.id
+            .toLowerCase()
+            .split(notificationIdSeparator)
+            .includes(data.id.toLowerCase());
+        })
       : notifications;
     set(toastNotificationsBaseAtom, [...filteredNotifications, { ...data }]);
   }
