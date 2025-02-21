@@ -113,6 +113,7 @@ const handleAddLedgerAccountMsg: (
       address,
       publicKey,
       bip44Path,
+      zip32Path,
       extendedViewingKey,
       pseudoExtendedKey,
       paymentAddress,
@@ -122,6 +123,7 @@ const handleAddLedgerAccountMsg: (
       address,
       publicKey,
       bip44Path,
+      zip32Path,
       extendedViewingKey,
       pseudoExtendedKey,
       paymentAddress
