@@ -78,11 +78,7 @@ export const useTransaction = <T,>({
 }: UseTransactionProps<T>): UseTransactionOutput<T> => {
   const { data: account } = useAtomValue(defaultAccountAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
-  const {
-    mutateAsync: performBuildTx,
-    isPending,
-    isSuccess,
-  } = useAtomValue(createTxAtom);
+  const { mutateAsync: performBuildTx } = useAtomValue(createTxAtom);
 
   // We don't want to display zeroed value when params are not set yet.
   const txKinds = new Array(Math.max(1, params.length)).fill(eventType);
@@ -197,8 +193,8 @@ export const useTransaction = <T,>({
     feeProps,
     execute: transactionQuery.mutateAsync,
     isEnabled: Boolean(
-      !isPending &&
-        !isSuccess &&
+      !transactionQuery.isPending &&
+        !transactionQuery.isSuccess &&
         !feeProps.isLoading &&
         account &&
         params.length > 0
