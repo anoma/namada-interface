@@ -15,10 +15,12 @@ export const dispatchToastNotificationAtom = atom(
     const filteredNotifications =
       data.id ?
         notifications.filter((n) => {
-          return !n.id
-            .toLowerCase()
-            .split(notificationIdSeparator)
-            .includes(data.id.toLowerCase());
+          const notificationId = n.id.toLowerCase();
+          const dataId = data.id.toLowerCase();
+          return !(
+            notificationId === dataId ||
+            notificationId.split(notificationIdSeparator).includes(dataId)
+          );
         })
       : notifications;
     set(toastNotificationsBaseAtom, [...filteredNotifications, { ...data }]);
