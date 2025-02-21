@@ -56,9 +56,7 @@ jobs:
           bundle_filename: namada-${{ needs.release-please.outputs.sdk_tag }}.zip
           working_dir: ./packages/sdk
       - name: Publish to NPM repository
-        with:
-          working_dir: ./packages/sdk
-        run: yarn npm publish
+        run: cd ./packages/sdk && yarn npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
