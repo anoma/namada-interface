@@ -17,6 +17,7 @@ import {
   GasConfig,
   WalletProvider,
 } from "types";
+import { filterAvailableAsssetsWithBalance } from "utils/assets";
 import { checkKeychainCompatibleWithMasp } from "utils/compatibility";
 import { getDisplayGasFee } from "utils/gas";
 import { parseChainInfo } from "./common";
@@ -145,16 +146,7 @@ export const TransferModule = ({
   }, [gasConfig]);
 
   const availableAssets: AddressWithAssetAndAmountMap = useMemo(() => {
-    if (!source.availableAssets) return [];
-    return Object.keys(source.availableAssets).reduce(
-      (previous, current): AddressWithAssetAndAmountMap => {
-        if (source.availableAssets![current].amount.gt(0)) {
-          return { ...previous, [current]: source.availableAssets![current] };
-        }
-        return previous;
-      },
-      {}
-    );
+    return filterAvailableAsssetsWithBalance(source.availableAssets);
   }, [source.availableAssets]);
 
   const selectedAsset = mapUndefined(

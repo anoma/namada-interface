@@ -1,6 +1,7 @@
 import { Asset } from "@chain-registry/types";
 import { IbcToken, NativeToken } from "@namada/indexer-client";
 import { shortenAddress } from "@namada/utils";
+import { AddressWithAssetAndAmountMap } from "types";
 
 export const unknownAsset = (denom: string): Asset => ({
   denom_units: [{ denom, exponent: 0 }],
@@ -33,4 +34,19 @@ export const findAssetByToken = (
     }
   }
   return undefined;
+};
+
+export const filterAvailableAsssetsWithBalance = (
+  availableAssets?: AddressWithAssetAndAmountMap
+): AddressWithAssetAndAmountMap => {
+  if (!availableAssets) return {};
+  return Object.keys(availableAssets).reduce(
+    (previous, current): AddressWithAssetAndAmountMap => {
+      if (availableAssets![current].amount.gt(0)) {
+        return { ...previous, [current]: availableAssets![current] };
+      }
+      return previous;
+    },
+    {}
+  );
 };
