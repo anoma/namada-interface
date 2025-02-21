@@ -84,7 +84,19 @@ It's possible to run the Docker container using the following command:
 
 `docker run -p 80:80 namadillo`
 
-In order to change your `config.toml`, please copy the file `/docker/.namadillo.config.toml` to `/docker/namadillo.config.toml` and change the parameters accordingly, before building the image.
+In order to change your `config.toml`, please copy the file `/docker/namadillo/.config.toml` to `/docker/namadillo/config.toml` and change the parameters accordingly, before building the image.
+
+**Note:** If you are using an Arch-based Linux distribution, and encounter the following error:
+
+```bash
+the --chmod option requires BuildKit. Refer to https://docs.docker.com/go/buildkit/ to learn how to build images with BuildKit enabled
+```
+
+you can install it via:
+
+```bash
+sudo pacman -S docker-buildx
+```
 
 #### Self Hosting
 
