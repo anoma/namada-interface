@@ -114,19 +114,34 @@ const PgfPaymentInfoCards: React.FC<{
       <InfoCard
         title="Retro"
         className="col-span-full"
-        content={pgfActions.retro.map((retro) => {
-          const { target, amount } = extractPgfInfo(retro);
-
-          return (
-            <div key={`info-card-retro-${target}`}>
-              {target}{" "}
-              <NamCurrency amount={toDisplayAmount(namadaAsset(), amount)} />
-              {"ibc" in retro ?
-                ` ${retro.ibc.channelId} ${retro.ibc.portId}`
-              : ""}
+        content={
+          <>
+            <div className="grid grid-cols-[1fr,auto,1fr] gap-2 text-[#8A8A8A] text-xs mb-1">
+              <div>Recipient Address</div>
+              <div>Amount</div>
             </div>
-          );
-        })}
+            {pgfActions.retro.map((retro) => {
+              const { target, amount } = extractPgfInfo(retro);
+
+              return (
+                <div
+                  key={`info-card-retro-${target}`}
+                  className="grid grid-cols-[1fr,auto,1fr] gap-2 items-center"
+                >
+                  <div className="font-mono">{target}</div>
+                  <NamCurrency
+                    amount={toDisplayAmount(namadaAsset(), amount)}
+                  />
+                  <div>
+                    {"ibc" in retro ?
+                      `${retro.ibc.channelId} ${retro.ibc.portId}`
+                    : ""}
+                  </div>
+                </div>
+              );
+            })}
+          </>
+        }
       />
     </>
   );
