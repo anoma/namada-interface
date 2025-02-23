@@ -223,6 +223,7 @@ const toProposal = (
   return {
     id: BigInt(proposal.id),
     author: proposal.author,
+    dataHash: proposal.data ?? "",
     content: contentDecoded.right,
     startEpoch: BigInt(proposal.startEpoch),
     endEpoch: BigInt(proposal.endEpoch),
@@ -246,6 +247,7 @@ export const fetchProposalById = async (
   id: bigint
 ): Promise<Proposal> => {
   const proposalPromise = api.apiV1GovProposalIdGet(Number(id));
+  console.log("proposalPromise", proposalPromise);
   const totalVotingPowerPromise = api.apiV1PosVotingPowerGet();
   const [proposalResponse, votingPowerResponse] = await Promise.all([
     proposalPromise,

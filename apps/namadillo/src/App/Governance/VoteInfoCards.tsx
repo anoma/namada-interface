@@ -10,11 +10,9 @@ import {
   Proposal,
 } from "@namada/types";
 
-import { sha256Hash } from "@namada/utils";
 import { proposalFamily } from "atoms/proposals";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
 import { namadaAsset, toDisplayAmount } from "utils";
 import {
   secondsToDateTimeString,
@@ -172,19 +170,6 @@ const DateTimeEpoch: React.FC<{ date: bigint; epoch: bigint }> = ({
 const Loaded: React.FC<{
   proposal: Proposal;
 }> = ({ proposal }) => {
-  const [dataHash, setDataHash] = useState<string>();
-
-  useEffect(() => {
-    if (
-      proposal.proposalType.type === "default_with_wasm" &&
-      proposal.proposalType.data.length > 0
-    ) {
-      sha256Hash(proposal.proposalType.data).then((hash) =>
-        setDataHash(hash.toUpperCase())
-      );
-    }
-  }, [proposal.proposalType]);
-
   return (
     <>
       <InfoCard
@@ -219,10 +204,10 @@ const Loaded: React.FC<{
         content={proposal.author}
         className="col-span-full"
       />
-      {dataHash && (
+      {proposal.dataHash && (
         <InfoCard
           title="Data Hash"
-          content={dataHash}
+          content={proposal.dataHash}
           className="col-span-full"
         />
       )}
