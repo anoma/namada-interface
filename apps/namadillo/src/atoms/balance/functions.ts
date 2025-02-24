@@ -1,9 +1,8 @@
-import { IbcToken, NativeToken } from "@namada/indexer-client";
-import { mapCoinsToAssets } from "atoms/integrations";
+import { Asset } from "@chain-registry/types";
 import BigNumber from "bignumber.js";
-import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
-import { AddressWithAssetAndAmountMap } from "types";
-import { isNamadaAsset } from "utils";
+import { Address, AddressWithAssetAndAmountMap } from "types";
+import { isNamadaAsset, toDisplayAmount } from "utils";
+import { unknownAsset } from "utils/assets";
 import { TokenBalance } from "./atoms";
 
 export const getTotalDollar = (list?: TokenBalance[]): BigNumber =>
@@ -15,44 +14,20 @@ export const getTotalDollar = (list?: TokenBalance[]): BigNumber =>
 export const getTotalNam = (list?: TokenBalance[]): BigNumber =>
   list?.find((i) => isNamadaAsset(i.asset))?.amount ?? new BigNumber(0);
 
-const tnamAddressToDenomTrace = (
-  address: string,
-  chainTokens: (NativeToken | IbcToken)[]
-): DenomTrace | undefined => {
-  const token = chainTokens.find((entry) => entry.address === address);
-  const trace = token && "trace" in token ? token.trace : undefined;
-
-  // If no trace, the token is NAM, but return undefined because we only care
-  // about IBC tokens here
-  if (typeof trace === "undefined") {
-    return undefined;
-  }
-
-  const separatorIndex = trace.lastIndexOf("/");
-
-  if (separatorIndex === -1) {
-    return undefined;
-  }
-
-  return {
-    path: trace.substring(0, separatorIndex),
-    baseDenom: trace.substring(separatorIndex + 1),
-  };
-};
-
-export const mapNamadaAddressesToAssets = async (
+export const mapNamadaAddressesToAssets = (
   balances: { address: string; minDenomAmount: BigNumber }[],
-  chainTokens: (NativeToken | IbcToken)[],
-  chainId: string
-): Promise<AddressWithAssetAndAmountMap> => {
-  const coins = balances.map(({ address, minDenomAmount }) => ({
-    denom: address,
-    minDenomAmount: minDenomAmount.toString(), // TODO: don't convert back to string
-  }));
-
-  return await mapCoinsToAssets(coins, chainId, async (tnamAddress) => {
-    return tnamAddressToDenomTrace(tnamAddress, chainTokens);
+  chainAssetsMap: Record<Address, Asset | undefined>
+): AddressWithAssetAndAmountMap => {
+  const map: AddressWithAssetAndAmountMap = {};
+  balances.forEach((item) => {
+    const asset = chainAssetsMap[item.address] ?? unknownAsset(item.address);
+    map[item.address] = {
+      originalAddress: item.address,
+      amount: toDisplayAmount(asset, item.minDenomAmount),
+      asset,
+    };
   });
+  return map;
 };
 
 export const mapNamadaAssetsToTokenBalances = (

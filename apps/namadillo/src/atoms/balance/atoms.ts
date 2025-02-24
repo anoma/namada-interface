@@ -8,6 +8,7 @@ import {
 } from "atoms/accounts/atoms";
 import { indexerApiAtom } from "atoms/api";
 import {
+  chainAssetsMapAtom,
   chainParametersAtom,
   chainTokensAtom,
   nativeTokenAddressAtom,
@@ -203,54 +204,39 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
 export const namadaShieldedAssetsAtom = atomWithQuery((get) => {
   const storageShieldedBalance = get(storageShieldedBalanceAtom);
   const viewingKeysQuery = get(viewingKeysAtom);
-  const chainTokensQuery = get(chainTokensAtom);
-  const chainParameters = get(chainParametersAtom);
+  const chainAssetsMap = get(chainAssetsMapAtom);
 
   const [viewingKey] = viewingKeysQuery.data ?? [];
   const shieldedBalance = viewingKey && storageShieldedBalance[viewingKey.key];
 
   return {
-    queryKey: [
-      "namada-shielded-assets",
-      shieldedBalance,
-      chainTokensQuery.data,
-      chainParameters.data!.chainId,
-    ],
+    queryKey: ["namada-shielded-assets", shieldedBalance],
     ...queryDependentFn(
       async () =>
-        await mapNamadaAddressesToAssets(
+        mapNamadaAddressesToAssets(
           shieldedBalance?.map((i) => ({
             ...i,
             minDenomAmount: BigNumber(i.minDenomAmount),
           })) ?? [],
-          chainTokensQuery.data!,
-          chainParameters.data!.chainId
+          chainAssetsMap
         ),
-      [chainTokensQuery, chainParameters, viewingKeysQuery]
+      [viewingKeysQuery]
     ),
   };
 });
 
 export const namadaTransparentAssetsAtom = atomWithQuery((get) => {
   const transparentBalances = get(transparentBalanceAtom);
-  const chainTokensQuery = get(chainTokensAtom);
-  const chainParameters = get(chainParametersAtom);
+  const chainAssetsMap = get(chainAssetsMapAtom);
+
+  const transparentBalance = transparentBalances.data;
 
   return {
-    queryKey: [
-      "namada-transparent-assets",
-      transparentBalances.data,
-      chainTokensQuery.data,
-      chainParameters.data!.chainId,
-    ],
+    queryKey: ["namada-transparent-assets", transparentBalance, chainAssetsMap],
     ...queryDependentFn(
       async () =>
-        await mapNamadaAddressesToAssets(
-          transparentBalances.data!,
-          chainTokensQuery.data!,
-          chainParameters.data!.chainId
-        ),
-      [transparentBalances, chainTokensQuery, chainParameters]
+        mapNamadaAddressesToAssets(transparentBalance ?? [], chainAssetsMap),
+      [transparentBalances]
     ),
   };
 });
