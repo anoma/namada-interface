@@ -293,7 +293,7 @@ export const TransferModule = ({
       return [];
     }
 
-    // First filter assets that are accepted by the chain
+    // Filter assets that are accepted by the chain
     const chainAcceptedAssets = Object.values(availableAssets).filter(
       ({ asset }) => {
         if (!source.chain) return true;
