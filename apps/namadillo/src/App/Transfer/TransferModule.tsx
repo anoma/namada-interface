@@ -293,39 +293,29 @@ export const TransferModule = ({
       return [];
     }
 
-    return Object.values(availableAssets).sort(
+    // First filter assets that are accepted by the chain
+    const chainAcceptedAssets = Object.values(availableAssets).filter(
+      ({ asset }) => {
+        if (!source.chain) return true;
+
+        // Check if the asset is accepted asset
+        return allUsersAssets.some(
+          (chainAsset) =>
+            chainAsset?.symbol.toLowerCase() === asset?.symbol.toLowerCase()
+        );
+      }
+    );
+
+    // Sort filtered assets by amount
+    return chainAcceptedAssets.sort(
       (
         asset1: AddressWithAssetAndAmount,
         asset2: AddressWithAssetAndAmount
       ) => {
-        if (!source.chain) {
-          return 0;
-        }
-
-        const bip44Index1 = allUsersAssets.findIndex(
-          (asset) =>
-            asset?.symbol.toLowerCase() === asset1.asset?.symbol.toLowerCase()
-        );
-        const bip44Index2 = allUsersAssets.findIndex(
-          (asset) =>
-            asset?.symbol.toLowerCase() === asset2.asset?.symbol.toLowerCase()
-        );
-
-        // If either asset is in the list, sort based on its position.
-        if (bip44Index1 !== -1 || bip44Index2 !== -1) {
-          // If both assets are in the list, sort by their order in registeredCoinTypes.
-          if (bip44Index1 !== -1 && bip44Index2 !== -1) {
-            return bip44Index1 - bip44Index2;
-          }
-          // If only one asset is in the list, that asset ranks higher.
-          return bip44Index1 !== -1 ? -1 : 1;
-        }
-
-        // If neither asset is in list sort by amount owned
         return asset1.amount.gt(asset2.amount) ? -1 : 1;
       }
     );
-  }, [availableAssets, source.chain]);
+  }, [availableAssets, source.chain, allUsersAssets]);
 
   const getButtonTextError = (
     id: ValidationResult,
