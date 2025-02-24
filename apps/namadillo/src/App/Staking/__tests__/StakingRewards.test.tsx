@@ -103,7 +103,7 @@ describe("Component: StakingRewards", () => {
     mockTransaction();
     setup();
     expect(screen.getByText("Claimable Staking Rewards")).toBeInTheDocument();
-    expect(screen.getAllByRole("button")).toHaveLength(3);
+    expect(screen.getAllByRole("button")).toHaveLength(4);
     expect(getActionButtons()).toHaveLength(2);
   });
 
