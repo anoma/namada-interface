@@ -6,6 +6,7 @@ import { routes } from "App/routes";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { LearnAboutIbc } from "./LearnAboutIbc";
 
 export const IbcTransfersLayout = (): JSX.Element => {
   const userHasAccount = useUserHasAccount();
@@ -46,6 +47,7 @@ export const IbcTransfersLayout = (): JSX.Element => {
       </div>
       <Sidebar>
         <ShieldAllBanner />
+        <LearnAboutIbc />
       </Sidebar>
     </PageWithSidebar>
   );
