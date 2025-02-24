@@ -246,7 +246,10 @@ export const namadaTransparentAssetsAtom = atomWithQuery((get) => {
     ...queryDependentFn(
       async () =>
         await mapNamadaAddressesToAssets(
-          transparentBalances.data!,
+          transparentBalances.data?.map((item) => ({
+            address: item.tokenAddress,
+            minDenomAmount: BigNumber(item.minDenomAmount),
+          })) ?? [],
           chainTokensQuery.data!,
           chainParameters.data!.chainId
         ),

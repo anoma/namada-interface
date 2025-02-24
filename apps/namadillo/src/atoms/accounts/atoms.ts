@@ -1,3 +1,4 @@
+import { Balance } from "@namada/indexer-client";
 import {
   Account,
   AccountType,
@@ -11,11 +12,11 @@ import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import { NamadaKeychain } from "hooks/useNamadaKeychain";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
+import { namadaAsset, toDisplayAmount } from "utils";
 import {
   fetchAccountBalance,
   fetchAccounts,
   fetchDefaultAccount,
-  fetchNamAccountBalance,
 } from "./services";
 
 export const accountsAtom = atomWithQuery<readonly Account[]>((get) => {
@@ -80,22 +81,24 @@ export const updateDefaultAccountAtom = atomWithMutation(() => {
 });
 
 export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
-  const defaultAccount = get(defaultAccountAtom);
+  const transparentBalanceQuery = get(transparentBalanceAtom);
   const tokenAddress = get(nativeTokenAddressAtom);
   const enablePolling = get(shouldUpdateBalanceAtom);
-  const api = get(indexerApiAtom);
 
   return {
     // TODO: subscribe to indexer events when it's done
     refetchInterval: enablePolling ? 1000 : false,
-    queryKey: ["balances", tokenAddress.data, defaultAccount.data],
+    queryKey: ["balances", tokenAddress.data, transparentBalanceQuery.data],
     ...queryDependentFn(async (): Promise<BigNumber> => {
-      return await fetchNamAccountBalance(
-        api,
-        defaultAccount.data,
-        tokenAddress.data!
-      );
-    }, [tokenAddress, defaultAccount]),
+      const balance = transparentBalanceQuery.data
+        ?.filter(({ tokenAddress: ta }) => ta === tokenAddress.data)
+        .map(({ tokenAddress, minDenomAmount }) => ({
+          token: tokenAddress,
+          amount: toDisplayAmount(namadaAsset(), new BigNumber(minDenomAmount)),
+        }))
+        .at(0);
+      return balance ? BigNumber(balance.amount) : BigNumber(0);
+    }, [tokenAddress, transparentBalanceQuery]),
   };
 });
 
@@ -119,11 +122,7 @@ export const disposableSignerAtom = atomWithQuery<GenDisposableSignerResponse>(
   }
 );
 
-// TODO combine the `accountBalanceAtom` with the `transparentBalanceAtom`
-// Then execute only once the `fetchAccountBalance`, deleting the `fetchNamAccountBalance`
-export const transparentBalanceAtom = atomWithQuery<
-  { address: string; minDenomAmount: BigNumber }[]
->((get) => {
+export const transparentBalanceAtom = atomWithQuery<Balance[]>((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
   const api = get(indexerApiAtom);
   const defaultAccountQuery = get(defaultAccountAtom);
@@ -131,12 +130,8 @@ export const transparentBalanceAtom = atomWithQuery<
   return {
     refetchInterval: enablePolling ? 1000 : false,
     queryKey: ["transparent-balance", defaultAccountQuery.data],
-    ...queryDependentFn(async () => {
-      const response = await fetchAccountBalance(api, defaultAccountQuery.data);
-      return response.map((item) => ({
-        address: item.tokenAddress,
-        minDenomAmount: BigNumber(item.minDenomAmount),
-      }));
+    ...queryDependentFn(() => {
+      return fetchAccountBalance(api, defaultAccountQuery.data);
     }, [defaultAccountQuery]),
   };
 });
