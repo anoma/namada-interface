@@ -10,7 +10,6 @@ import {
   Proposal,
 } from "@namada/types";
 
-import { sha256Hash } from "@namada/utils";
 import { proposalFamily } from "atoms/proposals";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
@@ -194,9 +193,7 @@ const Loaded: React.FC<{
       proposal.proposalType.type === "default_with_wasm" &&
       proposal.proposalType.data.length > 0
     ) {
-      sha256Hash(proposal.proposalType.data).then((hash) =>
-        setDataHash(hash.toUpperCase())
-      );
+      setDataHash(proposal.proposalType.data);
     }
   }, [proposal.proposalType]);
 
