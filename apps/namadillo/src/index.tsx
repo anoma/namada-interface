@@ -22,10 +22,17 @@ if ("serviceWorker" in navigator) {
   // This unfortunately does not work for vite dev in Firefox.
   // The reason is that vite injects node polyfills in form of ESM import statements
   // and firefox service worker does not support ESM imports yet.
-  navigator.serviceWorker.register(
-    import.meta.env.MODE === "production" ? "/sw.js" : "/dev-sw.js?dev-sw",
-    { type: import.meta.env.MODE === "production" ? "classic" : "module" }
-  );
+
+  // TODO: temporarily disable SW to figure out why it breaks MASP
+  // navigator.serviceWorker.register(
+  //   import.meta.env.MODE === "production" ? "/sw.js" : "/dev-sw.js?dev-sw",
+  //   { type: import.meta.env.MODE === "production" ? "classic" : "module" }
+  // );
+  navigator.serviceWorker.getRegistration().then((reg) => {
+    if (reg) {
+      reg.unregister();
+    }
+  });
 }
 
 if (container) {
