@@ -49,6 +49,7 @@ export const StakingRewards = (): JSX.Element => {
     isEnabled: claimRewardsTxEnabled,
     isPending: claimRewardsPending,
     error: claimError,
+    feeProps: claimFeeProps,
   } = useTransaction({
     params: parseStakingRewardsParams(),
     createTxAtom: claimRewardsAtom,
@@ -67,7 +68,7 @@ export const StakingRewards = (): JSX.Element => {
     isEnabled: claimAndStakeTxEnabled,
     isPending: claimAndStakePending,
     error: claimAndStakeError,
-    feeProps,
+    feeProps: claimAndStakeFeeProps,
   } = useTransaction({
     params: parseStakingRewardsParams(),
     createTxAtom: claimAndStakeRewardsAtom,
@@ -124,6 +125,8 @@ export const StakingRewards = (): JSX.Element => {
             >
               {claimAndStakePending ? "Loading..." : "Claim & Stake"}
             </ActionButton>
+            <TransactionFeeButton feeProps={claimFeeProps} />
+            <div className="h-6" />
             <ActionButton
               backgroundColor="white"
               onClick={() => claimRewards()}
@@ -134,9 +137,9 @@ export const StakingRewards = (): JSX.Element => {
             >
               {claimRewardsPending ? "Loading..." : "Claim"}
             </ActionButton>
+            <TransactionFeeButton feeProps={claimAndStakeFeeProps} />
             <InlineError errorMessage={error} />
           </Stack>
-          <TransactionFeeButton feeProps={feeProps} />
         </Stack>
       </ModalContainer>
     </Modal>
