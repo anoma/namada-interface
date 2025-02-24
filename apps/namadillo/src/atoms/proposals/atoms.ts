@@ -18,6 +18,7 @@ import {
   fetchAllProposals,
   fetchPaginatedProposals,
   fetchProposalById,
+  fetchProposalDataById,
   fetchVotedProposalsByAccount,
 } from "./functions";
 
@@ -34,6 +35,17 @@ export const proposalFamily = atomFamily((id: bigint) =>
       refetchInterval: enablePolling ? 1000 : false,
       queryKey: ["proposal", id.toString()],
       queryFn: () => fetchProposalById(api, id),
+    };
+  })
+);
+
+export const proposalDataFamily = atomFamily((id: bigint) =>
+  atomWithQuery((get) => {
+    const api = get(indexerApiAtom);
+
+    return {
+      queryKey: ["proposal-data", id.toString()],
+      queryFn: () => fetchProposalDataById(api, id),
     };
   })
 );

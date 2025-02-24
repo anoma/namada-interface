@@ -1,3 +1,4 @@
+import { fromHex } from "@cosmjs/encoding";
 import {
   ActionButton,
   ProgressBar as ProgressBarComponent,
@@ -7,6 +8,7 @@ import { Proposal, UnknownVoteType, VoteType } from "@namada/types";
 import { routes } from "App/routes";
 import {
   canVoteAtom,
+  proposalDataFamily,
   proposalFamily,
   proposalVoteFamily,
 } from "atoms/proposals";
@@ -34,6 +36,7 @@ export const ProposalHeader: React.FC<{
   proposalId: bigint;
 }> = ({ proposalId }) => {
   const proposal = useAtomValue(proposalFamily(proposalId));
+  const proposalData = useAtomValue(proposalDataFamily(proposalId));
   const vote = useAtomValue(proposalVoteFamily(proposalId));
 
   return (
@@ -49,7 +52,7 @@ export const ProposalHeader: React.FC<{
         </div>
         <Stack gap={2}>
           <JsonButton proposalId={proposalId} />
-          <WasmButton proposal={proposal} />
+          <WasmButton proposal={proposal} proposalData={proposalData} />
         </Stack>
       </div>
       <hr className="border-neutral-900 w-full mb-4" />
@@ -139,13 +142,14 @@ const JsonButton: React.FC<{
 
 const WasmButton: React.FC<{
   proposal: AtomWithQueryResult<Proposal>;
-}> = ({ proposal }) => {
+  proposalData: AtomWithQueryResult<string>;
+}> = ({ proposal, proposalData }) => {
   const { disabled, href, filename } = (() => {
-    if (proposal.status === "success") {
+    if (proposal.status === "success" && proposalData.status === "success") {
       const { proposalType } = proposal.data;
       const wasmCode =
         proposalType.type === "default_with_wasm" ?
-          proposalType.data
+          fromHex(proposalData.data)
         : undefined;
 
       if (typeof wasmCode !== "undefined") {
