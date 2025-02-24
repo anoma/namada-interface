@@ -12,7 +12,7 @@ import { useProposalIdParam } from "hooks";
 import { useState } from "react";
 import { GoCheck, GoCopy } from "react-icons/go";
 
-type DefaultData = Uint8Array;
+type DefaultData = string;
 
 type PgfStewardData = {
   add?: string;

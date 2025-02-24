@@ -1,5 +1,49 @@
 # Changelog
 
+## [1.12.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.11.1...namadillo@v1.12.0) (2025-02-24)
+
+
+### Features
+
+* Add educational content ([#1726](https://github.com/anoma/namada-interface/issues/1726)) ([198e0b9](https://github.com/anoma/namada-interface/commit/198e0b96c48e0f4af2c07278d28983e27d726d08))
+* Add shield assets modal on sidebar banner ([#1724](https://github.com/anoma/namada-interface/issues/1724)) ([9751573](https://github.com/anoma/namada-interface/commit/975157321a59816fea6fc84f4a639aa849354924))
+* Adding alpha warning ([#1727](https://github.com/anoma/namada-interface/issues/1727)) ([6e1476b](https://github.com/anoma/namada-interface/commit/6e1476b3ae54403326a508140b9c71fb17fec250))
+* Show namadillo version when disconnected from keychain ([#1685](https://github.com/anoma/namada-interface/issues/1685)) ([980e7d3](https://github.com/anoma/namada-interface/commit/980e7d3da2b3d016e85eac44475f9f5fa7f1aac9))
+
+
+### Bug Fixes
+
+* Fix for accounts with all tokens with balance zero ([#1707](https://github.com/anoma/namada-interface/issues/1707)) ([6275ab6](https://github.com/anoma/namada-interface/commit/6275ab6a5bdaafe55ed16d25b87cae6fe77824a5))
+* Proposals checksums and data download ([#1721](https://github.com/anoma/namada-interface/issues/1721)) ([e942a75](https://github.com/anoma/namada-interface/commit/e942a7578e4d8b17898e7c68599883eaa943bde8))
+* Unregister buggy service worker ([#1725](https://github.com/anoma/namada-interface/issues/1725)) ([5b70454](https://github.com/anoma/namada-interface/commit/5b704547cd5fd250f8db390fe28bcf693c813d57))
+* Update retro card ([#1712](https://github.com/anoma/namada-interface/issues/1712)) ([5432e71](https://github.com/anoma/namada-interface/commit/5432e71d3c3902fb73c436ae3d878a857582fca2))
+
+## [1.11.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.11.0...namadillo@v1.11.1) (2025-02-21)
+
+
+### Bug Fixes
+
+* Bumping indexer version to 2.1.x ([#1708](https://github.com/anoma/namada-interface/issues/1708)) ([520e8ca](https://github.com/anoma/namada-interface/commit/520e8ca5e86a1abf7fcc514d09824fb679af5120))
+
+## [1.11.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.10.2...namadillo@v1.11.0) (2025-02-21)
+
+
+### Features
+
+* Add transaction fee to claiming modal ([#1673](https://github.com/anoma/namada-interface/issues/1673)) ([d8b007e](https://github.com/anoma/namada-interface/commit/d8b007e873c9a18ff4b28dc3a3eb48a37adc452d))
+* Adding multicore as default option for Namadillo and publishing sdk packages automatically to npm ([#1582](https://github.com/anoma/namada-interface/issues/1582)) ([bdc90bd](https://github.com/anoma/namada-interface/commit/bdc90bdffd907f111d41840eef6c6e6df8077b7e))
+* Filtering assets with zero amount in it ([#1702](https://github.com/anoma/namada-interface/issues/1702)) ([2b4703b](https://github.com/anoma/namada-interface/commit/2b4703b03e7ffff6d2c04f9fef0f8a420f7fb532))
+* Filtering for non-zero transparent tokens ([#1705](https://github.com/anoma/namada-interface/issues/1705)) ([4b59091](https://github.com/anoma/namada-interface/commit/4b5909118932b92ddd96d1a8b40a9b25904084c2))
+
+
+### Bug Fixes
+
+* Fix duplicated notifications ([#1667](https://github.com/anoma/namada-interface/issues/1667)) ([7166417](https://github.com/anoma/namada-interface/commit/7166417f64253d2e000030d445f87e71de8a4025))
+* General fixes on IBC Withdrawal, notifications and TransferModule ([#1701](https://github.com/anoma/namada-interface/issues/1701)) ([669fc15](https://github.com/anoma/namada-interface/commit/669fc15cf80d6de8a276f4bdd05b6f43ed96774b))
+* Remove trailing period on urls ([#1684](https://github.com/anoma/namada-interface/issues/1684)) ([1cfb9ca](https://github.com/anoma/namada-interface/commit/1cfb9caf5b904ce42f303888a5bfcb1b9e6370b9))
+* Truncate long token names in Select Asset modal ([#1694](https://github.com/anoma/namada-interface/issues/1694)) ([cb7d2ae](https://github.com/anoma/namada-interface/commit/cb7d2ae7720e8aedf29851f80351c5d9f5471d4c))
+* Updating docker & nginx configs for multicore ([#1620](https://github.com/anoma/namada-interface/issues/1620)) ([0ca9c04](https://github.com/anoma/namada-interface/commit/0ca9c04ca6b2ca0130d1a5e51946fdab0bf02f8a))
+
 ## [1.10.2](https://github.com/anoma/namada-interface/compare/namadillo@v1.10.1...namadillo@v1.10.2) (2025-02-20)
 
 

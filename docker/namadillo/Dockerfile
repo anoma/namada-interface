@@ -7,7 +7,7 @@ RUN npm install -g yarn
 RUN rustup target add wasm32-unknown-unknown
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh -s -- -y
 
-COPY .yarnrc.yml tsconfig.base.json package.json yarn.lock .
+COPY .yarnrc.yml tsconfig.base.json package.json yarn.lock ./
 COPY ./.yarn ./.yarn
 COPY ./packages ./packages
 COPY ./scripts ./scripts
@@ -18,10 +18,10 @@ RUN yarn
 WORKDIR /app/apps/namadillo
 COPY ./apps/namadillo/scripts ./scripts
 
-RUN yarn wasm:build
+RUN yarn wasm:build:multicore
 
 COPY ./apps/namadillo .
-RUN yarn && yarn build
+RUN yarn && yarn build:only
 
 FROM nginx:alpine
 WORKDIR /app

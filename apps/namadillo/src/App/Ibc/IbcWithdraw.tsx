@@ -27,13 +27,12 @@ import { TransactionPair } from "lib/query";
 import { useEffect, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 import namadaChainRegistry from "registry/namada.json";
+import { Address, IbcTransferTransactionData, TransferStep } from "types";
 import {
-  Address,
-  IbcTransferTransactionData,
-  TransferStep,
-  TransferTransactionData,
-} from "types";
-import { toBaseAmount, toDisplayAmount } from "utils";
+  toBaseAmount,
+  toDisplayAmount,
+  useTransactionEventListener,
+} from "utils";
 import { IbcTopHeader } from "./IbcTopHeader";
 
 const defaultChainId = "cosmoshub-4";
@@ -52,6 +51,8 @@ export const IbcWithdraw: React.FC = () => {
   const [sourceChannel, setSourceChannel] = useState("");
   const [currentStatus, setCurrentStatus] = useState("");
   const [statusExplanation, setStatusExplanation] = useState("");
+  const [completedAt, setCompletedAt] = useState<Date | undefined>();
+  const [txHash, setTxHash] = useState<string | undefined>();
 
   const { data: availableAssets } = useAtomValue(namadaTransparentAssetsAtom);
   const { storeTransaction } = useTransactionActions();
@@ -80,6 +81,18 @@ export const IbcWithdraw: React.FC = () => {
 
   const onChangeChain = (chain: Chain): void => {
     connectToChainId(chain.chain_id);
+  };
+
+  useTransactionEventListener("IbcWithdraw.Success", (e) => {
+    if (txHash && e.detail.hash === txHash) {
+      setCompletedAt(new Date());
+    }
+  });
+
+  const redirectToTimeline = (): void => {
+    if (txHash) {
+      navigate(generatePath(routes.transaction, { hash: txHash }));
+    }
   };
 
   const {
@@ -119,31 +132,27 @@ export const IbcWithdraw: React.FC = () => {
     onBeforeBroadcast: () => {
       setCurrentStatus("Broadcasting transaction to Namada...");
     },
-    onBroadcasted: () => {
+    onBroadcasted: (tx) => {
       setCurrentStatus("Waiting for confirmation from target chain...");
       setStatusExplanation(
         "This step may take a few minutes, depending on the current workload of the IBC relayers."
       );
-    },
-    onSuccess: (tx) => {
+
       const props = tx.encodedTxData.meta?.props[0];
       invariant(props, "EncodedTxData not provided");
       invariant(selectedAsset, "Selected asset is not defined");
       invariant(chainId, "Chain ID is not provided");
-
       const displayAmount = toDisplayAmount(
         selectedAsset.asset,
         props.amountInBaseDenom
       );
-
-      const transferTransaction = storeTransferTransaction(
+      const ibcTxData = storeTransferTransaction(
         tx,
         displayAmount,
         chainId,
         selectedAsset.asset
       );
-
-      redirectToTimeline(transferTransaction);
+      setTxHash(ibcTxData.hash);
     },
     onError: (err) => {
       setGeneralErrorMessage(String(err));
@@ -184,11 +193,6 @@ export const IbcWithdraw: React.FC = () => {
 
     storeTransaction(transferTransaction);
     return transferTransaction;
-  };
-
-  const redirectToTimeline = (tx: TransferTransactionData): void => {
-    invariant(tx.hash, "Invalid TX hash");
-    navigate(generatePath(routes.transaction, { hash: tx.hash }));
   };
 
   const submitIbcTransfer = async ({
@@ -276,6 +280,8 @@ export const IbcWithdraw: React.FC = () => {
         }}
         onSubmitTransfer={submitIbcTransfer}
         feeProps={feeProps}
+        onComplete={redirectToTimeline}
+        completedAt={completedAt}
       />
     </div>
   );
