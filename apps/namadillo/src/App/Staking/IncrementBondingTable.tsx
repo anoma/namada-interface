@@ -63,7 +63,8 @@ export const IncrementBondingTable = ({
       updatedAmountByAddress[validator.address] ?? new BigNumber(0);
     const hasStakedAmount = stakedAmount.gt(0);
     const hasNewAmounts = amountToStake.gt(0);
-    const validatorOutsideConsensus = stakedAmount?.lt(1000);
+    const notInConsensusSet = validator.status !== "consensus";
+
     const newRow = {
       className: "",
       cells: [
@@ -88,10 +89,10 @@ export const IncrementBondingTable = ({
               icon={<FaExclamation />}
               text="Consider staking to validators outside of the top 10 to increase decentralization"
             />
-          : validatorOutsideConsensus ?
+          : notInConsensusSet ?
             <IconTooltip
               className={clsx(
-                "hidden absolute -left-6 bg-orange text-black top-1/2 -translate-y-1/2 z-50",
+                "hidden absolute -left-6 bg-fail text-black top-1/2 -translate-y-1/2 z-50",
                 { "inline-flex": updatedAmountByAddress[validator.address] }
               )}
               icon={<FaExclamation />}

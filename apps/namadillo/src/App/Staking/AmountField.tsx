@@ -1,5 +1,7 @@
 import { NamInput, NamInputProps } from "App/Common/NamInput";
+import { routes } from "App/routes";
 import clsx from "clsx";
+import { Link } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { Validator } from "types";
 
@@ -30,7 +32,7 @@ export const AmountField = ({
 
   return (
     <div className="relative">
-      {(isActive || forceActive || isInactive) && (
+      {(isActive || forceActive) && (
         <>
           <NamInput
             value={value}
@@ -56,9 +58,18 @@ export const AmountField = ({
 
       <div className="opacity-50 text-sm text-center font-medium">
         {isJailed && !hasStakedAmounts && <p>Validator is jailed</p>}
-
         {isJailed && hasStakedAmounts && (
           <p>Validator is jailed. You have stopped receiving rewards</p>
+        )}
+        {isInactive && !hasStakedAmounts && <p>Validator is inactive</p>}
+        {isInactive && hasStakedAmounts && (
+          <p>
+            Validator is inactive please{" "}
+            <Link to={routes.stakingBondingRedelegate} className="underline">
+              redelegate
+            </Link>{" "}
+            your stake
+          </p>
         )}
       </div>
     </div>
