@@ -11,6 +11,7 @@ import {
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { AllProposalsTable } from "./AllProposalsTable";
+import { LearnAboutGovernance } from "./LearnAboutGovernance";
 import { LiveGovernanceProposals } from "./LiveGovernanceProposals";
 import { ProposalListPanel } from "./ProposalListPanel";
 import { ProposalsSummary } from "./ProposalsSummary";
@@ -85,6 +86,7 @@ export const GovernanceOverview: React.FC = () => {
             <ProposalsSummary allProposals={allProposals.data!} />
           )}
         </Panel>
+        <LearnAboutGovernance />
       </Sidebar>
     </PageWithSidebar>
   );

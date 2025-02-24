@@ -6,7 +6,6 @@ import { TokenCurrency } from "App/Common/TokenCurrency";
 import {
   createNotificationId,
   dispatchToastNotificationAtom,
-  filterToastNotificationsAtom,
 } from "atoms/notifications";
 import { searchAllStoredTxByHash } from "atoms/transactions";
 import BigNumber from "bignumber.js";
@@ -97,15 +96,9 @@ const failureDetails = (failedDetails: React.ReactNode): React.ReactNode => {
 
 export const useTransactionNotifications = (): void => {
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
-  const filterNotifications = useSetAtom(filterToastNotificationsAtom);
-
-  const clearPendingNotifications = (id: string): void => {
-    filterNotifications((notification) => notification.id !== id);
-  };
 
   useTransactionEventListener("Bond.Error", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       type: "error",
@@ -124,7 +117,6 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("Bond.Success", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       title: "Staking transaction succeeded",
@@ -141,7 +133,6 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("Bond.PartialSuccess", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.successData!);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       title: "Some staking transactions failed",
@@ -164,7 +155,6 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("Unbond.Success", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       title: "Unstake transaction succeeded",
@@ -180,7 +170,6 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("Unbond.PartialSuccess", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.successData!);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       title: "Some Unstake transactions failed",
@@ -202,7 +191,6 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("Unbond.Error", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       title: "Unstake transaction failed",
@@ -221,7 +209,6 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("Withdraw.Success", (e) => {
     const id = createNotificationId(e.detail.tx);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       title: "Withdrawal Success",
@@ -232,7 +219,6 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("Withdraw.Error", (e) => {
     const id = createNotificationId(e.detail.tx);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       title: "Withdrawal Error",
@@ -244,7 +230,6 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("Redelegate.Error", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       title: "Redelegate failed",
@@ -264,7 +249,6 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("Redelegate.Success", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.data);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       title: "Redelegate succeeded",
@@ -281,7 +265,6 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("Redelegate.PartialSuccess", (e) => {
     const { id, total } = parseTxsData(e.detail.tx, e.detail.successData!);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       title: "Some redelegations were not successful",
@@ -302,7 +285,6 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("ClaimRewards.Success", (e) => {
     const id = createNotificationId(e.detail.tx);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       title: "Claim Rewards",
@@ -313,7 +295,6 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("ClaimRewards.Error", (e) => {
     const id = createNotificationId(e.detail.tx);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       title: "Claim Rewards",
@@ -325,7 +306,6 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("VoteProposal.Error", (e) => {
     const id = createNotificationId(e.detail.tx);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       type: "error",
@@ -337,7 +317,6 @@ export const useTransactionNotifications = (): void => {
 
   useTransactionEventListener("VoteProposal.Success", (e) => {
     const id = createNotificationId(e.detail.tx);
-    clearPendingNotifications(id);
     dispatchNotification({
       id,
       title: "Governance transaction succeeded",
@@ -351,7 +330,6 @@ export const useTransactionNotifications = (): void => {
   }: CustomEvent<TransferTransactionData>): void => {
     if (!tx.hash) return;
     const id = createNotificationId(tx.hash);
-    clearPendingNotifications(id);
     const storedTx = searchAllStoredTxByHash(tx.hash);
     dispatchNotification({
       id,
@@ -381,7 +359,6 @@ export const useTransactionNotifications = (): void => {
   }: CustomEvent<TransferTransactionData>): void => {
     if (!tx.hash) return;
     const id = createNotificationId(tx.hash);
-    clearPendingNotifications(id);
     const storedTx = searchAllStoredTxByHash(tx.hash);
     dispatchNotification({
       id,
@@ -405,56 +382,58 @@ export const useTransactionNotifications = (): void => {
   useTransactionEventListener("ShieldingTransfer.Success", onTransferSuccess);
   useTransactionEventListener("UnshieldingTransfer.Success", onTransferSuccess);
 
-  useTransactionEventListener("IbcTransfer.Success", ({ detail: tx }) => {
-    if (!tx.hash) return;
-    invariant(tx.hash, "Notification error: Invalid Tx hash");
+  useTransactionEventListener(
+    ["IbcTransfer.Success", "IbcWithdraw.Success"],
+    ({ detail: tx }) => {
+      if (!tx.hash) return;
+      invariant(tx.hash, "Notification error: Invalid Tx hash");
 
-    const id = createNotificationId(tx.hash);
-    clearPendingNotifications(id);
+      const id = createNotificationId(tx.hash);
+      const title =
+        tx.type === "TransparentToIbc" ?
+          "IBC withdraw transaction succeeded"
+        : "IBC transfer transaction succeeded";
 
-    const title =
-      tx.type === "TransparentToIbc" ?
-        "IBC withdraw transaction succeeded"
-      : "IBC transfer transaction succeeded";
+      dispatchNotification({
+        id,
+        title,
+        description: (
+          <>
+            Your transaction of{" "}
+            <TokenCurrency amount={tx.displayAmount} symbol={tx.asset.symbol} />{" "}
+            has completed
+          </>
+        ),
+        type: "success",
+      });
+    }
+  );
 
-    dispatchNotification({
-      id,
-      title,
-      description: (
-        <>
-          Your transaction of{" "}
-          <TokenCurrency amount={tx.displayAmount} symbol={tx.asset.symbol} />{" "}
-          has completed
-        </>
-      ),
-      type: "success",
-    });
-  });
+  useTransactionEventListener(
+    ["IbcTransfer.Error", "IbcWithdraw.Error"],
+    ({ detail: tx }) => {
+      if (!tx) return;
 
-  useTransactionEventListener("IbcTransfer.Error", ({ detail: tx }) => {
-    if (!tx) return;
+      invariant(tx.hash, "Notification error: Invalid Tx provider");
+      const id = createNotificationId(tx.hash);
+      const title =
+        tx.type === "TransparentToIbc" ?
+          "IBC withdraw transaction failed"
+        : "IBC transfer transaction failed";
 
-    invariant(tx.hash, "Notification error: Invalid Tx provider");
-    const id = createNotificationId(tx.hash);
-    clearPendingNotifications(id);
-
-    const title =
-      tx.type === "TransparentToIbc" ?
-        "IBC withdraw transaction failed"
-      : "IBC transfer transaction failed";
-
-    dispatchNotification({
-      id,
-      title,
-      description: (
-        <>
-          Your transaction of{" "}
-          <TokenCurrency amount={tx.displayAmount} symbol={tx.asset.symbol} />{" "}
-          has failed.
-        </>
-      ),
-      details: tx.errorMessage,
-      type: "error",
-    });
-  });
+      dispatchNotification({
+        id,
+        title,
+        description: (
+          <>
+            Your transaction of{" "}
+            <TokenCurrency amount={tx.displayAmount} symbol={tx.asset.symbol} />{" "}
+            has failed.
+          </>
+        ),
+        details: tx.errorMessage,
+        type: "error",
+      });
+    }
+  );
 };

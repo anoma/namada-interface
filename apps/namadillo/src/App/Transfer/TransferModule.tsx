@@ -5,6 +5,7 @@ import { InlineError } from "App/Common/InlineError";
 import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { useKeychainVersion } from "hooks/useKeychainVersion";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { wallets } from "integrations";
 import { useAtomValue } from "jotai";
@@ -16,6 +17,8 @@ import {
   GasConfig,
   WalletProvider,
 } from "types";
+import { filterAvailableAsssetsWithBalance } from "utils/assets";
+import { checkKeychainCompatibleWithMasp } from "utils/compatibility";
 import { getDisplayGasFee } from "utils/gas";
 import { parseChainInfo } from "./common";
 import { CurrentStatus } from "./CurrentStatus";
@@ -102,6 +105,7 @@ type ValidationResult =
   | "NoTransactionFee"
   | "NotEnoughBalance"
   | "NotEnoughBalanceForFees"
+  | "KeychainNotCompatibleWithMasp"
   | "Ok";
 
 export const TransferModule = ({
@@ -132,6 +136,7 @@ export const TransferModule = ({
     destination.enableCustomAddress && !destination.availableWallets
   );
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+  const keychainVersion = useKeychainVersion();
 
   const [memo, setMemo] = useState<undefined | string>();
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
@@ -139,6 +144,10 @@ export const TransferModule = ({
   const displayGasFee = useMemo(() => {
     return gasConfig ? getDisplayGasFee(gasConfig, chainAssetsMap) : undefined;
   }, [gasConfig]);
+
+  const availableAssets: AddressWithAssetAndAmountMap = useMemo(() => {
+    return filterAvailableAsssetsWithBalance(source.availableAssets);
+  }, [source.availableAssets]);
 
   const selectedAsset = mapUndefined(
     (address) => source.availableAssets?.[address],
@@ -151,7 +160,7 @@ export const TransferModule = ({
     if (
       typeof selectedAssetAddress === "undefined" ||
       typeof availableAmount === "undefined" ||
-      typeof source.availableAssets === "undefined"
+      typeof availableAssets === "undefined"
     ) {
       return undefined;
     }
@@ -174,6 +183,12 @@ export const TransferModule = ({
   const validationResult = useMemo((): ValidationResult => {
     if (!source.wallet) {
       return "NoSourceWallet";
+    } else if (
+      (source.isShielded || destination.isShielded) &&
+      keychainVersion &&
+      !checkKeychainCompatibleWithMasp(keychainVersion)
+    ) {
+      return "KeychainNotCompatibleWithMasp";
     } else if (!source.chain) {
       return "NoSourceChain";
     } else if (!destination.chain) {
@@ -256,18 +271,18 @@ export const TransferModule = ({
       return true;
     }
 
-    if (!source.availableAssets || !gasConfig || !displayGasFee) {
+    if (!availableAssets || !gasConfig || !displayGasFee) {
       return false;
     }
 
     // Find how much the user has in their account for the selected fee token
     const feeTokenAddress = gasConfig.gasToken;
 
-    if (!source.availableAssets.hasOwnProperty(feeTokenAddress)) {
+    if (!availableAssets.hasOwnProperty(feeTokenAddress)) {
       return false;
     }
 
-    const assetDisplayAmount = source.availableAssets[feeTokenAddress].amount;
+    const assetDisplayAmount = availableAssets[feeTokenAddress].amount;
     const feeDisplayAmount = displayGasFee?.totalDisplayAmount;
 
     return assetDisplayAmount.gt(feeDisplayAmount);
@@ -283,11 +298,11 @@ export const TransferModule = ({
   };
 
   const sortedAssets = useMemo(() => {
-    if (!source.availableAssets) {
+    if (!availableAssets) {
       return [];
     }
 
-    return Object.values(source.availableAssets).sort(
+    return Object.values(availableAssets).sort(
       (
         asset1: AddressWithAssetAndAmount,
         asset2: AddressWithAssetAndAmount
@@ -309,7 +324,7 @@ export const TransferModule = ({
         return asset1Index - asset2Index;
       }
     );
-  }, [source.availableAssets, source.chain]);
+  }, [availableAssets, source.chain]);
 
   const getButtonTextError = (
     id: ValidationResult,
@@ -353,6 +368,9 @@ export const TransferModule = ({
 
       case "NotEnoughBalanceForFees":
         return getText("Not enough balance to pay for transaction fees");
+
+      case "KeychainNotCompatibleWithMasp":
+        return getText("Keychain is not compatible with MASP");
     }
 
     if (!availableAmountMinusFees) {
@@ -448,7 +466,7 @@ export const TransferModule = ({
               onChangeDestination={ibcOptions.onChangeDestinationChannel}
             />
           )}
-          <InlineError errorMessage={errorMessage} />
+          {!isSubmitting && <InlineError errorMessage={errorMessage} />}
           {currentStatus && isSubmitting && (
             <CurrentStatus
               status={currentStatus}
@@ -466,6 +484,12 @@ export const TransferModule = ({
             >
               {getButtonText()}
             </ActionButton>
+          )}
+          {validationResult === "KeychainNotCompatibleWithMasp" && (
+            <div className="text-center text-fail text-xs selection:bg-fail selection:text-white mb-12">
+              Please update your Namada Keychain in order to make shielded
+              transfers
+            </div>
           )}
         </Stack>
         {completedAt && selectedAsset?.asset && source.amount && (

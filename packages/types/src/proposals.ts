@@ -61,7 +61,7 @@ export type PgfActions = {
 };
 
 export type Default = { type: "default" };
-export type DefaultWithWasm = { type: "default_with_wasm"; data: Uint8Array };
+export type DefaultWithWasm = { type: "default_with_wasm"; data: string };
 export type PgfSteward = { type: "pgf_steward"; data: AddRemove };
 export type PgfPayment = { type: "pgf_payment"; data: PgfActions };
 export type ProposalType = Default | DefaultWithWasm | PgfSteward | PgfPayment;

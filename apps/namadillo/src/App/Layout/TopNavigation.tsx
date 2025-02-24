@@ -33,7 +33,19 @@ export const TopNavigation = (): JSX.Element => {
   if (!userHasAccount) {
     return (
       <div className="w-fit justify-self-end">
-        <ConnectExtensionButton />
+        <div className="flex gap-6">
+          <button
+            className="text-2xl text-yellow hover:text-cyan"
+            onClick={() =>
+              navigate(routes.settings, {
+                state: { backgroundLocation: location },
+              })
+            }
+          >
+            <IoSettingsOutline />
+          </button>
+          <ConnectExtensionButton />
+        </div>
       </div>
     );
   }

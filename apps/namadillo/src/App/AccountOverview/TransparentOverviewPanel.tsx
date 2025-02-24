@@ -15,7 +15,7 @@ import { applicationFeaturesAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { getAssetImageUrl } from "integrations/utils";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IoSwapHorizontal } from "react-icons/io5";
 import { TbVectorTriangle } from "react-icons/tb";
 import { Link } from "react-router-dom";
@@ -74,12 +74,14 @@ const TransparentTokensTable = ({
           key={`buttons-${originalAddress}`}
           className="flex items-center justify-end gap-1"
         >
-          <ActionButton
-            size="xs"
-            href={`${routes.maspShield}?${params.asset}=${originalAddress}`}
-          >
-            Shield
-          </ActionButton>
+          {(!isNam || namTransfersEnabled) && (
+            <ActionButton
+              size="xs"
+              href={`${routes.maspShield}?${params.asset}=${originalAddress}`}
+            >
+              Shield
+            </ActionButton>
+          )}
           {isNam && (
             <ActionButton
               size="xs"
@@ -219,6 +221,11 @@ const PanelContent = ({ data }: { data: TokenBalance[] }): JSX.Element => {
 export const TransparentOverviewPanel = (): JSX.Element => {
   const transparentTokensQuery = useAtomValue(transparentTokensAtom);
 
+  const nonZeroTransparentTokens = useMemo(() => {
+    if (!transparentTokensQuery.data) return [];
+    return transparentTokensQuery.data.filter((i) => i.amount.gt(0));
+  }, [transparentTokensQuery.data]);
+
   return (
     <Panel className="min-h-[300px] flex flex-col" title="Transparent Overview">
       {transparentTokensQuery.isPending ?
@@ -228,8 +235,8 @@ export const TransparentOverviewPanel = (): JSX.Element => {
           niceError="Unable to load your transparent balance"
           containerProps={{ className: "pb-16" }}
         >
-          {transparentTokensQuery.data?.length ?
-            <PanelContent data={transparentTokensQuery.data} />
+          {nonZeroTransparentTokens.length ?
+            <PanelContent data={nonZeroTransparentTokens} />
           : <div className="bg-neutral-900 p-6 rounded-sm text-center font-medium my-14">
               You currently hold no assets in your unshielded account
             </div>

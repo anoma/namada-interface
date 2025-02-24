@@ -143,7 +143,7 @@ export const parseTransferType = (
   const isUnshielding =
     fromMasp && unshieldingToPayFees ?
       // If we're unshielding to pay fees, we should have one more target
-      targets.length === sources.length + 1
+      targets.length > 1 && targets.length >= sources.length
       // Otherwise, we should have the same number of targets as sources
     : targets.length === sources.length;
 

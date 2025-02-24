@@ -8,6 +8,7 @@ import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
+import { LearnAboutMasp } from "./LearnAboutMasp";
 
 export const MaspLayout: React.FC = () => {
   const userHasAccount = useUserHasAccount();
@@ -29,6 +30,7 @@ export const MaspLayout: React.FC = () => {
       </MaspContainer>
       <Sidebar>
         <ShieldAllBanner />
+        <LearnAboutMasp />
       </Sidebar>
     </PageWithSidebar>
   );
