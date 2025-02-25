@@ -288,26 +288,24 @@ export const TransferModule = ({
     return assetDisplayAmount.gt(feeDisplayAmount);
   }
 
+  const chainAcceptedAssets = useMemo(() => {
+    // Get available assets that are accepted by the chain
+    return Object.values(availableAssets).filter(({ asset }) => {
+      if (!source.chain) return true;
+      return allUsersAssets.some(
+        (chainAsset) =>
+          chainAsset?.symbol.toLowerCase() === asset?.symbol.toLowerCase()
+      );
+    });
+  }, [availableAssets, source.chain, allUsersAssets]);
+
   const sortedAssets = useMemo(() => {
-    if (!availableAssets) {
+    if (!chainAcceptedAssets.length) {
       return [];
     }
 
-    // Filter assets that are accepted by the chain
-    const chainAcceptedAssets = Object.values(availableAssets).filter(
-      ({ asset }) => {
-        if (!source.chain) return true;
-
-        // Check if the asset is accepted asset
-        return allUsersAssets.some(
-          (chainAsset) =>
-            chainAsset?.symbol.toLowerCase() === asset?.symbol.toLowerCase()
-        );
-      }
-    );
-
     // Sort filtered assets by amount
-    return chainAcceptedAssets.sort(
+    return [...chainAcceptedAssets].sort(
       (
         asset1: AddressWithAssetAndAmount,
         asset2: AddressWithAssetAndAmount
@@ -315,7 +313,7 @@ export const TransferModule = ({
         return asset1.amount.gt(asset2.amount) ? -1 : 1;
       }
     );
-  }, [availableAssets, source.chain, allUsersAssets]);
+  }, [chainAcceptedAssets]);
 
   const getButtonTextError = (
     id: ValidationResult,
