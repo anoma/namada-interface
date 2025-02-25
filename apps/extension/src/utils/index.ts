@@ -80,6 +80,23 @@ export const filterPrivateKeyPrefix = (privateKey: string): string =>
     privateKey.replace(/^00/, "")
   : privateKey;
 
+const SPENDING_KEY_MAX_LENGTH = 284;
+const SPENDING_KEY_BECH32M_PREFIX = "zsknam1";
+export type SpendingKeyError =
+  | { t: "IncorrectLength"; length: number }
+  | { t: "BadPrefix"; prefix: string };
+
+// Spending key basic validation, ignore empty field
+export const validateSpendingKey = (
+  spendingKey: string
+): Result<null, SpendingKeyError> =>
+  spendingKey.length === 0 ? Result.ok(null)
+  : spendingKey.length !== SPENDING_KEY_MAX_LENGTH ?
+    Result.err({ t: "IncorrectLength", length: 284 })
+  : !/^zsknam1/.test(spendingKey) ?
+    Result.err({ t: "BadPrefix", prefix: SPENDING_KEY_BECH32M_PREFIX })
+  : Result.ok(null);
+
 // Convert any Uint8Arrays in TxProps to string, and construct EncodedTxData
 export const toEncodedTx = (txProps: TxProps): EncodedTxData => ({
   ...txProps,
