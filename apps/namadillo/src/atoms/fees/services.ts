@@ -6,35 +6,23 @@ import {
 } from "@namada/indexer-client";
 import { TxKind } from "types/txKind";
 
-const convertLegacyGasKind = (kind: GasLimitTableInnerTxKindEnum): TxKind => {
-  switch (kind) {
-    case "revealPk":
-      return "RevealPk";
-    case "bond":
-      return "Bond";
-    case "unbond":
-      return "Unbond";
-    case "redelegation":
-      return "Redelegate";
-    case "claimRewards":
-      return "ClaimRewards";
-    case "voteProposal":
-      return "VoteProposal";
-    case "transparentTransfer":
-      return "TransparentTransfer";
-    case "shieldingTransfer":
-      return "ShieldingTransfer";
-    case "shieldedTransfer":
-      return "ShieldedTransfer";
-    case "unshieldingTransfer":
-      return "UnshieldingTransfer";
-    case "ibcMsgTransfer":
-      return "IbcTransfer";
-    case "withdraw":
-      return "Withdraw";
-    default:
-      return "Unknown";
-  }
+const legacyGasTableMap: Record<GasLimitTableInnerTxKindEnum, TxKind> = {
+  revealPk: "RevealPk",
+  bond: "Bond",
+  unbond: "Unbond",
+  redelegation: "Redelegate",
+  claimRewards: "ClaimRewards",
+  voteProposal: "VoteProposal",
+  transparentTransfer: "TransparentTransfer",
+  shieldingTransfer: "ShieldingTransfer",
+  shieldedTransfer: "ShieldedTransfer",
+  unshieldingTransfer: "UnshieldingTransfer",
+  ibcMsgTransfer: "IbcTransfer",
+  withdraw: "Withdraw",
+  initProposal: "Unknown",
+  changeMetadata: "Unknown",
+  changeCommission: "Unknown",
+  unknown: "Unknown",
 };
 
 export const fetchGasEstimate = async (
@@ -63,24 +51,24 @@ export const fetchGasEstimate = async (
   try {
     return (await api.apiV1GasEstimateGet(...params)).data;
   } catch (e) {
-    console.error(e);
+    console.error("Failed to fetch gas estimate from indexer", e);
   }
 
   // if fails, try to fetch from the legacy endpoint
   try {
     const legacyValues = (await api.apiV1GasGet()).data;
     const sum = legacyValues.reduce((sum, item) => {
-      const txKind = convertLegacyGasKind(item.txKind);
+      const txKind: TxKind = legacyGasTableMap[item.txKind] ?? "Unknown";
       return sum + item.gasLimit * (counter(txKind) ?? 0);
     }, 0);
     return {
       min: sum,
-      avg: sum,
-      max: sum,
+      avg: sum * 1.1,
+      max: sum * 1.2,
       totalEstimates: 0,
     };
   } catch (e) {
-    console.error(e);
+    console.error("Failed to fetch gas table limit from indexer", e);
   }
 
   // otherwise, returns a generic default value
