@@ -10,6 +10,7 @@ import { allDefaultAccountsAtom } from "atoms/accounts";
 import {
   assetBalanceAtomFamily,
   availableChainsAtom,
+  enabledIbcAssetsDenomFamily,
   ibcChannelsFamily,
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
@@ -23,7 +24,7 @@ import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 import namadaChain from "registry/namada.json";
-import { Address } from "types";
+import { Address, AddressWithAssetAndAmountMap } from "types";
 import { useTransactionEventListener } from "utils";
 import { IbcTopHeader } from "./IbcTopHeader";
 
@@ -59,6 +60,9 @@ export const IbcTransfer = (): JSX.Element => {
     })
   );
 
+  const { data: enabledAssets, isLoading: isLoadingEnabledAssets } =
+    useAtomValue(enabledIbcAssetsDenomFamily(ibcChannels?.namadaChannel));
+
   // Local State
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAssetAddress, setSelectedAssetAddress] = useState<Address>();
@@ -79,6 +83,17 @@ export const IbcTransfer = (): JSX.Element => {
     (address) => userAssets?.[address],
     selectedAssetAddress
   );
+
+  const availableAssets = useMemo(() => {
+    if (!enabledAssets || !userAssets) return undefined;
+    const output: AddressWithAssetAndAmountMap = {};
+    for (const key in userAssets) {
+      if (enabledAssets.includes(userAssets[key].asset.base)) {
+        output[key] = { ...userAssets[key] };
+      }
+    }
+    return output;
+  }, [enabledAssets, userAssets]);
 
   // Manage the history of transactions
   const { storeTransaction } = useTransactionActions();
@@ -165,8 +180,8 @@ export const IbcTransfer = (): JSX.Element => {
       </header>
       <TransferModule
         source={{
-          isLoadingAssets: isLoadingBalances,
-          availableAssets: userAssets,
+          isLoadingAssets: isLoadingBalances || isLoadingEnabledAssets,
+          availableAssets,
           selectedAssetAddress,
           availableAmount,
           availableChains,
