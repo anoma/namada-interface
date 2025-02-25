@@ -28,6 +28,9 @@ export const ProposalsSummary: React.FC<{
   const rejected = allProposals.filter(
     ({ status }) => status === "rejected"
   ).length;
+  const executed = allProposals.filter(
+    ({ status }) => status === "executed"
+  ).length;
 
   const executed = allProposals.filter(({ status, activationEpoch }) => {
     return !epoch ? "-" : (
