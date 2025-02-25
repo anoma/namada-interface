@@ -12,53 +12,53 @@ self.addEventListener("activate", (event) => {
   console.info("Service worker activated");
 });
 
-const CACHE_NAME = "RPC_FETCH_CACHE";
+// const CACHE_NAME = "RPC_FETCH_CACHE";
 
-const fetchWithCacheFirst = async (
-  request: Request,
-  cacheKey: string
-): Promise<Response> => {
-  const cache = await caches.open(CACHE_NAME);
+// const fetchWithCacheFirst = async (
+//   request: Request,
+//   cacheKey: string
+// ): Promise<Response> => {
+//   const cache = await caches.open(CACHE_NAME);
 
-  const cachedResponse = await cache.match(cacheKey);
+//   const cachedResponse = await cache.match(cacheKey);
 
-  if (cachedResponse) {
-    return cachedResponse;
-  }
+//   if (cachedResponse) {
+//     return cachedResponse;
+//   }
 
-  const response = await fetch(request);
+//   const response = await fetch(request);
 
-  if (response.ok) {
-    cache.put(cacheKey, response.clone());
-  }
+//   if (response.ok) {
+//     cache.put(cacheKey, response.clone());
+//   }
 
-  return response;
-};
+//   return response;
+// };
 
-self.addEventListener("fetch", function (e) {
-  const req = e.request.clone();
+// self.addEventListener("fetch", function (e) {
+//   const req = e.request.clone();
 
-  const res = (async () => {
-    if (req.method === "POST") {
-      const payload = await req.json();
-      const path = payload?.params?.path;
+//   const res = (async () => {
+//     if (req.method === "POST") {
+//       const payload = await req.json();
+//       const path = payload?.params?.path;
 
-      if (
-        path &&
-        (path.includes("/shell/conv") ||
-          path.includes("/vp/token/denomination"))
-      ) {
-        const response = await fetchWithCacheFirst(
-          e.request,
-          payload.params.path
-        );
+//       if (
+//         path &&
+//         (path.includes("/shell/conv") ||
+//           path.includes("/vp/token/denomination"))
+//       ) {
+//         const response = await fetchWithCacheFirst(
+//           e.request,
+//           payload.params.path
+//         );
 
-        return response;
-      }
-    }
+//         return response;
+//       }
+//     }
 
-    return fetch(e.request);
-  })();
+//     return fetch(e.request);
+//   })();
 
-  e.respondWith(res);
-});
+//   e.respondWith(res);
+// });

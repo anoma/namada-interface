@@ -78,6 +78,10 @@ export type ChainParameters = {
   checksums: Record<string, string>;
 };
 
+export type PairedLedgersStorage = {
+  [key: string]: string;
+};
+
 export type SettingsStorage = {
   version: string;
   rpcUrl?: string;

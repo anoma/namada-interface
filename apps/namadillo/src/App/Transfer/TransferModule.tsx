@@ -1,6 +1,7 @@
 import { Asset, Chain, Chains } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
+import { IconTooltip } from "App/Common/IconTooltip";
 import { InlineError } from "App/Common/InlineError";
 import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
@@ -10,6 +11,8 @@ import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { wallets } from "integrations";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
+import { BsQuestionCircleFill } from "react-icons/bs";
+import { Link } from "react-router-dom";
 import {
   Address,
   AddressWithAssetAndAmount,
@@ -347,7 +350,7 @@ export const TransferModule = ({
     return defaultText;
   };
 
-  const getButtonText = (): string => {
+  const getButtonText = (): string | JSX.Element => {
     if (isSubmitting) {
       return submittingText || "Submitting...";
     }
@@ -483,16 +486,37 @@ export const TransferModule = ({
             />
           )}
           {!isSubmitting && onSubmitTransfer && (
-            <ActionButton
-              outlineColor={buttonColor}
-              backgroundColor={buttonColor}
-              backgroundHoverColor="transparent"
-              textColor="black"
-              textHoverColor={buttonColor}
-              disabled={validationResult !== "Ok" || isSubmitting}
-            >
-              {getButtonText()}
-            </ActionButton>
+            <div className="relative">
+              <ActionButton
+                outlineColor={buttonColor}
+                backgroundColor={buttonColor}
+                backgroundHoverColor="transparent"
+                textColor="black"
+                textHoverColor={buttonColor}
+                disabled={validationResult !== "Ok" || isSubmitting}
+              >
+                {getButtonText()}
+              </ActionButton>
+
+              {validationResult === "NoLedgerConnected" && (
+                <IconTooltip
+                  className="absolute top-0 right-0 mt-4 mr-4"
+                  icon={
+                    <BsQuestionCircleFill className="text-[20px] text-yellow" />
+                  }
+                  text={
+                    <span>
+                      If your device is connected and the app is open, please go
+                      to{" "}
+                      <Link to="/settings/ledger" className="text-yellow">
+                        Settings
+                      </Link>{" "}
+                      and pair your device with Namadillo.
+                    </span>
+                  }
+                />
+              )}
+            </div>
           )}
           {validationResult === "KeychainNotCompatibleWithMasp" && (
             <div className="text-center text-fail text-xs selection:bg-fail selection:text-white mb-12">
