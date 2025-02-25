@@ -1177,7 +1177,7 @@ ___
 
 ### proposalStatuses
 
-• `Const` **proposalStatuses**: readonly [``"pending"``, ``"ongoing"``, ``"passed"``, ``"rejected"``]
+• `Const` **proposalStatuses**: readonly [``"pending"``, ``"ongoing"``, ``"passed"``, ``"rejected"``, ``"executed"``]
 
 #### Defined in
 
@@ -1227,7 +1227,7 @@ ___
 
 ### isProposalStatus
 
-▸ **isProposalStatus**(`str`): str is "pending" \| "ongoing" \| "passed" \| "rejected"
+▸ **isProposalStatus**(`str`): str is "pending" \| "ongoing" \| "passed" \| "rejected" \| "executed" \|
 
 #### Parameters
 
@@ -1237,7 +1237,7 @@ ___
 
 #### Returns
 
-str is "pending" \| "ongoing" \| "passed" \| "rejected"
+str is "pending" \| "ongoing" \| "passed" \| "rejected" \| "executed" \|
 
 #### Defined in
 

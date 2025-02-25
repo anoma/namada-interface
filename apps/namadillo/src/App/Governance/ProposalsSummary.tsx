@@ -24,6 +24,9 @@ export const ProposalsSummary: React.FC<{
   const rejected = allProposals.filter(
     ({ status }) => status === "rejected"
   ).length;
+  const executed = allProposals.filter(
+    ({ status }) => status === "executed"
+  ).length;
 
   return (
     <Stack gap={4}>
@@ -31,6 +34,7 @@ export const ProposalsSummary: React.FC<{
       <SummaryCard title="Proposals in Voting Period" content={ongoing} />
       <SummaryCard title="Passed" content={passed} />
       <SummaryCard title="Rejected" content={rejected} />
+      <SummaryCard title="Executed" content={executed} />
     </Stack>
   );
 };
