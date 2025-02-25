@@ -16,6 +16,7 @@ import {
   QueryParentAccountsMsg,
   RenameAccountMsg,
   RevealAccountMnemonicMsg,
+  RevealSpendingKeyMsg,
   SaveAccountSecretMsg,
   SetActiveAccountMsg,
   ValidateMnemonicMsg,
@@ -98,6 +99,12 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as GenDisposableSignerMsg
         );
+      case RevealSpendingKeyMsg:
+        return handleRevealSpendingKeyMsg(service)(
+          env,
+          msg as RevealSpendingKeyMsg
+        );
+
       default:
         throw new Error("Unknown msg type");
     }
@@ -182,7 +189,7 @@ const handleQueryAccountsMsg: (
     const output =
       query && query.accountId ?
         await service.queryAccountsByParentId(query.accountId)
-      : await service.queryAccounts();
+        : await service.queryAccounts();
 
     return output;
   };
@@ -258,5 +265,13 @@ const handleGenDisposableSignerMsg: (
 ) => InternalHandler<GenDisposableSignerMsg> = (service) => {
   return async (_, _msg) => {
     return await service.genDisposableSigner();
+  };
+};
+
+const handleRevealSpendingKeyMsg: (
+  service: KeyRingService
+) => InternalHandler<RevealSpendingKeyMsg> = (service) => {
+  return async (_, msg) => {
+    return await service.revealSpendingKey(msg.accountId);
   };
 };

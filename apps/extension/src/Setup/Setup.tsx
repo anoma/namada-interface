@@ -114,6 +114,7 @@ export const Setup: React.FC = () => {
       const prettyAccountSecret =
         accountSecret.t === "Mnemonic" ? "mnemonic"
         : accountSecret.t === "PrivateKey" ? "private key"
+        : accountSecret.t === "ShieldedKeys" ? "spending key"
         : assertNever(accountSecret);
       setCompletionStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
 

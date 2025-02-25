@@ -59,7 +59,8 @@ export enum DeleteAccountError {
 
 type Mnemonic = { t: "Mnemonic"; seedPhrase: string[]; passphrase: string };
 type PrivateKey = { t: "PrivateKey"; privateKey: string };
-export type AccountSecret = Mnemonic | PrivateKey;
+type SpendingKey = { t: "ShieldedKeys"; spendingKey: string };
+export type AccountSecret = Mnemonic | PrivateKey | SpendingKey;
 
 export type MnemonicValidationResponse = {
   isValid: boolean;

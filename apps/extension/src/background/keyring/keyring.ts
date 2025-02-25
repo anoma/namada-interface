@@ -159,6 +159,29 @@ export class KeyRing {
     return sensitiveData.text;
   }
 
+  public async revealSpendingKey(accountId: string): Promise<string> {
+    const account = await this.vaultStorage.findOneOrFail(
+      KeyStore,
+      "id",
+      accountId
+    );
+
+    if (account.public.type !== AccountType.ShieldedKeys) {
+      throw new Error("Account should have be created using a spending key");
+    }
+
+    const sensitiveData =
+      await this.vaultService.reveal<SensitiveAccountStoreData>(
+        account.sensitive
+      );
+
+    if (!sensitiveData) {
+      return "";
+    }
+
+    return JSON.parse(sensitiveData.text).spendingKey;
+  }
+
   // Store validated mnemonic or private key
   public async storeAccountSecret(
     accountSecret: AccountSecret,
@@ -204,6 +227,14 @@ export class KeyRing {
             accountType: AccountType.PrivateKey,
           };
 
+        case "ShieldedKeys":
+          const { spendingKey } = accountSecret;
+          return {
+            sk: spendingKey,
+            text: spendingKey,
+            passphrase: "",
+            accountType: AccountType.ShieldedKeys,
+          };
         default:
           return assertNever(accountSecret);
       }

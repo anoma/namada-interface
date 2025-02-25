@@ -97,13 +97,30 @@ export const ViewAccount = (): JSX.Element => {
               trimCharacters={21}
             />
             {viewingKey && (
-              <ActionButton
-                outlineColor="yellow"
-                size="sm"
-                onClick={() => navigate(routes.viewViewingKey(viewingKey))}
-              >
-                Access Viewing Key
-              </ActionButton>
+              <>
+                {parentAccount.type !== AccountType.Ledger && (
+                  <ActionButton
+                    outlineColor="yellow"
+                    size="sm"
+                    onClick={() =>
+                      navigate(
+                        routes.viewSpendingKey(
+                          searchShieldedKey(accountId)?.id || ""
+                        )
+                      )
+                    }
+                  >
+                    Access Spending Key
+                  </ActionButton>
+                )}
+                <ActionButton
+                  outlineColor="yellow"
+                  size="sm"
+                  onClick={() => navigate(routes.viewViewingKey(viewingKey))}
+                >
+                  Access Viewing Key
+                </ActionButton>
+              </>
             )}
           </Stack>
           <ActionButton size="md" onClick={() => navigate(-1)}>

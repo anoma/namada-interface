@@ -29,6 +29,7 @@ enum MessageType {
   ValidateMnemonic = "validate-mnemonic",
   AddLedgerAccount = "add-ledger-account",
   RevealAccountMnemonic = "reveal-account-mnemonic",
+  RevealSpendingKey = "reveal-spending-key",
   RenameAccount = "rename-account",
   QueryAccountDetails = "query-account-details",
   AppendLedgerSignature = "append-ledger-signature",
@@ -75,6 +76,28 @@ export class RevealAccountMnemonicMsg extends Message<string> {
 
   type(): string {
     return RevealAccountMnemonicMsg.type();
+  }
+}
+
+export class RevealSpendingKeyMsg extends Message<string> {
+  public static type(): MessageType {
+    return MessageType.RevealSpendingKey;
+  }
+
+  constructor(public readonly accountId: string) {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return RevealSpendingKeyMsg.type();
   }
 }
 
