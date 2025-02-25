@@ -125,7 +125,7 @@ export const StakingRewards = (): JSX.Element => {
             >
               {claimAndStakePending ? "Loading..." : "Claim & Stake"}
             </ActionButton>
-            <TransactionFeeButton feeProps={claimFeeProps} />
+            <TransactionFeeButton feeProps={claimAndStakeFeeProps} />
             <div className="h-6" />
             <ActionButton
               backgroundColor="white"
@@ -137,7 +137,7 @@ export const StakingRewards = (): JSX.Element => {
             >
               {claimRewardsPending ? "Loading..." : "Claim"}
             </ActionButton>
-            <TransactionFeeButton feeProps={claimAndStakeFeeProps} />
+            <TransactionFeeButton feeProps={claimFeeProps} />
             <InlineError errorMessage={error} />
           </Stack>
         </Stack>
