@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.12.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.12.0...namadillo@v1.12.1) (2025-02-25)
+
+
+### Bug Fixes
+
+* Add fallback for missing gas estimates ([#1739](https://github.com/anoma/namada-interface/issues/1739)) ([2b557c3](https://github.com/anoma/namada-interface/commit/2b557c3fb61e0abb89ce6920eae22116362b9ff0))
+* Fix claim rewards fee button ([#1732](https://github.com/anoma/namada-interface/issues/1732)) ([18d54ed](https://github.com/anoma/namada-interface/commit/18d54ed83bd05f7a9976f749674b8f1c867a02ee))
+* Fix missing nam asset ([#1736](https://github.com/anoma/namada-interface/issues/1736)) ([fe5a760](https://github.com/anoma/namada-interface/commit/fe5a760cc9700e9c4a4bdaa83e18cf5de7299f46))
+* Updating alpha banner text ([#1733](https://github.com/anoma/namada-interface/issues/1733)) ([14de40c](https://github.com/anoma/namada-interface/commit/14de40c9e03f5fe5f9fc73585f07376480ffd74b))
+
 ## [1.12.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.11.1...namadillo@v1.12.0) (2025-02-24)
 
 
