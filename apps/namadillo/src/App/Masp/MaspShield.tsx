@@ -94,7 +94,7 @@ export const MaspShield: React.FC = () => {
         }
         return newParams;
       },
-      { replace: false }
+      { replace: true }
     );
   };
 

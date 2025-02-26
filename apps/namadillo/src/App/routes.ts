@@ -43,4 +43,5 @@ export const routes = {
 
 export const params = {
   asset: "asset",
+  shielded: "shielded",
 } as const;
