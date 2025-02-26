@@ -4,6 +4,7 @@ export {
   Ledger,
   initLedgerUSBTransport,
   ledgerUSBList,
+  requestLedgerDevice,
 } from "./ledger";
 export type {
   LedgerAddressAndPublicKey,

@@ -3,6 +3,7 @@ import { ActionButton, Stack } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { IconTooltip } from "App/Common/IconTooltip";
 import { InlineError } from "App/Common/InlineError";
+import { routes } from "App/routes";
 import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -10,9 +11,9 @@ import { useKeychainVersion } from "hooks/useKeychainVersion";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { wallets } from "integrations";
 import { useAtomValue } from "jotai";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { BsQuestionCircleFill } from "react-icons/bs";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Address,
   AddressWithAssetAndAmount,
@@ -134,6 +135,8 @@ export const TransferModule = ({
   onComplete,
   buttonTextErrors = {},
 }: TransferModuleProps): JSX.Element => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
   const [sourceChainModalOpen, setSourceChainModalOpen] = useState(false);
   const [destinationChainModalOpen, setDestinationChainModalOpen] =
@@ -395,6 +398,34 @@ export const TransferModule = ({
   const buttonColor =
     destination.isShielded || source.isShielded ? "yellow" : "white";
 
+  const renderLedgerTooltip = useCallback(
+    () => (
+      <IconTooltip
+        className="absolute w-4 h-4 top-0 right-0 mt-4 mr-5"
+        icon={<BsQuestionCircleFill className="w-4 h-4 text-yellow" />}
+        text={
+          <span>
+            If your device is connected and the app is open, please go to{" "}
+            <Link
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(routes.settingsLedger, {
+                  state: { backgroundLocation: location },
+                });
+              }}
+              to={routes.settingsLedger}
+              className="text-yellow"
+            >
+              Settings
+            </Link>{" "}
+            and pair your device with Namadillo.
+          </span>
+        }
+      />
+    ),
+    []
+  );
+
   return (
     <>
       <section className="max-w-[480px] mx-auto" role="widget">
@@ -498,24 +529,8 @@ export const TransferModule = ({
                 {getButtonText()}
               </ActionButton>
 
-              {validationResult === "NoLedgerConnected" && (
-                <IconTooltip
-                  className="absolute top-0 right-0 mt-4 mr-4"
-                  icon={
-                    <BsQuestionCircleFill className="text-[20px] text-yellow" />
-                  }
-                  text={
-                    <span>
-                      If your device is connected and the app is open, please go
-                      to{" "}
-                      <Link to="/settings/ledger" className="text-yellow">
-                        Settings
-                      </Link>{" "}
-                      and pair your device with Namadillo.
-                    </span>
-                  }
-                />
-              )}
+              {validationResult === "NoLedgerConnected" &&
+                renderLedgerTooltip()}
             </div>
           )}
           {validationResult === "KeychainNotCompatibleWithMasp" && (
