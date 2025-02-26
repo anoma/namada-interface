@@ -1,4 +1,5 @@
 import { Asset } from "@chain-registry/types";
+import { Balance } from "@namada/indexer-client";
 import BigNumber from "bignumber.js";
 import { Address, AddressWithAssetAndAmountMap } from "types";
 import { isNamadaAsset, toDisplayAmount } from "utils";
@@ -15,15 +16,16 @@ export const getTotalNam = (list?: TokenBalance[]): BigNumber =>
   list?.find((i) => isNamadaAsset(i.asset))?.amount ?? new BigNumber(0);
 
 export const mapNamadaAddressesToAssets = (
-  balances: { address: string; minDenomAmount: BigNumber }[],
+  balances: Balance[],
   chainAssetsMap: Record<Address, Asset | undefined>
 ): AddressWithAssetAndAmountMap => {
   const map: AddressWithAssetAndAmountMap = {};
   balances.forEach((item) => {
-    const asset = chainAssetsMap[item.address] ?? unknownAsset(item.address);
-    map[item.address] = {
-      originalAddress: item.address,
-      amount: toDisplayAmount(asset, item.minDenomAmount),
+    const asset =
+      chainAssetsMap[item.tokenAddress] ?? unknownAsset(item.tokenAddress);
+    map[item.tokenAddress] = {
+      originalAddress: item.tokenAddress,
+      amount: toDisplayAmount(asset, BigNumber(item.minDenomAmount)),
       asset,
     };
   });
