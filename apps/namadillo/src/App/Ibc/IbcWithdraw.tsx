@@ -76,7 +76,11 @@ export const IbcWithdraw: React.FC = () => {
   } = useWalletManager(keplr);
 
   const onChangeWallet = (): void => {
-    connectToChainId(chainId || defaultChainId);
+    if (registry) {
+      connectToChainId(registry.chain.chain_id);
+      return;
+    }
+    connectToChainId(defaultChainId);
   };
 
   const onChangeChain = (chain: Chain): void => {
