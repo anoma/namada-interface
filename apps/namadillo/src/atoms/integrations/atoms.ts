@@ -6,9 +6,10 @@ import {
   IbcTransferProps,
 } from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
-import { chainAtom } from "atoms/chain";
+import { chainAtom, chainTokensAtom } from "atoms/chain";
 import { defaultServerConfigAtom, settingsAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
+import BigNumber from "bignumber.js";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import invariant from "invariant";
 import { atom } from "jotai";
@@ -26,6 +27,7 @@ import { githubNamadaChainRegistryBaseUrl } from "urls";
 import {
   addLocalnetToRegistry,
   createIbcTx,
+  getDenomFromIbcTrace,
   getKnownChains,
   ibcAddressToDenomTrace,
   IbcChannels,
@@ -34,6 +36,7 @@ import {
 import {
   broadcastIbcTransaction,
   fetchIbcChannelFromRegistry,
+  fetchIbcRateLimits,
   fetchLocalnetTomlConfig,
   queryAndStoreRpc,
   queryAssetBalances,
@@ -130,6 +133,50 @@ export const availableChainsAtom = atom((get) => {
 export const availableAssetsAtom = atom((get) => {
   const settings = get(settingsAtom);
   return getKnownChains(settings.enableTestnets).map(({ assets }) => assets);
+});
+
+export const ibcRateLimitAtom = atomWithQuery((get) => {
+  const chainTokens = get(chainTokensAtom);
+  return {
+    queryKey: ["ibc-rate-limit", chainTokens],
+    ...queryDependentFn(async () => {
+      return await fetchIbcRateLimits();
+    }, [chainTokens]),
+  };
+});
+
+export const enabledIbcAssetsDenomFamily = atomFamily((ibcChannel?: string) => {
+  return atomWithQuery((get) => {
+    const chainTokens = get(chainTokensAtom);
+    const ibcRateLimits = get(ibcRateLimitAtom);
+    const defaultAccount = get(defaultAccountAtom);
+
+    return {
+      queryKey: ["availableAssets", defaultAccount, ibcChannel],
+      ...queryDependentFn(async () => {
+        const channelAvailableTokens = chainTokens.data!.filter((token) => {
+          if ("trace" in token) {
+            return token.trace.indexOf(ibcChannel + "/") >= 0;
+          }
+          return false;
+        });
+
+        const availableTokens: string[] = ["nam"];
+        channelAvailableTokens.forEach((token) => {
+          const ibcRateLimit = ibcRateLimits.data?.find(
+            (rateLimit) => rateLimit.tokenAddress === token.address
+          );
+          if (ibcRateLimit && BigNumber(ibcRateLimit.throughputLimit).gt(0)) {
+            if ("trace" in token) {
+              availableTokens.push(getDenomFromIbcTrace(token.trace));
+            }
+          }
+        });
+
+        return availableTokens;
+      }, [chainTokens, ibcRateLimits, defaultAccount, !!ibcChannel]),
+    };
+  });
 });
 
 export const ibcChannelsFamily = atomFamily((ibcChainName?: string) =>
