@@ -1,29 +1,9 @@
 import {
   DefaultApi,
   GasEstimate,
-  GasLimitTableInnerTxKindEnum,
   GasPriceTableInner,
 } from "@namada/indexer-client";
 import { TxKind } from "types/txKind";
-
-const legacyGasTableMap: Record<GasLimitTableInnerTxKindEnum, TxKind> = {
-  revealPk: "RevealPk",
-  bond: "Bond",
-  unbond: "Unbond",
-  redelegation: "Redelegate",
-  claimRewards: "ClaimRewards",
-  voteProposal: "VoteProposal",
-  transparentTransfer: "TransparentTransfer",
-  shieldingTransfer: "ShieldingTransfer",
-  shieldedTransfer: "ShieldedTransfer",
-  unshieldingTransfer: "UnshieldingTransfer",
-  ibcMsgTransfer: "IbcTransfer",
-  withdraw: "Withdraw",
-  initProposal: "Unknown",
-  changeMetadata: "Unknown",
-  changeCommission: "Unknown",
-  unknown: "Unknown",
-};
 
 export const fetchGasEstimate = async (
   api: DefaultApi,
@@ -52,23 +32,6 @@ export const fetchGasEstimate = async (
     return (await api.apiV1GasEstimateGet(...params)).data;
   } catch (e) {
     console.error("Failed to fetch gas estimate from indexer", e);
-  }
-
-  // if fails, try to fetch from the legacy endpoint
-  try {
-    const legacyValues = (await api.apiV1GasGet()).data;
-    const sum = legacyValues.reduce((sum, item) => {
-      const txKind: TxKind = legacyGasTableMap[item.txKind] ?? "Unknown";
-      return sum + item.gasLimit * (counter(txKind) ?? 0);
-    }, 0);
-    return {
-      min: sum,
-      avg: sum * 1.1,
-      max: sum * 1.2,
-      totalEstimates: 0,
-    };
-  } catch (e) {
-    console.error("Failed to fetch gas table limit from indexer", e);
   }
 
   // otherwise, returns a generic default value
