@@ -1,5 +1,6 @@
 import { ActionButton, Image, Panel } from "@namada/components";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
+import { routes } from "App/routes";
 import { useConnectText } from "hooks/useConnectText";
 import { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
@@ -15,7 +16,7 @@ export const ConnectPanel = ({
 }): JSX.Element => {
   const connectText = useConnectText();
   const { pathname } = useLocation();
-  const overviewPage = pathname === "/";
+  const overviewPage = pathname === routes.root;
 
   return (
     <Panel
