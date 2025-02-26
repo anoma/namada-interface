@@ -127,11 +127,13 @@ export const transparentBalanceAtom = atomWithQuery<Balance[]>((get) => {
   const api = get(indexerApiAtom);
   const defaultAccountQuery = get(defaultAccountAtom);
 
+  const account = defaultAccountQuery.data;
+
   return {
     refetchInterval: enablePolling ? 1000 : false,
-    queryKey: ["transparent-balance", defaultAccountQuery.data],
-    ...queryDependentFn(() => {
-      return fetchAccountBalance(api, defaultAccountQuery.data);
+    queryKey: ["transparent-balance", account],
+    ...queryDependentFn(async () => {
+      return account ? fetchAccountBalance(api, account) : [];
     }, [defaultAccountQuery]),
   };
 });
