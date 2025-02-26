@@ -44,7 +44,6 @@ export const SwitchAccountPanel = (): JSX.Element => {
           </header>
           <div className="overflow-auto dark-scrollbar pb-5">
             {data
-              // TODO: How can this be fixed?
               ?.filter((i) => !i.parentId)
               .map(({ alias, address }) => (
                 <button
