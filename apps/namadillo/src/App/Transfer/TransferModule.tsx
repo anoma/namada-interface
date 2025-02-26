@@ -1,4 +1,4 @@
-import { Asset, Chain, Chains } from "@chain-registry/types";
+import { Chain, Chains } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { InlineError } from "App/Common/InlineError";
@@ -135,10 +135,10 @@ export const TransferModule = ({
   const [customAddressActive, setCustomAddressActive] = useState(
     destination.enableCustomAddress && !destination.availableWallets
   );
-  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
-  const keychainVersion = useKeychainVersion();
-
   const [memo, setMemo] = useState<undefined | string>();
+  const keychainVersion = useKeychainVersion();
+  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+  const allUsersAssets = Object.values(chainAssetsMap) ?? [];
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
 
   const displayGasFee = useMemo(() => {
@@ -288,43 +288,32 @@ export const TransferModule = ({
     return assetDisplayAmount.gt(feeDisplayAmount);
   }
 
-  const findTokenFeeIndex = (chain: Chain, asset: Asset): number => {
-    if (!chain.fees) return -1;
-    return chain.fees.fee_tokens.findIndex((token) => {
-      const lastPart = token.denom.split("/").pop();
-      if (!lastPart) return false;
-      return lastPart.toLowerCase() === asset.base.toLowerCase();
+  const chainAcceptedAssets = useMemo(() => {
+    // Get available assets that are accepted by the chain
+    return Object.values(availableAssets).filter(({ asset }) => {
+      if (!source.chain) return true;
+      return allUsersAssets.some(
+        (chainAsset) =>
+          chainAsset?.symbol.toLowerCase() === asset?.symbol.toLowerCase()
+      );
     });
-  };
+  }, [availableAssets, source.chain, allUsersAssets]);
 
   const sortedAssets = useMemo(() => {
-    if (!availableAssets) {
+    if (!chainAcceptedAssets.length) {
       return [];
     }
 
-    return Object.values(availableAssets).sort(
+    // Sort filtered assets by amount
+    return [...chainAcceptedAssets].sort(
       (
         asset1: AddressWithAssetAndAmount,
         asset2: AddressWithAssetAndAmount
       ) => {
-        if (!source.chain) {
-          return 0;
-        }
-
-        const asset1Index = findTokenFeeIndex(source.chain, asset1.asset);
-        const asset2Index = findTokenFeeIndex(source.chain, asset2.asset);
-
-        // No fee assets, so we sort them by the amounts owned by the user
-        if (asset1Index === -1 && asset2Index === -1)
-          return asset1.amount.gt(asset2.amount) ? -1 : 1;
-
-        if (asset1Index === -1) return 1;
-        if (asset2Index === -1) return -1;
-
-        return asset1Index - asset2Index;
+        return asset1.amount.gt(asset2.amount) ? -1 : 1;
       }
     );
-  }, [availableAssets, source.chain]);
+  }, [chainAcceptedAssets]);
 
   const getButtonTextError = (
     id: ValidationResult,
