@@ -438,5 +438,5 @@ export const addLocalnetToRegistry = (config: LocalnetToml): void => {
 };
 
 export const getDenomFromIbcTrace = (ibcAddress: string): string => {
-  return ibcAddress.replaceAll(/(transfer\/|channel-\d\/)*/gi, "");
+  return ibcAddress.replaceAll(/(transfer\/|channel-\d+\/)*/gi, "");
 };
