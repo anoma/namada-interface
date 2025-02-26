@@ -44,20 +44,37 @@ export const ViewAccount = (): JSX.Element => {
     const parentAccount = searchParentAccount(accountId);
     if (parentAccount) {
       setParentAccount(parentAccount);
-      setTransparentAddress(parentAccount.address);
-      setTransparentPath(
-        isCustomPath(parentAccount.path) ?
-          makeBip44Path(
-            chains.namada.bip44.coinType,
-            {
-              ...parentAccount.path,
-              change: parentAccount.path.change || 0,
-              index: parentAccount.path.index || 0,
-            },
-            false
-          )
-        : undefined
-      );
+
+      if (parentAccount.type === AccountType.ShieldedKeys) {
+        setShieldedAddress(parentAccount.address);
+        setShieldedPath(
+          isCustomPath(parentAccount.path) ?
+            makeSaplingPath(
+              chains.namada.bip44.coinType,
+              parentAccount.path,
+              false
+            )
+          : undefined
+        );
+        if (parentAccount.owner) {
+          setViewingKey(parentAccount.owner);
+        }
+      } else {
+        setTransparentAddress(parentAccount.address);
+        setTransparentPath(
+          isCustomPath(parentAccount.path) ?
+            makeBip44Path(
+              chains.namada.bip44.coinType,
+              {
+                ...parentAccount.path,
+                change: parentAccount.path.change || 0,
+                index: parentAccount.path.index || 0,
+              },
+              false
+            )
+          : undefined
+        );
+      }
     }
 
     const shieldedAccount = searchShieldedKey(accountId);
@@ -102,13 +119,17 @@ export const ViewAccount = (): JSX.Element => {
                   <ActionButton
                     outlineColor="yellow"
                     size="sm"
-                    onClick={() =>
-                      navigate(
-                        routes.viewSpendingKey(
-                          searchShieldedKey(accountId)?.id || ""
-                        )
-                      )
-                    }
+                    onClick={() => {
+                      if (parentAccount.type === AccountType.ShieldedKeys) {
+                        navigate(routes.viewSpendingKey(parentAccount.id));
+                      } else {
+                        navigate(
+                          routes.viewSpendingKey(
+                            searchShieldedKey(accountId)?.id || ""
+                          )
+                        );
+                      }
+                    }}
                   >
                     Access Spending Key
                   </ActionButton>

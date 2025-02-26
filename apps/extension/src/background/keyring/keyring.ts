@@ -180,7 +180,7 @@ export class KeyRing {
     return JSON.parse(sensitiveData.text).spendingKey;
   }
 
-  // Store validated mnemonic or private key
+  // Store validated mnemonic, private key, or spending key
   public async storeAccountSecret(
     accountSecret: AccountSecret,
     alias: string,
