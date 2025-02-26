@@ -1,9 +1,9 @@
 import {
-  Account,
   AccountType,
   DerivedAccount,
   GenDisposableSignerResponse,
   Namada as INamada,
+  NamadaKeychainAccount,
   SignArbitraryProps,
   SignArbitraryResponse,
   SignProps,
@@ -57,7 +57,7 @@ export class Namada implements INamada {
     );
   }
 
-  public async accounts(): Promise<Account[] | undefined> {
+  public async accounts(): Promise<NamadaKeychainAccount[] | undefined> {
     const accounts: DerivedAccount[] = [];
     const allAccounts = await this.requester?.sendMessage(
       Ports.Background,
@@ -82,7 +82,7 @@ export class Namada implements INamada {
     return accounts?.map(toPublicAccount);
   }
 
-  public async defaultAccount(): Promise<Account | undefined> {
+  public async defaultAccount(): Promise<NamadaKeychainAccount | undefined> {
     return await this.requester
       ?.sendMessage(Ports.Background, new QueryDefaultAccountMsg())
       .then((defaultAccount) => {

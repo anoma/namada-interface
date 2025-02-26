@@ -1,8 +1,8 @@
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import {
-  Account,
   AccountType,
   DerivedAccount,
+  NamadaKeychainAccount,
   Path,
   TransferProps,
   TxProps,
@@ -200,11 +200,15 @@ export const parseTransferType = (
  * @param derivedAccount - Derived account type returned from keyring
  * @returns Account type for public API
  */
-export const toPublicAccount = (derivedAccount: DerivedAccount): Account => {
+export const toPublicAccount = (
+  derivedAccount: DerivedAccount
+): NamadaKeychainAccount => {
   const {
+    id,
     alias,
     address,
     type,
+    parentId,
     publicKey,
     owner,
     pseudoExtendedKey,
@@ -212,9 +216,11 @@ export const toPublicAccount = (derivedAccount: DerivedAccount): Account => {
     timestamp,
   } = derivedAccount;
   const isShielded = type === AccountType.ShieldedKeys;
-  const account: Account = {
+  const account: NamadaKeychainAccount = {
+    id,
     alias,
     address,
+    parentId,
     type,
   };
   if (isShielded) {

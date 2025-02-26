@@ -527,9 +527,6 @@ export class KeyRing {
     if (!account) {
       throw new Error(`Account with address ${address} not found.`);
     }
-    if (account.type === AccountType.ShieldedKeys) {
-      throw new Error(`Cannot use this account type: ${account.type}`);
-    }
     const { id, type } = account;
     await this.setActiveAccount(id, type);
   }
