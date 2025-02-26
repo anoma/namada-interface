@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.12.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.12.0...namadillo@v1.12.1) (2025-02-25)
+
+
+### Bug Fixes
+
+* Add fallback for missing gas estimates ([#1739](https://github.com/anoma/namada-interface/issues/1739)) ([2b557c3](https://github.com/anoma/namada-interface/commit/2b557c3fb61e0abb89ce6920eae22116362b9ff0))
+* Fix claim rewards fee button ([#1732](https://github.com/anoma/namada-interface/issues/1732)) ([18d54ed](https://github.com/anoma/namada-interface/commit/18d54ed83bd05f7a9976f749674b8f1c867a02ee))
+* Fix missing nam asset ([#1736](https://github.com/anoma/namada-interface/issues/1736)) ([fe5a760](https://github.com/anoma/namada-interface/commit/fe5a760cc9700e9c4a4bdaa83e18cf5de7299f46))
+* Updating alpha banner text ([#1733](https://github.com/anoma/namada-interface/issues/1733)) ([14de40c](https://github.com/anoma/namada-interface/commit/14de40c9e03f5fe5f9fc73585f07376480ffd74b))
+
+## [1.12.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.11.1...namadillo@v1.12.0) (2025-02-24)
+
+
+### Features
+
+* Add educational content ([#1726](https://github.com/anoma/namada-interface/issues/1726)) ([198e0b9](https://github.com/anoma/namada-interface/commit/198e0b96c48e0f4af2c07278d28983e27d726d08))
+* Add shield assets modal on sidebar banner ([#1724](https://github.com/anoma/namada-interface/issues/1724)) ([9751573](https://github.com/anoma/namada-interface/commit/975157321a59816fea6fc84f4a639aa849354924))
+* Adding alpha warning ([#1727](https://github.com/anoma/namada-interface/issues/1727)) ([6e1476b](https://github.com/anoma/namada-interface/commit/6e1476b3ae54403326a508140b9c71fb17fec250))
+* Show namadillo version when disconnected from keychain ([#1685](https://github.com/anoma/namada-interface/issues/1685)) ([980e7d3](https://github.com/anoma/namada-interface/commit/980e7d3da2b3d016e85eac44475f9f5fa7f1aac9))
+
+
+### Bug Fixes
+
+* Fix for accounts with all tokens with balance zero ([#1707](https://github.com/anoma/namada-interface/issues/1707)) ([6275ab6](https://github.com/anoma/namada-interface/commit/6275ab6a5bdaafe55ed16d25b87cae6fe77824a5))
+* Proposals checksums and data download ([#1721](https://github.com/anoma/namada-interface/issues/1721)) ([e942a75](https://github.com/anoma/namada-interface/commit/e942a7578e4d8b17898e7c68599883eaa943bde8))
+* Unregister buggy service worker ([#1725](https://github.com/anoma/namada-interface/issues/1725)) ([5b70454](https://github.com/anoma/namada-interface/commit/5b704547cd5fd250f8db390fe28bcf693c813d57))
+* Update retro card ([#1712](https://github.com/anoma/namada-interface/issues/1712)) ([5432e71](https://github.com/anoma/namada-interface/commit/5432e71d3c3902fb73c436ae3d878a857582fca2))
+
 ## [1.11.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.11.0...namadillo@v1.11.1) (2025-02-21)
 
 
