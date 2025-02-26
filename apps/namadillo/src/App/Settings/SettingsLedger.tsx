@@ -16,8 +16,9 @@ export const SettingsLedger = (): JSX.Element => {
         devices.
       </p>
       <p className="text-sm">
-        The <b>Register Ledger Device</b> button remains active because we have
-        no way to check if a device is already registered.
+        It is normal to see the <b>Register Ledger Device</b> button after
+        registering due to limitations of Ledger registration detection in
+        browser.
       </p>
 
       <ActionButton onClick={onInvalidateShieldedContext} className="shrink-0">

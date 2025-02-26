@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge";
 
 type IconTooltipProps = {
   icon: React.ReactNode;
-  text: string | React.ReactNode;
+  text: React.ReactNode;
   className?: string;
   tooltipClassName?: string;
 };
