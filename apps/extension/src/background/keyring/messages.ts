@@ -8,14 +8,13 @@ import {
 import { Result } from "@namada/utils";
 import { ResponseSign } from "@zondax/ledger-namada";
 import { Message } from "router";
-import { validatePrivateKey, validateProps } from "utils";
+import { validatePrivateKey, validateProps, validateSpendingKey } from "utils";
 import { ROUTE } from "./constants";
 import {
   AccountSecret,
   AccountStore,
   DeleteAccountError,
   MnemonicValidationResponse,
-  ParentAccount,
 } from "./types";
 
 enum MessageType {
@@ -189,6 +188,12 @@ export class SaveAccountSecretMsg extends Message<AccountStore | false> {
         }
         break;
 
+      case "ShieldedKeys":
+        if (!validateSpendingKey(this.accountSecret.spendingKey).ok) {
+          throw new Error("Invalid spending key!");
+        }
+        break;
+
       default:
         throw new Error("Unknown account secret type");
     }
@@ -286,7 +291,7 @@ export class SetActiveAccountMsg extends Message<void> {
 
   constructor(
     public readonly accountId: string,
-    public readonly accountType: ParentAccount
+    public readonly accountType: AccountType
   ) {
     super();
   }
@@ -311,7 +316,7 @@ export class SetActiveAccountMsg extends Message<void> {
 }
 
 export class GetActiveAccountMsg extends Message<
-  { id: string; type: ParentAccount } | undefined
+  { id: string; type: AccountType } | undefined
 > {
   public static type(): MessageType {
     return MessageType.GetActiveAccount;

@@ -11,7 +11,6 @@ import { AccountType, DerivedAccount } from "@namada/types";
 import { ParentAccountsFooter } from "App/Accounts/ParentAccountsFooter";
 import { PageHeader } from "App/Common";
 import routes from "App/routes";
-import { ParentAccount } from "background/keyring";
 import { AccountContext } from "context";
 import { isOutdatedShieldedAccount, openSetupTab } from "utils";
 
@@ -117,7 +116,7 @@ export const ParentAccounts = (): JSX.Element => {
                 onSelectAccount={() => {
                   changeActiveAccountId(
                     account.id,
-                    account.type as ParentAccount
+                    account.type as AccountType
                   );
                 }}
               />

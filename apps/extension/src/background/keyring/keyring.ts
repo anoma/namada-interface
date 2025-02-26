@@ -20,6 +20,7 @@ import { assertNever, Result, truncateInMiddle } from "@namada/utils";
 
 import {
   AccountSecret,
+  AccountSource,
   AccountStore,
   ActiveAccountStore,
   DeleteAccountError,
@@ -80,10 +81,7 @@ export class KeyRing {
     return await this.utilityStore.get(PARENT_ACCOUNT_ID_KEY);
   }
 
-  public async setActiveAccount(
-    id: string,
-    type: AccountType.Mnemonic | AccountType.Ledger | AccountType.PrivateKey
-  ): Promise<void> {
+  public async setActiveAccount(id: string, type: AccountType): Promise<void> {
     await this.utilityStore.set(PARENT_ACCOUNT_ID_KEY, { id, type });
   }
 
@@ -192,7 +190,7 @@ export class KeyRing {
     await this.vaultService.assertIsUnlocked();
 
     const keys = this.sdkService.getSdk().getKeys();
-    const source = flow === "create" ? "generated" : "imported";
+    const source: AccountSource = flow === "create" ? "generated" : "imported";
     const timestamp = source === "generated" ? new Date().getTime() : 0;
 
     const { sk, text, passphrase, accountType } = ((): {
@@ -231,7 +229,7 @@ export class KeyRing {
           const { spendingKey } = accountSecret;
           return {
             sk: spendingKey,
-            text: spendingKey,
+            text: JSON.stringify({ spendingKey }),
             passphrase: "",
             accountType: AccountType.ShieldedKeys,
           };
@@ -240,39 +238,71 @@ export class KeyRing {
       }
     })();
 
-    const { address, publicKey } = keys.getAddress(sk);
+    const vaultLength = await this.vaultService.getLength(KEYSTORE_KEY);
+
+    const accountStore = (() => {
+      switch (accountType) {
+        case AccountType.ShieldedKeys:
+          const shieldedKeys = keys.shieldedKeysFromSpendingKey(sk);
+
+          // Generate unique id for shielded key
+          const shieldedId = generateId(
+            UUID_NAMESPACE,
+            text,
+            alias,
+            shieldedKeys.address,
+            shieldedKeys.viewingKey,
+            path.account,
+            vaultLength
+          );
+
+          return {
+            id: shieldedId,
+            alias,
+            address: shieldedKeys.address,
+            owner: shieldedKeys.viewingKey,
+            path,
+            pseudoExtendedKey: shieldedKeys.pseudoExtendedKey,
+            type: accountType,
+            source,
+            timestamp,
+          };
+        default:
+          // Generate unique ID for new parent account:
+          const { address, publicKey } = keys.getAddress(sk);
+          const id = generateId(
+            UUID_NAMESPACE,
+            text,
+            alias,
+            address,
+            path.account,
+            path.change,
+            path.index,
+            vaultLength
+          );
+
+          return {
+            id,
+            alias,
+            address,
+            owner: address,
+            path,
+            publicKey,
+            type: accountType,
+            source,
+            timestamp,
+          };
+      }
+    })();
 
     // Check whether keys already exist for this account
-    const account = await this.queryAccountByAddress(address);
+    const account = await this.queryAccountByAddress(accountStore.address);
     if (account) {
       throw new Error(
-        `Keys for ${truncateInMiddle(address, 5, 8)} already imported!`
+        `Keys for ${truncateInMiddle(accountStore.address, 5, 8)} already imported!`
       );
     }
 
-    // Generate unique ID for new parent account:
-    const id = generateId(
-      UUID_NAMESPACE,
-      text,
-      alias,
-      address,
-      path.account,
-      path.change,
-      path.index,
-      await this.vaultService.getLength(KEYSTORE_KEY)
-    );
-
-    const accountStore: AccountStore = {
-      id,
-      alias,
-      address,
-      owner: address,
-      path,
-      publicKey,
-      type: accountType,
-      source,
-      timestamp,
-    };
     const sensitiveData: SensitiveAccountStoreData = { text, passphrase };
     const sensitive =
       await this.vaultService.encryptSensitiveData(sensitiveData);
@@ -281,7 +311,7 @@ export class KeyRing {
       public: accountStore,
       sensitive,
     });
-    await this.setActiveAccount(id, AccountType.Mnemonic);
+    await this.setActiveAccount(accountStore.id, accountStore.type);
     return accountStore;
   }
 

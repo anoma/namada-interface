@@ -216,6 +216,27 @@ export class Keys {
   }
 
   /**
+   * Given a bech32m-encoded extended spending key, return viewing and proof-gen keys
+   * @param spendingKey - string
+   * @returns ShieldedKeys
+   */
+  shieldedKeysFromSpendingKey(spendingKey: string): ShieldedKeys {
+    const extendedSpendingKey = ExtendedSpendingKey.from_string(spendingKey);
+    const pseudoExtendedKey = extendedSpendingKey
+      .to_pseudo_extended_key()
+      .encode();
+    const viewingKey = extendedSpendingKey.to_viewing_key().encode();
+    const address = extendedSpendingKey.to_default_address().encode();
+
+    return {
+      address,
+      viewingKey,
+      pseudoExtendedKey,
+      spendingKey,
+    };
+  }
+
+  /**
    * Generate a disposable transparent keypair
    * @returns Keys and address
    */
