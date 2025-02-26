@@ -58,13 +58,10 @@ export const AmountField = ({
 
       <div className="opacity-50 text-sm text-center font-medium">
         {isJailed && !hasStakedAmounts && <p>Validator is jailed</p>}
-
         {isJailed && hasStakedAmounts && (
           <p>Validator is jailed. You have stopped receiving rewards</p>
         )}
-
         {isInactive && !hasStakedAmounts && <p>Validator is inactive</p>}
-
         {isInactive && hasStakedAmounts && (
           <p>
             Validator is inactive please{" "}

@@ -5,8 +5,6 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useValidatorTableSorting } from "hooks/useValidatorTableSorting";
-import { getTopValidatorsAddresses } from "lib/staking";
-import { useMemo } from "react";
 import { FaExclamation } from "react-icons/fa6";
 import { Validator } from "types";
 import { AmountField } from "./AmountField";
@@ -17,6 +15,7 @@ type IncrementBondingTableProps = {
   validators: Validator[];
   updatedAmountByAddress: Record<string, BigNumber>;
   stakedAmountByAddress: Record<string, BigNumber>;
+  topValidatorsByRank: string[];
   onChangeValidatorAmount: (validator: Validator, amount?: BigNumber) => void;
   resultsPerPage?: number;
 };
@@ -25,6 +24,7 @@ export const IncrementBondingTable = ({
   validators,
   updatedAmountByAddress,
   stakedAmountByAddress,
+  topValidatorsByRank,
   onChangeValidatorAmount,
   resultsPerPage = 100,
 }: IncrementBondingTableProps): JSX.Element => {
@@ -32,10 +32,6 @@ export const IncrementBondingTable = ({
     validators,
     stakedAmountByAddress,
   });
-
-  const topValidatorsByRank = useMemo(() => {
-    return getTopValidatorsAddresses(validators);
-  }, [validators]);
 
   const headers = [
     { children: "Validator" },
@@ -67,6 +63,7 @@ export const IncrementBondingTable = ({
       updatedAmountByAddress[validator.address] ?? new BigNumber(0);
     const hasStakedAmount = stakedAmount.gt(0);
     const hasNewAmounts = amountToStake.gt(0);
+    const notInConsensusSet = validator.status !== "consensus";
 
     const newRow = {
       className: "",
@@ -91,6 +88,15 @@ export const IncrementBondingTable = ({
               )}
               icon={<FaExclamation />}
               text="Consider staking to validators outside of the top 10 to increase decentralization"
+            />
+          : notInConsensusSet ?
+            <IconTooltip
+              className={clsx(
+                "hidden absolute -left-6 bg-fail text-black top-1/2 -translate-y-1/2 z-50",
+                { "inline-flex": updatedAmountByAddress[validator.address] }
+              )}
+              icon={<FaExclamation />}
+              text="This validator is outside of the consensus set. You will not receive staking rewards until they are active"
             />
           : null}
           <AmountField
