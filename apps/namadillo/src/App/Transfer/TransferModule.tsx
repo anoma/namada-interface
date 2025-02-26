@@ -440,7 +440,11 @@ export const TransferModule = ({
               : undefined
             }
             customAddressActive={customAddressActive}
-            openProviderSelector={onChangeWallet(destination)}
+            openProviderSelector={() =>
+              destination.onChangeWallet && destination.wallet ?
+                destination.onChangeWallet(destination.wallet)
+              : undefined
+            }
             openChainSelector={
               destination.onChangeChain && !isSubmitting ?
                 () => setDestinationChainModalOpen(true)
