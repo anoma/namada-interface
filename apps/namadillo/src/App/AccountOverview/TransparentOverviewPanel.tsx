@@ -97,7 +97,7 @@ const TransparentTokensTable = ({
               <span className="text-xs">NAM Transfer Locked</span>
             : [
                 {
-                  url: `${routes.transfer}?${params.asset}=${originalAddress}`,
+                  url: `${routes.transfer}?${params.asset}=${originalAddress}&${params.shielded}=0`,
                   icon: <IoSwapHorizontal className="h-[20px] w-[20px]" />,
                 },
                 {
