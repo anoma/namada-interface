@@ -91,7 +91,7 @@ export const MaspUnshield: React.FC = () => {
         }
         return newParams;
       },
-      { replace: false }
+      { replace: true }
     );
   };
 

@@ -31,12 +31,14 @@ import { NamadaTransferTopHeader } from "./NamadaTransferTopHeader";
 export const NamadaTransfer: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
-  const [shielded, setShielded] = useState<boolean>(true);
   const [customAddress, setCustomAddress] = useState<string>("");
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
   const [currentStatus, setCurrentStatus] = useState("");
   const [currentStatusExplanation, setCurrentStatusExplanation] = useState("");
   const [completedAt, setCompletedAt] = useState<Date | undefined>();
+
+  const shieldedParam = searchParams.get(params.shielded);
+  const shielded = shieldedParam ? shieldedParam === "1" : true;
 
   const rpcUrl = useAtomValue(rpcUrlAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
@@ -98,6 +100,17 @@ export const NamadaTransfer: React.FC = () => {
   const isSourceShielded = isShieldedAddress(source);
   const isTargetShielded = isShieldedAddress(target);
 
+  const onChangeShielded = (isShielded: boolean): void => {
+    setSearchParams(
+      (currentParams) => {
+        const newParams = new URLSearchParams(currentParams);
+        newParams.set(params.shielded, isShielded ? "1" : "0");
+        return newParams;
+      },
+      { replace: true }
+    );
+  };
+
   const onChangeSelectedAsset = (address?: Address): void => {
     setSearchParams(
       (currentParams) => {
@@ -109,7 +122,7 @@ export const NamadaTransfer: React.FC = () => {
         }
         return newParams;
       },
-      { replace: false }
+      { replace: true }
     );
   };
 
@@ -177,7 +190,7 @@ export const NamadaTransfer: React.FC = () => {
           selectedAssetAddress,
           onChangeSelectedAsset,
           isShielded: shielded,
-          onChangeShielded: setShielded,
+          onChangeShielded,
           amount: displayAmount,
           onChangeAmount: setDisplayAmount,
         }}
