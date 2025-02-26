@@ -10,6 +10,7 @@ import {
   StdFee,
 } from "@cosmjs/stargate";
 import {
+  IbcRateLimit,
   WrapperTransaction,
   WrapperTransactionExitCodeEnum,
 } from "@namada/indexer-client";
@@ -400,4 +401,10 @@ export const transactionTypeToEventName = (
     case "IbcToTransparent":
       return "IbcTransfer";
   }
+};
+
+export const fetchIbcRateLimits = async (): Promise<IbcRateLimit[]> => {
+  const api = getIndexerApi();
+  const response = await api.apiV1IbcRateLimitsGet();
+  return response.data;
 };
