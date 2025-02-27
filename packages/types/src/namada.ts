@@ -1,4 +1,4 @@
-import { Account } from "./account";
+import { NamadaKeychainAccount } from "./account";
 import {
   GenDisposableSignerResponse,
   SignArbitraryResponse,
@@ -29,11 +29,11 @@ export type BalancesProps = {
 };
 
 export interface Namada {
-  accounts(): Promise<readonly Account[] | undefined>;
+  accounts(): Promise<readonly NamadaKeychainAccount[] | undefined>;
   connect(chainId?: string): Promise<void>;
   disconnect(chainId?: string): Promise<void>;
   isConnected(chainId?: string): Promise<boolean | undefined>;
-  defaultAccount(): Promise<Account | undefined>;
+  defaultAccount(): Promise<NamadaKeychainAccount | undefined>;
   updateDefaultAccount(address: string): Promise<void>;
   sign(props: SignProps): Promise<Uint8Array[] | undefined>;
   signArbitrary(

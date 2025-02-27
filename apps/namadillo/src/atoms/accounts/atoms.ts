@@ -1,8 +1,8 @@
 import { Balance } from "@namada/indexer-client";
 import {
-  Account,
   AccountType,
   GenDisposableSignerResponse,
+  NamadaKeychainAccount,
 } from "@namada/types";
 import { indexerApiAtom } from "atoms/api";
 import { nativeTokenAddressAtom } from "atoms/chain";
@@ -19,16 +19,20 @@ import {
   fetchDefaultAccount,
 } from "./services";
 
-export const accountsAtom = atomWithQuery<readonly Account[]>((get) => {
-  const isExtensionConnected = get(namadaExtensionConnectedAtom);
-  return {
-    enabled: isExtensionConnected,
-    queryKey: ["fetch-accounts", isExtensionConnected],
-    queryFn: fetchAccounts,
-  };
-});
+export const accountsAtom = atomWithQuery<readonly NamadaKeychainAccount[]>(
+  (get) => {
+    const isExtensionConnected = get(namadaExtensionConnectedAtom);
+    return {
+      enabled: isExtensionConnected,
+      queryKey: ["fetch-accounts", isExtensionConnected],
+      queryFn: fetchAccounts,
+    };
+  }
+);
 
-export const defaultAccountAtom = atomWithQuery<Account | undefined>((get) => {
+export const defaultAccountAtom = atomWithQuery<
+  NamadaKeychainAccount | undefined
+>((get) => {
   const isExtensionConnected = get(namadaExtensionConnectedAtom);
   return {
     enabled: isExtensionConnected,
@@ -37,38 +41,40 @@ export const defaultAccountAtom = atomWithQuery<Account | undefined>((get) => {
   };
 });
 
-export const allDefaultAccountsAtom = atomWithQuery<Account[]>((get) => {
-  const defaultAccount = get(defaultAccountAtom);
-  const accounts = get(accountsAtom);
-  return {
-    queryKey: ["all-default-accounts", accounts.data, defaultAccount.data],
-    ...queryDependentFn(async () => {
-      if (!accounts.data) {
-        return [];
-      }
-
-      const transparentAccountIdx = accounts.data.findIndex(
-        (account) => account.address === defaultAccount.data?.address
-      );
-
-      // namada.accounts() returns a plain array of accounts, composed by the transparent
-      // account followed by its shielded accounts.
-      if (transparentAccountIdx === -1) {
-        return [];
-      }
-
-      const defaultAccounts = [accounts.data[transparentAccountIdx]];
-      for (let i = transparentAccountIdx + 1; i < accounts.data.length; i++) {
-        if (accounts.data[i].type !== AccountType.ShieldedKeys) {
-          break;
+export const allDefaultAccountsAtom = atomWithQuery<NamadaKeychainAccount[]>(
+  (get) => {
+    const defaultAccount = get(defaultAccountAtom);
+    const accounts = get(accountsAtom);
+    return {
+      queryKey: ["all-default-accounts", accounts.data, defaultAccount.data],
+      ...queryDependentFn(async () => {
+        if (!accounts.data) {
+          return [];
         }
-        defaultAccounts.push(accounts.data[i]);
-      }
 
-      return defaultAccounts;
-    }, [accounts, defaultAccount]),
-  };
-});
+        const transparentAccountIdx = accounts.data.findIndex(
+          (account) => account.address === defaultAccount.data?.address
+        );
+
+        // namada.accounts() returns a plain array of accounts, composed by the transparent
+        // account followed by its shielded accounts.
+        if (transparentAccountIdx === -1) {
+          return [];
+        }
+
+        const defaultAccounts = [accounts.data[transparentAccountIdx]];
+        for (let i = transparentAccountIdx + 1; i < accounts.data.length; i++) {
+          if (accounts.data[i].type !== AccountType.ShieldedKeys) {
+            break;
+          }
+          defaultAccounts.push(accounts.data[i]);
+        }
+
+        return defaultAccounts;
+      }, [accounts, defaultAccount]),
+    };
+  }
+);
 
 export const updateDefaultAccountAtom = atomWithMutation(() => {
   const namadaPromise = new NamadaKeychain().get();

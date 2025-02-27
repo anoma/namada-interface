@@ -24,7 +24,6 @@ import {
   ActiveAccountStore,
   DeleteAccountError,
   MnemonicValidationResponse,
-  ParentAccount,
   UtilityStore,
 } from "./types";
 
@@ -60,6 +59,10 @@ export class KeyRingService {
 
   async revealAccountMnemonic(accountId: string): Promise<string> {
     return await this._keyRing.revealMnemonic(accountId);
+  }
+
+  async revealSpendingKey(accountId: string): Promise<string> {
+    return await this._keyRing.revealSpendingKey(accountId);
   }
 
   async saveAccountSecret(
@@ -180,7 +183,7 @@ export class KeyRingService {
     return account?.public ?? null;
   }
 
-  async setActiveAccount(id: string, type: ParentAccount): Promise<void> {
+  async setActiveAccount(id: string, type: AccountType): Promise<void> {
     await this._keyRing.setActiveAccount(id, type);
     await this.broadcaster.updateAccounts();
   }

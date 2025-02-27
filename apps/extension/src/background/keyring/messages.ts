@@ -8,14 +8,13 @@ import {
 import { Result } from "@namada/utils";
 import { ResponseSign } from "@zondax/ledger-namada";
 import { Message } from "router";
-import { validatePrivateKey, validateProps } from "utils";
+import { validatePrivateKey, validateProps, validateSpendingKey } from "utils";
 import { ROUTE } from "./constants";
 import {
   AccountSecret,
   AccountStore,
   DeleteAccountError,
   MnemonicValidationResponse,
-  ParentAccount,
 } from "./types";
 
 enum MessageType {
@@ -29,6 +28,7 @@ enum MessageType {
   ValidateMnemonic = "validate-mnemonic",
   AddLedgerAccount = "add-ledger-account",
   RevealAccountMnemonic = "reveal-account-mnemonic",
+  RevealSpendingKey = "reveal-spending-key",
   RenameAccount = "rename-account",
   QueryAccountDetails = "query-account-details",
   AppendLedgerSignature = "append-ledger-signature",
@@ -75,6 +75,28 @@ export class RevealAccountMnemonicMsg extends Message<string> {
 
   type(): string {
     return RevealAccountMnemonicMsg.type();
+  }
+}
+
+export class RevealSpendingKeyMsg extends Message<string> {
+  public static type(): MessageType {
+    return MessageType.RevealSpendingKey;
+  }
+
+  constructor(public readonly accountId: string) {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return RevealSpendingKeyMsg.type();
   }
 }
 
@@ -163,6 +185,12 @@ export class SaveAccountSecretMsg extends Message<AccountStore | false> {
       case "PrivateKey":
         if (!validatePrivateKey(this.accountSecret.privateKey).ok) {
           throw new Error("Invalid private key!");
+        }
+        break;
+
+      case "ShieldedKeys":
+        if (!validateSpendingKey(this.accountSecret.spendingKey).ok) {
+          throw new Error("Invalid spending key!");
         }
         break;
 
@@ -263,7 +291,7 @@ export class SetActiveAccountMsg extends Message<void> {
 
   constructor(
     public readonly accountId: string,
-    public readonly accountType: ParentAccount
+    public readonly accountType: AccountType
   ) {
     super();
   }
@@ -288,7 +316,7 @@ export class SetActiveAccountMsg extends Message<void> {
 }
 
 export class GetActiveAccountMsg extends Message<
-  { id: string; type: ParentAccount } | undefined
+  { id: string; type: AccountType } | undefined
 > {
   public static type(): MessageType {
     return MessageType.GetActiveAccount;

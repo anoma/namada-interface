@@ -57,6 +57,11 @@ export type Account = Pick<
   viewingKey?: string;
 };
 
+export type NamadaKeychainAccount = Account & {
+  id: string;
+  parentId?: string;
+};
+
 /**
  * ViewingKey with optional birthday
  */

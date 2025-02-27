@@ -20,6 +20,7 @@ import { assertNever, Result, truncateInMiddle } from "@namada/utils";
 
 import {
   AccountSecret,
+  AccountSource,
   AccountStore,
   ActiveAccountStore,
   DeleteAccountError,
@@ -80,10 +81,7 @@ export class KeyRing {
     return await this.utilityStore.get(PARENT_ACCOUNT_ID_KEY);
   }
 
-  public async setActiveAccount(
-    id: string,
-    type: AccountType.Mnemonic | AccountType.Ledger | AccountType.PrivateKey
-  ): Promise<void> {
+  public async setActiveAccount(id: string, type: AccountType): Promise<void> {
     await this.utilityStore.set(PARENT_ACCOUNT_ID_KEY, { id, type });
   }
 
@@ -159,7 +157,30 @@ export class KeyRing {
     return sensitiveData.text;
   }
 
-  // Store validated mnemonic or private key
+  public async revealSpendingKey(accountId: string): Promise<string> {
+    const account = await this.vaultStorage.findOneOrFail(
+      KeyStore,
+      "id",
+      accountId
+    );
+
+    if (account.public.type !== AccountType.ShieldedKeys) {
+      throw new Error("Account should have be created using a spending key");
+    }
+
+    const sensitiveData =
+      await this.vaultService.reveal<SensitiveAccountStoreData>(
+        account.sensitive
+      );
+
+    if (!sensitiveData) {
+      return "";
+    }
+
+    return JSON.parse(sensitiveData.text).spendingKey;
+  }
+
+  // Store validated mnemonic, private key, or spending key
   public async storeAccountSecret(
     accountSecret: AccountSecret,
     alias: string,
@@ -169,7 +190,7 @@ export class KeyRing {
     await this.vaultService.assertIsUnlocked();
 
     const keys = this.sdkService.getSdk().getKeys();
-    const source = flow === "create" ? "generated" : "imported";
+    const source: AccountSource = flow === "create" ? "generated" : "imported";
     const timestamp = source === "generated" ? new Date().getTime() : 0;
 
     const { sk, text, passphrase, accountType } = ((): {
@@ -204,44 +225,84 @@ export class KeyRing {
             accountType: AccountType.PrivateKey,
           };
 
+        case "ShieldedKeys":
+          const { spendingKey } = accountSecret;
+          return {
+            sk: spendingKey,
+            text: JSON.stringify({ spendingKey }),
+            passphrase: "",
+            accountType: AccountType.ShieldedKeys,
+          };
         default:
           return assertNever(accountSecret);
       }
     })();
 
-    const { address, publicKey } = keys.getAddress(sk);
+    const vaultLength = await this.vaultService.getLength(KEYSTORE_KEY);
+
+    const accountStore = (() => {
+      switch (accountType) {
+        case AccountType.ShieldedKeys:
+          const shieldedKeys = keys.shieldedKeysFromSpendingKey(sk);
+
+          // Generate unique id for shielded key
+          const shieldedId = generateId(
+            UUID_NAMESPACE,
+            text,
+            alias,
+            shieldedKeys.address,
+            shieldedKeys.viewingKey,
+            path.account,
+            vaultLength
+          );
+
+          return {
+            id: shieldedId,
+            alias,
+            address: shieldedKeys.address,
+            owner: shieldedKeys.viewingKey,
+            path,
+            pseudoExtendedKey: shieldedKeys.pseudoExtendedKey,
+            type: accountType,
+            source,
+            timestamp,
+          };
+        default:
+          // Generate unique ID for new parent account:
+          const { address, publicKey } = keys.getAddress(sk);
+          const id = generateId(
+            UUID_NAMESPACE,
+            text,
+            alias,
+            address,
+            path.account,
+            path.change,
+            path.index,
+            vaultLength
+          );
+
+          return {
+            id,
+            alias,
+            address,
+            owner: address,
+            path,
+            publicKey,
+            type: accountType,
+            source,
+            timestamp,
+          };
+      }
+    })();
 
     // Check whether keys already exist for this account
-    const account = await this.queryAccountByAddress(address);
+    const account = await this.queryAccountByAddress(accountStore.address);
     if (account) {
       throw new Error(
-        `Keys for ${truncateInMiddle(address, 5, 8)} already imported!`
+        `Keys for ${truncateInMiddle(accountStore.address, 5, 8)} already imported!`
       );
     }
 
-    // Generate unique ID for new parent account:
-    const id = generateId(
-      UUID_NAMESPACE,
-      text,
-      alias,
-      address,
-      path.account,
-      path.change,
-      path.index,
-      await this.vaultService.getLength(KEYSTORE_KEY)
-    );
-
-    const accountStore: AccountStore = {
-      id,
-      alias,
-      address,
-      owner: address,
-      path,
-      publicKey,
-      type: accountType,
-      source,
-      timestamp,
-    };
     const sensitiveData: SensitiveAccountStoreData = { text, passphrase };
     const sensitive =
       await this.vaultService.encryptSensitiveData(sensitiveData);
@@ -250,7 +311,7 @@ export class KeyRing {
       public: accountStore,
       sensitive,
     });
-    await this.setActiveAccount(id, AccountType.Mnemonic);
+    await this.setActiveAccount(accountStore.id, accountStore.type);
     return accountStore;
   }
 
@@ -466,9 +527,6 @@ export class KeyRing {
     if (!account) {
       throw new Error(`Account with address ${address} not found.`);
     }
-    if (account.type === AccountType.ShieldedKeys) {
-      throw new Error(`Cannot use this account type: ${account.type}`);
-    }
     const { id, type } = account;
     await this.setActiveAccount(id, type);
   }
@@ -535,19 +593,26 @@ export class KeyRing {
     if (!sensitiveProps) {
       throw new Error(`Signing key for ${address} not found!`);
     }
-    const { text, passphrase } = sensitiveProps;
 
-    const shieldedAccount = allAccounts.find(
-      (account) => account.parentId === accountStore.id
-    );
+    let shieldedAccount: DerivedAccount | undefined;
+
+    if (accountStore.type === AccountType.ShieldedKeys) {
+      shieldedAccount = accountStore;
+    } else {
+      shieldedAccount = allAccounts.find(
+        (account) => account.parentId === accountStore.id
+      );
+    }
+
+    const { text, passphrase } = sensitiveProps;
 
     if (!shieldedAccount) {
       throw new Error(`Shielded account for ${address} not found!`);
     }
+
     const zip32Path = {
       account: shieldedAccount.path.account,
     };
-
     const accountType = accountStore.type;
     let shieldedKeys: ShieldedKeys;
     const keys = this.sdkService.getSdk().getKeys();
@@ -558,8 +623,10 @@ export class KeyRing {
       shieldedKeys = keys.deriveShieldedFromSeed(seed, zip32Path);
     } else if (accountType === AccountType.PrivateKey) {
       shieldedKeys = keys.deriveShieldedFromPrivateKey(fromHex(text));
+    } else if (accountType === AccountType.ShieldedKeys) {
+      return JSON.parse(sensitiveProps.text).spendingKey;
     } else {
-      throw new Error(`Invalid account type! ${accountType}`);
+      throw new Error(`Unsupported account type: ${accountType}`);
     }
 
     return shieldedKeys.spendingKey;

@@ -14,6 +14,7 @@ import {
   ViewMnemonic,
 } from "./Accounts";
 import { ParentAccounts } from "./Accounts/ParentAccounts";
+import { SpendingKey } from "./Accounts/SpendingKey";
 import { ViewingKey } from "./Accounts/ViewingKey";
 import { ChangePassword, ConnectedSites, Network } from "./Settings";
 import { Warnings } from "./Settings/Warnings";
@@ -82,6 +83,7 @@ export const AppContent = ({ warnings }: Props): JSX.Element => {
             <Route path={routes.deleteAccount()} element={<DeleteAccount />} />
             <Route path={routes.viewAccount()} element={<ViewAccount />} />
             <Route path={routes.viewViewingKey()} element={<ViewingKey />} />
+            <Route path={routes.viewSpendingKey()} element={<SpendingKey />} />
             <Route path={routes.renameAccount()} element={<RenameAccount />} />
             <Route
               path={routes.viewAccountMnemonic()}
