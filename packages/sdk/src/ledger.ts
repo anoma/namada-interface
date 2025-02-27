@@ -63,6 +63,16 @@ export const initLedgerUSBTransport = async (): Promise<Transport> => {
 export const ledgerUSBList = async (): Promise<USBDevice[]> => {
   return await TransportUSB.list();
 };
+
+/**
+ * Request ledger device - opens a popup to request the user to connect a ledger device
+ * @async
+ * @returns Transport object
+ */
+export const requestLedgerDevice = async (): Promise<TransportUSB> => {
+  return await TransportUSB.request();
+};
+
 export const DEFAULT_LEDGER_BIP44_PATH = makeBip44Path(coinType, {
   account: 0,
   change: 0,
