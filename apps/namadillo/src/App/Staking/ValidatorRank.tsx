@@ -16,11 +16,11 @@ export const ValidatorRank = ({
     return <span className={clsx(className)}>#{rank}</span>; // TODO: implement rank
   }
 
-  if (
-    status === "unknown" ||
-    status === "belowCapacity" ||
-    status === "belowThreshold"
-  ) {
+  if (status === "belowThreshold") {
+    return <span className={clsx(className)}>#{rank}</span>;
+  }
+
+  if (status === "unknown" || status === "belowCapacity") {
     return <span className={clsx(className)}>&mdash;</span>;
   }
 
