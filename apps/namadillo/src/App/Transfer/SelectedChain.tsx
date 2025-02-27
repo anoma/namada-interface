@@ -45,8 +45,11 @@ export const SelectedChain = ({
       {(!wallet || !chain) && (
         <span className={selectorClassList}>
           <EmptyResourceIcon className="w-7" />
-          Select chain
-          <GoChevronDown className="text-sm" />
+          {onClick ?
+            <>
+              Select chain <GoChevronDown className="text-sm" />
+            </>
+          : <span className="bg-neutral-900 w-20 h-7 rounded-sm opacity-30" />}
         </span>
       )}
       {wallet && chain && (

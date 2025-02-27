@@ -11,10 +11,22 @@ import { walletMock } from "../__mocks__/providers";
 describe("Component: TransferSource", () => {
   it("should render the component with the default props", () => {
     render(
-      <TransferSource isConnected={false} openProviderSelector={jest.fn()} />
+      <TransferSource
+        isConnected={false}
+        openProviderSelector={jest.fn()}
+        openChainSelector={jest.fn()}
+      />
     );
     expect(screen.getByText("Connect Wallet")).toBeInTheDocument();
     expect(screen.getByText(/select chain/i)).toBeInTheDocument();
+  });
+
+  it("should not render chain selector when openChainSelector is not defined", () => {
+    render(
+      <TransferSource isConnected={false} openProviderSelector={jest.fn()} />
+    );
+    const selectChain = screen.queryByText(/selected chain/i);
+    expect(selectChain).not.toBeInTheDocument();
   });
 
   const setup = (props: Partial<TransferSourceProps> = {}): void => {

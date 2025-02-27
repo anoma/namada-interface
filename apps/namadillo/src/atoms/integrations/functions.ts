@@ -440,3 +440,18 @@ export const addLocalnetToRegistry = (config: LocalnetToml): void => {
 export const getDenomFromIbcTrace = (ibcAddress: string): string => {
   return ibcAddress.replaceAll(/(transfer\/|channel-\d+\/)*/gi, "");
 };
+
+export const chainHasFeeTokenDenom = (chain: Chain, denom: string): boolean => {
+  return !!chain.fees?.fee_tokens?.some(
+    (feeToken) => feeToken.denom.toLowerCase() === denom.toLowerCase()
+  );
+};
+
+export const searchChainByDenom = (denom: string): Chain | undefined => {
+  return getKnownChains(false).find(
+    (chainRegistry: ChainRegistryEntry | undefined) => {
+      if (!chainRegistry) return false;
+      return chainHasFeeTokenDenom(chainRegistry.chain, denom);
+    }
+  )?.chain;
+};
