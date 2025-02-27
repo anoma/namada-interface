@@ -8,12 +8,12 @@ import {
 } from "App/Transfer/TransferModule";
 import { defaultAccountAtom } from "atoms/accounts";
 import { namadaTransparentAssetsAtom } from "atoms/balance";
-import { chainAtom } from "atoms/chain";
+import { chainAtom, chainTokensAtom } from "atoms/chain";
 import {
-  availableChainsAtom,
-  chainRegistryAtom,
   createIbcTxAtom,
+  getDenomFromIbcTrace,
   ibcChannelsFamily,
+  searchChainByDenom,
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { useTransaction } from "hooks/useTransaction";
@@ -40,8 +40,6 @@ const keplr = new KeplrWalletManager();
 
 export const IbcWithdraw: React.FC = () => {
   const namadaAccount = useAtomValue(defaultAccountAtom);
-  const chainRegistry = useAtomValue(chainRegistryAtom);
-  const availableChains = useAtomValue(availableChainsAtom);
   const namadaChain = useAtomValue(chainAtom);
 
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
@@ -53,6 +51,9 @@ export const IbcWithdraw: React.FC = () => {
   const [statusExplanation, setStatusExplanation] = useState("");
   const [completedAt, setCompletedAt] = useState<Date | undefined>();
   const [txHash, setTxHash] = useState<string | undefined>();
+  const [destinationChain, setDestinationChain] = useState<Chain | undefined>();
+
+  const chainTokens = useAtomValue(chainTokensAtom);
 
   const { data: availableAssets } = useAtomValue(namadaTransparentAssetsAtom);
   const { storeTransaction } = useTransactionActions();
@@ -83,10 +84,6 @@ export const IbcWithdraw: React.FC = () => {
     connectToChainId(defaultChainId);
   };
 
-  const onChangeChain = (chain: Chain): void => {
-    connectToChainId(chain.chain_id);
-  };
-
   useTransactionEventListener("IbcWithdraw.Success", (e) => {
     if (txHash && e.detail.hash === txHash) {
       setCompletedAt(new Date());
@@ -108,6 +105,29 @@ export const IbcWithdraw: React.FC = () => {
   useEffect(() => {
     setSourceChannel(ibcChannels?.namadaChannel || "");
   }, [ibcChannels]);
+
+  // Search for original chain. We don't want to enable users to transfer Namada assets
+  // to other chains different than the original one. Ex: OSMO should only be withdrew to Osmosis,
+  // ATOM to Cosmoshub.
+  useEffect(() => {
+    if (!selectedAsset || !chainTokens.data) {
+      setDestinationChain(undefined);
+      return;
+    }
+
+    const token = chainTokens.data.find(
+      (token) => token.address === selectedAsset.originalAddress
+    );
+
+    if (token && "trace" in token) {
+      const denom = getDenomFromIbcTrace(token.trace);
+      const chain = searchChainByDenom(denom);
+      setDestinationChain(chain);
+      return;
+    }
+
+    setDestinationChain(undefined);
+  }, [selectedAsset, chainTokens.data]);
 
   const {
     execute: performWithdraw,
@@ -258,13 +278,11 @@ export const IbcWithdraw: React.FC = () => {
           wallet: wallets.keplr,
           walletAddress: keplrAddress,
           availableWallets: [wallets.keplr],
-          availableChains,
           enableCustomAddress: true,
           customAddress,
           onChangeCustomAddress: setCustomAddress,
-          chain: mapUndefined((id) => chainRegistry[id]?.chain, chainId),
+          chain: destinationChain,
           onChangeWallet,
-          onChangeChain,
           isShielded: false,
         }}
         errorMessage={generalErrorMessage || error?.message || ""}
