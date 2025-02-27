@@ -129,6 +129,7 @@ const PgfPaymentInfoCards: React.FC<{
                 >
                   <div className="font-mono">{target}</div>
                   <NamCurrency
+                    className="w-25 ml-10"
                     amount={toDisplayAmount(namadaAsset(), amount)}
                   />
                   <div>
