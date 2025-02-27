@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.13.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.12.1...namadillo@v1.13.0) (2025-02-27)
+
+
+### Features
+
+* Allow predefining transparent source for transfers ([#1762](https://github.com/anoma/namada-interface/issues/1762)) ([43315f6](https://github.com/anoma/namada-interface/commit/43315f69a24840e33a149d64934c8a8a73733887))
+* Changing indexer compatibility message to redirect users to Namada Apps ([#1779](https://github.com/anoma/namada-interface/issues/1779)) ([902df42](https://github.com/anoma/namada-interface/commit/902df428daf9f479dd03cf104228c95d7d81bd4f))
+* Extension - Add view and import Spending Key ([#1744](https://github.com/anoma/namada-interface/issues/1744)) ([8306f47](https://github.com/anoma/namada-interface/commit/8306f47aefc51bb4da1f5466637f3697ef87dcbf))
+* Filter only enabled assets ([#1753](https://github.com/anoma/namada-interface/issues/1753)) ([98866f1](https://github.com/anoma/namada-interface/commit/98866f1893fc93d84ed8ca38461bd3157082a8d5))
+
+
+### Bug Fixes
+
+* Cleanup connect button functionality ([#1757](https://github.com/anoma/namada-interface/issues/1757)) ([3f530fb](https://github.com/anoma/namada-interface/commit/3f530fbe87192985b2ece28f94d00227e5ba6616))
+* Fix claim and stake fee inverted ([#1748](https://github.com/anoma/namada-interface/issues/1748)) ([4451f01](https://github.com/anoma/namada-interface/commit/4451f01f926d3f7d557012167f423fc5d260ca1a))
+* Fixing regex to get denom from ibc trace ([#1755](https://github.com/anoma/namada-interface/issues/1755)) ([fc7770c](https://github.com/anoma/namada-interface/commit/fc7770ca10f2d87e2c520a07a7e9004c9332fafb))
+* Hide shielded keys on switch account panel ([#1781](https://github.com/anoma/namada-interface/issues/1781)) ([a1fa2ae](https://github.com/anoma/namada-interface/commit/a1fa2aee2fc51af0b3c4ac1ce994acfe9937e189))
+* Increasing additional gas to avoid some ibc transactions failing ([#1768](https://github.com/anoma/namada-interface/issues/1768)) ([0ebf818](https://github.com/anoma/namada-interface/commit/0ebf818a66ca2a13ebee53fc025e7f106c19838f))
+* Left align retro card amounts ([#1771](https://github.com/anoma/namada-interface/issues/1771)) ([55ff88a](https://github.com/anoma/namada-interface/commit/55ff88aaa7eb5cee5c44e978cef0f4b6d13a1395))
+* Move stake button when transfer's locked ([#1770](https://github.com/anoma/namada-interface/issues/1770)) ([273f881](https://github.com/anoma/namada-interface/commit/273f8819203b8b2043fae3ee428947ba93ec61e3))
+* Show validators outside consensus and update tooltip icon ([#1686](https://github.com/anoma/namada-interface/issues/1686)) ([dca2af3](https://github.com/anoma/namada-interface/commit/dca2af366570d329daf323ab63890d169abe018b))
+* Update token sorting logic ([#1687](https://github.com/anoma/namada-interface/issues/1687)) ([14f2ab2](https://github.com/anoma/namada-interface/commit/14f2ab275a1cb0613f1bc57dfaeb34628969d0f2))
+* Update transparent balance after transfer ([#1731](https://github.com/anoma/namada-interface/issues/1731)) ([ec48723](https://github.com/anoma/namada-interface/commit/ec4872392f71c1252ca907f8a46853e395747470))
+
 ## [1.12.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.12.0...namadillo@v1.12.1) (2025-02-25)
 
 
