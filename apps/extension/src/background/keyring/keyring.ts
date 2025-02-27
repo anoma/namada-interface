@@ -593,19 +593,26 @@ export class KeyRing {
     if (!sensitiveProps) {
       throw new Error(`Signing key for ${address} not found!`);
     }
-    const { text, passphrase } = sensitiveProps;
 
-    const shieldedAccount = allAccounts.find(
-      (account) => account.parentId === accountStore.id
-    );
+    let shieldedAccount: DerivedAccount | undefined;
+
+    if (accountStore.type === AccountType.ShieldedKeys) {
+      shieldedAccount = accountStore;
+    } else {
+      shieldedAccount = allAccounts.find(
+        (account) => account.parentId === accountStore.id
+      );
+    }
+
+    const { text, passphrase } = sensitiveProps;
 
     if (!shieldedAccount) {
       throw new Error(`Shielded account for ${address} not found!`);
     }
+
     const zip32Path = {
       account: shieldedAccount.path.account,
     };
-
     const accountType = accountStore.type;
     let shieldedKeys: ShieldedKeys;
     const keys = this.sdkService.getSdk().getKeys();
@@ -616,8 +623,10 @@ export class KeyRing {
       shieldedKeys = keys.deriveShieldedFromSeed(seed, zip32Path);
     } else if (accountType === AccountType.PrivateKey) {
       shieldedKeys = keys.deriveShieldedFromPrivateKey(fromHex(text));
+    } else if (accountType === AccountType.ShieldedKeys) {
+      return JSON.parse(sensitiveProps.text).spendingKey;
     } else {
-      throw new Error(`Invalid account type! ${accountType}`);
+      throw new Error(`Unsupported account type: ${accountType}`);
     }
 
     return shieldedKeys.spendingKey;
