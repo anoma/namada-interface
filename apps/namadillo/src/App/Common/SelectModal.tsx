@@ -24,7 +24,7 @@ export const SelectModal = ({
         <div
           className={twMerge(
             clsx(
-              "px-8 pt-3 pb-6 bg-rblack max-w-[480px] min-h-[120px]",
+              "px-8 pt-3 pb-6 bg-black max-w-[480px] min-h-[120px]",
               "w-screen rounded-xl border border-neutral-700"
             ),
             className

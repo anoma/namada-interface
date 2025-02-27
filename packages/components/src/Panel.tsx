@@ -20,7 +20,7 @@ export const Panel = <T extends keyof JSX.IntrinsicElements = "div">({
     as || "div",
     {
       className: twMerge(
-        "rounded-sm bg-rblack px-4 py-5 text-white font-medium",
+        "rounded-sm bg-black px-4 py-5 text-white font-medium",
         className
       ),
       ...props,

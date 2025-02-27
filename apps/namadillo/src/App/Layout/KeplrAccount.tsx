@@ -22,7 +22,7 @@ export const KeplrAccount = (): JSX.Element => {
   };
 
   return (
-    <div className="flex items-center rounded-sm text-sm text-white bg-rblack pl-2 pr-1">
+    <div className="flex items-center rounded-sm text-sm text-white bg-black pl-2 pr-1">
       <img
         src={wallets.keplr.iconUrl}
         alt="Namada Wallet"

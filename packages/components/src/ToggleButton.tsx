@@ -22,7 +22,7 @@ const toggleButtonClassList = tv({
   variants: {
     color: {
       yellow: {
-        toggleContainer: "bg-rblack",
+        toggleContainer: "bg-black",
         toggleIndicator: "bg-yellow",
       },
       white: {
@@ -44,7 +44,7 @@ const toggleButtonClassList = tv({
       checked: true,
       activeColor: "yellow",
       class: {
-        toggleIndicator: "bg-rblack",
+        toggleIndicator: "bg-black",
         toggleContainer: "bg-yellow",
       },
     },
