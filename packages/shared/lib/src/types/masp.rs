@@ -107,6 +107,22 @@ impl ExtendedSpendingKey {
         Ok(ExtendedSpendingKey(xsk))
     }
 
+    pub fn from_string(xsk: String) -> Result<ExtendedSpendingKey, String> {
+        let xsk= NamadaExtendedSpendingKey::from_str(&xsk).map_err(|err| err.to_string())?;
+
+        Ok(ExtendedSpendingKey(xsk))
+    }
+
+    pub fn to_viewing_key(&self) -> Result<ExtendedViewingKey, String> {
+        ExtendedViewingKey::new(&self.0.to_viewing_key().to_bytes())
+    }
+
+    pub fn to_default_address(&self) -> PaymentAddress {
+        let xsk = zip32::ExtendedSpendingKey::from(self.0);
+        let xfvk = zip32::ExtendedFullViewingKey::from(&xsk);
+        PaymentAddress(NamadaPaymentAddress::from(xfvk.default_address().1))
+    }
+
     pub fn to_proof_generation_key(&self) -> ProofGenerationKey {
         let xsk = zip32::ExtendedSpendingKey::from(self.0);
         let pgk = xsk

@@ -18,6 +18,7 @@ import {
   QueryParentAccountsMsg,
   RenameAccountMsg,
   RevealAccountMnemonicMsg,
+  RevealSpendingKeyMsg,
   SaveAccountSecretMsg,
   SetActiveAccountMsg,
   ValidateMnemonicMsg,
@@ -39,6 +40,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(CheckDurabilityMsg);
   router.registerMessage(AddLedgerAccountMsg);
   router.registerMessage(RevealAccountMnemonicMsg);
+  router.registerMessage(RevealSpendingKeyMsg);
   router.registerMessage(RenameAccountMsg);
   router.registerMessage(VerifyArbitraryMsg);
   router.registerMessage(GenDisposableSignerMsg);

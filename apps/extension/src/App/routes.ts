@@ -15,6 +15,8 @@ export default {
     `/accounts/view/${accountId}`,
   viewViewingKey: (viewingKey: string = ":viewingKey") =>
     `/accounts/view/viewingKey/${viewingKey}`,
+  viewSpendingKey: (accountId: string = ":accountId") =>
+    `/accounts/view/spendingKey/${accountId}`,
   deleteAccount: (accountId: string = ":accountId") =>
     `/accounts/delete/${accountId}`,
   renameAccount: (accountId: string = ":accountId") =>

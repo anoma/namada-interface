@@ -1,8 +1,8 @@
 import {
-  Account,
   GenDisposableSignerResponse,
   Namada as INamada,
   Signer as ISigner,
+  NamadaKeychainAccount,
   SignArbitraryProps,
   SignArbitraryResponse,
   SignProps,
@@ -32,12 +32,16 @@ export class InjectedNamada implements INamada {
     );
   }
 
-  public async accounts(): Promise<Account[]> {
-    return await InjectedProxy.requestMethod<string, Account[]>("accounts");
+  public async accounts(): Promise<NamadaKeychainAccount[]> {
+    return await InjectedProxy.requestMethod<string, NamadaKeychainAccount[]>(
+      "accounts"
+    );
   }
 
-  public async defaultAccount(): Promise<Account> {
-    return await InjectedProxy.requestMethod<string, Account>("defaultAccount");
+  public async defaultAccount(): Promise<NamadaKeychainAccount> {
+    return await InjectedProxy.requestMethod<string, NamadaKeychainAccount>(
+      "defaultAccount"
+    );
   }
 
   public async updateDefaultAccount(address: string): Promise<void> {

@@ -11,7 +11,12 @@ import {
   Container,
   LifecycleExecutionWrapper as Wrapper,
 } from "@namada/components";
-import { Bip44Path, DerivedAccount, Zip32Path } from "@namada/types";
+import {
+  AccountType,
+  Bip44Path,
+  DerivedAccount,
+  Zip32Path,
+} from "@namada/types";
 import { assertNever } from "@namada/utils";
 import { AccountSecret, AccountStore } from "background/keyring";
 import { AnimatePresence, motion } from "framer-motion";
@@ -114,6 +119,7 @@ export const Setup: React.FC = () => {
       const prettyAccountSecret =
         accountSecret.t === "Mnemonic" ? "mnemonic"
         : accountSecret.t === "PrivateKey" ? "private key"
+        : accountSecret.t === "ShieldedKeys" ? "spending key"
         : assertNever(accountSecret);
       setCompletionStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
 
@@ -122,15 +128,19 @@ export const Setup: React.FC = () => {
       if (!parentAccount) {
         throw new Error("Background returned failure when creating account");
       }
-      setParentAccountStore(parentAccount);
 
-      // Create shielded account
-      setCompletionStatusInfo("Generating Shielded Account");
-      const shieldedAccount = await accountManager.saveShieldedAccount(
-        details,
-        parentAccount
-      );
-      setShieldedAccount(shieldedAccount);
+      if (parentAccount.type !== AccountType.ShieldedKeys) {
+        setParentAccountStore(parentAccount);
+        // Create shielded account
+        setCompletionStatusInfo("Generating Shielded Account");
+        const shieldedAccount = await accountManager.saveShieldedAccount(
+          details,
+          parentAccount
+        );
+        setShieldedAccount(shieldedAccount);
+      } else {
+        setShieldedAccount(parentAccount);
+      }
       setCompletionStatus(CompletionStatus.Completed);
       setCompletionStatusInfo("Done!");
     } catch (e) {

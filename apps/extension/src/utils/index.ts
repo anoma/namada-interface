@@ -1,8 +1,8 @@
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import {
-  Account,
   AccountType,
   DerivedAccount,
+  NamadaKeychainAccount,
   Path,
   TransferProps,
   TxProps,
@@ -79,6 +79,23 @@ export const filterPrivateKeyPrefix = (privateKey: string): string =>
   privateKey.length === PRIVATE_KEY_MAX_LENGTH + 2 ?
     privateKey.replace(/^00/, "")
   : privateKey;
+
+const SPENDING_KEY_MAX_LENGTH = 284;
+const SPENDING_KEY_BECH32M_PREFIX = "zsknam1";
+export type SpendingKeyError =
+  | { t: "IncorrectLength"; length: number }
+  | { t: "BadPrefix"; prefix: string };
+
+// Spending key basic validation, ignore empty field
+export const validateSpendingKey = (
+  spendingKey: string
+): Result<null, SpendingKeyError> =>
+  spendingKey.length === 0 ? Result.ok(null)
+  : spendingKey.length !== SPENDING_KEY_MAX_LENGTH ?
+    Result.err({ t: "IncorrectLength", length: 284 })
+  : !/^zsknam1/.test(spendingKey) ?
+    Result.err({ t: "BadPrefix", prefix: SPENDING_KEY_BECH32M_PREFIX })
+  : Result.ok(null);
 
 // Convert any Uint8Arrays in TxProps to string, and construct EncodedTxData
 export const toEncodedTx = (txProps: TxProps): EncodedTxData => ({
@@ -183,11 +200,15 @@ export const parseTransferType = (
  * @param derivedAccount - Derived account type returned from keyring
  * @returns Account type for public API
  */
-export const toPublicAccount = (derivedAccount: DerivedAccount): Account => {
+export const toPublicAccount = (
+  derivedAccount: DerivedAccount
+): NamadaKeychainAccount => {
   const {
+    id,
     alias,
     address,
     type,
+    parentId,
     publicKey,
     owner,
     pseudoExtendedKey,
@@ -195,9 +216,11 @@ export const toPublicAccount = (derivedAccount: DerivedAccount): Account => {
     timestamp,
   } = derivedAccount;
   const isShielded = type === AccountType.ShieldedKeys;
-  const account: Account = {
+  const account: NamadaKeychainAccount = {
+    id,
     alias,
     address,
+    parentId,
     type,
   };
   if (isShielded) {

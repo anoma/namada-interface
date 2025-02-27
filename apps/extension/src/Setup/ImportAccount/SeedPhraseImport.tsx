@@ -15,7 +15,12 @@ import { Ports } from "router";
 import { SeedPhraseList } from "Setup/Common";
 import { AdvancedOptions } from "Setup/Common/AdvancedOptions";
 import { AdvancedOptionsMenu } from "Setup/Common/AdvancedOptionsMenu";
-import { fillArray, filterPrivateKeyPrefix, validatePrivateKey } from "utils";
+import {
+  fillArray,
+  filterPrivateKeyPrefix,
+  validatePrivateKey,
+  validateSpendingKey,
+} from "utils";
 
 type Props = {
   onConfirm: (accountSecret: AccountSecret) => void;
@@ -32,6 +37,7 @@ enum SecretType {
   PrivateKey = 1,
   MnemonicTwelveWords = SHORT_PHRASE_COUNT,
   MnemonicTwentyFourWords = LONG_PHRASE_COUNT,
+  SpendingKey = 4,
 }
 
 export const SeedPhraseImport: React.FC<Props> = ({
@@ -43,11 +49,12 @@ export const SeedPhraseImport: React.FC<Props> = ({
 }) => {
   const requester = useRequester();
   const [privateKey, setPrivateKey] = useState("");
+  const [spendingKey, setSpendingKey] = useState("");
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [passphrase, setPassphrase] = useState("");
   const [bip39Passphrase, setBip39Passphrase] = useState("");
   const [invalidWordIndex, setInvalidWordIndex] = useState<number>();
-  const [mnemonicType, setMnemonicType] = useState<SecretType>(
+  const [secretType, setSecretType] = useState<SecretType>(
     SecretType.MnemonicTwelveWords
   );
   const [mnemonicError, setMnemonicError] = useState<string>();
@@ -77,14 +84,32 @@ export const SeedPhraseImport: React.FC<Props> = ({
     }
   })();
 
+  const spendingKeyError = (() => {
+    const validation = validateSpendingKey(spendingKey);
+    if (validation.ok) {
+      return "";
+    } else {
+      switch (validation.error.t) {
+        case "IncorrectLength":
+          return `Spending key must be of length ${validation.error.length}`;
+        case "BadPrefix":
+          return `Invalid prefix! Spending keys begin with ${validation.error.prefix}`;
+        default:
+          return assertNever(validation.error);
+      }
+    }
+  })();
+
   const isSubmitButtonDisabled =
-    mnemonicType === SecretType.PrivateKey ?
+    secretType === SecretType.PrivateKey ?
       privateKey === "" || privateKeyError !== ""
-    : mnemonics.slice(0, mnemonicType).some((mnemonic) => !mnemonic);
+    : secretType === SecretType.SpendingKey ?
+      spendingKey === "" || spendingKeyError !== ""
+    : mnemonics.slice(0, secretType).some((mnemonic) => !mnemonic);
 
   const onPaste = useCallback(
     (index: number, e: React.ClipboardEvent<HTMLInputElement>) => {
-      let currentLength = mnemonicType;
+      let currentLength = secretType;
       const text = e.clipboardData.getData("Text");
       const pastedMnemonics = text
         .trim()
@@ -94,7 +119,7 @@ export const SeedPhraseImport: React.FC<Props> = ({
 
       // If pasted text has more than SHORT_PHRASE_COUNT words, we automatically toggle words count
       if (pastedMnemonicsLength > SHORT_PHRASE_COUNT) {
-        setMnemonicType(SecretType.MnemonicTwentyFourWords);
+        setSecretType(SecretType.MnemonicTwentyFourWords);
         currentLength = SecretType.MnemonicTwentyFourWords;
       }
 
@@ -117,7 +142,7 @@ export const SeedPhraseImport: React.FC<Props> = ({
       }
       // Otherwise we just paste the text into the focused input - default behavior
     },
-    [mnemonicType]
+    [secretType]
   );
 
   const onInputChange = useCallback(
@@ -130,14 +155,19 @@ export const SeedPhraseImport: React.FC<Props> = ({
   );
 
   const onSubmit = useCallback(async () => {
-    if (mnemonicType === SecretType.PrivateKey) {
+    if (secretType === SecretType.PrivateKey) {
       // TODO: validate here
       onConfirm({
         t: "PrivateKey",
         privateKey: filterPrivateKeyPrefix(privateKey),
       });
+    } else if (secretType === SecretType.SpendingKey) {
+      onConfirm({
+        t: "ShieldedKeys",
+        spendingKey,
+      });
     } else {
-      const actualMnemonics = mnemonics.slice(0, mnemonicType);
+      const actualMnemonics = mnemonics.slice(0, secretType);
       const phrase = actualMnemonics.join(" ");
       const { isValid, error } =
         await requester.sendMessage<ValidateMnemonicMsg>(
@@ -164,7 +194,14 @@ export const SeedPhraseImport: React.FC<Props> = ({
         }
       }
     }
-  }, [mnemonics, mnemonicType, privateKey, passphrase, showAdvancedOptions]);
+  }, [
+    mnemonics,
+    secretType,
+    privateKey,
+    spendingKey,
+    passphrase,
+    showAdvancedOptions,
+  ]);
 
   return (
     <>
@@ -173,11 +210,16 @@ export const SeedPhraseImport: React.FC<Props> = ({
         gap={1}
         className="text-sm list-disc mb-5 px-6 text-white font-medium"
       >
-        <li>
-          Enter your seed phrase in the right order without capitalisation,
-          punctuation symbols or spaces.
-        </li>
-        <li>Or copy and paste your entire phrase. </li>
+        {secretType !== SecretType.PrivateKey &&
+          secretType !== SecretType.SpendingKey && (
+            <>
+              <li>
+                Enter your seed phrase in the right order without
+                capitalisation, punctuation symbols or spaces.
+              </li>
+              <li>Or copy and paste your entire phrase.</li>
+            </>
+          )}
       </Stack>
       <Stack
         as="form"
@@ -192,7 +234,7 @@ export const SeedPhraseImport: React.FC<Props> = ({
           <RadioGroup
             id="mnemonicLength"
             groupLabel="Number of seeds"
-            value={mnemonicType.toString()}
+            value={secretType.toString()}
             options={[
               {
                 text: "12 words",
@@ -206,30 +248,38 @@ export const SeedPhraseImport: React.FC<Props> = ({
                 text: "Private Key",
                 value: SecretType.PrivateKey.toString(),
               },
+              {
+                text: "Spending Key",
+                value: SecretType.SpendingKey.toString(),
+              },
             ]}
             onChange={(value: string) => {
-              if (Number(value) === SecretType.PrivateKey) {
+              if (
+                Number(value) === SecretType.PrivateKey ||
+                Number(value) === SecretType.SpendingKey
+              ) {
                 setShowAdvancedOptions(false);
                 setPassphrase("");
               }
-              setMnemonicType(Number(value));
+              setSecretType(Number(value));
             }}
           />
 
-          {mnemonicType !== SecretType.PrivateKey && (
-            <SeedPhraseList
-              invalidWordIndex={invalidWordIndex}
-              sensitive={false}
-              columns={
-                mnemonicType === SecretType.MnemonicTwentyFourWords ? 4 : 3
-              }
-              words={fillArray(mnemonics.slice(0, mnemonicType), mnemonicType)}
-              onChange={onInputChange}
-              onPaste={onPaste}
-            />
-          )}
+          {secretType !== SecretType.PrivateKey &&
+            secretType !== SecretType.SpendingKey && (
+              <SeedPhraseList
+                invalidWordIndex={invalidWordIndex}
+                sensitive={false}
+                columns={
+                  secretType === SecretType.MnemonicTwentyFourWords ? 4 : 3
+                }
+                words={fillArray(mnemonics.slice(0, secretType), secretType)}
+                onChange={onInputChange}
+                onPaste={onPaste}
+              />
+            )}
 
-          {mnemonicType === SecretType.PrivateKey && (
+          {secretType === SecretType.PrivateKey && (
             <Input
               className="w-full"
               label="Private key"
@@ -240,20 +290,33 @@ export const SeedPhraseImport: React.FC<Props> = ({
               error={privateKeyError}
             />
           )}
+
+          {secretType === SecretType.SpendingKey && (
+            <Input
+              className="w-full"
+              label="Spending key"
+              variant="PasswordOnBlur"
+              value={spendingKey}
+              placeholder="Enter your spending key"
+              onChange={(e) => setSpendingKey(e.target.value)}
+              error={spendingKeyError}
+            />
+          )}
         </Stack>
         <Stack direction="vertical" gap={4}>
-          {mnemonicType !== SecretType.PrivateKey && (
-            <AdvancedOptions>
-              <AdvancedOptionsMenu
-                bip44Path={bip44Path}
-                zip32Path={zip32Path}
-                setBip44Path={setBip44Path}
-                setZip32Path={setZip32Path}
-                passphrase={bip39Passphrase}
-                setPassphrase={setBip39Passphrase}
-              />
-            </AdvancedOptions>
-          )}
+          {secretType === SecretType.MnemonicTwelveWords ||
+            (secretType === SecretType.MnemonicTwentyFourWords && (
+              <AdvancedOptions>
+                <AdvancedOptionsMenu
+                  bip44Path={bip44Path}
+                  zip32Path={zip32Path}
+                  setBip44Path={setBip44Path}
+                  setZip32Path={setZip32Path}
+                  passphrase={bip39Passphrase}
+                  setPassphrase={setBip39Passphrase}
+                />
+              </AdvancedOptions>
+            ))}
           <ActionButton
             size="lg"
             data-testid="setup-import-keys-import-button"

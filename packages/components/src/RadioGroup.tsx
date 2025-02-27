@@ -7,9 +7,9 @@ const radioGroup = tv({
     wrapper:
       "inline-flex bg-black rounded-[60px] p-0.5 overflow-hidden mx-auto",
     fieldset: "flex relative w-full h-full",
-    container: "flex text-neutral-600 min-w-30 text-center",
+    container: "flex text-neutral-600 min-w-28 text-center",
     label:
-      "cursor-pointer text-xs font-bold px-6 py-1.5 relative w-full select-none active:top-px",
+      "cursor-pointer text-xs font-bold px-0 py-1.5 relative w-full select-none active:top-px",
     input: "unset [&:checked+span]:text-white",
     text: "relative transition-color duration-100 ease-out z-10 select-none",
     indicator: clsx(
@@ -86,9 +86,9 @@ export const RadioGroup = ({
                 value={option.value.toString()}
                 checked={value ? option.value === value : idx === 0}
                 ref={(ref) =>
-                  option.value === value || (!value && idx === 0)
-                    ? (initialSelectedRadio.current = ref)
-                    : null
+                  option.value === value || (!value && idx === 0) ?
+                    (initialSelectedRadio.current = ref)
+                  : null
                 }
                 onChange={(e) =>
                   _onChange(e.currentTarget, option.value.toString())

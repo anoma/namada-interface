@@ -2,6 +2,8 @@ import { CryptoRecord } from "@namada/sdk/web";
 import { StoredRecord } from "@namada/storage";
 import { AccountType, DerivedAccount, Path } from "@namada/types";
 
+export type AccountSource = "imported" | "generated";
+
 export interface AccountStore extends StoredRecord {
   alias: string;
   address: string;
@@ -12,7 +14,7 @@ export interface AccountStore extends StoredRecord {
   parentId?: string;
   pseudoExtendedKey?: string;
   type: AccountType;
-  source: "imported" | "generated";
+  source: AccountSource;
   timestamp: number;
 }
 
@@ -34,14 +36,9 @@ export type TabStore = {
   timestamp: number;
 };
 
-export type ParentAccount =
-  | AccountType.Mnemonic
-  | AccountType.Ledger
-  | AccountType.PrivateKey;
-
 export type ActiveAccountStore = {
   id: string;
-  type: ParentAccount;
+  type: AccountType;
 };
 
 export type DurablityStore = {
@@ -59,7 +56,8 @@ export enum DeleteAccountError {
 
 type Mnemonic = { t: "Mnemonic"; seedPhrase: string[]; passphrase: string };
 type PrivateKey = { t: "PrivateKey"; privateKey: string };
-export type AccountSecret = Mnemonic | PrivateKey;
+type SpendingKey = { t: "ShieldedKeys"; spendingKey: string };
+export type AccountSecret = Mnemonic | PrivateKey | SpendingKey;
 
 export type MnemonicValidationResponse = {
   isValid: boolean;
