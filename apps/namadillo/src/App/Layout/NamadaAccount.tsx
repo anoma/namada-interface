@@ -29,7 +29,7 @@ export const NamadaAccount = (): JSX.Element => {
   };
 
   return (
-    <div className="flex items-center rounded-sm text-sm text-white bg-rblack px-1">
+    <div className="flex items-center rounded-sm text-sm text-white bg-black px-1">
       <span className="flex items-center gap-2 relative group/tooltip">
         <CopyToClipboardControl
           className={accountIconButtonClassname}

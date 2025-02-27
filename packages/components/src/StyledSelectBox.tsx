@@ -110,7 +110,7 @@ export const StyledSelectBox = <T extends string = string>({
         <ul
           className={twMerge(
             "hidden absolute top-[2.5em] left-1/2 -translate-x-1/2 flex-col hidden",
-            "rounded-sm pt-2 pb-3 px-5 cursor-pointer bg-rblack z-[9999]",
+            "rounded-sm pt-2 pb-3 px-5 cursor-pointer bg-black z-[9999]",
             clsx({ flex: open }),
             listContainerClassList
           )}

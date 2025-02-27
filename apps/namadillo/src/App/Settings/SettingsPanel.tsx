@@ -29,7 +29,7 @@ export const SettingsPanel = (): JSX.Element => {
           className={clsx(
             "flex flex-col gap-8 ml-auto pointer-events-auto",
             "max-w-[400px] rounded-md text-white h-full",
-            "bg-rblack border border-neutral-700 p-5"
+            "bg-black border border-neutral-700 p-5"
           )}
         >
           <header className="relative">

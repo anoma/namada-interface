@@ -36,7 +36,7 @@ export const StyledTableRow = ({
         className={twMerge(
           clsx("group/row", {
             "bg-neutral-900": index % 2 === 0,
-            "bg-rblack": index % 2,
+            "bg-black": index % 2,
           }),
           rowsClassName
         )}

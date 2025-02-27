@@ -15,7 +15,7 @@ export const Tooltip = ({
   return (
     <span
       className={twMerge(
-        "flex bg-rblack text-xs absolute opacity-0 pointer-events-none",
+        "flex bg-black text-xs absolute opacity-0 pointer-events-none",
         "text-white rounded-sm px-4 py-1",
         "border border-neutral-700",
         "transition-all duration-500 ease-out-expo",

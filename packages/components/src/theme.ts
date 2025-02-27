@@ -4,7 +4,7 @@ export const colors = {
   orange: "#FF8A00",
   fail: "#DD1539",
   white: "#fff",
-  black: "#0B0B0B",
+  black: "#0F0F0F",
   gray: "#292929",
   rblack: "#000000",
   upcoming: "#7DA0A8",

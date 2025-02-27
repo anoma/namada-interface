@@ -26,7 +26,7 @@ export const ValidatorInfoPanel = ({
   return (
     <article
       className={twMerge(
-        "absolute w-[340px] min-h-[400px] bg-rblack border border-yellow",
+        "absolute w-[340px] min-h-[400px] bg-black border border-yellow",
         "text-sm rounded-md px-5 pt-11 pb-6 z-50",
         articleClassName
       )}
