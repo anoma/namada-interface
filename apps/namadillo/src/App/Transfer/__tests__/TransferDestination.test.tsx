@@ -16,7 +16,14 @@ import { parseChainInfo } from "../common";
 describe("Component: TransferDestination", () => {
   it("should render the component with the default props", () => {
     render(<TransferDestination />);
-    expect(screen.getByText(/select chain/i)).toBeInTheDocument();
+    const chainButton = screen.queryByText(/select chain/i);
+    expect(chainButton).not.toBeInTheDocument();
+  });
+
+  it("should render the component with chain selectable", () => {
+    render(<TransferDestination openChainSelector={jest.fn()} />);
+    const chainButton = screen.getByText(/select chain/i);
+    expect(chainButton).toBeInTheDocument();
   });
 
   it("should render the TabSelector for shielded/transparent when onChangeShielded is provided", () => {
