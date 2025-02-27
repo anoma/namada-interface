@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.14.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.13.0...namadillo@v1.14.0) (2025-02-27)
+
+
+### Features
+
+* Limit ibc withdrawal of assets only for the same chain ([#1783](https://github.com/anoma/namada-interface/issues/1783)) ([8a960b1](https://github.com/anoma/namada-interface/commit/8a960b14ced2914185b017785f65a249eff200e7))
+* Tweaking black color on all apps ([#1784](https://github.com/anoma/namada-interface/issues/1784)) ([a9460aa](https://github.com/anoma/namada-interface/commit/a9460aa0ab0ea19605f8b7dd1e754f88f65d5501))
+
 ## [1.13.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.12.1...namadillo@v1.13.0) (2025-02-27)
 
 
