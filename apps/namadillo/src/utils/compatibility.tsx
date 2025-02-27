@@ -1,7 +1,5 @@
-import { routes } from "App/routes";
 import compatibility from "compatibility.json";
 import { wallets } from "integrations";
-import { Link } from "react-router-dom";
 import semver from "semver";
 import semverSatisfies from "semver/functions/satisfies";
 import semverLtr from "semver/ranges/ltr";
@@ -48,9 +46,11 @@ export const checkIndexerCompatibilityErrors = (
   if (checkResult === CompatibilityOutput.IncompatibleVersion) {
     return (
       <>
-        You&apos;re using an outdated version of Namada Indexer. Please update
-        your indexer URL in the{" "}
-        <Link to={routes.settingsAdvanced}>Advanced Settings</Link> section.
+        This Namadillo instance is running outdated infra. Please try another
+        version on{" "}
+        <a href="https://namada.net/apps#interfaces" rel="noreferrer">
+          Namada Apps
+        </a>
       </>
     );
   }
@@ -60,7 +60,11 @@ export const checkIndexerCompatibilityErrors = (
       <>
         Your Namadillo version is not compatible with the current Namada
         Indexer. Please upgrade your web interface or pick a different one from
-        the <a href="https://namada.net/apps#interfaces">Namada Apps</a> list.
+        the{" "}
+        <a href="https://namada.net/apps#interfaces" rel="noreferrer">
+          Namada Apps
+        </a>{" "}
+        list.
       </>
     );
   }
@@ -107,7 +111,10 @@ export const checkKeychainCompatibilityError = (
       <>
         Your Namadillo version is not compatible with the keychain installed.
         Please upgrade your web interface or pick a different one from the{" "}
-        <a href="https://namada.net/apps#interfaces">Namada Apps</a> list.
+        <a href="https://namada.net/apps#interfaces" rel="noreferrer">
+          Namada Apps
+        </a>{" "}
+        list.
       </>
     );
   }
@@ -137,7 +144,10 @@ export const checkInterfaceCompatibilityError =
           Namadillo is running an outdated version and some features may not
           work as intended. Please wait for the operator to update to{" "}
           <strong>{requiredInterfaceVersion}</strong>. More on{" "}
-          <a href="https://namada.net/apps#interfaces">Namada Apps</a>.
+          <a href="https://namada.net/apps#interfaces" rel="noreferrer">
+            Namada Apps
+          </a>
+          .
         </>
       );
     }
