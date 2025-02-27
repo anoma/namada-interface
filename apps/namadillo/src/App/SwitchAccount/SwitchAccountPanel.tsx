@@ -1,4 +1,5 @@
 import { Checkbox, Modal } from "@namada/components";
+import { AccountType } from "@namada/types";
 import { ModalTransition } from "App/Common/ModalTransition";
 import {
   accountsAtom,
@@ -44,7 +45,7 @@ export const SwitchAccountPanel = (): JSX.Element => {
           </header>
           <div className="overflow-auto dark-scrollbar pb-5">
             {data
-              ?.filter((i) => !i.parentId)
+              ?.filter((i) => i.type !== AccountType.ShieldedKeys)
               .map(({ alias, address }) => (
                 <button
                   key={alias}
