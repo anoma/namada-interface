@@ -16,7 +16,7 @@ export const Default: Story = {
     title: "Available NAM to Stake",
     mainAmount: "315 NAM",
     alternativeAmount: "$100.34",
-    className: "bg-rblack border-yellow border",
+    className: "bg-black border-yellow border",
     callToAction: (
       <ActionButton className="px-8" size="xs" color="yellow">
         Stake

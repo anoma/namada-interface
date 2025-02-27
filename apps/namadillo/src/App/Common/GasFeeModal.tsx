@@ -104,7 +104,7 @@ export const GasFeeModal = ({
       <div
         className={twMerge(
           "fixed min-w-[550px] top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2",
-          "px-6 py-7 bg-rblack border border-neutral-500 rounded-md"
+          "px-6 py-7 bg-black border border-neutral-500 rounded-md"
         )}
       >
         <i

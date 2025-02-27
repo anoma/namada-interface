@@ -5,7 +5,7 @@ const insetLabel = tv({
   base: "rounded-sm w-fit px-4 py-1 text-neutral-450",
   variants: {
     color: {
-      dark: "bg-rblack",
+      dark: "bg-black",
       light: "bg-[#1B1B1B]",
     },
   },

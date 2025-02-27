@@ -41,7 +41,7 @@ export const Modal = ({
         transition={{ duration: 0 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed top-0 left-0 w-full h-full cursor-pointer backdrop-blur-lg z-[9997] bg-rblack/50"
+        className="fixed top-0 left-0 w-full h-full cursor-pointer backdrop-blur-lg z-[9997] bg-black/50"
       />
       <div
         {...props}

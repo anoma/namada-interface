@@ -103,7 +103,7 @@ export const StakingRewards = (): JSX.Element => {
         containerProps={{ className: "md:!w-[540px] md:!h-[auto]" }}
         contentProps={{ className: "flex" }}
       >
-        <Stack gap={8} className="bg-rblack py-7 px-8 rounded-md flex-1">
+        <Stack gap={8} className="bg-black py-7 px-8 rounded-md flex-1">
           <Stack gap={2} className="items-center ">
             <img src={claimRewardsSvg} alt="" className="w-22 mx-auto" />
             <div>
