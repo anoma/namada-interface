@@ -68,6 +68,11 @@ export const MyValidatorsFilter = ({
               ariaLabel: "Active",
             },
             {
+              id: "belowThreshold",
+              value: "Active Below Threshold",
+              ariaLabel: "Active Below Threshold",
+            },
+            {
               id: "jailed",
               value: "Jailed",
               ariaLabel: "Jailed",
