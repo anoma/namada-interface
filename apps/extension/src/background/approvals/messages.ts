@@ -10,6 +10,7 @@ export enum MessageType {
   SubmitApprovedSignTx = "submit-approved-sign-tx",
   SubmitApprovedSignArbitrary = "submit-approved-sign-arbitrary",
   SubmitApprovedSignLedgerTx = "submit-approved-sign-ledger-tx",
+  ReplaceMaspSignatures = "replace-masp-signatures",
   RejectSignArbitrary = "reject-sign-arbitrary",
   ConnectInterfaceResponse = "connect-interface-response",
   DisconnectInterfaceResponse = "disconnect-interface-response",
@@ -19,6 +20,7 @@ export enum MessageType {
   QuerySignArbitraryData = "query-sign-arbitrary-data",
   QueryPendingTxBytes = "query-pending-tx-bytes",
   CheckIsApprovedSite = "check-is-approved-site",
+  SignMaspMsg = "sign-masp",
 }
 
 export class SubmitApprovedSignTxMsg extends Message<void> {
@@ -46,6 +48,31 @@ export class SubmitApprovedSignTxMsg extends Message<void> {
   }
 }
 
+export class SignMaspMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.SignMaspMsg;
+  }
+
+  constructor(
+    public readonly msgId: string,
+    public readonly signer: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["msgId", "signer"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SignMaspMsg.type();
+  }
+}
+
 export class SubmitApprovedSignLedgerTxMsg extends Message<void> {
   public static type(): MessageType {
     return MessageType.SubmitApprovedSignLedgerTx;
@@ -68,6 +95,32 @@ export class SubmitApprovedSignLedgerTxMsg extends Message<void> {
 
   type(): string {
     return SubmitApprovedSignLedgerTxMsg.type();
+  }
+}
+
+export class ReplaceMaspSignaturesMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.ReplaceMaspSignatures;
+  }
+
+  constructor(
+    public readonly msgId: string,
+    // base64 encoded
+    public readonly signatures: string[]
+  ) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["msgId", "signatures"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return ReplaceMaspSignaturesMsg.type();
   }
 }
 

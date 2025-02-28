@@ -1,13 +1,16 @@
 // Make Ledger available for direct-import as it is not dependent on Sdk initialization
 export {
+  LEDGER_MIN_VERSION_ZIP32,
   Ledger,
-  initLedgerHIDTransport,
   initLedgerUSBTransport,
+  ledgerUSBList,
+  requestLedgerDevice,
 } from "./ledger";
 export type {
   LedgerAddressAndPublicKey,
-  LedgerShieldedKeys,
+  LedgerProofGenerationKey,
   LedgerStatus,
+  LedgerViewingKey,
 } from "./ledger";
 
 // Export types
@@ -42,6 +45,11 @@ export {
   publicKeyToBech32,
 } from "./keys";
 
+export {
+  ExtendedViewingKey,
+  ProofGenerationKey,
+  PseudoExtendedKey,
+} from "./masp";
 export type { Masp } from "./masp";
 export { PhraseSize } from "./mnemonic";
 export type { Mnemonic } from "./mnemonic";

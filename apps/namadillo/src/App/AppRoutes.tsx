@@ -30,6 +30,7 @@ import { NamadaTransfer } from "./NamadaTransfer/NamadaTransfer";
 import { routes } from "./routes";
 import { Advanced } from "./Settings/Advanced";
 import { EnableFeatures } from "./Settings/EnableFeatures";
+import { SettingsLedger } from "./Settings/SettingsLedger";
 import { SettingsMain } from "./Settings/SettingsMain";
 import { SettingsMASP } from "./Settings/SettingsMASP";
 import { SettingsPanel } from "./Settings/SettingsPanel";
@@ -146,6 +147,7 @@ export const MainRoutes = (): JSX.Element => {
               element={<SettingsSignArbitrary />}
             />
             <Route path={routes.settingsMASP} element={<SettingsMASP />} />
+            <Route path={routes.settingsLedger} element={<SettingsLedger />} />
             <Route
               path={routes.settingsFeatures}
               element={<EnableFeatures />}
