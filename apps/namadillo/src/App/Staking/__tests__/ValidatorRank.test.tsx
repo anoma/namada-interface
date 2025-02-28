@@ -28,9 +28,9 @@ describe("Component: ValidatorRank", () => {
     assertDashIsPresent();
   });
 
-  test("displays em dash when status is belowThreshold", () => {
+  test("displays rank when status is belowThreshold", () => {
     render(<ValidatorRank rank={rank} status="belowThreshold" />);
-    assertDashIsPresent();
+    assertContentIsPresent();
   });
 
   test("displays semi transparent number when status is inactive", () => {
