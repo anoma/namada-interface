@@ -34,6 +34,18 @@
 * Move optional value to end of schema, no empty memo ([#1379](https://github.com/anoma/namada-interface/issues/1379)) ([ee49600](https://github.com/anoma/namada-interface/commit/ee496001aad9291e3bb224f91ac5caf31a1143db))
 * Replace tally type with two fifths ([#1252](https://github.com/anoma/namada-interface/issues/1252)) ([785d9ad](https://github.com/anoma/namada-interface/commit/785d9ad5d6cf7d7abab53ae9cf812fbbfa84b0f7))
 
+## [0.5.0](https://github.com/anoma/namada-interface/compare/types@v0.4.0...types@v0.5.0) (2025-02-28)
+
+
+### Features
+
+* Extension - Add view and import Spending Key ([#1744](https://github.com/anoma/namada-interface/issues/1744)) ([8306f47](https://github.com/anoma/namada-interface/commit/8306f47aefc51bb4da1f5466637f3697ef87dcbf))
+
+
+### Bug Fixes
+
+* Proposals checksums and data download ([#1721](https://github.com/anoma/namada-interface/issues/1721)) ([e942a75](https://github.com/anoma/namada-interface/commit/e942a7578e4d8b17898e7c68599883eaa943bde8))
+
 ## 0.3.0 (2024-12-02)
 
 
