@@ -1,7 +1,9 @@
 import { Chain, Chains } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
+import { IconTooltip } from "App/Common/IconTooltip";
 import { InlineError } from "App/Common/InlineError";
+import { routes } from "App/routes";
 import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -9,12 +11,15 @@ import { useKeychainVersion } from "hooks/useKeychainVersion";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { wallets } from "integrations";
 import { useAtomValue } from "jotai";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { BsQuestionCircleFill } from "react-icons/bs";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Address,
   AddressWithAssetAndAmount,
   AddressWithAssetAndAmountMap,
   GasConfig,
+  LedgerAccountInfo,
   WalletProvider,
 } from "types";
 import { filterAvailableAsssetsWithBalance } from "utils/assets";
@@ -42,6 +47,8 @@ type TransferModuleConfig = {
   onChangeWallet?: (wallet: WalletProvider) => void;
   onChangeChain?: (chain: Chain) => void;
   onChangeShielded?: (isShielded: boolean) => void;
+  // Additional information if selected account is a ledger
+  ledgerAccountInfo?: LedgerAccountInfo;
 };
 
 export type TransferSourceProps = TransferModuleConfig & {
@@ -106,6 +113,7 @@ type ValidationResult =
   | "NotEnoughBalance"
   | "NotEnoughBalanceForFees"
   | "KeychainNotCompatibleWithMasp"
+  | "NoLedgerConnected"
   | "Ok";
 
 export const TransferModule = ({
@@ -127,6 +135,8 @@ export const TransferModule = ({
   onComplete,
   buttonTextErrors = {},
 }: TransferModuleProps): JSX.Element => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
   const [sourceChainModalOpen, setSourceChainModalOpen] = useState(false);
   const [destinationChainModalOpen, setDestinationChainModalOpen] =
@@ -206,6 +216,12 @@ export const TransferModule = ({
       return "NotEnoughBalance";
     } else if (!destination.wallet && !destination.customAddress) {
       return "NoDestinationWallet";
+    } else if (
+      (source.isShielded || destination.isShielded) &&
+      source.ledgerAccountInfo &&
+      !source.ledgerAccountInfo.deviceConnected
+    ) {
+      return "NoLedgerConnected";
     } else {
       return "Ok";
     }
@@ -326,7 +342,7 @@ export const TransferModule = ({
     return defaultText;
   };
 
-  const getButtonText = (): string => {
+  const getButtonText = (): string | JSX.Element => {
     if (isSubmitting) {
       return submittingText || "Submitting...";
     }
@@ -342,7 +358,6 @@ export const TransferModule = ({
 
       case "NoSelectedAsset":
         return getText("Select Asset");
-
       case "NoDestinationWallet":
         return getText("Select Destination Wallet");
 
@@ -354,12 +369,12 @@ export const TransferModule = ({
 
       case "NotEnoughBalance":
         return getText("Not enough balance");
-
       case "NotEnoughBalanceForFees":
         return getText("Not enough balance to pay for transaction fees");
-
       case "KeychainNotCompatibleWithMasp":
         return getText("Keychain is not compatible with MASP");
+      case "NoLedgerConnected":
+        return getText("Connect your ledger and open the Namada App");
     }
 
     if (!availableAmountMinusFees) {
@@ -371,6 +386,34 @@ export const TransferModule = ({
 
   const buttonColor =
     destination.isShielded || source.isShielded ? "yellow" : "white";
+
+  const renderLedgerTooltip = useCallback(
+    () => (
+      <IconTooltip
+        className="absolute w-4 h-4 top-0 right-0 mt-4 mr-5"
+        icon={<BsQuestionCircleFill className="w-4 h-4 text-yellow" />}
+        text={
+          <span>
+            If your device is connected and the app is open, please go to{" "}
+            <Link
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(routes.settingsLedger, {
+                  state: { backgroundLocation: location },
+                });
+              }}
+              to={routes.settingsLedger}
+              className="text-yellow"
+            >
+              Settings
+            </Link>{" "}
+            and pair your device with Namadillo.
+          </span>
+        }
+      />
+    ),
+    []
+  );
 
   return (
     <>
@@ -467,16 +510,21 @@ export const TransferModule = ({
             />
           )}
           {!isSubmitting && onSubmitTransfer && (
-            <ActionButton
-              outlineColor={buttonColor}
-              backgroundColor={buttonColor}
-              backgroundHoverColor="transparent"
-              textColor="black"
-              textHoverColor={buttonColor}
-              disabled={validationResult !== "Ok" || isSubmitting}
-            >
-              {getButtonText()}
-            </ActionButton>
+            <div className="relative">
+              <ActionButton
+                outlineColor={buttonColor}
+                backgroundColor={buttonColor}
+                backgroundHoverColor="transparent"
+                textColor="black"
+                textHoverColor={buttonColor}
+                disabled={validationResult !== "Ok" || isSubmitting}
+              >
+                {getButtonText()}
+              </ActionButton>
+
+              {validationResult === "NoLedgerConnected" &&
+                renderLedgerTooltip()}
+            </div>
           )}
           {validationResult === "KeychainNotCompatibleWithMasp" && (
             <div className="text-center text-fail text-xs selection:bg-fail selection:text-white mb-12">

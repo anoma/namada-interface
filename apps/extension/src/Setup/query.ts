@@ -87,11 +87,28 @@ export class AccountManager {
   async saveLedgerAccount(
     details: LedgerAccountDetails
   ): Promise<AccountStore> {
-    // TODO: Support zip32 in upcoming PR!
-    const { alias, address, publicKey, bip44Path, zip32Path: _ } = details;
+    const {
+      alias,
+      address,
+      publicKey,
+      bip44Path,
+      zip32Path,
+      extendedViewingKey,
+      pseudoExtendedKey,
+      paymentAddress,
+    } = details;
     return (await this.requester.sendMessage(
       Ports.Background,
-      new AddLedgerAccountMsg(alias, address, publicKey, bip44Path)
+      new AddLedgerAccountMsg(
+        alias,
+        address,
+        publicKey,
+        bip44Path,
+        zip32Path,
+        extendedViewingKey,
+        pseudoExtendedKey,
+        paymentAddress
+      )
     )) as AccountStore;
   }
 }

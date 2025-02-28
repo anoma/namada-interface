@@ -15,6 +15,7 @@ import { AccountContext } from "context";
 import { isOutdatedShieldedAccount, openSetupTab } from "utils";
 
 type Account = DerivedAccount & { outdated: boolean };
+
 /**
  * Represents the extension's settings page.
  */

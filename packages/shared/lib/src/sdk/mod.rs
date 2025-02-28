@@ -13,13 +13,15 @@ use crate::utils::set_panic_hook;
 #[cfg(feature = "web")]
 use crate::utils::to_bytes;
 use crate::utils::to_js_result;
-use args::{generate_masp_build_params, masp_sign, BuildParams};
+use args::{generate_rng_build_params, masp_sign, BuildParams, MapSaplingSigAuth};
 use gloo_utils::format::JsValueSerdeExt;
+use js_sys::Uint8Array;
 use namada_sdk::address::{Address, ImplicitAddress, MASP};
 use namada_sdk::args::{
     GenIbcShieldingTransfer, IbcShieldingTransferAsset, InputAmount, Query, TxExpiration,
 };
 use namada_sdk::borsh::{self, BorshDeserialize};
+use namada_sdk::collections::HashMap;
 use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada_sdk::hash::Hash;
 use namada_sdk::ibc::convert_masp_tx_to_ibc_memo;
@@ -29,7 +31,7 @@ use namada_sdk::key::{common, ed25519, RefTo, SigScheme};
 use namada_sdk::masp::shielded_wallet::ShieldedApi;
 use namada_sdk::masp::ShieldedContext;
 use namada_sdk::masp_primitives::transaction::components::{
-    amount::I128Sum, sapling::fees::InputView,
+    amount::I128Sum, sapling::builder::StoredBuildParams, sapling::fees::InputView,
 };
 use namada_sdk::masp_primitives::zip32::{ExtendedFullViewingKey, ExtendedKey};
 use namada_sdk::rpc::query_denom;
@@ -40,6 +42,7 @@ use namada_sdk::tendermint_rpc::Url;
 use namada_sdk::token::{Amount, DenominatedAmount, MaspEpoch};
 use namada_sdk::token::{MaspTxId, OptionExt};
 use namada_sdk::tx::data::TxType;
+use namada_sdk::tx::Section;
 use namada_sdk::tx::{
     build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
     build_reveal_pk, build_shielded_transfer, build_shielding_transfer, build_transparent_transfer,
@@ -53,22 +56,6 @@ use std::collections::BTreeMap;
 use std::str::FromStr;
 use tx::MaspSigningData;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
-
-// Maximum number of spend description randomness parameters that can be
-// generated on the hardware wallet. It is hard to compute the exact required
-// number because a given MASP source could be distributed amongst several
-// notes.
-const MAX_HW_SPEND: usize = 15;
-// Maximum number of convert description randomness parameters that can be
-// generated on the hardware wallet. It is hard to compute the exact required
-// number because the number of conversions that are used depends on the
-// protocol's current state.
-const MAX_HW_CONVERT: usize = 15;
-// Maximum number of output description randomness parameters that can be
-// generated on the hardware wallet. It is hard to compute the exact required
-// number because the number of outputs depends on the number of dummy outputs
-// introduced.
-const MAX_HW_OUTPUT: usize = 15;
 
 /// Represents the Sdk public API.
 #[wasm_bindgen]
@@ -153,12 +140,12 @@ impl Sdk {
     pub async fn load_masp_params(
         &self,
         context_dir: JsValue,
-        chain_id: &str,
+        chain_id: String,
     ) -> Result<(), JsValue> {
         let context_dir = context_dir.as_string().unwrap();
 
         let mut shielded = self.namada.shielded_mut().await;
-        *shielded = ShieldedContext::new(masp::JSShieldedUtils::new(&context_dir, chain_id).await);
+        *shielded = ShieldedContext::new(masp::JSShieldedUtils::new(&context_dir, &chain_id).await);
 
         Ok(())
     }
@@ -233,18 +220,57 @@ impl Sdk {
             }
         }
 
-        let signing_data = tx
-            .signing_tx_data()?
+        to_js_result(borsh::to_vec(&namada_tx)?)
+    }
+
+    // TODO: this should be unified with sign_masp somehow
+    pub fn sign_masp_ledger(
+        &self,
+        tx: Vec<u8>,
+        signing_data: Box<[Uint8Array]>,
+        signature: Vec<u8>,
+    ) -> Result<JsValue, JsError> {
+        let mut namada_tx: Tx = borsh::from_slice(&tx)?;
+        let signing_data = signing_data
             .iter()
-            .cloned()
-            .map(|std| (std, None))
-            .collect::<Vec<(SigningTxData, Option<MaspSigningData>)>>();
+            .map(|sd| {
+                borsh::from_slice(&sd.to_vec()).expect("Expected to deserialize signing data")
+            })
+            .collect::<Vec<tx::SigningData>>();
 
-        // Recreate the tx with the new signatures, we can pass None for masp_signing_data as it
-        // was already used
-        let tx = tx::Tx::new(namada_tx, &borsh::to_vec(&tx.args())?, signing_data)?;
+        for signing_data in signing_data {
+            let signing_tx_data = signing_data.to_signing_tx_data()?;
+            if let Some(shielded_hash) = signing_tx_data.shielded_hash {
+                let mut masp_tx = namada_tx
+                    .get_masp_section(&shielded_hash)
+                    .expect("Expected to find the indicated MASP Transaction")
+                    .clone();
 
-        to_js_result(borsh::to_vec(&tx)?)
+                let mut authorizations = HashMap::new();
+
+                let signature =
+                    namada_sdk::masp_primitives::sapling::redjubjub::Signature::try_from_slice(
+                        &signature.to_vec(),
+                    )?;
+                // TODO: this works only if we assume that we do one
+                // shielded transfer in the transaction
+                authorizations.insert(0_usize, signature);
+
+                masp_tx = (*masp_tx)
+                    .clone()
+                    .map_authorization::<namada_sdk::masp_primitives::transaction::Authorized>(
+                        (),
+                        MapSaplingSigAuth(authorizations),
+                    )
+                    .freeze()
+                    .unwrap();
+
+                namada_tx.remove_masp_section(&shielded_hash);
+                namada_tx.add_section(Section::MaspTx(masp_tx));
+            }
+        }
+
+        to_js_result(borsh::to_vec(&namada_tx)?)
     }
 
     pub async fn sign_tx(
@@ -473,10 +499,14 @@ impl Sdk {
         shielded_transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
-        let mut args = args::shielded_transfer_tx_args(shielded_transfer_msg, wrapper_tx_msg)?;
-        let bparams =
-            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
-                .await?;
+        let (mut args, bparams) =
+            args::shielded_transfer_tx_args(shielded_transfer_msg, wrapper_tx_msg)?;
+
+        let bparams = if let Some(bparams) = bparams {
+            BuildParams::StoredBuildParams(bparams)
+        } else {
+            generate_rng_build_params()
+        };
 
         let _ = &self.namada.shielded_mut().await.load().await?;
 
@@ -514,11 +544,14 @@ impl Sdk {
         unshielding_transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
-        let mut args =
+        let (mut args, bparams) =
             args::unshielding_transfer_tx_args(unshielding_transfer_msg, wrapper_tx_msg)?;
-        let bparams =
-            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
-                .await?;
+
+        let bparams = if let Some(bparams) = bparams {
+            BuildParams::StoredBuildParams(bparams)
+        } else {
+            generate_rng_build_params()
+        };
 
         let _ = &self.namada.shielded_mut().await.load().await?;
 
@@ -552,10 +585,13 @@ impl Sdk {
         shielding_transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
-        let mut args = args::shielding_transfer_tx_args(shielding_transfer_msg, wrapper_tx_msg)?;
-        let bparams =
-            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
-                .await?;
+        let (mut args, bparams) =
+            args::shielding_transfer_tx_args(shielding_transfer_msg, wrapper_tx_msg)?;
+        let bparams = if let Some(bparams) = bparams {
+            BuildParams::StoredBuildParams(bparams)
+        } else {
+            generate_rng_build_params()
+        };
         let _ = &self.namada.shielded_mut().await.load().await?;
 
         let (tx, signing_data, _) = match bparams {
@@ -576,27 +612,11 @@ impl Sdk {
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
         let args = args::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg)?;
-        let bparams =
-            generate_masp_build_params(MAX_HW_SPEND, MAX_HW_CONVERT, MAX_HW_OUTPUT, &args.tx)
-                .await?;
+        // TODO: we do not support ibc unshielding yet
+        let mut bparams = StoredBuildParams::default();
+        let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
 
-        let ((tx, signing_data, _), bparams) = match bparams {
-            BuildParams::RngBuildParams(mut bparams) => {
-                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
-                let bparams = bparams
-                    .to_stored()
-                    .ok_or_err_msg("Cannot convert bparams to stored")?;
-
-                (tx, bparams)
-            }
-            BuildParams::StoredBuildParams(mut bparams) => {
-                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
-
-                (tx, bparams)
-            }
-        };
-
-        // As we can't get ExtendedFullViewingKeys from the tx args we need to get them from the
+        // As we can't get ExtendedFullViewingKeys from the tx args, we need to get them from the
         // MASP Builder section of transaction
         let masp_signing_data = if let Some(shielded_hash) = signing_data.shielded_hash {
             let masp_builder = tx

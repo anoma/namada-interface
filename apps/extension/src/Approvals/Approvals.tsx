@@ -37,6 +37,7 @@ export type ApprovalDetails = {
   accountType: AccountType;
   msgId: string;
   txDetails: TxDetails[];
+  txType?: string;
 };
 
 export type SignArbitraryDetails = {

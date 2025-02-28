@@ -1,5 +1,4 @@
 import Transport from "@ledgerhq/hw-transport";
-import TransportHID from "@ledgerhq/hw-transport-webhid";
 import TransportUSB from "@ledgerhq/hw-transport-webusb";
 import { chains } from "@namada/chains";
 import {
@@ -12,26 +11,39 @@ import {
   ResponseVersion,
   ResponseViewKey,
 } from "@zondax/ledger-namada";
-import { makeBip44Path } from "./utils";
+import semver from "semver";
+import { makeBip44Path, makeSaplingPath } from "./utils";
 
 const { coinType } = chains.namada.bip44;
 
 export type LedgerAddressAndPublicKey = { address: string; publicKey: string };
-export type LedgerShieldedKeys = {
-  viewingKey: {
-    viewKey?: string;
-    ivk?: string;
-    ovk?: string;
-  };
-  proofGenerationKey: {
-    ak?: string;
-    nsk?: string;
-  };
+export type LedgerViewingKey = {
+  xfvk: Uint8Array;
+};
+export type LedgerProofGenerationKey = {
+  ak: Uint8Array;
+  nsk: Uint8Array;
 };
 
 export type LedgerStatus = {
   version: ResponseVersion;
   info: ResponseAppInfo;
+};
+
+export const LEDGER_MIN_VERSION_ZIP32 = "3.0.0";
+
+export type Bparams = {
+  spend: {
+    rcv: Uint8Array;
+    alpha: Uint8Array;
+  };
+  output: {
+    rcv: Uint8Array;
+    rcm: Uint8Array;
+  };
+  convert: {
+    rcv: Uint8Array;
+  };
 };
 
 /**
@@ -44,18 +56,31 @@ export const initLedgerUSBTransport = async (): Promise<Transport> => {
 };
 
 /**
- * Initialize HID transport
+ * Returns a list of ledger devices
+ * @async
+ * @returns List of USB devices
+ */
+export const ledgerUSBList = async (): Promise<USBDevice[]> => {
+  return await TransportUSB.list();
+};
+
+/**
+ * Request ledger device - opens a popup to request the user to connect a ledger device
  * @async
  * @returns Transport object
  */
-export const initLedgerHIDTransport = async (): Promise<Transport> => {
-  return await TransportHID.create();
+export const requestLedgerDevice = async (): Promise<TransportUSB> => {
+  return await TransportUSB.request();
 };
 
 export const DEFAULT_LEDGER_BIP44_PATH = makeBip44Path(coinType, {
   account: 0,
   change: 0,
   index: 0,
+});
+
+export const DEFAULT_LEDGER_ZIP32_PATH = makeSaplingPath(coinType, {
+  account: 0,
 });
 
 /**
@@ -147,20 +172,103 @@ export class Ledger {
   }
 
   /**
-   * Prompt user to get viewing and proof gen key associated with optional path, otherwise, use default path.
-   * Throw exception if app is not initialized.
+   * Get Bparams for masp transactions
    * @async
-   * @param [path] Bip44 path for deriving key
+   * @returns bparams
+   */
+  public async getBparams(): Promise<Bparams[]> {
+    // We need to clean the randomness buffers before getting randomness
+    // to ensure that the randomness is not reused
+    await this.namadaApp.cleanRandomnessBuffers();
+    const results: Bparams[] = [];
+    let tries = 0;
+
+    // This should not happen usually, but in case some of the responses are not valid, we will retry.
+    // 15 is a maximum number of spend/output/convert description randomness parameters that can be
+    // generated on the hardware wallet. This also means that ledger can sign maximum of 15 spend, output
+    // and convert descriptions in one tx.
+    while (results.length < 15) {
+      tries++;
+      if (tries === 20) {
+        throw new Error("Could not get valid Bparams, too many tries");
+      }
+
+      const spend_response = await this.namadaApp.getSpendRandomness();
+      const output_response = await this.namadaApp.getOutputRandomness();
+      const convert_response = await this.namadaApp.getConvertRandomness();
+      if (
+        spend_response.returnCode !== LedgerError.NoErrors ||
+        output_response.returnCode !== LedgerError.NoErrors ||
+        convert_response.returnCode !== LedgerError.NoErrors
+      ) {
+        continue;
+      }
+
+      results.push({
+        spend: {
+          rcv: spend_response.rcv,
+          alpha: spend_response.alpha,
+        },
+        output: {
+          rcv: output_response.rcv,
+          rcm: output_response.rcm,
+        },
+        convert: {
+          rcv: convert_response.rcv,
+        },
+      });
+    }
+
+    return results;
+  }
+
+  /**
+   * Prompt user to get viewing key associated with optional path, otherwise, use default path.
+   * Throw exception if app is not initialized, zip32 is not supported, or key is not returned.
+   * @async
+   * @param [path] Zip32 path for deriving key
    * @param [promptUser] boolean to determine whether to display on Ledger device and require approval
    * @returns ShieldedKeys
    */
-  public async getShieldedKeys(
-    path: string = DEFAULT_LEDGER_BIP44_PATH,
+  public async getViewingKey(
+    path: string = DEFAULT_LEDGER_ZIP32_PATH,
     promptUser = true
-  ): Promise<LedgerShieldedKeys> {
+  ): Promise<LedgerViewingKey> {
     try {
-      const { viewKey, ivk, ovk }: ResponseViewKey =
-        await this.namadaApp.retrieveKeys(path, NamadaKeys.ViewKey, promptUser);
+      await this.validateVersionForZip32();
+
+      const { xfvk }: ResponseViewKey = await this.namadaApp.retrieveKeys(
+        path,
+        NamadaKeys.ViewKey,
+        promptUser
+      );
+
+      if (!xfvk) {
+        throw new Error("Did not receive viewing key!");
+      }
+
+      return {
+        xfvk: new Uint8Array(xfvk),
+      };
+    } catch (e) {
+      throw new Error(`${e}`);
+    }
+  }
+
+  /**
+   * Prompt user to get proof generation key associated with optional path, otherwise, use default path.
+   * Throw exception if app is not initialized, zip32 is not supported, or key is not returned.
+   * @async
+   * @param [path] Zip32 path for deriving key
+   * @param [promptUser] boolean to determine whether to display on Ledger device and require approval
+   * @returns ShieldedKeys
+   */
+  public async getProofGenerationKey(
+    path: string = DEFAULT_LEDGER_ZIP32_PATH,
+    promptUser = true
+  ): Promise<LedgerProofGenerationKey> {
+    try {
+      await this.validateVersionForZip32();
 
       const { ak, nsk }: ResponseProofGenKey =
         await this.namadaApp.retrieveKeys(
@@ -169,19 +277,16 @@ export class Ledger {
           promptUser
         );
 
+      if (!ak || !nsk) {
+        throw new Error("Did not receive proof generation key!");
+      }
+
       return {
-        viewingKey: {
-          viewKey: viewKey?.toString(),
-          ivk: ivk?.toString(),
-          ovk: ovk?.toString(),
-        },
-        proofGenerationKey: {
-          ak: ak?.toString(),
-          nsk: nsk?.toString(),
-        },
+        ak: new Uint8Array(ak),
+        nsk: new Uint8Array(nsk),
       };
-    } catch (_) {
-      throw new Error(`Could not retrieve Viewing Key`);
+    } catch (e) {
+      throw new Error(`${e}`);
     }
   }
 
@@ -227,5 +332,36 @@ export class Ledger {
    */
   public async closeTransport(): Promise<void> {
     return await this.namadaApp.transport.close();
+  }
+
+  /**
+   * Check if Zip32 is supported by the installed app's version.
+   * Throws error if app is not initialized
+   * @async
+   * @returns boolean
+   */
+  public async isZip32Supported(): Promise<boolean> {
+    const {
+      info: { appVersion },
+    } = await this.status();
+    return !semver.lt(appVersion, LEDGER_MIN_VERSION_ZIP32);
+  }
+
+  /**
+   * Validate the version against the minimum required version for Zip32 functionality.
+   * Throw error if it is unsupported or app is not initialized.
+   * @async
+   * @returns void
+   */
+  private async validateVersionForZip32(): Promise<void> {
+    if (!(await this.isZip32Supported())) {
+      const {
+        info: { appVersion },
+      } = await this.status();
+      throw new Error(
+        `This method requires Zip32 and is unsupported in ${appVersion}! ` +
+          `Please update to at least ${LEDGER_MIN_VERSION_ZIP32}!`
+      );
+    }
   }
 }

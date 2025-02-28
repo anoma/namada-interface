@@ -1,7 +1,7 @@
 import { ActionButton, GapPatterns, Stack } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
 import { TxType, TxTypeLabel } from "@namada/sdk/web";
-import { AccountType } from "@namada/types";
+import { AccountType, TransferProps } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { PageHeader } from "App/Common/PageHeader";
 import { ApprovalDetails } from "Approvals/Approvals";
@@ -13,7 +13,7 @@ import { useRequester } from "hooks/useRequester";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Ports } from "router";
-import { closeCurrentTab } from "utils";
+import { closeCurrentTab, parseTransferType } from "utils";
 import { ApprovalPanelHeader } from "./ApprovalPanelHeader";
 
 type Props = {
@@ -38,11 +38,34 @@ export const ApproveSignTx: React.FC<Props> = ({ details, setDetails }) => {
           Ports.Background,
           new QueryTxDetailsMsg(msgId)
         );
+
+        // Collect all commitment types
+        const txTypes = txDetails
+          .map((d) =>
+            d.commitments.map((cmt) => ({
+              ...cmt,
+              wrapperFeePayer: d.wrapperFeePayer,
+            }))
+          )
+          .flat()
+          .map((commitment) => {
+            if (commitment.txType === TxType.Transfer) {
+              const { type } = parseTransferType(
+                commitment as TransferProps,
+                commitment.wrapperFeePayer
+              );
+              return type;
+            } else {
+              return commitment.txType as string;
+            }
+          });
+
         setDetails({
           msgId,
           signer,
           accountType,
           txDetails,
+          txType: txTypes[0],
         });
       }
     };
