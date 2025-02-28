@@ -1,13 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import TransportHID from "@ledgerhq/hw-transport-webhid";
 import TransportUSB from "@ledgerhq/hw-transport-webusb";
 import * as LedgerNamadaNS from "@zondax/ledger-namada";
 import * as LedgerNS from "../ledger";
-import {
-  Ledger,
-  initLedgerHIDTransport,
-  initLedgerUSBTransport,
-} from "../ledger";
+import { Ledger, initLedgerUSBTransport } from "../ledger";
 
 // Needed otherwise we can't redefine the classes from this module
 jest.mock("@zondax/ledger-namada", () => {
@@ -33,17 +28,6 @@ describe("ledger", () => {
       const res = await initLedgerUSBTransport();
 
       expect(TransportUSB.create).toHaveBeenCalled();
-      expect(res).toEqual(returned);
-    });
-  });
-
-  describe("initLedgerHIDTransport", () => {
-    it("should initialize a Ledger HID transport", async () => {
-      const returned = { hid: true };
-      jest.spyOn(TransportHID, "create").mockResolvedValue(returned as any);
-      const res = await initLedgerHIDTransport();
-
-      expect(TransportHID.create).toHaveBeenCalled();
       expect(res).toEqual(returned);
     });
   });

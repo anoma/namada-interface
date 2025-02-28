@@ -34,6 +34,7 @@ export const routes = {
   settingsAdvanced: "/settings/advanced",
   settingsSignArbitrary: "/settings/sign-arbitrary",
   settingsMASP: "/settings/masp",
+  settingsLedger: "/settings/ledger",
   settingsFeatures: "/settings/features",
 
   // Other
