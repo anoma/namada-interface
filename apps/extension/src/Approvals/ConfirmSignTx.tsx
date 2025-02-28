@@ -16,7 +16,7 @@ type Props = {
 };
 
 export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
-  const { msgId, signer } = details;
+  const { msgId, signer, txType } = details;
 
   const navigate = useNavigate();
   const requester = useRequester();
@@ -41,12 +41,12 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
           throw new Error("Invalid password!");
         }
 
-        // TODO: ideally we should only calling this for Unshielding and Shielded Transfers,
-        // it should not break anything it's just unnecessary computation
-        await requester.sendMessage(
-          Ports.Background,
-          new SignMaspMsg(msgId, signer)
-        );
+        if (txType === "Unshielding" || txType === "Shielded") {
+          await requester.sendMessage(
+            Ports.Background,
+            new SignMaspMsg(msgId, signer)
+          );
+        }
 
         await requester.sendMessage(
           Ports.Background,
