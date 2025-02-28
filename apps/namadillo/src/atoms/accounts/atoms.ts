@@ -11,6 +11,7 @@ import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import { NamadaKeychain } from "hooks/useNamadaKeychain";
+import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { namadaAsset, toDisplayAmount } from "utils";
 import {
@@ -75,6 +76,13 @@ export const allDefaultAccountsAtom = atomWithQuery<NamadaKeychainAccount[]>(
     };
   }
 );
+
+export const isLedgerAccountAtom = atom((get) => {
+  const defaultAccounts = get(allDefaultAccountsAtom);
+  return Boolean(
+    defaultAccounts.data?.find((account) => account.type === AccountType.Ledger)
+  );
+});
 
 export const updateDefaultAccountAtom = atomWithMutation(() => {
   const namadaPromise = new NamadaKeychain().get();

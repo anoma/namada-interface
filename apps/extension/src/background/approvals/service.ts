@@ -1,9 +1,15 @@
-import { toBase64 } from "@cosmjs/encoding";
+import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
 
 import { KVStore } from "@namada/storage";
-import { SignArbitraryResponse, TxDetails } from "@namada/types";
+import {
+  Message,
+  SignArbitraryResponse,
+  SigningDataMsgValue,
+  TxDetails,
+  TxProps,
+} from "@namada/types";
 import { paramsToUrl } from "@namada/utils";
 
 import { ResponseSign } from "@zondax/ledger-namada";
@@ -147,8 +153,8 @@ export class ApprovalsService {
     const { tx } = this.sdkService.getSdk();
 
     try {
-      const signedTxs = pendingTx.txs.map(({ bytes }, i) => {
-        return tx.appendSignature(bytes, responseSign[i]);
+      const signedTxs = pendingTx.txs.map((pendingTx, i) => {
+        return tx.appendSignature(pendingTx.bytes, responseSign[i]);
       });
       resolvers.resolve(signedTxs);
     } catch (e) {
@@ -156,6 +162,71 @@ export class ApprovalsService {
     }
 
     await this.clearPendingSignature(msgId);
+  }
+
+  /**
+   * Modifies pending transaction data by appending real MASP signatures
+   *
+   * @async
+   * @param {string} msgId - message ID
+   * @param {string} signer - signer
+   * @throws {Error} - if pending transaction data is not found
+   * @returns void
+   */
+  async signMasp(msgId: string, signer: string): Promise<void> {
+    const pendingTx = await this.txStore.get(msgId);
+
+    if (!pendingTx) {
+      throw new Error(ApprovalErrors.PendingSigningDataNotFound(msgId));
+    }
+
+    const txs: TxProps[] = [];
+    for await (const tx of pendingTx.txs) {
+      const bytes = await this.keyRingService.signMasp(tx, signer);
+      txs.push({
+        ...tx,
+        bytes,
+      });
+    }
+
+    await this.txStore.set(msgId, { ...pendingTx, txs });
+  }
+
+  /**
+   * Modifies pending transaction data by replacing MASP signatures
+   *
+   * @async
+   * @param {string} msgId - message ID
+   * @param {string[]} signatures - MASP signatures
+   * @throws {Error} - if pending transaction data is not found
+   * @returns void
+   */
+  async replaceMaspSignatures(
+    msgId: string,
+    signatures: string[]
+  ): Promise<void> {
+    const pendingTx = await this.txStore.get(msgId);
+    if (!pendingTx) {
+      throw new Error(ApprovalErrors.TransactionDataNotFound(msgId));
+    }
+
+    const { tx: sdkTx } = this.sdkService.getSdk();
+
+    const txsWithSignatures = signatures.map((signature, i) => {
+      const tx = pendingTx.txs[i];
+      const signingData = tx.signingData.map((signingData) =>
+        new Message().encode(new SigningDataMsgValue(signingData))
+      );
+      const txBytes = sdkTx.appendMaspSignature(
+        tx.bytes,
+        signingData,
+        fromBase64(signature)
+      );
+
+      return { ...tx, bytes: txBytes };
+    });
+
+    await this.txStore.set(msgId, { ...pendingTx, txs: txsWithSignatures });
   }
 
   async submitSignArbitrary(

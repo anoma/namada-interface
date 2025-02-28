@@ -75,11 +75,6 @@ export const UpdateRequired = (): JSX.Element => {
                 </li>
               </ol>
             </Stack>
-            <p className="text-yellow text-center leading-3">
-              * Ledger accounts will receive shielded
-              <br /> functions in a separate update in an
-              <br /> upcoming release
-            </p>
           </Stack>
         </div>
       </div>

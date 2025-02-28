@@ -4,14 +4,16 @@ import { twMerge } from "tailwind-merge";
 
 type IconTooltipProps = {
   icon: React.ReactNode;
-  text: string;
+  text: React.ReactNode;
   className?: string;
+  tooltipClassName?: string;
 };
 
 export const IconTooltip = ({
   icon,
   text,
   className,
+  tooltipClassName,
 }: IconTooltipProps): JSX.Element => {
   return (
     <i
@@ -24,7 +26,9 @@ export const IconTooltip = ({
       )}
     >
       {icon}
-      <Tooltip className="z-50 w-68">{text}</Tooltip>
+      <Tooltip className={twMerge(clsx("z-50 w-68", tooltipClassName))}>
+        {text}
+      </Tooltip>
     </i>
   );
 };

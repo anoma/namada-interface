@@ -393,3 +393,8 @@ export type LocalnetToml = {
   chain_1_channel: string;
   chain_2_channel: string;
 };
+
+export type LedgerAccountInfo = {
+  deviceConnected: boolean;
+  errorMessage: string;
+};

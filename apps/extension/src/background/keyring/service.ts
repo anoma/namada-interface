@@ -85,7 +85,11 @@ export class KeyRingService {
     alias: string,
     address: string,
     publicKey: string,
-    bip44Path: Bip44Path
+    bip44Path: Bip44Path,
+    zip32Path?: Zip32Path,
+    extendedViewingKey?: string,
+    pseudoExtendedKey?: string,
+    paymentAddress?: string
   ): Promise<AccountStore | false> {
     const account = await this._keyRing.queryAccountByAddress(address);
     if (account) {
@@ -98,7 +102,11 @@ export class KeyRingService {
       alias,
       address,
       publicKey,
-      bip44Path
+      bip44Path,
+      zip32Path,
+      pseudoExtendedKey,
+      extendedViewingKey,
+      paymentAddress
     );
 
     await this.broadcaster.updateAccounts();
@@ -212,6 +220,10 @@ export class KeyRingService {
   async sign(txProps: TxProps, signer: string): Promise<Uint8Array> {
     const chainId = await this.chainService.getChain();
     return await this._keyRing.sign(txProps, signer, chainId);
+  }
+
+  async signMasp(txProps: TxProps, signer: string): Promise<Uint8Array> {
+    return await this._keyRing.signMasp(txProps, signer);
   }
 
   async signArbitrary(
