@@ -4,8 +4,12 @@ import {
   NativeToken,
   Parameters,
 } from "@namada/indexer-client";
+import { getDenomFromIbcTrace } from "atoms/integrations";
+import BigNumber from "bignumber.js";
+import { findAssetByDenom } from "integrations/utils";
+import { MaspAssetRewards } from "types";
+import { unknownAsset } from "utils/assets";
 import { getSdkInstance } from "utils/sdk";
-import { MaspTokenRewards } from "../../../../../packages/sdk/src/rpc";
 
 export const fetchRpcUrlFromIndexer = async (
   api: DefaultApi
@@ -32,7 +36,21 @@ export const clearShieldedContext = async (chainId: string): Promise<void> => {
   await sdk.getMasp().clearShieldedContext(chainId);
 };
 
-export const fetchMaspRewards = async (): Promise<MaspTokenRewards[]> => {
+export const fetchMaspRewards = async (): Promise<MaspAssetRewards[]> => {
   const sdk = await getSdkInstance();
-  return await sdk.rpc.globalShieldedRewardForTokens();
+  const rewards = await sdk.rpc.globalShieldedRewardForTokens();
+  const existingRewards: MaspAssetRewards[] = rewards
+    .filter((r) => r.max_reward_rate > 0)
+    .map((r) => {
+      const denom = getDenomFromIbcTrace(r.name);
+      const asset = findAssetByDenom(denom) ?? unknownAsset(denom);
+      return {
+        asset,
+        kdGain: new BigNumber(r.kd_gain),
+        kpGain: new BigNumber(r.kp_gain),
+        lockedAmountTarget: new BigNumber(r.locked_amount_target),
+        maxRewardRate: new BigNumber(r.max_reward_rate),
+      };
+    });
+  return existingRewards;
 };
