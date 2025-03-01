@@ -44,6 +44,15 @@ export type StakingPositions = {
   unbonds: Unbonds[];
 };
 
+export type MaspTokenRewards = {
+  name: string;
+  address: string;
+  max_reward_rate: number;
+  kp_gain: number;
+  kd_gain: number;
+  locked_amount_target: number;
+};
+
 /**
  * DelegationTotals
  * Record<address, totalDelegations>

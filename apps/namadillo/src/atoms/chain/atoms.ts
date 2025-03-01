@@ -3,6 +3,7 @@ import namadaAssets from "@namada/chain-registry/namada/assetlist.json";
 import namada from "@namada/chains/chains/namada";
 import { IbcToken, NativeToken } from "@namada/indexer-client";
 import { indexerApiAtom } from "atoms/api";
+import { getDenomFromIbcTrace } from "atoms/integrations";
 import {
   defaultServerConfigAtom,
   indexerUrlAtom,
@@ -11,14 +12,22 @@ import {
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import * as osmosis from "chain-registry/mainnet/osmosis";
+import { findAssetByDenom } from "integrations/utils";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { Address, ChainParameters, ChainSettings, ChainStatus } from "types";
-import { findAssetByToken } from "utils/assets";
+import {
+  Address,
+  ChainParameters,
+  ChainSettings,
+  ChainStatus,
+  MaspAssetRewards,
+} from "types";
+import { findAssetByToken, unknownAsset } from "utils/assets";
 import { calculateUnbondingPeriod } from "./functions";
 import {
   fetchChainParameters,
   fetchChainTokens,
+  fetchMaspRewards,
   fetchRpcUrlFromIndexer,
 } from "./services";
 
@@ -133,3 +142,27 @@ export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
 });
 
 export const chainStatusAtom = atom<ChainStatus | undefined>();
+
+export const maspRewardsAtom = atomWithQuery((get) => {
+  const chain = get(chainAtom);
+  return {
+    queryKey: ["masp-rewards", chain],
+    ...queryDependentFn(async (): Promise<MaspAssetRewards[]> => {
+      const rewards = await fetchMaspRewards();
+      const existingRewards: MaspAssetRewards[] = rewards
+        .filter((r) => r.max_reward_rate > 0)
+        .map((r) => {
+          const denom = getDenomFromIbcTrace(r.name);
+          const asset = findAssetByDenom(denom) ?? unknownAsset(denom);
+          return {
+            asset,
+            kdGain: new BigNumber(r.kd_gain),
+            kpGain: new BigNumber(r.kp_gain),
+            lockedAmountTarget: new BigNumber(r.locked_amount_target),
+            maxRewardRate: new BigNumber(r.max_reward_rate),
+          };
+        });
+      return existingRewards;
+    }, [chain]),
+  };
+});

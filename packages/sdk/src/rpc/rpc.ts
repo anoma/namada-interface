@@ -20,6 +20,7 @@ import {
   DelegationTotals,
   DelegatorsVotes,
   GasCosts,
+  MaspTokenRewards,
   StakingPositions,
   StakingTotals,
   StakingTotalsResponse,
@@ -263,6 +264,15 @@ export class Rpc {
    */
   async shieldedRewards(owner: string, chainId: string): Promise<string> {
     return await this.sdk.shielded_rewards(owner, chainId);
+  }
+
+  /**
+   * Return global shielded rewards per token
+   * @async
+   * @returns Array of MaspTokenRewards
+   */
+  async globalShieldedRewardForTokens(): Promise<MaspTokenRewards[]> {
+    return await this.query.masp_reward_tokens();
   }
 
   /**

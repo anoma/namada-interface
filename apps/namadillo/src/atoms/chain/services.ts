@@ -5,6 +5,7 @@ import {
   Parameters,
 } from "@namada/indexer-client";
 import { getSdkInstance } from "utils/sdk";
+import { MaspTokenRewards } from "../../../../../packages/sdk/src/rpc";
 
 export const fetchRpcUrlFromIndexer = async (
   api: DefaultApi
@@ -29,4 +30,9 @@ export const fetchChainTokens = async (
 export const clearShieldedContext = async (chainId: string): Promise<void> => {
   const sdk = await getSdkInstance();
   await sdk.getMasp().clearShieldedContext(chainId);
+};
+
+export const fetchMaspRewards = async (): Promise<MaspTokenRewards[]> => {
+  const sdk = await getSdkInstance();
+  return await sdk.rpc.globalShieldedRewardForTokens();
 };
