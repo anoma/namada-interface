@@ -6,6 +6,7 @@ import {
   UseQueryResult,
 } from "@tanstack/react-query";
 import { TokenCurrency } from "App/Common/TokenCurrency";
+import { chainParametersAtom } from "atoms/chain";
 import {
   broadcastIbcTransactionAtom,
   createStargateClient,
@@ -74,11 +75,13 @@ export const useIbcTransaction = ({
 }: useIbcTransactionProps): useIbcTransactionOutput => {
   const broadcastIbcTx = useAtomValue(broadcastIbcTransactionAtom);
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
+  const chainParameters = useAtomValue(chainParametersAtom);
   const [txHash, setTxHash] = useState<string | undefined>();
   const [rpcUrl, setRpcUrl] = useState<string | undefined>();
   const [stargateClient, setStargateClient] = useState<
     SigningStargateClient | undefined
   >();
+  const destinationChainId = chainParameters.data?.chainId;
 
   // Avoid the same client being created twice for the same chain and provide
   // a way to refetch the query in case it throws an error trying to connect to the RPC
@@ -202,6 +205,7 @@ export const useIbcTransaction = ({
         })();
 
       const chainId = registry.chain.chain_id;
+
       const transferMsg = createIbcTransferMessage(
         sanitizeChannel(sourceChannel!),
         sanitizeAddress(sourceAddress),
@@ -229,6 +233,7 @@ export const useIbcTransaction = ({
         rpcUrl || "",
         selectedAsset.asset,
         chainId,
+        destinationChainId || "",
         getIbcTransferStage(!!shielded),
         !!shielded
       );
