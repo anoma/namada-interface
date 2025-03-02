@@ -1,5 +1,7 @@
 import { Stack } from "@namada/components";
 import { Proposal } from "@namada/types";
+import { chainStatusAtom } from "atoms/chain";
+import { useAtomValue } from "jotai";
 
 const SummaryCard: React.FC<{
   title: string;
@@ -14,6 +16,8 @@ const SummaryCard: React.FC<{
 export const ProposalsSummary: React.FC<{
   allProposals: Proposal[];
 }> = ({ allProposals }) => {
+  const chainStatus = useAtomValue(chainStatusAtom);
+  const epoch = chainStatus?.epoch;
   const total = allProposals.length;
   const ongoing = allProposals.filter(
     ({ status }) => status === "ongoing"
@@ -24,9 +28,12 @@ export const ProposalsSummary: React.FC<{
   const rejected = allProposals.filter(
     ({ status }) => status === "rejected"
   ).length;
-  const executed = allProposals.filter(
-    ({ status }) => status === "executed"
-  ).length;
+
+  const executed = allProposals.filter(({ status, activationEpoch }) => {
+    return !epoch ? "-" : (
+        status === "passed" && Number(activationEpoch) <= epoch
+      );
+  }).length;
 
   return (
     <Stack gap={4}>
