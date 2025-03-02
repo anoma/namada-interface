@@ -1228,7 +1228,7 @@ ViewingKey with optional birthday
 
 ### proposalStatuses
 
-• `Const` **proposalStatuses**: readonly [``"pending"``, ``"ongoing"``, ``"passed"``, ``"rejected"``, ``"executed"``]
+• `Const` **proposalStatuses**: readonly [``"pending"``, ``"ongoing"``, ``"passed"``, ``"rejected"``]
 
 #### Defined in
 
@@ -1278,7 +1278,7 @@ vote is DelegatorVote
 
 ### isProposalStatus
 
-▸ **isProposalStatus**(`str`): str is "pending" \| "ongoing" \| "passed" \| "rejected" \| "executed" \|
+▸ **isProposalStatus**(`str`): str is "pending" \| "ongoing" \| "passed" \| "rejected" \|
 
 #### Parameters
 
@@ -1288,7 +1288,7 @@ vote is DelegatorVote
 
 #### Returns
 
-str is "pending" \| "ongoing" \| "passed" \| "rejected" \| "executed" \|
+str is "pending" \| "ongoing" \| "passed" \| "rejected" \|
 
 #### Defined in
 
