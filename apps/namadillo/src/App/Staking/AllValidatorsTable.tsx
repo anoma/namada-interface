@@ -7,7 +7,7 @@ import { TableRowLoading } from "App/Common/TableRowLoading";
 import { WalletAddress } from "App/Common/WalletAddress";
 import { routes } from "App/routes";
 import { atomsAreLoading, atomsAreNotInitialized } from "atoms/utils";
-import { allValidatorsAtom } from "atoms/validators";
+import { allValidatorsWithMSRAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useValidatorFilter } from "hooks/useValidatorFilter";
@@ -28,7 +28,7 @@ export const AllValidatorsTable = ({
   resultsPerPage = 100,
   initialPage = 0,
 }: AllValidatorsProps): JSX.Element => {
-  const validators = useAtomValue(allValidatorsAtom);
+  const validators = useAtomValue(allValidatorsWithMSRAtom);
   const [searchTerm, setSearchTerm] = useState("");
   const userHasAccount = useUserHasAccount();
 
