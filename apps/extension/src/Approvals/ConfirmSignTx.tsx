@@ -5,7 +5,6 @@ import { ActionButton, Input, Stack } from "@namada/components";
 import { PageHeader } from "App/Common";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import { SignMaspMsg, SubmitApprovedSignTxMsg } from "background/approvals";
-import { UnlockVaultMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
@@ -20,7 +19,8 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
 
   const navigate = useNavigate();
   const requester = useRequester();
-  const [password, setPassword] = useState("");
+  const [_password, setPassword] = useState("");
+  const [requiresAuth, setRequiresAuth] = useState(false);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
@@ -32,15 +32,6 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
       setStatusInfo(`Decrypting keys and signing transaction...`);
 
       try {
-        const isAuthenticated = await requester.sendMessage(
-          Ports.Background,
-          new UnlockVaultMsg(password)
-        );
-
-        if (!isAuthenticated) {
-          throw new Error("Invalid password!");
-        }
-
         if (txType === "Unshielding" || txType === "Shielded") {
           await requester.sendMessage(
             Ports.Background,
@@ -59,33 +50,39 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
         setStatus(Status.Failed);
       }
     },
-    [password]
+    []
   );
 
   useEffect(() => {
     if (status === Status.Completed) {
       void closeCurrentTab();
     }
+    // TODO:
+    setRequiresAuth(false);
   }, [status]);
 
   return (
     <Stack full className="py-4">
       <PageHeader title="Verify" />
       <Stack full as="form" onSubmit={handleApproveSignTx}>
-        <StatusBox
-          status={status}
-          idleText="Verify your password to continue"
-          pendingText={statusInfo}
-          errorText={error}
-        />
-        <Input
-          variant="Password"
-          label={"Password"}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        {requiresAuth && (
+          <>
+            <StatusBox
+              status={status}
+              idleText="Verify your password to continue"
+              pendingText={statusInfo}
+              errorText={error}
+            />
+            <Input
+              variant="Password"
+              label={"Password"}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </>
+        )}
         <div className="flex-1" />
         <Stack gap={2}>
-          <ActionButton disabled={!password || status === Status.Pending}>
+          <ActionButton disabled={requiresAuth || status === Status.Pending}>
             Authenticate
           </ActionButton>
           <ActionButton
