@@ -1,6 +1,6 @@
 import { twMerge } from "tailwind-merge";
 
-type TooltipProps = {
+export type TooltipProps = {
   children: React.ReactNode;
   position?: "top" | "bottom" | "left" | "right";
 } & React.ComponentPropsWithoutRef<"span">;
@@ -25,7 +25,7 @@ export const Tooltip = ({
         position === "top" &&
           "top-0 -translate-y-[calc(100%-10px)]  group-hover/tooltip:-translate-y-full",
         position === "bottom" &&
-          "top-auto bottom-0 translate-y-[calc(100%-10px)] group-hover/tooltip:translate-y-[calc(100%+0.25em)]",
+          "top-auto bottom-0 translate-y-[calc(100%-10px)] group-hover/tooltip:translate-y-full",
         position === "left" &&
           "left-0 -translate-x-[calc(100%-10px)] group-hover/tooltip:-translate-x-full",
         position === "right" &&

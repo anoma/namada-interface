@@ -13,7 +13,9 @@ export const AppLayout = ({
   children: ReactNode;
 }): JSX.Element => {
   const [displayNavigation, setDisplayNavigation] = useState(false);
-  const compatibilityErrors = useCompatibilityErrors();
+  const compatibilityErrors = useCompatibilityErrors(
+    new Set(["indexer", "keychain"])
+  );
 
   return (
     <>
