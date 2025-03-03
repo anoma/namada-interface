@@ -1,7 +1,6 @@
-import { Panel } from "@namada/components";
+import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
 import { ConnectPanel } from "App/Common/ConnectPanel";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
-import { LogoFooter } from "App/Layout/LogoFooter";
 import { Sidebar } from "App/Layout/Sidebar";
 import { LearnAboutTransfer } from "App/NamadaTransfer/LearnAboutTransfer";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
@@ -21,9 +20,7 @@ export const TransferLayout: React.FC = () => {
         <div className="flex-grow">
           <Outlet />
         </div>
-        <Panel className="flex items-center flex-1 justify-center mt-2">
-          <LogoFooter />
-        </Panel>
+        <NavigationFooter className="mt-2" />
       </div>
       <Sidebar>
         <ShieldAllBanner />
