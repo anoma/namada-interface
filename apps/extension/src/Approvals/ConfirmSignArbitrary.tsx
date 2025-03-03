@@ -12,7 +12,6 @@ import { shortenAddress } from "@namada/utils";
 import { PageHeader } from "App/Common";
 import { SignArbitraryDetails, Status } from "Approvals/Approvals";
 import { SubmitApprovedSignArbitraryMsg } from "background/approvals";
-import { UnlockVaultMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
@@ -26,7 +25,8 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
 
   const navigate = useNavigate();
   const requester = useRequester();
-  const [password, setPassword] = useState("");
+  const [requiresAuth, setRequiresAuth] = useState(false);
+  const [_password, setPassword] = useState("");
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
@@ -38,15 +38,6 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
     setStatusInfo(`Decrypting keys for ${address}`);
 
     try {
-      const isAuthenticated = await requester.sendMessage(
-        Ports.Background,
-        new UnlockVaultMsg(password)
-      );
-
-      if (!isAuthenticated) {
-        throw new Error("Invalid password!");
-      }
-
       setStatusInfo(`Signing keys with ${address}`);
       await requester
         .sendMessage(
@@ -62,12 +53,14 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
       setError(`${e}`);
       setStatus(Status.Failed);
     }
-  }, [password]);
+  }, []);
 
   useEffect(() => {
     if (status === Status.Completed) {
       void closeCurrentTab();
     }
+    // TODO:
+    setRequiresAuth(false);
   }, [status]);
 
   const onSubmit = async (e: React.FormEvent): Promise<void> => {
@@ -95,18 +88,22 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
       {status !== (Status.Pending || Status.Completed) && signer && (
         <>
           <Stack full gap={4}>
-            <Alert type="warning">
-              Decrypt keys for{" "}
-              <strong className="text-xs">{shortenAddress(signer)}</strong>
-            </Alert>
-            <Input
-              variant="Password"
-              label={"Password"}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            {requiresAuth && (
+              <>
+                <Alert type="warning">
+                  Decrypt keys for{" "}
+                  <strong className="text-xs">{shortenAddress(signer)}</strong>
+                </Alert>
+                <Input
+                  variant="Password"
+                  label={"Password"}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </>
+            )}
           </Stack>
           <Stack gap={3}>
-            <ActionButton type="submit" disabled={!password}>
+            <ActionButton type="submit" disabled={requiresAuth}>
               Authenticate
             </ActionButton>
             <ActionButton outlineColor="yellow" onClick={() => navigate(-1)}>
