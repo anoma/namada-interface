@@ -8,4 +8,4 @@ export const fetchCoinPrices = async (
     fetch(
       `${sqsOsmosisApi}/tokens/prices?base=${assetBaseList.sort((a, b) => a.localeCompare(b)).join(",")}`
     ).then((res) => res.json())
-  : [];
+  : Promise.resolve({});

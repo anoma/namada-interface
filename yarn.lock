@@ -3888,6 +3888,7 @@ __metadata:
     "@types/semver": "npm:^7.5.8"
     "@types/styled-components": "npm:^5.1.22"
     "@types/traverse": "npm:^0.6.36"
+    "@types/w3c-web-usb": "npm:^1.0.10"
     "@vitejs/plugin-react": "npm:^4.3.1"
     animejs: "npm:^3.2.2"
     autoprefixer: "npm:^10.4.16"
