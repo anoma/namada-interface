@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.15.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.14.0...namadillo@v1.15.0) (2025-03-03)
+
+
+### Features
+
+* Add active below threshold trait ([#1773](https://github.com/anoma/namada-interface/issues/1773)) ([75f5c3e](https://github.com/anoma/namada-interface/commit/75f5c3e5b5ab4adf01c535e8613cb6e86a8bd0ef))
+* Revert change to SwitchAccountPanel filter ([#1788](https://github.com/anoma/namada-interface/issues/1788)) ([27bc07d](https://github.com/anoma/namada-interface/commit/27bc07d5c725911a0de56b40df421cf24446bc83))
+
+
+### Bug Fixes
+
+* Bumping extension required version to 0.5.x ([#1794](https://github.com/anoma/namada-interface/issues/1794)) ([193365f](https://github.com/anoma/namada-interface/commit/193365ff145f54d37c4859da90152424cea1bf9d))
+
 ## [1.14.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.13.0...namadillo@v1.14.0) (2025-02-27)
 
 
