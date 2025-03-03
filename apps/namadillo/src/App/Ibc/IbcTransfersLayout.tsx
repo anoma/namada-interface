@@ -1,4 +1,5 @@
 import { Panel, TabContainer } from "@namada/components";
+import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
 import { ConnectPanel } from "App/Common/ConnectPanel";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { Sidebar } from "App/Layout/Sidebar";
@@ -44,6 +45,7 @@ export const IbcTransfersLayout = (): JSX.Element => {
             { title: "From Namada", children: renderOutletContent() },
           ]}
         />
+        <NavigationFooter className="mt-2" />
       </div>
       <Sidebar>
         <ShieldAllBanner />

@@ -1,4 +1,5 @@
 import { Panel } from "@namada/components";
+import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { Sidebar } from "App/Layout/Sidebar";
@@ -39,6 +40,7 @@ export const StakingOverview = (): JSX.Element => {
         <Panel className="relative pb-6 overflow-hidden" title="All Validators">
           <AllValidatorsTable />
         </Panel>
+        <NavigationFooter />
       </div>
       <Sidebar>
         {hasStaking && myValidators.isSuccess && (

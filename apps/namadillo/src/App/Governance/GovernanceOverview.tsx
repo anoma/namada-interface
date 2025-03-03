@@ -1,4 +1,5 @@
 import { Panel, SkeletonLoading } from "@namada/components";
+import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { Sidebar } from "App/Layout/Sidebar";
@@ -76,6 +77,7 @@ export const GovernanceOverview: React.FC = () => {
             )}
           />
         </ProposalListPanel>
+        <NavigationFooter />
       </div>
       <Sidebar>
         <Panel>
