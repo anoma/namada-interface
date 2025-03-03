@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.15.0...namadillo@v1.15.1) (2025-03-03)
+
+
+### Bug Fixes
+
+* Add USB device type dependencies to Namadillo, fix return type ([#1805](https://github.com/anoma/namada-interface/issues/1805)) ([8941597](https://github.com/anoma/namada-interface/commit/8941597a1b4eaf1f4f4e7f414d82ab2e3fcf13c7))
+
 ## [1.15.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.14.0...namadillo@v1.15.0) (2025-03-03)
 
 
