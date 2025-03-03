@@ -3864,6 +3864,8 @@ __metadata:
     "@cosmjs/encoding": "npm:^0.32.3"
     "@eslint/js": "npm:^9.9.1"
     "@keplr-wallet/types": "npm:^0.12.136"
+    "@ledgerhq/hw-transport": "npm:^6.31.4"
+    "@ledgerhq/hw-transport-webusb": "npm:^6.29.4"
     "@namada/chain-registry": "npm:^1.0.0"
     "@namada/indexer-client": "npm:2.2.0"
     "@playwright/test": "npm:^1.24.1"
