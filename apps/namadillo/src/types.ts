@@ -76,6 +76,8 @@ export type ChainParameters = {
   nativeTokenAddress: Address;
   unbondingPeriod: string;
   checksums: Record<string, string>;
+  duplicateVoteMinSlashRate: BigNumber;
+  lightClientAttackMinSlashRate: BigNumber;
 };
 
 export type SettingsStorage = {
@@ -106,6 +108,7 @@ export type Validator = Unique & {
   status: ValidatorStatus;
 };
 
+export type ValidatorWithMSR = Validator & { msr: BigNumber };
 export type ValidatorFilterOptions = "all" | "active" | ValidatorStatus;
 
 export type UnbondEntry = {

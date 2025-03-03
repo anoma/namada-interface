@@ -127,6 +127,12 @@ export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
         ...parameters,
         apr: BigNumber(parameters.apr),
         unbondingPeriod: calculateUnbondingPeriod(parameters),
+        duplicateVoteMinSlashRate: BigNumber(
+          parameters.duplicateVoteMinSlashRate
+        ),
+        lightClientAttackMinSlashRate: BigNumber(
+          parameters.lightClientAttackMinSlashRate
+        ),
       };
     },
   };

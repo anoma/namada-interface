@@ -3,8 +3,9 @@ import { indexerApiAtom } from "atoms/api";
 import { chainParametersAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
 import { queryDependentFn } from "atoms/utils";
+import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { MyValidator, Validator } from "types";
+import { MyValidator, Validator, ValidatorWithMSR } from "types";
 import { toMyValidators } from "./functions";
 import {
   fetchAllValidators,
@@ -30,6 +31,39 @@ export const allValidatorsAtom = atomWithQuery((get) => {
     ...queryDependentFn(async (): Promise<Validator[]> => {
       return fetchAllValidators(api, chainParameters.data!, votingPower.data!);
     }, [chainParameters, votingPower]),
+  };
+});
+
+export const allValidatorsWithMSRAtom = atomWithQuery((get) => {
+  const validators = get(allValidatorsAtom);
+  const totalVotingPower = get(votingPowerAtom);
+  const params = get(chainParametersAtom);
+
+  return {
+    queryKey: ["all-validators"],
+    ...queryDependentFn(async (): Promise<ValidatorWithMSR[]> => {
+      const { duplicateVoteMinSlashRate, lightClientAttackMinSlashRate } =
+        params.data!;
+      const minSlashRateParam = BigNumber.min(
+        duplicateVoteMinSlashRate,
+        lightClientAttackMinSlashRate
+      );
+
+      return validators.data!.map((v) => {
+        const votingPower = BigNumber(v.votingPowerInNAM || 0);
+        const slashRateParam = BigNumber(9).times(
+          votingPower.div(totalVotingPower.data!.totalVotingPower).pow(2)
+        );
+
+        // Slash rate should not exceed 100%
+        const minSlashRate = BigNumber.min(
+          BigNumber(1),
+          BigNumber.max(minSlashRateParam, slashRateParam)
+        );
+
+        return { ...v, msr: minSlashRate };
+      });
+    }, [validators, params, totalVotingPower]),
   };
 });
 
