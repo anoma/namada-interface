@@ -5,6 +5,7 @@ import { mapUndefined } from "@namada/utils";
 import { Search } from "App/Common/Search";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { routes } from "App/routes";
+import { chainStatusAtom } from "atoms/chain";
 import { paginatedProposalsFamily } from "atoms/proposals";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
@@ -122,6 +123,7 @@ const statusFilters = [
   "ongoing",
   "passed",
   "rejected",
+  "executed",
 ] as const;
 type StatusFilter = (typeof statusFilters)[number];
 
@@ -304,9 +306,14 @@ const Type: React.FC<{ index: number } & CellProps> = ({ proposal, index }) => (
   />
 );
 
-const Status: React.FC<CellProps> = ({ proposal }) => (
-  <StatusLabel status={proposal.status} className="ml-auto" />
-);
+const Status: React.FC<CellProps> = ({ proposal }) => {
+  const chainStatus = useAtomValue(chainStatusAtom);
+  const epoch = chainStatus?.epoch;
+  if (epoch && epoch >= Number(proposal.activationEpoch)) {
+    proposal.status = "executed";
+  }
+  return <StatusLabel status={proposal.status} className="ml-auto" />;
+};
 
 const VotingEnd: React.FC<CellProps> = ({
   proposal: { endTime, endEpoch },

@@ -21,6 +21,7 @@ export const StatusLabel: React.FC<
     : status === "ongoing" ? "text-intermediate"
     : status === "passed" ? "text-success"
     : status === "rejected" ? "text-fail"
+    : status === "executed" ? "text-success"
     : assertNever(status);
 
   return (
