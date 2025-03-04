@@ -2,8 +2,8 @@ import { ActionButton, Panel, SkeletonLoading } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { ShieldAssetsModal } from "App/Common/ShieldAssetsModal";
 import {
+  shieldedRewardsPerTokenAtom,
   shieldedTokensAtom,
-  shieldedTokensRewardsEstimateAtom,
 } from "atoms/balance/atoms";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
@@ -36,7 +36,7 @@ const AssetTable = (): JSX.Element => {
   const [tab, setTab] = useState(tabs[0]);
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
   const shielededTokensRewardsEstQuery = useAtomValue(
-    shieldedTokensRewardsEstimateAtom
+    shieldedRewardsPerTokenAtom
   );
 
   if (shieldedTokensQuery.data === undefined) {
