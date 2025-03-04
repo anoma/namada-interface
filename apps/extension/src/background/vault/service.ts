@@ -5,14 +5,14 @@ import { SdkService } from "background/sdk";
 import { ExtensionBroadcaster } from "extension";
 import { sha256 } from "js-sha256";
 import { VaultKeys as Keys, VaultStorage } from "storage";
-import { ResetPasswordError, SessionPassword, VaultStoreData } from "./types";
+import { ResetPasswordError, SessionValues, VaultStoreData } from "./types";
 
 export const VAULT_KEY = "vault";
 
 export class VaultService {
   public constructor(
     protected vaultStorage: VaultStorage,
-    protected sessionStore: KVStore<SessionPassword>,
+    protected sessionStore: KVStore<SessionValues>,
     protected readonly sdkService: SdkService,
     protected readonly broadcaster?: ExtensionBroadcaster
   ) {}
@@ -71,6 +71,21 @@ export class VaultService {
     return false;
   }
 
+  public async requiresAuth(): Promise<boolean> {
+    const timestamp: SessionValues | undefined =
+      await this.sessionStore.get("authTimestamp");
+
+    if (!timestamp) {
+      return true;
+    }
+    const timeout = 1_000 * 60 * 5; // 5 minutes
+    if (Date.now() - Number(timestamp) > timeout) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   public hashPassword = async (password: string): Promise<string> => {
     const hash = sha256.create();
     hash.update(password);
@@ -98,8 +113,8 @@ export class VaultService {
     const { crypto } = this.sdkService.getSdk();
 
     try {
+      await this.sessionStore.set("authTimestamp", Date.now());
       crypto.decrypt(store.password, await this.hashPassword(password));
-
       return true;
     } catch (error) {
       console.warn(error);

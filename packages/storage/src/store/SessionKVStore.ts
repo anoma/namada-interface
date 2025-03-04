@@ -1,5 +1,5 @@
-import { KVStore } from "./types";
 import browser from "webextension-polyfill";
+import { KVStore } from "./types";
 
 export class SessionKVStore<T> implements KVStore<T[]> {
   constructor(private readonly _prefix: string) {}
@@ -13,7 +13,10 @@ export class SessionKVStore<T> implements KVStore<T[]> {
   }
 
   public async set<T = unknown>(key: string, data: T | null): Promise<void> {
-    await browser.storage.session.set({ [this.prefix()]: { [key]: data } });
+    const obj = await browser.storage.session.get(this.prefix());
+    await browser.storage.session.set({
+      [this.prefix()]: { ...obj[this.prefix()], [key]: data },
+    });
   }
 
   public prefix(): string {
