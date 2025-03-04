@@ -5,7 +5,7 @@ import { KVPrefix } from "router";
 import { KeyStore, KeyStoreType, VaultStorage } from "storage";
 import { KVStoreMock } from "test/init";
 import { VaultService } from "../service";
-import { SessionPassword } from "../types";
+import { SessionValues } from "../types";
 
 jest.mock("webextension-polyfill", () => ({}));
 
@@ -43,7 +43,7 @@ describe("Testing untouched Vault Service", () => {
 
   beforeEach(async () => {
     storage = new VaultStorage(new KVStoreMock(KVPrefix.IndexedDB));
-    const sessionStore = new KVStoreMock<SessionPassword>(
+    const sessionStore = new KVStoreMock<SessionValues>(
       KVPrefix.SessionStorage
     );
 

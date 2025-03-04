@@ -12,4 +12,4 @@ export type Vault<T = unknown> = {
 
 export type VaultStoreData = Record<string, Vault[]>;
 
-export type SessionPassword = string;
+export type SessionValues = string | number;
