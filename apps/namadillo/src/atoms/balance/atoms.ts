@@ -33,6 +33,7 @@ import {
   fetchShieldedBalance,
   fetchShieldRewards,
   shieldedSync,
+  simulateRewardPerToken,
 } from "./services";
 
 export type TokenBalance = AddressWithAsset & {
@@ -257,6 +258,35 @@ export const shieldedTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
         ),
       [shieldedAssets, tokenPrices]
     ),
+  };
+});
+
+export const shieldedTokensRewardsEstimateAtom = atomWithQuery((get) => {
+  const shieldedAssets = get(namadaShieldedAssetsAtom);
+  const chainParametersQuery = get(chainParametersAtom);
+
+  return {
+    queryKey: ["shielded-tokens-rewards", shieldedAssets.data],
+    ...queryDependentFn(async () => {
+      const { chainId } = chainParametersQuery.data!;
+      const assets = Object.values(shieldedAssets.data ?? {}).map((i) => ({
+        address: i.originalAddress,
+        amount: i.amount,
+      }));
+
+      const rewards = await Promise.all(
+        assets.map((asset) =>
+          simulateRewardPerToken(
+            chainId,
+            asset.address,
+            asset.amount.toString()
+          ).then((amount) => ({
+            [asset.address]: BigNumber(amount),
+          }))
+        )
+      );
+      return rewards.reduce((acc, r) => ({ ...acc, ...r }), {});
+    }, [shieldedAssets]),
   };
 });
 
