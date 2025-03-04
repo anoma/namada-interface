@@ -5,6 +5,7 @@ import { ActionButton, Input, Stack } from "@namada/components";
 import { PageHeader } from "App/Common";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import { SignMaspMsg, SubmitApprovedSignTxMsg } from "background/approvals";
+import { CheckPasswordMsg, CheckRequiresAuthMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
@@ -19,7 +20,7 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
 
   const navigate = useNavigate();
   const requester = useRequester();
-  const [_password, setPassword] = useState("");
+  const [password, setPassword] = useState("");
   const [requiresAuth, setRequiresAuth] = useState(false);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
@@ -32,6 +33,17 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
       setStatusInfo(`Decrypting keys and signing transaction...`);
 
       try {
+        if (requiresAuth) {
+          const isAuthenticated = await requester.sendMessage(
+            Ports.Background,
+            new CheckPasswordMsg(password)
+          );
+
+          if (!isAuthenticated) {
+            throw new Error("Invalid password!");
+          }
+        }
+
         if (txType === "Unshielding" || txType === "Shielded") {
           await requester.sendMessage(
             Ports.Background,
@@ -50,15 +62,24 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
         setStatus(Status.Failed);
       }
     },
-    []
+    [password]
   );
 
   useEffect(() => {
+    if (!status) {
+      console.log("Settings is auth required");
+      requester
+        .sendMessage(Ports.Background, new CheckRequiresAuthMsg())
+        .then((isAuthRequired) => {
+          setRequiresAuth(isAuthRequired);
+          console.log({ isAuthRequired });
+        })
+        .catch((e) => console.error(e));
+    }
+
     if (status === Status.Completed) {
       void closeCurrentTab();
     }
-    // TODO:
-    setRequiresAuth(false);
   }, [status]);
 
   return (
@@ -82,9 +103,16 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
         )}
         <div className="flex-1" />
         <Stack gap={2}>
-          <ActionButton disabled={requiresAuth || status === Status.Pending}>
-            Authenticate
-          </ActionButton>
+          {requiresAuth ?
+            <ActionButton disabled={status === Status.Pending}>
+              Authenticate
+            </ActionButton>
+          : <ActionButton disabled={status === Status.Pending}>
+              {/* TODO: Simply submit instead of requiring a second click - this is temporary! */}
+              Submit
+            </ActionButton>
+          }
+
           <ActionButton
             outlineColor="yellow"
             type="button"

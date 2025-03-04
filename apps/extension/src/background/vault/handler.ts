@@ -1,13 +1,14 @@
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
   CheckIsLockedMsg,
+  CheckPasswordInitializedMsg,
   CheckPasswordMsg,
+  CheckRequiresAuthMsg,
+  CreatePasswordMsg,
   LockVaultMsg,
+  LogoutMsg,
   ResetPasswordMsg,
   UnlockVaultMsg,
-  CheckPasswordInitializedMsg,
-  CreatePasswordMsg,
-  LogoutMsg,
 } from "./messages";
 
 import { VaultService } from "./service";
@@ -37,6 +38,12 @@ export const getHandler: (service: VaultService) => Handler = (service) => {
         return handleCheckPasswordInitializedMsg(service)(
           env,
           msg as CheckPasswordInitializedMsg
+        );
+
+      case CheckRequiresAuthMsg:
+        return handleCheckRequiresAuthMsg(service)(
+          env,
+          msg as CheckRequiresAuthMsg
         );
 
       case CreatePasswordMsg:
@@ -109,5 +116,13 @@ const handleCreatePasswordMsg: (
 ) => InternalHandler<CreatePasswordMsg> = (service) => {
   return async (_, msg) => {
     return await service.createPassword(msg.password);
+  };
+};
+
+const handleCheckRequiresAuthMsg: (
+  service: VaultService
+) => InternalHandler<CheckRequiresAuthMsg> = (service) => {
+  return async (_, _msg) => {
+    return await service.requiresAuth();
   };
 };
