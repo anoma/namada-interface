@@ -255,7 +255,7 @@ export class Rpc {
   }
 
   /**
-   * Return shielded rewards for specific owner for next epoch
+   * Return shielded rewards for specific owner for the next masp epoch
    * @async
    * @param owner - Viewing key of an owner
    * @param chainId - Chain ID to load the context for
@@ -263,6 +263,22 @@ export class Rpc {
    */
   async shieldedRewards(owner: string, chainId: string): Promise<string> {
     return await this.sdk.shielded_rewards(owner, chainId);
+  }
+
+  /**
+   * Return shielded rewards for specific owner and token for the next masp epoch
+   * @async
+   * @param owner - Viewing key of an owner
+   * @param token - Token address
+   * @param chainId - Chain ID to load the context for
+   * @returns amount in base units
+   */
+  async shieldedRewardsPerToken(
+    owner: string,
+    token: string,
+    chainId: string
+  ): Promise<string> {
+    return await this.sdk.shielded_rewards_per_token(owner, token, chainId);
   }
 
   /**

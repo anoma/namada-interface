@@ -31,7 +31,7 @@ export const ShieldedFungibleTable = ({
   const headers = ["Token", { children: "Balance", className: "text-right" }];
   if (shieldingRewardsEnabled) {
     headers.push({
-      children: "Rewards est next 24h",
+      children: "Rewards est next 24hrs",
       className: "text-right",
     });
   }

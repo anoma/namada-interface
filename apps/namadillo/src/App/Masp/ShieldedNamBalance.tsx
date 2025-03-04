@@ -118,7 +118,7 @@ export const ShieldedNamBalance = (): JSX.Element => {
           >
             Your Est. Shielding
             <br />
-            rewards per Epoch
+            rewards per 24hrs
           </div>
           {shieldingRewardsEnabled ?
             <AsyncNamCurrency amount={shieldedRewards.amount} />

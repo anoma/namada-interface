@@ -31,9 +31,9 @@ import {
 import {
   fetchBlockHeightByTimestamp,
   fetchShieldedBalance,
-  fetchShieldRewards,
+  fetchShieldedRewards,
+  fetchShieldedRewardsPerToken,
   shieldedSync,
-  simulateRewardPerToken,
 } from "./services";
 
 export type TokenBalance = AddressWithAsset & {
@@ -261,14 +261,16 @@ export const shieldedTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
   };
 });
 
-export const shieldedTokensRewardsEstimateAtom = atomWithQuery((get) => {
+export const shieldedRewardsPerTokenAtom = atomWithQuery((get) => {
   const shieldedAssets = get(namadaShieldedAssetsAtom);
   const chainParametersQuery = get(chainParametersAtom);
+  const viewingKeysQuery = get(viewingKeysAtom);
 
   return {
-    queryKey: ["shielded-tokens-rewards", shieldedAssets.data],
+    queryKey: ["shielded-rewards-per-token", shieldedAssets.data],
     ...queryDependentFn(async () => {
       const { chainId } = chainParametersQuery.data!;
+      const [viewingKey] = viewingKeysQuery.data!;
       const assets = Object.values(shieldedAssets.data ?? {}).map((i) => ({
         address: i.originalAddress,
         amount: i.amount,
@@ -276,13 +278,14 @@ export const shieldedTokensRewardsEstimateAtom = atomWithQuery((get) => {
 
       const rewards = await Promise.all(
         assets.map((asset) =>
-          simulateRewardPerToken(
-            chainId,
-            asset.address,
-            asset.amount.toString()
-          ).then((amount) => ({
-            [asset.address]: BigNumber(amount),
-          }))
+          fetchShieldedRewardsPerToken(viewingKey, asset.address, chainId).then(
+            (amount) => ({
+              [asset.address]: toDisplayAmount(
+                namadaAsset(),
+                BigNumber(amount)
+              ),
+            })
+          )
         )
       );
       return rewards.reduce((acc, r) => ({ ...acc, ...r }), {});
@@ -328,7 +331,7 @@ export const shieldRewardsAtom = atomWithQuery((get) => {
       const [viewingKey] = viewingKeysQuery.data!;
       const { chainId } = chainParametersQuery.data!;
       const minDenomAmount = BigNumber(
-        await fetchShieldRewards(viewingKey, chainId)
+        await fetchShieldedRewards(viewingKey, chainId)
       );
 
       const storage = get(storageShieldedRewardsAtom);
