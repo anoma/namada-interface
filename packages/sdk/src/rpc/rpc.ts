@@ -272,7 +272,33 @@ export class Rpc {
    * @returns Array of MaspTokenRewards
    */
   async globalShieldedRewardForTokens(): Promise<MaspTokenRewards[]> {
-    return await this.query.masp_reward_tokens();
+    return (await this.query.masp_reward_tokens()).map(
+      (rewardToken: {
+        name: string;
+        address: string;
+        max_reward_rate: number;
+        kp_gain: number;
+        kd_gain: number;
+        locked_amount_target: number;
+      }) => {
+        const {
+          name,
+          address,
+          max_reward_rate: maxRewardRate,
+          kp_gain: kpGain,
+          kd_gain: kdGain,
+          locked_amount_target: lockedAmountTarget,
+        } = rewardToken;
+        return {
+          name,
+          address,
+          maxRewardRate,
+          kpGain,
+          kdGain,
+          lockedAmountTarget,
+        };
+      }
+    );
   }
 
   /**

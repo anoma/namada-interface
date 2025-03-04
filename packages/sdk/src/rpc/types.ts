@@ -47,10 +47,10 @@ export type StakingPositions = {
 export type MaspTokenRewards = {
   name: string;
   address: string;
-  max_reward_rate: number;
-  kp_gain: number;
-  kd_gain: number;
-  locked_amount_target: number;
+  maxRewardRate: number;
+  kpGain: number;
+  kdGain: number;
+  lockedAmountTarget: number;
 };
 
 /**

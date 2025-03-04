@@ -40,16 +40,16 @@ export const fetchMaspRewards = async (): Promise<MaspAssetRewards[]> => {
   const sdk = await getSdkInstance();
   const rewards = await sdk.rpc.globalShieldedRewardForTokens();
   const existingRewards: MaspAssetRewards[] = rewards
-    .filter((r) => r.max_reward_rate > 0)
+    .filter((r) => r.maxRewardRate > 0)
     .map((r) => {
       const denom = getDenomFromIbcTrace(r.name);
       const asset = findAssetByDenom(denom) ?? unknownAsset(denom);
       return {
         asset,
-        kdGain: new BigNumber(r.kd_gain),
-        kpGain: new BigNumber(r.kp_gain),
-        lockedAmountTarget: new BigNumber(r.locked_amount_target),
-        maxRewardRate: new BigNumber(r.max_reward_rate),
+        kdGain: new BigNumber(r.kdGain),
+        kpGain: new BigNumber(r.kpGain),
+        lockedAmountTarget: new BigNumber(r.lockedAmountTarget),
+        maxRewardRate: new BigNumber(r.maxRewardRate),
       };
     });
   return existingRewards;
