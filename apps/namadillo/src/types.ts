@@ -398,3 +398,11 @@ export type LedgerAccountInfo = {
   deviceConnected: boolean;
   errorMessage: string;
 };
+
+export type MaspAssetRewards = {
+  asset: Asset;
+  kdGain: BigNumber;
+  kpGain: BigNumber;
+  lockedAmountTarget: BigNumber;
+  maxRewardRate: BigNumber;
+};
