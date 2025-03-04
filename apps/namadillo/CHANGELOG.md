@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.15.1...namadillo@v1.16.0) (2025-03-04)
+
+
+### Features
+
+* Adding masp asset rewards panel info ([#1797](https://github.com/anoma/namada-interface/issues/1797)) ([3b1a197](https://github.com/anoma/namada-interface/commit/3b1a197aac9153d5f549a9f2c68b92a4b022e3df))
+
 ## [1.15.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.15.0...namadillo@v1.15.1) (2025-03-03)
 
 
