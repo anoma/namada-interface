@@ -1,10 +1,11 @@
-import { ActionButton, TableRow } from "@namada/components";
+import { ActionButton, SkeletonLoading, TableRow } from "@namada/components";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { UnshieldAssetsModal } from "App/Common/UnshieldAssetsModal";
 import { TokenBalance } from "atoms/balance/atoms";
 import { applicationFeaturesAtom } from "atoms/settings/atoms";
+import BigNumber from "bignumber.js";
 import { getAssetImageUrl } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
@@ -16,8 +17,10 @@ const initialPage = 0;
 
 export const ShieldedFungibleTable = ({
   data,
+  rewards,
 }: {
   data: TokenBalance[];
+  rewards: Record<string, BigNumber> | undefined;
 }): JSX.Element => {
   const [page, setPage] = useState(initialPage);
   const [unshieldingModalOpen, setUnshieldingModalOpen] = useState(false);
@@ -41,8 +44,7 @@ export const ShieldedFungibleTable = ({
   }: TokenBalance): TableRow => {
     const icon = getAssetImageUrl(asset);
 
-    // TODO
-    const rewards = 20;
+    const reward = rewards?.[originalAddress];
 
     return {
       cells: [
@@ -74,13 +76,18 @@ export const ShieldedFungibleTable = ({
           key={`ssr-rate-${originalAddress}`}
           className="text-right leading-tight "
         >
-          {shieldingRewardsEnabled && (
-            <TokenCurrency
-              symbol={namadaAsset().symbol}
-              amount={rewards}
-              className="text-yellow"
-            />
-          )}
+          {shieldingRewardsEnabled &&
+            (reward ?
+              <TokenCurrency
+                symbol={namadaAsset().symbol}
+                amount={reward}
+                className="text-yellow"
+              />
+            : <SkeletonLoading
+                width="120px"
+                height="20px"
+                className="float-right"
+              />)}
         </div>,
         <ActionButton
           key={`unshield-${originalAddress}`}
