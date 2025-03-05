@@ -12,13 +12,13 @@ self.addEventListener("activate", (event) => {
   console.info("Service worker activated");
 });
 
-const CACHE_NAME = "RPC_FETCH_CACHE";
+let fetchCacheKey = "";
 
 const fetchWithCacheFirst = async (
   request: Request,
   cacheKey: string
 ): Promise<Response> => {
-  const cache = await caches.open(CACHE_NAME);
+  const cache = await caches.open(`11RPC_FETCH_CACHE_${fetchCacheKey}`);
 
   const cachedResponse = await cache.match(cacheKey);
 
@@ -62,3 +62,10 @@ self.addEventListener("fetch", function (e) {
 
   e.respondWith(res);
 });
+
+self.onmessage = (event) => {
+  if (event.data.type === "CHAIN_CHANGE") {
+    const chainId = event.data.chainId;
+    fetchCacheKey = chainId;
+  }
+};
