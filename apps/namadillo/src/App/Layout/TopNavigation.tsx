@@ -122,7 +122,7 @@ export const TopNavigation = (): JSX.Element => {
           className="relative w-6 h-6 bg-transparent"
           tooltipClassName="w-90"
           tooltipPosition="bottom"
-          icon={<PiWarningFill className="w-6 h-6 text-yellow" />}
+          icon={<PiWarningFill className="w-6 h-6 text-orange" />}
           text=<span>{compatibilityErrors}</span>
         />
       )}
