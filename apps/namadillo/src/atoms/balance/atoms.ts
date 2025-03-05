@@ -31,7 +31,8 @@ import {
 import {
   fetchBlockHeightByTimestamp,
   fetchShieldedBalance,
-  fetchShieldRewards,
+  fetchShieldedRewards,
+  fetchShieldedRewardsPerToken,
   shieldedSync,
 } from "./services";
 
@@ -260,6 +261,38 @@ export const shieldedTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
   };
 });
 
+export const shieldedRewardsPerTokenAtom = atomWithQuery((get) => {
+  const shieldedAssets = get(namadaShieldedAssetsAtom);
+  const chainParametersQuery = get(chainParametersAtom);
+  const viewingKeysQuery = get(viewingKeysAtom);
+
+  return {
+    queryKey: ["shielded-rewards-per-token", shieldedAssets.data],
+    ...queryDependentFn(async () => {
+      const { chainId } = chainParametersQuery.data!;
+      const [viewingKey] = viewingKeysQuery.data!;
+      const assets = Object.values(shieldedAssets.data ?? {}).map((i) => ({
+        address: i.originalAddress,
+        amount: i.amount,
+      }));
+
+      const rewards = await Promise.all(
+        assets.map((asset) =>
+          fetchShieldedRewardsPerToken(viewingKey, asset.address, chainId).then(
+            (amount) => ({
+              [asset.address]: toDisplayAmount(
+                namadaAsset(),
+                BigNumber(amount)
+              ),
+            })
+          )
+        )
+      );
+      return rewards.reduce((acc, r) => ({ ...acc, ...r }), {});
+    }, [shieldedAssets]),
+  };
+});
+
 export const transparentTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
   const transparentAssets = get(namadaTransparentAssetsAtom);
   const tokenPrices = get(
@@ -298,7 +331,7 @@ export const shieldRewardsAtom = atomWithQuery((get) => {
       const [viewingKey] = viewingKeysQuery.data!;
       const { chainId } = chainParametersQuery.data!;
       const minDenomAmount = BigNumber(
-        await fetchShieldRewards(viewingKey, chainId)
+        await fetchShieldedRewards(viewingKey, chainId)
       );
 
       const storage = get(storageShieldedRewardsAtom);

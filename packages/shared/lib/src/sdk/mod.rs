@@ -30,6 +30,7 @@ use namada_sdk::io::NamadaIo;
 use namada_sdk::key::{common, ed25519, RefTo, SigScheme};
 use namada_sdk::masp::shielded_wallet::ShieldedApi;
 use namada_sdk::masp::ShieldedContext;
+use namada_sdk::masp_primitives::sapling::ViewingKey;
 use namada_sdk::masp_primitives::transaction::components::{
     amount::I128Sum, sapling::builder::StoredBuildParams, sapling::fees::InputView,
 };
@@ -801,6 +802,78 @@ impl Sdk {
             .compute_shielded_balance(&xvk.as_viewing_key())
             .await
             .map_err(|e| JsError::new(&e.to_string()))?;
+
+        let rewards = match raw_balance {
+            Some(balance) => shielded
+                .estimate_next_epoch_rewards(&self.namada, &balance)
+                .await
+                .map(|r| r.amount())
+                .map_err(|e| JsError::new(&e.to_string()))?,
+            None => Amount::zero(),
+        };
+
+        to_js_result(rewards.to_string())
+    }
+
+    /// This one is similar to compute_shielded_balance from the sdk but it computes the balance per token
+    async fn compute_shielded_balance_per_token(
+        &self,
+        shielded: &ShieldedContext<masp::JSShieldedUtils>,
+        vk: ViewingKey,
+        token: Address,
+    ) -> Option<I128Sum> {
+        // Cannot query the balance of a key that's not in the map
+        if !shielded.pos_map.contains_key(&vk) {
+            return None;
+        }
+        let mut val_acc = I128Sum::zero();
+        // Retrieve the notes that can be spent by this key
+        if let Some(avail_notes) = shielded.pos_map.get(&vk) {
+            for note_idx in avail_notes {
+                // Spent notes cannot contribute a new transaction's pool
+
+                if shielded.spents.contains(note_idx) {
+                    continue;
+                }
+                // Get note associated with this ID
+                let note = shielded.note_map.get(note_idx).expect("Note not found");
+                let asset_data = shielded.asset_types.get(&note.asset_type);
+
+                // If asset is not found then skip
+                if asset_data.is_none() {
+                    continue;
+                }
+
+                // If asset is not the one we are looking for then skip
+                if asset_data.unwrap().token != token {
+                    continue;
+                }
+
+                // Finally add value to multi-asset accumulator
+                val_acc += I128Sum::from_nonnegative(note.asset_type, i128::from(note.value))
+                    .expect("Can't convert to I128Sum");
+            }
+        }
+
+        Some(val_acc)
+    }
+
+    pub async fn shielded_rewards_per_token(
+        &self,
+        owner: String,
+        token: String,
+        chain_id: String,
+    ) -> Result<JsValue, JsError> {
+        let token = Address::from_str(&token)?;
+
+        let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
+        shielded.utils.chain_id = chain_id.clone();
+        shielded.load().await?;
+
+        let xvk = ExtendedViewingKey::from_str(&owner)?;
+        let raw_balance = self
+            .compute_shielded_balance_per_token(&shielded, xvk.as_viewing_key(), token)
+            .await;
 
         let rewards = match raw_balance {
             Some(balance) => shielded
