@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 
 import { ActionButton, Alert, Input, Stack } from "@namada/components";
 import { PageHeader } from "App/Common";
-import { ApprovalDetails, Status } from "Approvals/Approvals";
+import { ApprovalDetails } from "Approvals/Approvals";
 import { SignMaspMsg, SubmitApprovedSignTxMsg } from "background/approvals";
 import { CheckPasswordMsg, CheckRequiresAuthMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 import { StatusBox } from "./StatusBox";
+import { Status } from "./types";
 
 type Props = {
   details: ApprovalDetails;
@@ -70,7 +71,7 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
         setStatus(Status.Failed);
       }
     },
-    [password]
+    [requiresAuth, password]
   );
 
   useEffect(() => {
@@ -79,7 +80,6 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
         .sendMessage(Ports.Background, new CheckRequiresAuthMsg())
         .then((isAuthRequired) => {
           setRequiresAuth(isAuthRequired);
-          console.log({ isAuthRequired });
         })
         .catch((e) => console.error(e));
     }
@@ -123,7 +123,7 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
         <Stack gap={2}>
           {requiresAuth && (
             <>
-              <ActionButton disabled={status === Status.Pending}>
+              <ActionButton disabled={!password || status === Status.Pending}>
                 Authenticate
               </ActionButton>
               <ActionButton
