@@ -1,7 +1,10 @@
 import { ActionButton, Panel, SkeletonLoading } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { ShieldAssetsModal } from "App/Common/ShieldAssetsModal";
-import { shieldedTokensAtom } from "atoms/balance/atoms";
+import {
+  shieldedRewardsPerTokenAtom,
+  shieldedTokensAtom,
+} from "atoms/balance/atoms";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { ShieldedFungibleTable } from "./ShieldedFungibleTable";
@@ -32,6 +35,9 @@ const ShieldAssetCta = (): JSX.Element => {
 const AssetTable = (): JSX.Element => {
   const [tab, setTab] = useState(tabs[0]);
   const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
+  const shielededTokensRewardsEstQuery = useAtomValue(
+    shieldedRewardsPerTokenAtom
+  );
 
   if (shieldedTokensQuery.data === undefined) {
     return <SkeletonLoading height="125px" width="100%" />;
@@ -77,7 +83,10 @@ const AssetTable = (): JSX.Element => {
         </div>
       )}
       {tab === "Fungible" && (
-        <ShieldedFungibleTable data={shieldedTokensQuery.data} />
+        <ShieldedFungibleTable
+          data={shieldedTokensQuery.data}
+          rewards={shielededTokensRewardsEstQuery.data}
+        />
       )}
       {tab === "NFT" && <ShieldedNFTTable />}
     </AtomErrorBoundary>
