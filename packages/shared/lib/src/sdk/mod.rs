@@ -815,10 +815,9 @@ impl Sdk {
         to_js_result(rewards.to_string())
     }
 
-    /// This one is similar to compute_shielded_balance from the sdk but it computes the balance per token
     async fn compute_shielded_balance_per_token(
         &self,
-        shielded: &ShieldedContext<masp::JSShieldedUtils>,
+        shielded: &mut ShieldedContext<masp::JSShieldedUtils>,
         vk: ViewingKey,
         token: Address,
     ) -> Option<I128Sum> {
@@ -828,6 +827,7 @@ impl Sdk {
         }
         let mut val_acc = I128Sum::zero();
         // Retrieve the notes that can be spent by this key
+        let mut notes = vec![];
         if let Some(avail_notes) = shielded.pos_map.get(&vk) {
             for note_idx in avail_notes {
                 // Spent notes cannot contribute a new transaction's pool
@@ -835,24 +835,27 @@ impl Sdk {
                 if shielded.spents.contains(note_idx) {
                     continue;
                 }
-                // Get note associated with this ID
                 let note = shielded.note_map.get(note_idx).expect("Note not found");
-                let asset_data = shielded.asset_types.get(&note.asset_type);
-
-                // If asset is not found then skip
-                if asset_data.is_none() {
-                    continue;
-                }
-
-                // If asset is not the one we are looking for then skip
-                if asset_data.unwrap().token != token {
-                    continue;
-                }
-
-                // Finally add value to multi-asset accumulator
-                val_acc += I128Sum::from_nonnegative(note.asset_type, i128::from(note.value))
-                    .expect("Can't convert to I128Sum");
+                notes.push((note.asset_type, note.value));
             }
+        }
+
+        for (asset_type, value) in notes {
+            let asset_data = shielded
+                .decode_asset_type(&self.namada.client, asset_type)
+                .await;
+
+            // If asset is not found then skip
+            if asset_data.is_none() {
+                continue;
+            }
+
+            // If asset is not the one we are looking for then skip
+            if asset_data.unwrap().token != token {
+                continue;
+            }
+            val_acc += I128Sum::from_nonnegative(asset_type, i128::from(value))
+                .expect("Can't convert to I128Sum");
         }
 
         Some(val_acc)
@@ -872,7 +875,7 @@ impl Sdk {
 
         let xvk = ExtendedViewingKey::from_str(&owner)?;
         let raw_balance = self
-            .compute_shielded_balance_per_token(&shielded, xvk.as_viewing_key(), token)
+            .compute_shielded_balance_per_token(&mut shielded, xvk.as_viewing_key(), token)
             .await;
 
         let rewards = match raw_balance {
