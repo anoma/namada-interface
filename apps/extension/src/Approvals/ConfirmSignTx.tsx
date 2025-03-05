@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ActionButton, Input, Stack } from "@namada/components";
+import { ActionButton, Alert, Input, Stack } from "@namada/components";
 import { PageHeader } from "App/Common";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import { SignMaspMsg, SubmitApprovedSignTxMsg } from "background/approvals";
@@ -21,19 +21,38 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
   const navigate = useNavigate();
   const requester = useRequester();
   const [password, setPassword] = useState("");
-  const [requiresAuth, setRequiresAuth] = useState(false);
+  const [requiresAuth, setRequiresAuth] = useState<boolean>();
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
 
+  const signTx = async (): Promise<void> => {
+    try {
+      setStatus(Status.Pending);
+      if (txType === "Unshielding" || txType === "Shielded") {
+        await requester.sendMessage(
+          Ports.Background,
+          new SignMaspMsg(msgId, signer)
+        );
+      }
+
+      await requester.sendMessage(
+        Ports.Background,
+        new SubmitApprovedSignTxMsg(msgId, signer)
+      );
+    } catch (e) {
+      setError(`${e}`);
+      setStatus(Status.Failed);
+    }
+  };
+
   const handleApproveSignTx = useCallback(
     async (e: React.FormEvent): Promise<void> => {
       e.preventDefault();
-      setStatus(Status.Pending);
-      setStatusInfo(`Decrypting keys and signing transaction...`);
 
       try {
         if (requiresAuth) {
+          setStatusInfo(`Decrypting keys and signing transaction...`);
           const isAuthenticated = await requester.sendMessage(
             Ports.Background,
             new CheckPasswordMsg(password)
@@ -44,18 +63,7 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
           }
         }
 
-        if (txType === "Unshielding" || txType === "Shielded") {
-          await requester.sendMessage(
-            Ports.Background,
-            new SignMaspMsg(msgId, signer)
-          );
-        }
-
-        await requester.sendMessage(
-          Ports.Background,
-          new SubmitApprovedSignTxMsg(msgId, signer)
-        );
-
+        await signTx();
         setStatus(Status.Completed);
       } catch (e) {
         setError(`${e}`);
@@ -66,8 +74,7 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
   );
 
   useEffect(() => {
-    if (!status) {
-      console.log("Settings is auth required");
+    if (!status && typeof requiresAuth === "undefined") {
       requester
         .sendMessage(Ports.Background, new CheckRequiresAuthMsg())
         .then((isAuthRequired) => {
@@ -77,14 +84,24 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
         .catch((e) => console.error(e));
     }
 
+    if (typeof requiresAuth !== "undefined" && !requiresAuth) {
+      // User is authenticated with a valid session, so submit signed Tx:
+      signTx()
+        .then(() => setStatus(Status.Completed))
+        .catch((e) => {
+          setError(`${e}`);
+          setStatus(Status.Failed);
+        });
+    }
+
     if (status === Status.Completed) {
       void closeCurrentTab();
     }
-  }, [status]);
+  }, [status, requiresAuth]);
 
   return (
     <Stack full className="py-4">
-      <PageHeader title="Verify" />
+      <PageHeader title={requiresAuth ? "Verify" : "Signing transaction"} />
       <Stack full as="form" onSubmit={handleApproveSignTx}>
         {requiresAuth && (
           <>
@@ -101,25 +118,23 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
             />
           </>
         )}
+        {!requiresAuth && <Alert type="warning">Submitting signature</Alert>}
         <div className="flex-1" />
         <Stack gap={2}>
-          {requiresAuth ?
-            <ActionButton disabled={status === Status.Pending}>
-              Authenticate
-            </ActionButton>
-          : <ActionButton disabled={status === Status.Pending}>
-              {/* TODO: Simply submit instead of requiring a second click - this is temporary! */}
-              Submit
-            </ActionButton>
-          }
-
-          <ActionButton
-            outlineColor="yellow"
-            type="button"
-            onClick={() => navigate(-1)}
-          >
-            Reject
-          </ActionButton>
+          {requiresAuth && (
+            <>
+              <ActionButton disabled={status === Status.Pending}>
+                Authenticate
+              </ActionButton>
+              <ActionButton
+                outlineColor="yellow"
+                type="button"
+                onClick={() => navigate(-1)}
+              >
+                Back
+              </ActionButton>
+            </>
+          )}
         </Stack>
       </Stack>
     </Stack>
