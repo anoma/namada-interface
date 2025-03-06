@@ -18,7 +18,7 @@ import { useTransaction } from "hooks/useTransaction";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { MyValidator } from "types";
-import claimRewardsPinkSvg from "./assets/claim-rewards-pink.svg";
+import withdrawalSvg from "./assets/withdrawal.svg";
 
 export const StakingWithdrawModal = (): JSX.Element => {
   const { data: account } = useAtomValue(defaultAccountAtom);
@@ -91,7 +91,7 @@ export const StakingWithdrawModal = (): JSX.Element => {
           className="bg-black pt-14 pb-12 px-8 rounded-md flex-1 max-w-full"
         >
           <Stack gap={2} className="items-center ">
-            <img src={claimRewardsPinkSvg} alt="" className="w-22 mx-auto" />
+            <img src={withdrawalSvg} alt="" className="w-22 mx-auto" />
             <div>
               {isFetchingValidators && (
                 <SkeletonLoading width="200px" height="40px" />

@@ -19,7 +19,7 @@ export const StakingOverview = (): JSX.Element => {
   const myValidators = useAtomValue(myValidatorsAtom);
   const hasStaking = myValidators.data?.some((v) => v.stakedAmount?.gt(0));
   const hasUnbonded = myValidators.data?.some((v) => v.unbondedAmount?.gt(0));
-  const hasWithdrawals = myValidators.data?.some((v) =>
+  const hasWithdrawableAmounts = myValidators.data?.some((v) =>
     v.withdrawableAmount?.gt(0)
   );
 
@@ -33,7 +33,7 @@ export const StakingOverview = (): JSX.Element => {
             <MyValidatorsTable />
           </Panel>
         )}
-        {hasWithdrawals && (
+        {hasWithdrawableAmounts && (
           <Panel title="Unbonded" className="relative">
             <div className="absolute right-6 top-4 w-40">
               <WithdrawalButton disabled={false} />
