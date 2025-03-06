@@ -8,7 +8,15 @@ import {
 } from "utils/compatibility";
 import { useNamadaKeychain } from "./useNamadaKeychain";
 
-export const useCompatibilityErrors = (): React.ReactNode | undefined => {
+export type CompatibilitySource = "indexer" | "interface" | "keychain";
+
+export const useCompatibilityErrors = (
+  sources: Set<CompatibilitySource> = new Set([
+    "indexer",
+    "interface",
+    "keychain",
+  ])
+): React.ReactNode | undefined => {
   const indexerHealth = useAtomValue(indexerHeartbeatAtom);
   const keychain = useNamadaKeychain();
   const [errorMessage, setErrorMessage] = useState<
@@ -44,15 +52,21 @@ export const useCompatibilityErrors = (): React.ReactNode | undefined => {
   };
 
   useEffect(() => {
-    verifyKeychainVersion();
+    if (sources.has("keychain")) {
+      verifyKeychainVersion();
+    }
   }, []);
 
   useEffect(() => {
-    indexerHealth.isSuccess && verifyIndexerVersion();
+    if (sources.has("indexer") && indexerHealth.isSuccess) {
+      verifyIndexerVersion();
+    }
   }, [indexerHealth]);
 
   useEffect(() => {
-    verifyInterfaceVersion();
+    if (sources.has("interface")) {
+      verifyInterfaceVersion();
+    }
   }, []);
 
   return errorMessage;
