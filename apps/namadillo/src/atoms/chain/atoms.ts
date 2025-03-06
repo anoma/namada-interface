@@ -134,6 +134,7 @@ export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
         ...parameters,
         apr: BigNumber(parameters.apr),
         unbondingPeriod: calculateUnbondingPeriod(parameters),
+        maxBlockTime: Number(parameters.maxBlockTime),
       };
     },
   };
