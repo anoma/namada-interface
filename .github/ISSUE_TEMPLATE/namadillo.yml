@@ -27,27 +27,15 @@ body:
       required: true
 
   - type: textarea
-    id: version
-    attributes:
-      label: Version
-      description: What version of Namadillo are you running? (You can find the version in the "settings" panel)
-    validations:
-      required: true
-
-  - type: dropdown
-    id: browsers
-    attributes:
-      label: What browsers are you seeing the problem on?
-      multiple: true
-      options:
-        - Firefox
-        - Chrome
-        - Safari
-        - Other
-
-  - type: textarea
     id: logs
     attributes:
       label: Relevant log output
       description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+
+  - type: textarea
+    id: debug
+    attributes:
+      label: Debug Information
+      description: Information about your system that might be helpful in debugging the issue.
       render: shell
