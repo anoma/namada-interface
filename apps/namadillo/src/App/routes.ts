@@ -7,6 +7,7 @@ export const routes = {
   stakingBondingRedelegate: "/staking/bonding/redelegate",
   stakingBondingUnstake: "/staking/bonding/unstake",
   stakingClaimRewards: "/staking/claim-rewards",
+  stakingWithdrawal: "/staking/withdraw",
 
   // Governance
   governance: "/governance",

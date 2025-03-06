@@ -40,6 +40,7 @@ import IncrementBonding from "./Staking/IncrementBonding";
 import { ReDelegate } from "./Staking/ReDelegate";
 import { StakingOverview } from "./Staking/StakingOverview";
 import { StakingRewards } from "./Staking/StakingRewards";
+import { StakingWithdrawModal } from "./Staking/StakingWithdrawModal";
 import { Unstake } from "./Staking/Unstake";
 import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
 import { TransactionDetails } from "./Transactions/TransactionDetails";
@@ -160,6 +161,10 @@ export const MainRoutes = (): JSX.Element => {
           <Route
             path={routes.stakingClaimRewards}
             element={<StakingRewards />}
+          />
+          <Route
+            path={routes.stakingWithdrawal}
+            element={<StakingWithdrawModal />}
           />
         </Route>
       </Routes>

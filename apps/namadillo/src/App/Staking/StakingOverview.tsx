@@ -1,4 +1,4 @@
-import { ActionButton, Panel } from "@namada/components";
+import { Panel } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { Sidebar } from "App/Layout/Sidebar";
@@ -12,6 +12,7 @@ import { MyValidatorsTable } from "./MyValidatorsTable";
 import { StakingSummary } from "./StakingSummary";
 import { UnbondedTable } from "./UnbondedTable";
 import { UnbondingAmountsTable } from "./UnbondingAmountsTable";
+import { WithdrawalButton } from "./WithdrawalButton";
 
 export const StakingOverview = (): JSX.Element => {
   const userHasAccount = useUserHasAccount();
@@ -35,14 +36,7 @@ export const StakingOverview = (): JSX.Element => {
         {hasWithdrawals && (
           <Panel title="Unbonded" className="relative">
             <div className="absolute right-6 top-4 w-40">
-              <ActionButton
-                size="xs"
-                outlineColor="pink"
-                textColor="white"
-                className="py-2.5"
-              >
-                Withdraw
-              </ActionButton>
+              <WithdrawalButton disabled={false} />
             </div>
             <UnbondedTable />
           </Panel>
