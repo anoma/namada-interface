@@ -43,7 +43,10 @@ export const checkIndexerCompatibilityErrors = (
   const requiredVersion = compatibility.indexer;
   const checkResult = checkVersionsCompatible(indexerVersion, requiredVersion);
 
-  if (checkResult === CompatibilityOutput.IncompatibleVersion) {
+  if (
+    checkResult === CompatibilityOutput.IncompatibleVersion ||
+    checkResult === CompatibilityOutput.InterfaceOutdated
+  ) {
     return (
       <>
         This Namadillo instance is running outdated infra. Please try another
@@ -51,20 +54,6 @@ export const checkIndexerCompatibilityErrors = (
         <a href="https://namada.net/apps#interfaces" rel="noreferrer">
           Namada Apps
         </a>
-      </>
-    );
-  }
-
-  if (checkResult === CompatibilityOutput.InterfaceOutdated) {
-    return (
-      <>
-        Your Namadillo version is not compatible with the current Namada
-        Indexer. Please upgrade your web interface or pick a different one from
-        the{" "}
-        <a href="https://namada.net/apps#interfaces" rel="noreferrer">
-          Namada Apps
-        </a>{" "}
-        list.
       </>
     );
   }
