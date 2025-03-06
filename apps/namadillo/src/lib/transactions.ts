@@ -109,6 +109,7 @@ export const createTransferDataFromIbc = (
   rpc: string,
   asset: Asset,
   sourceChainId: string,
+  destinationChainId: string,
   details: IbcTransferStage,
   isShieldedTx: boolean
 ): TransferTransactionData => {
@@ -146,7 +147,7 @@ export const createTransferDataFromIbc = (
     chainId: sourceChainId,
     shielded: isShieldedTx,
     currentStep: TransferStep.WaitingConfirmation,
-    destinationChainId: namada.chainId, //TODO: integrate with registry,
+    destinationChainId: destinationChainId ?? namada.chainId,
     sourceAddress: getAttributeValue(transferAttributes, "sender"),
     destinationAddress: getAttributeValue(transferAttributes, "receiver"),
     sequence: getNumberAttributeValue(packetAttributes, "packet_sequence"),
