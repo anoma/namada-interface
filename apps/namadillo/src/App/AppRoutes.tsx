@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 import { AccountOverview } from "./AccountOverview";
 import { App } from "./App";
+import { BugReport } from "./Common/BugReport";
 import { NotFound } from "./Common/NotFound";
 import { RouteErrorBoundary } from "./Common/RouteErrorBoundary";
 import { GovernanceOverview } from "./Governance/GovernanceOverview";
@@ -131,6 +132,7 @@ export const MainRoutes = (): JSX.Element => {
           )}
 
           {/* Other */}
+          <Route path={routes.bugReport} element={<BugReport />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
