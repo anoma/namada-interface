@@ -1,4 +1,4 @@
-import { Panel } from "@namada/components";
+import { ActionButton, Panel } from "@namada/components";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { Sidebar } from "App/Layout/Sidebar";
@@ -10,6 +10,7 @@ import { useAtomValue } from "jotai";
 import { AllValidatorsTable } from "./AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
 import { StakingSummary } from "./StakingSummary";
+import { UnbondedTable } from "./UnbondedTable";
 import { UnbondingAmountsTable } from "./UnbondingAmountsTable";
 
 export const StakingOverview = (): JSX.Element => {
@@ -17,7 +18,7 @@ export const StakingOverview = (): JSX.Element => {
   const myValidators = useAtomValue(myValidatorsAtom);
   const hasStaking = myValidators.data?.some((v) => v.stakedAmount?.gt(0));
   const hasUnbonded = myValidators.data?.some((v) => v.unbondedAmount?.gt(0));
-  const hasWithdraws = myValidators.data?.some((v) =>
+  const hasWithdrawals = myValidators.data?.some((v) =>
     v.withdrawableAmount?.gt(0)
   );
 
@@ -31,7 +32,22 @@ export const StakingOverview = (): JSX.Element => {
             <MyValidatorsTable />
           </Panel>
         )}
-        {(hasUnbonded || hasWithdraws) && (
+        {hasWithdrawals && (
+          <Panel title="Unbonded" className="relative">
+            <div className="absolute right-6 top-4 w-40">
+              <ActionButton
+                size="xs"
+                outlineColor="pink"
+                textColor="white"
+                className="py-2.5"
+              >
+                Withdraw
+              </ActionButton>
+            </div>
+            <UnbondedTable />
+          </Panel>
+        )}
+        {hasUnbonded && (
           <Panel title="Unbonding" className="relative">
             <UnbondingAmountsTable />
           </Panel>
