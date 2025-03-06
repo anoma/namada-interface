@@ -35,7 +35,7 @@ export const BugReport = (): JSX.Element => {
 
   const sep = "\n------------------";
   const debugInfo = `## Navigator${sep}
-User Agent: ${navigator.userAgent}</li>
+User Agent: ${navigator.userAgent}
 Screen Resolution: ${window.innerWidth}px x ${window.innerHeight}px / DPI: ${window.devicePixelRatio}
 ${currentDate.current}
 
@@ -46,7 +46,7 @@ Keychain Version: ${keychainVersion ?? "?"}
 Indexer Version: ${indexerHealth.data?.version}
 
 ## MASP Status${sep}
-MASP Indexer URL: ${settings.maspIndexerUrl}</li>
+MASP Indexer URL: ${settings.maspIndexerUrl}
 Last Shielded Sync: ${lastShieldedSyncForAccount?.toString()}
 Is Shielded Sync complete? ${yesOrNo(isShieldedSyncComplete)}
 
