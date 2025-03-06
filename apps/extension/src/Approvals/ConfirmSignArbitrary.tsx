@@ -10,12 +10,13 @@ import {
 } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { PageHeader } from "App/Common";
-import { SignArbitraryDetails, Status } from "Approvals/Approvals";
+import { SignArbitraryDetails } from "Approvals/Approvals";
 import { SubmitApprovedSignArbitraryMsg } from "background/approvals";
-import { UnlockVaultMsg } from "background/vault";
+import { CheckPasswordMsg, CheckRequiresAuthMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
+import { Status } from "./types";
 
 type Props = {
   details: SignArbitraryDetails;
@@ -26,28 +27,16 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
 
   const navigate = useNavigate();
   const requester = useRequester();
+  const [requiresAuth, setRequiresAuth] = useState<boolean>();
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
 
-  const handleApproveSignature = useCallback(async (): Promise<void> => {
-    const address = shortenAddress(signer, 24);
-
-    setStatus(Status.Pending);
-    setStatusInfo(`Decrypting keys for ${address}`);
-
+  const signArbitrary = async (): Promise<void> => {
     try {
-      const isAuthenticated = await requester.sendMessage(
-        Ports.Background,
-        new UnlockVaultMsg(password)
-      );
-
-      if (!isAuthenticated) {
-        throw new Error("Invalid password!");
-      }
-
-      setStatusInfo(`Signing keys with ${address}`);
+      setStatus(Status.Pending);
+      setStatusInfo(`Signing keys with ${shortenAddress(signer, 24)}`);
       await requester
         .sendMessage(
           Ports.Background,
@@ -58,17 +47,56 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
         });
       setStatus(Status.Completed);
     } catch (e) {
-      console.info(e);
+      throw new Error(`${e}`);
+    }
+  };
+
+  const handleApproveSignature = useCallback(async (): Promise<void> => {
+    try {
+      if (requiresAuth) {
+        setStatusInfo(`Decrypting keys and signing data...`);
+        const isAuthenticated = await requester.sendMessage(
+          Ports.Background,
+          new CheckPasswordMsg(password)
+        );
+
+        if (!isAuthenticated) {
+          throw new Error("Invalid password!");
+        }
+      }
+
+      await signArbitrary();
+      setStatus(Status.Completed);
+    } catch (e) {
       setError(`${e}`);
       setStatus(Status.Failed);
     }
-  }, [password]);
+  }, [requiresAuth, password]);
 
   useEffect(() => {
+    if (!status && typeof requiresAuth === "undefined") {
+      requester
+        .sendMessage(Ports.Background, new CheckRequiresAuthMsg())
+        .then((isAuthRequired) => {
+          setRequiresAuth(isAuthRequired);
+        })
+        .catch((e) => console.error(e));
+    }
+
+    if (typeof requiresAuth !== "undefined" && !requiresAuth) {
+      // User is authenticated with a valid session, so submit signed data
+      signArbitrary()
+        .then(() => setStatus(Status.Completed))
+        .catch((e) => {
+          setError(`${e}`);
+          setStatus(Status.Failed);
+        });
+    }
+
     if (status === Status.Completed) {
       void closeCurrentTab();
     }
-  }, [status]);
+  }, [status, requiresAuth]);
 
   const onSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -83,7 +111,9 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
       gap={GapPatterns.TitleContent}
       className="pt-4 pb-8"
     >
-      <PageHeader title="Confirm Signature" />
+      <PageHeader
+        title={requiresAuth ? "Confirm Signature" : "Submitting signature"}
+      />
       {status === Status.Pending && <Alert type="info">{statusInfo}</Alert>}
       {status === Status.Failed && (
         <Alert type="error">
@@ -95,23 +125,32 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
       {status !== (Status.Pending || Status.Completed) && signer && (
         <>
           <Stack full gap={4}>
-            <Alert type="warning">
-              Decrypt keys for{" "}
-              <strong className="text-xs">{shortenAddress(signer)}</strong>
-            </Alert>
-            <Input
-              variant="Password"
-              label={"Password"}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            {requiresAuth && (
+              <>
+                <Alert type="warning">
+                  Decrypt keys for{" "}
+                  <strong className="text-xs">{shortenAddress(signer)}</strong>
+                </Alert>
+                <Input
+                  variant="Password"
+                  label={"Password"}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </>
+            )}
           </Stack>
           <Stack gap={3}>
-            <ActionButton type="submit" disabled={!password}>
-              Authenticate
-            </ActionButton>
-            <ActionButton outlineColor="yellow" onClick={() => navigate(-1)}>
-              Back
-            </ActionButton>
+            {requiresAuth && (
+              <>
+                <ActionButton disabled={!password}>Authenticate</ActionButton>
+                <ActionButton
+                  outlineColor="yellow"
+                  onClick={() => navigate(-1)}
+                >
+                  Back
+                </ActionButton>
+              </>
+            )}
           </Stack>
         </>
       )}
