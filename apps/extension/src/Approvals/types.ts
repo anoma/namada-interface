@@ -33,3 +33,9 @@ export type TransferType =
   | "Shielded"
   | "Unshielding"
   | "Unknown";
+
+export enum Status {
+  Completed,
+  Pending,
+  Failed,
+}

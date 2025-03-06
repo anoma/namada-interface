@@ -6,6 +6,7 @@ import { ResetPasswordError } from "./types";
 enum MessageType {
   CheckIsLocked = "check-is-locked",
   CheckPassword = "check-password",
+  CheckRequiresAuth = "check-requires-auth",
   LockKeyRing = "lock-keyring",
   ResetPassword = "reset-password",
   UnlockKeyRing = "unlock-keyring",
@@ -77,6 +78,28 @@ export class CheckIsLockedMsg extends Message<boolean> {
 
   type(): string {
     return CheckIsLockedMsg.type();
+  }
+}
+
+export class CheckRequiresAuthMsg extends Message<boolean> {
+  public static type(): MessageType {
+    return MessageType.CheckRequiresAuth;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return CheckRequiresAuthMsg.type();
   }
 }
 
