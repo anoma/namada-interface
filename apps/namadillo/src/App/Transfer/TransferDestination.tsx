@@ -161,7 +161,10 @@ export const TransferDestination = ({
           <div className="flex justify-between items-center">
             <SelectedChain chain={chain} wallet={wallet} iconSize="36px" />
             {wallet && walletAddress && (
-              <SelectedWallet wallet={wallet} address={walletAddress} />
+              <SelectedWallet
+                wallet={wallet}
+                address={customAddressActive ? address : walletAddress}
+              />
             )}
           </div>
         </footer>
