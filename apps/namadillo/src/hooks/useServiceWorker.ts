@@ -7,6 +7,7 @@ export const useServiceWorker = (): void => {
   const [registration, setRegistration] =
     useState<ServiceWorkerRegistration | null>(null);
   const chainId = chain.data?.chainId;
+  // TODO: We should maybe use the masp epoch
   const epochQuery = useAtomValue(epochAtom);
   const epoch = epochQuery.data;
 

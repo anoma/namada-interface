@@ -12,13 +12,15 @@ self.addEventListener("activate", (event) => {
 });
 
 let fetchCacheKey = "";
+//eslint-disable-next-line
 let epoch = 0;
 
 const fetchWithCacheFirst = async (
   request: Request,
   cacheKey: string
 ): Promise<Response> => {
-  const cacheName = `RPC_FETCH_CACHE_${fetchCacheKey}_${epoch}`;
+  // TODO: testing without epoch for now
+  const cacheName = `RPC_FETCH_CACHE_${fetchCacheKey}}`;
   const cache = await caches.open(cacheName);
 
   const cachedResponse = await cache.match(cacheKey);
