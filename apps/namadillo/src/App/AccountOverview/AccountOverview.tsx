@@ -48,9 +48,7 @@ export const AccountOverview = (): JSX.Element => {
               <TransparentOverviewPanel />
             </>
           )}
-          <Panel className="flex items-center flex-1 justify-center">
-            <NavigationFooter />
-          </Panel>
+          <NavigationFooter />
         </section>
       </div>
       <Sidebar>
