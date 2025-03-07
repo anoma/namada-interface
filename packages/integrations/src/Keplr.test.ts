@@ -5,7 +5,6 @@ import { Keplr as IKeplr, Key } from "@keplr-wallet/types";
 import { AccountType, Chain } from "@namada/types";
 
 import { OfflineDirectSigner, OfflineSigner } from "@cosmjs/proto-signing";
-
 import Keplr from "./Keplr";
 
 /**
@@ -47,7 +46,7 @@ describe("Keplr class", () => {
     (keplr as any)._keplr = mockKeplrExtension;
 
     const getOfflineSignerSpy = jest
-      .spyOn(mockKeplrExtension, "getOfflineSignerOnlyAmino")
+      .spyOn(mockKeplrExtension, "getOfflineSigner")
       .mockReturnValue(offlineSignerMock as any);
 
     const signer = keplr.signer();
@@ -56,7 +55,7 @@ describe("Keplr class", () => {
     expect(signer).toBe(offlineSignerMock);
   });
 
-  test("'signer' should throw an error when offlineSigner is not present and extension is not initialized", () => {
+  test("'signer' should throw an error when offlineSginer is not present and extension is not initialized", () => {
     expect(() => keplr.signer()).toThrow();
   });
 

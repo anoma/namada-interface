@@ -29,7 +29,7 @@ import { BridgeProps, Integration } from "./types/Integration";
 
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
 
-type OfflineSigner = ReturnType<IKeplr["getOfflineSignerOnlyAmino"]>;
+type OfflineSigner = ReturnType<IKeplr["getOfflineSigner"]>;
 
 export type KeplrBalance = Coin;
 
@@ -73,7 +73,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
 
     if (this._keplr) {
       const { chainId } = this.chain;
-      this._offlineSigner = this._keplr.getOfflineSignerOnlyAmino(chainId);
+      this._offlineSigner = this._keplr.getOfflineSigner(chainId);
       return this._offlineSigner;
     }
     throw new Error(KEPLR_NOT_FOUND);
