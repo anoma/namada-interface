@@ -10,12 +10,12 @@ import { twMerge } from "tailwind-merge";
 import { UnbondEntry } from "types";
 import { ValidatorCard } from "./ValidatorCard";
 
-export const UnbondingAmountsTable = (): JSX.Element => {
+export const UnbondedTable = (): JSX.Element => {
   const myValidators = useAtomValue(myValidatorsAtom);
   const headers = [
     "Validator",
     "Address",
-    { children: "Amount Unbonding", className: "text-right" },
+    { children: "Amount Available", className: "text-right" },
     { children: "Time Left", className: "text-right" },
   ];
 
@@ -26,8 +26,8 @@ export const UnbondingAmountsTable = (): JSX.Element => {
     for (const myValidator of myValidators.data) {
       const { validator } = myValidator;
       myValidator.unbondItems
-        .filter((entry) => !entry.canWithdraw)
-        .forEach((entry: UnbondEntry) => {
+        .filter((entry) => entry.canWithdraw)
+        .map((entry: UnbondEntry) => {
           rowsList.push({
             cells: [
               <ValidatorCard
@@ -48,10 +48,10 @@ export const UnbondingAmountsTable = (): JSX.Element => {
                 />
               </div>,
               <div
-                key={`commission-${validator.address}`}
-                className="text-right leading-tight text-sm"
+                key={`my-validator-ready-${validator.address}`}
+                className="text-right text-sm text-pink"
               >
-                {entry.timeLeft}
+                Ready
               </div>,
             ],
           });
@@ -65,25 +65,23 @@ export const UnbondingAmountsTable = (): JSX.Element => {
       result={myValidators}
       niceError="Unable to load unbonding list"
     >
-      <StyledTable
-        id="unbonding-amounts-table"
-        headers={headers}
-        rows={rows}
-        containerClassName="table-container flex-1 dark-scrollbar overscroll-contain"
-        tableProps={{
-          className: twMerge(
-            "w-full flex-1 [&_td]:px-1 [&_th]:px-1 [&_td]:h-[64px] [&_tr]:relative",
-            "[&_td:first-child]:pl-4 [&_td:last-child]:pr-4",
-            "[&_td]:font-normal [&_th:first-child]:pl-4 [&_th:last-child]:pr-4",
-            "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md",
-            "[&_td:first-child]:before:absolute [&_td:first-child]:before:w-full [&_td:first-child]:before:h-full",
-            "[&_td:first-child]:before:border [&_td:first-child]:before:border-pink",
-            "[&_td:first-child]:before:left-0 [&_td:first-child]:before:top-0",
-            "[&_td:first-child]:before:rounded-sm [&_td:first-child]:before:pointer-events-none"
-          ),
-        }}
-        headProps={{ className: "text-neutral-500" }}
-      />
+      <div className="relative">
+        <StyledTable
+          id="unbonding-amounts-table"
+          headers={headers}
+          rows={rows}
+          containerClassName="table-container flex-1 dark-scrollbar overscroll-contain"
+          tableProps={{
+            className: twMerge(
+              "w-full flex-1 [&_td]:px-1 [&_th]:px-1 [&_td]:h-[64px] [&_tr]:relative",
+              "[&_td:first-child]:pl-4 [&_td:last-child]:pr-4",
+              "[&_td]:font-normal [&_th:first-child]:pl-4 [&_th:last-child]:pr-4",
+              "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md"
+            ),
+          }}
+          headProps={{ className: "text-neutral-500" }}
+        />
+      </div>
     </AtomErrorBoundary>
   );
 };

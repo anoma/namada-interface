@@ -13,7 +13,6 @@ import { queryDependentFn } from "atoms/utils";
 import { myValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
-import { atomFamily } from "jotai/utils";
 import { AddressBalance, BuildTxAtomParams, StakingTotals } from "types";
 import { namadaAsset, toDisplayAmount } from "utils";
 import { toStakingTotal } from "./functions";
@@ -81,20 +80,18 @@ export const createReDelegateTxAtom = atomWithMutation((get) => {
   };
 });
 
-export const createWithdrawTxAtomFamily = atomFamily((id: string) => {
-  return atomWithMutation((get) => {
-    const chain = get(chainAtom);
-    return {
-      mutationKey: ["create-withdraw-tx", id],
-      enabled: chain.isSuccess,
-      mutationFn: async ({
-        params,
-        gasConfig,
-        account,
-      }: BuildTxAtomParams<WithdrawMsgValue>) =>
-        createWithdrawTx(chain.data!, account, params, gasConfig),
-    };
-  });
+export const createWithdrawTxAtom = atomWithMutation((get) => {
+  const chain = get(chainAtom);
+  return {
+    mutationKey: ["create-withdraw-tx"],
+    enabled: chain.isSuccess,
+    mutationFn: async ({
+      params,
+      gasConfig,
+      account,
+    }: BuildTxAtomParams<WithdrawMsgValue>) =>
+      createWithdrawTx(chain.data!, account, params, gasConfig),
+  };
 });
 
 export const claimableRewardsAtom = atomWithQuery<AddressBalance>((get) => {
