@@ -1,7 +1,9 @@
-import { chainAssetsMapAtom } from "atoms/chain";
+import { chainAssetsMapAtom } from "atoms/chain/atoms";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
+import { IoIosArrowDown } from "react-icons/io";
+import { twMerge } from "tailwind-merge";
 import { getDisplayGasFee } from "utils/gas";
 import { GasFeeModal } from "./GasFeeModal";
 import { TransactionFee } from "./TransactionFee";
@@ -19,16 +21,29 @@ export const TransactionFeeButton = ({
 
   return (
     <>
-      <button
-        type="button"
-        className="underline hover:text-yellow transition-all cursor-pointer"
-        onClick={() => setModalOpen(true)}
-      >
+      <div className="flex items-center justify-between gap-5 flex-1">
         <TransactionFee
           displayAmount={gasDisplayAmount.totalDisplayAmount}
           symbol={gasDisplayAmount.asset.symbol}
         />
-      </button>
+        <div className="flex items-center gap-2">
+          <div className="text-neutral-500 text-xs">Fee Options:</div>
+          <button
+            type="button"
+            className={twMerge(
+              "flex items-center gap-1",
+              "border rounded-sm px-2 py-1 text-xs",
+              "transition-all cursor-pointer hover:text-yellow"
+            )}
+            onClick={() => setModalOpen(true)}
+          >
+            <span className="text- font-medium">
+              {gasDisplayAmount.asset.symbol}
+            </span>
+            <IoIosArrowDown />
+          </button>
+        </div>
+      </div>
       {modalOpen && (
         <GasFeeModal feeProps={feeProps} onClose={() => setModalOpen(false)} />
       )}
