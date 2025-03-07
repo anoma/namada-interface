@@ -1,4 +1,4 @@
-import { chainParametersAtom } from "atoms/chain";
+import { chainParametersAtom, epochAtom } from "atoms/chain";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 
@@ -7,6 +7,8 @@ export const useServiceWorker = (): void => {
   const [registration, setRegistration] =
     useState<ServiceWorkerRegistration | null>(null);
   const chainId = chain.data?.chainId;
+  const epochQuery = useAtomValue(epochAtom);
+  const epoch = epochQuery.data;
 
   useEffect(() => {
     (async () => {
@@ -25,13 +27,17 @@ export const useServiceWorker = (): void => {
             }
           );
 
-          if (registration.installing) {
-            console.info("Service worker installing");
-          } else if (registration.waiting) {
-            console.info("Service worker installed");
-          } else if (registration.active) {
-            console.info("Service worker active");
+          // If the service worker is already active, we can use it immediately
+          if (registration.active) {
             setRegistration(registration);
+          } else if (registration.installing) {
+            // Listen for the state changes
+            registration.installing.addEventListener("statechange", (event) => {
+              const sw = event.target as ServiceWorker;
+              if (sw.state === "activated") {
+                setRegistration(registration);
+              }
+            });
           }
         } catch (error) {
           console.error(`Registration failed with ${error}`);
@@ -41,8 +47,12 @@ export const useServiceWorker = (): void => {
   }, []);
 
   useEffect(() => {
-    if (registration?.active) {
-      registration.active.postMessage({ type: "CHAIN_CHANGE", chainId });
+    if (chainId && registration?.active && epoch) {
+      registration.active.postMessage({
+        type: "CHAIN_CHANGE",
+        chainId,
+        epoch,
+      });
     }
-  }, [chainId]);
+  }, [chainId, epoch, registration?.active]);
 };
