@@ -5,20 +5,23 @@ declare let self: ServiceWorkerGlobalScope;
 
 self.addEventListener("install", () => {
   self.skipWaiting();
-  console.info("Service worker installed");
 });
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
-  console.info("Service worker activated");
+  self.dispatchEvent(new Event("activated"));
 });
 
-const CACHE_NAME = "RPC_FETCH_CACHE";
+let fetchCacheKey = "";
+//eslint-disable-next-line
+let epoch = 0;
 
 const fetchWithCacheFirst = async (
   request: Request,
   cacheKey: string
 ): Promise<Response> => {
-  const cache = await caches.open(CACHE_NAME);
+  // TODO: testing without epoch for now
+  const cacheName = `RPC_FETCH_CACHE_${fetchCacheKey}}`;
+  const cache = await caches.open(cacheName);
 
   const cachedResponse = await cache.match(cacheKey);
 
@@ -62,3 +65,10 @@ self.addEventListener("fetch", function (e) {
 
   e.respondWith(res);
 });
+
+self.onmessage = (event) => {
+  if (event.data.type === "CHAIN_CHANGE") {
+    fetchCacheKey = event.data.chainId;
+    epoch = event.data.epoch;
+  }
+};
