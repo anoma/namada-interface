@@ -5,20 +5,21 @@ declare let self: ServiceWorkerGlobalScope;
 
 self.addEventListener("install", () => {
   self.skipWaiting();
-  console.info("Service worker installed");
 });
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
-  console.info("Service worker activated");
+  self.dispatchEvent(new Event("activated"));
 });
 
 let fetchCacheKey = "";
+let epoch = 0;
 
 const fetchWithCacheFirst = async (
   request: Request,
   cacheKey: string
 ): Promise<Response> => {
-  const cache = await caches.open(`11RPC_FETCH_CACHE_${fetchCacheKey}`);
+  const cacheName = `RPC_FETCH_CACHE_${fetchCacheKey}_${epoch}`;
+  const cache = await caches.open(cacheName);
 
   const cachedResponse = await cache.match(cacheKey);
 
@@ -65,7 +66,7 @@ self.addEventListener("fetch", function (e) {
 
 self.onmessage = (event) => {
   if (event.data.type === "CHAIN_CHANGE") {
-    const chainId = event.data.chainId;
-    fetchCacheKey = chainId;
+    fetchCacheKey = event.data.chainId;
+    epoch = event.data.epoch;
   }
 };
