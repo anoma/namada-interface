@@ -61,17 +61,22 @@ export const gasPriceTableAtom = atomWithQuery<GasPriceTable>((get) => {
     queryKey: ["gas-price-table", chainAssetsMap],
     ...queryDependentFn(async () => {
       const response = await fetchTokensGasPrice(api);
-      return response.map(({ token, minDenomAmount }) => {
-        const asset = chainAssetsMap[token];
-        const baseAmount = BigNumber(minDenomAmount);
-        return {
-          token,
-          gasPrice:
-            asset && isNamadaAsset(asset) ?
-              toDisplayAmount(asset, baseAmount)
-            : baseAmount,
-        };
-      });
+      return (
+        response
+          // filter only tokens that exists on the chain
+          .filter(({ token }) => Boolean(chainAssetsMap[token]))
+          .map(({ token, minDenomAmount }) => {
+            const asset = chainAssetsMap[token];
+            const baseAmount = BigNumber(minDenomAmount);
+            return {
+              token,
+              gasPrice:
+                asset && isNamadaAsset(asset) ?
+                  toDisplayAmount(asset, baseAmount)
+                : baseAmount,
+            };
+          })
+      );
     }, []),
   };
 });
