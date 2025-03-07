@@ -300,6 +300,15 @@ export class Rpc {
   }
 
   /**
+   * Query the current epoch
+   * @async
+   * @returns current epoch
+   */
+  async queryEpoch(): Promise<bigint> {
+    return await this.query.query_epoch();
+  }
+
+  /**
    * Return shielded rewards for specific owner and token for the next masp epoch
    * @async
    * @param owner - Viewing key of an owner
