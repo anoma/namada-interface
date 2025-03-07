@@ -20,6 +20,7 @@ import {
   DelegationTotals,
   DelegatorsVotes,
   GasCosts,
+  MaspTokenRewards,
   StakingPositions,
   StakingTotals,
   StakingTotalsResponse,
@@ -255,7 +256,7 @@ export class Rpc {
   }
 
   /**
-   * Return shielded rewards for specific owner for next epoch
+   * Return shielded rewards for specific owner for the next masp epoch
    * @async
    * @param owner - Viewing key of an owner
    * @param chainId - Chain ID to load the context for
@@ -263,6 +264,57 @@ export class Rpc {
    */
   async shieldedRewards(owner: string, chainId: string): Promise<string> {
     return await this.sdk.shielded_rewards(owner, chainId);
+  }
+
+  /**
+   * Return global shielded rewards per token
+   * @async
+   * @returns Array of MaspTokenRewards
+   */
+  async globalShieldedRewardForTokens(): Promise<MaspTokenRewards[]> {
+    return (await this.query.masp_reward_tokens()).map(
+      (rewardToken: {
+        name: string;
+        address: string;
+        max_reward_rate: number;
+        kp_gain: number;
+        kd_gain: number;
+        locked_amount_target: number;
+      }) => {
+        const {
+          name,
+          address,
+          max_reward_rate: maxRewardRate,
+          kp_gain: kpGain,
+          kd_gain: kdGain,
+          locked_amount_target: lockedAmountTarget,
+        } = rewardToken;
+        return {
+          name,
+          address,
+          maxRewardRate,
+          kpGain,
+          kdGain,
+          lockedAmountTarget,
+        };
+      }
+    );
+  }
+
+  /**
+   * Return shielded rewards for specific owner and token for the next masp epoch
+   * @async
+   * @param owner - Viewing key of an owner
+   * @param token - Token address
+   * @param chainId - Chain ID to load the context for
+   * @returns amount in base units
+   */
+  async shieldedRewardsPerToken(
+    owner: string,
+    token: string,
+    chainId: string
+  ): Promise<string> {
+    return await this.sdk.shielded_rewards_per_token(owner, token, chainId);
   }
 
   /**

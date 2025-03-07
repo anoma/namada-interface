@@ -1,4 +1,7 @@
 use namada_sdk::borsh::BorshSerialize;
+use namada_sdk::address::Address;
+use namada_sdk::uint::Uint;
+use namada_sdk::dec::Dec;
 use serde::{Deserialize, Serialize};
 
 #[derive(BorshSerialize)]
@@ -13,6 +16,16 @@ pub struct ProposalInfo {
     pub tally_type: String,
     pub proposal_type: String,
     pub data: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MaspTokenRewardData {
+    pub name: String,
+    pub address: Address,
+    pub max_reward_rate: Dec,
+    pub kp_gain: Dec,
+    pub kd_gain: Dec,
+    pub locked_amount_target: Uint,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

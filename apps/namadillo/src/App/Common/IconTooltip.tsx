@@ -1,4 +1,4 @@
-import { Tooltip } from "@namada/components";
+import { Tooltip, TooltipProps } from "@namada/components";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -7,6 +7,7 @@ type IconTooltipProps = {
   text: React.ReactNode;
   className?: string;
   tooltipClassName?: string;
+  tooltipPosition?: TooltipProps["position"];
 };
 
 export const IconTooltip = ({
@@ -14,6 +15,7 @@ export const IconTooltip = ({
   text,
   className,
   tooltipClassName,
+  tooltipPosition = "top",
 }: IconTooltipProps): JSX.Element => {
   return (
     <i
@@ -26,7 +28,10 @@ export const IconTooltip = ({
       )}
     >
       {icon}
-      <Tooltip className={twMerge(clsx("z-50 w-68", tooltipClassName))}>
+      <Tooltip
+        className={twMerge(clsx("z-50 w-68", tooltipClassName))}
+        position={tooltipPosition}
+      >
         {text}
       </Tooltip>
     </i>

@@ -1,31 +1,40 @@
-import { ActionButton, TableRow } from "@namada/components";
-import { formatPercentage } from "@namada/utils";
+import { ActionButton, SkeletonLoading, TableRow } from "@namada/components";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { UnshieldAssetsModal } from "App/Common/UnshieldAssetsModal";
 import { TokenBalance } from "atoms/balance/atoms";
+import { applicationFeaturesAtom } from "atoms/settings/atoms";
+import BigNumber from "bignumber.js";
 import { getAssetImageUrl } from "integrations/utils";
+import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { namadaAsset } from "utils";
 
 const resultsPerPage = 100;
 const initialPage = 0;
 
 export const ShieldedFungibleTable = ({
   data,
+  rewards,
 }: {
   data: TokenBalance[];
+  rewards: Record<string, BigNumber> | undefined;
 }): JSX.Element => {
   const [page, setPage] = useState(initialPage);
   const [unshieldingModalOpen, setUnshieldingModalOpen] = useState(false);
   const [assetAddress, setAssetAddress] = useState("");
 
-  const headers = [
-    "Token",
-    { children: "Balance", className: "text-right" },
-    { children: "SSR Rate", className: "text-right" },
-  ];
+  const { shieldingRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
+
+  const headers = ["Token", { children: "Balance", className: "text-right" }];
+  if (shieldingRewardsEnabled) {
+    headers.push({
+      children: "Rewards est next 24hrs",
+      className: "text-right",
+    });
+  }
 
   const renderRow = ({
     originalAddress,
@@ -35,8 +44,7 @@ export const ShieldedFungibleTable = ({
   }: TokenBalance): TableRow => {
     const icon = getAssetImageUrl(asset);
 
-    // TODO
-    const ssrRate = undefined;
+    const reward = rewards?.[originalAddress];
 
     return {
       cells: [
@@ -56,7 +64,7 @@ export const ShieldedFungibleTable = ({
           key={`balance-${originalAddress}`}
           className="flex flex-col text-right leading-tight"
         >
-          <TokenCurrency symbol={asset.symbol} amount={amount} />
+          {amount.toString()}
           {dollar && (
             <FiatCurrency
               className="text-neutral-600 text-sm"
@@ -66,9 +74,20 @@ export const ShieldedFungibleTable = ({
         </div>,
         <div
           key={`ssr-rate-${originalAddress}`}
-          className="text-right leading-tight"
+          className="text-right leading-tight "
         >
-          {ssrRate && formatPercentage(ssrRate)}
+          {shieldingRewardsEnabled &&
+            (reward ?
+              <TokenCurrency
+                symbol={namadaAsset().symbol}
+                amount={reward}
+                className="text-yellow"
+              />
+            : <SkeletonLoading
+                width="120px"
+                height="20px"
+                className="float-right"
+              />)}
         </div>,
         <ActionButton
           key={`unshield-${originalAddress}`}

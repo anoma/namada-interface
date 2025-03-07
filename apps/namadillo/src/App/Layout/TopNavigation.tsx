@@ -1,5 +1,6 @@
 import { ActionButton } from "@namada/components";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
+import { IconTooltip } from "App/Common/IconTooltip";
 import { ShieldAssetsModal } from "App/Common/ShieldAssetsModal";
 import { TransactionInProgressSpinner } from "App/Common/TransactionInProgressSpinner";
 import { UnshieldAssetsModal } from "App/Common/UnshieldAssetsModal";
@@ -8,11 +9,13 @@ import {
   applicationFeaturesAtom,
   signArbitraryEnabledAtom,
 } from "atoms/settings";
+import { useCompatibilityErrors } from "hooks/useCompatibilityErrors";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { AiOutlineMessage } from "react-icons/ai";
 import { IoSettingsOutline } from "react-icons/io5";
+import { PiWarningFill } from "react-icons/pi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { KeplrAccount } from "./KeplrAccount";
 import { NamadaAccount } from "./NamadaAccount";
@@ -29,6 +32,8 @@ export const TopNavigation = (): JSX.Element => {
   );
   const location = useLocation();
   const navigate = useNavigate();
+
+  const compatibilityErrors = useCompatibilityErrors(new Set(["interface"]));
 
   if (!userHasAccount) {
     return (
@@ -112,6 +117,15 @@ export const TopNavigation = (): JSX.Element => {
 
       <TransactionInProgressSpinner />
       <SyncIndicator />
+      {compatibilityErrors && (
+        <IconTooltip
+          className="relative w-6 h-6 bg-transparent"
+          tooltipClassName="w-90"
+          tooltipPosition="bottom"
+          icon={<PiWarningFill className="w-6 h-6 text-orange" />}
+          text=<span>{compatibilityErrors}</span>
+        />
+      )}
       <div className="h-[50px] flex gap-1">
         <NamadaAccount />
         <KeplrAccount />

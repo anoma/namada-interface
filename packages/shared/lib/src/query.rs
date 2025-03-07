@@ -25,8 +25,8 @@ use namada_sdk::proof_of_stake::Epoch;
 use namada_sdk::queries::RPC;
 use namada_sdk::rpc::{
     self, get_public_key_at, get_token_balance, get_total_staked_tokens, is_steward, query_epoch,
-    query_masp_epoch, query_native_token, query_proposal_by_id, query_proposal_votes,
-    query_storage_value,
+    query_masp_epoch, query_masp_reward_tokens, query_native_token, query_proposal_by_id,
+    query_proposal_votes, query_storage_value,
 };
 use namada_sdk::state::Key;
 use namada_sdk::token;
@@ -49,7 +49,7 @@ use crate::sdk::{
     masp::{sync, JSShieldedUtils},
 };
 use crate::types::masp::DatedViewingKey;
-use crate::types::query::{ProposalInfo, WasmHash};
+use crate::types::query::{MaspTokenRewardData, ProposalInfo, WasmHash};
 use crate::utils::{set_panic_hook, to_js_result};
 
 /// Progress bar names
@@ -414,7 +414,7 @@ impl Query {
 
         let epoch = query_masp_epoch(&self.client).await?;
         let balance = shielded
-            .compute_exchanged_balance(&self.client, &WebIo, &viewing_key, epoch)
+            .compute_exchanged_balance(&self.client, &WebIo, &viewing_key)
             .await
             .map_err(|e| JsError::new(&format!("{:?}", e)))?;
 
@@ -689,6 +689,22 @@ impl Query {
         }
 
         to_js_result(delegations)
+    }
+
+    pub async fn masp_reward_tokens(&self) -> Result<JsValue, JsError> {
+        let rewards = query_masp_reward_tokens(&self.client).await?;
+        let serializable_rewards: Vec<MaspTokenRewardData> = rewards
+            .iter()
+            .map(|reward| MaspTokenRewardData {
+                name: reward.name.clone(),
+                address: reward.address.clone(),
+                max_reward_rate: reward.max_reward_rate,
+                kp_gain: reward.kp_gain,
+                kd_gain: reward.kd_gain,
+                locked_amount_target: reward.locked_amount_target,
+            })
+            .collect();
+        to_js_result(serializable_rewards)
     }
 
     /// Returns list of delegators that already voted on a proposal

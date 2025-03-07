@@ -1,5 +1,5 @@
 import { Alert } from "@namada/components";
-import { Status } from "Approvals/Approvals";
+import { Status } from "./types";
 
 type Props = {
   status?: Status;

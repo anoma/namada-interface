@@ -14,7 +14,7 @@ import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { chains } from "@namada/chains";
 import { TransferProps } from "@namada/types";
 import { PageHeader } from "App/Common";
-import { ApprovalDetails, Status } from "Approvals/Approvals";
+import { ApprovalDetails } from "Approvals/Approvals";
 import {
   QueryPendingTxBytesMsg,
   ReplaceMaspSignaturesMsg,
@@ -28,6 +28,7 @@ import { closeCurrentTab, parseTransferType } from "utils";
 import { ApproveIcon } from "./ApproveIcon";
 import { LedgerIcon } from "./LedgerIcon";
 import { StatusBox } from "./StatusBox";
+import { Status } from "./types";
 
 type Props = {
   details: ApprovalDetails;

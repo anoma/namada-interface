@@ -17,7 +17,7 @@
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:9](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/sdk/src/mnemonic.ts#L9)
+[sdk/src/mnemonic.ts:9](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/mnemonic.ts#L9)
 
 ___
 
@@ -27,4 +27,4 @@ ___
 
 #### Defined in
 
-[sdk/src/mnemonic.ts:10](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/sdk/src/mnemonic.ts#L10)
+[sdk/src/mnemonic.ts:10](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/mnemonic.ts#L10)

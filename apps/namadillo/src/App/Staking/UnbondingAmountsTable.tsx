@@ -9,7 +9,6 @@ import { useMemo } from "react";
 import { twMerge } from "tailwind-merge";
 import { UnbondEntry } from "types";
 import { ValidatorCard } from "./ValidatorCard";
-import { WithdrawalButton } from "./WithdrawalButton";
 
 export const UnbondingAmountsTable = (): JSX.Element => {
   const myValidators = useAtomValue(myValidatorsAtom);
@@ -17,7 +16,7 @@ export const UnbondingAmountsTable = (): JSX.Element => {
     "Validator",
     "Address",
     { children: "Amount Unbonding", className: "text-right" },
-    { children: "Time left", className: "text-right" },
+    { children: "Time Left", className: "text-right" },
   ];
 
   const rows = useMemo(() => {
@@ -26,44 +25,37 @@ export const UnbondingAmountsTable = (): JSX.Element => {
     const rowsList: TableRow[] = [];
     for (const myValidator of myValidators.data) {
       const { validator } = myValidator;
-      myValidator.unbondItems.forEach((entry: UnbondEntry) => {
-        rowsList.push({
-          cells: [
-            <ValidatorCard
-              key={`unbonding-list-${validator.address}`}
-              validator={validator}
-              showAddress={false}
-            />,
-            <WalletAddress
-              key={`address-${validator.address}`}
-              address={validator.address}
-            />,
-            <div
-              key={`my-validator-currency-${validator.address}`}
-              className="text-right leading-tight"
-            >
-              <NamCurrency
-                amount={BigNumber(entry.amount) || new BigNumber(0)}
-              />
-            </div>,
-            <div
-              key={`commission-${validator.address}`}
-              className="text-right leading-tight text-sm"
-            >
-              {entry.timeLeft}
-            </div>,
-            <div
-              key={`withdraw-${validator.address}`}
-              className="ml-4 relative z-0"
-            >
-              <WithdrawalButton
-                myValidator={myValidator}
-                unbondingEntry={entry}
-              />
-            </div>,
-          ],
+      myValidator.unbondItems
+        .filter((entry) => !entry.canWithdraw)
+        .forEach((entry: UnbondEntry) => {
+          rowsList.push({
+            cells: [
+              <ValidatorCard
+                key={`unbonding-list-${validator.address}`}
+                validator={validator}
+                showAddress={false}
+              />,
+              <WalletAddress
+                key={`address-${validator.address}`}
+                address={validator.address}
+              />,
+              <div
+                key={`my-validator-currency-${validator.address}`}
+                className="text-right leading-tight"
+              >
+                <NamCurrency
+                  amount={BigNumber(entry.amount) || new BigNumber(0)}
+                />
+              </div>,
+              <div
+                key={`commission-${validator.address}`}
+                className="text-right leading-tight text-sm"
+              >
+                {entry.timeLeft}
+              </div>,
+            ],
+          });
         });
-      });
     }
     return rowsList;
   }, [myValidators]);
@@ -75,7 +67,7 @@ export const UnbondingAmountsTable = (): JSX.Element => {
     >
       <StyledTable
         id="unbonding-amounts-table"
-        headers={headers.concat("")}
+        headers={headers}
         rows={rows}
         containerClassName="table-container flex-1 dark-scrollbar overscroll-contain"
         tableProps={{

@@ -13,12 +13,19 @@ import BigNumber from "bignumber.js";
 import * as osmosis from "chain-registry/mainnet/osmosis";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { Address, ChainParameters, ChainSettings, ChainStatus } from "types";
+import {
+  Address,
+  ChainParameters,
+  ChainSettings,
+  ChainStatus,
+  MaspAssetRewards,
+} from "types";
 import { findAssetByToken } from "utils/assets";
 import { calculateUnbondingPeriod } from "./functions";
 import {
   fetchChainParameters,
   fetchChainTokens,
+  fetchMaspRewards,
   fetchRpcUrlFromIndexer,
 } from "./services";
 
@@ -127,9 +134,20 @@ export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
         ...parameters,
         apr: BigNumber(parameters.apr),
         unbondingPeriod: calculateUnbondingPeriod(parameters),
+        maxBlockTime: Number(parameters.maxBlockTime),
       };
     },
   };
 });
 
 export const chainStatusAtom = atom<ChainStatus | undefined>();
+
+export const maspRewardsAtom = atomWithQuery((get) => {
+  const chain = get(chainAtom);
+  return {
+    queryKey: ["masp-rewards", chain],
+    ...queryDependentFn(async (): Promise<MaspAssetRewards[]> => {
+      return await fetchMaspRewards();
+    }, [chain]),
+  };
+});

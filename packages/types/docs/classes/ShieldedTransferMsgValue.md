@@ -10,6 +10,7 @@
 
 ### Properties
 
+- [bparams](ShieldedTransferMsgValue.md#bparams)
 - [data](ShieldedTransferMsgValue.md#data)
 - [gasSpendingKey](ShieldedTransferMsgValue.md#gasspendingkey)
 
@@ -31,9 +32,19 @@
 
 #### Defined in
 
-[tx/schema/transfer.ts:78](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/types/src/tx/schema/transfer.ts#L78)
+[tx/schema/transfer.ts:129](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/transfer.ts#L129)
 
 ## Properties
+
+### bparams
+
+• `Optional` **bparams**: [`BparamsMsgValue`](BparamsMsgValue.md)[]
+
+#### Defined in
+
+[tx/schema/transfer.ts:127](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/transfer.ts#L127)
+
+___
 
 ### data
 
@@ -41,7 +52,7 @@
 
 #### Defined in
 
-[tx/schema/transfer.ts:73](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/types/src/tx/schema/transfer.ts#L73)
+[tx/schema/transfer.ts:121](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/transfer.ts#L121)
 
 ___
 
@@ -51,4 +62,4 @@ ___
 
 #### Defined in
 
-[tx/schema/transfer.ts:76](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/types/src/tx/schema/transfer.ts#L76)
+[tx/schema/transfer.ts:124](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/transfer.ts#L124)

@@ -8,6 +8,7 @@ import { SettingsStorage } from "types";
 import {
   clearShieldedContext,
   fetchDefaultTomlConfig,
+  getIndexerCrawlerInfo,
   getIndexerHealth,
   isMaspIndexerAlive,
   isRpcAlive,
@@ -209,6 +210,23 @@ export const indexerHeartbeatAtom = atomWithQuery((get) => {
     queryFn: async () => {
       const indexerInfo = await getIndexerHealth(api);
       if (!indexerInfo) throw "Unable to verify indexer heartbeat";
+      return indexerInfo;
+    },
+  };
+});
+
+export const indexerCrawlersInfoAtom = atomWithQuery((get) => {
+  const indexerUrl = get(indexerUrlAtom);
+  const api = get(indexerApiAtom);
+  return {
+    queryKey: ["indexer-crawlers", indexerUrl],
+    enabled: !!indexerUrl,
+    retry: false,
+    refetchOnWindowFocus: true,
+    refetchInterval: 10_000,
+    queryFn: async () => {
+      const indexerInfo = await getIndexerCrawlerInfo(api);
+      if (!indexerInfo) throw "Unable to fetch indexer crawlers info";
       return indexerInfo;
     },
   };

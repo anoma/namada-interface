@@ -18,11 +18,15 @@ Functionality for interacting with NamadaApp for Ledger Hardware Wallets
 
 - [closeTransport](Ledger.md#closetransport)
 - [getAddressAndPublicKey](Ledger.md#getaddressandpublickey)
-- [getShieldedKeys](Ledger.md#getshieldedkeys)
+- [getBparams](Ledger.md#getbparams)
+- [getProofGenerationKey](Ledger.md#getproofgenerationkey)
+- [getViewingKey](Ledger.md#getviewingkey)
+- [isZip32Supported](Ledger.md#iszip32supported)
 - [queryErrors](Ledger.md#queryerrors)
 - [showAddressAndPublicKey](Ledger.md#showaddressandpublickey)
 - [sign](Ledger.md#sign)
 - [status](Ledger.md#status)
+- [validateVersionForZip32](Ledger.md#validateversionforzip32)
 - [init](Ledger.md#init)
 
 ## Constructors
@@ -43,7 +47,7 @@ Functionality for interacting with NamadaApp for Ledger Hardware Wallets
 
 #### Defined in
 
-[sdk/src/ledger.ts:68](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/sdk/src/ledger.ts#L68)
+[sdk/src/ledger.ts:93](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/ledger.ts#L93)
 
 ## Properties
 
@@ -55,7 +59,7 @@ Inititalized NamadaApp class from Zondax package
 
 #### Defined in
 
-[sdk/src/ledger.ts:68](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/sdk/src/ledger.ts#L68)
+[sdk/src/ledger.ts:93](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/ledger.ts#L93)
 
 ## Methods
 
@@ -76,7 +80,7 @@ void
 
 #### Defined in
 
-[sdk/src/ledger.ts:228](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/sdk/src/ledger.ts#L228)
+[sdk/src/ledger.ts:333](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/ledger.ts#L333)
 
 ___
 
@@ -103,27 +107,47 @@ Address and public key
 
 #### Defined in
 
-[sdk/src/ledger.ts:111](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/sdk/src/ledger.ts#L111)
+[sdk/src/ledger.ts:136](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/ledger.ts#L136)
 
 ___
 
-### getShieldedKeys
+### getBparams
 
-▸ **getShieldedKeys**(`path?`, `promptUser?`): `Promise`\<[`LedgerShieldedKeys`](../modules.md#ledgershieldedkeys)\>
+▸ **getBparams**(): `Promise`\<`Bparams`[]\>
 
-Prompt user to get viewing and proof gen key associated with optional path, otherwise, use default path.
-Throw exception if app is not initialized.
+Get Bparams for masp transactions
+
+#### Returns
+
+`Promise`\<`Bparams`[]\>
+
+bparams
+
+**`Async`**
+
+#### Defined in
+
+[sdk/src/ledger.ts:179](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/ledger.ts#L179)
+
+___
+
+### getProofGenerationKey
+
+▸ **getProofGenerationKey**(`path?`, `promptUser?`): `Promise`\<[`LedgerProofGenerationKey`](../modules.md#ledgerproofgenerationkey)\>
+
+Prompt user to get proof generation key associated with optional path, otherwise, use default path.
+Throw exception if app is not initialized, zip32 is not supported, or key is not returned.
 
 #### Parameters
 
 | Name | Type | Default value | Description |
 | :------ | :------ | :------ | :------ |
-| `path?` | `string` | `DEFAULT_LEDGER_BIP44_PATH` | Bip44 path for deriving key |
+| `path?` | `string` | `DEFAULT_LEDGER_ZIP32_PATH` | Zip32 path for deriving key |
 | `promptUser?` | `boolean` | `true` | boolean to determine whether to display on Ledger device and require approval |
 
 #### Returns
 
-`Promise`\<[`LedgerShieldedKeys`](../modules.md#ledgershieldedkeys)\>
+`Promise`\<[`LedgerProofGenerationKey`](../modules.md#ledgerproofgenerationkey)\>
 
 ShieldedKeys
 
@@ -131,7 +155,56 @@ ShieldedKeys
 
 #### Defined in
 
-[sdk/src/ledger.ts:157](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/sdk/src/ledger.ts#L157)
+[sdk/src/ledger.ts:266](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/ledger.ts#L266)
+
+___
+
+### getViewingKey
+
+▸ **getViewingKey**(`path?`, `promptUser?`): `Promise`\<[`LedgerViewingKey`](../modules.md#ledgerviewingkey)\>
+
+Prompt user to get viewing key associated with optional path, otherwise, use default path.
+Throw exception if app is not initialized, zip32 is not supported, or key is not returned.
+
+#### Parameters
+
+| Name | Type | Default value | Description |
+| :------ | :------ | :------ | :------ |
+| `path?` | `string` | `DEFAULT_LEDGER_ZIP32_PATH` | Zip32 path for deriving key |
+| `promptUser?` | `boolean` | `true` | boolean to determine whether to display on Ledger device and require approval |
+
+#### Returns
+
+`Promise`\<[`LedgerViewingKey`](../modules.md#ledgerviewingkey)\>
+
+ShieldedKeys
+
+**`Async`**
+
+#### Defined in
+
+[sdk/src/ledger.ts:233](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/ledger.ts#L233)
+
+___
+
+### isZip32Supported
+
+▸ **isZip32Supported**(): `Promise`\<`boolean`\>
+
+Check if Zip32 is supported by the installed app's version.
+Throws error if app is not initialized
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+boolean
+
+**`Async`**
+
+#### Defined in
+
+[sdk/src/ledger.ts:343](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/ledger.ts#L343)
 
 ___
 
@@ -152,7 +225,7 @@ Error message if error is found
 
 #### Defined in
 
-[sdk/src/ledger.ts:211](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/sdk/src/ledger.ts#L211)
+[sdk/src/ledger.ts:316](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/ledger.ts#L316)
 
 ___
 
@@ -179,7 +252,7 @@ Address and public key
 
 #### Defined in
 
-[sdk/src/ledger.ts:131](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/sdk/src/ledger.ts#L131)
+[sdk/src/ledger.ts:156](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/ledger.ts#L156)
 
 ___
 
@@ -207,7 +280,7 @@ Response signature
 
 #### Defined in
 
-[sdk/src/ledger.ts:196](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/sdk/src/ledger.ts#L196)
+[sdk/src/ledger.ts:301](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/ledger.ts#L301)
 
 ___
 
@@ -228,7 +301,28 @@ Version and info of NamadaApp
 
 #### Defined in
 
-[sdk/src/ledger.ts:94](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/sdk/src/ledger.ts#L94)
+[sdk/src/ledger.ts:119](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/ledger.ts#L119)
+
+___
+
+### validateVersionForZip32
+
+▸ **validateVersionForZip32**(): `Promise`\<`void`\>
+
+Validate the version against the minimum required version for Zip32 functionality.
+Throw error if it is unsupported or app is not initialized.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+void
+
+**`Async`**
+
+#### Defined in
+
+[sdk/src/ledger.ts:356](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/ledger.ts#L356)
 
 ___
 
@@ -254,4 +348,4 @@ Ledger class instance
 
 #### Defined in
 
-[sdk/src/ledger.ts:76](https://github.com/anoma/namada-interface/blob/04cc0e2c5bbf957adca124841118cb1e5cb7bcab/packages/sdk/src/ledger.ts#L76)
+[sdk/src/ledger.ts:101](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/ledger.ts#L101)
