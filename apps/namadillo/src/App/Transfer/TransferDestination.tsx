@@ -177,7 +177,12 @@ export const TransferDestination = ({
               <img src={ibcTransferImageWhite} className="w-20" />
             : <div />}
             {changeFeeEnabled ?
-              feeProps && <TransactionFeeButton feeProps={feeProps} />
+              feeProps && (
+                <TransactionFeeButton
+                  feeProps={feeProps}
+                  className={isIbcTransfer ? "flex-none" : undefined}
+                />
+              )
             : gasDisplayAmount &&
               gasAsset && (
                 <TransactionFee
