@@ -76,6 +76,7 @@ export type ChainParameters = {
   nativeTokenAddress: Address;
   unbondingPeriod: string;
   checksums: Record<string, string>;
+  maxBlockTime: number;
 };
 
 export type SettingsStorage = {

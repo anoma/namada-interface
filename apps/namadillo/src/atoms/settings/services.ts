@@ -1,5 +1,6 @@
 import {
   ApiV1CrawlersTimestampsGet200ResponseInner,
+  ApiV1CrawlersTimestampsGetCrawlerNamesEnum,
   DefaultApi,
   HealthGet200Response,
 } from "@namada/indexer-client";
@@ -20,10 +21,11 @@ export const getIndexerHealth = async (
 };
 
 export const getIndexerCrawlerInfo = async (
-  api: DefaultApi
+  api: DefaultApi,
+  services?: ApiV1CrawlersTimestampsGetCrawlerNamesEnum[]
 ): Promise<ApiV1CrawlersTimestampsGet200ResponseInner[] | undefined> => {
   try {
-    const response = await api.apiV1CrawlersTimestampsGet();
+    const response = await api.apiV1CrawlersTimestampsGet(services);
     return response.data;
   } catch {
     return;
