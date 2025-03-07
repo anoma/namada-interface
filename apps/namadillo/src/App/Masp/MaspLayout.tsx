@@ -1,3 +1,4 @@
+import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
 import { ConnectPanel } from "App/Common/ConnectPanel";
 import { MaspContainer } from "App/Common/MaspContainer";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
@@ -28,9 +29,12 @@ export const MaspLayout: React.FC = () => {
 
   return (
     <PageWithSidebar>
-      <MaspContainer>
-        <Outlet />
-      </MaspContainer>
+      <div>
+        <MaspContainer>
+          <Outlet />
+        </MaspContainer>
+        <NavigationFooter className="mt-2" />
+      </div>
       <Sidebar>
         {features.shieldingRewardsEnabled && <MaspAssetRewards />}
         <ShieldAllBanner />
