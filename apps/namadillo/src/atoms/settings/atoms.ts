@@ -234,13 +234,19 @@ export const indexerCrawlersInfoAtom = atomWithQuery((get) => {
 
 export const clearShieldedContextAtom = atomWithMutation((get) => {
   const parameters = get(chainParametersAtom);
+  const chainId = parameters.data?.chainId;
+
   return {
-    mutationKey: ["clear-shielded-context"],
+    mutationKey: ["clear-shielded-context", chainId],
     mutationFn: () => {
-      if (!parameters.data) {
+      if (!chainId) {
         throw new Error("Chain parameters not loaded");
       }
-      return clearShieldedContext(parameters.data.chainId);
+      return clearShieldedContext(chainId);
     },
   };
 });
+
+export const lastInvalidateShieldedContextAtom = atomWithStorage<{
+  [chainId: string]: string | undefined;
+}>("namadillo:last-invalidate-shielded-context", {});
