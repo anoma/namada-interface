@@ -123,10 +123,14 @@ export const queryAssetBalances = async (
 
 export const createStargateClient = async (
   rpc: string,
-  chain: Chain
+  { chain_id: chainId }: Chain
 ): Promise<SigningStargateClient> => {
   const keplr = getKeplrWallet();
-  const signer = keplr.getOfflineSigner(chain.chain_id);
+  const { isNanoLedger } = await keplr.getKey(chainId);
+  const signer =
+    isNanoLedger ?
+      keplr.getOfflineSignerOnlyAmino(chainId)
+    : keplr.getOfflineSigner(chainId);
   return await SigningStargateClient.connectWithSigner(rpc, signer, {
     broadcastPollIntervalMs: 300,
     broadcastTimeoutMs: 8_000,
