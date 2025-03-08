@@ -1,4 +1,4 @@
-import { chainParametersAtom, epochAtom } from "atoms/chain";
+import { chainParametersAtom, maspEpochAtom } from "atoms/chain";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 
@@ -7,8 +7,8 @@ export const useServiceWorker = (): void => {
   const [registration, setRegistration] =
     useState<ServiceWorkerRegistration | null>(null);
   const chainId = chain.data?.chainId;
-  const epochQuery = useAtomValue(epochAtom);
-  const epoch = epochQuery.data;
+  const maspEpochQuery = useAtomValue(maspEpochAtom);
+  const maspEpoch = maspEpochQuery.data;
 
   useEffect(() => {
     (async () => {
@@ -47,12 +47,12 @@ export const useServiceWorker = (): void => {
   }, []);
 
   useEffect(() => {
-    if (chainId && registration?.active && epoch) {
+    if (chainId && registration?.active && maspEpoch) {
       registration.active.postMessage({
         type: "CHAIN_CHANGE",
         chainId,
-        epoch,
+        maspEpoch,
       });
     }
-  }, [chainId, epoch, registration?.active]);
+  }, [chainId, maspEpoch, registration?.active]);
 };

@@ -126,10 +126,21 @@ impl Query {
     /// # Errors
     ///
     /// Returns an error if the RPC call fails
-    pub async fn query_epoch(&self) -> Result<u64, JsError> {
+    pub async fn query_epoch(&self) -> Result<String, JsError> {
         let epoch = RPC.shell().epoch(&self.client).await?;
 
-        Ok(epoch.0)
+        Ok(epoch.0.to_string())
+    }
+
+    /// Gets current masp epoch - as a string, there is no way to access u64
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the RPC call fails
+    pub async fn query_masp_epoch(&self) -> Result<String, JsError> {
+        let epoch = query_masp_epoch(&self.client).await?;
+
+        Ok(epoch.to_string())
     }
 
     /// Gets all active validator addresses

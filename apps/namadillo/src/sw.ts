@@ -18,7 +18,7 @@ const fetchWithCacheFirst = async (
   request: Request,
   cacheKey: string
 ): Promise<Response> => {
-  const cacheName = `RPC_FETCH_CACHE_${fetchCacheKey}_${epoch}`;
+  const cacheName = `RPC_FETCH_CACHE_id:${fetchCacheKey}_masp_epoch:${epoch}`;
   const cache = await caches.open(cacheName);
 
   const cachedResponse = await cache.match(cacheKey);
