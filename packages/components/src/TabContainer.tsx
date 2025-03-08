@@ -48,7 +48,10 @@ export const TabContainer = ({
               } as React.CSSProperties
             }
             {...buttonProps}
-            className={twMerge(clsx("py-4"), buttonProps.className)}
+            className={twMerge(
+              clsx("py-4 rounded-b-none"),
+              buttonProps.className
+            )}
           >
             {tab.title}
           </ActionButton>
