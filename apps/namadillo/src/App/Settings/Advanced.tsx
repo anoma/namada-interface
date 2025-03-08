@@ -29,8 +29,8 @@ export const Advanced = (): JSX.Element => {
 
   const [rpc, setRpc] = useState(currentRpcUrl);
   const [indexer, setIndexer] = useState(currentIndexerUrl);
-  const [enableTestnets, setTestnetsEnabled] = useState<boolean>(
-    settings.enableTestnets || false
+  const [enableAdvancedMode, setAdvancedMode] = useState<boolean>(
+    settings.advancedMode || false
   );
   const [maspIndexer, setMaspIndexer] = useState(currentMaspIndexer);
 
@@ -41,8 +41,8 @@ export const Advanced = (): JSX.Element => {
         rpcMutation.mutateAsync(rpc),
         indexerMutation.mutateAsync(indexer),
         settingsMutation.mutateAsync({
-          key: "enableTestnets",
-          value: enableTestnets,
+          key: "advancedMode",
+          value: enableAdvancedMode,
         }),
         maspIndexerMutation.mutateAsync(maspIndexer),
       ]);
@@ -116,12 +116,12 @@ export const Advanced = (): JSX.Element => {
         />
         <div className="flex gap-3 items-center">
           <Checkbox
-            id="testnets-enabled"
-            checked={enableTestnets}
-            onChange={(e) => setTestnetsEnabled(e.target.checked)}
+            id="advanced-mode-enabled"
+            checked={enableAdvancedMode}
+            onChange={(e) => setAdvancedMode(e.target.checked)}
           />
-          <label htmlFor="testnets-enabled" className="cursor-pointer">
-            Enable Testnets
+          <label htmlFor="advanced-mode-enabled" className="cursor-pointer">
+            Advanced mode
           </label>
         </div>
       </Stack>

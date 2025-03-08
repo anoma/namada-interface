@@ -1,11 +1,14 @@
 import { Panel } from "@namada/components";
 import { chainStatusAtom } from "atoms/chain";
+import { settingsAtom } from "atoms/settings";
 import { useAtomValue } from "jotai";
 import { TbClockStop } from "react-icons/tb";
 
 export const EpochInformation = (): JSX.Element => {
   const chainStatus = useAtomValue(chainStatusAtom);
-  if (!chainStatus) {
+  const settings = useAtomValue(settingsAtom);
+
+  if (!chainStatus || !settings.advancedMode) {
     return <></>;
   }
 

@@ -114,7 +114,7 @@ export const assetBalanceAtomFamily = atomFamily(
 export const chainRegistryAtom = atom<Record<ChainId, ChainRegistryEntry>>(
   (get) => {
     const settings = get(settingsAtom);
-    const knownChains = getKnownChains(settings.enableTestnets);
+    const knownChains = getKnownChains(settings.advancedMode);
     const map: Record<ChainId, ChainRegistryEntry> = {};
     knownChains.forEach((chain) => {
       map[chain.chain.chain_id] = chain;
@@ -126,13 +126,13 @@ export const chainRegistryAtom = atom<Record<ChainId, ChainRegistryEntry>>(
 // Lists only the available chain list
 export const availableChainsAtom = atom((get) => {
   const settings = get(settingsAtom);
-  return getKnownChains(settings.enableTestnets).map(({ chain }) => chain);
+  return getKnownChains(settings.advancedMode).map(({ chain }) => chain);
 });
 
 // Lists only the available assets list
 export const availableAssetsAtom = atom((get) => {
   const settings = get(settingsAtom);
-  return getKnownChains(settings.enableTestnets).map(({ assets }) => assets);
+  return getKnownChains(settings.advancedMode).map(({ assets }) => assets);
 });
 
 export const ibcRateLimitAtom = atomWithQuery((get) => {
