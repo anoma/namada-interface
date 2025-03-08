@@ -82,7 +82,10 @@ export const useTransaction = <T,>({
 
   // We don't want to display zeroed value when params are not set yet.
   const txKinds = new Array(Math.max(1, params.length)).fill(eventType);
-  const feeProps = useTransactionFee(txKinds);
+  const feeProps = useTransactionFee(
+    txKinds,
+    ["ShieldedTransfer", "UnshieldingTransfer"].includes(eventType)
+  );
 
   const dispatchPendingTxNotification = (
     tx: TransactionPair<T>,
