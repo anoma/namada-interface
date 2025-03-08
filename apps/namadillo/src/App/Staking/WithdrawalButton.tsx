@@ -1,13 +1,17 @@
-import { ActionButton } from "@namada/components";
+import { ActionButton, Modal, Stack } from "@namada/components";
 import { WithdrawMsgValue } from "@namada/types";
+import { InlineError } from "App/Common/InlineError";
+import { ModalContainer } from "App/Common/ModalContainer";
 import { NamCurrency } from "App/Common/NamCurrency";
+import { TransactionFeeButton } from "App/Common/TransactionFeeButton";
 import { defaultAccountAtom } from "atoms/accounts";
 import { createWithdrawTxAtomFamily } from "atoms/staking";
 import BigNumber from "bignumber.js";
 import { useTransaction } from "hooks/useTransaction";
 import { useAtomValue } from "jotai";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MyValidator, UnbondEntry } from "types";
+import withdrawSvg from "./assets/claim-rewards.svg";
 
 type WithdrawalButtonProps = {
   myValidator: MyValidator;
@@ -19,6 +23,7 @@ export const WithdrawalButton = ({
   unbondingEntry,
 }: WithdrawalButtonProps): JSX.Element => {
   const { data: account } = useAtomValue(defaultAccountAtom);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getFamilyId = (): string =>
     `${myValidator.validator.address}- ${unbondingEntry.amount}`;
@@ -35,6 +40,8 @@ export const WithdrawalButton = ({
     isPending,
     isSuccess,
     isEnabled,
+    error,
+    feeProps,
   } = useTransaction({
     createTxAtom: createWithdrawTxAtomFamily(getFamilyId()),
     params: parseWithdrawParams(),
@@ -53,6 +60,9 @@ export const WithdrawalButton = ({
       title: "Withdrawal transaction failed",
       description: "",
     }),
+    onBroadcasted: () => {
+      setIsModalOpen(false);
+    },
   });
 
   useEffect(() => {
@@ -62,20 +72,65 @@ export const WithdrawalButton = ({
     };
   }, []);
 
+  const handleCloseModal = (): void => {
+    setIsModalOpen(false);
+  };
+
   const onWithdraw = (): void => {
     performWithdraw();
   };
 
   return (
-    <ActionButton
-      size="xs"
-      outlineColor="white"
-      disabled={!unbondingEntry.canWithdraw || !isEnabled}
-      onClick={() => onWithdraw()}
-    >
-      {isSuccess && "Claimed"}
-      {isPending && "Processing"}
-      {!isSuccess && !isPending && "Withdraw"}
-    </ActionButton>
+    <>
+      <ActionButton
+        size="xs"
+        outlineColor="white"
+        disabled={!unbondingEntry.canWithdraw || !isEnabled}
+        onClick={() => setIsModalOpen(true)}
+      >
+        {isSuccess && "Claimed"}
+        {isPending && "Processing"}
+        {!isSuccess && !isPending && "Withdraw"}
+      </ActionButton>
+
+      {isModalOpen && (
+        <Modal isOpen={true} onClose={handleCloseModal}>
+          <ModalContainer
+            header="Withdraw Unbonded Tokens"
+            onClose={handleCloseModal}
+            containerProps={{ className: "md:!w-[540px] md:!h-[auto]" }}
+            contentProps={{ className: "flex" }}
+          >
+            <Stack gap={8} className="bg-black py-7 px-8 rounded-md flex-1">
+              <Stack gap={2} className="items-center">
+                <img src={withdrawSvg} alt="" className="w-22 mx-auto" />
+                <div>
+                  <NamCurrency
+                    className="text-4xl"
+                    amount={new BigNumber(unbondingEntry.amount)}
+                  />
+                </div>
+                <div className="text-center text-sm text-gray-400">
+                  Validator:{" "}
+                  {myValidator.validator.moniker ||
+                    myValidator.validator.address}
+                </div>
+              </Stack>
+              <Stack gap={2}>
+                <ActionButton
+                  backgroundColor="cyan"
+                  onClick={onWithdraw}
+                  disabled={!isEnabled || isPending}
+                >
+                  {isPending ? "Processing..." : "Withdraw"}
+                </ActionButton>
+                <TransactionFeeButton feeProps={feeProps} />
+                <InlineError errorMessage={error?.message} />
+              </Stack>
+            </Stack>
+          </ModalContainer>
+        </Modal>
+      )}
+    </>
   );
 };
