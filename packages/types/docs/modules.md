@@ -1278,7 +1278,7 @@ ___
 
 ### isProposalStatus
 
-▸ **isProposalStatus**(`str`): str is "pending" \| "ongoing" \| "passed" \| "rejected"
+▸ **isProposalStatus**(`str`): str is "pending" \| "ongoing" \| "passed" \| "rejected" \|
 
 #### Parameters
 
@@ -1288,7 +1288,7 @@ ___
 
 #### Returns
 
-str is "pending" \| "ongoing" \| "passed" \| "rejected"
+str is "pending" \| "ongoing" \| "passed" \| "rejected" \|
 
 #### Defined in
 
