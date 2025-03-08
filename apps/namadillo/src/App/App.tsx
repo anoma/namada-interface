@@ -4,6 +4,7 @@ import { createBrowserHistory } from "history";
 import { useExtensionEvents } from "hooks/useExtensionEvents";
 import { useRegistryFeatures } from "hooks/useRegistryFeatures";
 import { useServerSideEvents } from "hooks/useServerSideEvents";
+import { useShouldInvalidateShieldedContext } from "hooks/useShouldInvalidateShieldedContext";
 import { useTransactionCallback } from "hooks/useTransactionCallbacks";
 import { useTransactionNotifications } from "hooks/useTransactionNotifications";
 import { useTransactionWatcher } from "hooks/useTransactionWatcher";
@@ -19,6 +20,7 @@ export function App(): JSX.Element {
   useTransactionWatcher();
   useRegistryFeatures();
   useServerSideEvents();
+  useShouldInvalidateShieldedContext();
 
   return (
     <>
