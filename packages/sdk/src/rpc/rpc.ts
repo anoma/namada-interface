@@ -304,8 +304,17 @@ export class Rpc {
    * @async
    * @returns current epoch
    */
-  async queryEpoch(): Promise<bigint> {
+  async queryEpoch(): Promise<string> {
     return await this.query.query_epoch();
+  }
+
+  /**
+   * Query the current masp epoch
+   * @async
+   * @returns current masp epoch
+   */
+  async queryMaspEpoch(): Promise<string> {
+    return await this.query.query_masp_epoch();
   }
 
   /**
