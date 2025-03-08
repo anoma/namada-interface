@@ -1,7 +1,7 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { IbcTransferMsgValue } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
-import { routes } from "App/routes";
+import { params, routes } from "App/routes";
 import {
   OnSubmitTransferParams,
   TransferModule,
@@ -18,6 +18,7 @@ import {
 import BigNumber from "bignumber.js";
 import { useTransaction } from "hooks/useTransaction";
 import { useTransactionActions } from "hooks/useTransactionActions";
+import { useUrlState } from "hooks/useUrlState";
 import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
 import { KeplrWalletManager } from "integrations/Keplr";
@@ -27,7 +28,7 @@ import { TransactionPair } from "lib/query";
 import { useEffect, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 import namadaChainRegistry from "registry/namada.json";
-import { Address, IbcTransferTransactionData, TransferStep } from "types";
+import { IbcTransferTransactionData, TransferStep } from "types";
 import {
   toBaseAmount,
   toDisplayAmount,
@@ -43,7 +44,9 @@ export const IbcWithdraw: React.FC = () => {
   const namadaChain = useAtomValue(chainAtom);
 
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
-  const [selectedAssetAddress, setSelectedAssetAddress] = useState<Address>();
+  const [selectedAssetAddress, setSelectedAssetAddress] = useUrlState(
+    params.asset
+  );
   const [amount, setAmount] = useState<BigNumber | undefined>();
   const [customAddress, setCustomAddress] = useState<string>("");
   const [sourceChannel, setSourceChannel] = useState("");
@@ -64,10 +67,8 @@ export const IbcWithdraw: React.FC = () => {
     selectedAssetAddress
   );
 
-  const selectedAsset = mapUndefined(
-    (address) => availableAssets?.[address],
-    selectedAssetAddress
-  );
+  const selectedAsset =
+    selectedAssetAddress ? availableAssets?.[selectedAssetAddress] : undefined;
 
   const {
     walletAddress: keplrAddress,
