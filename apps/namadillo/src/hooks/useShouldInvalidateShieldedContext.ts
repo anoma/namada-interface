@@ -1,37 +1,37 @@
 import { chainParametersAtom } from "atoms/chain/atoms";
 import {
-  indexerHeartbeatAtom,
   lastInvalidateShieldedContextAtom,
+  maspIndexerHeartbeatAtom,
 } from "atoms/settings/atoms";
 import { useAtomValue } from "jotai";
 import { useEffect } from "react";
 import semverSatisfies from "semver/functions/satisfies";
 import { useInvalidateShieldedContext } from "./useInvalidateShieldedContext";
 
-// change this value to the minimun indexer version that demands to clear the context
-const minIndexerVersion = ">=9.9.0";
+// change this value to the minimun masp indexer version that demands to clear the context
+const minMaspIndexerVersion = ">=9.9.0";
 
 export const useShouldInvalidateShieldedContext = (): void => {
   const lastInvalidate = useAtomValue(lastInvalidateShieldedContextAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
-  const indexerInfo = useAtomValue(indexerHeartbeatAtom);
+  const maspIndexerInfo = useAtomValue(maspIndexerHeartbeatAtom);
 
   const invalidateShieldedContext = useInvalidateShieldedContext();
 
   const chainId = chainParameters.data?.chainId;
-  const indexerVersion = indexerInfo.data?.version;
+  const maspIndexerVersion = maspIndexerInfo.data?.version;
 
   useEffect(() => {
-    if (!chainId || !indexerVersion) {
+    if (!chainId || !maspIndexerVersion) {
       return;
     }
     if (
-      // indexer should be updated and satifies the minimum version
-      semverSatisfies(indexerVersion, minIndexerVersion) &&
-      // and the last clear contenxt should be done with an old indexer version
-      !semverSatisfies(lastInvalidate[chainId] ?? "", minIndexerVersion)
+      // masp indexer should be updated and satifies the minimum version
+      semverSatisfies(maspIndexerVersion, minMaspIndexerVersion) &&
+      // and the last clear context should be done with an old masp indexer version
+      !semverSatisfies(lastInvalidate[chainId] ?? "", minMaspIndexerVersion)
     ) {
       invalidateShieldedContext();
     }
-  }, [chainId, indexerVersion]);
+  }, [chainId, maspIndexerVersion]);
 };

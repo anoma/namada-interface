@@ -7,8 +7,8 @@ import {
 import { chainParametersAtom } from "atoms/chain";
 import {
   clearShieldedContextAtom,
-  indexerHeartbeatAtom,
   lastInvalidateShieldedContextAtom,
+  maspIndexerHeartbeatAtom,
 } from "atoms/settings";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { RESET } from "jotai/utils";
@@ -23,17 +23,17 @@ export const useInvalidateShieldedContext = (): (() => Promise<void>) => {
   const setLastInvalidate = useSetAtom(lastInvalidateShieldedContextAtom);
 
   const chainParameters = useAtomValue(chainParametersAtom);
-  const indexerInfo = useAtomValue(indexerHeartbeatAtom);
+  const maspIndexerInfo = useAtomValue(maspIndexerHeartbeatAtom);
 
   const chainId = chainParameters.data?.chainId ?? "";
-  const indexerVersion = indexerInfo.data?.version ?? "";
+  const maspIndexerVersion = maspIndexerInfo.data?.version ?? "";
 
   return async () => {
     await clearShieldedContext.mutateAsync();
     setStorageShieldedBalance(RESET);
     setLastCompletedShieldedSync(RESET);
     setStorageShieldedRewards(RESET);
-    setLastInvalidate((prev) => ({ ...prev, [chainId]: indexerVersion }));
+    setLastInvalidate((prev) => ({ ...prev, [chainId]: maspIndexerVersion }));
     location.href = routes.root;
   };
 };

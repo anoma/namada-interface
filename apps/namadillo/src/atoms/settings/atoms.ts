@@ -10,7 +10,7 @@ import {
   fetchDefaultTomlConfig,
   getIndexerCrawlerInfo,
   getIndexerHealth,
-  isMaspIndexerAlive,
+  getMaspIndexerHealth,
   isRpcAlive,
 } from "./services";
 
@@ -189,7 +189,12 @@ export const updateIndexerUrlAtom = atomWithMutation(() => {
 export const updateMaspIndexerUrlAtom = atomWithMutation(() => {
   return {
     mutationKey: ["update-masp-indexer-url"],
-    mutationFn: changeSettingsUrl("maspIndexerUrl", isMaspIndexerAlive, true),
+    mutationFn: changeSettingsUrl(
+      "maspIndexerUrl",
+      async (url: string): Promise<boolean> =>
+        !!(await getMaspIndexerHealth(url)),
+      true
+    ),
   };
 });
 
@@ -228,6 +233,22 @@ export const indexerCrawlersInfoAtom = atomWithQuery((get) => {
       const indexerInfo = await getIndexerCrawlerInfo(api);
       if (!indexerInfo) throw "Unable to fetch indexer crawlers info";
       return indexerInfo;
+    },
+  };
+});
+
+export const maspIndexerHeartbeatAtom = atomWithQuery((get) => {
+  const maspIndexerUrl = get(maspIndexerUrlAtom);
+  return {
+    queryKey: ["masp-indexer-heartbeat", maspIndexerUrl],
+    enabled: !!maspIndexerUrl,
+    retry: false,
+    refetchOnWindowFocus: true,
+    refetchInterval: 10_000,
+    queryFn: async () => {
+      const response = await getMaspIndexerHealth(maspIndexerUrl);
+      if (!response) throw "Unable to verify indexer heartbeat";
+      return response;
     },
   };
 });
