@@ -15,17 +15,15 @@ import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useTransfer } from "hooks/useTransfer";
+import { useUrlState } from "hooks/useUrlState";
 import { wallets } from "integrations";
 import invariant from "invariant";
 import { useAtom, useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import namadaChain from "registry/namada.json";
-import { Address } from "types";
 
 export const MaspShield: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const { storeTransaction } = useTransactionActions();
   const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
@@ -51,7 +49,9 @@ export const MaspShield: React.FC = () => {
     (account) => account.type === AccountType.ShieldedKeys
   )?.address;
 
-  const selectedAssetAddress = searchParams.get(params.asset) || undefined;
+  const [selectedAssetAddress, setSelectedAssetAddress] = useUrlState(
+    params.asset
+  );
   const selectedAsset =
     selectedAssetAddress ? availableAssets?.[selectedAssetAddress] : undefined;
 
@@ -86,21 +86,6 @@ export const MaspShield: React.FC = () => {
     },
     asset: selectedAsset?.asset,
   });
-
-  const onChangeSelectedAsset = (address?: Address): void => {
-    setSearchParams(
-      (currentParams) => {
-        const newParams = new URLSearchParams(currentParams);
-        if (address) {
-          newParams.set(params.asset, address);
-        } else {
-          newParams.delete(params.asset);
-        }
-        return newParams;
-      },
-      { replace: true }
-    );
-  };
 
   const onSubmitTransfer = async ({
     memo,
@@ -162,7 +147,7 @@ export const MaspShield: React.FC = () => {
           availableWallets: [wallets.namada],
           wallet: wallets.namada,
           walletAddress: sourceAddress,
-          onChangeSelectedAsset,
+          onChangeSelectedAsset: setSelectedAssetAddress,
           amount: displayAmount,
           onChangeAmount: setDisplayAmount,
           ledgerAccountInfo,
