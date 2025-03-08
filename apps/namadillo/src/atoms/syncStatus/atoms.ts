@@ -5,6 +5,7 @@ import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals";
 import {
   indexerCrawlersInfoAtom,
   indexerHeartbeatAtom,
+  maspIndexerHeartbeatAtom,
   rpcHeartbeatAtom,
 } from "atoms/settings/atoms";
 import { allValidatorsAtom, myValidatorsAtom } from "atoms/validators";
@@ -14,6 +15,7 @@ export const syncStatusAtom = atom((get) => {
   const queries = [
     // Heartbeat
     get(indexerHeartbeatAtom),
+    get(maspIndexerHeartbeatAtom),
     get(rpcHeartbeatAtom),
 
     // Account Overview
