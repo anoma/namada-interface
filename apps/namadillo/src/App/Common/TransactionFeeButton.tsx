@@ -10,8 +10,10 @@ import { TransactionFee } from "./TransactionFee";
 
 export const TransactionFeeButton = ({
   feeProps,
+  className,
 }: {
   feeProps: TransactionFeeProps;
+  className?: string;
 }): JSX.Element => {
   const [modalOpen, setModalOpen] = useState(false);
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
@@ -21,7 +23,12 @@ export const TransactionFeeButton = ({
 
   return (
     <>
-      <div className="flex items-center justify-between gap-5 flex-1">
+      <div
+        className={twMerge(
+          "flex items-center justify-between gap-5 flex-1",
+          className
+        )}
+      >
         <TransactionFee
           displayAmount={gasDisplayAmount.totalDisplayAmount}
           symbol={gasDisplayAmount.asset.symbol}
