@@ -4,7 +4,7 @@ import { AssetImage } from "App/Transfer/AssetImage";
 import { ReactNode } from "react";
 import { Address } from "types";
 
-export const TokenLabel = ({
+export const TokenCard = ({
   address,
   asset,
   disabled,

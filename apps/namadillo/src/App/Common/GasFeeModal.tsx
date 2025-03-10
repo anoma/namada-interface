@@ -19,8 +19,8 @@ import { GasConfig } from "types";
 import { toDisplayAmount } from "utils";
 import { getDisplayGasFee } from "utils/gas";
 import { FiatCurrency } from "./FiatCurrency";
+import { TokenCard } from "./TokenCard";
 import { TokenCurrency } from "./TokenCurrency";
-import { TokenLabel } from "./TokenLabel";
 
 const useSortByNativeToken = () => {
   const nativeToken = useAtomValue(nativeTokenAddressAtom).data;
@@ -252,7 +252,7 @@ export const GasFeeModal = ({
                         "justify-between w-full min-h-[42px] mr-5"
                       )}
                     >
-                      <TokenLabel address={item.token} asset={asset} />
+                      <TokenCard address={item.token} asset={asset} />
                       <div>
                         <div className="text-white text-sm text-right">
                           {unitValueInDollars && (

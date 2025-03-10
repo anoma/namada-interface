@@ -1,8 +1,8 @@
 import { ActionButton, SkeletonLoading, TableRow } from "@namada/components";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
+import { TokenCard } from "App/Common/TokenCard";
 import { TokenCurrency } from "App/Common/TokenCurrency";
-import { TokenLabel } from "App/Common/TokenLabel";
 import { UnshieldAssetsModal } from "App/Common/UnshieldAssetsModal";
 import { TokenBalance } from "atoms/balance/atoms";
 import { applicationFeaturesAtom } from "atoms/settings/atoms";
@@ -46,7 +46,7 @@ export const ShieldedFungibleTable = ({
 
     return {
       cells: [
-        <TokenLabel
+        <TokenCard
           key={`token-${originalAddress}`}
           address={originalAddress}
           asset={asset}

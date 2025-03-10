@@ -7,8 +7,8 @@ import {
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
+import { TokenCard } from "App/Common/TokenCard";
 import { TokenCurrency } from "App/Common/TokenCurrency";
-import { TokenLabel } from "App/Common/TokenLabel";
 import { params, routes } from "App/routes";
 import { TokenBalance, transparentTokensAtom } from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
@@ -45,7 +45,7 @@ const TransparentTokensTable = ({
     const namTransferLocked = isNam && !namTransfersEnabled;
     return {
       cells: [
-        <TokenLabel
+        <TokenCard
           key={`token-${originalAddress}`}
           address={originalAddress}
           asset={asset}

@@ -1,7 +1,7 @@
 import { Stack } from "@namada/components";
 import { Search } from "App/Common/Search";
 import { SelectModal } from "App/Common/SelectModal";
-import { TokenLabel } from "App/Common/TokenLabel";
+import { TokenCard } from "App/Common/TokenCard";
 import { nativeTokenAddressAtom } from "atoms/chain/atoms";
 import { applicationFeaturesAtom } from "atoms/settings/atoms";
 import clsx from "clsx";
@@ -70,7 +70,7 @@ export const SelectAssetModal = ({
                 )}
                 disabled={disabled}
               >
-                <TokenLabel
+                <TokenCard
                   asset={asset}
                   address={originalAddress}
                   disabled={disabled}
