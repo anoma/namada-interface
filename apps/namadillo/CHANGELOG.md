@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.17.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.16.0...namadillo@v1.17.0) (2025-03-10)
+
+
+### Features
+
+* Add button to copy shielded address ([#1866](https://github.com/anoma/namada-interface/issues/1866)) ([151e2f7](https://github.com/anoma/namada-interface/commit/151e2f739eaaf2e0225fa5161473eeaa44c56f60))
+* Add masp indexer version ([#1861](https://github.com/anoma/namada-interface/issues/1861)) ([37bd3f7](https://github.com/anoma/namada-interface/commit/37bd3f7d988bdc89667594afc74194fbc086c5f0))
+* Add warning for tokens from inactive channel ([#1868](https://github.com/anoma/namada-interface/issues/1868)) ([cb94b40](https://github.com/anoma/namada-interface/commit/cb94b4082f2578a8d660ee2db20ec2664d164efc))
+* Adding pro-mode control and hiding advanced settings panel ([#1876](https://github.com/anoma/namada-interface/issues/1876)) ([075d6ce](https://github.com/anoma/namada-interface/commit/075d6ce883b9d961773d96c2d933788545e7122c))
+* Changing tab and text colors on TabContainer ([#1865](https://github.com/anoma/namada-interface/issues/1865)) ([050f9b1](https://github.com/anoma/namada-interface/commit/050f9b1ab49f7e774e0db58f3936cd5ef4552fd7))
+* Creating a new version for Claim Rewards modal ([#1874](https://github.com/anoma/namada-interface/issues/1874)) ([0cb97f2](https://github.com/anoma/namada-interface/commit/0cb97f2087f320fe2b8324ff2ee83e772b9dc69c))
+* Falling back to other fee tokens if user has no nams ([#1852](https://github.com/anoma/namada-interface/issues/1852)) ([d686235](https://github.com/anoma/namada-interface/commit/d686235fbd9a9a6f9aeea5683e85028ab80efa32))
+* Filter out tokens that does not exist on chain ([#1849](https://github.com/anoma/namada-interface/issues/1849)) ([01e2393](https://github.com/anoma/namada-interface/commit/01e2393738303e7554d2deba773dbd5b76ee7fe4))
+* Improving token selection modal ([#1859](https://github.com/anoma/namada-interface/issues/1859)) ([ae73f70](https://github.com/anoma/namada-interface/commit/ae73f703991c10b02eac1c7c350b058445cf657d))
+* Invalidate shielded context based on indexer version ([#1853](https://github.com/anoma/namada-interface/issues/1853)) ([99d05a7](https://github.com/anoma/namada-interface/commit/99d05a703de44689cd573c4181ea950e2d7155e8))
+* Remove compatibility checks for namadillo extension and indexers versions ([#1840](https://github.com/anoma/namada-interface/issues/1840)) ([b90a7a4](https://github.com/anoma/namada-interface/commit/b90a7a472371542271e993ecd1b132857a71b0f5))
+* Renaming masp annual inflation table title ([#1877](https://github.com/anoma/namada-interface/issues/1877)) ([2b1f3e1](https://github.com/anoma/namada-interface/commit/2b1f3e1262996d902629ae3b0f2d924d0f6a4112))
+* Set min masp version ([#1879](https://github.com/anoma/namada-interface/issues/1879)) ([47aaafb](https://github.com/anoma/namada-interface/commit/47aaafbaa27b72b5048db7bf26b225b132cd2143))
+* Starting the advanced mode feature on Namadillo ([#1864](https://github.com/anoma/namada-interface/issues/1864)) ([a45d3a7](https://github.com/anoma/namada-interface/commit/a45d3a7b659d6a1e113a1332892d1e28cae1d8dd))
+* Update overview and staking chart rollover state ([#1871](https://github.com/anoma/namada-interface/issues/1871)) ([e409d4c](https://github.com/anoma/namada-interface/commit/e409d4ceffa4fca9b2700568ed0e44f77b62d2e6))
+* Update transaction fee button ([#1843](https://github.com/anoma/namada-interface/issues/1843)) ([6aa40fd](https://github.com/anoma/namada-interface/commit/6aa40fddc38a596ab86ce28bb4b518c3f2e1cc0b))
+
+
+### Bug Fixes
+
+* Displaying on the loading panel the correct target address ([#1837](https://github.com/anoma/namada-interface/issues/1837)) ([901db3e](https://github.com/anoma/namada-interface/commit/901db3ed6cf343a582c9672c1b506362a157573f))
+* Displaying shielded balances on modal fees for shielded transfers ([#1872](https://github.com/anoma/namada-interface/issues/1872)) ([641df04](https://github.com/anoma/namada-interface/commit/641df0447d20f2510ee9f7ecafd84f6d0d385f27))
+* Fix Keplr signing when source is Ledger HW Wallet ([#1838](https://github.com/anoma/namada-interface/issues/1838)) ([39e741a](https://github.com/anoma/namada-interface/commit/39e741a42cd801e16b33f4b8197880874a4c6749))
+* Fix link for ibc asset withdraw ([#1858](https://github.com/anoma/namada-interface/issues/1858)) ([6e3935b](https://github.com/anoma/namada-interface/commit/6e3935b4d9d715ea2038e35012d5e0354029d27f))
+* Fix transaction fee layout ([#1855](https://github.com/anoma/namada-interface/issues/1855)) ([4ad898e](https://github.com/anoma/namada-interface/commit/4ad898e7b7a2287e6fd909adca9c60a8c4c4e93e))
+* If account is Ledger, don't show sign arbitrary button ([#1860](https://github.com/anoma/namada-interface/issues/1860)) ([a80235c](https://github.com/anoma/namada-interface/commit/a80235ceaa04527e48adf8870152269f704e1f3c))
+* Typo on sidebar ([#1844](https://github.com/anoma/namada-interface/issues/1844)) ([6520633](https://github.com/anoma/namada-interface/commit/6520633421041ead0457f8a8cf9b8d6e0ce768ee))
+
 ## [1.16.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.15.1...namadillo@v1.16.0) (2025-03-07)
 
 
