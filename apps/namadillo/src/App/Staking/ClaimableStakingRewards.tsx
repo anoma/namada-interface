@@ -17,7 +17,7 @@ type ClaimableStakingRewardsProps = {
   isEnabled: boolean;
 };
 
-export const ClaimableStakingRewards = ({
+export const ClaimableRewardsModalStage = ({
   rewards,
   isLoadingRewards,
   onClaim,

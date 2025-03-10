@@ -24,7 +24,7 @@ type ClaimRewardsPanelProps = {
   error?: string;
 };
 
-export const ClaimRewardsPanel = ({
+export const ClaimRewardsSubmitModalStage = ({
   rewards,
   rewardsToClaim,
   isClaimAndStake,

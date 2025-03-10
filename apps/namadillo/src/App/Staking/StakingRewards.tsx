@@ -13,8 +13,8 @@ import { useTransaction } from "hooks/useTransaction";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { AddressBalance } from "types";
-import { ClaimableStakingRewards } from "./ClaimableStakingRewards";
-import { ClaimRewardsPanel } from "./ClaimRewardsPanel";
+import { ClaimableRewardsModalStage } from "./ClaimableStakingRewards";
+import { ClaimRewardsSubmitModalStage } from "./ClaimRewardsPanel";
 
 export const StakingRewards = (): JSX.Element => {
   const { onCloseModal } = useModalCloseEvent();
@@ -121,7 +121,7 @@ export const StakingRewards = (): JSX.Element => {
           contentProps={{ className: "flex" }}
         >
           {rewardsToClaim.length === 0 && (
-            <ClaimableStakingRewards
+            <ClaimableRewardsModalStage
               rewards={rewards}
               isLoadingRewards={isLoadingRewards}
               isEnabled={
@@ -139,7 +139,7 @@ export const StakingRewards = (): JSX.Element => {
             />
           )}
           {rewardsToClaim.length > 0 && rewards && (
-            <ClaimRewardsPanel
+            <ClaimRewardsSubmitModalStage
               rewards={rewards}
               rewardsToClaim={rewardsToClaim}
               isClaimAndStake={shouldClaimAndStake}
