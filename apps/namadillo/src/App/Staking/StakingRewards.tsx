@@ -13,8 +13,8 @@ import { useTransaction } from "hooks/useTransaction";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { AddressBalance } from "types";
-import { ClaimableRewardsModalStage } from "./ClaimableStakingRewards";
-import { ClaimRewardsSubmitModalStage } from "./ClaimRewardsPanel";
+import { ClaimableRewardsModalStage } from "./ClaimableRewardsModalStage";
+import { ClaimRewardsSubmitModalStage } from "./ClaimRewardsSubmitModalStage";
 
 export const StakingRewards = (): JSX.Element => {
   const { onCloseModal } = useModalCloseEvent();
