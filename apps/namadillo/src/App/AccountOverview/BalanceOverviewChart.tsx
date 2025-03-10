@@ -5,11 +5,10 @@ import {
   SkeletonLoading,
 } from "@namada/components";
 import { FiatCurrency } from "App/Common/FiatCurrency";
-import { NamCurrency } from "App/Common/NamCurrency";
+import { OpacitySlides } from "App/Common/OpacitySlides";
 import { shieldedTokensAtom, transparentTokensAtom } from "atoms/balance";
 import { getTotalDollar } from "atoms/balance/functions";
 import { applicationFeaturesAtom } from "atoms/settings";
-import { AnimatePresence, motion } from "framer-motion";
 import { useBalances } from "hooks/useBalances";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
@@ -42,7 +41,7 @@ export const BalanceOverviewChart = (): JSX.Element => {
   const transparentDollars = getTotalDollar(transparentTokensQuery.data);
   const totalAmountInDollars = shieldedDollars.plus(transparentDollars);
 
-  const [activeItem, setActiveItem] = useState<PieChartData | undefined>();
+  const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const isLoading =
     maspEnabled ?
@@ -83,6 +82,8 @@ export const BalanceOverviewChart = (): JSX.Element => {
     ];
   };
 
+  const data = getPiechartData();
+
   return (
     <>
       {!maspEnabled && (
@@ -100,39 +101,37 @@ export const BalanceOverviewChart = (): JSX.Element => {
             />
           : <PieChart
               id="balance-chart"
-              data={getPiechartData()}
+              data={data}
               strokeWidth={24}
               radius={125}
               segmentMargin={0}
-              onMouseLeave={() => setActiveItem(undefined)}
-              onMouseEnter={(item: PieChartData) => setActiveItem(item)}
+              onMouseLeave={() => setActiveIndex(0)}
+              onMouseEnter={(_data: PieChartData, index: number) =>
+                setActiveIndex(index + 1)
+              }
             >
-              <AnimatePresence>
-                <motion.div
-                  key={activeItem?.value.toString() ?? "default"}
-                  exit={{ opacity: 0 }}
-                  className="absolute"
-                >
-                  {maspEnabled ?
-                    <div className="flex flex-col gap-1 leading-tight text-2xl">
-                      <Heading className="text-sm text-neutral-500" level="h3">
-                        {activeItem?.label ?? "Total Non Native Value"}
-                      </Heading>
-                      <div>
-                        <FiatCurrency
-                          amount={activeItem?.value ?? totalAmountInDollars}
-                        />
-                        {!namTransfersEnabled && "*"}
-                      </div>
+              <OpacitySlides activeIndex={activeIndex}>
+                {[
+                  {
+                    label: "Total Non Native Value",
+                    value: totalAmountInDollars,
+                  },
+                  ...data,
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="flex flex-col gap-1 leading-tight text-2xl"
+                  >
+                    <Heading className="text-sm text-neutral-500" level="h3">
+                      {item.label}
+                    </Heading>
+                    <div>
+                      <FiatCurrency amount={item.value} />
+                      {!namTransfersEnabled && "*"}
                     </div>
-                  : <NamCurrency
-                      amount={totalTransparentAmount}
-                      currencySymbolClassName="hidden"
-                      decimalPlaces={2}
-                    />
-                  }
-                </motion.div>
-              </AnimatePresence>
+                  </div>
+                ))}
+              </OpacitySlides>
             </PieChart>
           }
         </div>

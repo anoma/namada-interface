@@ -5,10 +5,10 @@ import {
   SkeletonLoading,
 } from "@namada/components";
 import BigNumber from "bignumber.js";
-import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { colors } from "theme";
 import { NamCurrency } from "./NamCurrency";
+import { OpacitySlides } from "./OpacitySlides";
 
 type BalanceChartProps = {
   bondedAmount: BigNumber;
@@ -27,7 +27,7 @@ export const BalanceChart = ({
   totalAmount,
   isLoading,
 }: BalanceChartProps): JSX.Element => {
-  const [activeItem, setActiveItem] = useState<PieChartData | undefined>();
+  const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const getPiechartData = (): Array<PieChartData> => {
     if (isLoading) {
@@ -58,7 +58,6 @@ export const BalanceChart = ({
   };
 
   const data = getPiechartData();
-  const itemToRender = activeItem ?? data[0];
 
   return (
     <div className="h-[250px] w-[250px]">
@@ -74,30 +73,29 @@ export const BalanceChart = ({
           strokeWidth={24}
           radius={125}
           segmentMargin={0}
-          onMouseLeave={() => setActiveItem(undefined)}
-          onMouseEnter={(item: PieChartData) => setActiveItem(item)}
+          onMouseLeave={() => setActiveIndex(0)}
+          onMouseEnter={(_data: PieChartData, index: number) =>
+            setActiveIndex(index)
+          }
         >
-          <AnimatePresence>
-            {itemToRender?.label && (
-              <motion.div
-                key={itemToRender.label}
-                exit={{ opacity: 0 }}
-                className="absolute"
+          <OpacitySlides activeIndex={activeIndex}>
+            {data.map((item) => (
+              <div
+                key={item.label}
+                className="flex flex-col gap-1 leading-tight"
               >
-                <div className="flex flex-col gap-1 leading-tight">
-                  <Heading className="text-sm text-neutral-500" level="h3">
-                    {itemToRender.label}
-                  </Heading>
-                  <NamCurrency
-                    amount={itemToRender.value}
-                    className="text-2xl"
-                    currencySymbolClassName="block mb-1 text-xs ml-1"
-                    decimalPlaces={2}
-                  />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <Heading className="text-sm text-neutral-500" level="h3">
+                  {item.label}
+                </Heading>
+                <NamCurrency
+                  amount={item.value}
+                  className="text-2xl"
+                  currencySymbolClassName="block mb-1 text-xs ml-1"
+                  decimalPlaces={2}
+                />
+              </div>
+            ))}
+          </OpacitySlides>
         </PieChart>
       }
     </div>
