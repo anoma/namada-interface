@@ -1,4 +1,10 @@
 import { mockJotai, mockReactRouterDom } from "test-utils";
+
+jest.mock("workers/ShieldedSyncWorker", () => jest.fn());
+jest.mock("atoms/balance", () => ({
+  shieldedBalanceAtom: { data: [] },
+}));
+
 mockReactRouterDom("/");
 mockJotai();
 
