@@ -43,7 +43,7 @@ type TransferModuleConfig = {
   connected?: boolean;
   availableChains?: Chains;
   chain?: Chain;
-  isShielded?: boolean;
+  isShieldedAddress?: boolean;
   onChangeWallet?: (wallet: WalletProvider) => void;
   onChangeChain?: (chain: Chain) => void;
   onChangeShielded?: (isShielded: boolean) => void;
@@ -95,6 +95,7 @@ export type TransferModuleProps = {
   currentStatus?: string;
   currentStatusExplanation?: string;
   completedAt?: Date;
+  isShieldedTx?: boolean;
   buttonTextErrors?: Partial<Record<ValidationResult, string>>;
   onComplete?: () => void;
 } & (
@@ -134,6 +135,7 @@ export const TransferModule = ({
   completedAt,
   onComplete,
   buttonTextErrors = {},
+  isShieldedTx = false,
 }: TransferModuleProps): JSX.Element => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -194,7 +196,7 @@ export const TransferModule = ({
     if (!source.wallet) {
       return "NoSourceWallet";
     } else if (
-      (source.isShielded || destination.isShielded) &&
+      (source.isShieldedAddress || destination.isShieldedAddress) &&
       keychainVersion &&
       !checkKeychainCompatibleWithMasp(keychainVersion)
     ) {
@@ -217,7 +219,7 @@ export const TransferModule = ({
     } else if (!destination.wallet && !destination.customAddress) {
       return "NoDestinationWallet";
     } else if (
-      (source.isShielded || destination.isShielded) &&
+      (source.isShieldedAddress || destination.isShieldedAddress) &&
       source.ledgerAccountInfo &&
       !source.ledgerAccountInfo.deviceConnected
     ) {
@@ -385,7 +387,9 @@ export const TransferModule = ({
   };
 
   const buttonColor =
-    destination.isShielded || source.isShielded ? "yellow" : "white";
+    destination.isShieldedAddress || source.isShieldedAddress ?
+      "yellow"
+    : "white";
 
   const renderLedgerTooltip = useCallback(
     () => (
@@ -432,7 +436,7 @@ export const TransferModule = ({
             walletAddress={source.walletAddress}
             asset={selectedAsset?.asset}
             isLoadingAssets={source.isLoadingAssets}
-            chain={parseChainInfo(source.chain, source.isShielded)}
+            chain={parseChainInfo(source.chain, source.isShieldedAddress)}
             availableAmount={source.availableAmount}
             availableAmountMinusFees={availableAmountMinusFees}
             amount={source.amount}
@@ -448,21 +452,25 @@ export const TransferModule = ({
               : undefined
             }
             onChangeAmount={source.onChangeAmount}
-            isShielded={source.isShielded}
+            isShieldedAddress={source.isShieldedAddress}
             onChangeShielded={source.onChangeShielded}
             isSubmitting={isSubmitting}
           />
           <i className="flex items-center justify-center w-11 mx-auto -my-8 relative z-10">
             <TransferArrow
-              color={destination.isShielded ? "#FF0" : "#FFF"}
+              color={destination.isShieldedAddress ? "#FF0" : "#FFF"}
               isAnimating={isSubmitting}
             />
           </i>
           <TransferDestination
             wallet={destination.wallet}
             walletAddress={destination.walletAddress}
-            chain={parseChainInfo(destination.chain, destination.isShielded)}
-            isShielded={destination.isShielded}
+            chain={parseChainInfo(
+              destination.chain,
+              destination.isShieldedAddress
+            )}
+            isShieldedAddress={destination.isShieldedAddress}
+            isShieldedTx={isShieldedTx}
             isIbcTransfer={isIbcTransfer}
             onChangeShielded={destination.onChangeShielded}
             address={destination.customAddress}
@@ -495,7 +503,9 @@ export const TransferModule = ({
           />
           {isIbcTransfer && requiresIbcChannels && (
             <IbcChannels
-              isShielded={Boolean(source.isShielded || destination.isShielded)}
+              isShielded={Boolean(
+                source.isShieldedAddress || destination.isShieldedAddress
+              )}
               sourceChannel={ibcOptions.sourceChannel}
               onChangeSource={ibcOptions.onChangeSourceChannel}
               destinationChannel={ibcOptions.destinationChannel}

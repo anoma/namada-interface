@@ -11,9 +11,11 @@ import { TransactionFee } from "./TransactionFee";
 export const TransactionFeeButton = ({
   feeProps,
   className,
+  isShieldedTransfer = false,
 }: {
   feeProps: TransactionFeeProps;
   className?: string;
+  isShieldedTransfer?: boolean;
 }): JSX.Element => {
   const [modalOpen, setModalOpen] = useState(false);
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
@@ -52,7 +54,11 @@ export const TransactionFeeButton = ({
         </div>
       </div>
       {modalOpen && (
-        <GasFeeModal feeProps={feeProps} onClose={() => setModalOpen(false)} />
+        <GasFeeModal
+          feeProps={feeProps}
+          onClose={() => setModalOpen(false)}
+          isShielded={isShieldedTransfer}
+        />
       )}
     </>
   );
