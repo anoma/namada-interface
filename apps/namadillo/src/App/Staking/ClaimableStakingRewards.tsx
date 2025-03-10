@@ -109,7 +109,7 @@ export const ClaimableRewardsModalStage = ({
           <span>Validator</span>
           <span>Staking reward</span>
         </header>
-        <Stack gap={2} as="ul" className="max-h-[280px] overflow-scroll -mx-4">
+        <Stack gap={2} as="ul" className="max-h-[280px] overflow-auto -mx-4">
           {Object.keys(rewards || {}).map((validatorAddress, index) => (
             <li
               key={index}
