@@ -29,7 +29,7 @@ describe("Component: TransferDestination", () => {
   it("should render the TabSelector for shielded/transparent when onChangeShielded is provided", () => {
     render(
       <TransferDestination
-        isShielded={true}
+        isShieldedAddress={true}
         onChangeShielded={jest.fn()}
         chain={parseChainInfo(namadaChainMock as Chain, true)}
       />
@@ -39,14 +39,16 @@ describe("Component: TransferDestination", () => {
   });
 
   it("should render a yellow border when transfer is shielded", () => {
-    const { container } = render(<TransferDestination isShielded={true} />);
+    const { container } = render(
+      <TransferDestination isShieldedAddress={true} />
+    );
     expect(container.firstElementChild?.className).toContain("border-yellow");
   });
 
   it("should render nothing related to shielding when provided chain is not Namada", () => {
     render(
       <TransferDestination
-        isShielded={true}
+        isShieldedAddress={true}
         chain={parseChainInfo(randomChainMock as Chain, true)}
         onChangeShielded={jest.fn()}
       />
@@ -57,7 +59,7 @@ describe("Component: TransferDestination", () => {
   it("should render correct chain name when shielded transfer is set", () => {
     render(
       <TransferDestination
-        isShielded={true}
+        isShieldedAddress={true}
         chain={parseChainInfo(namadaChainMock as Chain, true)}
         wallet={walletMock}
       />
@@ -68,7 +70,7 @@ describe("Component: TransferDestination", () => {
   it("should render correct chain name when transparent transfer is set", () => {
     render(
       <TransferDestination
-        isShielded={false}
+        isShieldedAddress={false}
         chain={parseChainInfo(namadaChainMock as Chain, false)}
         wallet={walletMock}
       />
@@ -80,7 +82,7 @@ describe("Component: TransferDestination", () => {
     const onChangeShieldedMock = jest.fn();
     render(
       <TransferDestination
-        isShielded={true}
+        isShieldedAddress={true}
         chain={parseChainInfo(namadaChainMock as Chain, true)}
         onChangeShielded={onChangeShieldedMock}
       />

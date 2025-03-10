@@ -157,7 +157,7 @@ export const MaspShield: React.FC = () => {
           availableWallets: [wallets.namada],
           wallet: wallets.namada,
           walletAddress: destinationAddress,
-          isShielded: true,
+          isShieldedAddress: true,
         }}
         feeProps={feeProps}
         isSubmitting={isPerformingTransfer || isSuccess}

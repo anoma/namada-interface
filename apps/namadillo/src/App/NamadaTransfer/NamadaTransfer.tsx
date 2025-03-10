@@ -186,7 +186,7 @@ export const NamadaTransfer: React.FC = () => {
           walletAddress: sourceAddress,
           selectedAssetAddress,
           onChangeSelectedAsset: setSelectedAssetAddress,
-          isShielded: shielded,
+          isShieldedAddress: shielded,
           onChangeShielded,
           amount: displayAmount,
           onChangeAmount: setDisplayAmount,
@@ -199,12 +199,13 @@ export const NamadaTransfer: React.FC = () => {
           onChangeCustomAddress: setCustomAddress,
           wallet: wallets.namada,
           walletAddress: customAddress,
-          isShielded: isShieldedAddress(customAddress),
+          isShieldedAddress: isShieldedAddress(customAddress),
         }}
         feeProps={feeProps}
         currentStatus={currentStatus}
         completedAt={completedAt}
         currentStatusExplanation={currentStatusExplanation}
+        isShieldedTx={isSourceShielded}
         isSubmitting={
           isPerformingTransfer || isTransferSuccessful || Boolean(completedAt)
         }
