@@ -27,7 +27,7 @@ const mockAtomValues = (claimRewardsEnabled: boolean, rewards: any) => {
       return { claimRewardsEnabled };
     }
     if (atom === claimableRewardsAtom) {
-      return { data: rewards };
+      return { data: rewards, isSuccess: true };
     }
     return null;
   });
