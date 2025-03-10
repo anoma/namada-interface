@@ -56,7 +56,7 @@ export const ClaimableRewardsModalStage = ({
             size="xs"
             className="px-1 py-2"
           >
-            Claim & Stake
+            Claim & Stake All
           </ActionButton>
           <ActionButton
             backgroundColor="white"
@@ -68,7 +68,7 @@ export const ClaimableRewardsModalStage = ({
             size="xs"
             className="px-1 py-2"
           >
-            Claim
+            Claim All
           </ActionButton>
         </Stack>
       </div>
