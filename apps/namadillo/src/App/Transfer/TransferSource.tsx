@@ -26,7 +26,7 @@ export type TransferSourceProps = {
   availableAmount?: BigNumber;
   availableAmountMinusFees?: BigNumber;
   onChangeAmount?: (amount: BigNumber | undefined) => void;
-  isShielded?: boolean;
+  isShieldedAddress?: boolean;
   onChangeShielded?: (isShielded: boolean) => void;
 };
 
@@ -54,7 +54,7 @@ export const TransferSource = ({
   availableAmountMinusFees,
   amount,
   onChangeAmount,
-  isShielded,
+  isShieldedAddress,
   onChangeShielded,
   isSubmitting,
 }: TransferSourceProps): JSX.Element => {
@@ -64,7 +64,7 @@ export const TransferSource = ({
       {onChangeShielded && chain?.chain_name === "namada" && !isSubmitting && (
         <nav className="mb-6">
           <TabSelector
-            active={isShielded ? "shielded" : "transparent"}
+            active={isShieldedAddress ? "shielded" : "transparent"}
             items={[
               { id: "shielded", text: "Shielded", className: "text-yellow" },
               {
@@ -73,7 +73,7 @@ export const TransferSource = ({
                 className: "text-white",
               },
             ]}
-            onChange={() => onChangeShielded(!isShielded)}
+            onChange={() => onChangeShielded(!isShieldedAddress)}
           />
         </nav>
       )}

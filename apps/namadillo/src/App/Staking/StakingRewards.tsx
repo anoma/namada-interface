@@ -1,40 +1,38 @@
-import {
-  ActionButton,
-  Modal,
-  SkeletonLoading,
-  Stack,
-} from "@namada/components";
+import { Modal } from "@namada/components";
 import { ClaimRewardsMsgValue } from "@namada/types";
-import { InlineError } from "App/Common/InlineError";
+import { BackButton } from "App/Common/BackButton";
 import { ModalContainer } from "App/Common/ModalContainer";
-import { NamCurrency } from "App/Common/NamCurrency";
-import { TransactionFeeButton } from "App/Common/TransactionFeeButton";
 import { defaultAccountAtom } from "atoms/accounts";
-import { applicationFeaturesAtom } from "atoms/settings";
 import {
   claimableRewardsAtom,
   claimAndStakeRewardsAtom,
   claimRewardsAtom,
 } from "atoms/staking";
-import BigNumber from "bignumber.js";
 import { useModalCloseEvent } from "hooks/useModalCloseEvent";
 import { useTransaction } from "hooks/useTransaction";
 import { useAtomValue } from "jotai";
-import { sumBigNumberArray } from "utils";
-import claimRewardsSvg from "./assets/claim-rewards.svg";
+import { useMemo, useState } from "react";
+import { AddressBalance } from "types";
+import { ClaimableRewardsModalStage } from "./ClaimableRewardsModalStage";
+import { ClaimRewardsSubmitModalStage } from "./ClaimRewardsSubmitModalStage";
 
 export const StakingRewards = (): JSX.Element => {
+  const { onCloseModal } = useModalCloseEvent();
   const { data: account } = useAtomValue(defaultAccountAtom);
-  const { claimRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
+  const [rewardsToClaim, setRewardsToClaim] = useState<ClaimRewardsMsgValue[]>(
+    []
+  );
+
+  const [shouldClaimAndStake, setShouldClaimAndStake] = useState(false);
   const {
     isLoading: isLoadingRewards,
-    isSuccess,
     data: rewards,
+    isSuccess: successfullyLoadedRewards,
   } = useAtomValue(claimableRewardsAtom);
 
-  const { onCloseModal } = useModalCloseEvent();
-
-  const parseStakingRewardsParams = (): ClaimRewardsMsgValue[] => {
+  const parseStakingRewardsParams = (
+    rewards: AddressBalance
+  ): ClaimRewardsMsgValue[] => {
     if (!rewards || Object.values(rewards).length === 0 || !account) return [];
     return Object.keys(rewards).map((validatorAddress) => {
       return {
@@ -51,8 +49,8 @@ export const StakingRewards = (): JSX.Element => {
     error: claimError,
     feeProps: claimFeeProps,
   } = useTransaction({
-    params: parseStakingRewardsParams(),
     createTxAtom: claimRewardsAtom,
+    params: rewardsToClaim,
     eventType: "ClaimRewards",
     parsePendingTxNotification: () => ({
       title: "Claim rewards transaction is in progress",
@@ -70,8 +68,8 @@ export const StakingRewards = (): JSX.Element => {
     error: claimAndStakeError,
     feeProps: claimAndStakeFeeProps,
   } = useTransaction({
-    params: parseStakingRewardsParams(),
     createTxAtom: claimAndStakeRewardsAtom,
+    params: rewardsToClaim,
     eventType: "ClaimRewards",
     parsePendingTxNotification: () => ({
       title: "Claim rewards transaction is in progress",
@@ -87,61 +85,73 @@ export const StakingRewards = (): JSX.Element => {
     },
   });
 
-  const isLoading = claimRewardsPending || claimAndStakePending;
-  const availableRewards =
-    claimRewardsEnabled ?
-      sumBigNumberArray(Object.values(rewards || {}))
-    : new BigNumber(0);
+  const modalTitle = useMemo(() => {
+    if (!rewardsToClaim) return "Claimable Staking Rewards";
+    if (shouldClaimAndStake) return "Confirm Claim & Stake";
+    return "Confirm Claim";
+  }, [shouldClaimAndStake, rewardsToClaim]);
 
-  const error = claimError?.message ?? claimAndStakeError?.message;
+  const onSubmitClaim = (): void => {
+    if (shouldClaimAndStake) {
+      claimRewardsAndStake();
+    } else {
+      claimRewards();
+    }
+  };
+
+  const isSubmitting = claimRewardsPending || claimAndStakePending;
+  const error = claimError || claimAndStakeError;
 
   return (
     <Modal onClose={onCloseModal}>
-      <ModalContainer
-        header="Claimable Staking Rewards"
-        onClose={onCloseModal}
-        containerProps={{ className: "md:!w-[540px] md:!h-[auto]" }}
-        contentProps={{ className: "flex" }}
-      >
-        <Stack gap={8} className="bg-black py-7 px-8 rounded-md flex-1">
-          <Stack gap={2} className="items-center ">
-            <img src={claimRewardsSvg} alt="" className="w-22 mx-auto" />
-            <div>
-              {isLoadingRewards && (
-                <SkeletonLoading width="200px" height="60px" />
-              )}
-              {isSuccess && (
-                <NamCurrency className="text-4xl" amount={availableRewards} />
-              )}
-            </div>
-          </Stack>
-          <Stack gap={2}>
-            <ActionButton
-              backgroundColor="cyan"
-              onClick={() => claimRewardsAndStake()}
-              disabled={
-                availableRewards.eq(0) || !claimAndStakeTxEnabled || isLoading
+      <>
+        {rewardsToClaim.length > 0 && (
+          <header className="absolute z-50 top-5 left-6">
+            <BackButton onClick={() => setRewardsToClaim([])} />
+          </header>
+        )}
+        <ModalContainer
+          header={modalTitle}
+          onClose={onCloseModal}
+          containerProps={{
+            className: "md:!w-[640px] md:!h-[auto] overflow-hidden",
+          }}
+          contentProps={{ className: "flex" }}
+        >
+          {rewardsToClaim.length === 0 && (
+            <ClaimableRewardsModalStage
+              rewards={rewards}
+              isLoadingRewards={isLoadingRewards}
+              isEnabled={
+                successfullyLoadedRewards &&
+                Object.keys(rewards || {}).length > 0
               }
-            >
-              {claimAndStakePending ? "Loading..." : "Claim & Stake"}
-            </ActionButton>
-            <TransactionFeeButton feeProps={claimAndStakeFeeProps} />
-            <div className="h-6" />
-            <ActionButton
-              backgroundColor="white"
-              onClick={() => claimRewards()}
-              disabled={
-                availableRewards.eq(0) || !claimRewardsTxEnabled || isLoading
+              onClaim={(balances: AddressBalance) => {
+                setRewardsToClaim(parseStakingRewardsParams(balances));
+                setShouldClaimAndStake(false);
+              }}
+              onClaimAndStake={(balances: AddressBalance) => {
+                setRewardsToClaim(parseStakingRewardsParams(balances));
+                setShouldClaimAndStake(true);
+              }}
+            />
+          )}
+          {rewardsToClaim.length > 0 && rewards && (
+            <ClaimRewardsSubmitModalStage
+              rewards={rewards}
+              rewardsToClaim={rewardsToClaim}
+              isClaimAndStake={shouldClaimAndStake}
+              onClaim={onSubmitClaim}
+              isClaiming={isSubmitting}
+              error={error?.message}
+              isEnabled={claimRewardsTxEnabled || claimAndStakeTxEnabled}
+              feeProps={
+                shouldClaimAndStake ? claimAndStakeFeeProps : claimFeeProps
               }
-              type="button"
-            >
-              {claimRewardsPending ? "Loading..." : "Claim"}
-            </ActionButton>
-            <TransactionFeeButton feeProps={claimFeeProps} />
-            <InlineError errorMessage={error} />
-          </Stack>
-        </Stack>
-      </ModalContainer>
+            />
+          )}
+        </ModalContainer>
+      </>
     </Modal>
   );
 };

@@ -5,8 +5,8 @@ import {
   Modal,
   StyledSelectBox,
 } from "@namada/components";
-import { AssetImage } from "App/Transfer/AssetImage";
 import { transparentBalanceAtom } from "atoms/accounts";
+import { shieldedBalanceAtom } from "atoms/balance";
 import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { GasPriceTable, GasPriceTableItem } from "atoms/fees/atoms";
 import { tokenPricesFamily } from "atoms/prices/atoms";
@@ -20,6 +20,7 @@ import { GasConfig } from "types";
 import { toDisplayAmount } from "utils";
 import { getDisplayGasFee } from "utils/gas";
 import { FiatCurrency } from "./FiatCurrency";
+import { TokenCard } from "./TokenCard";
 import { TokenCurrency } from "./TokenCurrency";
 
 const useSortByNativeToken = () => {
@@ -94,9 +95,11 @@ const useBuildGasOption = ({
 export const GasFeeModal = ({
   feeProps,
   onClose,
+  isShielded = false,
 }: {
   feeProps: TransactionFeeProps;
   onClose: () => void;
+  isShielded?: boolean;
 }): JSX.Element => {
   const {
     gasConfig,
@@ -110,12 +113,21 @@ export const GasFeeModal = ({
   const buildGasOption = useBuildGasOption({ gasConfig, gasPriceTable });
   const nativeToken = useAtomValue(nativeTokenAddressAtom).data;
   const transparentAmount = useAtomValue(transparentBalanceAtom);
+  const shieldedAmount = useAtomValue(shieldedBalanceAtom);
 
   const findUserBalanceByTokenAddress = (tokenAddres: string): BigNumber => {
+    // TODO: we need to refactor userShieldedBalances to return Balance[] type instead
+    const balances =
+      isShielded ?
+        shieldedAmount.data?.map((balance) => ({
+          minDenomAmount: balance.minDenomAmount,
+          tokenAddress: balance.address,
+        }))
+      : transparentAmount.data;
+
     return new BigNumber(
-      transparentAmount.data?.find(
-        (token) => token.tokenAddress === tokenAddres
-      )?.minDenomAmount || "0"
+      balances?.find((token) => token.tokenAddress === tokenAddres)
+        ?.minDenomAmount || "0"
     );
   };
 
@@ -247,18 +259,12 @@ export const GasFeeModal = ({
                   id: item.token,
                   value: (
                     <div
-                      title={item.token}
                       className={clsx(
                         "grid grid-cols-[1.5fr_1fr_1fr] items-center gap-4",
                         "justify-between w-full min-h-[42px] mr-5"
                       )}
                     >
-                      <div className="flex items-center gap-4 text-base">
-                        <i className="w-8 flex">
-                          <AssetImage asset={asset} />
-                        </i>
-                        {asset.symbol}
-                      </div>
+                      <TokenCard address={item.token} asset={asset} />
                       <div>
                         <div className="text-white text-sm text-right">
                           {unitValueInDollars && (

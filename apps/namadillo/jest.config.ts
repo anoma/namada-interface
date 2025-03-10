@@ -16,6 +16,7 @@ module.exports = {
     }),
     "^.+\\.svg$": "jest-transformer-svg",
     "\\.css": "identity-obj-proxy",
+    "^workers/(.*)\?worker$": "identity-obj-proxy",
   },
   setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
 };

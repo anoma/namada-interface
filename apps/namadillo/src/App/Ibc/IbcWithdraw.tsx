@@ -267,7 +267,7 @@ export const IbcWithdraw: React.FC = () => {
           wallet: wallets.namada,
           walletAddress: namadaAccount.data?.address,
           chain: namadaChainRegistry as Chain,
-          isShielded: false,
+          isShieldedAddress: false,
           availableAssets,
           availableAmount,
           selectedAssetAddress,
@@ -284,7 +284,7 @@ export const IbcWithdraw: React.FC = () => {
           onChangeCustomAddress: setCustomAddress,
           chain: destinationChain,
           onChangeWallet,
-          isShielded: false,
+          isShieldedAddress: false,
         }}
         errorMessage={generalErrorMessage || error?.message || ""}
         currentStatus={currentStatus}

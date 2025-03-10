@@ -16,6 +16,7 @@ export const StakingSummary = (): JSX.Element => {
     balanceQuery,
     stakeQuery,
     isLoading,
+    isSuccess,
     availableAmount,
     bondedAmount,
     unbondedAmount,
@@ -31,7 +32,6 @@ export const StakingSummary = (): JSX.Element => {
           niceError="Unable to load balance"
         >
           <BalanceChart
-            view="stake"
             isLoading={isLoading}
             availableAmount={availableAmount}
             bondedAmount={bondedAmount}
@@ -56,6 +56,7 @@ export const StakingSummary = (): JSX.Element => {
               </>
             }
             isLoading={isLoading}
+            isSuccess={isSuccess}
             mainAmount={
               <NamCurrency
                 amount={availableAmount ?? 0}

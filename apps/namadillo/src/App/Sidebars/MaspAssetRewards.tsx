@@ -37,8 +37,8 @@ export const MaspAssetRewards = (): JSX.Element => {
   const rewards = useAtomValue(maspRewardsAtom);
   return (
     <Panel className={clsx("flex flex-col pt-2 pb-5 px-2")}>
-      <h2 className="uppercase text-sm text-yellow text-center">
-        MASP Asset Rewards
+      <h2 className="uppercase text-[13px] text-yellow text-center">
+        MASP Asset Annual Inflation
       </h2>
       <div className="flex-1 mt-3">
         {rewards.isLoading && (

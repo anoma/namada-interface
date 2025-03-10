@@ -143,7 +143,7 @@ export const MaspUnshield: React.FC = () => {
           availableWallets: [wallets.namada],
           wallet: wallets.namada,
           walletAddress: sourceAddress,
-          isShielded: true,
+          isShieldedAddress: true,
           onChangeSelectedAsset: setSelectedAssetAddress,
           amount: displayAmount,
           onChangeAmount: setDisplayAmount,
@@ -154,9 +154,10 @@ export const MaspUnshield: React.FC = () => {
           availableWallets: [wallets.namada],
           wallet: wallets.namada,
           walletAddress: destinationAddress,
-          isShielded: false,
+          isShieldedAddress: false,
         }}
         feeProps={feeProps}
+        isShieldedTx={true}
         isSubmitting={isPerformingTransfer || isSuccess}
         errorMessage={generalErrorMessage}
         onSubmitTransfer={onSubmitTransfer}

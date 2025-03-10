@@ -1,4 +1,10 @@
 import { mockJotai, mockReactRouterDom } from "test-utils";
+
+jest.mock("workers/ShieldedSyncWorker", () => jest.fn());
+jest.mock("atoms/balance", () => ({
+  shieldedBalanceAtom: { data: [] },
+}));
+
 mockReactRouterDom("/");
 mockJotai();
 
@@ -21,7 +27,7 @@ const mockAtomValues = (claimRewardsEnabled: boolean, rewards: any) => {
       return { claimRewardsEnabled };
     }
     if (atom === claimableRewardsAtom) {
-      return { data: rewards };
+      return { data: rewards, isSuccess: true };
     }
     return null;
   });
