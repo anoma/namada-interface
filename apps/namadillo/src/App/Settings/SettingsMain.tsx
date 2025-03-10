@@ -58,7 +58,20 @@ export const SettingsMain = (): JSX.Element => {
           <span className="text-yellow relative">
             <IconTooltip
               icon={<FaInfo />}
-              text={<>PRO Mode is for</>}
+              text={
+                <>
+                  PRO mode unlocks more technically advanced features in
+                  Namadillo that replicates the UX of the CLI. You can learn
+                  more about these features{" "}
+                  <a
+                    href="https://docs.namada.net/users"
+                    target="_blank"
+                    rel="nofollow noreferrer"
+                  >
+                    here
+                  </a>
+                </>
+              }
               tooltipPosition="top"
               className="bg-transparent border border-yellow"
               tooltipClassName="left-2 -top-2"
