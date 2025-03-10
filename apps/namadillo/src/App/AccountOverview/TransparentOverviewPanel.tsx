@@ -7,13 +7,13 @@ import {
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
+import { TokenCard } from "App/Common/TokenCard";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { params, routes } from "App/routes";
 import { TokenBalance, transparentTokensAtom } from "atoms/balance/atoms";
 import { getTotalDollar } from "atoms/balance/functions";
 import { applicationFeaturesAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
-import { getAssetImageUrl } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { IoSwapHorizontal } from "react-icons/io5";
@@ -41,23 +41,15 @@ const TransparentTokensTable = ({
     amount,
     dollar,
   }: TokenBalance): TableRow => {
-    const icon = getAssetImageUrl(asset);
     const isNam = isNamadaAsset(asset);
     const namTransferLocked = isNam && !namTransfersEnabled;
     return {
       cells: [
-        <div
+        <TokenCard
           key={`token-${originalAddress}`}
-          className="flex items-center gap-4"
-          title={originalAddress}
-        >
-          <div className="aspect-square w-8 h-8">
-            {icon ?
-              <img src={icon} />
-            : <div className="rounded-full h-full border border-white" />}
-          </div>
-          {asset.symbol}
-        </div>,
+          address={originalAddress}
+          asset={asset}
+        />,
         <div
           key={`balance-${originalAddress}`}
           className="flex flex-col text-right leading-tight"
