@@ -1,6 +1,7 @@
 import { ActionButton, ActionButtonProps } from "@namada/components";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
+import { colors } from "./theme";
 
 type TabContents = {
   title: React.ReactNode;
@@ -36,17 +37,28 @@ export const TabContainer = ({
             tabIndex={activeTabIndex === index ? 0 : -1} // Only the active tab is focusable
             onClick={() => onChangeActiveTab(index)}
             size="md"
-            backgroundColor="black"
-            textHoverColor="white"
+            style={
+              {
+                "--color":
+                  activeTabIndex !== index ? colors.neutral[900] : colors.black,
+                "--hover":
+                  activeTabIndex !== index ? colors.neutral[900] : colors.black,
+                "--text-color": colors.white,
+                "--text-hover-color": colors.white,
+              } as React.CSSProperties
+            }
             {...buttonProps}
             className={twMerge(
-              clsx("text-white py-4", {
-                "opacity-50": activeTabIndex !== index,
-              }),
+              clsx("py-4 rounded-b-none"),
               buttonProps.className
             )}
           >
-            {tab.title}
+            <span className="inline-flex flex-col">
+              {tab.title}
+              {activeTabIndex === index && (
+                <span className="w-full h-px bg-white" />
+              )}
+            </span>
           </ActionButton>
         ))}
       </div>

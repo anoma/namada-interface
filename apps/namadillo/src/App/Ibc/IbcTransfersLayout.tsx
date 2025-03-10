@@ -19,7 +19,7 @@ export const IbcTransfersLayout = (): JSX.Element => {
   }
 
   const renderOutletContent = (): JSX.Element => (
-    <Panel className="pt-8 pb-20">
+    <Panel className="pt-8 pb-20 rounded-t-none">
       <Outlet />
     </Panel>
   );
