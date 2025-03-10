@@ -7,6 +7,7 @@ import {
 } from "@namada/components";
 import { AssetImage } from "App/Transfer/AssetImage";
 import { transparentBalanceAtom } from "atoms/accounts";
+import { shieldedBalanceAtom } from "atoms/balance";
 import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { GasPriceTable, GasPriceTableItem } from "atoms/fees/atoms";
 import { tokenPricesFamily } from "atoms/prices/atoms";
@@ -94,9 +95,11 @@ const useBuildGasOption = ({
 export const GasFeeModal = ({
   feeProps,
   onClose,
+  isShielded = false,
 }: {
   feeProps: TransactionFeeProps;
   onClose: () => void;
+  isShielded?: boolean;
 }): JSX.Element => {
   const {
     gasConfig,
@@ -110,12 +113,21 @@ export const GasFeeModal = ({
   const buildGasOption = useBuildGasOption({ gasConfig, gasPriceTable });
   const nativeToken = useAtomValue(nativeTokenAddressAtom).data;
   const transparentAmount = useAtomValue(transparentBalanceAtom);
+  const shieldedAmount = useAtomValue(shieldedBalanceAtom);
 
   const findUserBalanceByTokenAddress = (tokenAddres: string): BigNumber => {
+    // TODO: we need to refactor userShieldedBalances to return Balance[] type instead
+    const balances =
+      isShielded ?
+        shieldedAmount.data?.map((balance) => ({
+          minDenomAmount: balance.minDenomAmount,
+          tokenAddress: balance.address,
+        }))
+      : transparentAmount.data;
+
     return new BigNumber(
-      transparentAmount.data?.find(
-        (token) => token.tokenAddress === tokenAddres
-      )?.minDenomAmount || "0"
+      balances?.find((token) => token.tokenAddress === tokenAddres)
+        ?.minDenomAmount || "0"
     );
   };
 
