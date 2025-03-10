@@ -12,7 +12,7 @@ import { sumBigNumberArray } from "utils";
 
 export const StakingRewardsPanel = (): JSX.Element => {
   const { claimRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
-  const { data: rewards } = useAtomValue(claimableRewardsAtom);
+  const { data: rewards, isLoading } = useAtomValue(claimableRewardsAtom);
   const location = useLocation();
   const navigate = useNavigate();
   const availableRewards =
@@ -29,6 +29,7 @@ export const StakingRewardsPanel = (): JSX.Element => {
       className={clsx({
         "opacity-60 pointer-events-none select-none": !claimRewardsEnabled,
       })}
+      isLoading={isLoading}
       logoElement={
         <i className="text-4xl">
           <GoStack />
