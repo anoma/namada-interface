@@ -4,7 +4,7 @@ import { assetMock } from "App/Transfer/__mocks__/assets";
 
 describe("Component: AssetCard", () => {
   it("should render asset name", () => {
-    render(<AssetCard asset={assetMock} />);
+    render(<AssetCard asset={assetMock} address="tnam123" />);
     expect(screen.getByText("Ethereum")).toBeInTheDocument();
   });
 });

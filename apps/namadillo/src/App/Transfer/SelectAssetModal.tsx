@@ -69,7 +69,11 @@ export const SelectAssetModal = ({
                 )}
                 disabled={disabled}
               >
-                <AssetCard asset={asset} disabled={disabled} />
+                <AssetCard
+                  asset={asset}
+                  address={originalAddress}
+                  disabled={disabled}
+                />
               </button>
             </li>
           );

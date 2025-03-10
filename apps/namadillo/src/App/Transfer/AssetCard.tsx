@@ -1,15 +1,21 @@
 import { Asset } from "@chain-registry/types";
 import { shortenAddress } from "@namada/utils";
+import { InactiveChannelWarning } from "App/Common/InactiveChannelWarning";
 import clsx from "clsx";
 import { AssetImage } from "./AssetImage";
 import { isNamadaAddress } from "./common";
 
 type AssetCardProps = {
   asset: Asset;
+  address: string;
   disabled?: boolean;
 };
 
-export const AssetCard = ({ asset, disabled }: AssetCardProps): JSX.Element => {
+export const AssetCard = ({
+  asset,
+  address,
+  disabled,
+}: AssetCardProps): JSX.Element => {
   return (
     <span
       className={clsx(
@@ -17,11 +23,12 @@ export const AssetCard = ({ asset, disabled }: AssetCardProps): JSX.Element => {
       )}
     >
       <AssetImage asset={asset} />
-      <span className="text-left">
+      <span className="text-left leading-none">
         {isNamadaAddress(asset.name) ? shortenAddress(asset.name) : asset.name}
         {disabled && (
           <i className="text-red-500 ml-2">disabled until phase 5</i>
         )}
+        <InactiveChannelWarning address={address} />
       </span>
     </span>
   );
