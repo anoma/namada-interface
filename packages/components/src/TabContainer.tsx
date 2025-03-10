@@ -53,7 +53,12 @@ export const TabContainer = ({
               buttonProps.className
             )}
           >
-            {tab.title}
+            <span className="inline-flex flex-col">
+              {tab.title}
+              {activeTabIndex === index && (
+                <span className="w-full h-px bg-white" />
+              )}
+            </span>
           </ActionButton>
         ))}
       </div>
