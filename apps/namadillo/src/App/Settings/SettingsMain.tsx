@@ -55,7 +55,7 @@ export const SettingsMain = (): JSX.Element => {
             color="white"
             containerProps={{ className: "[&_span]:order-3 gap-3" }}
           />
-          <span className="text-yellow relative">
+          <span className="text-yellow relative group/tooltip py-3 -my-1.5">
             <IconTooltip
               icon={<FaInfo />}
               text={
@@ -67,6 +67,7 @@ export const SettingsMain = (): JSX.Element => {
                     href="https://docs.namada.net/users"
                     target="_blank"
                     rel="nofollow noreferrer"
+                    className="hover:text-yellow underline"
                   >
                     here
                   </a>
@@ -74,7 +75,7 @@ export const SettingsMain = (): JSX.Element => {
               }
               tooltipPosition="top"
               className="bg-transparent border border-yellow"
-              tooltipClassName="left-2 -top-2"
+              tooltipClassName="block left-2 top-0"
             />
           </span>
         </div>
