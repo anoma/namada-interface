@@ -1,6 +1,14 @@
+import { ToggleButton } from "@namada/components";
+import { IconTooltip } from "App/Common/IconTooltip";
 import { routes } from "App/routes";
-import { indexerHeartbeatAtom, maspIndexerHeartbeatAtom } from "atoms/settings";
+import {
+  indexerHeartbeatAtom,
+  maspIndexerHeartbeatAtom,
+  settingsAtom,
+  updateSettingsProps,
+} from "atoms/settings";
 import { useAtomValue } from "jotai";
+import { FaInfo } from "react-icons/fa6";
 import { GoLinkExternal } from "react-icons/go";
 import { version as sdkVersion } from "../../../../../packages/sdk/package.json";
 import { version } from "../../../package.json";
@@ -11,19 +19,52 @@ const { VITE_REVISION: revision = "" } = import.meta.env;
 export const SettingsMain = (): JSX.Element => {
   const indexerHealth = useAtomValue(indexerHeartbeatAtom);
   const maspIndexerHealth = useAtomValue(maspIndexerHeartbeatAtom);
+  const settingsMutation = useAtomValue(updateSettingsProps);
+  const settings = useAtomValue(settingsAtom);
 
   return (
     <div className="flex flex-1 justify-between flex-col w-full">
       <ul className="flex flex-col gap-2">
-        <SettingsPanelMenuItem url={routes.settingsAdvanced} text="Advanced" />
-        <SettingsPanelMenuItem
-          url={routes.settingsSignArbitrary}
-          text="Sign Arbitrary"
-        />
+        {settings.advancedMode && (
+          <SettingsPanelMenuItem
+            url={routes.settingsAdvanced}
+            text="Advanced"
+          />
+        )}
+        {settings.advancedMode && (
+          <SettingsPanelMenuItem
+            url={routes.settingsSignArbitrary}
+            text="Sign Arbitrary"
+          />
+        )}
         <SettingsPanelMenuItem url={routes.settingsMASP} text="MASP" />
         <SettingsPanelMenuItem url={routes.settingsLedger} text="Ledger" />
       </ul>
       <div className="text-xs">
+        <div className="relative mb-4 flex items-center gap-2 max-w-full">
+          <ToggleButton
+            onChange={() => {
+              settingsMutation.mutateAsync({
+                key: "advancedMode",
+                value: !settings.advancedMode,
+              });
+            }}
+            label="PRO mode"
+            checked={settings.advancedMode}
+            activeColor="yellow"
+            color="white"
+            containerProps={{ className: "[&_span]:order-3 gap-3" }}
+          />
+          <span className="text-yellow relative">
+            <IconTooltip
+              icon={<FaInfo />}
+              text={<>PRO Mode is for</>}
+              tooltipPosition="top"
+              className="bg-transparent border border-yellow"
+              tooltipClassName="left-2 -top-2"
+            />
+          </span>
+        </div>
         <div>Namadillo Version: {version}</div>
         <div>Indexer Version: {indexerHealth?.data?.version ?? "-"}</div>
         <div>
