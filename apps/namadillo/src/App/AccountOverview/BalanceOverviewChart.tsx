@@ -9,9 +9,10 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { shieldedTokensAtom, transparentTokensAtom } from "atoms/balance";
 import { getTotalDollar } from "atoms/balance/functions";
 import { applicationFeaturesAtom } from "atoms/settings";
-import BigNumber from "bignumber.js";
+import { AnimatePresence, motion } from "framer-motion";
 import { useBalances } from "hooks/useBalances";
 import { useAtomValue } from "jotai";
+import { useState } from "react";
 import { colors } from "theme";
 
 const BalanceOverviewCaptionItem = ({
@@ -37,11 +38,11 @@ export const BalanceOverviewChart = (): JSX.Element => {
   const transparentTokensQuery = useAtomValue(transparentTokensAtom);
   const { totalTransparentAmount, isLoading: isLoadingTransparent } =
     useBalances();
-  const shieldedDollars =
-    getTotalDollar(shieldedTokensQuery.data) || new BigNumber(0);
-  const transparentDollars =
-    getTotalDollar(transparentTokensQuery.data) || new BigNumber(0);
+  const shieldedDollars = getTotalDollar(shieldedTokensQuery.data);
+  const transparentDollars = getTotalDollar(transparentTokensQuery.data);
   const totalAmountInDollars = shieldedDollars.plus(transparentDollars);
+
+  const [activeItem, setActiveItem] = useState<PieChartData | undefined>();
 
   const isLoading =
     maspEnabled ?
@@ -70,18 +71,25 @@ export const BalanceOverviewChart = (): JSX.Element => {
 
     return [
       {
-        value: transparentDollars || new BigNumber(0),
+        label: "Transparent Assets",
+        value: transparentDollars,
         color: colors.balance,
       },
-      { value: shieldedDollars || new BigNumber(0), color: colors.shielded },
+      {
+        label: "Shielded Assets",
+        value: shieldedDollars,
+        color: colors.shielded,
+      },
     ];
   };
 
   return (
     <>
-      <Heading className="text-sm mb-4" level="h3">
-        {maspEnabled ? "Total Non Native Value" : "NAM Balance"}
-      </Heading>
+      {!maspEnabled && (
+        <Heading className="text-sm mb-4" level="h3">
+          NAM Balance
+        </Heading>
+      )}
       <div className="flex flex-col items-center justify-center">
         <div className="h-[230px] w-[230px]">
           {isLoading ?
@@ -96,22 +104,35 @@ export const BalanceOverviewChart = (): JSX.Element => {
               strokeWidth={24}
               radius={125}
               segmentMargin={0}
+              onMouseLeave={() => setActiveItem(undefined)}
+              onMouseEnter={(item: PieChartData) => setActiveItem(item)}
             >
-              <div className="flex flex-col gap-1 leading-tight">
-                <div className="text-2xl">
+              <AnimatePresence>
+                <motion.div
+                  key={activeItem?.value.toString() ?? "default"}
+                  exit={{ opacity: 0 }}
+                  className="absolute"
+                >
                   {maspEnabled ?
-                    <span>
-                      <FiatCurrency amount={totalAmountInDollars} />
-                      {!namTransfersEnabled && "*"}
-                    </span>
+                    <div className="flex flex-col gap-1 leading-tight text-2xl">
+                      <Heading className="text-sm text-neutral-500" level="h3">
+                        {activeItem?.label ?? "Total Non Native Value"}
+                      </Heading>
+                      <div>
+                        <FiatCurrency
+                          amount={activeItem?.value ?? totalAmountInDollars}
+                        />
+                        {!namTransfersEnabled && "*"}
+                      </div>
+                    </div>
                   : <NamCurrency
                       amount={totalTransparentAmount}
                       currencySymbolClassName="hidden"
                       decimalPlaces={2}
                     />
                   }
-                </div>
-              </div>
+                </motion.div>
+              </AnimatePresence>
             </PieChart>
           }
         </div>
@@ -127,7 +148,7 @@ export const BalanceOverviewChart = (): JSX.Element => {
             </ul>
             {!namTransfersEnabled && (
               <small className="text-xxs -mb-3 mt-3 block">
-                * Balances exclude NAM until phase 5
+                * Values exclude NAM until phase 5
               </small>
             )}
           </>
