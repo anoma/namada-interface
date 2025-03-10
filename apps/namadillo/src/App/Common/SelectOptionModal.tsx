@@ -27,7 +27,6 @@ export const SelectOptionModal = ({
         header={title}
         onClose={onClose}
         containerProps={{ className: "!w-auto !h-auto bg-black" }}
-        contentProps={{ className: "pt-0 mt-3" }}
       >
         <ul className="grid grid-cols-[1fr_1px_1fr] gap-4 pt-1">
           {items.map((item, index) => (

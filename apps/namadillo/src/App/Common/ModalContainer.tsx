@@ -39,11 +39,11 @@ export const ModalContainer = ({
       >
         <IoClose />
       </i>
-      <header className="flex w-full justify-center items-center relative mb-3 text-lg text-medium">
+      <header className="flex w-full justify-center items-center relative mb-0 text-lg text-medium">
         {header}
       </header>
       <div
-        className={twMerge("flex-1 overflow-hidden py-6", contentClassName)}
+        className={twMerge("flex-1 overflow-hidden pt-4", contentClassName)}
         {...otherContentProps}
       >
         {children}

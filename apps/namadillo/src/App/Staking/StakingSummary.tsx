@@ -16,6 +16,7 @@ export const StakingSummary = (): JSX.Element => {
     balanceQuery,
     stakeQuery,
     isLoading,
+    isSuccess,
     availableAmount,
     bondedAmount,
     unbondedAmount,
@@ -56,6 +57,7 @@ export const StakingSummary = (): JSX.Element => {
               </>
             }
             isLoading={isLoading}
+            isSuccess={isSuccess}
             mainAmount={
               <NamCurrency
                 amount={availableAmount ?? 0}

@@ -1,7 +1,7 @@
 import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
 import { shieldedBalanceAtom } from "atoms/balance/atoms";
 import { shouldUpdateBalanceAtom, shouldUpdateProposalAtom } from "atoms/etc";
-import { claimableRewardsAtom, clearClaimRewards } from "atoms/staking";
+import { claimableRewardsAtom } from "atoms/staking";
 import { useAtomValue, useSetAtom } from "jotai";
 import { TransferStep, TransferTransactionData } from "types";
 import { useTransactionEventListener } from "utils";
@@ -26,7 +26,7 @@ export const useTransactionCallback = (): void => {
     setTimeout(() => shouldUpdateBalance(false), timePolling);
 
     if (account?.address) {
-      clearClaimRewards(account.address);
+      refetchRewards();
       setTimeout(() => refetchRewards(), timePolling);
     }
   };
