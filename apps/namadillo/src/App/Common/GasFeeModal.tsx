@@ -5,7 +5,6 @@ import {
   Modal,
   StyledSelectBox,
 } from "@namada/components";
-import { AssetImage } from "App/Transfer/AssetImage";
 import { transparentBalanceAtom } from "atoms/accounts";
 import { shieldedBalanceAtom } from "atoms/balance";
 import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
@@ -21,6 +20,7 @@ import { GasConfig } from "types";
 import { toDisplayAmount } from "utils";
 import { getDisplayGasFee } from "utils/gas";
 import { FiatCurrency } from "./FiatCurrency";
+import { TokenCard } from "./TokenCard";
 import { TokenCurrency } from "./TokenCurrency";
 
 const useSortByNativeToken = () => {
@@ -259,18 +259,12 @@ export const GasFeeModal = ({
                   id: item.token,
                   value: (
                     <div
-                      title={item.token}
                       className={clsx(
                         "grid grid-cols-[1.5fr_1fr_1fr] items-center gap-4",
                         "justify-between w-full min-h-[42px] mr-5"
                       )}
                     >
-                      <div className="flex items-center gap-4 text-base">
-                        <i className="w-8 flex">
-                          <AssetImage asset={asset} />
-                        </i>
-                        {asset.symbol}
-                      </div>
+                      <TokenCard address={item.token} asset={asset} />
                       <div>
                         <div className="text-white text-sm text-right">
                           {unitValueInDollars && (

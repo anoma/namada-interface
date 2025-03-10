@@ -1,12 +1,12 @@
 import { ActionButton, SkeletonLoading, TableRow } from "@namada/components";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
+import { TokenCard } from "App/Common/TokenCard";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { UnshieldAssetsModal } from "App/Common/UnshieldAssetsModal";
 import { TokenBalance } from "atoms/balance/atoms";
 import { applicationFeaturesAtom } from "atoms/settings/atoms";
 import BigNumber from "bignumber.js";
-import { getAssetImageUrl } from "integrations/utils";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -42,24 +42,15 @@ export const ShieldedFungibleTable = ({
     amount,
     dollar,
   }: TokenBalance): TableRow => {
-    const icon = getAssetImageUrl(asset);
-
     const reward = rewards?.[originalAddress];
 
     return {
       cells: [
-        <div
+        <TokenCard
           key={`token-${originalAddress}`}
-          className="flex items-center gap-4"
-          title={originalAddress}
-        >
-          <div className="aspect-square w-8 h-8">
-            {icon ?
-              <img src={icon} className="w-full h-full" />
-            : <div className="rounded-full h-full border border-white" />}
-          </div>
-          {asset.symbol}
-        </div>,
+          address={originalAddress}
+          asset={asset}
+        />,
         <div
           key={`balance-${originalAddress}`}
           className="flex flex-col text-right leading-tight"

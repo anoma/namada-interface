@@ -1,6 +1,7 @@
 import { Stack } from "@namada/components";
 import { Search } from "App/Common/Search";
 import { SelectModal } from "App/Common/SelectModal";
+import { TokenCard } from "App/Common/TokenCard";
 import { nativeTokenAddressAtom } from "atoms/chain/atoms";
 import { applicationFeaturesAtom } from "atoms/settings/atoms";
 import clsx from "clsx";
@@ -8,7 +9,6 @@ import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { Address, AddressWithAsset, WalletProvider } from "types";
-import { AssetCard } from "./AssetCard";
 import { ConnectedWalletInfo } from "./ConnectedWalletInfo";
 
 type SelectWalletModalProps = {
@@ -62,6 +62,7 @@ export const SelectAssetModal = ({
                 }}
                 className={twMerge(
                   clsx(
+                    "text-left px-4 py-2.5",
                     "w-full rounded-sm border border-transparent",
                     "hover:border-neutral-400 transition-colors duration-150",
                     { "pointer-events-none opacity-50": disabled }
@@ -69,7 +70,11 @@ export const SelectAssetModal = ({
                 )}
                 disabled={disabled}
               >
-                <AssetCard asset={asset} disabled={disabled} />
+                <TokenCard
+                  asset={asset}
+                  address={originalAddress}
+                  disabled={disabled}
+                />
               </button>
             </li>
           );

@@ -31,8 +31,8 @@ describe("SelectAssetModal", () => {
         walletAddress={mockAddress}
       />
     );
-    expect(screen.getByText("Bitcoin")).toBeInTheDocument();
-    expect(screen.getByText("Ethereum")).toBeInTheDocument();
+    expect(screen.getByText("BTC")).toBeInTheDocument();
+    expect(screen.getByText("ETH")).toBeInTheDocument();
   });
 
   it("should filter assets based on search input", async () => {
@@ -66,7 +66,7 @@ describe("SelectAssetModal", () => {
         walletAddress={mockAddress}
       />
     );
-    fireEvent.click(screen.getByText("Bitcoin"));
+    fireEvent.click(screen.getByText("BTC"));
     expect(onSelectMock).toHaveBeenCalledWith(assetMockList[1].originalAddress);
     expect(onCloseMock).toHaveBeenCalled();
   });
