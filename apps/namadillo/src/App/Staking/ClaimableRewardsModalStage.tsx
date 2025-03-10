@@ -56,7 +56,7 @@ export const ClaimableRewardsModalStage = ({
             size="xs"
             className="px-1 py-2"
           >
-            Claim & Stake All
+            Claim & Stake
           </ActionButton>
           <ActionButton
             backgroundColor="white"
@@ -68,7 +68,7 @@ export const ClaimableRewardsModalStage = ({
             size="xs"
             className="px-1 py-2"
           >
-            Claim All
+            Claim
           </ActionButton>
         </Stack>
       </div>
@@ -92,7 +92,7 @@ export const ClaimableRewardsModalStage = ({
           onClick={() => rewards && onClaimAndStake(rewards)}
           disabled={availableRewards.eq(0) || !isEnabled}
         >
-          Claim & Stake
+          Claim & Stake All
         </ActionButton>
         <ActionButton
           backgroundColor="white"
@@ -100,7 +100,7 @@ export const ClaimableRewardsModalStage = ({
           disabled={availableRewards.eq(0) || !isEnabled}
           type="button"
         >
-          Claim
+          Claim All
         </ActionButton>
       </Stack>
       <hr className="bg-neutral-400" />
