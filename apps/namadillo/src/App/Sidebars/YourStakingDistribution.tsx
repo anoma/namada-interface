@@ -1,10 +1,8 @@
 import { PieChart, PieChartData } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
+import { OpacitySlides } from "App/Common/OpacitySlides";
 import BigNumber from "bignumber.js";
-import clsx from "clsx";
-import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { twMerge } from "tailwind-merge";
 import { MyValidator } from "types";
 
 type YourStakingDistributionProps = {
@@ -14,9 +12,7 @@ type YourStakingDistributionProps = {
 export const YourStakingDistribution = ({
   myValidators,
 }: YourStakingDistributionProps): JSX.Element => {
-  const [displayedValidator, setDisplayedValidator] = useState<
-    MyValidator | undefined
-  >();
+  const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const totalAmount = myValidators.reduce(
     (previous, current) => previous.plus(current.stakedAmount || 0),
@@ -59,40 +55,24 @@ export const YourStakingDistribution = ({
         data={data}
         segmentMargin={0}
         strokeWidth={8}
-        onMouseLeave={() => setDisplayedValidator(undefined)}
+        onMouseLeave={() => setActiveIndex(0)}
         onMouseEnter={(_data: PieChartData, index: number) => {
-          setDisplayedValidator(myValidators[index]);
+          setActiveIndex(index + 1);
         }}
       >
         <div className="relative flex items-center justify-center max-w-[75%] mx-auto leading-tight">
-          <AnimatePresence>
-            <span
-              className={twMerge(
-                clsx("absolute transition-opacity duration-300 opacity-100", {
-                  "opacity-0 pointer-events-none": displayedValidator,
-                })
-              )}
-            >
-              Your Stake Distribution
-            </span>
-            <span
-              className={twMerge(
-                clsx(
-                  "flex flex-col text-neutral-500 text-sm opacity-0 pointer-events-none",
-                  "transition-opacity duration-300",
-                  {
-                    "opacity-100 pointer-events-auto": displayedValidator,
-                  }
-                )
-              )}
-            >
-              {displayedValidator?.validator.alias}
-              <span className="block">
-                {displayedValidator &&
-                  getFormattedPercentage(displayedValidator)}
-              </span>
-            </span>
-          </AnimatePresence>
+          <OpacitySlides activeIndex={activeIndex}>
+            <div>Your Stake Distribution</div>
+            {myValidators.map((item) => (
+              <div
+                key={item.validator.alias}
+                className="flex flex-col text-neutral-500 text-sm"
+              >
+                {item.validator.alias}
+                <span className="block">{getFormattedPercentage(item)}</span>
+              </div>
+            ))}
+          </OpacitySlides>
         </div>
       </PieChart>
       <ul className="flex flex-col gap-2 mt-4 @sm:mt-2">
