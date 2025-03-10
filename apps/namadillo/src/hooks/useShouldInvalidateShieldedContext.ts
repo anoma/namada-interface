@@ -9,7 +9,7 @@ import semverSatisfies from "semver/functions/satisfies";
 import { useInvalidateShieldedContext } from "./useInvalidateShieldedContext";
 
 // change this value to the minimun masp indexer version that demands to clear the context
-const minMaspIndexerVersion = ">=9.9.0";
+const minMaspIndexerVersion = ">=1.1.0";
 
 export const useShouldInvalidateShieldedContext = (): void => {
   const lastInvalidate = useAtomValue(lastInvalidateShieldedContextAtom);
