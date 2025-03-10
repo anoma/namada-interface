@@ -14,6 +14,7 @@ type AmountSummaryCardProps = {
   callToAction: React.ReactNode;
   className?: string;
   isLoading?: boolean;
+  isSuccess?: boolean;
 };
 
 export const AmountSummaryCard = ({
@@ -26,6 +27,7 @@ export const AmountSummaryCard = ({
   callToAction,
   className = "",
   isLoading = false,
+  isSuccess = false,
 }: AmountSummaryCardProps): JSX.Element => {
   return createElement(
     as,
@@ -60,7 +62,7 @@ export const AmountSummaryCard = ({
         </Stack>
       )}
 
-      {!isLoading && (
+      {isSuccess && (
         <div className="text-center flex-1">
           {mainAmount && (
             <strong className="block text-[22px] text-white font-medium">
