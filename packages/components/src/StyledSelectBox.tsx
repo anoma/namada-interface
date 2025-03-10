@@ -16,6 +16,7 @@ export type SelectBoxProps<T extends string> = {
   containerProps?: React.ComponentPropsWithoutRef<"div">;
   listItemProps?: React.ComponentPropsWithoutRef<"li">;
   arrowContainerProps?: React.ComponentPropsWithoutRef<"i">;
+  labelProps?: React.ComponentPropsWithoutRef<"label">;
   defaultValue?: React.ReactNode;
   options: SelectBoxOption<T>[];
 } & React.ComponentPropsWithRef<"input">;
@@ -29,6 +30,7 @@ export const StyledSelectBox = <T extends string = string>({
   listItemProps = {},
   listContainerProps = {},
   arrowContainerProps = {},
+  labelProps = {},
   displayArrow = true,
   defaultValue,
   ...props
@@ -55,6 +57,7 @@ export const StyledSelectBox = <T extends string = string>({
     listContainerProps;
   const { className: arrowClassList, ...otherArrowProps } = arrowContainerProps;
   const { className: listItemClassList, ...otherListItemProps } = listItemProps;
+  const { className: labelClassList, ...otherLabelProps } = labelProps;
 
   return (
     <div className="relative" onClick={(e) => e.stopPropagation()}>
@@ -131,9 +134,11 @@ export const StyledSelectBox = <T extends string = string>({
               <label
                 className={twMerge(
                   "block cursor-pointer py-2",
-                  "group-hover/item:text-cyan transition-color duration-150"
+                  "group-hover/item:text-cyan transition-color duration-150",
+                  labelClassList
                 )}
                 htmlFor={getElementId(option.id)}
+                {...otherLabelProps}
               >
                 {option.value}
               </label>

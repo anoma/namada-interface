@@ -1,29 +1,8 @@
 import { ActionButton, Stack } from "@namada/components";
-import { routes } from "App/routes";
-import {
-  lastCompletedShieldedSyncAtom,
-  storageShieldedBalanceAtom,
-  storageShieldedRewardsAtom,
-} from "atoms/balance/atoms";
-import { clearShieldedContextAtom } from "atoms/settings";
-import { useAtom, useSetAtom } from "jotai";
-import { RESET } from "jotai/utils";
+import { useInvalidateShieldedContext } from "hooks/useInvalidateShieldedContext";
 
 export const SettingsMASP = (): JSX.Element => {
-  const [clearShieldedContext] = useAtom(clearShieldedContextAtom);
-  const setStorageShieldedBalance = useSetAtom(storageShieldedBalanceAtom);
-  const setLastCompletedShieldedSync = useSetAtom(
-    lastCompletedShieldedSyncAtom
-  );
-  const setStorageShieldedRewards = useSetAtom(storageShieldedRewardsAtom);
-
-  const onInvalidateShieldedContext = async (): Promise<void> => {
-    await clearShieldedContext.mutateAsync();
-    setStorageShieldedBalance(RESET);
-    setLastCompletedShieldedSync({});
-    setStorageShieldedRewards(RESET);
-    location.href = routes.root;
-  };
+  const invalidateShieldedContext = useInvalidateShieldedContext();
 
   return (
     <Stack as="footer" className="px-5" gap={3}>
@@ -34,7 +13,7 @@ export const SettingsMASP = (): JSX.Element => {
         minutes to complete.
       </p>
 
-      <ActionButton onClick={onInvalidateShieldedContext} className="shrink-0">
+      <ActionButton onClick={invalidateShieldedContext} className="shrink-0">
         Invalidate Shielded Context
       </ActionButton>
     </Stack>

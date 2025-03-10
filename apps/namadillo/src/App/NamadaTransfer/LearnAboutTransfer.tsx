@@ -8,7 +8,7 @@ export const LearnAboutTransfer = (): JSX.Element => {
         <img src={image} className="w-full max-w-42 mx-auto pr-11" />
         <div>
           Namada offers both shielded and transparent transfers. Giving you the
-          options odf selective disclosure
+          options of selective disclosure
         </div>
         <ActionButton
           href="https://docs.namada.net/users/namadillo/transfer"

@@ -111,7 +111,7 @@ describe("Component: TransferDestination", () => {
         gasAsset={namadaAsset()}
       />
     );
-    const transactionFee = screen.getByText("Transaction fee:");
+    const transactionFee = screen.getByText("Fee:");
     expect(transactionFee).toBeInTheDocument();
     expect(transactionFee.parentNode?.textContent).toContain("0.000002");
   });

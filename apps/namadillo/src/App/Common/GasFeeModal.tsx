@@ -1,18 +1,23 @@
+import { Asset } from "@chain-registry/types";
 import {
   ActionButton,
   AmountInput,
   Modal,
   StyledSelectBox,
 } from "@namada/components";
+import { AssetImage } from "App/Transfer/AssetImage";
+import { transparentBalanceAtom } from "atoms/accounts";
 import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { GasPriceTable, GasPriceTableItem } from "atoms/fees/atoms";
 import { tokenPricesFamily } from "atoms/prices/atoms";
 import BigNumber from "bignumber.js";
+import clsx from "clsx";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { useAtomValue } from "jotai";
 import { IoClose } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 import { GasConfig } from "types";
+import { toDisplayAmount } from "utils";
 import { getDisplayGasFee } from "utils/gas";
 import { FiatCurrency } from "./FiatCurrency";
 import { TokenCurrency } from "./TokenCurrency";
@@ -45,9 +50,10 @@ const useBuildGasOption = ({
     option: GasConfig;
     selected: boolean;
     disabled: boolean;
-    symbol: string;
     displayAmount: BigNumber;
-    dollar?: BigNumber;
+    asset: Asset;
+    totalInDollars?: BigNumber;
+    unitValueInDollars?: BigNumber;
   } => {
     const option: GasConfig = {
       ...gasConfig,
@@ -56,10 +62,13 @@ const useBuildGasOption = ({
 
     const displayGasFee = getDisplayGasFee(option, chainAssetsMap);
     const { totalDisplayAmount: displayAmount, asset } = displayGasFee;
-    const { symbol } = asset;
 
-    const price = gasDollarMap[option.gasToken];
-    const dollar = price ? price.multipliedBy(displayAmount) : undefined;
+    const unitValueInDollars = gasDollarMap[option.gasToken];
+    const totalInDollars =
+      unitValueInDollars ?
+        unitValueInDollars.multipliedBy(displayAmount)
+      : undefined;
+
     const selected =
       !gasConfig.gasLimit.isEqualTo(0) &&
       option.gasLimit.isEqualTo(gasConfig.gasLimit) &&
@@ -74,9 +83,10 @@ const useBuildGasOption = ({
       option,
       selected,
       disabled,
-      symbol,
+      asset,
       displayAmount,
-      dollar,
+      totalInDollars,
+      unitValueInDollars,
     };
   };
 };
@@ -98,6 +108,21 @@ export const GasFeeModal = ({
 
   const sortByNativeToken = useSortByNativeToken();
   const buildGasOption = useBuildGasOption({ gasConfig, gasPriceTable });
+  const nativeToken = useAtomValue(nativeTokenAddressAtom).data;
+  const transparentAmount = useAtomValue(transparentBalanceAtom);
+
+  const findUserBalanceByTokenAddress = (tokenAddres: string): BigNumber => {
+    return new BigNumber(
+      transparentAmount.data?.find(
+        (token) => token.tokenAddress === tokenAddres
+      )?.minDenomAmount || "0"
+    );
+  };
+
+  const filterAvailableTokensOnly = (item: GasPriceTableItem): boolean => {
+    if (item.token === nativeToken) return true; // we should always keep the native token
+    return findUserBalanceByTokenAddress(item.token).gt(0);
+  };
 
   return (
     <Modal onClose={onClose}>
@@ -129,7 +154,7 @@ export const GasFeeModal = ({
             { label: "Average", amount: gasEstimate?.avg ?? 0 },
             { label: "High", amount: gasEstimate?.max ?? 0 },
           ].map((item) => {
-            const { symbol, displayAmount, dollar, selected, disabled } =
+            const { asset, displayAmount, totalInDollars, selected, disabled } =
               buildGasOption({
                 gasLimit: BigNumber(item.amount),
               });
@@ -149,15 +174,15 @@ export const GasFeeModal = ({
                 onClick={() => onChangeGasLimit(BigNumber(item.amount))}
               >
                 <div className="font-semibold">{item.label}</div>
-                {dollar && (
+                {totalInDollars && (
                   <FiatCurrency
-                    amount={dollar}
+                    amount={totalInDollars}
                     className="text-xs text-neutral-500 font-medium"
                   />
                 )}
                 <TokenCurrency
                   amount={displayAmount}
-                  symbol={symbol}
+                  symbol={asset.symbol}
                   className="font-semibold mt-1"
                 />
               </button>
@@ -165,7 +190,11 @@ export const GasFeeModal = ({
           })}
         </div>
 
-        <div className="text-sm mt-4 mb-1">Fee Token</div>
+        <div className="grid grid-cols-[1.5fr_1fr_1fr] mb-1 mt-8 pr-9 gap-1">
+          <span className="text-sm">Fee Token</span>
+          <span className="text-xs text-neutral-500 text-right">Balance</span>
+          <span className="text-xs text-neutral-500 text-right">Fee</span>
+        </div>
         <StyledSelectBox
           id="fee-token-select"
           value={gasConfig.gasToken}
@@ -177,42 +206,99 @@ export const GasFeeModal = ({
           }}
           arrowContainerProps={{ className: "right-4" }}
           listContainerProps={{
-            className:
-              "w-full mt-2 border border-white max-h-[300px] overflow-y-auto",
+            className: clsx(
+              "w-full mt-6 border border-neutral-700 max-h-[300px]",
+              "overflow-y-auto px-2"
+            ),
           }}
-          listItemProps={{ className: "border-0 px-2 -mx-2 rounded-sm" }}
+          listItemProps={{
+            className: clsx(
+              "border-0 pl-4 pr-7 rounded-sm",
+              "[&_label]:!group-hover/item:text-current",
+              "border border-transparent rounded-sm",
+              "hover:border-neutral-500 transition-colors"
+            ),
+          }}
+          labelProps={{
+            className: "group-hover/item:text-current",
+          }}
           onChange={(e) => onChangeGasToken(e.target.value)}
           options={
-            gasPriceTable?.sort(sortByNativeToken).map((item) => {
-              const { symbol, displayAmount, dollar } = buildGasOption({
-                gasPriceInMinDenom: item.gasPrice,
-                gasToken: item.token,
-              });
-              return {
-                id: item.token,
-                value: (
-                  <div
-                    title={item.token}
-                    className="flex items-center justify-between w-full min-h-[42px] mr-5"
-                  >
-                    <div className="text-base">{symbol}</div>
-                    <div className="text-right">
-                      {dollar && <FiatCurrency amount={dollar} />}
-                      <div className="text-xs">
-                        <TokenCurrency amount={displayAmount} symbol={symbol} />
+            gasPriceTable
+              ?.filter(filterAvailableTokensOnly)
+              .sort(sortByNativeToken)
+              .map((item) => {
+                const {
+                  asset,
+                  displayAmount,
+                  totalInDollars,
+                  unitValueInDollars,
+                } = buildGasOption({
+                  gasPriceInMinDenom: item.gasPrice,
+                  gasToken: item.token,
+                });
+
+                const availableAmount = toDisplayAmount(
+                  asset,
+                  findUserBalanceByTokenAddress(item.token)
+                );
+
+                return {
+                  id: item.token,
+                  value: (
+                    <div
+                      title={item.token}
+                      className={clsx(
+                        "grid grid-cols-[1.5fr_1fr_1fr] items-center gap-4",
+                        "justify-between w-full min-h-[42px] mr-5"
+                      )}
+                    >
+                      <div className="flex items-center gap-4 text-base">
+                        <i className="w-8 flex">
+                          <AssetImage asset={asset} />
+                        </i>
+                        {asset.symbol}
+                      </div>
+                      <div>
+                        <div className="text-white text-sm text-right">
+                          {unitValueInDollars && (
+                            <FiatCurrency
+                              amount={unitValueInDollars.multipliedBy(
+                                availableAmount
+                              )}
+                            />
+                          )}
+                        </div>
+                        <div className="text-neutral-500 text-xs text-right">
+                          <TokenCurrency
+                            amount={availableAmount}
+                            symbol={asset.symbol}
+                          />
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        {totalInDollars && (
+                          <FiatCurrency amount={totalInDollars} />
+                        )}
+                        <div className="text-neutral-500 text-xs">
+                          <TokenCurrency
+                            amount={displayAmount}
+                            symbol={asset.symbol}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ),
-                ariaLabel: symbol,
-              };
-            }) ?? []
+                  ),
+                  ariaLabel: asset.symbol,
+                };
+              }) ?? []
           }
         />
 
-        <div className="mt-4">
+        <div className="mt-6">
           <AmountInput
             label="Gas Amount"
+            className="[&_input]:border-neutral-800"
             value={gasConfig.gasLimit}
             onChange={(e) => e.target.value && onChangeGasLimit(e.target.value)}
           />

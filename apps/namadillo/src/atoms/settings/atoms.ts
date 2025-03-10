@@ -10,7 +10,7 @@ import {
   fetchDefaultTomlConfig,
   getIndexerCrawlerInfo,
   getIndexerHealth,
-  isMaspIndexerAlive,
+  getMaspIndexerHealth,
   isRpcAlive,
 } from "./services";
 
@@ -189,7 +189,12 @@ export const updateIndexerUrlAtom = atomWithMutation(() => {
 export const updateMaspIndexerUrlAtom = atomWithMutation(() => {
   return {
     mutationKey: ["update-masp-indexer-url"],
-    mutationFn: changeSettingsUrl("maspIndexerUrl", isMaspIndexerAlive, true),
+    mutationFn: changeSettingsUrl(
+      "maspIndexerUrl",
+      async (url: string): Promise<boolean> =>
+        !!(await getMaspIndexerHealth(url)),
+      true
+    ),
   };
 });
 
@@ -232,15 +237,37 @@ export const indexerCrawlersInfoAtom = atomWithQuery((get) => {
   };
 });
 
-export const clearShieldedContextAtom = atomWithMutation((get) => {
-  const parameters = get(chainParametersAtom);
+export const maspIndexerHeartbeatAtom = atomWithQuery((get) => {
+  const maspIndexerUrl = get(maspIndexerUrlAtom);
   return {
-    mutationKey: ["clear-shielded-context"],
-    mutationFn: () => {
-      if (!parameters.data) {
-        throw new Error("Chain parameters not loaded");
-      }
-      return clearShieldedContext(parameters.data.chainId);
+    queryKey: ["masp-indexer-heartbeat", maspIndexerUrl],
+    enabled: !!maspIndexerUrl,
+    retry: false,
+    refetchOnWindowFocus: true,
+    refetchInterval: 10_000,
+    queryFn: async () => {
+      const response = await getMaspIndexerHealth(maspIndexerUrl);
+      if (!response) throw "Unable to verify indexer heartbeat";
+      return response;
     },
   };
 });
+
+export const clearShieldedContextAtom = atomWithMutation((get) => {
+  const parameters = get(chainParametersAtom);
+  const chainId = parameters.data?.chainId;
+
+  return {
+    mutationKey: ["clear-shielded-context", chainId],
+    mutationFn: () => {
+      if (!chainId) {
+        throw new Error("Chain parameters not loaded");
+      }
+      return clearShieldedContext(chainId);
+    },
+  };
+});
+
+export const lastInvalidateShieldedContextAtom = atomWithStorage<{
+  [chainId: string]: string | undefined;
+}>("namadillo:last-invalidate-shielded-context", {});

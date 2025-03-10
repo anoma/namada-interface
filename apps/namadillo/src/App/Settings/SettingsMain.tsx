@@ -1,5 +1,5 @@
 import { routes } from "App/routes";
-import { indexerHeartbeatAtom } from "atoms/settings";
+import { indexerHeartbeatAtom, maspIndexerHeartbeatAtom } from "atoms/settings";
 import { useAtomValue } from "jotai";
 import { GoLinkExternal } from "react-icons/go";
 import { version as sdkVersion } from "../../../../../packages/sdk/package.json";
@@ -10,6 +10,7 @@ const { VITE_REVISION: revision = "" } = import.meta.env;
 
 export const SettingsMain = (): JSX.Element => {
   const indexerHealth = useAtomValue(indexerHeartbeatAtom);
+  const maspIndexerHealth = useAtomValue(maspIndexerHeartbeatAtom);
 
   return (
     <div className="flex flex-1 justify-between flex-col w-full">
@@ -25,6 +26,9 @@ export const SettingsMain = (): JSX.Element => {
       <div className="text-xs">
         <div>Namadillo Version: {version}</div>
         <div>Indexer Version: {indexerHealth?.data?.version ?? "-"}</div>
+        <div>
+          Masp Indexer Version: {maspIndexerHealth?.data?.version ?? "-"}
+        </div>
         <div>SDK Version: {sdkVersion}</div>
         <div>
           <span>Revision: </span>

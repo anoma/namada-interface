@@ -74,8 +74,8 @@ export const StakingWithdrawModal = (): JSX.Element => {
   const totalWithdrawableAmount = useMemo(() => {
     const validators = filterWithdrawableValidators();
     return validators.reduce((acc, validator) => {
-      return acc.plus(validator.withdrawableAmount || new BigNumber(0));
-    }, new BigNumber(0));
+      return acc.plus(validator.withdrawableAmount || BigNumber(0));
+    }, BigNumber(0));
   }, [myValidators]);
 
   return (

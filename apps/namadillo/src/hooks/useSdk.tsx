@@ -1,5 +1,6 @@
 import { Sdk } from "@namada/sdk/web";
 import { QueryStatus, useQuery } from "@tanstack/react-query";
+import { PageLoader } from "App/Common/PageLoader";
 import { chainParametersAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { useAtomValue } from "jotai";
 import {
@@ -65,6 +66,10 @@ export const SdkProvider: FunctionComponent<PropsWithChildren> = ({
       });
     }
   }, [nativeToken.data]);
+
+  if (!sdk) {
+    return <PageLoader />;
+  }
 
   return (
     <>

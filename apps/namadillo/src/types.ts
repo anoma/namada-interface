@@ -85,7 +85,7 @@ export type SettingsStorage = {
   indexerUrl: string;
   maspIndexerUrl?: string;
   signArbitraryEnabled: boolean;
-  enableTestnets?: boolean;
+  advancedMode?: boolean;
 };
 
 export type RpcStorage = {

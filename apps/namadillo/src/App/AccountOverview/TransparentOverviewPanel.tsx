@@ -101,7 +101,7 @@ const TransparentTokensTable = ({
                   icon: <IoSwapHorizontal className="h-[20px] w-[20px]" />,
                 },
                 {
-                  url: `${routes.ibc}?${params.asset}=${originalAddress}`,
+                  url: `${routes.ibcWithdraw}?${params.asset}=${originalAddress}`,
                   icon: (
                     <TbVectorTriangle className="h-[20px] w-[20px] -mt-1" />
                   ),

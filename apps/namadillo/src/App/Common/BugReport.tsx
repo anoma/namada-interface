@@ -8,6 +8,7 @@ import { chainStatusAtom } from "atoms/chain";
 import {
   indexerCrawlersInfoAtom,
   indexerHeartbeatAtom,
+  maspIndexerHeartbeatAtom,
   settingsAtom,
 } from "atoms/settings";
 import { useKeychainVersion } from "hooks/useKeychainVersion";
@@ -21,6 +22,7 @@ import { version as namadilloVersion } from "../../../package.json";
 export const BugReport = (): JSX.Element => {
   const keychainVersion = useKeychainVersion();
   const indexerHealth = useAtomValue(indexerHeartbeatAtom);
+  const maspIndexerHealth = useAtomValue(maspIndexerHeartbeatAtom);
   const crawlerInfo = useAtomValue(indexerCrawlersInfoAtom);
   const chainStatus = useAtomValue(chainStatusAtom);
   const currentDate = useRef(new Date().toString());
@@ -44,6 +46,7 @@ Namadillo Version: ${namadilloVersion}
 SDK Version: ${sdkVersion}
 Keychain Version: ${keychainVersion ?? "?"}
 Indexer Version: ${indexerHealth.data?.version}
+Masp Indexer Version: ${maspIndexerHealth.data?.version}
 
 ## MASP Status${sep}
 MASP Indexer URL: ${settings.maspIndexerUrl}
