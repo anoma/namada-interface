@@ -40,9 +40,9 @@ export const TabContainer = ({
             style={
               {
                 "--color":
-                  activeTabIndex !== index ? colors.rblack : colors.black,
+                  activeTabIndex !== index ? colors.neutral[900] : colors.black,
                 "--hover":
-                  activeTabIndex !== index ? colors.rblack : colors.black,
+                  activeTabIndex !== index ? colors.neutral[900] : colors.black,
                 "--text-color": colors.white,
                 "--text-hover-color": colors.white,
               } as React.CSSProperties
