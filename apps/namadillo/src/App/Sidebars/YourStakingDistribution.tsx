@@ -1,10 +1,8 @@
 import { PieChart, PieChartData } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import BigNumber from "bignumber.js";
-import clsx from "clsx";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { twMerge } from "tailwind-merge";
 import { MyValidator } from "types";
 
 type YourStakingDistributionProps = {
@@ -66,32 +64,20 @@ export const YourStakingDistribution = ({
       >
         <div className="relative flex items-center justify-center max-w-[75%] mx-auto leading-tight">
           <AnimatePresence>
-            <span
-              className={twMerge(
-                clsx("absolute transition-opacity duration-300 opacity-100", {
-                  "opacity-0 pointer-events-none": displayedValidator,
-                })
-              )}
+            <motion.div
+              key={displayedValidator?.validator.alias ?? "default"}
+              exit={{ opacity: 0 }}
+              className="absolute"
             >
-              Your Stake Distribution
-            </span>
-            <span
-              className={twMerge(
-                clsx(
-                  "flex flex-col text-neutral-500 text-sm opacity-0 pointer-events-none",
-                  "transition-opacity duration-300",
-                  {
-                    "opacity-100 pointer-events-auto": displayedValidator,
-                  }
-                )
-              )}
-            >
-              {displayedValidator?.validator.alias}
-              <span className="block">
-                {displayedValidator &&
-                  getFormattedPercentage(displayedValidator)}
-              </span>
-            </span>
+              {displayedValidator ?
+                <div className="flex flex-col text-neutral-500 text-sm">
+                  {displayedValidator.validator.alias}
+                  <span className="block">
+                    {getFormattedPercentage(displayedValidator)}
+                  </span>
+                </div>
+              : <div>Your Stake Distribution</div>}
+            </motion.div>
           </AnimatePresence>
         </div>
       </PieChart>

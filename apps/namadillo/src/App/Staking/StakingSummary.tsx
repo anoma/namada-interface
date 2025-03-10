@@ -31,7 +31,6 @@ export const StakingSummary = (): JSX.Element => {
           niceError="Unable to load balance"
         >
           <BalanceChart
-            view="stake"
             isLoading={isLoading}
             availableAmount={availableAmount}
             bondedAmount={bondedAmount}
