@@ -12,7 +12,7 @@ import { useInvalidateShieldedContext } from "./useInvalidateShieldedContext";
 
 // change these values to the minimun versions that demands to clear the context
 const minNamadilloVersion = ">=1.18.0";
-const minMaspIndexerVersion = ">=1.1.2";
+const minMaspIndexerVersion = ">=1.1.3";
 
 export const useShouldInvalidateShieldedContext = (): void => {
   const [lastInvalidate, setLastInvalidate] = useAtom(
