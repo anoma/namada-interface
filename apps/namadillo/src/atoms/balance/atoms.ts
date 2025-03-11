@@ -205,6 +205,7 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
 export const namadaShieldedAssetsAtom = atomWithQuery((get) => {
   const storageShieldedBalance = get(storageShieldedBalanceAtom);
   const viewingKeysQuery = get(viewingKeysAtom);
+  const chainTokensQuery = get(chainTokensAtom);
   const chainAssetsMap = get(chainAssetsMapAtom);
 
   const [viewingKey] = viewingKeysQuery.data ?? [];
@@ -219,7 +220,7 @@ export const namadaShieldedAssetsAtom = atomWithQuery((get) => {
             [],
           chainAssetsMap
         ),
-      [viewingKeysQuery]
+      [viewingKeysQuery, chainTokensQuery]
     ),
   };
 });
