@@ -64,6 +64,8 @@ export const MaspUnshield: React.FC = () => {
     isSuccess,
     txKind,
     feeProps,
+    completedAt,
+    redirectToTransactionPage,
   } = useTransfer({
     source: sourceAddress ?? "",
     target: destinationAddress ?? "",
@@ -77,6 +79,9 @@ export const MaspUnshield: React.FC = () => {
     },
     onBeforeSign: () => {
       setCurrentStatus("Waiting for signature...");
+    },
+    onBeforeBroadcast: () => {
+      setCurrentStatus("Broadcasting unshielding transaction...");
     },
     onError: () => {
       setCurrentStatus("");
@@ -163,6 +168,8 @@ export const MaspUnshield: React.FC = () => {
         onSubmitTransfer={onSubmitTransfer}
         currentStatus={currentStatus}
         currentStatusExplanation={currentStatusExplanation}
+        completedAt={completedAt}
+        onComplete={redirectToTransactionPage}
         buttonTextErrors={{
           NoAmount: "Define an amount to unshield",
         }}

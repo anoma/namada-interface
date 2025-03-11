@@ -36,7 +36,6 @@ export const NamadaTransfer: React.FC = () => {
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
   const [currentStatus, setCurrentStatus] = useState("");
   const [currentStatusExplanation, setCurrentStatusExplanation] = useState("");
-  const [completedAt, setCompletedAt] = useState<Date | undefined>();
 
   const shieldedParam = searchParams.get(params.shielded);
   const shielded = shieldedParam ? shieldedParam === "1" : true;
@@ -78,6 +77,8 @@ export const NamadaTransfer: React.FC = () => {
     isSuccess: isTransferSuccessful,
     txKind,
     feeProps,
+    completedAt,
+    redirectToTransactionPage,
   } = useTransfer({
     source,
     target,
@@ -99,9 +100,6 @@ export const NamadaTransfer: React.FC = () => {
     onError: () => {
       setCurrentStatus("");
       setCurrentStatusExplanation("");
-    },
-    onBroadcasted: () => {
-      setCompletedAt(new Date());
     },
     asset: selectedAsset?.asset,
   });
@@ -203,7 +201,6 @@ export const NamadaTransfer: React.FC = () => {
         }}
         feeProps={feeProps}
         currentStatus={currentStatus}
-        completedAt={completedAt}
         currentStatusExplanation={currentStatusExplanation}
         isShieldedTx={isSourceShielded}
         isSubmitting={
@@ -211,6 +208,8 @@ export const NamadaTransfer: React.FC = () => {
         }
         errorMessage={generalErrorMessage}
         onSubmitTransfer={onSubmitTransfer}
+        completedAt={completedAt}
+        onComplete={redirectToTransactionPage}
       />
     </Panel>
   );
