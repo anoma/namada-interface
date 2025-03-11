@@ -79,9 +79,9 @@ export const BalanceChart = ({
           }
         >
           <OpacitySlides activeIndex={activeIndex}>
-            {data.map((item) => (
+            {data.map((item, index) => (
               <div
-                key={item.label}
+                key={item.label ?? index}
                 className="flex flex-col gap-1 leading-tight"
               >
                 <Heading className="text-sm text-neutral-500" level="h3">

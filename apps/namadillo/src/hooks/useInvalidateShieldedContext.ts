@@ -12,6 +12,7 @@ import {
 } from "atoms/settings";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { RESET } from "jotai/utils";
+import { version } from "../../package.json";
 
 export const useInvalidateShieldedContext = (): (() => Promise<void>) => {
   const [clearShieldedContext] = useAtom(clearShieldedContextAtom);
@@ -33,7 +34,14 @@ export const useInvalidateShieldedContext = (): (() => Promise<void>) => {
     setStorageShieldedBalance(RESET);
     setLastCompletedShieldedSync(RESET);
     setStorageShieldedRewards(RESET);
-    setLastInvalidate((prev) => ({ ...prev, [chainId]: maspIndexerVersion }));
+    setLastInvalidate((prev) => ({
+      ...prev,
+      [chainId]: {
+        date: new Date().toISOString(),
+        namadilloVersion: version,
+        maspIndexerVersion: maspIndexerVersion,
+      },
+    }));
     location.href = routes.root;
   };
 };

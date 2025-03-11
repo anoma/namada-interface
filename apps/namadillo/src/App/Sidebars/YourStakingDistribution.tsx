@@ -63,9 +63,9 @@ export const YourStakingDistribution = ({
         <div className="relative flex items-center justify-center max-w-[75%] mx-auto leading-tight">
           <OpacitySlides activeIndex={activeIndex}>
             <div>Your Stake Distribution</div>
-            {myValidators.map((item) => (
+            {myValidators.map((item, index) => (
               <div
-                key={item.validator.alias}
+                key={item.validator.alias ?? index}
                 className="flex flex-col text-neutral-500 text-sm"
               >
                 {item.validator.alias}

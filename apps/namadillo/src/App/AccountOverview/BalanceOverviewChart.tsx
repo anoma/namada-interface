@@ -117,9 +117,9 @@ export const BalanceOverviewChart = (): JSX.Element => {
                     value: totalAmountInDollars,
                   },
                   ...data,
-                ].map((item) => (
+                ].map((item, index) => (
                   <div
-                    key={item.label}
+                    key={item.label ?? index}
                     className="flex flex-col gap-1 leading-tight text-2xl"
                   >
                     <Heading className="text-sm text-neutral-500" level="h3">
