@@ -471,7 +471,6 @@ export const TransferModule = ({
             )}
             isShieldedAddress={destination.isShieldedAddress}
             isShieldedTx={isShieldedTx}
-            isIbcTransfer={isIbcTransfer}
             onChangeShielded={destination.onChangeShielded}
             address={destination.customAddress}
             onToggleCustomAddress={
