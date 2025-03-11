@@ -65,7 +65,7 @@ export const YourStakingDistribution = ({
             <div>Your Stake Distribution</div>
             {myValidators.map((item) => (
               <div
-                key={item.validator.alias}
+                key={item.validator.alias ?? ""}
                 className="flex flex-col text-neutral-500 text-sm"
               >
                 {item.validator.alias}
