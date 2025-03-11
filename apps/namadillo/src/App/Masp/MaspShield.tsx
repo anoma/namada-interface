@@ -62,6 +62,8 @@ export const MaspShield: React.FC = () => {
     error,
     txKind,
     feeProps,
+    completedAt,
+    redirectToTransactionPage,
   } = useTransfer({
     source: sourceAddress ?? "",
     target: destinationAddress ?? "",
@@ -165,9 +167,11 @@ export const MaspShield: React.FC = () => {
         currentStatus={currentStatus}
         currentStatusExplanation={currentStatusExplanation}
         onSubmitTransfer={onSubmitTransfer}
+        completedAt={completedAt}
         buttonTextErrors={{
           NoAmount: "Define an amount to shield",
         }}
+        onComplete={redirectToTransactionPage}
       />
     </Panel>
   );
