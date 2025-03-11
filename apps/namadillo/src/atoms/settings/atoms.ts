@@ -24,12 +24,12 @@ export const namadaExtensionConnectedAtom = atom<boolean>(
 );
 
 export const defaultApplicationFeatures = {
-  claimRewardsEnabled: false,
-  maspEnabled: false,
-  ibcTransfersEnabled: false,
-  ibcShieldingEnabled: false,
-  shieldingRewardsEnabled: false,
-  namTransfersEnabled: false,
+  claimRewardsEnabled: true,
+  maspEnabled: true,
+  ibcTransfersEnabled: true,
+  ibcShieldingEnabled: true,
+  shieldingRewardsEnabled: true,
+  namTransfersEnabled: true,
 };
 
 export type ApplicationFeatures = typeof defaultApplicationFeatures;
