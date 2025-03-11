@@ -46,7 +46,7 @@ impl WalletStorage for NodeWalletUtils {
         let wallet_path = self.store_dir().join(FILE_NAME);
         // Make sure the dir exists
         let wallet_dir = wallet_path.parent().unwrap();
-        let uint8_array = js_sys::Uint8Array::from(&data[..]);
+        let uint8_array = js_sys::Uint8Array::from(JsValue::from_str(&data));
 
         write_file_sync(
             JsValue::from_str(wallet_dir.to_str().unwrap()),
@@ -63,9 +63,12 @@ impl WalletStorage for NodeWalletUtils {
         let stored_data: Vec<u8> =
             to_bytes(read_file_sync(JsValue::from_str(wallet_file.to_str().unwrap())).unwrap());
 
+        let stored_data_str =
+            String::from_utf8(stored_data).expect("Our bytes should be valid utf8");
+
         let store = wallet.store_mut();
 
-        *store = Store::decode(stored_data).map_err(LoadStoreError::Decode)?;
+        *store = Store::decode(&stored_data_str).map_err(LoadStoreError::Decode)?;
 
         Ok(())
     }
