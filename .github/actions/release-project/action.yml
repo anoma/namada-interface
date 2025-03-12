@@ -38,3 +38,4 @@ runs:
         git checkout stable
         git merge origin/main --no-edit
         git push origin stable
+      shell: bash
