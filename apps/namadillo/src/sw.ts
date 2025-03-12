@@ -11,29 +11,32 @@ self.addEventListener("activate", (event) => {
   self.dispatchEvent(new Event("activated"));
 });
 
-let fetchCacheKey = "";
-let epoch = 0;
-
 const fetchWithCacheFirst = async (
   request: Request,
-  cacheKey: string
+  cacheKey: string,
+  epoch: string,
+  chainId: string
 ): Promise<Response> => {
-  const cacheName = `RPC_FETCH_CACHE_id:${fetchCacheKey}_masp_epoch:${epoch}`;
-  const cache = await caches.open(cacheName);
+  if (chainId && epoch) {
+    const cacheName = `RPC_FETCH_CACHE_chain_id:${chainId}_masp_epoch:${epoch}`;
+    const cache = await caches.open(cacheName);
 
-  const cachedResponse = await cache.match(cacheKey);
+    const cachedResponse = await cache.match(cacheKey);
 
-  if (cachedResponse) {
-    return cachedResponse;
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+
+    const response = await fetch(request);
+
+    if (response.ok) {
+      cache.put(cacheKey, response.clone());
+    }
+
+    return response;
   }
 
-  const response = await fetch(request);
-
-  if (response.ok) {
-    cache.put(cacheKey, response.clone());
-  }
-
-  return response;
+  return await fetch(request);
 };
 
 self.addEventListener("fetch", function (e) {
@@ -51,7 +54,9 @@ self.addEventListener("fetch", function (e) {
       ) {
         const response = await fetchWithCacheFirst(
           e.request,
-          payload.params.path
+          payload.params.path,
+          maspEpoch,
+          chainId
         );
 
         return response;
@@ -64,9 +69,12 @@ self.addEventListener("fetch", function (e) {
   e.respondWith(res);
 });
 
+let chainId: string;
+let maspEpoch: string;
+
 self.onmessage = (event) => {
-  if (event.data.type === "CHAIN_CHANGE") {
-    fetchCacheKey = event.data.chainId;
-    epoch = event.data.epoch;
+  if (event.data.type === "CACHE_NAME") {
+    chainId = event.data.chainId;
+    maspEpoch = event.data.maspEpoch;
   }
 };

@@ -49,7 +49,7 @@ export const useServiceWorker = (): void => {
   useEffect(() => {
     if (chainId && registration?.active && maspEpoch) {
       registration.active.postMessage({
-        type: "CHAIN_CHANGE",
+        type: "CACHE_NAME",
         chainId,
         maspEpoch,
       });

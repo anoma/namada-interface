@@ -153,10 +153,13 @@ export const maspEpochAtom = atomWithQuery<string>((get) => {
   const chain = get(chainAtom);
   const nativeToken = get(nativeTokenAddressAtom);
   return {
+    // We always want to fetch the latest, up to date epoch
+    gcTime: 0,
+    staleTime: 0,
     queryKey: ["epoch", chain],
     ...queryDependentFn(async (): Promise<string> => {
       const sdk = await getSdkInstance();
-      const maspEpoch = sdk.rpc.queryEpoch();
+      const maspEpoch = sdk.rpc.queryMaspEpoch();
 
       return maspEpoch;
     }, [chain, nativeToken]),
