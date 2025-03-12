@@ -34,10 +34,12 @@ export const syncStatusAtom = atom((get) => {
 
   const isSyncing = queries.some((q) => q.isFetching);
   const isError = queries.some((q) => q.isError);
+  const errors = queries.filter((q) => q.isError).map((q) => q.error);
 
   return {
     isSyncing,
     isError,
+    errors,
   };
 });
 

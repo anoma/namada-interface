@@ -213,8 +213,8 @@ export const truncateInMiddle = (
  * check a possible case e.g. when switching on the value of an enum.
  */
 // eslint-disable-next-line
-export const assertNever = (_a: never): never => {
-  throw new Error("this should never happen");
+export const assertNever = (error: never): never => {
+  throw new Error(`This should never happen: ${error}`);
 };
 
 export type Ok<T> = { ok: true; value: T };

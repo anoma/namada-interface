@@ -3818,12 +3818,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@namada/indexer-client@npm:2.3.0":
-  version: 2.3.0
-  resolution: "@namada/indexer-client@npm:2.3.0"
+"@namada/indexer-client@npm:2.4.3":
+  version: 2.4.3
+  resolution: "@namada/indexer-client@npm:2.4.3"
   dependencies:
     axios: "npm:^1.6.1"
-  checksum: 10c0/019a67ce0ad084361d75d825e229b39af15e574e2b2788bdcf691b388d3541395f0c72e909ae7a1164f6ea652d1f5edaa6d59dd4b405ce5fa955e6bb7d4b5903
+  checksum: 10c0/5fa304d72b9449d174ed642bf6aa2c4a01dc3c4b4bfbf3a197cae412dc588ae1bf763cbb586a81949a212c1870ad67e7fc77d9e6e0406f5e48b05e721a2013f7
   languageName: node
   linkType: hard
 
@@ -3865,7 +3865,7 @@ __metadata:
     "@eslint/js": "npm:^9.9.1"
     "@keplr-wallet/types": "npm:^0.12.136"
     "@namada/chain-registry": "npm:^1.0.0"
-    "@namada/indexer-client": "npm:2.3.0"
+    "@namada/indexer-client": "npm:2.4.3"
     "@playwright/test": "npm:^1.24.1"
     "@svgr/webpack": "npm:^6.5.1"
     "@tailwindcss/container-queries": "npm:^0.1.1"

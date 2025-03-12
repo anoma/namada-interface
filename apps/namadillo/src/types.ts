@@ -310,6 +310,7 @@ export const transparentTransferTypes: Array<keyof AllTransferStages> = [
   "TransparentToIbc",
   "TransparentToTransparent",
   "IbcToTransparent",
+  "TransparentToShielded",
 ] as const;
 
 export const ibcTransferTypes: Array<keyof AllTransferStages> = [

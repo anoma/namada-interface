@@ -8,7 +8,8 @@ export const parseChainInfo = (
 ): Chain | undefined => {
   if (!chain) return undefined;
 
-  if (chain.chain_name !== "namada") {
+  // Includes namadacampfire, namadahousefire, etc.
+  if (chain.chain_name.indexOf("namada") === -1) {
     return chain;
   }
 

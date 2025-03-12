@@ -7,7 +7,6 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { Address, WalletProvider } from "types";
-import ibcTransferImageWhite from "./assets/ibc-transfer-white.png";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";
@@ -27,7 +26,6 @@ type TransferDestinationProps = {
   feeProps?: TransactionFeeProps;
   changeFeeEnabled?: boolean;
   customAddressActive?: boolean;
-  isIbcTransfer?: boolean;
   isSubmitting?: boolean;
   destinationAsset?: Asset;
   amount?: BigNumber;
@@ -46,7 +44,6 @@ export const TransferDestination = ({
   walletAddress,
   isShieldedAddress,
   isShieldedTx = false,
-  isIbcTransfer,
   onChangeShielded,
   gasDisplayAmount,
   gasAsset,
@@ -174,28 +171,22 @@ export const TransferDestination = ({
       )}
 
       {!isSubmitting && (
-        <footer className="mt-10">
-          <div className="flex justify-between items-center">
-            {isIbcTransfer ?
-              <img src={ibcTransferImageWhite} className="w-20" />
-            : <div />}
-            {changeFeeEnabled ?
-              feeProps && (
-                <TransactionFeeButton
-                  feeProps={feeProps}
-                  className={isIbcTransfer ? "flex-none" : undefined}
-                  isShieldedTransfer={isShieldedTx}
-                />
-              )
-            : gasDisplayAmount &&
-              gasAsset && (
-                <TransactionFee
-                  displayAmount={gasDisplayAmount}
-                  symbol={gasAsset.symbol}
-                />
-              )
-            }
-          </div>
+        <footer className="flex items-center mt-10">
+          {changeFeeEnabled ?
+            feeProps && (
+              <TransactionFeeButton
+                feeProps={feeProps}
+                isShieldedTransfer={isShieldedTx}
+              />
+            )
+          : gasDisplayAmount &&
+            gasAsset && (
+              <TransactionFee
+                displayAmount={gasDisplayAmount}
+                symbol={gasAsset.symbol}
+              />
+            )
+          }
         </footer>
       )}
     </div>

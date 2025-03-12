@@ -269,5 +269,11 @@ export const clearShieldedContextAtom = atomWithMutation((get) => {
 });
 
 export const lastInvalidateShieldedContextAtom = atomWithStorage<{
-  [chainId: string]: string | undefined;
+  [chainId: string]:
+    | {
+        date: string;
+        maspIndexerVersion: string;
+        namadilloVersion: string;
+      }
+    | undefined;
 }>("namadillo:last-invalidate-shielded-context", {});

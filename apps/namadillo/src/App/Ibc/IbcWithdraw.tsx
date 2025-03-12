@@ -75,6 +75,7 @@ export const IbcWithdraw: React.FC = () => {
     connectToChainId,
     chainId,
     registry,
+    loadWalletAddress,
   } = useWalletManager(keplr);
 
   const onChangeWallet = (): void => {
@@ -97,6 +98,16 @@ export const IbcWithdraw: React.FC = () => {
     }
   };
 
+  const updateDestinationChainAndAddress = (chain: Chain | undefined): void => {
+    setDestinationChain(chain);
+    if (customAddress) {
+      setCustomAddress("");
+    }
+    if (chain) {
+      loadWalletAddress(chain?.chain_id);
+    }
+  };
+
   const {
     data: ibcChannels,
     isError: unknownIbcChannels,
@@ -109,10 +120,10 @@ export const IbcWithdraw: React.FC = () => {
 
   // Search for original chain. We don't want to enable users to transfer Namada assets
   // to other chains different than the original one. Ex: OSMO should only be withdrew to Osmosis,
-  // ATOM to Cosmoshub.
+  // ATOM to Cosmoshub, etc.
   useEffect(() => {
     if (!selectedAsset || !chainTokens.data) {
-      setDestinationChain(undefined);
+      updateDestinationChainAndAddress(undefined);
       return;
     }
 
@@ -123,11 +134,11 @@ export const IbcWithdraw: React.FC = () => {
     if (token && "trace" in token) {
       const denom = getDenomFromIbcTrace(token.trace);
       const chain = searchChainByDenom(denom);
-      setDestinationChain(chain);
+      updateDestinationChainAndAddress(chain);
       return;
     }
 
-    setDestinationChain(undefined);
+    updateDestinationChainAndAddress(undefined);
   }, [selectedAsset, chainTokens.data]);
 
   const {

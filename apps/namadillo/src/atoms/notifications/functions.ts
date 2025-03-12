@@ -11,11 +11,9 @@ export const createNotificationId = (
   if (Array.isArray(data)) {
     return data
       .map((tx) => {
-        if ("innerTxHashes" in tx && Array.isArray(tx.innerTxHashes)) {
+        if (tx.hash) return tx.hash;
+        else if ("innerTxHashes" in tx && Array.isArray(tx.innerTxHashes))
           return tx.innerTxHashes.join(notificationIdSeparator);
-        } else {
-          return tx.hash;
-        }
       })
       .join(notificationIdSeparator);
   }

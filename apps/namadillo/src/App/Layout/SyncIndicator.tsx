@@ -7,17 +7,43 @@ import {
 import { useAtomValue } from "jotai";
 import { twMerge } from "tailwind-merge";
 
+const formatError = (
+  errors: (string | Error)[],
+  label?: string
+): JSX.Element => {
+  if (!errors.length) {
+    return <></>;
+  }
+
+  return (
+    <div>
+      {label && <div>{label}:</div>}
+      {errors.map((e) => {
+        const string = e instanceof Error ? e.message : String(e);
+        return <div key={string}>{string}</div>;
+      })}
+    </div>
+  );
+};
+
 export const SyncIndicator = (): JSX.Element => {
   const syncStatus = useAtomValue(syncStatusAtom);
   const indexerServicesSyncStatus = useAtomValue(indexerServicesSyncStatusAtom);
   const chainStatus = useAtomValue(chainStatusAtom);
 
-  const isError = syncStatus.isError || indexerServicesSyncStatus.isError;
-  const isSyncing = syncStatus.isSyncing || indexerServicesSyncStatus.isSyncing;
+  const { errors } = syncStatus;
   const { services } = indexerServicesSyncStatus;
+  const isChainStatusError = !chainStatus?.height || !chainStatus?.epoch;
+
+  const isError =
+    syncStatus.isError ||
+    indexerServicesSyncStatus.isError ||
+    isChainStatusError;
+
+  const isSyncing = syncStatus.isSyncing || indexerServicesSyncStatus.isSyncing;
 
   return (
-    <div className="relative group/tooltip p-1">
+    <div className="relative group/tooltip px-1 py-3">
       <div
         className={twMerge(
           "w-2 h-2 rounded-full",
@@ -26,12 +52,23 @@ export const SyncIndicator = (): JSX.Element => {
           isError && !isSyncing && "bg-red-500"
         )}
       />
-      <Tooltip className="whitespace-nowrap">
+      <Tooltip
+        position="bottom"
+        className="z-10 w-max max-w-[200px] text-balance"
+      >
         {isSyncing ?
           "Syncing"
         : isError ?
-          `Error syncing ${services.length ? `. Lagging services: ${services.join(", ")}.` : ""}`
-        : `Fully synced: height ${chainStatus?.height}, epoch ${chainStatus?.epoch}`
+          <div>
+            {formatError(errors, "Error")}
+            {formatError(services, "Lagging services")}
+            {isChainStatusError && "Chain status not loaded."}
+          </div>
+        : <div>
+            <div>Fully synced:</div>
+            <div>Height:{chainStatus?.height}</div>
+            <div>Epoch:{chainStatus?.epoch}</div>
+          </div>
         }
       </Tooltip>
     </div>
