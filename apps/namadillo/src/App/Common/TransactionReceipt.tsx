@@ -19,7 +19,6 @@ import { FaCheckCircle } from "react-icons/fa";
 import { GoHourglass, GoXCircle } from "react-icons/go";
 import {
   allTransferTypes,
-  ibcTransferTypes,
   PartialTransferTransactionData,
   TransferStep,
 } from "types";
@@ -48,10 +47,7 @@ const TransferTransactionReceipt = ({
   const getChain = (chainId: string, address: string): Chain | undefined => {
     const chain = findChainById(chainId);
     if (isNamadaAddress(address) && chain) {
-      return parseChainInfo(
-        chain,
-        isShieldedAddress(transaction.destinationAddress || "")
-      );
+      return parseChainInfo(chain, isShieldedAddress(address || ""));
     }
     return chain;
   };
@@ -61,15 +57,12 @@ const TransferTransactionReceipt = ({
   }, [transaction]);
 
   const destinationChain = useMemo(() => {
-    const isIbc = ibcTransferTypes.includes(transaction.type);
-    if (!isIbc) return sourceChain;
-
-    if ("destinationChainId" in transaction && transaction.destinationChainId) {
-      return getChain(
-        transaction.destinationChainId,
-        transaction.destinationAddress || ""
-      );
-    }
+    return getChain(
+      "destinationChainId" in transaction ?
+        transaction.destinationChainId || ""
+      : transaction.chainId,
+      transaction.destinationAddress || ""
+    );
   }, [transaction]);
 
   const sourceWallet =
