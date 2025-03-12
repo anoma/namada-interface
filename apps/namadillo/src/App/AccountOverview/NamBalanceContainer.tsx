@@ -108,7 +108,8 @@ export const NamBalanceContainer = (): JSX.Element => {
     shieldedAmountQuery,
     shieldedNamAmount,
   } = useBalances();
-
+  const isUnbondingOrWithdrawable =
+    unbondedAmount.gt(0) || withdrawableAmount.gt(0);
   return (
     <>
       {maspEnabled && (
@@ -121,55 +122,92 @@ export const NamBalanceContainer = (): JSX.Element => {
           result={[balanceQuery, stakeQuery]}
           niceError="Unable to load balances"
         >
-          <Stack
-            as="ul"
-            gap={2}
-            className={clsx("w-full", {
-              "order-1": maspEnabled && shieldingRewardsEnabled,
-            })}
-          >
-            <NamBalanceListItem
-              className="h-full"
-              currencyClassName="block mt-4 pt-2"
-              title="Transparent NAM"
-              color={colors.balance}
-              amount={availableAmount}
-              isLoading={isLoading}
-              isSyncing={balanceQuery.isFetching}
-            />
-            <NamBalanceListItem
-              className="h-full"
-              currencyClassName="block mt-4 pt-2"
-              title="Staked NAM"
-              color={colors.bond}
-              amount={bondedAmount}
-              isLoading={isLoading}
-              isSyncing={stakeQuery.isFetching}
-            />
-          </Stack>
-          {maspEnabled && (
-            <Stack>
-              <ListItemContainer
-                isEnabled={shieldingRewardsEnabled}
-                className="pr-3 px-2 pb-3 pt-0"
-              >
+          <>
+            <Stack
+              as="ul"
+              gap={2}
+              className={clsx("w-full", {
+                "order-1": maspEnabled && shieldingRewardsEnabled,
+              })}
+            >
+              <NamBalanceListItem
+                className={clsx({ "h-full": !isUnbondingOrWithdrawable })}
+                currencyClassName={clsx({
+                  "block mt-4 pt-2": !isUnbondingOrWithdrawable,
+                })}
+                title="Transparent NAM"
+                color={colors.balance}
+                amount={availableAmount}
+                isLoading={isLoading}
+                isSyncing={balanceQuery.isFetching}
+              />
+              <NamBalanceListItem
+                className={clsx({ "h-full": !isUnbondingOrWithdrawable })}
+                currencyClassName={clsx({
+                  "block mt-4 pt-2": !isUnbondingOrWithdrawable,
+                })}
+                title="Staked NAM"
+                color={colors.bond}
+                amount={bondedAmount}
+                isLoading={isLoading}
+                isSyncing={stakeQuery.isFetching}
+              />
+              {isUnbondingOrWithdrawable && (
                 <NamBalanceListItem
-                  className="pt-4 pl-1"
-                  title="Shielded NAM"
-                  color={colors.shielded}
-                  amount={maspEnabled ? shieldedNamAmount : new BigNumber(0)}
-                  isLoading={shieldedAmountQuery.isLoading}
-                  isSyncing={isShieldSyncing}
-                  isEnabled={maspEnabled}
+                  title="Unbonded NAM"
+                  color={colors.unbond}
+                  amount={unbondedAmount.plus(withdrawableAmount)}
+                  isLoading={isLoading}
+                  isSyncing={stakeQuery.isFetching}
                 />
-                <Panel>
-                  <ShieldedRewardsBox
-                    shieldedRewardsAmount={shieldedRewards.amount}
-                  />
-                </Panel>
-              </ListItemContainer>
+              )}
             </Stack>
-          )}
+            <Stack className="w-full" gap={2}>
+              {isUnbondingOrWithdrawable ?
+                <>
+                  <NamBalanceListItem
+                    title="Shielded NAM"
+                    color={colors.shielded}
+                    amount={maspEnabled ? shieldedNamAmount : new BigNumber(0)}
+                    isLoading={shieldedAmountQuery.isLoading}
+                    isSyncing={isShieldSyncing}
+                    isEnabled={maspEnabled}
+                  />
+                  <ListItemContainer
+                    isEnabled={shieldingRewardsEnabled}
+                    className="flex flex-1"
+                  >
+                    <ShieldedRewardsBox
+                      shieldedRewardsAmount={shieldedRewards.amount}
+                    />
+                  </ListItemContainer>
+                </>
+              : <>
+                  <ListItemContainer
+                    isEnabled={shieldingRewardsEnabled}
+                    className="pr-3 px-2 pb-3 pt-0"
+                  >
+                    <NamBalanceListItem
+                      className="pt-4 pl-1"
+                      title="Shielded NAM"
+                      color={colors.shielded}
+                      amount={
+                        maspEnabled ? shieldedNamAmount : new BigNumber(0)
+                      }
+                      isLoading={shieldedAmountQuery.isLoading}
+                      isSyncing={isShieldSyncing}
+                      isEnabled={maspEnabled}
+                    />
+                    <Panel className="pb-10">
+                      <ShieldedRewardsBox
+                        shieldedRewardsAmount={shieldedRewards.amount}
+                      />
+                    </Panel>
+                  </ListItemContainer>
+                </>
+              }
+            </Stack>
+          </>
         </AtomErrorBoundary>
       </div>
     </>
