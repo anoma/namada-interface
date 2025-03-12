@@ -274,8 +274,10 @@ const fromIndexerStatus = (
       return "pending";
     case IndexerProposalStatusEnum.Voting:
       return "ongoing";
+    case IndexerProposalStatusEnum.ExecutedPassed:
     case IndexerProposalStatusEnum.Passed:
       return "passed";
+    case IndexerProposalStatusEnum.ExecutedRejected:
     case IndexerProposalStatusEnum.Rejected:
       return "rejected";
     default:
