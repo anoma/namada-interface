@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.18.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.17.0...namadillo@v1.18.0) (2025-03-12)
+
+
+### Features
+
+* Check namadillo version to invalidate shielded context ([#1887](https://github.com/anoma/namada-interface/issues/1887)) ([352e547](https://github.com/anoma/namada-interface/commit/352e5473ebee93028dec43ad492b435af04499a6))
+* Handling new proposal types ([#1899](https://github.com/anoma/namada-interface/issues/1899)) ([caea8fa](https://github.com/anoma/namada-interface/commit/caea8fa1854f3307138fe0cb41a650121c84a1dc))
+* Improve sync indicator error message ([#1892](https://github.com/anoma/namada-interface/issues/1892)) ([024ed2d](https://github.com/anoma/namada-interface/commit/024ed2d404f6c3cd7bbe5e4018267a1a05faa8d6))
+
+
+### Bug Fixes
+
+* Add z-index to prevent address hiding in IBC transfer ([a61f13e](https://github.com/anoma/namada-interface/commit/a61f13e40664b67f7e9fa05763a47c3b6f969a8c))
+* Add z-index to prevent address hiding in IBC transfer ([bac2265](https://github.com/anoma/namada-interface/commit/bac2265ce9e9f505b77372937c72725c223ce3f8))
+* Fix notification toast pending ([#1894](https://github.com/anoma/namada-interface/issues/1894)) ([66ba33d](https://github.com/anoma/namada-interface/commit/66ba33dde1febf445c4721372c15b0ff8d8c9de8))
+* Fixing transaction receipt details not appearing for shielding transfers ([#1897](https://github.com/anoma/namada-interface/issues/1897)) ([17ac8f8](https://github.com/anoma/namada-interface/commit/17ac8f8bfd6cce62cb34a337fd026a3b01cd5956))
+* Fixing unshield, shield and other transactions ([#1893](https://github.com/anoma/namada-interface/issues/1893)) ([0d0cfaa](https://github.com/anoma/namada-interface/commit/0d0cfaac8eda724a5d1e16d400a8f3b8cbaf879d))
+* **ibc-withdraw:** Fixing wallet address after selecting a new chain ([597bcb7](https://github.com/anoma/namada-interface/commit/597bcb763ba4a18ccc69ac47b76b0bae5332dcca))
+* **ibc-withdraw:** Fixing wallet address after selecting a new chain ([fe2d80b](https://github.com/anoma/namada-interface/commit/fe2d80b8086bb828d78054d64f82a6954d8d801f))
+* Settings ([90580ba](https://github.com/anoma/namada-interface/commit/90580ba1be098fb753039f588cf00b84de961243))
+* Tokens sometimes not rendering correctly after refreshing masp page ([a457df7](https://github.com/anoma/namada-interface/commit/a457df703f387106f433b61b9b2deed6d37f61b9))
+* Tokens sometimes not rendering correctly after refreshing masp page ([ca288be](https://github.com/anoma/namada-interface/commit/ca288be72d3056cb4b2678ddb082847b634753f4))
+
 ## [1.17.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.16.0...namadillo@v1.17.0) (2025-03-10)
 
 
