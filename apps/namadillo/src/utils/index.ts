@@ -12,6 +12,7 @@ export const proposalStatusToString = (status: ProposalStatus): string => {
     ongoing: "Ongoing",
     passed: "Passed",
     rejected: "Rejected",
+    executed: "Executed",
   };
 
   return statusText[status];

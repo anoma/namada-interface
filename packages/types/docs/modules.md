@@ -161,13 +161,13 @@
 
 ### Account
 
-Ƭ **Account**: `Pick`\<[`DerivedAccount`](modules.md#derivedaccount), ``"address"`` \| ``"alias"`` \| ``"type"`` \| ``"publicKey"`` \| ``"owner"`` \| ``"pseudoExtendedKey"`` \| ``"source"`` \| ``"timestamp"``\> & \{ `viewingKey?`: `string`  }
+Ƭ **Account**: `Pick`\<[`DerivedAccount`](modules.md#derivedaccount), `"address"` \| `"alias"` \| `"type"` \| `"publicKey"` \| `"owner"` \| `"pseudoExtendedKey"` \| `"source"` \| `"timestamp"`\> & \{ `viewingKey?`: `string` }
 
 #### Defined in
 
 [account.ts:46](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/account.ts#L46)
 
-___
+---
 
 ### AddRemove
 
@@ -175,16 +175,16 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `add?` | `string` |
+| Name     | Type       |
+| :------- | :--------- |
+| `add?`   | `string`   |
 | `remove` | `string`[] |
 
 #### Defined in
 
 [proposals.ts:34](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L34)
 
-___
+---
 
 ### BalancesProps
 
@@ -192,16 +192,16 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `owner` | `string` |
+| Name     | Type       |
+| :------- | :--------- |
+| `owner`  | `string`   |
 | `tokens` | `string`[] |
 
 #### Defined in
 
 [namada.ts:26](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/namada.ts#L26)
 
-___
+---
 
 ### BatchTxResultProps
 
@@ -211,7 +211,7 @@ ___
 
 [tx/types.ts:31](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L31)
 
-___
+---
 
 ### Bip44Path
 
@@ -219,17 +219,17 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
+| Name      | Type     |
+| :-------- | :------- |
 | `account` | `number` |
-| `change` | `number` |
-| `index` | `number` |
+| `change`  | `number` |
+| `index`   | `number` |
 
 #### Defined in
 
 [account.ts:1](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/account.ts#L1)
 
-___
+---
 
 ### BondProps
 
@@ -239,7 +239,7 @@ ___
 
 [tx/types.ts:32](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L32)
 
-___
+---
 
 ### Chain
 
@@ -247,36 +247,36 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `alias` | `string` |
-| `bech32Prefix` | `string` |
-| `bip44` | \{ `coinType`: `number`  } |
-| `bip44.coinType` | `number` |
-| `bridgeType` | [`BridgeType`](enums/BridgeType.md)[] |
-| `chainId` | `string` |
-| `currency` | [`Currency`](modules.md#currency) |
-| `extension` | [`ExtensionInfo`](modules.md#extensioninfo) |
-| `ibc?` | \{ `portId`: `string`  } |
-| `ibc.portId` | `string` |
-| `id` | [`ChainKey`](modules.md#chainkey) |
-| `rpc` | `string` |
+| Name             | Type                                        |
+| :--------------- | :------------------------------------------ |
+| `alias`          | `string`                                    |
+| `bech32Prefix`   | `string`                                    |
+| `bip44`          | \{ `coinType`: `number` }                   |
+| `bip44.coinType` | `number`                                    |
+| `bridgeType`     | [`BridgeType`](enums/BridgeType.md)[]       |
+| `chainId`        | `string`                                    |
+| `currency`       | [`Currency`](modules.md#currency)           |
+| `extension`      | [`ExtensionInfo`](modules.md#extensioninfo) |
+| `ibc?`           | \{ `portId`: `string` }                     |
+| `ibc.portId`     | `string`                                    |
+| `id`             | [`ChainKey`](modules.md#chainkey)           |
+| `rpc`            | `string`                                    |
 
 #### Defined in
 
 [chain.ts:49](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/chain.ts#L49)
 
-___
+---
 
 ### ChainKey
 
-Ƭ **ChainKey**: ``"namada"`` \| ``"cosmos"`` \| ``"ethereum"``
+Ƭ **ChainKey**: `"namada"` \| `"cosmos"` \| `"ethereum"`
 
 #### Defined in
 
 [chain.ts:21](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/chain.ts#L21)
 
-___
+---
 
 ### ClaimRewardsProps
 
@@ -286,17 +286,17 @@ ___
 
 [tx/types.ts:54](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L54)
 
-___
+---
 
 ### CommitmentDetailProps
 
-Ƭ **CommitmentDetailProps**: [`SupportedTxProps`](modules.md#supportedtxprops) & \{ `hash`: `string` ; `maspTxIn?`: [`MaspTxIn`](classes/MaspTxIn.md)[] ; `maspTxOut?`: [`MaspTxOut`](classes/MaspTxOut.md)[] ; `memo?`: `string` ; `txType`: `unknown`  }
+Ƭ **CommitmentDetailProps**: [`SupportedTxProps`](modules.md#supportedtxprops) & \{ `hash`: `string` ; `maspTxIn?`: [`MaspTxIn`](classes/MaspTxIn.md)[] ; `maspTxOut?`: [`MaspTxOut`](classes/MaspTxOut.md)[] ; `memo?`: `string` ; `txType`: `unknown` }
 
 #### Defined in
 
 [tx/types.ts:72](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L72)
 
-___
+---
 
 ### CosmosMinDenom
 
@@ -306,7 +306,7 @@ ___
 
 [tokens/Cosmos.ts:13](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tokens/Cosmos.ts#L13)
 
-___
+---
 
 ### CosmosTokenType
 
@@ -316,7 +316,7 @@ ___
 
 [tokens/Cosmos.ts:6](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tokens/Cosmos.ts#L6)
 
-___
+---
 
 ### Currency
 
@@ -324,21 +324,21 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `address?` | `string` |
-| `gasPriceStep?` | \{ `average`: `number` ; `high`: `number` ; `low`: `number`  } |
-| `gasPriceStep.average` | `number` |
-| `gasPriceStep.high` | `number` |
-| `gasPriceStep.low` | `number` |
-| `symbol` | `string` |
-| `token` | `string` |
+| Name                   | Type                                                          |
+| :--------------------- | :------------------------------------------------------------ |
+| `address?`             | `string`                                                      |
+| `gasPriceStep?`        | \{ `average`: `number` ; `high`: `number` ; `low`: `number` } |
+| `gasPriceStep.average` | `number`                                                      |
+| `gasPriceStep.high`    | `number`                                                      |
+| `gasPriceStep.low`     | `number`                                                      |
+| `symbol`               | `string`                                                      |
+| `token`                | `string`                                                      |
 
 #### Defined in
 
 [chain.ts:1](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/chain.ts#L1)
 
-___
+---
 
 ### DatedViewingKey
 
@@ -348,16 +348,16 @@ ViewingKey with optional birthday
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type     |
+| :--------- | :------- |
 | `birthday` | `number` |
-| `key` | `string` |
+| `key`      | `string` |
 
 #### Defined in
 
 [account.ts:68](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/account.ts#L68)
 
-___
+---
 
 ### Default
 
@@ -365,15 +365,15 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `type` | ``"default"`` |
+| Name   | Type        |
+| :----- | :---------- |
+| `type` | `"default"` |
 
 #### Defined in
 
 [proposals.ts:63](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L63)
 
-___
+---
 
 ### DefaultWithWasm
 
@@ -381,26 +381,26 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `data` | `string` |
-| `type` | ``"default_with_wasm"`` |
+| Name   | Type                  |
+| :----- | :-------------------- |
+| `data` | `string`              |
+| `type` | `"default_with_wasm"` |
 
 #### Defined in
 
 [proposals.ts:64](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L64)
 
-___
+---
 
 ### DelegatorVote
 
-Ƭ **DelegatorVote**: \{ `isValidator`: ``false`` ; `votingPower`: [`string`, `BigNumber`][]  } & `VoteCommonProperties`
+Ƭ **DelegatorVote**: \{ `isValidator`: `false` ; `votingPower`: [`string`, `BigNumber`][] } & `VoteCommonProperties`
 
 #### Defined in
 
 [proposals.ts:93](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L93)
 
-___
+---
 
 ### DerivedAccount
 
@@ -408,26 +408,26 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `address` | `string` |
-| `alias` | `string` |
-| `id` | `string` |
-| `modifiedZip32Path?` | `string` |
-| `owner?` | `string` |
-| `parentId?` | `string` |
-| `path` | [`Path`](modules.md#path) |
-| `pseudoExtendedKey?` | `string` |
-| `publicKey?` | `string` |
-| `source?` | ``"imported"`` \| ``"generated"`` |
-| `timestamp?` | `number` |
-| `type` | [`AccountType`](enums/AccountType.md) |
+| Name                 | Type                                  |
+| :------------------- | :------------------------------------ |
+| `address`            | `string`                              |
+| `alias`              | `string`                              |
+| `id`                 | `string`                              |
+| `modifiedZip32Path?` | `string`                              |
+| `owner?`             | `string`                              |
+| `parentId?`          | `string`                              |
+| `path`               | [`Path`](modules.md#path)             |
+| `pseudoExtendedKey?` | `string`                              |
+| `publicKey?`         | `string`                              |
+| `source?`            | `"imported"` \| `"generated"`         |
+| `timestamp?`         | `number`                              |
+| `type`               | [`AccountType`](enums/AccountType.md) |
 
 #### Defined in
 
 [account.ts:31](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/account.ts#L31)
 
-___
+---
 
 ### EthBridgeTransferProps
 
@@ -437,7 +437,7 @@ ___
 
 [tx/types.ts:33](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L33)
 
-___
+---
 
 ### ExtensionInfo
 
@@ -445,27 +445,27 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `alias` | `string` |
-| `id` | [`ExtensionKey`](modules.md#extensionkey) |
-| `url` | `string` |
+| Name    | Type                                      |
+| :------ | :---------------------------------------- |
+| `alias` | `string`                                  |
+| `id`    | [`ExtensionKey`](modules.md#extensionkey) |
+| `url`   | `string`                                  |
 
 #### Defined in
 
 [chain.ts:23](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/chain.ts#L23)
 
-___
+---
 
 ### ExtensionKey
 
-Ƭ **ExtensionKey**: ``"namada"`` \| ``"keplr"`` \| ``"metamask"``
+Ƭ **ExtensionKey**: `"namada"` \| `"keplr"` \| `"metamask"`
 
 #### Defined in
 
 [chain.ts:18](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/chain.ts#L18)
 
-___
+---
 
 ### GenDisposableSignerResponse
 
@@ -473,16 +473,16 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `address` | `string` |
+| Name        | Type     |
+| :---------- | :------- |
+| `address`   | `string` |
 | `publicKey` | `string` |
 
 #### Defined in
 
 [signer.ts:8](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/signer.ts#L8)
 
-___
+---
 
 ### IbcTransferProps
 
@@ -492,7 +492,7 @@ ___
 
 [tx/types.ts:34](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L34)
 
-___
+---
 
 ### JsonCompatibleArray
 
@@ -502,7 +502,7 @@ ___
 
 [utils.ts:1](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/utils.ts#L1)
 
-___
+---
 
 ### JsonCompatibleDictionary
 
@@ -516,7 +516,7 @@ ___
 
 [utils.ts:2](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/utils.ts#L2)
 
-___
+---
 
 ### MaspTxInProps
 
@@ -526,7 +526,7 @@ ___
 
 [tx/types.ts:44](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L44)
 
-___
+---
 
 ### MaspTxOutProps
 
@@ -536,17 +536,17 @@ ___
 
 [tx/types.ts:45](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L45)
 
-___
+---
 
 ### NamadaKeychainAccount
 
-Ƭ **NamadaKeychainAccount**: [`Account`](modules.md#account) & \{ `id`: `string` ; `parentId?`: `string`  }
+Ƭ **NamadaKeychainAccount**: [`Account`](modules.md#account) & \{ `id`: `string` ; `parentId?`: `string` }
 
 #### Defined in
 
 [account.ts:60](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/account.ts#L60)
 
-___
+---
 
 ### Path
 
@@ -554,17 +554,17 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
+| Name      | Type     |
+| :-------- | :------- |
 | `account` | `number` |
 | `change?` | `number` |
-| `index?` | `number` |
+| `index?`  | `number` |
 
 #### Defined in
 
 [account.ts:13](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/account.ts#L13)
 
-___
+---
 
 ### PgfActions
 
@@ -572,18 +572,18 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `continuous` | \{ `add`: ([`PgfTarget`](modules.md#pgftarget) \| [`PgfIbcTarget`](modules.md#pgfibctarget))[] ; `remove`: ([`PgfTarget`](modules.md#pgftarget) \| [`PgfIbcTarget`](modules.md#pgfibctarget))[]  } |
-| `continuous.add` | ([`PgfTarget`](modules.md#pgftarget) \| [`PgfIbcTarget`](modules.md#pgfibctarget))[] |
-| `continuous.remove` | ([`PgfTarget`](modules.md#pgftarget) \| [`PgfIbcTarget`](modules.md#pgfibctarget))[] |
-| `retro` | ([`PgfTarget`](modules.md#pgftarget) \| [`PgfIbcTarget`](modules.md#pgfibctarget))[] |
+| Name                | Type                                                                                                                                                                                              |
+| :------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `continuous`        | \{ `add`: ([`PgfTarget`](modules.md#pgftarget) \| [`PgfIbcTarget`](modules.md#pgfibctarget))[] ; `remove`: ([`PgfTarget`](modules.md#pgftarget) \| [`PgfIbcTarget`](modules.md#pgfibctarget))[] } |
+| `continuous.add`    | ([`PgfTarget`](modules.md#pgftarget) \| [`PgfIbcTarget`](modules.md#pgfibctarget))[]                                                                                                              |
+| `continuous.remove` | ([`PgfTarget`](modules.md#pgftarget) \| [`PgfIbcTarget`](modules.md#pgfibctarget))[]                                                                                                              |
+| `retro`             | ([`PgfTarget`](modules.md#pgftarget) \| [`PgfIbcTarget`](modules.md#pgfibctarget))[]                                                                                                              |
 
 #### Defined in
 
 [proposals.ts:55](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L55)
 
-___
+---
 
 ### PgfIbcTarget
 
@@ -591,19 +591,19 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `ibc` | \{ `amount`: `BigNumber` ; `channelId`: `string` ; `portId`: `string` ; `target`: `string`  } |
-| `ibc.amount` | `BigNumber` |
-| `ibc.channelId` | `string` |
-| `ibc.portId` | `string` |
-| `ibc.target` | `string` |
+| Name            | Type                                                                                         |
+| :-------------- | :------------------------------------------------------------------------------------------- |
+| `ibc`           | \{ `amount`: `BigNumber` ; `channelId`: `string` ; `portId`: `string` ; `target`: `string` } |
+| `ibc.amount`    | `BigNumber`                                                                                  |
+| `ibc.channelId` | `string`                                                                                     |
+| `ibc.portId`    | `string`                                                                                     |
+| `ibc.target`    | `string`                                                                                     |
 
 #### Defined in
 
 [proposals.ts:46](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L46)
 
-___
+---
 
 ### PgfPayment
 
@@ -611,16 +611,16 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
+| Name   | Type                                  |
+| :----- | :------------------------------------ |
 | `data` | [`PgfActions`](modules.md#pgfactions) |
-| `type` | ``"pgf_payment"`` |
+| `type` | `"pgf_payment"`                       |
 
 #### Defined in
 
 [proposals.ts:66](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L66)
 
-___
+---
 
 ### PgfSteward
 
@@ -628,16 +628,16 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
+| Name   | Type                                |
+| :----- | :---------------------------------- |
 | `data` | [`AddRemove`](modules.md#addremove) |
-| `type` | ``"pgf_steward"`` |
+| `type` | `"pgf_steward"`                     |
 
 #### Defined in
 
 [proposals.ts:65](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L65)
 
-___
+---
 
 ### PgfTarget
 
@@ -645,27 +645,27 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `internal` | \{ `amount`: `BigNumber` ; `target`: `string`  } |
-| `internal.amount` | `BigNumber` |
-| `internal.target` | `string` |
+| Name              | Type                                            |
+| :---------------- | :---------------------------------------------- |
+| `internal`        | \{ `amount`: `BigNumber` ; `target`: `string` } |
+| `internal.amount` | `BigNumber`                                     |
+| `internal.target` | `string`                                        |
 
 #### Defined in
 
 [proposals.ts:39](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L39)
 
-___
+---
 
 ### Proposal
 
-Ƭ **Proposal**: \{ `activationEpoch`: `bigint` ; `activationTime`: `bigint` ; `author`: `string` ; `content`: \{ `[key: string]`: `string` \| `undefined`;  } ; `currentTime`: `bigint` ; `endEpoch`: `bigint` ; `endTime`: `bigint` ; `id`: `bigint` ; `proposalType`: [`ProposalType`](modules.md#proposaltype) ; `startEpoch`: `bigint` ; `startTime`: `bigint` ; `status`: [`ProposalStatus`](modules.md#proposalstatus) ; `tallyType`: [`TallyType`](modules.md#tallytype) ; `totalVotingPower`: `BigNumber`  } & \{ [VT in VoteType]: BigNumber }
+Ƭ **Proposal**: \{ `activationEpoch`: `bigint` ; `activationTime`: `bigint` ; `author`: `string` ; `content`: \{ `[key: string]`: `string` \| `undefined`; } ; `currentTime`: `bigint` ; `endEpoch`: `bigint` ; `endTime`: `bigint` ; `id`: `bigint` ; `proposalType`: [`ProposalType`](modules.md#proposaltype) ; `startEpoch`: `bigint` ; `startTime`: `bigint` ; `status`: [`ProposalStatus`](modules.md#proposalstatus) ; `tallyType`: [`TallyType`](modules.md#tallytype) ; `totalVotingPower`: `BigNumber` } & \{ [VT in VoteType]: BigNumber }
 
 #### Defined in
 
 [proposals.ts:15](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L15)
 
-___
+---
 
 ### ProposalStatus
 
@@ -675,7 +675,7 @@ ___
 
 [proposals.ts:10](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L10)
 
-___
+---
 
 ### ProposalType
 
@@ -685,7 +685,7 @@ ___
 
 [proposals.ts:67](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L67)
 
-___
+---
 
 ### ProposalTypeString
 
@@ -695,7 +695,7 @@ ___
 
 [proposals.ts:69](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L69)
 
-___
+---
 
 ### RedelegateProps
 
@@ -705,7 +705,7 @@ ___
 
 [tx/types.ts:35](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L35)
 
-___
+---
 
 ### RevealPkProps
 
@@ -715,7 +715,7 @@ ___
 
 [tx/types.ts:57](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L57)
 
-___
+---
 
 ### Schema
 
@@ -725,7 +725,7 @@ ___
 
 [tx/schema/index.ts:48](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/index.ts#L48)
 
-___
+---
 
 ### ShieldedTransferDataProps
 
@@ -735,7 +735,7 @@ ___
 
 [tx/types.ts:38](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L38)
 
-___
+---
 
 ### ShieldedTransferProps
 
@@ -745,7 +745,7 @@ ___
 
 [tx/types.ts:37](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L37)
 
-___
+---
 
 ### ShieldingTransferDataProps
 
@@ -755,7 +755,7 @@ ___
 
 [tx/types.ts:40](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L40)
 
-___
+---
 
 ### ShieldingTransferProps
 
@@ -765,7 +765,7 @@ ___
 
 [tx/types.ts:39](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L39)
 
-___
+---
 
 ### SignArbitraryProps
 
@@ -773,16 +773,16 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `data` | `string` |
+| Name     | Type     |
+| :------- | :------- |
+| `data`   | `string` |
 | `signer` | `string` |
 
 #### Defined in
 
 [namada.ts:9](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/namada.ts#L9)
 
-___
+---
 
 ### SignArbitraryResponse
 
@@ -790,16 +790,16 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `hash` | `string` |
+| Name        | Type     |
+| :---------- | :------- |
+| `hash`      | `string` |
 | `signature` | `string` |
 
 #### Defined in
 
 [signer.ts:3](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/signer.ts#L3)
 
-___
+---
 
 ### SignProps
 
@@ -807,17 +807,17 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `checksums?` | `Record`\<`string`, `string`\> |
-| `signer` | `string` |
-| `txs` | [`TxProps`](modules.md#txprops)[] |
+| Name         | Type                              |
+| :----------- | :-------------------------------- |
+| `checksums?` | `Record`\<`string`, `string`\>    |
+| `signer`     | `string`                          |
+| `txs`        | [`TxProps`](modules.md#txprops)[] |
 
 #### Defined in
 
 [namada.ts:14](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/namada.ts#L14)
 
-___
+---
 
 ### SignatureProps
 
@@ -827,7 +827,7 @@ ___
 
 [tx/types.ts:36](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L36)
 
-___
+---
 
 ### SigningDataProps
 
@@ -837,7 +837,7 @@ ___
 
 [tx/types.ts:51](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L51)
 
-___
+---
 
 ### SupportedTxProps
 
@@ -847,7 +847,7 @@ ___
 
 [tx/types.ts:59](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L59)
 
-___
+---
 
 ### TallyType
 
@@ -857,7 +857,7 @@ ___
 
 [proposals.ts:109](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L109)
 
-___
+---
 
 ### TokenBalances
 
@@ -865,15 +865,15 @@ ___
 
 #### Type parameters
 
-| Name | Type |
-| :------ | :------ |
-| `T` | extends `string` = [`TokenType`](modules.md#tokentype) |
+| Name | Type                                                   |
+| :--- | :----------------------------------------------------- |
+| `T`  | extends `string` = [`TokenType`](modules.md#tokentype) |
 
 #### Defined in
 
 [tokens/types.ts:19](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tokens/types.ts#L19)
 
-___
+---
 
 ### TokenInfo
 
@@ -881,31 +881,31 @@ ___
 
 #### Type parameters
 
-| Name | Type |
-| :------ | :------ |
-| `D` | extends `string` = `string` |
+| Name | Type                        |
+| :--- | :-------------------------- |
+| `D`  | extends `string` = `string` |
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `address` | `string` |
-| `coin` | `string` |
-| `coinGeckoId?` | `string` |
-| `decimals` | `number` |
-| `isNut?` | `boolean` |
-| `minDenom` | `D` |
-| `nativeAddress?` | `string` |
-| `path` | `number` |
-| `symbol` | `string` |
-| `type` | `number` |
-| `url?` | `string` |
+| Name             | Type      |
+| :--------------- | :-------- |
+| `address`        | `string`  |
+| `coin`           | `string`  |
+| `coinGeckoId?`   | `string`  |
+| `decimals`       | `number`  |
+| `isNut?`         | `boolean` |
+| `minDenom`       | `D`       |
+| `nativeAddress?` | `string`  |
+| `path`           | `number`  |
+| `symbol`         | `string`  |
+| `type`           | `number`  |
+| `url?`           | `string`  |
 
 #### Defined in
 
 [tokens/types.ts:5](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tokens/types.ts#L5)
 
-___
+---
 
 ### TokenType
 
@@ -915,7 +915,7 @@ ___
 
 [tokens/Namada.ts:21](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tokens/Namada.ts#L21)
 
-___
+---
 
 ### TransferDetailsProps
 
@@ -925,7 +925,7 @@ ___
 
 [tx/types.ts:46](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L46)
 
-___
+---
 
 ### TransferProps
 
@@ -935,7 +935,7 @@ ___
 
 [tx/types.ts:43](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L43)
 
-___
+---
 
 ### TransparentTransferDataProps
 
@@ -945,7 +945,7 @@ ___
 
 [tx/types.ts:48](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L48)
 
-___
+---
 
 ### TransparentTransferProps
 
@@ -955,17 +955,17 @@ ___
 
 [tx/types.ts:47](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L47)
 
-___
+---
 
 ### TxDetails
 
-Ƭ **TxDetails**: [`WrapperTxProps`](modules.md#wrappertxprops) & \{ `commitments`: [`CommitmentDetailProps`](modules.md#commitmentdetailprops)[] ; `wrapperFeePayer`: `string`  }
+Ƭ **TxDetails**: [`WrapperTxProps`](modules.md#wrappertxprops) & \{ `commitments`: [`CommitmentDetailProps`](modules.md#commitmentdetailprops)[] ; `wrapperFeePayer`: `string` }
 
 #### Defined in
 
 [tx/types.ts:80](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L80)
 
-___
+---
 
 ### TxProps
 
@@ -975,7 +975,7 @@ ___
 
 [tx/types.ts:49](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L49)
 
-___
+---
 
 ### TxResponseProps
 
@@ -985,7 +985,7 @@ ___
 
 [tx/types.ts:50](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L50)
 
-___
+---
 
 ### UnbondProps
 
@@ -995,17 +995,17 @@ ___
 
 [tx/types.ts:52](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L52)
 
-___
+---
 
 ### UnknownVoteType
 
-Ƭ **UnknownVoteType**: ``"unknown"``
+Ƭ **UnknownVoteType**: `"unknown"`
 
 #### Defined in
 
 [proposals.ts:73](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L73)
 
-___
+---
 
 ### UnshieldingTransferDataProps
 
@@ -1015,7 +1015,7 @@ ___
 
 [tx/types.ts:41](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L41)
 
-___
+---
 
 ### UnshieldingTransferProps
 
@@ -1025,17 +1025,17 @@ ___
 
 [tx/types.ts:42](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L42)
 
-___
+---
 
 ### ValidatorVote
 
-Ƭ **ValidatorVote**: \{ `isValidator`: ``true`` ; `votingPower`: `BigNumber`  } & `VoteCommonProperties`
+Ƭ **ValidatorVote**: \{ `isValidator`: `true` ; `votingPower`: `BigNumber` } & `VoteCommonProperties`
 
 #### Defined in
 
 [proposals.ts:85](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L85)
 
-___
+---
 
 ### VerifyArbitraryProps
 
@@ -1043,9 +1043,9 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `hash` | `string` |
+| Name        | Type     |
+| :---------- | :------- |
+| `hash`      | `string` |
 | `publicKey` | `string` |
 | `signature` | `string` |
 
@@ -1053,7 +1053,7 @@ ___
 
 [namada.ts:20](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/namada.ts#L20)
 
-___
+---
 
 ### Vote
 
@@ -1063,7 +1063,7 @@ ___
 
 [proposals.ts:101](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L101)
 
-___
+---
 
 ### VoteProposalProps
 
@@ -1073,7 +1073,7 @@ ___
 
 [tx/types.ts:53](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L53)
 
-___
+---
 
 ### VoteType
 
@@ -1083,7 +1083,7 @@ ___
 
 [proposals.ts:72](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L72)
 
-___
+---
 
 ### Votes
 
@@ -1093,17 +1093,17 @@ ___
 
 [proposals.ts:78](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L78)
 
-___
+---
 
 ### WindowWithNamada
 
-Ƭ **WindowWithNamada**: `Window` & typeof `globalThis` & \{ `namada`: [`Namada`](interfaces/Namada.md) & \{ `getSigner`: () => [`Signer`](interfaces/Signer.md)  }  }
+Ƭ **WindowWithNamada**: `Window` & typeof `globalThis` & \{ `namada`: [`Namada`](interfaces/Namada.md) & \{ `getSigner`: () => [`Signer`](interfaces/Signer.md) } }
 
 #### Defined in
 
 [namada.ts:47](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/namada.ts#L47)
 
-___
+---
 
 ### WithdrawProps
 
@@ -1113,7 +1113,7 @@ ___
 
 [tx/types.ts:55](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L55)
 
-___
+---
 
 ### WrapperTxProps
 
@@ -1123,7 +1123,7 @@ ___
 
 [tx/types.ts:56](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/types.ts#L56)
 
-___
+---
 
 ### Zip32Path
 
@@ -1131,10 +1131,10 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
+| Name      | Type     |
+| :-------- | :------- |
 | `account` | `number` |
-| `index?` | `number` |
+| `index?`  | `number` |
 
 #### Defined in
 
@@ -1148,16 +1148,16 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `deserialize` | (`reader`: `BinaryReader`) => `BigNumber` |
-| `serialize` | (`value`: `BigNumber`, `writer`: `BinaryWriter`) => `void` |
+| Name          | Type                                                       |
+| :------------ | :--------------------------------------------------------- |
+| `deserialize` | (`reader`: `BinaryReader`) => `BigNumber`                  |
+| `serialize`   | (`value`: `BigNumber`, `writer`: `BinaryWriter`) => `void` |
 
 #### Defined in
 
 [tx/schema/utils.ts:4](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/utils.ts#L4)
 
-___
+---
 
 ### CosmosSymbols
 
@@ -1167,7 +1167,7 @@ ___
 
 [tokens/Cosmos.ts:5](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tokens/Cosmos.ts#L5)
 
-___
+---
 
 ### CosmosTokens
 
@@ -1177,7 +1177,7 @@ ___
 
 [tokens/Cosmos.ts:22](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tokens/Cosmos.ts#L22)
 
-___
+---
 
 ### Extensions
 
@@ -1185,26 +1185,26 @@ ___
 
 #### Type declaration
 
-| Name | Type |
-| :------ | :------ |
-| `keplr` | \{ `alias`: `string` = "Keplr"; `id`: ``"keplr"`` = "keplr"; `url`: `string` = "https://www.keplr.app/" } |
-| `keplr.alias` | `string` |
-| `keplr.id` | ``"keplr"`` |
-| `keplr.url` | `string` |
-| `metamask` | \{ `alias`: `string` = "Metamask"; `id`: ``"metamask"`` = "metamask"; `url`: `string` = "https://metamask.io/" } |
-| `metamask.alias` | `string` |
-| `metamask.id` | ``"metamask"`` |
-| `metamask.url` | `string` |
-| `namada` | \{ `alias`: `string` = "Namada"; `id`: ``"namada"`` = "namada"; `url`: `string` = "https://namada.me" } |
-| `namada.alias` | `string` |
-| `namada.id` | ``"namada"`` |
-| `namada.url` | `string` |
+| Name             | Type                                                                                                           |
+| :--------------- | :------------------------------------------------------------------------------------------------------------- |
+| `keplr`          | \{ `alias`: `string` = "Keplr"; `id`: `"keplr"` = "keplr"; `url`: `string` = "https://www.keplr.app/" }        |
+| `keplr.alias`    | `string`                                                                                                       |
+| `keplr.id`       | `"keplr"`                                                                                                      |
+| `keplr.url`      | `string`                                                                                                       |
+| `metamask`       | \{ `alias`: `string` = "Metamask"; `id`: `"metamask"` = "metamask"; `url`: `string` = "https://metamask.io/" } |
+| `metamask.alias` | `string`                                                                                                       |
+| `metamask.id`    | `"metamask"`                                                                                                   |
+| `metamask.url`   | `string`                                                                                                       |
+| `namada`         | \{ `alias`: `string` = "Namada"; `id`: `"namada"` = "namada"; `url`: `string` = "https://namada.me" }          |
+| `namada.alias`   | `string`                                                                                                       |
+| `namada.id`      | `"namada"`                                                                                                     |
+| `namada.url`     | `string`                                                                                                       |
 
 #### Defined in
 
 [chain.ts:30](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/chain.ts#L30)
 
-___
+---
 
 ### Symbols
 
@@ -1214,7 +1214,7 @@ ___
 
 [tokens/Namada.ts:11](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tokens/Namada.ts#L11)
 
-___
+---
 
 ### Tokens
 
@@ -1224,17 +1224,17 @@ ___
 
 [tokens/Namada.ts:23](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tokens/Namada.ts#L23)
 
-___
+---
 
 ### proposalStatuses
 
-• `Const` **proposalStatuses**: readonly [``"pending"``, ``"ongoing"``, ``"passed"``, ``"rejected"``]
+• `Const` **proposalStatuses**: readonly [``"pending"``, ``"ongoing"``, ``"passed"``, ``"rejected"``, ``"executed"``]
 
 #### Defined in
 
 [proposals.ts:3](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L3)
 
-___
+---
 
 ### tallyTypes
 
@@ -1244,7 +1244,7 @@ ___
 
 [proposals.ts:103](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L103)
 
-___
+---
 
 ### voteTypes
 
@@ -1262,8 +1262,8 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name   | Type                      |
+| :----- | :------------------------ |
 | `vote` | [`Vote`](modules.md#vote) |
 
 #### Returns
@@ -1274,27 +1274,27 @@ vote is DelegatorVote
 
 [proposals.ts:98](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L98)
 
-___
+---
 
 ### isProposalStatus
 
-▸ **isProposalStatus**(`str`): str is "pending" \| "ongoing" \| "passed" \| "rejected"
+▸ **isProposalStatus**(`str`): str is "pending" \| "ongoing" \| "passed" \| "rejected" \| "executed"
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name  | Type     |
+| :---- | :------- |
 | `str` | `string` |
 
 #### Returns
 
-str is "pending" \| "ongoing" \| "passed" \| "rejected"
+str is "pending" \| "ongoing" \| "passed" \| "rejected" \| "executed"
 
 #### Defined in
 
 [proposals.ts:12](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L12)
 
-___
+---
 
 ### isTallyType
 
@@ -1302,8 +1302,8 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name        | Type     |
+| :---------- | :------- |
 | `tallyType` | `string` |
 
 #### Returns
@@ -1314,7 +1314,7 @@ tallyType is "two-fifths" \| "one-half-over-one-third" \| "less-one-half-over-on
 
 [proposals.ts:111](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L111)
 
-___
+---
 
 ### isValidatorVote
 
@@ -1322,8 +1322,8 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name   | Type                      |
+| :----- | :------------------------ |
 | `vote` | [`Vote`](modules.md#vote) |
 
 #### Returns
@@ -1334,7 +1334,7 @@ vote is ValidatorVote
 
 [proposals.ts:90](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L90)
 
-___
+---
 
 ### isVoteType
 
@@ -1342,8 +1342,8 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name  | Type     |
+| :---- | :------- |
 | `str` | `string` |
 
 #### Returns
@@ -1354,41 +1354,41 @@ str is "yay" \| "nay" \| "abstain"
 
 [proposals.ts:75](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/proposals.ts#L75)
 
-___
+---
 
 ### minDenomByToken
 
-▸ **minDenomByToken**(`token`): `undefined` \| ``"uatom"`` \| ``"uosmo"``
+▸ **minDenomByToken**(`token`): `undefined` \| `"uatom"` \| `"uosmo"`
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name    | Type     |
+| :------ | :------- |
 | `token` | `string` |
 
 #### Returns
 
-`undefined` \| ``"uatom"`` \| ``"uosmo"``
+`undefined` \| `"uatom"` \| `"uosmo"`
 
 #### Defined in
 
 [tokens/Cosmos.ts:66](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tokens/Cosmos.ts#L66)
 
-___
+---
 
 ### tokenByMinDenom
 
-▸ **tokenByMinDenom**(`minDenom`): `undefined` \| ``"ATOM"`` \| ``"OSMO"``
+▸ **tokenByMinDenom**(`minDenom`): `undefined` \| `"ATOM"` \| `"OSMO"`
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type     |
+| :--------- | :------- |
 | `minDenom` | `string` |
 
 #### Returns
 
-`undefined` \| ``"ATOM"`` \| ``"OSMO"``
+`undefined` \| `"ATOM"` \| `"OSMO"`
 
 #### Defined in
 
