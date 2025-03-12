@@ -1,4 +1,4 @@
-import { Heading, Panel, SkeletonLoading, Stack } from "@namada/components";
+import { Heading, SkeletonLoading, Stack } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { ShieldedRewardsBox } from "App/Masp/ShieldedRewardsBox";
@@ -96,7 +96,6 @@ export const NamBalanceContainer = (): JSX.Element => {
   );
   const { isFetching: isShieldSyncing } = useAtomValue(shieldedBalanceAtom);
   const shieldedRewards = useAtomValue(cachedShieldedRewardsAtom);
-
   const {
     balanceQuery,
     stakeQuery,
@@ -108,8 +107,10 @@ export const NamBalanceContainer = (): JSX.Element => {
     shieldedAmountQuery,
     shieldedNamAmount,
   } = useBalances();
+
   const isUnbondingOrWithdrawable =
-    unbondedAmount.gt(0) || withdrawableAmount.gt(0);
+    withdrawableAmount.gt(0) || unbondedAmount.gt(0);
+
   return (
     <>
       {maspEnabled && (
@@ -131,7 +132,7 @@ export const NamBalanceContainer = (): JSX.Element => {
               })}
             >
               <NamBalanceListItem
-                className={clsx({ "h-full": !isUnbondingOrWithdrawable })}
+                className="h-full"
                 currencyClassName={clsx({
                   "block mt-4 pt-2": !isUnbondingOrWithdrawable,
                 })}
@@ -142,7 +143,7 @@ export const NamBalanceContainer = (): JSX.Element => {
                 isSyncing={balanceQuery.isFetching}
               />
               <NamBalanceListItem
-                className={clsx({ "h-full": !isUnbondingOrWithdrawable })}
+                className="h-full"
                 currencyClassName={clsx({
                   "block mt-4 pt-2": !isUnbondingOrWithdrawable,
                 })}
@@ -163,49 +164,24 @@ export const NamBalanceContainer = (): JSX.Element => {
               )}
             </Stack>
             <Stack className="w-full" gap={2}>
-              {isUnbondingOrWithdrawable ?
-                <>
-                  <NamBalanceListItem
-                    title="Shielded NAM"
-                    color={colors.shielded}
-                    amount={maspEnabled ? shieldedNamAmount : new BigNumber(0)}
-                    isLoading={shieldedAmountQuery.isLoading}
-                    isSyncing={isShieldSyncing}
-                    isEnabled={maspEnabled}
+              <>
+                <NamBalanceListItem
+                  title="Shielded NAM"
+                  color={colors.shielded}
+                  amount={maspEnabled ? shieldedNamAmount : new BigNumber(0)}
+                  isLoading={shieldedAmountQuery.isLoading}
+                  isSyncing={isShieldSyncing}
+                  isEnabled={maspEnabled}
+                />
+                <ListItemContainer
+                  isEnabled={shieldingRewardsEnabled}
+                  className="flex flex-1"
+                >
+                  <ShieldedRewardsBox
+                    shieldedRewardsAmount={shieldedRewards.amount}
                   />
-                  <ListItemContainer
-                    isEnabled={shieldingRewardsEnabled}
-                    className="flex flex-1"
-                  >
-                    <ShieldedRewardsBox
-                      shieldedRewardsAmount={shieldedRewards.amount}
-                    />
-                  </ListItemContainer>
-                </>
-              : <>
-                  <ListItemContainer
-                    isEnabled={shieldingRewardsEnabled}
-                    className="pr-3 px-2 pb-3 pt-0"
-                  >
-                    <NamBalanceListItem
-                      className="pt-4 pl-1"
-                      title="Shielded NAM"
-                      color={colors.shielded}
-                      amount={
-                        maspEnabled ? shieldedNamAmount : new BigNumber(0)
-                      }
-                      isLoading={shieldedAmountQuery.isLoading}
-                      isSyncing={isShieldSyncing}
-                      isEnabled={maspEnabled}
-                    />
-                    <Panel className="pb-10">
-                      <ShieldedRewardsBox
-                        shieldedRewardsAmount={shieldedRewards.amount}
-                      />
-                    </Panel>
-                  </ListItemContainer>
-                </>
-              }
+                </ListItemContainer>
+              </>
             </Stack>
           </>
         </AtomErrorBoundary>
