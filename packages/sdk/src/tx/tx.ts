@@ -81,6 +81,27 @@ export class Tx {
   }
 
   /**
+   * Get number of notes spent in a transaction
+   * @async
+   * @param txBytes - transaction bytes
+   * @returns number of notes spent
+   */
+  async getMaspNotesSpent(txBytes: Uint8Array): Promise<number> {
+    return this.sdk.get_masp_notes_spent(txBytes);
+  }
+
+  /**
+   * Replace gas in a transaction
+   * @async
+   * @param txBytes - bytes of the transaction
+   * @param gas - new gas value
+   * @returns bytes of the transaction with the new gas value
+   */
+  async replaceGas(txBytes: Uint8Array, gas: bigint): Promise<Uint8Array> {
+    return this.sdk.replace_gas(txBytes, gas);
+  }
+
+  /**
    * Build Shielded Transfer Tx
    * @async
    * @param wrapperTxProps - properties of the transaction

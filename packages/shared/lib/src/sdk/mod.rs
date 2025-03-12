@@ -495,6 +495,41 @@ impl Sdk {
         self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, None)
     }
 
+    pub async fn get_masp_notes_spent(&self, tx_bytes: &[u8]) -> Result<JsValue, JsError> {
+        let tx: tx::Tx = borsh::from_slice(tx_bytes)?;
+        let namada_tx: Tx = borsh::from_slice(&tx.tx_bytes())?;
+        let mut notes = 0;
+
+        for signing_data in tx.signing_data() {
+            let signing_tx_data = signing_data.to_signing_tx_data()?;
+
+            if let Some(shielded_hash) = signing_tx_data.shielded_hash {
+                let section = namada_tx.get_masp_section(&shielded_hash).unwrap();
+
+                notes += section.sapling_bundle().map_or(0, |bundle| {
+                    bundle.shielded_spends.len()
+                        + bundle.shielded_outputs.len()
+                        + bundle.shielded_converts.len()
+                })
+            }
+        }
+
+        to_js_result(notes)
+    }
+
+    pub async fn replace_gas(&self, tx_bytes: &[u8], gas: u64) -> Result<JsValue, JsError> {
+        let tx: tx::Tx = borsh::from_slice(tx_bytes)?;
+        let mut namada_tx: Tx = borsh::from_slice(&tx.tx_bytes())?;
+        let mut header = namada_tx.header();
+        let mut wrapper = header.wrapper().expect("Expected a wrapper header");
+        web_sys::console::log_1(&format!("Gas: {} wrapper {:?}", gas, wrapper.gas_limit).into());
+        wrapper.gas_limit = gas.into();
+        header.tx_type = TxType::Wrapper(Box::new(wrapper));
+        namada_tx.header = header;
+
+        to_js_result(borsh::to_vec(&namada_tx)?)
+    }
+
     pub async fn build_shielded_transfer(
         &self,
         shielded_transfer_msg: &[u8],

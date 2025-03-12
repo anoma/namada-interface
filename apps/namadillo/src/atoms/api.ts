@@ -8,14 +8,17 @@ export const indexerApiAtom = atom<DefaultApi>((get) => {
   return getApi(get);
 });
 
-export const getIndexerApi = (): DefaultApi => {
+export const getIndexerApi = (url?: string): DefaultApi => {
   const { get } = getDefaultStore();
-  return getApi(get);
+  return getApi(get, url);
 };
 
 // Helper function to use outside of hooks
-const getApi = (get: <Value>(atom: Atom<Value>) => Value): DefaultApi => {
-  const indexerUrl = get(indexerUrlAtom);
+const getApi = (
+  get: <Value>(atom: Atom<Value>) => Value,
+  url?: string
+): DefaultApi => {
+  const indexerUrl = url ?? get(indexerUrlAtom);
   const configuration = new Configuration({
     basePath: indexerUrl,
     baseOptions: BASE_OPTIONS,

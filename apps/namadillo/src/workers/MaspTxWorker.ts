@@ -130,6 +130,27 @@ async function unshield(
     undefined,
     false
   );
+  // const { innerTxHashes, ...txProps } = encodedTxData.txs[0];
+  // const tx = new TxMsgValue(txProps);
+  // const msg = new Message<TxMsgValue>();
+  // const txBytes = msg.encode(tx);
+  // const notesSpent = await sdk.tx.getMaspNotesSpent(txBytes);
+  // const api = getIndexerApi("http://localhost:5001");
+  // const estimate = await api.apiV1GasEstimateGet(
+  //   undefined,
+  //   undefined,
+  //   undefined,
+  //   undefined,
+  //   undefined,
+  //   undefined,
+  //   notesSpent
+  // );
+  // const newTxBytes = await sdk.tx.replaceGas(
+  //   txBytes,
+  //   BigInt(estimate.data.avg)
+  // );
+  // encodedTxData.txs[0].bytes = newTxBytes;
+  // debugger;
 
   return encodedTxData;
 }
