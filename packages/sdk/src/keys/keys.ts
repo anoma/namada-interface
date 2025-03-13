@@ -216,6 +216,16 @@ export class Keys {
   }
 
   /**
+   * Generate a payment address from viewing key and diversifier index
+   * @param xfvk - viewing key
+   * @param index - diversifier index
+   * @returns string
+   */
+  genPaymentAddress(xfvk: string, index: bigint): string {
+    return PaymentAddress.from_vk(xfvk, index).encode();
+  }
+
+  /**
    * Given a bech32m-encoded extended spending key, return viewing and proof-gen keys
    * @param spendingKey - string
    * @returns ShieldedKeys
