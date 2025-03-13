@@ -3647,7 +3647,7 @@ __metadata:
     ts-jest: "npm:^29.2.5"
     ts-node: "npm:^10.9.1"
     typescript: "npm:5.5.4"
-    wasm-pack: "npm:^0.12.1"
+    wasm-pack: "npm:^0.13.0"
   languageName: unknown
   linkType: soft
 
@@ -4012,7 +4012,7 @@ __metadata:
     ts-jest: "npm:^29.2.5"
     ts-node: "npm:^10.9.1"
     typescript: "npm:5.5.4"
-    wasm-pack: "npm:^0.12.1"
+    wasm-pack: "npm:^0.13.0"
   languageName: unknown
   linkType: soft
 
@@ -22118,14 +22118,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wasm-pack@npm:^0.12.1":
-  version: 0.12.1
-  resolution: "wasm-pack@npm:0.12.1"
+"wasm-pack@npm:^0.13.0":
+  version: 0.13.1
+  resolution: "wasm-pack@npm:0.13.1"
   dependencies:
     binary-install: "npm:^1.0.1"
   bin:
     wasm-pack: run.js
-  checksum: 10c0/b3b7c33f770cd41872013a5006ba17a103002d250dce1b637062ed83ca7eb252e57111c4dbdf2fc0bdcfc1cd6c692fd933bc0dda3324adf3714b4196ed5bbbe6
+  checksum: 10c0/46fc5309f46377d6dd09890cd642640ddb40d654bfdae5c9be66b50bf5ea27b0953916dd14d718b13a3b3dbad1351d4007ef040ef3778053625130ccef6f7cd6
   languageName: node
   linkType: hard
 
