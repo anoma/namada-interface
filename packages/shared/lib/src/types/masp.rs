@@ -5,7 +5,7 @@ use std::str::FromStr;
 use js_sys::Uint8Array;
 use namada_sdk::borsh::{self, BorshDeserialize};
 use namada_sdk::masp_primitives::sapling::ViewingKey;
-use namada_sdk::masp_primitives::zip32::ExtendedKey;
+use namada_sdk::masp_primitives::zip32::{DiversifierIndex, ExtendedKey};
 use namada_sdk::masp_primitives::{sapling, zip32};
 use namada_sdk::masp_proofs::jubjub;
 use namada_sdk::state::BlockHeight;
@@ -201,6 +201,19 @@ impl PaymentAddress {
     /// Return PaymentAddress as Bech32-encoded String
     pub fn encode(&self) -> String {
         self.0.to_string()
+    }
+
+    /// Return payment address from viewing key at specific index
+    /// NOTE: DiversifierIndex::from is implemented for u128, but wasm-bindgen
+    /// does not support this, so we must use u64
+    pub fn from_vk(key: String, index: u64) -> Result<PaymentAddress, String> {
+        let xfvk = zip32::ExtendedFullViewingKey::from(
+            NamadaExtendedViewingKey::from_str(&key)
+                .expect("Parsing ExtendedViewingKey should not fail!"),
+        );
+        let diversifier_index = DiversifierIndex::from(index);
+        let (_, payment_address) = xfvk.find_address(diversifier_index).expect("Exhausted payment addresses");
+        Ok(PaymentAddress(payment_address.into()))
     }
 }
 
