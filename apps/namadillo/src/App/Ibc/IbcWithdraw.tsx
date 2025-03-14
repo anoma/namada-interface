@@ -207,7 +207,7 @@ export const IbcWithdraw: React.FC = () => {
     invariant(props, "Invalid transaction data");
 
     const transferTransaction: IbcTransferTransactionData = {
-      hash: tx.encodedTxData.txs[0].innerTxHashes[0].toLowerCase(),
+      hash: tx.encodedTxData.txs[0].hash.toLowerCase(),
       currentStep: TransferStep.WaitingConfirmation,
       rpc: "",
       type: "TransparentToIbc",
