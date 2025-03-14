@@ -67,12 +67,20 @@ const { status } = spawnSync(
   ].flat(),
   {
     stdio: "inherit",
-    ...(multicore && {
-      env: {
-        ...process.env,
-        RUSTFLAGS: "-C target-feature=+atomics,+bulk-memory,+mutable-globals",
-      },
-    }),
+    ...(multicore ?
+      {
+        env: {
+          ...process.env,
+          RUSTFLAGS:
+            '-C target-feature=+atomics,+bulk-memory,+mutable-globals --cfg getrandom_backend="wasm_js"',
+        },
+      }
+    : {
+        env: {
+          ...process.env,
+          RUSTFLAGS: '--cfg getrandom_backend="wasm_js"',
+        },
+      }),
   }
 );
 
