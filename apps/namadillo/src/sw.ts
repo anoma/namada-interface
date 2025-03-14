@@ -3,13 +3,33 @@
 export default null;
 declare let self: ServiceWorkerGlobalScope;
 
+let chainId: string;
+let maspEpoch: string;
+
 self.addEventListener("install", () => {
   self.skipWaiting();
 });
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
-  self.dispatchEvent(new Event("activated"));
 });
+
+const deleteCache = async (key: string): Promise<void> => {
+  await caches.delete(key);
+};
+
+const getCacheName = (chainId: string, maspEpoch: string): string =>
+  `RPC_FETCH_CACHE_chain_id:${chainId}_masp_epoch:${maspEpoch}`;
+
+const deleteOldCaches = async (): Promise<void> => {
+  if (chainId && maspEpoch) {
+    const cacheName = getCacheName(chainId, maspEpoch);
+
+    const keyList = await caches.keys();
+    const cachesToDelete = keyList.filter((key) => key !== cacheName);
+
+    await Promise.all(cachesToDelete.map(deleteCache));
+  }
+};
 
 const fetchWithCacheFirst = async (
   request: Request,
@@ -18,7 +38,7 @@ const fetchWithCacheFirst = async (
   chainId: string
 ): Promise<Response> => {
   if (chainId && epoch) {
-    const cacheName = `RPC_FETCH_CACHE_chain_id:${chainId}_masp_epoch:${epoch}`;
+    const cacheName = getCacheName(chainId, epoch);
     const cache = await caches.open(cacheName);
 
     const cachedResponse = await cache.match(cacheKey);
@@ -69,12 +89,11 @@ self.addEventListener("fetch", function (e) {
   e.respondWith(res);
 });
 
-let chainId: string;
-let maspEpoch: string;
-
-self.onmessage = (event) => {
+self.onmessage = async (event) => {
   if (event.data.type === "CACHE_NAME") {
     chainId = event.data.chainId;
     maspEpoch = event.data.maspEpoch;
+
+    event.waitUntil(deleteOldCaches());
   }
 };
