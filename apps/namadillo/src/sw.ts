@@ -3,36 +3,60 @@
 export default null;
 declare let self: ServiceWorkerGlobalScope;
 
+let chainId: string;
+let maspEpoch: string;
+
 self.addEventListener("install", () => {
   self.skipWaiting();
-  console.info("Service worker installed");
 });
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
-  console.info("Service worker activated");
 });
 
-const CACHE_NAME = "RPC_FETCH_CACHE";
+const deleteCache = async (key: string): Promise<void> => {
+  await caches.delete(key);
+};
+
+const getCacheName = (chainId: string, maspEpoch: string): string =>
+  `RPC_FETCH_CACHE_chain_id:${chainId}_masp_epoch:${maspEpoch}`;
+
+const deleteOldCaches = async (): Promise<void> => {
+  if (chainId && maspEpoch) {
+    const cacheName = getCacheName(chainId, maspEpoch);
+
+    const keyList = await caches.keys();
+    const cachesToDelete = keyList.filter((key) => key !== cacheName);
+
+    await Promise.all(cachesToDelete.map(deleteCache));
+  }
+};
 
 const fetchWithCacheFirst = async (
   request: Request,
-  cacheKey: string
+  cacheKey: string,
+  epoch: string,
+  chainId: string
 ): Promise<Response> => {
-  const cache = await caches.open(CACHE_NAME);
+  if (chainId && epoch) {
+    const cacheName = getCacheName(chainId, epoch);
+    const cache = await caches.open(cacheName);
 
-  const cachedResponse = await cache.match(cacheKey);
+    const cachedResponse = await cache.match(cacheKey);
 
-  if (cachedResponse) {
-    return cachedResponse;
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+
+    const response = await fetch(request);
+
+    if (response.ok) {
+      cache.put(cacheKey, response.clone());
+    }
+
+    return response;
   }
 
-  const response = await fetch(request);
-
-  if (response.ok) {
-    cache.put(cacheKey, response.clone());
-  }
-
-  return response;
+  return await fetch(request);
 };
 
 self.addEventListener("fetch", function (e) {
@@ -50,7 +74,9 @@ self.addEventListener("fetch", function (e) {
       ) {
         const response = await fetchWithCacheFirst(
           e.request,
-          payload.params.path
+          payload.params.path,
+          maspEpoch,
+          chainId
         );
 
         return response;
@@ -62,3 +88,12 @@ self.addEventListener("fetch", function (e) {
 
   e.respondWith(res);
 });
+
+self.onmessage = async (event) => {
+  if (event.data.type === "CACHE_NAME") {
+    chainId = event.data.chainId;
+    maspEpoch = event.data.maspEpoch;
+
+    event.waitUntil(deleteOldCaches());
+  }
+};
