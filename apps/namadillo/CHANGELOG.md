@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.18.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.18.0...namadillo@v1.18.1) (2025-03-15)
+
+
+### Features
+
+* Update proposal statuses to include executed ([#1904](https://github.com/anoma/namada-interface/issues/1904)) ([843db28](https://github.com/anoma/namada-interface/commit/843db287525e88fb1886ca61414c0b2afe654b82))
+
+
+### Bug Fixes
+
+* ExecutedRejected proposals status ([#1910](https://github.com/anoma/namada-interface/issues/1910)) ([6dbf4a7](https://github.com/anoma/namada-interface/commit/6dbf4a726eb74060526b1935bee78469ed18fefd))
+
 ## [1.18.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.17.0...namadillo@v1.18.0) (2025-03-12)
 
 
