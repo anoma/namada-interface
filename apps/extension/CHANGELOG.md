@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/anoma/namada-interface/compare/extension@v0.5.0...extension@v0.6.0) (2025-03-15)
+
+
+### Features
+
+* Keychain signing - only require password on session timeout ([#1809](https://github.com/anoma/namada-interface/issues/1809)) ([9050f64](https://github.com/anoma/namada-interface/commit/9050f64d43125bc4b8c0f4faaee48dff473b3705))
+
 ## [0.5.0](https://github.com/anoma/namada-interface/compare/extension@v0.4.1...extension@v0.5.0) (2025-02-28)
 
 ### Features
