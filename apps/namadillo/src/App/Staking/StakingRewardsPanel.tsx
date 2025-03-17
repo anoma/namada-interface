@@ -57,7 +57,7 @@ export const StakingRewardsPanel = (): JSX.Element => {
         }
         callToAction={
           <ActionButton
-            className="-mt-15 px-8"
+            className="md:-mt-15 px-8"
             size="xs"
             outlineColor="white"
             backgroundColor="white"
@@ -75,11 +75,13 @@ export const StakingRewardsPanel = (): JSX.Element => {
           </ActionButton>
         }
       />
-      <div>
-        <div className="text-md text-gray-500 -mt-9 -mb-1 text-center">
+      <div className="hidden sm:block">
+        <div className="text-md text-gray-500 -mt-10 -mb-1 text-center">
           {chainParameters?.data?.apr.toFixed(2)}%
         </div>
-        <div className="text-sm text-neutral-450 text-center">Est. APR</div>
+        <div className="text-sm text-neutral-450 text-center">
+          Est. Rewards Rate
+        </div>
       </div>
     </>
   );
