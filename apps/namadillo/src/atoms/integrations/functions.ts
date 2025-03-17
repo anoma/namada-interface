@@ -339,7 +339,7 @@ export const getChannelFromIbcInfo = (
   };
 };
 
-export const createIbcTx = async (
+export const createIbcWithdrawalTx = async (
   account: Account,
   destinationAddress: string,
   originalTokenAddress: Address,

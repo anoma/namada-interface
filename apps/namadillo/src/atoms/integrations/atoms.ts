@@ -26,7 +26,7 @@ import {
 import { githubNamadaChainRegistryBaseUrl } from "urls";
 import {
   addLocalnetToRegistry,
-  createIbcTx,
+  createIbcWithdrawalTx,
   getDenomFromIbcTrace,
   getKnownChains,
   ibcAddressToDenomTrace,
@@ -199,12 +199,12 @@ export const ibcChannelsFamily = atomFamily((ibcChainName?: string) =>
   })
 );
 
-export const createIbcTxAtom = atomWithMutation((get) => {
+export const createIbcWithdrawalTxAtom = atomWithMutation((get) => {
   const account = get(defaultAccountAtom);
   const chain = get(chainAtom);
   return {
     enabled: account.isSuccess && chain.isSuccess,
-    mutationKey: ["create-ibc-tx"],
+    mutationKey: ["create-ibc-withdrawal-tx"],
     mutationFn: async ({
       params,
       memo,
@@ -229,7 +229,7 @@ export const createIbcTxAtom = atomWithMutation((get) => {
         channelId,
       } = params[0];
 
-      return await createIbcTx(
+      return await createIbcWithdrawalTx(
         account,
         destinationAddress,
         token,

@@ -1,16 +1,19 @@
 import { Asset, Chain } from "@chain-registry/types";
-import { IbcTransferMsgValue } from "@namada/types";
+import { AccountType, IbcTransferMsgValue } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import { params, routes } from "App/routes";
 import {
   OnSubmitTransferParams,
   TransferModule,
 } from "App/Transfer/TransferModule";
-import { defaultAccountAtom } from "atoms/accounts";
-import { namadaTransparentAssetsAtom } from "atoms/balance";
+import { allDefaultAccountsAtom, defaultAccountAtom } from "atoms/accounts";
+import {
+  namadaShieldedAssetsAtom,
+  namadaTransparentAssetsAtom,
+} from "atoms/balance";
 import { chainAtom, chainTokensAtom } from "atoms/chain";
 import {
-  createIbcTxAtom,
+  createIbcWithdrawalTxAtom,
   getDenomFromIbcTrace,
   ibcChannelsFamily,
   searchChainByDenom,
@@ -25,7 +28,7 @@ import { KeplrWalletManager } from "integrations/Keplr";
 import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { TransactionPair } from "lib/query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 import namadaChainRegistry from "registry/namada.json";
 import { IbcTransferTransactionData, TransferStep } from "types";
@@ -48,6 +51,7 @@ export const IbcWithdraw: React.FC = () => {
     params.asset
   );
   const [amount, setAmount] = useState<BigNumber | undefined>();
+  const [shielded, setShielded] = useState(true);
   const [customAddress, setCustomAddress] = useState<string>("");
   const [sourceChannel, setSourceChannel] = useState("");
   const [currentStatus, setCurrentStatus] = useState("");
@@ -57,8 +61,15 @@ export const IbcWithdraw: React.FC = () => {
   const [destinationChain, setDestinationChain] = useState<Chain | undefined>();
 
   const chainTokens = useAtomValue(chainTokensAtom);
+  const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
 
-  const { data: availableAssets } = useAtomValue(namadaTransparentAssetsAtom);
+  const { data: transparentAssets } = useAtomValue(namadaTransparentAssetsAtom);
+  const { data: shieldedAssets } = useAtomValue(namadaShieldedAssetsAtom);
+
+  const availableAssets = useMemo(() => {
+    return shielded ? shieldedAssets : transparentAssets;
+  }, [shielded]);
+
   const { storeTransaction } = useTransactionActions();
   const navigate = useNavigate();
 
@@ -149,7 +160,7 @@ export const IbcWithdraw: React.FC = () => {
     isSuccess,
   } = useTransaction({
     eventType: "IbcTransfer",
-    createTxAtom: createIbcTxAtom,
+    createTxAtom: createIbcWithdrawalTxAtom,
     params: [],
     parsePendingTxNotification: () => ({
       title: "IBC withdrawal transaction in progress",
@@ -218,7 +229,7 @@ export const IbcWithdraw: React.FC = () => {
       destinationChainId,
       memo: tx.encodedTxData.wrapperTxProps.memo || props.memo,
       displayAmount,
-      shielded: false,
+      shielded,
       sourceAddress: props.source,
       sourceChannel: props.channelId,
       destinationAddress: props.receiver,
@@ -240,16 +251,35 @@ export const IbcWithdraw: React.FC = () => {
     invariant(sourceChannel, "No channel ID is set");
     invariant(chainId, "No chain is selected");
     invariant(keplrAddress, "No address is selected");
+    invariant(namadaAccount.data, "Namada account is not defined");
+    invariant(defaultAccounts.data, "Namada accounts info are not defined");
 
+    const account = (() => {
+      if (shielded) {
+        return defaultAccounts.data?.find(
+          (account) => account.type === AccountType.ShieldedKeys
+        );
+      }
+      return namadaAccount.data;
+    })();
+
+    invariant(account, "Couldn't find account");
+    const pseudoExtendedKey = account?.pseudoExtendedKey;
     const amountInBaseDenom = toBaseAmount(selectedAsset.asset, displayAmount);
+
     await performWithdraw({
+      account: {
+        ...account,
+        address:
+          shielded ? (pseudoExtendedKey ?? account.address) : account.address,
+      },
       params: [
         {
           amountInBaseDenom,
           channelId: sourceChannel.trim(),
           portId: "transfer",
           token: selectedAsset.originalAddress,
-          source: keplrAddress,
+          source: account.address,
           receiver: destinationAddress,
           memo,
         },
@@ -278,13 +308,15 @@ export const IbcWithdraw: React.FC = () => {
           wallet: wallets.namada,
           walletAddress: namadaAccount.data?.address,
           chain: namadaChainRegistry as Chain,
-          isShieldedAddress: false,
+          isShieldedAddress: shielded,
+          availableChains: [namadaChainRegistry as Chain],
           availableAssets,
           availableAmount,
           selectedAssetAddress,
           onChangeSelectedAsset: setSelectedAssetAddress,
           amount,
           onChangeAmount: setAmount,
+          onChangeShielded: setShielded,
         }}
         destination={{
           wallet: wallets.keplr,
