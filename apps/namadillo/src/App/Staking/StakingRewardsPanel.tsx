@@ -57,7 +57,7 @@ export const StakingRewardsPanel = (): JSX.Element => {
         }
         callToAction={
           <ActionButton
-            className="-mt-18 px-8"
+            className="-mt-15 px-8"
             size="xs"
             outlineColor="white"
             backgroundColor="white"
@@ -76,7 +76,7 @@ export const StakingRewardsPanel = (): JSX.Element => {
         }
       />
       <div>
-        <div className="text-md text-gray-500 -mt-10 -mb-1 text-center">
+        <div className="text-md text-gray-500 -mt-9 -mb-1 text-center">
           {chainParameters?.data?.apr.toFixed(2)}%
         </div>
         <div className="text-sm text-neutral-450 text-center">Est. APR</div>
