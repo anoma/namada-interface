@@ -432,6 +432,8 @@ export class KeyRing {
       pseudoExtendedKey,
       source,
       timestamp,
+      diversifierIndex:
+        type === AccountType.ShieldedKeys ? BigInt(1) : undefined,
     };
     const sensitive = await this.vaultService.encryptSensitiveData({
       text,
@@ -491,6 +493,7 @@ export class KeyRing {
       owner: viewingKey,
       text: JSON.stringify({ spendingKey }),
       pseudoExtendedKey,
+      diversifierIndex: BigInt(1),
     };
 
     // Check whether keys already exist for this account

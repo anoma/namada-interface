@@ -204,8 +204,6 @@ impl PaymentAddress {
     }
 
     /// Return payment address from viewing key at specific index
-    /// NOTE: DiversifierIndex::from is implemented for u128, but wasm-bindgen
-    /// does not support this, so we must use u64
     pub fn from_vk(key: String, index: u64) -> Result<PaymentAddress, String> {
         let xfvk = zip32::ExtendedFullViewingKey::from(
             NamadaExtendedViewingKey::from_str(&key)
