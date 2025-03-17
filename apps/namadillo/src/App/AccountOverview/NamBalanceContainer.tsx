@@ -18,6 +18,8 @@ type NamBalanceListItemProps = {
   isLoading: boolean;
   isSyncing?: boolean;
   isEnabled?: boolean;
+  className?: string;
+  currencyClassName?: string;
 };
 
 type ListItemContainerProps = {
@@ -55,10 +57,13 @@ const NamBalanceListItem = ({
   isLoading,
   isSyncing,
   isEnabled = true,
+  className = "",
+  currencyClassName = "",
 }: NamBalanceListItemProps): JSX.Element => {
   return (
     <ListItemContainer
       isEnabled={isEnabled}
+      className={className}
       aria-description={`${title} amount is ${amount.toString()} NAM`}
     >
       <span className="flex items-center text-sm gap-1.5">
@@ -73,6 +78,7 @@ const NamBalanceListItem = ({
       : <NamCurrency
           amount={amount}
           className={twMerge(
+            currencyClassName,
             "text-2xl pl-5 font-light",
             isSyncing && "animate-pulse"
           )}
@@ -90,7 +96,6 @@ export const NamBalanceContainer = (): JSX.Element => {
   );
   const { isFetching: isShieldSyncing } = useAtomValue(shieldedBalanceAtom);
   const shieldedRewards = useAtomValue(cachedShieldedRewardsAtom);
-
   const {
     balanceQuery,
     stakeQuery,
@@ -103,6 +108,9 @@ export const NamBalanceContainer = (): JSX.Element => {
     shieldedNamAmount,
   } = useBalances();
 
+  const isUnbondingOrWithdrawable =
+    withdrawableAmount.gt(0) || unbondedAmount.gt(0);
+
   return (
     <>
       {maspEnabled && (
@@ -110,58 +118,72 @@ export const NamBalanceContainer = (): JSX.Element => {
           NAM Balance
         </Heading>
       )}
-      <div className="flex gap-2 w-full">
+      <div className="flex flex-col md:flex-row gap-2 w-full">
         <AtomErrorBoundary
           result={[balanceQuery, stakeQuery]}
           niceError="Unable to load balances"
         >
-          <Stack
-            as="ul"
-            gap={2}
-            className={clsx("w-full", {
-              "order-1": maspEnabled && shieldingRewardsEnabled,
-            })}
-          >
-            <NamBalanceListItem
-              title="Transparent NAM"
-              color={colors.balance}
-              amount={availableAmount}
-              isLoading={isLoading}
-              isSyncing={balanceQuery.isFetching}
-            />
-            <NamBalanceListItem
-              title="Staked NAM"
-              color={colors.bond}
-              amount={bondedAmount}
-              isLoading={isLoading}
-              isSyncing={stakeQuery.isFetching}
-            />
-            <NamBalanceListItem
-              title="Unbonded NAM"
-              color={colors.unbond}
-              amount={unbondedAmount.plus(withdrawableAmount)}
-              isLoading={isLoading}
-              isSyncing={stakeQuery.isFetching}
-            />
-          </Stack>
-          <Stack className="w-full" gap={2}>
-            <NamBalanceListItem
-              title="Shielded NAM"
-              color={colors.shielded}
-              amount={maspEnabled ? shieldedNamAmount : new BigNumber(0)}
-              isLoading={shieldedAmountQuery.isLoading}
-              isSyncing={isShieldSyncing}
-              isEnabled={maspEnabled}
-            />
-            <ListItemContainer
-              isEnabled={shieldingRewardsEnabled}
-              className="flex flex-1"
+          <>
+            <Stack
+              as="ul"
+              gap={2}
+              className={clsx("w-full", {
+                "order-1": maspEnabled && shieldingRewardsEnabled,
+              })}
             >
-              <ShieldedRewardsBox
-                shieldedRewardsAmount={shieldedRewards.amount}
+              <NamBalanceListItem
+                className="h-full"
+                currencyClassName={clsx({
+                  "block mt-4 pt-2": !isUnbondingOrWithdrawable,
+                })}
+                title="Transparent NAM"
+                color={colors.balance}
+                amount={availableAmount}
+                isLoading={isLoading}
+                isSyncing={balanceQuery.isFetching}
               />
-            </ListItemContainer>
-          </Stack>
+              <NamBalanceListItem
+                className="h-full"
+                currencyClassName={clsx({
+                  "block mt-4 pt-2": !isUnbondingOrWithdrawable,
+                })}
+                title="Staked NAM"
+                color={colors.bond}
+                amount={bondedAmount}
+                isLoading={isLoading}
+                isSyncing={stakeQuery.isFetching}
+              />
+              {isUnbondingOrWithdrawable && (
+                <NamBalanceListItem
+                  title="Unbonded NAM"
+                  color={colors.unbond}
+                  amount={unbondedAmount.plus(withdrawableAmount)}
+                  isLoading={isLoading}
+                  isSyncing={stakeQuery.isFetching}
+                />
+              )}
+            </Stack>
+            <Stack className="w-full" gap={2}>
+              <>
+                <NamBalanceListItem
+                  title="Shielded NAM"
+                  color={colors.shielded}
+                  amount={maspEnabled ? shieldedNamAmount : new BigNumber(0)}
+                  isLoading={shieldedAmountQuery.isLoading}
+                  isSyncing={isShieldSyncing}
+                  isEnabled={maspEnabled}
+                />
+                <ListItemContainer
+                  isEnabled={shieldingRewardsEnabled}
+                  className="flex flex-1"
+                >
+                  <ShieldedRewardsBox
+                    shieldedRewardsAmount={shieldedRewards.amount}
+                  />
+                </ListItemContainer>
+              </>
+            </Stack>
+          </>
         </AtomErrorBoundary>
       </div>
     </>
