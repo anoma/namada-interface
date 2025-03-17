@@ -16,6 +16,7 @@ export interface AccountStore extends StoredRecord {
   type: AccountType;
   source: AccountSource;
   timestamp: number;
+  diversifierIndex?: bigint;
 }
 
 export type AccountState = DerivedAccount & {
