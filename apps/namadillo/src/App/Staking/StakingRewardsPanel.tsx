@@ -79,7 +79,7 @@ export const StakingRewardsPanel = (): JSX.Element => {
         <div className="text-md text-gray-500 -mt-10 -mb-1 text-center">
           {chainParameters?.data?.apr.toFixed(2)}%
         </div>
-        <div className="text-sm text-neutral-450 text-center">Est. APY</div>
+        <div className="text-sm text-neutral-450 text-center">Est. APR</div>
       </div>
     </>
   );
