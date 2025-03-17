@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.19.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.18.0...namadillo@v1.19.0) (2025-03-17)
+
+
+### Features
+
+* Only display unbond in the top overview when a user is unbonding [#1743](https://github.com/anoma/namada-interface/issues/1743) ([#1896](https://github.com/anoma/namada-interface/issues/1896)) ([04ac120](https://github.com/anoma/namada-interface/commit/04ac120c4d756a2344d253f3a9883c1097fe4380))
+* Update proposal statuses to include executed ([#1904](https://github.com/anoma/namada-interface/issues/1904)) ([843db28](https://github.com/anoma/namada-interface/commit/843db287525e88fb1886ca61414c0b2afe654b82))
+* Update to links for all software versions in extension ([#1912](https://github.com/anoma/namada-interface/issues/1912)) ([4b6f3e5](https://github.com/anoma/namada-interface/commit/4b6f3e5e79d2eeff532ce9c31b10cdbf2a7a2d54))
+
+
+### Bug Fixes
+
+* ExecutedRejected proposals status ([#1910](https://github.com/anoma/namada-interface/issues/1910)) ([6dbf4a7](https://github.com/anoma/namada-interface/commit/6dbf4a726eb74060526b1935bee78469ed18fefd))
+
 ## [1.18.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.17.0...namadillo@v1.18.0) (2025-03-12)
 
 
