@@ -35,7 +35,7 @@ export const BalanceChart = ({
     }
 
     if (totalAmount.eq(0)) {
-      return [{ value: 1, color: colors.empty }];
+      return [{ value: 0, color: colors.empty }];
     }
 
     return [
