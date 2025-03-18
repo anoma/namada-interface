@@ -14,8 +14,8 @@ const validatePassword = (
   password: string,
   passwordMatch: string
 ): boolean => {
-  return process.env.NODE_ENV === "development"
-    ? password.length > 0 && password === passwordMatch
+  return process.env.NODE_ENV === "development" ?
+      password.length > 0 && password === passwordMatch
     : warning === "" && suggestions.length === 0 && password === passwordMatch;
 };
 
@@ -44,8 +44,11 @@ export const Password = ({
     }
   }, [password, passwordMatch, zxcvbnFeedback]);
 
-  const verifyPasswordMatch = (toVerify: string): void => {
-    if (passwordMatch !== "" && password !== toVerify) {
+  const verifyPasswordMatch = (
+    passwordValue: string,
+    confirmValue: string
+  ): void => {
+    if (confirmValue !== "" && passwordValue !== confirmValue) {
       setPasswordMatchFeedback("Passwords are not matching");
     } else {
       setPasswordMatchFeedback("");
@@ -55,11 +58,12 @@ export const Password = ({
   const checkPasswordErrors = (password: string): void => {
     const { feedback } = zxcvbn(password);
     setZxcvbnFeedback(feedback);
-    verifyPasswordMatch(password);
+    verifyPasswordMatch(password, passwordMatch);
   };
 
-  const displayError = zxcvbnFeedback.warning
-    ? zxcvbnFeedback.warning
+  const displayError =
+    zxcvbnFeedback.warning ?
+      zxcvbnFeedback.warning
     : zxcvbnFeedback.suggestions.length > 0 &&
       zxcvbnFeedback.suggestions.map((suggestion: string, index: number) => (
         <div key={`input-feedback-${index}`}>{suggestion}</div>
@@ -75,8 +79,9 @@ export const Password = ({
         error={password.length > 0 ? displayError : ""}
         placeholder="At least 8 characters"
         onChange={(e) => {
-          setPassword(e.target.value);
-          checkPasswordErrors(e.target.value);
+          const newPassword = e.target.value;
+          setPassword(newPassword);
+          checkPasswordErrors(newPassword);
         }}
         onBlur={() => {
           checkPasswordErrors(password);
@@ -91,15 +96,16 @@ export const Password = ({
         value={passwordMatch}
         error={passwordMatchFeedback}
         onChange={(event) => {
-          setPasswordMatch(event.target.value);
-          verifyPasswordMatch(event.target.value);
+          const newConfirmValue = event.target.value;
+          setPasswordMatch(newConfirmValue);
+          verifyPasswordMatch(password, newConfirmValue);
         }}
         onBlur={() => {
-          verifyPasswordMatch(passwordMatch);
+          verifyPasswordMatch(password, passwordMatch);
         }}
         onFocus={() => {
           if (passwordMatch) {
-            verifyPasswordMatch(passwordMatch);
+            verifyPasswordMatch(password, passwordMatch);
           }
         }}
       />
