@@ -35,7 +35,8 @@ export const BalanceChart = ({
     }
 
     if (totalAmount.eq(0)) {
-      return [{ value: 1, color: colors.empty }];
+      // Preserves the pie chart circle shape when there is no balance without showing an amount
+      return [{ value: 0.0000000000001, color: colors.empty }];
     }
 
     return [
