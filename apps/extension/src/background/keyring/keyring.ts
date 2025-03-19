@@ -519,15 +519,37 @@ export class KeyRing {
 
   public async queryAllAccounts(): Promise<DerivedAccount[]> {
     const accounts = await this.vaultStorage.findAll(KeyStore);
-    return accounts.map((entry) => entry.public as AccountStore);
+    return accounts.map(
+      (entry) =>
+        (entry.public.type === AccountType.ShieldedKeys ?
+          {
+            ...entry.public,
+            address: this.getPaymentAddress(
+              entry.public.owner,
+              entry.public.diversifierIndex || BigInt(1)
+            ),
+          }
+        : entry.public) as AccountStore
+    );
   }
 
   /**
    * Query single account by ID
    */
   public async queryAccountById(accountId: string): Promise<DerivedAccount> {
-    return (await this.vaultStorage.findOneOrFail(KeyStore, "id", accountId))
-      .public;
+    const account = (
+      await this.vaultStorage.findOneOrFail(KeyStore, "id", accountId)
+    ).public;
+
+    return account.type === AccountType.ShieldedKeys ?
+        {
+          ...account,
+          address: this.getPaymentAddress(
+            account.owner,
+            account.diversifierIndex || BigInt(1)
+          ),
+        }
+      : account;
   }
 
   /**
@@ -854,5 +876,49 @@ export class KeyRing {
     );
 
     return { publicKey, address };
+  }
+
+  async incrementPaymentAddress(
+    accountId: string
+  ): Promise<DerivedAccount | undefined> {
+    const { keys } = this.sdkService.getSdk();
+    const account = await this.queryAccountById(accountId);
+    if (!account) {
+      throw new Error(`Account with ID ${accountId} not found!`);
+    }
+
+    if (account.type !== AccountType.ShieldedKeys) {
+      throw new Error(
+        `Account with ID ${accountId} is not a shielded account!`
+      );
+    }
+
+    const { diversifierIndex = BigInt(1), owner } = account;
+
+    if (!owner) {
+      throw new Error(
+        `Account with ID ${accountId} does not have a viewing key!`
+      );
+    }
+
+    const nextIndex = diversifierIndex + BigInt(1);
+
+    // Increment diversifier index and return payment address
+    const paymentAddress = keys.genPaymentAddress(owner, nextIndex);
+
+    await this.vaultStorage.update(KeyStore, "id", accountId, {
+      diversifierIndex: nextIndex,
+    });
+
+    return {
+      ...account,
+      address: paymentAddress,
+    };
+  }
+
+  // Helper to return payment address based from index
+  getPaymentAddress(viewingKey: string, diversifierIndex: bigint): string {
+    const { keys } = this.sdkService.getSdk();
+    return keys.genPaymentAddress(viewingKey, diversifierIndex);
   }
 }

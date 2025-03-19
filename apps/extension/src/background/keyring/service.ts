@@ -257,4 +257,15 @@ export class KeyRingService {
   > {
     return this._keyRing.genDisposableSigner();
   }
+
+  async incrementPaymentAddress(
+    accountId: string
+  ): Promise<DerivedAccount | undefined> {
+    return this._keyRing.incrementPaymentAddress(accountId);
+  }
+
+  // Make getPaymnetAddress available to requester
+  getPaymentAddress(viewingKey: string, diversifierIndex: bigint): string {
+    return this._keyRing.getPaymentAddress(viewingKey, diversifierIndex);
+  }
 }
