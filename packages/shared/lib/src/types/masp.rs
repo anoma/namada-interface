@@ -93,19 +93,20 @@ pub struct PseudoExtendedKey(pub(crate) zip32::PseudoExtendedKey);
 
 #[wasm_bindgen]
 impl PseudoExtendedKey {
+    // TODO: propagate error
     pub fn encode(&self) -> String {
         hex::encode(borsh::to_vec(&self.0).expect("Serializing PseudoExtendedKey should not fail!"))
     }
 
-    pub fn decode(encoded: String) -> PseudoExtendedKey {
-        let decoded = hex::decode(encoded).expect("Decoding PseudoExtendedKey should not fail!");
+    pub fn decode(encoded: String) -> Result<PseudoExtendedKey, JsError> {
+        let decoded = hex::decode(encoded).map_err(|err| JsError::new(&err.to_string()))?;
+        let pek = zip32::PseudoExtendedKey::try_from_slice(decoded.as_slice())
+            .map_err(|err| JsError::new(&err.to_string()))?;
 
-        PseudoExtendedKey(
-            zip32::PseudoExtendedKey::try_from_slice(decoded.as_slice())
-                .expect("Deserializing ProofGenerationKey should not fail!"),
-        )
+        Ok(PseudoExtendedKey(pek))
     }
 
+    // TODO: propagate error
     pub fn from(xvk: ExtendedViewingKey, pgk: ProofGenerationKey) -> Self {
         let mut pxk = zip32::PseudoExtendedKey::from(zip32::ExtendedFullViewingKey::from(xvk.0));
         pxk.augment_proof_generation_key(pgk.0)

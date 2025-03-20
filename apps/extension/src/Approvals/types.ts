@@ -32,6 +32,7 @@ export type TransferType =
   | "Shielding"
   | "Shielded"
   | "Unshielding"
+  | "IbcUnshieldTransfer"
   | "Unknown";
 
 export enum Status {
