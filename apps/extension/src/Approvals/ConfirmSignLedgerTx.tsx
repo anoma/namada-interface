@@ -228,17 +228,24 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
 
         const transferTypes = txDetails.flatMap((details) =>
           details.commitments
-            .filter((cmt) => cmt.txType === TxType.Transfer)
-            .map(
-              (cmt) =>
+            .filter((cmt) =>
+              [TxType.Transfer, TxType.IBCTransfer].includes(
+                cmt.txType as TxType
+              )
+            )
+            .map((cmt) =>
+              cmt.txType === TxType.Transfer ?
                 parseTransferType(cmt as TransferProps, details.wrapperFeePayer)
                   .type
+              : cmt.maspTxIn && cmt.maspTxOut ? "IbcUnshieldTransfer"
+              : "IbcTransfer"
             )
         );
         // For now we work under the assumption that we can't batch transfers from masp with other tx types
         const fromMasp =
           transferTypes.includes("Shielded") ||
-          transferTypes.includes("Unshielding");
+          transferTypes.includes("Unshielding") ||
+          transferTypes.includes("IbcUnshieldTransfer");
 
         for await (const tx of pendingTxs) {
           if (txCount > 1) {
