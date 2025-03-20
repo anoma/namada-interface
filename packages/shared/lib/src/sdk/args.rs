@@ -28,7 +28,7 @@ use namada_sdk::{
     token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
     TransferSource,
 };
-use namada_sdk::{error, masp_primitives, tendermint_rpc};
+use namada_sdk::{error, masp_primitives, tendermint_rpc, TransferTarget};
 use namada_sdk::{ExtendedSpendingKey, PaymentAddress};
 use rand::rngs::OsRng;
 use wasm_bindgen::JsError;
@@ -584,12 +584,15 @@ pub fn shielded_transfer_tx_args(
         bparams: bparams_msg,
     } = shielded_transfer_msg;
 
-    let gas_spending_key = gas_spending_key.map(|v| PseudoExtendedKey::decode(v).0);
+    let gas_spending_key = gas_spending_key
+        .map(PseudoExtendedKey::decode)
+        .transpose()?
+        .map(|v| v.0);
 
     let mut shielded_transfer_data: Vec<args::TxShieldedTransferData> = vec![];
 
     for shielded_transfer in data {
-        let source = PseudoExtendedKey::decode(shielded_transfer.source).0;
+        let source = PseudoExtendedKey::decode(shielded_transfer.source)?.0;
         let target = PaymentAddress::from_str(&shielded_transfer.target)?;
         let token = Address::from_str(&shielded_transfer.token)?;
         let denom_amount =
@@ -726,8 +729,11 @@ pub fn unshielding_transfer_tx_args(
         gas_spending_key,
         bparams: bparams_msg,
     } = unshielding_transfer_msg;
-    let source = PseudoExtendedKey::decode(source).0;
-    let gas_spending_key = gas_spending_key.map(|v| PseudoExtendedKey::decode(v).0);
+    let source = PseudoExtendedKey::decode(source)?.0;
+    let gas_spending_key = gas_spending_key
+        .map(PseudoExtendedKey::decode)
+        .transpose()?
+        .map(|v| v.0);
     let mut unshielding_transfer_data: Vec<args::TxUnshieldingTransferData> = vec![];
 
     for unshielding_transfer in data {
@@ -773,6 +779,8 @@ pub struct IbcTransferMsg {
     timeout_sec_offset: Option<u64>,
     memo: Option<String>,
     shielding_data: Option<Vec<u8>>,
+    gas_spending_key: Option<String>,
+    bparams: Option<Vec<BparamsMsg>>,
 }
 
 impl IbcTransferMsg {
@@ -800,6 +808,8 @@ impl IbcTransferMsg {
             timeout_sec_offset,
             memo,
             shielding_data,
+            gas_spending_key: None,
+            bparams: None,
         }
     }
 }
@@ -818,7 +828,7 @@ impl IbcTransferMsg {
 pub fn ibc_transfer_tx_args(
     ibc_transfer_msg: &[u8],
     tx_msg: &[u8],
-) -> Result<args::TxIbcTransfer, JsError> {
+) -> Result<(args::TxIbcTransfer, Option<StoredBuildParams>), JsError> {
     let ibc_transfer_msg = IbcTransferMsg::try_from_slice(ibc_transfer_msg)?;
     let IbcTransferMsg {
         source,
@@ -831,10 +841,18 @@ pub fn ibc_transfer_tx_args(
         timeout_sec_offset,
         memo,
         shielding_data,
+        gas_spending_key,
+        bparams: bparams_msg,
     } = ibc_transfer_msg;
 
-    let source_address = Address::from_str(&source)?;
-    let source = TransferSource::Address(source_address);
+    let source = match Address::from_str(&source) {
+        Ok(address) => Ok(TransferSource::Address(address)),
+        Err(_) => match PseudoExtendedKey::decode(source) {
+            Ok(pseudo_extended_key) => Ok(TransferSource::ExtendedKey(pseudo_extended_key.0)),
+            Err(_) => Err(JsError::new("Invalid source address or spending key")),
+        },
+    }?;
+
     let token = Address::from_str(&token)?;
     let amount = Amount::from_str(&amount_in_base_denom, 0u8).expect("Amount to be valid.");
     // Using InputAmount::Validated because the amount is already in the base
@@ -847,8 +865,21 @@ pub fn ibc_transfer_tx_args(
         Some(v) => Some(IbcShieldingData::try_from_slice(&v)?),
         None => None,
     };
+    let gas_spending_key = gas_spending_key
+        .map(PseudoExtendedKey::decode)
+        .transpose()?
+        .map(|v| v.0);
+
+    let refund_target = match &source {
+        TransferSource::Address(_) => None,
+        TransferSource::ExtendedKey(_) => Some(TransferTarget::Address(
+            // TODO: This is a hardcoded address for now, we need to change this
+            Address::from_str("tnam1qpkf98snxuy0dqj5yk3fpkvqxwgr2kq4759jtkld").unwrap(),
+        )),
+    };
 
     let tx = tx_msg_into_args(tx_msg)?;
+    let bparams = bparams_msg_into_bparams(bparams_msg);
 
     let args = args::TxIbcTransfer {
         tx,
@@ -862,15 +893,15 @@ pub fn ibc_transfer_tx_args(
         channel_id,
         timeout_height,
         timeout_sec_offset,
-        // TODO: false for now
+        // false, we do this manually
         disposable_signing_key: false,
         tx_code_path: PathBuf::from("tx_ibc.wasm"),
-        refund_target: None,
+        refund_target,
         // We do not support ibc unshielding for now
-        gas_spending_key: None,
+        gas_spending_key,
     };
 
-    Ok(args)
+    Ok((args, bparams))
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
