@@ -1,10 +1,6 @@
 import { AssetList, Chain } from "@chain-registry/types";
 import { DeliverTxResponse, SigningStargateClient } from "@cosmjs/stargate";
-import {
-  ExtensionKey,
-  IbcTransferMsgValue,
-  IbcTransferProps,
-} from "@namada/types";
+import { ExtensionKey } from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
 import { chainAtom, chainTokensAtom } from "atoms/chain";
 import { defaultServerConfigAtom, settingsAtom } from "atoms/settings";
@@ -15,10 +11,8 @@ import invariant from "invariant";
 import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
-import { EncodedTxData } from "lib/query";
 import {
   AddressWithAssetAndAmountMap,
-  BuildTxAtomParams,
   ChainId,
   ChainRegistryEntry,
   RpcStorage,
@@ -26,7 +20,6 @@ import {
 import { githubNamadaChainRegistryBaseUrl } from "urls";
 import {
   addLocalnetToRegistry,
-  createIbcTx,
   getDenomFromIbcTrace,
   getKnownChains,
   ibcAddressToDenomTrace,
@@ -198,51 +191,6 @@ export const ibcChannelsFamily = atomFamily((ibcChainName?: string) =>
     };
   })
 );
-
-export const createIbcTxAtom = atomWithMutation((get) => {
-  const account = get(defaultAccountAtom);
-  const chain = get(chainAtom);
-  return {
-    enabled: account.isSuccess && chain.isSuccess,
-    mutationKey: ["create-ibc-tx"],
-    mutationFn: async ({
-      params,
-      memo,
-      account,
-      gasConfig,
-    }: BuildTxAtomParams<IbcTransferMsgValue>): Promise<
-      EncodedTxData<IbcTransferProps> | undefined
-    > => {
-      if (typeof account === "undefined") {
-        throw new Error("no account");
-      }
-
-      if (params.length === 0) {
-        throw new Error("Invalid params");
-      }
-
-      const {
-        receiver: destinationAddress,
-        token,
-        amountInBaseDenom,
-        portId,
-        channelId,
-      } = params[0];
-
-      return await createIbcTx(
-        account,
-        destinationAddress,
-        token,
-        amountInBaseDenom,
-        portId,
-        channelId,
-        gasConfig,
-        chain.data!,
-        memo
-      );
-    },
-  };
-});
 
 export const localnetConfigAtom = atomWithQuery((get) => {
   const config = get(defaultServerConfigAtom);
