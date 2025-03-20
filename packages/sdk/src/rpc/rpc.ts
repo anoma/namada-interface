@@ -7,11 +7,8 @@ import {
 } from "@namada/shared";
 import {
   DatedViewingKey,
-  Message,
   TxResponseMsgValue,
   TxResponseProps,
-  WrapperTxMsgValue,
-  WrapperTxProps,
 } from "@namada/types";
 
 import {
@@ -225,18 +222,14 @@ export class Rpc {
    * Broadcast a Tx to the ledger
    * @async
    * @param signedTxBytes - Transaction with signature
-   * @param args - WrapperTxProps
+   * @param [deadline] - timeout deadline in seconds, defaults to 60 seconds
    * @returns TxResponseProps object
    */
   async broadcastTx(
     signedTxBytes: Uint8Array,
-    args: WrapperTxProps
+    deadline: bigint = BigInt(60)
   ): Promise<TxResponseProps> {
-    const wrapperTxMsgValue = new WrapperTxMsgValue(args);
-    const msg = new Message<WrapperTxMsgValue>();
-    const encodedArgs = msg.encode(wrapperTxMsgValue);
-
-    const response = await this.sdk.process_tx(signedTxBytes, encodedArgs);
+    const response = await this.sdk.broadcast_tx(signedTxBytes, deadline);
     return deserialize(Buffer.from(response), TxResponseMsgValue);
   }
 
