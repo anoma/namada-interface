@@ -1,5 +1,6 @@
 export * from "./batchTxResult";
 export * from "./bond";
+export * from "./bparams";
 export * from "./claimRewards";
 export * from "./ethBridgeTransfer";
 export * from "./ibcTransfer";

@@ -55,6 +55,10 @@ export const ApproveSignTx: React.FC<Props> = ({ details, setDetails }) => {
                 commitment.wrapperFeePayer
               );
               return type;
+            } else if (commitment.txType === TxType.IBCTransfer) {
+              return commitment.maspTxIn && commitment.maspTxOut ?
+                  "IbcUnshieldTransfer"
+                : "IbcTransfer";
             } else {
               return commitment.txType as string;
             }

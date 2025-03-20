@@ -31,9 +31,7 @@ use namada_sdk::key::{common, ed25519, RefTo, SigScheme};
 use namada_sdk::masp::shielded_wallet::ShieldedApi;
 use namada_sdk::masp::ShieldedContext;
 use namada_sdk::masp_primitives::sapling::ViewingKey;
-use namada_sdk::masp_primitives::transaction::components::{
-    amount::I128Sum, sapling::builder::StoredBuildParams, sapling::fees::InputView,
-};
+use namada_sdk::masp_primitives::transaction::components::amount::I128Sum;
 use namada_sdk::masp_primitives::zip32::{ExtendedFullViewingKey, ExtendedKey};
 use namada_sdk::rpc::{self, query_denom, query_epoch, InnerTxResult, TxBroadcastData, TxResponse};
 use namada_sdk::signing::SigningTxData;
@@ -52,7 +50,9 @@ use namada_sdk::tx::{
     Tx,
 };
 use namada_sdk::wallet::{Store, Wallet};
-use namada_sdk::{ExtendedViewingKey, Namada, NamadaImpl, PaymentAddress, TransferTarget};
+use namada_sdk::{
+    ExtendedViewingKey, Namada, NamadaImpl, PaymentAddress, TransferSource, TransferTarget,
+};
 use std::collections::BTreeMap;
 use std::str::FromStr;
 use tx::MaspSigningData;
@@ -608,33 +608,42 @@ impl Sdk {
         ibc_transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
-        let args = args::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg)?;
-        // TODO: we do not support ibc unshielding yet
-        let mut bparams = StoredBuildParams::default();
-        let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
+        let (args, bparams) = args::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg)?;
 
-        // As we can't get ExtendedFullViewingKeys from the tx args, we need to get them from the
-        // MASP Builder section of transaction
-        let masp_signing_data = if let Some(shielded_hash) = signing_data.shielded_hash {
-            let masp_builder = tx
-                .get_masp_builder(&shielded_hash)
-                .ok_or_err_msg("Expected to find the indicated MASP Builder")?;
-            let xfvks = masp_builder
-                .builder
-                .sapling_inputs()
-                .iter()
-                .map(|input| input.key())
-                .cloned()
-                .collect::<Vec<_>>();
-
-            let masp_signing_data = MaspSigningData::new(bparams, xfvks);
-
-            Some(masp_signing_data)
+        let bparams = if let Some(bparams) = bparams {
+            BuildParams::StoredBuildParams(bparams)
         } else {
-            None
+            generate_rng_build_params()
         };
 
-        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, masp_signing_data)
+        let _ = &self.namada.shielded_mut().await.load().await?;
+
+        let xfvks = match args.source {
+            TransferSource::Address(_) => vec![],
+            TransferSource::ExtendedKey(pek) => vec![pek.to_viewing_key()],
+        };
+
+        let ((tx, signing_data, _), masp_signing_data) = match bparams {
+            BuildParams::RngBuildParams(mut bparams) => {
+                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
+                let masp_signing_data = MaspSigningData::new(
+                    bparams
+                        .to_stored()
+                        .ok_or_err_msg("Cannot convert bparams to stored")?,
+                    xfvks,
+                );
+
+                (tx, masp_signing_data)
+            }
+            BuildParams::StoredBuildParams(mut bparams) => {
+                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
+                let masp_signing_data = MaspSigningData::new(bparams, xfvks);
+
+                (tx, masp_signing_data)
+            }
+        };
+
+        self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, Some(masp_signing_data))
     }
 
     pub async fn build_eth_bridge_transfer(
