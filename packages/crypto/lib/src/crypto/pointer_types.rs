@@ -30,8 +30,10 @@ impl VecU8Pointer {
             vec,
         }
     }
+}
 
-    pub fn clone(&self) -> VecU8Pointer {
+impl Clone for VecU8Pointer {
+    fn clone(&self) -> Self {
         VecU8Pointer::new(self.vec.clone())
     }
 }
@@ -57,8 +59,10 @@ impl StringPointer {
             string,
         }
     }
+}
 
-    pub fn clone(&self) -> StringPointer {
+impl Clone for StringPointer {
+    fn clone(&self) -> Self {
         StringPointer::new(self.string.clone())
     }
 }

@@ -1,7 +1,9 @@
-//! ShieldedHDWallet - Provide wasm_bindgen bindings for zip32 HD wallets
-//! Imports from masp_primitives::zip32, instead of zcash_primitives::zip32, as
-//! the value for constant ZIP32_SAPLING_MASTER_PERSONALIZATION is different!
-//! Otherwise, these implementations should be equivalent.
+/*!
+ShieldedHDWallet - Provide wasm_bindgen bindings for zip32 HD wallets
+Imports from masp_primitives::zip32, instead of zcash_primitives::zip32, as
+the value for constant ZIP32_SAPLING_MASTER_PERSONALIZATION is different!
+Otherwise, these implementations should be equivalent.
+*/
 use borsh::BorshDeserialize;
 use borsh_ext::BorshSerializeExt;
 use masp_primitives::{

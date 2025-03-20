@@ -32,7 +32,7 @@ impl AES {
                 key.length
             ));
         }
-        let mut key = GenericArray::from_iter(key.vec.clone().into_iter());
+        let mut key = GenericArray::from_iter(key.vec.clone());
         let iv: [u8; 12] = match iv.try_into() {
             Ok(iv) => iv,
             Err(_) => {

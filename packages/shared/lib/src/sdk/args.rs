@@ -62,6 +62,7 @@ pub struct WrapperTxMsg {
 }
 
 impl WrapperTxMsg {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         token: String,
         fee_amount: String,

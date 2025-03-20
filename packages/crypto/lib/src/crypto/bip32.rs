@@ -40,7 +40,7 @@ impl Key {
 
     pub fn to_hex(&self) -> StringPointer {
         let bytes: &[u8] = &self.bytes;
-        let string = hex::encode(&bytes);
+        let string = hex::encode(bytes);
         StringPointer::new(string)
     }
 }

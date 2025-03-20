@@ -62,6 +62,7 @@ const { status } = spawnSync(
     `--out-dir`,
     outDir,
     `--`,
+    `--no-default-features`,
     ["--features", features.join(",")].flat(),
     multicore ? [`-Z`, `build-std=panic_abort,std`] : [],
   ].flat(),

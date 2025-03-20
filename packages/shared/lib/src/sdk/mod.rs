@@ -228,7 +228,7 @@ impl Sdk {
     pub fn sign_masp_ledger(
         &self,
         tx: Vec<u8>,
-        signing_data: Box<[Uint8Array]>,
+        signing_data: Vec<Uint8Array>,
         signature: Vec<u8>,
     ) -> Result<JsValue, JsError> {
         let mut namada_tx: Tx = borsh::from_slice(&tx)?;
@@ -306,16 +306,14 @@ impl Sdk {
                 common::SecretKey::Ed25519(ed25519::SecretKey::from_str(&private_key)?);
             signing_keys.push(signing_key.clone());
 
-            if !wrapper_signing_key.is_some() {
+            if wrapper_signing_key.is_none() {
                 // Check address against wrapper_fee_payer
                 let wrapper_fee_payer = wrapper_fee_payer.clone();
                 let public = common::PublicKey::from(signing_key.ref_to());
                 let implicit = Address::Implicit(ImplicitAddress::from(&public));
 
-                if wrapper_fee_payer.is_some() {
-                    if implicit == wrapper_fee_payer.unwrap() {
-                        wrapper_signing_key = Some(signing_key)
-                    }
+                if wrapper_fee_payer.is_some() && implicit == wrapper_fee_payer.unwrap() {
+                    wrapper_signing_key = Some(signing_key)
                 }
             }
         }
@@ -902,7 +900,7 @@ impl Sdk {
             .await
             .ok_or(JsError::new(&format!(
                 "Denom for token {} not found",
-                token.to_string()
+                token
             )))?;
         let amount = DenominatedAmount::new(Amount::from_str(amount, denom)?, denom);
 
