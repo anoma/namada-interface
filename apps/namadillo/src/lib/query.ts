@@ -201,9 +201,7 @@ export const broadcastTransaction = async <T>(
 ): Promise<PromiseSettledResult<TxResponseMsgValue>[]> => {
   const { rpc } = await getSdkInstance();
   const response = await Promise.allSettled(
-    encodedTx.txs.map((_, i) =>
-      rpc.broadcastTx(signedTxs[i], encodedTx.wrapperTxProps)
-    )
+    encodedTx.txs.map((_, i) => rpc.broadcastTx(signedTxs[i]))
   );
 
   return response;

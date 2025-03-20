@@ -182,10 +182,7 @@ async function broadcast(
 
   for await (const signedTx of signedTxs) {
     for await (const _ of encodedTxData.txs) {
-      const response = await sdk.rpc.broadcastTx(
-        signedTx,
-        encodedTxData.wrapperTxProps
-      );
+      const response = await sdk.rpc.broadcastTx(signedTx);
       result.push(response);
     }
   }
