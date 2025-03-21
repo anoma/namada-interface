@@ -8,6 +8,14 @@
 
 - enable panic hook in Rust SDK ([6393b82](https://github.com/anoma/namada-interface/commit/6393b8263320e0f6d137f4e015b982f17f7e497e))
 
+## [0.18.0](https://github.com/anoma/namada-interface/compare/sdk@v0.17.0...sdk@v0.18.0) (2025-03-21)
+
+
+### Features
+
+* Add rewards column ([#1793](https://github.com/anoma/namada-interface/issues/1793)) ([75c65cf](https://github.com/anoma/namada-interface/commit/75c65cfdb20abbe48b827f8005bd716ef2027c21))
+* Adding masp asset rewards panel info ([#1797](https://github.com/anoma/namada-interface/issues/1797)) ([3b1a197](https://github.com/anoma/namada-interface/commit/3b1a197aac9153d5f549a9f2c68b92a4b022e3df))
+
 ## [0.17.0](https://github.com/anoma/namada-interface/compare/sdk@v0.16.0...sdk@v0.17.0) (2025-02-28)
 
 ### Features
