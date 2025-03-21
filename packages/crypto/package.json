@@ -10,6 +10,7 @@
   "scripts": {
     "prepublish": "yarn && yarn build",
     "build": "yarn wasm:build && tsc --build",
+    "wasm:check": "cd ./lib && cargo check && cargo clippy",
     "wasm:build": "./scripts/build.sh --release",
     "wasm:build:dev": "./scripts/build.sh",
     "wasm:build:node": "./scripts/build-node.sh --release",

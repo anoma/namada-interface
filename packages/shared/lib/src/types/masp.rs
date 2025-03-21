@@ -137,7 +137,7 @@ impl ExtendedSpendingKey {
     }
 
     pub fn from_string(xsk: String) -> Result<ExtendedSpendingKey, String> {
-        let xsk= NamadaExtendedSpendingKey::from_str(&xsk).map_err(|err| err.to_string())?;
+        let xsk = NamadaExtendedSpendingKey::from_str(&xsk).map_err(|err| err.to_string())?;
 
         Ok(ExtendedSpendingKey(xsk))
     }

@@ -9,6 +9,7 @@
   "license": "MIT",
   "scripts": {
     "prepublish": "yarn wasm:build && tsc --build",
+    "wasm:check": "cd ./lib && cargo check && cargo clippy",
     "wasm:ts:node": "tsc -p tsconfig.node.json",
     "wasm:ts:web": "tsc -p tsconfig.web.json",
     "wasm:build": "yarn wasm:ts:web && node ./scripts/build.js --release",
@@ -16,7 +17,7 @@
     "wasm:build:dev": "yarn wasm:ts:web && node ./scripts/build.js",
     "wasm:build:dev:multicore": "yarn wasm:ts:web && node ./scripts/build.js --multicore",
     "wasm:build:node": "yarn wasm:ts:node && node ./scripts/build.js --target nodejs --release",
-    "test-wasm:ci": "yarn wasm:ts:node && cd ./lib && RUSTFLAGS='--cfg getrandom_backend=\"wasm_js\"' wasm-pack test --node -- --features nodejs",
+    "test-wasm:ci": "yarn wasm:ts:node && cd ./lib && RUSTFLAGS='--cfg getrandom_backend=\"wasm_js\"' wasm-pack test --node -- --features nodejs --no-default-features",
     "wasm:build:node:multicore": "yarn wasm:ts:node && node ./scripts/build.js --target nodejs --release --multicore",
     "wasm:build:node:dev": "yarn wasm:ts:node && node ./scripts/build.js --target nodejs",
     "wasm:build:node:dev:multicore": "yarn wasm:ts:node && node ./scripts/build.js --target nodejs --multicore"
