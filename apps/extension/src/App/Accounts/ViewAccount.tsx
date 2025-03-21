@@ -4,9 +4,12 @@ import { makeBip44Path, makeSaplingPath } from "@namada/sdk/web";
 import { AccountType, DerivedAccount } from "@namada/types";
 import { PageHeader } from "App/Common";
 import routes from "App/routes";
+import { IncrementPaymentAddressMsg } from "background/keyring";
 import { AccountContext } from "context";
+import { useRequester } from "hooks/useRequester";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Ports } from "router";
 import { isCustomPath } from "utils";
 
 type ViewAccountUrlParams = {
@@ -14,13 +17,14 @@ type ViewAccountUrlParams = {
 };
 
 export const ViewAccount = (): JSX.Element => {
+  const requester = useRequester();
   const { accountId = "" } = useParams<ViewAccountUrlParams>();
   const { accounts: accountStore } = useContext(AccountContext);
   const [parentAccount, setParentAccount] = useState<DerivedAccount>();
   const [transparentAddress, setTransparentAddress] = useState("");
   const [transparentPath, setTransparentPath] = useState<string>();
-  const [shieldedAddress, setShieldedAddress] = useState("");
   const [shieldedPath, setShieldedPath] = useState<string>();
+  const [shieldedAccount, setShieldedAccount] = useState<DerivedAccount>();
   const [viewingKey, setViewingKey] = useState("");
   const navigate = useNavigate();
 
@@ -40,13 +44,27 @@ export const ViewAccount = (): JSX.Element => {
     );
   };
 
+  const handleIncrementPaymentAddress = async (): Promise<void> => {
+    if (shieldedAccount) {
+      const { id } = shieldedAccount;
+
+      const updatedAccount = await requester.sendMessage(
+        Ports.Background,
+        new IncrementPaymentAddressMsg(id)
+      );
+      if (updatedAccount) {
+        setShieldedAccount(updatedAccount);
+      }
+    }
+  };
+
   useEffect(() => {
     const parentAccount = searchParentAccount(accountId);
     if (parentAccount) {
       setParentAccount(parentAccount);
 
       if (parentAccount.type === AccountType.ShieldedKeys) {
-        setShieldedAddress(parentAccount.address);
+        setShieldedAccount(parentAccount);
         setShieldedPath(
           isCustomPath(parentAccount.path) ?
             makeSaplingPath(
@@ -79,7 +97,7 @@ export const ViewAccount = (): JSX.Element => {
 
     const shieldedAccount = searchShieldedKey(accountId);
     if (shieldedAccount) {
-      setShieldedAddress(shieldedAccount.address);
+      setShieldedAccount(shieldedAccount);
       setShieldedPath(
         isCustomPath(shieldedAccount.path) ?
           makeSaplingPath(
@@ -109,12 +127,19 @@ export const ViewAccount = (): JSX.Element => {
               publicKeyAddress={parentAccount.publicKey ?? ""}
               transparentAccountAddress={transparentAddress}
               transparentAccountPath={transparentPath}
-              shieldedAccountAddress={shieldedAddress}
+              shieldedAccountAddress={shieldedAccount?.address}
               shieldedAccountPath={shieldedPath}
               trimCharacters={21}
             />
             {viewingKey && (
               <>
+                <ActionButton
+                  outlineColor="yellow"
+                  size="sm"
+                  onClick={handleIncrementPaymentAddress}
+                >
+                  Generate Payment Address
+                </ActionButton>
                 {parentAccount.type !== AccountType.Ledger && (
                   <ActionButton
                     outlineColor="yellow"
@@ -134,6 +159,7 @@ export const ViewAccount = (): JSX.Element => {
                     Access Spending Key
                   </ActionButton>
                 )}
+
                 <ActionButton
                   outlineColor="yellow"
                   size="sm"
