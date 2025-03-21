@@ -261,7 +261,9 @@ export class KeyRingService {
   async incrementPaymentAddress(
     accountId: string
   ): Promise<DerivedAccount | undefined> {
-    return this._keyRing.incrementPaymentAddress(accountId);
+    const account = await this._keyRing.incrementPaymentAddress(accountId);
+    await this.broadcaster.updateAccounts();
+    return account;
   }
 
   // Make getPaymnetAddress available to requester
