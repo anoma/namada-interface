@@ -1,7 +1,7 @@
-use namada_sdk::borsh::BorshSerialize;
 use namada_sdk::address::Address;
-use namada_sdk::uint::Uint;
+use namada_sdk::borsh::BorshSerialize;
 use namada_sdk::dec::Dec;
+use namada_sdk::uint::Uint;
 use serde::{Deserialize, Serialize};
 
 #[derive(BorshSerialize)]
