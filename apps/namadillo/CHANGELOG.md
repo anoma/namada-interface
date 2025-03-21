@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.19.0...namadillo@v1.19.1) (2025-03-21)
+
+
+### Bug Fixes
+
+* Update native balance to be 0 in staking panel ([#1919](https://github.com/anoma/namada-interface/issues/1919)) ([8658835](https://github.com/anoma/namada-interface/commit/865883579fb79e015ca76e8c3e68ba6877109148))
+
 ## [1.19.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.18.0...namadillo@v1.19.0) (2025-03-17)
 
 
