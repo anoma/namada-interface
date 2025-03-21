@@ -54,7 +54,6 @@ export class ExtensionRequester {
       ...msg.meta,
       routerId: this.routerId,
     };
-
     const result = await browser.tabs.sendMessage(tabId, {
       port,
       type: msg.type(),
@@ -89,7 +88,11 @@ export class ExtensionRequester {
   }
 
   async queryBrowserTabIds(): Promise<number[]> {
-    const tabs = await browser.tabs.query({});
+    const tabs = await browser.tabs.query({
+      windowType: "normal",
+      discarded: false,
+      status: "complete",
+    });
 
     return tabs.map((tab) => tab.id || browser.tabs.TAB_ID_NONE);
   }
