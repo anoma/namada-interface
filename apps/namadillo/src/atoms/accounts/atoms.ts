@@ -1,4 +1,3 @@
-import { Balance } from "@namada/indexer-client";
 import {
   AccountType,
   GenDisposableSignerResponse,
@@ -136,7 +135,7 @@ export const disposableSignerAtom = atomWithQuery<GenDisposableSignerResponse>(
   }
 );
 
-export const transparentBalanceAtom = atomWithQuery<Balance[]>((get) => {
+export const transparentBalanceAtom = atomWithQuery((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
   const api = get(indexerApiAtom);
   const defaultAccountQuery = get(defaultAccountAtom);
@@ -147,7 +146,12 @@ export const transparentBalanceAtom = atomWithQuery<Balance[]>((get) => {
     refetchInterval: enablePolling ? 1000 : false,
     queryKey: ["transparent-balance", account],
     ...queryDependentFn(async () => {
-      return account ? fetchAccountBalance(api, account) : [];
+      const balance = account ? await fetchAccountBalance(api, account) : [];
+
+      return balance.map((b) => ({
+        minDenomAmount: b.minDenomAmount,
+        tokenAddress: b.token.address,
+      }));
     }, [defaultAccountQuery]),
   };
 });

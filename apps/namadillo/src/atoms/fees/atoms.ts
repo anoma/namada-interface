@@ -64,12 +64,13 @@ export const gasPriceTableAtom = atomWithQuery<GasPriceTable>((get) => {
       return (
         response
           // filter only tokens that exists on the chain
-          .filter(({ token }) => Boolean(chainAssetsMap[token]))
+          .filter(({ token }) => Boolean(chainAssetsMap[token.address]))
           .map(({ token, minDenomAmount }) => {
-            const asset = chainAssetsMap[token];
+            const tokenAddress = token.address;
+            const asset = chainAssetsMap[tokenAddress];
             const baseAmount = BigNumber(minDenomAmount);
             return {
-              token,
+              token: tokenAddress,
               gasPrice:
                 asset && isNamadaAsset(asset) ?
                   toDisplayAmount(asset, baseAmount)
