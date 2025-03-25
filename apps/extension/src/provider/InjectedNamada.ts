@@ -1,4 +1,5 @@
 import {
+  GenDisposableSignerProps,
   GenDisposableSignerResponse,
   Namada as INamada,
   Signer as ISigner,
@@ -74,13 +75,13 @@ export class InjectedNamada implements INamada {
     );
   }
 
-  public async genDisposableKeypair(): Promise<
-    GenDisposableSignerResponse | undefined
-  > {
+  public async genDisposableKeypair(
+    props: GenDisposableSignerProps
+  ): Promise<GenDisposableSignerResponse | undefined> {
     return await InjectedProxy.requestMethod<
-      void,
+      GenDisposableSignerProps,
       GenDisposableSignerResponse | undefined
-    >("genDisposableKeypair");
+    >("genDisposableKeypair", props);
   }
 
   public getSigner(): ISigner | undefined {

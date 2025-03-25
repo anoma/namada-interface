@@ -252,9 +252,9 @@ export class KeyRingService {
     return this._keyRing.queryAccountDetails(address);
   }
 
-  async genDisposableSigner(): Promise<
-    GenDisposableSignerResponse | undefined
-  > {
-    return this._keyRing.genDisposableSigner();
+  async genDisposableSigner(
+    persisted: boolean
+  ): Promise<GenDisposableSignerResponse | undefined> {
+    return this._keyRing.genDisposableSigner(persisted);
   }
 }

@@ -1,6 +1,7 @@
 import {
   AccountType,
   DerivedAccount,
+  GenDisposableSignerProps,
   GenDisposableSignerResponse,
   Namada as INamada,
   NamadaKeychainAccount,
@@ -122,12 +123,14 @@ export class Namada implements INamada {
     );
   }
 
-  public async genDisposableKeypair(): Promise<
+  public async genDisposableKeypair({
+    persisted,
+  }: GenDisposableSignerProps): Promise<
     GenDisposableSignerResponse | undefined
   > {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new GenDisposableSignerMsg()
+      new GenDisposableSignerMsg(persisted)
     );
   }
 

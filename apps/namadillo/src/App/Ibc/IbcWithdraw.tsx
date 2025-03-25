@@ -19,6 +19,7 @@ import {
 } from "atoms/integrations";
 import { ledgerStatusDataAtom } from "atoms/ledger";
 import { createIbcTxAtom } from "atoms/transfer/atoms";
+import { getDisposableSigner } from "atoms/transfer/services";
 import BigNumber from "bignumber.js";
 import { useTransaction } from "hooks/useTransaction";
 import { useTransactionActions } from "hooks/useTransactionActions";
@@ -269,6 +270,9 @@ export const IbcWithdraw: React.FC = () => {
       : transparentAccount.data.address;
     const gasSpendingKey =
       shielded ? shieldedAccount.pseudoExtendedKey : undefined;
+    // TODO: probably we should not call fn from service directly
+    const refundTarget =
+      shielded ? (await getDisposableSigner(true)).address : undefined;
 
     setLedgerStatusStop(true);
     try {
@@ -287,6 +291,7 @@ export const IbcWithdraw: React.FC = () => {
             receiver: destinationAddress,
             gasSpendingKey,
             memo,
+            refundTarget,
           },
         ],
       });
