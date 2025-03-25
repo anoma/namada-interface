@@ -229,7 +229,7 @@ export const toPublicAccount = (
     account.pseudoExtendedKey = pseudoExtendedKey;
     account.source = source;
     account.timestamp = timestamp;
-    account.diversifierIndex = diversifierIndex || BigInt(1);
+    account.diversifierIndex = diversifierIndex || 1;
   } else {
     account.publicKey = publicKey;
   }

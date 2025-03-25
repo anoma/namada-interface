@@ -11,8 +11,8 @@ import {
   DeleteAccountMsg,
   DeriveShieldedAccountMsg,
   GenerateMnemonicMsg,
+  GenPaymentAddressMsg,
   GetActiveAccountMsg,
-  IncrementPaymentAddressMsg,
   QueryAccountDetailsMsg,
   QueryParentAccountsMsg,
   RenameAccountMsg,
@@ -105,10 +105,10 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as RevealSpendingKeyMsg
         );
-      case IncrementPaymentAddressMsg:
-        return handleGeneratePaymentAddressMsg(service)(
+      case GenPaymentAddressMsg:
+        return handleGenPaymentAddressMsg(service)(
           env,
-          msg as IncrementPaymentAddressMsg
+          msg as GenPaymentAddressMsg
         );
       default:
         throw new Error("Unknown msg type");
@@ -299,10 +299,10 @@ const handleRevealSpendingKeyMsg: (
   };
 };
 
-const handleGeneratePaymentAddressMsg: (
+const handleGenPaymentAddressMsg: (
   service: KeyRingService
-) => InternalHandler<IncrementPaymentAddressMsg> = (service) => {
+) => InternalHandler<GenPaymentAddressMsg> = (service) => {
   return async (_, { accountId }) => {
-    return await service.incrementPaymentAddress(accountId);
+    return await service.genPaymentAddress(accountId);
   };
 };

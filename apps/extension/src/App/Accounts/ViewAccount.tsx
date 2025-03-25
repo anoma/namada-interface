@@ -4,7 +4,7 @@ import { makeBip44Path, makeSaplingPath } from "@namada/sdk/web";
 import { AccountType, DerivedAccount } from "@namada/types";
 import { PageHeader } from "App/Common";
 import routes from "App/routes";
-import { IncrementPaymentAddressMsg } from "background/keyring";
+import { GenPaymentAddressMsg } from "background/keyring";
 import { AccountContext } from "context";
 import { useRequester } from "hooks/useRequester";
 import { useContext, useEffect, useState } from "react";
@@ -47,10 +47,9 @@ export const ViewAccount = (): JSX.Element => {
   const handleIncrementPaymentAddress = async (): Promise<void> => {
     if (shieldedAccount) {
       const { id } = shieldedAccount;
-
       const updatedAccount = await requester.sendMessage(
         Ports.Background,
-        new IncrementPaymentAddressMsg(id)
+        new GenPaymentAddressMsg(id)
       );
       if (updatedAccount) {
         setShieldedAccount(updatedAccount);
@@ -159,7 +158,6 @@ export const ViewAccount = (): JSX.Element => {
                     Access Spending Key
                   </ActionButton>
                 )}
-
                 <ActionButton
                   outlineColor="yellow"
                   size="sm"

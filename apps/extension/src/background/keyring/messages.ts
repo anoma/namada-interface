@@ -32,7 +32,7 @@ enum MessageType {
   RenameAccount = "rename-account",
   QueryAccountDetails = "query-account-details",
   AppendLedgerSignature = "append-ledger-signature",
-  IncrementPaymentAddress = "increment-payment-address",
+  GenPaymentAddress = "generate-payment-address",
 }
 
 export class GenerateMnemonicMsg extends Message<string[]> {
@@ -418,11 +418,9 @@ export class AppendLedgerSignatureMsg extends Message<Uint8Array> {
   }
 }
 
-export class IncrementPaymentAddressMsg extends Message<
-  DerivedAccount | undefined
-> {
+export class GenPaymentAddressMsg extends Message<DerivedAccount | undefined> {
   public static type(): MessageType {
-    return MessageType.IncrementPaymentAddress;
+    return MessageType.GenPaymentAddress;
   }
 
   constructor(public accountId: string) {
@@ -438,6 +436,6 @@ export class IncrementPaymentAddressMsg extends Message<
   }
 
   type(): string {
-    return IncrementPaymentAddressMsg.type();
+    return GenPaymentAddressMsg.type();
   }
 }

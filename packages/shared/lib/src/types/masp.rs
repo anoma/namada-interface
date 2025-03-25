@@ -5,8 +5,8 @@ use std::str::FromStr;
 use js_sys::Uint8Array;
 use namada_sdk::borsh::{self, BorshDeserialize};
 use namada_sdk::masp_primitives::sapling::ViewingKey;
-use namada_sdk::masp_primitives::zip32::{DiversifierIndex, ExtendedKey};
-use namada_sdk::masp_primitives::{sapling, zip32};
+use namada_sdk::masp_primitives::zip32::{self, DiversifierIndex, ExtendedKey};
+use namada_sdk::masp_primitives::sapling;
 use namada_sdk::masp_proofs::jubjub;
 use namada_sdk::state::BlockHeight;
 use namada_sdk::wallet::DatedKeypair;
@@ -16,6 +16,7 @@ use namada_sdk::{
 };
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
+use crate::utils::to_js_result;
 
 #[derive(Debug, Error)]
 pub enum MaspError {
@@ -48,11 +49,12 @@ impl ExtendedViewingKey {
         self.0.to_string()
     }
 
-    pub fn default_payment_address(&self) -> PaymentAddress {
+    pub fn default_payment_address(&self) -> Result<JsValue, JsError> {
         let xfvk = zip32::ExtendedFullViewingKey::from(self.0);
-        let (_, payment_address) = xfvk.default_address();
+        let (diversifier_index, payment_address) = xfvk.default_address();
+        let div_idx = u32::try_from(diversifier_index)?;
 
-        PaymentAddress(payment_address.into())
+        to_js_result((div_idx, PaymentAddress(payment_address.into()).encode()))
     }
 }
 
@@ -146,10 +148,13 @@ impl ExtendedSpendingKey {
         ExtendedViewingKey::new(&self.0.to_viewing_key().to_bytes())
     }
 
-    pub fn to_default_address(&self) -> PaymentAddress {
+    pub fn to_default_address(&self) -> Result<JsValue, JsError> {
         let xsk = zip32::ExtendedSpendingKey::from(self.0);
         let xfvk = zip32::ExtendedFullViewingKey::from(&xsk);
-        PaymentAddress(NamadaPaymentAddress::from(xfvk.default_address().1))
+        let (div_idx, payment_address) = xfvk.default_address();
+
+        let index = u32::try_from(div_idx)?;
+        to_js_result((index, PaymentAddress(payment_address.into()).encode()))
     }
 
     pub fn to_proof_generation_key(&self) -> ProofGenerationKey {
@@ -203,16 +208,24 @@ impl PaymentAddress {
         self.0.to_string()
     }
 
-    /// Return payment address from viewing key at specific index
-    pub fn from_vk(key: String, index: u64) -> Result<PaymentAddress, String> {
-        let xfvk = zip32::ExtendedFullViewingKey::from(
-            NamadaExtendedViewingKey::from_str(&key)
-                .expect("Parsing ExtendedViewingKey should not fail!"),
-        );
-        let diversifier_index = DiversifierIndex::from(index);
-        let (_, payment_address) = xfvk.find_address(diversifier_index).expect("Exhausted payment addresses");
-        Ok(PaymentAddress(payment_address.into()))
-    }
+}
+
+/// Find next payment address from current index for viewing key
+#[wasm_bindgen]
+pub fn gen_payment_address(vk: String, index: u32) -> Result<JsValue, JsError> {
+    let diversifier_index = DiversifierIndex::from(index);
+
+    let xfvk = zip32::ExtendedFullViewingKey::from(
+        NamadaExtendedViewingKey::from_str(&vk)
+            .expect("Parsing ExtendedViewingKey should not fail!"),
+    );
+    let (div_idx, masp_payment_addr) = xfvk.find_address(diversifier_index).expect("Exhausted payment addresses");
+
+    let payment_addr = NamadaPaymentAddress::from(masp_payment_addr);
+    let payment_address = PaymentAddress(payment_addr);
+    let index: u32 = u32::try_from(div_idx)?;
+
+    to_js_result((index, payment_address.encode()))
 }
 
 #[wasm_bindgen]

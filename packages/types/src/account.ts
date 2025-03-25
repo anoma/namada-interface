@@ -41,7 +41,7 @@ export type DerivedAccount = {
   pseudoExtendedKey?: string;
   source?: "imported" | "generated";
   timestamp?: number;
-  diversifierIndex?: bigint;
+  diversifierIndex?: number;
 };
 
 export type Account = Pick<

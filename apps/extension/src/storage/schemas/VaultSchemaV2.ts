@@ -74,7 +74,7 @@ export const KeyStore = t.exact(
       publicKey: t.string,
       parentId: t.string,
       pseudoExtendedKey: t.string,
-      diversifierIndex: t.bigint,
+      diversifierIndex: t.number,
     }),
   ])
 );

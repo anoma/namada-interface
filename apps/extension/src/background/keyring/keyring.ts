@@ -57,6 +57,7 @@ type DerivedAccountInfo = {
   text: string;
   owner: string;
   pseudoExtendedKey?: string;
+  diversifierIndex?: number;
 };
 
 /**
@@ -296,6 +297,7 @@ export class KeyRing {
             alias,
             address: shieldedKeys.address,
             owner: shieldedKeys.viewingKey,
+            diversifierIndex: shieldedKeys.diversifierIndex,
             path,
             pseudoExtendedKey: shieldedKeys.pseudoExtendedKey,
             type: accountType,
@@ -433,7 +435,9 @@ export class KeyRing {
       source,
       timestamp,
       diversifierIndex:
-        type === AccountType.ShieldedKeys ? BigInt(1) : undefined,
+        type === AccountType.ShieldedKeys ?
+          derivedAccountInfo.diversifierIndex
+        : undefined,
     };
     const sensitive = await this.vaultService.encryptSensitiveData({
       text,
@@ -484,8 +488,13 @@ export class KeyRing {
       throw new Error(`Invalid account type! ${parentType}`);
     }
 
-    const { address, viewingKey, spendingKey, pseudoExtendedKey } =
-      shieldedKeys;
+    const {
+      address,
+      diversifierIndex,
+      viewingKey,
+      spendingKey,
+      pseudoExtendedKey,
+    } = shieldedKeys;
 
     const info = {
       address,
@@ -493,7 +502,7 @@ export class KeyRing {
       owner: viewingKey,
       text: JSON.stringify({ spendingKey }),
       pseudoExtendedKey,
-      diversifierIndex: BigInt(1),
+      diversifierIndex,
     };
 
     // Check whether keys already exist for this account
@@ -519,18 +528,7 @@ export class KeyRing {
 
   public async queryAllAccounts(): Promise<DerivedAccount[]> {
     const accounts = await this.vaultStorage.findAll(KeyStore);
-    return accounts.map(
-      (entry) =>
-        (entry.public.type === AccountType.ShieldedKeys ?
-          {
-            ...entry.public,
-            address: this.getPaymentAddress(
-              entry.public.owner,
-              entry.public.diversifierIndex || BigInt(1)
-            ),
-          }
-        : entry.public) as AccountStore
-    );
+    return accounts.map((entry) => entry.public);
   }
 
   /**
@@ -541,15 +539,7 @@ export class KeyRing {
       await this.vaultStorage.findOneOrFail(KeyStore, "id", accountId)
     ).public;
 
-    return account.type === AccountType.ShieldedKeys ?
-        {
-          ...account,
-          address: this.getPaymentAddress(
-            account.owner,
-            account.diversifierIndex || BigInt(1)
-          ),
-        }
-      : account;
+    return account;
   }
 
   /**
@@ -878,10 +868,8 @@ export class KeyRing {
     return { publicKey, address };
   }
 
-  async incrementPaymentAddress(
-    accountId: string
-  ): Promise<DerivedAccount | undefined> {
-    const { keys } = this.sdkService.getSdk();
+  // Query and validate that account is a shielded account
+  async queryShieldedAccountById(accountId: string): Promise<DerivedAccount> {
     const account = await this.queryAccountById(accountId);
     if (!account) {
       throw new Error(`Account with ID ${accountId} not found!`);
@@ -893,32 +881,39 @@ export class KeyRing {
       );
     }
 
-    const { diversifierIndex = BigInt(1), owner } = account;
-
-    if (!owner) {
+    if (!account.owner) {
       throw new Error(
         `Account with ID ${accountId} does not have a viewing key!`
       );
     }
 
-    const nextIndex = diversifierIndex + BigInt(1);
-
-    // Increment diversifier index and return payment address
-    const paymentAddress = keys.genPaymentAddress(owner, nextIndex);
-
-    await this.vaultStorage.update(KeyStore, "id", accountId, {
-      diversifierIndex: nextIndex,
-    });
-
-    return {
-      ...account,
-      address: paymentAddress,
-    };
+    return account;
   }
 
-  // Helper to return payment address based from index
-  getPaymentAddress(viewingKey: string, diversifierIndex: bigint): string {
-    const { keys } = this.sdkService.getSdk();
-    return keys.genPaymentAddress(viewingKey, diversifierIndex);
+  async genPaymentAddress(
+    accountId: string
+  ): Promise<DerivedAccount | undefined> {
+    try {
+      const account = await this.queryShieldedAccountById(accountId);
+      const currentIndex = account.diversifierIndex || 1;
+      const { keys } = this.sdkService.getSdk();
+
+      const { address, diversifierIndex } = keys.genPaymentAddress(
+        account.owner!,
+        (currentIndex || 1) + 1
+      );
+
+      await this.vaultStorage.update(KeyStore, "id", accountId, {
+        address,
+        diversifierIndex,
+      });
+
+      return {
+        ...account,
+        address,
+      };
+    } catch (e) {
+      throw new Error(`${e}`);
+    }
   }
 }
