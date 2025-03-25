@@ -19,7 +19,7 @@
     "@namada/chains": "0.2.1",
     "@namada/types": "0.2.1",
     "@namada/utils": "0.2.1",
-    "isomorphic-dompurify": "^2.6.0",
+    "isomorphic-dompurify": "^2.22.0",
     "react-dom": "^18.3.0",
     "react-router-dom": "^6.0.0"
   },

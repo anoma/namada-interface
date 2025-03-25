@@ -3710,7 +3710,7 @@ __metadata:
     fp-ts: "npm:^2.16.1"
     framer-motion: "npm:^11.3.28"
     io-ts: "npm:^2.2.21"
-    isomorphic-dompurify: "npm:^2.6.0"
+    isomorphic-dompurify: "npm:^2.22.0"
     jest: "npm:^29.7.0"
     jest-create-mock-instance: "npm:^2.0.0"
     jest-environment-jsdom: "npm:^29.7.0"
@@ -3770,7 +3770,7 @@ __metadata:
     file-loader: "npm:^6.2.0"
     framer-motion: "npm:^11.5.4"
     html-webpack-plugin: "npm:^5.6.0"
-    isomorphic-dompurify: "npm:^2.6.0"
+    isomorphic-dompurify: "npm:^2.22.0"
     local-cors-proxy: "npm:^1.1.0"
     node-forge: "npm:^1.3.1"
     path-browserify: "npm:^1.0.1"
@@ -3809,7 +3809,7 @@ __metadata:
     eslint-plugin-import: "npm:^2.30.0"
     eslint-plugin-react: "npm:^7.35.2"
     eslint-plugin-react-hooks: "npm:^4.6.0"
-    isomorphic-dompurify: "npm:^2.6.0"
+    isomorphic-dompurify: "npm:^2.22.0"
     react-dom: "npm:^18.3.0"
     react-router-dom: "npm:^6.0.0"
     rimraf: "npm:^5.0.5"
@@ -9777,15 +9777,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.2.3":
-  version: 3.2.3
-  resolution: "dompurify@npm:3.2.3"
+"dompurify@npm:^3.2.4":
+  version: 3.2.4
+  resolution: "dompurify@npm:3.2.4"
   dependencies:
     "@types/trusted-types": "npm:^2.0.7"
   dependenciesMeta:
     "@types/trusted-types":
       optional: true
-  checksum: 10c0/0ce5cb89b76f396d800751bcb48e0d137792891d350ccc049f1bc9a5eca7332cc69030c25007ff4962e0824a5696904d4d74264df9277b5ad955642dfb6f313f
+  checksum: 10c0/6be56810fb7ad2776155c8fc2967af5056783c030094362c7d0cf1ad13f2129cf922d8eefab528a34bdebfb98e2f44b306a983ab93aefb9d6f24c18a3d027a05
   languageName: node
   linkType: hard
 
@@ -13482,13 +13482,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"isomorphic-dompurify@npm:^2.6.0":
-  version: 2.20.0
-  resolution: "isomorphic-dompurify@npm:2.20.0"
+"isomorphic-dompurify@npm:^2.22.0":
+  version: 2.22.0
+  resolution: "isomorphic-dompurify@npm:2.22.0"
   dependencies:
-    dompurify: "npm:^3.2.3"
+    dompurify: "npm:^3.2.4"
     jsdom: "npm:^26.0.0"
-  checksum: 10c0/76525ab4906f17d025852ea017125fab44d5e4cc2177a28bff1af54d903a4571b1137c9849e4fdafa5d78093aa434d4b139ce51339f48a73c5565c05b0e3773c
+  checksum: 10c0/d26000d4015994b04e03901698720f1db7d619d7b880bd47ee6d0265129be849b1ad0b7bb175b5b60153e77396394c356df5ebb083309084904dac0b0ee1f606
   languageName: node
   linkType: hard
 
