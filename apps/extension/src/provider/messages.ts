@@ -309,11 +309,13 @@ export class GenDisposableSignerMsg extends Message<
     return MessageType.GenDisposableSigner;
   }
 
-  constructor() {
+  constructor(public readonly persisted: boolean) {
     super();
   }
 
-  validate(): void {}
+  validate(): void {
+    validateProps(this, ["persisted"]);
+  }
 
   route(): string {
     return Route.KeyRing;

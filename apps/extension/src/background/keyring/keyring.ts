@@ -1,5 +1,6 @@
 import { chains } from "@namada/chains";
 import {
+  Keys,
   makeBip44Path,
   MODIFIED_ZIP32_PATH,
   PhraseSize,
@@ -216,6 +217,117 @@ export class KeyRing {
     }
 
     return JSON.parse(sensitiveData.text).spendingKey;
+  }
+
+  accountStoreShielded(
+    keys: Keys,
+    sk: string,
+    text: string,
+    alias: string,
+    path: Bip44Path,
+    vaultLength: number,
+    source: AccountSource,
+    timestamp: number
+  ): AccountStore {
+    const shieldedKeys = keys.shieldedKeysFromSpendingKey(sk);
+
+    // Generate unique id for shielded key
+    const shieldedId = generateId(
+      UUID_NAMESPACE,
+      text,
+      alias,
+      shieldedKeys.address,
+      shieldedKeys.viewingKey,
+      path.account,
+      vaultLength
+    );
+
+    return {
+      id: shieldedId,
+      alias,
+      address: shieldedKeys.address,
+      owner: shieldedKeys.viewingKey,
+      path,
+      pseudoExtendedKey: shieldedKeys.pseudoExtendedKey,
+      type: AccountType.ShieldedKeys,
+      source,
+      timestamp,
+    };
+  }
+
+  accountStoreDefault(
+    accountType: AccountType,
+    keys: Keys,
+    sk: string,
+    text: string,
+    alias: string,
+    path: Bip44Path,
+    vaultLength: number,
+    source: AccountSource,
+    timestamp: number
+  ): AccountStore {
+    // Generate unique ID for new parent account:
+    const { address, publicKey } = keys.getAddress(sk);
+    const id = generateId(
+      UUID_NAMESPACE,
+      text,
+      alias,
+      address,
+      path.account,
+      path.change,
+      path.index,
+      vaultLength
+    );
+
+    return {
+      id,
+      alias,
+      address,
+      owner: address,
+      path,
+      publicKey,
+      type: accountType,
+      source,
+      timestamp,
+    };
+  }
+
+  accountStore(
+    accountType: AccountType,
+    keys: Keys,
+    sk: string,
+    text: string,
+    alias: string,
+    path: Bip44Path,
+    vaultLength: number,
+    source: AccountSource,
+    timestamp: number
+  ): AccountStore {
+    switch (accountType) {
+      case AccountType.ShieldedKeys:
+        return this.accountStoreShielded(
+          keys,
+          sk,
+          text,
+          alias,
+          path,
+          vaultLength,
+          source,
+          timestamp
+        );
+      default:
+        return this.accountStoreDefault(
+          accountType,
+          keys,
+          sk,
+          text,
+          alias,
+          path,
+          vaultLength,
+          source,
+          timestamp
+        );
+    }
   }
 
   // Store validated mnemonic, private key, or spending key
@@ -850,22 +962,32 @@ export class KeyRing {
     return account.public;
   }
 
-  async genDisposableSigner(): Promise<
-    GenDisposableSignerResponse | undefined
-  > {
+  async genDisposableSigner(
+    persisted: boolean = false
+  ): Promise<GenDisposableSignerResponse | undefined> {
     const sdk = this.sdkService.getSdk();
     const { privateKey, publicKey, address } = sdk.keys.genDisposableKeypair();
 
-    const defaultAccount = await this.queryDefaultAccount();
-    if (!defaultAccount) {
-      throw new Error("No default account found");
-    }
+    // TODO: we could combine both cases into one
+    if (!persisted) {
+      const defaultAccount = await this.queryDefaultAccount();
+      if (!defaultAccount) {
+        throw new Error("No default account found");
+      }
 
-    await this.localStorage.addDisposableSigner(
-      address,
-      privateKey,
-      defaultAccount.address
-    );
+      await this.localStorage.addDisposableSigner(
+        address,
+        privateKey,
+        defaultAccount.address
+      );
+    } else {
+      await this.storeAccountSecret(
+        { t: "PrivateKey", privateKey },
+        "disposable-signer",
+        "import",
+        DEFAULT_BIP44_PATH
+      );
+    }
 
     return { publicKey, address };
   }
