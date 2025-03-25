@@ -781,6 +781,7 @@ pub struct IbcTransferMsg {
     shielding_data: Option<Vec<u8>>,
     gas_spending_key: Option<String>,
     bparams: Option<Vec<BparamsMsg>>,
+    refund_target: Option<String>,
 }
 
 impl IbcTransferMsg {
@@ -810,6 +811,7 @@ impl IbcTransferMsg {
             shielding_data,
             gas_spending_key: None,
             bparams: None,
+            refund_target: None,
         }
     }
 }
@@ -843,6 +845,7 @@ pub fn ibc_transfer_tx_args(
         shielding_data,
         gas_spending_key,
         bparams: bparams_msg,
+        refund_target,
     } = ibc_transfer_msg;
 
     let source = match Address::from_str(&source) {
@@ -872,10 +875,12 @@ pub fn ibc_transfer_tx_args(
 
     let refund_target = match &source {
         TransferSource::Address(_) => None,
-        TransferSource::ExtendedKey(_) => Some(TransferTarget::Address(
-            // TODO: This is a hardcoded address for now, we need to change this
-            Address::from_str("tnam1qpkf98snxuy0dqj5yk3fpkvqxwgr2kq4759jtkld").unwrap(),
-        )),
+        TransferSource::ExtendedKey(_) => refund_target.map(|rt| {
+            TransferTarget::Address(
+                // TODO: unwrap
+                Address::from_str(&rt).unwrap(),
+            )
+        }),
     };
 
     let tx = tx_msg_into_args(tx_msg)?;

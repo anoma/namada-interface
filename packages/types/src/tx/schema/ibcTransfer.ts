@@ -47,6 +47,9 @@ export class IbcTransferMsgValue {
   @field({ type: option(vec(BparamsMsgValue)) })
   bparams?: BparamsMsgValue[];
 
+  @field({ type: option("string") })
+  refundTarget?: string;
+
   constructor(data: IbcTransferProps) {
     Object.assign(this, {
       ...data,

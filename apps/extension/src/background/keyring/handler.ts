@@ -288,8 +288,8 @@ const handleQueryAccountDetails: (
 const handleGenDisposableSignerMsg: (
   service: KeyRingService
 ) => InternalHandler<GenDisposableSignerMsg> = (service) => {
-  return async (_, _msg) => {
-    return await service.genDisposableSigner();
+  return async (_, { persisted }) => {
+    return await service.genDisposableSigner(persisted);
   };
 };
 
