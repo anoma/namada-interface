@@ -62,7 +62,7 @@ export const PulsingRing = ({ className }: PulsingRingProps): JSX.Element => {
   return (
     <span
       ref={containerRef}
-      className={twMerge("block relative leading-0 bg-red-500", className)}
+      className={twMerge("block relative leading-0 h-[1em]", className)}
     >
       {renderRing("h-18")}
       {renderRing("h-30")}

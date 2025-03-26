@@ -13,6 +13,7 @@ import { BalanceOverviewChart } from "./BalanceOverviewChart";
 import { MaspBanner } from "./MaspBanner";
 import { NamBalanceContainer } from "./NamBalanceContainer";
 import { NavigationFooter } from "./NavigationFooter";
+import { TotalBalanceBanner } from "./TotalBalanceBanner";
 import { TransparentOverviewPanel } from "./TransparentOverviewPanel";
 
 export const AccountOverview = (): JSX.Element => {
@@ -31,6 +32,7 @@ export const AccountOverview = (): JSX.Element => {
     <PageWithSidebar>
       <div className={twMerge("flex w-full")}>
         <section className="flex flex-col w-full rounded-sm min-h-full gap-2">
+          <TotalBalanceBanner />
           <div className="grid sm:grid-cols-[0.8fr_1.25fr_0.66fr] gap-2">
             <Panel>
               <BalanceOverviewChart />

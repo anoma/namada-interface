@@ -119,9 +119,9 @@ export const lastCompletedShieldedSyncAtom = atomWithStorage<
   Record<Address, Date | undefined>
 >("namadillo:last-shielded-sync", {});
 
-export const isShieldedSyncCompleteAtom = atom(
-  (get) => get(shieldedSyncProgress) === 1
-);
+export const isShieldedSyncCompleteAtom = atom((get) => {
+  return get(shieldedSyncProgress) === 1;
+});
 
 export const shieldedBalanceAtom = atomWithQuery((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
