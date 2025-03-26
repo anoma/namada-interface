@@ -86,9 +86,9 @@ export const SyncIndicator = (): JSX.Element => {
           </div>
         : <div>
             <div>Fully synced:</div>
-            <div>RPC Height:{chainStatus?.height}</div>
-            <div>Indexer Height:{indexerBlockHeight}</div>
-            <div>Epoch:{chainStatus?.epoch}</div>
+            <div>RPC Height: {chainStatus?.height}</div>
+            <div>Indexer Height: {indexerBlockHeight}</div>
+            <div>Epoch: {chainStatus?.epoch}</div>
           </div>
         }
       </Tooltip>
