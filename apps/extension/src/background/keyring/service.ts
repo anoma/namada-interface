@@ -264,11 +264,7 @@ export class KeyRingService {
     accountId: string
   ): Promise<DerivedAccount | undefined> {
     const account = await this._keyRing.genPaymentAddress(accountId);
-    try {
-      void this.broadcaster.updateAccounts();
-    } catch (e) {
-      throw new Error(`${e}`);
-    }
+    void this.broadcaster.updateAccounts();
     return account;
   }
 }
