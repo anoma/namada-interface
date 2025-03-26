@@ -52,6 +52,7 @@ export const useTransactionCallback = (): void => {
       status: "success",
       currentStep: TransferStep.Complete,
     });
+    shouldUpdateBalance(true);
     refetchBalances();
     refetchShieldedBalance();
   };
