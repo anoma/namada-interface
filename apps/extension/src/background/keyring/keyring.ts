@@ -111,7 +111,8 @@ export class KeyRing {
     zip32Path?: Zip32Path,
     pseudoExtendedKey?: string,
     extendedViewingKey?: string,
-    paymentAddress?: string
+    paymentAddress?: string,
+    diversifierIndex?: number
   ): Promise<AccountStore | false> {
     const id = generateId(UUID_NAMESPACE, alias, address);
     const accountStore: AccountStore = {
@@ -153,6 +154,7 @@ export class KeyRing {
         parentId: id,
         type: AccountType.ShieldedKeys,
         source: "imported",
+        diversifierIndex,
         timestamp: 0,
       };
 

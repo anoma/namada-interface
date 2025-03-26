@@ -129,6 +129,7 @@ const handleAddLedgerAccountMsg: (
       extendedViewingKey,
       pseudoExtendedKey,
       paymentAddress,
+      diversifierIndex,
     } = msg;
     return await service.saveLedger(
       alias,
@@ -138,7 +139,8 @@ const handleAddLedgerAccountMsg: (
       zip32Path,
       extendedViewingKey,
       pseudoExtendedKey,
-      paymentAddress
+      paymentAddress,
+      diversifierIndex
     );
   };
 };

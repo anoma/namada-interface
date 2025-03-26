@@ -89,7 +89,8 @@ export class KeyRingService {
     zip32Path?: Zip32Path,
     extendedViewingKey?: string,
     pseudoExtendedKey?: string,
-    paymentAddress?: string
+    paymentAddress?: string,
+    diversifierIndex?: number
   ): Promise<AccountStore | false> {
     const account = await this._keyRing.queryAccountByAddress(address);
     if (account) {
@@ -106,7 +107,8 @@ export class KeyRingService {
       zip32Path,
       pseudoExtendedKey,
       extendedViewingKey,
-      paymentAddress
+      paymentAddress,
+      diversifierIndex
     );
 
     await this.broadcaster.updateAccounts();

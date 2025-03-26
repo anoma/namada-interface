@@ -222,7 +222,8 @@ export class AddLedgerAccountMsg extends Message<AccountStore | false> {
     public readonly zip32Path?: Zip32Path,
     public readonly extendedViewingKey?: string,
     public readonly pseudoExtendedKey?: string,
-    public readonly paymentAddress?: string
+    public readonly paymentAddress?: string,
+    public readonly diversifierIndex?: number
   ) {
     super();
   }
