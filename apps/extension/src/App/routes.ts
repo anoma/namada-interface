@@ -21,4 +21,6 @@ export default {
     `/accounts/delete/${accountId}`,
   renameAccount: (accountId: string = ":accountId") =>
     `/accounts/rename/${accountId}`,
+  disposableKeyDetails: (accountId: string = ":accountId") =>
+    `/accounts/disposable/${accountId}`,
 };

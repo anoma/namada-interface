@@ -81,6 +81,10 @@ export const ParentAccounts = (): JSX.Element => {
     navigate(routes.renameAccount(account.id), { state: { account } });
   };
 
+  const goToDisposableKeyDetails = (account: Account): void => {
+    navigate(routes.disposableKeyDetails(account.id), { state: { account } });
+  };
+
   return (
     <>
       <Stack
@@ -114,6 +118,7 @@ export const ParentAccounts = (): JSX.Element => {
                 onDelete={() => goToDeletePage(account)}
                 onViewAccount={() => goToViewAccount(account)}
                 onViewRecoveryPhrase={() => goToViewRecoveryPhrase(account)}
+                onDisposableKeyDetails={() => goToDisposableKeyDetails(account)}
                 onSelectAccount={() => {
                   changeActiveAccountId(
                     account.id,

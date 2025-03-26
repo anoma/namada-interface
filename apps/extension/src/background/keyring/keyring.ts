@@ -217,8 +217,9 @@ export class KeyRing {
   }
 
   accountStoreShielded(
-    keys: Keys,
-    sk: string,
+    address: string,
+    viewingKey: string,
+    pseudoExtendedKey: string,
     text: string,
     alias: string,
     path: Bip44Path,
@@ -226,15 +227,13 @@ export class KeyRing {
     source: AccountSource,
     timestamp: number
   ): AccountStore {
-    const shieldedKeys = keys.shieldedKeysFromSpendingKey(sk);
-
     // Generate unique id for shielded key
     const shieldedId = generateId(
       UUID_NAMESPACE,
       text,
       alias,
-      shieldedKeys.address,
-      shieldedKeys.viewingKey,
+      address,
+      viewingKey,
       path.account,
       vaultLength
     );
@@ -242,10 +241,10 @@ export class KeyRing {
     return {
       id: shieldedId,
       alias,
-      address: shieldedKeys.address,
-      owner: shieldedKeys.viewingKey,
+      address,
+      owner: viewingKey,
       path,
-      pseudoExtendedKey: shieldedKeys.pseudoExtendedKey,
+      pseudoExtendedKey,
       type: AccountType.ShieldedKeys,
       source,
       timestamp,
@@ -254,8 +253,8 @@ export class KeyRing {
 
   accountStoreDefault(
     accountType: AccountType,
-    keys: Keys,
-    sk: string,
+    address: string,
+    publicKey: string,
     text: string,
     alias: string,
     path: Bip44Path,
@@ -264,7 +263,6 @@ export class KeyRing {
     timestamp: number
   ): AccountStore {
     // Generate unique ID for new parent account:
-    const { address, publicKey } = keys.getAddress(sk);
     const id = generateId(
       UUID_NAMESPACE,
       text,
@@ -301,10 +299,13 @@ export class KeyRing {
     timestamp: number
   ): AccountStore {
     switch (accountType) {
-      case AccountType.ShieldedKeys:
+      case AccountType.ShieldedKeys: {
+        const { address, viewingKey, pseudoExtendedKey } =
+          keys.shieldedKeysFromSpendingKey(sk);
         return this.accountStoreShielded(
-          keys,
-          sk,
+          address,
+          viewingKey,
+          pseudoExtendedKey,
           text,
           alias,
           path,
@@ -312,11 +313,13 @@ export class KeyRing {
           source,
           timestamp
         );
-      default:
+      }
+      default: {
+        const { address, publicKey } = keys.getAddress(sk);
         return this.accountStoreDefault(
           accountType,
-          keys,
-          sk,
+          address,
+          publicKey,
           text,
           alias,
           path,
@@ -324,6 +327,7 @@ export class KeyRing {
           source,
           timestamp
         );
+      }
     }
   }
 
@@ -920,12 +924,30 @@ export class KeyRing {
         defaultAccount.address
       );
     } else {
-      await this.storeAccountSecret(
-        { t: "PrivateKey", privateKey },
-        "disposable-signer",
-        "import",
-        DEFAULT_BIP44_PATH
+      const vaultLength = await this.vaultService.getLength(KEYSTORE_KEY);
+      const accountStore = this.accountStoreDefault(
+        AccountType.Disposable,
+        address,
+        publicKey,
+        privateKey,
+        `disposable-${address}`,
+        { account: 0, change: 0, index: 0 },
+        vaultLength,
+        "generated",
+        0
       );
+
+      const sensitiveData: SensitiveAccountStoreData = {
+        text: privateKey,
+        passphrase: undefined,
+      };
+      const sensitive =
+        await this.vaultService.encryptSensitiveData(sensitiveData);
+
+      await this.vaultStorage.add(KeyStore, {
+        public: accountStore,
+        sensitive,
+      });
     }
 
     return { publicKey, address };
