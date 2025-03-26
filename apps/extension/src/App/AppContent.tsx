@@ -8,6 +8,7 @@ import { useQuery } from "hooks";
 import { openSetupTab } from "utils";
 import {
   DeleteAccount,
+  DisposableAccount,
   RenameAccount,
   UpdateRequired,
   ViewAccount,
@@ -95,6 +96,11 @@ export const AppContent = ({ warnings }: Props): JSX.Element => {
                 element={<UpdateRequired />}
               />
             </Route>
+
+            <Route
+              path={routes.disposableKeyDetails()}
+              element={<DisposableAccount />}
+            />
           </>
         )}
       </Routes>
