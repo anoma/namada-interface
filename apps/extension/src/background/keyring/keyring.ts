@@ -895,12 +895,19 @@ export class KeyRing {
   ): Promise<DerivedAccount | undefined> {
     try {
       const account = await this.queryShieldedAccountById(accountId);
-      const currentIndex = account.diversifierIndex || 1;
+      let currentIndex = account.diversifierIndex;
       const { keys } = this.sdkService.getSdk();
+
+      if (!currentIndex) {
+        // Pre-existing accounts may not have a diversifier index, therefore,
+        // we query the default, and increment the first valid diversifier index
+        const genPaymentAddress = keys.genPaymentAddress(account.owner!);
+        currentIndex = genPaymentAddress.diversifierIndex;
+      }
 
       const { address, diversifierIndex } = keys.genPaymentAddress(
         account.owner!,
-        (currentIndex || 1) + 1
+        currentIndex + 1
       );
 
       await this.vaultStorage.update(KeyStore, "id", accountId, {
