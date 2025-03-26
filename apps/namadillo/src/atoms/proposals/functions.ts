@@ -325,7 +325,7 @@ const toIndexerProposalType = (
 export const fetchAllProposals = async (
   api: DefaultApi
 ): Promise<Proposal[]> => {
-  const proposalsPromise = api.apiV1GovProposalAllGet();
+  const proposalsPromise = api.apiV1GovProposalGet();
   const totalVotingPowerPromise = api.apiV1PosVotingPowerGet();
 
   const [proposalResponse, votingPowerResponse] = await Promise.all([
@@ -333,7 +333,7 @@ export const fetchAllProposals = async (
     totalVotingPowerPromise,
   ]);
 
-  return proposalResponse.data.map((proposal) =>
+  return proposalResponse.data.results.map((proposal) =>
     toProposal(proposal, votingPowerResponse.data)
   );
 };
