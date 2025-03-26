@@ -77,7 +77,10 @@ export const StakingRewardsPanel = (): JSX.Element => {
       />
       <div className="hidden sm:block">
         <div className="text-md text-gray-500 -mt-10 -mb-1 text-center">
-          {chainParameters?.data?.apr.toFixed(2)}%
+          {chainParameters?.data?.apr ?
+            chainParameters.data.apr.multipliedBy(100).toFixed(2)
+          : "--"}
+          %
         </div>
         <div className="text-sm text-neutral-450 text-center">
           Est. Rewards Rate
