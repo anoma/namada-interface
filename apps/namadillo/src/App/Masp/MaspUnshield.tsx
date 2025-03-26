@@ -162,7 +162,6 @@ export const MaspUnshield: React.FC = () => {
           isShieldedAddress: false,
         }}
         feeProps={feeProps}
-        isShieldedTx={true}
         isSubmitting={isPerformingTransfer || isSuccess}
         errorMessage={generalErrorMessage}
         onSubmitTransfer={onSubmitTransfer}

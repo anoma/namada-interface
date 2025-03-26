@@ -796,7 +796,7 @@ export class KeyRing {
     const realAddress = disposableKey?.realAddress || signer;
 
     // If disposable key is provided, use it to map real address to spending key
-    const xsks = [await this.getSpendingKey(realAddress)];
+    const xsks = [await this.getSpendingKey(disposableKey ? realAddress : signer)];
 
     const { signing } = this.sdkService.getSdk();
 
