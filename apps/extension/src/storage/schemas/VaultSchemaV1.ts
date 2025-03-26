@@ -34,7 +34,7 @@ export const Sensitive = t.type({
   }),
 });
 
-enum AccountType {
+enum AccountTypeV1 {
   Mnemonic = "mnemonic",
   PrivateKey = "private-key",
   ShieldedKeys = "shielded-keys",
@@ -58,10 +58,10 @@ export const KeyStore = t.exact(
         }),
       ]),
       type: t.keyof({
-        [AccountType.Mnemonic]: null,
-        [AccountType.PrivateKey]: null,
-        [AccountType.ShieldedKeys]: null,
-        [AccountType.Ledger]: null,
+        [AccountTypeV1.Mnemonic]: null,
+        [AccountTypeV1.PrivateKey]: null,
+        [AccountTypeV1.ShieldedKeys]: null,
+        [AccountTypeV1.Ledger]: null,
       }),
     }),
     t.partial({

@@ -26,6 +26,8 @@ export enum AccountType {
   ShieldedKeys = "shielded-keys",
   // Ledger account
   Ledger = "ledger",
+  // Disposable
+  Disposable = "disposable",
 }
 
 export type DerivedAccount = {
