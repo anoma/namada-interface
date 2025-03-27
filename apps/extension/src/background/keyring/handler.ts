@@ -17,6 +17,7 @@ import {
   QueryParentAccountsMsg,
   RenameAccountMsg,
   RevealAccountMnemonicMsg,
+  RevealPrivateKeyMsg,
   RevealSpendingKeyMsg,
   SaveAccountSecretMsg,
   SetActiveAccountMsg,
@@ -109,6 +110,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleGenPaymentAddressMsg(service)(
           env,
           msg as GenPaymentAddressMsg
+        );
+      case RevealPrivateKeyMsg:
+        return handleRevealPrivateKeyMsg(service)(
+          env,
+          msg as RevealPrivateKeyMsg
         );
       default:
         throw new Error("Unknown msg type");
@@ -306,5 +312,13 @@ const handleGenPaymentAddressMsg: (
 ) => InternalHandler<GenPaymentAddressMsg> = (service) => {
   return async (_, { accountId }) => {
     return await service.genPaymentAddress(accountId);
+  };
+};
+
+const handleRevealPrivateKeyMsg: (
+  service: KeyRingService
+) => InternalHandler<RevealPrivateKeyMsg> = (service) => {
+  return async (_, msg) => {
+    return await service.revealPrivateKey(msg.accountId);
   };
 };
