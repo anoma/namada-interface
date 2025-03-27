@@ -260,10 +260,18 @@ export class KeyRingService {
     return this._keyRing.queryAccountDetails(address);
   }
 
-  async genDisposableSigner(
-    persisted: boolean
-  ): Promise<GenDisposableSignerResponse | undefined> {
-    return this._keyRing.genDisposableSigner(persisted);
+  async genDisposableSigner(): Promise<
+    GenDisposableSignerResponse | undefined
+  > {
+    return this._keyRing.genDisposableSigner();
+  }
+
+  async persistDisposableSigner(address: string): Promise<void> {
+    return this._keyRing.persistDisposableSigner(address);
+  }
+
+  async clearDisposableSigner(address: string): Promise<void> {
+    return this._keyRing.clearDisposableSigner(address);
   }
 
   async genPaymentAddress(

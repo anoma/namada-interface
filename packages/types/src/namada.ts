@@ -28,8 +28,12 @@ export type BalancesProps = {
   tokens: string[];
 };
 
-export type GenDisposableSignerProps = {
-  persisted: boolean;
+export type PersistDisposableSignerProps = {
+  address: string;
+};
+
+export type ClearDisposableSignerProps = {
+  address: string;
 };
 
 export interface Namada {
@@ -44,9 +48,9 @@ export interface Namada {
     props: SignArbitraryProps
   ): Promise<SignArbitraryResponse | undefined>;
   verify(props: VerifyArbitraryProps): Promise<void>;
-  genDisposableKeypair(
-    props: GenDisposableSignerProps
-  ): Promise<GenDisposableSignerResponse | undefined>;
+  genDisposableKeypair(): Promise<GenDisposableSignerResponse | undefined>;
+  persistDisposableKeypair(props: PersistDisposableSignerProps): Promise<void>;
+  clearDisposableKeypair(props: ClearDisposableSignerProps): Promise<void>;
   version: () => string;
 }
 

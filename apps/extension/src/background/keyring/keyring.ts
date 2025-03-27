@@ -993,50 +993,23 @@ export class KeyRing {
     return account.public;
   }
 
-  async genDisposableSigner(
-    persisted: boolean = false
-  ): Promise<GenDisposableSignerResponse | undefined> {
+  async genDisposableSigner(): Promise<
+    GenDisposableSignerResponse | undefined
+  > {
     const sdk = this.sdkService.getSdk();
     const { privateKey, publicKey, address } = sdk.keys.genDisposableKeypair();
 
-    // TODO: we could combine both cases into one
-    if (!persisted) {
-      const defaultAccount = await this.queryDefaultAccount();
-      if (!defaultAccount) {
-        throw new Error("No default account found");
-      }
-
-      await this.localStorage.addDisposableSigner(
-        address,
-        privateKey,
-        defaultAccount.address
-      );
-    } else {
-      const vaultLength = await this.vaultService.getLength(KEYSTORE_KEY);
-      const accountStore = this.accountStoreDefault(
-        AccountType.Disposable,
-        address,
-        publicKey,
-        privateKey,
-        `disposable-${address}`,
-        { account: 0, change: 0, index: 0 },
-        vaultLength,
-        "generated",
-        0
-      );
-
-      const sensitiveData: SensitiveAccountStoreData = {
-        text: privateKey,
-        passphrase: undefined,
-      };
-      const sensitive =
-        await this.vaultService.encryptSensitiveData(sensitiveData);
-
-      await this.vaultStorage.add(KeyStore, {
-        public: accountStore,
-        sensitive,
-      });
+    const defaultAccount = await this.queryDefaultAccount();
+    if (!defaultAccount) {
+      throw new Error("No default account found");
     }
+
+    await this.localStorage.addDisposableSigner(
+      address,
+      privateKey,
+      publicKey,
+      defaultAccount.address
+    );
 
     return { publicKey, address };
   }
@@ -1095,5 +1068,43 @@ export class KeyRing {
     } catch (e) {
       throw new Error(`${e}`);
     }
+  }
+
+  async persistDisposableSigner(address: string): Promise<void> {
+    const disposableSigner =
+      await this.localStorage.getDisposableSigner(address);
+    if (!disposableSigner) {
+      throw new Error("No disposable signer found");
+    }
+    const { privateKey, publicKey } = disposableSigner;
+
+    const vaultLength = await this.vaultService.getLength(KEYSTORE_KEY);
+    const accountStore = this.accountStoreDefault(
+      AccountType.Disposable,
+      address,
+      publicKey,
+      privateKey,
+      `disposable-${address}`,
+      { account: 0, change: 0, index: 0 },
+      vaultLength,
+      "generated",
+      0
+    );
+
+    const sensitiveData: SensitiveAccountStoreData = {
+      text: privateKey,
+      passphrase: undefined,
+    };
+    const sensitive =
+      await this.vaultService.encryptSensitiveData(sensitiveData);
+
+    await this.vaultStorage.add(KeyStore, {
+      public: accountStore,
+      sensitive,
+    });
+  }
+
+  async clearDisposableSigner(address: string): Promise<void> {
+    await this.localStorage.clearDisposableSigner(address);
   }
 }

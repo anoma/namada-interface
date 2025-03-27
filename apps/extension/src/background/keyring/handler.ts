@@ -1,6 +1,8 @@
 import {
   CheckDurabilityMsg,
+  ClearDisposableSignerMsg,
   GenDisposableSignerMsg,
+  PersistDisposableSignerMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
   VerifyArbitraryMsg,
@@ -100,6 +102,16 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleGenDisposableSignerMsg(service)(
           env,
           msg as GenDisposableSignerMsg
+        );
+      case PersistDisposableSignerMsg:
+        return handlePersistDisposableSignerMsg(service)(
+          env,
+          msg as PersistDisposableSignerMsg
+        );
+      case ClearDisposableSignerMsg:
+        return handleClearDisposableSignerMsg(service)(
+          env,
+          msg as ClearDisposableSignerMsg
         );
       case RevealSpendingKeyMsg:
         return handleRevealSpendingKeyMsg(service)(
@@ -294,8 +306,24 @@ const handleQueryAccountDetails: (
 const handleGenDisposableSignerMsg: (
   service: KeyRingService
 ) => InternalHandler<GenDisposableSignerMsg> = (service) => {
-  return async (_, { persisted }) => {
-    return await service.genDisposableSigner(persisted);
+  return async (_, _msg) => {
+    return await service.genDisposableSigner();
+  };
+};
+
+const handlePersistDisposableSignerMsg: (
+  service: KeyRingService
+) => InternalHandler<PersistDisposableSignerMsg> = (service) => {
+  return async (_, { address }) => {
+    return await service.persistDisposableSigner(address);
+  };
+};
+
+const handleClearDisposableSignerMsg: (
+  service: KeyRingService
+) => InternalHandler<ClearDisposableSignerMsg> = (service) => {
+  return async (_, { address }) => {
+    return await service.clearDisposableSigner(address);
   };
 };
 

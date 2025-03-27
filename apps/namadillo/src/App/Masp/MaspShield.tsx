@@ -79,10 +79,10 @@ export const MaspShield: React.FC = () => {
     onBeforeSign: () => {
       setCurrentStatus("Waiting for signature...");
     },
-    onBeforeBroadcast: () => {
+    onBeforeBroadcast: async () => {
       setCurrentStatus("Broadcasting Shielding transaction...");
     },
-    onError: () => {
+    onError: async () => {
       setCurrentStatus("");
       setCurrentStatusExplanation("");
     },
