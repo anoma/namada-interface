@@ -29,12 +29,18 @@ enum Status {
 
 export const DisposableAccount = (): JSX.Element => {
   const { accountId } = useParams<RenameAccountParamsType>();
-  const { getById, remove: onRemoveAccount } = useAccountContext();
+  const {
+    getById,
+    remove: onRemoveAccount,
+    revealPrivateKey,
+  } = useAccountContext();
+
   const [account, setAccount] = useState<DerivedAccount | undefined>();
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>(Status.Unsubmitted);
   const [loadingState, setLoadingState] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [privateKey, setPrivateKey] = useState<string | undefined>();
 
   const navigate = useNavigate();
   const requester = useRequester();
@@ -84,6 +90,17 @@ export const DisposableAccount = (): JSX.Element => {
     setAccount(account);
   }, [accountId]);
 
+  useEffect(() => {
+    void (async (): Promise<void> => {
+      if (!accountId) {
+        return;
+      }
+      const privateKey = await revealPrivateKey(accountId);
+
+      setPrivateKey(privateKey);
+    })();
+  }, []);
+
   return (
     <>
       <PageHeader title="Disposable refund keys" />
@@ -94,8 +111,9 @@ export const DisposableAccount = (): JSX.Element => {
         full
       >
         <ViewKeys
+          privateKey={privateKey || ""}
+          privateKeyLoading={!privateKey}
           publicKeyAddress={account?.publicKey}
-          transparentAccountAddress={account?.address}
           trimCharacters={21}
         />
         <Stack className="flex-1 justify-center" gap={4} full>

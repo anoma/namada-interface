@@ -219,6 +219,33 @@ export class KeyRing {
     return JSON.parse(sensitiveData.text).spendingKey;
   }
 
+  public async revealPrivateKey(accountId: string): Promise<string> {
+    const account = await this.vaultStorage.findOneOrFail(
+      KeyStore,
+      "id",
+      accountId
+    );
+
+    if (
+      ![AccountType.PrivateKey, AccountType.Disposable].includes(
+        account.public.type
+      )
+    ) {
+      throw new Error("Account should have been created using a private key");
+    }
+
+    const sensitiveData =
+      await this.vaultService.reveal<SensitiveAccountStoreData>(
+        account.sensitive
+      );
+
+    if (!sensitiveData) {
+      return "";
+    }
+
+    return sensitiveData.text;
+  }
+
   accountStoreShielded(
     address: string,
     viewingKey: string,
