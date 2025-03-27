@@ -1,5 +1,6 @@
 import { AlphaVersionTopHeader } from "App/Common/AlphaVersionTopHeader";
 import { ReactNode, useState } from "react";
+import { IoMdClose } from "react-icons/io";
 import { twMerge } from "tailwind-merge";
 import { AppHeader } from "./AppHeader";
 import { BurgerButton } from "./BurgerButton";
@@ -41,6 +42,15 @@ export const AppLayout = ({
               !displayNavigation && "-translate-x-full lg:translate-x-0"
             )}
           >
+            {displayNavigation && (
+              <button
+                className="absolute top-4 left-4 text-white hover:text-yellow text-2xl"
+                onClick={() => setDisplayNavigation(false)}
+                aria-label="Close Navigation"
+              >
+                <IoMdClose />
+              </button>
+            )}
             <Navigation />
           </aside>
           <main className="min-h-full">{children}</main>
