@@ -34,7 +34,7 @@ export const isShieldedAddress = (address: string): boolean => {
 };
 
 export const isTransparentAddress = (address: string): boolean => {
-  return address.startsWith("tnam");
+  return address.startsWith("tnam") && address.length === 45;
 };
 
 export const isNamadaAddress = (address: string): boolean => {
