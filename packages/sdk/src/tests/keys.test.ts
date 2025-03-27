@@ -55,4 +55,34 @@ describe("Keys", () => {
     expect(publicKey).toBe(account1.publicKey);
     expect(privateKey).toBe(account1.privateKey);
   });
+
+  it("should generate valid sequential payment addresses", () => {
+    const { keys } = initSdk();
+    const { viewingKey } = shieldedAccount1;
+
+    // Test starting with undefined diversifierIndex, as this will be undefined
+    // for existing accounts:
+    let currentIndex: number | undefined = undefined;
+    const { diversifierIndex, address: defaultAddress } =
+      keys.genPaymentAddress(viewingKey, currentIndex);
+    const paymentAddresses: [number, string][] = [];
+
+    paymentAddresses.push([diversifierIndex, defaultAddress]);
+    currentIndex = diversifierIndex;
+
+    while (paymentAddresses.length < 100) {
+      const { diversifierIndex, address } = keys.genPaymentAddress(
+        viewingKey,
+        currentIndex + 1
+      );
+      paymentAddresses.push([diversifierIndex, address]);
+      currentIndex = diversifierIndex;
+    }
+    paymentAddresses.forEach((paymentAddress: [number, string], i: number) => {
+      // assert valid diversifierIndex
+      expect(paymentAddress[0]).toBe(paymentAddresses[i][0]);
+      // asset valid payment address
+      expect(paymentAddress[1]).toBe(paymentAddresses[i][1]);
+    });
+  });
 });
