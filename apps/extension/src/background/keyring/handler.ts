@@ -16,6 +16,7 @@ import {
   QueryParentAccountsMsg,
   RenameAccountMsg,
   RevealAccountMnemonicMsg,
+  RevealPrivateKeyMsg,
   RevealSpendingKeyMsg,
   SaveAccountSecretMsg,
   SetActiveAccountMsg,
@@ -103,6 +104,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleRevealSpendingKeyMsg(service)(
           env,
           msg as RevealSpendingKeyMsg
+        );
+      case RevealPrivateKeyMsg:
+        return handleRevealPrivateKeyMsg(service)(
+          env,
+          msg as RevealPrivateKeyMsg
         );
 
       default:
@@ -291,5 +297,13 @@ const handleRevealSpendingKeyMsg: (
 ) => InternalHandler<RevealSpendingKeyMsg> = (service) => {
   return async (_, msg) => {
     return await service.revealSpendingKey(msg.accountId);
+  };
+};
+
+const handleRevealPrivateKeyMsg: (
+  service: KeyRingService
+) => InternalHandler<RevealPrivateKeyMsg> = (service) => {
+  return async (_, msg) => {
+    return await service.revealPrivateKey(msg.accountId);
   };
 };

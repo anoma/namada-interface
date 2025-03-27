@@ -65,6 +65,10 @@ export class KeyRingService {
     return await this._keyRing.revealSpendingKey(accountId);
   }
 
+  async revealPrivateKey(accountId: string): Promise<string> {
+    return await this._keyRing.revealPrivateKey(accountId);
+  }
+
   async saveAccountSecret(
     accountSecret: AccountSecret,
     alias: string,

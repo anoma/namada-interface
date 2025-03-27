@@ -5,6 +5,7 @@ import {
   GetActiveAccountMsg,
   RenameAccountMsg,
   RevealAccountMnemonicMsg,
+  RevealPrivateKeyMsg,
   SetActiveAccountMsg,
 } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
@@ -31,6 +32,7 @@ type AccountContextType = {
   fetchAll: () => Promise<DerivedAccount[]>;
   getById: (accountId: string) => DerivedAccount | undefined;
   revealMnemonic: (accountId: string) => Promise<string>;
+  revealPrivateKey: (accountId: string) => Promise<string>;
   changeActiveAccountId: (accountId: string, accountType: AccountType) => void;
 };
 
@@ -41,6 +43,7 @@ const createAccountContext = (): AccountContextType => ({
   getById: (_accountId: string) => undefined,
   activeAccountId: undefined,
   revealMnemonic: async (_accountId: string) => "",
+  revealPrivateKey: async (_accountId: string) => "",
   error: "",
   status: undefined,
   remove: async (_accountId: string) => {},
@@ -153,6 +156,13 @@ export const AccountContextWrapper = ({
     );
   };
 
+  const revealPrivateKey = async (accountId: string): Promise<string> => {
+    return await requester.sendMessage(
+      Ports.Background,
+      new RevealPrivateKeyMsg(accountId)
+    );
+  };
+
   const getById = (accountId: string): undefined | DerivedAccount => {
     if (accounts.length === 0) return undefined;
     return accounts.find((account) => account.id === accountId);
@@ -182,6 +192,7 @@ export const AccountContextWrapper = ({
         getById,
         changeActiveAccountId,
         revealMnemonic,
+        revealPrivateKey,
         rename,
       }}
     >
