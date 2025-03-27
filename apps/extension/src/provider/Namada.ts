@@ -1,10 +1,11 @@
 import {
   AccountType,
+  ClearDisposableSignerProps,
   DerivedAccount,
-  GenDisposableSignerProps,
   GenDisposableSignerResponse,
   Namada as INamada,
   NamadaKeychainAccount,
+  PersistDisposableSignerProps,
   SignArbitraryProps,
   SignArbitraryResponse,
   SignProps,
@@ -20,8 +21,10 @@ import {
   ApproveSignTxMsg,
   ApproveUpdateDefaultAccountMsg,
   CheckDurabilityMsg,
+  ClearDisposableSignerMsg,
   GenDisposableSignerMsg,
   IsConnectionApprovedMsg,
+  PersistDisposableSignerMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
   VerifyArbitraryMsg,
@@ -123,14 +126,30 @@ export class Namada implements INamada {
     );
   }
 
-  public async genDisposableKeypair({
-    persisted,
-  }: GenDisposableSignerProps): Promise<
+  public async genDisposableKeypair(): Promise<
     GenDisposableSignerResponse | undefined
   > {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new GenDisposableSignerMsg(persisted)
+      new GenDisposableSignerMsg()
+    );
+  }
+
+  public async persistDisposableKeypair({
+    address,
+  }: PersistDisposableSignerProps): Promise<void> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new PersistDisposableSignerMsg(address)
+    );
+  }
+
+  public async clearDisposableKeypair({
+    address,
+  }: ClearDisposableSignerProps): Promise<void> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new ClearDisposableSignerMsg(address)
     );
   }
 

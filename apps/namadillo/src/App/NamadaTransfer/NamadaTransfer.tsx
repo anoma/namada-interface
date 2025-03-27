@@ -94,10 +94,10 @@ export const NamadaTransfer: React.FC = () => {
       setCurrentStatus("Waiting for signature...");
       setCurrentStatusExplanation("");
     },
-    onBeforeBroadcast: () => {
+    onBeforeBroadcast: async () => {
       setCurrentStatus("Broadcasting transaction to Namada...");
     },
-    onError: () => {
+    onError: async () => {
       setCurrentStatus("");
       setCurrentStatusExplanation("");
     },

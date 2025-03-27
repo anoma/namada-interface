@@ -63,17 +63,26 @@ const workerBuildTxPair = async <T>({
   return encodedTxData;
 };
 
-export const getDisposableSigner = async (
-  persisted: boolean = false
-): Promise<GenDisposableSignerResponse> => {
+export const getDisposableSigner =
+  async (): Promise<GenDisposableSignerResponse> => {
+    const namada = await new NamadaKeychain().get();
+    const disposableSigner = await namada?.getSigner().genDisposableKeypair();
+    if (!disposableSigner) {
+      throw new Error("No signer available");
+    }
+    return disposableSigner;
+  };
+
+export const persistDisposableSigner = async (
+  address: string
+): Promise<void> => {
   const namada = await new NamadaKeychain().get();
-  const disposableSigner = await namada
-    ?.getSigner()
-    .genDisposableKeypair(persisted);
-  if (!disposableSigner) {
-    throw new Error("No signer available");
-  }
-  return disposableSigner;
+  await namada?.getSigner().persistDisposableKeypair(address);
+};
+
+export const clearDisposableSigner = async (address: string): Promise<void> => {
+  const namada = await new NamadaKeychain().get();
+  await namada?.getSigner().clearDisposableKeypair(address);
 };
 
 export const createTransparentTransferTx = async (

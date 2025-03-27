@@ -37,9 +37,17 @@ export class Signer implements ISigner {
     return await this._namada.verify({ publicKey, hash, signature });
   }
 
-  public async genDisposableKeypair(
-    persisted: boolean
-  ): Promise<GenDisposableSignerResponse | undefined> {
-    return await this._namada.genDisposableKeypair({ persisted });
+  public async genDisposableKeypair(): Promise<
+    GenDisposableSignerResponse | undefined
+  > {
+    return await this._namada.genDisposableKeypair();
+  }
+
+  public async persistDisposableKeypair(address: string): Promise<void> {
+    return await this._namada.persistDisposableKeypair({ address });
+  }
+
+  public async clearDisposableKeypair(address: string): Promise<void> {
+    return await this._namada.clearDisposableKeypair({ address });
   }
 }
