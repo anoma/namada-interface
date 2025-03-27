@@ -28,15 +28,9 @@ export const IncrementBondingTable = ({
   topValidatorsByRank,
   onChangeValidatorAmount,
   resultsPerPage = 100,
-  filterByAddress,
 }: IncrementBondingTableProps): JSX.Element => {
-  const filteredValidators =
-    filterByAddress ?
-      validators.filter((validator) => validator.address === filterByAddress)
-    : validators;
-
   const { sortableColumns, sortedValidators } = useValidatorTableSorting({
-    validators: filteredValidators,
+    validators: validators,
     stakedAmountByAddress,
   });
 
