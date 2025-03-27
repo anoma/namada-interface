@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.20.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.19.0...namadillo@v1.20.0) (2025-03-27)
+
+
+### Features
+
+* Add Est. Rewards to staking dash ([#1913](https://github.com/anoma/namada-interface/issues/1913)) ([851d1b0](https://github.com/anoma/namada-interface/commit/851d1b026e121a2abd5d24ee6526b8961c09c0f3))
+* Allow validators to have an individual URL or share link ([#1944](https://github.com/anoma/namada-interface/issues/1944)) ([e4d0818](https://github.com/anoma/namada-interface/commit/e4d08181cacea363b2c3fa1def9861fde5847823))
+
+
+### Bug Fixes
+
+* Add burger menu close ([#1943](https://github.com/anoma/namada-interface/issues/1943)) ([41df5c7](https://github.com/anoma/namada-interface/commit/41df5c77eaaed42cb9c7d7afa56f2908dd0a045f))
+* Namadillo Status Indicator conflates RPC and Indexer status ([#1934](https://github.com/anoma/namada-interface/issues/1934)) ([af6252c](https://github.com/anoma/namada-interface/commit/af6252c44e3dab0c0d09cb4ff15745977843e49f))
+* Refetch balances after all types of transfers ([#1938](https://github.com/anoma/namada-interface/issues/1938)) ([4ebccb8](https://github.com/anoma/namada-interface/commit/4ebccb800432325d039c67af37af71486a84b713))
+* Update est rewards rate ([#1942](https://github.com/anoma/namada-interface/issues/1942)) ([a2748d3](https://github.com/anoma/namada-interface/commit/a2748d34c844557a65c463703f0ee4c0675f3814))
+* Update gas calculations ([#1939](https://github.com/anoma/namada-interface/issues/1939)) ([cf47655](https://github.com/anoma/namada-interface/commit/cf476552fad2f3385cdcc4502fcb826dd6f31b1d))
+* Update native balance to be 0 in staking panel ([#1919](https://github.com/anoma/namada-interface/issues/1919)) ([8658835](https://github.com/anoma/namada-interface/commit/865883579fb79e015ca76e8c3e68ba6877109148))
+
 ## [1.19.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.18.0...namadillo@v1.19.0) (2025-03-17)
 
 
