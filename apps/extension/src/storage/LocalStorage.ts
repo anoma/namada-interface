@@ -20,6 +20,7 @@ const DisposableSigners = t.record(
   t.string,
   t.type({
     privateKey: t.string,
+    publicKey: t.string,
     realAddress: t.string,
     timestamp: t.number,
   })
@@ -123,18 +124,21 @@ export class LocalStorage extends ExtStorage {
   async addDisposableSigner(
     address: string,
     privateKey: string,
+    publicKey: string,
     realAddress: string
   ): Promise<void> {
     const data = (await this.getDisposableSigners()) || {};
     await this.setDisposableSigners({
       ...data,
-      [address]: { privateKey, realAddress, timestamp: Date.now() },
+      [address]: { privateKey, publicKey, realAddress, timestamp: Date.now() },
     });
   }
 
   async getDisposableSigner(
     address: string
-  ): Promise<{ privateKey: string; realAddress: string } | undefined> {
+  ): Promise<
+    { privateKey: string; publicKey: string; realAddress: string } | undefined
+  > {
     const data = await this.getDisposableSigners();
     return data?.[address];
   }

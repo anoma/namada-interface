@@ -19,7 +19,11 @@ import {
 } from "atoms/integrations";
 import { ledgerStatusDataAtom } from "atoms/ledger";
 import { createIbcTxAtom } from "atoms/transfer/atoms";
-import { getDisposableSigner } from "atoms/transfer/services";
+import {
+  clearDisposableSigner,
+  getDisposableSigner,
+  persistDisposableSigner,
+} from "atoms/transfer/services";
 import BigNumber from "bignumber.js";
 import { useTransaction } from "hooks/useTransaction";
 import { useTransactionActions } from "hooks/useTransactionActions";
@@ -58,6 +62,7 @@ export const IbcWithdraw: React.FC = () => {
     params.asset
   );
   const [shielded, setShielded] = useState<boolean>(true);
+  const [refundTarget, setRefundTarget] = useState<string>();
   const [amount, setAmount] = useState<BigNumber | undefined>();
   const [customAddress, setCustomAddress] = useState<string>("");
   const [sourceChannel, setSourceChannel] = useState("");
@@ -105,9 +110,12 @@ export const IbcWithdraw: React.FC = () => {
     connectToChainId(defaultChainId);
   };
 
-  useTransactionEventListener("IbcWithdraw.Success", (e) => {
+  useTransactionEventListener("IbcWithdraw.Success", async (e) => {
     if (txHash && e.detail.hash === txHash) {
       setCompletedAt(new Date());
+      if (shielded && refundTarget) {
+        await clearDisposableSigner(refundTarget);
+      }
     }
   });
 
@@ -185,7 +193,16 @@ export const IbcWithdraw: React.FC = () => {
     onBeforeSign: () => {
       setCurrentStatus("Waiting for signature...");
     },
-    onBeforeBroadcast: () => {
+    onBeforeBroadcast: async (tx) => {
+      const props = tx.encodedTxData.meta?.props[0];
+      if (shielded && props) {
+        const refundTarget = props.refundTarget;
+        invariant(refundTarget, "Refund target is not provided");
+
+        await persistDisposableSigner(refundTarget);
+        setRefundTarget(refundTarget);
+      }
+
       setCurrentStatus("Broadcasting transaction to Namada...");
     },
     onBroadcasted: (tx) => {
@@ -210,10 +227,15 @@ export const IbcWithdraw: React.FC = () => {
       );
       setTxHash(ibcTxData.hash);
     },
-    onError: (err) => {
+    onError: async (err, context) => {
       setGeneralErrorMessage(String(err));
       setCurrentStatus("");
       setStatusExplanation("");
+
+      const refundTarget = context?.encodedTxData.meta?.props[0].refundTarget;
+      if (shielded && refundTarget) {
+        await clearDisposableSigner(refundTarget);
+      }
     },
   });
 
@@ -272,7 +294,7 @@ export const IbcWithdraw: React.FC = () => {
       shielded ? shieldedAccount.pseudoExtendedKey : undefined;
     // TODO: probably we should not call fn from service directly
     const refundTarget =
-      shielded ? (await getDisposableSigner(true)).address : undefined;
+      shielded ? (await getDisposableSigner()).address : undefined;
 
     setLedgerStatusStop(true);
     try {
