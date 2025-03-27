@@ -2,6 +2,7 @@ import {
   ACCOUNT_1 as account1,
   MNEMONIC_1 as mnemonic1,
   MNEMONIC_2 as mnemonic2,
+  PAYMENT_ADDRESSES_1 as paymentAddresses1,
   SHIELDED_ACCOUNT_1 as shieldedAccount1,
   SHIELDED_ACCOUNT_2 as shieldedAccount2,
 } from "./data";
@@ -54,5 +55,35 @@ describe("Keys", () => {
     expect(address).toBe(account1.address);
     expect(publicKey).toBe(account1.publicKey);
     expect(privateKey).toBe(account1.privateKey);
+  });
+
+  it("should generate valid sequential payment addresses", () => {
+    const { keys } = initSdk();
+    const { viewingKey } = shieldedAccount1;
+
+    // Test starting with undefined diversifierIndex, as this will be undefined
+    // for existing accounts:
+    let currentIndex: number | undefined = undefined;
+    const { diversifierIndex, address: defaultAddress } =
+      keys.genPaymentAddress(viewingKey, currentIndex);
+    const paymentAddresses: [number, string][] = [];
+
+    paymentAddresses.push([diversifierIndex, defaultAddress]);
+    currentIndex = diversifierIndex;
+
+    while (paymentAddresses.length < 100) {
+      const { diversifierIndex, address } = keys.genPaymentAddress(
+        viewingKey,
+        currentIndex + 1
+      );
+      paymentAddresses.push([diversifierIndex, address]);
+      currentIndex = diversifierIndex;
+    }
+    paymentAddresses.forEach((paymentAddress: [number, string], i: number) => {
+      // assert valid diversifierIndex
+      expect(paymentAddress[0]).toBe(paymentAddresses1[i][0]);
+      // asset valid payment address
+      expect(paymentAddress[1]).toBe(paymentAddresses1[i][1]);
+    });
   });
 });

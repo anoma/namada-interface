@@ -212,7 +212,9 @@ export class KeyRingService {
     accountId: string,
     alias: string
   ): Promise<DerivedAccount> {
-    return await this._keyRing.renameAccount(accountId, alias);
+    const account = await this._keyRing.renameAccount(accountId, alias);
+    await this.broadcaster.updateAccounts();
+    return account;
   }
 
   async checkDurability(): Promise<boolean> {
@@ -264,7 +266,7 @@ export class KeyRingService {
     accountId: string
   ): Promise<DerivedAccount | undefined> {
     const account = await this._keyRing.genPaymentAddress(accountId);
-    void this.broadcaster.updateAccounts();
+    await this.broadcaster.updateAccounts();
     return account;
   }
 }
