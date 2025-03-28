@@ -49,6 +49,7 @@ export const LedgerConnect: React.FC<Props> = ({
     let encodedExtendedViewingKey: string | undefined;
     let encodedPaymentAddress: string | undefined;
     let encodedPseudoExtendedKey: string | undefined;
+    let diversifierIndex: number | undefined;
 
     try {
       const {
@@ -84,9 +85,8 @@ export const LedgerConnect: React.FC<Props> = ({
 
         const extendedViewingKey = new ExtendedViewingKey(xfvk);
         encodedExtendedViewingKey = extendedViewingKey.encode();
-        encodedPaymentAddress = extendedViewingKey
-          .default_payment_address()
-          .encode();
+        [diversifierIndex, encodedPaymentAddress] =
+          extendedViewingKey.default_payment_address();
 
         const proofGenerationKey = ProofGenerationKey.from_bytes(ak, nsk);
         const pseudoExtendedKey = PseudoExtendedKey.from(
@@ -105,6 +105,7 @@ export const LedgerConnect: React.FC<Props> = ({
           extendedViewingKey: encodedExtendedViewingKey,
           paymentAddress: encodedPaymentAddress,
           pseudoExtendedKey: encodedPseudoExtendedKey,
+          diversifierIndex,
         },
       });
     } catch (e) {

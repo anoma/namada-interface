@@ -41,6 +41,7 @@ export type DerivedAccount = {
   pseudoExtendedKey?: string;
   source?: "imported" | "generated";
   timestamp?: number;
+  diversifierIndex?: number;
 };
 
 export type Account = Pick<
@@ -53,6 +54,7 @@ export type Account = Pick<
   | "pseudoExtendedKey"
   | "source"
   | "timestamp"
+  | "diversifierIndex"
 > & {
   viewingKey?: string;
 };

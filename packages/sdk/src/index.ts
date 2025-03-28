@@ -21,7 +21,12 @@ export type {
   CryptoRecord,
   EncryptionParams,
 } from "./crypto";
-export type { Address, ShieldedKeys, TransparentKeys } from "./keys";
+export type {
+  Address,
+  GeneratedPaymentAddress,
+  ShieldedKeys,
+  TransparentKeys,
+} from "./keys";
 export type {
   Balance,
   Bonds,

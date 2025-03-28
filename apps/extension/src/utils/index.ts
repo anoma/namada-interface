@@ -214,6 +214,7 @@ export const toPublicAccount = (
     pseudoExtendedKey,
     source,
     timestamp,
+    diversifierIndex,
   } = derivedAccount;
   const isShielded = type === AccountType.ShieldedKeys;
   const account: NamadaKeychainAccount = {
@@ -228,6 +229,7 @@ export const toPublicAccount = (
     account.pseudoExtendedKey = pseudoExtendedKey;
     account.source = source;
     account.timestamp = timestamp;
+    account.diversifierIndex = diversifierIndex || 1;
   } else {
     account.publicKey = publicKey;
   }

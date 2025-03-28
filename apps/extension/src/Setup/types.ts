@@ -24,4 +24,5 @@ export type LedgerAccountDetails = {
   extendedViewingKey: string;
   pseudoExtendedKey: string;
   paymentAddress: string;
+  diversifierIndex: number;
 };

@@ -57,6 +57,7 @@ type DerivedAccountInfo = {
   text: string;
   owner: string;
   pseudoExtendedKey?: string;
+  diversifierIndex?: number;
 };
 
 /**
@@ -110,7 +111,8 @@ export class KeyRing {
     zip32Path?: Zip32Path,
     pseudoExtendedKey?: string,
     extendedViewingKey?: string,
-    paymentAddress?: string
+    paymentAddress?: string,
+    diversifierIndex?: number
   ): Promise<AccountStore | false> {
     const id = generateId(UUID_NAMESPACE, alias, address);
     const accountStore: AccountStore = {
@@ -152,6 +154,7 @@ export class KeyRing {
         parentId: id,
         type: AccountType.ShieldedKeys,
         source: "imported",
+        diversifierIndex,
         timestamp: 0,
       };
 
@@ -296,6 +299,7 @@ export class KeyRing {
             alias,
             address: shieldedKeys.address,
             owner: shieldedKeys.viewingKey,
+            diversifierIndex: shieldedKeys.diversifierIndex,
             path,
             pseudoExtendedKey: shieldedKeys.pseudoExtendedKey,
             type: accountType,
@@ -432,6 +436,10 @@ export class KeyRing {
       pseudoExtendedKey,
       source,
       timestamp,
+      diversifierIndex:
+        type === AccountType.ShieldedKeys ?
+          derivedAccountInfo.diversifierIndex
+        : undefined,
     };
     const sensitive = await this.vaultService.encryptSensitiveData({
       text,
@@ -482,8 +490,13 @@ export class KeyRing {
       throw new Error(`Invalid account type! ${parentType}`);
     }
 
-    const { address, viewingKey, spendingKey, pseudoExtendedKey } =
-      shieldedKeys;
+    const {
+      address,
+      diversifierIndex,
+      viewingKey,
+      spendingKey,
+      pseudoExtendedKey,
+    } = shieldedKeys;
 
     const info = {
       address,
@@ -491,6 +504,7 @@ export class KeyRing {
       owner: viewingKey,
       text: JSON.stringify({ spendingKey }),
       pseudoExtendedKey,
+      diversifierIndex,
     };
 
     // Check whether keys already exist for this account
@@ -516,15 +530,18 @@ export class KeyRing {
 
   public async queryAllAccounts(): Promise<DerivedAccount[]> {
     const accounts = await this.vaultStorage.findAll(KeyStore);
-    return accounts.map((entry) => entry.public as AccountStore);
+    return accounts.map((entry) => entry.public);
   }
 
   /**
    * Query single account by ID
    */
   public async queryAccountById(accountId: string): Promise<DerivedAccount> {
-    return (await this.vaultStorage.findOneOrFail(KeyStore, "id", accountId))
-      .public;
+    const account = (
+      await this.vaultStorage.findOneOrFail(KeyStore, "id", accountId)
+    ).public;
+
+    return account;
   }
 
   /**
@@ -851,5 +868,61 @@ export class KeyRing {
     );
 
     return { publicKey, address };
+  }
+
+  // Query and validate that account is a shielded account
+  async queryShieldedAccountById(accountId: string): Promise<DerivedAccount> {
+    const account = await this.queryAccountById(accountId);
+    if (!account) {
+      throw new Error(`Account with ID ${accountId} not found!`);
+    }
+
+    if (account.type !== AccountType.ShieldedKeys) {
+      throw new Error(
+        `Account with ID ${accountId} is not a shielded account!`
+      );
+    }
+
+    if (!account.owner) {
+      throw new Error(
+        `Account with ID ${accountId} does not have a viewing key!`
+      );
+    }
+
+    return account;
+  }
+
+  async genPaymentAddress(
+    accountId: string
+  ): Promise<DerivedAccount | undefined> {
+    try {
+      const account = await this.queryShieldedAccountById(accountId);
+      let currentIndex = account.diversifierIndex;
+      const { keys } = this.sdkService.getSdk();
+
+      if (!currentIndex) {
+        // Pre-existing accounts may not have a diversifier index, therefore,
+        // we query the default, and increment the first valid diversifier index
+        const genPaymentAddress = keys.genPaymentAddress(account.owner!);
+        currentIndex = genPaymentAddress.diversifierIndex;
+      }
+
+      const { address, diversifierIndex } = keys.genPaymentAddress(
+        account.owner!,
+        currentIndex + 1
+      );
+
+      await this.vaultStorage.update(KeyStore, "id", accountId, {
+        address,
+        diversifierIndex,
+      });
+
+      return {
+        ...account,
+        address,
+      };
+    } catch (e) {
+      throw new Error(`${e}`);
+    }
   }
 }
