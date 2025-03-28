@@ -1,4 +1,8 @@
-import { AccountContextWrapper, VaultContextWrapper } from "context";
+import {
+  AccountContextWrapper,
+  SettingsContextProvider,
+  VaultContextWrapper,
+} from "context";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { HashRouter } from "react-router-dom";
@@ -16,7 +20,9 @@ createRoot(container).render(
       <RequesterProvider>
         <VaultContextWrapper>
           <AccountContextWrapper>
-            <App />
+            <SettingsContextProvider>
+              <App />
+            </SettingsContextProvider>
           </AccountContextWrapper>
         </VaultContextWrapper>
       </RequesterProvider>

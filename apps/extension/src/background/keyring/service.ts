@@ -65,6 +65,10 @@ export class KeyRingService {
     return await this._keyRing.revealSpendingKey(accountId);
   }
 
+  async revealPrivateKey(accountId: string): Promise<string> {
+    return await this._keyRing.revealPrivateKey(accountId);
+  }
+
   async saveAccountSecret(
     accountSecret: AccountSecret,
     alias: string,
@@ -256,5 +260,13 @@ export class KeyRingService {
     GenDisposableSignerResponse | undefined
   > {
     return this._keyRing.genDisposableSigner();
+  }
+
+  async persistDisposableSigner(address: string): Promise<void> {
+    return this._keyRing.persistDisposableSigner(address);
+  }
+
+  async clearDisposableSigner(address: string): Promise<void> {
+    return this._keyRing.clearDisposableSigner(address);
   }
 }

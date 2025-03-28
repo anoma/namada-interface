@@ -4,6 +4,7 @@ import { tv } from "tailwind-variants";
 
 import { ContentMasker, CopyToClipboardControl } from "@namada/components";
 import { matchMapFn } from "@namada/utils";
+import { CgSpinner } from "react-icons/cg";
 import { GoEye, GoEyeClosed } from "react-icons/go";
 
 const inputClassList = tv({
@@ -77,6 +78,7 @@ export type InputProps = {
   label?: string | React.ReactNode;
   error?: string | React.ReactNode;
   sensitive?: boolean;
+  loading?: boolean;
   hint?: string | React.ReactNode;
   theme?: "primary" | "secondary" | "neutral";
   hideIcon?: boolean;
@@ -95,6 +97,7 @@ export const Input = ({
   theme,
   hideIcon = false,
   sensitive = false,
+  loading = false,
   children,
   rows = 3,
   className,
@@ -199,9 +202,14 @@ export const Input = ({
     >
       {label && <span className={classes.labelText()}>{label}</span>}
       <div className={classes.inputWrapper()}>
-        {sensitive ?
-          <ContentMasker color={theme}>{element}</ContentMasker>
-        : element}
+        <>
+          {loading && <LoadingSpinner />}
+          {sensitive ?
+            <ContentMasker hideIcon={loading} color={theme}>
+              {element}
+            </ContentMasker>
+          : element}
+        </>
         {!hideIcon && icon}
         {children}
       </div>
@@ -210,3 +218,11 @@ export const Input = ({
     </label>
   );
 };
+
+const LoadingSpinner = (): JSX.Element => (
+  <div className="flex absolute z-10 justify-center items-center w-full h-full">
+    <i className=" animate-spin text-yellow text-sm w-auto h-full">
+      <CgSpinner className="w-auto h-full p-4" />
+    </i>
+  </div>
+);

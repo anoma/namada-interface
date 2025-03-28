@@ -1,5 +1,6 @@
 import { chains } from "@namada/chains";
 import {
+  Keys,
   makeBip44Path,
   MODIFIED_ZIP32_PATH,
   PhraseSize,
@@ -215,6 +216,148 @@ export class KeyRing {
     return JSON.parse(sensitiveData.text).spendingKey;
   }
 
+  public async revealPrivateKey(accountId: string): Promise<string> {
+    const account = await this.vaultStorage.findOneOrFail(
+      KeyStore,
+      "id",
+      accountId
+    );
+
+    if (
+      ![AccountType.PrivateKey, AccountType.Disposable].includes(
+        account.public.type
+      )
+    ) {
+      throw new Error("Account should have been created using a private key");
+    }
+
+    const sensitiveData =
+      await this.vaultService.reveal<SensitiveAccountStoreData>(
+        account.sensitive
+      );
+
+    if (!sensitiveData) {
+      return "";
+    }
+
+    return sensitiveData.text;
+  }
+
+  accountStoreShielded(
+    address: string,
+    viewingKey: string,
+    pseudoExtendedKey: string,
+    text: string,
+    alias: string,
+    path: Bip44Path,
+    vaultLength: number,
+    source: AccountSource,
+    timestamp: number
+  ): AccountStore {
+    // Generate unique id for shielded key
+    const shieldedId = generateId(
+      UUID_NAMESPACE,
+      text,
+      alias,
+      address,
+      viewingKey,
+      path.account,
+      vaultLength
+    );
+
+    return {
+      id: shieldedId,
+      alias,
+      address,
+      owner: viewingKey,
+      path,
+      pseudoExtendedKey,
+      type: AccountType.ShieldedKeys,
+      source,
+      timestamp,
+    };
+  }
+
+  accountStoreDefault(
+    accountType: AccountType,
+    address: string,
+    publicKey: string,
+    text: string,
+    alias: string,
+    path: Bip44Path,
+    vaultLength: number,
+    source: AccountSource,
+    timestamp: number
+  ): AccountStore {
+    // Generate unique ID for new parent account:
+    const id = generateId(
+      UUID_NAMESPACE,
+      text,
+      alias,
+      address,
+      path.account,
+      path.change,
+      path.index,
+      vaultLength
+    );
+
+    return {
+      id,
+      alias,
+      address,
+      owner: address,
+      path,
+      publicKey,
+      type: accountType,
+      source,
+      timestamp,
+    };
+  }
+
+  accountStore(
+    accountType: AccountType,
+    keys: Keys,
+    sk: string,
+    text: string,
+    alias: string,
+    path: Bip44Path,
+    vaultLength: number,
+    source: AccountSource,
+    timestamp: number
+  ): AccountStore {
+    switch (accountType) {
+      case AccountType.ShieldedKeys: {
+        const { address, viewingKey, pseudoExtendedKey } =
+          keys.shieldedKeysFromSpendingKey(sk);
+        return this.accountStoreShielded(
+          address,
+          viewingKey,
+          pseudoExtendedKey,
+          text,
+          alias,
+          path,
+          vaultLength,
+          source,
+          timestamp
+        );
+      }
+      default: {
+        const { address, publicKey } = keys.getAddress(sk);
+        return this.accountStoreDefault(
+          accountType,
+          address,
+          publicKey,
+          text,
+          alias,
+          path,
+          vaultLength,
+          source,
+          timestamp
+        );
+      }
+    }
+  }
+
   // Store validated mnemonic, private key, or spending key
   public async storeAccountSecret(
     accountSecret: AccountSecret,
@@ -274,61 +417,17 @@ export class KeyRing {
     })();
 
     const vaultLength = await this.vaultService.getLength(KEYSTORE_KEY);
-
-    const accountStore = (() => {
-      switch (accountType) {
-        case AccountType.ShieldedKeys:
-          const shieldedKeys = keys.shieldedKeysFromSpendingKey(sk);
-
-          // Generate unique id for shielded key
-          const shieldedId = generateId(
-            UUID_NAMESPACE,
-            text,
-            alias,
-            shieldedKeys.address,
-            shieldedKeys.viewingKey,
-            path.account,
-            vaultLength
-          );
-
-          return {
-            id: shieldedId,
-            alias,
-            address: shieldedKeys.address,
-            owner: shieldedKeys.viewingKey,
-            path,
-            pseudoExtendedKey: shieldedKeys.pseudoExtendedKey,
-            type: accountType,
-            source,
-            timestamp,
-          };
-        default:
-          // Generate unique ID for new parent account:
-          const { address, publicKey } = keys.getAddress(sk);
-          const id = generateId(
-            UUID_NAMESPACE,
-            text,
-            alias,
-            address,
-            path.account,
-            path.change,
-            path.index,
-            vaultLength
-          );
-
-          return {
-            id,
-            alias,
-            address,
-            owner: address,
-            path,
-            publicKey,
-            type: accountType,
-            source,
-            timestamp,
-          };
-      }
-    })();
+    const accountStore = this.accountStore(
+      accountType,
+      keys,
+      sk,
+      text,
+      alias,
+      path,
+      vaultLength,
+      source,
+      timestamp
+    );
 
     // Check whether keys already exist for this account
     const account = await this.queryAccountByAddress(accountStore.address);
@@ -847,9 +946,53 @@ export class KeyRing {
     await this.localStorage.addDisposableSigner(
       address,
       privateKey,
+      publicKey,
       defaultAccount.address
     );
 
     return { publicKey, address };
+  }
+
+  async persistDisposableSigner(address: string): Promise<void> {
+    const disposableSigner =
+      await this.localStorage.getDisposableSigner(address);
+    if (!disposableSigner) {
+      throw new Error("No disposable signer found");
+    }
+    const { privateKey, publicKey } = disposableSigner;
+
+    const vaultLength = await this.vaultService.getLength(KEYSTORE_KEY);
+    const accountStore = this.accountStoreDefault(
+      AccountType.Disposable,
+      address,
+      publicKey,
+      privateKey,
+      `Disposable-${address}`,
+      { account: 0, change: 0, index: 0 },
+      vaultLength,
+      "generated",
+      0
+    );
+
+    const sensitiveData: SensitiveAccountStoreData = {
+      text: privateKey,
+      passphrase: undefined,
+    };
+    const sensitive =
+      await this.vaultService.encryptSensitiveData(sensitiveData);
+
+    await this.vaultStorage.add(KeyStore, {
+      public: accountStore,
+      sensitive,
+    });
+  }
+
+  async clearDisposableSigner(address: string): Promise<void> {
+    const disposableSigner =
+      await this.localStorage.getDisposableSigner(address);
+    // We make sure that we remove the existing disposable signer
+    if (disposableSigner) {
+      await this.vaultStorage.remove(KeyStore, "address", address);
+    }
   }
 }

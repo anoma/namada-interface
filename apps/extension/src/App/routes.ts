@@ -6,6 +6,7 @@ export default {
   changePassword: (): string => `/change-password`,
   connectedSites: (): string => `/connected-sites`,
   network: (): string => `/network`,
+  advanced: (): string => `/advanced`,
   warnings: (): string => `/warnings`,
   viewAccountList: () => `/accounts/view`,
   accountsUpdateRequired: () => `/accounts/view/update-required`,
@@ -21,4 +22,6 @@ export default {
     `/accounts/delete/${accountId}`,
   renameAccount: (accountId: string = ":accountId") =>
     `/accounts/rename/${accountId}`,
+  disposableKeyDetails: (accountId: string = ":accountId") =>
+    `/accounts/disposable/${accountId}`,
 };

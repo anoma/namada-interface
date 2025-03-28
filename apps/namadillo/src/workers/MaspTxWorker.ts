@@ -1,6 +1,7 @@
 import { initMulticore } from "@namada/sdk/inline-init";
 import { getSdk, Sdk } from "@namada/sdk/web";
 import {
+  IbcTransferMsgValue,
   ShieldedTransferMsgValue,
   ShieldingTransferMsgValue,
   TxResponseMsgValue,
@@ -13,6 +14,8 @@ import {
   BroadcastDone,
   GenerateIbcShieldingMemo,
   GenerateIbcShieldingMemoDone,
+  IbcTransfer,
+  IbcTransferDone,
   Init,
   InitDone,
   Shield,
@@ -72,6 +75,17 @@ export class Worker {
     return {
       type: "generate-ibc-shielding-memo-done",
       payload: await generateIbcShieldingMemo(this.sdk, m.payload),
+    };
+  }
+
+  async ibcTransfer(m: IbcTransfer): Promise<IbcTransferDone> {
+    if (!this.sdk) {
+      throw new Error("SDK is not initialized");
+    }
+
+    return {
+      type: "ibc-transfer-done",
+      payload: await ibcTransfer(this.sdk, m.payload),
     };
   }
 
@@ -154,6 +168,27 @@ async function shieldedTransfer(
   return encodedTxData;
 }
 
+async function ibcTransfer(
+  sdk: Sdk,
+  payload: IbcTransfer["payload"]
+): Promise<EncodedTxData<IbcTransferMsgValue>> {
+  const { account, gasConfig, chain, props } = payload;
+
+  await sdk.masp.loadMaspParams("", chain.chainId);
+  const encodedTxData = await buildTx<IbcTransferMsgValue>(
+    sdk,
+    account,
+    gasConfig,
+    chain,
+    props,
+    sdk.tx.buildIbcTransfer,
+    undefined,
+    false
+  );
+
+  return encodedTxData;
+}
+
 async function generateIbcShieldingMemo(
   sdk: Sdk,
   payload: GenerateIbcShieldingMemo["payload"]
@@ -203,6 +238,8 @@ export const registerTransferHandlers = (): void => {
   registerBNTransferHandler<ShieldedTransferDone>("shielded-transfer-done");
   registerBNTransferHandler<ShieldedTransfer>("shielded-transfer");
   registerBNTransferHandler<UnshieldDone>("unshield-done");
+  registerBNTransferHandler<IbcTransfer>("ibc-transfer");
+  registerBNTransferHandler<IbcTransferDone>("ibc-transfer-done");
   registerBNTransferHandler<Unshield>("unshield");
   registerBNTransferHandler<GenerateIbcShieldingMemo>(
     "generate-ibc-shielding-memo"
