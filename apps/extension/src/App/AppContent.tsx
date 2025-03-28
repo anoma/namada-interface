@@ -17,7 +17,7 @@ import {
 import { ParentAccounts } from "./Accounts/ParentAccounts";
 import { SpendingKey } from "./Accounts/SpendingKey";
 import { ViewingKey } from "./Accounts/ViewingKey";
-import { ChangePassword, ConnectedSites, Network } from "./Settings";
+import { Advanced, ChangePassword, ConnectedSites, Network } from "./Settings";
 import { Warnings } from "./Settings/Warnings";
 import { Setup } from "./Setup";
 import routes from "./routes";
@@ -74,6 +74,7 @@ export const AppContent = ({ warnings }: Props): JSX.Element => {
           }
         />
         <Route path={routes.network()} element={<Network />} />
+        <Route path={routes.advanced()} element={<Advanced />} />
         <Route
           path={routes.warnings()}
           element={<Warnings warnings={warnings} />}

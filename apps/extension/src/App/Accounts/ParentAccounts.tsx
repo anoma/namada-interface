@@ -11,7 +11,7 @@ import { AccountType, DerivedAccount } from "@namada/types";
 import { ParentAccountsFooter } from "App/Accounts/ParentAccountsFooter";
 import { PageHeader } from "App/Common";
 import routes from "App/routes";
-import { AccountContext } from "context";
+import { AccountContext, useSettingsContext } from "context";
 import { isOutdatedShieldedAccount, openSetupTab } from "utils";
 
 type Account = DerivedAccount & { outdated: boolean };
@@ -27,6 +27,8 @@ export const ParentAccounts = (): JSX.Element => {
     accounts: allAccounts,
     changeActiveAccountId,
   } = useContext(AccountContext);
+
+  const { showDisposableAccounts } = useSettingsContext();
 
   const allParentAccounts = parentAccounts.reduce(
     (acc, account) => {
@@ -85,6 +87,25 @@ export const ParentAccounts = (): JSX.Element => {
     navigate(routes.disposableKeyDetails(account.id), { state: { account } });
   };
 
+  // Filter out disposable accounts if the setting is disabled
+  const filteredAccounts =
+    !showDisposableAccounts ?
+      accounts.filter((account) => account.type !== AccountType.Disposable)
+    : accounts;
+
+  // Sort accounts so disposable accounts are at the bottom
+  const sortedAccounts = filteredAccounts.sort((a, b) => {
+    const disposableA = a.type === AccountType.Disposable;
+    const disposableB = b.type === AccountType.Disposable;
+    if (disposableA && !disposableB) {
+      return -1;
+    }
+    if (!disposableA && disposableB) {
+      return 1;
+    }
+    return 0;
+  });
+
   return (
     <>
       <Stack
@@ -103,7 +124,7 @@ export const ParentAccounts = (): JSX.Element => {
             </div>
           </nav>
           <Stack as="ul" gap={3} className="flex-1 overflow-auto">
-            {[...accounts].reverse().map((account, idx) => (
+            {[...sortedAccounts].reverse().map((account, idx) => (
               <KeyListItem
                 key={`key-listitem-${account.id}`}
                 as="li"

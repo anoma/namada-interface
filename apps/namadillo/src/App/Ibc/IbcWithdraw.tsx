@@ -113,6 +113,7 @@ export const IbcWithdraw: React.FC = () => {
   useTransactionEventListener("IbcWithdraw.Success", async (e) => {
     if (txHash && e.detail.hash === txHash) {
       setCompletedAt(new Date());
+      // We are clearing the disposable signer only if the transaction was successful on the target chain
       if (shielded && refundTarget) {
         await clearDisposableSigner(refundTarget);
       }
@@ -232,6 +233,8 @@ export const IbcWithdraw: React.FC = () => {
       setCurrentStatus("");
       setStatusExplanation("");
 
+      // Clear disposable signer if the transaction failed on Namada side
+      // We do not want to clear the disposable signer if the transaction failed on the target chain
       const refundTarget = context?.encodedTxData.meta?.props[0].refundTarget;
       if (shielded && refundTarget) {
         await clearDisposableSigner(refundTarget);
