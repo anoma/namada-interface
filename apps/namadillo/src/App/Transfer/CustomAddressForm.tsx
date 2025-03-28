@@ -62,16 +62,20 @@ export const CustomAddressForm = ({
             onChange={(e) => {
               const enteredAddress = e.target.value;
               onChangeAddress(enteredAddress);
-              if (checkIfAddressMatchesChain(enteredAddress, chain)) {
-                setAddressError(null);
-              } else if (enteredAddress) {
-                const prefix = chain?.bech32_prefix;
-                setAddressError(`Only ${prefix} addresses are allowed`);
-                setIsDisabled?.(true);
-              } else {
-                setAddressError(null);
-                setIsDisabled?.(false);
+
+              let error: string | null = null;
+              let shouldDisable = false;
+
+              if (enteredAddress) {
+                if (!checkIfAddressMatchesChain(enteredAddress, chain)) {
+                  const prefix = chain?.bech32_prefix || "expected";
+                  error = `Only ${prefix} addresses are allowed`;
+                  shouldDisable = true;
+                }
               }
+
+              setAddressError(error);
+              setIsDisabled?.(shouldDisable);
             }}
             error={!!addressError}
           >
