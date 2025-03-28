@@ -1084,7 +1084,7 @@ export class KeyRing {
       address,
       publicKey,
       privateKey,
-      `disposable-${address}`,
+      `Disposable-${address}`,
       { account: 0, change: 0, index: 0 },
       vaultLength,
       "generated",
@@ -1105,6 +1105,11 @@ export class KeyRing {
   }
 
   async clearDisposableSigner(address: string): Promise<void> {
-    await this.localStorage.clearDisposableSigner(address);
+    const disposableSigner =
+      await this.localStorage.getDisposableSigner(address);
+    // We make sure that we remove the existing disposable signer
+    if (disposableSigner) {
+      await this.vaultStorage.remove(KeyStore, "address", address);
+    }
   }
 }
