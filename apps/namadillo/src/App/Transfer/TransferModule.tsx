@@ -148,6 +148,7 @@ export const TransferModule = ({
     destination.enableCustomAddress && !destination.availableWallets
   );
   const [memo, setMemo] = useState<undefined | string>();
+  const [isDisabled, setIsDisabled] = useState(false);
   const keychainVersion = useKeychainVersion();
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
   const allUsersAssets = Object.values(chainAssetsMap) ?? [];
@@ -471,6 +472,7 @@ export const TransferModule = ({
             )}
             isShieldedAddress={destination.isShieldedAddress}
             isShieldedTx={isShieldedTx}
+            setIsDisabled={setIsDisabled}
             onChangeShielded={destination.onChangeShielded}
             address={destination.customAddress}
             onToggleCustomAddress={
@@ -526,7 +528,9 @@ export const TransferModule = ({
                 backgroundHoverColor="transparent"
                 textColor="black"
                 textHoverColor={buttonColor}
-                disabled={validationResult !== "Ok" || isSubmitting}
+                disabled={
+                  validationResult !== "Ok" || isSubmitting || isDisabled
+                }
               >
                 {getButtonText()}
               </ActionButton>
