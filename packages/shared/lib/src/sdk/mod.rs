@@ -355,7 +355,7 @@ impl Sdk {
         let tx_response = TxResponse::from_event(event);
 
         let mut batch_tx_results: Vec<tx::BatchTxResult> = vec![];
-        let code = tx_response.code.to_string();
+        let code =  u8::try_from(tx_response.code.to_usize())?;
         let gas_used = tx_response.gas_used.to_string();
         let height = tx_response.height.to_string();
         let info = tx_response.info.to_string();

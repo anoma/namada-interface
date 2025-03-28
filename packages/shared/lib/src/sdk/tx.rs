@@ -452,7 +452,7 @@ impl BatchTxResult {
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada_sdk::borsh")]
 pub struct TxResponse {
-    code: String,
+    code: u8,
     commitments: Vec<BatchTxResult>,
     gas_used: String,
     hash: String,
@@ -463,7 +463,7 @@ pub struct TxResponse {
 
 impl TxResponse {
     pub fn new(
-        code: String,
+        code: u8,
         commitments: Vec<BatchTxResult>,
         gas_used: String,
         hash: String,

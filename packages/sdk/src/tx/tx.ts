@@ -17,6 +17,8 @@ import {
   Message,
   RedelegateMsgValue,
   RedelegateProps,
+  ResultCode,
+  ResultCodes,
   RevealPkMsgValue,
   ShieldedTransferMsgValue,
   ShieldedTransferProps,
@@ -528,5 +530,14 @@ export class Tx {
    */
   getInnerTxHashes(bytes: Uint8Array): string[] {
     return get_inner_tx_hashes(bytes);
+  }
+
+  /**
+   * Return text from TxResponse code
+   * @param code - ResultCode enum value
+   * @returns text string
+   */
+  resultCodeToText(code: ResultCode): string {
+    return ResultCodes[code];
   }
 }
