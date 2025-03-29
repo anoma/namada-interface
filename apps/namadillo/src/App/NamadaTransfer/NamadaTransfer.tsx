@@ -130,6 +130,10 @@ export const NamadaTransfer: React.FC = () => {
         sourceAddress !== customAddress,
         "The recipient address must differ from the sender address"
       );
+      invariant(
+        customAddress.startsWith("tnam") || customAddress.startsWith("znam"),
+        "The recipient address must be a Namada address"
+      );
 
       const txResponse = await performTransfer({ memo });
       if (txResponse) {
