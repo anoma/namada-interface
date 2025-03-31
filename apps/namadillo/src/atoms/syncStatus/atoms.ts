@@ -32,7 +32,12 @@ export const syncStatusAtom = atom((get) => {
     get(votedProposalsAtom),
   ];
 
-  const isSyncing = queries.some((q) => q.isFetching);
+  // Change the logic here to only consider a query as "syncing" if:
+  // 1. It's fetching AND not yet successful (initial load) OR
+  // 2. It's in an error state and fetching (trying to recover)
+  const isSyncing = queries.some(
+    (q) => (q.isFetching && !q.isSuccess) || (q.isError && q.isFetching)
+  );
   const isError = queries.some((q) => q.isError);
   const errors = queries.filter((q) => q.isError).map((q) => q.error);
 
