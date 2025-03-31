@@ -1964,7 +1964,7 @@ __metadata:
   dependencies:
     gunzip-maybe: "npm:^1.4.2"
     pump: "npm:^3.0.0"
-    tar-fs: "npm:^2.1.1"
+    tar-fs: "npm:^2.1.2"
   checksum: 10c0/d66e76c6c990745d691c85d1dfa7f3dfd181405bb52c295baf4d1838b847d40c686e24602ea0ab1cdeb14d409db59f6bb9e2f96f56fe53da275da9cccf778e27
   languageName: node
   linkType: hard
