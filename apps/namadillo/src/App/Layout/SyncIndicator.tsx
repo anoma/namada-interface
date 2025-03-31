@@ -1,13 +1,10 @@
 import { Tooltip } from "@namada/components";
-import { indexerApiAtom } from "atoms/api";
-import { fetchBlockHeightByTimestamp } from "atoms/balance/services";
 import { chainStatusAtom } from "atoms/chain";
 import {
   indexerServicesSyncStatusAtom,
   syncStatusAtom,
 } from "atoms/syncStatus/atoms";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 const formatError = (
@@ -33,34 +30,17 @@ export const SyncIndicator = (): JSX.Element => {
   const syncStatus = useAtomValue(syncStatusAtom);
   const indexerServicesSyncStatus = useAtomValue(indexerServicesSyncStatusAtom);
   const chainStatus = useAtomValue(chainStatusAtom);
-  const [indexerBlockHeight, setIndexerBlockHeight] = useState<number | null>(
-    null
-  );
+
   const { errors } = syncStatus;
   const { services } = indexerServicesSyncStatus;
-  const isChainStatusError =
-    !chainStatus?.height || !chainStatus?.epoch || !indexerBlockHeight;
-  const api = useAtomValue(indexerApiAtom);
+  const isChainStatusError = !chainStatus?.height || !chainStatus?.epoch;
 
   const isError =
     syncStatus.isError ||
     indexerServicesSyncStatus.isError ||
     isChainStatusError;
 
-  const isSyncing =
-    syncStatus.isSyncing ||
-    indexerServicesSyncStatus.isSyncing ||
-    indexerBlockHeight !== chainStatus?.height;
-
-  useEffect(() => {
-    (async () => {
-      const indexerBlockHeight = await fetchBlockHeightByTimestamp(
-        api,
-        Date.now()
-      );
-      setIndexerBlockHeight(indexerBlockHeight);
-    })();
-  }, [chainStatus?.height]);
+  const isSyncing = syncStatus.isSyncing || indexerServicesSyncStatus.isSyncing;
 
   return (
     <div className="relative group/tooltip px-1 py-3">
@@ -86,9 +66,8 @@ export const SyncIndicator = (): JSX.Element => {
           </div>
         : <div>
             <div>Fully synced:</div>
-            <div>RPC Height: {chainStatus?.height}</div>
-            <div>Indexer Height: {indexerBlockHeight}</div>
-            <div>Epoch: {chainStatus?.epoch}</div>
+            <div>Height:{chainStatus?.height}</div>
+            <div>Epoch:{chainStatus?.epoch}</div>
           </div>
         }
       </Tooltip>
