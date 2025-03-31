@@ -8,14 +8,10 @@ import {
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { PulsingRing } from "App/Common/PulsingRing";
 import { TokensAnimation } from "App/Common/TokensAnimation";
-import {
-  shieldedBalanceAtom,
-  shieldedTokensAtom,
-  transparentTokensAtom,
-} from "atoms/balance";
-import { getTotalDollar } from "atoms/balance/functions";
+import { shieldedBalanceAtom } from "atoms/balance";
 import { applicationFeaturesAtom } from "atoms/settings";
 import clsx from "clsx";
+import { useAmountsInFiat } from "hooks/useAmountsInFiat";
 import { useRequiresNewShieldedSync } from "hooks/useRequiresNewShieldedSync";
 import { useAtomValue } from "jotai";
 import { GoInfo } from "react-icons/go";
@@ -23,28 +19,21 @@ import { GoInfo } from "react-icons/go";
 export const TotalBalanceBanner = (): JSX.Element => {
   const { namTransfersEnabled } = useAtomValue(applicationFeaturesAtom);
   const { isFetching: isShieldSyncing } = useAtomValue(shieldedBalanceAtom);
-
   const requiresNewShieldedSync = useRequiresNewShieldedSync();
   const shouldWaitForShieldedSync = requiresNewShieldedSync && isShieldSyncing;
-  const shieldedTokensQuery = useAtomValue(shieldedTokensAtom);
-  const transparentTokensQuery = useAtomValue(transparentTokensAtom);
-  const shieldedDollars = getTotalDollar(shieldedTokensQuery.data);
-  const transparentDollars = getTotalDollar(transparentTokensQuery.data);
-  const totalAmountInDollars = shieldedDollars.plus(transparentDollars);
+  const { shieldedQuery, unshieldedQuery, totalAmountInFiat } =
+    useAmountsInFiat();
 
   const balancesHaveLoaded =
-    shieldedTokensQuery.isSuccess && transparentTokensQuery.isSuccess;
-
-  const hasErrors =
-    shieldedTokensQuery.isError && transparentTokensQuery.isError;
-
+    shieldedQuery.isSuccess && unshieldedQuery.isSuccess;
+  const hasErrors = shieldedQuery.isError && unshieldedQuery.isError;
   const balanceIsLoading = !balancesHaveLoaded && !hasErrors;
 
   return (
     <Panel className="py-4">
       <Stack
         direction="horizontal"
-        className="items-center justify-between px-4"
+        className="overflow-hidden items-center justify-between px-4"
       >
         <div className="text-white">
           <header className="text-sm mb-3">
@@ -71,7 +60,7 @@ export const TotalBalanceBanner = (): JSX.Element => {
           )}
           {balancesHaveLoaded && (
             <div className={clsx("flex items-center text-7xl leading-none")}>
-              <FiatCurrency amount={totalAmountInDollars} />
+              <FiatCurrency amount={totalAmountInFiat} />
               {shouldWaitForShieldedSync && (
                 <span
                   className="relative text-xs ml-9"

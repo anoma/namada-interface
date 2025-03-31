@@ -56,7 +56,7 @@ export const TabContainer = ({
             <span className="inline-flex flex-col">
               {tab.title}
               {activeTabIndex === index && (
-                <span className="w-full h-px bg-white" />
+                <span className="w-full h-px bg-current" />
               )}
             </span>
           </ActionButton>

@@ -109,7 +109,7 @@ export const ShieldedFungibleTable = ({
 
   return (
     <>
-      <div className="text-sm font-medium">
+      <div className="text-sm font-medium ml-4">
         <span className="text-yellow">{data.length} </span>
         Tokens
       </div>
@@ -126,7 +126,7 @@ export const ShieldedFungibleTable = ({
             "w-full flex-1 [&_td]:px-1 [&_th]:px-1 [&_td:first-child]:pl-4 [&_td]:h-[64px]",
             "[&_td]:font-normal [&_td:last-child]:pr-4 [&_th:first-child]:pl-4 [&_th:last-child]:pr-4",
             "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md",
-            "mt-2"
+            "mt-5"
           ),
         }}
         headProps={{ className: "text-neutral-500" }}
