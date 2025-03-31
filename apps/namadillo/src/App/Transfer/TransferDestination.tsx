@@ -6,7 +6,6 @@ import { TransactionFeeButton } from "App/Common/TransactionFeeButton";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
-import { Dispatch, SetStateAction } from "react";
 import { Address, WalletProvider } from "types";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { CustomAddressForm } from "./CustomAddressForm";
@@ -17,7 +16,6 @@ import { TokenAmountCard } from "./TokenAmountCard";
 type TransferDestinationProps = {
   isShieldedAddress?: boolean;
   isShieldedTx?: boolean;
-  setIsDisabled?: Dispatch<SetStateAction<boolean>>;
   onChangeShielded?: (isShielded: boolean) => void;
   chain?: Chain;
   wallet?: WalletProvider;
@@ -46,7 +44,6 @@ export const TransferDestination = ({
   walletAddress,
   isShieldedAddress,
   isShieldedTx = false,
-  setIsDisabled,
   onChangeShielded,
   gasDisplayAmount,
   gasAsset,
@@ -142,9 +139,7 @@ export const TransferDestination = ({
                 />
               )}
               <CustomAddressForm
-                chain={chain}
                 memo={memo}
-                setIsDisabled={setIsDisabled}
                 onChangeMemo={onChangeMemo}
                 customAddress={address}
                 onChangeAddress={onChangeAddress}

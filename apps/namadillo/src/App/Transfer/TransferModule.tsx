@@ -114,8 +114,17 @@ type ValidationResult =
   | "NotEnoughBalance"
   | "NotEnoughBalanceForFees"
   | "KeychainNotCompatibleWithMasp"
+  | "CustomAddressNotMatchingChain"
   | "NoLedgerConnected"
   | "Ok";
+
+const checkIfAddressMatchesChain = (
+  address: string,
+  chain: Chain | undefined
+): boolean => {
+  if (!chain || !address) return false;
+  return !address.startsWith(chain.bech32_prefix);
+};
 
 export const TransferModule = ({
   source,
@@ -148,7 +157,6 @@ export const TransferModule = ({
     destination.enableCustomAddress && !destination.availableWallets
   );
   const [memo, setMemo] = useState<undefined | string>();
-  const [isDisabled, setIsDisabled] = useState(false);
   const keychainVersion = useKeychainVersion();
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
   const allUsersAssets = Object.values(chainAssetsMap) ?? [];
@@ -196,6 +204,16 @@ export const TransferModule = ({
   const validationResult = useMemo((): ValidationResult => {
     if (!source.wallet) {
       return "NoSourceWallet";
+    } else if (
+      // If custom address is provided, check if it matches the chain
+      destination.customAddress &&
+      destination.chain &&
+      checkIfAddressMatchesChain(
+        destination.customAddress ?? "",
+        destination.chain
+      )
+    ) {
+      return "CustomAddressNotMatchingChain";
     } else if (
       (source.isShieldedAddress || destination.isShieldedAddress) &&
       keychainVersion &&
@@ -370,6 +388,8 @@ export const TransferModule = ({
       case "NoTransactionFee":
         return getText("No transaction fee is set");
 
+      case "CustomAddressNotMatchingChain":
+        return getText("Custom address does not match chain");
       case "NotEnoughBalance":
         return getText("Not enough balance");
       case "NotEnoughBalanceForFees":
@@ -472,7 +492,6 @@ export const TransferModule = ({
             )}
             isShieldedAddress={destination.isShieldedAddress}
             isShieldedTx={isShieldedTx}
-            setIsDisabled={setIsDisabled}
             onChangeShielded={destination.onChangeShielded}
             address={destination.customAddress}
             onToggleCustomAddress={
@@ -528,9 +547,7 @@ export const TransferModule = ({
                 backgroundHoverColor="transparent"
                 textColor="black"
                 textHoverColor={buttonColor}
-                disabled={
-                  validationResult !== "Ok" || isSubmitting || isDisabled
-                }
+                disabled={validationResult !== "Ok" || isSubmitting}
               >
                 {getButtonText()}
               </ActionButton>
