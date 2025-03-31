@@ -42,9 +42,9 @@ export const gasEstimateFamily = atomFamily(
             Math.min(1, gasEstimate.totalEstimates / 1000)
           );
           return {
-            min: gasEstimate.min * 1.1 - precision * 0.1,
-            avg: gasEstimate.avg * 1.25 - precision * 0.25,
-            max: gasEstimate.max * 1.5 - precision * 0.5,
+            min: Math.ceil(gasEstimate.min * 1.1 - precision * 0.1),
+            avg: Math.ceil(gasEstimate.avg * 1.25 - precision * 0.25),
+            max: Math.ceil(gasEstimate.max * 1.5 - precision * 0.5),
             totalEstimates: gasEstimate.totalEstimates,
           };
         },
