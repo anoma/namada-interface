@@ -1,7 +1,7 @@
 import { Input, Stack } from "@namada/components";
 
 import { chain as osmosis } from "chain-registry/mainnet/osmosis";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import namadaShieldedSvg from "./assets/namada-shielded.svg";
 import namadaTransparentSvg from "./assets/namada-transparent.svg";
 
@@ -18,8 +18,6 @@ export const CustomAddressForm = ({
   memo,
   onChangeMemo,
 }: CustomAddressFormProps): JSX.Element => {
-  const [addressError, setAddressError] = useState<string | null>(null);
-
   const iconUrl = useMemo((): string | undefined => {
     if (customAddress?.startsWith("osmo")) return osmosis.logo_URIs?.svg;
     if (customAddress?.startsWith("znam")) return namadaShieldedSvg;
@@ -42,9 +40,6 @@ export const CustomAddressForm = ({
               </i>
             )}
           </Input>
-          {addressError && (
-            <p className="text-sm text-fail mt-[-4px]">{addressError}</p>
-          )}
         </>
       )}
       {onChangeMemo && (
