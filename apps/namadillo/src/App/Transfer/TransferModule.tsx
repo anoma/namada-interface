@@ -114,8 +114,17 @@ type ValidationResult =
   | "NotEnoughBalance"
   | "NotEnoughBalanceForFees"
   | "KeychainNotCompatibleWithMasp"
+  | "CustomAddressNotMatchingChain"
   | "NoLedgerConnected"
   | "Ok";
+
+const checkIfAddressMatchesChain = (
+  address: string,
+  chain: Chain | undefined
+): boolean => {
+  if (!chain || !address) return false;
+  return !address.startsWith(chain.bech32_prefix);
+};
 
 export const TransferModule = ({
   source,
@@ -195,6 +204,16 @@ export const TransferModule = ({
   const validationResult = useMemo((): ValidationResult => {
     if (!source.wallet) {
       return "NoSourceWallet";
+    } else if (
+      // If custom address is provided, check if it matches the chain
+      destination.customAddress &&
+      destination.chain &&
+      checkIfAddressMatchesChain(
+        destination.customAddress ?? "",
+        destination.chain
+      )
+    ) {
+      return "CustomAddressNotMatchingChain";
     } else if (
       (source.isShieldedAddress || destination.isShieldedAddress) &&
       keychainVersion &&
@@ -369,6 +388,8 @@ export const TransferModule = ({
       case "NoTransactionFee":
         return getText("No transaction fee is set");
 
+      case "CustomAddressNotMatchingChain":
+        return getText("Custom address does not match chain");
       case "NotEnoughBalance":
         return getText("Not enough balance");
       case "NotEnoughBalanceForFees":
