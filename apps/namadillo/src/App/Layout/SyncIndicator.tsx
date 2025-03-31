@@ -33,13 +33,14 @@ export const SyncIndicator = (): JSX.Element => {
   const syncStatus = useAtomValue(syncStatusAtom);
   const indexerServicesSyncStatus = useAtomValue(indexerServicesSyncStatusAtom);
   const chainStatus = useAtomValue(chainStatusAtom);
+  const [blockHeightSync, setBlockHeightSync] = useState<boolean | null>(null);
   const [indexerBlockHeight, setIndexerBlockHeight] = useState<number | null>(
     null
   );
   const { errors } = syncStatus;
   const { services } = indexerServicesSyncStatus;
   const isChainStatusError =
-    !chainStatus?.height || !chainStatus?.epoch || !indexerBlockHeight;
+    !chainStatus?.height || !chainStatus?.epoch || !blockHeightSync;
   const api = useAtomValue(indexerApiAtom);
 
   const isError =
@@ -50,7 +51,7 @@ export const SyncIndicator = (): JSX.Element => {
   const isSyncing =
     syncStatus.isSyncing ||
     indexerServicesSyncStatus.isSyncing ||
-    indexerBlockHeight !== chainStatus?.height;
+    !blockHeightSync;
 
   useEffect(() => {
     (async () => {
@@ -59,6 +60,7 @@ export const SyncIndicator = (): JSX.Element => {
         Date.now()
       );
       setIndexerBlockHeight(indexerBlockHeight);
+      setBlockHeightSync(indexerBlockHeight === chainStatus?.height);
     })();
   }, [chainStatus?.height]);
 
