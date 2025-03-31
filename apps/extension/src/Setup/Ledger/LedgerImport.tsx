@@ -13,6 +13,7 @@ type LedgerImportLocationState = {
   extendedViewingKey: string;
   pseudoExtendedKey: string;
   paymentAddress: string;
+  diversifierIndex: number;
 };
 
 type LedgerProps = {
@@ -66,6 +67,7 @@ export const LedgerImport = ({
           extendedViewingKey,
           paymentAddress,
           pseudoExtendedKey,
+          diversifierIndex,
         } = locationState;
         const account = await accountManager.saveLedgerAccount({
           alias,
@@ -76,6 +78,7 @@ export const LedgerImport = ({
           paymentAddress,
           extendedViewingKey,
           pseudoExtendedKey,
+          diversifierIndex,
         });
 
         navigate(routes.ledgerComplete(), {

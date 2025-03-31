@@ -32,6 +32,7 @@ enum MessageType {
   RenameAccount = "rename-account",
   QueryAccountDetails = "query-account-details",
   AppendLedgerSignature = "append-ledger-signature",
+  GenPaymentAddress = "generate-payment-address",
 }
 
 export class GenerateMnemonicMsg extends Message<string[]> {
@@ -221,7 +222,8 @@ export class AddLedgerAccountMsg extends Message<AccountStore | false> {
     public readonly zip32Path?: Zip32Path,
     public readonly extendedViewingKey?: string,
     public readonly pseudoExtendedKey?: string,
-    public readonly paymentAddress?: string
+    public readonly paymentAddress?: string,
+    public readonly diversifierIndex?: number
   ) {
     super();
   }
@@ -414,5 +416,27 @@ export class AppendLedgerSignatureMsg extends Message<Uint8Array> {
 
   type(): string {
     return AppendLedgerSignatureMsg.type();
+  }
+}
+
+export class GenPaymentAddressMsg extends Message<DerivedAccount | undefined> {
+  public static type(): MessageType {
+    return MessageType.GenPaymentAddress;
+  }
+
+  constructor(public accountId: string) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["accountId"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GenPaymentAddressMsg.type();
   }
 }

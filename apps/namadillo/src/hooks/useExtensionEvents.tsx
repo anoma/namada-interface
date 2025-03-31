@@ -1,11 +1,16 @@
 import { useEventListenerOnce } from "@namada/hooks";
 import { Events } from "@namada/types";
-import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
+import {
+  accountBalanceAtom,
+  accountsAtom,
+  defaultAccountAtom,
+} from "atoms/accounts";
 import { namadaExtensionConnectionStatus } from "atoms/settings";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useNamadaKeychain } from "./useNamadaKeychain";
 
 export const useExtensionEvents = (): void => {
+  const accounts = useAtomValue(accountsAtom);
   const defaultAccount = useAtomValue(defaultAccountAtom);
   const balances = useAtomValue(accountBalanceAtom);
   const { namadaKeychain } = useNamadaKeychain();
@@ -16,6 +21,7 @@ export const useExtensionEvents = (): void => {
 
   // Register handlers:
   useEventListenerOnce(Events.AccountChanged, async () => {
+    await accounts.refetch();
     await defaultAccount.refetch();
     balances.refetch();
   });

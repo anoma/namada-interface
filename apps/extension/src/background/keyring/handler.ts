@@ -11,6 +11,7 @@ import {
   DeleteAccountMsg,
   DeriveShieldedAccountMsg,
   GenerateMnemonicMsg,
+  GenPaymentAddressMsg,
   GetActiveAccountMsg,
   QueryAccountDetailsMsg,
   QueryParentAccountsMsg,
@@ -104,7 +105,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as RevealSpendingKeyMsg
         );
-
+      case GenPaymentAddressMsg:
+        return handleGenPaymentAddressMsg(service)(
+          env,
+          msg as GenPaymentAddressMsg
+        );
       default:
         throw new Error("Unknown msg type");
     }
@@ -124,6 +129,7 @@ const handleAddLedgerAccountMsg: (
       extendedViewingKey,
       pseudoExtendedKey,
       paymentAddress,
+      diversifierIndex,
     } = msg;
     return await service.saveLedger(
       alias,
@@ -133,7 +139,8 @@ const handleAddLedgerAccountMsg: (
       zip32Path,
       extendedViewingKey,
       pseudoExtendedKey,
-      paymentAddress
+      paymentAddress,
+      diversifierIndex
     );
   };
 };
@@ -291,5 +298,13 @@ const handleRevealSpendingKeyMsg: (
 ) => InternalHandler<RevealSpendingKeyMsg> = (service) => {
   return async (_, msg) => {
     return await service.revealSpendingKey(msg.accountId);
+  };
+};
+
+const handleGenPaymentAddressMsg: (
+  service: KeyRingService
+) => InternalHandler<GenPaymentAddressMsg> = (service) => {
+  return async (_, { accountId }) => {
+    return await service.genPaymentAddress(accountId);
   };
 };

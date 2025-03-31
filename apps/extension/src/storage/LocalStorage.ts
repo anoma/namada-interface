@@ -13,7 +13,6 @@ const NamadaExtensionApprovedOrigins = t.array(t.string);
 type NamadaExtensionApprovedOriginsType = t.TypeOf<
   typeof NamadaExtensionApprovedOrigins
 >;
-
 const NamadaExtensionRouterId = t.number;
 type NamadaExtensionRouterIdType = t.TypeOf<typeof NamadaExtensionRouterId>;
 

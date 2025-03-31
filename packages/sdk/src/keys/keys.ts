@@ -2,15 +2,15 @@ import { chains } from "@namada/chains";
 import {
   HDWallet,
   Mnemonic as MnemonicWasm,
+  readStringPointer,
   ShieldedHDWallet,
   StringPointer,
-  readStringPointer,
 } from "@namada/crypto";
 import {
   Address as AddressWasm,
   ExtendedSpendingKey,
   ExtendedViewingKey,
-  PaymentAddress,
+  gen_payment_address,
   public_key_to_bech32,
 } from "@namada/shared";
 import { Bip44Path, Zip32Path } from "@namada/types";
@@ -19,6 +19,7 @@ import {
   Address,
   DEFAULT_BIP44_PATH,
   DEFAULT_ZIP32_PATH,
+  GeneratedPaymentAddress,
   MODIFIED_ZIP32_PATH,
   ShieldedKeys,
   TransparentKeys,
@@ -189,17 +190,18 @@ export class Keys {
     // Retrieve serialized types from wasm
     const xsk = derivedAccount.xsk();
     const xfvk = derivedAccount.xfvk();
-    const paymentAddress = derivedAccount.payment_address();
 
     // Deserialize and encode keys and address
     const extendedSpendingKey = new ExtendedSpendingKey(xsk);
     const extendedViewingKey = new ExtendedViewingKey(xfvk);
-    const address = new PaymentAddress(paymentAddress).encode();
     const spendingKey = extendedSpendingKey.encode();
     const viewingKey = extendedViewingKey.encode();
     const pseudoExtendedKey = extendedSpendingKey
       .to_pseudo_extended_key()
       .encode();
+
+    const [diversifierIndex, address] =
+      extendedViewingKey.default_payment_address();
 
     // Clear wasm resources from memory
     shieldedHdWallet.free();
@@ -209,9 +211,24 @@ export class Keys {
 
     return {
       address,
+      diversifierIndex,
       spendingKey,
       viewingKey,
       pseudoExtendedKey,
+    };
+  }
+
+  /**
+   * Generate a payment address from viewing key and diversifier index
+   * @param xfvk - viewing key
+   * @param [index] - diversifier index
+   * @returns GeneratedPaymentAddress
+   */
+  genPaymentAddress(xfvk: string, index: number = 0): GeneratedPaymentAddress {
+    const [diversifierIndex, address] = gen_payment_address(xfvk, index);
+    return {
+      address,
+      diversifierIndex,
     };
   }
 
@@ -226,10 +243,12 @@ export class Keys {
       .to_pseudo_extended_key()
       .encode();
     const viewingKey = extendedSpendingKey.to_viewing_key().encode();
-    const address = extendedSpendingKey.to_default_address().encode();
+    const [diversifierIndex, address] =
+      extendedSpendingKey.to_default_address();
 
     return {
       address,
+      diversifierIndex,
       viewingKey,
       pseudoExtendedKey,
       spendingKey,
