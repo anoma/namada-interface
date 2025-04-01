@@ -6,6 +6,7 @@ import {
   TransferToEthereum,
 } from "@namada/shared";
 import {
+  BroadcastTxError,
   DatedViewingKey,
   TxResponseMsgValue,
   TxResponseProps,
@@ -229,7 +230,11 @@ export class Rpc {
     signedTxBytes: Uint8Array,
     deadline: bigint = BigInt(60)
   ): Promise<TxResponseProps> {
-    const response = await this.sdk.broadcast_tx(signedTxBytes, deadline);
+    const response = await this.sdk
+      .broadcast_tx(signedTxBytes, deadline)
+      .catch((e) => {
+        throw new BroadcastTxError(e);
+      });
     return deserialize(Buffer.from(response), TxResponseMsgValue);
   }
 
