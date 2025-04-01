@@ -1,4 +1,5 @@
 import { ActionButton } from "@namada/components";
+import { routes } from "App/routes";
 import clsx from "clsx";
 
 export const StakeYourNamCard = (): JSX.Element => {
@@ -17,6 +18,7 @@ export const StakeYourNamCard = (): JSX.Element => {
         size="xs"
         backgroundColor="cyan"
         textColor="black"
+        href={routes.stakingBondingIncrement}
       >
         Stake NAM
       </ActionButton>

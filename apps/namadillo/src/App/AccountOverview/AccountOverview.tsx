@@ -7,6 +7,7 @@ import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { twMerge } from "tailwind-merge";
 import { AssetsOverviewPanel } from "./AssetsOverviewPanel";
 import { NavigationFooter } from "./NavigationFooter";
+import { StakeSidebar } from "./StakeSidebar";
 import { TotalBalanceBanner } from "./TotalBalanceBanner";
 
 export const AccountOverview = (): JSX.Element => {
@@ -31,6 +32,7 @@ export const AccountOverview = (): JSX.Element => {
         </section>
       </div>
       <Sidebar>
+        <StakeSidebar />
         <ShieldAllBanner />
         <MainnetRoadmap />
       </Sidebar>

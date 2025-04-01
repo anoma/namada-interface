@@ -168,7 +168,7 @@ export const UnshieldedAssetTable = (): JSX.Element => {
         >
           {nonZeroTransparentTokens.length ?
             <TransparentTokensTable data={nonZeroTransparentTokens} />
-          : <div className="bg-neutral-900 p-6 rounded-sm text-center font-medium my-14">
+          : <div className="bg-neutral-900 p-6 rounded-sm text-center font-medium mt-8">
               You currently hold no assets in your unshielded account
             </div>
           }

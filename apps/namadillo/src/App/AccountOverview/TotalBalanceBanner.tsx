@@ -72,7 +72,7 @@ export const TotalBalanceBanner = (): JSX.Element => {
             </div>
           )}
         </div>
-        <aside className="flex gap-4 items-center flex-wrap">
+        <aside className="hidden lg:flex gap-4 items-center flex-wrap">
           <ActionButton size="sm" className="w-auto px-3 py-1.5">
             Shield your Assets!
           </ActionButton>

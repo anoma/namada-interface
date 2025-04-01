@@ -1,20 +1,18 @@
 import { ActionButton, Panel, SkeletonLoading } from "@namada/components";
+import { routes } from "App/routes";
 import { transparentTokensAtom } from "atoms/balance";
 import { useAmountsInFiat } from "hooks/useAmountsInFiat";
 import { useAtomValue } from "jotai";
-import { useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { StakeYourNamCard } from "./StakeYourNamCard";
 import { TotalBalanceCard } from "./TotalBalanceCard";
 import { UnshieldedAssetTable } from "./UnshieldedAssetTable";
 
 export const UnshieldedAssetsOverview = (): JSX.Element => {
   const { unshieldedAmountInFiat } = useAmountsInFiat();
+  const location = useLocation();
+  const navigate = useNavigate();
   const transparentTokensQuery = useAtomValue(transparentTokensAtom);
-
-  const nonZeroTransparentTokens = useMemo(() => {
-    if (!transparentTokensQuery.data) return [];
-    return transparentTokensQuery.data.filter((i) => i.amount.gt(0));
-  }, [transparentTokensQuery.data]);
 
   const isLoading =
     transparentTokensQuery.isLoading ||
@@ -28,8 +26,16 @@ export const UnshieldedAssetsOverview = (): JSX.Element => {
           balanceInFiat={unshieldedAmountInFiat}
           footerButtons={
             <>
-              <ActionButton size="xs" className="w-auto px-4">
-                Shielded Assets
+              <ActionButton
+                onClick={() =>
+                  navigate(routes.shieldAssets, {
+                    state: { backgroundLocation: location },
+                  })
+                }
+                size="xs"
+                className="w-auto px-4"
+              >
+                Shield Assets
               </ActionButton>
             </>
           }
@@ -40,12 +46,7 @@ export const UnshieldedAssetsOverview = (): JSX.Element => {
       </div>
       {transparentTokensQuery.isSuccess && (
         <div className="mt-5 overflow-hidden">
-          {nonZeroTransparentTokens.length ?
-            <UnshieldedAssetTable />
-          : <div className="bg-neutral-900 p-6 rounded-sm text-center font-medium my-14">
-              You currently hold no assets in your unshielded account
-            </div>
-          }
+          <UnshieldedAssetTable />
         </div>
       )}
       {isLoading && (

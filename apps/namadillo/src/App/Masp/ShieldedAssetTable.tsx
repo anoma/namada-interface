@@ -1,32 +1,35 @@
 import { ActionButton, SkeletonLoading } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
-import { ShieldAssetsModal } from "App/Common/ShieldAssetsModal";
+import { routes } from "App/routes";
 import {
   shieldedRewardsPerTokenAtom,
   shieldedTokensAtom,
 } from "atoms/balance/atoms";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ShieldedFungibleTable } from "./ShieldedFungibleTable";
 import { ShieldedNFTTable } from "./ShieldedNFTTable";
 
 const tabs = ["Fungible", "NFT"];
 
 const ShieldAssetCta = (): JSX.Element => {
-  const [shieldingModalOpen, setShieldingModalOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
   return (
     <>
       <div className="flex-1 flex items-center justify-center">
         <ActionButton
-          onClick={() => setShieldingModalOpen(true)}
           className="w-fit uppercase"
+          onClick={() =>
+            navigate(routes.shieldAssets, {
+              state: { backgroundLocation: location },
+            })
+          }
         >
           Shield your first assets
         </ActionButton>
       </div>
-      {shieldingModalOpen && (
-        <ShieldAssetsModal onClose={() => setShieldingModalOpen(false)} />
-      )}
     </>
   );
 };
