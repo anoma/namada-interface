@@ -61,7 +61,7 @@ export const Navigation = (): JSX.Element => {
   ];
 
   return (
-    <div className="h-full flex flex-col justify-between flex-1 pt-6 pb-8 px-6">
+    <div className="min-h-full flex flex-col justify-between gap-10 p-6 pb-8">
       <ul className="flex flex-col gap-4">
         {menuItems.map((item) => (
           <li key={item.label}>
