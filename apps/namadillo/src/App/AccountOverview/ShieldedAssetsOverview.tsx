@@ -3,6 +3,7 @@ import { MaspSyncCover } from "App/Common/MaspSyncCover";
 import { ShieldedTransferIcon } from "App/Icons/ShieldedTransferIcon";
 import { UnshieldedTransferIcon } from "App/Icons/UnshieldedTransferIcon";
 import { ShieldedAssetTable } from "App/Masp/ShieldedAssetTable";
+import { routes } from "App/routes";
 import clsx from "clsx";
 import { useAmountsInFiat } from "hooks/useAmountsInFiat";
 import { useRequiresNewShieldedSync } from "hooks/useRequiresNewShieldedSync";
@@ -23,6 +24,7 @@ export const ShieldedAssetsOverview = (): JSX.Element => {
           footerButtons={
             <>
               <ActionButton
+                href={routes.transfer}
                 outlineColor="yellow"
                 size="xs"
                 className="w-auto px-4"
@@ -35,6 +37,7 @@ export const ShieldedAssetsOverview = (): JSX.Element => {
                 </span>
               </ActionButton>
               <ActionButton
+                href={routes.maspUnshield}
                 outlineColor="white"
                 size="xs"
                 className="w-auto px-4 items-center"
