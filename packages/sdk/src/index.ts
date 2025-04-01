@@ -1,5 +1,6 @@
 // Make Ledger available for direct-import as it is not dependent on Sdk initialization
 export {
+  LEDGER_MASP_BLACKLISTED,
   LEDGER_MIN_VERSION_ZIP32,
   Ledger,
   initLedgerUSBTransport,

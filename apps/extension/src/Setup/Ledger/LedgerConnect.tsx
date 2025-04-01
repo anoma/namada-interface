@@ -59,8 +59,8 @@ export const LedgerConnect: React.FC<Props> = ({
       if (returnCode !== LedgerError.NoErrors) {
         throw new Error(errorMessage);
       }
-      const canImportShielded = await ledger?.isZip32Supported();
-      setIsZip32Supported(canImportShielded);
+      const isMaspSupported = await ledger?.isZip32Supported();
+      setIsZip32Supported(isMaspSupported);
 
       setIsLedgerConnecting(true);
       setCurrentApprovalStep(1);
@@ -68,7 +68,7 @@ export const LedgerConnect: React.FC<Props> = ({
         makeBip44Path(chains.namada.bip44.coinType, bip44Path)
       );
 
-      if (canImportShielded) {
+      if (isMaspSupported) {
         // Import Shielded Keys
         const path = makeSaplingPath(chains.namada.bip44.coinType, {
           account: zip32Path.account,
@@ -157,8 +157,8 @@ export const LedgerConnect: React.FC<Props> = ({
 
         {isLedgerConnecting && !isZip32Supported && (
           <Alert type="warning">
-            Shielded key import will be enabled in NamadaApp v
-            {LEDGER_MIN_VERSION_ZIP32}
+            Shielded key import is not available for the Nano S or on versions
+            below {LEDGER_MIN_VERSION_ZIP32}
           </Alert>
         )}
 
