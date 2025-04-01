@@ -1,3 +1,4 @@
+import { TxProps } from "@namada/types";
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { defaultAccountAtom } from "atoms/accounts";
 import {
@@ -91,9 +92,10 @@ export const useTransaction = <T,>({
     tx: TransactionPair<T>,
     notification: PartialNotification
   ): void => {
+    console.log(tx, "TX", notification, "NOTIFICATION");
     dispatchNotification({
       ...notification,
-      id: createNotificationId(tx.encodedTxData.txs),
+      id: createNotificationId(tx.encodedTxData as EncodedTxData<TxProps>),
       type: "pending",
     });
   };
