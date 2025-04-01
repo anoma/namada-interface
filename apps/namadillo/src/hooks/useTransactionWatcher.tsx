@@ -46,7 +46,6 @@ export const useTransactionWatcher = (): void => {
               const newTx = await updateIbcWithdrawalStatus(
                 tx as IbcTransferTransactionData
               );
-              console.log(tx, "NEW TX");
               dispatchTransferEvent(transactionTypeToEventName(tx), newTx);
               break;
             }

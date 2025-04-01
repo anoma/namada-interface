@@ -92,7 +92,6 @@ export const useTransaction = <T,>({
     tx: TransactionPair<T>,
     notification: PartialNotification
   ): void => {
-    console.log(tx, "TX", notification, "NOTIFICATION");
     dispatchNotification({
       ...notification,
       id: createNotificationId(tx.encodedTxData as EncodedTxData<TxProps>),
