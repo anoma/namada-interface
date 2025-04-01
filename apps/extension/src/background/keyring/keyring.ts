@@ -17,7 +17,12 @@ import {
   TxProps,
   Zip32Path,
 } from "@namada/types";
-import { assertNever, Result, truncateInMiddle } from "@namada/utils";
+import {
+  assertNever,
+  Result,
+  shortenAddress,
+  truncateInMiddle,
+} from "@namada/utils";
 
 import {
   AccountSecret,
@@ -1071,6 +1076,8 @@ export class KeyRing {
   }
 
   async persistDisposableSigner(address: string): Promise<void> {
+    await this.vaultService.assertIsUnlocked();
+
     const disposableSigner =
       await this.localStorage.getDisposableSigner(address);
     if (!disposableSigner) {
@@ -1084,7 +1091,7 @@ export class KeyRing {
       address,
       publicKey,
       privateKey,
-      `Disposable-${address}`,
+      `Disposable: ${shortenAddress(address, 0, 8, "")}`,
       { account: 0, change: 0, index: 0 },
       vaultLength,
       "generated",

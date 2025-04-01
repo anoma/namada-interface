@@ -113,7 +113,7 @@ export const DisposableAccount = (): JSX.Element => {
         <ViewKeys
           privateKey={privateKey || ""}
           privateKeyLoading={!privateKey}
-          publicKeyAddress={account?.publicKey}
+          transparentAccountAddress={account?.address}
           trimCharacters={21}
         />
         <Stack className="flex-1 justify-center" gap={4} full>
