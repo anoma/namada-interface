@@ -1,4 +1,13 @@
+import { ExtensionKVStore } from "@namada/storage";
 import { createContext, useContext, useEffect, useState } from "react";
+import { KVPrefix } from "router";
+import { LocalStorage } from "storage";
+import browser from "webextension-polyfill";
+
+// Extension storages
+const localStorage = new LocalStorage(
+  new ExtensionKVStore(KVPrefix.LocalStorage, browser.storage.local)
+);
 
 type SettingsStorage = {
   showDisposableAccounts: boolean;
@@ -30,19 +39,20 @@ export const SettingsContextProvider = ({
     useState<boolean>(false);
 
   useEffect(() => {
-    const storedSettings = localStorage.getItem("settings");
+    void (async () => {
+      const settings = await localStorage.getSettings();
 
-    if (storedSettings) {
-      const settings: SettingsStorage = JSON.parse(storedSettings);
-      setShowDisposableAccounts(settings.showDisposableAccounts);
-    }
+      if (settings) {
+        setShowDisposableAccounts(settings.showDisposableAccounts);
+      }
+    })();
   }, []);
 
-  const toggleShowDisposableAccounts = (): void => {
+  const toggleShowDisposableAccounts = async (): Promise<void> => {
     const newSettings: SettingsStorage = {
       showDisposableAccounts: !showDisposableAccounts,
     };
-    localStorage.setItem("settings", JSON.stringify(newSettings));
+    await localStorage.setSettings(newSettings);
     setShowDisposableAccounts(!showDisposableAccounts);
   };
 
