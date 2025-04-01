@@ -8,6 +8,7 @@ import {
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { PulsingRing } from "App/Common/PulsingRing";
 import { TokensAnimation } from "App/Common/TokensAnimation";
+import { routes } from "App/routes";
 import { shieldedBalanceAtom } from "atoms/balance";
 import { applicationFeaturesAtom } from "atoms/settings";
 import clsx from "clsx";
@@ -15,6 +16,7 @@ import { useAmountsInFiat } from "hooks/useAmountsInFiat";
 import { useRequiresNewShieldedSync } from "hooks/useRequiresNewShieldedSync";
 import { useAtomValue } from "jotai";
 import { GoInfo } from "react-icons/go";
+import { useNavigate } from "react-router-dom";
 
 export const TotalBalanceBanner = (): JSX.Element => {
   const { namTransfersEnabled } = useAtomValue(applicationFeaturesAtom);
@@ -23,6 +25,7 @@ export const TotalBalanceBanner = (): JSX.Element => {
   const shouldWaitForShieldedSync = requiresNewShieldedSync && isShieldSyncing;
   const { shieldedQuery, unshieldedQuery, totalAmountInFiat } =
     useAmountsInFiat();
+  const navigate = useNavigate();
 
   const balancesHaveLoaded =
     shieldedQuery.isSuccess && unshieldedQuery.isSuccess;
@@ -73,7 +76,15 @@ export const TotalBalanceBanner = (): JSX.Element => {
           )}
         </div>
         <aside className="hidden lg:flex gap-4 items-center flex-wrap">
-          <ActionButton size="sm" className="w-auto px-3 py-1.5">
+          <ActionButton
+            onClick={() =>
+              navigate(routes.shieldAssets, {
+                state: { backgroundLocation: "" },
+              })
+            }
+            size="sm"
+            className="w-auto px-3 py-1.5"
+          >
             Shield your Assets!
           </ActionButton>
           <div className="w-[140px]">

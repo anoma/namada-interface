@@ -1,8 +1,11 @@
 import { ActionButton } from "@namada/components";
 import { routes } from "App/routes";
 import clsx from "clsx";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const StakeYourNamCard = (): JSX.Element => {
+  const navigate = useNavigate();
+  const location = useLocation();
   return (
     <div
       className={clsx(
@@ -18,7 +21,11 @@ export const StakeYourNamCard = (): JSX.Element => {
         size="xs"
         backgroundColor="cyan"
         textColor="black"
-        href={routes.stakingBondingIncrement}
+        onClick={() =>
+          navigate(routes.stakingBondingIncrement, {
+            state: { backgroundLocation: location },
+          })
+        }
       >
         Stake NAM
       </ActionButton>

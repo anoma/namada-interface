@@ -7,6 +7,8 @@ import { UnshieldedAssetsOverview } from "./UnshieldedAssetsOverview";
 
 export const AssetsOverviewPanel = (): JSX.Element => {
   const requiresNewShieldedSync = useRequiresNewShieldedSync();
+
+  // Always select the unshielded tab as default if shielded sync is required
   const [currentTab, setCurrentTab] = useState(requiresNewShieldedSync ? 1 : 0);
   const shieldedPanelSelected = currentTab === 0;
 
