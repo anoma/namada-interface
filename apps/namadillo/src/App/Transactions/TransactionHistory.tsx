@@ -18,7 +18,7 @@ export const TransactionHistory = (): JSX.Element => {
 
   return (
     <>
-      <Panel className="flex flex-col gap-6 flex-1 h-full">
+      <Panel className="flex flex-col gap-6 flex-1">
         <h2 className="mb-7">Transfers made by this device</h2>
         {pending.length > 0 && (
           <section>

@@ -15,8 +15,8 @@ export const AppLayout = ({
 
   return (
     <>
-      <AlphaVersionTopHeader />
-      <div className="custom-container pb-2">
+      <div className="sticky top-0 bg-neutral-800 z-50">
+        <AlphaVersionTopHeader />
         <AppHeader
           burger={
             <span className="sm:px-0 lg:hidden">
@@ -27,24 +27,29 @@ export const AppLayout = ({
             </span>
           }
         />
-        <div
+      </div>
+      <div className="lg:grid lg:grid-cols-[220px_auto] lg:gap-2 px-6">
+        <aside
+          onClick={(e) => e.stopPropagation()}
           className={twMerge(
-            "grid lg:grid-cols-[220px_auto] lg:gap-2 min-h-[calc(100svh-95px)]"
+            // mobile, burger, fixed, full height
+            "transition-transform duration-500 ease-out-expo",
+            "fixed left-0 top-0 bottom-0 z-[9999]",
+            !displayNavigation && "-translate-x-full lg:translate-x-0",
+            // desktop, left nav, floating panel - 112px is the header height
+            "lg:sticky lg:top-[112px] lg:h-[calc(100svh-112px)] lg:pb-2",
+            "lg:transition-none lg:z-auto"
           )}
         >
-          <aside
-            onClick={(e) => e.stopPropagation()}
+          <div
             className={twMerge(
-              "transition-transform duration-500 ease-out-expo",
-              "pt-10 bg-black rounded-sm fixed top-0 z-[9999] w-[240px]",
-              "h-svh lg:h-[calc(100svh-90px)] left-0 lg:z-0 lg:transition-none",
-              "lg:pt-0 lg:w-auto lg:relative",
-              !displayNavigation && "-translate-x-full lg:translate-x-0"
+              "h-full bg-black w-[240px] pt-10",
+              "lg:w-auto lg:p-0 lg:rounded-sm overflow-auto"
             )}
           >
             {displayNavigation && (
               <button
-                className="absolute top-4 left-4 text-white hover:text-yellow text-2xl"
+                className="absolute top-4 left-4 text-white hover:text-yellow text-2xl lg:hidden"
                 onClick={() => setDisplayNavigation(false)}
                 aria-label="Close Navigation"
               >
@@ -52,9 +57,9 @@ export const AppLayout = ({
               </button>
             )}
             <Navigation />
-          </aside>
-          <main className="min-h-full">{children}</main>
-        </div>
+          </div>
+        </aside>
+        <main className="min-h-full pb-2">{children}</main>
       </div>
     </>
   );

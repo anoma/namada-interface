@@ -12,7 +12,7 @@ export const AppHeader = ({ burger }: { burger: ReactNode }): JSX.Element => {
         "grid gap-2",
         "grid-cols-[auto_auto] lg:grid-cols-[220px_auto]",
         "h-[80px] items-center",
-        "px-6 sm:px-0"
+        "px-6"
       )}
     >
       <div className="flex items-center gap-4">
