@@ -1,6 +1,7 @@
 use std::ops::Deref;
 use std::{path::PathBuf, str::FromStr};
 
+use namada_sdk::address::DecodeError;
 use namada_sdk::borsh::{BorshDeserialize, BorshSerialize};
 use namada_sdk::collections::HashMap;
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
@@ -875,13 +876,14 @@ pub fn ibc_transfer_tx_args(
 
     let refund_target = match &source {
         TransferSource::Address(_) => None,
-        TransferSource::ExtendedKey(_) => refund_target.map(|rt| {
-            TransferTarget::Address(
-                // TODO: unwrap
-                Address::from_str(&rt).unwrap(),
-            )
-        }),
-    };
+        TransferSource::ExtendedKey(_) => {
+            refund_target.map(|rt| -> Result<TransferTarget, DecodeError> {
+                let addr = Address::from_str(&rt)?;
+                Ok(TransferTarget::Address(addr))
+            })
+        }
+    }
+    .transpose()?;
 
     let tx = tx_msg_into_args(tx_msg)?;
     let bparams = bparams_msg_into_bparams(bparams_msg);
