@@ -1,6 +1,5 @@
 import { chains } from "@namada/chains";
 import {
-  Keys,
   makeBip44Path,
   MODIFIED_ZIP32_PATH,
   PhraseSize,
@@ -257,6 +256,7 @@ export class KeyRing {
     pseudoExtendedKey: string,
     text: string,
     alias: string,
+    diversifierIndex: number,
     path: Bip44Path,
     vaultLength: number,
     source: AccountSource,
@@ -278,6 +278,7 @@ export class KeyRing {
       alias,
       address,
       owner: viewingKey,
+      diversifierIndex,
       path,
       pseudoExtendedKey,
       type: AccountType.ShieldedKeys,
@@ -320,50 +321,6 @@ export class KeyRing {
       source,
       timestamp,
     };
-  }
-
-  accountStore(
-    accountType: AccountType,
-    keys: Keys,
-    sk: string,
-    text: string,
-    alias: string,
-    path: Bip44Path,
-    vaultLength: number,
-    source: AccountSource,
-    timestamp: number
-  ): AccountStore {
-    switch (accountType) {
-      case AccountType.ShieldedKeys: {
-        const { address, viewingKey, pseudoExtendedKey } =
-          keys.shieldedKeysFromSpendingKey(sk);
-        return this.accountStoreShielded(
-          address,
-          viewingKey,
-          pseudoExtendedKey,
-          text,
-          alias,
-          path,
-          vaultLength,
-          source,
-          timestamp
-        );
-      }
-      default: {
-        const { address, publicKey } = keys.getAddress(sk);
-        return this.accountStoreDefault(
-          accountType,
-          address,
-          publicKey,
-          text,
-          alias,
-          path,
-          vaultLength,
-          source,
-          timestamp
-        );
-      }
-    }
   }
 
   // Store validated mnemonic, private key, or spending key
@@ -431,54 +388,33 @@ export class KeyRing {
         case AccountType.ShieldedKeys:
           const shieldedKeys = keys.shieldedKeysFromSpendingKey(sk);
 
-          // Generate unique id for shielded key
-          const shieldedId = generateId(
-            UUID_NAMESPACE,
-            text,
-            alias,
+          return this.accountStoreShielded(
             shieldedKeys.address,
             shieldedKeys.viewingKey,
-            path.account,
-            vaultLength
-          );
-
-          return {
-            id: shieldedId,
-            alias,
-            address: shieldedKeys.address,
-            owner: shieldedKeys.viewingKey,
-            diversifierIndex: shieldedKeys.diversifierIndex,
-            path,
-            pseudoExtendedKey: shieldedKeys.pseudoExtendedKey,
-            type: accountType,
-            source,
-            timestamp,
-          };
-        default:
-          // Generate unique ID for new parent account:
-          const { address, publicKey } = keys.getAddress(sk);
-          const id = generateId(
-            UUID_NAMESPACE,
+            shieldedKeys.pseudoExtendedKey,
             text,
             alias,
-            address,
-            path.account,
-            path.change,
-            path.index,
-            vaultLength
+            shieldedKeys.diversifierIndex,
+            path,
+            vaultLength,
+            source,
+            timestamp
           );
 
-          return {
-            id,
-            alias,
+        default:
+          const { address, publicKey } = keys.getAddress(sk);
+
+          return this.accountStoreDefault(
+            accountType,
             address,
-            owner: address,
-            path,
             publicKey,
-            type: accountType,
+            text,
+            alias,
+            path,
+            vaultLength,
             source,
-            timestamp,
-          };
+            timestamp
+          );
       }
     })();
 
