@@ -6,7 +6,11 @@ import {
   OnSubmitTransferParams,
   TransferModule,
 } from "App/Transfer/TransferModule";
-import { allDefaultAccountsAtom, defaultAccountAtom } from "atoms/accounts";
+import {
+  allDefaultAccountsAtom,
+  defaultAccountAtom,
+  disposableSignerAtom,
+} from "atoms/accounts";
 import {
   namadaShieldedAssetsAtom,
   namadaTransparentAssetsAtom,
@@ -21,7 +25,6 @@ import { ledgerStatusDataAtom } from "atoms/ledger";
 import { createIbcTxAtom } from "atoms/transfer/atoms";
 import {
   clearDisposableSigner,
-  getDisposableSigner,
   persistDisposableSigner,
 } from "atoms/transfer/services";
 import BigNumber from "bignumber.js";
@@ -71,6 +74,7 @@ export const IbcWithdraw: React.FC = () => {
   const [completedAt, setCompletedAt] = useState<Date | undefined>();
   const [txHash, setTxHash] = useState<string | undefined>();
   const [destinationChain, setDestinationChain] = useState<Chain | undefined>();
+  const { refetch: genDisposableSigner } = useAtomValue(disposableSignerAtom);
 
   const chainTokens = useAtomValue(chainTokensAtom);
 
@@ -295,9 +299,9 @@ export const IbcWithdraw: React.FC = () => {
       : transparentAccount.data.address;
     const gasSpendingKey =
       shielded ? shieldedAccount.pseudoExtendedKey : undefined;
-    // TODO: probably we should not call fn from service directly
+
     const refundTarget =
-      shielded ? (await getDisposableSigner()).address : undefined;
+      shielded ? (await genDisposableSigner()).data?.address : undefined;
 
     setLedgerStatusStop(true);
     try {

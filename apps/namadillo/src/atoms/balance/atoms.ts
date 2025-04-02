@@ -357,31 +357,6 @@ export const shieldRewardsAtom = atomWithQuery((get) => {
 });
 
 export const cachedShieldedRewardsAtom = atom((get) => {
-  const viewingKeysQuery = get(viewingKeysAtom);
-  const storage = get(storageShieldedRewardsAtom);
-
-  if (!viewingKeysQuery.data || !storage) {
-    return { amount: BigNumber(0) };
-  }
-  const [viewingKey] = viewingKeysQuery.data;
-
-  if (!viewingKey) {
-    return { amount: BigNumber(0) };
-  }
-
-  const rewards = get(shieldRewardsAtom);
-  const data = rewards.isSuccess ? rewards.data : storage[viewingKey.key];
-
-  if (!data) {
-    return { amount: BigNumber(0) };
-  }
-
-  return {
-    amount: toDisplayAmount(namadaAsset(), BigNumber(data.minDenomAmount)),
-  };
-});
-
-export const cachedShieldedRewardsAtom2 = atom((get) => {
   const viewingKeysQuery = O.fromNullable(get(viewingKeysAtom).data);
   const storage = O.fromNullable(get(storageShieldedRewardsAtom));
 
@@ -393,9 +368,9 @@ export const cachedShieldedRewardsAtom2 = atom((get) => {
 
   const storageRewards = pipe(
     sequenceT(O.Applicative)(viewingKey, storage),
-    O.map(([viewingKey, storage]) => ({
-      minDenomAmount: BigNumber(storage[viewingKey.key].minDenomAmount),
-    }))
+    O.map(([viewingKey, storage]) => O.fromNullable(storage[viewingKey.key])),
+    O.flatten,
+    O.map((data) => ({ minDenomAmount: BigNumber(data.minDenomAmount) }))
   );
 
   const rewards = pipe(
@@ -406,7 +381,7 @@ export const cachedShieldedRewardsAtom2 = atom((get) => {
 
   const finalRewards = pipe(
     rewards,
-    O.orElse(() => storageRewards),
+    O.alt(() => storageRewards),
     O.map((data) => BigNumber(data.minDenomAmount)),
     O.getOrElse(() => BigNumber(0))
   );

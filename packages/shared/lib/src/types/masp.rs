@@ -2,11 +2,12 @@
 //! See @namada/crypto for zip32 HD wallet functionality.
 use std::str::FromStr;
 
+use crate::utils::to_js_result;
 use js_sys::Uint8Array;
 use namada_sdk::borsh::{self, BorshDeserialize};
+use namada_sdk::masp_primitives::sapling;
 use namada_sdk::masp_primitives::sapling::ViewingKey;
 use namada_sdk::masp_primitives::zip32::{self, DiversifierIndex, ExtendedKey};
-use namada_sdk::masp_primitives::sapling;
 use namada_sdk::masp_proofs::jubjub;
 use namada_sdk::state::BlockHeight;
 use namada_sdk::wallet::DatedKeypair;
@@ -16,7 +17,6 @@ use namada_sdk::{
 };
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
-use crate::utils::to_js_result;
 
 #[derive(Debug, Error)]
 pub enum MaspError {
@@ -93,7 +93,6 @@ pub struct PseudoExtendedKey(pub(crate) zip32::PseudoExtendedKey);
 
 #[wasm_bindgen]
 impl PseudoExtendedKey {
-    // TODO: propagate error
     pub fn encode(&self) -> String {
         hex::encode(borsh::to_vec(&self.0).expect("Serializing PseudoExtendedKey should not fail!"))
     }
@@ -106,7 +105,6 @@ impl PseudoExtendedKey {
         Ok(PseudoExtendedKey(pek))
     }
 
-    // TODO: propagate error
     pub fn from(xvk: ExtendedViewingKey, pgk: ProofGenerationKey) -> Self {
         let mut pxk = zip32::PseudoExtendedKey::from(zip32::ExtendedFullViewingKey::from(xvk.0));
         pxk.augment_proof_generation_key(pgk.0)
@@ -208,7 +206,6 @@ impl PaymentAddress {
     pub fn encode(&self) -> String {
         self.0.to_string()
     }
-
 }
 
 /// Find next payment address from current index for viewing key
@@ -220,7 +217,9 @@ pub fn gen_payment_address(vk: String, index: u32) -> Result<JsValue, JsError> {
         NamadaExtendedViewingKey::from_str(&vk)
             .expect("Parsing ExtendedViewingKey should not fail!"),
     );
-    let (div_idx, masp_payment_addr) = xfvk.find_address(diversifier_index).expect("Exhausted payment addresses");
+    let (div_idx, masp_payment_addr) = xfvk
+        .find_address(diversifier_index)
+        .expect("Exhausted payment addresses");
 
     let payment_addr = NamadaPaymentAddress::from(masp_payment_addr);
     let payment_address = PaymentAddress(payment_addr);
