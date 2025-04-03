@@ -1,21 +1,11 @@
+export const notificationIdSeparator = ";";
 import { TxProps } from "@namada/types";
 
-export const notificationIdSeparator = ";";
-
 export const createNotificationId = (
-  data?: TxProps | TxProps[] | string
+  data?: TxProps["hash"] | TxProps["hash"][]
 ): string => {
   if (!data) return Date.now().toString();
   if (typeof data === "string") return data;
-
-  if (Array.isArray(data)) {
-    return data
-      .map((tx) => {
-        if (tx.hash) return tx.hash;
-        else if ("innerTxHashes" in tx && Array.isArray(tx.innerTxHashes))
-          return tx.innerTxHashes.join(notificationIdSeparator);
-      })
-      .join(notificationIdSeparator);
-  }
-  return data.hash;
+  if (Array.isArray(data)) return data.join(notificationIdSeparator);
+  return data;
 };
