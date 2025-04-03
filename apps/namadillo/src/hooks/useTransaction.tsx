@@ -91,9 +91,13 @@ export const useTransaction = <T,>({
     tx: TransactionPair<T>,
     notification: PartialNotification
   ): void => {
+    const notificationId =
+      tx.encodedTxData.type === "buildIbcTransfer" ?
+        createNotificationId(tx.encodedTxData.txs[0].innerTxHashes)
+      : createNotificationId(tx.encodedTxData.txs[0].hash);
     dispatchNotification({
       ...notification,
-      id: createNotificationId(tx.encodedTxData.txs[0].innerTxHashes),
+      id: notificationId,
       type: "pending",
     });
   };
@@ -104,9 +108,13 @@ export const useTransaction = <T,>({
     notification: PartialNotification,
     tx: TransactionPair<T>
   ): void => {
+    const notificationId =
+      tx.encodedTxData.type === "buildIbcTransfer" ?
+        createNotificationId(tx.encodedTxData.txs[0].innerTxHashes)
+      : createNotificationId(tx.encodedTxData.txs[0].hash);
     dispatchNotification({
       ...notification,
-      id: createNotificationId(tx.encodedTxData.txs[0].innerTxHashes),
+      id: notificationId,
       details: error instanceof Error ? error.message : undefined,
       type: "error",
     });
