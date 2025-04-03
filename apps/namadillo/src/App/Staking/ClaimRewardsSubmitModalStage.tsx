@@ -36,7 +36,7 @@ export const ClaimRewardsSubmitModalStage = ({
 }: ClaimRewardsPanelProps): JSX.Element => {
   const validators = useAtomValue(allValidatorsAtom);
   const availableRewards = sumBigNumberArray(
-    rewardsToClaim.map((r) => rewards[r.validator])
+    rewardsToClaim.map((r) => rewards[r.validator]).filter(Boolean)
   );
   const allRewards = rewardsToClaim.length === Object.keys(rewards).length;
   const image = isClaimAndStake ? claimAndStakeImage : claimImage;
