@@ -259,3 +259,16 @@ export const isOutdatedShieldedAccount = (
   }
   return outdated;
 };
+
+export const isDisposableAccountOutdated = (
+  account: DerivedAccount
+): [boolean, number] => {
+  if (account.type !== AccountType.DisposableToRemove || !account.timestamp) {
+    return [false, 0];
+  }
+  const now = new Date().getTime();
+  const offset = 86400000;
+  const diff = account.timestamp + offset - now;
+
+  return [Boolean(diff <= 0), Math.max(Math.ceil(diff / 1000), 0)];
+};

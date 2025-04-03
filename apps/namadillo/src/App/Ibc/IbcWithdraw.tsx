@@ -24,7 +24,7 @@ import {
 import { ledgerStatusDataAtom } from "atoms/ledger";
 import { createIbcTxAtom } from "atoms/transfer/atoms";
 import {
-  clearDisposableSigner,
+  markDisposableKeypairForRemoval,
   persistDisposableSigner,
 } from "atoms/transfer/services";
 import BigNumber from "bignumber.js";
@@ -119,7 +119,7 @@ export const IbcWithdraw: React.FC = () => {
       setCompletedAt(new Date());
       // We are clearing the disposable signer only if the transaction was successful on the target chain
       if (shielded && refundTarget) {
-        await clearDisposableSigner(refundTarget);
+        await markDisposableKeypairForRemoval(refundTarget);
       }
     }
   });
@@ -241,7 +241,7 @@ export const IbcWithdraw: React.FC = () => {
       // We do not want to clear the disposable signer if the transaction failed on the target chain
       const refundTarget = context?.encodedTxData.meta?.props[0].refundTarget;
       if (shielded && refundTarget) {
-        await clearDisposableSigner(refundTarget);
+        await markDisposableKeypairForRemoval(refundTarget);
       }
     },
   });

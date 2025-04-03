@@ -57,8 +57,6 @@ const init = new Promise<void>(async (resolve) => {
   const broadcaster = new ExtensionBroadcaster(localStorage, requester);
   const sdkService = await SdkService.init();
 
-  await localStorage.clearOldDisposableSigners();
-
   const vaultService = new VaultService(
     vaultStorage,
     sessionStore,
@@ -87,6 +85,9 @@ const init = new Promise<void>(async (resolve) => {
     chainService,
     broadcaster
   );
+
+  // Clear old disposable signers
+  await keyRingService.clearOldDisposableKeypairs();
 
   // Initialize messages and handlers
   initApprovals(router, approvalsService);

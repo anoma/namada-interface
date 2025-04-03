@@ -28,6 +28,8 @@ export enum AccountType {
   Ledger = "ledger",
   // Disposable
   Disposable = "disposable",
+  // Disposable that are marked for removal
+  DisposableToRemove = "disposable-to-remove",
 }
 
 export type DerivedAccount = {

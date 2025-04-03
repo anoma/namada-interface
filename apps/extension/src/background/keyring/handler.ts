@@ -323,7 +323,7 @@ const handleClearDisposableSignerMsg: (
   service: KeyRingService
 ) => InternalHandler<ClearDisposableSignerMsg> = (service) => {
   return async (_, { address }) => {
-    return await service.clearDisposableSigner(address);
+    return await service.markDisposableKeypairForRemoval(address);
   };
 };
 

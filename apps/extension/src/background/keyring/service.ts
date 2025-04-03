@@ -277,8 +277,12 @@ export class KeyRingService {
     return this._keyRing.persistDisposableSigner(address);
   }
 
-  async clearDisposableSigner(address: string): Promise<void> {
-    return this._keyRing.clearDisposableSigner(address);
+  async markDisposableKeypairForRemoval(address: string): Promise<void> {
+    return this._keyRing.markDisposableKeypairForRemoval(address);
+  }
+
+  async clearOldDisposableKeypairs(): Promise<void> {
+    return this._keyRing.clearOldDisposableKeypairs();
   }
 
   async genPaymentAddress(

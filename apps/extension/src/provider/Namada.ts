@@ -144,7 +144,7 @@ export class Namada implements INamada {
     );
   }
 
-  public async clearDisposableKeypair({
+  public async markDisposableKeypairForRemoval({
     address,
   }: ClearDisposableSignerProps): Promise<void> {
     return await this.requester?.sendMessage(

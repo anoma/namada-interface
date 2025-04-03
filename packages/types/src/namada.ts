@@ -50,7 +50,9 @@ export interface Namada {
   verify(props: VerifyArbitraryProps): Promise<void>;
   genDisposableKeypair(): Promise<GenDisposableSignerResponse | undefined>;
   persistDisposableKeypair(props: PersistDisposableSignerProps): Promise<void>;
-  clearDisposableKeypair(props: ClearDisposableSignerProps): Promise<void>;
+  markDisposableKeypairForRemoval(
+    props: ClearDisposableSignerProps
+  ): Promise<void>;
   version: () => string;
 }
 

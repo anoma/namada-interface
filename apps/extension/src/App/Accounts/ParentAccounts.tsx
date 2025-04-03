@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
 import {
@@ -12,7 +12,11 @@ import { ParentAccountsFooter } from "App/Accounts/ParentAccountsFooter";
 import { PageHeader } from "App/Common";
 import routes from "App/routes";
 import { AccountContext, useSettingsContext } from "context";
-import { isOutdatedShieldedAccount, openSetupTab } from "utils";
+import {
+  isDisposableAccountOutdated,
+  isOutdatedShieldedAccount,
+  openSetupTab,
+} from "utils";
 
 type Account = DerivedAccount & { outdated: boolean };
 
@@ -87,16 +91,22 @@ export const ParentAccounts = (): JSX.Element => {
     navigate(routes.disposableKeyDetails(account.id), { state: { account } });
   };
 
+  const isDisposableAccount = useCallback((account: Account): boolean => {
+    return [AccountType.Disposable, AccountType.DisposableToRemove].includes(
+      account.type
+    );
+  }, []);
+
   // Filter out disposable accounts if the setting is disabled
   const filteredAccounts =
     !showDisposableAccounts ?
-      accounts.filter((account) => account.type !== AccountType.Disposable)
+      accounts.filter((account) => !isDisposableAccount(account))
     : accounts;
 
   // Sort accounts so disposable accounts are at the bottom
   const sortedAccounts = filteredAccounts.sort((a, b) => {
-    const disposableA = a.type === AccountType.Disposable;
-    const disposableB = b.type === AccountType.Disposable;
+    const disposableA = isDisposableAccount(a);
+    const disposableB = isDisposableAccount(b);
     if (disposableA && !disposableB) {
       return -1;
     }
@@ -131,6 +141,7 @@ export const ParentAccounts = (): JSX.Element => {
                 alias={account.alias}
                 type={account.type}
                 outdated={account.outdated}
+                disposableOutdated={isDisposableAccountOutdated(account)}
                 dropdownPosition={
                   idx > 2 && idx > accounts.length - 4 ? "bottom" : "top"
                 }
