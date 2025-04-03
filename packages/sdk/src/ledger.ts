@@ -28,9 +28,12 @@ export type LedgerProofGenerationKey = {
 export type LedgerStatus = {
   version: ResponseVersion;
   info: ResponseAppInfo;
+  deviceId?: string;
+  deviceName?: string;
 };
 
 export const LEDGER_MIN_VERSION_ZIP32 = "3.0.0";
+export const LEDGER_MASP_BLACKLISTED = "nanoS";
 
 export type Bparams = {
   spend: {
@@ -119,10 +122,13 @@ export class Ledger {
   public async status(): Promise<LedgerStatus> {
     const version = await this.namadaApp.getVersion();
     const info = await this.namadaApp.getAppInfo();
+    const device = this.namadaApp.transport.deviceModel;
 
     return {
       version,
       info,
+      deviceId: device?.id,
+      deviceName: device?.productName,
     };
   }
 
@@ -235,7 +241,7 @@ export class Ledger {
     promptUser = true
   ): Promise<LedgerViewingKey> {
     try {
-      await this.validateVersionForZip32();
+      await this.validateZip32Support();
 
       const { xfvk }: ResponseViewKey = await this.namadaApp.retrieveKeys(
         path,
@@ -268,7 +274,7 @@ export class Ledger {
     promptUser = true
   ): Promise<LedgerProofGenerationKey> {
     try {
-      await this.validateVersionForZip32();
+      await this.validateZip32Support();
 
       const { ak, nsk }: ResponseProofGenKey =
         await this.namadaApp.retrieveKeys(
@@ -343,21 +349,33 @@ export class Ledger {
   public async isZip32Supported(): Promise<boolean> {
     const {
       info: { appVersion },
+      deviceId,
     } = await this.status();
-    return !semver.lt(appVersion, LEDGER_MIN_VERSION_ZIP32);
+    const isSupportedVersion = !semver.lt(appVersion, LEDGER_MIN_VERSION_ZIP32);
+    const isSupportedDevice = deviceId !== LEDGER_MASP_BLACKLISTED;
+
+    return isSupportedVersion && isSupportedDevice;
   }
 
   /**
-   * Validate the version against the minimum required version for Zip32 functionality.
+   * Validate the version against the minimum required version and
+   * device type for Zip32 functionality.
    * Throw error if it is unsupported or app is not initialized.
    * @async
    * @returns void
    */
-  private async validateVersionForZip32(): Promise<void> {
+  private async validateZip32Support(): Promise<void> {
     if (!(await this.isZip32Supported())) {
       const {
         info: { appVersion },
+        deviceId,
+        deviceName,
       } = await this.status();
+
+      if (deviceId === LEDGER_MASP_BLACKLISTED) {
+        throw new Error(`This method is not supported on ${deviceName}!`);
+      }
+
       throw new Error(
         `This method requires Zip32 and is unsupported in ${appVersion}! ` +
           `Please update to at least ${LEDGER_MIN_VERSION_ZIP32}!`
