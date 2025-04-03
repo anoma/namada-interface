@@ -1,6 +1,7 @@
-import { Checkbox, DropdownMenu, Stack } from "@namada/components";
+import { Checkbox, DropdownMenu, Stack, Tooltip } from "@namada/components";
 
 import { AccountType } from "@namada/types";
+import { singleUnitDurationFromInterval } from "@namada/utils";
 import clsx from "clsx";
 import { createElement } from "react";
 import { FaChevronRight } from "react-icons/fa6";
@@ -20,6 +21,7 @@ type KeyListItemProps = {
   onViewRecoveryPhrase: () => void;
   onDisposableKeyDetails: () => void;
   dropdownPosition?: "top" | "bottom";
+  disposableOutdated: [boolean, number];
 };
 
 const keyListItem = tv({
@@ -39,6 +41,7 @@ export const KeyListItem = ({
   isMainKey,
   type,
   outdated,
+  disposableOutdated,
   onDelete,
   onRename,
   onViewAccount,
@@ -48,6 +51,13 @@ export const KeyListItem = ({
   dropdownPosition = "top",
   ...props
 }: KeyListItemProps): JSX.Element => {
+  const isDisposable = [
+    AccountType.Disposable,
+    AccountType.DisposableToRemove,
+  ].includes(type);
+  const isDisposableToRemove = type === AccountType.DisposableToRemove;
+  const [_, timestampDiff] = disposableOutdated;
+
   return createElement(
     props.as || "div",
     { className: keyListItem({ selected: isMainKey }) },
@@ -69,7 +79,17 @@ export const KeyListItem = ({
         {outdated && (
           <PiWarning className="inline text-yellow w-[24px] h-[24px]" />
         )}
-        {type !== AccountType.Disposable && (
+        {isDisposableToRemove && (
+          <div className="relative group/tooltip z-10">
+            <PiWarning className="inline text-yellow w-[24px] h-[24px]" />
+            <Tooltip className="w-[250px]" position="left">
+              This account was not utilized during Shielded Ibc Withdraw and
+              will be automatically deleted in{" "}
+              {singleUnitDurationFromInterval(0, timestampDiff)}.
+            </Tooltip>
+          </div>
+        )}
+        {!isDisposable && (
           <DropdownMenu
             id={alias}
             align="right"
@@ -101,7 +121,7 @@ export const KeyListItem = ({
             ]}
           />
         )}
-        {type === AccountType.Disposable && (
+        {isDisposable && (
           <button
             onClick={onDisposableKeyDetails}
             className={clsx("text-white text-lg")}

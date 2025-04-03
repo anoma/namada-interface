@@ -23,5 +23,5 @@ export interface Signer {
   verify: (publicKey: string, hash: string, signature: string) => Promise<void>;
   genDisposableKeypair: () => Promise<GenDisposableSignerResponse | undefined>;
   persistDisposableKeypair: (address: string) => Promise<void>;
-  clearDisposableKeypair: (address: string) => Promise<void>;
+  markDisposableKeypairForRemoval: (address: string) => Promise<void>;
 }

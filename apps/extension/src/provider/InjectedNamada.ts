@@ -94,11 +94,11 @@ export class InjectedNamada implements INamada {
     >("persistDisposableKeypair", props);
   }
 
-  public async clearDisposableKeypair(
+  public async markDisposableKeypairForRemoval(
     props: ClearDisposableSignerProps
   ): Promise<void> {
     return await InjectedProxy.requestMethod<ClearDisposableSignerProps, void>(
-      "clearDisposableKeypair",
+      "markDisposableKeypairForRemoval",
       props
     );
   }

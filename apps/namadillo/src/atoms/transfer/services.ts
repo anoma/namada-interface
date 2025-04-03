@@ -80,9 +80,11 @@ export const persistDisposableSigner = async (
   await namada?.getSigner().persistDisposableKeypair(address);
 };
 
-export const clearDisposableSigner = async (address: string): Promise<void> => {
+export const markDisposableKeypairForRemoval = async (
+  address: string
+): Promise<void> => {
   const namada = await new NamadaKeychain().get();
-  await namada?.getSigner().clearDisposableKeypair(address);
+  await namada?.getSigner().markDisposableKeypairForRemoval(address);
 };
 
 export const createTransparentTransferTx = async (

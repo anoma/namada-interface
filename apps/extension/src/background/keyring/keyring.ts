@@ -45,7 +45,7 @@ import {
   SensitiveType,
   VaultStorage,
 } from "storage";
-import { generateId } from "utils";
+import { generateId, isDisposableAccountOutdated } from "utils";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -231,9 +231,11 @@ export class KeyRing {
     );
 
     if (
-      ![AccountType.PrivateKey, AccountType.Disposable].includes(
-        account.public.type
-      )
+      ![
+        AccountType.PrivateKey,
+        AccountType.Disposable,
+        AccountType.DisposableToRemove,
+      ].includes(account.public.type)
     ) {
       throw new Error("Account should have been created using a private key");
     }
@@ -1031,7 +1033,7 @@ export class KeyRing {
       { account: 0, change: 0, index: 0 },
       vaultLength,
       "generated",
-      0
+      new Date().getTime()
     );
 
     const sensitiveData: SensitiveAccountStoreData = {
@@ -1047,12 +1049,40 @@ export class KeyRing {
     });
   }
 
-  async clearDisposableSigner(address: string): Promise<void> {
-    const disposableSigner =
-      await this.localStorage.getDisposableSigner(address);
-    // We make sure that we remove the existing disposable signer
-    if (disposableSigner) {
-      await this.vaultStorage.remove(KeyStore, "address", address);
+  async markDisposableKeypairForRemoval(address: string): Promise<void> {
+    await this.vaultService.assertIsUnlocked();
+
+    const account = await this.vaultStorage.findOne(
+      KeyStore,
+      "address",
+      address
+    );
+
+    if (!account || account.public.type !== AccountType.Disposable) {
+      throw new Error(`Disposable account with address ${address} not found!`);
     }
+
+    await this.vaultStorage.update(KeyStore, "id", account.public.id, {
+      type: AccountType.DisposableToRemove,
+    });
+  }
+
+  async clearOldDisposableKeypairs(): Promise<void> {
+    const accounts = await this.vaultStorage.findAll(KeyStore);
+
+    // Clear accounts in vault
+    const removeFromVault = accounts
+      .filter((account) => {
+        const [isOutdated] = isDisposableAccountOutdated(account.public);
+        return isOutdated;
+      })
+      .map((account) =>
+        this.vaultStorage.remove(KeyStore, "id", account.public.id)
+      );
+
+    // Clear accounts in local storage
+    const removeFromLS = this.localStorage.clearOldDisposableSigners();
+
+    await Promise.all([...removeFromVault, removeFromLS]);
   }
 }
