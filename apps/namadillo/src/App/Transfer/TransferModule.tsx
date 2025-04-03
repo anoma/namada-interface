@@ -126,8 +126,6 @@ type ValidationResult =
  * Checks if a custom address matches the specified destination chain
  * and validates shielded/transparent address requirements
  * Only used for IBC transfers *FROM* Namada
- * @param destination Object containing customAddress, chain, and shielded flag
- * @returns true if the address matches all requirements
  */
 const addressMatchesCustomChain = ({
   customAddress,
