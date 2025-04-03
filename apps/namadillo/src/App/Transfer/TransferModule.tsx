@@ -205,6 +205,16 @@ export const TransferModule = ({
     if (!source.wallet) {
       return "NoSourceWallet";
     } else if (
+      // If custom address is provided, check if it matches the chain
+      destination.customAddress &&
+      destination.chain &&
+      checkIfAddressMatchesChain(
+        destination.customAddress ?? "",
+        destination.chain
+      )
+    ) {
+      return "CustomAddressNotMatchingChain";
+    } else if (
       (source.isShieldedAddress || destination.isShieldedAddress) &&
       keychainVersion &&
       !checkKeychainCompatibleWithMasp(keychainVersion)
