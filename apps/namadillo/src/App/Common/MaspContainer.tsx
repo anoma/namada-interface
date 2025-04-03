@@ -1,4 +1,4 @@
-import { lastCompletedShieldedSyncAtom } from "atoms/balance";
+import { lastCompletedShieldedSyncAtom, viewingKeysAtom } from "atoms/balance";
 import { useRequiresNewShieldedSync } from "hooks/useRequiresNewShieldedSync";
 import { useAtomValue } from "jotai";
 import { MaspSyncCover } from "./MaspSyncCover";
@@ -10,10 +10,15 @@ export const MaspContainer = ({
 }: MaspContainerProps): JSX.Element => {
   const requiresNewSync = useRequiresNewShieldedSync();
   const lastSync = useAtomValue(lastCompletedShieldedSyncAtom);
+  const viewingKeys = useAtomValue(viewingKeysAtom);
+  const hasViewingKey = viewingKeys.isSuccess && viewingKeys.data[0];
+
   return (
     <div className="relative">
       {children}
-      {requiresNewSync && <MaspSyncCover longSync={lastSync === undefined} />}
+      {requiresNewSync && hasViewingKey && (
+        <MaspSyncCover longSync={lastSync === undefined} />
+      )}
     </div>
   );
 };

@@ -65,6 +65,10 @@ export class KeyRingService {
     return await this._keyRing.revealSpendingKey(accountId);
   }
 
+  async revealPrivateKey(accountId: string): Promise<string> {
+    return await this._keyRing.revealPrivateKey(accountId);
+  }
+
   async saveAccountSecret(
     accountSecret: AccountSecret,
     alias: string,
@@ -144,7 +148,14 @@ export class KeyRingService {
     if (await this.vaultService.isLocked()) {
       throw new Error(ApprovalErrors.KeychainLocked());
     }
-    return await this._keyRing.queryAllAccounts();
+    const showDisposableAccounts = Boolean(
+      (await this.localStorage.getSettings())?.showDisposableAccounts
+    );
+
+    return (await this._keyRing.queryAllAccounts()).filter(
+      (account) =>
+        showDisposableAccounts || account.type !== AccountType.Disposable
+    );
   }
 
   async queryDefaultAccount(): Promise<DerivedAccount | undefined> {
@@ -260,6 +271,14 @@ export class KeyRingService {
     GenDisposableSignerResponse | undefined
   > {
     return this._keyRing.genDisposableSigner();
+  }
+
+  async persistDisposableSigner(address: string): Promise<void> {
+    return this._keyRing.persistDisposableSigner(address);
+  }
+
+  async clearDisposableSigner(address: string): Promise<void> {
+    return this._keyRing.clearDisposableSigner(address);
   }
 
   async genPaymentAddress(

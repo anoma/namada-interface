@@ -134,7 +134,8 @@ export const useTransfer = ({
     onBeforeBuildTx: () =>
       onUpdateStatus?.("Generating MASP params and building transaction..."),
     onBeforeSign: () => onUpdateStatus?.("Waiting for signature..."),
-    onBeforeBroadcast: () => onUpdateStatus?.("Broadcasting transaction..."),
+    onBeforeBroadcast: async () =>
+      onUpdateStatus?.("Broadcasting transaction..."),
     ...commomProps,
   });
 

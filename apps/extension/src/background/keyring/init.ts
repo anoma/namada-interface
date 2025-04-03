@@ -1,6 +1,8 @@
 import {
   CheckDurabilityMsg,
+  ClearDisposableSignerMsg,
   GenDisposableSignerMsg,
+  PersistDisposableSignerMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
   VerifyArbitraryMsg,
@@ -19,6 +21,7 @@ import {
   QueryParentAccountsMsg,
   RenameAccountMsg,
   RevealAccountMnemonicMsg,
+  RevealPrivateKeyMsg,
   RevealSpendingKeyMsg,
   SaveAccountSecretMsg,
   SetActiveAccountMsg,
@@ -42,10 +45,13 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(AddLedgerAccountMsg);
   router.registerMessage(RevealAccountMnemonicMsg);
   router.registerMessage(RevealSpendingKeyMsg);
+  router.registerMessage(RevealPrivateKeyMsg);
   router.registerMessage(RenameAccountMsg);
   router.registerMessage(VerifyArbitraryMsg);
   router.registerMessage(GenDisposableSignerMsg);
   router.registerMessage(GenPaymentAddressMsg);
+  router.registerMessage(PersistDisposableSignerMsg);
+  router.registerMessage(ClearDisposableSignerMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }
