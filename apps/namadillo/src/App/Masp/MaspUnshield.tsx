@@ -8,8 +8,12 @@ import {
   TransferModule,
 } from "App/Transfer/TransferModule";
 import { allDefaultAccountsAtom } from "atoms/accounts";
-import { namadaShieldedAssetsAtom } from "atoms/balance/atoms";
+import {
+  namadaShieldedAssetsAtom,
+  shieldedBalanceAtom,
+} from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
+import { shouldUpdateBalanceAtom } from "atoms/etc";
 import { ledgerStatusDataAtom } from "atoms/ledger/atoms";
 import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
@@ -18,7 +22,7 @@ import { useTransfer } from "hooks/useTransfer";
 import { useUrlState } from "hooks/useUrlState";
 import { wallets } from "integrations";
 import invariant from "invariant";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
 import { useState } from "react";
 import namadaChain from "registry/namada.json";
@@ -36,6 +40,8 @@ export const MaspUnshield: React.FC = () => {
   const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
     namadaShieldedAssetsAtom
   );
+  const { refetch: refetchShieldedBalance } = useAtomValue(shieldedBalanceAtom);
+  const shouldUpdateBalance = useSetAtom(shouldUpdateBalanceAtom);
 
   const { storeTransaction } = useTransactionActions();
 
@@ -116,8 +122,11 @@ export const MaspUnshield: React.FC = () => {
         if (txList.length === 0) {
           throw "Couldn't create TransferData object";
         }
+
         const tx = txList[0];
         storeTransaction(tx);
+        shouldUpdateBalance(true);
+        refetchShieldedBalance();
       } else {
         throw "Invalid transaction response";
       }
