@@ -1,5 +1,6 @@
 export * from "./account";
 export * from "./chain";
+export * from "./errors";
 export * from "./events";
 export * from "./namada";
 export * from "./proposals";

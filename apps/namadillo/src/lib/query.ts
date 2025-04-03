@@ -234,8 +234,7 @@ export const broadcastTxWithEvents = async <T>(
       if (result.status === "fulfilled") {
         return result.value.commitments;
       } else {
-        // Throw wrapper error if encountered
-        throw new Error(`Broadcast Tx failed! ${result.reason}`);
+        throw new Error(result.reason.toString());
       }
     });
 

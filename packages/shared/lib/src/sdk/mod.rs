@@ -22,11 +22,12 @@ use namada_sdk::args::{
 };
 use namada_sdk::borsh::{self, BorshDeserialize};
 use namada_sdk::collections::HashMap;
+use namada_sdk::control_flow::time;
 use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada_sdk::hash::Hash;
 use namada_sdk::ibc::convert_masp_tx_to_ibc_memo;
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
-use namada_sdk::io::NamadaIo;
+use namada_sdk::io::{Client, NamadaIo};
 use namada_sdk::key::{common, ed25519, RefTo, SigScheme};
 use namada_sdk::masp::shielded_wallet::ShieldedApi;
 use namada_sdk::masp::ShieldedContext;
@@ -35,21 +36,19 @@ use namada_sdk::masp_primitives::transaction::components::{
     amount::I128Sum, sapling::builder::StoredBuildParams, sapling::fees::InputView,
 };
 use namada_sdk::masp_primitives::zip32::{ExtendedFullViewingKey, ExtendedKey};
-use namada_sdk::rpc::{self, query_denom, query_epoch, InnerTxResult, TxBroadcastData, TxResponse};
+use namada_sdk::rpc::{self, query_denom, query_epoch, InnerTxResult, TxResponse};
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::string_encoding::Format;
 use namada_sdk::tendermint_rpc::Url;
-use namada_sdk::control_flow::time;
 use namada_sdk::token::{Amount, DenominatedAmount, MaspEpoch};
 use namada_sdk::token::{MaspTxId, OptionExt};
 use namada_sdk::tx::data::TxType;
 use namada_sdk::tx::Section;
 use namada_sdk::tx::{
-    broadcast_tx, build_batch, build_bond, build_claim_rewards, build_ibc_transfer,
-    build_redelegation, build_reveal_pk, build_shielded_transfer, build_shielding_transfer,
-    build_transparent_transfer, build_unbond, build_unshielding_transfer, build_vote_proposal,
-    build_withdraw, data::compute_inner_tx_hash, either::Either, gen_ibc_shielding_transfer,
-    Tx,
+    build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
+    build_reveal_pk, build_shielded_transfer, build_shielding_transfer, build_transparent_transfer,
+    build_unbond, build_unshielding_transfer, build_vote_proposal, build_withdraw,
+    data::compute_inner_tx_hash, either::Either, gen_ibc_shielding_transfer, Tx,
 };
 use namada_sdk::wallet::{Store, Wallet};
 use namada_sdk::{ExtendedViewingKey, Namada, NamadaImpl, PaymentAddress, TransferTarget};
@@ -338,49 +337,63 @@ impl Sdk {
         to_js_result(borsh::to_vec(&namada_tx)?)
     }
 
-    pub async fn broadcast_tx(&self, tx_bytes: &[u8], deadline: u64) -> Result<JsValue, JsError> {
-        let tx = Tx::try_from_slice(tx_bytes)?;
+    pub async fn broadcast_tx(&self, tx_bytes: &[u8], deadline: u64) -> Result<JsValue, JsValue> {
+        let tx = Tx::try_from_slice(tx_bytes).expect("Should be able to deserialize a Tx");
         let cmts = tx.commitments().clone();
         let wrapper_hash = tx.wrapper_hash();
         let tx_hash = tx.header_hash().to_string();
-        // TODO: Do we want to support dryrun here?
-        let tx_data = TxBroadcastData::Live { tx: tx.clone(), tx_hash: tx_hash.clone() };
-        broadcast_tx(&self.namada, &tx_data).await?;
 
-        let deadline = time::Instant::now()
-            + time::Duration::from_secs(deadline);
+        let response = self.namada.client().broadcast_tx_sync(tx.to_bytes()).await;
 
-        let tx_query = rpc::TxEventQuery::Applied(tx_hash.as_str());
-        let event = rpc::query_tx_status(&self.namada, tx_query, deadline).await?;
-        let tx_response = TxResponse::from_event(event);
+        match response {
+            Ok(res) => {
+                if res.clone().code != 0.into() {
+                    return Err(JsValue::from(
+                        &serde_json::to_string(&res)
+                            .map_err(|e| JsValue::from_str(&e.to_string()))?,
+                    ));
+                }
 
-        let mut batch_tx_results: Vec<tx::BatchTxResult> = vec![];
-        let code = tx_response.code.to_string();
-        let gas_used = tx_response.gas_used.to_string();
-        let height = tx_response.height.to_string();
-        let info = tx_response.info.to_string();
-        let log = tx_response.log.to_string();
+                let deadline = time::Instant::now() + time::Duration::from_secs(deadline);
+                let tx_query = rpc::TxEventQuery::Applied(tx_hash.as_str());
+                let event = rpc::query_tx_status(&self.namada, tx_query, deadline)
+                    .await
+                    .map_err(|e| JsValue::from_str(&e.to_string()))?;
+                let tx_response = TxResponse::from_event(event);
 
-        for cmt in cmts {
-            let hash = compute_inner_tx_hash(wrapper_hash.as_ref(), Either::Right(&cmt));
+                let mut batch_tx_results: Vec<tx::BatchTxResult> = vec![];
+                let code =
+                    u8::try_from(tx_response.code.to_usize()).expect("Code should fit in u8");
+                let gas_used = tx_response.gas_used.to_string();
+                let height = tx_response.height.to_string();
+                let info = tx_response.info.to_string();
+                let log = tx_response.log.to_string();
 
-            if let Some(InnerTxResult::Success(_)) = tx_response.batch_result().get(&hash) {
-                batch_tx_results.push(tx::BatchTxResult::new(hash.to_string(), true));
-            } else {
-                batch_tx_results.push(tx::BatchTxResult::new(hash.to_string(), false));
+                for cmt in cmts {
+                    let hash = compute_inner_tx_hash(wrapper_hash.as_ref(), Either::Right(&cmt));
+
+                    if let Some(InnerTxResult::Success(_)) = tx_response.batch_result().get(&hash) {
+                        batch_tx_results.push(tx::BatchTxResult::new(hash.to_string(), true));
+                    } else {
+                        batch_tx_results.push(tx::BatchTxResult::new(hash.to_string(), false));
+                    }
+                }
+
+                let tx_response = tx::TxResponse::new(
+                    code,
+                    batch_tx_results,
+                    gas_used,
+                    wrapper_hash.unwrap().to_string(),
+                    height,
+                    info,
+                    log,
+                );
+                Ok(JsValue::from(
+                    borsh::to_vec(&tx_response).map_err(|e| JsValue::from_str(&e.to_string()))?,
+                ))
             }
+            Err(e) => Err(JsValue::from(e.to_string())),
         }
-
-        let response = tx::TxResponse::new(
-            code,
-            batch_tx_results,
-            gas_used,
-            wrapper_hash.unwrap().to_string(),
-            height,
-            info,
-            log,
-        );
-        to_js_result(borsh::to_vec(&response)?)
     }
 
     /// Build a batch Tx from built transactions and return the bytes
