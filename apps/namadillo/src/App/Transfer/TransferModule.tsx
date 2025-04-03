@@ -208,7 +208,6 @@ export const TransferModule = ({
   }, [source.selectedAssetAddress, source.availableAmount, displayGasFee]);
 
   const validationResult = useMemo((): ValidationResult => {
-    console.log(destination.customAddress ?? "", destination.chain);
     if (!source.wallet) {
       return "NoSourceWallet";
     } else if (
