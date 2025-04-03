@@ -6,8 +6,6 @@ export const createNotificationId = (
 ): string => {
   if (!data) return Date.now().toString();
   if (typeof data === "string") return data;
-  if (Array.isArray(data)) {
-    return data.join(notificationIdSeparator);
-  }
+  if (Array.isArray(data)) return data.join(notificationIdSeparator);
   return data.hash;
 };
