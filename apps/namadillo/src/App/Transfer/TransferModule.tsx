@@ -122,12 +122,8 @@ type ValidationResult =
   | "NoLedgerConnected"
   | "Ok";
 
-/**
- * Checks if a custom address matches the specified destination chain
- * and validates shielded/transparent address requirements
- * Only used for IBC transfers *FROM* Namada
- */
-const addressMatchesCustomChain = ({
+// Check if the provided address is valid for the destination chain and transaction type
+const isValidDestinationAddress = ({
   customAddress,
   chain,
   shielded,
@@ -136,8 +132,8 @@ const addressMatchesCustomChain = ({
   chain: Chain | undefined;
   shielded: boolean;
 }): boolean => {
-  // If there's no custom address or chain, we can't validate
-  if (!customAddress || !chain) return false;
+  // Skip validation if no custom address or chain provided
+  if (!customAddress || !chain) return true;
 
   // Check shielded/transparent address requirements for Namada
   if (chain.bech32_prefix === "nam") {
@@ -145,8 +141,10 @@ const addressMatchesCustomChain = ({
     if (shielded && isTransparentAddress(customAddress)) return false;
     // If transparent is required but address is shielded, validation fails
     if (!shielded && isShieldedAddress(customAddress)) return false;
-
-    return customAddress.startsWith("tnam") || customAddress.startsWith("znam");
+    // Valid Namada address that matches transaction type
+    return (
+      isTransparentAddress(customAddress) || isShieldedAddress(customAddress)
+    );
   }
 
   // For non-Namada chains, validate using prefix
@@ -232,7 +230,7 @@ export const TransferModule = ({
     if (!source.wallet) {
       return "NoSourceWallet";
     } else if (
-      !addressMatchesCustomChain({
+      !isValidDestinationAddress({
         customAddress: destination.customAddress ?? "",
         chain: destination.chain,
         shielded: isShieldedTx,
