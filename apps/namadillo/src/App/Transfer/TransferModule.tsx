@@ -118,12 +118,18 @@ type ValidationResult =
   | "NoLedgerConnected"
   | "Ok";
 
-const checkIfAddressMatchesChain = (
+// NOTE: Only to be used when transferring IBC tokens *FROM* Namada
+const addressMatchesChain = (
   address: string,
   chain: Chain | undefined
 ): boolean => {
   if (!chain || !address) return false;
-  return !address.startsWith(chain.bech32_prefix);
+  // Namada uses "nam" bech32 prefix for shielded and transparent addresses
+  // Addresses are "znam" or "tnam" though
+  if (chain.bech32_prefix === "nam") {
+    return address.startsWith("tnam") || address.startsWith("znam");
+  }
+  return address.startsWith(chain.bech32_prefix);
 };
 
 export const TransferModule = ({
@@ -202,16 +208,16 @@ export const TransferModule = ({
   }, [source.selectedAssetAddress, source.availableAmount, displayGasFee]);
 
   const validationResult = useMemo((): ValidationResult => {
+    console.log(destination.customAddress ?? "", destination.chain);
     if (!source.wallet) {
       return "NoSourceWallet";
     } else if (
       // If custom address is provided, check if it matches the chain
+      // Only used for IBC transfers *FROM* Namada
       destination.customAddress &&
       destination.chain &&
-      checkIfAddressMatchesChain(
-        destination.customAddress ?? "",
-        destination.chain
-      )
+      destination.chain.chain_name !== "namada" &&
+      !addressMatchesChain(destination.customAddress ?? "", destination.chain)
     ) {
       return "CustomAddressNotMatchingChain";
     } else if (
