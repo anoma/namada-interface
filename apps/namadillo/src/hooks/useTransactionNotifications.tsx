@@ -27,7 +27,9 @@ const parseTxsData = <T extends TxWithAmount>(
   tx: TxProps | TxProps[],
   data: T[]
 ): { id: string; total: BigNumber } => {
-  const id = createNotificationId(tx);
+  const id = createNotificationId(
+    Array.isArray(tx) ? tx.map((t) => t.hash) : tx.hash
+  );
   const total = getTotalAmountFromTransactionList(data);
   return { total, id };
 };
@@ -208,7 +210,7 @@ export const useTransactionNotifications = (): void => {
   });
 
   useTransactionEventListener("Withdraw.Success", (e) => {
-    const id = createNotificationId(e.detail.tx);
+    const id = createNotificationId(e.detail.tx.map((t) => t.hash));
     dispatchNotification({
       id,
       title: "Withdrawal Success",
@@ -218,7 +220,7 @@ export const useTransactionNotifications = (): void => {
   });
 
   useTransactionEventListener("Withdraw.Error", (e) => {
-    const id = createNotificationId(e.detail.tx);
+    const id = createNotificationId(e.detail.tx.map((t) => t.hash));
     dispatchNotification({
       id,
       title: "Withdrawal Error",
@@ -284,7 +286,7 @@ export const useTransactionNotifications = (): void => {
   });
 
   useTransactionEventListener("ClaimRewards.Success", (e) => {
-    const id = createNotificationId(e.detail.tx);
+    const id = createNotificationId(e.detail.tx.map((t) => t.hash));
     dispatchNotification({
       id,
       title: "Claim Rewards",
@@ -294,7 +296,7 @@ export const useTransactionNotifications = (): void => {
   });
 
   useTransactionEventListener("ClaimRewards.Error", (e) => {
-    const id = createNotificationId(e.detail.tx);
+    const id = createNotificationId(e.detail.tx.map((t) => t.hash));
     dispatchNotification({
       id,
       title: "Claim Rewards",
@@ -305,7 +307,7 @@ export const useTransactionNotifications = (): void => {
   });
 
   useTransactionEventListener("VoteProposal.Error", (e) => {
-    const id = createNotificationId(e.detail.tx);
+    const id = createNotificationId(e.detail.tx.map((t) => t.hash));
     dispatchNotification({
       id,
       type: "error",
@@ -316,7 +318,7 @@ export const useTransactionNotifications = (): void => {
   });
 
   useTransactionEventListener("VoteProposal.Success", (e) => {
-    const id = createNotificationId(e.detail.tx);
+    const id = createNotificationId(e.detail.tx.map((t) => t.hash));
     dispatchNotification({
       id,
       title: "Governance transaction succeeded",

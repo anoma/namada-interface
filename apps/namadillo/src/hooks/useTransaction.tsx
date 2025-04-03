@@ -1,4 +1,3 @@
-import { TxProps } from "@namada/types";
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { defaultAccountAtom } from "atoms/accounts";
 import {
@@ -94,7 +93,7 @@ export const useTransaction = <T,>({
   ): void => {
     dispatchNotification({
       ...notification,
-      id: createNotificationId(tx.encodedTxData as EncodedTxData<TxProps>),
+      id: createNotificationId(tx.encodedTxData.txs[0].innerTxHashes),
       type: "pending",
     });
   };
@@ -107,7 +106,7 @@ export const useTransaction = <T,>({
   ): void => {
     dispatchNotification({
       ...notification,
-      id: createNotificationId(tx.encodedTxData.txs),
+      id: createNotificationId(tx.encodedTxData.txs[0].innerTxHashes),
       details: error instanceof Error ? error.message : undefined,
       type: "error",
     });
