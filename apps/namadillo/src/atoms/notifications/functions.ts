@@ -2,7 +2,7 @@ export const notificationIdSeparator = ";";
 import { TxProps } from "@namada/types";
 
 export const createNotificationId = (
-  data?: string[] | string | TxProps
+  data?: TxProps["hash"] | TxProps | TxProps["hash"][]
 ): string => {
   if (!data) return Date.now().toString();
   if (typeof data === "string") return data;
