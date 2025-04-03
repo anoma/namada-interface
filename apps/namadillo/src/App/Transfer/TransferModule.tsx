@@ -25,7 +25,11 @@ import {
 import { filterAvailableAsssetsWithBalance } from "utils/assets";
 import { checkKeychainCompatibleWithMasp } from "utils/compatibility";
 import { getDisplayGasFee } from "utils/gas";
-import { parseChainInfo } from "./common";
+import {
+  isShieldedAddress,
+  isTransparentAddress,
+  parseChainInfo,
+} from "./common";
 import { CurrentStatus } from "./CurrentStatus";
 import { IbcChannels } from "./IbcChannels";
 import { SelectAssetModal } from "./SelectAssetModal";
@@ -118,18 +122,37 @@ type ValidationResult =
   | "NoLedgerConnected"
   | "Ok";
 
-// NOTE: Only to be used when transferring IBC tokens *FROM* Namada
-const addressMatchesChain = (
-  address: string,
-  chain: Chain | undefined
-): boolean => {
-  if (!chain || !address) return false;
-  // Namada uses "nam" bech32 prefix for shielded and transparent addresses
-  // Addresses are "znam" or "tnam" though
+/**
+ * Checks if a custom address matches the specified destination chain
+ * and validates shielded/transparent address requirements
+ * Only used for IBC transfers *FROM* Namada
+ * @param destination Object containing customAddress, chain, and shielded flag
+ * @returns true if the address matches all requirements
+ */
+const addressMatchesCustomChain = ({
+  customAddress,
+  chain,
+  shielded,
+}: {
+  customAddress: string;
+  chain: Chain | undefined;
+  shielded: boolean;
+}): boolean => {
+  // If there's no custom address or chain, we can't validate
+  if (!customAddress || !chain) return false;
+
+  // Check shielded/transparent address requirements for Namada
   if (chain.bech32_prefix === "nam") {
-    return address.startsWith("tnam") || address.startsWith("znam");
+    // If shielded is required but address is transparent, validation fails
+    if (shielded && isTransparentAddress(customAddress)) return false;
+    // If transparent is required but address is shielded, validation fails
+    if (!shielded && isShieldedAddress(customAddress)) return false;
+
+    return customAddress.startsWith("tnam") || customAddress.startsWith("znam");
   }
-  return address.startsWith(chain.bech32_prefix);
+
+  // For non-Namada chains, validate using prefix
+  return customAddress.startsWith(chain.bech32_prefix);
 };
 
 export const TransferModule = ({
@@ -211,12 +234,11 @@ export const TransferModule = ({
     if (!source.wallet) {
       return "NoSourceWallet";
     } else if (
-      // If custom address is provided, check if it matches the chain
-      // Only used for IBC transfers *FROM* Namada
-      destination.customAddress &&
-      destination.chain &&
-      destination.chain.chain_name !== "namada" &&
-      !addressMatchesChain(destination.customAddress ?? "", destination.chain)
+      !addressMatchesCustomChain({
+        customAddress: destination.customAddress ?? "",
+        chain: destination.chain,
+        shielded: isShieldedTx,
+      })
     ) {
       return "CustomAddressNotMatchingChain";
     } else if (
