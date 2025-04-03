@@ -11,7 +11,7 @@ export const MaspSyncCover = ({
   return (
     <div
       className={clsx(
-        "absolute w-full h-full backdrop-blur-sm left-0 top-0 z-50 rounded-sm overflow-hidden",
+        "absolute w-full h-full backdrop-blur-sm left-0 top-0 z-20 rounded-sm overflow-hidden",
         "bg-black/70"
       )}
     >

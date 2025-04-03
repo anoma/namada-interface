@@ -36,8 +36,8 @@ export const AppLayout = ({
             "transition-transform duration-500 ease-out-expo",
             "fixed left-0 top-0 bottom-0 z-[9999]",
             !displayNavigation && "-translate-x-full lg:translate-x-0",
-            // desktop, left nav, floating panel - 112px is the header height
-            "lg:sticky lg:top-[112px] lg:h-[calc(100svh-112px)] lg:pb-2",
+            // desktop, left nav, floating panel => 113px = header height + alpha top bar
+            "lg:sticky lg:top-[113px] lg:h-[calc(100svh-113px)] lg:pb-2",
             "lg:transition-none lg:z-auto"
           )}
         >
