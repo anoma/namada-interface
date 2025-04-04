@@ -25,7 +25,11 @@ import {
 import { filterAvailableAsssetsWithBalance } from "utils/assets";
 import { checkKeychainCompatibleWithMasp } from "utils/compatibility";
 import { getDisplayGasFee } from "utils/gas";
-import { parseChainInfo } from "./common";
+import {
+  isShieldedAddress,
+  isTransparentAddress,
+  parseChainInfo,
+} from "./common";
 import { CurrentStatus } from "./CurrentStatus";
 import { IbcChannels } from "./IbcChannels";
 import { SelectAssetModal } from "./SelectAssetModal";
@@ -118,12 +122,33 @@ type ValidationResult =
   | "NoLedgerConnected"
   | "Ok";
 
-const checkIfAddressMatchesChain = (
-  address: string,
-  chain: Chain | undefined
-): boolean => {
-  if (!chain || !address) return false;
-  return !address.startsWith(chain.bech32_prefix);
+// Check if the provided address is valid for the destination chain and transaction type
+const isValidDestinationAddress = ({
+  customAddress,
+  chain,
+  shielded,
+}: {
+  customAddress: string;
+  chain: Chain | undefined;
+  shielded: boolean;
+}): boolean => {
+  // Skip validation if no custom address or chain provided
+  if (!customAddress || !chain) return true;
+
+  // Check shielded/transparent address requirements for Namada
+  if (chain.bech32_prefix === "nam") {
+    // If shielded is required but address is transparent, validation fails
+    if (shielded && isTransparentAddress(customAddress)) return false;
+    // If transparent is required but address is shielded, validation fails
+    if (!shielded && isShieldedAddress(customAddress)) return false;
+    // Valid Namada address that matches transaction type
+    return (
+      isTransparentAddress(customAddress) || isShieldedAddress(customAddress)
+    );
+  }
+
+  // For non-Namada chains, validate using prefix
+  return customAddress.startsWith(chain.bech32_prefix);
 };
 
 export const TransferModule = ({
@@ -205,13 +230,11 @@ export const TransferModule = ({
     if (!source.wallet) {
       return "NoSourceWallet";
     } else if (
-      // If custom address is provided, check if it matches the chain
-      destination.customAddress &&
-      destination.chain &&
-      checkIfAddressMatchesChain(
-        destination.customAddress ?? "",
-        destination.chain
-      )
+      !isValidDestinationAddress({
+        customAddress: destination.customAddress ?? "",
+        chain: destination.chain,
+        shielded: isShieldedTx,
+      })
     ) {
       return "CustomAddressNotMatchingChain";
     } else if (
