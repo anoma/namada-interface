@@ -17,7 +17,7 @@ export const WithdrawalButton = ({
       size="xs"
       outlineColor="pink"
       textColor="white"
-      className="py-2.5"
+      className="py-2.5 w-40"
       disabled={disabled}
       onClick={() =>
         navigate(routes.stakingWithdrawal, {
