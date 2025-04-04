@@ -27,6 +27,10 @@ Wrap ExtendedSpendingKey
 
 [`PseudoExtendedKey`](PseudoExtendedKey.md)
 
+#### Defined in
+
+shared/src/shared/shared.d.ts:136
+
 ## Methods
 
 ### encode
@@ -39,7 +43,7 @@ Wrap ExtendedSpendingKey
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:224
+shared/src/shared/shared.d.ts:138
 
 ___
 
@@ -53,7 +57,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:220
+shared/src/shared/shared.d.ts:137
 
 ___
 
@@ -73,7 +77,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:229
+shared/src/shared/shared.d.ts:139
 
 ___
 
@@ -94,4 +98,4 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:235
+shared/src/shared/shared.d.ts:140

@@ -39,7 +39,7 @@
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:38](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L38)
+[packages/types/src/tx/schema/ibcTransfer.ts:38](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/schema/ibcTransfer.ts#L38)
 
 ## Properties
 
@@ -49,7 +49,7 @@
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:18](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L18)
+[packages/types/src/tx/schema/ibcTransfer.ts:18](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/schema/ibcTransfer.ts#L18)
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:24](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L24)
+[packages/types/src/tx/schema/ibcTransfer.ts:24](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/schema/ibcTransfer.ts#L24)
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:33](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L33)
+[packages/types/src/tx/schema/ibcTransfer.ts:33](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/schema/ibcTransfer.ts#L33)
 
 ___
 
@@ -79,7 +79,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:21](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L21)
+[packages/types/src/tx/schema/ibcTransfer.ts:21](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/schema/ibcTransfer.ts#L21)
 
 ___
 
@@ -89,7 +89,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:12](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L12)
+[packages/types/src/tx/schema/ibcTransfer.ts:12](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/schema/ibcTransfer.ts#L12)
 
 ___
 
@@ -99,7 +99,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:36](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L36)
+[packages/types/src/tx/schema/ibcTransfer.ts:36](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/schema/ibcTransfer.ts#L36)
 
 ___
 
@@ -109,7 +109,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:9](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L9)
+[packages/types/src/tx/schema/ibcTransfer.ts:9](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/schema/ibcTransfer.ts#L9)
 
 ___
 
@@ -119,7 +119,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:27](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L27)
+[packages/types/src/tx/schema/ibcTransfer.ts:27](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/schema/ibcTransfer.ts#L27)
 
 ___
 
@@ -129,7 +129,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:30](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L30)
+[packages/types/src/tx/schema/ibcTransfer.ts:30](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/schema/ibcTransfer.ts#L30)
 
 ___
 
@@ -139,4 +139,4 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:15](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L15)
+[packages/types/src/tx/schema/ibcTransfer.ts:15](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/schema/ibcTransfer.ts#L15)
