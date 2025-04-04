@@ -27,7 +27,7 @@
 
 #### Defined in
 
-[signer.ts:24](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/signer.ts#L24)
+[packages/types/src/signer.ts:24](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/signer.ts#L24)
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 #### Defined in
 
-[signer.ts:14](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/signer.ts#L14)
+[packages/types/src/signer.ts:14](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/signer.ts#L14)
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 #### Defined in
 
-[signer.ts:19](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/signer.ts#L19)
+[packages/types/src/signer.ts:19](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/signer.ts#L19)
 
 ___
 
@@ -104,4 +104,4 @@ ___
 
 #### Defined in
 
-[signer.ts:23](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/signer.ts#L23)
+[packages/types/src/signer.ts:23](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/signer.ts#L23)

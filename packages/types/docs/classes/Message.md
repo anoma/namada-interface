@@ -61,7 +61,7 @@
 
 #### Defined in
 
-[tx/messages/index.ts:9](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/messages/index.ts#L9)
+[packages/types/src/tx/messages/index.ts:9](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/messages/index.ts#L9)
 
 ___
 
@@ -88,4 +88,4 @@ ___
 
 #### Defined in
 
-[tx/messages/index.ts:18](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/messages/index.ts#L18)
+[packages/types/src/tx/messages/index.ts:18](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/messages/index.ts#L18)
