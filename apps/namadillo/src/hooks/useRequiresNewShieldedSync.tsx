@@ -26,7 +26,7 @@ export const useRequiresNewShieldedSync = ({
     lastSync === undefined ||
     (!isComplete &&
       lastSync &&
-      subMinutes(new Date(), minutesToNextSync) > lastSync);
+      subMinutes(new Date(), minutesToNextSync) > new Date(lastSync));
 
   return requiresNewSync;
 };
