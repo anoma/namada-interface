@@ -6,7 +6,7 @@ on:
       - namadillo@v*
     branches:
       - main
-      - stable
+      - stable-interface
 
 env:
   GIT_LFS_SKIP_SMUDGE: 1
