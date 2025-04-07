@@ -22,7 +22,7 @@ export const MaspSyncCover = ({
         )}
       >
         <header className="flex w-full items-center justify-center mb-4 h-42">
-          <PulsingRing />
+          <PulsingRing className="text-5xl" />
           <h2 className="absolute text-3xl font-medium text">
             Shielded Sync in Progress
           </h2>

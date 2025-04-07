@@ -1,8 +1,8 @@
 import {
   ActionButton,
-  Panel,
   SkeletonLoading,
   TableRow,
+  Tooltip,
 } from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
@@ -11,9 +11,7 @@ import { TokenCard } from "App/Common/TokenCard";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { params, routes } from "App/routes";
 import { TokenBalance, transparentTokensAtom } from "atoms/balance/atoms";
-import { getTotalDollar } from "atoms/balance/functions";
 import { applicationFeaturesAtom } from "atoms/settings";
-import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { IoSwapHorizontal } from "react-icons/io5";
@@ -67,22 +65,26 @@ const TransparentTokensTable = ({
           className="flex items-center justify-end gap-1"
         >
           {(!isNam || namTransfersEnabled) && (
-            <ActionButton
-              size="xs"
-              href={`${routes.maspShield}?${params.asset}=${originalAddress}`}
-            >
-              Shield
-            </ActionButton>
+            <div className="relative group/tooltip">
+              <ActionButton
+                size="xs"
+                href={`${routes.maspShield}?${params.asset}=${originalAddress}`}
+              >
+                Shield
+              </ActionButton>
+            </div>
           )}
           {isNam && (
-            <ActionButton
-              size="xs"
-              className={`w-fit mx-auto ${namTransferLocked ? "-mr-2" : ""}`}
-              backgroundColor="cyan"
-              href={routes.stakingBondingIncrement}
-            >
-              Stake
-            </ActionButton>
+            <div className="relative group/tooltip">
+              <ActionButton
+                size="xs"
+                className={`w-fit mx-auto ${namTransferLocked ? "-mr-2" : ""}`}
+                backgroundColor="cyan"
+                href={routes.stakingBondingIncrement}
+              >
+                Stake
+              </ActionButton>
+            </div>
           )}
           <div className="flex items-center gap-8 ml-8 text-neutral-450">
             {namTransferLocked ?
@@ -99,16 +101,23 @@ const TransparentTokensTable = ({
                   ),
                 },
               ].map(({ url, icon }) => (
-                <Link
-                  key={url}
-                  to={url}
-                  className={twMerge(
-                    "bg-black rounded-full w-10 h-10 flex items-center justify-center p-0",
-                    "hover:bg-white hover:text-black transition-all duration-300"
-                  )}
-                >
-                  {icon}
-                </Link>
+                <div key={url} className="relative group/tooltip">
+                  <Link
+                    to={url}
+                    className={twMerge(
+                      "bg-black rounded-full w-10 h-10 flex items-center justify-center p-0",
+                      "hover:bg-white hover:text-black transition-all duration-300"
+                    )}
+                  >
+                    {icon}
+                  </Link>
+                  <Tooltip
+                    position="top"
+                    className="z-50 w-[80px] -mt-2 text-center"
+                  >
+                    {url.includes("transfer") ? "Transfer" : "IBC Transfer"}
+                  </Tooltip>
+                </div>
               ))
             }
           </div>
@@ -130,7 +139,7 @@ const TransparentTokensTable = ({
 
   return (
     <>
-      <div className="text-sm font-medium mt-6">
+      <div className="text-sm font-medium mt-6 ml-4">
         <span className="text-yellow">{data.length} </span>
         Tokens
       </div>
@@ -156,61 +165,7 @@ const TransparentTokensTable = ({
   );
 };
 
-const PanelContent = ({ data }: { data: TokenBalance[] }): JSX.Element => {
-  const namBalance = data.find((i) => isNamadaAsset(i.asset));
-
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="grid md:grid-cols-2 gap-2">
-        {[
-          {
-            title: "Total Transparent Asset Value",
-            amount: getTotalDollar(data),
-            button: (
-              <ActionButton size="xs" href={routes.maspShield}>
-                Shield
-              </ActionButton>
-            ),
-          },
-          {
-            title: "Transparent NAM Value",
-            amount: namBalance?.dollar,
-            namAmount: namBalance?.amount,
-            button: (
-              <ActionButton
-                size="xs"
-                backgroundColor="cyan"
-                href={routes.stakingBondingIncrement}
-              >
-                Stake
-              </ActionButton>
-            ),
-          },
-        ].map(({ title, amount, namAmount, button }) => (
-          <div key={title} className="bg-gray px-6 py-3 rounded-sm flex gap-6">
-            <div className="flex-1 overflow-auto">
-              <div className="text-sm">{title}</div>
-              <div className="text-2xl sm:text-3xl whitespace-nowrap overflow-auto">
-                <FiatCurrency amount={amount ?? new BigNumber(0)} />
-              </div>
-              {namAmount && namBalance && (
-                <TokenCurrency
-                  amount={namAmount}
-                  symbol={namBalance.asset.symbol}
-                  className="text-neutral-400 text-sm"
-                />
-              )}
-            </div>
-            <div className="self-center">{button}</div>
-          </div>
-        ))}
-      </div>
-      <TransparentTokensTable data={data} />
-    </div>
-  );
-};
-
-export const TransparentOverviewPanel = (): JSX.Element => {
+export const UnshieldedAssetTable = (): JSX.Element => {
   const transparentTokensQuery = useAtomValue(transparentTokensAtom);
 
   const nonZeroTransparentTokens = useMemo(() => {
@@ -219,7 +174,7 @@ export const TransparentOverviewPanel = (): JSX.Element => {
   }, [transparentTokensQuery.data]);
 
   return (
-    <Panel className="min-h-[300px] flex flex-col" title="Transparent Overview">
+    <>
       {transparentTokensQuery.isPending ?
         <SkeletonLoading height="100%" width="100%" />
       : <AtomErrorBoundary
@@ -228,13 +183,13 @@ export const TransparentOverviewPanel = (): JSX.Element => {
           containerProps={{ className: "pb-16" }}
         >
           {nonZeroTransparentTokens.length ?
-            <PanelContent data={nonZeroTransparentTokens} />
-          : <div className="bg-neutral-900 p-6 rounded-sm text-center font-medium my-14">
+            <TransparentTokensTable data={nonZeroTransparentTokens} />
+          : <div className="bg-neutral-900 p-6 rounded-sm text-center font-medium mt-8">
               You currently hold no assets in your unshielded account
             </div>
           }
         </AtomErrorBoundary>
       }
-    </Panel>
+    </>
   );
 };
