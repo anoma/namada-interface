@@ -86,7 +86,7 @@ export const NamadaAccount = (): JSX.Element => {
               {transparentAccount?.alias ?? shieldedAccount?.alias}
             </span>
           </div>
-          <Tooltip position="bottom" className="z-20">
+          <Tooltip position="left" className="z-20">
             <div className="pt-2 pb-3 flex flex-col gap-2">
               <AddressField
                 label="Transparent address"
