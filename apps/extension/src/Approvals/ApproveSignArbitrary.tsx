@@ -31,6 +31,7 @@ export const ApproveSignArbitrary: React.FC<Props> = ({
   const navigate = useNavigate();
   const params = useSanitizedParams();
   const requester = useRequester();
+  const origin = params.origin!;
   const signer = params.signer!;
   const query = useQuery();
   const { msgId } = query.getAll();
@@ -46,11 +47,11 @@ export const ApproveSignArbitrary: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (msgId && signer) {
+    if (msgId && signer && origin) {
       queryPendingSignArbitraryData(msgId)
         .then((data) => {
           setMessage(data);
-          setSignArbitraryDetails({ msgId, signer, data });
+          setSignArbitraryDetails({ msgId, signer, data, origin });
         })
         .catch((e) => {
           console.error(e);
@@ -112,11 +113,15 @@ export const ApproveSignArbitrary: React.FC<Props> = ({
           )}
         </main>
         <Stack gap={2}>
-          {signer && (
-            <p className="text-xs">
-              Signer: <strong>{shortenAddress(signer)}</strong>
-            </p>
-          )}
+          <p className="text-xs">
+            {signer && (
+              <>
+                Signer: <strong>{shortenAddress(signer)}</strong>
+              </>
+            )}
+            <br />
+            Origin: <strong>{origin}</strong>
+          </p>
           <Stack gap={2}>
             <ActionButton onClick={handleApproveClick}>Approve</ActionButton>
             <ActionButton

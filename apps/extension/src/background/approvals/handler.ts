@@ -211,8 +211,8 @@ const handleSubmitUpdateDefaultAccountMsg: (
 const handleApproveSignTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveSignTxMsg> = (service) => {
-  return async (_, { signer, tx, checksums }) => {
-    return await service.approveSignTx(signer, tx, checksums);
+  return async (_, { origin, signer, tx, checksums }) => {
+    return await service.approveSignTx(signer, tx, origin, checksums);
   };
 };
 
@@ -235,8 +235,8 @@ const handleSubmitApprovedSignTxMsg: (
 const handleApproveSignArbitraryMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveSignArbitraryMsg> = (service) => {
-  return async (_, { signer, data }) => {
-    return await service.approveSignArbitrary(signer, data);
+  return async (_, { signer, data, origin }) => {
+    return await service.approveSignArbitrary(signer, data, origin);
   };
 };
 
