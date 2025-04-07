@@ -45,7 +45,9 @@ export const submitTransfer = async (
 
     const signedTx = await sdk.signing.sign(encodedTx, signingKey);
 
-    await sdk.rpc.broadcastTx(signedTx, wrapperTxProps);
+    await sdk.rpc
+      .broadcastTx(signedTx)
+      .then((txReponse) => console.log(txReponse));
     process.exit(0);
   } catch (error) {
     console.error("Error:", error);

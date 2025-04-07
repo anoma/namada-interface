@@ -25,6 +25,10 @@
 
 [`ProofGenerationKey`](ProofGenerationKey.md)
 
+#### Defined in
+
+shared/src/shared/shared.d.ts:126
+
 ## Methods
 
 ### encode
@@ -37,7 +41,7 @@
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:209
+shared/src/shared/shared.d.ts:129
 
 ___
 
@@ -51,7 +55,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:199
+shared/src/shared/shared.d.ts:127
 
 ___
 
@@ -71,7 +75,7 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:214
+shared/src/shared/shared.d.ts:130
 
 ___
 
@@ -92,4 +96,4 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:205
+shared/src/shared/shared.d.ts:128
