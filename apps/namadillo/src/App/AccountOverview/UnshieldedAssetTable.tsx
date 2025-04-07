@@ -1,4 +1,9 @@
-import { ActionButton, SkeletonLoading, TableRow } from "@namada/components";
+import {
+  ActionButton,
+  SkeletonLoading,
+  TableRow,
+  Tooltip,
+} from "@namada/components";
 import { AtomErrorBoundary } from "App/Common/AtomErrorBoundary";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
@@ -60,22 +65,26 @@ const TransparentTokensTable = ({
           className="flex items-center justify-end gap-1"
         >
           {(!isNam || namTransfersEnabled) && (
-            <ActionButton
-              size="xs"
-              href={`${routes.maspShield}?${params.asset}=${originalAddress}`}
-            >
-              Shield
-            </ActionButton>
+            <div className="relative group/tooltip">
+              <ActionButton
+                size="xs"
+                href={`${routes.maspShield}?${params.asset}=${originalAddress}`}
+              >
+                Shield
+              </ActionButton>
+            </div>
           )}
           {isNam && (
-            <ActionButton
-              size="xs"
-              className={`w-fit mx-auto ${namTransferLocked ? "-mr-2" : ""}`}
-              backgroundColor="cyan"
-              href={routes.stakingBondingIncrement}
-            >
-              Stake
-            </ActionButton>
+            <div className="relative group/tooltip">
+              <ActionButton
+                size="xs"
+                className={`w-fit mx-auto ${namTransferLocked ? "-mr-2" : ""}`}
+                backgroundColor="cyan"
+                href={routes.stakingBondingIncrement}
+              >
+                Stake
+              </ActionButton>
+            </div>
           )}
           <div className="flex items-center gap-8 ml-8 text-neutral-450">
             {namTransferLocked ?
@@ -92,16 +101,23 @@ const TransparentTokensTable = ({
                   ),
                 },
               ].map(({ url, icon }) => (
-                <Link
-                  key={url}
-                  to={url}
-                  className={twMerge(
-                    "bg-black rounded-full w-10 h-10 flex items-center justify-center p-0",
-                    "hover:bg-white hover:text-black transition-all duration-300"
-                  )}
-                >
-                  {icon}
-                </Link>
+                <div key={url} className="relative group/tooltip">
+                  <Link
+                    to={url}
+                    className={twMerge(
+                      "bg-black rounded-full w-10 h-10 flex items-center justify-center p-0",
+                      "hover:bg-white hover:text-black transition-all duration-300"
+                    )}
+                  >
+                    {icon}
+                  </Link>
+                  <Tooltip
+                    position="top"
+                    className="z-50 w-[80px] -mt-2 text-center"
+                  >
+                    {url.includes("transfer") ? "Transfer" : "IBC Transfer"}
+                  </Tooltip>
+                </div>
               ))
             }
           </div>
