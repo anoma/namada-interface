@@ -1,22 +1,22 @@
+import { TransactionHistory } from "@namada/indexer-client";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { routes } from "App/routes";
 import { parseChainInfo } from "App/Transfer/common";
 import { chainRegistryAtom } from "atoms/integrations";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { GoIssueClosed, GoIssueTrackedBy, GoXCircle } from "react-icons/go";
+import { GoIssueClosed, GoXCircle } from "react-icons/go";
 import { ImCheckmark } from "react-icons/im";
 import { generatePath, useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import {
   ibcTransferStages,
-  IbcTransferTransactionData,
   namadaTransferStages,
   TransferTransactionData,
 } from "types";
 
 type TransactionCardProps = {
-  transaction: TransferTransactionData;
+  transaction: TransactionHistory["tx"];
 };
 
 const getTitle = (transferTransaction: TransferTransactionData): string => {
@@ -36,14 +36,15 @@ const getTitle = (transferTransaction: TransferTransactionData): string => {
 export const TransactionCard = ({
   transaction,
 }: TransactionCardProps): JSX.Element => {
+  console.log(transaction, "txnnn");
   const navigate = useNavigate();
   const availableChains = useAtomValue(chainRegistryAtom);
-  const isIbc = Object.keys(ibcTransferStages).includes(transaction.type);
+  const isIbc = Object.keys(ibcTransferStages).includes(
+    transaction?.kind ?? ""
+  );
 
   const chainId =
-    isIbc ?
-      (transaction as IbcTransferTransactionData).destinationChainId
-    : transaction.chainId;
+    isIbc ? transaction?.destinationChainId : transaction?.chainId;
 
   const chainName =
     chainId in availableChains ?
@@ -61,34 +62,34 @@ export const TransactionCard = ({
         )
       )}
       onClick={() =>
-        transaction.hash &&
-        navigate(generatePath(routes.transaction, { hash: transaction.hash }))
+        transaction?.txId &&
+        navigate(generatePath(routes.transaction, { hash: transaction.txId }))
       }
     >
       <i
         className={twMerge(
           clsx("text-2xl text-yellow", {
-            "text-fail": transaction.status === "error",
+            "text-fail": transaction?.exitCode === "rejected",
           })
         )}
       >
-        {transaction.status === "success" && <GoIssueClosed />}
-        {transaction.status === "pending" && <GoIssueTrackedBy />}
-        {transaction.status === "error" && <GoXCircle />}
+        {transaction?.exitCode === "applied" && <GoIssueClosed />}
+        {/* {transaction?.exitCode === "pending" && <GoIssueTrackedBy />} */}
+        {transaction?.exitCode === "rejected" && <GoXCircle />}
       </i>
       <div>
         <h3>{getTitle(transaction)}</h3>
         <p className="text-sm text-neutral-400">
           <TokenCurrency
             className="text-white"
-            amount={transaction.displayAmount}
-            symbol={transaction.asset.symbol}
+            amount={transaction?.displayAmount}
+            symbol={transaction?.asset?.symbol ?? ""}
           />{" "}
           to {chainName} {transaction.destinationAddress}
         </p>
       </div>
       <i className={twMerge(clsx("text-white text-xl"))}>
-        {transaction.status === "success" && <ImCheckmark />}
+        {transaction?.exitCode === "applied" && <ImCheckmark />}
       </i>
     </article>
   );
