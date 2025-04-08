@@ -30,13 +30,13 @@ export const StakingOverview = (): JSX.Element => {
         {!userHasAccount && <ConnectBanner actionText="To stake" />}
         {userHasAccount && <StakingSummary />}
         {hasStaking && (
-          <Panel title="My Validators" className="relative grid">
+          <Panel title="My Validators">
             <MyValidatorsTable />
           </Panel>
         )}
         {hasWithdrawableAmounts && (
-          <Panel title="Unbonded" className="relative">
-            <div className="absolute right-6 top-4 w-40">
+          <Panel title="Unbonded">
+            <div className="flex justify-end -mt-15">
               <WithdrawalButton disabled={false} />
             </div>
             <UnbondedTable />

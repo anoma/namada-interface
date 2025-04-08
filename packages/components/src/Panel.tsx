@@ -26,12 +26,7 @@ export const Panel = <T extends keyof JSX.IntrinsicElements = "div">({
       ...props,
     },
     <>
-      {title &&
-        React.createElement(
-          hierarchy,
-          { className: "relative z-20 mb-8" },
-          title
-        )}
+      {title && React.createElement(hierarchy, { className: "mb-8" }, title)}
       {children}
     </>
   );
