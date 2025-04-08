@@ -4,7 +4,6 @@ import { Sidebar } from "App/Layout/Sidebar";
 import { JoinDiscord } from "App/Sidebars/JoinDiscord";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
-import { twMerge } from "tailwind-merge";
 import { AssetsOverviewPanel } from "./AssetsOverviewPanel";
 import { NavigationFooter } from "./NavigationFooter";
 import { StakeSidebar } from "./StakeSidebar";
@@ -22,11 +21,11 @@ export const AccountOverview = (): JSX.Element => {
 
   return (
     <PageWithSidebar>
-      <div className={twMerge("flex w-full")}>
-        <section className="flex flex-col w-full rounded-sm min-h-full gap-2">
+      <div className="relative">
+        <section className="w-full">
           <TotalBalanceBanner />
           <AssetsOverviewPanel />
-          <div>
+          <div className="absolute bottom-0 w-full">
             <NavigationFooter />
           </div>
         </section>
