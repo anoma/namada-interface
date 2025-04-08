@@ -1,4 +1,5 @@
 import { ActionButton, Alert, GapPatterns, Stack } from "@namada/components";
+import { NamadaChains } from "@namada/types";
 import { PageHeader } from "App/Common";
 import {
   CheckIsApprovedSiteMsg,
@@ -18,6 +19,8 @@ export const ApproveConnection: React.FC = () => {
   const chainId = params.get("chainId")!;
   const { isUnlocked } = useContext(ExtensionLockContext);
   const [isApproved, setIsApproved] = useState<boolean>();
+
+  const chainIdentifier = NamadaChains.get(chainId);
 
   const checkIsApproved = async (): Promise<void> => {
     requester
@@ -67,7 +70,12 @@ export const ApproveConnection: React.FC = () => {
               {chainId && (
                 <>
                   {" "}
-                  and enable signing for <strong>{chainId}</strong>
+                  and enable signing for{" "}
+                  {chainIdentifier ?
+                    <>
+                      <strong>{chainIdentifier}</strong> ({chainId})
+                    </>
+                  : <strong>{chainId}</strong>}
                 </>
               )}
               ?
