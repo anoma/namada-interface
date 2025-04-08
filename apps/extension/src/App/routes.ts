@@ -6,7 +6,6 @@ export default {
   changePassword: (): string => `/change-password`,
   connectedSites: (): string => `/connected-sites`,
   network: (): string => `/network`,
-  advanced: (): string => `/advanced`,
   warnings: (): string => `/warnings`,
   viewAccountList: () => `/accounts/view`,
   accountsUpdateRequired: () => `/accounts/view/update-required`,

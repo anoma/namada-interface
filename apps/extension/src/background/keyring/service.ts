@@ -148,14 +148,8 @@ export class KeyRingService {
     if (await this.vaultService.isLocked()) {
       throw new Error(ApprovalErrors.KeychainLocked());
     }
-    const showDisposableAccounts = Boolean(
-      (await this.localStorage.getSettings())?.showDisposableAccounts
-    );
 
-    return (await this._keyRing.queryAllAccounts()).filter(
-      (account) =>
-        showDisposableAccounts || account.type !== AccountType.Disposable
-    );
+    return await this._keyRing.queryAllAccounts();
   }
 
   async queryDefaultAccount(): Promise<DerivedAccount | undefined> {

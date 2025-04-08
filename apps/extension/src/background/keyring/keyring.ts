@@ -1027,11 +1027,11 @@ export class KeyRing {
       address,
       publicKey,
       privateKey,
-      `Disposable: ${shortenAddress(address, 0, 8, "")}`,
+      `Refund address: ${shortenAddress(address, 0, 8, "")}`,
       { account: 0, change: 0, index: 0 },
       vaultLength,
       "generated",
-      0
+      Date.now()
     );
 
     const sensitiveData: SensitiveAccountStoreData = {

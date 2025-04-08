@@ -19,13 +19,13 @@ type SettingsContextProps = {
 
 type SettingsContextType = {
   showDisposableAccounts: boolean;
-  toggleShowDisposableAccounts: () => void;
+  toggleShowDisposableAccounts: () => Promise<void>;
 };
 
 // This initializer
 const createSettingsContext = (): SettingsContextType => ({
   showDisposableAccounts: false,
-  toggleShowDisposableAccounts: () => {},
+  toggleShowDisposableAccounts: () => Promise.resolve(),
 });
 
 export const SettingsContext = createContext<SettingsContextType>(
