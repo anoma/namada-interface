@@ -8,7 +8,6 @@ import { useAmountsInFiat } from "hooks/useAmountsInFiat";
 import { useRequiresNewShieldedSync } from "hooks/useRequiresNewShieldedSync";
 import { useAtomValue } from "jotai";
 import { GoInfo } from "react-icons/go";
-import { useNavigate } from "react-router-dom";
 
 export const TotalBalanceBanner = (): JSX.Element => {
   const { namTransfersEnabled } = useAtomValue(applicationFeaturesAtom);
@@ -17,7 +16,6 @@ export const TotalBalanceBanner = (): JSX.Element => {
   const shouldWaitForShieldedSync = requiresNewShieldedSync && isShieldSyncing;
   const { shieldedQuery, unshieldedQuery, totalAmountInFiat } =
     useAmountsInFiat();
-  const navigate = useNavigate();
 
   const balancesHaveLoaded =
     shieldedQuery.isSuccess && unshieldedQuery.isSuccess;
