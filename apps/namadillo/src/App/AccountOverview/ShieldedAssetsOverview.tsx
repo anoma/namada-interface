@@ -29,9 +29,6 @@ export const ShieldedAssetsOverview = (): JSX.Element => {
               >
                 <span className={clsx(textContainerClassList)}>
                   Shielded Transfer
-                  {/* <i className="w-5">
-                    <ShieldedTransferIcon />
-                  </i> */}
                 </span>
               </ActionButton>
               <ActionButton
@@ -40,12 +37,7 @@ export const ShieldedAssetsOverview = (): JSX.Element => {
                 size="xs"
                 className="w-auto px-4 items-center"
               >
-                <span className={clsx(textContainerClassList)}>
-                  Unshield
-                  {/* <i className="inline-block w-5 ml-1">
-                    <UnshieldedTransferIcon />
-                  </i> */}
-                </span>
+                <span className={clsx(textContainerClassList)}>Unshield</span>
               </ActionButton>
             </>
           }
