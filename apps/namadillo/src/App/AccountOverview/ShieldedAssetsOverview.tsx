@@ -1,7 +1,5 @@
 import { ActionButton, Panel } from "@namada/components";
 import { MaspSyncCover } from "App/Common/MaspSyncCover";
-import { ShieldedTransferIcon } from "App/Icons/ShieldedTransferIcon";
-import { UnshieldedTransferIcon } from "App/Icons/UnshieldedTransferIcon";
 import { ShieldedAssetTable } from "App/Masp/ShieldedAssetTable";
 import { routes } from "App/routes";
 import clsx from "clsx";
@@ -31,9 +29,9 @@ export const ShieldedAssetsOverview = (): JSX.Element => {
               >
                 <span className={clsx(textContainerClassList)}>
                   Shielded Transfer
-                  <i className="w-5">
+                  {/* <i className="w-5">
                     <ShieldedTransferIcon />
-                  </i>
+                  </i> */}
                 </span>
               </ActionButton>
               <ActionButton
@@ -44,17 +42,15 @@ export const ShieldedAssetsOverview = (): JSX.Element => {
               >
                 <span className={clsx(textContainerClassList)}>
                   Unshield
-                  <i className="inline-block w-5 ml-1">
+                  {/* <i className="inline-block w-5 ml-1">
                     <UnshieldedTransferIcon />
-                  </i>
+                  </i> */}
                 </span>
               </ActionButton>
             </>
           }
         />
-        <div>
-          <EstimateShieldingRewardsCard />
-        </div>
+        <EstimateShieldingRewardsCard />
       </div>
       <div className="mt-10">
         <ShieldedAssetTable />

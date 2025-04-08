@@ -1,14 +1,6 @@
-import {
-  ActionButton,
-  Panel,
-  SkeletonLoading,
-  Stack,
-  Tooltip,
-} from "@namada/components";
+import { Panel, SkeletonLoading, Stack, Tooltip } from "@namada/components";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { PulsingRing } from "App/Common/PulsingRing";
-import { TokensAnimation } from "App/Common/TokensAnimation";
-import { routes } from "App/routes";
 import { shieldedBalanceAtom } from "atoms/balance";
 import { applicationFeaturesAtom } from "atoms/settings";
 import clsx from "clsx";
@@ -75,7 +67,7 @@ export const TotalBalanceBanner = (): JSX.Element => {
             </div>
           )}
         </div>
-        <aside className="hidden lg:flex gap-4 items-center flex-wrap">
+        {/* <aside className="hidden lg:flex gap-4 items-center flex-wrap">
           <ActionButton
             onClick={() =>
               navigate(routes.shieldAssets, {
@@ -90,7 +82,7 @@ export const TotalBalanceBanner = (): JSX.Element => {
           <div className="w-[140px]">
             <TokensAnimation />
           </div>
-        </aside>
+        </aside> */}
       </Stack>
     </Panel>
   );

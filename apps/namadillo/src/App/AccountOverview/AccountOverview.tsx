@@ -1,7 +1,7 @@
 import { ConnectPanel } from "App/Common/ConnectPanel";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { Sidebar } from "App/Layout/Sidebar";
-import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
+import { JoinDiscord } from "App/Sidebars/JoinDiscord";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { twMerge } from "tailwind-merge";
@@ -34,7 +34,7 @@ export const AccountOverview = (): JSX.Element => {
       <Sidebar>
         <StakeSidebar />
         <ShieldAllBanner />
-        <MainnetRoadmap />
+        <JoinDiscord />
       </Sidebar>
     </PageWithSidebar>
   );
