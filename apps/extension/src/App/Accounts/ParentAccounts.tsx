@@ -86,7 +86,7 @@ export const ParentAccounts = (): JSX.Element => {
   };
 
   const goToDisposableKeyDetails = (account: Account): void => {
-    navigate(routes.disposableKeyDetails(account.id), { state: { account } });
+    navigate(routes.viewDisposableAccount(account.id), { state: { account } });
   };
 
   const showDisposableAccount = (acc: Account): boolean =>
