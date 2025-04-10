@@ -6,6 +6,7 @@ import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { GoCheck, GoCopy } from "react-icons/go";
 import QRCode from "react-qr-code";
+import NamadaLogo from "../Assets/NamadaLogo.svg";
 import { isShieldedAddress, isTransparentAddress } from "./common";
 
 export const ReceiveCard = (): JSX.Element => {
@@ -63,13 +64,17 @@ export const ReceiveCard = (): JSX.Element => {
           </div>
 
           {/* QR Code Display */}
-          <div className="bg-white p-4 rounded-md">
+          <div className="bg-white p-4 rounded-md relative">
             <QRCode
               size={180}
               value={address || ""}
               bgColor="#FFFFFF"
               fgColor="#000000"
+              level="H"
             />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <img src={NamadaLogo} alt="Namada Logo" width={45} height={45} />
+            </div>
           </div>
 
           {/* Address display with copy button */}
