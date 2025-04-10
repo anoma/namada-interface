@@ -166,8 +166,13 @@ export const NamadaTransfer: React.FC = () => {
         <h1
           className={twMerge("mt-6 text-lg", isSourceShielded && "text-yellow")}
         >
-          Transfer
+          Send
         </h1>
+        <h2 className="text-sm">
+          Send assets to other Namada accounts.
+          <br />
+          Shielded to shielded transfers are fully private
+        </h2>
         <NamadaTransferTopHeader
           isSourceShielded={isSourceShielded}
           isDestinationShielded={target ? isTargetShielded : undefined}

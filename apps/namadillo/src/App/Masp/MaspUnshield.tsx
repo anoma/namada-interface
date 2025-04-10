@@ -131,12 +131,16 @@ export const MaspUnshield: React.FC = () => {
   return (
     <Panel className="relative min-h-[600px]">
       <header className="flex flex-col items-center text-center mb-3 gap-6">
-        <h1 className="mt-6 text-lg">Unshield</h1>
+        <h1 className="mt-6 text-lg">Unshielding Transfer</h1>
         <NamadaTransferTopHeader
           isSourceShielded={true}
           isDestinationShielded={false}
         />
-        <h2 className="text-lg">Namada Shielded to Namada Transparent</h2>
+        <h2 className="text-sm">
+          Unshield assets to your transparent account, or to an external wallet.
+          <br />
+          This action makes your assets public again.
+        </h2>
       </header>
       <TransferModule
         source={{
