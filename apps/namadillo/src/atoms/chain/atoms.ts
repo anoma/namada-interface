@@ -149,7 +149,7 @@ export const maspRewardsAtom = atomWithQuery((get) => {
   };
 });
 
-export const maspEpochAtom = atomWithQuery<string>((get) => {
+export const maspEpochAtom = atomWithQuery<bigint>((get) => {
   const chain = get(chainAtom);
   const nativeToken = get(nativeTokenAddressAtom);
   return {
@@ -157,7 +157,7 @@ export const maspEpochAtom = atomWithQuery<string>((get) => {
     gcTime: 0,
     staleTime: 0,
     queryKey: ["epoch", chain],
-    ...queryDependentFn(async (): Promise<string> => {
+    ...queryDependentFn(async (): Promise<bigint> => {
       const sdk = await getSdkInstance();
       const maspEpoch = sdk.rpc.queryMaspEpoch();
 

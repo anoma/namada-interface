@@ -137,10 +137,12 @@ impl Query {
     /// # Errors
     ///
     /// Returns an error if the RPC call fails
-    pub async fn query_masp_epoch(&self) -> Result<String, JsError> {
-        let epoch = query_masp_epoch(&self.client).await?;
+    pub async fn query_masp_epoch(&self) -> Result<js_sys::BigInt, js_sys::Error> {
+        let epoch = query_masp_epoch(&self.client)
+            .await
+            .map_err(|e| js_sys::Error::new(&e.to_string()))?;
 
-        Ok(epoch.to_string())
+        js_sys::BigInt::from_str(&epoch.to_string())
     }
 
     /// Gets all active validator addresses
