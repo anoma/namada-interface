@@ -33,21 +33,37 @@ export const Navigation = (): JSX.Element => {
       url: routes.governance,
     },
     {
-      label: "MASP",
+      label: "Shield",
       icon: <MASPIcon />,
       url: features.maspEnabled ? routes.masp : undefined,
     },
     {
-      label: "IBC Transfer",
+      label: "Unshield",
       icon: <TbVectorTriangle />,
       url: features.ibcTransfersEnabled ? routes.ibc : undefined,
     },
     {
-      label: "Transfer",
+      label: "Send",
       icon: <IoSwapHorizontal />,
       url:
         features.maspEnabled || features.namTransfersEnabled ?
           routes.transfer
+        : undefined,
+    },
+    {
+      label: "Receive",
+      icon: <GoHistory />,
+      url:
+        features.namTransfersEnabled || features.ibcTransfersEnabled ?
+          routes.history
+        : undefined,
+    },
+    {
+      label: "Swap",
+      icon: <IoSwapHorizontal />,
+      url:
+        features.namTransfersEnabled || features.ibcTransfersEnabled ?
+          routes.history
         : undefined,
     },
     {
@@ -63,14 +79,24 @@ export const Navigation = (): JSX.Element => {
   return (
     <div className="min-h-full flex flex-col justify-between gap-10 p-6 pb-8">
       <ul className="flex flex-col gap-4">
-        {menuItems.map((item) => (
-          <li key={item.label}>
-            <SidebarMenuItem url={item.url}>
-              {item.icon}
-              {item.label}
-            </SidebarMenuItem>
-          </li>
-        ))}
+        {menuItems.map((item) => {
+          return (
+            <>
+              <li key={item.label}>
+                <SidebarMenuItem url={item.url}>
+                  {item.icon}
+                  {item.label}
+                </SidebarMenuItem>
+              </li>
+              {item.label === "Governance" && (
+                <hr className="border-t border-white" />
+              )}
+              {item.label === "Swap" && (
+                <hr className="border-t border-white" />
+              )}
+            </>
+          );
+        })}
       </ul>
       <footer className="flex flex-col gap-10">
         <ul className="flex flex-col gap-1 text-neutral-300 text-sm">
