@@ -74,7 +74,7 @@ export const Navigation = (): JSX.Element => {
       <ul className="flex flex-col gap-4">
         {menuItems.map((item) => {
           return (
-            <>
+            <React.Fragment key={item.label}>
               {item.label === "Shield" && (
                 <>
                   <hr className="border-t-2 border-neutral-600" />
