@@ -6,6 +6,7 @@ import { UnshieldedTransferIcon } from "App/Icons/UnshieldedTransferIcon";
 import { routes } from "App/routes";
 import { applicationFeaturesAtom } from "atoms/settings";
 import { useAtomValue } from "jotai";
+import { Fragment } from "react";
 import { AiFillHome } from "react-icons/ai";
 import { BsDiscord, BsTwitterX } from "react-icons/bs";
 import { FaVoteYea } from "react-icons/fa";
@@ -74,7 +75,7 @@ export const Navigation = (): JSX.Element => {
       <ul className="flex flex-col gap-4">
         {menuItems.map((item) => {
           return (
-            <React.Fragment key={item.label}>
+            <Fragment key={item.label}>
               {item.label === "Shield" && (
                 <>
                   <hr className="border-t-2 border-neutral-600" />
@@ -90,7 +91,7 @@ export const Navigation = (): JSX.Element => {
                   {item.label}
                 </SidebarMenuItem>
               </li>
-            </>
+            </Fragment>
           );
         })}
       </ul>
