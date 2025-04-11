@@ -58,14 +58,6 @@ export const Navigation = (): JSX.Element => {
           routes.receive
         : undefined,
     },
-    // {
-    //   label: "Swap",
-    //   icon: <IoSwapHorizontal />,
-    //   url:
-    //     features.namTransfersEnabled || features.ibcTransfersEnabled ?
-    //       routes.history
-    //     : undefined,
-    // },
     {
       label: "History",
       icon: <GoHistory />,

@@ -50,7 +50,6 @@ export const ReceiveCard = (): JSX.Element => {
       : <div
           className={`flex flex-col items-center gap-6 bg-gray w-[400px] py-[50px] rounded-md m-auto mb-10 ${isShielded ? "border-2 border-yellow" : ""}`}
         >
-          {/* Toggle Between Shielded and Transparent */}
           <div className="w-full max-w-[250px]">
             <TabSelector
               active={isShielded ? "shielded" : "transparent"}
@@ -66,7 +65,6 @@ export const ReceiveCard = (): JSX.Element => {
             />
           </div>
 
-          {/* QR Code Display */}
           <div
             className={`p-4 rounded-md relative ${isShielded ? "bg-yellow" : "bg-white"}`}
           >
@@ -87,7 +85,6 @@ export const ReceiveCard = (): JSX.Element => {
             </div>
           </div>
 
-          {/* Address display with copy button */}
           <div className="flex items-center gap-2 px-4 py-2 bg-neutral-900 rounded-sm w-full max-w-[350px]">
             <p
               className={`text-sm font-mono text-gray-400 truncate flex-grow ${isShielded ? "text-yellow" : "text-white"}`}

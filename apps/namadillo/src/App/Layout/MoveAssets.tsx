@@ -20,14 +20,13 @@ export const MoveAssets = (): JSX.Element => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Determine initial tab based on current route if no tab is provided
   const getInitialTab = (): MoveAssetsTab => {
     const path = location.pathname;
     if (path.includes(routes.maspShield)) return "shield";
     if (path.includes(routes.maspUnshield)) return "unshield";
     if (path.includes(routes.transfer)) return "send";
     if (path.includes(routes.receive)) return "receive";
-    return "shield"; // Default
+    return "shield";
   };
 
   const getInitialTabIndex = (): number => {
