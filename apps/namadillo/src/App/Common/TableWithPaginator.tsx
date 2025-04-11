@@ -52,7 +52,7 @@ export const TableWithPaginator = <T,>({
         headProps={headProps}
       />
     );
-  }, [headers, id, rows, tableProps, headProps]);
+  }, [rows, tableProps, headProps]);
 
   const pagination = useMemo(() => {
     return (
@@ -66,7 +66,7 @@ export const TableWithPaginator = <T,>({
         }}
       />
     );
-  }, [page, pageCount, onPageChange, scrollTop]);
+  }, [page, itemList, onPageChange]);
 
   if (rows.length === 0) {
     return (
