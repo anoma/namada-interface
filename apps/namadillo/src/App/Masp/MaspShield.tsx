@@ -130,14 +130,14 @@ export const MaspShield: React.FC = () => {
   setLedgerStatusStop(isPerformingTransfer);
 
   return (
-    <Panel className="relative min-h-[600px] flex-1">
+    <Panel className="relative rounded-none">
       <header className="flex flex-col items-center text-center mb-3 gap-6">
-        <h1 className="mt-6 text-lg text-yellow">Shield</h1>
+        <h1 className="mt-6 text-lg text-yellow">Shielding Transfer</h1>
         <NamadaTransferTopHeader
           isSourceShielded={false}
           isDestinationShielded={true}
         />
-        <h2 className="text-lg">Namada Transparent to Namada Shielded</h2>
+        <h2 className="text-sm">Shield assets into Namada&apos;s Shieldpool</h2>
       </header>
       <TransferModule
         source={{

@@ -19,16 +19,8 @@ import { GovernanceOverview } from "./Governance/GovernanceOverview";
 import { ProposalAndVote } from "./Governance/ProposalAndVote";
 import { SubmitVote } from "./Governance/SubmitVote";
 import { ViewJson } from "./Governance/ViewJson";
-import { IbcLayout } from "./Ibc/IbcLayout";
 import { IbcShieldAll } from "./Ibc/IbcShieldAll";
-import { IbcTransfer } from "./Ibc/IbcTransfer";
-import { IbcTransfersLayout } from "./Ibc/IbcTransfersLayout";
-import { IbcWithdraw } from "./Ibc/IbcWithdraw";
-import { MaspLayout } from "./Masp/MaspLayout";
-import { MaspOverview } from "./Masp/MaspOverview";
-import { MaspShield } from "./Masp/MaspShield";
-import { MaspUnshield } from "./Masp/MaspUnshield";
-import { NamadaTransfer } from "./NamadaTransfer/NamadaTransfer";
+import { MoveAssets } from "./Layout/MoveAssets";
 import { routes } from "./routes";
 import { Advanced } from "./Settings/Advanced";
 import { EnableFeatures } from "./Settings/EnableFeatures";
@@ -47,7 +39,6 @@ import { Unstake } from "./Staking/Unstake";
 import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
 import { TransactionDetails } from "./Transactions/TransactionDetails";
 import { TransactionHistory } from "./Transactions/TransactionHistory";
-import { TransferLayout } from "./Transfer/TransferLayout";
 
 export const MainRoutes = (): JSX.Element => {
   const location = useLocation();
@@ -92,34 +83,31 @@ export const MainRoutes = (): JSX.Element => {
           <Route path={routes.governanceSubmitVote} element={<SubmitVote />} />
           <Route path={routes.governanceJson} element={<ViewJson />} />
 
-          {/* Masp */}
+          {/* MASP, Transfers, and IBC combined routes */}
           {features.maspEnabled && (
-            <Route element={<MaspLayout />}>
-              <Route path={routes.masp} element={<MaspOverview />} />
-              <Route path={routes.maspShield} element={<MaspShield />} />
-              <Route path={routes.maspUnshield} element={<MaspUnshield />} />
-            </Route>
-          )}
-
-          {/* Ibc Transfers */}
-          {features.ibcTransfersEnabled && (
-            <Route element={<IbcTransfersLayout />}>
-              <Route path={routes.ibc} element={<IbcTransfer />} />
-              <Route path={routes.ibcWithdraw} element={<IbcWithdraw />} />
-            </Route>
-          )}
-
-          {features.ibcTransfersEnabled && (
-            <Route element={<IbcLayout />}>
-              <Route path={routes.ibcShieldAll} element={<IbcShieldAll />} />
-            </Route>
+            <>
+              <Route path={routes.maspShield} element={<MoveAssets />} />
+              <Route path={routes.maspUnshield} element={<MoveAssets />} />
+            </>
           )}
 
           {/* Transfer */}
           {(features.maspEnabled || features.namTransfersEnabled) && (
-            <Route element={<TransferLayout />}>
-              <Route path={routes.transfer} element={<NamadaTransfer />} />
-            </Route>
+            <Route path={routes.transfer} element={<MoveAssets />} />
+          )}
+
+          {/* Receive */}
+          {(features.namTransfersEnabled || features.ibcTransfersEnabled) && (
+            <Route path={routes.receive} element={<MoveAssets />} />
+          )}
+
+          {/* IBC routes */}
+          {features.ibcTransfersEnabled && (
+            <>
+              <Route path={routes.ibc} element={<MoveAssets />} />
+              <Route path={routes.ibcWithdraw} element={<MoveAssets />} />
+              <Route path={routes.ibcShieldAll} element={<IbcShieldAll />} />
+            </>
           )}
 
           {/* Transaction History */}
