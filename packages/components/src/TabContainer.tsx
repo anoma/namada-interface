@@ -14,6 +14,7 @@ type TabContainerProps = {
   activeTabIndex: number;
   onChangeActiveTab: (index: number) => void;
   tabs: TabContents[];
+  className?: React.CSSProperties;
 } & ActionButtonProps<"button">;
 
 export const TabContainer = ({
@@ -22,6 +23,7 @@ export const TabContainer = ({
   activeTabIndex,
   onChangeActiveTab,
   tabs,
+  className,
   ...buttonProps
 }: TabContainerProps): JSX.Element => {
   return (
@@ -67,6 +69,7 @@ export const TabContainer = ({
       {tabs.map((tab: TabContents, index: number) => (
         <div
           key={index}
+          className={className}
           id={`tabpanel-${id}-${index}`}
           role="tabpanel"
           aria-labelledby={`tab-${id}-${index}`}
