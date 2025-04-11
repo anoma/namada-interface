@@ -20,7 +20,7 @@ export const Navigation = (): JSX.Element => {
 
   const menuItems: { label: string; icon: React.ReactNode; url?: string }[] = [
     {
-      label: "Overview",
+      label: "Manage Assets",
       icon: <AiFillHome />,
       url: routes.root,
     },
