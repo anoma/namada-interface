@@ -19,7 +19,7 @@ export const AssetsOverviewPanel = (): JSX.Element => {
       activeTabIndex={currentTab}
       onChangeActiveTab={setCurrentTab}
       className={clsx(
-        "transition-colors border-solid border border-transparent",
+        "mt-2 transition-colors border-solid border border-transparent",
         "duration-0",
         "[&[aria-selected='true']]:z-20 [&[aria-selected='true']]:!border-b-neutral-950",
         shieldedPanelSelected &&
