@@ -35,12 +35,12 @@ export const Navigation = (): JSX.Element => {
     {
       label: "Shield",
       icon: <MASPIcon />,
-      url: features.maspEnabled ? routes.masp : undefined,
+      url: features.maspEnabled ? routes.maspShield : undefined,
     },
     {
       label: "Unshield",
       icon: <TbVectorTriangle />,
-      url: features.ibcTransfersEnabled ? routes.ibc : undefined,
+      url: features.ibcTransfersEnabled ? routes.maspUnshield : undefined,
     },
     {
       label: "Send",
@@ -55,17 +55,17 @@ export const Navigation = (): JSX.Element => {
       icon: <GoHistory />,
       url:
         features.namTransfersEnabled || features.ibcTransfersEnabled ?
-          routes.history
+          routes.receive
         : undefined,
     },
-    {
-      label: "Swap",
-      icon: <IoSwapHorizontal />,
-      url:
-        features.namTransfersEnabled || features.ibcTransfersEnabled ?
-          routes.history
-        : undefined,
-    },
+    // {
+    //   label: "Swap",
+    //   icon: <IoSwapHorizontal />,
+    //   url:
+    //     features.namTransfersEnabled || features.ibcTransfersEnabled ?
+    //       routes.history
+    //     : undefined,
+    // },
     {
       label: "History",
       icon: <GoHistory />,
@@ -89,10 +89,10 @@ export const Navigation = (): JSX.Element => {
                 </SidebarMenuItem>
               </li>
               {item.label === "Governance" && (
-                <hr className="border-t border-white" />
+                <hr className="border-t-2 border-neutral-600" />
               )}
-              {item.label === "Swap" && (
-                <hr className="border-t border-white" />
+              {item.label === "Receive" && (
+                <hr className="border-t-2 border-neutral-600" />
               )}
             </>
           );

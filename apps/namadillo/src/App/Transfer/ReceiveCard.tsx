@@ -35,7 +35,7 @@ export const ReceiveCard = (): JSX.Element => {
   return (
     <Panel className="relative min-h-full rounded-none">
       <header className="flex flex-col items-center text-center mb-8 gap-6">
-        <h1 className="mt-6 text-lg">Recieve</h1>
+        <h1 className="mt-6 text-lg">Receive</h1>
         <h2 className="text-sm -mt-4">
           Receive funds from external wallets and exchanges
         </h2>

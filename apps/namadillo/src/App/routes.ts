@@ -30,6 +30,7 @@ export const routes = {
   transfer: "/transfer",
   history: "/history",
   transaction: "/transaction/:hash",
+  receive: "/receive",
 
   // Settings
   settings: "/settings",
