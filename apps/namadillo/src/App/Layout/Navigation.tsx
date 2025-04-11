@@ -82,15 +82,19 @@ export const Navigation = (): JSX.Element => {
         {menuItems.map((item) => {
           return (
             <>
+              {item.label === "Shield" && (
+                <>
+                  <hr className="border-t-2 border-neutral-600" />
+                  <h4 className="text-sm text-neutral-400">Move assets</h4>
+                </>
+              )}
               <li key={item.label}>
                 <SidebarMenuItem url={item.url}>
                   {item.icon}
                   {item.label}
                 </SidebarMenuItem>
               </li>
-              {item.label === "Governance" && (
-                <hr className="border-t-2 border-neutral-600" />
-              )}
+
               {item.label === "Receive" && (
                 <hr className="border-t-2 border-neutral-600" />
               )}
