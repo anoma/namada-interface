@@ -1,12 +1,10 @@
 import { ConnectPanel } from "App/Common/ConnectPanel";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { Sidebar } from "App/Layout/Sidebar";
-import MainnetRoadmap from "App/Sidebars/MainnetRoadmap";
+import { JoinDiscord } from "App/Sidebars/JoinDiscord";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
-import { twMerge } from "tailwind-merge";
 import { AssetsOverviewPanel } from "./AssetsOverviewPanel";
-import { NavigationFooter } from "./NavigationFooter";
 import { StakeSidebar } from "./StakeSidebar";
 import { TotalBalanceBanner } from "./TotalBalanceBanner";
 
@@ -22,19 +20,16 @@ export const AccountOverview = (): JSX.Element => {
 
   return (
     <PageWithSidebar>
-      <div className={twMerge("flex w-full")}>
-        <section className="flex flex-col w-full rounded-sm min-h-full gap-2">
+      <div className="relative">
+        <section className="w-full">
           <TotalBalanceBanner />
           <AssetsOverviewPanel />
-          <div>
-            <NavigationFooter />
-          </div>
         </section>
       </div>
       <Sidebar>
         <StakeSidebar />
         <ShieldAllBanner />
-        <MainnetRoadmap />
+        <JoinDiscord />
       </Sidebar>
     </PageWithSidebar>
   );

@@ -1,7 +1,7 @@
 import { Panel } from "@namada/components";
 
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
-import { ProposalDiscord } from "App/Sidebars/ProposalDiscord";
+import { JoinDiscord } from "App/Sidebars/JoinDiscord";
 import { useProposalIdParam } from "hooks";
 import { ProposalDescription } from "./ProposalDescription";
 import { ProposalHeader } from "./ProposalHeader";
@@ -42,7 +42,7 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
       <Panel className="@container" title="Proposal Status">
         <ProposalStatusSummary proposalId={proposalId} />
       </Panel>
-      <ProposalDiscord />
+      <JoinDiscord />
     </aside>
   </PageWithSidebar>
 );
