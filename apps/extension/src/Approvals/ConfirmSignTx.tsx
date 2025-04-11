@@ -30,7 +30,11 @@ export const ConfirmSignTx: React.FC<Props> = ({ details }) => {
   const signTx = async (): Promise<void> => {
     try {
       setStatus(Status.Pending);
-      if (txType === "Unshielding" || txType === "Shielded") {
+      if (
+        txType === "Unshielding" ||
+        txType === "Shielded" ||
+        txType === "IbcUnshieldTransfer"
+      ) {
         await requester.sendMessage(
           Ports.Background,
           new SignMaspMsg(msgId, signer)

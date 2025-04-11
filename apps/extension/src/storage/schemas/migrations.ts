@@ -26,5 +26,3 @@ export const v1toV2 = (data: VaultV1Type): VaultV2Type => {
 
   return decodedDataV2.right;
 };
-
-export const migrations = [v1toV2];

@@ -411,31 +411,51 @@ export const useTransactionNotifications = (): void => {
     }
   );
 
-  useTransactionEventListener(
-    ["IbcTransfer.Error", "IbcWithdraw.Error"],
-    ({ detail: tx }) => {
-      if (!tx) return;
+  useTransactionEventListener("IbcTransfer.Error", ({ detail: tx }) => {
+    if (!tx) return;
 
-      invariant(tx.hash, "Notification error: Invalid Tx provider");
-      const id = createNotificationId(tx.hash);
-      const title =
-        tx.type === "TransparentToIbc" ?
-          "IBC withdraw transaction failed"
-        : "IBC transfer transaction failed";
+    invariant(tx.hash, "Notification error: Invalid Tx provider");
+    const id = createNotificationId(tx.hash);
+    const title =
+      tx.type === "TransparentToIbc" ?
+        "IBC withdraw transaction failed"
+      : "IBC transfer transaction failed";
 
-      dispatchNotification({
-        id,
-        title,
-        description: (
-          <>
-            Your transaction of{" "}
-            <TokenCurrency amount={tx.displayAmount} symbol={tx.asset.symbol} />{" "}
-            has failed.
-          </>
-        ),
-        details: tx.errorMessage,
-        type: "error",
-      });
-    }
-  );
+    dispatchNotification({
+      id,
+      title,
+      description: (
+        <>
+          Your transaction of{" "}
+          <TokenCurrency amount={tx.displayAmount} symbol={tx.asset.symbol} />{" "}
+          has failed.
+        </>
+      ),
+      details: tx.errorMessage,
+      type: "error",
+    });
+  });
+
+  useTransactionEventListener("IbcWithdraw.Error", ({ detail: tx }) => {
+    if (!tx) return;
+
+    invariant(tx.hash, "Notification error: Invalid Tx provider");
+    const id = createNotificationId(tx.hash);
+    const title = "IBC withdraw transaction failed";
+
+    dispatchNotification({
+      id,
+      title,
+      description: (
+        <>
+          Your transaction of{" "}
+          <TokenCurrency amount={tx.displayAmount} symbol={tx.asset.symbol} />{" "}
+          has failed.{" "}
+          <b>Open the Namada extension to access the refund account.</b>
+        </>
+      ),
+      details: tx.errorMessage,
+      type: "error",
+    });
+  });
 };

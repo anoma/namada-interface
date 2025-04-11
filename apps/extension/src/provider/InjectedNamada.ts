@@ -1,8 +1,10 @@
 import {
+  ClearDisposableSignerProps,
   GenDisposableSignerResponse,
   Namada as INamada,
   Signer as ISigner,
   NamadaKeychainAccount,
+  PersistDisposableSignerProps,
   SignArbitraryProps,
   SignArbitraryResponse,
   SignProps,
@@ -81,6 +83,24 @@ export class InjectedNamada implements INamada {
       void,
       GenDisposableSignerResponse | undefined
     >("genDisposableKeypair");
+  }
+
+  public async persistDisposableKeypair(
+    props: PersistDisposableSignerProps
+  ): Promise<void> {
+    return await InjectedProxy.requestMethod<
+      PersistDisposableSignerProps,
+      void
+    >("persistDisposableKeypair", props);
+  }
+
+  public async clearDisposableKeypair(
+    props: ClearDisposableSignerProps
+  ): Promise<void> {
+    return await InjectedProxy.requestMethod<ClearDisposableSignerProps, void>(
+      "clearDisposableKeypair",
+      props
+    );
   }
 
   public getSigner(): ISigner | undefined {
