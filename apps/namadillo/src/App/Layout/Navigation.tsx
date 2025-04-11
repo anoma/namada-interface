@@ -88,16 +88,15 @@ export const Navigation = (): JSX.Element => {
                   <h4 className="text-sm text-neutral-400">Move assets</h4>
                 </>
               )}
+              {item.label === "History" && (
+                <hr className="border-t-2 border-neutral-600" />
+              )}
               <li key={item.label}>
                 <SidebarMenuItem url={item.url}>
                   {item.icon}
                   {item.label}
                 </SidebarMenuItem>
               </li>
-
-              {item.label === "Receive" && (
-                <hr className="border-t-2 border-neutral-600" />
-              )}
             </>
           );
         })}

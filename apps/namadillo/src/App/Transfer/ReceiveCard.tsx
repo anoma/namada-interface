@@ -7,6 +7,7 @@ import { useState } from "react";
 import { GoCheck, GoCopy } from "react-icons/go";
 import QRCode from "react-qr-code";
 import NamadaLogo from "../Assets/NamadaLogo.svg";
+import NamadaLogoYellow from "../Assets/NamadaLogoYellow.svg";
 import { isShieldedAddress, isTransparentAddress } from "./common";
 
 export const ReceiveCard = (): JSX.Element => {
@@ -46,7 +47,9 @@ export const ReceiveCard = (): JSX.Element => {
           width="400px"
           className="rounded-md m-auto"
         />
-      : <div className="flex flex-col items-center gap-6 bg-gray w-[400px] py-[50px] rounded-md m-auto mb-10">
+      : <div
+          className={`flex flex-col items-center gap-6 bg-gray w-[400px] py-[50px] rounded-md m-auto mb-10 ${isShielded ? "border-2 border-yellow" : ""}`}
+        >
           {/* Toggle Between Shielded and Transparent */}
           <div className="w-full max-w-[250px]">
             <TabSelector
@@ -64,27 +67,36 @@ export const ReceiveCard = (): JSX.Element => {
           </div>
 
           {/* QR Code Display */}
-          <div className="bg-white p-4 rounded-md relative">
+          <div
+            className={`p-4 rounded-md relative ${isShielded ? "bg-yellow" : "bg-white"}`}
+          >
             <QRCode
               size={180}
               value={address || ""}
-              bgColor="#FFFFFF"
+              bgColor={isShielded ? "#FFE816" : "#FFFFFF"}
               fgColor="#000000"
               level="H"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <img src={NamadaLogo} alt="Namada Logo" width={45} height={45} />
+              <img
+                src={isShielded ? NamadaLogoYellow : NamadaLogo}
+                alt="Namada Logo"
+                width={45}
+                height={45}
+              />
             </div>
           </div>
 
           {/* Address display with copy button */}
           <div className="flex items-center gap-2 px-4 py-2 bg-neutral-900 rounded-sm w-full max-w-[350px]">
-            <p className="text-sm font-mono text-gray-400 truncate flex-grow">
+            <p
+              className={`text-sm font-mono text-gray-400 truncate flex-grow ${isShielded ? "text-yellow" : "text-white"}`}
+            >
               {address || "No address available"}
             </p>
             <button
               onClick={handleCopy}
-              className="text-lg text-white p-1 hover:text-yellow transition-colors"
+              className={`text-lg text-white p-1 hover:text-yellow transition-colors  ${isShielded ? "text-yellow" : "text-white"}`}
             >
               {copied ?
                 <GoCheck />
