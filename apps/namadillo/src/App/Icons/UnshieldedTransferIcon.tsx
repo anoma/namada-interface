@@ -1,6 +1,8 @@
 export const UnshieldedTransferIcon = (): JSX.Element => {
   return (
     <svg
+      width="18"
+      height="18"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 15.271 12.3"
