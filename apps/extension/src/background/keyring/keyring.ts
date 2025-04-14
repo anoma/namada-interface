@@ -1011,15 +1011,26 @@ export class KeyRing {
     }
   }
 
-  async persistDisposableSigner(address: string): Promise<void> {
-    await this.vaultService.assertIsUnlocked();
-
+  async persistDisposableSigner(disposabelAddress: string): Promise<void> {
     const disposableSigner =
-      await this.localStorage.getDisposableSigner(address);
+      await this.localStorage.getDisposableSigner(disposabelAddress);
+
     if (!disposableSigner) {
       throw new Error("No disposable signer found");
     }
-    const { privateKey, publicKey } = disposableSigner;
+    const { privateKey: disposablePrivateKey, publicKey: disposablePublicKey } =
+      disposableSigner;
+
+    const sdk = this.sdkService.getSdk();
+    const { publicKey, privateKey, address } =
+      sdk.keys.fromPrivateKey(disposablePrivateKey);
+
+    // Extra safety check to make sure that the address passed is derived from the private key
+    if (publicKey !== disposablePublicKey || address !== disposabelAddress) {
+      throw new Error(
+        "Passed address can't be derived from the stored private key"
+      );
+    }
 
     const vaultLength = await this.vaultService.getLength(KEYSTORE_KEY);
     const accountStore = this.accountStoreDefault(
@@ -1050,8 +1061,9 @@ export class KeyRing {
   async clearDisposableSigner(address: string): Promise<void> {
     const disposableSigner =
       await this.localStorage.getDisposableSigner(address);
-    // We make sure that we remove the existing disposable signer
-    if (disposableSigner) {
+    const account = await this.queryAccountByAddress(address);
+    // **IMPORTANT** We make sure that we ONLY can remove the existing disposable signer
+    if (disposableSigner && account?.type === AccountType.Disposable) {
       await this.vaultStorage.remove(KeyStore, "address", address);
     }
   }

@@ -268,10 +268,18 @@ export class KeyRingService {
   }
 
   async persistDisposableSigner(address: string): Promise<void> {
+    if (await this.vaultService.isLocked()) {
+      throw new Error(ApprovalErrors.KeychainLocked());
+    }
+
     return this._keyRing.persistDisposableSigner(address);
   }
 
   async clearDisposableSigner(address: string): Promise<void> {
+    if (await this.vaultService.isLocked()) {
+      throw new Error(ApprovalErrors.KeychainLocked());
+    }
+
     return this._keyRing.clearDisposableSigner(address);
   }
 
