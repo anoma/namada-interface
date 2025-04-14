@@ -1,6 +1,12 @@
 import { Asset, AssetDenomUnit } from "@chain-registry/types";
 import namadaAssets from "@namada/chain-registry/namada/assetlist.json";
-import { ProposalStatus, ProposalTypeString } from "@namada/types";
+import {
+  BroadcastTxError,
+  ProposalStatus,
+  ProposalTypeString,
+  ResultCode,
+  TxMsgValue,
+} from "@namada/types";
 import { localnetConfigAtom } from "atoms/integrations/atoms";
 import BigNumber from "bignumber.js";
 import { getDefaultStore } from "jotai";
@@ -113,4 +119,23 @@ export const toBaseAmount = (
     return displayAmount;
   }
   return displayAmount.shiftedBy(displayUnit.exponent);
+};
+
+/**
+ * Returns formatted error message based on tx props and error code
+ */
+export const toErrorDetail = (
+  tx: TxMsgValue[],
+  error: BroadcastTxError
+): string => {
+  const { gasLimit } = tx[0].args;
+  const { code } = error.toProps();
+
+  // TODO: Over time we may expand this to format errors for more result codes
+  switch (code) {
+    case ResultCode.TxGasLimit:
+      return `${error.toString()} Please raise the Gas Amount above the previously provided ${gasLimit} in the fee options for your transaction.`;
+    default:
+      return error.toString();
+  }
 };
