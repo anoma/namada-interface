@@ -2,6 +2,12 @@
 import { field, option, vec } from "@dao-xyz/borsh";
 import BigNumber from "bignumber.js";
 import { IbcTransferProps } from "../types";
+import {
+  BparamsConvertMsgValue,
+  BparamsMsgValue,
+  BparamsOutputMsgValue,
+  BparamsSpendMsgValue,
+} from "./bparams";
 import { BigNumberSerializer } from "./utils";
 
 export class IbcTransferMsgValue {
@@ -35,7 +41,25 @@ export class IbcTransferMsgValue {
   @field({ type: option(vec("u8")) })
   shieldingData?: Uint8Array;
 
+  @field({ type: option("string") })
+  gasSpendingKey?: string;
+
+  @field({ type: option(vec(BparamsMsgValue)) })
+  bparams?: BparamsMsgValue[];
+
+  @field({ type: option("string") })
+  refundTarget?: string;
+
   constructor(data: IbcTransferProps) {
-    Object.assign(this, data);
+    Object.assign(this, {
+      ...data,
+      bparams: data.bparams?.map((bparam) => {
+        return new BparamsMsgValue({
+          spend: new BparamsSpendMsgValue(bparam.spend),
+          output: new BparamsOutputMsgValue(bparam.output),
+          convert: new BparamsConvertMsgValue(bparam.convert),
+        });
+      }),
+    });
   }
 }

@@ -125,7 +125,7 @@ export const disposableSignerAtom = atomWithQuery<GenDisposableSignerResponse>(
       queryKey: ["disposable-signer", isExtensionConnected],
       queryFn: async () => {
         const namada = await new NamadaKeychain().get();
-        const res = await namada?.genDisposableKeypair();
+        const res = await namada?.getSigner().genDisposableKeypair();
         if (!res) {
           throw new Error("Failed to generate disposable signer");
         }

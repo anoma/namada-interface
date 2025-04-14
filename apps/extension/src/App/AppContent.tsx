@@ -8,9 +8,11 @@ import { useQuery } from "hooks";
 import { openSetupTab } from "utils";
 import {
   DeleteAccount,
+  DeleteDisposableAccount,
   RenameAccount,
   UpdateRequired,
   ViewAccount,
+  ViewDisposableAccount,
   ViewMnemonic,
 } from "./Accounts";
 import { ParentAccounts } from "./Accounts/ParentAccounts";
@@ -95,6 +97,15 @@ export const AppContent = ({ warnings }: Props): JSX.Element => {
                 element={<UpdateRequired />}
               />
             </Route>
+
+            <Route
+              path={routes.viewDisposableAccount()}
+              element={<ViewDisposableAccount />}
+            />
+            <Route
+              path={routes.deleteDisposableAccount()}
+              element={<DeleteDisposableAccount />}
+            />
           </>
         )}
       </Routes>

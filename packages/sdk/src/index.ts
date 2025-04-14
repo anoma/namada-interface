@@ -51,6 +51,8 @@ export {
   publicKeyToBech32,
 } from "./keys";
 
+export type { Keys } from "./keys";
+
 export {
   ExtendedViewingKey,
   ProofGenerationKey,

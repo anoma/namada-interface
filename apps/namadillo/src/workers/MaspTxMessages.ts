@@ -1,5 +1,6 @@
 import {
   Account,
+  IbcTransferMsgValue,
   ShieldedTransferMsgValue,
   ShieldingTransferMsgValue,
   TxResponseMsgValue,
@@ -60,6 +61,19 @@ export type ShieldedTransfer = WebWorkerMessage<
 export type ShieldedTransferDone = WebWorkerMessage<
   "shielded-transfer-done",
   EncodedTxData<ShieldedTransferMsgValue>
+>;
+
+type IbcTransferPayload = {
+  account: Account;
+  gasConfig: GasConfig;
+  props: IbcTransferMsgValue[];
+  chain: ChainSettings;
+  memo?: string;
+};
+export type IbcTransfer = WebWorkerMessage<"ibc-transfer", IbcTransferPayload>;
+export type IbcTransferDone = WebWorkerMessage<
+  "ibc-transfer-done",
+  EncodedTxData<IbcTransferMsgValue>
 >;
 
 type GenerateIbcShieldingMemoPayload = {

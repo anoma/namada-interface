@@ -6,6 +6,8 @@ import { useState } from "react";
 
 type ViewKeysProps = {
   publicKeyAddress?: string;
+  privateKey?: string;
+  privateKeyLoading?: boolean;
   transparentAccountAddress?: string;
   transparentAccountPath?: string;
   shieldedAccountAddress?: string;
@@ -21,6 +23,8 @@ const Path = ({ path }: { path: string }): React.ReactNode => (
 
 export const ViewKeys = ({
   publicKeyAddress,
+  privateKey,
+  privateKeyLoading,
   transparentAccountAddress,
   transparentAccountPath,
   shieldedAccountAddress,
@@ -51,6 +55,18 @@ export const ViewKeys = ({
             />
             {transparentAccountPath && <Path path={transparentAccountPath} />}
           </div>
+        )}
+        {typeof privateKey !== "undefined" && (
+          <Input
+            label="Private Key"
+            variant="ReadOnlyCopy"
+            loading={privateKeyLoading}
+            hideIcon={privateKeyLoading}
+            sensitive={true}
+            valueToDisplay={shortenAddress(privateKey, trimCharacters)}
+            value={privateKey}
+            theme={"primary"}
+          />
         )}
         {publicKeyAddress && (
           <Input
