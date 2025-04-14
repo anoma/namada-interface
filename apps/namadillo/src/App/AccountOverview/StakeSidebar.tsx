@@ -59,7 +59,7 @@ export const StakeSidebar = (): JSX.Element => {
             Claim
           </ActionButton>
           <footer className="text-center leading-snug">
-            {chainParams.data?.apr.toFixed(2)}%
+            {chainParams.data?.apr.multipliedBy(100).toFixed(2)}%
             <div className="text-xxs text-center">Est. Rewards Rate</div>
           </footer>
         </Panel>

@@ -143,6 +143,7 @@ export const ShieldedFungibleTable = ({
         Tokens
       </div>
       <TableWithPaginator
+        containerClassName="h-screen"
         id="shielded-tokens"
         headers={headers.concat("")}
         renderRow={renderRow}

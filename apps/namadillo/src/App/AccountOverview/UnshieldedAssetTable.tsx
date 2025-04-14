@@ -144,6 +144,7 @@ const TransparentTokensTable = ({
         Tokens
       </div>
       <TableWithPaginator
+        containerClassName="h-screen"
         id="transparent-tokens"
         headers={headers.concat("")}
         renderRow={renderRow}
