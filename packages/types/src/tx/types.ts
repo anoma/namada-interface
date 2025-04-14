@@ -108,7 +108,7 @@ export const ResultCodes: Record<ResultCode, string> = {
   [ResultCode.ReplayTx]: "Replayed tx",
   [ResultCode.InvalidChainId]: "Invalid chain ID",
   [ResultCode.ExpiredTx]: "Expired tx",
-  [ResultCode.TxGasLimit]: "Exceeded gas limit",
+  [ResultCode.TxGasLimit]: "Transaction gas required exceeds the gas limit.",
   [ResultCode.FeeError]: "Error in paying tx fee",
   [ResultCode.InvalidVoteExtension]: "Invalid vote extension",
   [ResultCode.TooLarge]: "Tx is too large",

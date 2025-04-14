@@ -18,6 +18,7 @@ import {
   TransactionEventsClasses,
   TransactionEventsStatus,
 } from "types/events";
+import { toErrorDetail } from "utils";
 import { getSdkInstance } from "utils/sdk";
 
 export type TransactionPair<T> = {
@@ -234,7 +235,7 @@ export const broadcastTxWithEvents = async <T>(
       if (result.status === "fulfilled") {
         return result.value.commitments;
       } else {
-        throw new Error(result.reason.toString());
+        throw new Error(toErrorDetail(encodedTx.txs, result.reason));
       }
     });
 
