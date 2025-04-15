@@ -58,11 +58,7 @@ export const TopNavigation = (): JSX.Element => {
           <ActionButton
             className="py-2"
             size="xs"
-            onClick={() =>
-              navigate(routes.shieldAssets, {
-                state: { backgroundLocation: location },
-              })
-            }
+            onClick={() => navigate(routes.maspShield)}
           >
             Shield Assets
           </ActionButton>
@@ -72,7 +68,7 @@ export const TopNavigation = (): JSX.Element => {
             className="py-2"
             outlineColor="yellow"
             size="xs"
-            onClick={() => setUnshieldingModalOpen(true)}
+            onClick={() => navigate(routes.maspUnshield)}
           >
             Unshield
           </ActionButton>
