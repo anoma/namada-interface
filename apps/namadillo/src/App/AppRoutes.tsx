@@ -20,6 +20,7 @@ import { ProposalAndVote } from "./Governance/ProposalAndVote";
 import { SubmitVote } from "./Governance/SubmitVote";
 import { ViewJson } from "./Governance/ViewJson";
 import { IbcShieldAll } from "./Ibc/IbcShieldAll";
+import { OsmosisSwap } from "./Ibc/OsmosisSwap";
 import { MoveAssets } from "./Layout/MoveAssets";
 import { routes } from "./routes";
 import { Advanced } from "./Settings/Advanced";
@@ -107,6 +108,13 @@ export const MainRoutes = (): JSX.Element => {
               <Route path={routes.ibc} element={<MoveAssets />} />
               <Route path={routes.ibcWithdraw} element={<MoveAssets />} />
               <Route path={routes.ibcShieldAll} element={<IbcShieldAll />} />
+            </>
+          )}
+
+          {/* Swapping */}
+          {true && (
+            <>
+              <Route path={routes.swap} element={<OsmosisSwap />} />
             </>
           )}
 
