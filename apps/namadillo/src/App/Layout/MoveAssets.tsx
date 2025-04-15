@@ -45,11 +45,14 @@ export const MoveAssets = (): JSX.Element => {
     }
   };
 
-  const [activeTab, setActiveTab] = useState(getInitialTabIndex());
+  // Use path directly as the state, not derived value
+  const [activeTab, setActiveTab] = useState<number>(getInitialTabIndex());
 
   // Update active tab when route changes
   useEffect(() => {
-    setActiveTab(getInitialTabIndex());
+    // Force update active tab based on current path
+    const newTabIndex = getInitialTabIndex();
+    setActiveTab(newTabIndex);
   }, [location.pathname]);
 
   const handleTabChange = (index: number): void => {
