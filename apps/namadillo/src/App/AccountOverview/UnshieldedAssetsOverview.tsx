@@ -40,7 +40,7 @@ export const UnshieldedAssetsOverview = (): JSX.Element => {
         </div>
       </div>
       {transparentTokensQuery.isSuccess && (
-        <div className="mt-5 overflow-hidden flex-1 flex flex-col">
+        <div className="mt-5 overflow-hidden">
           <UnshieldedAssetTable />
         </div>
       )}
