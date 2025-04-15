@@ -201,7 +201,6 @@ export const IbcTransfer = (): JSX.Element => {
           wallet: wallets.namada,
           walletAddress: namadaAddress,
           isShieldedAddress: shielded,
-          onChangeShielded: setShielded,
         }}
         gasConfig={gasConfig.data}
         changeFeeEnabled={false}
