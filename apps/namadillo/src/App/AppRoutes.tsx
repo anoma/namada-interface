@@ -24,6 +24,7 @@ import { IbcShieldAll } from "./Ibc/IbcShieldAll";
 import { IbcTransfer } from "./Ibc/IbcTransfer";
 import { IbcTransfersLayout } from "./Ibc/IbcTransfersLayout";
 import { IbcWithdraw } from "./Ibc/IbcWithdraw";
+import { OsmosisSwap } from "./Ibc/OsmosisSwap";
 import { MaspLayout } from "./Masp/MaspLayout";
 import { MaspOverview } from "./Masp/MaspOverview";
 import { MaspShield } from "./Masp/MaspShield";
@@ -120,6 +121,13 @@ export const MainRoutes = (): JSX.Element => {
             <Route element={<TransferLayout />}>
               <Route path={routes.transfer} element={<NamadaTransfer />} />
             </Route>
+          )}
+
+          {/* Swapping */}
+          {true && (
+            <>
+              <Route path={routes.swap} element={<OsmosisSwap />} />
+            </>
           )}
 
           {/* Transaction History */}
