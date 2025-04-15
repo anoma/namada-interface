@@ -214,7 +214,7 @@ export const MaspShield: React.FC = () => {
           >
             ← Back
           </button>
-          <h1 className="mt-6 text-lg text-yellow">Shielding Transfer</h1>
+          <h1 className="-mt-8 text-lg text-yellow">Shielding Transfer</h1>
           <h2 className="text-sm">
             Shield IBC assets into Namada&apos;s Shieldpool
           </h2>
@@ -234,7 +234,7 @@ export const MaspShield: React.FC = () => {
         >
           ← Back
         </button>
-        <h1 className="mt-6 text-lg text-yellow">Shielding Transfer</h1>
+        <h1 className="-mt-8 text-lg text-yellow">Shielding Transfer</h1>
         <NamadaTransferTopHeader
           isSourceShielded={false}
           isDestinationShielded={true}
