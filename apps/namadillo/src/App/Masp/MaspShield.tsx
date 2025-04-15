@@ -172,7 +172,7 @@ export const MaspShield: React.FC = () => {
     return (
       <Panel className="relative rounded-none">
         <header className="flex flex-col items-center text-center mb-6 gap-6">
-          <h1 className="mt-20 text-lg text-yellow">Shield Assets</h1>
+          <h1 className="mt-6 text-lg text-yellow">Shield Assets</h1>
           <h2 className="text-sm">Select an option to shield your assets</h2>
         </header>
 
@@ -209,7 +209,7 @@ export const MaspShield: React.FC = () => {
       <Panel className="relative rounded-none">
         <header className="flex flex-col items-center text-center mb-3 gap-6">
           <button
-            className="self-start px-4 py-1 rounded-md text-yellow hover:bg-gray-800 transition-colors"
+            className="self-start px-8 py-2 rounded-md text-lg text-yellow hover:bg-gray-800 transition-colors"
             onClick={() => setSelectedOption(null)}
           >
             ← Back
