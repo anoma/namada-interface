@@ -172,7 +172,7 @@ export const MaspShield: React.FC = () => {
     return (
       <Panel className="relative rounded-none">
         <header className="flex flex-col items-center text-center mb-6 gap-6">
-          <h1 className="mt-6 text-lg text-yellow">Shield Assets</h1>
+          <h1 className="mt-20 text-lg text-yellow">Shield Assets</h1>
           <h2 className="text-sm">Select an option to shield your assets</h2>
         </header>
 
