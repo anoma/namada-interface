@@ -42,17 +42,17 @@ export const ShieldedAssetTable = (): JSX.Element => {
   );
 
   if (shieldedTokensQuery.data === undefined) {
-    return <SkeletonLoading height="100%" width="100%" className="flex-1" />;
+    return <SkeletonLoading height="125px" width="100%" />;
   }
 
   if (!shieldedTokensQuery.data.length) {
     return (
-      <div className="flex flex-col flex-1">
+      <>
         <div className="bg-gray p-6 rounded-sm text-center font-medium mb-8">
           You currently have no shielded assets
         </div>
         <ShieldAssetCta />
-      </div>
+      </>
     );
   }
 
@@ -84,7 +84,7 @@ export const ShieldedAssetTable = (): JSX.Element => {
           })}
         </div>
       )}
-      <div className="flex flex-col flex-1">
+      <>
         {tab === "Fungible" && (
           <ShieldedFungibleTable
             data={shieldedTokensQuery.data}
@@ -92,7 +92,7 @@ export const ShieldedAssetTable = (): JSX.Element => {
           />
         )}
         {tab === "NFT" && <ShieldedNFTTable />}
-      </div>
+      </>
     </AtomErrorBoundary>
   );
 };

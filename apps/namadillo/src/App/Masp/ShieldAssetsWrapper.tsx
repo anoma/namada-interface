@@ -12,7 +12,6 @@ export const ShieldAssetsWrapper: React.FC = () => {
   const [showModal, setShowModal] = useState(true);
   const [selectedRoute, setSelectedRoute] = useState<SelectedRoute>("none");
 
-  // Custom implementation of ShieldAssetsModal with our navigation
   const CustomShieldAssetsModal = (): JSX.Element => {
     return (
       <SelectOptionModal
@@ -46,7 +45,6 @@ export const ShieldAssetsWrapper: React.FC = () => {
     );
   };
 
-  // Show the selected component based on user choice
   const renderSelectedComponent = (): JSX.Element | null => {
     switch (selectedRoute) {
       case "maspShield":
