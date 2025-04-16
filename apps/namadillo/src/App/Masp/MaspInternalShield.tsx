@@ -44,10 +44,10 @@ export const MaspInternalShield = ({
   const sourceAddress =
     type === "unshield" ?
       defaultAccounts.data?.find(
-        (account) => account.type !== AccountType.ShieldedKeys
+        (account) => account.type === AccountType.ShieldedKeys
       )?.address
     : defaultAccounts.data?.find(
-        (account) => account.type === AccountType.ShieldedKeys
+        (account) => account.type !== AccountType.ShieldedKeys
       )?.address;
   const destinationAddress =
     type === "shield" ?
