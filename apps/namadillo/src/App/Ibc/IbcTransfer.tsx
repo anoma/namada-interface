@@ -65,7 +65,7 @@ export const IbcTransfer = (): JSX.Element => {
     useAtomValue(enabledIbcAssetsDenomFamily(ibcChannels?.namadaChannel));
 
   // Local State
-  const [shielded, setShielded] = useState<boolean>(true);
+  const shielded = true;
   const [selectedAssetAddress, setSelectedAssetAddress] = useUrlState(
     params.asset
   );
