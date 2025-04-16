@@ -1,41 +1,12 @@
-import { Panel, Stack } from "@namada/components";
+import { Panel } from "@namada/components";
 import { IbcTransfer } from "App/Ibc/IbcTransfer";
 import { NamadaTransferTopHeader } from "App/NamadaTransfer/NamadaTransferTopHeader";
-import clsx from "clsx";
 import { wallets } from "integrations";
 import { getAssetImageUrl } from "integrations/utils";
 import { useState } from "react";
 import { namadaAsset } from "utils";
 import { MaspInternalShield } from "./MaspInternalShield";
-
-type ShieldingOptionCardProps = {
-  title: string;
-  icon: React.ReactNode;
-  onClick: () => void;
-  children: React.ReactNode;
-};
-
-const ShieldingOptionCard = ({
-  title,
-  icon,
-  children,
-  onClick,
-}: ShieldingOptionCardProps): JSX.Element => {
-  return (
-    <Stack
-      gap={6}
-      onClick={onClick}
-      className={clsx(
-        "w-[220px] h-full items-stretch pb-8 pt-2.5 px-4 border rounded-md border-transparent transition-colors cursor-pointer",
-        "items-center text-white text-center hover:border-yellow"
-      )}
-    >
-      <h3 className="text-xl font-medium">{title}</h3>
-      <aside className="max-w-[78px]">{icon}</aside>
-      <div className="text-base/tight">{children}</div>
-    </Stack>
-  );
-};
+import { ShieldingOptionCard } from "./ShieldingOptionCard";
 
 type ShieldingOption = "ibc" | "internal" | null;
 
