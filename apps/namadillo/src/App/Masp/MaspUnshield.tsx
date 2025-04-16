@@ -90,7 +90,8 @@ export const MaspUnshield: React.FC = () => {
           </button>
           <h1 className="-mt-8 text-lg text-yellow">Unshielding Transfer</h1>
           <h2 className="text-sm">
-            Unshield assets to an external chain over IBC
+            Transfer Assets to your transparent account or to an external
+            wallet. This action makes your assets public again
           </h2>
         </header>
         <IbcWithdraw shielded={false} />
