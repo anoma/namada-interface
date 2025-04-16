@@ -1,41 +1,12 @@
-import { Panel, Stack } from "@namada/components";
+import { Panel } from "@namada/components";
 import { IbcWithdraw } from "App/Ibc/IbcWithdraw";
 import { NamadaTransferTopHeader } from "App/NamadaTransfer/NamadaTransferTopHeader";
-import clsx from "clsx";
 import { wallets } from "integrations";
 import { getAssetImageUrl } from "integrations/utils";
 import { useState } from "react";
 import { namadaAsset } from "utils";
 import { MaspInternalShield } from "./MaspInternalShield";
-
-type UnshieldingOptionCardProps = {
-  title: string;
-  icon: React.ReactNode;
-  onClick: () => void;
-  children: React.ReactNode;
-};
-
-const UnshieldingOptionCard = ({
-  title,
-  icon,
-  children,
-  onClick,
-}: UnshieldingOptionCardProps): JSX.Element => {
-  return (
-    <Stack
-      gap={6}
-      onClick={onClick}
-      className={clsx(
-        "w-[220px] h-full items-stretch pb-8 pt-2.5 px-4 border rounded-md border-transparent transition-colors cursor-pointer",
-        "items-center text-white text-center hover:border-yellow"
-      )}
-    >
-      <h3 className="text-xl font-medium">{title}</h3>
-      <aside className="max-w-[78px]">{icon}</aside>
-      <div className="text-base/tight">{children}</div>
-    </Stack>
-  );
-};
+import { ShieldingOptionCard } from "./ShieldingOptionCard";
 
 type UnshieldingOption = "ibc" | "internal" | null;
 
@@ -52,17 +23,17 @@ export const MaspUnshield: React.FC = () => {
         </header>
 
         <div className="flex justify-center gap-8 pt-4 pb-8">
-          <UnshieldingOptionCard
+          <ShieldingOptionCard
             title="IBC Unshield"
             icon={<img src={wallets.keplr.iconUrl} className="w-full" />}
             onClick={() => setSelectedOption("ibc")}
           >
             Unshield assets to external chains over IBC
-          </UnshieldingOptionCard>
+          </ShieldingOptionCard>
 
           <div className="w-px bg-white -my-1" />
 
-          <UnshieldingOptionCard
+          <ShieldingOptionCard
             title="Internal Unshield"
             icon={
               <span className="flex w-full bg-yellow rounded-md">
@@ -72,7 +43,7 @@ export const MaspUnshield: React.FC = () => {
             onClick={() => setSelectedOption("internal")}
           >
             Unshield assets to your Namada transparent account
-          </UnshieldingOptionCard>
+          </ShieldingOptionCard>
         </div>
       </Panel>
     );
