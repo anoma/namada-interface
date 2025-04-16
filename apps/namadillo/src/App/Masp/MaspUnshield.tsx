@@ -1,12 +1,9 @@
-import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
 import { AccountType } from "@namada/types";
+import { IbcWithdraw } from "App/Ibc/IbcWithdraw";
 import { NamadaTransferTopHeader } from "App/NamadaTransfer/NamadaTransferTopHeader";
 import { params } from "App/routes";
-import {
-  OnSubmitTransferParams,
-  TransferModule,
-} from "App/Transfer/TransferModule";
+import { OnSubmitTransferParams } from "App/Transfer/TransferModule";
 import { allDefaultAccountsAtom } from "atoms/accounts";
 import { namadaShieldedAssetsAtom } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
@@ -16,12 +13,10 @@ import BigNumber from "bignumber.js";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useTransfer } from "hooks/useTransfer";
 import { useUrlState } from "hooks/useUrlState";
-import { wallets } from "integrations";
 import invariant from "invariant";
 import { useAtom, useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
 import { useState } from "react";
-import namadaChain from "registry/namada.json";
 
 export const MaspUnshield: React.FC = () => {
   const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
@@ -142,42 +137,7 @@ export const MaspUnshield: React.FC = () => {
           This action makes your assets public again.
         </h2>
       </header>
-      <TransferModule
-        source={{
-          isLoadingAssets: isLoadingAssets,
-          availableAssets,
-          selectedAssetAddress,
-          availableAmount: selectedAsset?.amount,
-          chain: namadaChain as Chain,
-          availableWallets: [wallets.namada],
-          wallet: wallets.namada,
-          walletAddress: sourceAddress,
-          isShieldedAddress: true,
-          onChangeSelectedAsset: setSelectedAssetAddress,
-          amount: displayAmount,
-          onChangeAmount: setDisplayAmount,
-          ledgerAccountInfo,
-        }}
-        destination={{
-          chain: namadaChain as Chain,
-          availableWallets: [wallets.namada],
-          wallet: wallets.namada,
-          walletAddress: destinationAddress,
-          isShieldedAddress: false,
-        }}
-        feeProps={feeProps}
-        isShieldedTx={true}
-        isSubmitting={isPerformingTransfer || isSuccess}
-        errorMessage={generalErrorMessage}
-        onSubmitTransfer={onSubmitTransfer}
-        currentStatus={currentStatus}
-        currentStatusExplanation={currentStatusExplanation}
-        completedAt={completedAt}
-        onComplete={redirectToTransactionPage}
-        buttonTextErrors={{
-          NoAmount: "Define an amount to unshield",
-        }}
-      />
+      <IbcWithdraw />
     </Panel>
   );
 };

@@ -46,7 +46,6 @@ import {
   toDisplayAmount,
   useTransactionEventListener,
 } from "utils";
-import { IbcTopHeader } from "./IbcTopHeader";
 
 const defaultChainId = "cosmoshub-4";
 const keplr = new KeplrWalletManager();
@@ -333,12 +332,6 @@ export const IbcWithdraw: React.FC = () => {
 
   return (
     <div className="relative min-h-[600px]">
-      <header className="flex flex-col items-center text-center mb-3 gap-6">
-        <IbcTopHeader type="namToIbc" isShielded={shielded} />
-        <h2 className="text-lg font-light">
-          Withdraw assets from Namada via IBC
-        </h2>
-      </header>
       <TransferModule
         source={{
           isLoadingAssets,
