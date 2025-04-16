@@ -6,6 +6,7 @@ import { wallets } from "integrations";
 import { getAssetImageUrl } from "integrations/utils";
 import { useState } from "react";
 import { namadaAsset } from "utils";
+import { MaspInternalShield } from "./MaspInternalShield";
 
 type UnshieldingOptionCardProps = {
   title: string;
@@ -91,10 +92,11 @@ export const MaspUnshield: React.FC = () => {
           <h1 className="-mt-8 text-lg text-yellow">Unshielding Transfer</h1>
           <h2 className="text-sm">
             Transfer Assets to your transparent account or to an external
-            wallet. This action makes your assets public again
+            wallet. <br />
+            This action makes your assets public again
           </h2>
         </header>
-        <IbcWithdraw shielded={false} />
+        <IbcWithdraw shielded={true} />
       </Panel>
     );
   }
@@ -120,7 +122,7 @@ export const MaspUnshield: React.FC = () => {
           This action makes your assets public again.
         </h2>
       </header>
-      <IbcWithdraw shielded={true} />
+      <MaspInternalShield type="unshield" />
     </Panel>
   );
 };
