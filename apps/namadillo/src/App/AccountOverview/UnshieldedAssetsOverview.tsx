@@ -3,14 +3,13 @@ import { routes } from "App/routes";
 import { transparentTokensAtom } from "atoms/balance";
 import { useAmountsInFiat } from "hooks/useAmountsInFiat";
 import { useAtomValue } from "jotai";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { StakeYourNamCard } from "./StakeYourNamCard";
 import { TotalBalanceCard } from "./TotalBalanceCard";
 import { UnshieldedAssetTable } from "./UnshieldedAssetTable";
 
 export const UnshieldedAssetsOverview = (): JSX.Element => {
   const { unshieldedAmountInFiat } = useAmountsInFiat();
-  const location = useLocation();
   const navigate = useNavigate();
   const transparentTokensQuery = useAtomValue(transparentTokensAtom);
 
@@ -20,18 +19,14 @@ export const UnshieldedAssetsOverview = (): JSX.Element => {
       !transparentTokensQuery.isFetched);
 
   return (
-    <Panel className="relative z-10 px-6 rounded-t-none -mt-px">
+    <Panel className="relative z-10 px-6 rounded-t-none -mt-px h-full">
       <div className="flex justify-between items-center gap-16 mt-4">
         <TotalBalanceCard
           balanceInFiat={unshieldedAmountInFiat}
           footerButtons={
             <>
               <ActionButton
-                onClick={() =>
-                  navigate(routes.shieldAssets, {
-                    state: { backgroundLocation: location },
-                  })
-                }
+                onClick={() => navigate(routes.maspShield)}
                 size="xs"
                 className="w-auto px-4"
               >

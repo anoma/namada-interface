@@ -63,7 +63,7 @@ export const ShieldedAssetTable = (): JSX.Element => {
     <AtomErrorBoundary
       result={shieldedTokensQuery}
       niceError="Unable to load your shielded balance"
-      containerProps={{ className: "pb-16" }}
+      containerProps={{ className: "pb-16 flex-1 flex flex-col" }}
     >
       {isNftEnabled && (
         <div className="flex mb-6">
