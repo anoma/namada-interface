@@ -31,7 +31,7 @@
 
 #### Defined in
 
-[packages/types/src/tx/schema/batchTxResult.ts:12](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/schema/batchTxResult.ts#L12)
+[packages/types/src/tx/schema/batchTxResult.ts:12](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/batchTxResult.ts#L12)
 
 ## Properties
 
@@ -41,7 +41,7 @@
 
 #### Defined in
 
-[packages/types/src/tx/schema/batchTxResult.ts:7](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/schema/batchTxResult.ts#L7)
+[packages/types/src/tx/schema/batchTxResult.ts:7](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/batchTxResult.ts#L7)
 
 ___
 
@@ -51,4 +51,4 @@ ___
 
 #### Defined in
 
-[packages/types/src/tx/schema/batchTxResult.ts:10](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/tx/schema/batchTxResult.ts#L10)
+[packages/types/src/tx/schema/batchTxResult.ts:10](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/batchTxResult.ts#L10)
