@@ -16,7 +16,7 @@ import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { IoSwapHorizontal } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { namadaAsset } from "utils";
 
@@ -33,7 +33,7 @@ export const ShieldedFungibleTable = ({
   const [page, setPage] = useState(initialPage);
   const [unshieldingModalOpen, setUnshieldingModalOpen] = useState(false);
   const [assetAddress, setAssetAddress] = useState("");
-
+  const navigate = useNavigate();
   const { shieldingRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
 
   const headers = ["Token", { children: "Balance", className: "text-right" }];
@@ -97,8 +97,8 @@ export const ShieldedFungibleTable = ({
             outlineColor="white"
             className="w-fit ml-auto mr-10"
             onClick={() => {
-              setUnshieldingModalOpen(true);
               setAssetAddress(originalAddress);
+              navigate(routes.maspUnshield);
             }}
           >
             Unshield
