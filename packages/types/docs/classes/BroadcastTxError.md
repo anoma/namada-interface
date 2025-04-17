@@ -55,7 +55,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/types/src/errors.ts:11](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/errors.ts#L11)
+[packages/types/src/errors.ts:11](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/errors.ts#L11)
 
 ## Properties
 
@@ -176,7 +176,7 @@ TxResponseProps
 
 #### Defined in
 
-[packages/types/src/errors.ts:35](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/errors.ts#L35)
+[packages/types/src/errors.ts:35](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/errors.ts#L35)
 
 ___
 
@@ -192,7 +192,7 @@ string
 
 #### Defined in
 
-[packages/types/src/errors.ts:19](https://github.com/anoma/namada-interface/blob/789e785c74e4f6d9560d65f2f0f63787beddc028/packages/types/src/errors.ts#L19)
+[packages/types/src/errors.ts:19](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/errors.ts#L19)
 
 ___
 
