@@ -8,7 +8,6 @@ import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCard } from "App/Common/TokenCard";
 import { TokenCurrency } from "App/Common/TokenCurrency";
-import { UnshieldAssetsModal } from "App/Common/UnshieldAssetsModal";
 import { params, routes } from "App/routes";
 import { TokenBalance } from "atoms/balance/atoms";
 import { applicationFeaturesAtom } from "atoms/settings/atoms";
@@ -31,8 +30,6 @@ export const ShieldedFungibleTable = ({
   rewards: Record<string, BigNumber> | undefined;
 }): JSX.Element => {
   const [page, setPage] = useState(initialPage);
-  const [unshieldingModalOpen, setUnshieldingModalOpen] = useState(false);
-  const [assetAddress, setAssetAddress] = useState("");
   const navigate = useNavigate();
   const { shieldingRewardsEnabled } = useAtomValue(applicationFeaturesAtom);
 
@@ -96,10 +93,7 @@ export const ShieldedFungibleTable = ({
             size="xs"
             outlineColor="white"
             className="w-fit ml-auto mr-10"
-            onClick={() => {
-              setAssetAddress(originalAddress);
-              navigate(routes.maspUnshield);
-            }}
+            onClick={() => navigate(routes.maspUnshield)}
           >
             Unshield
           </ActionButton>
@@ -160,12 +154,6 @@ export const ShieldedFungibleTable = ({
         }}
         headProps={{ className: "text-neutral-500" }}
       />
-      {unshieldingModalOpen && (
-        <UnshieldAssetsModal
-          assetAddress={assetAddress}
-          onClose={() => setUnshieldingModalOpen(false)}
-        />
-      )}
     </>
   );
 };
