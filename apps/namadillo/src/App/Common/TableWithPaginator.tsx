@@ -12,6 +12,7 @@ type TableWithPaginatorProps<T> = {
   pageCount?: number;
   onPageChange?: (page: number) => void;
   children?: React.ReactNode;
+  containerClassName?: string;
 } & Pick<React.ComponentProps<typeof StyledTable>, "tableProps" | "headProps">;
 
 export const TableWithPaginator = <T,>({
@@ -25,6 +26,7 @@ export const TableWithPaginator = <T,>({
   children,
   tableProps,
   headProps,
+  containerClassName,
 }: TableWithPaginatorProps<T>): JSX.Element => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [rows, setRows] = useState<TableRow[]>([]);
@@ -80,6 +82,7 @@ export const TableWithPaginator = <T,>({
     <div
       ref={containerRef}
       className={clsx(
+        containerClassName,
         "grid grid-rows-[1fr_auto] flex-1 overflow-hidden w-full gap-2"
       )}
     >
