@@ -81,7 +81,6 @@ export const MoveAssets = (): JSX.Element => {
       activeTabIndex={activeTab}
       onChangeActiveTab={handleTabChange}
       containerClassname="bg-black h-[calc(100vh-179px)] rounded-sm"
-      tabGap="1"
       tabs={[
         {
           title: "Shield",
