@@ -20,9 +20,11 @@ export const AccountOverview = (): JSX.Element => {
 
   return (
     <PageWithSidebar>
-      <div className="flex flex-col">
-        <TotalBalanceBanner />
-        <AssetsOverviewPanel />
+      <div className="relative">
+        <section className="w-full">
+          <TotalBalanceBanner />
+          <AssetsOverviewPanel />
+        </section>
       </div>
       <Sidebar>
         <StakeSidebar />

@@ -18,7 +18,6 @@ export const AssetsOverviewPanel = (): JSX.Element => {
       title="IBC Transfer"
       activeTabIndex={currentTab}
       onChangeActiveTab={setCurrentTab}
-      containerClassname="flex-1"
       className={clsx(
         "mt-2 transition-colors border-solid border border-transparent",
         "duration-0",
