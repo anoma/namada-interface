@@ -8,6 +8,17 @@
 
 - enable panic hook in Rust SDK ([6393b82](https://github.com/anoma/namada-interface/commit/6393b8263320e0f6d137f4e015b982f17f7e497e))
 
+## [0.18.0](https://github.com/anoma/namada-interface/compare/sdk@v0.17.0...sdk@v0.18.0) (2025-04-18)
+
+
+### Features
+
+* Add rewards column ([#1793](https://github.com/anoma/namada-interface/issues/1793)) ([75c65cf](https://github.com/anoma/namada-interface/commit/75c65cfdb20abbe48b827f8005bd716ef2027c21))
+* Adding masp asset rewards panel info ([#1797](https://github.com/anoma/namada-interface/issues/1797)) ([3b1a197](https://github.com/anoma/namada-interface/commit/3b1a197aac9153d5f549a9f2c68b92a4b022e3df))
+* Ibc unshielding ([#1920](https://github.com/anoma/namada-interface/issues/1920)) ([2996391](https://github.com/anoma/namada-interface/commit/29963912650c4401cb09163042fb889986e094f6))
+* Keychain/Namadillo: Payment Address gen ([#1905](https://github.com/anoma/namada-interface/issues/1905)) ([200bd4b](https://github.com/anoma/namada-interface/commit/200bd4b400e36b5b216dc5a2facbe92c56c56b0b))
+* SDK - Add lookup for TxResponse result codes ([#1946](https://github.com/anoma/namada-interface/issues/1946)) ([54e2562](https://github.com/anoma/namada-interface/commit/54e2562627c3ffbedcd551d42440872d7a8ead18))
+
 ## [0.17.0](https://github.com/anoma/namada-interface/compare/sdk@v0.16.0...sdk@v0.17.0) (2025-02-28)
 
 ### Features
