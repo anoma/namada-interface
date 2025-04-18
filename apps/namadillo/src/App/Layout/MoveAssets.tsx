@@ -45,11 +45,12 @@ export const MoveAssets = (): JSX.Element => {
     }
   };
 
-  const [activeTab, setActiveTab] = useState(getInitialTabIndex());
+  const [activeTab, setActiveTab] = useState<number>(getInitialTabIndex());
 
   // Update active tab when route changes
   useEffect(() => {
-    setActiveTab(getInitialTabIndex());
+    const newTabIndex = getInitialTabIndex();
+    setActiveTab(newTabIndex);
   }, [location.pathname]);
 
   const handleTabChange = (index: number): void => {
@@ -80,6 +81,7 @@ export const MoveAssets = (): JSX.Element => {
       activeTabIndex={activeTab}
       onChangeActiveTab={handleTabChange}
       containerClassname="bg-black h-[calc(100vh-179px)] rounded-sm"
+      tabGap="1"
       tabs={[
         {
           title: "Shield",

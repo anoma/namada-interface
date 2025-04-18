@@ -138,7 +138,7 @@ const TransparentTokensTable = ({
   const pageCount = Math.ceil(data.length / resultsPerPage);
 
   return (
-    <>
+    <div className="flex flex-col flex-1">
       <div className="text-sm font-medium mt-6 ml-4">
         <span className="text-yellow">{data.length} </span>
         Tokens
@@ -161,7 +161,7 @@ const TransparentTokensTable = ({
         }}
         headProps={{ className: "text-neutral-500" }}
       />
-    </>
+    </div>
   );
 };
 

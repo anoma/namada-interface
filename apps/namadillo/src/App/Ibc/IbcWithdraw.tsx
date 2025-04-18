@@ -46,12 +46,15 @@ import {
   toDisplayAmount,
   useTransactionEventListener,
 } from "utils";
-import { IbcTopHeader } from "./IbcTopHeader";
 
 const defaultChainId = "cosmoshub-4";
 const keplr = new KeplrWalletManager();
 
-export const IbcWithdraw: React.FC = () => {
+export const IbcWithdraw = ({
+  shielded,
+}: {
+  shielded: boolean;
+}): JSX.Element => {
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
   const shieldedAccount = defaultAccounts.data?.find(
     (account) => account.type === AccountType.ShieldedKeys
@@ -64,7 +67,6 @@ export const IbcWithdraw: React.FC = () => {
   const [selectedAssetAddress, setSelectedAssetAddress] = useUrlState(
     params.asset
   );
-  const [shielded, setShielded] = useState<boolean>(true);
   const [refundTarget, setRefundTarget] = useState<string>();
   const [amount, setAmount] = useState<BigNumber | undefined>();
   const [customAddress, setCustomAddress] = useState<string>("");
@@ -333,12 +335,6 @@ export const IbcWithdraw: React.FC = () => {
 
   return (
     <div className="relative min-h-[600px]">
-      <header className="flex flex-col items-center text-center mb-3 gap-6">
-        <IbcTopHeader type="namToIbc" isShielded={shielded} />
-        <h2 className="text-lg font-light">
-          Withdraw assets from Namada via IBC
-        </h2>
-      </header>
       <TransferModule
         source={{
           isLoadingAssets,
@@ -354,7 +350,6 @@ export const IbcWithdraw: React.FC = () => {
           availableAmount,
           selectedAssetAddress,
           onChangeSelectedAsset: setSelectedAssetAddress,
-          onChangeShielded: setShielded,
           amount,
           onChangeAmount: setAmount,
           ledgerAccountInfo,

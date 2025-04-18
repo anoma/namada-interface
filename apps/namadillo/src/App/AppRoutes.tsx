@@ -14,7 +14,6 @@ import { App } from "./App";
 import { BugReport } from "./Common/BugReport";
 import { NotFound } from "./Common/NotFound";
 import { RouteErrorBoundary } from "./Common/RouteErrorBoundary";
-import { ShieldAssetsModal } from "./Common/ShieldAssetsModal";
 import { GovernanceOverview } from "./Governance/GovernanceOverview";
 import { ProposalAndVote } from "./Governance/ProposalAndVote";
 import { SubmitVote } from "./Governance/SubmitVote";
@@ -149,7 +148,6 @@ export const MainRoutes = (): JSX.Element => {
           {/* Other Modals */}
           <Route path={routes.switchAccount} element={<SwitchAccountPanel />} />
           <Route path={routes.signMessages} element={<SignMessages />} />
-          <Route path={routes.shieldAssets} element={<ShieldAssetsModal />} />
           <Route
             path={routes.stakingClaimRewards}
             element={<StakingRewards />}
