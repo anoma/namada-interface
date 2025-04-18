@@ -34,6 +34,18 @@
 * Move optional value to end of schema, no empty memo ([#1379](https://github.com/anoma/namada-interface/issues/1379)) ([ee49600](https://github.com/anoma/namada-interface/commit/ee496001aad9291e3bb224f91ac5caf31a1143db))
 * Replace tally type with two fifths ([#1252](https://github.com/anoma/namada-interface/issues/1252)) ([785d9ad](https://github.com/anoma/namada-interface/commit/785d9ad5d6cf7d7abab53ae9cf812fbbfa84b0f7))
 
+## [0.6.0](https://github.com/anoma/namada-interface/compare/types@v0.5.0...types@v0.6.0) (2025-04-17)
+
+
+### Features
+
+* Ibc unshielding ([#1920](https://github.com/anoma/namada-interface/issues/1920)) ([2996391](https://github.com/anoma/namada-interface/commit/29963912650c4401cb09163042fb889986e094f6))
+* Keychain - Display chain name for known chains ([#1968](https://github.com/anoma/namada-interface/issues/1968)) ([ab902e5](https://github.com/anoma/namada-interface/commit/ab902e51564d24c238f1b7b0c0e6ad067decc9e5))
+* Keychain/Namadillo: Payment Address gen ([#1905](https://github.com/anoma/namada-interface/issues/1905)) ([200bd4b](https://github.com/anoma/namada-interface/commit/200bd4b400e36b5b216dc5a2facbe92c56c56b0b))
+* Namadillo - Improve gasLimit error ([#1977](https://github.com/anoma/namada-interface/issues/1977)) ([b965e07](https://github.com/anoma/namada-interface/commit/b965e071b0b3c54b5081a008ae9e08da8680ebdc))
+* SDK - Add lookup for TxResponse result codes ([#1946](https://github.com/anoma/namada-interface/issues/1946)) ([54e2562](https://github.com/anoma/namada-interface/commit/54e2562627c3ffbedcd551d42440872d7a8ead18))
+* Update proposal statuses to include executed ([#1904](https://github.com/anoma/namada-interface/issues/1904)) ([843db28](https://github.com/anoma/namada-interface/commit/843db287525e88fb1886ca61414c0b2afe654b82))
+
 ## [0.5.0](https://github.com/anoma/namada-interface/compare/types@v0.4.0...types@v0.5.0) (2025-02-28)
 
 
