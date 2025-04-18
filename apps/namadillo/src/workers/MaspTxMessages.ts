@@ -92,6 +92,33 @@ export type GenerateIbcShieldingMemoDone = WebWorkerMessage<
   string
 >;
 
+type ShieldedRewardsPayload = {
+  viewingKey: string;
+  chainId: string;
+};
+export type ShieldedRewards = WebWorkerMessage<
+  "shielded-rewards",
+  ShieldedRewardsPayload
+>;
+export type ShieldedRewardsDone = WebWorkerMessage<
+  "shielded-rewards-done",
+  string
+>;
+
+type ShieldedRewardsPerTokenPayload = {
+  viewingKey: string;
+  tokens: string[];
+  chainId: string;
+};
+export type ShieldedRewardsPerToken = WebWorkerMessage<
+  "shielded-rewards-per-token",
+  ShieldedRewardsPerTokenPayload
+>;
+export type ShieldedRewardsPerTokenDone = WebWorkerMessage<
+  "shielded-rewards-per-token-done",
+  Record<string, BigNumber>
+>;
+
 type BroadcastPayload = TransactionPair<unknown>;
 
 export type Broadcast = WebWorkerMessage<"broadcast", BroadcastPayload>;
@@ -99,10 +126,3 @@ export type BroadcastDone = WebWorkerMessage<
   "broadcast-done",
   TxResponseMsgValue[]
 >;
-
-export type ShieldMessageIn = Shield | ShieldedTransfer | Broadcast | Init;
-export type ShieldMessageOut =
-  | ShieldDone
-  | ShieldedTransferDone
-  | BroadcastDone
-  | InitDone;

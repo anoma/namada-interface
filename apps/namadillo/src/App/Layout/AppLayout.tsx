@@ -1,5 +1,7 @@
 import { AlphaVersionTopHeader } from "App/Common/AlphaVersionTopHeader";
-import { ReactNode, useState } from "react";
+import { shouldUpdateBalanceAtom } from "atoms/etc";
+import { useSetAtom } from "jotai";
+import { ReactNode, useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { twMerge } from "tailwind-merge";
 import { AppHeader } from "./AppHeader";
@@ -12,6 +14,13 @@ export const AppLayout = ({
   children: ReactNode;
 }): JSX.Element => {
   const [displayNavigation, setDisplayNavigation] = useState(false);
+
+  const shouldUpdateBalance = useSetAtom(shouldUpdateBalanceAtom);
+  // We have to clear balance update flag on mount in case app was closed before timeout
+  // occured in `useTransactionCallback`, otherwise we get infinite loop
+  useEffect(() => {
+    shouldUpdateBalance(false);
+  }, []);
 
   return (
     <>
