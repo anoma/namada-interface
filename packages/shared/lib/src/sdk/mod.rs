@@ -359,7 +359,7 @@ impl Sdk {
                 let event = rpc::query_tx_status(&self.namada, tx_query, deadline)
                     .await
                     .map_err(|e| JsValue::from_str(&e.to_string()))?;
-                let tx_response = TxResponse::from_event(event);
+                let tx_response = TxResponse::from_events(event);
 
                 let mut batch_tx_results: Vec<tx::BatchTxResult> = vec![];
                 let code =
