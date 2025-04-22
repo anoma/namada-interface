@@ -270,6 +270,7 @@ export const shieldedRewardsPerTokenAtom = atomWithQuery((get) => {
   const shieldedAssets = get(namadaShieldedAssetsAtom);
   const chainParametersQuery = get(chainParametersAtom);
   const viewingKeysQuery = get(viewingKeysAtom);
+  const rpcUrl = get(rpcUrlAtom);
 
   return {
     queryKey: ["shielded-rewards-per-token", shieldedAssets.data],
@@ -284,19 +285,16 @@ export const shieldedRewardsPerTokenAtom = atomWithQuery((get) => {
       if (!viewingKey) {
         return {};
       }
-      const rewards = await Promise.all(
-        assets.map((asset) =>
-          fetchShieldedRewardsPerToken(viewingKey, asset.address, chainId).then(
-            (amount) => ({
-              [asset.address]: toDisplayAmount(
-                namadaAsset(),
-                BigNumber(amount)
-              ),
-            })
-          )
-        )
+      const tokens = assets.map((a) => a.address);
+
+      const rewards = await fetchShieldedRewardsPerToken(
+        viewingKey,
+        tokens,
+        chainId,
+        rpcUrl
       );
-      return rewards.reduce((acc, r) => ({ ...acc, ...r }), {});
+
+      return rewards;
     }, [shieldedAssets]),
   };
 });
@@ -331,6 +329,7 @@ export const storageShieldedRewardsAtom = atomWithStorage<
 export const shieldRewardsAtom = atomWithQuery((get) => {
   const viewingKeysQuery = get(viewingKeysAtom);
   const chainParametersQuery = get(chainParametersAtom);
+  const rpcUrl = get(rpcUrlAtom);
   const { set } = getDefaultStore();
 
   return {
@@ -342,7 +341,7 @@ export const shieldRewardsAtom = atomWithQuery((get) => {
       }
       const { chainId } = chainParametersQuery.data!;
       const minDenomAmount = BigNumber(
-        await fetchShieldedRewards(viewingKey, chainId)
+        await fetchShieldedRewards(viewingKey, chainId, rpcUrl)
       );
 
       const storage = get(storageShieldedRewardsAtom);

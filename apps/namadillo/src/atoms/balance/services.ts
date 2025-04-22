@@ -13,6 +13,12 @@ import ShieldedSyncWorker from "workers/ShieldedSyncWorker?worker";
 // TODO: move to @namada/types?
 import { DefaultApi } from "@namada/indexer-client";
 import { DatedViewingKey } from "@namada/types";
+import BigNumber from "bignumber.js";
+import {
+  Worker as MaspTxWorkerApi,
+  registerTransferHandlers,
+} from "workers/MaspTxWorker";
+import MaspTxWorker from "workers/MaspTxWorker?worker";
 
 export type ShieldedSyncEventMap = {
   [SdkEvents.ProgressBarStarted]: ProgressBarStarted[];
@@ -107,19 +113,52 @@ export const fetchBlockHeightByTimestamp = async (
 
 export const fetchShieldedRewards = async (
   viewingKey: DatedViewingKey,
-  chainId: string
+  chainId: string,
+  rpcUrl: string
 ): Promise<string> => {
+  registerTransferHandlers();
   const sdk = await getSdkInstance();
+  const worker = new MaspTxWorker();
+  const workerLink = Comlink.wrap<MaspTxWorkerApi>(worker);
+  await workerLink.init({
+    type: "init",
+    payload: { rpcUrl, token: sdk.nativeToken, maspIndexerUrl: "" },
+  });
 
-  return await sdk.rpc.shieldedRewards(viewingKey.key, chainId);
+  const { payload: rewards } = await workerLink.shieldedRewards({
+    type: "shielded-rewards",
+    payload: {
+      viewingKey: viewingKey.key,
+      chainId,
+    },
+  });
+
+  return rewards;
 };
 
 export const fetchShieldedRewardsPerToken = async (
   viewingKey: DatedViewingKey,
-  token: string,
-  chainId: string
-): Promise<string> => {
+  tokens: string[],
+  chainId: string,
+  rpcUrl: string
+): Promise<Record<string, BigNumber>> => {
+  registerTransferHandlers();
   const sdk = await getSdkInstance();
+  const worker = new MaspTxWorker();
+  const workerLink = Comlink.wrap<MaspTxWorkerApi>(worker);
+  await workerLink.init({
+    type: "init",
+    payload: { rpcUrl, token: sdk.nativeToken, maspIndexerUrl: "" },
+  });
 
-  return await sdk.rpc.shieldedRewardsPerToken(viewingKey.key, token, chainId);
+  const { payload: rewards } = await workerLink.shieldedRewardsPerToken({
+    type: "shielded-rewards-per-token",
+    payload: {
+      viewingKey: viewingKey.key,
+      tokens,
+      chainId,
+    },
+  });
+
+  return rewards;
 };
