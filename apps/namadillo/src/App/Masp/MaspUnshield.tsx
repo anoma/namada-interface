@@ -67,7 +67,7 @@ export const MaspUnshield: React.FC = () => {
             This action makes your assets public again
           </h2>
         </header>
-        <IbcWithdraw shielded={true} />
+        <IbcWithdraw />
       </Panel>
     );
   }

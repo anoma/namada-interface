@@ -1,8 +1,4 @@
 import { SidebarMenuItem } from "App/Common/SidebarMenuItem";
-import { ReceiveIcon } from "App/Icons/ReceiveIcon";
-import { ShieldedSendIcon } from "App/Icons/ShieldedSendIcon";
-import { ShieldIcon } from "App/Icons/ShieldIcon";
-import { UnshieldedTransferIcon } from "App/Icons/UnshieldedTransferIcon";
 import { routes } from "App/routes";
 import { applicationFeaturesAtom } from "atoms/settings";
 import { useAtomValue } from "jotai";
@@ -34,32 +30,7 @@ export const Navigation = (): JSX.Element => {
       icon: <FaVoteYea />,
       url: routes.governance,
     },
-    {
-      label: "Shield",
-      icon: <ShieldIcon />,
-      url: features.maspEnabled ? routes.maspShield : undefined,
-    },
-    {
-      label: "Unshield",
-      icon: <UnshieldedTransferIcon />,
-      url: features.ibcTransfersEnabled ? routes.maspUnshield : undefined,
-    },
-    {
-      label: "Send",
-      icon: <ShieldedSendIcon />,
-      url:
-        features.maspEnabled || features.namTransfersEnabled ?
-          routes.transfer
-        : undefined,
-    },
-    {
-      label: "Receive",
-      icon: <ReceiveIcon />,
-      url:
-        features.namTransfersEnabled || features.ibcTransfersEnabled ?
-          routes.receive
-        : undefined,
-    },
+
     {
       label: "History",
       icon: <GoHistory />,
@@ -76,15 +47,6 @@ export const Navigation = (): JSX.Element => {
         {menuItems.map((item) => {
           return (
             <Fragment key={item.label}>
-              {item.label === "Shield" && (
-                <>
-                  <hr className="border-t-2 border-neutral-600" />
-                  <h4 className="text-sm text-neutral-400">Move assets</h4>
-                </>
-              )}
-              {item.label === "History" && (
-                <hr className="border-t-2 border-neutral-600" />
-              )}
               <li key={item.label}>
                 <SidebarMenuItem url={item.url}>
                   {item.icon}
