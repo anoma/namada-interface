@@ -87,7 +87,7 @@ export const MaspShield: React.FC = () => {
         />
         <h2 className="text-sm">Shield assets into Namada&apos;s Shieldpool</h2>
       </header>
-      <MaspInternalShield type="shield" />
+      <MaspInternalShield />
     </Panel>
   );
 };

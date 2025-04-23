@@ -21,7 +21,7 @@ import { createTransferDataFromNamada } from "lib/transactions";
 import { useState } from "react";
 import namadaChain from "registry/namada.json";
 
-export const MaspInternalShield = (): JSX.Element => {
+export const MaspInternalUnshield = (): JSX.Element => {
   const { storeTransaction } = useTransactionActions();
   const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
@@ -38,10 +38,11 @@ export const MaspInternalShield = (): JSX.Element => {
 
   const chainId = chainParameters.data?.chainId;
   const sourceAddress = defaultAccounts.data?.find(
-    (account) => account.type !== AccountType.ShieldedKeys
-  )?.address;
-  const destinationAddress = defaultAccounts.data?.find(
     (account) => account.type === AccountType.ShieldedKeys
+  )?.address;
+
+  const destinationAddress = defaultAccounts.data?.find(
+    (account) => account.type !== AccountType.ShieldedKeys
   )?.address;
 
   const [selectedAssetAddress, setSelectedAssetAddress] = useUrlState(
@@ -91,6 +92,8 @@ export const MaspInternalShield = (): JSX.Element => {
   // We stop the ledger status check when the transfer is in progress
   setLedgerStatusStop(isPerformingTransfer);
 
+  console.log(txKind, sourceAddress, destinationAddress, "TX KINDDD");
+
   const onSubmitTransfer = async ({
     memo,
   }: OnSubmitTransferParams): Promise<void> => {
@@ -101,7 +104,6 @@ export const MaspInternalShield = (): JSX.Element => {
       invariant(sourceAddress, "Source address is not defined");
       invariant(chainId, "Chain ID is undefined");
       invariant(selectedAsset, "No asset is selected");
-      console.log(txKind, sourceAddress, destinationAddress, "TX KINDDD");
 
       debugger;
       const txResponse = await performTransfer({ memo });
@@ -129,7 +131,6 @@ export const MaspInternalShield = (): JSX.Element => {
       setGeneralErrorMessage(err + "");
     }
   };
-  console.log(txKind, sourceAddress, destinationAddress, "TX KINDDD");
 
   return (
     <TransferModule
@@ -142,7 +143,7 @@ export const MaspInternalShield = (): JSX.Element => {
         availableWallets: [wallets.namada],
         wallet: wallets.namada,
         walletAddress: sourceAddress,
-        isShieldedAddress: false,
+        isShieldedAddress: true,
         onChangeSelectedAsset: setSelectedAssetAddress,
         amount: displayAmount,
         onChangeAmount: setDisplayAmount,
@@ -153,7 +154,7 @@ export const MaspInternalShield = (): JSX.Element => {
         availableWallets: [wallets.namada],
         wallet: wallets.namada,
         walletAddress: destinationAddress,
-        isShieldedAddress: true,
+        isShieldedAddress: false,
       }}
       feeProps={feeProps}
       isSubmitting={isPerformingTransfer || isSuccess}
@@ -163,7 +164,7 @@ export const MaspInternalShield = (): JSX.Element => {
       onSubmitTransfer={onSubmitTransfer}
       completedAt={completedAt}
       buttonTextErrors={{
-        NoAmount: "Define an amount to shield",
+        NoAmount: "Define an amount to unshield",
       }}
       onComplete={redirectToTransactionPage}
     />

@@ -5,7 +5,7 @@ import { wallets } from "integrations";
 import { getAssetImageUrl } from "integrations/utils";
 import { useState } from "react";
 import { namadaAsset } from "utils";
-import { MaspInternalShield } from "./MaspInternalShield";
+import { MaspInternalUnshield } from "./MaspInternalUnshield";
 import { ShieldingOptionCard } from "./ShieldingOptionCard";
 
 type UnshieldingOption = "ibc" | "internal" | null;
@@ -93,7 +93,7 @@ export const MaspUnshield: React.FC = () => {
           This action makes your assets public again.
         </h2>
       </header>
-      <MaspInternalShield type="unshield" />
+      <MaspInternalUnshield />
     </Panel>
   );
 };
