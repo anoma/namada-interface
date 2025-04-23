@@ -6,7 +6,7 @@ import {
   TransferModule,
 } from "App/Transfer/TransferModule";
 import { allDefaultAccountsAtom } from "atoms/accounts";
-import { namadaTransparentAssetsAtom } from "atoms/balance";
+import { namadaShieldedAssetsAtom } from "atoms/balance";
 import { chainParametersAtom } from "atoms/chain";
 import { ledgerStatusDataAtom } from "atoms/ledger";
 import { rpcUrlAtom } from "atoms/settings";
@@ -33,7 +33,7 @@ export const MaspInternalUnshield = (): JSX.Element => {
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
   const [ledgerStatus, setLedgerStatusStop] = useAtom(ledgerStatusDataAtom);
   const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
-    namadaTransparentAssetsAtom
+    namadaShieldedAssetsAtom
   );
 
   const chainId = chainParameters.data?.chainId;
