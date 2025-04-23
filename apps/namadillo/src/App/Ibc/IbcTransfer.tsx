@@ -65,7 +65,7 @@ export const IbcTransfer = (): JSX.Element => {
     useAtomValue(enabledIbcAssetsDenomFamily(ibcChannels?.namadaChannel));
 
   // Local State
-  const [shielded, setShielded] = useState<boolean>(true);
+  const shielded = true;
   const [selectedAssetAddress, setSelectedAssetAddress] = useUrlState(
     params.asset
   );
@@ -175,9 +175,8 @@ export const IbcTransfer = (): JSX.Element => {
 
   return (
     <div className="relative min-h-[600px]">
-      <header className="flex flex-col items-center text-center mb-3 gap-6">
+      <header className="flex flex-col items-center text-center mb-10 gap-6">
         <IbcTopHeader type="ibcToNam" isShielded={shielded} />
-        <h2 className="text-lg">IBC Transfer to Namada</h2>
       </header>
       <TransferModule
         source={{
@@ -201,8 +200,7 @@ export const IbcTransfer = (): JSX.Element => {
           availableWallets: [wallets.namada],
           wallet: wallets.namada,
           walletAddress: namadaAddress,
-          isShieldedAddress: shielded,
-          onChangeShielded: setShielded,
+          isShieldedAddress: true,
         }}
         gasConfig={gasConfig.data}
         changeFeeEnabled={false}

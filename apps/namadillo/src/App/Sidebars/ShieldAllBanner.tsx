@@ -4,14 +4,13 @@ import { routes } from "App/routes";
 import { applicationFeaturesAtom } from "atoms/settings";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 
 export const ShieldAllBanner = (): JSX.Element => {
   const { maspEnabled } = useAtomValue(applicationFeaturesAtom);
   const [isAnimating, setIsAnimating] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
   if (!maspEnabled) {
     return <></>;
@@ -42,11 +41,7 @@ export const ShieldAllBanner = (): JSX.Element => {
           backgroundHoverColor="transparent"
           textColor="yellow"
           textHoverColor="black"
-          onClick={() =>
-            navigate(routes.shieldAssets, {
-              state: { backgroundLocation: location },
-            })
-          }
+          onClick={() => navigate(routes.maspShield)}
           onMouseEnter={() => setIsAnimating(true)}
           onMouseLeave={() => setIsAnimating(false)}
         >
