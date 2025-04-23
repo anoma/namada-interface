@@ -20,6 +20,8 @@ import { NamadaAccount } from "./NamadaAccount";
 import { SyncIndicator } from "./SyncIndicator";
 
 export const TopNavigation = (): JSX.Element => {
+  const [unshieldingModalOpen, setUnshieldingModalOpen] = useState(false);
+
   const userHasAccount = useUserHasAccount();
   const signArbitraryEnabled = useAtomValue(signArbitraryEnabledAtom);
   const { maspEnabled, namTransfersEnabled } = useAtomValue(
@@ -28,7 +30,6 @@ export const TopNavigation = (): JSX.Element => {
   const defaultAccount = useAtomValue(defaultAccountAtom);
   const location = useLocation();
   const navigate = useNavigate();
-  const [unshieldingModalOpen, setUnshieldingModalOpen] = useState(false);
 
   if (!userHasAccount) {
     return (

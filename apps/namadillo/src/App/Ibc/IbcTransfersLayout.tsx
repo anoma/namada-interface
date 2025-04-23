@@ -41,8 +41,8 @@ export const IbcTransfersLayout = (): JSX.Element => {
           activeTabIndex={getActiveTabIndex()}
           onChangeActiveTab={handleTabChange}
           tabs={[
-            { title: "To Namada", children: renderOutletContent() },
-            { title: "From Namada", children: renderOutletContent() },
+            { title: "Deposit", children: renderOutletContent() },
+            { title: "Withdraw", children: renderOutletContent() },
           ]}
         />
         <NavigationFooter className="mt-2" />
