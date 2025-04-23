@@ -101,9 +101,7 @@ export const MaspInternalShield = (): JSX.Element => {
       invariant(sourceAddress, "Source address is not defined");
       invariant(chainId, "Chain ID is undefined");
       invariant(selectedAsset, "No asset is selected");
-      console.log(txKind, sourceAddress, destinationAddress, "TX KINDDD");
 
-      debugger;
       const txResponse = await performTransfer({ memo });
 
       if (txResponse) {
@@ -129,7 +127,6 @@ export const MaspInternalShield = (): JSX.Element => {
       setGeneralErrorMessage(err + "");
     }
   };
-  console.log(txKind, sourceAddress, destinationAddress, "TX KINDDD");
 
   return (
     <TransferModule

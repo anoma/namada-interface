@@ -92,8 +92,6 @@ export const MaspInternalUnshield = (): JSX.Element => {
   // We stop the ledger status check when the transfer is in progress
   setLedgerStatusStop(isPerformingTransfer);
 
-  console.log(txKind, sourceAddress, destinationAddress, "TX KINDDD");
-
   const onSubmitTransfer = async ({
     memo,
   }: OnSubmitTransferParams): Promise<void> => {
@@ -105,7 +103,6 @@ export const MaspInternalUnshield = (): JSX.Element => {
       invariant(chainId, "Chain ID is undefined");
       invariant(selectedAsset, "No asset is selected");
 
-      debugger;
       const txResponse = await performTransfer({ memo });
 
       if (txResponse) {
