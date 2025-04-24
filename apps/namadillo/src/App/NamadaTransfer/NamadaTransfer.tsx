@@ -164,19 +164,19 @@ export const NamadaTransfer: React.FC = () => {
     <Panel className="min-h-[600px] rounded-sm flex flex-col flex-1 py-20">
       <header className="flex flex-col items-center text-center mb-3 gap-6">
         <h1
-          className={twMerge("mt-6 text-lg", isSourceShielded && "text-yellow")}
+          className={twMerge("mt-6 text-xl", isSourceShielded && "text-yellow")}
         >
           Send
         </h1>
-        <h2 className="text-sm">
-          Send assets to other Namada accounts.
-          <br />
-          Shielded to shielded transfers are fully private
-        </h2>
         <NamadaTransferTopHeader
           isSourceShielded={isSourceShielded}
           isDestinationShielded={target ? isTargetShielded : undefined}
         />
+        <h2 className="text-md mb-5">
+          Send assets to other accounts.
+          <br />
+          Sending from Namada Shielded to Namada Shielded is fully private
+        </h2>
       </header>
       <TransferModule
         source={{

@@ -136,7 +136,7 @@ export const MaspUnshield: React.FC = () => {
           isSourceShielded={true}
           isDestinationShielded={false}
         />
-        <h2 className="text-sm">
+        <h2 className="text-md mb-5">
           Unshield assets to your transparent account, or to an external wallet.
           <br />
           This action makes your assets public again.
