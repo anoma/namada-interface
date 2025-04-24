@@ -34,6 +34,8 @@ enum MessageType {
   CheckDurability = "check-durability",
   VerifyArbitrary = "verify-arbitrary",
   GenDisposableSigner = "gen-disposable-signer",
+  PersistDisposableSigner = "persist-disposable-signer",
+  ClearDisposableSigner = "clear-disposable-signer",
 }
 
 export class ApproveSignTxMsg extends Message<Uint8Array[]> {
@@ -321,5 +323,49 @@ export class GenDisposableSignerMsg extends Message<
 
   type(): string {
     return GenDisposableSignerMsg.type();
+  }
+}
+
+export class PersistDisposableSignerMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.PersistDisposableSigner;
+  }
+
+  constructor(public readonly address: string) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["address"]);
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return PersistDisposableSignerMsg.type();
+  }
+}
+
+export class ClearDisposableSignerMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.ClearDisposableSigner;
+  }
+
+  constructor(public readonly address: string) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["address"]);
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return ClearDisposableSignerMsg.type();
   }
 }

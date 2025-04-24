@@ -3,6 +3,7 @@ import { Checkbox, DropdownMenu, Stack } from "@namada/components";
 import { AccountType } from "@namada/types";
 import clsx from "clsx";
 import { createElement } from "react";
+import { FaChevronRight } from "react-icons/fa6";
 import { PiWarning } from "react-icons/pi";
 import { tv } from "tailwind-variants";
 
@@ -17,6 +18,7 @@ type KeyListItemProps = {
   onViewAccount: () => void;
   onSelectAccount: () => void;
   onViewRecoveryPhrase: () => void;
+  onDisposableKeyDetails: () => void;
   dropdownPosition?: "top" | "bottom";
 };
 
@@ -42,6 +44,7 @@ export const KeyListItem = ({
   onViewAccount,
   onSelectAccount,
   onViewRecoveryPhrase,
+  onDisposableKeyDetails,
   dropdownPosition = "top",
   ...props
 }: KeyListItemProps): JSX.Element => {
@@ -66,36 +69,46 @@ export const KeyListItem = ({
         {outdated && (
           <PiWarning className="inline text-yellow w-[24px] h-[24px]" />
         )}
-        <DropdownMenu
-          id={alias}
-          align="right"
-          position={dropdownPosition}
-          items={[
-            {
-              label: "Set default account",
-              onClick: !isMainKey ? onSelectAccount : undefined,
-            },
-            {
-              label: "View Keys",
-              onClick: onViewAccount,
-            },
-            {
-              label: "Rename",
-              onClick: onRename,
-            },
-            {
-              label: "Delete",
-              onClick: onDelete,
-            },
-            {
-              label: "View Seed Phrase",
-              onClick:
-                type === AccountType.Mnemonic ?
-                  onViewRecoveryPhrase
+        {type !== AccountType.Disposable && (
+          <DropdownMenu
+            id={alias}
+            align="right"
+            position={dropdownPosition}
+            items={[
+              {
+                label: "Set default account",
+                onClick: !isMainKey ? onSelectAccount : undefined,
+              },
+              {
+                label: "View Keys",
+                onClick: onViewAccount,
+              },
+              {
+                label: "Rename",
+                onClick: onRename,
+              },
+              {
+                label: "Delete",
+                onClick: onDelete,
+              },
+              {
+                label: "View Seed Phrase",
+                onClick:
+                  type === AccountType.Mnemonic ?
+                    onViewRecoveryPhrase
                   : undefined,
-            },
-          ]}
-        />
+              },
+            ]}
+          />
+        )}
+        {type === AccountType.Disposable && (
+          <button
+            onClick={onDisposableKeyDetails}
+            className={clsx("text-white text-lg")}
+          >
+            <FaChevronRight />
+          </button>
+        )}
       </Stack>
     </>
   );

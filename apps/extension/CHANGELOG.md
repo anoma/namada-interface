@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.6.0](https://github.com/anoma/namada-interface/compare/extension@v0.5.0...extension@v0.6.0) (2025-04-18)
+
+
+### Features
+
+* Ibc unshielding ([#1920](https://github.com/anoma/namada-interface/issues/1920)) ([2996391](https://github.com/anoma/namada-interface/commit/29963912650c4401cb09163042fb889986e094f6))
+* Keychain - Display chain name for known chains ([#1968](https://github.com/anoma/namada-interface/issues/1968)) ([ab902e5](https://github.com/anoma/namada-interface/commit/ab902e51564d24c238f1b7b0c0e6ad067decc9e5))
+* Keychain signing - only require password on session timeout ([#1809](https://github.com/anoma/namada-interface/issues/1809)) ([9050f64](https://github.com/anoma/namada-interface/commit/9050f64d43125bc4b8c0f4faaee48dff473b3705))
+* Keychain/Namadillo: Payment Address gen ([#1905](https://github.com/anoma/namada-interface/issues/1905)) ([200bd4b](https://github.com/anoma/namada-interface/commit/200bd4b400e36b5b216dc5a2facbe92c56c56b0b))
+
+
+### Bug Fixes
+
+* Add forgot password section on Extension ([#1917](https://github.com/anoma/namada-interface/issues/1917)) ([49a765b](https://github.com/anoma/namada-interface/commit/49a765b82892c6a3c063028633b0cfa0ecbfb6ca))
+* Keychain - Don't display approve connection form if already approved ([#1927](https://github.com/anoma/namada-interface/issues/1927)) ([b234528](https://github.com/anoma/namada-interface/commit/b234528c1c72d2dbd41ba59711e330449d69aec0))
+* Update password checker when second input is used first ([#1921](https://github.com/anoma/namada-interface/issues/1921)) ([949f325](https://github.com/anoma/namada-interface/commit/949f3254cdc03c33be5875ac14f1e44dc4577e41))
+
 ## [0.5.0](https://github.com/anoma/namada-interface/compare/extension@v0.4.1...extension@v0.5.0) (2025-02-28)
 
 ### Features

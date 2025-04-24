@@ -31,11 +31,11 @@ type PartialNotification = Pick<ToastNotification, "title" | "description">;
 
 export type UseTransactionPropsEvents<T> = {
   onSigned?: (tx: TransactionPair<T>) => void;
-  onError?: (err: unknown) => void;
+  onError?: (err: unknown, context?: TransactionPair<T>) => Promise<void>;
   onBeforeCreateDisposableSigner?: () => void;
   onBeforeBuildTx?: () => void;
   onBeforeSign?: (encodedTxData: EncodedTxData<T>) => void;
-  onBeforeBroadcast?: (tx: TransactionPair<T>) => void;
+  onBeforeBroadcast?: (tx: TransactionPair<T>) => Promise<void>;
   onBroadcasted?: (tx: TransactionPair<T>) => void;
 };
 
@@ -91,9 +91,13 @@ export const useTransaction = <T,>({
     tx: TransactionPair<T>,
     notification: PartialNotification
   ): void => {
+    const notificationId =
+      tx.encodedTxData.type === "buildIbcTransfer" ?
+        createNotificationId(tx.encodedTxData.txs[0].innerTxHashes)
+      : createNotificationId(tx.encodedTxData.txs[0].hash);
     dispatchNotification({
       ...notification,
-      id: createNotificationId(tx.encodedTxData.txs),
+      id: notificationId,
       type: "pending",
     });
   };
@@ -104,13 +108,30 @@ export const useTransaction = <T,>({
     notification: PartialNotification,
     tx: TransactionPair<T>
   ): void => {
+    const notificationId =
+      tx.encodedTxData.type === "buildIbcTransfer" ?
+        createNotificationId(tx.encodedTxData.txs[0].innerTxHashes)
+      : createNotificationId(tx.encodedTxData.txs[0].hash);
     dispatchNotification({
       ...notification,
-      id: createNotificationId(tx.encodedTxData.txs),
+      id: notificationId,
       details: error instanceof Error ? error.message : undefined,
       type: "error",
     });
   };
+
+  class TransactionError<T> extends Error {
+    public cause: { originalError: unknown; context: TransactionPair<T> };
+    constructor(
+      public message: string,
+      options: {
+        cause: { originalError: unknown; context: TransactionPair<T> };
+      }
+    ) {
+      super(message);
+      this.cause = options.cause;
+    }
+  }
 
   const transactionQuery = useMutation({
     mutationFn: async (
@@ -129,12 +150,13 @@ export const useTransaction = <T,>({
         }
 
         onBeforeBuildTx?.();
-        const encodedTxData = await performBuildTx({
+        const variables = {
           params,
           gasConfig: feeProps.gasConfig,
           account,
           ...txAdditionalParams,
-        });
+        };
+        const encodedTxData = await performBuildTx(variables);
 
         invariant(encodedTxData, "Error: invalid TX created by buildTx");
         useDisposableSigner &&
@@ -164,7 +186,7 @@ export const useTransaction = <T,>({
           );
         }
 
-        onBeforeBroadcast?.(transactionPair);
+        await onBeforeBroadcast?.(transactionPair);
         try {
           await broadcastTxWithEvents(
             transactionPair.encodedTxData,
@@ -181,11 +203,20 @@ export const useTransaction = <T,>({
               transactionPair
             );
           }
-          throw error;
+          throw new TransactionError<T>("Transaction error", {
+            cause: {
+              originalError: error,
+              context: transactionPair,
+            },
+          });
         }
         return transactionPair;
       } catch (error) {
-        onError?.(error);
+        if (error instanceof TransactionError) {
+          onError?.(error.cause.originalError, error.cause.context);
+        } else {
+          onError?.(error);
+        }
         throw error;
       }
     },

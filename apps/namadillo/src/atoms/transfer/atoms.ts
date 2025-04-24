@@ -1,10 +1,12 @@
 import {
   DatedViewingKey,
+  IbcTransferMsgValue,
   ShieldedTransferMsgValue,
   ShieldingTransferMsgValue,
   TransparentTransferMsgValue,
   UnshieldingTransferMsgValue,
 } from "@namada/types";
+import { defaultAccountAtom } from "atoms/accounts";
 import { shieldedSyncProgress, viewingKeysAtom } from "atoms/balance";
 import { shieldedSync } from "atoms/balance/services";
 import {
@@ -18,6 +20,7 @@ import { getDefaultStore, Getter } from "jotai";
 import { atomWithMutation } from "jotai-tanstack-query";
 import { BuildTxAtomParams } from "types";
 import {
+  createIbcTx,
   createShieldedTransferTx,
   createShieldingTransferTx,
   createTransparentTransferTx,
@@ -198,3 +201,38 @@ const sync = async (
     onProgress: (perc) => set(shieldedSyncProgress, perc),
   });
 };
+
+export const createIbcTxAtom = atomWithMutation((get) => {
+  const account = get(defaultAccountAtom);
+  const chain = get(chainAtom);
+  const rpcUrl = get(rpcUrlAtom);
+
+  return {
+    enabled: account.isSuccess && chain.isSuccess,
+    mutationKey: ["create-ibc-tx"],
+    mutationFn: async ({
+      params,
+      gasConfig,
+      account,
+      signer,
+      memo,
+    }: BuildTxAtomParams<IbcTransferMsgValue>) => {
+      invariant(
+        signer,
+        "We always expect signer to be passed explicitly, because we might also need to unshield"
+      );
+      invariant(account, "No account");
+      invariant(params.length !== 0, "No params");
+
+      return await createIbcTx(
+        chain.data!,
+        account,
+        params,
+        gasConfig,
+        rpcUrl,
+        signer?.publicKey,
+        memo
+      );
+    },
+  };
+});

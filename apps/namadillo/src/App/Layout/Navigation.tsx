@@ -1,15 +1,17 @@
 import { SidebarMenuItem } from "App/Common/SidebarMenuItem";
-import { MASPIcon } from "App/Icons/MASPIcon";
+import { ReceiveIcon } from "App/Icons/ReceiveIcon";
+import { ShieldedSendIcon } from "App/Icons/ShieldedSendIcon";
+import { ShieldIcon } from "App/Icons/ShieldIcon";
+import { UnshieldedTransferIcon } from "App/Icons/UnshieldedTransferIcon";
 import { routes } from "App/routes";
 import { applicationFeaturesAtom } from "atoms/settings";
 import { useAtomValue } from "jotai";
+import { Fragment } from "react";
 import { AiFillHome } from "react-icons/ai";
 import { BsDiscord, BsTwitterX } from "react-icons/bs";
 import { FaVoteYea } from "react-icons/fa";
 import { FaBug } from "react-icons/fa6";
 import { GoHistory, GoStack } from "react-icons/go";
-import { IoSwapHorizontal } from "react-icons/io5";
-import { TbVectorTriangle } from "react-icons/tb";
 import { Link } from "react-router-dom";
 import { DISCORD_URL, TWITTER_URL } from "urls";
 
@@ -18,7 +20,7 @@ export const Navigation = (): JSX.Element => {
 
   const menuItems: { label: string; icon: React.ReactNode; url?: string }[] = [
     {
-      label: "Overview",
+      label: "Manage Assets",
       icon: <AiFillHome />,
       url: routes.root,
     },
@@ -33,21 +35,29 @@ export const Navigation = (): JSX.Element => {
       url: routes.governance,
     },
     {
-      label: "MASP",
-      icon: <MASPIcon />,
-      url: features.maspEnabled ? routes.masp : undefined,
+      label: "Shield",
+      icon: <ShieldIcon />,
+      url: features.maspEnabled ? routes.maspShield : undefined,
     },
     {
-      label: "IBC Transfer",
-      icon: <TbVectorTriangle />,
-      url: features.ibcTransfersEnabled ? routes.ibc : undefined,
+      label: "Unshield",
+      icon: <UnshieldedTransferIcon />,
+      url: features.ibcTransfersEnabled ? routes.maspUnshield : undefined,
     },
     {
-      label: "Transfer",
-      icon: <IoSwapHorizontal />,
+      label: "Send",
+      icon: <ShieldedSendIcon />,
       url:
         features.maspEnabled || features.namTransfersEnabled ?
           routes.transfer
+        : undefined,
+    },
+    {
+      label: "Receive",
+      icon: <ReceiveIcon />,
+      url:
+        features.namTransfersEnabled || features.ibcTransfersEnabled ?
+          routes.receive
         : undefined,
     },
     {
@@ -61,16 +71,29 @@ export const Navigation = (): JSX.Element => {
   ];
 
   return (
-    <div className="h-full flex flex-col justify-between flex-1 pt-6 pb-8 px-6">
+    <div className="min-h-full flex flex-col justify-between gap-10 p-6 pb-8">
       <ul className="flex flex-col gap-4">
-        {menuItems.map((item) => (
-          <li key={item.label}>
-            <SidebarMenuItem url={item.url}>
-              {item.icon}
-              {item.label}
-            </SidebarMenuItem>
-          </li>
-        ))}
+        {menuItems.map((item) => {
+          return (
+            <Fragment key={item.label}>
+              {item.label === "Shield" && (
+                <>
+                  <hr className="border-t-2 border-neutral-600" />
+                  <h4 className="text-sm text-neutral-400">Move assets</h4>
+                </>
+              )}
+              {item.label === "History" && (
+                <hr className="border-t-2 border-neutral-600" />
+              )}
+              <li key={item.label}>
+                <SidebarMenuItem url={item.url}>
+                  {item.icon}
+                  {item.label}
+                </SidebarMenuItem>
+              </li>
+            </Fragment>
+          );
+        })}
       </ul>
       <footer className="flex flex-col gap-10">
         <ul className="flex flex-col gap-1 text-neutral-300 text-sm">

@@ -1,5 +1,6 @@
 import {
   Account,
+  IbcTransferMsgValue,
   ShieldedTransferMsgValue,
   ShieldingTransferMsgValue,
   TxResponseMsgValue,
@@ -62,6 +63,19 @@ export type ShieldedTransferDone = WebWorkerMessage<
   EncodedTxData<ShieldedTransferMsgValue>
 >;
 
+type IbcTransferPayload = {
+  account: Account;
+  gasConfig: GasConfig;
+  props: IbcTransferMsgValue[];
+  chain: ChainSettings;
+  memo?: string;
+};
+export type IbcTransfer = WebWorkerMessage<"ibc-transfer", IbcTransferPayload>;
+export type IbcTransferDone = WebWorkerMessage<
+  "ibc-transfer-done",
+  EncodedTxData<IbcTransferMsgValue>
+>;
+
 type GenerateIbcShieldingMemoPayload = {
   target: string;
   token: string;
@@ -78,6 +92,33 @@ export type GenerateIbcShieldingMemoDone = WebWorkerMessage<
   string
 >;
 
+type ShieldedRewardsPayload = {
+  viewingKey: string;
+  chainId: string;
+};
+export type ShieldedRewards = WebWorkerMessage<
+  "shielded-rewards",
+  ShieldedRewardsPayload
+>;
+export type ShieldedRewardsDone = WebWorkerMessage<
+  "shielded-rewards-done",
+  string
+>;
+
+type ShieldedRewardsPerTokenPayload = {
+  viewingKey: string;
+  tokens: string[];
+  chainId: string;
+};
+export type ShieldedRewardsPerToken = WebWorkerMessage<
+  "shielded-rewards-per-token",
+  ShieldedRewardsPerTokenPayload
+>;
+export type ShieldedRewardsPerTokenDone = WebWorkerMessage<
+  "shielded-rewards-per-token-done",
+  Record<string, BigNumber>
+>;
+
 type BroadcastPayload = TransactionPair<unknown>;
 
 export type Broadcast = WebWorkerMessage<"broadcast", BroadcastPayload>;
@@ -85,10 +126,3 @@ export type BroadcastDone = WebWorkerMessage<
   "broadcast-done",
   TxResponseMsgValue[]
 >;
-
-export type ShieldMessageIn = Shield | ShieldedTransfer | Broadcast | Init;
-export type ShieldMessageOut =
-  | ShieldDone
-  | ShieldedTransferDone
-  | BroadcastDone
-  | InitDone;

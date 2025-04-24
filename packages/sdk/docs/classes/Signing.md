@@ -41,7 +41,7 @@ Signing constructor
 
 #### Defined in
 
-[sdk/src/signing.ts:14](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/signing.ts#L14)
+[sdk/src/signing.ts:14](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/signing.ts#L14)
 
 ## Properties
 
@@ -53,7 +53,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/signing.ts:14](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/signing.ts#L14)
+[sdk/src/signing.ts:14](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/signing.ts#L14)
 
 ## Methods
 
@@ -79,7 +79,7 @@ signed tx bytes - Promise resolving to Uint8Array
 
 #### Defined in
 
-[sdk/src/signing.ts:23](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/signing.ts#L23)
+[sdk/src/signing.ts:23](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/signing.ts#L23)
 
 ___
 
@@ -104,7 +104,7 @@ hash and signature
 
 #### Defined in
 
-[sdk/src/signing.ts:62](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/signing.ts#L62)
+[sdk/src/signing.ts:62](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/signing.ts#L62)
 
 ___
 
@@ -129,7 +129,7 @@ tx with masp spends signed - Promise resolving to Uint8Array
 
 #### Defined in
 
-[sdk/src/signing.ts:48](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/signing.ts#L48)
+[sdk/src/signing.ts:48](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/signing.ts#L48)
 
 ___
 
@@ -155,4 +155,4 @@ void
 
 #### Defined in
 
-[sdk/src/signing.ts:73](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/signing.ts#L73)
+[sdk/src/signing.ts:73](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/signing.ts#L73)

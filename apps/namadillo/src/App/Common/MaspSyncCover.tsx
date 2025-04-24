@@ -11,7 +11,7 @@ export const MaspSyncCover = ({
   return (
     <div
       className={clsx(
-        "absolute w-full h-full backdrop-blur-sm left-0 top-0 z-50 rounded-sm overflow-hidden",
+        "absolute w-full h-full backdrop-blur-sm left-0 top-0 z-20 rounded-sm overflow-hidden",
         "bg-black/70"
       )}
     >
@@ -22,7 +22,7 @@ export const MaspSyncCover = ({
         )}
       >
         <header className="flex w-full items-center justify-center mb-4 h-42">
-          <PulsingRing />
+          <PulsingRing className="text-5xl" />
           <h2 className="absolute text-3xl font-medium text">
             Shielded Sync in Progress
           </h2>

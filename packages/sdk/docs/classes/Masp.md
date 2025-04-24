@@ -43,7 +43,7 @@ Class representing utilities related to MASP
 
 #### Defined in
 
-[sdk/src/masp/masp.ts:10](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/masp/masp.ts#L10)
+[sdk/src/masp/masp.ts:10](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/masp/masp.ts#L10)
 
 ## Properties
 
@@ -55,7 +55,7 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/masp/masp.ts:10](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/masp/masp.ts#L10)
+[sdk/src/masp/masp.ts:10](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/masp/masp.ts#L10)
 
 ## Methods
 
@@ -82,7 +82,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp/masp.ts:71](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/masp/masp.ts#L71)
+[sdk/src/masp/masp.ts:71](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/masp/masp.ts#L71)
 
 ___
 
@@ -109,7 +109,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp/masp.ts:49](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/masp/masp.ts#L49)
+[sdk/src/masp/masp.ts:49](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/masp/masp.ts#L49)
 
 ___
 
@@ -136,7 +136,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp/masp.ts:60](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/masp/masp.ts#L60)
+[sdk/src/masp/masp.ts:60](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/masp/masp.ts#L60)
 
 ___
 
@@ -160,7 +160,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp/masp.ts:89](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/masp/masp.ts#L89)
+[sdk/src/masp/masp.ts:89](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/masp/masp.ts#L89)
 
 ___
 
@@ -186,7 +186,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp/masp.ts:27](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/masp/masp.ts#L27)
+[sdk/src/masp/masp.ts:27](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/masp/masp.ts#L27)
 
 ___
 
@@ -206,7 +206,7 @@ True if MASP parameters are loaded
 
 #### Defined in
 
-[sdk/src/masp/masp.ts:17](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/masp/masp.ts#L17)
+[sdk/src/masp/masp.ts:17](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/masp/masp.ts#L17)
 
 ___
 
@@ -233,7 +233,7 @@ void
 
 #### Defined in
 
-[sdk/src/masp/masp.ts:38](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/masp/masp.ts#L38)
+[sdk/src/masp/masp.ts:38](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/masp/masp.ts#L38)
 
 ___
 
@@ -252,4 +252,4 @@ the MASP address
 
 #### Defined in
 
-[sdk/src/masp/masp.ts:80](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/masp/masp.ts#L80)
+[sdk/src/masp/masp.ts:80](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/masp/masp.ts#L80)

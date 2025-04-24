@@ -107,7 +107,7 @@ export const MyValidatorsTable = (): JSX.Element => {
 
   return (
     <>
-      <nav className="sm:absolute top-6 right-4 flex gap-2 flex-1 z-50">
+      <nav className="flex justify-end -mt-15 gap-2">
         <ActionButton
           className="basis-[content] py-1"
           backgroundColor="cyan"

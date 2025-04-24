@@ -1,5 +1,6 @@
 // Make Ledger available for direct-import as it is not dependent on Sdk initialization
 export {
+  LEDGER_MASP_BLACKLISTED,
   LEDGER_MIN_VERSION_ZIP32,
   Ledger,
   initLedgerUSBTransport,
@@ -21,7 +22,12 @@ export type {
   CryptoRecord,
   EncryptionParams,
 } from "./crypto";
-export type { Address, ShieldedKeys, TransparentKeys } from "./keys";
+export type {
+  Address,
+  GeneratedPaymentAddress,
+  ShieldedKeys,
+  TransparentKeys,
+} from "./keys";
 export type {
   Balance,
   Bonds,
@@ -44,6 +50,8 @@ export {
   MODIFIED_ZIP32_PATH,
   publicKeyToBech32,
 } from "./keys";
+
+export type { Keys } from "./keys";
 
 export {
   ExtendedViewingKey,

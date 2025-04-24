@@ -86,7 +86,11 @@ describe("approvals service", () => {
         signature: "sig",
       };
 
-      const signaturePromise = service.approveSignArbitrary("signer", "data");
+      const signaturePromise = service.approveSignArbitrary(
+        "signer",
+        "data",
+        "origin"
+      );
 
       await new Promise((resolve) =>
         setTimeout(() => {
@@ -106,7 +110,7 @@ describe("approvals service", () => {
       });
 
       await expect(
-        service.approveSignArbitrary("signer", "data")
+        service.approveSignArbitrary("signer", "data", "origin")
       ).rejects.toBeDefined();
     });
 
@@ -122,7 +126,7 @@ describe("approvals service", () => {
       (service as any).resolverMap[tabId] = sigResponse;
 
       await expect(
-        service.approveSignArbitrary("signer", "data")
+        service.approveSignArbitrary("signer", "data", "origin")
       ).rejects.toBeDefined();
     });
   });
@@ -143,7 +147,11 @@ describe("approvals service", () => {
         .spyOn(keyRingService, "signArbitrary")
         .mockResolvedValue(sigResponse);
       const signer = "signer";
-      const signaturePromise = service.approveSignArbitrary(signer, "data");
+      const signaturePromise = service.approveSignArbitrary(
+        signer,
+        "data",
+        "origin"
+      );
 
       await new Promise((resolve) =>
         setTimeout(() => {
@@ -218,19 +226,23 @@ describe("approvals service", () => {
 
       (keyRingService.queryAccountDetails as any).mockResolvedValue(() => ({}));
 
-      const signaturePromise = service.approveSignTx(signer, [
-        {
-          args: new WrapperTxMsgValue({
-            token: "",
-            feeAmount: BigNumber(0),
-            gasLimit: BigNumber(0),
-            chainId: "",
-          }),
-          hash: "",
-          bytes,
-          signingData: [],
-        },
-      ]);
+      const signaturePromise = service.approveSignTx(
+        signer,
+        [
+          {
+            args: new WrapperTxMsgValue({
+              token: "",
+              feeAmount: BigNumber(0),
+              gasLimit: BigNumber(0),
+              chainId: "",
+            }),
+            hash: "",
+            bytes,
+            signingData: [],
+          },
+        ],
+        "http://localhost:5173"
+      );
 
       jest.spyOn(service as any, "clearPendingTx");
 

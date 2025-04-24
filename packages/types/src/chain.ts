@@ -62,3 +62,12 @@ export type Chain = {
     portId: string;
   };
 };
+
+/**
+ * Chain name lookup for mainnet and known long-running testnets
+ */
+export const NamadaChains: Map<string, string> = new Map([
+  ["namada.5f5de2dd1b88cba30586420", "Namada Mainnet"],
+  ["housefire-alpaca.cc0d3e0c033be", "Housefire Testnet"],
+  ["campfire-square.ff09671d333707", "Campfire Testnet"],
+]);

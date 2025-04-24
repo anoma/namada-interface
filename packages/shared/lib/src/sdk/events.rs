@@ -107,8 +107,8 @@ impl EventDispatcher {
 
     pub fn progress_bar_started(&self, name: String) -> Result<JsValue, JsError> {
         let start = ProgressStart { name };
-        let mut options = CustomEventInit::new();
-        options.detail(&start.to_json());
+        let options = CustomEventInit::new();
+        options.set_detail(&start.to_json());
 
         let event = CustomEvent::new_with_event_init_dict(SDK_EVENT_PROGRESS_BAR_STARTED, &options)
             .unwrap();
@@ -127,8 +127,8 @@ impl EventDispatcher {
             current,
             total,
         };
-        let mut options = CustomEventInit::new();
-        options.detail(&increment.to_json());
+        let options = CustomEventInit::new();
+        options.set_detail(&increment.to_json());
 
         let event =
             CustomEvent::new_with_event_init_dict(SDK_EVENT_PROGRESS_BAR_INCREMENTED, &options)
@@ -139,8 +139,8 @@ impl EventDispatcher {
 
     pub fn progress_bar_finished(&self, name: String) -> Result<JsValue, JsError> {
         let finish = ProgressFinish { name };
-        let mut options = CustomEventInit::new();
-        options.detail(&finish.to_json());
+        let options = CustomEventInit::new();
+        options.set_detail(&finish.to_json());
 
         let event =
             CustomEvent::new_with_event_init_dict(SDK_EVENT_PROGRESS_BAR_FINISHED, &options)

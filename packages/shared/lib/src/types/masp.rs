@@ -2,11 +2,12 @@
 //! See @namada/crypto for zip32 HD wallet functionality.
 use std::str::FromStr;
 
+use crate::utils::to_js_result;
 use js_sys::Uint8Array;
 use namada_sdk::borsh::{self, BorshDeserialize};
+use namada_sdk::masp_primitives::sapling;
 use namada_sdk::masp_primitives::sapling::ViewingKey;
-use namada_sdk::masp_primitives::zip32::ExtendedKey;
-use namada_sdk::masp_primitives::{sapling, zip32};
+use namada_sdk::masp_primitives::zip32::{self, DiversifierIndex, ExtendedKey};
 use namada_sdk::masp_proofs::jubjub;
 use namada_sdk::state::BlockHeight;
 use namada_sdk::wallet::DatedKeypair;
@@ -48,11 +49,12 @@ impl ExtendedViewingKey {
         self.0.to_string()
     }
 
-    pub fn default_payment_address(&self) -> PaymentAddress {
+    pub fn default_payment_address(&self) -> Result<JsValue, JsError> {
         let xfvk = zip32::ExtendedFullViewingKey::from(self.0);
-        let (_, payment_address) = xfvk.default_address();
+        let (diversifier_index, payment_address) = xfvk.default_address();
+        let div_idx = u32::try_from(diversifier_index)?;
 
-        PaymentAddress(payment_address.into())
+        to_js_result((div_idx, PaymentAddress(payment_address.into()).encode()))
     }
 }
 
@@ -95,13 +97,12 @@ impl PseudoExtendedKey {
         hex::encode(borsh::to_vec(&self.0).expect("Serializing PseudoExtendedKey should not fail!"))
     }
 
-    pub fn decode(encoded: String) -> PseudoExtendedKey {
-        let decoded = hex::decode(encoded).expect("Decoding PseudoExtendedKey should not fail!");
+    pub fn decode(encoded: String) -> Result<PseudoExtendedKey, JsError> {
+        let decoded = hex::decode(encoded).map_err(|err| JsError::new(&err.to_string()))?;
+        let pek = zip32::PseudoExtendedKey::try_from_slice(decoded.as_slice())
+            .map_err(|err| JsError::new(&err.to_string()))?;
 
-        PseudoExtendedKey(
-            zip32::PseudoExtendedKey::try_from_slice(decoded.as_slice())
-                .expect("Deserializing ProofGenerationKey should not fail!"),
-        )
+        Ok(PseudoExtendedKey(pek))
     }
 
     pub fn from(xvk: ExtendedViewingKey, pgk: ProofGenerationKey) -> Self {
@@ -137,7 +138,7 @@ impl ExtendedSpendingKey {
     }
 
     pub fn from_string(xsk: String) -> Result<ExtendedSpendingKey, String> {
-        let xsk= NamadaExtendedSpendingKey::from_str(&xsk).map_err(|err| err.to_string())?;
+        let xsk = NamadaExtendedSpendingKey::from_str(&xsk).map_err(|err| err.to_string())?;
 
         Ok(ExtendedSpendingKey(xsk))
     }
@@ -146,10 +147,13 @@ impl ExtendedSpendingKey {
         ExtendedViewingKey::new(&self.0.to_viewing_key().to_bytes())
     }
 
-    pub fn to_default_address(&self) -> PaymentAddress {
+    pub fn to_default_address(&self) -> Result<JsValue, JsError> {
         let xsk = zip32::ExtendedSpendingKey::from(self.0);
         let xfvk = zip32::ExtendedFullViewingKey::from(&xsk);
-        PaymentAddress(NamadaPaymentAddress::from(xfvk.default_address().1))
+        let (div_idx, payment_address) = xfvk.default_address();
+
+        let index = u32::try_from(div_idx)?;
+        to_js_result((index, PaymentAddress(payment_address.into()).encode()))
     }
 
     pub fn to_proof_generation_key(&self) -> ProofGenerationKey {
@@ -202,6 +206,26 @@ impl PaymentAddress {
     pub fn encode(&self) -> String {
         self.0.to_string()
     }
+}
+
+/// Find next payment address from current index for viewing key
+#[wasm_bindgen]
+pub fn gen_payment_address(vk: String, index: u32) -> Result<JsValue, JsError> {
+    let diversifier_index = DiversifierIndex::from(index);
+
+    let xfvk = zip32::ExtendedFullViewingKey::from(
+        NamadaExtendedViewingKey::from_str(&vk)
+            .expect("Parsing ExtendedViewingKey should not fail!"),
+    );
+    let (div_idx, masp_payment_addr) = xfvk
+        .find_address(diversifier_index)
+        .expect("Exhausted payment addresses");
+
+    let payment_addr = NamadaPaymentAddress::from(masp_payment_addr);
+    let payment_address = PaymentAddress(payment_addr);
+    let index: u32 = u32::try_from(div_idx)?;
+
+    to_js_result((index, payment_address.encode()))
 }
 
 #[wasm_bindgen]

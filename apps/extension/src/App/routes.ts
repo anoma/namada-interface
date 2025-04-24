@@ -21,4 +21,8 @@ export default {
     `/accounts/delete/${accountId}`,
   renameAccount: (accountId: string = ":accountId") =>
     `/accounts/rename/${accountId}`,
+  viewDisposableAccount: (accountId: string = ":accountId") =>
+    `/accounts/view-disposable/${accountId}`,
+  deleteDisposableAccount: (accountId: string = ":accountId") =>
+    `/accounts/delete-disposable/${accountId}`,
 };

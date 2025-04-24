@@ -65,6 +65,10 @@ export class KeyRingService {
     return await this._keyRing.revealSpendingKey(accountId);
   }
 
+  async revealPrivateKey(accountId: string): Promise<string> {
+    return await this._keyRing.revealPrivateKey(accountId);
+  }
+
   async saveAccountSecret(
     accountSecret: AccountSecret,
     alias: string,
@@ -89,7 +93,8 @@ export class KeyRingService {
     zip32Path?: Zip32Path,
     extendedViewingKey?: string,
     pseudoExtendedKey?: string,
-    paymentAddress?: string
+    paymentAddress?: string,
+    diversifierIndex?: number
   ): Promise<AccountStore | false> {
     const account = await this._keyRing.queryAccountByAddress(address);
     if (account) {
@@ -106,7 +111,8 @@ export class KeyRingService {
       zip32Path,
       pseudoExtendedKey,
       extendedViewingKey,
-      paymentAddress
+      paymentAddress,
+      diversifierIndex
     );
 
     await this.broadcaster.updateAccounts();
@@ -142,6 +148,7 @@ export class KeyRingService {
     if (await this.vaultService.isLocked()) {
       throw new Error(ApprovalErrors.KeychainLocked());
     }
+
     return await this._keyRing.queryAllAccounts();
   }
 
@@ -210,7 +217,9 @@ export class KeyRingService {
     accountId: string,
     alias: string
   ): Promise<DerivedAccount> {
-    return await this._keyRing.renameAccount(accountId, alias);
+    const account = await this._keyRing.renameAccount(accountId, alias);
+    await this.broadcaster.updateAccounts();
+    return account;
   }
 
   async checkDurability(): Promise<boolean> {
@@ -256,5 +265,29 @@ export class KeyRingService {
     GenDisposableSignerResponse | undefined
   > {
     return this._keyRing.genDisposableSigner();
+  }
+
+  async persistDisposableSigner(address: string): Promise<void> {
+    if (await this.vaultService.isLocked()) {
+      throw new Error(ApprovalErrors.KeychainLocked());
+    }
+
+    return this._keyRing.persistDisposableSigner(address);
+  }
+
+  async clearDisposableSigner(address: string): Promise<void> {
+    if (await this.vaultService.isLocked()) {
+      throw new Error(ApprovalErrors.KeychainLocked());
+    }
+
+    return this._keyRing.clearDisposableSigner(address);
+  }
+
+  async genPaymentAddress(
+    accountId: string
+  ): Promise<DerivedAccount | undefined> {
+    const account = await this._keyRing.genPaymentAddress(accountId);
+    await this.broadcaster.updateAccounts();
+    return account;
   }
 }

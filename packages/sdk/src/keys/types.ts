@@ -20,9 +20,18 @@ export type TransparentKeys = {
  */
 export type ShieldedKeys = {
   address: string;
+  diversifierIndex: number;
   viewingKey: string;
   spendingKey: string;
   pseudoExtendedKey: string;
+};
+
+/**
+ * Result of generating next payment address
+ */
+export type GeneratedPaymentAddress = {
+  address: string;
+  diversifierIndex: number;
 };
 
 export const DEFAULT_BIP44_PATH: Bip44Path = {

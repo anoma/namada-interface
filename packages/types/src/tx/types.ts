@@ -82,3 +82,35 @@ export type TxDetails = WrapperTxProps & {
   // We override wrapperFeePayer to be a string because it should always be defined at this point
   wrapperFeePayer: string;
 };
+
+export enum ResultCode {
+  Ok = 0,
+  WasmRuntimeError = 1,
+  InvalidTx = 2,
+  InvalidSig = 3,
+  AllocationError = 4,
+  ReplayTx = 5,
+  InvalidChainId = 6,
+  ExpiredTx = 7,
+  TxGasLimit = 8,
+  FeeError = 9,
+  InvalidVoteExtension = 10,
+  TooLarge = 11,
+  TxNotAllowlisted = 12,
+}
+
+export const ResultCodes: Record<ResultCode, string> = {
+  [ResultCode.Ok]: "",
+  [ResultCode.WasmRuntimeError]: "Error in WASM tx execution",
+  [ResultCode.InvalidTx]: "Invalid tx",
+  [ResultCode.InvalidSig]: "Invalid signature",
+  [ResultCode.AllocationError]: "The block is full",
+  [ResultCode.ReplayTx]: "Replayed tx",
+  [ResultCode.InvalidChainId]: "Invalid chain ID",
+  [ResultCode.ExpiredTx]: "Expired tx",
+  [ResultCode.TxGasLimit]: "Transaction gas required exceeds the gas limit.",
+  [ResultCode.FeeError]: "Error in paying tx fee",
+  [ResultCode.InvalidVoteExtension]: "Invalid vote extension",
+  [ResultCode.TooLarge]: "Tx is too large",
+  [ResultCode.TxNotAllowlisted]: "Tx code is not allowlisted",
+};

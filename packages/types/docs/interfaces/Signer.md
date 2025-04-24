@@ -6,12 +6,38 @@
 
 ### Properties
 
+- [clearDisposableKeypair](Signer.md#cleardisposablekeypair)
 - [genDisposableKeypair](Signer.md#gendisposablekeypair)
+- [persistDisposableKeypair](Signer.md#persistdisposablekeypair)
 - [sign](Signer.md#sign)
 - [signArbitrary](Signer.md#signarbitrary)
 - [verify](Signer.md#verify)
 
 ## Properties
+
+### clearDisposableKeypair
+
+• **clearDisposableKeypair**: (`address`: `string`) => `Promise`\<`void`\>
+
+#### Type declaration
+
+▸ (`address`): `Promise`\<`void`\>
+
+##### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `address` | `string` |
+
+##### Returns
+
+`Promise`\<`void`\>
+
+#### Defined in
+
+[packages/types/src/signer.ts:26](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/signer.ts#L26)
+
+___
 
 ### genDisposableKeypair
 
@@ -27,7 +53,31 @@
 
 #### Defined in
 
-[signer.ts:24](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/signer.ts#L24)
+[packages/types/src/signer.ts:24](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/signer.ts#L24)
+
+___
+
+### persistDisposableKeypair
+
+• **persistDisposableKeypair**: (`address`: `string`) => `Promise`\<`void`\>
+
+#### Type declaration
+
+▸ (`address`): `Promise`\<`void`\>
+
+##### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `address` | `string` |
+
+##### Returns
+
+`Promise`\<`void`\>
+
+#### Defined in
+
+[packages/types/src/signer.ts:25](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/signer.ts#L25)
 
 ___
 
@@ -53,7 +103,7 @@ ___
 
 #### Defined in
 
-[signer.ts:14](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/signer.ts#L14)
+[packages/types/src/signer.ts:14](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/signer.ts#L14)
 
 ___
 
@@ -78,7 +128,7 @@ ___
 
 #### Defined in
 
-[signer.ts:19](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/signer.ts#L19)
+[packages/types/src/signer.ts:19](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/signer.ts#L19)
 
 ___
 
@@ -104,4 +154,4 @@ ___
 
 #### Defined in
 
-[signer.ts:23](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/signer.ts#L23)
+[packages/types/src/signer.ts:23](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/signer.ts#L23)

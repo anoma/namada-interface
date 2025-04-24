@@ -61,6 +61,7 @@ export class ApprovalsService {
   async approveSignTx(
     signer: string,
     txs: EncodedTxData[],
+    origin: string,
     checksums?: Record<string, string>
   ): Promise<Uint8Array[]> {
     if (await this.isLocked()) {
@@ -88,13 +89,14 @@ export class ApprovalsService {
     await this.txStore.set(msgId, pendingTx);
 
     return this.launchApprovalPopup(
-      `${TopLevelRoute.ApproveSignTx}/${msgId}/${details.type}/${signer}`
+      `${TopLevelRoute.ApproveSignTx}/${msgId}/${encodeURIComponent(origin)}/${details.type}/${signer}`
     );
   }
 
   async approveSignArbitrary(
     signer: string,
-    data: string
+    data: string,
+    origin: string
   ): Promise<SignArbitraryResponse> {
     if (await this.isLocked()) {
       throw new Error(ApprovalErrors.KeychainLocked());
@@ -104,7 +106,7 @@ export class ApprovalsService {
     await this.dataStore.set(msgId, data);
 
     return this.launchApprovalPopup(
-      `${TopLevelRoute.ApproveSignArbitrary}/${signer}`,
+      `${TopLevelRoute.ApproveSignArbitrary}/${encodeURIComponent(origin)}/${signer}`,
       { msgId }
     );
   }

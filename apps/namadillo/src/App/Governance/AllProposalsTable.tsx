@@ -122,6 +122,7 @@ const statusFilters = [
   "ongoing",
   "passed",
   "rejected",
+  "executed",
 ] as const;
 type StatusFilter = (typeof statusFilters)[number];
 

@@ -29,9 +29,11 @@ enum MessageType {
   AddLedgerAccount = "add-ledger-account",
   RevealAccountMnemonic = "reveal-account-mnemonic",
   RevealSpendingKey = "reveal-spending-key",
+  RevealPrivateKey = "reveal-private-key",
   RenameAccount = "rename-account",
   QueryAccountDetails = "query-account-details",
   AppendLedgerSignature = "append-ledger-signature",
+  GenPaymentAddress = "generate-payment-address",
 }
 
 export class GenerateMnemonicMsg extends Message<string[]> {
@@ -97,6 +99,28 @@ export class RevealSpendingKeyMsg extends Message<string> {
 
   type(): string {
     return RevealSpendingKeyMsg.type();
+  }
+}
+
+export class RevealPrivateKeyMsg extends Message<string> {
+  public static type(): MessageType {
+    return MessageType.RevealPrivateKey;
+  }
+
+  constructor(public readonly accountId: string) {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return RevealPrivateKeyMsg.type();
   }
 }
 
@@ -221,7 +245,8 @@ export class AddLedgerAccountMsg extends Message<AccountStore | false> {
     public readonly zip32Path?: Zip32Path,
     public readonly extendedViewingKey?: string,
     public readonly pseudoExtendedKey?: string,
-    public readonly paymentAddress?: string
+    public readonly paymentAddress?: string,
+    public readonly diversifierIndex?: number
   ) {
     super();
   }
@@ -414,5 +439,27 @@ export class AppendLedgerSignatureMsg extends Message<Uint8Array> {
 
   type(): string {
     return AppendLedgerSignatureMsg.type();
+  }
+}
+
+export class GenPaymentAddressMsg extends Message<DerivedAccount | undefined> {
+  public static type(): MessageType {
+    return MessageType.GenPaymentAddress;
+  }
+
+  constructor(public accountId: string) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["accountId"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GenPaymentAddressMsg.type();
   }
 }

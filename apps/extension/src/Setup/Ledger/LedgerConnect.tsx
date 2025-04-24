@@ -49,6 +49,7 @@ export const LedgerConnect: React.FC<Props> = ({
     let encodedExtendedViewingKey: string | undefined;
     let encodedPaymentAddress: string | undefined;
     let encodedPseudoExtendedKey: string | undefined;
+    let diversifierIndex: number | undefined;
 
     try {
       const {
@@ -58,8 +59,8 @@ export const LedgerConnect: React.FC<Props> = ({
       if (returnCode !== LedgerError.NoErrors) {
         throw new Error(errorMessage);
       }
-      const canImportShielded = await ledger?.isZip32Supported();
-      setIsZip32Supported(canImportShielded);
+      const isMaspSupported = await ledger?.isZip32Supported();
+      setIsZip32Supported(isMaspSupported);
 
       setIsLedgerConnecting(true);
       setCurrentApprovalStep(1);
@@ -67,7 +68,7 @@ export const LedgerConnect: React.FC<Props> = ({
         makeBip44Path(chains.namada.bip44.coinType, bip44Path)
       );
 
-      if (canImportShielded) {
+      if (isMaspSupported) {
         // Import Shielded Keys
         const path = makeSaplingPath(chains.namada.bip44.coinType, {
           account: zip32Path.account,
@@ -84,9 +85,8 @@ export const LedgerConnect: React.FC<Props> = ({
 
         const extendedViewingKey = new ExtendedViewingKey(xfvk);
         encodedExtendedViewingKey = extendedViewingKey.encode();
-        encodedPaymentAddress = extendedViewingKey
-          .default_payment_address()
-          .encode();
+        [diversifierIndex, encodedPaymentAddress] =
+          extendedViewingKey.default_payment_address();
 
         const proofGenerationKey = ProofGenerationKey.from_bytes(ak, nsk);
         const pseudoExtendedKey = PseudoExtendedKey.from(
@@ -105,6 +105,7 @@ export const LedgerConnect: React.FC<Props> = ({
           extendedViewingKey: encodedExtendedViewingKey,
           paymentAddress: encodedPaymentAddress,
           pseudoExtendedKey: encodedPseudoExtendedKey,
+          diversifierIndex,
         },
       });
     } catch (e) {
@@ -156,8 +157,8 @@ export const LedgerConnect: React.FC<Props> = ({
 
         {isLedgerConnecting && !isZip32Supported && (
           <Alert type="warning">
-            Shielded key import will be enabled in NamadaApp v
-            {LEDGER_MIN_VERSION_ZIP32}
+            Shielded key import is not available for the Nano S or on versions
+            below {LEDGER_MIN_VERSION_ZIP32}
           </Alert>
         )}
 

@@ -19,6 +19,9 @@ import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import { isAxiosError } from "axios";
 import BigNumber from "bignumber.js";
+import { sequenceT } from "fp-ts/lib/Apply";
+import { pipe } from "fp-ts/lib/function";
+import * as O from "fp-ts/Option";
 import { atom, getDefaultStore } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
@@ -76,7 +79,7 @@ const toDatedKeypair = async (
 };
 
 export const viewingKeysAtom = atomWithQuery<
-  [DatedViewingKey, DatedViewingKey[]]
+  [DatedViewingKey | undefined, DatedViewingKey[]]
 >((get) => {
   const accountsQuery = get(accountsAtom);
   const defaultAccountsQuery = get(allDefaultAccountsAtom);
@@ -92,16 +95,17 @@ export const viewingKeysAtom = atomWithQuery<
         (account) => account.type === AccountType.ShieldedKeys
       );
 
-      if (!defaultShieldedAccount) {
-        throw new Error("Default shielded account not found");
-      }
+      const viewingKeys = await Promise.all(
+        shieldedAccounts.map(toDatedKeypair.bind(null, api))
+      );
 
+      if (!defaultShieldedAccount) {
+        return [undefined, viewingKeys];
+      } else {
+      }
       const defaultViewingKey = await toDatedKeypair(
         api,
         defaultShieldedAccount
-      );
-      const viewingKeys = await Promise.all(
-        shieldedAccounts.map(toDatedKeypair.bind(null, api))
       );
 
       return [defaultViewingKey, viewingKeys];
@@ -119,9 +123,9 @@ export const lastCompletedShieldedSyncAtom = atomWithStorage<
   Record<Address, Date | undefined>
 >("namadillo:last-shielded-sync", {});
 
-export const isShieldedSyncCompleteAtom = atom(
-  (get) => get(shieldedSyncProgress) === 1
-);
+export const isShieldedSyncCompleteAtom = atom((get) => {
+  return get(shieldedSyncProgress) === 1;
+});
 
 export const shieldedBalanceAtom = atomWithQuery((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
@@ -266,6 +270,7 @@ export const shieldedRewardsPerTokenAtom = atomWithQuery((get) => {
   const shieldedAssets = get(namadaShieldedAssetsAtom);
   const chainParametersQuery = get(chainParametersAtom);
   const viewingKeysQuery = get(viewingKeysAtom);
+  const rpcUrl = get(rpcUrlAtom);
 
   return {
     queryKey: ["shielded-rewards-per-token", shieldedAssets.data],
@@ -277,19 +282,19 @@ export const shieldedRewardsPerTokenAtom = atomWithQuery((get) => {
         amount: i.amount,
       }));
 
-      const rewards = await Promise.all(
-        assets.map((asset) =>
-          fetchShieldedRewardsPerToken(viewingKey, asset.address, chainId).then(
-            (amount) => ({
-              [asset.address]: toDisplayAmount(
-                namadaAsset(),
-                BigNumber(amount)
-              ),
-            })
-          )
-        )
+      if (!viewingKey) {
+        return {};
+      }
+      const tokens = assets.map((a) => a.address);
+
+      const rewards = await fetchShieldedRewardsPerToken(
+        viewingKey,
+        tokens,
+        chainId,
+        rpcUrl
       );
-      return rewards.reduce((acc, r) => ({ ...acc, ...r }), {});
+
+      return rewards;
     }, [shieldedAssets]),
   };
 });
@@ -324,15 +329,19 @@ export const storageShieldedRewardsAtom = atomWithStorage<
 export const shieldRewardsAtom = atomWithQuery((get) => {
   const viewingKeysQuery = get(viewingKeysAtom);
   const chainParametersQuery = get(chainParametersAtom);
+  const rpcUrl = get(rpcUrlAtom);
   const { set } = getDefaultStore();
 
   return {
     queryKey: ["shield-rewards", viewingKeysQuery.data],
     ...queryDependentFn(async () => {
       const [viewingKey] = viewingKeysQuery.data!;
+      if (!viewingKey) {
+        return { minDenomAmount: BigNumber(0) };
+      }
       const { chainId } = chainParametersQuery.data!;
       const minDenomAmount = BigNumber(
-        await fetchShieldedRewards(viewingKey, chainId)
+        await fetchShieldedRewards(viewingKey, chainId, rpcUrl)
       );
 
       const storage = get(storageShieldedRewardsAtom);
@@ -347,22 +356,36 @@ export const shieldRewardsAtom = atomWithQuery((get) => {
 });
 
 export const cachedShieldedRewardsAtom = atom((get) => {
-  const viewingKeysQuery = get(viewingKeysAtom);
-  const storage = get(storageShieldedRewardsAtom);
+  const viewingKeysQuery = O.fromNullable(get(viewingKeysAtom).data);
+  const storage = O.fromNullable(get(storageShieldedRewardsAtom));
 
-  if (!viewingKeysQuery.data || !storage) {
-    return { amount: BigNumber(0) };
-  }
-  const [viewingKey] = viewingKeysQuery.data;
+  const viewingKey = pipe(
+    viewingKeysQuery,
+    O.map(([viewingKey]) => O.fromNullable(viewingKey)),
+    O.flatten
+  );
 
-  const rewards = get(shieldRewardsAtom);
-  const data = rewards.isSuccess ? rewards.data : storage[viewingKey.key];
+  const storageRewards = pipe(
+    sequenceT(O.Applicative)(viewingKey, storage),
+    O.map(([viewingKey, storage]) => O.fromNullable(storage[viewingKey.key])),
+    O.flatten,
+    O.map((data) => ({ minDenomAmount: BigNumber(data.minDenomAmount) }))
+  );
 
-  if (!data) {
-    return { amount: BigNumber(0) };
-  }
+  const rewards = pipe(
+    get(shieldRewardsAtom),
+    O.fromPredicate((atom) => atom.isSuccess),
+    O.map((atom) => atom.data)
+  );
+
+  const finalRewards = pipe(
+    rewards,
+    O.alt(() => storageRewards),
+    O.map((data) => BigNumber(data.minDenomAmount)),
+    O.getOrElse(() => BigNumber(0))
+  );
 
   return {
-    amount: toDisplayAmount(namadaAsset(), BigNumber(data.minDenomAmount)),
+    amount: toDisplayAmount(namadaAsset(), finalRewards),
   };
 });

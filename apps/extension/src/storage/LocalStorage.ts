@@ -6,6 +6,11 @@ import * as O from "fp-ts/Option";
 import * as t from "io-ts";
 import { ExtStorage } from "./Storage";
 
+const Settings = t.type({
+  showDisposableAccounts: t.boolean,
+});
+type SettingsType = t.TypeOf<typeof Settings>;
+
 const ChainId = t.string;
 type ChainIdType = t.TypeOf<typeof ChainId>;
 
@@ -13,7 +18,6 @@ const NamadaExtensionApprovedOrigins = t.array(t.string);
 type NamadaExtensionApprovedOriginsType = t.TypeOf<
   typeof NamadaExtensionApprovedOrigins
 >;
-
 const NamadaExtensionRouterId = t.number;
 type NamadaExtensionRouterIdType = t.TypeOf<typeof NamadaExtensionRouterId>;
 
@@ -21,6 +25,7 @@ const DisposableSigners = t.record(
   t.string,
   t.type({
     privateKey: t.string,
+    publicKey: t.string,
     realAddress: t.string,
     timestamp: t.number,
   })
@@ -31,31 +36,52 @@ type LocalStorageTypes =
   | ChainIdType
   | NamadaExtensionApprovedOriginsType
   | NamadaExtensionRouterIdType
-  | DisposableSignersType;
+  | DisposableSignersType
+  | SettingsType;
 
 type LocalStorageSchemas =
   | typeof ChainId
   | typeof NamadaExtensionApprovedOrigins
   | typeof NamadaExtensionRouterId
-  | typeof DisposableSigners;
+  | typeof DisposableSigners
+  | typeof Settings;
 
 export type LocalStorageKeys =
   | "chainId"
   | "namadaExtensionApprovedOrigins"
   | "namadaExtensionRouterId"
   | "tabs"
-  | "namadaExtensionDisposableSigners";
+  | "namadaExtensionDisposableSigners"
+  | "settings";
 
 const schemasMap = new Map<LocalStorageSchemas, LocalStorageKeys>([
   [ChainId, "chainId"],
   [NamadaExtensionApprovedOrigins, "namadaExtensionApprovedOrigins"],
   [NamadaExtensionRouterId, "namadaExtensionRouterId"],
   [DisposableSigners, "namadaExtensionDisposableSigners"],
+  [Settings, "settings"],
 ]);
 
 export class LocalStorage extends ExtStorage {
   constructor(provider: KVStore<LocalStorageTypes>) {
     super(provider);
+  }
+
+  async getSettings(): Promise<SettingsType | undefined> {
+    const data = await this.getRaw(this.getKey(Settings));
+
+    const Schema = t.union([Settings, t.undefined]);
+    const decodedData = Schema.decode(data);
+
+    if (E.isLeft(decodedData)) {
+      throw new Error("Settings are not valid");
+    }
+
+    return decodedData.right;
+  }
+
+  async setSettings(settings: SettingsType): Promise<void> {
+    await this.setRaw(this.getKey(Settings), settings);
   }
 
   async getChainId(): Promise<ChainIdType | undefined> {
@@ -124,18 +150,21 @@ export class LocalStorage extends ExtStorage {
   async addDisposableSigner(
     address: string,
     privateKey: string,
+    publicKey: string,
     realAddress: string
   ): Promise<void> {
     const data = (await this.getDisposableSigners()) || {};
     await this.setDisposableSigners({
       ...data,
-      [address]: { privateKey, realAddress, timestamp: Date.now() },
+      [address]: { privateKey, publicKey, realAddress, timestamp: Date.now() },
     });
   }
 
   async getDisposableSigner(
     address: string
-  ): Promise<{ privateKey: string; realAddress: string } | undefined> {
+  ): Promise<
+    { privateKey: string; publicKey: string; realAddress: string } | undefined
+  > {
     const data = await this.getDisposableSigners();
     return data?.[address];
   }

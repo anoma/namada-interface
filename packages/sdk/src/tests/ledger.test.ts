@@ -100,9 +100,15 @@ describe("ledger", () => {
     it("should return the status of the ledger", async () => {
       const version = { version: "1.0.0" };
       const info = { info: "info" };
+      const deviceId = "nanoSP";
+      const deviceName = "Ledger Nano S+";
+
       const namadaApp = {
         getVersion: jest.fn().mockReturnValue(version),
         getAppInfo: jest.fn().mockReturnValue(info),
+        transport: {
+          deviceModel: { id: deviceId, productName: deviceName },
+        },
       };
       const ledger: Ledger = new (Ledger as any)(namadaApp as any);
 
@@ -110,7 +116,7 @@ describe("ledger", () => {
 
       expect(namadaApp.getVersion).toHaveBeenCalled();
       expect(namadaApp.getAppInfo).toHaveBeenCalled();
-      expect(res).toEqual({ version, info });
+      expect(res).toEqual({ version, info, deviceId, deviceName });
     });
   });
 

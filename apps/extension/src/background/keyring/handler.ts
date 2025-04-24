@@ -1,6 +1,8 @@
 import {
   CheckDurabilityMsg,
+  ClearDisposableSignerMsg,
   GenDisposableSignerMsg,
+  PersistDisposableSignerMsg,
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
   VerifyArbitraryMsg,
@@ -11,11 +13,13 @@ import {
   DeleteAccountMsg,
   DeriveShieldedAccountMsg,
   GenerateMnemonicMsg,
+  GenPaymentAddressMsg,
   GetActiveAccountMsg,
   QueryAccountDetailsMsg,
   QueryParentAccountsMsg,
   RenameAccountMsg,
   RevealAccountMnemonicMsg,
+  RevealPrivateKeyMsg,
   RevealSpendingKeyMsg,
   SaveAccountSecretMsg,
   SetActiveAccountMsg,
@@ -99,12 +103,31 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as GenDisposableSignerMsg
         );
+      case PersistDisposableSignerMsg:
+        return handlePersistDisposableSignerMsg(service)(
+          env,
+          msg as PersistDisposableSignerMsg
+        );
+      case ClearDisposableSignerMsg:
+        return handleClearDisposableSignerMsg(service)(
+          env,
+          msg as ClearDisposableSignerMsg
+        );
       case RevealSpendingKeyMsg:
         return handleRevealSpendingKeyMsg(service)(
           env,
           msg as RevealSpendingKeyMsg
         );
-
+      case GenPaymentAddressMsg:
+        return handleGenPaymentAddressMsg(service)(
+          env,
+          msg as GenPaymentAddressMsg
+        );
+      case RevealPrivateKeyMsg:
+        return handleRevealPrivateKeyMsg(service)(
+          env,
+          msg as RevealPrivateKeyMsg
+        );
       default:
         throw new Error("Unknown msg type");
     }
@@ -124,6 +147,7 @@ const handleAddLedgerAccountMsg: (
       extendedViewingKey,
       pseudoExtendedKey,
       paymentAddress,
+      diversifierIndex,
     } = msg;
     return await service.saveLedger(
       alias,
@@ -133,7 +157,8 @@ const handleAddLedgerAccountMsg: (
       zip32Path,
       extendedViewingKey,
       pseudoExtendedKey,
-      paymentAddress
+      paymentAddress,
+      diversifierIndex
     );
   };
 };
@@ -286,10 +311,42 @@ const handleGenDisposableSignerMsg: (
   };
 };
 
+const handlePersistDisposableSignerMsg: (
+  service: KeyRingService
+) => InternalHandler<PersistDisposableSignerMsg> = (service) => {
+  return async (_, { address }) => {
+    return await service.persistDisposableSigner(address);
+  };
+};
+
+const handleClearDisposableSignerMsg: (
+  service: KeyRingService
+) => InternalHandler<ClearDisposableSignerMsg> = (service) => {
+  return async (_, { address }) => {
+    return await service.clearDisposableSigner(address);
+  };
+};
+
 const handleRevealSpendingKeyMsg: (
   service: KeyRingService
 ) => InternalHandler<RevealSpendingKeyMsg> = (service) => {
   return async (_, msg) => {
     return await service.revealSpendingKey(msg.accountId);
+  };
+};
+
+const handleGenPaymentAddressMsg: (
+  service: KeyRingService
+) => InternalHandler<GenPaymentAddressMsg> = (service) => {
+  return async (_, { accountId }) => {
+    return await service.genPaymentAddress(accountId);
+  };
+};
+
+const handleRevealPrivateKeyMsg: (
+  service: KeyRingService
+) => InternalHandler<RevealPrivateKeyMsg> = (service) => {
+  return async (_, msg) => {
+    return await service.revealPrivateKey(msg.accountId);
   };
 };

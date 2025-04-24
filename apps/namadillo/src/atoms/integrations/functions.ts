@@ -2,7 +2,6 @@ import { Asset, AssetList, Chain, IBCInfo } from "@chain-registry/types";
 import { QueryClient, setupIbcExtension } from "@cosmjs/stargate";
 import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import namadaMainnetChain from "@namada/chain-registry/namada/chain.json";
-import { Account, IbcTransferProps } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import * as celestia from "chain-registry/mainnet/celestia";
@@ -13,21 +12,16 @@ import * as celestiaTestnet from "chain-registry/testnet/celestiatestnet3";
 import * as cosmosTestnet from "chain-registry/testnet/cosmosicsprovidertestnet";
 import * as osmosisTestnet from "chain-registry/testnet/osmosistestnet";
 import { DenomTrace } from "cosmjs-types/ibc/applications/transfer/v1/transfer";
-import { EncodedTxData, buildTx } from "lib/query";
 import {
-  Address,
   AddressWithAssetAndAmount,
   AddressWithAssetAndAmountMap,
   ChainRegistryEntry,
-  ChainSettings,
   Coin,
-  GasConfig,
   LocalnetToml,
   RpcStorage,
 } from "types";
 import { toDisplayAmount } from "utils";
 import { unknownAsset } from "utils/assets";
-import { getSdkInstance } from "utils/sdk";
 
 import campfireAssets from "@namada/chain-registry/_testnets/namadacampfire/assetlist.json";
 import campfireChain from "@namada/chain-registry/_testnets/namadacampfire/chain.json";
@@ -337,38 +331,6 @@ export const getChannelFromIbcInfo = (
     namadaChannel: channelEntry[namadaChannelId].channel_id,
     ibcChannel: channelEntry[ibcChannelId].channel_id,
   };
-};
-
-export const createIbcTx = async (
-  account: Account,
-  destinationAddress: string,
-  originalTokenAddress: Address,
-  amountInBaseDenom: BigNumber,
-  portId: string,
-  channelId: string,
-  gasConfig: GasConfig,
-  chain: ChainSettings,
-  memo?: string
-): Promise<EncodedTxData<IbcTransferProps>> => {
-  const sdk = await getSdkInstance();
-  const ibcTransferProps = {
-    source: account.address,
-    receiver: destinationAddress,
-    token: originalTokenAddress,
-    amountInBaseDenom,
-    portId,
-    channelId,
-    memo,
-  };
-  return await buildTx(
-    sdk,
-    account,
-    gasConfig,
-    chain,
-    [ibcTransferProps],
-    sdk.tx.buildIbcTransfer,
-    memo
-  );
 };
 
 export const namadaLocal = (chainId: string): Chain => {

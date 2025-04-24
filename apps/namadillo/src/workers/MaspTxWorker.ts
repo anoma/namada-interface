@@ -1,22 +1,31 @@
 import { initMulticore } from "@namada/sdk/inline-init";
 import { getSdk, Sdk } from "@namada/sdk/web";
 import {
+  IbcTransferMsgValue,
   ShieldedTransferMsgValue,
   ShieldingTransferMsgValue,
   TxResponseMsgValue,
   UnshieldingTransferMsgValue,
 } from "@namada/types";
+import BigNumber from "bignumber.js";
 import * as Comlink from "comlink";
 import { buildTx, EncodedTxData } from "lib/query";
+import { namadaAsset, toDisplayAmount } from "utils";
 import {
   Broadcast,
   BroadcastDone,
   GenerateIbcShieldingMemo,
   GenerateIbcShieldingMemoDone,
+  IbcTransfer,
+  IbcTransferDone,
   Init,
   InitDone,
   Shield,
   ShieldDone,
+  ShieldedRewards,
+  ShieldedRewardsDone,
+  ShieldedRewardsPerToken,
+  ShieldedRewardsPerTokenDone,
   ShieldedTransfer,
   ShieldedTransferDone,
   Unshield,
@@ -72,6 +81,41 @@ export class Worker {
     return {
       type: "generate-ibc-shielding-memo-done",
       payload: await generateIbcShieldingMemo(this.sdk, m.payload),
+    };
+  }
+
+  async ibcTransfer(m: IbcTransfer): Promise<IbcTransferDone> {
+    if (!this.sdk) {
+      throw new Error("SDK is not initialized");
+    }
+
+    return {
+      type: "ibc-transfer-done",
+      payload: await ibcTransfer(this.sdk, m.payload),
+    };
+  }
+
+  async shieldedRewards(m: ShieldedRewards): Promise<ShieldedRewardsDone> {
+    if (!this.sdk) {
+      throw new Error("SDK is not initialized");
+    }
+
+    return {
+      type: "shielded-rewards-done",
+      payload: await shieldedRewards(this.sdk, m.payload),
+    };
+  }
+
+  async shieldedRewardsPerToken(
+    m: ShieldedRewardsPerToken
+  ): Promise<ShieldedRewardsPerTokenDone> {
+    if (!this.sdk) {
+      throw new Error("SDK is not initialized");
+    }
+
+    return {
+      type: "shielded-rewards-per-token-done",
+      payload: await shieldedRewardsPerToken(this.sdk, m.payload),
     };
   }
 
@@ -154,6 +198,27 @@ async function shieldedTransfer(
   return encodedTxData;
 }
 
+async function ibcTransfer(
+  sdk: Sdk,
+  payload: IbcTransfer["payload"]
+): Promise<EncodedTxData<IbcTransferMsgValue>> {
+  const { account, gasConfig, chain, props } = payload;
+
+  await sdk.masp.loadMaspParams("", chain.chainId);
+  const encodedTxData = await buildTx<IbcTransferMsgValue>(
+    sdk,
+    account,
+    gasConfig,
+    chain,
+    props,
+    sdk.tx.buildIbcTransfer,
+    undefined,
+    false
+  );
+
+  return encodedTxData;
+}
+
 async function generateIbcShieldingMemo(
   sdk: Sdk,
   payload: GenerateIbcShieldingMemo["payload"]
@@ -171,6 +236,39 @@ async function generateIbcShieldingMemo(
   return memo;
 }
 
+// TODO: Move this to separate worker
+async function shieldedRewardsPerToken(
+  sdk: Sdk,
+  payload: ShieldedRewardsPerToken["payload"]
+): Promise<Record<string, BigNumber>> {
+  const { viewingKey, tokens, chainId } = payload;
+  await sdk.masp.loadMaspParams("", chainId);
+
+  // const www = await sdk.rpc.shieldedRewardsPerToken(viewingKey.key, chainId);
+  const rewards = await Promise.all(
+    tokens.map((token) =>
+      sdk.rpc
+        .shieldedRewardsPerToken(viewingKey, token, chainId)
+        .then((amount) => ({
+          [token]: toDisplayAmount(namadaAsset(), BigNumber(amount)),
+        }))
+    )
+  );
+
+  return rewards.reduce((acc, r) => ({ ...acc, ...r }), {});
+}
+
+// TODO: Move this to separate worker
+async function shieldedRewards(
+  sdk: Sdk,
+  payload: ShieldedRewards["payload"]
+): Promise<string> {
+  const { viewingKey, chainId } = payload;
+  await sdk.masp.loadMaspParams("", chainId);
+
+  return await sdk.rpc.shieldedRewards(viewingKey, chainId);
+}
+
 // TODO: We will probably move this to the separate worker
 async function broadcast(
   sdk: Sdk,
@@ -182,10 +280,7 @@ async function broadcast(
 
   for await (const signedTx of signedTxs) {
     for await (const _ of encodedTxData.txs) {
-      const response = await sdk.rpc.broadcastTx(
-        signedTx,
-        encodedTxData.wrapperTxProps
-      );
+      const response = await sdk.rpc.broadcastTx(signedTx, BigInt(120));
       result.push(response);
     }
   }
@@ -206,10 +301,20 @@ export const registerTransferHandlers = (): void => {
   registerBNTransferHandler<ShieldedTransferDone>("shielded-transfer-done");
   registerBNTransferHandler<ShieldedTransfer>("shielded-transfer");
   registerBNTransferHandler<UnshieldDone>("unshield-done");
+  registerBNTransferHandler<IbcTransfer>("ibc-transfer");
+  registerBNTransferHandler<IbcTransferDone>("ibc-transfer-done");
   registerBNTransferHandler<Unshield>("unshield");
   registerBNTransferHandler<GenerateIbcShieldingMemo>(
     "generate-ibc-shielding-memo"
   );
+  registerBNTransferHandler<ShieldedRewardsPerToken>(
+    "shielded-rewards-per-token"
+  );
+  registerBNTransferHandler<ShieldedRewardsPerTokenDone>(
+    "shielded-rewards-per-token-done"
+  );
+  registerBNTransferHandler<ShieldedRewards>("shielded-rewards");
+  registerBNTransferHandler<ShieldedRewardsDone>("shielded-rewards-done");
   registerBNTransferHandler<Broadcast>("broadcast");
 };
 

@@ -42,6 +42,7 @@ export default defineConfig(() => {
     ],
     worker: {
       plugins: () => [tsconfigPaths()],
+      format: "es",
     },
     optimizeDeps: {
       esbuildOptions: {

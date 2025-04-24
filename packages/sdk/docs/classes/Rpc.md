@@ -18,6 +18,7 @@ API for executing RPC requests with Namada
 ### Methods
 
 - [broadcastTx](Rpc.md#broadcasttx)
+- [globalShieldedRewardForTokens](Rpc.md#globalshieldedrewardfortokens)
 - [queryAllValidators](Rpc.md#queryallvalidators)
 - [queryBalance](Rpc.md#querybalance)
 - [queryChecksums](Rpc.md#querychecksums)
@@ -31,6 +32,7 @@ API for executing RPC requests with Namada
 - [queryTotalBonds](Rpc.md#querytotalbonds)
 - [queryTotalDelegations](Rpc.md#querytotaldelegations)
 - [shieldedRewards](Rpc.md#shieldedrewards)
+- [shieldedRewardsPerToken](Rpc.md#shieldedrewardspertoken)
 - [shieldedSync](Rpc.md#shieldedsync)
 - [simulateShieldedRewards](Rpc.md#simulateshieldedrewards)
 
@@ -53,7 +55,7 @@ API for executing RPC requests with Namada
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:38](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L38)
+[sdk/src/rpc/rpc.ts:37](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L37)
 
 ## Properties
 
@@ -65,7 +67,7 @@ Instance of Query struct from wasm lib
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:40](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L40)
+[sdk/src/rpc/rpc.ts:39](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L39)
 
 ___
 
@@ -77,13 +79,13 @@ Instance of Sdk struct from wasm lib
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:39](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L39)
+[sdk/src/rpc/rpc.ts:38](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L38)
 
 ## Methods
 
 ### broadcastTx
 
-▸ **broadcastTx**(`signedTxBytes`, `args`): `Promise`\<`TxResponseMsgValue`\>
+▸ **broadcastTx**(`signedTxBytes`, `deadline?`): `Promise`\<`TxResponseMsgValue`\>
 
 Broadcast a Tx to the ledger
 
@@ -92,7 +94,7 @@ Broadcast a Tx to the ledger
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `signedTxBytes` | `Uint8Array` | Transaction with signature |
-| `args` | `WrapperTxMsgValue` | WrapperTxProps |
+| `deadline?` | `bigint` | timeout deadline in seconds, defaults to 60 seconds |
 
 #### Returns
 
@@ -104,7 +106,27 @@ TxResponseProps object
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:230](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L230)
+[sdk/src/rpc/rpc.ts:229](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L229)
+
+___
+
+### globalShieldedRewardForTokens
+
+▸ **globalShieldedRewardForTokens**(): `Promise`\<`MaspTokenRewards`[]\>
+
+Return global shielded rewards per token
+
+#### Returns
+
+`Promise`\<`MaspTokenRewards`[]\>
+
+Array of MaspTokenRewards
+
+**`Async`**
+
+#### Defined in
+
+[sdk/src/rpc/rpc.ts:272](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L272)
 
 ___
 
@@ -124,7 +146,7 @@ Array of all validator addresses
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:85](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L85)
+[sdk/src/rpc/rpc.ts:84](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L84)
 
 ___
 
@@ -152,7 +174,7 @@ Query balances from chain
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:51](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L51)
+[sdk/src/rpc/rpc.ts:50](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L50)
 
 ___
 
@@ -172,7 +194,7 @@ Object
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:210](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L210)
+[sdk/src/rpc/rpc.ts:209](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L209)
 
 ___
 
@@ -198,7 +220,7 @@ Promise resolving to delegators votes
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:109](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L109)
+[sdk/src/rpc/rpc.ts:108](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L108)
 
 ___
 
@@ -218,7 +240,7 @@ Query gas costs
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:201](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L201)
+[sdk/src/rpc/rpc.ts:200](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L200)
 
 ___
 
@@ -238,7 +260,7 @@ Address of native token
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:64](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L64)
+[sdk/src/rpc/rpc.ts:63](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L63)
 
 ___
 
@@ -265,7 +287,7 @@ String of public key if found
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:75](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L75)
+[sdk/src/rpc/rpc.ts:74](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L74)
 
 ___
 
@@ -291,7 +313,7 @@ Promise resolving to pending ethereum transfers
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:192](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L192)
+[sdk/src/rpc/rpc.ts:191](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L191)
 
 ___
 
@@ -317,7 +339,7 @@ Promise resolving to staking positions
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:146](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L146)
+[sdk/src/rpc/rpc.ts:145](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L145)
 
 ___
 
@@ -343,7 +365,7 @@ Promise resolving to staking totals
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:119](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L119)
+[sdk/src/rpc/rpc.ts:118](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L118)
 
 ___
 
@@ -367,7 +389,7 @@ Total bonds amount
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:182](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L182)
+[sdk/src/rpc/rpc.ts:181](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L181)
 
 ___
 
@@ -394,7 +416,7 @@ Promise resolving to total delegations
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:96](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L96)
+[sdk/src/rpc/rpc.ts:95](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L95)
 
 ___
 
@@ -402,7 +424,7 @@ ___
 
 ▸ **shieldedRewards**(`owner`, `chainId`): `Promise`\<`string`\>
 
-Return shielded rewards for specific owner for next epoch
+Return shielded rewards for specific owner for the next masp epoch
 
 #### Parameters
 
@@ -421,7 +443,35 @@ amount in base units
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:264](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L264)
+[sdk/src/rpc/rpc.ts:263](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L263)
+
+___
+
+### shieldedRewardsPerToken
+
+▸ **shieldedRewardsPerToken**(`owner`, `token`, `chainId`): `Promise`\<`string`\>
+
+Return shielded rewards for specific owner and token for the next masp epoch
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `owner` | `string` | Viewing key of an owner |
+| `token` | `string` | Token address |
+| `chainId` | `string` | Chain ID to load the context for |
+
+#### Returns
+
+`Promise`\<`string`\>
+
+amount in base units
+
+**`Async`**
+
+#### Defined in
+
+[sdk/src/rpc/rpc.ts:310](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L310)
 
 ___
 
@@ -446,7 +496,7 @@ Sync the shielded context
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:249](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L249)
+[sdk/src/rpc/rpc.ts:248](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L248)
 
 ___
 
@@ -472,4 +522,4 @@ amount in base units
 
 #### Defined in
 
-[sdk/src/rpc/rpc.ts:275](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/sdk/src/rpc/rpc.ts#L275)
+[sdk/src/rpc/rpc.ts:325](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/rpc/rpc.ts#L325)

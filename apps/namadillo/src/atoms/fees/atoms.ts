@@ -37,14 +37,14 @@ export const gasEstimateFamily = atomFamily(
           }
 
           const gasEstimate = await fetchGasEstimate(api, txKinds);
-
-          // TODO: we need to improve this estimate API. Currently, gasEstimate.min returns
-          // the minimum gas limit ever used for a TX, and avg is failing in most of the transactions.
-          const newMin = gasEstimate.max;
+          const precision = Math.max(
+            0,
+            Math.min(1, gasEstimate.totalEstimates / 1000)
+          );
           return {
-            min: newMin,
-            avg: Math.ceil(newMin * 1.25),
-            max: Math.ceil(newMin * 1.5),
+            min: Math.ceil(gasEstimate.min * 1.1 - precision * 0.1),
+            avg: Math.ceil(gasEstimate.avg * 1.25 - precision * 0.25),
+            max: Math.ceil(gasEstimate.max * 1.5 - precision * 0.5),
             totalEstimates: gasEstimate.totalEstimates,
           };
         },

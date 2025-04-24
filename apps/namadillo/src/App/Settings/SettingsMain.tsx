@@ -79,22 +79,70 @@ export const SettingsMain = (): JSX.Element => {
             />
           </span>
         </div>
-        <div>Namadillo Version: {version}</div>
-        <div>Indexer Version: {indexerHealth?.data?.version ?? "-"}</div>
         <div>
-          Masp Indexer Version: {maspIndexerHealth?.data?.version ?? "-"}
+          Namadillo Version:{" "}
+          {version && (
+            <a
+              href={`https://github.com/anoma/namada-interface/releases/tag/namadillo%40v${version}`}
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              {version ?? "-"}{" "}
+              <GoLinkExternal className="inline h-2.5 w-2.5 -mt-0.5" />
+            </a>
+          )}
         </div>
-        <div>SDK Version: {sdkVersion}</div>
+        <div>
+          Indexer Version:{" "}
+          {indexerHealth?.data?.version && (
+            <a
+              href={`https://github.com/anoma/namada-indexer/releases/tag/v${indexerHealth?.data?.version}`}
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              {indexerHealth?.data?.version ?? "-"}{" "}
+              <GoLinkExternal className="inline h-2.5 w-2.5 -mt-0.5" />
+            </a>
+          )}
+        </div>
+        <div>
+          Masp Indexer Version:{" "}
+          {maspIndexerHealth?.data?.version && (
+            <a
+              href={`https://github.com/anoma/namada-masp-indexer/releases/tag/v${maspIndexerHealth?.data?.version}`}
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              {maspIndexerHealth?.data?.version ?? "-"}{" "}
+              <GoLinkExternal className="inline h-2.5 w-2.5 -mt-0.5" />
+            </a>
+          )}
+        </div>
+        <div>
+          SDK Version:{" "}
+          <a
+            href="https://docs.namada.net/integrating-with-namada/sdk"
+            target="_blank"
+            rel="noreferrer"
+            className="underline"
+          >
+            {sdkVersion ?? "-"}{" "}
+            <GoLinkExternal className="inline h-2.5 w-2.5 -mt-0.5" />
+          </a>
+        </div>
         <div>
           <span>Revision: </span>
           <a
             href={`https://github.com/anoma/namada-interface/commit/${revision}`}
             target="_blank"
             rel="noreferrer"
-            className="hover:underline"
+            className="underline"
           >
             {revision.substring(0, 8)}{" "}
-            <GoLinkExternal className="inline h-2.5 w-2.5" />
+            <GoLinkExternal className="inline h-2.5 w-2.5 -mt-0.5" />
           </a>
         </div>
       </div>

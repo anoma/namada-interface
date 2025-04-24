@@ -1,9 +1,7 @@
 import { ActionButton } from "@namada/components";
 import { AccountType } from "@namada/types";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
-import { ShieldAssetsModal } from "App/Common/ShieldAssetsModal";
 import { TransactionInProgressSpinner } from "App/Common/TransactionInProgressSpinner";
-import { UnshieldAssetsModal } from "App/Common/UnshieldAssetsModal";
 import { routes } from "App/routes";
 import { defaultAccountAtom } from "atoms/accounts";
 import {
@@ -12,7 +10,6 @@ import {
 } from "atoms/settings";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
-import { useState } from "react";
 import { AiOutlineMessage } from "react-icons/ai";
 import { IoSettingsOutline } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -21,9 +18,6 @@ import { NamadaAccount } from "./NamadaAccount";
 import { SyncIndicator } from "./SyncIndicator";
 
 export const TopNavigation = (): JSX.Element => {
-  const [shieldingModalOpen, setShieldingModalOpen] = useState(false);
-  const [unshieldingModalOpen, setUnshieldingModalOpen] = useState(false);
-
   const userHasAccount = useUserHasAccount();
   const signArbitraryEnabled = useAtomValue(signArbitraryEnabledAtom);
   const { maspEnabled, namTransfersEnabled } = useAtomValue(
@@ -60,7 +54,7 @@ export const TopNavigation = (): JSX.Element => {
           <ActionButton
             className="py-2"
             size="xs"
-            onClick={() => setShieldingModalOpen(true)}
+            onClick={() => navigate(routes.maspShield)}
           >
             Shield Assets
           </ActionButton>
@@ -70,7 +64,7 @@ export const TopNavigation = (): JSX.Element => {
             className="py-2"
             outlineColor="yellow"
             size="xs"
-            onClick={() => setUnshieldingModalOpen(true)}
+            onClick={() => navigate(routes.maspUnshield)}
           >
             Unshield
           </ActionButton>
@@ -120,14 +114,6 @@ export const TopNavigation = (): JSX.Element => {
         <NamadaAccount />
         <KeplrAccount />
       </div>
-
-      {shieldingModalOpen && (
-        <ShieldAssetsModal onClose={() => setShieldingModalOpen(false)} />
-      )}
-
-      {unshieldingModalOpen && (
-        <UnshieldAssetsModal onClose={() => setUnshieldingModalOpen(false)} />
-      )}
     </div>
   );
 };

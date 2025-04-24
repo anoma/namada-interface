@@ -36,21 +36,21 @@ Instantiate ExtendedViewingKey from serialized vector
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:135
+shared/src/shared/shared.d.ts:81
 
 ## Methods
 
 ### default\_payment\_address
 
-▸ **default_payment_address**(): `PaymentAddress`
+▸ **default_payment_address**(): `any`
 
 #### Returns
 
-`PaymentAddress`
+`any`
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:144
+shared/src/shared/shared.d.ts:86
 
 ___
 
@@ -66,7 +66,7 @@ Return ExtendedViewingKey as Bech32-encoded String
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:140
+shared/src/shared/shared.d.ts:85
 
 ___
 
@@ -80,4 +80,4 @@ ___
 
 #### Defined in
 
-shared/src/shared/shared.d.ts:130
+shared/src/shared/shared.d.ts:77

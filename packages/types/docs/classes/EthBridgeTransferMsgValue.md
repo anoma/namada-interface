@@ -37,7 +37,7 @@
 
 #### Defined in
 
-[tx/schema/ethBridgeTransfer.ts:32](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ethBridgeTransfer.ts#L32)
+[packages/types/src/tx/schema/ethBridgeTransfer.ts:32](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ethBridgeTransfer.ts#L32)
 
 ## Properties
 
@@ -47,7 +47,7 @@
 
 #### Defined in
 
-[tx/schema/ethBridgeTransfer.ts:21](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ethBridgeTransfer.ts#L21)
+[packages/types/src/tx/schema/ethBridgeTransfer.ts:21](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ethBridgeTransfer.ts#L21)
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ethBridgeTransfer.ts:12](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ethBridgeTransfer.ts#L12)
+[packages/types/src/tx/schema/ethBridgeTransfer.ts:12](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ethBridgeTransfer.ts#L12)
 
 ___
 
@@ -67,7 +67,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ethBridgeTransfer.ts:24](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ethBridgeTransfer.ts#L24)
+[packages/types/src/tx/schema/ethBridgeTransfer.ts:24](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ethBridgeTransfer.ts#L24)
 
 ___
 
@@ -77,7 +77,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ethBridgeTransfer.ts:27](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ethBridgeTransfer.ts#L27)
+[packages/types/src/tx/schema/ethBridgeTransfer.ts:27](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ethBridgeTransfer.ts#L27)
 
 ___
 
@@ -87,7 +87,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ethBridgeTransfer.ts:30](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ethBridgeTransfer.ts#L30)
+[packages/types/src/tx/schema/ethBridgeTransfer.ts:30](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ethBridgeTransfer.ts#L30)
 
 ___
 
@@ -97,7 +97,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ethBridgeTransfer.ts:9](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ethBridgeTransfer.ts#L9)
+[packages/types/src/tx/schema/ethBridgeTransfer.ts:9](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ethBridgeTransfer.ts#L9)
 
 ___
 
@@ -107,7 +107,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ethBridgeTransfer.ts:15](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ethBridgeTransfer.ts#L15)
+[packages/types/src/tx/schema/ethBridgeTransfer.ts:15](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ethBridgeTransfer.ts#L15)
 
 ___
 
@@ -117,4 +117,4 @@ ___
 
 #### Defined in
 
-[tx/schema/ethBridgeTransfer.ts:18](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ethBridgeTransfer.ts#L18)
+[packages/types/src/tx/schema/ethBridgeTransfer.ts:18](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ethBridgeTransfer.ts#L18)

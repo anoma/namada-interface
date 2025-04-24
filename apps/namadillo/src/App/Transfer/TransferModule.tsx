@@ -25,7 +25,11 @@ import {
 import { filterAvailableAsssetsWithBalance } from "utils/assets";
 import { checkKeychainCompatibleWithMasp } from "utils/compatibility";
 import { getDisplayGasFee } from "utils/gas";
-import { parseChainInfo } from "./common";
+import {
+  isShieldedAddress,
+  isTransparentAddress,
+  parseChainInfo,
+} from "./common";
 import { CurrentStatus } from "./CurrentStatus";
 import { IbcChannels } from "./IbcChannels";
 import { SelectAssetModal } from "./SelectAssetModal";
@@ -114,8 +118,38 @@ type ValidationResult =
   | "NotEnoughBalance"
   | "NotEnoughBalanceForFees"
   | "KeychainNotCompatibleWithMasp"
+  | "CustomAddressNotMatchingChain"
   | "NoLedgerConnected"
   | "Ok";
+
+// Check if the provided address is valid for the destination chain and transaction type
+const isValidDestinationAddress = ({
+  customAddress,
+  chain,
+  shielded,
+}: {
+  customAddress: string;
+  chain: Chain | undefined;
+  shielded: boolean;
+}): boolean => {
+  // Skip validation if no custom address or chain provided
+  if (!customAddress || !chain) return true;
+
+  // Check shielded/transparent address requirements for Namada
+  if (chain.bech32_prefix === "nam") {
+    // If shielded is required but address is transparent, validation fails
+    if (shielded && isTransparentAddress(customAddress)) return false;
+    // If transparent is required but address is shielded, validation fails
+    if (!shielded && isShieldedAddress(customAddress)) return false;
+    // Valid Namada address that matches transaction type
+    return (
+      isTransparentAddress(customAddress) || isShieldedAddress(customAddress)
+    );
+  }
+
+  // For non-Namada chains, validate using prefix
+  return customAddress.startsWith(chain.bech32_prefix);
+};
 
 export const TransferModule = ({
   source,
@@ -195,6 +229,14 @@ export const TransferModule = ({
   const validationResult = useMemo((): ValidationResult => {
     if (!source.wallet) {
       return "NoSourceWallet";
+    } else if (
+      !isValidDestinationAddress({
+        customAddress: destination.customAddress ?? "",
+        chain: destination.chain,
+        shielded: isShieldedTx,
+      })
+    ) {
+      return "CustomAddressNotMatchingChain";
     } else if (
       (source.isShieldedAddress || destination.isShieldedAddress) &&
       keychainVersion &&
@@ -369,6 +411,8 @@ export const TransferModule = ({
       case "NoTransactionFee":
         return getText("No transaction fee is set");
 
+      case "CustomAddressNotMatchingChain":
+        return getText("Custom address does not match chain");
       case "NotEnoughBalance":
         return getText("Not enough balance");
       case "NotEnoughBalanceForFees":

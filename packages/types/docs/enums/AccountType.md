@@ -6,6 +6,7 @@
 
 ### Enumeration Members
 
+- [Disposable](AccountType.md#disposable)
 - [Ledger](AccountType.md#ledger)
 - [Mnemonic](AccountType.md#mnemonic)
 - [PrivateKey](AccountType.md#privatekey)
@@ -13,13 +14,23 @@
 
 ## Enumeration Members
 
+### Disposable
+
+• **Disposable** = ``"disposable"``
+
+#### Defined in
+
+[packages/types/src/account.ts:30](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/account.ts#L30)
+
+___
+
 ### Ledger
 
 • **Ledger** = ``"ledger"``
 
 #### Defined in
 
-[account.ts:28](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/account.ts#L28)
+[packages/types/src/account.ts:28](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/account.ts#L28)
 
 ___
 
@@ -29,7 +40,7 @@ ___
 
 #### Defined in
 
-[account.ts:22](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/account.ts#L22)
+[packages/types/src/account.ts:22](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/account.ts#L22)
 
 ___
 
@@ -39,7 +50,7 @@ ___
 
 #### Defined in
 
-[account.ts:24](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/account.ts#L24)
+[packages/types/src/account.ts:24](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/account.ts#L24)
 
 ___
 
@@ -49,4 +60,4 @@ ___
 
 #### Defined in
 
-[account.ts:26](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/account.ts#L26)
+[packages/types/src/account.ts:26](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/account.ts#L26)

@@ -1,10 +1,13 @@
 import { Tooltip } from "@namada/components";
+import { indexerApiAtom } from "atoms/api";
+import { fetchBlockHeightByTimestamp } from "atoms/balance/services";
 import { chainStatusAtom } from "atoms/chain";
 import {
   indexerServicesSyncStatusAtom,
   syncStatusAtom,
 } from "atoms/syncStatus/atoms";
 import { useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 const formatError = (
@@ -30,17 +33,36 @@ export const SyncIndicator = (): JSX.Element => {
   const syncStatus = useAtomValue(syncStatusAtom);
   const indexerServicesSyncStatus = useAtomValue(indexerServicesSyncStatusAtom);
   const chainStatus = useAtomValue(chainStatusAtom);
-
+  const [blockHeightSync, setBlockHeightSync] = useState<boolean | null>(null);
+  const [indexerBlockHeight, setIndexerBlockHeight] = useState<number | null>(
+    null
+  );
   const { errors } = syncStatus;
   const { services } = indexerServicesSyncStatus;
-  const isChainStatusError = !chainStatus?.height || !chainStatus?.epoch;
+  const isChainStatusError =
+    !chainStatus?.height || !chainStatus?.epoch || !blockHeightSync;
+  const api = useAtomValue(indexerApiAtom);
 
   const isError =
     syncStatus.isError ||
     indexerServicesSyncStatus.isError ||
     isChainStatusError;
 
-  const isSyncing = syncStatus.isSyncing || indexerServicesSyncStatus.isSyncing;
+  const isSyncing =
+    syncStatus.isSyncing ||
+    indexerServicesSyncStatus.isSyncing ||
+    !blockHeightSync;
+
+  useEffect(() => {
+    (async () => {
+      const indexerBlockHeight = await fetchBlockHeightByTimestamp(
+        api,
+        Date.now()
+      );
+      setIndexerBlockHeight(indexerBlockHeight);
+      setBlockHeightSync(indexerBlockHeight === chainStatus?.height);
+    })();
+  }, [chainStatus?.height]);
 
   return (
     <div className="relative group/tooltip px-1 py-3">
@@ -66,8 +88,9 @@ export const SyncIndicator = (): JSX.Element => {
           </div>
         : <div>
             <div>Fully synced:</div>
-            <div>Height:{chainStatus?.height}</div>
-            <div>Epoch:{chainStatus?.epoch}</div>
+            <div>RPC Height: {chainStatus?.height}</div>
+            <div>Indexer Height: {indexerBlockHeight}</div>
+            <div>Epoch: {chainStatus?.epoch}</div>
           </div>
         }
       </Tooltip>

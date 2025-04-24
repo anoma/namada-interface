@@ -7,7 +7,7 @@ use namada_sdk::masp_primitives::transaction::components::sapling::builder::Stor
 use namada_sdk::masp_primitives::transaction::components::sapling::fees::{InputView, OutputView};
 use namada_sdk::masp_primitives::zip32::ExtendedFullViewingKey;
 use namada_sdk::signing::SigningTxData;
-use namada_sdk::token::{Amount, DenominatedAmount};
+use namada_sdk::token::{Amount, DenominatedAmount, Transfer};
 use namada_sdk::tx::data::compute_inner_tx_hash;
 use namada_sdk::tx::either::Either;
 use namada_sdk::tx::{
@@ -304,10 +304,7 @@ impl TxDetails {
                 let token = wrapper.fee.token.to_string();
                 let wrapper_fee_payer = wrapper.fee_payer();
 
-                let expiration: Option<u64> = match expiration {
-                    Some(exp) => Some(exp.to_unix_timestamp() as u64),
-                    None => None,
-                };
+                let expiration: Option<u64> = expiration.map(|exp| exp.to_unix_timestamp() as u64);
 
                 let wrapper_tx = WrapperTxMsg::new(
                     token,
@@ -376,62 +373,68 @@ fn get_masp_details(
     tx: &tx::Tx,
     tx_kind: &transaction::TransactionKind,
 ) -> (Option<Vec<TxIn>>, Option<Vec<TxOut>>) {
-    match tx_kind {
-        transaction::TransactionKind::Transfer(transfer) => {
-            if let Some(shielded_hash) = transfer.shielded_section_hash {
-                let masp_builder = tx
-                    .get_masp_builder(&shielded_hash)
-                    .expect("Masp builder to exist");
+    let parse = |transfer: &Transfer| {
+        if let Some(shielded_hash) = transfer.shielded_section_hash {
+            let masp_builder = tx
+                .get_masp_builder(&shielded_hash)
+                .expect("Masp builder to exist");
 
-                let asset_types = &masp_builder.asset_types;
+            let asset_types = &masp_builder.asset_types;
 
-                let inputs = masp_builder
-                    .builder
-                    .sapling_inputs()
-                    .iter()
-                    .map(|input| {
-                        let asset_data = asset_types
-                            .iter()
-                            .find(|ad| ad.encode().unwrap() == input.asset_type())
-                            .expect("Asset data to exist");
+            let inputs = masp_builder
+                .builder
+                .sapling_inputs()
+                .iter()
+                .map(|input| {
+                    let asset_data = asset_types
+                        .iter()
+                        .find(|ad| ad.encode().unwrap() == input.asset_type())
+                        .expect("Asset data to exist");
 
-                        let amount = Amount::from_u64(input.value());
-                        let denominated_amount = DenominatedAmount::new(amount, asset_data.denom);
+                    let amount = Amount::from_u64(input.value());
+                    let denominated_amount = DenominatedAmount::new(amount, asset_data.denom);
 
-                        TxIn {
-                            token: asset_data.token.to_string(),
-                            value: denominated_amount.to_string(),
-                            owner: ExtendedViewingKey::from(*input.key()).to_string(),
-                        }
-                    })
-                    .collect::<Vec<_>>();
+                    TxIn {
+                        token: asset_data.token.to_string(),
+                        value: denominated_amount.to_string(),
+                        owner: ExtendedViewingKey::from(*input.key()).to_string(),
+                    }
+                })
+                .collect::<Vec<_>>();
 
-                let outputs = masp_builder
-                    .builder
-                    .sapling_outputs()
-                    .iter()
-                    .map(|output| {
-                        let asset_data = asset_types
-                            .iter()
-                            .find(|ad| ad.encode().unwrap() == output.asset_type())
-                            .expect("Asset data to exist");
+            let outputs = masp_builder
+                .builder
+                .sapling_outputs()
+                .iter()
+                .map(|output| {
+                    let asset_data = asset_types
+                        .iter()
+                        .find(|ad| ad.encode().unwrap() == output.asset_type())
+                        .expect("Asset data to exist");
 
-                        let amount = Amount::from_u64(output.value());
-                        let denominated_amount = DenominatedAmount::new(amount, asset_data.denom);
+                    let amount = Amount::from_u64(output.value());
+                    let denominated_amount = DenominatedAmount::new(amount, asset_data.denom);
 
-                        TxOut {
-                            token: { asset_data.token.to_string() },
-                            value: denominated_amount.to_string(),
-                            address: PaymentAddress::from(output.address()).to_string(),
-                        }
-                    })
-                    .collect::<Vec<_>>();
+                    TxOut {
+                        token: { asset_data.token.to_string() },
+                        value: denominated_amount.to_string(),
+                        address: PaymentAddress::from(output.address()).to_string(),
+                    }
+                })
+                .collect::<Vec<_>>();
 
-                (Some(inputs), Some(outputs))
-            } else {
-                (None, None)
-            }
+            (Some(inputs), Some(outputs))
+        } else {
+            (None, None)
         }
+    };
+
+    match tx_kind {
+        transaction::TransactionKind::IbcTransfer(ibc_transfer) => match &ibc_transfer.transfer {
+            Some(transfer) => parse(transfer),
+            None => (None, None),
+        },
+        transaction::TransactionKind::Transfer(transfer) => parse(transfer),
         _ => (None, None),
     }
 }
@@ -455,7 +458,7 @@ impl BatchTxResult {
 #[derive(BorshSerialize, BorshDeserialize)]
 #[borsh(crate = "namada_sdk::borsh")]
 pub struct TxResponse {
-    code: String,
+    code: u8,
     commitments: Vec<BatchTxResult>,
     gas_used: String,
     hash: String,
@@ -466,7 +469,7 @@ pub struct TxResponse {
 
 impl TxResponse {
     pub fn new(
-        code: String,
+        code: u8,
         commitments: Vec<BatchTxResult>,
         gas_used: String,
         hash: String,

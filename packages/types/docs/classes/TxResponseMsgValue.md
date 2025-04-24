@@ -36,17 +36,17 @@
 
 #### Defined in
 
-[tx/schema/txResponse.ts:28](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/txResponse.ts#L28)
+[packages/types/src/tx/schema/txResponse.ts:28](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/txResponse.ts#L28)
 
 ## Properties
 
 ### code
 
-• **code**: `string`
+• **code**: `number`
 
 #### Defined in
 
-[tx/schema/txResponse.ts:8](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/txResponse.ts#L8)
+[packages/types/src/tx/schema/txResponse.ts:8](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/txResponse.ts#L8)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 #### Defined in
 
-[tx/schema/txResponse.ts:11](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/txResponse.ts#L11)
+[packages/types/src/tx/schema/txResponse.ts:11](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/txResponse.ts#L11)
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 #### Defined in
 
-[tx/schema/txResponse.ts:14](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/txResponse.ts#L14)
+[packages/types/src/tx/schema/txResponse.ts:14](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/txResponse.ts#L14)
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 #### Defined in
 
-[tx/schema/txResponse.ts:17](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/txResponse.ts#L17)
+[packages/types/src/tx/schema/txResponse.ts:17](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/txResponse.ts#L17)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 #### Defined in
 
-[tx/schema/txResponse.ts:20](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/txResponse.ts#L20)
+[packages/types/src/tx/schema/txResponse.ts:20](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/txResponse.ts#L20)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 #### Defined in
 
-[tx/schema/txResponse.ts:23](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/txResponse.ts#L23)
+[packages/types/src/tx/schema/txResponse.ts:23](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/txResponse.ts#L23)
 
 ___
 
@@ -106,4 +106,4 @@ ___
 
 #### Defined in
 
-[tx/schema/txResponse.ts:26](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/txResponse.ts#L26)
+[packages/types/src/tx/schema/txResponse.ts:26](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/txResponse.ts#L26)

@@ -8,7 +8,7 @@ const contentMasker = tv({
     blurred:
       "flex blur-sm transition-all duration-500 ease-out hover:blur-none",
     icon: clsx(
-      "flex aspect-square w-full justify-center left-1/2 max-w-[100px] w-full text-yellow",
+      "h-10 flex aspect-square w-full justify-center left-1/2 max-w-[100px] w-full text-yellow",
       "pointer-events-none absolute top-1/2 -translate-y-1/2 -translate-x-1/2",
       "transition-opacity duration-100 ease-out",
       "[&_svg]:!w-full [&_svg]:!h-full group-hover:opacity-0"
@@ -32,6 +32,7 @@ const contentMasker = tv({
 
 type ContentMaskerProps = {
   children: React.ReactNode;
+  hideIcon?: boolean;
 } & VariantProps<typeof contentMasker>;
 
 export const ContentMasker = (props: ContentMaskerProps): JSX.Element => {
@@ -39,9 +40,11 @@ export const ContentMasker = (props: ContentMaskerProps): JSX.Element => {
   return (
     <div className={base()}>
       <div className={blurred()}>{props.children}</div>
-      <i className={icon()}>
-        <GoEyeClosed />
-      </i>
+      {!props.hideIcon && (
+        <i className={icon()}>
+          <GoEyeClosed />
+        </i>
+      )}
     </div>
   );
 };

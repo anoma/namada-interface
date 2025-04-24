@@ -19,6 +19,7 @@ export const routes = {
   masp: "/masp",
   maspShield: "/masp/shield",
   maspUnshield: "/masp/unshield",
+  shieldAssets: "/masp/shield-assets",
 
   // Ibc
   ibc: "/ibc",
@@ -29,6 +30,7 @@ export const routes = {
   transfer: "/transfer",
   history: "/history",
   transaction: "/transaction/:hash",
+  receive: "/receive",
 
   // Settings
   settings: "/settings",

@@ -82,7 +82,7 @@ export const WithProposalId: React.FC<{ proposalId: bigint }> = ({
 
   const dispatchPendingNotification = (txs: TxProps[]): void => {
     dispatchNotification({
-      id: createNotificationId(txs),
+      id: createNotificationId(txs.map((tx) => tx.hash)),
       type: "pending",
       title: "Governance transaction in progress",
       description: `You've voted ${selectedVoteType} for proposal

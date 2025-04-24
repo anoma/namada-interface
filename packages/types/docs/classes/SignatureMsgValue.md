@@ -34,7 +34,7 @@
 
 #### Defined in
 
-[tx/schema/signature.ts:21](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/signature.ts#L21)
+[packages/types/src/tx/schema/signature.ts:21](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/signature.ts#L21)
 
 ## Properties
 
@@ -44,7 +44,7 @@
 
 #### Defined in
 
-[tx/schema/signature.ts:7](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/signature.ts#L7)
+[packages/types/src/tx/schema/signature.ts:7](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/signature.ts#L7)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 #### Defined in
 
-[tx/schema/signature.ts:10](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/signature.ts#L10)
+[packages/types/src/tx/schema/signature.ts:10](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/signature.ts#L10)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 #### Defined in
 
-[tx/schema/signature.ts:13](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/signature.ts#L13)
+[packages/types/src/tx/schema/signature.ts:13](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/signature.ts#L13)
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 #### Defined in
 
-[tx/schema/signature.ts:16](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/signature.ts#L16)
+[packages/types/src/tx/schema/signature.ts:16](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/signature.ts#L16)
 
 ___
 
@@ -84,4 +84,4 @@ ___
 
 #### Defined in
 
-[tx/schema/signature.ts:19](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/signature.ts#L19)
+[packages/types/src/tx/schema/signature.ts:19](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/signature.ts#L19)

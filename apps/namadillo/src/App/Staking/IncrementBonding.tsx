@@ -7,6 +7,7 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { TableRowLoading } from "App/Common/TableRowLoading";
 import { TransactionFeeButton } from "App/Common/TransactionFeeButton";
 import { routes } from "App/routes";
+import { isNamadaAddress } from "App/Transfer/common";
 import { accountBalanceAtom, defaultAccountAtom } from "atoms/accounts";
 import { chainParametersAtom } from "atoms/chain";
 import { createBondTxAtom } from "atoms/staking";
@@ -20,14 +21,19 @@ import { useAtomValue } from "jotai";
 import { getTopValidatorsAddresses } from "lib/staking";
 import { useMemo, useRef, useState } from "react";
 import { GoAlert } from "react-icons/go";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ValidatorFilterOptions } from "types";
 import { BondingAmountOverview } from "./BondingAmountOverview";
 import { IncrementBondingTable } from "./IncrementBondingTable";
 import { ValidatorFilterNav } from "./ValidatorFilterNav";
 
 const IncrementBonding = (): JSX.Element => {
-  const [filter, setFilter] = useState<string>("");
+  const [searchParams] = useSearchParams();
+  const validatorLink =
+    isNamadaAddress(searchParams.get("validator") ?? "") ?
+      searchParams.get("validator")
+    : null;
+  const [filter, setFilter] = useState<string>(validatorLink ?? "");
   const [onlyMyValidators, setOnlyMyValidators] = useState(false);
   const [validatorFilter, setValidatorFilter] =
     useState<ValidatorFilterOptions>("all");

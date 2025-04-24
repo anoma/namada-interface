@@ -6,7 +6,9 @@ import {
   Heading,
   Image,
   Input,
+  LinkButton,
   Stack,
+  Text,
 } from "@namada/components";
 
 enum Status {
@@ -77,6 +79,15 @@ export const Login = ({ onLogin }: LoginProps): JSX.Element => {
           onChange={(e) => setPassword(e.target.value)}
           error={errorMessage}
         />
+        <LinkButton
+          href="https://www.namada.help/faq"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          <Text className="text-center text-neutral-400">
+            Forgot your password?
+          </Text>
+        </LinkButton>
       </Stack>
       <ActionButton
         disabled={status === Status.Pending || !(password.length > 0)}

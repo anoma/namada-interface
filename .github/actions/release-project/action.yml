@@ -35,6 +35,8 @@ runs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git checkout stable
+        git fetch
+        git checkout stable-interface
         git merge origin/main --no-edit
-        git push origin stable
+        git push origin stable-interface
+      shell: bash

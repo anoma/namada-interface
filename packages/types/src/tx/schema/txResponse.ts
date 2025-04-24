@@ -4,8 +4,8 @@ import { TxResponseProps } from "../types";
 import { BatchTxResultMsgValue } from "./batchTxResult";
 
 export class TxResponseMsgValue {
-  @field({ type: "string" })
-  code!: string;
+  @field({ type: "u8" })
+  code!: number;
 
   @field({ type: vec(BatchTxResultMsgValue) })
   commitments!: BatchTxResultMsgValue[];

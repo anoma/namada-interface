@@ -29,6 +29,8 @@ export const ExtensionLockContext =
 export type ApprovalDetails = {
   signer: string;
   accountType: AccountType;
+  origin: string;
+  chainIds: string[];
   msgId: string;
   txDetails: TxDetails[];
   txType?: string;
@@ -38,6 +40,7 @@ export type SignArbitraryDetails = {
   msgId: string;
   signer: string;
   data: string;
+  origin: string;
 };
 
 export const Approvals: React.FC = () => {
@@ -75,7 +78,7 @@ export const Approvals: React.FC = () => {
       >
         <Routes>
           <Route
-            path={`${TopLevelRoute.ApproveSignTx}/:msgId/:accountType/:signer`}
+            path={`${TopLevelRoute.ApproveSignTx}/:msgId/:origin/:accountType/:signer`}
             element={
               <WithAuth>
                 <ApproveSignTx details={details} setDetails={setDetails} />
@@ -115,7 +118,7 @@ export const Approvals: React.FC = () => {
             }
           />
           <Route
-            path={`${TopLevelRoute.ApproveSignArbitrary}/:signer`}
+            path={`${TopLevelRoute.ApproveSignArbitrary}/:origin/:signer`}
             element={
               <WithAuth>
                 <ApproveSignArbitrary

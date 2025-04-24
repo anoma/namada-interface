@@ -7,6 +7,7 @@ import {
   Input,
   Stack,
 } from "@namada/components";
+import { NamadaChains } from "@namada/types";
 import { PageHeader } from "App/Common";
 import { GetChainMsg, UpdateChainMsg } from "background/chain";
 import { useRequester } from "hooks/useRequester";
@@ -27,6 +28,7 @@ export const Network = (): JSX.Element => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const shouldDisableSubmit = status === Status.Pending || !chainId;
+  const chainIdentifier = NamadaChains.get(chainId);
 
   useEffect(() => {
     void (async () => {
@@ -88,6 +90,9 @@ export const Network = (): JSX.Element => {
           onChange={(e) => setChainId(e.target.value)}
           error={chainId.length === 0 ? "Chain ID required!" : ""}
         />
+        {chainIdentifier && (
+          <p className="text-white text-sm px-2">{chainIdentifier}</p>
+        )}
         {errorMessage && <Alert type="error">{errorMessage}</Alert>}
         {status === Status.Complete && (
           <Alert type="info">Successfully updated network!</Alert>

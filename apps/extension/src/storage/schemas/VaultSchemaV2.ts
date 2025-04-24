@@ -39,6 +39,7 @@ enum AccountType {
   PrivateKey = "private-key",
   ShieldedKeys = "shielded-keys",
   Ledger = "ledger",
+  Disposable = "disposable",
 }
 
 export const KeyStore = t.exact(
@@ -62,6 +63,7 @@ export const KeyStore = t.exact(
         [AccountType.PrivateKey]: null,
         [AccountType.ShieldedKeys]: null,
         [AccountType.Ledger]: null,
+        [AccountType.Disposable]: null,
       }),
       source: t.keyof({
         imported: null,
@@ -74,6 +76,7 @@ export const KeyStore = t.exact(
       publicKey: t.string,
       parentId: t.string,
       pseudoExtendedKey: t.string,
+      diversifierIndex: t.number,
     }),
   ])
 );

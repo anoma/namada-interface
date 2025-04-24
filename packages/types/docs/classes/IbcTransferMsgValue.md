@@ -11,10 +11,13 @@
 ### Properties
 
 - [amountInBaseDenom](IbcTransferMsgValue.md#amountinbasedenom)
+- [bparams](IbcTransferMsgValue.md#bparams)
 - [channelId](IbcTransferMsgValue.md#channelid)
+- [gasSpendingKey](IbcTransferMsgValue.md#gasspendingkey)
 - [memo](IbcTransferMsgValue.md#memo)
 - [portId](IbcTransferMsgValue.md#portid)
 - [receiver](IbcTransferMsgValue.md#receiver)
+- [refundTarget](IbcTransferMsgValue.md#refundtarget)
 - [shieldingData](IbcTransferMsgValue.md#shieldingdata)
 - [source](IbcTransferMsgValue.md#source)
 - [timeoutHeight](IbcTransferMsgValue.md#timeoutheight)
@@ -39,7 +42,7 @@
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:38](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L38)
+[packages/types/src/tx/schema/ibcTransfer.ts:53](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ibcTransfer.ts#L53)
 
 ## Properties
 
@@ -49,7 +52,17 @@
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:18](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L18)
+[packages/types/src/tx/schema/ibcTransfer.ts:24](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ibcTransfer.ts#L24)
+
+___
+
+### bparams
+
+• `Optional` **bparams**: [`BparamsMsgValue`](BparamsMsgValue.md)[]
+
+#### Defined in
+
+[packages/types/src/tx/schema/ibcTransfer.ts:48](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ibcTransfer.ts#L48)
 
 ___
 
@@ -59,7 +72,17 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:24](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L24)
+[packages/types/src/tx/schema/ibcTransfer.ts:30](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ibcTransfer.ts#L30)
+
+___
+
+### gasSpendingKey
+
+• `Optional` **gasSpendingKey**: `string`
+
+#### Defined in
+
+[packages/types/src/tx/schema/ibcTransfer.ts:45](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ibcTransfer.ts#L45)
 
 ___
 
@@ -69,7 +92,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:33](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L33)
+[packages/types/src/tx/schema/ibcTransfer.ts:39](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ibcTransfer.ts#L39)
 
 ___
 
@@ -79,7 +102,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:21](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L21)
+[packages/types/src/tx/schema/ibcTransfer.ts:27](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ibcTransfer.ts#L27)
 
 ___
 
@@ -89,7 +112,17 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:12](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L12)
+[packages/types/src/tx/schema/ibcTransfer.ts:18](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ibcTransfer.ts#L18)
+
+___
+
+### refundTarget
+
+• `Optional` **refundTarget**: `string`
+
+#### Defined in
+
+[packages/types/src/tx/schema/ibcTransfer.ts:51](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ibcTransfer.ts#L51)
 
 ___
 
@@ -99,7 +132,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:36](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L36)
+[packages/types/src/tx/schema/ibcTransfer.ts:42](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ibcTransfer.ts#L42)
 
 ___
 
@@ -109,7 +142,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:9](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L9)
+[packages/types/src/tx/schema/ibcTransfer.ts:15](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ibcTransfer.ts#L15)
 
 ___
 
@@ -119,7 +152,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:27](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L27)
+[packages/types/src/tx/schema/ibcTransfer.ts:33](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ibcTransfer.ts#L33)
 
 ___
 
@@ -129,7 +162,7 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:30](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L30)
+[packages/types/src/tx/schema/ibcTransfer.ts:36](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ibcTransfer.ts#L36)
 
 ___
 
@@ -139,4 +172,4 @@ ___
 
 #### Defined in
 
-[tx/schema/ibcTransfer.ts:15](https://github.com/anoma/namada-interface/blob/7edc5dea72f906ae6699549c1d9c128a2fd22eac/packages/types/src/tx/schema/ibcTransfer.ts#L15)
+[packages/types/src/tx/schema/ibcTransfer.ts:21](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/types/src/tx/schema/ibcTransfer.ts#L21)

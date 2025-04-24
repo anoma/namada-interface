@@ -1,15 +1,16 @@
 import { ActionButton } from "@namada/components";
 import svgImg from "App/Assets/ShieldedParty.svg";
-import { ShieldAssetsModal } from "App/Common/ShieldAssetsModal";
+import { routes } from "App/routes";
 import { applicationFeaturesAtom } from "atoms/settings";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 
 export const ShieldAllBanner = (): JSX.Element => {
   const { maspEnabled } = useAtomValue(applicationFeaturesAtom);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [shieldingModalOpen, setShieldingModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   if (!maspEnabled) {
     return <></>;
@@ -40,16 +41,13 @@ export const ShieldAllBanner = (): JSX.Element => {
           backgroundHoverColor="transparent"
           textColor="yellow"
           textHoverColor="black"
-          onClick={() => setShieldingModalOpen(true)}
+          onClick={() => navigate(routes.maspShield)}
           onMouseEnter={() => setIsAnimating(true)}
           onMouseLeave={() => setIsAnimating(false)}
         >
           Shield Assets
         </ActionButton>
       </div>
-      {shieldingModalOpen && (
-        <ShieldAssetsModal onClose={() => setShieldingModalOpen(false)} />
-      )}
     </>
   );
 };

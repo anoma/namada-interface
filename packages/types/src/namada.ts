@@ -28,6 +28,14 @@ export type BalancesProps = {
   tokens: string[];
 };
 
+export type PersistDisposableSignerProps = {
+  address: string;
+};
+
+export type ClearDisposableSignerProps = {
+  address: string;
+};
+
 export interface Namada {
   accounts(): Promise<readonly NamadaKeychainAccount[] | undefined>;
   connect(chainId?: string): Promise<void>;
@@ -41,6 +49,8 @@ export interface Namada {
   ): Promise<SignArbitraryResponse | undefined>;
   verify(props: VerifyArbitraryProps): Promise<void>;
   genDisposableKeypair(): Promise<GenDisposableSignerResponse | undefined>;
+  persistDisposableKeypair(props: PersistDisposableSignerProps): Promise<void>;
+  clearDisposableKeypair(props: ClearDisposableSignerProps): Promise<void>;
   version: () => string;
 }
 
