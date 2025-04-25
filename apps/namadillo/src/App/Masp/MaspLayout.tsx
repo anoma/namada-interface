@@ -29,11 +29,11 @@ export const MaspLayout: React.FC = () => {
 
   return (
     <PageWithSidebar>
-      <div>
+      <div className="flex flex-col flex-1">
         <MaspContainer>
           <Outlet />
         </MaspContainer>
-        <NavigationFooter className="mt-2" />
+        <NavigationFooter className="mt-2 flex-none h-16" />
       </div>
       <Sidebar>
         {features.shieldingRewardsEnabled && <MaspAssetRewards />}
