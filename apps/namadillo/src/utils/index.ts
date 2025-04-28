@@ -128,14 +128,17 @@ export const toErrorDetail = (
   tx: TxMsgValue[],
   error: BroadcastTxError
 ): string => {
-  const { gasLimit } = tx[0].args;
-  const { code } = error.toProps();
-
-  // TODO: Over time we may expand this to format errors for more result codes
-  switch (code) {
-    case ResultCode.TxGasLimit:
-      return `${error.toString()} Please raise the Gas Amount above the previously provided ${gasLimit} in the fee options for your transaction.`;
-    default:
-      return error.toString();
+  try {
+    const { code } = error.toProps();
+    // TODO: Over time we may expand this to format errors for more result codes
+    switch (code) {
+      case ResultCode.TxGasLimit:
+        const { gasLimit } = tx[0].args;
+        return `${error.toString()} Please raise the Gas Amount above the previously provided ${gasLimit} in the fee options for your transaction.`;
+      default:
+        return error.toString();
+    }
+  } catch (_e) {
+    return `${error.toString()}`;
   }
 };
