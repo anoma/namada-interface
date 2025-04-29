@@ -1,4 +1,4 @@
-import { TransactionHistory } from "@namada/indexer-client";
+import { TransactionHistory as TransactionHistoryType } from "@namada/indexer-client";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { routes } from "App/routes";
 import { chainAssetsMapAtom } from "atoms/chain";
@@ -11,8 +11,8 @@ import { generatePath, useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { toDisplayAmount } from "utils";
 
-type Tx = TransactionHistory["tx"];
-type Props = { transaction: Tx };
+type Tx = TransactionHistoryType;
+type Props = { tx: Tx };
 
 const IBC_PREFIX = "ibc";
 
@@ -21,7 +21,7 @@ const isIBCTransaction = (kind: string | undefined): boolean => {
   return kind.startsWith("ibc");
 };
 
-export function getToken(txn: Tx): string | undefined {
+export function getToken(txn: Tx["tx"]): string | undefined {
   const parsed = txn?.data ? JSON.parse(txn.data) : undefined;
   if (!parsed) return undefined;
   const sections = Array.isArray(parsed) ? parsed : [parsed];
@@ -39,9 +39,9 @@ export function getToken(txn: Tx): string | undefined {
   return undefined;
 }
 
-const titleFor = (kind: string | undefined): string => {
+const titleFor = (kind: string | undefined, isReceived: boolean): string => {
   if (!kind) return "Unknown";
-  if (kind === "received") return "Received";
+  if (isReceived) return "Received";
   if (kind.startsWith(IBC_PREFIX)) return "Transfer IBC";
   if (kind === "transparenttransfer") return "Transparent Transfer";
   if (kind === "shieldingtransfer" || kind === "unshieldingtransfer")
@@ -57,7 +57,7 @@ type RawDataSection = {
 };
 
 export function getTransactionInfo(
-  tx: Tx
+  tx: Tx["tx"]
 ): { amount: BigNumber; receiver: string } | undefined {
   let parsed: RawDataSection | RawDataSection[];
   if (typeof tx?.data === "string") {
@@ -91,8 +91,11 @@ export function getTransactionInfo(
   return undefined;
 }
 
-export const TransactionCard = ({ transaction }: Props): JSX.Element => {
+export const TransactionCard = ({ tx }: Props): JSX.Element => {
   const navigate = useNavigate();
+  const transactionTopLevel = tx;
+  const transaction = transactionTopLevel.tx;
+  const isReceived = transactionTopLevel?.kind === "received";
   const token = getToken(transaction);
   const isIbc = isIBCTransaction(transaction?.kind);
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
@@ -108,7 +111,7 @@ export const TransactionCard = ({ transaction }: Props): JSX.Element => {
     <article
       className={twMerge(
         clsx(
-          "grid grid-cols-[min-content_auto_min-content] items-center cursor-pointer",
+          "grid grid-cols-[min-content_auto_min-content] items-center cursor-pointer my-1",
           "gap-5 bg-neutral-800 rounded-sm px-5 py-5 text-white border border-transparent",
           "transition-colors duration-200 hover:border-neutral-500"
         )
@@ -130,7 +133,7 @@ export const TransactionCard = ({ transaction }: Props): JSX.Element => {
       </i>
 
       <div>
-        <h3>{titleFor(transaction?.kind)}</h3>
+        <h3>{titleFor(transaction?.kind, isReceived)}</h3>
         <p className="text-sm text-neutral-400">
           <TokenCurrency
             className="text-white"
@@ -143,6 +146,7 @@ export const TransactionCard = ({ transaction }: Props): JSX.Element => {
 
       <i className="text-white text-xl">
         {transaction?.exitCode === "applied" && <ImCheckmark />}
+        {transaction?.exitCode === "rejected" && <GoXCircle />}
       </i>
     </article>
   );

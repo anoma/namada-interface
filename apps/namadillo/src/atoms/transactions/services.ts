@@ -80,7 +80,7 @@ export const fetchHistoricalTransactions = async (
   perPage?: number
 ): Promise<{ results: TransactionHistory[]; pagination: Pagination }> => {
   // indexer uses 1-based pagination
-  const pageParam = page !== undefined ? page + 1 : undefined;
+  const pageParam = page ? page : undefined;
 
   const response = await api.apiV1ChainHistoryGet(addresses, {
     params: {
