@@ -75,9 +75,19 @@ export const fetchTransaction = async (
 
 export const fetchHistoricalTransactions = async (
   api: DefaultApi,
-  addresses: string[]
+  addresses: string[],
+  page?: number,
+  perPage?: number
 ): Promise<{ results: TransactionHistory[]; pagination: Pagination }> => {
-  const response = await api.apiV1ChainHistoryGet(addresses);
-  // Assuming the API response structure follows the same pattern as other endpoints
+  // indexer uses 1-based pagination
+  const pageParam = page !== undefined ? page + 1 : undefined;
+
+  const response = await api.apiV1ChainHistoryGet(addresses, {
+    params: {
+      page: pageParam,
+      perPage: perPage,
+    },
+  });
+
   return response.data;
 };
