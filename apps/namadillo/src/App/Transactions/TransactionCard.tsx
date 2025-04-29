@@ -41,6 +41,7 @@ export function getToken(txn: Tx): string | undefined {
 
 const titleFor = (kind: string | undefined): string => {
   if (!kind) return "Unknown";
+  if (kind === "received") return "Received";
   if (kind.startsWith(IBC_PREFIX)) return "Transfer IBC";
   if (kind === "transparenttransfer") return "Transparent Transfer";
   if (kind === "shieldingtransfer" || kind === "unshieldingtransfer")
