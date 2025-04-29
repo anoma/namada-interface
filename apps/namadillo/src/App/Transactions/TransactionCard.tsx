@@ -1,55 +1,107 @@
 import { TransactionHistory } from "@namada/indexer-client";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { routes } from "App/routes";
-import { parseChainInfo } from "App/Transfer/common";
-import { chainRegistryAtom } from "atoms/integrations";
+import { chainAssetsMapAtom } from "atoms/chain";
+import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { GoIssueClosed, GoXCircle } from "react-icons/go";
 import { ImCheckmark } from "react-icons/im";
 import { generatePath, useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
-import {
-  ibcTransferStages,
-  namadaTransferStages,
-  TransferTransactionData,
-} from "types";
+import { toDisplayAmount } from "utils";
 
-type TransactionCardProps = {
-  transaction: TransactionHistory["tx"];
+type Tx = TransactionHistory["tx"];
+type Props = { transaction: Tx };
+
+const IBC_PREFIX = "ibc";
+
+const isIBCTransaction = (kind: string | undefined): boolean => {
+  if (!kind) return false;
+  return kind.startsWith("ibc");
 };
 
-const getTitle = (transferTransaction: TransferTransactionData): string => {
-  const { type } = transferTransaction;
+export function getToken(txn: Tx): string | undefined {
+  const parsed = txn?.data ? JSON.parse(txn.data) : undefined;
+  if (!parsed) return undefined;
+  const sections = Array.isArray(parsed) ? parsed : [parsed];
 
-  if (Object.keys(namadaTransferStages).includes(type)) {
-    return "Transfer";
+  // return the first token found in sources or targets
+  for (const section of sections) {
+    if (section.sources?.length) {
+      return section.sources[0].token;
+    }
+    if (section.targets?.length) {
+      return section.targets[0].token;
+    }
   }
 
-  if (Object.keys(ibcTransferStages).includes(type)) {
-    return "Transfer IBC";
-  }
+  return undefined;
+}
 
-  return "";
+const titleFor = (kind: string | undefined): string => {
+  if (!kind) return "Unknown";
+  if (kind.startsWith(IBC_PREFIX)) return "Transfer IBC";
+  if (kind === "transparenttransfer") return "Transparent Transfer";
+  if (kind === "shieldingtransfer" || kind === "unshieldingtransfer")
+    return "Shielding Transfer";
+  if (kind === "shieldedtransfer") return "Shielded Transfer";
+  return "Transfer";
 };
 
-export const TransactionCard = ({
-  transaction,
-}: TransactionCardProps): JSX.Element => {
-  console.log(transaction, "txnnn");
+type RawDataSection = {
+  amount?: string;
+  sources?: Array<{ amount: string; owner: string }>;
+  targets?: Array<{ amount: string; owner: string }>;
+};
+
+export function getTransactionInfo(
+  tx: Tx
+): { amount: BigNumber; receiver: string } | undefined {
+  let parsed: RawDataSection | RawDataSection[];
+  if (typeof tx?.data === "string") {
+    parsed = JSON.parse(tx.data);
+  } else if (tx?.data) {
+    parsed = tx.data;
+  } else {
+    return undefined;
+  }
+
+  const sections = Array.isArray(parsed) ? parsed : [parsed];
+  if (sections.length === 0) return undefined;
+
+  for (const sec of sections) {
+    // Try targets first (i.e. true transfers)
+    if (sec.targets?.length && sec.targets[0].amount && sec.targets[0].owner) {
+      return {
+        amount: new BigNumber(sec.targets[0].amount),
+        receiver: sec.targets[0].owner,
+      };
+    }
+    // Fallback to sources
+    if (sec.sources?.length && sec.sources[0].amount && sec.sources[0].owner) {
+      return {
+        amount: new BigNumber(sec.sources[0].amount),
+        receiver: sec.sources[0].owner,
+      };
+    }
+  }
+
+  return undefined;
+}
+
+export const TransactionCard = ({ transaction }: Props): JSX.Element => {
   const navigate = useNavigate();
-  const availableChains = useAtomValue(chainRegistryAtom);
-  const isIbc = Object.keys(ibcTransferStages).includes(
-    transaction?.kind ?? ""
-  );
-
-  const chainId =
-    isIbc ? transaction?.destinationChainId : transaction?.chainId;
-
-  const chainName =
-    chainId in availableChains ?
-      parseChainInfo(availableChains[chainId].chain)?.pretty_name
-    : chainId;
+  const token = getToken(transaction);
+  const isIbc = isIBCTransaction(transaction?.kind);
+  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+  const asset = token ? chainAssetsMap[token] : undefined;
+  const txnInfo = getTransactionInfo(transaction);
+  const baseAmount =
+    asset && txnInfo?.amount ?
+      toDisplayAmount(asset, txnInfo.amount)
+    : undefined;
+  const receiver = txnInfo?.receiver;
 
   return (
     <article
@@ -57,8 +109,7 @@ export const TransactionCard = ({
         clsx(
           "grid grid-cols-[min-content_auto_min-content] items-center cursor-pointer",
           "gap-5 bg-neutral-800 rounded-sm px-5 py-5 text-white border border-transparent",
-          "transition-colors duration-200 hover:border-neutral-500",
-          { "border-yellow": transaction.status === "pending" }
+          "transition-colors duration-200 hover:border-neutral-500"
         )
       )}
       onClick={() =>
@@ -74,21 +125,22 @@ export const TransactionCard = ({
         )}
       >
         {transaction?.exitCode === "applied" && <GoIssueClosed />}
-        {/* {transaction?.exitCode === "pending" && <GoIssueTrackedBy />} */}
         {transaction?.exitCode === "rejected" && <GoXCircle />}
       </i>
+
       <div>
-        <h3>{getTitle(transaction)}</h3>
+        <h3>{titleFor(transaction?.kind)}</h3>
         <p className="text-sm text-neutral-400">
           <TokenCurrency
             className="text-white"
-            amount={transaction?.displayAmount}
-            symbol={transaction?.asset?.symbol ?? ""}
+            amount={baseAmount ?? BigNumber(0)}
+            symbol={asset?.symbol ?? ""}
           />{" "}
-          to {chainName} {transaction.destinationAddress}
+          to {receiver}
         </p>
       </div>
-      <i className={twMerge(clsx("text-white text-xl"))}>
+
+      <i className="text-white text-xl">
         {transaction?.exitCode === "applied" && <ImCheckmark />}
       </i>
     </article>
