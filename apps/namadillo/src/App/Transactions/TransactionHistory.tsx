@@ -1,21 +1,50 @@
-import { Panel } from "@namada/components";
+import { Panel, TableRow } from "@namada/components";
+import { TransactionHistory as TransactionHistoryType } from "@namada/indexer-client";
 import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
+import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import {
   chainTransactionHistoryFamily,
   pendingTransactionsHistoryAtom,
 } from "atoms/transactions/atoms";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useAtomValue } from "jotai";
-import { TransactionList } from "./TransactionHistoryList";
+import { useState } from "react";
+import { twMerge } from "tailwind-merge";
+import { TransactionCard } from "./TransactionCard";
+
+const ITEMS_PER_PAGE = 30;
 
 export const TransactionHistory = (): JSX.Element => {
+  const [currentPage, setCurrentPage] = useState(0);
   const pending = useAtomValue(pendingTransactionsHistoryAtom);
   const { data: transactions } = useAtomValue(
-    chainTransactionHistoryFamily({ page: 1, perPage: 30 })
+    chainTransactionHistoryFamily({
+      page: currentPage + 1,
+      perPage: ITEMS_PER_PAGE,
+    })
   );
+
   const historicalTransactions = transactions?.results ?? [];
+  const totalPages = parseInt(transactions?.pagination?.totalPages || "1", 10);
+
+  console.log(transactions?.pagination, "ayyyyyy");
   const hasNoTransactions = historicalTransactions.length === 0;
   const { clearMyCompleteTransactions } = useTransactionActions();
+  const headers = [{ children: " ", className: "w-full" }];
+
+  const renderRow = (
+    transaction: TransactionHistoryType,
+    index: number
+  ): TableRow => {
+    return {
+      key: transaction.tx?.txId || index.toString(),
+      cells: [<TransactionCard key="transaction" tx={transaction} />],
+    };
+  };
+
+  const handlePageChange = (page: number): void => {
+    setCurrentPage(page);
+  };
 
   return (
     <>
@@ -28,17 +57,26 @@ export const TransactionHistory = (): JSX.Element => {
           </section>
         )} */}
         {historicalTransactions.length > 0 && (
-          <section>
-            <header className="flex justify-between text-sm">
+          <section className="w-full">
+            <header className="text-sm ml-7">
               <h2 className="mb-3">History</h2>
-              <button
-                className="text-white"
-                onClick={clearMyCompleteTransactions}
-              >
-                Clear all
-              </button>
             </header>
-            <TransactionList transactions={historicalTransactions} />
+            <TableWithPaginator
+              id="transactions-table"
+              headers={headers}
+              renderRow={renderRow}
+              itemList={historicalTransactions}
+              page={currentPage}
+              pageCount={totalPages}
+              onPageChange={handlePageChange}
+              tableProps={{
+                className: twMerge(
+                  "border-none w-full",
+                  "[&>tbody>tr:nth-child(odd)]:bg-transparent",
+                  "[&>tbody>tr:nth-child(even)]:bg-transparent"
+                ),
+              }}
+            />
           </section>
         )}
         {hasNoTransactions && (
