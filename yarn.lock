@@ -3927,6 +3927,7 @@ __metadata:
     "@ledgerhq/hw-transport-webusb": "npm:^6.29.4"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.11.4"
+    "@types/semver": "npm:^7.5.8"
     "@zondax/ledger-namada": "npm:^2.0.0"
     babel-jest: "npm:^29.0.3"
     bignumber.js: "npm:^9.1.1"
