@@ -1947,15 +1947,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chain-registry/assets@npm:^1.70.198":
-  version: 1.70.199
-  resolution: "@chain-registry/assets@npm:1.70.199"
-  dependencies:
-    "@chain-registry/types": "npm:^0.50.126"
-  checksum: 10c0/d75915bebadbb50e8c6b40448c1d5e8726655967a5b523afc9ec9f2b7b1204c57e7d93c1b5857bcc0af8269b1bcb96da1e9ed16331469b05bdd262d83d4ca97f
-  languageName: node
-  linkType: hard
-
 "@chain-registry/client@npm:^1.53.5":
   version: 1.53.47
   resolution: "@chain-registry/client@npm:1.53.47"
@@ -1968,7 +1959,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chain-registry/types@npm:^0.50.125, @chain-registry/types@npm:^0.50.126, @chain-registry/types@npm:^0.50.15":
+"@chain-registry/types@npm:^0.45.80":
+  version: 0.45.86
+  resolution: "@chain-registry/types@npm:0.45.86"
+  checksum: 10c0/d64508fb536beaf8f83556dcf60421bc685cadd3f9cd88ee2d7996d171b37e46a4bed933829cf0ca94ae3a4d4bd87f9d9289da8f7b8dcfdb4b645cfb7432404c
+  languageName: node
+  linkType: hard
+
+"@chain-registry/types@npm:^0.50.126, @chain-registry/types@npm:^0.50.15":
   version: 0.50.126
   resolution: "@chain-registry/types@npm:0.50.126"
   checksum: 10c0/0370030447b8fce892cdfd03713c0e058617f7225c6e1053fc3fe4215f83943b69ce543a7d20e9790d23f5eb7ea8112b0887de61f795db47007731f026369439
@@ -4097,9 +4095,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@namada/namadillo@workspace:apps/namadillo"
   dependencies:
-    "@chain-registry/assets": "npm:^1.70.198"
     "@chain-registry/client": "npm:^1.53.5"
-    "@chain-registry/types": "npm:^0.50.125"
     "@cosmjs/encoding": "npm:^0.32.3"
     "@eslint/js": "npm:^9.9.1"
     "@keplr-wallet/types": "npm:^0.12.136"
@@ -15629,6 +15625,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "namada@workspace:."
   dependencies:
+    "@chain-registry/types": "npm:^0.45.80"
     "@typescript-eslint/eslint-plugin": "npm:^8.4.0"
     "@typescript-eslint/parser": "npm:^8.4.0"
     chain-registry: "npm:^1.63.100"
