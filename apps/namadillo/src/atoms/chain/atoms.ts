@@ -103,6 +103,26 @@ export const chainAssetsMapAtom = atom<Record<Address, Asset | undefined>>(
   }
 );
 
+export const osmosisSymbolAssetMapAtom = atom<Record<string, Asset>>(() => {
+  const assets = osmosis.assets.assets;
+  const symbolAssetMap: Record<Address, Asset> = {};
+  assets.forEach((asset: Asset) => {
+    symbolAssetMap[asset.symbol] = asset;
+  });
+
+  return symbolAssetMap;
+});
+
+export const osmosisBaseAssetMapAtom = atom<Record<string, Asset>>(() => {
+  const assets = osmosis.assets.assets;
+  const baseAssetMap: Record<Address, Asset> = {};
+  assets.forEach((asset: Asset) => {
+    baseAssetMap[asset.base] = asset;
+  });
+
+  return baseAssetMap;
+});
+
 // Prefer calling settings@rpcUrlAtom instead, because default rpc url might be
 // overrided by the user
 export const indexerRpcUrlAtom = atomWithQuery<string>((get) => {
