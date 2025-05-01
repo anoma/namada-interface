@@ -11,6 +11,7 @@ type ProposalListPanelProps = {
   errorText: string;
   emptyText?: string;
   isEmpty?: boolean;
+  className?: string;
 };
 
 export const ProposalListPanel = ({
@@ -20,10 +21,11 @@ export const ProposalListPanel = ({
   errorText,
   emptyText,
   isEmpty,
+  className,
 }: ProposalListPanelProps): JSX.Element => {
   const loaded = atomsAreLoaded(...atoms);
   return (
-    <Panel title={title}>
+    <Panel title={title} className={className}>
       <AtomErrorBoundary
         result={atoms}
         niceError={errorText}

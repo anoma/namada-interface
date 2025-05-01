@@ -246,7 +246,7 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
         </div>
       </div>
 
-      <div className="h-[490px] flex flex-col">
+      <div className="max-h-[500px] flex flex-col">
         <Table
           {...props}
           proposals={proposals.data?.proposals || []}
