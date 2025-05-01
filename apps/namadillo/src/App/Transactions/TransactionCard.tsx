@@ -5,21 +5,24 @@ import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { GoIssueClosed, GoXCircle } from "react-icons/go";
-import { ImCheckmark } from "react-icons/im";
+import {
+  IoArrowBack,
+  IoArrowForward,
+  IoCheckmarkCircleOutline,
+  IoCloseCircleOutline,
+} from "react-icons/io5";
 import { generatePath, useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { toDisplayAmount } from "utils";
 
 type Tx = TransactionHistoryType;
 type Props = { tx: Tx };
-
-const IBC_PREFIX = "ibc";
-
-const isIBCTransaction = (kind: string | undefined): boolean => {
-  if (!kind) return false;
-  return kind.startsWith("ibc");
+type RawDataSection = {
+  amount?: string;
+  sources?: Array<{ amount: string; owner: string }>;
+  targets?: Array<{ amount: string; owner: string }>;
 };
+const IBC_PREFIX = "ibc";
 
 export function getToken(txn: Tx["tx"]): string | undefined {
   const parsed = txn?.data ? JSON.parse(txn.data) : undefined;
@@ -48,12 +51,6 @@ const titleFor = (kind: string | undefined, isReceived: boolean): string => {
     return "Shielding Transfer";
   if (kind === "shieldedtransfer") return "Shielded Transfer";
   return "Transfer";
-};
-
-type RawDataSection = {
-  amount?: string;
-  sources?: Array<{ amount: string; owner: string }>;
-  targets?: Array<{ amount: string; owner: string }>;
 };
 
 export function getTransactionInfo(
@@ -97,7 +94,6 @@ export const TransactionCard = ({ tx }: Props): JSX.Element => {
   const transaction = transactionTopLevel.tx;
   const isReceived = transactionTopLevel?.kind === "received";
   const token = getToken(transaction);
-  const isIbc = isIBCTransaction(transaction?.kind);
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
   const asset = token ? chainAssetsMap[token] : undefined;
   const txnInfo = getTransactionInfo(transaction);
@@ -121,15 +117,9 @@ export const TransactionCard = ({ tx }: Props): JSX.Element => {
         navigate(generatePath(routes.transaction, { hash: transaction.txId }))
       }
     >
-      <i
-        className={twMerge(
-          clsx("text-2xl text-yellow", {
-            "text-fail": transaction?.exitCode === "rejected",
-          })
-        )}
-      >
-        {transaction?.exitCode === "applied" && <GoIssueClosed />}
-        {transaction?.exitCode === "rejected" && <GoXCircle />}
+      <i className={twMerge(clsx("text-2xl text-yellow"))}>
+        {isReceived && <IoArrowBack width={20} height={20} />}
+        {!isReceived && <IoArrowForward width={20} height={20} />}
       </i>
 
       <div>
@@ -144,9 +134,20 @@ export const TransactionCard = ({ tx }: Props): JSX.Element => {
         </p>
       </div>
 
-      <i className="text-white text-xl">
-        {transaction?.exitCode === "applied" && <ImCheckmark />}
-        {transaction?.exitCode === "rejected" && <GoXCircle />}
+      <i
+        className={twMerge(
+          clsx("text-xl", {
+            "text-white": transaction?.exitCode === "applied",
+            "text-fail": transaction?.exitCode === "rejected",
+          })
+        )}
+      >
+        {transaction?.exitCode === "applied" && (
+          <IoCheckmarkCircleOutline className="w-6 h-6" />
+        )}
+        {transaction?.exitCode === "rejected" && (
+          <IoCloseCircleOutline className="w-6 h-6" />
+        )}
       </i>
     </article>
   );
