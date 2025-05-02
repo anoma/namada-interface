@@ -71,7 +71,7 @@ export const chainTransactionHistoryAtom = atomWithQuery<{
 
 // New atom family for paginated transaction history
 export const chainTransactionHistoryFamily = atomFamily(
-  (options?: { page?: number; perPage?: number }) =>
+  (options?: { page?: number; perPage?: number; fetchAll?: boolean }) =>
     atomWithQuery<{
       results: TransactionHistory[];
       pagination: Pagination;
@@ -85,7 +85,7 @@ export const chainTransactionHistoryFamily = atomFamily(
         queryKey: [
           "chain-transaction-history",
           addresses,
-          options?.page,
+          options?.fetchAll ? "all" : options?.page,
           options?.perPage,
         ],
         queryFn: async () => {
@@ -100,6 +100,62 @@ export const chainTransactionHistoryFamily = atomFamily(
               },
             };
           }
+
+          // If fetchAll is true, we'll get all pages
+          if (options?.fetchAll) {
+            // First fetch to get pagination info
+            const firstPageResult = await fetchHistoricalTransactions(
+              api,
+              addresses,
+              1,
+              options?.perPage || 10
+            );
+
+            const totalPages = parseInt(
+              firstPageResult.pagination?.totalPages || "0"
+            );
+
+            // If there's only one page, return the first result
+            if (totalPages <= 1) {
+              return firstPageResult;
+            }
+
+            // Otherwise, fetch all remaining pages
+            const allPagePromises = [];
+            // We already have page 1
+            const allResults = [...firstPageResult.results];
+
+            // Fetch pages 2 to totalPages
+            for (let page = 2; page <= totalPages; page++) {
+              allPagePromises.push(
+                fetchHistoricalTransactions(
+                  api,
+                  addresses,
+                  page,
+                  options?.perPage || 10
+                )
+              );
+            }
+
+            const allPagesResults = await Promise.all(allPagePromises);
+
+            // Combine all results
+            for (const pageResult of allPagesResults) {
+              allResults.push(...pageResult.results);
+            }
+
+            // Return combined results with updated pagination info
+            return {
+              results: allResults,
+              pagination: {
+                ...firstPageResult.pagination,
+                totalPages: totalPages.toString(),
+                currentPage: "all", // Indicate we fetched all pages
+              },
+            };
+          }
+
+          // Standard case: fetch a single page
           return fetchHistoricalTransactions(
             api,
             addresses,
@@ -110,6 +166,8 @@ export const chainTransactionHistoryFamily = atomFamily(
       };
     }),
   (a, b) =>
-    // Equality check for memoization
-    a?.page === b?.page && a?.perPage === b?.perPage
+    // Equality check for memoization - include fetchAll in comparison
+    a?.page === b?.page &&
+    a?.perPage === b?.perPage &&
+    a?.fetchAll === b?.fetchAll
 );

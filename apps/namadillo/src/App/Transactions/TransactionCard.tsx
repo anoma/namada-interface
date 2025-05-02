@@ -1,6 +1,5 @@
 import { TransactionHistory as TransactionHistoryType } from "@namada/indexer-client";
 import { TokenCurrency } from "App/Common/TokenCurrency";
-import { routes } from "App/routes";
 import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -11,7 +10,6 @@ import {
   IoCheckmarkCircleOutline,
   IoCloseCircleOutline,
 } from "react-icons/io5";
-import { generatePath, useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { toDisplayAmount } from "utils";
 
@@ -45,11 +43,11 @@ export function getToken(txn: Tx["tx"]): string | undefined {
 const titleFor = (kind: string | undefined, isReceived: boolean): string => {
   if (!kind) return "Unknown";
   if (isReceived) return "Received";
-  if (kind.startsWith(IBC_PREFIX)) return "Transfer IBC";
-  if (kind === "transparenttransfer") return "Transparent Transfer";
-  if (kind === "shieldingtransfer" || kind === "unshieldingtransfer")
+  if (kind.startsWith(IBC_PREFIX)) return "IBC Transfer";
+  if (kind === "transparentTransfer") return "Transparent Transfer";
+  if (kind === "shieldingTransfer" || kind === "unshieldingTransfer")
     return "Shielding Transfer";
-  if (kind === "shieldedtransfer") return "Shielded Transfer";
+  if (kind === "shieldedTransfer") return "Shielded Transfer";
   return "Transfer";
 };
 
@@ -84,12 +82,10 @@ export function getTransactionInfo(
       };
     }
   }
-
   return undefined;
 }
 
 export const TransactionCard = ({ tx }: Props): JSX.Element => {
-  const navigate = useNavigate();
   const transactionTopLevel = tx;
   const transaction = transactionTopLevel.tx;
   const isReceived = transactionTopLevel?.kind === "received";
@@ -107,15 +103,11 @@ export const TransactionCard = ({ tx }: Props): JSX.Element => {
     <article
       className={twMerge(
         clsx(
-          "grid grid-cols-[min-content_auto_min-content] items-center cursor-pointer my-1",
+          "grid grid-cols-[min-content_auto_min-content] items-center my-1",
           "gap-5 bg-neutral-800 rounded-sm px-5 py-5 text-white border border-transparent",
           "transition-colors duration-200 hover:border-neutral-500"
         )
       )}
-      onClick={() =>
-        transaction?.txId &&
-        navigate(generatePath(routes.transaction, { hash: transaction.txId }))
-      }
     >
       <i className={twMerge(clsx("text-2xl text-yellow"))}>
         {isReceived && <IoArrowBack width={20} height={20} />}
