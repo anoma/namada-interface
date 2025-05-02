@@ -1,36 +1,55 @@
 import { Panel, TableRow } from "@namada/components";
 import { TransactionHistory as TransactionHistoryType } from "@namada/indexer-client";
 import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
+import { PageLoader } from "App/Common/PageLoader";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import {
   chainTransactionHistoryFamily,
   pendingTransactionsHistoryAtom,
 } from "atoms/transactions/atoms";
-import { useTransactionActions } from "hooks/useTransactionActions";
 import { useAtomValue } from "jotai";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { PendingTransactionCard } from "./PendingTransactionCard";
 import { TransactionCard } from "./TransactionCard";
 
 const ITEMS_PER_PAGE = 30;
+export const transferKindOptions = [
+  "transparentTransfer",
+  "shieldingTransfer",
+  "unshieldingTransfer",
+  "shieldedTransfer",
+  "ibcTransparentTransfer",
+  "ibcShieldingTransfer",
+  "ibcUnshieldingTransfer",
+  "ibcShieldedTransfer",
+  "received",
+];
 
 export const TransactionHistory = (): JSX.Element => {
   const [currentPage, setCurrentPage] = useState(0);
   const pending = useAtomValue(pendingTransactionsHistoryAtom);
-  const { data: transactions } = useAtomValue(
-    chainTransactionHistoryFamily({
-      page: currentPage + 1,
-      perPage: ITEMS_PER_PAGE,
-    })
+  const { data: transactions, isLoading } = useAtomValue(
+    chainTransactionHistoryFamily({ perPage: ITEMS_PER_PAGE, fetchAll: true })
+  );
+  // Only show historical transactions that are in the transferKindOptions array
+  const historicalTransactions =
+    transactions?.results?.filter((transaction) =>
+      transferKindOptions.includes(transaction.tx?.kind ?? "")
+    ) ?? [];
+
+  // Calculate total pages based on the filtered transactions
+  const totalPages = Math.max(
+    1,
+    Math.ceil(historicalTransactions.length / ITEMS_PER_PAGE)
   );
 
-  const historicalTransactions = transactions?.results ?? [];
-  const totalPages = parseInt(transactions?.pagination?.totalPages || "1", 10);
-
-  console.log(transactions?.pagination, "ayyyyyy");
-  const hasNoTransactions = historicalTransactions.length === 0;
-  const { clearMyCompleteTransactions } = useTransactionActions();
-  const headers = [{ children: " ", className: "w-full" }];
+  // Create paginated data for the current page
+  const paginatedTransactions = useMemo(() => {
+    const startIndex = currentPage * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return historicalTransactions.slice(startIndex, endIndex);
+  }, [historicalTransactions, currentPage]);
 
   const renderRow = (
     transaction: TransactionHistoryType,
@@ -47,26 +66,37 @@ export const TransactionHistory = (): JSX.Element => {
   };
 
   return (
-    <div
-      className="flex flex-col h-full"
-      style={{ height: "calc(100vh - 120px)" }}
-    >
-      <div className="flex-1 overflow-hidden min-h-0">
-        <Panel className="flex flex-col gap-6 h-full">
-          <h2 className="mb-7">Transfers made by this device</h2>
+    <div className="relative flex flex-col h-[calc(100vh-120px)] max-h-screen">
+      <Panel className="relative overflow-hidden flex flex-col flex-1 max-h-[calc(100vh-72px)]">
+        <h2 className="mb-4 flex-none">Transfers made by this device</h2>
 
-          {historicalTransactions.length > 0 && (
-            <section className="flex flex-col flex-1 min-h-0">
-              <header className="text-sm ml-7">
-                <h2 className="mb-3">History</h2>
-              </header>
-              {/* Scrollable container for the table */}
-              <div className="flex-1 overflow-y-auto min-h-0">
+        {pending.length > 0 && (
+          <div className="mb-5 flex-none">
+            <h2 className="text-sm mb-3 ml-4">Pending</h2>
+            <div className="ml-4 mr-7 max-h-32 overflow-y-auto">
+              {pending.map((transaction) => (
+                <PendingTransactionCard
+                  key={transaction.hash}
+                  transaction={transaction}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {isLoading ?
+          <PageLoader />
+        : <section className="flex flex-col flex-1 overflow-hidden min-h-0">
+            <header className="text-sm ml-4 flex-none">
+              <h2>History</h2>
+            </header>
+            <div className="flex flex-col flex-1 overflow-hidden min-h-0">
+              <div className="flex flex-col flex-1 overflow-auto">
                 <TableWithPaginator
                   id="transactions-table"
-                  headers={headers}
+                  headers={[{ children: " ", className: "w-full" }]}
                   renderRow={renderRow}
-                  itemList={historicalTransactions}
+                  itemList={paginatedTransactions}
                   page={currentPage}
                   pageCount={totalPages}
                   onPageChange={handlePageChange}
@@ -74,22 +104,24 @@ export const TransactionHistory = (): JSX.Element => {
                     className: twMerge(
                       "border-none w-full",
                       "[&>tbody>tr:nth-child(odd)]:bg-transparent",
-                      "[&>tbody>tr:nth-child(even)]:bg-transparent"
+                      "[&>tbody>tr:nth-child(even)]:bg-transparent",
+                      "w-full [&_td]:px-1 [&_th]:px-1 [&_td:first-child]:pl-4 [&_td]:h-[64px]",
+                      "[&_td]:font-normal [&_td:last-child]:pr-4 [&_th:first-child]:pl-4 [&_th:last-child]:pr-4",
+                      "[&_td:first-child]:rounded-s-md [&_td:last-child]:rounded-e-md"
                     ),
                   }}
                 />
               </div>
-            </section>
-          )}
-
-          {hasNoTransactions && (
-            <p className="font-light">No transactions saved on this device</p>
-          )}
-        </Panel>
-      </div>
-      <div className="mt-2">
-        <NavigationFooter />
-      </div>
+            </div>
+            {historicalTransactions.length === 0 && (
+              <p className="font-light ml-7">
+                No transactions saved on this device
+              </p>
+            )}
+          </section>
+        }
+      </Panel>
+      <NavigationFooter className="flex-none h-14 mt-2" />
     </div>
   );
 };
