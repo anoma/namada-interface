@@ -3,10 +3,11 @@ name: Docker Namadillo 🐳
 on:
   push:
     tags:
-      - namadillo@v*
+      - 'namadillo@v*'
     branches:
       - main
       - stable-interface
+  workflow_dispatch:
 
 env:
   GIT_LFS_SKIP_SMUDGE: 1
