@@ -17,10 +17,10 @@ export const TransferLayout: React.FC = () => {
   return (
     <PageWithSidebar>
       <div className="flex flex-col min-h-full">
-        <div className="flex-grow">
+        <div className="flex flex-1">
           <Outlet />
         </div>
-        <NavigationFooter className="mt-2" />
+        <NavigationFooter className="mt-2 flex-none h-16" />
       </div>
       <Sidebar>
         <ShieldAllBanner />

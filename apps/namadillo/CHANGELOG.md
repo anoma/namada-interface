@@ -1,5 +1,41 @@
 # Changelog
 
+## [1.20.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.19.0...namadillo@v1.20.0) (2025-04-29)
+
+
+### Features
+
+* Add Est. Rewards to staking dash ([#1913](https://github.com/anoma/namada-interface/issues/1913)) ([851d1b0](https://github.com/anoma/namada-interface/commit/851d1b026e121a2abd5d24ee6526b8961c09c0f3))
+* Add sticky left nav ([#1954](https://github.com/anoma/namada-interface/issues/1954)) ([8619239](https://github.com/anoma/namada-interface/commit/86192393386d7e82467dbb0c4f980296f0b47871))
+* Allow validators to have an individual URL or share link ([#1944](https://github.com/anoma/namada-interface/issues/1944)) ([e4d0818](https://github.com/anoma/namada-interface/commit/e4d08181cacea363b2c3fa1def9861fde5847823))
+* Ibc unshielding ([#1920](https://github.com/anoma/namada-interface/issues/1920)) ([2996391](https://github.com/anoma/namada-interface/commit/29963912650c4401cb09163042fb889986e094f6))
+* Keychain/Namadillo: Payment Address gen ([#1905](https://github.com/anoma/namada-interface/issues/1905)) ([200bd4b](https://github.com/anoma/namada-interface/commit/200bd4b400e36b5b216dc5a2facbe92c56c56b0b))
+* Namadillo - Improve gasLimit error ([#1977](https://github.com/anoma/namada-interface/issues/1977)) ([b965e07](https://github.com/anoma/namada-interface/commit/b965e071b0b3c54b5081a008ae9e08da8680ebdc))
+* Namadillo v2 feedback ([#1973](https://github.com/anoma/namada-interface/issues/1973)) ([3762a8b](https://github.com/anoma/namada-interface/commit/3762a8b16052536fedea4e6e63185f6d5b784938))
+* Overview Dashboard v2 ([#1951](https://github.com/anoma/namada-interface/issues/1951)) ([8deb9a4](https://github.com/anoma/namada-interface/commit/8deb9a46306af48b22d5de0458f46a2f3f1b938b))
+* SDK - Add lookup for TxResponse result codes ([#1946](https://github.com/anoma/namada-interface/issues/1946)) ([54e2562](https://github.com/anoma/namada-interface/commit/54e2562627c3ffbedcd551d42440872d7a8ead18))
+
+
+### Bug Fixes
+
+* Add burger menu close ([#1943](https://github.com/anoma/namada-interface/issues/1943)) ([41df5c7](https://github.com/anoma/namada-interface/commit/41df5c77eaaed42cb9c7d7afa56f2908dd0a045f))
+* Add ceiling on gas estimates ([#1949](https://github.com/anoma/namada-interface/issues/1949)) ([78edeb2](https://github.com/anoma/namada-interface/commit/78edeb2d2f4ccfe3e083f37bae437905b06e9a5a))
+* Check that the chain in custom address matches address prefix ([#1945](https://github.com/anoma/namada-interface/issues/1945)) ([3cf5124](https://github.com/anoma/namada-interface/commit/3cf5124b0796c011ee5bfb4b17aaea97b0ea30e1))
+* Fix claim and stake NaN issue ([#1957](https://github.com/anoma/namada-interface/issues/1957)) ([c115bce](https://github.com/anoma/namada-interface/commit/c115bce8ed1f8d9763dcf7315d80fb87c8034f86))
+* Fix z index ([#1962](https://github.com/anoma/namada-interface/issues/1962)) ([1743e55](https://github.com/anoma/namada-interface/commit/1743e554763884eaf21eef82cd70af2e2c927334))
+* Infinite balance query loop ([#1984](https://github.com/anoma/namada-interface/issues/1984)) ([2610bb0](https://github.com/anoma/namada-interface/commit/2610bb0ad2d74ab61bed820847cbe23ae1985663))
+* Namadillo Status Indicator conflates RPC and Indexer status ([#1934](https://github.com/anoma/namada-interface/issues/1934)) ([af6252c](https://github.com/anoma/namada-interface/commit/af6252c44e3dab0c0d09cb4ff15745977843e49f))
+* Pending notification not being removed on IBC Withdraw ([#1906](https://github.com/anoma/namada-interface/issues/1906)) ([789e785](https://github.com/anoma/namada-interface/commit/789e785c74e4f6d9560d65f2f0f63787beddc028))
+* Refetch balances after all types of transfers ([#1938](https://github.com/anoma/namada-interface/issues/1938)) ([4ebccb8](https://github.com/anoma/namada-interface/commit/4ebccb800432325d039c67af37af71486a84b713))
+* Rollover Namada address in the top right is cut of when the keplr logo is not present  ([#1970](https://github.com/anoma/namada-interface/issues/1970)) ([494961b](https://github.com/anoma/namada-interface/commit/494961b771c2e854004696e0caec08479e3e643a))
+* Update all css for v2 transfer flow ([#1981](https://github.com/anoma/namada-interface/issues/1981)) ([a73023a](https://github.com/anoma/namada-interface/commit/a73023a9847927375a97cd5498966edad4abd7b1))
+* Update apr and table height ([#1978](https://github.com/anoma/namada-interface/issues/1978)) ([dedbae7](https://github.com/anoma/namada-interface/commit/dedbae7e806a646649051a09499b31d03fef0091))
+* Update est rewards rate ([#1942](https://github.com/anoma/namada-interface/issues/1942)) ([a2748d3](https://github.com/anoma/namada-interface/commit/a2748d34c844557a65c463703f0ee4c0675f3814))
+* Update gas calculations ([#1939](https://github.com/anoma/namada-interface/issues/1939)) ([cf47655](https://github.com/anoma/namada-interface/commit/cf476552fad2f3385cdcc4502fcb826dd6f31b1d))
+* Update logic for ibc transfers from NAM ([#1959](https://github.com/anoma/namada-interface/issues/1959)) ([d361e04](https://github.com/anoma/namada-interface/commit/d361e04c23a03ccc18cfec0065182bc5604dd851))
+* Update native balance to be 0 in staking panel ([#1919](https://github.com/anoma/namada-interface/issues/1919)) ([8658835](https://github.com/anoma/namada-interface/commit/865883579fb79e015ca76e8c3e68ba6877109148))
+* Update status syncing atom so its not perpetually syncing ([#1948](https://github.com/anoma/namada-interface/issues/1948)) ([2347945](https://github.com/anoma/namada-interface/commit/23479450c14b14b6d4eb016c6e33dc5077e7c90c))
+
 ## [1.19.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.18.0...namadillo@v1.19.0) (2025-03-17)
 
 

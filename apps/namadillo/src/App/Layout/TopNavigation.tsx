@@ -2,6 +2,7 @@ import { ActionButton } from "@namada/components";
 import { AccountType } from "@namada/types";
 import { ConnectExtensionButton } from "App/Common/ConnectExtensionButton";
 import { TransactionInProgressSpinner } from "App/Common/TransactionInProgressSpinner";
+import { UnshieldAssetsModal } from "App/Common/UnshieldAssetsModal";
 import { routes } from "App/routes";
 import { defaultAccountAtom } from "atoms/accounts";
 import {
@@ -10,6 +11,7 @@ import {
 } from "atoms/settings";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
+import { useState } from "react";
 import { AiOutlineMessage } from "react-icons/ai";
 import { IoSettingsOutline } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -18,6 +20,8 @@ import { NamadaAccount } from "./NamadaAccount";
 import { SyncIndicator } from "./SyncIndicator";
 
 export const TopNavigation = (): JSX.Element => {
+  const [unshieldingModalOpen, setUnshieldingModalOpen] = useState(false);
+
   const userHasAccount = useUserHasAccount();
   const signArbitraryEnabled = useAtomValue(signArbitraryEnabledAtom);
   const { maspEnabled, namTransfersEnabled } = useAtomValue(
@@ -54,7 +58,11 @@ export const TopNavigation = (): JSX.Element => {
           <ActionButton
             className="py-2"
             size="xs"
-            onClick={() => navigate(routes.maspShield)}
+            onClick={() =>
+              navigate(routes.shieldAssets, {
+                state: { backgroundLocation: location },
+              })
+            }
           >
             Shield Assets
           </ActionButton>
@@ -64,7 +72,7 @@ export const TopNavigation = (): JSX.Element => {
             className="py-2"
             outlineColor="yellow"
             size="xs"
-            onClick={() => navigate(routes.maspUnshield)}
+            onClick={() => setUnshieldingModalOpen(true)}
           >
             Unshield
           </ActionButton>
@@ -114,6 +122,10 @@ export const TopNavigation = (): JSX.Element => {
         <NamadaAccount />
         <KeplrAccount />
       </div>
+
+      {unshieldingModalOpen && (
+        <UnshieldAssetsModal onClose={() => setUnshieldingModalOpen(false)} />
+      )}
     </div>
   );
 };
