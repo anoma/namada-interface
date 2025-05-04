@@ -15,7 +15,6 @@ import { TokenAmountCard } from "./TokenAmountCard";
 
 type TransferDestinationProps = {
   isShieldedAddress?: boolean;
-  isShieldedTx?: boolean;
   onChangeShielded?: (isShielded: boolean) => void;
   chain?: Chain;
   wallet?: WalletProvider;
@@ -43,7 +42,6 @@ export const TransferDestination = ({
   wallet,
   walletAddress,
   isShieldedAddress,
-  isShieldedTx = false,
   onChangeShielded,
   gasDisplayAmount,
   gasAsset,
@@ -173,12 +171,7 @@ export const TransferDestination = ({
       {!isSubmitting && (
         <footer className="flex items-center mt-10">
           {changeFeeEnabled ?
-            feeProps && (
-              <TransactionFeeButton
-                feeProps={feeProps}
-                isShieldedTransfer={isShieldedTx}
-              />
-            )
+            feeProps && <TransactionFeeButton feeProps={feeProps} />
           : gasDisplayAmount &&
             gasAsset && (
               <TransactionFee

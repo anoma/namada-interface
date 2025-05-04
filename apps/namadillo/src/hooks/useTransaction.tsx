@@ -42,7 +42,7 @@ export type UseTransactionPropsEvents<T> = {
 export type UseTransactionProps<T> = {
   params: T[];
   createTxAtom: AtomType<T>;
-  useDisposableSigner?: boolean;
+  canUseDisposableSigner?: boolean;
   eventType: TransactionEventsClasses;
   parsePendingTxNotification?: (tx: TransactionPair<T>) => PartialNotification;
   parseErrorTxNotification?: () => PartialNotification;
@@ -64,7 +64,7 @@ export type UseTransactionOutput<T> = {
 export const useTransaction = <T,>({
   params,
   createTxAtom,
-  useDisposableSigner,
+  canUseDisposableSigner,
   eventType,
   parsePendingTxNotification,
   parseErrorTxNotification,
@@ -142,6 +142,8 @@ export const useTransaction = <T,>({
           account?.address,
           "Extension not connected or no account is selected"
         );
+        const useDisposableSigner =
+          canUseDisposableSigner && feeProps.gasSource === "shielded";
 
         const txAdditionalParams = { ...additionalParams };
         if (useDisposableSigner) {

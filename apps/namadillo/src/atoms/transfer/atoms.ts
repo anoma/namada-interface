@@ -125,11 +125,6 @@ export const createUnshieldingTransferAtom = atomWithMutation((get) => {
       signer,
       memo,
     }: BuildTxAtomParams<UnshieldingTransferMsgValue>) => {
-      invariant(
-        signer,
-        "Disposable signer is required for unshielding transfers"
-      );
-
       await sync(
         allViewingKeys,
         chainId,
@@ -194,7 +189,7 @@ const sync = async (
   const { set } = getDefaultStore();
   await shieldedSync({
     rpcUrl,
-    maspIndexerUrl,
+    maspIndexerUrl: maspIndexerUrl || "",
     token: namTokenAddress,
     viewingKeys: allViewingKeys,
     chainId,

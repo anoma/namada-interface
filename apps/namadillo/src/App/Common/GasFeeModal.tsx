@@ -3,7 +3,10 @@ import {
   ActionButton,
   AmountInput,
   Modal,
+  Stack,
   StyledSelectBox,
+  Text,
+  ToggleButton,
 } from "@namada/components";
 import { transparentBalanceAtom } from "atoms/accounts";
 import { shieldedBalanceAtom } from "atoms/balance";
@@ -95,7 +98,6 @@ const useBuildGasOption = ({
 export const GasFeeModal = ({
   feeProps,
   onClose,
-  isShielded = false,
 }: {
   feeProps: TransactionFeeProps;
   onClose: () => void;
@@ -105,8 +107,11 @@ export const GasFeeModal = ({
     gasConfig,
     gasEstimate,
     gasPriceTable,
+    gasSource,
+    gasSourceSwitch,
     onChangeGasLimit,
     onChangeGasToken,
+    onChangeGasSource,
   } = feeProps;
 
   const sortByNativeToken = useSortByNativeToken();
@@ -118,7 +123,7 @@ export const GasFeeModal = ({
   const findUserBalanceByTokenAddress = (tokenAddres: string): BigNumber => {
     // TODO: we need to refactor userShieldedBalances to return Balance[] type instead
     const balances =
-      isShielded ?
+      gasSource === "shielded" ?
         shieldedAmount.data?.map((balance) => ({
           minDenomAmount: balance.minDenomAmount,
           tokenAddress: balance.address,
@@ -207,6 +212,39 @@ export const GasFeeModal = ({
           <span className="text-xs text-neutral-500 text-right">Balance</span>
           <span className="text-xs text-neutral-500 text-right">Fee</span>
         </div>
+        {gasSourceSwitch && gasSource !== "shielded" && (
+          <Text className="text-red-600 text-sm">
+            Warning! Using fees from your transparent account will reveal data.
+            <br />
+            To keep your data protected we recommend moving assets to the
+            <br />
+            shield pool to pay fees.
+          </Text>
+        )}
+        <Stack
+          direction="horizontal"
+          className="justify-between align-middle mt-4 mb-1"
+        >
+          <div className="text-sm">Fee Token</div>
+          {gasSourceSwitch && (
+            <ToggleButton
+              label={
+                gasSource === "shielded" ? "Shielded Balance" : (
+                  "Transparent Balance"
+                )
+              }
+              color="white"
+              activeColor="yellow"
+              checked={gasSource === "shielded"}
+              onChange={() =>
+                onChangeGasSource(
+                  gasSource === "shielded" ? "transparent" : "shielded"
+                )
+              }
+              containerProps={{ className: "gap-3 text-xs" }}
+            />
+          )}
+        </Stack>
         <StyledSelectBox
           id="fee-token-select"
           value={gasConfig.gasToken}

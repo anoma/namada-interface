@@ -20,8 +20,11 @@ export type TransactionFeeProps = {
   isLoading: boolean;
   gasEstimate: GasEstimate | undefined;
   gasPriceTable: GasPriceTable | undefined;
+  gasSource: "shielded" | "transparent";
+  gasSourceSwitch: boolean;
   onChangeGasLimit: (value: BigNumber) => void;
   onChangeGasToken: (value: string) => void;
+  onChangeGasSource: (value: "shielded" | "transparent") => void;
 };
 
 export const useTransactionFee = (
@@ -32,7 +35,11 @@ export const useTransactionFee = (
   const [gasTokenValue, setGasTokenValue] = useState<string | undefined>();
   const userTransparentBalances = useAtomValue(transparentBalanceAtom);
   const userShieldedBalances = useAtomValue(shieldedBalanceAtom);
+  const [gasSource, setGasSource] = useState<"shielded" | "transparent">(
+    isShielded ? "shielded" : "transparent"
+  );
   const isPublicKeyRevealed = useAtomValue(isPublicKeyRevealedAtom);
+  const isShieldedSource = gasSource === "shielded";
 
   const { data: nativeToken, isLoading: isLoadingNativeToken } = useAtomValue(
     nativeTokenAddressAtom
@@ -75,17 +82,17 @@ export const useTransactionFee = (
   const availableGasTokenAddress = useMemo(() => {
     if (!gasPriceTable) return nativeToken;
 
-    if (isShielded && !userShieldedBalances.data) {
+    if (isShieldedSource && !userShieldedBalances.data) {
       return nativeToken;
     }
 
-    if (!isShielded && !userTransparentBalances.data) {
+    if (!isShieldedSource && !userTransparentBalances.data) {
       return nativeToken;
     }
 
     // Separate shielded amount from transparent
     const balances =
-      (isShielded ?
+      (isShieldedSource ?
         // TODO: we need to refactor userShieldedBalances to return Balance[] type instead
         userShieldedBalances.data?.map((balance) => ({
           minDenomAmount: balance.minDenomAmount,
@@ -123,7 +130,7 @@ export const useTransactionFee = (
     userShieldedBalances.data,
     gasPriceTable,
     gasDollarMap,
-    isShielded,
+    isShieldedSource,
   ]);
 
   const averageGasLimit = gasEstimate && BigNumber(gasEstimate.avg);
@@ -144,12 +151,19 @@ export const useTransactionFee = (
     isLoadingGasEstimate ||
     isLoadingGasPriceTable;
 
+  const gasSourceSwitch =
+    txKinds.includes("ShieldedTransfer") ||
+    txKinds.includes("UnshieldingTransfer");
+
   return {
     gasConfig,
     isLoading,
     gasEstimate,
     gasPriceTable,
+    gasSource,
+    gasSourceSwitch,
     onChangeGasLimit: setGasLimitValue,
     onChangeGasToken: setGasTokenValue,
+    onChangeGasSource: setGasSource,
   };
 };

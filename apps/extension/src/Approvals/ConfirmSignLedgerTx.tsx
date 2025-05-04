@@ -188,8 +188,6 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
       setStepTwoDescription("Preparing transaction...");
 
       try {
-        // TODO: we have to check if the signer is disposable or not
-
         const accountDetails = await requester.sendMessage(
           Ports.Background,
           new QueryAccountDetailsMsg(signer)
@@ -241,6 +239,11 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
               : "IbcTransfer"
             )
         );
+        const disposableSigner = txDetails.reduce((acc, curr) => {
+          console.log("www", curr.wrapperFeePayer, accountDetails.address);
+          return acc || curr.wrapperFeePayer !== accountDetails.address;
+        }, false);
+
         // For now we work under the assumption that we can't batch transfers from masp with other tx types
         const fromMasp =
           transferTypes.includes("Shielded") ||
@@ -264,7 +267,9 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
             });
             // Adds new signature to the collection
             await handleMaspSignTx(ledger, tx, zip32Path, maspSignatures);
-          } else {
+          }
+
+          if (!disposableSigner) {
             const bip44Path = makeBip44Path(chains.namada.bip44.coinType, path);
             // Adds new signature to the collection
             await handleSignTx(ledger, tx, bip44Path, signatures);
@@ -280,10 +285,18 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
             Ports.Background,
             new ReplaceMaspSignaturesMsg(msgId, maspSignatures)
           );
-          await requester.sendMessage(
-            Ports.Background,
-            new SubmitApprovedSignTxMsg(msgId, signer)
-          );
+
+          if (disposableSigner) {
+            await requester.sendMessage(
+              Ports.Background,
+              new SubmitApprovedSignTxMsg(msgId, signer)
+            );
+          } else {
+            await requester.sendMessage(
+              Ports.Background,
+              new SubmitApprovedSignLedgerTxMsg(msgId, signatures)
+            );
+          }
         } else {
           await requester.sendMessage(
             Ports.Background,
