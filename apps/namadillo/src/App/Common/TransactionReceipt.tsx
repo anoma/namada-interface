@@ -134,6 +134,51 @@ const TransferTransactionReceipt = ({
   );
 };
 
+const ibcTransparentTransfer = {
+  tx: {
+    txId: "20979de7445767359b91ce609dae3ea45e94f34aaca30ab03fbb1382c0bd6802",
+    wrapperId:
+      "7cf3bf2e0078056bc97fdbb3922603e65be9fb5da61fdf9ef642f404ea21a6f7",
+    kind: "ibcTransparentTransfer",
+    data: '[{"Ibc":{"address":{"Account":"tnam1p5z8ruwyu7ha8urhq2l0dhpk2f5dv3ts7uyf2n75"},"trace":{"IbcTrace":"transfer/channel-1/uosmo"}}},{"sources":[{"owner":"tnam1qcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvtr7x4","token":"tnam1p5z8ruwyu7ha8urhq2l0dhpk2f5dv3ts7uyf2n75","amount":"1000000"}],"targets":[{"amount":"1000000","token":"tnam1p5z8ruwyu7ha8urhq2l0dhpk2f5dv3ts7uyf2n75","owner":"tnam1qzuq58crq9sv35fa79u7a82fy99plk3gpve30cxs"}],"shielded_section_hash":null}]',
+    memo: "52656c6179656420627920616e6f64656f667a656e21",
+    exitCode: "applied",
+  },
+  target: "tnam1qzuq58crq9sv35fa79u7a82fy99plk3gpve30cxs",
+  kind: "received",
+  blockHeight: 1209630,
+};
+
+const sent = {
+  tx: {
+    txId: "2b2dd22a6dcd6541bf4ab8f8e36761e507da577ddf9ab070dbaa441bdc8db26a",
+    wrapperId:
+      "f527e7eeaa768d6bb9654d002059aad9cdbc9f053b6b4273695e4590bf5941ca",
+    kind: "shieldingTransfer",
+    data: '{"sources":[{"amount":"4180900","token":"tnam1p5z8ruwyu7ha8urhq2l0dhpk2f5dv3ts7uyf2n75","owner":"tnam1qzuq58crq9sv35fa79u7a82fy99plk3gpve30cxs"}],"targets":[{"owner":"tnam1pcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzmefah","token":"tnam1p5z8ruwyu7ha8urhq2l0dhpk2f5dv3ts7uyf2n75","amount":"4180900"}],"shielded_section_hash":[186,197,223,158,116,227,210,39,36,13,236,55,84,160,48,140,12,221,65,228,44,15,240,155,183,234,68,65,214,18,248,56]}',
+    memo: null,
+    exitCode: "applied",
+  },
+  target: "tnam1qzuq58crq9sv35fa79u7a82fy99plk3gpve30cxs",
+  kind: "sent",
+  blockHeight: 1672972,
+};
+
+const receieved = {
+  tx: {
+    txId: "c0c9d0815d3c0f6611b7b7f65595f5550bb9ea61cd563ade9776a7f25f5d9c28",
+    wrapperId:
+      "ccc28eea4dcc502fc3429dc7054562bfeb4ea0dd771a74d32b89c23625ff9741",
+    kind: "ibcTransparentTransfer",
+    data: '[{"Ibc":{"address":{"Account":"tnam1p5z8ruwyu7ha8urhq2l0dhpk2f5dv3ts7uyf2n75"},"trace":{"IbcTrace":"transfer/channel-1/uosmo"}}},{"sources":[{"owner":"tnam1qcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvtr7x4","token":"tnam1p5z8ruwyu7ha8urhq2l0dhpk2f5dv3ts7uyf2n75","amount":"1000"}],"targets":[{"token":"tnam1p5z8ruwyu7ha8urhq2l0dhpk2f5dv3ts7uyf2n75","owner":"tnam1qzuq58crq9sv35fa79u7a82fy99plk3gpve30cxs","amount":"1000"}],"shielded_section_hash":null}]',
+    memo: "2b2052656c6179656420627920436f736d69632056616c696461746f72",
+    exitCode: "applied",
+  },
+  target: "tnam1qzuq58crq9sv35fa79u7a82fy99plk3gpve30cxs",
+  kind: "received",
+  blockHeight: 1209608,
+};
+
 export const TransactionReceipt = ({
   transaction,
 }: TransactionReceiptProps): JSX.Element => {
