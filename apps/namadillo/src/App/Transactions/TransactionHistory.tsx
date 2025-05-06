@@ -66,8 +66,8 @@ export const TransactionHistory = (): JSX.Element => {
   };
 
   return (
-    <div className="relative flex flex-col h-[calc(100vh-120px)] max-h-screen">
-      <Panel className="relative overflow-hidden flex flex-col flex-1 max-h-[calc(100vh-72px)]">
+    <div className="flex flex-col h-[calc(100vh-120px)]">
+      <Panel className="relative overflow-hidden flex flex-col flex-1">
         <h2 className="mb-4 flex-none">Transfers made by this device</h2>
 
         {pending.length > 0 && (
