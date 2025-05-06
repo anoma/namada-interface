@@ -43,6 +43,7 @@ const promiseWithTimeout =
 export class Query extends RustQuery {
   query_balance = super.query_balance.bind(this);
   query_epoch = promiseWithTimeout(super.query_epoch.bind(this));
+  query_masp_epoch = promiseWithTimeout(super.query_masp_epoch.bind(this));
   query_all_validator_addresses = promiseWithTimeout(
     super.query_all_validator_addresses.bind(this)
   );

@@ -21,6 +21,7 @@ import {
   MaspAssetRewards,
 } from "types";
 import { findAssetByToken } from "utils/assets";
+import { getSdkInstance } from "utils/sdk";
 import { calculateUnbondingPeriod } from "./functions";
 import {
   fetchChainParameters,
@@ -149,5 +150,22 @@ export const maspRewardsAtom = atomWithQuery((get) => {
     ...queryDependentFn(async (): Promise<MaspAssetRewards[]> => {
       return await fetchMaspRewards();
     }, [chain]),
+  };
+});
+
+export const maspEpochAtom = atomWithQuery<bigint>((get) => {
+  const chain = get(chainAtom);
+  const nativeToken = get(nativeTokenAddressAtom);
+  return {
+    // We always want to fetch the latest, up to date epoch
+    gcTime: 0,
+    staleTime: 0,
+    queryKey: ["epoch", chain],
+    ...queryDependentFn(async (): Promise<bigint> => {
+      const sdk = await getSdkInstance();
+      const maspEpoch = sdk.rpc.queryMaspEpoch();
+
+      return maspEpoch;
+    }, [chain, nativeToken]),
   };
 });
