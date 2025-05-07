@@ -15,7 +15,8 @@ import {
   TransactionPair,
 } from "lib/query";
 import { BuildTxAtomParams, ToastNotification } from "types";
-import { TransactionEventsClasses } from "types/events";
+import { TxKindsInput } from "types/events";
+import { TxKind } from "types/txKind";
 import { TransactionFeeProps, useTransactionFee } from "./useTransactionFee";
 
 type AtomType<T> = Atom<
@@ -43,7 +44,7 @@ export type UseTransactionProps<T> = {
   params: T[];
   createTxAtom: AtomType<T>;
   useDisposableSigner?: boolean;
-  eventType: TransactionEventsClasses;
+  eventType: TxKindsInput;
   parsePendingTxNotification?: (tx: TransactionPair<T>) => PartialNotification;
   parseErrorTxNotification?: () => PartialNotification;
 } & UseTransactionPropsEvents<T>;
@@ -81,10 +82,11 @@ export const useTransaction = <T,>({
   const { mutateAsync: performBuildTx } = useAtomValue(createTxAtom);
 
   // We don't want to display zeroed value when params are not set yet.
-  const txKinds = new Array(Math.max(1, params.length)).fill(eventType);
+  const kinds: TxKind[] =
+    Array.isArray(eventType) ? [...eventType] : [eventType];
   const feeProps = useTransactionFee(
-    txKinds,
-    ["ShieldedTransfer", "UnshieldingTransfer"].includes(eventType)
+    kinds,
+    kinds.some((k) => ["ShieldedTransfer", "UnshieldingTransfer"].includes(k))
   );
 
   const dispatchPendingTxNotification = (
@@ -188,11 +190,15 @@ export const useTransaction = <T,>({
 
         await onBeforeBroadcast?.(transactionPair);
         try {
-          await broadcastTxWithEvents(
-            transactionPair.encodedTxData,
-            transactionPair.signedTxs,
-            transactionPair.encodedTxData.meta?.props,
-            eventType
+          await Promise.all(
+            kinds.map((kind) =>
+              broadcastTxWithEvents(
+                transactionPair.encodedTxData,
+                transactionPair.signedTxs,
+                transactionPair.encodedTxData.meta?.props,
+                kind
+              )
+            )
           );
           onBroadcasted?.(transactionPair);
         } catch (error) {
