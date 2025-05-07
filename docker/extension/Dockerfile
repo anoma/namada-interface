@@ -5,6 +5,7 @@ WORKDIR /app
 # Installing required packages
 RUN apt update && apt install -y nodejs npm clang pkg-config libssl-dev protobuf-compiler curl binaryen
 RUN npm install -g yarn
+RUN rustup toolchain add nightly-2025-03-27
 RUN rustup target add wasm32-unknown-unknown
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh -s -- -y
 
