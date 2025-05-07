@@ -80,6 +80,7 @@ export const useTransaction = <T,>({
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const { mutateAsync: performBuildTx } = useAtomValue(createTxAtom);
 
+  // Claim & Stake is the only array of tx kinds. The rest are single tx kinds.
   const kinds =
     Array.isArray(eventType) ?
       [...eventType]
@@ -88,8 +89,6 @@ export const useTransaction = <T,>({
     kinds,
     kinds.some((k) => ["ShieldedTransfer", "UnshieldingTransfer"].includes(k))
   );
-
-  // Claim & Stake is the only array of tx kinds. The rest are single tx kinds.
   const broadcastEventType =
     !Array.isArray(eventType) ? eventType : "ClaimRewards";
 
