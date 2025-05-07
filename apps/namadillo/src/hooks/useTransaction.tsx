@@ -15,8 +15,7 @@ import {
   TransactionPair,
 } from "lib/query";
 import { BuildTxAtomParams, ToastNotification } from "types";
-import { TxKindsInput } from "types/events";
-import { TxKind } from "types/txKind";
+import { TxKinds } from "types/txKind";
 import { TransactionFeeProps, useTransactionFee } from "./useTransactionFee";
 
 type AtomType<T> = Atom<
@@ -44,7 +43,7 @@ export type UseTransactionProps<T> = {
   params: T[];
   createTxAtom: AtomType<T>;
   useDisposableSigner?: boolean;
-  eventType: TxKindsInput;
+  eventType: TxKinds;
   parsePendingTxNotification?: (tx: TransactionPair<T>) => PartialNotification;
   parseErrorTxNotification?: () => PartialNotification;
 } & UseTransactionPropsEvents<T>;
@@ -81,7 +80,7 @@ export const useTransaction = <T,>({
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const { mutateAsync: performBuildTx } = useAtomValue(createTxAtom);
 
-  const kinds: TxKind[] =
+  const kinds =
     Array.isArray(eventType) ?
       [...eventType]
     : new Array(Math.max(1, params.length)).fill(eventType); // Don't display zeroed value when params are not set yet.
