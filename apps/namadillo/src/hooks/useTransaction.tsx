@@ -15,7 +15,7 @@ import {
   TransactionPair,
 } from "lib/query";
 import { BuildTxAtomParams, ToastNotification } from "types";
-import { TxKinds } from "types/txKind";
+import { TransactionEventTypes } from "types/events";
 import { TransactionFeeProps, useTransactionFee } from "./useTransactionFee";
 
 type AtomType<T> = Atom<
@@ -43,7 +43,7 @@ export type UseTransactionProps<T> = {
   params: T[];
   createTxAtom: AtomType<T>;
   useDisposableSigner?: boolean;
-  eventType: TxKinds;
+  eventType: TransactionEventTypes;
   parsePendingTxNotification?: (tx: TransactionPair<T>) => PartialNotification;
   parseErrorTxNotification?: () => PartialNotification;
 } & UseTransactionPropsEvents<T>;

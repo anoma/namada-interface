@@ -15,4 +15,3 @@ export const txKinds = [
 ] as const;
 
 export type TxKind = (typeof txKinds)[number];
-export type TxKinds = TxKind | TxKind[];
