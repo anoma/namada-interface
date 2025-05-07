@@ -52,7 +52,7 @@ export const TabContainer = ({
                 "--hover":
                   activeTabIndex !== index ? colors.neutral[900] : colors.black,
                 "--text-color": colors.white,
-                "--text-hover-color": colors.white,
+                "--text-hover-color": colors.yellow[400],
               } as React.CSSProperties
             }
             {...buttonProps}

@@ -67,6 +67,7 @@ export const GovernanceOverview: React.FC = () => {
           <UpcomingProposals proposals={upcomingProposals} />
         </ProposalListPanel>
         <ProposalListPanel
+          className="flex-1"
           title="All Proposals"
           errorText="Unable to load the list of proposals"
           atoms={activeAtoms}
@@ -77,7 +78,7 @@ export const GovernanceOverview: React.FC = () => {
             )}
           />
         </ProposalListPanel>
-        <NavigationFooter />
+        <NavigationFooter className="flex-none h-16" />
       </div>
       <Sidebar>
         <Panel>

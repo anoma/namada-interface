@@ -161,7 +161,7 @@ export const NamadaTransfer: React.FC = () => {
   setLedgerStatusStop(isPerformingTransfer);
 
   return (
-    <Panel className="min-h-[600px] rounded-sm flex flex-col flex-1 py-20">
+    <Panel className="min-h-[600px] rounded-sm flex flex-col flex-1 pt-5 pb-20">
       <header className="flex flex-col items-center text-center mb-3 gap-6">
         <h1
           className={twMerge("mt-6 text-xl", isSourceShielded && "text-yellow")}

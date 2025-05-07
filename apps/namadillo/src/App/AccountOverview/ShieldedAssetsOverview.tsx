@@ -15,7 +15,7 @@ export const ShieldedAssetsOverview = (): JSX.Element => {
 
   return (
     <Panel className="relative z-10 px-6 border border-yellow rounded-t-none -mt-px h-full">
-      <div className="flex items-center gap-16 mt-4">
+      <div className="flex justify-between gap-16 mt-4">
         <TotalBalanceCard
           balanceInFiat={shieldedAmountInFiat}
           isShielded={true}

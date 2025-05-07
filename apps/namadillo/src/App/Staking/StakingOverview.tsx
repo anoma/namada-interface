@@ -26,7 +26,7 @@ export const StakingOverview = (): JSX.Element => {
 
   return (
     <PageWithSidebar>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col flex-1 gap-2">
         {!userHasAccount && <ConnectBanner actionText="To stake" />}
         {userHasAccount && <StakingSummary />}
         {hasStaking && (
@@ -47,10 +47,13 @@ export const StakingOverview = (): JSX.Element => {
             <UnbondingAmountsTable />
           </Panel>
         )}
-        <Panel className="relative pb-6 overflow-hidden" title="All Validators">
+        <Panel
+          className="relative pb-6 overflow-hidden flex-1"
+          title="All Validators"
+        >
           <AllValidatorsTable />
         </Panel>
-        <NavigationFooter />
+        <NavigationFooter className="flex-none h-16" />
       </div>
       <Sidebar>
         {hasStaking && myValidators.isSuccess && (
