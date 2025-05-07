@@ -10,7 +10,7 @@ import { ClaimRewardsProps, TransferTransactionData } from "types";
 import { TxKind } from "types/txKind";
 
 export type TransactionEventsClasses = Partial<TxKind>;
-export type TxKindsInput = TxKind | readonly TxKind[];
+export type TxKindsInput = TxKind | TxKind[];
 
 export type TransactionEventsStatus =
   | "Pending"

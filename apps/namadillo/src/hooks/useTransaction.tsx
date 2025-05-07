@@ -81,13 +81,18 @@ export const useTransaction = <T,>({
   const dispatchNotification = useSetAtom(dispatchToastNotificationAtom);
   const { mutateAsync: performBuildTx } = useAtomValue(createTxAtom);
 
-  // We don't want to display zeroed value when params are not set yet.
   const kinds: TxKind[] =
-    Array.isArray(eventType) ? [...eventType] : [eventType];
+    Array.isArray(eventType) ?
+      [...eventType]
+    : new Array(Math.max(1, params.length)).fill(eventType); // Don't display zeroed value when params are not set yet.
   const feeProps = useTransactionFee(
     kinds,
     kinds.some((k) => ["ShieldedTransfer", "UnshieldingTransfer"].includes(k))
   );
+
+  // Claim & Stake is the only array of tx kinds. The rest are single tx kinds.
+  const broadcastEventType =
+    !Array.isArray(eventType) ? eventType : "ClaimRewards";
 
   const dispatchPendingTxNotification = (
     tx: TransactionPair<T>,
@@ -190,16 +195,13 @@ export const useTransaction = <T,>({
 
         await onBeforeBroadcast?.(transactionPair);
         try {
-          await Promise.all(
-            kinds.map((kind) =>
-              broadcastTxWithEvents(
-                transactionPair.encodedTxData,
-                transactionPair.signedTxs,
-                transactionPair.encodedTxData.meta?.props,
-                kind
-              )
-            )
+          broadcastTxWithEvents(
+            transactionPair.encodedTxData,
+            transactionPair.signedTxs,
+            transactionPair.encodedTxData.meta?.props,
+            broadcastEventType
           );
+
           onBroadcasted?.(transactionPair);
         } catch (error) {
           if (parseErrorTxNotification) {
