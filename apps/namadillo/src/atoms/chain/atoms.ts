@@ -86,7 +86,7 @@ export const chainAssetsMapAtom = atom<Record<Address, Asset | undefined>>(
     const chainTokensQuery = get(chainTokensAtom);
 
     // TODO we should get this dynamically from the Github like how we do for chains
-    const assets: Asset[] = namadaAssets.assets as Asset[];
+    const assets = namadaAssets.assets as Asset[];
 
     const chainAssetsMap: Record<Address, Asset> = {};
     if (nativeTokenAddress.data) {

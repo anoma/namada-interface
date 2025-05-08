@@ -83,7 +83,10 @@ export const namadaAsset = (): Asset => {
   const config = store.get(localnetConfigAtom);
 
   const configTokenAddress = config.data?.tokenAddress;
-  const registryAsset = namadaAssets.assets[0];
+
+  // TODO we should get this dynamically from the Github like how we do for chains
+  const assets = namadaAssets.assets as Asset[];
+  const registryAsset = assets[0];
   const asset =
     configTokenAddress ?
       {
@@ -92,7 +95,7 @@ export const namadaAsset = (): Asset => {
       }
     : registryAsset;
 
-  return asset satisfies Asset;
+  return asset;
 };
 
 export const isNamadaAsset = (asset?: Asset): boolean =>
