@@ -22,7 +22,7 @@ import {
   LedgerAccountInfo,
   WalletProvider,
 } from "types";
-import { filterAvailableAsssetsWithBalance } from "utils/assets";
+import { filterAvailableAssetsWithBalance } from "utils/assets";
 import { checkKeychainCompatibleWithMasp } from "utils/compatibility";
 import { getDisplayGasFee } from "utils/gas";
 import {
@@ -184,7 +184,7 @@ export const TransferModule = ({
   const [memo, setMemo] = useState<undefined | string>();
   const keychainVersion = useKeychainVersion();
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
-  const allUsersAssets = Object.values(chainAssetsMap) ?? [];
+  const chainAssets = Object.values(chainAssetsMap) ?? [];
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
 
   const displayGasFee = useMemo(() => {
@@ -192,7 +192,7 @@ export const TransferModule = ({
   }, [gasConfig]);
 
   const availableAssets: AddressWithAssetAndAmountMap = useMemo(() => {
-    return filterAvailableAsssetsWithBalance(source.availableAssets);
+    return filterAvailableAssetsWithBalance(source.availableAssets);
   }, [source.availableAssets]);
 
   const selectedAsset = mapUndefined(
@@ -348,24 +348,24 @@ export const TransferModule = ({
     return assetDisplayAmount.gt(feeDisplayAmount);
   }
 
-  const chainAcceptedAssets = useMemo(() => {
+  const filteredAvailableAssets = useMemo(() => {
     // Get available assets that are accepted by the chain
     return Object.values(availableAssets).filter(({ asset }) => {
       if (!source.chain) return true;
-      return allUsersAssets.some(
+      return chainAssets.some(
         (chainAsset) =>
           chainAsset?.symbol.toLowerCase() === asset?.symbol.toLowerCase()
       );
     });
-  }, [availableAssets, source.chain, allUsersAssets]);
+  }, [availableAssets, source.chain, chainAssets]);
 
   const sortedAssets = useMemo(() => {
-    if (!chainAcceptedAssets.length) {
+    if (!filteredAvailableAssets.length) {
       return [];
     }
 
     // Sort filtered assets by amount
-    return [...chainAcceptedAssets].sort(
+    return [...filteredAvailableAssets].sort(
       (
         asset1: AddressWithAssetAndAmount,
         asset2: AddressWithAssetAndAmount
@@ -373,7 +373,7 @@ export const TransferModule = ({
         return asset1.amount.gt(asset2.amount) ? -1 : 1;
       }
     );
-  }, [chainAcceptedAssets]);
+  }, [filteredAvailableAssets]);
 
   const getButtonTextError = (
     id: ValidationResult,

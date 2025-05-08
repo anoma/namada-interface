@@ -122,12 +122,6 @@ export const availableChainsAtom = atom((get) => {
   return getKnownChains(settings.advancedMode).map(({ chain }) => chain);
 });
 
-// Lists only the available assets list
-export const availableAssetsAtom = atom((get) => {
-  const settings = get(settingsAtom);
-  return getKnownChains(settings.advancedMode).map(({ assets }) => assets);
-});
-
 export const ibcRateLimitAtom = atomWithQuery((get) => {
   const chainTokens = get(chainTokensAtom);
   return {
@@ -159,7 +153,12 @@ export const enabledIbcAssetsDenomFamily = atomFamily((ibcChannel?: string) => {
           const ibcRateLimit = ibcRateLimits.data?.find(
             (rateLimit) => rateLimit.tokenAddress === token.address
           );
-          if (ibcRateLimit && BigNumber(ibcRateLimit.throughputLimit).gt(0)) {
+          if (
+            // if we don't have a rate limit defined on the indexer, believe that the sky is the limit
+            !ibcRateLimit ||
+            // otherwise, check if the limit is greater than zero
+            (ibcRateLimit && BigNumber(ibcRateLimit.throughputLimit).gt(0))
+          ) {
             if ("trace" in token) {
               availableTokens.push(getDenomFromIbcTrace(token.trace));
             }

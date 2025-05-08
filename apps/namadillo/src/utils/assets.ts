@@ -17,6 +17,13 @@ export const findAssetByToken = (
   token: NativeToken | IbcToken,
   assets: Asset[]
 ): Asset | undefined => {
+  // first, search by the address
+  const asset = assets.find((a) => a.address === token.address);
+  if (asset) {
+    return asset;
+  }
+
+  // then, search by trace
   if ("trace" in token) {
     const traceDenom = token.trace.split("/").at(-1);
     if (traceDenom) {
@@ -36,7 +43,7 @@ export const findAssetByToken = (
   return undefined;
 };
 
-export const filterAvailableAsssetsWithBalance = (
+export const filterAvailableAssetsWithBalance = (
   availableAssets?: AddressWithAssetAndAmountMap
 ): AddressWithAssetAndAmountMap => {
   if (!availableAssets) return {};

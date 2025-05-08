@@ -3557,10 +3557,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@namada/chain-registry@npm:^1.0.0":
+"@namada/chain-registry@github:anoma/namada-chain-registry#5a884bf6343f5130c4a419901a87ea86df53dd83":
   version: 1.1.0
-  resolution: "@namada/chain-registry@npm:1.1.0"
-  checksum: 10c0/5a9d94c1963cf6d9269281fba77a13fa2b3e3a1d8181b02ce628bae14e004a4ebb0ecf6fa901597d7f3e16b7136303d71447fa11ce19d1583d9208e43afd1ed4
+  resolution: "@namada/chain-registry@https://github.com/anoma/namada-chain-registry.git#commit=5a884bf6343f5130c4a419901a87ea86df53dd83"
+  checksum: 10c0/419160814963c71a9b867f34cc86593b6eac6f670788494b43a8a61ac7afe3f2da36581b60a4fb920933cd9c23e343c0916991aa97c37d2808d2d7bf92accb74
   languageName: node
   linkType: hard
 
@@ -3826,7 +3826,7 @@ __metadata:
     "@cosmjs/encoding": "npm:^0.32.3"
     "@eslint/js": "npm:^9.9.1"
     "@keplr-wallet/types": "npm:^0.12.136"
-    "@namada/chain-registry": "npm:^1.0.0"
+    "@namada/chain-registry": "github:anoma/namada-chain-registry#5a884bf6343f5130c4a419901a87ea86df53dd83"
     "@namada/indexer-client": "npm:2.5.4"
     "@playwright/test": "npm:^1.24.1"
     "@svgr/webpack": "npm:^6.5.1"

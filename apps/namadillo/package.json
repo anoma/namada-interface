@@ -10,7 +10,7 @@
     "@chain-registry/client": "^1.53.5",
     "@cosmjs/encoding": "^0.32.3",
     "@keplr-wallet/types": "^0.12.136",
-    "@namada/chain-registry": "^1.0.0",
+    "@namada/chain-registry": "github:anoma/namada-chain-registry#5a884bf6343f5130c4a419901a87ea86df53dd83",
     "@namada/indexer-client": "2.5.4",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tanstack/query-core": "^5.40.0",
