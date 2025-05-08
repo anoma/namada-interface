@@ -1,5 +1,6 @@
 import { Chain } from "@chain-registry/types";
 import { CopyToClipboardControl, Stack } from "@namada/components";
+import { WrapperTransactionInnerTransactionsInner } from "@namada/indexer-client";
 import { shortenAddress } from "@namada/utils";
 import {
   isNamadaAddress,
@@ -17,14 +18,10 @@ import { wallets } from "integrations";
 import { useMemo } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { GoHourglass, GoXCircle } from "react-icons/go";
-import {
-  allTransferTypes,
-  PartialTransferTransactionData,
-  TransferStep,
-} from "types";
+import { allTransferTypes, TransferStep } from "types";
 
 type TransactionReceiptProps = {
-  transaction: PartialTransferTransactionData;
+  transaction: WrapperTransactionInnerTransactionsInner;
 };
 
 const stepDescription: Record<TransferStep, string> = {

@@ -54,7 +54,7 @@ export const TransactionHistory = (): JSX.Element => {
     return historicalTransactions.slice(startIndex, endIndex);
   }, [historicalTransactions, currentPage]);
 
-  console.log(paginatedTransactions);
+  console.log(historicalTransactions);
 
   const renderRow = (
     transaction: TransactionHistoryType,

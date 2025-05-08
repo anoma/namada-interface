@@ -1,6 +1,6 @@
 import { Panel } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
-import { WrapperTransaction } from "@namada/indexer-client";
+import { InnerTransaction } from "@namada/indexer-client";
 import { TransactionReceipt } from "App/Common/TransactionReceipt";
 import { indexerApiAtom } from "atoms/api";
 import { useAtomValue } from "jotai";
@@ -10,16 +10,14 @@ import { TransactionNotFoundPanel } from "./TransactionNotFoundPanel";
 export const TransactionDetails = (): JSX.Element => {
   const { hash } = useSanitizedParams();
   const api = useAtomValue(indexerApiAtom);
-  const [transaction, setTransaction] = useState<WrapperTransaction | null>(
-    null
-  );
+  const [transaction, setTransaction] = useState<InnerTransaction | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTransactionData = async (): Promise<void> => {
       try {
         if (hash) {
-          const response = await api.apiV1ChainWrapperTxIdGet(hash);
+          const response = await api.apiV1ChainInnerTxIdGet(hash);
           setTransaction(response.data);
         }
       } catch (error) {
