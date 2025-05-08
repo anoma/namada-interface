@@ -45,7 +45,7 @@ Namespace for key related functions
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:35](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/keys/keys.ts#L35)
+[sdk/src/keys/keys.ts:35](https://github.com/anoma/namada-interface/blob/b571d36612aca4b6f372eca3c9f95969b377bd69/packages/sdk/src/keys/keys.ts#L35)
 
 ## Properties
 
@@ -57,7 +57,7 @@ Memory accessor for crypto lib
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:35](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/keys/keys.ts#L35)
+[sdk/src/keys/keys.ts:35](https://github.com/anoma/namada-interface/blob/b571d36612aca4b6f372eca3c9f95969b377bd69/packages/sdk/src/keys/keys.ts#L35)
 
 ## Methods
 
@@ -83,7 +83,7 @@ Keys and address
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:72](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/keys/keys.ts#L72)
+[sdk/src/keys/keys.ts:72](https://github.com/anoma/namada-interface/blob/b571d36612aca4b6f372eca3c9f95969b377bd69/packages/sdk/src/keys/keys.ts#L72)
 
 ___
 
@@ -108,7 +108,7 @@ Keys and address
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:110](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/keys/keys.ts#L110)
+[sdk/src/keys/keys.ts:110](https://github.com/anoma/namada-interface/blob/b571d36612aca4b6f372eca3c9f95969b377bd69/packages/sdk/src/keys/keys.ts#L110)
 
 ___
 
@@ -132,7 +132,7 @@ Object representing MASP related keys
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:181](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/keys/keys.ts#L181)
+[sdk/src/keys/keys.ts:181](https://github.com/anoma/namada-interface/blob/b571d36612aca4b6f372eca3c9f95969b377bd69/packages/sdk/src/keys/keys.ts#L181)
 
 ___
 
@@ -158,7 +158,7 @@ Shielded keys and address
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:165](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/keys/keys.ts#L165)
+[sdk/src/keys/keys.ts:165](https://github.com/anoma/namada-interface/blob/b571d36612aca4b6f372eca3c9f95969b377bd69/packages/sdk/src/keys/keys.ts#L165)
 
 ___
 
@@ -184,7 +184,7 @@ Shielded keys and address
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:141](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/keys/keys.ts#L141)
+[sdk/src/keys/keys.ts:141](https://github.com/anoma/namada-interface/blob/b571d36612aca4b6f372eca3c9f95969b377bd69/packages/sdk/src/keys/keys.ts#L141)
 
 ___
 
@@ -208,7 +208,7 @@ Keys and address
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:58](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/keys/keys.ts#L58)
+[sdk/src/keys/keys.ts:58](https://github.com/anoma/namada-interface/blob/b571d36612aca4b6f372eca3c9f95969b377bd69/packages/sdk/src/keys/keys.ts#L58)
 
 ___
 
@@ -226,7 +226,7 @@ Keys and address
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:262](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/keys/keys.ts#L262)
+[sdk/src/keys/keys.ts:262](https://github.com/anoma/namada-interface/blob/b571d36612aca4b6f372eca3c9f95969b377bd69/packages/sdk/src/keys/keys.ts#L262)
 
 ___
 
@@ -251,7 +251,7 @@ GeneratedPaymentAddress
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:227](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/keys/keys.ts#L227)
+[sdk/src/keys/keys.ts:227](https://github.com/anoma/namada-interface/blob/b571d36612aca4b6f372eca3c9f95969b377bd69/packages/sdk/src/keys/keys.ts#L227)
 
 ___
 
@@ -275,7 +275,7 @@ Address and public key
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:42](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/keys/keys.ts#L42)
+[sdk/src/keys/keys.ts:42](https://github.com/anoma/namada-interface/blob/b571d36612aca4b6f372eca3c9f95969b377bd69/packages/sdk/src/keys/keys.ts#L42)
 
 ___
 
@@ -299,4 +299,4 @@ ShieldedKeys
 
 #### Defined in
 
-[sdk/src/keys/keys.ts:240](https://github.com/anoma/namada-interface/blob/dedbae7e806a646649051a09499b31d03fef0091/packages/sdk/src/keys/keys.ts#L240)
+[sdk/src/keys/keys.ts:240](https://github.com/anoma/namada-interface/blob/b571d36612aca4b6f372eca3c9f95969b377bd69/packages/sdk/src/keys/keys.ts#L240)
