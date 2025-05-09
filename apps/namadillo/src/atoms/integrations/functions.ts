@@ -59,6 +59,7 @@ registry.assets.push(
   namadaAssets
 );
 
+// This is the array we must update to add new chains and assets
 const mainnetChains: ChainRegistryEntry[] = [
   celestia,
   cosmos,
