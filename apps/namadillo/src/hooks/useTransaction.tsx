@@ -193,7 +193,7 @@ export const useTransaction = <T,>({
 
         await onBeforeBroadcast?.(transactionPair);
         try {
-          broadcastTxWithEvents(
+          await broadcastTxWithEvents(
             transactionPair.encodedTxData,
             transactionPair.signedTxs,
             transactionPair.encodedTxData.meta?.props,
