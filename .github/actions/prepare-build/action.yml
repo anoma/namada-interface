@@ -11,6 +11,9 @@ runs:
       with:
         cache-name: build
 
+    - name: Setup Rust toolchain
+      run: rustup toolchain add nightly-2025-03-27
+
     - name: Install protoc
       run: sudo apt-get install -y protobuf-compiler
       shell: bash
