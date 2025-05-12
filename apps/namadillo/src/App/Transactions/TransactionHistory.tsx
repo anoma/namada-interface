@@ -26,9 +26,6 @@ export const transferKindOptions = [
   "received",
 ];
 
-// NOTES:
-// - WrapperID is the transaction hash
-// - TxID is the inner transaction
 export const TransactionHistory = (): JSX.Element => {
   const [currentPage, setCurrentPage] = useState(0);
   const pending = useAtomValue(pendingTransactionsHistoryAtom);
@@ -53,8 +50,6 @@ export const TransactionHistory = (): JSX.Element => {
     const endIndex = startIndex + ITEMS_PER_PAGE;
     return historicalTransactions.slice(startIndex, endIndex);
   }, [historicalTransactions, currentPage]);
-
-  console.log(historicalTransactions, "shitoryyy");
 
   const renderRow = (
     transaction: TransactionHistoryType,
