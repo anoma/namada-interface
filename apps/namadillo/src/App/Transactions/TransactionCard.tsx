@@ -1,3 +1,4 @@
+import { CopyToClipboardControl } from "@namada/components";
 import { TransactionHistory as TransactionHistoryType } from "@namada/indexer-client";
 import { shortenAddress } from "@namada/utils";
 import { TokenCurrency } from "App/Common/TokenCurrency";
@@ -139,7 +140,7 @@ export const TransactionCard = ({ tx }: Props): JSX.Element => {
     <article
       className={twMerge(
         clsx(
-          "grid grid-cols-4 items-center my-1",
+          "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 items-center my-1",
           "gap-5 bg-neutral-800 rounded-sm px-5 py-5 text-white border border-transparent",
           "transition-colors duration-200 hover:border-neutral-500"
         )
@@ -169,11 +170,15 @@ export const TransactionCard = ({ tx }: Props): JSX.Element => {
           >
             {titleFor(transaction?.kind, isReceived)}{" "}
             {!transactionFailed && (
-              <IoCheckmarkCircleOutline className="ml-1 mt-0.5 w-4 h-4" />
+              <IoCheckmarkCircleOutline className="ml-1 mt-0.5 w-5 h-5" />
             )}
             {transactionFailed && (
-              <IoCloseCircleOutline className="ml-1 mt-0.5 w-4 h-4" />
+              <IoCloseCircleOutline className="ml-1 mt-0.5 w-5 h-5" />
             )}
+            <CopyToClipboardControl
+              className="ml-1.5 text-neutral-400"
+              value={transaction?.txId ?? ""}
+            />
           </h3>
           <h3 className="text-neutral-400">
             {timestamp ?
