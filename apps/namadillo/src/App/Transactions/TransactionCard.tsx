@@ -1,9 +1,16 @@
 import { TransactionHistory as TransactionHistoryType } from "@namada/indexer-client";
+import { shortenAddress } from "@namada/utils";
 import { TokenCurrency } from "App/Common/TokenCurrency";
+import { AssetImage } from "App/Transfer/AssetImage";
+import { isShieldedAddress, isTransparentAddress } from "App/Transfer/common";
+import { indexerApiAtom } from "atoms/api";
+import { fetchBlockByHeight } from "atoms/balance/services";
 import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
+import { FaLock } from "react-icons/fa6";
 import {
   IoArrowBack,
   IoArrowForward,
@@ -12,6 +19,7 @@ import {
 } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 import { toDisplayAmount } from "utils";
+import keplrSvg from "../../integrations/assets/keplr.svg";
 
 type Tx = TransactionHistoryType;
 type Props = { tx: Tx };
@@ -42,7 +50,7 @@ export function getToken(txn: Tx["tx"]): string | undefined {
 
 const titleFor = (kind: string | undefined, isReceived: boolean): string => {
   if (!kind) return "Unknown";
-  if (isReceived) return "Received";
+  if (isReceived) return "Receive";
   if (kind.startsWith(IBC_PREFIX)) return "IBC Transfer";
   if (kind === "transparentTransfer") return "Transparent Transfer";
   if (kind === "shieldingTransfer" || kind === "unshieldingTransfer")
@@ -53,36 +61,31 @@ const titleFor = (kind: string | undefined, isReceived: boolean): string => {
 
 export function getTransactionInfo(
   tx: Tx["tx"]
-): { amount: BigNumber; receiver: string } | undefined {
-  let parsed: RawDataSection | RawDataSection[];
-  if (typeof tx?.data === "string") {
-    parsed = JSON.parse(tx.data);
-  } else if (tx?.data) {
-    parsed = tx.data;
-  } else {
-    return undefined;
-  }
+): { amount: BigNumber; sender?: string; receiver?: string } | undefined {
+  if (!tx?.data) return undefined;
 
-  const sections = Array.isArray(parsed) ? parsed : [parsed];
-  if (sections.length === 0) return undefined;
+  const parsed = typeof tx.data === "string" ? JSON.parse(tx.data) : tx.data;
+  const sections: RawDataSection[] = Array.isArray(parsed) ? parsed : [parsed];
+
+  let sender: string | undefined;
+  let receiver: string | undefined;
+  let amount: BigNumber | undefined;
 
   for (const sec of sections) {
-    // Try targets first (i.e. true transfers)
-    if (sec.targets?.length && sec.targets[0].amount && sec.targets[0].owner) {
-      return {
-        amount: new BigNumber(sec.targets[0].amount),
-        receiver: sec.targets[0].owner,
-      };
+    if (!amount && sec.targets?.[0]?.amount) {
+      amount = new BigNumber(sec.targets[0].amount);
+      receiver = sec.targets[0].owner;
     }
-    // Fallback to sources
-    if (sec.sources?.length && sec.sources[0].amount && sec.sources[0].owner) {
-      return {
-        amount: new BigNumber(sec.sources[0].amount),
-        receiver: sec.sources[0].owner,
-      };
+    if (!amount && sec.sources?.[0]?.amount) {
+      amount = new BigNumber(sec.sources[0].amount);
     }
+    if (!sender && sec.sources?.[0]?.owner) {
+      sender = sec.sources[0].owner;
+    }
+    if (amount && (sender || receiver)) break; // we have what we need
   }
-  return undefined;
+
+  return amount ? { amount, sender, receiver } : undefined;
 }
 
 export const TransactionCard = ({ tx }: Props): JSX.Element => {
@@ -98,49 +101,140 @@ export const TransactionCard = ({ tx }: Props): JSX.Element => {
       toDisplayAmount(asset, txnInfo.amount)
     : undefined;
   const receiver = txnInfo?.receiver;
+  const sender = txnInfo?.sender;
+  const transactionFailed = transaction?.exitCode === "rejected";
+  const api = useAtomValue(indexerApiAtom);
+  const [timestamp, setTimestamp] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const getBlockHeight = async (): Promise<void> => {
+      // TODO: need to update the type on indexer
+      // @ts-expect-error need to update the type on indexer
+      if (transactionTopLevel?.blockHeight && api) {
+        try {
+          const timestamp = await fetchBlockByHeight(
+            api,
+            // @ts-expect-error need to update the type on indexer
+            transactionTopLevel.blockHeight
+          );
+          console.log(timestamp, "timestamp");
+          setTimestamp(timestamp);
+        } catch (error) {
+          console.error("Failed to fetch block height:", error);
+        }
+      }
+    };
+
+    getBlockHeight();
+    // @ts-expect-error need to update the type on indexer
+  }, [api, transactionTopLevel?.blockHeight]);
+
+  const renderKeplrIcon = (address: string): JSX.Element | null => {
+    if (isShieldedAddress(address)) return null;
+    if (isTransparentAddress(address)) return null;
+    return <img src={keplrSvg} height={18} width={18} />;
+  };
 
   return (
     <article
       className={twMerge(
         clsx(
-          "grid grid-cols-[min-content_auto_min-content] items-center my-1",
+          "grid grid-cols-4 items-center my-1",
           "gap-5 bg-neutral-800 rounded-sm px-5 py-5 text-white border border-transparent",
           "transition-colors duration-200 hover:border-neutral-500"
         )
       )}
     >
-      <i className={twMerge(clsx("text-2xl text-yellow"))}>
-        {isReceived && <IoArrowBack width={20} height={20} />}
-        {!isReceived && <IoArrowForward width={20} height={20} />}
-      </i>
+      <div className="flex items-center gap-3">
+        <i
+          className={twMerge(
+            clsx("text-2xl", {
+              "text-success": !transactionFailed,
+              "text-fail": transactionFailed,
+            })
+          )}
+        >
+          {isReceived && <IoArrowBack width={20} height={20} />}
+          {!isReceived && <IoArrowForward width={20} height={20} />}
+        </i>
 
-      <div>
-        <h3>{titleFor(transaction?.kind, isReceived)}</h3>
-        <p className="text-sm text-neutral-400">
-          <TokenCurrency
-            className="text-white"
-            amount={baseAmount ?? BigNumber(0)}
-            symbol={asset?.symbol ?? ""}
-          />{" "}
-          to {receiver}
-        </p>
+        <div className="flex flex-col">
+          <h3
+            className={twMerge(
+              clsx("flex", {
+                "text-success": !transactionFailed,
+                "text-fail": transactionFailed,
+              })
+            )}
+          >
+            {titleFor(transaction?.kind, isReceived)}{" "}
+            {!transactionFailed && (
+              <IoCheckmarkCircleOutline className="ml-1 mt-0.5 w-4 h-4" />
+            )}
+            {transactionFailed && (
+              <IoCloseCircleOutline className="ml-1 mt-0.5 w-4 h-4" />
+            )}
+          </h3>
+          <h3 className="text-neutral-400">
+            {timestamp ?
+              new Date(timestamp * 1000)
+                .toLocaleString("en-US", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+                .replace(",", "")
+            : "-"}
+          </h3>
+        </div>
       </div>
 
-      <i
-        className={twMerge(
-          clsx("text-xl", {
-            "text-white": transaction?.exitCode === "applied",
-            "text-fail": transaction?.exitCode === "rejected",
-          })
-        )}
-      >
-        {transaction?.exitCode === "applied" && (
-          <IoCheckmarkCircleOutline className="w-6 h-6" />
-        )}
-        {transaction?.exitCode === "rejected" && (
-          <IoCloseCircleOutline className="w-6 h-6" />
-        )}
-      </i>
+      <div className="flex items-center">
+        <div className="aspect-square w-8 h-8">
+          <AssetImage asset={asset} />
+        </div>
+        <TokenCurrency
+          className="text-white mt-1 ml-2"
+          amount={baseAmount ?? BigNumber(0)}
+          symbol={asset?.symbol ?? ""}
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <h4 className={isShieldedAddress(sender ?? "") ? "text-yellow" : ""}>
+          From
+        </h4>
+        <h4 className={isShieldedAddress(sender ?? "") ? "text-yellow" : ""}>
+          {isShieldedAddress(sender ?? "") ?
+            <span className="flex items-center gap-1">
+              <FaLock className="w-4 h-4" /> znam
+            </span>
+          : <div className="flex items-center gap-1">
+              {renderKeplrIcon(sender ?? "")}
+              {shortenAddress(sender ?? "", 10, 10)}
+            </div>
+          }
+        </h4>
+      </div>
+
+      <div className="flex flex-col">
+        <h4 className={isShieldedAddress(receiver ?? "") ? "text-yellow" : ""}>
+          To
+        </h4>
+        <h4 className={isShieldedAddress(receiver ?? "") ? "text-yellow" : ""}>
+          {isShieldedAddress(receiver ?? "") ?
+            <span className="flex items-center gap-1">
+              <FaLock className="w-4 h-4" /> znam
+            </span>
+          : <div className="flex items-center gap-1">
+              {renderKeplrIcon(receiver ?? "")}
+              {shortenAddress(receiver ?? "", 10, 10)}
+            </div>
+          }
+        </h4>
+      </div>
     </article>
   );
 };

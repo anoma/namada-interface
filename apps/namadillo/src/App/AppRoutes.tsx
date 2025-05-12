@@ -45,7 +45,6 @@ import { StakingRewards } from "./Staking/StakingRewards";
 import { StakingWithdrawModal } from "./Staking/StakingWithdrawModal";
 import { Unstake } from "./Staking/Unstake";
 import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
-import { TransactionDetails } from "./Transactions/TransactionDetails";
 import { TransactionHistory } from "./Transactions/TransactionHistory";
 import { TransferLayout } from "./Transfer/TransferLayout";
 
@@ -126,10 +125,6 @@ export const MainRoutes = (): JSX.Element => {
           {(features.namTransfersEnabled || features.ibcTransfersEnabled) && (
             <Route>
               <Route path={routes.history} element={<TransactionHistory />} />
-              <Route
-                path={routes.transaction}
-                element={<TransactionDetails />}
-              />
             </Route>
           )}
 

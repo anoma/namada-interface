@@ -54,7 +54,7 @@ export const TransactionHistory = (): JSX.Element => {
     return historicalTransactions.slice(startIndex, endIndex);
   }, [historicalTransactions, currentPage]);
 
-  console.log(historicalTransactions);
+  console.log(historicalTransactions, "shitoryyy");
 
   const renderRow = (
     transaction: TransactionHistoryType,
