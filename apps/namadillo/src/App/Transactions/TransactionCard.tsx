@@ -201,7 +201,7 @@ export const TransactionCard = ({ tx }: Props): JSX.Element => {
           <AssetImage asset={asset} />
         </div>
         <TokenCurrency
-          className="text-white mt-1 ml-2"
+          className="font-semibold text-white mt-1 ml-2"
           amount={baseAmount ?? BigNumber(0)}
           symbol={asset?.symbol ?? ""}
         />
