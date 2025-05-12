@@ -5,7 +5,7 @@ import { TokenCurrency } from "App/Common/TokenCurrency";
 import { AssetImage } from "App/Transfer/AssetImage";
 import { isShieldedAddress, isTransparentAddress } from "App/Transfer/common";
 import { indexerApiAtom } from "atoms/api";
-import { fetchBlockByHeight } from "atoms/balance/services";
+import { fetchBlockTimestampByHeight } from "atoms/balance/services";
 import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -108,17 +108,16 @@ export const TransactionCard = ({ tx }: Props): JSX.Element => {
   const [timestamp, setTimestamp] = useState<number | undefined>(undefined);
 
   useEffect(() => {
-    const getBlockHeight = async (): Promise<void> => {
+    const getBlockTimestamp = async (): Promise<void> => {
       // TODO: need to update the type on indexer
       // @ts-expect-error need to update the type on indexer
       if (transactionTopLevel?.blockHeight && api) {
         try {
-          const timestamp = await fetchBlockByHeight(
+          const timestamp = await fetchBlockTimestampByHeight(
             api,
             // @ts-expect-error need to update the type on indexer
             transactionTopLevel.blockHeight
           );
-          console.log(timestamp, "timestamp");
           setTimestamp(timestamp);
         } catch (error) {
           console.error("Failed to fetch block height:", error);
@@ -126,7 +125,7 @@ export const TransactionCard = ({ tx }: Props): JSX.Element => {
       }
     };
 
-    getBlockHeight();
+    getBlockTimestamp();
     // @ts-expect-error need to update the type on indexer
   }, [api, transactionTopLevel?.blockHeight]);
 
