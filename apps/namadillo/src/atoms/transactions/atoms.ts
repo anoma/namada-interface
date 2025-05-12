@@ -41,34 +41,6 @@ export const fetchTransactionAtom = atom((get) => {
   return (hash: string) => fetchTransaction(api, hash);
 });
 
-// The original atom, kept for backward compatibility
-export const chainTransactionHistoryAtom = atomWithQuery<{
-  results: TransactionHistory[];
-  pagination: Pagination;
-}>((get) => {
-  const api = get(indexerApiAtom);
-  const accounts = get(allDefaultAccountsAtom);
-  const addresses = accounts.data?.map((acc) => acc.address);
-  return {
-    enabled: !!addresses, // Only run the query if we have addresses
-    queryKey: ["chain-transaction-history", addresses],
-    queryFn: async () => {
-      if (!addresses) {
-        return {
-          results: [],
-          pagination: {
-            totalPages: "0",
-            totalItems: "0",
-            currentPage: "0",
-            perPage: "0",
-          },
-        };
-      }
-      return fetchHistoricalTransactions(api, addresses);
-    },
-  };
-});
-
 // New atom family for paginated transaction history
 export const chainTransactionHistoryFamily = atomFamily(
   (options?: { page?: number; perPage?: number; fetchAll?: boolean }) =>
