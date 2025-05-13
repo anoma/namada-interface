@@ -32,7 +32,12 @@ type RawDataSection = {
 const IBC_PREFIX = "ibc";
 
 export function getToken(txn: Tx["tx"]): string | undefined {
-  const parsed = txn?.data ? JSON.parse(txn.data) : undefined;
+  let parsed;
+  try {
+    parsed = txn?.data ? JSON.parse(txn.data) : undefined;
+  } catch (error) {
+    console.error("Failed to parse getToken data:", error);
+  }
   if (!parsed) return undefined;
   const sections = Array.isArray(parsed) ? parsed : [parsed];
 
@@ -68,29 +73,32 @@ export function getTransactionInfo(
   const parsed = typeof tx.data === "string" ? JSON.parse(tx.data) : tx.data;
   const sections: RawDataSection[] = Array.isArray(parsed) ? parsed : [parsed];
 
-  let sender: string | undefined;
   let receiver: string | undefined;
   let amount: BigNumber | undefined;
 
-  for (const sec of sections) {
-    if (!amount && sec.targets?.[0]?.amount) {
-      amount = new BigNumber(sec.targets[0].amount);
-      receiver = sec.targets[0].owner;
-    }
-    if (!amount && sec.sources?.[0]?.amount) {
-      amount = new BigNumber(sec.sources[0].amount);
-    }
-    if (!sender && sec.sources?.[0]?.owner) {
-      sender = sec.sources[0].owner;
-    }
-    if (amount && (sender || receiver)) break; // we have what we need
+  // Find first section with targets or sources that has amount
+  const targetSection = sections.find((sec) => sec.targets?.[0]?.amount);
+  const sourceSection = sections.find((sec) => sec.sources?.[0]?.amount);
+
+  if (targetSection?.targets?.[0]) {
+    amount = new BigNumber(targetSection.targets[0].amount);
+    receiver = targetSection.targets[0].owner;
   }
+
+  if (!amount && sourceSection?.sources?.[0]) {
+    amount = new BigNumber(sourceSection.sources[0].amount);
+  }
+
+  // Find sender from any section with sources
+  const sender = sections.find((sec) => sec.sources?.[0]?.owner)?.sources?.[0]
+    ?.owner;
 
   return amount ? { amount, sender, receiver } : undefined;
 }
 
-export const TransactionCard = ({ tx }: Props): JSX.Element => {
-  const transactionTopLevel = tx;
+export const TransactionCard = ({
+  tx: transactionTopLevel,
+}: Props): JSX.Element => {
   const transaction = transactionTopLevel.tx;
   const isReceived = transactionTopLevel?.kind === "received";
   const token = getToken(transaction);
