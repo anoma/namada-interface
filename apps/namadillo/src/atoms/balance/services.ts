@@ -111,6 +111,14 @@ export const fetchBlockHeightByTimestamp = async (
   return Number(response.data.height);
 };
 
+export const fetchBlockTimestampByHeight = async (
+  api: DefaultApi,
+  height: number
+): Promise<number> => {
+  const response = await api.apiV1BlockHeightValueGet(height);
+  return Number(response.data.timestamp);
+};
+
 export const fetchShieldedRewards = async (
   viewingKey: DatedViewingKey,
   chainId: string,
