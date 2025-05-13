@@ -23,6 +23,8 @@ export const transferKindOptions = [
   "ibcShieldingTransfer",
   "ibcUnshieldingTransfer",
   "ibcShieldedTransfer",
+  "bond",
+  "claimRewards",
   "received",
 ];
 
@@ -32,6 +34,7 @@ export const TransactionHistory = (): JSX.Element => {
   const { data: transactions, isLoading } = useAtomValue(
     chainTransactionHistoryFamily({ perPage: ITEMS_PER_PAGE, fetchAll: true })
   );
+
   // Only show historical transactions that are in the transferKindOptions array
   const historicalTransactions =
     transactions?.results?.filter((transaction) =>

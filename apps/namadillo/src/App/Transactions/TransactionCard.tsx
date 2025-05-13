@@ -58,6 +58,8 @@ const titleFor = (kind: string | undefined, isReceived: boolean): string => {
   if (!kind) return "Unknown";
   if (isReceived) return "Receive";
   if (kind.startsWith(IBC_PREFIX)) return "IBC Transfer";
+  if (kind === "bond") return "Stake";
+  if (kind === "claimRewards") return "Claim Rewards";
   if (kind === "transparentTransfer") return "Transparent Transfer";
   if (kind === "shieldingTransfer") return "Shielding Transfer";
   if (kind === "unshieldingTransfer") return "Unshielding Transfer";
