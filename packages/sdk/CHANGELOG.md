@@ -8,6 +8,15 @@
 
 - enable panic hook in Rust SDK ([6393b82](https://github.com/anoma/namada-interface/commit/6393b8263320e0f6d137f4e015b982f17f7e497e))
 
+## [0.18.1](https://github.com/anoma/namada-interface/compare/sdk@v0.18.0...sdk@v0.18.1) (2025-05-08)
+
+
+### Bug Fixes
+
+* Bump SDK docks, trigger release ([#2008](https://github.com/anoma/namada-interface/issues/2008)) ([a52194e](https://github.com/anoma/namada-interface/commit/a52194e897cb77c224f47ff8021d9e914a473c99))
+* Update Rust toolchain in Dockerfiles ([#2002](https://github.com/anoma/namada-interface/pull/2002)) ([1f60c91](https://github.com/anoma/namada-interface/commit/b571d36612aca4b6f372eca3c9f95969b377bd69))
+* Updating Rust toolchain & SDK version ([#1999](https://github.com/anoma/namada-interface/pull/1999)) ([1f60c91](https://github.com/anoma/namada-interface/commit/27690857b836dcfca8263edda820de1df4bcf821))
+
 ## [0.18.0](https://github.com/anoma/namada-interface/compare/sdk@v0.17.0...sdk@v0.18.0) (2025-04-18)
 
 

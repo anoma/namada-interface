@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.20.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.20.0...namadillo@v1.20.1) (2025-05-08)
+
+
+### Bug Fixes
+
+* Bump indexer to 3.0.1 ([#2007](https://github.com/anoma/namada-interface/issues/2007)) ([1f60c91](https://github.com/anoma/namada-interface/commit/1f60c9188ebafe62049e6037355b97415bf7e524))
+* Update Rust toolchain in Dockerfiles ([#2002](https://github.com/anoma/namada-interface/pull/2002)) ([b571d36](https://github.com/anoma/namada-interface/commit/b571d36612aca4b6f372eca3c9f95969b377bd69))
+* Update gas claiming estimate ([#2001](https://github.com/anoma/namada-interface/pull/2001)) ([10b258c](https://github.com/anoma/namada-interface/commit/10b258cf9f0b5f7e7d0dde00fa44c8efb5d38bff))
+* Updating Rust toolchain & SDK version ([#1999](https://github.com/anoma/namada-interface/pull/1999)) ([2769085](https://github.com/anoma/namada-interface/commit/27690857b836dcfca8263edda820de1df4bcf821))
+
 ## [1.20.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.19.0...namadillo@v1.20.0) (2025-04-29)
 
 

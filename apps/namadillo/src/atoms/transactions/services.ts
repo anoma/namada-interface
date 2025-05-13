@@ -1,5 +1,10 @@
 import { IndexedTx, StargateClient } from "@cosmjs/stargate";
-import { DefaultApi, WrapperTransaction } from "@namada/indexer-client";
+import {
+  DefaultApi,
+  Pagination,
+  TransactionHistory,
+  WrapperTransaction,
+} from "@namada/indexer-client";
 import { IbcTransferTransactionData } from "types";
 import { sanitizeAddress } from "utils/address";
 
@@ -66,4 +71,21 @@ export const fetchTransaction = async (
 ): Promise<WrapperTransaction> => {
   // indexer only accepts the hash as lowercase
   return (await api.apiV1ChainWrapperTxIdGet(sanitizeAddress(hash))).data;
+};
+
+export const fetchHistoricalTransactions = async (
+  api: DefaultApi,
+  addresses: string[],
+  page?: number,
+  perPage?: number
+): Promise<{ results: TransactionHistory[]; pagination: Pagination }> => {
+  const pageParam = page ? page : undefined;
+  const response = await api.apiV1ChainHistoryGet(addresses, {
+    params: {
+      page: pageParam,
+      perPage: perPage,
+    },
+  });
+
+  return response.data;
 };

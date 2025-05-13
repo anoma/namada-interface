@@ -18,11 +18,18 @@ export const fetchRpcUrlFromIndexer = async (
   return rpcUrl.data.url;
 };
 
+// TODO: We need the response type of this call updated in the indexer client
+type TempChainParams = Parameters & {
+  checksums: {
+    current: Record<string, string>;
+    fallback: Record<string, string>;
+  };
+};
 export const fetchChainParameters = async (
   api: DefaultApi
-): Promise<Parameters> => {
+): Promise<TempChainParams> => {
   const parametersResponse = await api.apiV1ChainParametersGet();
-  return parametersResponse.data;
+  return parametersResponse.data as TempChainParams;
 };
 
 export const fetchChainTokens = async (
