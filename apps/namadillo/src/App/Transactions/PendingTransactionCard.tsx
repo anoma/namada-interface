@@ -100,7 +100,7 @@ export const PendingTransactionCard = ({
         <h4 className={isShieldedAddress(sender ?? "") ? "text-yellow" : ""}>
           {isShieldedAddress(sender ?? "") ?
             <span className="flex items-center gap-1">
-              <FaLock className="w-4 h-4" /> znam
+              <FaLock className="w-4 h-4" /> Shielded
             </span>
           : <div className="flex items-center gap-1">
               {renderKeplrIcon(sender ?? "")}
@@ -117,7 +117,7 @@ export const PendingTransactionCard = ({
         <h4 className={isShieldedAddress(receiver ?? "") ? "text-yellow" : ""}>
           {isShieldedAddress(receiver ?? "") ?
             <span className="flex items-center gap-1">
-              <FaLock className="w-4 h-4" /> znam
+              <FaLock className="w-4 h-4" /> Shielded
             </span>
           : <div className="flex items-center gap-1">
               {renderKeplrIcon(receiver ?? "")}
