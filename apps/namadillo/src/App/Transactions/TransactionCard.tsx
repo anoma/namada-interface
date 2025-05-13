@@ -54,8 +54,8 @@ const titleFor = (kind: string | undefined, isReceived: boolean): string => {
   if (isReceived) return "Receive";
   if (kind.startsWith(IBC_PREFIX)) return "IBC Transfer";
   if (kind === "transparentTransfer") return "Transparent Transfer";
-  if (kind === "shieldingTransfer" || kind === "unshieldingTransfer")
-    return "Shielding Transfer";
+  if (kind === "shieldingTransfer") return "Shielding Transfer";
+  if (kind === "unshieldingTransfer") return "Unshielding Transfer";
   if (kind === "shieldedTransfer") return "Shielded Transfer";
   return "Transfer";
 };
