@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.20.2](https://github.com/anoma/namada-interface/compare/namadillo@v1.20.1...namadillo@v1.20.2) (2025-05-13)
+
+
+### Bug Fixes
+
+* Add await back to gas claiming and update indexer client ([#2003](https://github.com/anoma/namada-interface/issues/2003)) ([8009f5c](https://github.com/anoma/namada-interface/commit/8009f5c6bb87643d3d8009b17855296888bb16b2))
+* Missing new ibc tokens and withdraw channels ([#2018](https://github.com/anoma/namada-interface/issues/2018)) ([54303e1](https://github.com/anoma/namada-interface/commit/54303e1cdd757ce9c7ca94e514f0fc2fa110afd8))
+
 ## [1.20.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.20.0...namadillo@v1.20.1) (2025-05-08)
 
 
