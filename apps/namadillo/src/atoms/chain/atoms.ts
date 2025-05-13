@@ -10,7 +10,6 @@ import {
 } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
-import * as osmosis from "chain-registry/mainnet/osmosis";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import {
@@ -86,20 +85,16 @@ export const chainAssetsMapAtom = atom<Record<Address, Asset | undefined>>(
     const nativeTokenAddress = get(nativeTokenAddressAtom);
     const chainTokensQuery = get(chainTokensAtom);
 
+    // TODO we should get this dynamically from the Github like how we do for chains
+    const assets = namadaAssets.assets as Asset[];
+
     const chainAssetsMap: Record<Address, Asset> = {};
     if (nativeTokenAddress.data) {
       // the first asset is the native token asset
-      chainAssetsMap[nativeTokenAddress.data] = namadaAssets.assets[0];
+      chainAssetsMap[nativeTokenAddress.data] = assets[0];
     }
-    // TODO
-    // while we don't have all assets listed on namada-chain-registry,
-    // merge the osmosis assets to guarantee the most common ones to be available
-    const assetList: Asset[] = [
-      ...namadaAssets.assets,
-      ...osmosis.assets.assets,
-    ];
     chainTokensQuery.data?.forEach((token) => {
-      const asset = findAssetByToken(token, assetList);
+      const asset = findAssetByToken(token, assets);
       if (asset) {
         chainAssetsMap[token.address] = asset;
       }

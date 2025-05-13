@@ -130,13 +130,16 @@ export const IbcWithdraw = (): JSX.Element => {
     }
   };
 
-  const updateDestinationChainAndAddress = (chain: Chain | undefined): void => {
+  const updateDestinationChainAndAddress = async (
+    chain: Chain | undefined
+  ): Promise<void> => {
     setDestinationChain(chain);
     if (customAddress) {
       setCustomAddress("");
     }
     if (chain) {
-      loadWalletAddress(chain?.chain_id);
+      await connectToChainId(chain.chain_id);
+      await loadWalletAddress(chain.chain_id);
     }
   };
 
@@ -144,7 +147,7 @@ export const IbcWithdraw = (): JSX.Element => {
     data: ibcChannels,
     isError: unknownIbcChannels,
     isLoading: isLoadingIbcChannels,
-  } = useAtomValue(ibcChannelsFamily(registry?.chain.chain_name));
+  } = useAtomValue(ibcChannelsFamily(destinationChain?.chain_name));
 
   useEffect(() => {
     setSourceChannel(ibcChannels?.namadaChannel || "");
@@ -154,23 +157,25 @@ export const IbcWithdraw = (): JSX.Element => {
   // to other chains different than the original one. Ex: OSMO should only be withdrew to Osmosis,
   // ATOM to Cosmoshub, etc.
   useEffect(() => {
-    if (!selectedAsset || !chainTokens.data) {
-      updateDestinationChainAndAddress(undefined);
-      return;
-    }
+    (async () => {
+      if (!selectedAsset || !chainTokens.data) {
+        await updateDestinationChainAndAddress(undefined);
+        return;
+      }
 
-    const token = chainTokens.data.find(
-      (token) => token.address === selectedAsset.originalAddress
-    );
+      const token = chainTokens.data.find(
+        (token) => token.address === selectedAsset.originalAddress
+      );
 
-    if (token && "trace" in token) {
-      const denom = getDenomFromIbcTrace(token.trace);
-      const chain = searchChainByDenom(denom);
-      updateDestinationChainAndAddress(chain);
-      return;
-    }
+      if (token && "trace" in token) {
+        const denom = getDenomFromIbcTrace(token.trace);
+        const chain = searchChainByDenom(denom);
+        await updateDestinationChainAndAddress(chain);
+        return;
+      }
 
-    updateDestinationChainAndAddress(undefined);
+      await updateDestinationChainAndAddress(undefined);
+    })();
   }, [selectedAsset, chainTokens.data]);
 
   const {

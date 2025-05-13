@@ -29,12 +29,14 @@ export const useWalletManager = (wallet: WalletConnector): UseWalletOutput => {
   const isConnected = connectedWallets[walletKey];
 
   useEffect(() => {
-    if (isConnected && chainId) {
-      connectToChainId(chainId);
-    } else {
-      setWalletAddress(undefined);
-      setRegistry(undefined);
-    }
+    (async () => {
+      if (isConnected && chainId) {
+        await connectToChainId(chainId);
+      } else {
+        setWalletAddress(undefined);
+        setRegistry(undefined);
+      }
+    })();
   }, [isConnected, walletKey, chainId]);
 
   const connectToChainId = async (chainId: string): Promise<void> => {

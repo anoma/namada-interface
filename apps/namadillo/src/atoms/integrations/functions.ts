@@ -6,6 +6,9 @@ import { mapUndefined } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import * as celestia from "chain-registry/mainnet/celestia";
 import * as cosmos from "chain-registry/mainnet/cosmoshub";
+import * as neutron from "chain-registry/mainnet/neutron";
+import * as noble from "chain-registry/mainnet/noble";
+import * as nyx from "chain-registry/mainnet/nyx";
 import * as osmosis from "chain-registry/mainnet/osmosis";
 import * as stride from "chain-registry/mainnet/stride";
 import * as celestiaTestnet from "chain-registry/testnet/celestiatestnet3";
@@ -56,7 +59,16 @@ registry.assets.push(
   namadaAssets
 );
 
-const mainnetChains: ChainRegistryEntry[] = [celestia, cosmos, osmosis, stride];
+// This is the array we must update to add new chains and assets
+const mainnetChains: ChainRegistryEntry[] = [
+  celestia,
+  cosmos,
+  osmosis,
+  stride,
+  neutron,
+  noble,
+  nyx,
+];
 const testnetChains: ChainRegistryEntry[] = [
   cosmosTestnet,
   celestiaTestnet,
