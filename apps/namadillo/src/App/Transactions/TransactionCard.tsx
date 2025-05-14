@@ -7,6 +7,7 @@ import { isShieldedAddress, isTransparentAddress } from "App/Transfer/common";
 import { indexerApiAtom } from "atoms/api";
 import { fetchBlockTimestampByHeight } from "atoms/balance/services";
 import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
+import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
@@ -130,11 +131,11 @@ export const TransactionCard = ({
   const isReceived = transactionTopLevel?.kind === "received";
   const nativeToken = useAtomValue(nativeTokenAddressAtom).data;
   const token = getToken(transaction, nativeToken ?? "");
-
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
   const asset = token ? chainAssetsMap[token] : undefined;
+  const isBondingTransaction = transactionTopLevel?.tx?.kind === "bond";
   const txnInfo =
-    transactionTopLevel?.tx?.kind === "bond" ?
+    isBondingTransaction ?
       getBondTransactionInfo(transaction)
     : getTransactionInfo(transaction);
   const baseAmount =
@@ -144,6 +145,8 @@ export const TransactionCard = ({
   const receiver = txnInfo?.receiver;
   const sender = txnInfo?.sender;
   const transactionFailed = transaction?.exitCode === "rejected";
+  const validators = useAtomValue(allValidatorsAtom);
+  const validator = validators?.data?.find((v) => v.address === receiver);
   const api = useAtomValue(indexerApiAtom);
   const [timestamp, setTimestamp] = useState<number | undefined>(undefined);
 
@@ -265,13 +268,17 @@ export const TransactionCard = ({
 
       <div className="flex flex-col">
         <h4 className={isShieldedAddress(receiver ?? "") ? "text-yellow" : ""}>
-          To
+          {isBondingTransaction ? "Validator" : "To"}
         </h4>
         <h4 className={isShieldedAddress(receiver ?? "") ? "text-yellow" : ""}>
           {isShieldedAddress(receiver ?? "") ?
             <span className="flex items-center gap-1">
               <FaLock className="w-4 h-4" /> Shielded
             </span>
+          : isBondingTransaction ?
+            validator?.imageUrl ?
+              <img src={validator?.imageUrl} className="w-8 h-8" />
+            : shortenAddress(receiver ?? "", 10, 10)
           : <div className="flex items-center gap-1">
               {renderKeplrIcon(receiver ?? "")}
               {shortenAddress(receiver ?? "", 10, 10)}
