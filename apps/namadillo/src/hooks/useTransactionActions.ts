@@ -8,6 +8,7 @@ import { Address, TransferTransactionData } from "types";
 
 type UseTransactionActionsOutput = {
   transactions: TransferTransactionData[];
+  findByHash: (hash: string) => TransferTransactionData | undefined;
   storeTransaction: (tx: TransferTransactionData) => void;
   changeTransaction: (
     hash: string,
@@ -55,8 +56,13 @@ export const useTransactionActions = (): UseTransactionActionsOutput => {
     });
   };
 
+  const findByHash = (hash: string): undefined | TransferTransactionData => {
+    return transactions.find((t) => t.hash === hash);
+  };
+
   return {
     transactions,
+    findByHash,
     storeTransaction,
     changeTransaction,
   };
