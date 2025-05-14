@@ -78,7 +78,7 @@ const TransferTransactionReceipt = ({
   return (
     <Stack className="max-w-[440px] mx-auto">
       <div className="rounded-md bg-neutral-800 px-4 pb-6">
-        <header className="relative flex justify-between">
+        <header className="relative flex justify-between pt-4">
           {sourceChain && (
             <SelectedChain
               chain={sourceChain}
