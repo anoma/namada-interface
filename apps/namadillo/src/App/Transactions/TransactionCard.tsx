@@ -6,7 +6,7 @@ import { AssetImage } from "App/Transfer/AssetImage";
 import { isShieldedAddress, isTransparentAddress } from "App/Transfer/common";
 import { indexerApiAtom } from "atoms/api";
 import { fetchBlockTimestampByHeight } from "atoms/balance/services";
-import { chainAssetsMapAtom } from "atoms/chain";
+import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
@@ -29,9 +29,17 @@ type RawDataSection = {
   sources?: Array<{ amount: string; owner: string }>;
   targets?: Array<{ amount: string; owner: string }>;
 };
-const IBC_PREFIX = "ibc";
+type BondData = {
+  amount: string;
+  source: string;
+  validator: string;
+};
 
-export function getToken(txn: Tx["tx"]): string | undefined {
+export function getToken(
+  txn: Tx["tx"],
+  nativeToken: string
+): string | undefined {
+  if (txn?.kind === "bond") return nativeToken;
   let parsed;
   try {
     parsed = txn?.data ? JSON.parse(txn.data) : undefined;
@@ -54,10 +62,10 @@ export function getToken(txn: Tx["tx"]): string | undefined {
   return undefined;
 }
 
-const titleFor = (kind: string | undefined, isReceived: boolean): string => {
+const getTitle = (kind: string | undefined, isReceived: boolean): string => {
   if (!kind) return "Unknown";
   if (isReceived) return "Receive";
-  if (kind.startsWith(IBC_PREFIX)) return "IBC Transfer";
+  if (kind.startsWith("ibc")) return "IBC Transfer";
   if (kind === "bond") return "Stake";
   if (kind === "claimRewards") return "Claim Rewards";
   if (kind === "transparentTransfer") return "Transparent Transfer";
@@ -67,9 +75,26 @@ const titleFor = (kind: string | undefined, isReceived: boolean): string => {
   return "Transfer";
 };
 
-export function getTransactionInfo(
+const getBondTransactionInfo = (
   tx: Tx["tx"]
-): { amount: BigNumber; sender?: string; receiver?: string } | undefined {
+): { amount: BigNumber; sender?: string; receiver?: string } | undefined => {
+  if (!tx?.data) return undefined;
+
+  let parsed: BondData;
+  try {
+    parsed = typeof tx.data === "string" ? JSON.parse(tx.data) : tx.data;
+  } catch {
+    return undefined;
+  }
+  return {
+    amount: new BigNumber(parsed.amount ?? "0"),
+    sender: parsed.source,
+    receiver: parsed.validator,
+  };
+};
+const getTransactionInfo = (
+  tx: Tx["tx"]
+): { amount: BigNumber; sender?: string; receiver?: string } | undefined => {
   if (!tx?.data) return undefined;
 
   const parsed = typeof tx.data === "string" ? JSON.parse(tx.data) : tx.data;
@@ -96,17 +121,22 @@ export function getTransactionInfo(
     ?.owner;
 
   return amount ? { amount, sender, receiver } : undefined;
-}
+};
 
 export const TransactionCard = ({
   tx: transactionTopLevel,
 }: Props): JSX.Element => {
   const transaction = transactionTopLevel.tx;
   const isReceived = transactionTopLevel?.kind === "received";
-  const token = getToken(transaction);
+  const nativeToken = useAtomValue(nativeTokenAddressAtom).data;
+  const token = getToken(transaction, nativeToken ?? "");
+
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
   const asset = token ? chainAssetsMap[token] : undefined;
-  const txnInfo = getTransactionInfo(transaction);
+  const txnInfo =
+    transactionTopLevel?.tx?.kind === "bond" ?
+      getBondTransactionInfo(transaction)
+    : getTransactionInfo(transaction);
   const baseAmount =
     asset && txnInfo?.amount ?
       toDisplayAmount(asset, txnInfo.amount)
@@ -177,7 +207,7 @@ export const TransactionCard = ({
               })
             )}
           >
-            {titleFor(transaction?.kind, isReceived)}{" "}
+            {getTitle(transaction?.kind, isReceived)}{" "}
             {!transactionFailed && (
               <IoCheckmarkCircleOutline className="ml-1 mt-0.5 w-5 h-5" />
             )}
