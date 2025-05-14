@@ -45,8 +45,7 @@ export const TransactionHistory = (): JSX.Element => {
     1,
     Math.ceil(historicalTransactions.length / ITEMS_PER_PAGE)
   );
-  console.log(historicalTransactions);
-  // Create paginated data for the current page
+
   const paginatedTransactions = useMemo(() => {
     const startIndex = currentPage * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
