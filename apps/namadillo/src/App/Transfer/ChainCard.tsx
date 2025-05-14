@@ -1,14 +1,13 @@
 import { Chain } from "@chain-registry/types";
 import clsx from "clsx";
-import genericAsset from "./assets/generic-asset.svg";
+import { getChainImageUrl } from "integrations/utils";
 
 type ChainCardProps = {
   chain: Chain;
 };
 
 export const ChainCard = ({ chain }: ChainCardProps): JSX.Element => {
-  const image =
-    chain.logo_URIs?.svg || chain.logo_URIs?.png || genericAsset || "";
+  const image = getChainImageUrl(chain);
   return (
     <span
       className={clsx(
