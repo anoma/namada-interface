@@ -129,7 +129,7 @@ export const MaspUnshield: React.FC = () => {
   setLedgerStatusStop(isPerformingTransfer);
 
   return (
-    <Panel className="relative rounded-sm flex flex-col flex-1 pt-30">
+    <Panel className="relative rounded-sm flex flex-col flex-1 pt-14">
       <header className="flex flex-col items-center text-center mb-3 gap-6">
         <h1 className="text-lg">Unshielding Transfer</h1>
         <NamadaTransferTopHeader
