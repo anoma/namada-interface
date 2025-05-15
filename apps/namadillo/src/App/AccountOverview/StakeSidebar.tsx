@@ -17,10 +17,7 @@ export const StakeSidebar = (): JSX.Element => {
   const location = useLocation();
   const navigate = useNavigate();
   const availableRewards = sumBigNumberArray(Object.values(rewards || {}));
-  const displayRewardsBox =
-    successfullyLoadedRewards &&
-    Object.values(rewards || {}).length > 0 &&
-    chainParams.isSuccess;
+  const displayRewardsBox = successfullyLoadedRewards && chainParams.isSuccess;
 
   return (
     <Panel className="flex flex-col gap-4 text-cyan px-3">
