@@ -40,7 +40,7 @@ use namada_sdk::string_encoding::Format;
 use namada_sdk::tendermint_rpc::Url;
 use namada_sdk::token::{Amount, DenominatedAmount, MaspEpoch};
 use namada_sdk::token::{MaspTxId, OptionExt};
-use namada_sdk::tx::data::TxType;
+use namada_sdk::tx::data::{ResultCode, TxType};
 use namada_sdk::tx::Section;
 use namada_sdk::tx::{
     build_batch, build_bond, build_claim_rewards, build_ibc_transfer, build_redelegation,
@@ -338,6 +338,11 @@ impl Sdk {
     }
 
     pub async fn broadcast_tx(&self, tx_bytes: &[u8], deadline: u64) -> Result<JsValue, JsValue> {
+        #[derive(serde::Serialize)]
+        struct TxErrResponse {
+            pub code: u32,
+            pub info: String,
+        }
         let tx = Tx::try_from_slice(tx_bytes).expect("Should be able to deserialize a Tx");
         let cmts = tx.commitments().clone();
         let wrapper_hash = tx.wrapper_hash();
@@ -349,8 +354,10 @@ impl Sdk {
             Ok(res) => {
                 if res.clone().code != 0.into() {
                     return Err(JsValue::from(
-                        &serde_json::to_string(&res)
-                            .map_err(|e| JsValue::from_str(&e.to_string()))?,
+                        &serde_json::to_string(&TxErrResponse {
+                            code: res.code.into(),
+                            info: String::from(""),
+                        }).map_err(|e| JsValue::from_str(&e.to_string()))?,
                     ));
                 }
 
@@ -360,6 +367,15 @@ impl Sdk {
                     .await
                     .map_err(|e| JsValue::from_str(&e.to_string()))?;
                 let tx_response = TxResponse::from_events(event);
+
+                if tx_response.code != ResultCode::Ok {
+                    return Err(JsValue::from(
+                        &serde_json::to_string(&TxErrResponse {
+                            code: tx_response.code.into(),
+                            info: tx_response.info,
+                        }).map_err(|e| JsValue::from_str(&e.to_string()))?,
+                    ));
+                }
 
                 let mut batch_tx_results: Vec<tx::BatchTxResult> = vec![];
                 let code =

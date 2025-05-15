@@ -115,9 +115,9 @@ const IncrementBonding = (): JSX.Element => {
     return getTopValidatorsAddresses(validators?.data ?? []);
   }, [validators]);
 
-  const onSubmit = (e: React.FormEvent): void => {
+  const onSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    performBonding();
+    await performBonding();
   };
 
   const errorMessage = ((): string => {

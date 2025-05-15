@@ -108,7 +108,7 @@ export const StakingWithdrawModal = (): JSX.Element => {
             <ActionButton
               outlineColor="pink"
               textColor="pink"
-              onClick={() => withdraw()}
+              onClick={async () => await withdraw()}
               disabled={
                 totalWithdrawableAmount.eq(0) ||
                 !withdrawTxEnabled ||

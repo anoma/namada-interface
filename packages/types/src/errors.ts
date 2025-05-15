@@ -1,4 +1,9 @@
-import { ResultCode, ResultCodes, TxResponseProps } from "./tx";
+import { ResultCode, ResultCodes } from "./tx";
+
+export type BroadcastTxErrorProps = {
+  code: ResultCode;
+  info: string;
+};
 
 /**
  * Custom error for Broadcast Tx
@@ -32,9 +37,9 @@ export class BroadcastTxError extends Error {
   /**
    * @returns TxResponseProps
    */
-  toProps(): TxResponseProps {
+  toProps(): BroadcastTxErrorProps {
     try {
-      const props = JSON.parse(this.message) as TxResponseProps;
+      const props = JSON.parse(this.message) as BroadcastTxErrorProps;
       return props;
     } catch (e) {
       throw new Error(`${e}`);
