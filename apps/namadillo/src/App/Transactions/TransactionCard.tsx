@@ -239,7 +239,7 @@ export const TransactionCard = ({
       </div>
 
       <div className="flex items-center">
-        <div className="aspect-square w-8 h-8">
+        <div className="aspect-square w-10 h-10 mt-1">
           <AssetImage asset={asset} />
         </div>
         <TokenCurrency
@@ -249,22 +249,24 @@ export const TransactionCard = ({
         />
       </div>
 
-      <div className="flex flex-col">
-        <h4 className={isShieldedAddress(sender ?? "") ? "text-yellow" : ""}>
-          From
-        </h4>
-        <h4 className={isShieldedAddress(sender ?? "") ? "text-yellow" : ""}>
-          {isShieldedAddress(sender ?? "") ?
-            <span className="flex items-center gap-1">
-              <FaLock className="w-4 h-4" /> Shielded
-            </span>
-          : <div className="flex items-center gap-1">
-              {renderKeplrIcon(sender ?? "")}
-              {shortenAddress(sender ?? "", 10, 10)}
-            </div>
-          }
-        </h4>
-      </div>
+      {!isBondingTransaction && (
+        <div className="flex flex-col">
+          <h4 className={isShieldedAddress(sender ?? "") ? "text-yellow" : ""}>
+            From
+          </h4>
+          <h4 className={isShieldedAddress(sender ?? "") ? "text-yellow" : ""}>
+            {isShieldedAddress(sender ?? "") ?
+              <span className="flex items-center gap-1">
+                <FaLock className="w-4 h-4" /> Shielded
+              </span>
+            : <div className="flex items-center gap-1">
+                {renderKeplrIcon(sender ?? "")}
+                {shortenAddress(sender ?? "", 10, 10)}
+              </div>
+            }
+          </h4>
+        </div>
+      )}
 
       <div className="flex flex-col">
         <h4 className={isShieldedAddress(receiver ?? "") ? "text-yellow" : ""}>
@@ -277,7 +279,10 @@ export const TransactionCard = ({
             </span>
           : isBondingTransaction ?
             validator?.imageUrl ?
-              <img src={validator?.imageUrl} className="w-8 h-8" />
+              <img
+                src={validator?.imageUrl}
+                className="w-9 h-9 mt-1 rounded-full"
+              />
             : shortenAddress(receiver ?? "", 10, 10)
           : <div className="flex items-center gap-1">
               {renderKeplrIcon(receiver ?? "")}
