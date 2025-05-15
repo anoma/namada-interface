@@ -9,7 +9,7 @@ export const EstimateShieldingRewardsCard = (): JSX.Element => {
   return (
     <div
       className={clsx(
-        "flex items-center gap-12 text-sm text-yellow bg-neutral-900 rounded-sm px-6",
+        "flex items-center gap-12 text-sm text-yellow bg-neutral-900 rounded-sm px-6 mr-3",
         "py-4"
       )}
     >
