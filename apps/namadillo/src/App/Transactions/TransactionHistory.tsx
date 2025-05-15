@@ -69,8 +69,6 @@ export const TransactionHistory = (): JSX.Element => {
   return (
     <div className="flex flex-col h-[calc(100vh-120px)]">
       <Panel className="relative overflow-hidden flex flex-col flex-1">
-        <h2 className="mb-4 flex-none">All Transfers made</h2>
-
         {pending.length > 0 && (
           <div className="mb-5 flex-none">
             <h2 className="text-sm mb-3 ml-4">Pending</h2>
@@ -114,11 +112,6 @@ export const TransactionHistory = (): JSX.Element => {
                 />
               </div>
             </div>
-            {historicalTransactions.length === 0 && (
-              <p className="font-light ml-7">
-                No transactions saved on this device
-              </p>
-            )}
           </section>
         }
       </Panel>
