@@ -82,9 +82,9 @@ export const Unstake = (): JSX.Element => {
     );
   };
 
-  const onSubmit = (e: FormEvent): void => {
+  const onSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
-    performUnbond();
+    await performUnbond();
   };
 
   const validationMessage = ((): string => {

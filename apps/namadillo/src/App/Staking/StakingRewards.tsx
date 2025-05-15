@@ -91,11 +91,11 @@ export const StakingRewards = (): JSX.Element => {
     return "Confirm Claim";
   }, [shouldClaimAndStake, rewardsToClaim]);
 
-  const onSubmitClaim = (): void => {
+  const onSubmitClaim = async (): Promise<void> => {
     if (shouldClaimAndStake) {
-      claimRewardsAndStake();
+      await claimRewardsAndStake();
     } else {
-      claimRewards();
+      await claimRewards();
     }
   };
 

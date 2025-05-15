@@ -124,6 +124,10 @@ export const toBaseAmount = (
   return displayAmount.shiftedBy(displayUnit.exponent);
 };
 
+const toGasMsg = (error: string, gasLimit: BigNumber): string => {
+  return `${error.toString()} Please raise the Gas Amount above the previously provided ${gasLimit} in the fee options for your transaction.`;
+};
+
 /**
  * Returns formatted error message based on tx props and error code
  */
@@ -132,14 +136,21 @@ export const toErrorDetail = (
   error: BroadcastTxError
 ): string => {
   try {
-    const { code } = error.toProps();
+    const { code, info } = error.toProps();
+    const { args } = tx[0];
     // TODO: Over time we may expand this to format errors for more result codes
     switch (code) {
       case ResultCode.TxGasLimit:
-        const { gasLimit } = tx[0].args;
-        return `${error.toString()} Please raise the Gas Amount above the previously provided ${gasLimit} in the fee options for your transaction.`;
+        return toGasMsg(error.toString(), args.gasLimit);
+      case ResultCode.WasmRuntimeError:
+        // We can only check error type by reading the error message
+        if (info.includes("Gas error:")) {
+          return toGasMsg(error.toString(), args.gasLimit);
+        }
+        return error.toString() + ` ${info}`;
+
       default:
-        return error.toString();
+        return error.toString() + ` ${info}`;
     }
   } catch (_e) {
     return `${error.toString()}`;

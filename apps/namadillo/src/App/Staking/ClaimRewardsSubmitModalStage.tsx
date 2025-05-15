@@ -18,7 +18,7 @@ type ClaimRewardsPanelProps = {
   rewardsToClaim: ClaimRewardsMsgValue[];
   isClaimAndStake: boolean;
   feeProps: TransactionFeeProps;
-  onClaim: () => void;
+  onClaim: () => Promise<void>;
   isClaiming: boolean;
   isEnabled: boolean;
   error?: string;
