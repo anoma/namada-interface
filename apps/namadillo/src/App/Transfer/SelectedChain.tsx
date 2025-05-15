@@ -1,9 +1,8 @@
 import { Chain } from "@chain-registry/types";
 import clsx from "clsx";
+import { getChainImageUrl } from "integrations/utils";
 import { GoChevronDown } from "react-icons/go";
 import { WalletProvider } from "types";
-import genericAsset from "./assets/generic-asset.svg";
-
 import { EmptyResourceIcon } from "./EmptyResourceIcon";
 
 type SelectedChainProps = {
@@ -25,8 +24,7 @@ export const SelectedChain = ({
   );
 
   const isDisabled = !wallet;
-  const logoUrl =
-    chain ? chain.logo_URIs?.svg || chain.logo_URIs?.png || genericAsset : "";
+  const logoUrl = getChainImageUrl(chain);
 
   return (
     <button
