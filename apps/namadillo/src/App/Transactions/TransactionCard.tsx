@@ -6,7 +6,8 @@ import { AssetImage } from "App/Transfer/AssetImage";
 import { isShieldedAddress, isTransparentAddress } from "App/Transfer/common";
 import { indexerApiAtom } from "atoms/api";
 import { fetchBlockTimestampByHeight } from "atoms/balance/services";
-import { chainAssetsMapAtom } from "atoms/chain";
+import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
+import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
@@ -29,10 +30,23 @@ type RawDataSection = {
   sources?: Array<{ amount: string; owner: string }>;
   targets?: Array<{ amount: string; owner: string }>;
 };
-const IBC_PREFIX = "ibc";
+type BondData = {
+  amount: string;
+  source: string;
+  validator: string;
+};
 
-export function getToken(txn: Tx["tx"]): string | undefined {
-  const parsed = txn?.data ? JSON.parse(txn.data) : undefined;
+export function getToken(
+  txn: Tx["tx"],
+  nativeToken: string
+): string | undefined {
+  if (txn?.kind === "bond") return nativeToken;
+  let parsed;
+  try {
+    parsed = txn?.data ? JSON.parse(txn.data) : undefined;
+  } catch (error) {
+    console.error("Failed to parse getToken data:", error);
+  }
   if (!parsed) return undefined;
   const sections = Array.isArray(parsed) ? parsed : [parsed];
 
@@ -49,10 +63,12 @@ export function getToken(txn: Tx["tx"]): string | undefined {
   return undefined;
 }
 
-const titleFor = (kind: string | undefined, isReceived: boolean): string => {
+const getTitle = (kind: string | undefined, isReceived: boolean): string => {
   if (!kind) return "Unknown";
   if (isReceived) return "Receive";
-  if (kind.startsWith(IBC_PREFIX)) return "IBC Transfer";
+  if (kind.startsWith("ibc")) return "IBC Transfer";
+  if (kind === "bond") return "Stake";
+  if (kind === "claimRewards") return "Claim Rewards";
   if (kind === "transparentTransfer") return "Transparent Transfer";
   if (kind === "shieldingTransfer") return "Shielding Transfer";
   if (kind === "unshieldingTransfer") return "Unshielding Transfer";
@@ -60,43 +76,68 @@ const titleFor = (kind: string | undefined, isReceived: boolean): string => {
   return "Transfer";
 };
 
-export function getTransactionInfo(
+const getBondTransactionInfo = (
   tx: Tx["tx"]
-): { amount: BigNumber; sender?: string; receiver?: string } | undefined {
+): { amount: BigNumber; sender?: string; receiver?: string } | undefined => {
+  if (!tx?.data) return undefined;
+
+  let parsed: BondData;
+  try {
+    parsed = typeof tx.data === "string" ? JSON.parse(tx.data) : tx.data;
+  } catch {
+    return undefined;
+  }
+  return {
+    amount: new BigNumber(parsed.amount ?? "0"),
+    sender: parsed.source,
+    receiver: parsed.validator,
+  };
+};
+const getTransactionInfo = (
+  tx: Tx["tx"]
+): { amount: BigNumber; sender?: string; receiver?: string } | undefined => {
   if (!tx?.data) return undefined;
 
   const parsed = typeof tx.data === "string" ? JSON.parse(tx.data) : tx.data;
   const sections: RawDataSection[] = Array.isArray(parsed) ? parsed : [parsed];
 
-  let sender: string | undefined;
   let receiver: string | undefined;
   let amount: BigNumber | undefined;
 
-  for (const sec of sections) {
-    if (!amount && sec.targets?.[0]?.amount) {
-      amount = new BigNumber(sec.targets[0].amount);
-      receiver = sec.targets[0].owner;
-    }
-    if (!amount && sec.sources?.[0]?.amount) {
-      amount = new BigNumber(sec.sources[0].amount);
-    }
-    if (!sender && sec.sources?.[0]?.owner) {
-      sender = sec.sources[0].owner;
-    }
-    if (amount && (sender || receiver)) break; // we have what we need
+  // Find first section with targets or sources that has amount
+  const targetSection = sections.find((sec) => sec.targets?.[0]?.amount);
+  const sourceSection = sections.find((sec) => sec.sources?.[0]?.amount);
+
+  if (targetSection?.targets?.[0]) {
+    amount = new BigNumber(targetSection.targets[0].amount);
+    receiver = targetSection.targets[0].owner;
   }
 
-  return amount ? { amount, sender, receiver } : undefined;
-}
+  if (!amount && sourceSection?.sources?.[0]) {
+    amount = new BigNumber(sourceSection.sources[0].amount);
+  }
 
-export const TransactionCard = ({ tx }: Props): JSX.Element => {
-  const transactionTopLevel = tx;
+  // Find sender from any section with sources
+  const sender = sections.find((sec) => sec.sources?.[0]?.owner)?.sources?.[0]
+    ?.owner;
+
+  return amount ? { amount, sender, receiver } : undefined;
+};
+
+export const TransactionCard = ({
+  tx: transactionTopLevel,
+}: Props): JSX.Element => {
   const transaction = transactionTopLevel.tx;
   const isReceived = transactionTopLevel?.kind === "received";
-  const token = getToken(transaction);
+  const nativeToken = useAtomValue(nativeTokenAddressAtom).data;
+  const token = getToken(transaction, nativeToken ?? "");
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
   const asset = token ? chainAssetsMap[token] : undefined;
-  const txnInfo = getTransactionInfo(transaction);
+  const isBondingTransaction = transactionTopLevel?.tx?.kind === "bond";
+  const txnInfo =
+    isBondingTransaction ?
+      getBondTransactionInfo(transaction)
+    : getTransactionInfo(transaction);
   const baseAmount =
     asset && txnInfo?.amount ?
       toDisplayAmount(asset, txnInfo.amount)
@@ -104,6 +145,8 @@ export const TransactionCard = ({ tx }: Props): JSX.Element => {
   const receiver = txnInfo?.receiver;
   const sender = txnInfo?.sender;
   const transactionFailed = transaction?.exitCode === "rejected";
+  const validators = useAtomValue(allValidatorsAtom);
+  const validator = validators?.data?.find((v) => v.address === receiver);
   const api = useAtomValue(indexerApiAtom);
   const [timestamp, setTimestamp] = useState<number | undefined>(undefined);
 
@@ -167,7 +210,7 @@ export const TransactionCard = ({ tx }: Props): JSX.Element => {
               })
             )}
           >
-            {titleFor(transaction?.kind, isReceived)}{" "}
+            {getTitle(transaction?.kind, isReceived)}{" "}
             {!transactionFailed && (
               <IoCheckmarkCircleOutline className="ml-1 mt-0.5 w-5 h-5" />
             )}
@@ -196,7 +239,7 @@ export const TransactionCard = ({ tx }: Props): JSX.Element => {
       </div>
 
       <div className="flex items-center">
-        <div className="aspect-square w-8 h-8">
+        <div className="aspect-square w-10 h-10 mt-1">
           <AssetImage asset={asset} />
         </div>
         <TokenCurrency
@@ -206,32 +249,41 @@ export const TransactionCard = ({ tx }: Props): JSX.Element => {
         />
       </div>
 
-      <div className="flex flex-col">
-        <h4 className={isShieldedAddress(sender ?? "") ? "text-yellow" : ""}>
-          From
-        </h4>
-        <h4 className={isShieldedAddress(sender ?? "") ? "text-yellow" : ""}>
-          {isShieldedAddress(sender ?? "") ?
-            <span className="flex items-center gap-1">
-              <FaLock className="w-4 h-4" /> znam
-            </span>
-          : <div className="flex items-center gap-1">
-              {renderKeplrIcon(sender ?? "")}
-              {shortenAddress(sender ?? "", 10, 10)}
-            </div>
-          }
-        </h4>
-      </div>
+      {!isBondingTransaction && (
+        <div className="flex flex-col">
+          <h4 className={isShieldedAddress(sender ?? "") ? "text-yellow" : ""}>
+            From
+          </h4>
+          <h4 className={isShieldedAddress(sender ?? "") ? "text-yellow" : ""}>
+            {isShieldedAddress(sender ?? "") ?
+              <span className="flex items-center gap-1">
+                <FaLock className="w-4 h-4" /> Shielded
+              </span>
+            : <div className="flex items-center gap-1">
+                {renderKeplrIcon(sender ?? "")}
+                {shortenAddress(sender ?? "", 10, 10)}
+              </div>
+            }
+          </h4>
+        </div>
+      )}
 
       <div className="flex flex-col">
         <h4 className={isShieldedAddress(receiver ?? "") ? "text-yellow" : ""}>
-          To
+          {isBondingTransaction ? "Validator" : "To"}
         </h4>
         <h4 className={isShieldedAddress(receiver ?? "") ? "text-yellow" : ""}>
           {isShieldedAddress(receiver ?? "") ?
             <span className="flex items-center gap-1">
-              <FaLock className="w-4 h-4" /> znam
+              <FaLock className="w-4 h-4" /> Shielded
             </span>
+          : isBondingTransaction ?
+            validator?.imageUrl ?
+              <img
+                src={validator?.imageUrl}
+                className="w-9 h-9 mt-1 rounded-full"
+              />
+            : shortenAddress(receiver ?? "", 10, 10)
           : <div className="flex items-center gap-1">
               {renderKeplrIcon(receiver ?? "")}
               {shortenAddress(receiver ?? "", 10, 10)}
