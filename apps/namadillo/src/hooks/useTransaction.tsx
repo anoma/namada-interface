@@ -81,10 +81,15 @@ export const useTransaction = <T,>({
   const { mutateAsync: performBuildTx } = useAtomValue(createTxAtom);
 
   // Claim & Stake is the only array of tx kinds. The rest are single tx kinds.
+  const arr = new Array(Math.max(1, params.length));
   const kinds =
     Array.isArray(eventType) ?
-      [...eventType]
-    : new Array(Math.max(1, params.length)).fill(eventType); // Don't display zeroed value when params are not set yet.
+      // **IMPORTANT**
+      // If eventType is an array, we set kinds by multiplying each kind by params length
+      // i.e. (["ClaimRewards", "Bond"] AND params.length == 2) => ["ClaimRewards", "Bond", "ClaimRewards", "Bond"]
+      arr.fill(eventType).flat()
+    : arr.fill(eventType); // Don't display zeroed value when params are not set yet.
+
   const feeProps = useTransactionFee(
     kinds,
     kinds.some((k) => ["ShieldedTransfer", "UnshieldingTransfer"].includes(k))

@@ -87,7 +87,7 @@ export const ReDelegate = (): JSX.Element => {
     });
   };
 
-  const onSubmit = (e: React.FormEvent): void => {
+  const onSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     // Go to next page or do nothing
     if (step === "remove" && totalToRedelegate) {
@@ -96,7 +96,7 @@ export const ReDelegate = (): JSX.Element => {
       }
       return;
     }
-    performRedelegate();
+    await performRedelegate();
   };
 
   const totalAssignedAmounts = BigNumber.sum(

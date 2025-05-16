@@ -440,16 +440,17 @@ fn get_masp_details(
 }
 
 #[wasm_bindgen]
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
 #[borsh(crate = "namada_sdk::borsh")]
 pub struct BatchTxResult {
     hash: String,
-    is_applied: bool,
+    pub is_applied: bool,
+    error: Option<String>,
 }
 
 impl BatchTxResult {
-    pub fn new(hash: String, is_applied: bool) -> BatchTxResult {
-        BatchTxResult { hash, is_applied }
+    pub fn new(hash: String, is_applied: bool, error: Option<String>) -> BatchTxResult {
+        BatchTxResult { hash, is_applied, error }
     }
 }
 

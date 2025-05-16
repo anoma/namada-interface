@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { field } from "@dao-xyz/borsh";
+import { field, option } from "@dao-xyz/borsh";
 import { BatchTxResultProps } from "../types";
 
 export class BatchTxResultMsgValue {
@@ -8,6 +8,9 @@ export class BatchTxResultMsgValue {
 
   @field({ type: "bool" })
   isApplied!: string;
+
+  @field({ type: option("string") })
+  error?: string;
 
   constructor(data: BatchTxResultProps) {
     Object.assign(this, data);
