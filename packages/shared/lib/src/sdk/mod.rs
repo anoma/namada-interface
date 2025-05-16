@@ -353,11 +353,13 @@ impl Sdk {
         match response {
             Ok(res) => {
                 if res.clone().code != 0.into() {
+                    // We return an error if tx was rejected during tendermint rpc broadcast
                     return Err(JsValue::from(
                         &serde_json::to_string(&TxErrResponse {
                             code: res.code.into(),
                             info: String::from(""),
-                        }).map_err(|e| JsValue::from_str(&e.to_string()))?,
+                        })
+                        .map_err(|e| JsValue::from_str(&e.to_string()))?,
                     ));
                 }
 
@@ -368,15 +370,6 @@ impl Sdk {
                     .map_err(|e| JsValue::from_str(&e.to_string()))?;
                 let tx_response = TxResponse::from_events(event);
 
-                if tx_response.code != ResultCode::Ok {
-                    return Err(JsValue::from(
-                        &serde_json::to_string(&TxErrResponse {
-                            code: tx_response.code.into(),
-                            info: tx_response.info,
-                        }).map_err(|e| JsValue::from_str(&e.to_string()))?,
-                    ));
-                }
-
                 let mut batch_tx_results: Vec<tx::BatchTxResult> = vec![];
                 let code =
                     u8::try_from(tx_response.code.to_usize()).expect("Code should fit in u8");
@@ -385,16 +378,67 @@ impl Sdk {
                 let info = tx_response.info.to_string();
                 let log = tx_response.log.to_string();
 
+                let result = tx_response.batch_result();
                 for cmt in cmts {
                     let hash = compute_inner_tx_hash(wrapper_hash.as_ref(), Either::Right(&cmt));
+                    let result = result.get(&hash);
 
-                    if let Some(InnerTxResult::Success(_)) = tx_response.batch_result().get(&hash) {
-                        batch_tx_results.push(tx::BatchTxResult::new(hash.to_string(), true));
-                    } else {
-                        batch_tx_results.push(tx::BatchTxResult::new(hash.to_string(), false));
-                    }
+                    match result {
+                        Some(InnerTxResult::Success(_)) => {
+                            batch_tx_results.push(tx::BatchTxResult::new(
+                                hash.to_string(),
+                                true,
+                                None,
+                            ));
+                        }
+                        Some(InnerTxResult::VpsRejected(res)) => {
+                            let errors = res
+                                .vps_result
+                                .errors
+                                .iter()
+                                .cloned()
+                                .map(|(_, err)| err)
+                                .collect::<Vec<_>>();
+                            batch_tx_results.push(tx::BatchTxResult::new(
+                                hash.to_string(),
+                                false,
+                                Some(errors.join(" ")),
+                            ));
+                        }
+
+                        Some(InnerTxResult::OtherFailure(res)) => {
+                            batch_tx_results.push(tx::BatchTxResult::new(
+                                hash.to_string(),
+                                false,
+                                Some(res.to_string()),
+                            ));
+                        }
+                        None => {
+                            batch_tx_results.push(tx::BatchTxResult::new(
+                                hash.to_string(),
+                                false,
+                                None,
+                            ));
+                        }
+                    };
                 }
 
+                let was_nothing_applied = batch_tx_results
+                    .iter()
+                    .all(|tx_result| !tx_result.is_applied);
+
+                // We also return an error if all inner txs were rejected during wasm runtime
+                if tx_response.code != ResultCode::Ok && was_nothing_applied {
+                    return Err(JsValue::from(
+                        &serde_json::to_string(&TxErrResponse {
+                            code: tx_response.code.into(),
+                            info: tx_response.info,
+                        })
+                        .map_err(|e| JsValue::from_str(&e.to_string()))?,
+                    ));
+                }
+
+                // If at least some of the inner tx were applied, we return the result
                 let tx_response = tx::TxResponse::new(
                     code,
                     batch_tx_results,
