@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.20.3](https://github.com/anoma/namada-interface/compare/namadillo@v1.20.2...namadillo@v1.20.3) (2025-05-16)
+
+
+### Bug Fixes
+
+* Namadillo v2 fixes ([#1994](https://github.com/anoma/namada-interface/issues/1994)) ([2b7293d](https://github.com/anoma/namada-interface/commit/2b7293df51414bcbb183283e48f8fa7faece41c5))
+* Restore transaction details page ([#2022](https://github.com/anoma/namada-interface/issues/2022)) ([17f9cce](https://github.com/anoma/namada-interface/commit/17f9ccecb1950d0bcf222ee956d25087deaaf38e))
+* Show Staking sidebar button even if there is 0 to claim ([#2024](https://github.com/anoma/namada-interface/issues/2024)) ([9b155e2](https://github.com/anoma/namada-interface/commit/9b155e24cb55ed01ec2c375ee079c26c521b0b9b))
+* Update sdk lnk to npmjs ([#1997](https://github.com/anoma/namada-interface/issues/1997)) ([f021951](https://github.com/anoma/namada-interface/commit/f021951fafd95abdc737a258e75306a9ea99d252))
+* Use circle version of neutron chain ([#2021](https://github.com/anoma/namada-interface/issues/2021)) ([351376e](https://github.com/anoma/namada-interface/commit/351376eeeb3c796248c2f43a3c7c5174f2170aaa))
+
 ## [1.20.2](https://github.com/anoma/namada-interface/compare/namadillo@v1.20.1...namadillo@v1.20.2) (2025-05-13)
 
 
