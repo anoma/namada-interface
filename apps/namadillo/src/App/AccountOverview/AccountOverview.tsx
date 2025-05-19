@@ -3,6 +3,7 @@ import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { Sidebar } from "App/Layout/Sidebar";
 import { JoinDiscord } from "App/Sidebars/JoinDiscord";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
+import { SelectNetworkTokenExample } from "App/Transfer/SelectNetworkTokenExample";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { AssetsOverviewPanel } from "./AssetsOverviewPanel";
 import { StakeSidebar } from "./StakeSidebar";
@@ -17,7 +18,7 @@ export const AccountOverview = (): JSX.Element => {
       </ConnectPanel>
     );
   }
-
+  return <SelectNetworkTokenExample />;
   return (
     <PageWithSidebar>
       <div className="flex flex-col">

@@ -13,7 +13,7 @@ import { useMemo, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Address, AddressWithAssetAndAmount } from "types";
-import { SelectedChain } from "./SelectedChain";
+import namadaTransparentSvg from "./assets/namada-transparent.svg";
 
 type Token = {
   address: Address;
@@ -125,20 +125,22 @@ export const SelectNetworkToken = ({
       <ModalTransition>
         <div className="flex h-[600px] rounded-xl border border-neutral-700 overflow-hidden">
           {/* Left panel */}
-          <div className="bg-black w-[400px] p-6 flex flex-col overflow-auto">
+          <div className="w-[300px] bg-neutral-800 p-6 flex flex-col overflow-auto">
             <h2 className="text-white text-xl font-medium mb-6">
               Your account
             </h2>
 
             {hasDefaultAccount ?
-              <div className="flex items-center gap-3 mb-8 p-3 border border-neutral-700 rounded-lg">
-                <div className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center">
-                  <span className="text-xl">
-                    <SelectedChain />
-                  </span>
+              <div className="flex items-center gap-3 mb-8 p-3">
+                <div className="rounded-full bg-neutral-800">
+                  <img
+                    src={namadaTransparentSvg}
+                    alt="namada"
+                    className="w-6 h-6"
+                  />
                 </div>
                 <div className="font-mono text-white">
-                  {shortenAddress(accountAddress || "")}
+                  {shortenAddress(accountAddress || "", 10)}
                 </div>
               </div>
             : <button
@@ -149,32 +151,7 @@ export const SelectNetworkToken = ({
               </button>
             }
 
-            <h2 className="text-white text-xl font-medium mb-4">
-              Popular networks
-            </h2>
-            {/* <Stack as="ul" gap={2} className="mb-8">
-              {popularNetworks.map((network) => (
-                <li key={network.name}>
-                  <button className="flex items-center gap-3 p-2 w-full hover:bg-neutral-800 rounded-lg transition-colors">
-                    <div className="w-8 h-8 overflow-hidden rounded-full bg-neutral-800 flex items-center justify-center">
-                      {network.icon ?
-                        <img
-                          src={network.icon}
-                          alt={network.name}
-                          className="w-6 h-6"
-                        />
-                      : <span className="text-white">
-                          {network.name.charAt(0)}
-                        </span>
-                      }
-                    </div>
-                    <span className="text-white">{network.name}</span>
-                  </button>
-                </li>
-              ))}
-            </Stack> */}
-
-            <h2 className="text-white text-xl font-medium mb-4">From A to Z</h2>
+            <h2 className="text-white text-xl font-medium mb-4">Networks</h2>
             <Stack as="ul" gap={2} className="flex-1 overflow-auto">
               {allNetworks.map((network) => (
                 <li key={network.name}>
@@ -187,7 +164,7 @@ export const SelectNetworkToken = ({
                           className="w-6 h-6"
                         />
                       : <span className="text-white">
-                          {network.name.charAt(0)}
+                          {network.name?.charAt(0)}
                         </span>
                       }
                     </div>
