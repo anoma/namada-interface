@@ -36,12 +36,28 @@ export const TransactionHistory = (): JSX.Element => {
     chainTransactionHistoryFamily({ perPage: ITEMS_PER_PAGE, fetchAll: true })
   );
 
+  const handleFiltering = (transaction: TransactionHistoryType): boolean => {
+    const transactionKind = transaction.tx?.kind ?? "";
+    if (filter.toLowerCase() === "all") {
+      return transferKindOptions.includes(transactionKind);
+    } else if (filter === "received") {
+      return transaction.kind === "received";
+    } else if (filter === "transfer") {
+      return [
+        "transparentTransfer",
+        "shieldingTransfer",
+        "unshieldingTransfer",
+        "shieldedTransfer",
+      ].includes(transactionKind);
+    } else if (filter === "ibc") {
+      return transactionKind.startsWith("ibc");
+    } else return transactionKind === filter;
+  };
+
   // Only show historical transactions that are in the transferKindOptions array
   const historicalTransactions =
     transactions?.results?.filter((transaction) =>
-      filter === "All" ?
-        transferKindOptions.includes(transaction.tx?.kind ?? "")
-      : transaction.tx?.kind === filter
+      handleFiltering(transaction)
     ) ?? [];
 
   // Calculate total pages based on the filtered transactions
@@ -105,12 +121,16 @@ export const TransactionHistory = (): JSX.Element => {
               }}
               arrowContainerProps={{ className: "right-4" }}
               listContainerProps={{
-                className: "w-full mt-2 ml-4 border border-white",
+                className:
+                  "w-[200px] mt-2 border border-white left-0 ml-4 transform-none",
               }}
               listItemProps={{
                 className: "text-sm border-0 py-0 [&_label]:py-1.5",
               }}
-              onChange={(e) => setFilter(e.target.value)}
+              onChange={(e) => {
+                setFilter(e.target.value);
+                setCurrentPage(0);
+              }}
               options={[
                 {
                   id: "all",
@@ -118,54 +138,19 @@ export const TransactionHistory = (): JSX.Element => {
                   ariaLabel: "All",
                 },
                 {
-                  id: "transparentTransfer",
-                  value: "Transparent Transfer",
-                  ariaLabel: "Transparent Transfer",
+                  id: "transfer",
+                  value: "Transfer",
+                  ariaLabel: "Transfer",
                 },
                 {
-                  id: "shieldingTransfer",
-                  value: "Shielding Transfer",
-                  ariaLabel: "Shielding Transfer",
-                },
-                {
-                  id: "unshieldingTransfer",
-                  value: "Unshielding Transfer",
-                  ariaLabel: "Unshielding Transfer",
-                },
-                {
-                  id: "shieldedTransfer",
-                  value: "Shielded Transfer",
-                  ariaLabel: "Shielded Transfer",
-                },
-                {
-                  id: "ibcTransparentTransfer",
-                  value: "IBC Transparent Transfer",
-                  ariaLabel: "IBC Transparent Transfer",
-                },
-                {
-                  id: "ibcShieldingTransfer",
-                  value: "IBC Shielding Transfer",
-                  ariaLabel: "IBC Shielding Transfer",
-                },
-                {
-                  id: "ibcUnshieldingTransfer",
-                  value: "IBC Unshielding Transfer",
-                  ariaLabel: "IBC Unshielding Transfer",
-                },
-                {
-                  id: "ibcShieldedTransfer",
-                  value: "IBC Shielded Transfer",
-                  ariaLabel: "IBC Shielded Transfer",
+                  id: "ibc",
+                  value: "IBC",
+                  ariaLabel: "IBC",
                 },
                 {
                   id: "bond",
                   value: "Bond",
                   ariaLabel: "Bond",
-                },
-                {
-                  id: "received",
-                  value: "Received",
-                  ariaLabel: "Received",
                 },
               ]}
             />
