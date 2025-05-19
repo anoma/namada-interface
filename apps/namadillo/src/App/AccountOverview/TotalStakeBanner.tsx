@@ -21,7 +21,7 @@ export const TotalStakeBanner = (): JSX.Element => {
             <SkeletonLoading height="1em" width="200px" className="text-6xl" />
           )}
           {!bondedAmountIsLoading && (
-            <div className={clsx("flex items-center text-7xl leading-none")}>
+            <div className={clsx("flex items-center text-6xl leading-none")}>
               <NamCurrency amount={bondedAmount} decimalPlaces={2} />
               {/* <FiatCurrency amount={totalAmountInFiat} /> */}
             </div>

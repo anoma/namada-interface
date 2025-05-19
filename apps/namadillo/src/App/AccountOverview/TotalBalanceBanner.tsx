@@ -52,7 +52,7 @@ export const TotalBalanceBanner = (): JSX.Element => {
             <SkeletonLoading height="1em" width="200px" className="text-6xl" />
           )}
           {balancesHaveLoaded && (
-            <div className={clsx("flex items-center text-7xl leading-none")}>
+            <div className={clsx("flex items-center text-6xl leading-none")}>
               <FiatCurrency amount={totalAmountInFiat} />
               {shouldWaitForShieldedSync && (
                 <span
