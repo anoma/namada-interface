@@ -1,4 +1,4 @@
-import { Panel, TableRow } from "@namada/components";
+import { Panel, StyledSelectBox, TableRow } from "@namada/components";
 import { TransactionHistory as TransactionHistoryType } from "@namada/indexer-client";
 import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
 import { PageLoader } from "App/Common/PageLoader";
@@ -7,6 +7,7 @@ import {
   chainTransactionHistoryFamily,
   pendingTransactionsHistoryAtom,
 } from "atoms/transactions/atoms";
+import { clsx } from "clsx";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -23,19 +24,40 @@ export const transferKindOptions = [
   "ibcShieldingTransfer",
   "ibcUnshieldingTransfer",
   "ibcShieldedTransfer",
+  "bond",
   "received",
 ];
 
 export const TransactionHistory = (): JSX.Element => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [filter, setFilter] = useState("All");
   const pending = useAtomValue(pendingTransactionsHistoryAtom);
   const { data: transactions, isLoading } = useAtomValue(
     chainTransactionHistoryFamily({ perPage: ITEMS_PER_PAGE, fetchAll: true })
   );
+
+  const handleFiltering = (transaction: TransactionHistoryType): boolean => {
+    const transactionKind = transaction.tx?.kind ?? "";
+    if (filter.toLowerCase() === "all") {
+      return transferKindOptions.includes(transactionKind);
+    } else if (filter === "received") {
+      return transaction.kind === "received";
+    } else if (filter === "transfer") {
+      return [
+        "transparentTransfer",
+        "shieldingTransfer",
+        "unshieldingTransfer",
+        "shieldedTransfer",
+      ].includes(transactionKind);
+    } else if (filter === "ibc") {
+      return transactionKind.startsWith("ibc");
+    } else return transactionKind === filter;
+  };
+
   // Only show historical transactions that are in the transferKindOptions array
   const historicalTransactions =
     transactions?.results?.filter((transaction) =>
-      transferKindOptions.includes(transaction.tx?.kind ?? "")
+      handleFiltering(transaction)
     ) ?? [];
 
   // Calculate total pages based on the filtered transactions
@@ -44,7 +66,6 @@ export const TransactionHistory = (): JSX.Element => {
     Math.ceil(historicalTransactions.length / ITEMS_PER_PAGE)
   );
 
-  // Create paginated data for the current page
   const paginatedTransactions = useMemo(() => {
     const startIndex = currentPage * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -68,8 +89,6 @@ export const TransactionHistory = (): JSX.Element => {
   return (
     <div className="flex flex-col h-[calc(100vh-120px)]">
       <Panel className="relative overflow-hidden flex flex-col flex-1">
-        <h2 className="mb-4 flex-none">All Transfers made</h2>
-
         {pending.length > 0 && (
           <div className="mb-5 flex-none">
             <h2 className="text-sm mb-3 ml-4">Pending</h2>
@@ -90,6 +109,52 @@ export const TransactionHistory = (): JSX.Element => {
             <header className="text-sm ml-4 flex-none">
               <h2>History</h2>
             </header>
+            <StyledSelectBox
+              id="transfer-kind-filter"
+              defaultValue="All"
+              value={filter}
+              containerProps={{
+                className: clsx(
+                  "text-sm min-w-[200px] flex-1 border border-white rounded-sm",
+                  "px-4 py-[9px] ml-4 mt-2"
+                ),
+              }}
+              arrowContainerProps={{ className: "right-4" }}
+              listContainerProps={{
+                className:
+                  "w-[200px] mt-2 border border-white left-0 ml-4 transform-none",
+              }}
+              listItemProps={{
+                className: "text-sm border-0 py-0 [&_label]:py-1.5",
+              }}
+              onChange={(e) => {
+                setFilter(e.target.value);
+                setCurrentPage(0);
+              }}
+              options={[
+                {
+                  id: "all",
+                  value: "All",
+                  ariaLabel: "All",
+                },
+                {
+                  id: "transfer",
+                  value: "Transfer",
+                  ariaLabel: "Transfer",
+                },
+                {
+                  id: "ibc",
+                  value: "IBC",
+                  ariaLabel: "IBC",
+                },
+                {
+                  id: "bond",
+                  value: "Bond",
+                  ariaLabel: "Bond",
+                },
+              ]}
+            />
+
             <div className="flex flex-col flex-1 overflow-hidden min-h-0">
               <div className="flex flex-col flex-1 overflow-auto">
                 <TableWithPaginator
@@ -113,11 +178,6 @@ export const TransactionHistory = (): JSX.Element => {
                 />
               </div>
             </div>
-            {historicalTransactions.length === 0 && (
-              <p className="font-light ml-7">
-                No transactions saved on this device
-              </p>
-            )}
           </section>
         }
       </Panel>
