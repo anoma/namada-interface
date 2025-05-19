@@ -1,4 +1,4 @@
-import { Panel, TableRow } from "@namada/components";
+import { Panel, StyledSelectBox, TableRow } from "@namada/components";
 import { TransactionHistory as TransactionHistoryType } from "@namada/indexer-client";
 import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
 import { PageLoader } from "App/Common/PageLoader";
@@ -7,6 +7,7 @@ import {
   chainTransactionHistoryFamily,
   pendingTransactionsHistoryAtom,
 } from "atoms/transactions/atoms";
+import { clsx } from "clsx";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -29,6 +30,7 @@ export const transferKindOptions = [
 
 export const TransactionHistory = (): JSX.Element => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [filter, setFilter] = useState("All");
   const pending = useAtomValue(pendingTransactionsHistoryAtom);
   const { data: transactions, isLoading } = useAtomValue(
     chainTransactionHistoryFamily({ perPage: ITEMS_PER_PAGE, fetchAll: true })
@@ -37,7 +39,9 @@ export const TransactionHistory = (): JSX.Element => {
   // Only show historical transactions that are in the transferKindOptions array
   const historicalTransactions =
     transactions?.results?.filter((transaction) =>
-      transferKindOptions.includes(transaction.tx?.kind ?? "")
+      filter === "All" ?
+        transferKindOptions.includes(transaction.tx?.kind ?? "")
+      : transaction.tx?.kind === filter
     ) ?? [];
 
   // Calculate total pages based on the filtered transactions
@@ -89,6 +93,83 @@ export const TransactionHistory = (): JSX.Element => {
             <header className="text-sm ml-4 flex-none">
               <h2>History</h2>
             </header>
+            <StyledSelectBox
+              id="transfer-kind-filter"
+              defaultValue="All"
+              value={filter}
+              containerProps={{
+                className: clsx(
+                  "text-sm min-w-[200px] flex-1 border border-white rounded-sm",
+                  "px-4 py-[9px] ml-4 mt-2"
+                ),
+              }}
+              arrowContainerProps={{ className: "right-4" }}
+              listContainerProps={{
+                className: "w-full mt-2 ml-4 border border-white",
+              }}
+              listItemProps={{
+                className: "text-sm border-0 py-0 [&_label]:py-1.5",
+              }}
+              onChange={(e) => setFilter(e.target.value)}
+              options={[
+                {
+                  id: "all",
+                  value: "All",
+                  ariaLabel: "All",
+                },
+                {
+                  id: "transparentTransfer",
+                  value: "Transparent Transfer",
+                  ariaLabel: "Transparent Transfer",
+                },
+                {
+                  id: "shieldingTransfer",
+                  value: "Shielding Transfer",
+                  ariaLabel: "Shielding Transfer",
+                },
+                {
+                  id: "unshieldingTransfer",
+                  value: "Unshielding Transfer",
+                  ariaLabel: "Unshielding Transfer",
+                },
+                {
+                  id: "shieldedTransfer",
+                  value: "Shielded Transfer",
+                  ariaLabel: "Shielded Transfer",
+                },
+                {
+                  id: "ibcTransparentTransfer",
+                  value: "IBC Transparent Transfer",
+                  ariaLabel: "IBC Transparent Transfer",
+                },
+                {
+                  id: "ibcShieldingTransfer",
+                  value: "IBC Shielding Transfer",
+                  ariaLabel: "IBC Shielding Transfer",
+                },
+                {
+                  id: "ibcUnshieldingTransfer",
+                  value: "IBC Unshielding Transfer",
+                  ariaLabel: "IBC Unshielding Transfer",
+                },
+                {
+                  id: "ibcShieldedTransfer",
+                  value: "IBC Shielded Transfer",
+                  ariaLabel: "IBC Shielded Transfer",
+                },
+                {
+                  id: "bond",
+                  value: "Bond",
+                  ariaLabel: "Bond",
+                },
+                {
+                  id: "received",
+                  value: "Received",
+                  ariaLabel: "Received",
+                },
+              ]}
+            />
+
             <div className="flex flex-col flex-1 overflow-hidden min-h-0">
               <div className="flex flex-col flex-1 overflow-auto">
                 <TableWithPaginator
