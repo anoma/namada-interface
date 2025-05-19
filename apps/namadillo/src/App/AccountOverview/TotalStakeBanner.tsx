@@ -1,16 +1,10 @@
 import { Panel, SkeletonLoading, Stack } from "@namada/components";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { UnclaimedRewardsCard } from "App/Staking/UnclaimedRewardsCard";
-import { shieldedBalanceAtom } from "atoms/balance";
 import clsx from "clsx";
 import { useBalances } from "hooks/useBalances";
-import { useRequiresNewShieldedSync } from "hooks/useRequiresNewShieldedSync";
-import { useAtomValue } from "jotai";
 
 export const TotalStakeBanner = (): JSX.Element => {
-  const { isFetching: isShieldSyncing } = useAtomValue(shieldedBalanceAtom);
-  const requiresNewShieldedSync = useRequiresNewShieldedSync();
-  const shouldWaitForShieldedSync = requiresNewShieldedSync && isShieldSyncing;
   const { bondedAmount, isLoading: bondedAmountIsLoading } = useBalances();
 
   return (
