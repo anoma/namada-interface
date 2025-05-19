@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Address } from "types";
-import { SelectToken } from "./SelectToken";
+import { SelectNetworkToken } from "./SelectNetworkToken";
 
 type Token = {
   address: Address;
@@ -12,7 +12,7 @@ type Token = {
 };
 
 export const SelectTokenExample = (): JSX.Element => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [selectedToken, setSelectedToken] = useState<Token | null>(null);
 
   const handleOpen = (): void => {
@@ -47,7 +47,7 @@ export const SelectTokenExample = (): JSX.Element => {
         </div>
       )}
 
-      <SelectToken
+      <SelectNetworkToken
         isOpen={isOpen}
         onClose={handleClose}
         onSelect={handleSelect}
