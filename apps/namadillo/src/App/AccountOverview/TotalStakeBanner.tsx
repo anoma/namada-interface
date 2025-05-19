@@ -18,10 +18,10 @@ export const TotalStakeBanner = (): JSX.Element => {
             <div className="flex items-start mb-4">Total Staked NAM</div>
           </header>
           {bondedAmountIsLoading && (
-            <SkeletonLoading height="1em" width="200px" className="text-6xl" />
+            <SkeletonLoading height="1em" width="200px" className="text-5xl" />
           )}
           {!bondedAmountIsLoading && (
-            <div className={clsx("flex items-center text-6xl leading-none")}>
+            <div className={clsx("flex items-center text-5xl leading-none")}>
               <NamCurrency amount={bondedAmount} decimalPlaces={2} />
               {/* <FiatCurrency amount={totalAmountInFiat} /> */}
             </div>
