@@ -17,27 +17,23 @@ export const TotalStakeBanner = (): JSX.Element => {
     <Panel className="py-4 min-w-full">
       <Stack
         direction="horizontal"
-        className="min-w-full overflow-hidden items-center justify-between px-4"
+        className="min-w-full overflow-hidden flex-col md:flex-row justify-between px-4"
       >
-        <div className="text-white">
-          <header className="text-sm mb-3 -mt-10">
-            <div className="flex items-center text-cyan">Total Staked NAM</div>
+        <div className="text-cyan">
+          <header className="text-sm">
+            <div className="flex items-start mb-4">Total Staked NAM</div>
           </header>
           {bondedAmountIsLoading && (
             <SkeletonLoading height="1em" width="200px" className="text-6xl" />
           )}
           {!bondedAmountIsLoading && (
-            <div
-              className={clsx(
-                "flex items-center text-7xl leading-none text-cyan"
-              )}
-            >
+            <div className={clsx("flex items-center text-7xl leading-none")}>
               <NamCurrency amount={bondedAmount} decimalPlaces={2} />
               {/* <FiatCurrency amount={totalAmountInFiat} /> */}
             </div>
           )}
         </div>
-        <aside className="hidden lg:flex gap-4 items-center flex-wrap">
+        <aside className="-mr-6 flex-wrap mt-4 md:mt-0">
           <UnclaimedRewardsCard />
         </aside>
       </Stack>
