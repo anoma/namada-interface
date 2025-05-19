@@ -2,7 +2,6 @@ import { Sdk } from "@namada/sdk/web";
 import {
   Account,
   AccountType,
-  BatchTxResultMsgValue,
   TxMsgValue,
   TxProps,
   TxResponseMsgValue,
@@ -18,7 +17,7 @@ import {
   TransactionEventsClasses,
   TransactionEventsStatus,
 } from "types/events";
-import { toErrorDetail } from "utils";
+import { textToErrorDetail, toErrorDetail } from "utils";
 import { getSdkInstance } from "utils/sdk";
 
 export type TransactionPair<T> = {
@@ -199,10 +198,16 @@ export const signEncodedTx = async <T>(
 export const broadcastTransaction = async <T>(
   encodedTx: EncodedTxData<T>,
   signedTxs: Uint8Array[]
-): Promise<PromiseSettledResult<TxResponseMsgValue>[]> => {
+): Promise<PromiseSettledResult<[EncodedTxData<T>, TxResponseMsgValue]>[]> => {
   const { rpc } = await getSdkInstance();
   const response = await Promise.allSettled(
-    encodedTx.txs.map((_, i) => rpc.broadcastTx(signedTxs[i]))
+    encodedTx.txs.map((_, i) =>
+      rpc
+        .broadcastTx(signedTxs[i])
+        .then(
+          (res) => [encodedTx, res] as [EncodedTxData<T>, TxResponseMsgValue]
+        )
+    )
   );
 
   return response;
@@ -231,16 +236,16 @@ export const broadcastTxWithEvents = async <T>(
     .flat();
 
   try {
-    const commitments = results.map((result) => {
+    const resolvedResults = results.map((result) => {
       if (result.status === "fulfilled") {
-        return result.value.commitments;
+        return result.value;
       } else {
         throw new Error(toErrorDetail(encodedTx.txs, result.reason));
       }
     });
 
     const { status, successData, failedData } = parseTxAppliedErrors(
-      commitments.flat(),
+      resolvedResults,
       hashes,
       data!
     );
@@ -274,36 +279,45 @@ export const broadcastTxWithEvents = async <T>(
 type TxAppliedResults<T> = {
   status: TransactionEventsStatus;
   successData?: T[];
-  failedData?: T[];
+  failedData?: { value: T; error?: string }[];
 };
 
+type Hash = string;
+type Error = string | undefined;
 // Given an array of broadcasted Tx results,
 // collect any errors
 const parseTxAppliedErrors = <T>(
-  results: BatchTxResultMsgValue[],
-  txHashes: string[],
+  results: [EncodedTxData<T>, TxResponseMsgValue][],
+  txHashes: Hash[],
   data: T[]
 ): TxAppliedResults<T> => {
-  const txErrors: string[] = [];
+  const txErrors: [Hash, Error][] = [];
   const dataWithHash = data?.map((d, i) => ({
     ...d,
     hash: txHashes[i],
   }));
 
-  results.forEach((result) => {
-    const { hash, isApplied } = result;
-    if (!isApplied) {
-      txErrors.push(hash);
-    }
+  results.forEach(([encodedTx, result]) => {
+    result.commitments.forEach((batchTxResult) => {
+      const { hash, isApplied, error } = batchTxResult;
+      if (!isApplied) {
+        txErrors.push([
+          hash,
+          error && textToErrorDetail(error, encodedTx.txs[0]),
+        ]);
+      }
+    });
   });
 
   if (txErrors.length) {
     const successData = dataWithHash?.filter((data) => {
-      return !txErrors.includes(data.hash);
+      return !txErrors.find(([hash]) => hash === data.hash);
     });
 
-    const failedData = dataWithHash?.filter((data) => {
-      return txErrors.includes(data.hash);
+    // flatMap because js does not have filterMap
+    const failedData = dataWithHash?.flatMap((data) => {
+      const err = txErrors.find(([hash]) => hash === data.hash);
+      return err ? [{ value: data, error: err[1] }] : [];
     });
 
     if (successData?.length) {
