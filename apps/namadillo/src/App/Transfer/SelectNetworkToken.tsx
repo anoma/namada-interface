@@ -4,10 +4,9 @@ import { shortenAddress } from "@namada/utils";
 import { ModalTransition } from "App/Common/ModalTransition";
 import { Search } from "App/Common/Search";
 import { routes } from "App/routes";
-import { accountsAtom, allDefaultAccountsAtom } from "atoms/accounts";
+import { allDefaultAccountsAtom } from "atoms/accounts";
 import { namadaTransparentAssetsAtom } from "atoms/balance";
 import { chainAssetsMapAtom } from "atoms/chain";
-import { NamadaKeychain } from "hooks/useNamadaKeychain";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { IoClose } from "react-icons/io5";
@@ -43,8 +42,7 @@ export const SelectNetworkToken = ({
 }: SelectNetworkTokenProps): JSX.Element | null => {
   const [filter, setFilter] = useState("");
   const transparentAssets = useAtomValue(namadaTransparentAssetsAtom);
-  const { data: accounts, isFetching } = useAtomValue(allDefaultAccountsAtom);
-  const allAccounts = useAtomValue(accountsAtom);
+  const { data: accounts } = useAtomValue(allDefaultAccountsAtom);
   const location = useLocation();
   const navigate = useNavigate();
   const chainAssetsMap = Object.values(useAtomValue(chainAssetsMapAtom));
@@ -55,11 +53,11 @@ export const SelectNetworkToken = ({
     return chainAssetsMap
       .map((chainAsset) => {
         return {
-          name: chainAsset?.name,
+          name: chainAsset?.name ?? "",
           icon: chainAsset?.logo_URIs?.png || chainAsset?.logo_URIs?.svg,
         };
       })
-      .sort((a, b) => a?.name?.localeCompare(b?.name));
+      .sort((a, b) => a.name.localeCompare(b.name));
   }, [chainAssetsMap]);
 
   // Your tokens
@@ -102,20 +100,12 @@ export const SelectNetworkToken = ({
   const transparentAccount = accounts?.find(
     (account) => account.type !== AccountType.ShieldedKeys
   );
-  const alias = transparentAccount?.alias;
   const accountAddress = transparentAccount?.address;
 
   const handleConnectWallet = (): void => {
     navigate(routes.switchAccount, {
       state: { backgroundLocation: location },
     });
-  };
-
-  const onClickDisconnect = async (): Promise<void> => {
-    const namada = await new NamadaKeychain().get();
-    if (namada) {
-      await namada.disconnect();
-    }
   };
 
   if (!isOpen) return null;
