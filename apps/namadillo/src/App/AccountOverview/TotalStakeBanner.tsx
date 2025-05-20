@@ -4,6 +4,7 @@ import { NamCurrency } from "App/Common/NamCurrency";
 import { UnclaimedRewardsCard } from "App/Staking/UnclaimedRewardsCard";
 import { namadaTransparentAssetsAtom } from "atoms/balance";
 import { tokenPricesFamily } from "atoms/prices/atoms";
+import { applicationFeaturesAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useBalances } from "hooks/useBalances";
@@ -20,6 +21,7 @@ export const TotalStakeBanner = (): JSX.Element => {
   );
   const namPrice =
     tokenPrices.data?.[namadaAsset().address ?? ""] ?? BigNumber(0);
+  const { namTransfersEnabled } = useAtomValue(applicationFeaturesAtom);
 
   return (
     <Panel className="py-4 min-w-full">
@@ -35,10 +37,20 @@ export const TotalStakeBanner = (): JSX.Element => {
             <SkeletonLoading height="1em" width="200px" className="text-5xl" />
           )}
           {!bondedAmountIsLoading && (
-            <div className={clsx("flex items-center text-5xl leading-none")}>
-              <NamCurrency amount={bondedAmount} decimalPlaces={2} />
-              <FiatCurrency amount={namPrice} />
-            </div>
+            <>
+              <div className={clsx("flex items-center text-5xl leading-none")}>
+                <NamCurrency amount={bondedAmount} decimalPlaces={2} />
+              </div>
+              {namTransfersEnabled && (
+                <div
+                  className={clsx(
+                    "flex items-center text-2xl leading-none mt-8"
+                  )}
+                >
+                  <FiatCurrency amount={namPrice} />
+                </div>
+              )}
+            </>
           )}
         </div>
         <aside className="-mr-6 flex-wrap mt-4 md:mt-0">
