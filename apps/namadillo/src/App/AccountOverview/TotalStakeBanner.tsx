@@ -1,11 +1,25 @@
 import { Panel, SkeletonLoading, Stack } from "@namada/components";
+import { FiatCurrency } from "App/Common/FiatCurrency";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { UnclaimedRewardsCard } from "App/Staking/UnclaimedRewardsCard";
+import { namadaTransparentAssetsAtom } from "atoms/balance";
+import { tokenPricesFamily } from "atoms/prices/atoms";
+import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useBalances } from "hooks/useBalances";
+import { useAtomValue } from "jotai";
+import { namadaAsset } from "utils";
 
 export const TotalStakeBanner = (): JSX.Element => {
   const { bondedAmount, isLoading: bondedAmountIsLoading } = useBalances();
+  const shieldedAssets = useAtomValue(namadaTransparentAssetsAtom);
+  const tokenPrices = useAtomValue(
+    tokenPricesFamily(
+      Object.values(shieldedAssets.data ?? {}).map((i) => i.originalAddress)
+    )
+  );
+  const namPrice =
+    tokenPrices.data?.[namadaAsset().address ?? ""] ?? BigNumber(0);
 
   return (
     <Panel className="py-4 min-w-full">
@@ -23,7 +37,7 @@ export const TotalStakeBanner = (): JSX.Element => {
           {!bondedAmountIsLoading && (
             <div className={clsx("flex items-center text-5xl leading-none")}>
               <NamCurrency amount={bondedAmount} decimalPlaces={2} />
-              {/* <FiatCurrency amount={totalAmountInFiat} /> */}
+              <FiatCurrency amount={namPrice} />
             </div>
           )}
         </div>
