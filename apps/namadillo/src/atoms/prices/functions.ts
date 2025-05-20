@@ -12,7 +12,6 @@ export const fetchTokenPrices = async (
   const baseMap: Record<BaseDenom, Address[]> = {};
   tokenAddressToFetch.forEach((address) => {
     const token = chainTokens?.find((t) => t.address === address);
-    console.log(chainTokens, token, "token");
     if (token) {
       // searching only on osmosis because these are the assets supported by fetchCoinPrices
       const asset = findAssetByToken(token, osmosis.assets.assets);

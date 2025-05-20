@@ -8,7 +8,6 @@ import { fetchTokenPrices } from "./functions";
 export const tokenPricesFamily = atomFamily(
   (addresses: Address[]) =>
     atomWithQuery((get) => {
-      console.log(addresses, "addresses");
       const chainTokens = get(chainTokensAtom).data;
       return {
         queryKey: ["token-prices", addresses, chainTokens],
