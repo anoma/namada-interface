@@ -12,6 +12,7 @@ import { TokenCurrency } from "App/Common/TokenCurrency";
 import { params, routes } from "App/routes";
 import { TokenBalance, transparentTokensAtom } from "atoms/balance/atoms";
 import { applicationFeaturesAtom } from "atoms/settings";
+import { useBalances } from "hooks/useBalances";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { IoSwapHorizontal } from "react-icons/io5";
@@ -30,8 +31,12 @@ const TransparentTokensTable = ({
 }): JSX.Element => {
   const [page, setPage] = useState(initialPage);
   const { namTransfersEnabled } = useAtomValue(applicationFeaturesAtom);
-
-  const headers = ["Token", { children: "Balance", className: "text-right" }];
+  const { bondedAmount } = useBalances();
+  const headers = [
+    "Token",
+    { children: "Balance", className: "text-right" },
+    { children: "Staked Balance", className: "text-right" },
+  ];
 
   const renderRow = ({
     originalAddress,
@@ -59,6 +64,22 @@ const TransparentTokensTable = ({
               amount={dollar}
             />
           )}
+        </div>,
+        <div
+          key={`balance-${originalAddress}`}
+          className="flex flex-col text-right leading-tight"
+        >
+          {isNam ?
+            <>
+              <TokenCurrency symbol={asset.symbol} amount={bondedAmount} />
+              {dollar && (
+                <FiatCurrency
+                  className="text-neutral-600 text-sm"
+                  amount={dollar}
+                />
+              )}
+            </>
+          : null}
         </div>,
         <div
           key={`buttons-${originalAddress}`}

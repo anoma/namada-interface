@@ -1,5 +1,6 @@
 import { Panel } from "@namada/components";
 import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
+import { TotalStakeBanner } from "App/AccountOverview/TotalStakeBanner";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { Sidebar } from "App/Layout/Sidebar";
@@ -10,7 +11,6 @@ import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { useAtomValue } from "jotai";
 import { AllValidatorsTable } from "./AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
-import { StakingSummary } from "./StakingSummary";
 import { UnbondedTable } from "./UnbondedTable";
 import { UnbondingAmountsTable } from "./UnbondingAmountsTable";
 import { WithdrawalButton } from "./WithdrawalButton";
@@ -28,7 +28,7 @@ export const StakingOverview = (): JSX.Element => {
     <PageWithSidebar>
       <div className="flex flex-col flex-1 gap-2">
         {!userHasAccount && <ConnectBanner actionText="To stake" />}
-        {userHasAccount && <StakingSummary />}
+        {userHasAccount && <TotalStakeBanner />}
         {hasStaking && (
           <Panel title="My Validators">
             <MyValidatorsTable />
