@@ -141,10 +141,10 @@ export const toErrorDetail = (
     // TODO: Over time we may expand this to format errors for more result codes
     switch (code) {
       case ResultCode.TxGasLimit:
-        return `${error.toString()} ${toGasMsg(args.gasLimit)}`;
+        return `${error.toString()}.\n${toGasMsg(args.gasLimit)}`;
       case ResultCode.WasmRuntimeError:
         // We can only check error type by reading the error message
-        return error.toString() + ` ${textToErrorDetail(info, tx[0])}`;
+        return `${error.toString()}.\n${textToErrorDetail(info, tx[0])}`;
 
       default:
         return error.toString() + ` ${info}`;

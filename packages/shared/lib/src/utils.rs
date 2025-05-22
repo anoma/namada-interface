@@ -1,8 +1,9 @@
 use gloo_utils::format::JsValueSerdeExt;
-use js_sys::Uint8Array;
+use js_sys::{Promise, Uint8Array};
 use serde::Serialize;
 use std::fmt::Debug;
 use wasm_bindgen::prelude::*;
+use wasm_bindgen_futures::JsFuture;
 
 #[wasm_bindgen]
 extern "C" {
@@ -43,4 +44,16 @@ where
 pub fn set_panic_hook() {
     web_sys::console::log_1(&"Set panic hook".into());
     console_error_panic_hook::set_once();
+}
+
+/// Sleep function using setTimeout wrapped in a JS Promise
+pub async fn sleep(ms: i32) {
+    let promise = Promise::new(&mut |resolve, _reject| {
+        web_sys::window()
+            .unwrap()
+            .set_timeout_with_callback_and_timeout_and_arguments_0(&resolve, ms)
+            .unwrap();
+    });
+
+    let _ = JsFuture::from(promise).await;
 }

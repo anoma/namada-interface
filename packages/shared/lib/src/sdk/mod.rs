@@ -34,7 +34,7 @@ use namada_sdk::masp::ShieldedContext;
 use namada_sdk::masp_primitives::sapling::ViewingKey;
 use namada_sdk::masp_primitives::transaction::components::amount::I128Sum;
 use namada_sdk::masp_primitives::zip32::{ExtendedFullViewingKey, ExtendedKey};
-use namada_sdk::rpc::{self, query_denom, query_epoch, InnerTxResult, TxResponse};
+use namada_sdk::rpc::{self, query_denom, query_epoch, InnerTxResult, TxAppliedEvents, TxResponse};
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::string_encoding::Format;
 use namada_sdk::tendermint_rpc::Url;
@@ -337,6 +337,48 @@ impl Sdk {
         to_js_result(borsh::to_vec(&namada_tx)?)
     }
 
+    // We query tx evcents in loop here as control flow in namada_sdk does not seem to work well in
+    // browsers
+    async fn query_tx_result(
+        &self,
+        deadline: u64,
+        tx_hash: &str,
+    ) -> Result<TxAppliedEvents, JsValue> {
+        let mut backoff = 0;
+        let deadline = time::Instant::now() + time::Duration::from_secs(deadline);
+        let tx_query = rpc::TxEventQuery::Applied(tx_hash);
+
+        let event = loop {
+            // We do linear backoff here to avoid hammering the RPC server
+            backoff += 1000;
+
+            if time::Instant::now() >= deadline {
+                break Err(JsValue::from("Timed out waiting for tx to be applied"));
+            }
+            let res = rpc::query_tx_events(self.namada.client(), tx_query).await;
+
+            let maybe_response = match res {
+                Ok(response) => response,
+                Err(_) => {
+                    crate::utils::sleep(backoff).await;
+                    continue;
+                }
+            };
+
+            match maybe_response {
+                Some(res) => {
+                    break Ok(res);
+                }
+                None => {
+                    crate::utils::sleep(backoff).await;
+                    continue;
+                }
+            }
+        }?;
+
+        Ok(event)
+    }
+
     pub async fn broadcast_tx(&self, tx_bytes: &[u8], deadline: u64) -> Result<JsValue, JsValue> {
         #[derive(serde::Serialize)]
         struct TxErrResponse {
@@ -363,11 +405,7 @@ impl Sdk {
                     ));
                 }
 
-                let deadline = time::Instant::now() + time::Duration::from_secs(deadline);
-                let tx_query = rpc::TxEventQuery::Applied(tx_hash.as_str());
-                let event = rpc::query_tx_status(&self.namada, tx_query, deadline)
-                    .await
-                    .map_err(|e| JsValue::from_str(&e.to_string()))?;
+                let event = self.query_tx_result(deadline, &tx_hash).await?;
                 let tx_response = TxResponse::from_events(event);
 
                 let mut batch_tx_results: Vec<tx::BatchTxResult> = vec![];
