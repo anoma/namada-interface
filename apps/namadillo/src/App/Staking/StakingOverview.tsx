@@ -1,6 +1,5 @@
 import { Panel } from "@namada/components";
 import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
-import { StakeSidebar } from "App/AccountOverview/StakeSidebar";
 import { TotalStakeBanner } from "App/AccountOverview/TotalStakeBanner";
 import { ConnectBanner } from "App/Common/ConnectBanner";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
@@ -62,9 +61,6 @@ export const StakingOverview = (): JSX.Element => {
             <YourStakingDistribution myValidators={myValidators.data!} />
           </Panel>
         )}
-        <Panel>
-          <StakeSidebar />
-        </Panel>
         <Panel>
           <ValidatorDiversification />
         </Panel>
