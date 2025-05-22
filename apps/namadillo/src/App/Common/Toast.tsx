@@ -129,7 +129,9 @@ const Toast = ({ notification, onClose }: ToastProps): JSX.Element => {
           )}
         {notification.details &&
           (viewDetails || notification.type === "error") && (
-            <div className="w-full text-xs text-white block">
+            <div className="w-full text-xs text-white block whitespace-pre-wrap">
+              {/* We "prefix" the error message with a line break to make it more visible */}
+              {notification.type === "error" && <br />}
               {notification.details}
             </div>
           )}

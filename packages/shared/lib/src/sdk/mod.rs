@@ -24,6 +24,7 @@ use namada_sdk::borsh::{self, BorshDeserialize};
 use namada_sdk::collections::HashMap;
 use namada_sdk::control_flow::time;
 use namada_sdk::eth_bridge::bridge_pool::build_bridge_pool_tx;
+use namada_sdk::events::Event;
 use namada_sdk::hash::Hash;
 use namada_sdk::ibc::convert_masp_tx_to_ibc_memo;
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
@@ -337,6 +338,44 @@ impl Sdk {
         to_js_result(borsh::to_vec(&namada_tx)?)
     }
 
+    // We query tx evcents in loop here as control flow in namada_sdk does not seem to work well in
+    // browsers
+    async fn query_tx_result(&self, deadline: u64, tx_hash: &str) -> Result<Event, JsValue> {
+        let mut backoff = 0;
+        let deadline = time::Instant::now() + time::Duration::from_secs(deadline);
+        let tx_query = rpc::TxEventQuery::Applied(tx_hash);
+
+        let event = loop {
+            // We do linear backoff here to avoid hammering the RPC server
+            backoff += 1000;
+
+            if time::Instant::now() >= deadline {
+                break Err(JsValue::from("Timed out waiting for tx to be applied"));
+            }
+            let res = rpc::query_tx_events(self.namada.client(), tx_query).await;
+
+            let maybe_response = match res {
+                Ok(response) => response,
+                Err(_) => {
+                    crate::utils::sleep(backoff).await;
+                    continue;
+                }
+            };
+
+            match maybe_response {
+                Some(res) => {
+                    break Ok(res);
+                }
+                None => {
+                    crate::utils::sleep(backoff).await;
+                    continue;
+                }
+            }
+        }?;
+
+        Ok(event)
+    }
+
     pub async fn broadcast_tx(&self, tx_bytes: &[u8], deadline: u64) -> Result<JsValue, JsValue> {
         #[derive(serde::Serialize)]
         struct TxErrResponse {
@@ -363,11 +402,7 @@ impl Sdk {
                     ));
                 }
 
-                let deadline = time::Instant::now() + time::Duration::from_secs(deadline);
-                let tx_query = rpc::TxEventQuery::Applied(tx_hash.as_str());
-                let event = rpc::query_tx_status(&self.namada, tx_query, deadline)
-                    .await
-                    .map_err(|e| JsValue::from_str(&e.to_string()))?;
+                let event = self.query_tx_result(deadline, &tx_hash).await?;
                 let tx_response = TxResponse::from_event(event);
 
                 let mut batch_tx_results: Vec<tx::BatchTxResult> = vec![];
