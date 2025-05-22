@@ -9,12 +9,9 @@ fn read(question: Option<&str>) -> std::io::Result<String> {
                 .prompt_with_message(question)
                 .expect("Prompt to be defined");
 
-            input.ok_or(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "Input is null",
-            ))
+            input.ok_or(std::io::Error::other("Input is null"))
         }
-        None => Err(std::io::Error::new(std::io::ErrorKind::Other, "No window")),
+        None => Err(std::io::Error::other("No window")),
     }
 }
 

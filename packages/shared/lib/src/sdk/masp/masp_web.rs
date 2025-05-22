@@ -77,7 +77,7 @@ impl WebShieldedUtils {
     }
 
     fn to_io_err(e: Error) -> std::io::Error {
-        std::io::Error::new(std::io::ErrorKind::Other, e.to_string())
+        std::io::Error::other(e.to_string())
     }
 
     pub async fn build_database(chain_id: &str) -> Result<Rexie, Error> {
