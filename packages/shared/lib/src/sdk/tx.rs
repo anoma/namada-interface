@@ -450,7 +450,11 @@ pub struct BatchTxResult {
 
 impl BatchTxResult {
     pub fn new(hash: String, is_applied: bool, error: Option<String>) -> BatchTxResult {
-        BatchTxResult { hash, is_applied, error }
+        BatchTxResult {
+            hash,
+            is_applied,
+            error,
+        }
     }
 }
 
