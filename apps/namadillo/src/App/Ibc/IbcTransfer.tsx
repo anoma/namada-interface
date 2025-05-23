@@ -10,7 +10,6 @@ import { allDefaultAccountsAtom } from "atoms/accounts";
 import {
   assetBalanceAtomFamily,
   availableChainsAtom,
-  enabledIbcAssetsDenomFamily,
   ibcChannelsFamily,
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
@@ -61,9 +60,6 @@ export const IbcTransfer = (): JSX.Element => {
     })
   );
 
-  const { data: enabledAssets, isLoading: isLoadingEnabledAssets } =
-    useAtomValue(enabledIbcAssetsDenomFamily(ibcChannels?.namadaChannel));
-
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAssetAddress, setSelectedAssetAddress] = useUrlState(
     params.asset
@@ -85,15 +81,15 @@ export const IbcTransfer = (): JSX.Element => {
     selectedAssetAddress ? userAssets?.[selectedAssetAddress] : undefined;
 
   const availableAssets = useMemo(() => {
-    if (!enabledAssets || !userAssets) return undefined;
+    if (!userAssets) return undefined;
     const output: AddressWithAssetAndAmountMap = {};
     for (const key in userAssets) {
-      if (enabledAssets.includes(userAssets[key].asset.base)) {
+      if (registry?.assets.assets.find((a) => a.base === key)?.base) {
         output[key] = { ...userAssets[key] };
       }
     }
     return output;
-  }, [enabledAssets, userAssets]);
+  }, [userAssets]);
 
   // Manage the history of transactions
   const { storeTransaction } = useTransactionActions();
@@ -180,7 +176,7 @@ export const IbcTransfer = (): JSX.Element => {
       </header>
       <TransferModule
         source={{
-          isLoadingAssets: isLoadingBalances || isLoadingEnabledAssets,
+          isLoadingAssets: isLoadingBalances,
           availableAssets,
           selectedAssetAddress,
           availableAmount,
