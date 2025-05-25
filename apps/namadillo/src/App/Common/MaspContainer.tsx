@@ -14,7 +14,7 @@ export const MaspContainer = ({
   const hasViewingKey = viewingKeys.isSuccess && viewingKeys.data[0];
 
   return (
-    <div className="flex flex-col flex-1">
+    <div className="flex relative flex-col flex-1">
       {children}
       {requiresNewSync && hasViewingKey && (
         <MaspSyncCover longSync={lastSync === undefined} />
