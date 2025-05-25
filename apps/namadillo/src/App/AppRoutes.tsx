@@ -47,6 +47,7 @@ import { Unstake } from "./Staking/Unstake";
 import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
 import { TransactionDetails } from "./Transactions/TransactionDetails";
 import { TransactionHistory } from "./Transactions/TransactionHistory";
+import { SelectTokenExample } from "./Transfer/SelectTokenExample";
 import { TransferLayout } from "./Transfer/TransferLayout";
 
 export const MainRoutes = (): JSX.Element => {
@@ -108,6 +109,8 @@ export const MainRoutes = (): JSX.Element => {
               <Route path={routes.ibcWithdraw} element={<IbcWithdraw />} />
             </Route>
           )}
+
+          <Route path={"/example"} element={<SelectTokenExample />} />
 
           {features.ibcTransfersEnabled && (
             <Route element={<IbcLayout />}>
