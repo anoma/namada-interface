@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.21.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.21.0...namadillo@v1.21.1) (2025-05-25)
+
+
+### Bug Fixes
+
+* Add relative to div on `/masp/shield` ([#2038](https://github.com/anoma/namada-interface/issues/2038)) ([682c4b9](https://github.com/anoma/namada-interface/commit/682c4b94b10af58d903c08ccc6812147ae9de2f5))
+
 ## [1.21.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.20.2...namadillo@v1.21.0) (2025-05-22)
 
 
