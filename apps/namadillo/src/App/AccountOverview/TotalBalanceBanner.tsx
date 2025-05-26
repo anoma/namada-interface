@@ -26,7 +26,7 @@ export const TotalBalanceBanner = (): JSX.Element => {
     <Panel className="py-4">
       <Stack
         direction="horizontal"
-        className="overflow-hidden items-center justify-between px-4"
+        className="items-center justify-between px-4"
       >
         <div className="text-white">
           <header className="text-sm mb-3">
