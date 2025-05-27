@@ -48,11 +48,8 @@ export const SyncIndicator = (): JSX.Element => {
     syncStatus.isError ||
     indexerServicesSyncStatus.isError ||
     isChainStatusError;
-
-  const isSyncing =
-    syncStatus.isSyncing ||
-    indexerServicesSyncStatus.isSyncing ||
-    !blockHeightSync;
+  const isShieldedSyncing = syncStatus.isSyncing;
+  const isSyncing = indexerServicesSyncStatus.isSyncing || !blockHeightSync;
 
   useEffect(() => {
     (async () => {
@@ -66,40 +63,50 @@ export const SyncIndicator = (): JSX.Element => {
   }, [chainStatus?.height]);
 
   return (
-    <div className="relative group/tooltip px-1 py-3">
-      {isSyncing ?
-        <div className="relative">
-          <PulsingRing size="small" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-yellow-500 rounded-full" />
+    <div className="flex gap-8 px-1 py-3">
+      {true && (
+        <div className="relative group/tooltip">
+          <div className="relative">
+            <PulsingRing size="small" className="mt-1" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mt-1 w-2.5 h-2.5 bg-yellow-500 rounded-full" />
+          </div>
+          <Tooltip
+            position="bottom"
+            className="z-10 w-max max-w-[200px] text-balance"
+          >
+            Shielded assets syncing...
+          </Tooltip>
         </div>
-      : <div
-          className={twMerge(
-            "w-2 h-2 rounded-full",
-            "bg-green-500",
-            isError && "bg-red-500"
-          )}
-        />
-      }
-      <Tooltip
-        position="bottom"
-        className="z-10 w-max max-w-[200px] text-balance"
-      >
-        {isSyncing ?
-          "Syncing"
-        : isError ?
-          <div>
-            {formatError(errors, "Error")}
-            {formatError(services, "Lagging services")}
-            {isChainStatusError && "Chain status not loaded."}
-          </div>
-        : <div>
-            <div>Fully synced:</div>
-            <div>RPC Height: {chainStatus?.height}</div>
-            <div>Indexer Height: {indexerBlockHeight}</div>
-            <div>Epoch: {chainStatus?.epoch}</div>
-          </div>
-        }
-      </Tooltip>
+      )}
+      {isSyncing && (
+        <div className="relative group/tooltip">
+          <div
+            className={twMerge(
+              "w-2 h-2 rounded-full",
+              "bg-green-500",
+              isError && "bg-red-500"
+            )}
+          />
+          <Tooltip
+            position="bottom"
+            className="z-10 w-max max-w-[200px] text-balance"
+          >
+            {isError ?
+              <div>
+                {formatError(errors, "Error")}
+                {formatError(services, "Lagging services")}
+                {isChainStatusError && "Chain status not loaded."}
+              </div>
+            : <div>
+                <div>Fully synced:</div>
+                <div>RPC Height: {chainStatus?.height}</div>
+                <div>Indexer Height: {indexerBlockHeight}</div>
+                <div>Epoch: {chainStatus?.epoch}</div>
+              </div>
+            }
+          </Tooltip>
+        </div>
+      )}
     </div>
   );
 };
