@@ -52,7 +52,7 @@ export const UnclaimedRewardsCard = (): JSX.Element => {
         size="xs"
         backgroundColor="cyan"
         textColor="black"
-        href={routes.stakingBondingIncrement}
+        href={routes.stakingClaimRewards}
       >
         Claim NAM
       </ActionButton>
