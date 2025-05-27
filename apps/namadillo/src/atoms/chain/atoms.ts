@@ -156,7 +156,7 @@ export const maspEpochAtom = atomWithQuery<bigint>((get) => {
     // We always want to fetch the latest, up to date epoch
     gcTime: 0,
     staleTime: 0,
-    queryKey: ["epoch", chain],
+    queryKey: ["masp-epoch", chain],
     ...queryDependentFn(async (): Promise<bigint> => {
       const sdk = await getSdkInstance();
       const maspEpoch = sdk.rpc.queryMaspEpoch();
