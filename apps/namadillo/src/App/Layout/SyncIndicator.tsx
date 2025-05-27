@@ -69,8 +69,8 @@ export const SyncIndicator = (): JSX.Element => {
     <div className="relative group/tooltip px-1 py-3">
       {isSyncing ?
         <div className="relative">
-          <PulsingRing size="small" className="w-1 h-1" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-yellow-500 rounded-full" />
+          <PulsingRing size="small" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-yellow-500 rounded-full" />
         </div>
       : <div
           className={twMerge(

@@ -32,7 +32,7 @@ export const PulsingRing = ({
       timeline.add({
         targets: items,
         opacity: [0, 1],
-        scale: [0, size === "small" ? 0.5 : 1],
+        scale: [0, 1],
         easing: "easeOutExpo",
         delay: anime.stagger(150),
         duration: 1100,
@@ -63,7 +63,10 @@ export const PulsingRing = ({
     );
   };
 
-  const ringSizes = ["h-[1.8em]", "h-[3em]", "h-[4.2em]"];
+  const ringSizes =
+    size === "small" ?
+      ["h-[0.75em]", "h-[1.35em]", "h-[1.95em]"]
+    : ["h-[1.8em]", "h-[3em]", "h-[4.2em]"];
 
   return (
     <span
