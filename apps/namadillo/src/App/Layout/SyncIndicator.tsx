@@ -9,6 +9,7 @@ import {
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { PulsingRing } from "../Common/PulsingRing";
 
 const formatError = (
   errors: (string | Error)[],
@@ -66,14 +67,19 @@ export const SyncIndicator = (): JSX.Element => {
 
   return (
     <div className="relative group/tooltip px-1 py-3">
-      <div
-        className={twMerge(
-          "w-2 h-2 rounded-full",
-          "bg-green-500",
-          isSyncing && "bg-yellow-500 animate-pulse",
-          isError && !isSyncing && "bg-red-500"
-        )}
-      />
+      {isSyncing ?
+        <div className="relative">
+          <PulsingRing size="small" className="w-1 h-1" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-yellow-500 rounded-full" />
+        </div>
+      : <div
+          className={twMerge(
+            "w-2 h-2 rounded-full",
+            "bg-green-500",
+            isError && "bg-red-500"
+          )}
+        />
+      }
       <Tooltip
         position="bottom"
         className="z-10 w-max max-w-[200px] text-balance"
