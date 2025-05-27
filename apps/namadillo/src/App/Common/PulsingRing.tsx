@@ -71,14 +71,6 @@ export const PulsingRing = ({
       className={twMerge("block relative leading-0", className)}
     >
       {ringSizes.map((sizeClass, index) => renderRing(sizeClass, index))}
-      {/* Center dot */}
-      <span
-        className={clsx(
-          "block absolute bg-yellow-500 rounded-full",
-          "left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
-          size === "small" ? "w-[0.1em] h-[0.1em]" : "w-[0.4em] h-[0.4em]"
-        )}
-      />
     </span>
   );
 };
