@@ -1,9 +1,10 @@
-import { Panel, SkeletonLoading, StyledSelectBox } from "@namada/components";
+import { Panel, SkeletonLoading } from "@namada/components";
 import { AssetImage } from "App/Transfer/AssetImage";
 import { maspRewardsAtom } from "atoms/chain";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { GoChevronDown } from "react-icons/go";
 import { MaspAssetRewards } from "types";
 
 export const MaspRewardCalculator = (): JSX.Element => {
@@ -12,10 +13,56 @@ export const MaspRewardCalculator = (): JSX.Element => {
   const [selectedAsset, setSelectedAsset] = useState<
     MaspAssetRewards | undefined
   >(rewards.data?.[0] || undefined);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Filter assets based on search term
+  const filteredRewards =
+    rewards.data?.filter((reward) =>
+      reward.asset.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
+
+  // Set initial selected asset when rewards data loads
+  useEffect(() => {
+    if (rewards.data && rewards.data.length > 0 && !selectedAsset) {
+      setSelectedAsset(rewards.data[0]);
+    }
+  }, [rewards.data, selectedAsset]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent): void => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+        setSearchTerm("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Focus search input when dropdown opens
+  useEffect(() => {
+    if (isDropdownOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isDropdownOpen]);
+
+  const handleAssetSelect = (asset: MaspAssetRewards): void => {
+    setSelectedAsset(asset);
+    setIsDropdownOpen(false);
+    setSearchTerm("");
+  };
 
   const estimatedRewards =
-    amount ?
-      (parseFloat(amount) * Number(selectedAsset?.maxRewardRate)).toFixed(2)
+    amount && selectedAsset?.maxRewardRate ?
+      (parseFloat(amount) * Number(selectedAsset.maxRewardRate)).toFixed(2)
     : "0.00";
 
   return (
@@ -33,68 +80,113 @@ export const MaspRewardCalculator = (): JSX.Element => {
         )}
         {rewards.data && (
           <>
-            <StyledSelectBox
-              value={selectedAsset?.asset.base || rewards.data[0].asset.base}
-              id="validator-filter"
-              containerProps={{
-                className: clsx(
-                  "text-sm flex-1 border-none bg-neutral-900 w-full rounded-sm",
-                  "px-4"
-                ),
-              }}
-              arrowContainerProps={{ className: "right-4" }}
-              listContainerProps={{
-                className:
-                  "w-full mt-2 border border-neutral-700 bg-neutral-800 px-2 h-[200px] dark-scrollbar overflow-y-auto",
-              }}
-              listItemProps={{
-                className:
-                  "text-sm w-full border-0 py-0 pl-2 [&_label]:py-0.5 bg-neutral-800 hover:bg-neutral-700 rounded-sm",
-              }}
-              labelProps={{
-                className: "group-hover/item:text-white",
-              }}
-              onChange={(e) => {
-                const selectedBase = e.target.value;
-                const selected = rewards.data.find(
-                  (reward) => reward.asset.base === selectedBase
-                );
-                if (selected) {
-                  setSelectedAsset(selected);
-                }
-              }}
-              options={rewards.data.map((reward) => ({
-                id: reward.asset.base,
-                value: (
+            {/* Currency Select and Amount Input on same line */}
+            <div className="flex gap-0 bg-neutral-900 rounded-sm relative">
+              {/* Currency Selector */}
+              <div className="flex-shrink-0" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className={clsx(
+                    "flex items-center gap-1 px-3 py-3 text-white",
+                    "hover:bg-neutral-800 transition-colors rounded-l-sm",
+                    "min-w-[80px]"
+                  )}
+                >
+                  <div className="w-6 h-6 flex-shrink-0">
+                    <AssetImage asset={selectedAsset?.asset} />
+                  </div>
+                  <span className="text-sm font-medium">
+                    {selectedAsset?.asset.symbol || "Select"}
+                  </span>
+                  <GoChevronDown
+                    className={clsx(
+                      "ml-1 transition-transform text-neutral-400 text-xs",
+                      isDropdownOpen && "rotate-180"
+                    )}
+                  />
+                </button>
+                {/* Dropdown */}
+                {isDropdownOpen && (
                   <div
                     className={clsx(
-                      "grid grid-cols-[auto_1fr] gap-1",
-                      "w-full min-h-[28px] mt-0.5 py-2"
+                      "absolute top-full left-0 w-full z-50 mt-1",
+                      "bg-neutral-800 rounded-sm",
+                      "shadow-lg max-h-[300px] overflow-hidden"
                     )}
                   >
-                    <div className="aspect-square w-8 h-8 -mt-0.5">
-                      <AssetImage asset={reward.asset} />
+                    {/* Search Input */}
+                    <div className="border-none">
+                      <div className="relative">
+                        <input
+                          ref={searchInputRef}
+                          type="text"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          placeholder="Search assets..."
+                          className={clsx(
+                            "w-full pl-10 pr-3 py-2 bg-neutral-900 text-white",
+                            "border-none border-neutral-600 text-sm",
+                            "focus:outline-none focus:border-neutral-500"
+                          )}
+                        />
+                      </div>
                     </div>
-                    <div className="text-sm ml-3 mt-1">
-                      {reward.asset.symbol}
+
+                    {/* Asset List */}
+                    <div className="max-h-[200px] overflow-y-auto dark-scrollbar overscroll-contain">
+                      {filteredRewards.length === 0 ?
+                        <div className="p-3 text-center text-neutral-400 text-sm">
+                          No assets found
+                        </div>
+                      : filteredRewards.map((reward) => (
+                          <button
+                            key={reward.asset.base}
+                            type="button"
+                            onClick={() => handleAssetSelect(reward)}
+                            className={clsx(
+                              "w-full flex items-center gap-3 p-3 text-left",
+                              "hover:bg-neutral-700 transition-colors"
+                            )}
+                          >
+                            <div className="w-8 h-8 flex-shrink-0">
+                              <AssetImage asset={reward.asset} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-white font-medium text-sm">
+                                {reward.asset.symbol}
+                              </div>
+                              {reward.asset.name && (
+                                <div className="text-neutral-400 text-xs truncate">
+                                  {reward.asset.name}
+                                </div>
+                              )}
+                            </div>
+                          </button>
+                        ))
+                      }
                     </div>
                   </div>
-                ),
-                ariaLabel: reward.asset.symbol,
-              }))}
-            />
+                )}
+              </div>
 
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value.length >= 8) return;
-                setAmount(e.target.value);
-              }}
-              placeholder="Enter amount"
-              className="w-full border border-none rounded-sm bg-neutral-900 text-white py-3 px-5 text-left focus:outline-none"
-            />
+              {/* Amount Input */}
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.length >= 8) return;
+                  setAmount(e.target.value);
+                }}
+                placeholder="Amount"
+                className={clsx(
+                  "[&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none mr-3",
+                  "bg-transparent text-white py-3 w-full",
+                  "focus:outline-none text-right rounded-r-sm"
+                )}
+              />
+            </div>
 
             <div className="flex flex-col items-center justify-center border border-neutral-500 rounded-sm py-8">
               <div className="text-yellow text-3xl font-bold max-w-full px-4">
