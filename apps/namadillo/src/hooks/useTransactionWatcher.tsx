@@ -42,6 +42,7 @@ export const useTransactionWatcher = (): void => {
               break;
             }
 
+            case "ShieldedToIbc":
             case "TransparentToIbc": {
               const newTx = await updateIbcWithdrawalStatus(
                 tx as IbcTransferTransactionData
