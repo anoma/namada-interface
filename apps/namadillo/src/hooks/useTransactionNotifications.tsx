@@ -475,7 +475,7 @@ export const useTransactionNotifications = (): void => {
 
       const id = createNotificationId(tx.hash);
       const title =
-        tx.type === "TransparentToIbc" ?
+        tx.type === "ShieldedToIbc" || tx.type === "TransparentToIbc" ?
           "IBC withdraw transaction succeeded"
         : "IBC transfer transaction succeeded";
 
@@ -500,7 +500,7 @@ export const useTransactionNotifications = (): void => {
     invariant(tx.hash, "Notification error: Invalid Tx provider");
     const id = createNotificationId(tx.hash);
     const title =
-      tx.type === "TransparentToIbc" ?
+      tx.type === "ShieldedToIbc" || tx.type === "TransparentToIbc" ?
         "IBC withdraw transaction failed"
       : "IBC transfer transaction failed";
 

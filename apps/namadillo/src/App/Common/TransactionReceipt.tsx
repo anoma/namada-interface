@@ -17,11 +17,7 @@ import { wallets } from "integrations";
 import { useMemo } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { GoHourglass, GoXCircle } from "react-icons/go";
-import {
-  allTransferTypes,
-  PartialTransferTransactionData,
-  TransferStep,
-} from "types";
+import { PartialTransferTransactionData, TransferStep } from "types";
 
 type TransactionReceiptProps = {
   transaction: PartialTransferTransactionData;
@@ -137,10 +133,6 @@ const TransferTransactionReceipt = ({
 export const TransactionReceipt = ({
   transaction,
 }: TransactionReceiptProps): JSX.Element => {
-  const isTransferTransaction = (): boolean => {
-    return allTransferTypes.includes(transaction.type);
-  };
-
   return (
     <div>
       <header className="mb-8">
@@ -181,9 +173,7 @@ export const TransactionReceipt = ({
         )}
       </header>
       <article>
-        {isTransferTransaction() ?
-          <TransferTransactionReceipt transaction={transaction} />
-        : <div></div>}
+        <TransferTransactionReceipt transaction={transaction} />
       </article>
     </div>
   );

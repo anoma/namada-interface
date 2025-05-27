@@ -264,7 +264,7 @@ export const IbcWithdraw = (): JSX.Element => {
       hash: tx.encodedTxData.txs[0].innerTxHashes[0].toLowerCase(),
       currentStep: TransferStep.WaitingConfirmation,
       rpc: "",
-      type: "TransparentToIbc",
+      type: shielded ? "ShieldedToIbc" : "TransparentToIbc",
       status: "pending",
       sourcePort: "transfer",
       asset,

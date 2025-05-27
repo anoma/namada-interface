@@ -275,6 +275,12 @@ export const namadaTransferStages = {
 
 // Defines the steps in the IBC <> Namada transfer progress for tracking transaction stages.
 export const ibcTransferStages = {
+  ShieldedToIbc: [
+    TransferStep.Sign,
+    TransferStep.IbcWithdraw,
+    TransferStep.WaitingConfirmation,
+    TransferStep.Complete,
+  ] as const,
   TransparentToIbc: [
     TransferStep.Sign,
     TransferStep.IbcWithdraw,
@@ -303,24 +309,6 @@ export const allTransferStages = {
 
 export const transferPossibleStages = [
   ...new Set(Object.values(allTransferStages).flat()),
-] as const;
-
-export const transparentTransferTypes: Array<keyof AllTransferStages> = [
-  "ShieldedToTransparent",
-  "TransparentToIbc",
-  "TransparentToTransparent",
-  "IbcToTransparent",
-  "TransparentToShielded",
-] as const;
-
-export const ibcTransferTypes: Array<keyof AllTransferStages> = [
-  "IbcToTransparent",
-  "TransparentToIbc",
-  "IbcToShielded",
-] as const;
-
-export const allTransferTypes = [
-  ...ibcTransferTypes.concat(transparentTransferTypes),
 ] as const;
 
 type NamadaTransferStages = typeof namadaTransferStages;
