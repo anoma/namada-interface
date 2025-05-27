@@ -92,7 +92,7 @@ export const TransactionHistory = (): JSX.Element => {
         {pending.length > 0 && (
           <div className="mb-5 flex-none">
             <h2 className="text-sm mb-3 ml-4">Pending</h2>
-            <div className="ml-4 mr-7 max-h-32 overflow-y-auto">
+            <div className="ml-4 mr-7 max-h-32 overflow-y-auto dark-scrollbar">
               {pending.map((transaction) => (
                 <PendingTransactionCard
                   key={transaction.hash}
