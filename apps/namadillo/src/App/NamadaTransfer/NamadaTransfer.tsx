@@ -85,7 +85,14 @@ export const NamadaTransfer: React.FC = () => {
     token: selectedAsset?.originalAddress ?? "",
     displayAmount: displayAmount ?? new BigNumber(0),
     onBeforeBuildTx: () => {
-      setCurrentStatus("Preparing transaction...");
+      if (isSourceShielded) {
+        setCurrentStatus("Generating MASP Parameters...");
+        setCurrentStatusExplanation(
+          "Generating MASP parameters can take a few seconds. Please wait..."
+        );
+      } else {
+        setCurrentStatus("Preparing transaction...");
+      }
     },
     onBeforeSign: () => {
       setCurrentStatus("Waiting for signature...");
