@@ -1,15 +1,19 @@
 import { ConnectPanel } from "App/Common/ConnectPanel";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { Sidebar } from "App/Layout/Sidebar";
-import { JoinDiscord } from "App/Sidebars/JoinDiscord";
+import { MaspRewardCalculator } from "App/Sidebars/MaspRewardCalculator";
 import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
+import { applicationFeaturesAtom } from "atoms/settings";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
+import { useAtomValue } from "jotai";
 import { AssetsOverviewPanel } from "./AssetsOverviewPanel";
 import { StakeSidebar } from "./StakeSidebar";
 import { TotalBalanceBanner } from "./TotalBalanceBanner";
 
 export const AccountOverview = (): JSX.Element => {
   const userHasAccount = useUserHasAccount();
+  const features = useAtomValue(applicationFeaturesAtom);
+
   if (!userHasAccount) {
     return (
       <ConnectPanel>
@@ -26,8 +30,8 @@ export const AccountOverview = (): JSX.Element => {
       </div>
       <Sidebar>
         <StakeSidebar />
+        {features.shieldingRewardsEnabled && <MaspRewardCalculator />}
         <ShieldAllBanner />
-        <JoinDiscord />
       </Sidebar>
     </PageWithSidebar>
   );
