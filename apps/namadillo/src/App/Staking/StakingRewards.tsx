@@ -2,23 +2,24 @@ import { Modal } from "@namada/components";
 import { ClaimRewardsMsgValue } from "@namada/types";
 import { BackButton } from "App/Common/BackButton";
 import { ModalContainer } from "App/Common/ModalContainer";
+import { routes } from "App/routes";
 import { defaultAccountAtom } from "atoms/accounts";
 import {
   claimableRewardsAtom,
   claimAndStakeRewardsAtom,
   claimRewardsAtom,
 } from "atoms/staking";
-import { useModalCloseEvent } from "hooks/useModalCloseEvent";
 import { useTransaction } from "hooks/useTransaction";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AddressBalance } from "types";
 import { ClaimableRewardsModalStage } from "./ClaimableRewardsModalStage";
 import { ClaimRewardsSubmitModalStage } from "./ClaimRewardsSubmitModalStage";
 
 export const StakingRewards = (): JSX.Element => {
-  const { onCloseModal } = useModalCloseEvent();
   const { data: account } = useAtomValue(defaultAccountAtom);
+  const navigate = useNavigate();
   const [rewardsToClaim, setRewardsToClaim] = useState<ClaimRewardsMsgValue[]>(
     []
   );
@@ -40,6 +41,10 @@ export const StakingRewards = (): JSX.Element => {
         source: account.address,
       };
     });
+  };
+
+  const onCloseModal = (): void => {
+    navigate(routes.staking);
   };
 
   const {
