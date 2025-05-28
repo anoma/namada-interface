@@ -74,7 +74,7 @@ export const SyncIndicator = (): JSX.Element => {
 
   return (
     <div className="flex gap-10 px-2 py-3">
-      {roundedProgress < 100 && !isShieldedFetching && (
+      {roundedProgress < 100 && isShieldedFetching && (
         <div className="relative group/tooltip">
           <div className="relative mt-1">
             <PulsingRing size="small" />
@@ -108,7 +108,8 @@ export const SyncIndicator = (): JSX.Element => {
           className={twMerge(
             "w-2 h-2 rounded-full",
             "bg-green-500",
-            isError && "bg-red-500"
+            isSyncing && "bg-yellow-500 animate-pulse",
+            isError && !isSyncing && "bg-red-500"
           )}
         />
         <Tooltip
