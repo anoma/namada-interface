@@ -91,8 +91,10 @@ export const StyledSelectBox = <T extends string = string>({
             containerClassList
           )}
           role="button"
-          aria-label="Open Navigation"
-          onClick={() => setOpen(!open)}
+          onClick={() => {
+            if (props.disabled) return;
+            setOpen(!open);
+          }}
           {...otherContainerProps}
         >
           {selected ? selected.value : defaultValue}
