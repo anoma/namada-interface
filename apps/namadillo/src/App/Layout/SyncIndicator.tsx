@@ -1,5 +1,6 @@
 import { Tooltip } from "@namada/components";
 import { indexerApiAtom } from "atoms/api";
+import { shieldedBalanceAtom, shieldedSyncProgress } from "atoms/balance/atoms";
 import { fetchBlockHeightByTimestamp } from "atoms/balance/services";
 import { chainStatusAtom } from "atoms/chain";
 import {
@@ -7,7 +8,7 @@ import {
   syncStatusAtom,
 } from "atoms/syncStatus/atoms";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { PulsingRing } from "../Common/PulsingRing";
 
@@ -33,23 +34,32 @@ const formatError = (
 export const SyncIndicator = (): JSX.Element => {
   const syncStatus = useAtomValue(syncStatusAtom);
   const indexerServicesSyncStatus = useAtomValue(indexerServicesSyncStatusAtom);
+  const api = useAtomValue(indexerApiAtom);
   const chainStatus = useAtomValue(chainStatusAtom);
+  const shieldedProgress = useAtomValue(shieldedSyncProgress);
+  const { isFetching: isShieldedFetching } = useAtomValue(shieldedBalanceAtom);
   const [blockHeightSync, setBlockHeightSync] = useState<boolean | null>(null);
   const [indexerBlockHeight, setIndexerBlockHeight] = useState<number | null>(
     null
   );
+  const roundedProgress = useMemo(() => {
+    // Only update when the progress changes by at least 1%
+    return Math.min(Math.floor(shieldedProgress * 100), 100);
+  }, [Math.floor(shieldedProgress * 100)]);
+
   const { errors } = syncStatus;
   const { services } = indexerServicesSyncStatus;
+
   const isChainStatusError =
     !chainStatus?.height || !chainStatus?.epoch || !blockHeightSync;
-  const api = useAtomValue(indexerApiAtom);
-
   const isError =
     syncStatus.isError ||
     indexerServicesSyncStatus.isError ||
     isChainStatusError;
-  const isShieldedSyncing = syncStatus.isSyncing;
-  const isSyncing = indexerServicesSyncStatus.isSyncing || !blockHeightSync;
+  const isSyncing =
+    syncStatus.isSyncing ||
+    indexerServicesSyncStatus.isSyncing ||
+    !blockHeightSync;
 
   useEffect(() => {
     (async () => {
@@ -64,17 +74,28 @@ export const SyncIndicator = (): JSX.Element => {
 
   return (
     <div className="flex gap-8 px-1 py-3">
-      {true && (
+      {roundedProgress < 100 && isShieldedFetching && (
         <div className="relative group/tooltip">
           <div className="relative">
-            <PulsingRing size="small" className="mt-1" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mt-1 w-2.5 h-2.5 bg-yellow-500 rounded-full" />
+            <PulsingRing size="small" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-yellow-500 rounded-full" />
           </div>
           <Tooltip
             position="bottom"
-            className="z-10 w-max max-w-[200px] text-balance"
+            className="z-10 w-max max-w-[280px] bg-neutral-900 rounded-md p-4"
           >
-            Shielded assets syncing...
+            <div className="space-y-3">
+              <div className="text-md">Shielded sync: {roundedProgress}%</div>
+              <div className="w-full bg-neutral-700 h-1">
+                <div
+                  className="bg-yellow-500 h-1 transition-all duration-300"
+                  style={{ width: `${roundedProgress}%` }}
+                />
+              </div>
+              <div className="text-sm text-neutral-400">
+                Syncing your shielded assets. This might take a few seconds.
+              </div>
+            </div>
           </Tooltip>
         </div>
       )}
@@ -97,11 +118,13 @@ export const SyncIndicator = (): JSX.Element => {
                 {formatError(services, "Lagging services")}
                 {isChainStatusError && "Chain status not loaded."}
               </div>
-            : <div>
-                <div>Fully synced:</div>
-                <div>RPC Height: {chainStatus?.height}</div>
-                <div>Indexer Height: {indexerBlockHeight}</div>
-                <div>Epoch: {chainStatus?.epoch}</div>
+            : <div className="space-y-1">
+                <div className="text-green-500 font-medium mb-2">
+                  Fully synced:
+                </div>
+                <div>RPC Height: {chainStatus?.height}</div>+{" "}
+                <div>Indexer Height: {indexerBlockHeight}</div>+{" "}
+                <div>Epoch: {chainStatus?.epoch}</div>+{" "}
               </div>
             }
           </Tooltip>
