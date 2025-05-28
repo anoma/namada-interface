@@ -112,7 +112,7 @@ export const SyncIndicator = (): JSX.Element => {
         />
         <Tooltip
           position="bottom"
-          className="z-10 w-max max-w-[200px] text-balance"
+          className="z-10 w-max max-w-[200px] text-balance -mb-4"
         >
           {isSyncing ?
             "Syncing..."
@@ -122,13 +122,11 @@ export const SyncIndicator = (): JSX.Element => {
               {formatError(services, "Lagging services")}
               {isChainStatusError && "Chain status not loaded."}
             </div>
-          : <div className="space-y-1">
-              <div className="text-green-500 font-medium mb-2">
-                Fully synced:
-              </div>
-              <div>RPC Height: {chainStatus?.height}</div>+{" "}
-              <div>Indexer Height: {indexerBlockHeight}</div>+{" "}
-              <div>Epoch: {chainStatus?.epoch}</div>+{" "}
+          : <div className="py-2">
+              <div className="text-yellow font-medium">Fully synced:</div>
+              <div>RPC Height: {chainStatus?.height}</div>
+              <div>Indexer Height: {indexerBlockHeight}</div>
+              <div>Epoch: {chainStatus?.epoch}</div>
             </div>
           }
         </Tooltip>
