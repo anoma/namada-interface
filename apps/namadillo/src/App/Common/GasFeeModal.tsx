@@ -136,6 +136,8 @@ export const GasFeeModal = ({
     return findUserBalanceByTokenAddress(item.token).gt(0);
   };
 
+  const isLoading = isShielded && !shieldedAmount.data;
+
   return (
     <Modal onClose={onClose}>
       <div
@@ -207,7 +209,7 @@ export const GasFeeModal = ({
 
         <StyledSelectBox
           id="fee-token-select"
-          disabled={isShielded && !shieldedAmount?.data}
+          disabled={isLoading}
           value={gasConfig.gasToken}
           containerProps={{
             className: twMerge(
@@ -282,7 +284,7 @@ export const GasFeeModal = ({
                         </div>
                       </div>
                       <div className="text-right">
-                        {isShielded && !shieldedAmount.data ?
+                        {isLoading ?
                           <i
                             className={clsx(
                               "inline-block w-4 h-4 border-2",
