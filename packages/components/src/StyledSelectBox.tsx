@@ -91,10 +91,7 @@ export const StyledSelectBox = <T extends string = string>({
             containerClassList
           )}
           role="button"
-          onClick={() => {
-            if (props.disabled) return;
-            setOpen(!open);
-          }}
+          onClick={() => setOpen(!open)}
           {...otherContainerProps}
         >
           {selected ? selected.value : defaultValue}

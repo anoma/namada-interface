@@ -3,10 +3,12 @@ import { PulsingRing } from "./PulsingRing";
 
 type MaspSyncCoverProps = {
   longSync?: boolean;
+  helperText?: string;
 };
 
 export const MaspSyncCover = ({
   longSync,
+  helperText,
 }: MaspSyncCoverProps): JSX.Element => {
   return (
     <div
@@ -35,7 +37,7 @@ export const MaspSyncCover = ({
                   Shielded sync can take a few minutes. <br />
                 </>
               )}
-              Please wait to perform shielded actions.
+              {helperText || "Please wait to perform shielded actions."}
             </p>
           </div>
         </div>
