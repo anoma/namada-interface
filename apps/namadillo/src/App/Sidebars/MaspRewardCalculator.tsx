@@ -109,7 +109,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
                     className={clsx(
                       "absolute top-full left-0 w-full z-50 mt-1",
                       "bg-neutral-800 rounded-sm",
-                      "shadow-lg max-h-[300px] overflow-hidden"
+                      "max-h-[300px] overflow-hidden"
                     )}
                   >
                     {/* Search Input */}
@@ -131,7 +131,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
                     </div>
 
                     {/* Asset List */}
-                    <div className="max-h-[200px] overflow-y-auto dark-scrollbar overscroll-contain">
+                    <div className="max-h-[200px] overflow-y-auto border border-neutral-600 dark-scrollbar overscroll-contain">
                       {filteredRewards.length === 0 ?
                         <div className="p-3 text-center text-neutral-400 text-sm">
                           No assets found
@@ -142,22 +142,19 @@ export const MaspRewardCalculator = (): JSX.Element => {
                             type="button"
                             onClick={() => handleAssetSelect(reward)}
                             className={clsx(
-                              "w-full flex items-center gap-3 p-3 text-left",
-                              "hover:bg-neutral-700 transition-colors"
+                              "w-full flex items-center py-1.5 px-1 text-left",
+                              "transition-colors"
                             )}
                           >
-                            <div className="w-8 h-8 flex-shrink-0">
-                              <AssetImage asset={reward.asset} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-white font-medium text-sm">
-                                {reward.asset.symbol}
+                            <div className="px-2 py-1 gap-4 hover:bg-neutral-700 rounded-sm ml-2 flex w-full">
+                              <div className="w-8 h-8 flex-shrink-0 ">
+                                <AssetImage asset={reward.asset} />
                               </div>
-                              {reward.asset.name && (
-                                <div className="text-neutral-400 text-xs truncate">
-                                  {reward.asset.name}
+                              <div className="flex-1 min-w-0">
+                                <div className="text-white font-medium text-sm mt-1.5">
+                                  {reward.asset.symbol}
                                 </div>
-                              )}
+                              </div>
                             </div>
                           </button>
                         ))
