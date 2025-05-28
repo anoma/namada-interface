@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.22.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.21.0...namadillo@v1.22.0) (2025-05-28)
+
+
+### Features
+
+* Fix sync indicator ([#2051](https://github.com/anoma/namada-interface/issues/2051)) ([ba8ef63](https://github.com/anoma/namada-interface/commit/ba8ef636e4da9bfeb0d218d1f1209bdd5a14acd2))
+* Update syncing light ([#2043](https://github.com/anoma/namada-interface/issues/2043)) ([4658fe2](https://github.com/anoma/namada-interface/commit/4658fe279e74d83ba3af4db8e7621175d77633df))
+
+
+### Bug Fixes
+
+* Add loader to gas fee modal that waits for shielded data ([#2042](https://github.com/anoma/namada-interface/issues/2042)) ([856fb6e](https://github.com/anoma/namada-interface/commit/856fb6ed4a6dd246cb3540d5c827f57e66a35c74))
+* Add relative to div on `/masp/shield` ([#2038](https://github.com/anoma/namada-interface/issues/2038)) ([682c4b9](https://github.com/anoma/namada-interface/commit/682c4b94b10af58d903c08ccc6812147ae9de2f5))
+* Adjust gas for ibc deposits and terminate workers to free up memory ([#2049](https://github.com/anoma/namada-interface/issues/2049)) ([e5693bd](https://github.com/anoma/namada-interface/commit/e5693bd1572d4227bace859504100f678bc984ba))
+* Delete overflow hidden ([#2041](https://github.com/anoma/namada-interface/issues/2041)) ([fe7afb1](https://github.com/anoma/namada-interface/commit/fe7afb1e3b3be14b38c1899dba5b8845b7fb079a))
+* NAM transparent transfer shows generating masp in the button text ([#2044](https://github.com/anoma/namada-interface/issues/2044)) ([8747c25](https://github.com/anoma/namada-interface/commit/8747c258ace55ad4e0b5edee0c594c3280fce055))
+* Shielded transfer receipt not showing details ([#2045](https://github.com/anoma/namada-interface/issues/2045)) ([76f4396](https://github.com/anoma/namada-interface/commit/76f4396176f7048a56e7f103e38927faad95a9e3))
+* Transferring TIA was displaying 0 on notifications and summary ([#2048](https://github.com/anoma/namada-interface/issues/2048)) ([042a440](https://github.com/anoma/namada-interface/commit/042a440e5f4db9d8d4a007c89971378bcc3165e8))
+* Update re-routing after modal close for Staking Rewards Claiming ([#2047](https://github.com/anoma/namada-interface/issues/2047)) ([191662d](https://github.com/anoma/namada-interface/commit/191662d897b6d7180f5595308d30eae75c28d086))
+* Update route for claiming on Claim NAM button ([#2046](https://github.com/anoma/namada-interface/issues/2046)) ([12f12d0](https://github.com/anoma/namada-interface/commit/12f12d0bc3c1dad41c7221336d2856f5e704f852))
+
 ## [1.21.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.20.2...namadillo@v1.21.0) (2025-05-22)
 
 
