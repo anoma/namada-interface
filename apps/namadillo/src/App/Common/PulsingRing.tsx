@@ -46,7 +46,7 @@ export const PulsingRing = ({
       });
     },
     containerRef,
-    [size]
+    []
   );
 
   const renderRing = (className: string, key?: number): JSX.Element => {
