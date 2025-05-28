@@ -140,6 +140,7 @@ export const fetchShieldedRewards = async (
       chainId,
     },
   });
+  worker.terminate();
 
   return rewards;
 };
@@ -167,6 +168,7 @@ export const fetchShieldedRewardsPerToken = async (
       chainId,
     },
   });
+  worker.terminate();
 
   return rewards;
 };
