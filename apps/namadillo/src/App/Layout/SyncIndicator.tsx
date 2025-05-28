@@ -82,7 +82,7 @@ export const SyncIndicator = (): JSX.Element => {
           </div>
           <Tooltip
             position="bottom"
-            className="z-10 w-max max-w-[220px] bg-neutral-900 rounded-md p-4 -mb-4"
+            className="z-10 w-max max-w-[220px] rounded-md p-4 -mb-6"
           >
             <div className="space-y-3">
               <div className="text-md text-yellow">
@@ -95,7 +95,8 @@ export const SyncIndicator = (): JSX.Element => {
                 />
               </div>
               <div className="text-sm text-neutral-400">
-                Syncing your shielded assets. This might take a few seconds.
+                Syncing your shielded assets now. Balances will update in a few
+                seconds.
               </div>
             </div>
           </Tooltip>
@@ -112,7 +113,7 @@ export const SyncIndicator = (): JSX.Element => {
         />
         <Tooltip
           position="bottom"
-          className="z-10 w-max max-w-[200px] text-balance -mb-4"
+          className="z-10 w-max max-w-[200px] text-balance -mb-6"
         >
           {isSyncing ?
             "Syncing..."
