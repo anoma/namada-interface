@@ -20,6 +20,7 @@ import { GasConfig } from "types";
 import { toDisplayAmount } from "utils";
 import { getDisplayGasFee } from "utils/gas";
 import { FiatCurrency } from "./FiatCurrency";
+import { MaspSyncCover } from "./MaspSyncCover";
 import { TokenCard } from "./TokenCard";
 import { TokenCurrency } from "./TokenCurrency";
 
@@ -146,6 +147,9 @@ export const GasFeeModal = ({
           "px-6 py-7 bg-black border border-neutral-500 rounded-md"
         )}
       >
+        {isLoading && (
+          <MaspSyncCover helperText="Please wait for shielded assets to load." />
+        )}
         <i
           className={twMerge(
             "cursor-pointer text-white absolute right-3 top-3 text-xl",
@@ -209,7 +213,6 @@ export const GasFeeModal = ({
 
         <StyledSelectBox
           id="fee-token-select"
-          disabled={isLoading}
           value={gasConfig.gasToken}
           containerProps={{
             className: twMerge(
@@ -284,26 +287,15 @@ export const GasFeeModal = ({
                         </div>
                       </div>
                       <div className="text-right">
-                        {isLoading ?
-                          <i
-                            className={clsx(
-                              "inline-block w-4 h-4 border-2",
-                              "border-transparent border-t-yellow rounded-[50%]",
-                              "animate-loadingSpinner"
-                            )}
+                        {totalInDollars && (
+                          <FiatCurrency amount={totalInDollars} />
+                        )}
+                        <div className="text-neutral-500 text-xs">
+                          <TokenCurrency
+                            amount={displayAmount}
+                            symbol={asset.symbol}
                           />
-                        : <>
-                            {totalInDollars && (
-                              <FiatCurrency amount={totalInDollars} />
-                            )}
-                            <div className="text-neutral-500 text-xs">
-                              <TokenCurrency
-                                amount={displayAmount}
-                                symbol={asset.symbol}
-                              />
-                            </div>
-                          </>
-                        }
+                        </div>
                       </div>
                     </div>
                   ),
