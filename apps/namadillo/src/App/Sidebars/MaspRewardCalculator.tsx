@@ -1,6 +1,5 @@
 import { Panel, SkeletonLoading } from "@namada/components";
 import { AssetImage } from "App/Transfer/AssetImage";
-import { cachedShieldedRewardsAtom } from "atoms/balance";
 import { maspRewardsAtom } from "atoms/chain";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
@@ -32,7 +31,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
     }
   }, [rewards.data, selectedAsset]);
 
-  // Close dropdown when clicking outside
+  // Close on click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent): void => {
       if (
@@ -61,7 +60,10 @@ export const MaspRewardCalculator = (): JSX.Element => {
     setSearchTerm("");
   };
 
-  const estimatedRewards = useAtomValue(cachedShieldedRewardsAtom);
+  const estimatedRewards =
+    amount && selectedAsset?.maxRewardRate ?
+      (parseFloat(amount) * Number(selectedAsset.maxRewardRate)).toFixed(2)
+    : "0.00";
   return (
     <Panel className={clsx("flex flex-col pt-2 pb-2 px-2")}>
       <h2 className="uppercase text-[13px] text-center font-medium pb-0 pt-2">
@@ -77,9 +79,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
         )}
         {rewards.data && (
           <>
-            {/* Currency Select and Amount Input on same line */}
             <div className="flex gap-0 bg-neutral-900 rounded-sm relative">
-              {/* Currency Selector */}
               <div className="flex-shrink-0" ref={dropdownRef}>
                 <button
                   type="button"
@@ -103,16 +103,14 @@ export const MaspRewardCalculator = (): JSX.Element => {
                     )}
                   />
                 </button>
-                {/* Dropdown */}
                 {isDropdownOpen && (
                   <div
                     className={clsx(
                       "absolute top-full left-0 w-full z-50 mt-1",
-                      "bg-neutral-800 rounded-sm",
+                      "bg-neutral-800 rounded-md",
                       "max-h-[300px] overflow-hidden"
                     )}
                   >
-                    {/* Search Input */}
                     <div className="border-none">
                       <div className="relative">
                         <input
@@ -130,7 +128,6 @@ export const MaspRewardCalculator = (): JSX.Element => {
                       </div>
                     </div>
 
-                    {/* Asset List */}
                     <div className="max-h-[200px] overflow-y-auto border border-neutral-600 dark-scrollbar overscroll-contain">
                       {filteredRewards.length === 0 ?
                         <div className="p-3 text-center text-neutral-400 text-sm">
@@ -164,7 +161,6 @@ export const MaspRewardCalculator = (): JSX.Element => {
                 )}
               </div>
 
-              {/* Amount Input */}
               <input
                 type="number"
                 value={amount}
@@ -184,7 +180,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
 
             <div className="flex flex-col items-center justify-center border border-neutral-500 rounded-sm py-8">
               <div className="text-yellow text-3xl font-bold max-w-full px-4">
-                {estimatedRewards.amount.toString()}
+                {estimatedRewards.toString()}
               </div>
               <div className="text-sm text-yellow font-normal">NAM</div>
               <div className="text-neutral-400 text-xs mt-1 px-4 text-center">
