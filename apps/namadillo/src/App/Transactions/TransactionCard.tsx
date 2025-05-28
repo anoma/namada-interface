@@ -14,8 +14,6 @@ import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { FaLock } from "react-icons/fa6";
 import {
-  IoArrowBack,
-  IoArrowForward,
   IoCheckmarkCircleOutline,
   IoCloseCircleOutline,
 } from "react-icons/io5";
@@ -197,8 +195,12 @@ export const TransactionCard = ({
             })
           )}
         >
-          {isReceived && <IoArrowBack width={20} height={20} />}
-          {!isReceived && <IoArrowForward width={20} height={20} />}
+          {!transactionFailed && (
+            <IoCheckmarkCircleOutline className="ml-1 mt-0.5 w-10 h-10" />
+          )}
+          {transactionFailed && (
+            <IoCloseCircleOutline className="ml-1 mt-0.5 w-10 h-10" />
+          )}
         </i>
 
         <div className="flex flex-col">
@@ -211,12 +213,6 @@ export const TransactionCard = ({
             )}
           >
             {getTitle(transaction?.kind, isReceived)}{" "}
-            {!transactionFailed && (
-              <IoCheckmarkCircleOutline className="ml-1 mt-0.5 w-5 h-5" />
-            )}
-            {transactionFailed && (
-              <IoCloseCircleOutline className="ml-1 mt-0.5 w-5 h-5" />
-            )}
             <CopyToClipboardControl
               className="ml-1.5 text-neutral-400"
               value={transaction?.txId ?? ""}
