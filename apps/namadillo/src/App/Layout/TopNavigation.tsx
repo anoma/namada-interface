@@ -91,16 +91,6 @@ export const TopNavigation = (): JSX.Element => {
 
       <div className="flex-1" />
 
-      <button
-        className="text-2xl text-yellow hover:text-cyan"
-        onClick={() =>
-          navigate(routes.settings, {
-            state: { backgroundLocation: location },
-          })
-        }
-      >
-        <IoSettingsOutline />
-      </button>
       {defaultAccount.data?.type !== AccountType.Ledger &&
         signArbitraryEnabled && (
           <button
@@ -118,6 +108,16 @@ export const TopNavigation = (): JSX.Element => {
 
       <TransactionInProgressSpinner />
       <SyncIndicator />
+      <button
+        className="text-2xl text-yellow hover:text-cyan"
+        onClick={() =>
+          navigate(routes.settings, {
+            state: { backgroundLocation: location },
+          })
+        }
+      >
+        <IoSettingsOutline />
+      </button>
       <div className="h-[50px] flex gap-1">
         <NamadaAccount />
         <KeplrAccount />
