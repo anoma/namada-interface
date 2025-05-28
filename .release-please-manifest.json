@@ -1,6 +1,6 @@
 {
   "apps/namadillo": "1.21.0",
   "apps/extension": "0.5.0",
-  "packages/sdk": "0.18.1",
+  "packages/sdk": "0.18.2",
   "packages/types": "0.6.0"
 }
