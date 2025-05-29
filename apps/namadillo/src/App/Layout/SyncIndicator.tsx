@@ -42,10 +42,22 @@ export const SyncIndicator = (): JSX.Element => {
   const [indexerBlockHeight, setIndexerBlockHeight] = useState<number | null>(
     null
   );
+  const [showShieldedSync, setShowShieldedSync] = useState(false);
   const roundedProgress = useMemo(() => {
     // Only update when the progress changes by at least 1%
     return Math.min(Math.floor(shieldedProgress * 100), 100);
   }, [Math.floor(shieldedProgress * 100)]);
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    if (isShieldedFetching && roundedProgress < 100) {
+      // wait 2.5 s before we allow the ring to appear
+      timeout = setTimeout(() => setShowShieldedSync(true), 2500);
+    } else {
+      setShowShieldedSync(false);
+    }
+    return () => clearTimeout(timeout);
+  }, [isShieldedFetching, roundedProgress]);
 
   const { errors } = syncStatus;
   const { services } = indexerServicesSyncStatus;
@@ -74,7 +86,7 @@ export const SyncIndicator = (): JSX.Element => {
 
   return (
     <div className="flex gap-10 px-2 py-3">
-      {roundedProgress < 100 && isShieldedFetching && (
+      {showShieldedSync && (
         <div className="relative group/tooltip">
           <div className="relative mt-1">
             <PulsingRing size="small" />

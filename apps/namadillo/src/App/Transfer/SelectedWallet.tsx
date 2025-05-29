@@ -9,6 +9,7 @@ type SelectedWalletProps = {
   className?: string;
   onClick?: () => void;
   displayFullAddress?: boolean;
+  displayTooltip?: boolean;
 };
 
 export const SelectedWallet = ({
@@ -17,6 +18,7 @@ export const SelectedWallet = ({
   address,
   className = "",
   displayFullAddress = false,
+  displayTooltip = true,
 }: SelectedWalletProps): JSX.Element => {
   if (!address) return <></>;
   return (
@@ -38,7 +40,7 @@ export const SelectedWallet = ({
       {address && (
         <WalletAddress
           address={address}
-          displayTooltip={false}
+          displayTooltip={displayTooltip}
           displayFullAddress={displayFullAddress}
         />
       )}
