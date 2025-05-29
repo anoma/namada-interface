@@ -29,7 +29,7 @@ use namada_sdk::rpc::{
     query_proposal_votes, query_storage_value,
 };
 use namada_sdk::state::Key;
-use namada_sdk::token;
+use namada_sdk::token::{self, MaspEpoch};
 use namada_sdk::tx::{
     TX_BOND_WASM, TX_CLAIM_REWARDS_WASM, TX_IBC_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK,
     TX_TRANSFER_WASM, TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
@@ -318,25 +318,6 @@ impl Query {
         to_js_result((bonds, unbonds))
     }
 
-    /// Queries transparent balance for a given address
-    ///
-    /// # Arguments
-    ///
-    /// * `owner` - Account address in form of bech32, base64 encoded string
-    async fn query_transparent_balance(
-        &self,
-        owner: Address,
-        tokens: Vec<Address>,
-    ) -> Result<Vec<(Address, token::Amount)>, JsError> {
-        let mut result = vec![];
-        for token in tokens {
-            let balances = get_token_balance(&self.client, &token, &owner, None).await?;
-            result.push((token, balances));
-        }
-
-        Ok(result)
-    }
-
     pub async fn shielded_sync(
         &self,
         vks: Box<[DatedViewingKey]>,
@@ -402,17 +383,56 @@ impl Query {
         Ok(())
     }
 
+
+    fn deserialize_address(address: String) -> Result<Address, JsError> {
+        Address::from_str(&address)
+            .map_err(|e| JsError::new(&format!("Invalid address: {}", e)))
+    }
+
+    fn deserialize_addresses(addresses: Vec<String>) -> Result<Vec<Address>, JsError> {
+        addresses
+            .iter()
+            .cloned()
+            .map(Self::deserialize_address)
+            .collect()
+    }
+
+    /// Queries transparent balance for a given address
+    ///
+    /// # Arguments
+    ///
+    /// * `owner` - Account address in form of bech32, base64 encoded string
+    pub async fn query_transparent_balance(
+        &self,
+        owner_address: String,
+        token_addresses: Box<[String]>,
+    ) -> Result<JsValue, JsError> {
+        let tokens = Self::deserialize_addresses(token_addresses.to_vec())?;
+        let owner = Self::deserialize_address(owner_address)?;
+
+        let mut result = vec![];
+        for token in tokens {
+            let balances = get_token_balance(&self.client, &token, &owner, None).await?;
+            result.push((token, balances));
+        }
+
+        to_js_result(result)
+    }
+
     /// Queries shielded balance for a given extended viewing key
     ///
     /// # Arguments
     ///
     /// * `xvk` - Extended viewing key
-    async fn query_shielded_balance(
+    pub async fn query_shielded_balance(
         &self,
-        xvk: ExtendedViewingKey,
-        tokens: Vec<Address>,
+        owner_viewing_key: String,
+        token_addresses: Box<[String]>,
         chain_id: String,
-    ) -> Result<Vec<(Address, token::Amount)>, JsError> {
+        masp_epoch: js_sys::BigInt,
+    ) -> Result<JsValue, JsError> {
+        let xvk = ExtendedViewingKey::from_str(&owner_viewing_key)?;
+        let tokens = Self::deserialize_addresses(token_addresses.to_vec())?;
         let viewing_key = ExtendedFullViewingKey::from(xvk).fvk.vk;
 
         // We are recreating shielded context to avoid multiple mutable borrows
@@ -425,7 +445,11 @@ impl Query {
             .map_err(|e| JsError::new(&format!("{:?}", e)))?;
         let _ = shielded.save().await;
 
-        let epoch = query_masp_epoch(&self.client).await?;
+        let masp_epoch = masp_epoch.to_string(10).map(String::from).map_err(|_| {
+            JsError::new("Failed to convert masp_epoch to string")
+        }).map(|epoch| MaspEpoch::from_str(&epoch))??;
+
+
         let balance = shielded
             .compute_exchanged_balance(&self.client, &WebIo, &viewing_key)
             .await
@@ -434,7 +458,7 @@ impl Query {
         let res = match balance {
             Some(balance) => {
                 let decoded_balance = shielded
-                    .decode_combine_sum_to_epoch(&self.client, balance, epoch)
+                    .decode_combine_sum_to_epoch(&self.client, balance, masp_epoch)
                     .await;
 
                 Self::get_decoded_balance(decoded_balance)
@@ -442,38 +466,7 @@ impl Query {
             None => vec![],
         };
 
-        Ok(res)
-    }
-
-    pub async fn query_balance(
-        &self,
-        owner: String,
-        tokens: Box<[JsValue]>,
-        // We need to pass chain id to load correct context
-        chain_id: String,
-    ) -> Result<JsValue, JsError> {
-        let tokens: Vec<Address> = tokens
-            .iter()
-            .map(|address| {
-                let address_str = address.as_string().unwrap();
-                Address::from_str(&address_str).unwrap()
-            })
-            .collect();
-
-        let result = match Address::from_str(&owner) {
-            Ok(addr) => self.query_transparent_balance(addr, tokens).await,
-            Err(e1) => match ExtendedViewingKey::from_str(&owner) {
-                Ok(xvk) => self.query_shielded_balance(xvk, tokens, chain_id).await,
-                Err(e2) => return Err(JsError::new(&format!("{} {}", e1, e2))),
-            },
-        }?;
-
-        let mut mapped_result: Vec<(Address, String)> = vec![];
-        for (token, amount) in result {
-            mapped_result.push((token.clone(), amount.to_string()))
-        }
-
-        to_js_result(mapped_result)
+        to_js_result(res)
     }
 
     pub async fn query_public_key(&self, address: &str) -> Result<JsValue, JsError> {

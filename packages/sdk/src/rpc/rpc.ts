@@ -40,19 +40,39 @@ export class Rpc {
   ) {}
 
   /**
-   * Query balances from chain
+   * Query transparent balances from chain
    * @async
    * @param owner - Owner address
    * @param tokens - Array of token addresses
-   * @param chainId - Chain id needed to load specific context
    * @returns [[tokenAddress, amount]]
    */
-  async queryBalance(
+  async queryTransparentBalance(
+    owner: string,
+    tokens: string[]
+  ): Promise<Balance> {
+    return await this.query.query_transparent_balance(owner, tokens);
+  }
+  /**
+   * Query shielded balances from chain
+   * @async
+   * @param owner - Owner viewing key
+   * @param tokens - Array of token addresses
+   * @param chainId - Chain ID to load the context for
+   * @param masp_epoch - MASP epoch to load the balance for
+   * @returns [[tokenAddress, amount]]
+   */
+  async queryShieldedBalance(
     owner: string,
     tokens: string[],
-    chainId: string
+    chainId: string,
+    masp_epoch: bigint
   ): Promise<Balance> {
-    return await this.query.query_balance(owner, tokens, chainId);
+    return await this.query.query_shielded_balance(
+      owner,
+      tokens,
+      chainId,
+      masp_epoch
+    );
   }
 
   /**
