@@ -5,6 +5,7 @@ import { PageLoader } from "App/Common/PageLoader";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import {
   chainTransactionHistoryFamily,
+  completeTransactionsHistoryAtom,
   pendingTransactionsHistoryAtom,
 } from "atoms/transactions/atoms";
 import { clsx } from "clsx";
@@ -34,6 +35,27 @@ export const TransactionHistory = (): JSX.Element => {
   const pending = useAtomValue(pendingTransactionsHistoryAtom);
   const { data: transactions, isLoading } = useAtomValue(
     chainTransactionHistoryFamily({ perPage: ITEMS_PER_PAGE, fetchAll: true })
+  );
+  const completedIbcTransactions = useAtomValue(
+    completeTransactionsHistoryAtom
+  );
+  console.log(completedIbcTransactions, "completedIbcTransactions");
+  const completedIbcShieldedTransactions = completedIbcTransactions.filter(
+    (transaction) =>
+      transaction.type === "IbcToShielded" ||
+      transaction.type === "ShieldedToTransparent"
+  );
+  const completedIbcUnshieldedTransactions = completedIbcTransactions.filter(
+    (transaction) => transaction.type === "ShieldedToTransparent"
+  );
+  // Grab ibc shield/unshield and fold em into historical transactions
+  console.log(
+    completedIbcShieldedTransactions,
+    "completedIbcShieldedTransactions"
+  );
+  console.log(
+    completedIbcUnshieldedTransactions,
+    "completedIbcUnshieldedTransactions"
   );
 
   const handleFiltering = (transaction: TransactionHistoryType): boolean => {
