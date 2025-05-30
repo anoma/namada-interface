@@ -1,6 +1,5 @@
 import { Panel, StyledSelectBox, TableRow } from "@namada/components";
 import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
-import { PageLoader } from "App/Common/PageLoader";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { chainParametersAtom } from "atoms/chain";
 import {
@@ -141,7 +140,13 @@ export const TransactionHistory = (): JSX.Element => {
         )}
 
         {isLoading ?
-          <PageLoader />
+          <i
+            className={clsx(
+              "absolute w-8 h-8 top-0 left-0 right-0 bottom-0 m-auto border-4",
+              "border-transparent border-t-yellow rounded-[50%]",
+              "animate-loadingSpinner"
+            )}
+          />
         : <section className="flex flex-col flex-1 overflow-hidden min-h-0">
             <header className="text-sm ml-4 flex-none">
               <h2>History</h2>
