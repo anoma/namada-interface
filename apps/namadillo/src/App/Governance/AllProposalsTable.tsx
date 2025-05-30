@@ -25,6 +25,7 @@ const Table: React.FC<
     pagination: Pagination;
     page: number;
     onPageChange: (page: number) => void;
+    isLoading?: boolean;
   } & ExtensionConnectedProps
 > = (props) => {
   const navigate = useNavigate();
@@ -95,6 +96,7 @@ const Table: React.FC<
       headers={headers}
       itemList={props.proposals}
       renderRow={renderRow}
+      isLoading={props.isLoading}
       tableProps={{
         className: clsx(
           "w-full text-xs [&_td]:px-2 [&_th]:px-2 table-fixed",
@@ -253,6 +255,7 @@ export const AllProposalsTable: React.FC<ExtensionConnectedProps> = (props) => {
           page={page}
           onPageChange={setPage}
           pagination={proposals.data?.pagination || {}}
+          isLoading={proposals.isLoading}
         />
       </div>
     </Stack>
