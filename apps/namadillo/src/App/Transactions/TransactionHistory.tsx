@@ -44,15 +44,18 @@ export const TransactionHistory = (): JSX.Element => {
   const completedIbcTransactions = useAtomValue(
     completeTransactionsHistoryAtom
   );
-  // Both Shield and Unshield IBC transactions
+  // Both Shield and Unshield IBC transactions with filter taken into account
   const completedIbcShieldTransactions = completedIbcTransactions
-    .filter(
-      (transaction) =>
-        (transaction.type === "IbcToShielded" ||
-          transaction.type === "ShieldedToIbc") &&
-        (transaction.destinationChainId === chainId ||
-          transaction.chainId === chainId)
-    )
+    .filter((transaction) => {
+      const acceptedTypes = ["IbcToShielded", "ShieldedToIbc"];
+      const isAcceptedType = acceptedTypes.includes(transaction.type);
+      const isAcceptedChain =
+        transaction.destinationChainId === chainId ||
+        transaction.chainId === chainId;
+      const isAcceptedFilter =
+        filter === "ibc" || filter.toLowerCase() === "all";
+      return isAcceptedType && isAcceptedChain && isAcceptedFilter;
+    })
     .map((transaction) => ({
       ...transaction,
       timestamp: new Date(transaction.updatedAt).getTime(),
