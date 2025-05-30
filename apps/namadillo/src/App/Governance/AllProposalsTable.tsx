@@ -1,4 +1,9 @@
-import { Stack, StyledSelectBox, TableRow } from "@namada/components";
+import {
+  SkeletonLoading,
+  Stack,
+  StyledSelectBox,
+  TableRow,
+} from "@namada/components";
 import { Pagination } from "@namada/indexer-client";
 import { Proposal, isProposalStatus, proposalStatuses } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
@@ -29,6 +34,7 @@ const Table: React.FC<
   } & ExtensionConnectedProps
 > = (props) => {
   const navigate = useNavigate();
+  const proposals = props.proposals;
 
   const headers = [
     "ID",
@@ -90,13 +96,24 @@ const Table: React.FC<
     ],
   });
 
+  // Show loading skeleton when data is loading and if no rows are rendered
+  if (props.isLoading && proposals.length === 0) {
+    return (
+      <div className="flex flex-col gap-4">
+        <SkeletonLoading height="450px" width="100%" />
+        <div className="flex justify-center">
+          <SkeletonLoading height="40px" width="100px" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <TableWithPaginator
       id="all-proposals-table"
       headers={headers}
-      itemList={props.proposals}
+      itemList={proposals}
       renderRow={renderRow}
-      isLoading={props.isLoading}
       tableProps={{
         className: clsx(
           "w-full text-xs [&_td]:px-2 [&_th]:px-2 table-fixed",
