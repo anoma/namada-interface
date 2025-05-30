@@ -31,7 +31,7 @@ export const TableWithPaginator = <T,>({
   children,
   tableProps,
   headProps,
-  isLoading = false,
+  isLoading,
 }: TableWithPaginatorProps<T>): JSX.Element => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [rows, setRows] = useState<TableRow[]>([]);
