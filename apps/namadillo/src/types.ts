@@ -345,6 +345,7 @@ export type BaseTransferTransaction = TransferStage & {
   chainId: string;
   sourceAddress: string;
   destinationAddress: string;
+  destinationChainId?: string;
   feePaid?: BigNumber;
   tipPaid?: BigNumber;
   resultTxHash?: string;
