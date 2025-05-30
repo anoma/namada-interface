@@ -50,7 +50,7 @@ export const TransactionHistory = (): JSX.Element => {
       (transaction) =>
         (transaction.type === "IbcToShielded" ||
           transaction.type === "ShieldedToIbc") &&
-        ((transaction as any).destinationChainId === chainId ||
+        (transaction.destinationChainId === chainId ||
           transaction.chainId === chainId)
     )
     .map((transaction) => ({
