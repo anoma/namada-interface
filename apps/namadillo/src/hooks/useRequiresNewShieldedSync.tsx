@@ -16,9 +16,11 @@ export const useRequiresNewShieldedSync = ({
   const isComplete = useAtomValue(isShieldedSyncCompleteAtom);
   const syncPerAccount = useAtomValue(lastCompletedShieldedSyncAtom);
   const account = useAtomValue(defaultAccountAtom);
+
   if (!account?.data) {
     return false;
   }
+
   const lastSync = syncPerAccount[account.data.address];
   const requiresNewSync =
     lastSync === undefined ||
