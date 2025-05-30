@@ -354,6 +354,7 @@ export type BaseTransferTransaction = TransferStage & {
   shielded?: boolean;
   createdAt: Date;
   updatedAt: Date;
+  timestamp?: number;
 };
 
 export type IbcTransferTransactionData = BaseTransferTransaction & {

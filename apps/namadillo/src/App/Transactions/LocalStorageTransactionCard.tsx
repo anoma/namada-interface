@@ -1,19 +1,13 @@
+import { CopyToClipboardControl } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { AssetImage } from "App/Transfer/AssetImage";
 import { isShieldedAddress, isTransparentAddress } from "App/Transfer/common";
 import clsx from "clsx";
 import { FaLock } from "react-icons/fa";
-import {
-  IoArrowForward,
-  IoCheckmarkCircleOutline,
-  IoCloseCircleOutline,
-} from "react-icons/io5";
-import {
-  ibcTransferStages,
-  namadaTransferStages,
-  TransferTransactionData,
-} from "types";
+import { IoCheckmarkCircleOutline } from "react-icons/io5";
+import { twMerge } from "tailwind-merge";
+import { TransferTransactionData } from "types";
 import keplrSvg from "../../integrations/assets/keplr.svg";
 
 type TransactionCardProps = {
@@ -22,15 +16,8 @@ type TransactionCardProps = {
 
 const getTitle = (transferTransaction: TransferTransactionData): string => {
   const { type } = transferTransaction;
-
-  if (Object.keys(namadaTransferStages).includes(type)) {
-    return "Transfer";
-  }
-
-  if (Object.keys(ibcTransferStages).includes(type)) {
-    return "Transfer IBC";
-  }
-
+  if (type === "IbcToShielded") return "IBC Shielding";
+  if (type === "ShieldedToIbc") return "IBC Unshielding";
   return "";
 };
 
@@ -47,44 +34,38 @@ export const LocalStorageTransactionCard = ({
   return (
     <article
       className={clsx(
-        "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 items-center my-2",
+        "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 items-center my-2 font-semibold",
         "gap-5 bg-neutral-800 rounded-sm px-5 py-5 text-white border border-transparent",
-        "transition-colors duration-200 hover:border-neutral-500 border-yellow"
+        "transition-colors duration-200 hover:border-neutral-500"
       )}
     >
       <div className="flex items-center gap-3">
-        <i
-          className={clsx("text-2xl", {
-            "text-success": transaction.status === "success",
-            "text-fail": transaction.status === "error",
-            "text-yellow": transaction.status === "pending",
-          })}
-        >
-          <IoArrowForward width={20} height={20} />
+        <i className={twMerge("text-2xl, text-success")}>
+          <IoCheckmarkCircleOutline className="ml-1 mt-0.5 w-10 h-10" />
         </i>
 
         <div className="flex flex-col">
-          <h3
-            className={clsx("flex", {
-              "text-success": transaction.status === "success",
-              "text-fail": transaction.status === "error",
-              "text-yellow": transaction.status === "pending",
-            })}
-          >
+          <h3 className="text-success flex">
             {getTitle(transaction)}{" "}
-            {transaction.status === "success" && (
-              <IoCheckmarkCircleOutline className="ml-1 mt-0.5 w-5 h-5" />
-            )}
-            {transaction.status === "error" && (
-              <IoCloseCircleOutline className="ml-1 mt-0.5 w-5 h-5" />
-            )}
+            <CopyToClipboardControl
+              className="ml-1.5 text-neutral-400"
+              value={transaction?.hash ?? ""}
+            />
           </h3>
-          <h3 className="text-neutral-400">Pending</h3>
+          <h3 className="text-neutral-400">
+            {new Date(transaction.createdAt).toLocaleString("en-US", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </h3>
         </div>
       </div>
 
       <div className="flex items-center">
-        <div className="aspect-square w-8 h-8">
+        <div className="aspect-square w-10 h-10">
           <AssetImage asset={transaction.asset} />
         </div>
         <TokenCurrency

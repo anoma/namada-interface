@@ -1,17 +1,14 @@
 import { CopyToClipboardControl, Tooltip } from "@namada/components";
-import { TransactionHistory as TransactionHistoryType } from "@namada/indexer-client";
 import { shortenAddress } from "@namada/utils";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { AssetImage } from "App/Transfer/AssetImage";
 import { isShieldedAddress, isTransparentAddress } from "App/Transfer/common";
-import { indexerApiAtom } from "atoms/api";
-import { fetchBlockTimestampByHeight } from "atoms/balance/services";
 import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
+import { TransactionHistory as TransactionHistoryType } from "atoms/transactions/atoms";
 import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
 import { FaLock } from "react-icons/fa6";
 import {
   IoCheckmarkCircleOutline,
@@ -145,30 +142,6 @@ export const TransactionCard = ({
   const transactionFailed = transaction?.exitCode === "rejected";
   const validators = useAtomValue(allValidatorsAtom);
   const validator = validators?.data?.find((v) => v.address === receiver);
-  const api = useAtomValue(indexerApiAtom);
-  const [timestamp, setTimestamp] = useState<number | undefined>(undefined);
-
-  useEffect(() => {
-    const getBlockTimestamp = async (): Promise<void> => {
-      // TODO: need to update the type on indexer
-      // @ts-expect-error need to update the type on indexer
-      if (transactionTopLevel?.blockHeight && api) {
-        try {
-          const timestamp = await fetchBlockTimestampByHeight(
-            api,
-            // @ts-expect-error need to update the type on indexer
-            transactionTopLevel.blockHeight
-          );
-          setTimestamp(timestamp);
-        } catch (error) {
-          console.error("Failed to fetch block height:", error);
-        }
-      }
-    };
-
-    getBlockTimestamp();
-    // @ts-expect-error need to update the type on indexer
-  }, [api, transactionTopLevel?.blockHeight]);
 
   const renderKeplrIcon = (address: string): JSX.Element | null => {
     if (isShieldedAddress(address)) return null;
@@ -224,8 +197,8 @@ export const TransactionCard = ({
             </div>
           </h3>
           <h3 className="text-neutral-400">
-            {timestamp ?
-              new Date(timestamp * 1000)
+            {transactionTopLevel?.timestamp ?
+              new Date(transactionTopLevel.timestamp * 1000)
                 .toLocaleString("en-US", {
                   day: "2-digit",
                   month: "2-digit",

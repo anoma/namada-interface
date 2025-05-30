@@ -1,17 +1,20 @@
 import { Panel, StyledSelectBox, TableRow } from "@namada/components";
-import { TransactionHistory as TransactionHistoryType } from "@namada/indexer-client";
 import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
 import { PageLoader } from "App/Common/PageLoader";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
+import { chainParametersAtom } from "atoms/chain";
 import {
   chainTransactionHistoryFamily,
   completeTransactionsHistoryAtom,
   pendingTransactionsHistoryAtom,
+  TransactionHistory as TransactionHistoryType,
 } from "atoms/transactions/atoms";
 import { clsx } from "clsx";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { TransferTransactionData } from "types";
+import { LocalStorageTransactionCard } from "./LocalStorageTransactionCard";
 import { PendingTransactionCard } from "./PendingTransactionCard";
 import { TransactionCard } from "./TransactionCard";
 
@@ -36,27 +39,24 @@ export const TransactionHistory = (): JSX.Element => {
   const { data: transactions, isLoading } = useAtomValue(
     chainTransactionHistoryFamily({ perPage: ITEMS_PER_PAGE, fetchAll: true })
   );
+  const chainParameters = useAtomValue(chainParametersAtom);
+  const chainId = chainParameters.data?.chainId;
   const completedIbcTransactions = useAtomValue(
     completeTransactionsHistoryAtom
   );
-  console.log(completedIbcTransactions, "completedIbcTransactions");
-  const completedIbcShieldedTransactions = completedIbcTransactions.filter(
-    (transaction) =>
-      transaction.type === "IbcToShielded" ||
-      transaction.type === "ShieldedToTransparent"
-  );
-  const completedIbcUnshieldedTransactions = completedIbcTransactions.filter(
-    (transaction) => transaction.type === "ShieldedToTransparent"
-  );
-  // Grab ibc shield/unshield and fold em into historical transactions
-  console.log(
-    completedIbcShieldedTransactions,
-    "completedIbcShieldedTransactions"
-  );
-  console.log(
-    completedIbcUnshieldedTransactions,
-    "completedIbcUnshieldedTransactions"
-  );
+  // Both Shield and Unshield IBC transactions
+  const completedIbcShieldTransactions = completedIbcTransactions
+    .filter(
+      (transaction) =>
+        (transaction.type === "IbcToShielded" ||
+          transaction.type === "ShieldedToIbc") &&
+        ((transaction as any).destinationChainId === chainId ||
+          transaction.chainId === chainId)
+    )
+    .map((transaction) => ({
+      ...transaction,
+      timestamp: new Date(transaction.updatedAt).getTime(),
+    }));
 
   const handleFiltering = (transaction: TransactionHistoryType): boolean => {
     const transactionKind = transaction.tx?.kind ?? "";
@@ -82,17 +82,22 @@ export const TransactionHistory = (): JSX.Element => {
       handleFiltering(transaction)
     ) ?? [];
 
+  const allHistoricalTransactions = [
+    ...historicalTransactions,
+    ...completedIbcShieldTransactions,
+  ].sort((a, b) => (b?.timestamp ?? 0) - (a?.timestamp ?? 0));
+
   // Calculate total pages based on the filtered transactions
   const totalPages = Math.max(
     1,
-    Math.ceil(historicalTransactions.length / ITEMS_PER_PAGE)
+    Math.ceil(allHistoricalTransactions.length / ITEMS_PER_PAGE)
   );
 
   const paginatedTransactions = useMemo(() => {
     const startIndex = currentPage * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    return historicalTransactions.slice(startIndex, endIndex);
-  }, [historicalTransactions, currentPage]);
+    return allHistoricalTransactions.slice(startIndex, endIndex);
+  }, [allHistoricalTransactions, currentPage]);
 
   const renderRow = (
     transaction: TransactionHistoryType,
@@ -100,7 +105,14 @@ export const TransactionHistory = (): JSX.Element => {
   ): TableRow => {
     return {
       key: transaction.tx?.txId || index.toString(),
-      cells: [<TransactionCard key="transaction" tx={transaction} />],
+      cells: [
+        transaction?.tx ?
+          <TransactionCard key="transaction" tx={transaction} />
+        : <LocalStorageTransactionCard
+            key="transaction"
+            transaction={transaction as unknown as TransferTransactionData}
+          />,
+      ],
     };
   };
 
@@ -183,7 +195,9 @@ export const TransactionHistory = (): JSX.Element => {
                   id="transactions-table"
                   headers={[{ children: " ", className: "w-full" }]}
                   renderRow={renderRow}
-                  itemList={paginatedTransactions}
+                  itemList={
+                    paginatedTransactions as unknown as TransactionHistoryType[]
+                  }
                   page={currentPage}
                   pageCount={totalPages}
                   onPageChange={handlePageChange}
