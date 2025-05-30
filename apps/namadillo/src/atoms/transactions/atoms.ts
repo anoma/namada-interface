@@ -56,7 +56,7 @@ export const fetchTransactionAtom = atom((get) => {
 
 // New atom family for paginated transaction history
 export const chainTransactionHistoryFamily = atomFamily(
-  (opts?: { page?: number; perPage?: number; fetchAll?: boolean }) =>
+  (options?: { page?: number; perPage?: number; fetchAll?: boolean }) =>
     atomWithQuery<PaginatedTx>((get) => {
       const api = get(indexerApiAtom);
       const accounts = get(allDefaultAccountsAtom);
@@ -67,8 +67,8 @@ export const chainTransactionHistoryFamily = atomFamily(
         queryKey: [
           "chain-transaction-history",
           addresses,
-          opts?.fetchAll ? "all" : opts?.page,
-          opts?.perPage,
+          options?.fetchAll ? "all" : options?.page,
+          options?.perPage,
         ],
         queryFn: async () => {
           if (!addresses) {
@@ -84,10 +84,10 @@ export const chainTransactionHistoryFamily = atomFamily(
           }
 
           const fetchPage = (page?: number): Promise<PaginatedTx> =>
-            fetchHistoricalTransactions(api, addresses, page, opts?.perPage);
+            fetchHistoricalTransactions(api, addresses, page, options?.perPage);
 
           // ── fetchAll ────────────────────────────────────────────────────────
-          if (opts?.fetchAll) {
+          if (options?.fetchAll) {
             const first = await fetchPage(1);
             const total = parseInt(first.pagination.totalPages ?? "0", 10);
 
@@ -109,8 +109,7 @@ export const chainTransactionHistoryFamily = atomFamily(
             };
           }
 
-          // ── single page ─────────────────────────────────────────────────────
-          const pageData = await fetchPage(opts?.page);
+          const pageData = await fetchPage(options?.page);
           return {
             ...pageData,
             results: await addTimestamps(api, pageData.results),
