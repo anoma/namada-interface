@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.23.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.22.0...namadillo@v1.23.0) (2025-05-30)
+
+
+### Features
+
+* Update for blinking sync and tooltip addy ([#2059](https://github.com/anoma/namada-interface/issues/2059)) ([952179b](https://github.com/anoma/namada-interface/commit/952179b322de693a96e2a20f4e2c3fb9623fd9c0))
+
 ## [1.22.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.21.0...namadillo@v1.22.0) (2025-05-28)
 
 
