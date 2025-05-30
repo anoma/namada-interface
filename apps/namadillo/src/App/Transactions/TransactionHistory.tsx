@@ -13,7 +13,6 @@ import { clsx } from "clsx";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { TransferTransactionData } from "types";
 import { LocalStorageTransactionCard } from "./LocalStorageTransactionCard";
 import { PendingTransactionCard } from "./PendingTransactionCard";
 import { TransactionCard } from "./TransactionCard";
@@ -113,7 +112,7 @@ export const TransactionHistory = (): JSX.Element => {
           <TransactionCard key="transaction" tx={transaction} />
         : <LocalStorageTransactionCard
             key="transaction"
-            transaction={transaction as unknown as TransferTransactionData}
+            transaction={transaction}
           />,
       ],
     };

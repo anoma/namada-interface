@@ -27,7 +27,7 @@ export const addTimestamps = async (
 ): Promise<TransactionHistory[]> =>
   Promise.all(
     txs.map(async (tx) => {
-      if (tx.timestamp) return tx; // already enriched
+      if (tx.timestamp) return tx;
       try {
         const timestamp = await fetchBlockTimestampByHeight(
           api,
@@ -37,7 +37,7 @@ export const addTimestamps = async (
         return { ...tx, timestamp };
       } catch (err) {
         console.error("Failed to fetch block timestamp:", err);
-        return tx; // return unmodified on failure
+        return tx;
       }
     })
   );
