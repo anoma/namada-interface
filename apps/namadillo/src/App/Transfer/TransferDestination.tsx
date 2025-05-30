@@ -164,6 +164,7 @@ export const TransferDestination = ({
               <SelectedWallet
                 wallet={wallet}
                 address={customAddressActive ? address : walletAddress}
+                displayFullAddress={true}
               />
             )}
           </div>

@@ -24,9 +24,12 @@ describe("Component: SelectChainModal", () => {
     expect(screen.getByText("Namada")).toBeInTheDocument();
     expect(screen.getByText("TestChain")).toBeInTheDocument();
 
-    // Beginning and end of wallet address
-    expect(screen.getByText("cosmos1x", { exact: false })).toBeInTheDocument();
-    expect(screen.getByText("jqgh", { exact: false })).toBeInTheDocument();
+    // Truncated wallet address
+    expect(
+      screen.getByText("cosmos1x...yf0wjqgh", {
+        exact: false,
+      })
+    ).toBeInTheDocument();
 
     // Check for modal title
     expect(screen.getByText("Select Source Chain")).toBeInTheDocument();
