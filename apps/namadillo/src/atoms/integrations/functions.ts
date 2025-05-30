@@ -250,8 +250,27 @@ const findOriginalAsset = async (
   };
 };
 
+export const findAssetsByChainById = (chainId: string): Asset[] => {
+  const chain = findChainById(chainId);
+  if (!chain) {
+    throw new Error(`Chain with ID ${chainId} not found`);
+  }
+  const assetList = findAssetsByChainName(chain.chain_name);
+  if (!assetList) {
+    throw new Error(`Assets for chain ${chain.chain_name} not found`);
+  }
+
+  return assetList.assets;
+};
+
 export const findChainById = (chainId: string): Chain | undefined => {
   return registry.chains.find((chain) => chain.chain_id === chainId);
+};
+
+export const findAssetsByChainName = (
+  chainName: string
+): AssetList | undefined => {
+  return registry.assets.find((chain) => chain.chain_name === chainName);
 };
 
 export const mapCoinsToAssets = async (
