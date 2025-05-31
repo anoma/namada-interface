@@ -1,4 +1,7 @@
-import { Pagination, TransactionHistory } from "@namada/indexer-client";
+import {
+  Pagination,
+  TransactionHistory as TransactionHistoryBase,
+} from "@namada/indexer-client";
 import { allDefaultAccountsAtom, defaultAccountAtom } from "atoms/accounts";
 import { indexerApiAtom } from "atoms/api";
 import { atom } from "jotai";
@@ -6,10 +9,20 @@ import { atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
 import { Address, TransferTransactionData } from "types";
 import {
+  addTimestamps,
   filterCompleteTransactions,
   filterPendingTransactions,
 } from "./functions";
 import { fetchHistoricalTransactions, fetchTransaction } from "./services";
+
+export interface TransactionHistory extends TransactionHistoryBase {
+  timestamp?: number;
+}
+
+interface PaginatedTx {
+  results: TransactionHistory[];
+  pagination: Pagination;
+}
 
 export const transactionStorageKey = "namadillo:transactions";
 
@@ -44,16 +57,13 @@ export const fetchTransactionAtom = atom((get) => {
 // New atom family for paginated transaction history
 export const chainTransactionHistoryFamily = atomFamily(
   (options?: { page?: number; perPage?: number; fetchAll?: boolean }) =>
-    atomWithQuery<{
-      results: TransactionHistory[];
-      pagination: Pagination;
-    }>((get) => {
+    atomWithQuery<PaginatedTx>((get) => {
       const api = get(indexerApiAtom);
       const accounts = get(allDefaultAccountsAtom);
-      const addresses = accounts.data?.map((acc) => acc.address);
+      const addresses = accounts.data?.map((a) => a.address);
 
       return {
-        enabled: !!addresses, // Only run the query if we have addresses
+        enabled: !!addresses,
         queryKey: [
           "chain-transaction-history",
           addresses,
@@ -73,72 +83,41 @@ export const chainTransactionHistoryFamily = atomFamily(
             };
           }
 
-          // If fetchAll is true, we'll get all pages
+          const fetchPage = (page?: number): Promise<PaginatedTx> =>
+            fetchHistoricalTransactions(api, addresses, page, options?.perPage);
+
+          // ── fetchAll ────────────────────────────────────────────────────────
           if (options?.fetchAll) {
-            // First fetch to get pagination info
-            const firstPageResult = await fetchHistoricalTransactions(
-              api,
-              addresses,
-              1,
-              options?.perPage || 10
-            );
+            const first = await fetchPage(1);
+            const total = parseInt(first.pagination.totalPages ?? "0", 10);
 
-            const totalPages = parseInt(
-              firstPageResult.pagination?.totalPages || "0"
-            );
-
-            // If there's only one page, return the first result
-            if (totalPages <= 1) {
-              return firstPageResult;
-            }
-
-            // Otherwise, fetch all remaining pages
-            const allPagePromises = [];
-            // We already have page 1
-            const allResults = [...firstPageResult.results];
-
-            // Fetch pages 2 to totalPages
-            for (let page = 2; page <= totalPages; page++) {
-              allPagePromises.push(
-                fetchHistoricalTransactions(
-                  api,
-                  addresses,
-                  page,
-                  options?.perPage || 10
+            const others =
+              total > 1 ?
+                await Promise.all(
+                  Array.from({ length: total - 1 }, (_, i) => fetchPage(i + 2))
                 )
-              );
-            }
+              : [];
 
-            const allPagesResults = await Promise.all(allPagePromises);
+            const all = [...first.results, ...others.flatMap((p) => p.results)];
 
-            // Combine all results
-            for (const pageResult of allPagesResults) {
-              allResults.push(...pageResult.results);
-            }
-
-            // Return combined results with updated pagination info
             return {
-              results: allResults,
+              results: await addTimestamps(api, all),
               pagination: {
-                ...firstPageResult.pagination,
-                totalPages: totalPages.toString(),
-                currentPage: "all", // Indicate we fetched all pages
+                ...first.pagination,
+                currentPage: "all",
               },
             };
           }
 
-          // Standard case: fetch a single page
-          return fetchHistoricalTransactions(
-            api,
-            addresses,
-            options?.page,
-            options?.perPage
-          );
+          const pageData = await fetchPage(options?.page);
+          return {
+            ...pageData,
+            results: await addTimestamps(api, pageData.results),
+          };
         },
       };
     }),
   (a, b) =>
-    // Equality check for memoization - include fetchAll in comparison
     a?.page === b?.page &&
     a?.perPage === b?.perPage &&
     a?.fetchAll === b?.fetchAll

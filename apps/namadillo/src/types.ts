@@ -345,6 +345,7 @@ export type BaseTransferTransaction = TransferStage & {
   chainId: string;
   sourceAddress: string;
   destinationAddress: string;
+  destinationChainId?: string;
   feePaid?: BigNumber;
   tipPaid?: BigNumber;
   resultTxHash?: string;
@@ -354,6 +355,7 @@ export type BaseTransferTransaction = TransferStage & {
   shielded?: boolean;
   createdAt: Date;
   updatedAt: Date;
+  timestamp?: number;
 };
 
 export type IbcTransferTransactionData = BaseTransferTransaction & {
