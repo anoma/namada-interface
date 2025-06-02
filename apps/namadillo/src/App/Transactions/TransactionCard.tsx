@@ -1,4 +1,4 @@
-import { CopyToClipboardControl, Tooltip } from "@namada/components";
+import { CopyToClipboardControl } from "@namada/components";
 import { TransactionHistory as TransactionHistoryType } from "@namada/indexer-client";
 import { shortenAddress } from "@namada/utils";
 import { TokenCurrency } from "App/Common/TokenCurrency";
@@ -213,15 +213,10 @@ export const TransactionCard = ({
             )}
           >
             {getTitle(transaction?.kind, isReceived)}{" "}
-            <div className="group/tooltip relative inline-block">
-              <CopyToClipboardControl
-                className="ml-1.5 text-neutral-400"
-                value={transaction?.txId ?? ""}
-              />
-              <Tooltip position="top" className="z-50">
-                Copy transaction hash
-              </Tooltip>
-            </div>
+            <CopyToClipboardControl
+              className="ml-1.5 text-neutral-400"
+              value={transaction?.txId ?? ""}
+            />
           </h3>
           <h3 className="text-neutral-400">
             {timestamp ?
