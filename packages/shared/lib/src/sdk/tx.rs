@@ -3,6 +3,7 @@ use std::str::FromStr;
 
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use namada_sdk::collections::hash_set::IndexSet;
 use namada_sdk::masp_primitives::transaction::components::sapling::builder::StoredBuildParams;
 use namada_sdk::masp_primitives::transaction::components::sapling::fees::{InputView, OutputView};
 use namada_sdk::masp_primitives::zip32::ExtendedFullViewingKey;
@@ -99,7 +100,7 @@ impl SigningData {
             None => None,
         };
 
-        let mut public_keys: Vec<PublicKey> = vec![];
+        let mut public_keys = vec![];
         for pk in self.public_keys.clone() {
             let pk = PublicKey::from_str(&pk)?;
             public_keys.push(pk);
