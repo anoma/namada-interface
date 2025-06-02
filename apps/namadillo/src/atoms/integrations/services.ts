@@ -348,7 +348,7 @@ export const simulateIbcTransferGas = async (
   stargateClient: SigningStargateClient,
   sourceAddress: string,
   transferMsg: MsgTransferEncodeObject,
-  additionalPercentage: number = 0.2
+  additionalPercentage: number = 0.3
 ): Promise<number> => {
   try {
     const estimatedGas = await stargateClient.simulate(
