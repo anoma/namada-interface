@@ -156,7 +156,7 @@ export const TransactionCard = ({
           "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 items-center my-1 font-semibold",
           "gap-5 bg-neutral-800 rounded-sm px-5 text-white border border-transparent",
           "transition-colors duration-200 hover:border-neutral-500",
-          isBondingTransaction ? "py-3" : "py-5"
+          isBondingTransaction && validator?.imageUrl ? "py-3" : "py-5"
         )
       )}
     >
