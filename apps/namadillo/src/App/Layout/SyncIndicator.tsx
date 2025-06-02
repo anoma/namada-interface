@@ -15,12 +15,10 @@ import {
   syncStatusAtom,
 } from "atoms/syncStatus/atoms";
 import { allValidatorsAtom, myValidatorsAtom } from "atoms/validators";
+import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import {
-  IoCheckmarkCircleOutline,
-  IoCloseCircleOutline,
-} from "react-icons/io5";
+import { IoCheckmarkCircleOutline } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 
 const formatError = (
@@ -39,6 +37,18 @@ const formatError = (
         return <div key={string}>{string}</div>;
       })}
     </div>
+  );
+};
+
+const LoadingSpinner = (): JSX.Element => {
+  return (
+    <i
+      className={clsx(
+        "inline-block w-2 h-2 border-2",
+        "border-transparent border-t-yellow rounded-[50%]",
+        "animate-loadingSpinner"
+      )}
+    />
   );
 };
 
@@ -118,31 +128,32 @@ export const SyncIndicator = (): JSX.Element => {
             <div className="py-2">
               <div className="text-yellow font-medium">Syncing...</div>
               <div>
-                Indexer Sync: {chainStatus?.height} / {indexerBlockHeight}
+                Indexer Sync: {chainStatus?.height ?? "-"} /{" "}
+                {indexerBlockHeight ?? "-"}
               </div>
               <div className="flex items-center gap-1">
                 Heartbeat:{" "}
                 {heartbeatStatus ?
                   <IoCheckmarkCircleOutline className="text-green-500" />
-                : <IoCloseCircleOutline className="text-red-500" />}
+                : <LoadingSpinner />}
               </div>
               <div className="flex items-center gap-1">
                 Balances:{" "}
                 {balancesStatus ?
                   <IoCheckmarkCircleOutline className="text-green-500" />
-                : <IoCloseCircleOutline className="text-red-500" />}
+                : <LoadingSpinner />}
               </div>
               <div className="flex items-center gap-1">
                 Staking:{" "}
                 {stakingStatus ?
                   <IoCheckmarkCircleOutline className="text-green-500" />
-                : <IoCloseCircleOutline className="text-red-500" />}
+                : <LoadingSpinner />}
               </div>
               <div className="flex items-center gap-1">
                 Governance:{" "}
                 {governanceStatus ?
                   <IoCheckmarkCircleOutline className="text-green-500" />
-                : <IoCloseCircleOutline className="text-red-500" />}
+                : <LoadingSpinner />}
               </div>
             </div>
           : isError ?
