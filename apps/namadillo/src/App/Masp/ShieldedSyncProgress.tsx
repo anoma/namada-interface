@@ -14,7 +14,7 @@ export const ShieldedSyncProgress = (): JSX.Element => {
   }, [Math.floor(syncProgress * 100)]);
 
   useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout> | undefined;
+    let timeout = undefined;
     if (isFetching && roundedProgress < 100) {
       // wait 2.5 s before we allow the ring to appear
       timeout = setTimeout(() => setShowShieldedSync(true), 2500);
