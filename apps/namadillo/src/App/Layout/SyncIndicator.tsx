@@ -91,8 +91,6 @@ export const SyncIndicator = (): JSX.Element => {
   const stakingStatus = myValidators.isSuccess && allValidators.isSuccess;
   const governanceStatus = allProposals.isSuccess && votedProposals.isSuccess;
 
-  console.log(syncStatus, indexerServicesSyncStatus);
-
   useEffect(() => {
     (async () => {
       const indexerBlockHeight = await fetchBlockHeightByTimestamp(
@@ -103,7 +101,7 @@ export const SyncIndicator = (): JSX.Element => {
       setBlockHeightSync(indexerBlockHeight === chainStatus?.height);
     })();
   }, [chainStatus?.height]);
-  console.log(indexerBlockHeight, chainStatus);
+
   return (
     <div className="flex gap-10 px-2 py-3">
       <div className="relative group/tooltip">
