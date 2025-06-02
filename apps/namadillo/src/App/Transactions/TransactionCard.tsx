@@ -185,6 +185,7 @@ export const TransactionCard = ({
               })
             )}
           >
+            {transactionFailed && "Failed"}{" "}
             {getTitle(transaction?.kind, isReceived)}{" "}
             <div className="relative group/tooltip">
               <CopyToClipboardControl
