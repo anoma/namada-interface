@@ -1,4 +1,5 @@
 import { shieldedBalanceAtom, shieldedSyncProgress } from "atoms/balance/atoms";
+import { useRequiresNewShieldedSync } from "hooks/useRequiresNewShieldedSync";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -7,6 +8,7 @@ export const ShieldedSyncProgress = (): JSX.Element => {
   const syncProgress = useAtomValue(shieldedSyncProgress);
   const { isFetching } = useAtomValue(shieldedBalanceAtom);
   const [showShieldedSync, setShowShieldedSync] = useState(false);
+  const requiresNewShieldedSync = useRequiresNewShieldedSync();
 
   const roundedProgress = useMemo(() => {
     // Only update when the progress changes by at least 1%
@@ -24,7 +26,7 @@ export const ShieldedSyncProgress = (): JSX.Element => {
     return () => clearTimeout(timeout);
   }, [isFetching, roundedProgress]);
 
-  if (!showShieldedSync) {
+  if (!showShieldedSync && !requiresNewShieldedSync) {
     return <></>;
   }
 

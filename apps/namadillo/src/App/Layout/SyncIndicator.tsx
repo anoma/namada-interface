@@ -30,11 +30,23 @@ const formatError = (
   }
 
   return (
-    <div>
-      {label && <div>{label}:</div>}
+    <div className="mb-2">
+      {label && (
+        <div
+          className={
+            label === "Error" ? "text-red-500 font-medium" : "font-medium"
+          }
+        >
+          {label}:
+        </div>
+      )}
       {errors.map((e) => {
         const string = e instanceof Error ? e.message : String(e);
-        return <div key={string}>{string}</div>;
+        return (
+          <div key={string} className="mt-1">
+            {string}
+          </div>
+        );
       })}
     </div>
   );
