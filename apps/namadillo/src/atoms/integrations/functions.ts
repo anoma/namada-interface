@@ -250,7 +250,7 @@ const findOriginalAsset = async (
   };
 };
 
-export const findAssetsByChainById = (chainId: string): Asset[] => {
+export const findAssetsByChainId = (chainId: string): Asset[] => {
   const chain = findChainById(chainId);
   if (!chain) {
     throw new Error(`Chain with ID ${chainId} not found`);
