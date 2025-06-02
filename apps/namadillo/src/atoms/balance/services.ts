@@ -96,10 +96,16 @@ export async function shieldedSync({
 export const fetchShieldedBalance = async (
   viewingKey: DatedViewingKey,
   addresses: string[],
-  chainId: string
+  chainId: string,
+  maspEpoch: bigint
 ): Promise<Balance> => {
   const sdk = await getSdkInstance();
-  return await sdk.rpc.queryBalance(viewingKey.key, addresses, chainId);
+  return await sdk.rpc.queryShieldedBalance(
+    viewingKey.key,
+    addresses,
+    chainId,
+    maspEpoch
+  );
 };
 
 export const fetchBlockHeightByTimestamp = async (

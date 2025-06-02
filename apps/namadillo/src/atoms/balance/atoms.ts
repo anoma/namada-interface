@@ -11,6 +11,7 @@ import {
   chainAssetsMapAtom,
   chainParametersAtom,
   chainTokensAtom,
+  maspEpochAtom,
   nativeTokenAddressAtom,
 } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
@@ -133,6 +134,7 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
   const chainTokensQuery = get(chainTokensAtom);
   const chainParametersQuery = get(chainParametersAtom);
   const namTokenAddressQuery = get(nativeTokenAddressAtom);
+  const maspEpochQuery = get(maspEpochAtom);
   const rpcUrl = get(rpcUrlAtom);
   const maspIndexerUrl = get(maspIndexerUrlAtom);
   const defaultAccount = get(defaultAccountAtom);
@@ -141,6 +143,7 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
   const chainTokens = chainTokensQuery.data?.map((t) => t.address);
   const chainId = chainParametersQuery.data?.chainId;
   const namTokenAddress = namTokenAddressQuery.data;
+  const maspEpoch = maspEpochQuery.data;
 
   return {
     refetchInterval: enablePolling ? 1000 : false,
@@ -152,7 +155,8 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
         !chainTokens ||
         !chainId ||
         !namTokenAddress ||
-        !rpcUrl
+        !rpcUrl ||
+        !maspEpoch
       ) {
         return [];
       }
@@ -170,7 +174,8 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
       const response = await fetchShieldedBalance(
         viewingKey,
         chainTokens,
-        chainId
+        chainId,
+        maspEpoch
       );
 
       const shieldedBalance = response.map(([address, amount]) => ({
@@ -202,6 +207,7 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
       chainTokensQuery,
       chainParametersQuery,
       namTokenAddressQuery,
+      maspEpochQuery,
     ]),
   };
 });
