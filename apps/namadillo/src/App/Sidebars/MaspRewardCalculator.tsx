@@ -1,6 +1,11 @@
-import { Panel, SkeletonLoading } from "@namada/components";
+import { Panel } from "@namada/components";
 import { AssetImage } from "App/Transfer/AssetImage";
-import { maspRewardsAtom } from "atoms/chain";
+import { simulateShieldedRewards } from "atoms/balance/services";
+import {
+  chainAssetsMapAtom,
+  chainParametersAtom,
+  maspRewardsAtom,
+} from "atoms/chain";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useEffect, useRef, useState } from "react";
@@ -15,8 +20,25 @@ export const MaspRewardCalculator = (): JSX.Element => {
   >(rewards.data?.[0] || undefined);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [calculatedRewards, setCalculatedRewards] = useState<string>("0.00");
+  const [isCalculating, setIsCalculating] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const chainParameters = useAtomValue(chainParametersAtom);
+  const chainId = chainParameters.data?.chainId;
+  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+
+  // Helper function to find the address for a given asset base
+  const findAssetAddress = (symbol: string): string | undefined => {
+    if (!Object.keys(chainAssetsMap).length) return undefined;
+    // Find the entry in chainAssetsMap where the asset.base matches our assetBase
+    for (const [address, assetInfo] of Object.entries(chainAssetsMap)) {
+      if (assetInfo?.symbol.toLowerCase() === symbol) {
+        return address;
+      }
+    }
+    return undefined;
+  };
 
   // Filter assets based on search term
   const filteredRewards =
@@ -47,6 +69,44 @@ export const MaspRewardCalculator = (): JSX.Element => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // calculate rewards when amount or asset changse
+  useEffect(() => {
+    const fetchRewards = async (): Promise<void> => {
+      if (!selectedAsset || !amount || !chainId) return;
+
+      const assetAddress = findAssetAddress(
+        selectedAsset.asset.symbol.toLowerCase()
+      );
+      if (!assetAddress) {
+        console.error(
+          "Could not find address for asset:",
+          selectedAsset.asset.symbol
+        );
+        return;
+      }
+
+      setIsCalculating(true);
+      try {
+        const rewardsResult = await simulateShieldedRewards(
+          chainId,
+          assetAddress,
+          amount
+        );
+        console.log(rewardsResult, "CALCULATED REWARDS");
+        // Assuming the API returns the reward amount directly
+        // You may need to adjust this based on the actual API response structure
+        setCalculatedRewards(rewardsResult?.toString() || "0.00");
+      } catch (error) {
+        console.error("Error calculating rewards:", error);
+        setCalculatedRewards("0.00");
+      } finally {
+        setIsCalculating(false);
+      }
+    };
+
+    fetchRewards();
+  }, [selectedAsset, amount]);
+
   // Focus search input when dropdown opens
   useEffect(() => {
     if (isDropdownOpen && searchInputRef.current) {
@@ -58,12 +118,10 @@ export const MaspRewardCalculator = (): JSX.Element => {
     setSelectedAsset(asset);
     setIsDropdownOpen(false);
     setSearchTerm("");
+    // Reset calculated rewards when asset changes
+    setCalculatedRewards("0.00");
   };
 
-  const estimatedRewards =
-    amount && selectedAsset?.maxRewardRate ?
-      (parseFloat(amount) * Number(selectedAsset.maxRewardRate)).toFixed(2)
-    : "0.00";
   return (
     <Panel className={clsx("flex flex-col pt-2 pb-2 px-2")}>
       <h2 className="uppercase text-[13px] text-center font-medium pb-0 pt-2">
@@ -71,11 +129,13 @@ export const MaspRewardCalculator = (): JSX.Element => {
       </h2>
       <div className="mt-3 flex flex-col gap-3">
         {rewards.isLoading && (
-          <div className="flex flex-col gap-1">
-            <SkeletonLoading height="40px" width="100%" />
-            <SkeletonLoading height="40px" width="100%" />
-            <SkeletonLoading height="40px" width="100%" />
-          </div>
+          <i
+            className={clsx(
+              "absolute w-8 h-8 top-0 left-0 right-0 bottom-0 m-auto border-4",
+              "border-transparent border-t-yellow rounded-[50%]",
+              "animate-loadingSpinner"
+            )}
+          />
         )}
         {rewards.data && (
           <>
@@ -180,7 +240,16 @@ export const MaspRewardCalculator = (): JSX.Element => {
 
             <div className="flex flex-col items-center justify-center border border-neutral-500 rounded-sm py-8">
               <div className="text-yellow text-3xl font-bold max-w-full px-4">
-                {estimatedRewards.toString()}
+                {isCalculating ?
+                  <div className="flex items-center justify-center">
+                    <i
+                      className={clsx(
+                        "w-8 h-8 border-4 border-transparent border-t-yellow rounded-[50%] my-2",
+                        "animate-loadingSpinner"
+                      )}
+                    />
+                  </div>
+                : calculatedRewards}
               </div>
               <div className="text-sm text-yellow font-normal">NAM</div>
               <div className="text-neutral-400 text-xs mt-1 px-4 text-center">
