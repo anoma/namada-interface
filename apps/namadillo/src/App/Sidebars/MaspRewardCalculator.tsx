@@ -1,11 +1,11 @@
 import { Panel } from "@namada/components";
 import { AssetImage } from "App/Transfer/AssetImage";
-import { simulateShieldedRewards } from "atoms/balance/services";
 import {
   chainAssetsMapAtom,
   chainParametersAtom,
   maspRewardsAtom,
 } from "atoms/chain";
+import { simulateShieldedRewards } from "atoms/staking/services";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useEffect, useRef, useState } from "react";

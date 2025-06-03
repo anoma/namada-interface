@@ -170,12 +170,3 @@ export const fetchShieldedRewardsPerToken = async (
 
   return rewards;
 };
-
-export const simulateShieldedRewards = async (
-  chainId: string,
-  token: string,
-  amount: string = "0"
-): Promise<string> => {
-  const sdk = await getSdkInstance();
-  return await sdk.rpc.simulateShieldedRewards(chainId, token, amount);
-};
