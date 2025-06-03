@@ -9,6 +9,7 @@ import { simulateShieldedRewards } from "atoms/staking/services";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
+import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { GoChevronDown } from "react-icons/go";
 import { MaspAssetRewards } from "types";
@@ -17,6 +18,9 @@ import { toBaseAmount } from "utils";
 export const MaspRewardCalculator = (): JSX.Element => {
   const rewards = useAtomValue(maspRewardsAtom);
   const [amount, setAmount] = useState<string>("");
+  const debouncedSetAmount = useRef(
+    debounce((value: string) => setAmount(value), 300)
+  ).current;
   const [selectedAsset, setSelectedAsset] = useState<
     MaspAssetRewards | undefined
   >(rewards.data?.[0] || undefined);
@@ -226,7 +230,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
                 onChange={(e) => {
                   const value = e.target.value;
                   if (value.length >= 8) return;
-                  setAmount(e.target.value);
+                  debouncedSetAmount(value);
                 }}
                 placeholder="Amount"
                 className={clsx(
