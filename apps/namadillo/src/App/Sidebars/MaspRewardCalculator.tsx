@@ -13,7 +13,7 @@ import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { GoChevronDown } from "react-icons/go";
 import { MaspAssetRewards } from "types";
-import { toBaseAmount } from "utils";
+import { toBaseAmount, toDisplayAmount } from "utils";
 
 export const MaspRewardCalculator = (): JSX.Element => {
   const rewards = useAtomValue(maspRewardsAtom);
@@ -77,7 +77,13 @@ export const MaspRewardCalculator = (): JSX.Element => {
           assetAddress,
           toBaseAmount(selectedAsset.asset, new BigNumber(amount)).toString()
         );
-        setCalculatedRewards(rewardsResult);
+
+        setCalculatedRewards(
+          toDisplayAmount(
+            selectedAsset.asset,
+            new BigNumber(rewardsResult)
+          ).toString()
+        );
       } catch (error) {
         console.error("Error calculating rewards:", error);
         setCalculatedRewards("0.00");
@@ -104,8 +110,6 @@ export const MaspRewardCalculator = (): JSX.Element => {
     setSelectedAsset(asset);
     setIsDropdownOpen(false);
     setSearchTerm("");
-    // Reset calculated rewards when asset changes
-    setCalculatedRewards("0.00");
   };
 
   // Helper function to find the address for a given asset base
@@ -253,7 +257,11 @@ export const MaspRewardCalculator = (): JSX.Element => {
                       )}
                     />
                   </div>
-                : calculatedRewards}
+                : Number(calculatedRewards).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                }
               </div>
               <div className="text-sm text-yellow font-normal">NAM</div>
               <div className="text-neutral-400 text-xs mt-1 px-4 text-center">
