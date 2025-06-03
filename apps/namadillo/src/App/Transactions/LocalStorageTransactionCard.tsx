@@ -4,7 +4,7 @@ import { TokenCurrency } from "App/Common/TokenCurrency";
 import { AssetImage } from "App/Transfer/AssetImage";
 import { isShieldedAddress, isTransparentAddress } from "App/Transfer/common";
 import clsx from "clsx";
-import { FaLock } from "react-icons/fa";
+import { FaInfoCircle, FaLock } from "react-icons/fa";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 import { TransferTransactionData } from "types";
@@ -94,21 +94,32 @@ export const LocalStorageTransactionCard = ({
         </h4>
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col relative">
         <h4 className={isShieldedAddress(receiver ?? "") ? "text-yellow" : ""}>
           To
         </h4>
-        <h4 className={isShieldedAddress(receiver ?? "") ? "text-yellow" : ""}>
-          {isShieldedAddress(receiver ?? "") ?
-            <span className="flex items-center gap-1">
-              <FaLock className="w-4 h-4" /> Shielded
-            </span>
-          : <div className="flex items-center gap-1">
-              {renderKeplrIcon(receiver ?? "")}
-              {shortenAddress(receiver ?? "", 10, 10)}
-            </div>
-          }
-        </h4>
+        <div className="flex items-center justify-between">
+          <h4
+            className={isShieldedAddress(receiver ?? "") ? "text-yellow" : ""}
+          >
+            {isShieldedAddress(receiver ?? "") ?
+              <span className="flex items-center gap-1">
+                <FaLock className="w-4 h-4" /> Shielded
+              </span>
+            : <div className="flex items-center gap-1">
+                {renderKeplrIcon(receiver ?? "")}
+                {shortenAddress(receiver ?? "", 10, 10)}
+              </div>
+            }
+          </h4>
+          <div className="relative group/tooltip">
+            <FaInfoCircle className="w-4 h-4 mb-3 mr-4" />
+            <Tooltip position="left" className="p-2 w-[200px] z-10">
+              This transaction is stored locally. It may not appear when viewing
+              your history on other devices.
+            </Tooltip>
+          </div>
+        </div>
       </div>
     </article>
   );
