@@ -18,9 +18,6 @@ import { toBaseAmount } from "utils";
 export const MaspRewardCalculator = (): JSX.Element => {
   const rewards = useAtomValue(maspRewardsAtom);
   const [amount, setAmount] = useState<string>("");
-  const debouncedSetAmount = useRef(
-    debounce((value: string) => setAmount(value), 300)
-  ).current;
   const [selectedAsset, setSelectedAsset] = useState<
     MaspAssetRewards | undefined
   >(rewards.data?.[0] || undefined);
@@ -59,7 +56,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
 
   // calculate rewards when amount or asset changse
   useEffect(() => {
-    const fetchRewards = async (): Promise<void> => {
+    const debouncedFetchRewards = debounce(async (): Promise<void> => {
       if (!selectedAsset || !amount || !chainId) return;
 
       const assetAddress = findAssetAddress(
@@ -87,9 +84,13 @@ export const MaspRewardCalculator = (): JSX.Element => {
       } finally {
         setIsCalculating(false);
       }
-    };
+    }, 300);
 
-    fetchRewards();
+    debouncedFetchRewards();
+
+    return () => {
+      debouncedFetchRewards.cancel();
+    };
   }, [selectedAsset, amount]);
 
   // Focus search input when dropdown opens
@@ -230,7 +231,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
                 onChange={(e) => {
                   const value = e.target.value;
                   if (value.length >= 8) return;
-                  debouncedSetAmount(value);
+                  setAmount(e.target.value);
                 }}
                 placeholder="Amount"
                 className={clsx(
