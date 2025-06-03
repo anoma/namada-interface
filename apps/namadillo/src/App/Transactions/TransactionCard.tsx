@@ -193,7 +193,7 @@ export const TransactionCard = ({
                 className="ml-1.5 text-neutral-400"
                 value={transaction?.txId ?? ""}
               />
-              <Tooltip position="right" className="p-2 -mr-3 w-[150px]">
+              <Tooltip position="right" className="p-2 -mr-3 w-[150px] z-10">
                 Copy transaction hash
               </Tooltip>
             </div>

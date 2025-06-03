@@ -1,4 +1,4 @@
-import { CopyToClipboardControl } from "@namada/components";
+import { CopyToClipboardControl, Tooltip } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { AssetImage } from "App/Transfer/AssetImage";
@@ -45,12 +45,15 @@ export const LocalStorageTransactionCard = ({
         </i>
 
         <div className="flex flex-col">
-          <h3 className="text-success flex">
+          <h3 className="text-success flex relative group/tooltip">
             {getTitle(transaction)}{" "}
             <CopyToClipboardControl
               className="ml-1.5 text-neutral-400"
               value={transaction?.hash ?? ""}
             />
+            <Tooltip position="right" className="p-2 w-[150px] z-10">
+              Copy transaction hash
+            </Tooltip>
           </h3>
           <h3 className="text-neutral-400">
             {new Date(transaction.createdAt).toLocaleString("en-US", {
