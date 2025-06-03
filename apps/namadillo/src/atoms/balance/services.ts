@@ -11,7 +11,6 @@ import {
 } from "workers/ShieldedSyncWorker";
 import ShieldedSyncWorker from "workers/ShieldedSyncWorker?worker";
 // TODO: move to @namada/types?
-import { DefaultApi } from "@namada/indexer-client";
 import { DatedViewingKey } from "@namada/types";
 import BigNumber from "bignumber.js";
 import {
@@ -100,23 +99,6 @@ export const fetchShieldedBalance = async (
 ): Promise<Balance> => {
   const sdk = await getSdkInstance();
   return await sdk.rpc.queryBalance(viewingKey.key, addresses, chainId);
-};
-
-export const fetchBlockHeightByTimestamp = async (
-  api: DefaultApi,
-  timestamp: number
-): Promise<number> => {
-  const response = await api.apiV1BlockTimestampValueGet(timestamp);
-
-  return Number(response.data.height);
-};
-
-export const fetchBlockTimestampByHeight = async (
-  api: DefaultApi,
-  height: number
-): Promise<number> => {
-  const response = await api.apiV1BlockHeightValueGet(height);
-  return Number(response.data.timestamp);
 };
 
 export const fetchShieldedRewards = async (

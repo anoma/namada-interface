@@ -1,5 +1,5 @@
 import { DefaultApi } from "@namada/indexer-client";
-import { fetchBlockTimestampByHeight } from "atoms/balance/services";
+import { fetchBlockTimestampByHeight } from "atoms/chain/services";
 import { getDefaultStore } from "jotai";
 import { TransferTransactionData } from "types";
 import { TransactionHistory, transactionHistoryAtom } from "./atoms";

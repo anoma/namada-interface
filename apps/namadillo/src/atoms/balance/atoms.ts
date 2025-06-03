@@ -11,6 +11,7 @@ import {
   chainAssetsMapAtom,
   chainParametersAtom,
   chainTokensAtom,
+  fetchBlockHeightByTimestamp,
   nativeTokenAddressAtom,
 } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
@@ -32,7 +33,6 @@ import {
   mapNamadaAssetsToTokenBalances,
 } from "./functions";
 import {
-  fetchBlockHeightByTimestamp,
   fetchShieldedBalance,
   fetchShieldedRewards,
   fetchShieldedRewardsPerToken,

@@ -2,8 +2,8 @@ import { Tooltip } from "@namada/components";
 import { accountBalanceAtom, transparentBalanceAtom } from "atoms/accounts";
 import { indexerApiAtom } from "atoms/api";
 import { shieldedBalanceAtom } from "atoms/balance";
-import { fetchBlockHeightByTimestamp } from "atoms/balance/services";
 import { chainStatusAtom } from "atoms/chain";
+import { fetchBlockHeightByTimestamp } from "atoms/chain/services";
 import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals";
 import {
   indexerHeartbeatAtom,
