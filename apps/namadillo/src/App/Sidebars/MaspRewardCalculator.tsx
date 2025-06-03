@@ -28,24 +28,6 @@ export const MaspRewardCalculator = (): JSX.Element => {
   const chainId = chainParameters.data?.chainId;
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
 
-  // Helper function to find the address for a given asset base
-  const findAssetAddress = (symbol: string): string | undefined => {
-    if (!Object.keys(chainAssetsMap).length) return undefined;
-    // Find the entry in chainAssetsMap where the asset.base matches our assetBase
-    for (const [address, assetInfo] of Object.entries(chainAssetsMap)) {
-      if (assetInfo?.symbol.toLowerCase() === symbol) {
-        return address;
-      }
-    }
-    return undefined;
-  };
-
-  // Filter assets based on search term
-  const filteredRewards =
-    rewards.data?.filter((reward) =>
-      reward.asset.symbol.toLowerCase().includes(searchTerm.toLowerCase())
-    ) || [];
-
   // Set initial selected asset when rewards data loads
   useEffect(() => {
     if (rewards.data && rewards.data.length > 0 && !selectedAsset) {
@@ -92,10 +74,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
           assetAddress,
           amount
         );
-        console.log(rewardsResult, "CALCULATED REWARDS");
-        // Assuming the API returns the reward amount directly
-        // You may need to adjust this based on the actual API response structure
-        setCalculatedRewards(rewardsResult?.toString() || "0.00");
+        setCalculatedRewards(rewardsResult);
       } catch (error) {
         console.error("Error calculating rewards:", error);
         setCalculatedRewards("0.00");
@@ -121,6 +100,24 @@ export const MaspRewardCalculator = (): JSX.Element => {
     // Reset calculated rewards when asset changes
     setCalculatedRewards("0.00");
   };
+
+  // Helper function to find the address for a given asset base
+  const findAssetAddress = (symbol: string): string | undefined => {
+    if (!Object.keys(chainAssetsMap).length) return undefined;
+    // Find the entry in chainAssetsMap where the asset.base matches our assetBase
+    for (const [address, assetInfo] of Object.entries(chainAssetsMap)) {
+      if (assetInfo?.symbol.toLowerCase() === symbol) {
+        return address;
+      }
+    }
+    return undefined;
+  };
+
+  // Filter assets based on search term
+  const filteredRewards =
+    rewards.data?.filter((reward) =>
+      reward.asset.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
 
   return (
     <Panel className={clsx("flex flex-col pt-2 pb-2 px-2")}>
