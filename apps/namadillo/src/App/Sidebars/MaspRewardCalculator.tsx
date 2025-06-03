@@ -6,11 +6,13 @@ import {
   maspRewardsAtom,
 } from "atoms/chain";
 import { simulateShieldedRewards } from "atoms/staking/services";
+import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useEffect, useRef, useState } from "react";
 import { GoChevronDown } from "react-icons/go";
 import { MaspAssetRewards } from "types";
+import { toBaseAmount } from "utils";
 
 export const MaspRewardCalculator = (): JSX.Element => {
   const rewards = useAtomValue(maspRewardsAtom);
@@ -72,7 +74,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
         const rewardsResult = await simulateShieldedRewards(
           chainId,
           assetAddress,
-          amount
+          toBaseAmount(selectedAsset.asset, new BigNumber(amount)).toString()
         );
         setCalculatedRewards(rewardsResult);
       } catch (error) {
