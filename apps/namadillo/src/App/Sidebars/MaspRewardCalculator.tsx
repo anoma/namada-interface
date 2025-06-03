@@ -13,7 +13,7 @@ import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { GoChevronDown } from "react-icons/go";
 import { MaspAssetRewards } from "types";
-import { toBaseAmount, toDisplayAmount } from "utils";
+import { toBaseAmount } from "utils";
 
 export const MaspRewardCalculator = (): JSX.Element => {
   const rewards = useAtomValue(maspRewardsAtom);
@@ -77,13 +77,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
           assetAddress,
           toBaseAmount(selectedAsset.asset, new BigNumber(amount)).toString()
         );
-
-        setCalculatedRewards(
-          toDisplayAmount(
-            selectedAsset.asset,
-            new BigNumber(rewardsResult)
-          ).toString()
-        );
+        setCalculatedRewards(rewardsResult);
       } catch (error) {
         console.error("Error calculating rewards:", error);
         setCalculatedRewards("0.00");
