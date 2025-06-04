@@ -146,7 +146,7 @@ export const TransactionCard = ({
     const kind = tx?.kind;
 
     if (!kind) return "Unknown";
-    if (isInternalUnshield) return "Internal Unshield";
+    if (isInternalUnshield) return "Unshielding Transfer";
     if (isReceived) return "Receive";
     if (kind.startsWith("ibc")) return "IBC Transfer";
     if (kind === "bond") return "Stake";
