@@ -151,7 +151,7 @@ export const TransactionHistory = (): JSX.Element => {
             <header className="text-sm ml-4 flex-none">
               <h2>History</h2>
             </header>
-            <div className="flex items-center justify-between mx-4 mt-2 gap-4">
+            <div className="flex items-center justify-between mx-4 mt-2 gap-4 mb-2">
               <StyledSelectBox
                 id="transfer-kind-filter"
                 defaultValue="All"
@@ -210,8 +210,8 @@ export const TransactionHistory = (): JSX.Element => {
                   />
                 </svg>
                 <span>
-                  IBC Shielding transactions will only be available in the
-                  device that made them
+                  Cross-chain shielded transactions are only visible on the
+                  Namadillo where they were created.
                 </span>
               </div>
             </div>

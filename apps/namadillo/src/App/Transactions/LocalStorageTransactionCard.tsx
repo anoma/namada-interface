@@ -136,8 +136,8 @@ export const LocalStorageTransactionCard = ({
           <div className="relative group/tooltip">
             <FaInfoCircle className="w-4 h-4 mb-3 mr-4" />
             <Tooltip position="left" className="p-2 w-[200px] z-10">
-              This transaction is stored locally. It may not appear when viewing
-              your history on other devices.
+              This transaction is stored locally. It will not appear when
+              viewing your history on another Namadillo.
             </Tooltip>
           </div>
         </div>
