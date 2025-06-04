@@ -142,7 +142,7 @@ export const TransactionCard = ({
     return <img src={keplrSvg} height={18} width={18} />;
   };
 
-  const getTitle = (tx: Tx["tx"], isReceived: boolean): string => {
+  const getTitle = (tx: Tx["tx"]): string => {
     const kind = tx?.kind;
 
     if (!kind) return "Unknown";
@@ -195,7 +195,7 @@ export const TransactionCard = ({
               })
             )}
           >
-            {transactionFailed && "Failed"} {getTitle(transaction, isReceived)}{" "}
+            {transactionFailed && "Failed"} {getTitle(transaction)}{" "}
             <div className="relative group/tooltip">
               <CopyToClipboardControl
                 className="ml-1.5 text-neutral-400"
