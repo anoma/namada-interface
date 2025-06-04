@@ -78,6 +78,7 @@ export const ShieldedFungibleTable = ({
                 symbol={namadaAsset().symbol}
                 amount={reward}
                 className="text-yellow"
+                decimalPlaces={3}
               />
             : <SkeletonLoading
                 width="120px"
