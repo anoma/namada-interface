@@ -68,6 +68,7 @@ export type SettingsTomlOptions = {
   masp_indexer_url?: string;
   rpc_url?: string;
   localnet_enabled?: boolean;
+  fathom_site_id?: string;
 };
 
 export type ChainParameters = {
