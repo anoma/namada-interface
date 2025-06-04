@@ -1,10 +1,6 @@
 import { Panel } from "@namada/components";
 import { AssetImage } from "App/Transfer/AssetImage";
-import {
-  chainAssetsMapAtom,
-  chainParametersAtom,
-  maspRewardsAtom,
-} from "atoms/chain";
+import { chainParametersAtom, maspRewardsAtom } from "atoms/chain";
 import { simulateShieldedRewards } from "atoms/staking/services";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -29,7 +25,6 @@ export const MaspRewardCalculator = (): JSX.Element => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const chainParameters = useAtomValue(chainParametersAtom);
   const chainId = chainParameters.data?.chainId;
-  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
 
   // Set initial selected asset when rewards data loads
   useEffect(() => {
@@ -56,24 +51,14 @@ export const MaspRewardCalculator = (): JSX.Element => {
 
   useEffect(() => {
     const debouncedFetchRewards = debounce(async (): Promise<void> => {
-      if (!selectedAsset || !amount || !chainId) return;
-
-      const assetAddress = findAssetAddress(
-        selectedAsset.asset.symbol.toLowerCase()
-      );
-      if (!assetAddress) {
-        console.error(
-          "Could not find address for asset:",
-          selectedAsset.asset.symbol
-        );
+      if (!selectedAsset || !amount || !chainId || !selectedAsset.address)
         return;
-      }
 
       setIsCalculating(true);
       try {
         const rewardsResult = await simulateShieldedRewards(
           chainId,
-          assetAddress,
+          selectedAsset.address,
           toBaseAmount(selectedAsset.asset, new BigNumber(amount)).toString()
         );
         setCalculatedRewards(rewardsResult);
@@ -103,18 +88,6 @@ export const MaspRewardCalculator = (): JSX.Element => {
     setSelectedAsset(asset);
     setIsDropdownOpen(false);
     setSearchTerm("");
-  };
-
-  // Helper function to find the address for a given asset base
-  const findAssetAddress = (symbol: string): string | undefined => {
-    if (!Object.keys(chainAssetsMap).length) return undefined;
-    // Find the entry in chainAssetsMap where the asset.base matches our assetBase
-    for (const [address, assetInfo] of Object.entries(chainAssetsMap)) {
-      if (assetInfo?.symbol.toLowerCase() === symbol) {
-        return address;
-      }
-    }
-    return undefined;
   };
 
   // Filter assets based on search term
