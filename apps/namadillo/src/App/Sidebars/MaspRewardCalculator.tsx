@@ -10,7 +10,7 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { debounce } from "lodash";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { GoChevronDown } from "react-icons/go";
 import { MaspAssetRewards } from "types";
 import { toBaseAmount } from "utils";
@@ -54,44 +54,51 @@ export const MaspRewardCalculator = (): JSX.Element => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const debouncedFetchRewards = useCallback(
+    debounce(
+      async (asset: MaspAssetRewards, amountValue: string): Promise<void> => {
+        if (!asset || !amountValue || !chainId) return;
+
+        const assetAddress = findAssetAddress(asset.asset.symbol.toLowerCase());
+        if (!assetAddress) {
+          console.error(
+            "Could not find address for asset:",
+            asset.asset.symbol
+          );
+          return;
+        }
+
+        setIsCalculating(true);
+        try {
+          const rewardsResult = await simulateShieldedRewards(
+            chainId,
+            assetAddress,
+            toBaseAmount(asset.asset, new BigNumber(amountValue)).toString()
+          );
+          setCalculatedRewards(rewardsResult);
+        } catch (error) {
+          console.error("Error calculating rewards:", error);
+          setCalculatedRewards("0.00");
+        } finally {
+          setIsCalculating(false);
+        }
+      },
+      500
+    ),
+    [chainId]
+  );
+
   // calculate rewards when amount or asset changse
   useEffect(() => {
-    const debouncedFetchRewards = debounce(async (): Promise<void> => {
-      if (!selectedAsset || !amount || !chainId) return;
+    if (selectedAsset && amount) {
+      debouncedFetchRewards(selectedAsset, amount);
+    }
 
-      const assetAddress = findAssetAddress(
-        selectedAsset.asset.symbol.toLowerCase()
-      );
-      if (!assetAddress) {
-        console.error(
-          "Could not find address for asset:",
-          selectedAsset.asset.symbol
-        );
-        return;
-      }
-
-      setIsCalculating(true);
-      try {
-        const rewardsResult = await simulateShieldedRewards(
-          chainId,
-          assetAddress,
-          toBaseAmount(selectedAsset.asset, new BigNumber(amount)).toString()
-        );
-        setCalculatedRewards(rewardsResult);
-      } catch (error) {
-        console.error("Error calculating rewards:", error);
-        setCalculatedRewards("0.00");
-      } finally {
-        setIsCalculating(false);
-      }
-    }, 300);
-
-    debouncedFetchRewards();
-
+    // Cleanup function to cancel pending debounced calls
     return () => {
       debouncedFetchRewards.cancel();
     };
-  }, [selectedAsset, amount]);
+  }, [selectedAsset, amount, debouncedFetchRewards]);
 
   // Focus search input when dropdown opens
   useEffect(() => {
@@ -241,20 +248,22 @@ export const MaspRewardCalculator = (): JSX.Element => {
             </div>
 
             <div className="flex flex-col items-center justify-center border border-neutral-500 rounded-sm py-8">
-              <div className="text-yellow text-3xl font-bold max-w-full px-4">
+              <div className="text-yellow text-2xl font-bold max-w-full">
                 {isCalculating ?
                   <div className="flex items-center justify-center">
                     <i
                       className={clsx(
-                        "w-8 h-8 border-4 border-transparent border-t-yellow rounded-[50%] my-2",
+                        "w-5 h-5 border-4 border-transparent border-t-yellow rounded-[50%] my-2",
                         "animate-loadingSpinner"
                       )}
                     />
                   </div>
-                : Number(calculatedRewards).toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })
+                : <>
+                    {Number(calculatedRewards).toLocaleString(undefined, {
+                      maximumFractionDigits:
+                        Number(calculatedRewards) > 1000000 ? 0 : 2,
+                    })}
+                  </>
                 }
               </div>
               <div className="text-sm text-yellow font-normal">NAM</div>
