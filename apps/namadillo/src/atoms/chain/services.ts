@@ -57,6 +57,7 @@ export const fetchMaspRewards = async (): Promise<MaspAssetRewards[]> => {
         kpGain: new BigNumber(r.kpGain),
         lockedAmountTarget: new BigNumber(r.lockedAmountTarget),
         maxRewardRate: new BigNumber(r.maxRewardRate),
+        originalAddress: r.address,
       };
     });
   return existingRewards;

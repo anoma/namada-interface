@@ -397,4 +397,5 @@ export type MaspAssetRewards = {
   kpGain: BigNumber;
   lockedAmountTarget: BigNumber;
   maxRewardRate: BigNumber;
+  originalAddress: Address;
 };

@@ -1,10 +1,7 @@
 import { Panel } from "@namada/components";
+import { InactiveChannelWarning } from "App/Common/InactiveChannelWarning";
 import { AssetImage } from "App/Transfer/AssetImage";
-import {
-  chainAssetsMapAtom,
-  chainParametersAtom,
-  maspRewardsAtom,
-} from "atoms/chain";
+import { chainParametersAtom, maspRewardsAtom } from "atoms/chain";
 import { simulateShieldedRewards } from "atoms/staking/services";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -18,7 +15,7 @@ import { toBaseAmount } from "utils";
 export const MaspRewardCalculator = (): JSX.Element => {
   const rewards = useAtomValue(maspRewardsAtom);
   const [amount, setAmount] = useState<string>("");
-  const [selectedAsset, setSelectedAsset] = useState<
+  const [selectedAssetRewards, setSelectedAssetRewards] = useState<
     MaspAssetRewards | undefined
   >(rewards.data?.[0] || undefined);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -29,14 +26,13 @@ export const MaspRewardCalculator = (): JSX.Element => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const chainParameters = useAtomValue(chainParametersAtom);
   const chainId = chainParameters.data?.chainId;
-  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
 
   // Set initial selected asset when rewards data loads
   useEffect(() => {
-    if (rewards.data && rewards.data.length > 0 && !selectedAsset) {
-      setSelectedAsset(rewards.data[0]);
+    if (rewards.data && rewards.data.length > 0 && !selectedAssetRewards) {
+      setSelectedAssetRewards(rewards.data[0]);
     }
-  }, [rewards.data, selectedAsset]);
+  }, [rewards.data, selectedAssetRewards]);
 
   // Close on click outside
   useEffect(() => {
@@ -56,15 +52,12 @@ export const MaspRewardCalculator = (): JSX.Element => {
 
   useEffect(() => {
     const debouncedFetchRewards = debounce(async (): Promise<void> => {
-      if (!selectedAsset || !amount || !chainId) return;
+      if (!selectedAssetRewards || !amount || !chainId) return;
 
-      const assetAddress = findAssetAddress(
-        selectedAsset.asset.symbol.toLowerCase()
-      );
-      if (!assetAddress) {
+      if (!selectedAssetRewards.originalAddress) {
         console.error(
           "Could not find address for asset:",
-          selectedAsset.asset.symbol
+          selectedAssetRewards.asset.symbol
         );
         return;
       }
@@ -73,8 +66,11 @@ export const MaspRewardCalculator = (): JSX.Element => {
       try {
         const rewardsResult = await simulateShieldedRewards(
           chainId,
-          assetAddress,
-          toBaseAmount(selectedAsset.asset, new BigNumber(amount)).toString()
+          selectedAssetRewards.originalAddress,
+          toBaseAmount(
+            selectedAssetRewards.asset,
+            new BigNumber(amount)
+          ).toString()
         );
         setCalculatedRewards(rewardsResult);
       } catch (error) {
@@ -90,7 +86,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
     return () => {
       debouncedFetchRewards.cancel();
     };
-  }, [selectedAsset, amount]);
+  }, [selectedAssetRewards, amount]);
 
   // Focus search input when dropdown opens
   useEffect(() => {
@@ -99,22 +95,10 @@ export const MaspRewardCalculator = (): JSX.Element => {
     }
   }, [isDropdownOpen]);
 
-  const handleAssetSelect = (asset: MaspAssetRewards): void => {
-    setSelectedAsset(asset);
+  const handleAssetSelect = (assetRewards: MaspAssetRewards): void => {
+    setSelectedAssetRewards(assetRewards);
     setIsDropdownOpen(false);
     setSearchTerm("");
-  };
-
-  // Helper function to find the address for a given asset base
-  const findAssetAddress = (symbol: string): string | undefined => {
-    if (!Object.keys(chainAssetsMap).length) return undefined;
-    // Find the entry in chainAssetsMap where the asset.base matches our assetBase
-    for (const [address, assetInfo] of Object.entries(chainAssetsMap)) {
-      if (assetInfo?.symbol.toLowerCase() === symbol) {
-        return address;
-      }
-    }
-    return undefined;
   };
 
   // Filter assets based on search term
@@ -152,10 +136,10 @@ export const MaspRewardCalculator = (): JSX.Element => {
                   )}
                 >
                   <div className="w-6 h-6 flex-shrink-0">
-                    <AssetImage asset={selectedAsset?.asset} />
+                    <AssetImage asset={selectedAssetRewards?.asset} />
                   </div>
                   <span className="text-sm font-medium">
-                    {selectedAsset?.asset.symbol || "Select"}
+                    {selectedAssetRewards?.asset.symbol || "Select"}
                   </span>
                   <GoChevronDown
                     className={clsx(
@@ -194,28 +178,33 @@ export const MaspRewardCalculator = (): JSX.Element => {
                         <div className="p-3 text-center text-neutral-400 text-sm">
                           No assets found
                         </div>
-                      : filteredRewards.map((reward) => (
-                          <button
-                            key={reward.asset.base}
-                            type="button"
-                            onClick={() => handleAssetSelect(reward)}
-                            className={clsx(
-                              "w-full flex items-center py-1.5 px-1 text-left",
-                              "transition-colors"
-                            )}
-                          >
-                            <div className="px-2 py-1 gap-4 hover:bg-neutral-700 rounded-sm ml-2 flex w-full">
-                              <div className="w-8 h-8 flex-shrink-0 ">
-                                <AssetImage asset={reward.asset} />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-white font-medium text-sm mt-1.5">
-                                  {reward.asset.symbol}
+                      : filteredRewards.map((reward) => {
+                          return (
+                            <button
+                              key={reward.asset.base}
+                              type="button"
+                              onClick={() => handleAssetSelect(reward)}
+                              className={clsx(
+                                "w-full flex items-center py-1.5 px-1 text-left",
+                                "transition-colors"
+                              )}
+                            >
+                              <div className="px-2 py-1 gap-4 hover:bg-neutral-700 rounded-sm ml-2 flex w-full">
+                                <div className="w-8 h-8 flex-shrink-0 ">
+                                  <AssetImage asset={reward.asset} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex flex-col text-white font-medium text-sm mt-1.5">
+                                    {reward.asset.symbol}
+                                    <InactiveChannelWarning
+                                      address={reward.originalAddress}
+                                    />
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </button>
-                        ))
+                            </button>
+                          );
+                        })
                       }
                     </div>
                   </div>
