@@ -4,7 +4,7 @@ import { TokenCurrency } from "App/Common/TokenCurrency";
 import { AssetImage } from "App/Transfer/AssetImage";
 import { isShieldedAddress, isTransparentAddress } from "App/Transfer/common";
 import clsx from "clsx";
-import { FaInfoCircle, FaLock } from "react-icons/fa";
+import { FaLock } from "react-icons/fa";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 import { TransferTransactionData } from "types";
@@ -133,13 +133,6 @@ export const LocalStorageTransactionCard = ({
               </div>
             }
           </h4>
-          <div className="relative group/tooltip">
-            <FaInfoCircle className="w-4 h-4 mb-3 mr-4" />
-            <Tooltip position="left" className="p-2 w-[200px] z-10">
-              This transaction is stored locally. It may not appear when viewing
-              your history on other devices.
-            </Tooltip>
-          </div>
         </div>
       </div>
     </article>
