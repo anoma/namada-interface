@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.23.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.22.0...namadillo@v1.23.0) (2025-06-04)
+
+
+### Features
+
+* Masp reward calculator ([#2033](https://github.com/anoma/namada-interface/issues/2033)) ([dbef8b2](https://github.com/anoma/namada-interface/commit/dbef8b208462cf276022345eed0bb096ce8d4acf))
+* Update for blinking sync and tooltip addy ([#2059](https://github.com/anoma/namada-interface/issues/2059)) ([952179b](https://github.com/anoma/namada-interface/commit/952179b322de693a96e2a20f4e2c3fb9623fd9c0))
+* Update syncing view ([#2066](https://github.com/anoma/namada-interface/issues/2066)) ([cb38729](https://github.com/anoma/namada-interface/commit/cb3872944631d51461827433adcee569c3f519ef))
+
+
+### Bug Fixes
+
+* Add warning on Transaction History table for MASP txns ([#2070](https://github.com/anoma/namada-interface/issues/2070)) ([a2244f0](https://github.com/anoma/namada-interface/commit/a2244f01964084bb7b53dd26494473d9c4d1185d))
+* Awa feedback UI fixes ([#2067](https://github.com/anoma/namada-interface/issues/2067)) ([3fdf237](https://github.com/anoma/namada-interface/commit/3fdf2377f17e5bd37bfb246a94cca67181af6fe8))
+* Increase additional percentage for simulated ibc transfer gas fee ([#2068](https://github.com/anoma/namada-interface/issues/2068)) ([1f27ca8](https://github.com/anoma/namada-interface/commit/1f27ca8da402943c655f4eb6689c8215478e7e71))
+
 ## [1.22.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.21.0...namadillo@v1.22.0) (2025-05-28)
 
 
