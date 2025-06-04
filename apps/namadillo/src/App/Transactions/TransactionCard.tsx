@@ -2,7 +2,11 @@ import { CopyToClipboardControl, Tooltip } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { AssetImage } from "App/Transfer/AssetImage";
-import { isShieldedAddress, isTransparentAddress } from "App/Transfer/common";
+import {
+  isMaspAddress,
+  isShieldedAddress,
+  isTransparentAddress,
+} from "App/Transfer/common";
 import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { TransactionHistory as TransactionHistoryType } from "atoms/transactions/atoms";
 import { allValidatorsAtom } from "atoms/validators";
@@ -58,19 +62,6 @@ export function getToken(
   return undefined;
 }
 
-const getTitle = (kind: string | undefined, isReceived: boolean): string => {
-  if (!kind) return "Unknown";
-  if (isReceived) return "Receive";
-  if (kind.startsWith("ibc")) return "IBC Transfer";
-  if (kind === "bond") return "Stake";
-  if (kind === "claimRewards") return "Claim Rewards";
-  if (kind === "transparentTransfer") return "Transparent Transfer";
-  if (kind === "shieldingTransfer") return "Shielding Transfer";
-  if (kind === "unshieldingTransfer") return "Unshielding Transfer";
-  if (kind === "shieldedTransfer") return "Shielded Transfer";
-  return "Transfer";
-};
-
 const getBondTransactionInfo = (
   tx: Tx["tx"]
 ): { amount: BigNumber; sender?: string; receiver?: string } | undefined => {
@@ -123,7 +114,6 @@ export const TransactionCard = ({
   tx: transactionTopLevel,
 }: Props): JSX.Element => {
   const transaction = transactionTopLevel.tx;
-  const isReceived = transactionTopLevel?.kind === "received";
   const nativeToken = useAtomValue(nativeTokenAddressAtom).data;
   const token = getToken(transaction, nativeToken ?? "");
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
@@ -139,6 +129,9 @@ export const TransactionCard = ({
     : undefined;
   const receiver = txnInfo?.receiver;
   const sender = txnInfo?.sender;
+  const isReceived = transactionTopLevel?.kind === "received";
+  const isInternalUnshield =
+    transactionTopLevel?.kind === "received" && isMaspAddress(sender ?? "");
   const transactionFailed = transaction?.exitCode === "rejected";
   const validators = useAtomValue(allValidatorsAtom);
   const validator = validators?.data?.find((v) => v.address === receiver);
@@ -147,6 +140,22 @@ export const TransactionCard = ({
     if (isShieldedAddress(address)) return null;
     if (isTransparentAddress(address)) return null;
     return <img src={keplrSvg} height={18} width={18} />;
+  };
+
+  const getTitle = (tx: Tx["tx"], isReceived: boolean): string => {
+    const kind = tx?.kind;
+
+    if (!kind) return "Unknown";
+    if (isInternalUnshield) return "Internal Unshield";
+    if (isReceived) return "Receive";
+    if (kind.startsWith("ibc")) return "IBC Transfer";
+    if (kind === "bond") return "Stake";
+    if (kind === "claimRewards") return "Claim Rewards";
+    if (kind === "transparentTransfer") return "Transparent Transfer";
+    if (kind === "shieldingTransfer") return "Shielding Transfer";
+    if (kind === "unshieldingTransfer") return "Unshielding Transfer";
+    if (kind === "shieldedTransfer") return "Shielded Transfer";
+    return "Transfer";
   };
 
   return (
@@ -186,8 +195,7 @@ export const TransactionCard = ({
               })
             )}
           >
-            {transactionFailed && "Failed"}{" "}
-            {getTitle(transaction?.kind, isReceived)}{" "}
+            {transactionFailed && "Failed"} {getTitle(transaction, isReceived)}{" "}
             <div className="relative group/tooltip">
               <CopyToClipboardControl
                 className="ml-1.5 text-neutral-400"

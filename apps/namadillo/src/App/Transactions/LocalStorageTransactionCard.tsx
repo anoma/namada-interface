@@ -78,11 +78,32 @@ export const LocalStorageTransactionCard = ({
         />
       </div>
       <div className="flex flex-col">
-        <h4 className={isShieldedAddress(sender ?? "") ? "text-yellow" : ""}>
+        <h4
+          className={
+            (
+              isShieldedAddress(sender ?? "") ||
+              transaction.type === "ShieldedToIbc"
+            ) ?
+              "text-yellow"
+            : ""
+          }
+        >
           From
         </h4>
-        <h4 className={isShieldedAddress(sender ?? "") ? "text-yellow" : ""}>
-          {isShieldedAddress(sender ?? "") ?
+        <h4
+          className={
+            (
+              isShieldedAddress(sender ?? "") ||
+              transaction.type === "ShieldedToIbc"
+            ) ?
+              "text-yellow"
+            : ""
+          }
+        >
+          {(
+            isShieldedAddress(sender ?? "") ||
+            transaction.type === "ShieldedToIbc"
+          ) ?
             <span className="flex items-center gap-1">
               <FaLock className="w-4 h-4" /> Shielded
             </span>
