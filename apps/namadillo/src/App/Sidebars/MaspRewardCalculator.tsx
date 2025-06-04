@@ -235,6 +235,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
                 value={amount}
                 onChange={(e) => {
                   const value = e.target.value;
+                  if (Number(value) === 0) setCalculatedRewards("0.00");
                   if (value.length >= 8) return;
                   setAmount(e.target.value);
                 }}
