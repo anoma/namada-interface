@@ -151,51 +151,70 @@ export const TransactionHistory = (): JSX.Element => {
             <header className="text-sm ml-4 flex-none">
               <h2>History</h2>
             </header>
-            <StyledSelectBox
-              id="transfer-kind-filter"
-              defaultValue="All"
-              value={filter}
-              containerProps={{
-                className: clsx(
-                  "text-sm min-w-[200px] flex-1 border border-white rounded-sm",
-                  "px-4 py-[9px] ml-4 mt-2"
-                ),
-              }}
-              arrowContainerProps={{ className: "right-4" }}
-              listContainerProps={{
-                className:
-                  "w-[200px] mt-2 border border-white left-0 ml-4 transform-none",
-              }}
-              listItemProps={{
-                className: "text-sm border-0 py-0 [&_label]:py-1.5",
-              }}
-              onChange={(e) => {
-                setFilter(e.target.value);
-                setCurrentPage(0);
-              }}
-              options={[
-                {
-                  id: "all",
-                  value: "All",
-                  ariaLabel: "All",
-                },
-                {
-                  id: "transfer",
-                  value: "Transfer",
-                  ariaLabel: "Transfer",
-                },
-                {
-                  id: "ibc",
-                  value: "IBC",
-                  ariaLabel: "IBC",
-                },
-                {
-                  id: "bond",
-                  value: "Bond",
-                  ariaLabel: "Bond",
-                },
-              ]}
-            />
+            <div className="flex items-center justify-between mx-4 mt-2 gap-4">
+              <StyledSelectBox
+                id="transfer-kind-filter"
+                defaultValue="All"
+                value={filter}
+                containerProps={{
+                  className: clsx(
+                    "text-sm min-w-[200px] border border-white rounded-sm",
+                    "px-4 py-[9px]"
+                  ),
+                }}
+                arrowContainerProps={{ className: "right-4" }}
+                listContainerProps={{
+                  className:
+                    "w-[200px] mt-2 border border-white left-0 transform-none",
+                }}
+                listItemProps={{
+                  className: "text-sm border-0 py-0 [&_label]:py-1.5",
+                }}
+                onChange={(e) => {
+                  setFilter(e.target.value);
+                  setCurrentPage(0);
+                }}
+                options={[
+                  {
+                    id: "all",
+                    value: "All",
+                    ariaLabel: "All",
+                  },
+                  {
+                    id: "transfer",
+                    value: "Transfer",
+                    ariaLabel: "Transfer",
+                  },
+                  {
+                    id: "ibc",
+                    value: "IBC",
+                    ariaLabel: "IBC",
+                  },
+                  {
+                    id: "bond",
+                    value: "Bond",
+                    ariaLabel: "Bond",
+                  },
+                ]}
+              />
+              <div className="flex items-center bg-yellow/10 border border-yellow/30 rounded-sm px-3 py-2 mr-3 text-xs text-yellow-600 dark:text-yellow-400">
+                <svg
+                  className="w-4 h-4 mr-2 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span>
+                  MASP transactions will only be available in the device that
+                  made them
+                </span>
+              </div>
+            </div>
 
             <div className="flex flex-col flex-1 overflow-hidden min-h-0">
               <div className="flex flex-col flex-1 overflow-auto">
