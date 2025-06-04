@@ -210,8 +210,8 @@ export const TransactionHistory = (): JSX.Element => {
                   />
                 </svg>
                 <span>
-                  MASP transactions will only be available in the device that
-                  made them
+                  IBC Shielding transactions will only be available in the
+                  device that made them
                 </span>
               </div>
             </div>
