@@ -1026,11 +1026,12 @@ impl Sdk {
         shielded.utils.chain_id = chain_id.clone();
         shielded.load().await?;
 
+        let epoch = rpc::query_masp_epoch(self.namada.client()).await?;
+
         let (_, masp_value) = shielded
             .convert_namada_amount_to_masp(
                 self.namada.client(),
-                // Masp epoch should not matter
-                MaspEpoch::zero(),
+                epoch,
                 &token,
                 amount.denom(),
                 amount.amount(),
