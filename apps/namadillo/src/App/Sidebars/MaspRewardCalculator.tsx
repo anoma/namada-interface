@@ -10,7 +10,7 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { debounce } from "lodash";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GoChevronDown } from "react-icons/go";
 import { MaspAssetRewards } from "types";
 import { toBaseAmount } from "utils";
@@ -54,51 +54,43 @@ export const MaspRewardCalculator = (): JSX.Element => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const debouncedFetchRewards = useCallback(
-    debounce(
-      async (asset: MaspAssetRewards, amountValue: string): Promise<void> => {
-        if (!asset || !amountValue || !chainId) return;
-
-        const assetAddress = findAssetAddress(asset.asset.symbol.toLowerCase());
-        if (!assetAddress) {
-          console.error(
-            "Could not find address for asset:",
-            asset.asset.symbol
-          );
-          return;
-        }
-
-        setIsCalculating(true);
-        try {
-          const rewardsResult = await simulateShieldedRewards(
-            chainId,
-            assetAddress,
-            toBaseAmount(asset.asset, new BigNumber(amountValue)).toString()
-          );
-          setCalculatedRewards(rewardsResult);
-        } catch (error) {
-          console.error("Error calculating rewards:", error);
-          setCalculatedRewards("0.00");
-        } finally {
-          setIsCalculating(false);
-        }
-      },
-      500
-    ),
-    [chainId]
-  );
-
-  // calculate rewards when amount or asset changse
   useEffect(() => {
-    if (selectedAsset && amount) {
-      debouncedFetchRewards(selectedAsset, amount);
-    }
+    const debouncedFetchRewards = debounce(async (): Promise<void> => {
+      if (!selectedAsset || !amount || !chainId) return;
 
-    // Cleanup function to cancel pending debounced calls
+      const assetAddress = findAssetAddress(
+        selectedAsset.asset.symbol.toLowerCase()
+      );
+      if (!assetAddress) {
+        console.error(
+          "Could not find address for asset:",
+          selectedAsset.asset.symbol
+        );
+        return;
+      }
+
+      setIsCalculating(true);
+      try {
+        const rewardsResult = await simulateShieldedRewards(
+          chainId,
+          assetAddress,
+          toBaseAmount(selectedAsset.asset, new BigNumber(amount)).toString()
+        );
+        setCalculatedRewards(rewardsResult);
+      } catch (error) {
+        console.error("Error calculating rewards:", error);
+        setCalculatedRewards("0.00");
+      } finally {
+        setIsCalculating(false);
+      }
+    }, 300);
+
+    debouncedFetchRewards();
+
     return () => {
       debouncedFetchRewards.cancel();
     };
-  }, [selectedAsset, amount, debouncedFetchRewards]);
+  }, [selectedAsset, amount]);
 
   // Focus search input when dropdown opens
   useEffect(() => {
