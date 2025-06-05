@@ -506,7 +506,7 @@ pub fn transparent_transfer_tx_args(
         sources.push(TxTransparentSource {
             source: source.clone(),
             token: token.clone(),
-            amount: amount.clone(),
+            amount,
         });
 
         targets.push(TxTransparentTarget {
@@ -612,13 +612,13 @@ pub fn shielded_transfer_tx_args(
         let amount = InputAmount::Unvalidated(denom_amount);
 
         sources.push(TxShieldedSource {
-            source: source.clone(),
+            source,
             token: token.clone(),
-            amount: amount.clone(),
+            amount,
         });
 
         targets.push(TxShieldedTarget {
-            target: target.clone(),
+            target,
             token: token.clone(),
             amount,
         });
@@ -690,11 +690,11 @@ pub fn shielding_transfer_tx_args(
         sources.push(TxTransparentSource {
             source: source.clone(),
             token: token.clone(),
-            amount: amount.clone(),
+            amount,
         });
 
         targets.push(TxShieldedTarget {
-            target: target.clone(),
+            target,
             token: token.clone(),
             amount,
         });
@@ -770,9 +770,9 @@ pub fn unshielding_transfer_tx_args(
         let amount = InputAmount::Unvalidated(denom_amount);
 
         sources.push(TxShieldedSource {
-            source: source.clone(),
+            source,
             token: token.clone(),
-            amount: amount.clone(),
+            amount,
         });
 
         targets.push(TxTransparentTarget {

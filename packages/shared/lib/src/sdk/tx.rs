@@ -73,7 +73,7 @@ impl SigningData {
 
         let fee_payer = match signing_tx_data.fee_payer {
             Either::Left(f) => f.0.to_string(),
-            Either::Right(_) => panic!("Fee payer must be present in SigningData"),
+            Either::Right(_) => return Err(JsError::new("Fee payer must be a public key")),
         };
 
         let threshold = signing_tx_data.threshold;
