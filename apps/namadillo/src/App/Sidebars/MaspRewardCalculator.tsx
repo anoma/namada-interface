@@ -1,16 +1,60 @@
 import { Panel } from "@namada/components";
 import { AssetImage } from "App/Transfer/AssetImage";
 import { chainParametersAtom, maspRewardsAtom } from "atoms/chain";
-import { isChannelInactive } from "atoms/chain/functions";
 import { simulateShieldedRewards } from "atoms/staking/services";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { useIsChannelInactive } from "hooks/useIsChannelInactive";
 import { useAtomValue } from "jotai";
 import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { GoChevronDown } from "react-icons/go";
 import { MaspAssetRewards } from "types";
 import { toBaseAmount } from "utils";
+
+const RewardItem = ({
+  reward,
+  onSelect,
+}: {
+  reward: MaspAssetRewards;
+  onSelect: (asset: MaspAssetRewards) => void;
+}): JSX.Element => {
+  const { isInactive, trace } = useIsChannelInactive(reward.address ?? "");
+
+  return (
+    <button
+      key={reward.asset.base}
+      type="button"
+      onClick={() => onSelect(reward)}
+      className={clsx(
+        "w-full flex items-center py-1.5 px-1 text-left",
+        "transition-colors"
+      )}
+    >
+      <div
+        className={clsx(
+          "px-2 py-1 gap-4 hover:bg-neutral-700 rounded-sm ml-2 flex w-full relative",
+          isInactive && "opacity-20"
+        )}
+      >
+        <div className="w-8 h-8 flex-shrink-0 ">
+          <AssetImage asset={reward.asset} />
+        </div>
+        <div
+          className={clsx(
+            "flex flex-col gap-1 min-w-0",
+            isInactive && "-mt-1.5"
+          )}
+        >
+          <div className="text-white font-medium text-sm mt-1.5">
+            {reward.asset.symbol}
+          </div>
+          {isInactive && <div className="-mt-1 text-[10px]">{trace}</div>}
+        </div>
+      </div>
+    </button>
+  );
+};
 
 export const MaspRewardCalculator = (): JSX.Element => {
   const rewards = useAtomValue(maspRewardsAtom);
@@ -169,31 +213,11 @@ export const MaspRewardCalculator = (): JSX.Element => {
                           No assets found
                         </div>
                       : filteredRewards.map((reward, idx) => (
-                          <button
+                          <RewardItem
                             key={reward.asset.base + "_" + idx}
-                            type="button"
-                            onClick={() => handleAssetSelect(reward)}
-                            className={clsx(
-                              "w-full flex items-center py-1.5 px-1 text-left",
-                              "transition-colors"
-                            )}
-                          >
-                            <div className="px-2 py-1 gap-4 hover:bg-neutral-700 rounded-sm ml-2 flex w-full">
-                              <div className="w-8 h-8 flex-shrink-0 ">
-                                <AssetImage asset={reward.asset} />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-white font-medium text-sm mt-1.5">
-                                  {reward.asset.symbol}
-                                </div>
-                                {isChannelInactive(reward.address ?? "") && (
-                                  <div className="text-red-500 text-xs">
-                                    This channel is inactive
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </button>
+                            reward={reward}
+                            onSelect={handleAssetSelect}
+                          />
                         ))
                       }
                     </div>
