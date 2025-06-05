@@ -22,7 +22,7 @@ export function App(): JSX.Element {
   useRegistryFeatures();
   useServerSideEvents();
   useShouldInvalidateShieldedContext();
-  useFathomTracker();
+  useFathomTracker(true);
 
   return (
     <>

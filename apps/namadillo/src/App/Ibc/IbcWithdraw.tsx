@@ -28,6 +28,7 @@ import {
   persistDisposableSigner,
 } from "atoms/transfer/services";
 import BigNumber from "bignumber.js";
+import { useFathomTracker } from "hooks/useFathomTracker";
 import { useTransaction } from "hooks/useTransaction";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useUrlState } from "hooks/useUrlState";
@@ -83,6 +84,7 @@ export const IbcWithdraw = (): JSX.Element => {
   );
 
   const { storeTransaction } = useTransactionActions();
+  const { trackEvent } = useFathomTracker();
   const navigate = useNavigate();
 
   const ledgerAccountInfo = ledgerStatus && {
@@ -121,7 +123,12 @@ export const IbcWithdraw = (): JSX.Element => {
       if (shielded && refundTarget) {
         await clearDisposableSigner(refundTarget);
       }
+      trackEvent(`${shielded ? "Shielded " : ""}IbcWithdraw: tx complete`);
     }
+  });
+
+  useTransactionEventListener("IbcWithdraw.Error", () => {
+    trackEvent(`${shielded ? "Shielded " : ""}IbcWithdraw: tx error`);
   });
 
   const redirectToTimeline = (): void => {
@@ -236,6 +243,7 @@ export const IbcWithdraw = (): JSX.Element => {
         selectedAsset.asset
       );
       setTxHash(ibcTxData.hash);
+      trackEvent(`${shielded ? "Shielded " : ""}IbcWithdraw: tx submitted`);
     },
     onError: async (err, context) => {
       setGeneralErrorMessage(String(err));

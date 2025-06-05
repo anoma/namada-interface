@@ -16,6 +16,7 @@ import { chainParametersAtom } from "atoms/chain/atoms";
 import { ledgerStatusDataAtom } from "atoms/ledger";
 import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
+import { useFathomTracker } from "hooks/useFathomTracker";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useTransfer } from "hooks/useTransfer";
 import { useUrlState } from "hooks/useUrlState";
@@ -44,6 +45,7 @@ export const NamadaTransfer: React.FC = () => {
   const chainParameters = useAtomValue(chainParametersAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
   const [ledgerStatus, setLedgerStatusStop] = useAtom(ledgerStatusDataAtom);
+  const { trackEvent } = useFathomTracker();
 
   const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
     shielded ? namadaShieldedAssetsAtom : namadaTransparentAssetsAtom
@@ -153,11 +155,15 @@ export const NamadaTransfer: React.FC = () => {
 
         const tx = txList[0];
         storeTransaction(tx);
+        trackEvent(
+          `${shielded ? "Shielded" : "Transparent"} Transfer: complete`
+        );
       } else {
         throw "Invalid transaction response";
       }
     } catch (err) {
       setGeneralErrorMessage(err + "");
+      trackEvent(`${shielded ? "Shielded" : "Transparent"} Transfer: error`);
     }
   };
 
