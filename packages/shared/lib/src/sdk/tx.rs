@@ -3,13 +3,14 @@ use std::str::FromStr;
 
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use namada_sdk::collections::HashSet;
 use namada_sdk::masp_primitives::transaction::components::sapling::builder::StoredBuildParams;
 use namada_sdk::masp_primitives::transaction::components::sapling::fees::{InputView, OutputView};
 use namada_sdk::masp_primitives::zip32::ExtendedFullViewingKey;
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::token::{Amount, DenominatedAmount, Transfer};
 use namada_sdk::tx::data::compute_inner_tx_hash;
-use namada_sdk::tx::either::Either;
+use namada_sdk::tx::either::{self, Either};
 use namada_sdk::tx::{
     self, TX_BOND_WASM, TX_CLAIM_REWARDS_WASM, TX_IBC_WASM, TX_REDELEGATE_WASM, TX_REVEAL_PK,
     TX_TRANSFER_WASM, TX_UNBOND_WASM, TX_VOTE_PROPOSAL, TX_WITHDRAW_WASM,
@@ -70,7 +71,11 @@ impl SigningData {
             None => None,
         };
 
-        let fee_payer = signing_tx_data.fee_payer.to_string();
+        let fee_payer = match signing_tx_data.fee_payer {
+            Either::Left(f) => f.0.to_string(),
+            Either::Right(_) => return Err(JsError::new("Fee payer must be a public key")),
+        };
+
         let threshold = signing_tx_data.threshold;
         let shielded_hash = match signing_tx_data.shielded_hash {
             Some(v) => Some(borsh::to_vec(&v)?),
@@ -99,13 +104,14 @@ impl SigningData {
             None => None,
         };
 
-        let mut public_keys: Vec<PublicKey> = vec![];
+        let mut public_keys: HashSet<PublicKey> = HashSet::new();
         for pk in self.public_keys.clone() {
             let pk = PublicKey::from_str(&pk)?;
-            public_keys.push(pk);
+            public_keys.insert(pk);
         }
 
         let fee_payer = PublicKey::from_str(&self.fee_payer)?;
+        let fee_payer = either::Left((fee_payer, false));
         let threshold = self.threshold;
         let account_public_keys_map = match &self.account_public_keys_map {
             Some(pk_map) => Some(borsh::from_slice(pk_map)?),
@@ -121,6 +127,8 @@ impl SigningData {
             public_keys,
             fee_payer,
             threshold,
+            // Assume no signatures at this point
+            signatures: vec![],
             account_public_keys_map,
             shielded_hash,
         })
