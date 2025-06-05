@@ -1,4 +1,5 @@
 import { Panel } from "@namada/components";
+import { InactiveChannelWarning } from "App/Common/InactiveChannelWarning";
 import { AssetImage } from "App/Transfer/AssetImage";
 import { chainParametersAtom, maspRewardsAtom } from "atoms/chain";
 import { simulateShieldedRewards } from "atoms/staking/services";
@@ -185,6 +186,9 @@ export const MaspRewardCalculator = (): JSX.Element => {
                                 <div className="text-white font-medium text-sm mt-1.5">
                                   {reward.asset.symbol}
                                 </div>
+                                <InactiveChannelWarning
+                                  address={reward.address ?? ""}
+                                />
                               </div>
                             </div>
                           </button>
