@@ -179,6 +179,7 @@ export const ibcChannelsFamily = atomFamily((ibcChainName?: string) =>
       queryKey: ["known-channels", ibcChainName, chainSettings.data?.chainId],
       retry: false,
       ...queryDependentFn(async () => {
+        console.log("yo dawgggggg");
         invariant(chainSettings.data, "No chain settings");
         invariant(ibcChainName, "No IBC chain name");
         return fetchIbcChannelFromRegistry(

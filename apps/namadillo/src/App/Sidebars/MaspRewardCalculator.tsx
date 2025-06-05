@@ -1,7 +1,7 @@
 import { Panel } from "@namada/components";
-import { InactiveChannelWarning } from "App/Common/InactiveChannelWarning";
 import { AssetImage } from "App/Transfer/AssetImage";
 import { chainParametersAtom, maspRewardsAtom } from "atoms/chain";
+import { isChannelInactive } from "atoms/chain/functions";
 import { simulateShieldedRewards } from "atoms/staking/services";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -186,9 +186,11 @@ export const MaspRewardCalculator = (): JSX.Element => {
                                 <div className="text-white font-medium text-sm mt-1.5">
                                   {reward.asset.symbol}
                                 </div>
-                                <InactiveChannelWarning
-                                  address={reward.address ?? ""}
-                                />
+                                {isChannelInactive(reward.address ?? "") && (
+                                  <div className="text-red-500 text-xs">
+                                    This channel is inactive
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </button>
