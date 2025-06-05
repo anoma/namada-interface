@@ -39,7 +39,7 @@ export const WalletAddress = ({
   return (
     <span className="relative group/tooltip">
       {parsedAddress}
-      {displayTooltip && (
+      {displayTooltip && address.length < 100 && (
         <Tooltip className={twMerge("z-50", className)}>{address}</Tooltip>
       )}
     </span>
