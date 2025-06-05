@@ -2,6 +2,7 @@ use std::ops::Deref;
 use std::{path::PathBuf, str::FromStr};
 
 use namada_sdk::address::DecodeError;
+use namada_sdk::args::{TxTransparentSource, TxTransparentTarget};
 use namada_sdk::borsh::{BorshDeserialize, BorshSerialize};
 use namada_sdk::collections::HashMap;
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
@@ -489,7 +490,8 @@ pub fn transparent_transfer_tx_args(
     let transfer_msg = TransparentTransferMsg::try_from_slice(transfer_msg)?;
     let TransparentTransferMsg { data } = transfer_msg;
 
-    let mut transfer_data: Vec<args::TxTransparentTransferData> = vec![];
+    let mut sources: Vec<TxTransparentSource> = vec![];
+    let mut targets: Vec<TxTransparentTarget> = vec![];
 
     for transfer in data {
         let source = Address::from_str(&transfer.source)?;
@@ -499,10 +501,15 @@ pub fn transparent_transfer_tx_args(
             DenominatedAmount::from_str(&transfer.amount).expect("Amount to be valid.");
         let amount = InputAmount::Unvalidated(denom_amount);
 
-        transfer_data.push(args::TxTransparentTransferData {
-            source,
-            target,
-            token,
+        sources.push(TxTransparentSource {
+            source: source.clone(),
+            token: token.clone(),
+            amount: amount.clone(),
+        });
+
+        targets.push(TxTransparentTarget {
+            target: target.clone(),
+            token: token.clone(),
             amount,
         });
     }
@@ -511,7 +518,8 @@ pub fn transparent_transfer_tx_args(
 
     let args = args::TxTransparentTransfer {
         tx,
-        data: transfer_data,
+        targets,
+        sources,
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
     };
 
@@ -590,7 +598,7 @@ pub fn shielded_transfer_tx_args(
         .transpose()?
         .map(|v| v.0);
 
-    let mut shielded_transfer_data: Vec<args::TxShieldedTransferData> = vec![];
+    let mut shielded_transfer_data: Vec<args::TxShieldedTransfer> = vec![];
 
     for shielded_transfer in data {
         let source = PseudoExtendedKey::decode(shielded_transfer.source)?.0;
