@@ -6,7 +6,6 @@ import {
 } from "atoms/integrations";
 import { useAtomValue } from "jotai";
 
-// atoms/chain/functions.ts
 export const useIsChannelInactive = (
   address: string
 ): { isInactive: boolean; trace: string } => {
