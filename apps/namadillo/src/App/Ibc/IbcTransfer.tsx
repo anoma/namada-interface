@@ -13,6 +13,7 @@ import {
   ibcChannelsFamily,
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
+import { useFathomTracker } from "hooks/useFathomTracker";
 import { useIbcTransaction } from "hooks/useIbcTransaction";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useUrlState } from "hooks/useUrlState";
@@ -59,6 +60,7 @@ export const IbcTransfer = (): JSX.Element => {
       walletAddress: sourceAddress,
     })
   );
+  const { trackEvent } = useFathomTracker();
 
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAssetAddress, setSelectedAssetAddress] = useUrlState(
@@ -129,7 +131,16 @@ export const IbcTransfer = (): JSX.Element => {
   useTransactionEventListener("IbcTransfer.Success", (e) => {
     if (txHash && e.detail.hash === txHash) {
       setCompletedAt(new Date());
+      trackEvent(
+        `${shielded ? "Shielded " : ""}IbcTransfer: tx complete (${e.detail.asset.symbol})`
+      );
     }
+  });
+
+  useTransactionEventListener("IbcTransfer.Error", (e) => {
+    trackEvent(
+      `${shielded ? "Shielded " : ""}IbcTransfer: tx error (${e.detail.asset.symbol})`
+    );
   });
 
   const onSubmitTransfer = async ({
@@ -150,6 +161,9 @@ export const IbcTransfer = (): JSX.Element => {
       });
       storeTransaction(result);
       setTxHash(result.hash);
+      trackEvent(
+        `${shielded ? "Shielded " : ""}IbcTransfer: tx submitted (${result.asset.symbol})`
+      );
     } catch (err) {
       setGeneralErrorMessage(err + "");
       setCurrentProgress(undefined);
