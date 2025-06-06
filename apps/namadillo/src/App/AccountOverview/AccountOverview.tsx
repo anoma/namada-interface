@@ -15,9 +15,9 @@ export const AccountOverview = (): JSX.Element => {
   }
 
   return (
-    <div className="flex flex-col">
+    <>
       <TotalBalanceBanner />
       <AssetsOverviewPanel />
-    </div>
+    </>
   );
 };

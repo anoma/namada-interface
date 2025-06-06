@@ -120,7 +120,8 @@ export const SyncIndicator = (): JSX.Element => {
 
   // Check individual category status
   const stakingIsSuccess = myValidators.isSuccess && allValidators.isSuccess;
-  const governanceStatus = allProposals.isSuccess && votedProposals.isSuccess;
+  const governanceIsSuccess =
+    allProposals.isSuccess && votedProposals.isSuccess;
 
   const roundedProgress = Math.min(Math.floor(shieldedProgress * 100), 100);
   const isShieldedSyncing = roundedProgress < 100;
@@ -196,7 +197,7 @@ export const SyncIndicator = (): JSX.Element => {
                 isSuccess={!!blockHeightSynced}
               />
               <StatusEntry label="Staking" isSuccess={stakingIsSuccess} />
-              <StatusEntry label="Governance" isSuccess={governanceStatus} />
+              <StatusEntry label="Governance" isSuccess={governanceIsSuccess} />
             </div>
           }
         </Tooltip>
