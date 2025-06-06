@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.24.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.23.0...namadillo@v1.24.0) (2025-06-06)
+
+
+### Features
+
+* Fathom integration ([#2074](https://github.com/anoma/namada-interface/issues/2074)) ([139bb37](https://github.com/anoma/namada-interface/commit/139bb3733b3ea9dc1fbea5f727bfb2167073eaf9))
+* Remove buttons from home ([#2088](https://github.com/anoma/namada-interface/issues/2088)) ([8a1d154](https://github.com/anoma/namada-interface/commit/8a1d1541b6e75399f60b4b8b69e670f24a74e294))
+* Update sync indicator layout ([#2084](https://github.com/anoma/namada-interface/issues/2084)) ([9077420](https://github.com/anoma/namada-interface/commit/90774204d6a802be360a1a298cb999664b884a34))
+
+
+### Bug Fixes
+
+* Fix millisecond to second comparison to fix sorting ([#2080](https://github.com/anoma/namada-interface/issues/2080)) ([18a9105](https://github.com/anoma/namada-interface/commit/18a9105582546b2253bdc63e44f1d5f61dac0f28))
+* Namada beeing installable ([#2082](https://github.com/anoma/namada-interface/issues/2082)) ([1eea180](https://github.com/anoma/namada-interface/commit/1eea18029ad59466b6f7a08a93a911aad7569c11))
+* Passing timestamp in millis instead of seconds to get block height ([#2083](https://github.com/anoma/namada-interface/issues/2083)) ([be3b377](https://github.com/anoma/namada-interface/commit/be3b377c0cfa60d98aba7725c2c3e43b32541745))
+* React components keys using asset base ([#2076](https://github.com/anoma/namada-interface/issues/2076)) ([c04cec5](https://github.com/anoma/namada-interface/commit/c04cec5264166600c6da2fdf2b158dea19dde6f1))
+
 ## [1.23.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.22.0...namadillo@v1.23.0) (2025-06-04)
 
 
