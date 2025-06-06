@@ -151,20 +151,24 @@ export const SyncIndicator = (): JSX.Element => {
           )}
         />
         <Tooltip position="bottom" className="z-10 w-[190px] py-3 -mb-4">
-          <div className="space-y-3">
+          <div className="space-y-3 w-full">
             <div className="text-xs font-medium text-yellow">
               Shielded sync: {roundedProgress}%
             </div>
-            <div className="w-full bg-yellow-900 h-1">
-              <div
-                className="bg-yellow-500 h-1 transition-all duration-300"
-                style={{ width: `${roundedProgress}%` }}
-              />
-            </div>
-            <div className="text-sm text-white">
-              Syncing your shielded assets now. Balances will update in a few
-              seconds.
-            </div>
+            {isShieldedSyncing && (
+              <>
+                <div className="w-full bg-yellow-900 h-1">
+                  <div
+                    className="bg-yellow-500 h-1 transition-all duration-300"
+                    style={{ width: `${roundedProgress}%` }}
+                  />
+                </div>
+                <div className="text-sm text-white">
+                  Syncing your shielded assets now. Balances will update in a
+                  few seconds.
+                </div>
+              </>
+            )}
           </div>
         </Tooltip>
       </div>
