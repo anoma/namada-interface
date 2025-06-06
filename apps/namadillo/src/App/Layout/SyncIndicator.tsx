@@ -1,19 +1,24 @@
 import { Tooltip } from "@namada/components";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { PulsingRing } from "App/Common/PulsingRing";
 import { indexerApiAtom } from "atoms/api";
 import { shieldedSyncProgress } from "atoms/balance";
 import { chainStatusAtom } from "atoms/chain";
 import { fetchBlockHeightByTimestamp } from "atoms/chain/services";
 import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals";
-import { settingsAtom } from "atoms/settings";
 import {
+  indexerCrawlersInfoAtom,
+  rpcUrlAtom,
+  settingsAtom,
+} from "atoms/settings";
+import {
+  indexerRequestsSyncStatusAtom,
   indexerServicesSyncStatusAtom,
-  syncStatusAtom,
+  isQuerySyncing,
 } from "atoms/syncStatus/atoms";
 import { allValidatorsAtom, myValidatorsAtom } from "atoms/validators";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
 import { IoCheckmarkCircle } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 
@@ -50,15 +55,7 @@ const ErrorEntry = ({
 
   return (
     <div className="mb-2">
-      {label && (
-        <div
-          className={
-            label === "Error" ? "text-red-500 font-medium" : "font-medium"
-          }
-        >
-          {label}:
-        </div>
-      )}
+      {label && <div className="text-red-500 font-medium">{label}:</div>}
       {errors.map((e) => {
         const string = e instanceof Error ? e.message : String(e);
         return (
@@ -83,11 +80,54 @@ const LoadingSpinner = (): JSX.Element => {
   );
 };
 
-export const SyncIndicator = (): JSX.Element => {
-  const syncStatus = useAtomValue(syncStatusAtom);
-  const indexerServicesSyncStatus = useAtomValue(indexerServicesSyncStatusAtom);
+// compare two block heights to be sure the first height is synced with the tip of the chain
+const compareHeights = (
+  height1?: number | null,
+  height2?: number | null
+): boolean => {
+  if (!height1) return false;
+  if (!height2) return true;
+  return height1 >= height2;
+};
+
+const useQueryIndexerBlockHeight = (
+  queryKey?: string
+): UseQueryResult<number, Error> => {
   const api = useAtomValue(indexerApiAtom);
+  return useQuery({
+    queryKey: ["queryIndexerBlockHeight", queryKey],
+    queryFn: () => fetchBlockHeightByTimestamp(api, Date.now()),
+  });
+};
+
+const useQueryRpcBlockHeight = (
+  queryKey?: string
+): UseQueryResult<number, Error> => {
+  const rpcUrl = useAtomValue(rpcUrlAtom);
+  return useQuery({
+    queryKey: ["queryRpcBlockHeight", queryKey],
+    queryFn: () =>
+      fetch(`${rpcUrl}/status`)
+        .then((d) => d.json())
+        .then((d) => Number(d.result.sync_info.latest_block_height)),
+  });
+};
+
+export const SyncIndicator = (): JSX.Element => {
+  const { dataUpdatedAt } = useAtomValue(indexerCrawlersInfoAtom);
+
+  const indexerRequestsSyncStatus = useAtomValue(indexerRequestsSyncStatusAtom);
+  const indexerServicesSyncStatus = useAtomValue(indexerServicesSyncStatusAtom);
   const chainStatus = useAtomValue(chainStatusAtom);
+  const settings = useAtomValue(settingsAtom);
+
+  // This is a trick to refetch the block height from RPC and Indexer
+  // It's dispatched by any of the two scenarios
+  // - If we receive an event upate from `useServerSideEvents`
+  // - If we receive an update from `indexerCrawlersInfoAtom`
+  const refetchQueryKey = `${chainStatus?.height}__${dataUpdatedAt}`;
+  const rpcBlockHeightQuery = useQueryRpcBlockHeight(refetchQueryKey);
+  const indexerBlockHeightQuery = useQueryIndexerBlockHeight(refetchQueryKey);
 
   // Individual atom status checks
   const myValidators = useAtomValue(myValidatorsAtom);
@@ -95,47 +135,38 @@ export const SyncIndicator = (): JSX.Element => {
   const allProposals = useAtomValue(allProposalsAtom);
   const votedProposals = useAtomValue(votedProposalsAtom);
   const shieldedProgress = useAtomValue(shieldedSyncProgress);
-  const settings = useAtomValue(settingsAtom);
 
-  const [blockHeightSynced, setBlockHeightSynced] = useState<boolean | null>(
-    null
-  );
-  const [indexerBlockHeight, setIndexerBlockHeight] = useState<number | null>(
-    null
-  );
-
-  const { errors } = syncStatus;
+  const { errors } = indexerRequestsSyncStatus;
   const { services } = indexerServicesSyncStatus;
 
-  const isChainStatusError =
-    !chainStatus?.height || !chainStatus?.epoch || !blockHeightSynced;
-  const isIndexerError =
-    syncStatus.isError ||
-    indexerServicesSyncStatus.isError ||
-    isChainStatusError;
-  const isIndexerSyncing =
-    syncStatus.isSyncing ||
-    indexerServicesSyncStatus.isSyncing ||
-    !blockHeightSynced;
-
   // Check individual category status
+  const isRpcHeightSuccess = compareHeights(
+    rpcBlockHeightQuery.data,
+    indexerBlockHeightQuery.data
+  );
+  const isIndexerHeightSuccess = compareHeights(
+    indexerBlockHeightQuery.data,
+    rpcBlockHeightQuery.data
+  );
   const stakingIsSuccess = myValidators.isSuccess && allValidators.isSuccess;
   const governanceIsSuccess =
     allProposals.isSuccess && votedProposals.isSuccess;
 
+  const isIndexerError =
+    rpcBlockHeightQuery.isError ||
+    indexerBlockHeightQuery.isError ||
+    indexerRequestsSyncStatus.isError ||
+    indexerServicesSyncStatus.isError;
+
+  const isIndexerSyncing =
+    isQuerySyncing(rpcBlockHeightQuery) ||
+    isQuerySyncing(indexerBlockHeightQuery) ||
+    rpcBlockHeightQuery.data !== indexerBlockHeightQuery.data ||
+    indexerRequestsSyncStatus.isSyncing ||
+    indexerServicesSyncStatus.isSyncing;
+
   const roundedProgress = Math.min(Math.floor(shieldedProgress * 100), 100);
   const isShieldedSyncing = roundedProgress < 100;
-
-  useEffect(() => {
-    (async () => {
-      const indexerBlockHeight = await fetchBlockHeightByTimestamp(
-        api,
-        Date.now()
-      );
-      setIndexerBlockHeight(indexerBlockHeight);
-      setBlockHeightSynced(indexerBlockHeight === chainStatus?.height);
-    })();
-  }, [chainStatus?.height]);
 
   return (
     <div className="flex items-center gap-8 px-2 py-3">
@@ -185,18 +216,35 @@ export const SyncIndicator = (): JSX.Element => {
             <div className="break-words">
               <ErrorEntry label="Error" errors={errors} />
               <ErrorEntry label="Lagging services" errors={services} />
-              <ErrorEntry label="Chain status not loaded." />
+              {rpcBlockHeightQuery.error && (
+                <ErrorEntry
+                  label="Block height sync error"
+                  errors={[rpcBlockHeightQuery.error]}
+                />
+              )}
+              {indexerBlockHeightQuery.error && (
+                <ErrorEntry
+                  label="Block height sync error"
+                  errors={[indexerBlockHeightQuery.error]}
+                />
+              )}
             </div>
           : <div className="w-full space-y-1">
               <StatusEntry
                 label="RPC Height"
-                number={settings.advancedMode ? chainStatus?.height : undefined}
-                isSuccess={!!chainStatus?.height}
+                number={
+                  settings.advancedMode ? rpcBlockHeightQuery.data : undefined
+                }
+                isSuccess={isRpcHeightSuccess}
               />
               <StatusEntry
                 label="Indexer Height"
-                number={settings.advancedMode ? indexerBlockHeight : undefined}
-                isSuccess={!!blockHeightSynced}
+                number={
+                  settings.advancedMode ?
+                    indexerBlockHeightQuery.data
+                  : undefined
+                }
+                isSuccess={isIndexerHeightSuccess}
               />
               <StatusEntry label="Staking" isSuccess={stakingIsSuccess} />
               <StatusEntry label="Governance" isSuccess={governanceIsSuccess} />
