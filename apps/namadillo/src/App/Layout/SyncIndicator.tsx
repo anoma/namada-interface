@@ -151,12 +151,10 @@ export const SyncIndicator = (): JSX.Element => {
           )}
         />
         <Tooltip position="bottom" className="z-10 w-[190px] py-3 -mb-4">
-          <div className="space-y-3 w-full">
-            <div className="text-xs font-medium text-yellow">
-              Shielded sync: {roundedProgress}%
-            </div>
-            {isShieldedSyncing && (
+          <div className="space-y-3 w-full text-xs font-medium text-yellow">
+            {isShieldedSyncing ?
               <>
+                <div>Shielded sync: {roundedProgress}%</div>
                 <div className="w-full bg-yellow-900 h-1">
                   <div
                     className="bg-yellow-500 h-1 transition-all duration-300"
@@ -168,7 +166,7 @@ export const SyncIndicator = (): JSX.Element => {
                   few seconds.
                 </div>
               </>
-            )}
+            : <div>Shielded sync completed</div>}
           </div>
         </Tooltip>
       </div>
