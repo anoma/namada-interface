@@ -210,8 +210,9 @@ export const TransactionHistory = (): JSX.Element => {
                   />
                 </svg>
                 <span>
-                  Cross-chain shielded transactions are only visible on the
-                  Namadillo where they were created.
+                  Shielded-transaction history lives only in this
+                  browser—switching URL, browser, or device will hide past
+                  shielded txs.
                 </span>
               </div>
             </div>
