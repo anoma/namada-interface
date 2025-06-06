@@ -1,27 +1,12 @@
-import { accountBalanceAtom, transparentBalanceAtom } from "atoms/accounts";
-import { shieldedBalanceAtom } from "atoms/balance";
+import { accountBalanceAtom } from "atoms/accounts";
 import { chainParametersAtom } from "atoms/chain";
 import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals";
-import {
-  indexerCrawlersInfoAtom,
-  indexerHeartbeatAtom,
-  maspIndexerHeartbeatAtom,
-  rpcHeartbeatAtom,
-} from "atoms/settings/atoms";
+import { indexerCrawlersInfoAtom } from "atoms/settings/atoms";
 import { allValidatorsAtom, myValidatorsAtom } from "atoms/validators";
 import { atom } from "jotai";
 
 export const syncStatusAtom = atom((get) => {
   const queries = [
-    // Heartbeat
-    get(indexerHeartbeatAtom),
-    get(maspIndexerHeartbeatAtom),
-    get(rpcHeartbeatAtom),
-
-    // Account Overview
-    get(shieldedBalanceAtom),
-    get(transparentBalanceAtom),
-
     // Staking
     get(accountBalanceAtom),
     get(myValidatorsAtom),

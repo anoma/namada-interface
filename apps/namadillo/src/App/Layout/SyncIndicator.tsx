@@ -1,15 +1,11 @@
 import { Tooltip } from "@namada/components";
-import { accountBalanceAtom, transparentBalanceAtom } from "atoms/accounts";
+import { PulsingRing } from "App/Common/PulsingRing";
 import { indexerApiAtom } from "atoms/api";
-import { shieldedBalanceAtom } from "atoms/balance";
+import { shieldedSyncProgress } from "atoms/balance";
 import { chainStatusAtom } from "atoms/chain";
 import { fetchBlockHeightByTimestamp } from "atoms/chain/services";
 import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals";
-import {
-  indexerHeartbeatAtom,
-  maspIndexerHeartbeatAtom,
-  rpcHeartbeatAtom,
-} from "atoms/settings";
+import { settingsAtom } from "atoms/settings";
 import {
   indexerServicesSyncStatusAtom,
   syncStatusAtom,
@@ -18,14 +14,37 @@ import { allValidatorsAtom, myValidatorsAtom } from "atoms/validators";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { IoCheckmarkCircleOutline } from "react-icons/io5";
+import { IoCheckmarkCircle } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 
-const formatError = (
-  errors: (string | Error)[],
-  label?: string
-): JSX.Element => {
-  if (!errors.length) {
+const StatusEntry = ({
+  label,
+  number,
+  isSuccess,
+}: {
+  label: string;
+  number?: number | null;
+  isSuccess: boolean;
+}): JSX.Element => {
+  return (
+    <div className="flex justify-between items-center gap-1">
+      <div className="flex-1">{label}:</div>
+      {number}
+      {isSuccess ?
+        <IoCheckmarkCircle className="text-sm text-green-500" />
+      : <LoadingSpinner />}
+    </div>
+  );
+};
+
+const ErrorEntry = ({
+  label,
+  errors,
+}: {
+  label?: string;
+  errors?: (string | Error)[];
+}): JSX.Element => {
+  if (!errors?.length) {
     return <></>;
   }
 
@@ -56,7 +75,7 @@ const LoadingSpinner = (): JSX.Element => {
   return (
     <i
       className={clsx(
-        "inline-block w-2 h-2 border-2",
+        "block w-3 h-3 border-2 mr-px",
         "border-transparent border-t-yellow rounded-[50%]",
         "animate-loadingSpinner"
       )}
@@ -71,18 +90,16 @@ export const SyncIndicator = (): JSX.Element => {
   const chainStatus = useAtomValue(chainStatusAtom);
 
   // Individual atom status checks
-  const indexerHeartbeat = useAtomValue(indexerHeartbeatAtom);
-  const maspIndexerHeartbeat = useAtomValue(maspIndexerHeartbeatAtom);
-  const rpcHeartbeat = useAtomValue(rpcHeartbeatAtom);
-  const shieldedBalance = useAtomValue(shieldedBalanceAtom);
-  const transparentBalance = useAtomValue(transparentBalanceAtom);
-  const accountBalance = useAtomValue(accountBalanceAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
   const allValidators = useAtomValue(allValidatorsAtom);
   const allProposals = useAtomValue(allProposalsAtom);
   const votedProposals = useAtomValue(votedProposalsAtom);
+  const shieldedProgress = useAtomValue(shieldedSyncProgress);
+  const settings = useAtomValue(settingsAtom);
 
-  const [blockHeightSync, setBlockHeightSync] = useState<boolean | null>(null);
+  const [blockHeightSynced, setBlockHeightSynced] = useState<boolean | null>(
+    null
+  );
   const [indexerBlockHeight, setIndexerBlockHeight] = useState<number | null>(
     null
   );
@@ -91,27 +108,22 @@ export const SyncIndicator = (): JSX.Element => {
   const { services } = indexerServicesSyncStatus;
 
   const isChainStatusError =
-    !chainStatus?.height || !chainStatus?.epoch || !blockHeightSync;
-  const isError =
+    !chainStatus?.height || !chainStatus?.epoch || !blockHeightSynced;
+  const isIndexerError =
     syncStatus.isError ||
     indexerServicesSyncStatus.isError ||
     isChainStatusError;
-  const isSyncing =
+  const isIndexerSyncing =
     syncStatus.isSyncing ||
     indexerServicesSyncStatus.isSyncing ||
-    !blockHeightSync;
+    !blockHeightSynced;
 
   // Check individual category status
-  const heartbeatStatus =
-    indexerHeartbeat.isSuccess &&
-    maspIndexerHeartbeat.isSuccess &&
-    rpcHeartbeat.isSuccess;
-  const balancesStatus =
-    shieldedBalance.isSuccess &&
-    transparentBalance.isSuccess &&
-    accountBalance.isSuccess;
-  const stakingStatus = myValidators.isSuccess && allValidators.isSuccess;
+  const stakingIsSuccess = myValidators.isSuccess && allValidators.isSuccess;
   const governanceStatus = allProposals.isSuccess && votedProposals.isSuccess;
+
+  const roundedProgress = Math.min(Math.floor(shieldedProgress * 100), 100);
+  const isShieldedSyncing = roundedProgress < 100;
 
   useEffect(() => {
     (async () => {
@@ -120,65 +132,71 @@ export const SyncIndicator = (): JSX.Element => {
         Date.now()
       );
       setIndexerBlockHeight(indexerBlockHeight);
-      setBlockHeightSync(indexerBlockHeight === chainStatus?.height);
+      setBlockHeightSynced(indexerBlockHeight === chainStatus?.height);
     })();
   }, [chainStatus?.height]);
 
   return (
-    <div className="flex gap-10 px-2 py-3">
+    <div className="flex items-center gap-8 px-2 py-3">
+      <div className="relative group/tooltip">
+        {isShieldedSyncing && (
+          <PulsingRing size="small" className="absolute top-1 left-1" />
+        )}
+        <div
+          className={twMerge(
+            "w-2 h-2 rounded-full",
+            "bg-green-500",
+            isShieldedSyncing && "bg-yellow-500 animate-pulse"
+          )}
+        />
+        <Tooltip position="bottom" className="z-10 w-[190px] py-3 -mb-4">
+          <div className="space-y-3">
+            <div className="text-xs font-medium text-yellow">
+              Shielded sync: {roundedProgress}%
+            </div>
+            <div className="w-full bg-yellow-900 h-1">
+              <div
+                className="bg-yellow-500 h-1 transition-all duration-300"
+                style={{ width: `${roundedProgress}%` }}
+              />
+            </div>
+            <div className="text-sm text-white">
+              Syncing your shielded assets now. Balances will update in a few
+              seconds.
+            </div>
+          </div>
+        </Tooltip>
+      </div>
+
       <div className="relative group/tooltip">
         <div
           className={twMerge(
             "w-2 h-2 rounded-full",
             "bg-green-500",
-            isSyncing && "bg-yellow-500 animate-pulse",
-            isError && !isSyncing && "bg-red-500"
+            isIndexerSyncing && "bg-yellow-500 animate-pulse",
+            isIndexerError && !isIndexerSyncing && "bg-red-500"
           )}
         />
-        <Tooltip position="bottom" className="z-10 w-max text-balance -mb-6">
-          {isSyncing ?
-            <div className="py-2">
-              <div className="text-yellow font-medium">Syncing...</div>
-              <div>
-                Indexer Sync: {chainStatus?.height ?? "-"} /{" "}
-                {indexerBlockHeight ?? "-"}
-              </div>
-              <div className="flex items-center gap-1">
-                Heartbeat:{" "}
-                {heartbeatStatus ?
-                  <IoCheckmarkCircleOutline className="text-green-500" />
-                : <LoadingSpinner />}
-              </div>
-              <div className="flex items-center gap-1">
-                Balances:{" "}
-                {balancesStatus ?
-                  <IoCheckmarkCircleOutline className="text-green-500" />
-                : <LoadingSpinner />}
-              </div>
-              <div className="flex items-center gap-1">
-                Staking:{" "}
-                {stakingStatus ?
-                  <IoCheckmarkCircleOutline className="text-green-500" />
-                : <LoadingSpinner />}
-              </div>
-              <div className="flex items-center gap-1">
-                Governance:{" "}
-                {governanceStatus ?
-                  <IoCheckmarkCircleOutline className="text-green-500" />
-                : <LoadingSpinner />}
-              </div>
+        <Tooltip position="bottom" className="z-10 w-[210px] py-3 -mb-4">
+          {isIndexerError ?
+            <div className="break-words">
+              <ErrorEntry label="Error" errors={errors} />
+              <ErrorEntry label="Lagging services" errors={services} />
+              <ErrorEntry label="Chain status not loaded." />
             </div>
-          : isError ?
-            <div className="max-w-xs break-words">
-              {formatError(errors, "Error")}
-              {formatError(services, "Lagging services")}
-              {isChainStatusError && "Chain status not loaded."}
-            </div>
-          : <div className="py-2">
-              <div className="text-yellow font-medium">Fully synced:</div>
-              <div>RPC Height: {chainStatus?.height}</div>
-              <div>Indexer Height: {indexerBlockHeight}</div>
-              <div>Epoch: {chainStatus?.epoch}</div>
+          : <div className="w-full space-y-1">
+              <StatusEntry
+                label="RPC Height"
+                number={settings.advancedMode ? chainStatus?.height : undefined}
+                isSuccess={!!chainStatus?.height}
+              />
+              <StatusEntry
+                label="Indexer Height"
+                number={settings.advancedMode ? indexerBlockHeight : undefined}
+                isSuccess={!!blockHeightSynced}
+              />
+              <StatusEntry label="Staking" isSuccess={stakingIsSuccess} />
+              <StatusEntry label="Governance" isSuccess={governanceStatus} />
             </div>
           }
         </Tooltip>
