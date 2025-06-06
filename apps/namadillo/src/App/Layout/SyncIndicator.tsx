@@ -1,45 +1,61 @@
 import { Tooltip } from "@namada/components";
-import { accountBalanceAtom, transparentBalanceAtom } from "atoms/accounts";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { PulsingRing } from "App/Common/PulsingRing";
 import { indexerApiAtom } from "atoms/api";
-import { shieldedBalanceAtom } from "atoms/balance";
+import { shieldedSyncProgress } from "atoms/balance";
 import { chainStatusAtom } from "atoms/chain";
 import { fetchBlockHeightByTimestamp } from "atoms/chain/services";
 import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals";
 import {
-  indexerHeartbeatAtom,
-  maspIndexerHeartbeatAtom,
-  rpcHeartbeatAtom,
+  indexerCrawlersInfoAtom,
+  rpcUrlAtom,
+  settingsAtom,
 } from "atoms/settings";
 import {
+  indexerRequestsSyncStatusAtom,
   indexerServicesSyncStatusAtom,
-  syncStatusAtom,
+  isQuerySyncing,
 } from "atoms/syncStatus/atoms";
 import { allValidatorsAtom, myValidatorsAtom } from "atoms/validators";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
-import { IoCheckmarkCircleOutline } from "react-icons/io5";
+import { IoCheckmarkCircle } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 
-const formatError = (
-  errors: (string | Error)[],
-  label?: string
-): JSX.Element => {
-  if (!errors.length) {
+const StatusEntry = ({
+  label,
+  number,
+  isSuccess,
+}: {
+  label: string;
+  number?: number | null;
+  isSuccess: boolean;
+}): JSX.Element => {
+  return (
+    <div className="flex justify-between items-center gap-1">
+      <div className="flex-1">{label}:</div>
+      {number}
+      {isSuccess ?
+        <IoCheckmarkCircle className="text-sm text-green-500" />
+      : <LoadingSpinner />}
+    </div>
+  );
+};
+
+const ErrorEntry = ({
+  label,
+  errors,
+}: {
+  label?: string;
+  errors?: (string | Error)[];
+}): JSX.Element => {
+  if (!errors?.length) {
     return <></>;
   }
 
   return (
     <div className="mb-2">
-      {label && (
-        <div
-          className={
-            label === "Error" ? "text-red-500 font-medium" : "font-medium"
-          }
-        >
-          {label}:
-        </div>
-      )}
+      {label && <div className="text-red-500 font-medium">{label}:</div>}
       {errors.map((e) => {
         const string = e instanceof Error ? e.message : String(e);
         return (
@@ -56,7 +72,7 @@ const LoadingSpinner = (): JSX.Element => {
   return (
     <i
       className={clsx(
-        "inline-block w-2 h-2 border-2",
+        "block w-3 h-3 border-2 mr-px",
         "border-transparent border-t-yellow rounded-[50%]",
         "animate-loadingSpinner"
       )}
@@ -64,121 +80,174 @@ const LoadingSpinner = (): JSX.Element => {
   );
 };
 
-export const SyncIndicator = (): JSX.Element => {
-  const syncStatus = useAtomValue(syncStatusAtom);
-  const indexerServicesSyncStatus = useAtomValue(indexerServicesSyncStatusAtom);
+// compare two block heights to be sure the first height is synced with the tip of the chain
+const compareHeights = (
+  height1?: number | null,
+  height2?: number | null
+): boolean => {
+  if (!height1) return false;
+  if (!height2) return true;
+  return height1 >= height2;
+};
+
+const useQueryIndexerBlockHeight = (
+  queryKey?: string
+): UseQueryResult<number, Error> => {
   const api = useAtomValue(indexerApiAtom);
+  return useQuery({
+    queryKey: ["queryIndexerBlockHeight", queryKey],
+    queryFn: () => fetchBlockHeightByTimestamp(api, Date.now()),
+  });
+};
+
+const useQueryRpcBlockHeight = (
+  queryKey?: string
+): UseQueryResult<number, Error> => {
+  const rpcUrl = useAtomValue(rpcUrlAtom);
+  return useQuery({
+    queryKey: ["queryRpcBlockHeight", queryKey],
+    queryFn: () =>
+      fetch(`${rpcUrl}/status`)
+        .then((d) => d.json())
+        .then((d) => Number(d.result.sync_info.latest_block_height)),
+  });
+};
+
+export const SyncIndicator = (): JSX.Element => {
+  const { dataUpdatedAt } = useAtomValue(indexerCrawlersInfoAtom);
+
+  const indexerRequestsSyncStatus = useAtomValue(indexerRequestsSyncStatusAtom);
+  const indexerServicesSyncStatus = useAtomValue(indexerServicesSyncStatusAtom);
   const chainStatus = useAtomValue(chainStatusAtom);
+  const settings = useAtomValue(settingsAtom);
+
+  // This is a trick to refetch the block height from RPC and Indexer
+  // It's dispatched by any of the two scenarios
+  // - If we receive an event upate from `useServerSideEvents`
+  // - If we receive an update from `indexerCrawlersInfoAtom`
+  const refetchQueryKey = `${chainStatus?.height}__${dataUpdatedAt}`;
+  const rpcBlockHeightQuery = useQueryRpcBlockHeight(refetchQueryKey);
+  const indexerBlockHeightQuery = useQueryIndexerBlockHeight(refetchQueryKey);
 
   // Individual atom status checks
-  const indexerHeartbeat = useAtomValue(indexerHeartbeatAtom);
-  const maspIndexerHeartbeat = useAtomValue(maspIndexerHeartbeatAtom);
-  const rpcHeartbeat = useAtomValue(rpcHeartbeatAtom);
-  const shieldedBalance = useAtomValue(shieldedBalanceAtom);
-  const transparentBalance = useAtomValue(transparentBalanceAtom);
-  const accountBalance = useAtomValue(accountBalanceAtom);
   const myValidators = useAtomValue(myValidatorsAtom);
   const allValidators = useAtomValue(allValidatorsAtom);
   const allProposals = useAtomValue(allProposalsAtom);
   const votedProposals = useAtomValue(votedProposalsAtom);
+  const shieldedProgress = useAtomValue(shieldedSyncProgress);
 
-  const [blockHeightSync, setBlockHeightSync] = useState<boolean | null>(null);
-  const [indexerBlockHeight, setIndexerBlockHeight] = useState<number | null>(
-    null
-  );
-
-  const { errors } = syncStatus;
+  const { errors } = indexerRequestsSyncStatus;
   const { services } = indexerServicesSyncStatus;
 
-  const isChainStatusError =
-    !chainStatus?.height || !chainStatus?.epoch || !blockHeightSync;
-  const isError =
-    syncStatus.isError ||
-    indexerServicesSyncStatus.isError ||
-    isChainStatusError;
-  const isSyncing =
-    syncStatus.isSyncing ||
-    indexerServicesSyncStatus.isSyncing ||
-    !blockHeightSync;
-
   // Check individual category status
-  const heartbeatStatus =
-    indexerHeartbeat.isSuccess &&
-    maspIndexerHeartbeat.isSuccess &&
-    rpcHeartbeat.isSuccess;
-  const balancesStatus =
-    shieldedBalance.isSuccess &&
-    transparentBalance.isSuccess &&
-    accountBalance.isSuccess;
-  const stakingStatus = myValidators.isSuccess && allValidators.isSuccess;
-  const governanceStatus = allProposals.isSuccess && votedProposals.isSuccess;
+  const isRpcHeightSuccess = compareHeights(
+    rpcBlockHeightQuery.data,
+    indexerBlockHeightQuery.data
+  );
+  const isIndexerHeightSuccess = compareHeights(
+    indexerBlockHeightQuery.data,
+    rpcBlockHeightQuery.data
+  );
+  const stakingIsSuccess = myValidators.isSuccess && allValidators.isSuccess;
+  const governanceIsSuccess =
+    allProposals.isSuccess && votedProposals.isSuccess;
 
-  useEffect(() => {
-    (async () => {
-      const indexerBlockHeight = await fetchBlockHeightByTimestamp(
-        api,
-        Date.now()
-      );
-      setIndexerBlockHeight(indexerBlockHeight);
-      setBlockHeightSync(indexerBlockHeight === chainStatus?.height);
-    })();
-  }, [chainStatus?.height]);
+  const isIndexerError =
+    rpcBlockHeightQuery.isError ||
+    indexerBlockHeightQuery.isError ||
+    indexerRequestsSyncStatus.isError ||
+    indexerServicesSyncStatus.isError;
+
+  const isIndexerSyncing =
+    isQuerySyncing(rpcBlockHeightQuery) ||
+    isQuerySyncing(indexerBlockHeightQuery) ||
+    rpcBlockHeightQuery.data !== indexerBlockHeightQuery.data ||
+    indexerRequestsSyncStatus.isSyncing ||
+    indexerServicesSyncStatus.isSyncing;
+
+  const roundedProgress = Math.min(Math.floor(shieldedProgress * 100), 100);
+  const isShieldedSyncing = roundedProgress < 100;
 
   return (
-    <div className="flex gap-10 px-2 py-3">
+    <div className="flex items-center gap-8 px-2 py-3">
+      <div className="relative group/tooltip">
+        {isShieldedSyncing && (
+          <PulsingRing size="small" className="absolute top-1 left-1" />
+        )}
+        <div
+          className={twMerge(
+            "w-2 h-2 rounded-full",
+            "bg-green-500",
+            isShieldedSyncing && "bg-yellow-500 animate-pulse"
+          )}
+        />
+        <Tooltip position="bottom" className="z-10 w-[190px] py-3 -mb-4">
+          <div className="space-y-3 w-full text-xs font-medium text-yellow">
+            {isShieldedSyncing ?
+              <>
+                <div>Shielded sync: {roundedProgress}%</div>
+                <div className="w-full bg-yellow-900 h-1">
+                  <div
+                    className="bg-yellow-500 h-1 transition-all duration-300"
+                    style={{ width: `${roundedProgress}%` }}
+                  />
+                </div>
+                <div className="text-sm text-white">
+                  Syncing your shielded assets now. Balances will update in a
+                  few seconds.
+                </div>
+              </>
+            : <div>Shielded sync completed</div>}
+          </div>
+        </Tooltip>
+      </div>
+
       <div className="relative group/tooltip">
         <div
           className={twMerge(
             "w-2 h-2 rounded-full",
             "bg-green-500",
-            isSyncing && "bg-yellow-500 animate-pulse",
-            isError && !isSyncing && "bg-red-500"
+            isIndexerSyncing && "bg-yellow-500 animate-pulse",
+            isIndexerError && !isIndexerSyncing && "bg-red-500"
           )}
         />
-        <Tooltip position="bottom" className="z-10 w-max text-balance -mb-6">
-          {isSyncing ?
-            <div className="py-2">
-              <div className="text-yellow font-medium">Syncing...</div>
-              <div>
-                Indexer Sync: {chainStatus?.height ?? "-"} /{" "}
-                {indexerBlockHeight ?? "-"}
-              </div>
-              <div className="flex items-center gap-1">
-                Heartbeat:{" "}
-                {heartbeatStatus ?
-                  <IoCheckmarkCircleOutline className="text-green-500" />
-                : <LoadingSpinner />}
-              </div>
-              <div className="flex items-center gap-1">
-                Balances:{" "}
-                {balancesStatus ?
-                  <IoCheckmarkCircleOutline className="text-green-500" />
-                : <LoadingSpinner />}
-              </div>
-              <div className="flex items-center gap-1">
-                Staking:{" "}
-                {stakingStatus ?
-                  <IoCheckmarkCircleOutline className="text-green-500" />
-                : <LoadingSpinner />}
-              </div>
-              <div className="flex items-center gap-1">
-                Governance:{" "}
-                {governanceStatus ?
-                  <IoCheckmarkCircleOutline className="text-green-500" />
-                : <LoadingSpinner />}
-              </div>
+        <Tooltip position="bottom" className="z-10 w-[210px] py-3 -mb-4">
+          {isIndexerError ?
+            <div className="break-words">
+              <ErrorEntry label="Error" errors={errors} />
+              <ErrorEntry label="Lagging services" errors={services} />
+              {rpcBlockHeightQuery.error && (
+                <ErrorEntry
+                  label="Block height sync error"
+                  errors={[rpcBlockHeightQuery.error]}
+                />
+              )}
+              {indexerBlockHeightQuery.error && (
+                <ErrorEntry
+                  label="Block height sync error"
+                  errors={[indexerBlockHeightQuery.error]}
+                />
+              )}
             </div>
-          : isError ?
-            <div className="max-w-xs break-words">
-              {formatError(errors, "Error")}
-              {formatError(services, "Lagging services")}
-              {isChainStatusError && "Chain status not loaded."}
-            </div>
-          : <div className="py-2">
-              <div className="text-yellow font-medium">Fully synced:</div>
-              <div>RPC Height: {chainStatus?.height}</div>
-              <div>Indexer Height: {indexerBlockHeight}</div>
-              <div>Epoch: {chainStatus?.epoch}</div>
+          : <div className="w-full space-y-1">
+              <StatusEntry
+                label="RPC Height"
+                number={
+                  settings.advancedMode ? rpcBlockHeightQuery.data : undefined
+                }
+                isSuccess={isRpcHeightSuccess}
+              />
+              <StatusEntry
+                label="Indexer Height"
+                number={
+                  settings.advancedMode ?
+                    indexerBlockHeightQuery.data
+                  : undefined
+                }
+                isSuccess={isIndexerHeightSuccess}
+              />
+              <StatusEntry label="Staking" isSuccess={stakingIsSuccess} />
+              <StatusEntry label="Governance" isSuccess={governanceIsSuccess} />
             </div>
           }
         </Tooltip>

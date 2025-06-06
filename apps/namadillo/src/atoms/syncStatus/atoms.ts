@@ -1,29 +1,18 @@
-import { accountBalanceAtom, transparentBalanceAtom } from "atoms/accounts";
-import { shieldedBalanceAtom } from "atoms/balance";
 import { chainParametersAtom } from "atoms/chain";
 import { allProposalsAtom, votedProposalsAtom } from "atoms/proposals";
-import {
-  indexerCrawlersInfoAtom,
-  indexerHeartbeatAtom,
-  maspIndexerHeartbeatAtom,
-  rpcHeartbeatAtom,
-} from "atoms/settings/atoms";
+import { indexerCrawlersInfoAtom } from "atoms/settings/atoms";
 import { allValidatorsAtom, myValidatorsAtom } from "atoms/validators";
 import { atom } from "jotai";
 
-export const syncStatusAtom = atom((get) => {
+export const isQuerySyncing = (q: {
+  isFetching: boolean;
+  isSuccess: boolean;
+  isError: boolean;
+}): boolean => (q.isFetching && !q.isSuccess) || (q.isError && q.isFetching);
+
+export const indexerRequestsSyncStatusAtom = atom((get) => {
   const queries = [
-    // Heartbeat
-    get(indexerHeartbeatAtom),
-    get(maspIndexerHeartbeatAtom),
-    get(rpcHeartbeatAtom),
-
-    // Account Overview
-    get(shieldedBalanceAtom),
-    get(transparentBalanceAtom),
-
     // Staking
-    get(accountBalanceAtom),
     get(myValidatorsAtom),
     get(allValidatorsAtom),
 
@@ -35,9 +24,7 @@ export const syncStatusAtom = atom((get) => {
   // Change the logic here to only consider a query as "syncing" if:
   // 1. It's fetching AND not yet successful (initial load) OR
   // 2. It's in an error state and fetching (trying to recover)
-  const isSyncing = queries.some(
-    (q) => (q.isFetching && !q.isSuccess) || (q.isError && q.isFetching)
-  );
+  const isSyncing = queries.some((q) => isQuerySyncing(q));
   const isError = queries.some((q) => q.isError);
   const errors = queries.filter((q) => q.isError).map((q) => q.error);
 

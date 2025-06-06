@@ -33,7 +33,6 @@ export const allValidatorsAtom = atomWithQuery((get) => {
   };
 });
 
-// eslint-disable-next-line
 export const myValidatorsAtom = atomWithQuery((get) => {
   const account = get(defaultAccountAtom);
   const chainParameters = get(chainParametersAtom);
