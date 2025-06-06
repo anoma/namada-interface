@@ -66,7 +66,8 @@ export const fetchBlockHeightByTimestamp = async (
   api: DefaultApi,
   timestamp: number
 ): Promise<number> => {
-  const response = await api.apiV1BlockTimestampValueGet(timestamp);
+  const timestampInSeconds = Math.floor(timestamp / 1000);
+  const response = await api.apiV1BlockTimestampValueGet(timestampInSeconds);
 
   return Number(response.data.height);
 };
