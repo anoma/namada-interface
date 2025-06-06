@@ -4,7 +4,6 @@ import { transparentTokensAtom } from "atoms/balance";
 import { useAmountsInFiat } from "hooks/useAmountsInFiat";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
-import { StakeYourNamCard } from "./StakeYourNamCard";
 import { TotalBalanceCard } from "./TotalBalanceCard";
 import { UnshieldedAssetTable } from "./UnshieldedAssetTable";
 
@@ -35,9 +34,6 @@ export const UnshieldedAssetsOverview = (): JSX.Element => {
             </>
           }
         />
-        <div>
-          <StakeYourNamCard />
-        </div>
       </div>
       {transparentTokensQuery.isSuccess && (
         <div className="mt-5 overflow-hidden">
