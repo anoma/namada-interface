@@ -53,6 +53,7 @@ export const fetchMaspRewards = async (): Promise<MaspAssetRewards[]> => {
       const asset = findAssetByDenom(denom) ?? unknownAsset(denom);
       return {
         asset,
+        address: r.address,
         kdGain: new BigNumber(r.kdGain),
         kpGain: new BigNumber(r.kpGain),
         lockedAmountTarget: new BigNumber(r.lockedAmountTarget),
