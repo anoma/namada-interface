@@ -31,14 +31,6 @@ export const ShieldedAssetsOverview = (): JSX.Element => {
                   Shielded Transfer
                 </span>
               </ActionButton>
-              <ActionButton
-                href={routes.maspUnshield}
-                outlineColor="white"
-                size="xs"
-                className="w-auto px-4 items-center"
-              >
-                <span className={clsx(textContainerClassList)}>Unshield</span>
-              </ActionButton>
             </>
           }
         />
