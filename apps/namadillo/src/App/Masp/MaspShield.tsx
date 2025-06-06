@@ -131,7 +131,7 @@ export const MaspShield: React.FC = () => {
 
   return (
     <Panel className="rounded-sm flex flex-col flex-1">
-      <header className="flex flex-col items-center text-center mb-3 gap-6">
+      <header className="flex flex-col items-center text-center mb-0 gap-6">
         <h1 className="mt-6 text-lg text-yellow">Shielding Transfer</h1>
         <NamadaTransferTopHeader
           isSourceShielded={false}
