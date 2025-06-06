@@ -28,10 +28,10 @@ export const TabSelector = ({
               onClick={() => onChange(item)}
               className={twMerge(
                 clsx(
-                  "w-full text-current rounded-sm bg-black opacity-50 py-1",
-                  "transition-opacity duration-200",
+                  "w-full text-current rounded-sm bg-black/50 py-1",
+                  "transition-colors duration-200",
                   { "border border-current opacity-100": item.id === active },
-                  { "hover:opacity-80": !item.buttonProps?.disabled },
+                  { "hover:bg-black/80": !item.buttonProps?.disabled },
                   { "!cursor-auto": item.buttonProps?.disabled },
                   item.className
                 )

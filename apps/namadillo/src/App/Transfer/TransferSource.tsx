@@ -1,7 +1,7 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { AmountInput } from "@namada/components";
 import { TabSelector } from "App/Common/TabSelector";
-import { SyncIndicator } from "App/Layout/SyncIndicator";
+import { MaspIndexerIndicator } from "App/Layout/MaspIndexerIndicator";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { WalletProvider } from "types";
@@ -72,24 +72,39 @@ export const TransferSource = ({
               {
                 id: "shielded",
                 text: (
-                  <span className="relative flex gap-1 items-center justify-center">
+                  <span className="relative flex gap-4 items-center justify-center">
                     Shielded{" "}
                     {isSyncingMasp && (
                       <span className="relative flex items-center">
-                        <span className="absolute">
-                          <SyncIndicator />
-                        </span>
+                        <MaspIndexerIndicator
+                          pulsingRingSize="7px"
+                          ringClassName="!text-yellow/50"
+                          syncingChildren={
+                            <div className="text-white text-xs text-left">
+                              Shielded transfers are disabled until sync is
+                              complete.
+                            </div>
+                          }
+                        />
                       </span>
                     )}
                   </span>
                 ),
-                className: "text-yellow",
+                className:
+                  isShieldedAddress ? "text-yellow" : (
+                    clsx("text-yellow/50", {
+                      "hover:text-yellow/80": !isSyncingMasp,
+                    })
+                  ),
                 buttonProps: { disabled: isSyncingMasp },
               },
               {
                 id: "transparent",
                 text: "Transparent",
-                className: "text-white",
+                className:
+                  !isShieldedAddress ? "text-white" : (
+                    "text-white/50 hover:text-white/80"
+                  ),
               },
             ]}
             onChange={() => onChangeShielded(!isShieldedAddress)}
