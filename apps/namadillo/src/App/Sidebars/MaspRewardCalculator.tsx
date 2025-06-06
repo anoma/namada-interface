@@ -194,9 +194,9 @@ export const MaspRewardCalculator = (): JSX.Element => {
                         <div className="p-3 text-center text-neutral-400 text-sm">
                           No assets found
                         </div>
-                      : filteredRewards.map((reward) => (
+                      : filteredRewards.map((reward, idx) => (
                           <button
-                            key={reward.asset.base}
+                            key={reward.asset.base + "_" + idx}
                             type="button"
                             onClick={() => handleAssetSelect(reward)}
                             className={clsx(
