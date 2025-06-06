@@ -1,6 +1,7 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { AmountInput } from "@namada/components";
 import { TabSelector } from "App/Common/TabSelector";
+import { SyncIndicator } from "App/Layout/SyncIndicator";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { WalletProvider } from "types";
@@ -18,6 +19,7 @@ export type TransferSourceProps = {
   asset?: Asset;
   isLoadingAssets?: boolean;
   isSubmitting?: boolean;
+  isSyncingMasp?: boolean;
   chain?: Chain;
   openChainSelector?: () => void;
   openAssetSelector?: () => void;
@@ -55,6 +57,7 @@ export const TransferSource = ({
   amount,
   onChangeAmount,
   isShieldedAddress,
+  isSyncingMasp,
   onChangeShielded,
   isSubmitting,
 }: TransferSourceProps): JSX.Element => {
@@ -62,11 +65,27 @@ export const TransferSource = ({
     <div className="relative bg-neutral-800 rounded-lg px-4 py-5">
       {/** Intro header - Ex: "IBC To Namada" */}
       {onChangeShielded && chain?.chain_name === "namada" && !isSubmitting && (
-        <nav className="mb-6">
+        <nav className="relative z-10 mb-6">
           <TabSelector
             active={isShieldedAddress ? "shielded" : "transparent"}
             items={[
-              { id: "shielded", text: "Shielded", className: "text-yellow" },
+              {
+                id: "shielded",
+                text: (
+                  <span className="relative flex gap-1 items-center justify-center">
+                    Shielded{" "}
+                    {isSyncingMasp && (
+                      <span className="relative flex items-center">
+                        <span className="absolute">
+                          <SyncIndicator />
+                        </span>
+                      </span>
+                    )}
+                  </span>
+                ),
+                className: "text-yellow",
+                buttonProps: { disabled: isSyncingMasp },
+              },
               {
                 id: "transparent",
                 text: "Transparent",

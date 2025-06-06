@@ -29,6 +29,7 @@ import {
 } from "atoms/transfer/services";
 import BigNumber from "bignumber.js";
 import { useFathomTracker } from "hooks/useFathomTracker";
+import { useRequiresNewShieldedSync } from "hooks/useRequiresNewShieldedSync";
 import { useTransaction } from "hooks/useTransaction";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useUrlState } from "hooks/useUrlState";
@@ -61,11 +62,12 @@ export const IbcWithdraw = (): JSX.Element => {
   const namadaChain = useAtomValue(chainAtom);
   const [ledgerStatus, setLedgerStatusStop] = useAtom(ledgerStatusDataAtom);
 
+  const requiresNewShieldedSync = useRequiresNewShieldedSync();
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
   const [selectedAssetAddress, setSelectedAssetAddress] = useUrlState(
     params.asset
   );
-  const [shielded, setShielded] = useState<boolean>(true);
+  const [shielded, setShielded] = useState<boolean>(!requiresNewShieldedSync);
   const [refundTarget, setRefundTarget] = useState<string>();
   const [amount, setAmount] = useState<BigNumber | undefined>();
   const [customAddress, setCustomAddress] = useState<string>("");
@@ -365,7 +367,13 @@ export const IbcWithdraw = (): JSX.Element => {
           availableAmount,
           selectedAssetAddress,
           onChangeSelectedAsset: setSelectedAssetAddress,
-          onChangeShielded: setShielded,
+          onChangeShielded: (isShielded) => {
+            if (requiresNewShieldedSync) {
+              setShielded(false);
+            } else {
+              setShielded(isShielded);
+            }
+          },
           amount,
           onChangeAmount: setAmount,
           ledgerAccountInfo,
@@ -401,6 +409,7 @@ export const IbcWithdraw = (): JSX.Element => {
         feeProps={feeProps}
         onComplete={redirectToTimeline}
         completedAt={completedAt}
+        isSyncingMasp={requiresNewShieldedSync}
       />
     </div>
   );

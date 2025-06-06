@@ -17,6 +17,7 @@ import { ledgerStatusDataAtom } from "atoms/ledger";
 import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
 import { useFathomTracker } from "hooks/useFathomTracker";
+import { useRequiresNewShieldedSync } from "hooks/useRequiresNewShieldedSync";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useTransfer } from "hooks/useTransfer";
 import { useUrlState } from "hooks/useUrlState";
@@ -24,7 +25,7 @@ import { wallets } from "integrations";
 import invariant from "invariant";
 import { useAtom, useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import namadaChain from "registry/namada.json";
 import { twMerge } from "tailwind-merge";
@@ -39,7 +40,14 @@ export const NamadaTransfer: React.FC = () => {
   const [currentStatusExplanation, setCurrentStatusExplanation] = useState("");
 
   const shieldedParam = searchParams.get(params.shielded);
-  const shielded = shieldedParam ? shieldedParam === "1" : true;
+  const requiresNewShieldedSync = useRequiresNewShieldedSync();
+
+  const shielded = useMemo(() => {
+    if (requiresNewShieldedSync) {
+      return false;
+    }
+    return shieldedParam ? shieldedParam === "1" : true;
+  }, [shieldedParam, requiresNewShieldedSync]);
 
   const rpcUrl = useAtomValue(rpcUrlAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
@@ -218,6 +226,7 @@ export const NamadaTransfer: React.FC = () => {
         currentStatus={currentStatus}
         currentStatusExplanation={currentStatusExplanation}
         isShieldedTx={isSourceShielded}
+        isSyncingMasp={requiresNewShieldedSync}
         isSubmitting={
           isPerformingTransfer || isTransferSuccessful || Boolean(completedAt)
         }
