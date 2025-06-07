@@ -5,19 +5,19 @@ import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { twMerge } from "tailwind-merge";
 
-type MaspIndexerIndicatorProps = {
+type MaspSyncIndicatorProps = {
   syncingChildren?: React.ReactNode;
   syncedChildren?: React.ReactNode;
   pulsingRingSize?: string;
   ringClassName?: string;
 };
 
-export const MaspIndexerIndicator = ({
+export const MaspSyncIndicator = ({
   syncingChildren,
   syncedChildren,
   pulsingRingSize = "10px",
   ringClassName = "",
-}: MaspIndexerIndicatorProps): JSX.Element => {
+}: MaspSyncIndicatorProps): JSX.Element => {
   const shieldedProgress = useAtomValue(shieldedSyncProgress);
   const roundedProgress = Math.min(Math.floor(shieldedProgress * 100), 100);
   const isShieldedSyncing = roundedProgress < 100;

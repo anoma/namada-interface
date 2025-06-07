@@ -1,7 +1,7 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { AmountInput } from "@namada/components";
 import { TabSelector } from "App/Common/TabSelector";
-import { MaspIndexerIndicator } from "App/Layout/MaspIndexerIndicator";
+import { MaspSyncIndicator } from "App/Layout/MaspSyncIndicator";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { WalletProvider } from "types";
@@ -76,7 +76,7 @@ export const TransferSource = ({
                     Shielded{" "}
                     {isSyncingMasp && (
                       <span className="relative flex items-center">
-                        <MaspIndexerIndicator
+                        <MaspSyncIndicator
                           pulsingRingSize="7px"
                           ringClassName="!text-yellow/50"
                           syncingChildren={
