@@ -53,6 +53,20 @@ export const ParentAccounts = (): JSX.Element => {
       }
     });
 
+  // We check whether a Ledger parent has an associated shielded account
+  allAccounts
+    .filter(
+      (account) => !account.parentId && account.type === AccountType.Ledger
+    )
+    .forEach(({ id }) => {
+      const shieldedAccount = allAccounts.find(
+        ({ parentId }) => parentId === id
+      );
+      if (!shieldedAccount) {
+        allParentAccounts[id]["outdated"] = true;
+      }
+    });
+
   const accounts = Object.values(allParentAccounts);
 
   useEffect(() => {
