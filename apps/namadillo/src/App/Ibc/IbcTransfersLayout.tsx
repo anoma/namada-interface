@@ -3,7 +3,6 @@ import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
 import { ConnectPanel } from "App/Common/ConnectPanel";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { Sidebar } from "App/Layout/Sidebar";
-import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
 import { Outlet } from "react-router-dom";
 import { LearnAboutIbc } from "./LearnAboutIbc";
@@ -28,7 +27,6 @@ export const IbcTransfersLayout = (): JSX.Element => {
         <NavigationFooter className="mt-2 flex-none h-16" />
       </div>
       <Sidebar>
-        <ShieldAllBanner />
         <LearnAboutIbc />
       </Sidebar>
     </PageWithSidebar>
