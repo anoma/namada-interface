@@ -11,7 +11,7 @@ export const IbcTabNavigation = (): JSX.Element => {
     if (isWithdraw) return "withdraw";
 
     const isTransfer = matchPath(routes.ibc, location.pathname);
-    if (isTransfer) return "transfer";
+    if (isTransfer) return "deposit";
 
     throw "Unknown IBC tab";
   }, [location]);
@@ -22,8 +22,8 @@ export const IbcTabNavigation = (): JSX.Element => {
     url: string;
   }> = [
     {
-      key: "transfer",
-      text: "Transfer",
+      key: "deposit",
+      text: "Deposit",
       url: routes.ibc,
     },
     {
