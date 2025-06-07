@@ -54,14 +54,26 @@ export const TotalBalanceBanner = (): JSX.Element => {
           {balancesHaveLoaded && (
             <div className={clsx("flex items-center text-5xl leading-none")}>
               <FiatCurrency amount={totalAmountInFiat} />
-              {shouldWaitForShieldedSync && (
-                <span
-                  className="relative text-xs ml-9"
-                  title="Shielded sync in progress..."
-                >
-                  <PulsingRing />
-                </span>
-              )}
+              <div className="relative group/tooltip">
+                {shouldWaitForShieldedSync && (
+                  <span
+                    className="relative text-xs ml-9"
+                    title="Shielded sync in progress..."
+                  >
+                    <PulsingRing />
+                  </span>
+                )}
+                <Tooltip position="bottom" className="z-10 w-[190px] py-3 -mb-4">
+                  <div className="space-y-3 w-full text-xs font-medium text-yellow">
+                    {shouldWaitForShieldedSync ?
+                        <div className="text-sm text-white">
+                          Syncing your shielded assets now. Balances will update in a
+                          few seconds.
+                        </div>                      
+                    : <div>Shielded sync completed</div>}
+                  </div>
+                </Tooltip>
+              </div>
             </div>
           )}
         </div>
