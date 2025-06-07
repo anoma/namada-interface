@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.25.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.24.0...namadillo@v1.25.0) (2025-06-07)
+
+
+### Features
+
+* Adding masp sync loading to TransferModule ([#2089](https://github.com/anoma/namada-interface/issues/2089)) ([099145c](https://github.com/anoma/namada-interface/commit/099145ce22d971d3009b58247c33767910603e36))
+* Creating new unclaimed rewards box ([#2110](https://github.com/anoma/namada-interface/issues/2110)) ([b9970ff](https://github.com/anoma/namada-interface/commit/b9970ff9f07e8de37b66560434b2303371670078))
+* Enable transfers between shielded and transparent addresses in the ([#2109](https://github.com/anoma/namada-interface/issues/2109)) ([dc466f7](https://github.com/anoma/namada-interface/commit/dc466f75f491916793270c0c1832b3589e8c27ce))
+* Review spacement around transfer modules ([#2111](https://github.com/anoma/namada-interface/issues/2111)) ([79ad4e8](https://github.com/anoma/namada-interface/commit/79ad4e8a69c1d71fe7fb7e48b3b5011266ee8d8c))
+
+
+### Bug Fixes
+
+* Images on AssetsModalCard not appearing on Firefox ([#2100](https://github.com/anoma/namada-interface/issues/2100)) ([fd4b75f](https://github.com/anoma/namada-interface/commit/fd4b75f0d403701b689f72c7153f584bcf87a9ac))
+* Update history browser alert ([#2090](https://github.com/anoma/namada-interface/issues/2090)) ([1b3f4b9](https://github.com/anoma/namada-interface/commit/1b3f4b9cc12034ffdc20de9908d3bc1367fcb019))
+
 ## [1.24.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.23.0...namadillo@v1.24.0) (2025-06-06)
 
 
