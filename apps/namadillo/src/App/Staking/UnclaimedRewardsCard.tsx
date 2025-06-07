@@ -7,6 +7,7 @@ import { claimableRewardsAtom } from "atoms/staking";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
+import { useLocation, useNavigate } from "react-router-dom";
 import { sumBigNumberArray } from "utils";
 
 export const UnclaimedRewardsCard = (): JSX.Element => {
@@ -18,44 +19,58 @@ export const UnclaimedRewardsCard = (): JSX.Element => {
     claimRewardsEnabled ?
       sumBigNumberArray(Object.values(rewards || {}))
     : new BigNumber(0);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
   return (
     <div
       className={clsx(
-        "flex flex-col md:flex-row text-sm text-cyan bg-neutral-900 rounded-sm px-6 w-[48ch] justify-between",
-        "py-4"
+        "flex justify-between md:flex-row bg-neutral-800",
+        "rounded-sm justify-between p-4 gap-5"
       )}
     >
-      <div className="flex flex-col">
-        <span className="text-center leading-tight mb-2">
+      <div className="flex flex-col items-center gap-2 px-4">
+        <span className="text-xs text-center leading-tight text-neutral-500">
           Unclaimed Staking Rewards
         </span>{" "}
         {rewardsLoading ?
           <SkeletonLoading height="1em" width="200px" className="text-3xl" />
         : <NamCurrency
             amount={availableRewards}
-            className="text-3xl text-center"
+            className="text-2xl/tight text-center"
             decimalPlaces={2}
           />
         }
-        <div className="hidden sm:block">
-          <div className="text-md text-gray-500 -mb-1 text-center">
+        <ActionButton
+          size="xs"
+          className="w-auto"
+          backgroundColor="cyan"
+          textColor="black"
+          onClick={() => {
+            navigate(routes.stakingClaimRewards, {
+              state: {
+                backgroundLocation: location,
+              },
+            });
+          }}
+        >
+          Claim
+        </ActionButton>
+      </div>
+      <div className="flex items-center bg-rblack px-6 rounded-sm">
+        <div className="space-y-2">
+          <div className="text-sm/tight text-white -mb-1 text-center">
             {chainParameters?.data?.apr ?
               chainParameters.data.apr.multipliedBy(100).toFixed(2)
             : "--"}
             %
           </div>
-          <div className="text-sm text-center">Est. Rewards Rate</div>
+          <span className="block text-xs/tight text-neutral-700 text-center">
+            Est. Rewards Rate
+          </span>
         </div>
       </div>
-      <ActionButton
-        className="w-auto mt-4 md:mt-10 self-center md:self-auto"
-        size="xs"
-        backgroundColor="cyan"
-        textColor="black"
-        href={routes.stakingClaimRewards}
-      >
-        Claim NAM
-      </ActionButton>
     </div>
   );
 };
