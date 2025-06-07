@@ -121,7 +121,7 @@ export const shieldedSyncProgress = atom(0);
 
 export const lastCompletedShieldedSyncAtom = atomWithStorage<
   Record<Address, Date | undefined>
->("namadillo:last-shielded-sync", {});
+>("namadillo:last-shielded-sync", {}, undefined, { getOnInit: true });
 
 export const isShieldedSyncCompleteAtom = atom((get) => {
   return get(shieldedSyncProgress) === 1;

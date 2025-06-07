@@ -1,6 +1,7 @@
 import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
 import { AccountType } from "@namada/types";
+import { MaspSyncCover } from "App/Common/MaspSyncCover";
 import { NamadaTransferTopHeader } from "App/NamadaTransfer/NamadaTransferTopHeader";
 import { params } from "App/routes";
 import {
@@ -8,11 +9,15 @@ import {
   TransferModule,
 } from "App/Transfer/TransferModule";
 import { allDefaultAccountsAtom } from "atoms/accounts";
-import { namadaShieldedAssetsAtom } from "atoms/balance/atoms";
+import {
+  lastCompletedShieldedSyncAtom,
+  namadaShieldedAssetsAtom,
+} from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
 import { ledgerStatusDataAtom } from "atoms/ledger/atoms";
 import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
+import { useRequiresNewShieldedSync } from "hooks/useRequiresNewShieldedSync";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useTransfer } from "hooks/useTransfer";
 import { useUrlState } from "hooks/useUrlState";
@@ -28,6 +33,7 @@ export const MaspUnshield: React.FC = () => {
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
   const [currentStatus, setCurrentStatus] = useState("");
   const [currentStatusExplanation, setCurrentStatusExplanation] = useState("");
+  const requiresNewSync = useRequiresNewShieldedSync();
 
   const rpcUrl = useAtomValue(rpcUrlAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
@@ -55,6 +61,7 @@ export const MaspUnshield: React.FC = () => {
   const [selectedAssetAddress, setSelectedAssetAddress] = useUrlState(
     params.asset
   );
+  const lastSync = useAtomValue(lastCompletedShieldedSyncAtom);
   const selectedAsset =
     selectedAssetAddress ? availableAssets?.[selectedAssetAddress] : undefined;
 
@@ -178,6 +185,7 @@ export const MaspUnshield: React.FC = () => {
           NoAmount: "Define an amount to unshield",
         }}
       />
+      {requiresNewSync && <MaspSyncCover longSync={lastSync === undefined} />}
     </Panel>
   );
 };

@@ -5,13 +5,13 @@ import { useRef } from "react";
 import { twMerge } from "tailwind-merge";
 
 type PulsingRingProps = {
-  className?: string;
-  size?: "small" | "large";
-};
+  ringClassName?: string;
+} & React.HTMLAttributes<HTMLSpanElement>;
 
 export const PulsingRing = ({
   className,
-  size = "large",
+  ringClassName = "",
+  ...props
 }: PulsingRingProps): JSX.Element => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -58,7 +58,7 @@ export const PulsingRing = ({
         key={className}
         data-animation="ring"
         className={clsx(
-          "block absolute aspect-square border border-yellow rounded-full",
+          "block absolute aspect-square border border-current rounded-full",
           "left-1/2 top-1/2 leading-[0]",
           className
         )}
@@ -66,17 +66,14 @@ export const PulsingRing = ({
     );
   };
 
-  const ringSizes =
-    size === "small" ?
-      ["h-[0.6em]", "h-[1.35em]", "h-[1.95em]"]
-    : ["h-[1.8em]", "h-[3em]", "h-[4.2em]"];
-
+  const ringSizes = ["h-[1.8em]", "h-[3em]", "h-[4.2em]"];
   return (
     <span
       ref={containerRef}
-      className={twMerge("block relative leading-0", className)}
+      className={twMerge("block relative leading-0 text-yellow", className)}
+      {...props}
     >
-      {ringSizes.map((sizeClass) => renderRing(sizeClass))}
+      {ringSizes.map((sizeClass) => renderRing(clsx(sizeClass, ringClassName)))}
     </span>
   );
 };

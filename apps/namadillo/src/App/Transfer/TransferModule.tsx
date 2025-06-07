@@ -51,6 +51,7 @@ type TransferModuleConfig = {
   onChangeWallet?: (wallet: WalletProvider) => void;
   onChangeChain?: (chain: Chain) => void;
   onChangeShielded?: (isShielded: boolean) => void;
+  isSyncingMasp?: boolean;
   // Additional information if selected account is a ledger
   ledgerAccountInfo?: LedgerAccountInfo;
 };
@@ -100,6 +101,7 @@ export type TransferModuleProps = {
   currentStatusExplanation?: string;
   completedAt?: Date;
   isShieldedTx?: boolean;
+  isSyncingMasp?: boolean;
   buttonTextErrors?: Partial<Record<ValidationResult, string>>;
   onComplete?: () => void;
 } & (
@@ -169,6 +171,7 @@ export const TransferModule = ({
   completedAt,
   onComplete,
   buttonTextErrors = {},
+  isSyncingMasp = false,
   isShieldedTx = false,
 }: TransferModuleProps): JSX.Element => {
   const navigate = useNavigate();
@@ -476,6 +479,7 @@ export const TransferModule = ({
         >
           <TransferSource
             isConnected={Boolean(source.connected)}
+            isSyncingMasp={isSyncingMasp}
             wallet={source.wallet}
             walletAddress={source.walletAddress}
             asset={selectedAsset?.asset}
