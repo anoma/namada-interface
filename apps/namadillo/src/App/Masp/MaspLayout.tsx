@@ -3,7 +3,6 @@ import { ConnectPanel } from "App/Common/ConnectPanel";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { Sidebar } from "App/Layout/Sidebar";
 import { MaspAssetRewards } from "App/Sidebars/MaspAssetRewards";
-import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
 import { shieldedBalanceAtom } from "atoms/balance";
 import { applicationFeaturesAtom } from "atoms/settings";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
@@ -36,7 +35,6 @@ export const MaspLayout: React.FC = () => {
       </div>
       <Sidebar>
         {features.shieldingRewardsEnabled && <MaspAssetRewards />}
-        <ShieldAllBanner />
         <LearnAboutMasp />
       </Sidebar>
     </PageWithSidebar>
