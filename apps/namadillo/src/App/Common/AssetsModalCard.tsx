@@ -23,7 +23,7 @@ export const AssetsModalCard = ({
       )}
     >
       <h3 className="text-xl font-medium">{title}</h3>
-      <aside className="max-w-[78px]">{icon}</aside>
+      <aside className="w-full max-w-[78px]">{icon}</aside>
       <div className="text-base/tight">{children}</div>
     </Stack>
   );
