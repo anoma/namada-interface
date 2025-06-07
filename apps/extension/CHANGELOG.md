@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/anoma/namada-interface/compare/extension@v0.6.0...extension@v0.7.0) (2025-06-07)
+
+
+### Features
+
+* Mark Ledger accounts missing shielded account as outdated ([#2099](https://github.com/anoma/namada-interface/issues/2099)) ([ddb2f5c](https://github.com/anoma/namada-interface/commit/ddb2f5cb568a20a8dc94110ec81adf59d39e2f78))
+
 ## [0.6.0](https://github.com/anoma/namada-interface/compare/extension@v0.5.0...extension@v0.6.0) (2025-04-18)
 
 
