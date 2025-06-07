@@ -136,18 +136,12 @@ export const MaspUnshield: React.FC = () => {
   setLedgerStatusStop(isPerformingTransfer);
 
   return (
-    <Panel className="relative rounded-sm flex flex-col flex-1 pt-14">
-      <header className="flex flex-col items-center text-center mb-3 gap-6">
-        <h1 className="text-lg">Unshielding Transfer</h1>
+    <Panel className="relative rounded-sm flex flex-col flex-1 pt-9">
+      <header className="flex flex-col items-center text-center mb-8 gap-6">
         <NamadaTransferTopHeader
           isSourceShielded={true}
           isDestinationShielded={false}
         />
-        <h2 className="text-md mb-5">
-          Unshield assets to your transparent account, or to an external wallet.
-          <br />
-          This action makes your assets public again.
-        </h2>
       </header>
       <TransferModule
         source={{
