@@ -48,6 +48,7 @@ import {
   toDisplayAmount,
   useTransactionEventListener,
 } from "utils";
+import { IbcTabNavigation } from "./IbcTabNavigation";
 import { IbcTopHeader } from "./IbcTopHeader";
 
 const defaultChainId = "cosmoshub-4";
@@ -348,10 +349,12 @@ export const IbcWithdraw = (): JSX.Element => {
 
   return (
     <div className="relative min-h-[600px]">
-      <header className="flex flex-col items-center text-center mb-10 gap-6">
+      <header className="flex flex-col items-center text-center mb-8 gap-6">
         <IbcTopHeader type="namToIbc" isShielded={shielded} />
-        <h2 className="text-lg">Withdraw assets from Namada via IBC</h2>
       </header>
+      <div className="mb-6">
+        <IbcTabNavigation />
+      </div>
       <TransferModule
         source={{
           isLoadingAssets,
