@@ -121,6 +121,7 @@ type ValidationResult =
   | "NotEnoughBalanceForFees"
   | "KeychainNotCompatibleWithMasp"
   | "CustomAddressNotMatchingChain"
+  | "TheSameAddress"
   | "NoLedgerConnected"
   | "Ok";
 
@@ -128,22 +129,15 @@ type ValidationResult =
 const isValidDestinationAddress = ({
   customAddress,
   chain,
-  shielded,
 }: {
   customAddress: string;
   chain: Chain | undefined;
-  shielded: boolean;
 }): boolean => {
   // Skip validation if no custom address or chain provided
   if (!customAddress || !chain) return true;
 
   // Check shielded/transparent address requirements for Namada
   if (chain.bech32_prefix === "nam") {
-    // If shielded is required but address is transparent, validation fails
-    if (shielded && isTransparentAddress(customAddress)) return false;
-    // If transparent is required but address is shielded, validation fails
-    if (!shielded && isShieldedAddress(customAddress)) return false;
-    // Valid Namada address that matches transaction type
     return (
       isTransparentAddress(customAddress) || isShieldedAddress(customAddress)
     );
@@ -232,11 +226,12 @@ export const TransferModule = ({
   const validationResult = useMemo((): ValidationResult => {
     if (!source.wallet) {
       return "NoSourceWallet";
+    } else if (source.walletAddress === destination.customAddress) {
+      return "TheSameAddress";
     } else if (
       !isValidDestinationAddress({
         customAddress: destination.customAddress ?? "",
         chain: destination.chain,
-        shielded: isShieldedTx,
       })
     ) {
       return "CustomAddressNotMatchingChain";
@@ -398,6 +393,8 @@ export const TransferModule = ({
     switch (validationResult) {
       case "NoSourceWallet":
         return getText("Select Wallet");
+      case "TheSameAddress":
+        return getText("Source and destination addresses are the same");
 
       case "NoSourceChain":
       case "NoDestinationChain":
