@@ -23,27 +23,32 @@ export const WalletCard = ({
     return wallet.downloadUrl.chrome;
   };
 
+  const handleClick = (): void => {
+    if (!installed) {
+      window.open(getDownloadUrl(), "_blank", "noopener,noreferrer");
+      return;
+    }
+    if (installed && !connected) return onConnect?.();
+    if (installed && connected) return onSelect?.();
+  };
+
   return (
-    <div className="flex justify-between items-center w-full">
+    <div
+      onClick={handleClick}
+      className="group flex justify-between items-center w-ful cursor-pointer hover:bg-neutral-800 rounded-sm p-2"
+    >
       <span className="flex gap-2 items-center text-white">
         <img src={wallet.iconUrl} className="w-8 aspect-square rounded-sm" />
         {wallet.name}
       </span>
-      <span className="text-xs text-neutral-400 hover:text-yellow">
+      <span className="text-xs text-neutral-400 group-hover:text-yellow">
         {!installed && (
-          <a
-            href={getDownloadUrl()}
-            className="flex items-center gap-2"
-            target="_blank"
-            rel="nofollow noreferrer"
-          >
+          <div className="flex items-center gap-2">
             Install <GoLinkExternal />
-          </a>
+          </div>
         )}
-        {installed && !connected && (
-          <button onClick={onConnect}>Connect</button>
-        )}
-        {installed && connected && <button onClick={onSelect}>Select</button>}
+        {installed && !connected && <div>Connect</div>}
+        {installed && connected && <div>Select</div>}
       </span>
     </div>
   );
