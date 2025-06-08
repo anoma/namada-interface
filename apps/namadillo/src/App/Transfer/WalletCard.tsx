@@ -35,7 +35,7 @@ export const WalletCard = ({
   return (
     <div
       onClick={handleClick}
-      className="group flex justify-between items-center w-ful cursor-pointer hover:bg-neutral-800 rounded-sm p-2"
+      className="group flex justify-between items-center w-ful cursor-pointer hover:bg-neutral-900 rounded-sm p-2"
     >
       <span className="flex gap-2 items-center text-white">
         <img src={wallet.iconUrl} className="w-8 aspect-square rounded-sm" />
