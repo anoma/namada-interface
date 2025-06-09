@@ -85,6 +85,7 @@ export const TransferSource = ({
                               complete.
                             </div>
                           }
+                          syncedChildren={<div>Shielded sync completed</div>}
                         />
                       </span>
                     )}

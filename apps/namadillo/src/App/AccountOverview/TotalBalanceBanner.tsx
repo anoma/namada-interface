@@ -1,6 +1,6 @@
 import { Panel, SkeletonLoading, Stack, Tooltip } from "@namada/components";
 import { FiatCurrency } from "App/Common/FiatCurrency";
-import { PulsingRing } from "App/Common/PulsingRing";
+import { MaspSyncIndicator } from "App/Layout/MaspSyncIndicator";
 import { shieldedBalanceAtom } from "atoms/balance";
 import { applicationFeaturesAtom } from "atoms/settings";
 import clsx from "clsx";
@@ -55,12 +55,17 @@ export const TotalBalanceBanner = (): JSX.Element => {
             <div className={clsx("flex items-center text-5xl leading-none")}>
               <FiatCurrency amount={totalAmountInFiat} />
               {shouldWaitForShieldedSync && (
-                <span
-                  className="relative text-xs ml-9"
-                  title="Shielded sync in progress..."
-                >
-                  <PulsingRing />
-                </span>
+                <div className="z-30 ml-5">
+                  <MaspSyncIndicator
+                    syncingChildren={
+                      <div className="text-sm text-white leading-normal">
+                        Syncing your shielded assets now. Balances will update
+                        when sync is complete.
+                      </div>
+                    }
+                    syncedChildren={<div>Shielded sync completed</div>}
+                  />
+                </div>
               )}
             </div>
           )}
