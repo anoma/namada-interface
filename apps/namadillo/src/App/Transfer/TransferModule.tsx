@@ -11,7 +11,7 @@ import { useKeychainVersion } from "hooks/useKeychainVersion";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { wallets } from "integrations";
 import { useAtomValue } from "jotai";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { BsQuestionCircleFill } from "react-icons/bs";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -191,6 +191,8 @@ export const TransferModule = ({
   const availableAssets: AddressWithAssetAndAmountMap = useMemo(() => {
     return filterAvailableAssetsWithBalance(source.availableAssets);
   }, [source.availableAssets]);
+
+  const firstAvailableAsset = Object.values(availableAssets)[0];
 
   const selectedAsset = mapUndefined(
     (address) => source.availableAssets?.[address],
@@ -462,6 +464,12 @@ export const TransferModule = ({
     ),
     []
   );
+
+  useEffect(() => {
+    if (!selectedAsset?.asset && firstAvailableAsset) {
+      source.onChangeSelectedAsset?.(firstAvailableAsset?.originalAddress);
+    }
+  }, [firstAvailableAsset]);
 
   return (
     <>
