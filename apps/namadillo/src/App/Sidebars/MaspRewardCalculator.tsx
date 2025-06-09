@@ -202,7 +202,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
                           className={clsx(
                             "w-full pl-4 pr-3 py-2 bg-black text-white",
                             "border-b border-neutral-600 text-sm",
-                            "focus:outline-none focus:border-neutral-500 placeholder:text-left"
+                            "focus:outline-none focus:border-neutral-500"
                           )}
                         />
                       </div>
