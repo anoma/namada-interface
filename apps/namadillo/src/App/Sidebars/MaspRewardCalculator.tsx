@@ -33,7 +33,7 @@ const RewardItem = ({
     >
       <div
         className={clsx(
-          "px-2 py-1 gap-4 hover:bg-neutral-700 rounded-sm ml-2 flex w-full relative",
+          "px-2 py-1 gap-4 hover:bg-neutral-800 rounded-sm ml-2 flex w-full relative",
           isInactive && "opacity-20"
         )}
       >
@@ -60,7 +60,7 @@ const RewardItem = ({
 
 export const MaspRewardCalculator = (): JSX.Element => {
   const rewards = useAtomValue(maspRewardsAtom);
-  const [amount, setAmount] = useState<string>("");
+  const [amount, setAmount] = useState<string>("10");
   const [selectedAsset, setSelectedAsset] = useState<
     MaspAssetRewards | undefined
   >(rewards.data?.[0] || undefined);
@@ -185,7 +185,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
                   <div
                     className={clsx(
                       "absolute top-full left-0 w-full z-50 mt-1",
-                      "bg-neutral-800 rounded-sm  border border-neutral-600",
+                      "bg-neutral-900 rounded-sm  border border-neutral-600",
                       "max-h-[300px] overflow-hidden",
                       "z=[9999]"
                     )}
@@ -198,11 +198,11 @@ export const MaspRewardCalculator = (): JSX.Element => {
                           type="text"
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
-                          placeholder="Search assets..."
+                          placeholder="Search"
                           className={clsx(
-                            "w-full pl-10 pr-3 py-2 bg-neutral-900 text-white",
-                            "border-none border-neutral-600 text-sm",
-                            "focus:outline-none focus:border-neutral-500"
+                            "w-full pl-4 pr-3 py-2 bg-black text-white",
+                            "border-b border-neutral-600 text-sm",
+                            "focus:outline-none focus:border-neutral-500 placeholder:text-left"
                           )}
                         />
                       </div>

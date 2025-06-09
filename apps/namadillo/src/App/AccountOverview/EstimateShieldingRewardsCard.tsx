@@ -1,4 +1,4 @@
-import { Modal } from "@namada/components";
+import { Modal, Tooltip } from "@namada/components";
 import { ModalContainer } from "App/Common/ModalContainer";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { MaspRewardCalculator } from "App/Sidebars/MaspRewardCalculator";
@@ -55,10 +55,14 @@ export const EstimateShieldingRewardsCard = (): JSX.Element => {
         </span>
         {features.maspEnabled && (
           <div
-            className="p-2 bg-yellow rounded-full cursor-pointer hover:bg-yellow/90 transition-colors"
+            className="group group/tooltip relative p-2 bg-black border border-yellow rounded-full cursor-pointer hover:bg-yellow hover:border-yellow transition-colors"
             onClick={handleOpenModal}
           >
-            <FaCalculator className="text-3xl text-black p-1" />
+            <Tooltip position="top" className="w-[120px] text-center -mt-1">
+              Masp Rewards Calculator
+            </Tooltip>
+
+            <FaCalculator className="text-3xl text-yellow group-hover:text-black p-1 transition-colors" />
           </div>
         )}
       </div>
