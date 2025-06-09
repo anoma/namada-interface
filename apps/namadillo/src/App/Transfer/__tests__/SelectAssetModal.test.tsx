@@ -3,6 +3,13 @@ import { SelectAssetModal } from "App/Transfer/SelectAssetModal";
 import { assetMockList } from "../__mocks__/assets";
 import { walletMock } from "../__mocks__/providers";
 
+jest.mock("hooks/useIsChannelInactive", () => ({
+  useIsChannelInactive: jest.fn(() => ({
+    isInactive: false,
+    trace: "",
+  })),
+}));
+
 describe("SelectAssetModal", () => {
   const onCloseMock = jest.fn();
   const onSelectMock = jest.fn();
