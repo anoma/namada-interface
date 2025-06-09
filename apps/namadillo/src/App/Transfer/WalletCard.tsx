@@ -24,19 +24,26 @@ export const WalletCard = ({
   };
 
   const handleClick = (): void => {
-    if (!installed) {
-      window.open(getDownloadUrl(), "_blank", "noopener,noreferrer");
-      return;
-    }
     if (installed && !connected) return onConnect?.();
     if (installed && connected) return onSelect?.();
   };
 
+  const Component =
+    installed ?
+      (props: React.HTMLAttributes<HTMLButtonElement>) => (
+        <button onClick={handleClick} {...props} />
+      )
+    : (props: React.HTMLAttributes<HTMLAnchorElement>) => (
+        <a
+          href={getDownloadUrl()}
+          target="_blank"
+          rel="noopener noreferrer"
+          {...props}
+        />
+      );
+
   return (
-    <div
-      onClick={handleClick}
-      className="group flex justify-between items-center w-ful cursor-pointer hover:bg-neutral-900 rounded-sm p-2"
-    >
+    <Component className="group flex justify-between items-center w-full cursor-pointer hover:bg-neutral-900 rounded-sm p-2">
       <span className="flex gap-2 items-center text-white">
         <img src={wallet.iconUrl} className="w-8 aspect-square rounded-sm" />
         {wallet.name}
@@ -50,6 +57,6 @@ export const WalletCard = ({
         {installed && !connected && <div>Connect</div>}
         {installed && connected && <div>Select</div>}
       </span>
-    </div>
+    </Component>
   );
 };
