@@ -61,6 +61,23 @@ export type UseTransactionOutput<T> = {
   unknown
 >;
 
+const getNotificationId = <T,>(tx: TransactionPair<T>): string => {
+  let notificationId: string;
+  // For ibc transfers(not withdraws, those a re not handled by useTransaction hook),
+  // we need to create a unique notification ID based on inner transaction hashes.
+  if (tx.encodedTxData.type === "buildIbcTransfer") {
+    notificationId = createNotificationId(
+      tx.encodedTxData.txs.map((tx) => tx.innerTxHashes).flat()
+    );
+  } else {
+    notificationId = createNotificationId(
+      tx.encodedTxData.txs.map((tx) => tx.hash)
+    );
+  }
+
+  return notificationId;
+};
+
 export const useTransaction = <T,>({
   params,
   createTxAtom,
@@ -101,10 +118,8 @@ export const useTransaction = <T,>({
     tx: TransactionPair<T>,
     notification: PartialNotification
   ): void => {
-    const notificationId =
-      tx.encodedTxData.type === "buildIbcTransfer" ?
-        createNotificationId(tx.encodedTxData.txs[0].innerTxHashes)
-      : createNotificationId(tx.encodedTxData.txs[0].hash);
+    const notificationId = getNotificationId(tx);
+
     dispatchNotification({
       ...notification,
       id: notificationId,
@@ -118,10 +133,7 @@ export const useTransaction = <T,>({
     notification: PartialNotification,
     tx: TransactionPair<T>
   ): void => {
-    const notificationId =
-      tx.encodedTxData.type === "buildIbcTransfer" ?
-        createNotificationId(tx.encodedTxData.txs[0].innerTxHashes)
-      : createNotificationId(tx.encodedTxData.txs[0].hash);
+    const notificationId = getNotificationId(tx);
     dispatchNotification({
       ...notification,
       id: notificationId,

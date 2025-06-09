@@ -72,7 +72,7 @@ export const StakingRewards = (): JSX.Element => {
     params: rewardsToClaim,
     eventType: ["ClaimRewards", "Bond"],
     parsePendingTxNotification: () => ({
-      title: "Claim rewards transaction is in progress",
+      title: "Claim and stake rewards transaction is in progress",
       description: (
         <>
           Your rewards claim is being processed and will be staked to the same
