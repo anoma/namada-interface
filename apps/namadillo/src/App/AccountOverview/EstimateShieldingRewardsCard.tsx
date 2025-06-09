@@ -67,6 +67,9 @@ export const EstimateShieldingRewardsCard = (): JSX.Element => {
         <Modal onClose={handleCloseModal} style={{ overflow: "visible" }}>
           <ModalContainer
             header="MASP Rewards Calculator"
+            headerProps={{
+              className: "text-left",
+            }}
             onClose={handleCloseModal}
             containerProps={{
               className:

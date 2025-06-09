@@ -142,7 +142,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
     ) || [];
 
   return (
-    <Panel className={clsx("flex flex-col pt-0 pb-2 px-2")}>
+    <Panel className={clsx("flex flex-col pt-0 pb-2 px-0")}>
       <div className="mt-3 flex flex-col gap-3">
         {rewards.isLoading && (
           <i
