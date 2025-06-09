@@ -142,10 +142,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
     ) || [];
 
   return (
-    <Panel className={clsx("flex flex-col pt-2 pb-2 px-2")}>
-      <h2 className="uppercase text-[13px] text-center font-medium pb-0 pt-2">
-        MASP REWARDS CALCULATOR
-      </h2>
+    <Panel className={clsx("flex flex-col pt-0 pb-2 px-2")}>
       <div className="mt-3 flex flex-col gap-3">
         {rewards.isLoading && (
           <i
@@ -158,7 +155,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
         )}
         {rewards.data && (
           <>
-            <div className="flex gap-0 bg-neutral-900 rounded-sm relative">
+            <div className="flex gap-0 py-1 bg-neutral-800 rounded-md relative">
               <div className="flex-shrink-0" ref={dropdownRef}>
                 <button
                   type="button"
@@ -243,8 +240,8 @@ export const MaspRewardCalculator = (): JSX.Element => {
               />
             </div>
 
-            <div className="flex flex-col items-center justify-center border border-neutral-500 rounded-sm py-8">
-              <div className="text-yellow text-2xl font-bold max-w-full">
+            <div className="flex flex-col items-center justify-center bg-neutral-800 rounded-md py-8">
+              <div className="text-yellow text-3xl font-bold max-w-full">
                 {isCalculating ?
                   <div className="flex items-center justify-center">
                     <i
