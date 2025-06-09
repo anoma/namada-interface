@@ -39,6 +39,7 @@ export const WalletAddress = ({
   return (
     <span className="relative group/tooltip">
       {parsedAddress}
+      {/* This is to make sure we don't show pseudoKeys in a tooltip */}
       {displayTooltip && address.length < 100 && (
         <Tooltip className={twMerge("z-50", className)}>{address}</Tooltip>
       )}
