@@ -8,8 +8,8 @@ export const InactiveChannelWarning = ({
   address,
 }: {
   address: string;
-}): JSX.Element | null => {
+}): JSX.Element => {
   const { isInactive, trace } = useIsChannelInactive(address);
   if (isInactive) return <Warning trace={trace} />;
-  return null;
+  return <></>;
 };
