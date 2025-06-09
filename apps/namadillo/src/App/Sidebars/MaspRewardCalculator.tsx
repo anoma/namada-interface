@@ -49,7 +49,9 @@ const RewardItem = ({
           <div className="text-white font-medium text-sm mt-1.5">
             {reward.asset.symbol}
           </div>
-          {isInactive && <div className="-mt-1 text-[10px]">{trace}</div>}
+          {isInactive && (
+            <div className="-mt-1 text-[10px]">inactive:{trace}</div>
+          )}
         </div>
       </div>
     </button>
@@ -183,9 +185,11 @@ export const MaspRewardCalculator = (): JSX.Element => {
                   <div
                     className={clsx(
                       "absolute top-full left-0 w-full z-50 mt-1",
-                      "bg-neutral-800 rounded-md",
-                      "max-h-[300px] overflow-hidden"
+                      "bg-neutral-800 rounded-sm  border border-neutral-600",
+                      "max-h-[300px] overflow-hidden",
+                      "z=[9999]"
                     )}
+                    style={{ zIndex: 9999 }}
                   >
                     <div className="border-none">
                       <div className="relative">
@@ -204,7 +208,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
                       </div>
                     </div>
 
-                    <div className="max-h-[200px] overflow-y-auto border border-neutral-600 dark-scrollbar overscroll-contain">
+                    <div className="max-h-[200px] overflow-y-auto dark-scrollbar overscroll-contain">
                       {filteredRewards.length === 0 ?
                         <div className="p-3 text-center text-neutral-400 text-sm">
                           No assets found
@@ -224,6 +228,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
 
               <input
                 type="number"
+                min="0"
                 value={amount}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -246,7 +251,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
                   <div className="flex items-center justify-center">
                     <i
                       className={clsx(
-                        "w-5 h-5 border-4 border-transparent border-t-yellow rounded-[50%] my-2",
+                        "w-8 h-8 border-4 border-transparent border-t-yellow rounded-[50%] my-2",
                         "animate-loadingSpinner"
                       )}
                     />
