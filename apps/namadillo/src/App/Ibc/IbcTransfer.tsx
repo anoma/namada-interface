@@ -88,6 +88,8 @@ export const IbcTransfer = (): JSX.Element => {
 
     const output: AddressWithAssetAndAmountMap = {};
 
+    // This always grabs the first staking or fee token denom from registry
+    // First token from the registry is *always* the native token
     const nativeTokenDenom =
       registry.chain.staking?.staking_tokens?.[0]?.denom ||
       registry.chain.fees?.fee_tokens?.[0]?.denom;
