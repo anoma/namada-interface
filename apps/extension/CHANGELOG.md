@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/anoma/namada-interface/compare/extension@v0.7.0...extension@v0.8.0) (2025-06-10)
+
+
+### Features
+
+* Keychain - Increase session timeout from 5 to 30 minutes ([#2122](https://github.com/anoma/namada-interface/issues/2122)) ([243c013](https://github.com/anoma/namada-interface/commit/243c013356059cc7723b39ff2d60265b57b35cd1))
+
 ## [0.7.0](https://github.com/anoma/namada-interface/compare/extension@v0.6.0...extension@v0.7.0) (2025-06-07)
 
 
