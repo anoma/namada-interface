@@ -84,21 +84,18 @@ export const IbcTransfer = (): JSX.Element => {
     selectedAssetAddress ? userAssets?.[selectedAssetAddress] : undefined;
 
   const availableAssets = useMemo(() => {
-    if (!userAssets || !registry) return undefined;
+    if (!userAssets) return undefined;
 
     const output: AddressWithAssetAndAmountMap = {};
 
-    const nativeTokenDenom =
-      registry.chain.staking?.staking_tokens?.[0]?.denom ||
-      registry.chain.fees?.fee_tokens?.[0]?.denom;
+    const nativeTokenDenom = registry?.chain.fees?.fee_tokens?.[0]?.denom;
 
     for (const key in userAssets) {
-      const asset = registry.assets.assets.find((a) => a.base === key);
+      const asset = registry?.assets.assets.find((a) => a.base === key);
       if (asset && asset.base === nativeTokenDenom) {
         output[key] = { ...userAssets[key] };
       }
     }
-
     return output;
   }, [userAssets, registry]);
 

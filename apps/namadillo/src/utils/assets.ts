@@ -47,6 +47,7 @@ export const filterAvailableAssetsWithBalance = (
   availableAssets?: AddressWithAssetAndAmountMap
 ): AddressWithAssetAndAmountMap => {
   if (!availableAssets) return {};
+  console.log(availableAssets, "available assets");
   return Object.keys(availableAssets).reduce(
     (previous, current): AddressWithAssetAndAmountMap => {
       if (availableAssets![current].amount.gt(0)) {
