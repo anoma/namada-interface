@@ -192,8 +192,8 @@ export const TransactionHistory = (): JSX.Element => {
                   },
                   {
                     id: "bond",
-                    value: "Bond",
-                    ariaLabel: "Bond",
+                    value: "Stake",
+                    ariaLabel: "Stake",
                   },
                 ]}
               />

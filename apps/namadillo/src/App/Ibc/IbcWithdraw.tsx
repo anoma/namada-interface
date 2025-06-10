@@ -79,7 +79,7 @@ export const IbcWithdraw = (): JSX.Element => {
   const [txHash, setTxHash] = useState<string | undefined>();
   const [destinationChain, setDestinationChain] = useState<Chain | undefined>();
   const { refetch: genDisposableSigner } = useAtomValue(disposableSignerAtom);
-
+  const alias = shieldedAccount?.alias ?? transparentAccount.data?.alias;
   const chainTokens = useAtomValue(chainTokensAtom);
 
   const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
@@ -284,7 +284,7 @@ export const IbcWithdraw = (): JSX.Element => {
       memo: tx.encodedTxData.wrapperTxProps.memo || props.memo,
       displayAmount,
       shielded,
-      sourceAddress: props.source,
+      sourceAddress: `${alias} - shielded`,
       sourceChannel: props.channelId,
       destinationAddress: props.receiver,
       createdAt: new Date(),
