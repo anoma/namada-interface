@@ -2,6 +2,9 @@ import { Chain } from "@chain-registry/types";
 import namadaShieldedSvg from "./assets/namada-shielded.svg";
 import namadaTransparentSvg from "./assets/namada-transparent.svg";
 
+// Multi-Asset Shielded Pool (MASP) address
+export const MASP_ADDRESS = "tnam1pcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzmefah";
+
 export const parseChainInfo = (
   chain?: Chain,
   isShielded?: boolean
@@ -24,9 +27,7 @@ export const parseChainInfo = (
 };
 
 export const isMaspAddress = (address: string): boolean => {
-  return (
-    address.toLowerCase() === "tnam1pcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzmefah"
-  );
+  return address.toLowerCase() === MASP_ADDRESS;
 };
 
 export const isShieldedAddress = (address: string): boolean => {
