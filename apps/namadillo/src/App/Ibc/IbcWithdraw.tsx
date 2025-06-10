@@ -14,6 +14,7 @@ import {
 import {
   namadaShieldedAssetsAtom,
   namadaTransparentAssetsAtom,
+  viewingKeysAtom,
 } from "atoms/balance";
 import { chainAtom, chainTokensAtom } from "atoms/chain";
 import {
@@ -79,6 +80,8 @@ export const IbcWithdraw = (): JSX.Element => {
   const [txHash, setTxHash] = useState<string | undefined>();
   const [destinationChain, setDestinationChain] = useState<Chain | undefined>();
   const { refetch: genDisposableSigner } = useAtomValue(disposableSignerAtom);
+  const [viewingKeyData] = useAtomValue(viewingKeysAtom).data ?? [];
+  const viewingKey = viewingKeyData?.key;
 
   const chainTokens = useAtomValue(chainTokensAtom);
 
@@ -284,7 +287,7 @@ export const IbcWithdraw = (): JSX.Element => {
       memo: tx.encodedTxData.wrapperTxProps.memo || props.memo,
       displayAmount,
       shielded,
-      sourceAddress: props.source,
+      sourceAddress: viewingKey ?? "MASP",
       sourceChannel: props.channelId,
       destinationAddress: props.receiver,
       createdAt: new Date(),
