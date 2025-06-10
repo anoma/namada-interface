@@ -467,6 +467,7 @@ export const TransferModule = ({
 
   useEffect(() => {
     if (!selectedAsset?.asset && firstAvailableAsset) {
+      console.log(source, "source");
       source.onChangeSelectedAsset?.(firstAvailableAsset?.originalAddress);
     }
   }, [firstAvailableAsset]);
