@@ -53,7 +53,7 @@ export const EstimateShieldingRewardsCard = (): JSX.Element => {
             </div>
           }
         </span>
-        {features.maspEnabled && (
+        {features.shieldingRewardsEnabled && (
           <div
             className="group group/tooltip relative p-2 bg-black border border-yellow rounded-full cursor-pointer hover:bg-yellow hover:border-yellow transition-colors"
             onClick={handleOpenModal}

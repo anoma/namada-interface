@@ -50,7 +50,7 @@ const RewardItem = ({
             {reward.asset.symbol}
           </div>
           {isInactive && (
-            <div className="-mt-1 text-[10px]">inactive:{trace}</div>
+            <div className="-mt-1 text-[10px]">inactive: {trace}</div>
           )}
         </div>
       </div>
