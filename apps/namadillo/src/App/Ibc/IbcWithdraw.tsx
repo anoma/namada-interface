@@ -2,7 +2,6 @@ import { Asset, Chain } from "@chain-registry/types";
 import { AccountType, IbcTransferMsgValue } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import { params, routes } from "App/routes";
-import { MASP_ADDRESS } from "App/Transfer/common";
 import {
   OnSubmitTransferParams,
   TransferModule,
@@ -80,7 +79,7 @@ export const IbcWithdraw = (): JSX.Element => {
   const [txHash, setTxHash] = useState<string | undefined>();
   const [destinationChain, setDestinationChain] = useState<Chain | undefined>();
   const { refetch: genDisposableSigner } = useAtomValue(disposableSignerAtom);
-
+  const alias = shieldedAccount?.alias ?? transparentAccount.data?.alias;
   const chainTokens = useAtomValue(chainTokensAtom);
 
   const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
@@ -285,7 +284,7 @@ export const IbcWithdraw = (): JSX.Element => {
       memo: tx.encodedTxData.wrapperTxProps.memo || props.memo,
       displayAmount,
       shielded,
-      sourceAddress: MASP_ADDRESS,
+      sourceAddress: `${alias} - shielded`,
       sourceChannel: props.channelId,
       destinationAddress: props.receiver,
       createdAt: new Date(),

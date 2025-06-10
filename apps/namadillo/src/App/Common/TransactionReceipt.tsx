@@ -85,6 +85,7 @@ const TransferTransactionReceipt = ({
             <SelectedWallet
               wallet={sourceWallet}
               address={transaction.sourceAddress}
+              displayTooltip={!transaction.sourceAddress?.includes("shielded")}
             />
           )}
         </header>
