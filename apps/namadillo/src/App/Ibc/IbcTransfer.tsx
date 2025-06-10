@@ -10,6 +10,7 @@ import { allDefaultAccountsAtom } from "atoms/accounts";
 import {
   assetBalanceAtomFamily,
   availableChainsAtom,
+  enabledIbcAssetsDenomFamily,
   ibcChannelsFamily,
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
@@ -61,8 +62,10 @@ export const IbcTransfer = (): JSX.Element => {
       walletAddress: sourceAddress,
     })
   );
-  const { trackEvent } = useFathomTracker();
 
+  const { trackEvent } = useFathomTracker();
+  const { data: enabledAssets, isLoading: isLoadingEnabledAssets } =
+    useAtomValue(enabledIbcAssetsDenomFamily(ibcChannels?.namadaChannel));
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAssetAddress, setSelectedAssetAddress] = useUrlState(
     params.asset
@@ -84,25 +87,17 @@ export const IbcTransfer = (): JSX.Element => {
     selectedAssetAddress ? userAssets?.[selectedAssetAddress] : undefined;
 
   const availableAssets = useMemo(() => {
-    if (!userAssets || !registry) return undefined;
+    if (!enabledAssets || !userAssets) return undefined;
 
     const output: AddressWithAssetAndAmountMap = {};
-
-    // This always grabs the first staking or fee token denom from registry
-    // First token from the registry is *always* the native token
-    const nativeTokenDenom =
-      registry.chain.staking?.staking_tokens?.[0]?.denom ||
-      registry.chain.fees?.fee_tokens?.[0]?.denom;
-
     for (const key in userAssets) {
-      const asset = registry.assets.assets.find((a) => a.base === key);
-      if (asset && asset.base === nativeTokenDenom) {
+      if (enabledAssets.includes(userAssets[key].asset.base)) {
         output[key] = { ...userAssets[key] };
       }
     }
 
     return output;
-  }, [userAssets, registry]);
+  }, [enabledAssets, userAssets]);
 
   // Manage the history of transactions
   const { storeTransaction } = useTransactionActions();
@@ -203,7 +198,7 @@ export const IbcTransfer = (): JSX.Element => {
       </div>
       <TransferModule
         source={{
-          isLoadingAssets: isLoadingBalances,
+          isLoadingAssets: isLoadingBalances || isLoadingEnabledAssets,
           availableAssets,
           selectedAssetAddress,
           availableAmount,
