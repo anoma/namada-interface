@@ -287,7 +287,7 @@ export const IbcWithdraw = (): JSX.Element => {
       memo: tx.encodedTxData.wrapperTxProps.memo || props.memo,
       displayAmount,
       shielded,
-      sourceAddress: viewingKey ?? "MASP",
+      sourceAddress: "tnam1pcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzmefah",
       sourceChannel: props.channelId,
       destinationAddress: props.receiver,
       createdAt: new Date(),
