@@ -19,7 +19,7 @@ export const UnshieldedAssetsOverview = (): JSX.Element => {
       !transparentTokensQuery.isFetched);
 
   return (
-    <Panel className="relative z-10 px-6 rounded-t-none -mt-px h-full">
+    <Panel className="relative px-6 rounded-t-none h-full">
       <div className="flex justify-between items-center gap-16 mt-4">
         <TotalBalanceCard
           balanceInFiat={unshieldedAmountInFiat}

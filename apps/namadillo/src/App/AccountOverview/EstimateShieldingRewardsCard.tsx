@@ -16,16 +16,10 @@ export const EstimateShieldingRewardsCard = (): JSX.Element => {
 
   const handleCloseModal = (): void => {
     setIsModalOpen(false);
-    document
-      .querySelector("div[role='tablist'][aria-label='IBC Transfer']")
-      ?.classList.remove("hidden");
   };
 
   const handleOpenModal = (): void => {
     setIsModalOpen(true);
-    document
-      .querySelector("div[role='tablist'][aria-label='IBC Transfer']")
-      ?.classList.add("hidden");
   };
 
   return (

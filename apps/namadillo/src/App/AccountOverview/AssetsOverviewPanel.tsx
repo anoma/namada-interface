@@ -20,11 +20,11 @@ export const AssetsOverviewPanel = (): JSX.Element => {
       onChangeActiveTab={setCurrentTab}
       containerClassname="flex-1"
       className={clsx(
-        "mt-2 transition-colors border-solid border border-transparent",
+        "mt-2 transition-colors border-solid border border-transparent border-b-neutral-950",
         "duration-0",
-        "[&[aria-selected='true']]:z-20 [&[aria-selected='true']]:!border-b-neutral-950",
+        shieldedPanelSelected && "[&[aria-selected='false']]:border-b-yellow",
         shieldedPanelSelected &&
-          "[&[aria-selected='true']]:text-yellow [&[aria-selected='true']]:border-yellow"
+          "[&[aria-selected='true']]:text-yellow [&[aria-selected='true']]:border-x-yellow [&[aria-selected='true']]:border-t-yellow"
       )}
       tabs={[
         {

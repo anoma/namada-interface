@@ -14,7 +14,7 @@ export const ShieldedAssetsOverview = (): JSX.Element => {
   const requiresNewShieldedSync = useRequiresNewShieldedSync();
 
   return (
-    <Panel className="relative z-10 px-6 border border-yellow rounded-t-none -mt-px h-full">
+    <Panel className="relative px-6 border-x border-b border-yellow rounded-t-none h-full">
       <div className="flex justify-between gap-16 mt-4">
         <TotalBalanceCard
           balanceInFiat={shieldedAmountInFiat}
