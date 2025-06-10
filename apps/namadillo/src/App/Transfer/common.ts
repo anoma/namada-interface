@@ -2,7 +2,6 @@ import { Chain } from "@chain-registry/types";
 import namadaShieldedSvg from "./assets/namada-shielded.svg";
 import namadaTransparentSvg from "./assets/namada-transparent.svg";
 
-// Multi-Asset Shielded Pool (MASP) address
 export const MASP_ADDRESS = "tnam1pcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzmefah";
 
 export const parseChainInfo = (
