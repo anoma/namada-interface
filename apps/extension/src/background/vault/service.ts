@@ -78,7 +78,7 @@ export class VaultService {
     if (!timestamp) {
       return true;
     }
-    const timeout = 1_000 * 60 * 5; // 5 minutes
+    const timeout = 1_000 * 60 * 30; // 30 minutes
     if (Date.now() - Number(timestamp) > timeout) {
       return true;
     } else {
