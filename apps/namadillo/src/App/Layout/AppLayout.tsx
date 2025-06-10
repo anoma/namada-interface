@@ -68,7 +68,7 @@ export const AppLayout = ({
             <Navigation />
           </div>
         </aside>
-        <main className="min-h-full pb-2">{children}</main>
+        <main className="min-h-full pb-2 flex flex-col flex-1">{children}</main>
       </div>
     </>
   );
