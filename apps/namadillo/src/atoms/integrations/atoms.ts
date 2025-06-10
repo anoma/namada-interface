@@ -108,7 +108,6 @@ export const chainRegistryAtom = atom<Record<ChainId, ChainRegistryEntry>>(
   (get) => {
     const settings = get(settingsAtom);
     const knownChains = getKnownChains(settings.advancedMode);
-    console.log(settings, knownChains, "settings + known");
     const map: Record<ChainId, ChainRegistryEntry> = {};
     knownChains.forEach((chain) => {
       map[chain.chain.chain_id] = chain;
