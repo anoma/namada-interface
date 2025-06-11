@@ -136,7 +136,8 @@ export const TransactionCard = ({
 
   const getBaseAmount = (): BigNumber | undefined => {
     if (asset && txnInfo?.amount) {
-      if (isBondingTransaction) return toDisplayAmount(asset, txnInfo.amount);
+      if (isBondingOrUnbondingTransaction)
+        return toDisplayAmount(asset, txnInfo.amount);
       if (isNamadaAsset(asset)) return txnInfo.amount;
       return toDisplayAmount(asset, txnInfo.amount);
     } else return undefined;

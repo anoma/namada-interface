@@ -196,6 +196,11 @@ export const TransactionHistory = (): JSX.Element => {
                     value: "Stake",
                     ariaLabel: "Stake",
                   },
+                  {
+                    id: "unbond",
+                    value: "Unstake",
+                    ariaLabel: "Unstake",
+                  },
                 ]}
               />
               <div className="flex items-center bg-yellow/10 border border-yellow/30 rounded-sm px-3 py-2 mr-3 text-xs text-yellow-600 dark:text-yellow-400">
