@@ -341,7 +341,8 @@ export type TransferStage = IbcTransferStage | NamadaTransferStage;
 export type BaseTransferTransaction = TransferStage & {
   rpc: string;
   asset: Asset;
-  hash?: string;
+  hash: string;
+  innerHash: string;
   displayAmount: BigNumber;
   chainId: string;
   sourceAddress: string;

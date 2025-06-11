@@ -39,7 +39,7 @@ export function getToken(
   txn: Tx["tx"],
   nativeToken: string
 ): string | undefined {
-  if (txn?.kind === "bond") return nativeToken;
+  if (txn?.kind === "bond" || txn?.kind === "unbond") return nativeToken;
   let parsed;
   try {
     parsed = txn?.data ? JSON.parse(txn.data) : undefined;
@@ -62,7 +62,7 @@ export function getToken(
   return undefined;
 }
 
-const getBondTransactionInfo = (
+const getBondOrUnbondTransactionInfo = (
   tx: Tx["tx"]
 ): { amount: BigNumber; sender?: string; receiver?: string } | undefined => {
   if (!tx?.data) return undefined;
@@ -118,10 +118,12 @@ export const TransactionCard = ({
   const token = getToken(transaction, nativeToken ?? "");
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
   const asset = token ? chainAssetsMap[token] : undefined;
-  const isBondingTransaction = transactionTopLevel?.tx?.kind === "bond";
+  const isBondingOrUnbondingTransaction = ["bond", "unbond"].includes(
+    transactionTopLevel?.tx?.kind ?? ""
+  );
   const txnInfo =
-    isBondingTransaction ?
-      getBondTransactionInfo(transaction)
+    isBondingOrUnbondingTransaction ?
+      getBondOrUnbondTransactionInfo(transaction)
     : getTransactionInfo(transaction);
   const receiver = txnInfo?.receiver;
   const sender = txnInfo?.sender;
@@ -154,6 +156,7 @@ export const TransactionCard = ({
     if (isReceived) return "Receive";
     if (kind.startsWith("ibc")) return "IBC Transfer";
     if (kind === "bond") return "Stake";
+    if (kind === "unbond") return "Unstake";
     if (kind === "claimRewards") return "Claim Rewards";
     if (kind === "transparentTransfer") return "Transparent Transfer";
     if (kind === "shieldingTransfer") return "Shielding Transfer";
@@ -171,7 +174,9 @@ export const TransactionCard = ({
           "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 items-center my-1 font-semibold",
           "gap-5 bg-neutral-800 rounded-sm px-5 text-white border border-transparent",
           "transition-colors duration-200 hover:border-neutral-500",
-          isBondingTransaction && validator?.imageUrl ? "py-3" : "py-5"
+          isBondingOrUnbondingTransaction && validator?.imageUrl ?
+            "py-3"
+          : "py-5"
         )
       )}
     >
@@ -205,7 +210,7 @@ export const TransactionCard = ({
             <div className="relative group/tooltip">
               <CopyToClipboardControl
                 className="ml-1.5 text-neutral-400"
-                value={transaction?.txId ?? ""}
+                value={transaction?.wrapperId ?? ""}
               />
               <Tooltip position="right" className="p-2 -mr-3 w-[150px] z-10">
                 Copy transaction hash
@@ -239,7 +244,7 @@ export const TransactionCard = ({
         />
       </div>
 
-      {!isBondingTransaction && (
+      {!isBondingOrUnbondingTransaction && (
         <div className="flex flex-col">
           <h4 className={isShieldedAddress(sender ?? "") ? "text-yellow" : ""}>
             From
@@ -260,14 +265,14 @@ export const TransactionCard = ({
 
       <div className="flex flex-col">
         <h4 className={isShieldedAddress(receiver ?? "") ? "text-yellow" : ""}>
-          {isBondingTransaction ? "Validator" : "To"}
+          {isBondingOrUnbondingTransaction ? "Validator" : "To"}
         </h4>
         <h4 className={isShieldedAddress(receiver ?? "") ? "text-yellow" : ""}>
           {isShieldedAddress(receiver ?? "") ?
             <span className="flex items-center gap-1">
               <FaLock className="w-4 h-4" /> Shielded
             </span>
-          : isBondingTransaction ?
+          : isBondingOrUnbondingTransaction ?
             validator?.imageUrl ?
               <img
                 src={validator?.imageUrl}

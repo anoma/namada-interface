@@ -28,6 +28,7 @@ export const transferKindOptions = [
   "ibcUnshieldingTransfer",
   "ibcShieldedTransfer",
   "bond",
+  "unbond",
   "received",
 ];
 

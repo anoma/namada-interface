@@ -272,7 +272,8 @@ export const IbcWithdraw = (): JSX.Element => {
     invariant(props, "Invalid transaction data");
 
     const transferTransaction: IbcTransferTransactionData = {
-      hash: tx.encodedTxData.txs[0].innerTxHashes[0].toLowerCase(),
+      hash: tx.encodedTxData.txs[0].hash,
+      innerHash: tx.encodedTxData.txs[0].innerTxHashes[0].toLowerCase(),
       currentStep: TransferStep.WaitingConfirmation,
       rpc: "",
       type: shielded ? "ShieldedToIbc" : "TransparentToIbc",

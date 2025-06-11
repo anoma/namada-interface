@@ -62,18 +62,9 @@ export type UseTransactionOutput<T> = {
 >;
 
 const getNotificationId = <T,>(tx: TransactionPair<T>): string => {
-  let notificationId: string;
-  // For ibc transfers(not withdraws, those a re not handled by useTransaction hook),
-  // we need to create a unique notification ID based on inner transaction hashes.
-  if (tx.encodedTxData.type === "buildIbcTransfer") {
-    notificationId = createNotificationId(
-      tx.encodedTxData.txs.map((tx) => tx.innerTxHashes).flat()
-    );
-  } else {
-    notificationId = createNotificationId(
-      tx.encodedTxData.txs.map((tx) => tx.hash)
-    );
-  }
+  const notificationId = createNotificationId(
+    tx.encodedTxData.txs.map((tx) => tx.hash)
+  );
 
   return notificationId;
 };

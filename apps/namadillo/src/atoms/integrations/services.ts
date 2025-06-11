@@ -272,7 +272,8 @@ export const updateIbcWithdrawalStatus = async (
   if (!tx.hash) throw new Error("Transaction hash not defined");
 
   const api = getIndexerApi();
-  const response = await api.apiV1IbcTxIdStatusGet(tx.hash);
+  // We have to pass inner hash here to get specific transaction status
+  const response = await api.apiV1IbcTxIdStatusGet(tx.innerHash);
   const { status } = response.data;
 
   if (status === "success") {
