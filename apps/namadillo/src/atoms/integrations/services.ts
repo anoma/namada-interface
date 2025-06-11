@@ -100,6 +100,8 @@ export const getShieldedArgs = async (
 
   const memo = (await workerLink.generateIbcShieldingMemo(msg)).payload;
 
+  worker.terminate();
+
   return {
     receiver: sdk.masp.maspAddress(),
     memo,
@@ -346,7 +348,7 @@ export const simulateIbcTransferGas = async (
   stargateClient: SigningStargateClient,
   sourceAddress: string,
   transferMsg: MsgTransferEncodeObject,
-  additionalPercentage: number = 0.05
+  additionalPercentage: number = 0.3
 ): Promise<number> => {
   try {
     const estimatedGas = await stargateClient.simulate(
@@ -398,6 +400,7 @@ export const transactionTypeToEventName = (
     case "TransparentToTransparent":
       return "TransparentTransfer";
 
+    case "ShieldedToIbc":
     case "TransparentToIbc":
       return "IbcWithdraw";
 

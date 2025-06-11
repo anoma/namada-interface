@@ -11,7 +11,7 @@ import { useKeychainVersion } from "hooks/useKeychainVersion";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { wallets } from "integrations";
 import { useAtomValue } from "jotai";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { BsQuestionCircleFill } from "react-icons/bs";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -51,6 +51,7 @@ type TransferModuleConfig = {
   onChangeWallet?: (wallet: WalletProvider) => void;
   onChangeChain?: (chain: Chain) => void;
   onChangeShielded?: (isShielded: boolean) => void;
+  isSyncingMasp?: boolean;
   // Additional information if selected account is a ledger
   ledgerAccountInfo?: LedgerAccountInfo;
 };
@@ -100,6 +101,7 @@ export type TransferModuleProps = {
   currentStatusExplanation?: string;
   completedAt?: Date;
   isShieldedTx?: boolean;
+  isSyncingMasp?: boolean;
   buttonTextErrors?: Partial<Record<ValidationResult, string>>;
   onComplete?: () => void;
 } & (
@@ -119,6 +121,7 @@ type ValidationResult =
   | "NotEnoughBalanceForFees"
   | "KeychainNotCompatibleWithMasp"
   | "CustomAddressNotMatchingChain"
+  | "TheSameAddress"
   | "NoLedgerConnected"
   | "Ok";
 
@@ -126,22 +129,15 @@ type ValidationResult =
 const isValidDestinationAddress = ({
   customAddress,
   chain,
-  shielded,
 }: {
   customAddress: string;
   chain: Chain | undefined;
-  shielded: boolean;
 }): boolean => {
   // Skip validation if no custom address or chain provided
   if (!customAddress || !chain) return true;
 
   // Check shielded/transparent address requirements for Namada
   if (chain.bech32_prefix === "nam") {
-    // If shielded is required but address is transparent, validation fails
-    if (shielded && isTransparentAddress(customAddress)) return false;
-    // If transparent is required but address is shielded, validation fails
-    if (!shielded && isShieldedAddress(customAddress)) return false;
-    // Valid Namada address that matches transaction type
     return (
       isTransparentAddress(customAddress) || isShieldedAddress(customAddress)
     );
@@ -169,6 +165,7 @@ export const TransferModule = ({
   completedAt,
   onComplete,
   buttonTextErrors = {},
+  isSyncingMasp = false,
   isShieldedTx = false,
 }: TransferModuleProps): JSX.Element => {
   const navigate = useNavigate();
@@ -194,6 +191,8 @@ export const TransferModule = ({
   const availableAssets: AddressWithAssetAndAmountMap = useMemo(() => {
     return filterAvailableAssetsWithBalance(source.availableAssets);
   }, [source.availableAssets]);
+
+  const firstAvailableAsset = Object.values(availableAssets)[0];
 
   const selectedAsset = mapUndefined(
     (address) => source.availableAssets?.[address],
@@ -229,11 +228,12 @@ export const TransferModule = ({
   const validationResult = useMemo((): ValidationResult => {
     if (!source.wallet) {
       return "NoSourceWallet";
+    } else if (source.walletAddress === destination.customAddress) {
+      return "TheSameAddress";
     } else if (
       !isValidDestinationAddress({
         customAddress: destination.customAddress ?? "",
         chain: destination.chain,
-        shielded: isShieldedTx,
       })
     ) {
       return "CustomAddressNotMatchingChain";
@@ -395,6 +395,8 @@ export const TransferModule = ({
     switch (validationResult) {
       case "NoSourceWallet":
         return getText("Select Wallet");
+      case "TheSameAddress":
+        return getText("Source and destination addresses are the same");
 
       case "NoSourceChain":
       case "NoDestinationChain":
@@ -463,6 +465,12 @@ export const TransferModule = ({
     []
   );
 
+  useEffect(() => {
+    if (!selectedAsset?.asset && firstAvailableAsset) {
+      source.onChangeSelectedAsset?.(firstAvailableAsset?.originalAddress);
+    }
+  }, [firstAvailableAsset]);
+
   return (
     <>
       <section className="max-w-[480px] mx-auto" role="widget">
@@ -476,6 +484,7 @@ export const TransferModule = ({
         >
           <TransferSource
             isConnected={Boolean(source.connected)}
+            isSyncingMasp={isSyncingMasp}
             wallet={source.wallet}
             walletAddress={source.walletAddress}
             asset={selectedAsset?.asset}

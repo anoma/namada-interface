@@ -1,18 +1,32 @@
 import { shieldedBalanceAtom, shieldedSyncProgress } from "atoms/balance/atoms";
+import { useRequiresNewShieldedSync } from "hooks/useRequiresNewShieldedSync";
 import { useAtomValue } from "jotai";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 export const ShieldedSyncProgress = (): JSX.Element => {
   const syncProgress = useAtomValue(shieldedSyncProgress);
   const { isFetching } = useAtomValue(shieldedBalanceAtom);
+  const [showShieldedSync, setShowShieldedSync] = useState(false);
+  const requiresNewShieldedSync = useRequiresNewShieldedSync();
 
   const roundedProgress = useMemo(() => {
     // Only update when the progress changes by at least 1%
     return Math.min(Math.floor(syncProgress * 100), 100);
   }, [Math.floor(syncProgress * 100)]);
 
-  if (!isFetching) {
+  useEffect(() => {
+    let timeout = undefined;
+    if (isFetching && roundedProgress < 100) {
+      // wait 2.5 s before we allow the ring to appear
+      timeout = setTimeout(() => setShowShieldedSync(true), 2500);
+    } else {
+      setShowShieldedSync(false);
+    }
+    return () => clearTimeout(timeout);
+  }, [isFetching, roundedProgress]);
+
+  if (!showShieldedSync && !requiresNewShieldedSync) {
     return <></>;
   }
 

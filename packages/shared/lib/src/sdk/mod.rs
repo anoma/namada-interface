@@ -38,7 +38,7 @@ use namada_sdk::rpc::{self, query_denom, query_epoch, InnerTxResult, TxAppliedEv
 use namada_sdk::signing::SigningTxData;
 use namada_sdk::string_encoding::Format;
 use namada_sdk::tendermint_rpc::Url;
-use namada_sdk::token::{Amount, DenominatedAmount, MaspEpoch};
+use namada_sdk::token::{Amount, DenominatedAmount};
 use namada_sdk::token::{MaspTxId, OptionExt};
 use namada_sdk::tx::data::{ResultCode, TxType};
 use namada_sdk::tx::Section;
@@ -619,7 +619,7 @@ impl Sdk {
         let _ = &self.namada.shielded_mut().await.load().await?;
 
         let xfvks = args
-            .data
+            .sources
             .iter()
             .map(|data| data.source.to_viewing_key())
             .collect::<Vec<_>>();
@@ -663,7 +663,11 @@ impl Sdk {
 
         let _ = &self.namada.shielded_mut().await.load().await?;
 
-        let xfvks = vec![args.source.to_viewing_key()];
+        let xfvks = args
+            .sources
+            .iter()
+            .map(|s| s.source.to_viewing_key())
+            .collect();
 
         let ((tx, signing_data), masp_signing_data) = match bparams {
             BuildParams::RngBuildParams(mut bparams) => {
@@ -1026,11 +1030,12 @@ impl Sdk {
         shielded.utils.chain_id = chain_id.clone();
         shielded.load().await?;
 
+        let epoch = rpc::query_masp_epoch(self.namada.client()).await?;
+
         let (_, masp_value) = shielded
             .convert_namada_amount_to_masp(
                 self.namada.client(),
-                // Masp epoch should not matter
-                MaspEpoch::zero(),
+                epoch,
                 &token,
                 amount.denom(),
                 amount.amount(),

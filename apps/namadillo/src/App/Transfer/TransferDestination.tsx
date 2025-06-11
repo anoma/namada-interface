@@ -128,6 +128,7 @@ export const TransferDestination = ({
               )}
             </div>
           )}
+
           {customAddressActive && (
             <Stack gap={8}>
               {onToggleCustomAddress && (
@@ -158,12 +159,13 @@ export const TransferDestination = ({
       {isSubmitting && (
         <footer>
           <hr className="mt-4 mb-2.5 mx-2 border-white opacity-[5%]" />
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-4">
             <SelectedChain chain={chain} wallet={wallet} iconSize="36px" />
             {wallet && walletAddress && (
               <SelectedWallet
                 wallet={wallet}
                 address={customAddressActive ? address : walletAddress}
+                displayFullAddress={false}
               />
             )}
           </div>

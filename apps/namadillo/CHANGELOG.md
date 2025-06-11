@@ -1,5 +1,75 @@
 # Changelog
 
+## [1.25.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.24.0...namadillo@v1.25.0) (2025-06-07)
+
+
+### Features
+
+* Adding masp sync loading to TransferModule ([#2089](https://github.com/anoma/namada-interface/issues/2089)) ([099145c](https://github.com/anoma/namada-interface/commit/099145ce22d971d3009b58247c33767910603e36))
+* Creating new unclaimed rewards box ([#2110](https://github.com/anoma/namada-interface/issues/2110)) ([b9970ff](https://github.com/anoma/namada-interface/commit/b9970ff9f07e8de37b66560434b2303371670078))
+* Enable transfers between shielded and transparent addresses in the ([#2109](https://github.com/anoma/namada-interface/issues/2109)) ([dc466f7](https://github.com/anoma/namada-interface/commit/dc466f75f491916793270c0c1832b3589e8c27ce))
+* Review spacement around transfer modules ([#2111](https://github.com/anoma/namada-interface/issues/2111)) ([79ad4e8](https://github.com/anoma/namada-interface/commit/79ad4e8a69c1d71fe7fb7e48b3b5011266ee8d8c))
+
+
+### Bug Fixes
+
+* Images on AssetsModalCard not appearing on Firefox ([#2100](https://github.com/anoma/namada-interface/issues/2100)) ([fd4b75f](https://github.com/anoma/namada-interface/commit/fd4b75f0d403701b689f72c7153f584bcf87a9ac))
+* Update history browser alert ([#2090](https://github.com/anoma/namada-interface/issues/2090)) ([1b3f4b9](https://github.com/anoma/namada-interface/commit/1b3f4b9cc12034ffdc20de9908d3bc1367fcb019))
+
+## [1.24.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.23.0...namadillo@v1.24.0) (2025-06-06)
+
+
+### Features
+
+* Fathom integration ([#2074](https://github.com/anoma/namada-interface/issues/2074)) ([139bb37](https://github.com/anoma/namada-interface/commit/139bb3733b3ea9dc1fbea5f727bfb2167073eaf9))
+* Remove buttons from home ([#2088](https://github.com/anoma/namada-interface/issues/2088)) ([8a1d154](https://github.com/anoma/namada-interface/commit/8a1d1541b6e75399f60b4b8b69e670f24a74e294))
+* Update sync indicator layout ([#2084](https://github.com/anoma/namada-interface/issues/2084)) ([9077420](https://github.com/anoma/namada-interface/commit/90774204d6a802be360a1a298cb999664b884a34))
+
+
+### Bug Fixes
+
+* Fix millisecond to second comparison to fix sorting ([#2080](https://github.com/anoma/namada-interface/issues/2080)) ([18a9105](https://github.com/anoma/namada-interface/commit/18a9105582546b2253bdc63e44f1d5f61dac0f28))
+* Namada beeing installable ([#2082](https://github.com/anoma/namada-interface/issues/2082)) ([1eea180](https://github.com/anoma/namada-interface/commit/1eea18029ad59466b6f7a08a93a911aad7569c11))
+* Passing timestamp in millis instead of seconds to get block height ([#2083](https://github.com/anoma/namada-interface/issues/2083)) ([be3b377](https://github.com/anoma/namada-interface/commit/be3b377c0cfa60d98aba7725c2c3e43b32541745))
+* React components keys using asset base ([#2076](https://github.com/anoma/namada-interface/issues/2076)) ([c04cec5](https://github.com/anoma/namada-interface/commit/c04cec5264166600c6da2fdf2b158dea19dde6f1))
+
+## [1.23.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.22.0...namadillo@v1.23.0) (2025-06-04)
+
+
+### Features
+
+* Masp reward calculator ([#2033](https://github.com/anoma/namada-interface/issues/2033)) ([dbef8b2](https://github.com/anoma/namada-interface/commit/dbef8b208462cf276022345eed0bb096ce8d4acf))
+* Update for blinking sync and tooltip addy ([#2059](https://github.com/anoma/namada-interface/issues/2059)) ([952179b](https://github.com/anoma/namada-interface/commit/952179b322de693a96e2a20f4e2c3fb9623fd9c0))
+* Update syncing view ([#2066](https://github.com/anoma/namada-interface/issues/2066)) ([cb38729](https://github.com/anoma/namada-interface/commit/cb3872944631d51461827433adcee569c3f519ef))
+
+
+### Bug Fixes
+
+* Add warning on Transaction History table for MASP txns ([#2070](https://github.com/anoma/namada-interface/issues/2070)) ([a2244f0](https://github.com/anoma/namada-interface/commit/a2244f01964084bb7b53dd26494473d9c4d1185d))
+* Awa feedback UI fixes ([#2067](https://github.com/anoma/namada-interface/issues/2067)) ([3fdf237](https://github.com/anoma/namada-interface/commit/3fdf2377f17e5bd37bfb246a94cca67181af6fe8))
+* Increase additional percentage for simulated ibc transfer gas fee ([#2068](https://github.com/anoma/namada-interface/issues/2068)) ([1f27ca8](https://github.com/anoma/namada-interface/commit/1f27ca8da402943c655f4eb6689c8215478e7e71))
+
+## [1.22.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.21.0...namadillo@v1.22.0) (2025-05-28)
+
+
+### Features
+
+* Fix sync indicator ([#2051](https://github.com/anoma/namada-interface/issues/2051)) ([ba8ef63](https://github.com/anoma/namada-interface/commit/ba8ef636e4da9bfeb0d218d1f1209bdd5a14acd2))
+* Update syncing light ([#2043](https://github.com/anoma/namada-interface/issues/2043)) ([4658fe2](https://github.com/anoma/namada-interface/commit/4658fe279e74d83ba3af4db8e7621175d77633df))
+
+
+### Bug Fixes
+
+* Add loader to gas fee modal that waits for shielded data ([#2042](https://github.com/anoma/namada-interface/issues/2042)) ([856fb6e](https://github.com/anoma/namada-interface/commit/856fb6ed4a6dd246cb3540d5c827f57e66a35c74))
+* Add relative to div on `/masp/shield` ([#2038](https://github.com/anoma/namada-interface/issues/2038)) ([682c4b9](https://github.com/anoma/namada-interface/commit/682c4b94b10af58d903c08ccc6812147ae9de2f5))
+* Adjust gas for ibc deposits and terminate workers to free up memory ([#2049](https://github.com/anoma/namada-interface/issues/2049)) ([e5693bd](https://github.com/anoma/namada-interface/commit/e5693bd1572d4227bace859504100f678bc984ba))
+* Delete overflow hidden ([#2041](https://github.com/anoma/namada-interface/issues/2041)) ([fe7afb1](https://github.com/anoma/namada-interface/commit/fe7afb1e3b3be14b38c1899dba5b8845b7fb079a))
+* NAM transparent transfer shows generating masp in the button text ([#2044](https://github.com/anoma/namada-interface/issues/2044)) ([8747c25](https://github.com/anoma/namada-interface/commit/8747c258ace55ad4e0b5edee0c594c3280fce055))
+* Shielded transfer receipt not showing details ([#2045](https://github.com/anoma/namada-interface/issues/2045)) ([76f4396](https://github.com/anoma/namada-interface/commit/76f4396176f7048a56e7f103e38927faad95a9e3))
+* Transferring TIA was displaying 0 on notifications and summary ([#2048](https://github.com/anoma/namada-interface/issues/2048)) ([042a440](https://github.com/anoma/namada-interface/commit/042a440e5f4db9d8d4a007c89971378bcc3165e8))
+* Update re-routing after modal close for Staking Rewards Claiming ([#2047](https://github.com/anoma/namada-interface/issues/2047)) ([191662d](https://github.com/anoma/namada-interface/commit/191662d897b6d7180f5595308d30eae75c28d086))
+* Update route for claiming on Claim NAM button ([#2046](https://github.com/anoma/namada-interface/issues/2046)) ([12f12d0](https://github.com/anoma/namada-interface/commit/12f12d0bc3c1dad41c7221336d2856f5e704f852))
+
 ## [1.21.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.20.2...namadillo@v1.21.0) (2025-05-22)
 
 

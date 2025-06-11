@@ -136,6 +136,8 @@ export const GasFeeModal = ({
     return findUserBalanceByTokenAddress(item.token).gt(0);
   };
 
+  const isLoading = isShielded && !shieldedAmount.data;
+
   return (
     <Modal onClose={onClose}>
       <div
@@ -153,12 +155,10 @@ export const GasFeeModal = ({
         >
           <IoClose />
         </i>
-
         <h2 className="text-xl font-medium">Fee Options</h2>
         <div className="text-sm">
           Gas fees deducted from your Namada accounts
         </div>
-
         <div className="text-sm mt-8 mb-1">Fee</div>
         <div className="grid grid-cols-3 rounded-sm overflow-hidden">
           {[
@@ -201,14 +201,15 @@ export const GasFeeModal = ({
             );
           })}
         </div>
-
         <div className="grid grid-cols-[1.5fr_1fr_1fr] mb-1 mt-8 pr-9 gap-1">
           <span className="text-sm">Fee Token</span>
           <span className="text-xs text-neutral-500 text-right">Balance</span>
           <span className="text-xs text-neutral-500 text-right">Fee</span>
         </div>
+
         <StyledSelectBox
           id="fee-token-select"
+          disabled={isLoading}
           value={gasConfig.gasToken}
           containerProps={{
             className: twMerge(
@@ -283,15 +284,26 @@ export const GasFeeModal = ({
                         </div>
                       </div>
                       <div className="text-right">
-                        {totalInDollars && (
-                          <FiatCurrency amount={totalInDollars} />
-                        )}
-                        <div className="text-neutral-500 text-xs">
-                          <TokenCurrency
-                            amount={displayAmount}
-                            symbol={asset.symbol}
+                        {isLoading ?
+                          <i
+                            className={clsx(
+                              "inline-block w-4 h-4 border-2",
+                              "border-transparent border-t-yellow rounded-[50%]",
+                              "animate-loadingSpinner"
+                            )}
                           />
-                        </div>
+                        : <>
+                            {totalInDollars && (
+                              <FiatCurrency amount={totalInDollars} />
+                            )}
+                            <div className="text-neutral-500 text-xs">
+                              <TokenCurrency
+                                amount={displayAmount}
+                                symbol={asset.symbol}
+                              />
+                            </div>
+                          </>
+                        }
                       </div>
                     </div>
                   ),

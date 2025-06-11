@@ -17,7 +17,6 @@ import { ClaimableRewardsModalStage } from "./ClaimableRewardsModalStage";
 import { ClaimRewardsSubmitModalStage } from "./ClaimRewardsSubmitModalStage";
 
 export const StakingRewards = (): JSX.Element => {
-  const { onCloseModal } = useModalCloseEvent();
   const { data: account } = useAtomValue(defaultAccountAtom);
   const [rewardsToClaim, setRewardsToClaim] = useState<ClaimRewardsMsgValue[]>(
     []
@@ -29,6 +28,7 @@ export const StakingRewards = (): JSX.Element => {
     data: rewards,
     isSuccess: successfullyLoadedRewards,
   } = useAtomValue(claimableRewardsAtom);
+  const { onCloseModal } = useModalCloseEvent();
 
   const parseStakingRewardsParams = (
     rewards: AddressBalance

@@ -4,6 +4,7 @@ type TabSelectorItem = {
   text: React.ReactNode;
   id: string;
   className?: string;
+  buttonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
 };
 
 type TabSelectorProps = {
@@ -18,25 +19,30 @@ export const TabSelector = ({
   onChange,
 }: TabSelectorProps): JSX.Element => {
   return (
-    <ul className="flex">
-      {items.map((item) => (
-        <li key={item.id} className="w-full">
-          <button
-            type="button"
-            onClick={() => onChange(item)}
-            className={twMerge(
-              clsx(
-                "w-full text-current rounded-sm bg-black opacity-50 py-1",
-                "hover:opacity-80 transition-opacity duration-200",
-                { "border border-current opacity-100": item.id === active },
-                item.className
-              )
-            )}
-          >
-            {item.text}
-          </button>
-        </li>
-      ))}
+    <ul className="flex items-center">
+      {items.map((item) => {
+        return (
+          <li key={item.id} className="w-full">
+            <button
+              type="button"
+              onClick={() => onChange(item)}
+              className={twMerge(
+                clsx(
+                  "w-full text-current rounded-sm bg-black/50 py-1",
+                  "transition-colors duration-200",
+                  { "border border-current opacity-100": item.id === active },
+                  { "hover:bg-black/80": !item.buttonProps?.disabled },
+                  { "!cursor-auto": item.buttonProps?.disabled },
+                  item.className
+                )
+              )}
+              {...(item.buttonProps || {})}
+            >
+              {item.text}
+            </button>
+          </li>
+        );
+      })}
     </ul>
   );
 };

@@ -1,21 +1,20 @@
-import { CopyToClipboardControl } from "@namada/components";
-import { TransactionHistory as TransactionHistoryType } from "@namada/indexer-client";
+import { CopyToClipboardControl, Tooltip } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { AssetImage } from "App/Transfer/AssetImage";
-import { isShieldedAddress, isTransparentAddress } from "App/Transfer/common";
-import { indexerApiAtom } from "atoms/api";
-import { fetchBlockTimestampByHeight } from "atoms/balance/services";
+import {
+  isMaspAddress,
+  isShieldedAddress,
+  isTransparentAddress,
+} from "App/Transfer/common";
 import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
+import { TransactionHistory as TransactionHistoryType } from "atoms/transactions/atoms";
 import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
 import { FaLock } from "react-icons/fa6";
 import {
-  IoArrowBack,
-  IoArrowForward,
   IoCheckmarkCircleOutline,
   IoCloseCircleOutline,
 } from "react-icons/io5";
@@ -62,19 +61,6 @@ export function getToken(
 
   return undefined;
 }
-
-const getTitle = (kind: string | undefined, isReceived: boolean): string => {
-  if (!kind) return "Unknown";
-  if (isReceived) return "Receive";
-  if (kind.startsWith("ibc")) return "IBC Transfer";
-  if (kind === "bond") return "Stake";
-  if (kind === "claimRewards") return "Claim Rewards";
-  if (kind === "transparentTransfer") return "Transparent Transfer";
-  if (kind === "shieldingTransfer") return "Shielding Transfer";
-  if (kind === "unshieldingTransfer") return "Unshielding Transfer";
-  if (kind === "shieldedTransfer") return "Shielded Transfer";
-  return "Transfer";
-};
 
 const getBondTransactionInfo = (
   tx: Tx["tx"]
@@ -128,7 +114,6 @@ export const TransactionCard = ({
   tx: transactionTopLevel,
 }: Props): JSX.Element => {
   const transaction = transactionTopLevel.tx;
-  const isReceived = transactionTopLevel?.kind === "received";
   const nativeToken = useAtomValue(nativeTokenAddressAtom).data;
   const token = getToken(transaction, nativeToken ?? "");
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
@@ -144,33 +129,12 @@ export const TransactionCard = ({
     : undefined;
   const receiver = txnInfo?.receiver;
   const sender = txnInfo?.sender;
+  const isReceived = transactionTopLevel?.kind === "received";
+  const isInternalUnshield =
+    transactionTopLevel?.kind === "received" && isMaspAddress(sender ?? "");
   const transactionFailed = transaction?.exitCode === "rejected";
   const validators = useAtomValue(allValidatorsAtom);
   const validator = validators?.data?.find((v) => v.address === receiver);
-  const api = useAtomValue(indexerApiAtom);
-  const [timestamp, setTimestamp] = useState<number | undefined>(undefined);
-
-  useEffect(() => {
-    const getBlockTimestamp = async (): Promise<void> => {
-      // TODO: need to update the type on indexer
-      // @ts-expect-error need to update the type on indexer
-      if (transactionTopLevel?.blockHeight && api) {
-        try {
-          const timestamp = await fetchBlockTimestampByHeight(
-            api,
-            // @ts-expect-error need to update the type on indexer
-            transactionTopLevel.blockHeight
-          );
-          setTimestamp(timestamp);
-        } catch (error) {
-          console.error("Failed to fetch block height:", error);
-        }
-      }
-    };
-
-    getBlockTimestamp();
-    // @ts-expect-error need to update the type on indexer
-  }, [api, transactionTopLevel?.blockHeight]);
 
   const renderKeplrIcon = (address: string): JSX.Element | null => {
     if (isShieldedAddress(address)) return null;
@@ -178,13 +142,30 @@ export const TransactionCard = ({
     return <img src={keplrSvg} height={18} width={18} />;
   };
 
+  const getTitle = (tx: Tx["tx"]): string => {
+    const kind = tx?.kind;
+
+    if (!kind) return "Unknown";
+    if (isInternalUnshield) return "Unshielding Transfer";
+    if (isReceived) return "Receive";
+    if (kind.startsWith("ibc")) return "IBC Transfer";
+    if (kind === "bond") return "Stake";
+    if (kind === "claimRewards") return "Claim Rewards";
+    if (kind === "transparentTransfer") return "Transparent Transfer";
+    if (kind === "shieldingTransfer") return "Shielding Transfer";
+    if (kind === "unshieldingTransfer") return "Unshielding Transfer";
+    if (kind === "shieldedTransfer") return "Shielded Transfer";
+    return "Transfer";
+  };
+
   return (
     <article
       className={twMerge(
         clsx(
           "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 items-center my-1 font-semibold",
-          "gap-5 bg-neutral-800 rounded-sm px-5 py-5 text-white border border-transparent",
-          "transition-colors duration-200 hover:border-neutral-500"
+          "gap-5 bg-neutral-800 rounded-sm px-5 text-white border border-transparent",
+          "transition-colors duration-200 hover:border-neutral-500",
+          isBondingTransaction && validator?.imageUrl ? "py-3" : "py-5"
         )
       )}
     >
@@ -197,8 +178,12 @@ export const TransactionCard = ({
             })
           )}
         >
-          {isReceived && <IoArrowBack width={20} height={20} />}
-          {!isReceived && <IoArrowForward width={20} height={20} />}
+          {!transactionFailed && (
+            <IoCheckmarkCircleOutline className="ml-1 mt-0.5 w-10 h-10" />
+          )}
+          {transactionFailed && (
+            <IoCloseCircleOutline className="ml-1 mt-0.5 w-10 h-10" />
+          )}
         </i>
 
         <div className="flex flex-col">
@@ -210,21 +195,20 @@ export const TransactionCard = ({
               })
             )}
           >
-            {getTitle(transaction?.kind, isReceived)}{" "}
-            {!transactionFailed && (
-              <IoCheckmarkCircleOutline className="ml-1 mt-0.5 w-5 h-5" />
-            )}
-            {transactionFailed && (
-              <IoCloseCircleOutline className="ml-1 mt-0.5 w-5 h-5" />
-            )}
-            <CopyToClipboardControl
-              className="ml-1.5 text-neutral-400"
-              value={transaction?.txId ?? ""}
-            />
+            {transactionFailed && "Failed"} {getTitle(transaction)}{" "}
+            <div className="relative group/tooltip">
+              <CopyToClipboardControl
+                className="ml-1.5 text-neutral-400"
+                value={transaction?.txId ?? ""}
+              />
+              <Tooltip position="right" className="p-2 -mr-3 w-[150px] z-10">
+                Copy transaction hash
+              </Tooltip>
+            </div>
           </h3>
           <h3 className="text-neutral-400">
-            {timestamp ?
-              new Date(timestamp * 1000)
+            {transactionTopLevel?.timestamp ?
+              new Date(transactionTopLevel.timestamp * 1000)
                 .toLocaleString("en-US", {
                   day: "2-digit",
                   month: "2-digit",

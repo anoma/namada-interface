@@ -3866,6 +3866,7 @@ __metadata:
     eslint-plugin-import: "npm:^2.30.0"
     eslint-plugin-react: "npm:^7.35.2"
     eslint-plugin-react-hooks: "npm:^4.6.0"
+    fathom-client: "npm:^3.7.2"
     fp-ts: "npm:^2.16.1"
     framer-motion: "npm:^11.3.28"
     globals: "npm:^15.9.0"
@@ -3925,9 +3926,11 @@ __metadata:
     "@dao-xyz/borsh": "npm:^5.1.5"
     "@ledgerhq/hw-transport": "npm:^6.31.4"
     "@ledgerhq/hw-transport-webusb": "npm:^6.29.4"
+    "@namada/shared": "npm:0.3.0"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.11.4"
     "@types/semver": "npm:^7.5.8"
+    "@types/w3c-web-usb": "npm:^1.0.10"
     "@zondax/ledger-namada": "npm:^2.0.0"
     babel-jest: "npm:^29.0.3"
     bignumber.js: "npm:^9.1.1"
@@ -3959,7 +3962,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@namada/shared@workspace:packages/shared":
+"@namada/shared@npm:0.3.0, @namada/shared@workspace:packages/shared":
   version: 0.0.0-use.local
   resolution: "@namada/shared@workspace:packages/shared"
   dependencies:
@@ -10801,6 +10804,13 @@ __metadata:
   dependencies:
     reusify: "npm:^1.0.4"
   checksum: 10c0/7be87ecc41762adbddf558d24182f50a4b1a3ef3ee807d33b7623da7aee5faecdcc94fce5aa13fe91df93e269f383232bbcdb2dc5338cd1826503d6063221f36
+  languageName: node
+  linkType: hard
+
+"fathom-client@npm:^3.7.2":
+  version: 3.7.2
+  resolution: "fathom-client@npm:3.7.2"
+  checksum: 10c0/f198669fba3aa14c4f1adc2b5afdce282503945fe3ac3d842ab7a6d46c90cf4a703ccad99abcbc71faa095348d9940a2d1aa0cf718c58e4d8479fa5dcb88aff2
   languageName: node
   linkType: hard
 

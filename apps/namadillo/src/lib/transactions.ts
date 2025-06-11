@@ -104,6 +104,31 @@ export const createIbcTransferMessage = (
   };
 };
 
+const getIbcTransferAttributes = (
+  tx: DeliverTxResponse
+): Record<string, string> => {
+  const transferAttributes = getEventAttribute(tx, "ibc_transfer");
+  if ("amount" in transferAttributes) {
+    return transferAttributes;
+  }
+
+  // Fallback to send_packet event if ibc_transfer doesn't contain amount
+  const sendPackageAttributes = getEventAttribute(tx, "send_packet");
+  if ("packet_data" in sendPackageAttributes) {
+    const packetData = JSON.parse(sendPackageAttributes.packet_data);
+    return {
+      ...transferAttributes,
+      amount: packetData.amount || "",
+      receiver: packetData.receiver || "",
+      sender: packetData.sender || "",
+    };
+  }
+
+  throw new Error(
+    "Unable to find the correct amount value in the IBC transaction"
+  );
+};
+
 export const createTransferDataFromIbc = (
   tx: DeliverTxResponse,
   rpc: string,
@@ -113,7 +138,7 @@ export const createTransferDataFromIbc = (
   details: IbcTransferStage,
   isShieldedTx: boolean
 ): TransferTransactionData => {
-  const transferAttributes = getEventAttribute(tx, "ibc_transfer");
+  const transferAttributes = getIbcTransferAttributes(tx);
   const packetAttributes = getEventAttribute(tx, "send_packet");
   const feeAttributes = getEventAttribute(tx, "fee_pay");
   const tipAttributes = getEventAttribute(tx, "tip_pay");

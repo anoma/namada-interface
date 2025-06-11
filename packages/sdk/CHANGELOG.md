@@ -8,6 +8,20 @@
 
 - enable panic hook in Rust SDK ([6393b82](https://github.com/anoma/namada-interface/commit/6393b8263320e0f6d137f4e015b982f17f7e497e))
 
+## [0.19.0](https://github.com/anoma/namada-interface/compare/sdk@v0.18.2...sdk@v0.19.0) (2025-06-06)
+
+
+### Features
+
+* Bump SDK for Namada libs v0.150.1 ([#2085](https://github.com/anoma/namada-interface/issues/2085)) ([e1a0b69](https://github.com/anoma/namada-interface/commit/e1a0b6959a476d51edc382c5fba9f247f59be9ea))
+
+## [0.18.2](https://github.com/anoma/namada-interface/compare/sdk@v0.18.1...sdk@v0.18.2) (2025-05-28)
+
+
+### Bug Fixes
+
+* Add missing Ledger dependency ([#2050](https://github.com/anoma/namada-interface/issues/2050)) ([7495e35](https://github.com/anoma/namada-interface/commit/7495e3597c21e5116a9ef77f2e184f53cabb47ee))
+
 ## [0.18.1](https://github.com/anoma/namada-interface/compare/sdk@v0.18.0...sdk@v0.18.1) (2025-05-08)
 
 

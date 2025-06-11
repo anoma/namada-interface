@@ -16,6 +16,8 @@ import { chainParametersAtom } from "atoms/chain/atoms";
 import { ledgerStatusDataAtom } from "atoms/ledger";
 import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
+import { useFathomTracker } from "hooks/useFathomTracker";
+import { useRequiresNewShieldedSync } from "hooks/useRequiresNewShieldedSync";
 import { useTransactionActions } from "hooks/useTransactionActions";
 import { useTransfer } from "hooks/useTransfer";
 import { useUrlState } from "hooks/useUrlState";
@@ -23,10 +25,9 @@ import { wallets } from "integrations";
 import invariant from "invariant";
 import { useAtom, useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import namadaChain from "registry/namada.json";
-import { twMerge } from "tailwind-merge";
 import { NamadaTransferTopHeader } from "./NamadaTransferTopHeader";
 
 export const NamadaTransfer: React.FC = () => {
@@ -38,12 +39,20 @@ export const NamadaTransfer: React.FC = () => {
   const [currentStatusExplanation, setCurrentStatusExplanation] = useState("");
 
   const shieldedParam = searchParams.get(params.shielded);
-  const shielded = shieldedParam ? shieldedParam === "1" : true;
+  const requiresNewShieldedSync = useRequiresNewShieldedSync();
+
+  const shielded = useMemo(() => {
+    if (requiresNewShieldedSync) {
+      return false;
+    }
+    return shieldedParam ? shieldedParam === "1" : true;
+  }, [shieldedParam, requiresNewShieldedSync]);
 
   const rpcUrl = useAtomValue(rpcUrlAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
   const [ledgerStatus, setLedgerStatusStop] = useAtom(ledgerStatusDataAtom);
+  const { trackEvent } = useFathomTracker();
 
   const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
     shielded ? namadaShieldedAssetsAtom : namadaTransparentAssetsAtom
@@ -85,10 +94,14 @@ export const NamadaTransfer: React.FC = () => {
     token: selectedAsset?.originalAddress ?? "",
     displayAmount: displayAmount ?? new BigNumber(0),
     onBeforeBuildTx: () => {
-      setCurrentStatus("Generating MASP Parameters...");
-      setCurrentStatusExplanation(
-        "Generating MASP parameters can take a few seconds. Please wait..."
-      );
+      if (isSourceShielded) {
+        setCurrentStatus("Generating MASP Parameters...");
+        setCurrentStatusExplanation(
+          "Generating MASP parameters can take a few seconds. Please wait..."
+        );
+      } else {
+        setCurrentStatus("Preparing transaction...");
+      }
     },
     onBeforeSign: () => {
       setCurrentStatus("Waiting for signature...");
@@ -149,11 +162,15 @@ export const NamadaTransfer: React.FC = () => {
 
         const tx = txList[0];
         storeTransaction(tx);
+        trackEvent(
+          `${shielded ? "Shielded" : "Transparent"} Transfer: complete`
+        );
       } else {
         throw "Invalid transaction response";
       }
     } catch (err) {
       setGeneralErrorMessage(err + "");
+      trackEvent(`${shielded ? "Shielded" : "Transparent"} Transfer: error`);
     }
   };
 
@@ -161,22 +178,12 @@ export const NamadaTransfer: React.FC = () => {
   setLedgerStatusStop(isPerformingTransfer);
 
   return (
-    <Panel className="min-h-[600px] rounded-sm flex flex-col flex-1 pt-5 pb-20">
-      <header className="flex flex-col items-center text-center mb-3 gap-6">
-        <h1
-          className={twMerge("mt-6 text-xl", isSourceShielded && "text-yellow")}
-        >
-          Send
-        </h1>
+    <Panel className="min-h-[600px] rounded-sm flex flex-col flex-1 py-9">
+      <header className="flex flex-col items-center text-center mb-8 gap-6">
         <NamadaTransferTopHeader
           isSourceShielded={isSourceShielded}
           isDestinationShielded={target ? isTargetShielded : undefined}
         />
-        <h2 className="text-md mb-5">
-          Send assets to other accounts.
-          <br />
-          Sending from Namada Shielded to Namada Shielded is fully private
-        </h2>
       </header>
       <TransferModule
         source={{
@@ -208,6 +215,7 @@ export const NamadaTransfer: React.FC = () => {
         currentStatus={currentStatus}
         currentStatusExplanation={currentStatusExplanation}
         isShieldedTx={isSourceShielded}
+        isSyncingMasp={requiresNewShieldedSync}
         isSubmitting={
           isPerformingTransfer || isTransferSuccessful || Boolean(completedAt)
         }

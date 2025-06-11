@@ -68,6 +68,7 @@ export type SettingsTomlOptions = {
   masp_indexer_url?: string;
   rpc_url?: string;
   localnet_enabled?: boolean;
+  fathom_site_id?: string;
 };
 
 export type ChainParameters = {
@@ -275,6 +276,12 @@ export const namadaTransferStages = {
 
 // Defines the steps in the IBC <> Namada transfer progress for tracking transaction stages.
 export const ibcTransferStages = {
+  ShieldedToIbc: [
+    TransferStep.Sign,
+    TransferStep.IbcWithdraw,
+    TransferStep.WaitingConfirmation,
+    TransferStep.Complete,
+  ] as const,
   TransparentToIbc: [
     TransferStep.Sign,
     TransferStep.IbcWithdraw,
@@ -303,24 +310,6 @@ export const allTransferStages = {
 
 export const transferPossibleStages = [
   ...new Set(Object.values(allTransferStages).flat()),
-] as const;
-
-export const transparentTransferTypes: Array<keyof AllTransferStages> = [
-  "ShieldedToTransparent",
-  "TransparentToIbc",
-  "TransparentToTransparent",
-  "IbcToTransparent",
-  "TransparentToShielded",
-] as const;
-
-export const ibcTransferTypes: Array<keyof AllTransferStages> = [
-  "IbcToTransparent",
-  "TransparentToIbc",
-  "IbcToShielded",
-] as const;
-
-export const allTransferTypes = [
-  ...ibcTransferTypes.concat(transparentTransferTypes),
 ] as const;
 
 type NamadaTransferStages = typeof namadaTransferStages;
@@ -357,6 +346,7 @@ export type BaseTransferTransaction = TransferStage & {
   chainId: string;
   sourceAddress: string;
   destinationAddress: string;
+  destinationChainId?: string;
   feePaid?: BigNumber;
   tipPaid?: BigNumber;
   resultTxHash?: string;
@@ -366,6 +356,7 @@ export type BaseTransferTransaction = TransferStage & {
   shielded?: boolean;
   createdAt: Date;
   updatedAt: Date;
+  timestamp?: number;
 };
 
 export type IbcTransferTransactionData = BaseTransferTransaction & {

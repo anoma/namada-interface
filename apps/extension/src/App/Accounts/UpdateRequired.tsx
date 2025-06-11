@@ -71,7 +71,8 @@ export const UpdateRequired = (): JSX.Element => {
                 </li>
                 <li>Delete the marked account from  the keychain</li>
                 <li>
-                  Re-Import the account using your seed phrase / private key
+                  Re-Import the account using your seed phrase / private key /
+                  Ledger HW wallet
                 </li>
               </ol>
             </Stack>

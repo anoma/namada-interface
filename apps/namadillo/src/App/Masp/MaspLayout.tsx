@@ -1,10 +1,8 @@
 import { NavigationFooter } from "App/AccountOverview/NavigationFooter";
 import { ConnectPanel } from "App/Common/ConnectPanel";
-import { MaspContainer } from "App/Common/MaspContainer";
 import { PageWithSidebar } from "App/Common/PageWithSidebar";
 import { Sidebar } from "App/Layout/Sidebar";
 import { MaspAssetRewards } from "App/Sidebars/MaspAssetRewards";
-import { ShieldAllBanner } from "App/Sidebars/ShieldAllBanner";
 import { shieldedBalanceAtom } from "atoms/balance";
 import { applicationFeaturesAtom } from "atoms/settings";
 import { useUserHasAccount } from "hooks/useIsAuthenticated";
@@ -30,14 +28,13 @@ export const MaspLayout: React.FC = () => {
   return (
     <PageWithSidebar>
       <div className="flex flex-col flex-1">
-        <MaspContainer>
+        <div className="flex relative flex-col flex-1">
           <Outlet />
-        </MaspContainer>
+        </div>
         <NavigationFooter className="mt-2 flex-none h-16" />
       </div>
       <Sidebar>
         {features.shieldingRewardsEnabled && <MaspAssetRewards />}
-        <ShieldAllBanner />
         <LearnAboutMasp />
       </Sidebar>
     </PageWithSidebar>

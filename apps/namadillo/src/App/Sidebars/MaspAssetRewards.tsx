@@ -50,8 +50,8 @@ export const MaspAssetRewards = (): JSX.Element => {
         )}
         <ul className="flex flex-col gap-1">
           {rewards.data &&
-            rewards.data.map((reward) => (
-              <li key={reward.asset.base}>
+            rewards.data.map((reward, idx) => (
+              <li key={reward.asset.base + "_" + idx}>
                 <MaspAssetRewardsItem
                   asset={reward.asset}
                   percentage={reward.maxRewardRate}

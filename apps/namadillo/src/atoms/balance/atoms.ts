@@ -11,6 +11,7 @@ import {
   chainAssetsMapAtom,
   chainParametersAtom,
   chainTokensAtom,
+  fetchBlockHeightByTimestamp,
   nativeTokenAddressAtom,
 } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
@@ -32,7 +33,6 @@ import {
   mapNamadaAssetsToTokenBalances,
 } from "./functions";
 import {
-  fetchBlockHeightByTimestamp,
   fetchShieldedBalance,
   fetchShieldedRewards,
   fetchShieldedRewardsPerToken,
@@ -121,7 +121,7 @@ export const shieldedSyncProgress = atom(0);
 
 export const lastCompletedShieldedSyncAtom = atomWithStorage<
   Record<Address, Date | undefined>
->("namadillo:last-shielded-sync", {});
+>("namadillo:last-shielded-sync", {}, undefined, { getOnInit: true });
 
 export const isShieldedSyncCompleteAtom = atom((get) => {
   return get(shieldedSyncProgress) === 1;

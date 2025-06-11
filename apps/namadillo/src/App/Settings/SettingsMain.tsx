@@ -49,7 +49,7 @@ export const SettingsMain = (): JSX.Element => {
                 value: !settings.advancedMode,
               });
             }}
-            label="PRO mode"
+            label="DEV mode"
             checked={settings.advancedMode}
             activeColor="yellow"
             color="white"
@@ -60,7 +60,7 @@ export const SettingsMain = (): JSX.Element => {
               icon={<FaInfo />}
               text={
                 <>
-                  PRO mode unlocks more technically advanced features in
+                  DEV mode unlocks more technically advanced features in
                   Namadillo that replicates the UX of the CLI. You can learn
                   more about these features{" "}
                   <a
