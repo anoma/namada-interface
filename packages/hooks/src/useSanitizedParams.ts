@@ -1,4 +1,4 @@
-import { sanitize } from "isomorphic-dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import { Params, useParams } from "react-router-dom";
 
 type ParamsT<ParamsOrKey> = Readonly<
@@ -12,7 +12,7 @@ export function useSanitizedParams<
   return Object.entries(params).reduce(
     (acc, [key, value]) => ({
       ...acc,
-      [key]: typeof value === "string" ? sanitize(value) : value,
+      [key]: typeof value === "string" ? DOMPurify.sanitize(value) : value,
     }),
     {} as ParamsT<ParamsOrKey>
   );
