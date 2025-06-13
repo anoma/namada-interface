@@ -16,9 +16,8 @@ export const proposalStatusToString = (status: ProposalStatus): string => {
   const statusText: Record<ProposalStatus, string> = {
     pending: "Upcoming",
     ongoing: "Ongoing",
-    passed: "Passed",
-    rejected: "Rejected",
-    executed: "Executed",
+    executedRejected: "Rejected",
+    executedPassed: "Passed",
   };
 
   return statusText[status];

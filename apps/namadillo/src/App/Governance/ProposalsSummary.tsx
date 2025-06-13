@@ -19,13 +19,13 @@ export const ProposalsSummary: React.FC<{
     ({ status }) => status === "ongoing"
   ).length;
   const passed = allProposals.filter(
-    ({ status }) => status === "passed"
+    ({ status }) => status === "executedPassed"
   ).length;
   const rejected = allProposals.filter(
-    ({ status }) => status === "rejected"
+    ({ status }) => status === "executedRejected"
   ).length;
   const executed = allProposals.filter(
-    ({ status }) => status === "executed"
+    ({ status }) => status === "executedPassed" || status === "executedRejected"
   ).length;
 
   return (
