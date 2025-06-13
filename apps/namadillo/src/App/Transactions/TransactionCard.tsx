@@ -19,7 +19,7 @@ import {
   IoCloseCircleOutline,
 } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
-import { toDisplayAmount } from "utils";
+import { isNamadaAsset, toDisplayAmount } from "utils";
 import keplrSvg from "../../integrations/assets/keplr.svg";
 
 type Tx = TransactionHistoryType;
@@ -86,25 +86,25 @@ const getTransactionInfo = (
 
   const parsed = typeof tx.data === "string" ? JSON.parse(tx.data) : tx.data;
   const sections: RawDataSection[] = Array.isArray(parsed) ? parsed : [parsed];
+  const target = sections.find((s) => s.targets?.length);
+  const source = sections.find((s) => s.sources?.length);
 
-  let receiver: string | undefined;
   let amount: BigNumber | undefined;
+  let receiver: string | undefined;
 
-  // Find first section with targets or sources that has amount
-  const targetSection = sections.find((sec) => sec.targets?.[0]?.amount);
-  const sourceSection = sections.find((sec) => sec.sources?.[0]?.amount);
-
-  if (targetSection?.targets?.[0]) {
-    amount = new BigNumber(targetSection.targets[0].amount);
-    receiver = targetSection.targets[0].owner;
+  if (target?.targets) {
+    const mainTarget = target.targets.reduce((max, cur) =>
+      new BigNumber(cur.amount).isGreaterThan(max.amount) ? cur : max
+    );
+    amount = new BigNumber(mainTarget.amount);
+    receiver = mainTarget.owner;
+  }
+  // fall back to sources only when we had no targets
+  if (!amount && source?.sources?.[0]) {
+    amount = new BigNumber(source.sources[0].amount);
   }
 
-  if (!amount && sourceSection?.sources?.[0]) {
-    amount = new BigNumber(sourceSection.sources[0].amount);
-  }
-
-  // Find sender from any section with sources
-  const sender = sections.find((sec) => sec.sources?.[0]?.owner)?.sources?.[0]
+  const sender = sections.find((s) => s.sources?.[0]?.owner)?.sources?.[0]
     ?.owner;
 
   return amount ? { amount, sender, receiver } : undefined;
@@ -123,10 +123,6 @@ export const TransactionCard = ({
     isBondingTransaction ?
       getBondTransactionInfo(transaction)
     : getTransactionInfo(transaction);
-  const baseAmount =
-    asset && txnInfo?.amount ?
-      toDisplayAmount(asset, txnInfo.amount)
-    : undefined;
   const receiver = txnInfo?.receiver;
   const sender = txnInfo?.sender;
   const isReceived = transactionTopLevel?.kind === "received";
@@ -135,6 +131,14 @@ export const TransactionCard = ({
   const transactionFailed = transaction?.exitCode === "rejected";
   const validators = useAtomValue(allValidatorsAtom);
   const validator = validators?.data?.find((v) => v.address === receiver);
+
+  const getBaseAmount = (): BigNumber | undefined => {
+    if (asset && txnInfo?.amount) {
+      if (isBondingTransaction) return toDisplayAmount(asset, txnInfo.amount);
+      if (isNamadaAsset(asset)) return txnInfo.amount;
+      return toDisplayAmount(asset, txnInfo.amount);
+    } else return undefined;
+  };
 
   const renderKeplrIcon = (address: string): JSX.Element | null => {
     if (isShieldedAddress(address)) return null;
@@ -157,6 +161,8 @@ export const TransactionCard = ({
     if (kind === "shieldedTransfer") return "Shielded Transfer";
     return "Transfer";
   };
+
+  const baseAmount = getBaseAmount();
 
   return (
     <article
