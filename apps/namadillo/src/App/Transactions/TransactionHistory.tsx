@@ -121,7 +121,7 @@ export const TransactionHistory = (): JSX.Element => {
   const handlePageChange = (page: number): void => {
     setCurrentPage(page);
   };
-
+  console.log(allHistoricalTransactions, "yooo");
   return (
     <div className="flex flex-col h-[calc(100vh-120px)]">
       <Panel className="relative overflow-hidden flex flex-col flex-1">

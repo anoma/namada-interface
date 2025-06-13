@@ -86,25 +86,25 @@ const getTransactionInfo = (
 
   const parsed = typeof tx.data === "string" ? JSON.parse(tx.data) : tx.data;
   const sections: RawDataSection[] = Array.isArray(parsed) ? parsed : [parsed];
+  const target = sections.find((s) => s.targets?.length);
+  const source = sections.find((s) => s.sources?.length);
 
-  let receiver: string | undefined;
   let amount: BigNumber | undefined;
+  let receiver: string | undefined;
 
-  // Find first section with targets or sources that has amount
-  const targetSection = sections.find((sec) => sec.targets?.[0]?.amount);
-  const sourceSection = sections.find((sec) => sec.sources?.[0]?.amount);
-
-  if (targetSection?.targets?.[0]) {
-    amount = new BigNumber(targetSection.targets[0].amount);
-    receiver = targetSection.targets[0].owner;
+  if (target?.targets) {
+    const mainTarget = target.targets.reduce((max, cur) =>
+      new BigNumber(cur.amount).isGreaterThan(max.amount) ? cur : max
+    );
+    amount = new BigNumber(mainTarget.amount);
+    receiver = mainTarget.owner;
+  }
+  // fall back to sources only when we had no targets
+  if (!amount && source?.sources?.[0]) {
+    amount = new BigNumber(source.sources[0].amount);
   }
 
-  if (!amount && sourceSection?.sources?.[0]) {
-    amount = new BigNumber(sourceSection.sources[0].amount);
-  }
-
-  // Find sender from any section with sources
-  const sender = sections.find((sec) => sec.sources?.[0]?.owner)?.sources?.[0]
+  const sender = sections.find((s) => s.sources?.[0]?.owner)?.sources?.[0]
     ?.owner;
 
   return amount ? { amount, sender, receiver } : undefined;
