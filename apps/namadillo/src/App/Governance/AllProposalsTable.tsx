@@ -120,9 +120,8 @@ const statusFilters = [
   "all",
   "pending",
   "ongoing",
-  "passed",
-  "rejected",
-  "executed",
+  "executedPassed",
+  "executedRejected",
 ] as const;
 type StatusFilter = (typeof statusFilters)[number];
 
