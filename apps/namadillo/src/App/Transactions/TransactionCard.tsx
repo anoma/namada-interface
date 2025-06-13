@@ -19,7 +19,7 @@ import {
   IoCloseCircleOutline,
 } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
-import { toDisplayAmount } from "utils";
+import { isNamadaAsset, toDisplayAmount } from "utils";
 import keplrSvg from "../../integrations/assets/keplr.svg";
 
 type Tx = TransactionHistoryType;
@@ -125,7 +125,9 @@ export const TransactionCard = ({
     : getTransactionInfo(transaction);
   const baseAmount =
     asset && txnInfo?.amount ?
-      toDisplayAmount(asset, txnInfo.amount)
+      isBondingTransaction ? toDisplayAmount(asset, txnInfo.amount)
+      : isNamadaAsset(asset) ? txnInfo.amount
+      : toDisplayAmount(asset, txnInfo.amount)
     : undefined;
   const receiver = txnInfo?.receiver;
   const sender = txnInfo?.sender;
