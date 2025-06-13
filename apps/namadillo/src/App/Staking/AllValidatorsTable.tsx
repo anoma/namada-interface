@@ -25,7 +25,7 @@ type AllValidatorsProps = {
 };
 
 export const AllValidatorsTable = ({
-  resultsPerPage = 100,
+  resultsPerPage = 10,
   initialPage = 0,
 }: AllValidatorsProps): JSX.Element => {
   const validators = useAtomValue(allValidatorsAtom);

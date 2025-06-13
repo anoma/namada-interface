@@ -27,7 +27,7 @@ export const IncrementBondingTable = ({
   stakedAmountByAddress,
   topValidatorsByRank,
   onChangeValidatorAmount,
-  resultsPerPage = 100,
+  resultsPerPage = 10,
 }: IncrementBondingTableProps): JSX.Element => {
   const { sortableColumns, sortedValidators } = useValidatorTableSorting({
     validators: validators,

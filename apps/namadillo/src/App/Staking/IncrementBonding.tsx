@@ -44,7 +44,7 @@ const IncrementBonding = (): JSX.Element => {
   const { data: chainParameters } = useAtomValue(chainParametersAtom);
   const { data: account } = useAtomValue(defaultAccountAtom);
   const validators = useAtomValue(allValidatorsAtom);
-  const resultsPerPage = 100;
+  const resultsPerPage = 10;
 
   const {
     myValidators,
