@@ -1,4 +1,4 @@
-import { Sdk } from "@namada/sdk/web";
+import { Sdk } from "@namada/sdk-multicore";
 import {
   Account,
   AccountType,

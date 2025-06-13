@@ -1,5 +1,5 @@
-import { initMulticore } from "@namada/sdk/inline-init";
-import { getSdk, Sdk } from "@namada/sdk/web";
+import { Sdk } from "@namada/sdk-multicore";
+import { initSdk } from "@namada/sdk-multicore/inline";
 import {
   IbcTransferMsgValue,
   ShieldedTransferMsgValue,
@@ -37,8 +37,7 @@ export class Worker {
   private sdk: Sdk | undefined;
 
   async init(m: Init): Promise<InitDone> {
-    const { cryptoMemory } = await initMulticore();
-    this.sdk = newSdk(cryptoMemory, m.payload);
+    this.sdk = await newSdk(m.payload);
     return { type: "init-done", payload: null };
   }
 
@@ -287,12 +286,9 @@ async function broadcast(
   return result;
 }
 
-function newSdk(
-  cryptoMemory: WebAssembly.Memory,
-  payload: Init["payload"]
-): Sdk {
+async function newSdk(payload: Init["payload"]): Promise<Sdk> {
   const { rpcUrl, token, maspIndexerUrl } = payload;
-  return getSdk(cryptoMemory, rpcUrl, maspIndexerUrl, "", token);
+  return await initSdk({ rpcUrl, maspIndexerUrl, dbName: "", token });
 }
 
 export const registerTransferHandlers = (): void => {
