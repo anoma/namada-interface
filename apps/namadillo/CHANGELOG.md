@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.26.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.25.0...namadillo@v1.26.0) (2025-06-13)
+
+
+### Features
+
+* Add MASP calculator popup component on Claims card ([#2072](https://github.com/anoma/namada-interface/issues/2072)) ([197c6d9](https://github.com/anoma/namada-interface/commit/197c6d91f7c7aef40639a957c9736f33eef1733a))
+
+
+### Bug Fixes
+
+* Automagically select first available asset when selecting a chain ([#2115](https://github.com/anoma/namada-interface/issues/2115)) ([b557ac7](https://github.com/anoma/namada-interface/commit/b557ac7edf063ac72b414189d09b415970ae2797))
+* Connect wallet larger click surface  ([#2114](https://github.com/anoma/namada-interface/issues/2114)) ([cdb2a05](https://github.com/anoma/namada-interface/commit/cdb2a05f5ff408cd72a11753b0dad01a392a41aa))
+* Extend tables on Manage Tab ([#2121](https://github.com/anoma/namada-interface/issues/2121)) ([8231095](https://github.com/anoma/namada-interface/commit/823109576582334cb71ea9d7b76be6d659d33372))
+* Filtering out non-native assets for auto-select on Transfer ([#2125](https://github.com/anoma/namada-interface/issues/2125)) ([44577ef](https://github.com/anoma/namada-interface/commit/44577ef8f393f3bbe326fab3a75cdc2d0d04340a))
+* Fix super long tooltip ([#2078](https://github.com/anoma/namada-interface/issues/2078)) ([87c3155](https://github.com/anoma/namada-interface/commit/87c31557b2f062f71ab2742da42549e4fd62bd70))
+* Remove sidebar shield sync indicator ([#2116](https://github.com/anoma/namada-interface/issues/2116)) ([5b54d7d](https://github.com/anoma/namada-interface/commit/5b54d7d8480e5e5d5970f67b8bde5d05ba683c65))
+* Update total balance banner sync dot and transfer source masp sync info ([#2117](https://github.com/anoma/namada-interface/issues/2117)) ([e3273a2](https://github.com/anoma/namada-interface/commit/e3273a220720a3dccc33f7ac19b15b139131d95f))
+* Update txn amounts for shielding/unshielding transfers ([#2137](https://github.com/anoma/namada-interface/issues/2137)) ([3706a68](https://github.com/anoma/namada-interface/commit/3706a68650c26eb17fb9b8dfc2ceaf0ac441e39f))
+* Use tx wrapper hashes in history and notification toasts for ledger ([#2129](https://github.com/anoma/namada-interface/issues/2129)) ([7c67883](https://github.com/anoma/namada-interface/commit/7c67883caced436c690c3e6439c2123368efcb84))
+
 ## [1.25.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.24.0...namadillo@v1.25.0) (2025-06-07)
 
 
