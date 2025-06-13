@@ -405,7 +405,10 @@ impl Query {
         // We are recreating shielded context to avoid multiple mutable borrows
         let mut shielded: ShieldedContext<JSShieldedUtils> = ShieldedContext::default();
         shielded.utils.chain_id = chain_id.clone();
-        shielded.load().await?;
+        shielded
+            .load_with_caching(&self.client)
+            .await
+            .map_err(|e| JsError::new(&e.to_string()))?;
         shielded
             .precompute_asset_types(&self.client, tokens.iter().collect())
             .await

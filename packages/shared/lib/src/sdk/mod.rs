@@ -93,6 +93,18 @@ impl Sdk {
         }
     }
 
+    async fn load_shielded_context(
+        &self,
+        shielded: &mut ShieldedContext<masp::JSShieldedUtils>,
+    ) -> Result<(), JsError> {
+        shielded
+            .load_with_caching(&self.namada.client)
+            .await
+            .map_err(|e| JsError::new(&e.to_string()))?;
+
+        Ok(())
+    }
+
     pub async fn clear_shielded_context(chain_id: String) -> Result<(), JsValue> {
         masp::JSShieldedUtils::clear(&chain_id).await?;
 
@@ -616,7 +628,8 @@ impl Sdk {
             generate_rng_build_params()
         };
 
-        let _ = &self.namada.shielded_mut().await.load().await?;
+        let shielded = &mut self.namada.shielded_mut().await;
+        self.load_shielded_context(shielded).await?;
 
         let xfvks = args
             .sources
@@ -661,7 +674,8 @@ impl Sdk {
             generate_rng_build_params()
         };
 
-        let _ = &self.namada.shielded_mut().await.load().await?;
+        let shielded = &mut self.namada.shielded_mut().await;
+        self.load_shielded_context(shielded).await?;
 
         let xfvks = args
             .sources
@@ -704,7 +718,8 @@ impl Sdk {
         } else {
             generate_rng_build_params()
         };
-        let _ = &self.namada.shielded_mut().await.load().await?;
+        let shielded = &mut self.namada.shielded_mut().await;
+        self.load_shielded_context(shielded).await?;
 
         let (tx, signing_data, _) = match bparams {
             BuildParams::RngBuildParams(mut bparams) => {
@@ -731,7 +746,8 @@ impl Sdk {
             generate_rng_build_params()
         };
 
-        let _ = &self.namada.shielded_mut().await.load().await?;
+        let shielded = &mut self.namada.shielded_mut().await;
+        self.load_shielded_context(shielded).await?;
 
         let xfvks = match args.source {
             TransferSource::Address(_) => vec![],
@@ -874,7 +890,13 @@ impl Sdk {
         amount: &str,
         channel_id: &str,
     ) -> Result<JsValue, JsError> {
-        let _ = &self.namada.shielded_mut().await.load().await?;
+        self
+            .namada
+            .shielded_mut()
+            .await
+            .load_with_caching(&self.namada.client)
+            .await
+            .map_err(|e| JsError::new(&e.to_string()))?;
 
         let ledger_address = Url::from_str(&self.rpc_url).expect("RPC URL is a valid URL");
         let target = TransferTarget::PaymentAddress(
@@ -915,7 +937,7 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
         shielded.utils.chain_id = chain_id.clone();
-        shielded.load().await?;
+        self.load_shielded_context(&mut shielded).await?;
 
         let xvk = ExtendedViewingKey::from_str(&owner)?;
         let raw_balance = shielded
@@ -931,6 +953,8 @@ impl Sdk {
                 .map_err(|e| JsError::new(&e.to_string()))?,
             None => Amount::zero(),
         };
+
+        let _ = shielded.save().await;
 
         to_js_result(rewards.to_string())
     }
@@ -991,7 +1015,7 @@ impl Sdk {
 
         let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
         shielded.utils.chain_id = chain_id.clone();
-        shielded.load().await?;
+        self.load_shielded_context(&mut shielded).await?;
 
         let xvk = ExtendedViewingKey::from_str(&owner)?;
         let raw_balance = self
@@ -1006,6 +1030,8 @@ impl Sdk {
                 .map_err(|e| JsError::new(&e.to_string()))?,
             None => Amount::zero(),
         };
+
+        let _ = shielded.save().await;
 
         to_js_result(rewards.to_string())
     }
@@ -1028,7 +1054,7 @@ impl Sdk {
 
         let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
         shielded.utils.chain_id = chain_id.clone();
-        shielded.load().await?;
+        self.load_shielded_context(&mut shielded).await?;
 
         let epoch = rpc::query_masp_epoch(self.namada.client()).await?;
 
@@ -1047,6 +1073,8 @@ impl Sdk {
             .estimate_next_epoch_rewards(&self.namada, &I128Sum::from_sum(masp_value.clone()))
             .await
             .map_err(|e| JsError::new(&e.to_string()))?;
+
+        let _ = shielded.save().await;
 
         to_js_result(reward)
     }
