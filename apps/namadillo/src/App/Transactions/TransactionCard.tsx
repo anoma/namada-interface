@@ -123,12 +123,6 @@ export const TransactionCard = ({
     isBondingTransaction ?
       getBondTransactionInfo(transaction)
     : getTransactionInfo(transaction);
-  const baseAmount =
-    asset && txnInfo?.amount ?
-      isBondingTransaction ? toDisplayAmount(asset, txnInfo.amount)
-      : isNamadaAsset(asset) ? txnInfo.amount
-      : toDisplayAmount(asset, txnInfo.amount)
-    : undefined;
   const receiver = txnInfo?.receiver;
   const sender = txnInfo?.sender;
   const isReceived = transactionTopLevel?.kind === "received";
@@ -137,6 +131,14 @@ export const TransactionCard = ({
   const transactionFailed = transaction?.exitCode === "rejected";
   const validators = useAtomValue(allValidatorsAtom);
   const validator = validators?.data?.find((v) => v.address === receiver);
+
+  const getBaseAmount = (): BigNumber | undefined => {
+    if (asset && txnInfo?.amount) {
+      if (isBondingTransaction) return toDisplayAmount(asset, txnInfo.amount);
+      if (isNamadaAsset(asset)) return txnInfo.amount;
+      return toDisplayAmount(asset, txnInfo.amount);
+    } else return undefined;
+  };
 
   const renderKeplrIcon = (address: string): JSX.Element | null => {
     if (isShieldedAddress(address)) return null;
@@ -159,6 +161,8 @@ export const TransactionCard = ({
     if (kind === "shieldedTransfer") return "Shielded Transfer";
     return "Transfer";
   };
+
+  const baseAmount = getBaseAmount();
 
   return (
     <article
