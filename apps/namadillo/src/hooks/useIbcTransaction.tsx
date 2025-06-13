@@ -113,7 +113,7 @@ export const useIbcTransaction = ({
   const dispatchPendingTxNotification = (tx: TransferTransactionData): void => {
     invariant(tx.hash, "Error: Transaction hash not provided");
     dispatchNotification({
-      id: createNotificationId(tx.hash),
+      id: createNotificationId([tx.hash]),
       title: "IBC transfer transaction in progress",
       description: (
         <>
@@ -129,7 +129,7 @@ export const useIbcTransaction = ({
   const dispatchErrorTxNotification = (error: unknown): void => {
     if (!txHash) return;
     dispatchNotification({
-      id: createNotificationId(txHash),
+      id: createNotificationId([txHash]),
       title: "IBC transfer transaction failed",
       description: "",
       details: error instanceof Error ? error.message : undefined,

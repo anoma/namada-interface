@@ -28,6 +28,7 @@ export const transferKindOptions = [
   "ibcUnshieldingTransfer",
   "ibcShieldedTransfer",
   "bond",
+  "unbond",
   "received",
 ];
 
@@ -194,6 +195,11 @@ export const TransactionHistory = (): JSX.Element => {
                     id: "bond",
                     value: "Stake",
                     ariaLabel: "Stake",
+                  },
+                  {
+                    id: "unbond",
+                    value: "Unstake",
+                    ariaLabel: "Unstake",
                   },
                 ]}
               />

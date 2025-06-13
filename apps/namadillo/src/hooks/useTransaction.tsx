@@ -61,6 +61,14 @@ export type UseTransactionOutput<T> = {
   unknown
 >;
 
+const getNotificationId = <T,>(tx: TransactionPair<T>): string => {
+  const notificationId = createNotificationId(
+    tx.encodedTxData.txs.map((tx) => tx.hash)
+  );
+
+  return notificationId;
+};
+
 export const useTransaction = <T,>({
   params,
   createTxAtom,
@@ -101,10 +109,8 @@ export const useTransaction = <T,>({
     tx: TransactionPair<T>,
     notification: PartialNotification
   ): void => {
-    const notificationId =
-      tx.encodedTxData.type === "buildIbcTransfer" ?
-        createNotificationId(tx.encodedTxData.txs[0].innerTxHashes)
-      : createNotificationId(tx.encodedTxData.txs[0].hash);
+    const notificationId = getNotificationId(tx);
+
     dispatchNotification({
       ...notification,
       id: notificationId,
@@ -118,10 +124,7 @@ export const useTransaction = <T,>({
     notification: PartialNotification,
     tx: TransactionPair<T>
   ): void => {
-    const notificationId =
-      tx.encodedTxData.type === "buildIbcTransfer" ?
-        createNotificationId(tx.encodedTxData.txs[0].innerTxHashes)
-      : createNotificationId(tx.encodedTxData.txs[0].hash);
+    const notificationId = getNotificationId(tx);
     dispatchNotification({
       ...notification,
       id: notificationId,

@@ -27,10 +27,9 @@ export type TransactionPair<T> = {
 
 export type EncodedTxData<T> = {
   type: string;
-  txs: TxProps[] &
-    {
-      innerTxHashes: string[];
-    }[];
+  txs: (TxProps & {
+    innerTxHashes: string[];
+  })[];
   wrapperTxProps: WrapperTxProps;
   meta?: {
     props: T[];

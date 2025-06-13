@@ -28,7 +28,7 @@ const parseTxsData = <T extends TxWithAmount>(
   data: T[]
 ): { id: string; total: BigNumber } => {
   const id = createNotificationId(
-    Array.isArray(tx) ? tx.map((t) => t.hash) : tx.hash
+    Array.isArray(tx) ? tx.map((t) => t.hash) : [tx.hash]
   );
   const total = getTotalAmountFromTransactionList(data);
   return { total, id };
@@ -414,7 +414,7 @@ export const useTransactionNotifications = (): void => {
     detail: tx,
   }: CustomEvent<TransferTransactionData>): void => {
     if (!tx.hash) return;
-    const id = createNotificationId(tx.hash);
+    const id = createNotificationId([tx.hash]);
     const storedTx = searchAllStoredTxByHash(tx.hash);
     dispatchNotification({
       id,
@@ -443,7 +443,7 @@ export const useTransactionNotifications = (): void => {
     detail: tx,
   }: CustomEvent<TransferTransactionData>): void => {
     if (!tx.hash) return;
-    const id = createNotificationId(tx.hash);
+    const id = createNotificationId([tx.hash]);
     const storedTx = searchAllStoredTxByHash(tx.hash);
     dispatchNotification({
       id,
@@ -473,7 +473,7 @@ export const useTransactionNotifications = (): void => {
       if (!tx.hash) return;
       invariant(tx.hash, "Notification error: Invalid Tx hash");
 
-      const id = createNotificationId(tx.hash);
+      const id = createNotificationId([tx.hash]);
       const title =
         tx.type === "ShieldedToIbc" || tx.type === "TransparentToIbc" ?
           "IBC withdraw transaction succeeded"
@@ -498,7 +498,7 @@ export const useTransactionNotifications = (): void => {
     if (!tx) return;
 
     invariant(tx.hash, "Notification error: Invalid Tx provider");
-    const id = createNotificationId(tx.hash);
+    const id = createNotificationId([tx.hash]);
     const title =
       tx.type === "ShieldedToIbc" || tx.type === "TransparentToIbc" ?
         "IBC withdraw transaction failed"
@@ -523,7 +523,7 @@ export const useTransactionNotifications = (): void => {
     if (!tx) return;
 
     invariant(tx.hash, "Notification error: Invalid Tx provider");
-    const id = createNotificationId(tx.hash);
+    const id = createNotificationId([tx.hash]);
     const title = "IBC withdraw transaction failed";
 
     dispatchNotification({

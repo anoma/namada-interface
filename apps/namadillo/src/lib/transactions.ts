@@ -162,6 +162,8 @@ export const createTransferDataFromIbc = (
   const transferTx: IbcTransferTransactionData = {
     ...details,
     hash: tx.transactionHash,
+    // For IBC transfers(deposits), the innerHash is the same as the transaction hash
+    innerHash: tx.transactionHash,
     rpc,
     asset,
     feePaid,
