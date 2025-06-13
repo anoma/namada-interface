@@ -1,13 +1,10 @@
 import { Panel } from "@namada/components";
 import { AssetImage } from "App/Transfer/AssetImage";
-import {
-  chainAssetsMapAtom,
-  chainParametersAtom,
-  maspRewardsAtom,
-} from "atoms/chain";
+import { chainParametersAtom, maspRewardsAtom } from "atoms/chain";
 import { simulateShieldedRewards } from "atoms/staking/services";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { useIsChannelInactive } from "hooks/useIsChannelInactive";
 import { useAtomValue } from "jotai";
 import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
@@ -15,9 +12,55 @@ import { GoChevronDown } from "react-icons/go";
 import { MaspAssetRewards } from "types";
 import { toBaseAmount } from "utils";
 
+const RewardItem = ({
+  reward,
+  onSelect,
+}: {
+  reward: MaspAssetRewards;
+  onSelect: (asset: MaspAssetRewards) => void;
+}): JSX.Element => {
+  const { isInactive, trace } = useIsChannelInactive(reward.address ?? "");
+
+  return (
+    <button
+      key={reward.asset.base}
+      type="button"
+      onClick={() => onSelect(reward)}
+      className={clsx(
+        "w-full flex items-center py-1.5 px-1 text-left",
+        "transition-colors"
+      )}
+    >
+      <div
+        className={clsx(
+          "px-2 py-1 gap-4 hover:bg-neutral-800 rounded-sm ml-2 flex w-full relative",
+          isInactive && "opacity-20"
+        )}
+      >
+        <div className="w-8 h-8 flex-shrink-0 ">
+          <AssetImage asset={reward.asset} />
+        </div>
+        <div
+          className={clsx(
+            "flex flex-col gap-1 min-w-0",
+            isInactive && "-mt-1.5"
+          )}
+        >
+          <div className="text-white font-medium text-sm mt-1.5">
+            {reward.asset.symbol}
+          </div>
+          {isInactive && (
+            <div className="-mt-1 text-[10px]">inactive: {trace}</div>
+          )}
+        </div>
+      </div>
+    </button>
+  );
+};
+
 export const MaspRewardCalculator = (): JSX.Element => {
   const rewards = useAtomValue(maspRewardsAtom);
-  const [amount, setAmount] = useState<string>("");
+  const [amount, setAmount] = useState<string>("10");
   const [selectedAsset, setSelectedAsset] = useState<
     MaspAssetRewards | undefined
   >(rewards.data?.[0] || undefined);
@@ -29,7 +72,6 @@ export const MaspRewardCalculator = (): JSX.Element => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const chainParameters = useAtomValue(chainParametersAtom);
   const chainId = chainParameters.data?.chainId;
-  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
 
   // Set initial selected asset when rewards data loads
   useEffect(() => {
@@ -56,24 +98,14 @@ export const MaspRewardCalculator = (): JSX.Element => {
 
   useEffect(() => {
     const debouncedFetchRewards = debounce(async (): Promise<void> => {
-      if (!selectedAsset || !amount || !chainId) return;
-
-      const assetAddress = findAssetAddress(
-        selectedAsset.asset.symbol.toLowerCase()
-      );
-      if (!assetAddress) {
-        console.error(
-          "Could not find address for asset:",
-          selectedAsset.asset.symbol
-        );
+      if (!selectedAsset || !amount || !chainId || !selectedAsset.address)
         return;
-      }
 
       setIsCalculating(true);
       try {
         const rewardsResult = await simulateShieldedRewards(
           chainId,
-          assetAddress,
+          selectedAsset.address,
           toBaseAmount(selectedAsset.asset, new BigNumber(amount)).toString()
         );
         setCalculatedRewards(rewardsResult);
@@ -105,18 +137,6 @@ export const MaspRewardCalculator = (): JSX.Element => {
     setSearchTerm("");
   };
 
-  // Helper function to find the address for a given asset base
-  const findAssetAddress = (symbol: string): string | undefined => {
-    if (!Object.keys(chainAssetsMap).length) return undefined;
-    // Find the entry in chainAssetsMap where the asset.base matches our assetBase
-    for (const [address, assetInfo] of Object.entries(chainAssetsMap)) {
-      if (assetInfo?.symbol.toLowerCase() === symbol) {
-        return address;
-      }
-    }
-    return undefined;
-  };
-
   // Filter assets based on search term
   const filteredRewards =
     rewards.data?.filter((reward) =>
@@ -124,10 +144,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
     ) || [];
 
   return (
-    <Panel className={clsx("flex flex-col pt-2 pb-2 px-2")}>
-      <h2 className="uppercase text-[13px] text-center font-medium pb-0 pt-2">
-        MASP REWARDS CALCULATOR
-      </h2>
+    <Panel className={clsx("flex flex-col pt-0 pb-2 px-0")}>
       <div className="mt-3 flex flex-col gap-3">
         {rewards.isLoading && (
           <i
@@ -140,7 +157,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
         )}
         {rewards.data && (
           <>
-            <div className="flex gap-0 bg-neutral-900 rounded-sm relative">
+            <div className="flex gap-0 py-1 bg-neutral-800 rounded-md relative">
               <div className="flex-shrink-0" ref={dropdownRef}>
                 <button
                   type="button"
@@ -168,9 +185,11 @@ export const MaspRewardCalculator = (): JSX.Element => {
                   <div
                     className={clsx(
                       "absolute top-full left-0 w-full z-50 mt-1",
-                      "bg-neutral-800 rounded-md",
-                      "max-h-[300px] overflow-hidden"
+                      "bg-neutral-900 rounded-sm  border border-neutral-600",
+                      "max-h-[300px] overflow-hidden",
+                      "z=[9999]"
                     )}
+                    style={{ zIndex: 9999 }}
                   >
                     <div className="border-none">
                       <div className="relative">
@@ -179,42 +198,27 @@ export const MaspRewardCalculator = (): JSX.Element => {
                           type="text"
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
-                          placeholder="Search assets..."
+                          placeholder="Search"
                           className={clsx(
-                            "w-full pl-10 pr-3 py-2 bg-neutral-900 text-white",
-                            "border-none border-neutral-600 text-sm",
+                            "w-full pl-4 pr-3 py-2 bg-black text-white",
+                            "border-b border-neutral-600 text-sm",
                             "focus:outline-none focus:border-neutral-500"
                           )}
                         />
                       </div>
                     </div>
 
-                    <div className="max-h-[200px] overflow-y-auto border border-neutral-600 dark-scrollbar overscroll-contain">
+                    <div className="max-h-[200px] overflow-y-auto dark-scrollbar overscroll-contain">
                       {filteredRewards.length === 0 ?
                         <div className="p-3 text-center text-neutral-400 text-sm">
                           No assets found
                         </div>
                       : filteredRewards.map((reward, idx) => (
-                          <button
+                          <RewardItem
                             key={reward.asset.base + "_" + idx}
-                            type="button"
-                            onClick={() => handleAssetSelect(reward)}
-                            className={clsx(
-                              "w-full flex items-center py-1.5 px-1 text-left",
-                              "transition-colors"
-                            )}
-                          >
-                            <div className="px-2 py-1 gap-4 hover:bg-neutral-700 rounded-sm ml-2 flex w-full">
-                              <div className="w-8 h-8 flex-shrink-0 ">
-                                <AssetImage asset={reward.asset} />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-white font-medium text-sm mt-1.5">
-                                  {reward.asset.symbol}
-                                </div>
-                              </div>
-                            </div>
-                          </button>
+                            reward={reward}
+                            onSelect={handleAssetSelect}
+                          />
                         ))
                       }
                     </div>
@@ -224,6 +228,7 @@ export const MaspRewardCalculator = (): JSX.Element => {
 
               <input
                 type="number"
+                min="0"
                 value={amount}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -240,13 +245,13 @@ export const MaspRewardCalculator = (): JSX.Element => {
               />
             </div>
 
-            <div className="flex flex-col items-center justify-center border border-neutral-500 rounded-sm py-8">
-              <div className="text-yellow text-2xl font-bold max-w-full">
+            <div className="flex flex-col items-center justify-center bg-neutral-800 rounded-md py-8">
+              <div className="text-yellow text-3xl font-bold max-w-full">
                 {isCalculating ?
                   <div className="flex items-center justify-center">
                     <i
                       className={clsx(
-                        "w-5 h-5 border-4 border-transparent border-t-yellow rounded-[50%] my-2",
+                        "w-8 h-8 border-4 border-transparent border-t-yellow rounded-[50%] my-2",
                         "animate-loadingSpinner"
                       )}
                     />

@@ -394,6 +394,7 @@ export type LedgerAccountInfo = {
 
 export type MaspAssetRewards = {
   asset: Asset;
+  address: Address | undefined;
   kdGain: BigNumber;
   kpGain: BigNumber;
   lockedAmountTarget: BigNumber;
