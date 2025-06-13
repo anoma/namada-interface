@@ -34,6 +34,13 @@
 * Move optional value to end of schema, no empty memo ([#1379](https://github.com/anoma/namada-interface/issues/1379)) ([ee49600](https://github.com/anoma/namada-interface/commit/ee496001aad9291e3bb224f91ac5caf31a1143db))
 * Replace tally type with two fifths ([#1252](https://github.com/anoma/namada-interface/issues/1252)) ([785d9ad](https://github.com/anoma/namada-interface/commit/785d9ad5d6cf7d7abab53ae9cf812fbbfa84b0f7))
 
+## [0.7.0](https://github.com/anoma/namada-interface/compare/types@v0.6.0...types@v0.7.0) (2025-06-13)
+
+
+### Features
+
+* Improve error message on wasm errors ([#2025](https://github.com/anoma/namada-interface/issues/2025)) ([0f4f046](https://github.com/anoma/namada-interface/commit/0f4f046f2cf2e5f3d4ed712f1ef7f2762f6be79a))
+
 ## [0.6.0](https://github.com/anoma/namada-interface/compare/types@v0.5.0...types@v0.6.0) (2025-04-17)
 
 
