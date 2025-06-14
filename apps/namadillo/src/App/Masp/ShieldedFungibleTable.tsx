@@ -78,7 +78,7 @@ export const ShieldedFungibleTable = ({
                 symbol={namadaAsset().symbol}
                 amount={reward}
                 className="text-yellow"
-                decimalPlaces={3}
+                decimalPlaces={reward.isZero() ? 0 : 3}
               />
             : <SkeletonLoading
                 width="120px"
