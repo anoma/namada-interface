@@ -79,11 +79,34 @@ export const TransactionHistory = (): JSX.Element => {
     } else return transactionKind === filter;
   };
 
+  const filterDuplicateTransactions = (
+    transactions: TransactionHistoryType[]
+  ): TransactionHistoryType[] => {
+    const deduped = transactions.reduce<TransactionHistoryType[]>(
+      (acc, item) => {
+        const key = JSON.stringify(item); // simple deep hash
+        const seen = acc as unknown as { _keys?: Set<string> };
+
+        if (!seen._keys) seen._keys = new Set<string>(); // lazily attach once
+        if (!seen._keys.has(key)) {
+          seen._keys.add(key);
+          acc.push(item);
+        }
+        return acc;
+      },
+      []
+    );
+    return deduped;
+  };
+
   // Only show historical transactions that are in the transferKindOptions array
-  const historicalTransactions =
+  const filteredTransactions =
     transactions?.results?.filter((transaction) =>
       handleFiltering(transaction)
     ) ?? [];
+  // Remove duplicates
+  const historicalTransactions =
+    filterDuplicateTransactions(filteredTransactions);
 
   const allHistoricalTransactions = [
     ...historicalTransactions,
