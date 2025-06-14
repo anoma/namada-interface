@@ -7,6 +7,7 @@ import {
   isShieldedAddress,
   isTransparentAddress,
 } from "App/Transfer/common";
+import { allDefaultAccountsAtom } from "atoms/accounts";
 import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { TransactionHistory as TransactionHistoryType } from "atoms/transactions/atoms";
 import { allValidatorsAtom } from "atoms/validators";
@@ -80,7 +81,8 @@ const getBondOrUnbondTransactionInfo = (
   };
 };
 const getTransactionInfo = (
-  tx: Tx["tx"]
+  tx: Tx["tx"],
+  transparentAddress: string
 ): { amount: BigNumber; sender?: string; receiver?: string } | undefined => {
   if (!tx?.data) return undefined;
 
@@ -88,16 +90,15 @@ const getTransactionInfo = (
   const sections: RawDataSection[] = Array.isArray(parsed) ? parsed : [parsed];
   const target = sections.find((s) => s.targets?.length);
   const source = sections.find((s) => s.sources?.length);
-
   let amount: BigNumber | undefined;
   let receiver: string | undefined;
 
   if (target?.targets) {
-    const mainTarget = target.targets.reduce((max, cur) =>
-      new BigNumber(cur.amount).isGreaterThan(max.amount) ? cur : max
+    const mainTarget = target.targets.find(
+      (target) => target.owner === transparentAddress
     );
-    amount = new BigNumber(mainTarget.amount);
-    receiver = mainTarget.owner;
+    amount = new BigNumber(mainTarget?.amount ?? 0);
+    receiver = mainTarget?.owner;
   }
   // fall back to sources only when we had no targets
   if (!amount && source?.sources?.[0]) {
@@ -113,6 +114,7 @@ const getTransactionInfo = (
 export const TransactionCard = ({
   tx: transactionTopLevel,
 }: Props): JSX.Element => {
+  console.log(transactionTopLevel, "tx");
   const transaction = transactionTopLevel.tx;
   const nativeToken = useAtomValue(nativeTokenAddressAtom).data;
   const token = getToken(transaction, nativeToken ?? "");
@@ -121,10 +123,15 @@ export const TransactionCard = ({
   const isBondingOrUnbondingTransaction = ["bond", "unbond"].includes(
     transactionTopLevel?.tx?.kind ?? ""
   );
+  const { data: accounts, isFetching } = useAtomValue(allDefaultAccountsAtom);
+
+  const transparentAddress =
+    accounts?.find((acc) => isTransparentAddress(acc.address))?.address ?? "";
+
   const txnInfo =
     isBondingOrUnbondingTransaction ?
       getBondOrUnbondTransactionInfo(transaction)
-    : getTransactionInfo(transaction);
+    : getTransactionInfo(transaction, transparentAddress);
   const receiver = txnInfo?.receiver;
   const sender = txnInfo?.sender;
   const isReceived = transactionTopLevel?.kind === "received";
