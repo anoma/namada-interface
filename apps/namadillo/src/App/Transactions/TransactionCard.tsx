@@ -93,18 +93,22 @@ const getTransactionInfo = (
   let amount: BigNumber | undefined;
   let receiver: string | undefined;
 
-  if (target?.targets) {
-    const mainTarget = target.targets.find(
+  // Check both sources and targets for matching owner address and return amount
+  let matchingEntry = null;
+
+  if (source?.sources) {
+    matchingEntry = source.sources.find(
+      (src) => src.owner === transparentAddress
+    );
+  } else if (!matchingEntry && target?.targets) {
+    matchingEntry = target.targets.find(
       (target) => target.owner === transparentAddress
     );
-    amount = new BigNumber(mainTarget?.amount ?? 0);
-    receiver = mainTarget?.owner;
-  }
-  // fall back to sources only when we had no targets
-  if (!amount && source?.sources?.[0]) {
-    amount = new BigNumber(source.sources[0].amount);
   }
 
+  if (matchingEntry) {
+    amount = new BigNumber(matchingEntry.amount);
+  }
   const sender = sections.find((s) => s.sources?.[0]?.owner)?.sources?.[0]
     ?.owner;
 
@@ -114,7 +118,6 @@ const getTransactionInfo = (
 export const TransactionCard = ({
   tx: transactionTopLevel,
 }: Props): JSX.Element => {
-  console.log(transactionTopLevel, "tx");
   const transaction = transactionTopLevel.tx;
   const nativeToken = useAtomValue(nativeTokenAddressAtom).data;
   const token = getToken(transaction, nativeToken ?? "");
@@ -123,7 +126,7 @@ export const TransactionCard = ({
   const isBondingOrUnbondingTransaction = ["bond", "unbond"].includes(
     transactionTopLevel?.tx?.kind ?? ""
   );
-  const { data: accounts, isFetching } = useAtomValue(allDefaultAccountsAtom);
+  const { data: accounts } = useAtomValue(allDefaultAccountsAtom);
 
   const transparentAddress =
     accounts?.find((acc) => isTransparentAddress(acc.address))?.address ?? "";
