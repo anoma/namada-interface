@@ -26,9 +26,9 @@ import keplrSvg from "../../integrations/assets/keplr.svg";
 type Tx = TransactionHistoryType;
 type Props = { tx: Tx };
 type RawDataSection = {
-  amount?: string;
-  sources?: Array<{ amount: string; owner: string }>;
-  targets?: Array<{ amount: string; owner: string }>;
+  amount: string;
+  sources: Array<{ amount: string; owner: string }>;
+  targets: Array<{ amount: string; owner: string }>;
 };
 type BondData = {
   amount: string;
@@ -90,27 +90,22 @@ const getTransactionInfo = (
   const sections: RawDataSection[] = Array.isArray(parsed) ? parsed : [parsed];
   const target = sections.find((s) => s.targets?.length);
   const source = sections.find((s) => s.sources?.length);
+
   let amount: BigNumber | undefined;
-  let receiver: string | undefined;
+  const mainTarget = target?.targets.find(
+    (src) => src.owner === transparentAddress
+  );
+  const mainSource = source?.sources.find(
+    (src) => src.owner === transparentAddress
+  );
 
-  // Check both sources and targets for matching owner address and return amount
-  let matchingEntry = null;
-
-  if (source?.sources) {
-    matchingEntry = source.sources.find(
-      (src) => src.owner === transparentAddress
-    );
-  } else if (!matchingEntry && target?.targets) {
-    matchingEntry = target.targets.find(
-      (target) => target.owner === transparentAddress
-    );
+  if (mainTarget) {
+    amount = new BigNumber(mainTarget.amount);
+  } else if (mainSource) {
+    amount = new BigNumber(mainSource.amount);
   }
-
-  if (matchingEntry) {
-    amount = new BigNumber(matchingEntry.amount);
-  }
-  const sender = sections.find((s) => s.sources?.[0]?.owner)?.sources?.[0]
-    ?.owner;
+  const receiver = target?.targets[0].owner;
+  const sender = source?.sources[0].owner;
 
   return amount ? { amount, sender, receiver } : undefined;
 };
