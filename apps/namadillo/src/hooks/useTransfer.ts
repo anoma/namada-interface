@@ -88,7 +88,7 @@ export const useTransfer = ({
     }),
     parseErrorTxNotification: () => ({
       title: "Transfer transaction failed",
-      description: "",
+      description: "Your transfer transaction has failed",
     }),
     ...events,
     onBroadcasted: (tx: TransactionPair<unknown>) => {

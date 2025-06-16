@@ -145,6 +145,8 @@ export const toErrorDetail = (
       case ResultCode.WasmRuntimeError:
         // We can only check error type by reading the error message
         return `${error.toString()}.\n${textToErrorDetail(info, tx[0])}`;
+      case ResultCode.FeeError:
+        return `${error.toString()}.\n${textToErrorDetail(info, tx[0])}`;
 
       default:
         return error.toString() + ` ${info}`;

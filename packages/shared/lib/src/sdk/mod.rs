@@ -399,7 +399,7 @@ impl Sdk {
                     return Err(JsValue::from(
                         &serde_json::to_string(&TxErrResponse {
                             code: res.code.into(),
-                            info: String::from(""),
+                            info: res.log
                         })
                         .map_err(|e| JsValue::from_str(&e.to_string()))?,
                     ));
