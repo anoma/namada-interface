@@ -7,6 +7,7 @@ import {
   isShieldedAddress,
   isTransparentAddress,
 } from "App/Transfer/common";
+import { allDefaultAccountsAtom } from "atoms/accounts";
 import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
 import { TransactionHistory as TransactionHistoryType } from "atoms/transactions/atoms";
 import { allValidatorsAtom } from "atoms/validators";
@@ -25,9 +26,9 @@ import keplrSvg from "../../integrations/assets/keplr.svg";
 type Tx = TransactionHistoryType;
 type Props = { tx: Tx };
 type RawDataSection = {
-  amount?: string;
-  sources?: Array<{ amount: string; owner: string }>;
-  targets?: Array<{ amount: string; owner: string }>;
+  amount: string;
+  sources: Array<{ amount: string; owner: string }>;
+  targets: Array<{ amount: string; owner: string }>;
 };
 type BondData = {
   amount: string;
@@ -80,7 +81,8 @@ const getBondOrUnbondTransactionInfo = (
   };
 };
 const getTransactionInfo = (
-  tx: Tx["tx"]
+  tx: Tx["tx"],
+  transparentAddress: string
 ): { amount: BigNumber; sender?: string; receiver?: string } | undefined => {
   if (!tx?.data) return undefined;
 
@@ -90,22 +92,20 @@ const getTransactionInfo = (
   const source = sections.find((s) => s.sources?.length);
 
   let amount: BigNumber | undefined;
-  let receiver: string | undefined;
+  const mainTarget = target?.targets.find(
+    (src) => src.owner === transparentAddress
+  );
+  const mainSource = source?.sources.find(
+    (src) => src.owner === transparentAddress
+  );
 
-  if (target?.targets) {
-    const mainTarget = target.targets.reduce((max, cur) =>
-      new BigNumber(cur.amount).isGreaterThan(max.amount) ? cur : max
-    );
+  if (mainTarget) {
     amount = new BigNumber(mainTarget.amount);
-    receiver = mainTarget.owner;
+  } else if (mainSource) {
+    amount = new BigNumber(mainSource.amount);
   }
-  // fall back to sources only when we had no targets
-  if (!amount && source?.sources?.[0]) {
-    amount = new BigNumber(source.sources[0].amount);
-  }
-
-  const sender = sections.find((s) => s.sources?.[0]?.owner)?.sources?.[0]
-    ?.owner;
+  const receiver = target?.targets[0].owner;
+  const sender = source?.sources[0].owner;
 
   return amount ? { amount, sender, receiver } : undefined;
 };
@@ -121,10 +121,15 @@ export const TransactionCard = ({
   const isBondingOrUnbondingTransaction = ["bond", "unbond"].includes(
     transactionTopLevel?.tx?.kind ?? ""
   );
+  const { data: accounts } = useAtomValue(allDefaultAccountsAtom);
+
+  const transparentAddress =
+    accounts?.find((acc) => isTransparentAddress(acc.address))?.address ?? "";
+
   const txnInfo =
     isBondingOrUnbondingTransaction ?
       getBondOrUnbondTransactionInfo(transaction)
-    : getTransactionInfo(transaction);
+    : getTransactionInfo(transaction, transparentAddress);
   const receiver = txnInfo?.receiver;
   const sender = txnInfo?.sender;
   const isReceived = transactionTopLevel?.kind === "received";
