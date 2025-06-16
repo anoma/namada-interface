@@ -114,7 +114,7 @@ export const TransactionHistory = (): JSX.Element => {
         });
         return seen.has(key) ? false : seen.add(key);
       } catch {
-        return true; // Keep transactions that can't be parsed
+        return true;
       }
     });
   };
