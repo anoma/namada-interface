@@ -45,7 +45,7 @@ export const CustomAddressForm = ({
           label="Memo"
           value={memo}
           onChange={(e) => onChangeMemo(e.target.value)}
-          placeholder="Required for centralized exchanges"
+          placeholder="Insert memo here"
         />
       )}
     </Stack>
