@@ -82,23 +82,42 @@ export const TransactionHistory = (): JSX.Element => {
   const filterDuplicateTransactions = (
     transactions: TransactionHistoryType[]
   ): TransactionHistoryType[] => {
-    const deduped = transactions.reduce<TransactionHistoryType[]>(
-      (acc, item) => {
-        const key = JSON.stringify(item); // simple deep hash
-        const seen = acc as unknown as { _keys?: Set<string> };
-
-        if (!seen._keys) seen._keys = new Set<string>(); // lazily attach once
-        if (!seen._keys.has(key)) {
-          seen._keys.add(key);
-          acc.push(item);
-        }
-        return acc;
-      },
-      []
-    );
-    return deduped;
+    const seen = new Set();
+    return transactions.filter((tx) => {
+      // We only need to filter received transactions for the 5-6 repeat txns
+      // For IBC -> Transparent transactions
+      if (tx.kind !== "received") return true;
+      try {
+        const data =
+          tx.tx?.data?.startsWith("[") ?
+            JSON.parse(tx.tx.data)[1] || JSON.parse(tx.tx.data)[0]
+          : JSON.parse(tx.tx?.data ?? "{}");
+        const key = JSON.stringify({
+          blockHeight: tx.block_height,
+          target: tx.target,
+          sources: (data.sources || [])
+            .map((s: Record<string, string>) => ({
+              owner: s.owner,
+              token: s.token,
+              amount: s.amount,
+              type: s.type,
+            }))
+            .sort(),
+          targets: (data.targets || [])
+            .map((t: Record<string, string>) => ({
+              owner: t.owner,
+              token: t.token,
+              amount: t.amount,
+              type: t.type,
+            }))
+            .sort(),
+        });
+        return seen.has(key) ? false : seen.add(key);
+      } catch {
+        return true; // Keep transactions that can't be parsed
+      }
+    });
   };
-
   // Only show historical transactions that are in the transferKindOptions array
   const filteredTransactions =
     transactions?.results?.filter((transaction) =>
