@@ -7,8 +7,7 @@ export const FAQ = (): JSX.Element => {
       answer: (
         <>
           <p>To use Namadillo properly, ensure you have:</p>
-          <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
-            <li>Latest version of Chrome, Firefox, or Safari</li>
+          <ul className="list-disc lista-inside ml-4 mt-2 space-y-1">
             <li>Namada Extension Wallet (latest version)</li>
             <li>For Ledger users: Ledger Live (latest version)</li>
             <li>For Ledger users: Namada app on Ledger (latest version)</li>
