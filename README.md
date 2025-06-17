@@ -1,5 +1,7 @@
 <h1> namada-interface</h1>
 
+3
+
 <div style="width: 100%; display: flex; justify-content: center; margin-bottom: 32px;">
     <img style="width: 300px;" src="banner-image.png" />
 </div>
