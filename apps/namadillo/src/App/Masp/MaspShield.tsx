@@ -82,9 +82,10 @@ export const MaspShield: React.FC = () => {
     onBeforeBroadcast: async () => {
       setCurrentStatus("Broadcasting Shielding transaction...");
     },
-    onError: async () => {
+    onError: async (originalError) => {
       setCurrentStatus("");
       setCurrentStatusExplanation("");
+      setGeneralErrorMessage((originalError as Error).message);
     },
     asset: selectedAsset?.asset,
   });
@@ -122,7 +123,12 @@ export const MaspShield: React.FC = () => {
         throw "Invalid transaction response";
       }
     } catch (err) {
-      setGeneralErrorMessage(err + "");
+      // We only set the general error message if it is not already set by onError
+      if (generalErrorMessage === "") {
+        setGeneralErrorMessage(
+          err instanceof Error ? err.message : String(err)
+        );
+      }
     }
   };
 
