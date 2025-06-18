@@ -128,7 +128,7 @@ export const ViewAccount = (): JSX.Element => {
               transparentAccountPath={transparentPath}
               shieldedAccountAddress={shieldedAccount?.address}
               shieldedAccountPath={shieldedPath}
-              trimCharacters={21}
+              trimCharacters={16}
             />
             {viewingKey && (
               <>
