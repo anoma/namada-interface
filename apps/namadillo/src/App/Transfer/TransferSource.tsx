@@ -125,12 +125,11 @@ export const TransferSource = ({
       {!isSubmitting && asset && availableAmountMinusFees && (
         <footer>
           <AvailableAmountFooter
+            amount={amount}
             availableAmount={availableAmount}
             availableAmountMinusFees={availableAmountMinusFees}
             asset={asset}
-            onClickMax={() =>
-              onChangeAmount && onChangeAmount(availableAmountMinusFees)
-            }
+            onChangeAmount={onChangeAmount}
           />
         </footer>
       )}

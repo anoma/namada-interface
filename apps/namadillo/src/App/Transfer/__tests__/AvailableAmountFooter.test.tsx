@@ -16,7 +16,7 @@ describe("Component: AvailableAmountFooter", () => {
       <AvailableAmountFooter
         availableAmountMinusFees={new BigNumber(1234.456)}
         asset={assetMock as Asset}
-        onClickMax={callback}
+        onChangeAmount={callback}
       />
     );
     const amount = screen.getByText("1,234");
@@ -44,7 +44,7 @@ describe("Component: AvailableAmountFooter", () => {
         availableAmount={new BigNumber(1)}
         availableAmountMinusFees={new BigNumber(0)}
         asset={assetMock as Asset}
-        onClickMax={callback}
+        onChangeAmount={callback}
       />
     );
     const button = screen.getByRole("button");
