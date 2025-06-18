@@ -245,7 +245,15 @@ export const TransactionCard = ({
         </div>
         <TokenCurrency
           className="font-semibold text-white mt-1 ml-2"
-          amount={baseAmount ?? BigNumber(0)}
+          amount={(() => {
+            const amount = baseAmount ?? BigNumber(0);
+            // Fix for historical NAM amounts that might be in micro units
+            // If symbol is NAM and amount >= 1,000,000, assume it's in micro units and convert to whole units
+            if (asset?.symbol === "NAM" && amount.gte(1_000_000)) {
+              return amount.dividedBy(1_000_000);
+            }
+            return amount;
+          })()}
           symbol={asset?.symbol ?? ""}
         />
       </div>
