@@ -197,10 +197,12 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
         if (!accountDetails) {
           throw new Error(`Failed to query account details for ${signer}`);
         }
+        const [transparentAccount, shieldedAccount] = accountDetails;
+
         const path = {
-          account: accountDetails.path.account,
-          change: accountDetails.path.change || 0,
-          index: accountDetails.path.index || 0,
+          account: transparentAccount.path.account,
+          change: transparentAccount.path.change || 0,
+          index: transparentAccount.path.index || 0,
         };
 
         const pendingTxs = await requester.sendMessage(
@@ -259,8 +261,13 @@ export const ConfirmSignLedgerTx: React.FC<Props> = ({ details }) => {
           }
 
           if (fromMasp) {
+            if (!shieldedAccount) {
+              throw new Error(
+                `Shielded account details for ${signer} not found!`
+              );
+            }
             const zip32Path = makeSaplingPath(chains.namada.bip44.coinType, {
-              account: path.account,
+              account: shieldedAccount.path.account,
             });
             // Adds new signature to the collection
             await handleMaspSignTx(ledger, tx, zip32Path, maspSignatures);

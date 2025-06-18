@@ -394,7 +394,7 @@ export class DeleteAccountMsg extends Message<
 }
 
 export class QueryAccountDetailsMsg extends Message<
-  DerivedAccount | undefined
+  [DerivedAccount, DerivedAccount | undefined] | undefined
 > {
   public static type(): MessageType {
     return MessageType.QueryAccountDetails;

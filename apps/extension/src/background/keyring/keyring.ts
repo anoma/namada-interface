@@ -659,11 +659,12 @@ export class KeyRing {
   }
 
   public async updateDefaultAccount(address: string): Promise<void> {
-    const account = await this.queryAccountDetails(address);
-    if (!account) {
+    const accounts = await this.queryAccountDetails(address);
+    if (!accounts) {
       throw new Error(`Account with address ${address} not found.`);
     }
-    const { id, type } = account;
+    const [transactionAccount] = accounts;
+    const { id, type } = transactionAccount;
     await this.setActiveAccount(id, type);
   }
 
@@ -919,7 +920,7 @@ export class KeyRing {
 
   async queryAccountDetails(
     address: string
-  ): Promise<DerivedAccount | undefined> {
+  ): Promise<[DerivedAccount, DerivedAccount | undefined] | undefined> {
     const disposableKey = await this.localStorage.getDisposableSigner(address);
 
     const account = await this.vaultStorage.findOneOrFail(
@@ -931,7 +932,13 @@ export class KeyRing {
     if (!account) {
       return;
     }
-    return account.public;
+    const shieldedAccount = await this.vaultStorage.findOne(
+      KeyStore,
+      "parentId",
+      account.public.id
+    );
+
+    return [account.public, shieldedAccount?.public];
   }
 
   async genDisposableSigner(): Promise<

@@ -79,6 +79,7 @@ export class ApprovalsService {
     if (!details) {
       throw new Error(ApprovalErrors.AccountNotFound(signer));
     }
+    const [account] = details;
 
     const pendingTx: PendingTx = {
       signer,
@@ -89,7 +90,7 @@ export class ApprovalsService {
     await this.txStore.set(msgId, pendingTx);
 
     return this.launchApprovalPopup(
-      `${TopLevelRoute.ApproveSignTx}/${msgId}/${encodeURIComponent(origin)}/${details.type}/${signer}`
+      `${TopLevelRoute.ApproveSignTx}/${msgId}/${encodeURIComponent(origin)}/${account.type}/${signer}`
     );
   }
 
@@ -406,11 +407,15 @@ export class ApprovalsService {
   }
 
   async approveUpdateDefaultAccount(address: string): Promise<void> {
-    const account = await this.keyRingService.queryAccountDetails(address);
+    const accounts = await this.keyRingService.queryAccountDetails(address);
+    if (!accounts) {
+      throw new Error(ApprovalErrors.AccountNotFound(address));
+    }
+    const [transactionAccount] = accounts;
 
     return this.launchApprovalPopup(TopLevelRoute.ApproveUpdateDefaultAccount, {
       address,
-      alias: account?.alias ?? "",
+      alias: transactionAccount.alias,
     });
   }
 
