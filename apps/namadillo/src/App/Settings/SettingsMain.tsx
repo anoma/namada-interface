@@ -120,7 +120,7 @@ export const SettingsMain = (): JSX.Element => {
             maspIndexerMutation.isPending
           ) ?
             "Setting Default Infra..."
-          : "Use Default Infra"}
+          : "Use Alternate Infra"}
         </ActionButton>
       </ul>
       <div className="text-xs">
