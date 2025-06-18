@@ -139,13 +139,13 @@ export const TransactionCard = ({
   const validators = useAtomValue(allValidatorsAtom);
   const validator = validators?.data?.find((v) => v.address === receiver);
 
-  const getBaseAmount = (): BigNumber | undefined => {
+  const getBaseAmount = (): BigNumber => {
     if (asset && txnInfo?.amount) {
       if (isBondingOrUnbondingTransaction)
         return toDisplayAmount(asset, txnInfo.amount);
       if (isNamadaAsset(asset)) return txnInfo.amount;
       return toDisplayAmount(asset, txnInfo.amount);
-    } else return undefined;
+    } else return BigNumber(0);
   };
 
   const renderKeplrIcon = (address: string): JSX.Element | null => {
@@ -172,6 +172,10 @@ export const TransactionCard = ({
   };
 
   const baseAmount = getBaseAmount();
+  const amount =
+    asset?.symbol === "NAM" && baseAmount?.gte(1_000_000) ?
+      baseAmount.dividedBy(1_000_000)
+    : baseAmount;
 
   return (
     <article
@@ -245,15 +249,7 @@ export const TransactionCard = ({
         </div>
         <TokenCurrency
           className="font-semibold text-white mt-1 ml-2"
-          amount={(() => {
-            const amount = baseAmount ?? BigNumber(0);
-            // Fix for historical NAM amounts that might be in micro units
-            // If symbol is NAM and amount >= 1,000,000, assume it's in micro units and convert to whole units
-            if (asset?.symbol === "NAM" && amount.gte(1_000_000)) {
-              return amount.dividedBy(1_000_000);
-            }
-            return amount;
-          })()}
+          amount={amount}
           symbol={asset?.symbol ?? ""}
         />
       </div>
