@@ -39,7 +39,7 @@ export const UnshieldAssetsModal = ({
               <img src={getAssetImageUrl(namadaAsset())} className="w-full" />
             </span>
           ),
-          onClick: () => goTo(routes.maspUnshield),
+          onClick: () => goTo(routes.unshield),
           children:
             "Unshield assets from your Namada shielded to transparent account",
         },

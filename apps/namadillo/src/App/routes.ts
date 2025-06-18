@@ -16,10 +16,9 @@ export const routes = {
   governanceJson: "/governance/json/:proposalId",
 
   // Masp
-  masp: "/masp",
-  maspShield: "/masp/shield",
-  maspUnshield: "/masp/unshield",
-  shieldAssets: "/masp/shield-assets",
+  shield: "/shield",
+  unshield: "/unshield",
+  shieldAssets: "/shield-assets",
 
   // Ibc
   ibc: "/ibc",
